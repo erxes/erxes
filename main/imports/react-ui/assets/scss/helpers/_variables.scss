@@ -1,0 +1,37 @@
+// Layout
+$header-height:                     60px;
+$nav-width:                         70px;
+$sidebar-width-narrow:              200px;
+$sidebar-width-medium:              270px;
+$sidebar-width-wide:                340px;
+$action-bar-height:                 50px;
+$box-margin:                        15px;
+$box-inner-space:                   20px;
+
+// Colors
+$main-color:                        #452679;
+$text-color:                        #383838;
+$text-color-light:                  #888;
+$link-color:                        lighten($main-color, 25%);
+$grey-light:                        #f8f8f8;
+$grey:                              #eee;
+$grey-dark:                         #ddd;
+$border-grey:                       #ddd;
+$white:                             #fff;
+$message-background:                #ece6f8;
+$internal-background:               #FCF0AD;
+
+$black:                             #000 !default;
+$gray-darker:                       lighten($black, 13.5%) !default; // #222
+$gray-dark:                         lighten($black, 20%) !default;   // #333
+$gray:                              lighten($black, 33.5%) !default; // #555
+$gray-light:                        lighten($black, 46.7%) !default; // #777
+$gray-lighter:                      lighten($black, 93.5%) !default; // #eee
+
+$border-radius:                     4px;
+$box-shadow:                        0 5px 10px -3px rgba(0, 0, 0, .5);
+
+$success-color:                     #67b04f;
+$error-color:                       #e85a5a;
+$warning-color:                     #c9a34f;
+$info-color:                        #5eb8e6;

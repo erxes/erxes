@@ -1,0 +1,21 @@
+.wrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background-color: $grey;
+}
+
+.wrapper-content {
+  display: flex;
+  flex: 1;
+  margin: $box-margin;
+  margin-top: 0;
+
+  > div {
+    margin-right: $box-margin;
+
+    &:last-child {
+      margin-right: 0;
+    }
+  }
+}

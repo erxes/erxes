@@ -1,0 +1,28 @@
+.quick-nav {
+  position: absolute;
+  top: 0;
+  right: $box-margin;
+
+  .nav-item {
+    height: $header-height;
+    padding-left: 15px;
+    display: table-cell;
+    vertical-align: middle;
+  }
+
+  .action-button {
+    color: $text-color;
+    font-size: 22px;
+    cursor: pointer;
+    position: relative;
+
+    .badge {
+      position: absolute;
+      top: 0;
+      right: -9px;
+      font-size: 10px;
+      background-color: #f74040;
+      padding: 3px 5px;
+    }
+  }
+}

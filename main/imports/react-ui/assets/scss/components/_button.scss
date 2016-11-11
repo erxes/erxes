@@ -1,0 +1,61 @@
+.btn {
+  padding: 10px 18px;
+
+  &.active.focus,
+  &.active:focus,
+  &.focus,
+  &:active.focus,
+  &:active:focus,
+  &:focus {
+    box-shadow: none;
+    outline: none;
+  }
+
+  i {
+    margin-right: 3px;
+  }
+}
+
+.btn-link {
+  color: $text-color-light;
+
+  &:hover,
+  &.active.focus,
+  &.active:focus,
+  &.focus,
+  &:active.focus,
+  &:active:focus,
+  &:focus {
+    text-decoration: none;
+    color: $text-color;
+  }
+}
+
+.btn-primary {
+  background-color: $main-color;
+  border-color: $main-color;
+
+  &:hover,
+  &.active.focus,
+  &.active:focus,
+  &.focus,
+  &:active.focus,
+  &:active:focus,
+  &:focus {
+    background-color: lighten($main-color, 10%);
+  }
+}
+
+// Sizes
+
+.btn-sm {
+
+}
+
+.btn-group {
+  &.open {
+    .dropdown-toggle {
+      box-shadow: none;
+    }
+  }
+}

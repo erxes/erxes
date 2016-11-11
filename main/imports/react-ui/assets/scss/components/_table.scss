@@ -1,0 +1,17 @@
+.table {
+  thead > tr > th {
+    font-size: 12px;
+    text-transform: uppercase;
+    background: $grey-light;
+    border-bottom: 0;
+    padding: 12px 25px;
+  }
+
+  tbody > tr > td {
+    border-color: $grey;
+    border-top: 0;
+    border-bottom: 1px solid $grey;
+    padding: 10px 25px;
+    vertical-align: middle;
+  }
+}

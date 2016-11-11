@@ -1,0 +1,39 @@
+.respond-box {
+  position: relative;
+
+  .checkbox {
+    position: absolute;
+    right: 20px;
+    bottom: 0;
+    color: #888;
+    line-height: 22px;
+
+    input {
+      margin: 5px 0 0 -20px;
+    }
+  }
+
+  .form-group {
+      margin: 0;
+  }
+
+  textarea {
+    border: none;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+    padding: 18px 20px;
+    resize: none;
+  }
+
+  #reply-form textarea{
+    background: $message-background
+  }
+
+  #internal-note-form textarea{
+    background: $internal-background
+  }
+
+  .btn-attach input[type="file"] {
+    display: none;
+  }
+}

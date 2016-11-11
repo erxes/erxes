@@ -1,0 +1,65 @@
+.file-wrapper {
+  position: relative;
+  padding: 16px 20px;
+  border: 1px solid $border-grey;
+  border-radius: $border-radius;
+  padding-left: 50px;
+  color: $gray;
+
+  i {
+    font-size: 30px;
+    position: absolute;
+    left: 20px;
+    top: 12px;
+    line-height: 30px;
+    color: $link-color;
+  }
+
+  span {
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    direction:rtl;
+    text-align:left;
+    max-width: 200px;
+    display: block;
+  }
+
+  &:hover {
+    box-shadow: 0 1px 1px rgba(0,0,0,.06);
+  }
+}
+
+.message {
+  &.staff {
+    .download-attachment {
+      > i {
+        right: auto;
+        left: 2px;
+      }
+      img{
+        background: #eee;
+      }
+    }
+  }
+
+  .download-attachment {
+    display: block;
+    position: relative;
+    @include transition(all .2s ease);
+
+    > i {
+      display: none;
+      position: absolute;
+      right: 2px;
+      color: $gray-light;
+    }
+
+    &:hover {
+      opacity: 0.8;
+      > i {
+        display: block;
+      }
+    }
+  }
+}

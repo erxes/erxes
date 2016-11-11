@@ -1,0 +1,14 @@
+.dropdown-menu {
+  border: 0;
+  box-shadow: $box-shadow;
+
+  > li > a {
+    padding: 5px 20px;
+    color: $text-color;
+
+    &:hover {
+      color: $text-color;
+      background-color: $grey-light;
+    }
+  }
+}

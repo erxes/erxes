@@ -1,0 +1,118 @@
+.popover {
+  border: 0;
+  border-radius: $border-radius;
+  box-shadow: $box-shadow;
+  padding: 0;
+
+  &.bottom {
+    > .arrow {
+      border-bottom-color: transparent;
+
+      &:after {
+        top: 4px;
+      }
+    }
+  }
+}
+
+.popover-title {
+  font-weight: 400;
+  border-bottom: 1px solid $grey;
+  padding: 10px 14px;
+  background: none;
+  font-size: 11px;
+  text-transform: uppercase;
+  color: $text-color-light;
+}
+
+.popover-content {
+  padding: 0;
+}
+
+.popover-header {
+  background-color: $grey;
+  padding: 5px;
+
+  input[type=text] {
+    padding: 4px 8px;
+    font-size: 13px;
+
+    &:focus {
+      border-color: $grey-dark;
+    }
+  }
+}
+
+.popover-body {
+  padding: 5px 0;
+}
+
+.popover-footer {
+  padding: 5px 0;
+  border-top: 1px solid $grey;
+}
+
+.popover-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  li {
+    position: relative;
+    display: block;
+    overflow: hidden;
+    padding: 5px 20px;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    font-size: 13px;
+
+    &:hover, &:focus {
+      background: $grey-light;
+    }
+
+    a {
+      color: $text-color;
+    }
+  }
+
+  &.selectable {
+    li {
+      cursor: pointer;
+      padding-left: 30px;
+
+      &:before {
+        font-family: Ionicons;
+        font-size: 10px;
+        width: 15px;
+        height: 15px;
+        z-index: 30;
+        text-align: center;
+        position: absolute;
+        color: $gray-dark;
+        top: 50%;
+        left: 10px;
+        margin-top: -7px;
+      }
+
+      &.all:before {
+        content: "\f121";
+      }
+
+      &.some:before {
+        content: "\f208";
+      }
+    }
+  }
+
+  &.linked {
+    li {
+      padding: 0;
+
+      a {
+        display: block;
+        padding: 5px 20px;
+      }
+    }
+  }
+}
+

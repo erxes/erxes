@@ -1,0 +1,11 @@
+{
+  "public": {
+    "CDN_HOST": "https://www.erxes.org/static"
+  },
+  "accounts": {
+    "emailTemplates": {
+      "siteName": "Erxes",
+      "from": "no-reply@erxes.org"
+    }
+  }
+}

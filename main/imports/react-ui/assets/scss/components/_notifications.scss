@@ -1,0 +1,80 @@
+#popover-notification {
+  right: 15px;
+  max-width: 360px;
+}
+
+.notif-list {
+  >li {
+    .column {
+      visibility: hidden;
+    }
+    &.unread .column {
+      visibility: visible;
+    }
+    .body {
+      &:hover {
+        cursor: pointer;
+      }
+    }
+  }
+}
+
+.notifications-wrapper {
+  position: relative;
+  padding-bottom: 30px;
+
+  .notifications-area{
+    max-height: 300px;
+  }
+
+  .notifications-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+
+    li {
+      padding: 0!important;
+      border-bottom: 1px solid $border-grey;
+
+      &:last-child {
+        border: none;
+      }
+
+      > div {
+        display: block;
+        padding: 10px 20px;
+        color: $gray-dark;
+        @include transition(all .2s ease);
+
+        &:hover, &:focus {
+          background: #f8f8f8;
+          cursor: pointer;
+        }
+        a.first-line {
+          margin-top: 0;
+          white-space: normal;
+          font-weight: normal;
+        }
+      }
+      &.unread {
+        background: #f3f1f7;
+
+        &.ticketAssigneeChange{
+          background: #ecf0f7;
+        }
+      }
+    }
+  }
+  .empty-state.small {
+    padding-top: 30px;
+  }
+  > a{
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    padding: 5px 20px;
+    display: block;
+    text-align: center;
+    border-top: 1px solid $border-grey;
+  }
+}

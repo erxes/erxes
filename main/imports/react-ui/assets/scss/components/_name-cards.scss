@@ -1,0 +1,60 @@
+/**
+ * Name cards
+ */
+
+.avatar {
+  display: block;
+  max-width: 80px;
+  border-radius: 40px;
+
+  .no-user {
+    background: url('/assets/images/userDefaultIcon.png') center no-repeat;
+    background-size: 100%;
+  }
+
+  img {
+    width: 100%;
+    background: #f8f8f8;
+  }
+
+  div {
+    text-align: center;
+    background-color: $grey-light;
+    font-weight: bold;
+    font-size: 13px;
+    color: $text-color;
+  }
+}
+
+.name-card {
+  overflow: hidden;
+
+  .avatar {
+    float: left;
+  }
+
+  .text {
+    margin-left: 50px;
+  }
+
+  .first-line {
+    font-weight: bold;
+    margin-top: 3px;
+    display: block;
+    color: $text-color;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+  }
+
+  .second-line {
+    font-size: 13px;
+    color: $text-color-light;
+  }
+}
+
+.dropdown-menu {
+  .name-card {
+    padding: 3px 20px;
+  }
+}

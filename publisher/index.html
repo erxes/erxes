@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<body>
+  <!-- script include snippet here -->
+  <script>
+  window.erxesSettings = {
+    email: 'publisher@erxes.org',
+    name: 'John Jonson',
+    created_at: 1365376950,
+    brand_id: 'YDEdKj',
+    channel_id: 'YDEdKj',
+    companies: 'NMMA, MongolTV',
+    plan: 2,
+    bad_data: {'dfasdf': 'dfasdfs'}
+  };
+  </script>
+
+  <script>
+     (function() {
+       var script = document.createElement('script');
+       script.src = "http://localhost:7020/static/widget.js";
+       script.async = true;
+
+       var entry = document.getElementsByTagName('script')[0];
+       entry.parentNode.insertBefore(script, entry);
+     })();
+   </script>
+</body>
+</html>

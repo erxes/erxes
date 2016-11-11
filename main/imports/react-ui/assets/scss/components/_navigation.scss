@@ -1,0 +1,33 @@
+.navigation {
+  width: $nav-width;
+  background-color: $main-color;
+
+  .logo {
+    background-color: darken($main-color, 5%);
+    line-height: $header-height;
+    display: block;
+    height: $header-height;
+    text-align: center;
+    color: $white;
+
+    img {
+      width: 40px;
+    }
+  }
+}
+
+.nav-menu {
+  a {
+    font-size: 22px;
+    display: block;
+    height: 70px;
+    line-height: 70px;
+    text-align: center;
+    color: rgba($white, .4);
+
+    &:hover {
+      background-color: lighten($main-color, 5%);
+      color: $white;
+    }
+  }
+}

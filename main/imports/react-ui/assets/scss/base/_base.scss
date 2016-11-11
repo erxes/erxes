@@ -1,0 +1,56 @@
+html,
+body {
+  height: 100%;
+}
+
+body {
+  font-family: 'Roboto', sans-serif;
+  font-weight: 400;
+  font-size: 14px;
+  color: $gray;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+
+  a {
+    color: $link-color;
+    text-decoration: none;
+
+    &:hover {
+      color: lighten($link-color, 10%);
+      text-decoration: none;
+    }
+  }
+
+  > #react-root {
+    height: 100%;
+  }
+
+  .layout {
+    display: flex;
+    height: 100%;
+
+    > div {
+      display: flex;
+      flex: 1;
+    }
+  }
+}
+
+.divider {
+  height: 1px;
+  margin: 9px 0;
+  overflow: hidden;
+  background-color: #e5e5e5;
+}
+
+.text-bold {
+  font-weight: bold;
+}
+
+.capitalize {
+  display: inline-block
+}
+
+.capitalize::first-letter {
+  text-transform: uppercase !important;
+}

@@ -1,0 +1,13 @@
+// Server
+
+{
+  "CDN_HOST": "https://www.erxes.org/static",
+  "API_URL": "wss://www.erxes.org/websocket"
+}
+
+// Local
+
+{
+  "CDN_HOST": "http://127.0.0.1:7020/static",
+  "API_URL": "ws://127.0.0.1:7010/websocket"
+}
