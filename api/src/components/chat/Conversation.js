@@ -1,31 +1,43 @@
-import React, { PropTypes } from 'react';
-import moment from 'moment';
-
+import React, { PropTypes, Component } from 'react';
+import { Chat, Customer } from '../../actions';
 
 const propTypes = {
-  conversation: PropTypes.string.isRequired,
-  _id: PropTypes.string.isRequired,
-  name: PropTypes.string,
-  sentAt: PropTypes.object.isRequired,
+  dispatch: PropTypes.func.isRequired,
+  conversation: PropTypes.object.isRequired,
+  notifCount: PropTypes.number,
 };
 
-function Conversation({ conversation, _id, name, sentAt }) {
-  return (
-    <li className="erxes-conversation">
-      <div className="avatar">
-        <img src="https://js.driftt.com/dist/static/images/fffc763516d1f0ef650bb1ca7e76969e.svg" alt="Avatar" />
-      </div>
-      <div className="info">
-        <div className="name">
-          Ganzorig
+class Conversation extends Component {
+  constructor(props) {
+    super(props);
+
+    this.onClick = this.onClick.bind(this);
+  }
+
+  onClick() {
+    const conversationId = this.props.conversation._id;
+
+    // change current conversation
+    this.props.dispatch(Chat.changeConversation(conversationId));
+
+    // show message form
+    this.props.dispatch(Chat.toMessageForm(true));
+
+    // mark as read
+    this.props.dispatch(Customer.readMessages(conversationId));
+  }
+
+  render() {
+    const { conversation, notifCount } = this.props;
+
+    return (
+      <li className="erxes-conversation" onClick={this.onClick}>
+        <div className="message">
+          {conversation.content} ({notifCount})
         </div>
-        <div className="date">{moment(sentAt).fromNow()}</div>
-      </div>
-      <div className="message">
-        Hi how are you? I have a questions
-      </div>
-    </li>
-  );
+      </li>
+    );
+  }
 }
 
 Conversation.propTypes = propTypes;

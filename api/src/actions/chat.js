@@ -7,7 +7,7 @@ let nextMessageId = 0;
 
 const Chat = {
   sendMessage(message, attachments, id) {
-    return dispatch => {
+    return (dispatch, getState) => {
       let _id = id;
 
       if (!_id) {
@@ -21,7 +21,14 @@ const Chat = {
         attachments,
       });
 
-      return call('sendMessage', { message, attachments })
+      // get current conversation
+      const chatState = getState().chat;
+      const currentConversation = chatState.currentConversation;
+
+      // send message data
+      const doc = { message, attachments, ticketId: currentConversation };
+
+      return call('sendMessage', doc)
         .then(realId =>
           dispatch({
             type: 'MESSAGE_SENT',
@@ -65,6 +72,20 @@ const Chat = {
           });
         },
       });
+    };
+  },
+
+  changeConversation(conversationId) {
+    return {
+      type: 'CHANGE_CONVERSATION',
+      conversationId,
+    };
+  },
+
+  toMessageForm(state) {
+    return {
+      type: 'TO_MESSAGE_FORM',
+      state,
     };
   },
 

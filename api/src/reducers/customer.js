@@ -1,5 +1,5 @@
 const customer = (state, action) => {
-  let newState;
+  let newState = {};
 
   switch (action.type) {
     case 'CUSTOMER_RECEIVED':
@@ -7,7 +7,6 @@ const customer = (state, action) => {
         _id: action._id,
         name: action.name,
         email: action.email,
-        unreadCommentCount: action.unreadCommentCount,
       };
 
     case 'CUSTOMER_CHANGED':
@@ -20,12 +19,6 @@ const customer = (state, action) => {
       }
 
       return { ...newState };
-
-    case 'CUSTOMER_READ_MESSAGES':
-      return {
-        ...state,
-        unreadCommentCount: 0,
-      };
 
     default:
       return state;

@@ -8,7 +8,6 @@ import { Factory } from 'meteor/dburles:factory';
 import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 
 import { Brands } from '/imports/api/brands/brands';
-import { Tickets } from '/imports/api/tickets/tickets';
 import { Tags } from '/imports/api/tags/tags';
 
 const schema = new SimpleSchema({
@@ -50,18 +49,11 @@ const schema = new SimpleSchema({
     blackbox: true,
     optional: true,
   },
-
-  unreadCommentCount: {
-    type: Number,
-  },
 });
 
 class CustomersCollection extends Mongo.Collection {
   insert(doc, callback) {
-    const customer = _.extend({
-      createdAt: new Date(),
-      unreadCommentCount: 0,
-    }, doc);
+    const customer = _.extend({ createdAt: new Date() }, doc);
 
     return super.insert(customer, callback);
   }
@@ -111,14 +103,6 @@ Customers.helpers({
 
 Customers.TAG_TYPE = 'customer';
 
-export function increaseCommentUnreadCount({ ticketId, count = 1 }) {
-  const ticket = Tickets.findOne(ticketId, { fields: { customerId: 1 } });
-
-  if (ticket) {
-    Customers.update(ticket.customerId, { $inc: { unreadCommentCount: count } });
-  }
-}
-
 Customers.deny({
   insert() { return true; },
   update() { return true; },
@@ -134,7 +118,6 @@ Customers.publicFields = {
   sessionCount: 1,
   isActive: 1,
   data: 1,
-  unreadCommentCount: 1,
   tagIds: 1,
 };
 

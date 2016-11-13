@@ -55,8 +55,14 @@ const messages = (state = [], action) => {
   let old;
 
   switch (action.type) {
+    case 'CHANGE_CONVERSATION':
+      subscribeMessages(action.conversationId);
+
+      return [];
+
     case 'SENDING_MESSAGE':
       old = state.findIndex(s => s._id === action._id);
+
       if (old !== -1) {
         state.splice(old, 1);
       }
@@ -68,6 +74,7 @@ const messages = (state = [], action) => {
 
     case 'MESSAGE_RECEIVED':
       old = state.findIndex(s => s._id === action._id);
+
       if (old === -1) {
         return [
           ...state,
@@ -126,8 +133,38 @@ const isAttachingFile = (state = false, action) => {
   }
 };
 
+const conversations = (state = [], action) => {
+  if (action.type === 'CONVERSATION_RECEIVED') {
+    return [
+      ...state,
+      action,
+    ];
+  }
+
+  return state;
+};
+
+const currentConversation = (state = '', action) => {
+  if (action.type === 'CHANGE_CONVERSATION') {
+    return action.conversationId;
+  }
+
+  return state;
+};
+
+const showMessageForm = (state = false, action) => {
+  if (action.type === 'TO_MESSAGE_FORM') {
+    return action.state;
+  }
+
+  return state;
+};
+
 const chat = combineReducers({
   messages,
+  currentConversation,
+  showMessageForm,
+  conversations,
   isVisible: visibility,
   isAttachingFile,
 });

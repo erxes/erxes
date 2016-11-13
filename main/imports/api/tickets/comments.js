@@ -8,11 +8,7 @@ import { _ } from 'meteor/underscore';
 import { Factory } from 'meteor/dburles:factory';
 import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 
-import {
-  Customers,
-  increaseCommentUnreadCount,
-} from '/imports/api/customers/customers';
-
+import { Customers } from '/imports/api/customers/customers';
 import commentCountDenormalizer from './commentCountDenormalizer.js';
 
 import { addParticipator } from './tickets';
@@ -30,10 +26,6 @@ class CommentsCollection extends Mongo.Collection {
         ticketId: comment.ticketId,
         userId: comment.userId,
       });
-
-      if (!comment.internal) {
-        increaseCommentUnreadCount({ ticketId: comment.ticketId, count: 1 });
-      }
     }
 
     return result;

@@ -4,14 +4,13 @@ import React, { PropTypes } from 'react';
 const propTypes = {
   onLauncherClick: PropTypes.func.isRequired,
   customer: PropTypes.object.isRequired,
+  notifsCount: PropTypes.number.isRequired,
 };
 
-function HelpButton({ onLauncherClick, customer }) {
-  const unreadCommentCount = customer.unreadCommentCount || '';
-
+function HelpButton({ onLauncherClick, notifsCount }) {
   return (
     <div className="launcher" onClick={onLauncherClick}>
-      {unreadCommentCount ? <span>{unreadCommentCount}</span> : null}
+      { notifsCount ? <span>{notifsCount}</span> : null}
     </div>
   );
 }

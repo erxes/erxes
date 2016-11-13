@@ -11,17 +11,26 @@ import render from './template';
 const Asteroid = createClass();
 let asteroid;
 let config = {};
+let conversationSubId;
 let messageSubId;
 let customerSubId;
 
-function subscribeMessages() {
+function subscribeConversations() {
+  if (conversationSubId) {
+    asteroid.unsubscribe(conversationSubId);
+  }
+
+  setTimeout(() => {
+    conversationSubId = asteroid.subscribe('api.conversations').id;
+  }, 1000);
+}
+
+function subscribeMessages(conversationId) {
   if (messageSubId) {
     asteroid.unsubscribe(messageSubId);
   }
 
-  setTimeout(() => {
-    messageSubId = asteroid.subscribe('api.messages').id;
-  }, 1000);
+  messageSubId = asteroid.subscribe('api.messages', conversationId).id;
 }
 
 function subscribeCustomer() {
@@ -37,8 +46,8 @@ function subscribeCustomer() {
 function connected(dom) {
   if (config.widget === false) { return; }
 
-  subscribeMessages();
   subscribeCustomer();
+  subscribeConversations();
 
   const div = dom.createElement('div');
   div.setAttribute('id', 'erxes-widget');

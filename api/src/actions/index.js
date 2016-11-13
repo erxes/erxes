@@ -7,7 +7,13 @@ export const Chat = ChatActions;
 export const Customer = CustomerActions;
 
 export function collectionItemAdded({ collection, _id, fields }) {
-  if (collection === 'ticket_comments') {
+  if (collection === 'tickets') {
+    store.dispatch({
+      ...fields,
+      _id,
+      type: 'CONVERSATION_RECEIVED',
+    });
+  } else if (collection === 'ticket_comments') {
     store.dispatch({
       ...fields,
       _id,
@@ -24,6 +30,12 @@ export function collectionItemAdded({ collection, _id, fields }) {
       ...fields,
       _id,
       type: 'CUSTOMER_RECEIVED',
+    });
+  } else if (collection === 'counts') {
+    store.dispatch({
+      type: 'COUNT_RECEIVED',
+      name: _id,
+      count: fields.count,
     });
   }
 }
@@ -49,6 +61,12 @@ export function collectionItemChanged({ collection, _id, fields, cleared }) {
       cleared,
       _id,
       type: 'CUSTOMER_CHANGED',
+    });
+  } else if (collection === 'counts') {
+    store.dispatch({
+      type: 'COUNT_RECEIVED',
+      name: _id,
+      count: fields.count,
     });
   }
 }
