@@ -29,13 +29,11 @@ const Chat = {
       const doc = { message, attachments, ticketId: currentConversation };
 
       return call('sendMessage', doc)
-        .then(realId =>
-          dispatch({
-            type: 'MESSAGE_SENT',
-            _id,
-            realId,
-          })
-        )
+        .then(({ messageId, conversationId }) => {
+          dispatch({ type: 'CHANGE_CONVERSATION', conversationId });
+
+          dispatch({ type: 'MESSAGE_SENT', _id, messageId });
+        })
         .catch(error =>
           dispatch({
             type: 'MESSAGE_SENT',

@@ -241,7 +241,13 @@ export const sendMessage = new ValidatedMethod({
       commentOptions.attachments = doc.attachments;
     }
 
-    return addComment(commentOptions);
+    return {
+      // old or newly added ticket's id
+      conversationId: ticketId,
+
+      // insert comment
+      messageId: addComment(commentOptions),
+    };
   },
 });
 
