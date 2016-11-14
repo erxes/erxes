@@ -23,7 +23,7 @@ const Chat = {
   },
 
   sendFile(file) {
-    return dispatch => {
+    return (dispatch, getState) => {
       uploadHandler({
         file,
         uploadAction: ({ data, fileInfo }) => {
@@ -41,10 +41,11 @@ const Chat = {
 
             const attachment = Object.assign({ url: response.url }, fileInfo);
 
+            // send message with attachment
             this.sendMessage(
               'This message has an attachment',
               [attachment]
-            )(dispatch);
+            )(dispatch, getState);
           });
         },
       });
