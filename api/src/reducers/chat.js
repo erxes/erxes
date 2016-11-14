@@ -9,7 +9,6 @@ const message = (state, action) => {
       message: action.content,
       attachments: action.attachments,
       userId: action.userId,
-      customerId: action.customerId,
       sentAt: new Date(action.createdAt.$date),
       error: '',
     };

@@ -3,7 +3,6 @@ import React, { PropTypes } from 'react';
 
 const propTypes = {
   onLauncherClick: PropTypes.func.isRequired,
-  customer: PropTypes.object.isRequired,
   notifsCount: PropTypes.number.isRequired,
 };
 

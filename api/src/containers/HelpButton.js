@@ -3,10 +3,7 @@ import { Chat } from '../actions';
 
 import HelpButton from '../components/HelpButton';
 
-const mapStateToProps = (state, ownProps) => {
-  const customers = state.customers || [];
-  const customer = customers.find(c => c.email === ownProps.email) || {};
-
+const mapStateToProps = (state) => {
   // calculate total unread comments count
   let totalNotifsCount = 0;
 
@@ -15,7 +12,6 @@ const mapStateToProps = (state, ownProps) => {
   }
 
   return {
-    customer,
     notifsCount: totalNotifsCount,
   };
 };

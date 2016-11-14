@@ -11,19 +11,18 @@ const propTypes = {
   message: PropTypes.string.isRequired,
   _id: PropTypes.string.isRequired,
   userId: PropTypes.string,
-  customerId: PropTypes.string,
   sentAt: PropTypes.object.isRequired,
   attachments: PropTypes.array,
 };
 
-function Message({ error, message, attachments, _id, userId, customerId, sentAt }) {
+function Message({ error, message, attachments, _id, userId, sentAt }) {
   let userInfo = '';
   if (userId) {
     userInfo = <User id={userId} />;
   }
 
   return (
-    <li className={customerId ? 'customer' : ''}>
+    <li className={userId ? '' : 'customer'}>
       {userInfo}
 
       <div className={attachments && attachments.length > 0 ? 'message attachment' : 'message'}>

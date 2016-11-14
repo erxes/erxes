@@ -1,5 +1,5 @@
 import React, { PropTypes, Component } from 'react';
-import { Chat, Customer } from '../../actions';
+import { Chat } from '../../actions';
 
 const propTypes = {
   dispatch: PropTypes.func.isRequired,
@@ -24,7 +24,7 @@ class Conversation extends Component {
     this.props.dispatch(Chat.toMessageForm(true));
 
     // mark as read
-    this.props.dispatch(Customer.readMessages(conversationId));
+    this.props.dispatch(Chat.readMessages(conversationId));
   }
 
   render() {

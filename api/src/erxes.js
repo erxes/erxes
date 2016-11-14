@@ -13,7 +13,6 @@ let asteroid;
 let config = {};
 let conversationSubId;
 let messageSubId;
-let customerSubId;
 
 function subscribeConversations() {
   if (conversationSubId) {
@@ -33,20 +32,9 @@ function subscribeMessages(conversationId) {
   messageSubId = asteroid.subscribe('api.messages', conversationId).id;
 }
 
-function subscribeCustomer() {
-  if (customerSubId) {
-    asteroid.unsubscribe(customerSubId);
-  }
-
-  setTimeout(() => {
-    customerSubId = asteroid.subscribe('api.customer').id;
-  }, 1000);
-}
-
 function connected(dom) {
   if (config.widget === false) { return; }
 
-  subscribeCustomer();
   subscribeConversations();
 
   const div = dom.createElement('div');

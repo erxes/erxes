@@ -51,6 +51,10 @@ const Chat = {
     };
   },
 
+  readMessages(conversationId) {
+    return () => call('customerReadMessages', conversationId);
+  },
+
   changeConversation(conversationId) {
     return {
       type: 'CHANGE_CONVERSATION',
