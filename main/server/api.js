@@ -293,21 +293,6 @@ export const customerReadMessages = new ValidatedMethod({
 
 // **************************** publications ********************** //
 
-
-Meteor.publish('api.customer', function apiMessages() {
-  const conn = this.connection;
-
-  if (checkConnection(conn)) {
-    return this.ready();
-  }
-
-  return Customers.find(
-    conn._customerId,
-    { fields: { name: 1, email: 1 } }
-  );
-});
-
-
 Meteor.publishComposite('api.conversations', function conversations() {
   const conn = this.connection;
 
