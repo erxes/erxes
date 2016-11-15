@@ -14,7 +14,6 @@ export function collectionItemAdded({ collection, _id, fields }) {
   }
 
   if (collection === 'ticket_comments') {
-    console.log(fields);
     store.dispatch({
       ...fields,
       _id,
