@@ -21,6 +21,12 @@
           margin-left: 15px;
         }
       }
+      &.markRead {
+        margin-right: 0;
+        >span:hover{
+          cursor: pointer;
+        }
+      }
     }
 
     .body {

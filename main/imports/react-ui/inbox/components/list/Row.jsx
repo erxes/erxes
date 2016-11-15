@@ -13,6 +13,7 @@ const propTypes = {
   starred: PropTypes.bool.isRequired,
   channelId: PropTypes.string,
   isRead: PropTypes.bool,
+  isParticipate: PropTypes.bool,
 };
 
 class Row extends Component {
