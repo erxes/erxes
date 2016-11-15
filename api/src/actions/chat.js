@@ -2,45 +2,28 @@ import EJSON from 'meteor-ejson';
 import { call } from '../erxes';
 import uploadHandler from '../uploadHandler';
 
-
-let nextMessageId = 0;
-
 const Chat = {
-  sendMessage(message, attachments, id) {
-    return dispatch => {
-      let _id = id;
+  sendMessage(message, attachments) {
+    return (dispatch, getState) => {
+      // get current conversation
+      const chatState = getState().chat;
+      const currentConversation = chatState.currentConversation;
 
-      if (!_id) {
-        _id = `${nextMessageId++}`;
-      }
+      // send message data
+      const doc = { message, attachments, ticketId: currentConversation };
 
-      dispatch({
-        type: 'SENDING_MESSAGE',
-        _id,
-        message,
-        attachments,
-      });
-
-      return call('sendMessage', { message, attachments })
-        .then(realId =>
-          dispatch({
-            type: 'MESSAGE_SENT',
-            _id,
-            realId,
-          })
-        )
-        .catch(error =>
-          dispatch({
-            type: 'MESSAGE_SENT',
-            _id,
-            error: error.reason || error.message || error.toString(),
-          })
-        );
+      return call('sendMessage', doc)
+        .then(({ conversationId }) => {
+          // if creating new conversation then update current conversation
+          if (!currentConversation) {
+            dispatch({ type: 'CHANGE_CONVERSATION', conversationId });
+          }
+        });
     };
   },
 
   sendFile(file) {
-    return dispatch => {
+    return (dispatch, getState) => {
       uploadHandler({
         file,
         uploadAction: ({ data, fileInfo }) => {
@@ -58,13 +41,32 @@ const Chat = {
 
             const attachment = Object.assign({ url: response.url }, fileInfo);
 
+            // send message with attachment
             this.sendMessage(
               'This message has an attachment',
               [attachment]
-            )(dispatch);
+            )(dispatch, getState);
           });
         },
       });
+    };
+  },
+
+  readMessages(conversationId) {
+    return () => call('customerReadMessages', conversationId);
+  },
+
+  changeConversation(conversationId) {
+    return {
+      type: 'CHANGE_CONVERSATION',
+      conversationId,
+    };
+  },
+
+  toMessageForm(state) {
+    return {
+      type: 'TO_MESSAGE_FORM',
+      state,
     };
   },
 

@@ -1,6 +1,6 @@
 import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
-import { Chat, Customer } from '../../actions';
+import { Chat } from '../../actions';
 
 
 const propTypes = {
@@ -33,8 +33,6 @@ class SendMessage extends React.Component {
 
     // send message action
     this.props.dispatch(Chat.sendMessage(input.value));
-
-    this.props.dispatch(Customer.readMessages(this.props.email));
 
     // clear input
     input.value = '';

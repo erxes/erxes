@@ -6,6 +6,7 @@ import { Match, check } from 'meteor/check';
 import { _ } from 'meteor/underscore';
 import { DDPRateLimiter } from 'meteor/ddp-rate-limiter';
 import { ValidatedMethod } from 'meteor/mdg:validated-method';
+import { Counts } from 'meteor/tmeasday:publish-counts';
 
 import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 
@@ -19,20 +20,7 @@ import { TICKET_STATUSES } from '/imports/api/tickets/constants';
 
 // **************************** Helpers ********************** //
 
-export function getOpenTicket(param) {
-  check(param, {
-    customerId: String,
-    brandId: String,
-  });
-
-  const data = _.extend({
-    status: { $in: [TICKET_STATUSES.NEW, TICKET_STATUSES.OPEN] },
-  }, param);
-
-  return Tickets.findOne(data);
-}
-
-export function getOrAddTicket(data) {
+export function addTicket(data) {
   check(data, {
     content: String,
     customerId: String,
@@ -41,20 +29,9 @@ export function getOrAddTicket(data) {
 
   if (!Customers.findOne(data.customerId)) {
     throw new Meteor.Error(
-      'tickets.getOrAddTicket.customerNotFound',
+      'tickets.addTicket.customerNotFound',
       'Customer not found'
     );
-  }
-
-  const filter = _.extend(
-    { status: { $in: [TICKET_STATUSES.NEW, TICKET_STATUSES.OPEN] } },
-    _.pick(data, 'customerId', 'brandId')
-  );
-
-  const ticket = Tickets.findOne(filter);
-
-  if (ticket) {
-    return ticket._id;
   }
 
   return Tickets.insert(
@@ -100,7 +77,11 @@ export function addComment(doc) {
 }
 
 function checkConnection(conn) {
-  if (!conn || !conn._customerId || !conn._brandId) {
+  return !conn || !conn._customerId || !conn._brandId;
+}
+
+function validateConnection(conn) {
+  if (checkConnection(conn)) {
     throw new Meteor.Error(
       'api.connection.connectionRequired',
       'Connection required'
@@ -217,31 +198,39 @@ export const sendMessage = new ValidatedMethod({
     check(doc, {
       message: String,
       attachments: Match.Optional([attachmentsChecker]),
+      ticketId: Match.Optional(String),
     });
 
-    checkConnection(this.connection);
+    validateConnection(this.connection);
   },
 
   run(doc) {
     const customerId = this.connection._customerId;
     const brandId = this.connection._brandId;
 
-    const ticketData = {
-      customerId,
-      brandId,
-    };
+    let ticket;
+    let ticketId;
 
-    const ticket = getOpenTicket(_.clone(ticketData));
-    let ticketId = ticket && ticket._id;
+    // customer can write message to even closed ticket
+    if (doc.ticketId) {
+      ticketId = doc.ticketId;
+      ticket = Tickets.findOne({ _id: ticketId });
+    }
 
     if (ticket) {
       // empty read users list then it will be shown as unread again
       Tickets.update({ _id: ticket._id }, { $set: { readUserIds: [] } });
+
+    // create new ticket
     } else {
-      ticketData.content = doc.message;
-      ticketId = getOrAddTicket(ticketData);
+      ticketId = addTicket({
+        customerId,
+        brandId,
+        content: doc.message,
+      });
     }
 
+    // create comment
     const commentOptions = {
       ticketId,
       customerId,
@@ -252,7 +241,13 @@ export const sendMessage = new ValidatedMethod({
       commentOptions.attachments = doc.attachments;
     }
 
-    return addComment(commentOptions);
+    return {
+      // old or newly added ticket's id
+      conversationId: ticketId,
+
+      // insert comment
+      messageId: addComment(commentOptions),
+    };
   },
 });
 
@@ -264,7 +259,7 @@ export const sendFile = new ValidatedMethod({
     check(name, String);
     check(data, Match.Any);
 
-    checkConnection(this.connection);
+    validateConnection(this.connection);
   },
 
   run(doc) {
@@ -272,71 +267,80 @@ export const sendFile = new ValidatedMethod({
   },
 });
 
-export const readMessages = new ValidatedMethod({
+
+// mark given conversation's message as read
+export const customerReadMessages = new ValidatedMethod({
   name: 'api.customerReadMessages',
 
-  validate() {
-    checkConnection(this.connection);
+  validate(conversationId) {
+    check(conversationId, String);
+
+    validateConnection(this.connection);
   },
 
-  run() {
-    const conn = this.connection;
-
-    Customers.update(conn._customerId, { $set: { unreadCommentCount: 0 } });
-
-    const ticket = getOpenTicket({
-      customerId: conn._customerId,
-      brandId: conn._brandId,
-    });
-
-    if (ticket) {
-      Comments.update(
-        {
-          ticketId: ticket._id,
-          userId: { $exists: true },
-          isCustomerRead: { $exists: false },
-        },
-        { $set: { isCustomerRead: true } },
-        { multi: true }
-      );
-    }
+  run(conversationId) {
+    return Comments.update(
+      {
+        ticketId: conversationId,
+        userId: { $exists: true },
+        isCustomerRead: { $exists: false },
+      },
+      { $set: { isCustomerRead: true } },
+      { multi: true }
+    );
   },
 });
-
 
 // **************************** publications ********************** //
 
-
-Meteor.publish('api.customer', function apiMessages() {
+Meteor.publishComposite('api.conversations', function conversations() {
   const conn = this.connection;
-  if (!conn || !conn._customerId || !conn._brandId) {
+
+  if (checkConnection(conn)) {
     return this.ready();
   }
 
-  return Customers.find(conn._customerId,
-    { fields: { name: 1, email: 1, unreadCommentCount: 1 } });
+  return {
+    find() {
+      // find current users tickets
+      return Tickets.find(
+        { customerId: conn._customerId },
+        { fields: Tickets.publicFields }
+      );
+    },
+
+    children: [
+      {
+        // publish every ticket's unread count
+        find(ticket) {
+          const cursor = Comments.find({
+            ticketId: ticket._id,
+            userId: { $exists: true },
+            isCustomerRead: { $exists: false },
+          });
+
+          Counts.publish(
+            this, `unreadCommentsCount_${ticket._id}`, cursor, { noReady: true });
+
+          return null;
+        },
+      },
+    ],
+  };
 });
 
 
-Meteor.publishComposite('api.messages', function apiMessages() {
-  const conn = this.connection;
-  if (!conn || !conn._customerId || !conn._brandId) {
-    return { find() { this.ready(); } };
-  }
+Meteor.publishComposite('api.messages', function apiMessages(ticketId) {
+  check(ticketId, Match.Maybe(String));
 
-  const ticket = getOpenTicket({
-    customerId: conn._customerId,
-    brandId: conn._brandId,
-  });
-
-  if (!ticket) {
+  if (checkConnection(this.connection)) {
     return { find() { this.ready(); } };
   }
 
   return {
     find() {
       return Comments.find(
-        { ticketId: ticket._id,
+        { ticketId,
           internal: false,
         },
         {

@@ -10,7 +10,6 @@ const propTypes = {
     error: PropTypes.string.isRequired,
     message: PropTypes.string.isRequired,
     userId: PropTypes.string,
-    customerId: PropTypes.string,
     sentAt: PropTypes.object.isRequired,
   }).isRequired).isRequired,
 };

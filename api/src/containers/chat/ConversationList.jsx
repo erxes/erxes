@@ -1,39 +1,33 @@
-import React, { PropTypes, Component } from 'react';
+import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
-import Conversation from '../../components/chat/Conversation';
-
+import Conversation from '../../components/chat/Conversation.jsx';
 
 const propTypes = {
-  conversations: PropTypes.arrayOf(PropTypes.shape({
-    _id: PropTypes.string.isRequired,
-    error: PropTypes.string.isRequired,
-    conversation: PropTypes.string.isRequired,
-    userId: PropTypes.string,
-    customerId: PropTypes.string,
-    sentAt: PropTypes.object.isRequired,
-  }).isRequired).isRequired,
+  dispatch: PropTypes.func.isRequired,
+  conversations: PropTypes.array.isRequired,
+  notifs: PropTypes.object.isRequired,
 };
 
-class ConversationList extends Component {
-  render() {
-    return (
-      <div className="erxes-content-container no-space">
-        <ul className="erxes-conversations">
-
-          {this.props.conversations.map(conversation =>
-            <Conversation
-              key={conversation._id}
-              {...conversation}
-            />
-          )}
-        </ul>
-      </div>
-    );
-  }
+function ConversationList({ dispatch, conversations, notifs }) {
+  return (
+    <div className="erxes-content-container no-space">
+      <ul className="erxes-conversations">
+        {conversations.map((conversation) =>
+          <Conversation
+            key={conversation._id}
+            dispatch={dispatch}
+            conversation={conversation}
+            notifCount={notifs[conversation._id]}
+          />
+        )}
+      </ul>
+    </div>
+  );
 }
 
 const mapStateToProps = state => ({
-  conversations: [],
+  conversations: state.chat.conversations,
+  notifs: state.notifs,
 });
 
 ConversationList.propTypes = propTypes;

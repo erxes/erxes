@@ -22,8 +22,7 @@ import { assign, unassign, changeStatus, star, unstar } from './methods';
 if (Meteor.isServer) {
   const { tag } = require('./server/methods');
   const {
-    getOpenTicket,
-    getOrAddTicket,
+    addTicket,
     addComment,
   } = require('/server/api');
 
@@ -205,48 +204,26 @@ if (Meteor.isServer) {
         ticketId = Factory.create('ticket', { customerId, brandId })._id;
       });
 
-      it('getOrAddTicket - verify customer', function () {
+      it('addTicket - verify customer', function () {
         assert.throws(() => {
-          getOrAddTicket({
+          addTicket({
             content: 'lorem',
             customerId: Random.id(),
             brandId,
           });
-        }, Meteor.Error, /tickets.getOrAddTicket.customerNotFound/);
+        }, Meteor.Error, /tickets.addTicket.customerNotFound/);
       });
 
-      it('getOrAddTicket - add', function () {
-        getOrAddTicket({
+      it('addTicket - add', function () {
+        const data = {
           content: 'lorem',
           customerId,
           brandId,
-        });
+        };
 
-        assert.equal(Tickets.find().count(), 1);
-      });
+        addTicket(data);
 
-      it('getOrAddTicket - get', function () {
-        assert.equal(
-          ticketId,
-
-          getOrAddTicket({
-            content: 'lorem',
-            customerId,
-            brandId,
-          })
-        );
-
-        assert.equal(Tickets.find().count(), 1);
-      });
-
-      it('getOpenTicket', function () {
-        assert.equal(
-          ticketId,
-
-          getOpenTicket({
-            customerId,
-            brandId,
-          })._id);
+        assert.equal(Tickets.find(data).count(), 1);
       });
 
       it('addComment - verify ticket', function () {
