@@ -33,7 +33,7 @@ class Conversation extends Component {
     const { notifCount } = this.props;
     if (notifCount > 0) {
       return (
-        <div className="notif-count">
+        <div className="erxes-notif-count">
           {notifCount} new
         </div>
       );
@@ -42,20 +42,20 @@ class Conversation extends Component {
   }
 
   renderMessageClass() {
-    return this.props.notifCount > 0 ? 'message unread' : 'message';
+    return this.props.notifCount > 0 ? 'erxes-message unread' : 'erxes-message';
   }
 
   render() {
     const { conversation } = this.props;
     return (
       <li className="erxes-conversation" onClick={this.onClick}>
-        <div className="content">
+        <div className="erxes-c-content">
           <div className={this.renderMessageClass()}>
             {conversation.content}
           </div>
           {this.renderNewMessageCount()}
         </div>
-        <div className="info">
+        <div className="erxes-c-info">
           {moment(conversation.createdAt).fromNow()}
         </div>
       </li>

@@ -303,9 +303,9 @@
             }
           }
 
-          .content {
+          .erxes-c-content {
             display: flex;
-            .message {
+            .erxes-message {
               color: #787878;
               flex: 3;
               overflow: hidden;
@@ -318,14 +318,14 @@
               }
             }
 
-            .notif-count {
+            .erxes-notif-count {
               flex: 1;
               text-align: right;
               font-size: 12px;
               color: #999;
             }
           }
-          .info {
+          .erxes-c-info {
             color: #999;
             font-size: 12px;
           }
