@@ -65,20 +65,20 @@ class NotificationSettings extends React.Component {
 
   renderModule(module, mindex) {
     return (
-       <li key={mindex}>
-          <h5>{module.description}</h5>
-          <ul>
-            {module.types.map(
-              (type, index) => this.renderNotifType(type, `${mindex}${index}`)
-            )}
-          </ul>
-       </li>
+      <li key={mindex}>
+        <h5>{module.description}</h5>
+        <ul>
+          {module.types.map(
+            (type, index) => this.renderNotifType(type, `${mindex}${index}`)
+          )}
+        </ul>
+      </li>
     );
   }
 
   render() {
     const content = (
-      <div className="margined">
+      <div className="margined notification-settings">
         <Checkbox
           defaultChecked={this.props.getNotificationByEmail}
           onChange={this.onEmailConfigChange}
@@ -95,7 +95,7 @@ class NotificationSettings extends React.Component {
     );
 
     const breadcrumb = [
-      { title: 'Settings', link: '/settings/notification-settings' },
+      { title: 'Settings', link: '/settings/channels' },
       { title: 'Notification settings' },
     ];
 

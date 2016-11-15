@@ -44,7 +44,7 @@ class Row extends Component {
       <tr>
         <td>{name}</td>
         <td>{description}</td>
-        <td><Label>Active</Label></td>
+        <td><Label bsStyle="success">Active</Label></td>
 
         <td className="text-right">
           <ActionButtons>

@@ -78,7 +78,6 @@ class Row extends Component {
             <div className="info">
               <span><i className="ion-reply"></i> {commentCount}</span>
               <span><i className="ion-person"></i> {ticket.participatorCount()}</span>
-              <span><i className="ion-paperclip"></i> 1</span>
             </div>
           </footer>
         </div>
