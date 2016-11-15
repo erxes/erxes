@@ -35,7 +35,7 @@ class Row extends Component {
   }
 
   render() {
-    const { ticket, starred, isRead } = this.props;
+    const { ticket, starred, isRead, isParticipate } = this.props;
     const { createdAt, content, commentCount } = ticket;
     const customer = ticket.customer();
     const isReadClass = !isRead ? 'unread' : null;
@@ -86,9 +86,13 @@ class Row extends Component {
           <span>
             <Starrer ticket={ticket} starred={starred} />
           </span>
-          <span>
-            <i className="ion-eye"></i>
-          </span>
+          {
+            isParticipate ?
+              <span>
+                <i className="ion-eye"></i>
+              </span> :
+              null
+          }
         </div>
       </li>
     );
