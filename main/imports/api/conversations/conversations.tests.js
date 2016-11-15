@@ -14,26 +14,26 @@ import { Channels } from '/imports/api/channels/channels';
 import { Brands } from '/imports/api/brands/brands';
 import { Integrations } from '/imports/api/integrations/integrations';
 
-import { Tickets } from './tickets';
+import { Conversations } from './conversations';
 import { Comments } from './comments';
-import { TICKET_STATUSES } from './constants';
+import { CONVERSATION_STATUSES } from './constants';
 import { assign, unassign, changeStatus, star, unstar } from './methods';
 
 if (Meteor.isServer) {
   const { tag } = require('./server/methods');
   const {
-    addTicket,
+    addConversation,
     addComment,
   } = require('/server/api');
 
   require('./server/publications');
 
-  describe('tickets', function () {
+  describe('conversations', function () {
     describe('publications', function () {
       let userId;
       let tagId;
 
-      const createTickets = (channelName, count, ticketOptions = {}) => {
+      const createConversations = (channelName, count, conversationOptions = {}) => {
         const brandId = Factory.create('brand')._id;
         const integrationId = Factory.create('integration', { brandId })._id;
 
@@ -46,23 +46,23 @@ if (Meteor.isServer) {
           }
         );
 
-        _.extend(ticketOptions, { brandId });
+        _.extend(conversationOptions, { brandId });
 
-        return _.times(count, () => Factory.create('ticket', ticketOptions)._id);
+        return _.times(count, () => Factory.create('conversation', conversationOptions)._id);
       };
 
       const checkCollectionLength = (done, options, length) => {
         const collector = new PublicationCollector({ userId });
 
-        collector.collect('tickets.list', options, (collections) => {
-          chai.assert.notEqual(collections.tickets, undefined);
-          chai.assert.equal(collections.tickets.length, length);
+        collector.collect('conversations.list', options, (collections) => {
+          chai.assert.notEqual(collections.conversations, undefined);
+          chai.assert.equal(collections.conversations.length, length);
           done();
         });
       };
 
       before(function () {
-        Tickets.remove({});
+        Conversations.remove({});
         Brands.remove({});
         Integrations.remove({});
         Channels.remove({});
@@ -71,39 +71,39 @@ if (Meteor.isServer) {
         userId = Factory.create('user')._id;
 
         // assigned && participated 2
-        createTickets(
+        createConversations(
           'sales',
           2,
           { participatedUserIds: [userId], assignedUserId: userId }
         );
 
         // assigned && starred 3
-        const starredTicketIds = createTickets(
+        const starredConversationIds = createConversations(
           'support',
           3,
-          { assignedUserId: userId, starred: TICKET_STATUSES.OPEN }
+          { assignedUserId: userId, starred: CONVERSATION_STATUSES.OPEN }
         );
 
         Meteor.users.update(
           userId,
-          { $set: { 'details.starredTicketIds': starredTicketIds } }
+          { $set: { 'details.starredConversationIds': starredConversationIds } }
         );
 
         // unassigned && tagged 4
-        tagId = Factory.create('tag', { type: Tickets.TAG_TYPE })._id;
+        tagId = Factory.create('tag', { type: Conversations.TAG_TYPE })._id;
 
-        createTickets('management', 4, { tagIds: [tagId] });
+        createConversations('management', 4, { tagIds: [tagId] });
 
         // closed 3
-        createTickets(
+        createConversations(
           'specialSales',
           3,
           { assignedUserId: userId, status: 'closed' }
         );
       });
 
-      describe('tickets.list', function () {
-        it('sends all open/new tickets', function (done) {
+      describe('conversations.list', function () {
+        it('sends all open/new conversations', function (done) {
           // 2 + 3 + 4, ignored closed 3
           checkCollectionLength(done, {}, 9);
         });
@@ -132,7 +132,7 @@ if (Meteor.isServer) {
           );
         });
 
-        it('get unassigned tickets', function (done) {
+        it('get unassigned conversations', function (done) {
           checkCollectionLength(done, { assignedUserId: userId }, 5);
           checkCollectionLength(done, { unassigned: '1' }, 4);
         });
@@ -157,32 +157,32 @@ if (Meteor.isServer) {
           );
         });
 
-        it('do not send tickets without user', function (done) {
+        it('do not send conversations without user', function (done) {
           const collector = new PublicationCollector();
-          collector.collect('tickets.list', {}, (collections) => {
-            chai.assert.equal(collections.tickets, undefined);
+          collector.collect('conversations.list', {}, (collections) => {
+            chai.assert.equal(collections.conversations, undefined);
             done();
           });
         });
       });
 
-      describe('tickets.detail', function () {
-        it('sends ticket detail by id', function (done) {
-          const ticketId = Tickets.findOne()._id;
+      describe('conversations.detail', function () {
+        it('sends conversation detail by id', function (done) {
+          const conversationId = Conversations.findOne()._id;
 
           const collector = new PublicationCollector({ userId });
-          collector.collect('tickets.detail', ticketId, (collections) => {
-            chai.assert.equal(collections.tickets.length, 1);
+          collector.collect('conversations.detail', conversationId, (collections) => {
+            chai.assert.equal(collections.conversations.length, 1);
             done();
           });
         });
 
-        it('do not send ticket without user', function (done) {
-          const ticketId = Tickets.findOne()._id;
+        it('do not send conversation without user', function (done) {
+          const conversationId = Conversations.findOne()._id;
 
           const collector = new PublicationCollector();
-          collector.collect('tickets.detail', ticketId, (collections) => {
-            chai.assert.equal(collections.tickets, undefined);
+          collector.collect('conversations.detail', conversationId, (collections) => {
+            chai.assert.equal(collections.conversations, undefined);
             done();
           });
         });
@@ -192,54 +192,54 @@ if (Meteor.isServer) {
     describe('api', function () {
       let customerId;
       let brandId;
-      let ticketId;
+      let conversationId;
 
       before(function () {
         Customers.remove({});
-        Tickets.remove({});
+        Conversations.remove({});
         Comments.remove({});
 
         customerId = Factory.create('customer')._id;
         brandId = Factory.create('brand')._id;
-        ticketId = Factory.create('ticket', { customerId, brandId })._id;
+        conversationId = Factory.create('conversation', { customerId, brandId })._id;
       });
 
-      it('addTicket - verify customer', function () {
+      it('addConversation - verify customer', function () {
         assert.throws(() => {
-          addTicket({
+          addConversation({
             content: 'lorem',
             customerId: Random.id(),
             brandId,
           });
-        }, Meteor.Error, /tickets.addTicket.customerNotFound/);
+        }, Meteor.Error, /conversations.addConversation.customerNotFound/);
       });
 
-      it('addTicket - add', function () {
+      it('addConversation - add', function () {
         const data = {
           content: 'lorem',
           customerId,
           brandId,
         };
 
-        addTicket(data);
+        addConversation(data);
 
-        assert.equal(Tickets.find(data).count(), 1);
+        assert.equal(Conversations.find(data).count(), 1);
       });
 
-      it('addComment - verify ticket', function () {
+      it('addComment - verify conversation', function () {
         assert.throws(() => {
-          addComment({ content: 'lorem', ticketId: Random.id(), customerId });
-        }, Meteor.Error, /tickets.addComment.ticketNotFound/);
+          addComment({ content: 'lorem', conversationId: Random.id(), customerId });
+        }, Meteor.Error, /conversations.addComment.conversationNotFound/);
       });
 
       it('addComment - verify customer', function () {
         assert.throws(() => {
-          addComment({ content: 'lorem', customerId: Random.id(), ticketId });
-        }, Meteor.Error, /tickets.addComment.customerNotFound/);
+          addComment({ content: 'lorem', customerId: Random.id(), conversationId });
+        }, Meteor.Error, /conversations.addComment.customerNotFound/);
       });
 
       it('addComment - add', function () {
-        addComment({ content: 'lorem', customerId, ticketId });
+        addComment({ content: 'lorem', customerId, conversationId });
         assert.equal(Comments.find().count(), 1);
       });
     });
@@ -249,7 +249,7 @@ if (Meteor.isServer) {
 
       beforeEach(function () {
         // Clear
-        Tickets.remove({});
+        Conversations.remove({});
         Notifications.remove({});
 
         userId = Factory.create('user')._id;
@@ -260,49 +260,49 @@ if (Meteor.isServer) {
           assert.throws(() => {
             assign._execute(
               {},
-              { assignedUserId: Random.id(), ticketIds: [Random.id()] }
+              { assignedUserId: Random.id(), conversationIds: [Random.id()] }
             );
           }, Meteor.Error, /loginRequired/);
         });
 
-        it('ticket must exist', function () {
+        it('conversation must exist', function () {
           assert.throws(() => {
             assign._execute(
               { userId },
-              { assignedUserId: Random.id(), ticketIds: [Random.id()] }
+              { assignedUserId: Random.id(), conversationIds: [Random.id()] }
             );
-          }, Meteor.Error, /tickets.assign.ticketNotFound/);
+          }, Meteor.Error, /conversations.assign.conversationNotFound/);
         });
 
         it('user must exist', function () {
-          const ticketIds = [Factory.create('ticket')._id];
+          const conversationIds = [Factory.create('conversation')._id];
 
           assert.throws(() => {
-            assign._execute({ userId }, { assignedUserId: Random.id(), ticketIds });
-          }, Meteor.Error, /tickets.assign.userNotFound/);
+            assign._execute({ userId }, { assignedUserId: Random.id(), conversationIds });
+          }, Meteor.Error, /conversations.assign.userNotFound/);
         });
 
         it('assign', function () {
           const assignedUserId = Factory.create('user')._id;
           Factory.create('channel', { memberIds: [assignedUserId, userId] });
 
-          const ticketIds = [
-            Factory.create('ticket')._id,
-            Factory.create('ticket')._id,
+          const conversationIds = [
+            Factory.create('conversation')._id,
+            Factory.create('conversation')._id,
           ];
 
           // notifications must not send yet
           assert.equal(Notifications.find().count(), 0);
 
-          assign._execute({ userId }, { assignedUserId, ticketIds });
+          assign._execute({ userId }, { assignedUserId, conversationIds });
 
           assert.equal(
-            Tickets.findOne(ticketIds[0]).assignedUserId,
+            Conversations.findOne(conversationIds[0]).assignedUserId,
             assignedUserId
           );
 
           assert.equal(
-            Tickets.findOne(ticketIds[1]).assignedUserId,
+            Conversations.findOne(conversationIds[1]).assignedUserId,
             assignedUserId
 
           );
@@ -314,7 +314,7 @@ if (Meteor.isServer) {
 
           const notif = Notifications.findOne({ receiver: assignedUserId });
 
-          assert.equal(notif.notifType, 'ticketAssigneeChange');
+          assert.equal(notif.notifType, 'conversationAssigneeChange');
           assert.equal(notif.receiver, assignedUserId);
         });
       });
@@ -322,46 +322,46 @@ if (Meteor.isServer) {
       describe('unassign', function () {
         it('only works if you are logged in', function () {
           assert.throws(() => {
-            unassign._execute({}, { ticketIds: [Random.id()] });
+            unassign._execute({}, { conversationIds: [Random.id()] });
           }, Meteor.Error, /loginRequired/);
         });
 
-        it('ticket must exist', function () {
+        it('conversation must exist', function () {
           assert.throws(() => {
-            unassign._execute({ userId }, { ticketIds: [Random.id()] });
-          }, Meteor.Error, /tickets.unassign.ticketNotFound/);
+            unassign._execute({ userId }, { conversationIds: [Random.id()] });
+          }, Meteor.Error, /conversations.unassign.conversationNotFound/);
         });
 
         it('unassign', function () {
           Factory.create('channel', { memberIds: [userId] });
           const assignedUserId = Random.id();
 
-          const ticketIds = [
-            Factory.create('ticket', { assignedUserId })._id,
-            Factory.create('ticket', { assignedUserId })._id,
+          const conversationIds = [
+            Factory.create('conversation', { assignedUserId })._id,
+            Factory.create('conversation', { assignedUserId })._id,
           ];
 
           assert.equal(
-            Tickets.findOne(ticketIds[0]).assignedUserId,
+            Conversations.findOne(conversationIds[0]).assignedUserId,
             assignedUserId
           );
 
           assert.equal(
-            Tickets.findOne(ticketIds[1]).assignedUserId,
+            Conversations.findOne(conversationIds[1]).assignedUserId,
             assignedUserId
           );
 
-          unassign._execute({ userId }, { ticketIds });
+          unassign._execute({ userId }, { conversationIds });
 
-          assert.equal(Tickets.findOne(ticketIds[0]).assignedUserId, undefined);
-          assert.equal(Tickets.findOne(ticketIds[1]).assignedUserId, undefined);
+          assert.equal(Conversations.findOne(conversationIds[0]).assignedUserId, undefined);
+          assert.equal(Conversations.findOne(conversationIds[1]).assignedUserId, undefined);
         });
       });
 
       describe('change status', function () {
         const randomData = {
-          ticketIds: [Random.id()],
-          status: TICKET_STATUSES.CLOSED,
+          conversationIds: [Random.id()],
+          status: CONVERSATION_STATUSES.CLOSED,
         };
 
         it('only works if you are logged in', function () {
@@ -370,19 +370,19 @@ if (Meteor.isServer) {
           }, Meteor.Error, /loginRequired/);
         });
 
-        it('ticket must exist', function () {
+        it('conversation must exist', function () {
           assert.throws(() => {
             changeStatus._execute({ userId }, randomData);
-          }, Meteor.Error, /tickets.changeStatus.ticketNotFound/);
+          }, Meteor.Error, /conversations.changeStatus.conversationNotFound/);
         });
 
         it('wrong status', function () {
-          const ticketId = Factory.create('ticket')._id;
+          const conversationId = Factory.create('conversation')._id;
 
           assert.throws(() => {
             changeStatus._execute(
               { userId },
-              { status: 'foo', ticketIds: [ticketId] }
+              { status: 'foo', conversationIds: [conversationId] }
             );
           }, Meteor.Error, /validation-error/);
         });
@@ -391,16 +391,16 @@ if (Meteor.isServer) {
           const participatedUserId = Factory.create('user')._id;
           const participatedUserIds = [participatedUserId];
 
-          const status = TICKET_STATUSES.CLOSED;
+          const status = CONVERSATION_STATUSES.CLOSED;
           Factory.create('channel', { memberIds: [userId] });
 
-          const ticket = Factory.create('ticket',
-            { status: TICKET_STATUSES.OPEN, participatedUserIds });
+          const conversation = Factory.create('conversation',
+            { status: CONVERSATION_STATUSES.OPEN, participatedUserIds });
 
-          const ticket2Id = Factory.create('ticket',
-            { status: TICKET_STATUSES.OPEN, participatedUserIds })._id;
+          const conversation2Id = Factory.create('conversation',
+            { status: CONVERSATION_STATUSES.OPEN, participatedUserIds })._id;
 
-          assert.equal(ticket.status, TICKET_STATUSES.OPEN);
+          assert.equal(conversation.status, CONVERSATION_STATUSES.OPEN);
 
           // notifications must not send yet
           assert.equal(Notifications.find().count(), 0);
@@ -408,15 +408,15 @@ if (Meteor.isServer) {
           // execute method
           changeStatus._execute(
             { userId },
-            { status, ticketIds: [ticket2Id, ticket._id] }
+            { status, conversationIds: [conversation2Id, conversation._id] }
           );
 
-          assert.equal(Tickets.findOne(ticket._id).status, status);
+          assert.equal(Conversations.findOne(conversation._id).status, status);
 
           // participated users must received notification
           const notif = Notifications.findOne({ receiver: participatedUserId });
 
-          assert.equal(notif.notifType, 'ticketStateChange');
+          assert.equal(notif.notifType, 'conversationStateChange');
           assert.equal(notif.receiver, participatedUserId);
         });
       });
@@ -424,75 +424,75 @@ if (Meteor.isServer) {
       describe('tag', function () {
         it('only works if you are logged in', function () {
           assert.throws(() => {
-            tag._execute({}, { ticketIds: [Random.id()], tagIds: [Random.id()] });
+            tag._execute({}, { conversationIds: [Random.id()], tagIds: [Random.id()] });
           }, Meteor.Error, /loginRequired/);
         });
 
-        it('ticket must exist', function () {
+        it('conversation must exist', function () {
           assert.throws(() => {
             tag._execute(
               { userId },
-              { ticketIds: [Random.id()], tagIds: [Random.id()] }
+              { conversationIds: [Random.id()], tagIds: [Random.id()] }
             );
-          }, Meteor.Error, /tickets.tag.ticketNotFound/);
+          }, Meteor.Error, /conversations.tag.conversationNotFound/);
         });
 
         it('tag', function () {
           Factory.create('channel', { memberIds: [userId] });
-          const tagIds = [Factory.create('tag', { type: Tickets.TAG_TYPE })._id];
+          const tagIds = [Factory.create('tag', { type: Conversations.TAG_TYPE })._id];
 
-          const ticketIds = [
-            Factory.create('ticket')._id,
-            Factory.create('ticket')._id,
+          const conversationIds = [
+            Factory.create('conversation')._id,
+            Factory.create('conversation')._id,
           ];
 
-          assert.equal(Tickets.findOne(ticketIds[0]).tagIds, undefined);
-          assert.equal(Tickets.findOne(ticketIds[1]).tagIds, undefined);
+          assert.equal(Conversations.findOne(conversationIds[0]).tagIds, undefined);
+          assert.equal(Conversations.findOne(conversationIds[1]).tagIds, undefined);
 
-          tag._execute({ userId }, { ticketIds, tagIds });
+          tag._execute({ userId }, { conversationIds, tagIds });
 
-          assert.equal(Tickets.findOne(ticketIds[0]).tagIds[0], tagIds[0]);
-          assert.equal(Tickets.findOne(ticketIds[1]).tagIds[0], tagIds[0]);
+          assert.equal(Conversations.findOne(conversationIds[0]).tagIds[0], tagIds[0]);
+          assert.equal(Conversations.findOne(conversationIds[1]).tagIds[0], tagIds[0]);
         });
       });
 
       describe('star', function () {
         it('only works if you are logged in', function () {
           assert.throws(() => {
-            star._execute({}, { ticketIds: [Random.id()] });
+            star._execute({}, { conversationIds: [Random.id()] });
           }, Meteor.Error, /loginRequired/);
         });
 
-        it('ticket must exist', function () {
+        it('conversation must exist', function () {
           assert.throws(() => {
-            star._execute({ userId }, { ticketIds: [Random.id()] });
-          }, Meteor.Error, /tickets.star.ticketNotFound/);
+            star._execute({ userId }, { conversationIds: [Random.id()] });
+          }, Meteor.Error, /conversations.star.conversationNotFound/);
         });
 
         it('star', function () {
           const userId2 = Factory.create('user')._id;
           Factory.create('channel', { memberIds: [userId2] });
 
-          const ticketIds = [
-            Factory.create('ticket')._id,
-            Factory.create('ticket')._id,
+          const conversationIds = [
+            Factory.create('conversation')._id,
+            Factory.create('conversation')._id,
           ];
 
           assert.equal(
-            Meteor.users.findOne(userId2).details.starredTicketIds,
+            Meteor.users.findOne(userId2).details.starredConversationIds,
             undefined
           );
 
-          star._execute({ userId: userId2 }, { ticketIds });
+          star._execute({ userId: userId2 }, { conversationIds });
 
           assert.equal(
-            Meteor.users.findOne(userId2).details.starredTicketIds[0],
-            ticketIds[0]
+            Meteor.users.findOne(userId2).details.starredConversationIds[0],
+            conversationIds[0]
           );
 
           assert.equal(
-            Meteor.users.findOne(userId2).details.starredTicketIds[1],
-            ticketIds[1]
+            Meteor.users.findOne(userId2).details.starredConversationIds[1],
+            conversationIds[1]
           );
         });
       });
@@ -500,22 +500,22 @@ if (Meteor.isServer) {
       describe('unstar', function () {
         it('only works if you are logged in', function () {
           assert.throws(() => {
-            star._execute({}, { ticketIds: [Random.id()] });
+            star._execute({}, { conversationIds: [Random.id()] });
           }, Meteor.Error, /loginRequired/);
         });
 
         it('unstar', function () {
-          const ticketIds = [Random.id(), Random.id()];
+          const conversationIds = [Random.id(), Random.id()];
 
           Meteor.users.update(
             userId,
-            { $set: { 'details.starredTicketIds': ticketIds } }
+            { $set: { 'details.starredConversationIds': conversationIds } }
           );
 
-          unstar._execute({ userId }, { ticketIds });
+          unstar._execute({ userId }, { conversationIds });
 
           assert.equal(
-            Meteor.users.findOne(userId).details.starredTicketIds.length,
+            Meteor.users.findOne(userId).details.starredConversationIds.length,
             0
           );
         });

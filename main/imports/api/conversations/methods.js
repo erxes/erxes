@@ -5,8 +5,8 @@ import { ValidatedMethod } from 'meteor/mdg:validated-method';
 import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 
 import { ErxesMixin } from '/imports/api/utils';
-import { Tickets } from './tickets';
-import { TICKET_STATUSES } from './constants';
+import { Conversations } from './conversations';
+import { CONVERSATION_STATUSES } from './constants';
 import { Comments, FormSchema } from './comments';
 
 if (Meteor.isServer) {
@@ -14,17 +14,17 @@ if (Meteor.isServer) {
 }
 
 // all possible users they can get notifications
-const ticketNotifReceivers = (ticket, currentUserId) => {
+const conversationNotifReceivers = (conversation, currentUserId) => {
   let userIds = [];
 
   // assigned user can get notifications
-  if (ticket.assignedUserId) {
-    userIds.push(ticket.assignedUserId);
+  if (conversation.assignedUserId) {
+    userIds.push(conversation.assignedUserId);
   }
 
   // participated users can get notifications
-  if (ticket.participatedUserIds) {
-    userIds = _.union(userIds, ticket.participatedUserIds);
+  if (conversation.participatedUserIds) {
+    userIds = _.union(userIds, conversation.participatedUserIds);
   }
 
   // exclude current user
@@ -35,18 +35,18 @@ const ticketNotifReceivers = (ticket, currentUserId) => {
 
 
 export const addComment = new ValidatedMethod({
-  name: 'tickets.addComment',
+  name: 'conversations.addComment',
   mixins: [ErxesMixin],
   validate: FormSchema.validator(),
 
   run(_doc) {
     const doc = _doc;
-    const ticket = Tickets.findOne(doc.ticketId);
+    const conversation = Conversations.findOne(doc.conversationId);
 
-    if (!ticket) {
+    if (!conversation) {
       throw new Meteor.Error(
-        'tickets.addComment.ticketNotFound',
-        'Ticket not found'
+        'conversations.addComment.conversationNotFound',
+        'Conversation not found'
       );
     }
 
@@ -61,7 +61,7 @@ export const addComment = new ValidatedMethod({
     // error
     if (attachments.length === 0 && !content.trim()) {
       throw new Meteor.Error(
-        'tickets.addComment.contentRequired',
+        'conversations.addComment.contentRequired',
         'Content is required'
       );
     }
@@ -69,15 +69,15 @@ export const addComment = new ValidatedMethod({
     // send notification
     if (Meteor.isServer) {
       const commentedUser = Meteor.users.findOne({ _id: this.userId });
-      const title = `${commentedUser.details.fullName} commented on a ticket`;
+      const title = `${commentedUser.details.fullName} commented on a conversation`;
 
       sendNotification({
         createdUser: this.userId,
-        notifType: 'ticketAddComment',
+        notifType: 'conversationAddComment',
         title,
         content: title,
-        link: `/inbox/details/${ticket._id}`,
-        receivers: ticketNotifReceivers(ticket, this.userId),
+        link: `/inbox/details/${conversation._id}`,
+        receivers: conversationNotifReceivers(conversation, this.userId),
       });
     }
 
@@ -87,11 +87,11 @@ export const addComment = new ValidatedMethod({
 
 
 export const assign = new ValidatedMethod({
-  name: 'tickets.assign',
+  name: 'conversations.assign',
   mixins: [ErxesMixin],
 
   validate: new SimpleSchema({
-    ticketIds: {
+    conversationIds: {
       type: [String],
       regEx: SimpleSchema.RegEx.Id,
     },
@@ -102,44 +102,44 @@ export const assign = new ValidatedMethod({
     },
   }).validator(),
 
-  run({ ticketIds, assignedUserId }) {
-    const tickets = Tickets.find({ _id: { $in: ticketIds } }).fetch();
+  run({ conversationIds, assignedUserId }) {
+    const conversations = Conversations.find({ _id: { $in: conversationIds } }).fetch();
 
-    if (tickets.length !== ticketIds.length) {
+    if (conversations.length !== conversationIds.length) {
       throw new Meteor.Error(
-        'tickets.assign.ticketNotFound',
-        'Ticket not found.'
+        'conversations.assign.conversationNotFound',
+        'Conversation not found.'
       );
     }
 
     if (Meteor.isServer && !Meteor.users.findOne(assignedUserId)) {
       throw new Meteor.Error(
-        'tickets.assign.userNotFound',
+        'conversations.assign.userNotFound',
         'User not found.'
       );
     }
 
-    Tickets.update(
-      { _id: { $in: ticketIds } },
+    Conversations.update(
+      { _id: { $in: conversationIds } },
       { $set: { assignedUserId } },
       { multi: true }
     );
 
     if (Meteor.isServer) {
-      const updatedTickets = Tickets.find({ _id: { $in: ticketIds } }).fetch();
+      const updatedConversations = Conversations.find({ _id: { $in: conversationIds } }).fetch();
 
       // send notification
-      _.each(updatedTickets, (ticket) => {
+      _.each(updatedConversations, (conversation) => {
         const assignedUser = Meteor.users.findOne({ _id: assignedUserId });
-        const content = `Ticket's assigned person changed to ${assignedUser.details.fullName}`;
+        const content = `Conversation's assigned person changed to ${assignedUser.details.fullName}`;
 
         sendNotification({
           createdUser: this.userId,
-          notifType: 'ticketAssigneeChange',
+          notifType: 'conversationAssigneeChange',
           title: content,
           content,
-          link: `/inbox/details/${ticket._id}`,
-          receivers: ticketNotifReceivers(ticket, this.userId),
+          link: `/inbox/details/${conversation._id}`,
+          receivers: conversationNotifReceivers(conversation, this.userId),
         });
       });
     }
@@ -148,28 +148,28 @@ export const assign = new ValidatedMethod({
 
 
 export const unassign = new ValidatedMethod({
-  name: 'tickets.unassign',
+  name: 'conversations.unassign',
   mixins: [ErxesMixin],
 
   validate: new SimpleSchema({
-    ticketIds: {
+    conversationIds: {
       type: [String],
       regEx: SimpleSchema.RegEx.Id,
     },
   }).validator(),
 
-  run({ ticketIds }) {
-    const tickets = Tickets.find({ _id: { $in: ticketIds } }).fetch();
+  run({ conversationIds }) {
+    const conversations = Conversations.find({ _id: { $in: conversationIds } }).fetch();
 
-    if (tickets.length !== ticketIds.length) {
+    if (conversations.length !== conversationIds.length) {
       throw new Meteor.Error(
-        'tickets.unassign.ticketNotFound',
-        'Ticket not found.'
+        'conversations.unassign.conversationNotFound',
+        'Conversation not found.'
       );
     }
 
-    Tickets.update(
-      { _id: { $in: ticketIds } },
+    Conversations.update(
+      { _id: { $in: conversationIds } },
       { $unset: { assignedUserId: 1 } },
       { multi: true }
     );
@@ -178,48 +178,48 @@ export const unassign = new ValidatedMethod({
 
 
 export const changeStatus = new ValidatedMethod({
-  name: 'tickets.changeStatus',
+  name: 'conversations.changeStatus',
   mixins: [ErxesMixin],
 
   validate: new SimpleSchema({
-    ticketIds: {
+    conversationIds: {
       type: [String],
       regEx: SimpleSchema.RegEx.Id,
     },
     status: {
       type: String,
-      allowedValues: TICKET_STATUSES.ALL_LIST,
+      allowedValues: CONVERSATION_STATUSES.ALL_LIST,
     },
   }).validator(),
 
-  run({ ticketIds, status }) {
-    const tickets = Tickets.find({ _id: { $in: ticketIds } }).fetch();
+  run({ conversationIds, status }) {
+    const conversations = Conversations.find({ _id: { $in: conversationIds } }).fetch();
 
-    if (tickets.length !== ticketIds.length) {
+    if (conversations.length !== conversationIds.length) {
       throw new Meteor.Error(
-        'tickets.changeStatus.ticketNotFound',
-        'Ticket not found.'
+        'conversations.changeStatus.conversationNotFound',
+        'Conversation not found.'
       );
     }
 
-    Tickets.update(
-      { _id: { $in: ticketIds } },
+    Conversations.update(
+      { _id: { $in: conversationIds } },
       { $set: { status } },
       { multi: true }
     );
 
     // send notification
     if (Meteor.isServer) {
-      _.each(tickets, (ticket) => {
-        const content = `Ticket's status changed to ${status}`;
+      _.each(conversations, (conversation) => {
+        const content = `Conversation's status changed to ${status}`;
 
         sendNotification({
           createdUser: this.userId,
-          notifType: 'ticketStateChange',
+          notifType: 'conversationStateChange',
           title: content,
           content,
-          link: `/inbox/details/${ticket._id}`,
-          receivers: ticketNotifReceivers(ticket, this.userId),
+          link: `/inbox/details/${conversation._id}`,
+          receivers: conversationNotifReceivers(conversation, this.userId),
         });
       });
     }
@@ -228,88 +228,88 @@ export const changeStatus = new ValidatedMethod({
 
 
 export const star = new ValidatedMethod({
-  name: 'tickets.star',
+  name: 'conversations.star',
   mixins: [ErxesMixin],
 
   validate: new SimpleSchema({
-    ticketIds: {
+    conversationIds: {
       type: [String],
       regEx: SimpleSchema.RegEx.Id,
     },
   }).validator(),
 
-  run({ ticketIds }) {
-    const tickets = Tickets.find({ _id: { $in: ticketIds } }).fetch();
+  run({ conversationIds }) {
+    const conversations = Conversations.find({ _id: { $in: conversationIds } }).fetch();
 
-    if (tickets.length !== ticketIds.length) {
+    if (conversations.length !== conversationIds.length) {
       throw new Meteor.Error(
-        'tickets.star.ticketNotFound',
-        'Ticket not found.'
+        'conversations.star.conversationNotFound',
+        'Conversation not found.'
       );
     }
 
     Meteor.users.update(
       this.userId,
-      { $addToSet: { 'details.starredTicketIds': { $each: ticketIds } } }
+      { $addToSet: { 'details.starredConversationIds': { $each: conversationIds } } }
     );
   },
 });
 
 
 export const unstar = new ValidatedMethod({
-  name: 'tickets.unstar',
+  name: 'conversations.unstar',
   mixins: [ErxesMixin],
 
   validate: new SimpleSchema({
-    ticketIds: {
+    conversationIds: {
       type: [String],
       regEx: SimpleSchema.RegEx.Id,
     },
   }).validator(),
 
-  run({ ticketIds }) {
+  run({ conversationIds }) {
     if (Meteor.isServer) {
       Meteor.users.update(
         this.userId,
-        { $pull: { 'details.starredTicketIds': { $in: ticketIds } } }
+        { $pull: { 'details.starredConversationIds': { $in: conversationIds } } }
       );
     } else {
       Meteor.users.update(
         this.userId,
-        { $pull: { 'details.starredTicketIds': ticketIds } }
+        { $pull: { 'details.starredConversationIds': conversationIds } }
       );
     }
   },
 });
 
 
-// mark given ticket as read for current user
+// mark given conversation as read for current user
 export const markAsRead = new ValidatedMethod({
-  name: 'tickets.markAsRead',
+  name: 'conversations.markAsRead',
   mixins: [ErxesMixin],
 
-  validate({ ticketId }) {
-    check(ticketId, String);
+  validate({ conversationId }) {
+    check(conversationId, String);
   },
 
-  run({ ticketId }) {
-    const ticket = Tickets.findOne({ _id: ticketId });
+  run({ conversationId }) {
+    const conversation = Conversations.findOne({ _id: conversationId });
 
-    if (ticket) {
-      const readUserIds = ticket.readUserIds;
+    if (conversation) {
+      const readUserIds = conversation.readUserIds;
 
       // if current user is first one
       if (!readUserIds) {
-        return Tickets.update(
-          { _id: ticketId },
+        return Conversations.update(
+          { _id: conversationId },
           { $set: { readUserIds: [this.userId] } }
         );
       }
 
       // if current user is not in read users list then add it
       if (!readUserIds.includes(this.userId)) {
-        return Tickets.update(
-          { _id: ticketId },
+        return Conversations.update(
+          { _id: conversationId },
           { $push: { readUserIds: this.userId } }
         );
       }

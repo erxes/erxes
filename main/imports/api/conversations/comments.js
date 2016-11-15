@@ -11,7 +11,7 @@ import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 import { Customers } from '/imports/api/customers/customers';
 import commentCountDenormalizer from './commentCountDenormalizer.js';
 
-import { addParticipator } from './tickets';
+import { addParticipator } from './conversations';
 
 class CommentsCollection extends Mongo.Collection {
   insert(doc, callback) {
@@ -23,7 +23,7 @@ class CommentsCollection extends Mongo.Collection {
 
     if (comment.userId) {
       addParticipator({
-        ticketId: comment.ticketId,
+        conversationId: comment.conversationId,
         userId: comment.userId,
       });
     }
@@ -39,7 +39,7 @@ class CommentsCollection extends Mongo.Collection {
   }
 }
 
-export const Comments = new CommentsCollection('ticket_comments');
+export const Comments = new CommentsCollection('conversation_comments');
 
 Comments.helpers({
   customer() {
@@ -76,7 +76,7 @@ export const FormSchema = new SimpleSchema({
     optional: true,
   },
 
-  ticketId: {
+  conversationId: {
     type: String,
     regEx: SimpleSchema.RegEx.Id,
   },
@@ -117,7 +117,7 @@ Comments.attachSchema(Comments.schema);
 Comments.publicFields = {
   content: 1,
   attachments: 1,
-  ticketId: 1,
+  conversationId: 1,
   customerId: 1,
   userId: 1,
   createdAt: 1,
@@ -126,7 +126,7 @@ Comments.publicFields = {
 
 Factory.define('comment', Comments, {
   content: () => faker.lorem.sentence(),
-  ticketId: () => Random.id(),
+  conversationId: () => Random.id(),
   customerId: () => Random.id(),
   userId: () => Random.id(),
   internal: () => false,

@@ -7,7 +7,7 @@ import { Factory } from 'meteor/dburles:factory';
 import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 
 import { Customers } from '/imports/api/customers/customers';
-import { Tickets } from '/imports/api/tickets/tickets';
+import { Conversations } from '/imports/api/conversations/conversations';
 
 import { TAG_TYPES } from './constants';
 
@@ -68,7 +68,7 @@ class TagsCollection extends Mongo.Collection {
     const tagIds = this.find(selector, { fields: { _id: 1 } }).map(t => t._id);
 
     let count = Customers.find({ tagIds: { $in: tagIds } }).count();
-    count += Tickets.find({ tagIds: { $in: tagIds } }).count();
+    count += Conversations.find({ tagIds: { $in: tagIds } }).count();
 
     // can't remove a tag with tagged objects
     if (count > 0) {
@@ -128,6 +128,6 @@ Tags.publicFields = {
 
 Factory.define('tag', Tags, {
   name: () => Random.id(),
-  type: () => TAG_TYPES.TICKET,
+  type: () => TAG_TYPES.CONVERSATION,
   colorCode: () => '#000',
 });

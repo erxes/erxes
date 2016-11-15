@@ -4,15 +4,15 @@ import { ValidatedMethod } from 'meteor/mdg:validated-method';
 import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 import { ErxesMixin } from '/imports/api/utils';
 import { tagObject } from '/imports/api/tags/server/api';
-import { Tickets } from '../tickets';
+import { Conversations } from '../conversations';
 
 
 export const tag = new ValidatedMethod({
-  name: 'tickets.tag',
+  name: 'conversations.tag',
   mixins: [ErxesMixin],
 
   validate: new SimpleSchema({
-    ticketIds: {
+    conversationIds: {
       type: [String],
       regEx: SimpleSchema.RegEx.Id,
     },
@@ -22,14 +22,14 @@ export const tag = new ValidatedMethod({
     },
   }).validator(),
 
-  run({ ticketIds, tagIds }) {
-    const tickets = Tickets.find({ _id: { $in: ticketIds } }).fetch();
+  run({ conversationIds, tagIds }) {
+    const conversations = Conversations.find({ _id: { $in: conversationIds } }).fetch();
 
-    if (tickets.length !== ticketIds.length) {
-      throw new Meteor.Error('tickets.tag.ticketNotFound',
-        'Ticket not found.');
+    if (conversations.length !== conversationIds.length) {
+      throw new Meteor.Error('conversations.tag.conversationNotFound',
+        'Conversation not found.');
     }
 
-    tagObject({ tagIds, objectIds: ticketIds, collection: Tickets });
+    tagObject({ tagIds, objectIds: conversationIds, collection: Conversations });
   },
 });

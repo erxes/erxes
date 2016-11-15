@@ -8,21 +8,21 @@ import { sendEmail } from '/imports/api/server/utils';
 import { Customers } from '/imports/api/customers/customers';
 import { Brands } from '/imports/api/brands/brands';
 
-import { Tickets } from '../tickets';
-import { TICKET_STATUSES } from '../constants';
+import { Conversations } from '../conversations';
+import { CONVERSATION_STATUSES } from '../constants';
 import { Comments } from '../comments';
 
 
 function sendCommentEmail() {
-  // new or open tickets
-  const tickets = Tickets.find(
-    { status: { $in: [TICKET_STATUSES.NEW, TICKET_STATUSES.OPEN] } },
+  // new or open conversations
+  const conversations = Conversations.find(
+    { status: { $in: [CONVERSATION_STATUSES.NEW, CONVERSATION_STATUSES.OPEN] } },
     { fields: { _id: 1, customerId: 1, brandId: 1 } }
   );
 
-  _.each(tickets.fetch(), (ticket) => {
-    const customer = Customers.findOne(ticket.customerId);
-    const brand = Brands.findOne(ticket.brandId);
+  _.each(conversations.fetch(), (conversation) => {
+    const customer = Customers.findOne(conversation.customerId);
+    const brand = Brands.findOne(conversation.brandId);
 
     if (!customer || !customer.email) { return; }
     if (!brand) { return; }
@@ -30,7 +30,7 @@ function sendCommentEmail() {
     // user's last non answered question
     const question = Comments.findOne(
       {
-        ticketId: ticket._id,
+        conversationId: conversation._id,
         customerId: { $exists: true },
       },
       { sort: { createdAt: -1 } }
@@ -43,7 +43,7 @@ function sendCommentEmail() {
 
     const adminComments = Comments.find(
       {
-        ticketId: ticket._id,
+        conversationId: conversation._id,
         userId: { $exists: true },
         isCustomerRead: { $exists: false },
 
@@ -88,7 +88,7 @@ function sendCommentEmail() {
       to: customer.email,
       subject: `Reply from "${brand.name}"`,
       template: {
-        name: 'ticketCron',
+        name: 'conversationCron',
         isCustom: true,
         data,
       },
@@ -97,7 +97,7 @@ function sendCommentEmail() {
     // mark sent comments as read
     Comments.update(
       {
-        ticketId: ticket._id,
+        conversationId: conversation._id,
         userId: { $exists: true },
         isCustomerRead: { $exists: false },
       },
@@ -108,7 +108,7 @@ function sendCommentEmail() {
 }
 
 SyncedCron.add({
-  name: 'Send unread ticket comments to customer\'s email',
+  name: 'Send unread conversation comments to customer\'s email',
 
   schedule(parser) {
     // return parser.text('every 10 seconds');

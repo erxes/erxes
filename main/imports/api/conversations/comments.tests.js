@@ -11,40 +11,40 @@ import { PublicationCollector } from 'meteor/publication-collector';
 import { Notifications } from 'meteor/erxes-notifications';
 
 import { Comments } from './comments';
-import { Tickets } from './tickets';
+import { Conversations } from './conversations';
 import { addComment } from './methods';
 
 if (Meteor.isServer) {
   require('./server/publications.js');
 
-  describe('ticket - comments', function () {
+  describe('conversation - comments', function () {
     describe('publications', function () {
-      let ticketId;
+      let conversationId;
       const userId = Factory.create('user')._id;
 
       before(function () {
-        Tickets.remove({});
+        Conversations.remove({});
         Comments.remove({});
 
-        ticketId = Factory.create('ticket')._id;
+        conversationId = Factory.create('conversation')._id;
 
         _.times(2, () => Factory.create('comment'));
-        _.times(2, () => Factory.create('comment', { ticketId }));
+        _.times(2, () => Factory.create('comment', { conversationId }));
       });
 
-      describe('tickets.commentList', function () {
+      describe('conversations.commentList', function () {
         it('sends all comments', function (done) {
           const collector = new PublicationCollector({ userId });
-          collector.collect('tickets.commentList', ticketId, (collections) => {
-            chai.assert.equal(collections.ticket_comments.length, 2);
+          collector.collect('conversations.commentList', conversationId, (collections) => {
+            chai.assert.equal(collections.conversation_comments.length, 2);
             done();
           });
         });
 
         it('do not send comments without user', function (done) {
           const collector = new PublicationCollector();
-          collector.collect('tickets.commentList', ticketId, (collections) => {
-            chai.assert.equal(collections.ticket_comments, undefined);
+          collector.collect('conversations.commentList', conversationId, (collections) => {
+            chai.assert.equal(collections.conversation_comments, undefined);
             done();
           });
         });
@@ -67,16 +67,16 @@ if (Meteor.isServer) {
           assert.throws(() => {
             addComment._execute(
               {},
-              { content: 'lorem', ticketId: Random.id(), internal: false }
+              { content: 'lorem', conversationId: Random.id(), internal: false }
             );
           }, Meteor.Error, /loginRequired/);
         });
 
-        it('ticket must exist', function () {
+        it('conversation must exist', function () {
           assert.throws(() => {
             addComment._execute({ userId },
-              { content: 'lorem', ticketId: Random.id(), internal: false });
-          }, Meteor.Error, /tickets.addComment.ticketNotFound/);
+              { content: 'lorem', conversationId: Random.id(), internal: false });
+          }, Meteor.Error, /conversations.addComment.conversationNotFound/);
         });
 
         it('add', function () {
@@ -84,13 +84,13 @@ if (Meteor.isServer) {
           assert.equal(Notifications.find().count(), 0);
 
           const participatedUserId = Factory.create('user')._id;
-          const ticketId = Factory.create('ticket', {
+          const conversationId = Factory.create('conversation', {
             participatedUserIds: [participatedUserId],
           })._id;
 
           addComment._execute(
             { userId },
-            { content: 'lorem', ticketId, internal: false }
+            { content: 'lorem', conversationId, internal: false }
           );
 
           assert.equal(Comments.find().count(), 1);
@@ -100,7 +100,7 @@ if (Meteor.isServer) {
 
           const notif = Notifications.findOne();
 
-          assert.equal(notif.notifType, 'ticketAddComment');
+          assert.equal(notif.notifType, 'conversationAddComment');
           assert.equal(notif.receiver, participatedUserId);
         });
       });

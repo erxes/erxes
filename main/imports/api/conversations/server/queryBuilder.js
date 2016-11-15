@@ -6,7 +6,7 @@ import { _ } from 'meteor/underscore';
 import { Channels } from '/imports/api/channels/channels';
 import { Integrations } from '/imports/api/integrations/integrations';
 
-import { TICKET_STATUSES } from '/imports/api/tickets/constants';
+import { CONVERSATION_STATUSES } from '/imports/api/conversations/constants';
 
 
 export default class ListQueryBuilder {
@@ -79,7 +79,7 @@ export default class ListQueryBuilder {
     let ids = [];
 
     if (this.user && this.user.details) {
-      ids = this.user.details.starredTicketIds || [];
+      ids = this.user.details.starredConversationIds || [];
     }
 
     this.starredQuery = {
@@ -96,7 +96,7 @@ export default class ListQueryBuilder {
   }
 
   statusDefaultFilter() {
-    return this.statusFilter([TICKET_STATUSES.NEW, TICKET_STATUSES.OPEN]);
+    return this.statusFilter([CONVERSATION_STATUSES.NEW, CONVERSATION_STATUSES.OPEN]);
   }
 
   // filter by participated user

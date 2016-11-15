@@ -1,19 +1,19 @@
 import { Notifications } from 'meteor/erxes-notifications';
 
-const Tickets = {
-  name: 'tickets',
-  description: 'Tickets',
+const Conversations = {
+  name: 'conversations',
+  description: 'Conversations',
   types: [
     {
-      name: 'ticketStateChange',
+      name: 'conversationStateChange',
       text: 'State change',
     },
     {
-      name: 'ticketAssigneeChange',
+      name: 'conversationAssigneeChange',
       text: 'Assignee change',
     },
     {
-      name: 'ticketAddComment',
+      name: 'conversationAddComment',
       text: 'Add comment',
     },
   ],
@@ -30,5 +30,5 @@ const Channels = {
   ],
 };
 
-Notifications.registerModule(Tickets);
+Notifications.registerModule(Conversations);
 Notifications.registerModule(Channels);

@@ -1,5 +1,5 @@
 export const TAG_TYPES = {
-  TICKET: 'ticket',
+  CONVERSATION: 'conversation',
   CUSTOMER: 'customer',
-  ALL_LIST: ['ticket', 'customer'],
+  ALL_LIST: ['conversation', 'customer'],
 };

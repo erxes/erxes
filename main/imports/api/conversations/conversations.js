@@ -13,11 +13,11 @@ import { Brands } from '/imports/api/brands/brands';
 import { Integrations } from '/imports/api/integrations/integrations';
 import { Tags } from '/imports/api/tags/tags';
 
-import { TICKET_STATUSES } from './constants';
+import { CONVERSATION_STATUSES } from './constants';
 
-class TicketsCollection extends Mongo.Collection {
+class ConversationsCollection extends Mongo.Collection {
   insert(doc, callback) {
-    const ticket = _.extend(
+    const conversation = _.extend(
       {
         createdAt: new Date(),
         number: this.find().count() + 1,
@@ -26,7 +26,7 @@ class TicketsCollection extends Mongo.Collection {
       doc
     );
 
-    return super.insert(ticket, callback);
+    return super.insert(conversation, callback);
   }
 
   update(selector, modifier, options) {
@@ -40,12 +40,12 @@ class TicketsCollection extends Mongo.Collection {
   }
 
   remove(selector, callback) {
-    const tickets = this.find(selector).fetch();
+    const conversations = this.find(selector).fetch();
 
     const result = super.remove(selector, callback);
 
     let removeIds = [];
-    tickets.forEach((obj) => {
+    conversations.forEach((obj) => {
       removeIds.push(obj.tagIds || []);
     });
 
@@ -56,11 +56,11 @@ class TicketsCollection extends Mongo.Collection {
   }
 }
 
-export const Tickets = new TicketsCollection('tickets');
+export const Conversations = new ConversationsCollection('conversations');
 
-Tickets.TAG_TYPE = 'ticket';
+Conversations.TAG_TYPE = 'conversation';
 
-Tickets.helpers({
+Conversations.helpers({
   customer() {
     return Customers.findOne(this.customerId);
   },
@@ -94,19 +94,19 @@ Tickets.helpers({
   },
 });
 
-export function addParticipator({ ticketId, userId }) {
-  if (ticketId && userId) {
-    Tickets.update(ticketId, { $addToSet: { participatedUserIds: userId } });
+export function addParticipator({ conversationId, userId }) {
+  if (conversationId && userId) {
+    Conversations.update(conversationId, { $addToSet: { participatedUserIds: userId } });
   }
 }
 
-Tickets.deny({
+Conversations.deny({
   insert() { return true; },
   update() { return true; },
   remove() { return true; },
 });
 
-Tickets.schema = new SimpleSchema({
+Conversations.schema = new SimpleSchema({
   number: {
     type: Number,
   },
@@ -133,7 +133,7 @@ Tickets.schema = new SimpleSchema({
 
   status: {
     type: String,
-    allowedValues: TICKET_STATUSES.ALL_LIST,
+    allowedValues: CONVERSATION_STATUSES.ALL_LIST,
   },
 
   participatedUserIds: {
@@ -164,9 +164,9 @@ Tickets.schema = new SimpleSchema({
   },
 });
 
-Tickets.attachSchema(Tickets.schema);
+Conversations.attachSchema(Conversations.schema);
 
-Tickets.publicFields = {
+Conversations.publicFields = {
   number: 1,
   assignedUserId: 1,
   content: 1,
@@ -180,9 +180,9 @@ Tickets.publicFields = {
   tagIds: 1,
 };
 
-Factory.define('ticket', Tickets, {
+Factory.define('conversation', Conversations, {
   content: () => faker.lorem.sentence(),
   customerId: () => Random.id(),
   brandId: () => Random.id(),
-  status: () => TICKET_STATUSES.NEW,
+  status: () => CONVERSATION_STATUSES.NEW,
 });

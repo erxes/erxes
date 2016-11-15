@@ -1,24 +1,24 @@
 import { Comments } from './comments.js';
-import { Tickets } from './tickets.js';
+import { Conversations } from './conversations.js';
 
 const commentCountDenormalizer = {
-  _updateTicket(ticketId) {
+  _updateConversation(conversationId) {
     // Recalculate the correct comment count direct from MongoDB
     const commentCount = Comments.find({
-      ticketId,
+      conversationId,
     }).count();
 
-    Tickets.update(ticketId, { $set: { commentCount } });
+    Conversations.update(conversationId, { $set: { commentCount } });
   },
 
   afterInsertComment(comment) {
-    this._updateTicket(comment.ticketId);
+    this._updateConversation(comment.conversationId);
   },
 
   // Here we need to take the list of comments being removed, selected *before* the update because
   // otherwise we can't figure out the relevant comment id(s) (if the comment has been deleted)
   afterRemoveComments(comments) {
-    comments.forEach(comment => this._updateTicket(comment.ticketId));
+    comments.forEach(comment => this._updateConversation(comment.conversationId));
   },
 };
 
