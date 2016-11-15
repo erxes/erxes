@@ -11,25 +11,25 @@ function Sidebar() {
           <li>
             <a href="#">
               All company
-              <span className="counter">3</span>
+              <span className="counter">?</span>
             </a>
           </li>
           <li>
             <a href="#">
               New
-              <span className="counter">10</span>
+              <span className="counter">?</span>
             </a>
           </li>
           <li>
             <a href="#">
               Paid
-              <span className="counter">10</span>
+              <span className="counter">?</span>
             </a>
           </li>
           <li>
             <a href="#">
               Custom
-              <span className="counter">3</span>
+              <span className="counter">?</span>
             </a>
           </li>
         </ul>

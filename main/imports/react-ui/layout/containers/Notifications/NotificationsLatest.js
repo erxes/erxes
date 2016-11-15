@@ -12,7 +12,7 @@ function composer(props, onData) {
 
   if (handler.ready()) {
     const createdUserIds = [];
-    const notifications = Notifications.find().fetch();
+    const notifications = Notifications.find({}, { limit: 10 }).fetch();
 
     notifications.map((notification) =>
       createdUserIds.push(notification.createdUser)

@@ -76,6 +76,9 @@ function List(props) {
             key={ticket._id}
             toggleBulk={toggleBulk}
             channelId={channelId}
+            isParticipate={
+              ticket.participatedUserIds && ticket.participatedUserIds.indexOf(userId) > -1
+            }
             isRead={ticket.readUserIds && ticket.readUserIds.indexOf(userId) > -1}
           />
         )

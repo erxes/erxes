@@ -1,4 +1,5 @@
 import React, { PropTypes, Component } from 'react';
+import { _ } from 'meteor/underscore';
 import { NotificationListRow } from '../../containers';
 import { Button } from 'react-bootstrap';
 import { Wrapper } from '../';
@@ -12,29 +13,17 @@ class NotificationList extends Component {
 
     this.state = { bulk: [] };
     this.markAsRead = this.markAsRead.bind(this);
-    this.toggleBulk = this.toggleBulk.bind(this);
   }
 
   markAsRead() {
+    const { bulk } = this.state;
+    _.each(this.props.notifications, (notification) => {
+      if (!notification.isRead) {
+        bulk.push(notification._id);
+      }
+    });
     this.props.markAsRead(this.state.bulk);
     this.setState({ bulk: [] });
-  }
-
-  toggleBulk(notificationId, toAdd) {
-    const { bulk } = this.state;
-    const index = bulk.indexOf(notificationId);
-
-    if (toAdd) {
-      if (index < 0) {
-        bulk.push(notificationId);
-      }
-    } else {
-      if (index > -1) {
-        bulk.splice(index, 1);
-      }
-    }
-
-    this.setState({ bulk });
   }
 
   render() {
@@ -46,7 +35,6 @@ class NotificationList extends Component {
         {
           notifications.map((notif, key) =>
             <NotificationListRow
-              toggleBulk={this.toggleBulk}
               notification={notif}
               key={key}
             />
@@ -68,7 +56,7 @@ class NotificationList extends Component {
     const actionBarLeft = (
       <div>
         <Button bsStyle="link" onClick={this.markAsRead}>
-          <i className="ion-checkmark-circled" /> Mark as read
+          <i className="ion-checkmark-circled" /> Mark all Read
         </Button>
       </div>
     );
@@ -78,7 +66,7 @@ class NotificationList extends Component {
       <Wrapper
         header={<Wrapper.Header breadcrumb={[{ title: 'Notifications' }]} />}
         leftSidebar={<Sidebar />}
-        actionBar={this.state.bulk.length ? actionBar : false}
+        actionBar={actionBar}
         content={content}
       />
     );
