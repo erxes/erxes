@@ -12,7 +12,11 @@ const propTypes = {
 
 function MainLayout({ content, userId, loggingIn }) {
   if (loggingIn) {
-    return <Spinner />;
+    return (
+      <div className="full-loader">
+        <Spinner />
+      </div>
+    );
   }
 
   if (!userId) {

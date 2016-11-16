@@ -19,8 +19,8 @@ function CustomerRow({ customer }) {
       <td>
         {
           customer.isActive ?
-            <Label bsStyle="success">active</Label> :
-            <Label>inactive</Label>
+            <Label bsStyle="success">Active</Label> :
+            <Label>Inactive</Label>
         }
       </td>
     </tr>
