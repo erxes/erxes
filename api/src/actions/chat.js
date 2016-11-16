@@ -10,7 +10,7 @@ const Chat = {
       const currentConversation = chatState.currentConversation;
 
       // send message data
-      const doc = { message, attachments, ticketId: currentConversation };
+      const doc = { message, attachments, conversationId: currentConversation };
 
       return call('sendMessage', doc)
         .then(({ conversationId }) => {
