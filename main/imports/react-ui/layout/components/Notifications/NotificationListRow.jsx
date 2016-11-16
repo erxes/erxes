@@ -21,7 +21,9 @@ class NotificationListRow extends Component {
 
   markAsRead() {
     const { notification, markAsRead } = this.props;
-    markAsRead(notification._id);
+    if (!notification.isRead) {
+      markAsRead(notification._id);
+    }
   }
 
   render() {
