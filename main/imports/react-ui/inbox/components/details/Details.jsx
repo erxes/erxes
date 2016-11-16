@@ -8,7 +8,7 @@ import { RespondBox } from '../../containers';
 
 const propTypes = {
   conversation: PropTypes.object.isRequired,
-  comments: PropTypes.array.isRequired,
+  messages: PropTypes.array.isRequired,
   channelId: PropTypes.string,
   changeStatus: PropTypes.func.isRequired,
   attachmentPreview: PropTypes.object,
@@ -18,7 +18,7 @@ const propTypes = {
 function Details(props) {
   const {
     conversation,
-    comments,
+    messages,
     channelId,
     changeStatus,
     attachmentPreview,
@@ -29,7 +29,7 @@ function Details(props) {
     <div className="margined">
       <Conversation
         conversation={conversation}
-        messages={comments}
+        messages={messages}
         attachmentPreview={attachmentPreview}
       />
     </div>
@@ -47,7 +47,7 @@ function Details(props) {
         leftSidebar={
           <Sidebar
             conversation={conversation}
-            commentsCount={comments.length}
+            messagesCount={messages.length}
             changeStatus={changeStatus}
             channelId={channelId}
           />

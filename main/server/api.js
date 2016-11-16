@@ -13,7 +13,7 @@ import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 import { uploadFile } from '/imports/api/server/utils';
 import { Brands } from '/imports/api/brands/brands';
 import { Customers } from '/imports/api/customers/customers';
-import { Comments } from '/imports/api/conversations/comments';
+import { Messages } from '/imports/api/conversations/messages';
 import { Conversations } from '/imports/api/conversations/conversations';
 import { CONVERSATION_STATUSES } from '/imports/api/conversations/constants';
 
@@ -49,7 +49,7 @@ const attachmentsChecker = {
   type: String,
 };
 
-export function addComment(doc) {
+export function addMessage(doc) {
   check(doc, {
     content: String,
     attachments: Match.Optional([attachmentsChecker]),
@@ -61,19 +61,19 @@ export function addComment(doc) {
 
   if (!Conversations.findOne(doc.conversationId)) {
     throw new Meteor.Error(
-      'conversations.addComment.conversationNotFound',
+      'conversations.addMessage.conversationNotFound',
       'Conversation not found'
     );
   }
 
   if (!Customers.findOne(data.customerId)) {
     throw new Meteor.Error(
-      'conversations.addComment.customerNotFound',
+      'conversations.addMessage.customerNotFound',
       'Customer not found'
     );
   }
 
-  return Comments.insert(data);
+  return Messages.insert(data);
 }
 
 function checkConnection(conn) {
@@ -230,23 +230,23 @@ export const sendMessage = new ValidatedMethod({
       });
     }
 
-    // create comment
-    const commentOptions = {
+    // create message
+    const messageOptions = {
       conversationId,
       customerId,
       content: doc.message,
     };
 
     if (doc.attachments) {
-      commentOptions.attachments = doc.attachments;
+      messageOptions.attachments = doc.attachments;
     }
 
     return {
       // old or newly added conversation's id
       conversationId,
 
-      // insert comment
-      messageId: addComment(commentOptions),
+      // insert message
+      messageId: addMessage(messageOptions),
     };
   },
 });
@@ -279,7 +279,7 @@ export const customerReadMessages = new ValidatedMethod({
   },
 
   run(conversationId) {
-    return Comments.update(
+    return Messages.update(
       {
         conversationId,
         userId: { $exists: true },
@@ -313,14 +313,14 @@ Meteor.publishComposite('api.conversations', function conversations() {
       {
         // publish every conversation's unread count
         find(conversation) {
-          const cursor = Comments.find({
+          const cursor = Messages.find({
             conversationId: conversation._id,
             userId: { $exists: true },
             isCustomerRead: { $exists: false },
           });
 
           Counts.publish(
-            this, `unreadCommentsCount_${conversation._id}`, cursor, { noReady: true });
+            this, `unreadMessagesCount_${conversation._id}`, cursor, { noReady: true });
 
           return null;
         },
@@ -339,22 +339,22 @@ Meteor.publishComposite('api.messages', function apiMessages(conversationId) {
 
   return {
     find() {
-      return Comments.find(
+      return Messages.find(
         { conversationId,
           internal: false,
         },
         {
           sort: { createdAt: 1 },
-          fields: Comments.publicFields,
+          fields: Messages.publicFields,
         }
       );
     },
 
     children: [
       {
-        find(comment) {
+        find(message) {
           return Meteor.users.find(
-            comment.userId,
+            message.userId,
             { fields: { details: 1 } }
           );
         },

@@ -6,16 +6,16 @@ import {
   changeStatus as method,
   markAsRead,
 } from '/imports/api/conversations/methods';
-import { Comments } from '/imports/api/conversations/comments';
+import { Messages } from '/imports/api/conversations/messages';
 import { Loader } from '/imports/react-ui/common';
 import { Details } from '../components';
 
 const attachmentPreview = new ReactiveVar({});
 
 function composer({ id, channelId }, onData) {
-  // conversation, comments subscriptions
+  // conversation, messages subscriptions
   const conversationHandle = Meteor.subscribe('conversations.detail', id);
-  const commentsHandle = Meteor.subscribe('conversations.commentList', id);
+  const messagesHandle = Meteor.subscribe('conversations.messageList', id);
 
   // =============== actions
   const changeStatus = (conversationId, status, callback) => {
@@ -27,9 +27,9 @@ function composer({ id, channelId }, onData) {
   };
 
   // subscriptions are ready
-  if (conversationHandle.ready() && commentsHandle.ready()) {
+  if (conversationHandle.ready() && messagesHandle.ready()) {
     const conversation = Conversations.findOne(id);
-    const comments = Comments.find({ conversationId: id }).fetch();
+    const messages = Messages.find({ conversationId: id }).fetch();
 
     // brand, tags, users subscriptions
     const brandHandle = Meteor.subscribe('brands.getById', conversation.brandId);
@@ -48,7 +48,7 @@ function composer({ id, channelId }, onData) {
         null,
         {
           conversation,
-          comments,
+          messages,
           channelId,
           changeStatus,
           setAttachmentPreview,

@@ -9,7 +9,7 @@ import { CONVERSATION_STATUSES } from '/imports/api/conversations/constants';
 
 const propTypes = {
   conversation: PropTypes.object.isRequired,
-  commentsCount: PropTypes.number.isRequired,
+  messagesCount: PropTypes.number.isRequired,
   changeStatus: PropTypes.func.isRequired,
 };
 
@@ -64,7 +64,7 @@ class Sidebar extends Component {
   }
 
   render() {
-    const { conversation, commentsCount } = this.props;
+    const { conversation, messagesCount } = this.props;
     return (
       <Wrapper.Sidebar>
         {this.renderStatusButton()}
@@ -86,7 +86,7 @@ class Sidebar extends Component {
             </li>
             <li>
               Conversations
-              <span className="counter">{commentsCount}</span>
+              <span className="counter">{messagesCount}</span>
             </li>
           </ul>
         </Wrapper.Sidebar.Section>
@@ -166,7 +166,11 @@ class Sidebar extends Component {
             <li>
               {conversation.tags().map((tag) =>
                 <a key={tag._id}>
-                  <i className="icon ion-pricetag" style={{ color: tag.colorCode }}></i>
+                  <i
+                    className="icon ion-pricetag"
+                    style={{ color: tag.colorCode }}
+                  >
+                  </i>
                   {tag.name}
                 </a>
               )}

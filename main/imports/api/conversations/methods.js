@@ -7,7 +7,7 @@ import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 import { ErxesMixin } from '/imports/api/utils';
 import { Conversations } from './conversations';
 import { CONVERSATION_STATUSES } from './constants';
-import { Comments, FormSchema } from './comments';
+import { Messages, FormSchema } from './messages';
 
 if (Meteor.isServer) {
   import { sendNotification } from '/imports/api/server/utils';
@@ -34,8 +34,8 @@ const conversationNotifReceivers = (conversation, currentUserId) => {
 };
 
 
-export const addComment = new ValidatedMethod({
-  name: 'conversations.addComment',
+export const addMessage = new ValidatedMethod({
+  name: 'conversations.addMessage',
   mixins: [ErxesMixin],
   validate: FormSchema.validator(),
 
@@ -45,7 +45,7 @@ export const addComment = new ValidatedMethod({
 
     if (!conversation) {
       throw new Meteor.Error(
-        'conversations.addComment.conversationNotFound',
+        'conversations.addMessage.conversationNotFound',
         'Conversation not found'
       );
     }
@@ -61,19 +61,19 @@ export const addComment = new ValidatedMethod({
     // error
     if (attachments.length === 0 && !content.trim()) {
       throw new Meteor.Error(
-        'conversations.addComment.contentRequired',
+        'conversations.addMessage.contentRequired',
         'Content is required'
       );
     }
 
     // send notification
     if (Meteor.isServer) {
-      const commentedUser = Meteor.users.findOne({ _id: this.userId });
-      const title = `${commentedUser.details.fullName} commented on a conversation`;
+      const messageedUser = Meteor.users.findOne({ _id: this.userId });
+      const title = `${messageedUser.details.fullName} messageed on a conversation`;
 
       sendNotification({
         createdUser: this.userId,
-        notifType: 'conversationAddComment',
+        notifType: 'conversationAddMessage',
         title,
         content: title,
         link: `/inbox/details/${conversation._id}`,
@@ -81,7 +81,7 @@ export const addComment = new ValidatedMethod({
       });
     }
 
-    return Comments.insert(_.extend({ userId: this.userId }, doc));
+    return Messages.insert(_.extend({ userId: this.userId }, doc));
   },
 });
 

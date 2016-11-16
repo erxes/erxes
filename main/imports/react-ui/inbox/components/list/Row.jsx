@@ -37,7 +37,7 @@ class Row extends Component {
 
   render() {
     const { conversation, starred, isRead, isParticipate } = this.props;
-    const { createdAt, content, commentCount } = conversation;
+    const { createdAt, content, messageCount } = conversation;
     const customer = conversation.customer();
     const isReadClass = !isRead ? 'unread' : null;
     const integration = conversation.integration();
@@ -76,7 +76,7 @@ class Row extends Component {
             <Assignees conversation={conversation} />
 
             <div className="info">
-              <span><i className="ion-reply"></i> {commentCount}</span>
+              <span><i className="ion-reply"></i> {messageCount}</span>
               <span><i className="ion-person"></i> {conversation.participatorCount()}</span>
             </div>
           </footer>

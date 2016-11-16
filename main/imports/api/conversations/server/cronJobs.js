@@ -10,10 +10,10 @@ import { Brands } from '/imports/api/brands/brands';
 
 import { Conversations } from '../conversations';
 import { CONVERSATION_STATUSES } from '../constants';
-import { Comments } from '../comments';
+import { Messages } from '../messages';
 
 
-function sendCommentEmail() {
+function sendMessageEmail() {
   // new or open conversations
   const conversations = Conversations.find(
     { status: { $in: [CONVERSATION_STATUSES.NEW, CONVERSATION_STATUSES.OPEN] } },
@@ -28,7 +28,7 @@ function sendCommentEmail() {
     if (!brand) { return; }
 
     // user's last non answered question
-    const question = Comments.findOne(
+    const question = Messages.findOne(
       {
         conversationId: conversation._id,
         customerId: { $exists: true },
@@ -41,7 +41,7 @@ function sendCommentEmail() {
     // generate admin unread answers
     const answers = [];
 
-    const adminComments = Comments.find(
+    const adminMessages = Messages.find(
       {
         conversationId: conversation._id,
         userId: { $exists: true },
@@ -53,11 +53,11 @@ function sendCommentEmail() {
       { sort: { createdAt: 1 } }
     ).fetch();
 
-    _.each(adminComments, (comment) => {
-      const answer = comment;
+    _.each(adminMessages, (message) => {
+      const answer = message;
 
       // add user object to answer
-      answer.user = Meteor.users.findOne(comment.userId);
+      answer.user = Meteor.users.findOne(message.userId);
       answer.createdAt = moment(answer.createdAt).format('DD MMM YY, HH:mm');
       answers.push(answer);
     });
@@ -94,8 +94,8 @@ function sendCommentEmail() {
       },
     });
 
-    // mark sent comments as read
-    Comments.update(
+    // mark sent messages as read
+    Messages.update(
       {
         conversationId: conversation._id,
         userId: { $exists: true },
@@ -108,7 +108,7 @@ function sendCommentEmail() {
 }
 
 SyncedCron.add({
-  name: 'Send unread conversation comments to customer\'s email',
+  name: 'Send unread conversation messages to customer\'s email',
 
   schedule(parser) {
     // return parser.text('every 10 seconds');
@@ -116,6 +116,6 @@ SyncedCron.add({
   },
 
   job() {
-    sendCommentEmail();
+    sendMessageEmail();
   },
 });

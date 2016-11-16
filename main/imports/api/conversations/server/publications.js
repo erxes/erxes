@@ -9,7 +9,7 @@ import { Channels } from '/imports/api/channels/channels';
 import { Brands } from '/imports/api/brands/brands';
 
 import { Conversations } from '../conversations';
-import { Comments } from '../comments';
+import { Messages } from '../messages';
 
 import ListQueryBuilder from './queryBuilder';
 
@@ -153,7 +153,7 @@ Meteor.publishComposite('conversations.detail', function conversationsDetail(id)
   };
 });
 
-Meteor.publishComposite('conversations.commentList', function commentList(conversationId) {
+Meteor.publishComposite('conversations.messageList', function messageList(conversationId) {
   check(conversationId, String);
 
   if (! this.userId) {
@@ -162,25 +162,25 @@ Meteor.publishComposite('conversations.commentList', function commentList(conver
 
   return {
     find() {
-      return Comments.find(
+      return Messages.find(
         { conversationId },
-        { fields: Comments.publicFields }
+        { fields: Messages.publicFields }
       );
     },
 
     children: [
       {
-        find(comment) {
+        find(message) {
           return Customers.find(
-            comment.customerId,
+            message.customerId,
             { fields: Customers.publicFields }
           );
         },
       },
       {
-        find(comment) {
+        find(message) {
           return Meteor.users.find(
-            comment.userId,
+            message.userId,
             { fields: { details: 1, emails: 1 } }
           );
         },

@@ -13,8 +13,8 @@ const Conversations = {
       text: 'Assignee change',
     },
     {
-      name: 'conversationAddComment',
-      text: 'Add comment',
+      name: 'conversationAddMessage',
+      text: 'Add message',
     },
   ],
 };

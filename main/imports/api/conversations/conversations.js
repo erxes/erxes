@@ -21,7 +21,7 @@ class ConversationsCollection extends Mongo.Collection {
       {
         createdAt: new Date(),
         number: this.find().count() + 1,
-        commentCount: 0,
+        messageCount: 0,
       },
       doc
     );
@@ -159,7 +159,7 @@ Conversations.schema = new SimpleSchema({
     type: Date,
   },
 
-  commentCount: {
+  messageCount: {
     type: Number,
   },
 });
@@ -174,7 +174,7 @@ Conversations.publicFields = {
   brandId: 1,
   status: 1,
   createdAt: 1,
-  commentCount: 1,
+  messageCount: 1,
   participatedUserIds: 1,
   readUserIds: 1,
   tagIds: 1,

@@ -15,7 +15,7 @@ import { Brands } from '/imports/api/brands/brands';
 import { Integrations } from '/imports/api/integrations/integrations';
 
 import { Conversations } from './conversations';
-import { Comments } from './comments';
+import { Messages } from './messages';
 import { CONVERSATION_STATUSES } from './constants';
 import { assign, unassign, changeStatus, star, unstar } from './methods';
 
@@ -23,7 +23,7 @@ if (Meteor.isServer) {
   const { tag } = require('./server/methods');
   const {
     addConversation,
-    addComment,
+    addMessage,
   } = require('/server/api');
 
   require('./server/publications');
@@ -197,7 +197,7 @@ if (Meteor.isServer) {
       before(function () {
         Customers.remove({});
         Conversations.remove({});
-        Comments.remove({});
+        Messages.remove({});
 
         customerId = Factory.create('customer')._id;
         brandId = Factory.create('brand')._id;
@@ -226,21 +226,21 @@ if (Meteor.isServer) {
         assert.equal(Conversations.find(data).count(), 1);
       });
 
-      it('addComment - verify conversation', function () {
+      it('addMessage - verify conversation', function () {
         assert.throws(() => {
-          addComment({ content: 'lorem', conversationId: Random.id(), customerId });
-        }, Meteor.Error, /conversations.addComment.conversationNotFound/);
+          addMessage({ content: 'lorem', conversationId: Random.id(), customerId });
+        }, Meteor.Error, /conversations.addMessage.conversationNotFound/);
       });
 
-      it('addComment - verify customer', function () {
+      it('addMessage - verify customer', function () {
         assert.throws(() => {
-          addComment({ content: 'lorem', customerId: Random.id(), conversationId });
-        }, Meteor.Error, /conversations.addComment.customerNotFound/);
+          addMessage({ content: 'lorem', customerId: Random.id(), conversationId });
+        }, Meteor.Error, /conversations.addMessage.customerNotFound/);
       });
 
-      it('addComment - add', function () {
-        addComment({ content: 'lorem', customerId, conversationId });
-        assert.equal(Comments.find().count(), 1);
+      it('addMessage - add', function () {
+        addMessage({ content: 'lorem', customerId, conversationId });
+        assert.equal(Messages.find().count(), 1);
       });
     });
 
