@@ -10,41 +10,41 @@ import { assert, chai } from 'meteor/practicalmeteor:chai';
 import { PublicationCollector } from 'meteor/publication-collector';
 import { Notifications } from 'meteor/erxes-notifications';
 
-import { Comments } from './comments';
-import { Tickets } from './tickets';
-import { addComment } from './methods';
+import { Messages } from './messages';
+import { Conversations } from './conversations';
+import { addMessage } from './methods';
 
 if (Meteor.isServer) {
   require('./server/publications.js');
 
-  describe('ticket - comments', function () {
+  describe('conversation - messages', function () {
     describe('publications', function () {
-      let ticketId;
+      let conversationId;
       const userId = Factory.create('user')._id;
 
       before(function () {
-        Tickets.remove({});
-        Comments.remove({});
+        Conversations.remove({});
+        Messages.remove({});
 
-        ticketId = Factory.create('ticket')._id;
+        conversationId = Factory.create('conversation')._id;
 
-        _.times(2, () => Factory.create('comment'));
-        _.times(2, () => Factory.create('comment', { ticketId }));
+        _.times(2, () => Factory.create('message'));
+        _.times(2, () => Factory.create('message', { conversationId }));
       });
 
-      describe('tickets.commentList', function () {
-        it('sends all comments', function (done) {
+      describe('conversations.messageList', function () {
+        it('sends all messages', function (done) {
           const collector = new PublicationCollector({ userId });
-          collector.collect('tickets.commentList', ticketId, (collections) => {
-            chai.assert.equal(collections.ticket_comments.length, 2);
+          collector.collect('conversations.messageList', conversationId, (collections) => {
+            chai.assert.equal(collections.conversation_messages.length, 2);
             done();
           });
         });
 
-        it('do not send comments without user', function (done) {
+        it('do not send messages without user', function (done) {
           const collector = new PublicationCollector();
-          collector.collect('tickets.commentList', ticketId, (collections) => {
-            chai.assert.equal(collections.ticket_comments, undefined);
+          collector.collect('conversations.messageList', conversationId, (collections) => {
+            chai.assert.equal(collections.conversation_messages, undefined);
             done();
           });
         });
@@ -56,51 +56,51 @@ if (Meteor.isServer) {
 
       beforeEach(function () {
         // Clear
-        Comments.remove({});
+        Messages.remove({});
         Notifications.remove({});
 
         userId = Factory.create('user')._id;
       });
 
-      describe('addComment', function () {
+      describe('addMessage', function () {
         it('only works if you are logged in', function () {
           assert.throws(() => {
-            addComment._execute(
+            addMessage._execute(
               {},
-              { content: 'lorem', ticketId: Random.id(), internal: false }
+              { content: 'lorem', conversationId: Random.id(), internal: false }
             );
           }, Meteor.Error, /loginRequired/);
         });
 
-        it('ticket must exist', function () {
+        it('conversation must exist', function () {
           assert.throws(() => {
-            addComment._execute({ userId },
-              { content: 'lorem', ticketId: Random.id(), internal: false });
-          }, Meteor.Error, /tickets.addComment.ticketNotFound/);
+            addMessage._execute({ userId },
+              { content: 'lorem', conversationId: Random.id(), internal: false });
+          }, Meteor.Error, /conversations.addMessage.conversationNotFound/);
         });
 
         it('add', function () {
-          assert.equal(Comments.find().count(), 0);
+          assert.equal(Messages.find().count(), 0);
           assert.equal(Notifications.find().count(), 0);
 
           const participatedUserId = Factory.create('user')._id;
-          const ticketId = Factory.create('ticket', {
+          const conversationId = Factory.create('conversation', {
             participatedUserIds: [participatedUserId],
           })._id;
 
-          addComment._execute(
+          addMessage._execute(
             { userId },
-            { content: 'lorem', ticketId, internal: false }
+            { content: 'lorem', conversationId, internal: false }
           );
 
-          assert.equal(Comments.find().count(), 1);
+          assert.equal(Messages.find().count(), 1);
 
           // participated users must received notification
           assert.equal(Notifications.find().count(), 1);
 
           const notif = Notifications.findOne();
 
-          assert.equal(notif.notifType, 'ticketAddComment');
+          assert.equal(notif.notifType, 'conversationAddMessage');
           assert.equal(notif.receiver, participatedUserId);
         });
       });

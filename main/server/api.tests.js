@@ -58,13 +58,13 @@ describe('API', function () {
 
   describe('sendMessage', function () {
     let connection;
-    let code;
 
     before(function () {
       connection = DDP.connect(Meteor.absoluteUrl());
 
       const brand = Factory.create('brand');
-      code = brand.code;
+      const code = brand.code;
+
       connection.call(connect.name, {
         brand_id: code,
         email: faker.internet.email(),

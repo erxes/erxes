@@ -14,8 +14,8 @@ class ChannelsCollection extends Mongo.Collection {
     const modifier = _.extend(
       {
         createdAt: new Date(),
-        ticketCount: 0,
-        openTicketCount: 0,
+        conversationCount: 0,
+        openConversationCount: 0,
       },
       doc
     );
@@ -68,13 +68,13 @@ Channels.schemaExtra = new SimpleSchema({
     regEx: SimpleSchema.RegEx.Id,
   },
 
-  // All ticket count
-  ticketCount: {
+  // All conversation count
+  conversationCount: {
     type: Number,
   },
 
-  // Open/unresolved ticket count
-  openTicketCount: {
+  // Open/unresolved conversation count
+  openConversationCount: {
     type: Number,
   },
 });
@@ -89,8 +89,8 @@ Channels.publicFields = {
   memberIds: 1,
   userId: 1,
   createdAt: 1,
-  openTicketCount: 1,
-  ticketCount: 1,
+  openConversationCount: 1,
+  conversationCount: 1,
 };
 
 Factory.define('channel', Channels, {

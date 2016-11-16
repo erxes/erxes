@@ -4,7 +4,7 @@ import { Chat } from '../actions';
 import HelpButton from '../components/HelpButton';
 
 const mapStateToProps = (state) => {
-  // calculate total unread comments count
+  // calculate total unread messages count
   let totalNotifsCount = 0;
 
   for (const key of Object.keys(state.notifs)) {

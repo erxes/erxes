@@ -5,11 +5,11 @@ import { Wrapper } from '/imports/react-ui/layout/components';
 
 
 const propTypes = {
-  ticket: PropTypes.object.isRequired,
+  conversation: PropTypes.object.isRequired,
 };
 
-function RightSidebar({ ticket }) {
-  const customer = ticket.customer();
+function RightSidebar({ conversation }) {
+  const customer = conversation.customer();
 
   return (
     <Wrapper.Sidebar size="wide">

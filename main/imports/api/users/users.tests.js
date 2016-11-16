@@ -8,7 +8,7 @@ import { assert } from 'meteor/practicalmeteor:chai';
 import { Factory } from 'meteor/dburles:factory';
 
 import { Channels } from '/imports/api/channels/channels';
-import { Tickets } from '/imports/api/tickets/tickets';
+import { Conversations } from '/imports/api/conversations/conversations';
 import { invite, updateInvitationInfos, remove } from './server/methods';
 import { ROLES } from './constants';
 
@@ -159,8 +159,8 @@ if (Meteor.isServer) {
           Channels.remove({});
         });
 
-        it('involved in ticket:assinged', function () {
-          Factory.create('ticket', { assignedUserId: removeToUserId });
+        it('involved in conversation:assinged', function () {
+          Factory.create('conversation', { assignedUserId: removeToUserId });
 
           assert.throws(
             () => {
@@ -168,15 +168,15 @@ if (Meteor.isServer) {
             },
 
             Meteor.Error,
-            /users.remove.involvedInTicket/
+            /users.remove.involvedInConversation/
           );
 
-          Tickets.remove({});
+          Conversations.remove({});
         });
 
-        it('involved in ticket:paticipated', function () {
+        it('involved in conversation:paticipated', function () {
           Factory.create(
-            'ticket',
+            'conversation',
             { participatedUserIds: [removeToUserId, Random.id()] }
           );
 
@@ -186,10 +186,10 @@ if (Meteor.isServer) {
             },
 
             Meteor.Error,
-            /users.remove.involvedInTicket/
+            /users.remove.involvedInConversation/
           );
 
-          Tickets.remove({});
+          Conversations.remove({});
         });
 
         it('can not delete owner', function () {
@@ -204,7 +204,7 @@ if (Meteor.isServer) {
             /users.remove.canNotDeleteOwner/
           );
 
-          Tickets.remove({});
+          Conversations.remove({});
         });
 
         it('remove successfully', function () {
@@ -217,7 +217,7 @@ if (Meteor.isServer) {
           // must be deleted
           assert.equal(Meteor.users.find().count(), 1);
 
-          Tickets.remove({});
+          Conversations.remove({});
         });
       });
     });

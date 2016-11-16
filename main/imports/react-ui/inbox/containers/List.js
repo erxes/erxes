@@ -2,7 +2,7 @@ import { Meteor } from 'meteor/meteor';
 import { ReactiveVar } from 'meteor/reactive-var';
 import { _ } from 'meteor/underscore';
 import { composeWithTracker } from 'react-komposer';
-import { Tickets } from '/imports/api/tickets/tickets';
+import { Conversations } from '/imports/api/conversations/conversations';
 import { Channels } from '/imports/api/channels/channels';
 import { Brands } from '/imports/api/brands/brands';
 import { Tags } from '/imports/api/tags/tags';
@@ -15,14 +15,14 @@ const bulk = new ReactiveVar([]);
 
 function composer({ channelId, queryParams }, onData) {
   // actions ===========
-  const toggleBulk = (ticket, toAdd) => {
+  const toggleBulk = (conversation, toAdd) => {
     let entries = bulk.get();
 
     // remove old entry
-    entries = _.without(entries, _.findWhere(entries, { _id: ticket._id }));
+    entries = _.without(entries, _.findWhere(entries, { _id: conversation._id }));
 
     if (toAdd) {
-      entries.push(ticket);
+      entries.push(conversation);
     }
 
     bulk.set(entries);
@@ -37,7 +37,7 @@ function composer({ channelId, queryParams }, onData) {
   const userId = user._id;
   const params = channelId ? Object.assign({ channelId }, queryParams) : queryParams;
 
-  const ticketHandle = Meteor.subscribe('tickets.list', params);
+  const conversationHandle = Meteor.subscribe('conversations.list', params);
 
   // show only involved channels
   const channelHandle = Meteor.subscribe(
@@ -48,16 +48,16 @@ function composer({ channelId, queryParams }, onData) {
   // show only available channels's related brands
   const brandHandle = Meteor.subscribe('brands.list.inChannels');
 
-  const tagsHandle = Meteor.subscribe('tags.tagList', TAG_TYPES.TICKET);
+  const tagsHandle = Meteor.subscribe('tags.tagList', TAG_TYPES.CONVERSATION);
 
-  const tickets = Tickets.find({}, { sort: { createdAt: -1 } }).fetch();
+  const conversations = Conversations.find({}, { sort: { createdAt: -1 } }).fetch();
   const channels = Channels.find({}, { sort: { name: 1 } }).fetch();
   const brands = Brands.find({}, { sort: { name: 1 } }).fetch();
 
-  const starredTicketIds = user.details.starredTicketIds || [];
-  const tags = Tags.find({ type: TAG_TYPES.TICKET }).fetch();
+  const starredConversationIds = user.details.starredConversationIds || [];
+  const tags = Tags.find({ type: TAG_TYPES.CONVERSATION }).fetch();
 
-  if (ticketHandle.ready() && channelHandle.ready() &&
+  if (conversationHandle.ready() && channelHandle.ready() &&
       tagsHandle.ready() && brandHandle.ready()) {
     // integrations subscription
     const integrationsHandle = Meteor.subscribe(
@@ -73,9 +73,9 @@ function composer({ channelId, queryParams }, onData) {
           bulk: bulk.get(),
           toggleBulk,
           emptyBulk,
-          tickets,
+          conversations,
           channels,
-          starredTicketIds,
+          starredConversationIds,
           tags,
           channelId,
           brands,

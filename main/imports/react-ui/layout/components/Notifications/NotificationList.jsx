@@ -31,7 +31,7 @@ class NotificationList extends Component {
     const notifCount = notifications.length;
 
     let content = (
-      <ul className="tickets-list notif-list">
+      <ul className="conversations-list notif-list">
         {
           notifications.map((notif, key) =>
             <NotificationListRow

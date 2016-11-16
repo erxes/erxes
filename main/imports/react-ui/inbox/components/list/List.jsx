@@ -8,10 +8,10 @@ import ListRow from './Row.jsx';
 
 
 const propTypes = {
-  tickets: PropTypes.array.isRequired,
+  conversations: PropTypes.array.isRequired,
   channels: PropTypes.array.isRequired,
   brands: PropTypes.array.isRequired,
-  starredTicketIds: PropTypes.array.isRequired,
+  starredConversationIds: PropTypes.array.isRequired,
   tags: PropTypes.array.isRequired,
   channelId: PropTypes.string,
   userId: PropTypes.string,
@@ -22,9 +22,9 @@ const propTypes = {
 
 function List(props) {
   const {
-    tickets,
+    conversations,
     channels,
-    starredTicketIds,
+    starredConversationIds,
     tags,
     channelId,
     brands,
@@ -35,28 +35,28 @@ function List(props) {
   } = props;
 
   /**
-   * There must be only ticket ids in the 'bulk'
-   * because we can't update its content when tickets are reactively changed.
+   * There must be only conversation ids in the 'bulk'
+   * because we can't update its content when conversations are reactively changed.
    *
    * TODO: Pass this targets array to the 'Resolver' component and
-   * find tickets by those ids on component
+   * find conversations by those ids on component
    */
   const targets = bulk.map(b => b._id);
 
   const actionBarLeft = (
     <div>
       <Resolver
-        tickets={bulk}
+        conversations={bulk}
         afterSave={emptyBulk}
       />
 
       <TaggerPopover
-        type="ticket"
+        type="conversation"
         targets={targets}
         trigger={
           <Button bsStyle="link">
             <i className="ion-pricetags"></i>
-            Tag ticket <span className="caret"></span>
+            Tag <span className="caret"></span>
           </Button>
         }
         afterSave={emptyBulk}
@@ -67,19 +67,19 @@ function List(props) {
   const actionBar = <Wrapper.ActionBar left={actionBarLeft} />;
 
   const content = (
-    <ul className="tickets-list">
+    <ul className="conversations-list">
       {
-        tickets.map(ticket =>
+        conversations.map(conv =>
           <ListRow
-            starred={starredTicketIds.indexOf(ticket._id) !== -1}
-            ticket={ticket}
-            key={ticket._id}
+            starred={starredConversationIds.indexOf(conv._id) !== -1}
+            conversation={conv}
+            key={conv._id}
             toggleBulk={toggleBulk}
             channelId={channelId}
             isParticipate={
-              ticket.participatedUserIds && ticket.participatedUserIds.indexOf(userId) > -1
+              conv.participatedUserIds && conv.participatedUserIds.indexOf(userId) > -1
             }
-            isRead={ticket.readUserIds && ticket.readUserIds.indexOf(userId) > -1}
+            isRead={conv.readUserIds && conv.readUserIds.indexOf(userId) > -1}
           />
         )
       }
@@ -88,7 +88,7 @@ function List(props) {
 
   const empty = (
     <EmptyState
-      text="No ticket"
+      text="No conversation"
       size="full"
       icon={<i className="ion-email" />}
     />
@@ -100,7 +100,7 @@ function List(props) {
         header={<Wrapper.Header breadcrumb={[{ title: 'Inbox' }]} />}
         leftSidebar={<Sidebar channels={channels} brands={brands} tags={tags} />}
         actionBar={bulk.length ? actionBar : false}
-        content={tickets.length !== 0 ? content : empty}
+        content={conversations.length !== 0 ? content : empty}
       />
     </div>
   );

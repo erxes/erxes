@@ -9,22 +9,22 @@ import { Factory } from 'meteor/dburles:factory';
 import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 
 import { Customers } from '/imports/api/customers/customers';
-import commentCountDenormalizer from './commentCountDenormalizer.js';
+import messageCountDenormalizer from './messageCountDenormalizer.js';
 
-import { addParticipator } from './tickets';
+import { addParticipator } from './conversations';
 
-class CommentsCollection extends Mongo.Collection {
+class MessagesCollection extends Mongo.Collection {
   insert(doc, callback) {
-    const comment = _.extend({ createdAt: new Date() }, doc);
+    const message = _.extend({ createdAt: new Date() }, doc);
 
-    const result = super.insert(comment, callback);
+    const result = super.insert(message, callback);
 
-    commentCountDenormalizer.afterInsertComment(comment);
+    messageCountDenormalizer.afterInsertMessage(message);
 
-    if (comment.userId) {
+    if (message.userId) {
       addParticipator({
-        ticketId: comment.ticketId,
-        userId: comment.userId,
+        conversationId: message.conversationId,
+        userId: message.userId,
       });
     }
 
@@ -32,16 +32,16 @@ class CommentsCollection extends Mongo.Collection {
   }
 
   remove(selector) {
-    const comments = this.find(selector).fetch();
+    const messages = this.find(selector).fetch();
     const result = super.remove(selector);
-    commentCountDenormalizer.afterRemoveComments(comments);
+    messageCountDenormalizer.afterRemoveMessages(messages);
     return result;
   }
 }
 
-export const Comments = new CommentsCollection('ticket_comments');
+export const Messages = new MessagesCollection('conversation_messages');
 
-Comments.helpers({
+Messages.helpers({
   customer() {
     return Customers.findOne(this.customerId);
   },
@@ -51,7 +51,7 @@ Comments.helpers({
   },
 });
 
-Comments.deny({
+Messages.deny({
   insert() { return true; },
   update() { return true; },
   remove() { return true; },
@@ -76,7 +76,7 @@ export const FormSchema = new SimpleSchema({
     optional: true,
   },
 
-  ticketId: {
+  conversationId: {
     type: String,
     regEx: SimpleSchema.RegEx.Id,
   },
@@ -86,7 +86,7 @@ export const FormSchema = new SimpleSchema({
   },
 });
 
-Comments.schema = new SimpleSchema([
+Messages.schema = new SimpleSchema([
   FormSchema,
   {
     customerId: {
@@ -112,21 +112,21 @@ Comments.schema = new SimpleSchema([
   },
 ]);
 
-Comments.attachSchema(Comments.schema);
+Messages.attachSchema(Messages.schema);
 
-Comments.publicFields = {
+Messages.publicFields = {
   content: 1,
   attachments: 1,
-  ticketId: 1,
+  conversationId: 1,
   customerId: 1,
   userId: 1,
   createdAt: 1,
   internal: 1,
 };
 
-Factory.define('comment', Comments, {
+Factory.define('message', Messages, {
   content: () => faker.lorem.sentence(),
-  ticketId: () => Random.id(),
+  conversationId: () => Random.id(),
   customerId: () => Random.id(),
   userId: () => Random.id(),
   internal: () => false,

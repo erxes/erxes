@@ -13,7 +13,7 @@ import uploadHandler from '/imports/api/client/uploadHandler';
 
 
 const propTypes = {
-  ticket: PropTypes.object.isRequired,
+  conversation: PropTypes.object.isRequired,
   sendMessage: PropTypes.func.isRequired,
   setAttachmentPreview: PropTypes.func.isRequired,
 };
@@ -97,13 +97,13 @@ class RespondBox extends Component {
   }
 
   addMessage(isInternal = false) {
-    const { ticket, sendMessage } = this.props;
+    const { conversation, sendMessage } = this.props;
     const { attachments } = this.state;
     const { reply, note } = this.refs;
     const node = ReactDOM.findDOMNode(isInternal ? note : reply);
 
     const message = {
-      ticketId: ticket._id,
+      conversationId: conversation._id,
       content: node.value || ' ',
       internal: isInternal,
       attachments,

@@ -8,7 +8,7 @@ import { Random } from 'meteor/random';
 import { Factory } from 'meteor/dburles:factory';
 import { assert } from 'meteor/practicalmeteor:chai';
 
-import { Tickets } from '/imports/api/tickets/tickets';
+import { Conversations } from '/imports/api/conversations/conversations';
 
 import { Tags } from '../tags';
 import { TAG_TYPES } from '../constants';
@@ -37,21 +37,21 @@ describe('tags', function () {
 
     it('can not remove tag with tagged object(s)', function () {
       const tag = Factory.create('tag');
-      const ticketId = Factory.create('ticket', { tagIds: [tag._id] })._id;
+      const conversationId = Factory.create('conversation', { tagIds: [tag._id] })._id;
 
       assert.throws(() => {
         Tags.remove(tag._id);
       }, Meteor.Error, /tags.remove.restricted/);
 
-      Tickets.remove(ticketId);
+      Conversations.remove(conversationId);
       Tags.remove(tag._id);
     });
 
     it('decrease object count when removed', function () {
       const tagId = Factory.create('tag', { objectCount: 1 })._id;
-      const ticketId = Factory.create('ticket', { tagIds: [tagId] })._id;
+      const conversationId = Factory.create('conversation', { tagIds: [tagId] })._id;
 
-      Tickets.remove(ticketId);
+      Conversations.remove(conversationId);
       assert.equal(Tags.findOne(tagId).objectCount, 0);
     });
   });
@@ -66,7 +66,7 @@ describe('tags', function () {
     });
 
     describe('add', function () {
-      const data = { name: 'foo', type: TAG_TYPES.TICKET, colorCode: '#FFF' };
+      const data = { name: 'foo', type: TAG_TYPES.CONVERSATION, colorCode: '#FFF' };
 
       it('only works if you are logged in', function () {
         assert.throws(() => {
@@ -91,7 +91,7 @@ describe('tags', function () {
     });
 
     describe('edit', function () {
-      const data = { name: 'foo', type: TAG_TYPES.TICKET, colorCode: '#FFF' };
+      const data = { name: 'foo', type: TAG_TYPES.CONVERSATION, colorCode: '#FFF' };
 
       it('only works if you are logged in', function () {
         assert.throws(() => {
@@ -140,13 +140,13 @@ describe('tags', function () {
 
       it('can not remove tag with tagged object(s)', function () {
         const tag = Factory.create('tag');
-        const tickedId = Factory.create('ticket', { tagIds: [tag._id] })._id;
+        const tickedId = Factory.create('conversation', { tagIds: [tag._id] })._id;
 
         assert.throws(() => {
           remove._execute({ userId }, [tag._id]);
         }, Meteor.Error, /tags.remove.restricted/);
 
-        Tickets.remove(tickedId);
+        Conversations.remove(tickedId);
       });
 
       it('remove', function () {
@@ -168,20 +168,20 @@ describe('tags', function () {
     describe('tagObject', function () {
       it('verify tags', function () {
         assert.throws(() => {
-          tagObject({ tagIds: [Random.id()], objectIds: [Random.id()], collection: Tickets });
+          tagObject({ tagIds: [Random.id()], objectIds: [Random.id()], collection: Conversations });
         }, Meteor.Error, /tags.tagObject.notFound/);
       });
 
       it('tag object', function () {
         const tagId = Factory.create('tag')._id;
-        const ticketId = Factory.create('ticket')._id;
+        const conversationId = Factory.create('conversation')._id;
 
-        tagObject({ tagIds: [tagId], objectIds: [ticketId], collection: Tickets });
+        tagObject({ tagIds: [tagId], objectIds: [conversationId], collection: Conversations });
 
         assert.equal(Tags.findOne(tagId).objectCount, 1);
-        assert.equal(Tickets.findOne(ticketId).tagIds[0], tagId);
+        assert.equal(Conversations.findOne(conversationId).tagIds[0], tagId);
 
-        tagObject({ tagIds: [], objectIds: [ticketId], collection: Tickets });
+        tagObject({ tagIds: [], objectIds: [conversationId], collection: Conversations });
         assert.equal(Tags.findOne(tagId).objectCount, 0);
       });
     });

@@ -13,14 +13,14 @@ import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 import { uploadFile } from '/imports/api/server/utils';
 import { Brands } from '/imports/api/brands/brands';
 import { Customers } from '/imports/api/customers/customers';
-import { Comments } from '/imports/api/tickets/comments';
-import { Tickets } from '/imports/api/tickets/tickets';
-import { TICKET_STATUSES } from '/imports/api/tickets/constants';
+import { Messages } from '/imports/api/conversations/messages';
+import { Conversations } from '/imports/api/conversations/conversations';
+import { CONVERSATION_STATUSES } from '/imports/api/conversations/constants';
 
 
 // **************************** Helpers ********************** //
 
-export function addTicket(data) {
+export function addConversation(data) {
   check(data, {
     content: String,
     customerId: String,
@@ -29,14 +29,14 @@ export function addTicket(data) {
 
   if (!Customers.findOne(data.customerId)) {
     throw new Meteor.Error(
-      'tickets.addTicket.customerNotFound',
+      'conversations.addConversation.customerNotFound',
       'Customer not found'
     );
   }
 
-  return Tickets.insert(
+  return Conversations.insert(
     _.extend(data, {
-      status: TICKET_STATUSES.NEW,
+      status: CONVERSATION_STATUSES.NEW,
     })
   );
 }
@@ -49,31 +49,31 @@ const attachmentsChecker = {
   type: String,
 };
 
-export function addComment(doc) {
+export function addMessage(doc) {
   check(doc, {
     content: String,
     attachments: Match.Optional([attachmentsChecker]),
     customerId: String,
-    ticketId: String,
+    conversationId: String,
   });
 
   const data = _.extend({ internal: false }, doc);
 
-  if (!Tickets.findOne(doc.ticketId)) {
+  if (!Conversations.findOne(doc.conversationId)) {
     throw new Meteor.Error(
-      'tickets.addComment.ticketNotFound',
-      'Ticket not found'
+      'conversations.addMessage.conversationNotFound',
+      'Conversation not found'
     );
   }
 
   if (!Customers.findOne(data.customerId)) {
     throw new Meteor.Error(
-      'tickets.addComment.customerNotFound',
+      'conversations.addMessage.customerNotFound',
       'Customer not found'
     );
   }
 
-  return Comments.insert(data);
+  return Messages.insert(data);
 }
 
 function checkConnection(conn) {
@@ -198,7 +198,7 @@ export const sendMessage = new ValidatedMethod({
     check(doc, {
       message: String,
       attachments: Match.Optional([attachmentsChecker]),
-      ticketId: Match.Optional(String),
+      conversationId: Match.Optional(String),
     });
 
     validateConnection(this.connection);
@@ -208,45 +208,45 @@ export const sendMessage = new ValidatedMethod({
     const customerId = this.connection._customerId;
     const brandId = this.connection._brandId;
 
-    let ticket;
-    let ticketId;
+    let conversation;
+    let conversationId;
 
-    // customer can write message to even closed ticket
-    if (doc.ticketId) {
-      ticketId = doc.ticketId;
-      ticket = Tickets.findOne({ _id: ticketId });
+    // customer can write message to even closed conversation
+    if (doc.conversationId) {
+      conversationId = doc.conversationId;
+      conversation = Conversations.findOne({ _id: conversationId });
     }
 
-    if (ticket) {
+    if (conversation) {
       // empty read users list then it will be shown as unread again
-      Tickets.update({ _id: ticket._id }, { $set: { readUserIds: [] } });
+      Conversations.update({ _id: conversation._id }, { $set: { readUserIds: [] } });
 
-    // create new ticket
+    // create new conversation
     } else {
-      ticketId = addTicket({
+      conversationId = addConversation({
         customerId,
         brandId,
         content: doc.message,
       });
     }
 
-    // create comment
-    const commentOptions = {
-      ticketId,
+    // create message
+    const messageOptions = {
+      conversationId,
       customerId,
       content: doc.message,
     };
 
     if (doc.attachments) {
-      commentOptions.attachments = doc.attachments;
+      messageOptions.attachments = doc.attachments;
     }
 
     return {
-      // old or newly added ticket's id
-      conversationId: ticketId,
+      // old or newly added conversation's id
+      conversationId,
 
-      // insert comment
-      messageId: addComment(commentOptions),
+      // insert message
+      messageId: addMessage(messageOptions),
     };
   },
 });
@@ -279,9 +279,9 @@ export const customerReadMessages = new ValidatedMethod({
   },
 
   run(conversationId) {
-    return Comments.update(
+    return Messages.update(
       {
-        ticketId: conversationId,
+        conversationId,
         userId: { $exists: true },
         isCustomerRead: { $exists: false },
       },
@@ -302,25 +302,25 @@ Meteor.publishComposite('api.conversations', function conversations() {
 
   return {
     find() {
-      // find current users tickets
-      return Tickets.find(
+      // find current users conversations
+      return Conversations.find(
         { customerId: conn._customerId },
-        { fields: Tickets.publicFields }
+        { fields: Conversations.publicFields }
       );
     },
 
     children: [
       {
-        // publish every ticket's unread count
-        find(ticket) {
-          const cursor = Comments.find({
-            ticketId: ticket._id,
+        // publish every conversation's unread count
+        find(conversation) {
+          const cursor = Messages.find({
+            conversationId: conversation._id,
             userId: { $exists: true },
             isCustomerRead: { $exists: false },
           });
 
           Counts.publish(
-            this, `unreadCommentsCount_${ticket._id}`, cursor, { noReady: true });
+            this, `unreadMessagesCount_${conversation._id}`, cursor, { noReady: true });
 
           return null;
         },
@@ -330,8 +330,8 @@ Meteor.publishComposite('api.conversations', function conversations() {
 });
 
 
-Meteor.publishComposite('api.messages', function apiMessages(ticketId) {
-  check(ticketId, Match.Maybe(String));
+Meteor.publishComposite('api.messages', function apiMessages(conversationId) {
+  check(conversationId, Match.Maybe(String));
 
   if (checkConnection(this.connection)) {
     return { find() { this.ready(); } };
@@ -339,22 +339,22 @@ Meteor.publishComposite('api.messages', function apiMessages(ticketId) {
 
   return {
     find() {
-      return Comments.find(
-        { ticketId,
+      return Messages.find(
+        { conversationId,
           internal: false,
         },
         {
           sort: { createdAt: 1 },
-          fields: Comments.publicFields,
+          fields: Messages.publicFields,
         }
       );
     },
 
     children: [
       {
-        find(comment) {
+        find(message) {
           return Meteor.users.find(
-            comment.userId,
+            message.userId,
             { fields: { details: 1 } }
           );
         },

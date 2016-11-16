@@ -17,10 +17,10 @@ import '/imports/api/channels/methods';
 import '/imports/api/integrations/server/publications';
 import '/imports/api/integrations/methods';
 
-import '/imports/api/tickets/server/publications';
-import '/imports/api/tickets/server/methods';
-import '/imports/api/tickets/server/cronJobs';
-import '/imports/api/tickets/methods';
+import '/imports/api/conversations/server/publications';
+import '/imports/api/conversations/server/methods';
+import '/imports/api/conversations/server/cronJobs';
+import '/imports/api/conversations/methods';
 
 import '/imports/api/tags/server/publications';
 import '/imports/api/tags/methods';

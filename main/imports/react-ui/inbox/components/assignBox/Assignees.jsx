@@ -1,11 +1,11 @@
 import React, { PropTypes } from 'react';
 
 const propTypes = {
-  ticket: PropTypes.object.isRequired,
+  conversation: PropTypes.object.isRequired,
 };
 
-function Assignees({ ticket }) {
-  const assignedUser = ticket.assignedUser();
+function Assignees({ conversation }) {
+  const assignedUser = conversation.assignedUser();
   const assignedUserName = assignedUser && assignedUser.details && assignedUser.details.fullName ?
                 `Assigned to ${assignedUser.details.fullName}` : 'Not assigned';
 

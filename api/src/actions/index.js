@@ -5,7 +5,7 @@ import { store } from '../template.js';
 export const Chat = ChatActions;
 
 export function collectionItemAdded({ collection, _id, fields }) {
-  if (collection === 'tickets') {
+  if (collection === 'conversations') {
     store.dispatch({
       ...fields,
       _id,
@@ -13,7 +13,7 @@ export function collectionItemAdded({ collection, _id, fields }) {
     });
   }
 
-  if (collection === 'ticket_comments') {
+  if (collection === 'conversation_messages') {
     store.dispatch({
       ...fields,
       _id,

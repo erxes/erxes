@@ -8,29 +8,29 @@ import { sendEmail } from '/imports/api/server/utils';
 import { Customers } from '/imports/api/customers/customers';
 import { Brands } from '/imports/api/brands/brands';
 
-import { Tickets } from '../tickets';
-import { TICKET_STATUSES } from '../constants';
-import { Comments } from '../comments';
+import { Conversations } from '../conversations';
+import { CONVERSATION_STATUSES } from '../constants';
+import { Messages } from '../messages';
 
 
-function sendCommentEmail() {
-  // new or open tickets
-  const tickets = Tickets.find(
-    { status: { $in: [TICKET_STATUSES.NEW, TICKET_STATUSES.OPEN] } },
+function sendMessageEmail() {
+  // new or open conversations
+  const conversations = Conversations.find(
+    { status: { $in: [CONVERSATION_STATUSES.NEW, CONVERSATION_STATUSES.OPEN] } },
     { fields: { _id: 1, customerId: 1, brandId: 1 } }
   );
 
-  _.each(tickets.fetch(), (ticket) => {
-    const customer = Customers.findOne(ticket.customerId);
-    const brand = Brands.findOne(ticket.brandId);
+  _.each(conversations.fetch(), (conversation) => {
+    const customer = Customers.findOne(conversation.customerId);
+    const brand = Brands.findOne(conversation.brandId);
 
     if (!customer || !customer.email) { return; }
     if (!brand) { return; }
 
     // user's last non answered question
-    const question = Comments.findOne(
+    const question = Messages.findOne(
       {
-        ticketId: ticket._id,
+        conversationId: conversation._id,
         customerId: { $exists: true },
       },
       { sort: { createdAt: -1 } }
@@ -41,9 +41,9 @@ function sendCommentEmail() {
     // generate admin unread answers
     const answers = [];
 
-    const adminComments = Comments.find(
+    const adminMessages = Messages.find(
       {
-        ticketId: ticket._id,
+        conversationId: conversation._id,
         userId: { $exists: true },
         isCustomerRead: { $exists: false },
 
@@ -53,11 +53,11 @@ function sendCommentEmail() {
       { sort: { createdAt: 1 } }
     ).fetch();
 
-    _.each(adminComments, (comment) => {
-      const answer = comment;
+    _.each(adminMessages, (message) => {
+      const answer = message;
 
       // add user object to answer
-      answer.user = Meteor.users.findOne(comment.userId);
+      answer.user = Meteor.users.findOne(message.userId);
       answer.createdAt = moment(answer.createdAt).format('DD MMM YY, HH:mm');
       answers.push(answer);
     });
@@ -88,16 +88,16 @@ function sendCommentEmail() {
       to: customer.email,
       subject: `Reply from "${brand.name}"`,
       template: {
-        name: 'ticketCron',
+        name: 'conversationCron',
         isCustom: true,
         data,
       },
     });
 
-    // mark sent comments as read
-    Comments.update(
+    // mark sent messages as read
+    Messages.update(
       {
-        ticketId: ticket._id,
+        conversationId: conversation._id,
         userId: { $exists: true },
         isCustomerRead: { $exists: false },
       },
@@ -108,7 +108,7 @@ function sendCommentEmail() {
 }
 
 SyncedCron.add({
-  name: 'Send unread ticket comments to customer\'s email',
+  name: 'Send unread conversation messages to customer\'s email',
 
   schedule(parser) {
     // return parser.text('every 10 seconds');
@@ -116,6 +116,6 @@ SyncedCron.add({
   },
 
   job() {
-    sendCommentEmail();
+    sendMessageEmail();
   },
 });

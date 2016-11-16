@@ -1,4 +1,4 @@
-export const TICKET_STATUSES = {
+export const CONVERSATION_STATUSES = {
   NEW: 'new',
   OPEN: 'open',
   CLOSED: 'closed',

@@ -8,7 +8,7 @@ import { Tags as TagsCollection } from '/imports/api/tags/tags';
 
 
 const propTypes = {
-  ticket: PropTypes.object.isRequired,
+  conversation: PropTypes.object.isRequired,
   toggleBulk: PropTypes.func.isRequired,
   starred: PropTypes.bool.isRequired,
   channelId: PropTypes.string,
@@ -25,25 +25,25 @@ class Row extends Component {
   }
 
   toggleBulk(e) {
-    const { toggleBulk, ticket } = this.props;
-    toggleBulk(ticket, e.target.checked);
+    const { toggleBulk, conversation } = this.props;
+    toggleBulk(conversation, e.target.checked);
   }
 
   goDetail() {
-    const { ticket, channelId } = this.props;
+    const { conversation, channelId } = this.props;
 
-    FlowRouter.go('inbox/details', { id: ticket._id }, { channelId });
+    FlowRouter.go('inbox/details', { id: conversation._id }, { channelId });
   }
 
   render() {
-    const { ticket, starred, isRead, isParticipate } = this.props;
-    const { createdAt, content, commentCount } = ticket;
-    const customer = ticket.customer();
+    const { conversation, starred, isRead, isParticipate } = this.props;
+    const { createdAt, content, messageCount } = conversation;
+    const customer = conversation.customer();
     const isReadClass = !isRead ? 'unread' : null;
-    const integration = ticket.integration();
+    const integration = conversation.integration();
 
-    // TODO: use embedded tags list of the ticket object
-    const tags = TagsCollection.find({ _id: { $in: ticket.tagIds || [] } }).fetch();
+    // TODO: use embedded tags list of the conversation object
+    const tags = TagsCollection.find({ _id: { $in: conversation.tagIds || [] } }).fetch();
 
     return (
       <li className={isReadClass}>
@@ -73,18 +73,18 @@ class Row extends Component {
               </div>
             </div>
 
-            <Assignees ticket={ticket} />
+            <Assignees conversation={conversation} />
 
             <div className="info">
-              <span><i className="ion-reply"></i> {commentCount}</span>
-              <span><i className="ion-person"></i> {ticket.participatorCount()}</span>
+              <span><i className="ion-reply"></i> {messageCount}</span>
+              <span><i className="ion-person"></i> {conversation.participatorCount()}</span>
             </div>
           </footer>
         </div>
 
         <div className="column togglers">
           <span>
-            <Starrer ticket={ticket} starred={starred} />
+            <Starrer conversation={conversation} starred={starred} />
           </span>
           {
             isParticipate ?

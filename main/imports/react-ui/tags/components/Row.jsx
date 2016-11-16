@@ -39,7 +39,7 @@ function Row({ tag, remove }) {
       <td className="text-right">
         <ActionButtons>
           <ModalTrigger title="Edit response" trigger={editTrigger}>
-            <Form type="ticket" tag={tag} />
+            <Form type="conversation" tag={tag} />
           </ModalTrigger>
 
           <Tip text="Delete">

@@ -8,13 +8,13 @@ import { Tags } from '/imports/api/tags/tags';
 import { Channels } from '/imports/api/channels/channels';
 import { Brands } from '/imports/api/brands/brands';
 
-import { Tickets } from '../tickets';
-import { Comments } from '../comments';
+import { Conversations } from '../conversations';
+import { Messages } from '../messages';
 
 import ListQueryBuilder from './queryBuilder';
 
 
-Meteor.publishComposite('tickets.list', function ticketsList(params) {
+Meteor.publishComposite('conversations.list', function conversationsList(params) {
   check(params, Object);
 
   if (!this.userId) {
@@ -30,43 +30,43 @@ Meteor.publishComposite('tickets.list', function ticketsList(params) {
   qb.checkParams();
 
   const countPublish = (name, query) => {
-    Counts.publish(this, name, Tickets.find(query), { noReady: true });
+    Counts.publish(this, name, Conversations.find(query), { noReady: true });
   };
 
   // all conversation count
   countPublish(
-    'tickets.counts.allConversation',
+    'conversations.counts.allConversation',
     qb.buildMain()
   );
 
   // unassigned count
   countPublish(
-    'tickets.counts.unassiged',
+    'conversations.counts.unassiged',
     _.extend({}, qb.mainQuery, qb.buildUnassigned())
   );
 
   // participating count
   countPublish(
-    'tickets.counts.participating',
+    'conversations.counts.participating',
     _.extend({}, qb.mainQuery, qb.participatedUserFilter(user._id))
   );
 
   // starred count
   countPublish(
-    'tickets.counts.starred',
+    'conversations.counts.starred',
     _.extend({}, qb.mainQuery, qb.buildStarred())
   );
 
   // resolved count
   countPublish(
-    'tickets.counts.resolved',
+    'conversations.counts.resolved',
     _.extend({}, qb.mainQuery, qb.statusFilter(['closed']))
   );
 
   // by brands
   Brands.find().forEach((brand) => {
     countPublish(
-      `tickets.counts.byBrand${brand._id}`,
+      `conversations.counts.byBrand${brand._id}`,
       _.extend({}, qb.mainQuery, qb.brandFilter(brand._id))
     );
   });
@@ -74,7 +74,7 @@ Meteor.publishComposite('tickets.list', function ticketsList(params) {
   // by tags
   Tags.find().forEach((tag) => {
     countPublish(
-      `tickets.counts.byTag${tag._id}`,
+      `conversations.counts.byTag${tag._id}`,
       _.extend({}, qb.mainQuery, qb.tagFilter(tag._id))
     );
   });
@@ -82,17 +82,17 @@ Meteor.publishComposite('tickets.list', function ticketsList(params) {
   // by channels
   Channels.find().forEach((channel) => {
     countPublish(
-      `tickets.counts.byChannel${channel._id}`,
+      `conversations.counts.byChannel${channel._id}`,
       _.extend({}, qb.channelFilter(channel._id))
     );
   });
 
   return {
     find() {
-      return Tickets.find(
+      return Conversations.find(
         qb.mainFilter(),
         {
-          fields: Tickets.publicField,
+          fields: Conversations.publicField,
           sort: { createdAt: -1 },
         }
       );
@@ -100,17 +100,17 @@ Meteor.publishComposite('tickets.list', function ticketsList(params) {
 
     children: [
       {
-        find(ticket) {
+        find(conversation) {
           return Customers.find(
-            ticket.customerId,
+            conversation.customerId,
             { fields: Customers.publicFields }
           );
         },
       },
       {
-        find(ticket) {
+        find(conversation) {
           return Meteor.users.find(
-            ticket.assignedUserId,
+            conversation.assignedUserId,
             { fields: { details: 1, emails: 1 } }
           );
         },
@@ -119,7 +119,7 @@ Meteor.publishComposite('tickets.list', function ticketsList(params) {
   };
 });
 
-Meteor.publishComposite('tickets.detail', function ticketsDetail(id) {
+Meteor.publishComposite('conversations.detail', function conversationsDetail(id) {
   check(id, String);
 
   if (! this.userId) {
@@ -129,22 +129,22 @@ Meteor.publishComposite('tickets.detail', function ticketsDetail(id) {
 
   return {
     find() {
-      return Tickets.find(id, { fields: Tickets.publicFields });
+      return Conversations.find(id, { fields: Conversations.publicFields });
     },
 
     children: [
       {
-        find(ticket) {
+        find(conversation) {
           return Customers.find(
-            ticket.customerId,
+            conversation.customerId,
             { fields: Customers.publicFields }
           );
         },
       },
       {
-        find(ticket) {
+        find(conversation) {
           return Meteor.users.find(
-            ticket.assignedUserId,
+            conversation.assignedUserId,
             { fields: { details: 1, emails: 1 } }
           );
         },
@@ -153,8 +153,8 @@ Meteor.publishComposite('tickets.detail', function ticketsDetail(id) {
   };
 });
 
-Meteor.publishComposite('tickets.commentList', function ticketsCommentList(ticketId) {
-  check(ticketId, String);
+Meteor.publishComposite('conversations.messageList', function messageList(conversationId) {
+  check(conversationId, String);
 
   if (! this.userId) {
     return { find() { this.ready(); } };
@@ -162,25 +162,25 @@ Meteor.publishComposite('tickets.commentList', function ticketsCommentList(ticke
 
   return {
     find() {
-      return Comments.find(
-        { ticketId },
-        { fields: Comments.publicFields }
+      return Messages.find(
+        { conversationId },
+        { fields: Messages.publicFields }
       );
     },
 
     children: [
       {
-        find(comment) {
+        find(message) {
           return Customers.find(
-            comment.customerId,
+            message.customerId,
             { fields: Customers.publicFields }
           );
         },
       },
       {
-        find(comment) {
+        find(message) {
           return Meteor.users.find(
-            comment.userId,
+            message.userId,
             { fields: { details: 1, emails: 1 } }
           );
         },

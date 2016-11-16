@@ -3,8 +3,8 @@ import { Meteor } from 'meteor/meteor';
 import Tagger from '../components/Tagger.jsx';
 import { TAG_TYPES } from '/imports/api/tags/constants';
 import { Tags } from '/imports/api/tags/tags';
-import { Tickets } from '/imports/api/tickets/tickets';
-import { tagTicket } from '/imports/api/tickets/client/methods';
+import { Conversations } from '/imports/api/conversations/conversations';
+import { tagConversation } from '/imports/api/conversations/client/methods';
 
 
 function composer(props, onData) {
@@ -14,13 +14,13 @@ function composer(props, onData) {
     switch (type) {
       case TAG_TYPES.CUSTOMER:
         return undefined;
-      case TAG_TYPES.TICKET:
+      case TAG_TYPES.CONVERSATION:
       default:
-        return tagTicket({ ticketIds: targetIds, tagIds }, callback);
+        return tagConversation({ conversationIds: targetIds, tagIds }, callback);
     }
   }
 
-  const targets = Tickets.find({ _id: { $in: props.targets } }).fetch();
+  const targets = Conversations.find({ _id: { $in: props.targets } }).fetch();
 
   const tagsHandle = Meteor.subscribe('tags.tagList', type);
 

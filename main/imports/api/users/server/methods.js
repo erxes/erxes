@@ -8,7 +8,7 @@ import { Accounts } from 'meteor/accounts-base';
 import { sendEmail } from '/imports/api/server/utils';
 import { ErxesMixin } from '/imports/api/utils';
 import { Channels } from '/imports/api/channels/channels';
-import { Tickets } from '/imports/api/tickets/tickets';
+import { Conversations } from '/imports/api/conversations/conversations';
 import { CreateInvitationSchema, UpdateInvitationSchema } from '../schemas';
 import { ProfileSchema, EmailSignaturesSchema } from '../schemas';
 
@@ -200,18 +200,18 @@ export const remove = new ValidatedMethod({
       );
     }
 
-    // if the user involved in any ticket then can not delete this user
-    if (Tickets.find({ assignedUserId: userId }).count() > 0) {
+    // if the user involved in any conversation then can not delete this user
+    if (Conversations.find({ assignedUserId: userId }).count() > 0) {
       throw new Meteor.Error(
-        'users.remove.involvedInTicket',
-        'Involved in ticket'
+        'users.remove.involvedInConversation',
+        'Involved in conversation'
       );
     }
 
-    if (Tickets.find({ participatedUserIds: { $in: [userId] } }).count() > 0) {
+    if (Conversations.find({ participatedUserIds: { $in: [userId] } }).count() > 0) {
       throw new Meteor.Error(
-        'users.remove.involvedInTicket',
-        'Involved in ticket'
+        'users.remove.involvedInConversation',
+        'Involved in conversation'
       );
     }
 

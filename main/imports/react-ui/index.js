@@ -6,7 +6,6 @@ import './customers/routes.jsx';
 import './auth/routes.jsx';
 import './inbox/routes.jsx';
 import './engage/routes.jsx';
-import './tickets/routes.jsx';
 import './home/routes.jsx';
 import './tags/routes.jsx';
 import './settings/routes.jsx';
