@@ -5,7 +5,7 @@ import { Spinner } from '/imports/react-ui/common';
 
 
 const propTypes = {
-  ticket: PropTypes.object.isRequired,
+  conversation: PropTypes.object.isRequired,
   messages: PropTypes.array.isRequired,
   attachmentPreview: PropTypes.object,
 };
@@ -38,7 +38,7 @@ class Conversation extends Component {
   }
 
   render() {
-    const { ticket, messages } = this.props;
+    const { conversation, messages } = this.props;
     let tempId;
 
     const rows = [];
@@ -52,7 +52,7 @@ class Conversation extends Component {
             message.customerId === tempId
           }
           message={message}
-          staff={message.customerId !== ticket.customerId}
+          staff={message.customerId !== conversation.customerId}
           key={message._id}
         />
       );

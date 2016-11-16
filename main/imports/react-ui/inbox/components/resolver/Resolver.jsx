@@ -5,11 +5,11 @@ import Alert from 'meteor/erxes-notifier';
 
 
 const propTypes = {
-  tickets: PropTypes.array.isRequired,
+  conversations: PropTypes.array.isRequired,
   single: PropTypes.bool,
   changeStatus: PropTypes.func.isRequired,
   afterSave: PropTypes.func.isRequired,
-  TICKET_STATUSES: PropTypes.object.isRequired,
+  CONVERSATION_STATUSES: PropTypes.object.isRequired,
 };
 
 class Resolver extends Component {
@@ -22,15 +22,15 @@ class Resolver extends Component {
   }
 
   resolve() {
-    this.changeStatus(this.props.TICKET_STATUSES.CLOSED);
+    this.changeStatus(this.props.CONVERSATION_STATUSES.CLOSED);
   }
 
   open() {
-    this.changeStatus(this.props.TICKET_STATUSES.OPEN);
+    this.changeStatus(this.props.CONVERSATION_STATUSES.OPEN);
   }
 
   changeStatus(status) {
-    const args = { ticketIds: _.map(this.props.tickets, '_id'), status };
+    const args = { conversationIds: _.map(this.props.conversations, '_id'), status };
 
     this.props.changeStatus(args, (error) => {
       if (error) {
@@ -42,9 +42,9 @@ class Resolver extends Component {
   }
 
   render() {
-    const { tickets, TICKET_STATUSES } = this.props;
-    const allNotClosed = _.reduce(tickets, (memo, ticket) =>
-      ticket.status !== TICKET_STATUSES.CLOSED, true);
+    const { conversations, CONVERSATION_STATUSES } = this.props;
+    const allNotClosed = _.reduce(conversations, (memo, conversation) =>
+      conversation.status !== CONVERSATION_STATUSES.CLOSED, true);
 
     return (
       allNotClosed

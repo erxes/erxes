@@ -7,7 +7,7 @@ import { DropdownToggle } from '/imports/react-ui/common';
 
 
 const propTypes = {
-  ticket: PropTypes.object.isRequired,
+  conversation: PropTypes.object.isRequired,
   assignees: PropTypes.array.isRequired,
   assign: PropTypes.func.isRequired,
   children: PropTypes.node.isRequired,
@@ -23,9 +23,9 @@ class AssignBox extends Component {
   }
 
   setAssignee(userId) {
-    const { assign, ticket } = this.props;
+    const { assign, conversation } = this.props;
 
-    assign([ticket._id], userId, error => {
+    assign([conversation._id], userId, error => {
       if (error) {
         Alert.error('Error', error.reason);
       }
@@ -33,9 +33,9 @@ class AssignBox extends Component {
   }
 
   clearAssignee() {
-    const { clear, ticket } = this.props;
+    const { clear, conversation } = this.props;
 
-    clear([ticket._id], error => {
+    clear([conversation._id], error => {
       if (error) {
         Alert.error('Error', error.reason);
       }
@@ -43,7 +43,7 @@ class AssignBox extends Component {
   }
 
   renderUnassign() {
-    if (!this.props.ticket.assignedUserId) {
+    if (!this.props.conversation.assignedUserId) {
       return null;
     }
 

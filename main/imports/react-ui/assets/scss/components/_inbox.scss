@@ -1,4 +1,4 @@
-.tickets-list {
+.conversations-list {
   margin: 0;
   padding: 0;
   list-style: none;
@@ -72,12 +72,12 @@
       }
     }
 
-    .ticket-starrer {
+    .conversation-starrer {
       visibility: hidden;
     }
 
     &:hover {
-      .ticket-starrer {
+      .conversation-starrer {
         visibility: visible;
       }
     }
@@ -190,7 +190,7 @@
   }
 }
 
-.ticket-starrer {
+.conversation-starrer {
   color: #7A5CB5;
   cursor: pointer;
 }

@@ -3,7 +3,7 @@ import React, { PropTypes } from 'react';
 import { Counts } from 'meteor/tmeasday:publish-counts';
 import { FlowRouter } from 'meteor/kadira:flow-router';
 import { Wrapper } from '/imports/react-ui/layout/components';
-import { TICKET_STATUSES } from '/imports/api/tickets/constants';
+import { CONVERSATION_STATUSES } from '/imports/api/conversations/constants';
 
 
 const propTypes = {
@@ -29,7 +29,7 @@ function Sidebar({ channels, tags, brands }) {
                <a href={FlowRouter.path('inbox/list', { channelId: channel._id })}>
                  <span className="icon">#</span>{channel.name}
                  <span className="counter">
-                   {Counts.get(`tickets.counts.byChannel${channel._id}`)}
+                   {Counts.get(`conversations.counts.byChannel${channel._id}`)}
                  </span>
                </a>
              </li>
@@ -51,7 +51,7 @@ function Sidebar({ channels, tags, brands }) {
                 <a href={`?brandId=${brand._id}`}>
                   <span className="icon">#</span>{brand.name}
                   <span className="counter">
-                    {Counts.get(`tickets.counts.byBrand${brand._id}`)}
+                    {Counts.get(`conversations.counts.byBrand${brand._id}`)}
                   </span>
                 </a>
               </li>
@@ -71,7 +71,7 @@ function Sidebar({ channels, tags, brands }) {
             <a href="?unassigned=true">
               Unassigned
               <span className="counter">
-               {Counts.get('tickets.counts.unassiged')}
+               {Counts.get('conversations.counts.unassiged')}
               </span>
             </a>
           </li>
@@ -79,15 +79,15 @@ function Sidebar({ channels, tags, brands }) {
             <a href={`?participatedUserId=${Meteor.userId()}`}>
               Participating
               <span className="counter">
-                {Counts.get('tickets.counts.participating')}
+                {Counts.get('conversations.counts.participating')}
               </span>
             </a>
           </li>
           <li>
-            <a href={`?status=${TICKET_STATUSES.CLOSED}`}>
+            <a href={`?status=${CONVERSATION_STATUSES.CLOSED}`}>
               Resolved
               <span className="counter">
-                {Counts.get('tickets.counts.resolved')}
+                {Counts.get('conversations.counts.resolved')}
               </span>
             </a>
           </li>
@@ -95,7 +95,7 @@ function Sidebar({ channels, tags, brands }) {
             <a href="?starred=1">
              Starred
               <span className="counter">
-                {Counts.get('tickets.counts.starred')}
+                {Counts.get('conversations.counts.starred')}
               </span>
             </a>
           </li>
@@ -104,7 +104,7 @@ function Sidebar({ channels, tags, brands }) {
       <Wrapper.Sidebar.Section>
         <h3>
           Filter by tags
-          <a href={FlowRouter.path('tags/list', { type: 'ticket' })} className="quick-button">
+          <a href={FlowRouter.path('tags/list', { type: 'conversation' })} className="quick-button">
             <i className="ion-gear-a" />
           </a>
         </h3>
@@ -121,7 +121,7 @@ function Sidebar({ channels, tags, brands }) {
                >
                  <i className="fa fa-tag icon" style={{ color: tag.colorCode }}></i>{tag.name}
                  <span className="counter">
-                   {Counts.get(`tickets.counts.byTag${tag._id}`)}
+                   {Counts.get(`conversations.counts.byTag${tag._id}`)}
                  </span>
                </a>
              </li>

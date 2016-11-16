@@ -1,5 +1,5 @@
 import { composeWithTracker } from 'react-komposer';
-import { addComment } from '/imports/api/tickets/methods';
+import { addComment } from '/imports/api/conversations/methods';
 import { RespondBox } from '../components';
 
 
@@ -9,7 +9,7 @@ function composer(props, onData) {
   };
 
   onData(null, {
-    ticket: props.ticket,
+    conversation: props.conversation,
     sendMessage,
   });
 }

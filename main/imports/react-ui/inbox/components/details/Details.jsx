@@ -7,7 +7,7 @@ import { RespondBox } from '../../containers';
 
 
 const propTypes = {
-  ticket: PropTypes.object.isRequired,
+  conversation: PropTypes.object.isRequired,
   comments: PropTypes.array.isRequired,
   channelId: PropTypes.string,
   changeStatus: PropTypes.func.isRequired,
@@ -17,7 +17,7 @@ const propTypes = {
 
 function Details(props) {
   const {
-    ticket,
+    conversation,
     comments,
     channelId,
     changeStatus,
@@ -28,7 +28,7 @@ function Details(props) {
   const content = (
     <div className="margined">
       <Conversation
-        ticket={ticket}
+        conversation={conversation}
         messages={comments}
         attachmentPreview={attachmentPreview}
       />
@@ -37,7 +37,7 @@ function Details(props) {
 
   const breadcrumb = [
     { title: 'Inbox', link: '/inbox' },
-    { title: 'Ticket' },
+    { title: 'Conversation' },
   ];
 
   return (
@@ -46,7 +46,7 @@ function Details(props) {
         header={<Wrapper.Header breadcrumb={breadcrumb} />}
         leftSidebar={
           <Sidebar
-            ticket={ticket}
+            conversation={conversation}
             commentsCount={comments.length}
             changeStatus={changeStatus}
             channelId={channelId}
@@ -56,11 +56,11 @@ function Details(props) {
         content={content}
         footer={
           <RespondBox
-            ticket={ticket}
+            conversation={conversation}
             setAttachmentPreview={setAttachmentPreview}
           />
         }
-        rightSidebar={<RightSidebar ticket={ticket} />}
+        rightSidebar={<RightSidebar conversation={conversation} />}
       />
     </div>
   );

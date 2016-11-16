@@ -3,14 +3,14 @@ import Alert from 'meteor/erxes-notifier';
 
 
 const propTypes = {
-  ticket: PropTypes.object.isRequired,
+  conversation: PropTypes.object.isRequired,
   starred: PropTypes.bool.isRequired,
   toggleStar: PropTypes.func.isRequired,
 };
 
-function Starrer({ ticket, starred, toggleStar }) {
+function Starrer({ conversation, starred, toggleStar }) {
   function toggle() {
-    toggleStar({ starred: !starred, ticketIds: [ticket._id] }, error => {
+    toggleStar({ starred: !starred, conversationIds: [conversation._id] }, error => {
       if (error) {
         Alert.error('Error', error.reason || error.message || error.toString());
       }
@@ -19,7 +19,7 @@ function Starrer({ ticket, starred, toggleStar }) {
 
   return (
     <i
-      className={`ticket-starrer ion-ios-star${starred ? '' : '-outline'}`}
+      className={`conversation-starrer ion-ios-star${starred ? '' : '-outline'}`}
       onClick={toggle}
     />
   );
