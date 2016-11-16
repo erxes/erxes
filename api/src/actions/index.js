@@ -13,7 +13,7 @@ export function collectionItemAdded({ collection, _id, fields }) {
     });
   }
 
-  if (collection === 'conversation_comments') {
+  if (collection === 'conversation_messages') {
     store.dispatch({
       ...fields,
       _id,
