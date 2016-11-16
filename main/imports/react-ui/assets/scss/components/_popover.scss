@@ -27,6 +27,10 @@
 
 .popover-content {
   padding: 0;
+
+  [data-loader='circle-side'] {
+    margin: 60px auto;
+  }
 }
 
 .popover-header {
@@ -115,4 +119,3 @@
     }
   }
 }
-
