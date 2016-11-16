@@ -69,14 +69,17 @@ function List(props) {
   const content = (
     <ul className="conversations-list">
       {
-        conversations.map(conversation =>
+        conversations.map(conv =>
           <ListRow
-            starred={starredConversationIds.indexOf(conversation._id) !== -1}
-            conversation={conversation}
-            key={conversation._id}
+            starred={starredConversationIds.indexOf(conv._id) !== -1}
+            conversation={conv}
+            key={conv._id}
             toggleBulk={toggleBulk}
             channelId={channelId}
-            isRead={conversation.readUserIds && conversation.readUserIds.indexOf(userId) > -1}
+            isParticipate={
+              conv.participatedUserIds && conv.participatedUserIds.indexOf(userId) > -1
+            }
+            isRead={conv.readUserIds && conv.readUserIds.indexOf(userId) > -1}
           />
         )
       }

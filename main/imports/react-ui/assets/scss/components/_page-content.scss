@@ -2,7 +2,8 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-
+  min-width: 500px;
+  
   .action-bar {
     background: $white;
     border-radius: $border-radius;

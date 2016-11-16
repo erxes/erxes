@@ -1,5 +1,7 @@
 import React, { PropTypes, Component } from 'react';
+import moment from 'moment';
 import { Chat } from '../../actions';
+
 
 const propTypes = {
   dispatch: PropTypes.func.isRequired,
@@ -27,13 +29,34 @@ class Conversation extends Component {
     this.props.dispatch(Chat.readMessages(conversationId));
   }
 
-  render() {
-    const { conversation, notifCount } = this.props;
+  renderNewMessageCount() {
+    const { notifCount } = this.props;
+    if (notifCount > 0) {
+      return (
+        <div className="erxes-notif-count">
+          {notifCount} new
+        </div>
+      );
+    }
+    return null;
+  }
 
+  renderMessageClass() {
+    return this.props.notifCount > 0 ? 'erxes-message unread' : 'erxes-message';
+  }
+
+  render() {
+    const { conversation } = this.props;
     return (
       <li className="erxes-conversation" onClick={this.onClick}>
-        <div className="message">
-          {conversation.content} ({notifCount})
+        <div className="erxes-c-content">
+          <div className={this.renderMessageClass()}>
+            {conversation.content}
+          </div>
+          {this.renderNewMessageCount()}
+        </div>
+        <div className="erxes-c-info">
+          {moment(conversation.createdAt).fromNow()}
         </div>
       </li>
     );

@@ -13,6 +13,7 @@ const propTypes = {
   starred: PropTypes.bool.isRequired,
   channelId: PropTypes.string,
   isRead: PropTypes.bool,
+  isParticipate: PropTypes.bool,
 };
 
 class Row extends Component {
@@ -35,7 +36,7 @@ class Row extends Component {
   }
 
   render() {
-    const { conversation, starred, isRead } = this.props;
+    const { conversation, starred, isRead, isParticipate } = this.props;
     const { createdAt, content, commentCount } = conversation;
     const customer = conversation.customer();
     const isReadClass = !isRead ? 'unread' : null;
@@ -77,7 +78,6 @@ class Row extends Component {
             <div className="info">
               <span><i className="ion-reply"></i> {commentCount}</span>
               <span><i className="ion-person"></i> {conversation.participatorCount()}</span>
-              <span><i className="ion-paperclip"></i> 1</span>
             </div>
           </footer>
         </div>
@@ -86,9 +86,13 @@ class Row extends Component {
           <span>
             <Starrer conversation={conversation} starred={starred} />
           </span>
-          <span>
-            <i className="ion-eye"></i>
-          </span>
+          {
+            isParticipate ?
+              <span>
+                <i className="ion-eye"></i>
+              </span> :
+              null
+          }
         </div>
       </li>
     );

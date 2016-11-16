@@ -8,7 +8,7 @@ const propTypes = {
 function User({ user }) {
   const detail = user.details || {};
 
-  const avatar = detail.avatar || 'https://lh3.googleusercontent.com/-2rtYO7Xu22Q/AAAAAAAAAAI/AAAAAAAAAAA/j9myw0A-3r4/photo.jpg';
+  const avatar = detail.avatar || 'https://www.erxes.org/assets/images/userDefaultIcon.png';
   return (
     <div className="avatar">
       <img src={avatar} alt="Avatar" />

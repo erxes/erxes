@@ -65,7 +65,10 @@ const conversations = (state = [], action) => {
   if (action.type === 'CONVERSATION_RECEIVED') {
     return [
       ...state,
-      action,
+      {
+        ...action,
+        createdAt: new Date(action.createdAt.$date),
+      },
     ];
   }
 

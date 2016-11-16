@@ -2,6 +2,7 @@ import { Meteor } from 'meteor/meteor';
 import { Notifications } from 'meteor/erxes-notifications';
 import { composeWithTracker } from 'react-komposer';
 import { NotificationsLatest } from '../../components';
+import { Spinner } from '/imports/react-ui/common';
 
 
 function composer(props, onData) {
@@ -12,7 +13,7 @@ function composer(props, onData) {
 
   if (handler.ready()) {
     const createdUserIds = [];
-    const notifications = Notifications.find().fetch();
+    const notifications = Notifications.find({}, { limit: 10 }).fetch();
 
     notifications.map((notification) =>
       createdUserIds.push(notification.createdUser)
@@ -24,4 +25,4 @@ function composer(props, onData) {
   }
 }
 
-export default composeWithTracker(composer)(NotificationsLatest);
+export default composeWithTracker(composer, Spinner)(NotificationsLatest);

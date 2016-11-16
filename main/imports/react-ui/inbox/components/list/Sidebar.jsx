@@ -2,6 +2,7 @@ import { Meteor } from 'meteor/meteor';
 import React, { PropTypes } from 'react';
 import { Counts } from 'meteor/tmeasday:publish-counts';
 import { FlowRouter } from 'meteor/kadira:flow-router';
+import { EmptyState } from '/imports/react-ui/common';
 import { Wrapper } from '/imports/react-ui/layout/components';
 import { CONVERSATION_STATUSES } from '/imports/api/conversations/constants';
 
@@ -35,6 +36,15 @@ function Sidebar({ channels, tags, brands }) {
              </li>
            ))
           }
+          {
+            channels.length === 0 ?
+              <EmptyState
+                icon={<i className="ion-pound" />}
+                text="No channel"
+                size="small"
+              /> :
+              null
+          }
         </ul>
       </Wrapper.Sidebar.Section>
       <Wrapper.Sidebar.Section>
@@ -56,6 +66,15 @@ function Sidebar({ channels, tags, brands }) {
                 </a>
               </li>
            ))
+          }
+          {
+            brands.length === 0 ?
+              <EmptyState
+                icon={<i className="ion-flag" />}
+                text="No brand"
+                size="small"
+              /> :
+              null
           }
         </ul>
       </Wrapper.Sidebar.Section>
@@ -126,6 +145,15 @@ function Sidebar({ channels, tags, brands }) {
                </a>
              </li>
            ))
+         }
+         {
+           tags.length === 0 ?
+             <EmptyState
+               icon={<i className="ion-pricetag" />}
+               text="No tags"
+               size="small"
+             /> :
+             null
          }
         </ul>
       </Wrapper.Sidebar.Section>

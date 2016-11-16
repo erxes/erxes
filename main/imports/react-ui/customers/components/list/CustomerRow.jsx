@@ -1,5 +1,4 @@
 import React from 'react';
-import { FlowRouter } from 'meteor/kadira:flow-router';
 import { Label } from 'react-bootstrap';
 
 const propTypes = {
@@ -17,7 +16,13 @@ function CustomerRow({ customer }) {
       <td>{customer.brand() && customer.brand().name}</td>
       <td>{customer.lastSeenAt.toDateString()}</td>
       <td>{customer.sessionCount}</td>
-      <td>{customer.isActive ? <Label>active</Label> : <Label>inactive</Label>}</td>
+      <td>
+        {
+          customer.isActive ?
+            <Label bsStyle="success">Active</Label> :
+            <Label>Inactive</Label>
+        }
+      </td>
     </tr>
   );
 }

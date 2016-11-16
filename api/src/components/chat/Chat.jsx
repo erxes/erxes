@@ -34,11 +34,18 @@ export default class Chat extends React.Component {
     }
   }
 
+  renderClasses() {
+    if (this.props.currentPanel.type === 'conversationList') {
+      return 'left-option new-conversation';
+    }
+    return 'left-option';
+  }
+
   render() {
     return (
       <div className="erxes-sidebar">
         <div className="erxes-topbar">
-          <div className="left-option">
+          <div className={this.renderClasses()}>
             <a onClick={this.props.switchPanel} />
           </div>
           <div className="erxes-title">{this.props.currentPanel.title}</div>
