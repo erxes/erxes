@@ -56,7 +56,7 @@ function List(props) {
         trigger={
           <Button bsStyle="link">
             <i className="ion-pricetags"></i>
-            Tag conversation <span className="caret"></span>
+            Tag <span className="caret"></span>
           </Button>
         }
         afterSave={emptyBulk}
