@@ -48,7 +48,10 @@ if (Meteor.isServer) {
 
         _.extend(conversationOptions, { brandId });
 
-        return _.times(count, () => Factory.create('conversation', conversationOptions)._id);
+        return _.times(count, () => Factory.create(
+          'conversation',
+          conversationOptions
+        )._id);
       };
 
       const checkCollectionLength = (done, options, length) => {
@@ -278,7 +281,10 @@ if (Meteor.isServer) {
           const conversationIds = [Factory.create('conversation')._id];
 
           assert.throws(() => {
-            assign._execute({ userId }, { assignedUserId: Random.id(), conversationIds });
+            assign._execute(
+              { userId },
+              { assignedUserId: Random.id(), conversationIds }
+            );
           }, Meteor.Error, /conversations.assign.userNotFound/);
         });
 
@@ -353,8 +359,15 @@ if (Meteor.isServer) {
 
           unassign._execute({ userId }, { conversationIds });
 
-          assert.equal(Conversations.findOne(conversationIds[0]).assignedUserId, undefined);
-          assert.equal(Conversations.findOne(conversationIds[1]).assignedUserId, undefined);
+          assert.equal(
+            Conversations.findOne(conversationIds[0]).assignedUserId,
+            undefined
+          );
+
+          assert.equal(
+            Conversations.findOne(conversationIds[1]).assignedUserId,
+            undefined
+          );
         });
       });
 
@@ -424,7 +437,10 @@ if (Meteor.isServer) {
       describe('tag', function () {
         it('only works if you are logged in', function () {
           assert.throws(() => {
-            tag._execute({}, { conversationIds: [Random.id()], tagIds: [Random.id()] });
+            tag._execute(
+              {},
+              { conversationIds: [Random.id()], tagIds: [Random.id()] }
+            );
           }, Meteor.Error, /loginRequired/);
         });
 
@@ -446,13 +462,25 @@ if (Meteor.isServer) {
             Factory.create('conversation')._id,
           ];
 
-          assert.equal(Conversations.findOne(conversationIds[0]).tagIds, undefined);
-          assert.equal(Conversations.findOne(conversationIds[1]).tagIds, undefined);
+          assert.equal(
+            Conversations.findOne(conversationIds[0]).tagIds,
+            undefined
+          );
+          assert.equal(
+            Conversations.findOne(conversationIds[1]).tagIds,
+            undefined
+          );
 
           tag._execute({ userId }, { conversationIds, tagIds });
 
-          assert.equal(Conversations.findOne(conversationIds[0]).tagIds[0], tagIds[0]);
-          assert.equal(Conversations.findOne(conversationIds[1]).tagIds[0], tagIds[0]);
+          assert.equal(
+            Conversations.findOne(conversationIds[0]).tagIds[0],
+            tagIds[0]
+          );
+          assert.equal(
+            Conversations.findOne(conversationIds[1]).tagIds[0],
+            tagIds[0]
+          );
         });
       });
 

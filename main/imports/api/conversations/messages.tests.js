@@ -35,18 +35,26 @@ if (Meteor.isServer) {
       describe('conversations.messageList', function () {
         it('sends all messages', function (done) {
           const collector = new PublicationCollector({ userId });
-          collector.collect('conversations.messageList', conversationId, (collections) => {
-            chai.assert.equal(collections.conversation_messages.length, 2);
-            done();
-          });
+          collector.collect(
+            'conversations.messageList',
+            conversationId,
+            (collections) => {
+              chai.assert.equal(collections.conversation_messages.length, 2);
+              done();
+            }
+          );
         });
 
         it('do not send messages without user', function (done) {
           const collector = new PublicationCollector();
-          collector.collect('conversations.messageList', conversationId, (collections) => {
-            chai.assert.equal(collections.conversation_messages, undefined);
-            done();
-          });
+          collector.collect(
+            'conversations.messageList',
+            conversationId,
+            (collections) => {
+              chai.assert.equal(collections.conversation_messages, undefined);
+              done();
+            }
+          );
         });
       });
     });

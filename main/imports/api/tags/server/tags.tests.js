@@ -77,7 +77,10 @@ describe('tags', function () {
       it('type & name combined should be unique', function () {
         const tag = Factory.create('tag');
         assert.throws(() => {
-          add._execute({ userId }, { name: tag.name, type: tag.type, colorCode: '#FFF' });
+          add._execute(
+            { userId },
+            { name: tag.name, type: tag.type, colorCode: '#FFF' }
+          );
         }, Meteor.Error, /tags.insert.restricted/);
       });
 
@@ -110,8 +113,10 @@ describe('tags', function () {
         const tag2 = Factory.create('tag');
 
         assert.throws(() => {
-          edit._execute({ userId },
-            { id: tag2._id, doc: { name: tag.name, type: tag.type, colorCode: '#FFF' } });
+          edit._execute(
+            { userId },
+            { id: tag2._id, doc: { name: tag.name, type: tag.type, colorCode: '#FFF' } }
+          );
         }, Meteor.Error, /tags.update.restricted/);
       });
 
@@ -168,7 +173,11 @@ describe('tags', function () {
     describe('tagObject', function () {
       it('verify tags', function () {
         assert.throws(() => {
-          tagObject({ tagIds: [Random.id()], objectIds: [Random.id()], collection: Conversations });
+          tagObject({
+            tagIds: [Random.id()],
+            objectIds: [Random.id()],
+            collection: Conversations,
+          });
         }, Meteor.Error, /tags.tagObject.notFound/);
       });
 
@@ -176,12 +185,20 @@ describe('tags', function () {
         const tagId = Factory.create('tag')._id;
         const conversationId = Factory.create('conversation')._id;
 
-        tagObject({ tagIds: [tagId], objectIds: [conversationId], collection: Conversations });
+        tagObject({
+          tagIds: [tagId],
+          objectIds: [conversationId],
+          collection: Conversations,
+        });
 
         assert.equal(Tags.findOne(tagId).objectCount, 1);
         assert.equal(Conversations.findOne(conversationId).tagIds[0], tagId);
 
-        tagObject({ tagIds: [], objectIds: [conversationId], collection: Conversations });
+        tagObject({
+          tagIds: [],
+          objectIds: [conversationId],
+          collection: Conversations,
+        });
         assert.equal(Tags.findOne(tagId).objectCount, 0);
       });
     });

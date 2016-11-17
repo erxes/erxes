@@ -167,17 +167,6 @@ if (Meteor.isServer) {
           );
         });
 
-        it('access denied', function () {
-          assert.throws(
-            () => {
-              remove._execute({ userId: Factory.create('user')._id }, brandId);
-            },
-
-            Meteor.Error,
-            /brands.remove.accessDenied/
-          );
-        });
-
         it('can not delete brand with customer', function () {
           assert.throws(
             () => {

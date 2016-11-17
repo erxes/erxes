@@ -65,11 +65,6 @@ export const remove = new ValidatedMethod({
       throw new Meteor.Error('brands.remove.notFound', 'Brand not found');
     }
 
-    if (this.userId !== brand.userId) {
-      throw new Meteor.Error('brands.remove.accessDenied',
-        'You don\'t have permission to remove this brand.');
-    }
-
     // can't remove a brand with customers
     const haveCustomers = Customers.findOne({
       brandId: id,
