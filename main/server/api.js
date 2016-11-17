@@ -218,8 +218,18 @@ export const sendMessage = new ValidatedMethod({
     }
 
     if (conversation) {
-      // empty read users list then it will be shown as unread again
-      Conversations.update({ _id: conversation._id }, { $set: { readUserIds: [] } });
+      Conversations.update(
+        { _id: conversation._id },
+        {
+          $set: {
+            // empty read users list then it will be shown as unread again
+            readUserIds: [],
+
+            // if conversation is closed then reopen it.
+            status: CONVERSATION_STATUSES.OPEN,
+          },
+        }
+      );
 
     // create new conversation
     } else {
