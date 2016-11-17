@@ -48,6 +48,6 @@ Integrations.publicFields = {
 
 Factory.define('integration', Integrations, {
   name: () => faker.random.word(),
-  kind: 'chat',
+  kind: 'in_app_messaging',
   brandId: () => Random.id(),
 });
