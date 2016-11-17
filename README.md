@@ -109,3 +109,13 @@ cd ../publisher
 ```
 
 Publisher app is running at <a href="http://localhost:7030" target="__blank">http://localhost:7030</a>.
+
+Now, everything is set. You can play around with the widget in the publisher app.
+Send message from publisher and respond from main app.
+
+## Run test
+
+```bash
+cd ../main
+meteor npm test
+```
