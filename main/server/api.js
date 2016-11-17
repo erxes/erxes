@@ -304,7 +304,10 @@ Meteor.publishComposite('api.conversations', function conversations() {
     find() {
       // find current users conversations
       return Conversations.find(
-        { customerId: conn._customerId },
+        {
+          brandId: conn._brandId,
+          customerId: conn._customerId,
+        },
         { fields: Conversations.publicFields }
       );
     },
