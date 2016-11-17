@@ -1,11 +1,16 @@
 {
   "public": {
-    "CDN_HOST": "https://www.erxes.org/static"
+    "CDN_HOST": "http://127.0.0.1/static"
   },
   "accounts": {
     "emailTemplates": {
       "siteName": "Erxes",
       "from": "no-reply@erxes.org"
     }
-  }
+  },
+  "COMPANY_NAME": "",
+  "NO_REPLY_EMAIL": "",
+  "AWS_accessKeyId": "",
+  "AWS_secretAccessKey": "",
+  "AWS_bucket": ""
 }
