@@ -68,8 +68,8 @@ export const addMessage = new ValidatedMethod({
 
     // send notification
     if (Meteor.isServer) {
-      const messageedUser = Meteor.users.findOne({ _id: this.userId });
-      const title = `${messageedUser.details.fullName} messageed on a conversation`;
+      const messagedUser = Meteor.users.findOne({ _id: this.userId });
+      const title = `${messagedUser.details.fullName} reflected on a conversation`;
 
       sendNotification({
         createdUser: this.userId,
@@ -103,7 +103,8 @@ export const assign = new ValidatedMethod({
   }).validator(),
 
   run({ conversationIds, assignedUserId }) {
-    const conversations = Conversations.find({ _id: { $in: conversationIds } }).fetch();
+    const selector = { _id: { $in: conversationIds } };
+    const conversations = Conversations.find(selector).fetch();
 
     if (conversations.length !== conversationIds.length) {
       throw new Meteor.Error(
@@ -126,12 +127,14 @@ export const assign = new ValidatedMethod({
     );
 
     if (Meteor.isServer) {
-      const updatedConversations = Conversations.find({ _id: { $in: conversationIds } }).fetch();
+      const selector = { _id: { $in: conversationIds } };
+      const updatedConversations = Conversations.find(selector).fetch();
 
       // send notification
       _.each(updatedConversations, (conversation) => {
         const assignedUser = Meteor.users.findOne({ _id: assignedUserId });
-        const content = `Conversation's assigned person changed to ${assignedUser.details.fullName}`;
+        const content = `Conversation's assigned person changed to
+          ${assignedUser.details.fullName}`;
 
         sendNotification({
           createdUser: this.userId,
@@ -159,7 +162,8 @@ export const unassign = new ValidatedMethod({
   }).validator(),
 
   run({ conversationIds }) {
-    const conversations = Conversations.find({ _id: { $in: conversationIds } }).fetch();
+    const selector = { _id: { $in: conversationIds } };
+    const conversations = Conversations.find(selector).fetch();
 
     if (conversations.length !== conversationIds.length) {
       throw new Meteor.Error(
@@ -193,7 +197,8 @@ export const changeStatus = new ValidatedMethod({
   }).validator(),
 
   run({ conversationIds, status }) {
-    const conversations = Conversations.find({ _id: { $in: conversationIds } }).fetch();
+    const selector = { _id: { $in: conversationIds } };
+    const conversations = Conversations.find(selector).fetch();
 
     if (conversations.length !== conversationIds.length) {
       throw new Meteor.Error(
@@ -239,7 +244,8 @@ export const star = new ValidatedMethod({
   }).validator(),
 
   run({ conversationIds }) {
-    const conversations = Conversations.find({ _id: { $in: conversationIds } }).fetch();
+    const selector = { _id: { $in: conversationIds } };
+    const conversations = Conversations.find(selector).fetch();
 
     if (conversations.length !== conversationIds.length) {
       throw new Meteor.Error(

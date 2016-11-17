@@ -96,7 +96,10 @@ Conversations.helpers({
 
 export function addParticipator({ conversationId, userId }) {
   if (conversationId && userId) {
-    Conversations.update(conversationId, { $addToSet: { participatedUserIds: userId } });
+    Conversations.update(
+      conversationId,
+      { $addToSet: { participatedUserIds: userId } }
+    );
   }
 }
 
