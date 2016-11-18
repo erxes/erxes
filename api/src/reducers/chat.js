@@ -21,7 +21,6 @@ const messages = (state = [], action) => {
   switch (action.type) {
     case 'CHANGE_CONVERSATION':
       subscribeMessages(action.conversationId);
-
       return [];
 
     case 'MESSAGE_RECEIVED':

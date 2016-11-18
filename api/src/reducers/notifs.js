@@ -4,7 +4,6 @@ export default (state = {}, action) => {
   switch (action.type) {
     case 'COUNT_RECEIVED':
       conversationId = action.name.replace('unreadMessagesCount_', '');
-
       return {
         ...state,
         [conversationId]: action.count,

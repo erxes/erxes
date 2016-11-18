@@ -2,20 +2,24 @@ import EJSON from 'meteor-ejson';
 import { call } from '../erxes';
 import uploadHandler from '../uploadHandler';
 
+
 const Chat = {
   sendMessage(message, attachments) {
     return (dispatch, getState) => {
-      // get current conversation
-      const chatState = getState().chat;
-      const currentConversation = chatState.currentConversation;
+      // current conversation
+      const currentConversationId = getState().chat.currentConversation;
 
-      // send message data
-      const doc = { message, attachments, conversationId: currentConversation };
+      // message object
+      const doc = {
+        conversationId: currentConversationId,
+        message,
+        attachments,
+      };
 
       return call('sendMessage', doc)
         .then(({ conversationId }) => {
-          // if creating new conversation then update current conversation
-          if (!currentConversation) {
+          // if there is no current conversation new conversation will be created
+          if (!currentConversationId) {
             dispatch({ type: 'CHANGE_CONVERSATION', conversationId });
           }
         });
@@ -27,25 +31,22 @@ const Chat = {
       uploadHandler({
         file,
         uploadAction: ({ data, fileInfo }) => {
-          dispatch({
-            type: 'SENDING_ATTACHMENT',
-          });
+          dispatch({ type: 'SENDING_ATTACHMENT' });
 
-          // upload file
-          const doc = { name: file.name, data: EJSON.toJSONValue(data) };
+          // file object
+          const doc = {
+            name: file.name,
+            data: EJSON.toJSONValue(data),
+          };
 
           call('sendFile', doc).then(response => {
-            dispatch({
-              type: 'ATTACHMENT_SENT',
-            });
+            dispatch({ type: 'ATTACHMENT_SENT' });
 
             const attachment = Object.assign({ url: response.url }, fileInfo);
 
             // send message with attachment
-            this.sendMessage(
-              'This message has an attachment',
-              [attachment]
-            )(dispatch, getState);
+            // QUESTION: Do we need to make 2 calls to send a message with attachment?
+            this.sendMessage('This message has an attachment', [attachment])(dispatch, getState);
           });
         },
       });
