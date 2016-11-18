@@ -1,8 +1,20 @@
 erxes is an open-source messaging platform for customer success.
 
-# Developer install guide
+erxes is built with JavaScript (ES6), Meteor, Node.js, MongoDB and React.
 
-## Install meteor
+The project is maintained by erxes Inc, along with an amazing group of independent [contributors](https://github.com/erxes/erxes/graphs/contributors). We are striving to make customer experience better through our messaging platform.
+
+## Table of content
+
+- [erxes.io](https://erxes.io/)
+- [Roadmap](https://github.com/erxes/erxes/projects/1)
+- [Community](https://community.erxes.io/)
+- [Blog](https://blog.erxes.io/)
+- [Developer Blog](https://dev.erxes.io/)
+
+## Developer install guide
+
+### Install meteor
 
 ```bash
 curl https://install.meteor.com/ | sh
@@ -11,7 +23,7 @@ curl https://install.meteor.com/ | sh
 We need to run three apps (main meteor and 2 simple static file server) in order to
 simulate real life environment.
 
-## Setup main app
+### Setup main app
 
 Clone repo
 
@@ -65,7 +77,7 @@ email: 'admin@erxes.io'
 password: 'admin123'
 ```
 
-## Setup api app
+### Setup api app
 
 Install dependencies
 
@@ -101,7 +113,7 @@ command.
 
 Api app is running at <a href="http://localhost:7020" target="__blank">http://localhost:7020</a>.
 
-## Setup publisher app
+### Setup publisher app
 
 ```bash
 cd ../publisher
@@ -113,9 +125,12 @@ Publisher app is running at <a href="http://localhost:7030" target="__blank">htt
 Now, everything is set. You can play around with the widget in the publisher app.
 Send message from publisher and respond from main app.
 
-## Run test
+### Run test
 
 ```bash
 cd ../main
 meteor npm test
 ```
+
+## Copyright & License
+Copyright (c) 2016 erxes Inc - Released under the [MIT license.](https://github.com/erxes/erxes/blob/develop/LICENSE)
