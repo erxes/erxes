@@ -10,7 +10,6 @@ import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 
 import { Customers } from '/imports/api/customers/customers';
 import { Brands } from '/imports/api/brands/brands';
-import { Integrations } from '/imports/api/integrations/integrations';
 import { Tags } from '/imports/api/tags/tags';
 
 import { CONVERSATION_STATUSES } from './constants';
@@ -67,13 +66,6 @@ Conversations.helpers({
 
   brand() {
     return Brands.findOne(this.brandId);
-  },
-
-  integration() {
-    return Integrations.findOne({
-      brandId: this.brandId,
-      kind: 'in_app_messaging',
-    });
   },
 
   tags() {

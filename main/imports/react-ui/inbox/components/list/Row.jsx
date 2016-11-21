@@ -40,7 +40,6 @@ class Row extends Component {
     const { createdAt, content, messageCount } = conversation;
     const customer = conversation.customer();
     const isReadClass = !isRead ? 'unread' : null;
-    const integration = conversation.integration();
 
     // TODO: use embedded tags list of the conversation object
     const tags = TagsCollection.find({ _id: { $in: conversation.tagIds || [] } }).fetch();
@@ -68,9 +67,7 @@ class Row extends Component {
           <footer>
             <div className="source">
               <i className="ion-chatbox"></i>
-              <div className="name">
-                To {integration.brand().name} via {integration.kind}
-              </div>
+              <div className="name"></div>
             </div>
 
             <Assignees conversation={conversation} />
