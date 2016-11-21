@@ -1,6 +1,6 @@
 import React, { PropTypes } from 'react';
 import moment from 'moment';
-import { Chat } from '../../actions';
+import { Chat } from '../actions';
 
 
 const propTypes = {

@@ -1,6 +1,6 @@
 import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
-import Conversation from '../../components/chat/Conversation.jsx';
+import Conversation from '../components/Conversation.jsx';
 
 const propTypes = {
   dispatch: PropTypes.func.isRequired,

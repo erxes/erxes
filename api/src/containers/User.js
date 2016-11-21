@@ -1,6 +1,6 @@
 import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
-import User from '../../components/user/User.jsx';
+import User from '../components/User.jsx';
 
 
 const propTypes = {

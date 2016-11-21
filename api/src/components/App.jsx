@@ -1,6 +1,6 @@
 import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
-import Chat from '../containers/chat/Chat';
+import Chat from '../containers/Chat';
 import HelpButton from '../containers/HelpButton';
 
 

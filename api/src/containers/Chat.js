@@ -2,8 +2,8 @@
 
 import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
-import ChatComponent from '../../components/chat/Chat.jsx';
-import { Chat as ChatAction } from '../../actions';
+import ChatComponent from '../components/Chat.jsx';
+import { Chat as ChatAction } from '../actions';
 
 
 const propTypes = {

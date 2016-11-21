@@ -1,7 +1,7 @@
 import React, { PropTypes, Component } from 'react';
 import ReactDOM from 'react-dom';
 import { connect } from 'react-redux';
-import Message from '../../components/chat/Message.jsx';
+import Message from '../components/Message.jsx';
 
 
 const propTypes = {
