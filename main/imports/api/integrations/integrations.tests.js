@@ -7,7 +7,8 @@ import { Factory } from 'meteor/dburles:factory';
 import { assert } from 'meteor/practicalmeteor:chai';
 
 import { Integrations } from './integrations';
-import { add, edit, remove } from './methods';
+import { KIND_CHOICES } from './constants';
+import { addInAppMessaging, remove } from './server/methods';
 
 if (Meteor.isServer) {
   describe('integrations', function () {
@@ -23,38 +24,20 @@ if (Meteor.isServer) {
         brandId = Factory.create('brand', { userId })._id;
       });
 
-      describe('add', function () {
-        it('add', function () {
-          add._execute(
+      describe('add in app messsaging', function () {
+        it('add in app messsaging', function () {
+          addInAppMessaging._execute(
             { userId },
-            { doc: { kind: 'chat', name: 'Foo', brandId } }
-          );
-
-          assert.equal(Integrations.find().count(), 1);
-        });
-      });
-
-      describe('edit', function () {
-        it('edit', function () {
-          const integration = Integrations.findOne({ name: 'Foo' });
-          integrationId = integration._id;
-
-          edit._execute(
-            { userId },
-            {
-              id: integrationId,
-              doc: {
-                kind: 'chat',
-                name: 'UpdatedBar',
-                brandId: integration.brandId,
-              },
-            }
+            { doc: { name: 'Foo', brandId } }
           );
 
           assert.equal(
-            Integrations.findOne({ _id: integrationId }).name,
-            'UpdatedBar'
+            Integrations.find({ kind: KIND_CHOICES.IN_APP_MESSAGING }).count(),
+            1
           );
+
+          const integration = Integrations.findOne({ name: 'Foo' });
+          integrationId = integration._id;
         });
       });
 
