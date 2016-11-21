@@ -1,4 +1,4 @@
-import React, { PropTypes, Component } from 'react';
+import React, { PropTypes } from 'react';
 import moment from 'moment';
 import { Chat } from '../../actions';
 
@@ -9,28 +9,21 @@ const propTypes = {
   notifCount: PropTypes.number,
 };
 
-class Conversation extends Component {
-  constructor(props) {
-    super(props);
-
-    this.onClick = this.onClick.bind(this);
-  }
-
-  onClick() {
-    const conversationId = this.props.conversation._id;
+function Conversation({ dispatch, conversation, notifCount }) {
+  function goToConversation() {
+    const conversationId = conversation._id;
 
     // change current conversation
-    this.props.dispatch(Chat.changeConversation(conversationId));
+    dispatch(Chat.changeConversation(conversationId));
 
     // show message form
-    this.props.dispatch(Chat.toMessageForm(true));
+    dispatch(Chat.toMessageForm(true));
 
     // mark as read
-    this.props.dispatch(Chat.readMessages(conversationId));
+    dispatch(Chat.readMessages(conversationId));
   }
 
-  renderNewMessageCount() {
-    const { notifCount } = this.props;
+  function renderNewMessageCount() {
     if (notifCount > 0) {
       return (
         <div className="erxes-notif-count">
@@ -38,29 +31,23 @@ class Conversation extends Component {
         </div>
       );
     }
+
     return null;
   }
 
-  renderMessageClass() {
-    return this.props.notifCount > 0 ? 'erxes-message unread' : 'erxes-message';
-  }
-
-  render() {
-    const { conversation } = this.props;
-    return (
-      <li className="erxes-conversation" onClick={this.onClick}>
-        <div className="erxes-c-content">
-          <div className={this.renderMessageClass()}>
-            {conversation.content}
-          </div>
-          {this.renderNewMessageCount()}
+  return (
+    <li className="erxes-conversation" onClick={goToConversation}>
+      <div className="erxes-c-content">
+        <div className={notifCount > 0 ? 'erxes-message unread' : 'erxes-message'}>
+          {conversation.content}
         </div>
-        <div className="erxes-c-info">
-          {moment(conversation.createdAt).fromNow()}
-        </div>
-      </li>
-    );
-  }
+        {renderNewMessageCount()}
+      </div>
+      <div className="erxes-c-info">
+        {moment(conversation.createdAt).fromNow()}
+      </div>
+    </li>
+  );
 }
 
 Conversation.propTypes = propTypes;

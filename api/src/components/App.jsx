@@ -3,13 +3,13 @@ import { connect } from 'react-redux';
 import Chat from '../containers/chat/Chat';
 import HelpButton from '../containers/HelpButton';
 
+
 const propTypes = {
   isChatVisible: PropTypes.bool.isRequired,
 };
 
 function App({ isChatVisible }) {
-  const settings = global.erxesSettings || {};
-  const email = settings.email || '';
+  const { email = '' } = global.erxesSettings || {};
 
   return (
     <div>
@@ -25,6 +25,4 @@ const mapStateToProps = state => ({
   isChatVisible: state.chat.isVisible,
 });
 
-export default connect(
-  mapStateToProps
-)(App);
+export default connect(mapStateToProps)(App);

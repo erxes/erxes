@@ -1,7 +1,7 @@
 import { connect } from 'react-redux';
 import { Chat } from '../actions';
 
-import HelpButton from '../components/HelpButton';
+import HelpButton from '../components/HelpButton.jsx';
 
 const mapStateToProps = (state) => {
   // calculate total unread messages count

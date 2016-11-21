@@ -9,7 +9,7 @@ const propTypes = {
 function HelpButton({ onLauncherClick, notifsCount }) {
   return (
     <div className="launcher" onClick={onLauncherClick}>
-      { notifsCount ? <span>{notifsCount}</span> : null}
+      {notifsCount ? <span>{notifsCount}</span> : null}
     </div>
   );
 }

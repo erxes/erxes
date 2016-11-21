@@ -1,6 +1,5 @@
 import React, { PropTypes } from 'react';
 import moment from 'moment';
-
 import Retry from '../../containers/chat/Retry';
 import User from '../../containers/user/User';
 import Attachment from '../Attachment.jsx';
@@ -22,7 +21,7 @@ function Message({ error, message, attachments, _id, userId, sentAt }) {
   }
 
   return (
-    <li className={userId ? '' : 'customer'}>
+    <li className={!userId ? 'customer' : ''}>
       {userInfo}
 
       <div className={attachments && attachments.length > 0 ? 'message attachment' : 'message'}>
@@ -42,7 +41,9 @@ function Message({ error, message, attachments, _id, userId, sentAt }) {
             null
         }
       </div>
-      <div className="date">{moment(sentAt).fromNow()}</div>
+      <div className="date">
+        {moment(sentAt).fromNow()}
+      </div>
     </li>
   );
 }

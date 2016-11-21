@@ -6,12 +6,12 @@ const propTypes = {
 };
 
 function User({ user }) {
-  const detail = user.details || {};
+  const avatar = user && user.details && user.details.avatar;
+  const defaultAvatar = 'https://www.erxes.org/assets/images/userDefaultIcon.png';
 
-  const avatar = detail.avatar || 'https://www.erxes.org/assets/images/userDefaultIcon.png';
   return (
     <div className="avatar">
-      <img src={avatar} alt="Avatar" />
+      <img src={avatar || defaultAvatar} alt="avatar" />
     </div>
   );
 }
