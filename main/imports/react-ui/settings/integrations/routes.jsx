@@ -2,7 +2,7 @@ import React from 'react';
 import { mount } from 'react-mounter';
 import { MainLayout } from '/imports/react-ui/layout/containers';
 import settingsRoute from '../routes.jsx';
-import { IntegrationList, InAppMessaging, Twitter } from './containers';
+import { List, InAppMessaging, Twitter } from './containers';
 
 
 const integrations = settingsRoute.group({
@@ -38,6 +38,6 @@ integrations.route('/:integrationId?', {
   name: 'settings/integrations/list',
 
   action() {
-    mount(MainLayout, { content: <IntegrationList /> });
+    mount(MainLayout, { content: <List /> });
   },
 });

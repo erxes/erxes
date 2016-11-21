@@ -1,9 +1,9 @@
-import IntegrationList from './IntegrationList.jsx';
+import List from './List.jsx';
 import InAppMessaging from './InAppMessaging.jsx';
 import Twitter from './Twitter.jsx';
 
 export {
-  IntegrationList,
+  List,
   Twitter,
   InAppMessaging,
 };

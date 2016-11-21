@@ -12,8 +12,19 @@ export const twitter = {
   authenticate: (queryParams, callback) => {
     socTwitter.callback({ query: queryParams }).then(
       Meteor.bindEnvironment((data) => {
-        callback(data);
+        callback({
+          name: data.info.name,
+          extraData: {
+            id: data.info.id,
+            token: data.tokens.auth.token,
+            tokenSecret: data.tokens.auth.token_secret,
+          },
+        });
       })
     );
   },
 };
+
+Meteor.methods({
+  'integrations.getTwitterAuthorizeUrl': () => socTwitter.getAuthorizeUrl(),
+});

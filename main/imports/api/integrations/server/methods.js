@@ -1,4 +1,3 @@
-import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
 import { ValidatedMethod } from 'meteor/mdg:validated-method';
 import { _ } from 'meteor/underscore';
@@ -40,17 +39,10 @@ export const addTwitter = new ValidatedMethod({
   },
 
   run({ brandId, queryParams }) {
-    twitter.authenticate(queryParams, (data) => {
-      Integrations.insert({
-        brandId,
-        name: data.info.name,
-        kind: KIND_CHOICES.TWITTER,
-        extraData: {
-          id: data.info.id,
-          token: data.tokens.auth.token,
-          tokenSecret: data.tokens.auth.token_secret,
-        },
-      });
+    twitter.authenticate(queryParams, (doc) => {
+      Integrations.insert(
+        _.extend(doc, { brandId, kind: KIND_CHOICES.TWITTER })
+      );
     });
   },
 });
@@ -67,8 +59,4 @@ export const remove = new ValidatedMethod({
   run(id) {
     return Integrations.remove(id);
   },
-});
-
-Meteor.methods({
-  'integrations.getTwitterAuthorizeUrl': () => twitter.soc.getAuthorizeUrl(),
 });
