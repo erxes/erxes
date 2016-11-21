@@ -5,48 +5,42 @@ import ConversationList from '../containers/ConversationList.jsx';
 
 
 const propTypes = {
-  dispatch: PropTypes.func.isRequired,
   email: PropTypes.string.isRequired,
-  currentPanel: PropTypes.object.isRequired,
-  switchPanel: PropTypes.func.isRequired,
+  currentPanel: PropTypes.string.isRequired,
+  goToConversationList: PropTypes.func.isRequired,
+  goToConversation: PropTypes.func.isRequired,
 };
 
-function Chat({ currentPanel, dispatch, email, switchPanel }) {
+function Chat({ currentPanel, email, goToConversationList, goToConversation }) {
+  const isConversation = currentPanel === 'conversation';
+
+  const topBar = (
+    <div className="erxes-topbar">
+      <div className={`left-option${isConversation ? '' : ' new-conversation'}`}>
+        <a onClick={isConversation ? goToConversationList : goToConversation} />
+      </div>
+      <div className="erxes-title">
+        {isConversation ? 'Messages' : 'Conversations'}
+      </div>
+    </div>
+  );
+
   function renderPanel() {
-    switch (currentPanel.type) {
-      case 'messageList':
-        return (
-          <div className="erxes-content">
-            <MessageList />
-            <SendMessage dispatch={dispatch} email={email} />
-          </div>
-        );
-
-      case 'conversationList':
-        return <ConversationList dispatch={dispatch} />;
-
-      default:
-        return null;
+    if (isConversation) {
+      return (
+        <div className="erxes-content">
+          <MessageList />
+          <SendMessage email={email} />
+        </div>
+      );
     }
-  }
 
-  function renderClasses() {
-    return currentPanel.type === 'conversationList'
-      ? 'left-option new-conversation'
-      : 'left-option';
+    return <ConversationList />;
   }
 
   return (
     <div className="erxes-sidebar">
-      <div className="erxes-topbar">
-        <div className={renderClasses()}>
-          <a onClick={switchPanel} />
-        </div>
-        <div className="erxes-title">
-          {currentPanel.title}
-        </div>
-      </div>
-
+      {topBar}
       {renderPanel()}
     </div>
   );
