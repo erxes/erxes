@@ -1,17 +1,16 @@
 import React, { PropTypes } from 'react';
-import SendMessage from '../containers/SendMessage.jsx';
+import MessageSender from '../containers/MessageSender';
 import MessageList from '../containers/MessageList';
 import ConversationList from '../containers/ConversationList.jsx';
 
 
 const propTypes = {
-  email: PropTypes.string.isRequired,
   currentPanel: PropTypes.string.isRequired,
   goToConversationList: PropTypes.func.isRequired,
   goToConversation: PropTypes.func.isRequired,
 };
 
-function Chat({ currentPanel, email, goToConversationList, goToConversation }) {
+function Chat({ currentPanel, goToConversationList, goToConversation }) {
   const isConversation = currentPanel === 'conversation';
 
   const topBar = (
@@ -30,7 +29,7 @@ function Chat({ currentPanel, email, goToConversationList, goToConversation }) {
       return (
         <div className="erxes-content">
           <MessageList />
-          <SendMessage email={email} />
+          <MessageSender />
         </div>
       );
     }

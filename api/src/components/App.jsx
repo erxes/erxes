@@ -13,7 +13,7 @@ function App({ isChatVisible }) {
 
   return (
     <div>
-      {isChatVisible ? <Chat email={email} /> : null}
+      {isChatVisible ? <Chat /> : null}
       <HelpButton isVisible={isChatVisible} email={email} />
     </div>
   );
