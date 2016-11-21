@@ -39,6 +39,7 @@ export const addTwitter = new ValidatedMethod({
   },
 
   run({ brandId, queryParams }) {
+    // authenticate via twitter and get logged in user's infos
     twitter.authenticate(queryParams, (doc) => {
       Integrations.insert(
         _.extend(doc, { brandId, kind: KIND_CHOICES.TWITTER })
