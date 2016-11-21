@@ -5,7 +5,7 @@ import { Tagger } from '../..';
 
 const propTypes = {
   type: PropTypes.string.isRequired,
-  targets: PropTypes.arrayOf(PropTypes.object).isRequired,
+  targets: PropTypes.arrayOf(PropTypes.string).isRequired,
   trigger: PropTypes.element.isRequired,
   container: PropTypes.element,
 };
