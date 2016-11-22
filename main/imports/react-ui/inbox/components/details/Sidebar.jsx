@@ -155,7 +155,7 @@ class Sidebar extends Component {
             <div>
               <Tagger
                 type="conversation"
-                targets={[this.props.conversation]}
+                targets={[this.props.conversation._id]}
                 className="sidebar-accordion"
                 event="onClick"
               />
