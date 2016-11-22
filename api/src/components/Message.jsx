@@ -8,13 +8,12 @@ import Attachment from './Attachment.jsx';
 const propTypes = {
   error: PropTypes.string.isRequired,
   message: PropTypes.string.isRequired,
-  _id: PropTypes.string.isRequired,
   userId: PropTypes.string,
   sentAt: PropTypes.object.isRequired,
   attachments: PropTypes.array,
 };
 
-function Message({ error, message, attachments, _id, userId, sentAt }) {
+function Message({ error, message, attachments, userId, sentAt }) {
   let userInfo = '';
   if (userId) {
     userInfo = <User id={userId} />;
@@ -32,7 +31,7 @@ function Message({ error, message, attachments, _id, userId, sentAt }) {
         }
         {
           error
-          ? (<div>{error} <Retry message={message} _id={_id} /></div>)
+          ? (<div>{error} <Retry message={message} /></div>)
           : ''
         }
         {
