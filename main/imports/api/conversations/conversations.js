@@ -9,7 +9,7 @@ import { Factory } from 'meteor/dburles:factory';
 import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 
 import { Customers } from '/imports/api/customers/customers';
-import { Brands } from '/imports/api/brands/brands';
+import { Integrations } from '/imports/api/integrations/integrations';
 import { Tags } from '/imports/api/tags/tags';
 
 import { CONVERSATION_STATUSES } from './constants';
@@ -64,8 +64,8 @@ Conversations.helpers({
     return Customers.findOne(this.customerId);
   },
 
-  brand() {
-    return Brands.findOne(this.brandId);
+  integration() {
+    return Integrations.findOne(this.integrationId);
   },
 
   tags() {
@@ -115,7 +115,7 @@ Conversations.schema = new SimpleSchema({
     regEx: SimpleSchema.RegEx.Id,
   },
 
-  brandId: {
+  integrationId: {
     type: String,
     regEx: SimpleSchema.RegEx.Id,
   },
@@ -166,7 +166,7 @@ Conversations.publicFields = {
   assignedUserId: 1,
   content: 1,
   customerId: 1,
-  brandId: 1,
+  integrationId: 1,
   status: 1,
   createdAt: 1,
   messageCount: 1,
@@ -178,6 +178,6 @@ Conversations.publicFields = {
 Factory.define('conversation', Conversations, {
   content: () => faker.lorem.sentence(),
   customerId: () => Random.id(),
-  brandId: () => Random.id(),
+  integrationId: () => Random.id(),
   status: () => CONVERSATION_STATUSES.NEW,
 });

@@ -15,70 +15,15 @@ import { Brands } from '/imports/api/brands/brands';
 import { Customers } from '/imports/api/customers/customers';
 import { Messages } from '/imports/api/conversations/messages';
 import { Conversations } from '/imports/api/conversations/conversations';
+import { Integrations } from '/imports/api/integrations/integrations';
 import { CONVERSATION_STATUSES } from '/imports/api/conversations/constants';
 import { KIND_CHOICES } from '/imports/api/integrations/constants';
 
 
 // **************************** Helpers ********************** //
 
-export function addConversation(data) {
-  check(data, {
-    content: String,
-    customerId: String,
-    brandId: String,
-  });
-
-  if (!Customers.findOne(data.customerId)) {
-    throw new Meteor.Error(
-      'conversations.addConversation.customerNotFound',
-      'Customer not found'
-    );
-  }
-
-  return Conversations.insert(
-    _.extend(data, {
-      status: CONVERSATION_STATUSES.NEW,
-    })
-  );
-}
-
-
-const attachmentsChecker = {
-  url: String,
-  name: String,
-  size: Number,
-  type: String,
-};
-
-export function addMessage(doc) {
-  check(doc, {
-    content: String,
-    attachments: Match.Optional([attachmentsChecker]),
-    customerId: String,
-    conversationId: String,
-  });
-
-  const data = _.extend({ internal: false }, doc);
-
-  if (!Conversations.findOne(doc.conversationId)) {
-    throw new Meteor.Error(
-      'conversations.addMessage.conversationNotFound',
-      'Conversation not found'
-    );
-  }
-
-  if (!Customers.findOne(data.customerId)) {
-    throw new Meteor.Error(
-      'conversations.addMessage.customerNotFound',
-      'Customer not found'
-    );
-  }
-
-  return Messages.insert(data);
-}
-
 function checkConnection(conn) {
-  return !conn || !conn._customerId || !conn._brandId;
+  return !conn || !conn._customerId || !conn._integrationId;
 }
 
 function validateConnection(conn) {
@@ -135,36 +80,26 @@ export const connect = new ValidatedMethod({
   },
 
   run(param) {
-    const brand = Brands.findOne({ code: param.brand_id });
+    const brand = Brands.findOne({ code: param.brand_id }) || {};
 
-    if (!brand) {
-      throw new Meteor.Error('api.connect.brandNotFound', 'Brand not found');
-    }
-
-    const schema = {};
-    const data = _.clone(param);
-
-    _.each(_.keys(data), (key) => {
-      const value = data[key];
-
-      if (key.endsWith('_at') && _.isFinite(value)) {
-        schema[key] = 'date';
-      } else if (_.isFinite(value)) {
-        schema[key] = 'number';
-      } else if (_.isString(value)) {
-        schema[key] = 'string';
-      } else {
-        delete data[key];
-      }
+    const integration = Integrations.findOne({
+      brandId: brand._id,
+      kind: KIND_CHOICES.IN_APP_MESSAGING,
     });
 
-    Brands.update(brand._id, { $set: { schema } });
+    if (!integration) {
+      throw new Meteor.Error(
+        'api.connect.integrationNotFound',
+        'Integration not found'
+      );
+    }
+
+    const data = _.omit(_.clone(param), 'brand_id');
 
     // find customer
     const customer = Customers.findOne({
       email: data.email,
-      brandId: brand._id,
-      source: KIND_CHOICES.IN_APP_MESSAGING,
+      integrationId: integration._id,
     });
 
     let customerId;
@@ -174,20 +109,20 @@ export const connect = new ValidatedMethod({
       lastSeenAt: now,
       isActive: true,
       sessionCount: 1,
-      customData: _.omit(data, 'brand_id'),
+      customData: data,
     };
 
     if (customer) {
       customerId = customer._id;
 
+      // update inAppMessagingData
+      Customers.update(customer._id, { $set: { inAppMessagingData } });
+
       if ((now - customer.inAppMessagingData.lastSeenAt) > 30 * 60 * 1000) {
-        // update infos
+        // update session count
         Customers.update(
           customer._id,
-          {
-            $set: { inAppMessagingData },
-            $inc: { 'inAppMessagingData.sessionCount': 1 },
-          }
+          { $inc: { 'inAppMessagingData.sessionCount': 1 } }
         );
       }
     } else {
@@ -195,14 +130,13 @@ export const connect = new ValidatedMethod({
       customerId = Customers.insert({
         email: data.email,
         name: data.name,
-        brandId: brand._id,
-        source: KIND_CHOICES.IN_APP_MESSAGING,
+        integrationId: integration._id,
         inAppMessagingData,
       });
     }
 
     this.connection._customerId = customerId;
-    this.connection._brandId = brand._id;
+    this.connection._integrationId = integration._id;
   },
 });
 
@@ -212,7 +146,12 @@ export const sendMessage = new ValidatedMethod({
   validate(doc) {
     check(doc, {
       message: String,
-      attachments: Match.Optional([attachmentsChecker]),
+      attachments: Match.Optional([{
+        url: String,
+        name: String,
+        size: Number,
+        type: String,
+      }]),
       conversationId: Match.Optional(String),
     });
 
@@ -221,10 +160,17 @@ export const sendMessage = new ValidatedMethod({
 
   run(doc) {
     const customerId = this.connection._customerId;
-    const brandId = this.connection._brandId;
+    const integrationId = this.connection._integrationId;
 
     let conversation;
     let conversationId;
+
+    if (!Customers.findOne(customerId)) {
+      throw new Meteor.Error(
+        'conversations.addConversation.customerNotFound',
+        'Customer not found'
+      );
+    }
 
     // customer can write message to even closed conversation
     if (doc.conversationId) {
@@ -248,10 +194,11 @@ export const sendMessage = new ValidatedMethod({
 
     // create new conversation
     } else {
-      conversationId = addConversation({
+      conversationId = Conversations.insert({
         customerId,
-        brandId,
+        integrationId,
         content: doc.message,
+        status: CONVERSATION_STATUSES.NEW,
       });
     }
 
@@ -260,6 +207,7 @@ export const sendMessage = new ValidatedMethod({
       conversationId,
       customerId,
       content: doc.message,
+      internal: false,
     };
 
     if (doc.attachments) {
@@ -271,7 +219,7 @@ export const sendMessage = new ValidatedMethod({
       conversationId,
 
       // insert message
-      messageId: addMessage(messageOptions),
+      messageId: Messages.insert(messageOptions),
     };
   },
 });
@@ -330,7 +278,7 @@ Meteor.publishComposite('api.conversations', function conversations() {
       // find current users conversations
       return Conversations.find(
         {
-          brandId: conn._brandId,
+          integrationId: conn._integrationId,
           customerId: conn._customerId,
         },
         { fields: Conversations.publicFields }

@@ -8,7 +8,7 @@ import { Customers } from '/imports/api/customers/customers';
 import { CONVERSATION_STATUSES } from '/imports/api/conversations/constants';
 
 // get or create customer using twitter data
-const getOrCreateTwitterCustomer = (brandId, data) => {
+const getOrCreateCustomer = (brandId, data) => {
   const customer = Customers.findOne({
     brandId,
     source: KIND_CHOICES.TWITTER,
@@ -36,6 +36,9 @@ const getOrCreateTwitterCustomer = (brandId, data) => {
   });
 };
 
+// save twit instances by integration id
+const TwitMap = {};
+
 export const trackTwitterIntegration = (integration) => {
   // Twit instance
   const twit = new Twit({
@@ -45,6 +48,9 @@ export const trackTwitterIntegration = (integration) => {
     access_token_secret: integration.extraData.tokenSecret,
   });
 
+  // save twit instance
+  TwitMap[integration._id] = twit;
+
   // create stream
   const stream = twit.stream('user');
 
@@ -53,7 +59,7 @@ export const trackTwitterIntegration = (integration) => {
     Conversations.insert({
       content: data.text,
       brandId: integration.brandId,
-      customerId: getOrCreateTwitterCustomer(integration.brandId, data),
+      customerId: getOrCreateCustomer(integration.brandId, data),
       status: CONVERSATION_STATUSES.NEW,
     });
   }));
@@ -66,3 +72,10 @@ export const trackTwitterIntegration = (integration) => {
 Integrations.find({ kind: KIND_CHOICES.TWITTER }).forEach((integration) => {
   trackTwitterIntegration(integration);
 });
+
+// post reply to twitter
+export const tweetReply = (text, integration) => {
+  const twit = TwitMap[integration._id];
+
+  twit.post('statuses/update', { status: text });
+};

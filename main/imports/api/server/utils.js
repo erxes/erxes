@@ -74,12 +74,12 @@ export const sendEmail = ({ to, subject, template }) => {
     html = applyTemplate({ content }, 'base');
   }
 
-  Email.send({
-    from: `${Meteor.settings.COMPANY_NAME} ${Meteor.settings.NO_REPLY_EMAIL}`,
-    to,
-    subject,
-    html,
-  });
+  // Email.send({
+  //   from: `${Meteor.settings.COMPANY_NAME} ${Meteor.settings.NO_REPLY_EMAIL}`,
+  //   to,
+  //   subject,
+  //   html,
+  // });
 };
 
 // send notification helper

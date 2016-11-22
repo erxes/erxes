@@ -7,8 +7,7 @@ import { _ } from 'meteor/underscore';
 import { Factory } from 'meteor/dburles:factory';
 import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 
-import { KIND_CHOICES } from '/imports/api/integrations/constants';
-import { Brands } from '/imports/api/brands/brands';
+import { Integrations } from '/imports/api/integrations/integrations';
 import { Tags } from '/imports/api/tags/tags';
 
 const inAppMessagingSchema = new SimpleSchema({
@@ -65,19 +64,13 @@ const schema = new SimpleSchema({
     optional: true,
   },
 
-  brandId: {
+  integrationId: {
     type: String,
     regEx: SimpleSchema.RegEx.Id,
   },
 
   createdAt: {
     type: Date,
-  },
-
-  // from in app, twitter, facebook etc...
-  source: {
-    type: String,
-    allowedValues: KIND_CHOICES.ALL_LIST,
   },
 
   // in app messaging data
@@ -126,8 +119,8 @@ Customers.attachSchema(schema);
 
 // collection helpers
 Customers.helpers({
-  brand() {
-    return Brands.findOne(this.brandId);
+  integration() {
+    return Integrations.findOne(this.integrationId);
   },
 
   getInAppMessagingCustomData() {
@@ -156,9 +149,8 @@ Customers.deny({
 Customers.publicFields = {
   name: 1,
   email: 1,
-  brandId: 1,
+  integrationId: 1,
   createdAt: 1,
-  source: 1,
   inAppMessagingData: 1,
   twitterData: 1,
   tagIds: 1,
@@ -166,8 +158,7 @@ Customers.publicFields = {
 
 Factory.define('customer', Customers, {
   email: () => faker.internet.email(),
-  brandId: () => Random.id(),
-  source: KIND_CHOICES.IN_APP_MESSAGING,
+  integrationId: () => Random.id(),
   inAppMessagingData: {},
   twitterData: {},
 });

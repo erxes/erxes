@@ -9,22 +9,16 @@ import { assert, chai } from 'meteor/practicalmeteor:chai';
 import { PublicationCollector } from 'meteor/publication-collector';
 import { Notifications } from 'meteor/erxes-notifications';
 
-import { Customers } from '/imports/api/customers/customers';
 import { Channels } from '/imports/api/channels/channels';
 import { Brands } from '/imports/api/brands/brands';
 import { Integrations } from '/imports/api/integrations/integrations';
 
 import { Conversations } from './conversations';
-import { Messages } from './messages';
 import { CONVERSATION_STATUSES } from './constants';
 import { assign, unassign, changeStatus, star, unstar } from './methods';
 
 if (Meteor.isServer) {
   const { tag } = require('./server/methods');
-  const {
-    addConversation,
-    addMessage,
-  } = require('/server/api');
 
   require('./server/publications');
 
@@ -189,61 +183,6 @@ if (Meteor.isServer) {
             done();
           });
         });
-      });
-    });
-
-    describe('api', function () {
-      let customerId;
-      let brandId;
-      let conversationId;
-
-      before(function () {
-        Customers.remove({});
-        Conversations.remove({});
-        Messages.remove({});
-
-        customerId = Factory.create('customer')._id;
-        brandId = Factory.create('brand')._id;
-        conversationId = Factory.create('conversation', { customerId, brandId })._id;
-      });
-
-      it('addConversation - verify customer', function () {
-        assert.throws(() => {
-          addConversation({
-            content: 'lorem',
-            customerId: Random.id(),
-            brandId,
-          });
-        }, Meteor.Error, /conversations.addConversation.customerNotFound/);
-      });
-
-      it('addConversation - add', function () {
-        const data = {
-          content: 'lorem',
-          customerId,
-          brandId,
-        };
-
-        addConversation(data);
-
-        assert.equal(Conversations.find(data).count(), 1);
-      });
-
-      it('addMessage - verify conversation', function () {
-        assert.throws(() => {
-          addMessage({ content: 'lorem', conversationId: Random.id(), customerId });
-        }, Meteor.Error, /conversations.addMessage.conversationNotFound/);
-      });
-
-      it('addMessage - verify customer', function () {
-        assert.throws(() => {
-          addMessage({ content: 'lorem', customerId: Random.id(), conversationId });
-        }, Meteor.Error, /conversations.addMessage.customerNotFound/);
-      });
-
-      it('addMessage - add', function () {
-        addMessage({ content: 'lorem', customerId, conversationId });
-        assert.equal(Messages.find().count(), 1);
       });
     });
 

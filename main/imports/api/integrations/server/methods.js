@@ -6,7 +6,7 @@ import { ErxesMixin } from '/imports/api/utils';
 import { Integrations } from '../integrations';
 import { KIND_CHOICES } from '../constants';
 import { twitter } from './social_api/oauth';
-import { trackTwitterIntegration } from './social_api/streams';
+import { trackTwitterIntegration } from './social_api/twitter';
 
 
 // add in app messaging
