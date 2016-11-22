@@ -45,7 +45,7 @@ Integrations.attachSchema(Integrations.schema);
 
 Integrations.helpers({
   brand() {
-    return Brands.findOne(this.brandId);
+    return Brands.findOne(this.brandId) || {};
   },
 });
 

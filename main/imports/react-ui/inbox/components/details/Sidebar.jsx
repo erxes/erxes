@@ -65,6 +65,7 @@ class Sidebar extends Component {
 
   render() {
     const { conversation, messagesCount } = this.props;
+
     return (
       <Wrapper.Sidebar>
         {this.renderStatusButton()}
@@ -81,7 +82,7 @@ class Sidebar extends Component {
             <li>
               Brand
               <span className="counter">
-                {conversation.brand().name}
+                {conversation.integration().brand().name}
               </span>
             </li>
             <li>
