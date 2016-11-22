@@ -9,12 +9,10 @@ const propTypes = {
 };
 
 function App({ isChatVisible }) {
-  const { email = '' } = global.erxesSettings || {};
-
   return (
     <div>
       {isChatVisible ? <Chat /> : null}
-      <HelpButton isVisible={isChatVisible} email={email} />
+      <HelpButton />
     </div>
   );
 }
