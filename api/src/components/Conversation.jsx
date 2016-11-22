@@ -1,26 +1,16 @@
 import React, { PropTypes } from 'react';
 import moment from 'moment';
-import { Chat } from '../actions';
 
 
 const propTypes = {
-  dispatch: PropTypes.func.isRequired,
   conversation: PropTypes.object.isRequired,
   notifCount: PropTypes.number,
+  goToConversation: PropTypes.func.isRequired,
 };
 
-function Conversation({ dispatch, conversation, notifCount }) {
-  function goToConversation() {
-    const conversationId = conversation._id;
-
-    // change current conversation
-    dispatch(Chat.changeConversation(conversationId));
-
-    // show message form
-    dispatch(Chat.toMessageForm(true));
-
-    // mark as read
-    dispatch(Chat.readMessages(conversationId));
+function Conversation({ conversation, notifCount, goToConversation }) {
+  function handleClick() {
+    goToConversation(conversation._id);
   }
 
   function renderNewMessageCount() {
@@ -36,7 +26,7 @@ function Conversation({ dispatch, conversation, notifCount }) {
   }
 
   return (
-    <li className="erxes-conversation" onClick={goToConversation}>
+    <li className="erxes-conversation" onClick={handleClick}>
       <div className="erxes-c-content">
         <div className={notifCount > 0 ? 'erxes-message unread' : 'erxes-message'}>
           {conversation.content}

@@ -1,7 +1,7 @@
 import React, { PropTypes } from 'react';
 import MessageSender from '../containers/MessageSender';
 import MessageList from '../containers/MessageList';
-import ConversationList from '../containers/ConversationList.jsx';
+import ConversationList from '../containers/ConversationList';
 
 
 const propTypes = {
