@@ -23,9 +23,7 @@ function subscribeConversations() {
     asteroid.unsubscribe(conversationSubId);
   }
 
-  setTimeout(() => {
-    conversationSubId = asteroid.subscribe('api.conversations').id;
-  }, 1000);
+  conversationSubId = asteroid.subscribe('api.conversations').id;
 }
 
 /**
