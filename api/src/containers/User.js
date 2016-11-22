@@ -1,5 +1,5 @@
 import { connect } from 'react-redux';
-import User from '../components/User.jsx';
+import { User } from '../components';
 
 
 const mapStateToProps = ({ users = [] }, ownProps) => ({

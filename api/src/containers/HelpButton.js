@@ -1,6 +1,6 @@
 import { connect } from 'react-redux';
 import { Chat } from '../actions';
-import HelpButton from '../components/HelpButton.jsx';
+import { HelpButton } from '../components';
 
 
 const mapStateToProps = state => ({

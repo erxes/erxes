@@ -1,5 +1,5 @@
 import React, { PropTypes } from 'react';
-import Conversation from '../components/Conversation.jsx';
+import { Conversation } from '../components';
 
 
 const propTypes = {

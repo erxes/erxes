@@ -1,6 +1,6 @@
 import { connect } from 'react-redux';
 import { Chat } from '../actions';
-import Retry from '../components/Retry.jsx';
+import { Retry } from '../components';
 
 
 const mapDispatchToProps = dispatch => ({

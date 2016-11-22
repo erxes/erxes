@@ -1,8 +1,7 @@
 import React, { PropTypes } from 'react';
 import moment from 'moment';
-import Retry from '../containers/Retry';
-import User from '../containers/User';
-import Attachment from './Attachment.jsx';
+import { Retry, User } from '../containers';
+import { Attachment } from '../components';
 
 
 const propTypes = {

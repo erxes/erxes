@@ -1,6 +1,5 @@
 import React, { PropTypes } from 'react';
-import Chat from '../containers/Chat';
-import HelpButton from '../containers/HelpButton';
+import { Chat, HelpButton } from '../containers';
 
 
 const propTypes = {

@@ -1,7 +1,5 @@
 import React, { PropTypes } from 'react';
-import MessageSender from '../containers/MessageSender';
-import MessageList from '../containers/MessageList';
-import ConversationList from '../containers/ConversationList';
+import { MessageSender, MessagesList, ConversationList } from '../containers';
 
 
 const propTypes = {
@@ -28,7 +26,7 @@ function Chat({ currentPanel, goToConversationList, goToConversation }) {
     if (isConversation) {
       return (
         <div className="erxes-content">
-          <MessageList />
+          <MessagesList />
           <MessageSender />
         </div>
       );

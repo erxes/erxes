@@ -1,6 +1,6 @@
 import { connect } from 'react-redux';
 import { Chat as actions } from '../actions';
-import Chat from '../components/Chat.jsx';
+import { Chat } from '../components';
 
 
 const mapStateToProps = state => ({

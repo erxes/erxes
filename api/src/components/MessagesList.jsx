@@ -1,5 +1,5 @@
 import React, { PropTypes, Component } from 'react';
-import Message from './Message.jsx';
+import { Message } from '../components';
 
 
 const propTypes = {
