@@ -6,7 +6,7 @@ import { createStore, applyMiddleware } from 'redux';
 import { Provider } from 'react-redux';
 import thunkMiddleware from 'redux-thunk';
 import erxesApp from './reducers';
-import App from './components/App.jsx';
+import App from './containers/App';
 
 
 export const store = createStore(erxesApp, applyMiddleware(thunkMiddleware));
