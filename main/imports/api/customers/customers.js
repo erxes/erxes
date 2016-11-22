@@ -159,6 +159,4 @@ Customers.publicFields = {
 Factory.define('customer', Customers, {
   email: () => faker.internet.email(),
   integrationId: () => Random.id(),
-  inAppMessagingData: {},
-  twitterData: {},
 });

@@ -167,17 +167,6 @@ if (Meteor.isServer) {
           );
         });
 
-        it('can not delete brand with customer', function () {
-          assert.throws(
-            () => {
-              remove._execute({ userId }, brandId);
-            },
-
-            Meteor.Error,
-            /brands.remove.restricted/
-          );
-        });
-
         it('remove', function () {
           assert.equal(Brands.find().count(), 1);
           Customers.remove(customerId);
