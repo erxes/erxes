@@ -6,7 +6,7 @@ const propTypes = {
 };
 
 function CustomerRow({ customer }) {
-  const inAppMessagingData = customer.inAppMessagingData;
+  const inAppMessagingData = customer.inAppMessagingData || {};
   const lastSeenAt = inAppMessagingData.lastSeenAt;
 
   return (

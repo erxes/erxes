@@ -20,6 +20,19 @@ function RightSidebar({ conversation }) {
     return null;
   };
 
+  const renderInAppMessagingData = () => {
+    if (customer.source === 'in_app_messaging') {
+      return customer.getInAppMessagingCustomData().map((data, index) => (
+        <li key={index}>
+          <span className="capitalize">{data.name}</span>
+          <span className="counter">{data.value}</span>
+        </li>
+      ));
+    }
+
+    return null;
+  };
+
   return (
     <Wrapper.Sidebar size="wide">
       <Wrapper.Sidebar.Section>
@@ -29,13 +42,7 @@ function RightSidebar({ conversation }) {
             <NameCard customer={customer} avatarSize={50} />
           </li>
 
-          {customer.getInAppMessagingCustomData().map((data, index) => (
-            <li key={index}>
-              <span className="capitalize">{data.name}</span>
-              <span className="counter">{data.value}</span>
-            </li>
-          ))}
-
+          {renderInAppMessagingData()}
           {renderTwitterData()}
         </ul>
       </Wrapper.Sidebar.Section>
