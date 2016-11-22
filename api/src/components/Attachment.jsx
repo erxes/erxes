@@ -5,54 +5,33 @@ const propTypes = {
   path: PropTypes.string.isRequired,
 };
 
-class Attachment extends React.Component {
-  constructor(props) {
-    super(props);
+function Attachment({ path }) {
+  function renderAtachment(filePath) {
+    const filename = filePath.split('/').pop();
+    const fileExtension = filePath.split('.').pop();
 
-    this.handleClick = this.handleClick.bind(this);
-    this.renderAtachment = this.renderAtachment.bind(this);
-  }
-
-  handleClick(e) {
-    e.preventDefault();
-  }
-
-  renderAtachment(path) {
-    const filename = path.split('/').pop();
-    const fileExtension = path.split('.').pop();
-
-    let filePreview;
-    switch (fileExtension) {
-      case 'png':
-      case 'jpeg':
-      case 'jpg':
-        filePreview = (
-          <img role="presentation" src={path} />
-        );
-        break;
-      default:
-        filePreview = (
-          <div className="file-wrapper">
-            <i className="file" /> <span>{filename}</span>
-          </div>
-        );
+    if (['png', 'jpeg', 'jpg'].indexOf(fileExtension) > -1) {
+      return <img role="presentation" src={filePath} />;
     }
-    return filePreview;
-  }
 
-  render() {
     return (
-      <a
-        className="download-attachment"
-        href={this.props.path}
-        target="_blank"
-        title="Download"
-        rel="noopener"
-      >
-        {this.renderAtachment(this.props.path)}
-      </a>
+      <div className="file-wrapper">
+        <i className="file" /> <span>{filename}</span>
+      </div>
     );
   }
+
+  return (
+    <a
+      className="download-attachment"
+      href={path}
+      target="_blank"
+      title="Download"
+      rel="noopener noreferrer"
+    >
+      {renderAtachment(path)}
+    </a>
+  );
 }
 
 Attachment.propTypes = propTypes;

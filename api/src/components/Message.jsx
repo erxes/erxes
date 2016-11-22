@@ -1,29 +1,21 @@
 import React, { PropTypes } from 'react';
 import moment from 'moment';
-
-import Retry from '../../containers/chat/Retry';
-import User from '../../containers/user/User';
-import Attachment from '../Attachment.jsx';
+import { Retry, User } from '../containers';
+import { Attachment } from '../components';
 
 
 const propTypes = {
   error: PropTypes.string.isRequired,
   message: PropTypes.string.isRequired,
-  _id: PropTypes.string.isRequired,
   userId: PropTypes.string,
   sentAt: PropTypes.object.isRequired,
   attachments: PropTypes.array,
 };
 
-function Message({ error, message, attachments, _id, userId, sentAt }) {
-  let userInfo = '';
-  if (userId) {
-    userInfo = <User id={userId} />;
-  }
-
+function Message({ error, message, attachments, userId, sentAt }) {
   return (
-    <li className={userId ? '' : 'customer'}>
-      {userInfo}
+    <li className={!userId ? 'customer' : ''}>
+      {userId ? <User id={userId} /> : null}
 
       <div className={attachments && attachments.length > 0 ? 'message attachment' : 'message'}>
         {
@@ -33,7 +25,7 @@ function Message({ error, message, attachments, _id, userId, sentAt }) {
         }
         {
           error
-          ? (<div>{error} <Retry message={message} _id={_id} /></div>)
+          ? (<div>{error} <Retry message={message} /></div>)
           : ''
         }
         {
@@ -42,7 +34,9 @@ function Message({ error, message, attachments, _id, userId, sentAt }) {
             null
         }
       </div>
-      <div className="date">{moment(sentAt).fromNow()}</div>
+      <div className="date">
+        {moment(sentAt).fromNow()}
+      </div>
     </li>
   );
 }

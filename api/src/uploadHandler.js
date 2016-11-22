@@ -1,28 +1,19 @@
-/*
- * Using in both api & main projects
+/**
+ * Upload handler tools which is used in both api & main projects
+ * @param  {Object}   options.file         blob object
+ * @param  {Function} options.afterRead    for preview purpose
+ * @param  {Function} options.uploadAction main upload method
  */
-
-export default function uploadHandlerBase(params) {
-  const {
-    // Blob object
-    file,
-
-    // for preview purpose
-    afterRead,
-
-    // main upload method
-    uploadAction,
-  } = params;
-
+export default function uploadHandler({ file, afterRead, uploadAction }) {
   // initiate upload file reader
   const uploadReader = new FileReader();
 
-  const fileInfo = { name: file.name, size: file.size, type: file.type };
+  const { name, size, type } = file;
+  const fileInfo = { name, size, type };
 
-  // after read proccess done
+  // after read process is done
   uploadReader.onloadend = () => {
     const data = new Uint8Array(uploadReader.result);
-
     uploadAction({ data, fileInfo });
   };
 

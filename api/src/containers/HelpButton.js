@@ -1,24 +1,21 @@
 import { connect } from 'react-redux';
 import { Chat } from '../actions';
+import { HelpButton } from '../components';
 
-import HelpButton from '../components/HelpButton';
 
-const mapStateToProps = (state) => {
-  // calculate total unread messages count
-  let totalNotifsCount = 0;
+const mapStateToProps = state => ({
+  notifsCount: Object.keys(state.notifs).reduce((sum, i) => sum + state.notifs[i], 0),
+  isChatVisible: state.chat.isVisible,
+});
 
-  for (const key of Object.keys(state.notifs)) {
-    totalNotifsCount += state.notifs[key];
-  }
-
-  return {
-    notifsCount: totalNotifsCount,
-  };
-};
-
-const mapDispatchToProps = (dispatch, ownProps) => ({
+/**
+ * Using mergeProps function to access states inside dispatch functions
+ */
+const mergeProps = (stateProps, { dispatch }, ownProps) => ({
+  ...stateProps,
+  ...ownProps,
   onLauncherClick() {
-    if (ownProps.isVisible) {
+    if (stateProps.isChatVisible) {
       return dispatch(Chat.hide());
     }
 
@@ -26,4 +23,4 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
   },
 });
 
-export default connect(mapStateToProps, mapDispatchToProps)(HelpButton);
+export default connect(mapStateToProps, null, mergeProps)(HelpButton);

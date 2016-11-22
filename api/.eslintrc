@@ -1,5 +1,8 @@
 {
   "extends": "airbnb",
+  "env": {
+    "browser": true
+  },
   "rules": {
     "no-underscore-dangle": ["error", { "allow": ["_id"] }]
   },
