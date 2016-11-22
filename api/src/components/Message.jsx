@@ -14,14 +14,9 @@ const propTypes = {
 };
 
 function Message({ error, message, attachments, userId, sentAt }) {
-  let userInfo = '';
-  if (userId) {
-    userInfo = <User id={userId} />;
-  }
-
   return (
     <li className={!userId ? 'customer' : ''}>
-      {userInfo}
+      {userId ? <User id={userId} /> : null}
 
       <div className={attachments && attachments.length > 0 ? 'message attachment' : 'message'}>
         {

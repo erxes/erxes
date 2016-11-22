@@ -2,7 +2,8 @@ import React, { PropTypes } from 'react';
 
 
 const propTypes = {
-  user: PropTypes.object.isRequired,
+  // TODO: user must be required
+  user: PropTypes.object,
 };
 
 function User({ user }) {
