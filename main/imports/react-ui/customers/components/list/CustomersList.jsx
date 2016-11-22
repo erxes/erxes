@@ -28,7 +28,7 @@ class CustomersList extends React.Component {
         <thead>
           <tr>
             <th>Email</th>
-            <th>Brand</th>
+            <th>Integration</th>
             <th>Last seen</th>
             <th>Session count</th>
             <th>Is Active?</th>
