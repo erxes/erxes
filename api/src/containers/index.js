@@ -1,7 +1,7 @@
 import App from './App';
-import Chat from './Chat';
+import Messenger from './Messenger';
 import ConversationList from './ConversationList';
-import HelpButton from './HelpButton';
+import Launcher from './Launcher';
 import MessageSender from './MessageSender';
 import MessagesList from './MessagesList';
 import Retry from './Retry';
@@ -10,9 +10,9 @@ import User from './User';
 
 export {
   App,
-  Chat,
+  Messenger,
   ConversationList,
-  HelpButton,
+  Launcher,
   MessageSender,
   MessagesList,
   Retry,

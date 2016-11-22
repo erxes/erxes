@@ -1,6 +1,6 @@
 import { connect } from 'react-redux';
 import { Chat } from '../actions';
-import { HelpButton } from '../components';
+import { Launcher } from '../components';
 
 
 const mapStateToProps = state => ({
@@ -23,4 +23,4 @@ const mergeProps = (stateProps, { dispatch }, ownProps) => ({
   },
 });
 
-export default connect(mapStateToProps, null, mergeProps)(HelpButton);
+export default connect(mapStateToProps, null, mergeProps)(Launcher);

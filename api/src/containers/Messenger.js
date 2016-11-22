@@ -1,6 +1,6 @@
 import { connect } from 'react-redux';
 import { Chat as actions } from '../actions';
-import { Chat } from '../components';
+import { Messenger } from '../components';
 
 
 const mapStateToProps = state => ({
@@ -28,4 +28,4 @@ const mapDispatchToProps = dispatch => ({
   },
 });
 
-export default connect(mapStateToProps, mapDispatchToProps)(Chat);
+export default connect(mapStateToProps, mapDispatchToProps)(Messenger);
