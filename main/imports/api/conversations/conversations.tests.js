@@ -40,7 +40,7 @@ if (Meteor.isServer) {
           }
         );
 
-        _.extend(conversationOptions, { brandId });
+        _.extend(conversationOptions, { integrationId });
 
         return _.times(count, () => Factory.create(
           'conversation',
