@@ -8,10 +8,9 @@ import { Customers } from '/imports/api/customers/customers';
 import { CONVERSATION_STATUSES } from '/imports/api/conversations/constants';
 
 // get or create customer using twitter data
-const getOrCreateCustomer = (brandId, data) => {
+const getOrCreateCustomer = (integrationId, data) => {
   const customer = Customers.findOne({
-    brandId,
-    source: KIND_CHOICES.TWITTER,
+    integrationId,
     'twitterData.id': data.user.id,
   });
 
@@ -24,8 +23,7 @@ const getOrCreateCustomer = (brandId, data) => {
   // create customer
   return Customers.insert({
     name: user.name,
-    brandId,
-    source: KIND_CHOICES.TWITTER,
+    integrationId,
     twitterData: {
       id: user.id,
       idStr: user.id_str,
@@ -58,8 +56,8 @@ export const trackTwitterIntegration = (integration) => {
   stream.on('tweet', Meteor.bindEnvironment((data) => {
     Conversations.insert({
       content: data.text,
-      brandId: integration.brandId,
-      customerId: getOrCreateCustomer(integration.brandId, data),
+      integrationId: integration._id,
+      customerId: getOrCreateCustomer(integration._id, data),
       status: CONVERSATION_STATUSES.NEW,
     });
   }));

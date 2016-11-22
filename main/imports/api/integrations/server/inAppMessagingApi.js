@@ -96,6 +96,22 @@ export const connect = new ValidatedMethod({
 
     const data = _.omit(_.clone(param), 'brand_id');
 
+    _.each(_.keys(data), (key) => {
+      const value = data[key];
+
+      // clear unwanted values
+      if (!(
+        // date
+        (key.endsWith('_at') && _.isFinite(value)) ||
+
+        // number
+        (_.isFinite(value)) ||
+
+        // string
+        (_.isString(value))
+       )) { delete data[key]; }
+    });
+
     // find customer
     const customer = Customers.findOne({
       email: data.email,

@@ -9,9 +9,10 @@ const propTypes = {
 
 function RightSidebar({ conversation }) {
   const customer = conversation.customer();
+  const integration = conversation.integration();
 
   const renderTwitterData = () => {
-    if (customer.source === 'twitter') {
+    if (integration.kind === 'twitter') {
       return (
         <li><img src={customer.twitterData.profileImageUrl} /></li>
       );
@@ -21,7 +22,7 @@ function RightSidebar({ conversation }) {
   };
 
   const renderInAppMessagingData = () => {
-    if (customer.source === 'in_app_messaging') {
+    if (integration.kind === 'in_app_messaging') {
       return customer.getInAppMessagingCustomData().map((data, index) => (
         <li key={index}>
           <span className="capitalize">{data.name}</span>
