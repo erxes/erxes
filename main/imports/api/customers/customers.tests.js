@@ -19,7 +19,6 @@ if (Meteor.isServer) {
         const customer = Factory.create('customer');
         assert.typeOf(customer, 'object');
         assert.typeOf(customer.createdAt, 'date');
-        assert.typeOf(customer.lastSeenAt, 'date');
         assert.typeOf(customer.email, 'string');
       });
     });

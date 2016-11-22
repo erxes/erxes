@@ -4,6 +4,7 @@ import Twit from 'twit';
 import { Integrations } from '/imports/api/integrations/integrations';
 import { KIND_CHOICES } from '/imports/api/integrations/constants';
 import { Conversations } from '/imports/api/conversations/conversations';
+import { CONVERSATION_STATUSES } from '/imports/api/conversations/constants';
 
 export const trackTwitterIntegration = (integration) => {
   // Twit instance
@@ -23,7 +24,7 @@ export const trackTwitterIntegration = (integration) => {
       content: data.text,
       brandId: integration.brandId,
       customerId: 'Bidda83myZ4QPE2rw',
-      status: 'new',
+      status: CONVERSATION_STATUSES.NEW,
     });
   }));
 

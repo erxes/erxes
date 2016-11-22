@@ -7,31 +7,14 @@ import { _ } from 'meteor/underscore';
 import { Factory } from 'meteor/dburles:factory';
 import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 
+import { KIND_CHOICES } from '/imports/api/integrations/constants';
 import { Brands } from '/imports/api/brands/brands';
 import { Tags } from '/imports/api/tags/tags';
 
-const schema = new SimpleSchema({
-  email: {
-    type: String,
-    regEx: SimpleSchema.RegEx.Email,
-  },
-
-  name: {
-    type: String,
-    optional: true,
-  },
-
-  brandId: {
-    type: String,
-    regEx: SimpleSchema.RegEx.Id,
-  },
-
-  createdAt: {
-    type: Date,
-  },
-
+const inAppMessagingSchema = new SimpleSchema({
   lastSeenAt: {
     type: Date,
+    optional: true,
   },
 
   sessionCount: {
@@ -44,9 +27,43 @@ const schema = new SimpleSchema({
     defaultValue: false,
   },
 
-  data: {
+  customData: {
     type: Object,
     blackbox: true,
+    optional: true,
+  },
+});
+
+const schema = new SimpleSchema({
+  name: {
+    type: String,
+    optional: true,
+  },
+
+  email: {
+    type: String,
+    regEx: SimpleSchema.RegEx.Email,
+    optional: true,
+  },
+
+  brandId: {
+    type: String,
+    regEx: SimpleSchema.RegEx.Id,
+  },
+
+  createdAt: {
+    type: Date,
+  },
+
+  // from in app, twitter, facebook etc...
+  source: {
+    type: String,
+    allowedValues: KIND_CHOICES.ALL_LIST,
+  },
+
+  // in app messaging data
+  inAppMessagingData: {
+    type: inAppMessagingSchema,
     optional: true,
   },
 });
@@ -63,7 +80,9 @@ class CustomersCollection extends Mongo.Collection {
 
     const result = super.remove(selector, callback);
 
+    // remove tags
     let removeIds = [];
+
     customers.forEach((obj) => {
       removeIds.push(obj.tagIds || []);
     });
@@ -86,9 +105,9 @@ Customers.helpers({
     return Brands.findOne(this.brandId);
   },
 
-  getData() {
+  getInAppMessagingCustomData() {
     const results = [];
-    const data = this.data || {};
+    const data = this.inAppMessagingData.customData || {};
 
     _.each(_.keys(data), (key) => {
       results.push({
@@ -110,19 +129,18 @@ Customers.deny({
 });
 
 Customers.publicFields = {
-  email: 1,
   name: 1,
+  email: 1,
   brandId: 1,
   createdAt: 1,
-  lastSeenAt: 1,
-  sessionCount: 1,
-  isActive: 1,
-  data: 1,
+  source: 1,
+  inAppMessagingData: 1,
   tagIds: 1,
 };
 
 Factory.define('customer', Customers, {
   email: () => faker.internet.email(),
   brandId: () => Random.id(),
-  lastSeenAt: () => new Date(),
+  source: KIND_CHOICES.IN_APP_MESSAGING,
+  inAppMessagingData: {},
 });

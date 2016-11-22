@@ -16,6 +16,7 @@ import { Customers } from '/imports/api/customers/customers';
 import { Messages } from '/imports/api/conversations/messages';
 import { Conversations } from '/imports/api/conversations/conversations';
 import { CONVERSATION_STATUSES } from '/imports/api/conversations/constants';
+import { KIND_CHOICES } from '/imports/api/integrations/constants';
 
 
 // **************************** Helpers ********************** //
@@ -97,8 +98,8 @@ Meteor.onConnection((conn) => {
         conn._customerId,
         {
           $set: {
-            isActive: false,
-            lastSeenAt: new Date(),
+            'inAppMessagingData.isActive': false,
+            'inAppMessagingData.lastSeenAt': new Date(),
           },
         }
       );
@@ -159,31 +160,45 @@ export const connect = new ValidatedMethod({
 
     Brands.update(brand._id, { $set: { schema } });
 
-    const filter = { email: data.email, brandId: brand._id };
-    const customer = Customers.findOne(filter);
+    // find customer
+    const customer = Customers.findOne({
+      email: data.email,
+      brandId: brand._id,
+      source: KIND_CHOICES.IN_APP_MESSAGING,
+    });
+
     let customerId;
 
-    const obj = {
-      email: data.email,
-      name: data.name,
-      brandId: brand._id,
-      lastSeenAt: new Date(),
+    const now = new Date();
+    const inAppMessagingData = {
+      lastSeenAt: now,
       isActive: true,
-      data: _.omit(data, 'brand_id'),
+      sessionCount: 1,
+      customData: _.omit(data, 'brand_id'),
     };
 
     if (customer) {
       customerId = customer._id;
 
-      const modifier = { $set: obj };
-      if ((obj.lastSeenAt - customer.lastSeenAt) > 30 * 60 * 1000) {
-        modifier.$inc = { sessionCount: 1 };
+      if ((now - customer.inAppMessagingData.lastSeenAt) > 30 * 60 * 1000) {
+        // update infos
+        Customers.update(
+          customer._id,
+          {
+            $set: { inAppMessagingData },
+            $inc: { 'inAppMessagingData.sessionCount': 1 },
+          }
+        );
       }
-
-      Customers.update(customer._id, modifier);
     } else {
-      obj.sessionCount = 1;
-      customerId = Customers.insert(obj);
+      // create new customer
+      customerId = Customers.insert({
+        email: data.email,
+        name: data.name,
+        brandId: brand._id,
+        source: KIND_CHOICES.IN_APP_MESSAGING,
+        inAppMessagingData,
+      });
     }
 
     this.connection._customerId = customerId;
