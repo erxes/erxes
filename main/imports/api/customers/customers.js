@@ -14,23 +14,42 @@ import { Tags } from '/imports/api/tags/tags';
 const inAppMessagingSchema = new SimpleSchema({
   lastSeenAt: {
     type: Date,
-    optional: true,
   },
 
   sessionCount: {
     type: Number,
-    defaultValue: 0,
   },
 
   isActive: {
     type: Boolean,
-    defaultValue: false,
   },
 
   customData: {
     type: Object,
     blackbox: true,
     optional: true,
+  },
+});
+
+const twitterSchema = new SimpleSchema({
+  id: {
+    type: Number,
+  },
+
+  idStr: {
+    type: String,
+  },
+
+  name: {
+    type: String,
+  },
+
+  screenName: {
+    type: String,
+  },
+
+  profileImageUrl: {
+    type: String,
   },
 });
 
@@ -64,6 +83,12 @@ const schema = new SimpleSchema({
   // in app messaging data
   inAppMessagingData: {
     type: inAppMessagingSchema,
+    optional: true,
+  },
+
+  // twitter data
+  twitterData: {
+    type: twitterSchema,
     optional: true,
   },
 });
@@ -135,6 +160,7 @@ Customers.publicFields = {
   createdAt: 1,
   source: 1,
   inAppMessagingData: 1,
+  twitterData: 1,
   tagIds: 1,
 };
 
@@ -143,4 +169,5 @@ Factory.define('customer', Customers, {
   brandId: () => Random.id(),
   source: KIND_CHOICES.IN_APP_MESSAGING,
   inAppMessagingData: {},
+  twitterData: {},
 });

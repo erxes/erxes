@@ -10,6 +10,16 @@ const propTypes = {
 function RightSidebar({ conversation }) {
   const customer = conversation.customer();
 
+  const renderTwitterData = () => {
+    if (customer.source === 'twitter') {
+      return (
+        <li><img src={customer.twitterData.profileImageUrl} /></li>
+      );
+    }
+
+    return null;
+  };
+
   return (
     <Wrapper.Sidebar size="wide">
       <Wrapper.Sidebar.Section>
@@ -25,6 +35,8 @@ function RightSidebar({ conversation }) {
               <span className="counter">{data.value}</span>
             </li>
           ))}
+
+          {renderTwitterData()}
         </ul>
       </Wrapper.Sidebar.Section>
     </Wrapper.Sidebar>

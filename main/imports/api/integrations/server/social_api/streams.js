@@ -4,7 +4,37 @@ import Twit from 'twit';
 import { Integrations } from '/imports/api/integrations/integrations';
 import { KIND_CHOICES } from '/imports/api/integrations/constants';
 import { Conversations } from '/imports/api/conversations/conversations';
+import { Customers } from '/imports/api/customers/customers';
 import { CONVERSATION_STATUSES } from '/imports/api/conversations/constants';
+
+// get or create customer using twitter data
+const getOrCreateTwitterCustomer = (brandId, data) => {
+  const customer = Customers.findOne({
+    brandId,
+    source: KIND_CHOICES.TWITTER,
+    'twitterData.id': data.user.id,
+  });
+
+  if (customer) {
+    return customer._id;
+  }
+
+  const user = data.user;
+
+  // create customer
+  return Customers.insert({
+    name: user.name,
+    brandId,
+    source: KIND_CHOICES.TWITTER,
+    twitterData: {
+      id: user.id,
+      idStr: user.id_str,
+      name: user.name,
+      screenName: user.screen_name,
+      profileImageUrl: user.profile_image_url,
+    },
+  });
+};
 
 export const trackTwitterIntegration = (integration) => {
   // Twit instance
@@ -23,7 +53,7 @@ export const trackTwitterIntegration = (integration) => {
     Conversations.insert({
       content: data.text,
       brandId: integration.brandId,
-      customerId: 'Bidda83myZ4QPE2rw',
+      customerId: getOrCreateTwitterCustomer(integration.brandId, data),
       status: CONVERSATION_STATUSES.NEW,
     });
   }));
