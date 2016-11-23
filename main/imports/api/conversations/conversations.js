@@ -128,6 +128,10 @@ const twitterSchema = new SimpleSchema({
     type: String,
   },
 
+  screenName: {
+    type: String,
+  },
+
   isDirectMessage: {
     type: Boolean,
     defaultValue: false,

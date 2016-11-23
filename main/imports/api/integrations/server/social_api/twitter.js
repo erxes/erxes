@@ -8,8 +8,25 @@ import { Messages } from '/imports/api/conversations/messages';
 import { Customers } from '/imports/api/customers/customers';
 import { CONVERSATION_STATUSES } from '/imports/api/conversations/constants';
 
+const getUser = (twitterUser) => {
+  const user = Meteor.users.findOne({
+    'details.twitterUsername': twitterUser.screen_name,
+  });
+
+  if (user) {
+    return user._id;
+  }
+
+  return null;
+};
+
 // get or create customer using twitter data
 const getOrCreateCustomer = (integrationId, user) => {
+  // if twitter is one of the admins then customer has to be null
+  if (getUser(user)) {
+    return null;
+  }
+
   const customer = Customers.findOne({
     integrationId,
     'twitterData.id': user.id,
@@ -33,12 +50,13 @@ const getOrCreateCustomer = (integrationId, user) => {
   });
 };
 
-const createMessage = (conversation, content) => {
+const createMessage = (conversation, content, user) => {
   if (conversation) {
     // create new message
     Messages.insert({
       conversationId: conversation._id,
-      customerId: conversation.customerId,
+      customerId: getOrCreateCustomer(conversation.integrationId, user),
+      userId: getUser(user),
       content,
       internal: false,
     });
@@ -67,6 +85,7 @@ const getOrCreateCommonConversation = (data, integration) => {
       twitterData: {
         id: data.id,
         idStr: data.id_str,
+        screenName: data.user.screen_name,
         isDirectMessage: false,
       },
     });
@@ -74,7 +93,7 @@ const getOrCreateCommonConversation = (data, integration) => {
   }
 
   // create new message
-  createMessage(conversation, data.text);
+  createMessage(conversation, data.text, data.user);
 };
 
 // create new conversation by direct message
@@ -105,6 +124,7 @@ const getOrCreateDirectMessageConversation = (data, integration) => {
       twitterData: {
         id: data.id,
         idStr: data.id_str,
+        screenName: data.sender.screen_name,
         isDirectMessage: true,
         directMessage: {
           senderId: data.sender_id,
@@ -118,7 +138,7 @@ const getOrCreateDirectMessageConversation = (data, integration) => {
   }
 
   // create new message
-  createMessage(conversation, data.text);
+  createMessage(conversation, data.text, data.sender);
 };
 
 // save twit instances by integration id
@@ -179,13 +199,14 @@ Integrations.find({ kind: KIND_CHOICES.TWITTER }).forEach((integration) => {
 // post reply to twitter
 export const tweetReply = (conversation, text) => {
   const twit = TwitMap[conversation.integrationId];
+  const twitterData = conversation.twitterData;
 
   // send direct message
   if (conversation.twitterData.isDirectMessage) {
     return twit.post(
       'direct_messages/new',
       {
-        user_id: conversation.twitterData.directMessage.senderIdStr,
+        user_id: twitterData.directMessage.senderIdStr,
         text,
       }
     );
@@ -195,10 +216,10 @@ export const tweetReply = (conversation, text) => {
   return twit.post(
     'statuses/update',
     {
-      status: text,
+      status: `@${twitterData.screenName} ${text}`,
 
       // replying tweet id
-      in_reply_to_status_id: conversation.twitterData.idStr,
+      in_reply_to_status_id: twitterData.idStr,
     }
   );
 };
