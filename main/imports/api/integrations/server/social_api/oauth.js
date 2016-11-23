@@ -17,7 +17,7 @@ export const twitter = {
         // return integration info
         callback({
           name: data.info.name,
-          extraData: {
+          twitterData: {
             id: data.info.id,
             token: data.tokens.auth.token,
             tokenSecret: data.tokens.auth.token_secret,

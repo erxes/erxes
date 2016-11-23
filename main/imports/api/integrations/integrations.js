@@ -18,6 +18,20 @@ Integrations.deny({
   remove() { return true; },
 });
 
+const twitterSchema = new SimpleSchema({
+  id: {
+    type: Number,
+  },
+
+  token: {
+    type: String,
+  },
+
+  tokenSecret: {
+    type: String,
+  },
+});
+
 Integrations.schema = new SimpleSchema({
   // in app messaging, twitter ...
   kind: {
@@ -33,11 +47,9 @@ Integrations.schema = new SimpleSchema({
     type: String,
   },
 
-  // For example When twitter, save token, token_secret, user id
-  extraData: {
-    type: Object,
+  twitterData: {
+    type: twitterSchema,
     optional: true,
-    blackbox: true,
   },
 });
 

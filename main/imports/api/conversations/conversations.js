@@ -101,6 +101,24 @@ Conversations.deny({
   remove() { return true; },
 });
 
+const twitterDirectMessageSchema = new SimpleSchema({
+  senderId: {
+    type: Number,
+  },
+
+  senderIdStr: {
+    type: String,
+  },
+
+  recipientId: {
+    type: Number,
+  },
+
+  recipientIdStr: {
+    type: String,
+  },
+});
+
 const twitterSchema = new SimpleSchema({
   id: {
     type: Number,
@@ -108,6 +126,16 @@ const twitterSchema = new SimpleSchema({
 
   idStr: {
     type: String,
+  },
+
+  isDirectMessage: {
+    type: Boolean,
+    defaultValue: false,
+  },
+
+  directMessage: {
+    type: twitterDirectMessageSchema,
+    optional: true,
   },
 });
 

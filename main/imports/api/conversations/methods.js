@@ -85,7 +85,7 @@ export const addMessage = new ValidatedMethod({
 
       // send reply to twitter
       if (integration.kind === KIND_CHOICES.TWITTER) {
-        return tweetReply(integration._id, conversation, content);
+        return tweetReply(conversation, content);
       }
     }
 
