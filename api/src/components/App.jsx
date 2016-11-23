@@ -8,7 +8,7 @@ const propTypes = {
 
 function App({ isChatVisible }) {
   return (
-    <div>
+    <div className="erxes-widget">
       {isChatVisible ? <Messenger /> : null}
       <Launcher />
     </div>

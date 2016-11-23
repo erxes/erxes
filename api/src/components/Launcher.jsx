@@ -8,7 +8,7 @@ const propTypes = {
 
 function Launcher({ onLauncherClick, notifsCount }) {
   return (
-    <div className="launcher" onClick={onLauncherClick}>
+    <div className="erxes-launcher" onClick={onLauncherClick}>
       {notifsCount ? <span>{notifsCount}</span> : null}
     </div>
   );

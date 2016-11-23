@@ -1,5 +1,6 @@
 import React, { PropTypes } from 'react';
 import moment from 'moment';
+import classNames from 'classnames';
 import { Retry, User } from '../containers';
 import { Attachment } from '../components';
 
@@ -13,20 +14,24 @@ const propTypes = {
 };
 
 function Message({ error, message, attachments, userId, sentAt }) {
+  const itemClasses = classNames({ 'from-customer': !userId });
+  const messageClasses = classNames('message', {
+    attachment: attachments && attachments.length > 0,
+    'from-customer': !userId,
+  });
+
   return (
-    <li className={!userId ? 'customer' : ''}>
+    <li className={itemClasses}>
       {userId ? <User id={userId} /> : null}
 
-      <div className={attachments && attachments.length > 0 ? 'message attachment' : 'message'}>
+      <div className={messageClasses}>
         {
           message.split('\n').map((line, index) =>
             <span key={index}>{line}<br /></span>
           )
         }
         {
-          error
-          ? (<div>{error} <Retry message={message} /></div>)
-          : ''
+          error ? <div>{error} <Retry message={message} /></div> : ''
         }
         {
           attachments && attachments.length > 0 ?

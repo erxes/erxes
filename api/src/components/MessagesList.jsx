@@ -24,18 +24,16 @@ class MessagesList extends Component {
 
   render() {
     return (
-      <div
-        className="erxes-content-container"
+      <ul
+        className="erxes-messages-list"
         ref={node => { this.node = node; }}
       >
-        <ul className="erxes-conversation-messages">
-          {
-            this.props.messages.map(message =>
-              <Message key={message._id} {...message} />
-            )
-          }
-        </ul>
-      </div>
+        {
+          this.props.messages.map(message =>
+            <Message key={message._id} {...message} />
+          )
+        }
+      </ul>
     );
   }
 }

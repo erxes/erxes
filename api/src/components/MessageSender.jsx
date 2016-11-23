@@ -52,7 +52,7 @@ class MessageSender extends Component {
   render() {
     return (
       <div>
-        <form className="erxes-textarea" onSubmit={this.onSubmit}>
+        <form className="erxes-message-sender" onSubmit={this.onSubmit}>
           <textarea
             className="reply"
             placeholder="Say hello ..."

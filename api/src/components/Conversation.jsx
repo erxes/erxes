@@ -1,5 +1,6 @@
 import React, { PropTypes } from 'react';
 import moment from 'moment';
+import classNames from 'classnames';
 
 
 const propTypes = {
@@ -9,32 +10,21 @@ const propTypes = {
 };
 
 function Conversation({ conversation, notifCount, goToConversation }) {
-  function handleClick() {
-    goToConversation(conversation._id);
-  }
-
-  function renderNewMessageCount() {
-    if (notifCount > 0) {
-      return (
-        <div className="erxes-notif-count">
-          {notifCount} new
-        </div>
-      );
-    }
-
-    return null;
-  }
+  const { _id, content, createdAt } = conversation;
 
   return (
-    <li className="erxes-conversation" onClick={handleClick}>
-      <div className="erxes-c-content">
-        <div className={notifCount > 0 ? 'erxes-message unread' : 'erxes-message'}>
-          {conversation.content}
-        </div>
-        {renderNewMessageCount()}
+    <li
+      className="erxes-conversation"
+      onClick={() => { goToConversation(_id); }}
+    >
+      <div className={classNames('erxes-message', { unread: notifCount > 0 })}>
+        {content}
       </div>
-      <div className="erxes-c-info">
-        {moment(conversation.createdAt).fromNow()}
+      <div className="date">
+        {moment(createdAt).fromNow()}
+      </div>
+      <div className="new-message-count">
+        {notifCount > 0 ? `${notifCount} new messages` : ''}
       </div>
     </li>
   );

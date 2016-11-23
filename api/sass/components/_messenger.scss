@@ -1,0 +1,15 @@
+.erxes-messenger {
+  position: fixed;
+  right: 30px;
+  width: 370px;
+  background: $bg-color;
+  box-shadow: 0 8px 20px rgba($black, 0.15);
+  z-index: 999999999;
+  display: flex;
+  flex-direction: column;
+  height: calc(100% - 95px - 30px);
+  bottom: 100px;
+  max-height: 620px;
+  border-radius: 4px;
+  overflow: hidden;
+}

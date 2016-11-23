@@ -1,4 +1,5 @@
 import React, { PropTypes } from 'react';
+import classNames from 'classnames';
 import { MessageSender, MessagesList, ConversationList } from '../containers';
 
 
@@ -11,34 +12,27 @@ const propTypes = {
 function Chat({ currentPanel, goToConversationList, goToConversation }) {
   const isConversation = currentPanel === 'conversation';
 
+  const classes = classNames('topbar-button', 'left', {
+    back: isConversation,
+    new: !isConversation,
+  });
   const topBar = (
     <div className="erxes-topbar">
-      <div className={`left-option${isConversation ? '' : ' new-conversation'}`}>
-        <a onClick={isConversation ? goToConversationList : goToConversation} />
-      </div>
+      <div
+        className={classes}
+        onClick={isConversation ? goToConversationList : goToConversation}
+      />
       <div className="erxes-title">
         {isConversation ? 'Messages' : 'Conversations'}
       </div>
     </div>
   );
 
-  function renderPanel() {
-    if (isConversation) {
-      return (
-        <div className="erxes-content">
-          <MessagesList />
-          <MessageSender />
-        </div>
-      );
-    }
-
-    return <ConversationList />;
-  }
-
   return (
-    <div className="erxes-sidebar">
+    <div className="erxes-messenger">
       {topBar}
-      {renderPanel()}
+      {isConversation ? <MessagesList /> : <ConversationList />}
+      {isConversation ? <MessageSender /> : null}
     </div>
   );
 }

@@ -10,20 +10,18 @@ const propTypes = {
 
 function ConversationList({ conversations, notifs, goToConversation }) {
   return (
-    <div className="erxes-content-container no-space">
-      <ul className="erxes-conversations">
-        {
-          conversations.map(conversation =>
-            <Conversation
-              key={conversation._id}
-              conversation={conversation}
-              notifCount={notifs[conversation._id]}
-              goToConversation={goToConversation}
-            />
-          )
-        }
-      </ul>
-    </div>
+    <ul className="erxes-conversation-list">
+      {
+        conversations.map(conversation =>
+          <Conversation
+            key={conversation._id}
+            conversation={conversation}
+            notifCount={notifs[conversation._id]}
+            goToConversation={goToConversation}
+          />
+        )
+      }
+    </ul>
   );
 }
 
