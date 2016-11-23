@@ -228,6 +228,6 @@ Conversations.publicFields = {
 Factory.define('conversation', Conversations, {
   content: () => faker.lorem.sentence(),
   customerId: () => Random.id(),
-  integrationId: () => Random.id(),
+  integrationId: () => Factory.create('integration')._id,
   status: () => CONVERSATION_STATUSES.NEW,
 });

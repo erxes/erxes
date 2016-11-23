@@ -44,7 +44,6 @@ export const addMessage = new ValidatedMethod({
   run(_doc) {
     const doc = _doc;
     const conversation = Conversations.findOne(doc.conversationId);
-    const integration = conversation.integration();
 
     if (!conversation) {
       throw new Meteor.Error(
@@ -52,6 +51,8 @@ export const addMessage = new ValidatedMethod({
         'Conversation not found'
       );
     }
+
+    const integration = conversation.integration();
 
     // normalize content, attachments
     const content = doc.content || '';
