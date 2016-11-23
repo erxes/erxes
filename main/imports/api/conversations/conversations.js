@@ -101,6 +101,16 @@ Conversations.deny({
   remove() { return true; },
 });
 
+const twitterSchema = new SimpleSchema({
+  id: {
+    type: Number,
+  },
+
+  idStr: {
+    type: String,
+  },
+});
+
 Conversations.schema = new SimpleSchema({
   number: {
     type: Number,
@@ -118,6 +128,11 @@ Conversations.schema = new SimpleSchema({
   integrationId: {
     type: String,
     regEx: SimpleSchema.RegEx.Id,
+  },
+
+  twitterData: {
+    type: twitterSchema,
+    optional: true,
   },
 
   assignedUserId: {

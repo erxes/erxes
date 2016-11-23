@@ -4,6 +4,7 @@ import Twit from 'twit';
 import { Integrations } from '/imports/api/integrations/integrations';
 import { KIND_CHOICES } from '/imports/api/integrations/constants';
 import { Conversations } from '/imports/api/conversations/conversations';
+import { Messages } from '/imports/api/conversations/messages';
 import { Customers } from '/imports/api/customers/customers';
 import { CONVERSATION_STATUSES } from '/imports/api/conversations/constants';
 
@@ -34,6 +35,23 @@ const getOrCreateCustomer = (integrationId, data) => {
   });
 };
 
+const createConversation = (data, integration) =>
+  Conversations.insert({
+    content: data.text,
+    integrationId: integration._id,
+
+    // get or create twitter customer
+    customerId: getOrCreateCustomer(integration._id, data),
+
+    status: CONVERSATION_STATUSES.NEW,
+
+    // save tweet id
+    twitterData: {
+      id: data.id,
+      idStr: data.id_str,
+    },
+  });
+
 // save twit instances by integration id
 const TwitMap = {};
 
@@ -54,12 +72,29 @@ export const trackTwitterIntegration = (integration) => {
 
   // listen for timeline
   stream.on('tweet', Meteor.bindEnvironment((data) => {
-    Conversations.insert({
-      content: data.text,
-      integrationId: integration._id,
-      customerId: getOrCreateCustomer(integration._id, data),
-      status: CONVERSATION_STATUSES.NEW,
-    });
+    let conversation;
+
+    if (data.in_reply_to_status_id) {
+      // find conversation by tweet id
+      conversation = Conversations.findOne({
+        'twitterData.id': data.in_reply_to_status_id,
+      });
+
+    // create new conversation
+    } else {
+      const conversationId = createConversation(data, integration);
+      conversation = Conversations.findOne(conversationId);
+    }
+
+    if (conversation) {
+      // create new message
+      Messages.insert({
+        conversationId: conversation._id,
+        customerId: conversation.customerId,
+        content: data.text,
+        internal: false,
+      });
+    }
   }));
 
   // listen for direct messages
@@ -72,8 +107,16 @@ Integrations.find({ kind: KIND_CHOICES.TWITTER }).forEach((integration) => {
 });
 
 // post reply to twitter
-export const tweetReply = (text, integration) => {
-  const twit = TwitMap[integration._id];
+export const tweetReply = (integrationId, conversation, text) => {
+  const twit = TwitMap[integrationId];
 
-  twit.post('statuses/update', { status: text });
+  twit.post(
+    'statuses/update',
+    {
+      status: text,
+
+      // replying tweet id
+      in_reply_to_status_id: conversation.twitterData.idStr,
+    }
+  );
 };

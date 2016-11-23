@@ -96,10 +96,9 @@ export const connect = new ValidatedMethod({
 
     const data = _.omit(_.clone(param), 'brand_id');
 
+    // clear unwanted values
     _.each(_.keys(data), (key) => {
       const value = data[key];
-
-      // clear unwanted values
       if (!(
         // date
         (key.endsWith('_at') && _.isFinite(value)) ||
