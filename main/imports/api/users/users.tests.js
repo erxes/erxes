@@ -35,6 +35,7 @@ if (Meteor.isServer) {
           const doc = {
             email: 'invited@gmail.com',
             username: 'invited',
+            twitterUsername: 'twitterUsername',
             fullName: 'FirstName LastName',
             password: 'pass',
             passwordConfirmation: 'pass',
@@ -90,6 +91,7 @@ if (Meteor.isServer) {
               userId: invitedUserId,
               email: 'invited@gmail.com',
               username: 'invited',
+              twitterUsername: 'twitterUsername',
               fullName: 'FirstName LastName',
               role: 'admin',
               channelIds: [channel1Id, channel3Id],

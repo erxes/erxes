@@ -15,7 +15,9 @@ import '/imports/api/channels/server/publications';
 import '/imports/api/channels/methods';
 
 import '/imports/api/integrations/server/publications';
-import '/imports/api/integrations/methods';
+import '/imports/api/integrations/server/methods';
+import '/imports/api/integrations/server/inAppMessagingApi';
+import '/imports/api/integrations/server/social_api';
 
 import '/imports/api/conversations/server/publications';
 import '/imports/api/conversations/server/methods';

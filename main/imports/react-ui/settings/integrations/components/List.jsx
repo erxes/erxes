@@ -1,9 +1,7 @@
 import React, { PropTypes, Component } from 'react';
-import { Button, Table } from 'react-bootstrap';
+import { Table } from 'react-bootstrap';
 import { Wrapper } from '/imports/react-ui/layout/components';
-import { ModalTrigger } from '/imports/react-ui/common';
 import Sidebar from '../../Sidebar.jsx';
-import { IntegrationForm } from '../components';
 import Row from './Row.jsx';
 
 
@@ -34,22 +32,6 @@ class List extends Component {
   }
 
   render() {
-    const trigger = (
-      <Button bsStyle="link">
-        <i className="ion-plus-circled" /> New integration
-      </Button>
-    );
-
-    const actionBarLeft = (
-      <ModalTrigger title="New integration" trigger={trigger}>
-        <IntegrationForm brands={this.props.brands} />
-      </ModalTrigger>
-    );
-
-    const actionBar = (
-      <Wrapper.ActionBar left={actionBarLeft} />
-    );
-
     const content = (
       <Table>
         <thead>
@@ -76,7 +58,6 @@ class List extends Component {
         <Wrapper
           header={<Wrapper.Header breadcrumb={breadcrumb} />}
           leftSidebar={<Sidebar />}
-          actionBar={actionBar}
           content={content}
         />
       </div>

@@ -9,7 +9,6 @@ import { Factory } from 'meteor/dburles:factory';
 import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 
 import { Customers } from '/imports/api/customers/customers';
-import { Brands } from '/imports/api/brands/brands';
 import { Integrations } from '/imports/api/integrations/integrations';
 import { Tags } from '/imports/api/tags/tags';
 
@@ -65,15 +64,8 @@ Conversations.helpers({
     return Customers.findOne(this.customerId);
   },
 
-  brand() {
-    return Brands.findOne(this.brandId);
-  },
-
   integration() {
-    return Integrations.findOne({
-      brandId: this.brandId,
-      kind: 'in_app_messaging',
-    });
+    return Integrations.findOne(this.integrationId);
   },
 
   tags() {
@@ -109,6 +101,51 @@ Conversations.deny({
   remove() { return true; },
 });
 
+const twitterDirectMessageSchema = new SimpleSchema({
+  senderId: {
+    type: Number,
+  },
+
+  senderIdStr: {
+    type: String,
+  },
+
+  recipientId: {
+    type: Number,
+  },
+
+  recipientIdStr: {
+    type: String,
+  },
+});
+
+const twitterSchema = new SimpleSchema({
+  id: {
+    type: Number,
+    optional: true,
+  },
+
+  idStr: {
+    type: String,
+    optional: true,
+  },
+
+  screenName: {
+    type: String,
+    optional: true,
+  },
+
+  isDirectMessage: {
+    type: Boolean,
+    defaultValue: false,
+  },
+
+  directMessage: {
+    type: twitterDirectMessageSchema,
+    optional: true,
+  },
+});
+
 Conversations.schema = new SimpleSchema({
   number: {
     type: Number,
@@ -123,9 +160,14 @@ Conversations.schema = new SimpleSchema({
     regEx: SimpleSchema.RegEx.Id,
   },
 
-  brandId: {
+  integrationId: {
     type: String,
     regEx: SimpleSchema.RegEx.Id,
+  },
+
+  twitterData: {
+    type: twitterSchema,
+    optional: true,
   },
 
   assignedUserId: {
@@ -174,7 +216,7 @@ Conversations.publicFields = {
   assignedUserId: 1,
   content: 1,
   customerId: 1,
-  brandId: 1,
+  integrationId: 1,
   status: 1,
   createdAt: 1,
   messageCount: 1,
@@ -186,6 +228,6 @@ Conversations.publicFields = {
 Factory.define('conversation', Conversations, {
   content: () => faker.lorem.sentence(),
   customerId: () => Random.id(),
-  brandId: () => Random.id(),
+  integrationId: () => Factory.create('integration')._id,
   status: () => CONVERSATION_STATUSES.NEW,
 });

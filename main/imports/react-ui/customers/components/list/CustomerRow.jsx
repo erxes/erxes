@@ -6,6 +6,10 @@ const propTypes = {
 };
 
 function CustomerRow({ customer }) {
+  const inAppMessagingData = customer.inAppMessagingData || {};
+  const lastSeenAt = inAppMessagingData.lastSeenAt;
+  const integration = customer.integration();
+
   return (
     <tr>
       <td>
@@ -13,12 +17,12 @@ function CustomerRow({ customer }) {
           {customer.email}
         </a>
       </td>
-      <td>{customer.brand() && customer.brand().name}</td>
-      <td>{customer.lastSeenAt.toDateString()}</td>
-      <td>{customer.sessionCount}</td>
+      <td>{integration && integration.name}</td>
+      <td>{lastSeenAt && lastSeenAt.toDateString()}</td>
+      <td>{inAppMessagingData.sessionCount}</td>
       <td>
         {
-          customer.isActive ?
+          inAppMessagingData.isActive ?
             <Label bsStyle="success">Active</Label> :
             <Label>Inactive</Label>
         }

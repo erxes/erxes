@@ -34,11 +34,25 @@ const updateUserChannels = (channelIds, userId) => {
 
 // update user's common infos
 const updateUserCommonInfos = (userId, doc) => {
+  const user = Meteor.users.findOne({
+    _id: { $ne: userId },
+    'details.twitterUsername': doc.twitterUsername,
+  });
+
+  // check twitterUsername duplication
+  if (user) {
+    throw new Meteor.Error(
+      'users.updateInfo.wrongTwitterUsername',
+      'Duplicated twitter username'
+    );
+  }
+
   Meteor.users.update(
     userId,
     {
       $set: {
         username: doc.username,
+        'details.twitterUsername': doc.twitterUsername,
         'details.avatar': doc.avatar,
         'details.fullName': doc.fullName,
         'emails.0.address': doc.email,
@@ -68,7 +82,7 @@ export const invite = new ValidatedMethod({
 
   run(doc) {
     const {
-      username, avatar, fullName, email, role, channelIds,
+      username, twitterUsername, avatar, fullName, email, role, channelIds,
       password, passwordConfirmation,
     } = doc;
 
@@ -87,7 +101,10 @@ export const invite = new ValidatedMethod({
     Accounts.setPassword(userId, password);
 
     // set profile infos
-    updateUserCommonInfos(userId, { username, avatar, fullName, email });
+    updateUserCommonInfos(
+      userId,
+      { twitterUsername, username, avatar, fullName, email }
+    );
 
     // add new user to channels
     updateUserChannels(channelIds, userId);
@@ -116,8 +133,8 @@ export const updateInvitationInfos = new ValidatedMethod({
 
   run(doc) {
     const {
-      userId, username, avatar, fullName, email, role, channelIds,
-      password, passwordConfirmation,
+      userId, twitterUsername, username, avatar, fullName, email,
+      role, channelIds, password, passwordConfirmation,
     } = doc;
 
     // update user channels channels
@@ -135,7 +152,10 @@ export const updateInvitationInfos = new ValidatedMethod({
 
     // if user is not owner then update profile infos
     if (!user.isOwner) {
-      updateUserCommonInfos(userId, { username, avatar, fullName, email });
+      updateUserCommonInfos(
+        userId,
+        { username, twitterUsername, avatar, fullName, email }
+      );
 
        // update role
       Meteor.users.update(userId, { $set: { 'details.role': role } });

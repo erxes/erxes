@@ -4,7 +4,6 @@ import { ValidatedMethod } from 'meteor/mdg:validated-method';
 import { _ } from 'meteor/underscore';
 
 import { ErxesMixin } from '/imports/api/utils';
-import { Customers } from '/imports/api/customers/customers';
 import { Brands, emailConfigSchema } from './brands';
 
 // brand add
@@ -63,16 +62,6 @@ export const remove = new ValidatedMethod({
 
     if (!brand) {
       throw new Meteor.Error('brands.remove.notFound', 'Brand not found');
-    }
-
-    // can't remove a brand with customers
-    const haveCustomers = Customers.findOne({
-      brandId: id,
-    });
-
-    if (haveCustomers) {
-      throw new Meteor.Error('brands.remove.restricted',
-        'Can\'t remove a brand with customers');
     }
 
     return Brands.remove(id);

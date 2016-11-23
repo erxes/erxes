@@ -1,8 +1,7 @@
 import React, { PropTypes, Component } from 'react';
 import { Button } from 'react-bootstrap';
 import Alert from 'meteor/erxes-notifier';
-import { IntegrationForm } from '../components';
-import { ModalTrigger, Tip, ActionButtons } from '/imports/react-ui/common';
+import { Tip, ActionButtons } from '/imports/react-ui/common';
 
 
 const propTypes = {
@@ -35,12 +34,6 @@ class Row extends Component {
   render() {
     const integration = this.props.integration;
 
-    const editTrigger = (
-      <Button bsStyle="link">
-        <Tip text="Edit"><i className="ion-edit" /></Tip>
-      </Button>
-    );
-
     return (
       <tr>
         <td>{integration.name}</td>
@@ -49,14 +42,6 @@ class Row extends Component {
 
         <td className="text-right">
           <ActionButtons>
-
-            <ModalTrigger title="Edit integration" trigger={editTrigger}>
-              <IntegrationForm
-                brands={this.props.brands}
-                integration={this.props.integration}
-              />
-            </ModalTrigger>
-
             <Tip text="Delete">
               <Button bsStyle="link" onClick={this.removeIntegration}>
                 <i className="ion-close-circled" />

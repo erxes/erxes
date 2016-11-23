@@ -18,6 +18,10 @@ const CommonInfo = {
     type: String,
   },
 
+  twitterUsername: {
+    type: String,
+  },
+
   email: {
     type: String,
     regEx: SimpleSchema.RegEx.Email,

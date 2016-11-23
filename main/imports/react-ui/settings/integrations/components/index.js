@@ -1,8 +1,9 @@
-import IntegrationList from './IntegrationList.jsx';
-import IntegrationForm from './IntegrationForm.jsx';
-
+import List from './List.jsx';
+import InAppMessaging from './InAppMessaging.jsx';
+import Twitter from './Twitter.jsx';
 
 export {
-  IntegrationList,
-  IntegrationForm,
+  List,
+  Twitter,
+  InAppMessaging,
 };

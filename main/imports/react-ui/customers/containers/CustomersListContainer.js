@@ -6,10 +6,11 @@ import { CustomersList } from '../components';
 
 
 function composer(props, onData) {
-  const customersHandle = Meteor.subscribe('customers.list', props.queryParams);
+  const customersHandle = Meteor.subscribe('customers.list', {});
+  const integrationsHandle = Meteor.subscribe('integrations.list', {});
   const customers = Customers.find({}, { sort: { lastSeenAt: -1 } }).fetch();
 
-  if (customersHandle.ready()) {
+  if (customersHandle.ready() && integrationsHandle.ready()) {
     onData(null, { customers });
   }
 }

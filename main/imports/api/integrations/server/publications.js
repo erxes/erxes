@@ -20,3 +20,14 @@ Meteor.publish('integrations.list', (params) => {
 
   return Integrations.find(selector, { fields: Integrations.publicFields });
 });
+
+
+Meteor.publish('integrations.getById', function integrationsGetById(id) {
+  check(id, String);
+
+  if (! this.userId) {
+    return this.ready();
+  }
+
+  return Integrations.find({ _id: id }, { fields: Integrations.publicFields });
+});

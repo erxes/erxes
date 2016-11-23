@@ -1,5 +1,4 @@
 import React, { PropTypes } from 'react';
-import moment from 'moment';
 import { NameCard } from '/imports/react-ui/common';
 import { Wrapper } from '/imports/react-ui/layout/components';
 
@@ -10,6 +9,30 @@ const propTypes = {
 
 function RightSidebar({ conversation }) {
   const customer = conversation.customer();
+  const integration = conversation.integration();
+
+  const renderTwitterData = () => {
+    if (integration.kind === 'twitter') {
+      return (
+        <li><img src={customer.twitterData.profileImageUrl} /></li>
+      );
+    }
+
+    return null;
+  };
+
+  const renderInAppMessagingData = () => {
+    if (integration.kind === 'in_app_messaging') {
+      return customer.getInAppMessagingCustomData().map((data, index) => (
+        <li key={index}>
+          <span className="capitalize">{data.name}</span>
+          <span className="counter">{data.value}</span>
+        </li>
+      ));
+    }
+
+    return null;
+  };
 
   return (
     <Wrapper.Sidebar size="wide">
@@ -19,18 +42,9 @@ function RightSidebar({ conversation }) {
           <li>
             <NameCard customer={customer} avatarSize={50} />
           </li>
-          <li></li>
-          <li>
-            Last active
-            <span className="counter">{moment(customer.lastSeenAt).fromNow()}</span>
-          </li>
 
-          {customer.getData().map((data, index) => (
-            <li key={index}>
-              <span className="capitalize">{data.name}</span>
-              <span className="counter">{data.value}</span>
-            </li>
-          ))}
+          {renderInAppMessagingData()}
+          {renderTwitterData()}
         </ul>
       </Wrapper.Sidebar.Section>
     </Wrapper.Sidebar>

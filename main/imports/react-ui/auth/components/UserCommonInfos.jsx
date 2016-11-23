@@ -102,6 +102,15 @@ class UserCommonInfos extends React.Component {
             defaultValue={user.emails[0].address}
           />
         </FormGroup>
+
+        <FormGroup>
+          <ControlLabel>Twitter username</ControlLabel>
+          <FormControl
+            type="text"
+            id="twitterUsername"
+            defaultValue={user.details.twitterUsername}
+          />
+        </FormGroup>
       </div>
     );
   }

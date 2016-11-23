@@ -32,6 +32,7 @@ class Profile extends React.Component {
         fullName: document.getElementById('fullName').value,
         username: document.getElementById('username').value,
         email: document.getElementById('email').value,
+        twitterUsername: document.getElementById('twitterUsername').value,
         currentPassword: document.getElementById('password').value,
       },
 

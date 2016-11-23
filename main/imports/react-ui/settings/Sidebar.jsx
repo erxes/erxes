@@ -36,7 +36,17 @@ function Sidebar() {
         <ul className="filters">
           <li>
             <a href={FlowRouter.path('settings/integrations/list')}>
+              <i className="icon ion-arrow-right-b" />List
+            </a>
+          </li>
+          <li>
+            <a href={FlowRouter.path('settings/integrations/in_app_messaging')}>
               <i className="icon ion-arrow-right-b" />Inn app messaging
+            </a>
+          </li>
+          <li>
+            <a href={FlowRouter.path('settings/integrations/twitter')}>
+              <i className="icon ion-arrow-right-b" />Twitter
             </a>
           </li>
         </ul>

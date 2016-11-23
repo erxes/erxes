@@ -7,6 +7,7 @@ import {
   markAsRead,
 } from '/imports/api/conversations/methods';
 import { Messages } from '/imports/api/conversations/messages';
+import { Integrations } from '/imports/api/integrations/integrations';
 import { Loader } from '/imports/react-ui/common';
 import { Details } from '../components';
 
@@ -30,13 +31,19 @@ function composer({ id, channelId }, onData) {
   if (conversationHandle.ready() && messagesHandle.ready()) {
     const conversation = Conversations.findOne(id);
     const messages = Messages.find({ conversationId: id }).fetch();
+    const integrationId = conversation.integrationId;
 
-    // brand, tags, users subscriptions
-    const brandHandle = Meteor.subscribe('brands.getById', conversation.brandId);
+    // sub subscriptions
+    const integrationHandle = Meteor.subscribe('integrations.getById', integrationId);
     const tagsHandle = Meteor.subscribe('tags.tagListByIds', conversation.tagIds || []);
     const usersHandle = Meteor.subscribe('users.list', {});
 
-    if (brandHandle.ready() && tagsHandle.ready() && usersHandle.ready()) {
+    if (integrationHandle.ready() && tagsHandle.ready() && usersHandle.ready()) {
+      const integration = Integrations.findOne({ _id: integrationId });
+
+      // brand subscription
+      Meteor.subscribe('brands.getById', integration.brandId);
+
       // mark as read
       const readUserIds = conversation.readUserIds || [];
 

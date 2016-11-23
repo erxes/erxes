@@ -6,6 +6,7 @@ import { Random } from 'meteor/random';
 import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 import { Factory } from 'meteor/dburles:factory';
 import { Brands } from '/imports/api/brands/brands';
+import { KIND_CHOICES } from './constants';
 
 class IntegrationCollections extends Mongo.Collection {}
 
@@ -17,10 +18,25 @@ Integrations.deny({
   remove() { return true; },
 });
 
+const twitterSchema = new SimpleSchema({
+  id: {
+    type: Number,
+  },
+
+  token: {
+    type: String,
+  },
+
+  tokenSecret: {
+    type: String,
+  },
+});
+
 Integrations.schema = new SimpleSchema({
-  // for example in app messaging
+  // in app messaging, twitter ...
   kind: {
     type: String,
+    allowedValues: KIND_CHOICES.ALL_LIST,
   },
 
   name: {
@@ -30,13 +46,18 @@ Integrations.schema = new SimpleSchema({
   brandId: {
     type: String,
   },
+
+  twitterData: {
+    type: twitterSchema,
+    optional: true,
+  },
 });
 
 Integrations.attachSchema(Integrations.schema);
 
 Integrations.helpers({
   brand() {
-    return Brands.findOne(this.brandId);
+    return Brands.findOne(this.brandId) || {};
   },
 });
 
@@ -48,6 +69,6 @@ Integrations.publicFields = {
 
 Factory.define('integration', Integrations, {
   name: () => faker.random.word(),
-  kind: 'in_app_messaging',
+  kind: KIND_CHOICES.IN_APP_MESSAGING,
   brandId: () => Random.id(),
 });

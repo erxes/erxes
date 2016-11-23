@@ -3,8 +3,8 @@
 import { check, Match } from 'meteor/check';
 import { _ } from 'meteor/underscore';
 
-import { Channels } from '/imports/api/channels/channels';
 import { Integrations } from '/imports/api/integrations/integrations';
+import { Channels } from '/imports/api/channels/channels';
 
 import { CONVERSATION_STATUSES } from '/imports/api/conversations/constants';
 
@@ -40,18 +40,16 @@ export default class ListQueryBuilder {
     }
 
     // find all posssible integrations
-    let totalIntegrationIds = [];
+    this.totalIntegrationIds = [];
 
     Channels.find(channelFilter).forEach((channel) => {
-      totalIntegrationIds = _.union(totalIntegrationIds, channel.integrationIds);
+      this.totalIntegrationIds = _.union(
+        this.totalIntegrationIds,
+        channel.integrationIds
+      );
     });
 
-    const integrations = Integrations.find({ _id: { $in: totalIntegrationIds } });
-
-    // then filter by all possible brand ids
-    const brandIds = integrations.map((integration) => integration.brandId);
-
-    const query = { brandId: { $in: brandIds } };
+    const query = { integrationId: { $in: this.totalIntegrationIds } };
 
     // default status filters are open and new
     _.extend(query, this.statusDefaultFilter());
@@ -115,8 +113,18 @@ export default class ListQueryBuilder {
 
   // filter by brand
   brandFilter(brandId) {
-    return {
+    const integrations = Integrations.find({
+      // id must be in integration ids that filtered in channelFilter
+      _id: { $in: this.totalIntegrationIds },
+
+      // filter by given brand
       brandId,
+    });
+
+    const integrationIds = _.pluck(integrations.fetch(), '_id');
+
+    return {
+      integrationId: { $in: integrationIds },
     };
   }
 

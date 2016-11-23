@@ -5,12 +5,14 @@ import { ValidatedMethod } from 'meteor/mdg:validated-method';
 import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 
 import { ErxesMixin } from '/imports/api/utils';
+import { KIND_CHOICES } from '/imports/api/integrations/constants';
 import { Conversations } from './conversations';
 import { CONVERSATION_STATUSES } from './constants';
 import { Messages, FormSchema } from './messages';
 
 if (Meteor.isServer) {
   import { sendNotification } from '/imports/api/server/utils';
+  import { tweetReply } from '/imports/api/integrations/server/social_api/twitter';
 }
 
 // all possible users they can get notifications
@@ -50,6 +52,8 @@ export const addMessage = new ValidatedMethod({
       );
     }
 
+    const integration = conversation.integration();
+
     // normalize content, attachments
     const content = doc.content || '';
     const attachments = doc.attachments || [];
@@ -79,6 +83,11 @@ export const addMessage = new ValidatedMethod({
         link: `/inbox/details/${conversation._id}`,
         receivers: conversationNotifReceivers(conversation, this.userId),
       });
+
+      // send reply to twitter
+      if (integration.kind === KIND_CHOICES.TWITTER) {
+        return tweetReply(conversation, content);
+      }
     }
 
     return Messages.insert(_.extend({ userId: this.userId }, doc));
