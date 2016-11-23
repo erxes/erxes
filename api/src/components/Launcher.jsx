@@ -6,7 +6,7 @@ const propTypes = {
   notifsCount: PropTypes.number.isRequired,
 };
 
-function HelpButton({ onLauncherClick, notifsCount }) {
+function Launcher({ onLauncherClick, notifsCount }) {
   return (
     <div className="launcher" onClick={onLauncherClick}>
       {notifsCount ? <span>{notifsCount}</span> : null}
@@ -14,6 +14,6 @@ function HelpButton({ onLauncherClick, notifsCount }) {
   );
 }
 
-HelpButton.propTypes = propTypes;
+Launcher.propTypes = propTypes;
 
-export default HelpButton;
+export default Launcher;

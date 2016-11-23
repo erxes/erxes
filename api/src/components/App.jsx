@@ -1,5 +1,5 @@
 import React, { PropTypes } from 'react';
-import { Chat, HelpButton } from '../containers';
+import { Messenger, Launcher } from '../containers';
 
 
 const propTypes = {
@@ -9,8 +9,8 @@ const propTypes = {
 function App({ isChatVisible }) {
   return (
     <div>
-      {isChatVisible ? <Chat /> : null}
-      <HelpButton />
+      {isChatVisible ? <Messenger /> : null}
+      <Launcher />
     </div>
   );
 }
