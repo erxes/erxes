@@ -1,84 +1,105 @@
 /* eslint-disable react/jsx-no-bind */
 
 import React, { PropTypes, Component } from 'react';
-import { Dropdown, MenuItem } from 'react-bootstrap';
 import Alert from 'meteor/erxes-notifier';
-import { DropdownToggle } from '/imports/react-ui/common';
+import { FilterableList } from '/imports/react-ui/common';
 
 
 const propTypes = {
-  conversation: PropTypes.object.isRequired,
+  targets: PropTypes.array.isRequired,
   assignees: PropTypes.array.isRequired,
   assign: PropTypes.func.isRequired,
-  children: PropTypes.node.isRequired,
   clear: PropTypes.func.isRequired,
-  pullRight: PropTypes.bool,
+  afterSave: PropTypes.func,
+  event: PropTypes.oneOf(['onClick', 'onExit']),
+  className: PropTypes.string,
 };
 
 class AssignBox extends Component {
   constructor(props) {
     super(props);
 
-    this.clearAssignee = this.clearAssignee.bind(this);
+    this.state = {
+      assingeesForList: this.generateAssignParams(props.assignees, props.targets),
+    };
+
+    this.removeAssignee = this.removeAssignee.bind(this);
+    this.assign = this.assign.bind(this);
   }
 
-  setAssignee(userId) {
-    const { assign, conversation } = this.props;
+  componentWillReceiveProps(nextProps) {
+    this.setState(
+      { assingeesForList: this.generateAssignParams(nextProps.assignees, nextProps.targets) }
+    );
+  }
 
-    assign([conversation._id], userId, error => {
+  assign(items, id) {
+    const { assign, targets } = this.props;
+    assign({
+      targetIds: targets.map(t => t._id),
+      assignedUserId: id,
+    }, error => {
       if (error) {
-        Alert.error('Error', error.reason);
+        Alert.error(error.reason);
+
+        if (this.props.afterSave) {
+          console.log(this.props.afterSave);
+          this.props.afterSave();
+        }
       }
     });
   }
 
-  clearAssignee() {
-    const { clear, conversation } = this.props;
+  generateAssignParams(assignees, targets) {
+    return assignees.map((assignee) => {
+      // Current tag's selection state (all, some or none)
+      const count = targets.reduce(
+        (memo, target) =>
+        memo + (target.assignedUserId && target.assignedUserId.indexOf(assignee._id) > -1),
+      0);
+      let state = 'none';
+      if (count === targets.length) {
+        state = 'all';
+      } else if (count < targets.length && count > 0) {
+        state = 'some';
+      }
 
-    clear([conversation._id], error => {
+      return {
+        _id: assignee._id,
+        title: assignee.details.fullName,
+        image: null,
+        selectedBy: state,
+      };
+    });
+  }
+
+  removeAssignee() {
+    const { clear, targets } = this.props;
+    clear(targets.map(t => t._id), error => {
       if (error) {
         Alert.error('Error', error.reason);
       }
     });
-  }
-
-  renderUnassign() {
-    if (!this.props.conversation.assignedUserId) {
-      return null;
-    }
-
-    return (
-      <MenuItem onClick={this.clearAssignee}>
-        Remove Assignees
-      </MenuItem>
-    );
-  }
-
-  renderItems() {
-    return this.props.assignees.map((assignee, index) =>
-      <MenuItem
-        eventKey={index + 1}
-        key={assignee._id}
-        onClick={this.setAssignee.bind(this, assignee._id)}
-      >
-        {(assignee.details && assignee.details.fullName) || assignee.emails[0].address}
-      </MenuItem>
-    );
   }
 
   render() {
-    const { children } = this.props;
+    const { event, className } = this.props;
+
+    const links = [{
+      title: 'Remove assignee',
+      href: '#',
+      onClick: this.removeAssignee,
+    }];
+
+    const props = {
+      className,
+      links,
+      items: this.state.assingeesForList,
+      [event]: this.assign,
+    };
+
     return (
-      <Dropdown id="assign-dropdown" className="quick-button" pullRight>
-        <DropdownToggle bsRole="toggle">
-          {children}
-        </DropdownToggle>
-        <Dropdown.Menu>
-          <MenuItem header>Users</MenuItem>
-          {this.renderItems()}
-          {this.renderUnassign()}
-        </Dropdown.Menu>
-      </Dropdown>
+      <FilterableList {...props} />
     );
   }
 }

@@ -57,10 +57,11 @@
 }
 
 .popover-list {
+  max-height: 275px;
   margin: 0;
   padding: 0;
   list-style: none;
-
+  overflow: auto;
   li {
     position: relative;
     display: block;

@@ -22,6 +22,7 @@ class Sidebar extends Component {
       status: props.conversation.status,
 
       isTaggerVisible: false,
+      isAssignerVisible: false,
     };
 
     this.changeStatus = this.changeStatus.bind(this);
@@ -94,12 +95,28 @@ class Sidebar extends Component {
         <Wrapper.Sidebar.Section>
           <h3>
             Assigned to
-            <AssignBox conversation={conversation}>
-              <a href="#" className="quick-button">
-                <i className="ion-gear-a" />
-              </a>
-            </AssignBox>
+            <a
+              href="#"
+              className="quick-button"
+              onClick={(e) => {
+                e.preventDefault();
+                const { isAssignerVisible } = this.state;
+                this.setState({ isAssignerVisible: !isAssignerVisible });
+              }}
+            >
+              <i className="ion-gear-a" />
+            </a>
           </h3>
+
+          <Collapse in={this.state.isAssignerVisible}>
+            <div>
+              <AssignBox
+                targets={[conversation._id]}
+                className="sidebar-accordion"
+                event="onClick"
+              />
+            </div>
+          </Collapse>
           <ul className="filters no-link">
             {
               !conversation.assignedUser() ?

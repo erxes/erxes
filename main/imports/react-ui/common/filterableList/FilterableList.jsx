@@ -12,6 +12,7 @@ const propTypes = {
   links: PropTypes.arrayOf(PropTypes.shape({
     title: PropTypes.string.isRequired,
     link: PropTypes.element,
+    onClick: PropTypes.func,
   })),
   selected: PropTypes.array,
   className: PropTypes.string,
@@ -54,7 +55,7 @@ class FilterableList extends Component {
 
     // onClick hook
     const { onClick } = this.props;
-    if (onClick) onClick(items);
+    if (onClick) onClick(items, id);
   }
 
   renderItems() {
@@ -97,7 +98,7 @@ class FilterableList extends Component {
             {
               this.props.links && this.props.links.map(link =>
                 <li key={link.href}>
-                  <a href={link.href}>{link.title}</a>
+                  <a onClick={link.onClick} href={link.href}>{link.title}</a>
                 </li>
               )
             }

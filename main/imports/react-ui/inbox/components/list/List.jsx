@@ -1,6 +1,7 @@
 import React, { PropTypes } from 'react';
 import { Button } from 'react-bootstrap';
 import { TaggerPopover, EmptyState } from '/imports/react-ui/common';
+import { AssignBoxPopover } from '../';
 import { Wrapper } from '/imports/react-ui/layout/components';
 import { Resolver } from '../../containers';
 import Sidebar from './Sidebar.jsx';
@@ -55,8 +56,17 @@ function List(props) {
         targets={targets}
         trigger={
           <Button bsStyle="link">
-            <i className="ion-pricetags"></i>
-            Tag <span className="caret"></span>
+            <i className="ion-pricetags"></i> Tag <span className="caret"></span>
+          </Button>
+        }
+        afterSave={emptyBulk}
+      />
+
+      <AssignBoxPopover
+        targets={targets}
+        trigger={
+          <Button bsStyle="link">
+            <i className="ion-person"></i> Assign <span className="caret"></span>
           </Button>
         }
         afterSave={emptyBulk}
