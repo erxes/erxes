@@ -1,0 +1,64 @@
+.erxes-conversation-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+
+  li {
+    position: relative;
+  }
+}
+
+.erxes-conversation {
+  padding: 20px;
+  border-bottom: 1px solid $grey;
+  position: relative;
+  @include prefix((
+    transition: background 0.3s ease-in-out
+  ), webkit moz ms o);
+
+  &:hover {
+    cursor: pointer;
+    background: rgba($black, .03);
+  }
+
+  .avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 20px;
+    overflow: hidden;
+    position: absolute;
+    left: 20px;
+    top: 20px;
+
+    img {
+      max-width: 100%;
+      width: 100%;
+    }
+  }
+
+  .erxes-message {
+    color: $text-color;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+
+    &.unread {
+      font-weight: bold;
+      color: darken($text-color, 10%);
+    }
+  }
+
+  .new-message-count {
+    text-align: right;
+    font-size: 12px;
+    color: $main-color;
+    position: absolute;
+    top: 20px;
+    right: 20px;
+  }
+
+  .date {
+    color: $text-color;
+    font-size: 12px;
+  }
+}

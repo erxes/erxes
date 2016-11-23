@@ -1,7 +1,11 @@
 {
   "extends": "airbnb",
+  "env": {
+    "browser": true
+  },
   "rules": {
-    "no-underscore-dangle": ["error", { "allow": ["_id"] }]
+    "no-underscore-dangle": ["error", { "allow": ["_id"] }],
+    "import/no-extraneous-dependencies": ["error", { "devDependencies": true }]
   },
   "parserOptions": {
     "ecmaFeatures": {

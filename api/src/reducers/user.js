@@ -9,14 +9,12 @@ const user = (state, action) => {
       };
 
     case 'USER_CHANGED':
-      newState = Object.assign(state, action.fields);
-
+      newState = Object.assign({}, state, action.fields);
       if (action.cleared) {
         for (const k of action.cleared) {
           delete newState[k];
         }
       }
-
       return { ...newState };
 
     default:
@@ -41,10 +39,13 @@ export default (state = [], action) => {
       return [...state];
 
     case 'USER_CHANGED':
-      old = state.findIndex(s => s._id === action._id);
-      if (old !== -1) {
-        state.splice(old, 1, user(state[old], action));
-      }
+      state.map((s) => {
+        if (s._id === action._id) {
+          return user(s, action);
+        }
+
+        return s;
+      });
 
       return [...state];
 
