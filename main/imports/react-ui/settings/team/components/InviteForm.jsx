@@ -49,6 +49,7 @@ class InviteForm extends Component {
       avatar: document.getElementById('avatar').value,
       fullName: document.getElementById('fullName').value,
       username: document.getElementById('username').value,
+      twitterUsername: document.getElementById('twitterUsername').value,
       email: document.getElementById('email').value,
       password: document.getElementById('password').value,
       passwordConfirmation: document.getElementById('password-confirmation').value,
