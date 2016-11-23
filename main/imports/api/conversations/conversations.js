@@ -122,14 +122,17 @@ const twitterDirectMessageSchema = new SimpleSchema({
 const twitterSchema = new SimpleSchema({
   id: {
     type: Number,
+    optional: true,
   },
 
   idStr: {
     type: String,
+    optional: true,
   },
 
   screenName: {
     type: String,
+    optional: true,
   },
 
   isDirectMessage: {
