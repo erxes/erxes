@@ -18,6 +18,7 @@ Integrations.deny({
   remove() { return true; },
 });
 
+// twitter schemas ==============
 const twitterSchema = new SimpleSchema({
   id: {
     type: Number,
@@ -29,6 +30,39 @@ const twitterSchema = new SimpleSchema({
 
   tokenSecret: {
     type: String,
+  },
+});
+
+// facebook schemas ==============
+const facebookInfoSchema = new SimpleSchema({
+  id: {
+    type: String,
+  },
+
+  name: {
+    type: String,
+  },
+
+  email: {
+    type: String,
+  },
+});
+
+const facebookSchema = new SimpleSchema({
+  accessToken: {
+    type: String,
+  },
+
+  tokenType: {
+    type: String,
+  },
+
+  expiresIn: {
+    type: Number,
+  },
+
+  info: {
+    type: facebookInfoSchema,
   },
 });
 
@@ -47,8 +81,15 @@ Integrations.schema = new SimpleSchema({
     type: String,
   },
 
+  // twitter authentication info
   twitterData: {
     type: twitterSchema,
+    optional: true,
+  },
+
+  // facebook authentication info
+  facebookData: {
+    type: facebookSchema,
     optional: true,
   },
 });

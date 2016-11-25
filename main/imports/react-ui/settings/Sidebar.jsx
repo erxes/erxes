@@ -49,6 +49,11 @@ function Sidebar() {
               <i className="icon ion-arrow-right-b" />Twitter
             </a>
           </li>
+          <li>
+            <a href={FlowRouter.path('settings/integrations/facebook')}>
+              <i className="icon ion-arrow-right-b" />Facebook
+            </a>
+          </li>
         </ul>
       </Wrapper.Sidebar.Section>
       <Wrapper.Sidebar.Section>
