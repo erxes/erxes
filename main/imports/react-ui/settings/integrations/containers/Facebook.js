@@ -8,7 +8,7 @@ import { Social } from '../components';
 
 function composer(props, onData) {
   if (props.type === 'link') {
-    return Meteor.call('integrations.getTwitterAuthorizeUrl', (err, url) => {
+    return Meteor.call('integrations.getFacebookAuthorizeUrl', (err, url) => {
       location.href = url;
     });
   }
@@ -18,7 +18,7 @@ function composer(props, onData) {
 
   const save = (brandId) => {
     Meteor.call(
-      'integrations.addTwitter',
+      'integrations.addFacebook',
       {
         brandId,
         queryParams: FlowRouter.current().queryParams,
