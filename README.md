@@ -57,7 +57,7 @@ Configure settings. Open settings.json and edit it.
   "COMPANY_NAME": "{your_company_name}",
   "NO_REPLY_EMAIL": "{no-reply@{domain}}",
 
-  # amazon s3 credientials. Using to upload attachents, profile pictures etc ...
+  # amazon s3 credientials. Using to upload attachments, profile pictures etc ...
   "AWS_accessKeyId": "{access_key_id}",
   "AWS_secretAccessKey": "{secret_access_key}",
   "AWS_bucket": "{bucket_name}",
