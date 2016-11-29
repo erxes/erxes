@@ -9,7 +9,7 @@ import Sidebar from '../../Sidebar.jsx';
 import SelectBrand from './SelectBrand.jsx';
 
 
-class Twitter extends Component {
+class Social extends Component {
   constructor(props, context) {
     super(props, context);
 
@@ -52,9 +52,9 @@ class Twitter extends Component {
   }
 }
 
-Twitter.propTypes = {
+Social.propTypes = {
   brands: PropTypes.array.isRequired,
   save: PropTypes.func.isRequired,
 };
 
-export default Twitter;
+export default Social;

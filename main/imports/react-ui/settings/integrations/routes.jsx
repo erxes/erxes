@@ -2,7 +2,7 @@ import React from 'react';
 import { mount } from 'react-mounter';
 import { MainLayout } from '/imports/react-ui/layout/containers';
 import settingsRoute from '../routes.jsx';
-import { List, InAppMessaging, Twitter } from './containers';
+import { List, InAppMessaging, Twitter, Facebook } from './containers';
 
 
 const integrations = settingsRoute.group({
@@ -18,6 +18,7 @@ integrations.route('/in_app_messaging', {
   },
 });
 
+// twitter ===========
 integrations.route('/twitter', {
   name: 'settings/integrations/twitter',
 
@@ -31,6 +32,23 @@ integrations.route('/oauth/twitter_callback', {
 
   action() {
     mount(MainLayout, { content: <Twitter type="form" /> });
+  },
+});
+
+// facebook =====================
+integrations.route('/facebook', {
+  name: 'settings/integrations/facebook',
+
+  action() {
+    mount(MainLayout, { content: <Facebook type="link" /> });
+  },
+});
+
+integrations.route('/oauth/facebook_callback', {
+  name: 'settings/integrations/facebook/oauth/callback',
+
+  action() {
+    mount(MainLayout, { content: <Facebook type="form" /> });
   },
 });
 

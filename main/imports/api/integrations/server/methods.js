@@ -5,7 +5,7 @@ import { _ } from 'meteor/underscore';
 import { ErxesMixin } from '/imports/api/utils';
 import { Integrations } from '../integrations';
 import { KIND_CHOICES } from '../constants';
-import { twitter } from './social_api/oauth';
+import { twitter, facebook } from './social_api/oauth';
 import { trackTwitterIntegration } from './social_api/twitter';
 
 
@@ -50,6 +50,30 @@ export const addTwitter = new ValidatedMethod({
       // start tracking newly created twitter integration
       const integration = Integrations.findOne({ _id: id });
       trackTwitterIntegration(integration);
+    });
+  },
+});
+
+// add facebook
+export const addFacebook = new ValidatedMethod({
+  name: 'integrations.addFacebook',
+  mixins: [ErxesMixin],
+
+  validate(doc) {
+    check(doc, {
+      brandId: String,
+      queryParams: Object,
+    });
+  },
+
+  run({ brandId, queryParams }) {
+    // authenticate via twitter and get logged in user's infos
+    facebook.authenticate(queryParams, (doc) => {
+      Integrations.insert(
+        _.extend(doc, { brandId, kind: KIND_CHOICES.FACEBOOK })
+      );
+
+      // start tracking newly created facebook integration
     });
   },
 });

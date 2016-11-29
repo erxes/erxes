@@ -43,7 +43,6 @@ class AssignBox extends Component {
         Alert.error(error.reason);
 
         if (this.props.afterSave) {
-          console.log(this.props.afterSave);
           this.props.afterSave();
         }
       }
