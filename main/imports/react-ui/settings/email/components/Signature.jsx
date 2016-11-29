@@ -4,10 +4,11 @@ import {
   ControlLabel,
   FormControl,
   Button,
+  ButtonToolbar,
+  Well,
 } from 'react-bootstrap';
 import { _ } from 'meteor/underscore';
 import Alert from 'meteor/erxes-notifier';
-import { Well } from 'react-bootstrap';
 import { Wrapper } from '/imports/react-ui/layout/components';
 import Sidebar from '../../Sidebar.jsx';
 
@@ -100,7 +101,9 @@ export class Signature extends React.Component {
               value={current.content}
             />
           </FormGroup>
-          <Button type="submit">Submit</Button>
+          <ButtonToolbar className="pull-right">
+            <Button type="submit" bsStyle="primary">Save</Button>
+          </ButtonToolbar>
         </form>
       </div>
     );

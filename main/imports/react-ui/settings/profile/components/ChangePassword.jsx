@@ -4,6 +4,7 @@ import {
   FormGroup,
   ControlLabel,
   FormControl,
+  ButtonToolbar,
 } from 'react-bootstrap';
 import { Wrapper } from '/imports/react-ui/layout/components';
 import Sidebar from '../../Sidebar.jsx';
@@ -62,9 +63,9 @@ class ChangePassword extends React.Component {
             />
           </FormGroup>
 
-          <Button type="submit">
-            Submit
-          </Button>
+          <ButtonToolbar className="pull-right">
+            <Button type="submit" bsStyle="primary">Save</Button>
+          </ButtonToolbar>
         </form>
       </div>
     );

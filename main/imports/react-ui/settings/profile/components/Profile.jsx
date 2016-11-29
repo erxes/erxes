@@ -4,9 +4,10 @@ import {
   ControlLabel,
   FormControl,
   Button,
+  ButtonToolbar,
 } from 'react-bootstrap';
 import Alert from 'meteor/erxes-notifier';
-import UserCommonInfos from '/imports/react-ui/auth/components/UserCommonInfos';
+import { UserCommonInfos } from '/imports/react-ui/auth/components';
 import { Wrapper } from '/imports/react-ui/layout/components';
 import Sidebar from '../../Sidebar.jsx';
 
@@ -57,7 +58,9 @@ class Profile extends React.Component {
           />
         </FormGroup>
 
-        <Button type="submit">Submit</Button>
+        <ButtonToolbar className="pull-right">
+          <Button type="submit" bsStyle="primary">Save</Button>
+        </ButtonToolbar>
       </form>
     );
 
