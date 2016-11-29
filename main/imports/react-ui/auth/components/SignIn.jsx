@@ -28,7 +28,7 @@ class SignIn extends React.Component {
     const { email, password } = this.state;
     this.props.loginWithPassword(email, password, (err) => {
       if (err) {
-        return Alert.error('Email or password is wrong');
+        return Alert.error('The username and password entered did not match. Give it another go?');
       }
 
       return FlowRouter.go('/');
@@ -54,8 +54,7 @@ class SignIn extends React.Component {
               <img src="/assets/images/logo.png" alt="erxes" />
               <h1>Customer engagement. Redefined.</h1>
               <p>
-                erxes is an open-source, all-in-one customer engagement platform<br />
-                for teams to build aspiring customer experience.
+                erxes is an open-source messaging platform for customer success
               </p>
               <a href="http://erxes.io/">&laquo; Go to home page</a>
             </div>

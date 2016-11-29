@@ -11,8 +11,8 @@ function composer(props, onData) {
     requireRead: false,
   });
 
-  const markAsRead = (ids) => {
-    Meteor.call('notifications.markAsRead', ids);
+  const markAsRead = (ids, callback) => {
+    Meteor.call('notifications.markAsRead', ids, callback);
   };
 
   if (handler.ready()) {

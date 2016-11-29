@@ -46,6 +46,7 @@ class AssignBox extends Component {
           this.props.afterSave();
         }
       }
+      return Alert.success('The conversation Assignee has been renewed.');
     });
   }
 

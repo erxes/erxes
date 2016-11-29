@@ -2,6 +2,7 @@ import React, { PropTypes, Component } from 'react';
 import { _ } from 'meteor/underscore';
 import { NotificationListRow } from '../../containers';
 import { Button } from 'react-bootstrap';
+import Alert from 'meteor/erxes-notifier';
 import { Wrapper } from '../';
 import { EmptyState } from '/imports/react-ui/common';
 import Sidebar from '/imports/react-ui/settings/Sidebar.jsx';
@@ -12,17 +13,22 @@ class NotificationList extends Component {
     super(props);
 
     this.state = { bulk: [] };
-    this.markAsRead = this.markAsRead.bind(this);
+    this.markAllRead = this.markAllRead.bind(this);
   }
 
-  markAsRead() {
+  markAllRead() {
     const { bulk } = this.state;
     _.each(this.props.notifications, (notification) => {
       if (!notification.isRead) {
         bulk.push(notification._id);
       }
     });
-    this.props.markAsRead(this.state.bulk);
+    this.props.markAsRead(this.state.bulk, error => {
+      if (error) {
+        return Alert.error('Error', error.reason);
+      }
+      return Alert.success('All notifications have been seen');
+    });
     this.setState({ bulk: [] });
   }
 
@@ -55,7 +61,7 @@ class NotificationList extends Component {
 
     const actionBarLeft = (
       <div>
-        <Button bsStyle="link" onClick={this.markAsRead}>
+        <Button bsStyle="link" onClick={this.markAllRead}>
           <i className="ion-checkmark-circled" /> Mark all Read
         </Button>
       </div>
