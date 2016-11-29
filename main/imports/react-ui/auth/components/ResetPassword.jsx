@@ -53,8 +53,7 @@ class ResetPassword extends React.Component {
               <img src="/assets/images/logo.png" alt="erxes" />
               <h1>Customer engagement. Redefined.</h1>
               <p>
-                erxes is an open-source, all-in-one customer engagement platform<br />
-                for teams to build aspiring customer experience.
+                erxes is an open-source messaging platform for customer success
               </p>
               <a href="http://erxes.io/">&laquo; Go to home page</a>
             </div>
