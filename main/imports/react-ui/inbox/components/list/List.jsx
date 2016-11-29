@@ -98,7 +98,7 @@ function List(props) {
 
   const empty = (
     <EmptyState
-      text="No conversation"
+      text="There aren’t any conversations at the moment."
       size="full"
       icon={<i className="ion-email" />}
     />

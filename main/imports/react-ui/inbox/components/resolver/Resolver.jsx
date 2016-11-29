@@ -37,6 +37,12 @@ class Resolver extends Component {
         Alert.error('Error', error.reason);
       }
 
+      if (status === 'closed') {
+        Alert.success('The conversation has been resolved! ');
+      } else {
+        Alert.info('The conversation has been reopened and restored to Inbox.');
+      }
+
       this.props.afterSave();
     });
   }

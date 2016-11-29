@@ -41,10 +41,10 @@ class Form extends Component {
 
     submit({ name, type, colorCode }, error => {
       if (error) {
-        return Alert.error('Error', error.reason);
+        return Alert.error(error.reason);
       }
 
-      Alert.success('Success', 'Successfully saved');
+      Alert.success('The tag has been saved successfully.');
       return this.context.closeModal();
     });
   }
