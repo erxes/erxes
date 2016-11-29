@@ -40,7 +40,7 @@ class Profile extends React.Component {
       (error) => {
         if (error) return Alert.error(error.reason);
 
-        return Alert.success('Congrats');
+        return Alert.success('Your profile has been updated and good to go!');
       }
     );
   }
