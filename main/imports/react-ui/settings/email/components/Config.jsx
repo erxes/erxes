@@ -4,7 +4,9 @@ import {
   FormGroup,
   ControlLabel,
   FormControl,
+  ButtonToolbar,
   HelpBlock,
+  Modal,
 } from 'react-bootstrap';
 import Alert from 'meteor/erxes-notifier';
 
@@ -58,6 +60,10 @@ class Config extends Component {
   }
 
   render() {
+    const onClick = () => {
+      this.context.closeModal();
+    };
+
     const { type, template } = this.state;
 
     const templateControl = (
@@ -91,7 +97,12 @@ class Config extends Component {
 
           {this.state.type === 'custom' ? templateControl : false}
 
-          <Button type="submit">Save</Button>
+          <Modal.Footer>
+            <ButtonToolbar className="pull-right">
+              <Button bsStyle="link" onClick={onClick}>Cancel</Button>
+              <Button type="submit" bsStyle="primary">Save</Button>
+            </ButtonToolbar>
+          </Modal.Footer>
         </form>
       </div>
     );
