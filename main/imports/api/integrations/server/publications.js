@@ -12,7 +12,7 @@ Meteor.publish('integrations.list', (params) => {
     kind: Match.Optional(String),
   });
 
-  let selector = {};
+  const selector = {};
 
   // filter by brand
   if (params.brandIds) {
@@ -21,7 +21,7 @@ Meteor.publish('integrations.list', (params) => {
 
   // filter by kind
   if (params.kind) {
-    selector = { kind: params.kind };
+    selector.kind = params.kind;
   }
 
   return Integrations.find(selector, { fields: Integrations.publicFields });
