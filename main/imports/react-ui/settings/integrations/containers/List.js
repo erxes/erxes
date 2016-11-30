@@ -6,8 +6,9 @@ import { Loader } from '/imports/react-ui/common';
 import { List } from '../components';
 
 
-function composer(props, onData) {
-  const integrationsHandler = Meteor.subscribe('integrations.list', {});
+function composer({ queryParams }, onData) {
+  const params = queryParams || {};
+  const integrationsHandler = Meteor.subscribe('integrations.list', params);
   const brandsHandler = Meteor.subscribe('brands.list');
 
   const integrations = Integrations.find().fetch();

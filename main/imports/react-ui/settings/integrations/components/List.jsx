@@ -1,7 +1,10 @@
 import React, { PropTypes, Component } from 'react';
-import { Table } from 'react-bootstrap';
+import { Table, Button } from 'react-bootstrap';
+import { FlowRouter } from 'meteor/kadira:flow-router';
 import { Wrapper } from '/imports/react-ui/layout/components';
+import { ModalTrigger } from '/imports/react-ui/common';
 import Sidebar from '../../Sidebar.jsx';
+import { InAppMessaging } from '../containers';
 import Row from './Row.jsx';
 
 
@@ -32,6 +35,28 @@ class List extends Component {
   }
 
   render() {
+    const trigger = (
+      <Button bsStyle="link">
+        <i className="ion-plus-circled" /> Add in app messaging
+      </Button>
+    );
+
+    const actionBarLeft = (
+      <div>
+        <ModalTrigger title="Add in app messaging" trigger={trigger}>
+          <InAppMessaging />
+        </ModalTrigger>
+        <Button bsStyle="link" href={FlowRouter.path('settings/integrations/twitter')}>
+          <i className="ion-plus-circled" /> Add twitter
+        </Button>
+        <Button bsStyle="link" href={FlowRouter.path('settings/integrations/facebook')}>
+          <i className="ion-plus-circled" /> Add facebook
+        </Button>
+      </div>
+    );
+
+    const actionBar = <Wrapper.ActionBar left={actionBarLeft} />;
+
     const content = (
       <Table>
         <thead>
@@ -58,6 +83,7 @@ class List extends Component {
         <Wrapper
           header={<Wrapper.Header breadcrumb={breadcrumb} />}
           leftSidebar={<Sidebar />}
+          actionBar={actionBar}
           content={content}
         />
       </div>

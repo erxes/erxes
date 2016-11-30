@@ -55,7 +55,7 @@ integrations.route('/oauth/facebook_callback', {
 integrations.route('/:integrationId?', {
   name: 'settings/integrations/list',
 
-  action() {
-    mount(MainLayout, { content: <List /> });
+  action(params, queryParams) {
+    mount(MainLayout, { content: <List queryParams={queryParams} /> });
   },
 });
