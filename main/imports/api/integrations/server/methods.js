@@ -1,3 +1,4 @@
+import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
 import { ValidatedMethod } from 'meteor/mdg:validated-method';
 import { _ } from 'meteor/underscore';
@@ -7,6 +8,7 @@ import { Integrations } from '../integrations';
 import { KIND_CHOICES } from '../constants';
 import { twitter, facebook } from './social_api/oauth';
 import { trackTwitterIntegration } from './social_api/twitter';
+import { getPageList } from './social_api/facebook';
 
 
 // add in app messaging
@@ -67,11 +69,26 @@ export const addFacebook = new ValidatedMethod({
   },
 
   run({ brandId, queryParams }) {
-    // authenticate via twitter and get logged in user's infos
-    facebook.authenticate(queryParams, (doc) => {
-      Integrations.insert(
-        _.extend(doc, { brandId, kind: KIND_CHOICES.FACEBOOK })
-      );
+    // authenticate via facebook and get logged in user's infos
+    facebook.authenticate(queryParams, (_doc) => {
+      const doc = {
+        ..._doc,
+        brandId,
+        kind: KIND_CHOICES.FACEBOOK,
+      };
+
+      // get list of pages
+      const response = getPageList(doc.facebookData.accessToken);
+
+      // access token session expired or some other error
+      if (response.status === 'error') {
+        throw new Meteor.Error(response.message);
+      }
+
+      doc.facebookData.pages = response.pages;
+
+      // create new integration
+      Integrations.insert(doc);
 
       // start tracking newly created facebook integration
     });

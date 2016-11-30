@@ -48,6 +48,20 @@ const facebookInfoSchema = new SimpleSchema({
   },
 });
 
+const facebookPageSchema = new SimpleSchema({
+  id: {
+    type: String,
+  },
+
+  name: {
+    type: String,
+  },
+
+  accessToken: {
+    type: String,
+  },
+});
+
 const facebookSchema = new SimpleSchema({
   accessToken: {
     type: String,
@@ -59,6 +73,10 @@ const facebookSchema = new SimpleSchema({
 
   expiresIn: {
     type: Number,
+  },
+
+  pages: {
+    type: [facebookPageSchema],
   },
 
   info: {

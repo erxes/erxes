@@ -13,6 +13,8 @@ function composer(props, onData) {
     });
   }
 
+  const queryParams = FlowRouter.current().queryParams;
+
   const brandsHandler = Meteor.subscribe('brands.list');
   const brands = Brands.find().fetch();
 
@@ -21,7 +23,7 @@ function composer(props, onData) {
       'integrations.addFacebook',
       {
         brandId,
-        queryParams: FlowRouter.current().queryParams,
+        queryParams,
       },
 
       (error) => {

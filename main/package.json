@@ -17,7 +17,8 @@
     "react-komposer": "^1.13.1",
     "react-mounter": "^1.2.0",
     "react-scrollbar": "^0.4.2",
-    "social-oauth-client": "^0.1.6"
+    "social-oauth-client": "^0.1.6",
+    "twit": "^2.2.5"
   },
   "devDependencies": {
     "autoprefixer": "^6.3.6",
