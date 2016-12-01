@@ -101,6 +101,7 @@ Conversations.deny({
   remove() { return true; },
 });
 
+// twitter schemas ====================
 const twitterDirectMessageSchema = new SimpleSchema({
   senderId: {
     type: Number,
@@ -146,6 +147,14 @@ const twitterSchema = new SimpleSchema({
   },
 });
 
+// facebook schemas
+const facebookSchema = new SimpleSchema({
+  id: {
+    type: String,
+    optional: true,
+  },
+});
+
 Conversations.schema = new SimpleSchema({
   number: {
     type: Number,
@@ -167,6 +176,11 @@ Conversations.schema = new SimpleSchema({
 
   twitterData: {
     type: twitterSchema,
+    optional: true,
+  },
+
+  facebookData: {
+    type: facebookSchema,
     optional: true,
   },
 

@@ -8,7 +8,7 @@ import { Integrations } from '../integrations';
 import { KIND_CHOICES } from '../constants';
 import { twitter, facebook } from './social_api/oauth';
 import { trackTwitterIntegration } from './social_api/twitter';
-import { getPageList } from './social_api/facebook';
+import { getPageList, trackFacebookIntegration } from './social_api/facebook';
 
 
 // add in app messaging
@@ -88,9 +88,11 @@ export const addFacebook = new ValidatedMethod({
       doc.facebookData.pages = response.pages;
 
       // create new integration
-      Integrations.insert(doc);
+      const id = Integrations.insert(doc);
 
       // start tracking newly created facebook integration
+      const integration = Integrations.findOne({ _id: id });
+      trackFacebookIntegration(integration);
     });
   },
 });

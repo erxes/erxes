@@ -73,6 +73,7 @@ const facebookSchema = new SimpleSchema({
 
   expiresIn: {
     type: Number,
+    optional: true,
   },
 
   pages: {
