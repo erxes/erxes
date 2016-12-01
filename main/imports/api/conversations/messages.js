@@ -101,6 +101,11 @@ Messages.schema = new SimpleSchema([
       regEx: SimpleSchema.RegEx.Id,
     },
 
+    facebookMessageId: {
+      type: String,
+      optional: true,
+    },
+
     createdAt: {
       type: Date,
     },

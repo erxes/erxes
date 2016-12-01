@@ -98,6 +98,9 @@ export const trackFacebookIntegration = {
 
       // create conversations
       this.createConversations();
+
+      // update conversations
+      this.updateConversations();
     });
   },
 
@@ -121,7 +124,10 @@ export const trackFacebookIntegration = {
 
       // added new message
       } else if (conversation.facebookData.messageCount !== fbConversation.message_count) {
-        this.changedConversations.push(fbConversation.id);
+        this.changedConversations.push({
+          id: conversation._id,
+          fbConversationId: fbConversation.id,
+        });
       }
     });
   },
@@ -160,6 +166,8 @@ export const trackFacebookIntegration = {
         `${fbConversationId}/messages?fields=message,id,from`
       );
 
+      const messageCount = response.data.length;
+
       _.each(response.data, (fbMessage) => {
         // create conversation using first message
         if (!conversationId) {
@@ -169,20 +177,56 @@ export const trackFacebookIntegration = {
             customerId: this.getOrCreateCustomer(fbMessage.from),
             status: CONVERSATION_STATUSES.NEW,
 
-            // save conversation id
+            // save fb conversation id
             facebookData: {
               id: fbConversationId,
+              messageCount,
             },
           });
         }
 
         // create message
-        Messages.insert({
-          conversationId,
-          customerId: this.getOrCreateCustomer(fbMessage.from),
-          content: fbMessage.message,
-          internal: false,
-        });
+        this.createMessage(conversationId, fbMessage);
+      });
+    });
+  },
+
+  createMessage(conversationId, fbMessage) {
+    Messages.insert({
+      conversationId,
+      customerId: this.getOrCreateCustomer(fbMessage.from),
+      content: fbMessage.message,
+      internal: false,
+      facebookMessageId: fbMessage.id,
+    });
+  },
+
+  // update conversations
+  updateConversations() {
+    _.each(this.changedConversations, ({ id, fbConversationId }) => {
+      // fetch conversation messages
+      const response = this.wrappedGraphGet(
+        `${fbConversationId}/messages?fields=message,id,from`
+      );
+
+      const messageCount = response.data.length;
+
+      // update messageCount and mark as unread
+      Conversations.update(
+        { _id: id },
+        {
+          $set: {
+            'facebookData.messageCount': messageCount,
+            readUserIds: [],
+          },
+        }
+      );
+
+      _.each(response.data, (fbMessage) => {
+        // if message is not already fetched then create it
+        if (Messages.find({ facebookMessageId: fbMessage.id }).count() === 0) {
+          this.createMessage(id, fbMessage);
+        }
       });
     });
   },

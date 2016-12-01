@@ -153,6 +153,11 @@ const facebookSchema = new SimpleSchema({
     type: String,
     optional: true,
   },
+
+  messageCount: {
+    type: Number,
+    optional: true,
+  },
 });
 
 Conversations.schema = new SimpleSchema({
