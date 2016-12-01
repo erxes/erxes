@@ -1,4 +1,7 @@
+
 erxes is an open-source messaging platform for customer success.
+
+[![Build Status](https://travis-ci.org/erxes/erxes.svg?branch=master)](https://travis-ci.org/erxes/erxes)
 
 erxes is built with JavaScript (ES6), Meteor, Node.js, MongoDB and React.
 
