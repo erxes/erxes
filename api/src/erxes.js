@@ -86,7 +86,13 @@ function connect({ settings, dom }) {
   });
 }
 
-global.Erxes = { connect };
+function disconnect({ dom }) {
+  const { document } = dom;
+  const widget = document.getElementById('erxes-widget');
+  document.body.removeChild(widget);
+}
+
+global.Erxes = { connect, disconnect };
 
 export {
   subscribeMessages,
