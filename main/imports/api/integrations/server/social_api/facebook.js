@@ -100,12 +100,14 @@ export const trackFacebookIntegration = {
     // set page access token
     graph.setAccessToken(page.accessToken);
 
-    // get only conversationId, messageCount fields
+    // get only conversationId, messages fields
     const fbConversations = this.graphGet(
-      `${page.id}/conversations?fields=message_count`
+      `${page.id}/conversations?fields=messages{id}`
     );
 
     _.each(fbConversations, (fbConversation) => {
+      const messagesCount = fbConversation.messages.length;
+
       const conversation = Conversations.findOne({
         'facebookData.id': fbConversation.id,
       });
@@ -115,7 +117,7 @@ export const trackFacebookIntegration = {
         this.newConversations.push(fbConversation.id);
 
       // added new message
-      } else if (conversation.facebookData.messageCount !== fbConversation.message_count) {
+      } else if (conversation.facebookData.messageCount !== messagesCount) {
         this.changedConversations.push({
           id: conversation._id,
           fbConversationId: fbConversation.id,
@@ -235,5 +237,5 @@ const trackFacebookIntegrations = () => {
   });
 };
 
-// every 1 minute fetch new data
-Meteor.setInterval(trackFacebookIntegrations, 60 * 1000);
+// every 2 minute fetch new data
+Meteor.setInterval(trackFacebookIntegrations, 120 * 1000);

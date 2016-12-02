@@ -92,7 +92,7 @@ export const addFacebook = new ValidatedMethod({
 
       // start tracking newly created facebook integration
       const integration = Integrations.findOne({ _id: id });
-      trackFacebookIntegration(integration);
+      trackFacebookIntegration.start(integration);
     });
   },
 });
