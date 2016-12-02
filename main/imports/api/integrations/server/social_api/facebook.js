@@ -44,39 +44,8 @@ export const getPageList = (accessToken) => {
 };
 
 /*
- * get or create conversation
+ * start tracking facebook page
  */
-// const getOrCreateConversation = (data, integration) => {
-//   let conversation = Conversations.findOne({
-//     'facebookData.id': data.id,
-//   });
-//
-//   // create new conversation
-//   if (!conversation) {
-//     const conversationId = Conversations.insert({
-//       content: data.snippet,
-//       integrationId: integration._id,
-//       customerId: getOrCreateCustomer(integration._id, data.sender),
-//       status: CONVERSATION_STATUSES.NEW,
-//
-//       // save tweet id
-//       twitterData: {
-//         id: data.id,
-//         idStr: data.id_str,
-//         screenName: data.sender.screen_name,
-//         isDirectMessage: true,
-//         directMessage: {
-//           senderId: data.sender_id,
-//           senderIdStr: data.sender_id_str,
-//           recipientId: data.recipient_id,
-//           recipientIdStr: data.recipient_id_str,
-//         },
-//       },
-//     });
-//     conversation = Conversations.findOne(conversationId);
-//   }
-// };
-
 
 export const trackFacebookIntegration = {
   start(integration) {
@@ -104,16 +73,39 @@ export const trackFacebookIntegration = {
     });
   },
 
+  /*
+   * Sends request to graph api and goes to next page recursively
+   */
+  graphGet(url) {
+    let results = [];
+
+    const doRequest = (subUrl) => {
+      const response = this.wrappedGraphGet(subUrl);
+
+      // add current page info to total result
+      results = _.union(results, response.data);
+
+      // if there is another page then go to there
+      if (response.paging && response.paging.next) {
+        doRequest(response.paging.next);
+      }
+    };
+
+    doRequest(url);
+
+    return results;
+  },
+
   trackPage(page) {
     // set page access token
     graph.setAccessToken(page.accessToken);
 
     // get only conversationId, messageCount fields
-    const response = this.wrappedGraphGet(
+    const fbConversations = this.graphGet(
       `${page.id}/conversations?fields=message_count`
     );
 
-    _.each(response.data, (fbConversation) => {
+    _.each(fbConversations, (fbConversation) => {
       const conversation = Conversations.findOne({
         'facebookData.id': fbConversation.id,
       });
@@ -156,19 +148,27 @@ export const trackFacebookIntegration = {
     });
   },
 
+  getMessages(fbConversationId) {
+    const fbMessages = this.graphGet(
+      `${fbConversationId}/messages?fields=message,id,from,created_time`
+    );
+
+    // sort by created_time
+    return fbMessages.sort(
+      (prev, next) =>
+      new Date(prev.created_time) > new Date(next.created_time)
+    );
+  },
+
   // create converstions
   createConversations() {
     _.each(this.newConversations, (fbConversationId) => {
       let conversationId;
 
       // get conversation messages
-      const response = this.wrappedGraphGet(
-        `${fbConversationId}/messages?fields=message,id,from`
-      );
+      const fbMessages = this.getMessages(fbConversationId);
 
-      const messageCount = response.data.length;
-
-      _.each(response.data, (fbMessage) => {
+      _.each(fbMessages, (fbMessage) => {
         // create conversation using first message
         if (!conversationId) {
           conversationId = Conversations.insert({
@@ -180,7 +180,7 @@ export const trackFacebookIntegration = {
             // save fb conversation id
             facebookData: {
               id: fbConversationId,
-              messageCount,
+              messageCount: fbMessages.length,
             },
           });
         }
@@ -205,24 +205,20 @@ export const trackFacebookIntegration = {
   updateConversations() {
     _.each(this.changedConversations, ({ id, fbConversationId }) => {
       // fetch conversation messages
-      const response = this.wrappedGraphGet(
-        `${fbConversationId}/messages?fields=message,id,from`
-      );
-
-      const messageCount = response.data.length;
+      const fbMessages = this.getMessages(fbConversationId);
 
       // update messageCount and mark as unread
       Conversations.update(
         { _id: id },
         {
           $set: {
-            'facebookData.messageCount': messageCount,
+            'facebookData.messageCount': fbMessages.length,
             readUserIds: [],
           },
         }
       );
 
-      _.each(response.data, (fbMessage) => {
+      _.each(fbMessages, (fbMessage) => {
         // if message is not already fetched then create it
         if (Messages.find({ facebookMessageId: fbMessage.id }).count() === 0) {
           this.createMessage(id, fbMessage);
