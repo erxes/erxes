@@ -13,6 +13,7 @@ import { Messages, FormSchema } from './messages';
 if (Meteor.isServer) {
   import { sendNotification } from '/imports/api/server/utils';
   import { tweetReply } from '/imports/api/integrations/server/social_api/twitter';
+  import { facebookReply } from '/imports/api/integrations/server/social_api/facebook';
 }
 
 // all possible users they can get notifications
@@ -84,13 +85,21 @@ export const addMessage = new ValidatedMethod({
         receivers: conversationNotifReceivers(conversation, this.userId),
       });
 
+      const userId = this.userId;
+
       // send reply to twitter
       if (integration.kind === KIND_CHOICES.TWITTER) {
         return tweetReply(conversation, content);
       }
-    }
 
-    return Messages.insert(_.extend({ userId: this.userId }, doc));
+      // send reply to facebook
+      if (integration.kind === KIND_CHOICES.FACEBOOK) {
+        const replyDoc = facebookReply(conversation, content);
+        return Messages.insert({ ...replyDoc, userId });
+      }
+
+      return Messages.insert({ ...doc, userId });
+    }
   },
 });
 

@@ -60,10 +60,16 @@ export const trackFacebookIntegration = {
     // or message count changed conversations
     this.changedConversations = [];
 
+    // current facebook page
+    this.currentFbPage = null;
+
     // iterate through all pages
     _.each(integration.facebookData.pages, (page) => {
+      // change current page
+      this.currentFbPage = page;
+
       // collect all change conversations
-      this.trackPage(page);
+      this.trackPage();
 
       // create conversations
       this.createConversations();
@@ -96,13 +102,13 @@ export const trackFacebookIntegration = {
     return results;
   },
 
-  trackPage(page) {
+  trackPage() {
     // set page access token
-    graph.setAccessToken(page.accessToken);
+    graph.setAccessToken(this.currentFbPage.accessToken);
 
     // get only conversationId, messages fields
     const fbConversations = this.graphGet(
-      `${page.id}/conversations?fields=messages{id}`
+      `${this.currentFbPage.id}/conversations?fields=messages{id}`
     );
 
     _.each(fbConversations, (fbConversation) => {
@@ -183,6 +189,7 @@ export const trackFacebookIntegration = {
             facebookData: {
               id: fbConversationId,
               messageCount: fbMessages.length,
+              pageId: this.currentFbPage.id,
             },
           });
         }
@@ -239,3 +246,31 @@ const trackFacebookIntegrations = () => {
 
 // every 2 minute fetch new data
 Meteor.setInterval(trackFacebookIntegrations, 120 * 1000);
+
+// post reply to page conversation
+export const facebookReply = (conversation, text) => {
+  const integration = conversation.integration();
+
+  // find facebook page that given conversation had created
+  const page = _.find(integration.facebookData.pages, (p) =>
+    p.id === conversation.facebookData.pageId
+  );
+
+  // set page access token
+  graph.setAccessToken(page.accessToken);
+
+  const wrappedGraphPost = Meteor.wrapAsync(graph.post, graph);
+
+  const fbMessageResponse = wrappedGraphPost(
+    `${conversation.facebookData.id}/messages`,
+    { message: text }
+  );
+
+  // return message to that is ready to save
+  return {
+    conversationId: conversation._id,
+    content: text,
+    internal: false,
+    facebookMessageId: fbMessageResponse.id,
+  };
+};

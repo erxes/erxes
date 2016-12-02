@@ -154,6 +154,11 @@ const facebookSchema = new SimpleSchema({
     optional: true,
   },
 
+  pageId: {
+    type: String,
+    optional: true,
+  },
+
   messageCount: {
     type: Number,
     optional: true,
