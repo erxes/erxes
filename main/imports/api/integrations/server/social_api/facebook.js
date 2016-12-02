@@ -229,6 +229,11 @@ export const trackFacebookIntegration = {
 };
 
 // track all facebook integrations for the first time
-Integrations.find({ kind: KIND_CHOICES.FACEBOOK }).forEach((integration) => {
-  trackFacebookIntegration.start(integration);
-});
+const trackFacebookIntegrations = () => {
+  Integrations.find({ kind: KIND_CHOICES.FACEBOOK }).forEach((integration) => {
+    trackFacebookIntegration.start(integration);
+  });
+};
+
+// every 1 minute fetch new data
+Meteor.setInterval(trackFacebookIntegrations, 60 * 1000);
