@@ -44,114 +44,146 @@ export const getPageList = (accessToken) => {
   }
 };
 
-const getUser = (fbUserId) => {
-  const user = Meteor.users.findOne({
-    'details.facebookId': fbUserId,
-  });
-
-  if (user) {
-    return user._id;
-  }
-
-  return null;
-};
-
-// get or create customer using facebook data
-const getOrCreateCustomer = (integrationId, fbUserId) => {
-  // if user is one of the admins then customer has to be null
-  if (getUser(fbUserId)) {
-    return null;
-  }
-
-  const customer = Customers.findOne({
-    integrationId,
-    'facebookData.id': fbUserId,
-  });
-
-  if (customer) {
-    return customer._id;
-  }
-
-  // create customer
-  return Customers.insert({
-    name: fbUserId,
-    integrationId,
-    facebookData: {
-      id: fbUserId,
-    },
-  });
-};
-
-
-const createMessage = (conversation, content, userId) => {
-  if (conversation) {
-    // create new message
-    Messages.insert({
-      conversationId: conversation._id,
-      customerId: getOrCreateCustomer(conversation.integrationId, userId),
-      userId: getUser(userId),
-      content,
-      internal: false,
-    });
-  }
-};
-
-// get or create new conversation by page messenger
-const getOrCreateConversationByMessenger = (pageId, event, integration) => {
-  const senderId = event.sender.id;
-  const recipientId = event.recipient.id;
-  const messageText = event.message.text;
-
-  // try to find conversation by senderId, recipientId keys
-  let conversation = Conversations.findOne({
-    'facebookData.kind': FACEBOOK_DATA_KINDS.MESSENGER,
-    $or: [
-      {
-        'facebookData.senderId': senderId,
-        'facebookData.recipientId': recipientId,
-      },
-      {
-        'facebookData.senderId': recipientId,
-        'facebookData.recipientId': senderId,
-      },
-    ],
-  });
-
-  // create new conversation
-  if (!conversation) {
-    const conversationId = Conversations.insert({
-      content: messageText,
-      integrationId: integration._id,
-      customerId: getOrCreateCustomer(integration._id, senderId),
-      status: CONVERSATION_STATUSES.NEW,
-
-      // save facebook infos
-      facebookData: {
-        kind: FACEBOOK_DATA_KINDS.MESSENGER,
-        senderId,
-        recipientId,
-        pageId,
-      },
-    });
-    conversation = Conversations.findOne(conversationId);
-  }
-
-  // create new message
-  createMessage(conversation, messageText, senderId);
-};
-
 // when new message or other kind of activity in page
-const hookCallback = (integration, data) => {
-  if (data.object === 'page') {
-    _.each(data.entry, (entry) => {
-      _.each(entry.messaging, (messagingEvent) => {
-        // someone sent us a message
-        if (messagingEvent.message) {
-          getOrCreateConversationByMessenger(entry.id, messagingEvent, integration);
-        }
+const receiveResponse = {
+  init(userAccessToken, integration, data) {
+    this.userAccessToken = userAccessToken;
+    this.integration = integration;
+    this.data = data;
+
+    this.wrappedGraphGet = Meteor.wrapAsync(graph.get, graph);
+    this.currentPageId = null;
+
+    if (data.object === 'page') {
+      _.each(data.entry, (entry) => {
+        // receive new messenger messege
+        this.receiveMessengerEvent(entry);
       });
+    }
+  },
+
+  receiveMessengerEvent(entry) {
+    this.currentPageId = entry.id;
+
+    _.each(entry.messaging, (messagingEvent) => {
+      // someone sent us a message
+      if (messagingEvent.message) {
+        this.getOrCreateConversationByMessenger(messagingEvent);
+      }
     });
-  }
+  },
+
+  // get or create new conversation by page messenger
+  getOrCreateConversationByMessenger(event) {
+    const senderId = event.sender.id;
+    const recipientId = event.recipient.id;
+    const messageText = event.message.text;
+
+    // try to find conversation by senderId, recipientId keys
+    let conversation = Conversations.findOne({
+      'facebookData.kind': FACEBOOK_DATA_KINDS.MESSENGER,
+      $or: [
+        {
+          'facebookData.senderId': senderId,
+          'facebookData.recipientId': recipientId,
+        },
+        {
+          'facebookData.senderId': recipientId,
+          'facebookData.recipientId': senderId,
+        },
+      ],
+    });
+
+    // create new conversation
+    if (!conversation) {
+      const conversationId = Conversations.insert({
+        content: messageText,
+        integrationId: this.integration._id,
+        customerId: this.getOrCreateCustomer(senderId),
+        status: CONVERSATION_STATUSES.NEW,
+
+        // save facebook infos
+        facebookData: {
+          kind: FACEBOOK_DATA_KINDS.MESSENGER,
+          senderId,
+          recipientId,
+          pageId: this.currentPageId,
+        },
+      });
+      conversation = Conversations.findOne(conversationId);
+    }
+
+    // create new message
+    this.createMessage(conversation, messageText, senderId);
+  },
+
+  getUser(fbUserId) {
+    const user = Meteor.users.findOne({
+      'details.facebookId': fbUserId,
+    });
+
+    if (user) {
+      return user._id;
+    }
+
+    return null;
+  },
+
+  // get or create customer using facebook data
+  getOrCreateCustomer(fbUserId) {
+    // if user is one of the admins then customer has to be null
+    if (this.getUser(fbUserId)) {
+      return null;
+    }
+
+    const integrationId = this.integration._id;
+
+    const customer = Customers.findOne({
+      integrationId,
+      'facebookData.id': fbUserId,
+    });
+
+    if (customer) {
+      return customer._id;
+    }
+
+    // set user access token
+    graph.setAccessToken(this.userAccessToken);
+
+    // page access token
+    let response = this.wrappedGraphGet(
+      `${this.currentPageId}/?fields=access_token`
+    );
+
+    // set page access token
+    graph.setAccessToken(response.access_token);
+
+    // get user info
+    response = this.wrappedGraphGet(`/${fbUserId}`);
+
+    // create customer
+    return Customers.insert({
+      name: `${response.first_name} ${response.last_name}`,
+      integrationId,
+      facebookData: {
+        id: fbUserId,
+        profilePic: response.profile_pic,
+      },
+    });
+  },
+
+  createMessage(conversation, content, userId) {
+    if (conversation) {
+      // create new message
+      Messages.insert({
+        conversationId: conversation._id,
+        customerId: this.getOrCreateCustomer(userId),
+        userId: this.getUser(userId),
+        content,
+        internal: false,
+      });
+    }
+  },
 };
 
 const trackFacebookIntegration = (integration) => {
@@ -174,7 +206,7 @@ const trackFacebookIntegration = (integration) => {
     res.statusCode = 200; // eslint-disable-line no-param-reassign
 
     // when new message or other kind of activity in page
-    hookCallback(integration, req.body);
+    receiveResponse.init(app.ACCESS_TOKEN, integration, req.body);
 
     res.end('success');
   });
