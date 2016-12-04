@@ -4,6 +4,9 @@ import { ValidatedMethod } from 'meteor/mdg:validated-method';
 import { _ } from 'meteor/underscore';
 
 import { ErxesMixin } from '/imports/api/utils';
+import { Conversations } from '/imports/api/conversations/conversations';
+import { Customers } from '/imports/api/customers/customers';
+import { Channels } from '/imports/api/channels/channels';
 import { Integrations } from '../integrations';
 import { KIND_CHOICES } from '../constants';
 import { twitter } from './social_api/oauth';
@@ -129,6 +132,30 @@ export const remove = new ValidatedMethod({
   },
 
   run(id) {
+    // check whether or not used in conversation
+    if (Conversations.find({ integrationId: id }).count() > 0) {
+      throw new Meteor.Error(
+        'integrations.remove.usedInConversation',
+        'Used in conversation'
+      );
+    }
+
+    // check whether or not used in customer
+    if (Customers.find({ integrationId: id }).count() > 0) {
+      throw new Meteor.Error(
+        'integrations.remove.usedInCustomer',
+        'Used in customer'
+      );
+    }
+
+    // check whether or not used in channels
+    if (Channels.find({ integrationIds: { $in: [id] } }).count() > 0) {
+      throw new Meteor.Error(
+        'integrations.remove.usedInChannel',
+        'Used in channel'
+      );
+    }
+
     return Integrations.remove(id);
   },
 });
