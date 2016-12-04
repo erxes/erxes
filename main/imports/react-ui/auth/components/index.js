@@ -3,6 +3,7 @@ import SignIn from './SignIn.jsx';
 // import SignUp from './SignUp.jsx';
 import ForgotPassword from './ForgotPassword.jsx';
 import ResetPassword from './ResetPassword.jsx';
+import UserCommonInfos from './UserCommonInfos.jsx';
 
 
 export {
@@ -11,4 +12,5 @@ export {
   // SignUp,
   ForgotPassword,
   ResetPassword,
+  UserCommonInfos,
 };

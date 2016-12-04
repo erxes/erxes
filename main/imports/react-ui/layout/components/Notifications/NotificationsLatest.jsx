@@ -1,4 +1,5 @@
 import React, { PropTypes } from 'react';
+import { FlowRouter } from 'meteor/kadira:flow-router';
 import ScrollArea from 'react-scrollbar';
 import { NotificationRow } from '../../containers';
 import { EmptyState } from '/imports/react-ui/common';
@@ -23,7 +24,7 @@ function NotificationsLatest({ notifications }) {
     content = (
       <EmptyState
         icon={<i className="ion-android-notifications" />}
-        text="No notifications"
+        text="Coming soon.."
         size="small"
       />
     );

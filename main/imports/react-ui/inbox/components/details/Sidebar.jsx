@@ -1,6 +1,7 @@
 import React, { PropTypes, Component } from 'react';
 import moment from 'moment';
 import { Button, Collapse } from 'react-bootstrap';
+import Alert from 'meteor/erxes-notifier';
 import { Wrapper } from '/imports/react-ui/layout/components';
 import { NameCard, EmptyState, Tagger } from '/imports/react-ui/common';
 import { AssignBox } from '../../containers';
@@ -39,7 +40,13 @@ class Sidebar extends Component {
     this.setState({ status });
 
     // call change status method
-    this.props.changeStatus(this.props.conversation._id, status, () => {});
+    this.props.changeStatus(this.props.conversation._id, status, () => {
+      if (this.state.status === CONVERSATION_STATUSES.CLOSED) {
+        Alert.success('The conversation has been resolved!');
+      } else {
+        Alert.info('The conversation has been reopened and restored to Inbox.');
+      }
+    });
   }
 
   renderStatusButton() {

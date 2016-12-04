@@ -18,10 +18,10 @@ function Row({ tag, remove }) {
 
     remove.call([tag._id], error => {
       if (error) {
-        return Alert.error('Error', error.reason);
+        return Alert.error(error.reason);
       }
 
-      return Alert.success('Success', 'Successfully saved');
+      return Alert.success('The tag has been deleted, forever!');
     });
   }
 

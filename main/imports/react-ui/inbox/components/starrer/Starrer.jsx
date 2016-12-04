@@ -12,7 +12,13 @@ function Starrer({ conversation, starred, toggleStar }) {
   function toggle() {
     toggleStar({ starred: !starred, conversationIds: [conversation._id] }, error => {
       if (error) {
-        Alert.error('Error', error.reason || error.message || error.toString());
+        Alert.error(error.reason || error.message || error.toString());
+      }
+
+      if (!starred) {
+        Alert.success(
+          'The conversation has been Starred and can be found from the ‘Starred’ menu in the side panel.'
+        );
       }
     });
   }

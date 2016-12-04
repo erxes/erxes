@@ -9,8 +9,12 @@ import { sendEmail } from '/imports/api/server/utils';
 import { ErxesMixin } from '/imports/api/utils';
 import { Channels } from '/imports/api/channels/channels';
 import { Conversations } from '/imports/api/conversations/conversations';
-import { CreateInvitationSchema, UpdateInvitationSchema } from '../schemas';
-import { ProfileSchema, EmailSignaturesSchema } from '../schemas';
+import {
+  CreateInvitationSchema,
+  UpdateInvitationSchema,
+  ProfileSchema,
+  EmailSignaturesSchema,
+} from '../schemas';
 
 
 // ***************** helpers ******************* //

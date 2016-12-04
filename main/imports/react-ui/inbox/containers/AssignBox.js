@@ -3,6 +3,7 @@ import { Meteor } from 'meteor/meteor';
 import { assign as assignMethod, unassign } from '/imports/api/conversations/methods';
 import { AssignBox } from '../components';
 import { Conversations } from '/imports/api/conversations/conversations';
+import { Spinner } from '/imports/react-ui/common';
 
 
 function composer(props, onData) {
@@ -30,4 +31,4 @@ function composer(props, onData) {
   }
 }
 
-export default composeWithTracker(composer)(AssignBox);
+export default composeWithTracker(composer, Spinner)(AssignBox);

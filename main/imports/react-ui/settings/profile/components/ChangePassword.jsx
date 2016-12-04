@@ -4,7 +4,9 @@ import {
   FormGroup,
   ControlLabel,
   FormControl,
+  ButtonToolbar,
 } from 'react-bootstrap';
+import Alert from 'meteor/erxes-notifier';
 import { Wrapper } from '/imports/react-ui/layout/components';
 import Sidebar from '../../Sidebar.jsx';
 
@@ -24,11 +26,19 @@ class ChangePassword extends React.Component {
   handleSubmit(e) {
     e.preventDefault();
 
-    this.props.save({
-      currentPassword: document.getElementById('current-password').value,
-      newPassword: document.getElementById('new-password').value,
-      confirmation: document.getElementById('new-password-confirmation').value,
-    });
+    this.props.save(
+      {
+        currentPassword: document.getElementById('current-password').value,
+        newPassword: document.getElementById('new-password').value,
+        confirmation: document.getElementById('new-password-confirmation').value,
+      },
+
+      (error) => {
+        if (error) return Alert.error(error.reason);
+
+        return Alert.success('Your password has been changed, now and forever more!');
+      }
+    );
   }
 
   render() {
@@ -62,9 +72,9 @@ class ChangePassword extends React.Component {
             />
           </FormGroup>
 
-          <Button type="submit">
-            Submit
-          </Button>
+          <ButtonToolbar className="pull-right">
+            <Button type="submit" bsStyle="primary">Save</Button>
+          </ButtonToolbar>
         </form>
       </div>
     );

@@ -1,4 +1,9 @@
+
 erxes is an open-source messaging platform for customer success.
+
+[![Build Status](https://travis-ci.org/erxes/erxes.svg?branch=master)](https://travis-ci.org/erxes/erxes)
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/ed8c207f4351446b8ace7a323630889f)](https://www.codacy.com/app/erxes/erxes?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=erxes/erxes&amp;utm_campaign=Badge_Grade)
+[![MIT licensed](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/erxes/erxes/develop/LICENSE.md)
 
 erxes is built with JavaScript (ES6), Meteor, Node.js, MongoDB and React.
 
@@ -57,7 +62,7 @@ Configure settings. Open settings.json and edit it.
   "COMPANY_NAME": "{your_company_name}",
   "NO_REPLY_EMAIL": "{no-reply@{domain}}",
 
-  # amazon s3 credientials. Using to upload attachents, profile pictures etc ...
+  # amazon s3 credientials. Using to upload attachments, profile pictures etc ...
   "AWS_accessKeyId": "{access_key_id}",
   "AWS_secretAccessKey": "{secret_access_key}",
   "AWS_bucket": "{bucket_name}",

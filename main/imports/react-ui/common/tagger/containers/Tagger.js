@@ -1,6 +1,7 @@
 import { composeWithTracker } from 'react-komposer';
 import { Meteor } from 'meteor/meteor';
 import Tagger from '../components/Tagger.jsx';
+import { Spinner } from '../..';
 import { TAG_TYPES } from '/imports/api/tags/constants';
 import { Tags } from '/imports/api/tags/tags';
 import { Conversations } from '/imports/api/conversations/conversations';
@@ -31,4 +32,4 @@ function composer(props, onData) {
   }
 }
 
-export default composeWithTracker(composer)(Tagger);
+export default composeWithTracker(composer, Spinner)(Tagger);

@@ -43,10 +43,10 @@ class AssignBox extends Component {
         Alert.error(error.reason);
 
         if (this.props.afterSave) {
-          console.log(this.props.afterSave);
           this.props.afterSave();
         }
       }
+      return Alert.success('The conversation Assignee has been renewed.');
     });
   }
 

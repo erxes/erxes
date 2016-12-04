@@ -68,6 +68,12 @@ class Tagger extends Component {
           this.props.afterSave();
         }
       }
+
+      if (targets.length === 1) {
+        Alert.success('The conversation has been tagged! ');
+      } else {
+        Alert.success('Selected conversations has been tagged! ');
+      }
     });
   }
 
