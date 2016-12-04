@@ -1,30 +1,27 @@
 import { Meteor } from 'meteor/meteor';
 import { FlowRouter } from 'meteor/kadira:flow-router';
+import { ReactiveVar } from 'meteor/reactive-var';
 import { composeWithTracker } from 'react-komposer';
 import Alert from 'meteor/erxes-notifier';
 import { Brands } from '/imports/api/brands/brands';
-import { Social } from '../components';
+import { Facebook } from '../components';
 
+const apps = new ReactiveVar([]);
+const pages = new ReactiveVar([]);
 
 function composer(props, onData) {
-  if (props.type === 'link') {
-    return Meteor.call('integrations.getFacebookAuthorizeUrl', (err, url) => {
-      location.href = url;
-    });
-  }
-
-  const queryParams = FlowRouter.current().queryParams;
-
   const brandsHandler = Meteor.subscribe('brands.list');
   const brands = Brands.find().fetch();
 
-  const save = (brandId) => {
+  if (apps.get().length === 0) {
+    Meteor.call('integrations.getFacebookAppList', (err, res) => {
+      apps.set(res);
+    });
+  }
+
+  const save = (doc) => {
     Meteor.call(
-      'integrations.addFacebook',
-      {
-        brandId,
-        queryParams,
-      },
+      'integrations.addFacebook', doc,
 
       (error) => {
         if (error) {
@@ -37,11 +34,26 @@ function composer(props, onData) {
     );
   };
 
+  const getPages = (appId) => {
+    Meteor.call('integrations.getFacebookPageList', { appId }, (err, res) => {
+      pages.set(res);
+    });
+  };
+
   if (brandsHandler.ready()) {
-    return onData(null, { brands, save });
+    return onData(
+      null,
+      {
+        brands,
+        save,
+        getPages,
+        apps: apps.get(),
+        pages: pages.get(),
+      }
+    );
   }
 
   return null;
 }
 
-export default composeWithTracker(composer)(Social);
+export default composeWithTracker(composer)(Facebook);

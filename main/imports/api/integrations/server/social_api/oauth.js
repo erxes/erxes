@@ -29,44 +29,6 @@ export const twitter = {
   },
 };
 
-// facebook ===============
-const socFacebook = new soc.Facebook({
-  APP_ID: Meteor.settings.FACEBOOK_APP_ID,
-  APP_SECRET: Meteor.settings.FACEBOOK_APP_SECRET,
-  CLIENT_ID: Meteor.settings.FACEBOOK_CLIENT_ID,
-  REDIRECT_URL: Meteor.settings.FACEBOOK_REDIRECT_URL,
-});
-
-export const facebook = {
-  soc: socFacebook,
-
-  authenticate: (queryParams, callback) => {
-    // after user clicked authenticate button
-    socFacebook.callback({ query: queryParams }).then(
-      Meteor.bindEnvironment((data) => {
-        const tokens = data.tokens;
-        const info = data.info;
-
-        // return integration info
-        callback({
-          name: info.name,
-          facebookData: {
-            accessToken: tokens.access_token,
-            tokenType: tokens.token_type,
-            expiresIn: tokens.expires_in,
-            info: {
-              id: info.id,
-              name: info.name,
-              email: info.email,
-            },
-          },
-        });
-      })
-    );
-  },
-};
-
 Meteor.methods({
   'integrations.getTwitterAuthorizeUrl': () => socTwitter.getAuthorizeUrl(),
-  'integrations.getFacebookAuthorizeUrl': () => socFacebook.getAuthorizeUrl(),
 });

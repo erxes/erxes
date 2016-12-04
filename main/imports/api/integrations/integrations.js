@@ -34,54 +34,13 @@ const twitterSchema = new SimpleSchema({
 });
 
 // facebook schemas ==============
-const facebookInfoSchema = new SimpleSchema({
-  id: {
-    type: String,
-  },
-
-  name: {
-    type: String,
-  },
-
-  email: {
-    type: String,
-  },
-});
-
-const facebookPageSchema = new SimpleSchema({
-  id: {
-    type: String,
-  },
-
-  name: {
-    type: String,
-  },
-
-  accessToken: {
-    type: String,
-  },
-});
-
 const facebookSchema = new SimpleSchema({
-  accessToken: {
+  appId: {
     type: String,
   },
 
-  tokenType: {
-    type: String,
-  },
-
-  expiresIn: {
-    type: Number,
-    optional: true,
-  },
-
-  pages: {
-    type: [facebookPageSchema],
-  },
-
-  info: {
-    type: facebookInfoSchema,
+  pageIds: {
+    type: [String],
   },
 });
 

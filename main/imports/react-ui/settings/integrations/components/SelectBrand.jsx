@@ -7,7 +7,7 @@ import {
 
 const SelectBrand = ({ brands, onChange }) => (
   <FormGroup controlId="selectBrand">
-    <ControlLabel>Brand Name</ControlLabel>
+    <ControlLabel>Brand</ControlLabel>
 
     <FormControl
       componentClass="select"

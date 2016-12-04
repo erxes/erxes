@@ -57,10 +57,6 @@ const facebookSchema = new SimpleSchema({
   id: {
     type: String,
   },
-
-  name: {
-    type: String,
-  },
 });
 
 const schema = new SimpleSchema({

@@ -92,13 +92,14 @@ export const addMessage = new ValidatedMethod({
         return tweetReply(conversation, content);
       }
 
+      const messageId = Messages.insert({ ...doc, userId });
+
       // send reply to facebook
       if (integration.kind === KIND_CHOICES.FACEBOOK) {
-        const replyDoc = facebookReply(conversation, content);
-        return Messages.insert({ ...replyDoc, userId });
+        facebookReply(conversation, content);
       }
 
-      return Messages.insert({ ...doc, userId });
+      return messageId;
     }
   },
 });

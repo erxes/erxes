@@ -3,7 +3,7 @@ import { FlowRouter } from 'meteor/kadira:flow-router';
 import { composeWithTracker } from 'react-komposer';
 import Alert from 'meteor/erxes-notifier';
 import { Brands } from '/imports/api/brands/brands';
-import { Social } from '../components';
+import { Twitter } from '../components';
 
 
 function composer(props, onData) {
@@ -42,4 +42,4 @@ function composer(props, onData) {
   return null;
 }
 
-export default composeWithTracker(composer)(Social);
+export default composeWithTracker(composer)(Twitter);

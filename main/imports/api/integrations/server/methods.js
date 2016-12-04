@@ -6,9 +6,9 @@ import { _ } from 'meteor/underscore';
 import { ErxesMixin } from '/imports/api/utils';
 import { Integrations } from '../integrations';
 import { KIND_CHOICES } from '../constants';
-import { twitter, facebook } from './social_api/oauth';
+import { twitter } from './social_api/oauth';
 import { trackTwitterIntegration } from './social_api/twitter';
-import { getPageList, trackFacebookIntegration } from './social_api/facebook';
+import { getPageList } from './social_api/facebook';
 
 
 // add in app messaging
@@ -63,37 +63,64 @@ export const addFacebook = new ValidatedMethod({
 
   validate(doc) {
     check(doc, {
+      name: String,
+      appId: String,
       brandId: String,
-      queryParams: Object,
+      pageIds: [String],
     });
   },
 
-  run({ brandId, queryParams }) {
-    // authenticate via facebook and get logged in user's infos
-    facebook.authenticate(queryParams, (_doc) => {
-      const doc = {
-        ..._doc,
-        brandId,
-        kind: KIND_CHOICES.FACEBOOK,
-      };
-
-      // get list of pages
-      const response = getPageList(doc.facebookData.accessToken);
-
-      // access token session expired or some other error
-      if (response.status === 'error') {
-        throw new Meteor.Error(response.message);
-      }
-
-      doc.facebookData.pages = response.pages;
-
-      // create new integration
-      const id = Integrations.insert(doc);
-
-      // start tracking newly created facebook integration
-      const integration = Integrations.findOne({ _id: id });
-      trackFacebookIntegration.start(integration);
+  run({ name, appId, brandId, pageIds }) {
+    return Integrations.insert({
+      name,
+      kind: KIND_CHOICES.FACEBOOK,
+      brandId,
+      facebookData: {
+        appId,
+        pageIds,
+      },
     });
+  },
+});
+
+// get facebook apps's list from settings.json
+export const getFacebookAppList = new ValidatedMethod({
+  name: 'integrations.getFacebookAppList',
+  mixins: [ErxesMixin],
+
+  validate() {},
+
+  run() {
+    return _.map(Meteor.settings.FACEBOOK_APPS, (app) => ({
+      id: app.ID,
+      name: app.NAME,
+    }));
+  },
+});
+
+// get facebook apps's page list from settings.json
+export const getFacebookPageList = new ValidatedMethod({
+  name: 'integrations.getFacebookPageList',
+  mixins: [ErxesMixin],
+
+  validate({ appId }) {
+    check(appId, String);
+  },
+
+  run({ appId }) {
+    const app = _.find(Meteor.settings.FACEBOOK_APPS, (a) => a.ID === appId);
+
+    if (!app) {
+      return [];
+    }
+
+    const response = getPageList(app.ACCESS_TOKEN);
+
+    if (response.status === 'ok') {
+      return response.pages;
+    }
+
+    return [];
   },
 });
 
