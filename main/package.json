@@ -4,6 +4,7 @@
   "description": "",
   "dependencies": {
     "bcrypt": "^0.8.7",
+    "body-parser": "^1.15.2",
     "bootstrap": "^3.3.6",
     "classnames": "^2.2.5",
     "faker": "^3.1.0",
@@ -17,7 +18,8 @@
     "react-komposer": "^1.13.1",
     "react-mounter": "^1.2.0",
     "react-scrollbar": "^0.4.2",
-    "social-oauth-client": "^0.1.6"
+    "social-oauth-client": "^0.1.6",
+    "twit": "^2.2.5"
   },
   "devDependencies": {
     "autoprefixer": "^6.3.6",

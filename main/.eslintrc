@@ -6,6 +6,11 @@
     "airbnb",
     "plugin:meteor/recommended"
   ],
+  "parserOptions":{
+    "ecmaFeatures": {
+      "experimentalObjectRestSpread": true
+    }
+  },
   "rules": {
     "no-underscore-dangle": ["error", { "allow": ["_id"] }]
   },
