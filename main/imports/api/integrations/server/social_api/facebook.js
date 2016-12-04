@@ -45,22 +45,32 @@ export const getPageList = (accessToken) => {
 };
 
 // when new message or other kind of activity in page
-const receiveResponse = {
-  init(userAccessToken, integration, data) {
+class ReceiveWebhookResponse {
+  constructor(userAccessToken, integration, data) {
     this.userAccessToken = userAccessToken;
     this.integration = integration;
     this.data = data;
 
     this.wrappedGraphGet = Meteor.wrapAsync(graph.get, graph);
     this.currentPageId = null;
+  }
+
+  start() {
+    const data = this.data;
+    const integration = this.integration;
 
     if (data.object === 'page') {
       _.each(data.entry, (entry) => {
+        // check receiving page is in integration's page list
+        if (!integration.facebookData.pageIds.includes(entry.id)) {
+          return;
+        }
+
         // receive new messenger messege
         this.receiveMessengerEvent(entry);
       });
     }
-  },
+  }
 
   receiveMessengerEvent(entry) {
     this.currentPageId = entry.id;
@@ -71,7 +81,7 @@ const receiveResponse = {
         this.getOrCreateConversationByMessenger(messagingEvent);
       }
     });
-  },
+  }
 
   // get or create new conversation by page messenger
   getOrCreateConversationByMessenger(event) {
@@ -115,7 +125,7 @@ const receiveResponse = {
 
     // create new message
     this.createMessage(conversation, messageText, senderId);
-  },
+  }
 
   getUser(fbUserId) {
     const user = Meteor.users.findOne({
@@ -127,7 +137,7 @@ const receiveResponse = {
     }
 
     return null;
-  },
+  }
 
   // get or create customer using facebook data
   getOrCreateCustomer(fbUserId) {
@@ -170,7 +180,7 @@ const receiveResponse = {
         profilePic: response.profile_pic,
       },
     });
-  },
+  }
 
   createMessage(conversation, content, userId) {
     if (conversation) {
@@ -183,14 +193,11 @@ const receiveResponse = {
         internal: false,
       });
     }
-  },
-};
+  }
+}
 
-const trackFacebookIntegration = (integration) => {
-  const appId = integration.facebookData.appId;
-  const app = _.find(Meteor.settings.FACEBOOK_APPS, (a) => a.ID === appId);
-
-  Picker.route(`/service/facebook/${appId}/webhook-callback`, (params, req, res) => {
+_.each(Meteor.settings.FACEBOOK_APPS, (app) => {
+  Picker.route(`/service/facebook/${app.ID}/webhook-callback`, (params, req, res) => {
     const query = params.query;
 
     // when the endpoint is registered as a webhook, it must echo back
@@ -205,16 +212,16 @@ const trackFacebookIntegration = (integration) => {
 
     res.statusCode = 200; // eslint-disable-line no-param-reassign
 
-    // when new message or other kind of activity in page
-    receiveResponse.init(app.ACCESS_TOKEN, integration, req.body);
+    // track all facebook integrations for the first time
+    const selector = { kind: KIND_CHOICES.FACEBOOK, 'facebookData.appId': app.ID };
+
+    Integrations.find(selector).forEach((integration) => {
+      // when new message or other kind of activity in page
+      new ReceiveWebhookResponse(app.ACCESS_TOKEN, integration, req.body).start();
+    });
 
     res.end('success');
   });
-};
-
-// track all facebook integrations for the first time
-Integrations.find({ kind: KIND_CHOICES.FACEBOOK }).forEach((integration) => {
-  trackFacebookIntegration(integration);
 });
 
 // post reply to page conversation
