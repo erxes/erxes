@@ -10,38 +10,38 @@ import { KIND_CHOICES } from '/imports/api/integrations/constants';
 import { CONVERSATION_STATUSES } from '/imports/api/conversations/constants';
 import { FACEBOOK_DATA_KINDS } from '/imports/api/conversations/constants';
 
+const graphRequest = (path, accessToken, method = 'get', ...otherParams) => {
+  // set access token
+  graph.setAccessToken(accessToken);
+
+  const wrappedGraph = Meteor.wrapAsync(graph[method], graph);
+
+  try {
+    return wrappedGraph(path, ...otherParams);
+
+  // catch session expired or some other error
+  } catch (e) {
+    throw new Error(e.message);
+  }
+};
+
 /*
  * get list of pages that authorized user owns
  */
 export const getPageList = (accessToken) => {
-  graph.setAccessToken(accessToken);
+  const response = graphRequest('/me/accounts', accessToken);
 
-  const wrappedGraphGet = Meteor.wrapAsync(graph.get, graph);
+  const pages = [];
 
-  try {
-    const response = wrappedGraphGet('/me/accounts');
-    const pages = [];
-
-    // collect only some fields
-    _.each(response.data, (page) => {
-      pages.push({
-        id: page.id,
-        name: page.name,
-      });
+  // collect only some fields
+  _.each(response.data, (page) => {
+    pages.push({
+      id: page.id,
+      name: page.name,
     });
+  });
 
-    return {
-      status: 'ok',
-      pages,
-    };
-
-  // catch session expired or some other error
-  } catch (e) {
-    return {
-      status: 'error',
-      message: e.message,
-    };
-  }
+  return pages;
 };
 
 // when new message or other kind of activity in page
@@ -51,7 +51,6 @@ class ReceiveWebhookResponse {
     this.integration = integration;
     this.data = data;
 
-    this.wrappedGraphGet = Meteor.wrapAsync(graph.get, graph);
     this.currentPageId = null;
   }
 
@@ -147,19 +146,14 @@ class ReceiveWebhookResponse {
       return customer._id;
     }
 
-    // set user access token
-    graph.setAccessToken(this.userAccessToken);
-
-    // page access token
-    let response = this.wrappedGraphGet(
-      `${this.currentPageId}/?fields=access_token`
+    // get page access token
+    let response = graphRequest(
+      `${this.currentPageId}/?fields=access_token`,
+      this.userAccessToken
     );
 
-    // set page access token
-    graph.setAccessToken(response.access_token);
-
     // get user info
-    response = this.wrappedGraphGet(`/${fbUserId}`);
+    response = graphRequest(`/${fbUserId}`, response.access_token);
 
     // create customer
     return Customers.insert({
@@ -220,24 +214,19 @@ export const facebookReply = (conversation, text) => {
     (a) => a.ID === conversation.integration().facebookData.appId
   );
 
-  // set app access token
-  graph.setAccessToken(app.ACCESS_TOKEN);
-
   // page access token
-  graph.get(
+  const response = graphRequest(
     `${conversation.facebookData.pageId}/?fields=access_token`,
-    (err, data) => {
-      // send reply to sender
-      graph.setAccessToken(data.access_token);
+    app.ACCESS_TOKEN
+  );
 
-      graph.post(
-        'me/messages',
-        {
-          recipient: { id: conversation.facebookData.senderId },
-          message: { text },
-        },
-        () => {}
-      );
-    }
+  // post reply
+  return graphRequest('me/messages', response.access_token, 'post',
+    {
+      recipient: { id: conversation.facebookData.senderId },
+      message: { text },
+    },
+
+    () => {}
   );
 };

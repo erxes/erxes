@@ -25,7 +25,7 @@ function composer(props, onData) {
 
       (error) => {
         if (error) {
-          return Alert.success(error.error);
+          return Alert.error(error.error);
         }
 
         Alert.success('Congrats');
@@ -36,7 +36,11 @@ function composer(props, onData) {
 
   const getPages = (appId) => {
     Meteor.call('integrations.getFacebookPageList', { appId }, (err, res) => {
-      pages.set(res);
+      if (err) {
+        return Alert.error(err.reason);
+      }
+
+      return pages.set(res);
     });
   };
 

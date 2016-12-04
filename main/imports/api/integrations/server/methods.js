@@ -115,13 +115,7 @@ export const getFacebookPageList = new ValidatedMethod({
       return [];
     }
 
-    const response = getPageList(app.ACCESS_TOKEN);
-
-    if (response.status === 'ok') {
-      return response.pages;
-    }
-
-    return [];
+    return getPageList(app.ACCESS_TOKEN);
   },
 });
 
