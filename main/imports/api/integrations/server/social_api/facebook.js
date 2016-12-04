@@ -121,31 +121,21 @@ class ReceiveWebhookResponse {
         },
       });
       conversation = Conversations.findOne(conversationId);
+
+    // reset read history
+    } else {
+      Conversations.update(
+        { _id: conversation._id },
+        { $set: { readUserIds: [] } }
+      );
     }
 
     // create new message
     this.createMessage(conversation, messageText, senderId);
   }
 
-  getUser(fbUserId) {
-    const user = Meteor.users.findOne({
-      'details.facebookId': fbUserId,
-    });
-
-    if (user) {
-      return user._id;
-    }
-
-    return null;
-  }
-
   // get or create customer using facebook data
   getOrCreateCustomer(fbUserId) {
-    // if user is one of the admins then customer has to be null
-    if (this.getUser(fbUserId)) {
-      return null;
-    }
-
     const integrationId = this.integration._id;
 
     const customer = Customers.findOne({
@@ -188,7 +178,6 @@ class ReceiveWebhookResponse {
       Messages.insert({
         conversationId: conversation._id,
         customerId: this.getOrCreateCustomer(userId),
-        userId: this.getUser(userId),
         content,
         internal: false,
       });
