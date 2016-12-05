@@ -29,7 +29,7 @@ const graphRequest = (path, accessToken, method = 'get', ...otherParams) => {
  * get list of pages that authorized user owns
  */
 export const getPageList = (accessToken) => {
-  const response = graphRequest('/me/accounts', accessToken);
+  const response = graphRequest('/me/accounts?limit=100', accessToken);
 
   const pages = [];
 
@@ -90,6 +90,9 @@ class ReceiveWebhookResponse {
 
     // try to find conversation by senderId, recipientId keys
     let conversation = Conversations.findOne({
+      // must be open or new
+      status: { $ne: CONVERSATION_STATUSES.CLOSED },
+
       'facebookData.kind': FACEBOOK_DATA_KINDS.MESSENGER,
       $or: [
         {

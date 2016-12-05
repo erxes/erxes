@@ -132,22 +132,6 @@ export const remove = new ValidatedMethod({
   },
 
   run(id) {
-    // check whether or not used in conversation
-    if (Conversations.find({ integrationId: id }).count() > 0) {
-      throw new Meteor.Error(
-        'integrations.remove.usedInConversation',
-        'Used in conversation'
-      );
-    }
-
-    // check whether or not used in customer
-    if (Customers.find({ integrationId: id }).count() > 0) {
-      throw new Meteor.Error(
-        'integrations.remove.usedInCustomer',
-        'Used in customer'
-      );
-    }
-
     // check whether or not used in channels
     if (Channels.find({ integrationIds: { $in: [id] } }).count() > 0) {
       throw new Meteor.Error(
@@ -155,6 +139,12 @@ export const remove = new ValidatedMethod({
         'Used in channel'
       );
     }
+
+    // remove conversations
+    Conversations.remove({ integrationId: id });
+
+    // remove customers
+    Customers.remove({ integrationId: id });
 
     return Integrations.remove(id);
   },
