@@ -3,7 +3,7 @@ import { FlowRouter } from 'meteor/kadira:flow-router';
 import { ReactiveVar } from 'meteor/reactive-var';
 import { composeWithTracker } from 'react-komposer';
 import Alert from 'meteor/erxes-notifier';
-import { Loader } from '/imports/react-ui/common';
+import { Spinner } from '/imports/react-ui/common';
 import { Brands } from '/imports/api/brands/brands';
 import { Facebook } from '../components';
 
@@ -61,4 +61,4 @@ function composer(props, onData) {
   return null;
 }
 
-export default composeWithTracker(composer, Loader)(Facebook);
+export default composeWithTracker(composer, Spinner)(Facebook);
