@@ -42,7 +42,8 @@ function AddIntegration() {
   );
 
   const breadcrumb = [
-    { title: 'Settings', link: '/settings/integrations' },
+    { title: 'Settings', link: '/settings/channels' },
+    { title: 'Integrations', link: '/settings/integrations' },
     { title: 'Add Integrations' },
   ];
 
