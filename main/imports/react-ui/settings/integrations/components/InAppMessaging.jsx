@@ -8,6 +8,8 @@ import {
   ButtonToolbar,
   Modal,
 } from 'react-bootstrap';
+import ReactMarkdown from 'react-markdown';
+import CopyToClipboard from 'react-copy-to-clipboard';
 import { Brands } from '/imports/api/brands/brands';
 import SelectBrand from './SelectBrand.jsx';
 
@@ -15,6 +17,11 @@ import SelectBrand from './SelectBrand.jsx';
 class InAppMessaging extends Component {
   constructor(props, context) {
     super(props, context);
+
+    this.state = {
+      code: '',
+      copied: false,
+    };
 
     this.handleSubmit = this.handleSubmit.bind(this);
     this.handleBrandChange = this.handleBrandChange.bind(this);
@@ -47,7 +54,7 @@ class InAppMessaging extends Component {
     const brand = Brands.findOne(brandId);
     const code = this.getInstallCode(brand.code);
 
-    document.getElementById('install-code').value = code;
+    this.setState({ code, copied: false });
   }
 
   handleBrandChange(e) {
@@ -81,11 +88,21 @@ class InAppMessaging extends Component {
 
         <FormGroup controlId="install-code">
           <ControlLabel>Install code</ControlLabel>
-          <FormControl
-            componentClass="textarea"
-            disabled
-            rows={7}
-          />
+          <div className="markdown-wrapper">
+            <ReactMarkdown source={this.state.code} />
+            {
+              this.state.code ?
+                <CopyToClipboard
+                  text={this.state.code}
+                  onCopy={() => this.setState({ copied: true })}
+                >
+                  <Button bsStyle="primary">
+                    {this.state.copied ? 'Copied' : 'Copy to clipboard'}
+                  </Button>
+                </CopyToClipboard> :
+                null
+            }
+          </div>
         </FormGroup>
 
         <Modal.Footer>

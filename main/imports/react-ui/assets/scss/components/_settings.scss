@@ -32,3 +32,14 @@
     margin-right: 10px;
   }
 }
+
+.markdown-wrapper {
+  margin-top: 5px;
+  position: relative;
+
+  .btn {
+    position: absolute;
+    right: 20px;
+    top: 20px;
+  }
+}
