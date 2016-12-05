@@ -10,7 +10,7 @@ import {
   Modal,
 } from 'react-bootstrap';
 import Alert from 'meteor/erxes-notifier';
-import UserCommonInfos from '/imports/react-ui/auth/components/UserCommonInfos';
+import { UserCommonInfos } from '/imports/react-ui/auth/components';
 
 
 const propTypes = {
