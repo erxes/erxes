@@ -9,8 +9,6 @@ import {
   ControlLabel,
   Checkbox,
 } from 'react-bootstrap';
-import { Wrapper } from '/imports/react-ui/layout/components';
-import Sidebar from '../../Sidebar.jsx';
 import SelectBrand from './SelectBrand.jsx';
 
 
@@ -52,7 +50,7 @@ class Facebook extends Component {
   render() {
     const { brands, apps, pages } = this.props;
 
-    const content = (
+    return (
       <form className="margined" onSubmit={this.handleSubmit}>
         <FormGroup>
           <ControlLabel>Name</ControlLabel>
@@ -104,21 +102,6 @@ class Facebook extends Component {
           </ButtonToolbar>
         </Modal.Footer>
       </form>
-    );
-
-    const breadcrumb = [
-      { title: 'Settings', link: '/settings/integrations' },
-      { title: 'Integrations' },
-    ];
-
-    return (
-      <div>
-        <Wrapper
-          header={<Wrapper.Header breadcrumb={breadcrumb} />}
-          leftSidebar={<Sidebar />}
-          content={content}
-        />
-      </div>
     );
   }
 }

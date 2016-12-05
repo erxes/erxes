@@ -1,10 +1,8 @@
 import React, { PropTypes, Component } from 'react';
-import { Table, Button, MenuItem, Dropdown } from 'react-bootstrap';
+import { Table, Button } from 'react-bootstrap';
 import { FlowRouter } from 'meteor/kadira:flow-router';
 import { Wrapper } from '/imports/react-ui/layout/components';
-import { ModalTrigger } from '/imports/react-ui/common';
 import Sidebar from '../../Sidebar.jsx';
-import { InAppMessaging } from '../containers';
 import Row from './Row.jsx';
 
 
@@ -35,29 +33,10 @@ class List extends Component {
   }
 
   render() {
-    const trigger = (
-      <MenuItem eventKey="1">
-        <i className="ion-plus-circled" /> Add in app messaging
-      </MenuItem>
-    );
-
     const actionBarLeft = (
-      <Dropdown id="integration-dropdown">
-        <Dropdown.Toggle bsStyle="link">
-          <i className="ion-plus-circled" /> Add integrations
-        </Dropdown.Toggle>
-        <Dropdown.Menu className="integration-menu">
-          <ModalTrigger title="Add in app messaging" trigger={trigger}>
-            <InAppMessaging />
-          </ModalTrigger>
-          <MenuItem eventKey="2" href={FlowRouter.path('settings/integrations/twitter')}>
-            <i className="ion-plus-circled" /> Add twitter
-          </MenuItem>
-          <MenuItem eventKey="3" href={FlowRouter.path('settings/integrations/facebook')}>
-            <i className="ion-plus-circled" /> Add facebook page
-          </MenuItem>
-        </Dropdown.Menu>
-      </Dropdown>
+      <Button bsStyle="link" href={FlowRouter.path('settings/integrations/add')}>
+        <i className="ion-plus-circled" /> Add integrations
+      </Button>
     );
 
     const actionBar = <Wrapper.ActionBar left={actionBarLeft} />;
