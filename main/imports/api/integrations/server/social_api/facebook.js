@@ -90,6 +90,9 @@ class ReceiveWebhookResponse {
 
     // try to find conversation by senderId, recipientId keys
     let conversation = Conversations.findOne({
+      // must be open or new
+      status: { $ne: CONVERSATION_STATUSES.CLOSED },
+
       'facebookData.kind': FACEBOOK_DATA_KINDS.MESSENGER,
       $or: [
         {
