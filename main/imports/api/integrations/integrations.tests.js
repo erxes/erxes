@@ -17,7 +17,7 @@ if (Meteor.isServer) {
       let userId;
       let brandId;
 
-      before(function () {
+      beforeEach(function () {
         Integrations.remove({});
 
         userId = Factory.create('user')._id;
@@ -42,10 +42,68 @@ if (Meteor.isServer) {
       });
 
       describe('remove', function () {
+        it('can not remove integration used in conversation', function () {
+          // create integration
+          integrationId = Factory.create('integration')._id;
+
+          // create conversation using integration
+          Factory.create('conversation', { integrationId });
+
+          // check exception
+          assert.throws(
+            () => {
+              remove._execute({ userId }, integrationId);
+            },
+
+            Meteor.Error,
+            /integrations.remove.usedInConversation/
+          );
+        });
+
+        it('can not remove integration used in customer', function () {
+          // create integration
+          integrationId = Factory.create('integration')._id;
+
+          // create customer using integration
+          Factory.create('customer', { integrationId });
+
+          // check exception
+          assert.throws(
+            () => {
+              remove._execute({ userId }, integrationId);
+            },
+
+            Meteor.Error,
+            /integrations.remove.usedInCustomer/
+          );
+        });
+
+        it('can not remove integration used in channel', function () {
+          // create integration
+          integrationId = Factory.create('integration')._id;
+
+          // create channel using integration
+          Factory.create('channel', { integrationIds: [integrationId] });
+
+          // check exception
+          assert.throws(
+            () => {
+              remove._execute({ userId }, integrationId);
+            },
+
+            Meteor.Error,
+            /integrations.remove.usedInChannel/
+          );
+        });
+
         it('remove', function () {
-          assert.equal(Integrations.find().count(), 1);
-          remove._execute({ userId }, integrationId);
-          assert.equal(Integrations.find().count(), 0);
+          integrationId = Factory.create('integration')._id; // create
+
+          assert.equal(Integrations.find().count(), 1); // check created
+
+          remove._execute({ userId }, integrationId); // try to delete
+
+          assert.equal(Integrations.find().count(), 0); // check deleted
         });
       });
     });

@@ -4,7 +4,7 @@ import { composeWithTracker } from 'react-komposer';
 import { Loader } from '/imports/react-ui/common';
 import Alert from 'meteor/erxes-notifier';
 import { Brands } from '/imports/api/brands/brands';
-import { Social } from '../components';
+import { Twitter } from '../components';
 
 
 function composer(props, onData) {
@@ -43,4 +43,4 @@ function composer(props, onData) {
   return null;
 }
 
-export default composeWithTracker(composer, Loader)(Social);
+export default composeWithTracker(composer, Loader)(Twitter);

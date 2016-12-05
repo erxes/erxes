@@ -38,11 +38,6 @@ export const edit = new ValidatedMethod({
       throw new Meteor.Error('brands.edit.notFound', 'Brand not found');
     }
 
-    if (this.userId !== brand.userId) {
-      throw new Meteor.Error('brands.edit.accessDenied',
-        'You don\'t have permission to edit this brand.');
-    }
-
     return Brands.update(id, { $set: doc });
   },
 });

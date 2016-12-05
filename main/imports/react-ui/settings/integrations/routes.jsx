@@ -40,15 +40,7 @@ integrations.route('/facebook', {
   name: 'settings/integrations/facebook',
 
   action() {
-    mount(MainLayout, { content: <Facebook type="link" /> });
-  },
-});
-
-integrations.route('/oauth/facebook_callback', {
-  name: 'settings/integrations/facebook/oauth/callback',
-
-  action() {
-    mount(MainLayout, { content: <Facebook type="form" /> });
+    mount(MainLayout, { content: <Facebook /> });
   },
 });
 
