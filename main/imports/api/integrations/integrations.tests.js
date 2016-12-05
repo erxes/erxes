@@ -42,42 +42,6 @@ if (Meteor.isServer) {
       });
 
       describe('remove', function () {
-        it('can not remove integration used in conversation', function () {
-          // create integration
-          integrationId = Factory.create('integration')._id;
-
-          // create conversation using integration
-          Factory.create('conversation', { integrationId });
-
-          // check exception
-          assert.throws(
-            () => {
-              remove._execute({ userId }, integrationId);
-            },
-
-            Meteor.Error,
-            /integrations.remove.usedInConversation/
-          );
-        });
-
-        it('can not remove integration used in customer', function () {
-          // create integration
-          integrationId = Factory.create('integration')._id;
-
-          // create customer using integration
-          Factory.create('customer', { integrationId });
-
-          // check exception
-          assert.throws(
-            () => {
-              remove._execute({ userId }, integrationId);
-            },
-
-            Meteor.Error,
-            /integrations.remove.usedInCustomer/
-          );
-        });
-
         it('can not remove integration used in channel', function () {
           // create integration
           integrationId = Factory.create('integration')._id;
