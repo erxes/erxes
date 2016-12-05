@@ -1,9 +1,13 @@
 import List from './List.jsx';
 import InAppMessaging from './InAppMessaging.jsx';
-import Social from './Social.jsx';
+import Twitter from './Twitter.jsx';
+import Facebook from './Facebook.jsx';
+import AddIntegration from './AddIntegration.jsx';
 
 export {
   List,
-  Social,
+  Twitter,
+  Facebook,
   InAppMessaging,
+  AddIntegration,
 };

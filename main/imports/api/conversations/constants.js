@@ -4,3 +4,9 @@ export const CONVERSATION_STATUSES = {
   CLOSED: 'closed',
   ALL_LIST: ['new', 'open', 'closed'],
 };
+
+export const FACEBOOK_DATA_KINDS = {
+  FEED: 'feed',
+  MESSENGER: 'messenger',
+  ALL_LIST: ['feed', 'messenger'],
+};

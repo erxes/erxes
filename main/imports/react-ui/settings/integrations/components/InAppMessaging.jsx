@@ -6,10 +6,9 @@ import {
   FormControl,
   Button,
   ButtonToolbar,
+  Modal,
 } from 'react-bootstrap';
 import { Brands } from '/imports/api/brands/brands';
-import { Wrapper } from '/imports/react-ui/layout/components';
-import Sidebar from '../../Sidebar.jsx';
 import SelectBrand from './SelectBrand.jsx';
 
 
@@ -65,7 +64,7 @@ class InAppMessaging extends Component {
   }
 
   render() {
-    const content = (
+    return (
       <form className="margined" onSubmit={this.handleSubmit}>
         <FormGroup controlId="integration-name">
           <ControlLabel>Name</ControlLabel>
@@ -89,25 +88,12 @@ class InAppMessaging extends Component {
           />
         </FormGroup>
 
-        <ButtonToolbar className="pull-right">
-          <Button type="submit" bsStyle="primary">Save</Button>
-        </ButtonToolbar>
+        <Modal.Footer>
+          <ButtonToolbar className="pull-right">
+            <Button type="submit" bsStyle="primary">Save</Button>
+          </ButtonToolbar>
+        </Modal.Footer>
       </form>
-    );
-
-    const breadcrumb = [
-      { title: 'Settings', link: '/settings/integrations' },
-      { title: 'Integrations' },
-    ];
-
-    return (
-      <div>
-        <Wrapper
-          header={<Wrapper.Header breadcrumb={breadcrumb} />}
-          leftSidebar={<Sidebar />}
-          content={content}
-        />
-      </div>
     );
   }
 }

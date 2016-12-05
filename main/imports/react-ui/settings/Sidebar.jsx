@@ -32,25 +32,25 @@ function Sidebar() {
         </ul>
       </Wrapper.Sidebar.Section>
       <Wrapper.Sidebar.Section>
-        <h3>Integrations</h3>
+        <h3>
+          Integrations
+          <a href={FlowRouter.path('settings/integrations/list')} className="quick-button">
+            All
+          </a>
+        </h3>
         <ul className="filters">
           <li>
-            <a href={FlowRouter.path('settings/integrations/list')}>
-              <i className="icon ion-arrow-right-b" />List
-            </a>
-          </li>
-          <li>
-            <a href={FlowRouter.path('settings/integrations/in_app_messaging')}>
+            <a href={'/settings/integrations?kind=in_app_messaging'}>
               <i className="icon ion-arrow-right-b" />Inn app messaging
             </a>
           </li>
           <li>
-            <a href={FlowRouter.path('settings/integrations/twitter')}>
+            <a href={'/settings/integrations?kind=twitter'}>
               <i className="icon ion-arrow-right-b" />Twitter
             </a>
           </li>
           <li>
-            <a href={FlowRouter.path('settings/integrations/facebook')}>
+            <a href={'/settings/integrations?kind=facebook'}>
               <i className="icon ion-arrow-right-b" />Facebook
             </a>
           </li>

@@ -1,6 +1,7 @@
 import { Meteor } from 'meteor/meteor';
 import { composeWithTracker } from 'react-komposer';
 import { FlowRouter } from 'meteor/kadira:flow-router';
+import { Loader } from '/imports/react-ui/common';
 import Alert from 'meteor/erxes-notifier';
 import { Brands } from '/imports/api/brands/brands';
 import { InAppMessaging } from '../components';
@@ -27,4 +28,4 @@ function composer(props, onData) {
   return null;
 }
 
-export default composeWithTracker(composer)(InAppMessaging);
+export default composeWithTracker(composer, Loader)(InAppMessaging);

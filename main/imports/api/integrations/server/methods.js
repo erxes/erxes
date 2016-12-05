@@ -1,12 +1,18 @@
+import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
 import { ValidatedMethod } from 'meteor/mdg:validated-method';
 import { _ } from 'meteor/underscore';
 
 import { ErxesMixin } from '/imports/api/utils';
+import { Conversations } from '/imports/api/conversations/conversations';
+import { Customers } from '/imports/api/customers/customers';
+import { Channels } from '/imports/api/channels/channels';
 import { Integrations } from '../integrations';
 import { KIND_CHOICES } from '../constants';
-import { twitter, facebook } from './social_api/oauth';
+import { twitter } from './social_api/oauth';
 import { trackTwitterIntegration } from './social_api/twitter';
+
+import { getPageList } from './social_api/facebook';
 
 
 // add in app messaging
@@ -61,20 +67,58 @@ export const addFacebook = new ValidatedMethod({
 
   validate(doc) {
     check(doc, {
+      name: String,
+      appId: String,
       brandId: String,
-      queryParams: Object,
+      pageIds: [String],
     });
   },
 
-  run({ brandId, queryParams }) {
-    // authenticate via twitter and get logged in user's infos
-    facebook.authenticate(queryParams, (doc) => {
-      Integrations.insert(
-        _.extend(doc, { brandId, kind: KIND_CHOICES.FACEBOOK })
-      );
-
-      // start tracking newly created facebook integration
+  run({ name, appId, brandId, pageIds }) {
+    return Integrations.insert({
+      name,
+      kind: KIND_CHOICES.FACEBOOK,
+      brandId,
+      facebookData: {
+        appId,
+        pageIds,
+      },
     });
+  },
+});
+
+// get facebook apps's list from settings.json
+export const getFacebookAppList = new ValidatedMethod({
+  name: 'integrations.getFacebookAppList',
+  mixins: [ErxesMixin],
+
+  validate() {},
+
+  run() {
+    return _.map(Meteor.settings.FACEBOOK_APPS, (app) => ({
+      id: app.ID,
+      name: app.NAME,
+    }));
+  },
+});
+
+// get facebook apps's page list from settings.json
+export const getFacebookPageList = new ValidatedMethod({
+  name: 'integrations.getFacebookPageList',
+  mixins: [ErxesMixin],
+
+  validate({ appId }) {
+    check(appId, String);
+  },
+
+  run({ appId }) {
+    const app = _.find(Meteor.settings.FACEBOOK_APPS, (a) => a.ID === appId);
+
+    if (!app) {
+      return [];
+    }
+
+    return getPageList(app.ACCESS_TOKEN);
   },
 });
 
@@ -88,6 +132,30 @@ export const remove = new ValidatedMethod({
   },
 
   run(id) {
+    // check whether or not used in conversation
+    if (Conversations.find({ integrationId: id }).count() > 0) {
+      throw new Meteor.Error(
+        'integrations.remove.usedInConversation',
+        'Used in conversation'
+      );
+    }
+
+    // check whether or not used in customer
+    if (Customers.find({ integrationId: id }).count() > 0) {
+      throw new Meteor.Error(
+        'integrations.remove.usedInCustomer',
+        'Used in customer'
+      );
+    }
+
+    // check whether or not used in channels
+    if (Channels.find({ integrationIds: { $in: [id] } }).count() > 0) {
+      throw new Meteor.Error(
+        'integrations.remove.usedInChannel',
+        'Used in channel'
+      );
+    }
+
     return Integrations.remove(id);
   },
 });

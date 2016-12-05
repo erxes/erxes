@@ -1,5 +1,6 @@
 import React, { PropTypes, Component } from 'react';
-import { Table } from 'react-bootstrap';
+import { Table, Button } from 'react-bootstrap';
+import { FlowRouter } from 'meteor/kadira:flow-router';
 import { Wrapper } from '/imports/react-ui/layout/components';
 import Sidebar from '../../Sidebar.jsx';
 import Row from './Row.jsx';
@@ -32,6 +33,14 @@ class List extends Component {
   }
 
   render() {
+    const actionBarLeft = (
+      <Button bsStyle="link" href={FlowRouter.path('settings/integrations/add')}>
+        <i className="ion-plus-circled" /> Add integrations
+      </Button>
+    );
+
+    const actionBar = <Wrapper.ActionBar left={actionBarLeft} />;
+
     const content = (
       <Table>
         <thead>
@@ -58,6 +67,7 @@ class List extends Component {
         <Wrapper
           header={<Wrapper.Header breadcrumb={breadcrumb} />}
           leftSidebar={<Sidebar />}
+          actionBar={actionBar}
           content={content}
         />
       </div>

@@ -52,6 +52,17 @@ const twitterSchema = new SimpleSchema({
   },
 });
 
+
+const facebookSchema = new SimpleSchema({
+  id: {
+    type: String,
+  },
+
+  profilePic: {
+    type: String,
+  },
+});
+
 const schema = new SimpleSchema({
   name: {
     type: String,
@@ -82,6 +93,12 @@ const schema = new SimpleSchema({
   // twitter data
   twitterData: {
     type: twitterSchema,
+    optional: true,
+  },
+
+  // facebook data
+  facebookData: {
+    type: facebookSchema,
     optional: true,
   },
 });

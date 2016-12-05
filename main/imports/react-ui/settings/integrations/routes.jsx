@@ -2,7 +2,8 @@ import React from 'react';
 import { mount } from 'react-mounter';
 import { MainLayout } from '/imports/react-ui/layout/containers';
 import settingsRoute from '../routes.jsx';
-import { List, InAppMessaging, Twitter, Facebook } from './containers';
+import { List, InAppMessaging, Twitter } from './containers';
+import { AddIntegration } from './components';
 
 
 const integrations = settingsRoute.group({
@@ -27,6 +28,15 @@ integrations.route('/twitter', {
   },
 });
 
+integrations.route('/add', {
+  name: 'settings/integrations/add',
+
+  action() {
+    mount(MainLayout, { content: <AddIntegration /> });
+  },
+});
+
+
 integrations.route('/oauth/twitter_callback', {
   name: 'settings/integrations/twitter/oauth/callback',
 
@@ -35,27 +45,10 @@ integrations.route('/oauth/twitter_callback', {
   },
 });
 
-// facebook =====================
-integrations.route('/facebook', {
-  name: 'settings/integrations/facebook',
-
-  action() {
-    mount(MainLayout, { content: <Facebook type="link" /> });
-  },
-});
-
-integrations.route('/oauth/facebook_callback', {
-  name: 'settings/integrations/facebook/oauth/callback',
-
-  action() {
-    mount(MainLayout, { content: <Facebook type="form" /> });
-  },
-});
-
 integrations.route('/:integrationId?', {
   name: 'settings/integrations/list',
 
-  action() {
-    mount(MainLayout, { content: <List /> });
+  action(params, queryParams) {
+    mount(MainLayout, { content: <List queryParams={queryParams} /> });
   },
 });

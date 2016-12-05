@@ -12,7 +12,7 @@ import { Customers } from '/imports/api/customers/customers';
 import { Integrations } from '/imports/api/integrations/integrations';
 import { Tags } from '/imports/api/tags/tags';
 
-import { CONVERSATION_STATUSES } from './constants';
+import { CONVERSATION_STATUSES, FACEBOOK_DATA_KINDS } from './constants';
 
 class ConversationsCollection extends Mongo.Collection {
   insert(doc, callback) {
@@ -101,6 +101,7 @@ Conversations.deny({
   remove() { return true; },
 });
 
+// twitter schemas ====================
 const twitterDirectMessageSchema = new SimpleSchema({
   senderId: {
     type: Number,
@@ -146,6 +147,30 @@ const twitterSchema = new SimpleSchema({
   },
 });
 
+// facebook schemas
+const facebookSchema = new SimpleSchema({
+  kind: {
+    type: String,
+    allowedValues: FACEBOOK_DATA_KINDS.ALL_LIST,
+    optional: true,
+  },
+
+  senderId: {
+    type: String,
+    optional: true,
+  },
+
+  recipientId: {
+    type: String,
+    optional: true,
+  },
+
+  pageId: {
+    type: String,
+    optional: true,
+  },
+});
+
 Conversations.schema = new SimpleSchema({
   number: {
     type: Number,
@@ -167,6 +192,11 @@ Conversations.schema = new SimpleSchema({
 
   twitterData: {
     type: twitterSchema,
+    optional: true,
+  },
+
+  facebookData: {
+    type: facebookSchema,
     optional: true,
   },
 

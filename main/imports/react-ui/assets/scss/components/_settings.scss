@@ -11,3 +11,24 @@
 
   }
 }
+
+.integration-types {
+
+  .box {
+    margin-bottom: 20px;
+  }
+
+  h2 {
+    text-transform: uppercase;
+    font-weight: 400;
+    border-bottom: 1px solid $grey;
+    padding: 10px 0;
+    font-size: 12px;
+    color: $text-color-light;
+    margin: 0 0 20px 0;
+  }
+
+  .btn {
+    margin-right: 10px;
+  }
+}
