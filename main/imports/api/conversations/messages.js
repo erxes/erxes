@@ -109,6 +109,12 @@ Messages.schema = new SimpleSchema([
       type: Boolean,
       optional: true,
     },
+
+    // when conversation type is facebook, save commentId
+    facebookCommentId: {
+      type: String,
+      optional: true,
+    },
   },
 ]);
 

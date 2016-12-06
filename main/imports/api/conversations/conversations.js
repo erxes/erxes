@@ -165,6 +165,12 @@ const facebookSchema = new SimpleSchema({
     optional: true,
   },
 
+  // when wall post
+  postId: {
+    type: String,
+    optional: true,
+  },
+
   pageId: {
     type: String,
     optional: true,

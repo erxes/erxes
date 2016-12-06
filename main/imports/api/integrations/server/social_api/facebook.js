@@ -65,15 +65,24 @@ class ReceiveWebhookResponse {
           return;
         }
 
-        // receive new messenger messege
-        this.receiveMessengerEvent(entry);
+        // set current page
+        this.currentPageId = entry.id;
+
+        // receive new messenger message
+        if (entry.messaging) {
+          this.receiveMessengerEvent(entry);
+        }
+
+        // receive new feed
+        if (entry.changes) {
+          this.receiveFeedEvent(entry);
+        }
       });
     }
   }
 
+  // via page messenger
   receiveMessengerEvent(entry) {
-    this.currentPageId = entry.id;
-
     _.each(entry.messaging, (messagingEvent) => {
       // someone sent us a message
       if (messagingEvent.message) {
@@ -82,43 +91,32 @@ class ReceiveWebhookResponse {
     });
   }
 
-  // get or create new conversation by page messenger
-  getOrCreateConversationByMessenger(event) {
-    const senderId = event.sender.id;
-    const recipientId = event.recipient.id;
-    const messageText = event.message.text;
+  // wall post
+  receiveFeedEvent(entry) {
+    _.each(entry.changes, (event) => {
+      // someone posted on our wall
+      this.getOrCreateConversationByFeed(event.value);
+    });
+  }
 
-    // try to find conversation by senderId, recipientId keys
+  // common get or create conversation helper using both in messenger and feed
+  getOrCreateConversation(findSelector, senderId, content, facebookData) {
     let conversation = Conversations.findOne({
-      // must be open or new
+      ...findSelector,
       status: { $ne: CONVERSATION_STATUSES.CLOSED },
-
-      'facebookData.kind': FACEBOOK_DATA_KINDS.MESSENGER,
-      $or: [
-        {
-          'facebookData.senderId': senderId,
-          'facebookData.recipientId': recipientId,
-        },
-        {
-          'facebookData.senderId': recipientId,
-          'facebookData.recipientId': senderId,
-        },
-      ],
     });
 
     // create new conversation
     if (!conversation) {
       const conversationId = Conversations.insert({
-        content: messageText,
         integrationId: this.integration._id,
         customerId: this.getOrCreateCustomer(senderId),
         status: CONVERSATION_STATUSES.NEW,
+        content,
 
         // save facebook infos
         facebookData: {
-          kind: FACEBOOK_DATA_KINDS.MESSENGER,
-          senderId,
-          recipientId,
+          ...facebookData,
           pageId: this.currentPageId,
         },
       });
@@ -133,7 +131,79 @@ class ReceiveWebhookResponse {
     }
 
     // create new message
-    this.createMessage(conversation, messageText, senderId);
+    this.createMessage(conversation, content, senderId);
+  }
+
+  // get or create new conversation by feed info
+  getOrCreateConversationByFeed(value) {
+    const commentId = value.comment_id;
+
+    // if this is already saved then ignore it
+    if (commentId && Messages.findOne({ facebookCommentId: commentId })) {
+      return;
+    }
+
+    const senderId = value.sender_id;
+    const messageText = value.message;
+    let postId = value.post_id;
+
+    // get page access token
+    let response = graphRequest(
+      `${this.currentPageId}/?fields=access_token`,
+      this.userAccessToken
+    );
+
+    // get post object
+    response = graphRequest(postId, response.access_token);
+
+    postId = response.id;
+
+    this.getOrCreateConversation(
+      {
+        'facebookData.kind': FACEBOOK_DATA_KINDS.FEED,
+        'facebookData.postId': postId,
+      },
+      senderId,
+      messageText,
+      // facebookData
+      {
+        kind: FACEBOOK_DATA_KINDS.FEED,
+        senderId,
+        postId,
+      }
+    );
+  }
+
+  // get or create new conversation by page messenger
+  getOrCreateConversationByMessenger(event) {
+    const senderId = event.sender.id;
+    const recipientId = event.recipient.id;
+    const messageText = event.message.text;
+
+    this.getOrCreateConversation(
+      // try to find conversation by senderId, recipientId keys
+      {
+        'facebookData.kind': FACEBOOK_DATA_KINDS.MESSENGER,
+        $or: [
+          {
+            'facebookData.senderId': senderId,
+            'facebookData.recipientId': recipientId,
+          },
+          {
+            'facebookData.senderId': recipientId,
+            'facebookData.recipientId': senderId,
+          },
+        ],
+      },
+      senderId,
+      messageText,
+      // facebookData
+      {
+        kind: FACEBOOK_DATA_KINDS.MESSENGER,
+        senderId,
+        recipientId,
+      }
+    );
   }
 
   // get or create customer using facebook data
@@ -160,7 +230,7 @@ class ReceiveWebhookResponse {
 
     // create customer
     return Customers.insert({
-      name: `${response.first_name} ${response.last_name}`,
+      name: `${response.name}`,
       integrationId,
       facebookData: {
         id: fbUserId,
@@ -211,7 +281,7 @@ _.each(Meteor.settings.FACEBOOK_APPS, (app) => {
 });
 
 // post reply to page conversation
-export const facebookReply = (conversation, text) => {
+export const facebookReply = (conversation, text, messageId) => {
   const app = _.find(
     Meteor.settings.FACEBOOK_APPS,
     (a) => a.ID === conversation.integration().facebookData.appId
@@ -223,13 +293,34 @@ export const facebookReply = (conversation, text) => {
     app.ACCESS_TOKEN
   );
 
-  // post reply
-  return graphRequest('me/messages', response.access_token, 'post',
-    {
-      recipient: { id: conversation.facebookData.senderId },
-      message: { text },
-    },
+  // messenger reply
+  if (conversation.facebookData.kind === FACEBOOK_DATA_KINDS.MESSENGER) {
+    return graphRequest('me/messages', response.access_token, 'post',
+      {
+        recipient: { id: conversation.facebookData.senderId },
+        message: { text },
+      },
 
-    () => {}
-  );
+      () => {}
+    );
+  }
+
+  // feed reply
+  if (conversation.facebookData.kind === FACEBOOK_DATA_KINDS.FEED) {
+    const postId = conversation.facebookData.postId;
+
+    // post reply
+    const commentResponse = graphRequest(
+      `${postId}/comments`, response.access_token,
+      'post', { message: text }
+    );
+
+    // save commentId in message object
+    Messages.update(
+      { _id: messageId },
+      { $set: { facebookCommentId: commentResponse.id } }
+    );
+  }
+
+  return null;
 };

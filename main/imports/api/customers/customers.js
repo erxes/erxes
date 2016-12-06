@@ -60,6 +60,7 @@ const facebookSchema = new SimpleSchema({
 
   profilePic: {
     type: String,
+    optional: true,
   },
 });
 

@@ -96,7 +96,8 @@ export const addMessage = new ValidatedMethod({
 
       // send reply to facebook
       if (integration.kind === KIND_CHOICES.FACEBOOK) {
-        facebookReply(conversation, content);
+        // when facebook kind is feed, assign commentId in extraData
+        facebookReply(conversation, content, messageId);
       }
 
       return messageId;
