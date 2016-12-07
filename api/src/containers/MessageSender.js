@@ -4,7 +4,7 @@ import { MessageSender } from '../components';
 
 
 const mapStateToProps = state => ({
-  isAttachingFile: state.chat.isAttachingFile,
+  isAttachingFile: state.messenger.isAttachingFile,
 });
 
 const mapDispatchToProps = dispatch => ({

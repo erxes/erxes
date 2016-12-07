@@ -4,8 +4,8 @@ import { ConversationList } from '../components';
 
 
 const mapStateToProps = state => ({
-  conversations: state.chat.conversations,
-  notifs: state.notifs,
+  conversations: state.messenger.conversations,
+  notifications: state.notifications,
 });
 
 const mapDisptachToProps = dispatch => ({

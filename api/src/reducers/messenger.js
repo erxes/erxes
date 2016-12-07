@@ -1,5 +1,6 @@
 import { combineReducers } from 'redux';
 import { subscribeMessages } from '../erxes';
+import { MESSENGER_SHOW, MESSENGER_HIDE } from '../constants/messenger';
 
 
 const message = (state, action) => {
@@ -34,12 +35,12 @@ const messages = (state = [], action) => {
   }
 };
 
-const visibility = (state = false, action) => {
+const isVisible = (state = false, action) => {
   switch (action.type) {
-    case 'SHOW_CHATBOX':
+    case MESSENGER_SHOW:
       return true;
 
-    case 'HIDE_CHATBOX':
+    case MESSENGER_HIDE:
       return false;
 
     default:
@@ -90,13 +91,13 @@ const showMessageForm = (state = false, action) => {
   return state;
 };
 
-const chat = combineReducers({
+const messenger = combineReducers({
   messages,
   currentConversation,
   showMessageForm,
   conversations,
-  isVisible: visibility,
+  isVisible,
   isAttachingFile,
 });
 
-export default chat;
+export default messenger;

@@ -4,11 +4,11 @@ import { Conversation } from '../components';
 
 const propTypes = {
   conversations: PropTypes.array.isRequired,
-  notifs: PropTypes.object.isRequired,
+  notifications: PropTypes.object.isRequired,
   goToConversation: PropTypes.func.isRequired,
 };
 
-function ConversationList({ conversations, notifs, goToConversation }) {
+function ConversationList({ conversations, notifications, goToConversation }) {
   return (
     <ul className="erxes-conversation-list">
       {
@@ -16,7 +16,7 @@ function ConversationList({ conversations, notifs, goToConversation }) {
           <Conversation
             key={conversation._id}
             conversation={conversation}
-            notifCount={notifs[conversation._id]}
+            notificationCount={notifications[conversation._id]}
             goToConversation={goToConversation}
           />
         )

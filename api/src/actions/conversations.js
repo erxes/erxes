@@ -62,11 +62,3 @@ export const toMessageForm = state => ({
   type: 'TO_MESSAGE_FORM',
   state,
 });
-
-export const show = () => ({
-  type: 'SHOW_CHATBOX',
-});
-
-export const hide = () => ({
-  type: 'HIDE_CHATBOX',
-});

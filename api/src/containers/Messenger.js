@@ -4,8 +4,8 @@ import { Messenger } from '../components';
 
 
 const mapStateToProps = state => ({
-  conversations: state.chat.conversations,
-  currentPanel: state.chat.showMessageForm || state.chat.conversations.length === 0
+  conversations: state.messenger.conversations,
+  currentPanel: state.messenger.showMessageForm || state.messenger.conversations.length === 0
     ? 'conversation'
     : 'conversationList',
 });

@@ -1,11 +1,12 @@
 import { connect } from 'react-redux';
-import { hide, show } from '../actions/conversations';
+import { show, hide } from '../actions/messenger';
 import { Launcher } from '../components';
 
 
 const mapStateToProps = state => ({
-  notifsCount: Object.keys(state.notifs).reduce((sum, i) => sum + state.notifs[i], 0),
-  isChatVisible: state.chat.isVisible,
+  notificationCount: Object.keys(state.notifications)
+    .reduce((sum, i) => sum + state.notifications[i], 0),
+  isMessengerVisible: state.messenger.isVisible,
 });
 
 /**
@@ -14,8 +15,8 @@ const mapStateToProps = state => ({
 const mergeProps = (stateProps, { dispatch }, ownProps) => ({
   ...stateProps,
   ...ownProps,
-  onLauncherClick() {
-    if (stateProps.isChatVisible) {
+  onClick() {
+    if (stateProps.isMessengerVisible) {
       return dispatch(hide());
     }
 

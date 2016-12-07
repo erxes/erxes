@@ -5,11 +5,11 @@ import classNames from 'classnames';
 
 const propTypes = {
   conversation: PropTypes.object.isRequired,
-  notifCount: PropTypes.number,
+  notificationCount: PropTypes.number,
   goToConversation: PropTypes.func.isRequired,
 };
 
-function Conversation({ conversation, notifCount, goToConversation }) {
+function Conversation({ conversation, notificationCount, goToConversation }) {
   const { _id, content, createdAt } = conversation;
 
   return (
@@ -17,14 +17,14 @@ function Conversation({ conversation, notifCount, goToConversation }) {
       className="erxes-conversation"
       onClick={() => { goToConversation(_id); }}
     >
-      <div className={classNames('erxes-message', { unread: notifCount > 0 })}>
+      <div className={classNames('erxes-message', { unread: notificationCount > 0 })}>
         {content}
       </div>
       <div className="date">
         {moment(createdAt).fromNow()}
       </div>
       <div className="new-message-count">
-        {notifCount > 0 ? `${notifCount} new messages` : ''}
+        {notificationCount > 0 ? `${notificationCount} new messages` : ''}
       </div>
     </li>
   );

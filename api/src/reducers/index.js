@@ -1,13 +1,13 @@
 import { combineReducers } from 'redux';
-import chat from './chat';
+import messenger from './messenger';
 import user from './user';
-import notifs from './notifs';
+import notifications from './notifications';
 
 
 const erxesApp = combineReducers({
-  chat,
+  messenger,
   users: user,
-  notifs,
+  notifications,
 });
 
 export default erxesApp;
