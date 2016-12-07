@@ -10,6 +10,10 @@ import { KIND_CHOICES } from '/imports/api/integrations/constants';
 import { CONVERSATION_STATUSES } from '/imports/api/conversations/constants';
 import { FACEBOOK_DATA_KINDS } from '/imports/api/conversations/constants';
 
+/*
+ * Common graph api request wrapper
+ * catchs auth token or other type of exceptions
+ */
 const graphRequest = (path, accessToken, method = 'get', ...otherParams) => {
   // set access token
   graph.setAccessToken(accessToken);
@@ -45,9 +49,13 @@ export const getPageList = (accessToken) => {
 };
 
 // when new message or other kind of activity in page
-class ReceiveWebhookResponse {
-  constructor(userAccessToken, integration, data) {
+export class ReceiveWebhookResponse {
+  constructor(userAccessToken, ghRequest, integration, data) {
     this.userAccessToken = userAccessToken;
+
+    // doing this because to make mocking easier in test
+    this.graphRequest = ghRequest;
+
     this.integration = integration;
     this.data = data;
 
@@ -148,13 +156,13 @@ class ReceiveWebhookResponse {
     let postId = value.post_id;
 
     // get page access token
-    let response = graphRequest(
+    let response = this.graphRequest(
       `${this.currentPageId}/?fields=access_token`,
       this.userAccessToken
     );
 
     // get post object
-    response = graphRequest(postId, response.access_token);
+    response = this.graphRequest(postId, response.access_token);
 
     postId = response.id;
 
@@ -220,13 +228,13 @@ class ReceiveWebhookResponse {
     }
 
     // get page access token
-    let response = graphRequest(
+    let response = this.graphRequest(
       `${this.currentPageId}/?fields=access_token`,
       this.userAccessToken
     );
 
     // get user info
-    response = graphRequest(`/${fbUserId}`, response.access_token);
+    response = this.graphRequest(`/${fbUserId}`, response.access_token);
 
     // create customer
     return Customers.insert({
@@ -273,7 +281,14 @@ _.each(Meteor.settings.FACEBOOK_APPS, (app) => {
 
     Integrations.find(selector).forEach((integration) => {
       // when new message or other kind of activity in page
-      new ReceiveWebhookResponse(app.ACCESS_TOKEN, integration, req.body).start();
+      const receiveWebhookResponse = new ReceiveWebhookResponse(
+        app.ACCESS_TOKEN,
+        integration,
+        graphRequest,
+        req.body
+      );
+
+      receiveWebhookResponse.start();
     });
 
     res.end('success');
