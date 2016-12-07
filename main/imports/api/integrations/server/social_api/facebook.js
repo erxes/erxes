@@ -45,7 +45,7 @@ export const getPageList = (accessToken) => {
 };
 
 // when new message or other kind of activity in page
-class ReceiveWebhookResponse {
+export class ReceiveWebhookResponse {
   constructor(userAccessToken, integration, data) {
     this.userAccessToken = userAccessToken;
     this.integration = integration;
@@ -145,6 +145,10 @@ class ReceiveWebhookResponse {
 
     const senderId = value.sender_id;
     const messageText = value.message;
+
+    // value.post_id is returning different value even though same post
+    // with the previous one. So fetch post info via graph api and
+    // save returned value. This value will always be the same
     let postId = value.post_id;
 
     // get page access token
