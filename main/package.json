@@ -16,7 +16,7 @@
     "react-addons-css-transition-group": "^15.3.2",
     "react-bootstrap": "^0.30.2",
     "react-copy-to-clipboard": "^4.2.3",
-    "react-dom": "^15.3.1",
+    "react-dom": "^15.4.1",
     "react-komposer": "^1.13.1",
     "react-markdown": "^2.4.2",
     "react-mounter": "^1.2.0",
