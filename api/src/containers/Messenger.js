@@ -18,7 +18,7 @@ const mapDispatchToProps = dispatch => ({
 
     dispatch(changeRoute('conversationList'));
   },
-  goToConversation(e) {
+  createConversation(e) {
     e.preventDefault();
 
     dispatch(changeRoute('conversation'));
