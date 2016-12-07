@@ -48,7 +48,11 @@ export const getPageList = (accessToken) => {
   return pages;
 };
 
-// when new message or other kind of activity in page
+/*
+ * receive webhook response
+ * create conversation, customer, message using transmitted data
+ */
+
 export class ReceiveWebhookResponse {
   constructor(userAccessToken, ghRequest, integration, data) {
     this.userAccessToken = userAccessToken;
@@ -57,6 +61,8 @@ export class ReceiveWebhookResponse {
     this.graphRequest = ghRequest;
 
     this.integration = integration;
+
+    // received facebook data
     this.data = data;
 
     this.currentPageId = null;
