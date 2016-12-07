@@ -57,8 +57,3 @@ export const changeConversation = conversationId => ({
   type: 'CHANGE_CONVERSATION',
   conversationId,
 });
-
-export const toMessageForm = state => ({
-  type: 'TO_MESSAGE_FORM',
-  state,
-});

@@ -1,13 +1,12 @@
 import { connect } from 'react-redux';
-import { changeConversation, toMessageForm } from '../actions/conversations';
+import { changeRoute } from '../actions/messenger';
+import { changeConversation } from '../actions/conversations';
 import { Messenger } from '../components';
 
 
 const mapStateToProps = state => ({
   conversations: state.messenger.conversations,
-  currentPanel: state.messenger.showMessageForm || state.messenger.conversations.length === 0
-    ? 'conversation'
-    : 'conversationList',
+  activeRoute: state.messenger.activeRoute,
 });
 
 const mapDispatchToProps = dispatch => ({
@@ -17,14 +16,12 @@ const mapDispatchToProps = dispatch => ({
     // reset current conversation
     dispatch(changeConversation(''));
 
-    // hide message form
-    dispatch(toMessageForm(false));
+    dispatch(changeRoute('conversationList'));
   },
   goToConversation(e) {
     e.preventDefault();
 
-    // show message form
-    dispatch(toMessageForm(true));
+    dispatch(changeRoute('conversation'));
   },
 });
 

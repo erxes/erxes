@@ -1,5 +1,6 @@
 import { connect } from 'react-redux';
-import { changeConversation, toMessageForm, readMessages } from '../actions/conversations';
+import { changeConversation, readMessages } from '../actions/conversations';
+import { changeRoute } from '../actions/messenger';
 import { ConversationList } from '../components';
 
 
@@ -13,8 +14,8 @@ const mapDisptachToProps = dispatch => ({
     // change current conversation
     dispatch(changeConversation(conversationId));
 
-    // show message form
-    dispatch(toMessageForm(true));
+    // change route
+    dispatch(changeRoute('conversation'));
 
     // mark as read
     dispatch(readMessages(conversationId));

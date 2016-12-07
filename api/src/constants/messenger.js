@@ -1,2 +1,3 @@
 export const MESSENGER_SHOW = 'MESSENGER_SHOW';
 export const MESSENGER_HIDE = 'MESSENGER_HIDE';
+export const CHANGE_ROUTE = 'CHANGE_ROUTE';

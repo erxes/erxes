@@ -1,4 +1,4 @@
-import { MESSENGER_SHOW, MESSENGER_HIDE } from '../constants/messenger';
+import { MESSENGER_SHOW, MESSENGER_HIDE, CHANGE_ROUTE } from '../constants/messenger';
 
 
 export const show = () => ({
@@ -7,4 +7,9 @@ export const show = () => ({
 
 export const hide = () => ({
   type: MESSENGER_HIDE,
+});
+
+export const changeRoute = route => ({
+  type: CHANGE_ROUTE,
+  route,
 });

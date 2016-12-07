@@ -1,6 +1,6 @@
 import { combineReducers } from 'redux';
 import { subscribeMessages } from '../erxes';
-import { MESSENGER_SHOW, MESSENGER_HIDE } from '../constants/messenger';
+import { MESSENGER_SHOW, MESSENGER_HIDE, CHANGE_ROUTE } from '../constants/messenger';
 
 
 const message = (state, action) => {
@@ -83,21 +83,23 @@ const currentConversation = (state = '', action) => {
   return state;
 };
 
-const showMessageForm = (state = false, action) => {
-  if (action.type === 'TO_MESSAGE_FORM') {
-    return action.state;
-  }
+const activeRoute = (state = 'conversationList', action) => {
+  switch (action.type) {
+    case CHANGE_ROUTE:
+      return action.route;
 
-  return state;
+    default:
+      return state;
+  }
 };
 
 const messenger = combineReducers({
   messages,
   currentConversation,
-  showMessageForm,
   conversations,
   isVisible,
   isAttachingFile,
+  activeRoute,
 });
 
 export default messenger;

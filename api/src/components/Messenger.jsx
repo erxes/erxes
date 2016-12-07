@@ -4,13 +4,13 @@ import { MessageSender, MessagesList, ConversationList } from '../containers';
 
 
 const propTypes = {
-  currentPanel: PropTypes.string.isRequired,
+  activeRoute: PropTypes.string.isRequired,
   goToConversationList: PropTypes.func.isRequired,
   goToConversation: PropTypes.func.isRequired,
 };
 
-function Chat({ currentPanel, goToConversationList, goToConversation }) {
-  const isConversation = currentPanel === 'conversation';
+function Chat({ activeRoute, goToConversationList, goToConversation }) {
+  const isConversation = activeRoute === 'conversation';
 
   const classes = classNames('topbar-button', 'left', {
     back: isConversation,
