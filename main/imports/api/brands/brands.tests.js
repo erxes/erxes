@@ -120,20 +120,6 @@ if (Meteor.isServer) {
           );
         });
 
-        it('access denied', function () {
-          assert.throws(
-            () => {
-              edit._execute(
-                { userId: Factory.create('user')._id },
-                { id: brandId, doc: { name: 'Bar' } }
-              );
-            },
-
-            Meteor.Error,
-            /brands.edit.accessDenied/
-          );
-        });
-
         it('edit', function () {
           edit._execute(
             { userId },

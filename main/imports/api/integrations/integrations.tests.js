@@ -9,11 +9,11 @@ import { assert } from 'meteor/practicalmeteor:chai';
 import { Integrations } from './integrations';
 import { KIND_CHOICES } from './constants';
 import { addInAppMessaging, remove } from './server/methods';
+import { addFacebook } from './server/methods';
 
 if (Meteor.isServer) {
   describe('integrations', function () {
     describe('methods', function () {
-      let integrationId;
       let userId;
       let brandId;
 
@@ -24,27 +24,46 @@ if (Meteor.isServer) {
         brandId = Factory.create('brand', { userId })._id;
       });
 
-      describe('add in app messsaging', function () {
-        it('add in app messsaging', function () {
-          addInAppMessaging._execute(
-            { userId },
-            { doc: { name: 'Foo', brandId } }
-          );
+      it('add in app messsaging', function () {
+        addInAppMessaging._execute(
+          { userId },
+          { doc: { name: 'Foo', brandId } }
+        );
 
-          assert.equal(
-            Integrations.find({ kind: KIND_CHOICES.IN_APP_MESSAGING }).count(),
-            1
-          );
+        const integration = Integrations.findOne({ name: 'Foo' });
 
-          const integration = Integrations.findOne({ name: 'Foo' });
-          integrationId = integration._id;
-        });
+        // check field values
+        assert.equal(integration.kind, KIND_CHOICES.IN_APP_MESSAGING);
+        assert.equal(integration.brandId, brandId);
+      });
+
+      it('add facebook', function () {
+        const appId = '24242424242';
+        const pageIds = ['9934324242424242', '42424242424'];
+
+        addFacebook._execute(
+          { userId },
+          {
+            name: 'Foo',
+            brandId,
+            appId,
+            pageIds,
+          }
+        );
+
+        const integration = Integrations.findOne({ name: 'Foo' });
+
+        // check field values
+        assert.equal(integration.kind, KIND_CHOICES.FACEBOOK);
+        assert.equal(integration.brandId, brandId);
+        assert.equal(integration.facebookData.appId, appId);
+        assert.deepEqual(integration.facebookData.pageIds, pageIds);
       });
 
       describe('remove', function () {
         it('can not remove integration used in channel', function () {
           // create integration
-          integrationId = Factory.create('integration')._id;
+          const integrationId = Factory.create('integration')._id;
 
           // create channel using integration
           Factory.create('channel', { integrationIds: [integrationId] });
@@ -61,7 +80,7 @@ if (Meteor.isServer) {
         });
 
         it('remove', function () {
-          integrationId = Factory.create('integration')._id; // create
+          const integrationId = Factory.create('integration')._id; // create
 
           assert.equal(Integrations.find().count(), 1); // check created
 
