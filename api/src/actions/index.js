@@ -1,8 +1,5 @@
-import ChatActions from './chat';
-import { store } from '../template.js';
+import { store } from '../template';
 
-
-export const Chat = ChatActions;
 
 export function collectionItemAdded({ collection, _id, fields }) {
   if (collection === 'conversations') {

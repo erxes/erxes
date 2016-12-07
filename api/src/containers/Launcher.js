@@ -1,5 +1,5 @@
 import { connect } from 'react-redux';
-import { Chat } from '../actions';
+import { hide, show } from '../actions/conversations';
 import { Launcher } from '../components';
 
 
@@ -16,10 +16,10 @@ const mergeProps = (stateProps, { dispatch }, ownProps) => ({
   ...ownProps,
   onLauncherClick() {
     if (stateProps.isChatVisible) {
-      return dispatch(Chat.hide());
+      return dispatch(hide());
     }
 
-    return dispatch(Chat.show());
+    return dispatch(show());
   },
 });
 

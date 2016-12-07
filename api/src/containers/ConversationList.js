@@ -1,5 +1,5 @@
 import { connect } from 'react-redux';
-import { Chat } from '../actions';
+import { changeConversation, toMessageForm, readMessages } from '../actions/conversations';
 import { ConversationList } from '../components';
 
 
@@ -11,13 +11,13 @@ const mapStateToProps = state => ({
 const mapDisptachToProps = dispatch => ({
   goToConversation(conversationId) {
     // change current conversation
-    dispatch(Chat.changeConversation(conversationId));
+    dispatch(changeConversation(conversationId));
 
     // show message form
-    dispatch(Chat.toMessageForm(true));
+    dispatch(toMessageForm(true));
 
     // mark as read
-    dispatch(Chat.readMessages(conversationId));
+    dispatch(readMessages(conversationId));
   },
 });
 

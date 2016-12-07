@@ -1,5 +1,5 @@
 import { connect } from 'react-redux';
-import { Chat as actions } from '../actions';
+import { changeConversation, toMessageForm } from '../actions/conversations';
 import { Messenger } from '../components';
 
 
@@ -15,16 +15,16 @@ const mapDispatchToProps = dispatch => ({
     e.preventDefault();
 
     // reset current conversation
-    dispatch(actions.changeConversation(''));
+    dispatch(changeConversation(''));
 
     // hide message form
-    dispatch(actions.toMessageForm(false));
+    dispatch(toMessageForm(false));
   },
   goToConversation(e) {
     e.preventDefault();
 
     // show message form
-    dispatch(actions.toMessageForm(true));
+    dispatch(toMessageForm(true));
   },
 });
 

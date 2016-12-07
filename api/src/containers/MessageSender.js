@@ -1,5 +1,5 @@
 import { connect } from 'react-redux';
-import { Chat } from '../actions';
+import { sendMessage, sendFile } from '../actions/conversations';
 import { MessageSender } from '../components';
 
 
@@ -13,10 +13,10 @@ const mapDispatchToProps = dispatch => ({
       return;
     }
 
-    dispatch(Chat.sendMessage(message));
+    dispatch(sendMessage(message));
   },
   sendFile(file) {
-    dispatch(Chat.sendFile(file));
+    dispatch(sendFile(file));
   },
 });
 
