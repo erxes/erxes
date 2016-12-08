@@ -21,6 +21,7 @@ let messageSubId;
 function subscribeConversations() {
   if (conversationSubId) {
     asteroid.unsubscribe(conversationSubId);
+    asteroid.subscriptions.cache.del(conversationSubId);
   }
 
   conversationSubId = asteroid.subscribe('api.conversations').id;
@@ -33,6 +34,7 @@ function subscribeConversations() {
 function subscribeMessages(conversationId) {
   if (messageSubId) {
     asteroid.unsubscribe(messageSubId);
+    asteroid.subscriptions.cache.del(messageSubId);
   }
 
   messageSubId = asteroid.subscribe('api.messages', conversationId).id;
