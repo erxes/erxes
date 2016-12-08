@@ -238,21 +238,25 @@ export class ReceiveWebhookResponse {
     }
 
     // get page access token
-    let response = this.graphRequest(
+    let res = this.graphRequest(
       `${this.currentPageId}/?fields=access_token`,
       this.userAccessToken
     );
 
     // get user info
-    response = this.graphRequest(`/${fbUserId}`, response.access_token);
+    res = this.graphRequest(`/${fbUserId}`, res.access_token);
+
+    // when feed response will contain name field
+    // when messeger response will not contain name field
+    const name = res.name || `${res.first_name} ${res.last_name}`;
 
     // create customer
     return Customers.insert({
-      name: `${response.name}`,
+      name,
       integrationId,
       facebookData: {
         id: fbUserId,
-        profilePic: response.profile_pic,
+        profilePic: res.profile_pic,
       },
     });
   }
