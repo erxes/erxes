@@ -3,6 +3,23 @@ import { call, subscribeMessages } from '../erxes';
 import uploadHandler from '../uploadHandler';
 
 
+export const readMessages = conversationId =>
+  () => call('customerReadMessages', conversationId);
+
+export const changeActiveConversation = conversationId => ({
+  type: 'CHANGE_CONVERSATION',
+  conversationId,
+});
+
+export const changeConversation = conversationId =>
+  (dispatch) => {
+    if (conversationId) {
+      subscribeMessages(conversationId);
+    }
+
+    dispatch(changeActiveConversation(conversationId));
+  };
+
 export const sendMessage = (message, attachments) =>
   (dispatch, getState) => {
     // current conversation
@@ -19,7 +36,8 @@ export const sendMessage = (message, attachments) =>
       .then(({ conversationId }) => {
         // if there is no current conversation new conversation will be created
         if (!currentConversationId) {
-          dispatch({ type: 'CHANGE_CONVERSATION', conversationId });
+          subscribeMessages(conversationId);
+          dispatch(changeActiveConversation(conversationId));
         }
       });
   };
@@ -48,21 +66,4 @@ export const sendFile = file =>
         });
       },
     });
-  };
-
-export const readMessages = conversationId =>
-  () => call('customerReadMessages', conversationId);
-
-export const changeActiveConversation = conversationId => ({
-  type: 'CHANGE_CONVERSATION',
-  conversationId,
-});
-
-export const changeConversation = conversationId =>
-  (dispatch) => {
-    if (conversationId) {
-      subscribeMessages(conversationId);
-    }
-
-    dispatch(changeActiveConversation(conversationId));
   };
