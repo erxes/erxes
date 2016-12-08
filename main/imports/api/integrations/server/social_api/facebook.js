@@ -293,8 +293,8 @@ _.each(Meteor.settings.FACEBOOK_APPS, (app) => {
       // when new message or other kind of activity in page
       const receiveWebhookResponse = new ReceiveWebhookResponse(
         app.ACCESS_TOKEN,
-        integration,
         graphRequest,
+        integration,
         req.body
       );
 
