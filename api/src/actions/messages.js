@@ -1,29 +1,17 @@
 import EJSON from 'meteor-ejson';
-import { call, subscribeMessages } from '../erxes';
+import { SENDING_ATTACHMENT, ATTACHMENT_SENT } from '../constants';
+import { call } from '../erxes';
 import uploadHandler from '../uploadHandler';
+import { changeConversation } from './messenger';
 
 
 export const readMessages = conversationId =>
   () => call('customerReadMessages', conversationId);
 
-export const changeActiveConversation = conversationId => ({
-  type: 'CHANGE_CONVERSATION',
-  conversationId,
-});
-
-export const changeConversation = conversationId =>
-  (dispatch) => {
-    if (conversationId) {
-      subscribeMessages(conversationId);
-    }
-
-    dispatch(changeActiveConversation(conversationId));
-  };
-
 export const sendMessage = (message, attachments) =>
   (dispatch, getState) => {
     // current conversation
-    const currentConversationId = getState().messenger.currentConversation;
+    const currentConversationId = getState().messenger.activeConversation;
 
     // message object
     const doc = {
@@ -36,8 +24,7 @@ export const sendMessage = (message, attachments) =>
       .then(({ conversationId }) => {
         // if there is no current conversation new conversation will be created
         if (!currentConversationId) {
-          subscribeMessages(conversationId);
-          dispatch(changeActiveConversation(conversationId));
+          dispatch(changeConversation(conversationId));
         }
       });
   };
@@ -47,7 +34,7 @@ export const sendFile = file =>
     uploadHandler({
       file,
       uploadAction: ({ data, fileInfo }) => {
-        dispatch({ type: 'SENDING_ATTACHMENT' });
+        dispatch({ type: SENDING_ATTACHMENT });
 
         // file object
         const doc = {
@@ -56,7 +43,7 @@ export const sendFile = file =>
         };
 
         call('sendFile', doc).then(response => {
-          dispatch({ type: 'ATTACHMENT_SENT' });
+          dispatch({ type: ATTACHMENT_SENT });
 
           const attachment = Object.assign({ url: response.url }, fileInfo);
 

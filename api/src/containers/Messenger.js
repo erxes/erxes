@@ -3,7 +3,7 @@ import { Messenger } from '../components';
 
 
 const mapStateToProps = state => ({
-  activeRoute: state.messenger.activeRoute,
+  activeRoute: state.activeRoute,
 });
 
 export default connect(mapStateToProps)(Messenger);

@@ -1,13 +1,12 @@
 import { connect } from 'react-redux';
-import { changeRoute, toggle } from '../actions/messenger';
-import { changeConversation } from '../actions/conversations';
+import { changeRoute, toggle, changeConversation } from '../actions/messenger';
 import { Launcher } from '../components';
 
 
 const mapStateToProps = state => ({
   notificationCount: Object.keys(state.notifications)
     .reduce((sum, i) => sum + state.notifications[i], 0),
-  isMessengerVisible: state.messenger.isVisible,
+  isMessengerVisible: state.isVisible,
 });
 
 const mapDisptachToProps = dispatch => ({

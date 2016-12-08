@@ -1,6 +1,5 @@
 import { connect } from 'react-redux';
-import { changeConversation } from '../actions/conversations';
-import { changeRoute } from '../actions/messenger';
+import { changeRoute, changeConversation } from '../actions/messenger';
 import { Conversation } from '../components';
 
 

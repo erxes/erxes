@@ -1,11 +1,11 @@
 import { connect } from 'react-redux';
-import { changeConversation, readMessages } from '../actions/conversations';
-import { changeRoute } from '../actions/messenger';
+import { readMessages } from '../actions/messages';
+import { changeRoute, changeConversation } from '../actions/messenger';
 import { ConversationList } from '../components';
 
 
 const mapStateToProps = state => ({
-  conversations: state.messenger.conversations,
+  conversations: state.conversations,
   notifications: state.notifications,
 });
 

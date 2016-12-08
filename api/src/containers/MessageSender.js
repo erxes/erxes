@@ -1,10 +1,10 @@
 import { connect } from 'react-redux';
-import { sendMessage, sendFile } from '../actions/conversations';
+import { sendMessage, sendFile } from '../actions/messages';
 import { MessageSender } from '../components';
 
 
 const mapStateToProps = state => ({
-  isAttachingFile: state.messenger.isAttachingFile,
+  isAttachingFile: state.isAttachingFile,
 });
 
 const mapDispatchToProps = dispatch => ({

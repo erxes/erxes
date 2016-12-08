@@ -3,7 +3,7 @@ import { App } from '../components';
 
 
 const mapStateToProps = state => ({
-  isMessengerVisible: state.messenger.isVisible,
+  isMessengerVisible: state.isVisible,
 });
 
 export default connect(mapStateToProps)(App);

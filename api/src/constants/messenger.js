@@ -1,2 +1,0 @@
-export const MESSENGER_TOGGLE = 'MESSENGER_TOGGLE';
-export const CHANGE_ROUTE = 'CHANGE_ROUTE';

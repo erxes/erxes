@@ -1,5 +1,5 @@
 import { connect } from 'react-redux';
-import { sendMessage } from '../actions/conversations';
+import { sendMessage } from '../actions/messages';
 import { Retry } from '../components';
 
 
