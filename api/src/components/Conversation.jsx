@@ -1,32 +1,23 @@
 import React, { PropTypes } from 'react';
-import moment from 'moment';
-import classNames from 'classnames';
+import TopBar from './TopBar.jsx';
+import { MessageSender, MessagesList } from '../containers';
 
 
 const propTypes = {
-  conversation: PropTypes.object.isRequired,
-  notificationCount: PropTypes.number,
-  goToConversation: PropTypes.func.isRequired,
+  goToConversationList: PropTypes.func.isRequired,
 };
 
-function Conversation({ conversation, notificationCount, goToConversation }) {
-  const { _id, content, createdAt } = conversation;
-
+function Conversation({ goToConversationList }) {
   return (
-    <li
-      className="erxes-conversation"
-      onClick={() => { goToConversation(_id); }}
-    >
-      <div className={classNames('erxes-message', { unread: notificationCount > 0 })}>
-        {content}
-      </div>
-      <div className="date">
-        {moment(createdAt).fromNow()}
-      </div>
-      <div className="new-message-count">
-        {notificationCount > 0 ? `${notificationCount} new messages` : ''}
-      </div>
-    </li>
+    <div className="erxes-messenger">
+      <TopBar
+        middle="Messages"
+        buttonClass="back"
+        onButtonClick={goToConversationList}
+      />
+      <MessagesList />
+      <MessageSender />
+    </div>
   );
 }
 

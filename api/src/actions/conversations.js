@@ -6,7 +6,7 @@ import uploadHandler from '../uploadHandler';
 export const sendMessage = (message, attachments) =>
   (dispatch, getState) => {
     // current conversation
-    const currentConversationId = getState().chat.currentConversation;
+    const currentConversationId = getState().messenger.currentConversation;
 
     // message object
     const doc = {

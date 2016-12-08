@@ -10,6 +10,11 @@ const mapStateToProps = state => ({
 });
 
 const mapDisptachToProps = dispatch => ({
+  createConversation(e) {
+    e.preventDefault();
+    dispatch(changeRoute('conversation'));
+  },
+
   goToConversation(conversationId) {
     // change current conversation
     dispatch(changeConversation(conversationId));
