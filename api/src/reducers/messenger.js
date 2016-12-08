@@ -1,5 +1,4 @@
 import { combineReducers } from 'redux';
-import { subscribeMessages } from '../erxes';
 import { MESSENGER_TOGGLE, CHANGE_ROUTE } from '../constants/messenger';
 
 
@@ -21,7 +20,6 @@ const message = (state, action) => {
 const messages = (state = [], action) => {
   switch (action.type) {
     case 'CHANGE_CONVERSATION':
-      subscribeMessages(action.conversationId);
       return [];
 
     case 'MESSAGE_RECEIVED':

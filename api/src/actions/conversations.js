@@ -1,5 +1,5 @@
 import EJSON from 'meteor-ejson';
-import { call } from '../erxes';
+import { call, subscribeMessages } from '../erxes';
 import uploadHandler from '../uploadHandler';
 
 
@@ -53,7 +53,16 @@ export const sendFile = file =>
 export const readMessages = conversationId =>
   () => call('customerReadMessages', conversationId);
 
-export const changeConversation = conversationId => ({
+export const changeActiveConversation = conversationId => ({
   type: 'CHANGE_CONVERSATION',
   conversationId,
 });
+
+export const changeConversation = conversationId =>
+  (dispatch) => {
+    if (conversationId) {
+      subscribeMessages(conversationId);
+    }
+
+    dispatch(changeActiveConversation(conversationId));
+  };
