@@ -1,12 +1,8 @@
-import { MESSENGER_SHOW, MESSENGER_HIDE, CHANGE_ROUTE } from '../constants/messenger';
+import { MESSENGER_TOGGLE, CHANGE_ROUTE } from '../constants/messenger';
 
 
-export const show = () => ({
-  type: MESSENGER_SHOW,
-});
-
-export const hide = () => ({
-  type: MESSENGER_HIDE,
+export const toggle = () => ({
+  type: MESSENGER_TOGGLE,
 });
 
 export const changeRoute = route => ({

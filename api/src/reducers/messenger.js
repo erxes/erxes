@@ -1,6 +1,6 @@
 import { combineReducers } from 'redux';
 import { subscribeMessages } from '../erxes';
-import { MESSENGER_SHOW, MESSENGER_HIDE, CHANGE_ROUTE } from '../constants/messenger';
+import { MESSENGER_TOGGLE, CHANGE_ROUTE } from '../constants/messenger';
 
 
 const message = (state, action) => {
@@ -37,11 +37,8 @@ const messages = (state = [], action) => {
 
 const isVisible = (state = false, action) => {
   switch (action.type) {
-    case MESSENGER_SHOW:
-      return true;
-
-    case MESSENGER_HIDE:
-      return false;
+    case MESSENGER_TOGGLE:
+      return !state;
 
     default:
       return state;

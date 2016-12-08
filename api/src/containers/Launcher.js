@@ -1,5 +1,5 @@
 import { connect } from 'react-redux';
-import { show, hide } from '../actions/messenger';
+import { toggle } from '../actions/messenger';
 import { Launcher } from '../components';
 
 
@@ -9,19 +9,10 @@ const mapStateToProps = state => ({
   isMessengerVisible: state.messenger.isVisible,
 });
 
-/**
- * Using mergeProps function to access states inside dispatch functions
- */
-const mergeProps = (stateProps, { dispatch }, ownProps) => ({
-  ...stateProps,
-  ...ownProps,
+const mapDisptachToProps = dispatch => ({
   onClick() {
-    if (stateProps.isMessengerVisible) {
-      return dispatch(hide());
-    }
-
-    return dispatch(show());
+    return dispatch(toggle());
   },
 });
 
-export default connect(mapStateToProps, null, mergeProps)(Launcher);
+export default connect(mapStateToProps, mapDisptachToProps)(Launcher);
