@@ -1,5 +1,6 @@
 import { connect } from 'react-redux';
-import { toggle } from '../actions/messenger';
+import { changeRoute, toggle } from '../actions/messenger';
+import { changeConversation } from '../actions/conversations';
 import { Launcher } from '../components';
 
 
@@ -11,7 +12,9 @@ const mapStateToProps = state => ({
 
 const mapDisptachToProps = dispatch => ({
   onClick() {
-    return dispatch(toggle());
+    dispatch(changeConversation(''));
+    dispatch(changeRoute('conversationList'));
+    dispatch(toggle());
   },
 });
 
