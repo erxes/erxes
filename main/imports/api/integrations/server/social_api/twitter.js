@@ -9,25 +9,10 @@ import { Messages } from '/imports/api/conversations/messages';
 import { Customers } from '/imports/api/customers/customers';
 import { CONVERSATION_STATUSES } from '/imports/api/conversations/constants';
 
-const getUser = (twitterUser) => {
-  const user = Meteor.users.findOne({
-    'details.twitterUsername': twitterUser.screen_name,
-  });
-
-  if (user) {
-    return user._id;
-  }
-
-  return null;
-};
-
-// get or create customer using twitter data
+/*
+ * get or create customer using twitter data
+ */
 const getOrCreateCustomer = (integrationId, user) => {
-  // if twitter is one of the admins then customer has to be null
-  if (getUser(user)) {
-    return null;
-  }
-
   const customer = Customers.findOne({
     integrationId,
     'twitterData.id': user.id,
@@ -57,15 +42,16 @@ const createMessage = (conversation, content, user) => {
     Messages.insert({
       conversationId: conversation._id,
       customerId: getOrCreateCustomer(conversation.integrationId, user),
-      userId: getUser(user),
       content,
       internal: false,
     });
   }
 };
 
-// create new conversation by regular tweet
-const getOrCreateCommonConversation = (data, integration) => {
+/*
+ * create new conversation by regular tweet
+ */
+export const getOrCreateCommonConversation = (data, integration) => {
   let conversation;
 
   if (data.in_reply_to_status_id) {
@@ -73,6 +59,12 @@ const getOrCreateCommonConversation = (data, integration) => {
     conversation = Conversations.findOne({
       'twitterData.id': data.in_reply_to_status_id,
     });
+
+    // reset read state
+    Conversations.update(
+      { _id: conversation._id },
+      { $set: { readUserIds: [] } }
+    );
 
   // create new conversation
   } else {
@@ -97,8 +89,10 @@ const getOrCreateCommonConversation = (data, integration) => {
   createMessage(conversation, data.text, data.user);
 };
 
-// create new conversation by direct message
-const getOrCreateDirectMessageConversation = (data, integration) => {
+/*
+ * create new conversation by direct message
+ */
+export const getOrCreateDirectMessageConversation = (data, integration) => {
   let conversation = Conversations.findOne({
     'twitterData.isDirectMessage': true,
     $or: [
@@ -113,8 +107,15 @@ const getOrCreateDirectMessageConversation = (data, integration) => {
     ],
   });
 
+  if (conversation) {
+    // reset read state
+    Conversations.update(
+      { _id: conversation._id },
+      { $set: { readUserIds: [] } }
+    );
+
   // create new conversation
-  if (!conversation) {
+  } else {
     const conversationId = Conversations.insert({
       content: data.text,
       integrationId: integration._id,
@@ -197,7 +198,9 @@ Integrations.find({ kind: KIND_CHOICES.TWITTER }).forEach((integration) => {
   trackIntegration(integration);
 });
 
-// post reply to twitter
+/*
+ * post reply to twitter
+ */
 const tweetReply = (conversation, text) => {
   const twit = TwitMap[conversation.integrationId];
   const twitterData = conversation.twitterData;
