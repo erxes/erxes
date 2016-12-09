@@ -10,17 +10,110 @@ import sinon from 'sinon';
 import { Conversations } from '/imports/api/conversations/conversations';
 import { CONVERSATION_STATUSES, FACEBOOK_DATA_KINDS } from '/imports/api/conversations/constants';
 import { Customers } from '/imports/api/customers/customers';
+import { Integrations } from '/imports/api/integrations/integrations';
 import { Messages } from '/imports/api/conversations/messages';
 
-import { graphRequest, ReceiveWebhookResponse } from './facebook';
+import { graphRequest, facebookReply, SaveWebhookResponse } from './facebook';
 
 if (Meteor.isServer) {
   describe('facebook integration', function () {
-    describe('receive webhook response', function () {
-      const pageId = '2252525525';
+    const pageId = '2252525525';
+    const senderId = '2242424244';
+    const recipientId = '242422242424244';
+
+    describe('facebook reply', function () {
+      let integration;
+
+      beforeEach(function () {
+        // clear previous data
+        Conversations.remove({});
+        Integrations.remove({});
+
+        // mock settings
+        Meteor.settings.FACEBOOK_APPS = [{
+          ID: 'id',
+          NAME: 'name',
+          ACCESS_TOKEN: 'access_token',
+        }];
+
+        // create integration
+        integration = Factory.create('integration', {
+          'facebookData.appId': 'id',
+          'facebookData.pageIds': [pageId],
+        });
+
+        // mock get page access token
+        sinon.stub(graphRequest, 'get', () => ({
+          access_token: 'page_access_token',
+        }));
+      });
+
+      afterEach(function () {
+        // unwraps the spy
+        graphRequest.get.restore();
+        graphRequest.post.restore();
+      });
+
+      it('messenger', function () {
+        const conversation = Factory.create('conversation', {
+          integrationId: integration._id,
+          'facebookData.kind': FACEBOOK_DATA_KINDS.MESSENGER,
+        });
+
+        const text = 'to messenger';
+
+        // mock post messenger reply
+        const stub = sinon.stub(graphRequest, 'post', () => {});
+
+        // reply
+        facebookReply(conversation, text);
+
+        // check
+        assert.equal(stub.calledWith('me/messages', 'page_access_token'), true);
+      });
+
+      it('feed', function () {
+        const conversation = Factory.create('conversation', {
+          integrationId: integration._id,
+          'facebookData.kind': FACEBOOK_DATA_KINDS.FEED,
+          'facebookData.postId': 'postId',
+        });
+
+        const text = 'comment';
+        const messageId = '242424242';
+
+        // mock post messenger reply
+        const gpStub = sinon.stub(graphRequest, 'post', () => ({
+          id: 'commentId',
+        }));
+
+        // mock message update
+        const mongoStub = sinon.stub(Messages, 'update', () => {});
+
+        // reply
+        facebookReply(conversation, text, messageId);
+
+        // check graph request
+        assert.equal(gpStub.calledWith('postId/comments', 'page_access_token'), true);
+
+        // check mongo update
+        assert.equal(
+          mongoStub.calledWith(
+            { _id: messageId },
+            { $set: { facebookCommentId: 'commentId' } }
+          ),
+          true
+        );
+
+        // unwrap stub
+        Messages.update.restore();
+      });
+    });
+
+    describe('save webhook response', function () {
       const postId = '242422242424244';
 
-      let receiveWebhookResponse;
+      let saveWebhookResponse;
       let integration;
 
       after(function () {
@@ -56,7 +149,7 @@ if (Meteor.isServer) {
           };
         });
 
-        receiveWebhookResponse = new ReceiveWebhookResponse(
+        saveWebhookResponse = new SaveWebhookResponse(
           'access_token',
           integration,
           {}
@@ -70,7 +163,7 @@ if (Meteor.isServer) {
         Messages.remove({});
       });
 
-      it('receive messenger event', function () {
+      it('via messenger event', function () {
         // first time ========================
 
         assert.equal(Conversations.find().count(), 0); // 0 conversations
@@ -79,11 +172,8 @@ if (Meteor.isServer) {
 
         let messageText = 'from messenger';
 
-        const senderId = '2242424244';
-        const recipientId = '242422242424244';
-
         // customer says from messenger via messenger
-        receiveWebhookResponse.data = {
+        saveWebhookResponse.data = {
           object: 'page',
           entry: [
             {
@@ -101,7 +191,7 @@ if (Meteor.isServer) {
             },
           ],
         };
-        receiveWebhookResponse.start();
+        saveWebhookResponse.start();
 
         assert.equal(Conversations.find().count(), 1); // 1 conversation
         assert.equal(Customers.find().count(), 1); // 1 customer
@@ -137,7 +227,7 @@ if (Meteor.isServer) {
         // customer says hi via messenger again
         messageText = 'hi';
 
-        receiveWebhookResponse.data = {
+        saveWebhookResponse.data = {
           object: 'page',
           entry: [
             {
@@ -155,7 +245,7 @@ if (Meteor.isServer) {
             },
           ],
         };
-        receiveWebhookResponse.start();
+        saveWebhookResponse.start();
 
         // must not be created new conversation
         assert.equal(Conversations.find().count(), 1);
@@ -180,7 +270,7 @@ if (Meteor.isServer) {
         assert.equal(newMessage.content, messageText);
       });
 
-      it('receive feed event', function () {
+      it('via feed event', function () {
         // first time ========================
 
         assert.equal(Conversations.find().count(), 0); // 0 conversations
@@ -188,11 +278,10 @@ if (Meteor.isServer) {
         assert.equal(Messages.find().count(), 0); // 0 messages
 
         let messageText = 'wall post';
-        const senderId = '2242424244';
         const commentId = '2424242422242424244';
 
         // customer posted `wall post` on our wall
-        receiveWebhookResponse.data = {
+        saveWebhookResponse.data = {
           object: 'page',
           entry: [
             {
@@ -210,7 +299,7 @@ if (Meteor.isServer) {
             },
           ],
         };
-        receiveWebhookResponse.start();
+        saveWebhookResponse.start();
 
         assert.equal(Conversations.find().count(), 1); // 1 conversation
         assert.equal(Customers.find().count(), 1); // 1 customer
@@ -246,7 +335,7 @@ if (Meteor.isServer) {
         // customer posted hi on our wall again
         messageText = 'hi';
 
-        receiveWebhookResponse.data = {
+        saveWebhookResponse.data = {
           object: 'page',
           entry: [
             {
@@ -264,7 +353,7 @@ if (Meteor.isServer) {
             },
           ],
         };
-        receiveWebhookResponse.start();
+        saveWebhookResponse.start();
 
         // must not be created new conversation
         assert.equal(Conversations.find().count(), 1);
