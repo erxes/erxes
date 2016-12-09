@@ -11,7 +11,7 @@ function User({ user }) {
   const defaultAvatar = 'https://www.erxes.org/assets/images/userDefaultIcon.png';
 
   return (
-    <div className="avatar">
+    <div className="erxes-avatar">
       <img src={avatar || defaultAvatar} alt="avatar" />
     </div>
   );

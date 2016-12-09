@@ -17,13 +17,13 @@ function ConversationItem({ conversation, notificationCount, goToConversation })
       className={classNames('erxes-conversation-item', { unread: notificationCount > 0 })}
       onClick={() => { goToConversation(_id); }}
     >
-      <img className="erxes-avatar" src="https://www.erxes.org/assets/images/userDefaultIcon.png" alt="" />
+      <img className="erxes-list-avatar" src="https://www.erxes.org/assets/images/userDefaultIcon.png" alt="" />
       <div className="erxes-right-side">
         <div className="erxes-date">
           {moment(createdAt).fromNow()}
         </div>
         <div className="erxes-name">Support staff</div>
-        <div className="erxes-message">
+        <div className="erxes-last-message">
           {content}
         </div>
       </div>
