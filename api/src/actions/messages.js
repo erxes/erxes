@@ -11,7 +11,7 @@ export const readMessages = conversationId =>
 export const sendMessage = (message, attachments) =>
   (dispatch, getState) => {
     // current conversation
-    const currentConversationId = getState().messenger.activeConversation;
+    const currentConversationId = getState().activeConversation;
 
     // message object
     const doc = {
@@ -49,7 +49,7 @@ export const sendFile = file =>
 
           // send message with attachment
           // QUESTION: Do we need to make 2 calls to send a message with attachment?
-          this.sendMessage('This message has an attachment', [attachment])(dispatch, getState);
+          sendMessage('This message has an attachment', [attachment])(dispatch, getState);
         });
       },
     });
