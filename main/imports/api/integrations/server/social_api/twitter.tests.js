@@ -2,6 +2,8 @@
 /* eslint-disable func-names, prefer-arrow-callback */
 /* eslint-disable no-underscore-dangle */
 
+import Twit from 'twit';
+import sinon from 'sinon';
 import { Factory } from 'meteor/dburles:factory';
 import { assert } from 'meteor/practicalmeteor:chai';
 
@@ -11,9 +13,108 @@ import { Customers } from '/imports/api/customers/customers';
 import { Integrations } from '/imports/api/integrations/integrations';
 import { Messages } from '/imports/api/conversations/messages';
 
-import { getOrCreateCommonConversation, getOrCreateDirectMessageConversation } from './twitter';
+import { TwitMap, getOrCreateCommonConversation } from './twitter';
+import { tweetReply, getOrCreateDirectMessageConversation } from './twitter';
 
 describe('twitter integration', function () {
+  describe('reply', function () {
+    let integration;
+    let twit;
+    let stub;
+
+    beforeEach(function () {
+      // clear previous data
+      Conversations.remove({});
+      Integrations.remove({});
+
+      // create integration
+      integration = Factory.create('integration');
+
+      // Twit instance
+      twit = new Twit({
+        consumer_key: 'consumer_key',
+        consumer_secret: 'consumer_secret',
+        access_token: 'access_token',
+        access_token_secret: 'token_secret',
+      });
+
+      // save twit instance
+      TwitMap[integration._id] = twit;
+
+      // twit.post
+      stub = sinon.stub(twit, 'post', () => {});
+    });
+
+    afterEach(function () {
+      // unwrap the spy
+      twit.post.restore();
+    });
+
+    it('direct message', function () {
+      const text = 'reply';
+      const senderId = 242424242;
+
+      const conversation = Factory.create('conversation', {
+        integrationId: integration._id,
+        twitterData: {
+          isDirectMessage: true,
+          directMessage: {
+            senderId,
+            senderIdStr: senderId.toString(),
+            recipientId: 535335353,
+            recipientIdStr: '535335353',
+          },
+        },
+      });
+
+      // action
+      tweetReply(conversation, text);
+
+      // check twit post params
+      assert.equal(
+        stub.calledWith(
+          'direct_messages/new',
+          {
+            user_id: senderId.toString(),
+            text,
+          }
+        ),
+        true
+      );
+    });
+
+    it('tweet', function () {
+      const text = 'reply';
+      const tweetIdStr = '242424242';
+      const screenName = 'test';
+
+      const conversation = Factory.create('conversation', {
+        integrationId: integration._id,
+        twitterData: {
+          idStr: tweetIdStr,
+          screenName,
+        },
+      });
+
+      // action
+      tweetReply(conversation, text);
+
+      // check twit post params
+      assert.equal(
+        stub.calledWith(
+          'statuses/update',
+          {
+            status: `@${screenName} ${text}`,
+
+            // replying tweet id
+            in_reply_to_status_id: tweetIdStr,
+          }
+        ),
+        true
+      );
+    });
+  });
+
   describe('tweet', function () {
     let integration;
 

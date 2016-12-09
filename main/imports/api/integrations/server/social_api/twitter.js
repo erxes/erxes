@@ -36,6 +36,10 @@ const getOrCreateCustomer = (integrationId, user) => {
   });
 };
 
+
+/*
+ * create new message
+ */
 const createMessage = (conversation, content, user) => {
   if (conversation) {
     // create new message
@@ -47,6 +51,7 @@ const createMessage = (conversation, content, user) => {
     });
   }
 };
+
 
 /*
  * create new conversation by regular tweet
@@ -88,6 +93,7 @@ export const getOrCreateCommonConversation = (data, integration) => {
   // create new message
   createMessage(conversation, data.text, data.user);
 };
+
 
 /*
  * create new conversation by direct message
@@ -144,7 +150,7 @@ export const getOrCreateDirectMessageConversation = (data, integration) => {
 };
 
 // save twit instances by integration id
-const TwitMap = {};
+export const TwitMap = {};
 
 const trackIntegration = (integration) => {
   const integrationUserId = integration.twitterData.id;
@@ -201,7 +207,7 @@ Integrations.find({ kind: KIND_CHOICES.TWITTER }).forEach((integration) => {
 /*
  * post reply to twitter
  */
-const tweetReply = (conversation, text) => {
+export const tweetReply = (conversation, text) => {
   const twit = TwitMap[conversation.integrationId];
   const twitterData = conversation.twitterData;
 
