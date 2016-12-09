@@ -171,6 +171,13 @@ const trackIntegration = (integration) => {
 
   // listen for timeline
   stream.on('tweet', Meteor.bindEnvironment((data) => {
+    // When situations like integration is deleted but trackIntegration
+    // version of that integration is still running, new conversations being
+    // created using non existing integrationId
+    if (!Integrations.findOne({ _id: integration._id })) {
+      return null;
+    }
+
     // if user is replying to some tweet
     if (data.in_reply_to_status_id) {
       const conversation = Conversations.findOne({
@@ -195,6 +202,13 @@ const trackIntegration = (integration) => {
 
   // listen for direct messages
   stream.on('direct_message', Meteor.bindEnvironment((data) => {
+    // When situations like integration is deleted but trackIntegration
+    // version of that integration is still running, new conversations being
+    // created using non existing integrationId
+    if (!Integrations.findOne({ _id: integration._id })) {
+      return;
+    }
+
     getOrCreateDirectMessageConversation(data.direct_message, integration);
   }));
 };
