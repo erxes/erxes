@@ -26,7 +26,7 @@ function Conversation({ isNewConversation, goToConversationList, user }) {
         <div className="erxes-staff-profile">
           <img src={avatar} alt={user.details.fullName} />
           <div className="erxes-staff-name">{user.details.fullName}</div>
-          <div className="erxes-staff-company">from Gerege</div>
+          <div className="erxes-staff-company">Support staff</div>
         </div>
       );
     }
