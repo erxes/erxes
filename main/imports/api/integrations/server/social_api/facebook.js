@@ -14,26 +14,36 @@ import { FACEBOOK_DATA_KINDS } from '/imports/api/conversations/constants';
  * Common graph api request wrapper
  * catchs auth token or other type of exceptions
  */
-const graphRequest = (path, accessToken, method = 'get', ...otherParams) => {
-  // set access token
-  graph.setAccessToken(accessToken);
+export const graphRequest = {
+  base(method, path, accessToken, ...otherParams) {
+    // set access token
+    graph.setAccessToken(accessToken);
 
-  const wrappedGraph = Meteor.wrapAsync(graph[method], graph);
+    const wrappedGraph = Meteor.wrapAsync(graph[method], graph);
 
-  try {
-    return wrappedGraph(path, ...otherParams);
+    try {
+      return wrappedGraph(path, ...otherParams);
 
-  // catch session expired or some other error
-  } catch (e) {
-    throw new Error(e.message);
-  }
+    // catch session expired or some other error
+    } catch (e) {
+      throw new Error(e.message);
+    }
+  },
+
+  get(...args) {
+    return this.base('get', ...args);
+  },
+
+  post(...args) {
+    return this.base('post', ...args);
+  },
 };
 
 /*
  * get list of pages that authorized user owns
  */
 export const getPageList = (accessToken) => {
-  const response = graphRequest('/me/accounts?limit=100', accessToken);
+  const response = graphRequest.get('/me/accounts?limit=100', accessToken);
 
   const pages = [];
 
@@ -54,11 +64,8 @@ export const getPageList = (accessToken) => {
  */
 
 export class ReceiveWebhookResponse {
-  constructor(userAccessToken, ghRequest, integration, data) {
+  constructor(userAccessToken, integration, data) {
     this.userAccessToken = userAccessToken;
-
-    // doing this because to make mocking easier in test
-    this.graphRequest = ghRequest;
 
     this.integration = integration;
 
@@ -166,13 +173,13 @@ export class ReceiveWebhookResponse {
     let postId = value.post_id;
 
     // get page access token
-    let response = this.graphRequest(
+    let response = graphRequest.get(
       `${this.currentPageId}/?fields=access_token`,
       this.userAccessToken
     );
 
     // get post object
-    response = this.graphRequest(postId, response.access_token);
+    response = graphRequest.get(postId, response.access_token);
 
     postId = response.id;
 
@@ -238,13 +245,13 @@ export class ReceiveWebhookResponse {
     }
 
     // get page access token
-    let res = this.graphRequest(
+    let res = graphRequest.get(
       `${this.currentPageId}/?fields=access_token`,
       this.userAccessToken
     );
 
     // get user info
-    res = this.graphRequest(`/${fbUserId}`, res.access_token);
+    res = graphRequest.get(`/${fbUserId}`, res.access_token);
 
     // when feed response will contain name field
     // when messeger response will not contain name field
@@ -297,7 +304,6 @@ _.each(Meteor.settings.FACEBOOK_APPS, (app) => {
       // when new message or other kind of activity in page
       const receiveWebhookResponse = new ReceiveWebhookResponse(
         app.ACCESS_TOKEN,
-        graphRequest,
         integration,
         req.body
       );
@@ -317,14 +323,14 @@ export const facebookReply = (conversation, text, messageId) => {
   );
 
   // page access token
-  const response = graphRequest(
+  const response = graphRequest.get(
     `${conversation.facebookData.pageId}/?fields=access_token`,
     app.ACCESS_TOKEN
   );
 
   // messenger reply
   if (conversation.facebookData.kind === FACEBOOK_DATA_KINDS.MESSENGER) {
-    return graphRequest('me/messages', response.access_token, 'post',
+    return graphRequest.post('me/messages', response.access_token,
       {
         recipient: { id: conversation.facebookData.senderId },
         message: { text },
@@ -339,9 +345,9 @@ export const facebookReply = (conversation, text, messageId) => {
     const postId = conversation.facebookData.postId;
 
     // post reply
-    const commentResponse = graphRequest(
+    const commentResponse = graphRequest.post(
       `${postId}/comments`, response.access_token,
-      'post', { message: text }
+      { message: text }
     );
 
     // save commentId in message object

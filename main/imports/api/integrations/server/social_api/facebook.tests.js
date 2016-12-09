@@ -5,13 +5,14 @@
 import { Meteor } from 'meteor/meteor';
 import { Factory } from 'meteor/dburles:factory';
 import { assert } from 'meteor/practicalmeteor:chai';
+import sinon from 'sinon';
 
 import { Conversations } from '/imports/api/conversations/conversations';
 import { CONVERSATION_STATUSES, FACEBOOK_DATA_KINDS } from '/imports/api/conversations/constants';
 import { Customers } from '/imports/api/customers/customers';
 import { Messages } from '/imports/api/conversations/messages';
 
-import { ReceiveWebhookResponse } from './facebook';
+import { graphRequest, ReceiveWebhookResponse } from './facebook';
 
 if (Meteor.isServer) {
   describe('facebook integration', function () {
@@ -22,6 +23,10 @@ if (Meteor.isServer) {
       let receiveWebhookResponse;
       let integration;
 
+      after(function () {
+        graphRequest.get.restore(); // unwraps the spy
+      });
+
       before(function () {
         integration = Factory.create('integration', {
           facebookData: {
@@ -30,7 +35,7 @@ if (Meteor.isServer) {
           },
         });
 
-        const graphRequest = (path) => {
+        sinon.stub(graphRequest, 'get', (path) => {
           // mock get page access token
           if (path.includes('/?fields=access_token')) {
             return {
@@ -49,11 +54,10 @@ if (Meteor.isServer) {
           return {
             name: 'Dombo Gombo',
           };
-        };
+        });
 
         receiveWebhookResponse = new ReceiveWebhookResponse(
           'access_token',
-          graphRequest,
           integration,
           {}
         );
