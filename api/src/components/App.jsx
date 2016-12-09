@@ -3,13 +3,13 @@ import { Messenger, Launcher } from '../containers';
 
 
 const propTypes = {
-  isChatVisible: PropTypes.bool.isRequired,
+  isMessengerVisible: PropTypes.bool.isRequired,
 };
 
-function App({ isChatVisible }) {
+function App({ isMessengerVisible }) {
   return (
     <div className="erxes-widget">
-      {isChatVisible ? <Messenger /> : null}
+      {isMessengerVisible ? <Messenger /> : null}
       <Launcher />
     </div>
   );

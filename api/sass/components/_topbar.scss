@@ -2,8 +2,7 @@
   background: $main-color;
   overflow: hidden;
   width: 100%;
-  height: 56px;
-  line-height: 56px;
+  height: 70px;
   text-align: center;
   flex-shrink: 0;
   color: $white;
@@ -12,28 +11,27 @@
 
   .topbar-button {
     &.left {
-      left: 13px;
+      left: 15px;
     }
 
     &.right {
-      right: 13px;
+      right: 15px;
     }
   }
 
-  .erxes-title {
+  .erxes-middle {
     display: inline-block;
-    font-size: 16px;
   }
 }
 
 .topbar-button {
   position: absolute;
-  top: 13px;
+  top: 15px;
   text-align: center;
   cursor: pointer;
-  width: 30px;
-  height: 30px;
-  line-height: 30px;
+  width: 40px;
+  height: 40px;
+  line-height: 40px;
   border-radius: $border-radius;
   display: block;
   @include prefix((
@@ -50,5 +48,46 @@
 
   &:hover {
     background-color: rgba($black, .2);
+  }
+}
+
+.erxes-staff-profile {
+  margin-top: 15px;
+  text-align: left;
+  line-height: 1.3em;
+
+  img {
+    float: left;
+    width: 40px;
+    height: 40px;
+    border-radius: 20px;
+    overflow: hidden;
+  }
+
+  > div {
+    margin-left: 50px;
+  }
+
+  .erxes-staff-name {
+    font-size: 15px;
+    font-weight: 600;
+    padding-top: 3px;
+  }
+
+  .erxes-staff-company {
+    font-size: 14px;
+    font-weight: 300;
+  }
+}
+
+.erxes-topbar-title {
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.2em;
+  margin-top: 18px;
+
+  span {
+    font-size: 14px;
+    font-weight: 300;
   }
 }

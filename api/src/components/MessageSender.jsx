@@ -2,6 +2,7 @@ import React, { PropTypes, Component } from 'react';
 
 
 const propTypes = {
+  placeholder: PropTypes.string,
   isAttachingFile: PropTypes.bool.isRequired,
   sendMessage: PropTypes.func.isRequired,
   sendFile: PropTypes.func.isRequired,
@@ -55,7 +56,7 @@ class MessageSender extends Component {
         <form className="erxes-message-sender" onSubmit={this.onSubmit}>
           <textarea
             className="reply"
-            placeholder="Say hello ..."
+            placeholder={this.props.placeholder}
             value={this.state.message}
             onChange={this.handleMessageChange}
             onKeyDown={this.handleKeyPress}
