@@ -11,10 +11,17 @@ const propTypes = {
 };
 
 function ConversationList({ conversations, notifications, createConversation, goToConversation }) {
+  const title = (
+    <div className="erxes-topbar-title">
+      <div>Conversations</div>
+      <span>with Gerege</span>
+    </div>
+  );
+
   return (
     <div className="erxes-messenger">
       <TopBar
-        middle="Conversations"
+        middle={title}
         buttonClass="new"
         onButtonClick={createConversation}
       />

@@ -2,7 +2,7 @@ import React, { PropTypes } from 'react';
 
 
 const propTypes = {
-  middle: PropTypes.node.isRequired,
+  middle: PropTypes.node,
   buttonClass: PropTypes.string.isRequired,
   onButtonClick: PropTypes.func.isRequired,
 };
@@ -14,7 +14,7 @@ function TopBar({ middle, buttonClass, onButtonClick }) {
         className={`topbar-button left ${buttonClass}`}
         onClick={onButtonClick}
       />
-      <div className="erxes-title">
+      <div className="erxes-middle">
         {middle}
       </div>
     </div>
