@@ -15,7 +15,7 @@ const propTypes = {
 
 function Message({ error, message, attachments, userId, sentAt }) {
   const itemClasses = classNames({ 'from-customer': !userId });
-  const messageClasses = classNames('message', {
+  const messageClasses = classNames('erxes-message', {
     attachment: attachments && attachments.length > 0,
     'from-customer': !userId,
   });

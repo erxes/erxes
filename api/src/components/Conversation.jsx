@@ -15,7 +15,7 @@ function Conversation({ isNewConversation, goToConversationList, user }) {
       return (
         <div className="erxes-topbar-title">
           <div>New conversation</div>
-          <span>with Gerege</span>
+          <span>with Support staffs</span>
         </div>
       );
     }

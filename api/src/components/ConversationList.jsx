@@ -14,7 +14,7 @@ function ConversationList({ conversations, notifications, createConversation, go
   const title = (
     <div className="erxes-topbar-title">
       <div>Conversations</div>
-      <span>with Gerege</span>
+      <span>with Support staffs</span>
     </div>
   );
 
