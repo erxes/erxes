@@ -9,8 +9,7 @@ import { Customers } from '/imports/api/customers/customers';
 import { Channels } from '/imports/api/channels/channels';
 import { Integrations } from '../integrations';
 import { KIND_CHOICES } from '../constants';
-import { twitter } from './social_api/oauth';
-import { trackTwitterIntegration } from './social_api/twitter';
+import twitter from './social_api/twitter';
 
 import { getPageList } from './social_api/facebook';
 
@@ -55,7 +54,7 @@ export const addTwitter = new ValidatedMethod({
 
       // start tracking newly created twitter integration
       const integration = Integrations.findOne({ _id: id });
-      trackTwitterIntegration(integration);
+      twitter.trackIntegration(integration);
     });
   },
 });

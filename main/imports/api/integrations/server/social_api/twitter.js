@@ -1,5 +1,6 @@
 import { Meteor } from 'meteor/meteor';
 import Twit from 'twit';
+import soc from 'social-oauth-client';
 
 import { Integrations } from '/imports/api/integrations/integrations';
 import { KIND_CHOICES } from '/imports/api/integrations/constants';
@@ -144,7 +145,7 @@ const getOrCreateDirectMessageConversation = (data, integration) => {
 // save twit instances by integration id
 const TwitMap = {};
 
-export const trackTwitterIntegration = (integration) => {
+const trackIntegration = (integration) => {
   const integrationUserId = integration.twitterData.id;
 
   // Twit instance
@@ -193,11 +194,11 @@ export const trackTwitterIntegration = (integration) => {
 
 // track all twitter integrations for the first time
 Integrations.find({ kind: KIND_CHOICES.TWITTER }).forEach((integration) => {
-  trackTwitterIntegration(integration);
+  trackIntegration(integration);
 });
 
 // post reply to twitter
-export const tweetReply = (conversation, text) => {
+const tweetReply = (conversation, text) => {
   const twit = TwitMap[conversation.integrationId];
   const twitterData = conversation.twitterData;
 
@@ -222,4 +223,38 @@ export const tweetReply = (conversation, text) => {
       in_reply_to_status_id: twitterData.idStr,
     }
   );
+};
+
+// twitter oauth ===============
+const socTwitter = new soc.Twitter({
+  CONSUMER_KEY: Meteor.settings.TWITTER_CONSUMER_KEY,
+  CONSUMER_SECRET: Meteor.settings.TWITTER_CONSUMER_SECRET,
+  REDIRECT_URL: Meteor.settings.TWITTER_REDIRECT_URL,
+});
+
+Meteor.methods({
+  'integrations.getTwitterAuthorizeUrl': () => socTwitter.getAuthorizeUrl(),
+});
+
+export default {
+  trackIntegration,
+  tweetReply,
+  soc: socTwitter,
+
+  authenticate: (queryParams, callback) => {
+    // after user clicked authenticate button
+    socTwitter.callback({ query: queryParams }).then(
+      Meteor.bindEnvironment((data) => {
+        // return integration info
+        callback({
+          name: data.info.name,
+          twitterData: {
+            id: data.info.id,
+            token: data.tokens.auth.token,
+            tokenSecret: data.tokens.auth.token_secret,
+          },
+        });
+      })
+    );
+  },
 };
