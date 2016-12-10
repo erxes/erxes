@@ -30,7 +30,10 @@ function composer({ id, channelId }, onData) {
   // subscriptions are ready
   if (conversationHandle.ready() && messagesHandle.ready()) {
     const conversation = Conversations.findOne(id);
-    const messages = Messages.find({ conversationId: id }).fetch();
+    const messages = Messages.find(
+      { conversationId: id },
+      { sort: { createdAt: 1 } }
+    ).fetch();
     const integrationId = conversation.integrationId;
 
     // sub subscriptions
