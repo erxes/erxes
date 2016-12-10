@@ -9,7 +9,7 @@ import { List } from '../components';
 function composer({ queryParams }, onData) {
   const params = queryParams || {};
   const integrationsHandler = Meteor.subscribe('integrations.list', params);
-  const brandsHandler = Meteor.subscribe('brands.list');
+  const brandsHandler = Meteor.subscribe('brands.list', 0);
 
   const integrations = Integrations.find().fetch();
   const brands = Brands.find().fetch();
