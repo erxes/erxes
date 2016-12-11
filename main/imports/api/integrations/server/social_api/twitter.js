@@ -213,6 +213,9 @@ const trackIntegration = (integration) => {
 
   // listen for direct messages
   stream.on('direct_message', Meteor.bindEnvironment((data) => {
+    console.log('in direct message'); // eslint-disable-line no-console
+    console.log(data); // eslint-disable-line no-console
+
     // When situations like integration is deleted but trackIntegration
     // version of that integration is still running, new conversations being
     // created using non existing integrationId
