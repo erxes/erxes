@@ -229,6 +229,13 @@ Integrations.find({ kind: KIND_CHOICES.TWITTER }).forEach((integration) => {
   trackIntegration(integration);
 });
 
+
+const postCallback = (error) => {
+  if (error) {
+    throw Error(error.message);
+  }
+};
+
 /*
  * post reply to twitter
  */
@@ -243,7 +250,8 @@ export const tweetReply = (conversation, text) => {
       {
         user_id: twitterData.directMessage.senderIdStr,
         text,
-      }
+      },
+      Meteor.bindEnvironment(postCallback)
     );
   }
 
@@ -255,7 +263,8 @@ export const tweetReply = (conversation, text) => {
 
       // replying tweet id
       in_reply_to_status_id: twitterData.idStr,
-    }
+    },
+    Meteor.bindEnvironment(postCallback)
   );
 };
 
