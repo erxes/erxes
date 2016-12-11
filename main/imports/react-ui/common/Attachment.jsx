@@ -3,6 +3,7 @@ import React, { PropTypes } from 'react';
 
 const propTypes = {
   path: PropTypes.string.isRequired,
+  type: PropTypes.string,
 };
 
 class Attachment extends React.Component {
@@ -17,7 +18,15 @@ class Attachment extends React.Component {
     e.preventDefault();
   }
 
-  renderAtachment(path) {
+  renderAtachment({ path, type }) {
+    // when facebook attachments, it is not possible to determine file type
+    // from extension, so determine it by type property
+    if (type === 'image') {
+      return (
+        <img role="presentation" src={path} />
+      );
+    }
+
     const filename = path.split('/').pop();
     const fileExtension = path.split('.').pop();
 
@@ -80,7 +89,7 @@ class Attachment extends React.Component {
   render() {
     return (
       <a className="download-attachment" href={this.props.path} target="_blank">
-        {this.renderAtachment(this.props.path)}
+        {this.renderAtachment(this.props)}
         <i className="ion-android-download" />
       </a>
     );

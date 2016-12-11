@@ -1,5 +1,6 @@
 import { Meteor } from 'meteor/meteor';
 import Twit from 'twit';
+import soc from 'social-oauth-client';
 
 import { Integrations } from '/imports/api/integrations/integrations';
 import { KIND_CHOICES } from '/imports/api/integrations/constants';
@@ -8,25 +9,10 @@ import { Messages } from '/imports/api/conversations/messages';
 import { Customers } from '/imports/api/customers/customers';
 import { CONVERSATION_STATUSES } from '/imports/api/conversations/constants';
 
-const getUser = (twitterUser) => {
-  const user = Meteor.users.findOne({
-    'details.twitterUsername': twitterUser.screen_name,
-  });
-
-  if (user) {
-    return user._id;
-  }
-
-  return null;
-};
-
-// get or create customer using twitter data
+/*
+ * get or create customer using twitter data
+ */
 const getOrCreateCustomer = (integrationId, user) => {
-  // if twitter is one of the admins then customer has to be null
-  if (getUser(user)) {
-    return null;
-  }
-
   const customer = Customers.findOne({
     integrationId,
     'twitterData.id': user.id,
@@ -50,21 +36,44 @@ const getOrCreateCustomer = (integrationId, user) => {
   });
 };
 
+
+/*
+ * create new message
+ */
 const createMessage = (conversation, content, user) => {
   if (conversation) {
     // create new message
     Messages.insert({
       conversationId: conversation._id,
       customerId: getOrCreateCustomer(conversation.integrationId, user),
-      userId: getUser(user),
       content,
       internal: false,
     });
   }
 };
 
-// create new conversation by regular tweet
-const getOrCreateCommonConversation = (data, integration) => {
+/*
+ * new message received in old converation, update status adn readUsers
+ */
+const updateConversation = (_id) => {
+  Conversations.update(
+    { _id },
+    {
+      $set: {
+        // reset read state
+        readUserIds: [],
+
+        // if closed, reopen
+        status: CONVERSATION_STATUSES.OPEN,
+      },
+    }
+  );
+};
+
+/*
+ * create new conversation by regular tweet
+ */
+export const getOrCreateCommonConversation = (data, integration) => {
   let conversation;
 
   if (data.in_reply_to_status_id) {
@@ -72,6 +81,9 @@ const getOrCreateCommonConversation = (data, integration) => {
     conversation = Conversations.findOne({
       'twitterData.id': data.in_reply_to_status_id,
     });
+
+    // if closed, reopen it
+    updateConversation(conversation._id);
 
   // create new conversation
   } else {
@@ -96,8 +108,11 @@ const getOrCreateCommonConversation = (data, integration) => {
   createMessage(conversation, data.text, data.user);
 };
 
-// create new conversation by direct message
-const getOrCreateDirectMessageConversation = (data, integration) => {
+
+/*
+ * create new conversation by direct message
+ */
+export const getOrCreateDirectMessageConversation = (data, integration) => {
   let conversation = Conversations.findOne({
     'twitterData.isDirectMessage': true,
     $or: [
@@ -112,8 +127,12 @@ const getOrCreateDirectMessageConversation = (data, integration) => {
     ],
   });
 
+  if (conversation) {
+    // if closed, reopen it
+    updateConversation(conversation._id);
+
   // create new conversation
-  if (!conversation) {
+  } else {
     const conversationId = Conversations.insert({
       content: data.text,
       integrationId: integration._id,
@@ -142,9 +161,9 @@ const getOrCreateDirectMessageConversation = (data, integration) => {
 };
 
 // save twit instances by integration id
-const TwitMap = {};
+export const TwitMap = {};
 
-export const trackTwitterIntegration = (integration) => {
+const trackIntegration = (integration) => {
   const integrationUserId = integration.twitterData.id;
 
   // Twit instance
@@ -163,6 +182,13 @@ export const trackTwitterIntegration = (integration) => {
 
   // listen for timeline
   stream.on('tweet', Meteor.bindEnvironment((data) => {
+    // When situations like integration is deleted but trackIntegration
+    // version of that integration is still running, new conversations being
+    // created using non existing integrationId
+    if (!Integrations.findOne({ _id: integration._id })) {
+      return null;
+    }
+
     // if user is replying to some tweet
     if (data.in_reply_to_status_id) {
       const conversation = Conversations.findOne({
@@ -187,16 +213,25 @@ export const trackTwitterIntegration = (integration) => {
 
   // listen for direct messages
   stream.on('direct_message', Meteor.bindEnvironment((data) => {
+    // When situations like integration is deleted but trackIntegration
+    // version of that integration is still running, new conversations being
+    // created using non existing integrationId
+    if (!Integrations.findOne({ _id: integration._id })) {
+      return;
+    }
+
     getOrCreateDirectMessageConversation(data.direct_message, integration);
   }));
 };
 
 // track all twitter integrations for the first time
 Integrations.find({ kind: KIND_CHOICES.TWITTER }).forEach((integration) => {
-  trackTwitterIntegration(integration);
+  trackIntegration(integration);
 });
 
-// post reply to twitter
+/*
+ * post reply to twitter
+ */
 export const tweetReply = (conversation, text) => {
   const twit = TwitMap[conversation.integrationId];
   const twitterData = conversation.twitterData;
@@ -222,4 +257,38 @@ export const tweetReply = (conversation, text) => {
       in_reply_to_status_id: twitterData.idStr,
     }
   );
+};
+
+// twitter oauth ===============
+const socTwitter = new soc.Twitter({
+  CONSUMER_KEY: Meteor.settings.TWITTER_CONSUMER_KEY,
+  CONSUMER_SECRET: Meteor.settings.TWITTER_CONSUMER_SECRET,
+  REDIRECT_URL: Meteor.settings.TWITTER_REDIRECT_URL,
+});
+
+Meteor.methods({
+  'integrations.getTwitterAuthorizeUrl': () => socTwitter.getAuthorizeUrl(),
+});
+
+export default {
+  trackIntegration,
+  tweetReply,
+  soc: socTwitter,
+
+  authenticate: (queryParams, callback) => {
+    // after user clicked authenticate button
+    socTwitter.callback({ query: queryParams }).then(
+      Meteor.bindEnvironment((data) => {
+        // return integration info
+        callback({
+          name: data.info.name,
+          twitterData: {
+            id: data.info.id,
+            token: data.tokens.auth.token,
+            tokenSecret: data.tokens.auth.token_secret,
+          },
+        });
+      })
+    );
+  },
 };

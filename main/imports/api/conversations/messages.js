@@ -68,9 +68,9 @@ export const FormSchema = new SimpleSchema({
   attachments: {
     type: [new SimpleSchema({
       url: { type: String },
-      name: { type: String },
-      size: { type: Number },
-      type: { type: String },
+      type: { type: String, optional: true },
+      name: { type: String, optional: true },
+      size: { type: Number, optional: true },
     })],
 
     optional: true,
