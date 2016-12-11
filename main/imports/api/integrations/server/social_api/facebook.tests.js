@@ -20,6 +20,93 @@ describe('facebook integration', function () {
   const senderId = '2242424244';
   const recipientId = '242422242424244';
 
+  describe('getOrCreateConversation', function () {
+    beforeEach(function () {
+      Conversations.remove({});
+      Messages.remove({});
+    });
+
+    it('get or create conversation', function () {
+      const postId = '32242442442';
+      const customerId = Factory.create('customer')._id;
+      const integration = Factory.create('integration');
+
+      const saveWebhookResponse = new SaveWebhookResponse(
+        'access_token',
+        integration,
+        {}
+      );
+
+      // mock getOrCreateCustomer
+      sinon.stub(saveWebhookResponse, 'getOrCreateCustomer', () => customerId);
+
+      // check initial states
+      assert.equal(Conversations.find().count(), 0);
+      assert.equal(Messages.find().count(), 0);
+
+      const facebookData = {
+        kind: FACEBOOK_DATA_KINDS.FEED,
+        senderId,
+        postId,
+      };
+
+      const filter = {
+        'facebookData.kind': FACEBOOK_DATA_KINDS.FEED,
+        'facebookData.postId': postId,
+      };
+
+      // customer said hi ======================
+      saveWebhookResponse.getOrCreateConversation(
+        filter, senderId, facebookData, 'hi'
+      );
+
+      // must be created new conversation, new message
+      assert.equal(Conversations.find().count(), 1);
+      assert.equal(Messages.find().count(), 1);
+
+      let conversation = Conversations.findOne({});
+      assert.equal(conversation.status, CONVERSATION_STATUSES.NEW);
+
+      // customer commented on above converstaion ===========
+      saveWebhookResponse.getOrCreateConversation(
+        filter, senderId, facebookData, 'hey'
+      );
+
+      // must not be created new conversation, new message
+      assert.equal(Conversations.find().count(), 1);
+      assert.equal(Messages.find().count(), 2);
+
+      // close converstaion
+      Conversations.update({}, { $set: { status: CONVERSATION_STATUSES.CLOSED } });
+
+      // customer commented on closed converstaion ===========
+      saveWebhookResponse.getOrCreateConversation(
+        filter, senderId, facebookData, 'hi again'
+      );
+
+      // must not be created new conversation, new message
+      assert.equal(Conversations.find().count(), 1);
+
+      // must be opened
+      conversation = Conversations.findOne({ _id: conversation._id });
+      assert.equal(conversation.status, CONVERSATION_STATUSES.OPEN);
+      assert.equal(Messages.find().count(), 3);
+
+      // new post ===========
+      filter.postId = '34424242444242';
+      saveWebhookResponse.getOrCreateConversation(
+        filter, senderId, facebookData, 'new sender hi'
+      );
+
+      // must be created new conversation, new message
+      assert.equal(Conversations.find().count(), 2);
+      assert.equal(Messages.find().count(), 4);
+
+      // unwrap getOrCreateCustomer
+      saveWebhookResponse.getOrCreateCustomer.restore();
+    });
+  });
+
   describe('facebook reply', function () {
     let integration;
 
@@ -27,6 +114,7 @@ describe('facebook integration', function () {
       // clear previous data
       Conversations.remove({});
       Integrations.remove({});
+      Messages.remove();
 
       // mock settings
       Meteor.settings.FACEBOOK_APPS = [{

@@ -124,7 +124,6 @@ export class SaveWebhookResponse {
   getOrCreateConversation(findSelector, senderId, facebookData, content, attachments) {
     let conversation = Conversations.findOne({
       ...findSelector,
-      status: { $ne: CONVERSATION_STATUSES.CLOSED },
     });
 
     // create new conversation
@@ -143,11 +142,19 @@ export class SaveWebhookResponse {
       });
       conversation = Conversations.findOne(conversationId);
 
-    // reset read history
+    // update conversation
     } else {
       Conversations.update(
         { _id: conversation._id },
-        { $set: { readUserIds: [] } }
+        {
+          $set: {
+            // reset read history
+            readUserIds: [],
+
+            // if closed, reopen it
+            status: CONVERSATION_STATUSES.OPEN,
+          },
+        }
       );
     }
 
