@@ -46,6 +46,7 @@ describe('twitter integration', function () {
         status: CONVERSATION_STATUSES.NEW,
         twitterData: {
           id: tweetId,
+          isDirectMessage: false,
         },
       });
 
@@ -185,6 +186,7 @@ describe('twitter integration', function () {
       const conversation = Factory.create('conversation', {
         integrationId: integration._id,
         twitterData: {
+          isDirectMessage: false,
           idStr: tweetIdStr,
           screenName,
         },

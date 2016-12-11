@@ -36,6 +36,7 @@ describe('facebook integration', function () {
         integration,
         {}
       );
+      saveWebhookResponse.currentPageId = pageId;
 
       // mock getOrCreateCustomer
       sinon.stub(saveWebhookResponse, 'getOrCreateCustomer', () => customerId);
@@ -145,6 +146,8 @@ describe('facebook integration', function () {
       const conversation = Factory.create('conversation', {
         integrationId: integration._id,
         'facebookData.kind': FACEBOOK_DATA_KINDS.MESSENGER,
+        'facebookData.pageId': pageId,
+        'facebookData.senderId': senderId,
       });
 
       const text = 'to messenger';
@@ -163,6 +166,8 @@ describe('facebook integration', function () {
       const conversation = Factory.create('conversation', {
         integrationId: integration._id,
         'facebookData.kind': FACEBOOK_DATA_KINDS.FEED,
+        'facebookData.senderId': 'senderId',
+        'facebookData.pageId': 'pageId',
         'facebookData.postId': 'postId',
       });
 
