@@ -17,6 +17,100 @@ import { TwitMap, getOrCreateCommonConversation } from './twitter';
 import { tweetReply, getOrCreateDirectMessageConversation } from './twitter';
 
 describe('twitter integration', function () {
+  describe('get or create converstaion', function () {
+    let integration;
+
+    const twitterUser = {
+      id: 2442424242,
+      id_str: '2442424242',
+      name: 'username',
+      screen_name: 'screen name',
+      profile_image_url: 'profile_image_url',
+    };
+
+    beforeEach(function () {
+      // clear previous data
+      Integrations.remove({});
+      Conversations.remove({});
+      Messages.remove({});
+
+      integration = Factory.create('integration');
+    });
+
+    it('common', function () {
+      const tweetId = 2424244244;
+
+      // creat conversation
+      Factory.create('conversation', {
+        integrationId: integration._id,
+        status: CONVERSATION_STATUSES.NEW,
+        twitterData: {
+          id: tweetId,
+        },
+      });
+
+      // replying to old tweet
+      getOrCreateCommonConversation(
+        {
+          in_reply_to_status_id: tweetId,
+          user: twitterUser,
+        },
+        integration
+      );
+
+      // must not created new conversation
+      assert.equal(Conversations.find().count(), 1);
+
+      const conversation = Conversations.findOne({});
+
+      // status must updated as open
+      assert.equal(conversation.status, CONVERSATION_STATUSES.OPEN);
+    });
+
+    it('direct message', function () {
+      const senderId = 2424424242;
+      const recipientId = 92442424424242;
+
+      // creat conversation
+      Factory.create('conversation', {
+        integrationId: integration._id,
+        status: CONVERSATION_STATUSES.NEW,
+        twitterData: {
+          isDirectMessage: true,
+          directMessage: {
+            senderId,
+            senderIdStr: senderId.toString(),
+            recipientId,
+            recipientIdStr: recipientId.toString(),
+          },
+        },
+      });
+
+      // direct message
+      getOrCreateDirectMessageConversation(
+        {
+          id: 42242242,
+          id_str: '42242242',
+          screen_name: 'screen_name',
+          sender_id: senderId,
+          sender_id_str: senderId.toString(),
+          recipient_id: recipientId,
+          recipient_id_str: recipientId.toString(),
+          sender: twitterUser,
+        },
+        integration
+      );
+
+      // must not created new conversation
+      assert.equal(Conversations.find().count(), 1);
+
+      const conversation = Conversations.findOne({});
+
+      // status must updated as open
+      assert.equal(conversation.status, CONVERSATION_STATUSES.OPEN);
+    });
+  });
+
   describe('reply', function () {
     let integration;
     let twit;

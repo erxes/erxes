@@ -52,6 +52,23 @@ const createMessage = (conversation, content, user) => {
   }
 };
 
+/*
+ * new message received in old converation, update status adn readUsers
+ */
+const updateConversation = (_id) => {
+  Conversations.update(
+    { _id },
+    {
+      $set: {
+        // reset read state
+        readUserIds: [],
+
+        // if closed, reopen
+        status: CONVERSATION_STATUSES.OPEN,
+      },
+    }
+  );
+};
 
 /*
  * create new conversation by regular tweet
@@ -65,11 +82,8 @@ export const getOrCreateCommonConversation = (data, integration) => {
       'twitterData.id': data.in_reply_to_status_id,
     });
 
-    // reset read state
-    Conversations.update(
-      { _id: conversation._id },
-      { $set: { readUserIds: [] } }
-    );
+    // if closed, reopen it
+    updateConversation(conversation._id);
 
   // create new conversation
   } else {
@@ -114,11 +128,8 @@ export const getOrCreateDirectMessageConversation = (data, integration) => {
   });
 
   if (conversation) {
-    // reset read state
-    Conversations.update(
-      { _id: conversation._id },
-      { $set: { readUserIds: [] } }
-    );
+    // if closed, reopen it
+    updateConversation(conversation._id);
 
   // create new conversation
   } else {
