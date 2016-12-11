@@ -44,7 +44,7 @@ const updateUserCommonInfos = (userId, doc) => {
   });
 
   // check twitterUsername duplication
-  if (user) {
+  if (doc.twitterUsername && user) {
     throw new Meteor.Error(
       'users.updateInfo.wrongTwitterUsername',
       'Duplicated twitter username'
