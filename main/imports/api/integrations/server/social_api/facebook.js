@@ -316,7 +316,7 @@ _.each(Meteor.settings.FACEBOOK_APPS, (app) => {
     res.statusCode = 200; // eslint-disable-line no-param-reassign
 
     // receive per app webhook response
-    receiveWebhookResponse(app, res.body);
+    receiveWebhookResponse(app, req.body);
 
     res.end('success');
   });
