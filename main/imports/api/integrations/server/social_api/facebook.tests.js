@@ -171,6 +171,13 @@ describe('facebook integration', function () {
 
       let messageText = 'from messenger';
 
+      const attachments = [{
+        type: 'image',
+        payload: {
+          url: 'attachment_url',
+        },
+      }];
+
       // customer says from messenger via messenger
       saveWebhookResponse.data = {
         object: 'page',
@@ -181,9 +188,9 @@ describe('facebook integration', function () {
               {
                 sender: { id: senderId },
                 recipient: { id: recipientId },
-
                 message: {
                   text: messageText,
+                  attachments,
                 },
               },
             ],
@@ -220,6 +227,10 @@ describe('facebook integration', function () {
       assert.equal(message.customerId, customer._id);
       assert.equal(message.internal, false);
       assert.equal(message.content, messageText);
+      assert.deepEqual(
+        message.attachments,
+        [{ type: 'image', url: 'attachment_url' }]
+      );
 
       // second time ========================
 
@@ -277,6 +288,7 @@ describe('facebook integration', function () {
       assert.equal(Messages.find().count(), 0); // 0 messages
 
       let messageText = 'wall post';
+      const link = 'link_url';
       const commentId = '2424242422242424244';
 
       // customer posted `wall post` on our wall
@@ -292,6 +304,7 @@ describe('facebook integration', function () {
                   comment_id: commentId,
                   sender_id: senderId,
                   message: messageText,
+                  link,
                 },
               },
             ],
@@ -327,6 +340,7 @@ describe('facebook integration', function () {
       assert.equal(message.customerId, customer._id);
       assert.equal(message.internal, false);
       assert.equal(message.content, messageText);
+      assert.deepEqual(message.attachments, [{ url: link }]);
 
 
       // second time ========================
@@ -375,6 +389,7 @@ describe('facebook integration', function () {
       assert.equal(newMessage.customerId, customer._id);
       assert.equal(newMessage.internal, false);
       assert.equal(newMessage.content, messageText);
+      assert.equal(newMessage.attachments, null);
     });
   });
 });

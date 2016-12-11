@@ -121,7 +121,7 @@ export class SaveWebhookResponse {
   }
 
   // common get or create conversation helper using both in messenger and feed
-  getOrCreateConversation(findSelector, senderId, content, facebookData) {
+  getOrCreateConversation(findSelector, senderId, facebookData, content, attachments) {
     let conversation = Conversations.findOne({
       ...findSelector,
       status: { $ne: CONVERSATION_STATUSES.CLOSED },
@@ -152,7 +152,7 @@ export class SaveWebhookResponse {
     }
 
     // create new message
-    this.createMessage(conversation, content, senderId);
+    this.createMessage(conversation, senderId, content, attachments);
   }
 
   // get or create new conversation by feed info
@@ -166,6 +166,13 @@ export class SaveWebhookResponse {
 
     const senderId = value.sender_id;
     const messageText = value.message;
+
+    // generate attachments using link
+    let attachments;
+
+    if (value.link) {
+      attachments = [{ url: value.link }];
+    }
 
     // value.post_id is returning different value even though same post
     // with the previous one. So fetch post info via graph api and
@@ -189,13 +196,14 @@ export class SaveWebhookResponse {
         'facebookData.postId': postId,
       },
       senderId,
-      messageText,
       // facebookData
       {
         kind: FACEBOOK_DATA_KINDS.FEED,
         senderId,
         postId,
-      }
+      },
+      messageText,
+      attachments
     );
   }
 
@@ -204,6 +212,12 @@ export class SaveWebhookResponse {
     const senderId = event.sender.id;
     const recipientId = event.recipient.id;
     const messageText = event.message.text;
+
+    // collect attachment's url, type fields
+    const attachments = _.map(event.message.attachments || [], (attachment) => ({
+      type: attachment.type,
+      url: attachment.payload.url,
+    }));
 
     this.getOrCreateConversation(
       // try to find conversation by senderId, recipientId keys
@@ -221,13 +235,14 @@ export class SaveWebhookResponse {
         ],
       },
       senderId,
-      messageText,
       // facebookData
       {
         kind: FACEBOOK_DATA_KINDS.MESSENGER,
         senderId,
         recipientId,
-      }
+      },
+      messageText,
+      attachments
     );
   }
 
@@ -268,13 +283,14 @@ export class SaveWebhookResponse {
     });
   }
 
-  createMessage(conversation, content, userId) {
+  createMessage(conversation, userId, content, attachments) {
     if (conversation) {
       // create new message
       Messages.insert({
         conversationId: conversation._id,
         customerId: this.getOrCreateCustomer(userId),
         content,
+        attachments,
         internal: false,
       });
     }
