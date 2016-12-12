@@ -171,7 +171,11 @@ export class SaveWebhookResponse {
       return;
     }
 
-    const senderId = value.sender_id;
+    // sender_id is giving number values when feed and giving string value
+    // when messenger. customer.facebookData.senderId has type of string so
+    // convert it to string
+    const senderId = value.sender_id.toString();
+
     const messageText = value.message;
 
     // generate attachments using link

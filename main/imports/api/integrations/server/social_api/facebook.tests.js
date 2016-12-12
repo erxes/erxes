@@ -16,8 +16,8 @@ import { Messages } from '/imports/api/conversations/messages';
 import { graphRequest, facebookReply, SaveWebhookResponse } from './facebook';
 
 describe('facebook integration', function () {
+  let senderId = 2242424244;
   const pageId = '2252525525';
-  const senderId = '2242424244';
   const recipientId = '242422242424244';
 
   describe('getOrCreateConversation', function () {
@@ -262,6 +262,7 @@ describe('facebook integration', function () {
       assert.equal(Customers.find().count(), 0); // 0 customers
       assert.equal(Messages.find().count(), 0); // 0 messages
 
+      senderId = '2242424244';
       let messageText = 'from messenger';
 
       const attachments = [{
