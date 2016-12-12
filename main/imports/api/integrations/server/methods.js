@@ -5,6 +5,7 @@ import { _ } from 'meteor/underscore';
 
 import { ErxesMixin } from '/imports/api/utils';
 import { Conversations } from '/imports/api/conversations/conversations';
+import { Messages } from '/imports/api/conversations/messages';
 import { Customers } from '/imports/api/customers/customers';
 import { Channels } from '/imports/api/channels/channels';
 import { Integrations } from '../integrations';
@@ -138,6 +139,13 @@ export const remove = new ValidatedMethod({
         'Used in channel'
       );
     }
+
+    // conversations
+    const conversations = Conversations.find({ integrationId: id }).fetch();
+    const conversationIds = _.pluck(conversations, '_id');
+
+    // remove messages
+    Messages.remove({ conversationId: { $in: conversationIds } });
 
     // remove conversations
     Conversations.remove({ integrationId: id });
