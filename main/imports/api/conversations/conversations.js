@@ -138,7 +138,6 @@ const twitterSchema = new SimpleSchema({
 
   isDirectMessage: {
     type: Boolean,
-    defaultValue: false,
   },
 
   directMessage: {
@@ -152,12 +151,10 @@ const facebookSchema = new SimpleSchema({
   kind: {
     type: String,
     allowedValues: FACEBOOK_DATA_KINDS.ALL_LIST,
-    optional: true,
   },
 
   senderId: {
     type: String,
-    optional: true,
   },
 
   recipientId: {
@@ -165,9 +162,14 @@ const facebookSchema = new SimpleSchema({
     optional: true,
   },
 
-  pageId: {
+  // when wall post
+  postId: {
     type: String,
     optional: true,
+  },
+
+  pageId: {
+    type: String,
   },
 });
 

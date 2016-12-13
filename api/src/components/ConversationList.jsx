@@ -1,27 +1,43 @@
 import React, { PropTypes } from 'react';
-import { Conversation } from '../components';
+import TopBar from './TopBar.jsx';
+import ConversationItem from './ConversationItem.jsx';
 
 
 const propTypes = {
   conversations: PropTypes.array.isRequired,
-  notifs: PropTypes.object.isRequired,
+  notifications: PropTypes.object.isRequired,
+  createConversation: PropTypes.func.isRequired,
   goToConversation: PropTypes.func.isRequired,
 };
 
-function ConversationList({ conversations, notifs, goToConversation }) {
+function ConversationList({ conversations, notifications, createConversation, goToConversation }) {
+  const title = (
+    <div className="erxes-topbar-title">
+      <div>Conversations</div>
+      <span>with Support staffs</span>
+    </div>
+  );
+
   return (
-    <ul className="erxes-conversation-list">
-      {
-        conversations.map(conversation =>
-          <Conversation
-            key={conversation._id}
-            conversation={conversation}
-            notifCount={notifs[conversation._id]}
-            goToConversation={goToConversation}
-          />
-        )
-      }
-    </ul>
+    <div className="erxes-messenger">
+      <TopBar
+        middle={title}
+        buttonClass="new"
+        onButtonClick={createConversation}
+      />
+      <ul className="erxes-conversation-list">
+        {
+          conversations.map(conversation =>
+            <ConversationItem
+              key={conversation._id}
+              conversation={conversation}
+              notificationCount={notifications[conversation._id]}
+              goToConversation={goToConversation}
+            />
+          )
+        }
+      </ul>
+    </div>
   );
 }
 

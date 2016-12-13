@@ -2,14 +2,14 @@ import React, { PropTypes } from 'react';
 
 
 const propTypes = {
-  onLauncherClick: PropTypes.func.isRequired,
-  notifsCount: PropTypes.number.isRequired,
+  onClick: PropTypes.func.isRequired,
+  notificationCount: PropTypes.number.isRequired,
 };
 
-function Launcher({ onLauncherClick, notifsCount }) {
+function Launcher({ onClick, notificationCount }) {
   return (
-    <div className="erxes-launcher" onClick={onLauncherClick}>
-      {notifsCount ? <span>{notifsCount}</span> : null}
+    <div className="erxes-launcher" onClick={onClick}>
+      {notificationCount ? <span>{notificationCount}</span> : null}
     </div>
   );
 }

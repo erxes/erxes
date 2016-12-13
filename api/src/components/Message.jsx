@@ -15,28 +15,26 @@ const propTypes = {
 
 function Message({ error, message, attachments, userId, sentAt }) {
   const itemClasses = classNames({ 'from-customer': !userId });
-  const messageClasses = classNames('message', {
+  const messageClasses = classNames('erxes-message', {
     attachment: attachments && attachments.length > 0,
     'from-customer': !userId,
   });
+
+  const hasAttachment = attachments && attachments.length > 0;
 
   return (
     <li className={itemClasses}>
       {userId ? <User id={userId} /> : null}
 
       <div className={messageClasses}>
+        {hasAttachment ? <Attachment path={attachments[0].url} /> : null}
         {
-          message.split('\n').map((line, index) =>
+          !hasAttachment ? message.split('\n').map((line, index) =>
             <span key={index}>{line}<br /></span>
-          )
+          ) : null
         }
         {
           error ? <div>{error} <Retry message={message} /></div> : ''
-        }
-        {
-          attachments && attachments.length > 0 ?
-            <Attachment path={attachments[0].url} /> :
-            null
         }
       </div>
       <div className="date">

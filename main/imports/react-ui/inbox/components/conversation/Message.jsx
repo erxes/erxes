@@ -37,8 +37,10 @@ function Message({ message, staff, isSameUser }) {
         }
         {
           message.attachments && message.attachments.length > 0 ?
-            <Attachment path={message.attachments[0].url} /> :
-            null
+            <Attachment
+              path={message.attachments[0].url}
+              type={message.attachments[0].type}
+            /> : null
         }
       </div>
       <footer>

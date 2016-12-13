@@ -1,32 +1,49 @@
 import React, { PropTypes } from 'react';
-import moment from 'moment';
-import classNames from 'classnames';
+import TopBar from './TopBar.jsx';
+import { MessageSender, MessagesList } from '../containers';
 
 
 const propTypes = {
-  conversation: PropTypes.object.isRequired,
-  notifCount: PropTypes.number,
-  goToConversation: PropTypes.func.isRequired,
+  goToConversationList: PropTypes.func.isRequired,
+  user: PropTypes.object,
+  isNewConversation: PropTypes.bool,
 };
 
-function Conversation({ conversation, notifCount, goToConversation }) {
-  const { _id, content, createdAt } = conversation;
+function Conversation({ isNewConversation, goToConversationList, user }) {
+  function renderTitle() {
+    if (isNewConversation) {
+      return (
+        <div className="erxes-topbar-title">
+          <div>New conversation</div>
+          <span>with Support staffs</span>
+        </div>
+      );
+    }
+
+    if (user) {
+      const avatar = user.details.avatar || 'https://www.erxes.org/assets/images/userDefaultIcon.png';
+      return (
+        <div className="erxes-staff-profile">
+          <img src={avatar} alt={user.details.fullName} />
+          <div className="erxes-staff-name">{user.details.fullName}</div>
+          <div className="erxes-staff-company">Support staff</div>
+        </div>
+      );
+    }
+
+    return null;
+  }
 
   return (
-    <li
-      className="erxes-conversation"
-      onClick={() => { goToConversation(_id); }}
-    >
-      <div className={classNames('erxes-message', { unread: notifCount > 0 })}>
-        {content}
-      </div>
-      <div className="date">
-        {moment(createdAt).fromNow()}
-      </div>
-      <div className="new-message-count">
-        {notifCount > 0 ? `${notifCount} new messages` : ''}
-      </div>
-    </li>
+    <div className="erxes-messenger">
+      <TopBar
+        middle={renderTitle()}
+        buttonClass="back"
+        onButtonClick={goToConversationList}
+      />
+      <MessagesList />
+      <MessageSender placeholder={isNewConversation ? 'Send a message ...' : 'Write a reply ...'} />
+    </div>
   );
 }
 

@@ -2,63 +2,56 @@
   list-style: none;
   margin: 0;
   padding: 0;
-
-  li {
-    position: relative;
-  }
+  overflow-y: auto;
 }
 
-.erxes-conversation {
-  padding: 20px;
-  border-bottom: 1px solid $grey;
+.erxes-conversation-item {
   position: relative;
+  overflow: hidden;
   @include prefix((
     transition: background 0.3s ease-in-out
   ), webkit moz ms o);
 
   &:hover {
     cursor: pointer;
-    background: rgba($black, .03);
+    background: rgba($black, .01);
   }
 
-  .avatar {
-    width: 40px;
-    height: 40px;
-    border-radius: 20px;
-    overflow: hidden;
-    position: absolute;
-    left: 20px;
-    top: 20px;
-
-    img {
-      max-width: 100%;
-      width: 100%;
+  &.unread {
+    .erxes-message {
+      font-weight: 600;
+      color: $black;
     }
   }
 
-  .erxes-message {
+  .erxes-list-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 20px;
+    float: left;
+    margin: 25px 15px 25px 20px;
+  }
+
+  .erxes-right-side {
+    padding: 25px 20px 25px 0;
+    margin-left: 75px;
+    border-bottom: 1px solid $grey;
+  }
+
+  .erxes-name {
+    font-weight: 400;
+  }
+
+  .erxes-last-message {
     color: $text-color;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-
-    &.unread {
-      font-weight: bold;
-      color: darken($text-color, 10%);
-    }
   }
 
-  .new-message-count {
-    text-align: right;
-    font-size: 12px;
-    color: $main-color;
-    position: absolute;
-    top: 20px;
-    right: 20px;
-  }
-
-  .date {
-    color: $text-color;
+  .erxes-date {
+    float: right;
+    color: $text-color-light;
     font-size: 12px;
   }
 }

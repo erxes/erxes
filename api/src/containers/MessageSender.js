@@ -1,10 +1,10 @@
 import { connect } from 'react-redux';
-import { Chat } from '../actions';
+import { sendMessage, sendFile } from '../actions/messages';
 import { MessageSender } from '../components';
 
 
 const mapStateToProps = state => ({
-  isAttachingFile: state.chat.isAttachingFile,
+  isAttachingFile: state.isAttachingFile,
 });
 
 const mapDispatchToProps = dispatch => ({
@@ -13,10 +13,10 @@ const mapDispatchToProps = dispatch => ({
       return;
     }
 
-    dispatch(Chat.sendMessage(message));
+    dispatch(sendMessage(message));
   },
   sendFile(file) {
-    dispatch(Chat.sendFile(file));
+    dispatch(sendFile(file));
   },
 });
 

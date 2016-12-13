@@ -3,7 +3,7 @@ import { MessagesList } from '../components';
 
 
 const mapStateToProps = state => ({
-  messages: state.chat.messages,
+  messages: state.messages,
 });
 
 export default connect(mapStateToProps)(MessagesList);

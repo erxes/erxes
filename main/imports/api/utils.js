@@ -6,6 +6,8 @@ const RESTRICTED_METHODS = [
   'brands.add', 'brands.edit', 'brands.remove', 'brands.configEmail',
   'channels.add', 'channels.edit', 'channels.remove',
   'integrations.add', 'integrations.edit', 'integrations.remove',
+  'integrations.addInAppMessaging', 'integrations.addTwitter',
+  'integrations.addFacebook',
 ];
 
 // all validated methods mixin
