@@ -11,7 +11,7 @@ const brands = settingsRoute.group({
 
 brands.route('/', {
   name: 'settings/brands/list',
-  action() {
-    mount(MainLayout, { content: <BrandList /> });
+  action(params, queryParams) {
+    mount(MainLayout, { content: <BrandList queryParams={queryParams} /> });
   },
 });

@@ -27,7 +27,7 @@ function composer({ channelId, queryParams }, onData) {
 
     bulk.set(entries);
   };
-
+  
   const emptyBulk = () => {
     bulk.set([]);
   };
