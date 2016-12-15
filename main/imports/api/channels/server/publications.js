@@ -31,7 +31,7 @@ Meteor.publish('channels.list', function channelsList(params) {
     {
       fields: Channels.publicFields,
       sort: { createdAt: -1 },
-      limit: params.limit,
+      limit: params.limit || 0,
     }
   );
 });

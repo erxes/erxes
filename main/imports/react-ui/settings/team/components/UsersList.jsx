@@ -1,7 +1,7 @@
 import React, { PropTypes, Component } from 'react';
 import { Button, Table } from 'react-bootstrap';
 import { Wrapper } from '/imports/react-ui/layout/components';
-import { ModalTrigger } from '/imports/react-ui/common';
+import { ModalTrigger, Pagination } from '/imports/react-ui/common';
 import { InviteForm } from '../components';
 import Sidebar from '../../Sidebar.jsx';
 import Row from './Row.jsx';
@@ -13,6 +13,8 @@ const propTypes = {
   deactivate: PropTypes.func.isRequired,
   inviteMember: PropTypes.func.isRequired,
   updateInvitationInfos: PropTypes.func.isRequired,
+  loadMore: PropTypes.func.isRequired,
+  hasMore: PropTypes.bool.isRequired,
 };
 
 class UsersList extends Component {
@@ -37,6 +39,7 @@ class UsersList extends Component {
   }
 
   render() {
+    const { hasMore, loadMore } = this.props;
     const trigger = (
       <Button bsStyle="link">
         <i className="ion-plus-circled" /> Invite a new member
@@ -58,19 +61,21 @@ class UsersList extends Component {
     );
 
     const content = (
-      <Table>
-        <thead>
-          <tr>
-            <th>Full name</th>
-            <th>Email</th>
-            <th>Role</th>
-            <th className="text-right">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {this.renderRows()}
-        </tbody>
-      </Table>
+      <Pagination loadMore={loadMore} hasMore={hasMore}>
+        <Table>
+          <thead>
+            <tr>
+              <th>Full name</th>
+              <th>Email</th>
+              <th>Role</th>
+              <th className="text-right">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {this.renderRows()}
+          </tbody>
+        </Table>
+      </Pagination>
     );
 
     const breadcrumb = [
