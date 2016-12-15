@@ -18,7 +18,7 @@ Meteor.publish('channels.list', function channelsList(params) {
   });
 
 
-  Counts.publish(this, 'channels.list.count', Channels.find(), { noReady: true });
+  Counts.publish(this, 'notifications.list.count', Channels.find(), { noReady: true });
   const query = {};
 
   // filter by member ids

@@ -4,7 +4,7 @@ import { NotificationListRow } from '../../containers';
 import { Button } from 'react-bootstrap';
 import Alert from 'meteor/erxes-notifier';
 import { Wrapper } from '../';
-import { EmptyState } from '/imports/react-ui/common';
+import { EmptyState, Pagination } from '/imports/react-ui/common';
 import Sidebar from '/imports/react-ui/settings/Sidebar.jsx';
 
 
@@ -35,18 +35,21 @@ class NotificationList extends Component {
   render() {
     const notifications = this.props.notifications;
     const notifCount = notifications.length;
+    const { loadMore, hasMore } = this.props;
 
     let content = (
-      <ul className="conversations-list notif-list">
-        {
-          notifications.map((notif, key) =>
-            <NotificationListRow
-              notification={notif}
-              key={key}
-            />
-          )
-        }
-      </ul>
+      <Pagination loadMore={loadMore} hasMore={hasMore}>
+        <ul className="conversations-list notif-list">
+          {
+            notifications.map((notif, key) =>
+              <NotificationListRow
+                notification={notif}
+                key={key}
+              />
+            )
+          }
+        </ul>
+      </Pagination>
     );
 
     if (notifCount === 0) {
@@ -83,6 +86,8 @@ class NotificationList extends Component {
 NotificationList.propTypes = {
   notifications: PropTypes.array.isRequired,
   markAsRead: PropTypes.func.isRequired,
+  loadMore: PropTypes.func.isRequired,
+  hasMore: PropTypes.bool.isRequired,
 };
 
 export default NotificationList;

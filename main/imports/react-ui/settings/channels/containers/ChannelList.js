@@ -23,7 +23,7 @@ function composer({ queryParams }, onData) {
     FlowRouter.setQueryParams(qParams);
   };
 
-  if (channelsCount > pageNumber * 2) {
+  if (channelsCount > pageNumber * CHANNELS_PER_PAGE) {
     hasMore = true;
   }
 

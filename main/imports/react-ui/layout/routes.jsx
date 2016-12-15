@@ -29,8 +29,8 @@ FlowRouter.notFound = {
 };
 
 FlowRouter.route('/notifications', {
-  action() {
-    mount(MainLayout, { content: <NotificationList /> });
+  action(params, queryParams) {
+    mount(MainLayout, { content: <NotificationList queryParams={queryParams} /> });
   },
   name: 'notifications',
 });
