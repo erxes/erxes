@@ -5,12 +5,12 @@ import { _ } from 'meteor/underscore';
 
 import { ErxesMixin } from '/imports/api/utils';
 import { Conversations } from '/imports/api/conversations/conversations';
+import { Messages } from '/imports/api/conversations/messages';
 import { Customers } from '/imports/api/customers/customers';
 import { Channels } from '/imports/api/channels/channels';
 import { Integrations } from '../integrations';
 import { KIND_CHOICES } from '../constants';
-import { twitter } from './social_api/oauth';
-import { trackTwitterIntegration } from './social_api/twitter';
+import twitter from './social_api/twitter';
 
 import { getPageList } from './social_api/facebook';
 
@@ -55,7 +55,7 @@ export const addTwitter = new ValidatedMethod({
 
       // start tracking newly created twitter integration
       const integration = Integrations.findOne({ _id: id });
-      trackTwitterIntegration(integration);
+      twitter.trackIntegration(integration);
     });
   },
 });
@@ -139,6 +139,13 @@ export const remove = new ValidatedMethod({
         'Used in channel'
       );
     }
+
+    // conversations
+    const conversations = Conversations.find({ integrationId: id }).fetch();
+    const conversationIds = _.pluck(conversations, '_id');
+
+    // remove messages
+    Messages.remove({ conversationId: { $in: conversationIds } });
 
     // remove conversations
     Conversations.remove({ integrationId: id });

@@ -14,26 +14,36 @@ import { FACEBOOK_DATA_KINDS } from '/imports/api/conversations/constants';
  * Common graph api request wrapper
  * catchs auth token or other type of exceptions
  */
-const graphRequest = (path, accessToken, method = 'get', ...otherParams) => {
-  // set access token
-  graph.setAccessToken(accessToken);
+export const graphRequest = {
+  base(method, path, accessToken, ...otherParams) {
+    // set access token
+    graph.setAccessToken(accessToken);
 
-  const wrappedGraph = Meteor.wrapAsync(graph[method], graph);
+    const wrappedGraph = Meteor.wrapAsync(graph[method], graph);
 
-  try {
-    return wrappedGraph(path, ...otherParams);
+    try {
+      return wrappedGraph(path, ...otherParams);
 
-  // catch session expired or some other error
-  } catch (e) {
-    throw new Error(e.message);
-  }
+    // catch session expired or some other error
+    } catch (e) {
+      throw new Error(e.message);
+    }
+  },
+
+  get(...args) {
+    return this.base('get', ...args);
+  },
+
+  post(...args) {
+    return this.base('post', ...args);
+  },
 };
 
 /*
  * get list of pages that authorized user owns
  */
 export const getPageList = (accessToken) => {
-  const response = graphRequest('/me/accounts?limit=100', accessToken);
+  const response = graphRequest.get('/me/accounts?limit=100', accessToken);
 
   const pages = [];
 
@@ -49,16 +59,13 @@ export const getPageList = (accessToken) => {
 };
 
 /*
- * receive webhook response
+ * save webhook response
  * create conversation, customer, message using transmitted data
  */
 
-export class ReceiveWebhookResponse {
-  constructor(userAccessToken, ghRequest, integration, data) {
+export class SaveWebhookResponse {
+  constructor(userAccessToken, integration, data) {
     this.userAccessToken = userAccessToken;
-
-    // doing this because to make mocking easier in test
-    this.graphRequest = ghRequest;
 
     this.integration = integration;
 
@@ -84,19 +91,19 @@ export class ReceiveWebhookResponse {
 
         // receive new messenger message
         if (entry.messaging) {
-          this.receiveMessengerEvent(entry);
+          this.viaMessengerEvent(entry);
         }
 
         // receive new feed
         if (entry.changes) {
-          this.receiveFeedEvent(entry);
+          this.viaFeedEvent(entry);
         }
       });
     }
   }
 
   // via page messenger
-  receiveMessengerEvent(entry) {
+  viaMessengerEvent(entry) {
     _.each(entry.messaging, (messagingEvent) => {
       // someone sent us a message
       if (messagingEvent.message) {
@@ -106,7 +113,7 @@ export class ReceiveWebhookResponse {
   }
 
   // wall post
-  receiveFeedEvent(entry) {
+  viaFeedEvent(entry) {
     _.each(entry.changes, (event) => {
       // someone posted on our wall
       this.getOrCreateConversationByFeed(event.value);
@@ -114,10 +121,9 @@ export class ReceiveWebhookResponse {
   }
 
   // common get or create conversation helper using both in messenger and feed
-  getOrCreateConversation(findSelector, senderId, content, facebookData) {
+  getOrCreateConversation(findSelector, senderId, facebookData, content, attachments) {
     let conversation = Conversations.findOne({
       ...findSelector,
-      status: { $ne: CONVERSATION_STATUSES.CLOSED },
     });
 
     // create new conversation
@@ -136,16 +142,24 @@ export class ReceiveWebhookResponse {
       });
       conversation = Conversations.findOne(conversationId);
 
-    // reset read history
+    // update conversation
     } else {
       Conversations.update(
         { _id: conversation._id },
-        { $set: { readUserIds: [] } }
+        {
+          $set: {
+            // reset read history
+            readUserIds: [],
+
+            // if closed, reopen it
+            status: CONVERSATION_STATUSES.OPEN,
+          },
+        }
       );
     }
 
     // create new message
-    this.createMessage(conversation, content, senderId);
+    this.createMessage(conversation, senderId, content, attachments);
   }
 
   // get or create new conversation by feed info
@@ -157,8 +171,19 @@ export class ReceiveWebhookResponse {
       return;
     }
 
-    const senderId = value.sender_id;
+    // sender_id is giving number values when feed and giving string value
+    // when messenger. customer.facebookData.senderId has type of string so
+    // convert it to string
+    const senderId = value.sender_id.toString();
+
     const messageText = value.message;
+
+    // generate attachments using link
+    let attachments;
+
+    if (value.link) {
+      attachments = [{ url: value.link }];
+    }
 
     // value.post_id is returning different value even though same post
     // with the previous one. So fetch post info via graph api and
@@ -166,13 +191,13 @@ export class ReceiveWebhookResponse {
     let postId = value.post_id;
 
     // get page access token
-    let response = this.graphRequest(
+    let response = graphRequest.get(
       `${this.currentPageId}/?fields=access_token`,
       this.userAccessToken
     );
 
     // get post object
-    response = this.graphRequest(postId, response.access_token);
+    response = graphRequest.get(postId, response.access_token);
 
     postId = response.id;
 
@@ -182,13 +207,14 @@ export class ReceiveWebhookResponse {
         'facebookData.postId': postId,
       },
       senderId,
-      messageText,
       // facebookData
       {
         kind: FACEBOOK_DATA_KINDS.FEED,
         senderId,
         postId,
-      }
+      },
+      messageText,
+      attachments
     );
   }
 
@@ -197,6 +223,12 @@ export class ReceiveWebhookResponse {
     const senderId = event.sender.id;
     const recipientId = event.recipient.id;
     const messageText = event.message.text;
+
+    // collect attachment's url, type fields
+    const attachments = _.map(event.message.attachments || [], (attachment) => ({
+      type: attachment.type,
+      url: attachment.payload.url,
+    }));
 
     this.getOrCreateConversation(
       // try to find conversation by senderId, recipientId keys
@@ -214,13 +246,14 @@ export class ReceiveWebhookResponse {
         ],
       },
       senderId,
-      messageText,
       // facebookData
       {
         kind: FACEBOOK_DATA_KINDS.MESSENGER,
         senderId,
         recipientId,
-      }
+      },
+      messageText,
+      attachments
     );
   }
 
@@ -238,13 +271,13 @@ export class ReceiveWebhookResponse {
     }
 
     // get page access token
-    let res = this.graphRequest(
+    let res = graphRequest.get(
       `${this.currentPageId}/?fields=access_token`,
       this.userAccessToken
     );
 
     // get user info
-    res = this.graphRequest(`/${fbUserId}`, res.access_token);
+    res = graphRequest.get(`/${fbUserId}`, res.access_token);
 
     // when feed response will contain name field
     // when messeger response will not contain name field
@@ -261,18 +294,37 @@ export class ReceiveWebhookResponse {
     });
   }
 
-  createMessage(conversation, content, userId) {
+  createMessage(conversation, userId, content, attachments) {
     if (conversation) {
       // create new message
       Messages.insert({
         conversationId: conversation._id,
         customerId: this.getOrCreateCustomer(userId),
         content,
+        attachments,
         internal: false,
       });
     }
   }
 }
+
+/*
+ * receive per app webhook response
+ */
+export const receiveWebhookResponse = (app, data) => {
+  const selector = { kind: KIND_CHOICES.FACEBOOK, 'facebookData.appId': app.ID };
+
+  Integrations.find(selector).forEach((integration) => {
+    // when new message or other kind of activity in page
+    const saveWebhookResponse = new SaveWebhookResponse(
+      app.ACCESS_TOKEN,
+      integration,
+      data
+    );
+
+    saveWebhookResponse.start();
+  });
+};
 
 _.each(Meteor.settings.FACEBOOK_APPS, (app) => {
   Picker.route(`/service/facebook/${app.ID}/webhook-callback`, (params, req, res) => {
@@ -290,26 +342,16 @@ _.each(Meteor.settings.FACEBOOK_APPS, (app) => {
 
     res.statusCode = 200; // eslint-disable-line no-param-reassign
 
-    // track all facebook integrations for the first time
-    const selector = { kind: KIND_CHOICES.FACEBOOK, 'facebookData.appId': app.ID };
-
-    Integrations.find(selector).forEach((integration) => {
-      // when new message or other kind of activity in page
-      const receiveWebhookResponse = new ReceiveWebhookResponse(
-        app.ACCESS_TOKEN,
-        graphRequest,
-        integration,
-        req.body
-      );
-
-      receiveWebhookResponse.start();
-    });
+    // receive per app webhook response
+    receiveWebhookResponse(app, req.body);
 
     res.end('success');
   });
 });
 
-// post reply to page conversation
+/*
+ * post reply to page conversation or comment to wall post
+ */
 export const facebookReply = (conversation, text, messageId) => {
   const app = _.find(
     Meteor.settings.FACEBOOK_APPS,
@@ -317,14 +359,14 @@ export const facebookReply = (conversation, text, messageId) => {
   );
 
   // page access token
-  const response = graphRequest(
+  const response = graphRequest.get(
     `${conversation.facebookData.pageId}/?fields=access_token`,
     app.ACCESS_TOKEN
   );
 
   // messenger reply
   if (conversation.facebookData.kind === FACEBOOK_DATA_KINDS.MESSENGER) {
-    return graphRequest('me/messages', response.access_token, 'post',
+    return graphRequest.post('me/messages', response.access_token,
       {
         recipient: { id: conversation.facebookData.senderId },
         message: { text },
@@ -339,9 +381,9 @@ export const facebookReply = (conversation, text, messageId) => {
     const postId = conversation.facebookData.postId;
 
     // post reply
-    const commentResponse = graphRequest(
+    const commentResponse = graphRequest.post(
       `${postId}/comments`, response.access_token,
-      'post', { message: text }
+      { message: text }
     );
 
     // save commentId in message object
