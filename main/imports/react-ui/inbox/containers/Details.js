@@ -44,8 +44,9 @@ function composer({ id, channelId }, onData) {
     if (integrationHandle.ready() && tagsHandle.ready() && usersHandle.ready()) {
       const integration = Integrations.findOne({ _id: integrationId });
 
-      // brand subscription
+      // brand, channels subscription
       Meteor.subscribe('brands.getById', integration.brandId);
+      Meteor.subscribe('channels.list', { integrationIds: [integration._id] });
 
       // mark as read
       const readUserIds = conversation.readUserIds || [];
