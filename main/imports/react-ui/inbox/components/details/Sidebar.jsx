@@ -73,6 +73,7 @@ class Sidebar extends Component {
 
   render() {
     const { conversation, messagesCount } = this.props;
+    const integration = conversation.integration();
 
     return (
       <Wrapper.Sidebar>
@@ -88,9 +89,21 @@ class Sidebar extends Component {
               </span>
             </li>
             <li>
+              Channels
+              <div className="value">
+                {integration.channels().map(c => (<span key={c._id}>{c.name}</span>))}
+              </div>
+            </li>
+            <li>
               Brand
               <span className="counter">
-                {conversation.integration().brand().name}
+                {integration.brand().name}
+              </span>
+            </li>
+            <li>
+              Integration
+              <span className="counter">
+                {integration.kind}
               </span>
             </li>
             <li>

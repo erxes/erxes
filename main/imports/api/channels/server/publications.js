@@ -13,6 +13,7 @@ Meteor.publish('channels.list', function channelsList(params) {
   // check params
   check(params, {
     memberIds: Match.Optional([String]),
+    integrationIds: Match.Optional([String]),
   });
 
   const query = {};
@@ -20,6 +21,11 @@ Meteor.publish('channels.list', function channelsList(params) {
   // filter by member ids
   if (params.memberIds) {
     query.memberIds = { $in: params.memberIds };
+  }
+
+  // filter by intgration ids
+  if (params.integrationIds) {
+    query.integrationIds = { $in: params.integrationIds };
   }
 
   return Channels.find(

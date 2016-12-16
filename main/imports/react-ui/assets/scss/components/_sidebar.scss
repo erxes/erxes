@@ -82,7 +82,7 @@
 
     li {
       position: relative;
-
+      overflow: hidden;
       > a {
         display: block;
         padding: 5px 20px;
@@ -109,6 +109,18 @@
         margin-top: 2px;
         position: absolute;
         right: 20px;
+      }
+
+      .value {
+        font-size: 12px;
+        text-align: right;
+        color: $text-color-light;
+        float: right;
+
+        span {
+          display: block;
+          margin-top: 2px;
+        }
       }
     }
 

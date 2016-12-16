@@ -6,6 +6,7 @@ import { Random } from 'meteor/random';
 import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 import { Factory } from 'meteor/dburles:factory';
 import { Brands } from '/imports/api/brands/brands';
+import { Channels } from '/imports/api/channels/channels';
 import { KIND_CHOICES } from './constants';
 
 class IntegrationCollections extends Mongo.Collection {}
@@ -77,6 +78,10 @@ Integrations.attachSchema(Integrations.schema);
 Integrations.helpers({
   brand() {
     return Brands.findOne(this.brandId) || {};
+  },
+
+  channels() {
+    return Channels.find({ integrationIds: { $in: [this._id] } }).fetch();
   },
 });
 
