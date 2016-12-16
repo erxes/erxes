@@ -19,6 +19,34 @@
     margin-bottom: $box-margin;
     padding-bottom: 20px;
 
+
+    &.collapsible {
+      overflow: hidden;
+      position: relative;
+      @include transition(max-height .4s);
+
+      .toggle-collapse {
+        outline: 0;
+        width: 100%;
+        color: $grey-dark;
+        position: absolute;
+        bottom: 0;
+        text-align: center;
+        font-size: 12px;
+        background: -moz-linear-gradient(90deg, rgba(255,255,255,1) 0%, rgba(255,255,255,1) 51%, rgba(255,255,255,0) 100%); /* ff3.6+ */
+        background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, rgba(255,255,255,0)), color-stop(49%, rgba(255,255,255,1)), color-stop(100%, rgba(255,255,255,1))); /* safari4+,chrome */
+        background: -webkit-linear-gradient(90deg, rgba(255,255,255,1) 0%, rgba(255,255,255,1) 51%, rgba(255,255,255,0) 100%); /* safari5.1+,chrome10+ */
+        background: -o-linear-gradient(90deg, rgba(255,255,255,1) 0%, rgba(255,255,255,1) 51%, rgba(255,255,255,0) 100%); /* opera 11.10+ */
+        background: -ms-linear-gradient(90deg, rgba(255,255,255,1) 0%, rgba(255,255,255,1) 51%, rgba(255,255,255,0) 100%); /* ie10+ */
+        background: linear-gradient(0deg, rgba(255,255,255,1) 0%, rgba(255,255,255,1) 51%, rgba(255,255,255,0) 100%); /* w3c */
+        filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ffffff', endColorstr='#ffffff',GradientType=0 ); /* ie6-9 */
+
+        &:hover {
+          color: $gray-light;
+        }
+      }
+    }
+
     &:last-child {
       margin-bottom: 0;
     }

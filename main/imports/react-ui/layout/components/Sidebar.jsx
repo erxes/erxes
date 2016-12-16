@@ -1,5 +1,6 @@
-import React, { PropTypes } from 'react';
+import React, { PropTypes, Component } from 'react';
 import ScrollArea from 'react-scrollbar';
+import classNames from 'classnames';
 
 
 const propTypes = {
@@ -15,12 +16,58 @@ function Sidebar({ children, size = 'medium' }) {
   );
 }
 
-function Section({ children }) {
-  return <div className="section">{children}</div>;
+class Section extends Component {
+  constructor(props) {
+    super(props);
+
+    this.state = { collapse: false, maxHeight: 220 };
+
+    this.toggleCollapse = this.toggleCollapse.bind(this);
+    this.renderCollapseButton = this.renderCollapseButton.bind(this);
+  }
+
+  toggleCollapse() {
+    this.setState(
+      {
+        collapse: !this.state.collapse,
+        maxHeight: this.state.collapse ? 220 : this.node.clientHeight + 20,
+      }
+    );
+  }
+
+  renderCollapseButton() {
+    const icon = this.state.collapse ? 'ion-chevron-up' : 'ion-chevron-down';
+    return (
+      <a href="#" onClick={this.toggleCollapse} className="toggle-collapse">
+        <i className={icon}></i>
+      </a>
+    );
+  }
+
+  render() {
+    const { children, collapsible, length } = this.props;
+    const classes = classNames({
+      section: true,
+      collapsible,
+    });
+    const height = {
+      maxHeight: collapsible ? this.state.maxHeight : 'none',
+    };
+    return (
+      <div className={classes} style={height}>
+        <div ref={node => { this.node = node; }}>
+          {children}
+        </div>
+        {collapsible && length > 4 ? this.renderCollapseButton() : null}
+      </div>
+    );
+  }
 }
 
 Section.propTypes = {
   children: PropTypes.node,
+  collapsible: PropTypes.bool,
+  length: PropTypes.number,
 };
 
 Sidebar.propTypes = propTypes;
