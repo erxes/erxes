@@ -1,0 +1,14 @@
+{
+  "extends": [
+    "airbnb",
+  ],
+  "parserOptions":{
+    "ecmaFeatures": {
+      "experimentalObjectRestSpread": true
+    }
+  },
+  "rules": {
+    "no-underscore-dangle": ["error", { "allow": ["_id"] }],
+    "new-cap": "off"
+  }
+}
