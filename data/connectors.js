@@ -7,10 +7,18 @@ const ConversationSchema = Mongoose.Schema({
   content: String,
 });
 
+const AttachmentSchema = Mongoose.Schema({
+  url: String,
+  name: String,
+  size: Number,
+  type: String,
+});
+
 const MessageSchema = Mongoose.Schema({
   _id: String,
   conversationId: String,
   content: String,
+  attachments: [AttachmentSchema],
   createdAt: Date,
 });
 

@@ -14,12 +14,18 @@ const withData = graphql(
         _id
         content
         createdAt
+        attachments{
+          url
+          name
+          size
+          type
+        }
       }
     }
   `,
   {
     options: (ownProps) => ({
-      pollInterval: 3000,
+      pollInterval: 1000,
       variables: { conversationId: ownProps.conversationId },
     }),
   }

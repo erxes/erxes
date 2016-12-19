@@ -8,6 +8,7 @@ import { ApolloProvider } from 'react-apollo';
 import thunkMiddleware from 'redux-thunk';
 import erxesReducers from './reducers';
 import { App } from './containers';
+import { connect } from './erxes.js';
 import './sass/style.scss';
 
 const client = new ApolloClient({});
@@ -22,6 +23,11 @@ const store = createStore(
 		window.devToolsExtension ? window.devToolsExtension() : f => f
 	)
 );
+
+connect({
+  brand_id: 'YDEdKj',
+  email: 'publisher@erxes.org',
+});
 
 ReactDOM.render(
 	<ApolloProvider store={store} client={client}>

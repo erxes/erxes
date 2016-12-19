@@ -1,6 +1,13 @@
 const typeDefinitions = `
   scalar Date
 
+  type Attachment {
+    url: String
+    name: String
+    type: String
+    size: Int
+  }
+
   type Conversation {
     _id: String!
     content: String
@@ -11,6 +18,7 @@ const typeDefinitions = `
     conversationId: String!
     content: String
     createdAt: Date
+    attachments: [Attachment]
   }
 
   # the schema allows the following two queries:

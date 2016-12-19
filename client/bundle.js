@@ -72,9 +72,11 @@
 
 	var _reducers2 = _interopRequireDefault(_reducers);
 
-	var _containers = __webpack_require__(430);
+	var _containers = __webpack_require__(429);
 
-	__webpack_require__(582);
+	var _erxes = __webpack_require__(575);
+
+	__webpack_require__(599);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -86,6 +88,11 @@
 	window.devToolsExtension ? window.devToolsExtension() : function (f) {
 		return f;
 	}));
+
+	(0, _erxes.connect)({
+		brand_id: 'YDEdKj',
+		email: 'publisher@erxes.org'
+	});
 
 	_reactDom2.default.render(_react2.default.createElement(
 		_reactApollo.ApolloProvider,
@@ -34953,7 +34960,7 @@
 
 	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
-	var _constants = __webpack_require__(429);
+	var _constants = __webpack_require__(428);
 
 	function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
@@ -35051,8 +35058,7 @@
 	exports.default = messenger;
 
 /***/ },
-/* 428 */,
-/* 429 */
+/* 428 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -35076,7 +35082,7 @@
 	var NOTIFICATION_RECEIVED = exports.NOTIFICATION_RECEIVED = 'NOTIFICATION_RECEIVED';
 
 /***/ },
-/* 430 */
+/* 429 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -35086,35 +35092,35 @@
 	});
 	exports.User = exports.MessagesList = exports.MessageSender = exports.Launcher = exports.Conversation = exports.ConversationList = exports.Messenger = exports.App = undefined;
 
-	var _App = __webpack_require__(431);
+	var _App = __webpack_require__(430);
 
 	var _App2 = _interopRequireDefault(_App);
 
-	var _Messenger = __webpack_require__(571);
+	var _Messenger = __webpack_require__(570);
 
 	var _Messenger2 = _interopRequireDefault(_Messenger);
 
-	var _ConversationList = __webpack_require__(572);
+	var _ConversationList = __webpack_require__(571);
 
 	var _ConversationList2 = _interopRequireDefault(_ConversationList);
 
-	var _Conversation = __webpack_require__(577);
+	var _Conversation = __webpack_require__(594);
 
 	var _Conversation2 = _interopRequireDefault(_Conversation);
 
-	var _Launcher = __webpack_require__(578);
+	var _Launcher = __webpack_require__(595);
 
 	var _Launcher2 = _interopRequireDefault(_Launcher);
 
-	var _MessageSender = __webpack_require__(579);
+	var _MessageSender = __webpack_require__(596);
 
 	var _MessageSender2 = _interopRequireDefault(_MessageSender);
 
-	var _MessagesList = __webpack_require__(580);
+	var _MessagesList = __webpack_require__(597);
 
 	var _MessagesList2 = _interopRequireDefault(_MessagesList);
 
-	var _User = __webpack_require__(581);
+	var _User = __webpack_require__(598);
 
 	var _User2 = _interopRequireDefault(_User);
 
@@ -35130,7 +35136,7 @@
 	exports.User = _User2.default;
 
 /***/ },
-/* 431 */
+/* 430 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -35139,9 +35145,9 @@
 	  value: true
 	});
 
-	var _reactRedux = __webpack_require__(432);
+	var _reactRedux = __webpack_require__(431);
 
-	var _components = __webpack_require__(447);
+	var _components = __webpack_require__(446);
 
 	var mapStateToProps = function mapStateToProps(state) {
 	  return {
@@ -35152,7 +35158,7 @@
 	exports.default = (0, _reactRedux.connect)(mapStateToProps)(_components.App);
 
 /***/ },
-/* 432 */
+/* 431 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -35160,15 +35166,15 @@
 	exports.__esModule = true;
 	exports.connect = exports.connectAdvanced = exports.Provider = undefined;
 
-	var _Provider = __webpack_require__(433);
+	var _Provider = __webpack_require__(432);
 
 	var _Provider2 = _interopRequireDefault(_Provider);
 
-	var _connectAdvanced = __webpack_require__(436);
+	var _connectAdvanced = __webpack_require__(435);
 
 	var _connectAdvanced2 = _interopRequireDefault(_connectAdvanced);
 
-	var _connect = __webpack_require__(438);
+	var _connect = __webpack_require__(437);
 
 	var _connect2 = _interopRequireDefault(_connect);
 
@@ -35179,7 +35185,7 @@
 	exports.connect = _connect2.default;
 
 /***/ },
-/* 433 */
+/* 432 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {'use strict';
@@ -35189,11 +35195,11 @@
 
 	var _react = __webpack_require__(1);
 
-	var _storeShape = __webpack_require__(434);
+	var _storeShape = __webpack_require__(433);
 
 	var _storeShape2 = _interopRequireDefault(_storeShape);
 
-	var _warning = __webpack_require__(435);
+	var _warning = __webpack_require__(434);
 
 	var _warning2 = _interopRequireDefault(_warning);
 
@@ -35264,7 +35270,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3)))
 
 /***/ },
-/* 434 */
+/* 433 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -35280,7 +35286,7 @@
 	});
 
 /***/ },
-/* 435 */
+/* 434 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -35310,7 +35316,7 @@
 	}
 
 /***/ },
-/* 436 */
+/* 435 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {'use strict';
@@ -35331,11 +35337,11 @@
 
 	var _react = __webpack_require__(1);
 
-	var _Subscription = __webpack_require__(437);
+	var _Subscription = __webpack_require__(436);
 
 	var _Subscription2 = _interopRequireDefault(_Subscription);
 
-	var _storeShape = __webpack_require__(434);
+	var _storeShape = __webpack_require__(433);
 
 	var _storeShape2 = _interopRequireDefault(_storeShape);
 
@@ -35592,7 +35598,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3)))
 
 /***/ },
-/* 437 */
+/* 436 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -35690,7 +35696,7 @@
 	exports.default = Subscription;
 
 /***/ },
-/* 438 */
+/* 437 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -35701,27 +35707,27 @@
 
 	exports.createConnect = createConnect;
 
-	var _connectAdvanced = __webpack_require__(436);
+	var _connectAdvanced = __webpack_require__(435);
 
 	var _connectAdvanced2 = _interopRequireDefault(_connectAdvanced);
 
-	var _shallowEqual = __webpack_require__(439);
+	var _shallowEqual = __webpack_require__(438);
 
 	var _shallowEqual2 = _interopRequireDefault(_shallowEqual);
 
-	var _mapDispatchToProps = __webpack_require__(440);
+	var _mapDispatchToProps = __webpack_require__(439);
 
 	var _mapDispatchToProps2 = _interopRequireDefault(_mapDispatchToProps);
 
-	var _mapStateToProps = __webpack_require__(443);
+	var _mapStateToProps = __webpack_require__(442);
 
 	var _mapStateToProps2 = _interopRequireDefault(_mapStateToProps);
 
-	var _mergeProps = __webpack_require__(444);
+	var _mergeProps = __webpack_require__(443);
 
 	var _mergeProps2 = _interopRequireDefault(_mergeProps);
 
-	var _selectorFactory = __webpack_require__(445);
+	var _selectorFactory = __webpack_require__(444);
 
 	var _selectorFactory2 = _interopRequireDefault(_selectorFactory);
 
@@ -35823,7 +35829,7 @@
 	exports.default = createConnect();
 
 /***/ },
-/* 439 */
+/* 438 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -35851,7 +35857,7 @@
 	}
 
 /***/ },
-/* 440 */
+/* 439 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -35863,7 +35869,7 @@
 
 	var _redux = __webpack_require__(178);
 
-	var _wrapMapToProps = __webpack_require__(441);
+	var _wrapMapToProps = __webpack_require__(440);
 
 	function whenMapDispatchToPropsIsFunction(mapDispatchToProps) {
 	  return typeof mapDispatchToProps === 'function' ? (0, _wrapMapToProps.wrapMapToPropsFunc)(mapDispatchToProps, 'mapDispatchToProps') : undefined;
@@ -35884,7 +35890,7 @@
 	exports.default = [whenMapDispatchToPropsIsFunction, whenMapDispatchToPropsIsMissing, whenMapDispatchToPropsIsObject];
 
 /***/ },
-/* 441 */
+/* 440 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {'use strict';
@@ -35894,7 +35900,7 @@
 	exports.getDependsOnOwnProps = getDependsOnOwnProps;
 	exports.wrapMapToPropsFunc = wrapMapToPropsFunc;
 
-	var _verifyPlainObject = __webpack_require__(442);
+	var _verifyPlainObject = __webpack_require__(441);
 
 	var _verifyPlainObject2 = _interopRequireDefault(_verifyPlainObject);
 
@@ -35966,7 +35972,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3)))
 
 /***/ },
-/* 442 */
+/* 441 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -35978,7 +35984,7 @@
 
 	var _isPlainObject2 = _interopRequireDefault(_isPlainObject);
 
-	var _warning = __webpack_require__(435);
+	var _warning = __webpack_require__(434);
 
 	var _warning2 = _interopRequireDefault(_warning);
 
@@ -35991,7 +35997,7 @@
 	}
 
 /***/ },
-/* 443 */
+/* 442 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -36000,7 +36006,7 @@
 	exports.whenMapStateToPropsIsFunction = whenMapStateToPropsIsFunction;
 	exports.whenMapStateToPropsIsMissing = whenMapStateToPropsIsMissing;
 
-	var _wrapMapToProps = __webpack_require__(441);
+	var _wrapMapToProps = __webpack_require__(440);
 
 	function whenMapStateToPropsIsFunction(mapStateToProps) {
 	  return typeof mapStateToProps === 'function' ? (0, _wrapMapToProps.wrapMapToPropsFunc)(mapStateToProps, 'mapStateToProps') : undefined;
@@ -36015,7 +36021,7 @@
 	exports.default = [whenMapStateToPropsIsFunction, whenMapStateToPropsIsMissing];
 
 /***/ },
-/* 444 */
+/* 443 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {'use strict';
@@ -36029,7 +36035,7 @@
 	exports.whenMergePropsIsFunction = whenMergePropsIsFunction;
 	exports.whenMergePropsIsOmitted = whenMergePropsIsOmitted;
 
-	var _verifyPlainObject = __webpack_require__(442);
+	var _verifyPlainObject = __webpack_require__(441);
 
 	var _verifyPlainObject2 = _interopRequireDefault(_verifyPlainObject);
 
@@ -36079,7 +36085,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3)))
 
 /***/ },
-/* 445 */
+/* 444 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {'use strict';
@@ -36089,7 +36095,7 @@
 	exports.pureFinalPropsSelectorFactory = pureFinalPropsSelectorFactory;
 	exports.default = finalPropsSelectorFactory;
 
-	var _verifySubselectors = __webpack_require__(446);
+	var _verifySubselectors = __webpack_require__(445);
 
 	var _verifySubselectors2 = _interopRequireDefault(_verifySubselectors);
 
@@ -36198,7 +36204,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3)))
 
 /***/ },
-/* 446 */
+/* 445 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -36206,7 +36212,7 @@
 	exports.__esModule = true;
 	exports.default = verifySubselectors;
 
-	var _warning = __webpack_require__(435);
+	var _warning = __webpack_require__(434);
 
 	var _warning2 = _interopRequireDefault(_warning);
 
@@ -36229,7 +36235,7 @@
 	}
 
 /***/ },
-/* 447 */
+/* 446 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -36239,43 +36245,43 @@
 	});
 	exports.User = exports.MessagesList = exports.MessageSender = exports.Message = exports.Launcher = exports.Conversation = exports.ConversationList = exports.Messenger = exports.Attachment = exports.App = undefined;
 
-	var _App = __webpack_require__(448);
+	var _App = __webpack_require__(447);
 
 	var _App2 = _interopRequireDefault(_App);
 
-	var _Attachment = __webpack_require__(449);
+	var _Attachment = __webpack_require__(448);
 
 	var _Attachment2 = _interopRequireDefault(_Attachment);
 
-	var _Messenger = __webpack_require__(450);
+	var _Messenger = __webpack_require__(449);
 
 	var _Messenger2 = _interopRequireDefault(_Messenger);
 
-	var _ConversationList = __webpack_require__(451);
+	var _ConversationList = __webpack_require__(450);
 
 	var _ConversationList2 = _interopRequireDefault(_ConversationList);
 
-	var _Conversation = __webpack_require__(565);
+	var _Conversation = __webpack_require__(564);
 
 	var _Conversation2 = _interopRequireDefault(_Conversation);
 
-	var _Launcher = __webpack_require__(566);
+	var _Launcher = __webpack_require__(565);
 
 	var _Launcher2 = _interopRequireDefault(_Launcher);
 
-	var _Message = __webpack_require__(567);
+	var _Message = __webpack_require__(566);
 
 	var _Message2 = _interopRequireDefault(_Message);
 
-	var _MessageSender = __webpack_require__(568);
+	var _MessageSender = __webpack_require__(567);
 
 	var _MessageSender2 = _interopRequireDefault(_MessageSender);
 
-	var _MessagesList = __webpack_require__(569);
+	var _MessagesList = __webpack_require__(568);
 
 	var _MessagesList2 = _interopRequireDefault(_MessagesList);
 
-	var _User = __webpack_require__(570);
+	var _User = __webpack_require__(569);
 
 	var _User2 = _interopRequireDefault(_User);
 
@@ -36293,7 +36299,7 @@
 	exports.User = _User2.default;
 
 /***/ },
-/* 448 */
+/* 447 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -36306,7 +36312,7 @@
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _containers = __webpack_require__(430);
+	var _containers = __webpack_require__(429);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -36330,7 +36336,7 @@
 	exports.default = App;
 
 /***/ },
-/* 449 */
+/* 448 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -36391,7 +36397,7 @@
 	exports.default = Attachment;
 
 /***/ },
-/* 450 */
+/* 449 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -36404,7 +36410,7 @@
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _containers = __webpack_require__(430);
+	var _containers = __webpack_require__(429);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -36429,7 +36435,7 @@
 	exports.default = Messenger;
 
 /***/ },
-/* 451 */
+/* 450 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -36442,11 +36448,11 @@
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _TopBar = __webpack_require__(452);
+	var _TopBar = __webpack_require__(451);
 
 	var _TopBar2 = _interopRequireDefault(_TopBar);
 
-	var _ConversationItem = __webpack_require__(453);
+	var _ConversationItem = __webpack_require__(452);
 
 	var _ConversationItem2 = _interopRequireDefault(_ConversationItem);
 
@@ -36512,7 +36518,7 @@
 	exports.default = ConversationList;
 
 /***/ },
-/* 452 */
+/* 451 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -36558,7 +36564,7 @@
 	exports.default = TopBar;
 
 /***/ },
-/* 453 */
+/* 452 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -36571,11 +36577,11 @@
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _moment = __webpack_require__(454);
+	var _moment = __webpack_require__(453);
 
 	var _moment2 = _interopRequireDefault(_moment);
 
-	var _classnames = __webpack_require__(564);
+	var _classnames = __webpack_require__(563);
 
 	var _classnames2 = _interopRequireDefault(_classnames);
 
@@ -36632,7 +36638,7 @@
 	exports.default = ConversationItem;
 
 /***/ },
-/* 454 */
+/* 453 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(module) {//! moment.js
@@ -38449,7 +38455,7 @@
 	            module && module.exports) {
 	        try {
 	            oldLocale = globalLocale._abbr;
-	            __webpack_require__(455)("./" + name);
+	            __webpack_require__(454)("./" + name);
 	            // because defineLocale currently also sets the global locale, we
 	            // want to undo that for lazy loaded locales
 	            getSetGlobalLocale(oldLocale);
@@ -40940,226 +40946,226 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(192)(module)))
 
 /***/ },
-/* 455 */
+/* 454 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var map = {
-		"./af": 456,
-		"./af.js": 456,
-		"./ar": 457,
-		"./ar-dz": 458,
-		"./ar-dz.js": 458,
-		"./ar-ly": 459,
-		"./ar-ly.js": 459,
-		"./ar-ma": 460,
-		"./ar-ma.js": 460,
-		"./ar-sa": 461,
-		"./ar-sa.js": 461,
-		"./ar-tn": 462,
-		"./ar-tn.js": 462,
-		"./ar.js": 457,
-		"./az": 463,
-		"./az.js": 463,
-		"./be": 464,
-		"./be.js": 464,
-		"./bg": 465,
-		"./bg.js": 465,
-		"./bn": 466,
-		"./bn.js": 466,
-		"./bo": 467,
-		"./bo.js": 467,
-		"./br": 468,
-		"./br.js": 468,
-		"./bs": 469,
-		"./bs.js": 469,
-		"./ca": 470,
-		"./ca.js": 470,
-		"./cs": 471,
-		"./cs.js": 471,
-		"./cv": 472,
-		"./cv.js": 472,
-		"./cy": 473,
-		"./cy.js": 473,
-		"./da": 474,
-		"./da.js": 474,
-		"./de": 475,
-		"./de-at": 476,
-		"./de-at.js": 476,
-		"./de.js": 475,
-		"./dv": 477,
-		"./dv.js": 477,
-		"./el": 478,
-		"./el.js": 478,
-		"./en-au": 479,
-		"./en-au.js": 479,
-		"./en-ca": 480,
-		"./en-ca.js": 480,
-		"./en-gb": 481,
-		"./en-gb.js": 481,
-		"./en-ie": 482,
-		"./en-ie.js": 482,
-		"./en-nz": 483,
-		"./en-nz.js": 483,
-		"./eo": 484,
-		"./eo.js": 484,
-		"./es": 485,
-		"./es-do": 486,
-		"./es-do.js": 486,
-		"./es.js": 485,
-		"./et": 487,
-		"./et.js": 487,
-		"./eu": 488,
-		"./eu.js": 488,
-		"./fa": 489,
-		"./fa.js": 489,
-		"./fi": 490,
-		"./fi.js": 490,
-		"./fo": 491,
-		"./fo.js": 491,
-		"./fr": 492,
-		"./fr-ca": 493,
-		"./fr-ca.js": 493,
-		"./fr-ch": 494,
-		"./fr-ch.js": 494,
-		"./fr.js": 492,
-		"./fy": 495,
-		"./fy.js": 495,
-		"./gd": 496,
-		"./gd.js": 496,
-		"./gl": 497,
-		"./gl.js": 497,
-		"./he": 498,
-		"./he.js": 498,
-		"./hi": 499,
-		"./hi.js": 499,
-		"./hr": 500,
-		"./hr.js": 500,
-		"./hu": 501,
-		"./hu.js": 501,
-		"./hy-am": 502,
-		"./hy-am.js": 502,
-		"./id": 503,
-		"./id.js": 503,
-		"./is": 504,
-		"./is.js": 504,
-		"./it": 505,
-		"./it.js": 505,
-		"./ja": 506,
-		"./ja.js": 506,
-		"./jv": 507,
-		"./jv.js": 507,
-		"./ka": 508,
-		"./ka.js": 508,
-		"./kk": 509,
-		"./kk.js": 509,
-		"./km": 510,
-		"./km.js": 510,
-		"./ko": 511,
-		"./ko.js": 511,
-		"./ky": 512,
-		"./ky.js": 512,
-		"./lb": 513,
-		"./lb.js": 513,
-		"./lo": 514,
-		"./lo.js": 514,
-		"./lt": 515,
-		"./lt.js": 515,
-		"./lv": 516,
-		"./lv.js": 516,
-		"./me": 517,
-		"./me.js": 517,
-		"./mi": 518,
-		"./mi.js": 518,
-		"./mk": 519,
-		"./mk.js": 519,
-		"./ml": 520,
-		"./ml.js": 520,
-		"./mr": 521,
-		"./mr.js": 521,
-		"./ms": 522,
-		"./ms-my": 523,
-		"./ms-my.js": 523,
-		"./ms.js": 522,
-		"./my": 524,
-		"./my.js": 524,
-		"./nb": 525,
-		"./nb.js": 525,
-		"./ne": 526,
-		"./ne.js": 526,
-		"./nl": 527,
-		"./nl-be": 528,
-		"./nl-be.js": 528,
-		"./nl.js": 527,
-		"./nn": 529,
-		"./nn.js": 529,
-		"./pa-in": 530,
-		"./pa-in.js": 530,
-		"./pl": 531,
-		"./pl.js": 531,
-		"./pt": 532,
-		"./pt-br": 533,
-		"./pt-br.js": 533,
-		"./pt.js": 532,
-		"./ro": 534,
-		"./ro.js": 534,
-		"./ru": 535,
-		"./ru.js": 535,
-		"./se": 536,
-		"./se.js": 536,
-		"./si": 537,
-		"./si.js": 537,
-		"./sk": 538,
-		"./sk.js": 538,
-		"./sl": 539,
-		"./sl.js": 539,
-		"./sq": 540,
-		"./sq.js": 540,
-		"./sr": 541,
-		"./sr-cyrl": 542,
-		"./sr-cyrl.js": 542,
-		"./sr.js": 541,
-		"./ss": 543,
-		"./ss.js": 543,
-		"./sv": 544,
-		"./sv.js": 544,
-		"./sw": 545,
-		"./sw.js": 545,
-		"./ta": 546,
-		"./ta.js": 546,
-		"./te": 547,
-		"./te.js": 547,
-		"./tet": 548,
-		"./tet.js": 548,
-		"./th": 549,
-		"./th.js": 549,
-		"./tl-ph": 550,
-		"./tl-ph.js": 550,
-		"./tlh": 551,
-		"./tlh.js": 551,
-		"./tr": 552,
-		"./tr.js": 552,
-		"./tzl": 553,
-		"./tzl.js": 553,
-		"./tzm": 554,
-		"./tzm-latn": 555,
-		"./tzm-latn.js": 555,
-		"./tzm.js": 554,
-		"./uk": 556,
-		"./uk.js": 556,
-		"./uz": 557,
-		"./uz.js": 557,
-		"./vi": 558,
-		"./vi.js": 558,
-		"./x-pseudo": 559,
-		"./x-pseudo.js": 559,
-		"./yo": 560,
-		"./yo.js": 560,
-		"./zh-cn": 561,
-		"./zh-cn.js": 561,
-		"./zh-hk": 562,
-		"./zh-hk.js": 562,
-		"./zh-tw": 563,
-		"./zh-tw.js": 563
+		"./af": 455,
+		"./af.js": 455,
+		"./ar": 456,
+		"./ar-dz": 457,
+		"./ar-dz.js": 457,
+		"./ar-ly": 458,
+		"./ar-ly.js": 458,
+		"./ar-ma": 459,
+		"./ar-ma.js": 459,
+		"./ar-sa": 460,
+		"./ar-sa.js": 460,
+		"./ar-tn": 461,
+		"./ar-tn.js": 461,
+		"./ar.js": 456,
+		"./az": 462,
+		"./az.js": 462,
+		"./be": 463,
+		"./be.js": 463,
+		"./bg": 464,
+		"./bg.js": 464,
+		"./bn": 465,
+		"./bn.js": 465,
+		"./bo": 466,
+		"./bo.js": 466,
+		"./br": 467,
+		"./br.js": 467,
+		"./bs": 468,
+		"./bs.js": 468,
+		"./ca": 469,
+		"./ca.js": 469,
+		"./cs": 470,
+		"./cs.js": 470,
+		"./cv": 471,
+		"./cv.js": 471,
+		"./cy": 472,
+		"./cy.js": 472,
+		"./da": 473,
+		"./da.js": 473,
+		"./de": 474,
+		"./de-at": 475,
+		"./de-at.js": 475,
+		"./de.js": 474,
+		"./dv": 476,
+		"./dv.js": 476,
+		"./el": 477,
+		"./el.js": 477,
+		"./en-au": 478,
+		"./en-au.js": 478,
+		"./en-ca": 479,
+		"./en-ca.js": 479,
+		"./en-gb": 480,
+		"./en-gb.js": 480,
+		"./en-ie": 481,
+		"./en-ie.js": 481,
+		"./en-nz": 482,
+		"./en-nz.js": 482,
+		"./eo": 483,
+		"./eo.js": 483,
+		"./es": 484,
+		"./es-do": 485,
+		"./es-do.js": 485,
+		"./es.js": 484,
+		"./et": 486,
+		"./et.js": 486,
+		"./eu": 487,
+		"./eu.js": 487,
+		"./fa": 488,
+		"./fa.js": 488,
+		"./fi": 489,
+		"./fi.js": 489,
+		"./fo": 490,
+		"./fo.js": 490,
+		"./fr": 491,
+		"./fr-ca": 492,
+		"./fr-ca.js": 492,
+		"./fr-ch": 493,
+		"./fr-ch.js": 493,
+		"./fr.js": 491,
+		"./fy": 494,
+		"./fy.js": 494,
+		"./gd": 495,
+		"./gd.js": 495,
+		"./gl": 496,
+		"./gl.js": 496,
+		"./he": 497,
+		"./he.js": 497,
+		"./hi": 498,
+		"./hi.js": 498,
+		"./hr": 499,
+		"./hr.js": 499,
+		"./hu": 500,
+		"./hu.js": 500,
+		"./hy-am": 501,
+		"./hy-am.js": 501,
+		"./id": 502,
+		"./id.js": 502,
+		"./is": 503,
+		"./is.js": 503,
+		"./it": 504,
+		"./it.js": 504,
+		"./ja": 505,
+		"./ja.js": 505,
+		"./jv": 506,
+		"./jv.js": 506,
+		"./ka": 507,
+		"./ka.js": 507,
+		"./kk": 508,
+		"./kk.js": 508,
+		"./km": 509,
+		"./km.js": 509,
+		"./ko": 510,
+		"./ko.js": 510,
+		"./ky": 511,
+		"./ky.js": 511,
+		"./lb": 512,
+		"./lb.js": 512,
+		"./lo": 513,
+		"./lo.js": 513,
+		"./lt": 514,
+		"./lt.js": 514,
+		"./lv": 515,
+		"./lv.js": 515,
+		"./me": 516,
+		"./me.js": 516,
+		"./mi": 517,
+		"./mi.js": 517,
+		"./mk": 518,
+		"./mk.js": 518,
+		"./ml": 519,
+		"./ml.js": 519,
+		"./mr": 520,
+		"./mr.js": 520,
+		"./ms": 521,
+		"./ms-my": 522,
+		"./ms-my.js": 522,
+		"./ms.js": 521,
+		"./my": 523,
+		"./my.js": 523,
+		"./nb": 524,
+		"./nb.js": 524,
+		"./ne": 525,
+		"./ne.js": 525,
+		"./nl": 526,
+		"./nl-be": 527,
+		"./nl-be.js": 527,
+		"./nl.js": 526,
+		"./nn": 528,
+		"./nn.js": 528,
+		"./pa-in": 529,
+		"./pa-in.js": 529,
+		"./pl": 530,
+		"./pl.js": 530,
+		"./pt": 531,
+		"./pt-br": 532,
+		"./pt-br.js": 532,
+		"./pt.js": 531,
+		"./ro": 533,
+		"./ro.js": 533,
+		"./ru": 534,
+		"./ru.js": 534,
+		"./se": 535,
+		"./se.js": 535,
+		"./si": 536,
+		"./si.js": 536,
+		"./sk": 537,
+		"./sk.js": 537,
+		"./sl": 538,
+		"./sl.js": 538,
+		"./sq": 539,
+		"./sq.js": 539,
+		"./sr": 540,
+		"./sr-cyrl": 541,
+		"./sr-cyrl.js": 541,
+		"./sr.js": 540,
+		"./ss": 542,
+		"./ss.js": 542,
+		"./sv": 543,
+		"./sv.js": 543,
+		"./sw": 544,
+		"./sw.js": 544,
+		"./ta": 545,
+		"./ta.js": 545,
+		"./te": 546,
+		"./te.js": 546,
+		"./tet": 547,
+		"./tet.js": 547,
+		"./th": 548,
+		"./th.js": 548,
+		"./tl-ph": 549,
+		"./tl-ph.js": 549,
+		"./tlh": 550,
+		"./tlh.js": 550,
+		"./tr": 551,
+		"./tr.js": 551,
+		"./tzl": 552,
+		"./tzl.js": 552,
+		"./tzm": 553,
+		"./tzm-latn": 554,
+		"./tzm-latn.js": 554,
+		"./tzm.js": 553,
+		"./uk": 555,
+		"./uk.js": 555,
+		"./uz": 556,
+		"./uz.js": 556,
+		"./vi": 557,
+		"./vi.js": 557,
+		"./x-pseudo": 558,
+		"./x-pseudo.js": 558,
+		"./yo": 559,
+		"./yo.js": 559,
+		"./zh-cn": 560,
+		"./zh-cn.js": 560,
+		"./zh-hk": 561,
+		"./zh-hk.js": 561,
+		"./zh-tw": 562,
+		"./zh-tw.js": 562
 	};
 	function webpackContext(req) {
 		return __webpack_require__(webpackContextResolve(req));
@@ -41172,11 +41178,11 @@
 	};
 	webpackContext.resolve = webpackContextResolve;
 	module.exports = webpackContext;
-	webpackContext.id = 455;
+	webpackContext.id = 454;
 
 
 /***/ },
-/* 456 */
+/* 455 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -41184,7 +41190,7 @@
 	//! author : Werner Mollentze : https://github.com/wernerm
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(454)) :
+	    true ? factory(__webpack_require__(453)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -41254,7 +41260,7 @@
 
 
 /***/ },
-/* 457 */
+/* 456 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -41264,7 +41270,7 @@
 	//! author : forabi https://github.com/forabi
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(454)) :
+	    true ? factory(__webpack_require__(453)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -41401,7 +41407,7 @@
 
 
 /***/ },
-/* 458 */
+/* 457 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -41409,7 +41415,7 @@
 	//! author : Noureddine LOUAHEDJ : https://github.com/noureddineme
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(454)) :
+	    true ? factory(__webpack_require__(453)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -41465,7 +41471,7 @@
 
 
 /***/ },
-/* 459 */
+/* 458 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -41473,7 +41479,7 @@
 	//! author : Ali Hmer: https://github.com/kikoanis
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(454)) :
+	    true ? factory(__webpack_require__(453)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -41596,7 +41602,7 @@
 
 
 /***/ },
-/* 460 */
+/* 459 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -41605,7 +41611,7 @@
 	//! author : Abdel Said : https://github.com/abdelsaid
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(454)) :
+	    true ? factory(__webpack_require__(453)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -41661,7 +41667,7 @@
 
 
 /***/ },
-/* 461 */
+/* 460 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -41669,7 +41675,7 @@
 	//! author : Suhail Alkowaileet : https://github.com/xsoh
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(454)) :
+	    true ? factory(__webpack_require__(453)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -41771,7 +41777,7 @@
 
 
 /***/ },
-/* 462 */
+/* 461 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -41779,7 +41785,7 @@
 	//! author : Nader Toukabri : https://github.com/naderio
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(454)) :
+	    true ? factory(__webpack_require__(453)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -41835,7 +41841,7 @@
 
 
 /***/ },
-/* 463 */
+/* 462 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -41843,7 +41849,7 @@
 	//! author : topchiyev : https://github.com/topchiyev
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(454)) :
+	    true ? factory(__webpack_require__(453)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -41945,7 +41951,7 @@
 
 
 /***/ },
-/* 464 */
+/* 463 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -41955,7 +41961,7 @@
 	//! Author : Menelion Elensúle : https://github.com/Oire
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(454)) :
+	    true ? factory(__webpack_require__(453)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -42084,7 +42090,7 @@
 
 
 /***/ },
-/* 465 */
+/* 464 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -42092,7 +42098,7 @@
 	//! author : Krasen Borisov : https://github.com/kraz
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(454)) :
+	    true ? factory(__webpack_require__(453)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -42179,7 +42185,7 @@
 
 
 /***/ },
-/* 466 */
+/* 465 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -42187,7 +42193,7 @@
 	//! author : Kaushik Gandhi : https://github.com/kaushikgandhi
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(454)) :
+	    true ? factory(__webpack_require__(453)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -42303,7 +42309,7 @@
 
 
 /***/ },
-/* 467 */
+/* 466 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -42311,7 +42317,7 @@
 	//! author : Thupten N. Chakrishar : https://github.com/vajradog
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(454)) :
+	    true ? factory(__webpack_require__(453)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -42427,7 +42433,7 @@
 
 
 /***/ },
-/* 468 */
+/* 467 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -42435,7 +42441,7 @@
 	//! author : Jean-Baptiste Le Duigou : https://github.com/jbleduigou
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(454)) :
+	    true ? factory(__webpack_require__(453)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -42540,7 +42546,7 @@
 
 
 /***/ },
-/* 469 */
+/* 468 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -42549,7 +42555,7 @@
 	//! based on (hr) translation by Bojan Marković
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(454)) :
+	    true ? factory(__webpack_require__(453)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -42688,7 +42694,7 @@
 
 
 /***/ },
-/* 470 */
+/* 469 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -42696,7 +42702,7 @@
 	//! author : Juan G. Hurtado : https://github.com/juanghurtado
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(454)) :
+	    true ? factory(__webpack_require__(453)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -42774,7 +42780,7 @@
 
 
 /***/ },
-/* 471 */
+/* 470 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -42782,7 +42788,7 @@
 	//! author : petrbela : https://github.com/petrbela
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(454)) :
+	    true ? factory(__webpack_require__(453)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -42951,7 +42957,7 @@
 
 
 /***/ },
-/* 472 */
+/* 471 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -42959,7 +42965,7 @@
 	//! author : Anatoly Mironov : https://github.com/mirontoli
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(454)) :
+	    true ? factory(__webpack_require__(453)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -43019,7 +43025,7 @@
 
 
 /***/ },
-/* 473 */
+/* 472 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -43028,7 +43034,7 @@
 	//! author : https://github.com/ryangreaves
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(454)) :
+	    true ? factory(__webpack_require__(453)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -43105,7 +43111,7 @@
 
 
 /***/ },
-/* 474 */
+/* 473 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -43113,7 +43119,7 @@
 	//! author : Ulrik Nielsen : https://github.com/mrbase
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(454)) :
+	    true ? factory(__webpack_require__(453)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -43170,7 +43176,7 @@
 
 
 /***/ },
-/* 475 */
+/* 474 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -43180,7 +43186,7 @@
 	//! author : Mikolaj Dadela : https://github.com/mik01aj
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(454)) :
+	    true ? factory(__webpack_require__(453)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -43253,7 +43259,7 @@
 
 
 /***/ },
-/* 476 */
+/* 475 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -43264,7 +43270,7 @@
 	//! author : Mikolaj Dadela : https://github.com/mik01aj
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(454)) :
+	    true ? factory(__webpack_require__(453)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -43337,7 +43343,7 @@
 
 
 /***/ },
-/* 477 */
+/* 476 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -43345,7 +43351,7 @@
 	//! author : Jawish Hameed : https://github.com/jawish
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(454)) :
+	    true ? factory(__webpack_require__(453)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -43442,7 +43448,7 @@
 
 
 /***/ },
-/* 478 */
+/* 477 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -43450,7 +43456,7 @@
 	//! author : Aggelos Karalias : https://github.com/mehiel
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(454)) :
+	    true ? factory(__webpack_require__(453)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -43545,7 +43551,7 @@
 
 
 /***/ },
-/* 479 */
+/* 478 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -43553,7 +43559,7 @@
 	//! author : Jared Morse : https://github.com/jarcoal
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(454)) :
+	    true ? factory(__webpack_require__(453)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -43617,7 +43623,7 @@
 
 
 /***/ },
-/* 480 */
+/* 479 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -43625,7 +43631,7 @@
 	//! author : Jonathan Abourbih : https://github.com/jonbca
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(454)) :
+	    true ? factory(__webpack_require__(453)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -43685,7 +43691,7 @@
 
 
 /***/ },
-/* 481 */
+/* 480 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -43693,7 +43699,7 @@
 	//! author : Chris Gedrim : https://github.com/chrisgedrim
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(454)) :
+	    true ? factory(__webpack_require__(453)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -43757,7 +43763,7 @@
 
 
 /***/ },
-/* 482 */
+/* 481 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -43765,7 +43771,7 @@
 	//! author : Chris Cartlidge : https://github.com/chriscartlidge
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(454)) :
+	    true ? factory(__webpack_require__(453)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -43829,7 +43835,7 @@
 
 
 /***/ },
-/* 483 */
+/* 482 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -43837,7 +43843,7 @@
 	//! author : Luke McGregor : https://github.com/lukemcgregor
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(454)) :
+	    true ? factory(__webpack_require__(453)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -43901,7 +43907,7 @@
 
 
 /***/ },
-/* 484 */
+/* 483 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -43911,7 +43917,7 @@
 	//!          Se ne, bonvolu korekti kaj avizi min por ke mi povas lerni!
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(454)) :
+	    true ? factory(__webpack_require__(453)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -43979,7 +43985,7 @@
 
 
 /***/ },
-/* 485 */
+/* 484 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -43987,7 +43993,7 @@
 	//! author : Julio Napurí : https://github.com/julionc
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(454)) :
+	    true ? factory(__webpack_require__(453)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -44065,14 +44071,14 @@
 
 
 /***/ },
-/* 486 */
+/* 485 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
 	//! locale : Spanish (Dominican Republic) [es-do]
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(454)) :
+	    true ? factory(__webpack_require__(453)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -44150,7 +44156,7 @@
 
 
 /***/ },
-/* 487 */
+/* 486 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -44159,7 +44165,7 @@
 	//! improvements : Illimar Tambek : https://github.com/ragulka
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(454)) :
+	    true ? factory(__webpack_require__(453)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -44235,7 +44241,7 @@
 
 
 /***/ },
-/* 488 */
+/* 487 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -44243,7 +44249,7 @@
 	//! author : Eneko Illarramendi : https://github.com/eillarra
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(454)) :
+	    true ? factory(__webpack_require__(453)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -44306,7 +44312,7 @@
 
 
 /***/ },
-/* 489 */
+/* 488 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -44314,7 +44320,7 @@
 	//! author : Ebrahim Byagowi : https://github.com/ebraminio
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(454)) :
+	    true ? factory(__webpack_require__(453)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -44418,7 +44424,7 @@
 
 
 /***/ },
-/* 490 */
+/* 489 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -44426,7 +44432,7 @@
 	//! author : Tarmo Aidantausta : https://github.com/bleadof
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(454)) :
+	    true ? factory(__webpack_require__(453)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -44530,7 +44536,7 @@
 
 
 /***/ },
-/* 491 */
+/* 490 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -44538,7 +44544,7 @@
 	//! author : Ragnar Johannesen : https://github.com/ragnar123
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(454)) :
+	    true ? factory(__webpack_require__(453)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -44595,7 +44601,7 @@
 
 
 /***/ },
-/* 492 */
+/* 491 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -44603,7 +44609,7 @@
 	//! author : John Fischer : https://github.com/jfroffice
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(454)) :
+	    true ? factory(__webpack_require__(453)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -44664,7 +44670,7 @@
 
 
 /***/ },
-/* 493 */
+/* 492 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -44672,7 +44678,7 @@
 	//! author : Jonathan Abourbih : https://github.com/jonbca
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(454)) :
+	    true ? factory(__webpack_require__(453)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -44729,7 +44735,7 @@
 
 
 /***/ },
-/* 494 */
+/* 493 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -44737,7 +44743,7 @@
 	//! author : Gaspard Bucher : https://github.com/gaspard
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(454)) :
+	    true ? factory(__webpack_require__(453)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -44798,7 +44804,7 @@
 
 
 /***/ },
-/* 495 */
+/* 494 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -44806,7 +44812,7 @@
 	//! author : Robin van der Vliet : https://github.com/robin0van0der0v
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(454)) :
+	    true ? factory(__webpack_require__(453)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -44876,7 +44882,7 @@
 
 
 /***/ },
-/* 496 */
+/* 495 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -44884,7 +44890,7 @@
 	//! author : Jon Ashdown : https://github.com/jonashdown
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(454)) :
+	    true ? factory(__webpack_require__(453)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -44957,7 +44963,7 @@
 
 
 /***/ },
-/* 497 */
+/* 496 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -44965,7 +44971,7 @@
 	//! author : Juan G. Hurtado : https://github.com/juanghurtado
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(454)) :
+	    true ? factory(__webpack_require__(453)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -45039,7 +45045,7 @@
 
 
 /***/ },
-/* 498 */
+/* 497 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -45049,7 +45055,7 @@
 	//! author : Tal Ater : https://github.com/TalAter
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(454)) :
+	    true ? factory(__webpack_require__(453)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -45143,7 +45149,7 @@
 
 
 /***/ },
-/* 499 */
+/* 498 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -45151,7 +45157,7 @@
 	//! author : Mayank Singhal : https://github.com/mayanksinghal
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(454)) :
+	    true ? factory(__webpack_require__(453)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -45272,7 +45278,7 @@
 
 
 /***/ },
-/* 500 */
+/* 499 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -45280,7 +45286,7 @@
 	//! author : Bojan Marković : https://github.com/bmarkovic
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(454)) :
+	    true ? factory(__webpack_require__(453)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -45422,7 +45428,7 @@
 
 
 /***/ },
-/* 501 */
+/* 500 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -45430,7 +45436,7 @@
 	//! author : Adam Brunner : https://github.com/adambrunner
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(454)) :
+	    true ? factory(__webpack_require__(453)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -45536,7 +45542,7 @@
 
 
 /***/ },
-/* 502 */
+/* 501 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -45544,7 +45550,7 @@
 	//! author : Armendarabyan : https://github.com/armendarabyan
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(454)) :
+	    true ? factory(__webpack_require__(453)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -45636,7 +45642,7 @@
 
 
 /***/ },
-/* 503 */
+/* 502 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -45645,7 +45651,7 @@
 	//! reference: http://id.wikisource.org/wiki/Pedoman_Umum_Ejaan_Bahasa_Indonesia_yang_Disempurnakan
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(454)) :
+	    true ? factory(__webpack_require__(453)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -45724,7 +45730,7 @@
 
 
 /***/ },
-/* 504 */
+/* 503 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -45732,7 +45738,7 @@
 	//! author : Hinrik Örn Sigurðsson : https://github.com/hinrik
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(454)) :
+	    true ? factory(__webpack_require__(453)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -45856,7 +45862,7 @@
 
 
 /***/ },
-/* 505 */
+/* 504 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -45865,7 +45871,7 @@
 	//! author: Mattia Larentis: https://github.com/nostalgiaz
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(454)) :
+	    true ? factory(__webpack_require__(453)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -45931,7 +45937,7 @@
 
 
 /***/ },
-/* 506 */
+/* 505 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -45939,7 +45945,7 @@
 	//! author : LI Long : https://github.com/baryon
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(454)) :
+	    true ? factory(__webpack_require__(453)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -46012,7 +46018,7 @@
 
 
 /***/ },
-/* 507 */
+/* 506 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -46021,7 +46027,7 @@
 	//! reference: http://jv.wikipedia.org/wiki/Basa_Jawa
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(454)) :
+	    true ? factory(__webpack_require__(453)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -46100,7 +46106,7 @@
 
 
 /***/ },
-/* 508 */
+/* 507 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -46108,7 +46114,7 @@
 	//! author : Irakli Janiashvili : https://github.com/irakli-janiashvili
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(454)) :
+	    true ? factory(__webpack_require__(453)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -46194,7 +46200,7 @@
 
 
 /***/ },
-/* 509 */
+/* 508 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -46202,7 +46208,7 @@
 	//! authors : Nurlan Rakhimzhanov : https://github.com/nurlan
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(454)) :
+	    true ? factory(__webpack_require__(453)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -46286,7 +46292,7 @@
 
 
 /***/ },
-/* 510 */
+/* 509 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -46294,7 +46300,7 @@
 	//! author : Kruy Vanna : https://github.com/kruyvanna
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(454)) :
+	    true ? factory(__webpack_require__(453)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -46349,7 +46355,7 @@
 
 
 /***/ },
-/* 511 */
+/* 510 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -46358,7 +46364,7 @@
 	//! author : Jeeeyul Lee <jeeeyul@gmail.com>
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(454)) :
+	    true ? factory(__webpack_require__(453)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -46419,7 +46425,7 @@
 
 
 /***/ },
-/* 512 */
+/* 511 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -46427,7 +46433,7 @@
 	//! author : Chyngyz Arystan uulu : https://github.com/chyngyz
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(454)) :
+	    true ? factory(__webpack_require__(453)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -46512,7 +46518,7 @@
 
 
 /***/ },
-/* 513 */
+/* 512 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -46521,7 +46527,7 @@
 	//! author : David Raison : https://github.com/kwisatz
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(454)) :
+	    true ? factory(__webpack_require__(453)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -46654,7 +46660,7 @@
 
 
 /***/ },
-/* 514 */
+/* 513 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -46662,7 +46668,7 @@
 	//! author : Ryan Hart : https://github.com/ryanhart2
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(454)) :
+	    true ? factory(__webpack_require__(453)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -46729,7 +46735,7 @@
 
 
 /***/ },
-/* 515 */
+/* 514 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -46737,7 +46743,7 @@
 	//! author : Mindaugas Mozūras : https://github.com/mmozuras
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(454)) :
+	    true ? factory(__webpack_require__(453)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -46851,7 +46857,7 @@
 
 
 /***/ },
-/* 516 */
+/* 515 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -46860,7 +46866,7 @@
 	//! author : Jānis Elmeris : https://github.com/JanisE
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(454)) :
+	    true ? factory(__webpack_require__(453)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -46953,7 +46959,7 @@
 
 
 /***/ },
-/* 517 */
+/* 516 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -46961,7 +46967,7 @@
 	//! author : Miodrag Nikač <miodrag@restartit.me> : https://github.com/miodragnikac
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(454)) :
+	    true ? factory(__webpack_require__(453)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -47069,7 +47075,7 @@
 
 
 /***/ },
-/* 518 */
+/* 517 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -47077,7 +47083,7 @@
 	//! author : John Corrigan <robbiecloset@gmail.com> : https://github.com/johnideal
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(454)) :
+	    true ? factory(__webpack_require__(453)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -47138,7 +47144,7 @@
 
 
 /***/ },
-/* 519 */
+/* 518 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -47146,7 +47152,7 @@
 	//! author : Borislav Mickov : https://github.com/B0k0
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(454)) :
+	    true ? factory(__webpack_require__(453)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -47233,7 +47239,7 @@
 
 
 /***/ },
-/* 520 */
+/* 519 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -47241,7 +47247,7 @@
 	//! author : Floyd Pink : https://github.com/floydpink
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(454)) :
+	    true ? factory(__webpack_require__(453)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -47319,7 +47325,7 @@
 
 
 /***/ },
-/* 521 */
+/* 520 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -47328,7 +47334,7 @@
 	//! author : Vivek Athalye : https://github.com/vnathalye
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(454)) :
+	    true ? factory(__webpack_require__(453)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -47483,7 +47489,7 @@
 
 
 /***/ },
-/* 522 */
+/* 521 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -47491,7 +47497,7 @@
 	//! author : Weldan Jamili : https://github.com/weldan
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(454)) :
+	    true ? factory(__webpack_require__(453)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -47570,7 +47576,7 @@
 
 
 /***/ },
-/* 523 */
+/* 522 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -47579,7 +47585,7 @@
 	//! author : Weldan Jamili : https://github.com/weldan
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(454)) :
+	    true ? factory(__webpack_require__(453)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -47658,7 +47664,7 @@
 
 
 /***/ },
-/* 524 */
+/* 523 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -47668,7 +47674,7 @@
 	//! author : Tin Aung Lin : https://github.com/thanyawzinmin
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(454)) :
+	    true ? factory(__webpack_require__(453)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -47759,7 +47765,7 @@
 
 
 /***/ },
-/* 525 */
+/* 524 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -47768,7 +47774,7 @@
 	//!           Sigurd Gartmann : https://github.com/sigurdga
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(454)) :
+	    true ? factory(__webpack_require__(453)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -47827,7 +47833,7 @@
 
 
 /***/ },
-/* 526 */
+/* 525 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -47835,7 +47841,7 @@
 	//! author : suvash : https://github.com/suvash
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(454)) :
+	    true ? factory(__webpack_require__(453)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -47955,7 +47961,7 @@
 
 
 /***/ },
-/* 527 */
+/* 526 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -47964,7 +47970,7 @@
 	//! author : Jacob Middag : https://github.com/middagj
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(454)) :
+	    true ? factory(__webpack_require__(453)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -48046,7 +48052,7 @@
 
 
 /***/ },
-/* 528 */
+/* 527 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -48055,7 +48061,7 @@
 	//! author : Jacob Middag : https://github.com/middagj
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(454)) :
+	    true ? factory(__webpack_require__(453)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -48137,7 +48143,7 @@
 
 
 /***/ },
-/* 529 */
+/* 528 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -48145,7 +48151,7 @@
 	//! author : https://github.com/mechuwind
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(454)) :
+	    true ? factory(__webpack_require__(453)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -48202,7 +48208,7 @@
 
 
 /***/ },
-/* 530 */
+/* 529 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -48210,7 +48216,7 @@
 	//! author : Harpreet Singh : https://github.com/harpreetkhalsagtbit
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(454)) :
+	    true ? factory(__webpack_require__(453)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -48331,7 +48337,7 @@
 
 
 /***/ },
-/* 531 */
+/* 530 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -48339,7 +48345,7 @@
 	//! author : Rafal Hirsz : https://github.com/evoL
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(454)) :
+	    true ? factory(__webpack_require__(453)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -48441,7 +48447,7 @@
 
 
 /***/ },
-/* 532 */
+/* 531 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -48449,7 +48455,7 @@
 	//! author : Jefferson : https://github.com/jalex79
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(454)) :
+	    true ? factory(__webpack_require__(453)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -48511,7 +48517,7 @@
 
 
 /***/ },
-/* 533 */
+/* 532 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -48519,7 +48525,7 @@
 	//! author : Caio Ribeiro Pereira : https://github.com/caio-ribeiro-pereira
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(454)) :
+	    true ? factory(__webpack_require__(453)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -48577,7 +48583,7 @@
 
 
 /***/ },
-/* 534 */
+/* 533 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -48586,7 +48592,7 @@
 	//! author : Valentin Agachi : https://github.com/avaly
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(454)) :
+	    true ? factory(__webpack_require__(453)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -48657,7 +48663,7 @@
 
 
 /***/ },
-/* 535 */
+/* 534 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -48667,7 +48673,7 @@
 	//! author : Коренберг Марк : https://github.com/socketpair
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(454)) :
+	    true ? factory(__webpack_require__(453)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -48845,7 +48851,7 @@
 
 
 /***/ },
-/* 536 */
+/* 535 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -48853,7 +48859,7 @@
 	//! authors : Bård Rolstad Henriksen : https://github.com/karamell
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(454)) :
+	    true ? factory(__webpack_require__(453)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -48911,7 +48917,7 @@
 
 
 /***/ },
-/* 537 */
+/* 536 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -48919,7 +48925,7 @@
 	//! author : Sampath Sitinamaluwa : https://github.com/sampathsris
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(454)) :
+	    true ? factory(__webpack_require__(453)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -48987,7 +48993,7 @@
 
 
 /***/ },
-/* 538 */
+/* 537 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -48996,7 +49002,7 @@
 	//! based on work of petrbela : https://github.com/petrbela
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(454)) :
+	    true ? factory(__webpack_require__(453)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -49142,7 +49148,7 @@
 
 
 /***/ },
-/* 539 */
+/* 538 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -49150,7 +49156,7 @@
 	//! author : Robert Sedovšek : https://github.com/sedovsek
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(454)) :
+	    true ? factory(__webpack_require__(453)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -49309,7 +49315,7 @@
 
 
 /***/ },
-/* 540 */
+/* 539 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -49319,7 +49325,7 @@
 	//! author : Oerd Cukalla : https://github.com/oerd
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(454)) :
+	    true ? factory(__webpack_require__(453)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -49384,7 +49390,7 @@
 
 
 /***/ },
-/* 541 */
+/* 540 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -49392,7 +49398,7 @@
 	//! author : Milan Janačković<milanjanackovic@gmail.com> : https://github.com/milan-j
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(454)) :
+	    true ? factory(__webpack_require__(453)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -49499,7 +49505,7 @@
 
 
 /***/ },
-/* 542 */
+/* 541 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -49507,7 +49513,7 @@
 	//! author : Milan Janačković<milanjanackovic@gmail.com> : https://github.com/milan-j
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(454)) :
+	    true ? factory(__webpack_require__(453)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -49614,7 +49620,7 @@
 
 
 /***/ },
-/* 543 */
+/* 542 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -49622,7 +49628,7 @@
 	//! author : Nicolai Davies<mail@nicolai.io> : https://github.com/nicolaidavies
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(454)) :
+	    true ? factory(__webpack_require__(453)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -49708,7 +49714,7 @@
 
 
 /***/ },
-/* 544 */
+/* 543 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -49716,7 +49722,7 @@
 	//! author : Jens Alm : https://github.com/ulmus
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(454)) :
+	    true ? factory(__webpack_require__(453)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -49782,7 +49788,7 @@
 
 
 /***/ },
-/* 545 */
+/* 544 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -49790,7 +49796,7 @@
 	//! author : Fahad Kassim : https://github.com/fadsel
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(454)) :
+	    true ? factory(__webpack_require__(453)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -49846,7 +49852,7 @@
 
 
 /***/ },
-/* 546 */
+/* 545 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -49854,7 +49860,7 @@
 	//! author : Arjunkumar Krishnamoorthy : https://github.com/tk120404
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(454)) :
+	    true ? factory(__webpack_require__(453)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -49981,7 +49987,7 @@
 
 
 /***/ },
-/* 547 */
+/* 546 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -49989,7 +49995,7 @@
 	//! author : Krishna Chaitanya Thota : https://github.com/kcthota
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(454)) :
+	    true ? factory(__webpack_require__(453)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -50075,7 +50081,7 @@
 
 
 /***/ },
-/* 548 */
+/* 547 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -50084,7 +50090,7 @@
 	//! author : Onorio De J. Afonso : https://github.com/marobo
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(454)) :
+	    true ? factory(__webpack_require__(453)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -50148,7 +50154,7 @@
 
 
 /***/ },
-/* 549 */
+/* 548 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -50156,7 +50162,7 @@
 	//! author : Kridsada Thanabulpong : https://github.com/sirn
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(454)) :
+	    true ? factory(__webpack_require__(453)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -50220,7 +50226,7 @@
 
 
 /***/ },
-/* 550 */
+/* 549 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -50228,7 +50234,7 @@
 	//! author : Dan Hagman : https://github.com/hagmandan
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(454)) :
+	    true ? factory(__webpack_require__(453)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -50287,7 +50293,7 @@
 
 
 /***/ },
-/* 551 */
+/* 550 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -50295,7 +50301,7 @@
 	//! author : Dominika Kruk : https://github.com/amaranthrose
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(454)) :
+	    true ? factory(__webpack_require__(453)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -50412,7 +50418,7 @@
 
 
 /***/ },
-/* 552 */
+/* 551 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -50421,7 +50427,7 @@
 	//!           Burak Yiğit Kaya: https://github.com/BYK
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(454)) :
+	    true ? factory(__webpack_require__(453)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -50507,7 +50513,7 @@
 
 
 /***/ },
-/* 553 */
+/* 552 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -50516,7 +50522,7 @@
 	//! author : Iustì Canun
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(454)) :
+	    true ? factory(__webpack_require__(453)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -50603,7 +50609,7 @@
 
 
 /***/ },
-/* 554 */
+/* 553 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -50611,7 +50617,7 @@
 	//! author : Abdel Said : https://github.com/abdelsaid
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(454)) :
+	    true ? factory(__webpack_require__(453)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -50666,7 +50672,7 @@
 
 
 /***/ },
-/* 555 */
+/* 554 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -50674,7 +50680,7 @@
 	//! author : Abdel Said : https://github.com/abdelsaid
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(454)) :
+	    true ? factory(__webpack_require__(453)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -50729,7 +50735,7 @@
 
 
 /***/ },
-/* 556 */
+/* 555 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -50738,7 +50744,7 @@
 	//! Author : Menelion Elensúle : https://github.com/Oire
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(454)) :
+	    true ? factory(__webpack_require__(453)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -50880,7 +50886,7 @@
 
 
 /***/ },
-/* 557 */
+/* 556 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -50888,7 +50894,7 @@
 	//! author : Sardor Muminov : https://github.com/muminoff
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(454)) :
+	    true ? factory(__webpack_require__(453)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -50943,7 +50949,7 @@
 
 
 /***/ },
-/* 558 */
+/* 557 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -50951,7 +50957,7 @@
 	//! author : Bang Nguyen : https://github.com/bangnk
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(454)) :
+	    true ? factory(__webpack_require__(453)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -51027,7 +51033,7 @@
 
 
 /***/ },
-/* 559 */
+/* 558 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -51035,7 +51041,7 @@
 	//! author : Andrew Hood : https://github.com/andrewhood125
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(454)) :
+	    true ? factory(__webpack_require__(453)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -51100,7 +51106,7 @@
 
 
 /***/ },
-/* 560 */
+/* 559 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -51108,7 +51114,7 @@
 	//! author : Atolagbe Abisoye : https://github.com/andela-batolagbe
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(454)) :
+	    true ? factory(__webpack_require__(453)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -51165,7 +51171,7 @@
 
 
 /***/ },
-/* 561 */
+/* 560 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -51174,7 +51180,7 @@
 	//! author : Zeno Zeng : https://github.com/zenozeng
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(454)) :
+	    true ? factory(__webpack_require__(453)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -51297,7 +51303,7 @@
 
 
 /***/ },
-/* 562 */
+/* 561 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -51307,7 +51313,7 @@
 	//! author : Konstantin : https://github.com/skfd
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(454)) :
+	    true ? factory(__webpack_require__(453)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -51407,7 +51413,7 @@
 
 
 /***/ },
-/* 563 */
+/* 562 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -51416,7 +51422,7 @@
 	//! author : Chris Lam : https://github.com/hehachris
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(454)) :
+	    true ? factory(__webpack_require__(453)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -51516,7 +51522,7 @@
 
 
 /***/ },
-/* 564 */
+/* 563 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
@@ -51570,7 +51576,7 @@
 
 
 /***/ },
-/* 565 */
+/* 564 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -51583,11 +51589,11 @@
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _TopBar = __webpack_require__(452);
+	var _TopBar = __webpack_require__(451);
 
 	var _TopBar2 = _interopRequireDefault(_TopBar);
 
-	var _containers = __webpack_require__(430);
+	var _containers = __webpack_require__(429);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -51660,7 +51666,7 @@
 	exports.default = Conversation;
 
 /***/ },
-/* 566 */
+/* 565 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -51700,7 +51706,7 @@
 	exports.default = Launcher;
 
 /***/ },
-/* 567 */
+/* 566 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -51713,17 +51719,17 @@
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _moment = __webpack_require__(454);
+	var _moment = __webpack_require__(453);
 
 	var _moment2 = _interopRequireDefault(_moment);
 
-	var _classnames = __webpack_require__(564);
+	var _classnames = __webpack_require__(563);
 
 	var _classnames2 = _interopRequireDefault(_classnames);
 
-	var _containers = __webpack_require__(430);
+	var _containers = __webpack_require__(429);
 
-	var _components = __webpack_require__(447);
+	var _components = __webpack_require__(446);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -51778,7 +51784,7 @@
 	exports.default = Message;
 
 /***/ },
-/* 568 */
+/* 567 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -51894,7 +51900,7 @@
 	exports.default = MessageSender;
 
 /***/ },
-/* 569 */
+/* 568 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -51911,7 +51917,7 @@
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _components = __webpack_require__(447);
+	var _components = __webpack_require__(446);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -51986,7 +51992,7 @@
 	exports.default = MessagesList;
 
 /***/ },
-/* 570 */
+/* 569 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -52024,7 +52030,7 @@
 	exports.default = User;
 
 /***/ },
-/* 571 */
+/* 570 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -52033,9 +52039,9 @@
 	  value: true
 	});
 
-	var _reactRedux = __webpack_require__(432);
+	var _reactRedux = __webpack_require__(431);
 
-	var _components = __webpack_require__(447);
+	var _components = __webpack_require__(446);
 
 	var mapStateToProps = function mapStateToProps(state) {
 	  return {
@@ -52046,7 +52052,7 @@
 	exports.default = (0, _reactRedux.connect)(mapStateToProps)(_components.Messenger);
 
 /***/ },
-/* 572 */
+/* 571 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -52057,19 +52063,19 @@
 
 	var _templateObject = _taggedTemplateLiteral(['\n  query allConversations {\n    conversations {\n      _id\n      content\n    }\n  }\n'], ['\n  query allConversations {\n    conversations {\n      _id\n      content\n    }\n  }\n']);
 
-	var _reactRedux = __webpack_require__(432);
+	var _reactRedux = __webpack_require__(431);
 
-	var _graphqlTag = __webpack_require__(573);
+	var _graphqlTag = __webpack_require__(572);
 
 	var _graphqlTag2 = _interopRequireDefault(_graphqlTag);
 
 	var _reactApollo = __webpack_require__(417);
 
-	var _messages = __webpack_require__(575);
+	var _messages = __webpack_require__(574);
 
-	var _messenger = __webpack_require__(576);
+	var _messenger = __webpack_require__(593);
 
-	var _components = __webpack_require__(447);
+	var _components = __webpack_require__(446);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -52108,10 +52114,10 @@
 	exports.default = (0, _reactRedux.connect)(mapStateToProps, mapDisptachToProps)(withQueryData);
 
 /***/ },
-/* 573 */
+/* 572 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var parse = __webpack_require__(574).parse;
+	var parse = __webpack_require__(573).parse;
 
 	// Strip insignificant whitespace
 	// Note that this could do a lot more, such as reorder fields etc.
@@ -52259,7 +52265,7 @@
 
 
 /***/ },
-/* 574 */
+/* 573 */
 /***/ function(module, exports) {
 
 	module.exports =
@@ -55032,34 +55038,2801 @@
 	/******/ ]);
 
 /***/ },
-/* 575 */
-/***/ function(module, exports) {
+/* 574 */
+/***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
+	exports.sendFile = exports.sendMessage = exports.readMessages = undefined;
+
+	var _meteorEjson = __webpack_require__(603);
+
+	var _meteorEjson2 = _interopRequireDefault(_meteorEjson);
+
+	var _constants = __webpack_require__(428);
+
+	var _erxes = __webpack_require__(575);
+
+	var _uploadHandler = __webpack_require__(605);
+
+	var _uploadHandler2 = _interopRequireDefault(_uploadHandler);
+
+	var _messenger = __webpack_require__(593);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
 	var readMessages = exports.readMessages = function readMessages() {
 	  return function () {
 	    return 'Not Implemented';
 	  };
 	};
 
-	var sendMessage = exports.sendMessage = function sendMessage() {
-	  return function () {
-	    return 'Not Implemented';
+	var sendMessage = exports.sendMessage = function sendMessage(message, attachments) {
+	  return function (dispatch, getState) {
+	    // current conversation
+	    var currentConversationId = getState().activeConversation;
+
+	    // message object
+	    var doc = {
+	      conversationId: currentConversationId,
+	      message: message,
+	      attachments: attachments
+	    };
+
+	    return (0, _erxes.call)('sendMessage', doc).then(function (_ref) {
+	      var conversationId = _ref.conversationId;
+
+	      // if there is no current conversation new conversation will be created
+	      if (!currentConversationId) {
+	        dispatch((0, _messenger.changeConversation)(conversationId));
+	      }
+	    });
 	  };
 	};
 
-	var sendFile = exports.sendFile = function sendFile() {
-	  return function () {
-	    return 'Not Implemented';
+	var sendFile = exports.sendFile = function sendFile(file) {
+	  return function (dispatch, getState) {
+	    (0, _uploadHandler2.default)({
+	      file: file,
+	      uploadAction: function uploadAction(_ref2) {
+	        var data = _ref2.data,
+	            fileInfo = _ref2.fileInfo;
+
+	        dispatch({ type: _constants.SENDING_ATTACHMENT });
+
+	        // file object
+	        var doc = {
+	          name: file.name,
+	          data: _meteorEjson2.default.toJSONValue(data)
+	        };
+
+	        (0, _erxes.call)('sendFile', doc).then(function (response) {
+	          dispatch({ type: _constants.ATTACHMENT_SENT });
+
+	          var attachment = Object.assign({ url: response.url }, fileInfo);
+
+	          // send message with attachment
+	          // QUESTION: Do we need to make 2 calls to send a message with attachment?
+	          sendMessage('This message has an attachment', [attachment])(dispatch, getState);
+	        });
+	      }
+	    });
 	  };
 	};
 
 /***/ },
+/* 575 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.connect = exports.call = undefined;
+
+	var _asteroid2 = __webpack_require__(576);
+
+	var Asteroid = (0, _asteroid2.createClass)();
+	var asteroid = void 0;
+
+	/**
+	 * Calls asteroid method
+	 * @param  {String} name - method name
+	 * @param  {Object} params
+	 * @return {Promise}
+	 */
+	var call = exports.call = function call(name) {
+	  var _asteroid;
+
+	  for (var _len = arguments.length, params = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
+	    params[_key - 1] = arguments[_key];
+	  }
+
+	  if (!asteroid) {
+	    throw Error('Not connected to the DDP server');
+	  }
+
+	  return (_asteroid = asteroid).call.apply(_asteroid, ['api.' + name].concat(params));
+	};
+
+	/**
+	 * Connects to the DDP server
+	 * @param  {Object} options.settings
+	 * @param  {Object} options.dom
+	 */
+	var connect = exports.connect = function connect(params) {
+	  asteroid = new Asteroid({
+	    endpoint: 'ws://127.0.0.1:7010/websocket'
+	  });
+
+	  asteroid.ddp.on('connected', function () {
+	    call('connect', params).then(function () {}).catch(function (error) {
+	      console.error( // eslint-disable-line no-console
+	      'Error on connecting to the DDP server', error);
+	    });
+	  });
+	};
+
+/***/ },
 /* 576 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	exports.createClass = createClass;
+
+	var _lodash = __webpack_require__(577);
+
+	var _lodash2 = _interopRequireDefault(_lodash);
+
+	var _wolfy87Eventemitter = __webpack_require__(578);
+
+	var _wolfy87Eventemitter2 = _interopRequireDefault(_wolfy87Eventemitter);
+
+	var _ddp = __webpack_require__(579);
+
+	var ddp = _interopRequireWildcard(_ddp);
+
+	var _login = __webpack_require__(585);
+
+	var login = _interopRequireWildcard(_login);
+
+	var _methods = __webpack_require__(588);
+
+	var methods = _interopRequireWildcard(_methods);
+
+	var _passwordLogin = __webpack_require__(589);
+
+	var loginWithPassword = _interopRequireWildcard(_passwordLogin);
+
+	var _subscriptions = __webpack_require__(590);
+
+	var subscriptions = _interopRequireWildcard(_subscriptions);
+
+	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
+
+	/*
+	*   A mixin is a plain javascript object. Mixins are composed by merging the
+	*   mixin object own enumerable properties into the Asteroid's base prototype.
+	*   The only exception is the `init` method. If the mixin defines an `init`
+	*   method, it will _not_ be merged into the prototype, instead it'll be called
+	*   at construction time.
+	*
+	*   Example usage:
+	*   ```js
+	*   import {createClass} from "asteroid";
+	*   import * as myMixinOne from "asteroid-my-mixin-one";
+	*   import * as myMixinTwo from "asteroid-my-mixin-two";
+	*   const Asteroid = createClass([myMixinOne, myMixinTwo]);
+	*   ```
+	*/
+
+	function createClass() {
+	    var customMixins = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
+
+
+	    // Include base mixins before custom ones
+	    var mixins = [ddp, methods, subscriptions, login, loginWithPassword].concat(customMixins);
+
+	    var Asteroid = function Asteroid() /* arguments */{
+	        var _this = this,
+	            _arguments = arguments;
+
+	        // Call each init method
+	        mixins.forEach(function (_ref) {
+	            var init = _ref.init;
+	            return init && init.apply(_this, _arguments);
+	        });
+	    };
+
+	    Asteroid.prototype = Object.create(_wolfy87Eventemitter2.default.prototype);
+	    Asteroid.prototype.constructor = Asteroid;
+	    // Merge all mixins into Asteroid.prototype
+	    _lodash2.default.apply(undefined, [Asteroid.prototype].concat(_toConsumableArray(mixins)));
+	    // And delete the "dangling" init property
+	    delete Asteroid.prototype.init;
+
+	    // Return the newly constructed class
+	    return Asteroid;
+	}
+
+/***/ },
+/* 577 */
+/***/ function(module, exports) {
+
+	/**
+	 * lodash (Custom Build) <https://lodash.com/>
+	 * Build: `lodash modularize exports="npm" -o ./`
+	 * Copyright jQuery Foundation and other contributors <https://jquery.org/>
+	 * Released under MIT license <https://lodash.com/license>
+	 * Based on Underscore.js 1.8.3 <http://underscorejs.org/LICENSE>
+	 * Copyright Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
+	 */
+
+	/** Used as references for various `Number` constants. */
+	var MAX_SAFE_INTEGER = 9007199254740991;
+
+	/** `Object#toString` result references. */
+	var argsTag = '[object Arguments]',
+	    funcTag = '[object Function]',
+	    genTag = '[object GeneratorFunction]';
+
+	/** Used to detect unsigned integer values. */
+	var reIsUint = /^(?:0|[1-9]\d*)$/;
+
+	/**
+	 * A faster alternative to `Function#apply`, this function invokes `func`
+	 * with the `this` binding of `thisArg` and the arguments of `args`.
+	 *
+	 * @private
+	 * @param {Function} func The function to invoke.
+	 * @param {*} thisArg The `this` binding of `func`.
+	 * @param {Array} args The arguments to invoke `func` with.
+	 * @returns {*} Returns the result of `func`.
+	 */
+	function apply(func, thisArg, args) {
+	  switch (args.length) {
+	    case 0: return func.call(thisArg);
+	    case 1: return func.call(thisArg, args[0]);
+	    case 2: return func.call(thisArg, args[0], args[1]);
+	    case 3: return func.call(thisArg, args[0], args[1], args[2]);
+	  }
+	  return func.apply(thisArg, args);
+	}
+
+	/**
+	 * The base implementation of `_.times` without support for iteratee shorthands
+	 * or max array length checks.
+	 *
+	 * @private
+	 * @param {number} n The number of times to invoke `iteratee`.
+	 * @param {Function} iteratee The function invoked per iteration.
+	 * @returns {Array} Returns the array of results.
+	 */
+	function baseTimes(n, iteratee) {
+	  var index = -1,
+	      result = Array(n);
+
+	  while (++index < n) {
+	    result[index] = iteratee(index);
+	  }
+	  return result;
+	}
+
+	/**
+	 * Creates a unary function that invokes `func` with its argument transformed.
+	 *
+	 * @private
+	 * @param {Function} func The function to wrap.
+	 * @param {Function} transform The argument transform.
+	 * @returns {Function} Returns the new function.
+	 */
+	function overArg(func, transform) {
+	  return function(arg) {
+	    return func(transform(arg));
+	  };
+	}
+
+	/** Used for built-in method references. */
+	var objectProto = Object.prototype;
+
+	/** Used to check objects for own properties. */
+	var hasOwnProperty = objectProto.hasOwnProperty;
+
+	/**
+	 * Used to resolve the
+	 * [`toStringTag`](http://ecma-international.org/ecma-262/7.0/#sec-object.prototype.tostring)
+	 * of values.
+	 */
+	var objectToString = objectProto.toString;
+
+	/** Built-in value references. */
+	var propertyIsEnumerable = objectProto.propertyIsEnumerable;
+
+	/* Built-in method references for those with the same name as other `lodash` methods. */
+	var nativeKeys = overArg(Object.keys, Object),
+	    nativeMax = Math.max;
+
+	/** Detect if properties shadowing those on `Object.prototype` are non-enumerable. */
+	var nonEnumShadows = !propertyIsEnumerable.call({ 'valueOf': 1 }, 'valueOf');
+
+	/**
+	 * Creates an array of the enumerable property names of the array-like `value`.
+	 *
+	 * @private
+	 * @param {*} value The value to query.
+	 * @param {boolean} inherited Specify returning inherited property names.
+	 * @returns {Array} Returns the array of property names.
+	 */
+	function arrayLikeKeys(value, inherited) {
+	  // Safari 8.1 makes `arguments.callee` enumerable in strict mode.
+	  // Safari 9 makes `arguments.length` enumerable in strict mode.
+	  var result = (isArray(value) || isArguments(value))
+	    ? baseTimes(value.length, String)
+	    : [];
+
+	  var length = result.length,
+	      skipIndexes = !!length;
+
+	  for (var key in value) {
+	    if ((inherited || hasOwnProperty.call(value, key)) &&
+	        !(skipIndexes && (key == 'length' || isIndex(key, length)))) {
+	      result.push(key);
+	    }
+	  }
+	  return result;
+	}
+
+	/**
+	 * Assigns `value` to `key` of `object` if the existing value is not equivalent
+	 * using [`SameValueZero`](http://ecma-international.org/ecma-262/7.0/#sec-samevaluezero)
+	 * for equality comparisons.
+	 *
+	 * @private
+	 * @param {Object} object The object to modify.
+	 * @param {string} key The key of the property to assign.
+	 * @param {*} value The value to assign.
+	 */
+	function assignValue(object, key, value) {
+	  var objValue = object[key];
+	  if (!(hasOwnProperty.call(object, key) && eq(objValue, value)) ||
+	      (value === undefined && !(key in object))) {
+	    object[key] = value;
+	  }
+	}
+
+	/**
+	 * The base implementation of `_.keys` which doesn't treat sparse arrays as dense.
+	 *
+	 * @private
+	 * @param {Object} object The object to query.
+	 * @returns {Array} Returns the array of property names.
+	 */
+	function baseKeys(object) {
+	  if (!isPrototype(object)) {
+	    return nativeKeys(object);
+	  }
+	  var result = [];
+	  for (var key in Object(object)) {
+	    if (hasOwnProperty.call(object, key) && key != 'constructor') {
+	      result.push(key);
+	    }
+	  }
+	  return result;
+	}
+
+	/**
+	 * The base implementation of `_.rest` which doesn't validate or coerce arguments.
+	 *
+	 * @private
+	 * @param {Function} func The function to apply a rest parameter to.
+	 * @param {number} [start=func.length-1] The start position of the rest parameter.
+	 * @returns {Function} Returns the new function.
+	 */
+	function baseRest(func, start) {
+	  start = nativeMax(start === undefined ? (func.length - 1) : start, 0);
+	  return function() {
+	    var args = arguments,
+	        index = -1,
+	        length = nativeMax(args.length - start, 0),
+	        array = Array(length);
+
+	    while (++index < length) {
+	      array[index] = args[start + index];
+	    }
+	    index = -1;
+	    var otherArgs = Array(start + 1);
+	    while (++index < start) {
+	      otherArgs[index] = args[index];
+	    }
+	    otherArgs[start] = array;
+	    return apply(func, this, otherArgs);
+	  };
+	}
+
+	/**
+	 * Copies properties of `source` to `object`.
+	 *
+	 * @private
+	 * @param {Object} source The object to copy properties from.
+	 * @param {Array} props The property identifiers to copy.
+	 * @param {Object} [object={}] The object to copy properties to.
+	 * @param {Function} [customizer] The function to customize copied values.
+	 * @returns {Object} Returns `object`.
+	 */
+	function copyObject(source, props, object, customizer) {
+	  object || (object = {});
+
+	  var index = -1,
+	      length = props.length;
+
+	  while (++index < length) {
+	    var key = props[index];
+
+	    var newValue = customizer
+	      ? customizer(object[key], source[key], key, object, source)
+	      : undefined;
+
+	    assignValue(object, key, newValue === undefined ? source[key] : newValue);
+	  }
+	  return object;
+	}
+
+	/**
+	 * Creates a function like `_.assign`.
+	 *
+	 * @private
+	 * @param {Function} assigner The function to assign values.
+	 * @returns {Function} Returns the new assigner function.
+	 */
+	function createAssigner(assigner) {
+	  return baseRest(function(object, sources) {
+	    var index = -1,
+	        length = sources.length,
+	        customizer = length > 1 ? sources[length - 1] : undefined,
+	        guard = length > 2 ? sources[2] : undefined;
+
+	    customizer = (assigner.length > 3 && typeof customizer == 'function')
+	      ? (length--, customizer)
+	      : undefined;
+
+	    if (guard && isIterateeCall(sources[0], sources[1], guard)) {
+	      customizer = length < 3 ? undefined : customizer;
+	      length = 1;
+	    }
+	    object = Object(object);
+	    while (++index < length) {
+	      var source = sources[index];
+	      if (source) {
+	        assigner(object, source, index, customizer);
+	      }
+	    }
+	    return object;
+	  });
+	}
+
+	/**
+	 * Checks if `value` is a valid array-like index.
+	 *
+	 * @private
+	 * @param {*} value The value to check.
+	 * @param {number} [length=MAX_SAFE_INTEGER] The upper bounds of a valid index.
+	 * @returns {boolean} Returns `true` if `value` is a valid index, else `false`.
+	 */
+	function isIndex(value, length) {
+	  length = length == null ? MAX_SAFE_INTEGER : length;
+	  return !!length &&
+	    (typeof value == 'number' || reIsUint.test(value)) &&
+	    (value > -1 && value % 1 == 0 && value < length);
+	}
+
+	/**
+	 * Checks if the given arguments are from an iteratee call.
+	 *
+	 * @private
+	 * @param {*} value The potential iteratee value argument.
+	 * @param {*} index The potential iteratee index or key argument.
+	 * @param {*} object The potential iteratee object argument.
+	 * @returns {boolean} Returns `true` if the arguments are from an iteratee call,
+	 *  else `false`.
+	 */
+	function isIterateeCall(value, index, object) {
+	  if (!isObject(object)) {
+	    return false;
+	  }
+	  var type = typeof index;
+	  if (type == 'number'
+	        ? (isArrayLike(object) && isIndex(index, object.length))
+	        : (type == 'string' && index in object)
+	      ) {
+	    return eq(object[index], value);
+	  }
+	  return false;
+	}
+
+	/**
+	 * Checks if `value` is likely a prototype object.
+	 *
+	 * @private
+	 * @param {*} value The value to check.
+	 * @returns {boolean} Returns `true` if `value` is a prototype, else `false`.
+	 */
+	function isPrototype(value) {
+	  var Ctor = value && value.constructor,
+	      proto = (typeof Ctor == 'function' && Ctor.prototype) || objectProto;
+
+	  return value === proto;
+	}
+
+	/**
+	 * Performs a
+	 * [`SameValueZero`](http://ecma-international.org/ecma-262/7.0/#sec-samevaluezero)
+	 * comparison between two values to determine if they are equivalent.
+	 *
+	 * @static
+	 * @memberOf _
+	 * @since 4.0.0
+	 * @category Lang
+	 * @param {*} value The value to compare.
+	 * @param {*} other The other value to compare.
+	 * @returns {boolean} Returns `true` if the values are equivalent, else `false`.
+	 * @example
+	 *
+	 * var object = { 'a': 1 };
+	 * var other = { 'a': 1 };
+	 *
+	 * _.eq(object, object);
+	 * // => true
+	 *
+	 * _.eq(object, other);
+	 * // => false
+	 *
+	 * _.eq('a', 'a');
+	 * // => true
+	 *
+	 * _.eq('a', Object('a'));
+	 * // => false
+	 *
+	 * _.eq(NaN, NaN);
+	 * // => true
+	 */
+	function eq(value, other) {
+	  return value === other || (value !== value && other !== other);
+	}
+
+	/**
+	 * Checks if `value` is likely an `arguments` object.
+	 *
+	 * @static
+	 * @memberOf _
+	 * @since 0.1.0
+	 * @category Lang
+	 * @param {*} value The value to check.
+	 * @returns {boolean} Returns `true` if `value` is an `arguments` object,
+	 *  else `false`.
+	 * @example
+	 *
+	 * _.isArguments(function() { return arguments; }());
+	 * // => true
+	 *
+	 * _.isArguments([1, 2, 3]);
+	 * // => false
+	 */
+	function isArguments(value) {
+	  // Safari 8.1 makes `arguments.callee` enumerable in strict mode.
+	  return isArrayLikeObject(value) && hasOwnProperty.call(value, 'callee') &&
+	    (!propertyIsEnumerable.call(value, 'callee') || objectToString.call(value) == argsTag);
+	}
+
+	/**
+	 * Checks if `value` is classified as an `Array` object.
+	 *
+	 * @static
+	 * @memberOf _
+	 * @since 0.1.0
+	 * @category Lang
+	 * @param {*} value The value to check.
+	 * @returns {boolean} Returns `true` if `value` is an array, else `false`.
+	 * @example
+	 *
+	 * _.isArray([1, 2, 3]);
+	 * // => true
+	 *
+	 * _.isArray(document.body.children);
+	 * // => false
+	 *
+	 * _.isArray('abc');
+	 * // => false
+	 *
+	 * _.isArray(_.noop);
+	 * // => false
+	 */
+	var isArray = Array.isArray;
+
+	/**
+	 * Checks if `value` is array-like. A value is considered array-like if it's
+	 * not a function and has a `value.length` that's an integer greater than or
+	 * equal to `0` and less than or equal to `Number.MAX_SAFE_INTEGER`.
+	 *
+	 * @static
+	 * @memberOf _
+	 * @since 4.0.0
+	 * @category Lang
+	 * @param {*} value The value to check.
+	 * @returns {boolean} Returns `true` if `value` is array-like, else `false`.
+	 * @example
+	 *
+	 * _.isArrayLike([1, 2, 3]);
+	 * // => true
+	 *
+	 * _.isArrayLike(document.body.children);
+	 * // => true
+	 *
+	 * _.isArrayLike('abc');
+	 * // => true
+	 *
+	 * _.isArrayLike(_.noop);
+	 * // => false
+	 */
+	function isArrayLike(value) {
+	  return value != null && isLength(value.length) && !isFunction(value);
+	}
+
+	/**
+	 * This method is like `_.isArrayLike` except that it also checks if `value`
+	 * is an object.
+	 *
+	 * @static
+	 * @memberOf _
+	 * @since 4.0.0
+	 * @category Lang
+	 * @param {*} value The value to check.
+	 * @returns {boolean} Returns `true` if `value` is an array-like object,
+	 *  else `false`.
+	 * @example
+	 *
+	 * _.isArrayLikeObject([1, 2, 3]);
+	 * // => true
+	 *
+	 * _.isArrayLikeObject(document.body.children);
+	 * // => true
+	 *
+	 * _.isArrayLikeObject('abc');
+	 * // => false
+	 *
+	 * _.isArrayLikeObject(_.noop);
+	 * // => false
+	 */
+	function isArrayLikeObject(value) {
+	  return isObjectLike(value) && isArrayLike(value);
+	}
+
+	/**
+	 * Checks if `value` is classified as a `Function` object.
+	 *
+	 * @static
+	 * @memberOf _
+	 * @since 0.1.0
+	 * @category Lang
+	 * @param {*} value The value to check.
+	 * @returns {boolean} Returns `true` if `value` is a function, else `false`.
+	 * @example
+	 *
+	 * _.isFunction(_);
+	 * // => true
+	 *
+	 * _.isFunction(/abc/);
+	 * // => false
+	 */
+	function isFunction(value) {
+	  // The use of `Object#toString` avoids issues with the `typeof` operator
+	  // in Safari 8-9 which returns 'object' for typed array and other constructors.
+	  var tag = isObject(value) ? objectToString.call(value) : '';
+	  return tag == funcTag || tag == genTag;
+	}
+
+	/**
+	 * Checks if `value` is a valid array-like length.
+	 *
+	 * **Note:** This method is loosely based on
+	 * [`ToLength`](http://ecma-international.org/ecma-262/7.0/#sec-tolength).
+	 *
+	 * @static
+	 * @memberOf _
+	 * @since 4.0.0
+	 * @category Lang
+	 * @param {*} value The value to check.
+	 * @returns {boolean} Returns `true` if `value` is a valid length, else `false`.
+	 * @example
+	 *
+	 * _.isLength(3);
+	 * // => true
+	 *
+	 * _.isLength(Number.MIN_VALUE);
+	 * // => false
+	 *
+	 * _.isLength(Infinity);
+	 * // => false
+	 *
+	 * _.isLength('3');
+	 * // => false
+	 */
+	function isLength(value) {
+	  return typeof value == 'number' &&
+	    value > -1 && value % 1 == 0 && value <= MAX_SAFE_INTEGER;
+	}
+
+	/**
+	 * Checks if `value` is the
+	 * [language type](http://www.ecma-international.org/ecma-262/7.0/#sec-ecmascript-language-types)
+	 * of `Object`. (e.g. arrays, functions, objects, regexes, `new Number(0)`, and `new String('')`)
+	 *
+	 * @static
+	 * @memberOf _
+	 * @since 0.1.0
+	 * @category Lang
+	 * @param {*} value The value to check.
+	 * @returns {boolean} Returns `true` if `value` is an object, else `false`.
+	 * @example
+	 *
+	 * _.isObject({});
+	 * // => true
+	 *
+	 * _.isObject([1, 2, 3]);
+	 * // => true
+	 *
+	 * _.isObject(_.noop);
+	 * // => true
+	 *
+	 * _.isObject(null);
+	 * // => false
+	 */
+	function isObject(value) {
+	  var type = typeof value;
+	  return !!value && (type == 'object' || type == 'function');
+	}
+
+	/**
+	 * Checks if `value` is object-like. A value is object-like if it's not `null`
+	 * and has a `typeof` result of "object".
+	 *
+	 * @static
+	 * @memberOf _
+	 * @since 4.0.0
+	 * @category Lang
+	 * @param {*} value The value to check.
+	 * @returns {boolean} Returns `true` if `value` is object-like, else `false`.
+	 * @example
+	 *
+	 * _.isObjectLike({});
+	 * // => true
+	 *
+	 * _.isObjectLike([1, 2, 3]);
+	 * // => true
+	 *
+	 * _.isObjectLike(_.noop);
+	 * // => false
+	 *
+	 * _.isObjectLike(null);
+	 * // => false
+	 */
+	function isObjectLike(value) {
+	  return !!value && typeof value == 'object';
+	}
+
+	/**
+	 * Assigns own enumerable string keyed properties of source objects to the
+	 * destination object. Source objects are applied from left to right.
+	 * Subsequent sources overwrite property assignments of previous sources.
+	 *
+	 * **Note:** This method mutates `object` and is loosely based on
+	 * [`Object.assign`](https://mdn.io/Object/assign).
+	 *
+	 * @static
+	 * @memberOf _
+	 * @since 0.10.0
+	 * @category Object
+	 * @param {Object} object The destination object.
+	 * @param {...Object} [sources] The source objects.
+	 * @returns {Object} Returns `object`.
+	 * @see _.assignIn
+	 * @example
+	 *
+	 * function Foo() {
+	 *   this.a = 1;
+	 * }
+	 *
+	 * function Bar() {
+	 *   this.c = 3;
+	 * }
+	 *
+	 * Foo.prototype.b = 2;
+	 * Bar.prototype.d = 4;
+	 *
+	 * _.assign({ 'a': 0 }, new Foo, new Bar);
+	 * // => { 'a': 1, 'c': 3 }
+	 */
+	var assign = createAssigner(function(object, source) {
+	  if (nonEnumShadows || isPrototype(source) || isArrayLike(source)) {
+	    copyObject(source, keys(source), object);
+	    return;
+	  }
+	  for (var key in source) {
+	    if (hasOwnProperty.call(source, key)) {
+	      assignValue(object, key, source[key]);
+	    }
+	  }
+	});
+
+	/**
+	 * Creates an array of the own enumerable property names of `object`.
+	 *
+	 * **Note:** Non-object values are coerced to objects. See the
+	 * [ES spec](http://ecma-international.org/ecma-262/7.0/#sec-object.keys)
+	 * for more details.
+	 *
+	 * @static
+	 * @since 0.1.0
+	 * @memberOf _
+	 * @category Object
+	 * @param {Object} object The object to query.
+	 * @returns {Array} Returns the array of property names.
+	 * @example
+	 *
+	 * function Foo() {
+	 *   this.a = 1;
+	 *   this.b = 2;
+	 * }
+	 *
+	 * Foo.prototype.c = 3;
+	 *
+	 * _.keys(new Foo);
+	 * // => ['a', 'b'] (iteration order is not guaranteed)
+	 *
+	 * _.keys('hi');
+	 * // => ['0', '1']
+	 */
+	function keys(object) {
+	  return isArrayLike(object) ? arrayLikeKeys(object) : baseKeys(object);
+	}
+
+	module.exports = assign;
+
+
+/***/ },
+/* 578 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var __WEBPACK_AMD_DEFINE_RESULT__;/*!
+	 * EventEmitter v5.1.0 - git.io/ee
+	 * Unlicense - http://unlicense.org/
+	 * Oliver Caldwell - http://oli.me.uk/
+	 * @preserve
+	 */
+
+	;(function (exports) {
+	    'use strict';
+
+	    /**
+	     * Class for managing events.
+	     * Can be extended to provide event functionality in other classes.
+	     *
+	     * @class EventEmitter Manages event registering and emitting.
+	     */
+	    function EventEmitter() {}
+
+	    // Shortcuts to improve speed and size
+	    var proto = EventEmitter.prototype;
+	    var originalGlobalValue = exports.EventEmitter;
+
+	    /**
+	     * Finds the index of the listener for the event in its storage array.
+	     *
+	     * @param {Function[]} listeners Array of listeners to search through.
+	     * @param {Function} listener Method to look for.
+	     * @return {Number} Index of the specified listener, -1 if not found
+	     * @api private
+	     */
+	    function indexOfListener(listeners, listener) {
+	        var i = listeners.length;
+	        while (i--) {
+	            if (listeners[i].listener === listener) {
+	                return i;
+	            }
+	        }
+
+	        return -1;
+	    }
+
+	    /**
+	     * Alias a method while keeping the context correct, to allow for overwriting of target method.
+	     *
+	     * @param {String} name The name of the target method.
+	     * @return {Function} The aliased method
+	     * @api private
+	     */
+	    function alias(name) {
+	        return function aliasClosure() {
+	            return this[name].apply(this, arguments);
+	        };
+	    }
+
+	    /**
+	     * Returns the listener array for the specified event.
+	     * Will initialise the event object and listener arrays if required.
+	     * Will return an object if you use a regex search. The object contains keys for each matched event. So /ba[rz]/ might return an object containing bar and baz. But only if you have either defined them with defineEvent or added some listeners to them.
+	     * Each property in the object response is an array of listener functions.
+	     *
+	     * @param {String|RegExp} evt Name of the event to return the listeners from.
+	     * @return {Function[]|Object} All listener functions for the event.
+	     */
+	    proto.getListeners = function getListeners(evt) {
+	        var events = this._getEvents();
+	        var response;
+	        var key;
+
+	        // Return a concatenated array of all matching events if
+	        // the selector is a regular expression.
+	        if (evt instanceof RegExp) {
+	            response = {};
+	            for (key in events) {
+	                if (events.hasOwnProperty(key) && evt.test(key)) {
+	                    response[key] = events[key];
+	                }
+	            }
+	        }
+	        else {
+	            response = events[evt] || (events[evt] = []);
+	        }
+
+	        return response;
+	    };
+
+	    /**
+	     * Takes a list of listener objects and flattens it into a list of listener functions.
+	     *
+	     * @param {Object[]} listeners Raw listener objects.
+	     * @return {Function[]} Just the listener functions.
+	     */
+	    proto.flattenListeners = function flattenListeners(listeners) {
+	        var flatListeners = [];
+	        var i;
+
+	        for (i = 0; i < listeners.length; i += 1) {
+	            flatListeners.push(listeners[i].listener);
+	        }
+
+	        return flatListeners;
+	    };
+
+	    /**
+	     * Fetches the requested listeners via getListeners but will always return the results inside an object. This is mainly for internal use but others may find it useful.
+	     *
+	     * @param {String|RegExp} evt Name of the event to return the listeners from.
+	     * @return {Object} All listener functions for an event in an object.
+	     */
+	    proto.getListenersAsObject = function getListenersAsObject(evt) {
+	        var listeners = this.getListeners(evt);
+	        var response;
+
+	        if (listeners instanceof Array) {
+	            response = {};
+	            response[evt] = listeners;
+	        }
+
+	        return response || listeners;
+	    };
+
+	    function isValidListener (listener) {
+	        if (typeof listener === 'function' || listener instanceof RegExp) {
+	            return true
+	        } else if (listener && typeof listener === 'object') {
+	            return isValidListener(listener.listener)
+	        } else {
+	            return false
+	        }
+	    }
+
+	    /**
+	     * Adds a listener function to the specified event.
+	     * The listener will not be added if it is a duplicate.
+	     * If the listener returns true then it will be removed after it is called.
+	     * If you pass a regular expression as the event name then the listener will be added to all events that match it.
+	     *
+	     * @param {String|RegExp} evt Name of the event to attach the listener to.
+	     * @param {Function} listener Method to be called when the event is emitted. If the function returns true then it will be removed after calling.
+	     * @return {Object} Current instance of EventEmitter for chaining.
+	     */
+	    proto.addListener = function addListener(evt, listener) {
+	        if (!isValidListener(listener)) {
+	            throw new TypeError('listener must be a function');
+	        }
+
+	        var listeners = this.getListenersAsObject(evt);
+	        var listenerIsWrapped = typeof listener === 'object';
+	        var key;
+
+	        for (key in listeners) {
+	            if (listeners.hasOwnProperty(key) && indexOfListener(listeners[key], listener) === -1) {
+	                listeners[key].push(listenerIsWrapped ? listener : {
+	                    listener: listener,
+	                    once: false
+	                });
+	            }
+	        }
+
+	        return this;
+	    };
+
+	    /**
+	     * Alias of addListener
+	     */
+	    proto.on = alias('addListener');
+
+	    /**
+	     * Semi-alias of addListener. It will add a listener that will be
+	     * automatically removed after its first execution.
+	     *
+	     * @param {String|RegExp} evt Name of the event to attach the listener to.
+	     * @param {Function} listener Method to be called when the event is emitted. If the function returns true then it will be removed after calling.
+	     * @return {Object} Current instance of EventEmitter for chaining.
+	     */
+	    proto.addOnceListener = function addOnceListener(evt, listener) {
+	        return this.addListener(evt, {
+	            listener: listener,
+	            once: true
+	        });
+	    };
+
+	    /**
+	     * Alias of addOnceListener.
+	     */
+	    proto.once = alias('addOnceListener');
+
+	    /**
+	     * Defines an event name. This is required if you want to use a regex to add a listener to multiple events at once. If you don't do this then how do you expect it to know what event to add to? Should it just add to every possible match for a regex? No. That is scary and bad.
+	     * You need to tell it what event names should be matched by a regex.
+	     *
+	     * @param {String} evt Name of the event to create.
+	     * @return {Object} Current instance of EventEmitter for chaining.
+	     */
+	    proto.defineEvent = function defineEvent(evt) {
+	        this.getListeners(evt);
+	        return this;
+	    };
+
+	    /**
+	     * Uses defineEvent to define multiple events.
+	     *
+	     * @param {String[]} evts An array of event names to define.
+	     * @return {Object} Current instance of EventEmitter for chaining.
+	     */
+	    proto.defineEvents = function defineEvents(evts) {
+	        for (var i = 0; i < evts.length; i += 1) {
+	            this.defineEvent(evts[i]);
+	        }
+	        return this;
+	    };
+
+	    /**
+	     * Removes a listener function from the specified event.
+	     * When passed a regular expression as the event name, it will remove the listener from all events that match it.
+	     *
+	     * @param {String|RegExp} evt Name of the event to remove the listener from.
+	     * @param {Function} listener Method to remove from the event.
+	     * @return {Object} Current instance of EventEmitter for chaining.
+	     */
+	    proto.removeListener = function removeListener(evt, listener) {
+	        var listeners = this.getListenersAsObject(evt);
+	        var index;
+	        var key;
+
+	        for (key in listeners) {
+	            if (listeners.hasOwnProperty(key)) {
+	                index = indexOfListener(listeners[key], listener);
+
+	                if (index !== -1) {
+	                    listeners[key].splice(index, 1);
+	                }
+	            }
+	        }
+
+	        return this;
+	    };
+
+	    /**
+	     * Alias of removeListener
+	     */
+	    proto.off = alias('removeListener');
+
+	    /**
+	     * Adds listeners in bulk using the manipulateListeners method.
+	     * If you pass an object as the second argument you can add to multiple events at once. The object should contain key value pairs of events and listeners or listener arrays. You can also pass it an event name and an array of listeners to be added.
+	     * You can also pass it a regular expression to add the array of listeners to all events that match it.
+	     * Yeah, this function does quite a bit. That's probably a bad thing.
+	     *
+	     * @param {String|Object|RegExp} evt An event name if you will pass an array of listeners next. An object if you wish to add to multiple events at once.
+	     * @param {Function[]} [listeners] An optional array of listener functions to add.
+	     * @return {Object} Current instance of EventEmitter for chaining.
+	     */
+	    proto.addListeners = function addListeners(evt, listeners) {
+	        // Pass through to manipulateListeners
+	        return this.manipulateListeners(false, evt, listeners);
+	    };
+
+	    /**
+	     * Removes listeners in bulk using the manipulateListeners method.
+	     * If you pass an object as the second argument you can remove from multiple events at once. The object should contain key value pairs of events and listeners or listener arrays.
+	     * You can also pass it an event name and an array of listeners to be removed.
+	     * You can also pass it a regular expression to remove the listeners from all events that match it.
+	     *
+	     * @param {String|Object|RegExp} evt An event name if you will pass an array of listeners next. An object if you wish to remove from multiple events at once.
+	     * @param {Function[]} [listeners] An optional array of listener functions to remove.
+	     * @return {Object} Current instance of EventEmitter for chaining.
+	     */
+	    proto.removeListeners = function removeListeners(evt, listeners) {
+	        // Pass through to manipulateListeners
+	        return this.manipulateListeners(true, evt, listeners);
+	    };
+
+	    /**
+	     * Edits listeners in bulk. The addListeners and removeListeners methods both use this to do their job. You should really use those instead, this is a little lower level.
+	     * The first argument will determine if the listeners are removed (true) or added (false).
+	     * If you pass an object as the second argument you can add/remove from multiple events at once. The object should contain key value pairs of events and listeners or listener arrays.
+	     * You can also pass it an event name and an array of listeners to be added/removed.
+	     * You can also pass it a regular expression to manipulate the listeners of all events that match it.
+	     *
+	     * @param {Boolean} remove True if you want to remove listeners, false if you want to add.
+	     * @param {String|Object|RegExp} evt An event name if you will pass an array of listeners next. An object if you wish to add/remove from multiple events at once.
+	     * @param {Function[]} [listeners] An optional array of listener functions to add/remove.
+	     * @return {Object} Current instance of EventEmitter for chaining.
+	     */
+	    proto.manipulateListeners = function manipulateListeners(remove, evt, listeners) {
+	        var i;
+	        var value;
+	        var single = remove ? this.removeListener : this.addListener;
+	        var multiple = remove ? this.removeListeners : this.addListeners;
+
+	        // If evt is an object then pass each of its properties to this method
+	        if (typeof evt === 'object' && !(evt instanceof RegExp)) {
+	            for (i in evt) {
+	                if (evt.hasOwnProperty(i) && (value = evt[i])) {
+	                    // Pass the single listener straight through to the singular method
+	                    if (typeof value === 'function') {
+	                        single.call(this, i, value);
+	                    }
+	                    else {
+	                        // Otherwise pass back to the multiple function
+	                        multiple.call(this, i, value);
+	                    }
+	                }
+	            }
+	        }
+	        else {
+	            // So evt must be a string
+	            // And listeners must be an array of listeners
+	            // Loop over it and pass each one to the multiple method
+	            i = listeners.length;
+	            while (i--) {
+	                single.call(this, evt, listeners[i]);
+	            }
+	        }
+
+	        return this;
+	    };
+
+	    /**
+	     * Removes all listeners from a specified event.
+	     * If you do not specify an event then all listeners will be removed.
+	     * That means every event will be emptied.
+	     * You can also pass a regex to remove all events that match it.
+	     *
+	     * @param {String|RegExp} [evt] Optional name of the event to remove all listeners for. Will remove from every event if not passed.
+	     * @return {Object} Current instance of EventEmitter for chaining.
+	     */
+	    proto.removeEvent = function removeEvent(evt) {
+	        var type = typeof evt;
+	        var events = this._getEvents();
+	        var key;
+
+	        // Remove different things depending on the state of evt
+	        if (type === 'string') {
+	            // Remove all listeners for the specified event
+	            delete events[evt];
+	        }
+	        else if (evt instanceof RegExp) {
+	            // Remove all events matching the regex.
+	            for (key in events) {
+	                if (events.hasOwnProperty(key) && evt.test(key)) {
+	                    delete events[key];
+	                }
+	            }
+	        }
+	        else {
+	            // Remove all listeners in all events
+	            delete this._events;
+	        }
+
+	        return this;
+	    };
+
+	    /**
+	     * Alias of removeEvent.
+	     *
+	     * Added to mirror the node API.
+	     */
+	    proto.removeAllListeners = alias('removeEvent');
+
+	    /**
+	     * Emits an event of your choice.
+	     * When emitted, every listener attached to that event will be executed.
+	     * If you pass the optional argument array then those arguments will be passed to every listener upon execution.
+	     * Because it uses `apply`, your array of arguments will be passed as if you wrote them out separately.
+	     * So they will not arrive within the array on the other side, they will be separate.
+	     * You can also pass a regular expression to emit to all events that match it.
+	     *
+	     * @param {String|RegExp} evt Name of the event to emit and execute listeners for.
+	     * @param {Array} [args] Optional array of arguments to be passed to each listener.
+	     * @return {Object} Current instance of EventEmitter for chaining.
+	     */
+	    proto.emitEvent = function emitEvent(evt, args) {
+	        var listenersMap = this.getListenersAsObject(evt);
+	        var listeners;
+	        var listener;
+	        var i;
+	        var key;
+	        var response;
+
+	        for (key in listenersMap) {
+	            if (listenersMap.hasOwnProperty(key)) {
+	                listeners = listenersMap[key].slice(0);
+
+	                for (i = 0; i < listeners.length; i++) {
+	                    // If the listener returns true then it shall be removed from the event
+	                    // The function is executed either with a basic call or an apply if there is an args array
+	                    listener = listeners[i];
+
+	                    if (listener.once === true) {
+	                        this.removeListener(evt, listener.listener);
+	                    }
+
+	                    response = listener.listener.apply(this, args || []);
+
+	                    if (response === this._getOnceReturnValue()) {
+	                        this.removeListener(evt, listener.listener);
+	                    }
+	                }
+	            }
+	        }
+
+	        return this;
+	    };
+
+	    /**
+	     * Alias of emitEvent
+	     */
+	    proto.trigger = alias('emitEvent');
+
+	    /**
+	     * Subtly different from emitEvent in that it will pass its arguments on to the listeners, as opposed to taking a single array of arguments to pass on.
+	     * As with emitEvent, you can pass a regex in place of the event name to emit to all events that match it.
+	     *
+	     * @param {String|RegExp} evt Name of the event to emit and execute listeners for.
+	     * @param {...*} Optional additional arguments to be passed to each listener.
+	     * @return {Object} Current instance of EventEmitter for chaining.
+	     */
+	    proto.emit = function emit(evt) {
+	        var args = Array.prototype.slice.call(arguments, 1);
+	        return this.emitEvent(evt, args);
+	    };
+
+	    /**
+	     * Sets the current value to check against when executing listeners. If a
+	     * listeners return value matches the one set here then it will be removed
+	     * after execution. This value defaults to true.
+	     *
+	     * @param {*} value The new value to check for when executing listeners.
+	     * @return {Object} Current instance of EventEmitter for chaining.
+	     */
+	    proto.setOnceReturnValue = function setOnceReturnValue(value) {
+	        this._onceReturnValue = value;
+	        return this;
+	    };
+
+	    /**
+	     * Fetches the current value to check against when executing listeners. If
+	     * the listeners return value matches this one then it should be removed
+	     * automatically. It will return true by default.
+	     *
+	     * @return {*|Boolean} The current value to check for or the default, true.
+	     * @api private
+	     */
+	    proto._getOnceReturnValue = function _getOnceReturnValue() {
+	        if (this.hasOwnProperty('_onceReturnValue')) {
+	            return this._onceReturnValue;
+	        }
+	        else {
+	            return true;
+	        }
+	    };
+
+	    /**
+	     * Fetches the events object and creates one if required.
+	     *
+	     * @return {Object} The events storage object.
+	     * @api private
+	     */
+	    proto._getEvents = function _getEvents() {
+	        return this._events || (this._events = {});
+	    };
+
+	    /**
+	     * Reverts the global {@link EventEmitter} to its previous value and returns a reference to this version.
+	     *
+	     * @return {Function} Non conflicting EventEmitter class.
+	     */
+	    EventEmitter.noConflict = function noConflict() {
+	        exports.EventEmitter = originalGlobalValue;
+	        return EventEmitter;
+	    };
+
+	    // Expose the class either via AMD, CommonJS or the global object
+	    if (true) {
+	        !(__WEBPACK_AMD_DEFINE_RESULT__ = function () {
+	            return EventEmitter;
+	        }.call(exports, __webpack_require__, exports, module), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+	    }
+	    else if (typeof module === 'object' && module.exports){
+	        module.exports = EventEmitter;
+	    }
+	    else {
+	        exports.EventEmitter = EventEmitter;
+	    }
+	}(this || {}));
+
+
+/***/ },
+/* 579 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	exports.connect = connect;
+	exports.disconnect = disconnect;
+	exports.init = init;
+
+	var _ddp = __webpack_require__(580);
+
+	var _ddp2 = _interopRequireDefault(_ddp);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	/*
+	*   Public methods
+	*/
+
+	function connect() {
+	    this.ddp.connect();
+	} /*
+	  *   The ddp mixin:
+	  *   - instantiates the ddp connection to the server (a DDP instance) and stores
+	  *     it in the `ddp` property of the Asteroid instance
+	  *   - listens for the `connected` and `disconnected` events of the DDP instance
+	  *     and proxies them to the Asteroid instance
+	  *   - exposes the `endpoint` public property
+	  *   - defines the `connect` and `disconnect` methods, used to control the ddp
+	  *     connection with the server
+	  */
+
+	function disconnect() {
+	    this.ddp.disconnect();
+	}
+
+	/*
+	*   Init method
+	*/
+
+	function init(options) {
+	    var _this = this;
+
+	    var endpoint = options.endpoint;
+	    var _options$SocketConstr = options.SocketConstructor;
+	    var SocketConstructor = _options$SocketConstr === undefined ? WebSocket : _options$SocketConstr;
+	    var autoConnect = options.autoConnect;
+	    var autoReconnect = options.autoReconnect;
+	    var reconnectInterval = options.reconnectInterval;
+
+	    this.endpoint = endpoint;
+	    var ddpOptions = {
+	        endpoint: endpoint,
+	        SocketConstructor: SocketConstructor,
+	        autoConnect: autoConnect,
+	        autoReconnect: autoReconnect,
+	        reconnectInterval: reconnectInterval
+	    };
+	    this.ddp = new _ddp2.default(ddpOptions).on("connected", function () {
+	        return _this.emit("connected");
+	    }).on("disconnected", function () {
+	        return _this.emit("disconnected");
+	    });
+	}
+
+/***/ },
+/* 580 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _get = function get(object, property, receiver) { if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { return get(parent, property, receiver); } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } };
+
+	var _wolfy87Eventemitter = __webpack_require__(581);
+
+	var _wolfy87Eventemitter2 = _interopRequireDefault(_wolfy87Eventemitter);
+
+	var _queue = __webpack_require__(582);
+
+	var _queue2 = _interopRequireDefault(_queue);
+
+	var _socket = __webpack_require__(583);
+
+	var _socket2 = _interopRequireDefault(_socket);
+
+	var _utils = __webpack_require__(584);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var DDP_VERSION = "1";
+	var PUBLIC_EVENTS = [
+	// Subscription messages
+	"ready", "nosub", "added", "changed", "removed",
+	// Method messages
+	"result", "updated",
+	// Error messages
+	"error"];
+	var DEFAULT_RECONNECT_INTERVAL = 10000;
+
+	var DDP = function (_EventEmitter) {
+	    _inherits(DDP, _EventEmitter);
+
+	    _createClass(DDP, [{
+	        key: "emit",
+	        value: function emit() {
+	            var _get2;
+
+	            setTimeout((_get2 = _get(Object.getPrototypeOf(DDP.prototype), "emit", this)).bind.apply(_get2, [this].concat(Array.prototype.slice.call(arguments))), 0);
+	        }
+	    }]);
+
+	    function DDP(options) {
+	        _classCallCheck(this, DDP);
+
+	        var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(DDP).call(this));
+
+	        _this.status = "disconnected";
+
+	        // Default `autoConnect` and `autoReconnect` to true
+	        _this.autoConnect = options.autoConnect !== false;
+	        _this.autoReconnect = options.autoReconnect !== false;
+	        _this.reconnectInterval = options.reconnectInterval || DEFAULT_RECONNECT_INTERVAL;
+
+	        _this.messageQueue = new _queue2.default(function (message) {
+	            if (_this.status === "connected") {
+	                _this.socket.send(message);
+	                return true;
+	            } else {
+	                return false;
+	            }
+	        });
+
+	        _this.socket = new _socket2.default(options.SocketConstructor, options.endpoint);
+
+	        _this.socket.on("open", function () {
+	            // When the socket opens, send the `connect` message
+	            // to establish the DDP connection
+	            _this.socket.send({
+	                msg: "connect",
+	                version: DDP_VERSION,
+	                support: [DDP_VERSION]
+	            });
+	        });
+
+	        _this.socket.on("close", function () {
+	            _this.status = "disconnected";
+	            _this.messageQueue.empty();
+	            _this.emit("disconnected");
+	            if (_this.autoReconnect) {
+	                // Schedule a reconnection
+	                setTimeout(_this.socket.open.bind(_this.socket), _this.reconnectInterval);
+	            }
+	        });
+
+	        _this.socket.on("message:in", function (message) {
+	            if (message.msg === "connected") {
+	                _this.status = "connected";
+	                _this.messageQueue.process();
+	                _this.emit("connected");
+	            } else if (message.msg === "ping") {
+	                // Reply with a `pong` message to prevent the server from
+	                // closing the connection
+	                _this.socket.send({ msg: "pong", id: message.id });
+	            } else if ((0, _utils.contains)(PUBLIC_EVENTS, message.msg)) {
+	                _this.emit(message.msg, message);
+	            }
+	        });
+
+	        if (_this.autoConnect) {
+	            _this.connect();
+	        }
+
+	        return _this;
+	    }
+
+	    _createClass(DDP, [{
+	        key: "connect",
+	        value: function connect() {
+	            this.socket.open();
+	        }
+	    }, {
+	        key: "disconnect",
+	        value: function disconnect() {
+	            /*
+	            *   If `disconnect` is called, the caller likely doesn't want the
+	            *   the instance to try to auto-reconnect. Therefore we set the
+	            *   `autoReconnect` flag to false.
+	            */
+	            this.autoReconnect = false;
+	            this.socket.close();
+	        }
+	    }, {
+	        key: "method",
+	        value: function method(name, params) {
+	            var id = (0, _utils.uniqueId)();
+	            this.messageQueue.push({
+	                msg: "method",
+	                id: id,
+	                method: name,
+	                params: params
+	            });
+	            return id;
+	        }
+	    }, {
+	        key: "sub",
+	        value: function sub(name, params) {
+	            var id = arguments.length <= 2 || arguments[2] === undefined ? null : arguments[2];
+
+	            id || (id = (0, _utils.uniqueId)());
+	            this.messageQueue.push({
+	                msg: "sub",
+	                id: id,
+	                name: name,
+	                params: params
+	            });
+	            return id;
+	        }
+	    }, {
+	        key: "unsub",
+	        value: function unsub(id) {
+	            this.messageQueue.push({
+	                msg: "unsub",
+	                id: id
+	            });
+	            return id;
+	        }
+	    }]);
+
+	    return DDP;
+	}(_wolfy87Eventemitter2.default);
+
+	exports.default = DDP;
+
+/***/ },
+/* 581 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var __WEBPACK_AMD_DEFINE_RESULT__;/*!
+	 * EventEmitter v4.2.11 - git.io/ee
+	 * Unlicense - http://unlicense.org/
+	 * Oliver Caldwell - http://oli.me.uk/
+	 * @preserve
+	 */
+
+	;(function () {
+	    'use strict';
+
+	    /**
+	     * Class for managing events.
+	     * Can be extended to provide event functionality in other classes.
+	     *
+	     * @class EventEmitter Manages event registering and emitting.
+	     */
+	    function EventEmitter() {}
+
+	    // Shortcuts to improve speed and size
+	    var proto = EventEmitter.prototype;
+	    var exports = this;
+	    var originalGlobalValue = exports.EventEmitter;
+
+	    /**
+	     * Finds the index of the listener for the event in its storage array.
+	     *
+	     * @param {Function[]} listeners Array of listeners to search through.
+	     * @param {Function} listener Method to look for.
+	     * @return {Number} Index of the specified listener, -1 if not found
+	     * @api private
+	     */
+	    function indexOfListener(listeners, listener) {
+	        var i = listeners.length;
+	        while (i--) {
+	            if (listeners[i].listener === listener) {
+	                return i;
+	            }
+	        }
+
+	        return -1;
+	    }
+
+	    /**
+	     * Alias a method while keeping the context correct, to allow for overwriting of target method.
+	     *
+	     * @param {String} name The name of the target method.
+	     * @return {Function} The aliased method
+	     * @api private
+	     */
+	    function alias(name) {
+	        return function aliasClosure() {
+	            return this[name].apply(this, arguments);
+	        };
+	    }
+
+	    /**
+	     * Returns the listener array for the specified event.
+	     * Will initialise the event object and listener arrays if required.
+	     * Will return an object if you use a regex search. The object contains keys for each matched event. So /ba[rz]/ might return an object containing bar and baz. But only if you have either defined them with defineEvent or added some listeners to them.
+	     * Each property in the object response is an array of listener functions.
+	     *
+	     * @param {String|RegExp} evt Name of the event to return the listeners from.
+	     * @return {Function[]|Object} All listener functions for the event.
+	     */
+	    proto.getListeners = function getListeners(evt) {
+	        var events = this._getEvents();
+	        var response;
+	        var key;
+
+	        // Return a concatenated array of all matching events if
+	        // the selector is a regular expression.
+	        if (evt instanceof RegExp) {
+	            response = {};
+	            for (key in events) {
+	                if (events.hasOwnProperty(key) && evt.test(key)) {
+	                    response[key] = events[key];
+	                }
+	            }
+	        }
+	        else {
+	            response = events[evt] || (events[evt] = []);
+	        }
+
+	        return response;
+	    };
+
+	    /**
+	     * Takes a list of listener objects and flattens it into a list of listener functions.
+	     *
+	     * @param {Object[]} listeners Raw listener objects.
+	     * @return {Function[]} Just the listener functions.
+	     */
+	    proto.flattenListeners = function flattenListeners(listeners) {
+	        var flatListeners = [];
+	        var i;
+
+	        for (i = 0; i < listeners.length; i += 1) {
+	            flatListeners.push(listeners[i].listener);
+	        }
+
+	        return flatListeners;
+	    };
+
+	    /**
+	     * Fetches the requested listeners via getListeners but will always return the results inside an object. This is mainly for internal use but others may find it useful.
+	     *
+	     * @param {String|RegExp} evt Name of the event to return the listeners from.
+	     * @return {Object} All listener functions for an event in an object.
+	     */
+	    proto.getListenersAsObject = function getListenersAsObject(evt) {
+	        var listeners = this.getListeners(evt);
+	        var response;
+
+	        if (listeners instanceof Array) {
+	            response = {};
+	            response[evt] = listeners;
+	        }
+
+	        return response || listeners;
+	    };
+
+	    /**
+	     * Adds a listener function to the specified event.
+	     * The listener will not be added if it is a duplicate.
+	     * If the listener returns true then it will be removed after it is called.
+	     * If you pass a regular expression as the event name then the listener will be added to all events that match it.
+	     *
+	     * @param {String|RegExp} evt Name of the event to attach the listener to.
+	     * @param {Function} listener Method to be called when the event is emitted. If the function returns true then it will be removed after calling.
+	     * @return {Object} Current instance of EventEmitter for chaining.
+	     */
+	    proto.addListener = function addListener(evt, listener) {
+	        var listeners = this.getListenersAsObject(evt);
+	        var listenerIsWrapped = typeof listener === 'object';
+	        var key;
+
+	        for (key in listeners) {
+	            if (listeners.hasOwnProperty(key) && indexOfListener(listeners[key], listener) === -1) {
+	                listeners[key].push(listenerIsWrapped ? listener : {
+	                    listener: listener,
+	                    once: false
+	                });
+	            }
+	        }
+
+	        return this;
+	    };
+
+	    /**
+	     * Alias of addListener
+	     */
+	    proto.on = alias('addListener');
+
+	    /**
+	     * Semi-alias of addListener. It will add a listener that will be
+	     * automatically removed after its first execution.
+	     *
+	     * @param {String|RegExp} evt Name of the event to attach the listener to.
+	     * @param {Function} listener Method to be called when the event is emitted. If the function returns true then it will be removed after calling.
+	     * @return {Object} Current instance of EventEmitter for chaining.
+	     */
+	    proto.addOnceListener = function addOnceListener(evt, listener) {
+	        return this.addListener(evt, {
+	            listener: listener,
+	            once: true
+	        });
+	    };
+
+	    /**
+	     * Alias of addOnceListener.
+	     */
+	    proto.once = alias('addOnceListener');
+
+	    /**
+	     * Defines an event name. This is required if you want to use a regex to add a listener to multiple events at once. If you don't do this then how do you expect it to know what event to add to? Should it just add to every possible match for a regex? No. That is scary and bad.
+	     * You need to tell it what event names should be matched by a regex.
+	     *
+	     * @param {String} evt Name of the event to create.
+	     * @return {Object} Current instance of EventEmitter for chaining.
+	     */
+	    proto.defineEvent = function defineEvent(evt) {
+	        this.getListeners(evt);
+	        return this;
+	    };
+
+	    /**
+	     * Uses defineEvent to define multiple events.
+	     *
+	     * @param {String[]} evts An array of event names to define.
+	     * @return {Object} Current instance of EventEmitter for chaining.
+	     */
+	    proto.defineEvents = function defineEvents(evts) {
+	        for (var i = 0; i < evts.length; i += 1) {
+	            this.defineEvent(evts[i]);
+	        }
+	        return this;
+	    };
+
+	    /**
+	     * Removes a listener function from the specified event.
+	     * When passed a regular expression as the event name, it will remove the listener from all events that match it.
+	     *
+	     * @param {String|RegExp} evt Name of the event to remove the listener from.
+	     * @param {Function} listener Method to remove from the event.
+	     * @return {Object} Current instance of EventEmitter for chaining.
+	     */
+	    proto.removeListener = function removeListener(evt, listener) {
+	        var listeners = this.getListenersAsObject(evt);
+	        var index;
+	        var key;
+
+	        for (key in listeners) {
+	            if (listeners.hasOwnProperty(key)) {
+	                index = indexOfListener(listeners[key], listener);
+
+	                if (index !== -1) {
+	                    listeners[key].splice(index, 1);
+	                }
+	            }
+	        }
+
+	        return this;
+	    };
+
+	    /**
+	     * Alias of removeListener
+	     */
+	    proto.off = alias('removeListener');
+
+	    /**
+	     * Adds listeners in bulk using the manipulateListeners method.
+	     * If you pass an object as the second argument you can add to multiple events at once. The object should contain key value pairs of events and listeners or listener arrays. You can also pass it an event name and an array of listeners to be added.
+	     * You can also pass it a regular expression to add the array of listeners to all events that match it.
+	     * Yeah, this function does quite a bit. That's probably a bad thing.
+	     *
+	     * @param {String|Object|RegExp} evt An event name if you will pass an array of listeners next. An object if you wish to add to multiple events at once.
+	     * @param {Function[]} [listeners] An optional array of listener functions to add.
+	     * @return {Object} Current instance of EventEmitter for chaining.
+	     */
+	    proto.addListeners = function addListeners(evt, listeners) {
+	        // Pass through to manipulateListeners
+	        return this.manipulateListeners(false, evt, listeners);
+	    };
+
+	    /**
+	     * Removes listeners in bulk using the manipulateListeners method.
+	     * If you pass an object as the second argument you can remove from multiple events at once. The object should contain key value pairs of events and listeners or listener arrays.
+	     * You can also pass it an event name and an array of listeners to be removed.
+	     * You can also pass it a regular expression to remove the listeners from all events that match it.
+	     *
+	     * @param {String|Object|RegExp} evt An event name if you will pass an array of listeners next. An object if you wish to remove from multiple events at once.
+	     * @param {Function[]} [listeners] An optional array of listener functions to remove.
+	     * @return {Object} Current instance of EventEmitter for chaining.
+	     */
+	    proto.removeListeners = function removeListeners(evt, listeners) {
+	        // Pass through to manipulateListeners
+	        return this.manipulateListeners(true, evt, listeners);
+	    };
+
+	    /**
+	     * Edits listeners in bulk. The addListeners and removeListeners methods both use this to do their job. You should really use those instead, this is a little lower level.
+	     * The first argument will determine if the listeners are removed (true) or added (false).
+	     * If you pass an object as the second argument you can add/remove from multiple events at once. The object should contain key value pairs of events and listeners or listener arrays.
+	     * You can also pass it an event name and an array of listeners to be added/removed.
+	     * You can also pass it a regular expression to manipulate the listeners of all events that match it.
+	     *
+	     * @param {Boolean} remove True if you want to remove listeners, false if you want to add.
+	     * @param {String|Object|RegExp} evt An event name if you will pass an array of listeners next. An object if you wish to add/remove from multiple events at once.
+	     * @param {Function[]} [listeners] An optional array of listener functions to add/remove.
+	     * @return {Object} Current instance of EventEmitter for chaining.
+	     */
+	    proto.manipulateListeners = function manipulateListeners(remove, evt, listeners) {
+	        var i;
+	        var value;
+	        var single = remove ? this.removeListener : this.addListener;
+	        var multiple = remove ? this.removeListeners : this.addListeners;
+
+	        // If evt is an object then pass each of its properties to this method
+	        if (typeof evt === 'object' && !(evt instanceof RegExp)) {
+	            for (i in evt) {
+	                if (evt.hasOwnProperty(i) && (value = evt[i])) {
+	                    // Pass the single listener straight through to the singular method
+	                    if (typeof value === 'function') {
+	                        single.call(this, i, value);
+	                    }
+	                    else {
+	                        // Otherwise pass back to the multiple function
+	                        multiple.call(this, i, value);
+	                    }
+	                }
+	            }
+	        }
+	        else {
+	            // So evt must be a string
+	            // And listeners must be an array of listeners
+	            // Loop over it and pass each one to the multiple method
+	            i = listeners.length;
+	            while (i--) {
+	                single.call(this, evt, listeners[i]);
+	            }
+	        }
+
+	        return this;
+	    };
+
+	    /**
+	     * Removes all listeners from a specified event.
+	     * If you do not specify an event then all listeners will be removed.
+	     * That means every event will be emptied.
+	     * You can also pass a regex to remove all events that match it.
+	     *
+	     * @param {String|RegExp} [evt] Optional name of the event to remove all listeners for. Will remove from every event if not passed.
+	     * @return {Object} Current instance of EventEmitter for chaining.
+	     */
+	    proto.removeEvent = function removeEvent(evt) {
+	        var type = typeof evt;
+	        var events = this._getEvents();
+	        var key;
+
+	        // Remove different things depending on the state of evt
+	        if (type === 'string') {
+	            // Remove all listeners for the specified event
+	            delete events[evt];
+	        }
+	        else if (evt instanceof RegExp) {
+	            // Remove all events matching the regex.
+	            for (key in events) {
+	                if (events.hasOwnProperty(key) && evt.test(key)) {
+	                    delete events[key];
+	                }
+	            }
+	        }
+	        else {
+	            // Remove all listeners in all events
+	            delete this._events;
+	        }
+
+	        return this;
+	    };
+
+	    /**
+	     * Alias of removeEvent.
+	     *
+	     * Added to mirror the node API.
+	     */
+	    proto.removeAllListeners = alias('removeEvent');
+
+	    /**
+	     * Emits an event of your choice.
+	     * When emitted, every listener attached to that event will be executed.
+	     * If you pass the optional argument array then those arguments will be passed to every listener upon execution.
+	     * Because it uses `apply`, your array of arguments will be passed as if you wrote them out separately.
+	     * So they will not arrive within the array on the other side, they will be separate.
+	     * You can also pass a regular expression to emit to all events that match it.
+	     *
+	     * @param {String|RegExp} evt Name of the event to emit and execute listeners for.
+	     * @param {Array} [args] Optional array of arguments to be passed to each listener.
+	     * @return {Object} Current instance of EventEmitter for chaining.
+	     */
+	    proto.emitEvent = function emitEvent(evt, args) {
+	        var listenersMap = this.getListenersAsObject(evt);
+	        var listeners;
+	        var listener;
+	        var i;
+	        var key;
+	        var response;
+
+	        for (key in listenersMap) {
+	            if (listenersMap.hasOwnProperty(key)) {
+	                listeners = listenersMap[key].slice(0);
+	                i = listeners.length;
+
+	                while (i--) {
+	                    // If the listener returns true then it shall be removed from the event
+	                    // The function is executed either with a basic call or an apply if there is an args array
+	                    listener = listeners[i];
+
+	                    if (listener.once === true) {
+	                        this.removeListener(evt, listener.listener);
+	                    }
+
+	                    response = listener.listener.apply(this, args || []);
+
+	                    if (response === this._getOnceReturnValue()) {
+	                        this.removeListener(evt, listener.listener);
+	                    }
+	                }
+	            }
+	        }
+
+	        return this;
+	    };
+
+	    /**
+	     * Alias of emitEvent
+	     */
+	    proto.trigger = alias('emitEvent');
+
+	    /**
+	     * Subtly different from emitEvent in that it will pass its arguments on to the listeners, as opposed to taking a single array of arguments to pass on.
+	     * As with emitEvent, you can pass a regex in place of the event name to emit to all events that match it.
+	     *
+	     * @param {String|RegExp} evt Name of the event to emit and execute listeners for.
+	     * @param {...*} Optional additional arguments to be passed to each listener.
+	     * @return {Object} Current instance of EventEmitter for chaining.
+	     */
+	    proto.emit = function emit(evt) {
+	        var args = Array.prototype.slice.call(arguments, 1);
+	        return this.emitEvent(evt, args);
+	    };
+
+	    /**
+	     * Sets the current value to check against when executing listeners. If a
+	     * listeners return value matches the one set here then it will be removed
+	     * after execution. This value defaults to true.
+	     *
+	     * @param {*} value The new value to check for when executing listeners.
+	     * @return {Object} Current instance of EventEmitter for chaining.
+	     */
+	    proto.setOnceReturnValue = function setOnceReturnValue(value) {
+	        this._onceReturnValue = value;
+	        return this;
+	    };
+
+	    /**
+	     * Fetches the current value to check against when executing listeners. If
+	     * the listeners return value matches this one then it should be removed
+	     * automatically. It will return true by default.
+	     *
+	     * @return {*|Boolean} The current value to check for or the default, true.
+	     * @api private
+	     */
+	    proto._getOnceReturnValue = function _getOnceReturnValue() {
+	        if (this.hasOwnProperty('_onceReturnValue')) {
+	            return this._onceReturnValue;
+	        }
+	        else {
+	            return true;
+	        }
+	    };
+
+	    /**
+	     * Fetches the events object and creates one if required.
+	     *
+	     * @return {Object} The events storage object.
+	     * @api private
+	     */
+	    proto._getEvents = function _getEvents() {
+	        return this._events || (this._events = {});
+	    };
+
+	    /**
+	     * Reverts the global {@link EventEmitter} to its previous value and returns a reference to this version.
+	     *
+	     * @return {Function} Non conflicting EventEmitter class.
+	     */
+	    EventEmitter.noConflict = function noConflict() {
+	        exports.EventEmitter = originalGlobalValue;
+	        return EventEmitter;
+	    };
+
+	    // Expose the class either via AMD, CommonJS or the global object
+	    if (true) {
+	        !(__WEBPACK_AMD_DEFINE_RESULT__ = function () {
+	            return EventEmitter;
+	        }.call(exports, __webpack_require__, exports, module), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+	    }
+	    else if (typeof module === 'object' && module.exports){
+	        module.exports = EventEmitter;
+	    }
+	    else {
+	        exports.EventEmitter = EventEmitter;
+	    }
+	}.call(this));
+
+
+/***/ },
+/* 582 */
+/***/ function(module, exports) {
+
+	"use strict";
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	var Queue = function () {
+
+	    /*
+	    *   As the name implies, `consumer` is the (sole) consumer of the queue.
+	    *   It gets called with each element of the queue and its return value
+	    *   serves as a ack, determining whether the element is removed or not from
+	    *   the queue, allowing then subsequent elements to be processed.
+	    */
+
+	    function Queue(consumer) {
+	        _classCallCheck(this, Queue);
+
+	        this.consumer = consumer;
+	        this.queue = [];
+	    }
+
+	    _createClass(Queue, [{
+	        key: "push",
+	        value: function push(element) {
+	            this.queue.push(element);
+	            this.process();
+	        }
+	    }, {
+	        key: "process",
+	        value: function process() {
+	            if (this.queue.length !== 0) {
+	                var ack = this.consumer(this.queue[0]);
+	                if (ack) {
+	                    this.queue.shift();
+	                    this.process();
+	                }
+	            }
+	        }
+	    }, {
+	        key: "empty",
+	        value: function empty() {
+	            this.queue = [];
+	        }
+	    }]);
+
+	    return Queue;
+	}();
+
+	exports.default = Queue;
+
+/***/ },
+/* 583 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _wolfy87Eventemitter = __webpack_require__(581);
+
+	var _wolfy87Eventemitter2 = _interopRequireDefault(_wolfy87Eventemitter);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var Socket = function (_EventEmitter) {
+	    _inherits(Socket, _EventEmitter);
+
+	    function Socket(SocketConstructor, endpoint) {
+	        _classCallCheck(this, Socket);
+
+	        var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(Socket).call(this));
+
+	        _this.SocketConstructor = SocketConstructor;
+	        _this.endpoint = endpoint;
+	        _this.rawSocket = null;
+	        return _this;
+	    }
+
+	    _createClass(Socket, [{
+	        key: "send",
+	        value: function send(object) {
+	            var message = JSON.stringify(object);
+	            this.rawSocket.send(message);
+	            // Emit a copy of the object, as the listener might mutate it.
+	            this.emit("message:out", JSON.parse(message));
+	        }
+	    }, {
+	        key: "open",
+	        value: function open() {
+	            var _this2 = this;
+
+	            /*
+	            *   Makes `open` a no-op if there's already a `rawSocket`. This avoids
+	            *   memory / socket leaks if `open` is called twice (e.g. by a user
+	            *   calling `ddp.connect` twice) without properly disposing of the
+	            *   socket connection. `rawSocket` gets automatically set to `null` only
+	            *   when it goes into a closed or error state. This way `rawSocket` is
+	            *   disposed of correctly: the socket connection is closed, and the
+	            *   object can be garbage collected.
+	            */
+	            if (this.rawSocket) {
+	                return;
+	            }
+	            this.rawSocket = new this.SocketConstructor(this.endpoint);
+
+	            /*
+	            *   Calls to `onopen` and `onclose` directly trigger the `open` and
+	            *   `close` events on the `Socket` instance.
+	            */
+	            this.rawSocket.onopen = function () {
+	                return _this2.emit("open");
+	            };
+	            this.rawSocket.onclose = function () {
+	                _this2.rawSocket = null;
+	                _this2.emit("close");
+	            };
+	            /*
+	            *   Calls to `onerror` trigger the `close` event on the `Socket`
+	            *   instance, and cause the `rawSocket` object to be disposed of.
+	            *   Since it's not clear what conditions could cause the error and if
+	            *   it's possible to recover from it, we prefer to always close the
+	            *   connection (if it isn't already) and dispose of the socket object.
+	            */
+	            this.rawSocket.onerror = function () {
+	                // It's not clear what the socket lifecycle is when errors occurr.
+	                // Hence, to avoid the `close` event to be emitted twice, before
+	                // manually closing the socket we de-register the `onclose`
+	                // callback.
+	                delete _this2.rawSocket.onclose;
+	                // Safe to perform even if the socket is already closed
+	                _this2.rawSocket.close();
+	                _this2.rawSocket = null;
+	                _this2.emit("close");
+	            };
+	            /*
+	            *   Calls to `onmessage` trigger a `message:in` event on the `Socket`
+	            *   instance only once the message (first parameter to `onmessage`) has
+	            *   been successfully parsed into a javascript object.
+	            */
+	            this.rawSocket.onmessage = function (message) {
+	                var object;
+	                try {
+	                    object = JSON.parse(message.data);
+	                } catch (ignore) {
+	                    // Simply ignore the malformed message and return
+	                    return;
+	                }
+	                // Outside the try-catch block as it must only catch JSON parsing
+	                // errors, not errors that may occur inside a "message:in" event
+	                // handler
+	                _this2.emit("message:in", object);
+	            };
+	        }
+	    }, {
+	        key: "close",
+	        value: function close() {
+	            /*
+	            *   Avoid throwing an error if `rawSocket === null`
+	            */
+	            if (this.rawSocket) {
+	                this.rawSocket.close();
+	            }
+	        }
+	    }]);
+
+	    return Socket;
+	}(_wolfy87Eventemitter2.default);
+
+	exports.default = Socket;
+
+/***/ },
+/* 584 */
+/***/ function(module, exports) {
+
+	"use strict";
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	exports.uniqueId = uniqueId;
+	exports.contains = contains;
+	var i = 0;
+	function uniqueId() {
+	    return (i++).toString();
+	}
+
+	function contains(array, element) {
+	    return array.indexOf(element) !== -1;
+	}
+
+/***/ },
+/* 585 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	exports.login = login;
+	exports.logout = logout;
+	exports.init = init;
+
+	var _loginMethod = __webpack_require__(586);
+
+	/*
+	*   Public methods
+	*/
+
+	function login(loginParameters) {
+	    return this.call("login", loginParameters).then(_loginMethod.onLogin.bind(this));
+	} /*
+	  *   Login mixin:
+	  *    - defines the `login` and `logout` methods
+	  *    - exposes the `userId` and `loggedIn` public properties
+	  */
+
+	function logout() {
+	    return this.call("logout").then(_loginMethod.onLogout.bind(this));
+	}
+
+	/*
+	*   Init method
+	*/
+
+	function init() {
+	    this.userId = null;
+	    this.loggedIn = false;
+	    this.ddp.on("connected", _loginMethod.resumeLogin.bind(this));
+	}
+
+/***/ },
+/* 586 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	exports.onLogin = onLogin;
+	exports.onLogout = onLogout;
+	exports.resumeLogin = resumeLogin;
+
+	var _multiStorage = __webpack_require__(587);
+
+	var multiStorage = _interopRequireWildcard(_multiStorage);
+
+	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
+	function onLogin(_ref) {
+	    var id = _ref.id;
+	    var token = _ref.token;
+
+	    this.userId = id;
+	    this.loggedIn = true;
+	    return multiStorage.set(this.endpoint + "__login_token__", token).then(this.emit.bind(this, "loggedIn", id)).then(function () {
+	        return id;
+	    });
+	}
+
+	function onLogout() {
+	    this.userId = null;
+	    this.loggedIn = false;
+	    return multiStorage.del(this.endpoint + "__login_token__").then(this.emit.bind(this, "loggedOut")).then(function () {
+	        return null;
+	    });
+	}
+
+	function resumeLogin() {
+	    return multiStorage.get(this.endpoint + "__login_token__").then(function (resume) {
+	        if (!resume) {
+	            throw new Error("No login token");
+	        }
+	        return { resume: resume };
+	    }).then(this.login.bind(this)).catch(onLogout.bind(this));
+	}
+
+/***/ },
+/* 587 */
+/***/ function(module, exports) {
+
+	"use strict";
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	exports.get = get;
+	exports.set = set;
+	exports.del = del;
+
+	function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+	var genericStorage = {};
+
+	function get(key) {
+	    return new Promise(function (resolve, reject) {
+	        if (typeof chrome !== "undefined" && chrome.storage) {
+	            chrome.storage.local.get(key, function (data) {
+	                return resolve(data[key]);
+	            });
+	        } else if (typeof localStorage !== "undefined") {
+	            resolve(localStorage[key]);
+	        } else if (typeof AsyncStorage !== "undefined") {
+	            AsyncStorage.getItem(key, function (error, data) {
+	                if (error) {
+	                    reject(error);
+	                } else {
+	                    resolve(data);
+	                }
+	            });
+	        } else {
+	            resolve(genericStorage[key]);
+	        }
+	    });
+	}
+
+	function set(key, value) {
+	    return new Promise(function (resolve, reject) {
+	        if (typeof chrome !== "undefined" && chrome.storage) {
+	            var data = _defineProperty({}, key, value);
+	            chrome.storage.local.set(data, resolve);
+	        } else if (typeof localStorage !== "undefined") {
+	            localStorage[key] = value;
+	            resolve();
+	        } else if (typeof AsyncStorage !== "undefined") {
+	            AsyncStorage.setItem(key, value, function (error) {
+	                if (error) {
+	                    reject(error);
+	                } else {
+	                    resolve();
+	                }
+	            });
+	        } else {
+	            genericStorage[key] = value;
+	            resolve();
+	        }
+	    });
+	}
+
+	function del(key) {
+	    return new Promise(function (resolve, reject) {
+	        if (typeof chrome !== "undefined" && chrome.storage) {
+	            chrome.storage.local.remove(key, resolve);
+	        } else if (typeof localStorage !== "undefined") {
+	            delete localStorage[key];
+	            resolve();
+	        } else if (typeof AsyncStorage !== "undefined") {
+	            AsyncStorage.removeItem(key, function (error) {
+	                if (error) {
+	                    reject(error);
+	                } else {
+	                    resolve();
+	                }
+	            });
+	        } else {
+	            delete genericStorage[key];
+	            resolve();
+	        }
+	    });
+	}
+
+/***/ },
+/* 588 */
+/***/ function(module, exports) {
+
+	"use strict";
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	exports.apply = apply;
+	exports.call = call;
+	exports.init = init;
+	/*
+	*   The methods mixin:
+	*   - defines the `apply` and `call` methods, used to send a ddp `method`
+	*     message to the server. In order to do so - due to the asynchronicity of
+	*     the ddp method call - it must maintain a cache (under the `methods.cache`
+	*     property of the Asteroid instance) of ddp method calls, which is then used
+	*     to match ddp `result` messages received from the server
+	*/
+
+	/*
+	*   Public methods
+	*/
+
+	function apply(method, params) {
+	    var _this = this;
+
+	    return new Promise(function (resolve, reject) {
+	        var id = _this.ddp.method(method, params);
+	        _this.methods.cache[id] = { resolve: resolve, reject: reject };
+	    });
+	}
+
+	function call(method) {
+	    for (var _len = arguments.length, params = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
+	        params[_key - 1] = arguments[_key];
+	    }
+
+	    return this.apply(method, params);
+	}
+
+	/*
+	*   Init method
+	*/
+
+	function init() {
+	    var _this2 = this;
+
+	    this.methods = {
+	        cache: {}
+	    };
+	    this.ddp.on("result", function (_ref) {
+	        var id = _ref.id;
+	        var error = _ref.error;
+	        var result = _ref.result;
+
+	        var method = _this2.methods.cache[id];
+	        if (error) {
+	            method.reject(error);
+	        } else {
+	            method.resolve(result);
+	        }
+	        delete _this2.methods.cache[id];
+	    });
+	}
+
+/***/ },
+/* 589 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	exports.createUser = createUser;
+	exports.loginWithPassword = loginWithPassword;
+
+	var _loginMethod = __webpack_require__(586);
+
+	/*
+	*   Public methods
+	*/
+
+	function createUser(_ref) {
+	    var username = _ref.username;
+	    var email = _ref.email;
+	    var password = _ref.password;
+
+	    var options = {
+	        password: password,
+	        user: {
+	            username: username,
+	            email: email
+	        }
+	    };
+	    return this.call("createUser", options).then(_loginMethod.onLogin.bind(this));
+	} /*
+	  *   The password-login mixin:
+	  *   - defines the `createUser` and `loginWithPassword` methods, porcelain for
+	  *     calling the `createUser` and `login` ddp methods
+	  */
+
+	function loginWithPassword(_ref2) {
+	    var username = _ref2.username;
+	    var email = _ref2.email;
+	    var password = _ref2.password;
+
+	    var loginParameters = {
+	        password: password,
+	        user: {
+	            username: username,
+	            email: email
+	        }
+	    };
+	    return this.call("login", loginParameters).then(_loginMethod.onLogin.bind(this));
+	}
+
+/***/ },
+/* 590 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	exports.subscribe = subscribe;
+	exports.unsubscribe = unsubscribe;
+	exports.init = init;
+
+	var _lodash = __webpack_require__(577);
+
+	var _lodash2 = _interopRequireDefault(_lodash);
+
+	var _wolfy87Eventemitter = __webpack_require__(578);
+
+	var _wolfy87Eventemitter2 = _interopRequireDefault(_wolfy87Eventemitter);
+
+	var _subscriptionCache = __webpack_require__(591);
+
+	var _subscriptionCache2 = _interopRequireDefault(_subscriptionCache);
+
+	var _fingerprintSub = __webpack_require__(592);
+
+	var _fingerprintSub2 = _interopRequireDefault(_fingerprintSub);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	/*
+	*   Private methods: they are invoked with the asteroid instance as context, but
+	*   they are not exported so they don't clutter the Asteroid class prototype.
+	*/
+
+	/*
+	*   The subscriptions mixin:
+	*   - defines the `subscribe` and `unsubscribe` methods, used to send ddp `sub`
+	*     and `unsub` messages to the server. In order to do so - due to the
+	*     asynchronicity of the ddp sub and unsub calls - it must maintain a cache
+	*     (under the `subscriptions.cache` property of the Asteroid instance) of ddp
+	*     subscriptions. The cache is then used to match ddp `ready` and `nosub`
+	*     messages received from the server, and to restart active subscriptions in
+	*     the event of a reconnection (since Meteor does not support resuming ddp
+	*     sessions, as of version 1.2.0.2)
+	*/
+
+	function restartSubscription(sub) {
+	    // Only restart the subscription if it isn't still in ddp's queue.
+	    if (!sub.stillInQueue) {
+	        // Handlers to ddp's connected event are invoked asynchronously (see
+	        // https://github.com/mondora/ddp.js/blob/master/src/ddp.js#L20).
+	        // Therefore there is a (very very small) chance that between the time
+	        // when the connected message is received and the time when the
+	        // connected handler is invoked, the ddp instance disconnected.
+	        // Therefore we update the stillInQueue status fo the subscription
+	        this.ddp.sub(sub.name, sub.params, sub.id);
+	        sub.stillInQueue = this.ddp.status !== "connected";
+	    } else {
+	        // Since we're restarting subscriptions after a connection, we know
+	        // that now the subscriptions which were in ddp's queue will be sent,
+	        // therefore we need to remove the stillInQueue flag from them
+	        sub.stillInQueue = false;
+	    }
+	}
+
+	/*
+	*   Public methods
+	*/
+
+	function subscribe(name) {
+	    for (var _len = arguments.length, params = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
+	        params[_key - 1] = arguments[_key];
+	    }
+
+	    var fingerprint = (0, _fingerprintSub2.default)(name, params);
+	    var sub = this.subscriptions.cache.get(fingerprint);
+	    if (!sub) {
+	        // If there is no cached subscription, subscribe
+	        var id = this.ddp.sub(name, params);
+	        // ddp.js enqueues messages to send if a connection has not yet been
+	        // established. Upon connection, when subscriptions are restarted, we
+	        // don't want to restart those subscriptions which had been made when
+	        // the connection had not yet been established, and therefore are still
+	        // in the queue. For this reason, we save ddp's connection status onto
+	        // the subscription object and we check it later to decide wether to
+	        // restart the subscription or not.
+	        var stillInQueue = this.ddp.status !== "connected";
+	        // Build the subscription object and save it in the cache
+	        sub = (0, _lodash2.default)(new _wolfy87Eventemitter2.default(), { fingerprint: fingerprint, id: id, name: name, params: params, stillInQueue: stillInQueue });
+	        this.subscriptions.cache.add(sub);
+	    }
+	    // Return the subscription object
+	    return sub;
+	}
+
+	function unsubscribe(id) {
+	    this.ddp.unsub(id);
+	}
+
+	/*
+	*   Init method
+	*/
+
+	function init() {
+	    var _this = this;
+
+	    this.subscriptions = {
+	        cache: new _subscriptionCache2.default()
+	    };
+	    this.ddp.on("ready", function (_ref) {
+	        var subs = _ref.subs;
+
+	        subs.forEach(function (id) {
+	            _this.subscriptions.cache.get(id).emit("ready");
+	        });
+	    }).on("nosub", function (_ref2) {
+	        var error = _ref2.error;
+	        var id = _ref2.id;
+
+	        if (error) {
+	            _this.subscriptions.cache.get(id).emit("error", error);
+	        }
+	        _this.subscriptions.cache.del(id);
+	    }).on("connected", function () {
+	        _this.subscriptions.cache.forEach(restartSubscription.bind(_this));
+	    });
+	}
+
+/***/ },
+/* 591 */
+/***/ function(module, exports) {
+
+	"use strict";
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	var SubscriptionCache = function () {
+	    function SubscriptionCache() {
+	        _classCallCheck(this, SubscriptionCache);
+
+	        this.byFingerprint = {};
+	        this.byId = {};
+	    }
+
+	    _createClass(SubscriptionCache, [{
+	        key: "add",
+	        value: function add(sub) {
+	            this.byFingerprint[sub.fingerprint] = sub;
+	            this.byId[sub.id] = sub;
+	        }
+	    }, {
+	        key: "get",
+	        value: function get(idOrFingerprint) {
+	            return this.byId[idOrFingerprint] || this.byFingerprint[idOrFingerprint] || null;
+	        }
+	    }, {
+	        key: "del",
+	        value: function del(idOrFingerprint) {
+	            var sub = this.get(idOrFingerprint) || {};
+	            delete this.byFingerprint[sub.fingerprint];
+	            delete this.byId[sub.id];
+	        }
+	    }, {
+	        key: "forEach",
+	        value: function forEach(iterator) {
+	            var _this = this;
+
+	            Object.keys(this.byId).forEach(function (id) {
+	                iterator(_this.byId[id]);
+	            });
+	        }
+	    }]);
+
+	    return SubscriptionCache;
+	}();
+
+	exports.default = SubscriptionCache;
+
+/***/ },
+/* 592 */
+/***/ function(module, exports) {
+
+	"use strict";
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	exports.default = fingerprintSub;
+	function fingerprintSub(name, params) {
+	    return JSON.stringify({ name: name, params: params });
+	}
+
+/***/ },
+/* 593 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -55069,7 +57842,7 @@
 	});
 	exports.changeConversation = exports.changeActiveConversation = exports.changeRoute = exports.toggle = undefined;
 
-	var _constants = __webpack_require__(429);
+	var _constants = __webpack_require__(428);
 
 	var toggle = exports.toggle = function toggle() {
 	  return {
@@ -55098,7 +57871,7 @@
 	};
 
 /***/ },
-/* 577 */
+/* 594 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -55107,11 +57880,11 @@
 	  value: true
 	});
 
-	var _reactRedux = __webpack_require__(432);
+	var _reactRedux = __webpack_require__(431);
 
-	var _messenger = __webpack_require__(576);
+	var _messenger = __webpack_require__(593);
 
-	var _components = __webpack_require__(447);
+	var _components = __webpack_require__(446);
 
 	var mapStateToProps = function mapStateToProps(state) {
 	  var isNewConversation = !state.activeConversation;
@@ -55135,7 +57908,7 @@
 	exports.default = (0, _reactRedux.connect)(mapStateToProps, mapDisptachToProps)(_components.Conversation);
 
 /***/ },
-/* 578 */
+/* 595 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -55144,11 +57917,11 @@
 	  value: true
 	});
 
-	var _reactRedux = __webpack_require__(432);
+	var _reactRedux = __webpack_require__(431);
 
-	var _messenger = __webpack_require__(576);
+	var _messenger = __webpack_require__(593);
 
-	var _components = __webpack_require__(447);
+	var _components = __webpack_require__(446);
 
 	var mapStateToProps = function mapStateToProps(state) {
 	  return {
@@ -55172,7 +57945,7 @@
 	exports.default = (0, _reactRedux.connect)(mapStateToProps, mapDisptachToProps)(_components.Launcher);
 
 /***/ },
-/* 579 */
+/* 596 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -55181,11 +57954,11 @@
 	  value: true
 	});
 
-	var _reactRedux = __webpack_require__(432);
+	var _reactRedux = __webpack_require__(431);
 
-	var _messages = __webpack_require__(575);
+	var _messages = __webpack_require__(574);
 
-	var _components = __webpack_require__(447);
+	var _components = __webpack_require__(446);
 
 	var mapStateToProps = function mapStateToProps(state) {
 	  return {
@@ -55211,7 +57984,7 @@
 	exports.default = (0, _reactRedux.connect)(mapStateToProps, mapDispatchToProps)(_components.MessageSender);
 
 /***/ },
-/* 580 */
+/* 597 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -55220,17 +57993,17 @@
 	  value: true
 	});
 
-	var _templateObject = _taggedTemplateLiteral(['\n    query ($conversationId: String!) {\n      messages(conversationId: $conversationId) {\n        _id\n        content\n        createdAt\n      }\n    }\n  '], ['\n    query ($conversationId: String!) {\n      messages(conversationId: $conversationId) {\n        _id\n        content\n        createdAt\n      }\n    }\n  ']);
+	var _templateObject = _taggedTemplateLiteral(['\n    query ($conversationId: String!) {\n      messages(conversationId: $conversationId) {\n        _id\n        content\n        createdAt\n        attachments{\n          url\n          name\n          size\n          type\n        }\n      }\n    }\n  '], ['\n    query ($conversationId: String!) {\n      messages(conversationId: $conversationId) {\n        _id\n        content\n        createdAt\n        attachments{\n          url\n          name\n          size\n          type\n        }\n      }\n    }\n  ']);
 
-	var _graphqlTag = __webpack_require__(573);
+	var _graphqlTag = __webpack_require__(572);
 
 	var _graphqlTag2 = _interopRequireDefault(_graphqlTag);
 
-	var _reactRedux = __webpack_require__(432);
+	var _reactRedux = __webpack_require__(431);
 
 	var _reactApollo = __webpack_require__(417);
 
-	var _components = __webpack_require__(447);
+	var _components = __webpack_require__(446);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -55245,7 +58018,7 @@
 	var withData = (0, _reactApollo.graphql)((0, _graphqlTag2.default)(_templateObject), {
 	  options: function options(ownProps) {
 	    return {
-	      pollInterval: 3000,
+	      pollInterval: 1000,
 	      variables: { conversationId: ownProps.conversationId }
 	    };
 	  }
@@ -55256,7 +58029,7 @@
 	exports.default = (0, _reactRedux.connect)(mapStateToProps)(ListWithData);
 
 /***/ },
-/* 581 */
+/* 598 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -55265,9 +58038,9 @@
 	  value: true
 	});
 
-	var _reactRedux = __webpack_require__(432);
+	var _reactRedux = __webpack_require__(431);
 
-	var _components = __webpack_require__(447);
+	var _components = __webpack_require__(446);
 
 	var mapStateToProps = function mapStateToProps(_ref, ownProps) {
 	  var users = _ref.users;
@@ -55281,16 +58054,16 @@
 	exports.default = (0, _reactRedux.connect)(mapStateToProps)(_components.User);
 
 /***/ },
-/* 582 */
+/* 599 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// style-loader: Adds some css to the DOM by adding a <style> tag
 
 	// load the styles
-	var content = __webpack_require__(583);
+	var content = __webpack_require__(600);
 	if(typeof content === 'string') content = [[module.id, content, '']];
 	// add the styles to the DOM
-	var update = __webpack_require__(585)(content, {});
+	var update = __webpack_require__(602)(content, {});
 	if(content.locals) module.exports = content.locals;
 	// Hot Module Replacement
 	if(false) {
@@ -55307,10 +58080,10 @@
 	}
 
 /***/ },
-/* 583 */
+/* 600 */
 /***/ function(module, exports, __webpack_require__) {
 
-	exports = module.exports = __webpack_require__(584)();
+	exports = module.exports = __webpack_require__(601)();
 	// imports
 	exports.push([module.id, "@import url(https://fonts.googleapis.com/css?family=Roboto:300,400&subset=cyrillic-ext);", ""]);
 
@@ -55321,7 +58094,7 @@
 
 
 /***/ },
-/* 584 */
+/* 601 */
 /***/ function(module, exports) {
 
 	/*
@@ -55377,7 +58150,7 @@
 
 
 /***/ },
-/* 585 */
+/* 602 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/*
@@ -55627,6 +58400,1745 @@
 			URL.revokeObjectURL(oldSrc);
 	}
 
+
+/***/ },
+/* 603 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var EJSON = exports; // Global!
+	var customTypes = {};
+	var _ = __webpack_require__(604);
+
+	// Base 64 encoding
+
+	var BASE_64_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+
+	var BASE_64_VALS = {};
+
+	for (var i = 0; i < BASE_64_CHARS.length; i++) {
+	  BASE_64_VALS[BASE_64_CHARS.charAt(i)] = i;
+	};
+
+	EJSON._base64Encode = function (array) {
+	  var answer = [];
+	  var a = null;
+	  var b = null;
+	  var c = null;
+	  var d = null;
+	  for (var i = 0; i < array.length; i++) {
+	    switch (i % 3) {
+	    case 0:
+	      a = (array[i] >> 2) & 0x3F;
+	      b = (array[i] & 0x03) << 4;
+	      break;
+	    case 1:
+	      b = b | (array[i] >> 4) & 0xF;
+	      c = (array[i] & 0xF) << 2;
+	      break;
+	    case 2:
+	      c = c | (array[i] >> 6) & 0x03;
+	      d = array[i] & 0x3F;
+	      answer.push(getChar(a));
+	      answer.push(getChar(b));
+	      answer.push(getChar(c));
+	      answer.push(getChar(d));
+	      a = null;
+	      b = null;
+	      c = null;
+	      d = null;
+	      break;
+	    }
+	  }
+	  if (a != null) {
+	    answer.push(getChar(a));
+	    answer.push(getChar(b));
+	    if (c == null)
+	      answer.push('=');
+	    else
+	      answer.push(getChar(c));
+	    if (d == null)
+	      answer.push('=');
+	  }
+	  return answer.join("");
+	};
+
+	var getChar = function (val) {
+	  return BASE_64_CHARS.charAt(val);
+	};
+
+	var getVal = function (ch) {
+	  if (ch === '=') {
+	    return -1;
+	  }
+	  return BASE_64_VALS[ch];
+	};
+
+	EJSON.newBinary = function (len) {
+	  if (typeof Uint8Array === 'undefined' || typeof ArrayBuffer === 'undefined') {
+	    var ret = [];
+	    for (var i = 0; i < len; i++) {
+	      ret.push(0);
+	    }
+	    ret.$Uint8ArrayPolyfill = true;
+	    return ret;
+	  }
+	  return new Uint8Array(new ArrayBuffer(len));
+	};
+
+	EJSON._base64Decode = function (str) {
+	  var len = Math.floor((str.length*3)/4);
+	  if (str.charAt(str.length - 1) == '=') {
+	    len--;
+	    if (str.charAt(str.length - 2) == '=')
+	      len--;
+	  }
+	  var arr = EJSON.newBinary(len);
+
+	  var one = null;
+	  var two = null;
+	  var three = null;
+
+	  var j = 0;
+
+	  for (var i = 0; i < str.length; i++) {
+	    var c = str.charAt(i);
+	    var v = getVal(c);
+	    switch (i % 4) {
+	    case 0:
+	      if (v < 0)
+	        throw new Error('invalid base64 string');
+	      one = v << 2;
+	      break;
+	    case 1:
+	      if (v < 0)
+	        throw new Error('invalid base64 string');
+	      one = one | (v >> 4);
+	      arr[j++] = one;
+	      two = (v & 0x0F) << 4;
+	      break;
+	    case 2:
+	      if (v > 0) {
+	        two = two | (v >> 2);
+	        arr[j++] = two;
+	        three = (v & 0x03) << 6;
+	      }
+	      break;
+	    case 3:
+	      if (v > 0) {
+	        arr[j++] = three | v;
+	      }
+	      break;
+	    }
+	  }
+	  return arr;
+	};
+
+
+	// Add a custom type, using a method of your choice to get to and
+	// from a basic JSON-able representation.  The factory argument
+	// is a function of JSON-able --> your object
+	// The type you add must have:
+	// - A clone() method, so that Meteor can deep-copy it when necessary.
+	// - A equals() method, so that Meteor can compare it
+	// - A toJSONValue() method, so that Meteor can serialize it
+	// - a typeName() method, to show how to look it up in our type table.
+	// It is okay if these methods are monkey-patched on.
+	EJSON.addType = function (name, factory) {
+	  if (_.has(customTypes, name))
+	    throw new Error("Type " + name + " already present");
+	  customTypes[name] = factory;
+	};
+
+	var builtinConverters = [
+	  { // Date
+	    matchJSONValue: function (obj) {
+	      return _.has(obj, '$date') && _.size(obj) === 1;
+	    },
+	    matchObject: function (obj) {
+	      return obj instanceof Date;
+	    },
+	    toJSONValue: function (obj) {
+	      return {$date: obj.getTime()};
+	    },
+	    fromJSONValue: function (obj) {
+	      return new Date(obj.$date);
+	    }
+	  },
+	  { // Binary
+	    matchJSONValue: function (obj) {
+	      return _.has(obj, '$binary') && _.size(obj) === 1;
+	    },
+	    matchObject: function (obj) {
+	      return typeof Uint8Array !== 'undefined' && obj instanceof Uint8Array
+	        || (obj && _.has(obj, '$Uint8ArrayPolyfill'));
+	    },
+	    toJSONValue: function (obj) {
+	      return {$binary: EJSON._base64Encode(obj)};
+	    },
+	    fromJSONValue: function (obj) {
+	      return EJSON._base64Decode(obj.$binary);
+	    }
+	  },
+	  { // Escaping one level
+	    matchJSONValue: function (obj) {
+	      return _.has(obj, '$escape') && _.size(obj) === 1;
+	    },
+	    matchObject: function (obj) {
+	      if (_.isEmpty(obj) || _.size(obj) > 2) {
+	        return false;
+	      }
+	      return _.any(builtinConverters, function (converter) {
+	        return converter.matchJSONValue(obj);
+	      });
+	    },
+	    toJSONValue: function (obj) {
+	      var newObj = {};
+	      _.each(obj, function (value, key) {
+	        newObj[key] = EJSON.toJSONValue(value);
+	      });
+	      return {$escape: newObj};
+	    },
+	    fromJSONValue: function (obj) {
+	      var newObj = {};
+	      _.each(obj.$escape, function (value, key) {
+	        newObj[key] = EJSON.fromJSONValue(value);
+	      });
+	      return newObj;
+	    }
+	  },
+	  { // Custom
+	    matchJSONValue: function (obj) {
+	      return _.has(obj, '$type') && _.has(obj, '$value') && _.size(obj) === 2;
+	    },
+	    matchObject: function (obj) {
+	      return EJSON._isCustomType(obj);
+	    },
+	    toJSONValue: function (obj) {
+	      return {$type: obj.typeName(), $value: obj.toJSONValue()};
+	    },
+	    fromJSONValue: function (obj) {
+	      var typeName = obj.$type;
+	      var converter = customTypes[typeName];
+	      return converter(obj.$value);
+	    }
+	  }
+	];
+
+	EJSON._isCustomType = function (obj) {
+	  return obj &&
+	    typeof obj.toJSONValue === 'function' &&
+	    typeof obj.typeName === 'function' &&
+	    _.has(customTypes, obj.typeName());
+	};
+
+
+	//for both arrays and objects, in-place modification.
+	var adjustTypesToJSONValue =
+	EJSON._adjustTypesToJSONValue = function (obj) {
+	  if (obj === null)
+	    return null;
+	  var maybeChanged = toJSONValueHelper(obj);
+	  if (maybeChanged !== undefined)
+	    return maybeChanged;
+	  _.each(obj, function (value, key) {
+	    if (typeof value !== 'object' && value !== undefined)
+	      return; // continue
+	    var changed = toJSONValueHelper(value);
+	    if (changed) {
+	      obj[key] = changed;
+	      return; // on to the next key
+	    }
+	    // if we get here, value is an object but not adjustable
+	    // at this level.  recurse.
+	    adjustTypesToJSONValue(value);
+	  });
+	  return obj;
+	};
+
+	// Either return the JSON-compatible version of the argument, or undefined (if
+	// the item isn't itself replaceable, but maybe some fields in it are)
+	var toJSONValueHelper = function (item) {
+	  for (var i = 0; i < builtinConverters.length; i++) {
+	    var converter = builtinConverters[i];
+	    if (converter.matchObject(item)) {
+	      return converter.toJSONValue(item);
+	    }
+	  }
+	  return undefined;
+	};
+
+	EJSON.toJSONValue = function (item) {
+	  var changed = toJSONValueHelper(item);
+	  if (changed !== undefined)
+	    return changed;
+	  if (typeof item === 'object') {
+	    item = EJSON.clone(item);
+	    adjustTypesToJSONValue(item);
+	  }
+	  return item;
+	};
+
+	//for both arrays and objects. Tries its best to just
+	// use the object you hand it, but may return something
+	// different if the object you hand it itself needs changing.
+	var adjustTypesFromJSONValue =
+	EJSON._adjustTypesFromJSONValue = function (obj) {
+	  if (obj === null)
+	    return null;
+	  var maybeChanged = fromJSONValueHelper(obj);
+	  if (maybeChanged !== obj)
+	    return maybeChanged;
+	  _.each(obj, function (value, key) {
+	    if (typeof value === 'object') {
+	      var changed = fromJSONValueHelper(value);
+	      if (value !== changed) {
+	        obj[key] = changed;
+	        return;
+	      }
+	      // if we get here, value is an object but not adjustable
+	      // at this level.  recurse.
+	      adjustTypesFromJSONValue(value);
+	    }
+	  });
+	  return obj;
+	};
+
+	// Either return the argument changed to have the non-json
+	// rep of itself (the Object version) or the argument itself.
+
+	// DOES NOT RECURSE.  For actually getting the fully-changed value, use
+	// EJSON.fromJSONValue
+	var fromJSONValueHelper = function (value) {
+	  if (typeof value === 'object' && value !== null) {
+	    if (_.size(value) <= 2
+	        && _.all(value, function (v, k) {
+	          return typeof k === 'string' && k.substr(0, 1) === '$';
+	        })) {
+	      for (var i = 0; i < builtinConverters.length; i++) {
+	        var converter = builtinConverters[i];
+	        if (converter.matchJSONValue(value)) {
+	          return converter.fromJSONValue(value);
+	        }
+	      }
+	    }
+	  }
+	  return value;
+	};
+
+	EJSON.fromJSONValue = function (item) {
+	  var changed = fromJSONValueHelper(item);
+	  if (changed === item && typeof item === 'object') {
+	    item = EJSON.clone(item);
+	    adjustTypesFromJSONValue(item);
+	    return item;
+	  } else {
+	    return changed;
+	  }
+	};
+
+	EJSON.stringify = function (item) {
+	  return JSON.stringify(EJSON.toJSONValue(item));
+	};
+
+	EJSON.parse = function (item) {
+	  return EJSON.fromJSONValue(JSON.parse(item));
+	};
+
+	EJSON.isBinary = function (obj) {
+	  return (typeof Uint8Array !== 'undefined' && obj instanceof Uint8Array) ||
+	    (obj && obj.$Uint8ArrayPolyfill);
+	};
+
+	EJSON.equals = function (a, b, options) {
+	  var i;
+	  var keyOrderSensitive = !!(options && options.keyOrderSensitive);
+	  if (a === b)
+	    return true;
+	  if (!a || !b) // if either one is falsy, they'd have to be === to be equal
+	    return false;
+	  if (!(typeof a === 'object' && typeof b === 'object'))
+	    return false;
+	  if (a instanceof Date && b instanceof Date)
+	    return a.valueOf() === b.valueOf();
+	  if (EJSON.isBinary(a) && EJSON.isBinary(b)) {
+	    if (a.length !== b.length)
+	      return false;
+	    for (i = 0; i < a.length; i++) {
+	      if (a[i] !== b[i])
+	        return false;
+	    }
+	    return true;
+	  }
+	  if (typeof (a.equals) === 'function')
+	    return a.equals(b, options);
+	  if (a instanceof Array) {
+	    if (!(b instanceof Array))
+	      return false;
+	    if (a.length !== b.length)
+	      return false;
+	    for (i = 0; i < a.length; i++) {
+	      if (!EJSON.equals(a[i], b[i], options))
+	        return false;
+	    }
+	    return true;
+	  }
+	  // fall back to structural equality of objects
+	  var ret;
+	  if (keyOrderSensitive) {
+	    var bKeys = [];
+	    _.each(b, function (val, x) {
+	        bKeys.push(x);
+	    });
+	    i = 0;
+	    ret = _.all(a, function (val, x) {
+	      if (i >= bKeys.length) {
+	        return false;
+	      }
+	      if (x !== bKeys[i]) {
+	        return false;
+	      }
+	      if (!EJSON.equals(val, b[bKeys[i]], options)) {
+	        return false;
+	      }
+	      i++;
+	      return true;
+	    });
+	    return ret && i === bKeys.length;
+	  } else {
+	    i = 0;
+	    ret = _.all(a, function (val, key) {
+	      if (!_.has(b, key)) {
+	        return false;
+	      }
+	      if (!EJSON.equals(val, b[key], options)) {
+	        return false;
+	      }
+	      i++;
+	      return true;
+	    });
+	    return ret && _.size(b) === i;
+	  }
+	};
+
+	EJSON.clone = function (v) {
+	  var ret;
+	  if (typeof v !== "object")
+	    return v;
+	  if (v === null)
+	    return null; // null has typeof "object"
+	  if (v instanceof Date)
+	    return new Date(v.getTime());
+	  if (EJSON.isBinary(v)) {
+	    ret = EJSON.newBinary(v.length);
+	    for (i = 0; i < v.length; i++) {
+	      ret[i] = v[i];
+	    }
+	    return ret;
+	  }
+	  // Clone arrays (and turn 'arguments' into an array).
+	  if (_.isArray(v) || _.isArguments(v)) {
+	    return _.map(v, EJSON.clone);
+	  }
+	  // handle general user-defined typed Objects if they have a clone method
+	  if (typeof v.clone === 'function') {
+	    return v.clone();
+	  }
+	  // handle other objects
+	  ret = {};
+	  _.each(v, function (value, key) {
+	    ret[key] = EJSON.clone(value);
+	  });
+	  return ret;
+	};
+
+
+/***/ },
+/* 604 */
+/***/ function(module, exports, __webpack_require__) {
+
+	//     Underscore.js 1.4.4
+	//     http://underscorejs.org
+	//     (c) 2009-2013 Jeremy Ashkenas, DocumentCloud Inc.
+	//     Underscore may be freely distributed under the MIT license.
+
+	(function() {
+
+	  // Baseline setup
+	  // --------------
+
+	  // Establish the root object, `window` in the browser, or `global` on the server.
+	  var root = this;
+
+	  // Save the previous value of the `_` variable.
+	  var previousUnderscore = root._;
+
+	  // Establish the object that gets returned to break out of a loop iteration.
+	  var breaker = {};
+
+	  // Save bytes in the minified (but not gzipped) version:
+	  var ArrayProto = Array.prototype, ObjProto = Object.prototype, FuncProto = Function.prototype;
+
+	  // Create quick reference variables for speed access to core prototypes.
+	  var push             = ArrayProto.push,
+	      slice            = ArrayProto.slice,
+	      concat           = ArrayProto.concat,
+	      toString         = ObjProto.toString,
+	      hasOwnProperty   = ObjProto.hasOwnProperty;
+
+	  // All **ECMAScript 5** native function implementations that we hope to use
+	  // are declared here.
+	  var
+	    nativeForEach      = ArrayProto.forEach,
+	    nativeMap          = ArrayProto.map,
+	    nativeReduce       = ArrayProto.reduce,
+	    nativeReduceRight  = ArrayProto.reduceRight,
+	    nativeFilter       = ArrayProto.filter,
+	    nativeEvery        = ArrayProto.every,
+	    nativeSome         = ArrayProto.some,
+	    nativeIndexOf      = ArrayProto.indexOf,
+	    nativeLastIndexOf  = ArrayProto.lastIndexOf,
+	    nativeIsArray      = Array.isArray,
+	    nativeKeys         = Object.keys,
+	    nativeBind         = FuncProto.bind;
+
+	  // Create a safe reference to the Underscore object for use below.
+	  var _ = function(obj) {
+	    if (obj instanceof _) return obj;
+	    if (!(this instanceof _)) return new _(obj);
+	    this._wrapped = obj;
+	  };
+
+	  // Export the Underscore object for **Node.js**, with
+	  // backwards-compatibility for the old `require()` API. If we're in
+	  // the browser, add `_` as a global object via a string identifier,
+	  // for Closure Compiler "advanced" mode.
+	  if (true) {
+	    if (typeof module !== 'undefined' && module.exports) {
+	      exports = module.exports = _;
+	    }
+	    exports._ = _;
+	  } else {
+	    root._ = _;
+	  }
+
+	  // Current version.
+	  _.VERSION = '1.4.4';
+
+	  // Collection Functions
+	  // --------------------
+
+	  // The cornerstone, an `each` implementation, aka `forEach`.
+	  // Handles objects with the built-in `forEach`, arrays, and raw objects.
+	  // Delegates to **ECMAScript 5**'s native `forEach` if available.
+	  var each = _.each = _.forEach = function(obj, iterator, context) {
+	    if (obj == null) return;
+	    if (nativeForEach && obj.forEach === nativeForEach) {
+	      obj.forEach(iterator, context);
+	    } else if (obj.length === +obj.length) {
+	      for (var i = 0, l = obj.length; i < l; i++) {
+	        if (iterator.call(context, obj[i], i, obj) === breaker) return;
+	      }
+	    } else {
+	      for (var key in obj) {
+	        if (_.has(obj, key)) {
+	          if (iterator.call(context, obj[key], key, obj) === breaker) return;
+	        }
+	      }
+	    }
+	  };
+
+	  // Return the results of applying the iterator to each element.
+	  // Delegates to **ECMAScript 5**'s native `map` if available.
+	  _.map = _.collect = function(obj, iterator, context) {
+	    var results = [];
+	    if (obj == null) return results;
+	    if (nativeMap && obj.map === nativeMap) return obj.map(iterator, context);
+	    each(obj, function(value, index, list) {
+	      results[results.length] = iterator.call(context, value, index, list);
+	    });
+	    return results;
+	  };
+
+	  var reduceError = 'Reduce of empty array with no initial value';
+
+	  // **Reduce** builds up a single result from a list of values, aka `inject`,
+	  // or `foldl`. Delegates to **ECMAScript 5**'s native `reduce` if available.
+	  _.reduce = _.foldl = _.inject = function(obj, iterator, memo, context) {
+	    var initial = arguments.length > 2;
+	    if (obj == null) obj = [];
+	    if (nativeReduce && obj.reduce === nativeReduce) {
+	      if (context) iterator = _.bind(iterator, context);
+	      return initial ? obj.reduce(iterator, memo) : obj.reduce(iterator);
+	    }
+	    each(obj, function(value, index, list) {
+	      if (!initial) {
+	        memo = value;
+	        initial = true;
+	      } else {
+	        memo = iterator.call(context, memo, value, index, list);
+	      }
+	    });
+	    if (!initial) throw new TypeError(reduceError);
+	    return memo;
+	  };
+
+	  // The right-associative version of reduce, also known as `foldr`.
+	  // Delegates to **ECMAScript 5**'s native `reduceRight` if available.
+	  _.reduceRight = _.foldr = function(obj, iterator, memo, context) {
+	    var initial = arguments.length > 2;
+	    if (obj == null) obj = [];
+	    if (nativeReduceRight && obj.reduceRight === nativeReduceRight) {
+	      if (context) iterator = _.bind(iterator, context);
+	      return initial ? obj.reduceRight(iterator, memo) : obj.reduceRight(iterator);
+	    }
+	    var length = obj.length;
+	    if (length !== +length) {
+	      var keys = _.keys(obj);
+	      length = keys.length;
+	    }
+	    each(obj, function(value, index, list) {
+	      index = keys ? keys[--length] : --length;
+	      if (!initial) {
+	        memo = obj[index];
+	        initial = true;
+	      } else {
+	        memo = iterator.call(context, memo, obj[index], index, list);
+	      }
+	    });
+	    if (!initial) throw new TypeError(reduceError);
+	    return memo;
+	  };
+
+	  // Return the first value which passes a truth test. Aliased as `detect`.
+	  _.find = _.detect = function(obj, iterator, context) {
+	    var result;
+	    any(obj, function(value, index, list) {
+	      if (iterator.call(context, value, index, list)) {
+	        result = value;
+	        return true;
+	      }
+	    });
+	    return result;
+	  };
+
+	  // Return all the elements that pass a truth test.
+	  // Delegates to **ECMAScript 5**'s native `filter` if available.
+	  // Aliased as `select`.
+	  _.filter = _.select = function(obj, iterator, context) {
+	    var results = [];
+	    if (obj == null) return results;
+	    if (nativeFilter && obj.filter === nativeFilter) return obj.filter(iterator, context);
+	    each(obj, function(value, index, list) {
+	      if (iterator.call(context, value, index, list)) results[results.length] = value;
+	    });
+	    return results;
+	  };
+
+	  // Return all the elements for which a truth test fails.
+	  _.reject = function(obj, iterator, context) {
+	    return _.filter(obj, function(value, index, list) {
+	      return !iterator.call(context, value, index, list);
+	    }, context);
+	  };
+
+	  // Determine whether all of the elements match a truth test.
+	  // Delegates to **ECMAScript 5**'s native `every` if available.
+	  // Aliased as `all`.
+	  _.every = _.all = function(obj, iterator, context) {
+	    iterator || (iterator = _.identity);
+	    var result = true;
+	    if (obj == null) return result;
+	    if (nativeEvery && obj.every === nativeEvery) return obj.every(iterator, context);
+	    each(obj, function(value, index, list) {
+	      if (!(result = result && iterator.call(context, value, index, list))) return breaker;
+	    });
+	    return !!result;
+	  };
+
+	  // Determine if at least one element in the object matches a truth test.
+	  // Delegates to **ECMAScript 5**'s native `some` if available.
+	  // Aliased as `any`.
+	  var any = _.some = _.any = function(obj, iterator, context) {
+	    iterator || (iterator = _.identity);
+	    var result = false;
+	    if (obj == null) return result;
+	    if (nativeSome && obj.some === nativeSome) return obj.some(iterator, context);
+	    each(obj, function(value, index, list) {
+	      if (result || (result = iterator.call(context, value, index, list))) return breaker;
+	    });
+	    return !!result;
+	  };
+
+	  // Determine if the array or object contains a given value (using `===`).
+	  // Aliased as `include`.
+	  _.contains = _.include = function(obj, target) {
+	    if (obj == null) return false;
+	    if (nativeIndexOf && obj.indexOf === nativeIndexOf) return obj.indexOf(target) != -1;
+	    return any(obj, function(value) {
+	      return value === target;
+	    });
+	  };
+
+	  // Invoke a method (with arguments) on every item in a collection.
+	  _.invoke = function(obj, method) {
+	    var args = slice.call(arguments, 2);
+	    var isFunc = _.isFunction(method);
+	    return _.map(obj, function(value) {
+	      return (isFunc ? method : value[method]).apply(value, args);
+	    });
+	  };
+
+	  // Convenience version of a common use case of `map`: fetching a property.
+	  _.pluck = function(obj, key) {
+	    return _.map(obj, function(value){ return value[key]; });
+	  };
+
+	  // Convenience version of a common use case of `filter`: selecting only objects
+	  // containing specific `key:value` pairs.
+	  _.where = function(obj, attrs, first) {
+	    if (_.isEmpty(attrs)) return first ? null : [];
+	    return _[first ? 'find' : 'filter'](obj, function(value) {
+	      for (var key in attrs) {
+	        if (attrs[key] !== value[key]) return false;
+	      }
+	      return true;
+	    });
+	  };
+
+	  // Convenience version of a common use case of `find`: getting the first object
+	  // containing specific `key:value` pairs.
+	  _.findWhere = function(obj, attrs) {
+	    return _.where(obj, attrs, true);
+	  };
+
+	  // Return the maximum element or (element-based computation).
+	  // Can't optimize arrays of integers longer than 65,535 elements.
+	  // See: https://bugs.webkit.org/show_bug.cgi?id=80797
+	  _.max = function(obj, iterator, context) {
+	    if (!iterator && _.isArray(obj) && obj[0] === +obj[0] && obj.length < 65535) {
+	      return Math.max.apply(Math, obj);
+	    }
+	    if (!iterator && _.isEmpty(obj)) return -Infinity;
+	    var result = {computed : -Infinity, value: -Infinity};
+	    each(obj, function(value, index, list) {
+	      var computed = iterator ? iterator.call(context, value, index, list) : value;
+	      computed >= result.computed && (result = {value : value, computed : computed});
+	    });
+	    return result.value;
+	  };
+
+	  // Return the minimum element (or element-based computation).
+	  _.min = function(obj, iterator, context) {
+	    if (!iterator && _.isArray(obj) && obj[0] === +obj[0] && obj.length < 65535) {
+	      return Math.min.apply(Math, obj);
+	    }
+	    if (!iterator && _.isEmpty(obj)) return Infinity;
+	    var result = {computed : Infinity, value: Infinity};
+	    each(obj, function(value, index, list) {
+	      var computed = iterator ? iterator.call(context, value, index, list) : value;
+	      computed < result.computed && (result = {value : value, computed : computed});
+	    });
+	    return result.value;
+	  };
+
+	  // Shuffle an array.
+	  _.shuffle = function(obj) {
+	    var rand;
+	    var index = 0;
+	    var shuffled = [];
+	    each(obj, function(value) {
+	      rand = _.random(index++);
+	      shuffled[index - 1] = shuffled[rand];
+	      shuffled[rand] = value;
+	    });
+	    return shuffled;
+	  };
+
+	  // An internal function to generate lookup iterators.
+	  var lookupIterator = function(value) {
+	    return _.isFunction(value) ? value : function(obj){ return obj[value]; };
+	  };
+
+	  // Sort the object's values by a criterion produced by an iterator.
+	  _.sortBy = function(obj, value, context) {
+	    var iterator = lookupIterator(value);
+	    return _.pluck(_.map(obj, function(value, index, list) {
+	      return {
+	        value : value,
+	        index : index,
+	        criteria : iterator.call(context, value, index, list)
+	      };
+	    }).sort(function(left, right) {
+	      var a = left.criteria;
+	      var b = right.criteria;
+	      if (a !== b) {
+	        if (a > b || a === void 0) return 1;
+	        if (a < b || b === void 0) return -1;
+	      }
+	      return left.index < right.index ? -1 : 1;
+	    }), 'value');
+	  };
+
+	  // An internal function used for aggregate "group by" operations.
+	  var group = function(obj, value, context, behavior) {
+	    var result = {};
+	    var iterator = lookupIterator(value || _.identity);
+	    each(obj, function(value, index) {
+	      var key = iterator.call(context, value, index, obj);
+	      behavior(result, key, value);
+	    });
+	    return result;
+	  };
+
+	  // Groups the object's values by a criterion. Pass either a string attribute
+	  // to group by, or a function that returns the criterion.
+	  _.groupBy = function(obj, value, context) {
+	    return group(obj, value, context, function(result, key, value) {
+	      (_.has(result, key) ? result[key] : (result[key] = [])).push(value);
+	    });
+	  };
+
+	  // Counts instances of an object that group by a certain criterion. Pass
+	  // either a string attribute to count by, or a function that returns the
+	  // criterion.
+	  _.countBy = function(obj, value, context) {
+	    return group(obj, value, context, function(result, key) {
+	      if (!_.has(result, key)) result[key] = 0;
+	      result[key]++;
+	    });
+	  };
+
+	  // Use a comparator function to figure out the smallest index at which
+	  // an object should be inserted so as to maintain order. Uses binary search.
+	  _.sortedIndex = function(array, obj, iterator, context) {
+	    iterator = iterator == null ? _.identity : lookupIterator(iterator);
+	    var value = iterator.call(context, obj);
+	    var low = 0, high = array.length;
+	    while (low < high) {
+	      var mid = (low + high) >>> 1;
+	      iterator.call(context, array[mid]) < value ? low = mid + 1 : high = mid;
+	    }
+	    return low;
+	  };
+
+	  // Safely convert anything iterable into a real, live array.
+	  _.toArray = function(obj) {
+	    if (!obj) return [];
+	    if (_.isArray(obj)) return slice.call(obj);
+	    if (obj.length === +obj.length) return _.map(obj, _.identity);
+	    return _.values(obj);
+	  };
+
+	  // Return the number of elements in an object.
+	  _.size = function(obj) {
+	    if (obj == null) return 0;
+	    return (obj.length === +obj.length) ? obj.length : _.keys(obj).length;
+	  };
+
+	  // Array Functions
+	  // ---------------
+
+	  // Get the first element of an array. Passing **n** will return the first N
+	  // values in the array. Aliased as `head` and `take`. The **guard** check
+	  // allows it to work with `_.map`.
+	  _.first = _.head = _.take = function(array, n, guard) {
+	    if (array == null) return void 0;
+	    return (n != null) && !guard ? slice.call(array, 0, n) : array[0];
+	  };
+
+	  // Returns everything but the last entry of the array. Especially useful on
+	  // the arguments object. Passing **n** will return all the values in
+	  // the array, excluding the last N. The **guard** check allows it to work with
+	  // `_.map`.
+	  _.initial = function(array, n, guard) {
+	    return slice.call(array, 0, array.length - ((n == null) || guard ? 1 : n));
+	  };
+
+	  // Get the last element of an array. Passing **n** will return the last N
+	  // values in the array. The **guard** check allows it to work with `_.map`.
+	  _.last = function(array, n, guard) {
+	    if (array == null) return void 0;
+	    if ((n != null) && !guard) {
+	      return slice.call(array, Math.max(array.length - n, 0));
+	    } else {
+	      return array[array.length - 1];
+	    }
+	  };
+
+	  // Returns everything but the first entry of the array. Aliased as `tail` and `drop`.
+	  // Especially useful on the arguments object. Passing an **n** will return
+	  // the rest N values in the array. The **guard**
+	  // check allows it to work with `_.map`.
+	  _.rest = _.tail = _.drop = function(array, n, guard) {
+	    return slice.call(array, (n == null) || guard ? 1 : n);
+	  };
+
+	  // Trim out all falsy values from an array.
+	  _.compact = function(array) {
+	    return _.filter(array, _.identity);
+	  };
+
+	  // Internal implementation of a recursive `flatten` function.
+	  var flatten = function(input, shallow, output) {
+	    each(input, function(value) {
+	      if (_.isArray(value)) {
+	        shallow ? push.apply(output, value) : flatten(value, shallow, output);
+	      } else {
+	        output.push(value);
+	      }
+	    });
+	    return output;
+	  };
+
+	  // Return a completely flattened version of an array.
+	  _.flatten = function(array, shallow) {
+	    return flatten(array, shallow, []);
+	  };
+
+	  // Return a version of the array that does not contain the specified value(s).
+	  _.without = function(array) {
+	    return _.difference(array, slice.call(arguments, 1));
+	  };
+
+	  // Produce a duplicate-free version of the array. If the array has already
+	  // been sorted, you have the option of using a faster algorithm.
+	  // Aliased as `unique`.
+	  _.uniq = _.unique = function(array, isSorted, iterator, context) {
+	    if (_.isFunction(isSorted)) {
+	      context = iterator;
+	      iterator = isSorted;
+	      isSorted = false;
+	    }
+	    var initial = iterator ? _.map(array, iterator, context) : array;
+	    var results = [];
+	    var seen = [];
+	    each(initial, function(value, index) {
+	      if (isSorted ? (!index || seen[seen.length - 1] !== value) : !_.contains(seen, value)) {
+	        seen.push(value);
+	        results.push(array[index]);
+	      }
+	    });
+	    return results;
+	  };
+
+	  // Produce an array that contains the union: each distinct element from all of
+	  // the passed-in arrays.
+	  _.union = function() {
+	    return _.uniq(concat.apply(ArrayProto, arguments));
+	  };
+
+	  // Produce an array that contains every item shared between all the
+	  // passed-in arrays.
+	  _.intersection = function(array) {
+	    var rest = slice.call(arguments, 1);
+	    return _.filter(_.uniq(array), function(item) {
+	      return _.every(rest, function(other) {
+	        return _.indexOf(other, item) >= 0;
+	      });
+	    });
+	  };
+
+	  // Take the difference between one array and a number of other arrays.
+	  // Only the elements present in just the first array will remain.
+	  _.difference = function(array) {
+	    var rest = concat.apply(ArrayProto, slice.call(arguments, 1));
+	    return _.filter(array, function(value){ return !_.contains(rest, value); });
+	  };
+
+	  // Zip together multiple lists into a single array -- elements that share
+	  // an index go together.
+	  _.zip = function() {
+	    var args = slice.call(arguments);
+	    var length = _.max(_.pluck(args, 'length'));
+	    var results = new Array(length);
+	    for (var i = 0; i < length; i++) {
+	      results[i] = _.pluck(args, "" + i);
+	    }
+	    return results;
+	  };
+
+	  // Converts lists into objects. Pass either a single array of `[key, value]`
+	  // pairs, or two parallel arrays of the same length -- one of keys, and one of
+	  // the corresponding values.
+	  _.object = function(list, values) {
+	    if (list == null) return {};
+	    var result = {};
+	    for (var i = 0, l = list.length; i < l; i++) {
+	      if (values) {
+	        result[list[i]] = values[i];
+	      } else {
+	        result[list[i][0]] = list[i][1];
+	      }
+	    }
+	    return result;
+	  };
+
+	  // If the browser doesn't supply us with indexOf (I'm looking at you, **MSIE**),
+	  // we need this function. Return the position of the first occurrence of an
+	  // item in an array, or -1 if the item is not included in the array.
+	  // Delegates to **ECMAScript 5**'s native `indexOf` if available.
+	  // If the array is large and already in sort order, pass `true`
+	  // for **isSorted** to use binary search.
+	  _.indexOf = function(array, item, isSorted) {
+	    if (array == null) return -1;
+	    var i = 0, l = array.length;
+	    if (isSorted) {
+	      if (typeof isSorted == 'number') {
+	        i = (isSorted < 0 ? Math.max(0, l + isSorted) : isSorted);
+	      } else {
+	        i = _.sortedIndex(array, item);
+	        return array[i] === item ? i : -1;
+	      }
+	    }
+	    if (nativeIndexOf && array.indexOf === nativeIndexOf) return array.indexOf(item, isSorted);
+	    for (; i < l; i++) if (array[i] === item) return i;
+	    return -1;
+	  };
+
+	  // Delegates to **ECMAScript 5**'s native `lastIndexOf` if available.
+	  _.lastIndexOf = function(array, item, from) {
+	    if (array == null) return -1;
+	    var hasIndex = from != null;
+	    if (nativeLastIndexOf && array.lastIndexOf === nativeLastIndexOf) {
+	      return hasIndex ? array.lastIndexOf(item, from) : array.lastIndexOf(item);
+	    }
+	    var i = (hasIndex ? from : array.length);
+	    while (i--) if (array[i] === item) return i;
+	    return -1;
+	  };
+
+	  // Generate an integer Array containing an arithmetic progression. A port of
+	  // the native Python `range()` function. See
+	  // [the Python documentation](http://docs.python.org/library/functions.html#range).
+	  _.range = function(start, stop, step) {
+	    if (arguments.length <= 1) {
+	      stop = start || 0;
+	      start = 0;
+	    }
+	    step = arguments[2] || 1;
+
+	    var len = Math.max(Math.ceil((stop - start) / step), 0);
+	    var idx = 0;
+	    var range = new Array(len);
+
+	    while(idx < len) {
+	      range[idx++] = start;
+	      start += step;
+	    }
+
+	    return range;
+	  };
+
+	  // Function (ahem) Functions
+	  // ------------------
+
+	  // Create a function bound to a given object (assigning `this`, and arguments,
+	  // optionally). Delegates to **ECMAScript 5**'s native `Function.bind` if
+	  // available.
+	  _.bind = function(func, context) {
+	    if (func.bind === nativeBind && nativeBind) return nativeBind.apply(func, slice.call(arguments, 1));
+	    var args = slice.call(arguments, 2);
+	    return function() {
+	      return func.apply(context, args.concat(slice.call(arguments)));
+	    };
+	  };
+
+	  // Partially apply a function by creating a version that has had some of its
+	  // arguments pre-filled, without changing its dynamic `this` context.
+	  _.partial = function(func) {
+	    var args = slice.call(arguments, 1);
+	    return function() {
+	      return func.apply(this, args.concat(slice.call(arguments)));
+	    };
+	  };
+
+	  // Bind all of an object's methods to that object. Useful for ensuring that
+	  // all callbacks defined on an object belong to it.
+	  _.bindAll = function(obj) {
+	    var funcs = slice.call(arguments, 1);
+	    if (funcs.length === 0) funcs = _.functions(obj);
+	    each(funcs, function(f) { obj[f] = _.bind(obj[f], obj); });
+	    return obj;
+	  };
+
+	  // Memoize an expensive function by storing its results.
+	  _.memoize = function(func, hasher) {
+	    var memo = {};
+	    hasher || (hasher = _.identity);
+	    return function() {
+	      var key = hasher.apply(this, arguments);
+	      return _.has(memo, key) ? memo[key] : (memo[key] = func.apply(this, arguments));
+	    };
+	  };
+
+	  // Delays a function for the given number of milliseconds, and then calls
+	  // it with the arguments supplied.
+	  _.delay = function(func, wait) {
+	    var args = slice.call(arguments, 2);
+	    return setTimeout(function(){ return func.apply(null, args); }, wait);
+	  };
+
+	  // Defers a function, scheduling it to run after the current call stack has
+	  // cleared.
+	  _.defer = function(func) {
+	    return _.delay.apply(_, [func, 1].concat(slice.call(arguments, 1)));
+	  };
+
+	  // Returns a function, that, when invoked, will only be triggered at most once
+	  // during a given window of time.
+	  _.throttle = function(func, wait) {
+	    var context, args, timeout, result;
+	    var previous = 0;
+	    var later = function() {
+	      previous = new Date;
+	      timeout = null;
+	      result = func.apply(context, args);
+	    };
+	    return function() {
+	      var now = new Date;
+	      var remaining = wait - (now - previous);
+	      context = this;
+	      args = arguments;
+	      if (remaining <= 0) {
+	        clearTimeout(timeout);
+	        timeout = null;
+	        previous = now;
+	        result = func.apply(context, args);
+	      } else if (!timeout) {
+	        timeout = setTimeout(later, remaining);
+	      }
+	      return result;
+	    };
+	  };
+
+	  // Returns a function, that, as long as it continues to be invoked, will not
+	  // be triggered. The function will be called after it stops being called for
+	  // N milliseconds. If `immediate` is passed, trigger the function on the
+	  // leading edge, instead of the trailing.
+	  _.debounce = function(func, wait, immediate) {
+	    var timeout, result;
+	    return function() {
+	      var context = this, args = arguments;
+	      var later = function() {
+	        timeout = null;
+	        if (!immediate) result = func.apply(context, args);
+	      };
+	      var callNow = immediate && !timeout;
+	      clearTimeout(timeout);
+	      timeout = setTimeout(later, wait);
+	      if (callNow) result = func.apply(context, args);
+	      return result;
+	    };
+	  };
+
+	  // Returns a function that will be executed at most one time, no matter how
+	  // often you call it. Useful for lazy initialization.
+	  _.once = function(func) {
+	    var ran = false, memo;
+	    return function() {
+	      if (ran) return memo;
+	      ran = true;
+	      memo = func.apply(this, arguments);
+	      func = null;
+	      return memo;
+	    };
+	  };
+
+	  // Returns the first function passed as an argument to the second,
+	  // allowing you to adjust arguments, run code before and after, and
+	  // conditionally execute the original function.
+	  _.wrap = function(func, wrapper) {
+	    return function() {
+	      var args = [func];
+	      push.apply(args, arguments);
+	      return wrapper.apply(this, args);
+	    };
+	  };
+
+	  // Returns a function that is the composition of a list of functions, each
+	  // consuming the return value of the function that follows.
+	  _.compose = function() {
+	    var funcs = arguments;
+	    return function() {
+	      var args = arguments;
+	      for (var i = funcs.length - 1; i >= 0; i--) {
+	        args = [funcs[i].apply(this, args)];
+	      }
+	      return args[0];
+	    };
+	  };
+
+	  // Returns a function that will only be executed after being called N times.
+	  _.after = function(times, func) {
+	    if (times <= 0) return func();
+	    return function() {
+	      if (--times < 1) {
+	        return func.apply(this, arguments);
+	      }
+	    };
+	  };
+
+	  // Object Functions
+	  // ----------------
+
+	  // Retrieve the names of an object's properties.
+	  // Delegates to **ECMAScript 5**'s native `Object.keys`
+	  _.keys = nativeKeys || function(obj) {
+	    if (obj !== Object(obj)) throw new TypeError('Invalid object');
+	    var keys = [];
+	    for (var key in obj) if (_.has(obj, key)) keys[keys.length] = key;
+	    return keys;
+	  };
+
+	  // Retrieve the values of an object's properties.
+	  _.values = function(obj) {
+	    var values = [];
+	    for (var key in obj) if (_.has(obj, key)) values.push(obj[key]);
+	    return values;
+	  };
+
+	  // Convert an object into a list of `[key, value]` pairs.
+	  _.pairs = function(obj) {
+	    var pairs = [];
+	    for (var key in obj) if (_.has(obj, key)) pairs.push([key, obj[key]]);
+	    return pairs;
+	  };
+
+	  // Invert the keys and values of an object. The values must be serializable.
+	  _.invert = function(obj) {
+	    var result = {};
+	    for (var key in obj) if (_.has(obj, key)) result[obj[key]] = key;
+	    return result;
+	  };
+
+	  // Return a sorted list of the function names available on the object.
+	  // Aliased as `methods`
+	  _.functions = _.methods = function(obj) {
+	    var names = [];
+	    for (var key in obj) {
+	      if (_.isFunction(obj[key])) names.push(key);
+	    }
+	    return names.sort();
+	  };
+
+	  // Extend a given object with all the properties in passed-in object(s).
+	  _.extend = function(obj) {
+	    each(slice.call(arguments, 1), function(source) {
+	      if (source) {
+	        for (var prop in source) {
+	          obj[prop] = source[prop];
+	        }
+	      }
+	    });
+	    return obj;
+	  };
+
+	  // Return a copy of the object only containing the whitelisted properties.
+	  _.pick = function(obj) {
+	    var copy = {};
+	    var keys = concat.apply(ArrayProto, slice.call(arguments, 1));
+	    each(keys, function(key) {
+	      if (key in obj) copy[key] = obj[key];
+	    });
+	    return copy;
+	  };
+
+	   // Return a copy of the object without the blacklisted properties.
+	  _.omit = function(obj) {
+	    var copy = {};
+	    var keys = concat.apply(ArrayProto, slice.call(arguments, 1));
+	    for (var key in obj) {
+	      if (!_.contains(keys, key)) copy[key] = obj[key];
+	    }
+	    return copy;
+	  };
+
+	  // Fill in a given object with default properties.
+	  _.defaults = function(obj) {
+	    each(slice.call(arguments, 1), function(source) {
+	      if (source) {
+	        for (var prop in source) {
+	          if (obj[prop] == null) obj[prop] = source[prop];
+	        }
+	      }
+	    });
+	    return obj;
+	  };
+
+	  // Create a (shallow-cloned) duplicate of an object.
+	  _.clone = function(obj) {
+	    if (!_.isObject(obj)) return obj;
+	    return _.isArray(obj) ? obj.slice() : _.extend({}, obj);
+	  };
+
+	  // Invokes interceptor with the obj, and then returns obj.
+	  // The primary purpose of this method is to "tap into" a method chain, in
+	  // order to perform operations on intermediate results within the chain.
+	  _.tap = function(obj, interceptor) {
+	    interceptor(obj);
+	    return obj;
+	  };
+
+	  // Internal recursive comparison function for `isEqual`.
+	  var eq = function(a, b, aStack, bStack) {
+	    // Identical objects are equal. `0 === -0`, but they aren't identical.
+	    // See the Harmony `egal` proposal: http://wiki.ecmascript.org/doku.php?id=harmony:egal.
+	    if (a === b) return a !== 0 || 1 / a == 1 / b;
+	    // A strict comparison is necessary because `null == undefined`.
+	    if (a == null || b == null) return a === b;
+	    // Unwrap any wrapped objects.
+	    if (a instanceof _) a = a._wrapped;
+	    if (b instanceof _) b = b._wrapped;
+	    // Compare `[[Class]]` names.
+	    var className = toString.call(a);
+	    if (className != toString.call(b)) return false;
+	    switch (className) {
+	      // Strings, numbers, dates, and booleans are compared by value.
+	      case '[object String]':
+	        // Primitives and their corresponding object wrappers are equivalent; thus, `"5"` is
+	        // equivalent to `new String("5")`.
+	        return a == String(b);
+	      case '[object Number]':
+	        // `NaN`s are equivalent, but non-reflexive. An `egal` comparison is performed for
+	        // other numeric values.
+	        return a != +a ? b != +b : (a == 0 ? 1 / a == 1 / b : a == +b);
+	      case '[object Date]':
+	      case '[object Boolean]':
+	        // Coerce dates and booleans to numeric primitive values. Dates are compared by their
+	        // millisecond representations. Note that invalid dates with millisecond representations
+	        // of `NaN` are not equivalent.
+	        return +a == +b;
+	      // RegExps are compared by their source patterns and flags.
+	      case '[object RegExp]':
+	        return a.source == b.source &&
+	               a.global == b.global &&
+	               a.multiline == b.multiline &&
+	               a.ignoreCase == b.ignoreCase;
+	    }
+	    if (typeof a != 'object' || typeof b != 'object') return false;
+	    // Assume equality for cyclic structures. The algorithm for detecting cyclic
+	    // structures is adapted from ES 5.1 section 15.12.3, abstract operation `JO`.
+	    var length = aStack.length;
+	    while (length--) {
+	      // Linear search. Performance is inversely proportional to the number of
+	      // unique nested structures.
+	      if (aStack[length] == a) return bStack[length] == b;
+	    }
+	    // Add the first object to the stack of traversed objects.
+	    aStack.push(a);
+	    bStack.push(b);
+	    var size = 0, result = true;
+	    // Recursively compare objects and arrays.
+	    if (className == '[object Array]') {
+	      // Compare array lengths to determine if a deep comparison is necessary.
+	      size = a.length;
+	      result = size == b.length;
+	      if (result) {
+	        // Deep compare the contents, ignoring non-numeric properties.
+	        while (size--) {
+	          if (!(result = eq(a[size], b[size], aStack, bStack))) break;
+	        }
+	      }
+	    } else {
+	      // Objects with different constructors are not equivalent, but `Object`s
+	      // from different frames are.
+	      var aCtor = a.constructor, bCtor = b.constructor;
+	      if (aCtor !== bCtor && !(_.isFunction(aCtor) && (aCtor instanceof aCtor) &&
+	                               _.isFunction(bCtor) && (bCtor instanceof bCtor))) {
+	        return false;
+	      }
+	      // Deep compare objects.
+	      for (var key in a) {
+	        if (_.has(a, key)) {
+	          // Count the expected number of properties.
+	          size++;
+	          // Deep compare each member.
+	          if (!(result = _.has(b, key) && eq(a[key], b[key], aStack, bStack))) break;
+	        }
+	      }
+	      // Ensure that both objects contain the same number of properties.
+	      if (result) {
+	        for (key in b) {
+	          if (_.has(b, key) && !(size--)) break;
+	        }
+	        result = !size;
+	      }
+	    }
+	    // Remove the first object from the stack of traversed objects.
+	    aStack.pop();
+	    bStack.pop();
+	    return result;
+	  };
+
+	  // Perform a deep comparison to check if two objects are equal.
+	  _.isEqual = function(a, b) {
+	    return eq(a, b, [], []);
+	  };
+
+	  // Is a given array, string, or object empty?
+	  // An "empty" object has no enumerable own-properties.
+	  _.isEmpty = function(obj) {
+	    if (obj == null) return true;
+	    if (_.isArray(obj) || _.isString(obj)) return obj.length === 0;
+	    for (var key in obj) if (_.has(obj, key)) return false;
+	    return true;
+	  };
+
+	  // Is a given value a DOM element?
+	  _.isElement = function(obj) {
+	    return !!(obj && obj.nodeType === 1);
+	  };
+
+	  // Is a given value an array?
+	  // Delegates to ECMA5's native Array.isArray
+	  _.isArray = nativeIsArray || function(obj) {
+	    return toString.call(obj) == '[object Array]';
+	  };
+
+	  // Is a given variable an object?
+	  _.isObject = function(obj) {
+	    return obj === Object(obj);
+	  };
+
+	  // Add some isType methods: isArguments, isFunction, isString, isNumber, isDate, isRegExp.
+	  each(['Arguments', 'Function', 'String', 'Number', 'Date', 'RegExp'], function(name) {
+	    _['is' + name] = function(obj) {
+	      return toString.call(obj) == '[object ' + name + ']';
+	    };
+	  });
+
+	  // Define a fallback version of the method in browsers (ahem, IE), where
+	  // there isn't any inspectable "Arguments" type.
+	  if (!_.isArguments(arguments)) {
+	    _.isArguments = function(obj) {
+	      return !!(obj && _.has(obj, 'callee'));
+	    };
+	  }
+
+	  // Optimize `isFunction` if appropriate.
+	  if (true) {
+	    _.isFunction = function(obj) {
+	      return typeof obj === 'function';
+	    };
+	  }
+
+	  // Is a given object a finite number?
+	  _.isFinite = function(obj) {
+	    return isFinite(obj) && !isNaN(parseFloat(obj));
+	  };
+
+	  // Is the given value `NaN`? (NaN is the only number which does not equal itself).
+	  _.isNaN = function(obj) {
+	    return _.isNumber(obj) && obj != +obj;
+	  };
+
+	  // Is a given value a boolean?
+	  _.isBoolean = function(obj) {
+	    return obj === true || obj === false || toString.call(obj) == '[object Boolean]';
+	  };
+
+	  // Is a given value equal to null?
+	  _.isNull = function(obj) {
+	    return obj === null;
+	  };
+
+	  // Is a given variable undefined?
+	  _.isUndefined = function(obj) {
+	    return obj === void 0;
+	  };
+
+	  // Shortcut function for checking if an object has a given property directly
+	  // on itself (in other words, not on a prototype).
+	  _.has = function(obj, key) {
+	    return hasOwnProperty.call(obj, key);
+	  };
+
+	  // Utility Functions
+	  // -----------------
+
+	  // Run Underscore.js in *noConflict* mode, returning the `_` variable to its
+	  // previous owner. Returns a reference to the Underscore object.
+	  _.noConflict = function() {
+	    root._ = previousUnderscore;
+	    return this;
+	  };
+
+	  // Keep the identity function around for default iterators.
+	  _.identity = function(value) {
+	    return value;
+	  };
+
+	  // Run a function **n** times.
+	  _.times = function(n, iterator, context) {
+	    var accum = Array(n);
+	    for (var i = 0; i < n; i++) accum[i] = iterator.call(context, i);
+	    return accum;
+	  };
+
+	  // Return a random integer between min and max (inclusive).
+	  _.random = function(min, max) {
+	    if (max == null) {
+	      max = min;
+	      min = 0;
+	    }
+	    return min + Math.floor(Math.random() * (max - min + 1));
+	  };
+
+	  // List of HTML entities for escaping.
+	  var entityMap = {
+	    escape: {
+	      '&': '&amp;',
+	      '<': '&lt;',
+	      '>': '&gt;',
+	      '"': '&quot;',
+	      "'": '&#x27;',
+	      '/': '&#x2F;'
+	    }
+	  };
+	  entityMap.unescape = _.invert(entityMap.escape);
+
+	  // Regexes containing the keys and values listed immediately above.
+	  var entityRegexes = {
+	    escape:   new RegExp('[' + _.keys(entityMap.escape).join('') + ']', 'g'),
+	    unescape: new RegExp('(' + _.keys(entityMap.unescape).join('|') + ')', 'g')
+	  };
+
+	  // Functions for escaping and unescaping strings to/from HTML interpolation.
+	  _.each(['escape', 'unescape'], function(method) {
+	    _[method] = function(string) {
+	      if (string == null) return '';
+	      return ('' + string).replace(entityRegexes[method], function(match) {
+	        return entityMap[method][match];
+	      });
+	    };
+	  });
+
+	  // If the value of the named property is a function then invoke it;
+	  // otherwise, return it.
+	  _.result = function(object, property) {
+	    if (object == null) return null;
+	    var value = object[property];
+	    return _.isFunction(value) ? value.call(object) : value;
+	  };
+
+	  // Add your own custom functions to the Underscore object.
+	  _.mixin = function(obj) {
+	    each(_.functions(obj), function(name){
+	      var func = _[name] = obj[name];
+	      _.prototype[name] = function() {
+	        var args = [this._wrapped];
+	        push.apply(args, arguments);
+	        return result.call(this, func.apply(_, args));
+	      };
+	    });
+	  };
+
+	  // Generate a unique integer id (unique within the entire client session).
+	  // Useful for temporary DOM ids.
+	  var idCounter = 0;
+	  _.uniqueId = function(prefix) {
+	    var id = ++idCounter + '';
+	    return prefix ? prefix + id : id;
+	  };
+
+	  // By default, Underscore uses ERB-style template delimiters, change the
+	  // following template settings to use alternative delimiters.
+	  _.templateSettings = {
+	    evaluate    : /<%([\s\S]+?)%>/g,
+	    interpolate : /<%=([\s\S]+?)%>/g,
+	    escape      : /<%-([\s\S]+?)%>/g
+	  };
+
+	  // When customizing `templateSettings`, if you don't want to define an
+	  // interpolation, evaluation or escaping regex, we need one that is
+	  // guaranteed not to match.
+	  var noMatch = /(.)^/;
+
+	  // Certain characters need to be escaped so that they can be put into a
+	  // string literal.
+	  var escapes = {
+	    "'":      "'",
+	    '\\':     '\\',
+	    '\r':     'r',
+	    '\n':     'n',
+	    '\t':     't',
+	    '\u2028': 'u2028',
+	    '\u2029': 'u2029'
+	  };
+
+	  var escaper = /\\|'|\r|\n|\t|\u2028|\u2029/g;
+
+	  // JavaScript micro-templating, similar to John Resig's implementation.
+	  // Underscore templating handles arbitrary delimiters, preserves whitespace,
+	  // and correctly escapes quotes within interpolated code.
+	  _.template = function(text, data, settings) {
+	    var render;
+	    settings = _.defaults({}, settings, _.templateSettings);
+
+	    // Combine delimiters into one regular expression via alternation.
+	    var matcher = new RegExp([
+	      (settings.escape || noMatch).source,
+	      (settings.interpolate || noMatch).source,
+	      (settings.evaluate || noMatch).source
+	    ].join('|') + '|$', 'g');
+
+	    // Compile the template source, escaping string literals appropriately.
+	    var index = 0;
+	    var source = "__p+='";
+	    text.replace(matcher, function(match, escape, interpolate, evaluate, offset) {
+	      source += text.slice(index, offset)
+	        .replace(escaper, function(match) { return '\\' + escapes[match]; });
+
+	      if (escape) {
+	        source += "'+\n((__t=(" + escape + "))==null?'':_.escape(__t))+\n'";
+	      }
+	      if (interpolate) {
+	        source += "'+\n((__t=(" + interpolate + "))==null?'':__t)+\n'";
+	      }
+	      if (evaluate) {
+	        source += "';\n" + evaluate + "\n__p+='";
+	      }
+	      index = offset + match.length;
+	      return match;
+	    });
+	    source += "';\n";
+
+	    // If a variable is not specified, place data values in local scope.
+	    if (!settings.variable) source = 'with(obj||{}){\n' + source + '}\n';
+
+	    source = "var __t,__p='',__j=Array.prototype.join," +
+	      "print=function(){__p+=__j.call(arguments,'');};\n" +
+	      source + "return __p;\n";
+
+	    try {
+	      render = new Function(settings.variable || 'obj', '_', source);
+	    } catch (e) {
+	      e.source = source;
+	      throw e;
+	    }
+
+	    if (data) return render(data, _);
+	    var template = function(data) {
+	      return render.call(this, data, _);
+	    };
+
+	    // Provide the compiled function source as a convenience for precompilation.
+	    template.source = 'function(' + (settings.variable || 'obj') + '){\n' + source + '}';
+
+	    return template;
+	  };
+
+	  // Add a "chain" function, which will delegate to the wrapper.
+	  _.chain = function(obj) {
+	    return _(obj).chain();
+	  };
+
+	  // OOP
+	  // ---------------
+	  // If Underscore is called as a function, it returns a wrapped object that
+	  // can be used OO-style. This wrapper holds altered versions of all the
+	  // underscore functions. Wrapped objects may be chained.
+
+	  // Helper function to continue chaining intermediate results.
+	  var result = function(obj) {
+	    return this._chain ? _(obj).chain() : obj;
+	  };
+
+	  // Add all of the Underscore functions to the wrapper object.
+	  _.mixin(_);
+
+	  // Add all mutator Array functions to the wrapper.
+	  each(['pop', 'push', 'reverse', 'shift', 'sort', 'splice', 'unshift'], function(name) {
+	    var method = ArrayProto[name];
+	    _.prototype[name] = function() {
+	      var obj = this._wrapped;
+	      method.apply(obj, arguments);
+	      if ((name == 'shift' || name == 'splice') && obj.length === 0) delete obj[0];
+	      return result.call(this, obj);
+	    };
+	  });
+
+	  // Add all accessor Array functions to the wrapper.
+	  each(['concat', 'join', 'slice'], function(name) {
+	    var method = ArrayProto[name];
+	    _.prototype[name] = function() {
+	      return result.call(this, method.apply(this._wrapped, arguments));
+	    };
+	  });
+
+	  _.extend(_.prototype, {
+
+	    // Start chaining a wrapped Underscore object.
+	    chain: function() {
+	      this._chain = true;
+	      return this;
+	    },
+
+	    // Extracts the result from a wrapped and chained object.
+	    value: function() {
+	      return this._wrapped;
+	    }
+
+	  });
+
+	}).call(this);
+
+
+/***/ },
+/* 605 */
+/***/ function(module, exports) {
+
+	"use strict";
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.default = uploadHandler;
+	/**
+	 * Upload handler tools which is used in both api & main projects
+	 * @param  {Object}   options.file         blob object
+	 * @param  {Function} options.afterRead    for preview purpose
+	 * @param  {Function} options.uploadAction main upload method
+	 */
+	function uploadHandler(_ref) {
+	  var file = _ref.file,
+	      afterRead = _ref.afterRead,
+	      uploadAction = _ref.uploadAction;
+
+	  // initiate upload file reader
+	  var uploadReader = new FileReader();
+
+	  var name = file.name,
+	      size = file.size,
+	      type = file.type;
+
+	  var fileInfo = { name: name, size: size, type: type };
+
+	  // after read process is done
+	  uploadReader.onloadend = function () {
+	    var data = new Uint8Array(uploadReader.result);
+	    uploadAction({ data: data, fileInfo: fileInfo });
+	  };
+
+	  // begin read
+	  uploadReader.readAsArrayBuffer(file);
+
+	  // read as data url for preview purposes
+	  if (afterRead) {
+	    (function () {
+	      var reader = new FileReader();
+
+	      reader.onloadend = function () {
+	        afterRead({
+	          result: reader.result,
+	          fileInfo: fileInfo
+	        });
+	      };
+
+	      reader.readAsDataURL(file);
+	    })();
+	  }
+	}
 
 /***/ }
 /******/ ]);
