@@ -7,6 +7,14 @@ const ConversationSchema = Mongoose.Schema({
   content: String,
 });
 
-const Conversations = Mongoose.model('conversations', ConversationSchema);
+const MessageSchema = Mongoose.Schema({
+  _id: String,
+  conversationId: String,
+  content: String,
+  createdAt: Date,
+});
 
-export { Conversations };
+const Conversations = Mongoose.model('conversations', ConversationSchema);
+const Messages = Mongoose.model('conversation_messages', MessageSchema);
+
+export { Conversations, Messages };
