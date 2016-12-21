@@ -3,15 +3,13 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { createStore, combineReducers, applyMiddleware, compose } from 'redux';
-import ApolloClient from 'apollo-client';
 import { ApolloProvider } from 'react-apollo';
 import thunkMiddleware from 'redux-thunk';
+import client from './apollo-client';
 import erxesReducers from './reducers';
 import { App } from './containers';
 import { connect } from './erxes.js';
 import './sass/style.scss';
-
-const client = new ApolloClient({});
 
 const store = createStore(
 	combineReducers({ ...erxesReducers, apollo: client.reducer() }),

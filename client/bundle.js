@@ -58,32 +58,30 @@
 
 	var _redux = __webpack_require__(178);
 
-	var _apolloClient = __webpack_require__(199);
+	var _reactApollo = __webpack_require__(428);
 
-	var _apolloClient2 = _interopRequireDefault(_apolloClient);
-
-	var _reactApollo = __webpack_require__(417);
-
-	var _reduxThunk = __webpack_require__(426);
+	var _reduxThunk = __webpack_require__(437);
 
 	var _reduxThunk2 = _interopRequireDefault(_reduxThunk);
 
-	var _reducers = __webpack_require__(427);
+	var _apolloClient = __webpack_require__(618);
+
+	var _apolloClient2 = _interopRequireDefault(_apolloClient);
+
+	var _reducers = __webpack_require__(439);
 
 	var _reducers2 = _interopRequireDefault(_reducers);
 
-	var _containers = __webpack_require__(429);
+	var _containers = __webpack_require__(441);
 
-	var _erxes = __webpack_require__(575);
+	var _erxes = __webpack_require__(589);
 
-	__webpack_require__(599);
+	__webpack_require__(614);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-	var client = new _apolloClient2.default({});
-
-	var store = (0, _redux.createStore)((0, _redux.combineReducers)(_extends({}, _reducers2.default, { apollo: client.reducer() })), {}, // initial state
-	(0, _redux.compose)((0, _redux.applyMiddleware)(client.middleware()), (0, _redux.applyMiddleware)(_reduxThunk2.default),
+	var store = (0, _redux.createStore)((0, _redux.combineReducers)(_extends({}, _reducers2.default, { apollo: _apolloClient2.default.reducer() })), {}, // initial state
+	(0, _redux.compose)((0, _redux.applyMiddleware)(_apolloClient2.default.middleware()), (0, _redux.applyMiddleware)(_reduxThunk2.default),
 	// If you are using the devToolsExtension, you can add it here also
 	window.devToolsExtension ? window.devToolsExtension() : function (f) {
 		return f;
@@ -96,7 +94,7 @@
 
 	_reactDom2.default.render(_react2.default.createElement(
 		_reactApollo.ApolloProvider,
-		{ store: store, client: client },
+		{ store: store, client: _apolloClient2.default },
 		_react2.default.createElement(_containers.App, null)
 	), document.getElementById('root'));
 
@@ -33469,9 +33467,795 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var ApolloProvider_1 = __webpack_require__(418);
+	var client_1 = __webpack_require__(418);
+	exports.Client = client_1.default;
+	var server_1 = __webpack_require__(427);
+	exports.SubscriptionServer = server_1.default;
+	//# sourceMappingURL=index.js.map
+
+/***/ },
+/* 418 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	var websocket = __webpack_require__(419);
+	var W3CWebSocket = websocket['w3cwebsocket'];
+	var Backoff = __webpack_require__(422);
+	var messageTypes_1 = __webpack_require__(423);
+	var protocols_1 = __webpack_require__(424);
+	var isString = __webpack_require__(425);
+	var isObject = __webpack_require__(426);
+	var DEFAULT_SUBSCRIPTION_TIMEOUT = 5000;
+	var Client = (function () {
+	    function Client(url, options) {
+	        var _a = (options || {}), _b = _a.timeout, timeout = _b === void 0 ? DEFAULT_SUBSCRIPTION_TIMEOUT : _b, _c = _a.reconnect, reconnect = _c === void 0 ? false : _c, _d = _a.reconnectionAttempts, reconnectionAttempts = _d === void 0 ? Infinity : _d;
+	        this.url = url;
+	        this.subscriptions = {};
+	        this.maxId = 0;
+	        this.subscriptionTimeout = timeout;
+	        this.waitingSubscriptions = {};
+	        this.unsentMessagesQueue = [];
+	        this.reconnect = reconnect;
+	        this.reconnectSubscriptions = {};
+	        this.reconnecting = false;
+	        this.reconnectionAttempts = reconnectionAttempts;
+	        this.backoff = new Backoff({ jitter: 0.5 });
+	        this.connect();
+	    }
+	    Client.prototype.subscribe = function (options, handler) {
+	        var _this = this;
+	        var query = options.query, variables = options.variables, operationName = options.operationName, context = options.context;
+	        if (!query) {
+	            throw new Error('Must provide `query` to subscribe.');
+	        }
+	        if (!handler) {
+	            throw new Error('Must provide `handler` to subscribe.');
+	        }
+	        if (!isString(query) ||
+	            (operationName && !isString(operationName)) ||
+	            (variables && !isObject(variables))) {
+	            throw new Error('Incorrect option types to subscribe. `subscription` must be a string,' +
+	                '`operationName` must be a string, and `variables` must be an object.');
+	        }
+	        var subId = this.generateSubscriptionId();
+	        var message = Object.assign(options, { type: messageTypes_1.SUBSCRIPTION_START, id: subId });
+	        this.sendMessage(message);
+	        this.subscriptions[subId] = { options: options, handler: handler };
+	        this.waitingSubscriptions[subId] = true;
+	        setTimeout(function () {
+	            if (_this.waitingSubscriptions[subId]) {
+	                handler([new Error('Subscription timed out - no response from server')]);
+	                _this.unsubscribe(subId);
+	            }
+	        }, this.subscriptionTimeout);
+	        return subId;
+	    };
+	    Client.prototype.unsubscribe = function (id) {
+	        delete this.subscriptions[id];
+	        delete this.waitingSubscriptions[id];
+	        var message = { id: id, type: messageTypes_1.SUBSCRIPTION_END };
+	        this.sendMessage(message);
+	    };
+	    Client.prototype.unsubscribeAll = function () {
+	        var _this = this;
+	        Object.keys(this.subscriptions).forEach(function (subId) {
+	            _this.unsubscribe(parseInt(subId));
+	        });
+	    };
+	    Client.prototype.sendMessage = function (message) {
+	        switch (this.client.readyState) {
+	            case this.client.OPEN:
+	                this.client.send(JSON.stringify(message));
+	                break;
+	            case this.client.CONNECTING:
+	                this.unsentMessagesQueue.push(message);
+	                break;
+	            case this.client.CLOSING:
+	            case this.client.CLOSED:
+	            default:
+	                if (!this.reconnecting) {
+	                    throw new Error('Client is not connected to a websocket.');
+	                }
+	        }
+	    };
+	    Client.prototype.generateSubscriptionId = function () {
+	        var id = this.maxId;
+	        this.maxId += 1;
+	        return id;
+	    };
+	    Client.prototype.formatErrors = function (errors) {
+	        if (Array.isArray(errors)) {
+	            return errors;
+	        }
+	        if (errors && errors.message) {
+	            return [errors];
+	        }
+	        return [{ message: 'Unknown error' }];
+	    };
+	    Client.prototype.tryReconnect = function () {
+	        var _this = this;
+	        if (!this.reconnect) {
+	            return;
+	        }
+	        if (this.backoff.attempts > this.reconnectionAttempts) {
+	            return;
+	        }
+	        if (!this.reconnecting) {
+	            this.reconnectSubscriptions = this.subscriptions;
+	            this.subscriptions = {};
+	            this.waitingSubscriptions = {};
+	            this.reconnecting = true;
+	        }
+	        var delay = this.backoff.duration();
+	        setTimeout(function () {
+	            _this.connect();
+	        }, delay);
+	    };
+	    Client.prototype.connect = function () {
+	        var _this = this;
+	        this.client = new W3CWebSocket(this.url, protocols_1.GRAPHQL_SUBSCRIPTIONS);
+	        this.client.onopen = function () {
+	            _this.reconnecting = false;
+	            _this.backoff.reset();
+	            Object.keys(_this.reconnectSubscriptions).forEach(function (key) {
+	                var _a = _this.reconnectSubscriptions[key], options = _a.options, handler = _a.handler;
+	                _this.subscribe(options, handler);
+	            });
+	            _this.unsentMessagesQueue.forEach(function (message) {
+	                _this.client.send(JSON.stringify(message));
+	            });
+	            _this.unsentMessagesQueue = [];
+	        };
+	        this.client.onclose = function () {
+	            _this.tryReconnect();
+	        };
+	        this.client.onmessage = function (message) {
+	            var parsedMessage;
+	            try {
+	                parsedMessage = JSON.parse(message.data);
+	            }
+	            catch (e) {
+	                throw new Error('Message must be JSON-parseable.');
+	            }
+	            var subId = parsedMessage.id;
+	            if (parsedMessage.type !== messageTypes_1.SUBSCRIPTION_KEEPALIVE && !_this.subscriptions[subId]) {
+	                _this.unsubscribe(subId);
+	                return;
+	            }
+	            switch (parsedMessage.type) {
+	                case messageTypes_1.SUBSCRIPTION_SUCCESS:
+	                    delete _this.waitingSubscriptions[subId];
+	                    break;
+	                case messageTypes_1.SUBSCRIPTION_FAIL:
+	                    _this.subscriptions[subId].handler(_this.formatErrors(parsedMessage.payload.errors), null);
+	                    delete _this.subscriptions[subId];
+	                    delete _this.waitingSubscriptions[subId];
+	                    break;
+	                case messageTypes_1.SUBSCRIPTION_DATA:
+	                    if (parsedMessage.payload.data && !parsedMessage.payload.errors) {
+	                        _this.subscriptions[subId].handler(null, parsedMessage.payload.data);
+	                    }
+	                    else {
+	                        _this.subscriptions[subId].handler(_this.formatErrors(parsedMessage.payload.errors), null);
+	                    }
+	                    break;
+	                case messageTypes_1.SUBSCRIPTION_KEEPALIVE:
+	                    break;
+	                default:
+	                    throw new Error('Invalid message type - must be of type `subscription_start`, `subscription_data` or `subscription_keepalive`.');
+	            }
+	        };
+	    };
+	    return Client;
+	}());
+	Object.defineProperty(exports, "__esModule", { value: true });
+	exports.default = Client;
+	;
+	//# sourceMappingURL=client.js.map
+
+/***/ },
+/* 419 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var _global = (function() { return this; })();
+	var nativeWebSocket = _global.WebSocket || _global.MozWebSocket;
+	var websocket_version = __webpack_require__(420);
+
+
+	/**
+	 * Expose a W3C WebSocket class with just one or two arguments.
+	 */
+	function W3CWebSocket(uri, protocols) {
+		var native_instance;
+
+		if (protocols) {
+			native_instance = new nativeWebSocket(uri, protocols);
+		}
+		else {
+			native_instance = new nativeWebSocket(uri);
+		}
+
+		/**
+		 * 'native_instance' is an instance of nativeWebSocket (the browser's WebSocket
+		 * class). Since it is an Object it will be returned as it is when creating an
+		 * instance of W3CWebSocket via 'new W3CWebSocket()'.
+		 *
+		 * ECMAScript 5: http://bclary.com/2004/11/07/#a-13.2.2
+		 */
+		return native_instance;
+	}
+
+
+	/**
+	 * Module exports.
+	 */
+	module.exports = {
+	    'w3cwebsocket' : nativeWebSocket ? W3CWebSocket : null,
+	    'version'      : websocket_version
+	};
+
+
+/***/ },
+/* 420 */
+/***/ function(module, exports, __webpack_require__) {
+
+	module.exports = __webpack_require__(421).version;
+
+
+/***/ },
+/* 421 */
+/***/ function(module, exports) {
+
+	module.exports = {
+		"_args": [
+			[
+				"websocket@^1.0.23",
+				"/Users/battulgabatamar/Documents/opensource/apollo-api/node_modules/subscriptions-transport-ws"
+			]
+		],
+		"_from": "websocket@>=1.0.23 <2.0.0",
+		"_id": "websocket@1.0.23",
+		"_inCache": true,
+		"_installable": true,
+		"_location": "/websocket",
+		"_nodeVersion": "0.10.45",
+		"_npmOperationalInternal": {
+			"host": "packages-16-east.internal.npmjs.com",
+			"tmp": "tmp/websocket-1.0.23.tgz_1463625793005_0.4532310354989022"
+		},
+		"_npmUser": {
+			"email": "brian@worlize.com",
+			"name": "theturtle32"
+		},
+		"_npmVersion": "2.15.1",
+		"_phantomChildren": {},
+		"_requested": {
+			"name": "websocket",
+			"raw": "websocket@^1.0.23",
+			"rawSpec": "^1.0.23",
+			"scope": null,
+			"spec": ">=1.0.23 <2.0.0",
+			"type": "range"
+		},
+		"_requiredBy": [
+			"/subscriptions-transport-ws"
+		],
+		"_resolved": "https://registry.npmjs.org/websocket/-/websocket-1.0.23.tgz",
+		"_shasum": "20de8ec4a7126b09465578cd5dbb29a9c296aac6",
+		"_shrinkwrap": null,
+		"_spec": "websocket@^1.0.23",
+		"_where": "/Users/battulgabatamar/Documents/opensource/apollo-api/node_modules/subscriptions-transport-ws",
+		"author": {
+			"email": "brian@worlize.com",
+			"name": "Brian McKelvey",
+			"url": "https://www.worlize.com/"
+		},
+		"browser": "lib/browser.js",
+		"bugs": {
+			"url": "https://github.com/theturtle32/WebSocket-Node/issues"
+		},
+		"config": {
+			"verbose": false
+		},
+		"contributors": [
+			{
+				"name": "Iñaki Baz Castillo",
+				"email": "ibc@aliax.net",
+				"url": "http://dev.sipdoc.net"
+			}
+		],
+		"dependencies": {
+			"debug": "^2.2.0",
+			"nan": "^2.3.3",
+			"typedarray-to-buffer": "^3.1.2",
+			"yaeti": "^0.0.4"
+		},
+		"description": "Websocket Client & Server Library implementing the WebSocket protocol as specified in RFC 6455.",
+		"devDependencies": {
+			"buffer-equal": "^0.0.1",
+			"faucet": "^0.0.1",
+			"gulp": "git+https://github.com/gulpjs/gulp.git#4.0",
+			"gulp-jshint": "^1.11.2",
+			"jshint-stylish": "^1.0.2",
+			"tape": "^4.0.1"
+		},
+		"directories": {
+			"lib": "./lib"
+		},
+		"dist": {
+			"shasum": "20de8ec4a7126b09465578cd5dbb29a9c296aac6",
+			"tarball": "https://registry.npmjs.org/websocket/-/websocket-1.0.23.tgz"
+		},
+		"engines": {
+			"node": ">=0.8.0"
+		},
+		"gitHead": "ba2fa7e9676c456bcfb12ad160655319af66faed",
+		"homepage": "https://github.com/theturtle32/WebSocket-Node",
+		"keywords": [
+			"RFC-6455",
+			"client",
+			"comet",
+			"networking",
+			"push",
+			"realtime",
+			"server",
+			"socket",
+			"websocket",
+			"websockets"
+		],
+		"license": "Apache-2.0",
+		"main": "index",
+		"maintainers": [
+			{
+				"name": "theturtle32",
+				"email": "brian@worlize.com"
+			}
+		],
+		"name": "websocket",
+		"optionalDependencies": {},
+		"readme": "ERROR: No README data found!",
+		"repository": {
+			"type": "git",
+			"url": "git+https://github.com/theturtle32/WebSocket-Node.git"
+		},
+		"scripts": {
+			"gulp": "gulp",
+			"install": "(node-gyp rebuild 2> builderror.log) || (exit 0)",
+			"test": "faucet test/unit"
+		},
+		"version": "1.0.23"
+	};
+
+/***/ },
+/* 422 */
+/***/ function(module, exports) {
+
+	
+	/**
+	 * Expose `Backoff`.
+	 */
+
+	module.exports = Backoff;
+
+	/**
+	 * Initialize backoff timer with `opts`.
+	 *
+	 * - `min` initial timeout in milliseconds [100]
+	 * - `max` max timeout [10000]
+	 * - `jitter` [0]
+	 * - `factor` [2]
+	 *
+	 * @param {Object} opts
+	 * @api public
+	 */
+
+	function Backoff(opts) {
+	  opts = opts || {};
+	  this.ms = opts.min || 100;
+	  this.max = opts.max || 10000;
+	  this.factor = opts.factor || 2;
+	  this.jitter = opts.jitter > 0 && opts.jitter <= 1 ? opts.jitter : 0;
+	  this.attempts = 0;
+	}
+
+	/**
+	 * Return the backoff duration.
+	 *
+	 * @return {Number}
+	 * @api public
+	 */
+
+	Backoff.prototype.duration = function(){
+	  var ms = this.ms * Math.pow(this.factor, this.attempts++);
+	  if (this.jitter) {
+	    var rand =  Math.random();
+	    var deviation = Math.floor(rand * this.jitter * ms);
+	    ms = (Math.floor(rand * 10) & 1) == 0  ? ms - deviation : ms + deviation;
+	  }
+	  return Math.min(ms, this.max) | 0;
+	};
+
+	/**
+	 * Reset the number of attempts.
+	 *
+	 * @api public
+	 */
+
+	Backoff.prototype.reset = function(){
+	  this.attempts = 0;
+	};
+
+	/**
+	 * Set the minimum duration
+	 *
+	 * @api public
+	 */
+
+	Backoff.prototype.setMin = function(min){
+	  this.ms = min;
+	};
+
+	/**
+	 * Set the maximum duration
+	 *
+	 * @api public
+	 */
+
+	Backoff.prototype.setMax = function(max){
+	  this.max = max;
+	};
+
+	/**
+	 * Set the jitter
+	 *
+	 * @api public
+	 */
+
+	Backoff.prototype.setJitter = function(jitter){
+	  this.jitter = jitter;
+	};
+
+
+
+/***/ },
+/* 423 */
+/***/ function(module, exports) {
+
+	"use strict";
+	var SUBSCRIPTION_FAIL = 'subscription_fail';
+	exports.SUBSCRIPTION_FAIL = SUBSCRIPTION_FAIL;
+	var SUBSCRIPTION_END = 'subscription_end';
+	exports.SUBSCRIPTION_END = SUBSCRIPTION_END;
+	var SUBSCRIPTION_DATA = 'subscription_data';
+	exports.SUBSCRIPTION_DATA = SUBSCRIPTION_DATA;
+	var SUBSCRIPTION_START = 'subscription_start';
+	exports.SUBSCRIPTION_START = SUBSCRIPTION_START;
+	var SUBSCRIPTION_SUCCESS = 'subscription_success';
+	exports.SUBSCRIPTION_SUCCESS = SUBSCRIPTION_SUCCESS;
+	var SUBSCRIPTION_KEEPALIVE = 'subscription_keepalive';
+	exports.SUBSCRIPTION_KEEPALIVE = SUBSCRIPTION_KEEPALIVE;
+	//# sourceMappingURL=messageTypes.js.map
+
+/***/ },
+/* 424 */
+/***/ function(module, exports) {
+
+	"use strict";
+	var GRAPHQL_SUBSCRIPTIONS = 'graphql-subscriptions';
+	exports.GRAPHQL_SUBSCRIPTIONS = GRAPHQL_SUBSCRIPTIONS;
+	//# sourceMappingURL=protocols.js.map
+
+/***/ },
+/* 425 */
+/***/ function(module, exports) {
+
+	/**
+	 * lodash 4.0.1 (Custom Build) <https://lodash.com/>
+	 * Build: `lodash modularize exports="npm" -o ./`
+	 * Copyright 2012-2016 The Dojo Foundation <http://dojofoundation.org/>
+	 * Based on Underscore.js 1.8.3 <http://underscorejs.org/LICENSE>
+	 * Copyright 2009-2016 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
+	 * Available under MIT license <https://lodash.com/license>
+	 */
+
+	/** `Object#toString` result references. */
+	var stringTag = '[object String]';
+
+	/** Used for built-in method references. */
+	var objectProto = Object.prototype;
+
+	/**
+	 * Used to resolve the [`toStringTag`](http://ecma-international.org/ecma-262/6.0/#sec-object.prototype.tostring)
+	 * of values.
+	 */
+	var objectToString = objectProto.toString;
+
+	/**
+	 * Checks if `value` is classified as an `Array` object.
+	 *
+	 * @static
+	 * @memberOf _
+	 * @type Function
+	 * @category Lang
+	 * @param {*} value The value to check.
+	 * @returns {boolean} Returns `true` if `value` is correctly classified, else `false`.
+	 * @example
+	 *
+	 * _.isArray([1, 2, 3]);
+	 * // => true
+	 *
+	 * _.isArray(document.body.children);
+	 * // => false
+	 *
+	 * _.isArray('abc');
+	 * // => false
+	 *
+	 * _.isArray(_.noop);
+	 * // => false
+	 */
+	var isArray = Array.isArray;
+
+	/**
+	 * Checks if `value` is object-like. A value is object-like if it's not `null`
+	 * and has a `typeof` result of "object".
+	 *
+	 * @static
+	 * @memberOf _
+	 * @category Lang
+	 * @param {*} value The value to check.
+	 * @returns {boolean} Returns `true` if `value` is object-like, else `false`.
+	 * @example
+	 *
+	 * _.isObjectLike({});
+	 * // => true
+	 *
+	 * _.isObjectLike([1, 2, 3]);
+	 * // => true
+	 *
+	 * _.isObjectLike(_.noop);
+	 * // => false
+	 *
+	 * _.isObjectLike(null);
+	 * // => false
+	 */
+	function isObjectLike(value) {
+	  return !!value && typeof value == 'object';
+	}
+
+	/**
+	 * Checks if `value` is classified as a `String` primitive or object.
+	 *
+	 * @static
+	 * @memberOf _
+	 * @category Lang
+	 * @param {*} value The value to check.
+	 * @returns {boolean} Returns `true` if `value` is correctly classified, else `false`.
+	 * @example
+	 *
+	 * _.isString('abc');
+	 * // => true
+	 *
+	 * _.isString(1);
+	 * // => false
+	 */
+	function isString(value) {
+	  return typeof value == 'string' ||
+	    (!isArray(value) && isObjectLike(value) && objectToString.call(value) == stringTag);
+	}
+
+	module.exports = isString;
+
+
+/***/ },
+/* 426 */
+/***/ function(module, exports) {
+
+	/**
+	 * lodash 3.0.2 (Custom Build) <https://lodash.com/>
+	 * Build: `lodash modern modularize exports="npm" -o ./`
+	 * Copyright 2012-2015 The Dojo Foundation <http://dojofoundation.org/>
+	 * Based on Underscore.js 1.8.3 <http://underscorejs.org/LICENSE>
+	 * Copyright 2009-2015 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
+	 * Available under MIT license <https://lodash.com/license>
+	 */
+
+	/**
+	 * Checks if `value` is the [language type](https://es5.github.io/#x8) of `Object`.
+	 * (e.g. arrays, functions, objects, regexes, `new Number(0)`, and `new String('')`)
+	 *
+	 * @static
+	 * @memberOf _
+	 * @category Lang
+	 * @param {*} value The value to check.
+	 * @returns {boolean} Returns `true` if `value` is an object, else `false`.
+	 * @example
+	 *
+	 * _.isObject({});
+	 * // => true
+	 *
+	 * _.isObject([1, 2, 3]);
+	 * // => true
+	 *
+	 * _.isObject(1);
+	 * // => false
+	 */
+	function isObject(value) {
+	  // Avoid a V8 JIT bug in Chrome 19-20.
+	  // See https://code.google.com/p/v8/issues/detail?id=2291 for more details.
+	  var type = typeof value;
+	  return !!value && (type == 'object' || type == 'function');
+	}
+
+	module.exports = isObject;
+
+
+/***/ },
+/* 427 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	var websocket_1 = __webpack_require__(419);
+	var messageTypes_1 = __webpack_require__(423);
+	var protocols_1 = __webpack_require__(424);
+	;
+	var Server = (function () {
+	    function Server(options, httpServer) {
+	        var _this = this;
+	        var subscriptionManager = options.subscriptionManager, onSubscribe = options.onSubscribe, keepAlive = options.keepAlive;
+	        if (!subscriptionManager) {
+	            throw new Error('Must provide `subscriptionManager` to websocket server constructor.');
+	        }
+	        this.subscriptionManager = subscriptionManager;
+	        this.onSubscribe = onSubscribe;
+	        this.wsServer = new websocket_1.server({
+	            httpServer: httpServer,
+	            autoAcceptConnections: false,
+	        });
+	        this.wsServer.on('request', function (request) {
+	            if (request.requestedProtocols.indexOf(protocols_1.GRAPHQL_SUBSCRIPTIONS) === -1) {
+	                request.reject(400, 'Unsupported protocol.');
+	                return;
+	            }
+	            var connection = request.accept(protocols_1.GRAPHQL_SUBSCRIPTIONS, request.origin);
+	            if (keepAlive) {
+	                var keepAliveTimer_1 = setInterval(function () {
+	                    if (connection && connection.state === 'open') {
+	                        _this.sendKeepAlive(connection);
+	                    }
+	                    else {
+	                        clearInterval(keepAliveTimer_1);
+	                    }
+	                }, keepAlive);
+	            }
+	            var connectionSubscriptions = {};
+	            connection.on('message', _this.onMessage(connection, connectionSubscriptions, request));
+	            connection.on('close', _this.onClose(connection, connectionSubscriptions));
+	        });
+	    }
+	    Server.prototype.onClose = function (connection, connectionSubscriptions) {
+	        var _this = this;
+	        return function () {
+	            Object.keys(connectionSubscriptions).forEach(function (subId) {
+	                _this.subscriptionManager.unsubscribe(connectionSubscriptions[subId]);
+	                delete connectionSubscriptions[subId];
+	            });
+	        };
+	    };
+	    Server.prototype.onMessage = function (connection, connectionSubscriptions, webSocketRequest) {
+	        var _this = this;
+	        return function (message) {
+	            var parsedMessage;
+	            try {
+	                parsedMessage = JSON.parse(message.utf8Data);
+	            }
+	            catch (e) {
+	                _this.sendSubscriptionFail(connection, null, { errors: [{ message: e.message }] });
+	                return;
+	            }
+	            var subId = parsedMessage.id;
+	            switch (parsedMessage.type) {
+	                case messageTypes_1.SUBSCRIPTION_START:
+	                    var baseParams = {
+	                        query: parsedMessage.query,
+	                        variables: parsedMessage.variables,
+	                        operationName: parsedMessage.operationName,
+	                        context: {},
+	                        formatResponse: undefined,
+	                        formatError: undefined,
+	                        callback: undefined,
+	                    };
+	                    var promisedParams = Promise.resolve(baseParams);
+	                    if (_this.onSubscribe) {
+	                        promisedParams = Promise.resolve(_this.onSubscribe(parsedMessage, baseParams, webSocketRequest));
+	                    }
+	                    if (connectionSubscriptions[subId]) {
+	                        _this.subscriptionManager.unsubscribe(connectionSubscriptions[subId]);
+	                        delete connectionSubscriptions[subId];
+	                    }
+	                    promisedParams.then(function (params) {
+	                        params.callback = function (error, result) {
+	                            if (!error) {
+	                                _this.sendSubscriptionData(connection, subId, result);
+	                            }
+	                            else if (error.errors) {
+	                                _this.sendSubscriptionData(connection, subId, { errors: error.errors });
+	                            }
+	                            else {
+	                                _this.sendSubscriptionData(connection, subId, { errors: [{ message: error.message }] });
+	                            }
+	                        };
+	                        return _this.subscriptionManager.subscribe(params);
+	                    }).then(function (graphqlSubId) {
+	                        connectionSubscriptions[subId] = graphqlSubId;
+	                        _this.sendSubscriptionSuccess(connection, subId);
+	                    }).catch(function (e) {
+	                        if (e.errors) {
+	                            _this.sendSubscriptionFail(connection, subId, { errors: e.errors });
+	                        }
+	                        else {
+	                            _this.sendSubscriptionFail(connection, subId, { errors: [{ message: e.message }] });
+	                        }
+	                        return;
+	                    });
+	                    break;
+	                case messageTypes_1.SUBSCRIPTION_END:
+	                    if (typeof connectionSubscriptions[subId] !== 'undefined') {
+	                        _this.subscriptionManager.unsubscribe(connectionSubscriptions[subId]);
+	                        delete connectionSubscriptions[subId];
+	                    }
+	                    break;
+	                default:
+	                    _this.sendSubscriptionFail(connection, subId, {
+	                        errors: [{
+	                                message: 'Invalid message type. Message type must be `subscription_start` or `subscription_end`.'
+	                            }]
+	                    });
+	            }
+	        };
+	    };
+	    Server.prototype.sendSubscriptionData = function (connection, subId, payload) {
+	        var message = {
+	            type: messageTypes_1.SUBSCRIPTION_DATA,
+	            id: subId,
+	            payload: payload,
+	        };
+	        connection.sendUTF(JSON.stringify(message));
+	    };
+	    Server.prototype.sendSubscriptionFail = function (connection, subId, payload) {
+	        var message = {
+	            type: messageTypes_1.SUBSCRIPTION_FAIL,
+	            id: subId,
+	            payload: payload,
+	        };
+	        connection.sendUTF(JSON.stringify(message));
+	    };
+	    Server.prototype.sendSubscriptionSuccess = function (connection, subId) {
+	        var message = {
+	            type: messageTypes_1.SUBSCRIPTION_SUCCESS,
+	            id: subId,
+	        };
+	        connection.sendUTF(JSON.stringify(message));
+	    };
+	    Server.prototype.sendKeepAlive = function (connection) {
+	        var message = {
+	            type: messageTypes_1.SUBSCRIPTION_KEEPALIVE,
+	        };
+	        connection.sendUTF(JSON.stringify(message));
+	    };
+	    return Server;
+	}());
+	Object.defineProperty(exports, "__esModule", { value: true });
+	exports.default = Server;
+	//# sourceMappingURL=server.js.map
+
+/***/ },
+/* 428 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	var ApolloProvider_1 = __webpack_require__(429);
 	exports.ApolloProvider = ApolloProvider_1.default;
-	var graphql_1 = __webpack_require__(420);
+	var graphql_1 = __webpack_require__(431);
 	exports.graphql = graphql_1.default;
 	exports.withApollo = graphql_1.withApollo;
 	var redux_1 = __webpack_require__(178);
@@ -33479,7 +34263,7 @@
 	//# sourceMappingURL=browser.js.map
 
 /***/ },
-/* 418 */
+/* 429 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -33490,7 +34274,7 @@
 	};
 	var React = __webpack_require__(1);
 	var react_1 = __webpack_require__(1);
-	var invariant = __webpack_require__(419);
+	var invariant = __webpack_require__(430);
 	var ApolloProvider = (function (_super) {
 	    __extends(ApolloProvider, _super);
 	    function ApolloProvider(props, context) {
@@ -33539,7 +34323,7 @@
 	//# sourceMappingURL=ApolloProvider.js.map
 
 /***/ },
-/* 419 */
+/* 430 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {/**
@@ -33597,7 +34381,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3)))
 
 /***/ },
-/* 420 */
+/* 431 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -33607,14 +34391,14 @@
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
 	var react_1 = __webpack_require__(1);
-	var pick = __webpack_require__(421);
-	var flatten = __webpack_require__(422);
-	var shallowEqual_1 = __webpack_require__(423);
-	var invariant = __webpack_require__(419);
+	var pick = __webpack_require__(432);
+	var flatten = __webpack_require__(433);
+	var shallowEqual_1 = __webpack_require__(434);
+	var invariant = __webpack_require__(430);
 	var assign = __webpack_require__(4);
-	var hoistNonReactStatics = __webpack_require__(424);
+	var hoistNonReactStatics = __webpack_require__(435);
 	var apollo_client_1 = __webpack_require__(199);
-	var parser_1 = __webpack_require__(425);
+	var parser_1 = __webpack_require__(436);
 	var defaultMapPropsToOptions = function (props) { return ({}); };
 	var defaultMapResultToProps = function (props) { return props; };
 	var defaultMapPropsToSkip = function (props) { return false; };
@@ -33931,7 +34715,7 @@
 	//# sourceMappingURL=graphql.js.map
 
 /***/ },
-/* 421 */
+/* 432 */
 /***/ function(module, exports) {
 
 	/* WEBPACK VAR INJECTION */(function(global) {/**
@@ -34441,7 +35225,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
 
 /***/ },
-/* 422 */
+/* 433 */
 /***/ function(module, exports) {
 
 	/* WEBPACK VAR INJECTION */(function(global) {/**
@@ -34797,7 +35581,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
 
 /***/ },
-/* 423 */
+/* 434 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -34823,7 +35607,7 @@
 	//# sourceMappingURL=shallowEqual.js.map
 
 /***/ },
-/* 424 */
+/* 435 */
 /***/ function(module, exports) {
 
 	/**
@@ -34879,11 +35663,11 @@
 
 
 /***/ },
-/* 425 */
+/* 436 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var invariant = __webpack_require__(419);
+	var invariant = __webpack_require__(430);
 	(function (DocumentType) {
 	    DocumentType[DocumentType["Query"] = 0] = "Query";
 	    DocumentType[DocumentType["Mutation"] = 1] = "Mutation";
@@ -34921,7 +35705,7 @@
 	//# sourceMappingURL=parser.js.map
 
 /***/ },
-/* 426 */
+/* 437 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -34949,7 +35733,36 @@
 	exports['default'] = thunk;
 
 /***/ },
-/* 427 */
+/* 438 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _printer = __webpack_require__(321);
+
+	var addGraphQLSubscriptions = function addGraphQLSubscriptions(networkInterface, wsClient) {
+	  return Object.assign(networkInterface, {
+	    subscribe: function subscribe(request, handler) {
+	      return wsClient.subscribe({
+	        query: (0, _printer.print)(request.query),
+	        variables: request.variables
+	      }, handler);
+	    },
+
+	    unsubscribe: function unsubscribe(id) {
+	      wsClient.unsubscribe(id);
+	    }
+	  });
+	};
+
+	exports.default = addGraphQLSubscriptions;
+
+/***/ },
+/* 439 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -34960,7 +35773,7 @@
 
 	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
-	var _constants = __webpack_require__(428);
+	var _constants = __webpack_require__(440);
 
 	function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
@@ -35058,7 +35871,7 @@
 	exports.default = messenger;
 
 /***/ },
-/* 428 */
+/* 440 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -35078,7 +35891,7 @@
 	var NOTIFICATION_RECEIVED = exports.NOTIFICATION_RECEIVED = 'NOTIFICATION_RECEIVED';
 
 /***/ },
-/* 429 */
+/* 441 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -35088,35 +35901,35 @@
 	});
 	exports.User = exports.MessagesList = exports.MessageSender = exports.Launcher = exports.Conversation = exports.ConversationList = exports.Messenger = exports.App = undefined;
 
-	var _App = __webpack_require__(430);
+	var _App = __webpack_require__(442);
 
 	var _App2 = _interopRequireDefault(_App);
 
-	var _Messenger = __webpack_require__(570);
+	var _Messenger = __webpack_require__(582);
 
 	var _Messenger2 = _interopRequireDefault(_Messenger);
 
-	var _ConversationList = __webpack_require__(571);
+	var _ConversationList = __webpack_require__(583);
 
 	var _ConversationList2 = _interopRequireDefault(_ConversationList);
 
-	var _Conversation = __webpack_require__(594);
+	var _Conversation = __webpack_require__(609);
 
 	var _Conversation2 = _interopRequireDefault(_Conversation);
 
-	var _Launcher = __webpack_require__(595);
+	var _Launcher = __webpack_require__(610);
 
 	var _Launcher2 = _interopRequireDefault(_Launcher);
 
-	var _MessageSender = __webpack_require__(596);
+	var _MessageSender = __webpack_require__(611);
 
 	var _MessageSender2 = _interopRequireDefault(_MessageSender);
 
-	var _MessagesList = __webpack_require__(597);
+	var _MessagesList = __webpack_require__(612);
 
 	var _MessagesList2 = _interopRequireDefault(_MessagesList);
 
-	var _User = __webpack_require__(598);
+	var _User = __webpack_require__(613);
 
 	var _User2 = _interopRequireDefault(_User);
 
@@ -35132,7 +35945,7 @@
 	exports.User = _User2.default;
 
 /***/ },
-/* 430 */
+/* 442 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -35141,9 +35954,9 @@
 	  value: true
 	});
 
-	var _reactRedux = __webpack_require__(431);
+	var _reactRedux = __webpack_require__(443);
 
-	var _components = __webpack_require__(446);
+	var _components = __webpack_require__(458);
 
 	var mapStateToProps = function mapStateToProps(state) {
 	  return {
@@ -35154,7 +35967,7 @@
 	exports.default = (0, _reactRedux.connect)(mapStateToProps)(_components.App);
 
 /***/ },
-/* 431 */
+/* 443 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -35162,15 +35975,15 @@
 	exports.__esModule = true;
 	exports.connect = exports.connectAdvanced = exports.Provider = undefined;
 
-	var _Provider = __webpack_require__(432);
+	var _Provider = __webpack_require__(444);
 
 	var _Provider2 = _interopRequireDefault(_Provider);
 
-	var _connectAdvanced = __webpack_require__(435);
+	var _connectAdvanced = __webpack_require__(447);
 
 	var _connectAdvanced2 = _interopRequireDefault(_connectAdvanced);
 
-	var _connect = __webpack_require__(437);
+	var _connect = __webpack_require__(449);
 
 	var _connect2 = _interopRequireDefault(_connect);
 
@@ -35181,7 +35994,7 @@
 	exports.connect = _connect2.default;
 
 /***/ },
-/* 432 */
+/* 444 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {'use strict';
@@ -35191,11 +36004,11 @@
 
 	var _react = __webpack_require__(1);
 
-	var _storeShape = __webpack_require__(433);
+	var _storeShape = __webpack_require__(445);
 
 	var _storeShape2 = _interopRequireDefault(_storeShape);
 
-	var _warning = __webpack_require__(434);
+	var _warning = __webpack_require__(446);
 
 	var _warning2 = _interopRequireDefault(_warning);
 
@@ -35266,7 +36079,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3)))
 
 /***/ },
-/* 433 */
+/* 445 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -35282,7 +36095,7 @@
 	});
 
 /***/ },
-/* 434 */
+/* 446 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -35312,7 +36125,7 @@
 	}
 
 /***/ },
-/* 435 */
+/* 447 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {'use strict';
@@ -35323,21 +36136,21 @@
 
 	exports.default = connectAdvanced;
 
-	var _hoistNonReactStatics = __webpack_require__(424);
+	var _hoistNonReactStatics = __webpack_require__(435);
 
 	var _hoistNonReactStatics2 = _interopRequireDefault(_hoistNonReactStatics);
 
-	var _invariant = __webpack_require__(419);
+	var _invariant = __webpack_require__(430);
 
 	var _invariant2 = _interopRequireDefault(_invariant);
 
 	var _react = __webpack_require__(1);
 
-	var _Subscription = __webpack_require__(436);
+	var _Subscription = __webpack_require__(448);
 
 	var _Subscription2 = _interopRequireDefault(_Subscription);
 
-	var _storeShape = __webpack_require__(433);
+	var _storeShape = __webpack_require__(445);
 
 	var _storeShape2 = _interopRequireDefault(_storeShape);
 
@@ -35594,7 +36407,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3)))
 
 /***/ },
-/* 436 */
+/* 448 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -35692,7 +36505,7 @@
 	exports.default = Subscription;
 
 /***/ },
-/* 437 */
+/* 449 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -35703,27 +36516,27 @@
 
 	exports.createConnect = createConnect;
 
-	var _connectAdvanced = __webpack_require__(435);
+	var _connectAdvanced = __webpack_require__(447);
 
 	var _connectAdvanced2 = _interopRequireDefault(_connectAdvanced);
 
-	var _shallowEqual = __webpack_require__(438);
+	var _shallowEqual = __webpack_require__(450);
 
 	var _shallowEqual2 = _interopRequireDefault(_shallowEqual);
 
-	var _mapDispatchToProps = __webpack_require__(439);
+	var _mapDispatchToProps = __webpack_require__(451);
 
 	var _mapDispatchToProps2 = _interopRequireDefault(_mapDispatchToProps);
 
-	var _mapStateToProps = __webpack_require__(442);
+	var _mapStateToProps = __webpack_require__(454);
 
 	var _mapStateToProps2 = _interopRequireDefault(_mapStateToProps);
 
-	var _mergeProps = __webpack_require__(443);
+	var _mergeProps = __webpack_require__(455);
 
 	var _mergeProps2 = _interopRequireDefault(_mergeProps);
 
-	var _selectorFactory = __webpack_require__(444);
+	var _selectorFactory = __webpack_require__(456);
 
 	var _selectorFactory2 = _interopRequireDefault(_selectorFactory);
 
@@ -35825,7 +36638,7 @@
 	exports.default = createConnect();
 
 /***/ },
-/* 438 */
+/* 450 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -35853,7 +36666,7 @@
 	}
 
 /***/ },
-/* 439 */
+/* 451 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -35865,7 +36678,7 @@
 
 	var _redux = __webpack_require__(178);
 
-	var _wrapMapToProps = __webpack_require__(440);
+	var _wrapMapToProps = __webpack_require__(452);
 
 	function whenMapDispatchToPropsIsFunction(mapDispatchToProps) {
 	  return typeof mapDispatchToProps === 'function' ? (0, _wrapMapToProps.wrapMapToPropsFunc)(mapDispatchToProps, 'mapDispatchToProps') : undefined;
@@ -35886,7 +36699,7 @@
 	exports.default = [whenMapDispatchToPropsIsFunction, whenMapDispatchToPropsIsMissing, whenMapDispatchToPropsIsObject];
 
 /***/ },
-/* 440 */
+/* 452 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {'use strict';
@@ -35896,7 +36709,7 @@
 	exports.getDependsOnOwnProps = getDependsOnOwnProps;
 	exports.wrapMapToPropsFunc = wrapMapToPropsFunc;
 
-	var _verifyPlainObject = __webpack_require__(441);
+	var _verifyPlainObject = __webpack_require__(453);
 
 	var _verifyPlainObject2 = _interopRequireDefault(_verifyPlainObject);
 
@@ -35968,7 +36781,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3)))
 
 /***/ },
-/* 441 */
+/* 453 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -35980,7 +36793,7 @@
 
 	var _isPlainObject2 = _interopRequireDefault(_isPlainObject);
 
-	var _warning = __webpack_require__(434);
+	var _warning = __webpack_require__(446);
 
 	var _warning2 = _interopRequireDefault(_warning);
 
@@ -35993,7 +36806,7 @@
 	}
 
 /***/ },
-/* 442 */
+/* 454 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -36002,7 +36815,7 @@
 	exports.whenMapStateToPropsIsFunction = whenMapStateToPropsIsFunction;
 	exports.whenMapStateToPropsIsMissing = whenMapStateToPropsIsMissing;
 
-	var _wrapMapToProps = __webpack_require__(440);
+	var _wrapMapToProps = __webpack_require__(452);
 
 	function whenMapStateToPropsIsFunction(mapStateToProps) {
 	  return typeof mapStateToProps === 'function' ? (0, _wrapMapToProps.wrapMapToPropsFunc)(mapStateToProps, 'mapStateToProps') : undefined;
@@ -36017,7 +36830,7 @@
 	exports.default = [whenMapStateToPropsIsFunction, whenMapStateToPropsIsMissing];
 
 /***/ },
-/* 443 */
+/* 455 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {'use strict';
@@ -36031,7 +36844,7 @@
 	exports.whenMergePropsIsFunction = whenMergePropsIsFunction;
 	exports.whenMergePropsIsOmitted = whenMergePropsIsOmitted;
 
-	var _verifyPlainObject = __webpack_require__(441);
+	var _verifyPlainObject = __webpack_require__(453);
 
 	var _verifyPlainObject2 = _interopRequireDefault(_verifyPlainObject);
 
@@ -36081,7 +36894,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3)))
 
 /***/ },
-/* 444 */
+/* 456 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {'use strict';
@@ -36091,7 +36904,7 @@
 	exports.pureFinalPropsSelectorFactory = pureFinalPropsSelectorFactory;
 	exports.default = finalPropsSelectorFactory;
 
-	var _verifySubselectors = __webpack_require__(445);
+	var _verifySubselectors = __webpack_require__(457);
 
 	var _verifySubselectors2 = _interopRequireDefault(_verifySubselectors);
 
@@ -36200,7 +37013,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3)))
 
 /***/ },
-/* 445 */
+/* 457 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -36208,7 +37021,7 @@
 	exports.__esModule = true;
 	exports.default = verifySubselectors;
 
-	var _warning = __webpack_require__(434);
+	var _warning = __webpack_require__(446);
 
 	var _warning2 = _interopRequireDefault(_warning);
 
@@ -36231,7 +37044,7 @@
 	}
 
 /***/ },
-/* 446 */
+/* 458 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -36241,43 +37054,43 @@
 	});
 	exports.User = exports.MessagesList = exports.MessageSender = exports.Message = exports.Launcher = exports.Conversation = exports.ConversationList = exports.Messenger = exports.Attachment = exports.App = undefined;
 
-	var _App = __webpack_require__(447);
+	var _App = __webpack_require__(459);
 
 	var _App2 = _interopRequireDefault(_App);
 
-	var _Attachment = __webpack_require__(448);
+	var _Attachment = __webpack_require__(460);
 
 	var _Attachment2 = _interopRequireDefault(_Attachment);
 
-	var _Messenger = __webpack_require__(449);
+	var _Messenger = __webpack_require__(461);
 
 	var _Messenger2 = _interopRequireDefault(_Messenger);
 
-	var _ConversationList = __webpack_require__(450);
+	var _ConversationList = __webpack_require__(462);
 
 	var _ConversationList2 = _interopRequireDefault(_ConversationList);
 
-	var _Conversation = __webpack_require__(564);
+	var _Conversation = __webpack_require__(576);
 
 	var _Conversation2 = _interopRequireDefault(_Conversation);
 
-	var _Launcher = __webpack_require__(565);
+	var _Launcher = __webpack_require__(577);
 
 	var _Launcher2 = _interopRequireDefault(_Launcher);
 
-	var _Message = __webpack_require__(566);
+	var _Message = __webpack_require__(578);
 
 	var _Message2 = _interopRequireDefault(_Message);
 
-	var _MessageSender = __webpack_require__(567);
+	var _MessageSender = __webpack_require__(579);
 
 	var _MessageSender2 = _interopRequireDefault(_MessageSender);
 
-	var _MessagesList = __webpack_require__(568);
+	var _MessagesList = __webpack_require__(580);
 
 	var _MessagesList2 = _interopRequireDefault(_MessagesList);
 
-	var _User = __webpack_require__(569);
+	var _User = __webpack_require__(581);
 
 	var _User2 = _interopRequireDefault(_User);
 
@@ -36295,7 +37108,7 @@
 	exports.User = _User2.default;
 
 /***/ },
-/* 447 */
+/* 459 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -36308,7 +37121,7 @@
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _containers = __webpack_require__(429);
+	var _containers = __webpack_require__(441);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -36332,7 +37145,7 @@
 	exports.default = App;
 
 /***/ },
-/* 448 */
+/* 460 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -36393,7 +37206,7 @@
 	exports.default = Attachment;
 
 /***/ },
-/* 449 */
+/* 461 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -36406,7 +37219,7 @@
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _containers = __webpack_require__(429);
+	var _containers = __webpack_require__(441);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -36431,7 +37244,7 @@
 	exports.default = Messenger;
 
 /***/ },
-/* 450 */
+/* 462 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -36444,11 +37257,11 @@
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _TopBar = __webpack_require__(451);
+	var _TopBar = __webpack_require__(463);
 
 	var _TopBar2 = _interopRequireDefault(_TopBar);
 
-	var _ConversationItem = __webpack_require__(452);
+	var _ConversationItem = __webpack_require__(464);
 
 	var _ConversationItem2 = _interopRequireDefault(_ConversationItem);
 
@@ -36514,7 +37327,7 @@
 	exports.default = ConversationList;
 
 /***/ },
-/* 451 */
+/* 463 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -36560,7 +37373,7 @@
 	exports.default = TopBar;
 
 /***/ },
-/* 452 */
+/* 464 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -36573,11 +37386,11 @@
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _moment = __webpack_require__(453);
+	var _moment = __webpack_require__(465);
 
 	var _moment2 = _interopRequireDefault(_moment);
 
-	var _classnames = __webpack_require__(563);
+	var _classnames = __webpack_require__(575);
 
 	var _classnames2 = _interopRequireDefault(_classnames);
 
@@ -36634,7 +37447,7 @@
 	exports.default = ConversationItem;
 
 /***/ },
-/* 453 */
+/* 465 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(module) {//! moment.js
@@ -38451,7 +39264,7 @@
 	            module && module.exports) {
 	        try {
 	            oldLocale = globalLocale._abbr;
-	            __webpack_require__(454)("./" + name);
+	            __webpack_require__(466)("./" + name);
 	            // because defineLocale currently also sets the global locale, we
 	            // want to undo that for lazy loaded locales
 	            getSetGlobalLocale(oldLocale);
@@ -40942,226 +41755,226 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(192)(module)))
 
 /***/ },
-/* 454 */
+/* 466 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var map = {
-		"./af": 455,
-		"./af.js": 455,
-		"./ar": 456,
-		"./ar-dz": 457,
-		"./ar-dz.js": 457,
-		"./ar-ly": 458,
-		"./ar-ly.js": 458,
-		"./ar-ma": 459,
-		"./ar-ma.js": 459,
-		"./ar-sa": 460,
-		"./ar-sa.js": 460,
-		"./ar-tn": 461,
-		"./ar-tn.js": 461,
-		"./ar.js": 456,
-		"./az": 462,
-		"./az.js": 462,
-		"./be": 463,
-		"./be.js": 463,
-		"./bg": 464,
-		"./bg.js": 464,
-		"./bn": 465,
-		"./bn.js": 465,
-		"./bo": 466,
-		"./bo.js": 466,
-		"./br": 467,
-		"./br.js": 467,
-		"./bs": 468,
-		"./bs.js": 468,
-		"./ca": 469,
-		"./ca.js": 469,
-		"./cs": 470,
-		"./cs.js": 470,
-		"./cv": 471,
-		"./cv.js": 471,
-		"./cy": 472,
-		"./cy.js": 472,
-		"./da": 473,
-		"./da.js": 473,
-		"./de": 474,
-		"./de-at": 475,
-		"./de-at.js": 475,
-		"./de.js": 474,
-		"./dv": 476,
-		"./dv.js": 476,
-		"./el": 477,
-		"./el.js": 477,
-		"./en-au": 478,
-		"./en-au.js": 478,
-		"./en-ca": 479,
-		"./en-ca.js": 479,
-		"./en-gb": 480,
-		"./en-gb.js": 480,
-		"./en-ie": 481,
-		"./en-ie.js": 481,
-		"./en-nz": 482,
-		"./en-nz.js": 482,
-		"./eo": 483,
-		"./eo.js": 483,
-		"./es": 484,
-		"./es-do": 485,
-		"./es-do.js": 485,
-		"./es.js": 484,
-		"./et": 486,
-		"./et.js": 486,
-		"./eu": 487,
-		"./eu.js": 487,
-		"./fa": 488,
-		"./fa.js": 488,
-		"./fi": 489,
-		"./fi.js": 489,
-		"./fo": 490,
-		"./fo.js": 490,
-		"./fr": 491,
-		"./fr-ca": 492,
-		"./fr-ca.js": 492,
-		"./fr-ch": 493,
-		"./fr-ch.js": 493,
-		"./fr.js": 491,
-		"./fy": 494,
-		"./fy.js": 494,
-		"./gd": 495,
-		"./gd.js": 495,
-		"./gl": 496,
-		"./gl.js": 496,
-		"./he": 497,
-		"./he.js": 497,
-		"./hi": 498,
-		"./hi.js": 498,
-		"./hr": 499,
-		"./hr.js": 499,
-		"./hu": 500,
-		"./hu.js": 500,
-		"./hy-am": 501,
-		"./hy-am.js": 501,
-		"./id": 502,
-		"./id.js": 502,
-		"./is": 503,
-		"./is.js": 503,
-		"./it": 504,
-		"./it.js": 504,
-		"./ja": 505,
-		"./ja.js": 505,
-		"./jv": 506,
-		"./jv.js": 506,
-		"./ka": 507,
-		"./ka.js": 507,
-		"./kk": 508,
-		"./kk.js": 508,
-		"./km": 509,
-		"./km.js": 509,
-		"./ko": 510,
-		"./ko.js": 510,
-		"./ky": 511,
-		"./ky.js": 511,
-		"./lb": 512,
-		"./lb.js": 512,
-		"./lo": 513,
-		"./lo.js": 513,
-		"./lt": 514,
-		"./lt.js": 514,
-		"./lv": 515,
-		"./lv.js": 515,
-		"./me": 516,
-		"./me.js": 516,
-		"./mi": 517,
-		"./mi.js": 517,
-		"./mk": 518,
-		"./mk.js": 518,
-		"./ml": 519,
-		"./ml.js": 519,
-		"./mr": 520,
-		"./mr.js": 520,
-		"./ms": 521,
-		"./ms-my": 522,
-		"./ms-my.js": 522,
-		"./ms.js": 521,
-		"./my": 523,
-		"./my.js": 523,
-		"./nb": 524,
-		"./nb.js": 524,
-		"./ne": 525,
-		"./ne.js": 525,
-		"./nl": 526,
-		"./nl-be": 527,
-		"./nl-be.js": 527,
-		"./nl.js": 526,
-		"./nn": 528,
-		"./nn.js": 528,
-		"./pa-in": 529,
-		"./pa-in.js": 529,
-		"./pl": 530,
-		"./pl.js": 530,
-		"./pt": 531,
-		"./pt-br": 532,
-		"./pt-br.js": 532,
-		"./pt.js": 531,
-		"./ro": 533,
-		"./ro.js": 533,
-		"./ru": 534,
-		"./ru.js": 534,
-		"./se": 535,
-		"./se.js": 535,
-		"./si": 536,
-		"./si.js": 536,
-		"./sk": 537,
-		"./sk.js": 537,
-		"./sl": 538,
-		"./sl.js": 538,
-		"./sq": 539,
-		"./sq.js": 539,
-		"./sr": 540,
-		"./sr-cyrl": 541,
-		"./sr-cyrl.js": 541,
-		"./sr.js": 540,
-		"./ss": 542,
-		"./ss.js": 542,
-		"./sv": 543,
-		"./sv.js": 543,
-		"./sw": 544,
-		"./sw.js": 544,
-		"./ta": 545,
-		"./ta.js": 545,
-		"./te": 546,
-		"./te.js": 546,
-		"./tet": 547,
-		"./tet.js": 547,
-		"./th": 548,
-		"./th.js": 548,
-		"./tl-ph": 549,
-		"./tl-ph.js": 549,
-		"./tlh": 550,
-		"./tlh.js": 550,
-		"./tr": 551,
-		"./tr.js": 551,
-		"./tzl": 552,
-		"./tzl.js": 552,
-		"./tzm": 553,
-		"./tzm-latn": 554,
-		"./tzm-latn.js": 554,
-		"./tzm.js": 553,
-		"./uk": 555,
-		"./uk.js": 555,
-		"./uz": 556,
-		"./uz.js": 556,
-		"./vi": 557,
-		"./vi.js": 557,
-		"./x-pseudo": 558,
-		"./x-pseudo.js": 558,
-		"./yo": 559,
-		"./yo.js": 559,
-		"./zh-cn": 560,
-		"./zh-cn.js": 560,
-		"./zh-hk": 561,
-		"./zh-hk.js": 561,
-		"./zh-tw": 562,
-		"./zh-tw.js": 562
+		"./af": 467,
+		"./af.js": 467,
+		"./ar": 468,
+		"./ar-dz": 469,
+		"./ar-dz.js": 469,
+		"./ar-ly": 470,
+		"./ar-ly.js": 470,
+		"./ar-ma": 471,
+		"./ar-ma.js": 471,
+		"./ar-sa": 472,
+		"./ar-sa.js": 472,
+		"./ar-tn": 473,
+		"./ar-tn.js": 473,
+		"./ar.js": 468,
+		"./az": 474,
+		"./az.js": 474,
+		"./be": 475,
+		"./be.js": 475,
+		"./bg": 476,
+		"./bg.js": 476,
+		"./bn": 477,
+		"./bn.js": 477,
+		"./bo": 478,
+		"./bo.js": 478,
+		"./br": 479,
+		"./br.js": 479,
+		"./bs": 480,
+		"./bs.js": 480,
+		"./ca": 481,
+		"./ca.js": 481,
+		"./cs": 482,
+		"./cs.js": 482,
+		"./cv": 483,
+		"./cv.js": 483,
+		"./cy": 484,
+		"./cy.js": 484,
+		"./da": 485,
+		"./da.js": 485,
+		"./de": 486,
+		"./de-at": 487,
+		"./de-at.js": 487,
+		"./de.js": 486,
+		"./dv": 488,
+		"./dv.js": 488,
+		"./el": 489,
+		"./el.js": 489,
+		"./en-au": 490,
+		"./en-au.js": 490,
+		"./en-ca": 491,
+		"./en-ca.js": 491,
+		"./en-gb": 492,
+		"./en-gb.js": 492,
+		"./en-ie": 493,
+		"./en-ie.js": 493,
+		"./en-nz": 494,
+		"./en-nz.js": 494,
+		"./eo": 495,
+		"./eo.js": 495,
+		"./es": 496,
+		"./es-do": 497,
+		"./es-do.js": 497,
+		"./es.js": 496,
+		"./et": 498,
+		"./et.js": 498,
+		"./eu": 499,
+		"./eu.js": 499,
+		"./fa": 500,
+		"./fa.js": 500,
+		"./fi": 501,
+		"./fi.js": 501,
+		"./fo": 502,
+		"./fo.js": 502,
+		"./fr": 503,
+		"./fr-ca": 504,
+		"./fr-ca.js": 504,
+		"./fr-ch": 505,
+		"./fr-ch.js": 505,
+		"./fr.js": 503,
+		"./fy": 506,
+		"./fy.js": 506,
+		"./gd": 507,
+		"./gd.js": 507,
+		"./gl": 508,
+		"./gl.js": 508,
+		"./he": 509,
+		"./he.js": 509,
+		"./hi": 510,
+		"./hi.js": 510,
+		"./hr": 511,
+		"./hr.js": 511,
+		"./hu": 512,
+		"./hu.js": 512,
+		"./hy-am": 513,
+		"./hy-am.js": 513,
+		"./id": 514,
+		"./id.js": 514,
+		"./is": 515,
+		"./is.js": 515,
+		"./it": 516,
+		"./it.js": 516,
+		"./ja": 517,
+		"./ja.js": 517,
+		"./jv": 518,
+		"./jv.js": 518,
+		"./ka": 519,
+		"./ka.js": 519,
+		"./kk": 520,
+		"./kk.js": 520,
+		"./km": 521,
+		"./km.js": 521,
+		"./ko": 522,
+		"./ko.js": 522,
+		"./ky": 523,
+		"./ky.js": 523,
+		"./lb": 524,
+		"./lb.js": 524,
+		"./lo": 525,
+		"./lo.js": 525,
+		"./lt": 526,
+		"./lt.js": 526,
+		"./lv": 527,
+		"./lv.js": 527,
+		"./me": 528,
+		"./me.js": 528,
+		"./mi": 529,
+		"./mi.js": 529,
+		"./mk": 530,
+		"./mk.js": 530,
+		"./ml": 531,
+		"./ml.js": 531,
+		"./mr": 532,
+		"./mr.js": 532,
+		"./ms": 533,
+		"./ms-my": 534,
+		"./ms-my.js": 534,
+		"./ms.js": 533,
+		"./my": 535,
+		"./my.js": 535,
+		"./nb": 536,
+		"./nb.js": 536,
+		"./ne": 537,
+		"./ne.js": 537,
+		"./nl": 538,
+		"./nl-be": 539,
+		"./nl-be.js": 539,
+		"./nl.js": 538,
+		"./nn": 540,
+		"./nn.js": 540,
+		"./pa-in": 541,
+		"./pa-in.js": 541,
+		"./pl": 542,
+		"./pl.js": 542,
+		"./pt": 543,
+		"./pt-br": 544,
+		"./pt-br.js": 544,
+		"./pt.js": 543,
+		"./ro": 545,
+		"./ro.js": 545,
+		"./ru": 546,
+		"./ru.js": 546,
+		"./se": 547,
+		"./se.js": 547,
+		"./si": 548,
+		"./si.js": 548,
+		"./sk": 549,
+		"./sk.js": 549,
+		"./sl": 550,
+		"./sl.js": 550,
+		"./sq": 551,
+		"./sq.js": 551,
+		"./sr": 552,
+		"./sr-cyrl": 553,
+		"./sr-cyrl.js": 553,
+		"./sr.js": 552,
+		"./ss": 554,
+		"./ss.js": 554,
+		"./sv": 555,
+		"./sv.js": 555,
+		"./sw": 556,
+		"./sw.js": 556,
+		"./ta": 557,
+		"./ta.js": 557,
+		"./te": 558,
+		"./te.js": 558,
+		"./tet": 559,
+		"./tet.js": 559,
+		"./th": 560,
+		"./th.js": 560,
+		"./tl-ph": 561,
+		"./tl-ph.js": 561,
+		"./tlh": 562,
+		"./tlh.js": 562,
+		"./tr": 563,
+		"./tr.js": 563,
+		"./tzl": 564,
+		"./tzl.js": 564,
+		"./tzm": 565,
+		"./tzm-latn": 566,
+		"./tzm-latn.js": 566,
+		"./tzm.js": 565,
+		"./uk": 567,
+		"./uk.js": 567,
+		"./uz": 568,
+		"./uz.js": 568,
+		"./vi": 569,
+		"./vi.js": 569,
+		"./x-pseudo": 570,
+		"./x-pseudo.js": 570,
+		"./yo": 571,
+		"./yo.js": 571,
+		"./zh-cn": 572,
+		"./zh-cn.js": 572,
+		"./zh-hk": 573,
+		"./zh-hk.js": 573,
+		"./zh-tw": 574,
+		"./zh-tw.js": 574
 	};
 	function webpackContext(req) {
 		return __webpack_require__(webpackContextResolve(req));
@@ -41174,11 +41987,11 @@
 	};
 	webpackContext.resolve = webpackContextResolve;
 	module.exports = webpackContext;
-	webpackContext.id = 454;
+	webpackContext.id = 466;
 
 
 /***/ },
-/* 455 */
+/* 467 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -41186,7 +41999,7 @@
 	//! author : Werner Mollentze : https://github.com/wernerm
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(453)) :
+	    true ? factory(__webpack_require__(465)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -41256,7 +42069,7 @@
 
 
 /***/ },
-/* 456 */
+/* 468 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -41266,7 +42079,7 @@
 	//! author : forabi https://github.com/forabi
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(453)) :
+	    true ? factory(__webpack_require__(465)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -41403,7 +42216,7 @@
 
 
 /***/ },
-/* 457 */
+/* 469 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -41411,7 +42224,7 @@
 	//! author : Noureddine LOUAHEDJ : https://github.com/noureddineme
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(453)) :
+	    true ? factory(__webpack_require__(465)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -41467,7 +42280,7 @@
 
 
 /***/ },
-/* 458 */
+/* 470 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -41475,7 +42288,7 @@
 	//! author : Ali Hmer: https://github.com/kikoanis
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(453)) :
+	    true ? factory(__webpack_require__(465)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -41598,7 +42411,7 @@
 
 
 /***/ },
-/* 459 */
+/* 471 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -41607,7 +42420,7 @@
 	//! author : Abdel Said : https://github.com/abdelsaid
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(453)) :
+	    true ? factory(__webpack_require__(465)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -41663,7 +42476,7 @@
 
 
 /***/ },
-/* 460 */
+/* 472 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -41671,7 +42484,7 @@
 	//! author : Suhail Alkowaileet : https://github.com/xsoh
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(453)) :
+	    true ? factory(__webpack_require__(465)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -41773,7 +42586,7 @@
 
 
 /***/ },
-/* 461 */
+/* 473 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -41781,7 +42594,7 @@
 	//! author : Nader Toukabri : https://github.com/naderio
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(453)) :
+	    true ? factory(__webpack_require__(465)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -41837,7 +42650,7 @@
 
 
 /***/ },
-/* 462 */
+/* 474 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -41845,7 +42658,7 @@
 	//! author : topchiyev : https://github.com/topchiyev
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(453)) :
+	    true ? factory(__webpack_require__(465)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -41947,7 +42760,7 @@
 
 
 /***/ },
-/* 463 */
+/* 475 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -41957,7 +42770,7 @@
 	//! Author : Menelion Elensúle : https://github.com/Oire
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(453)) :
+	    true ? factory(__webpack_require__(465)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -42086,7 +42899,7 @@
 
 
 /***/ },
-/* 464 */
+/* 476 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -42094,7 +42907,7 @@
 	//! author : Krasen Borisov : https://github.com/kraz
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(453)) :
+	    true ? factory(__webpack_require__(465)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -42181,7 +42994,7 @@
 
 
 /***/ },
-/* 465 */
+/* 477 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -42189,7 +43002,7 @@
 	//! author : Kaushik Gandhi : https://github.com/kaushikgandhi
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(453)) :
+	    true ? factory(__webpack_require__(465)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -42305,7 +43118,7 @@
 
 
 /***/ },
-/* 466 */
+/* 478 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -42313,7 +43126,7 @@
 	//! author : Thupten N. Chakrishar : https://github.com/vajradog
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(453)) :
+	    true ? factory(__webpack_require__(465)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -42429,7 +43242,7 @@
 
 
 /***/ },
-/* 467 */
+/* 479 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -42437,7 +43250,7 @@
 	//! author : Jean-Baptiste Le Duigou : https://github.com/jbleduigou
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(453)) :
+	    true ? factory(__webpack_require__(465)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -42542,7 +43355,7 @@
 
 
 /***/ },
-/* 468 */
+/* 480 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -42551,7 +43364,7 @@
 	//! based on (hr) translation by Bojan Marković
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(453)) :
+	    true ? factory(__webpack_require__(465)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -42690,7 +43503,7 @@
 
 
 /***/ },
-/* 469 */
+/* 481 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -42698,7 +43511,7 @@
 	//! author : Juan G. Hurtado : https://github.com/juanghurtado
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(453)) :
+	    true ? factory(__webpack_require__(465)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -42776,7 +43589,7 @@
 
 
 /***/ },
-/* 470 */
+/* 482 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -42784,7 +43597,7 @@
 	//! author : petrbela : https://github.com/petrbela
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(453)) :
+	    true ? factory(__webpack_require__(465)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -42953,7 +43766,7 @@
 
 
 /***/ },
-/* 471 */
+/* 483 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -42961,7 +43774,7 @@
 	//! author : Anatoly Mironov : https://github.com/mirontoli
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(453)) :
+	    true ? factory(__webpack_require__(465)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -43021,7 +43834,7 @@
 
 
 /***/ },
-/* 472 */
+/* 484 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -43030,7 +43843,7 @@
 	//! author : https://github.com/ryangreaves
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(453)) :
+	    true ? factory(__webpack_require__(465)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -43107,7 +43920,7 @@
 
 
 /***/ },
-/* 473 */
+/* 485 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -43115,7 +43928,7 @@
 	//! author : Ulrik Nielsen : https://github.com/mrbase
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(453)) :
+	    true ? factory(__webpack_require__(465)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -43172,7 +43985,7 @@
 
 
 /***/ },
-/* 474 */
+/* 486 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -43182,7 +43995,7 @@
 	//! author : Mikolaj Dadela : https://github.com/mik01aj
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(453)) :
+	    true ? factory(__webpack_require__(465)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -43255,7 +44068,7 @@
 
 
 /***/ },
-/* 475 */
+/* 487 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -43266,7 +44079,7 @@
 	//! author : Mikolaj Dadela : https://github.com/mik01aj
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(453)) :
+	    true ? factory(__webpack_require__(465)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -43339,7 +44152,7 @@
 
 
 /***/ },
-/* 476 */
+/* 488 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -43347,7 +44160,7 @@
 	//! author : Jawish Hameed : https://github.com/jawish
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(453)) :
+	    true ? factory(__webpack_require__(465)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -43444,7 +44257,7 @@
 
 
 /***/ },
-/* 477 */
+/* 489 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -43452,7 +44265,7 @@
 	//! author : Aggelos Karalias : https://github.com/mehiel
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(453)) :
+	    true ? factory(__webpack_require__(465)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -43547,7 +44360,7 @@
 
 
 /***/ },
-/* 478 */
+/* 490 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -43555,7 +44368,7 @@
 	//! author : Jared Morse : https://github.com/jarcoal
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(453)) :
+	    true ? factory(__webpack_require__(465)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -43619,7 +44432,7 @@
 
 
 /***/ },
-/* 479 */
+/* 491 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -43627,7 +44440,7 @@
 	//! author : Jonathan Abourbih : https://github.com/jonbca
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(453)) :
+	    true ? factory(__webpack_require__(465)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -43687,7 +44500,7 @@
 
 
 /***/ },
-/* 480 */
+/* 492 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -43695,7 +44508,7 @@
 	//! author : Chris Gedrim : https://github.com/chrisgedrim
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(453)) :
+	    true ? factory(__webpack_require__(465)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -43759,7 +44572,7 @@
 
 
 /***/ },
-/* 481 */
+/* 493 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -43767,7 +44580,7 @@
 	//! author : Chris Cartlidge : https://github.com/chriscartlidge
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(453)) :
+	    true ? factory(__webpack_require__(465)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -43831,7 +44644,7 @@
 
 
 /***/ },
-/* 482 */
+/* 494 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -43839,7 +44652,7 @@
 	//! author : Luke McGregor : https://github.com/lukemcgregor
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(453)) :
+	    true ? factory(__webpack_require__(465)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -43903,7 +44716,7 @@
 
 
 /***/ },
-/* 483 */
+/* 495 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -43913,7 +44726,7 @@
 	//!          Se ne, bonvolu korekti kaj avizi min por ke mi povas lerni!
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(453)) :
+	    true ? factory(__webpack_require__(465)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -43981,7 +44794,7 @@
 
 
 /***/ },
-/* 484 */
+/* 496 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -43989,7 +44802,7 @@
 	//! author : Julio Napurí : https://github.com/julionc
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(453)) :
+	    true ? factory(__webpack_require__(465)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -44067,14 +44880,14 @@
 
 
 /***/ },
-/* 485 */
+/* 497 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
 	//! locale : Spanish (Dominican Republic) [es-do]
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(453)) :
+	    true ? factory(__webpack_require__(465)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -44152,7 +44965,7 @@
 
 
 /***/ },
-/* 486 */
+/* 498 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -44161,7 +44974,7 @@
 	//! improvements : Illimar Tambek : https://github.com/ragulka
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(453)) :
+	    true ? factory(__webpack_require__(465)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -44237,7 +45050,7 @@
 
 
 /***/ },
-/* 487 */
+/* 499 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -44245,7 +45058,7 @@
 	//! author : Eneko Illarramendi : https://github.com/eillarra
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(453)) :
+	    true ? factory(__webpack_require__(465)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -44308,7 +45121,7 @@
 
 
 /***/ },
-/* 488 */
+/* 500 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -44316,7 +45129,7 @@
 	//! author : Ebrahim Byagowi : https://github.com/ebraminio
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(453)) :
+	    true ? factory(__webpack_require__(465)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -44420,7 +45233,7 @@
 
 
 /***/ },
-/* 489 */
+/* 501 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -44428,7 +45241,7 @@
 	//! author : Tarmo Aidantausta : https://github.com/bleadof
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(453)) :
+	    true ? factory(__webpack_require__(465)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -44532,7 +45345,7 @@
 
 
 /***/ },
-/* 490 */
+/* 502 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -44540,7 +45353,7 @@
 	//! author : Ragnar Johannesen : https://github.com/ragnar123
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(453)) :
+	    true ? factory(__webpack_require__(465)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -44597,7 +45410,7 @@
 
 
 /***/ },
-/* 491 */
+/* 503 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -44605,7 +45418,7 @@
 	//! author : John Fischer : https://github.com/jfroffice
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(453)) :
+	    true ? factory(__webpack_require__(465)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -44666,7 +45479,7 @@
 
 
 /***/ },
-/* 492 */
+/* 504 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -44674,7 +45487,7 @@
 	//! author : Jonathan Abourbih : https://github.com/jonbca
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(453)) :
+	    true ? factory(__webpack_require__(465)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -44731,7 +45544,7 @@
 
 
 /***/ },
-/* 493 */
+/* 505 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -44739,7 +45552,7 @@
 	//! author : Gaspard Bucher : https://github.com/gaspard
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(453)) :
+	    true ? factory(__webpack_require__(465)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -44800,7 +45613,7 @@
 
 
 /***/ },
-/* 494 */
+/* 506 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -44808,7 +45621,7 @@
 	//! author : Robin van der Vliet : https://github.com/robin0van0der0v
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(453)) :
+	    true ? factory(__webpack_require__(465)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -44878,7 +45691,7 @@
 
 
 /***/ },
-/* 495 */
+/* 507 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -44886,7 +45699,7 @@
 	//! author : Jon Ashdown : https://github.com/jonashdown
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(453)) :
+	    true ? factory(__webpack_require__(465)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -44959,7 +45772,7 @@
 
 
 /***/ },
-/* 496 */
+/* 508 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -44967,7 +45780,7 @@
 	//! author : Juan G. Hurtado : https://github.com/juanghurtado
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(453)) :
+	    true ? factory(__webpack_require__(465)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -45041,7 +45854,7 @@
 
 
 /***/ },
-/* 497 */
+/* 509 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -45051,7 +45864,7 @@
 	//! author : Tal Ater : https://github.com/TalAter
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(453)) :
+	    true ? factory(__webpack_require__(465)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -45145,7 +45958,7 @@
 
 
 /***/ },
-/* 498 */
+/* 510 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -45153,7 +45966,7 @@
 	//! author : Mayank Singhal : https://github.com/mayanksinghal
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(453)) :
+	    true ? factory(__webpack_require__(465)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -45274,7 +46087,7 @@
 
 
 /***/ },
-/* 499 */
+/* 511 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -45282,7 +46095,7 @@
 	//! author : Bojan Marković : https://github.com/bmarkovic
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(453)) :
+	    true ? factory(__webpack_require__(465)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -45424,7 +46237,7 @@
 
 
 /***/ },
-/* 500 */
+/* 512 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -45432,7 +46245,7 @@
 	//! author : Adam Brunner : https://github.com/adambrunner
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(453)) :
+	    true ? factory(__webpack_require__(465)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -45538,7 +46351,7 @@
 
 
 /***/ },
-/* 501 */
+/* 513 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -45546,7 +46359,7 @@
 	//! author : Armendarabyan : https://github.com/armendarabyan
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(453)) :
+	    true ? factory(__webpack_require__(465)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -45638,7 +46451,7 @@
 
 
 /***/ },
-/* 502 */
+/* 514 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -45647,7 +46460,7 @@
 	//! reference: http://id.wikisource.org/wiki/Pedoman_Umum_Ejaan_Bahasa_Indonesia_yang_Disempurnakan
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(453)) :
+	    true ? factory(__webpack_require__(465)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -45726,7 +46539,7 @@
 
 
 /***/ },
-/* 503 */
+/* 515 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -45734,7 +46547,7 @@
 	//! author : Hinrik Örn Sigurðsson : https://github.com/hinrik
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(453)) :
+	    true ? factory(__webpack_require__(465)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -45858,7 +46671,7 @@
 
 
 /***/ },
-/* 504 */
+/* 516 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -45867,7 +46680,7 @@
 	//! author: Mattia Larentis: https://github.com/nostalgiaz
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(453)) :
+	    true ? factory(__webpack_require__(465)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -45933,7 +46746,7 @@
 
 
 /***/ },
-/* 505 */
+/* 517 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -45941,7 +46754,7 @@
 	//! author : LI Long : https://github.com/baryon
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(453)) :
+	    true ? factory(__webpack_require__(465)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -46014,7 +46827,7 @@
 
 
 /***/ },
-/* 506 */
+/* 518 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -46023,7 +46836,7 @@
 	//! reference: http://jv.wikipedia.org/wiki/Basa_Jawa
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(453)) :
+	    true ? factory(__webpack_require__(465)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -46102,7 +46915,7 @@
 
 
 /***/ },
-/* 507 */
+/* 519 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -46110,7 +46923,7 @@
 	//! author : Irakli Janiashvili : https://github.com/irakli-janiashvili
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(453)) :
+	    true ? factory(__webpack_require__(465)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -46196,7 +47009,7 @@
 
 
 /***/ },
-/* 508 */
+/* 520 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -46204,7 +47017,7 @@
 	//! authors : Nurlan Rakhimzhanov : https://github.com/nurlan
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(453)) :
+	    true ? factory(__webpack_require__(465)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -46288,7 +47101,7 @@
 
 
 /***/ },
-/* 509 */
+/* 521 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -46296,7 +47109,7 @@
 	//! author : Kruy Vanna : https://github.com/kruyvanna
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(453)) :
+	    true ? factory(__webpack_require__(465)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -46351,7 +47164,7 @@
 
 
 /***/ },
-/* 510 */
+/* 522 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -46360,7 +47173,7 @@
 	//! author : Jeeeyul Lee <jeeeyul@gmail.com>
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(453)) :
+	    true ? factory(__webpack_require__(465)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -46421,7 +47234,7 @@
 
 
 /***/ },
-/* 511 */
+/* 523 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -46429,7 +47242,7 @@
 	//! author : Chyngyz Arystan uulu : https://github.com/chyngyz
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(453)) :
+	    true ? factory(__webpack_require__(465)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -46514,7 +47327,7 @@
 
 
 /***/ },
-/* 512 */
+/* 524 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -46523,7 +47336,7 @@
 	//! author : David Raison : https://github.com/kwisatz
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(453)) :
+	    true ? factory(__webpack_require__(465)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -46656,7 +47469,7 @@
 
 
 /***/ },
-/* 513 */
+/* 525 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -46664,7 +47477,7 @@
 	//! author : Ryan Hart : https://github.com/ryanhart2
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(453)) :
+	    true ? factory(__webpack_require__(465)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -46731,7 +47544,7 @@
 
 
 /***/ },
-/* 514 */
+/* 526 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -46739,7 +47552,7 @@
 	//! author : Mindaugas Mozūras : https://github.com/mmozuras
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(453)) :
+	    true ? factory(__webpack_require__(465)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -46853,7 +47666,7 @@
 
 
 /***/ },
-/* 515 */
+/* 527 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -46862,7 +47675,7 @@
 	//! author : Jānis Elmeris : https://github.com/JanisE
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(453)) :
+	    true ? factory(__webpack_require__(465)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -46955,7 +47768,7 @@
 
 
 /***/ },
-/* 516 */
+/* 528 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -46963,7 +47776,7 @@
 	//! author : Miodrag Nikač <miodrag@restartit.me> : https://github.com/miodragnikac
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(453)) :
+	    true ? factory(__webpack_require__(465)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -47071,7 +47884,7 @@
 
 
 /***/ },
-/* 517 */
+/* 529 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -47079,7 +47892,7 @@
 	//! author : John Corrigan <robbiecloset@gmail.com> : https://github.com/johnideal
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(453)) :
+	    true ? factory(__webpack_require__(465)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -47140,7 +47953,7 @@
 
 
 /***/ },
-/* 518 */
+/* 530 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -47148,7 +47961,7 @@
 	//! author : Borislav Mickov : https://github.com/B0k0
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(453)) :
+	    true ? factory(__webpack_require__(465)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -47235,7 +48048,7 @@
 
 
 /***/ },
-/* 519 */
+/* 531 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -47243,7 +48056,7 @@
 	//! author : Floyd Pink : https://github.com/floydpink
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(453)) :
+	    true ? factory(__webpack_require__(465)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -47321,7 +48134,7 @@
 
 
 /***/ },
-/* 520 */
+/* 532 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -47330,7 +48143,7 @@
 	//! author : Vivek Athalye : https://github.com/vnathalye
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(453)) :
+	    true ? factory(__webpack_require__(465)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -47485,7 +48298,7 @@
 
 
 /***/ },
-/* 521 */
+/* 533 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -47493,7 +48306,7 @@
 	//! author : Weldan Jamili : https://github.com/weldan
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(453)) :
+	    true ? factory(__webpack_require__(465)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -47572,7 +48385,7 @@
 
 
 /***/ },
-/* 522 */
+/* 534 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -47581,7 +48394,7 @@
 	//! author : Weldan Jamili : https://github.com/weldan
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(453)) :
+	    true ? factory(__webpack_require__(465)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -47660,7 +48473,7 @@
 
 
 /***/ },
-/* 523 */
+/* 535 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -47670,7 +48483,7 @@
 	//! author : Tin Aung Lin : https://github.com/thanyawzinmin
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(453)) :
+	    true ? factory(__webpack_require__(465)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -47761,7 +48574,7 @@
 
 
 /***/ },
-/* 524 */
+/* 536 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -47770,7 +48583,7 @@
 	//!           Sigurd Gartmann : https://github.com/sigurdga
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(453)) :
+	    true ? factory(__webpack_require__(465)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -47829,7 +48642,7 @@
 
 
 /***/ },
-/* 525 */
+/* 537 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -47837,7 +48650,7 @@
 	//! author : suvash : https://github.com/suvash
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(453)) :
+	    true ? factory(__webpack_require__(465)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -47957,7 +48770,7 @@
 
 
 /***/ },
-/* 526 */
+/* 538 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -47966,7 +48779,7 @@
 	//! author : Jacob Middag : https://github.com/middagj
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(453)) :
+	    true ? factory(__webpack_require__(465)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -48048,7 +48861,7 @@
 
 
 /***/ },
-/* 527 */
+/* 539 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -48057,7 +48870,7 @@
 	//! author : Jacob Middag : https://github.com/middagj
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(453)) :
+	    true ? factory(__webpack_require__(465)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -48139,7 +48952,7 @@
 
 
 /***/ },
-/* 528 */
+/* 540 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -48147,7 +48960,7 @@
 	//! author : https://github.com/mechuwind
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(453)) :
+	    true ? factory(__webpack_require__(465)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -48204,7 +49017,7 @@
 
 
 /***/ },
-/* 529 */
+/* 541 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -48212,7 +49025,7 @@
 	//! author : Harpreet Singh : https://github.com/harpreetkhalsagtbit
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(453)) :
+	    true ? factory(__webpack_require__(465)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -48333,7 +49146,7 @@
 
 
 /***/ },
-/* 530 */
+/* 542 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -48341,7 +49154,7 @@
 	//! author : Rafal Hirsz : https://github.com/evoL
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(453)) :
+	    true ? factory(__webpack_require__(465)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -48443,7 +49256,7 @@
 
 
 /***/ },
-/* 531 */
+/* 543 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -48451,7 +49264,7 @@
 	//! author : Jefferson : https://github.com/jalex79
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(453)) :
+	    true ? factory(__webpack_require__(465)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -48513,7 +49326,7 @@
 
 
 /***/ },
-/* 532 */
+/* 544 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -48521,7 +49334,7 @@
 	//! author : Caio Ribeiro Pereira : https://github.com/caio-ribeiro-pereira
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(453)) :
+	    true ? factory(__webpack_require__(465)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -48579,7 +49392,7 @@
 
 
 /***/ },
-/* 533 */
+/* 545 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -48588,7 +49401,7 @@
 	//! author : Valentin Agachi : https://github.com/avaly
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(453)) :
+	    true ? factory(__webpack_require__(465)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -48659,7 +49472,7 @@
 
 
 /***/ },
-/* 534 */
+/* 546 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -48669,7 +49482,7 @@
 	//! author : Коренберг Марк : https://github.com/socketpair
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(453)) :
+	    true ? factory(__webpack_require__(465)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -48847,7 +49660,7 @@
 
 
 /***/ },
-/* 535 */
+/* 547 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -48855,7 +49668,7 @@
 	//! authors : Bård Rolstad Henriksen : https://github.com/karamell
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(453)) :
+	    true ? factory(__webpack_require__(465)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -48913,7 +49726,7 @@
 
 
 /***/ },
-/* 536 */
+/* 548 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -48921,7 +49734,7 @@
 	//! author : Sampath Sitinamaluwa : https://github.com/sampathsris
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(453)) :
+	    true ? factory(__webpack_require__(465)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -48989,7 +49802,7 @@
 
 
 /***/ },
-/* 537 */
+/* 549 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -48998,7 +49811,7 @@
 	//! based on work of petrbela : https://github.com/petrbela
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(453)) :
+	    true ? factory(__webpack_require__(465)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -49144,7 +49957,7 @@
 
 
 /***/ },
-/* 538 */
+/* 550 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -49152,7 +49965,7 @@
 	//! author : Robert Sedovšek : https://github.com/sedovsek
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(453)) :
+	    true ? factory(__webpack_require__(465)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -49311,7 +50124,7 @@
 
 
 /***/ },
-/* 539 */
+/* 551 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -49321,7 +50134,7 @@
 	//! author : Oerd Cukalla : https://github.com/oerd
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(453)) :
+	    true ? factory(__webpack_require__(465)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -49386,7 +50199,7 @@
 
 
 /***/ },
-/* 540 */
+/* 552 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -49394,7 +50207,7 @@
 	//! author : Milan Janačković<milanjanackovic@gmail.com> : https://github.com/milan-j
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(453)) :
+	    true ? factory(__webpack_require__(465)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -49501,7 +50314,7 @@
 
 
 /***/ },
-/* 541 */
+/* 553 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -49509,7 +50322,7 @@
 	//! author : Milan Janačković<milanjanackovic@gmail.com> : https://github.com/milan-j
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(453)) :
+	    true ? factory(__webpack_require__(465)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -49616,7 +50429,7 @@
 
 
 /***/ },
-/* 542 */
+/* 554 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -49624,7 +50437,7 @@
 	//! author : Nicolai Davies<mail@nicolai.io> : https://github.com/nicolaidavies
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(453)) :
+	    true ? factory(__webpack_require__(465)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -49710,7 +50523,7 @@
 
 
 /***/ },
-/* 543 */
+/* 555 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -49718,7 +50531,7 @@
 	//! author : Jens Alm : https://github.com/ulmus
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(453)) :
+	    true ? factory(__webpack_require__(465)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -49784,7 +50597,7 @@
 
 
 /***/ },
-/* 544 */
+/* 556 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -49792,7 +50605,7 @@
 	//! author : Fahad Kassim : https://github.com/fadsel
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(453)) :
+	    true ? factory(__webpack_require__(465)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -49848,7 +50661,7 @@
 
 
 /***/ },
-/* 545 */
+/* 557 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -49856,7 +50669,7 @@
 	//! author : Arjunkumar Krishnamoorthy : https://github.com/tk120404
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(453)) :
+	    true ? factory(__webpack_require__(465)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -49983,7 +50796,7 @@
 
 
 /***/ },
-/* 546 */
+/* 558 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -49991,7 +50804,7 @@
 	//! author : Krishna Chaitanya Thota : https://github.com/kcthota
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(453)) :
+	    true ? factory(__webpack_require__(465)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -50077,7 +50890,7 @@
 
 
 /***/ },
-/* 547 */
+/* 559 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -50086,7 +50899,7 @@
 	//! author : Onorio De J. Afonso : https://github.com/marobo
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(453)) :
+	    true ? factory(__webpack_require__(465)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -50150,7 +50963,7 @@
 
 
 /***/ },
-/* 548 */
+/* 560 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -50158,7 +50971,7 @@
 	//! author : Kridsada Thanabulpong : https://github.com/sirn
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(453)) :
+	    true ? factory(__webpack_require__(465)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -50222,7 +51035,7 @@
 
 
 /***/ },
-/* 549 */
+/* 561 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -50230,7 +51043,7 @@
 	//! author : Dan Hagman : https://github.com/hagmandan
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(453)) :
+	    true ? factory(__webpack_require__(465)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -50289,7 +51102,7 @@
 
 
 /***/ },
-/* 550 */
+/* 562 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -50297,7 +51110,7 @@
 	//! author : Dominika Kruk : https://github.com/amaranthrose
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(453)) :
+	    true ? factory(__webpack_require__(465)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -50414,7 +51227,7 @@
 
 
 /***/ },
-/* 551 */
+/* 563 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -50423,7 +51236,7 @@
 	//!           Burak Yiğit Kaya: https://github.com/BYK
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(453)) :
+	    true ? factory(__webpack_require__(465)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -50509,7 +51322,7 @@
 
 
 /***/ },
-/* 552 */
+/* 564 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -50518,7 +51331,7 @@
 	//! author : Iustì Canun
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(453)) :
+	    true ? factory(__webpack_require__(465)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -50605,7 +51418,7 @@
 
 
 /***/ },
-/* 553 */
+/* 565 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -50613,7 +51426,7 @@
 	//! author : Abdel Said : https://github.com/abdelsaid
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(453)) :
+	    true ? factory(__webpack_require__(465)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -50668,7 +51481,7 @@
 
 
 /***/ },
-/* 554 */
+/* 566 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -50676,7 +51489,7 @@
 	//! author : Abdel Said : https://github.com/abdelsaid
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(453)) :
+	    true ? factory(__webpack_require__(465)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -50731,7 +51544,7 @@
 
 
 /***/ },
-/* 555 */
+/* 567 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -50740,7 +51553,7 @@
 	//! Author : Menelion Elensúle : https://github.com/Oire
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(453)) :
+	    true ? factory(__webpack_require__(465)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -50882,7 +51695,7 @@
 
 
 /***/ },
-/* 556 */
+/* 568 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -50890,7 +51703,7 @@
 	//! author : Sardor Muminov : https://github.com/muminoff
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(453)) :
+	    true ? factory(__webpack_require__(465)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -50945,7 +51758,7 @@
 
 
 /***/ },
-/* 557 */
+/* 569 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -50953,7 +51766,7 @@
 	//! author : Bang Nguyen : https://github.com/bangnk
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(453)) :
+	    true ? factory(__webpack_require__(465)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -51029,7 +51842,7 @@
 
 
 /***/ },
-/* 558 */
+/* 570 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -51037,7 +51850,7 @@
 	//! author : Andrew Hood : https://github.com/andrewhood125
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(453)) :
+	    true ? factory(__webpack_require__(465)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -51102,7 +51915,7 @@
 
 
 /***/ },
-/* 559 */
+/* 571 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -51110,7 +51923,7 @@
 	//! author : Atolagbe Abisoye : https://github.com/andela-batolagbe
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(453)) :
+	    true ? factory(__webpack_require__(465)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -51167,7 +51980,7 @@
 
 
 /***/ },
-/* 560 */
+/* 572 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -51176,7 +51989,7 @@
 	//! author : Zeno Zeng : https://github.com/zenozeng
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(453)) :
+	    true ? factory(__webpack_require__(465)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -51299,7 +52112,7 @@
 
 
 /***/ },
-/* 561 */
+/* 573 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -51309,7 +52122,7 @@
 	//! author : Konstantin : https://github.com/skfd
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(453)) :
+	    true ? factory(__webpack_require__(465)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -51409,7 +52222,7 @@
 
 
 /***/ },
-/* 562 */
+/* 574 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -51418,7 +52231,7 @@
 	//! author : Chris Lam : https://github.com/hehachris
 
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(453)) :
+	    true ? factory(__webpack_require__(465)) :
 	   typeof define === 'function' && define.amd ? define(['../moment'], factory) :
 	   factory(global.moment)
 	}(this, (function (moment) { 'use strict';
@@ -51518,7 +52331,7 @@
 
 
 /***/ },
-/* 563 */
+/* 575 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
@@ -51572,7 +52385,7 @@
 
 
 /***/ },
-/* 564 */
+/* 576 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -51585,11 +52398,11 @@
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _TopBar = __webpack_require__(451);
+	var _TopBar = __webpack_require__(463);
 
 	var _TopBar2 = _interopRequireDefault(_TopBar);
 
-	var _containers = __webpack_require__(429);
+	var _containers = __webpack_require__(441);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -51662,7 +52475,7 @@
 	exports.default = Conversation;
 
 /***/ },
-/* 565 */
+/* 577 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -51702,7 +52515,7 @@
 	exports.default = Launcher;
 
 /***/ },
-/* 566 */
+/* 578 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -51715,17 +52528,17 @@
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _moment = __webpack_require__(453);
+	var _moment = __webpack_require__(465);
 
 	var _moment2 = _interopRequireDefault(_moment);
 
-	var _classnames = __webpack_require__(563);
+	var _classnames = __webpack_require__(575);
 
 	var _classnames2 = _interopRequireDefault(_classnames);
 
-	var _containers = __webpack_require__(429);
+	var _containers = __webpack_require__(441);
 
-	var _components = __webpack_require__(446);
+	var _components = __webpack_require__(458);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -51780,7 +52593,7 @@
 	exports.default = Message;
 
 /***/ },
-/* 567 */
+/* 579 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -51896,7 +52709,7 @@
 	exports.default = MessageSender;
 
 /***/ },
-/* 568 */
+/* 580 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -51913,7 +52726,7 @@
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _components = __webpack_require__(446);
+	var _components = __webpack_require__(458);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -51988,7 +52801,7 @@
 	exports.default = MessagesList;
 
 /***/ },
-/* 569 */
+/* 581 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -52026,7 +52839,7 @@
 	exports.default = User;
 
 /***/ },
-/* 570 */
+/* 582 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -52035,9 +52848,9 @@
 	  value: true
 	});
 
-	var _reactRedux = __webpack_require__(431);
+	var _reactRedux = __webpack_require__(443);
 
-	var _components = __webpack_require__(446);
+	var _components = __webpack_require__(458);
 
 	var mapStateToProps = function mapStateToProps(state) {
 	  return {
@@ -52048,7 +52861,7 @@
 	exports.default = (0, _reactRedux.connect)(mapStateToProps)(_components.Messenger);
 
 /***/ },
-/* 571 */
+/* 583 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -52059,19 +52872,19 @@
 
 	var _templateObject = _taggedTemplateLiteral(['\n  query allConversations {\n    conversations {\n      _id\n      content\n    }\n  }\n'], ['\n  query allConversations {\n    conversations {\n      _id\n      content\n    }\n  }\n']);
 
-	var _reactRedux = __webpack_require__(431);
+	var _reactRedux = __webpack_require__(443);
 
-	var _graphqlTag = __webpack_require__(572);
+	var _graphqlTag = __webpack_require__(584);
 
 	var _graphqlTag2 = _interopRequireDefault(_graphqlTag);
 
-	var _reactApollo = __webpack_require__(417);
+	var _reactApollo = __webpack_require__(428);
 
-	var _messages = __webpack_require__(574);
+	var _messages = __webpack_require__(586);
 
-	var _messenger = __webpack_require__(593);
+	var _messenger = __webpack_require__(608);
 
-	var _components = __webpack_require__(446);
+	var _components = __webpack_require__(458);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -52110,10 +52923,10 @@
 	exports.default = (0, _reactRedux.connect)(mapStateToProps, mapDisptachToProps)(withQueryData);
 
 /***/ },
-/* 572 */
+/* 584 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var parse = __webpack_require__(573).parse;
+	var parse = __webpack_require__(585).parse;
 
 	// Strip insignificant whitespace
 	// Note that this could do a lot more, such as reorder fields etc.
@@ -52261,7 +53074,7 @@
 
 
 /***/ },
-/* 573 */
+/* 585 */
 /***/ function(module, exports) {
 
 	module.exports =
@@ -55034,7 +55847,7 @@
 	/******/ ]);
 
 /***/ },
-/* 574 */
+/* 586 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -55044,21 +55857,33 @@
 	});
 	exports.sendFile = exports.sendMessage = exports.readMessages = undefined;
 
-	var _meteorEjson = __webpack_require__(603);
+	var _templateObject = _taggedTemplateLiteral(['\n            mutation simulateInsertMessage($messageId: String) {\n              simulateInsertMessage(messageId: $messageId) {\n                _id\n              }\n            }'], ['\n            mutation simulateInsertMessage($messageId: String) {\n              simulateInsertMessage(messageId: $messageId) {\n                _id\n              }\n            }']);
+
+	var _meteorEjson = __webpack_require__(587);
 
 	var _meteorEjson2 = _interopRequireDefault(_meteorEjson);
 
-	var _constants = __webpack_require__(428);
+	var _graphqlTag = __webpack_require__(584);
 
-	var _erxes = __webpack_require__(575);
+	var _graphqlTag2 = _interopRequireDefault(_graphqlTag);
 
-	var _uploadHandler = __webpack_require__(605);
+	var _constants = __webpack_require__(440);
+
+	var _erxes = __webpack_require__(589);
+
+	var _apolloClient = __webpack_require__(618);
+
+	var _apolloClient2 = _interopRequireDefault(_apolloClient);
+
+	var _uploadHandler = __webpack_require__(607);
 
 	var _uploadHandler2 = _interopRequireDefault(_uploadHandler);
 
-	var _messenger = __webpack_require__(593);
+	var _messenger = __webpack_require__(608);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _taggedTemplateLiteral(strings, raw) { return Object.freeze(Object.defineProperties(strings, { raw: { value: Object.freeze(raw) } })); }
 
 	var readMessages = exports.readMessages = function readMessages() {
 	  return function () {
@@ -55068,8 +55893,10 @@
 
 	var sendMessage = exports.sendMessage = function sendMessage(message, attachments) {
 	  return function (dispatch, getState) {
+	    var state = getState();
+
 	    // current conversation
-	    var currentConversationId = getState().activeConversation;
+	    var currentConversationId = state.activeConversation;
 
 	    // message object
 	    var doc = {
@@ -55079,7 +55906,18 @@
 	    };
 
 	    return (0, _erxes.call)('sendMessage', doc).then(function (_ref) {
-	      var conversationId = _ref.conversationId;
+	      var conversationId = _ref.conversationId,
+	          messageId = _ref.messageId;
+
+	      // using this in order to notify pubsub that new message inserted and
+	      // subscribe to all clients
+	      _apolloClient2.default.mutate({
+	        mutation: (0, _graphqlTag2.default)(_templateObject),
+
+	        variables: {
+	          messageId: messageId
+	        }
+	      });
 
 	      // if there is no current conversation new conversation will be created
 	      if (!currentConversationId) {
@@ -55120,3290 +55958,12 @@
 	};
 
 /***/ },
-/* 575 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-	exports.connect = exports.call = undefined;
-
-	var _asteroid2 = __webpack_require__(576);
-
-	var Asteroid = (0, _asteroid2.createClass)();
-	var asteroid = void 0;
-
-	/**
-	 * Calls asteroid method
-	 * @param  {String} name - method name
-	 * @param  {Object} params
-	 * @return {Promise}
-	 */
-	var call = exports.call = function call(name) {
-	  var _asteroid;
-
-	  for (var _len = arguments.length, params = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
-	    params[_key - 1] = arguments[_key];
-	  }
-
-	  if (!asteroid) {
-	    throw Error('Not connected to the DDP server');
-	  }
-
-	  return (_asteroid = asteroid).call.apply(_asteroid, ['api.' + name].concat(params));
-	};
-
-	/**
-	 * Connects to the DDP server
-	 * @param  {Object} options.settings
-	 * @param  {Object} options.dom
-	 */
-	var connect = exports.connect = function connect(params) {
-	  asteroid = new Asteroid({
-	    endpoint: 'ws://127.0.0.1:7010/websocket'
-	  });
-
-	  asteroid.ddp.on('connected', function () {
-	    call('connect', params).then(function () {}).catch(function (error) {
-	      console.error( // eslint-disable-line no-console
-	      'Error on connecting to the DDP server', error);
-	    });
-	  });
-	};
-
-/***/ },
-/* 576 */
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-
-	Object.defineProperty(exports, "__esModule", {
-	    value: true
-	});
-	exports.createClass = createClass;
-
-	var _lodash = __webpack_require__(577);
-
-	var _lodash2 = _interopRequireDefault(_lodash);
-
-	var _wolfy87Eventemitter = __webpack_require__(578);
-
-	var _wolfy87Eventemitter2 = _interopRequireDefault(_wolfy87Eventemitter);
-
-	var _ddp = __webpack_require__(579);
-
-	var ddp = _interopRequireWildcard(_ddp);
-
-	var _login = __webpack_require__(585);
-
-	var login = _interopRequireWildcard(_login);
-
-	var _methods = __webpack_require__(588);
-
-	var methods = _interopRequireWildcard(_methods);
-
-	var _passwordLogin = __webpack_require__(589);
-
-	var loginWithPassword = _interopRequireWildcard(_passwordLogin);
-
-	var _subscriptions = __webpack_require__(590);
-
-	var subscriptions = _interopRequireWildcard(_subscriptions);
-
-	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-	function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
-
-	/*
-	*   A mixin is a plain javascript object. Mixins are composed by merging the
-	*   mixin object own enumerable properties into the Asteroid's base prototype.
-	*   The only exception is the `init` method. If the mixin defines an `init`
-	*   method, it will _not_ be merged into the prototype, instead it'll be called
-	*   at construction time.
-	*
-	*   Example usage:
-	*   ```js
-	*   import {createClass} from "asteroid";
-	*   import * as myMixinOne from "asteroid-my-mixin-one";
-	*   import * as myMixinTwo from "asteroid-my-mixin-two";
-	*   const Asteroid = createClass([myMixinOne, myMixinTwo]);
-	*   ```
-	*/
-
-	function createClass() {
-	    var customMixins = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
-
-
-	    // Include base mixins before custom ones
-	    var mixins = [ddp, methods, subscriptions, login, loginWithPassword].concat(customMixins);
-
-	    var Asteroid = function Asteroid() /* arguments */{
-	        var _this = this,
-	            _arguments = arguments;
-
-	        // Call each init method
-	        mixins.forEach(function (_ref) {
-	            var init = _ref.init;
-	            return init && init.apply(_this, _arguments);
-	        });
-	    };
-
-	    Asteroid.prototype = Object.create(_wolfy87Eventemitter2.default.prototype);
-	    Asteroid.prototype.constructor = Asteroid;
-	    // Merge all mixins into Asteroid.prototype
-	    _lodash2.default.apply(undefined, [Asteroid.prototype].concat(_toConsumableArray(mixins)));
-	    // And delete the "dangling" init property
-	    delete Asteroid.prototype.init;
-
-	    // Return the newly constructed class
-	    return Asteroid;
-	}
-
-/***/ },
-/* 577 */
-/***/ function(module, exports) {
-
-	/**
-	 * lodash (Custom Build) <https://lodash.com/>
-	 * Build: `lodash modularize exports="npm" -o ./`
-	 * Copyright jQuery Foundation and other contributors <https://jquery.org/>
-	 * Released under MIT license <https://lodash.com/license>
-	 * Based on Underscore.js 1.8.3 <http://underscorejs.org/LICENSE>
-	 * Copyright Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
-	 */
-
-	/** Used as references for various `Number` constants. */
-	var MAX_SAFE_INTEGER = 9007199254740991;
-
-	/** `Object#toString` result references. */
-	var argsTag = '[object Arguments]',
-	    funcTag = '[object Function]',
-	    genTag = '[object GeneratorFunction]';
-
-	/** Used to detect unsigned integer values. */
-	var reIsUint = /^(?:0|[1-9]\d*)$/;
-
-	/**
-	 * A faster alternative to `Function#apply`, this function invokes `func`
-	 * with the `this` binding of `thisArg` and the arguments of `args`.
-	 *
-	 * @private
-	 * @param {Function} func The function to invoke.
-	 * @param {*} thisArg The `this` binding of `func`.
-	 * @param {Array} args The arguments to invoke `func` with.
-	 * @returns {*} Returns the result of `func`.
-	 */
-	function apply(func, thisArg, args) {
-	  switch (args.length) {
-	    case 0: return func.call(thisArg);
-	    case 1: return func.call(thisArg, args[0]);
-	    case 2: return func.call(thisArg, args[0], args[1]);
-	    case 3: return func.call(thisArg, args[0], args[1], args[2]);
-	  }
-	  return func.apply(thisArg, args);
-	}
-
-	/**
-	 * The base implementation of `_.times` without support for iteratee shorthands
-	 * or max array length checks.
-	 *
-	 * @private
-	 * @param {number} n The number of times to invoke `iteratee`.
-	 * @param {Function} iteratee The function invoked per iteration.
-	 * @returns {Array} Returns the array of results.
-	 */
-	function baseTimes(n, iteratee) {
-	  var index = -1,
-	      result = Array(n);
-
-	  while (++index < n) {
-	    result[index] = iteratee(index);
-	  }
-	  return result;
-	}
-
-	/**
-	 * Creates a unary function that invokes `func` with its argument transformed.
-	 *
-	 * @private
-	 * @param {Function} func The function to wrap.
-	 * @param {Function} transform The argument transform.
-	 * @returns {Function} Returns the new function.
-	 */
-	function overArg(func, transform) {
-	  return function(arg) {
-	    return func(transform(arg));
-	  };
-	}
-
-	/** Used for built-in method references. */
-	var objectProto = Object.prototype;
-
-	/** Used to check objects for own properties. */
-	var hasOwnProperty = objectProto.hasOwnProperty;
-
-	/**
-	 * Used to resolve the
-	 * [`toStringTag`](http://ecma-international.org/ecma-262/7.0/#sec-object.prototype.tostring)
-	 * of values.
-	 */
-	var objectToString = objectProto.toString;
-
-	/** Built-in value references. */
-	var propertyIsEnumerable = objectProto.propertyIsEnumerable;
-
-	/* Built-in method references for those with the same name as other `lodash` methods. */
-	var nativeKeys = overArg(Object.keys, Object),
-	    nativeMax = Math.max;
-
-	/** Detect if properties shadowing those on `Object.prototype` are non-enumerable. */
-	var nonEnumShadows = !propertyIsEnumerable.call({ 'valueOf': 1 }, 'valueOf');
-
-	/**
-	 * Creates an array of the enumerable property names of the array-like `value`.
-	 *
-	 * @private
-	 * @param {*} value The value to query.
-	 * @param {boolean} inherited Specify returning inherited property names.
-	 * @returns {Array} Returns the array of property names.
-	 */
-	function arrayLikeKeys(value, inherited) {
-	  // Safari 8.1 makes `arguments.callee` enumerable in strict mode.
-	  // Safari 9 makes `arguments.length` enumerable in strict mode.
-	  var result = (isArray(value) || isArguments(value))
-	    ? baseTimes(value.length, String)
-	    : [];
-
-	  var length = result.length,
-	      skipIndexes = !!length;
-
-	  for (var key in value) {
-	    if ((inherited || hasOwnProperty.call(value, key)) &&
-	        !(skipIndexes && (key == 'length' || isIndex(key, length)))) {
-	      result.push(key);
-	    }
-	  }
-	  return result;
-	}
-
-	/**
-	 * Assigns `value` to `key` of `object` if the existing value is not equivalent
-	 * using [`SameValueZero`](http://ecma-international.org/ecma-262/7.0/#sec-samevaluezero)
-	 * for equality comparisons.
-	 *
-	 * @private
-	 * @param {Object} object The object to modify.
-	 * @param {string} key The key of the property to assign.
-	 * @param {*} value The value to assign.
-	 */
-	function assignValue(object, key, value) {
-	  var objValue = object[key];
-	  if (!(hasOwnProperty.call(object, key) && eq(objValue, value)) ||
-	      (value === undefined && !(key in object))) {
-	    object[key] = value;
-	  }
-	}
-
-	/**
-	 * The base implementation of `_.keys` which doesn't treat sparse arrays as dense.
-	 *
-	 * @private
-	 * @param {Object} object The object to query.
-	 * @returns {Array} Returns the array of property names.
-	 */
-	function baseKeys(object) {
-	  if (!isPrototype(object)) {
-	    return nativeKeys(object);
-	  }
-	  var result = [];
-	  for (var key in Object(object)) {
-	    if (hasOwnProperty.call(object, key) && key != 'constructor') {
-	      result.push(key);
-	    }
-	  }
-	  return result;
-	}
-
-	/**
-	 * The base implementation of `_.rest` which doesn't validate or coerce arguments.
-	 *
-	 * @private
-	 * @param {Function} func The function to apply a rest parameter to.
-	 * @param {number} [start=func.length-1] The start position of the rest parameter.
-	 * @returns {Function} Returns the new function.
-	 */
-	function baseRest(func, start) {
-	  start = nativeMax(start === undefined ? (func.length - 1) : start, 0);
-	  return function() {
-	    var args = arguments,
-	        index = -1,
-	        length = nativeMax(args.length - start, 0),
-	        array = Array(length);
-
-	    while (++index < length) {
-	      array[index] = args[start + index];
-	    }
-	    index = -1;
-	    var otherArgs = Array(start + 1);
-	    while (++index < start) {
-	      otherArgs[index] = args[index];
-	    }
-	    otherArgs[start] = array;
-	    return apply(func, this, otherArgs);
-	  };
-	}
-
-	/**
-	 * Copies properties of `source` to `object`.
-	 *
-	 * @private
-	 * @param {Object} source The object to copy properties from.
-	 * @param {Array} props The property identifiers to copy.
-	 * @param {Object} [object={}] The object to copy properties to.
-	 * @param {Function} [customizer] The function to customize copied values.
-	 * @returns {Object} Returns `object`.
-	 */
-	function copyObject(source, props, object, customizer) {
-	  object || (object = {});
-
-	  var index = -1,
-	      length = props.length;
-
-	  while (++index < length) {
-	    var key = props[index];
-
-	    var newValue = customizer
-	      ? customizer(object[key], source[key], key, object, source)
-	      : undefined;
-
-	    assignValue(object, key, newValue === undefined ? source[key] : newValue);
-	  }
-	  return object;
-	}
-
-	/**
-	 * Creates a function like `_.assign`.
-	 *
-	 * @private
-	 * @param {Function} assigner The function to assign values.
-	 * @returns {Function} Returns the new assigner function.
-	 */
-	function createAssigner(assigner) {
-	  return baseRest(function(object, sources) {
-	    var index = -1,
-	        length = sources.length,
-	        customizer = length > 1 ? sources[length - 1] : undefined,
-	        guard = length > 2 ? sources[2] : undefined;
-
-	    customizer = (assigner.length > 3 && typeof customizer == 'function')
-	      ? (length--, customizer)
-	      : undefined;
-
-	    if (guard && isIterateeCall(sources[0], sources[1], guard)) {
-	      customizer = length < 3 ? undefined : customizer;
-	      length = 1;
-	    }
-	    object = Object(object);
-	    while (++index < length) {
-	      var source = sources[index];
-	      if (source) {
-	        assigner(object, source, index, customizer);
-	      }
-	    }
-	    return object;
-	  });
-	}
-
-	/**
-	 * Checks if `value` is a valid array-like index.
-	 *
-	 * @private
-	 * @param {*} value The value to check.
-	 * @param {number} [length=MAX_SAFE_INTEGER] The upper bounds of a valid index.
-	 * @returns {boolean} Returns `true` if `value` is a valid index, else `false`.
-	 */
-	function isIndex(value, length) {
-	  length = length == null ? MAX_SAFE_INTEGER : length;
-	  return !!length &&
-	    (typeof value == 'number' || reIsUint.test(value)) &&
-	    (value > -1 && value % 1 == 0 && value < length);
-	}
-
-	/**
-	 * Checks if the given arguments are from an iteratee call.
-	 *
-	 * @private
-	 * @param {*} value The potential iteratee value argument.
-	 * @param {*} index The potential iteratee index or key argument.
-	 * @param {*} object The potential iteratee object argument.
-	 * @returns {boolean} Returns `true` if the arguments are from an iteratee call,
-	 *  else `false`.
-	 */
-	function isIterateeCall(value, index, object) {
-	  if (!isObject(object)) {
-	    return false;
-	  }
-	  var type = typeof index;
-	  if (type == 'number'
-	        ? (isArrayLike(object) && isIndex(index, object.length))
-	        : (type == 'string' && index in object)
-	      ) {
-	    return eq(object[index], value);
-	  }
-	  return false;
-	}
-
-	/**
-	 * Checks if `value` is likely a prototype object.
-	 *
-	 * @private
-	 * @param {*} value The value to check.
-	 * @returns {boolean} Returns `true` if `value` is a prototype, else `false`.
-	 */
-	function isPrototype(value) {
-	  var Ctor = value && value.constructor,
-	      proto = (typeof Ctor == 'function' && Ctor.prototype) || objectProto;
-
-	  return value === proto;
-	}
-
-	/**
-	 * Performs a
-	 * [`SameValueZero`](http://ecma-international.org/ecma-262/7.0/#sec-samevaluezero)
-	 * comparison between two values to determine if they are equivalent.
-	 *
-	 * @static
-	 * @memberOf _
-	 * @since 4.0.0
-	 * @category Lang
-	 * @param {*} value The value to compare.
-	 * @param {*} other The other value to compare.
-	 * @returns {boolean} Returns `true` if the values are equivalent, else `false`.
-	 * @example
-	 *
-	 * var object = { 'a': 1 };
-	 * var other = { 'a': 1 };
-	 *
-	 * _.eq(object, object);
-	 * // => true
-	 *
-	 * _.eq(object, other);
-	 * // => false
-	 *
-	 * _.eq('a', 'a');
-	 * // => true
-	 *
-	 * _.eq('a', Object('a'));
-	 * // => false
-	 *
-	 * _.eq(NaN, NaN);
-	 * // => true
-	 */
-	function eq(value, other) {
-	  return value === other || (value !== value && other !== other);
-	}
-
-	/**
-	 * Checks if `value` is likely an `arguments` object.
-	 *
-	 * @static
-	 * @memberOf _
-	 * @since 0.1.0
-	 * @category Lang
-	 * @param {*} value The value to check.
-	 * @returns {boolean} Returns `true` if `value` is an `arguments` object,
-	 *  else `false`.
-	 * @example
-	 *
-	 * _.isArguments(function() { return arguments; }());
-	 * // => true
-	 *
-	 * _.isArguments([1, 2, 3]);
-	 * // => false
-	 */
-	function isArguments(value) {
-	  // Safari 8.1 makes `arguments.callee` enumerable in strict mode.
-	  return isArrayLikeObject(value) && hasOwnProperty.call(value, 'callee') &&
-	    (!propertyIsEnumerable.call(value, 'callee') || objectToString.call(value) == argsTag);
-	}
-
-	/**
-	 * Checks if `value` is classified as an `Array` object.
-	 *
-	 * @static
-	 * @memberOf _
-	 * @since 0.1.0
-	 * @category Lang
-	 * @param {*} value The value to check.
-	 * @returns {boolean} Returns `true` if `value` is an array, else `false`.
-	 * @example
-	 *
-	 * _.isArray([1, 2, 3]);
-	 * // => true
-	 *
-	 * _.isArray(document.body.children);
-	 * // => false
-	 *
-	 * _.isArray('abc');
-	 * // => false
-	 *
-	 * _.isArray(_.noop);
-	 * // => false
-	 */
-	var isArray = Array.isArray;
-
-	/**
-	 * Checks if `value` is array-like. A value is considered array-like if it's
-	 * not a function and has a `value.length` that's an integer greater than or
-	 * equal to `0` and less than or equal to `Number.MAX_SAFE_INTEGER`.
-	 *
-	 * @static
-	 * @memberOf _
-	 * @since 4.0.0
-	 * @category Lang
-	 * @param {*} value The value to check.
-	 * @returns {boolean} Returns `true` if `value` is array-like, else `false`.
-	 * @example
-	 *
-	 * _.isArrayLike([1, 2, 3]);
-	 * // => true
-	 *
-	 * _.isArrayLike(document.body.children);
-	 * // => true
-	 *
-	 * _.isArrayLike('abc');
-	 * // => true
-	 *
-	 * _.isArrayLike(_.noop);
-	 * // => false
-	 */
-	function isArrayLike(value) {
-	  return value != null && isLength(value.length) && !isFunction(value);
-	}
-
-	/**
-	 * This method is like `_.isArrayLike` except that it also checks if `value`
-	 * is an object.
-	 *
-	 * @static
-	 * @memberOf _
-	 * @since 4.0.0
-	 * @category Lang
-	 * @param {*} value The value to check.
-	 * @returns {boolean} Returns `true` if `value` is an array-like object,
-	 *  else `false`.
-	 * @example
-	 *
-	 * _.isArrayLikeObject([1, 2, 3]);
-	 * // => true
-	 *
-	 * _.isArrayLikeObject(document.body.children);
-	 * // => true
-	 *
-	 * _.isArrayLikeObject('abc');
-	 * // => false
-	 *
-	 * _.isArrayLikeObject(_.noop);
-	 * // => false
-	 */
-	function isArrayLikeObject(value) {
-	  return isObjectLike(value) && isArrayLike(value);
-	}
-
-	/**
-	 * Checks if `value` is classified as a `Function` object.
-	 *
-	 * @static
-	 * @memberOf _
-	 * @since 0.1.0
-	 * @category Lang
-	 * @param {*} value The value to check.
-	 * @returns {boolean} Returns `true` if `value` is a function, else `false`.
-	 * @example
-	 *
-	 * _.isFunction(_);
-	 * // => true
-	 *
-	 * _.isFunction(/abc/);
-	 * // => false
-	 */
-	function isFunction(value) {
-	  // The use of `Object#toString` avoids issues with the `typeof` operator
-	  // in Safari 8-9 which returns 'object' for typed array and other constructors.
-	  var tag = isObject(value) ? objectToString.call(value) : '';
-	  return tag == funcTag || tag == genTag;
-	}
-
-	/**
-	 * Checks if `value` is a valid array-like length.
-	 *
-	 * **Note:** This method is loosely based on
-	 * [`ToLength`](http://ecma-international.org/ecma-262/7.0/#sec-tolength).
-	 *
-	 * @static
-	 * @memberOf _
-	 * @since 4.0.0
-	 * @category Lang
-	 * @param {*} value The value to check.
-	 * @returns {boolean} Returns `true` if `value` is a valid length, else `false`.
-	 * @example
-	 *
-	 * _.isLength(3);
-	 * // => true
-	 *
-	 * _.isLength(Number.MIN_VALUE);
-	 * // => false
-	 *
-	 * _.isLength(Infinity);
-	 * // => false
-	 *
-	 * _.isLength('3');
-	 * // => false
-	 */
-	function isLength(value) {
-	  return typeof value == 'number' &&
-	    value > -1 && value % 1 == 0 && value <= MAX_SAFE_INTEGER;
-	}
-
-	/**
-	 * Checks if `value` is the
-	 * [language type](http://www.ecma-international.org/ecma-262/7.0/#sec-ecmascript-language-types)
-	 * of `Object`. (e.g. arrays, functions, objects, regexes, `new Number(0)`, and `new String('')`)
-	 *
-	 * @static
-	 * @memberOf _
-	 * @since 0.1.0
-	 * @category Lang
-	 * @param {*} value The value to check.
-	 * @returns {boolean} Returns `true` if `value` is an object, else `false`.
-	 * @example
-	 *
-	 * _.isObject({});
-	 * // => true
-	 *
-	 * _.isObject([1, 2, 3]);
-	 * // => true
-	 *
-	 * _.isObject(_.noop);
-	 * // => true
-	 *
-	 * _.isObject(null);
-	 * // => false
-	 */
-	function isObject(value) {
-	  var type = typeof value;
-	  return !!value && (type == 'object' || type == 'function');
-	}
-
-	/**
-	 * Checks if `value` is object-like. A value is object-like if it's not `null`
-	 * and has a `typeof` result of "object".
-	 *
-	 * @static
-	 * @memberOf _
-	 * @since 4.0.0
-	 * @category Lang
-	 * @param {*} value The value to check.
-	 * @returns {boolean} Returns `true` if `value` is object-like, else `false`.
-	 * @example
-	 *
-	 * _.isObjectLike({});
-	 * // => true
-	 *
-	 * _.isObjectLike([1, 2, 3]);
-	 * // => true
-	 *
-	 * _.isObjectLike(_.noop);
-	 * // => false
-	 *
-	 * _.isObjectLike(null);
-	 * // => false
-	 */
-	function isObjectLike(value) {
-	  return !!value && typeof value == 'object';
-	}
-
-	/**
-	 * Assigns own enumerable string keyed properties of source objects to the
-	 * destination object. Source objects are applied from left to right.
-	 * Subsequent sources overwrite property assignments of previous sources.
-	 *
-	 * **Note:** This method mutates `object` and is loosely based on
-	 * [`Object.assign`](https://mdn.io/Object/assign).
-	 *
-	 * @static
-	 * @memberOf _
-	 * @since 0.10.0
-	 * @category Object
-	 * @param {Object} object The destination object.
-	 * @param {...Object} [sources] The source objects.
-	 * @returns {Object} Returns `object`.
-	 * @see _.assignIn
-	 * @example
-	 *
-	 * function Foo() {
-	 *   this.a = 1;
-	 * }
-	 *
-	 * function Bar() {
-	 *   this.c = 3;
-	 * }
-	 *
-	 * Foo.prototype.b = 2;
-	 * Bar.prototype.d = 4;
-	 *
-	 * _.assign({ 'a': 0 }, new Foo, new Bar);
-	 * // => { 'a': 1, 'c': 3 }
-	 */
-	var assign = createAssigner(function(object, source) {
-	  if (nonEnumShadows || isPrototype(source) || isArrayLike(source)) {
-	    copyObject(source, keys(source), object);
-	    return;
-	  }
-	  for (var key in source) {
-	    if (hasOwnProperty.call(source, key)) {
-	      assignValue(object, key, source[key]);
-	    }
-	  }
-	});
-
-	/**
-	 * Creates an array of the own enumerable property names of `object`.
-	 *
-	 * **Note:** Non-object values are coerced to objects. See the
-	 * [ES spec](http://ecma-international.org/ecma-262/7.0/#sec-object.keys)
-	 * for more details.
-	 *
-	 * @static
-	 * @since 0.1.0
-	 * @memberOf _
-	 * @category Object
-	 * @param {Object} object The object to query.
-	 * @returns {Array} Returns the array of property names.
-	 * @example
-	 *
-	 * function Foo() {
-	 *   this.a = 1;
-	 *   this.b = 2;
-	 * }
-	 *
-	 * Foo.prototype.c = 3;
-	 *
-	 * _.keys(new Foo);
-	 * // => ['a', 'b'] (iteration order is not guaranteed)
-	 *
-	 * _.keys('hi');
-	 * // => ['0', '1']
-	 */
-	function keys(object) {
-	  return isArrayLike(object) ? arrayLikeKeys(object) : baseKeys(object);
-	}
-
-	module.exports = assign;
-
-
-/***/ },
-/* 578 */
-/***/ function(module, exports, __webpack_require__) {
-
-	var __WEBPACK_AMD_DEFINE_RESULT__;/*!
-	 * EventEmitter v5.1.0 - git.io/ee
-	 * Unlicense - http://unlicense.org/
-	 * Oliver Caldwell - http://oli.me.uk/
-	 * @preserve
-	 */
-
-	;(function (exports) {
-	    'use strict';
-
-	    /**
-	     * Class for managing events.
-	     * Can be extended to provide event functionality in other classes.
-	     *
-	     * @class EventEmitter Manages event registering and emitting.
-	     */
-	    function EventEmitter() {}
-
-	    // Shortcuts to improve speed and size
-	    var proto = EventEmitter.prototype;
-	    var originalGlobalValue = exports.EventEmitter;
-
-	    /**
-	     * Finds the index of the listener for the event in its storage array.
-	     *
-	     * @param {Function[]} listeners Array of listeners to search through.
-	     * @param {Function} listener Method to look for.
-	     * @return {Number} Index of the specified listener, -1 if not found
-	     * @api private
-	     */
-	    function indexOfListener(listeners, listener) {
-	        var i = listeners.length;
-	        while (i--) {
-	            if (listeners[i].listener === listener) {
-	                return i;
-	            }
-	        }
-
-	        return -1;
-	    }
-
-	    /**
-	     * Alias a method while keeping the context correct, to allow for overwriting of target method.
-	     *
-	     * @param {String} name The name of the target method.
-	     * @return {Function} The aliased method
-	     * @api private
-	     */
-	    function alias(name) {
-	        return function aliasClosure() {
-	            return this[name].apply(this, arguments);
-	        };
-	    }
-
-	    /**
-	     * Returns the listener array for the specified event.
-	     * Will initialise the event object and listener arrays if required.
-	     * Will return an object if you use a regex search. The object contains keys for each matched event. So /ba[rz]/ might return an object containing bar and baz. But only if you have either defined them with defineEvent or added some listeners to them.
-	     * Each property in the object response is an array of listener functions.
-	     *
-	     * @param {String|RegExp} evt Name of the event to return the listeners from.
-	     * @return {Function[]|Object} All listener functions for the event.
-	     */
-	    proto.getListeners = function getListeners(evt) {
-	        var events = this._getEvents();
-	        var response;
-	        var key;
-
-	        // Return a concatenated array of all matching events if
-	        // the selector is a regular expression.
-	        if (evt instanceof RegExp) {
-	            response = {};
-	            for (key in events) {
-	                if (events.hasOwnProperty(key) && evt.test(key)) {
-	                    response[key] = events[key];
-	                }
-	            }
-	        }
-	        else {
-	            response = events[evt] || (events[evt] = []);
-	        }
-
-	        return response;
-	    };
-
-	    /**
-	     * Takes a list of listener objects and flattens it into a list of listener functions.
-	     *
-	     * @param {Object[]} listeners Raw listener objects.
-	     * @return {Function[]} Just the listener functions.
-	     */
-	    proto.flattenListeners = function flattenListeners(listeners) {
-	        var flatListeners = [];
-	        var i;
-
-	        for (i = 0; i < listeners.length; i += 1) {
-	            flatListeners.push(listeners[i].listener);
-	        }
-
-	        return flatListeners;
-	    };
-
-	    /**
-	     * Fetches the requested listeners via getListeners but will always return the results inside an object. This is mainly for internal use but others may find it useful.
-	     *
-	     * @param {String|RegExp} evt Name of the event to return the listeners from.
-	     * @return {Object} All listener functions for an event in an object.
-	     */
-	    proto.getListenersAsObject = function getListenersAsObject(evt) {
-	        var listeners = this.getListeners(evt);
-	        var response;
-
-	        if (listeners instanceof Array) {
-	            response = {};
-	            response[evt] = listeners;
-	        }
-
-	        return response || listeners;
-	    };
-
-	    function isValidListener (listener) {
-	        if (typeof listener === 'function' || listener instanceof RegExp) {
-	            return true
-	        } else if (listener && typeof listener === 'object') {
-	            return isValidListener(listener.listener)
-	        } else {
-	            return false
-	        }
-	    }
-
-	    /**
-	     * Adds a listener function to the specified event.
-	     * The listener will not be added if it is a duplicate.
-	     * If the listener returns true then it will be removed after it is called.
-	     * If you pass a regular expression as the event name then the listener will be added to all events that match it.
-	     *
-	     * @param {String|RegExp} evt Name of the event to attach the listener to.
-	     * @param {Function} listener Method to be called when the event is emitted. If the function returns true then it will be removed after calling.
-	     * @return {Object} Current instance of EventEmitter for chaining.
-	     */
-	    proto.addListener = function addListener(evt, listener) {
-	        if (!isValidListener(listener)) {
-	            throw new TypeError('listener must be a function');
-	        }
-
-	        var listeners = this.getListenersAsObject(evt);
-	        var listenerIsWrapped = typeof listener === 'object';
-	        var key;
-
-	        for (key in listeners) {
-	            if (listeners.hasOwnProperty(key) && indexOfListener(listeners[key], listener) === -1) {
-	                listeners[key].push(listenerIsWrapped ? listener : {
-	                    listener: listener,
-	                    once: false
-	                });
-	            }
-	        }
-
-	        return this;
-	    };
-
-	    /**
-	     * Alias of addListener
-	     */
-	    proto.on = alias('addListener');
-
-	    /**
-	     * Semi-alias of addListener. It will add a listener that will be
-	     * automatically removed after its first execution.
-	     *
-	     * @param {String|RegExp} evt Name of the event to attach the listener to.
-	     * @param {Function} listener Method to be called when the event is emitted. If the function returns true then it will be removed after calling.
-	     * @return {Object} Current instance of EventEmitter for chaining.
-	     */
-	    proto.addOnceListener = function addOnceListener(evt, listener) {
-	        return this.addListener(evt, {
-	            listener: listener,
-	            once: true
-	        });
-	    };
-
-	    /**
-	     * Alias of addOnceListener.
-	     */
-	    proto.once = alias('addOnceListener');
-
-	    /**
-	     * Defines an event name. This is required if you want to use a regex to add a listener to multiple events at once. If you don't do this then how do you expect it to know what event to add to? Should it just add to every possible match for a regex? No. That is scary and bad.
-	     * You need to tell it what event names should be matched by a regex.
-	     *
-	     * @param {String} evt Name of the event to create.
-	     * @return {Object} Current instance of EventEmitter for chaining.
-	     */
-	    proto.defineEvent = function defineEvent(evt) {
-	        this.getListeners(evt);
-	        return this;
-	    };
-
-	    /**
-	     * Uses defineEvent to define multiple events.
-	     *
-	     * @param {String[]} evts An array of event names to define.
-	     * @return {Object} Current instance of EventEmitter for chaining.
-	     */
-	    proto.defineEvents = function defineEvents(evts) {
-	        for (var i = 0; i < evts.length; i += 1) {
-	            this.defineEvent(evts[i]);
-	        }
-	        return this;
-	    };
-
-	    /**
-	     * Removes a listener function from the specified event.
-	     * When passed a regular expression as the event name, it will remove the listener from all events that match it.
-	     *
-	     * @param {String|RegExp} evt Name of the event to remove the listener from.
-	     * @param {Function} listener Method to remove from the event.
-	     * @return {Object} Current instance of EventEmitter for chaining.
-	     */
-	    proto.removeListener = function removeListener(evt, listener) {
-	        var listeners = this.getListenersAsObject(evt);
-	        var index;
-	        var key;
-
-	        for (key in listeners) {
-	            if (listeners.hasOwnProperty(key)) {
-	                index = indexOfListener(listeners[key], listener);
-
-	                if (index !== -1) {
-	                    listeners[key].splice(index, 1);
-	                }
-	            }
-	        }
-
-	        return this;
-	    };
-
-	    /**
-	     * Alias of removeListener
-	     */
-	    proto.off = alias('removeListener');
-
-	    /**
-	     * Adds listeners in bulk using the manipulateListeners method.
-	     * If you pass an object as the second argument you can add to multiple events at once. The object should contain key value pairs of events and listeners or listener arrays. You can also pass it an event name and an array of listeners to be added.
-	     * You can also pass it a regular expression to add the array of listeners to all events that match it.
-	     * Yeah, this function does quite a bit. That's probably a bad thing.
-	     *
-	     * @param {String|Object|RegExp} evt An event name if you will pass an array of listeners next. An object if you wish to add to multiple events at once.
-	     * @param {Function[]} [listeners] An optional array of listener functions to add.
-	     * @return {Object} Current instance of EventEmitter for chaining.
-	     */
-	    proto.addListeners = function addListeners(evt, listeners) {
-	        // Pass through to manipulateListeners
-	        return this.manipulateListeners(false, evt, listeners);
-	    };
-
-	    /**
-	     * Removes listeners in bulk using the manipulateListeners method.
-	     * If you pass an object as the second argument you can remove from multiple events at once. The object should contain key value pairs of events and listeners or listener arrays.
-	     * You can also pass it an event name and an array of listeners to be removed.
-	     * You can also pass it a regular expression to remove the listeners from all events that match it.
-	     *
-	     * @param {String|Object|RegExp} evt An event name if you will pass an array of listeners next. An object if you wish to remove from multiple events at once.
-	     * @param {Function[]} [listeners] An optional array of listener functions to remove.
-	     * @return {Object} Current instance of EventEmitter for chaining.
-	     */
-	    proto.removeListeners = function removeListeners(evt, listeners) {
-	        // Pass through to manipulateListeners
-	        return this.manipulateListeners(true, evt, listeners);
-	    };
-
-	    /**
-	     * Edits listeners in bulk. The addListeners and removeListeners methods both use this to do their job. You should really use those instead, this is a little lower level.
-	     * The first argument will determine if the listeners are removed (true) or added (false).
-	     * If you pass an object as the second argument you can add/remove from multiple events at once. The object should contain key value pairs of events and listeners or listener arrays.
-	     * You can also pass it an event name and an array of listeners to be added/removed.
-	     * You can also pass it a regular expression to manipulate the listeners of all events that match it.
-	     *
-	     * @param {Boolean} remove True if you want to remove listeners, false if you want to add.
-	     * @param {String|Object|RegExp} evt An event name if you will pass an array of listeners next. An object if you wish to add/remove from multiple events at once.
-	     * @param {Function[]} [listeners] An optional array of listener functions to add/remove.
-	     * @return {Object} Current instance of EventEmitter for chaining.
-	     */
-	    proto.manipulateListeners = function manipulateListeners(remove, evt, listeners) {
-	        var i;
-	        var value;
-	        var single = remove ? this.removeListener : this.addListener;
-	        var multiple = remove ? this.removeListeners : this.addListeners;
-
-	        // If evt is an object then pass each of its properties to this method
-	        if (typeof evt === 'object' && !(evt instanceof RegExp)) {
-	            for (i in evt) {
-	                if (evt.hasOwnProperty(i) && (value = evt[i])) {
-	                    // Pass the single listener straight through to the singular method
-	                    if (typeof value === 'function') {
-	                        single.call(this, i, value);
-	                    }
-	                    else {
-	                        // Otherwise pass back to the multiple function
-	                        multiple.call(this, i, value);
-	                    }
-	                }
-	            }
-	        }
-	        else {
-	            // So evt must be a string
-	            // And listeners must be an array of listeners
-	            // Loop over it and pass each one to the multiple method
-	            i = listeners.length;
-	            while (i--) {
-	                single.call(this, evt, listeners[i]);
-	            }
-	        }
-
-	        return this;
-	    };
-
-	    /**
-	     * Removes all listeners from a specified event.
-	     * If you do not specify an event then all listeners will be removed.
-	     * That means every event will be emptied.
-	     * You can also pass a regex to remove all events that match it.
-	     *
-	     * @param {String|RegExp} [evt] Optional name of the event to remove all listeners for. Will remove from every event if not passed.
-	     * @return {Object} Current instance of EventEmitter for chaining.
-	     */
-	    proto.removeEvent = function removeEvent(evt) {
-	        var type = typeof evt;
-	        var events = this._getEvents();
-	        var key;
-
-	        // Remove different things depending on the state of evt
-	        if (type === 'string') {
-	            // Remove all listeners for the specified event
-	            delete events[evt];
-	        }
-	        else if (evt instanceof RegExp) {
-	            // Remove all events matching the regex.
-	            for (key in events) {
-	                if (events.hasOwnProperty(key) && evt.test(key)) {
-	                    delete events[key];
-	                }
-	            }
-	        }
-	        else {
-	            // Remove all listeners in all events
-	            delete this._events;
-	        }
-
-	        return this;
-	    };
-
-	    /**
-	     * Alias of removeEvent.
-	     *
-	     * Added to mirror the node API.
-	     */
-	    proto.removeAllListeners = alias('removeEvent');
-
-	    /**
-	     * Emits an event of your choice.
-	     * When emitted, every listener attached to that event will be executed.
-	     * If you pass the optional argument array then those arguments will be passed to every listener upon execution.
-	     * Because it uses `apply`, your array of arguments will be passed as if you wrote them out separately.
-	     * So they will not arrive within the array on the other side, they will be separate.
-	     * You can also pass a regular expression to emit to all events that match it.
-	     *
-	     * @param {String|RegExp} evt Name of the event to emit and execute listeners for.
-	     * @param {Array} [args] Optional array of arguments to be passed to each listener.
-	     * @return {Object} Current instance of EventEmitter for chaining.
-	     */
-	    proto.emitEvent = function emitEvent(evt, args) {
-	        var listenersMap = this.getListenersAsObject(evt);
-	        var listeners;
-	        var listener;
-	        var i;
-	        var key;
-	        var response;
-
-	        for (key in listenersMap) {
-	            if (listenersMap.hasOwnProperty(key)) {
-	                listeners = listenersMap[key].slice(0);
-
-	                for (i = 0; i < listeners.length; i++) {
-	                    // If the listener returns true then it shall be removed from the event
-	                    // The function is executed either with a basic call or an apply if there is an args array
-	                    listener = listeners[i];
-
-	                    if (listener.once === true) {
-	                        this.removeListener(evt, listener.listener);
-	                    }
-
-	                    response = listener.listener.apply(this, args || []);
-
-	                    if (response === this._getOnceReturnValue()) {
-	                        this.removeListener(evt, listener.listener);
-	                    }
-	                }
-	            }
-	        }
-
-	        return this;
-	    };
-
-	    /**
-	     * Alias of emitEvent
-	     */
-	    proto.trigger = alias('emitEvent');
-
-	    /**
-	     * Subtly different from emitEvent in that it will pass its arguments on to the listeners, as opposed to taking a single array of arguments to pass on.
-	     * As with emitEvent, you can pass a regex in place of the event name to emit to all events that match it.
-	     *
-	     * @param {String|RegExp} evt Name of the event to emit and execute listeners for.
-	     * @param {...*} Optional additional arguments to be passed to each listener.
-	     * @return {Object} Current instance of EventEmitter for chaining.
-	     */
-	    proto.emit = function emit(evt) {
-	        var args = Array.prototype.slice.call(arguments, 1);
-	        return this.emitEvent(evt, args);
-	    };
-
-	    /**
-	     * Sets the current value to check against when executing listeners. If a
-	     * listeners return value matches the one set here then it will be removed
-	     * after execution. This value defaults to true.
-	     *
-	     * @param {*} value The new value to check for when executing listeners.
-	     * @return {Object} Current instance of EventEmitter for chaining.
-	     */
-	    proto.setOnceReturnValue = function setOnceReturnValue(value) {
-	        this._onceReturnValue = value;
-	        return this;
-	    };
-
-	    /**
-	     * Fetches the current value to check against when executing listeners. If
-	     * the listeners return value matches this one then it should be removed
-	     * automatically. It will return true by default.
-	     *
-	     * @return {*|Boolean} The current value to check for or the default, true.
-	     * @api private
-	     */
-	    proto._getOnceReturnValue = function _getOnceReturnValue() {
-	        if (this.hasOwnProperty('_onceReturnValue')) {
-	            return this._onceReturnValue;
-	        }
-	        else {
-	            return true;
-	        }
-	    };
-
-	    /**
-	     * Fetches the events object and creates one if required.
-	     *
-	     * @return {Object} The events storage object.
-	     * @api private
-	     */
-	    proto._getEvents = function _getEvents() {
-	        return this._events || (this._events = {});
-	    };
-
-	    /**
-	     * Reverts the global {@link EventEmitter} to its previous value and returns a reference to this version.
-	     *
-	     * @return {Function} Non conflicting EventEmitter class.
-	     */
-	    EventEmitter.noConflict = function noConflict() {
-	        exports.EventEmitter = originalGlobalValue;
-	        return EventEmitter;
-	    };
-
-	    // Expose the class either via AMD, CommonJS or the global object
-	    if (true) {
-	        !(__WEBPACK_AMD_DEFINE_RESULT__ = function () {
-	            return EventEmitter;
-	        }.call(exports, __webpack_require__, exports, module), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
-	    }
-	    else if (typeof module === 'object' && module.exports){
-	        module.exports = EventEmitter;
-	    }
-	    else {
-	        exports.EventEmitter = EventEmitter;
-	    }
-	}(this || {}));
-
-
-/***/ },
-/* 579 */
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-
-	Object.defineProperty(exports, "__esModule", {
-	    value: true
-	});
-	exports.connect = connect;
-	exports.disconnect = disconnect;
-	exports.init = init;
-
-	var _ddp = __webpack_require__(580);
-
-	var _ddp2 = _interopRequireDefault(_ddp);
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-	/*
-	*   Public methods
-	*/
-
-	function connect() {
-	    this.ddp.connect();
-	} /*
-	  *   The ddp mixin:
-	  *   - instantiates the ddp connection to the server (a DDP instance) and stores
-	  *     it in the `ddp` property of the Asteroid instance
-	  *   - listens for the `connected` and `disconnected` events of the DDP instance
-	  *     and proxies them to the Asteroid instance
-	  *   - exposes the `endpoint` public property
-	  *   - defines the `connect` and `disconnect` methods, used to control the ddp
-	  *     connection with the server
-	  */
-
-	function disconnect() {
-	    this.ddp.disconnect();
-	}
-
-	/*
-	*   Init method
-	*/
-
-	function init(options) {
-	    var _this = this;
-
-	    var endpoint = options.endpoint;
-	    var _options$SocketConstr = options.SocketConstructor;
-	    var SocketConstructor = _options$SocketConstr === undefined ? WebSocket : _options$SocketConstr;
-	    var autoConnect = options.autoConnect;
-	    var autoReconnect = options.autoReconnect;
-	    var reconnectInterval = options.reconnectInterval;
-
-	    this.endpoint = endpoint;
-	    var ddpOptions = {
-	        endpoint: endpoint,
-	        SocketConstructor: SocketConstructor,
-	        autoConnect: autoConnect,
-	        autoReconnect: autoReconnect,
-	        reconnectInterval: reconnectInterval
-	    };
-	    this.ddp = new _ddp2.default(ddpOptions).on("connected", function () {
-	        return _this.emit("connected");
-	    }).on("disconnected", function () {
-	        return _this.emit("disconnected");
-	    });
-	}
-
-/***/ },
-/* 580 */
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-
-	Object.defineProperty(exports, "__esModule", {
-	    value: true
-	});
-
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-	var _get = function get(object, property, receiver) { if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { return get(parent, property, receiver); } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } };
-
-	var _wolfy87Eventemitter = __webpack_require__(581);
-
-	var _wolfy87Eventemitter2 = _interopRequireDefault(_wolfy87Eventemitter);
-
-	var _queue = __webpack_require__(582);
-
-	var _queue2 = _interopRequireDefault(_queue);
-
-	var _socket = __webpack_require__(583);
-
-	var _socket2 = _interopRequireDefault(_socket);
-
-	var _utils = __webpack_require__(584);
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-	var DDP_VERSION = "1";
-	var PUBLIC_EVENTS = [
-	// Subscription messages
-	"ready", "nosub", "added", "changed", "removed",
-	// Method messages
-	"result", "updated",
-	// Error messages
-	"error"];
-	var DEFAULT_RECONNECT_INTERVAL = 10000;
-
-	var DDP = function (_EventEmitter) {
-	    _inherits(DDP, _EventEmitter);
-
-	    _createClass(DDP, [{
-	        key: "emit",
-	        value: function emit() {
-	            var _get2;
-
-	            setTimeout((_get2 = _get(Object.getPrototypeOf(DDP.prototype), "emit", this)).bind.apply(_get2, [this].concat(Array.prototype.slice.call(arguments))), 0);
-	        }
-	    }]);
-
-	    function DDP(options) {
-	        _classCallCheck(this, DDP);
-
-	        var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(DDP).call(this));
-
-	        _this.status = "disconnected";
-
-	        // Default `autoConnect` and `autoReconnect` to true
-	        _this.autoConnect = options.autoConnect !== false;
-	        _this.autoReconnect = options.autoReconnect !== false;
-	        _this.reconnectInterval = options.reconnectInterval || DEFAULT_RECONNECT_INTERVAL;
-
-	        _this.messageQueue = new _queue2.default(function (message) {
-	            if (_this.status === "connected") {
-	                _this.socket.send(message);
-	                return true;
-	            } else {
-	                return false;
-	            }
-	        });
-
-	        _this.socket = new _socket2.default(options.SocketConstructor, options.endpoint);
-
-	        _this.socket.on("open", function () {
-	            // When the socket opens, send the `connect` message
-	            // to establish the DDP connection
-	            _this.socket.send({
-	                msg: "connect",
-	                version: DDP_VERSION,
-	                support: [DDP_VERSION]
-	            });
-	        });
-
-	        _this.socket.on("close", function () {
-	            _this.status = "disconnected";
-	            _this.messageQueue.empty();
-	            _this.emit("disconnected");
-	            if (_this.autoReconnect) {
-	                // Schedule a reconnection
-	                setTimeout(_this.socket.open.bind(_this.socket), _this.reconnectInterval);
-	            }
-	        });
-
-	        _this.socket.on("message:in", function (message) {
-	            if (message.msg === "connected") {
-	                _this.status = "connected";
-	                _this.messageQueue.process();
-	                _this.emit("connected");
-	            } else if (message.msg === "ping") {
-	                // Reply with a `pong` message to prevent the server from
-	                // closing the connection
-	                _this.socket.send({ msg: "pong", id: message.id });
-	            } else if ((0, _utils.contains)(PUBLIC_EVENTS, message.msg)) {
-	                _this.emit(message.msg, message);
-	            }
-	        });
-
-	        if (_this.autoConnect) {
-	            _this.connect();
-	        }
-
-	        return _this;
-	    }
-
-	    _createClass(DDP, [{
-	        key: "connect",
-	        value: function connect() {
-	            this.socket.open();
-	        }
-	    }, {
-	        key: "disconnect",
-	        value: function disconnect() {
-	            /*
-	            *   If `disconnect` is called, the caller likely doesn't want the
-	            *   the instance to try to auto-reconnect. Therefore we set the
-	            *   `autoReconnect` flag to false.
-	            */
-	            this.autoReconnect = false;
-	            this.socket.close();
-	        }
-	    }, {
-	        key: "method",
-	        value: function method(name, params) {
-	            var id = (0, _utils.uniqueId)();
-	            this.messageQueue.push({
-	                msg: "method",
-	                id: id,
-	                method: name,
-	                params: params
-	            });
-	            return id;
-	        }
-	    }, {
-	        key: "sub",
-	        value: function sub(name, params) {
-	            var id = arguments.length <= 2 || arguments[2] === undefined ? null : arguments[2];
-
-	            id || (id = (0, _utils.uniqueId)());
-	            this.messageQueue.push({
-	                msg: "sub",
-	                id: id,
-	                name: name,
-	                params: params
-	            });
-	            return id;
-	        }
-	    }, {
-	        key: "unsub",
-	        value: function unsub(id) {
-	            this.messageQueue.push({
-	                msg: "unsub",
-	                id: id
-	            });
-	            return id;
-	        }
-	    }]);
-
-	    return DDP;
-	}(_wolfy87Eventemitter2.default);
-
-	exports.default = DDP;
-
-/***/ },
-/* 581 */
-/***/ function(module, exports, __webpack_require__) {
-
-	var __WEBPACK_AMD_DEFINE_RESULT__;/*!
-	 * EventEmitter v4.2.11 - git.io/ee
-	 * Unlicense - http://unlicense.org/
-	 * Oliver Caldwell - http://oli.me.uk/
-	 * @preserve
-	 */
-
-	;(function () {
-	    'use strict';
-
-	    /**
-	     * Class for managing events.
-	     * Can be extended to provide event functionality in other classes.
-	     *
-	     * @class EventEmitter Manages event registering and emitting.
-	     */
-	    function EventEmitter() {}
-
-	    // Shortcuts to improve speed and size
-	    var proto = EventEmitter.prototype;
-	    var exports = this;
-	    var originalGlobalValue = exports.EventEmitter;
-
-	    /**
-	     * Finds the index of the listener for the event in its storage array.
-	     *
-	     * @param {Function[]} listeners Array of listeners to search through.
-	     * @param {Function} listener Method to look for.
-	     * @return {Number} Index of the specified listener, -1 if not found
-	     * @api private
-	     */
-	    function indexOfListener(listeners, listener) {
-	        var i = listeners.length;
-	        while (i--) {
-	            if (listeners[i].listener === listener) {
-	                return i;
-	            }
-	        }
-
-	        return -1;
-	    }
-
-	    /**
-	     * Alias a method while keeping the context correct, to allow for overwriting of target method.
-	     *
-	     * @param {String} name The name of the target method.
-	     * @return {Function} The aliased method
-	     * @api private
-	     */
-	    function alias(name) {
-	        return function aliasClosure() {
-	            return this[name].apply(this, arguments);
-	        };
-	    }
-
-	    /**
-	     * Returns the listener array for the specified event.
-	     * Will initialise the event object and listener arrays if required.
-	     * Will return an object if you use a regex search. The object contains keys for each matched event. So /ba[rz]/ might return an object containing bar and baz. But only if you have either defined them with defineEvent or added some listeners to them.
-	     * Each property in the object response is an array of listener functions.
-	     *
-	     * @param {String|RegExp} evt Name of the event to return the listeners from.
-	     * @return {Function[]|Object} All listener functions for the event.
-	     */
-	    proto.getListeners = function getListeners(evt) {
-	        var events = this._getEvents();
-	        var response;
-	        var key;
-
-	        // Return a concatenated array of all matching events if
-	        // the selector is a regular expression.
-	        if (evt instanceof RegExp) {
-	            response = {};
-	            for (key in events) {
-	                if (events.hasOwnProperty(key) && evt.test(key)) {
-	                    response[key] = events[key];
-	                }
-	            }
-	        }
-	        else {
-	            response = events[evt] || (events[evt] = []);
-	        }
-
-	        return response;
-	    };
-
-	    /**
-	     * Takes a list of listener objects and flattens it into a list of listener functions.
-	     *
-	     * @param {Object[]} listeners Raw listener objects.
-	     * @return {Function[]} Just the listener functions.
-	     */
-	    proto.flattenListeners = function flattenListeners(listeners) {
-	        var flatListeners = [];
-	        var i;
-
-	        for (i = 0; i < listeners.length; i += 1) {
-	            flatListeners.push(listeners[i].listener);
-	        }
-
-	        return flatListeners;
-	    };
-
-	    /**
-	     * Fetches the requested listeners via getListeners but will always return the results inside an object. This is mainly for internal use but others may find it useful.
-	     *
-	     * @param {String|RegExp} evt Name of the event to return the listeners from.
-	     * @return {Object} All listener functions for an event in an object.
-	     */
-	    proto.getListenersAsObject = function getListenersAsObject(evt) {
-	        var listeners = this.getListeners(evt);
-	        var response;
-
-	        if (listeners instanceof Array) {
-	            response = {};
-	            response[evt] = listeners;
-	        }
-
-	        return response || listeners;
-	    };
-
-	    /**
-	     * Adds a listener function to the specified event.
-	     * The listener will not be added if it is a duplicate.
-	     * If the listener returns true then it will be removed after it is called.
-	     * If you pass a regular expression as the event name then the listener will be added to all events that match it.
-	     *
-	     * @param {String|RegExp} evt Name of the event to attach the listener to.
-	     * @param {Function} listener Method to be called when the event is emitted. If the function returns true then it will be removed after calling.
-	     * @return {Object} Current instance of EventEmitter for chaining.
-	     */
-	    proto.addListener = function addListener(evt, listener) {
-	        var listeners = this.getListenersAsObject(evt);
-	        var listenerIsWrapped = typeof listener === 'object';
-	        var key;
-
-	        for (key in listeners) {
-	            if (listeners.hasOwnProperty(key) && indexOfListener(listeners[key], listener) === -1) {
-	                listeners[key].push(listenerIsWrapped ? listener : {
-	                    listener: listener,
-	                    once: false
-	                });
-	            }
-	        }
-
-	        return this;
-	    };
-
-	    /**
-	     * Alias of addListener
-	     */
-	    proto.on = alias('addListener');
-
-	    /**
-	     * Semi-alias of addListener. It will add a listener that will be
-	     * automatically removed after its first execution.
-	     *
-	     * @param {String|RegExp} evt Name of the event to attach the listener to.
-	     * @param {Function} listener Method to be called when the event is emitted. If the function returns true then it will be removed after calling.
-	     * @return {Object} Current instance of EventEmitter for chaining.
-	     */
-	    proto.addOnceListener = function addOnceListener(evt, listener) {
-	        return this.addListener(evt, {
-	            listener: listener,
-	            once: true
-	        });
-	    };
-
-	    /**
-	     * Alias of addOnceListener.
-	     */
-	    proto.once = alias('addOnceListener');
-
-	    /**
-	     * Defines an event name. This is required if you want to use a regex to add a listener to multiple events at once. If you don't do this then how do you expect it to know what event to add to? Should it just add to every possible match for a regex? No. That is scary and bad.
-	     * You need to tell it what event names should be matched by a regex.
-	     *
-	     * @param {String} evt Name of the event to create.
-	     * @return {Object} Current instance of EventEmitter for chaining.
-	     */
-	    proto.defineEvent = function defineEvent(evt) {
-	        this.getListeners(evt);
-	        return this;
-	    };
-
-	    /**
-	     * Uses defineEvent to define multiple events.
-	     *
-	     * @param {String[]} evts An array of event names to define.
-	     * @return {Object} Current instance of EventEmitter for chaining.
-	     */
-	    proto.defineEvents = function defineEvents(evts) {
-	        for (var i = 0; i < evts.length; i += 1) {
-	            this.defineEvent(evts[i]);
-	        }
-	        return this;
-	    };
-
-	    /**
-	     * Removes a listener function from the specified event.
-	     * When passed a regular expression as the event name, it will remove the listener from all events that match it.
-	     *
-	     * @param {String|RegExp} evt Name of the event to remove the listener from.
-	     * @param {Function} listener Method to remove from the event.
-	     * @return {Object} Current instance of EventEmitter for chaining.
-	     */
-	    proto.removeListener = function removeListener(evt, listener) {
-	        var listeners = this.getListenersAsObject(evt);
-	        var index;
-	        var key;
-
-	        for (key in listeners) {
-	            if (listeners.hasOwnProperty(key)) {
-	                index = indexOfListener(listeners[key], listener);
-
-	                if (index !== -1) {
-	                    listeners[key].splice(index, 1);
-	                }
-	            }
-	        }
-
-	        return this;
-	    };
-
-	    /**
-	     * Alias of removeListener
-	     */
-	    proto.off = alias('removeListener');
-
-	    /**
-	     * Adds listeners in bulk using the manipulateListeners method.
-	     * If you pass an object as the second argument you can add to multiple events at once. The object should contain key value pairs of events and listeners or listener arrays. You can also pass it an event name and an array of listeners to be added.
-	     * You can also pass it a regular expression to add the array of listeners to all events that match it.
-	     * Yeah, this function does quite a bit. That's probably a bad thing.
-	     *
-	     * @param {String|Object|RegExp} evt An event name if you will pass an array of listeners next. An object if you wish to add to multiple events at once.
-	     * @param {Function[]} [listeners] An optional array of listener functions to add.
-	     * @return {Object} Current instance of EventEmitter for chaining.
-	     */
-	    proto.addListeners = function addListeners(evt, listeners) {
-	        // Pass through to manipulateListeners
-	        return this.manipulateListeners(false, evt, listeners);
-	    };
-
-	    /**
-	     * Removes listeners in bulk using the manipulateListeners method.
-	     * If you pass an object as the second argument you can remove from multiple events at once. The object should contain key value pairs of events and listeners or listener arrays.
-	     * You can also pass it an event name and an array of listeners to be removed.
-	     * You can also pass it a regular expression to remove the listeners from all events that match it.
-	     *
-	     * @param {String|Object|RegExp} evt An event name if you will pass an array of listeners next. An object if you wish to remove from multiple events at once.
-	     * @param {Function[]} [listeners] An optional array of listener functions to remove.
-	     * @return {Object} Current instance of EventEmitter for chaining.
-	     */
-	    proto.removeListeners = function removeListeners(evt, listeners) {
-	        // Pass through to manipulateListeners
-	        return this.manipulateListeners(true, evt, listeners);
-	    };
-
-	    /**
-	     * Edits listeners in bulk. The addListeners and removeListeners methods both use this to do their job. You should really use those instead, this is a little lower level.
-	     * The first argument will determine if the listeners are removed (true) or added (false).
-	     * If you pass an object as the second argument you can add/remove from multiple events at once. The object should contain key value pairs of events and listeners or listener arrays.
-	     * You can also pass it an event name and an array of listeners to be added/removed.
-	     * You can also pass it a regular expression to manipulate the listeners of all events that match it.
-	     *
-	     * @param {Boolean} remove True if you want to remove listeners, false if you want to add.
-	     * @param {String|Object|RegExp} evt An event name if you will pass an array of listeners next. An object if you wish to add/remove from multiple events at once.
-	     * @param {Function[]} [listeners] An optional array of listener functions to add/remove.
-	     * @return {Object} Current instance of EventEmitter for chaining.
-	     */
-	    proto.manipulateListeners = function manipulateListeners(remove, evt, listeners) {
-	        var i;
-	        var value;
-	        var single = remove ? this.removeListener : this.addListener;
-	        var multiple = remove ? this.removeListeners : this.addListeners;
-
-	        // If evt is an object then pass each of its properties to this method
-	        if (typeof evt === 'object' && !(evt instanceof RegExp)) {
-	            for (i in evt) {
-	                if (evt.hasOwnProperty(i) && (value = evt[i])) {
-	                    // Pass the single listener straight through to the singular method
-	                    if (typeof value === 'function') {
-	                        single.call(this, i, value);
-	                    }
-	                    else {
-	                        // Otherwise pass back to the multiple function
-	                        multiple.call(this, i, value);
-	                    }
-	                }
-	            }
-	        }
-	        else {
-	            // So evt must be a string
-	            // And listeners must be an array of listeners
-	            // Loop over it and pass each one to the multiple method
-	            i = listeners.length;
-	            while (i--) {
-	                single.call(this, evt, listeners[i]);
-	            }
-	        }
-
-	        return this;
-	    };
-
-	    /**
-	     * Removes all listeners from a specified event.
-	     * If you do not specify an event then all listeners will be removed.
-	     * That means every event will be emptied.
-	     * You can also pass a regex to remove all events that match it.
-	     *
-	     * @param {String|RegExp} [evt] Optional name of the event to remove all listeners for. Will remove from every event if not passed.
-	     * @return {Object} Current instance of EventEmitter for chaining.
-	     */
-	    proto.removeEvent = function removeEvent(evt) {
-	        var type = typeof evt;
-	        var events = this._getEvents();
-	        var key;
-
-	        // Remove different things depending on the state of evt
-	        if (type === 'string') {
-	            // Remove all listeners for the specified event
-	            delete events[evt];
-	        }
-	        else if (evt instanceof RegExp) {
-	            // Remove all events matching the regex.
-	            for (key in events) {
-	                if (events.hasOwnProperty(key) && evt.test(key)) {
-	                    delete events[key];
-	                }
-	            }
-	        }
-	        else {
-	            // Remove all listeners in all events
-	            delete this._events;
-	        }
-
-	        return this;
-	    };
-
-	    /**
-	     * Alias of removeEvent.
-	     *
-	     * Added to mirror the node API.
-	     */
-	    proto.removeAllListeners = alias('removeEvent');
-
-	    /**
-	     * Emits an event of your choice.
-	     * When emitted, every listener attached to that event will be executed.
-	     * If you pass the optional argument array then those arguments will be passed to every listener upon execution.
-	     * Because it uses `apply`, your array of arguments will be passed as if you wrote them out separately.
-	     * So they will not arrive within the array on the other side, they will be separate.
-	     * You can also pass a regular expression to emit to all events that match it.
-	     *
-	     * @param {String|RegExp} evt Name of the event to emit and execute listeners for.
-	     * @param {Array} [args] Optional array of arguments to be passed to each listener.
-	     * @return {Object} Current instance of EventEmitter for chaining.
-	     */
-	    proto.emitEvent = function emitEvent(evt, args) {
-	        var listenersMap = this.getListenersAsObject(evt);
-	        var listeners;
-	        var listener;
-	        var i;
-	        var key;
-	        var response;
-
-	        for (key in listenersMap) {
-	            if (listenersMap.hasOwnProperty(key)) {
-	                listeners = listenersMap[key].slice(0);
-	                i = listeners.length;
-
-	                while (i--) {
-	                    // If the listener returns true then it shall be removed from the event
-	                    // The function is executed either with a basic call or an apply if there is an args array
-	                    listener = listeners[i];
-
-	                    if (listener.once === true) {
-	                        this.removeListener(evt, listener.listener);
-	                    }
-
-	                    response = listener.listener.apply(this, args || []);
-
-	                    if (response === this._getOnceReturnValue()) {
-	                        this.removeListener(evt, listener.listener);
-	                    }
-	                }
-	            }
-	        }
-
-	        return this;
-	    };
-
-	    /**
-	     * Alias of emitEvent
-	     */
-	    proto.trigger = alias('emitEvent');
-
-	    /**
-	     * Subtly different from emitEvent in that it will pass its arguments on to the listeners, as opposed to taking a single array of arguments to pass on.
-	     * As with emitEvent, you can pass a regex in place of the event name to emit to all events that match it.
-	     *
-	     * @param {String|RegExp} evt Name of the event to emit and execute listeners for.
-	     * @param {...*} Optional additional arguments to be passed to each listener.
-	     * @return {Object} Current instance of EventEmitter for chaining.
-	     */
-	    proto.emit = function emit(evt) {
-	        var args = Array.prototype.slice.call(arguments, 1);
-	        return this.emitEvent(evt, args);
-	    };
-
-	    /**
-	     * Sets the current value to check against when executing listeners. If a
-	     * listeners return value matches the one set here then it will be removed
-	     * after execution. This value defaults to true.
-	     *
-	     * @param {*} value The new value to check for when executing listeners.
-	     * @return {Object} Current instance of EventEmitter for chaining.
-	     */
-	    proto.setOnceReturnValue = function setOnceReturnValue(value) {
-	        this._onceReturnValue = value;
-	        return this;
-	    };
-
-	    /**
-	     * Fetches the current value to check against when executing listeners. If
-	     * the listeners return value matches this one then it should be removed
-	     * automatically. It will return true by default.
-	     *
-	     * @return {*|Boolean} The current value to check for or the default, true.
-	     * @api private
-	     */
-	    proto._getOnceReturnValue = function _getOnceReturnValue() {
-	        if (this.hasOwnProperty('_onceReturnValue')) {
-	            return this._onceReturnValue;
-	        }
-	        else {
-	            return true;
-	        }
-	    };
-
-	    /**
-	     * Fetches the events object and creates one if required.
-	     *
-	     * @return {Object} The events storage object.
-	     * @api private
-	     */
-	    proto._getEvents = function _getEvents() {
-	        return this._events || (this._events = {});
-	    };
-
-	    /**
-	     * Reverts the global {@link EventEmitter} to its previous value and returns a reference to this version.
-	     *
-	     * @return {Function} Non conflicting EventEmitter class.
-	     */
-	    EventEmitter.noConflict = function noConflict() {
-	        exports.EventEmitter = originalGlobalValue;
-	        return EventEmitter;
-	    };
-
-	    // Expose the class either via AMD, CommonJS or the global object
-	    if (true) {
-	        !(__WEBPACK_AMD_DEFINE_RESULT__ = function () {
-	            return EventEmitter;
-	        }.call(exports, __webpack_require__, exports, module), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
-	    }
-	    else if (typeof module === 'object' && module.exports){
-	        module.exports = EventEmitter;
-	    }
-	    else {
-	        exports.EventEmitter = EventEmitter;
-	    }
-	}.call(this));
-
-
-/***/ },
-/* 582 */
-/***/ function(module, exports) {
-
-	"use strict";
-
-	Object.defineProperty(exports, "__esModule", {
-	    value: true
-	});
-
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-	var Queue = function () {
-
-	    /*
-	    *   As the name implies, `consumer` is the (sole) consumer of the queue.
-	    *   It gets called with each element of the queue and its return value
-	    *   serves as a ack, determining whether the element is removed or not from
-	    *   the queue, allowing then subsequent elements to be processed.
-	    */
-
-	    function Queue(consumer) {
-	        _classCallCheck(this, Queue);
-
-	        this.consumer = consumer;
-	        this.queue = [];
-	    }
-
-	    _createClass(Queue, [{
-	        key: "push",
-	        value: function push(element) {
-	            this.queue.push(element);
-	            this.process();
-	        }
-	    }, {
-	        key: "process",
-	        value: function process() {
-	            if (this.queue.length !== 0) {
-	                var ack = this.consumer(this.queue[0]);
-	                if (ack) {
-	                    this.queue.shift();
-	                    this.process();
-	                }
-	            }
-	        }
-	    }, {
-	        key: "empty",
-	        value: function empty() {
-	            this.queue = [];
-	        }
-	    }]);
-
-	    return Queue;
-	}();
-
-	exports.default = Queue;
-
-/***/ },
-/* 583 */
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-
-	Object.defineProperty(exports, "__esModule", {
-	    value: true
-	});
-
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-	var _wolfy87Eventemitter = __webpack_require__(581);
-
-	var _wolfy87Eventemitter2 = _interopRequireDefault(_wolfy87Eventemitter);
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-	var Socket = function (_EventEmitter) {
-	    _inherits(Socket, _EventEmitter);
-
-	    function Socket(SocketConstructor, endpoint) {
-	        _classCallCheck(this, Socket);
-
-	        var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(Socket).call(this));
-
-	        _this.SocketConstructor = SocketConstructor;
-	        _this.endpoint = endpoint;
-	        _this.rawSocket = null;
-	        return _this;
-	    }
-
-	    _createClass(Socket, [{
-	        key: "send",
-	        value: function send(object) {
-	            var message = JSON.stringify(object);
-	            this.rawSocket.send(message);
-	            // Emit a copy of the object, as the listener might mutate it.
-	            this.emit("message:out", JSON.parse(message));
-	        }
-	    }, {
-	        key: "open",
-	        value: function open() {
-	            var _this2 = this;
-
-	            /*
-	            *   Makes `open` a no-op if there's already a `rawSocket`. This avoids
-	            *   memory / socket leaks if `open` is called twice (e.g. by a user
-	            *   calling `ddp.connect` twice) without properly disposing of the
-	            *   socket connection. `rawSocket` gets automatically set to `null` only
-	            *   when it goes into a closed or error state. This way `rawSocket` is
-	            *   disposed of correctly: the socket connection is closed, and the
-	            *   object can be garbage collected.
-	            */
-	            if (this.rawSocket) {
-	                return;
-	            }
-	            this.rawSocket = new this.SocketConstructor(this.endpoint);
-
-	            /*
-	            *   Calls to `onopen` and `onclose` directly trigger the `open` and
-	            *   `close` events on the `Socket` instance.
-	            */
-	            this.rawSocket.onopen = function () {
-	                return _this2.emit("open");
-	            };
-	            this.rawSocket.onclose = function () {
-	                _this2.rawSocket = null;
-	                _this2.emit("close");
-	            };
-	            /*
-	            *   Calls to `onerror` trigger the `close` event on the `Socket`
-	            *   instance, and cause the `rawSocket` object to be disposed of.
-	            *   Since it's not clear what conditions could cause the error and if
-	            *   it's possible to recover from it, we prefer to always close the
-	            *   connection (if it isn't already) and dispose of the socket object.
-	            */
-	            this.rawSocket.onerror = function () {
-	                // It's not clear what the socket lifecycle is when errors occurr.
-	                // Hence, to avoid the `close` event to be emitted twice, before
-	                // manually closing the socket we de-register the `onclose`
-	                // callback.
-	                delete _this2.rawSocket.onclose;
-	                // Safe to perform even if the socket is already closed
-	                _this2.rawSocket.close();
-	                _this2.rawSocket = null;
-	                _this2.emit("close");
-	            };
-	            /*
-	            *   Calls to `onmessage` trigger a `message:in` event on the `Socket`
-	            *   instance only once the message (first parameter to `onmessage`) has
-	            *   been successfully parsed into a javascript object.
-	            */
-	            this.rawSocket.onmessage = function (message) {
-	                var object;
-	                try {
-	                    object = JSON.parse(message.data);
-	                } catch (ignore) {
-	                    // Simply ignore the malformed message and return
-	                    return;
-	                }
-	                // Outside the try-catch block as it must only catch JSON parsing
-	                // errors, not errors that may occur inside a "message:in" event
-	                // handler
-	                _this2.emit("message:in", object);
-	            };
-	        }
-	    }, {
-	        key: "close",
-	        value: function close() {
-	            /*
-	            *   Avoid throwing an error if `rawSocket === null`
-	            */
-	            if (this.rawSocket) {
-	                this.rawSocket.close();
-	            }
-	        }
-	    }]);
-
-	    return Socket;
-	}(_wolfy87Eventemitter2.default);
-
-	exports.default = Socket;
-
-/***/ },
-/* 584 */
-/***/ function(module, exports) {
-
-	"use strict";
-
-	Object.defineProperty(exports, "__esModule", {
-	    value: true
-	});
-	exports.uniqueId = uniqueId;
-	exports.contains = contains;
-	var i = 0;
-	function uniqueId() {
-	    return (i++).toString();
-	}
-
-	function contains(array, element) {
-	    return array.indexOf(element) !== -1;
-	}
-
-/***/ },
-/* 585 */
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-
-	Object.defineProperty(exports, "__esModule", {
-	    value: true
-	});
-	exports.login = login;
-	exports.logout = logout;
-	exports.init = init;
-
-	var _loginMethod = __webpack_require__(586);
-
-	/*
-	*   Public methods
-	*/
-
-	function login(loginParameters) {
-	    return this.call("login", loginParameters).then(_loginMethod.onLogin.bind(this));
-	} /*
-	  *   Login mixin:
-	  *    - defines the `login` and `logout` methods
-	  *    - exposes the `userId` and `loggedIn` public properties
-	  */
-
-	function logout() {
-	    return this.call("logout").then(_loginMethod.onLogout.bind(this));
-	}
-
-	/*
-	*   Init method
-	*/
-
-	function init() {
-	    this.userId = null;
-	    this.loggedIn = false;
-	    this.ddp.on("connected", _loginMethod.resumeLogin.bind(this));
-	}
-
-/***/ },
-/* 586 */
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-
-	Object.defineProperty(exports, "__esModule", {
-	    value: true
-	});
-	exports.onLogin = onLogin;
-	exports.onLogout = onLogout;
-	exports.resumeLogin = resumeLogin;
-
-	var _multiStorage = __webpack_require__(587);
-
-	var multiStorage = _interopRequireWildcard(_multiStorage);
-
-	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
-
-	function onLogin(_ref) {
-	    var id = _ref.id;
-	    var token = _ref.token;
-
-	    this.userId = id;
-	    this.loggedIn = true;
-	    return multiStorage.set(this.endpoint + "__login_token__", token).then(this.emit.bind(this, "loggedIn", id)).then(function () {
-	        return id;
-	    });
-	}
-
-	function onLogout() {
-	    this.userId = null;
-	    this.loggedIn = false;
-	    return multiStorage.del(this.endpoint + "__login_token__").then(this.emit.bind(this, "loggedOut")).then(function () {
-	        return null;
-	    });
-	}
-
-	function resumeLogin() {
-	    return multiStorage.get(this.endpoint + "__login_token__").then(function (resume) {
-	        if (!resume) {
-	            throw new Error("No login token");
-	        }
-	        return { resume: resume };
-	    }).then(this.login.bind(this)).catch(onLogout.bind(this));
-	}
-
-/***/ },
 /* 587 */
-/***/ function(module, exports) {
-
-	"use strict";
-
-	Object.defineProperty(exports, "__esModule", {
-	    value: true
-	});
-	exports.get = get;
-	exports.set = set;
-	exports.del = del;
-
-	function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-
-	var genericStorage = {};
-
-	function get(key) {
-	    return new Promise(function (resolve, reject) {
-	        if (typeof chrome !== "undefined" && chrome.storage) {
-	            chrome.storage.local.get(key, function (data) {
-	                return resolve(data[key]);
-	            });
-	        } else if (typeof localStorage !== "undefined") {
-	            resolve(localStorage[key]);
-	        } else if (typeof AsyncStorage !== "undefined") {
-	            AsyncStorage.getItem(key, function (error, data) {
-	                if (error) {
-	                    reject(error);
-	                } else {
-	                    resolve(data);
-	                }
-	            });
-	        } else {
-	            resolve(genericStorage[key]);
-	        }
-	    });
-	}
-
-	function set(key, value) {
-	    return new Promise(function (resolve, reject) {
-	        if (typeof chrome !== "undefined" && chrome.storage) {
-	            var data = _defineProperty({}, key, value);
-	            chrome.storage.local.set(data, resolve);
-	        } else if (typeof localStorage !== "undefined") {
-	            localStorage[key] = value;
-	            resolve();
-	        } else if (typeof AsyncStorage !== "undefined") {
-	            AsyncStorage.setItem(key, value, function (error) {
-	                if (error) {
-	                    reject(error);
-	                } else {
-	                    resolve();
-	                }
-	            });
-	        } else {
-	            genericStorage[key] = value;
-	            resolve();
-	        }
-	    });
-	}
-
-	function del(key) {
-	    return new Promise(function (resolve, reject) {
-	        if (typeof chrome !== "undefined" && chrome.storage) {
-	            chrome.storage.local.remove(key, resolve);
-	        } else if (typeof localStorage !== "undefined") {
-	            delete localStorage[key];
-	            resolve();
-	        } else if (typeof AsyncStorage !== "undefined") {
-	            AsyncStorage.removeItem(key, function (error) {
-	                if (error) {
-	                    reject(error);
-	                } else {
-	                    resolve();
-	                }
-	            });
-	        } else {
-	            delete genericStorage[key];
-	            resolve();
-	        }
-	    });
-	}
-
-/***/ },
-/* 588 */
-/***/ function(module, exports) {
-
-	"use strict";
-
-	Object.defineProperty(exports, "__esModule", {
-	    value: true
-	});
-	exports.apply = apply;
-	exports.call = call;
-	exports.init = init;
-	/*
-	*   The methods mixin:
-	*   - defines the `apply` and `call` methods, used to send a ddp `method`
-	*     message to the server. In order to do so - due to the asynchronicity of
-	*     the ddp method call - it must maintain a cache (under the `methods.cache`
-	*     property of the Asteroid instance) of ddp method calls, which is then used
-	*     to match ddp `result` messages received from the server
-	*/
-
-	/*
-	*   Public methods
-	*/
-
-	function apply(method, params) {
-	    var _this = this;
-
-	    return new Promise(function (resolve, reject) {
-	        var id = _this.ddp.method(method, params);
-	        _this.methods.cache[id] = { resolve: resolve, reject: reject };
-	    });
-	}
-
-	function call(method) {
-	    for (var _len = arguments.length, params = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
-	        params[_key - 1] = arguments[_key];
-	    }
-
-	    return this.apply(method, params);
-	}
-
-	/*
-	*   Init method
-	*/
-
-	function init() {
-	    var _this2 = this;
-
-	    this.methods = {
-	        cache: {}
-	    };
-	    this.ddp.on("result", function (_ref) {
-	        var id = _ref.id;
-	        var error = _ref.error;
-	        var result = _ref.result;
-
-	        var method = _this2.methods.cache[id];
-	        if (error) {
-	            method.reject(error);
-	        } else {
-	            method.resolve(result);
-	        }
-	        delete _this2.methods.cache[id];
-	    });
-	}
-
-/***/ },
-/* 589 */
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-
-	Object.defineProperty(exports, "__esModule", {
-	    value: true
-	});
-	exports.createUser = createUser;
-	exports.loginWithPassword = loginWithPassword;
-
-	var _loginMethod = __webpack_require__(586);
-
-	/*
-	*   Public methods
-	*/
-
-	function createUser(_ref) {
-	    var username = _ref.username;
-	    var email = _ref.email;
-	    var password = _ref.password;
-
-	    var options = {
-	        password: password,
-	        user: {
-	            username: username,
-	            email: email
-	        }
-	    };
-	    return this.call("createUser", options).then(_loginMethod.onLogin.bind(this));
-	} /*
-	  *   The password-login mixin:
-	  *   - defines the `createUser` and `loginWithPassword` methods, porcelain for
-	  *     calling the `createUser` and `login` ddp methods
-	  */
-
-	function loginWithPassword(_ref2) {
-	    var username = _ref2.username;
-	    var email = _ref2.email;
-	    var password = _ref2.password;
-
-	    var loginParameters = {
-	        password: password,
-	        user: {
-	            username: username,
-	            email: email
-	        }
-	    };
-	    return this.call("login", loginParameters).then(_loginMethod.onLogin.bind(this));
-	}
-
-/***/ },
-/* 590 */
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-
-	Object.defineProperty(exports, "__esModule", {
-	    value: true
-	});
-	exports.subscribe = subscribe;
-	exports.unsubscribe = unsubscribe;
-	exports.init = init;
-
-	var _lodash = __webpack_require__(577);
-
-	var _lodash2 = _interopRequireDefault(_lodash);
-
-	var _wolfy87Eventemitter = __webpack_require__(578);
-
-	var _wolfy87Eventemitter2 = _interopRequireDefault(_wolfy87Eventemitter);
-
-	var _subscriptionCache = __webpack_require__(591);
-
-	var _subscriptionCache2 = _interopRequireDefault(_subscriptionCache);
-
-	var _fingerprintSub = __webpack_require__(592);
-
-	var _fingerprintSub2 = _interopRequireDefault(_fingerprintSub);
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-	/*
-	*   Private methods: they are invoked with the asteroid instance as context, but
-	*   they are not exported so they don't clutter the Asteroid class prototype.
-	*/
-
-	/*
-	*   The subscriptions mixin:
-	*   - defines the `subscribe` and `unsubscribe` methods, used to send ddp `sub`
-	*     and `unsub` messages to the server. In order to do so - due to the
-	*     asynchronicity of the ddp sub and unsub calls - it must maintain a cache
-	*     (under the `subscriptions.cache` property of the Asteroid instance) of ddp
-	*     subscriptions. The cache is then used to match ddp `ready` and `nosub`
-	*     messages received from the server, and to restart active subscriptions in
-	*     the event of a reconnection (since Meteor does not support resuming ddp
-	*     sessions, as of version 1.2.0.2)
-	*/
-
-	function restartSubscription(sub) {
-	    // Only restart the subscription if it isn't still in ddp's queue.
-	    if (!sub.stillInQueue) {
-	        // Handlers to ddp's connected event are invoked asynchronously (see
-	        // https://github.com/mondora/ddp.js/blob/master/src/ddp.js#L20).
-	        // Therefore there is a (very very small) chance that between the time
-	        // when the connected message is received and the time when the
-	        // connected handler is invoked, the ddp instance disconnected.
-	        // Therefore we update the stillInQueue status fo the subscription
-	        this.ddp.sub(sub.name, sub.params, sub.id);
-	        sub.stillInQueue = this.ddp.status !== "connected";
-	    } else {
-	        // Since we're restarting subscriptions after a connection, we know
-	        // that now the subscriptions which were in ddp's queue will be sent,
-	        // therefore we need to remove the stillInQueue flag from them
-	        sub.stillInQueue = false;
-	    }
-	}
-
-	/*
-	*   Public methods
-	*/
-
-	function subscribe(name) {
-	    for (var _len = arguments.length, params = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
-	        params[_key - 1] = arguments[_key];
-	    }
-
-	    var fingerprint = (0, _fingerprintSub2.default)(name, params);
-	    var sub = this.subscriptions.cache.get(fingerprint);
-	    if (!sub) {
-	        // If there is no cached subscription, subscribe
-	        var id = this.ddp.sub(name, params);
-	        // ddp.js enqueues messages to send if a connection has not yet been
-	        // established. Upon connection, when subscriptions are restarted, we
-	        // don't want to restart those subscriptions which had been made when
-	        // the connection had not yet been established, and therefore are still
-	        // in the queue. For this reason, we save ddp's connection status onto
-	        // the subscription object and we check it later to decide wether to
-	        // restart the subscription or not.
-	        var stillInQueue = this.ddp.status !== "connected";
-	        // Build the subscription object and save it in the cache
-	        sub = (0, _lodash2.default)(new _wolfy87Eventemitter2.default(), { fingerprint: fingerprint, id: id, name: name, params: params, stillInQueue: stillInQueue });
-	        this.subscriptions.cache.add(sub);
-	    }
-	    // Return the subscription object
-	    return sub;
-	}
-
-	function unsubscribe(id) {
-	    this.ddp.unsub(id);
-	}
-
-	/*
-	*   Init method
-	*/
-
-	function init() {
-	    var _this = this;
-
-	    this.subscriptions = {
-	        cache: new _subscriptionCache2.default()
-	    };
-	    this.ddp.on("ready", function (_ref) {
-	        var subs = _ref.subs;
-
-	        subs.forEach(function (id) {
-	            _this.subscriptions.cache.get(id).emit("ready");
-	        });
-	    }).on("nosub", function (_ref2) {
-	        var error = _ref2.error;
-	        var id = _ref2.id;
-
-	        if (error) {
-	            _this.subscriptions.cache.get(id).emit("error", error);
-	        }
-	        _this.subscriptions.cache.del(id);
-	    }).on("connected", function () {
-	        _this.subscriptions.cache.forEach(restartSubscription.bind(_this));
-	    });
-	}
-
-/***/ },
-/* 591 */
-/***/ function(module, exports) {
-
-	"use strict";
-
-	Object.defineProperty(exports, "__esModule", {
-	    value: true
-	});
-
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-	var SubscriptionCache = function () {
-	    function SubscriptionCache() {
-	        _classCallCheck(this, SubscriptionCache);
-
-	        this.byFingerprint = {};
-	        this.byId = {};
-	    }
-
-	    _createClass(SubscriptionCache, [{
-	        key: "add",
-	        value: function add(sub) {
-	            this.byFingerprint[sub.fingerprint] = sub;
-	            this.byId[sub.id] = sub;
-	        }
-	    }, {
-	        key: "get",
-	        value: function get(idOrFingerprint) {
-	            return this.byId[idOrFingerprint] || this.byFingerprint[idOrFingerprint] || null;
-	        }
-	    }, {
-	        key: "del",
-	        value: function del(idOrFingerprint) {
-	            var sub = this.get(idOrFingerprint) || {};
-	            delete this.byFingerprint[sub.fingerprint];
-	            delete this.byId[sub.id];
-	        }
-	    }, {
-	        key: "forEach",
-	        value: function forEach(iterator) {
-	            var _this = this;
-
-	            Object.keys(this.byId).forEach(function (id) {
-	                iterator(_this.byId[id]);
-	            });
-	        }
-	    }]);
-
-	    return SubscriptionCache;
-	}();
-
-	exports.default = SubscriptionCache;
-
-/***/ },
-/* 592 */
-/***/ function(module, exports) {
-
-	"use strict";
-
-	Object.defineProperty(exports, "__esModule", {
-	    value: true
-	});
-	exports.default = fingerprintSub;
-	function fingerprintSub(name, params) {
-	    return JSON.stringify({ name: name, params: params });
-	}
-
-/***/ },
-/* 593 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-	exports.changeConversation = exports.changeActiveConversation = exports.changeRoute = exports.toggle = undefined;
-
-	var _constants = __webpack_require__(428);
-
-	var toggle = exports.toggle = function toggle() {
-	  return {
-	    type: _constants.MESSENGER_TOGGLE
-	  };
-	};
-
-	var changeRoute = exports.changeRoute = function changeRoute(route) {
-	  return {
-	    type: _constants.CHANGE_ROUTE,
-	    route: route
-	  };
-	};
-
-	var changeActiveConversation = exports.changeActiveConversation = function changeActiveConversation(conversationId) {
-	  return {
-	    type: _constants.CHANGE_CONVERSATION,
-	    conversationId: conversationId
-	  };
-	};
-
-	var changeConversation = exports.changeConversation = function changeConversation(conversationId) {
-	  return function (dispatch) {
-	    dispatch(changeActiveConversation(conversationId));
-	  };
-	};
-
-/***/ },
-/* 594 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-
-	var _reactRedux = __webpack_require__(431);
-
-	var _messenger = __webpack_require__(593);
-
-	var _components = __webpack_require__(446);
-
-	var mapStateToProps = function mapStateToProps(state) {
-	  var isNewConversation = !state.activeConversation;
-
-	  return { isNewConversation: isNewConversation };
-	};
-
-	var mapDisptachToProps = function mapDisptachToProps(dispatch) {
-	  return {
-	    goToConversationList: function goToConversationList(e) {
-	      e.preventDefault();
-
-	      // reset current conversation
-	      dispatch((0, _messenger.changeConversation)(''));
-
-	      dispatch((0, _messenger.changeRoute)('conversationList'));
-	    }
-	  };
-	};
-
-	exports.default = (0, _reactRedux.connect)(mapStateToProps, mapDisptachToProps)(_components.Conversation);
-
-/***/ },
-/* 595 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-
-	var _reactRedux = __webpack_require__(431);
-
-	var _messenger = __webpack_require__(593);
-
-	var _components = __webpack_require__(446);
-
-	var mapStateToProps = function mapStateToProps(state) {
-	  return {
-	    notificationCount: Object.keys(state.notifications).reduce(function (sum, i) {
-	      return sum + state.notifications[i];
-	    }, 0),
-	    isMessengerVisible: state.isVisible
-	  };
-	};
-
-	var mapDisptachToProps = function mapDisptachToProps(dispatch) {
-	  return {
-	    onClick: function onClick() {
-	      dispatch((0, _messenger.changeConversation)(''));
-	      dispatch((0, _messenger.changeRoute)('conversationList'));
-	      dispatch((0, _messenger.toggle)());
-	    }
-	  };
-	};
-
-	exports.default = (0, _reactRedux.connect)(mapStateToProps, mapDisptachToProps)(_components.Launcher);
-
-/***/ },
-/* 596 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-
-	var _reactRedux = __webpack_require__(431);
-
-	var _messages = __webpack_require__(574);
-
-	var _components = __webpack_require__(446);
-
-	var mapStateToProps = function mapStateToProps(state) {
-	  return {
-	    isAttachingFile: state.isAttachingFile
-	  };
-	};
-
-	var mapDispatchToProps = function mapDispatchToProps(dispatch) {
-	  return {
-	    sendMessage: function sendMessage(message) {
-	      if (!message.trim()) {
-	        return;
-	      }
-
-	      dispatch((0, _messages.sendMessage)(message));
-	    },
-	    sendFile: function sendFile(file) {
-	      dispatch((0, _messages.sendFile)(file));
-	    }
-	  };
-	};
-
-	exports.default = (0, _reactRedux.connect)(mapStateToProps, mapDispatchToProps)(_components.MessageSender);
-
-/***/ },
-/* 597 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-
-	var _templateObject = _taggedTemplateLiteral(['\n    query ($conversationId: String!) {\n      messages(conversationId: $conversationId) {\n        _id\n        content\n        createdAt\n        attachments{\n          url\n          name\n          size\n          type\n        }\n      }\n    }\n  '], ['\n    query ($conversationId: String!) {\n      messages(conversationId: $conversationId) {\n        _id\n        content\n        createdAt\n        attachments{\n          url\n          name\n          size\n          type\n        }\n      }\n    }\n  ']);
-
-	var _graphqlTag = __webpack_require__(572);
-
-	var _graphqlTag2 = _interopRequireDefault(_graphqlTag);
-
-	var _reactRedux = __webpack_require__(431);
-
-	var _reactApollo = __webpack_require__(417);
-
-	var _components = __webpack_require__(446);
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-	function _taggedTemplateLiteral(strings, raw) { return Object.freeze(Object.defineProperties(strings, { raw: { value: Object.freeze(raw) } })); }
-
-	var mapStateToProps = function mapStateToProps(state) {
-	  return {
-	    conversationId: state.activeConversation
-	  };
-	};
-
-	var withData = (0, _reactApollo.graphql)((0, _graphqlTag2.default)(_templateObject), {
-	  options: function options(ownProps) {
-	    return {
-	      pollInterval: 1000,
-	      variables: { conversationId: ownProps.conversationId }
-	    };
-	  }
-	});
-
-	var ListWithData = withData(_components.MessagesList);
-
-	exports.default = (0, _reactRedux.connect)(mapStateToProps)(ListWithData);
-
-/***/ },
-/* 598 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-
-	var _reactRedux = __webpack_require__(431);
-
-	var _components = __webpack_require__(446);
-
-	var mapStateToProps = function mapStateToProps(_ref, ownProps) {
-	  var users = _ref.users;
-	  return {
-	    user: users.find(function (u) {
-	      return u._id === ownProps.id;
-	    })
-	  };
-	};
-
-	exports.default = (0, _reactRedux.connect)(mapStateToProps)(_components.User);
-
-/***/ },
-/* 599 */
-/***/ function(module, exports, __webpack_require__) {
-
-	// style-loader: Adds some css to the DOM by adding a <style> tag
-
-	// load the styles
-	var content = __webpack_require__(600);
-	if(typeof content === 'string') content = [[module.id, content, '']];
-	// add the styles to the DOM
-	var update = __webpack_require__(602)(content, {});
-	if(content.locals) module.exports = content.locals;
-	// Hot Module Replacement
-	if(false) {
-		// When the styles change, update the <style> tags
-		if(!content.locals) {
-			module.hot.accept("!!./../../node_modules/css-loader/index.js!./../../node_modules/sass-loader/index.js!./style.scss", function() {
-				var newContent = require("!!./../../node_modules/css-loader/index.js!./../../node_modules/sass-loader/index.js!./style.scss");
-				if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
-				update(newContent);
-			});
-		}
-		// When the module is disposed, remove the <style> tags
-		module.hot.dispose(function() { update(); });
-	}
-
-/***/ },
-/* 600 */
-/***/ function(module, exports, __webpack_require__) {
-
-	exports = module.exports = __webpack_require__(601)();
-	// imports
-	exports.push([module.id, "@import url(https://fonts.googleapis.com/css?family=Roboto:300,400&subset=cyrillic-ext);", ""]);
-
-	// module
-	exports.push([module.id, ".erxes-widget {\n  margin: 0;\n  font-family: 'Roboto', Helvetica, Arial, sans-serif;\n  font-size: 14px;\n  line-height: 1.5;\n  -webkit-font-smoothing: antialiased;\n  -moz-osx-font-smoothing: grayscale; }\n\n.erxes-launcher {\n  color: #fff;\n  line-height: 56px;\n  text-align: center;\n  border-radius: 28px;\n  width: 56px;\n  height: 56px;\n  cursor: pointer;\n  position: fixed;\n  bottom: 30px;\n  right: 30px;\n  z-index: 999999;\n  box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1);\n  background: #7754b3 url(\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACgAAAAoCAYAAACM/rhtAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyNpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuNS1jMDE0IDc5LjE1MTQ4MSwgMjAxMy8wMy8xMy0xMjowOToxNSAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENDIChNYWNpbnRvc2gpIiB4bXBNTTpJbnN0YW5jZUlEPSJ4bXAuaWlkOjE4RTFGN0RBOThGMzExRTY4MTlDQzI2M0M5MDJCODE2IiB4bXBNTTpEb2N1bWVudElEPSJ4bXAuZGlkOjE4RTFGN0RCOThGMzExRTY4MTlDQzI2M0M5MDJCODE2Ij4gPHhtcE1NOkRlcml2ZWRGcm9tIHN0UmVmOmluc3RhbmNlSUQ9InhtcC5paWQ6MzQ2NDM2N0Y5OEVFMTFFNjgxOUNDMjYzQzkwMkI4MTYiIHN0UmVmOmRvY3VtZW50SUQ9InhtcC5kaWQ6MzQ2NDM2ODA5OEVFMTFFNjgxOUNDMjYzQzkwMkI4MTYiLz4gPC9yZGY6RGVzY3JpcHRpb24+IDwvcmRmOlJERj4gPC94OnhtcG1ldGE+IDw/eHBhY2tldCBlbmQ9InIiPz7dFbt2AAABlklEQVR42uzYvUsDMQCH4Tvt4AcIikXESaHoUhDdRRwcHKSoqwiKg9C5FCf/Bgcdis6COIiDuAs61IKDjoIIiqAOflFBPd9AwBtqvV5CLkMCDxx3afojl0ty5wdB4NlcmjzLiwvoArqAFgbsbqRyynC4DKq29mA7xnBja8A17No6BpdxiedGf6gyBntwH6HeMOYxbvopfsXsP3U6sIMCvk0HfEMnpurUKeFUilfEdktBCifI1ri2ghf0qfyHakAhhyukQ+dGUEVRtX1f04b1WD5wYp5rRQVfyOJDpWFdK0lBhtyWAQeQUw2nYwyG7QW/5UhXu77Gd5JRlEPHFdt2M3Oh40ldjerqwUGc4w6fSMtx+GRLD66L4Sx7cVqeK2ppWcNAnpEPxlLo3ISOSVrHRN2Ga2z9sZKUVAOq3uJVPCBf49qm3F4NJXWLM7hFf506zVhIah48wAYOI2y5xJP9bnKpE8vYWYRwXpxdtGrAFjkR5028K8S5xYvYx6ONAXvRhQtbvywEJsPpXIvdxyMX0AVMqvwIMAAEaSQ4y2c8jAAAAABJRU5ErkJggg==\") center no-repeat; }\n  .erxes-launcher span {\n    position: absolute;\n    width: 20px;\n    height: 20px;\n    background: #f74040;\n    display: block;\n    right: -2px;\n    top: -5px;\n    color: #fff;\n    border-radius: 10px;\n    text-align: center;\n    line-height: 20px;\n    font-size: 10px; }\n\n.erxes-messenger {\n  position: fixed;\n  right: 30px;\n  width: 370px;\n  background: #fff;\n  box-shadow: 0 5px 15px -3px rgba(0, 0, 0, 0.15);\n  z-index: 999999999;\n  display: flex;\n  flex-direction: column;\n  height: calc(100% - 95px - 30px);\n  bottom: 100px;\n  max-height: 620px;\n  border-radius: 4px;\n  overflow: hidden; }\n\n.erxes-topbar {\n  background: #7754b3;\n  overflow: hidden;\n  width: 100%;\n  height: 70px;\n  text-align: center;\n  flex-shrink: 0;\n  color: #fff;\n  border-top-left-radius: 4px;\n  border-top-right-radius: 4px; }\n  .erxes-topbar .topbar-button.left {\n    left: 15px; }\n  .erxes-topbar .topbar-button.right {\n    right: 15px; }\n  .erxes-topbar .erxes-middle {\n    display: inline-block; }\n\n.topbar-button {\n  position: absolute;\n  top: 15px;\n  text-align: center;\n  cursor: pointer;\n  width: 40px;\n  height: 40px;\n  line-height: 40px;\n  border-radius: 4px;\n  display: block;\n  -webkit-transition: background 0.3s ease-in-out;\n  -moz-transition: background 0.3s ease-in-out;\n  -ms-transition: background 0.3s ease-in-out;\n  -o-transition: background 0.3s ease-in-out;\n  transition: background 0.3s ease-in-out; }\n  .topbar-button.new {\n    background: url(\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA0AAAAOCAYAAAD0f5bSAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyNpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuNS1jMDE0IDc5LjE1MTQ4MSwgMjAxMy8wMy8xMy0xMjowOToxNSAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENDIChNYWNpbnRvc2gpIiB4bXBNTTpJbnN0YW5jZUlEPSJ4bXAuaWlkOjJBMzcyNUVGQTI2NjExRTZBNzNEOTJCRENBMzY3OTBDIiB4bXBNTTpEb2N1bWVudElEPSJ4bXAuZGlkOjJBMzcyNUYwQTI2NjExRTZBNzNEOTJCRENBMzY3OTBDIj4gPHhtcE1NOkRlcml2ZWRGcm9tIHN0UmVmOmluc3RhbmNlSUQ9InhtcC5paWQ6MkEzNzI1RURBMjY2MTFFNkE3M0Q5MkJEQ0EzNjc5MEMiIHN0UmVmOmRvY3VtZW50SUQ9InhtcC5kaWQ6MkEzNzI1RUVBMjY2MTFFNkE3M0Q5MkJEQ0EzNjc5MEMiLz4gPC9yZGY6RGVzY3JpcHRpb24+IDwvcmRmOlJERj4gPC94OnhtcG1ldGE+IDw/eHBhY2tldCBlbmQ9InIiPz4x/YBAAAAAZElEQVR42mL4//8/AxYsCMS7gTgNmzwLA27gAsT3sEkwMZAB6KcJ5CclIDZGExeE0iC5UAxdwNAo/08iYARiXDbNBOI9QDwLm0244gkEZmKTH+RBjk8TKBDOYpMAhR7JNgEEGADdRo/BguL5MwAAAABJRU5ErkJggg==\") no-repeat 50%; }\n  .topbar-button.back {\n    background: url(\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAkAAAAOCAYAAAD9lDaoAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyNpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuNS1jMDE0IDc5LjE1MTQ4MSwgMjAxMy8wMy8xMy0xMjowOToxNSAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENDIChNYWNpbnRvc2gpIiB4bXBNTTpJbnN0YW5jZUlEPSJ4bXAuaWlkOjE4RTFGN0UyOThGMzExRTY4MTlDQzI2M0M5MDJCODE2IiB4bXBNTTpEb2N1bWVudElEPSJ4bXAuZGlkOjE4RTFGN0UzOThGMzExRTY4MTlDQzI2M0M5MDJCODE2Ij4gPHhtcE1NOkRlcml2ZWRGcm9tIHN0UmVmOmluc3RhbmNlSUQ9InhtcC5paWQ6MThFMUY3RTA5OEYzMTFFNjgxOUNDMjYzQzkwMkI4MTYiIHN0UmVmOmRvY3VtZW50SUQ9InhtcC5kaWQ6MThFMUY3RTE5OEYzMTFFNjgxOUNDMjYzQzkwMkI4MTYiLz4gPC9yZGY6RGVzY3JpcHRpb24+IDwvcmRmOlJERj4gPC94OnhtcG1ldGE+IDw/eHBhY2tldCBlbmQ9InIiPz7KIAflAAAAYUlEQVR42mL6//8/Aw48E4hXgdgsDNhBBxCnQdlK2Ezo+I8AoSAxdAXlSArSYOLICtKwKUBWhKygHN0JDFB7YaADm0+ZGIgBxFpHtMOJDgKiAxObQiVccVcBxIJQfA8gwACtvUf35pIKuQAAAABJRU5ErkJggg==\") no-repeat 50%; }\n  .topbar-button:hover {\n    background-color: rgba(0, 0, 0, 0.2); }\n\n.erxes-staff-profile {\n  margin-top: 15px;\n  text-align: left;\n  line-height: 1.3em; }\n  .erxes-staff-profile img {\n    float: left;\n    width: 40px;\n    height: 40px;\n    border-radius: 20px;\n    overflow: hidden; }\n  .erxes-staff-profile > div {\n    margin-left: 50px; }\n  .erxes-staff-profile .erxes-staff-name {\n    font-size: 15px;\n    font-weight: 600;\n    padding-top: 3px; }\n  .erxes-staff-profile .erxes-staff-company {\n    font-size: 14px;\n    font-weight: 300; }\n\n.erxes-topbar-title {\n  font-size: 15px;\n  font-weight: 600;\n  line-height: 1.2em;\n  margin-top: 18px; }\n  .erxes-topbar-title span {\n    font-size: 14px;\n    font-weight: 300; }\n\n.erxes-conversation-list {\n  list-style: none;\n  margin: 0;\n  padding: 0;\n  overflow-y: auto; }\n\n.erxes-conversation-item {\n  position: relative;\n  overflow: hidden;\n  -webkit-transition: background 0.3s ease-in-out;\n  -moz-transition: background 0.3s ease-in-out;\n  -ms-transition: background 0.3s ease-in-out;\n  -o-transition: background 0.3s ease-in-out;\n  transition: background 0.3s ease-in-out; }\n  .erxes-conversation-item:hover {\n    cursor: pointer;\n    background: rgba(0, 0, 0, 0.01); }\n  .erxes-conversation-item.unread .erxes-message {\n    font-weight: 600;\n    color: #000; }\n  .erxes-conversation-item .erxes-list-avatar {\n    width: 40px;\n    height: 40px;\n    border-radius: 20px;\n    float: left;\n    margin: 25px 15px 25px 20px; }\n  .erxes-conversation-item .erxes-right-side {\n    padding: 25px 20px 25px 0;\n    margin-left: 75px;\n    border-bottom: 1px solid #f5f4f6; }\n  .erxes-conversation-item .erxes-name {\n    font-weight: 400; }\n  .erxes-conversation-item .erxes-last-message {\n    color: #686868;\n    overflow: hidden;\n    text-overflow: ellipsis;\n    white-space: nowrap; }\n  .erxes-conversation-item .erxes-date {\n    float: right;\n    color: #888;\n    font-size: 12px; }\n\n.erxes-messages-list {\n  background-color: #faf9fb;\n  overflow: auto;\n  padding: 20px;\n  margin: 0;\n  flex: 1; }\n  .erxes-messages-list li {\n    list-style: none;\n    position: relative;\n    overflow: hidden;\n    margin-bottom: 10px; }\n    .erxes-messages-list li.from-customer {\n      text-align: right; }\n    .erxes-messages-list li .date {\n      font-size: 11px;\n      color: #686868;\n      margin-left: 50px; }\n\n.erxes-message {\n  padding: 12px 15px;\n  background-color: #f5f4f6;\n  border-radius: 4px;\n  position: relative;\n  margin: 0 20px 5px 50px;\n  display: inline-block;\n  word-wrap: break-word;\n  color: #686868;\n  text-align: left; }\n  .erxes-message.from-customer {\n    margin: 0 0 5px 20px;\n    background-color: #7754b3;\n    color: #fff;\n    text-align: right; }\n    .erxes-message.from-customer .file-wrapper {\n      border-color: #f5f4f6; }\n  .erxes-message.attachment {\n    padding: 0;\n    background: none;\n    border: 0; }\n  .erxes-message p {\n    margin-top: 0; }\n  .erxes-message img {\n    max-width: 240px;\n    border-radius: 4px;\n    background: white;\n    min-width: 60px;\n    min-height: 30px; }\n\n.file-wrapper {\n  position: relative;\n  padding: 16px 20px;\n  border: 1px solid transparent;\n  border-radius: 4px;\n  padding-left: 40px;\n  color: #686868;\n  background: white;\n  -webkit-transition: border 0.3s ease-in-out;\n  -moz-transition: border 0.3s ease-in-out;\n  -ms-transition: border 0.3s ease-in-out;\n  -o-transition: border 0.3s ease-in-out;\n  transition: border 0.3s ease-in-out; }\n  .file-wrapper i {\n    width: 30px;\n    height: 30px;\n    position: absolute;\n    left: 10px;\n    top: 12px;\n    line-height: 30px;\n    color: #686868;\n    background-image: url(\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAeCAYAAAA7MK6iAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyNpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuNS1jMDE0IDc5LjE1MTQ4MSwgMjAxMy8wMy8xMy0xMjowOToxNSAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENDIChNYWNpbnRvc2gpIiB4bXBNTTpJbnN0YW5jZUlEPSJ4bXAuaWlkOjM0NjQzNjdEOThFRTExRTY4MTlDQzI2M0M5MDJCODE2IiB4bXBNTTpEb2N1bWVudElEPSJ4bXAuZGlkOjM0NjQzNjdFOThFRTExRTY4MTlDQzI2M0M5MDJCODE2Ij4gPHhtcE1NOkRlcml2ZWRGcm9tIHN0UmVmOmluc3RhbmNlSUQ9InhtcC5paWQ6MzQ2NDM2N0I5OEVFMTFFNjgxOUNDMjYzQzkwMkI4MTYiIHN0UmVmOmRvY3VtZW50SUQ9InhtcC5kaWQ6MzQ2NDM2N0M5OEVFMTFFNjgxOUNDMjYzQzkwMkI4MTYiLz4gPC9yZGY6RGVzY3JpcHRpb24+IDwvcmRmOlJERj4gPC94OnhtcG1ldGE+IDw/eHBhY2tldCBlbmQ9InIiPz5jGkrfAAAAs0lEQVR42mL8//8/w0AAJoYBAqMWD3+LWUjV0NnZCaKMgdgFiPcA8VmYXHl5OU19nAbEq4BYEEqH0sXHII8BcQUQrwbie1D+anrEsRKSRauh/AFNXKH0svguWih00MtiwdECZNTiYWcxLFW/p5fF76GWnoUWl/fIyVrkWHwPWlGkQy2sgJZaZ2ldSYAsmgn1eSfUUpBDXGnt4z1Qy0GWnYFaHEaqjxlHm7ejFo9aTC0AEGAAUrAjbAYD+CYAAAAASUVORK5CYII=\");\n    background-position: 0 0;\n    background-repeat: no-repeat; }\n  .file-wrapper span {\n    white-space: nowrap;\n    text-overflow: ellipsis;\n    overflow: hidden;\n    direction: rtl;\n    text-align: left;\n    max-width: 140px;\n    display: block; }\n  .file-wrapper:hover {\n    border-color: #f5f4f6; }\n\n.download-attachment {\n  display: block;\n  text-decoration: none; }\n  .download-attachment img {\n    -webkit-transition: opacity 0.3s ease-in-out;\n    -moz-transition: opacity 0.3s ease-in-out;\n    -ms-transition: opacity 0.3s ease-in-out;\n    -o-transition: opacity 0.3s ease-in-out;\n    transition: opacity 0.3s ease-in-out; }\n    .download-attachment img:hover {\n      opacity: 0.8; }\n\n.erxes-avatar {\n  width: 40px;\n  height: 40px;\n  border-radius: 50%;\n  overflow: hidden;\n  position: absolute;\n  left: 0;\n  bottom: 20px; }\n  .erxes-avatar img {\n    width: 100%;\n    height: 100%; }\n\n.btn-resend {\n  background: #fff;\n  outline: 0;\n  border: 0;\n  border-radius: 4px;\n  color: #686868;\n  padding: 5px 15px;\n  margin-top: 5px;\n  cursor: pointer; }\n  .btn-resend:focus, .btn-resend:hover {\n    background: white; }\n\n.erxes-message-sender {\n  overflow: hidden;\n  font-size: 12px;\n  position: relative;\n  min-height: 60px;\n  border-top: 1px solid white; }\n  .erxes-message-sender textarea.reply {\n    color: #686868;\n    border: 0;\n    border-radius: 3px;\n    padding: 20px 25px;\n    font-size: 14px;\n    width: 100%;\n    max-width: 100%;\n    outline: none;\n    resize: none;\n    padding-right: 40px;\n    position: absolute;\n    left: 0;\n    top: 0;\n    height: 100%; }\n    .erxes-message-sender textarea.reply:focus {\n      -webkit-box-shadow: none !important;\n      -moz-box-shadow: none !important;\n      -ms-box-shadow: none !important;\n      -o-box-shadow: none !important;\n      box-shadow: none !important; }\n  .erxes-message-sender .btn-attach {\n    position: absolute;\n    right: 15px;\n    top: 13px;\n    background-image: url(\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAeCAYAAAA7MK6iAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyNpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuNS1jMDE0IDc5LjE1MTQ4MSwgMjAxMy8wMy8xMy0xMjowOToxNSAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENDIChNYWNpbnRvc2gpIiB4bXBNTTpJbnN0YW5jZUlEPSJ4bXAuaWlkOjM0NjQzNjdEOThFRTExRTY4MTlDQzI2M0M5MDJCODE2IiB4bXBNTTpEb2N1bWVudElEPSJ4bXAuZGlkOjM0NjQzNjdFOThFRTExRTY4MTlDQzI2M0M5MDJCODE2Ij4gPHhtcE1NOkRlcml2ZWRGcm9tIHN0UmVmOmluc3RhbmNlSUQ9InhtcC5paWQ6MzQ2NDM2N0I5OEVFMTFFNjgxOUNDMjYzQzkwMkI4MTYiIHN0UmVmOmRvY3VtZW50SUQ9InhtcC5kaWQ6MzQ2NDM2N0M5OEVFMTFFNjgxOUNDMjYzQzkwMkI4MTYiLz4gPC9yZGY6RGVzY3JpcHRpb24+IDwvcmRmOlJERj4gPC94OnhtcG1ldGE+IDw/eHBhY2tldCBlbmQ9InIiPz5jGkrfAAAAs0lEQVR42mL8//8/w0AAJoYBAqMWD3+LWUjV0NnZCaKMgdgFiPcA8VmYXHl5OU19nAbEq4BYEEqH0sXHII8BcQUQrwbie1D+anrEsRKSRauh/AFNXKH0svguWih00MtiwdECZNTiYWcxLFW/p5fF76GWnoUWl/fIyVrkWHwPWlGkQy2sgJZaZ2ldSYAsmgn1eSfUUpBDXGnt4z1Qy0GWnYFaHEaqjxlHm7ejFo9aTC0AEGAAUrAjbAYD+CYAAAAASUVORK5CYII=\");\n    background-position: 2px 3px;\n    background-repeat: no-repeat;\n    width: 35px;\n    height: 35px;\n    margin: 0;\n    cursor: pointer;\n    opacity: 0.7; }\n    .erxes-message-sender .btn-attach:hover {\n      opacity: 1; }\n    .erxes-message-sender .btn-attach input[type=\"file\"] {\n      display: none; }\n  .erxes-message-sender .loader {\n    position: absolute;\n    right: 23px;\n    top: 20px;\n    border: 2px solid #f5f4f6;\n    -webkit-animation: spin 1s linear infinite;\n    -moz-animation: spin 1s linear infinite;\n    -ms-animation: spin 1s linear infinite;\n    -o-animation: spin 1s linear infinite;\n    animation: spin 1s linear infinite;\n    border-top: 2px solid #dcd8df;\n    border-radius: 50%;\n    width: 20px;\n    height: 20px; }\n\n@keyframes spin {\n  0% {\n    transform: rotate(0deg); }\n  100% {\n    transform: rotate(360deg); } }\n\n@-webkit-keyframes spin {\n  0% {\n    transform: rotate(0deg); }\n  100% {\n    transform: rotate(360deg); } }\n", ""]);
-
-	// exports
-
-
-/***/ },
-/* 601 */
-/***/ function(module, exports) {
-
-	/*
-		MIT License http://www.opensource.org/licenses/mit-license.php
-		Author Tobias Koppers @sokra
-	*/
-	// css base code, injected by the css-loader
-	module.exports = function() {
-		var list = [];
-
-		// return the list of modules as css string
-		list.toString = function toString() {
-			var result = [];
-			for(var i = 0; i < this.length; i++) {
-				var item = this[i];
-				if(item[2]) {
-					result.push("@media " + item[2] + "{" + item[1] + "}");
-				} else {
-					result.push(item[1]);
-				}
-			}
-			return result.join("");
-		};
-
-		// import a list of modules into the list
-		list.i = function(modules, mediaQuery) {
-			if(typeof modules === "string")
-				modules = [[null, modules, ""]];
-			var alreadyImportedModules = {};
-			for(var i = 0; i < this.length; i++) {
-				var id = this[i][0];
-				if(typeof id === "number")
-					alreadyImportedModules[id] = true;
-			}
-			for(i = 0; i < modules.length; i++) {
-				var item = modules[i];
-				// skip already imported module
-				// this implementation is not 100% perfect for weird media query combinations
-				//  when a module is imported multiple times with different media queries.
-				//  I hope this will never occur (Hey this way we have smaller bundles)
-				if(typeof item[0] !== "number" || !alreadyImportedModules[item[0]]) {
-					if(mediaQuery && !item[2]) {
-						item[2] = mediaQuery;
-					} else if(mediaQuery) {
-						item[2] = "(" + item[2] + ") and (" + mediaQuery + ")";
-					}
-					list.push(item);
-				}
-			}
-		};
-		return list;
-	};
-
-
-/***/ },
-/* 602 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/*
-		MIT License http://www.opensource.org/licenses/mit-license.php
-		Author Tobias Koppers @sokra
-	*/
-	var stylesInDom = {},
-		memoize = function(fn) {
-			var memo;
-			return function () {
-				if (typeof memo === "undefined") memo = fn.apply(this, arguments);
-				return memo;
-			};
-		},
-		isOldIE = memoize(function() {
-			return /msie [6-9]\b/.test(window.navigator.userAgent.toLowerCase());
-		}),
-		getHeadElement = memoize(function () {
-			return document.head || document.getElementsByTagName("head")[0];
-		}),
-		singletonElement = null,
-		singletonCounter = 0,
-		styleElementsInsertedAtTop = [];
-
-	module.exports = function(list, options) {
-		if(false) {
-			if(typeof document !== "object") throw new Error("The style-loader cannot be used in a non-browser environment");
-		}
-
-		options = options || {};
-		// Force single-tag solution on IE6-9, which has a hard limit on the # of <style>
-		// tags it will allow on a page
-		if (typeof options.singleton === "undefined") options.singleton = isOldIE();
-
-		// By default, add <style> tags to the bottom of <head>.
-		if (typeof options.insertAt === "undefined") options.insertAt = "bottom";
-
-		var styles = listToStyles(list);
-		addStylesToDom(styles, options);
-
-		return function update(newList) {
-			var mayRemove = [];
-			for(var i = 0; i < styles.length; i++) {
-				var item = styles[i];
-				var domStyle = stylesInDom[item.id];
-				domStyle.refs--;
-				mayRemove.push(domStyle);
-			}
-			if(newList) {
-				var newStyles = listToStyles(newList);
-				addStylesToDom(newStyles, options);
-			}
-			for(var i = 0; i < mayRemove.length; i++) {
-				var domStyle = mayRemove[i];
-				if(domStyle.refs === 0) {
-					for(var j = 0; j < domStyle.parts.length; j++)
-						domStyle.parts[j]();
-					delete stylesInDom[domStyle.id];
-				}
-			}
-		};
-	}
-
-	function addStylesToDom(styles, options) {
-		for(var i = 0; i < styles.length; i++) {
-			var item = styles[i];
-			var domStyle = stylesInDom[item.id];
-			if(domStyle) {
-				domStyle.refs++;
-				for(var j = 0; j < domStyle.parts.length; j++) {
-					domStyle.parts[j](item.parts[j]);
-				}
-				for(; j < item.parts.length; j++) {
-					domStyle.parts.push(addStyle(item.parts[j], options));
-				}
-			} else {
-				var parts = [];
-				for(var j = 0; j < item.parts.length; j++) {
-					parts.push(addStyle(item.parts[j], options));
-				}
-				stylesInDom[item.id] = {id: item.id, refs: 1, parts: parts};
-			}
-		}
-	}
-
-	function listToStyles(list) {
-		var styles = [];
-		var newStyles = {};
-		for(var i = 0; i < list.length; i++) {
-			var item = list[i];
-			var id = item[0];
-			var css = item[1];
-			var media = item[2];
-			var sourceMap = item[3];
-			var part = {css: css, media: media, sourceMap: sourceMap};
-			if(!newStyles[id])
-				styles.push(newStyles[id] = {id: id, parts: [part]});
-			else
-				newStyles[id].parts.push(part);
-		}
-		return styles;
-	}
-
-	function insertStyleElement(options, styleElement) {
-		var head = getHeadElement();
-		var lastStyleElementInsertedAtTop = styleElementsInsertedAtTop[styleElementsInsertedAtTop.length - 1];
-		if (options.insertAt === "top") {
-			if(!lastStyleElementInsertedAtTop) {
-				head.insertBefore(styleElement, head.firstChild);
-			} else if(lastStyleElementInsertedAtTop.nextSibling) {
-				head.insertBefore(styleElement, lastStyleElementInsertedAtTop.nextSibling);
-			} else {
-				head.appendChild(styleElement);
-			}
-			styleElementsInsertedAtTop.push(styleElement);
-		} else if (options.insertAt === "bottom") {
-			head.appendChild(styleElement);
-		} else {
-			throw new Error("Invalid value for parameter 'insertAt'. Must be 'top' or 'bottom'.");
-		}
-	}
-
-	function removeStyleElement(styleElement) {
-		styleElement.parentNode.removeChild(styleElement);
-		var idx = styleElementsInsertedAtTop.indexOf(styleElement);
-		if(idx >= 0) {
-			styleElementsInsertedAtTop.splice(idx, 1);
-		}
-	}
-
-	function createStyleElement(options) {
-		var styleElement = document.createElement("style");
-		styleElement.type = "text/css";
-		insertStyleElement(options, styleElement);
-		return styleElement;
-	}
-
-	function createLinkElement(options) {
-		var linkElement = document.createElement("link");
-		linkElement.rel = "stylesheet";
-		insertStyleElement(options, linkElement);
-		return linkElement;
-	}
-
-	function addStyle(obj, options) {
-		var styleElement, update, remove;
-
-		if (options.singleton) {
-			var styleIndex = singletonCounter++;
-			styleElement = singletonElement || (singletonElement = createStyleElement(options));
-			update = applyToSingletonTag.bind(null, styleElement, styleIndex, false);
-			remove = applyToSingletonTag.bind(null, styleElement, styleIndex, true);
-		} else if(obj.sourceMap &&
-			typeof URL === "function" &&
-			typeof URL.createObjectURL === "function" &&
-			typeof URL.revokeObjectURL === "function" &&
-			typeof Blob === "function" &&
-			typeof btoa === "function") {
-			styleElement = createLinkElement(options);
-			update = updateLink.bind(null, styleElement);
-			remove = function() {
-				removeStyleElement(styleElement);
-				if(styleElement.href)
-					URL.revokeObjectURL(styleElement.href);
-			};
-		} else {
-			styleElement = createStyleElement(options);
-			update = applyToTag.bind(null, styleElement);
-			remove = function() {
-				removeStyleElement(styleElement);
-			};
-		}
-
-		update(obj);
-
-		return function updateStyle(newObj) {
-			if(newObj) {
-				if(newObj.css === obj.css && newObj.media === obj.media && newObj.sourceMap === obj.sourceMap)
-					return;
-				update(obj = newObj);
-			} else {
-				remove();
-			}
-		};
-	}
-
-	var replaceText = (function () {
-		var textStore = [];
-
-		return function (index, replacement) {
-			textStore[index] = replacement;
-			return textStore.filter(Boolean).join('\n');
-		};
-	})();
-
-	function applyToSingletonTag(styleElement, index, remove, obj) {
-		var css = remove ? "" : obj.css;
-
-		if (styleElement.styleSheet) {
-			styleElement.styleSheet.cssText = replaceText(index, css);
-		} else {
-			var cssNode = document.createTextNode(css);
-			var childNodes = styleElement.childNodes;
-			if (childNodes[index]) styleElement.removeChild(childNodes[index]);
-			if (childNodes.length) {
-				styleElement.insertBefore(cssNode, childNodes[index]);
-			} else {
-				styleElement.appendChild(cssNode);
-			}
-		}
-	}
-
-	function applyToTag(styleElement, obj) {
-		var css = obj.css;
-		var media = obj.media;
-
-		if(media) {
-			styleElement.setAttribute("media", media)
-		}
-
-		if(styleElement.styleSheet) {
-			styleElement.styleSheet.cssText = css;
-		} else {
-			while(styleElement.firstChild) {
-				styleElement.removeChild(styleElement.firstChild);
-			}
-			styleElement.appendChild(document.createTextNode(css));
-		}
-	}
-
-	function updateLink(linkElement, obj) {
-		var css = obj.css;
-		var sourceMap = obj.sourceMap;
-
-		if(sourceMap) {
-			// http://stackoverflow.com/a/26603875
-			css += "\n/*# sourceMappingURL=data:application/json;base64," + btoa(unescape(encodeURIComponent(JSON.stringify(sourceMap)))) + " */";
-		}
-
-		var blob = new Blob([css], { type: "text/css" });
-
-		var oldSrc = linkElement.href;
-
-		linkElement.href = URL.createObjectURL(blob);
-
-		if(oldSrc)
-			URL.revokeObjectURL(oldSrc);
-	}
-
-
-/***/ },
-/* 603 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var EJSON = exports; // Global!
 	var customTypes = {};
-	var _ = __webpack_require__(604);
+	var _ = __webpack_require__(588);
 
 	// Base 64 encoding
 
@@ -58849,7 +56409,7 @@
 
 
 /***/ },
-/* 604 */
+/* 588 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//     Underscore.js 1.4.4
@@ -60081,7 +57641,2715 @@
 
 
 /***/ },
+/* 589 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.connect = exports.call = undefined;
+
+	var _asteroid2 = __webpack_require__(590);
+
+	var Asteroid = (0, _asteroid2.createClass)();
+	var asteroid = void 0;
+
+	/**
+	 * Calls asteroid method
+	 * @param  {String} name - method name
+	 * @param  {Object} params
+	 * @return {Promise}
+	 */
+	var call = exports.call = function call(name) {
+	  var _asteroid;
+
+	  for (var _len = arguments.length, params = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
+	    params[_key - 1] = arguments[_key];
+	  }
+
+	  if (!asteroid) {
+	    throw Error('Not connected to the DDP server');
+	  }
+
+	  return (_asteroid = asteroid).call.apply(_asteroid, ['api.' + name].concat(params));
+	};
+
+	/**
+	 * Connects to the DDP server
+	 * @param  {Object} options.settings
+	 * @param  {Object} options.dom
+	 */
+	var connect = exports.connect = function connect(params) {
+	  asteroid = new Asteroid({
+	    endpoint: 'ws://127.0.0.1:7010/websocket'
+	  });
+
+	  asteroid.ddp.on('connected', function () {
+	    call('connect', params).then(function () {}).catch(function (error) {
+	      console.error( // eslint-disable-line no-console
+	      'Error on connecting to the DDP server', error);
+	    });
+	  });
+	};
+
+/***/ },
+/* 590 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	exports.createClass = createClass;
+
+	var _lodash = __webpack_require__(591);
+
+	var _lodash2 = _interopRequireDefault(_lodash);
+
+	var _wolfy87Eventemitter = __webpack_require__(592);
+
+	var _wolfy87Eventemitter2 = _interopRequireDefault(_wolfy87Eventemitter);
+
+	var _ddp = __webpack_require__(593);
+
+	var ddp = _interopRequireWildcard(_ddp);
+
+	var _login = __webpack_require__(599);
+
+	var login = _interopRequireWildcard(_login);
+
+	var _methods = __webpack_require__(602);
+
+	var methods = _interopRequireWildcard(_methods);
+
+	var _passwordLogin = __webpack_require__(603);
+
+	var loginWithPassword = _interopRequireWildcard(_passwordLogin);
+
+	var _subscriptions = __webpack_require__(604);
+
+	var subscriptions = _interopRequireWildcard(_subscriptions);
+
+	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
+
+	/*
+	*   A mixin is a plain javascript object. Mixins are composed by merging the
+	*   mixin object own enumerable properties into the Asteroid's base prototype.
+	*   The only exception is the `init` method. If the mixin defines an `init`
+	*   method, it will _not_ be merged into the prototype, instead it'll be called
+	*   at construction time.
+	*
+	*   Example usage:
+	*   ```js
+	*   import {createClass} from "asteroid";
+	*   import * as myMixinOne from "asteroid-my-mixin-one";
+	*   import * as myMixinTwo from "asteroid-my-mixin-two";
+	*   const Asteroid = createClass([myMixinOne, myMixinTwo]);
+	*   ```
+	*/
+
+	function createClass() {
+	    var customMixins = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
+
+
+	    // Include base mixins before custom ones
+	    var mixins = [ddp, methods, subscriptions, login, loginWithPassword].concat(customMixins);
+
+	    var Asteroid = function Asteroid() /* arguments */{
+	        var _this = this,
+	            _arguments = arguments;
+
+	        // Call each init method
+	        mixins.forEach(function (_ref) {
+	            var init = _ref.init;
+	            return init && init.apply(_this, _arguments);
+	        });
+	    };
+
+	    Asteroid.prototype = Object.create(_wolfy87Eventemitter2.default.prototype);
+	    Asteroid.prototype.constructor = Asteroid;
+	    // Merge all mixins into Asteroid.prototype
+	    _lodash2.default.apply(undefined, [Asteroid.prototype].concat(_toConsumableArray(mixins)));
+	    // And delete the "dangling" init property
+	    delete Asteroid.prototype.init;
+
+	    // Return the newly constructed class
+	    return Asteroid;
+	}
+
+/***/ },
+/* 591 */
+/***/ function(module, exports) {
+
+	/**
+	 * lodash (Custom Build) <https://lodash.com/>
+	 * Build: `lodash modularize exports="npm" -o ./`
+	 * Copyright jQuery Foundation and other contributors <https://jquery.org/>
+	 * Released under MIT license <https://lodash.com/license>
+	 * Based on Underscore.js 1.8.3 <http://underscorejs.org/LICENSE>
+	 * Copyright Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
+	 */
+
+	/** Used as references for various `Number` constants. */
+	var MAX_SAFE_INTEGER = 9007199254740991;
+
+	/** `Object#toString` result references. */
+	var argsTag = '[object Arguments]',
+	    funcTag = '[object Function]',
+	    genTag = '[object GeneratorFunction]';
+
+	/** Used to detect unsigned integer values. */
+	var reIsUint = /^(?:0|[1-9]\d*)$/;
+
+	/**
+	 * A faster alternative to `Function#apply`, this function invokes `func`
+	 * with the `this` binding of `thisArg` and the arguments of `args`.
+	 *
+	 * @private
+	 * @param {Function} func The function to invoke.
+	 * @param {*} thisArg The `this` binding of `func`.
+	 * @param {Array} args The arguments to invoke `func` with.
+	 * @returns {*} Returns the result of `func`.
+	 */
+	function apply(func, thisArg, args) {
+	  switch (args.length) {
+	    case 0: return func.call(thisArg);
+	    case 1: return func.call(thisArg, args[0]);
+	    case 2: return func.call(thisArg, args[0], args[1]);
+	    case 3: return func.call(thisArg, args[0], args[1], args[2]);
+	  }
+	  return func.apply(thisArg, args);
+	}
+
+	/**
+	 * The base implementation of `_.times` without support for iteratee shorthands
+	 * or max array length checks.
+	 *
+	 * @private
+	 * @param {number} n The number of times to invoke `iteratee`.
+	 * @param {Function} iteratee The function invoked per iteration.
+	 * @returns {Array} Returns the array of results.
+	 */
+	function baseTimes(n, iteratee) {
+	  var index = -1,
+	      result = Array(n);
+
+	  while (++index < n) {
+	    result[index] = iteratee(index);
+	  }
+	  return result;
+	}
+
+	/**
+	 * Creates a unary function that invokes `func` with its argument transformed.
+	 *
+	 * @private
+	 * @param {Function} func The function to wrap.
+	 * @param {Function} transform The argument transform.
+	 * @returns {Function} Returns the new function.
+	 */
+	function overArg(func, transform) {
+	  return function(arg) {
+	    return func(transform(arg));
+	  };
+	}
+
+	/** Used for built-in method references. */
+	var objectProto = Object.prototype;
+
+	/** Used to check objects for own properties. */
+	var hasOwnProperty = objectProto.hasOwnProperty;
+
+	/**
+	 * Used to resolve the
+	 * [`toStringTag`](http://ecma-international.org/ecma-262/7.0/#sec-object.prototype.tostring)
+	 * of values.
+	 */
+	var objectToString = objectProto.toString;
+
+	/** Built-in value references. */
+	var propertyIsEnumerable = objectProto.propertyIsEnumerable;
+
+	/* Built-in method references for those with the same name as other `lodash` methods. */
+	var nativeKeys = overArg(Object.keys, Object),
+	    nativeMax = Math.max;
+
+	/** Detect if properties shadowing those on `Object.prototype` are non-enumerable. */
+	var nonEnumShadows = !propertyIsEnumerable.call({ 'valueOf': 1 }, 'valueOf');
+
+	/**
+	 * Creates an array of the enumerable property names of the array-like `value`.
+	 *
+	 * @private
+	 * @param {*} value The value to query.
+	 * @param {boolean} inherited Specify returning inherited property names.
+	 * @returns {Array} Returns the array of property names.
+	 */
+	function arrayLikeKeys(value, inherited) {
+	  // Safari 8.1 makes `arguments.callee` enumerable in strict mode.
+	  // Safari 9 makes `arguments.length` enumerable in strict mode.
+	  var result = (isArray(value) || isArguments(value))
+	    ? baseTimes(value.length, String)
+	    : [];
+
+	  var length = result.length,
+	      skipIndexes = !!length;
+
+	  for (var key in value) {
+	    if ((inherited || hasOwnProperty.call(value, key)) &&
+	        !(skipIndexes && (key == 'length' || isIndex(key, length)))) {
+	      result.push(key);
+	    }
+	  }
+	  return result;
+	}
+
+	/**
+	 * Assigns `value` to `key` of `object` if the existing value is not equivalent
+	 * using [`SameValueZero`](http://ecma-international.org/ecma-262/7.0/#sec-samevaluezero)
+	 * for equality comparisons.
+	 *
+	 * @private
+	 * @param {Object} object The object to modify.
+	 * @param {string} key The key of the property to assign.
+	 * @param {*} value The value to assign.
+	 */
+	function assignValue(object, key, value) {
+	  var objValue = object[key];
+	  if (!(hasOwnProperty.call(object, key) && eq(objValue, value)) ||
+	      (value === undefined && !(key in object))) {
+	    object[key] = value;
+	  }
+	}
+
+	/**
+	 * The base implementation of `_.keys` which doesn't treat sparse arrays as dense.
+	 *
+	 * @private
+	 * @param {Object} object The object to query.
+	 * @returns {Array} Returns the array of property names.
+	 */
+	function baseKeys(object) {
+	  if (!isPrototype(object)) {
+	    return nativeKeys(object);
+	  }
+	  var result = [];
+	  for (var key in Object(object)) {
+	    if (hasOwnProperty.call(object, key) && key != 'constructor') {
+	      result.push(key);
+	    }
+	  }
+	  return result;
+	}
+
+	/**
+	 * The base implementation of `_.rest` which doesn't validate or coerce arguments.
+	 *
+	 * @private
+	 * @param {Function} func The function to apply a rest parameter to.
+	 * @param {number} [start=func.length-1] The start position of the rest parameter.
+	 * @returns {Function} Returns the new function.
+	 */
+	function baseRest(func, start) {
+	  start = nativeMax(start === undefined ? (func.length - 1) : start, 0);
+	  return function() {
+	    var args = arguments,
+	        index = -1,
+	        length = nativeMax(args.length - start, 0),
+	        array = Array(length);
+
+	    while (++index < length) {
+	      array[index] = args[start + index];
+	    }
+	    index = -1;
+	    var otherArgs = Array(start + 1);
+	    while (++index < start) {
+	      otherArgs[index] = args[index];
+	    }
+	    otherArgs[start] = array;
+	    return apply(func, this, otherArgs);
+	  };
+	}
+
+	/**
+	 * Copies properties of `source` to `object`.
+	 *
+	 * @private
+	 * @param {Object} source The object to copy properties from.
+	 * @param {Array} props The property identifiers to copy.
+	 * @param {Object} [object={}] The object to copy properties to.
+	 * @param {Function} [customizer] The function to customize copied values.
+	 * @returns {Object} Returns `object`.
+	 */
+	function copyObject(source, props, object, customizer) {
+	  object || (object = {});
+
+	  var index = -1,
+	      length = props.length;
+
+	  while (++index < length) {
+	    var key = props[index];
+
+	    var newValue = customizer
+	      ? customizer(object[key], source[key], key, object, source)
+	      : undefined;
+
+	    assignValue(object, key, newValue === undefined ? source[key] : newValue);
+	  }
+	  return object;
+	}
+
+	/**
+	 * Creates a function like `_.assign`.
+	 *
+	 * @private
+	 * @param {Function} assigner The function to assign values.
+	 * @returns {Function} Returns the new assigner function.
+	 */
+	function createAssigner(assigner) {
+	  return baseRest(function(object, sources) {
+	    var index = -1,
+	        length = sources.length,
+	        customizer = length > 1 ? sources[length - 1] : undefined,
+	        guard = length > 2 ? sources[2] : undefined;
+
+	    customizer = (assigner.length > 3 && typeof customizer == 'function')
+	      ? (length--, customizer)
+	      : undefined;
+
+	    if (guard && isIterateeCall(sources[0], sources[1], guard)) {
+	      customizer = length < 3 ? undefined : customizer;
+	      length = 1;
+	    }
+	    object = Object(object);
+	    while (++index < length) {
+	      var source = sources[index];
+	      if (source) {
+	        assigner(object, source, index, customizer);
+	      }
+	    }
+	    return object;
+	  });
+	}
+
+	/**
+	 * Checks if `value` is a valid array-like index.
+	 *
+	 * @private
+	 * @param {*} value The value to check.
+	 * @param {number} [length=MAX_SAFE_INTEGER] The upper bounds of a valid index.
+	 * @returns {boolean} Returns `true` if `value` is a valid index, else `false`.
+	 */
+	function isIndex(value, length) {
+	  length = length == null ? MAX_SAFE_INTEGER : length;
+	  return !!length &&
+	    (typeof value == 'number' || reIsUint.test(value)) &&
+	    (value > -1 && value % 1 == 0 && value < length);
+	}
+
+	/**
+	 * Checks if the given arguments are from an iteratee call.
+	 *
+	 * @private
+	 * @param {*} value The potential iteratee value argument.
+	 * @param {*} index The potential iteratee index or key argument.
+	 * @param {*} object The potential iteratee object argument.
+	 * @returns {boolean} Returns `true` if the arguments are from an iteratee call,
+	 *  else `false`.
+	 */
+	function isIterateeCall(value, index, object) {
+	  if (!isObject(object)) {
+	    return false;
+	  }
+	  var type = typeof index;
+	  if (type == 'number'
+	        ? (isArrayLike(object) && isIndex(index, object.length))
+	        : (type == 'string' && index in object)
+	      ) {
+	    return eq(object[index], value);
+	  }
+	  return false;
+	}
+
+	/**
+	 * Checks if `value` is likely a prototype object.
+	 *
+	 * @private
+	 * @param {*} value The value to check.
+	 * @returns {boolean} Returns `true` if `value` is a prototype, else `false`.
+	 */
+	function isPrototype(value) {
+	  var Ctor = value && value.constructor,
+	      proto = (typeof Ctor == 'function' && Ctor.prototype) || objectProto;
+
+	  return value === proto;
+	}
+
+	/**
+	 * Performs a
+	 * [`SameValueZero`](http://ecma-international.org/ecma-262/7.0/#sec-samevaluezero)
+	 * comparison between two values to determine if they are equivalent.
+	 *
+	 * @static
+	 * @memberOf _
+	 * @since 4.0.0
+	 * @category Lang
+	 * @param {*} value The value to compare.
+	 * @param {*} other The other value to compare.
+	 * @returns {boolean} Returns `true` if the values are equivalent, else `false`.
+	 * @example
+	 *
+	 * var object = { 'a': 1 };
+	 * var other = { 'a': 1 };
+	 *
+	 * _.eq(object, object);
+	 * // => true
+	 *
+	 * _.eq(object, other);
+	 * // => false
+	 *
+	 * _.eq('a', 'a');
+	 * // => true
+	 *
+	 * _.eq('a', Object('a'));
+	 * // => false
+	 *
+	 * _.eq(NaN, NaN);
+	 * // => true
+	 */
+	function eq(value, other) {
+	  return value === other || (value !== value && other !== other);
+	}
+
+	/**
+	 * Checks if `value` is likely an `arguments` object.
+	 *
+	 * @static
+	 * @memberOf _
+	 * @since 0.1.0
+	 * @category Lang
+	 * @param {*} value The value to check.
+	 * @returns {boolean} Returns `true` if `value` is an `arguments` object,
+	 *  else `false`.
+	 * @example
+	 *
+	 * _.isArguments(function() { return arguments; }());
+	 * // => true
+	 *
+	 * _.isArguments([1, 2, 3]);
+	 * // => false
+	 */
+	function isArguments(value) {
+	  // Safari 8.1 makes `arguments.callee` enumerable in strict mode.
+	  return isArrayLikeObject(value) && hasOwnProperty.call(value, 'callee') &&
+	    (!propertyIsEnumerable.call(value, 'callee') || objectToString.call(value) == argsTag);
+	}
+
+	/**
+	 * Checks if `value` is classified as an `Array` object.
+	 *
+	 * @static
+	 * @memberOf _
+	 * @since 0.1.0
+	 * @category Lang
+	 * @param {*} value The value to check.
+	 * @returns {boolean} Returns `true` if `value` is an array, else `false`.
+	 * @example
+	 *
+	 * _.isArray([1, 2, 3]);
+	 * // => true
+	 *
+	 * _.isArray(document.body.children);
+	 * // => false
+	 *
+	 * _.isArray('abc');
+	 * // => false
+	 *
+	 * _.isArray(_.noop);
+	 * // => false
+	 */
+	var isArray = Array.isArray;
+
+	/**
+	 * Checks if `value` is array-like. A value is considered array-like if it's
+	 * not a function and has a `value.length` that's an integer greater than or
+	 * equal to `0` and less than or equal to `Number.MAX_SAFE_INTEGER`.
+	 *
+	 * @static
+	 * @memberOf _
+	 * @since 4.0.0
+	 * @category Lang
+	 * @param {*} value The value to check.
+	 * @returns {boolean} Returns `true` if `value` is array-like, else `false`.
+	 * @example
+	 *
+	 * _.isArrayLike([1, 2, 3]);
+	 * // => true
+	 *
+	 * _.isArrayLike(document.body.children);
+	 * // => true
+	 *
+	 * _.isArrayLike('abc');
+	 * // => true
+	 *
+	 * _.isArrayLike(_.noop);
+	 * // => false
+	 */
+	function isArrayLike(value) {
+	  return value != null && isLength(value.length) && !isFunction(value);
+	}
+
+	/**
+	 * This method is like `_.isArrayLike` except that it also checks if `value`
+	 * is an object.
+	 *
+	 * @static
+	 * @memberOf _
+	 * @since 4.0.0
+	 * @category Lang
+	 * @param {*} value The value to check.
+	 * @returns {boolean} Returns `true` if `value` is an array-like object,
+	 *  else `false`.
+	 * @example
+	 *
+	 * _.isArrayLikeObject([1, 2, 3]);
+	 * // => true
+	 *
+	 * _.isArrayLikeObject(document.body.children);
+	 * // => true
+	 *
+	 * _.isArrayLikeObject('abc');
+	 * // => false
+	 *
+	 * _.isArrayLikeObject(_.noop);
+	 * // => false
+	 */
+	function isArrayLikeObject(value) {
+	  return isObjectLike(value) && isArrayLike(value);
+	}
+
+	/**
+	 * Checks if `value` is classified as a `Function` object.
+	 *
+	 * @static
+	 * @memberOf _
+	 * @since 0.1.0
+	 * @category Lang
+	 * @param {*} value The value to check.
+	 * @returns {boolean} Returns `true` if `value` is a function, else `false`.
+	 * @example
+	 *
+	 * _.isFunction(_);
+	 * // => true
+	 *
+	 * _.isFunction(/abc/);
+	 * // => false
+	 */
+	function isFunction(value) {
+	  // The use of `Object#toString` avoids issues with the `typeof` operator
+	  // in Safari 8-9 which returns 'object' for typed array and other constructors.
+	  var tag = isObject(value) ? objectToString.call(value) : '';
+	  return tag == funcTag || tag == genTag;
+	}
+
+	/**
+	 * Checks if `value` is a valid array-like length.
+	 *
+	 * **Note:** This method is loosely based on
+	 * [`ToLength`](http://ecma-international.org/ecma-262/7.0/#sec-tolength).
+	 *
+	 * @static
+	 * @memberOf _
+	 * @since 4.0.0
+	 * @category Lang
+	 * @param {*} value The value to check.
+	 * @returns {boolean} Returns `true` if `value` is a valid length, else `false`.
+	 * @example
+	 *
+	 * _.isLength(3);
+	 * // => true
+	 *
+	 * _.isLength(Number.MIN_VALUE);
+	 * // => false
+	 *
+	 * _.isLength(Infinity);
+	 * // => false
+	 *
+	 * _.isLength('3');
+	 * // => false
+	 */
+	function isLength(value) {
+	  return typeof value == 'number' &&
+	    value > -1 && value % 1 == 0 && value <= MAX_SAFE_INTEGER;
+	}
+
+	/**
+	 * Checks if `value` is the
+	 * [language type](http://www.ecma-international.org/ecma-262/7.0/#sec-ecmascript-language-types)
+	 * of `Object`. (e.g. arrays, functions, objects, regexes, `new Number(0)`, and `new String('')`)
+	 *
+	 * @static
+	 * @memberOf _
+	 * @since 0.1.0
+	 * @category Lang
+	 * @param {*} value The value to check.
+	 * @returns {boolean} Returns `true` if `value` is an object, else `false`.
+	 * @example
+	 *
+	 * _.isObject({});
+	 * // => true
+	 *
+	 * _.isObject([1, 2, 3]);
+	 * // => true
+	 *
+	 * _.isObject(_.noop);
+	 * // => true
+	 *
+	 * _.isObject(null);
+	 * // => false
+	 */
+	function isObject(value) {
+	  var type = typeof value;
+	  return !!value && (type == 'object' || type == 'function');
+	}
+
+	/**
+	 * Checks if `value` is object-like. A value is object-like if it's not `null`
+	 * and has a `typeof` result of "object".
+	 *
+	 * @static
+	 * @memberOf _
+	 * @since 4.0.0
+	 * @category Lang
+	 * @param {*} value The value to check.
+	 * @returns {boolean} Returns `true` if `value` is object-like, else `false`.
+	 * @example
+	 *
+	 * _.isObjectLike({});
+	 * // => true
+	 *
+	 * _.isObjectLike([1, 2, 3]);
+	 * // => true
+	 *
+	 * _.isObjectLike(_.noop);
+	 * // => false
+	 *
+	 * _.isObjectLike(null);
+	 * // => false
+	 */
+	function isObjectLike(value) {
+	  return !!value && typeof value == 'object';
+	}
+
+	/**
+	 * Assigns own enumerable string keyed properties of source objects to the
+	 * destination object. Source objects are applied from left to right.
+	 * Subsequent sources overwrite property assignments of previous sources.
+	 *
+	 * **Note:** This method mutates `object` and is loosely based on
+	 * [`Object.assign`](https://mdn.io/Object/assign).
+	 *
+	 * @static
+	 * @memberOf _
+	 * @since 0.10.0
+	 * @category Object
+	 * @param {Object} object The destination object.
+	 * @param {...Object} [sources] The source objects.
+	 * @returns {Object} Returns `object`.
+	 * @see _.assignIn
+	 * @example
+	 *
+	 * function Foo() {
+	 *   this.a = 1;
+	 * }
+	 *
+	 * function Bar() {
+	 *   this.c = 3;
+	 * }
+	 *
+	 * Foo.prototype.b = 2;
+	 * Bar.prototype.d = 4;
+	 *
+	 * _.assign({ 'a': 0 }, new Foo, new Bar);
+	 * // => { 'a': 1, 'c': 3 }
+	 */
+	var assign = createAssigner(function(object, source) {
+	  if (nonEnumShadows || isPrototype(source) || isArrayLike(source)) {
+	    copyObject(source, keys(source), object);
+	    return;
+	  }
+	  for (var key in source) {
+	    if (hasOwnProperty.call(source, key)) {
+	      assignValue(object, key, source[key]);
+	    }
+	  }
+	});
+
+	/**
+	 * Creates an array of the own enumerable property names of `object`.
+	 *
+	 * **Note:** Non-object values are coerced to objects. See the
+	 * [ES spec](http://ecma-international.org/ecma-262/7.0/#sec-object.keys)
+	 * for more details.
+	 *
+	 * @static
+	 * @since 0.1.0
+	 * @memberOf _
+	 * @category Object
+	 * @param {Object} object The object to query.
+	 * @returns {Array} Returns the array of property names.
+	 * @example
+	 *
+	 * function Foo() {
+	 *   this.a = 1;
+	 *   this.b = 2;
+	 * }
+	 *
+	 * Foo.prototype.c = 3;
+	 *
+	 * _.keys(new Foo);
+	 * // => ['a', 'b'] (iteration order is not guaranteed)
+	 *
+	 * _.keys('hi');
+	 * // => ['0', '1']
+	 */
+	function keys(object) {
+	  return isArrayLike(object) ? arrayLikeKeys(object) : baseKeys(object);
+	}
+
+	module.exports = assign;
+
+
+/***/ },
+/* 592 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var __WEBPACK_AMD_DEFINE_RESULT__;/*!
+	 * EventEmitter v5.1.0 - git.io/ee
+	 * Unlicense - http://unlicense.org/
+	 * Oliver Caldwell - http://oli.me.uk/
+	 * @preserve
+	 */
+
+	;(function (exports) {
+	    'use strict';
+
+	    /**
+	     * Class for managing events.
+	     * Can be extended to provide event functionality in other classes.
+	     *
+	     * @class EventEmitter Manages event registering and emitting.
+	     */
+	    function EventEmitter() {}
+
+	    // Shortcuts to improve speed and size
+	    var proto = EventEmitter.prototype;
+	    var originalGlobalValue = exports.EventEmitter;
+
+	    /**
+	     * Finds the index of the listener for the event in its storage array.
+	     *
+	     * @param {Function[]} listeners Array of listeners to search through.
+	     * @param {Function} listener Method to look for.
+	     * @return {Number} Index of the specified listener, -1 if not found
+	     * @api private
+	     */
+	    function indexOfListener(listeners, listener) {
+	        var i = listeners.length;
+	        while (i--) {
+	            if (listeners[i].listener === listener) {
+	                return i;
+	            }
+	        }
+
+	        return -1;
+	    }
+
+	    /**
+	     * Alias a method while keeping the context correct, to allow for overwriting of target method.
+	     *
+	     * @param {String} name The name of the target method.
+	     * @return {Function} The aliased method
+	     * @api private
+	     */
+	    function alias(name) {
+	        return function aliasClosure() {
+	            return this[name].apply(this, arguments);
+	        };
+	    }
+
+	    /**
+	     * Returns the listener array for the specified event.
+	     * Will initialise the event object and listener arrays if required.
+	     * Will return an object if you use a regex search. The object contains keys for each matched event. So /ba[rz]/ might return an object containing bar and baz. But only if you have either defined them with defineEvent or added some listeners to them.
+	     * Each property in the object response is an array of listener functions.
+	     *
+	     * @param {String|RegExp} evt Name of the event to return the listeners from.
+	     * @return {Function[]|Object} All listener functions for the event.
+	     */
+	    proto.getListeners = function getListeners(evt) {
+	        var events = this._getEvents();
+	        var response;
+	        var key;
+
+	        // Return a concatenated array of all matching events if
+	        // the selector is a regular expression.
+	        if (evt instanceof RegExp) {
+	            response = {};
+	            for (key in events) {
+	                if (events.hasOwnProperty(key) && evt.test(key)) {
+	                    response[key] = events[key];
+	                }
+	            }
+	        }
+	        else {
+	            response = events[evt] || (events[evt] = []);
+	        }
+
+	        return response;
+	    };
+
+	    /**
+	     * Takes a list of listener objects and flattens it into a list of listener functions.
+	     *
+	     * @param {Object[]} listeners Raw listener objects.
+	     * @return {Function[]} Just the listener functions.
+	     */
+	    proto.flattenListeners = function flattenListeners(listeners) {
+	        var flatListeners = [];
+	        var i;
+
+	        for (i = 0; i < listeners.length; i += 1) {
+	            flatListeners.push(listeners[i].listener);
+	        }
+
+	        return flatListeners;
+	    };
+
+	    /**
+	     * Fetches the requested listeners via getListeners but will always return the results inside an object. This is mainly for internal use but others may find it useful.
+	     *
+	     * @param {String|RegExp} evt Name of the event to return the listeners from.
+	     * @return {Object} All listener functions for an event in an object.
+	     */
+	    proto.getListenersAsObject = function getListenersAsObject(evt) {
+	        var listeners = this.getListeners(evt);
+	        var response;
+
+	        if (listeners instanceof Array) {
+	            response = {};
+	            response[evt] = listeners;
+	        }
+
+	        return response || listeners;
+	    };
+
+	    function isValidListener (listener) {
+	        if (typeof listener === 'function' || listener instanceof RegExp) {
+	            return true
+	        } else if (listener && typeof listener === 'object') {
+	            return isValidListener(listener.listener)
+	        } else {
+	            return false
+	        }
+	    }
+
+	    /**
+	     * Adds a listener function to the specified event.
+	     * The listener will not be added if it is a duplicate.
+	     * If the listener returns true then it will be removed after it is called.
+	     * If you pass a regular expression as the event name then the listener will be added to all events that match it.
+	     *
+	     * @param {String|RegExp} evt Name of the event to attach the listener to.
+	     * @param {Function} listener Method to be called when the event is emitted. If the function returns true then it will be removed after calling.
+	     * @return {Object} Current instance of EventEmitter for chaining.
+	     */
+	    proto.addListener = function addListener(evt, listener) {
+	        if (!isValidListener(listener)) {
+	            throw new TypeError('listener must be a function');
+	        }
+
+	        var listeners = this.getListenersAsObject(evt);
+	        var listenerIsWrapped = typeof listener === 'object';
+	        var key;
+
+	        for (key in listeners) {
+	            if (listeners.hasOwnProperty(key) && indexOfListener(listeners[key], listener) === -1) {
+	                listeners[key].push(listenerIsWrapped ? listener : {
+	                    listener: listener,
+	                    once: false
+	                });
+	            }
+	        }
+
+	        return this;
+	    };
+
+	    /**
+	     * Alias of addListener
+	     */
+	    proto.on = alias('addListener');
+
+	    /**
+	     * Semi-alias of addListener. It will add a listener that will be
+	     * automatically removed after its first execution.
+	     *
+	     * @param {String|RegExp} evt Name of the event to attach the listener to.
+	     * @param {Function} listener Method to be called when the event is emitted. If the function returns true then it will be removed after calling.
+	     * @return {Object} Current instance of EventEmitter for chaining.
+	     */
+	    proto.addOnceListener = function addOnceListener(evt, listener) {
+	        return this.addListener(evt, {
+	            listener: listener,
+	            once: true
+	        });
+	    };
+
+	    /**
+	     * Alias of addOnceListener.
+	     */
+	    proto.once = alias('addOnceListener');
+
+	    /**
+	     * Defines an event name. This is required if you want to use a regex to add a listener to multiple events at once. If you don't do this then how do you expect it to know what event to add to? Should it just add to every possible match for a regex? No. That is scary and bad.
+	     * You need to tell it what event names should be matched by a regex.
+	     *
+	     * @param {String} evt Name of the event to create.
+	     * @return {Object} Current instance of EventEmitter for chaining.
+	     */
+	    proto.defineEvent = function defineEvent(evt) {
+	        this.getListeners(evt);
+	        return this;
+	    };
+
+	    /**
+	     * Uses defineEvent to define multiple events.
+	     *
+	     * @param {String[]} evts An array of event names to define.
+	     * @return {Object} Current instance of EventEmitter for chaining.
+	     */
+	    proto.defineEvents = function defineEvents(evts) {
+	        for (var i = 0; i < evts.length; i += 1) {
+	            this.defineEvent(evts[i]);
+	        }
+	        return this;
+	    };
+
+	    /**
+	     * Removes a listener function from the specified event.
+	     * When passed a regular expression as the event name, it will remove the listener from all events that match it.
+	     *
+	     * @param {String|RegExp} evt Name of the event to remove the listener from.
+	     * @param {Function} listener Method to remove from the event.
+	     * @return {Object} Current instance of EventEmitter for chaining.
+	     */
+	    proto.removeListener = function removeListener(evt, listener) {
+	        var listeners = this.getListenersAsObject(evt);
+	        var index;
+	        var key;
+
+	        for (key in listeners) {
+	            if (listeners.hasOwnProperty(key)) {
+	                index = indexOfListener(listeners[key], listener);
+
+	                if (index !== -1) {
+	                    listeners[key].splice(index, 1);
+	                }
+	            }
+	        }
+
+	        return this;
+	    };
+
+	    /**
+	     * Alias of removeListener
+	     */
+	    proto.off = alias('removeListener');
+
+	    /**
+	     * Adds listeners in bulk using the manipulateListeners method.
+	     * If you pass an object as the second argument you can add to multiple events at once. The object should contain key value pairs of events and listeners or listener arrays. You can also pass it an event name and an array of listeners to be added.
+	     * You can also pass it a regular expression to add the array of listeners to all events that match it.
+	     * Yeah, this function does quite a bit. That's probably a bad thing.
+	     *
+	     * @param {String|Object|RegExp} evt An event name if you will pass an array of listeners next. An object if you wish to add to multiple events at once.
+	     * @param {Function[]} [listeners] An optional array of listener functions to add.
+	     * @return {Object} Current instance of EventEmitter for chaining.
+	     */
+	    proto.addListeners = function addListeners(evt, listeners) {
+	        // Pass through to manipulateListeners
+	        return this.manipulateListeners(false, evt, listeners);
+	    };
+
+	    /**
+	     * Removes listeners in bulk using the manipulateListeners method.
+	     * If you pass an object as the second argument you can remove from multiple events at once. The object should contain key value pairs of events and listeners or listener arrays.
+	     * You can also pass it an event name and an array of listeners to be removed.
+	     * You can also pass it a regular expression to remove the listeners from all events that match it.
+	     *
+	     * @param {String|Object|RegExp} evt An event name if you will pass an array of listeners next. An object if you wish to remove from multiple events at once.
+	     * @param {Function[]} [listeners] An optional array of listener functions to remove.
+	     * @return {Object} Current instance of EventEmitter for chaining.
+	     */
+	    proto.removeListeners = function removeListeners(evt, listeners) {
+	        // Pass through to manipulateListeners
+	        return this.manipulateListeners(true, evt, listeners);
+	    };
+
+	    /**
+	     * Edits listeners in bulk. The addListeners and removeListeners methods both use this to do their job. You should really use those instead, this is a little lower level.
+	     * The first argument will determine if the listeners are removed (true) or added (false).
+	     * If you pass an object as the second argument you can add/remove from multiple events at once. The object should contain key value pairs of events and listeners or listener arrays.
+	     * You can also pass it an event name and an array of listeners to be added/removed.
+	     * You can also pass it a regular expression to manipulate the listeners of all events that match it.
+	     *
+	     * @param {Boolean} remove True if you want to remove listeners, false if you want to add.
+	     * @param {String|Object|RegExp} evt An event name if you will pass an array of listeners next. An object if you wish to add/remove from multiple events at once.
+	     * @param {Function[]} [listeners] An optional array of listener functions to add/remove.
+	     * @return {Object} Current instance of EventEmitter for chaining.
+	     */
+	    proto.manipulateListeners = function manipulateListeners(remove, evt, listeners) {
+	        var i;
+	        var value;
+	        var single = remove ? this.removeListener : this.addListener;
+	        var multiple = remove ? this.removeListeners : this.addListeners;
+
+	        // If evt is an object then pass each of its properties to this method
+	        if (typeof evt === 'object' && !(evt instanceof RegExp)) {
+	            for (i in evt) {
+	                if (evt.hasOwnProperty(i) && (value = evt[i])) {
+	                    // Pass the single listener straight through to the singular method
+	                    if (typeof value === 'function') {
+	                        single.call(this, i, value);
+	                    }
+	                    else {
+	                        // Otherwise pass back to the multiple function
+	                        multiple.call(this, i, value);
+	                    }
+	                }
+	            }
+	        }
+	        else {
+	            // So evt must be a string
+	            // And listeners must be an array of listeners
+	            // Loop over it and pass each one to the multiple method
+	            i = listeners.length;
+	            while (i--) {
+	                single.call(this, evt, listeners[i]);
+	            }
+	        }
+
+	        return this;
+	    };
+
+	    /**
+	     * Removes all listeners from a specified event.
+	     * If you do not specify an event then all listeners will be removed.
+	     * That means every event will be emptied.
+	     * You can also pass a regex to remove all events that match it.
+	     *
+	     * @param {String|RegExp} [evt] Optional name of the event to remove all listeners for. Will remove from every event if not passed.
+	     * @return {Object} Current instance of EventEmitter for chaining.
+	     */
+	    proto.removeEvent = function removeEvent(evt) {
+	        var type = typeof evt;
+	        var events = this._getEvents();
+	        var key;
+
+	        // Remove different things depending on the state of evt
+	        if (type === 'string') {
+	            // Remove all listeners for the specified event
+	            delete events[evt];
+	        }
+	        else if (evt instanceof RegExp) {
+	            // Remove all events matching the regex.
+	            for (key in events) {
+	                if (events.hasOwnProperty(key) && evt.test(key)) {
+	                    delete events[key];
+	                }
+	            }
+	        }
+	        else {
+	            // Remove all listeners in all events
+	            delete this._events;
+	        }
+
+	        return this;
+	    };
+
+	    /**
+	     * Alias of removeEvent.
+	     *
+	     * Added to mirror the node API.
+	     */
+	    proto.removeAllListeners = alias('removeEvent');
+
+	    /**
+	     * Emits an event of your choice.
+	     * When emitted, every listener attached to that event will be executed.
+	     * If you pass the optional argument array then those arguments will be passed to every listener upon execution.
+	     * Because it uses `apply`, your array of arguments will be passed as if you wrote them out separately.
+	     * So they will not arrive within the array on the other side, they will be separate.
+	     * You can also pass a regular expression to emit to all events that match it.
+	     *
+	     * @param {String|RegExp} evt Name of the event to emit and execute listeners for.
+	     * @param {Array} [args] Optional array of arguments to be passed to each listener.
+	     * @return {Object} Current instance of EventEmitter for chaining.
+	     */
+	    proto.emitEvent = function emitEvent(evt, args) {
+	        var listenersMap = this.getListenersAsObject(evt);
+	        var listeners;
+	        var listener;
+	        var i;
+	        var key;
+	        var response;
+
+	        for (key in listenersMap) {
+	            if (listenersMap.hasOwnProperty(key)) {
+	                listeners = listenersMap[key].slice(0);
+
+	                for (i = 0; i < listeners.length; i++) {
+	                    // If the listener returns true then it shall be removed from the event
+	                    // The function is executed either with a basic call or an apply if there is an args array
+	                    listener = listeners[i];
+
+	                    if (listener.once === true) {
+	                        this.removeListener(evt, listener.listener);
+	                    }
+
+	                    response = listener.listener.apply(this, args || []);
+
+	                    if (response === this._getOnceReturnValue()) {
+	                        this.removeListener(evt, listener.listener);
+	                    }
+	                }
+	            }
+	        }
+
+	        return this;
+	    };
+
+	    /**
+	     * Alias of emitEvent
+	     */
+	    proto.trigger = alias('emitEvent');
+
+	    /**
+	     * Subtly different from emitEvent in that it will pass its arguments on to the listeners, as opposed to taking a single array of arguments to pass on.
+	     * As with emitEvent, you can pass a regex in place of the event name to emit to all events that match it.
+	     *
+	     * @param {String|RegExp} evt Name of the event to emit and execute listeners for.
+	     * @param {...*} Optional additional arguments to be passed to each listener.
+	     * @return {Object} Current instance of EventEmitter for chaining.
+	     */
+	    proto.emit = function emit(evt) {
+	        var args = Array.prototype.slice.call(arguments, 1);
+	        return this.emitEvent(evt, args);
+	    };
+
+	    /**
+	     * Sets the current value to check against when executing listeners. If a
+	     * listeners return value matches the one set here then it will be removed
+	     * after execution. This value defaults to true.
+	     *
+	     * @param {*} value The new value to check for when executing listeners.
+	     * @return {Object} Current instance of EventEmitter for chaining.
+	     */
+	    proto.setOnceReturnValue = function setOnceReturnValue(value) {
+	        this._onceReturnValue = value;
+	        return this;
+	    };
+
+	    /**
+	     * Fetches the current value to check against when executing listeners. If
+	     * the listeners return value matches this one then it should be removed
+	     * automatically. It will return true by default.
+	     *
+	     * @return {*|Boolean} The current value to check for or the default, true.
+	     * @api private
+	     */
+	    proto._getOnceReturnValue = function _getOnceReturnValue() {
+	        if (this.hasOwnProperty('_onceReturnValue')) {
+	            return this._onceReturnValue;
+	        }
+	        else {
+	            return true;
+	        }
+	    };
+
+	    /**
+	     * Fetches the events object and creates one if required.
+	     *
+	     * @return {Object} The events storage object.
+	     * @api private
+	     */
+	    proto._getEvents = function _getEvents() {
+	        return this._events || (this._events = {});
+	    };
+
+	    /**
+	     * Reverts the global {@link EventEmitter} to its previous value and returns a reference to this version.
+	     *
+	     * @return {Function} Non conflicting EventEmitter class.
+	     */
+	    EventEmitter.noConflict = function noConflict() {
+	        exports.EventEmitter = originalGlobalValue;
+	        return EventEmitter;
+	    };
+
+	    // Expose the class either via AMD, CommonJS or the global object
+	    if (true) {
+	        !(__WEBPACK_AMD_DEFINE_RESULT__ = function () {
+	            return EventEmitter;
+	        }.call(exports, __webpack_require__, exports, module), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+	    }
+	    else if (typeof module === 'object' && module.exports){
+	        module.exports = EventEmitter;
+	    }
+	    else {
+	        exports.EventEmitter = EventEmitter;
+	    }
+	}(this || {}));
+
+
+/***/ },
+/* 593 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	exports.connect = connect;
+	exports.disconnect = disconnect;
+	exports.init = init;
+
+	var _ddp = __webpack_require__(594);
+
+	var _ddp2 = _interopRequireDefault(_ddp);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	/*
+	*   Public methods
+	*/
+
+	function connect() {
+	    this.ddp.connect();
+	} /*
+	  *   The ddp mixin:
+	  *   - instantiates the ddp connection to the server (a DDP instance) and stores
+	  *     it in the `ddp` property of the Asteroid instance
+	  *   - listens for the `connected` and `disconnected` events of the DDP instance
+	  *     and proxies them to the Asteroid instance
+	  *   - exposes the `endpoint` public property
+	  *   - defines the `connect` and `disconnect` methods, used to control the ddp
+	  *     connection with the server
+	  */
+
+	function disconnect() {
+	    this.ddp.disconnect();
+	}
+
+	/*
+	*   Init method
+	*/
+
+	function init(options) {
+	    var _this = this;
+
+	    var endpoint = options.endpoint;
+	    var _options$SocketConstr = options.SocketConstructor;
+	    var SocketConstructor = _options$SocketConstr === undefined ? WebSocket : _options$SocketConstr;
+	    var autoConnect = options.autoConnect;
+	    var autoReconnect = options.autoReconnect;
+	    var reconnectInterval = options.reconnectInterval;
+
+	    this.endpoint = endpoint;
+	    var ddpOptions = {
+	        endpoint: endpoint,
+	        SocketConstructor: SocketConstructor,
+	        autoConnect: autoConnect,
+	        autoReconnect: autoReconnect,
+	        reconnectInterval: reconnectInterval
+	    };
+	    this.ddp = new _ddp2.default(ddpOptions).on("connected", function () {
+	        return _this.emit("connected");
+	    }).on("disconnected", function () {
+	        return _this.emit("disconnected");
+	    });
+	}
+
+/***/ },
+/* 594 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _get = function get(object, property, receiver) { if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { return get(parent, property, receiver); } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } };
+
+	var _wolfy87Eventemitter = __webpack_require__(595);
+
+	var _wolfy87Eventemitter2 = _interopRequireDefault(_wolfy87Eventemitter);
+
+	var _queue = __webpack_require__(596);
+
+	var _queue2 = _interopRequireDefault(_queue);
+
+	var _socket = __webpack_require__(597);
+
+	var _socket2 = _interopRequireDefault(_socket);
+
+	var _utils = __webpack_require__(598);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var DDP_VERSION = "1";
+	var PUBLIC_EVENTS = [
+	// Subscription messages
+	"ready", "nosub", "added", "changed", "removed",
+	// Method messages
+	"result", "updated",
+	// Error messages
+	"error"];
+	var DEFAULT_RECONNECT_INTERVAL = 10000;
+
+	var DDP = function (_EventEmitter) {
+	    _inherits(DDP, _EventEmitter);
+
+	    _createClass(DDP, [{
+	        key: "emit",
+	        value: function emit() {
+	            var _get2;
+
+	            setTimeout((_get2 = _get(Object.getPrototypeOf(DDP.prototype), "emit", this)).bind.apply(_get2, [this].concat(Array.prototype.slice.call(arguments))), 0);
+	        }
+	    }]);
+
+	    function DDP(options) {
+	        _classCallCheck(this, DDP);
+
+	        var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(DDP).call(this));
+
+	        _this.status = "disconnected";
+
+	        // Default `autoConnect` and `autoReconnect` to true
+	        _this.autoConnect = options.autoConnect !== false;
+	        _this.autoReconnect = options.autoReconnect !== false;
+	        _this.reconnectInterval = options.reconnectInterval || DEFAULT_RECONNECT_INTERVAL;
+
+	        _this.messageQueue = new _queue2.default(function (message) {
+	            if (_this.status === "connected") {
+	                _this.socket.send(message);
+	                return true;
+	            } else {
+	                return false;
+	            }
+	        });
+
+	        _this.socket = new _socket2.default(options.SocketConstructor, options.endpoint);
+
+	        _this.socket.on("open", function () {
+	            // When the socket opens, send the `connect` message
+	            // to establish the DDP connection
+	            _this.socket.send({
+	                msg: "connect",
+	                version: DDP_VERSION,
+	                support: [DDP_VERSION]
+	            });
+	        });
+
+	        _this.socket.on("close", function () {
+	            _this.status = "disconnected";
+	            _this.messageQueue.empty();
+	            _this.emit("disconnected");
+	            if (_this.autoReconnect) {
+	                // Schedule a reconnection
+	                setTimeout(_this.socket.open.bind(_this.socket), _this.reconnectInterval);
+	            }
+	        });
+
+	        _this.socket.on("message:in", function (message) {
+	            if (message.msg === "connected") {
+	                _this.status = "connected";
+	                _this.messageQueue.process();
+	                _this.emit("connected");
+	            } else if (message.msg === "ping") {
+	                // Reply with a `pong` message to prevent the server from
+	                // closing the connection
+	                _this.socket.send({ msg: "pong", id: message.id });
+	            } else if ((0, _utils.contains)(PUBLIC_EVENTS, message.msg)) {
+	                _this.emit(message.msg, message);
+	            }
+	        });
+
+	        if (_this.autoConnect) {
+	            _this.connect();
+	        }
+
+	        return _this;
+	    }
+
+	    _createClass(DDP, [{
+	        key: "connect",
+	        value: function connect() {
+	            this.socket.open();
+	        }
+	    }, {
+	        key: "disconnect",
+	        value: function disconnect() {
+	            /*
+	            *   If `disconnect` is called, the caller likely doesn't want the
+	            *   the instance to try to auto-reconnect. Therefore we set the
+	            *   `autoReconnect` flag to false.
+	            */
+	            this.autoReconnect = false;
+	            this.socket.close();
+	        }
+	    }, {
+	        key: "method",
+	        value: function method(name, params) {
+	            var id = (0, _utils.uniqueId)();
+	            this.messageQueue.push({
+	                msg: "method",
+	                id: id,
+	                method: name,
+	                params: params
+	            });
+	            return id;
+	        }
+	    }, {
+	        key: "sub",
+	        value: function sub(name, params) {
+	            var id = arguments.length <= 2 || arguments[2] === undefined ? null : arguments[2];
+
+	            id || (id = (0, _utils.uniqueId)());
+	            this.messageQueue.push({
+	                msg: "sub",
+	                id: id,
+	                name: name,
+	                params: params
+	            });
+	            return id;
+	        }
+	    }, {
+	        key: "unsub",
+	        value: function unsub(id) {
+	            this.messageQueue.push({
+	                msg: "unsub",
+	                id: id
+	            });
+	            return id;
+	        }
+	    }]);
+
+	    return DDP;
+	}(_wolfy87Eventemitter2.default);
+
+	exports.default = DDP;
+
+/***/ },
+/* 595 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var __WEBPACK_AMD_DEFINE_RESULT__;/*!
+	 * EventEmitter v4.2.11 - git.io/ee
+	 * Unlicense - http://unlicense.org/
+	 * Oliver Caldwell - http://oli.me.uk/
+	 * @preserve
+	 */
+
+	;(function () {
+	    'use strict';
+
+	    /**
+	     * Class for managing events.
+	     * Can be extended to provide event functionality in other classes.
+	     *
+	     * @class EventEmitter Manages event registering and emitting.
+	     */
+	    function EventEmitter() {}
+
+	    // Shortcuts to improve speed and size
+	    var proto = EventEmitter.prototype;
+	    var exports = this;
+	    var originalGlobalValue = exports.EventEmitter;
+
+	    /**
+	     * Finds the index of the listener for the event in its storage array.
+	     *
+	     * @param {Function[]} listeners Array of listeners to search through.
+	     * @param {Function} listener Method to look for.
+	     * @return {Number} Index of the specified listener, -1 if not found
+	     * @api private
+	     */
+	    function indexOfListener(listeners, listener) {
+	        var i = listeners.length;
+	        while (i--) {
+	            if (listeners[i].listener === listener) {
+	                return i;
+	            }
+	        }
+
+	        return -1;
+	    }
+
+	    /**
+	     * Alias a method while keeping the context correct, to allow for overwriting of target method.
+	     *
+	     * @param {String} name The name of the target method.
+	     * @return {Function} The aliased method
+	     * @api private
+	     */
+	    function alias(name) {
+	        return function aliasClosure() {
+	            return this[name].apply(this, arguments);
+	        };
+	    }
+
+	    /**
+	     * Returns the listener array for the specified event.
+	     * Will initialise the event object and listener arrays if required.
+	     * Will return an object if you use a regex search. The object contains keys for each matched event. So /ba[rz]/ might return an object containing bar and baz. But only if you have either defined them with defineEvent or added some listeners to them.
+	     * Each property in the object response is an array of listener functions.
+	     *
+	     * @param {String|RegExp} evt Name of the event to return the listeners from.
+	     * @return {Function[]|Object} All listener functions for the event.
+	     */
+	    proto.getListeners = function getListeners(evt) {
+	        var events = this._getEvents();
+	        var response;
+	        var key;
+
+	        // Return a concatenated array of all matching events if
+	        // the selector is a regular expression.
+	        if (evt instanceof RegExp) {
+	            response = {};
+	            for (key in events) {
+	                if (events.hasOwnProperty(key) && evt.test(key)) {
+	                    response[key] = events[key];
+	                }
+	            }
+	        }
+	        else {
+	            response = events[evt] || (events[evt] = []);
+	        }
+
+	        return response;
+	    };
+
+	    /**
+	     * Takes a list of listener objects and flattens it into a list of listener functions.
+	     *
+	     * @param {Object[]} listeners Raw listener objects.
+	     * @return {Function[]} Just the listener functions.
+	     */
+	    proto.flattenListeners = function flattenListeners(listeners) {
+	        var flatListeners = [];
+	        var i;
+
+	        for (i = 0; i < listeners.length; i += 1) {
+	            flatListeners.push(listeners[i].listener);
+	        }
+
+	        return flatListeners;
+	    };
+
+	    /**
+	     * Fetches the requested listeners via getListeners but will always return the results inside an object. This is mainly for internal use but others may find it useful.
+	     *
+	     * @param {String|RegExp} evt Name of the event to return the listeners from.
+	     * @return {Object} All listener functions for an event in an object.
+	     */
+	    proto.getListenersAsObject = function getListenersAsObject(evt) {
+	        var listeners = this.getListeners(evt);
+	        var response;
+
+	        if (listeners instanceof Array) {
+	            response = {};
+	            response[evt] = listeners;
+	        }
+
+	        return response || listeners;
+	    };
+
+	    /**
+	     * Adds a listener function to the specified event.
+	     * The listener will not be added if it is a duplicate.
+	     * If the listener returns true then it will be removed after it is called.
+	     * If you pass a regular expression as the event name then the listener will be added to all events that match it.
+	     *
+	     * @param {String|RegExp} evt Name of the event to attach the listener to.
+	     * @param {Function} listener Method to be called when the event is emitted. If the function returns true then it will be removed after calling.
+	     * @return {Object} Current instance of EventEmitter for chaining.
+	     */
+	    proto.addListener = function addListener(evt, listener) {
+	        var listeners = this.getListenersAsObject(evt);
+	        var listenerIsWrapped = typeof listener === 'object';
+	        var key;
+
+	        for (key in listeners) {
+	            if (listeners.hasOwnProperty(key) && indexOfListener(listeners[key], listener) === -1) {
+	                listeners[key].push(listenerIsWrapped ? listener : {
+	                    listener: listener,
+	                    once: false
+	                });
+	            }
+	        }
+
+	        return this;
+	    };
+
+	    /**
+	     * Alias of addListener
+	     */
+	    proto.on = alias('addListener');
+
+	    /**
+	     * Semi-alias of addListener. It will add a listener that will be
+	     * automatically removed after its first execution.
+	     *
+	     * @param {String|RegExp} evt Name of the event to attach the listener to.
+	     * @param {Function} listener Method to be called when the event is emitted. If the function returns true then it will be removed after calling.
+	     * @return {Object} Current instance of EventEmitter for chaining.
+	     */
+	    proto.addOnceListener = function addOnceListener(evt, listener) {
+	        return this.addListener(evt, {
+	            listener: listener,
+	            once: true
+	        });
+	    };
+
+	    /**
+	     * Alias of addOnceListener.
+	     */
+	    proto.once = alias('addOnceListener');
+
+	    /**
+	     * Defines an event name. This is required if you want to use a regex to add a listener to multiple events at once. If you don't do this then how do you expect it to know what event to add to? Should it just add to every possible match for a regex? No. That is scary and bad.
+	     * You need to tell it what event names should be matched by a regex.
+	     *
+	     * @param {String} evt Name of the event to create.
+	     * @return {Object} Current instance of EventEmitter for chaining.
+	     */
+	    proto.defineEvent = function defineEvent(evt) {
+	        this.getListeners(evt);
+	        return this;
+	    };
+
+	    /**
+	     * Uses defineEvent to define multiple events.
+	     *
+	     * @param {String[]} evts An array of event names to define.
+	     * @return {Object} Current instance of EventEmitter for chaining.
+	     */
+	    proto.defineEvents = function defineEvents(evts) {
+	        for (var i = 0; i < evts.length; i += 1) {
+	            this.defineEvent(evts[i]);
+	        }
+	        return this;
+	    };
+
+	    /**
+	     * Removes a listener function from the specified event.
+	     * When passed a regular expression as the event name, it will remove the listener from all events that match it.
+	     *
+	     * @param {String|RegExp} evt Name of the event to remove the listener from.
+	     * @param {Function} listener Method to remove from the event.
+	     * @return {Object} Current instance of EventEmitter for chaining.
+	     */
+	    proto.removeListener = function removeListener(evt, listener) {
+	        var listeners = this.getListenersAsObject(evt);
+	        var index;
+	        var key;
+
+	        for (key in listeners) {
+	            if (listeners.hasOwnProperty(key)) {
+	                index = indexOfListener(listeners[key], listener);
+
+	                if (index !== -1) {
+	                    listeners[key].splice(index, 1);
+	                }
+	            }
+	        }
+
+	        return this;
+	    };
+
+	    /**
+	     * Alias of removeListener
+	     */
+	    proto.off = alias('removeListener');
+
+	    /**
+	     * Adds listeners in bulk using the manipulateListeners method.
+	     * If you pass an object as the second argument you can add to multiple events at once. The object should contain key value pairs of events and listeners or listener arrays. You can also pass it an event name and an array of listeners to be added.
+	     * You can also pass it a regular expression to add the array of listeners to all events that match it.
+	     * Yeah, this function does quite a bit. That's probably a bad thing.
+	     *
+	     * @param {String|Object|RegExp} evt An event name if you will pass an array of listeners next. An object if you wish to add to multiple events at once.
+	     * @param {Function[]} [listeners] An optional array of listener functions to add.
+	     * @return {Object} Current instance of EventEmitter for chaining.
+	     */
+	    proto.addListeners = function addListeners(evt, listeners) {
+	        // Pass through to manipulateListeners
+	        return this.manipulateListeners(false, evt, listeners);
+	    };
+
+	    /**
+	     * Removes listeners in bulk using the manipulateListeners method.
+	     * If you pass an object as the second argument you can remove from multiple events at once. The object should contain key value pairs of events and listeners or listener arrays.
+	     * You can also pass it an event name and an array of listeners to be removed.
+	     * You can also pass it a regular expression to remove the listeners from all events that match it.
+	     *
+	     * @param {String|Object|RegExp} evt An event name if you will pass an array of listeners next. An object if you wish to remove from multiple events at once.
+	     * @param {Function[]} [listeners] An optional array of listener functions to remove.
+	     * @return {Object} Current instance of EventEmitter for chaining.
+	     */
+	    proto.removeListeners = function removeListeners(evt, listeners) {
+	        // Pass through to manipulateListeners
+	        return this.manipulateListeners(true, evt, listeners);
+	    };
+
+	    /**
+	     * Edits listeners in bulk. The addListeners and removeListeners methods both use this to do their job. You should really use those instead, this is a little lower level.
+	     * The first argument will determine if the listeners are removed (true) or added (false).
+	     * If you pass an object as the second argument you can add/remove from multiple events at once. The object should contain key value pairs of events and listeners or listener arrays.
+	     * You can also pass it an event name and an array of listeners to be added/removed.
+	     * You can also pass it a regular expression to manipulate the listeners of all events that match it.
+	     *
+	     * @param {Boolean} remove True if you want to remove listeners, false if you want to add.
+	     * @param {String|Object|RegExp} evt An event name if you will pass an array of listeners next. An object if you wish to add/remove from multiple events at once.
+	     * @param {Function[]} [listeners] An optional array of listener functions to add/remove.
+	     * @return {Object} Current instance of EventEmitter for chaining.
+	     */
+	    proto.manipulateListeners = function manipulateListeners(remove, evt, listeners) {
+	        var i;
+	        var value;
+	        var single = remove ? this.removeListener : this.addListener;
+	        var multiple = remove ? this.removeListeners : this.addListeners;
+
+	        // If evt is an object then pass each of its properties to this method
+	        if (typeof evt === 'object' && !(evt instanceof RegExp)) {
+	            for (i in evt) {
+	                if (evt.hasOwnProperty(i) && (value = evt[i])) {
+	                    // Pass the single listener straight through to the singular method
+	                    if (typeof value === 'function') {
+	                        single.call(this, i, value);
+	                    }
+	                    else {
+	                        // Otherwise pass back to the multiple function
+	                        multiple.call(this, i, value);
+	                    }
+	                }
+	            }
+	        }
+	        else {
+	            // So evt must be a string
+	            // And listeners must be an array of listeners
+	            // Loop over it and pass each one to the multiple method
+	            i = listeners.length;
+	            while (i--) {
+	                single.call(this, evt, listeners[i]);
+	            }
+	        }
+
+	        return this;
+	    };
+
+	    /**
+	     * Removes all listeners from a specified event.
+	     * If you do not specify an event then all listeners will be removed.
+	     * That means every event will be emptied.
+	     * You can also pass a regex to remove all events that match it.
+	     *
+	     * @param {String|RegExp} [evt] Optional name of the event to remove all listeners for. Will remove from every event if not passed.
+	     * @return {Object} Current instance of EventEmitter for chaining.
+	     */
+	    proto.removeEvent = function removeEvent(evt) {
+	        var type = typeof evt;
+	        var events = this._getEvents();
+	        var key;
+
+	        // Remove different things depending on the state of evt
+	        if (type === 'string') {
+	            // Remove all listeners for the specified event
+	            delete events[evt];
+	        }
+	        else if (evt instanceof RegExp) {
+	            // Remove all events matching the regex.
+	            for (key in events) {
+	                if (events.hasOwnProperty(key) && evt.test(key)) {
+	                    delete events[key];
+	                }
+	            }
+	        }
+	        else {
+	            // Remove all listeners in all events
+	            delete this._events;
+	        }
+
+	        return this;
+	    };
+
+	    /**
+	     * Alias of removeEvent.
+	     *
+	     * Added to mirror the node API.
+	     */
+	    proto.removeAllListeners = alias('removeEvent');
+
+	    /**
+	     * Emits an event of your choice.
+	     * When emitted, every listener attached to that event will be executed.
+	     * If you pass the optional argument array then those arguments will be passed to every listener upon execution.
+	     * Because it uses `apply`, your array of arguments will be passed as if you wrote them out separately.
+	     * So they will not arrive within the array on the other side, they will be separate.
+	     * You can also pass a regular expression to emit to all events that match it.
+	     *
+	     * @param {String|RegExp} evt Name of the event to emit and execute listeners for.
+	     * @param {Array} [args] Optional array of arguments to be passed to each listener.
+	     * @return {Object} Current instance of EventEmitter for chaining.
+	     */
+	    proto.emitEvent = function emitEvent(evt, args) {
+	        var listenersMap = this.getListenersAsObject(evt);
+	        var listeners;
+	        var listener;
+	        var i;
+	        var key;
+	        var response;
+
+	        for (key in listenersMap) {
+	            if (listenersMap.hasOwnProperty(key)) {
+	                listeners = listenersMap[key].slice(0);
+	                i = listeners.length;
+
+	                while (i--) {
+	                    // If the listener returns true then it shall be removed from the event
+	                    // The function is executed either with a basic call or an apply if there is an args array
+	                    listener = listeners[i];
+
+	                    if (listener.once === true) {
+	                        this.removeListener(evt, listener.listener);
+	                    }
+
+	                    response = listener.listener.apply(this, args || []);
+
+	                    if (response === this._getOnceReturnValue()) {
+	                        this.removeListener(evt, listener.listener);
+	                    }
+	                }
+	            }
+	        }
+
+	        return this;
+	    };
+
+	    /**
+	     * Alias of emitEvent
+	     */
+	    proto.trigger = alias('emitEvent');
+
+	    /**
+	     * Subtly different from emitEvent in that it will pass its arguments on to the listeners, as opposed to taking a single array of arguments to pass on.
+	     * As with emitEvent, you can pass a regex in place of the event name to emit to all events that match it.
+	     *
+	     * @param {String|RegExp} evt Name of the event to emit and execute listeners for.
+	     * @param {...*} Optional additional arguments to be passed to each listener.
+	     * @return {Object} Current instance of EventEmitter for chaining.
+	     */
+	    proto.emit = function emit(evt) {
+	        var args = Array.prototype.slice.call(arguments, 1);
+	        return this.emitEvent(evt, args);
+	    };
+
+	    /**
+	     * Sets the current value to check against when executing listeners. If a
+	     * listeners return value matches the one set here then it will be removed
+	     * after execution. This value defaults to true.
+	     *
+	     * @param {*} value The new value to check for when executing listeners.
+	     * @return {Object} Current instance of EventEmitter for chaining.
+	     */
+	    proto.setOnceReturnValue = function setOnceReturnValue(value) {
+	        this._onceReturnValue = value;
+	        return this;
+	    };
+
+	    /**
+	     * Fetches the current value to check against when executing listeners. If
+	     * the listeners return value matches this one then it should be removed
+	     * automatically. It will return true by default.
+	     *
+	     * @return {*|Boolean} The current value to check for or the default, true.
+	     * @api private
+	     */
+	    proto._getOnceReturnValue = function _getOnceReturnValue() {
+	        if (this.hasOwnProperty('_onceReturnValue')) {
+	            return this._onceReturnValue;
+	        }
+	        else {
+	            return true;
+	        }
+	    };
+
+	    /**
+	     * Fetches the events object and creates one if required.
+	     *
+	     * @return {Object} The events storage object.
+	     * @api private
+	     */
+	    proto._getEvents = function _getEvents() {
+	        return this._events || (this._events = {});
+	    };
+
+	    /**
+	     * Reverts the global {@link EventEmitter} to its previous value and returns a reference to this version.
+	     *
+	     * @return {Function} Non conflicting EventEmitter class.
+	     */
+	    EventEmitter.noConflict = function noConflict() {
+	        exports.EventEmitter = originalGlobalValue;
+	        return EventEmitter;
+	    };
+
+	    // Expose the class either via AMD, CommonJS or the global object
+	    if (true) {
+	        !(__WEBPACK_AMD_DEFINE_RESULT__ = function () {
+	            return EventEmitter;
+	        }.call(exports, __webpack_require__, exports, module), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+	    }
+	    else if (typeof module === 'object' && module.exports){
+	        module.exports = EventEmitter;
+	    }
+	    else {
+	        exports.EventEmitter = EventEmitter;
+	    }
+	}.call(this));
+
+
+/***/ },
+/* 596 */
+/***/ function(module, exports) {
+
+	"use strict";
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	var Queue = function () {
+
+	    /*
+	    *   As the name implies, `consumer` is the (sole) consumer of the queue.
+	    *   It gets called with each element of the queue and its return value
+	    *   serves as a ack, determining whether the element is removed or not from
+	    *   the queue, allowing then subsequent elements to be processed.
+	    */
+
+	    function Queue(consumer) {
+	        _classCallCheck(this, Queue);
+
+	        this.consumer = consumer;
+	        this.queue = [];
+	    }
+
+	    _createClass(Queue, [{
+	        key: "push",
+	        value: function push(element) {
+	            this.queue.push(element);
+	            this.process();
+	        }
+	    }, {
+	        key: "process",
+	        value: function process() {
+	            if (this.queue.length !== 0) {
+	                var ack = this.consumer(this.queue[0]);
+	                if (ack) {
+	                    this.queue.shift();
+	                    this.process();
+	                }
+	            }
+	        }
+	    }, {
+	        key: "empty",
+	        value: function empty() {
+	            this.queue = [];
+	        }
+	    }]);
+
+	    return Queue;
+	}();
+
+	exports.default = Queue;
+
+/***/ },
+/* 597 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _wolfy87Eventemitter = __webpack_require__(595);
+
+	var _wolfy87Eventemitter2 = _interopRequireDefault(_wolfy87Eventemitter);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var Socket = function (_EventEmitter) {
+	    _inherits(Socket, _EventEmitter);
+
+	    function Socket(SocketConstructor, endpoint) {
+	        _classCallCheck(this, Socket);
+
+	        var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(Socket).call(this));
+
+	        _this.SocketConstructor = SocketConstructor;
+	        _this.endpoint = endpoint;
+	        _this.rawSocket = null;
+	        return _this;
+	    }
+
+	    _createClass(Socket, [{
+	        key: "send",
+	        value: function send(object) {
+	            var message = JSON.stringify(object);
+	            this.rawSocket.send(message);
+	            // Emit a copy of the object, as the listener might mutate it.
+	            this.emit("message:out", JSON.parse(message));
+	        }
+	    }, {
+	        key: "open",
+	        value: function open() {
+	            var _this2 = this;
+
+	            /*
+	            *   Makes `open` a no-op if there's already a `rawSocket`. This avoids
+	            *   memory / socket leaks if `open` is called twice (e.g. by a user
+	            *   calling `ddp.connect` twice) without properly disposing of the
+	            *   socket connection. `rawSocket` gets automatically set to `null` only
+	            *   when it goes into a closed or error state. This way `rawSocket` is
+	            *   disposed of correctly: the socket connection is closed, and the
+	            *   object can be garbage collected.
+	            */
+	            if (this.rawSocket) {
+	                return;
+	            }
+	            this.rawSocket = new this.SocketConstructor(this.endpoint);
+
+	            /*
+	            *   Calls to `onopen` and `onclose` directly trigger the `open` and
+	            *   `close` events on the `Socket` instance.
+	            */
+	            this.rawSocket.onopen = function () {
+	                return _this2.emit("open");
+	            };
+	            this.rawSocket.onclose = function () {
+	                _this2.rawSocket = null;
+	                _this2.emit("close");
+	            };
+	            /*
+	            *   Calls to `onerror` trigger the `close` event on the `Socket`
+	            *   instance, and cause the `rawSocket` object to be disposed of.
+	            *   Since it's not clear what conditions could cause the error and if
+	            *   it's possible to recover from it, we prefer to always close the
+	            *   connection (if it isn't already) and dispose of the socket object.
+	            */
+	            this.rawSocket.onerror = function () {
+	                // It's not clear what the socket lifecycle is when errors occurr.
+	                // Hence, to avoid the `close` event to be emitted twice, before
+	                // manually closing the socket we de-register the `onclose`
+	                // callback.
+	                delete _this2.rawSocket.onclose;
+	                // Safe to perform even if the socket is already closed
+	                _this2.rawSocket.close();
+	                _this2.rawSocket = null;
+	                _this2.emit("close");
+	            };
+	            /*
+	            *   Calls to `onmessage` trigger a `message:in` event on the `Socket`
+	            *   instance only once the message (first parameter to `onmessage`) has
+	            *   been successfully parsed into a javascript object.
+	            */
+	            this.rawSocket.onmessage = function (message) {
+	                var object;
+	                try {
+	                    object = JSON.parse(message.data);
+	                } catch (ignore) {
+	                    // Simply ignore the malformed message and return
+	                    return;
+	                }
+	                // Outside the try-catch block as it must only catch JSON parsing
+	                // errors, not errors that may occur inside a "message:in" event
+	                // handler
+	                _this2.emit("message:in", object);
+	            };
+	        }
+	    }, {
+	        key: "close",
+	        value: function close() {
+	            /*
+	            *   Avoid throwing an error if `rawSocket === null`
+	            */
+	            if (this.rawSocket) {
+	                this.rawSocket.close();
+	            }
+	        }
+	    }]);
+
+	    return Socket;
+	}(_wolfy87Eventemitter2.default);
+
+	exports.default = Socket;
+
+/***/ },
+/* 598 */
+/***/ function(module, exports) {
+
+	"use strict";
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	exports.uniqueId = uniqueId;
+	exports.contains = contains;
+	var i = 0;
+	function uniqueId() {
+	    return (i++).toString();
+	}
+
+	function contains(array, element) {
+	    return array.indexOf(element) !== -1;
+	}
+
+/***/ },
+/* 599 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	exports.login = login;
+	exports.logout = logout;
+	exports.init = init;
+
+	var _loginMethod = __webpack_require__(600);
+
+	/*
+	*   Public methods
+	*/
+
+	function login(loginParameters) {
+	    return this.call("login", loginParameters).then(_loginMethod.onLogin.bind(this));
+	} /*
+	  *   Login mixin:
+	  *    - defines the `login` and `logout` methods
+	  *    - exposes the `userId` and `loggedIn` public properties
+	  */
+
+	function logout() {
+	    return this.call("logout").then(_loginMethod.onLogout.bind(this));
+	}
+
+	/*
+	*   Init method
+	*/
+
+	function init() {
+	    this.userId = null;
+	    this.loggedIn = false;
+	    this.ddp.on("connected", _loginMethod.resumeLogin.bind(this));
+	}
+
+/***/ },
+/* 600 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	exports.onLogin = onLogin;
+	exports.onLogout = onLogout;
+	exports.resumeLogin = resumeLogin;
+
+	var _multiStorage = __webpack_require__(601);
+
+	var multiStorage = _interopRequireWildcard(_multiStorage);
+
+	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
+	function onLogin(_ref) {
+	    var id = _ref.id;
+	    var token = _ref.token;
+
+	    this.userId = id;
+	    this.loggedIn = true;
+	    return multiStorage.set(this.endpoint + "__login_token__", token).then(this.emit.bind(this, "loggedIn", id)).then(function () {
+	        return id;
+	    });
+	}
+
+	function onLogout() {
+	    this.userId = null;
+	    this.loggedIn = false;
+	    return multiStorage.del(this.endpoint + "__login_token__").then(this.emit.bind(this, "loggedOut")).then(function () {
+	        return null;
+	    });
+	}
+
+	function resumeLogin() {
+	    return multiStorage.get(this.endpoint + "__login_token__").then(function (resume) {
+	        if (!resume) {
+	            throw new Error("No login token");
+	        }
+	        return { resume: resume };
+	    }).then(this.login.bind(this)).catch(onLogout.bind(this));
+	}
+
+/***/ },
+/* 601 */
+/***/ function(module, exports) {
+
+	"use strict";
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	exports.get = get;
+	exports.set = set;
+	exports.del = del;
+
+	function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+	var genericStorage = {};
+
+	function get(key) {
+	    return new Promise(function (resolve, reject) {
+	        if (typeof chrome !== "undefined" && chrome.storage) {
+	            chrome.storage.local.get(key, function (data) {
+	                return resolve(data[key]);
+	            });
+	        } else if (typeof localStorage !== "undefined") {
+	            resolve(localStorage[key]);
+	        } else if (typeof AsyncStorage !== "undefined") {
+	            AsyncStorage.getItem(key, function (error, data) {
+	                if (error) {
+	                    reject(error);
+	                } else {
+	                    resolve(data);
+	                }
+	            });
+	        } else {
+	            resolve(genericStorage[key]);
+	        }
+	    });
+	}
+
+	function set(key, value) {
+	    return new Promise(function (resolve, reject) {
+	        if (typeof chrome !== "undefined" && chrome.storage) {
+	            var data = _defineProperty({}, key, value);
+	            chrome.storage.local.set(data, resolve);
+	        } else if (typeof localStorage !== "undefined") {
+	            localStorage[key] = value;
+	            resolve();
+	        } else if (typeof AsyncStorage !== "undefined") {
+	            AsyncStorage.setItem(key, value, function (error) {
+	                if (error) {
+	                    reject(error);
+	                } else {
+	                    resolve();
+	                }
+	            });
+	        } else {
+	            genericStorage[key] = value;
+	            resolve();
+	        }
+	    });
+	}
+
+	function del(key) {
+	    return new Promise(function (resolve, reject) {
+	        if (typeof chrome !== "undefined" && chrome.storage) {
+	            chrome.storage.local.remove(key, resolve);
+	        } else if (typeof localStorage !== "undefined") {
+	            delete localStorage[key];
+	            resolve();
+	        } else if (typeof AsyncStorage !== "undefined") {
+	            AsyncStorage.removeItem(key, function (error) {
+	                if (error) {
+	                    reject(error);
+	                } else {
+	                    resolve();
+	                }
+	            });
+	        } else {
+	            delete genericStorage[key];
+	            resolve();
+	        }
+	    });
+	}
+
+/***/ },
+/* 602 */
+/***/ function(module, exports) {
+
+	"use strict";
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	exports.apply = apply;
+	exports.call = call;
+	exports.init = init;
+	/*
+	*   The methods mixin:
+	*   - defines the `apply` and `call` methods, used to send a ddp `method`
+	*     message to the server. In order to do so - due to the asynchronicity of
+	*     the ddp method call - it must maintain a cache (under the `methods.cache`
+	*     property of the Asteroid instance) of ddp method calls, which is then used
+	*     to match ddp `result` messages received from the server
+	*/
+
+	/*
+	*   Public methods
+	*/
+
+	function apply(method, params) {
+	    var _this = this;
+
+	    return new Promise(function (resolve, reject) {
+	        var id = _this.ddp.method(method, params);
+	        _this.methods.cache[id] = { resolve: resolve, reject: reject };
+	    });
+	}
+
+	function call(method) {
+	    for (var _len = arguments.length, params = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
+	        params[_key - 1] = arguments[_key];
+	    }
+
+	    return this.apply(method, params);
+	}
+
+	/*
+	*   Init method
+	*/
+
+	function init() {
+	    var _this2 = this;
+
+	    this.methods = {
+	        cache: {}
+	    };
+	    this.ddp.on("result", function (_ref) {
+	        var id = _ref.id;
+	        var error = _ref.error;
+	        var result = _ref.result;
+
+	        var method = _this2.methods.cache[id];
+	        if (error) {
+	            method.reject(error);
+	        } else {
+	            method.resolve(result);
+	        }
+	        delete _this2.methods.cache[id];
+	    });
+	}
+
+/***/ },
+/* 603 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	exports.createUser = createUser;
+	exports.loginWithPassword = loginWithPassword;
+
+	var _loginMethod = __webpack_require__(600);
+
+	/*
+	*   Public methods
+	*/
+
+	function createUser(_ref) {
+	    var username = _ref.username;
+	    var email = _ref.email;
+	    var password = _ref.password;
+
+	    var options = {
+	        password: password,
+	        user: {
+	            username: username,
+	            email: email
+	        }
+	    };
+	    return this.call("createUser", options).then(_loginMethod.onLogin.bind(this));
+	} /*
+	  *   The password-login mixin:
+	  *   - defines the `createUser` and `loginWithPassword` methods, porcelain for
+	  *     calling the `createUser` and `login` ddp methods
+	  */
+
+	function loginWithPassword(_ref2) {
+	    var username = _ref2.username;
+	    var email = _ref2.email;
+	    var password = _ref2.password;
+
+	    var loginParameters = {
+	        password: password,
+	        user: {
+	            username: username,
+	            email: email
+	        }
+	    };
+	    return this.call("login", loginParameters).then(_loginMethod.onLogin.bind(this));
+	}
+
+/***/ },
+/* 604 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	exports.subscribe = subscribe;
+	exports.unsubscribe = unsubscribe;
+	exports.init = init;
+
+	var _lodash = __webpack_require__(591);
+
+	var _lodash2 = _interopRequireDefault(_lodash);
+
+	var _wolfy87Eventemitter = __webpack_require__(592);
+
+	var _wolfy87Eventemitter2 = _interopRequireDefault(_wolfy87Eventemitter);
+
+	var _subscriptionCache = __webpack_require__(605);
+
+	var _subscriptionCache2 = _interopRequireDefault(_subscriptionCache);
+
+	var _fingerprintSub = __webpack_require__(606);
+
+	var _fingerprintSub2 = _interopRequireDefault(_fingerprintSub);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	/*
+	*   Private methods: they are invoked with the asteroid instance as context, but
+	*   they are not exported so they don't clutter the Asteroid class prototype.
+	*/
+
+	/*
+	*   The subscriptions mixin:
+	*   - defines the `subscribe` and `unsubscribe` methods, used to send ddp `sub`
+	*     and `unsub` messages to the server. In order to do so - due to the
+	*     asynchronicity of the ddp sub and unsub calls - it must maintain a cache
+	*     (under the `subscriptions.cache` property of the Asteroid instance) of ddp
+	*     subscriptions. The cache is then used to match ddp `ready` and `nosub`
+	*     messages received from the server, and to restart active subscriptions in
+	*     the event of a reconnection (since Meteor does not support resuming ddp
+	*     sessions, as of version 1.2.0.2)
+	*/
+
+	function restartSubscription(sub) {
+	    // Only restart the subscription if it isn't still in ddp's queue.
+	    if (!sub.stillInQueue) {
+	        // Handlers to ddp's connected event are invoked asynchronously (see
+	        // https://github.com/mondora/ddp.js/blob/master/src/ddp.js#L20).
+	        // Therefore there is a (very very small) chance that between the time
+	        // when the connected message is received and the time when the
+	        // connected handler is invoked, the ddp instance disconnected.
+	        // Therefore we update the stillInQueue status fo the subscription
+	        this.ddp.sub(sub.name, sub.params, sub.id);
+	        sub.stillInQueue = this.ddp.status !== "connected";
+	    } else {
+	        // Since we're restarting subscriptions after a connection, we know
+	        // that now the subscriptions which were in ddp's queue will be sent,
+	        // therefore we need to remove the stillInQueue flag from them
+	        sub.stillInQueue = false;
+	    }
+	}
+
+	/*
+	*   Public methods
+	*/
+
+	function subscribe(name) {
+	    for (var _len = arguments.length, params = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
+	        params[_key - 1] = arguments[_key];
+	    }
+
+	    var fingerprint = (0, _fingerprintSub2.default)(name, params);
+	    var sub = this.subscriptions.cache.get(fingerprint);
+	    if (!sub) {
+	        // If there is no cached subscription, subscribe
+	        var id = this.ddp.sub(name, params);
+	        // ddp.js enqueues messages to send if a connection has not yet been
+	        // established. Upon connection, when subscriptions are restarted, we
+	        // don't want to restart those subscriptions which had been made when
+	        // the connection had not yet been established, and therefore are still
+	        // in the queue. For this reason, we save ddp's connection status onto
+	        // the subscription object and we check it later to decide wether to
+	        // restart the subscription or not.
+	        var stillInQueue = this.ddp.status !== "connected";
+	        // Build the subscription object and save it in the cache
+	        sub = (0, _lodash2.default)(new _wolfy87Eventemitter2.default(), { fingerprint: fingerprint, id: id, name: name, params: params, stillInQueue: stillInQueue });
+	        this.subscriptions.cache.add(sub);
+	    }
+	    // Return the subscription object
+	    return sub;
+	}
+
+	function unsubscribe(id) {
+	    this.ddp.unsub(id);
+	}
+
+	/*
+	*   Init method
+	*/
+
+	function init() {
+	    var _this = this;
+
+	    this.subscriptions = {
+	        cache: new _subscriptionCache2.default()
+	    };
+	    this.ddp.on("ready", function (_ref) {
+	        var subs = _ref.subs;
+
+	        subs.forEach(function (id) {
+	            _this.subscriptions.cache.get(id).emit("ready");
+	        });
+	    }).on("nosub", function (_ref2) {
+	        var error = _ref2.error;
+	        var id = _ref2.id;
+
+	        if (error) {
+	            _this.subscriptions.cache.get(id).emit("error", error);
+	        }
+	        _this.subscriptions.cache.del(id);
+	    }).on("connected", function () {
+	        _this.subscriptions.cache.forEach(restartSubscription.bind(_this));
+	    });
+	}
+
+/***/ },
 /* 605 */
+/***/ function(module, exports) {
+
+	"use strict";
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	var SubscriptionCache = function () {
+	    function SubscriptionCache() {
+	        _classCallCheck(this, SubscriptionCache);
+
+	        this.byFingerprint = {};
+	        this.byId = {};
+	    }
+
+	    _createClass(SubscriptionCache, [{
+	        key: "add",
+	        value: function add(sub) {
+	            this.byFingerprint[sub.fingerprint] = sub;
+	            this.byId[sub.id] = sub;
+	        }
+	    }, {
+	        key: "get",
+	        value: function get(idOrFingerprint) {
+	            return this.byId[idOrFingerprint] || this.byFingerprint[idOrFingerprint] || null;
+	        }
+	    }, {
+	        key: "del",
+	        value: function del(idOrFingerprint) {
+	            var sub = this.get(idOrFingerprint) || {};
+	            delete this.byFingerprint[sub.fingerprint];
+	            delete this.byId[sub.id];
+	        }
+	    }, {
+	        key: "forEach",
+	        value: function forEach(iterator) {
+	            var _this = this;
+
+	            Object.keys(this.byId).forEach(function (id) {
+	                iterator(_this.byId[id]);
+	            });
+	        }
+	    }]);
+
+	    return SubscriptionCache;
+	}();
+
+	exports.default = SubscriptionCache;
+
+/***/ },
+/* 606 */
+/***/ function(module, exports) {
+
+	"use strict";
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	exports.default = fingerprintSub;
+	function fingerprintSub(name, params) {
+	    return JSON.stringify({ name: name, params: params });
+	}
+
+/***/ },
+/* 607 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -60135,6 +60403,655 @@
 	    })();
 	  }
 	}
+
+/***/ },
+/* 608 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.changeConversation = exports.changeActiveConversation = exports.changeRoute = exports.toggle = undefined;
+
+	var _constants = __webpack_require__(440);
+
+	var toggle = exports.toggle = function toggle() {
+	  return {
+	    type: _constants.MESSENGER_TOGGLE
+	  };
+	};
+
+	var changeRoute = exports.changeRoute = function changeRoute(route) {
+	  return {
+	    type: _constants.CHANGE_ROUTE,
+	    route: route
+	  };
+	};
+
+	var changeActiveConversation = exports.changeActiveConversation = function changeActiveConversation(conversationId) {
+	  return {
+	    type: _constants.CHANGE_CONVERSATION,
+	    conversationId: conversationId
+	  };
+	};
+
+	var changeConversation = exports.changeConversation = function changeConversation(conversationId) {
+	  return function (dispatch) {
+	    dispatch(changeActiveConversation(conversationId));
+	  };
+	};
+
+/***/ },
+/* 609 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _reactRedux = __webpack_require__(443);
+
+	var _messenger = __webpack_require__(608);
+
+	var _components = __webpack_require__(458);
+
+	var mapStateToProps = function mapStateToProps(state) {
+	  var isNewConversation = !state.activeConversation;
+
+	  return { isNewConversation: isNewConversation };
+	};
+
+	var mapDisptachToProps = function mapDisptachToProps(dispatch) {
+	  return {
+	    goToConversationList: function goToConversationList(e) {
+	      e.preventDefault();
+
+	      // reset current conversation
+	      dispatch((0, _messenger.changeConversation)(''));
+
+	      dispatch((0, _messenger.changeRoute)('conversationList'));
+	    }
+	  };
+	};
+
+	exports.default = (0, _reactRedux.connect)(mapStateToProps, mapDisptachToProps)(_components.Conversation);
+
+/***/ },
+/* 610 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _reactRedux = __webpack_require__(443);
+
+	var _messenger = __webpack_require__(608);
+
+	var _components = __webpack_require__(458);
+
+	var mapStateToProps = function mapStateToProps(state) {
+	  return {
+	    notificationCount: Object.keys(state.notifications).reduce(function (sum, i) {
+	      return sum + state.notifications[i];
+	    }, 0),
+	    isMessengerVisible: state.isVisible
+	  };
+	};
+
+	var mapDisptachToProps = function mapDisptachToProps(dispatch) {
+	  return {
+	    onClick: function onClick() {
+	      dispatch((0, _messenger.changeConversation)(''));
+	      dispatch((0, _messenger.changeRoute)('conversationList'));
+	      dispatch((0, _messenger.toggle)());
+	    }
+	  };
+	};
+
+	exports.default = (0, _reactRedux.connect)(mapStateToProps, mapDisptachToProps)(_components.Launcher);
+
+/***/ },
+/* 611 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _reactRedux = __webpack_require__(443);
+
+	var _messages = __webpack_require__(586);
+
+	var _components = __webpack_require__(458);
+
+	var mapStateToProps = function mapStateToProps(state) {
+	  return {
+	    isAttachingFile: state.isAttachingFile
+	  };
+	};
+
+	var mapDispatchToProps = function mapDispatchToProps(dispatch) {
+	  return {
+	    sendMessage: function sendMessage(message) {
+	      if (!message.trim()) {
+	        return;
+	      }
+
+	      dispatch((0, _messages.sendMessage)(message));
+	    },
+	    sendFile: function sendFile(file) {
+	      dispatch((0, _messages.sendFile)(file));
+	    }
+	  };
+	};
+
+	exports.default = (0, _reactRedux.connect)(mapStateToProps, mapDispatchToProps)(_components.MessageSender);
+
+/***/ },
+/* 612 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _templateObject = _taggedTemplateLiteral(['\n  subscription messageInserted {\n    messageInserted {\n      ', '\n    }\n  }\n'], ['\n  subscription messageInserted {\n    messageInserted {\n      ', '\n    }\n  }\n']),
+	    _templateObject2 = _taggedTemplateLiteral(['\n    query ($conversationId: String!) {\n      messages(conversationId: $conversationId) {\n        ', '\n      }\n    }\n  '], ['\n    query ($conversationId: String!) {\n      messages(conversationId: $conversationId) {\n        ', '\n      }\n    }\n  ']);
+
+	var _graphqlTag = __webpack_require__(584);
+
+	var _graphqlTag2 = _interopRequireDefault(_graphqlTag);
+
+	var _reactRedux = __webpack_require__(443);
+
+	var _reactApollo = __webpack_require__(428);
+
+	var _components = __webpack_require__(458);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	function _taggedTemplateLiteral(strings, raw) { return Object.freeze(Object.defineProperties(strings, { raw: { value: Object.freeze(raw) } })); }
+
+	var messageQuery = '\n  _id\n  content\n  createdAt\n  attachments{\n    url\n    name\n    size\n    type\n  }\n';
+
+	var messageInserted = (0, _graphqlTag2.default)(_templateObject, messageQuery);
+
+	var MessagesList = function (_BaseMessageList) {
+	  _inherits(MessagesList, _BaseMessageList);
+
+	  function MessagesList(props) {
+	    _classCallCheck(this, MessagesList);
+
+	    var _this = _possibleConstructorReturn(this, (MessagesList.__proto__ || Object.getPrototypeOf(MessagesList)).call(this, props));
+
+	    _this.subscription = null;
+	    return _this;
+	  }
+
+	  _createClass(MessagesList, [{
+	    key: 'componentWillReceiveProps',
+	    value: function componentWillReceiveProps(nextProps) {
+	      if (!this.subscription && !nextProps.data.loading) {
+	        var subscribeToMore = this.props.data.subscribeToMore;
+
+
+	        this.subscription = [subscribeToMore({
+	          document: messageInserted,
+	          updateQuery: function updateQuery(previousResult, _ref) {
+	            var subscriptionData = _ref.subscriptionData;
+
+	            previousResult.messages.push(subscriptionData.data.messageInserted);
+	            return previousResult;
+	          }
+	        })];
+	      }
+	    }
+	  }]);
+
+	  return MessagesList;
+	}(_components.MessagesList);
+
+	var mapStateToProps = function mapStateToProps(state) {
+	  return {
+	    conversationId: state.activeConversation
+	  };
+	};
+
+	var withData = (0, _reactApollo.graphql)((0, _graphqlTag2.default)(_templateObject2, messageQuery), {
+	  options: function options(ownProps) {
+	    return {
+	      variables: { conversationId: ownProps.conversationId }
+	    };
+	  }
+	});
+
+	var ListWithData = withData(MessagesList);
+
+	exports.default = (0, _reactRedux.connect)(mapStateToProps)(ListWithData);
+
+/***/ },
+/* 613 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _reactRedux = __webpack_require__(443);
+
+	var _components = __webpack_require__(458);
+
+	var mapStateToProps = function mapStateToProps(_ref, ownProps) {
+	  var users = _ref.users;
+	  return {
+	    user: users.find(function (u) {
+	      return u._id === ownProps.id;
+	    })
+	  };
+	};
+
+	exports.default = (0, _reactRedux.connect)(mapStateToProps)(_components.User);
+
+/***/ },
+/* 614 */
+/***/ function(module, exports, __webpack_require__) {
+
+	// style-loader: Adds some css to the DOM by adding a <style> tag
+
+	// load the styles
+	var content = __webpack_require__(615);
+	if(typeof content === 'string') content = [[module.id, content, '']];
+	// add the styles to the DOM
+	var update = __webpack_require__(617)(content, {});
+	if(content.locals) module.exports = content.locals;
+	// Hot Module Replacement
+	if(false) {
+		// When the styles change, update the <style> tags
+		if(!content.locals) {
+			module.hot.accept("!!./../../node_modules/css-loader/index.js!./../../node_modules/sass-loader/index.js!./style.scss", function() {
+				var newContent = require("!!./../../node_modules/css-loader/index.js!./../../node_modules/sass-loader/index.js!./style.scss");
+				if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
+				update(newContent);
+			});
+		}
+		// When the module is disposed, remove the <style> tags
+		module.hot.dispose(function() { update(); });
+	}
+
+/***/ },
+/* 615 */
+/***/ function(module, exports, __webpack_require__) {
+
+	exports = module.exports = __webpack_require__(616)();
+	// imports
+	exports.push([module.id, "@import url(https://fonts.googleapis.com/css?family=Roboto:300,400&subset=cyrillic-ext);", ""]);
+
+	// module
+	exports.push([module.id, ".erxes-widget {\n  margin: 0;\n  font-family: 'Roboto', Helvetica, Arial, sans-serif;\n  font-size: 14px;\n  line-height: 1.5;\n  -webkit-font-smoothing: antialiased;\n  -moz-osx-font-smoothing: grayscale; }\n\n.erxes-launcher {\n  color: #fff;\n  line-height: 56px;\n  text-align: center;\n  border-radius: 28px;\n  width: 56px;\n  height: 56px;\n  cursor: pointer;\n  position: fixed;\n  bottom: 30px;\n  right: 30px;\n  z-index: 999999;\n  box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1);\n  background: #7754b3 url(\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACgAAAAoCAYAAACM/rhtAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyNpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuNS1jMDE0IDc5LjE1MTQ4MSwgMjAxMy8wMy8xMy0xMjowOToxNSAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENDIChNYWNpbnRvc2gpIiB4bXBNTTpJbnN0YW5jZUlEPSJ4bXAuaWlkOjE4RTFGN0RBOThGMzExRTY4MTlDQzI2M0M5MDJCODE2IiB4bXBNTTpEb2N1bWVudElEPSJ4bXAuZGlkOjE4RTFGN0RCOThGMzExRTY4MTlDQzI2M0M5MDJCODE2Ij4gPHhtcE1NOkRlcml2ZWRGcm9tIHN0UmVmOmluc3RhbmNlSUQ9InhtcC5paWQ6MzQ2NDM2N0Y5OEVFMTFFNjgxOUNDMjYzQzkwMkI4MTYiIHN0UmVmOmRvY3VtZW50SUQ9InhtcC5kaWQ6MzQ2NDM2ODA5OEVFMTFFNjgxOUNDMjYzQzkwMkI4MTYiLz4gPC9yZGY6RGVzY3JpcHRpb24+IDwvcmRmOlJERj4gPC94OnhtcG1ldGE+IDw/eHBhY2tldCBlbmQ9InIiPz7dFbt2AAABlklEQVR42uzYvUsDMQCH4Tvt4AcIikXESaHoUhDdRRwcHKSoqwiKg9C5FCf/Bgcdis6COIiDuAs61IKDjoIIiqAOflFBPd9AwBtqvV5CLkMCDxx3afojl0ty5wdB4NlcmjzLiwvoArqAFgbsbqRyynC4DKq29mA7xnBja8A17No6BpdxiedGf6gyBntwH6HeMOYxbvopfsXsP3U6sIMCvk0HfEMnpurUKeFUilfEdktBCifI1ri2ghf0qfyHakAhhyukQ+dGUEVRtX1f04b1WD5wYp5rRQVfyOJDpWFdK0lBhtyWAQeQUw2nYwyG7QW/5UhXu77Gd5JRlEPHFdt2M3Oh40ldjerqwUGc4w6fSMtx+GRLD66L4Sx7cVqeK2ppWcNAnpEPxlLo3ISOSVrHRN2Ga2z9sZKUVAOq3uJVPCBf49qm3F4NJXWLM7hFf506zVhIah48wAYOI2y5xJP9bnKpE8vYWYRwXpxdtGrAFjkR5028K8S5xYvYx6ONAXvRhQtbvywEJsPpXIvdxyMX0AVMqvwIMAAEaSQ4y2c8jAAAAABJRU5ErkJggg==\") center no-repeat; }\n  .erxes-launcher span {\n    position: absolute;\n    width: 20px;\n    height: 20px;\n    background: #f74040;\n    display: block;\n    right: -2px;\n    top: -5px;\n    color: #fff;\n    border-radius: 10px;\n    text-align: center;\n    line-height: 20px;\n    font-size: 10px; }\n\n.erxes-messenger {\n  position: fixed;\n  right: 30px;\n  width: 370px;\n  background: #fff;\n  box-shadow: 0 5px 15px -3px rgba(0, 0, 0, 0.15);\n  z-index: 999999999;\n  display: flex;\n  flex-direction: column;\n  height: calc(100% - 95px - 30px);\n  bottom: 100px;\n  max-height: 620px;\n  border-radius: 4px;\n  overflow: hidden; }\n\n.erxes-topbar {\n  background: #7754b3;\n  overflow: hidden;\n  width: 100%;\n  height: 70px;\n  text-align: center;\n  flex-shrink: 0;\n  color: #fff;\n  border-top-left-radius: 4px;\n  border-top-right-radius: 4px; }\n  .erxes-topbar .topbar-button.left {\n    left: 15px; }\n  .erxes-topbar .topbar-button.right {\n    right: 15px; }\n  .erxes-topbar .erxes-middle {\n    display: inline-block; }\n\n.topbar-button {\n  position: absolute;\n  top: 15px;\n  text-align: center;\n  cursor: pointer;\n  width: 40px;\n  height: 40px;\n  line-height: 40px;\n  border-radius: 4px;\n  display: block;\n  -webkit-transition: background 0.3s ease-in-out;\n  -moz-transition: background 0.3s ease-in-out;\n  -ms-transition: background 0.3s ease-in-out;\n  -o-transition: background 0.3s ease-in-out;\n  transition: background 0.3s ease-in-out; }\n  .topbar-button.new {\n    background: url(\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA0AAAAOCAYAAAD0f5bSAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyNpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuNS1jMDE0IDc5LjE1MTQ4MSwgMjAxMy8wMy8xMy0xMjowOToxNSAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENDIChNYWNpbnRvc2gpIiB4bXBNTTpJbnN0YW5jZUlEPSJ4bXAuaWlkOjJBMzcyNUVGQTI2NjExRTZBNzNEOTJCRENBMzY3OTBDIiB4bXBNTTpEb2N1bWVudElEPSJ4bXAuZGlkOjJBMzcyNUYwQTI2NjExRTZBNzNEOTJCRENBMzY3OTBDIj4gPHhtcE1NOkRlcml2ZWRGcm9tIHN0UmVmOmluc3RhbmNlSUQ9InhtcC5paWQ6MkEzNzI1RURBMjY2MTFFNkE3M0Q5MkJEQ0EzNjc5MEMiIHN0UmVmOmRvY3VtZW50SUQ9InhtcC5kaWQ6MkEzNzI1RUVBMjY2MTFFNkE3M0Q5MkJEQ0EzNjc5MEMiLz4gPC9yZGY6RGVzY3JpcHRpb24+IDwvcmRmOlJERj4gPC94OnhtcG1ldGE+IDw/eHBhY2tldCBlbmQ9InIiPz4x/YBAAAAAZElEQVR42mL4//8/AxYsCMS7gTgNmzwLA27gAsT3sEkwMZAB6KcJ5CclIDZGExeE0iC5UAxdwNAo/08iYARiXDbNBOI9QDwLm0244gkEZmKTH+RBjk8TKBDOYpMAhR7JNgEEGADdRo/BguL5MwAAAABJRU5ErkJggg==\") no-repeat 50%; }\n  .topbar-button.back {\n    background: url(\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAkAAAAOCAYAAAD9lDaoAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyNpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuNS1jMDE0IDc5LjE1MTQ4MSwgMjAxMy8wMy8xMy0xMjowOToxNSAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENDIChNYWNpbnRvc2gpIiB4bXBNTTpJbnN0YW5jZUlEPSJ4bXAuaWlkOjE4RTFGN0UyOThGMzExRTY4MTlDQzI2M0M5MDJCODE2IiB4bXBNTTpEb2N1bWVudElEPSJ4bXAuZGlkOjE4RTFGN0UzOThGMzExRTY4MTlDQzI2M0M5MDJCODE2Ij4gPHhtcE1NOkRlcml2ZWRGcm9tIHN0UmVmOmluc3RhbmNlSUQ9InhtcC5paWQ6MThFMUY3RTA5OEYzMTFFNjgxOUNDMjYzQzkwMkI4MTYiIHN0UmVmOmRvY3VtZW50SUQ9InhtcC5kaWQ6MThFMUY3RTE5OEYzMTFFNjgxOUNDMjYzQzkwMkI4MTYiLz4gPC9yZGY6RGVzY3JpcHRpb24+IDwvcmRmOlJERj4gPC94OnhtcG1ldGE+IDw/eHBhY2tldCBlbmQ9InIiPz7KIAflAAAAYUlEQVR42mL6//8/Aw48E4hXgdgsDNhBBxCnQdlK2Ezo+I8AoSAxdAXlSArSYOLICtKwKUBWhKygHN0JDFB7YaADm0+ZGIgBxFpHtMOJDgKiAxObQiVccVcBxIJQfA8gwACtvUf35pIKuQAAAABJRU5ErkJggg==\") no-repeat 50%; }\n  .topbar-button:hover {\n    background-color: rgba(0, 0, 0, 0.2); }\n\n.erxes-staff-profile {\n  margin-top: 15px;\n  text-align: left;\n  line-height: 1.3em; }\n  .erxes-staff-profile img {\n    float: left;\n    width: 40px;\n    height: 40px;\n    border-radius: 20px;\n    overflow: hidden; }\n  .erxes-staff-profile > div {\n    margin-left: 50px; }\n  .erxes-staff-profile .erxes-staff-name {\n    font-size: 15px;\n    font-weight: 600;\n    padding-top: 3px; }\n  .erxes-staff-profile .erxes-staff-company {\n    font-size: 14px;\n    font-weight: 300; }\n\n.erxes-topbar-title {\n  font-size: 15px;\n  font-weight: 600;\n  line-height: 1.2em;\n  margin-top: 18px; }\n  .erxes-topbar-title span {\n    font-size: 14px;\n    font-weight: 300; }\n\n.erxes-conversation-list {\n  list-style: none;\n  margin: 0;\n  padding: 0;\n  overflow-y: auto; }\n\n.erxes-conversation-item {\n  position: relative;\n  overflow: hidden;\n  -webkit-transition: background 0.3s ease-in-out;\n  -moz-transition: background 0.3s ease-in-out;\n  -ms-transition: background 0.3s ease-in-out;\n  -o-transition: background 0.3s ease-in-out;\n  transition: background 0.3s ease-in-out; }\n  .erxes-conversation-item:hover {\n    cursor: pointer;\n    background: rgba(0, 0, 0, 0.01); }\n  .erxes-conversation-item.unread .erxes-message {\n    font-weight: 600;\n    color: #000; }\n  .erxes-conversation-item .erxes-list-avatar {\n    width: 40px;\n    height: 40px;\n    border-radius: 20px;\n    float: left;\n    margin: 25px 15px 25px 20px; }\n  .erxes-conversation-item .erxes-right-side {\n    padding: 25px 20px 25px 0;\n    margin-left: 75px;\n    border-bottom: 1px solid #f5f4f6; }\n  .erxes-conversation-item .erxes-name {\n    font-weight: 400; }\n  .erxes-conversation-item .erxes-last-message {\n    color: #686868;\n    overflow: hidden;\n    text-overflow: ellipsis;\n    white-space: nowrap; }\n  .erxes-conversation-item .erxes-date {\n    float: right;\n    color: #888;\n    font-size: 12px; }\n\n.erxes-messages-list {\n  background-color: #faf9fb;\n  overflow: auto;\n  padding: 20px;\n  margin: 0;\n  flex: 1; }\n  .erxes-messages-list li {\n    list-style: none;\n    position: relative;\n    overflow: hidden;\n    margin-bottom: 10px; }\n    .erxes-messages-list li.from-customer {\n      text-align: right; }\n    .erxes-messages-list li .date {\n      font-size: 11px;\n      color: #686868;\n      margin-left: 50px; }\n\n.erxes-message {\n  padding: 12px 15px;\n  background-color: #f5f4f6;\n  border-radius: 4px;\n  position: relative;\n  margin: 0 20px 5px 50px;\n  display: inline-block;\n  word-wrap: break-word;\n  color: #686868;\n  text-align: left; }\n  .erxes-message.from-customer {\n    margin: 0 0 5px 20px;\n    background-color: #7754b3;\n    color: #fff;\n    text-align: right; }\n    .erxes-message.from-customer .file-wrapper {\n      border-color: #f5f4f6; }\n  .erxes-message.attachment {\n    padding: 0;\n    background: none;\n    border: 0; }\n  .erxes-message p {\n    margin-top: 0; }\n  .erxes-message img {\n    max-width: 240px;\n    border-radius: 4px;\n    background: white;\n    min-width: 60px;\n    min-height: 30px; }\n\n.file-wrapper {\n  position: relative;\n  padding: 16px 20px;\n  border: 1px solid transparent;\n  border-radius: 4px;\n  padding-left: 40px;\n  color: #686868;\n  background: white;\n  -webkit-transition: border 0.3s ease-in-out;\n  -moz-transition: border 0.3s ease-in-out;\n  -ms-transition: border 0.3s ease-in-out;\n  -o-transition: border 0.3s ease-in-out;\n  transition: border 0.3s ease-in-out; }\n  .file-wrapper i {\n    width: 30px;\n    height: 30px;\n    position: absolute;\n    left: 10px;\n    top: 12px;\n    line-height: 30px;\n    color: #686868;\n    background-image: url(\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAeCAYAAAA7MK6iAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyNpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuNS1jMDE0IDc5LjE1MTQ4MSwgMjAxMy8wMy8xMy0xMjowOToxNSAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENDIChNYWNpbnRvc2gpIiB4bXBNTTpJbnN0YW5jZUlEPSJ4bXAuaWlkOjM0NjQzNjdEOThFRTExRTY4MTlDQzI2M0M5MDJCODE2IiB4bXBNTTpEb2N1bWVudElEPSJ4bXAuZGlkOjM0NjQzNjdFOThFRTExRTY4MTlDQzI2M0M5MDJCODE2Ij4gPHhtcE1NOkRlcml2ZWRGcm9tIHN0UmVmOmluc3RhbmNlSUQ9InhtcC5paWQ6MzQ2NDM2N0I5OEVFMTFFNjgxOUNDMjYzQzkwMkI4MTYiIHN0UmVmOmRvY3VtZW50SUQ9InhtcC5kaWQ6MzQ2NDM2N0M5OEVFMTFFNjgxOUNDMjYzQzkwMkI4MTYiLz4gPC9yZGY6RGVzY3JpcHRpb24+IDwvcmRmOlJERj4gPC94OnhtcG1ldGE+IDw/eHBhY2tldCBlbmQ9InIiPz5jGkrfAAAAs0lEQVR42mL8//8/w0AAJoYBAqMWD3+LWUjV0NnZCaKMgdgFiPcA8VmYXHl5OU19nAbEq4BYEEqH0sXHII8BcQUQrwbie1D+anrEsRKSRauh/AFNXKH0svguWih00MtiwdECZNTiYWcxLFW/p5fF76GWnoUWl/fIyVrkWHwPWlGkQy2sgJZaZ2ldSYAsmgn1eSfUUpBDXGnt4z1Qy0GWnYFaHEaqjxlHm7ejFo9aTC0AEGAAUrAjbAYD+CYAAAAASUVORK5CYII=\");\n    background-position: 0 0;\n    background-repeat: no-repeat; }\n  .file-wrapper span {\n    white-space: nowrap;\n    text-overflow: ellipsis;\n    overflow: hidden;\n    direction: rtl;\n    text-align: left;\n    max-width: 140px;\n    display: block; }\n  .file-wrapper:hover {\n    border-color: #f5f4f6; }\n\n.download-attachment {\n  display: block;\n  text-decoration: none; }\n  .download-attachment img {\n    -webkit-transition: opacity 0.3s ease-in-out;\n    -moz-transition: opacity 0.3s ease-in-out;\n    -ms-transition: opacity 0.3s ease-in-out;\n    -o-transition: opacity 0.3s ease-in-out;\n    transition: opacity 0.3s ease-in-out; }\n    .download-attachment img:hover {\n      opacity: 0.8; }\n\n.erxes-avatar {\n  width: 40px;\n  height: 40px;\n  border-radius: 50%;\n  overflow: hidden;\n  position: absolute;\n  left: 0;\n  bottom: 20px; }\n  .erxes-avatar img {\n    width: 100%;\n    height: 100%; }\n\n.btn-resend {\n  background: #fff;\n  outline: 0;\n  border: 0;\n  border-radius: 4px;\n  color: #686868;\n  padding: 5px 15px;\n  margin-top: 5px;\n  cursor: pointer; }\n  .btn-resend:focus, .btn-resend:hover {\n    background: white; }\n\n.erxes-message-sender {\n  overflow: hidden;\n  font-size: 12px;\n  position: relative;\n  min-height: 60px;\n  border-top: 1px solid white; }\n  .erxes-message-sender textarea.reply {\n    color: #686868;\n    border: 0;\n    border-radius: 3px;\n    padding: 20px 25px;\n    font-size: 14px;\n    width: 100%;\n    max-width: 100%;\n    outline: none;\n    resize: none;\n    padding-right: 40px;\n    position: absolute;\n    left: 0;\n    top: 0;\n    height: 100%; }\n    .erxes-message-sender textarea.reply:focus {\n      -webkit-box-shadow: none !important;\n      -moz-box-shadow: none !important;\n      -ms-box-shadow: none !important;\n      -o-box-shadow: none !important;\n      box-shadow: none !important; }\n  .erxes-message-sender .btn-attach {\n    position: absolute;\n    right: 15px;\n    top: 13px;\n    background-image: url(\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAeCAYAAAA7MK6iAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyNpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuNS1jMDE0IDc5LjE1MTQ4MSwgMjAxMy8wMy8xMy0xMjowOToxNSAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENDIChNYWNpbnRvc2gpIiB4bXBNTTpJbnN0YW5jZUlEPSJ4bXAuaWlkOjM0NjQzNjdEOThFRTExRTY4MTlDQzI2M0M5MDJCODE2IiB4bXBNTTpEb2N1bWVudElEPSJ4bXAuZGlkOjM0NjQzNjdFOThFRTExRTY4MTlDQzI2M0M5MDJCODE2Ij4gPHhtcE1NOkRlcml2ZWRGcm9tIHN0UmVmOmluc3RhbmNlSUQ9InhtcC5paWQ6MzQ2NDM2N0I5OEVFMTFFNjgxOUNDMjYzQzkwMkI4MTYiIHN0UmVmOmRvY3VtZW50SUQ9InhtcC5kaWQ6MzQ2NDM2N0M5OEVFMTFFNjgxOUNDMjYzQzkwMkI4MTYiLz4gPC9yZGY6RGVzY3JpcHRpb24+IDwvcmRmOlJERj4gPC94OnhtcG1ldGE+IDw/eHBhY2tldCBlbmQ9InIiPz5jGkrfAAAAs0lEQVR42mL8//8/w0AAJoYBAqMWD3+LWUjV0NnZCaKMgdgFiPcA8VmYXHl5OU19nAbEq4BYEEqH0sXHII8BcQUQrwbie1D+anrEsRKSRauh/AFNXKH0svguWih00MtiwdECZNTiYWcxLFW/p5fF76GWnoUWl/fIyVrkWHwPWlGkQy2sgJZaZ2ldSYAsmgn1eSfUUpBDXGnt4z1Qy0GWnYFaHEaqjxlHm7ejFo9aTC0AEGAAUrAjbAYD+CYAAAAASUVORK5CYII=\");\n    background-position: 2px 3px;\n    background-repeat: no-repeat;\n    width: 35px;\n    height: 35px;\n    margin: 0;\n    cursor: pointer;\n    opacity: 0.7; }\n    .erxes-message-sender .btn-attach:hover {\n      opacity: 1; }\n    .erxes-message-sender .btn-attach input[type=\"file\"] {\n      display: none; }\n  .erxes-message-sender .loader {\n    position: absolute;\n    right: 23px;\n    top: 20px;\n    border: 2px solid #f5f4f6;\n    -webkit-animation: spin 1s linear infinite;\n    -moz-animation: spin 1s linear infinite;\n    -ms-animation: spin 1s linear infinite;\n    -o-animation: spin 1s linear infinite;\n    animation: spin 1s linear infinite;\n    border-top: 2px solid #dcd8df;\n    border-radius: 50%;\n    width: 20px;\n    height: 20px; }\n\n@keyframes spin {\n  0% {\n    transform: rotate(0deg); }\n  100% {\n    transform: rotate(360deg); } }\n\n@-webkit-keyframes spin {\n  0% {\n    transform: rotate(0deg); }\n  100% {\n    transform: rotate(360deg); } }\n", ""]);
+
+	// exports
+
+
+/***/ },
+/* 616 */
+/***/ function(module, exports) {
+
+	/*
+		MIT License http://www.opensource.org/licenses/mit-license.php
+		Author Tobias Koppers @sokra
+	*/
+	// css base code, injected by the css-loader
+	module.exports = function() {
+		var list = [];
+
+		// return the list of modules as css string
+		list.toString = function toString() {
+			var result = [];
+			for(var i = 0; i < this.length; i++) {
+				var item = this[i];
+				if(item[2]) {
+					result.push("@media " + item[2] + "{" + item[1] + "}");
+				} else {
+					result.push(item[1]);
+				}
+			}
+			return result.join("");
+		};
+
+		// import a list of modules into the list
+		list.i = function(modules, mediaQuery) {
+			if(typeof modules === "string")
+				modules = [[null, modules, ""]];
+			var alreadyImportedModules = {};
+			for(var i = 0; i < this.length; i++) {
+				var id = this[i][0];
+				if(typeof id === "number")
+					alreadyImportedModules[id] = true;
+			}
+			for(i = 0; i < modules.length; i++) {
+				var item = modules[i];
+				// skip already imported module
+				// this implementation is not 100% perfect for weird media query combinations
+				//  when a module is imported multiple times with different media queries.
+				//  I hope this will never occur (Hey this way we have smaller bundles)
+				if(typeof item[0] !== "number" || !alreadyImportedModules[item[0]]) {
+					if(mediaQuery && !item[2]) {
+						item[2] = mediaQuery;
+					} else if(mediaQuery) {
+						item[2] = "(" + item[2] + ") and (" + mediaQuery + ")";
+					}
+					list.push(item);
+				}
+			}
+		};
+		return list;
+	};
+
+
+/***/ },
+/* 617 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/*
+		MIT License http://www.opensource.org/licenses/mit-license.php
+		Author Tobias Koppers @sokra
+	*/
+	var stylesInDom = {},
+		memoize = function(fn) {
+			var memo;
+			return function () {
+				if (typeof memo === "undefined") memo = fn.apply(this, arguments);
+				return memo;
+			};
+		},
+		isOldIE = memoize(function() {
+			return /msie [6-9]\b/.test(window.navigator.userAgent.toLowerCase());
+		}),
+		getHeadElement = memoize(function () {
+			return document.head || document.getElementsByTagName("head")[0];
+		}),
+		singletonElement = null,
+		singletonCounter = 0,
+		styleElementsInsertedAtTop = [];
+
+	module.exports = function(list, options) {
+		if(false) {
+			if(typeof document !== "object") throw new Error("The style-loader cannot be used in a non-browser environment");
+		}
+
+		options = options || {};
+		// Force single-tag solution on IE6-9, which has a hard limit on the # of <style>
+		// tags it will allow on a page
+		if (typeof options.singleton === "undefined") options.singleton = isOldIE();
+
+		// By default, add <style> tags to the bottom of <head>.
+		if (typeof options.insertAt === "undefined") options.insertAt = "bottom";
+
+		var styles = listToStyles(list);
+		addStylesToDom(styles, options);
+
+		return function update(newList) {
+			var mayRemove = [];
+			for(var i = 0; i < styles.length; i++) {
+				var item = styles[i];
+				var domStyle = stylesInDom[item.id];
+				domStyle.refs--;
+				mayRemove.push(domStyle);
+			}
+			if(newList) {
+				var newStyles = listToStyles(newList);
+				addStylesToDom(newStyles, options);
+			}
+			for(var i = 0; i < mayRemove.length; i++) {
+				var domStyle = mayRemove[i];
+				if(domStyle.refs === 0) {
+					for(var j = 0; j < domStyle.parts.length; j++)
+						domStyle.parts[j]();
+					delete stylesInDom[domStyle.id];
+				}
+			}
+		};
+	}
+
+	function addStylesToDom(styles, options) {
+		for(var i = 0; i < styles.length; i++) {
+			var item = styles[i];
+			var domStyle = stylesInDom[item.id];
+			if(domStyle) {
+				domStyle.refs++;
+				for(var j = 0; j < domStyle.parts.length; j++) {
+					domStyle.parts[j](item.parts[j]);
+				}
+				for(; j < item.parts.length; j++) {
+					domStyle.parts.push(addStyle(item.parts[j], options));
+				}
+			} else {
+				var parts = [];
+				for(var j = 0; j < item.parts.length; j++) {
+					parts.push(addStyle(item.parts[j], options));
+				}
+				stylesInDom[item.id] = {id: item.id, refs: 1, parts: parts};
+			}
+		}
+	}
+
+	function listToStyles(list) {
+		var styles = [];
+		var newStyles = {};
+		for(var i = 0; i < list.length; i++) {
+			var item = list[i];
+			var id = item[0];
+			var css = item[1];
+			var media = item[2];
+			var sourceMap = item[3];
+			var part = {css: css, media: media, sourceMap: sourceMap};
+			if(!newStyles[id])
+				styles.push(newStyles[id] = {id: id, parts: [part]});
+			else
+				newStyles[id].parts.push(part);
+		}
+		return styles;
+	}
+
+	function insertStyleElement(options, styleElement) {
+		var head = getHeadElement();
+		var lastStyleElementInsertedAtTop = styleElementsInsertedAtTop[styleElementsInsertedAtTop.length - 1];
+		if (options.insertAt === "top") {
+			if(!lastStyleElementInsertedAtTop) {
+				head.insertBefore(styleElement, head.firstChild);
+			} else if(lastStyleElementInsertedAtTop.nextSibling) {
+				head.insertBefore(styleElement, lastStyleElementInsertedAtTop.nextSibling);
+			} else {
+				head.appendChild(styleElement);
+			}
+			styleElementsInsertedAtTop.push(styleElement);
+		} else if (options.insertAt === "bottom") {
+			head.appendChild(styleElement);
+		} else {
+			throw new Error("Invalid value for parameter 'insertAt'. Must be 'top' or 'bottom'.");
+		}
+	}
+
+	function removeStyleElement(styleElement) {
+		styleElement.parentNode.removeChild(styleElement);
+		var idx = styleElementsInsertedAtTop.indexOf(styleElement);
+		if(idx >= 0) {
+			styleElementsInsertedAtTop.splice(idx, 1);
+		}
+	}
+
+	function createStyleElement(options) {
+		var styleElement = document.createElement("style");
+		styleElement.type = "text/css";
+		insertStyleElement(options, styleElement);
+		return styleElement;
+	}
+
+	function createLinkElement(options) {
+		var linkElement = document.createElement("link");
+		linkElement.rel = "stylesheet";
+		insertStyleElement(options, linkElement);
+		return linkElement;
+	}
+
+	function addStyle(obj, options) {
+		var styleElement, update, remove;
+
+		if (options.singleton) {
+			var styleIndex = singletonCounter++;
+			styleElement = singletonElement || (singletonElement = createStyleElement(options));
+			update = applyToSingletonTag.bind(null, styleElement, styleIndex, false);
+			remove = applyToSingletonTag.bind(null, styleElement, styleIndex, true);
+		} else if(obj.sourceMap &&
+			typeof URL === "function" &&
+			typeof URL.createObjectURL === "function" &&
+			typeof URL.revokeObjectURL === "function" &&
+			typeof Blob === "function" &&
+			typeof btoa === "function") {
+			styleElement = createLinkElement(options);
+			update = updateLink.bind(null, styleElement);
+			remove = function() {
+				removeStyleElement(styleElement);
+				if(styleElement.href)
+					URL.revokeObjectURL(styleElement.href);
+			};
+		} else {
+			styleElement = createStyleElement(options);
+			update = applyToTag.bind(null, styleElement);
+			remove = function() {
+				removeStyleElement(styleElement);
+			};
+		}
+
+		update(obj);
+
+		return function updateStyle(newObj) {
+			if(newObj) {
+				if(newObj.css === obj.css && newObj.media === obj.media && newObj.sourceMap === obj.sourceMap)
+					return;
+				update(obj = newObj);
+			} else {
+				remove();
+			}
+		};
+	}
+
+	var replaceText = (function () {
+		var textStore = [];
+
+		return function (index, replacement) {
+			textStore[index] = replacement;
+			return textStore.filter(Boolean).join('\n');
+		};
+	})();
+
+	function applyToSingletonTag(styleElement, index, remove, obj) {
+		var css = remove ? "" : obj.css;
+
+		if (styleElement.styleSheet) {
+			styleElement.styleSheet.cssText = replaceText(index, css);
+		} else {
+			var cssNode = document.createTextNode(css);
+			var childNodes = styleElement.childNodes;
+			if (childNodes[index]) styleElement.removeChild(childNodes[index]);
+			if (childNodes.length) {
+				styleElement.insertBefore(cssNode, childNodes[index]);
+			} else {
+				styleElement.appendChild(cssNode);
+			}
+		}
+	}
+
+	function applyToTag(styleElement, obj) {
+		var css = obj.css;
+		var media = obj.media;
+
+		if(media) {
+			styleElement.setAttribute("media", media)
+		}
+
+		if(styleElement.styleSheet) {
+			styleElement.styleSheet.cssText = css;
+		} else {
+			while(styleElement.firstChild) {
+				styleElement.removeChild(styleElement.firstChild);
+			}
+			styleElement.appendChild(document.createTextNode(css));
+		}
+	}
+
+	function updateLink(linkElement, obj) {
+		var css = obj.css;
+		var sourceMap = obj.sourceMap;
+
+		if(sourceMap) {
+			// http://stackoverflow.com/a/26603875
+			css += "\n/*# sourceMappingURL=data:application/json;base64," + btoa(unescape(encodeURIComponent(JSON.stringify(sourceMap)))) + " */";
+		}
+
+		var blob = new Blob([css], { type: "text/css" });
+
+		var oldSrc = linkElement.href;
+
+		linkElement.href = URL.createObjectURL(blob);
+
+		if(oldSrc)
+			URL.revokeObjectURL(oldSrc);
+	}
+
+
+/***/ },
+/* 618 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _apolloClient = __webpack_require__(199);
+
+	var _apolloClient2 = _interopRequireDefault(_apolloClient);
+
+	var _subscriptionsTransportWs = __webpack_require__(417);
+
+	var _subscriptions = __webpack_require__(438);
+
+	var _subscriptions2 = _interopRequireDefault(_subscriptions);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	var wsClient = new _subscriptionsTransportWs.Client('ws://localhost:3010'); /* eslint-disable react/jsx-filename-extension */
+
+	var networkInterface = (0, _apolloClient.createNetworkInterface)({ uri: '/graphql' });
+
+	var networkInterfaceWithSubscriptions = (0, _subscriptions2.default)(networkInterface, wsClient);
+
+	exports.default = new _apolloClient2.default({
+	  networkInterface: networkInterfaceWithSubscriptions
+	});
 
 /***/ }
 /******/ ]);

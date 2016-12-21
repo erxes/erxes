@@ -1,6 +1,8 @@
 import EJSON from 'meteor-ejson';
+import gql from 'graphql-tag';
 import { SENDING_ATTACHMENT, ATTACHMENT_SENT } from '../constants';
 import { call } from '../erxes';
+import client from '../apollo-client';
 import uploadHandler from '../uploadHandler';
 import { changeConversation } from './messenger';
 
@@ -9,8 +11,10 @@ export const readMessages = () =>
 
 export const sendMessage = (message, attachments) =>
   (dispatch, getState) => {
+    const state = getState();
+
     // current conversation
-    const currentConversationId = getState().activeConversation;
+    const currentConversationId = state.activeConversation;
 
     // message object
     const doc = {
@@ -20,7 +24,22 @@ export const sendMessage = (message, attachments) =>
     };
 
     return call('sendMessage', doc)
-      .then(({ conversationId }) => {
+      .then(({ conversationId, messageId }) => {
+        // using this in order to notify pubsub that new message inserted and
+        // subscribe to all clients
+        client.mutate({
+          mutation: gql`
+            mutation simulateInsertMessage($messageId: String) {
+              simulateInsertMessage(messageId: $messageId) {
+                _id
+              }
+            }`,
+
+          variables: {
+            messageId,
+          },
+        });
+
         // if there is no current conversation new conversation will be created
         if (!currentConversationId) {
           dispatch(changeConversation(conversationId));
