@@ -4,6 +4,8 @@ import bodyParser from 'body-parser';
 import { graphqlExpress, graphiqlExpress } from 'graphql-server-express';
 import { createServer } from 'http';
 import { SubscriptionServer } from 'subscriptions-transport-ws';
+import cors from 'cors';
+
 import { subscriptionManager } from './data/subscriptions';
 import schema from './data/schema';
 
@@ -16,6 +18,23 @@ app.use(bodyParser.json());
 
 // Express Middleware for serving static files
 app.use(express.static(path.join(__dirname, 'client')));
+
+// FIXES CORS ERROR
+const whitelist = [
+  // Allow domains here
+  'http://localhost:7010',
+];
+
+const corsOptions = {
+  origin(origin, callback) {
+    const originIsWhitelisted = whitelist.indexOf(origin) !== -1;
+    callback(null, originIsWhitelisted);
+  },
+
+  credentials: true,
+};
+
+app.use(cors(corsOptions));
 
 app.use('/graphql', graphqlExpress(() =>
   ({
@@ -46,8 +65,8 @@ httpServer.listen(WS_PORT, () => console.log( // eslint-disable-line no-console
 ));
 
 const server = new SubscriptionServer( // eslint-disable-line no-unused-vars
-	{ subscriptionManager },
-	httpServer
+  { subscriptionManager },
+  httpServer
 );
 
 app.listen(GRAPHQL_PORT);
