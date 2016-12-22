@@ -60776,10 +60776,19 @@
 	      document: (0, _graphqlTag2.default)(_templateObject, messageQuery),
 
 	      // push new message to messages list when subscription updated
-	      updateQuery: function updateQuery(previousResult, _ref) {
+	      updateQuery: function updateQuery(_previousResult, _ref) {
 	        var subscriptionData = _ref.subscriptionData;
 
-	        previousResult.messages.push(subscriptionData.data.messageInserted);
+	        var previousResult = _previousResult;
+
+	        // get previous messages list
+	        var messages = previousResult.messages || [];
+
+	        // add new one
+	        messages.push(subscriptionData.data.messageInserted);
+
+	        previousResult.messages = messages;
+
 	        return previousResult;
 	      }
 	    };
@@ -61271,6 +61280,7 @@
 
 	    var _this = _possibleConstructorReturn(this, (Subscriber.__proto__ || Object.getPrototypeOf(Subscriber)).call(this, props));
 
+	    _this.subscription = null;
 	    _this.subscribeToMoreOptions = {};
 	    return _this;
 	  }

@@ -4,6 +4,7 @@ export default class Subscriber extends React.Component {
   constructor(props) {
     super(props);
 
+    this.subscription = null;
     this.subscribeToMoreOptions = {};
   }
 

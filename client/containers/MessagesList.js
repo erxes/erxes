@@ -32,8 +32,17 @@ class MessagesList extends Subscriber {
       `,
 
       // push new message to messages list when subscription updated
-      updateQuery: (previousResult, { subscriptionData }) => {
-        previousResult.messages.push(subscriptionData.data.messageInserted);
+      updateQuery: (_previousResult, { subscriptionData }) => {
+        const previousResult = _previousResult;
+
+        // get previous messages list
+        const messages = previousResult.messages || [];
+
+        // add new one
+        messages.push(subscriptionData.data.messageInserted);
+
+        previousResult.messages = messages;
+
         return previousResult;
       },
     };
