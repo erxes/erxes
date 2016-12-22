@@ -4,16 +4,12 @@ import { ConversationItem } from '../containers';
 
 
 const propTypes = {
-  data: PropTypes.object.isRequired,
+  conversations: PropTypes.array.isRequired,
   createConversation: PropTypes.func.isRequired,
   goToConversation: PropTypes.func.isRequired,
 };
 
-function ConversationList({ data, createConversation, goToConversation }) {
-  if (data.loading) {
-    return null;
-  }
-
+function ConversationList({ conversations, createConversation, goToConversation }) {
   const title = (
     <div className="erxes-topbar-title">
       <div>Conversations</div>
@@ -30,7 +26,7 @@ function ConversationList({ data, createConversation, goToConversation }) {
       />
       <ul className="erxes-conversation-list">
         {
-          data.conversations.map(conversation =>
+          conversations.map(conversation =>
             <ConversationItem
               key={conversation._id}
               conversation={conversation}

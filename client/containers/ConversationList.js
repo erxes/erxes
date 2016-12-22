@@ -1,20 +1,29 @@
+import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
 import gql from 'graphql-tag';
 import { graphql } from 'react-apollo';
 import { readMessages } from '../actions/messages';
 import { changeRoute, changeConversation } from '../actions/messenger';
-import { ConversationList } from '../components';
+import { ConversationList as DumbConversationList } from '../components';
 
-// The `graphql` wrapper executes a GraphQL query and makes the results
-// available on the `data` prop of the wrapped component (ConversationList here)
-const withQueryData = graphql(gql`
-  query allConversations {
-    conversations {
-      _id
-      content
-    }
+const ConversationList = (props) => {
+  const { data } = props;
+
+  if (data.loading) {
+    return null;
   }
-`)(ConversationList);
+
+  const extendedProps = {
+    ...props,
+    conversations: props.data.conversations,
+  };
+
+  return <DumbConversationList { ...extendedProps } />;
+};
+
+ConversationList.propTypes = {
+  data: PropTypes.object.isRequired,
+};
 
 
 const mapDisptachToProps = dispatch => ({
@@ -35,4 +44,15 @@ const mapDisptachToProps = dispatch => ({
   },
 });
 
-export default connect(mapDisptachToProps)(withQueryData);
+const ListWithData = graphql(
+  gql`
+    query allConversations {
+      conversations {
+        _id
+        content
+      }
+    }
+  `
+)(ConversationList);
+
+export default connect(() => ({}), mapDisptachToProps)(ListWithData);
