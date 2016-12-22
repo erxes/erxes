@@ -34968,7 +34968,9 @@
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-	var wsClient = new _subscriptionsTransportWs.Client('ws://localhost:3010'); /* eslint-disable react/jsx-filename-extension */
+	var wsClient = new _subscriptionsTransportWs.Client('ws://localhost:3010', {
+	  reconnect: true
+	}); /* eslint-disable react/jsx-filename-extension */
 
 	var networkInterface = (0, _apolloClient.createNetworkInterface)({ uri: '/graphql' });
 

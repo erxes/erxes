@@ -2,7 +2,13 @@
 
 import Mongoose from 'mongoose';
 
-Mongoose.connect('mongodb://127.0.0.1:7011/meteor');
+Mongoose.connect(
+  'mongodb://127.0.0.1:7011/meteor', {
+    server: {
+      auto_reconnect: true,
+    },
+  }
+);
 
 const ConversationSchema = Mongoose.Schema({
   _id: String,
