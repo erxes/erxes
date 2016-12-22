@@ -1,7 +1,9 @@
+import React from 'react';
 import gql from 'graphql-tag';
 import { connect } from 'react-redux';
 import { graphql } from 'react-apollo';
-import { MessagesList as BaseMessageList } from '../components';
+import { MessagesList as DumbMessageList } from '../components';
+import Subscriber from './Subscriber';
 
 
 const messageQuery = `
@@ -16,29 +18,29 @@ const messageQuery = `
   }
 `;
 
-const messageInserted = gql`
-  subscription messageInserted {
-    messageInserted {
-      ${messageQuery}
-    }
-  }
-`;
+class MessagesList extends Subscriber {
+  constructor(props) {
+    super(props);
 
-class MessagesList extends BaseMessageList {
-  componentWillReceiveProps(nextProps) {
-    if (!this.subscription && !nextProps.data.loading) {
-      const { subscribeToMore } = this.props.data;
-
-      this.subscription = [subscribeToMore(
-        {
-          document: messageInserted,
-          updateQuery: (previousResult, { subscriptionData }) => {
-            previousResult.messages.push(subscriptionData.data.messageInserted);
-            return previousResult;
-          },
+    this.subscribeToMoreOptions = {
+      document: gql`
+        subscription messageInserted {
+          messageInserted {
+            ${messageQuery}
+          }
         }
-      )];
-    }
+      `,
+
+      // push new message to messages list when subscription updated
+      updateQuery: (previousResult, { subscriptionData }) => {
+        previousResult.messages.push(subscriptionData.data.messageInserted);
+        return previousResult;
+      },
+    };
+  }
+
+  render() {
+    return <DumbMessageList { ...this.props } />;
   }
 }
 

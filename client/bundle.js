@@ -35890,16 +35890,12 @@
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
-	var CONVERSATION_RECEIVED = exports.CONVERSATION_RECEIVED = 'CONVERSATION_RECEIVED';
-
 	var SENDING_ATTACHMENT = exports.SENDING_ATTACHMENT = 'SENDING_ATTACHMENT';
 	var ATTACHMENT_SENT = exports.ATTACHMENT_SENT = 'ATTACHMENT_SENT';
 
 	var MESSENGER_TOGGLE = exports.MESSENGER_TOGGLE = 'MESSENGER_TOGGLE';
 	var CHANGE_ROUTE = exports.CHANGE_ROUTE = 'CHANGE_ROUTE';
 	var CHANGE_CONVERSATION = exports.CHANGE_CONVERSATION = 'CHANGE_CONVERSATION';
-
-	var NOTIFICATION_RECEIVED = exports.NOTIFICATION_RECEIVED = 'NOTIFICATION_RECEIVED';
 
 /***/ },
 /* 442 */
@@ -60735,8 +60731,12 @@
 
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-	var _templateObject = _taggedTemplateLiteral(['\n  subscription messageInserted {\n    messageInserted {\n      ', '\n    }\n  }\n'], ['\n  subscription messageInserted {\n    messageInserted {\n      ', '\n    }\n  }\n']),
+	var _templateObject = _taggedTemplateLiteral(['\n        subscription messageInserted {\n          messageInserted {\n            ', '\n          }\n        }\n      '], ['\n        subscription messageInserted {\n          messageInserted {\n            ', '\n          }\n        }\n      ']),
 	    _templateObject2 = _taggedTemplateLiteral(['\n    query ($conversationId: String!) {\n      messages(conversationId: $conversationId) {\n        ', '\n      }\n    }\n  '], ['\n    query ($conversationId: String!) {\n      messages(conversationId: $conversationId) {\n        ', '\n      }\n    }\n  ']);
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
 
 	var _graphqlTag = __webpack_require__(585);
 
@@ -60748,7 +60748,13 @@
 
 	var _components = __webpack_require__(459);
 
+	var _Subscriber2 = __webpack_require__(621);
+
+	var _Subscriber3 = _interopRequireDefault(_Subscriber2);
+
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _taggedTemplateLiteral(strings, raw) { return Object.freeze(Object.defineProperties(strings, { raw: { value: Object.freeze(raw) } })); }
 
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -60756,43 +60762,39 @@
 
 	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-	function _taggedTemplateLiteral(strings, raw) { return Object.freeze(Object.defineProperties(strings, { raw: { value: Object.freeze(raw) } })); }
-
 	var messageQuery = '\n  _id\n  content\n  createdAt\n  attachments{\n    url\n    name\n    size\n    type\n  }\n';
 
-	var messageInserted = (0, _graphqlTag2.default)(_templateObject, messageQuery);
+	var MessagesList = function (_Subscriber) {
+	  _inherits(MessagesList, _Subscriber);
 
-	var MessagesList = function (_BaseMessageList) {
-	  _inherits(MessagesList, _BaseMessageList);
-
-	  function MessagesList() {
+	  function MessagesList(props) {
 	    _classCallCheck(this, MessagesList);
 
-	    return _possibleConstructorReturn(this, (MessagesList.__proto__ || Object.getPrototypeOf(MessagesList)).apply(this, arguments));
+	    var _this = _possibleConstructorReturn(this, (MessagesList.__proto__ || Object.getPrototypeOf(MessagesList)).call(this, props));
+
+	    _this.subscribeToMoreOptions = {
+	      document: (0, _graphqlTag2.default)(_templateObject, messageQuery),
+
+	      // push new message to messages list when subscription updated
+	      updateQuery: function updateQuery(previousResult, _ref) {
+	        var subscriptionData = _ref.subscriptionData;
+
+	        previousResult.messages.push(subscriptionData.data.messageInserted);
+	        return previousResult;
+	      }
+	    };
+	    return _this;
 	  }
 
 	  _createClass(MessagesList, [{
-	    key: 'componentWillReceiveProps',
-	    value: function componentWillReceiveProps(nextProps) {
-	      if (!this.subscription && !nextProps.data.loading) {
-	        var subscribeToMore = this.props.data.subscribeToMore;
-
-
-	        this.subscription = [subscribeToMore({
-	          document: messageInserted,
-	          updateQuery: function updateQuery(previousResult, _ref) {
-	            var subscriptionData = _ref.subscriptionData;
-
-	            previousResult.messages.push(subscriptionData.data.messageInserted);
-	            return previousResult;
-	          }
-	        })];
-	      }
+	    key: 'render',
+	    value: function render() {
+	      return _react2.default.createElement(_components.MessagesList, this.props);
 	    }
 	  }]);
 
 	  return MessagesList;
-	}(_components.MessagesList);
+	}(_Subscriber3.default);
 
 	var mapStateToProps = function mapStateToProps(state) {
 	  return {
@@ -61195,17 +61197,15 @@
 	  value: true
 	});
 
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
 	var _templateObject = _taggedTemplateLiteral(['subscription notification {notification}'], ['subscription notification {notification}']);
-
-	var _react = __webpack_require__(1);
-
-	var _react2 = _interopRequireDefault(_react);
 
 	var _graphqlTag = __webpack_require__(585);
 
 	var _graphqlTag2 = _interopRequireDefault(_graphqlTag);
+
+	var _Subscriber2 = __webpack_require__(621);
+
+	var _Subscriber3 = _interopRequireDefault(_Subscriber2);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -61217,41 +61217,83 @@
 
 	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-	var ConversationItem = function (_React$Component) {
-	  _inherits(ConversationItem, _React$Component);
+	var NotificationSubscriber = function (_Subscriber) {
+	  _inherits(NotificationSubscriber, _Subscriber);
 
-	  function ConversationItem() {
-	    _classCallCheck(this, ConversationItem);
+	  function NotificationSubscriber(props) {
+	    _classCallCheck(this, NotificationSubscriber);
 
-	    return _possibleConstructorReturn(this, (ConversationItem.__proto__ || Object.getPrototypeOf(ConversationItem)).apply(this, arguments));
+	    var _this = _possibleConstructorReturn(this, (NotificationSubscriber.__proto__ || Object.getPrototypeOf(NotificationSubscriber)).call(this, props));
+
+	    _this.subscribeToMoreOptions = {
+	      document: (0, _graphqlTag2.default)(_templateObject),
+	      updateQuery: function updateQuery() {
+	        _this.props.data.refetch();
+	      }
+	    };
+	    return _this;
 	  }
 
-	  _createClass(ConversationItem, [{
+	  return NotificationSubscriber;
+	}(_Subscriber3.default);
+
+	exports.default = NotificationSubscriber;
+
+/***/ },
+/* 621 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var Subscriber = function (_React$Component) {
+	  _inherits(Subscriber, _React$Component);
+
+	  function Subscriber(props) {
+	    _classCallCheck(this, Subscriber);
+
+	    var _this = _possibleConstructorReturn(this, (Subscriber.__proto__ || Object.getPrototypeOf(Subscriber)).call(this, props));
+
+	    _this.subscribeToMoreOptions = {};
+	    return _this;
+	  }
+
+	  _createClass(Subscriber, [{
 	    key: 'componentWillReceiveProps',
 	    value: function componentWillReceiveProps(nextProps) {
-	      var _this2 = this;
-
 	      if (!this.subscription && !nextProps.data.loading) {
 	        var subscribeToMore = this.props.data.subscribeToMore;
 
 
-	        this.subscription = [subscribeToMore({
-	          document: (0, _graphqlTag2.default)(_templateObject),
-	          updateQuery: function updateQuery() {
-	            _this2.props.data.refetch();
-	          }
-	        })];
+	        this.subscription = [subscribeToMore(this.subscribeToMoreOptions)];
 	      }
 	    }
 	  }]);
 
-	  return ConversationItem;
+	  return Subscriber;
 	}(_react2.default.Component);
 
-	exports.default = ConversationItem;
+	exports.default = Subscriber;
 
 
-	ConversationItem.propTypes = {
+	Subscriber.propTypes = {
 	  data: _react.PropTypes.object.isRequired
 	};
 
