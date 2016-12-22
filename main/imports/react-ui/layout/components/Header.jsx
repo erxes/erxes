@@ -2,7 +2,6 @@ import React, { PropTypes } from 'react';
 import { Breadcrumb } from 'react-bootstrap';
 
 
-
 const propTypes = {
   breadcrumb: PropTypes.array.isRequired,
 };

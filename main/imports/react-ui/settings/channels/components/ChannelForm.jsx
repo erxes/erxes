@@ -1,5 +1,6 @@
 import { _ } from 'meteor/underscore';
 import React, { PropTypes, Component } from 'react';
+import ReactSelectize from 'react-selectize';
 import {
   FormGroup,
   ControlLabel,
@@ -9,6 +10,7 @@ import {
   Button,
   Checkbox,
 } from 'react-bootstrap';
+import { Tip } from '/imports/react-ui/common';
 import Alert from 'meteor/erxes-notifier';
 import { add, edit } from '/imports/api/channels/methods';
 
@@ -17,6 +19,8 @@ const propTypes = {
   integrations: PropTypes.array.isRequired,
   members: PropTypes.array.isRequired,
   channel: PropTypes.object,
+  brands: PropTypes.array,
+  selectedIntegrations: PropTypes.array,
 };
 
 const contextTypes = {
@@ -28,6 +32,12 @@ class ChannelForm extends Component {
     super(props);
 
     this.save = this.save.bind(this);
+    this.generateIntegrationsParams = this.generateIntegrationsParams.bind(this);
+    this.collectValues = this.collectValues.bind(this);
+    this.generateGroups = this.generateGroups.bind(this);
+    this.state = {
+      selectedIntegrations: this.generateIntegrationsParams(props.selectedIntegrations),
+    };
   }
 
   collectCheckboxValues(name) {
@@ -42,15 +52,41 @@ class ChannelForm extends Component {
     return values;
   }
 
+  collectValues() {
+    return this.state.selectedIntegrations.map(integration => (
+      integration.value
+    ));
+  }
+
+  generateIntegrationsParams(integrations) {
+    return integrations.map(integration => (
+      {
+        integration,
+        value: integration._id,
+        label: integration.name,
+        kind: integration.kind,
+        groupId: integration.brandId,
+      }
+    ));
+  }
+
+  generateGroups(brands) {
+    return brands.map(({ _id, name }) => (
+      {
+        groupId: _id,
+        title: name,
+      }
+    ));
+  }
+
   save(e) {
     e.preventDefault();
-
     const params = {
       doc: {
         name: document.getElementById('channel-name').value,
         description: document.getElementById('channel-description').value,
         memberIds: this.collectCheckboxValues('members'),
-        integrationIds: this.collectCheckboxValues('integrations'),
+        integrationIds: this.collectValues(),
       },
     };
 
@@ -70,12 +106,28 @@ class ChannelForm extends Component {
     });
   }
 
+  renderChannelTip(integration) {
+    const count = integration.channels().length;
+    if (count !== 0) {
+      return (
+        <div className="channel-round">
+          <Tip text={integration.channels().map(c => (c.name))}>
+            <span>{count}</span>
+          </Tip>
+        </div>
+      );
+    }
+    return null;
+  }
+
   render() {
     const onClick = () => {
       this.context.closeModal();
     };
-
+    const MultiSelect = ReactSelectize.MultiSelect;
     const channel = this.props.channel || { memberIds: [], integrationIds: [] };
+    const { brands, integrations } = this.props;
+    const self = this;
     return (
       <form onSubmit={this.save}>
         <FormGroup>
@@ -95,6 +147,7 @@ class ChannelForm extends Component {
           <FormControl
             id="channel-description"
             componentClass="textarea"
+            rows={5}
             defaultValue={channel.description}
           />
         </FormGroup>
@@ -102,20 +155,23 @@ class ChannelForm extends Component {
         <FormGroup>
           <ControlLabel>Integrations</ControlLabel>
 
-          {this.props.integrations.map(integration =>
-            <div className="integration-item" key={`c-${integration._id}`}>
-              <Checkbox
-                name="integrations"
-                key={integration._id}
-                defaultChecked={channel.integrationIds.includes(integration._id)}
-                value={integration._id}
-              >
-              {integration.name} - {integration.kind}
-              </Checkbox>
-            </div>
-          )}
+          <MultiSelect
+            groups={self.generateGroups(brands)}
+            options={self.generateIntegrationsParams(integrations)}
+            placeholder="Choose integration"
+            values={self.state.selectedIntegrations}
+            onValuesChange={(items) => {
+              self.setState({ selectedIntegrations: items });
+            }}
+            renderOption={(item) => (
+              <div className="simple-option">
+                <span>{item.label}</span>
+                <span className="kind"> {item.kind}</span>
+                {self.renderChannelTip(item.integration)}
+              </div>
+            )}
+          />
         </FormGroup>
-
         <FormGroup>
           <ControlLabel>Members</ControlLabel>
 
