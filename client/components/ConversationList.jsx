@@ -1,16 +1,15 @@
 import React, { PropTypes } from 'react';
 import TopBar from './TopBar.jsx';
-import ConversationItem from './ConversationItem.jsx';
+import { ConversationItem } from '../containers';
 
 
 const propTypes = {
   data: PropTypes.object.isRequired,
-  notifications: PropTypes.object.isRequired,
   createConversation: PropTypes.func.isRequired,
   goToConversation: PropTypes.func.isRequired,
 };
 
-function ConversationList({ data, notifications, createConversation, goToConversation }) {
+function ConversationList({ data, createConversation, goToConversation }) {
   if (data.loading) {
     return null;
   }
@@ -35,7 +34,6 @@ function ConversationList({ data, notifications, createConversation, goToConvers
             <ConversationItem
               key={conversation._id}
               conversation={conversation}
-              notificationCount={notifications[conversation._id]}
               goToConversation={goToConversation}
             />
           )

@@ -25,12 +25,6 @@ const messageInserted = gql`
 `;
 
 class MessagesList extends BaseMessageList {
-  constructor(props) {
-    super(props);
-
-    this.subscription = null;
-  }
-
   componentWillReceiveProps(nextProps) {
     if (!this.subscription && !nextProps.data.loading) {
       const { subscribeToMore } = this.props.data;

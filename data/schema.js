@@ -31,22 +31,25 @@ const typeDefs = `
   type RootQuery {
     conversations: [Conversation]
     messages(conversationId: String): [Message]
+    unreadCount(conversationId: String): Int
+    totalUnreadCount: Int
   }
 
-	type Mutation {
+  type Mutation {
     simulateInsertMessage(messageId: String): Message
   }
 
-	type Subscription {
-		messageInserted: Message
-	}
+  type Subscription {
+    messageInserted: Message
+    notification: String
+  }
 
   # we need to tell the server which types represent the root query
   # and root mutation types. We call them RootQuery and RootMutation by convention.
   schema {
     query: RootQuery
-		subscription: Subscription
-		mutation: Mutation
+    subscription: Subscription
+    mutation: Mutation
   }
 `;
 
@@ -80,6 +83,21 @@ const resolvers = {
     messages(_, { conversationId }) {
       return Messages.find({ conversationId });
     },
+
+    unreadCount(_, { conversationId }) {
+      return Messages.count({
+        conversationId,
+        userId: { $exists: true },
+        isCustomerRead: { $exists: false },
+      });
+    },
+
+    totalUnreadCount() {
+      return Messages.count({
+        userId: { $exists: true },
+        isCustomerRead: { $exists: false },
+      });
+    },
   },
 
   Mutation: {
@@ -87,6 +105,7 @@ const resolvers = {
       const message = Messages.findOne({ _id: args.messageId });
 
       pubsub.publish('messageInserted', message);
+      pubsub.publish('notification');
 
       return message;
     },

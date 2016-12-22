@@ -17,11 +17,6 @@ const withQueryData = graphql(gql`
 `)(ConversationList);
 
 
-const mapStateToProps = state => ({
-  conversations: state.conversations,
-  notifications: state.notifications,
-});
-
 const mapDisptachToProps = dispatch => ({
   createConversation(e) {
     e.preventDefault();
@@ -40,4 +35,4 @@ const mapDisptachToProps = dispatch => ({
   },
 });
 
-export default connect(mapStateToProps, mapDisptachToProps)(withQueryData);
+export default connect(mapDisptachToProps)(withQueryData);

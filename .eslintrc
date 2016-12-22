@@ -1,6 +1,10 @@
 {
+  "plugins": [
+    "meteor"
+  ],
   "extends": [
     "airbnb",
+    "plugin:meteor/recommended"
   ],
   "parserOptions":{
     "ecmaFeatures": {
@@ -8,7 +12,14 @@
     }
   },
   "rules": {
-    "no-underscore-dangle": ["error", { "allow": ["_id"] }],
-    "new-cap": "off"
+    "no-underscore-dangle": ["error", { "allow": ["_id"] }]
+  },
+  "settings": {
+    "import/resolver": "meteor",
+  },
+  "globals": {
+    "Package": false,
+    "Npm": false,
+    "Mixins": false
   }
 }

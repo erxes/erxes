@@ -4,7 +4,6 @@ import {
   MESSENGER_TOGGLE,
   CHANGE_ROUTE,
   CHANGE_CONVERSATION,
-  NOTIFICATION_RECEIVED,
 } from '../constants';
 
 
@@ -65,28 +64,11 @@ const isAttachingFile = (state = false, action) => {
   }
 };
 
-const notifications = (state = {}, action) => {
-  let conversationId = '';
-
-  switch (action.type) {
-    case NOTIFICATION_RECEIVED:
-      conversationId = action.name.replace('unreadMessagesCount_', '');
-      return {
-        ...state,
-        [conversationId]: action.count,
-      };
-
-    default:
-      return state;
-  }
-};
-
 const messenger = {
   isVisible,
   activeRoute,
   activeConversation,
   isAttachingFile,
-  notifications,
 };
 
 export default messenger;

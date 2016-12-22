@@ -32,7 +32,8 @@
     "react-dom": "^15.4.1",
     "react-redux": "^5.0.1",
     "redux-thunk": "^2.1.0",
-    "subscriptions-transport-ws": "^0.3.1"
+    "subscriptions-transport-ws": "^0.3.1",
+    "underscore": "^1.8.3"
   },
   "devDependencies": {
     "babel-cli": "^6.18.0",
