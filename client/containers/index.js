@@ -5,7 +5,6 @@ import ConversationItem from './ConversationItem';
 import Conversation from './Conversation';
 import Launcher from './Launcher';
 import MessageSender from './MessageSender';
-import MessagesList from './MessagesList';
 import User from './User';
 
 
@@ -17,6 +16,5 @@ export {
   Conversation,
   Launcher,
   MessageSender,
-  MessagesList,
   User,
 };

@@ -35906,7 +35906,7 @@
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
-	exports.User = exports.MessagesList = exports.MessageSender = exports.Launcher = exports.Conversation = exports.ConversationItem = exports.ConversationList = exports.Messenger = exports.App = undefined;
+	exports.User = exports.MessageSender = exports.Launcher = exports.Conversation = exports.ConversationItem = exports.ConversationList = exports.Messenger = exports.App = undefined;
 
 	var _App = __webpack_require__(443);
 
@@ -35936,10 +35936,6 @@
 
 	var _MessageSender2 = _interopRequireDefault(_MessageSender);
 
-	var _MessagesList = __webpack_require__(614);
-
-	var _MessagesList2 = _interopRequireDefault(_MessagesList);
-
 	var _User = __webpack_require__(615);
 
 	var _User2 = _interopRequireDefault(_User);
@@ -35953,7 +35949,6 @@
 	exports.Conversation = _Conversation2.default;
 	exports.Launcher = _Launcher2.default;
 	exports.MessageSender = _MessageSender2.default;
-	exports.MessagesList = _MessagesList2.default;
 	exports.User = _User2.default;
 
 /***/ },
@@ -52412,16 +52407,20 @@
 
 	var _containers = __webpack_require__(442);
 
+	var _components = __webpack_require__(459);
+
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	var propTypes = {
+	  messages: _react.PropTypes.array.isRequired,
 	  goToConversationList: _react.PropTypes.func.isRequired,
 	  user: _react.PropTypes.object,
 	  isNewConversation: _react.PropTypes.bool
 	};
 
 	function Conversation(_ref) {
-	  var isNewConversation = _ref.isNewConversation,
+	  var messages = _ref.messages,
+	      isNewConversation = _ref.isNewConversation,
 	      goToConversationList = _ref.goToConversationList,
 	      user = _ref.user;
 
@@ -52473,7 +52472,7 @@
 	      buttonClass: 'back',
 	      onButtonClick: goToConversationList
 	    }),
-	    _react2.default.createElement(_containers.MessagesList, null),
+	    _react2.default.createElement(_components.MessagesList, { messages: messages }),
 	    _react2.default.createElement(_containers.MessageSender, { placeholder: isNewConversation ? 'Send a message ...' : 'Write a reply ...' })
 	  );
 	}
@@ -52745,7 +52744,7 @@
 	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
 	var propTypes = {
-	  data: _react.PropTypes.object.isRequired
+	  messages: _react.PropTypes.array.isRequired
 	};
 
 	var MessagesList = function (_Component) {
@@ -52781,11 +52780,6 @@
 	    value: function render() {
 	      var _this2 = this;
 
-	      var _props$data = this.props.data,
-	          loading = _props$data.loading,
-	          messages = _props$data.messages;
-
-
 	      return _react2.default.createElement(
 	        'ul',
 	        {
@@ -52794,7 +52788,7 @@
 	            _this2.node = node;
 	          }
 	        },
-	        !loading && messages.map(function (message) {
+	        this.props.messages.map(function (message) {
 	          return _react2.default.createElement(_components.Message, _extends({ key: message._id }, message));
 	        })
 	      );
@@ -60570,16 +60564,100 @@
 	  value: true
 	});
 
+	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _templateObject = _taggedTemplateLiteral(['\n        subscription messageInserted {\n          messageInserted {\n            ', '\n          }\n        }\n      '], ['\n        subscription messageInserted {\n          messageInserted {\n            ', '\n          }\n        }\n      ']),
+	    _templateObject2 = _taggedTemplateLiteral(['\n    query ($conversationId: String!) {\n      messages(conversationId: $conversationId) {\n        ', '\n      }\n    }\n  '], ['\n    query ($conversationId: String!) {\n      messages(conversationId: $conversationId) {\n        ', '\n      }\n    }\n  ']);
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _graphqlTag = __webpack_require__(585);
+
+	var _graphqlTag2 = _interopRequireDefault(_graphqlTag);
+
 	var _reactRedux = __webpack_require__(444);
+
+	var _reactApollo = __webpack_require__(199);
+
+	var _Subscriber2 = __webpack_require__(621);
+
+	var _Subscriber3 = _interopRequireDefault(_Subscriber2);
 
 	var _messenger = __webpack_require__(609);
 
 	var _components = __webpack_require__(459);
 
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _taggedTemplateLiteral(strings, raw) { return Object.freeze(Object.defineProperties(strings, { raw: { value: Object.freeze(raw) } })); }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var messageQuery = '\n  _id\n  content\n  createdAt\n  attachments{\n    url\n    name\n    size\n    type\n  }\n';
+
+	var Conversation = function (_Subscriber) {
+	  _inherits(Conversation, _Subscriber);
+
+	  function Conversation(props) {
+	    _classCallCheck(this, Conversation);
+
+	    var _this = _possibleConstructorReturn(this, (Conversation.__proto__ || Object.getPrototypeOf(Conversation)).call(this, props));
+
+	    _this.subscribeToMoreOptions = {
+	      document: (0, _graphqlTag2.default)(_templateObject, messageQuery),
+
+	      // push new message to messages list when subscription updated
+	      updateQuery: function updateQuery(_previousResult, _ref) {
+	        var subscriptionData = _ref.subscriptionData;
+
+	        var previousResult = _previousResult;
+
+	        // get previous messages list
+	        var messages = previousResult.messages || [];
+
+	        // add new one
+	        messages.push(subscriptionData.data.messageInserted);
+
+	        previousResult.messages = messages;
+
+	        return previousResult;
+	      }
+	    };
+	    return _this;
+	  }
+
+	  _createClass(Conversation, [{
+	    key: 'render',
+	    value: function render() {
+	      var props = this.props;
+
+	      if (props.data.loading) {
+	        return null;
+	      }
+
+	      var extendedProps = _extends({}, props, {
+	        messages: props.data.messages
+	      });
+
+	      return _react2.default.createElement(_components.Conversation, extendedProps);
+	    }
+	  }]);
+
+	  return Conversation;
+	}(_Subscriber3.default);
+
 	var mapStateToProps = function mapStateToProps(state) {
 	  var isNewConversation = !state.activeConversation;
 
-	  return { isNewConversation: isNewConversation };
+	  return { conversationId: state.activeConversation, isNewConversation: isNewConversation };
 	};
 
 	var mapDisptachToProps = function mapDisptachToProps(dispatch) {
@@ -60595,7 +60673,17 @@
 	  };
 	};
 
-	exports.default = (0, _reactRedux.connect)(mapStateToProps, mapDisptachToProps)(_components.Conversation);
+	var withData = (0, _reactApollo.graphql)((0, _graphqlTag2.default)(_templateObject2, messageQuery), {
+	  options: function options(ownProps) {
+	    return {
+	      variables: { conversationId: ownProps.conversationId }
+	    };
+	  }
+	});
+
+	var WithData = withData(Conversation);
+
+	exports.default = (0, _reactRedux.connect)(mapStateToProps, mapDisptachToProps)(WithData);
 
 /***/ },
 /* 612 */
@@ -60734,110 +60822,7 @@
 	exports.default = (0, _reactRedux.connect)(mapStateToProps, mapDispatchToProps)(_components.MessageSender);
 
 /***/ },
-/* 614 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-	var _templateObject = _taggedTemplateLiteral(['\n        subscription messageInserted {\n          messageInserted {\n            ', '\n          }\n        }\n      '], ['\n        subscription messageInserted {\n          messageInserted {\n            ', '\n          }\n        }\n      ']),
-	    _templateObject2 = _taggedTemplateLiteral(['\n    query ($conversationId: String!) {\n      messages(conversationId: $conversationId) {\n        ', '\n      }\n    }\n  '], ['\n    query ($conversationId: String!) {\n      messages(conversationId: $conversationId) {\n        ', '\n      }\n    }\n  ']);
-
-	var _react = __webpack_require__(1);
-
-	var _react2 = _interopRequireDefault(_react);
-
-	var _graphqlTag = __webpack_require__(585);
-
-	var _graphqlTag2 = _interopRequireDefault(_graphqlTag);
-
-	var _reactRedux = __webpack_require__(444);
-
-	var _reactApollo = __webpack_require__(199);
-
-	var _components = __webpack_require__(459);
-
-	var _Subscriber2 = __webpack_require__(621);
-
-	var _Subscriber3 = _interopRequireDefault(_Subscriber2);
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-	function _taggedTemplateLiteral(strings, raw) { return Object.freeze(Object.defineProperties(strings, { raw: { value: Object.freeze(raw) } })); }
-
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-	var messageQuery = '\n  _id\n  content\n  createdAt\n  attachments{\n    url\n    name\n    size\n    type\n  }\n';
-
-	var MessagesList = function (_Subscriber) {
-	  _inherits(MessagesList, _Subscriber);
-
-	  function MessagesList(props) {
-	    _classCallCheck(this, MessagesList);
-
-	    var _this = _possibleConstructorReturn(this, (MessagesList.__proto__ || Object.getPrototypeOf(MessagesList)).call(this, props));
-
-	    _this.subscribeToMoreOptions = {
-	      document: (0, _graphqlTag2.default)(_templateObject, messageQuery),
-
-	      // push new message to messages list when subscription updated
-	      updateQuery: function updateQuery(_previousResult, _ref) {
-	        var subscriptionData = _ref.subscriptionData;
-
-	        var previousResult = _previousResult;
-
-	        // get previous messages list
-	        var messages = previousResult.messages || [];
-
-	        // add new one
-	        messages.push(subscriptionData.data.messageInserted);
-
-	        previousResult.messages = messages;
-
-	        return previousResult;
-	      }
-	    };
-	    return _this;
-	  }
-
-	  _createClass(MessagesList, [{
-	    key: 'render',
-	    value: function render() {
-	      return _react2.default.createElement(_components.MessagesList, this.props);
-	    }
-	  }]);
-
-	  return MessagesList;
-	}(_Subscriber3.default);
-
-	var mapStateToProps = function mapStateToProps(state) {
-	  return {
-	    conversationId: state.activeConversation
-	  };
-	};
-
-	var withData = (0, _reactApollo.graphql)((0, _graphqlTag2.default)(_templateObject2, messageQuery), {
-	  options: function options(ownProps) {
-	    return {
-	      variables: { conversationId: ownProps.conversationId }
-	    };
-	  }
-	});
-
-	var ListWithData = withData(MessagesList);
-
-	exports.default = (0, _reactRedux.connect)(mapStateToProps)(ListWithData);
-
-/***/ },
+/* 614 */,
 /* 615 */
 /***/ function(module, exports, __webpack_require__) {
 

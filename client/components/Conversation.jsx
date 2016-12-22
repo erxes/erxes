@@ -1,15 +1,17 @@
 import React, { PropTypes } from 'react';
 import TopBar from './TopBar.jsx';
-import { MessageSender, MessagesList } from '../containers';
+import { MessageSender } from '../containers';
+import { MessagesList } from '../components';
 
 
 const propTypes = {
+  messages: PropTypes.array.isRequired,
   goToConversationList: PropTypes.func.isRequired,
   user: PropTypes.object,
   isNewConversation: PropTypes.bool,
 };
 
-function Conversation({ isNewConversation, goToConversationList, user }) {
+function Conversation({ messages, isNewConversation, goToConversationList, user }) {
   function renderTitle() {
     if (isNewConversation) {
       return (
@@ -41,7 +43,7 @@ function Conversation({ isNewConversation, goToConversationList, user }) {
         buttonClass="back"
         onButtonClick={goToConversationList}
       />
-      <MessagesList />
+      <MessagesList messages={messages} />
       <MessageSender placeholder={isNewConversation ? 'Send a message ...' : 'Write a reply ...'} />
     </div>
   );

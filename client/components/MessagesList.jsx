@@ -3,7 +3,7 @@ import { Message } from '../components';
 
 
 const propTypes = {
-  data: PropTypes.object.isRequired,
+  messages: PropTypes.array.isRequired,
 };
 
 class MessagesList extends Component {
@@ -23,15 +23,13 @@ class MessagesList extends Component {
   }
 
   render() {
-    const { loading, messages } = this.props.data;
-
     return (
       <ul
         className="erxes-messages-list"
         ref={node => { this.node = node; }}
       >
         {
-          !loading && messages.map(message =>
+          this.props.messages.map(message =>
             <Message key={message._id} {...message} />
           )
         }
