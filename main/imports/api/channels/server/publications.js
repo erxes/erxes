@@ -14,11 +14,9 @@ Meteor.publish('channels.list', function channelsList(params) {
   check(params, {
     memberIds: Match.Optional([String]),
     limit: Match.Optional(Number),
-    page: Match.Optional(String),
   });
 
-
-  Counts.publish(this, 'notifications.list.count', Channels.find(), { noReady: true });
+  Counts.publish(this, 'channels.list.count', Channels.find(), { noReady: true });
   const query = {};
 
   // filter by member ids
@@ -31,7 +29,7 @@ Meteor.publish('channels.list', function channelsList(params) {
     {
       fields: Channels.publicFields,
       sort: { createdAt: -1 },
-      limit: params.limit || 0,
+      limit: params.limit,
     }
   );
 });

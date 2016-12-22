@@ -1,31 +1,15 @@
 import { composeWithTracker } from 'react-komposer';
 import { Meteor } from 'meteor/meteor';
-import { Counts } from 'meteor/tmeasday:publish-counts';
-import { FlowRouter } from 'meteor/kadira:flow-router';
-import { Loader } from '/imports/react-ui/common';
+import { Loader, pagination } from '/imports/react-ui/common';
 import { Channels } from '/imports/api/channels/channels';
 import { UsersList } from '../components';
 
 function composer({ queryParams }, onData) {
-  let hasMore = false;
-  const USERS_PER_PAGE = 10;
-  const pageNumber = parseInt(queryParams.page, 10) || 1;
-  const limit = USERS_PER_PAGE * pageNumber;
-  const uParams = Object.assign({ limit }, queryParams);
-  const usersCount = Counts.get('users.list.count');
-  const usersHandle = Meteor.subscribe('users.list', uParams);
+  const { limit, loadMore, hasMore } = pagination(queryParams, 'users.list.count');
+  const usersHandle = Meteor.subscribe('users.list', Object.assign(queryParams, { limit }));
   const channelsHandle = Meteor.subscribe('channels.list', {});
 
   const users = Meteor.users.find().fetch();
-
-  const loadMore = () => {
-    const qParams = { page: pageNumber + 1 };
-    FlowRouter.setQueryParams(qParams);
-  };
-
-  if (usersCount > pageNumber * USERS_PER_PAGE) {
-    hasMore = true;
-  }
 
   const deactivate = (userId, callback) => {
     Meteor.call('users.remove', { userId }, (...params) => {

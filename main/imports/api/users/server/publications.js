@@ -25,7 +25,6 @@ Meteor.publish('users.list', function usersList(params) {
   check(params, {
     ids: Match.Optional([String]),
     limit: Match.Optional(Number),
-    page: Match.Optional(String),
   });
 
   if (!this.userId) {
@@ -34,5 +33,5 @@ Meteor.publish('users.list', function usersList(params) {
 
   Counts.publish(this, 'users.list.count', Meteor.users.find(), { noReady: true });
 
-  return Meteor.users.find({}, { fields: publicFields, limit: params.limit || 0 });
+  return Meteor.users.find({}, { fields: publicFields, limit: params.limit });
 });

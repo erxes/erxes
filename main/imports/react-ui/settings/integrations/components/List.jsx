@@ -2,6 +2,7 @@ import React, { PropTypes, Component } from 'react';
 import { Table, Button } from 'react-bootstrap';
 import { FlowRouter } from 'meteor/kadira:flow-router';
 import { Wrapper } from '/imports/react-ui/layout/components';
+import { Pagination } from '/imports/react-ui/common';
 import Sidebar from '../../Sidebar.jsx';
 import Row from './Row.jsx';
 
@@ -10,6 +11,8 @@ const propTypes = {
   integrations: PropTypes.array.isRequired,
   brands: PropTypes.array.isRequired,
   removeIntegration: PropTypes.func.isRequired,
+  loadMore: PropTypes.func.isRequired,
+  hasMore: PropTypes.bool.isRequired,
 };
 
 class List extends Component {
@@ -33,6 +36,7 @@ class List extends Component {
   }
 
   render() {
+    const { loadMore, hasMore } = this.props;
     const actionBarLeft = (
       <Button bsStyle="link" href={FlowRouter.path('settings/integrations/add')}>
         <i className="ion-plus-circled" /> Add integrations
@@ -42,19 +46,21 @@ class List extends Component {
     const actionBar = <Wrapper.ActionBar left={actionBarLeft} />;
 
     const content = (
-      <Table>
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th>Kind</th>
-            <th>Brand</th>
-            <th className="text-right">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {this.renderIntegrations()}
-        </tbody>
-      </Table>
+      <Pagination loadMore={loadMore} hasMore={hasMore}>
+        <Table>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Kind</th>
+              <th>Brand</th>
+              <th className="text-right">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {this.renderIntegrations()}
+          </tbody>
+        </Table>
+      </Pagination>
     );
 
     const breadcrumb = [
