@@ -52,7 +52,13 @@ const ListWithData = graphql(
         content
       }
     }
-  `
+  `,
+
+  {
+    options: {
+      forceFetch: true,
+    },
+  }
 )(ConversationList);
 
 export default connect(() => ({}), mapDisptachToProps)(ListWithData);

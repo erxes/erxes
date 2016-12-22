@@ -52942,7 +52942,11 @@
 	  };
 	};
 
-	var ListWithData = (0, _reactApollo.graphql)((0, _graphqlTag2.default)(_templateObject))(ConversationList);
+	var ListWithData = (0, _reactApollo.graphql)((0, _graphqlTag2.default)(_templateObject), {
+	  options: {
+	    forceFetch: true
+	  }
+	})(ConversationList);
 
 	exports.default = (0, _reactRedux.connect)(function () {
 	  return {};
