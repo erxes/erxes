@@ -1,29 +1,29 @@
 import React, { PropTypes } from 'react';
 import moment from 'moment';
 import classNames from 'classnames';
-import { User } from '../containers';
+import { User } from '../components';
 import { Attachment } from '../components';
 
 
 const propTypes = {
   content: PropTypes.string.isRequired,
-  userId: PropTypes.string,
+  user: PropTypes.object,
   createdAt: PropTypes.number.isRequired,
   attachments: PropTypes.array,
 };
 
-function Message({ content, attachments, userId, createdAt }) {
-  const itemClasses = classNames({ 'from-customer': !userId });
+function Message({ content, attachments, user, createdAt }) {
+  const itemClasses = classNames({ 'from-customer': !user });
   const messageClasses = classNames('erxes-message', {
     attachment: attachments && attachments.length > 0,
-    'from-customer': !userId,
+    'from-customer': !user,
   });
 
   const hasAttachment = attachments && attachments.length > 0;
 
   return (
     <li className={itemClasses}>
-      {userId ? <User id={userId} /> : null}
+      {user ? <User user={user} /> : null}
 
       <div className={messageClasses}>
         {hasAttachment ? <Attachment path={attachments[0].url} /> : null}

@@ -9,6 +9,12 @@ import { Conversation as DumbConversation } from '../components';
 
 const messageQuery = `
   _id
+  user {
+    _id
+    details {
+      avatar
+    }
+  }
   content
   createdAt
   attachments{
@@ -60,6 +66,7 @@ class Conversation extends Subscriber {
     const extendedProps = {
       ...props,
       messages: props.data.messages,
+      user: props.data.conversationLastStaff,
     };
 
     return <DumbConversation { ...extendedProps } />;
@@ -89,6 +96,13 @@ const withData = graphql(
     query ($conversationId: String!) {
       messages(conversationId: $conversationId) {
         ${messageQuery}
+      }
+
+      conversationLastStaff(_id: $conversationId) {
+        _id,
+        details {
+          avatar
+        }
       }
     }
   `,

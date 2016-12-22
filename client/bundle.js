@@ -35906,7 +35906,7 @@
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
-	exports.User = exports.MessageSender = exports.Launcher = exports.Conversation = exports.ConversationItem = exports.ConversationList = exports.Messenger = exports.App = undefined;
+	exports.MessageSender = exports.Launcher = exports.Conversation = exports.ConversationItem = exports.ConversationList = exports.Messenger = exports.App = undefined;
 
 	var _App = __webpack_require__(443);
 
@@ -35936,10 +35936,6 @@
 
 	var _MessageSender2 = _interopRequireDefault(_MessageSender);
 
-	var _User = __webpack_require__(615);
-
-	var _User2 = _interopRequireDefault(_User);
-
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	exports.App = _App2.default;
@@ -35949,7 +35945,6 @@
 	exports.Conversation = _Conversation2.default;
 	exports.Launcher = _Launcher2.default;
 	exports.MessageSender = _MessageSender2.default;
-	exports.User = _User2.default;
 
 /***/ },
 /* 443 */
@@ -52543,15 +52538,13 @@
 
 	var _classnames2 = _interopRequireDefault(_classnames);
 
-	var _containers = __webpack_require__(442);
-
 	var _components = __webpack_require__(459);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	var propTypes = {
 	  content: _react.PropTypes.string.isRequired,
-	  userId: _react.PropTypes.string,
+	  user: _react.PropTypes.object,
 	  createdAt: _react.PropTypes.number.isRequired,
 	  attachments: _react.PropTypes.array
 	};
@@ -52559,13 +52552,13 @@
 	function Message(_ref) {
 	  var content = _ref.content,
 	      attachments = _ref.attachments,
-	      userId = _ref.userId,
+	      user = _ref.user,
 	      createdAt = _ref.createdAt;
 
-	  var itemClasses = (0, _classnames2.default)({ 'from-customer': !userId });
+	  var itemClasses = (0, _classnames2.default)({ 'from-customer': !user });
 	  var messageClasses = (0, _classnames2.default)('erxes-message', {
 	    attachment: attachments && attachments.length > 0,
-	    'from-customer': !userId
+	    'from-customer': !user
 	  });
 
 	  var hasAttachment = attachments && attachments.length > 0;
@@ -52573,7 +52566,7 @@
 	  return _react2.default.createElement(
 	    'li',
 	    { className: itemClasses },
-	    userId ? _react2.default.createElement(_containers.User, { id: userId }) : null,
+	    user ? _react2.default.createElement(_components.User, { user: user }) : null,
 	    _react2.default.createElement(
 	      'div',
 	      { className: messageClasses },
@@ -60569,7 +60562,7 @@
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 	var _templateObject = _taggedTemplateLiteral(['\n        subscription messageInserted {\n          messageInserted {\n            ', '\n          }\n        }\n      '], ['\n        subscription messageInserted {\n          messageInserted {\n            ', '\n          }\n        }\n      ']),
-	    _templateObject2 = _taggedTemplateLiteral(['\n    query ($conversationId: String!) {\n      messages(conversationId: $conversationId) {\n        ', '\n      }\n    }\n  '], ['\n    query ($conversationId: String!) {\n      messages(conversationId: $conversationId) {\n        ', '\n      }\n    }\n  ']);
+	    _templateObject2 = _taggedTemplateLiteral(['\n    query ($conversationId: String!) {\n      messages(conversationId: $conversationId) {\n        ', '\n      }\n\n      conversationLastStaff(_id: $conversationId) {\n        _id,\n        details {\n          avatar\n        }\n      }\n    }\n  '], ['\n    query ($conversationId: String!) {\n      messages(conversationId: $conversationId) {\n        ', '\n      }\n\n      conversationLastStaff(_id: $conversationId) {\n        _id,\n        details {\n          avatar\n        }\n      }\n    }\n  ']);
 
 	var _react = __webpack_require__(1);
 
@@ -60601,7 +60594,7 @@
 
 	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-	var messageQuery = '\n  _id\n  content\n  createdAt\n  attachments{\n    url\n    name\n    size\n    type\n  }\n';
+	var messageQuery = '\n  _id\n  user {\n    _id\n    details {\n      avatar\n    }\n  }\n  content\n  createdAt\n  attachments{\n    url\n    name\n    size\n    type\n  }\n';
 
 	var Conversation = function (_Subscriber) {
 	  _inherits(Conversation, _Subscriber);
@@ -60644,7 +60637,8 @@
 	      }
 
 	      var extendedProps = _extends({}, props, {
-	        messages: props.data.messages
+	        messages: props.data.messages,
+	        user: props.data.conversationLastStaff
 	      });
 
 	      return _react2.default.createElement(_components.Conversation, extendedProps);
@@ -60823,31 +60817,7 @@
 
 /***/ },
 /* 614 */,
-/* 615 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-
-	var _reactRedux = __webpack_require__(444);
-
-	var _components = __webpack_require__(459);
-
-	var mapStateToProps = function mapStateToProps(_ref, ownProps) {
-	  var users = _ref.users;
-	  return {
-	    user: users.find(function (u) {
-	      return u._id === ownProps.id;
-	    })
-	  };
-	};
-
-	exports.default = (0, _reactRedux.connect)(mapStateToProps)(_components.User);
-
-/***/ },
+/* 615 */,
 /* 616 */
 /***/ function(module, exports, __webpack_require__) {
 

@@ -1,11 +1,21 @@
 import { GraphQLScalarType } from 'graphql';
 import { makeExecutableSchema } from 'graphql-tools';
 import { Kind } from 'graphql/language';
-import { Conversations, Messages } from './connectors';
+import { Conversations, Messages, Users } from './connectors';
 import { pubsub } from './subscriptions';
 
 const typeDefs = `
   scalar Date
+
+  # user ================
+  type UserDetails {
+    avatar: String
+  }
+
+  type User {
+    _id: String!
+    details: UserDetails
+  }
 
   type Attachment {
     url: String
@@ -14,6 +24,7 @@ const typeDefs = `
     size: Int
   }
 
+  # conversation ===========
   type Conversation {
     _id: String!
     content: String
@@ -22,6 +33,7 @@ const typeDefs = `
   type Message {
     _id: String!
     conversationId: String!
+    user: User
     content: String
     createdAt: Date
     attachments: [Attachment]
@@ -33,6 +45,7 @@ const typeDefs = `
     messages(conversationId: String): [Message]
     unreadCount(conversationId: String): Int
     totalUnreadCount: Int
+    conversationLastStaff(_id: String): User
   }
 
   type Mutation {
@@ -98,6 +111,23 @@ const resolvers = {
         userId: { $exists: true },
         isCustomerRead: { $exists: false },
       });
+    },
+
+    conversationLastStaff(_, args) {
+      const messageQuery = {
+        conversationId: args._id,
+        userId: { $exists: true },
+      };
+
+      return Messages.findOne(messageQuery).then((message) =>
+        Users.findOne({ _id: message && message.userId })
+      );
+    },
+  },
+
+  Message: {
+    user(root) {
+      return Users.findOne({ _id: root.userId });
     },
   },
 

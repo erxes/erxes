@@ -1,3 +1,5 @@
+/* eslint-disable new-cap */
+
 import Mongoose from 'mongoose';
 
 Mongoose.connect('mongodb://127.0.0.1:7011/meteor');
@@ -24,7 +26,15 @@ const MessageSchema = Mongoose.Schema({
   isCustomerRead: Boolean,
 });
 
+const UserSchema = Mongoose.Schema({
+  _id: String,
+  details: {
+    avatar: String,
+  },
+});
+
 const Conversations = Mongoose.model('conversations', ConversationSchema);
 const Messages = Mongoose.model('conversation_messages', MessageSchema);
+const Users = Mongoose.model('users', UserSchema);
 
-export { Conversations, Messages };
+export { Conversations, Messages, Users };
