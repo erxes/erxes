@@ -1,11 +1,12 @@
 import { composeWithTracker } from 'react-komposer';
 import { Meteor } from 'meteor/meteor';
-import { Loader } from '/imports/react-ui/common';
+import { Loader, pagination } from '/imports/react-ui/common';
 import { Channels } from '/imports/api/channels/channels';
 import { UsersList } from '../components';
 
-function composer(props, onData) {
-  const usersHandle = Meteor.subscribe('users.list', props.queryParams);
+function composer({ queryParams }, onData) {
+  const { limit, loadMore, hasMore } = pagination(queryParams, 'users.list.count');
+  const usersHandle = Meteor.subscribe('users.list', Object.assign(queryParams, { limit }));
   const channelsHandle = Meteor.subscribe('channels.list', {});
 
   const users = Meteor.users.find().fetch();
@@ -29,7 +30,18 @@ function composer(props, onData) {
   if (usersHandle.ready() && channelsHandle.ready()) {
     const channels = Channels.find().fetch();
 
-    onData(null, { users, channels, inviteMember, deactivate, updateInvitationInfos });
+    onData(
+      null,
+      {
+        users,
+        channels,
+        inviteMember,
+        deactivate,
+        updateInvitationInfos,
+        hasMore,
+        loadMore,
+      }
+    );
   }
 }
 

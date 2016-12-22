@@ -1,4 +1,5 @@
 import { Meteor } from 'meteor/meteor';
+import { Counts } from 'meteor/tmeasday:publish-counts';
 import { check } from 'meteor/check';
 import { _ } from 'meteor/underscore';
 
@@ -7,14 +8,22 @@ import { Integrations } from '/imports/api/integrations/integrations';
 import { Brands } from '../brands';
 
 
-Meteor.publish('brands.list', function brandsList() {
+Meteor.publish('brands.list', function brandsList(limit) {
+  check(limit, Number);
+
+  Counts.publish(this, 'brands.list.count', Brands.find(), { noReady: true });
+
   if (! this.userId) {
     return this.ready();
   }
 
   return Brands.find(
     {},
-    { fields: Brands.publicFields }
+    {
+      fields: Brands.publicFields,
+      sort: { createdAt: -1 },
+      limit,
+    }
   );
 });
 

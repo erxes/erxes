@@ -6,7 +6,7 @@ import { Loader } from '/imports/react-ui/common';
 import { Signature } from '../components';
 
 function composer(props, onData) {
-  const brandHandle = Meteor.subscribe('brands.list');
+  const brandHandle = Meteor.subscribe('brands.list', 0);
 
   // save email configs action
   const save = (signatures, callback) => {

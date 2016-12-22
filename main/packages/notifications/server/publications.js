@@ -20,6 +20,8 @@ Meteor.publish('notifications.latest', function notifs(params) {
   const filters = { receiver: this.userId };
   const sort = {};
 
+  Counts.publish(this, 'notifications.list.count', Notifications.find(), { noReady: true });
+
   if (requireRead) {
     filters.isRead = false;
 

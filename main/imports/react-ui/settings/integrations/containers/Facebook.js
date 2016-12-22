@@ -11,7 +11,7 @@ const apps = new ReactiveVar([]);
 const pages = new ReactiveVar([]);
 
 function composer(props, onData) {
-  const brandsHandler = Meteor.subscribe('brands.list');
+  const brandsHandler = Meteor.subscribe('brands.list', 0);
   const brands = Brands.find().fetch();
 
   if (apps.get().length === 0) {

@@ -2,7 +2,7 @@
 
 import { Meteor } from 'meteor/meteor';
 import { Match, check } from 'meteor/check';
-
+import { Counts } from 'meteor/tmeasday:publish-counts';
 import { Channels } from '../channels';
 
 Meteor.publish('channels.list', function channelsList(params) {
@@ -14,8 +14,10 @@ Meteor.publish('channels.list', function channelsList(params) {
   check(params, {
     memberIds: Match.Optional([String]),
     integrationIds: Match.Optional([String]),
+    limit: Match.Optional(Number),
   });
 
+  Counts.publish(this, 'channels.list.count', Channels.find(), { noReady: true });
   const query = {};
 
   // filter by member ids
@@ -30,7 +32,11 @@ Meteor.publish('channels.list', function channelsList(params) {
 
   return Channels.find(
     query,
-    { fields: Channels.publicFields }
+    {
+      fields: Channels.publicFields,
+      sort: { createdAt: -1 },
+      limit: params.limit,
+    }
   );
 });
 

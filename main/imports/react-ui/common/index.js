@@ -11,6 +11,8 @@ import Tip from './Tip.jsx';
 import ActionButtons from './ActionButtons.jsx';
 import DropdownToggle from './DropdownToggle.jsx';
 import EmptyState from './EmptyState.jsx';
+import Pagination from './Pagination/Pagination.jsx';
+import { pagination } from './Pagination/Pagination';
 import FilterableList from './filterableList/FilterableList.jsx';
 
 
@@ -29,4 +31,6 @@ export {
   DropdownToggle,
   EmptyState,
   FilterableList,
+  Pagination,
+  pagination,
 };

@@ -1,12 +1,15 @@
 import React from 'react';
 import { Table } from 'react-bootstrap';
 import { Wrapper } from '/imports/react-ui/layout/components';
+import { Pagination } from '/imports/react-ui/common';
 import Sidebar from '../../Sidebar.jsx';
 import CustomerRow from './CustomerRow.jsx';
 
 
 const propTypes = {
   customers: React.PropTypes.array.isRequired,
+  loadMore: React.PropTypes.func.isRequired,
+  hasMore: React.PropTypes.bool.isRequired,
 };
 
 class CustomersList extends React.Component {
@@ -23,21 +26,24 @@ class CustomersList extends React.Component {
   }
 
   render() {
+    const { loadMore, hasMore } = this.props;
     const content = (
-      <Table>
-        <thead>
-          <tr>
-            <th>Email</th>
-            <th>Integration</th>
-            <th>Last seen</th>
-            <th>Session count</th>
-            <th>Is Active?</th>
-          </tr>
-        </thead>
-        <tbody>
-          {this.renderCustomers()}
-        </tbody>
-      </Table>
+      <Pagination hasMore={hasMore} loadMore={loadMore}>
+        <Table>
+          <thead>
+            <tr>
+              <th>Email</th>
+              <th>Integration</th>
+              <th>Last seen</th>
+              <th>Session count</th>
+              <th>Is Active?</th>
+            </tr>
+          </thead>
+          <tbody>
+            {this.renderCustomers()}
+          </tbody>
+        </Table>
+      </Pagination>
     );
 
     return (

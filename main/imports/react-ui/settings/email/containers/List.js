@@ -6,7 +6,7 @@ import { List } from '../components';
 
 
 function composer(props, onData) {
-  const brandsHandle = Meteor.subscribe('brands.list');
+  const brandsHandle = Meteor.subscribe('brands.list', 0);
 
   if (brandsHandle.ready()) {
     const selector = { userId: Meteor.userId() };

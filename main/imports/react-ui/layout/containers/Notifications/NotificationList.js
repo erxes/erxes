@@ -2,12 +2,13 @@ import { Meteor } from 'meteor/meteor';
 import { Notifications } from 'meteor/erxes-notifications';
 import { composeWithTracker } from 'react-komposer';
 import { NotificationList } from '../../components';
-import { Loader } from '/imports/react-ui/common';
+import { Loader, pagination } from '/imports/react-ui/common';
 
 
-function composer(props, onData) {
+function composer({ queryParams }, onData) {
+  const { limit, loadMore, hasMore } = pagination(queryParams, 'notifications.list.count');
   const handler = Meteor.subscribe('notifications.latest', {
-    limit: 0,
+    limit,
     requireRead: false,
   });
 
@@ -25,7 +26,7 @@ function composer(props, onData) {
 
     Meteor.subscribe('users.list', { ids: createdUserIds });
 
-    onData(null, { notifications, markAsRead });
+    onData(null, { notifications, markAsRead, loadMore, hasMore });
   }
 }
 
