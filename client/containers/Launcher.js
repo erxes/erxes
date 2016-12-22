@@ -4,23 +4,9 @@ import { connect } from 'react-redux';
 import { graphql } from 'react-apollo';
 import { changeRoute, toggle, changeConversation } from '../actions/messenger';
 import { Launcher as DumbLauncher } from '../components';
+import NotificationSubscriber from './NotificationSubscriber';
 
-class Launcher extends React.Component {
-  componentWillReceiveProps(nextProps) {
-    if (!this.subscription && !nextProps.data.loading) {
-      const { subscribeToMore } = this.props.data;
-
-      this.subscription = [subscribeToMore(
-        {
-          document: gql`subscription notification {notification}`,
-          updateQuery: () => {
-            this.props.data.refetch();
-          },
-        }
-      )];
-    }
-  }
-
+class Launcher extends NotificationSubscriber {
   render() {
     if (this.props.data.loading) {
       return null;

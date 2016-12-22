@@ -37287,19 +37287,15 @@
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	var propTypes = {
-	  data: _react.PropTypes.object.isRequired,
+	  conversations: _react.PropTypes.array.isRequired,
 	  createConversation: _react.PropTypes.func.isRequired,
 	  goToConversation: _react.PropTypes.func.isRequired
 	};
 
 	function ConversationList(_ref) {
-	  var data = _ref.data,
+	  var conversations = _ref.conversations,
 	      createConversation = _ref.createConversation,
 	      goToConversation = _ref.goToConversation;
-
-	  if (data.loading) {
-	    return null;
-	  }
 
 	  var title = _react2.default.createElement(
 	    'div',
@@ -37327,7 +37323,7 @@
 	    _react2.default.createElement(
 	      'ul',
 	      { className: 'erxes-conversation-list' },
-	      data.conversations.map(function (conversation) {
+	      conversations.map(function (conversation) {
 	        return _react2.default.createElement(_containers.ConversationItem, {
 	          key: conversation._id,
 	          conversation: conversation,
@@ -52886,7 +52882,13 @@
 	  value: true
 	});
 
-	var _templateObject = _taggedTemplateLiteral(['\n  query allConversations {\n    conversations {\n      _id\n      content\n    }\n  }\n'], ['\n  query allConversations {\n    conversations {\n      _id\n      content\n    }\n  }\n']);
+	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+	var _templateObject = _taggedTemplateLiteral(['\n    query allConversations {\n      conversations {\n        _id\n        content\n      }\n    }\n  '], ['\n    query allConversations {\n      conversations {\n        _id\n        content\n      }\n    }\n  ']);
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
 
 	var _reactRedux = __webpack_require__(444);
 
@@ -52906,9 +52908,24 @@
 
 	function _taggedTemplateLiteral(strings, raw) { return Object.freeze(Object.defineProperties(strings, { raw: { value: Object.freeze(raw) } })); }
 
-	// The `graphql` wrapper executes a GraphQL query and makes the results
-	// available on the `data` prop of the wrapped component (ConversationList here)
-	var withQueryData = (0, _reactApollo.graphql)((0, _graphqlTag2.default)(_templateObject))(_components.ConversationList);
+	var ConversationList = function ConversationList(props) {
+	  var data = props.data;
+
+
+	  if (data.loading) {
+	    return null;
+	  }
+
+	  var extendedProps = _extends({}, props, {
+	    conversations: props.data.conversations
+	  });
+
+	  return _react2.default.createElement(_components.ConversationList, extendedProps);
+	};
+
+	ConversationList.propTypes = {
+	  data: _react.PropTypes.object.isRequired
+	};
 
 	var mapDisptachToProps = function mapDisptachToProps(dispatch) {
 	  return {
@@ -52929,7 +52946,11 @@
 	  };
 	};
 
-	exports.default = (0, _reactRedux.connect)(mapDisptachToProps)(withQueryData);
+	var ListWithData = (0, _reactApollo.graphql)((0, _graphqlTag2.default)(_templateObject))(ConversationList);
+
+	exports.default = (0, _reactRedux.connect)(function () {
+	  return {};
+	}, mapDisptachToProps)(ListWithData);
 
 /***/ },
 /* 585 */
@@ -60466,8 +60487,7 @@
 
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-	var _templateObject = _taggedTemplateLiteral(['subscription notification {notification}'], ['subscription notification {notification}']),
-	    _templateObject2 = _taggedTemplateLiteral(['\n    query unreadCount($conversationId: String) {\n      unreadCount(conversationId: $conversationId)\n    }\n  '], ['\n    query unreadCount($conversationId: String) {\n      unreadCount(conversationId: $conversationId)\n    }\n  ']);
+	var _templateObject = _taggedTemplateLiteral(['\n    query unreadCount($conversationId: String) {\n      unreadCount(conversationId: $conversationId)\n    }\n  '], ['\n    query unreadCount($conversationId: String) {\n      unreadCount(conversationId: $conversationId)\n    }\n  ']);
 
 	var _react = __webpack_require__(1);
 
@@ -60481,6 +60501,10 @@
 
 	var _components = __webpack_require__(459);
 
+	var _NotificationSubscriber = __webpack_require__(620);
+
+	var _NotificationSubscriber2 = _interopRequireDefault(_NotificationSubscriber);
+
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	function _taggedTemplateLiteral(strings, raw) { return Object.freeze(Object.defineProperties(strings, { raw: { value: Object.freeze(raw) } })); }
@@ -60491,8 +60515,8 @@
 
 	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-	var ConversationItem = function (_React$Component) {
-	  _inherits(ConversationItem, _React$Component);
+	var ConversationItem = function (_NotificationSubscrib) {
+	  _inherits(ConversationItem, _NotificationSubscrib);
 
 	  function ConversationItem() {
 	    _classCallCheck(this, ConversationItem);
@@ -60501,23 +60525,6 @@
 	  }
 
 	  _createClass(ConversationItem, [{
-	    key: 'componentWillReceiveProps',
-	    value: function componentWillReceiveProps(nextProps) {
-	      var _this2 = this;
-
-	      if (!this.subscription && !nextProps.data.loading) {
-	        var subscribeToMore = this.props.data.subscribeToMore;
-
-
-	        this.subscription = [subscribeToMore({
-	          document: (0, _graphqlTag2.default)(_templateObject),
-	          updateQuery: function updateQuery() {
-	            _this2.props.data.refetch();
-	          }
-	        })];
-	      }
-	    }
-	  }, {
 	    key: 'render',
 	    value: function render() {
 	      var extendedProps = _extends({}, this.props, {
@@ -60529,13 +60536,13 @@
 	  }]);
 
 	  return ConversationItem;
-	}(_react2.default.Component);
+	}(_NotificationSubscriber2.default);
 
 	ConversationItem.propTypes = {
 	  data: _react.PropTypes.object.isRequired
 	};
 
-	exports.default = (0, _reactApollo.graphql)((0, _graphqlTag2.default)(_templateObject2), {
+	exports.default = (0, _reactApollo.graphql)((0, _graphqlTag2.default)(_templateObject), {
 	  options: function options(ownProps) {
 	    return {
 	      variables: { conversationId: ownProps.conversation._id }
@@ -60594,8 +60601,7 @@
 
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-	var _templateObject = _taggedTemplateLiteral(['subscription notification {notification}'], ['subscription notification {notification}']),
-	    _templateObject2 = _taggedTemplateLiteral(['query { totalUnreadCount }'], ['query { totalUnreadCount }']);
+	var _templateObject = _taggedTemplateLiteral(['query { totalUnreadCount }'], ['query { totalUnreadCount }']);
 
 	var _react = __webpack_require__(1);
 
@@ -60613,6 +60619,10 @@
 
 	var _components = __webpack_require__(459);
 
+	var _NotificationSubscriber = __webpack_require__(620);
+
+	var _NotificationSubscriber2 = _interopRequireDefault(_NotificationSubscriber);
+
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	function _taggedTemplateLiteral(strings, raw) { return Object.freeze(Object.defineProperties(strings, { raw: { value: Object.freeze(raw) } })); }
@@ -60623,8 +60633,8 @@
 
 	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-	var Launcher = function (_React$Component) {
-	  _inherits(Launcher, _React$Component);
+	var Launcher = function (_NotificationSubscrib) {
+	  _inherits(Launcher, _NotificationSubscrib);
 
 	  function Launcher() {
 	    _classCallCheck(this, Launcher);
@@ -60633,23 +60643,6 @@
 	  }
 
 	  _createClass(Launcher, [{
-	    key: 'componentWillReceiveProps',
-	    value: function componentWillReceiveProps(nextProps) {
-	      var _this2 = this;
-
-	      if (!this.subscription && !nextProps.data.loading) {
-	        var subscribeToMore = this.props.data.subscribeToMore;
-
-
-	        this.subscription = [subscribeToMore({
-	          document: (0, _graphqlTag2.default)(_templateObject),
-	          updateQuery: function updateQuery() {
-	            _this2.props.data.refetch();
-	          }
-	        })];
-	      }
-	    }
-	  }, {
 	    key: 'render',
 	    value: function render() {
 	      if (this.props.data.loading) {
@@ -60665,7 +60658,7 @@
 	  }]);
 
 	  return Launcher;
-	}(_react2.default.Component);
+	}(_NotificationSubscriber2.default);
 
 	Launcher.propTypes = {
 	  data: _react.PropTypes.object.isRequired
@@ -60687,7 +60680,7 @@
 	  };
 	};
 
-	var LauncherWithData = (0, _reactApollo.graphql)((0, _graphqlTag2.default)(_templateObject2))(Launcher);
+	var LauncherWithData = (0, _reactApollo.graphql)((0, _graphqlTag2.default)(_templateObject))(Launcher);
 
 	exports.default = (0, _reactRedux.connect)(mapStateToProps, mapDisptachToProps)(LauncherWithData);
 
@@ -61191,6 +61184,76 @@
 			URL.revokeObjectURL(oldSrc);
 	}
 
+
+/***/ },
+/* 620 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _templateObject = _taggedTemplateLiteral(['subscription notification {notification}'], ['subscription notification {notification}']);
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _graphqlTag = __webpack_require__(585);
+
+	var _graphqlTag2 = _interopRequireDefault(_graphqlTag);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _taggedTemplateLiteral(strings, raw) { return Object.freeze(Object.defineProperties(strings, { raw: { value: Object.freeze(raw) } })); }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var ConversationItem = function (_React$Component) {
+	  _inherits(ConversationItem, _React$Component);
+
+	  function ConversationItem() {
+	    _classCallCheck(this, ConversationItem);
+
+	    return _possibleConstructorReturn(this, (ConversationItem.__proto__ || Object.getPrototypeOf(ConversationItem)).apply(this, arguments));
+	  }
+
+	  _createClass(ConversationItem, [{
+	    key: 'componentWillReceiveProps',
+	    value: function componentWillReceiveProps(nextProps) {
+	      var _this2 = this;
+
+	      if (!this.subscription && !nextProps.data.loading) {
+	        var subscribeToMore = this.props.data.subscribeToMore;
+
+
+	        this.subscription = [subscribeToMore({
+	          document: (0, _graphqlTag2.default)(_templateObject),
+	          updateQuery: function updateQuery() {
+	            _this2.props.data.refetch();
+	          }
+	        })];
+	      }
+	    }
+	  }]);
+
+	  return ConversationItem;
+	}(_react2.default.Component);
+
+	exports.default = ConversationItem;
+
+
+	ConversationItem.propTypes = {
+	  data: _react.PropTypes.object.isRequired
+	};
 
 /***/ }
 /******/ ]);
