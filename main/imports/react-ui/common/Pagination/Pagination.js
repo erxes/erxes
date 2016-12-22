@@ -5,7 +5,7 @@ import { Counts } from 'meteor/tmeasday:publish-counts';
 export const pagination = (queryParams, countName) => {
   let hasMore = false;
   const PER_PAGE = 10;
-  const limit = parseInt(queryParams.limit, 10) || 2;
+  const limit = parseInt(queryParams.limit, 10) || PER_PAGE;
   const listCount = Counts.get(countName);
 
   const loadMore = () => {
