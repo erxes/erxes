@@ -37,6 +37,7 @@ const typeDefs = `
 
   type Mutation {
     simulateInsertMessage(messageId: String): Message
+    readConversationMessages(conversationId: String): String
   }
 
   type Subscription {
@@ -108,6 +109,27 @@ const resolvers = {
       pubsub.publish('notification');
 
       return message;
+    },
+
+    /*
+     * mark given conversation's messages as read
+     */
+    readConversationMessages(root, args) {
+      return Messages.update(
+        {
+          conversationId: args.conversationId,
+          userId: { $exists: true },
+          isCustomerRead: { $exists: false },
+        },
+        { isCustomerRead: true },
+        { multi: true },
+
+        () => {
+          // notify all notification subscribers that message's read
+          // state changed
+          pubsub.publish('notification');
+        }
+      );
     },
   },
 

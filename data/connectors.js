@@ -16,10 +16,12 @@ const AttachmentSchema = Mongoose.Schema({
 
 const MessageSchema = Mongoose.Schema({
   _id: String,
+  userId: String,
   conversationId: String,
   content: String,
   attachments: [AttachmentSchema],
   createdAt: Date,
+  isCustomerRead: Boolean,
 });
 
 const Conversations = Mongoose.model('conversations', ConversationSchema);

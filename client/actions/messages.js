@@ -6,8 +6,18 @@ import client from '../apollo-client';
 import uploadHandler from '../uploadHandler';
 import { changeConversation } from './messenger';
 
-export const readMessages = () =>
-  () => 'Not Implemented';
+export const readMessages = conversationId =>
+  // mark as read
+  () => client.mutate({
+    mutation: gql`
+      mutation readConversationMessages($conversationId: String) {
+        readConversationMessages(conversationId: $conversationId)
+      }`,
+
+    variables: {
+      conversationId,
+    },
+  });
 
 export const sendMessage = (message, attachments) =>
   (dispatch, getState) => {

@@ -55887,7 +55887,8 @@
 	});
 	exports.sendFile = exports.sendMessage = exports.readMessages = undefined;
 
-	var _templateObject = _taggedTemplateLiteral(['\n            mutation simulateInsertMessage($messageId: String) {\n              simulateInsertMessage(messageId: $messageId) {\n                _id\n              }\n            }'], ['\n            mutation simulateInsertMessage($messageId: String) {\n              simulateInsertMessage(messageId: $messageId) {\n                _id\n              }\n            }']);
+	var _templateObject = _taggedTemplateLiteral(['\n      mutation readConversationMessages($conversationId: String) {\n        readConversationMessages(conversationId: $conversationId)\n      }'], ['\n      mutation readConversationMessages($conversationId: String) {\n        readConversationMessages(conversationId: $conversationId)\n      }']),
+	    _templateObject2 = _taggedTemplateLiteral(['\n            mutation simulateInsertMessage($messageId: String) {\n              simulateInsertMessage(messageId: $messageId) {\n                _id\n              }\n            }'], ['\n            mutation simulateInsertMessage($messageId: String) {\n              simulateInsertMessage(messageId: $messageId) {\n                _id\n              }\n            }']);
 
 	var _meteorEjson = __webpack_require__(588);
 
@@ -55915,10 +55916,19 @@
 
 	function _taggedTemplateLiteral(strings, raw) { return Object.freeze(Object.defineProperties(strings, { raw: { value: Object.freeze(raw) } })); }
 
-	var readMessages = exports.readMessages = function readMessages() {
-	  return function () {
-	    return 'Not Implemented';
-	  };
+	var readMessages = exports.readMessages = function readMessages(conversationId) {
+	  return (
+	    // mark as read
+	    function () {
+	      return _apolloClient2.default.mutate({
+	        mutation: (0, _graphqlTag2.default)(_templateObject),
+
+	        variables: {
+	          conversationId: conversationId
+	        }
+	      });
+	    }
+	  );
 	};
 
 	var sendMessage = exports.sendMessage = function sendMessage(message, attachments) {
@@ -55942,7 +55952,7 @@
 	      // using this in order to notify pubsub that new message inserted and
 	      // subscribe to all clients
 	      _apolloClient2.default.mutate({
-	        mutation: (0, _graphqlTag2.default)(_templateObject),
+	        mutation: (0, _graphqlTag2.default)(_templateObject2),
 
 	        variables: {
 	          messageId: messageId
