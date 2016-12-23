@@ -76,7 +76,7 @@
 
 	var _erxes = __webpack_require__(589);
 
-	__webpack_require__(614);
+	__webpack_require__(615);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -34965,7 +34965,7 @@
 
 	var _subscriptionsTransportWs = __webpack_require__(428);
 
-	var _subscriptions = __webpack_require__(618);
+	var _subscriptions = __webpack_require__(619);
 
 	var _subscriptions2 = _interopRequireDefault(_subscriptions);
 
@@ -35896,19 +35896,19 @@
 
 	var _ConversationList2 = _interopRequireDefault(_ConversationList);
 
-	var _ConversationItem = __webpack_require__(608);
+	var _ConversationItem = __webpack_require__(609);
 
 	var _ConversationItem2 = _interopRequireDefault(_ConversationItem);
 
-	var _Conversation = __webpack_require__(611);
+	var _Conversation = __webpack_require__(612);
 
 	var _Conversation2 = _interopRequireDefault(_Conversation);
 
-	var _Launcher = __webpack_require__(612);
+	var _Launcher = __webpack_require__(613);
 
 	var _Launcher2 = _interopRequireDefault(_Launcher);
 
-	var _MessageSender = __webpack_require__(613);
+	var _MessageSender = __webpack_require__(614);
 
 	var _MessageSender2 = _interopRequireDefault(_MessageSender);
 
@@ -52865,7 +52865,7 @@
 
 	var _messages = __webpack_require__(586);
 
-	var _messenger = __webpack_require__(607);
+	var _messenger = __webpack_require__(608);
 
 	var _components = __webpack_require__(458);
 
@@ -55875,11 +55875,11 @@
 
 	var _apolloClient2 = _interopRequireDefault(_apolloClient);
 
-	var _uploadHandler = __webpack_require__(619);
+	var _uploadHandler = __webpack_require__(607);
 
 	var _uploadHandler2 = _interopRequireDefault(_uploadHandler);
 
-	var _messenger = __webpack_require__(607);
+	var _messenger = __webpack_require__(608);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -60359,6 +60359,62 @@
 
 /***/ },
 /* 607 */
+/***/ function(module, exports) {
+
+	"use strict";
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.default = uploadHandler;
+	/**
+	 * Upload handler tools which is used in both api & main projects
+	 * @param  {Object}   options.file         blob object
+	 * @param  {Function} options.afterRead    for preview purpose
+	 * @param  {Function} options.uploadAction main upload method
+	 */
+	function uploadHandler(_ref) {
+	  var file = _ref.file,
+	      afterRead = _ref.afterRead,
+	      uploadAction = _ref.uploadAction;
+
+	  // initiate upload file reader
+	  var uploadReader = new FileReader();
+
+	  var name = file.name,
+	      size = file.size,
+	      type = file.type;
+
+	  var fileInfo = { name: name, size: size, type: type };
+
+	  // after read process is done
+	  uploadReader.onloadend = function () {
+	    var data = new Uint8Array(uploadReader.result);
+	    uploadAction({ data: data, fileInfo: fileInfo });
+	  };
+
+	  // begin read
+	  uploadReader.readAsArrayBuffer(file);
+
+	  // read as data url for preview purposes
+	  if (afterRead) {
+	    (function () {
+	      var reader = new FileReader();
+
+	      reader.onloadend = function () {
+	        afterRead({
+	          result: reader.result,
+	          fileInfo: fileInfo
+	        });
+	      };
+
+	      reader.readAsDataURL(file);
+	    })();
+	  }
+	}
+
+/***/ },
+/* 608 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -60403,7 +60459,7 @@
 	};
 
 /***/ },
-/* 608 */
+/* 609 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -60430,7 +60486,7 @@
 
 	var _components = __webpack_require__(458);
 
-	var _NotificationSubscriber = __webpack_require__(609);
+	var _NotificationSubscriber = __webpack_require__(610);
 
 	var _NotificationSubscriber2 = _interopRequireDefault(_NotificationSubscriber);
 
@@ -60480,7 +60536,7 @@
 	})(ConversationItem);
 
 /***/ },
-/* 609 */
+/* 610 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -60495,7 +60551,7 @@
 
 	var _graphqlTag2 = _interopRequireDefault(_graphqlTag);
 
-	var _Subscriber2 = __webpack_require__(610);
+	var _Subscriber2 = __webpack_require__(611);
 
 	var _Subscriber3 = _interopRequireDefault(_Subscriber2);
 
@@ -60532,7 +60588,7 @@
 	exports.default = NotificationSubscriber;
 
 /***/ },
-/* 610 */
+/* 611 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -60591,7 +60647,7 @@
 	};
 
 /***/ },
-/* 611 */
+/* 612 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -60619,11 +60675,11 @@
 
 	var _reactApollo = __webpack_require__(199);
 
-	var _Subscriber2 = __webpack_require__(610);
+	var _Subscriber2 = __webpack_require__(611);
 
 	var _Subscriber3 = _interopRequireDefault(_Subscriber2);
 
-	var _messenger = __webpack_require__(607);
+	var _messenger = __webpack_require__(608);
 
 	var _components = __webpack_require__(458);
 
@@ -60723,7 +60779,7 @@
 	exports.default = (0, _reactRedux.connect)(mapStateToProps, mapDisptachToProps)(WithData);
 
 /***/ },
-/* 612 */
+/* 613 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -60750,11 +60806,11 @@
 
 	var _reactApollo = __webpack_require__(199);
 
-	var _messenger = __webpack_require__(607);
+	var _messenger = __webpack_require__(608);
 
 	var _components = __webpack_require__(458);
 
-	var _NotificationSubscriber = __webpack_require__(609);
+	var _NotificationSubscriber = __webpack_require__(610);
 
 	var _NotificationSubscriber2 = _interopRequireDefault(_NotificationSubscriber);
 
@@ -60820,7 +60876,7 @@
 	exports.default = (0, _reactRedux.connect)(mapStateToProps, mapDisptachToProps)(LauncherWithData);
 
 /***/ },
-/* 613 */
+/* 614 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -60859,16 +60915,16 @@
 	exports.default = (0, _reactRedux.connect)(mapStateToProps, mapDispatchToProps)(_components.MessageSender);
 
 /***/ },
-/* 614 */
+/* 615 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// style-loader: Adds some css to the DOM by adding a <style> tag
 
 	// load the styles
-	var content = __webpack_require__(615);
+	var content = __webpack_require__(616);
 	if(typeof content === 'string') content = [[module.id, content, '']];
 	// add the styles to the DOM
-	var update = __webpack_require__(617)(content, {});
+	var update = __webpack_require__(618)(content, {});
 	if(content.locals) module.exports = content.locals;
 	// Hot Module Replacement
 	if(false) {
@@ -60885,10 +60941,10 @@
 	}
 
 /***/ },
-/* 615 */
+/* 616 */
 /***/ function(module, exports, __webpack_require__) {
 
-	exports = module.exports = __webpack_require__(616)();
+	exports = module.exports = __webpack_require__(617)();
 	// imports
 	exports.push([module.id, "@import url(https://fonts.googleapis.com/css?family=Roboto:300,400&subset=cyrillic-ext);", ""]);
 
@@ -60899,7 +60955,7 @@
 
 
 /***/ },
-/* 616 */
+/* 617 */
 /***/ function(module, exports) {
 
 	/*
@@ -60955,7 +61011,7 @@
 
 
 /***/ },
-/* 617 */
+/* 618 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/*
@@ -61207,7 +61263,7 @@
 
 
 /***/ },
-/* 618 */
+/* 619 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -61234,62 +61290,6 @@
 	};
 
 	exports.default = addGraphQLSubscriptions;
-
-/***/ },
-/* 619 */
-/***/ function(module, exports) {
-
-	"use strict";
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-	exports.default = uploadHandler;
-	/**
-	 * Upload handler tools which is used in both api & main projects
-	 * @param  {Object}   options.file         blob object
-	 * @param  {Function} options.afterRead    for preview purpose
-	 * @param  {Function} options.uploadAction main upload method
-	 */
-	function uploadHandler(_ref) {
-	  var file = _ref.file,
-	      afterRead = _ref.afterRead,
-	      uploadAction = _ref.uploadAction;
-
-	  // initiate upload file reader
-	  var uploadReader = new FileReader();
-
-	  var name = file.name,
-	      size = file.size,
-	      type = file.type;
-
-	  var fileInfo = { name: name, size: size, type: type };
-
-	  // after read process is done
-	  uploadReader.onloadend = function () {
-	    var data = new Uint8Array(uploadReader.result);
-	    uploadAction({ data: data, fileInfo: fileInfo });
-	  };
-
-	  // begin read
-	  uploadReader.readAsArrayBuffer(file);
-
-	  // read as data url for preview purposes
-	  if (afterRead) {
-	    (function () {
-	      var reader = new FileReader();
-
-	      reader.onloadend = function () {
-	        afterRead({
-	          result: reader.result,
-	          fileInfo: fileInfo
-	        });
-	      };
-
-	      reader.readAsDataURL(file);
-	    })();
-	  }
-	}
 
 /***/ }
 /******/ ]);
