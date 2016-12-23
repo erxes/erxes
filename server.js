@@ -42,9 +42,9 @@ app.use('/graphql', graphqlExpress(() =>
   })
 ));
 
-// root url
-app.get('/', (req, res) => {
-  res.sendFile('index.html', { root: __dirname });
+// in app messaging url
+app.get('/inapp', (req, res) => {
+  res.sendFile('inapp.html', { root: __dirname });
 });
 
 // graphiql

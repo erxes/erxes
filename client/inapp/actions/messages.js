@@ -3,7 +3,7 @@ import gql from 'graphql-tag';
 import { SENDING_ATTACHMENT, ATTACHMENT_SENT } from '../constants';
 import { call } from '../erxes';
 import client from '../apollo-client';
-import uploadHandler from '../uploadHandler';
+import uploadHandler from '../../uploadHandler';
 import { changeConversation } from './messenger';
 
 export const readMessages = conversationId =>

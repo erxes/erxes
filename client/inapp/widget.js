@@ -7,7 +7,7 @@
   // add iframe
   var iframe = document.createElement('iframe');
   iframe.id = 'erxes-iframe';
-  iframe.src = 'http://localhost:8080';
+  iframe.src = 'http://localhost:8080/inapp';
   iframe.className = 'erxes-messenger-hidden';
 
   document.body.appendChild(iframe);
