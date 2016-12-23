@@ -1,9 +1,10 @@
 /* eslint-disable new-cap */
 
 import Mongoose from 'mongoose';
+import settings from '../settings';
 
 Mongoose.connect(
-  'mongodb://127.0.0.1:7011/meteor', {
+  settings.MONGO_URL, {
     server: {
       auto_reconnect: true,
     },

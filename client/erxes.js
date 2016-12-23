@@ -1,4 +1,5 @@
 import { createClass } from 'asteroid';
+import settings from '../settings';
 
 const Asteroid = createClass();
 let asteroid;
@@ -24,7 +25,7 @@ export const call = (name, ...params) => {
  */
 export const connect = (params) => {
   asteroid = new Asteroid({
-    endpoint: 'ws://127.0.0.1:7010/websocket',
+    endpoint: settings.DDP_URL,
   });
 
   asteroid.ddp.on('connected', () => {

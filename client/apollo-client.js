@@ -3,8 +3,9 @@
 import ApolloClient, { createNetworkInterface } from 'apollo-client';
 import { Client } from 'subscriptions-transport-ws';
 import addGraphQLSubscriptions from './subscriptions';
+import settings from '../settings';
 
-const wsClient = new Client('ws://localhost:3010', {
+const wsClient = new Client(settings.WEBSOCKET_URL, {
   reconnect: true,
 });
 
