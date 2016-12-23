@@ -30,10 +30,10 @@ const mapStateToProps = state => ({
 });
 
 const mapDisptachToProps = dispatch => ({
-  onClick() {
+  onClick(isVisible) {
     dispatch(changeConversation(''));
     dispatch(changeRoute('conversationList'));
-    dispatch(toggle());
+    dispatch(toggle(isVisible));
   },
 });
 

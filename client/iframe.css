@@ -1,0 +1,17 @@
+#erxes-iframe {
+  position: fixed;
+  bottom: 0px;
+  right: 0px;
+  padding: 20px;
+  border: none;
+}
+
+.erxes-messenger-hidden {
+  width: 66px;
+  height: 66px;
+}
+
+.erxes-messenger-shown {
+  width: 375px;
+  height: calc(100% - 95px - 30px);
+}

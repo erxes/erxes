@@ -35926,15 +35926,15 @@
 
 	var _ConversationItem2 = _interopRequireDefault(_ConversationItem);
 
-	var _Conversation = __webpack_require__(611);
+	var _Conversation = __webpack_require__(613);
 
 	var _Conversation2 = _interopRequireDefault(_Conversation);
 
-	var _Launcher = __webpack_require__(612);
+	var _Launcher = __webpack_require__(614);
 
 	var _Launcher2 = _interopRequireDefault(_Launcher);
 
-	var _MessageSender = __webpack_require__(613);
+	var _MessageSender = __webpack_require__(615);
 
 	var _MessageSender2 = _interopRequireDefault(_MessageSender);
 
@@ -52496,16 +52496,22 @@
 
 	var propTypes = {
 	  onClick: _react.PropTypes.func.isRequired,
-	  notificationCount: _react.PropTypes.number.isRequired
+	  notificationCount: _react.PropTypes.number.isRequired,
+	  isMessengerVisible: _react.PropTypes.bool.isRequired
 	};
 
 	function Launcher(_ref) {
-	  var onClick = _ref.onClick,
+	  var isMessengerVisible = _ref.isMessengerVisible,
+	      onClick = _ref.onClick,
 	      notificationCount = _ref.notificationCount;
+
+	  var clickHandler = function clickHandler() {
+	    onClick(isMessengerVisible);
+	  };
 
 	  return _react2.default.createElement(
 	    "div",
-	    { className: "erxes-launcher", onClick: onClick },
+	    { className: "erxes-launcher", onClick: clickHandler },
 	    notificationCount ? _react2.default.createElement(
 	      "span",
 	      null,
@@ -60446,7 +60452,13 @@
 
 	var _constants = __webpack_require__(441);
 
-	var toggle = exports.toggle = function toggle() {
+	var toggle = exports.toggle = function toggle(isVisible) {
+	  // notify parent window launcher state
+	  window.parent.postMessage({
+	    fromErxes: true,
+	    isMessengerVisible: isVisible
+	  }, '*');
+
 	  return {
 	    type: _constants.MESSENGER_TOGGLE
 	  };
@@ -60500,7 +60512,7 @@
 
 	var _components = __webpack_require__(459);
 
-	var _NotificationSubscriber = __webpack_require__(620);
+	var _NotificationSubscriber = __webpack_require__(611);
 
 	var _NotificationSubscriber2 = _interopRequireDefault(_NotificationSubscriber);
 
@@ -60559,6 +60571,117 @@
 	  value: true
 	});
 
+	var _templateObject = _taggedTemplateLiteral(['subscription notification {notification}'], ['subscription notification {notification}']);
+
+	var _graphqlTag = __webpack_require__(585);
+
+	var _graphqlTag2 = _interopRequireDefault(_graphqlTag);
+
+	var _Subscriber2 = __webpack_require__(612);
+
+	var _Subscriber3 = _interopRequireDefault(_Subscriber2);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _taggedTemplateLiteral(strings, raw) { return Object.freeze(Object.defineProperties(strings, { raw: { value: Object.freeze(raw) } })); }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var NotificationSubscriber = function (_Subscriber) {
+	  _inherits(NotificationSubscriber, _Subscriber);
+
+	  function NotificationSubscriber(props) {
+	    _classCallCheck(this, NotificationSubscriber);
+
+	    var _this = _possibleConstructorReturn(this, (NotificationSubscriber.__proto__ || Object.getPrototypeOf(NotificationSubscriber)).call(this, props));
+
+	    _this.subscribeToMoreOptions = {
+	      document: (0, _graphqlTag2.default)(_templateObject),
+	      updateQuery: function updateQuery() {
+	        _this.props.data.refetch();
+	      }
+	    };
+	    return _this;
+	  }
+
+	  return NotificationSubscriber;
+	}(_Subscriber3.default);
+
+	exports.default = NotificationSubscriber;
+
+/***/ },
+/* 612 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var Subscriber = function (_React$Component) {
+	  _inherits(Subscriber, _React$Component);
+
+	  function Subscriber(props) {
+	    _classCallCheck(this, Subscriber);
+
+	    var _this = _possibleConstructorReturn(this, (Subscriber.__proto__ || Object.getPrototypeOf(Subscriber)).call(this, props));
+
+	    _this.subscription = null;
+	    _this.subscribeToMoreOptions = {};
+	    return _this;
+	  }
+
+	  _createClass(Subscriber, [{
+	    key: 'componentWillReceiveProps',
+	    value: function componentWillReceiveProps(nextProps) {
+	      if (!this.subscription && !nextProps.data.loading) {
+	        var subscribeToMore = this.props.data.subscribeToMore;
+
+
+	        this.subscription = [subscribeToMore(this.subscribeToMoreOptions)];
+	      }
+	    }
+	  }]);
+
+	  return Subscriber;
+	}(_react2.default.Component);
+
+	exports.default = Subscriber;
+
+
+	Subscriber.propTypes = {
+	  data: _react.PropTypes.object.isRequired
+	};
+
+/***/ },
+/* 613 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
 	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -60578,7 +60701,7 @@
 
 	var _reactApollo = __webpack_require__(199);
 
-	var _Subscriber2 = __webpack_require__(621);
+	var _Subscriber2 = __webpack_require__(612);
 
 	var _Subscriber3 = _interopRequireDefault(_Subscriber2);
 
@@ -60682,7 +60805,7 @@
 	exports.default = (0, _reactRedux.connect)(mapStateToProps, mapDisptachToProps)(WithData);
 
 /***/ },
-/* 612 */
+/* 614 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -60713,7 +60836,7 @@
 
 	var _components = __webpack_require__(459);
 
-	var _NotificationSubscriber = __webpack_require__(620);
+	var _NotificationSubscriber = __webpack_require__(611);
 
 	var _NotificationSubscriber2 = _interopRequireDefault(_NotificationSubscriber);
 
@@ -60766,10 +60889,10 @@
 
 	var mapDisptachToProps = function mapDisptachToProps(dispatch) {
 	  return {
-	    onClick: function onClick() {
+	    onClick: function onClick(isVisible) {
 	      dispatch((0, _messenger.changeConversation)(''));
 	      dispatch((0, _messenger.changeRoute)('conversationList'));
-	      dispatch((0, _messenger.toggle)());
+	      dispatch((0, _messenger.toggle)(isVisible));
 	    }
 	  };
 	};
@@ -60779,7 +60902,7 @@
 	exports.default = (0, _reactRedux.connect)(mapStateToProps, mapDisptachToProps)(LauncherWithData);
 
 /***/ },
-/* 613 */
+/* 615 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -60818,8 +60941,6 @@
 	exports.default = (0, _reactRedux.connect)(mapStateToProps, mapDispatchToProps)(_components.MessageSender);
 
 /***/ },
-/* 614 */,
-/* 615 */,
 /* 616 */
 /***/ function(module, exports, __webpack_require__) {
 
@@ -60854,7 +60975,7 @@
 	exports.push([module.id, "@import url(https://fonts.googleapis.com/css?family=Roboto:300,400&subset=cyrillic-ext);", ""]);
 
 	// module
-	exports.push([module.id, ".erxes-widget {\n  margin: 0;\n  font-family: 'Roboto', Helvetica, Arial, sans-serif;\n  font-size: 14px;\n  line-height: 1.5;\n  -webkit-font-smoothing: antialiased;\n  -moz-osx-font-smoothing: grayscale; }\n\n.erxes-launcher {\n  color: #fff;\n  line-height: 56px;\n  text-align: center;\n  border-radius: 28px;\n  width: 56px;\n  height: 56px;\n  cursor: pointer;\n  position: fixed;\n  bottom: 30px;\n  right: 30px;\n  z-index: 999999;\n  box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1);\n  background: #7754b3 url(\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACgAAAAoCAYAAACM/rhtAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyNpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuNS1jMDE0IDc5LjE1MTQ4MSwgMjAxMy8wMy8xMy0xMjowOToxNSAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENDIChNYWNpbnRvc2gpIiB4bXBNTTpJbnN0YW5jZUlEPSJ4bXAuaWlkOjE4RTFGN0RBOThGMzExRTY4MTlDQzI2M0M5MDJCODE2IiB4bXBNTTpEb2N1bWVudElEPSJ4bXAuZGlkOjE4RTFGN0RCOThGMzExRTY4MTlDQzI2M0M5MDJCODE2Ij4gPHhtcE1NOkRlcml2ZWRGcm9tIHN0UmVmOmluc3RhbmNlSUQ9InhtcC5paWQ6MzQ2NDM2N0Y5OEVFMTFFNjgxOUNDMjYzQzkwMkI4MTYiIHN0UmVmOmRvY3VtZW50SUQ9InhtcC5kaWQ6MzQ2NDM2ODA5OEVFMTFFNjgxOUNDMjYzQzkwMkI4MTYiLz4gPC9yZGY6RGVzY3JpcHRpb24+IDwvcmRmOlJERj4gPC94OnhtcG1ldGE+IDw/eHBhY2tldCBlbmQ9InIiPz7dFbt2AAABlklEQVR42uzYvUsDMQCH4Tvt4AcIikXESaHoUhDdRRwcHKSoqwiKg9C5FCf/Bgcdis6COIiDuAs61IKDjoIIiqAOflFBPd9AwBtqvV5CLkMCDxx3afojl0ty5wdB4NlcmjzLiwvoArqAFgbsbqRyynC4DKq29mA7xnBja8A17No6BpdxiedGf6gyBntwH6HeMOYxbvopfsXsP3U6sIMCvk0HfEMnpurUKeFUilfEdktBCifI1ri2ghf0qfyHakAhhyukQ+dGUEVRtX1f04b1WD5wYp5rRQVfyOJDpWFdK0lBhtyWAQeQUw2nYwyG7QW/5UhXu77Gd5JRlEPHFdt2M3Oh40ldjerqwUGc4w6fSMtx+GRLD66L4Sx7cVqeK2ppWcNAnpEPxlLo3ISOSVrHRN2Ga2z9sZKUVAOq3uJVPCBf49qm3F4NJXWLM7hFf506zVhIah48wAYOI2y5xJP9bnKpE8vYWYRwXpxdtGrAFjkR5028K8S5xYvYx6ONAXvRhQtbvywEJsPpXIvdxyMX0AVMqvwIMAAEaSQ4y2c8jAAAAABJRU5ErkJggg==\") center no-repeat; }\n  .erxes-launcher span {\n    position: absolute;\n    width: 20px;\n    height: 20px;\n    background: #f74040;\n    display: block;\n    right: -2px;\n    top: -5px;\n    color: #fff;\n    border-radius: 10px;\n    text-align: center;\n    line-height: 20px;\n    font-size: 10px; }\n\n.erxes-messenger {\n  position: fixed;\n  right: 30px;\n  width: 370px;\n  background: #fff;\n  box-shadow: 0 5px 15px -3px rgba(0, 0, 0, 0.15);\n  z-index: 999999999;\n  display: flex;\n  flex-direction: column;\n  height: calc(100% - 95px - 30px);\n  bottom: 100px;\n  max-height: 620px;\n  border-radius: 4px;\n  overflow: hidden; }\n\n.erxes-topbar {\n  background: #7754b3;\n  overflow: hidden;\n  width: 100%;\n  height: 70px;\n  text-align: center;\n  flex-shrink: 0;\n  color: #fff;\n  border-top-left-radius: 4px;\n  border-top-right-radius: 4px; }\n  .erxes-topbar .topbar-button.left {\n    left: 15px; }\n  .erxes-topbar .topbar-button.right {\n    right: 15px; }\n  .erxes-topbar .erxes-middle {\n    display: inline-block; }\n\n.topbar-button {\n  position: absolute;\n  top: 15px;\n  text-align: center;\n  cursor: pointer;\n  width: 40px;\n  height: 40px;\n  line-height: 40px;\n  border-radius: 4px;\n  display: block;\n  -webkit-transition: background 0.3s ease-in-out;\n  -moz-transition: background 0.3s ease-in-out;\n  -ms-transition: background 0.3s ease-in-out;\n  -o-transition: background 0.3s ease-in-out;\n  transition: background 0.3s ease-in-out; }\n  .topbar-button.new {\n    background: url(\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA0AAAAOCAYAAAD0f5bSAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyNpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuNS1jMDE0IDc5LjE1MTQ4MSwgMjAxMy8wMy8xMy0xMjowOToxNSAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENDIChNYWNpbnRvc2gpIiB4bXBNTTpJbnN0YW5jZUlEPSJ4bXAuaWlkOjJBMzcyNUVGQTI2NjExRTZBNzNEOTJCRENBMzY3OTBDIiB4bXBNTTpEb2N1bWVudElEPSJ4bXAuZGlkOjJBMzcyNUYwQTI2NjExRTZBNzNEOTJCRENBMzY3OTBDIj4gPHhtcE1NOkRlcml2ZWRGcm9tIHN0UmVmOmluc3RhbmNlSUQ9InhtcC5paWQ6MkEzNzI1RURBMjY2MTFFNkE3M0Q5MkJEQ0EzNjc5MEMiIHN0UmVmOmRvY3VtZW50SUQ9InhtcC5kaWQ6MkEzNzI1RUVBMjY2MTFFNkE3M0Q5MkJEQ0EzNjc5MEMiLz4gPC9yZGY6RGVzY3JpcHRpb24+IDwvcmRmOlJERj4gPC94OnhtcG1ldGE+IDw/eHBhY2tldCBlbmQ9InIiPz4x/YBAAAAAZElEQVR42mL4//8/AxYsCMS7gTgNmzwLA27gAsT3sEkwMZAB6KcJ5CclIDZGExeE0iC5UAxdwNAo/08iYARiXDbNBOI9QDwLm0244gkEZmKTH+RBjk8TKBDOYpMAhR7JNgEEGADdRo/BguL5MwAAAABJRU5ErkJggg==\") no-repeat 50%; }\n  .topbar-button.back {\n    background: url(\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAkAAAAOCAYAAAD9lDaoAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyNpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuNS1jMDE0IDc5LjE1MTQ4MSwgMjAxMy8wMy8xMy0xMjowOToxNSAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENDIChNYWNpbnRvc2gpIiB4bXBNTTpJbnN0YW5jZUlEPSJ4bXAuaWlkOjE4RTFGN0UyOThGMzExRTY4MTlDQzI2M0M5MDJCODE2IiB4bXBNTTpEb2N1bWVudElEPSJ4bXAuZGlkOjE4RTFGN0UzOThGMzExRTY4MTlDQzI2M0M5MDJCODE2Ij4gPHhtcE1NOkRlcml2ZWRGcm9tIHN0UmVmOmluc3RhbmNlSUQ9InhtcC5paWQ6MThFMUY3RTA5OEYzMTFFNjgxOUNDMjYzQzkwMkI4MTYiIHN0UmVmOmRvY3VtZW50SUQ9InhtcC5kaWQ6MThFMUY3RTE5OEYzMTFFNjgxOUNDMjYzQzkwMkI4MTYiLz4gPC9yZGY6RGVzY3JpcHRpb24+IDwvcmRmOlJERj4gPC94OnhtcG1ldGE+IDw/eHBhY2tldCBlbmQ9InIiPz7KIAflAAAAYUlEQVR42mL6//8/Aw48E4hXgdgsDNhBBxCnQdlK2Ezo+I8AoSAxdAXlSArSYOLICtKwKUBWhKygHN0JDFB7YaADm0+ZGIgBxFpHtMOJDgKiAxObQiVccVcBxIJQfA8gwACtvUf35pIKuQAAAABJRU5ErkJggg==\") no-repeat 50%; }\n  .topbar-button:hover {\n    background-color: rgba(0, 0, 0, 0.2); }\n\n.erxes-staff-profile {\n  margin-top: 15px;\n  text-align: left;\n  line-height: 1.3em; }\n  .erxes-staff-profile img {\n    float: left;\n    width: 40px;\n    height: 40px;\n    border-radius: 20px;\n    overflow: hidden; }\n  .erxes-staff-profile > div {\n    margin-left: 50px; }\n  .erxes-staff-profile .erxes-staff-name {\n    font-size: 15px;\n    font-weight: 600;\n    padding-top: 3px; }\n  .erxes-staff-profile .erxes-staff-company {\n    font-size: 14px;\n    font-weight: 300; }\n\n.erxes-topbar-title {\n  font-size: 15px;\n  font-weight: 600;\n  line-height: 1.2em;\n  margin-top: 18px; }\n  .erxes-topbar-title span {\n    font-size: 14px;\n    font-weight: 300; }\n\n.erxes-conversation-list {\n  list-style: none;\n  margin: 0;\n  padding: 0;\n  overflow-y: auto; }\n\n.erxes-conversation-item {\n  position: relative;\n  overflow: hidden;\n  -webkit-transition: background 0.3s ease-in-out;\n  -moz-transition: background 0.3s ease-in-out;\n  -ms-transition: background 0.3s ease-in-out;\n  -o-transition: background 0.3s ease-in-out;\n  transition: background 0.3s ease-in-out; }\n  .erxes-conversation-item:hover {\n    cursor: pointer;\n    background: rgba(0, 0, 0, 0.01); }\n  .erxes-conversation-item.unread .erxes-message {\n    font-weight: 600;\n    color: #000; }\n  .erxes-conversation-item .erxes-list-avatar {\n    width: 40px;\n    height: 40px;\n    border-radius: 20px;\n    float: left;\n    margin: 25px 15px 25px 20px; }\n  .erxes-conversation-item .erxes-right-side {\n    padding: 25px 20px 25px 0;\n    margin-left: 75px;\n    border-bottom: 1px solid #f5f4f6; }\n  .erxes-conversation-item .erxes-name {\n    font-weight: 400; }\n  .erxes-conversation-item .erxes-last-message {\n    color: #686868;\n    overflow: hidden;\n    text-overflow: ellipsis;\n    white-space: nowrap; }\n  .erxes-conversation-item .erxes-date {\n    float: right;\n    color: #888;\n    font-size: 12px; }\n\n.erxes-messages-list {\n  background-color: #faf9fb;\n  overflow: auto;\n  padding: 20px;\n  margin: 0;\n  flex: 1; }\n  .erxes-messages-list li {\n    list-style: none;\n    position: relative;\n    overflow: hidden;\n    margin-bottom: 10px; }\n    .erxes-messages-list li.from-customer {\n      text-align: right; }\n    .erxes-messages-list li .date {\n      font-size: 11px;\n      color: #686868;\n      margin-left: 50px; }\n\n.erxes-message {\n  padding: 12px 15px;\n  background-color: #f5f4f6;\n  border-radius: 4px;\n  position: relative;\n  margin: 0 20px 5px 50px;\n  display: inline-block;\n  word-wrap: break-word;\n  color: #686868;\n  text-align: left; }\n  .erxes-message.from-customer {\n    margin: 0 0 5px 20px;\n    background-color: #7754b3;\n    color: #fff;\n    text-align: right; }\n    .erxes-message.from-customer .file-wrapper {\n      border-color: #f5f4f6; }\n  .erxes-message.attachment {\n    padding: 0;\n    background: none;\n    border: 0; }\n  .erxes-message p {\n    margin-top: 0; }\n  .erxes-message img {\n    max-width: 240px;\n    border-radius: 4px;\n    background: white;\n    min-width: 60px;\n    min-height: 30px; }\n\n.file-wrapper {\n  position: relative;\n  padding: 16px 20px;\n  border: 1px solid transparent;\n  border-radius: 4px;\n  padding-left: 40px;\n  color: #686868;\n  background: white;\n  -webkit-transition: border 0.3s ease-in-out;\n  -moz-transition: border 0.3s ease-in-out;\n  -ms-transition: border 0.3s ease-in-out;\n  -o-transition: border 0.3s ease-in-out;\n  transition: border 0.3s ease-in-out; }\n  .file-wrapper i {\n    width: 30px;\n    height: 30px;\n    position: absolute;\n    left: 10px;\n    top: 12px;\n    line-height: 30px;\n    color: #686868;\n    background-image: url(\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAeCAYAAAA7MK6iAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyNpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuNS1jMDE0IDc5LjE1MTQ4MSwgMjAxMy8wMy8xMy0xMjowOToxNSAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENDIChNYWNpbnRvc2gpIiB4bXBNTTpJbnN0YW5jZUlEPSJ4bXAuaWlkOjM0NjQzNjdEOThFRTExRTY4MTlDQzI2M0M5MDJCODE2IiB4bXBNTTpEb2N1bWVudElEPSJ4bXAuZGlkOjM0NjQzNjdFOThFRTExRTY4MTlDQzI2M0M5MDJCODE2Ij4gPHhtcE1NOkRlcml2ZWRGcm9tIHN0UmVmOmluc3RhbmNlSUQ9InhtcC5paWQ6MzQ2NDM2N0I5OEVFMTFFNjgxOUNDMjYzQzkwMkI4MTYiIHN0UmVmOmRvY3VtZW50SUQ9InhtcC5kaWQ6MzQ2NDM2N0M5OEVFMTFFNjgxOUNDMjYzQzkwMkI4MTYiLz4gPC9yZGY6RGVzY3JpcHRpb24+IDwvcmRmOlJERj4gPC94OnhtcG1ldGE+IDw/eHBhY2tldCBlbmQ9InIiPz5jGkrfAAAAs0lEQVR42mL8//8/w0AAJoYBAqMWD3+LWUjV0NnZCaKMgdgFiPcA8VmYXHl5OU19nAbEq4BYEEqH0sXHII8BcQUQrwbie1D+anrEsRKSRauh/AFNXKH0svguWih00MtiwdECZNTiYWcxLFW/p5fF76GWnoUWl/fIyVrkWHwPWlGkQy2sgJZaZ2ldSYAsmgn1eSfUUpBDXGnt4z1Qy0GWnYFaHEaqjxlHm7ejFo9aTC0AEGAAUrAjbAYD+CYAAAAASUVORK5CYII=\");\n    background-position: 0 0;\n    background-repeat: no-repeat; }\n  .file-wrapper span {\n    white-space: nowrap;\n    text-overflow: ellipsis;\n    overflow: hidden;\n    direction: rtl;\n    text-align: left;\n    max-width: 140px;\n    display: block; }\n  .file-wrapper:hover {\n    border-color: #f5f4f6; }\n\n.download-attachment {\n  display: block;\n  text-decoration: none; }\n  .download-attachment img {\n    -webkit-transition: opacity 0.3s ease-in-out;\n    -moz-transition: opacity 0.3s ease-in-out;\n    -ms-transition: opacity 0.3s ease-in-out;\n    -o-transition: opacity 0.3s ease-in-out;\n    transition: opacity 0.3s ease-in-out; }\n    .download-attachment img:hover {\n      opacity: 0.8; }\n\n.erxes-avatar {\n  width: 40px;\n  height: 40px;\n  border-radius: 50%;\n  overflow: hidden;\n  position: absolute;\n  left: 0;\n  bottom: 20px; }\n  .erxes-avatar img {\n    width: 100%;\n    height: 100%; }\n\n.btn-resend {\n  background: #fff;\n  outline: 0;\n  border: 0;\n  border-radius: 4px;\n  color: #686868;\n  padding: 5px 15px;\n  margin-top: 5px;\n  cursor: pointer; }\n  .btn-resend:focus, .btn-resend:hover {\n    background: white; }\n\n.erxes-message-sender {\n  overflow: hidden;\n  font-size: 12px;\n  position: relative;\n  min-height: 60px;\n  border-top: 1px solid white; }\n  .erxes-message-sender textarea.reply {\n    color: #686868;\n    border: 0;\n    border-radius: 3px;\n    padding: 20px 25px;\n    font-size: 14px;\n    width: 100%;\n    max-width: 100%;\n    outline: none;\n    resize: none;\n    padding-right: 40px;\n    position: absolute;\n    left: 0;\n    top: 0;\n    height: 100%; }\n    .erxes-message-sender textarea.reply:focus {\n      -webkit-box-shadow: none !important;\n      -moz-box-shadow: none !important;\n      -ms-box-shadow: none !important;\n      -o-box-shadow: none !important;\n      box-shadow: none !important; }\n  .erxes-message-sender .btn-attach {\n    position: absolute;\n    right: 15px;\n    top: 13px;\n    background-image: url(\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAeCAYAAAA7MK6iAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyNpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuNS1jMDE0IDc5LjE1MTQ4MSwgMjAxMy8wMy8xMy0xMjowOToxNSAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENDIChNYWNpbnRvc2gpIiB4bXBNTTpJbnN0YW5jZUlEPSJ4bXAuaWlkOjM0NjQzNjdEOThFRTExRTY4MTlDQzI2M0M5MDJCODE2IiB4bXBNTTpEb2N1bWVudElEPSJ4bXAuZGlkOjM0NjQzNjdFOThFRTExRTY4MTlDQzI2M0M5MDJCODE2Ij4gPHhtcE1NOkRlcml2ZWRGcm9tIHN0UmVmOmluc3RhbmNlSUQ9InhtcC5paWQ6MzQ2NDM2N0I5OEVFMTFFNjgxOUNDMjYzQzkwMkI4MTYiIHN0UmVmOmRvY3VtZW50SUQ9InhtcC5kaWQ6MzQ2NDM2N0M5OEVFMTFFNjgxOUNDMjYzQzkwMkI4MTYiLz4gPC9yZGY6RGVzY3JpcHRpb24+IDwvcmRmOlJERj4gPC94OnhtcG1ldGE+IDw/eHBhY2tldCBlbmQ9InIiPz5jGkrfAAAAs0lEQVR42mL8//8/w0AAJoYBAqMWD3+LWUjV0NnZCaKMgdgFiPcA8VmYXHl5OU19nAbEq4BYEEqH0sXHII8BcQUQrwbie1D+anrEsRKSRauh/AFNXKH0svguWih00MtiwdECZNTiYWcxLFW/p5fF76GWnoUWl/fIyVrkWHwPWlGkQy2sgJZaZ2ldSYAsmgn1eSfUUpBDXGnt4z1Qy0GWnYFaHEaqjxlHm7ejFo9aTC0AEGAAUrAjbAYD+CYAAAAASUVORK5CYII=\");\n    background-position: 2px 3px;\n    background-repeat: no-repeat;\n    width: 35px;\n    height: 35px;\n    margin: 0;\n    cursor: pointer;\n    opacity: 0.7; }\n    .erxes-message-sender .btn-attach:hover {\n      opacity: 1; }\n    .erxes-message-sender .btn-attach input[type=\"file\"] {\n      display: none; }\n  .erxes-message-sender .loader {\n    position: absolute;\n    right: 23px;\n    top: 20px;\n    border: 2px solid #f5f4f6;\n    -webkit-animation: spin 1s linear infinite;\n    -moz-animation: spin 1s linear infinite;\n    -ms-animation: spin 1s linear infinite;\n    -o-animation: spin 1s linear infinite;\n    animation: spin 1s linear infinite;\n    border-top: 2px solid #dcd8df;\n    border-radius: 50%;\n    width: 20px;\n    height: 20px; }\n\n@keyframes spin {\n  0% {\n    transform: rotate(0deg); }\n  100% {\n    transform: rotate(360deg); } }\n\n@-webkit-keyframes spin {\n  0% {\n    transform: rotate(0deg); }\n  100% {\n    transform: rotate(360deg); } }\n", ""]);
+	exports.push([module.id, ".erxes-widget {\n  margin: 0;\n  font-family: 'Roboto', Helvetica, Arial, sans-serif;\n  font-size: 14px;\n  line-height: 1.5;\n  -webkit-font-smoothing: antialiased;\n  -moz-osx-font-smoothing: grayscale; }\n\n.erxes-launcher {\n  color: #fff;\n  line-height: 56px;\n  text-align: center;\n  border-radius: 28px;\n  width: 56px;\n  height: 56px;\n  cursor: pointer;\n  position: fixed;\n  z-index: 999999;\n  bottom: 0px;\n  right: 0px;\n  box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1);\n  background: #7754b3 url(\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACgAAAAoCAYAAACM/rhtAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyNpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuNS1jMDE0IDc5LjE1MTQ4MSwgMjAxMy8wMy8xMy0xMjowOToxNSAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENDIChNYWNpbnRvc2gpIiB4bXBNTTpJbnN0YW5jZUlEPSJ4bXAuaWlkOjE4RTFGN0RBOThGMzExRTY4MTlDQzI2M0M5MDJCODE2IiB4bXBNTTpEb2N1bWVudElEPSJ4bXAuZGlkOjE4RTFGN0RCOThGMzExRTY4MTlDQzI2M0M5MDJCODE2Ij4gPHhtcE1NOkRlcml2ZWRGcm9tIHN0UmVmOmluc3RhbmNlSUQ9InhtcC5paWQ6MzQ2NDM2N0Y5OEVFMTFFNjgxOUNDMjYzQzkwMkI4MTYiIHN0UmVmOmRvY3VtZW50SUQ9InhtcC5kaWQ6MzQ2NDM2ODA5OEVFMTFFNjgxOUNDMjYzQzkwMkI4MTYiLz4gPC9yZGY6RGVzY3JpcHRpb24+IDwvcmRmOlJERj4gPC94OnhtcG1ldGE+IDw/eHBhY2tldCBlbmQ9InIiPz7dFbt2AAABlklEQVR42uzYvUsDMQCH4Tvt4AcIikXESaHoUhDdRRwcHKSoqwiKg9C5FCf/Bgcdis6COIiDuAs61IKDjoIIiqAOflFBPd9AwBtqvV5CLkMCDxx3afojl0ty5wdB4NlcmjzLiwvoArqAFgbsbqRyynC4DKq29mA7xnBja8A17No6BpdxiedGf6gyBntwH6HeMOYxbvopfsXsP3U6sIMCvk0HfEMnpurUKeFUilfEdktBCifI1ri2ghf0qfyHakAhhyukQ+dGUEVRtX1f04b1WD5wYp5rRQVfyOJDpWFdK0lBhtyWAQeQUw2nYwyG7QW/5UhXu77Gd5JRlEPHFdt2M3Oh40ldjerqwUGc4w6fSMtx+GRLD66L4Sx7cVqeK2ppWcNAnpEPxlLo3ISOSVrHRN2Ga2z9sZKUVAOq3uJVPCBf49qm3F4NJXWLM7hFf506zVhIah48wAYOI2y5xJP9bnKpE8vYWYRwXpxdtGrAFjkR5028K8S5xYvYx6ONAXvRhQtbvywEJsPpXIvdxyMX0AVMqvwIMAAEaSQ4y2c8jAAAAABJRU5ErkJggg==\") center no-repeat; }\n  .erxes-launcher span {\n    position: absolute;\n    width: 20px;\n    height: 20px;\n    background: #f74040;\n    display: block;\n    right: -2px;\n    top: -5px;\n    color: #fff;\n    border-radius: 10px;\n    text-align: center;\n    line-height: 20px;\n    font-size: 10px; }\n\n.erxes-messenger {\n  position: fixed;\n  width: 370px;\n  background: #fff;\n  box-shadow: 0 5px 15px -3px rgba(0, 0, 0, 0.15);\n  z-index: 999999999;\n  display: flex;\n  flex-direction: column;\n  height: calc(100% - 95px - 30px);\n  max-height: 620px;\n  border-radius: 4px;\n  overflow: hidden;\n  right: 2px; }\n\n.erxes-topbar {\n  background: #7754b3;\n  overflow: hidden;\n  width: 100%;\n  height: 70px;\n  text-align: center;\n  flex-shrink: 0;\n  color: #fff;\n  border-top-left-radius: 4px;\n  border-top-right-radius: 4px; }\n  .erxes-topbar .topbar-button.left {\n    left: 15px; }\n  .erxes-topbar .topbar-button.right {\n    right: 15px; }\n  .erxes-topbar .erxes-middle {\n    display: inline-block; }\n\n.topbar-button {\n  position: absolute;\n  top: 15px;\n  text-align: center;\n  cursor: pointer;\n  width: 40px;\n  height: 40px;\n  line-height: 40px;\n  border-radius: 4px;\n  display: block;\n  -webkit-transition: background 0.3s ease-in-out;\n  -moz-transition: background 0.3s ease-in-out;\n  -ms-transition: background 0.3s ease-in-out;\n  -o-transition: background 0.3s ease-in-out;\n  transition: background 0.3s ease-in-out; }\n  .topbar-button.new {\n    background: url(\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA0AAAAOCAYAAAD0f5bSAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyNpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuNS1jMDE0IDc5LjE1MTQ4MSwgMjAxMy8wMy8xMy0xMjowOToxNSAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENDIChNYWNpbnRvc2gpIiB4bXBNTTpJbnN0YW5jZUlEPSJ4bXAuaWlkOjJBMzcyNUVGQTI2NjExRTZBNzNEOTJCRENBMzY3OTBDIiB4bXBNTTpEb2N1bWVudElEPSJ4bXAuZGlkOjJBMzcyNUYwQTI2NjExRTZBNzNEOTJCRENBMzY3OTBDIj4gPHhtcE1NOkRlcml2ZWRGcm9tIHN0UmVmOmluc3RhbmNlSUQ9InhtcC5paWQ6MkEzNzI1RURBMjY2MTFFNkE3M0Q5MkJEQ0EzNjc5MEMiIHN0UmVmOmRvY3VtZW50SUQ9InhtcC5kaWQ6MkEzNzI1RUVBMjY2MTFFNkE3M0Q5MkJEQ0EzNjc5MEMiLz4gPC9yZGY6RGVzY3JpcHRpb24+IDwvcmRmOlJERj4gPC94OnhtcG1ldGE+IDw/eHBhY2tldCBlbmQ9InIiPz4x/YBAAAAAZElEQVR42mL4//8/AxYsCMS7gTgNmzwLA27gAsT3sEkwMZAB6KcJ5CclIDZGExeE0iC5UAxdwNAo/08iYARiXDbNBOI9QDwLm0244gkEZmKTH+RBjk8TKBDOYpMAhR7JNgEEGADdRo/BguL5MwAAAABJRU5ErkJggg==\") no-repeat 50%; }\n  .topbar-button.back {\n    background: url(\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAkAAAAOCAYAAAD9lDaoAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyNpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuNS1jMDE0IDc5LjE1MTQ4MSwgMjAxMy8wMy8xMy0xMjowOToxNSAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENDIChNYWNpbnRvc2gpIiB4bXBNTTpJbnN0YW5jZUlEPSJ4bXAuaWlkOjE4RTFGN0UyOThGMzExRTY4MTlDQzI2M0M5MDJCODE2IiB4bXBNTTpEb2N1bWVudElEPSJ4bXAuZGlkOjE4RTFGN0UzOThGMzExRTY4MTlDQzI2M0M5MDJCODE2Ij4gPHhtcE1NOkRlcml2ZWRGcm9tIHN0UmVmOmluc3RhbmNlSUQ9InhtcC5paWQ6MThFMUY3RTA5OEYzMTFFNjgxOUNDMjYzQzkwMkI4MTYiIHN0UmVmOmRvY3VtZW50SUQ9InhtcC5kaWQ6MThFMUY3RTE5OEYzMTFFNjgxOUNDMjYzQzkwMkI4MTYiLz4gPC9yZGY6RGVzY3JpcHRpb24+IDwvcmRmOlJERj4gPC94OnhtcG1ldGE+IDw/eHBhY2tldCBlbmQ9InIiPz7KIAflAAAAYUlEQVR42mL6//8/Aw48E4hXgdgsDNhBBxCnQdlK2Ezo+I8AoSAxdAXlSArSYOLICtKwKUBWhKygHN0JDFB7YaADm0+ZGIgBxFpHtMOJDgKiAxObQiVccVcBxIJQfA8gwACtvUf35pIKuQAAAABJRU5ErkJggg==\") no-repeat 50%; }\n  .topbar-button:hover {\n    background-color: rgba(0, 0, 0, 0.2); }\n\n.erxes-staff-profile {\n  margin-top: 15px;\n  text-align: left;\n  line-height: 1.3em; }\n  .erxes-staff-profile img {\n    float: left;\n    width: 40px;\n    height: 40px;\n    border-radius: 20px;\n    overflow: hidden; }\n  .erxes-staff-profile > div {\n    margin-left: 50px; }\n  .erxes-staff-profile .erxes-staff-name {\n    font-size: 15px;\n    font-weight: 600;\n    padding-top: 3px; }\n  .erxes-staff-profile .erxes-staff-company {\n    font-size: 14px;\n    font-weight: 300; }\n\n.erxes-topbar-title {\n  font-size: 15px;\n  font-weight: 600;\n  line-height: 1.2em;\n  margin-top: 18px; }\n  .erxes-topbar-title span {\n    font-size: 14px;\n    font-weight: 300; }\n\n.erxes-conversation-list {\n  list-style: none;\n  margin: 0;\n  padding: 0;\n  overflow-y: auto; }\n\n.erxes-conversation-item {\n  position: relative;\n  overflow: hidden;\n  -webkit-transition: background 0.3s ease-in-out;\n  -moz-transition: background 0.3s ease-in-out;\n  -ms-transition: background 0.3s ease-in-out;\n  -o-transition: background 0.3s ease-in-out;\n  transition: background 0.3s ease-in-out; }\n  .erxes-conversation-item:hover {\n    cursor: pointer;\n    background: rgba(0, 0, 0, 0.01); }\n  .erxes-conversation-item.unread .erxes-message {\n    font-weight: 600;\n    color: #000; }\n  .erxes-conversation-item .erxes-list-avatar {\n    width: 40px;\n    height: 40px;\n    border-radius: 20px;\n    float: left;\n    margin: 25px 15px 25px 20px; }\n  .erxes-conversation-item .erxes-right-side {\n    padding: 25px 20px 25px 0;\n    margin-left: 75px;\n    border-bottom: 1px solid #f5f4f6; }\n  .erxes-conversation-item .erxes-name {\n    font-weight: 400; }\n  .erxes-conversation-item .erxes-last-message {\n    color: #686868;\n    overflow: hidden;\n    text-overflow: ellipsis;\n    white-space: nowrap; }\n  .erxes-conversation-item .erxes-date {\n    float: right;\n    color: #888;\n    font-size: 12px; }\n\n.erxes-messages-list {\n  background-color: #faf9fb;\n  overflow: auto;\n  padding: 20px;\n  margin: 0;\n  flex: 1; }\n  .erxes-messages-list li {\n    list-style: none;\n    position: relative;\n    overflow: hidden;\n    margin-bottom: 10px; }\n    .erxes-messages-list li.from-customer {\n      text-align: right; }\n    .erxes-messages-list li .date {\n      font-size: 11px;\n      color: #686868;\n      margin-left: 50px; }\n\n.erxes-message {\n  padding: 12px 15px;\n  background-color: #f5f4f6;\n  border-radius: 4px;\n  position: relative;\n  margin: 0 20px 5px 50px;\n  display: inline-block;\n  word-wrap: break-word;\n  color: #686868;\n  text-align: left; }\n  .erxes-message.from-customer {\n    margin: 0 0 5px 20px;\n    background-color: #7754b3;\n    color: #fff;\n    text-align: right; }\n    .erxes-message.from-customer .file-wrapper {\n      border-color: #f5f4f6; }\n  .erxes-message.attachment {\n    padding: 0;\n    background: none;\n    border: 0; }\n  .erxes-message p {\n    margin-top: 0; }\n  .erxes-message img {\n    max-width: 240px;\n    border-radius: 4px;\n    background: white;\n    min-width: 60px;\n    min-height: 30px; }\n\n.file-wrapper {\n  position: relative;\n  padding: 16px 20px;\n  border: 1px solid transparent;\n  border-radius: 4px;\n  padding-left: 40px;\n  color: #686868;\n  background: white;\n  -webkit-transition: border 0.3s ease-in-out;\n  -moz-transition: border 0.3s ease-in-out;\n  -ms-transition: border 0.3s ease-in-out;\n  -o-transition: border 0.3s ease-in-out;\n  transition: border 0.3s ease-in-out; }\n  .file-wrapper i {\n    width: 30px;\n    height: 30px;\n    position: absolute;\n    left: 10px;\n    top: 12px;\n    line-height: 30px;\n    color: #686868;\n    background-image: url(\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAeCAYAAAA7MK6iAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyNpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuNS1jMDE0IDc5LjE1MTQ4MSwgMjAxMy8wMy8xMy0xMjowOToxNSAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENDIChNYWNpbnRvc2gpIiB4bXBNTTpJbnN0YW5jZUlEPSJ4bXAuaWlkOjM0NjQzNjdEOThFRTExRTY4MTlDQzI2M0M5MDJCODE2IiB4bXBNTTpEb2N1bWVudElEPSJ4bXAuZGlkOjM0NjQzNjdFOThFRTExRTY4MTlDQzI2M0M5MDJCODE2Ij4gPHhtcE1NOkRlcml2ZWRGcm9tIHN0UmVmOmluc3RhbmNlSUQ9InhtcC5paWQ6MzQ2NDM2N0I5OEVFMTFFNjgxOUNDMjYzQzkwMkI4MTYiIHN0UmVmOmRvY3VtZW50SUQ9InhtcC5kaWQ6MzQ2NDM2N0M5OEVFMTFFNjgxOUNDMjYzQzkwMkI4MTYiLz4gPC9yZGY6RGVzY3JpcHRpb24+IDwvcmRmOlJERj4gPC94OnhtcG1ldGE+IDw/eHBhY2tldCBlbmQ9InIiPz5jGkrfAAAAs0lEQVR42mL8//8/w0AAJoYBAqMWD3+LWUjV0NnZCaKMgdgFiPcA8VmYXHl5OU19nAbEq4BYEEqH0sXHII8BcQUQrwbie1D+anrEsRKSRauh/AFNXKH0svguWih00MtiwdECZNTiYWcxLFW/p5fF76GWnoUWl/fIyVrkWHwPWlGkQy2sgJZaZ2ldSYAsmgn1eSfUUpBDXGnt4z1Qy0GWnYFaHEaqjxlHm7ejFo9aTC0AEGAAUrAjbAYD+CYAAAAASUVORK5CYII=\");\n    background-position: 0 0;\n    background-repeat: no-repeat; }\n  .file-wrapper span {\n    white-space: nowrap;\n    text-overflow: ellipsis;\n    overflow: hidden;\n    direction: rtl;\n    text-align: left;\n    max-width: 140px;\n    display: block; }\n  .file-wrapper:hover {\n    border-color: #f5f4f6; }\n\n.download-attachment {\n  display: block;\n  text-decoration: none; }\n  .download-attachment img {\n    -webkit-transition: opacity 0.3s ease-in-out;\n    -moz-transition: opacity 0.3s ease-in-out;\n    -ms-transition: opacity 0.3s ease-in-out;\n    -o-transition: opacity 0.3s ease-in-out;\n    transition: opacity 0.3s ease-in-out; }\n    .download-attachment img:hover {\n      opacity: 0.8; }\n\n.erxes-avatar {\n  width: 40px;\n  height: 40px;\n  border-radius: 50%;\n  overflow: hidden;\n  position: absolute;\n  left: 0;\n  bottom: 20px; }\n  .erxes-avatar img {\n    width: 100%;\n    height: 100%; }\n\n.btn-resend {\n  background: #fff;\n  outline: 0;\n  border: 0;\n  border-radius: 4px;\n  color: #686868;\n  padding: 5px 15px;\n  margin-top: 5px;\n  cursor: pointer; }\n  .btn-resend:focus, .btn-resend:hover {\n    background: white; }\n\n.erxes-message-sender {\n  overflow: hidden;\n  font-size: 12px;\n  position: relative;\n  min-height: 60px;\n  border-top: 1px solid white; }\n  .erxes-message-sender textarea.reply {\n    color: #686868;\n    border: 0;\n    border-radius: 3px;\n    padding: 20px 25px;\n    font-size: 14px;\n    width: 100%;\n    max-width: 100%;\n    outline: none;\n    resize: none;\n    padding-right: 40px;\n    position: absolute;\n    left: 0;\n    top: 0;\n    height: 100%; }\n    .erxes-message-sender textarea.reply:focus {\n      -webkit-box-shadow: none !important;\n      -moz-box-shadow: none !important;\n      -ms-box-shadow: none !important;\n      -o-box-shadow: none !important;\n      box-shadow: none !important; }\n  .erxes-message-sender .btn-attach {\n    position: absolute;\n    right: 15px;\n    top: 13px;\n    background-image: url(\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAeCAYAAAA7MK6iAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyNpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuNS1jMDE0IDc5LjE1MTQ4MSwgMjAxMy8wMy8xMy0xMjowOToxNSAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENDIChNYWNpbnRvc2gpIiB4bXBNTTpJbnN0YW5jZUlEPSJ4bXAuaWlkOjM0NjQzNjdEOThFRTExRTY4MTlDQzI2M0M5MDJCODE2IiB4bXBNTTpEb2N1bWVudElEPSJ4bXAuZGlkOjM0NjQzNjdFOThFRTExRTY4MTlDQzI2M0M5MDJCODE2Ij4gPHhtcE1NOkRlcml2ZWRGcm9tIHN0UmVmOmluc3RhbmNlSUQ9InhtcC5paWQ6MzQ2NDM2N0I5OEVFMTFFNjgxOUNDMjYzQzkwMkI4MTYiIHN0UmVmOmRvY3VtZW50SUQ9InhtcC5kaWQ6MzQ2NDM2N0M5OEVFMTFFNjgxOUNDMjYzQzkwMkI4MTYiLz4gPC9yZGY6RGVzY3JpcHRpb24+IDwvcmRmOlJERj4gPC94OnhtcG1ldGE+IDw/eHBhY2tldCBlbmQ9InIiPz5jGkrfAAAAs0lEQVR42mL8//8/w0AAJoYBAqMWD3+LWUjV0NnZCaKMgdgFiPcA8VmYXHl5OU19nAbEq4BYEEqH0sXHII8BcQUQrwbie1D+anrEsRKSRauh/AFNXKH0svguWih00MtiwdECZNTiYWcxLFW/p5fF76GWnoUWl/fIyVrkWHwPWlGkQy2sgJZaZ2ldSYAsmgn1eSfUUpBDXGnt4z1Qy0GWnYFaHEaqjxlHm7ejFo9aTC0AEGAAUrAjbAYD+CYAAAAASUVORK5CYII=\");\n    background-position: 2px 3px;\n    background-repeat: no-repeat;\n    width: 35px;\n    height: 35px;\n    margin: 0;\n    cursor: pointer;\n    opacity: 0.7; }\n    .erxes-message-sender .btn-attach:hover {\n      opacity: 1; }\n    .erxes-message-sender .btn-attach input[type=\"file\"] {\n      display: none; }\n  .erxes-message-sender .loader {\n    position: absolute;\n    right: 23px;\n    top: 20px;\n    border: 2px solid #f5f4f6;\n    -webkit-animation: spin 1s linear infinite;\n    -moz-animation: spin 1s linear infinite;\n    -ms-animation: spin 1s linear infinite;\n    -o-animation: spin 1s linear infinite;\n    animation: spin 1s linear infinite;\n    border-top: 2px solid #dcd8df;\n    border-radius: 50%;\n    width: 20px;\n    height: 20px; }\n\n@keyframes spin {\n  0% {\n    transform: rotate(0deg); }\n  100% {\n    transform: rotate(360deg); } }\n\n@-webkit-keyframes spin {\n  0% {\n    transform: rotate(0deg); }\n  100% {\n    transform: rotate(360deg); } }\n", ""]);
 
 	// exports
 
@@ -61166,117 +61287,6 @@
 			URL.revokeObjectURL(oldSrc);
 	}
 
-
-/***/ },
-/* 620 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-
-	var _templateObject = _taggedTemplateLiteral(['subscription notification {notification}'], ['subscription notification {notification}']);
-
-	var _graphqlTag = __webpack_require__(585);
-
-	var _graphqlTag2 = _interopRequireDefault(_graphqlTag);
-
-	var _Subscriber2 = __webpack_require__(621);
-
-	var _Subscriber3 = _interopRequireDefault(_Subscriber2);
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-	function _taggedTemplateLiteral(strings, raw) { return Object.freeze(Object.defineProperties(strings, { raw: { value: Object.freeze(raw) } })); }
-
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-	var NotificationSubscriber = function (_Subscriber) {
-	  _inherits(NotificationSubscriber, _Subscriber);
-
-	  function NotificationSubscriber(props) {
-	    _classCallCheck(this, NotificationSubscriber);
-
-	    var _this = _possibleConstructorReturn(this, (NotificationSubscriber.__proto__ || Object.getPrototypeOf(NotificationSubscriber)).call(this, props));
-
-	    _this.subscribeToMoreOptions = {
-	      document: (0, _graphqlTag2.default)(_templateObject),
-	      updateQuery: function updateQuery() {
-	        _this.props.data.refetch();
-	      }
-	    };
-	    return _this;
-	  }
-
-	  return NotificationSubscriber;
-	}(_Subscriber3.default);
-
-	exports.default = NotificationSubscriber;
-
-/***/ },
-/* 621 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-	var _react = __webpack_require__(1);
-
-	var _react2 = _interopRequireDefault(_react);
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-	var Subscriber = function (_React$Component) {
-	  _inherits(Subscriber, _React$Component);
-
-	  function Subscriber(props) {
-	    _classCallCheck(this, Subscriber);
-
-	    var _this = _possibleConstructorReturn(this, (Subscriber.__proto__ || Object.getPrototypeOf(Subscriber)).call(this, props));
-
-	    _this.subscription = null;
-	    _this.subscribeToMoreOptions = {};
-	    return _this;
-	  }
-
-	  _createClass(Subscriber, [{
-	    key: 'componentWillReceiveProps',
-	    value: function componentWillReceiveProps(nextProps) {
-	      if (!this.subscription && !nextProps.data.loading) {
-	        var subscribeToMore = this.props.data.subscribeToMore;
-
-
-	        this.subscription = [subscribeToMore(this.subscribeToMoreOptions)];
-	      }
-	    }
-	  }]);
-
-	  return Subscriber;
-	}(_react2.default.Component);
-
-	exports.default = Subscriber;
-
-
-	Subscriber.propTypes = {
-	  data: _react.PropTypes.object.isRequired
-	};
 
 /***/ }
 /******/ ]);
