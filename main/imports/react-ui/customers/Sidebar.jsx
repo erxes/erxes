@@ -1,5 +1,6 @@
 import React, { PropTypes } from 'react';
 import { FlowRouter } from 'meteor/kadira:flow-router';
+import { Counts } from 'meteor/tmeasday:publish-counts';
 import { Wrapper } from '/imports/react-ui/layout/components';
 
 
@@ -45,7 +46,9 @@ function Sidebar({ brands }) {
                   }}
                 >
                   {brand.name}
-                  <span className="counter">{'?'}</span>
+                  <span className="counter">
+                    {Counts.get(`customers.brand.${brand._id}`)}
+                  </span>
                 </a>
               </li>
             )
