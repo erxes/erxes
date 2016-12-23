@@ -28,7 +28,7 @@
   link.id   = 'erxes';
   link.rel  = 'stylesheet';
   link.type = 'text/css';
-  link.href = 'http://localhost:8080/iframe.css';
+  link.href = 'http://localhost:8080/inapp/iframe.css';
   link.media = 'all';
   head.appendChild(link);
 
