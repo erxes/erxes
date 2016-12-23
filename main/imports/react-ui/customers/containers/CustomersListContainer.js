@@ -7,11 +7,14 @@ import { CustomersList } from '../components';
 
 function composer({ queryParams }, onData) {
   const { limit, loadMore, hasMore } = pagination(queryParams, 'customers.list.count');
+
   const customersHandle = Meteor.subscribe('customers.list', Object.assign(queryParams, { limit }));
   const integrationsHandle = Meteor.subscribe('integrations.list', {});
+  const brandsHandle = Meteor.subscribe('brands.list', 100);
+
   const customers = Customers.find({}, { sort: { lastSeenAt: -1 } }).fetch();
 
-  if (customersHandle.ready() && integrationsHandle.ready()) {
+  if (customersHandle.ready() && integrationsHandle.ready() && brandsHandle.ready()) {
     onData(null, { customers, loadMore, hasMore });
   }
 }

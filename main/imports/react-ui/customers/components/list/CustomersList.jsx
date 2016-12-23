@@ -12,50 +12,41 @@ const propTypes = {
   hasMore: React.PropTypes.bool.isRequired,
 };
 
-class CustomersList extends React.Component {
-  constructor(props) {
-    super(props);
+function CustomersList({ customers, loadMore, hasMore }) {
+  const content = (
+    <Pagination hasMore={hasMore} loadMore={loadMore}>
+      <Table>
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Brand</th>
+            <th>Integration</th>
+            <th>Last online</th>
+            <th>Session count</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {
+            customers.map(customer =>
+              <CustomerRow customer={customer} key={customer._id} />
+            )
+          }
+        </tbody>
+      </Table>
+    </Pagination>
+  );
 
-    this.renderCustomers = this.renderCustomers.bind(this);
-  }
-
-  renderCustomers() {
-    return this.props.customers.map(customer =>
-      <CustomerRow customer={customer} key={customer._id} />
-    );
-  }
-
-  render() {
-    const { loadMore, hasMore } = this.props;
-    const content = (
-      <Pagination hasMore={hasMore} loadMore={loadMore}>
-        <Table>
-          <thead>
-            <tr>
-              <th>Email</th>
-              <th>Integration</th>
-              <th>Last seen</th>
-              <th>Session count</th>
-              <th>Is Active?</th>
-            </tr>
-          </thead>
-          <tbody>
-            {this.renderCustomers()}
-          </tbody>
-        </Table>
-      </Pagination>
-    );
-
-    return (
-      <div>
-        <Wrapper
-          header={<Wrapper.Header breadcrumb={[{ title: 'Customers' }]} />}
-          leftSidebar={<Sidebar />}
-          content={content}
-        />
-      </div>
-    );
-  }
+  return (
+    <div>
+      <Wrapper
+        header={<Wrapper.Header breadcrumb={[{ title: 'Customers' }]} />}
+        leftSidebar={<Sidebar />}
+        content={content}
+      />
+    </div>
+  );
 }
 
 CustomersList.propTypes = propTypes;

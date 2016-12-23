@@ -8,6 +8,7 @@ import { Factory } from 'meteor/dburles:factory';
 import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 
 import { Integrations } from '/imports/api/integrations/integrations';
+import { Brands } from '/imports/api/brands/brands';
 import { Tags } from '/imports/api/tags/tags';
 
 const inAppMessagingSchema = new SimpleSchema({
@@ -139,6 +140,11 @@ Customers.attachSchema(schema);
 Customers.helpers({
   integration() {
     return Integrations.findOne(this.integrationId);
+  },
+
+  brand() {
+    const integration = this.integration();
+    return Brands.findOne(integration && integration.brandId);
   },
 
   getInAppMessagingCustomData() {
