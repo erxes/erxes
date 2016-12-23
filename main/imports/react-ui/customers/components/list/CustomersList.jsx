@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { PropTypes } from 'react';
 import { Table } from 'react-bootstrap';
 import { Wrapper } from '/imports/react-ui/layout/components';
 import { Pagination } from '/imports/react-ui/common';
@@ -7,12 +7,13 @@ import CustomerRow from './CustomerRow.jsx';
 
 
 const propTypes = {
-  customers: React.PropTypes.array.isRequired,
-  loadMore: React.PropTypes.func.isRequired,
-  hasMore: React.PropTypes.bool.isRequired,
+  customers: PropTypes.array.isRequired,
+  brands: PropTypes.array.isRequired,
+  loadMore: PropTypes.func.isRequired,
+  hasMore: PropTypes.bool.isRequired,
 };
 
-function CustomersList({ customers, loadMore, hasMore }) {
+function CustomersList({ customers, brands, loadMore, hasMore }) {
   const content = (
     <Pagination hasMore={hasMore} loadMore={loadMore}>
       <Table>
@@ -42,7 +43,7 @@ function CustomersList({ customers, loadMore, hasMore }) {
     <div>
       <Wrapper
         header={<Wrapper.Header breadcrumb={[{ title: 'Customers' }]} />}
-        leftSidebar={<Sidebar />}
+        leftSidebar={<Sidebar brands={brands} />}
         content={content}
       />
     </div>

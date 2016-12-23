@@ -1,40 +1,47 @@
-/* eslint-disable new-cap */
+/* eslint-disable prefer-arrow-callback, new-cap */
 
 import { Meteor } from 'meteor/meteor';
 import { check, Match } from 'meteor/check';
 import { Counts } from 'meteor/tmeasday:publish-counts';
-import { Brands } from '/imports/api/brands/brands';
+import { Integrations } from '/imports/api/integrations/integrations';
 import { Customers } from '../customers';
 
 
 Meteor.publishComposite('customers.list', function customersList(queryString) {
-  check(queryString, {
-    limit: Match.Optional(Number),
-    page: Match.Optional(String),
-  });
-
-  Counts.publish(this, 'customers.list.count', Customers.find(), { noReady: true });
-
-  if (!this.userId) {
-    return { find() { this.ready(); } };
-  }
-
   return {
     find() {
-      return Customers.find(
-        {},
-        {
-          fields: Customers.publicFields,
-          sort: { createdAt: -1 },
-          limit: queryString.limit || 0,
-        }
-      );
-    },
+      check(queryString, {
+        brand: Match.Optional(String),
+        limit: Match.Optional(Number),
+        page: Match.Optional(String),
+      });
 
-    children: [{
-      find(customer) {
-        return Brands.find(customer.brandId, { fields: Brands.publicFields });
-      },
-    }],
+      if (!this.userId) {
+        return this.ready();
+      }
+
+      const selector = {};
+
+      // filter by brand
+      if (queryString.brand) {
+        const integrations = Integrations.find({ brandId: queryString.brand }).fetch();
+        selector.integrationId = { $in: integrations.map(i => i._id) };
+      }
+
+      const options = {
+        fields: Customers.publicFields,
+        sort: { createdAt: -1 },
+        limit: queryString.limit || 0,
+      };
+
+      Counts.publish(
+        this,
+        'customers.list.count',
+        Customers.find(selector, { limit: options.limit }),
+        { noReady: true }
+      );
+
+      return Customers.find(selector, options);
+    },
   };
 });
