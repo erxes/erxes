@@ -9,11 +9,12 @@ import CustomerRow from './CustomerRow.jsx';
 const propTypes = {
   customers: PropTypes.array.isRequired,
   brands: PropTypes.array.isRequired,
+  integrations: PropTypes.array.isRequired,
   loadMore: PropTypes.func.isRequired,
   hasMore: PropTypes.bool.isRequired,
 };
 
-function CustomersList({ customers, brands, loadMore, hasMore }) {
+function CustomersList({ customers, brands, integrations, loadMore, hasMore }) {
   const content = (
     <Pagination hasMore={hasMore} loadMore={loadMore}>
       <Table>
@@ -43,7 +44,7 @@ function CustomersList({ customers, brands, loadMore, hasMore }) {
     <div>
       <Wrapper
         header={<Wrapper.Header breadcrumb={[{ title: 'Customers' }]} />}
-        leftSidebar={<Sidebar brands={brands} />}
+        leftSidebar={<Sidebar brands={brands} integrations={integrations} />}
         content={content}
       />
     </div>

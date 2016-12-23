@@ -6,9 +6,10 @@ import { Wrapper } from '/imports/react-ui/layout/components';
 
 const propTypes = {
   brands: PropTypes.array.isRequired,
+  integrations: PropTypes.array.isRequired,
 };
 
-function Sidebar({ brands }) {
+function Sidebar({ brands, integrations }) {
   function filter(queryParamName, value) {
     FlowRouter.setQueryParams({ [queryParamName]: value });
   }
@@ -48,6 +49,42 @@ function Sidebar({ brands }) {
                   {brand.name}
                   <span className="counter">
                     {Counts.get(`customers.brand.${brand._id}`)}
+                  </span>
+                </a>
+              </li>
+            )
+          }
+        </ul>
+      </Wrapper.Sidebar.Section>
+      <Wrapper.Sidebar.Section>
+        <h3>
+          Filter by integrations
+          <a
+            href="#"
+            className="quick-button"
+            onClick={(e) => {
+              e.preventDefault();
+              filter('integration', null);
+            }}
+          >
+            Clear
+          </a>
+        </h3>
+        <ul className="filters">
+          {
+            integrations.map(integration =>
+              <li key={integration}>
+                <a
+                  href="#"
+                  className={getActiveClass('integration', integration)}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    filter('integration', integration);
+                  }}
+                >
+                  {integration}
+                  <span className="counter">
+                    {Counts.get(`customers.integration.${integration}`)}
                   </span>
                 </a>
               </li>

@@ -2,6 +2,7 @@ import { composeWithTracker } from 'react-komposer';
 import { Meteor } from 'meteor/meteor';
 import { Customers } from '/imports/api/customers/customers';
 import { Brands } from '/imports/api/brands/brands';
+import { KIND_CHOICES } from '/imports/api/integrations/constants';
 import { Loader, pagination } from '/imports/react-ui/common';
 import { CustomersList } from '../components';
 
@@ -22,9 +23,10 @@ function composer({ queryParams }, onData) {
 
   const customers = Customers.find({}, { sort: { lastSeenAt: -1 } }).fetch();
   const brands = Brands.find({}, { sort: { name: 1 } }).fetch();
+  const integrations = KIND_CHOICES.ALL_LIST;
 
   if (customersHandle.ready() && integrationsHandle.ready() && brandsHandle.ready()) {
-    onData(null, { customers, brands, loadMore, hasMore });
+    onData(null, { customers, brands, integrations, loadMore, hasMore });
   }
 }
 
