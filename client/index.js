@@ -22,9 +22,12 @@ const store = createStore(
 	)
 );
 
-connect({
-  brand_id: 'YDEdKj',
-  email: 'publisher@erxes.org',
+// listen for widget toggle
+window.addEventListener('message', (event) => {
+  // connect to api using passed settings
+  if (event.data.fromPublisher) {
+    connect({ ...event.data.settings });
+  }
 });
 
 ReactDOM.render(

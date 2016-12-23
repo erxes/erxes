@@ -87,9 +87,12 @@
 		return f;
 	}));
 
-	(0, _erxes.connect)({
-		brand_id: 'YDEdKj',
-		email: 'publisher@erxes.org'
+	// listen for widget toggle
+	window.addEventListener('message', function (event) {
+		// connect to api using passed settings
+		if (event.data.fromPublisher) {
+			(0, _erxes.connect)(_extends({}, event.data.settings));
+		}
 	});
 
 	_reactDom2.default.render(_react2.default.createElement(

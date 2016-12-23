@@ -12,6 +12,16 @@
 
   document.body.appendChild(iframe);
 
+  // send erxes settings to iframe
+  iframe = document.querySelector('#erxes-iframe');
+
+  iframe.onload = function () {
+    iframe.contentWindow.postMessage({
+      fromPublisher: true,
+      settings: window.erxesSettings,
+    }, '*');
+  }
+
   // add style
   var head  = document.getElementsByTagName('head')[0];
   var link  = document.createElement('link');
