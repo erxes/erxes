@@ -11,6 +11,8 @@ import erxesReducers from './reducers';
 import { App } from './containers';
 import './sass/style.scss';
 
+// create store
+// combine local reducers with apollo reducers
 const store = createStore(
 	combineReducers({ ...erxesReducers, apollo: client.reducer() }),
 	{}, // initial state
@@ -30,6 +32,7 @@ window.addEventListener('message', (event) => {
   }
 });
 
+// render root react component
 ReactDOM.render(
 	<ApolloProvider store={store} client={client}>
 		<App />
