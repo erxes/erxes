@@ -1,5 +1,6 @@
 node_modules
 settings.js
+server-settings.js
 client/inapp/public/bundle.js
 .DS_Store
 npm-debug.log*

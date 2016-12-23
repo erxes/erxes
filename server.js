@@ -6,7 +6,7 @@ import { createServer } from 'http';
 import { SubscriptionServer } from 'subscriptions-transport-ws';
 import cors from 'cors';
 
-import settings from './settings';
+import settings from './server-settings';
 import { subscriptionManager } from './data/subscriptions';
 import schema from './data/schema';
 

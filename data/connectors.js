@@ -1,7 +1,7 @@
 /* eslint-disable new-cap */
 
 import Mongoose from 'mongoose';
-import settings from '../settings';
+import settings from '../server-settings';
 
 Mongoose.connect(
   settings.MONGO_URL, {
