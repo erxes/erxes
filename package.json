@@ -3,15 +3,14 @@
   "version": "0.1.0",
   "description": "Apollo Api",
   "scripts": {
-    "start": "nodemon ./server.js --exec babel-node"
+    "start": "nodemon ./server.js --exec babel-node && webpack -d"
   },
   "keywords": [
     "Node.js",
     "Javascript",
     "GraphQL",
     "Express",
-    "Apollo",
-    "Meteor"
+    "Apollo"
   ],
   "dependencies": {
     "apollo-client": "^0.5.23",
