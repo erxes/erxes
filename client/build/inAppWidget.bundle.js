@@ -63,7 +63,7 @@
 	var iframe = document.createElement('iframe');
 	iframe.id = 'erxes-iframe';
 	iframe.src = API_URL + '/inapp';
-	iframe.className = 'erxes-messenger-hidden';
+	iframe.style.display = 'none';
 
 	document.body.appendChild(iframe);
 
@@ -72,6 +72,8 @@
 
 	// after iframe load send connection info
 	iframe.onload = function () {
+	  iframe.style.display = 'inherit';
+
 	  iframe.contentWindow.postMessage({
 	    fromPublisher: true,
 	    settings: window.erxesSettings
