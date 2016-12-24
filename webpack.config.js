@@ -1,9 +1,16 @@
+/* eslint-disable */
+
+var path = require('path');
+
 module.exports = {
-  entry: './client/inapp/index.js',
+  entry: {
+    inApp: './client/inapp/index.js',
+    inAppWidget: './client/inapp/widget.js',
+  },
 
   output: {
-    path: __dirname,
-    filename: './client/inapp/public/bundle.js',
+    path: path.join(__dirname, 'client/build'),
+    filename: '[name].bundle.js',
   },
 
   module: {
