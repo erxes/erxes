@@ -20,7 +20,7 @@ function Sidebar({ brands, integrations }) {
 
   return (
     <Wrapper.Sidebar>
-      <Wrapper.Sidebar.Section>
+      <Wrapper.Sidebar.Section collapsible length={brands.length}>
         <h3>
           Filter by brands
           <a
@@ -56,7 +56,7 @@ function Sidebar({ brands, integrations }) {
           }
         </ul>
       </Wrapper.Sidebar.Section>
-      <Wrapper.Sidebar.Section>
+      <Wrapper.Sidebar.Section collapsible length={integrations.length}>
         <h3>
           Filter by integrations
           <a
