@@ -35,13 +35,15 @@ class Tagger extends Component {
   generateTagsParams(tags, targets) {
     return tags.map(({ _id, name, colorCode }) => {
       // Current tag's selection state (all, some or none)
-      const count = targets.reduce(
-        (memo, target) => memo + (target.tagIds && target.tagIds.indexOf(_id) > -1),
-      0);
-      let state = 'none';
-      if (count === targets.length) {
+      const count = targets.reduce((memo, target) =>
+        memo + (target.tagIds && target.tagIds.indexOf(_id) > -1), 0);
+
+      let state;
+      if (count === 0) {
+        state = 'none';
+      } else if (count === targets.length) {
         state = 'all';
-      } else if (count < targets.length && count > 0) {
+      } else if (count < targets.length) {
         state = 'some';
       }
 
