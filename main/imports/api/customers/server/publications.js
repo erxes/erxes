@@ -82,5 +82,12 @@ Meteor.publishComposite('customers.list', function customersList(queryString) {
 
       return Customers.find(selector, options);
     },
+    children: [
+      {
+        find(customer) {
+          return Integrations.find(customer.integrationId);
+        },
+      },
+    ],
   };
 });
