@@ -38,13 +38,13 @@ class Tagger extends Component {
       const count = targets.reduce((memo, target) =>
         memo + (target.tagIds && target.tagIds.indexOf(_id) > -1), 0);
 
-      let state;
-      if (count === 0) {
-        state = 'none';
-      } else if (count === targets.length) {
-        state = 'all';
-      } else if (count < targets.length) {
-        state = 'some';
+      let state = 'none';
+      if (count > 0) {
+        if (count === targets.length) {
+          state = 'all';
+        } else if (count < targets.length) {
+          state = 'some';
+        }
       }
 
       return {
@@ -57,24 +57,25 @@ class Tagger extends Component {
   }
 
   tag(tags) {
-    const { tag, targets } = this.props;
-
-    tag({
+    const { tag, targets, type, afterSave } = this.props;
+    const param = {
       targetIds: targets.map(t => t._id),
       tagIds: tags.filter(t => t.selectedBy === 'all').map(t => t._id),
-    }, error => {
-      if (error) {
-        Alert.error(error.reason);
+    };
 
-        if (this.props.afterSave) {
-          this.props.afterSave();
-        }
+    // eslint-disable-next-line consistent-return
+    tag(param, (error) => {
+      if (error) {
+        return Alert.error(error.reason);
       }
 
-      if (targets.length === 1) {
-        Alert.success('The conversation has been tagged! ');
-      } else {
-        Alert.success('Selected conversations has been tagged! ');
+      const message = targets.length > 1
+        ? `Selected ${type}s have been tagged!`
+        : `The ${type} has been tagged!`;
+      Alert.success(message);
+
+      if (afterSave) {
+        afterSave();
       }
     });
   }

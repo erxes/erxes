@@ -82,6 +82,12 @@ const schema = new SimpleSchema({
     regEx: SimpleSchema.RegEx.Id,
   },
 
+  tagIds: {
+    type: [String],
+    regEx: SimpleSchema.RegEx.Id,
+    optional: true,
+  },
+
   createdAt: {
     type: Date,
   },
@@ -159,6 +165,10 @@ Customers.helpers({
     });
 
     return results;
+  },
+
+  getTags() {
+    return Tags.find({ _id: { $in: this.tagIds || [] } }).fetch();
   },
 });
 
