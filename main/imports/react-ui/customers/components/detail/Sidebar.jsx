@@ -1,50 +1,78 @@
-import React from 'react';
-import { DropdownButton, MenuItem } from 'react-bootstrap';
-import { Wrapper } from '../../../layout/components';
+import React, { PropTypes, Component } from 'react';
+import { Label, Collapse } from 'react-bootstrap';
+import moment from 'moment';
+import Alert from 'meteor/erxes-notifier';
+import { Wrapper } from '/imports/react-ui/layout/components';
+import { NameCard, EmptyState, Tagger } from '/imports/react-ui/common';
+import TaggerSection from './TaggerSection.jsx';
 
 
-function Sidebar() {
-  const top = (
-    <DropdownButton
-      title="All Segments (1240)"
-      id="segments-filter"
-      bsSize="small"
-    >
-      <MenuItem eventKey="1">Action</MenuItem>
-      <MenuItem eventKey="2">Another action</MenuItem>
-    </DropdownButton>
-  );
+const propTypes = {
+  customer: PropTypes.object.isRequired,
+};
 
-  return (
-    <Wrapper.Sidebar top={top}>
-      <div className="box margined">
-        <ul className="list-group bordered">
-          <li>
-            <div className="title">
-              <div className="full-name">
-                <a href="/details">Anar-Erdene Batjargal </a>
-              </div>
-              <div>anarerdene.b@nmtec.co</div>
-              <small className="date">
-                About 11min ago
-              </small>
-            </div>
-          </li>
-          <li>
-            <div className="title">
-              <div className="full-name">
-                <a href="/details">Anar-Erdene Batjargal </a>
-              </div>
-              <div>anarerdene.b@nmtec.co</div>
-              <small className="date">
-                About 11min ago
-              </small>
-            </div>
-          </li>
-        </ul>
-      </div>
-    </Wrapper.Sidebar>
-  );
+class Sidebar extends Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      isTaggerVisible: false,
+    };
+
+    this.state = {};
+  }
+
+  render() {
+    const { customer } = this.props;
+
+    return (
+      <Wrapper.Sidebar>
+        <Wrapper.Sidebar.Section>
+          <h3>Customer details</h3>
+          <ul className="filters no-link">
+            <li>
+              <NameCard customer={customer} avatarSize={50} />
+            </li>
+            <li>
+              Created
+              <span className="counter">
+                {moment(customer.createdAt).fromNow()}
+              </span>
+            </li>
+          </ul>
+        </Wrapper.Sidebar.Section>
+        <Wrapper.Sidebar.Section>
+          <h3>In app messaging</h3>
+          <ul className="filters no-link">
+            <li>
+              Status
+              <span className="counter">
+                {customer.inAppMessagingData.isActive
+                  ? <Label bsStyle="success">Online</Label>
+                  : <Label>Offline</Label>
+                }
+              </span>
+            </li>
+            <li>
+              Last online
+              <span className="counter">
+                {moment(customer.inAppMessagingData.lastSeenAt).fromNow()}
+              </span>
+            </li>
+            <li>
+              Session count
+              <span className="counter">
+                {customer.inAppMessagingData.sessionCount}
+              </span>
+            </li>
+          </ul>
+        </Wrapper.Sidebar.Section>
+        {<TaggerSection customer={customer} />}
+      </Wrapper.Sidebar>
+    );
+  }
 }
+
+Sidebar.propTypes = propTypes;
 
 export default Sidebar;

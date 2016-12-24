@@ -1,6 +1,7 @@
 import React from 'react';
 import { Label } from 'react-bootstrap';
 import moment from 'moment';
+import { FlowRouter } from 'meteor/kadira:flow-router';
 
 
 const propTypes = {
@@ -15,12 +16,12 @@ function CustomerRow({ customer }) {
 
   return (
     <tr>
-      <td>{customer.name}</td>
       <td>
-        <a href="#">
-          {customer.email}
+        <a href={FlowRouter.path('customers/details', { id: customer._id })}>
+          {customer.name}
         </a>
       </td>
+      <td>{customer.email}</td>
       <td>{brand && brand.name}</td>
       <td>{integration && integration.name}</td>
       <td>{lastSeenAt && moment(lastSeenAt).fromNow()}</td>

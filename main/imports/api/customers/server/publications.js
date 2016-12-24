@@ -91,3 +91,24 @@ Meteor.publishComposite('customers.list', function customersList(queryString) {
     ],
   };
 });
+
+Meteor.publishComposite('customers.details', function customersDetails(id) {
+  return {
+    find() {
+      check(id, String);
+
+      if (!this.userId) {
+        return this.ready();
+      }
+
+      return Customers.find(id, { fields: Customers.publicFields });
+    },
+    children: [
+      {
+        find(customer) {
+          return Integrations.find(customer.integrationId);
+        },
+      },
+    ],
+  };
+});

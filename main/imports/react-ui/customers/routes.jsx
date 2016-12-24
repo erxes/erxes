@@ -3,7 +3,7 @@ import { mount } from 'react-mounter';
 import { FlowRouter } from 'meteor/kadira:flow-router';
 import { MainLayout } from '../layout/containers';
 import CustomersListContainer from './containers/CustomersListContainer';
-import { Details } from './components';
+import { CustomerDetails } from './containers';
 
 
 const group = FlowRouter.group({
@@ -22,6 +22,6 @@ group.route('/', {
 group.route('/details/:id', {
   name: 'customers/details',
   action(params) {
-    mount(MainLayout, { content: <Details id={params.id} /> });
+    mount(MainLayout, { content: <CustomerDetails id={params.id} /> });
   },
 });
