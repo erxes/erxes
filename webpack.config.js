@@ -5,7 +5,7 @@ var path = require('path');
 module.exports = {
   entry: {
     inApp: './client/inapp/index.js',
-    inAppWidget: './client/inapp/widget.js',
+    inAppWidget: './client/inapp/widget/index.js',
   },
 
   output: {
@@ -22,6 +22,11 @@ module.exports = {
         query: {
           presets: ['es2015', 'react'],
         },
+      },
+
+      {
+        test: /\.css$/,
+        loaders: ['style-loader', 'css-loader'],
       },
 
       {

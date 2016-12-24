@@ -2,7 +2,10 @@
  * InApp message's embeddable script
  */
 
-import settings from '../../settings';
+import settings from '../../../settings';
+
+// css
+import './index.css';
 
 const API_URL = settings.API_URL;
 
@@ -26,19 +29,6 @@ iframe.onload = () => {
     settings: window.erxesSettings,
   }, '*');
 };
-
-// create style
-const link = document.createElement('link');
-
-link.id = 'erxes';
-link.rel = 'stylesheet';
-link.type = 'text/css';
-link.href = `${API_URL}/inapp/iframe.css`;
-link.media = 'all';
-
-// add style to head
-const head = document.getElementsByTagName('head')[0];
-head.appendChild(link);
 
 // listen for widget toggle
 window.addEventListener('message', (event) => {
