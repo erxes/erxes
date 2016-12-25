@@ -136,6 +136,14 @@
   .action-btn {
     width: 100%;
     margin-bottom: $box-margin;
+
+    .btn-group {
+      display: flex;
+
+      button:first-child {
+        flex: 1;
+      }
+    }
   }
 }
 
