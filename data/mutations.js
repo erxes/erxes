@@ -1,69 +1,7 @@
-import { Messages, Conversations } from './connectors';
+import { Messages, Customers } from './connectors';
 import { pubsub } from './subscription-manager';
-import { getIntegration, getCustomer } from './utils';
-
-const CONVERSATION_STATUSES = {
-  NEW: 'new',
-  OPEN: 'open',
-  CLOSED: 'closed',
-  ALL_LIST: ['new', 'open', 'closed'],
-};
-
-const getOrCreateConversation = (doc) => {
-  const { conversationId, integrationId, customerId, message } = doc;
-
-  // customer can write message to even closed conversation
-  if (conversationId) {
-    Conversations.update(
-      { _id: conversationId },
-      {
-        // empty read users list then it will be shown as unread again
-        readUserIds: [],
-
-        // if conversation is closed then reopen it.
-        status: CONVERSATION_STATUSES.OPEN,
-      }
-    );
-
-    return doc.conversationId;
-  }
-
-  // create conversation object
-  const conversationObj = new Conversations({
-    customerId,
-    integrationId,
-    content: message,
-    status: CONVERSATION_STATUSES.NEW,
-    createdAt: new Date(),
-    number: Conversations.find().count() + 1,
-    messageCount: 0,
-  });
-
-  // save conversation
-  return conversationObj.save();
-};
-
-const createMessage = (doc) => {
-  const { conversationId, customerId, message, attachments } = doc;
-
-  const messageOptions = {
-    createdAt: new Date,
-    conversationId,
-    customerId,
-    content: message,
-    internal: false,
-  };
-
-  if (attachments) {
-    messageOptions.attachments = attachments;
-  }
-
-  // create message object
-  const messageObj = new Messages(messageOptions);
-
-  // save and return newly created one
-  return messageObj.save().then((_id) => Messages.findOne({ _id }));
-};
+import { getIntegration, getCustomer, getOrCreateConversation } from './utils';
+import { createMessage } from './utils';
 
 export default {
   Mutation: {
@@ -76,6 +14,63 @@ export default {
       return message;
     },
 
+    /*
+     * create or update customer info, when connection establish
+     */
+    connect(root, args) {
+      let integrationId;
+
+      // find integration
+      return getIntegration(args.brandCode)
+
+        // find customer
+        .then((integration) => {
+          integrationId = integration._id;
+
+          return getCustomer(integration._id, args.email);
+        })
+
+        // update or create customer
+        .then((customer) => {
+          const now = new Date();
+
+          const inAppMessagingData = {
+            lastSeenAt: now,
+            isActive: true,
+          };
+
+          // update customer
+          if (customer) {
+            // update inAppMessagingData
+            Customers.update(customer._id, { $set: { inAppMessagingData } });
+
+            if ((now - customer.inAppMessagingData.lastSeenAt) > 30 * 60 * 1000) {
+              // update session count
+              return Customers.update(
+                customer._id,
+                { $inc: { 'inAppMessagingData.sessionCount': 1 } }
+              );
+            }
+
+            return 'updated';
+          }
+
+          // create new customer
+          const customerObj = new Customers({
+            createdAt: new Date,
+            email: args.email,
+            name: args.name,
+            integrationId,
+            inAppMessagingData: { ...inAppMessagingData, sessionCount: 1 },
+          });
+
+          return customerObj.save();
+        });
+    },
+
+    /*
+     * create new message
+     */
     insertMessage(root, args) {
       const { brandCode, email, conversationId, message, attachments } = args;
 

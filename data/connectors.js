@@ -31,9 +31,12 @@ const IntegrationSchema = Mongoose.Schema({
 });
 
 const CustomerSchema = Mongoose.Schema({
-  _id: String,
+  _id: { type: String, unique: true, default: () => Random.id() },
   integrationId: String,
   email: String,
+  name: String,
+  createdAt: Date,
+  inAppMessagingData: Object,
 });
 
 const ConversationSchema = Mongoose.Schema({

@@ -48,6 +48,8 @@
 
 	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; /* eslint-disable react/jsx-filename-extension */
 
+	var _templateObject = _taggedTemplateLiteral(['\n        mutation connect($brandCode: String!, $email: String!) {\n          connect(brandCode: $brandCode, email: $email)\n        }'], ['\n        mutation connect($brandCode: String!, $email: String!) {\n          connect(brandCode: $brandCode, email: $email)\n        }']);
+
 	var _react = __webpack_require__(1);
 
 	var _react2 = _interopRequireDefault(_react);
@@ -63,6 +65,10 @@
 	var _reduxThunk = __webpack_require__(426);
 
 	var _reduxThunk2 = _interopRequireDefault(_reduxThunk);
+
+	var _graphqlTag = __webpack_require__(604);
+
+	var _graphqlTag2 = _interopRequireDefault(_graphqlTag);
 
 	var _apolloClient = __webpack_require__(427);
 
@@ -80,28 +86,41 @@
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+	function _taggedTemplateLiteral(strings, raw) { return Object.freeze(Object.defineProperties(strings, { raw: { value: Object.freeze(raw) } })); }
+
 	// create store
 	// combine local reducers with apollo reducers
 	var store = (0, _redux.createStore)((0, _redux.combineReducers)(_extends({}, _reducers2.default, { apollo: _apolloClient2.default.reducer() })), {}, // initial state
 	(0, _redux.compose)((0, _redux.applyMiddleware)(_apolloClient2.default.middleware()), (0, _redux.applyMiddleware)(_reduxThunk2.default),
 	// If you are using the devToolsExtension, you can add it here also
 	window.devToolsExtension ? window.devToolsExtension() : function (f) {
-		return f;
+	  return f;
 	}));
 
 	// listen for widget toggle
 	window.addEventListener('message', function (event) {
-		// connect to api using passed settings
-		if (event.data.fromPublisher) {
-			(0, _erxes.connect)(_extends({}, event.data.settings));
-		}
+	  // connect to api using passed settings
+	  if (event.data.fromPublisher) {
+	    var settings = event.data.settings;
+	    (0, _erxes.connect)(_extends({}, settings));
+
+	    // call connect mutation
+	    _apolloClient2.default.mutate({
+	      mutation: (0, _graphqlTag2.default)(_templateObject),
+
+	      variables: {
+	        brandCode: settings.brand_id,
+	        email: settings.email
+	      }
+	    });
+	  }
 	});
 
 	// render root react component
 	_reactDom2.default.render(_react2.default.createElement(
-		_reactApollo.ApolloProvider,
-		{ store: store, client: _apolloClient2.default },
-		_react2.default.createElement(_containers.App, null)
+	  _reactApollo.ApolloProvider,
+	  { store: store, client: _apolloClient2.default },
+	  _react2.default.createElement(_containers.App, null)
 	), document.getElementById('root'));
 
 /***/ },
@@ -35877,13 +35896,6 @@
 
 	  asteroid = new Asteroid({
 	    endpoint: _settings2.default.DDP_URL
-	  });
-
-	  asteroid.ddp.on('connected', function () {
-	    call('connect', params).then(function () {}).catch(function (error) {
-	      console.error( // eslint-disable-line no-console
-	      'Error on connecting to the DDP server', error);
-	    });
 	  });
 	};
 

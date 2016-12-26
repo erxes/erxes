@@ -32,13 +32,4 @@ export const connect = (params) => {
   asteroid = new Asteroid({
     endpoint: settings.DDP_URL,
   });
-
-  asteroid.ddp.on('connected', () => {
-    call('connect', params)
-      .then(() => {})
-      .catch(error => {
-        console.error( // eslint-disable-line no-console
-          'Error on connecting to the DDP server', error);
-      });
-  });
 };

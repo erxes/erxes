@@ -6,6 +6,7 @@ import customTypes from './custom-types';
 
 const typeDefs = `
   scalar Date
+  scalar JSON
 
   # user ================
   type UserDetails {
@@ -62,6 +63,8 @@ const typeDefs = `
   }
 
   type Mutation {
+    connect(brandCode: String!, email: String!, data: JSON): String
+
     simulateInsertMessage(messageId: String): Message
 
     insertMessage(brandCode: String!, email: String!, conversationId: String!

@@ -5,6 +5,7 @@ import ReactDOM from 'react-dom';
 import { createStore, combineReducers, applyMiddleware, compose } from 'redux';
 import { ApolloProvider } from 'react-apollo';
 import thunkMiddleware from 'redux-thunk';
+import gql from 'graphql-tag';
 import client from '../apollo-client';
 import { connect } from '../erxes.js';
 import erxesReducers from './reducers';
@@ -28,7 +29,21 @@ const store = createStore(
 window.addEventListener('message', (event) => {
   // connect to api using passed settings
   if (event.data.fromPublisher) {
-    connect({ ...event.data.settings });
+    const settings = event.data.settings;
+    connect({ ...settings });
+
+    // call connect mutation
+    client.mutate({
+      mutation: gql`
+        mutation connect($brandCode: String!, $email: String!) {
+          connect(brandCode: $brandCode, email: $email)
+        }`,
+
+      variables: {
+        brandCode: settings.brand_id,
+        email: settings.email,
+      },
+    });
   }
 });
 
