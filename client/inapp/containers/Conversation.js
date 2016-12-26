@@ -108,6 +108,7 @@ const withData = graphql(
   `,
   {
     options: (ownProps) => ({
+      forceFetch: true,
       variables: { conversationId: ownProps.conversationId },
     }),
   }

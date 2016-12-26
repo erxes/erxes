@@ -60848,6 +60848,7 @@
 	var withData = (0, _reactApollo.graphql)((0, _graphqlTag2.default)(_templateObject2, messageQuery), {
 	  options: function options(ownProps) {
 	    return {
+	      forceFetch: true,
 	      variables: { conversationId: ownProps.conversationId }
 	    };
 	  }
