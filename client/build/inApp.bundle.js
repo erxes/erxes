@@ -35831,7 +35831,7 @@
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
-	exports.connect = exports.call = undefined;
+	exports.connect = exports.connection = exports.call = undefined;
 
 	var _asteroid2 = __webpack_require__(442);
 
@@ -35864,12 +35864,17 @@
 	  return (_asteroid = asteroid).call.apply(_asteroid, ['api.' + name].concat(params));
 	};
 
+	var connection = exports.connection = { data: {} };
+
 	/**
 	 * Connects to the DDP server
 	 * @param  {Object} options.settings
 	 * @param  {Object} options.dom
 	 */
 	var connect = exports.connect = function connect(params) {
+	  // save connection info
+	  connection.data = params;
+
 	  asteroid = new Asteroid({
 	    endpoint: _settings2.default.DDP_URL
 	  });
@@ -55616,7 +55621,7 @@
 
 	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
-	var _templateObject = _taggedTemplateLiteral(['\n    query allConversations {\n      conversations {\n        _id\n        content\n      }\n    }\n  '], ['\n    query allConversations {\n      conversations {\n        _id\n        content\n      }\n    }\n  ']);
+	var _templateObject = _taggedTemplateLiteral(['\n    query allConversations($brandCode: String!, $email: String!) {\n      conversations(brandCode: $brandCode, email: $email) {\n        _id\n        content\n      }\n    }\n  '], ['\n    query allConversations($brandCode: String!, $email: String!) {\n      conversations(brandCode: $brandCode, email: $email) {\n        _id\n        content\n      }\n    }\n  ']);
 
 	var _react = __webpack_require__(1);
 
@@ -55629,6 +55634,8 @@
 	var _graphqlTag2 = _interopRequireDefault(_graphqlTag);
 
 	var _reactApollo = __webpack_require__(199);
+
+	var _erxes = __webpack_require__(441);
 
 	var _messages = __webpack_require__(606);
 
@@ -55679,8 +55686,14 @@
 	};
 
 	var ListWithData = (0, _reactApollo.graphql)((0, _graphqlTag2.default)(_templateObject), {
-	  options: {
-	    forceFetch: true
+	  options: function options() {
+	    return {
+	      forceFetch: true,
+	      variables: {
+	        brandCode: _erxes.connection.data.brand_id,
+	        email: _erxes.connection.data.email
+	      }
+	    };
 	  }
 	})(ConversationList);
 

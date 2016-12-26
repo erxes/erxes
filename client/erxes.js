@@ -18,12 +18,17 @@ export const call = (name, ...params) => {
   return asteroid.call(`api.${name}`, ...params);
 };
 
+export const connection = { data: {} };
+
 /**
  * Connects to the DDP server
  * @param  {Object} options.settings
  * @param  {Object} options.dom
  */
 export const connect = (params) => {
+  // save connection info
+  connection.data = params;
+
   asteroid = new Asteroid({
     endpoint: settings.DDP_URL,
   });

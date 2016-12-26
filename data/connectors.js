@@ -11,6 +11,30 @@ Mongoose.connect(
   }
 );
 
+const UserSchema = Mongoose.Schema({
+  _id: String,
+  details: {
+    avatar: String,
+  },
+});
+
+const BrandSchema = Mongoose.Schema({
+  _id: String,
+  code: String,
+});
+
+const IntegrationSchema = Mongoose.Schema({
+  _id: String,
+  brandId: String,
+  kind: String,
+});
+
+const CustomerSchema = Mongoose.Schema({
+  _id: String,
+  integrationId: String,
+  email: String,
+});
+
 const ConversationSchema = Mongoose.Schema({
   _id: String,
   content: String,
@@ -33,15 +57,11 @@ const MessageSchema = Mongoose.Schema({
   isCustomerRead: Boolean,
 });
 
-const UserSchema = Mongoose.Schema({
-  _id: String,
-  details: {
-    avatar: String,
-  },
-});
-
+const Users = Mongoose.model('users', UserSchema);
+const Brands = Mongoose.model('brands', BrandSchema);
+const Integrations = Mongoose.model('integrations', IntegrationSchema);
+const Customers = Mongoose.model('customers', CustomerSchema);
 const Conversations = Mongoose.model('conversations', ConversationSchema);
 const Messages = Mongoose.model('conversation_messages', MessageSchema);
-const Users = Mongoose.model('users', UserSchema);
 
-export { Conversations, Messages, Users };
+export { Users, Brands, Integrations, Customers, Conversations, Messages };

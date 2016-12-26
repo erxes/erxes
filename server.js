@@ -7,7 +7,7 @@ import { SubscriptionServer } from 'subscriptions-transport-ws';
 import cors from 'cors';
 
 import settings from './server-settings';
-import { subscriptionManager } from './data/subscriptions';
+import { subscriptionManager } from './data/subscription-manager';
 import schema from './data/schema';
 
 const GRAPHQL_PORT = 8080;
