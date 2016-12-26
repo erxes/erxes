@@ -19,10 +19,10 @@ export default {
           Conversations.find({
             integrationId,
             customerId: customer._id,
-          })
+          }))
 
         // catch exception
-        ).catch((error) => {
+        .catch((error) => {
           console.log(error); // eslint-disable-line no-console
         });
     },

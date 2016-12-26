@@ -24,19 +24,32 @@ const typeDefs = `
     size: Int
   }
 
+  input AttachmentInput {
+    url: String
+    name: String
+    type: String
+    size: Int
+  }
+
   # conversation ===========
   type Conversation {
     _id: String!
+    customerId: String!
+    integrationId: String!
+    status: String!
     content: String
+    readUserIds: [String]
   }
 
   type Message {
     _id: String!
     conversationId: String!
+    customerId: String
     user: User
     content: String
     createdAt: Date
     attachments: [Attachment]
+    internal: Boolean
   }
 
   # the schema allows the following two queries:
@@ -50,9 +63,14 @@ const typeDefs = `
 
   type Mutation {
     simulateInsertMessage(messageId: String): Message
+
+    insertMessage(brandCode: String!, email: String!, conversationId: String!
+      message: String, attachments: [AttachmentInput]): Message
+
     readConversationMessages(conversationId: String): String
   }
 
+  # subscriptions
   type Subscription {
     messageInserted: Message
     notification: String

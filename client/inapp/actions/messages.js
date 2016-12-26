@@ -1,7 +1,7 @@
 import EJSON from 'meteor-ejson';
 import gql from 'graphql-tag';
 import { SENDING_ATTACHMENT, ATTACHMENT_SENT } from '../constants';
-import { call } from '../../erxes';
+import { call, connection } from '../../erxes';
 import client from '../../apollo-client';
 import uploadHandler from '../../uploadHandler';
 import { changeConversation } from './messenger';
@@ -26,35 +26,34 @@ export const sendMessage = (message, attachments) =>
     // current conversation
     const currentConversationId = state.activeConversation;
 
-    // message object
-    const doc = {
-      conversationId: currentConversationId,
-      message,
-      attachments,
-    };
+    client.mutate({
+      mutation: gql`
+        mutation insertMessage($brandCode: String!, $email: String!, $message: String,
+            $conversationId: String!, $attachments: [AttachmentInput]) {
 
-    return call('sendMessage', doc)
-      .then(({ conversationId, messageId }) => {
-        // using this in order to notify pubsub that new message inserted and
-        // subscribe to all clients
-        client.mutate({
-          mutation: gql`
-            mutation simulateInsertMessage($messageId: String) {
-              simulateInsertMessage(messageId: $messageId) {
-                _id
-              }
-            }`,
+          insertMessage(brandCode: $brandCode, email: $email, message: $message,
+            conversationId: $conversationId, attachments: $attachments) {
+            _id
+            conversationId
+          }
+        }`,
 
-          variables: {
-            messageId,
-          },
-        });
+      variables: {
+        brandCode: connection.data.brand_id,
+        email: connection.data.email,
+        conversationId: currentConversationId,
+        message,
+        attachments,
+      },
+    })
 
-        // if there is no current conversation new conversation will be created
-        if (!currentConversationId) {
-          dispatch(changeConversation(conversationId));
-        }
-      });
+    // after mutation
+    .then(({ data }) => {
+      // if there is no current conversation new conversation will be created
+      if (!currentConversationId) {
+        dispatch(changeConversation(data.insertMessage.conversationId));
+      }
+    });
   };
 
 export const sendFile = file =>

@@ -58637,7 +58637,7 @@
 	exports.sendFile = exports.sendMessage = exports.readMessages = undefined;
 
 	var _templateObject = _taggedTemplateLiteral(['\n      mutation readConversationMessages($conversationId: String) {\n        readConversationMessages(conversationId: $conversationId)\n      }'], ['\n      mutation readConversationMessages($conversationId: String) {\n        readConversationMessages(conversationId: $conversationId)\n      }']),
-	    _templateObject2 = _taggedTemplateLiteral(['\n            mutation simulateInsertMessage($messageId: String) {\n              simulateInsertMessage(messageId: $messageId) {\n                _id\n              }\n            }'], ['\n            mutation simulateInsertMessage($messageId: String) {\n              simulateInsertMessage(messageId: $messageId) {\n                _id\n              }\n            }']);
+	    _templateObject2 = _taggedTemplateLiteral(['\n        mutation insertMessage($brandCode: String!, $email: String!, $message: String,\n            $conversationId: String!, $attachments: [AttachmentInput]) {\n\n          insertMessage(brandCode: $brandCode, email: $email, message: $message,\n            conversationId: $conversationId, attachments: $attachments) {\n            _id\n            conversationId\n          }\n        }'], ['\n        mutation insertMessage($brandCode: String!, $email: String!, $message: String,\n            $conversationId: String!, $attachments: [AttachmentInput]) {\n\n          insertMessage(brandCode: $brandCode, email: $email, message: $message,\n            conversationId: $conversationId, attachments: $attachments) {\n            _id\n            conversationId\n          }\n        }']);
 
 	var _meteorEjson = __webpack_require__(607);
 
@@ -58687,30 +58687,25 @@
 	    // current conversation
 	    var currentConversationId = state.activeConversation;
 
-	    // message object
-	    var doc = {
-	      conversationId: currentConversationId,
-	      message: message,
-	      attachments: attachments
-	    };
+	    _apolloClient2.default.mutate({
+	      mutation: (0, _graphqlTag2.default)(_templateObject2),
 
-	    return (0, _erxes.call)('sendMessage', doc).then(function (_ref) {
-	      var conversationId = _ref.conversationId,
-	          messageId = _ref.messageId;
+	      variables: {
+	        brandCode: _erxes.connection.data.brand_id,
+	        email: _erxes.connection.data.email,
+	        conversationId: currentConversationId,
+	        message: message,
+	        attachments: attachments
+	      }
+	    })
 
-	      // using this in order to notify pubsub that new message inserted and
-	      // subscribe to all clients
-	      _apolloClient2.default.mutate({
-	        mutation: (0, _graphqlTag2.default)(_templateObject2),
-
-	        variables: {
-	          messageId: messageId
-	        }
-	      });
+	    // after mutation
+	    .then(function (_ref) {
+	      var data = _ref.data;
 
 	      // if there is no current conversation new conversation will be created
 	      if (!currentConversationId) {
-	        dispatch((0, _messenger.changeConversation)(conversationId));
+	        dispatch((0, _messenger.changeConversation)(data.insertMessage.conversationId));
 	      }
 	    });
 	  };

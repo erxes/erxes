@@ -1,6 +1,7 @@
 /* eslint-disable new-cap */
 
 import Mongoose from 'mongoose';
+import Random from 'meteor-random';
 import settings from '../server-settings';
 
 Mongoose.connect(
@@ -36,8 +37,12 @@ const CustomerSchema = Mongoose.Schema({
 });
 
 const ConversationSchema = Mongoose.Schema({
-  _id: String,
+  _id: { type: String, unique: true, default: () => Random.id() },
   content: String,
+  customerId: String,
+  integrationId: String,
+  status: String,
+  readUserIds: [String],
 });
 
 const AttachmentSchema = Mongoose.Schema({
@@ -48,14 +53,17 @@ const AttachmentSchema = Mongoose.Schema({
 });
 
 const MessageSchema = Mongoose.Schema({
-  _id: String,
+  _id: { type: String, unique: true, default: () => Random.id() },
   userId: String,
   conversationId: String,
+  customerId: String,
   content: String,
   attachments: [AttachmentSchema],
   createdAt: Date,
   isCustomerRead: Boolean,
+  internal: Boolean,
 });
+
 
 const Users = Mongoose.model('users', UserSchema);
 const Brands = Mongoose.model('brands', BrandSchema);
