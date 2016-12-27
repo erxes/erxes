@@ -200,19 +200,13 @@ class Sidebar extends Component {
             </div>
           </Collapse>
 
-          <ul className="filters">
-            <li>
-              {conversation.tags().map((tag) =>
-                <a key={tag._id}>
-                  <i
-                    className="icon ion-pricetag"
-                    style={{ color: tag.colorCode }}
-                  >
-                  </i>
-                  {tag.name}
-                </a>
-              )}
-            </li>
+          <ul className="filters no-link">
+            {conversation.tags().map((tag) =>
+              <li key={tag._id}>
+                <i className="icon ion-pricetag" style={{ color: tag.colorCode }} />
+                {tag.name}
+              </li>
+            )}
             {
               conversation.tags().length === 0 ?
                 <EmptyState
