@@ -21,11 +21,10 @@
       -webkit-align-items: flex-start;
       align-items: flex-start;
       position: relative;
-      padding: 2px;
 
       .react-selectize-placeholder {
         display: block;
-        line-height: 30px;
+        line-height: 32px;
         overflow: hidden;
         -o-text-overflow: ellipsis;
         text-overflow: ellipsis;
@@ -62,7 +61,7 @@
           border: none;
           outline: none;
           font-size: 1em;
-          margin: 2px;
+          margin: 2px 4px;
           padding: 4px 0px;
           vertical-align: middle;
           width: 0px;
@@ -226,15 +225,13 @@
     &.root-node {
       .react-selectize-control {
         background-color: #fff;
-        border: 1px solid;
-        border-color: #d9d9d9 #ccc #b3b3b3;
-        -webkit-border-radius: 4px;
-        border-radius: 4px;
-        font-size: 1em;
+        border: 1px solid $border-grey;
+        -webkit-border-radius: $border-radius;
+        border-radius: $border-radius;
 
         .react-selectize-placeholder {
           color: #aaa;
-          text-indent: 8px;
+          text-indent: 10px;
         }
 
         .react-selectize-search-field-and-selected-values {
@@ -244,8 +241,8 @@
 
       &.open {
         &.flipped .react-selectize-control {
-          border-bottom-left-radius: 4px;
-          border-bottom-right-radius: 4px;
+          border-bottom-left-radius: $border-radius;
+          border-bottom-right-radius: $border-radius;
           border-top-left-radius: 0px;
           border-top-right-radius: 0px;
         }
@@ -253,8 +250,8 @@
         &:not(.flipped) .react-selectize-control {
           border-bottom-left-radius: 0px;
           border-bottom-right-radius: 0px;
-          border-top-left-radius: 4px;
-          border-top-right-radius: 4px;
+          border-top-left-radius: $border-radius;
+          border-top-right-radius: $border-radius;
         }
       }
     }
@@ -328,16 +325,16 @@
 
   &.dropdown-menu.default {
     background: #fff;
-    border: 1px solid #ccc;
+    border: 1px solid $border-grey;
     margin-top: -1px;
 
     &.flipped {
-      border-top-left-radius: 4px;
-      border-top-right-radius: 4px;
+      border-top-left-radius: $border-radius;
+      border-top-right-radius: $border-radius;
     }
 
     &:not(.flipped) {
-      border-color: #b3b3b3 #ccc #d9d9d9;
+      border-color: $border-grey;
       border-bottom-left-radius: 4px;
       border-bottom-right-radius: 4px;
     }
@@ -351,13 +348,13 @@
     .simple-group-title {
       background-color: $grey-light;
       font-weight: bold;
-      padding: 8px 8px;
+      padding: 8px;
     }
 
     .option-wrapper {
       &.highlight {
-        background: #f2f9fc;
-        color: #333;
+        background: #f3f1f7;
+        color: $text-color;
       }
 
       .simple-option {
@@ -370,23 +367,23 @@
           color: #999;
           cursor: default;
           font-style: oblique;
-          text-shadow: 0px 1px 0px #fff;
         }
 
         .kind {
-          color: #aaa;
+          font-size: 12px;
           font-style: italic;
         }
 
         .channel-round {
+          color: $text-color;
+          font-weight: bold;
           width: 20px;
           height: 20px;
           float: right;
           border-radius: 10px;
-          background: $main-color;
+          background: #ece6f8;
           text-align: center;
           font-size: 10px;
-          color: $white;
           line-height: 20px;
         }
       }
@@ -395,11 +392,11 @@
 }
 
 .multi-select.react-selectize.default.root-node .simple-value {
-  background: #f2f9fc;
-  border: 1px solid #c9e6f2;
+  background: #f3f1f7;
+  border: 1px solid #DAD8DE;
   -webkit-border-radius: 2px;
   border-radius: 2px;
-  color: #08c;
+  color: $gray-light;
 }
 
 .simple-select.react-selectize.default.root-node {
@@ -409,10 +406,5 @@
 
   &:not(.open) .react-selectize-control {
     background-color: #f9f9f9;
-    background-image: -webkit-linear-gradient(top, #fefefe, #f2f2f2);
-    background-image: -moz-linear-gradient(top, #fefefe, #f2f2f2);
-    background-image: -o-linear-gradient(top, #fefefe, #f2f2f2);
-    background-image: -ms-linear-gradient(top, #fefefe, #f2f2f2);
-    background-image: linear-gradient(to bottom, #fefefe, #f2f2f2);
   }
 }

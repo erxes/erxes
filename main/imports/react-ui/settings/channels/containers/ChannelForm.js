@@ -12,8 +12,10 @@ function composer({ channel }, onData) {
   const brandHandle = Meteor.subscribe('brands.list');
 
   let selectedIntegrations = [];
+  let selectedMembers = [];
   if (channel) {
     selectedIntegrations = Integrations.find({ _id: { $in: channel.integrationIds } }).fetch();
+    selectedMembers = Meteor.users.find({ _id: { $in: channel.memberIds } }).fetch();
   }
 
   if (integrationHandle.ready() && userHandle.ready() && brandHandle.ready()) {
@@ -22,6 +24,7 @@ function composer({ channel }, onData) {
       members: Meteor.users.find().fetch(),
       brands: Brands.find().fetch(),
       selectedIntegrations,
+      selectedMembers,
     });
   }
 }
