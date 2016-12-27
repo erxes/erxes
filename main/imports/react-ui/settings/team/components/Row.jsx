@@ -2,7 +2,7 @@ import React, { PropTypes, Component } from 'react';
 import { Button } from 'react-bootstrap';
 import Alert from 'meteor/erxes-notifier';
 import { ModalTrigger, Tip, ActionButtons } from '/imports/react-ui/common';
-import InviteForm from './InviteForm';
+import { InviteForm } from '../containers';
 
 
 const propTypes = {

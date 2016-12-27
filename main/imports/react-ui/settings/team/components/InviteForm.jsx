@@ -1,10 +1,9 @@
-import { _ } from 'meteor/underscore';
 import React, { PropTypes, Component } from 'react';
+import ReactSelectize from 'react-selectize';
 import {
   FormGroup,
   ControlLabel,
   FormControl,
-  Checkbox,
   ButtonToolbar,
   Button,
   Modal,
@@ -17,6 +16,7 @@ const propTypes = {
   user: PropTypes.object.isRequired,
   save: PropTypes.func.isRequired,
   channels: PropTypes.array.isRequired,
+  selectedChannels: PropTypes.array,
 };
 
 const contextTypes = {
@@ -28,18 +28,11 @@ class InviteForm extends Component {
     super(props, context);
 
     this.handleSubmit = this.handleSubmit.bind(this);
-  }
-
-  collectCheckboxValues(name) {
-    const values = [];
-
-    _.each(document.getElementsByName(name), (elem) => {
-      if (elem.checked) {
-        values.push(elem.value);
-      }
-    });
-
-    return values;
+    this.generateChannelsParams = this.generateChannelsParams.bind(this);
+    this.collectValues = this.collectValues.bind(this);
+    this.state = {
+      selectedChannels: this.generateChannelsParams(props.selectedChannels),
+    };
   }
 
   handleSubmit(e) {
@@ -54,7 +47,7 @@ class InviteForm extends Component {
       password: document.getElementById('password').value,
       passwordConfirmation: document.getElementById('password-confirmation').value,
       role: document.getElementById('role').value,
-      channelIds: this.collectCheckboxValues('channels'),
+      channelIds: this.collectValues(this.state.selectedChannels),
     };
 
     // when update
@@ -72,23 +65,37 @@ class InviteForm extends Component {
     });
   }
 
+  generateChannelsParams(channels) {
+    return channels.map(channel => (
+      {
+        value: channel._id,
+        label: channel.name,
+      }
+    ));
+  }
+
+  collectValues(items) {
+    return items.map(item => (
+      item.value
+    ));
+  }
+
   renderChannels() {
+    const self = this;
+    const { channels } = this.props;
     return (
       <FormGroup>
         <ControlLabel>Choose the channels</ControlLabel><br />
-        {
-          this.props.channels.map(channel =>
-            <Checkbox
-              key={channel._id}
-              value={channel._id}
-              name="channels"
-              defaultChecked={channel.memberIds.includes(this.props.user._id)}
-              inline
-            >
-              {channel.name}
-            </Checkbox>
-          )
-        }
+
+        <ReactSelectize.MultiSelect
+          options={self.generateChannelsParams(channels)}
+          placeholder="Choose channels"
+          values={self.state.selectedChannels}
+          onValuesChange={(items) => {
+            self.setState({ selectedChannels: items });
+          }}
+        />
+
       </FormGroup>
     );
   }
