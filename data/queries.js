@@ -19,8 +19,9 @@ const findConversations = ({ brandCode, email }) => {
       Conversations.find({
         integrationId,
         customerId: customer._id,
-      }))
-}
+      })
+    );
+};
 
 
 export default {
@@ -56,7 +57,7 @@ export default {
             userId: { $exists: true },
             isCustomerRead: { $exists: false },
           });
-        })
+        });
     },
 
     conversationLastStaff(root, args) {
