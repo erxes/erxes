@@ -1,37 +1,42 @@
+import _ from 'underscore';
 import { Conversations, Messages, Users } from './connectors';
 import { getIntegration, getCustomer } from './utils';
 
+
+const findConversations = ({ brandCode, email }) => {
+  let integrationId;
+
+  return getIntegration(brandCode)
+    // find customer
+    .then((integration) => {
+      integrationId = integration._id;
+
+      return getCustomer(integrationId, email);
+    })
+
+    // find conversations
+    .then(customer =>
+      Conversations.find({
+        integrationId,
+        customerId: customer._id,
+      }))
+}
+
+
 export default {
   RootQuery: {
-    conversations(_, { brandCode, email }) {
-      let integrationId;
-
-      return getIntegration(brandCode)
-        // find customer
-        .then((integration) => {
-          integrationId = integration._id;
-
-          return getCustomer(integrationId, email);
-        })
-
-        // find conversations
-        .then(customer =>
-          Conversations.find({
-            integrationId,
-            customerId: customer._id,
-          }))
-
-        // catch exception
+    conversations(root, args) {
+      return findConversations(args)
         .catch((error) => {
           console.log(error); // eslint-disable-line no-console
         });
     },
 
-    messages(_, { conversationId }) {
+    messages(root, { conversationId }) {
       return Messages.find({ conversationId });
     },
 
-    unreadCount(_, { conversationId }) {
+    unreadCount(root, { conversationId }) {
       return Messages.count({
         conversationId,
         userId: { $exists: true },
@@ -39,14 +44,22 @@ export default {
       });
     },
 
-    totalUnreadCount() {
-      return Messages.count({
-        userId: { $exists: true },
-        isCustomerRead: { $exists: false },
-      });
+    totalUnreadCount(root, args) {
+      // find conversations
+      return findConversations(args).
+        // find unread messages count
+        then((conversations) => {
+          const conversationIds = _.pluck(conversations, '_id');
+
+          return Messages.count({
+            conversationId: { $in: conversationIds },
+            userId: { $exists: true },
+            isCustomerRead: { $exists: false },
+          });
+        })
     },
 
-    conversationLastStaff(_, args) {
+    conversationLastStaff(root, args) {
       const messageQuery = {
         conversationId: args._id,
         userId: { $exists: true },

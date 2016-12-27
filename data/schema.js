@@ -58,7 +58,7 @@ const typeDefs = `
     conversations(brandCode: String!, email: String!): [Conversation]
     messages(conversationId: String): [Message]
     unreadCount(conversationId: String): Int
-    totalUnreadCount: Int
+    totalUnreadCount(brandCode: String!, email: String!): Int
     conversationLastStaff(_id: String): User
   }
 

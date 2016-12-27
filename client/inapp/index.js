@@ -43,14 +43,16 @@ window.addEventListener('message', (event) => {
         brandCode: settings.brand_id,
         email: settings.email,
       },
+    })
+    
+    .then(() => {
+      // render root react component
+      ReactDOM.render(
+        <ApolloProvider store={store} client={client}>
+          <App />
+        </ApolloProvider>,
+        document.getElementById('root')
+      );
     });
   }
 });
-
-// render root react component
-ReactDOM.render(
-	<ApolloProvider store={store} client={client}>
-		<App />
-	</ApolloProvider>,
-	document.getElementById('root')
-);
