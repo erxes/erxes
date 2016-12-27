@@ -32,12 +32,16 @@ class Conversation extends Subscriber {
 
     this.subscribeToMoreOptions = {
       document: gql`
-        subscription messageInserted {
-          messageInserted {
+        subscription onMessageInserted($conversationId: String!) {
+          messageInserted(conversationId: $conversationId) {
             ${messageQuery}
           }
         }
       `,
+
+      variables: {
+        conversationId: props.conversationId,
+      },
 
       // push new message to messages list when subscription updated
       updateQuery: (_previousResult, { subscriptionData }) => {

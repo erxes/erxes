@@ -60869,7 +60869,7 @@
 
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-	var _templateObject = _taggedTemplateLiteral(['\n        subscription messageInserted {\n          messageInserted {\n            ', '\n          }\n        }\n      '], ['\n        subscription messageInserted {\n          messageInserted {\n            ', '\n          }\n        }\n      ']),
+	var _templateObject = _taggedTemplateLiteral(['\n        subscription onMessageInserted($conversationId: String!) {\n          messageInserted(conversationId: $conversationId) {\n            ', '\n          }\n        }\n      '], ['\n        subscription onMessageInserted($conversationId: String!) {\n          messageInserted(conversationId: $conversationId) {\n            ', '\n          }\n        }\n      ']),
 	    _templateObject2 = _taggedTemplateLiteral(['\n    query ($conversationId: String!) {\n      messages(conversationId: $conversationId) {\n        ', '\n      }\n\n      conversationLastStaff(_id: $conversationId) {\n        _id,\n        details {\n          avatar\n        }\n      }\n    }\n  '], ['\n    query ($conversationId: String!) {\n      messages(conversationId: $conversationId) {\n        ', '\n      }\n\n      conversationLastStaff(_id: $conversationId) {\n        _id,\n        details {\n          avatar\n        }\n      }\n    }\n  ']);
 
 	var _react = __webpack_require__(1);
@@ -60914,6 +60914,10 @@
 
 	    _this.subscribeToMoreOptions = {
 	      document: (0, _graphqlTag2.default)(_templateObject, messageQuery),
+
+	      variables: {
+	        conversationId: props.conversationId
+	      },
 
 	      // push new message to messages list when subscription updated
 	      updateQuery: function updateQuery(_previousResult, _ref) {

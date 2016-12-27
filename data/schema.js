@@ -75,7 +75,7 @@ const typeDefs = `
 
   # subscriptions
   type Subscription {
-    messageInserted: Message
+    messageInserted(conversationId: String!): Message
     notification: String
   }
 

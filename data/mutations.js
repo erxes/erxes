@@ -6,12 +6,11 @@ import { createMessage } from './utils';
 export default {
   Mutation: {
     simulateInsertMessage(root, args) {
-      const message = Messages.findOne({ _id: args.messageId });
-
-      pubsub.publish('messageInserted', message);
-      pubsub.publish('notification');
-
-      return message;
+      return Messages.findOne({ _id: args.messageId })
+        .then((message) => {
+          pubsub.publish('newMessagesChannel', message);
+          pubsub.publish('notification');
+        });
     },
 
     /*
@@ -109,7 +108,7 @@ export default {
 
         // publish change
         .then((msg) => {
-          pubsub.publish('messageInserted', msg);
+          pubsub.publish('newMessagesChannel', msg);
           pubsub.publish('notification');
 
           return msg;
