@@ -78,6 +78,7 @@ class BrandForm extends Component {
             componentClass="textarea"
             defaultValue={brand.description}
             required
+            rows={5}
           />
         </FormGroup>
 
