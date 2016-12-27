@@ -45,7 +45,7 @@ class Section extends Component {
   }
 
   render() {
-    const { children, collapsible, length } = this.props;
+    const { children, collapsible } = this.props;
     const classes = classNames({
       section: true,
       collapsible,
@@ -58,7 +58,7 @@ class Section extends Component {
         <div ref={node => { this.node = node; }}>
           {children}
         </div>
-        {collapsible && length > 4 ? this.renderCollapseButton() : null}
+        {collapsible ? this.renderCollapseButton() : null}
       </div>
     );
   }
@@ -67,7 +67,6 @@ class Section extends Component {
 Section.propTypes = {
   children: PropTypes.node,
   collapsible: PropTypes.bool,
-  length: PropTypes.number,
 };
 
 Sidebar.propTypes = propTypes;
