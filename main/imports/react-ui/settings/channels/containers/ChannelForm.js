@@ -9,7 +9,7 @@ import { ChannelForm } from '../components';
 function composer({ channel }, onData) {
   const integrationHandle = Meteor.subscribe('integrations.list', {});
   const userHandle = Meteor.subscribe('users.list', {});
-  const brandHandle = Meteor.subscribe('brands.list');
+  const brandHandle = Meteor.subscribe('brands.list', 0);
 
   let selectedIntegrations = [];
   let selectedMembers = [];
