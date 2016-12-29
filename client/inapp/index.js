@@ -8,6 +8,7 @@ import thunkMiddleware from 'redux-thunk';
 import gql from 'graphql-tag';
 import client from '../apollo-client';
 import { connect } from '../erxes.js';
+import { connection } from './connection.js';
 import erxesReducers from './reducers';
 import { App } from './containers';
 import './sass/style.scss';
@@ -36,7 +37,10 @@ window.addEventListener('message', (event) => {
     client.mutate({
       mutation: gql`
         mutation connect($brandCode: String!, $email: String!) {
-          connect(brandCode: $brandCode, email: $email)
+          connect(brandCode: $brandCode, email: $email) {
+            integrationId,
+            customerId,
+          }
         }`,
 
       variables: {
@@ -44,15 +48,20 @@ window.addEventListener('message', (event) => {
         email: settings.email,
       },
     })
-    
-    .then(() => {
-      // render root react component
-      ReactDOM.render(
-        <ApolloProvider store={store} client={client}>
-          <App />
-        </ApolloProvider>,
-        document.getElementById('root')
-      );
+
+    .then(({ data }) => {
+      if (data.connect.integrationId && data.connect.customerId) {
+        // save connection info
+        connection.data = data.connect;
+
+        // render root react component
+        ReactDOM.render(
+          <ApolloProvider store={store} client={client}>
+            <App />
+          </ApolloProvider>,
+          document.getElementById('root')
+        );
+      }
     });
   }
 });

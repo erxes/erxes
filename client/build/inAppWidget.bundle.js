@@ -47,11 +47,11 @@
 
 	'use strict';
 
-	var _settings = __webpack_require__(444);
+	var _settings = __webpack_require__(442);
 
 	var _settings2 = _interopRequireDefault(_settings);
 
-	__webpack_require__(623);
+	__webpack_require__(621);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -100,7 +100,7 @@
 
 /***/ },
 
-/***/ 444:
+/***/ 442:
 /***/ function(module, exports) {
 
 	'use strict';
@@ -110,13 +110,13 @@
 	});
 	exports.default = {
 	  WEBSOCKET_URL: 'ws://localhost:3010',
-	  API_URL: 'http://localhost:8080',
-	  DDP_URL: 'ws://127.0.0.1:7010/websocket'
+	  DDP_URL: 'ws://127.0.0.1:7010/websocket',
+	  API_URL: 'http://localhost:8080'
 	};
 
 /***/ },
 
-/***/ 621:
+/***/ 619:
 /***/ function(module, exports) {
 
 	/*
@@ -173,7 +173,7 @@
 
 /***/ },
 
-/***/ 622:
+/***/ 620:
 /***/ function(module, exports, __webpack_require__) {
 
 	/*
@@ -426,16 +426,16 @@
 
 /***/ },
 
-/***/ 623:
+/***/ 621:
 /***/ function(module, exports, __webpack_require__) {
 
 	// style-loader: Adds some css to the DOM by adding a <style> tag
 
 	// load the styles
-	var content = __webpack_require__(624);
+	var content = __webpack_require__(622);
 	if(typeof content === 'string') content = [[module.id, content, '']];
 	// add the styles to the DOM
-	var update = __webpack_require__(622)(content, {});
+	var update = __webpack_require__(620)(content, {});
 	if(content.locals) module.exports = content.locals;
 	// Hot Module Replacement
 	if(false) {
@@ -453,10 +453,10 @@
 
 /***/ },
 
-/***/ 624:
+/***/ 622:
 /***/ function(module, exports, __webpack_require__) {
 
-	exports = module.exports = __webpack_require__(621)();
+	exports = module.exports = __webpack_require__(619)();
 	// imports
 
 

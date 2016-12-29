@@ -55,20 +55,26 @@ const typeDefs = `
 
   # the schema allows the following two queries:
   type RootQuery {
-    conversations(brandCode: String!, email: String!): [Conversation]
+    conversations(integrationId: String!, customerId: String!): [Conversation]
+    totalUnreadCount(integrationId: String!, customerId: String!): Int
     messages(conversationId: String): [Message]
     unreadCount(conversationId: String): Int
-    totalUnreadCount(brandCode: String!, email: String!): Int
     conversationLastStaff(_id: String): User
   }
 
+  type ConnectResponse {
+    integrationId: String!
+    customerId: String!
+  }
+
   type Mutation {
-    connect(brandCode: String!, email: String!, data: JSON): String
+    connect(brandCode: String!, email: String!, data: JSON): ConnectResponse
 
     simulateInsertMessage(messageId: String): Message
 
-    insertMessage(brandCode: String!, email: String!, conversationId: String!
-      message: String, attachments: [AttachmentInput]): Message
+    insertMessage(integrationId: String!, customerId: String!,
+      conversationId: String!, message: String, attachments: [AttachmentInput]
+      ): Message
 
     readConversationMessages(conversationId: String): String
   }

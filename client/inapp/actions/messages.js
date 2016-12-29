@@ -1,10 +1,11 @@
 import EJSON from 'meteor-ejson';
 import gql from 'graphql-tag';
 import { SENDING_ATTACHMENT, ATTACHMENT_SENT } from '../constants';
-import { call, connection } from '../../erxes';
+import { connection } from '../connection';
+import { changeConversation } from './messenger';
+import { call } from '../../erxes';
 import client from '../../apollo-client';
 import uploadHandler from '../../uploadHandler';
-import { changeConversation } from './messenger';
 
 export const readMessages = conversationId =>
   // mark as read
@@ -28,10 +29,10 @@ export const sendMessage = (message, attachments) =>
 
     client.mutate({
       mutation: gql`
-        mutation insertMessage($brandCode: String!, $email: String!, $message: String,
+        mutation insertMessage(${connection.queryVariables}, $message: String,
             $conversationId: String!, $attachments: [AttachmentInput]) {
 
-          insertMessage(brandCode: $brandCode, email: $email, message: $message,
+          insertMessage(${connection.queryParams}, message: $message,
             conversationId: $conversationId, attachments: $attachments) {
             _id
             conversationId
@@ -39,8 +40,7 @@ export const sendMessage = (message, attachments) =>
         }`,
 
       variables: {
-        brandCode: connection.data.brand_id,
-        email: connection.data.email,
+        ...connection.data,
         conversationId: currentConversationId,
         message,
         attachments,

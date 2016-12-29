@@ -39,7 +39,7 @@ export const getOrCreateConversation = (doc) => {
       }
     );
 
-    return doc.conversationId;
+    return Promise.resolve(doc.conversationId);
   }
 
   // create conversation object

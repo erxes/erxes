@@ -2,9 +2,9 @@ import React, { PropTypes } from 'react';
 import gql from 'graphql-tag';
 import { connect } from 'react-redux';
 import { graphql } from 'react-apollo';
-import { connection } from '../../erxes';
 import { changeRoute, toggle, changeConversation } from '../actions/messenger';
 import { Launcher as DumbLauncher } from '../components';
+import { connection } from '../connection';
 import NotificationSubscriber from './NotificationSubscriber';
 
 class Launcher extends NotificationSubscriber {
@@ -40,21 +40,16 @@ const mapDisptachToProps = dispatch => ({
 
 const LauncherWithData = graphql(
   gql`
-    query totalUnreadCount($brandCode: String!, $email: String!) {
-      totalUnreadCount(brandCode: $brandCode, email: $email)
+    query totalUnreadCount(${connection.queryVariables}) {
+      totalUnreadCount(${connection.queryParams})
     }
   `,
 
   {
-    options: () => {
-      return {
-        forceFetch: true,
-        variables: {
-          brandCode: connection.data.brand_id,
-          email: connection.data.email,
-        },
-      }
-    },
+    options: () => ({
+      forceFetch: true,
+      variables: connection.data,
+    }),
   }
 )(Launcher);
 

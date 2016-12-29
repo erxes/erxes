@@ -45,13 +45,13 @@ export default {
 
             if ((now - customer.inAppMessagingData.lastSeenAt) > 30 * 60 * 1000) {
               // update session count
-              return Customers.update(
+              Customers.update(
                 customer._id,
                 { $inc: { 'inAppMessagingData.sessionCount': 1 } }
               );
             }
 
-            return 'updated';
+            return Customers.findOne({ _id: customer._id });
           }
 
           // create new customer
@@ -64,60 +64,55 @@ export default {
           });
 
           return customerObj.save();
-        });
+        })
+
+        // save integrationId, customerIds on connection
+        // for later use
+        .then((customer) => ({
+          integrationId,
+          customerId: customer._id,
+        }));
     },
 
     /*
      * create new message
      */
     insertMessage(root, args) {
-      const { brandCode, email, conversationId, message, attachments } = args;
+      const {
+        integrationId, customerId, conversationId,
+        message, attachments,
+      } = args;
 
-      let integrationId;
-      let customerId;
+      // get or create conversation
+      return getOrCreateConversation({
+        conversationId,
+        integrationId,
+        customerId,
+        message,
+      })
 
-      return getIntegration(brandCode)
-        // find customer
-        .then((integration) => {
-          integrationId = integration._id;
-
-          return getCustomer(integrationId, email);
+      // create message
+      .then((id) =>
+        createMessage({
+          conversationId: id,
+          customerId,
+          message,
+          attachments,
         })
+      )
 
-        // get or create conversation
-        .then(customer => {
-          customerId = customer._id;
+      // publish change
+      .then((msg) => {
+        pubsub.publish('newMessagesChannel', msg);
+        pubsub.publish('notification');
 
-          return getOrCreateConversation({
-            conversationId,
-            integrationId,
-            customerId: customer._id,
-            message,
-          });
-        })
+        return msg;
+      })
 
-        // create message
-        .then((id) =>
-          createMessage({
-            conversationId: id,
-            customerId,
-            message,
-            attachments,
-          })
-        )
-
-        // publish change
-        .then((msg) => {
-          pubsub.publish('newMessagesChannel', msg);
-          pubsub.publish('notification');
-
-          return msg;
-        })
-
-        // catch exception
-        .catch((error) => {
-          console.log(error); // eslint-disable-line no-console
-        });
+      // catch exception
+      .catch((error) => {
+        console.log(error); // eslint-disable-line no-console
+      });
     },
 
     /*

@@ -2,7 +2,7 @@ import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
 import gql from 'graphql-tag';
 import { graphql } from 'react-apollo';
-import { connection } from '../../erxes';
+import { connection } from '../connection.js';
 import { readMessages } from '../actions/messages';
 import { changeRoute, changeConversation } from '../actions/messenger';
 import { ConversationList as DumbConversationList } from '../components';
@@ -47,8 +47,8 @@ const mapDisptachToProps = dispatch => ({
 
 const ListWithData = graphql(
   gql`
-    query allConversations($brandCode: String!, $email: String!) {
-      conversations(brandCode: $brandCode, email: $email) {
+    query allConversations(${connection.queryVariables}) {
+      conversations(${connection.queryParams}) {
         _id
         content
       }
@@ -58,10 +58,7 @@ const ListWithData = graphql(
   {
     options: () => ({
       forceFetch: true,
-      variables: {
-        brandCode: connection.data.brand_id,
-        email: connection.data.email,
-      },
+      variables: connection.data,
     }),
   }
 )(ConversationList);

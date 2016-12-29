@@ -1,36 +1,15 @@
 import _ from 'underscore';
 import { Conversations, Messages, Users } from './connectors';
-import { getIntegration, getCustomer } from './utils';
-
-
-const findConversations = ({ brandCode, email }) => {
-  let integrationId;
-
-  return getIntegration(brandCode)
-    // find customer
-    .then((integration) => {
-      integrationId = integration._id;
-
-      return getCustomer(integrationId, email);
-    })
-
-    // find conversations
-    .then(customer =>
-      Conversations.find({
-        integrationId,
-        customerId: customer._id,
-      })
-    );
-};
-
 
 export default {
   RootQuery: {
     conversations(root, args) {
-      return findConversations(args)
-        .catch((error) => {
-          console.log(error); // eslint-disable-line no-console
-        });
+      const { integrationId, customerId } = args;
+
+      return Conversations.find({
+        integrationId,
+        customerId,
+      });
     },
 
     messages(root, { conversationId }) {
@@ -46,18 +25,24 @@ export default {
     },
 
     totalUnreadCount(root, args) {
-      // find conversations
-      return findConversations(args).
-        // find unread messages count
-        then((conversations) => {
-          const conversationIds = _.pluck(conversations, '_id');
+      const { integrationId, customerId } = args;
 
-          return Messages.count({
-            conversationId: { $in: conversationIds },
-            userId: { $exists: true },
-            isCustomerRead: { $exists: false },
-          });
+      // find conversations
+      return Conversations.find({
+        integrationId,
+        customerId,
+      })
+
+      .then((conversations) => {
+        const conversationIds = _.pluck(conversations, '_id');
+
+        // find read messages count
+        return Messages.count({
+          conversationId: { $in: conversationIds },
+          userId: { $exists: true },
+          isCustomerRead: { $exists: false },
         });
+      });
     },
 
     conversationLastStaff(root, args) {
