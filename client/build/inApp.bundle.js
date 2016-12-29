@@ -60629,6 +60629,8 @@
 	  value: true
 	});
 
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
 	var _templateObject = _taggedTemplateLiteral(['subscription notification {notification}'], ['subscription notification {notification}']);
 
 	var _graphqlTag = __webpack_require__(427);
@@ -60652,19 +60654,25 @@
 	var NotificationSubscriber = function (_Subscriber) {
 	  _inherits(NotificationSubscriber, _Subscriber);
 
-	  function NotificationSubscriber(props) {
+	  function NotificationSubscriber() {
 	    _classCallCheck(this, NotificationSubscriber);
 
-	    var _this = _possibleConstructorReturn(this, (NotificationSubscriber.__proto__ || Object.getPrototypeOf(NotificationSubscriber)).call(this, props));
-
-	    _this.subscribeToMoreOptions = {
-	      document: (0, _graphqlTag2.default)(_templateObject),
-	      updateQuery: function updateQuery() {
-	        _this.props.data.refetch();
-	      }
-	    };
-	    return _this;
+	    return _possibleConstructorReturn(this, (NotificationSubscriber.__proto__ || Object.getPrototypeOf(NotificationSubscriber)).apply(this, arguments));
 	  }
+
+	  _createClass(NotificationSubscriber, [{
+	    key: 'subscribeToMoreOptions',
+	    value: function subscribeToMoreOptions() {
+	      var _this2 = this;
+
+	      return {
+	        document: (0, _graphqlTag2.default)(_templateObject),
+	        updateQuery: function updateQuery() {
+	          _this2.props.data.refetch();
+	        }
+	      };
+	    }
+	  }]);
 
 	  return NotificationSubscriber;
 	}(_Subscriber3.default);
@@ -60704,7 +60712,6 @@
 	    var _this = _possibleConstructorReturn(this, (Subscriber.__proto__ || Object.getPrototypeOf(Subscriber)).call(this, props));
 
 	    _this.subscription = null;
-	    _this.subscribeToMoreOptions = {};
 	    return _this;
 	  }
 
@@ -60715,8 +60722,13 @@
 	        var subscribeToMore = this.props.data.subscribeToMore;
 
 
-	        this.subscription = [subscribeToMore(this.subscribeToMoreOptions)];
+	        this.subscription = [subscribeToMore(this.subscribeToMoreOptions())];
 	      }
+	    }
+	  }, {
+	    key: 'subscribeToMoreOptions',
+	    value: function subscribeToMoreOptions() {
+	      return {};
 	    }
 	  }]);
 
@@ -60782,39 +60794,59 @@
 	var Conversation = function (_Subscriber) {
 	  _inherits(Conversation, _Subscriber);
 
-	  function Conversation(props) {
+	  function Conversation() {
 	    _classCallCheck(this, Conversation);
 
-	    var _this = _possibleConstructorReturn(this, (Conversation.__proto__ || Object.getPrototypeOf(Conversation)).call(this, props));
-
-	    _this.subscribeToMoreOptions = {
-	      document: (0, _graphqlTag2.default)(_templateObject, messageQuery),
-
-	      variables: {
-	        conversationId: props.conversationId
-	      },
-
-	      // push new message to messages list when subscription updated
-	      updateQuery: function updateQuery(_previousResult, _ref) {
-	        var subscriptionData = _ref.subscriptionData;
-
-	        var previousResult = _previousResult;
-
-	        // get previous messages list
-	        var messages = previousResult.messages || [];
-
-	        // add new one
-	        messages.push(subscriptionData.data.messageInserted);
-
-	        previousResult.messages = messages;
-
-	        return previousResult;
-	      }
-	    };
-	    return _this;
+	    return _possibleConstructorReturn(this, (Conversation.__proto__ || Object.getPrototypeOf(Conversation)).apply(this, arguments));
 	  }
 
 	  _createClass(Conversation, [{
+	    key: 'subscribeOptions',
+	    value: function subscribeOptions(props) {
+	      return {
+	        document: (0, _graphqlTag2.default)(_templateObject, messageQuery),
+
+	        variables: {
+	          conversationId: props.conversationId
+	        },
+
+	        // push new message to messages list when subscription updated
+	        updateQuery: function updateQuery(_previousResult, _ref) {
+	          var subscriptionData = _ref.subscriptionData;
+
+	          var previousResult = _previousResult;
+
+	          // get previous messages list
+	          var messages = previousResult.messages || [];
+
+	          // add new one
+	          messages.push(subscriptionData.data.messageInserted);
+
+	          previousResult.messages = messages;
+
+	          return previousResult;
+	        }
+	      };
+	    }
+	  }, {
+	    key: 'componentWillReceiveProps',
+	    value: function componentWillReceiveProps(nextProps) {
+	      var props = this.props;
+	      var subscribeToMore = props.data.subscribeToMore;
+
+	      // first time subscription creation
+
+	      if (!this.subscription && !nextProps.data.loading) {
+	        this.subscription = [subscribeToMore(this.subscribeOptions(props))];
+	      }
+
+	      // when new conversation conversationId props will be null. So after first
+	      // message creation update subscription with new conversationId variable
+	      if (!props.conversationId && nextProps.conversationId) {
+	        this.subscription = [subscribeToMore(this.subscribeOptions(nextProps))];
+	      }
+	    }
+	  }, {
 	    key: 'render',
 	    value: function render() {
 	      var props = this.props;

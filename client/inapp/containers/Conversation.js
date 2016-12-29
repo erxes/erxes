@@ -27,10 +27,8 @@ const messageQuery = `
 
 
 class Conversation extends Subscriber {
-  constructor(props) {
-    super(props);
-
-    this.subscribeToMoreOptions = {
+  subscribeOptions(props) {
+    return {
       document: gql`
         subscription onMessageInserted($conversationId: String!) {
           messageInserted(conversationId: $conversationId) {
@@ -58,6 +56,22 @@ class Conversation extends Subscriber {
         return previousResult;
       },
     };
+  }
+
+  componentWillReceiveProps(nextProps) {
+    const props = this.props;
+    const { subscribeToMore } = props.data;
+
+    // first time subscription creation
+    if (!this.subscription && !nextProps.data.loading) {
+      this.subscription = [subscribeToMore(this.subscribeOptions(props))];
+    }
+
+    // when new conversation conversationId props will be null. So after first
+    // message creation update subscription with new conversationId variable
+    if (!props.conversationId && nextProps.conversationId) {
+      this.subscription = [subscribeToMore(this.subscribeOptions(nextProps))];
+    }
   }
 
   render() {

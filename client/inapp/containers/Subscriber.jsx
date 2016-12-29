@@ -5,15 +5,18 @@ export default class Subscriber extends React.Component {
     super(props);
 
     this.subscription = null;
-    this.subscribeToMoreOptions = {};
   }
 
   componentWillReceiveProps(nextProps) {
     if (!this.subscription && !nextProps.data.loading) {
       const { subscribeToMore } = this.props.data;
 
-      this.subscription = [subscribeToMore(this.subscribeToMoreOptions)];
+      this.subscription = [subscribeToMore(this.subscribeToMoreOptions())];
     }
+  }
+
+  subscribeToMoreOptions() {
+    return {};
   }
 }
 
