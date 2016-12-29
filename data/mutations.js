@@ -79,8 +79,7 @@ export default {
      */
     insertMessage(root, args) {
       const {
-        integrationId, customerId, conversationId,
-        message, attachments,
+        integrationId, customerId, conversationId, message, attachments,
       } = args;
 
       // get or create conversation

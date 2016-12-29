@@ -2,7 +2,10 @@ import { createClass } from 'asteroid';
 import settings from '../settings';
 
 const Asteroid = createClass();
-let asteroid;
+
+const asteroid = new Asteroid({
+  endpoint: settings.DDP_URL,
+});
 
 /**
  * Calls asteroid method
@@ -16,17 +19,4 @@ export const call = (name, ...params) => {
   }
 
   return asteroid.call(`api.${name}`, ...params);
-};
-
-/**
- * Connects to the DDP server
- * @param  {Object} options.settings
- * @param  {Object} options.dom
- */
-export const connect = () => {
-  asteroid = new Asteroid({
-    endpoint: settings.DDP_URL,
-  });
-
-  asteroid.ddp.on('connected', () => {});
 };

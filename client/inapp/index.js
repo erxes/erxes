@@ -7,7 +7,6 @@ import { ApolloProvider } from 'react-apollo';
 import thunkMiddleware from 'redux-thunk';
 import gql from 'graphql-tag';
 import client from '../apollo-client';
-import { connect } from '../erxes.js';
 import { connection } from './connection.js';
 import erxesReducers from './reducers';
 import { App } from './containers';
@@ -31,7 +30,6 @@ window.addEventListener('message', (event) => {
   // connect to api using passed settings
   if (event.data.fromPublisher) {
     const settings = event.data.settings;
-    connect({ ...settings });
 
     // call connect mutation
     client.mutate({

@@ -74,8 +74,6 @@
 
 	var _apolloClient2 = _interopRequireDefault(_apolloClient);
 
-	var _erxes = __webpack_require__(443);
-
 	var _connection = __webpack_require__(623);
 
 	var _reducers = __webpack_require__(461);
@@ -104,7 +102,6 @@
 	  // connect to api using passed settings
 	  if (event.data.fromPublisher) {
 	    var settings = event.data.settings;
-	    (0, _erxes.connect)(_extends({}, settings));
 
 	    // call connect mutation
 	    _apolloClient2.default.mutate({
@@ -38783,9 +38780,9 @@
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
-	exports.connect = exports.call = undefined;
+	exports.call = undefined;
 
-	var _asteroid2 = __webpack_require__(444);
+	var _asteroid = __webpack_require__(444);
 
 	var _settings = __webpack_require__(442);
 
@@ -38793,8 +38790,11 @@
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-	var Asteroid = (0, _asteroid2.createClass)();
-	var asteroid = void 0;
+	var Asteroid = (0, _asteroid.createClass)();
+
+	var asteroid = new Asteroid({
+	  endpoint: _settings2.default.DDP_URL
+	});
 
 	/**
 	 * Calls asteroid method
@@ -38803,8 +38803,6 @@
 	 * @return {Promise}
 	 */
 	var call = exports.call = function call(name) {
-	  var _asteroid;
-
 	  for (var _len = arguments.length, params = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
 	    params[_key - 1] = arguments[_key];
 	  }
@@ -38813,20 +38811,7 @@
 	    throw Error('Not connected to the DDP server');
 	  }
 
-	  return (_asteroid = asteroid).call.apply(_asteroid, ['api.' + name].concat(params));
-	};
-
-	/**
-	 * Connects to the DDP server
-	 * @param  {Object} options.settings
-	 * @param  {Object} options.dom
-	 */
-	var connect = exports.connect = function connect() {
-	  asteroid = new Asteroid({
-	    endpoint: _settings2.default.DDP_URL
-	  });
-
-	  asteroid.ddp.on('connected', function () {});
+	  return asteroid.call.apply(asteroid, ['api.' + name].concat(params));
 	};
 
 /***/ },
