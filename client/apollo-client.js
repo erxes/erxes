@@ -5,7 +5,7 @@ import { Client } from 'subscriptions-transport-ws';
 import addGraphQLSubscriptions from './subscriptions';
 import settings from '../settings';
 
-const wsClient = new Client(settings.WEBSOCKET_URL, {
+export const wsClient = new Client(settings.WEBSOCKET_URL, {
   reconnect: true,
 });
 

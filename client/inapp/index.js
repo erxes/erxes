@@ -6,7 +6,7 @@ import { createStore, combineReducers, applyMiddleware, compose } from 'redux';
 import { ApolloProvider } from 'react-apollo';
 import thunkMiddleware from 'redux-thunk';
 import gql from 'graphql-tag';
-import client from '../apollo-client';
+import client, { wsClient } from '../apollo-client';
 import { connection } from './connection.js';
 import erxesReducers from './reducers';
 import { App } from './containers';
@@ -51,6 +51,11 @@ window.addEventListener('message', (event) => {
       if (data.connect.integrationId && data.connect.customerId) {
         // save connection info
         connection.data = data.connect;
+
+        // send connected message to ws server and server will save given
+        // data to connection. So when connection closed, we will use
+        // customerId to mark customer as not active
+        wsClient.sendMessage({ type: 'inAppConnected', value: data.connect });
 
         // render root react component
         ReactDOM.render(

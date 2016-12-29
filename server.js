@@ -9,6 +9,7 @@ import cors from 'cors';
 import settings from './server-settings';
 import { subscriptionManager } from './data/subscription-manager';
 import schema from './data/schema';
+import { markCustomerAsNotActive } from './data/utils';
 
 const GRAPHQL_PORT = 8080;
 
@@ -67,5 +68,26 @@ const server = new SubscriptionServer( // eslint-disable-line no-unused-vars
   { subscriptionManager },
   httpServer
 );
+
+// receive inAppConnected message and save integrationId, customerId in
+// connection
+server.wsServer.on('connect', (connection) => {
+  connection.on('message', (message) => {
+    const parsedMessage = JSON.parse(message.utf8Data);
+
+    if (parsedMessage.type === 'inAppConnected') {
+      connection.inAppData = parsedMessage.value; // eslint-disable-line no-param-reassign
+    }
+  });
+});
+
+// mark customer as not active when connection close
+server.wsServer.on('close', (connection) => {
+  const inAppData = connection.inAppData;
+
+  if (inAppData) {
+    markCustomerAsNotActive(inAppData.customerId);
+  }
+});
 
 app.listen(GRAPHQL_PORT);

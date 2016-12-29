@@ -79,3 +79,19 @@ export const createMessage = (doc) => {
   // save and return newly created one
   return messageObj.save().then((_id) => Messages.findOne({ _id }));
 };
+
+
+// mark as not active when connection close
+export const markCustomerAsNotActive = (customerId) => {
+  Customers.update(
+    { _id: customerId },
+    {
+      $set: {
+        'inAppMessagingData.isActive': false,
+        'inAppMessagingData.lastSeenAt': new Date(),
+      },
+    },
+
+    () => {}
+  );
+};

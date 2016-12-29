@@ -118,6 +118,11 @@
 	        // save connection info
 	        _connection.connection.data = data.connect;
 
+	        // send connected message to ws server and server will save given
+	        // data to connection. So when connection closed, we will use
+	        // customerId to mark customer as not active
+	        _apolloClient.wsClient.sendMessage({ type: 'inAppConnected', value: data.connect });
+
 	        // render root react component
 	        _reactDom2.default.render(_react2.default.createElement(
 	          _reactApollo.ApolloProvider,
@@ -37910,6 +37915,7 @@
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
+	exports.wsClient = undefined;
 
 	var _apolloClient = __webpack_require__(207);
 
@@ -37929,7 +37935,7 @@
 
 	/* eslint-disable react/jsx-filename-extension */
 
-	var wsClient = new _subscriptionsTransportWs.Client(_settings2.default.WEBSOCKET_URL, {
+	var wsClient = exports.wsClient = new _subscriptionsTransportWs.Client(_settings2.default.WEBSOCKET_URL, {
 	  reconnect: true
 	});
 

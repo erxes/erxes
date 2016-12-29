@@ -33,21 +33,24 @@ export default {
         .then((customer) => {
           const now = new Date();
 
-          const inAppMessagingData = {
-            lastSeenAt: now,
-            isActive: true,
-          };
-
           // update customer
           if (customer) {
             // update inAppMessagingData
-            Customers.update(customer._id, { $set: { inAppMessagingData } });
+            Customers.update(
+              { _id: customer._id },
+              { $set: {
+                'inAppMessagingData.lastSeenAt': now,
+                'inAppMessagingData.isActive': true,
+              } },
+              () => {}
+            );
 
             if ((now - customer.inAppMessagingData.lastSeenAt) > 30 * 60 * 1000) {
               // update session count
               Customers.update(
-                customer._id,
-                { $inc: { 'inAppMessagingData.sessionCount': 1 } }
+                { _id: customer._id },
+                { $inc: { 'inAppMessagingData.sessionCount': 1 } },
+                () => {}
               );
             }
 
@@ -60,7 +63,7 @@ export default {
             email: args.email,
             name: args.name,
             integrationId,
-            inAppMessagingData: { ...inAppMessagingData, sessionCount: 1 },
+            inAppMessagingData: { lastSeenAt: now, isActive: true, sessionCount: 1 },
           });
 
           return customerObj.save();
