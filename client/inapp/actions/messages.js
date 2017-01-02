@@ -1,11 +1,9 @@
-import EJSON from 'meteor-ejson';
 import gql from 'graphql-tag';
 import { SENDING_ATTACHMENT, ATTACHMENT_SENT } from '../constants';
 import { connection } from '../connection';
 import { changeConversation } from './messenger';
-import { call } from '../../erxes';
 import client from '../../apollo-client';
-import uploadHandler from '../../uploadHandler';
+import uploadHandler, { uploadFile } from '../../uploadHandler';
 
 export const readMessages = conversationId =>
   // mark as read
@@ -63,13 +61,8 @@ export const sendFile = file =>
       uploadAction: ({ data, fileInfo }) => {
         dispatch({ type: SENDING_ATTACHMENT });
 
-        // file object
-        const doc = {
-          name: file.name,
-          data: EJSON.toJSONValue(data),
-        };
-
-        call('sendFile', doc).then(response => {
+        // upload to server
+        uploadFile({ name: file.name, data }, (response) => {
           dispatch({ type: ATTACHMENT_SENT });
 
           const attachment = Object.assign({ url: response.url }, fileInfo);
