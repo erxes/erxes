@@ -67,7 +67,7 @@ class Conversation extends Subscriber {
       this.subscription = [subscribeToMore(this.subscribeOptions(props))];
     }
 
-    // when new conversation conversationId props will be null. So after first
+    // when new conversation, conversationId props will be null. So after first
     // message creation update subscription with new conversationId variable
     if (!props.conversationId && nextProps.conversationId) {
       this.subscription = [subscribeToMore(this.subscribeOptions(nextProps))];

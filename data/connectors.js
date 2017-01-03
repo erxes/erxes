@@ -7,6 +7,7 @@ import settings from '../server-settings';
 Mongoose.connect(
   settings.MONGO_URL, {
     server: {
+      // after server reload, user must not reload widget manually
       auto_reconnect: true,
     },
   }

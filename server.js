@@ -11,7 +11,7 @@ import { subscriptionManager } from './data/subscription-manager';
 import schema from './data/schema';
 import { markCustomerAsNotActive } from './data/utils';
 
-const GRAPHQL_PORT = 8080;
+const GRAPHQL_PORT = settings.GRAPHQL_PORT;
 
 const app = express();
 
@@ -52,8 +52,10 @@ app.use('/graphiql', graphiqlExpress({
   endpointURL: '/graphql',
 }));
 
+app.listen(GRAPHQL_PORT);
+
 // websocket server
-const WS_PORT = process.env.WS_PORT || 3010;
+const WS_PORT = settings.WS_PORT;
 
 const httpServer = createServer((request, response) => {
   response.writeHead(404);
@@ -64,6 +66,7 @@ httpServer.listen(WS_PORT, () => console.log( // eslint-disable-line no-console
   `Websocket Server is now running on http://localhost:${WS_PORT}`
 ));
 
+// subscription server
 const server = new SubscriptionServer( // eslint-disable-line no-unused-vars
   { subscriptionManager },
   httpServer
@@ -89,5 +92,3 @@ server.wsServer.on('close', (connection) => {
     markCustomerAsNotActive(inAppData.customerId);
   }
 });
-
-app.listen(GRAPHQL_PORT);
