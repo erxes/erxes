@@ -1,6 +1,6 @@
 import { makeExecutableSchema } from 'graphql-tools';
-import queries from './queries';
-import mutations from './mutations';
+import inAppQueries from './inapp-queries';
+import inAppMutations from './inapp-mutations';
 import subscriptions from './subscriptions';
 import customTypes from './custom-types';
 
@@ -62,13 +62,13 @@ const typeDefs = `
     conversationLastStaff(_id: String): User
   }
 
-  type ConnectResponse {
+  type InAppConnectResponse {
     integrationId: String!
     customerId: String!
   }
 
   type Mutation {
-    connect(brandCode: String!, email: String!, data: JSON): ConnectResponse
+    inAppConnect(brandCode: String!, email: String!, data: JSON): InAppConnectResponse
 
     simulateInsertMessage(messageId: String): Message
 
@@ -96,8 +96,8 @@ const typeDefs = `
 
 const resolvers = {
   ...customTypes,
-  ...queries,
-  ...mutations,
+  ...inAppQueries,
+  ...inAppMutations,
   ...subscriptions,
 };
 

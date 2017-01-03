@@ -2,28 +2,13 @@
 
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { createStore, combineReducers, applyMiddleware, compose } from 'redux';
 import { ApolloProvider } from 'react-apollo';
-import thunkMiddleware from 'redux-thunk';
 import gql from 'graphql-tag';
-import client, { wsClient } from '../apollo-client';
+import client, { wsClient, createStore } from '../apollo-client';
 import { connection } from './connection.js';
 import erxesReducers from './reducers';
 import { App } from './containers';
 import './sass/style.scss';
-
-// create store
-// combine local reducers with apollo reducers
-const store = createStore(
-	combineReducers({ ...erxesReducers, apollo: client.reducer() }),
-	{}, // initial state
-	compose(
-		applyMiddleware(client.middleware()),
-		applyMiddleware(thunkMiddleware),
-		// If you are using the devToolsExtension, you can add it here also
-		window.devToolsExtension ? window.devToolsExtension() : f => f
-	)
-);
 
 // listen for widget toggle
 window.addEventListener('message', (event) => {
@@ -35,7 +20,7 @@ window.addEventListener('message', (event) => {
     client.mutate({
       mutation: gql`
         mutation connect($brandCode: String!, $email: String!) {
-          connect(brandCode: $brandCode, email: $email) {
+          inAppConnect(brandCode: $brandCode, email: $email) {
             integrationId,
             customerId,
           }
@@ -48,18 +33,19 @@ window.addEventListener('message', (event) => {
     })
 
     .then(({ data }) => {
-      if (data.connect.integrationId && data.connect.customerId) {
+      const inAppData = data.inAppConnect;
+      if (inAppData.integrationId && inAppData.customerId) {
         // save connection info
-        connection.data = data.connect;
+        connection.data = inAppData;
 
         // send connected message to ws server and server will save given
         // data to connection. So when connection closed, we will use
         // customerId to mark customer as not active
-        wsClient.sendMessage({ type: 'inAppConnected', value: data.connect });
+        wsClient.sendMessage({ type: 'inAppConnected', value: inAppData });
 
         // render root react component
         ReactDOM.render(
-          <ApolloProvider store={store} client={client}>
+          <ApolloProvider store={createStore(erxesReducers)} client={client}>
             <App />
           </ApolloProvider>,
           document.getElementById('root')

@@ -16,7 +16,7 @@ export default {
     /*
      * create or update customer info, when connection establish
      */
-    connect(root, args) {
+    inAppConnect(root, args) {
       let integrationId;
 
       // find integration
