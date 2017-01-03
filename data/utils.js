@@ -8,20 +8,98 @@ const CONVERSATION_STATUSES = {
   ALL_LIST: ['new', 'open', 'closed'],
 };
 
-export const getIntegration = (brandCode) =>
+/*
+ * Get integration by brandCode and integration kind
+ */
+
+export const getIntegration = (brandCode, kind) =>
   Brands.findOne({ code: brandCode })
     .then(brand =>
       // find integration by brand
       Integrations.findOne({
         brandId: brand._id,
-        kind: 'in_app_messaging',
+        kind,
       })
     );
 
 
+/*
+ * Get customer
+ */
+
 export const getCustomer = (integrationId, email) =>
   Customers.findOne({ email, integrationId });
 
+
+/*
+ * Create new customer
+ */
+
+export const createCustomer = ({ integrationId, email, name }) => {
+  // create new customer
+  const customerObj = new Customers({
+    createdAt: new Date,
+    email,
+    name,
+    integrationId,
+    inAppMessagingData: {
+      lastSeenAt: new Date(),
+      isActive: true,
+      sessionCount: 1,
+    },
+  });
+
+  return customerObj.save();
+};
+
+
+/*
+ * Get or create customer
+ */
+
+export const getOrCreateCustomer = (doc) => {
+  const { integrationId, email } = doc;
+
+  // try to find by integrationId and email
+  return getCustomer(integrationId, email)
+    .then((customerId) => {
+      // if found
+      if (customerId) {
+        return Promise.resolve(customerId);
+      }
+
+      // if not, create new
+      return createCustomer(doc);
+    });
+};
+
+
+/*
+ * Create new conversation
+ */
+
+export const createConversation = (doc) => {
+  const { integrationId, customerId, content } = doc;
+
+  // create conversation object
+  const conversationObj = new Conversations({
+    customerId,
+    integrationId,
+    content,
+    status: CONVERSATION_STATUSES.NEW,
+    createdAt: new Date(),
+    number: Conversations.find().count() + 1,
+    messageCount: 0,
+  });
+
+  // save conversation
+  return conversationObj.save();
+};
+
+
+/*
+ * Get or create conversation
+ */
 
 export const getOrCreateConversation = (doc) => {
   const { conversationId, integrationId, customerId, message } = doc;
@@ -42,21 +120,18 @@ export const getOrCreateConversation = (doc) => {
     return Promise.resolve(doc.conversationId);
   }
 
-  // create conversation object
-  const conversationObj = new Conversations({
+  // create conversation
+  return createConversation({
     customerId,
     integrationId,
     content: message,
-    status: CONVERSATION_STATUSES.NEW,
-    createdAt: new Date(),
-    number: Conversations.find().count() + 1,
-    messageCount: 0,
   });
-
-  // save conversation
-  return conversationObj.save();
 };
 
+
+/*
+ * Create new message
+ */
 
 export const createMessage = (doc) => {
   const { conversationId, customerId, message, attachments } = doc;
@@ -81,7 +156,35 @@ export const createMessage = (doc) => {
 };
 
 
-// mark as not active when connection close
+/*
+ * Create conversation and message
+ */
+
+export const createConversationWithMessage = (doc) => {
+  const { integrationId, customerId, content } = doc;
+
+  // create conversation
+  return createConversation({
+    customerId,
+    integrationId,
+    content,
+  })
+
+  // create message
+  .then((conversationId) =>
+    createMessage({
+      conversationId,
+      customerId,
+      message: content,
+    })
+  );
+};
+
+
+/*
+ * mark as not active when connection close
+ */
+
 export const markCustomerAsNotActive = (customerId) => {
   Customers.update(
     { _id: customerId },

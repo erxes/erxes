@@ -6,6 +6,8 @@ module.exports = {
   entry: {
     inApp: './client/inapp/index.js',
     inAppWidget: './client/inapp/widget/index.js',
+    chat: './client/chat/index.js',
+    chatWidget: './client/chat/widget/index.js',
   },
 
   output: {

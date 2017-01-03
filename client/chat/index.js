@@ -4,7 +4,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import { ApolloProvider } from 'react-apollo';
 import gql from 'graphql-tag';
-import client, { wsClient, createStore } from '../apollo-client';
+import client, { createStore } from '../apollo-client';
 import { connection } from './connection.js';
 import erxesReducers from './reducers';
 import { App } from './containers';
@@ -19,33 +19,24 @@ window.addEventListener('message', (event) => {
     // call connect mutation
     client.mutate({
       mutation: gql`
-        mutation connect($brandCode: String!, $email: String!) {
-          inAppConnect(brandCode: $brandCode, email: $email) {
-            integrationId,
-            customerId,
-          }
+        mutation chatConnect($brandCode: String!) {
+          chatConnect(brandCode: $brandCode)
         }`,
 
       variables: {
         brandCode: settings.brand_id,
-        email: settings.email,
       },
     })
 
     .then(({ data }) => {
-      const inAppData = data.inAppConnect;
+      const integrationId = data.chatConnect;
 
-      if (!inAppData) {
+      if (!integrationId) {
         throw new Error('Integration not found');
       }
 
       // save connection info
-      connection.data = inAppData;
-
-      // send connected message to ws server and server will save given
-      // data to connection. So when connection closed, we will use
-      // customerId to mark customer as not active
-      wsClient.sendMessage({ type: 'inAppConnected', value: inAppData });
+      connection.data = { integrationId };
 
       // render root react component
       ReactDOM.render(

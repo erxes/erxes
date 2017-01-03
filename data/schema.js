@@ -1,6 +1,7 @@
 import { makeExecutableSchema } from 'graphql-tools';
 import inAppQueries from './inapp-queries';
 import inAppMutations from './inapp-mutations';
+import ChatMutations from './chat-mutations';
 import subscriptions from './subscriptions';
 import customTypes from './custom-types';
 
@@ -69,14 +70,14 @@ const typeDefs = `
 
   type Mutation {
     inAppConnect(brandCode: String!, email: String!, data: JSON): InAppConnectResponse
+    insertMessage(integrationId: String!, customerId: String!,
+      conversationId: String!, message: String, attachments: [AttachmentInput]): Message
 
     simulateInsertMessage(messageId: String): Message
-
-    insertMessage(integrationId: String!, customerId: String!,
-      conversationId: String!, message: String, attachments: [AttachmentInput]
-      ): Message
-
     readConversationMessages(conversationId: String): String
+
+    chatConnect(brandCode: String!): String
+    chatCreateConversation(integrationId: String!, email: String!, content: String!): Message
   }
 
   # subscriptions
@@ -97,7 +98,10 @@ const typeDefs = `
 const resolvers = {
   ...customTypes,
   ...inAppQueries,
-  ...inAppMutations,
+  Mutation: {
+    ...inAppMutations,
+    ...ChatMutations,
+  },
   ...subscriptions,
 };
 
