@@ -4,10 +4,7 @@ export default class Form extends React.Component {
   constructor(props) {
     super(props);
 
-    this.state = {
-      content: '',
-      showEmailInput: false,
-    };
+    this.state = { content: '', showEmailInput: false };
 
     this.onSubmit = this.onSubmit.bind(this);
   }
@@ -33,6 +30,10 @@ export default class Form extends React.Component {
   }
 
   renderContent() {
+    if (this.props.isConversationSent) {
+      return <span>Thanks</span>;
+    }
+
     if (this.state.showEmailInput) {
       return <input type="email" />;
     }
@@ -70,4 +71,5 @@ export default class Form extends React.Component {
 
 Form.propTypes = {
   createConversation: PropTypes.func.isRequired,
+  isConversationSent: PropTypes.bool.isRequired,
 };

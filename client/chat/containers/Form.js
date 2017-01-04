@@ -2,6 +2,9 @@ import { connect } from 'react-redux';
 import { createConversation } from '../actions/index';
 import { Form } from '../components';
 
+const mapStateToProps = state => ({
+  isConversationSent: state.isConversationSent,
+});
 
 const mapDisptachToProps = dispatch => ({
   createConversation(content) {
@@ -9,4 +12,4 @@ const mapDisptachToProps = dispatch => ({
   },
 });
 
-export default connect(() => ({}), mapDisptachToProps)(Form);
+export default connect(mapStateToProps, mapDisptachToProps)(Form);

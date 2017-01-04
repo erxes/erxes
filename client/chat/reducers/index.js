@@ -1,6 +1,4 @@
-import {
-  FORM_TOGGLE,
-} from '../constants';
+import { FORM_TOGGLE, CONVERSATION_SENT } from '../constants';
 
 
 /**
@@ -16,8 +14,22 @@ const isVisible = (state = false, action) => {
   }
 };
 
+/**
+ * Indicates whether a conversation is created successfully
+ */
+const isConversationSent = (state = false, action) => {
+  switch (action.type) {
+    case CONVERSATION_SENT:
+      return true;
+
+    default:
+      return state;
+  }
+};
+
 const form = {
   isVisible,
+  isConversationSent,
 };
 
 export default form;

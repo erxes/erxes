@@ -1,5 +1,5 @@
 import gql from 'graphql-tag';
-import { FORM_TOGGLE } from '../constants';
+import { FORM_TOGGLE, CONVERSATION_SENT } from '../constants';
 import client from '../../apollo-client';
 import { connection } from '../connection';
 
@@ -16,7 +16,7 @@ export const toggle = (isVisible) => {
 };
 
 export const createConversation = (doc) =>
-  () =>
+  (dispatch) =>
     client.mutate({
       mutation: gql`
         mutation chatCreateConversation(${connection.queryVariables},
@@ -31,4 +31,9 @@ export const createConversation = (doc) =>
         ...connection.data,
         ...doc,
       },
+    })
+
+    .then(() => {
+      // notify as sent
+      dispatch({ type: CONVERSATION_SENT });
     });

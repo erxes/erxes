@@ -54,7 +54,7 @@ const typeDefs = `
     internal: Boolean
   }
 
-  # the schema allows the following two queries:
+  # the schema allows the following queries:
   type RootQuery {
     conversations(integrationId: String!, customerId: String!): [Conversation]
     totalUnreadCount(integrationId: String!, customerId: String!): Int
@@ -98,11 +98,11 @@ const typeDefs = `
 const resolvers = {
   ...customTypes,
   ...inAppQueries,
+  ...subscriptions,
   Mutation: {
     ...inAppMutations,
     ...ChatMutations,
   },
-  ...subscriptions,
 };
 
 const executableSchema = makeExecutableSchema({
