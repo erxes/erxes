@@ -11,7 +11,7 @@ import { CONVERSATION_STATUSES } from './constants';
 import { Messages, FormSchema } from './messages';
 
 if (Meteor.isServer) {
-  import { sendNotification } from '/imports/api/server/utils';
+  import { sendNotification, sendEmail } from '/imports/api/server/utils';
   import { tweetReply } from '/imports/api/integrations/server/social_api/twitter';
   import { facebookReply } from '/imports/api/integrations/server/social_api/facebook';
 }
@@ -62,7 +62,7 @@ export const addMessage = new ValidatedMethod({
     doc.content = content;
     doc.attachments = attachments;
 
-    // if there is not attachments and no content then throw content required
+    // if there is no attachments and no content then throw content required
     // error
     if (attachments.length === 0 && !content.trim()) {
       throw new Meteor.Error(
@@ -71,11 +71,11 @@ export const addMessage = new ValidatedMethod({
       );
     }
 
-    // send notification
     if (Meteor.isServer) {
       const messagedUser = Meteor.users.findOne({ _id: this.userId });
       const title = `${messagedUser.details.fullName} reflected on a conversation`;
 
+      // send notification
       sendNotification({
         createdUser: this.userId,
         notifType: 'conversationAddMessage',
@@ -93,6 +93,25 @@ export const addMessage = new ValidatedMethod({
       }
 
       const messageId = Messages.insert({ ...doc, userId });
+
+      // if conversation's integration kind is chat, then send reply to
+      // customer's email
+      if (integration.kind === KIND_CHOICES.CHAT) {
+        sendEmail({
+          to: conversation.customer.email,
+          subject: 'Reply',
+          template: {
+            name: 'notification',
+            data: {
+              notification: {
+                title: 'reply',
+                content,
+                date: new Date(),
+              },
+            },
+          },
+        });
+      }
 
       // send reply to facebook
       if (integration.kind === KIND_CHOICES.FACEBOOK) {
@@ -147,7 +166,6 @@ export const assign = new ValidatedMethod({
     );
 
     if (Meteor.isServer) {
-      const selector = { _id: { $in: conversationIds } };
       const updatedConversations = Conversations.find(selector).fetch();
 
       // send notification
