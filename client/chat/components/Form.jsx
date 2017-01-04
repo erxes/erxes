@@ -10,23 +10,37 @@ export default class Form extends React.Component {
   }
 
   onSubmit() {
+    const { cachedEmail, cacheEmail, createConversation } = this.props;
+    const contentTextArea = document.querySelector('.erxes-form textarea');
+    const content = contentTextArea ? contentTextArea.value : '';
+
+    // if email prevously saved, then create conversation with content
+    // and cached email
+    if (cachedEmail) {
+      return createConversation({
+        content,
+        email: cachedEmail,
+      });
+    }
+
     // first ask for content then show email input
     if (!this.state.showEmailInput) {
-      const content = document.querySelector('.erxes-form textarea').value;
-
       return this.setState({ showEmailInput: true, content });
     }
 
     const email = document.querySelector('.erxes-form input[type="email"]').value;
 
     if (email) {
-      return this.props.createConversation({
+      // save email for later use
+      cacheEmail(email);
+
+      return createConversation({
         content: this.state.content,
         email,
       });
     }
 
-    return 'email is required';
+    return null;
   }
 
   renderContent() {
@@ -71,5 +85,7 @@ export default class Form extends React.Component {
 
 Form.propTypes = {
   createConversation: PropTypes.func.isRequired,
+  cacheEmail: PropTypes.func.isRequired,
+  cachedEmail: PropTypes.string,
   isConversationSent: PropTypes.bool.isRequired,
 };

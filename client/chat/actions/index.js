@@ -1,5 +1,6 @@
 import gql from 'graphql-tag';
 import { FORM_TOGGLE, CONVERSATION_SENT } from '../constants';
+import { EMAIL_LOCAL_STORAGE_KEY } from '../constants';
 import client from '../../apollo-client';
 import { connection } from '../connection';
 
@@ -37,3 +38,8 @@ export const createConversation = (doc) =>
       // notify as sent
       dispatch({ type: CONVERSATION_SENT });
     });
+
+
+export const cacheEmail = (email) =>
+  () =>
+    localStorage.setItem(EMAIL_LOCAL_STORAGE_KEY, email);

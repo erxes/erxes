@@ -22,7 +22,7 @@ export default {
     const { integrationId, email, content } = args;
 
     // get or create customer
-    return getOrCreateCustomer(integrationId, email)
+    return getOrCreateCustomer({ integrationId, email })
 
       // create chat conversation
       .then((customerId) =>

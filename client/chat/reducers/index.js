@@ -1,4 +1,5 @@
 import { FORM_TOGGLE, CONVERSATION_SENT } from '../constants';
+import { EMAIL_LOCAL_STORAGE_KEY } from '../constants';
 
 
 /**
@@ -27,9 +28,13 @@ const isConversationSent = (state = false, action) => {
   }
 };
 
+const cachedEmail = () =>
+  localStorage.getItem(EMAIL_LOCAL_STORAGE_KEY);
+
 const form = {
   isVisible,
   isConversationSent,
+  cachedEmail,
 };
 
 export default form;
