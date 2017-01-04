@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "description": "Apollo Api",
   "scripts": {
-    "start": "nodemon ./server.js --exec babel-node"
+    "start": "nodemon ./server.js --exec babel-node & webpack"
   },
   "keywords": [
     "Node.js",
