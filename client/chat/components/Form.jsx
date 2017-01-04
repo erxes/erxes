@@ -1,4 +1,5 @@
 import React, { PropTypes } from 'react';
+import { CONVERSATION_SENT } from '../constants';
 
 export default class Form extends React.Component {
   constructor(props) {
@@ -7,6 +8,7 @@ export default class Form extends React.Component {
     this.state = { content: '', showEmailInput: false };
 
     this.onSubmit = this.onSubmit.bind(this);
+    this.onNewConversation = this.onNewConversation.bind(this);
   }
 
   onSubmit() {
@@ -43,16 +45,49 @@ export default class Form extends React.Component {
     return null;
   }
 
+  onNewConversation() {
+    this.props.newConversation();
+
+    // reset states
+    this.setState({ content: '', showEmailInput: false });
+  }
+
   renderContent() {
-    if (this.props.isConversationSent) {
-      return <span>Thanks</span>;
+    const status = this.props.status;
+
+    const sendButton = (
+      <button type="button" onClick={this.onSubmit}>
+        Send
+      </button>
+    );
+
+    const newConversationButton = (
+      <button type="button" onClick={this.onNewConversation}>
+        New conversation
+      </button>
+    );
+
+    if (status === CONVERSATION_SENT) {
+      return (
+        <div>
+          <span>Thanks</span>{newConversationButton}
+        </div>
+      );
     }
 
     if (this.state.showEmailInput) {
-      return <input type="email" />;
+      return (
+        <div>
+          <input type="email" />{sendButton}
+        </div>
+      );
     }
 
-    return <textarea></textarea>;
+    return (
+      <div>
+        <textarea></textarea>{sendButton}
+      </div>
+    );
   }
 
   render() {
@@ -76,8 +111,6 @@ export default class Form extends React.Component {
         {topBar}
 
         {this.renderContent()}
-
-        <button type="button" onClick={this.onSubmit}>Send</button>
       </div>
     );
   }
@@ -86,6 +119,7 @@ export default class Form extends React.Component {
 Form.propTypes = {
   createConversation: PropTypes.func.isRequired,
   cacheEmail: PropTypes.func.isRequired,
+  newConversation: PropTypes.func.isRequired,
   cachedEmail: PropTypes.string,
-  isConversationSent: PropTypes.bool.isRequired,
+  status: PropTypes.string.isRequired,
 };

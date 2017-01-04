@@ -1,5 +1,5 @@
-import { FORM_TOGGLE, CONVERSATION_SENT } from '../constants';
-import { EMAIL_LOCAL_STORAGE_KEY } from '../constants';
+import { FORM_TOGGLE, EMAIL_LOCAL_STORAGE_KEY } from '../constants';
+import { NEW_CONVERSATION, STATUS_CHANGED } from '../constants';
 
 
 /**
@@ -16,12 +16,12 @@ const isVisible = (state = false, action) => {
 };
 
 /**
- * Indicates whether a conversation is created successfully
+ * Indicates whether a conversation is created successfully or creating again
  */
-const isConversationSent = (state = false, action) => {
+const status = (state = NEW_CONVERSATION, action) => {
   switch (action.type) {
-    case CONVERSATION_SENT:
-      return true;
+    case STATUS_CHANGED:
+      return action.status;
 
     default:
       return state;
@@ -33,7 +33,7 @@ const cachedEmail = () =>
 
 const form = {
   isVisible,
-  isConversationSent,
+  status,
   cachedEmail,
 };
 

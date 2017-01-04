@@ -1,6 +1,6 @@
 import gql from 'graphql-tag';
 import { FORM_TOGGLE, CONVERSATION_SENT } from '../constants';
-import { EMAIL_LOCAL_STORAGE_KEY } from '../constants';
+import { EMAIL_LOCAL_STORAGE_KEY, NEW_CONVERSATION, STATUS_CHANGED } from '../constants';
 import client from '../../apollo-client';
 import { connection } from '../connection';
 
@@ -36,10 +36,21 @@ export const createConversation = (doc) =>
 
     .then(() => {
       // notify as sent
-      dispatch({ type: CONVERSATION_SENT });
+      dispatch({
+        type: STATUS_CHANGED,
+        status: CONVERSATION_SENT,
+      });
     });
 
 
 export const cacheEmail = (email) =>
   () =>
     localStorage.setItem(EMAIL_LOCAL_STORAGE_KEY, email);
+
+
+export const newConversation = () =>
+  (dispatch) =>
+    dispatch({
+      type: STATUS_CHANGED,
+      status: NEW_CONVERSATION,
+    });
