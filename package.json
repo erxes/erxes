@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "description": "Apollo Api",
   "scripts": {
-    "start": "nodemon ./server.js --exec babel-node & webpack",
+    "start": "node ./server.js --exec babel-node & webpack",
     "test": "./node_modules/.bin/mocha data/tests --reporter spec --compilers js:babel-core/register"
   },
   "keywords": [

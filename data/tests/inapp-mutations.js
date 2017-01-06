@@ -223,4 +223,63 @@ describe('Mutations', () => {
       });
     });
   });
+
+  describe('readConversationMessages', () => {
+    let conversationId;
+
+    beforeEach((done) => {
+      createConversation({
+        integrationId,
+        customerId, content } = doc;
+
+      expectPromise(done, Promise.all([p1, p2, p3]), () => { done(); });
+    });
+
+    return Messages.update(
+      {
+        conversationId: args.conversationId,
+        userId: { $exists: true },
+        isCustomerRead: { $exists: false },
+      },
+    );
+
+    it('readConversationMessages', (done) => {
+      const message = 'hi';
+      const attachments = [{ url: 'url' }];
+      const args = { integrationId, customerId, message, attachments };
+
+      // call mutation
+      expectPromise(
+        done,
+        inAppMutations.insertMessage({}, args),
+        (messageObj) => {
+          // check message fields
+          expect(messageObj.content).to.equal(message);
+          expect(messageObj.attachments[0].url).to.equal(attachments[0].url);
+          expect(messageObj.conversationId).to.not.equal(undefined);
+          expect(messageObj.createdAt).to.not.equal(undefined);
+          expect(messageObj.customerId).to.equal(customerId);
+          expect(messageObj.internal).to.equal(false);
+
+          // must be created 1 conversation
+          const p1 = Conversations.find().count().then((count) => {
+            expect(count).to.equal(1);
+          });
+
+          // check conversation fields
+          const p2 = Conversations.findOne({}).then((conversation) => {
+            expect(conversation.customerId).to.equal(customerId);
+            expect(conversation.integrationId).to.equal(integrationId);
+            expect(conversation.integrationId).to.equal(integrationId);
+            expect(conversation.content).to.equal(message);
+            expect(conversation.status).to.equal('new');
+            expect(conversation.number).to.equal(1);
+            expect(conversation.messageCount).to.equal(0);
+            expect(messageObj.createdAt).to.not.equal(undefined);
+          });
+
+          expectPromise(done, Promise.all([p1, p2]), () => { done(); });
+        });
+    });
+  });
 });
