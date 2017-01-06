@@ -1,21 +1,19 @@
 import React, { PropTypes } from 'react';
 import { Button } from 'react-bootstrap';
-import { TaggerPopover, EmptyState } from '/imports/react-ui/common';
-import { AssignBoxPopover } from '../';
+import { TaggerPopover, EmptyState, ConversationsList } from '/imports/react-ui/common';
 import { Wrapper } from '/imports/react-ui/layout/components';
+import { AssignBoxPopover } from '../';
 import { Resolver } from '../../containers';
 import Sidebar from './Sidebar.jsx';
-import ListRow from './Row.jsx';
 
 
 const propTypes = {
   conversations: PropTypes.array.isRequired,
   channels: PropTypes.array.isRequired,
   brands: PropTypes.array.isRequired,
-  starredConversationIds: PropTypes.array.isRequired,
   tags: PropTypes.array.isRequired,
   channelId: PropTypes.string,
-  userId: PropTypes.string,
+  user: PropTypes.object,
   bulk: PropTypes.array.isRequired,
   toggleBulk: PropTypes.func.isRequired,
   emptyBulk: PropTypes.func.isRequired,
@@ -25,11 +23,10 @@ function List(props) {
   const {
     conversations,
     channels,
-    starredConversationIds,
     tags,
     channelId,
     brands,
-    userId,
+    user,
     bulk,
     toggleBulk,
     emptyBulk,
@@ -56,7 +53,7 @@ function List(props) {
         targets={targets}
         trigger={
           <Button bsStyle="link">
-            <i className="ion-pricetags"></i> Tag <span className="caret"></span>
+            <i className="ion-pricetags" /> Tag <span className="caret" />
           </Button>
         }
         afterSave={emptyBulk}
@@ -66,7 +63,7 @@ function List(props) {
         targets={targets}
         trigger={
           <Button bsStyle="link">
-            <i className="ion-person"></i> Assign <span className="caret"></span>
+            <i className="ion-person" /> Assign <span className="caret" />
           </Button>
         }
         afterSave={emptyBulk}
@@ -77,23 +74,12 @@ function List(props) {
   const actionBar = <Wrapper.ActionBar left={actionBarLeft} />;
 
   const content = (
-    <ul className="conversations-list">
-      {
-        conversations.map(conv =>
-          <ListRow
-            starred={starredConversationIds.indexOf(conv._id) !== -1}
-            conversation={conv}
-            key={conv._id}
-            toggleBulk={toggleBulk}
-            channelId={channelId}
-            isParticipate={
-              conv.participatedUserIds && conv.participatedUserIds.indexOf(userId) > -1
-            }
-            isRead={conv.readUserIds && conv.readUserIds.indexOf(userId) > -1}
-          />
-        )
-      }
-    </ul>
+    <ConversationsList
+      conversations={conversations}
+      user={user}
+      channelId={channelId}
+      toggleBulk={toggleBulk}
+    />
   );
 
   const empty = (
