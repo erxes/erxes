@@ -21,15 +21,29 @@ export const addInAppMessaging = new ValidatedMethod({
   mixins: [ErxesMixin],
 
   validate({ doc }) {
-    check(doc, {
-      name: String,
-      brandId: String,
-    });
+    check(doc, { name: String, brandId: String });
   },
 
   run({ doc }) {
     return Integrations.insert(
       _.extend(doc, { kind: KIND_CHOICES.IN_APP_MESSAGING })
+    );
+  },
+});
+
+
+// add chat
+export const addChat = new ValidatedMethod({
+  name: 'integrations.addChat',
+  mixins: [ErxesMixin],
+
+  validate({ doc }) {
+    check(doc, { name: String, brandId: String });
+  },
+
+  run({ doc }) {
+    return Integrations.insert(
+      _.extend(doc, { kind: KIND_CHOICES.CHAT })
     );
   },
 });
@@ -40,10 +54,7 @@ export const addTwitter = new ValidatedMethod({
   mixins: [ErxesMixin],
 
   validate(doc) {
-    check(doc, {
-      brandId: String,
-      queryParams: Object,
-    });
+    check(doc, { brandId: String, queryParams: Object });
   },
 
   run({ brandId, queryParams }) {

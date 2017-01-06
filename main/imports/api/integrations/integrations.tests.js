@@ -9,7 +9,7 @@ import { assert } from 'meteor/practicalmeteor:chai';
 
 import { Integrations } from './integrations';
 import { KIND_CHOICES } from './constants';
-import { addInAppMessaging, remove } from './server/methods';
+import { addInAppMessaging, addChat, remove } from './server/methods';
 import { addFacebook, addTwitter } from './server/methods';
 import twitter from './server/social_api/twitter';
 
@@ -36,6 +36,19 @@ if (Meteor.isServer) {
 
         // check field values
         assert.equal(integration.kind, KIND_CHOICES.IN_APP_MESSAGING);
+        assert.equal(integration.brandId, brandId);
+      });
+
+      it('add chat', function () {
+        addChat._execute(
+          { userId },
+          { doc: { name: 'Foo', brandId } }
+        );
+
+        const integration = Integrations.findOne({ name: 'Foo' });
+
+        // check field values
+        assert.equal(integration.kind, KIND_CHOICES.CHAT);
         assert.equal(integration.brandId, brandId);
       });
 
