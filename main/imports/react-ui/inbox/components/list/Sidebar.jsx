@@ -16,7 +16,7 @@ const propTypes = {
 function Sidebar({ channels, tags, brands }) {
   return (
     <Wrapper.Sidebar>
-      <Wrapper.Sidebar.Section collapsible length={channels.length}>
+      <Wrapper.Sidebar.Section collapsible={channels.length > 5}>
         <h3>
           Channels
           <a href={FlowRouter.path('inbox/list')} className="quick-button">
@@ -47,7 +47,7 @@ function Sidebar({ channels, tags, brands }) {
           }
         </ul>
       </Wrapper.Sidebar.Section>
-      <Wrapper.Sidebar.Section collapsible length={brands.length}>
+      <Wrapper.Sidebar.Section collapsible={brands.length > 5}>
         <h3>
           Brands
           <a href="/inbox" className="quick-button">
@@ -120,7 +120,7 @@ function Sidebar({ channels, tags, brands }) {
           </li>
         </ul>
       </Wrapper.Sidebar.Section>
-      <Wrapper.Sidebar.Section collapsible length={tags.length}>
+      <Wrapper.Sidebar.Section collapsible={tags.length > 5}>
         <h3>
           Filter by tags
           <a href={FlowRouter.path('tags/list', { type: 'conversation' })} className="quick-button">

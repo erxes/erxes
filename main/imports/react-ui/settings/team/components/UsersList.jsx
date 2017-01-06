@@ -2,7 +2,7 @@ import React, { PropTypes, Component } from 'react';
 import { Button, Table } from 'react-bootstrap';
 import { Wrapper } from '/imports/react-ui/layout/components';
 import { ModalTrigger, Pagination } from '/imports/react-ui/common';
-import { InviteForm } from '../components';
+import { InviteForm } from '../containers';
 import Sidebar from '../../Sidebar.jsx';
 import Row from './Row.jsx';
 
