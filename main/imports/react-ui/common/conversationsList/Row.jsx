@@ -2,14 +2,15 @@ import React, { PropTypes, Component } from 'react';
 import moment from 'moment';
 import { FlowRouter } from 'meteor/kadira:flow-router';
 import { NameCard, Tags } from '/imports/react-ui/common';
-import { Starrer } from '../../containers';
-import { Assignees } from '../../components';
 import { Tags as TagsCollection } from '/imports/api/tags/tags';
+import Starrer from './Starrer';
+import Participate from './Participate.jsx';
+import Assignees from './Assignees.jsx';
 
 
 const propTypes = {
   conversation: PropTypes.object.isRequired,
-  toggleBulk: PropTypes.func.isRequired,
+  toggleBulk: PropTypes.func,
   starred: PropTypes.bool.isRequired,
   channelId: PropTypes.string,
   isRead: PropTypes.bool,
@@ -22,6 +23,7 @@ class Row extends Component {
 
     this.goDetail = this.goDetail.bind(this);
     this.toggleBulk = this.toggleBulk.bind(this);
+    this.renderCheckbox = this.renderCheckbox.bind(this);
   }
 
   toggleBulk(e) {
@@ -33,6 +35,18 @@ class Row extends Component {
     const { conversation, channelId } = this.props;
 
     FlowRouter.go('inbox/details', { id: conversation._id }, { channelId });
+  }
+
+  renderCheckbox() {
+    if (!this.props.toggleBulk) {
+      return null;
+    }
+
+    return (
+      <div className="column">
+        <input type="checkbox" onChange={this.toggleBulk} />
+      </div>
+    );
   }
 
   render() {
@@ -47,9 +61,7 @@ class Row extends Component {
 
     return (
       <li className={isReadClass}>
-        <div className="column">
-          <input type="checkbox" onChange={this.toggleBulk} />
-        </div>
+        {this.renderCheckbox()}
 
         <div className="column">
           <NameCard.Avatar size={50} customer={customer} />
@@ -67,7 +79,7 @@ class Row extends Component {
           </div>
           <footer>
             <div className="source">
-              <i className="ion-chatbox"></i>
+              <i className="ion-chatbox" />
               <div className="name">
                 To {integration.brand().name} via {integration.kind}
               </div>
@@ -76,23 +88,17 @@ class Row extends Component {
             <Assignees conversation={conversation} />
 
             <div className="info">
-              <span><i className="ion-reply"></i> {messageCount}</span>
-              <span><i className="ion-person"></i> {conversation.participatorCount()}</span>
+              <span><i className="ion-reply" /> {messageCount}</span>
+              <span><i className="ion-person" /> {conversation.participatorCount()}</span>
             </div>
           </footer>
         </div>
 
-        <div className="column togglers">
-          <span>
+        <div className="column">
+          <div className="conversation-togglers">
             <Starrer conversation={conversation} starred={starred} />
-          </span>
-          {
-            isParticipate ?
-              <span>
-                <i className="ion-eye"></i>
-              </span> :
-              null
-          }
+            <Participate participated={isParticipate} />
+          </div>
         </div>
       </li>
     );

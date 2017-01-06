@@ -1,0 +1,20 @@
+.nav-tabs {
+  background-color: $grey;
+  border: 0;
+
+  // This rules fix that full EmptyState component makes tabs unclickable.
+  position: relative;
+  z-index: 1;
+
+  > li {
+    &.active > a,
+    &.active > a:focus,
+    &.active > a:hover {
+      border: 0;
+    }
+
+    > a {
+      border: 0;
+    }
+  }
+}

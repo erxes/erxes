@@ -14,7 +14,7 @@
     "moment": "^2.13.0",
     "react": "^15.4.1",
     "react-addons-css-transition-group": "^15.3.2",
-    "react-addons-shallow-compare": "^0.15.0",
+    "react-addons-shallow-compare": "^15.4.1",
     "react-bootstrap": "^0.30.2",
     "react-copy-to-clipboard": "^4.2.3",
     "react-dom": "^15.4.1",
@@ -29,13 +29,13 @@
   "devDependencies": {
     "autoprefixer": "^6.3.6",
     "aws-sdk": "^2.6.12",
-    "eslint": "^3.1.1",
-    "eslint-config-airbnb": "^9.0.1",
+    "eslint": "^3.12.2",
+    "eslint-config-airbnb": "^13.0.0",
     "eslint-import-resolver-meteor": "^0.2.4",
-    "eslint-plugin-import": "^1.11.1",
-    "eslint-plugin-jsx-a11y": "^2.0.1",
+    "eslint-plugin-import": "^2.2.0",
+    "eslint-plugin-jsx-a11y": "^2.2.3",
     "eslint-plugin-meteor": "^3.6.0",
-    "eslint-plugin-react": "^5.2.2",
+    "eslint-plugin-react": "^6.8.0",
     "sinon": "^1.17.6"
   },
   "scripts": {
