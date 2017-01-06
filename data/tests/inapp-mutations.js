@@ -2,7 +2,7 @@
 
 import mongoose from 'mongoose';
 import { expect } from 'chai';
-import { Customers, Brands, Integrations } from '../connectors';
+import { Customers, Brands, Integrations, Conversations, Messages } from '../connectors';
 import { createCustomer } from '../utils';
 import inAppMutations from '../inapp-mutations';
 
@@ -127,6 +127,98 @@ describe('Mutations', () => {
             });
 
             expectPromise(done, Promise.all([p1]), () => { done(); });
+          });
+      });
+    });
+  });
+
+  describe('in app insert message', () => {
+    const integrationId = 'DFDFDFDFD';
+    const customerId = 'JJJELJKFJDF';
+
+    // remove previous datas
+    after((done) => {
+      const p1 = Conversations.remove({});
+      const p2 = Messages.remove({});
+
+      expectPromise(done, Promise.all([p1, p2]), () => { done(); });
+    });
+
+    describe('first time', () => {
+      beforeEach((done) => {
+        // there must be no conversation
+        expectPromise(done, Conversations.find().count(), (count) => {
+          expect(count).to.equal(0);
+          done();
+        });
+      });
+
+      it('first time', (done) => {
+        const message = 'hi';
+        const attachments = [{ url: 'url' }];
+        const args = { integrationId, customerId, message, attachments };
+
+        // call mutation
+        expectPromise(
+          done,
+          inAppMutations.insertMessage({}, args),
+          (messageObj) => {
+            // check message fields
+            expect(messageObj.content).to.equal(message);
+            expect(messageObj.attachments[0].url).to.equal(attachments[0].url);
+            expect(messageObj.conversationId).to.not.equal(undefined);
+            expect(messageObj.createdAt).to.not.equal(undefined);
+            expect(messageObj.customerId).to.equal(customerId);
+            expect(messageObj.internal).to.equal(false);
+
+            // must be created 1 conversation
+            const p1 = Conversations.find().count().then((count) => {
+              expect(count).to.equal(1);
+            });
+
+            // check conversation fields
+            const p2 = Conversations.findOne({}).then((conversation) => {
+              expect(conversation.customerId).to.equal(customerId);
+              expect(conversation.integrationId).to.equal(integrationId);
+              expect(conversation.integrationId).to.equal(integrationId);
+              expect(conversation.content).to.equal(message);
+              expect(conversation.status).to.equal('new');
+              expect(conversation.number).to.equal(1);
+              expect(conversation.messageCount).to.equal(0);
+              expect(messageObj.createdAt).to.not.equal(undefined);
+            });
+
+            expectPromise(done, Promise.all([p1, p2]), () => { done(); });
+          });
+      });
+    });
+
+    describe('second time', () => {
+      it('second time', (done) => {
+        const message = 'hi again';
+        const conversationId = 'FDFDFDFDFDFA';
+        const args = { integrationId, customerId, message, conversationId };
+
+        // call mutation
+        expectPromise(
+          done,
+          inAppMutations.insertMessage({}, args),
+          (messageObj) => {
+            // check message fields
+            expect(messageObj.conversationId).to.equal(conversationId);
+            expect(messageObj.content).to.equal(message);
+
+            // must be created 1 message again
+            const p1 = Messages.find().count().then((count) => {
+              expect(count).to.equal(2);
+            });
+
+            // must not create any conversation
+            const p2 = Conversations.find().count().then((count) => {
+              expect(count).to.equal(1);
+            });
+
+            expectPromise(done, Promise.all([p1, p2]), () => { done(); });
           });
       });
     });

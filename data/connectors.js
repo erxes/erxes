@@ -47,6 +47,8 @@ const ConversationSchema = Mongoose.Schema({
   content: String,
   customerId: String,
   integrationId: String,
+  number: Number,
+  messageCount: Number,
   status: String,
   readUserIds: [String],
 });
