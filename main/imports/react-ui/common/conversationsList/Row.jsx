@@ -4,6 +4,7 @@ import { FlowRouter } from 'meteor/kadira:flow-router';
 import { NameCard, Tags } from '/imports/react-ui/common';
 import { Tags as TagsCollection } from '/imports/api/tags/tags';
 import Starrer from './Starrer';
+import Participate from './Participate.jsx';
 import Assignees from './Assignees.jsx';
 
 
@@ -93,17 +94,11 @@ class Row extends Component {
           </footer>
         </div>
 
-        <div className="column togglers">
-          <span>
+        <div className="column">
+          <div className="conversation-togglers">
             <Starrer conversation={conversation} starred={starred} />
-          </span>
-          {
-            isParticipate ?
-              <span>
-                <i className="ion-eye" />
-              </span> :
-              null
-          }
+            <Participate participated={isParticipate} />
+          </div>
         </div>
       </li>
     );

@@ -21,7 +21,7 @@ function Conversations({ conversations, user, toggleBulk, channelId }) {
             conversation={c}
             isRead={c.readUserIds && c.readUserIds.indexOf(user._id) > -1}
             starred={starredConversationIds.indexOf(c._id) !== -1}
-            isParticipate={c.participatedUserIds && c.participatedUserIds.indexOf(user._id) > -1}
+            isParticipate={!!c.participatedUserIds && c.participatedUserIds.indexOf(user._id) > -1}
             toggleBulk={toggleBulk}
             channelId={channelId}
           />,

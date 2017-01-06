@@ -1,5 +1,6 @@
 import React, { PropTypes } from 'react';
 import Alert from 'meteor/erxes-notifier';
+import classNames from 'classnames';
 
 
 const propTypes = {
@@ -10,24 +11,28 @@ const propTypes = {
 
 function Starrer({ conversation, starred, toggleStar }) {
   function toggle() {
-    toggleStar({ starred: !starred, conversationIds: [conversation._id] }, error => {
+    toggleStar({ starred: !starred, conversationIds: [conversation._id] }, (error) => {
       if (error) {
         Alert.error(error.reason || error.message || error.toString());
       }
 
       if (!starred) {
         Alert.success(
-          'The conversation has been Starred and can be found from the ‘Starred’ menu in the side panel.'
+          'The conversation has been Starred and can be found from the ‘Starred’ menu in the side panel.',
         );
       }
     });
   }
 
+  const iconClassName = classNames({
+    'ion-ios-star': starred,
+    'ion-ios-star-outline': !starred,
+  });
+
   return (
-    <i
-      className={`conversation-starrer ion-ios-star${starred ? '' : '-outline'}`}
-      onClick={toggle}
-    />
+    <a onClick={toggle} className={starred ? 'visible' : ''} tabIndex={0}>
+      <i className={iconClassName} />
+    </a>
   );
 }
 

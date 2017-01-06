@@ -10,17 +10,20 @@
     display: flex;
     align-items: center;
 
+    &.unread {
+      background: #f3f1f7;
+      border-left: 1px solid #7754b3;
+    }
+
+    &:hover {
+      .conversation-togglers a {
+        display: inline-block;;
+      }
+    }
+
     .column {
       margin-right: 20px;
 
-      &.togglers{
-        margin-right: 0;
-        font-size: 20px;
-        color: $main-color;
-        >span{
-          margin-left: 15px;
-        }
-      }
       &.markRead {
         margin-right: 0;
         >span:hover{
@@ -76,21 +79,6 @@
           }
         }
       }
-    }
-
-    .conversation-starrer {
-      visibility: hidden;
-    }
-
-    &:hover {
-      .conversation-starrer {
-        visibility: visible;
-      }
-    }
-
-    &.unread {
-      background: #f3f1f7;
-      border-left: 1px solid #7754b3;
     }
   }
 }
@@ -196,7 +184,18 @@
   }
 }
 
-.conversation-starrer {
-  color: #7A5CB5;
-  cursor: pointer;
+.conversation-togglers {
+  color: $main-color;
+  font-size: 20px;
+  margin-right: 0;
+
+  > a {
+    cursor: pointer;
+    display: none;
+    margin-left: 15px;
+
+    &.visible {
+      display: inline-block;
+    }
+  }
 }
