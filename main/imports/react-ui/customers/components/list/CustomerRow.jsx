@@ -18,10 +18,10 @@ function CustomerRow({ customer }) {
     <tr>
       <td>
         <a href={FlowRouter.path('customers/details', { id: customer._id })}>
-          {customer.name}
+          {customer.name || '[no name]'}
         </a>
       </td>
-      <td>{customer.email}</td>
+      <td>{customer.email || '[no email]'}</td>
       <td>{brand && brand.name}</td>
       <td>{integration && integration.name}</td>
       <td>{lastSeenAt && moment(lastSeenAt).fromNow()}</td>
