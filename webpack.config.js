@@ -43,8 +43,6 @@ module.exports = {
     ],
   },
 
-  watch: true,
-
   resolve: {
     extensions: ['', '.js', '.jsx'],
   },
