@@ -1,9 +1,12 @@
 import React, { PropTypes, Component } from 'react';
-import { Button, Label, Dropdown, MenuItem } from 'react-bootstrap';
+import { Button, Dropdown, MenuItem } from 'react-bootstrap';
 import moment from 'moment';
 import { Wrapper } from '/imports/react-ui/layout/components';
 import { NameCard } from '/imports/react-ui/common';
 import TaggerSection from './TaggerSection.jsx';
+import InAppMessagingSection from './InAppMessagingSection.jsx';
+import TwitterSection from './TwitterSection.jsx';
+import FacebookSection from './FacebookSection.jsx';
 
 
 const propTypes = {
@@ -45,6 +48,7 @@ class Sidebar extends Component {
             </Dropdown.Menu>
           </Dropdown>
         </div>
+
         <Wrapper.Sidebar.Section>
           <h3>Customer details</h3>
           <ul className="filters no-link">
@@ -59,33 +63,11 @@ class Sidebar extends Component {
             </li>
           </ul>
         </Wrapper.Sidebar.Section>
-        <Wrapper.Sidebar.Section>
-          <h3>In app messaging</h3>
-          <ul className="filters no-link">
-            <li>
-              Status
-              <span className="counter">
-                {customer.inAppMessagingData.isActive
-                  ? <Label bsStyle="success">Online</Label>
-                  : <Label>Offline</Label>
-                }
-              </span>
-            </li>
-            <li>
-              Last online
-              <span className="counter">
-                {moment(customer.inAppMessagingData.lastSeenAt).fromNow()}
-              </span>
-            </li>
-            <li>
-              Session count
-              <span className="counter">
-                {customer.inAppMessagingData.sessionCount}
-              </span>
-            </li>
-          </ul>
-        </Wrapper.Sidebar.Section>
-        {<TaggerSection customer={customer} />}
+
+        <InAppMessagingSection customer={customer} />
+        <TwitterSection customer={customer} />
+        <FacebookSection customer={customer} />
+        <TaggerSection customer={customer} />
       </Wrapper.Sidebar>
     );
   }

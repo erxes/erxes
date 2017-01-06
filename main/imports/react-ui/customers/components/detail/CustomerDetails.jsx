@@ -2,7 +2,7 @@ import React, { PropTypes } from 'react';
 import { FlowRouter } from 'meteor/kadira:flow-router';
 import { Wrapper } from '/imports/react-ui/layout/components';
 import Content from './Content.jsx';
-import Sidebar from './Sidebar.jsx';
+import Sidebar from './sidebar/Sidebar.jsx';
 import RightSidebar from './RightSidebar.jsx';
 
 
