@@ -34,7 +34,6 @@ function composer({ channelId, queryParams }, onData) {
 
   // subscriptions ==================
   const user = Meteor.user();
-  const userId = user._id;
   const params = channelId ? Object.assign({ channelId }, queryParams) : queryParams;
 
   const conversationHandle = Meteor.subscribe('conversations.list', params);
@@ -42,7 +41,7 @@ function composer({ channelId, queryParams }, onData) {
   // show only involved channels
   const channelHandle = Meteor.subscribe(
     'channels.list',
-    { memberIds: [user._id] }
+    { memberIds: [user._id] },
   );
 
   // show only available channels's related brands
@@ -62,7 +61,7 @@ function composer({ channelId, queryParams }, onData) {
     // integrations subscription
     const integrationsHandle = Meteor.subscribe(
       'integrations.list',
-      { brandIds: _.pluck(brands, '_id') }
+      { brandIds: _.pluck(brands, '_id') },
     );
 
     if (integrationsHandle.ready()) {
@@ -79,8 +78,8 @@ function composer({ channelId, queryParams }, onData) {
           tags,
           channelId,
           brands,
-          userId,
-        }
+          user,
+        },
       );
     }
   }

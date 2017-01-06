@@ -1,6 +1,6 @@
 import { composeWithTracker } from 'react-komposer';
 import { star, unstar } from '/imports/api/conversations/methods';
-import { Starrer } from '../components';
+import Starrer from './Starrer.jsx';
 
 
 function composer(props, onData) {

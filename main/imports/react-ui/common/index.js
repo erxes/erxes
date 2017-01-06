@@ -14,6 +14,7 @@ import EmptyState from './EmptyState.jsx';
 import Pagination from './Pagination/Pagination.jsx';
 import { pagination } from './Pagination/Pagination';
 import FilterableList from './filterableList/FilterableList.jsx';
+import ConversationsList from './conversationsList/ConversationsList.jsx';
 
 
 export {
@@ -33,4 +34,5 @@ export {
   FilterableList,
   Pagination,
   pagination,
+  ConversationsList,
 };

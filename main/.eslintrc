@@ -12,7 +12,8 @@
     }
   },
   "rules": {
-    "no-underscore-dangle": ["error", { "allow": ["_id"] }]
+    "no-underscore-dangle": ["error", { "allow": ["_id"] }],
+    "import/no-absolute-path": 0
   },
   "settings": {
     "import/resolver": "meteor",

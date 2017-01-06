@@ -105,15 +105,27 @@ Meteor.publishComposite('customers.details', function customersDetails(id) {
       return Customers.find(id, { fields: Customers.publicFields });
     },
     children: [
+      // Publish related integrations
       {
         find(customer) {
           return Integrations.find(customer.integrationId);
         },
       },
+      // Publish related assigned users
       {
         find(customer) {
           return Conversations.find({ customerId: customer._id });
         },
+        children: [
+          {
+            find(conversation) {
+              return Meteor.users.find(
+                conversation.assignedUserId,
+                { fields: { details: 1, emails: 1 } },
+              );
+            },
+          },
+        ],
       },
     ],
   };
