@@ -3,7 +3,8 @@
   "version": "0.1.0",
   "description": "Apollo Api",
   "scripts": {
-    "start": "nodemon ./server.js --exec babel-node & webpack"
+    "start": "nodemon ./server.js --exec babel-node & webpack",
+    "test": "./node_modules/.bin/mocha data/tests --reporter spec --compilers js:babel-core/register"
   },
   "keywords": [
     "Node.js",
@@ -43,8 +44,10 @@
     "babel-preset-es2015": "^6.18.0",
     "babel-preset-react": "^6.16.0",
     "babel-preset-stage-2": "^6.18.0",
+    "chai": "^3.5.0",
     "css-loader": "^0.26.1",
     "json-loader": "^0.5.4",
+    "mocha": "^3.2.0",
     "node-sass": "^4.1.0",
     "nodemon": "^1.11.0",
     "sass-loader": "^4.1.0",

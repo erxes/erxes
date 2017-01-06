@@ -4,14 +4,16 @@ import Mongoose from 'mongoose';
 import Random from 'meteor-random';
 import settings from '../server-settings';
 
-Mongoose.connect(
-  settings.MONGO_URL, {
-    server: {
-      // after server reload, user must not reload widget manually
-      auto_reconnect: true,
-    },
-  }
-);
+export const connectToMongo = () => {
+  Mongoose.connect(
+    settings.MONGO_URL, {
+      server: {
+        // after server reload, user must not reload widget manually
+        auto_reconnect: true,
+      },
+    }
+  );
+};
 
 const UserSchema = Mongoose.Schema({
   _id: String,
@@ -21,12 +23,12 @@ const UserSchema = Mongoose.Schema({
 });
 
 const BrandSchema = Mongoose.Schema({
-  _id: String,
+  _id: { type: String, unique: true, default: () => Random.id() },
   code: String,
 });
 
 const IntegrationSchema = Mongoose.Schema({
-  _id: String,
+  _id: { type: String, unique: true, default: () => Random.id() },
   brandId: String,
   kind: String,
 });
