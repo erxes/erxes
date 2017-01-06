@@ -1,0 +1,16 @@
+.nav-tabs {
+  background-color: $grey;
+  border: 0;
+
+  > li {
+    &.active > a,
+    &.active > a:focus,
+    &.active > a:hover {
+      border: 0;
+    }
+
+    > a {
+      border: 0;
+    }
+  }
+}

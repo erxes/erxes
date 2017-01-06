@@ -6,6 +6,7 @@ import { _ } from 'meteor/underscore';
 import { Counts } from 'meteor/tmeasday:publish-counts';
 import { Integrations } from '/imports/api/integrations/integrations';
 import { KIND_CHOICES } from '/imports/api/integrations/constants';
+import { Conversations } from '/imports/api/conversations/conversations';
 import { Brands } from '/imports/api/brands/brands';
 import { Customers } from '../customers';
 
@@ -107,6 +108,11 @@ Meteor.publishComposite('customers.details', function customersDetails(id) {
       {
         find(customer) {
           return Integrations.find(customer.integrationId);
+        },
+      },
+      {
+        find(customer) {
+          return Conversations.find({ customerId: customer._id });
         },
       },
     ],
