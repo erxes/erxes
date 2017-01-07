@@ -34,6 +34,11 @@ export default {
       .then((customer) => {
         const now = new Date();
 
+        // check email
+        if (!email) {
+          throw new Error('Email is required');
+        }
+
         // update customer
         if (customer) {
           // update inAppMessagingData
