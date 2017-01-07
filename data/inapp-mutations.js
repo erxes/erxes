@@ -125,13 +125,13 @@ export default {
         isCustomerRead: { $exists: false },
       },
       { isCustomerRead: true },
-      { multi: true },
+      { multi: true }
+    )
 
-      () => {
-        // notify all notification subscribers that message's read
-        // state changed
-        pubsub.publish('notification');
-      }
-    );
+    // notify all notification subscribers that message's read
+    // state changed
+    .then(() => {
+      pubsub.publish('notification');
+    });
   },
 };

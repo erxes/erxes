@@ -3,7 +3,7 @@
 import mongoose from 'mongoose';
 import { expect } from 'chai';
 import { Customers, Brands, Integrations, Conversations, Messages } from '../connectors';
-import { createCustomer } from '../utils';
+import { createCustomer, createConversation, createMessage } from '../utils';
 import inAppMutations from '../inapp-mutations';
 
 
@@ -60,8 +60,10 @@ describe('Mutations', () => {
       const p1 = Customers.remove({});
       const p2 = Integrations.remove({});
       const p3 = Brands.remove({});
+      const p4 = Conversations.remove({});
+      const p5 = Messages.remove({});
 
-      expectPromise(done, Promise.all([p1, p2, p3]), () => { done(); });
+      expectPromise(done, Promise.all([p1, p2, p3, p4, p5]), () => { done(); });
     });
 
     describe('first time', () => {
@@ -227,58 +229,59 @@ describe('Mutations', () => {
   describe('readConversationMessages', () => {
     let conversationId;
 
-    beforeEach((done) => {
-      createConversation({
-        integrationId,
-        customerId, content } = doc;
+    const integrationId = 'KDFJKJKETJEFDF';
+    const customerId = 'DFDFDEERER';
+    const userId = 'JEKJRELKEJFD';
 
-      expectPromise(done, Promise.all([p1, p2, p3]), () => { done(); });
-    });
-
-    return Messages.update(
-      {
-        conversationId: args.conversationId,
+    // find conversation's unread messages
+    const findMessages = () =>
+      Messages.find({
+        conversationId,
         userId: { $exists: true },
         isCustomerRead: { $exists: false },
-      },
-    );
+      });
+
+    beforeEach((done) => {
+      // create conversation
+      const promise = createConversation({
+        integrationId,
+        customerId,
+        content: 'hi',
+      })
+
+      // create message
+      .then((conversation) => {
+        // save created conversation's id
+        conversationId = conversation._id;
+
+        createMessage({
+          conversationId,
+          userId,
+          customerId,
+          message: 'hi',
+        });
+      });
+
+      expectPromise(done, promise, () => {
+        // check whether or not there is 1 unread message
+        expectPromise(done, findMessages().count(), (count) => {
+          expect(count).to.equal(1);
+          done();
+        });
+      });
+    });
 
     it('readConversationMessages', (done) => {
-      const message = 'hi';
-      const attachments = [{ url: 'url' }];
-      const args = { integrationId, customerId, message, attachments };
-
       // call mutation
       expectPromise(
         done,
-        inAppMutations.insertMessage({}, args),
-        (messageObj) => {
-          // check message fields
-          expect(messageObj.content).to.equal(message);
-          expect(messageObj.attachments[0].url).to.equal(attachments[0].url);
-          expect(messageObj.conversationId).to.not.equal(undefined);
-          expect(messageObj.createdAt).to.not.equal(undefined);
-          expect(messageObj.customerId).to.equal(customerId);
-          expect(messageObj.internal).to.equal(false);
-
-          // must be created 1 conversation
-          const p1 = Conversations.find().count().then((count) => {
-            expect(count).to.equal(1);
+        inAppMutations.readConversationMessages({}, { conversationId }),
+        () => {
+          // check whether or not all messages are marked as read
+          expectPromise(done, findMessages().count(), (count) => {
+            expect(count).to.equal(0);
+            done();
           });
-
-          // check conversation fields
-          const p2 = Conversations.findOne({}).then((conversation) => {
-            expect(conversation.customerId).to.equal(customerId);
-            expect(conversation.integrationId).to.equal(integrationId);
-            expect(conversation.integrationId).to.equal(integrationId);
-            expect(conversation.content).to.equal(message);
-            expect(conversation.status).to.equal('new');
-            expect(conversation.number).to.equal(1);
-            expect(conversation.messageCount).to.equal(0);
-            expect(messageObj.createdAt).to.not.equal(undefined);
-          });
-
-          expectPromise(done, Promise.all([p1, p2]), () => { done(); });
         });
     });
   });

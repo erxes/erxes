@@ -137,12 +137,13 @@ export const getOrCreateConversation = (doc) => {
  */
 
 export const createMessage = (doc) => {
-  const { conversationId, customerId, message, attachments } = doc;
+  const { conversationId, userId, customerId, message, attachments } = doc;
 
   const messageOptions = {
     createdAt: new Date,
     conversationId,
     customerId,
+    userId,
     content: message,
     internal: false,
   };
