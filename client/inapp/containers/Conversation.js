@@ -77,14 +77,19 @@ class Conversation extends Subscriber {
   render() {
     const props = this.props;
 
+    let messages = props.data.messages;
+    let user = props.data.conversationLastStaff;
+
+    // show empty list while waiting
     if (props.data.loading) {
-      return null;
+      messages = [];
+      user = { details: {} };
     }
 
     const extendedProps = {
       ...props,
-      messages: props.data.messages,
-      user: props.data.conversationLastStaff,
+      messages,
+      user,
     };
 
     return <DumbConversation { ...extendedProps } />;

@@ -10,13 +10,16 @@ import { ConversationList as DumbConversationList } from '../components';
 const ConversationList = (props) => {
   const { data } = props;
 
+  let conversations = props.data.conversations;
+
+  // show empty list while waiting
   if (data.loading) {
-    return null;
+    conversations = [];
   }
 
   const extendedProps = {
     ...props,
-    conversations: props.data.conversations,
+    conversations,
   };
 
   return <DumbConversationList { ...extendedProps } />;
