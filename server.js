@@ -7,9 +7,13 @@ import { SubscriptionServer } from 'subscriptions-transport-ws';
 import cors from 'cors';
 
 import settings from './server-settings';
+import { connectToMongo } from './data/connectors';
 import { subscriptionManager } from './data/subscription-manager';
 import schema from './data/schema';
 import { markCustomerAsNotActive } from './data/utils';
+
+// connect to mongo database
+connectToMongo();
 
 const GRAPHQL_PORT = settings.GRAPHQL_PORT;
 

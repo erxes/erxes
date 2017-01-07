@@ -81,19 +81,22 @@ export const getOrCreateCustomer = (doc) => {
 export const createConversation = (doc) => {
   const { integrationId, customerId, content } = doc;
 
-  // create conversation object
-  const conversationObj = new Conversations({
-    customerId,
-    integrationId,
-    content,
-    status: CONVERSATION_STATUSES.NEW,
-    createdAt: new Date(),
-    number: Conversations.find().count() + 1,
-    messageCount: 0,
-  });
+  // get total conversations count
+  return Conversations.find({ customerId, integrationId }).count().then((count) => {
+    // create conversation object
+    const conversationObj = new Conversations({
+      customerId,
+      integrationId,
+      content,
+      status: CONVERSATION_STATUSES.NEW,
+      createdAt: new Date(),
+      number: count + 1,
+      messageCount: 0,
+    });
 
-  // save conversation
-  return conversationObj.save();
+    // save conversation
+    return conversationObj.save();
+  });
 };
 
 
@@ -134,12 +137,13 @@ export const getOrCreateConversation = (doc) => {
  */
 
 export const createMessage = (doc) => {
-  const { conversationId, customerId, message, attachments } = doc;
+  const { conversationId, userId, customerId, message, attachments } = doc;
 
   const messageOptions = {
     createdAt: new Date,
     conversationId,
     customerId,
+    userId,
     content: message,
     internal: false,
   };

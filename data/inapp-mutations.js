@@ -17,16 +17,17 @@ export default {
    */
   inAppConnect(root, args) {
     let integrationId;
-    const { email, name } = args;
+
+    const { brandCode, email, name } = args;
 
     // find integration
-    return getIntegration(args.brandCode, 'in_app_messaging')
+    return getIntegration(brandCode, 'in_app_messaging')
 
       // find customer
       .then((integration) => {
         integrationId = integration._id;
 
-        return getCustomer(integration._id, args.email);
+        return getCustomer(integration._id, email);
       })
 
       // update or create customer
@@ -61,8 +62,7 @@ export default {
         return createCustomer({ integrationId, email, name });
       })
 
-      // save integrationId, customerIds on connection
-      // for later use
+      // return integrationId, customerId
       .then((customer) => ({
         integrationId,
         customerId: customer._id,
@@ -125,13 +125,13 @@ export default {
         isCustomerRead: { $exists: false },
       },
       { isCustomerRead: true },
-      { multi: true },
+      { multi: true }
+    )
 
-      () => {
-        // notify all notification subscribers that message's read
-        // state changed
-        pubsub.publish('notification');
-      }
-    );
+    // notify all notification subscribers that message's read
+    // state changed
+    .then(() => {
+      pubsub.publish('notification');
+    });
   },
 };
