@@ -1,6 +1,7 @@
 {
   "public": {
-    "CDN_HOST": "http://127.0.0.1/static"
+    "CDN_HOST": "http://127.0.0.1/static",
+    "APOLLO_CLIENT_URL": "http://localhost:8080/graphql"
   },
   "accounts": {
     "emailTemplates": {

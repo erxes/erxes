@@ -1,5 +1,4 @@
 node_modules
 settings.json
-main/private/gulpfile.js
 .DS_Store
 npm-debug.log*
