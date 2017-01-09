@@ -1,6 +1,21 @@
 language: node_js
 node_js:
-- '4.5.0'
+  - 'node'
+addons:
+  apt:
+    sources:
+    - ubuntu-toolchain-r-test
+    packages:
+    - gcc-4.8
+    - g++-4.8
 services:
   - mongodb
-before_install: curl https://install.meteor.com | /bin/sh
+before_install:
+  - "curl https://install.meteor.com | /bin/sh"
+  - export PATH="$HOME/.meteor:$PATH"
+install:
+  - "meteor npm install"
+script:
+  - "meteor test --once --driver-package dispatch:mocha-phantomjs"
+env:
+  - TRAVIS=travis CXX=g++-4.8
