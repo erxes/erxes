@@ -35,12 +35,9 @@ class InAppMessaging extends Component {
           created_at: <unix_timestamp>,
           brand_id: "${brandCode}"
         };
-      </script>
-
-      <script>
         (function() {
           var script = document.createElement('script');
-          script.src = "${Meteor.settings.public.CDN_HOST}/widget.js";
+          script.src = "${Meteor.settings.public.CDN_HOST}/inAppWidget.bundle.js";
           script.async = true;
 
           var entry = document.getElementsByTagName('script')[0];
@@ -96,7 +93,7 @@ class InAppMessaging extends Component {
                   text={this.state.code}
                   onCopy={() => this.setState({ copied: true })}
                 >
-                  <Button bsStyle="primary">
+                  <Button bsSize="small" bsStyle="primary">
                     {this.state.copied ? 'Copied' : 'Copy to clipboard'}
                   </Button>
                 </CopyToClipboard> :

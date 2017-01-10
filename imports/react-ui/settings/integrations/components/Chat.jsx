@@ -31,16 +31,11 @@ class Chat extends Component {
     return `
       <script>
         window.erxesSettings = {
-          email: <email>,
-          created_at: <unix_timestamp>,
           brand_id: "${brandCode}"
         };
-      </script>
-
-      <script>
         (function() {
           var script = document.createElement('script');
-          script.src = "${Meteor.settings.public.CDN_HOST}/widget.js";
+          script.src = "${Meteor.settings.public.CDN_HOST}/chatWidget.bundle.js";
           script.async = true;
 
           var entry = document.getElementsByTagName('script')[0];
@@ -96,7 +91,7 @@ class Chat extends Component {
                   text={this.state.code}
                   onCopy={() => this.setState({ copied: true })}
                 >
-                  <Button bsStyle="primary">
+                  <Button bsSize="small" bsStyle="primary">
                     {this.state.copied ? 'Copied' : 'Copy to clipboard'}
                   </Button>
                 </CopyToClipboard> :
