@@ -12,6 +12,7 @@ const API_URL = settings.API_URL;
 // add iframe
 let iframe = document.createElement('iframe');
 iframe.id = 'erxes-iframe';
+iframe.className = 'erxes-messenger-hidden';
 iframe.src = `${API_URL}/inapp`;
 iframe.style.display = 'none';
 
@@ -22,7 +23,7 @@ iframe = document.querySelector('#erxes-iframe');
 
 // after iframe load send connection info
 iframe.onload = () => {
-  iframe.style.display = 'inherit';
+  iframe.style.display = 'block';
 
   iframe.contentWindow.postMessage({
     fromPublisher: true,
