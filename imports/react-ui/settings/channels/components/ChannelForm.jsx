@@ -63,7 +63,7 @@ class ChannelForm extends Component {
     return members.map(member => (
       {
         value: member._id,
-        label: member.details.fullName,
+        label: member.details.fullName || '',
       }
     ));
   }
@@ -162,7 +162,7 @@ class ChannelForm extends Component {
             onValuesChange={(items) => {
               self.setState({ selectedIntegrations: items });
             }}
-            renderOption={(item) => (
+            renderOption={item => (
               <div className="simple-option">
                 <span>{item.label}</span>
                 <span className="kind"> {item.kind}</span>
