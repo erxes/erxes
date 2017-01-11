@@ -5,20 +5,28 @@ export default class Form extends React.Component {
   constructor(props) {
     super(props);
 
-    this.state = { content: '', showEmailInput: false };
+    this.state = {
+      content: '',
+      showEmailInput: false,
+      email: '',
+      error: '',
+    };
 
     this.onSubmit = this.onSubmit.bind(this);
     this.onNewConversation = this.onNewConversation.bind(this);
+    this.handleMessageChange = this.handleMessageChange.bind(this);
+    this.handleEmailChange = this.handleEmailChange.bind(this);
+    this.validateEmail = this.validateEmail.bind(this);
+    this.handleKeyPress = this.handleKeyPress.bind(this);
   }
 
   onSubmit() {
     const { cachedEmail, cacheEmail, createConversation } = this.props;
-    const contentTextArea = document.querySelector('.erxes-form textarea');
-    const content = contentTextArea ? contentTextArea.value : '';
+    const { content } = this.state;
 
     // if email prevously saved, then create conversation with content
     // and cached email
-    if (cachedEmail) {
+    if (cachedEmail && content) {
       return createConversation({
         content,
         email: cachedEmail,
@@ -26,13 +34,17 @@ export default class Form extends React.Component {
     }
 
     // first ask for content then show email input
-    if (!this.state.showEmailInput) {
+    if (!this.state.showEmailInput && content) {
       return this.setState({ showEmailInput: true, content });
     }
 
-    const email = document.querySelector('.erxes-form input[type="email"]').value;
+    const email = this.state.email;
 
-    if (email) {
+    if (!this.validateEmail(email)) {
+      return this.setState({ error: 'Invalid email address.' });
+    }
+
+    if (email && content) {
       // save email for later use
       cacheEmail(email);
 
@@ -49,43 +61,98 @@ export default class Form extends React.Component {
     this.props.newConversation();
 
     // reset states
-    this.setState({ content: '', showEmailInput: false });
+    this.setState({ content: '', showEmailInput: false, error: '' });
+  }
+
+  validateEmail(mail) {
+    const regex = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+    return regex.test(mail);
+  }
+
+  handleKeyPress(e) {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+
+      const { content } = this.state;
+      if (e.shiftKey && !this.state.showEmailInput) {
+        this.setState({ content: `${content}\n` });
+      } else {
+        this.onSubmit();
+      }
+    }
+  }
+
+  handleMessageChange(e) {
+    this.setState({ content: e.target.value });
+  }
+
+  handleEmailChange(e) {
+    this.setState({ email: e.target.value });
   }
 
   renderContent() {
     const status = this.props.status;
 
     const sendButton = (
-      <button type="button" onClick={this.onSubmit}>
-        Send
-      </button>
+      <button type="button" onClick={this.onSubmit} />
     );
 
     const newConversationButton = (
       <button type="button" onClick={this.onNewConversation}>
-        New conversation
+        New message
       </button>
     );
 
     if (status === CONVERSATION_SENT) {
       return (
-        <div>
-          <span>Thanks</span>{newConversationButton}
+        <div className="erxes-result">
+          <div className="erxes-information">
+            <span>
+              Thanks for your message. We will follow up in a bit at
+              <b> {this.props.cachedEmail}</b>
+            </span>
+            {newConversationButton}
+          </div>
         </div>
       );
     }
 
     if (this.state.showEmailInput) {
       return (
-        <div>
-          <input type="email" />{sendButton}
+        <div className="erxes-form-wrapper">
+          <div className="erxes-information">
+            <span>
+              How can we reach you? Please type your email.
+            </span>
+            <div className="erxes-error">{this.state.error}</div>
+          </div>
+          <input
+            placeholder="email@domain.com"
+            type="email"
+            onKeyDown={this.handleKeyPress}
+            value={this.state.email}
+            onChange={this.handleEmailChange}
+          />
+          {sendButton}
         </div>
       );
     }
 
     return (
-      <div>
-        <textarea></textarea>{sendButton}
+      <div className="erxes-form-wrapper">
+        <div className="erxes-information">
+          <span>
+            Hello! We’d love to help you out!
+            Leave us a message and we’ll get back to you as soon as possible
+          </span>
+        </div>
+        <textarea
+          placeholder="Send a message"
+          onKeyDown={this.handleKeyPress}
+          value={this.state.content}
+          onChange={this.handleMessageChange}
+        />
+        {sendButton}
       </div>
     );
   }

@@ -1,17 +1,16 @@
 #erxes-iframe {
   position: fixed;
-  bottom: 0px;
-  right: 0px;
-  padding: 20px;
+  bottom: 12px;
+  right: 12px;
   border: none;
 }
 
 .erxes-form-hidden {
-  width: 66px;
-  height: 66px;
+  width: 72px;
+  height: 72px;
 }
 
 .erxes-form-shown {
-  width: 375px;
-  height: calc(100% - 95px - 30px);
+  width: 386px;
+  height: 300px;
 }

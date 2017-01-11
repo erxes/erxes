@@ -12,6 +12,7 @@ const API_URL = settings.API_URL;
 // add iframe
 let iframe = document.createElement('iframe');
 iframe.id = 'erxes-iframe';
+iframe.className = 'erxes-form-hidden';
 iframe.src = `${API_URL}/chat`;
 iframe.style.display = 'none';
 
