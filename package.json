@@ -4,6 +4,7 @@
   "description": "",
   "dependencies": {
     "apollo-client": "^0.5.23",
+    "aws-sdk": "^2.7.21",
     "bcrypt": "^0.8.7",
     "body-parser": "^1.15.2",
     "bootstrap": "^3.3.6",
@@ -31,7 +32,6 @@
   },
   "devDependencies": {
     "autoprefixer": "^6.3.6",
-    "aws-sdk": "^2.6.12",
     "eslint": "^3.12.2",
     "eslint-config-airbnb": "^13.0.0",
     "eslint-import-resolver-meteor": "^0.2.4",
