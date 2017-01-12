@@ -44,6 +44,7 @@ const CustomerSchema = Mongoose.Schema({
 
 const ConversationSchema = Mongoose.Schema({
   _id: { type: String, unique: true, default: () => Random.id() },
+  createdAt: Date,
   content: String,
   customerId: String,
   integrationId: String,

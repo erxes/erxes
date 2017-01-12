@@ -9,11 +9,11 @@ export default {
       return Conversations.find({
         integrationId,
         customerId,
-      });
+      }).sort({ createdAt: -1 });
     },
 
     messages(root, { conversationId }) {
-      return Messages.find({ conversationId });
+      return Messages.find({ conversationId }).sort({ createdAt: 1 });
     },
 
     unreadCount(root, { conversationId }) {
