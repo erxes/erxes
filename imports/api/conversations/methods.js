@@ -94,11 +94,13 @@ export const addMessage = new ValidatedMethod({
 
       const messageId = Messages.insert({ ...doc, userId });
 
+      const customer = conversation.customer()
+
       // if conversation's integration kind is chat, then send reply to
       // customer's email
-      if (integration.kind === KIND_CHOICES.CHAT) {
+      if (integration.kind === KIND_CHOICES.CHAT && customer && customer.email) {
         sendEmail({
-          to: conversation.customer.email,
+          to: customer.email,
           subject: 'Reply',
           template: {
             name: 'notification',
