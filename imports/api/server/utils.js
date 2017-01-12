@@ -74,6 +74,11 @@ export const sendEmail = ({ to, subject, template }) => {
     html = applyTemplate({ content }, 'base');
   }
 
+  // do not send email in test mode
+  if (Meteor.isTest) {
+    return;
+  }
+
   Email.send({
     from: `${Meteor.settings.COMPANY_NAME} ${Meteor.settings.NO_REPLY_EMAIL}`,
     to,
