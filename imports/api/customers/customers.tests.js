@@ -25,6 +25,7 @@ if (Meteor.isServer) {
 
     describe('publications', function () {
       const userId = Random.id();
+      const queryString = { limit: 100 };
 
       before(function () {
         Customers.remove({});
@@ -34,7 +35,7 @@ if (Meteor.isServer) {
       describe('customers.list', function () {
         it('sends all owned customers', function (done) {
           const collector = new PublicationCollector({ userId });
-          collector.collect('customers.list', (collections) => {
+          collector.collect('customers.list', queryString, (collections) => {
             chai.assert.equal(collections.customers.length, 3);
             done();
           });
@@ -42,7 +43,7 @@ if (Meteor.isServer) {
 
         it('do not send customers without user', function (done) {
           const collector = new PublicationCollector();
-          collector.collect('customers.list', (collections) => {
+          collector.collect('customers.list', queryString, (collections) => {
             chai.assert.equal(collections.customers, undefined);
             done();
           });
