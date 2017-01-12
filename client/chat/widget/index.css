@@ -3,7 +3,7 @@
   bottom: 12px;
   right: 12px;
   border: none;
-  z-index: 99999999;
+  z-index: 100000000;
 }
 
 .erxes-form-hidden {
