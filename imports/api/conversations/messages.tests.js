@@ -7,7 +7,7 @@ import { _ } from 'meteor/underscore';
 
 import { Factory } from 'meteor/dburles:factory';
 import { assert, chai } from 'meteor/practicalmeteor:chai';
-import { PublicationCollector } from 'meteor/publication-collector';
+import { PublicationCollector } from 'meteor/johanbrook:publication-collector';
 import { Notifications } from 'meteor/erxes-notifications';
 
 import { Messages } from './messages';

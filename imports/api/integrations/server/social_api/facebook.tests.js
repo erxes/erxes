@@ -21,6 +21,10 @@ describe('facebook integration', function () {
   const recipientId = '242422242424244';
 
   describe('getOrCreateConversation', function () {
+    // This test suite requires increased amount of time.
+    // Default waiting time is now 5s in this suite.
+    this.timeout(5000);
+
     beforeEach(function () {
       Conversations.remove({});
       Messages.remove({});

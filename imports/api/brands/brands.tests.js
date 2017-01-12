@@ -7,7 +7,7 @@ import { Random } from 'meteor/random';
 import { _ } from 'meteor/underscore';
 import { Factory } from 'meteor/dburles:factory';
 import { assert } from 'meteor/practicalmeteor:chai';
-import { PublicationCollector } from 'meteor/publication-collector';
+import { PublicationCollector } from 'meteor/johanbrook:publication-collector';
 
 import { Customers } from '/imports/api/customers/customers';
 import { Brands } from './brands';

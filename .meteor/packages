@@ -27,7 +27,6 @@ seba:minifiers-autoprefixer
 
 dburles:factory
 practicalmeteor:mocha
-publication-collector
 tmeasday:publish-counts
 stub-collections
 reywood:publish-composite
@@ -41,3 +40,4 @@ erxes-notifier
 erxes-notifications
 meteorhacks:picker
 dispatch:mocha
+johanbrook:publication-collector@=1.0.4
