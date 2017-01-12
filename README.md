@@ -10,6 +10,8 @@ The project is maintained by erxes Inc, along with an amazing group of independe
 
 ## Table of content
 
+[![Join the chat at https://gitter.im/erxes/erxes](https://badges.gitter.im/erxes/erxes.svg)](https://gitter.im/erxes/erxes?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 - [erxes.io](https://erxes.io/)
 - [Roadmap](https://github.com/erxes/erxes/projects/1)
 - [Community](https://community.erxes.io/)
