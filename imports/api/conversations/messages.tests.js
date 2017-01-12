@@ -111,6 +111,17 @@ if (Meteor.isServer) {
           assert.equal(notif.notifType, 'conversationAddMessage');
           assert.equal(notif.receiver, participatedUserId);
         });
+
+        it('internal messsage', function () {
+          const conversationId = Factory.create('conversation', {})._id;
+
+          const response = addMessage._execute(
+            { userId },
+            { content: 'lorem', conversationId, internal: true }
+          );
+
+          assert.equal(response, 'internalMessage');
+        });
       });
     });
   });

@@ -87,6 +87,12 @@ export const addMessage = new ValidatedMethod({
 
       const userId = this.userId;
 
+      // do not send internal message to third service integrations
+      if (doc.internal) {
+        Messages.insert({ ...doc, userId });
+        return 'internalMessage';
+      }
+
       // send reply to twitter
       if (integration.kind === KIND_CHOICES.TWITTER) {
         return tweetReply(conversation, content);
