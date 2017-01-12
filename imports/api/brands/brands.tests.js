@@ -20,6 +20,8 @@ if (Meteor.isServer) {
   describe('brands', function () {
     describe('publications', function () {
       const userId = Factory.create('user')._id;
+      const limit = 100;
+
       let brand;
 
       before(function () {
@@ -32,7 +34,7 @@ if (Meteor.isServer) {
       describe('brands.list', function () {
         it('sends all brands', function (done) {
           const collector = new PublicationCollector({ userId });
-          collector.collect('brands.list', (collections) => {
+          collector.collect('brands.list', limit, (collections) => {
             assert.equal(collections.brands.length, 5);
             done();
           });
@@ -40,7 +42,7 @@ if (Meteor.isServer) {
 
         it('do not send brands without user', function (done) {
           const collector = new PublicationCollector();
-          collector.collect('brands.list', (collections) => {
+          collector.collect('brands.list', limit, (collections) => {
             assert.equal(collections.brands, undefined);
             done();
           });

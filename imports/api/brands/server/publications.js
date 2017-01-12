@@ -11,11 +11,11 @@ import { Brands } from '../brands';
 Meteor.publish('brands.list', function brandsList(limit) {
   check(limit, Number);
 
-  Counts.publish(this, 'brands.list.count', Brands.find(), { noReady: true });
-
   if (! this.userId) {
     return this.ready();
   }
+
+  Counts.publish(this, 'brands.list.count', Brands.find(), { noReady: true });
 
   return Brands.find(
     {},
