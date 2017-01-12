@@ -11,11 +11,11 @@ addons:
 services:
   - mongodb
 before_install:
-  - "curl https://install.meteor.com | /bin/sh"
+  - curl https://install.meteor.com | /bin/sh
   - export PATH="$HOME/.meteor:$PATH"
 install:
-  - "meteor npm install"
+  - meteor npm install
 script:
-  - "meteor test --once --driver-package dispatch:mocha-phantomjs"
+  - SERVER_TEST_REPORTER="dot" meteor test --once --driver-package dispatch:mocha
 env:
   - TRAVIS=travis CXX=g++-4.8

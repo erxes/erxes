@@ -32,8 +32,7 @@ ddp-rate-limiter@1.0.5
 ddp-server@1.3.10
 deps@1.0.12
 diff-sequence@1.0.6
-dispatch:mocha-phantomjs@0.1.9
-dispatch:phantomjs-tests@0.0.7
+dispatch:mocha@0.0.9
 ecmascript@0.5.8_1
 ecmascript-runtime@0.3.14_1
 ejson@1.0.12
