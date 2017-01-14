@@ -81,4 +81,4 @@ password: 'admin123'
 ```
 
 ## Copyright & License
-Copyright (c) 2016 erxes Inc - Released under the [MIT license.](https://github.com/erxes/erxes/blob/develop/LICENSE)
+Copyright (c) 2017 erxes Inc - Released under the [MIT license.](https://github.com/erxes/erxes/blob/develop/LICENSE)
