@@ -38,7 +38,7 @@ describe('facebook integration', function () {
       const saveWebhookResponse = new SaveWebhookResponse(
         'access_token',
         integration,
-        {}
+        {},
       );
       saveWebhookResponse.currentPageId = pageId;
 
@@ -61,9 +61,12 @@ describe('facebook integration', function () {
       };
 
       // customer said hi ======================
-      saveWebhookResponse.getOrCreateConversation(
-        filter, senderId, facebookData, 'hi'
-      );
+      saveWebhookResponse.getOrCreateConversation({
+        findSelector: filter,
+        senderId,
+        facebookData,
+        content: 'hi',
+      });
 
       // must be created new conversation, new message
       assert.equal(Conversations.find().count(), 1);
@@ -73,9 +76,12 @@ describe('facebook integration', function () {
       assert.equal(conversation.status, CONVERSATION_STATUSES.NEW);
 
       // customer commented on above converstaion ===========
-      saveWebhookResponse.getOrCreateConversation(
-        filter, senderId, facebookData, 'hey'
-      );
+      saveWebhookResponse.getOrCreateConversation({
+        findSelector: filter,
+        senderId,
+        facebookData,
+        content: 'hey',
+      });
 
       // must not be created new conversation, new message
       assert.equal(Conversations.find().count(), 1);
@@ -85,9 +91,12 @@ describe('facebook integration', function () {
       Conversations.update({}, { $set: { status: CONVERSATION_STATUSES.CLOSED } });
 
       // customer commented on closed converstaion ===========
-      saveWebhookResponse.getOrCreateConversation(
-        filter, senderId, facebookData, 'hi again'
-      );
+      saveWebhookResponse.getOrCreateConversation({
+        findSelector: filter,
+        senderId,
+        facebookData,
+        conntet: 'hi again',
+      });
 
       // must not be created new conversation, new message
       assert.equal(Conversations.find().count(), 1);
@@ -99,9 +108,13 @@ describe('facebook integration', function () {
 
       // new post ===========
       filter.postId = '34424242444242';
-      saveWebhookResponse.getOrCreateConversation(
-        filter, senderId, facebookData, 'new sender hi'
-      );
+
+      saveWebhookResponse.getOrCreateConversation({
+        findSelector: filter,
+        senderId,
+        facebookData,
+        content: 'new sender hi',
+      });
 
       // must be created new conversation, new message
       assert.equal(Conversations.find().count(), 2);
@@ -196,9 +209,9 @@ describe('facebook integration', function () {
       assert.equal(
         mongoStub.calledWith(
           { _id: messageId },
-          { $set: { facebookCommentId: 'commentId' } }
+          { $set: { 'facebookData.commentId': 'commentId' } },
         ),
-        true
+        true,
       );
 
       // unwrap stub
@@ -248,7 +261,7 @@ describe('facebook integration', function () {
       saveWebhookResponse = new SaveWebhookResponse(
         'access_token',
         integration,
-        {}
+        {},
       );
     });
 
@@ -327,7 +340,7 @@ describe('facebook integration', function () {
       assert.equal(message.content, messageText);
       assert.deepEqual(
         message.attachments,
-        [{ type: 'image', url: 'attachment_url' }]
+        [{ type: 'image', url: 'attachment_url' }],
       );
 
       // second time ========================
@@ -398,6 +411,8 @@ describe('facebook integration', function () {
             changes: [
               {
                 value: {
+                  verb: 'add',
+                  item: 'post',
                   post_id: postId,
                   comment_id: commentId,
                   sender_id: senderId,
@@ -439,11 +454,12 @@ describe('facebook integration', function () {
       assert.equal(message.internal, false);
       assert.equal(message.content, messageText);
       assert.deepEqual(message.attachments, [{ url: link }]);
+      assert.deepEqual(message.facebookData, { item: 'post' });
 
 
       // second time ========================
 
-      // customer posted hi on our wall again
+      // customer commented hi on above post again
       messageText = 'hi';
 
       saveWebhookResponse.data = {
@@ -454,6 +470,9 @@ describe('facebook integration', function () {
             changes: [
               {
                 value: {
+                  verb: 'add',
+                  item: 'comment',
+                  reaction_type: 'haha',
                   post_id: postId,
                   comment_id: commentId,
                   sender_id: senderId,
@@ -488,6 +507,11 @@ describe('facebook integration', function () {
       assert.equal(newMessage.internal, false);
       assert.equal(newMessage.content, messageText);
       assert.equal(newMessage.attachments, null);
+
+      assert.deepEqual(
+        newMessage.facebookData,
+        { item: 'comment', reactionType: 'haha' },
+      );
     });
   });
 });

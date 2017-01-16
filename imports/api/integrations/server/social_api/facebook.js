@@ -7,8 +7,10 @@ import { Messages } from '/imports/api/conversations/messages';
 import { Customers } from '/imports/api/customers/customers';
 import { Integrations } from '/imports/api/integrations/integrations';
 import { KIND_CHOICES } from '/imports/api/integrations/constants';
-import { CONVERSATION_STATUSES } from '/imports/api/conversations/constants';
-import { FACEBOOK_DATA_KINDS } from '/imports/api/conversations/constants';
+import {
+  CONVERSATION_STATUSES,
+  FACEBOOK_DATA_KINDS,
+} from '/imports/api/conversations/constants';
 
 /*
  * Common graph api request wrapper
@@ -121,7 +123,13 @@ export class SaveWebhookResponse {
   }
 
   // common get or create conversation helper using both in messenger and feed
-  getOrCreateConversation(findSelector, senderId, facebookData, content, attachments) {
+  getOrCreateConversation(params) {
+    // extract params
+    const {
+      findSelector, senderId, facebookData,
+      content, attachments, msgFacebookData,
+    } = params;
+
     let conversation = Conversations.findOne({
       ...findSelector,
     });
@@ -154,22 +162,40 @@ export class SaveWebhookResponse {
             // if closed, reopen it
             status: CONVERSATION_STATUSES.OPEN,
           },
-        }
+        },
       );
     }
 
     // create new message
-    this.createMessage(conversation, senderId, content, attachments);
+    this.createMessage({
+      conversation,
+      userId: senderId,
+      content,
+      attachments,
+      facebookData: msgFacebookData,
+    });
   }
 
   // get or create new conversation by feed info
   getOrCreateConversationByFeed(value) {
     const commentId = value.comment_id;
 
-    // if this is already saved then ignore it
-    if (commentId && Messages.findOne({ facebookCommentId: commentId })) {
+    // collect only added actions
+    if (value.verb !== 'add') {
       return;
     }
+
+    // ingore duplicated action when like
+    if (value.verb === 'add' && value.item === 'like') {
+      return;
+    }
+
+    // if this is already saved then ignore it
+    if (commentId && Messages.findOne({ 'facebookData.commentId': commentId })) {
+      return;
+    }
+
+    const senderName = value.sender_name;
 
     // sender_id is giving number values when feed and giving string value
     // when messenger. customer.facebookData.senderId has type of string so
@@ -193,7 +219,7 @@ export class SaveWebhookResponse {
     // get page access token
     let response = graphRequest.get(
       `${this.currentPageId}/?fields=access_token`,
-      this.userAccessToken
+      this.userAccessToken,
     );
 
     // get post object
@@ -201,38 +227,47 @@ export class SaveWebhookResponse {
 
     postId = response.id;
 
-    this.getOrCreateConversation(
-      {
+    this.getOrCreateConversation({
+      findSelector: {
         'facebookData.kind': FACEBOOK_DATA_KINDS.FEED,
         'facebookData.postId': postId,
       },
       senderId,
-      // facebookData
-      {
+      facebookData: {
         kind: FACEBOOK_DATA_KINDS.FEED,
         senderId,
+        senderName,
         postId,
       },
-      messageText,
-      attachments
-    );
+
+      // message data
+      content: messageText,
+      attachments,
+      msgFacebookData: {
+        senderId,
+        senderName,
+        item: value.item,
+        reactionType: value.reaction_type,
+      },
+    });
   }
 
   // get or create new conversation by page messenger
   getOrCreateConversationByMessenger(event) {
     const senderId = event.sender.id;
+    const senderName = event.sender.name;
     const recipientId = event.recipient.id;
     const messageText = event.message.text;
 
     // collect attachment's url, type fields
-    const attachments = _.map(event.message.attachments || [], (attachment) => ({
+    const attachments = _.map(event.message.attachments || [], attachment => ({
       type: attachment.type,
       url: attachment.payload.url,
     }));
 
-    this.getOrCreateConversation(
+    this.getOrCreateConversation({
       // try to find conversation by senderId, recipientId keys
-      {
+      findSelector: {
         'facebookData.kind': FACEBOOK_DATA_KINDS.MESSENGER,
         $or: [
           {
@@ -246,15 +281,18 @@ export class SaveWebhookResponse {
         ],
       },
       senderId,
-      // facebookData
-      {
+      facebookData: {
         kind: FACEBOOK_DATA_KINDS.MESSENGER,
         senderId,
+        senderName,
         recipientId,
       },
-      messageText,
-      attachments
-    );
+
+      // message data
+      content: messageText,
+      attachments,
+      msgFacebookData: {},
+    });
   }
 
   // get or create customer using facebook data
@@ -273,7 +311,7 @@ export class SaveWebhookResponse {
     // get page access token
     let res = graphRequest.get(
       `${this.currentPageId}/?fields=access_token`,
-      this.userAccessToken
+      this.userAccessToken,
     );
 
     // get user info
@@ -294,7 +332,7 @@ export class SaveWebhookResponse {
     });
   }
 
-  createMessage(conversation, userId, content, attachments) {
+  createMessage({ conversation, userId, content, attachments, facebookData }) {
     if (conversation) {
       // create new message
       Messages.insert({
@@ -302,6 +340,7 @@ export class SaveWebhookResponse {
         customerId: this.getOrCreateCustomer(userId),
         content,
         attachments,
+        facebookData,
         internal: false,
       });
     }
@@ -319,7 +358,7 @@ export const receiveWebhookResponse = (app, data) => {
     const saveWebhookResponse = new SaveWebhookResponse(
       app.ACCESS_TOKEN,
       integration,
-      data
+      data,
     );
 
     saveWebhookResponse.start();
@@ -355,13 +394,13 @@ _.each(Meteor.settings.FACEBOOK_APPS, (app) => {
 export const facebookReply = (conversation, text, messageId) => {
   const app = _.find(
     Meteor.settings.FACEBOOK_APPS,
-    (a) => a.ID === conversation.integration().facebookData.appId
+    a => a.ID === conversation.integration().facebookData.appId,
   );
 
   // page access token
   const response = graphRequest.get(
     `${conversation.facebookData.pageId}/?fields=access_token`,
-    app.ACCESS_TOKEN
+    app.ACCESS_TOKEN,
   );
 
   // messenger reply
@@ -372,7 +411,7 @@ export const facebookReply = (conversation, text, messageId) => {
         message: { text },
       },
 
-      () => {}
+      () => {},
     );
   }
 
@@ -383,13 +422,13 @@ export const facebookReply = (conversation, text, messageId) => {
     // post reply
     const commentResponse = graphRequest.post(
       `${postId}/comments`, response.access_token,
-      { message: text }
+      { message: text },
     );
 
     // save commentId in message object
     Messages.update(
       { _id: messageId },
-      { $set: { facebookCommentId: commentResponse.id } }
+      { $set: { 'facebookData.commentId': commentResponse.id } },
     );
   }
 

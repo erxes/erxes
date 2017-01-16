@@ -86,6 +86,34 @@ export const FormSchema = new SimpleSchema({
   },
 });
 
+const facebookSchema = new SimpleSchema({
+  commentId: {
+    type: String,
+    optional: true,
+  },
+
+  // comment, reaction, etc ...
+  item: {
+    type: String,
+    optional: true,
+  },
+
+  reactionType: {
+    type: String,
+    optional: true,
+  },
+
+  senderId: {
+    type: String,
+    optional: true,
+  },
+
+  senderName: {
+    type: String,
+    optional: true,
+  },
+});
+
 Messages.schema = new SimpleSchema([
   FormSchema,
   {
@@ -110,9 +138,8 @@ Messages.schema = new SimpleSchema([
       optional: true,
     },
 
-    // when conversation type is facebook, save commentId
-    facebookCommentId: {
-      type: String,
+    facebookData: {
+      type: facebookSchema,
       optional: true,
     },
   },

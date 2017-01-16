@@ -22,7 +22,7 @@ class ConversationsCollection extends Mongo.Collection {
         number: this.find().count() + 1,
         messageCount: 0,
       },
-      doc
+      doc,
     );
 
     return super.insert(conversation, callback);
@@ -82,7 +82,11 @@ Conversations.helpers({
   },
 
   participatorCount() {
-    return this.participatedUserIds && this.participatedUserIds.length || 0;
+    if (this.participatedUserIds) {
+      return this.participatedUserIds.length;
+    }
+
+    return 0;
   },
 });
 
@@ -90,7 +94,7 @@ export function addParticipator({ conversationId, userId }) {
   if (conversationId && userId) {
     Conversations.update(
       conversationId,
-      { $addToSet: { participatedUserIds: userId } }
+      { $addToSet: { participatedUserIds: userId } },
     );
   }
 }
@@ -151,6 +155,11 @@ const facebookSchema = new SimpleSchema({
   kind: {
     type: String,
     allowedValues: FACEBOOK_DATA_KINDS.ALL_LIST,
+  },
+
+  senderName: {
+    type: String,
+    optional: true,
   },
 
   senderId: {
