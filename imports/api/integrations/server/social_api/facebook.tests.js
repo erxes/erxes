@@ -454,7 +454,7 @@ describe('facebook integration', function () {
       assert.equal(message.internal, false);
       assert.equal(message.content, messageText);
       assert.deepEqual(message.attachments, [{ url: link }]);
-      assert.deepEqual(message.facebookData, { item: 'post' });
+      assert.deepEqual(message.facebookData, { item: 'post', senderId });
 
 
       // second time ========================
@@ -510,7 +510,7 @@ describe('facebook integration', function () {
 
       assert.deepEqual(
         newMessage.facebookData,
-        { item: 'comment', reactionType: 'haha' },
+        { item: 'comment', senderId, reactionType: 'haha' },
       );
     });
   });
