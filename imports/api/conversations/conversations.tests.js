@@ -37,14 +37,14 @@ if (Meteor.isServer) {
             name: channelName,
             memberIds: [userId],
             integrationIds: [integrationId],
-          }
+          },
         );
 
         _.extend(conversationOptions, { integrationId });
 
         return _.times(count, () => Factory.create(
           'conversation',
-          conversationOptions
+          conversationOptions,
         )._id);
       };
 
@@ -71,19 +71,19 @@ if (Meteor.isServer) {
         createConversations(
           'sales',
           2,
-          { participatedUserIds: [userId], assignedUserId: userId }
+          { participatedUserIds: [userId], assignedUserId: userId },
         );
 
         // assigned && starred 3
         const starredConversationIds = createConversations(
           'support',
           3,
-          { assignedUserId: userId, starred: CONVERSATION_STATUSES.OPEN }
+          { assignedUserId: userId, starred: CONVERSATION_STATUSES.OPEN },
         );
 
         Meteor.users.update(
           userId,
-          { $set: { 'details.starredConversationIds': starredConversationIds } }
+          { $set: { 'details.starredConversationIds': starredConversationIds } },
         );
 
         // unassigned && tagged 4
@@ -95,7 +95,7 @@ if (Meteor.isServer) {
         createConversations(
           'specialSales',
           3,
-          { assignedUserId: userId, status: 'closed' }
+          { assignedUserId: userId, status: 'closed' },
         );
       });
 
@@ -115,26 +115,29 @@ if (Meteor.isServer) {
           checkCollectionLength(done, { status: 'closed' }, 3);
         });
 
-        // TODO: Fix below commented tests
+        it('filter by assignee', function (done) {
+          // 2 + 3
+          checkCollectionLength(done, { assignedUserId: userId }, 5);
+        });
 
-        // it('filter by assignee', function (done) {
-        //   // 2 + 3
-        //   checkCollectionLength(done, { assignedUserId: userId }, 5);
-        //
-        //   checkCollectionLength(
-        //     done,
-        //     {
-        //       status: 'closed',
-        //       assignedUserId: userId,
-        //     },
-        //     3
-        //   );
-        // });
+        it('filter by assignee with status', function (done) {
+          checkCollectionLength(
+            done,
+            {
+              status: 'closed',
+              assignedUserId: userId,
+            },
+            3,
+          );
+        });
 
-        // it('get unassigned conversations', function (done) {
-        //   checkCollectionLength(done, { assignedUserId: userId }, 5);
-        //   checkCollectionLength(done, { unassigned: '1' }, 4);
-        // });
+        it('get unassigned conversations', function (done) {
+          checkCollectionLength(done, { assignedUserId: userId }, 5);
+        });
+
+        it('get unassigned conversations with unassigned sign', function (done) {
+          checkCollectionLength(done, { unassigned: '1' }, 4);
+        });
 
         it('filter by tags', function (done) {
           checkCollectionLength(done, { unassigned: '1', tagId }, 4);
@@ -144,7 +147,7 @@ if (Meteor.isServer) {
           checkCollectionLength(
             done,
             { assignedUserId: userId, participatedUserId: userId },
-            2
+            2,
           );
         });
 
@@ -152,7 +155,7 @@ if (Meteor.isServer) {
           checkCollectionLength(
             done,
             { assignedUserId: userId, starred: '1' },
-            3
+            3,
           );
         });
 
@@ -204,7 +207,7 @@ if (Meteor.isServer) {
           assert.throws(() => {
             assign._execute(
               {},
-              { assignedUserId: Random.id(), conversationIds: [Random.id()] }
+              { assignedUserId: Random.id(), conversationIds: [Random.id()] },
             );
           }, Meteor.Error, /loginRequired/);
         });
@@ -213,7 +216,7 @@ if (Meteor.isServer) {
           assert.throws(() => {
             assign._execute(
               { userId },
-              { assignedUserId: Random.id(), conversationIds: [Random.id()] }
+              { assignedUserId: Random.id(), conversationIds: [Random.id()] },
             );
           }, Meteor.Error, /conversations.assign.conversationNotFound/);
         });
@@ -224,7 +227,7 @@ if (Meteor.isServer) {
           assert.throws(() => {
             assign._execute(
               { userId },
-              { assignedUserId: Random.id(), conversationIds }
+              { assignedUserId: Random.id(), conversationIds },
             );
           }, Meteor.Error, /conversations.assign.userNotFound/);
         });
@@ -245,18 +248,18 @@ if (Meteor.isServer) {
 
           assert.equal(
             Conversations.findOne(conversationIds[0]).assignedUserId,
-            assignedUserId
+            assignedUserId,
           );
 
           assert.equal(
             Conversations.findOne(conversationIds[1]).assignedUserId,
-            assignedUserId
+            assignedUserId,
 
           );
 
           // assigned users must received notification
           assert.equal(
-            Notifications.find({ receiver: assignedUserId }).count(), 2
+            Notifications.find({ receiver: assignedUserId }).count(), 2,
           );
 
           const notif = Notifications.findOne({ receiver: assignedUserId });
@@ -290,24 +293,24 @@ if (Meteor.isServer) {
 
           assert.equal(
             Conversations.findOne(conversationIds[0]).assignedUserId,
-            assignedUserId
+            assignedUserId,
           );
 
           assert.equal(
             Conversations.findOne(conversationIds[1]).assignedUserId,
-            assignedUserId
+            assignedUserId,
           );
 
           unassign._execute({ userId }, { conversationIds });
 
           assert.equal(
             Conversations.findOne(conversationIds[0]).assignedUserId,
-            undefined
+            undefined,
           );
 
           assert.equal(
             Conversations.findOne(conversationIds[1]).assignedUserId,
-            undefined
+            undefined,
           );
         });
       });
@@ -336,7 +339,7 @@ if (Meteor.isServer) {
           assert.throws(() => {
             changeStatus._execute(
               { userId },
-              { status: 'foo', conversationIds: [conversationId] }
+              { status: 'foo', conversationIds: [conversationId] },
             );
           }, Meteor.Error, /validation-error/);
         });
@@ -362,7 +365,7 @@ if (Meteor.isServer) {
           // execute method
           changeStatus._execute(
             { userId },
-            { status, conversationIds: [conversation2Id, conversation._id] }
+            { status, conversationIds: [conversation2Id, conversation._id] },
           );
 
           assert.equal(Conversations.findOne(conversation._id).status, status);
@@ -380,7 +383,7 @@ if (Meteor.isServer) {
           assert.throws(() => {
             tag._execute(
               {},
-              { conversationIds: [Random.id()], tagIds: [Random.id()] }
+              { conversationIds: [Random.id()], tagIds: [Random.id()] },
             );
           }, Meteor.Error, /loginRequired/);
         });
@@ -389,7 +392,7 @@ if (Meteor.isServer) {
           assert.throws(() => {
             tag._execute(
               { userId },
-              { conversationIds: [Random.id()], tagIds: [Random.id()] }
+              { conversationIds: [Random.id()], tagIds: [Random.id()] },
             );
           }, Meteor.Error, /conversations.tag.conversationNotFound/);
         });
@@ -405,22 +408,22 @@ if (Meteor.isServer) {
 
           assert.equal(
             Conversations.findOne(conversationIds[0]).tagIds,
-            undefined
+            undefined,
           );
           assert.equal(
             Conversations.findOne(conversationIds[1]).tagIds,
-            undefined
+            undefined,
           );
 
           tag._execute({ userId }, { conversationIds, tagIds });
 
           assert.equal(
             Conversations.findOne(conversationIds[0]).tagIds[0],
-            tagIds[0]
+            tagIds[0],
           );
           assert.equal(
             Conversations.findOne(conversationIds[1]).tagIds[0],
-            tagIds[0]
+            tagIds[0],
           );
         });
       });
@@ -449,19 +452,19 @@ if (Meteor.isServer) {
 
           assert.equal(
             Meteor.users.findOne(userId2).details.starredConversationIds,
-            undefined
+            undefined,
           );
 
           star._execute({ userId: userId2 }, { conversationIds });
 
           assert.equal(
             Meteor.users.findOne(userId2).details.starredConversationIds[0],
-            conversationIds[0]
+            conversationIds[0],
           );
 
           assert.equal(
             Meteor.users.findOne(userId2).details.starredConversationIds[1],
-            conversationIds[1]
+            conversationIds[1],
           );
         });
       });
@@ -478,14 +481,14 @@ if (Meteor.isServer) {
 
           Meteor.users.update(
             userId,
-            { $set: { 'details.starredConversationIds': conversationIds } }
+            { $set: { 'details.starredConversationIds': conversationIds } },
           );
 
           unstar._execute({ userId }, { conversationIds });
 
           assert.equal(
             Meteor.users.findOne(userId).details.starredConversationIds.length,
-            0
+            0,
           );
         });
       });
