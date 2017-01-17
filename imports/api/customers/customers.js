@@ -187,6 +187,7 @@ Customers.publicFields = {
   createdAt: 1,
   inAppMessagingData: 1,
   twitterData: 1,
+  facebookData: 1,
   tagIds: 1,
 };
 
