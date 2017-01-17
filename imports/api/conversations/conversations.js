@@ -262,6 +262,7 @@ Conversations.publicFields = {
   createdAt: 1,
   messageCount: 1,
   participatedUserIds: 1,
+  facebookData: 1,
   readUserIds: 1,
   tagIds: 1,
 };

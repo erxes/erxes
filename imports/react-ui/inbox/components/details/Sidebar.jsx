@@ -71,6 +71,24 @@ class Sidebar extends Component {
     );
   }
 
+  renderFacebookPostUrl() {
+    const conversation = this.props.conversation;
+    const integration = conversation.integration();
+    if (integration.kind === 'facebook') {
+      const link = `http://facebook.com/${conversation.facebookData.postId}`;
+      return (
+        <li>
+          Facebook URL
+          <span className="counter">
+            <a target="_blank" href={link}>[view]</a>
+          </span>
+        </li>
+      );
+    }
+
+    return null;
+  }
+
   render() {
     const { conversation, messagesCount } = this.props;
     const integration = conversation.integration();
@@ -110,6 +128,7 @@ class Sidebar extends Component {
               Conversations
               <span className="counter">{messagesCount}</span>
             </li>
+            {this.renderFacebookPostUrl()}
           </ul>
         </Wrapper.Sidebar.Section>
 

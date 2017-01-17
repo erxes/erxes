@@ -1,5 +1,6 @@
 .sidebar {
   overflow-y: auto;
+  box-sizing: border-box;
 
   &.narrow {
     width: $sidebar-width-narrow;
@@ -11,6 +12,15 @@
 
   &.wide {
     width: $sidebar-width-wide;
+  }
+
+  .box {
+    padding: 0 20px;
+    margin-top: 10px;
+
+    .btn {
+      margin: 0;
+    }
   }
 
   .section {
