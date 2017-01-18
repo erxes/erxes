@@ -6,7 +6,7 @@ import addGraphQLSubscriptions from './subscriptions';
 import { combineReducers, applyMiddleware, compose } from 'redux';
 import { createStore as reduxCreateStore } from 'redux';
 import thunkMiddleware from 'redux-thunk';
-import settings from '../settings';
+import settings from './settings';
 
 // websocket
 export const wsClient = new Client(settings.WEBSOCKET_URL, {

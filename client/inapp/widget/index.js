@@ -2,7 +2,7 @@
  * InApp message's embeddable script
  */
 
-import settings from '../../../settings';
+import settings from '../../settings';
 
 // css
 import './index.css';
