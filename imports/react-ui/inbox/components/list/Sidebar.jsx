@@ -1,3 +1,6 @@
+/* eslint-disable jsx-a11y/no-static-element-interactions */
+/* eslint-disable jsx-a11y/href-no-hash */
+
 import { Meteor } from 'meteor/meteor';
 import React, { PropTypes } from 'react';
 import { Counts } from 'meteor/tmeasday:publish-counts';
@@ -13,152 +16,195 @@ const propTypes = {
   tags: PropTypes.array.isRequired,
 };
 
-function Sidebar({ channels, tags, brands }) {
-  return (
-    <Wrapper.Sidebar>
-      <Wrapper.Sidebar.Section collapsible={channels.length > 5}>
-        <h3>
-          Channels
-          <a href={FlowRouter.path('inbox/list')} className="quick-button">
-            All
-          </a>
-        </h3>
-        <ul className="filters">
-          {
-           channels.map(channel => (
-             <li key={channel._id}>
-               <a href={FlowRouter.path('inbox/list', { channelId: channel._id })}>
-                 <span className="icon">#</span>{channel.name}
-                 <span className="counter">
-                   {Counts.get(`conversations.counts.byChannel${channel._id}`)}
-                 </span>
-               </a>
-             </li>
-           ))
-          }
-          {
-            channels.length === 0 ?
-              <EmptyState
-                icon={<i className="ion-pound" />}
-                text="No channel"
-                size="small"
-              /> :
-              null
-          }
-        </ul>
-      </Wrapper.Sidebar.Section>
-      <Wrapper.Sidebar.Section collapsible={brands.length > 5}>
-        <h3>
-          Brands
-          <a href="/inbox" className="quick-button">
-            All
-          </a>
-        </h3>
-        <ul className="filters">
-          {
-            brands.map(brand => (
-              <li key={brand._id}>
-                <a href={`?brandId=${brand._id}`}>
-                  <span className="icon">#</span>{brand.name}
-                  <span className="counter">
-                    {Counts.get(`conversations.counts.byBrand${brand._id}`)}
-                  </span>
-                </a>
-              </li>
-           ))
-          }
-          {
-            brands.length === 0 ?
-              <EmptyState
-                icon={<i className="ion-flag" />}
-                text="No brand"
-                size="small"
-              /> :
-              null
-          }
-        </ul>
-      </Wrapper.Sidebar.Section>
-      <Wrapper.Sidebar.Section>
-        <h3>
-          Filter by status
-          <a href="#" className="quick-button">
-            Clear
-          </a>
-        </h3>
-        <ul className="filters">
-          <li>
-            <a href="?unassigned=true">
-              Unassigned
-              <span className="counter">
-               {Counts.get('conversations.counts.unassiged')}
-              </span>
+class Sidebar extends React.Component {
+  static changeFilter(queryParamName, value) {
+    FlowRouter.setQueryParams({ [queryParamName]: value });
+  }
+
+  static getActiveClass(queryParamName, value) {
+    return FlowRouter.getQueryParam(queryParamName) === value ? 'active' : '';
+  }
+
+  static renderChannel(channel) {
+    const onClick = () => {
+      Sidebar.changeFilter('channelId', channel._id);
+    };
+
+    return (
+      <li key={channel._id}>
+        <a
+          className={Sidebar.getActiveClass('channelId', channel._id)}
+          onClick={onClick}
+        >
+
+          <span className="icon">#</span>{channel.name}
+          <span className="counter">
+            {Counts.get(`conversations.counts.byChannel${channel._id}`)}
+          </span>
+        </a>
+      </li>
+    );
+  }
+
+  static renderBrand(brand) {
+    const onClick = () => {
+      Sidebar.changeFilter('brandId', brand._id);
+    };
+
+    return (
+      <li key={brand._id}>
+        <a
+          className={Sidebar.getActiveClass('brandId', brand._id)}
+          onClick={onClick}
+        >
+
+          <span className="icon">#</span>{brand.name}
+          <span className="counter">
+            {Counts.get(`conversations.counts.byBrand${brand._id}`)}
+          </span>
+        </a>
+      </li>
+    );
+  }
+
+  static renderTag(tag) {
+    const onClick = () => {
+      Sidebar.changeFilter('tagId', tag._id);
+    };
+
+    return (
+      <li key={tag._id}>
+        <a
+          className={Sidebar.getActiveClass('tagId', tag._id)}
+          onClick={onClick}
+        >
+
+          <i className="fa fa-tag icon" style={{ color: tag.colorCode }} />
+          {tag.name}
+          <span className="counter">
+            {Counts.get(`conversations.counts.byTag${tag._id}`)}
+          </span>
+        </a>
+      </li>
+    );
+  }
+
+  static clearStatusFilter() {
+    Sidebar.changeFilter('participatedUserId', '');
+    Sidebar.changeFilter('status', '');
+    Sidebar.changeFilter('unassigned', '');
+    Sidebar.changeFilter('starred', '');
+  }
+
+  // unassigned, participatedUser, status, etc ...
+  static renderSingleFilter(queryParamName, queryParamValue, countName, text) {
+    const onClick = () => {
+      // clear previous values
+      Sidebar.clearStatusFilter();
+
+      Sidebar.changeFilter(queryParamName, queryParamValue);
+    };
+
+    return (
+      <li>
+        <a
+          className={Sidebar.getActiveClass(queryParamName, queryParamValue)}
+          onClick={onClick}
+        >
+
+          {text}
+          <span className="counter">
+            {Counts.get(`conversations.counts.${countName}`)}
+          </span>
+        </a>
+      </li>
+    );
+  }
+
+
+  static renderSectionHeader(text, queryParamName) {
+    const onClick = () => {
+      Sidebar.changeFilter(queryParamName, '');
+    };
+
+    return (
+      <h3>
+        {text}
+        <a href="" className="quick-button" onClick={onClick}>
+          Clear
+        </a>
+      </h3>
+    );
+  }
+
+  static renderEmptyState(list, text, iconClassName) {
+    if (list.length === 0) {
+      return (
+        <EmptyState
+          icon={<i className={iconClassName} />}
+          text={text}
+          size="small"
+        />
+      );
+    }
+
+    return null;
+  }
+
+  render() {
+    const { channels, tags, brands } = this.props;
+
+    return (
+      <Wrapper.Sidebar>
+        <Wrapper.Sidebar.Section collapsible={channels.length > 5}>
+          {Sidebar.renderSectionHeader('Channels', 'channelId')}
+          <ul className="filters">
+            {channels.map(channel => Sidebar.renderChannel(channel))}
+            {Sidebar.renderEmptyState(channels, 'No channel', 'icon-pound')}
+          </ul>
+        </Wrapper.Sidebar.Section>
+
+        <Wrapper.Sidebar.Section collapsible={brands.length > 5}>
+          {Sidebar.renderSectionHeader('Brands', 'brandId')}
+          <ul className="filters">
+            {brands.map(brand => Sidebar.renderBrand(brand))}
+            {Sidebar.renderEmptyState(brands, 'No brand', 'icon-flag')}
+          </ul>
+        </Wrapper.Sidebar.Section>
+
+        <Wrapper.Sidebar.Section>
+          <h3>
+            Filter by status
+            <a onClick={Sidebar.clearStatusFilter} className="quick-button">
+              Clear
             </a>
-          </li>
-          <li>
-            <a href={`?participatedUserId=${Meteor.userId()}`}>
-              Participating
-              <span className="counter">
-                {Counts.get('conversations.counts.participating')}
-              </span>
-            </a>
-          </li>
-          <li>
-            <a href={`?status=${CONVERSATION_STATUSES.CLOSED}`}>
-              Resolved
-              <span className="counter">
-                {Counts.get('conversations.counts.resolved')}
-              </span>
-            </a>
-          </li>
-          <li>
-            <a href="?starred=1">
-             Starred
-              <span className="counter">
-                {Counts.get('conversations.counts.starred')}
-              </span>
-            </a>
-          </li>
-        </ul>
-      </Wrapper.Sidebar.Section>
-      <Wrapper.Sidebar.Section collapsible={tags.length > 5}>
-        <h3>
-          Filter by tags
-          <a href={FlowRouter.path('tags/list', { type: 'conversation' })} className="quick-button">
-            <i className="ion-gear-a" />
-          </a>
-        </h3>
-        <ul className="filters">
-         {
-           tags.map(tag => (
-             <li key={tag._id}>
-               <a
-                 href={FlowRouter.path(
-                   'inbox/list',
-                   { channelId: FlowRouter.getParam('channelId') },
-                   { tagId: tag._id }
-                 )}
-               >
-                 <i className="fa fa-tag icon" style={{ color: tag.colorCode }}></i>{tag.name}
-                 <span className="counter">
-                   {Counts.get(`conversations.counts.byTag${tag._id}`)}
-                 </span>
-               </a>
-             </li>
-           ))
-         }
-         {
-           tags.length === 0 ?
-             <EmptyState
-               icon={<i className="ion-pricetag" />}
-               text="No tags"
-               size="small"
-             /> :
-             null
-         }
-        </ul>
-      </Wrapper.Sidebar.Section>
-    </Wrapper.Sidebar>
-  );
+          </h3>
+          <ul className="filters">
+            {Sidebar.renderSingleFilter(
+              'unassigned', 'true', 'unassiged', 'Unassigned')}
+
+            {Sidebar.renderSingleFilter(
+              'participatedUserId', Meteor.userId(),
+              'participating', 'Participating')}
+
+            {Sidebar.renderSingleFilter(
+              'status', CONVERSATION_STATUSES.CLOSED, 'resolved', 'Resolved')}
+
+            {Sidebar.renderSingleFilter('starred', 1, 'starred', 'Starred')}
+          </ul>
+        </Wrapper.Sidebar.Section>
+
+        <Wrapper.Sidebar.Section collapsible={tags.length > 5}>
+          {Sidebar.renderSectionHeader('Filter by tags', 'tagId')}
+
+          <ul className="filters">
+            {tags.map(tag => Sidebar.renderTag(tag))}
+            {Sidebar.renderEmptyState(tags, 'No tags', 'icon-pricetag')}
+          </ul>
+        </Wrapper.Sidebar.Section>
+      </Wrapper.Sidebar>
+    );
+  }
 }
 
 Sidebar.propTypes = propTypes;
