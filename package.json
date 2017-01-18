@@ -5,6 +5,7 @@
   "scripts": {
     "start": "node dist/server.js",
     "test": "./node_modules/.bin/mocha data/tests --reporter spec --compilers js:babel-core/register",
+    "bundle": "./node_modules/.bin/webpack",
     "build": "babel server --out-dir dist --ignore tests --copy-files"
   },
   "keywords": [

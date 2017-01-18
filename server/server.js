@@ -23,7 +23,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
 // Express Middleware for serving static files
-app.use('/static', express.static(path.join(__dirname, '../static')));
+app.use('/build', express.static(path.join(__dirname, '../static')));
 
 const corsOptions = {
   origin(origin, callback) {
