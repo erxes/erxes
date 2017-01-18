@@ -1,6 +1,7 @@
 node_modules
 settings.js
 server-settings.js
-client/build
+dist
+static
 .DS_Store
 npm-debug.log*

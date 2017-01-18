@@ -3,8 +3,9 @@
   "version": "0.1.0",
   "description": "Apollo Api",
   "scripts": {
-    "start": "nodemon ./server.js --exec babel-node",
-    "test": "./node_modules/.bin/mocha data/tests --reporter spec --compilers js:babel-core/register"
+    "start": "node dist/server.js",
+    "test": "./node_modules/.bin/mocha data/tests --reporter spec --compilers js:babel-core/register",
+    "build": "babel server --out-dir dist --ignore tests --copy-files"
   },
   "keywords": [
     "Node.js",
