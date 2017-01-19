@@ -49,7 +49,7 @@ export const addMessage = new ValidatedMethod({
     if (!conversation) {
       throw new Meteor.Error(
         'conversations.addMessage.conversationNotFound',
-        'Conversation not found'
+        'Conversation not found',
       );
     }
 
@@ -67,7 +67,7 @@ export const addMessage = new ValidatedMethod({
     if (attachments.length === 0 && !content.trim()) {
       throw new Meteor.Error(
         'conversations.addMessage.contentRequired',
-        'Content is required'
+        'Content is required',
       );
     }
 
@@ -100,7 +100,7 @@ export const addMessage = new ValidatedMethod({
 
       const messageId = Messages.insert({ ...doc, userId });
 
-      const customer = conversation.customer()
+      const customer = conversation.customer();
 
       // if conversation's integration kind is chat, then send reply to
       // customer's email
@@ -156,21 +156,21 @@ export const assign = new ValidatedMethod({
     if (conversations.length !== conversationIds.length) {
       throw new Meteor.Error(
         'conversations.assign.conversationNotFound',
-        'Conversation not found.'
+        'Conversation not found.',
       );
     }
 
     if (Meteor.isServer && !Meteor.users.findOne(assignedUserId)) {
       throw new Meteor.Error(
         'conversations.assign.userNotFound',
-        'User not found.'
+        'User not found.',
       );
     }
 
     Conversations.update(
       { _id: { $in: conversationIds } },
       { $set: { assignedUserId } },
-      { multi: true }
+      { multi: true },
     );
 
     if (Meteor.isServer) {
@@ -214,14 +214,14 @@ export const unassign = new ValidatedMethod({
     if (conversations.length !== conversationIds.length) {
       throw new Meteor.Error(
         'conversations.unassign.conversationNotFound',
-        'Conversation not found.'
+        'Conversation not found.',
       );
     }
 
     Conversations.update(
       { _id: { $in: conversationIds } },
       { $unset: { assignedUserId: 1 } },
-      { multi: true }
+      { multi: true },
     );
   },
 });
@@ -249,14 +249,14 @@ export const changeStatus = new ValidatedMethod({
     if (conversations.length !== conversationIds.length) {
       throw new Meteor.Error(
         'conversations.changeStatus.conversationNotFound',
-        'Conversation not found.'
+        'Conversation not found.',
       );
     }
 
     Conversations.update(
       { _id: { $in: conversationIds } },
       { $set: { status } },
-      { multi: true }
+      { multi: true },
     );
 
     // send notification
@@ -296,13 +296,13 @@ export const star = new ValidatedMethod({
     if (conversations.length !== conversationIds.length) {
       throw new Meteor.Error(
         'conversations.star.conversationNotFound',
-        'Conversation not found.'
+        'Conversation not found.',
       );
     }
 
     Meteor.users.update(
       this.userId,
-      { $addToSet: { 'details.starredConversationIds': { $each: conversationIds } } }
+      { $addToSet: { 'details.starredConversationIds': { $each: conversationIds } } },
     );
   },
 });
@@ -323,12 +323,12 @@ export const unstar = new ValidatedMethod({
     if (Meteor.isServer) {
       Meteor.users.update(
         this.userId,
-        { $pull: { 'details.starredConversationIds': { $in: conversationIds } } }
+        { $pull: { 'details.starredConversationIds': { $in: conversationIds } } },
       );
     } else {
       Meteor.users.update(
         this.userId,
-        { $pull: { 'details.starredConversationIds': conversationIds } }
+        { $pull: { 'details.starredConversationIds': conversationIds } },
       );
     }
   },
@@ -354,7 +354,7 @@ export const markAsRead = new ValidatedMethod({
       if (!readUserIds) {
         return Conversations.update(
           { _id: conversationId },
-          { $set: { readUserIds: [this.userId] } }
+          { $set: { readUserIds: [this.userId] } },
         );
       }
 
@@ -362,7 +362,7 @@ export const markAsRead = new ValidatedMethod({
       if (!readUserIds.includes(this.userId)) {
         return Conversations.update(
           { _id: conversationId },
-          { $push: { readUserIds: this.userId } }
+          { $push: { readUserIds: this.userId } },
         );
       }
     }

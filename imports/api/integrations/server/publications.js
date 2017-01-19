@@ -29,7 +29,7 @@ Meteor.publish('integrations.list', function integrationList(params) {
     this,
     'integrations.list.count',
     Integrations.find(selector, {}),
-    { noReady: true }
+    { noReady: true },
   );
 
   return Integrations.find(
@@ -38,7 +38,7 @@ Meteor.publish('integrations.list', function integrationList(params) {
       fields: Integrations.publicFields,
       sort: { createdAt: -1 },
       limit: params.limit,
-    }
+    },
   );
 });
 
@@ -46,7 +46,7 @@ Meteor.publish('integrations.list', function integrationList(params) {
 Meteor.publish('integrations.getById', function integrationsGetById(id) {
   check(id, String);
 
-  if (! this.userId) {
+  if (!this.userId) {
     return this.ready();
   }
 

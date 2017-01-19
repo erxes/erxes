@@ -1,15 +1,13 @@
 import faker from 'faker';
-
 import { Mongo } from 'meteor/mongo';
 import { Random } from 'meteor/random';
 import { _ } from 'meteor/underscore';
-
 import { Factory } from 'meteor/dburles:factory';
 import { SimpleSchema } from 'meteor/aldeed:simple-schema';
-
 import { Integrations } from '/imports/api/integrations/integrations';
 import { Brands } from '/imports/api/brands/brands';
 import { Tags } from '/imports/api/tags/tags';
+
 
 const inAppMessagingSchema = new SimpleSchema({
   lastSeenAt: {
@@ -137,7 +135,7 @@ class CustomersCollection extends Mongo.Collection {
   }
 }
 
-// collection
+// eslint-disable-next-line import/prefer-default-export
 export const Customers = new CustomersCollection('customers');
 
 Customers.attachSchema(schema);

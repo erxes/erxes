@@ -1,19 +1,16 @@
 /* eslint-env mocha */
-/* eslint-disable func-names, prefer-arrow-callback */
-/* eslint-disable no-underscore-dangle */
+/* eslint-disable func-names, prefer-arrow-callback, no-underscore-dangle */
 
 import { Meteor } from 'meteor/meteor';
 import { Random } from 'meteor/random';
-
 import { Factory } from 'meteor/dburles:factory';
 import { assert } from 'meteor/practicalmeteor:chai';
-
 import { Conversations } from '/imports/api/conversations/conversations';
-
 import { Tags } from '../tags';
 import { TAG_TYPES } from '../constants';
 import { add, edit, remove } from '../methods';
 import { tagObject } from './api';
+
 
 describe('tags', function () {
   describe('mutators', function () {
@@ -79,7 +76,7 @@ describe('tags', function () {
         assert.throws(() => {
           add._execute(
             { userId },
-            { name: tag.name, type: tag.type, colorCode: '#FFF' }
+            { name: tag.name, type: tag.type, colorCode: '#FFF' },
           );
         }, Meteor.Error, /tags.insert.restricted/);
       });
@@ -115,7 +112,7 @@ describe('tags', function () {
         assert.throws(() => {
           edit._execute(
             { userId },
-            { id: tag2._id, doc: { name: tag.name, type: tag.type, colorCode: '#FFF' } }
+            { id: tag2._id, doc: { name: tag.name, type: tag.type, colorCode: '#FFF' } },
           );
         }, Meteor.Error, /tags.update.restricted/);
       });

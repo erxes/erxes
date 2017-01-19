@@ -6,7 +6,7 @@ import { Counts } from 'meteor/tmeasday:publish-counts';
 import { Channels } from '../channels';
 
 Meteor.publish('channels.list', function channelsList(params) {
-  if (! this.userId) {
+  if (!this.userId) {
     return this.ready();
   }
 
@@ -30,25 +30,22 @@ Meteor.publish('channels.list', function channelsList(params) {
     query.integrationIds = { $in: params.integrationIds };
   }
 
-  return Channels.find(
-    query,
-    {
-      fields: Channels.publicFields,
-      sort: { createdAt: -1 },
-      limit: params.limit,
-    }
-  );
+  return Channels.find(query, {
+    fields: Channels.publicFields,
+    sort: { createdAt: -1 },
+    limit: params.limit,
+  });
 });
 
 Meteor.publish('channels.getById', function channelsGetById(id) {
   check(id, String);
 
-  if (! this.userId) {
+  if (!this.userId) {
     return this.ready();
   }
 
   return Channels.find(
     { _id: id },
-    { fields: Channels.publicFields }
+    { fields: Channels.publicFields },
   );
 });

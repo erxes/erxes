@@ -4,7 +4,6 @@ import { Meteor } from 'meteor/meteor';
 import { ValidatedMethod } from 'meteor/mdg:validated-method';
 import { check } from 'meteor/check';
 import { Accounts } from 'meteor/accounts-base';
-
 import { sendEmail } from '/imports/api/server/utils';
 import { ErxesMixin } from '/imports/api/utils';
 import { Channels } from '/imports/api/channels/channels';
@@ -25,14 +24,14 @@ const updateUserChannels = (channelIds, userId) => {
   Channels.update(
     { memberIds: { $in: [userId] } },
     { $pull: { memberIds: userId } },
-    { multi: true }
+    { multi: true },
   );
 
   // add to given channels
   Channels.update(
     { _id: { $in: channelIds } },
     { $push: { memberIds: userId } },
-    { multi: true }
+    { multi: true },
   );
 };
 
@@ -47,7 +46,7 @@ const updateUserCommonInfos = (userId, doc) => {
   if (doc.twitterUsername && user) {
     throw new Meteor.Error(
       'users.updateInfo.wrongTwitterUsername',
-      'Duplicated twitter username'
+      'Duplicated twitter username',
     );
   }
 
@@ -61,7 +60,7 @@ const updateUserCommonInfos = (userId, doc) => {
         'details.fullName': doc.fullName,
         'emails.0.address': doc.email,
       },
-    }
+    },
   );
 };
 
@@ -69,7 +68,7 @@ const checkPasswordConfirmation = (password, passwordConfirmation) => {
   if (password !== passwordConfirmation) {
     throw new Meteor.Error(
       'users.updateInfo.WrongPasswordConfirmation',
-      'Wrong password confirmation'
+      'Wrong password confirmation',
     );
   }
 };
@@ -98,7 +97,7 @@ export const invite = new ValidatedMethod({
         email,
         invite: true,
         details: { role },
-      }
+      },
     );
 
     // set new password
@@ -107,7 +106,7 @@ export const invite = new ValidatedMethod({
     // set profile infos
     updateUserCommonInfos(
       userId,
-      { twitterUsername, username, avatar, fullName, email }
+      { twitterUsername, username, avatar, fullName, email },
     );
 
     // add new user to channels
@@ -158,7 +157,7 @@ export const updateInvitationInfos = new ValidatedMethod({
     if (!user.isOwner) {
       updateUserCommonInfos(
         userId,
-        { username, twitterUsername, avatar, fullName, email }
+        { username, twitterUsername, avatar, fullName, email },
       );
 
        // update role
@@ -180,7 +179,7 @@ export const editProfile = new ValidatedMethod({
     if (result.error) {
       throw new Meteor.Error(
         'users.editProfile.invalidPassword',
-        result.error.reason
+        result.error.reason,
       );
     }
 
@@ -205,7 +204,7 @@ export const remove = new ValidatedMethod({
     if (user.isOwner) {
       throw new Meteor.Error(
         'users.remove.canNotDeleteOwner',
-        'Can not delete owner'
+        'Can not delete owner',
       );
     }
 
@@ -213,14 +212,14 @@ export const remove = new ValidatedMethod({
     if (Channels.find({ userId }).count() > 0) {
       throw new Meteor.Error(
         'users.remove.involvedInChannel',
-        'Involved in channel'
+        'Involved in channel',
       );
     }
 
     if (Channels.find({ memberIds: { $in: [userId] } }).count() > 0) {
       throw new Meteor.Error(
         'users.remove.involvedInChannel',
-        'Involved in channel'
+        'Involved in channel',
       );
     }
 
@@ -228,14 +227,14 @@ export const remove = new ValidatedMethod({
     if (Conversations.find({ assignedUserId: userId }).count() > 0) {
       throw new Meteor.Error(
         'users.remove.involvedInConversation',
-        'Involved in conversation'
+        'Involved in conversation',
       );
     }
 
     if (Conversations.find({ participatedUserIds: { $in: [userId] } }).count() > 0) {
       throw new Meteor.Error(
         'users.remove.involvedInConversation',
-        'Involved in conversation'
+        'Involved in conversation',
       );
     }
 
@@ -268,7 +267,7 @@ export const configGetNotificationByEmail = new ValidatedMethod({
   run({ isAllowed }) {
     Meteor.users.update(
       this.userId,
-      { $set: { 'details.getNotificationByEmail': isAllowed } }
+      { $set: { 'details.getNotificationByEmail': isAllowed } },
     );
   },
 });

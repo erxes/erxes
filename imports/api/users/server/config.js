@@ -1,14 +1,18 @@
 import { Meteor } from 'meteor/meteor';
 import { Accounts } from 'meteor/accounts-base';
 
-Accounts.emailTemplates.siteName = (
-  Meteor.settings.accounts && Meteor.settings.accounts.emailTemplates &&
-  Meteor.settings.accounts.emailTemplates.siteName || 'Erxes'
+Accounts.emailTemplates.siteName = ((
+  Meteor.settings.accounts &&
+  Meteor.settings.accounts.emailTemplates &&
+  Meteor.settings.accounts.emailTemplates.siteName) ||
+  'Erxes'
 );
 
-Accounts.emailTemplates.from = (
-  Meteor.settings.accounts && Meteor.settings.accounts.emailTemplates &&
-  Meteor.settings.accounts.emailTemplates.from || 'no-reploy@erxes.org'
+Accounts.emailTemplates.from = ((
+  Meteor.settings.accounts &&
+  Meteor.settings.accounts.emailTemplates &&
+  Meteor.settings.accounts.emailTemplates.from) ||
+  'no-reply@erxes.org'
 );
 
 Accounts.urls.resetPassword = token => Meteor.absoluteUrl(`reset-password/${token}`);

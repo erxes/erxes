@@ -1,6 +1,5 @@
 /* eslint-env mocha */
-/* eslint-disable func-names, prefer-arrow-callback */
-/* eslint-disable no-underscore-dangle */
+/* eslint-disable func-names, prefer-arrow-callback, no-underscore-dangle */
 
 import { Meteor } from 'meteor/meteor';
 import { Random } from 'meteor/random';
@@ -9,12 +8,12 @@ import { Factory } from 'meteor/dburles:factory';
 import { assert, chai } from 'meteor/practicalmeteor:chai';
 import { PublicationCollector } from 'meteor/johanbrook:publication-collector';
 import { Notifications } from 'meteor/erxes-notifications';
-
 import { Channels } from '/imports/api/channels/channels';
 import { add, edit, remove } from './methods';
 
+
 if (Meteor.isServer) {
-  require('./server/publications.js');
+  import './server/publications.js';
 
   describe('channels', function () {
     describe('mutators', function () {
@@ -90,7 +89,7 @@ if (Meteor.isServer) {
             name: 'foo',
             userId,
             memberIds: [Factory.create('user')._id],
-          }
+          },
         )._id;
       });
 
@@ -106,12 +105,11 @@ if (Meteor.isServer) {
                     memberIds: [],
                     integrationIds: [],
                   },
-                }
+                },
               );
             },
-
             Meteor.Error,
-            /loginRequired/
+            /loginRequired/,
           );
         });
 
@@ -132,15 +130,13 @@ if (Meteor.isServer) {
                 memberIds: [newMemberId],
                 integrationIds: [],
               },
-            }
+            },
           );
 
           assert.equal(Channels.find().count(), 2);
 
           // new members must received notification
-          assert.equal(
-            Notifications.find({ receiver: newMemberId }).count(), 1
-          );
+          assert.equal(Notifications.find({ receiver: newMemberId }).count(), 1);
 
           const notif = Notifications.findOne({ receiver: newMemberId });
 
@@ -162,12 +158,11 @@ if (Meteor.isServer) {
                     memberIds: [],
                     integrationIds: [],
                   },
-                }
+                },
               );
             },
-
             Meteor.Error,
-            /loginRequired/
+            /loginRequired/,
           );
         });
 
@@ -183,19 +178,17 @@ if (Meteor.isServer) {
                     memberIds: [],
                     integrationIds: [],
                   },
-                }
+                },
               );
             },
-
             Meteor.Error,
-            /channels.edit.notFound/
+            /channels.edit.notFound/,
           );
         });
 
         it('edit', function () {
           edit._execute(
             { userId },
-
             {
               id: channelId,
               doc: {
@@ -203,7 +196,7 @@ if (Meteor.isServer) {
                 memberIds: [],
                 integrationIds: [],
               },
-            }
+            },
           );
 
           assert.equal(Channels.findOne(channelId).name, 'Bar');

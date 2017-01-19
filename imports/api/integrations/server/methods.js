@@ -2,7 +2,6 @@ import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
 import { ValidatedMethod } from 'meteor/mdg:validated-method';
 import { _ } from 'meteor/underscore';
-
 import { ErxesMixin } from '/imports/api/utils';
 import { Conversations } from '/imports/api/conversations/conversations';
 import { Messages } from '/imports/api/conversations/messages';
@@ -11,7 +10,6 @@ import { Channels } from '/imports/api/channels/channels';
 import { Integrations } from '../integrations';
 import { KIND_CHOICES } from '../constants';
 import twitter from './social_api/twitter';
-
 import { getPageList } from './social_api/facebook';
 
 
@@ -26,7 +24,7 @@ export const addInAppMessaging = new ValidatedMethod({
 
   run({ doc }) {
     return Integrations.insert(
-      _.extend(doc, { kind: KIND_CHOICES.IN_APP_MESSAGING })
+      _.extend(doc, { kind: KIND_CHOICES.IN_APP_MESSAGING }),
     );
   },
 });
@@ -43,7 +41,7 @@ export const addChat = new ValidatedMethod({
 
   run({ doc }) {
     return Integrations.insert(
-      _.extend(doc, { kind: KIND_CHOICES.CHAT })
+      _.extend(doc, { kind: KIND_CHOICES.CHAT }),
     );
   },
 });
@@ -61,7 +59,7 @@ export const addTwitter = new ValidatedMethod({
     // authenticate via twitter and get logged in user's infos
     twitter.authenticate(queryParams, (doc) => {
       const id = Integrations.insert(
-        _.extend(doc, { brandId, kind: KIND_CHOICES.TWITTER })
+        _.extend(doc, { brandId, kind: KIND_CHOICES.TWITTER }),
       );
 
       // start tracking newly created twitter integration
@@ -106,7 +104,7 @@ export const getFacebookAppList = new ValidatedMethod({
   validate() {},
 
   run() {
-    return _.map(Meteor.settings.FACEBOOK_APPS, (app) => ({
+    return _.map(Meteor.settings.FACEBOOK_APPS, app => ({
       id: app.ID,
       name: app.NAME,
     }));
@@ -123,7 +121,7 @@ export const getFacebookPageList = new ValidatedMethod({
   },
 
   run({ appId }) {
-    const app = _.find(Meteor.settings.FACEBOOK_APPS, (a) => a.ID === appId);
+    const app = _.find(Meteor.settings.FACEBOOK_APPS, a => a.ID === appId);
 
     if (!app) {
       return [];
@@ -147,7 +145,7 @@ export const remove = new ValidatedMethod({
     if (Channels.find({ integrationIds: { $in: [id] } }).count() > 0) {
       throw new Meteor.Error(
         'integrations.remove.usedInChannel',
-        'Used in channel'
+        'Used in channel',
       );
     }
 

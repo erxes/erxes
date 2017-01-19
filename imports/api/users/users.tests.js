@@ -1,16 +1,15 @@
 /* eslint-env mocha */
-/* eslint-disable func-names, prefer-arrow-callback */
-/* eslint-disable no-underscore-dangle */
+/* eslint-disable func-names, prefer-arrow-callback, no-underscore-dangle */
 
 import { Meteor } from 'meteor/meteor';
 import { Random } from 'meteor/random';
 import { assert } from 'meteor/practicalmeteor:chai';
 import { Factory } from 'meteor/dburles:factory';
-
 import { Channels } from '/imports/api/channels/channels';
 import { Conversations } from '/imports/api/conversations/conversations';
 import { invite, updateInvitationInfos, remove } from './server/methods';
 import { ROLES } from './constants';
+
 
 if (Meteor.isServer) {
   describe('users', function () {
@@ -95,7 +94,7 @@ if (Meteor.isServer) {
               fullName: 'FirstName LastName',
               role: 'admin',
               channelIds: [channel1Id, channel3Id],
-            }
+            },
           );
 
           const channel1 = Channels.findOne(channel1Id);
@@ -137,7 +136,7 @@ if (Meteor.isServer) {
             },
 
             Meteor.Error,
-            /users.remove.involvedInChannel/
+            /users.remove.involvedInChannel/,
           );
 
           // must not be deleted
@@ -155,7 +154,7 @@ if (Meteor.isServer) {
             },
 
             Meteor.Error,
-            /users.remove.involvedInChannel/
+            /users.remove.involvedInChannel/,
           );
 
           Channels.remove({});
@@ -170,7 +169,7 @@ if (Meteor.isServer) {
             },
 
             Meteor.Error,
-            /users.remove.involvedInConversation/
+            /users.remove.involvedInConversation/,
           );
 
           Conversations.remove({});
@@ -179,7 +178,7 @@ if (Meteor.isServer) {
         it('involved in conversation:paticipated', function () {
           Factory.create(
             'conversation',
-            { participatedUserIds: [removeToUserId, Random.id()] }
+            { participatedUserIds: [removeToUserId, Random.id()] },
           );
 
           assert.throws(
@@ -188,7 +187,7 @@ if (Meteor.isServer) {
             },
 
             Meteor.Error,
-            /users.remove.involvedInConversation/
+            /users.remove.involvedInConversation/,
           );
 
           Conversations.remove({});
@@ -203,7 +202,7 @@ if (Meteor.isServer) {
             },
 
             Meteor.Error,
-            /users.remove.canNotDeleteOwner/
+            /users.remove.canNotDeleteOwner/,
           );
 
           Conversations.remove({});
