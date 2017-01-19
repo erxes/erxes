@@ -28,7 +28,8 @@ export const graphRequest = {
 
     // catch session expired or some other error
     } catch (e) {
-      return console.log(e.message); // eslint-disable-line no-console
+      console.log(e.message); // eslint-disable-line no-console
+      return e.message;
     }
   },
 
@@ -225,6 +226,11 @@ export class SaveWebhookResponse {
       `${this.currentPageId}/?fields=access_token`,
       this.userAccessToken,
     );
+
+    // acess token expired
+    if (response === 'Error processing https request') {
+      return;
+    }
 
     // get post object
     response = graphRequest.get(postId, response.access_token);
