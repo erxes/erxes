@@ -11,8 +11,8 @@
     align-items: center;
 
     &.unread {
-      background: #f3f1f7;
-      border-left: 1px solid #7754b3;
+      background: $light-gray-background;
+      border-left: 1px solid $main-color;
     }
 
     &:hover {
@@ -36,7 +36,7 @@
       flex: 1;
 
       &:hover {
-        color: #333;
+        color: $gray-dark;
       }
 
       header{
@@ -54,6 +54,7 @@
         background: none;
         margin: 10px 0;
         cursor: pointer;
+        word-break: break-word;
       }
 
       footer {
@@ -111,24 +112,22 @@
       }
     }
 
-    &.attachment {
-      .body {
-        padding: 0;
-        background-color: transparent;
+    &.attachment .body{
+      padding: 0;
+      background-color: transparent;
 
-        > span {
-          display: block;
-          margin-bottom: 5px;
-        }
-        img {
-          border-radius: 3px;
-        }
+      > span {
+        display: block;
+        margin-bottom: 5px;
+      }
+      img {
+        border-radius: 3px;
       }
     }
 
     &.attach-preview {
       .body {
-        padding: 0px;
+        padding: 0;
         position: relative;
         min-width: 80px;
         min-height: 50px;
@@ -165,10 +164,11 @@
     .body {
       margin: 0 0 20px 50px;
       padding: 12px 15px;
-      color: #333;
+      color: $gray-dark;
       border-radius: 5px;
-      background:  $grey;
+      background: $grey;
       flex-grow: 0;
+      word-break: break-word;
 
       img {
         max-width: 100%;
