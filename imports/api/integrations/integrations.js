@@ -11,6 +11,7 @@ import { KIND_CHOICES } from './constants';
 
 class IntegrationCollections extends Mongo.Collection {}
 
+// eslint-disable-next-line import/prefer-default-export
 export const Integrations = new IntegrationCollections('integrations');
 
 Integrations.deny({

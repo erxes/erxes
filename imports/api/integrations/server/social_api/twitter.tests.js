@@ -1,20 +1,22 @@
 /* eslint-env mocha */
-/* eslint-disable func-names, prefer-arrow-callback */
-/* eslint-disable no-underscore-dangle */
+/* eslint-disable func-names, prefer-arrow-callback, no-underscore-dangle */
 
 import Twit from 'twit';
 import sinon from 'sinon';
 import { Factory } from 'meteor/dburles:factory';
 import { assert } from 'meteor/practicalmeteor:chai';
-
 import { Conversations } from '/imports/api/conversations/conversations';
 import { CONVERSATION_STATUSES } from '/imports/api/conversations/constants';
 import { Customers } from '/imports/api/customers/customers';
 import { Integrations } from '/imports/api/integrations/integrations';
 import { Messages } from '/imports/api/conversations/messages';
+import {
+  TwitMap,
+  getOrCreateCommonConversation,
+  tweetReply,
+  getOrCreateDirectMessageConversation,
+} from './twitter';
 
-import { TwitMap, getOrCreateCommonConversation } from './twitter';
-import { tweetReply, getOrCreateDirectMessageConversation } from './twitter';
 
 describe('twitter integration', function () {
   describe('get or create converstaion', function () {
@@ -56,7 +58,7 @@ describe('twitter integration', function () {
           in_reply_to_status_id: tweetId,
           user: twitterUser,
         },
-        integration
+        integration,
       );
 
       // must not created new conversation
@@ -99,7 +101,7 @@ describe('twitter integration', function () {
           recipient_id_str: recipientId.toString(),
           sender: twitterUser,
         },
-        integration
+        integration,
       );
 
       // must not created new conversation
@@ -172,9 +174,9 @@ describe('twitter integration', function () {
           {
             user_id: senderId.toString(),
             text,
-          }
+          },
         ),
-        true
+        true,
       );
     });
 
@@ -204,9 +206,9 @@ describe('twitter integration', function () {
 
             // replying tweet id
             in_reply_to_status_id: tweetIdStr,
-          }
+          },
         ),
-        true
+        true,
       );
     });
   });

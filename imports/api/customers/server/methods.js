@@ -6,6 +6,7 @@ import { tagObject } from '/imports/api/tags/server/api';
 import { Customers } from '../customers';
 
 
+// eslint-disable-next-line import/prefer-default-export
 export const tag = new ValidatedMethod({
   name: 'customers.tag',
   mixins: [ErxesMixin],

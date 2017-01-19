@@ -1,6 +1,5 @@
 /* eslint-env mocha */
-/* eslint-disable func-names, prefer-arrow-callback */
-/* eslint-disable no-underscore-dangle */
+/* eslint-disable func-names, prefer-arrow-callback, no-underscore-dangle */
 
 import { Meteor } from 'meteor/meteor';
 import { Random } from 'meteor/random';
@@ -8,14 +7,14 @@ import { _ } from 'meteor/underscore';
 import { Factory } from 'meteor/dburles:factory';
 import { assert } from 'meteor/practicalmeteor:chai';
 import { PublicationCollector } from 'meteor/johanbrook:publication-collector';
-
+import '/imports/api/users/factory';
 import { Customers } from '/imports/api/customers/customers';
 import { Brands } from './brands';
 import { add, edit, remove } from './methods';
-import '/imports/api/users/factory';
+
 
 if (Meteor.isServer) {
-  require('./server/publications');
+  import './server/publications';
 
   describe('brands', function () {
     describe('publications', function () {
@@ -84,8 +83,8 @@ if (Meteor.isServer) {
             () => {
               add._execute({}, { doc: { name: 'Foo' } });
             },
-
-            Meteor.Error, /loginRequired/
+            Meteor.Error,
+            /loginRequired/,
           );
         });
 
@@ -104,8 +103,8 @@ if (Meteor.isServer) {
             () => {
               edit._execute({}, { id: brandId, doc: { name: 'Bar' } });
             },
-
-            Meteor.Error, /loginRequired/
+            Meteor.Error,
+            /loginRequired/,
           );
         });
 
@@ -114,18 +113,18 @@ if (Meteor.isServer) {
             () => {
               edit._execute(
                 { userId },
-                { id: Random.id(), doc: { name: 'Bar' } }
+                { id: Random.id(), doc: { name: 'Bar' } },
               );
             },
             Meteor.Error,
-            /brands.edit.notFound/
+            /brands.edit.notFound/,
           );
         });
 
         it('edit', function () {
           edit._execute(
             { userId },
-            { id: brandId, doc: { name: 'Bar' } }
+            { id: brandId, doc: { name: 'Bar' } },
           );
 
           assert.equal(Brands.findOne(brandId).name, 'Bar');
@@ -138,9 +137,8 @@ if (Meteor.isServer) {
             () => {
               remove._execute({}, brandId);
             },
-
             Meteor.Error,
-            /loginRequired/
+            /loginRequired/,
           );
         });
 
@@ -149,9 +147,8 @@ if (Meteor.isServer) {
             () => {
               remove._execute({ userId }, Random.id());
             },
-
             Meteor.Error,
-            /brands.remove.notFound/
+            /brands.remove.notFound/,
           );
         });
 

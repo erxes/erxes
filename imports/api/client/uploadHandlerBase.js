@@ -1,3 +1,5 @@
+/* global FileReader */
+
 /*
  * Using in both api & main projects
  */

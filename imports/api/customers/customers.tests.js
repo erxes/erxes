@@ -7,11 +7,11 @@ import { _ } from 'meteor/underscore';
 import { Factory } from 'meteor/dburles:factory';
 import { assert, chai } from 'meteor/practicalmeteor:chai';
 import { PublicationCollector } from 'meteor/johanbrook:publication-collector';
-
 import { Customers } from './customers';
 
+
 if (Meteor.isServer) {
-  require('./server/publications.js');
+  import './server/publications.js';
 
   describe('customers', function () {
     describe('mutators', function () {

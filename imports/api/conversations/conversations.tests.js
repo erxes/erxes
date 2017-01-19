@@ -8,19 +8,17 @@ import { Factory } from 'meteor/dburles:factory';
 import { assert, chai } from 'meteor/practicalmeteor:chai';
 import { PublicationCollector } from 'meteor/johanbrook:publication-collector';
 import { Notifications } from 'meteor/erxes-notifications';
-
 import { Channels } from '/imports/api/channels/channels';
 import { Brands } from '/imports/api/brands/brands';
 import { Integrations } from '/imports/api/integrations/integrations';
-
 import { Conversations } from './conversations';
 import { CONVERSATION_STATUSES } from './constants';
 import { assign, unassign, changeStatus, star, unstar } from './methods';
 
-if (Meteor.isServer) {
-  const { tag } = require('./server/methods');
 
-  require('./server/publications');
+if (Meteor.isServer) {
+  import { tag } from './server/methods';
+  import './server/publications';
 
   describe('conversations', function () {
     describe('publications', function () {

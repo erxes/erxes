@@ -1,17 +1,15 @@
 /* eslint-env mocha */
-/* eslint-disable func-names, prefer-arrow-callback */
-/* eslint-disable no-underscore-dangle */
+/* eslint-disable func-names, prefer-arrow-callback, no-underscore-dangle */
 
 import sinon from 'sinon';
 import { Meteor } from 'meteor/meteor';
 import { Factory } from 'meteor/dburles:factory';
 import { assert } from 'meteor/practicalmeteor:chai';
-
 import { Integrations } from './integrations';
 import { KIND_CHOICES } from './constants';
-import { addInAppMessaging, addChat, remove } from './server/methods';
-import { addFacebook, addTwitter } from './server/methods';
+import { addInAppMessaging, addChat, remove, addFacebook, addTwitter } from './server/methods';
 import twitter from './server/social_api/twitter';
+
 
 if (Meteor.isServer) {
   describe('integrations', function () {
@@ -29,7 +27,7 @@ if (Meteor.isServer) {
       it('add in app messsaging', function () {
         addInAppMessaging._execute(
           { userId },
-          { doc: { name: 'Foo', brandId } }
+          { doc: { name: 'Foo', brandId } },
         );
 
         const integration = Integrations.findOne({ name: 'Foo' });
@@ -42,7 +40,7 @@ if (Meteor.isServer) {
       it('add chat', function () {
         addChat._execute(
           { userId },
-          { doc: { name: 'Foo', brandId } }
+          { doc: { name: 'Foo', brandId } },
         );
 
         const integration = Integrations.findOne({ name: 'Foo' });
@@ -63,7 +61,7 @@ if (Meteor.isServer) {
             brandId,
             appId,
             pageIds,
-          }
+          },
         );
 
         const integration = Integrations.findOne({ name: 'Facebook' });
@@ -92,7 +90,7 @@ if (Meteor.isServer) {
                 tokenSecret: 'auth.token_secret',
               },
             });
-          }
+          },
         );
 
         // stub track twitter integration
@@ -103,7 +101,7 @@ if (Meteor.isServer) {
           {
             brandId,
             queryParams: {},
-          }
+          },
         );
 
         const integration = Integrations.findOne({ name: 'Twitter' });
@@ -135,7 +133,7 @@ if (Meteor.isServer) {
             },
 
             Meteor.Error,
-            /integrations.remove.usedInChannel/
+            /integrations.remove.usedInChannel/,
           );
         });
 

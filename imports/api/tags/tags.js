@@ -2,14 +2,12 @@ import { Mongo } from 'meteor/mongo';
 import { Meteor } from 'meteor/meteor';
 import { Random } from 'meteor/random';
 import { _ } from 'meteor/underscore';
-
 import { Factory } from 'meteor/dburles:factory';
 import { SimpleSchema } from 'meteor/aldeed:simple-schema';
-
 import { Customers } from '/imports/api/customers/customers';
 import { Conversations } from '/imports/api/conversations/conversations';
-
 import { TAG_TYPES } from './constants';
+
 
 class TagsCollection extends Mongo.Collection {
   insert(doc, callback) {
@@ -19,7 +17,7 @@ class TagsCollection extends Mongo.Collection {
         createdAt: new Date(),
         objectCount: 0,
       },
-      doc
+      doc,
     );
 
     if (!this.validateUniqueness(null, tag)) {

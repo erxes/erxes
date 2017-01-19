@@ -54,21 +54,21 @@ Meteor.publishComposite('customers.list', function customersList(queryString) {
       };
 
       // Count customers by brand
-      Brands.find().fetch().forEach(brand => {
+      Brands.find().fetch().forEach((brand) => {
         const integrations = Integrations.find({ brandId: brand._id }).fetch();
 
         countCustomers(
           `brand.${brand._id}`,
-          { integrationId: { $in: integrations.map(i => i._id) } }
+          { integrationId: { $in: integrations.map(i => i._id) } },
         );
       });
 
       // Count customers by integration
-      KIND_CHOICES.ALL_LIST.forEach(integration => {
+      KIND_CHOICES.ALL_LIST.forEach((integration) => {
         const integrations = Integrations.find({ kind: integration }).fetch();
         countCustomers(
           `integration.${integration}`,
-          { integrationId: { $in: integrations.map(i => i._id) } }
+          { integrationId: { $in: integrations.map(i => i._id) } },
         );
       });
 

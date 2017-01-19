@@ -1,9 +1,7 @@
 import faker from 'faker';
-
 import { Mongo } from 'meteor/mongo';
 import { Random } from 'meteor/random';
 import { _ } from 'meteor/underscore';
-
 import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 import { Factory } from 'meteor/dburles:factory';
 
@@ -17,7 +15,7 @@ class ChannelsCollection extends Mongo.Collection {
         conversationCount: 0,
         openConversationCount: 0,
       },
-      doc
+      doc,
     );
 
     // add current user to members
@@ -29,6 +27,7 @@ class ChannelsCollection extends Mongo.Collection {
   }
 }
 
+// eslint-disable-next-line import/prefer-default-export
 export const Channels = new ChannelsCollection('channels');
 
 Channels.deny({
