@@ -26,7 +26,7 @@ export default class ListQueryBuilder {
       unassigned: Match.Optional(String),
       brandId: Match.Optional(String),
       tagId: Match.Optional(String),
-      integrationId: Match.Optional(String),
+      integrationType: Match.Optional(String),
       participating: Match.Optional(String),
       starred: Match.Optional(String),
     });
@@ -155,15 +155,17 @@ export default class ListQueryBuilder {
     };
   }
 
-  // filter by integration
-  integrationFilter(integrationId) {
+  // filter by integration type
+  integrationTypeFilter(integrationType) {
+    const integrations = Integrations.find({ kind: integrationType }).fetch();
+
     return {
       $and: [
         // add channel && brand filter
         this.queries.integrations,
 
-        // add given integrationId filter
-        { integrationId },
+        // filter by integration type
+        { integrationId: { $in: _.pluck(integrations, '_id') } },
       ],
     };
   }
@@ -186,7 +188,7 @@ export default class ListQueryBuilder {
       unassigned: {},
       tag: {},
       channel: {},
-      integration: {},
+      integrationType: {},
 
       // find it using channel && brand
       integrations: {},
@@ -227,9 +229,11 @@ export default class ListQueryBuilder {
       this.queries.tag = this.tagFilter(this.params.tagId);
     }
 
-    // filter by integration
-    if (this.params.integrationId) {
-      this.queries.integration = this.integrationFilter(this.params.integrationId);
+    // filter by integration type
+    if (this.params.integrationType) {
+      this.queries.integrationType = this.integrationTypeFilter(
+        this.params.integrationType,
+      );
     }
   }
 
@@ -237,7 +241,7 @@ export default class ListQueryBuilder {
     return {
       ...this.queries.default,
       ...this.queries.integrations,
-      ...this.queries.integration,
+      ...this.queries.integrationType,
       ...this.queries.unassigned,
       ...this.queries.participating,
       ...this.queries.status,
