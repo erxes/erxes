@@ -28,7 +28,7 @@ export const graphRequest = {
 
     // catch session expired or some other error
     } catch (e) {
-      throw new Error(e.message);
+      console.log(e.message); // eslint-disable-line no-console
     }
   },
 
