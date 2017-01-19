@@ -453,8 +453,7 @@ describe('facebook integration', function () {
       assert.equal(message.customerId, customer._id);
       assert.equal(message.internal, false);
       assert.equal(message.content, messageText);
-      assert.deepEqual(message.attachments, [{ url: link }]);
-      assert.deepEqual(message.facebookData, { item: 'post', senderId });
+      assert.deepEqual(message.facebookData, { item: 'post', senderId, link });
 
 
       // second time ========================

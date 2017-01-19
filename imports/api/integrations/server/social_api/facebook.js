@@ -29,6 +29,7 @@ export const graphRequest = {
     // catch session expired or some other error
     } catch (e) {
       console.log(e.message); // eslint-disable-line no-console
+      return e.message;
     }
   },
 
@@ -202,13 +203,17 @@ export class SaveWebhookResponse {
     // convert it to string
     const senderId = value.sender_id.toString();
 
-    const messageText = value.message;
+    let messageText = value.message;
 
-    // generate attachments using link
-    let attachments;
+    // when photo share, there will be no text, so link instead
+    if (!messageText && value.link) {
+      messageText = value.link;
+    }
 
-    if (value.link) {
-      attachments = [{ url: value.link }];
+    // when situations like checkin, there will be no text and no link
+    // if so ignore it
+    if (!messageText) {
+      return;
     }
 
     // value.post_id is returning different value even though same post
@@ -221,6 +226,11 @@ export class SaveWebhookResponse {
       `${this.currentPageId}/?fields=access_token`,
       this.userAccessToken,
     );
+
+    // acess token expired
+    if (response === 'Error processing https request') {
+      return;
+    }
 
     // get post object
     response = graphRequest.get(postId, response.access_token);
@@ -242,12 +252,13 @@ export class SaveWebhookResponse {
 
       // message data
       content: messageText,
-      attachments,
       msgFacebookData: {
         senderId,
         senderName,
         item: value.item,
         reactionType: value.reaction_type,
+        photoId: value.photo_id,
+        link: value.link,
       },
     });
   }
