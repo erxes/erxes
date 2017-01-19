@@ -98,6 +98,17 @@ const facebookSchema = new SimpleSchema({
     optional: true,
   },
 
+  // when share photo
+  photoId: {
+    type: String,
+    optional: true,
+  },
+
+  link: {
+    type: String,
+    optional: true,
+  },
+
   reactionType: {
     type: String,
     optional: true,
