@@ -59,25 +59,37 @@ Meteor.publishComposite('conversations.list', function conversationsList(params)
   // unassigned count
   countPublish(
     'conversations.counts.unassiged',
-    _.extend({}, queries.default, queries.integrations, qb.unassignedFilter()),
+    _.extend(
+      {}, queries.default, queries.integrations,
+      queries.integrationType, qb.unassignedFilter(),
+    ),
   );
 
   // participating count
   countPublish(
     'conversations.counts.participating',
-    _.extend({}, queries.default, queries.integrations, qb.participatingFilter()),
+    _.extend(
+      {}, queries.default, queries.integrations,
+      queries.integrationType, qb.participatingFilter(),
+    ),
   );
 
   // starred count
   countPublish(
     'conversations.counts.starred',
-    _.extend({}, queries.default, queries.integrations, qb.starredFilter()),
+    _.extend(
+      {}, queries.default, queries.integrations,
+      queries.integrationType, qb.starredFilter(),
+    ),
   );
 
   // resolved count
   countPublish(
     'conversations.counts.resolved',
-    _.extend({}, queries.default, queries.integrations, qb.statusFilter(['closed'])),
+    _.extend(
+      {}, queries.default, queries.integrations,
+      queries.integrationType, qb.statusFilter(['closed']),
+    ),
   );
 
   // by integration type
@@ -92,7 +104,10 @@ Meteor.publishComposite('conversations.list', function conversationsList(params)
   Tags.find().forEach((tag) => {
     countPublish(
       `conversations.counts.byTag${tag._id}`,
-      _.extend({}, queries.default, queries.integrations, qb.tagFilter(tag._id)),
+      _.extend(
+        {}, queries.default, queries.integrations,
+        queries.integrationType, qb.tagFilter(tag._id),
+      ),
     );
   });
 
