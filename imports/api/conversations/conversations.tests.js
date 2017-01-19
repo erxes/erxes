@@ -115,27 +115,11 @@ if (Meteor.isServer) {
           checkCollectionLength(done, { status: 'closed' }, 3);
         });
 
-        it('filter by assignee', function (done) {
-          // 2 + 3
-          checkCollectionLength(done, { assignedUserId: userId }, 5);
-        });
-
-        it('filter by assignee with status', function (done) {
-          checkCollectionLength(
-            done,
-            {
-              status: 'closed',
-              assignedUserId: userId,
-            },
-            3,
-          );
+        it('get unassigned conversations', function (done) {
+          checkCollectionLength(done, { unassigned: '1' }, 4);
         });
 
         it('get unassigned conversations', function (done) {
-          checkCollectionLength(done, { assignedUserId: userId }, 5);
-        });
-
-        it('get unassigned conversations with unassigned sign', function (done) {
           checkCollectionLength(done, { unassigned: '1' }, 4);
         });
 
@@ -144,19 +128,11 @@ if (Meteor.isServer) {
         });
 
         it('filter by participator', function (done) {
-          checkCollectionLength(
-            done,
-            { assignedUserId: userId, participatedUserId: userId },
-            2,
-          );
+          checkCollectionLength(done, { participating: 'true' }, 2);
         });
 
         it('filter by starred', function (done) {
-          checkCollectionLength(
-            done,
-            { assignedUserId: userId, starred: '1' },
-            3,
-          );
+          checkCollectionLength(done, { starred: 'true' }, 3);
         });
 
         it('do not send conversations without user', function (done) {
