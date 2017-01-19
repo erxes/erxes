@@ -7,12 +7,11 @@ import { FlowRouter } from 'meteor/kadira:flow-router';
 import { EmptyState } from '/imports/react-ui/common';
 import { Wrapper } from '/imports/react-ui/layout/components';
 import { CONVERSATION_STATUSES } from '/imports/api/conversations/constants';
-
+import { KIND_CHOICES as INTEGRATIONS_TYPES } from '/imports/api/integrations/constants';
 
 const propTypes = {
   channels: PropTypes.array.isRequired,
   brands: PropTypes.array.isRequired,
-  integrations: PropTypes.array.isRequired,
   tags: PropTypes.array.isRequired,
 };
 
@@ -67,21 +66,21 @@ class Sidebar extends React.Component {
     );
   }
 
-  static renderIntegration(integration) {
+  static renderIntegration(integrationType, index) {
     const onClick = () => {
-      Sidebar.changeFilter('integrationId', integration._id);
+      Sidebar.changeFilter('integrationType', integrationType);
     };
 
     return (
-      <li key={integration._id}>
+      <li key={index}>
         <a
-          className={Sidebar.getActiveClass('integrationId', integration._id)}
+          className={Sidebar.getActiveClass('integrationType', integrationType)}
           onClick={onClick}
         >
 
-          <span className="icon">#</span>{integration.name}
+          <span className="icon">#</span>{integrationType}
           <span className="counter">
-            {Counts.get(`conversations.counts.byIntegration${integration._id}`)}
+            {Counts.get(`conversations.counts.byIntegrationType${integrationType}`)}
           </span>
         </a>
       </li>
@@ -173,7 +172,8 @@ class Sidebar extends React.Component {
   }
 
   render() {
-    const { channels, tags, brands, integrations } = this.props;
+    const { channels, tags, brands } = this.props;
+    const integrationTypes = INTEGRATIONS_TYPES.ALL_LIST;
 
     return (
       <Wrapper.Sidebar>
@@ -193,11 +193,11 @@ class Sidebar extends React.Component {
           </ul>
         </Wrapper.Sidebar.Section>
 
-        <Wrapper.Sidebar.Section collapsible={integrations.length > 5}>
-          {Sidebar.renderSectionHeader('Integrations', 'integrationId')}
+        <Wrapper.Sidebar.Section collapsible={integrationTypes.length > 5}>
+          {Sidebar.renderSectionHeader('Integrations', 'integrationType')}
           <ul className="filters">
-            {integrations.map(integration => Sidebar.renderIntegration(integration))}
-            {Sidebar.renderEmptyState(integrations, 'No integration', 'icon-flag')}
+            {integrationTypes.map((t, i) => Sidebar.renderIntegration(t, i))}
+            {Sidebar.renderEmptyState(integrationTypes, 'No integration', 'icon-flag')}
           </ul>
         </Wrapper.Sidebar.Section>
 

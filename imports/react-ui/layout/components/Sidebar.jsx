@@ -38,7 +38,7 @@ class Section extends Component {
   renderCollapseButton() {
     const icon = this.state.collapse ? 'ion-chevron-up' : 'ion-chevron-down';
     return (
-      <a href="#" onClick={this.toggleCollapse} className="toggle-collapse">
+      <a onClick={this.toggleCollapse} className="toggle-collapse">
         <i className={icon}></i>
       </a>
     );
