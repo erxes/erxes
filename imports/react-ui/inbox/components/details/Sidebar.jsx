@@ -74,7 +74,7 @@ class Sidebar extends Component {
   renderFacebookPostUrl() {
     const conversation = this.props.conversation;
     const integration = conversation.integration();
-    if (integration.kind === 'facebook') {
+    if (integration.kind === 'facebook' && conversation.facebookData.kind === 'feed') {
       const link = `http://facebook.com/${conversation.facebookData.postId}`;
       return (
         <li>
