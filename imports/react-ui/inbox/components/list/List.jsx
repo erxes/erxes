@@ -11,6 +11,7 @@ const propTypes = {
   conversations: PropTypes.array.isRequired,
   channels: PropTypes.array.isRequired,
   brands: PropTypes.array.isRequired,
+  integrations: PropTypes.array.isRequired,
   tags: PropTypes.array.isRequired,
   channelId: PropTypes.string,
   user: PropTypes.object,
@@ -26,6 +27,7 @@ function List(props) {
     tags,
     channelId,
     brands,
+    integrations,
     user,
     bulk,
     toggleBulk,
@@ -94,7 +96,16 @@ function List(props) {
     <div>
       <Wrapper
         header={<Wrapper.Header breadcrumb={[{ title: 'Inbox' }]} />}
-        leftSidebar={<Sidebar channels={channels} brands={brands} tags={tags} />}
+
+        leftSidebar={
+          <Sidebar
+            channels={channels}
+            brands={brands}
+            tags={tags}
+            integrations={integrations}
+          />
+        }
+
         actionBar={bulk.length ? actionBar : false}
         content={conversations.length !== 0 ? content : empty}
       />

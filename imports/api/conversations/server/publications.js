@@ -7,6 +7,7 @@ import { Customers } from '/imports/api/customers/customers';
 import { Tags } from '/imports/api/tags/tags';
 import { Channels } from '/imports/api/channels/channels';
 import { Brands } from '/imports/api/brands/brands';
+import { Integrations } from '/imports/api/integrations/integrations';
 
 import { Conversations } from '../conversations';
 import { Messages } from '../messages';
@@ -79,7 +80,15 @@ Meteor.publishComposite('conversations.list', function conversationsList(params)
     _.extend({}, queries.default, queries.integrations, qb.statusFilter(['closed'])),
   );
 
-  // by tags
+  // by integration
+  Integrations.find().forEach((integration) => {
+    countPublish(
+      `conversations.counts.byIntegration${integration._id}`,
+      _.extend({}, queries.default, qb.integrationFilter(integration._id)),
+    );
+  });
+
+  // by tag
   Tags.find().forEach((tag) => {
     countPublish(
       `conversations.counts.byTag${tag._id}`,

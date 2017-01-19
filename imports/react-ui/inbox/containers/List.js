@@ -5,6 +5,7 @@ import { composeWithTracker } from 'react-komposer';
 import { Conversations } from '/imports/api/conversations/conversations';
 import { Channels } from '/imports/api/channels/channels';
 import { Brands } from '/imports/api/brands/brands';
+import { Integrations } from '/imports/api/integrations/integrations';
 import { Tags } from '/imports/api/tags/tags';
 import { TAG_TYPES } from '/imports/api/tags/constants';
 import { Loader } from '/imports/react-ui/common';
@@ -76,6 +77,7 @@ function composer({ channelId, queryParams }, onData) {
           tags,
           channelId,
           brands,
+          integrations: Integrations.find().fetch(),
           user,
         },
       );

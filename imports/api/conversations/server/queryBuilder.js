@@ -26,6 +26,7 @@ export default class ListQueryBuilder {
       unassigned: Match.Optional(String),
       brandId: Match.Optional(String),
       tagId: Match.Optional(String),
+      integrationId: Match.Optional(String),
       participating: Match.Optional(String),
       starred: Match.Optional(String),
     });
@@ -67,6 +68,9 @@ export default class ListQueryBuilder {
     };
   }
 
+  /*
+   * find integrationIds from channel && brand
+   */
   integrationsFilter() {
     const channelFilter = {
       memberIds: this.user._id,
@@ -151,6 +155,19 @@ export default class ListQueryBuilder {
     };
   }
 
+  // filter by integration
+  integrationFilter(integrationId) {
+    return {
+      $and: [
+        // add channel && brand filter
+        this.queries.integrations,
+
+        // add given integrationId filter
+        { integrationId },
+      ],
+    };
+  }
+
   // filter by tag
   tagFilter(tagId) {
     return {
@@ -162,57 +179,65 @@ export default class ListQueryBuilder {
    * prepare all queries. do not do any action
    */
   buildAllQueries() {
-    const queries = {
+    this.queries = {
       default: this.defaultFilters(),
       starred: {},
       status: {},
       unassigned: {},
       tag: {},
       channel: {},
+      integration: {},
+
+      // find it using channel && brand
       integrations: {},
+
       participating: {},
     };
 
     // filter by channel
     if (this.params.channelId) {
-      queries.channel = this.channelFilter(this.params.channelId);
+      this.queries.channel = this.channelFilter(this.params.channelId);
     }
 
     // filter by channelId & brandId
-    queries.integrations = this.integrationsFilter();
+    this.queries.integrations = this.integrationsFilter();
 
     // unassigned
     if (this.params.unassigned) {
-      queries.unassigned = this.unassignedFilter();
+      this.queries.unassigned = this.unassignedFilter();
     }
 
     // participating
     if (this.params.participating) {
-      queries.participating = this.participatingFilter();
+      this.queries.participating = this.participatingFilter();
     }
 
     // starred
     if (this.params.starred) {
-      queries.starred = this.starredFilter();
+      this.queries.starred = this.starredFilter();
     }
 
     // filter by status
     if (this.params.status) {
-      queries.status = this.statusFilter([this.params.status]);
+      this.queries.status = this.statusFilter([this.params.status]);
     }
 
     // filter by tag
     if (this.params.tagId) {
-      queries.tag = this.tagFilter(this.params.tagId);
+      this.queries.tag = this.tagFilter(this.params.tagId);
     }
 
-    this.queries = queries;
+    // filter by integration
+    if (this.params.integrationId) {
+      this.queries.integration = this.integrationFilter(this.params.integrationId);
+    }
   }
 
   mainQuery() {
     return {
       ...this.queries.default,
       ...this.queries.integrations,
+      ...this.queries.integration,
       ...this.queries.unassigned,
       ...this.queries.participating,
       ...this.queries.status,

@@ -12,6 +12,7 @@ import { CONVERSATION_STATUSES } from '/imports/api/conversations/constants';
 const propTypes = {
   channels: PropTypes.array.isRequired,
   brands: PropTypes.array.isRequired,
+  integrations: PropTypes.array.isRequired,
   tags: PropTypes.array.isRequired,
 };
 
@@ -60,6 +61,27 @@ class Sidebar extends React.Component {
           <span className="icon">#</span>{brand.name}
           <span className="counter">
             {Counts.get(`conversations.counts.byBrand${brand._id}`)}
+          </span>
+        </a>
+      </li>
+    );
+  }
+
+  static renderIntegration(integration) {
+    const onClick = () => {
+      Sidebar.changeFilter('integrationId', integration._id);
+    };
+
+    return (
+      <li key={integration._id}>
+        <a
+          className={Sidebar.getActiveClass('integrationId', integration._id)}
+          onClick={onClick}
+        >
+
+          <span className="icon">#</span>{integration.name}
+          <span className="counter">
+            {Counts.get(`conversations.counts.byIntegration${integration._id}`)}
           </span>
         </a>
       </li>
@@ -151,7 +173,7 @@ class Sidebar extends React.Component {
   }
 
   render() {
-    const { channels, tags, brands } = this.props;
+    const { channels, tags, brands, integrations } = this.props;
 
     return (
       <Wrapper.Sidebar>
@@ -168,6 +190,14 @@ class Sidebar extends React.Component {
           <ul className="filters">
             {brands.map(brand => Sidebar.renderBrand(brand))}
             {Sidebar.renderEmptyState(brands, 'No brand', 'icon-flag')}
+          </ul>
+        </Wrapper.Sidebar.Section>
+
+        <Wrapper.Sidebar.Section collapsible={integrations.length > 5}>
+          {Sidebar.renderSectionHeader('Integrations', 'integrationId')}
+          <ul className="filters">
+            {integrations.map(integration => Sidebar.renderIntegration(integration))}
+            {Sidebar.renderEmptyState(integrations, 'No integration', 'icon-flag')}
           </ul>
         </Wrapper.Sidebar.Section>
 
@@ -189,7 +219,7 @@ class Sidebar extends React.Component {
             {Sidebar.renderSingleFilter(
               'status', CONVERSATION_STATUSES.CLOSED, 'resolved', 'Resolved')}
 
-            {Sidebar.renderSingleFilter('starred', 1, 'starred', 'Starred')}
+            {Sidebar.renderSingleFilter('starred', 'true', 'starred', 'Starred')}
           </ul>
         </Wrapper.Sidebar.Section>
 
