@@ -32,7 +32,7 @@ function composer({ id, channelId }, onData) {
     const conversation = Conversations.findOne(id);
     const messages = Messages.find(
       { conversationId: id },
-      { sort: { createdAt: 1 } }
+      { sort: { createdAt: 1 } },
     ).fetch();
     const integrationId = conversation.integrationId;
 
@@ -64,7 +64,7 @@ function composer({ id, channelId }, onData) {
           changeStatus,
           setAttachmentPreview,
           attachmentPreview: attachmentPreview.get(),
-        }
+        },
       );
     }
   }

@@ -1,9 +1,9 @@
 import { composeWithTracker } from 'react-komposer';
 import { Meteor } from 'meteor/meteor';
 import { assign as assignMethod, unassign } from '/imports/api/conversations/methods';
-import { AssignBox } from '../components';
 import { Conversations } from '/imports/api/conversations/conversations';
 import { Spinner } from '/imports/react-ui/common';
+import { AssignBox } from '../components';
 
 
 function composer(props, onData) {

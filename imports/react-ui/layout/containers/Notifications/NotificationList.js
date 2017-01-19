@@ -1,8 +1,8 @@
 import { Meteor } from 'meteor/meteor';
 import { Notifications } from 'meteor/erxes-notifications';
 import { composeWithTracker } from 'react-komposer';
-import { NotificationList } from '../../components';
 import { Loader, pagination } from '/imports/react-ui/common';
+import { NotificationList } from '../../components';
 
 
 function composer({ queryParams }, onData) {
@@ -20,9 +20,9 @@ function composer({ queryParams }, onData) {
     const createdUserIds = [];
     const notifications = Notifications.find().fetch();
 
-    notifications.map((notification) =>
-      createdUserIds.push(notification.createdUser)
-    );
+    notifications.forEach((notification) => {
+      createdUserIds.push(notification.createdUser);
+    });
 
     Meteor.subscribe('users.list', { ids: createdUserIds });
 

@@ -7,6 +7,7 @@ import { Spinner } from '/imports/react-ui/common';
 import { Brands } from '/imports/api/brands/brands';
 import { Facebook } from '../components';
 
+
 const apps = new ReactiveVar([]);
 const pages = new ReactiveVar([]);
 
@@ -31,7 +32,7 @@ function composer(props, onData) {
 
         Alert.success('Congrats');
         return FlowRouter.go('/settings/integrations/list');
-      }
+      },
     );
   };
 
@@ -54,7 +55,7 @@ function composer(props, onData) {
         getPages,
         apps: apps.get(),
         pages: pages.get(),
-      }
+      },
     );
   }
 
