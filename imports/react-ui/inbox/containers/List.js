@@ -34,9 +34,7 @@ function composer({ channelId, queryParams }, onData) {
 
   // subscriptions ==================
   const user = Meteor.user();
-  const params = channelId ? Object.assign({ channelId }, queryParams) : queryParams;
-
-  const conversationHandle = Meteor.subscribe('conversations.list', params);
+  const conversationHandle = Meteor.subscribe('conversations.list', queryParams);
 
   // show only involved channels
   const channelHandle = Meteor.subscribe(

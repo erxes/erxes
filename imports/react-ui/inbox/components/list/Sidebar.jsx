@@ -1,7 +1,6 @@
 /* eslint-disable jsx-a11y/no-static-element-interactions */
 /* eslint-disable jsx-a11y/href-no-hash */
 
-import { Meteor } from 'meteor/meteor';
 import React, { PropTypes } from 'react';
 import { Counts } from 'meteor/tmeasday:publish-counts';
 import { FlowRouter } from 'meteor/kadira:flow-router';
@@ -90,7 +89,7 @@ class Sidebar extends React.Component {
   }
 
   static clearStatusFilter() {
-    Sidebar.changeFilter('participatedUserId', '');
+    Sidebar.changeFilter('participating', '');
     Sidebar.changeFilter('status', '');
     Sidebar.changeFilter('unassigned', '');
     Sidebar.changeFilter('starred', '');
@@ -184,7 +183,7 @@ class Sidebar extends React.Component {
               'unassigned', 'true', 'unassiged', 'Unassigned')}
 
             {Sidebar.renderSingleFilter(
-              'participatedUserId', Meteor.userId(),
+              'participating', 'true',
               'participating', 'Participating')}
 
             {Sidebar.renderSingleFilter(

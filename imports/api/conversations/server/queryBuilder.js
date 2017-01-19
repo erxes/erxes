@@ -1,4 +1,5 @@
 /* eslint-disable new-cap */
+/* eslint-disable class-methods-use-this */
 
 import { check, Match } from 'meteor/check';
 import { _ } from 'meteor/underscore';
@@ -13,58 +14,110 @@ export default class ListQueryBuilder {
   constructor(params, user = null) {
     this.params = params;
     this.user = user;
+
+    // prepare all queries. do not do any action
+    this.buildAllQueries();
   }
 
   checkParams() {
     check(this.params, {
       channelId: Match.Optional(String),
       status: Match.Optional(String),
-      assignedUserId: Match.Optional(String),
       unassigned: Match.Optional(String),
       brandId: Match.Optional(String),
       tagId: Match.Optional(String),
-      participatedUserId: Match.Optional(String),
+      participating: Match.Optional(String),
       starred: Match.Optional(String),
     });
   }
 
-  // filter by channel
-  channelFilter(channelId) {
+  defaultFilters() {
+    return {
+      ...this.integrationsFilter(),
+
+      ...this.statusFilter(
+        [CONVERSATION_STATUSES.NEW, CONVERSATION_STATUSES.OPEN],
+      ),
+    };
+  }
+
+  /*
+   * @queries: [
+   *  {integrationId: {$in: ['id1', 'id2']}},
+   *  {integrationId: {$in: ['id3', 'id1', 'id4']}
+   * ]
+   */
+  intersectIntegrationIds(...queries) {
+    // filter only queries with $in field
+    const with$in = _.filter(queries, q =>
+      q.integrationId && q.integrationId.$in && q.integrationId.$in.length > 0,
+    );
+
+    // [{$in: ['id1', 'id2']}, {$in: ['id3', 'id1', 'id4']}]
+    const $ins = _.pluck(with$in, 'integrationId');
+
+    // [['id1', 'id2'], ['id3', 'id1', 'id4']]
+    const nestedIntegrationIds = _.pluck($ins, '$in');
+
+    // ['id1']
+    const integrationids = _.intersection(...nestedIntegrationIds);
+
+    return {
+      integrationId: { $in: integrationids },
+    };
+  }
+
+  integrationsFilter() {
     const channelFilter = {
       memberIds: this.user._id,
     };
 
-    // filter by channel
-    if (channelId) {
-      channelFilter._id = channelId;
-    }
-
     // find all posssible integrations
-    this.totalIntegrationIds = [];
+    let availIntegrationIds = [];
 
     Channels.find(channelFilter).forEach((channel) => {
-      this.totalIntegrationIds = _.union(
-        this.totalIntegrationIds,
-        channel.integrationIds
-      );
+      availIntegrationIds = _.union(availIntegrationIds, channel.integrationIds);
     });
 
-    const query = { integrationId: { $in: this.totalIntegrationIds } };
+    const nestedIntegrationIds = [{ integrationId: { $in: availIntegrationIds } }];
 
-    // default status filters are open and new
-    _.extend(query, this.statusDefaultFilter());
+    // filter by channel
+    if (this.params.channelId) {
+      const channelQuery = this.channelFilter(this.params.channelId);
+      nestedIntegrationIds.push(channelQuery);
+    }
 
-    return query;
+    // filter by brand
+    if (this.params.brandId) {
+      const brandQuery = this.brandFilter(this.params.brandId);
+      nestedIntegrationIds.push(brandQuery);
+    }
+
+    return this.intersectIntegrationIds(...nestedIntegrationIds);
   }
 
-  buildMain() {
-    this.mainQuery = this.channelFilter(this.params.channelId);
+  // filter by channel
+  channelFilter(channelId) {
+    const channel = Channels.findOne(channelId);
 
-    return this.mainQuery;
+    return {
+      integrationId: { $in: channel.integrationIds },
+    };
+  }
+
+  // filter by brand
+  brandFilter(brandId) {
+    const integrations = Integrations.find({ brandId });
+
+    const integrationIds = _.pluck(integrations.fetch(), '_id');
+
+    return {
+      integrationId: { $in: integrationIds },
+    };
   }
 
   // filter all unassigned
-  buildUnassigned() {
+  unassignedFilter() {
     this.unassignedQuery = {
       assignedUserId: { $exists: false },
     };
@@ -72,35 +125,29 @@ export default class ListQueryBuilder {
     return this.unassignedQuery;
   }
 
+  // filter by participating
+  participatingFilter() {
+    return {
+      participatedUserIds: this.user._id,
+    };
+  }
+
   // filter by starred
-  buildStarred() {
+  starredFilter() {
     let ids = [];
 
     if (this.user && this.user.details) {
       ids = this.user.details.starredConversationIds || [];
     }
 
-    this.starredQuery = {
+    return {
       _id: { $in: ids },
     };
-
-    return this.starredQuery;
   }
 
   statusFilter(statusChoices) {
     return {
       status: { $in: statusChoices },
-    };
-  }
-
-  statusDefaultFilter() {
-    return this.statusFilter([CONVERSATION_STATUSES.NEW, CONVERSATION_STATUSES.OPEN]);
-  }
-
-  // filter by participated user
-  participatedUserFilter(userId) {
-    return {
-      participatedUserIds: userId,
     };
   }
 
@@ -111,64 +158,66 @@ export default class ListQueryBuilder {
     };
   }
 
-  // filter by brand
-  brandFilter(brandId) {
-    const integrations = Integrations.find({
-      // id must be in integration ids that filtered in channelFilter
-      _id: { $in: this.totalIntegrationIds },
-
-      // filter by given brand
-      brandId,
-    });
-
-    const integrationIds = _.pluck(integrations.fetch(), '_id');
-
-    return {
-      integrationId: { $in: integrationIds },
+  /*
+   * prepare all queries. do not do any action
+   */
+  buildAllQueries() {
+    const queries = {
+      default: this.defaultFilters(),
+      starred: {},
+      status: {},
+      unassigned: {},
+      tag: {},
+      channel: {},
+      integrations: {},
+      participating: {},
     };
-  }
 
-  mainFilter() {
-    const query = this.mainQuery;
+    // filter by channel
+    if (this.params.channelId) {
+      queries.channel = this.channelFilter(this.params.channelId);
+    }
 
-    // filter by starred
+    // filter by channelId & brandId
+    queries.integrations = this.integrationsFilter();
+
+    // unassigned
+    if (this.params.unassigned) {
+      queries.unassigned = this.unassignedFilter();
+    }
+
+    // participating
+    if (this.params.participating) {
+      queries.participating = this.participatingFilter();
+    }
+
+    // starred
     if (this.params.starred) {
-      _.extend(query, this.starredQuery);
+      queries.starred = this.starredFilter();
     }
 
     // filter by status
     if (this.params.status) {
-      _.extend(query, this.statusFilter([this.params.status]));
-    }
-
-    // filter by assigned user
-    if (this.params.assignedUserId) {
-      _.extend(query, { assignedUserId: this.params.assignedUserId });
-    }
-
-    // filter only unassigned
-    if (this.params.unassigned) {
-      _.extend(query, this.unassignedQuery);
+      queries.status = this.statusFilter([this.params.status]);
     }
 
     // filter by tag
     if (this.params.tagId) {
-      _.extend(query, this.tagFilter(this.params.tagId));
+      queries.tag = this.tagFilter(this.params.tagId);
     }
 
-    // filter by brand
-    if (this.params.brandId) {
-      _.extend(query, this.brandFilter(this.params.brandId));
-    }
+    this.queries = queries;
+  }
 
-    // filter by participated user
-    if (this.params.participatedUserId) {
-      _.extend(
-        query,
-        this.participatedUserFilter(this.params.participatedUserId)
-      );
-    }
-
-    return query;
+  mainQuery() {
+    return {
+      ...this.queries.default,
+      ...this.queries.integrations,
+      ...this.queries.unassigned,
+      ...this.queries.participating,
+      ...this.queries.status,
+      ...this.queries.starred,
+      ...this.queries.tag,
+    };
   }
 }

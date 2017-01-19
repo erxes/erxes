@@ -29,72 +29,72 @@ Meteor.publishComposite('conversations.list', function conversationsList(params)
   // check params
   qb.checkParams();
 
+  const queries = qb.queries;
+
   const countPublish = (name, query) => {
     Counts.publish(this, name, Conversations.find(query), { noReady: true });
   };
-
-  // all conversation count
-  countPublish(
-    'conversations.counts.allConversation',
-    qb.buildMain()
-  );
-
-  // unassigned count
-  countPublish(
-    'conversations.counts.unassiged',
-    _.extend({}, qb.mainQuery, qb.buildUnassigned())
-  );
-
-  // participating count
-  countPublish(
-    'conversations.counts.participating',
-    _.extend({}, qb.mainQuery, qb.participatedUserFilter(user._id))
-  );
-
-  // starred count
-  countPublish(
-    'conversations.counts.starred',
-    _.extend({}, qb.mainQuery, qb.buildStarred())
-  );
-
-  // resolved count
-  countPublish(
-    'conversations.counts.resolved',
-    _.extend({}, qb.mainQuery, qb.statusFilter(['closed']))
-  );
-
-  // by brands
-  Brands.find().forEach((brand) => {
-    countPublish(
-      `conversations.counts.byBrand${brand._id}`,
-      _.extend({}, qb.mainQuery, qb.brandFilter(brand._id))
-    );
-  });
-
-  // by tags
-  Tags.find().forEach((tag) => {
-    countPublish(
-      `conversations.counts.byTag${tag._id}`,
-      _.extend({}, qb.mainQuery, qb.tagFilter(tag._id))
-    );
-  });
 
   // by channels
   Channels.find().forEach((channel) => {
     countPublish(
       `conversations.counts.byChannel${channel._id}`,
-      _.extend({}, qb.channelFilter(channel._id))
+      _.extend({}, queries.default, qb.channelFilter(channel._id)),
+    );
+  });
+
+  // by brands
+  Brands.find().forEach((brand) => {
+    countPublish(
+      `conversations.counts.byBrand${brand._id}`,
+      _.extend(
+        {},
+        queries.default,
+        qb.intersectIntegrationIds(queries.channel, qb.brandFilter(brand._id)),
+      ),
+    );
+  });
+
+  // unassigned count
+  countPublish(
+    'conversations.counts.unassiged',
+    _.extend({}, queries.default, queries.integrations, qb.unassignedFilter()),
+  );
+
+  // participating count
+  countPublish(
+    'conversations.counts.participating',
+    _.extend({}, queries.default, queries.integrations, qb.participatingFilter()),
+  );
+
+  // starred count
+  countPublish(
+    'conversations.counts.starred',
+    _.extend({}, queries.default, queries.integrations, qb.starredFilter()),
+  );
+
+  // resolved count
+  countPublish(
+    'conversations.counts.resolved',
+    _.extend({}, queries.default, queries.integrations, qb.statusFilter(['closed'])),
+  );
+
+  // by tags
+  Tags.find().forEach((tag) => {
+    countPublish(
+      `conversations.counts.byTag${tag._id}`,
+      _.extend({}, queries.default, queries.integrations, qb.tagFilter(tag._id)),
     );
   });
 
   return {
     find() {
       return Conversations.find(
-        qb.mainFilter(),
+        qb.mainQuery(),
         {
           fields: Conversations.publicField,
           sort: { createdAt: -1 },
-        }
+        },
       );
     },
 
@@ -103,7 +103,7 @@ Meteor.publishComposite('conversations.list', function conversationsList(params)
         find(conversation) {
           return Customers.find(
             conversation.customerId,
-            { fields: Customers.publicFields }
+            { fields: Customers.publicFields },
           );
         },
       },
@@ -111,7 +111,7 @@ Meteor.publishComposite('conversations.list', function conversationsList(params)
         find(conversation) {
           return Meteor.users.find(
             conversation.assignedUserId,
-            { fields: { details: 1, emails: 1 } }
+            { fields: { details: 1, emails: 1 } },
           );
         },
       },
@@ -122,7 +122,7 @@ Meteor.publishComposite('conversations.list', function conversationsList(params)
 Meteor.publishComposite('conversations.detail', function conversationsDetail(id) {
   check(id, String);
 
-  if (! this.userId) {
+  if (!this.userId) {
     return { find() { this.ready(); } };
   }
 
@@ -137,7 +137,7 @@ Meteor.publishComposite('conversations.detail', function conversationsDetail(id)
         find(conversation) {
           return Customers.find(
             conversation.customerId,
-            { fields: Customers.publicFields }
+            { fields: Customers.publicFields },
           );
         },
       },
@@ -145,7 +145,7 @@ Meteor.publishComposite('conversations.detail', function conversationsDetail(id)
         find(conversation) {
           return Meteor.users.find(
             conversation.assignedUserId,
-            { fields: { details: 1, emails: 1 } }
+            { fields: { details: 1, emails: 1 } },
           );
         },
       },
@@ -156,7 +156,7 @@ Meteor.publishComposite('conversations.detail', function conversationsDetail(id)
 Meteor.publishComposite('conversations.messageList', function messageList(conversationId) {
   check(conversationId, String);
 
-  if (! this.userId) {
+  if (!this.userId) {
     return { find() { this.ready(); } };
   }
 
@@ -164,7 +164,7 @@ Meteor.publishComposite('conversations.messageList', function messageList(conver
     find() {
       return Messages.find(
         { conversationId },
-        { fields: Messages.publicFields }
+        { fields: Messages.publicFields },
       );
     },
 
@@ -173,7 +173,7 @@ Meteor.publishComposite('conversations.messageList', function messageList(conver
         find(message) {
           return Customers.find(
             message.customerId,
-            { fields: Customers.publicFields }
+            { fields: Customers.publicFields },
           );
         },
       },
@@ -181,7 +181,7 @@ Meteor.publishComposite('conversations.messageList', function messageList(conver
         find(message) {
           return Meteor.users.find(
             message.userId,
-            { fields: { details: 1, emails: 1 } }
+            { fields: { details: 1, emails: 1 } },
           );
         },
       },
