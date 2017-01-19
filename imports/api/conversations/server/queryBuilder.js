@@ -33,12 +33,17 @@ export default class ListQueryBuilder {
   }
 
   defaultFilters() {
+    let statusFilter = this.statusFilter(
+      [CONVERSATION_STATUSES.NEW, CONVERSATION_STATUSES.OPEN],
+    );
+
+    if (this.params.status === 'closed') {
+      statusFilter = this.statusFilter([CONVERSATION_STATUSES.CLOSED]);
+    }
+
     return {
       ...this.integrationsFilter(),
-
-      ...this.statusFilter(
-        [CONVERSATION_STATUSES.NEW, CONVERSATION_STATUSES.OPEN],
-      ),
+      ...statusFilter,
     };
   }
 
