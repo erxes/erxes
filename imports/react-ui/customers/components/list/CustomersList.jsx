@@ -2,7 +2,7 @@ import React, { PropTypes } from 'react';
 import { Table } from 'react-bootstrap';
 import { Wrapper } from '/imports/react-ui/layout/components';
 import { Pagination } from '/imports/react-ui/common';
-import Sidebar from '../../Sidebar.jsx';
+import Sidebar from './Sidebar.jsx';
 import CustomerRow from './CustomerRow.jsx';
 
 
@@ -32,7 +32,7 @@ function CustomersList({ customers, brands, integrations, loadMore, hasMore }) {
         <tbody>
           {
             customers.map(customer =>
-              <CustomerRow customer={customer} key={customer._id} />
+              <CustomerRow customer={customer} key={customer._id} />,
             )
           }
         </tbody>
