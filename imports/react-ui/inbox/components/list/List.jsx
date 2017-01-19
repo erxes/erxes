@@ -11,7 +11,6 @@ const propTypes = {
   conversations: PropTypes.array.isRequired,
   channels: PropTypes.array.isRequired,
   brands: PropTypes.array.isRequired,
-  integrations: PropTypes.array.isRequired,
   tags: PropTypes.array.isRequired,
   channelId: PropTypes.string,
   user: PropTypes.object,
@@ -27,7 +26,6 @@ function List(props) {
     tags,
     channelId,
     brands,
-    integrations,
     user,
     bulk,
     toggleBulk,
@@ -102,7 +100,6 @@ function List(props) {
             channels={channels}
             brands={brands}
             tags={tags}
-            integrations={integrations}
           />
         }
 
