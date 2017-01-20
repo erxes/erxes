@@ -1,14 +1,16 @@
 import React, { PropTypes } from 'react';
 import { Counts } from 'meteor/tmeasday:publish-counts';
 import { Wrapper } from '/imports/react-ui/layout/components';
+import { EmptyState } from '/imports/react-ui/common';
 
 
 const propTypes = {
   brands: PropTypes.array.isRequired,
   integrations: PropTypes.array.isRequired,
+  tags: PropTypes.array.isRequired,
 };
 
-function Sidebar({ brands, integrations }) {
+function Sidebar({ brands, integrations, tags }) {
   return (
     <Wrapper.Sidebar>
       <Wrapper.Sidebar.Section collapsible length={brands.length}>
@@ -70,6 +72,49 @@ function Sidebar({ brands, integrations }) {
                   </span>
                 </a>
               </li>,
+            )
+          }
+        </ul>
+      </Wrapper.Sidebar.Section>
+
+      <Wrapper.Sidebar.Section collapsible={tags.length > 5}>
+        <h3>
+          Filter by tags
+          <a
+            tabIndex={0}
+            className="quick-button"
+            onClick={() => { Wrapper.Sidebar.filter('tag', null); }}
+          >
+            Clear
+          </a>
+        </h3>
+
+        <ul className="filters">
+          {
+            tags.length
+            ? (
+              tags.map(tag =>
+                <li key={tag._id}>
+                  <a
+                    tabIndex={0}
+                    className={Wrapper.Sidebar.getActiveClass('tag', tag._id)}
+                    onClick={() => { Wrapper.Sidebar.filter('tag', tag._id); }}
+                  >
+                    <i className="fa fa-tag icon" style={{ color: tag.colorCode }} />
+                    {tag.name}
+                    <span className="counter">
+                      {Counts.get(`customers.tag.${tag._id}`)}
+                    </span>
+                  </a>
+                </li>,
+              )
+            )
+            : (
+              <EmptyState
+                icon={<i className="ion-pricetag" />}
+                text="No tags"
+                size="small"
+              />
             )
           }
         </ul>

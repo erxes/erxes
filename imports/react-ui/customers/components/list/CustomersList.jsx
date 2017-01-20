@@ -10,11 +10,12 @@ const propTypes = {
   customers: PropTypes.array.isRequired,
   brands: PropTypes.array.isRequired,
   integrations: PropTypes.array.isRequired,
+  tags: PropTypes.array.isRequired,
   loadMore: PropTypes.func.isRequired,
   hasMore: PropTypes.bool.isRequired,
 };
 
-function CustomersList({ customers, brands, integrations, loadMore, hasMore }) {
+function CustomersList({ customers, brands, integrations, tags, loadMore, hasMore }) {
   const content = (
     <Pagination hasMore={hasMore} loadMore={loadMore}>
       <Table>
@@ -44,7 +45,13 @@ function CustomersList({ customers, brands, integrations, loadMore, hasMore }) {
     <div>
       <Wrapper
         header={<Wrapper.Header breadcrumb={[{ title: 'Customers' }]} />}
-        leftSidebar={<Sidebar brands={brands} integrations={integrations} />}
+        leftSidebar={
+          <Sidebar
+            brands={brands}
+            integrations={integrations}
+            tags={tags}
+          />
+        }
         content={content}
       />
     </div>
