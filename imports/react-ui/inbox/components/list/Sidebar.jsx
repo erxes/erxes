@@ -3,7 +3,6 @@
 
 import React, { PropTypes } from 'react';
 import { Counts } from 'meteor/tmeasday:publish-counts';
-import { FlowRouter } from 'meteor/kadira:flow-router';
 import { EmptyState } from '/imports/react-ui/common';
 import { Wrapper } from '/imports/react-ui/layout/components';
 import { CONVERSATION_STATUSES } from '/imports/api/conversations/constants';
@@ -16,23 +15,15 @@ const propTypes = {
 };
 
 class Sidebar extends React.Component {
-  static changeFilter(queryParamName, value) {
-    FlowRouter.setQueryParams({ [queryParamName]: value });
-  }
-
-  static getActiveClass(queryParamName, value) {
-    return FlowRouter.getQueryParam(queryParamName) === value ? 'active' : '';
-  }
-
   static renderChannel(channel) {
     const onClick = () => {
-      Sidebar.changeFilter('channelId', channel._id);
+      Wrapper.Sidebar.filter('channelId', channel._id);
     };
 
     return (
       <li key={channel._id}>
         <a
-          className={Sidebar.getActiveClass('channelId', channel._id)}
+          className={Wrapper.Sidebar.getActiveClass('channelId', channel._id)}
           onClick={onClick}
         >
 
@@ -47,13 +38,13 @@ class Sidebar extends React.Component {
 
   static renderBrand(brand) {
     const onClick = () => {
-      Sidebar.changeFilter('brandId', brand._id);
+      Wrapper.Sidebar.filter('brandId', brand._id);
     };
 
     return (
       <li key={brand._id}>
         <a
-          className={Sidebar.getActiveClass('brandId', brand._id)}
+          className={Wrapper.Sidebar.getActiveClass('brandId', brand._id)}
           onClick={onClick}
         >
 
@@ -68,13 +59,13 @@ class Sidebar extends React.Component {
 
   static renderIntegration(integrationType, index) {
     const onClick = () => {
-      Sidebar.changeFilter('integrationType', integrationType);
+      Wrapper.Sidebar.filter('integrationType', integrationType);
     };
 
     return (
       <li key={index}>
         <a
-          className={Sidebar.getActiveClass('integrationType', integrationType)}
+          className={Wrapper.Sidebar.getActiveClass('integrationType', integrationType)}
           onClick={onClick}
         >
 
@@ -89,13 +80,13 @@ class Sidebar extends React.Component {
 
   static renderTag(tag) {
     const onClick = () => {
-      Sidebar.changeFilter('tagId', tag._id);
+      Wrapper.Sidebar.filter('tagId', tag._id);
     };
 
     return (
       <li key={tag._id}>
         <a
-          className={Sidebar.getActiveClass('tagId', tag._id)}
+          className={Wrapper.Sidebar.getActiveClass('tagId', tag._id)}
           onClick={onClick}
         >
 
@@ -110,10 +101,10 @@ class Sidebar extends React.Component {
   }
 
   static clearStatusFilter() {
-    Sidebar.changeFilter('participating', '');
-    Sidebar.changeFilter('status', '');
-    Sidebar.changeFilter('unassigned', '');
-    Sidebar.changeFilter('starred', '');
+    Wrapper.Sidebar.filter('participating', '');
+    Wrapper.Sidebar.filter('status', '');
+    Wrapper.Sidebar.filter('unassigned', '');
+    Wrapper.Sidebar.filter('starred', '');
   }
 
   // unassigned, participatedUser, status, etc ...
@@ -122,13 +113,13 @@ class Sidebar extends React.Component {
       // clear previous values
       Sidebar.clearStatusFilter();
 
-      Sidebar.changeFilter(queryParamName, queryParamValue);
+      Wrapper.Sidebar.filter(queryParamName, queryParamValue);
     };
 
     return (
       <li>
         <a
-          className={Sidebar.getActiveClass(queryParamName, queryParamValue)}
+          className={Wrapper.Sidebar.getActiveClass(queryParamName, queryParamValue)}
           onClick={onClick}
         >
 
@@ -144,7 +135,7 @@ class Sidebar extends React.Component {
 
   static renderSectionHeader(text, queryParamName) {
     const onClick = () => {
-      Sidebar.changeFilter(queryParamName, '');
+      Wrapper.Sidebar.filter(queryParamName, '');
     };
 
     return (

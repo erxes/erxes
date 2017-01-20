@@ -1,6 +1,7 @@
 import React, { PropTypes, Component } from 'react';
 import ScrollArea from 'react-scrollbar';
 import classNames from 'classnames';
+import { FlowRouter } from 'meteor/kadira:flow-router';
 
 
 const propTypes = {
@@ -27,19 +28,17 @@ class Section extends Component {
   }
 
   toggleCollapse() {
-    this.setState(
-      {
-        collapse: !this.state.collapse,
-        maxHeight: this.state.collapse ? 220 : this.node.clientHeight + 20,
-      }
-    );
+    this.setState({
+      collapse: !this.state.collapse,
+      maxHeight: this.state.collapse ? 220 : this.node.clientHeight + 20,
+    });
   }
 
   renderCollapseButton() {
     const icon = this.state.collapse ? 'ion-chevron-up' : 'ion-chevron-down';
     return (
-      <a onClick={this.toggleCollapse} className="toggle-collapse">
-        <i className={icon}></i>
+      <a tabIndex={0} onClick={this.toggleCollapse} className="toggle-collapse">
+        <i className={icon} />
       </a>
     );
   }
@@ -55,7 +54,7 @@ class Section extends Component {
     };
     return (
       <div className={classes} style={height}>
-        <div ref={node => { this.node = node; }}>
+        <div ref={(node) => { this.node = node; }}>
           {children}
         </div>
         {collapsible ? this.renderCollapseButton() : null}
@@ -71,5 +70,14 @@ Section.propTypes = {
 
 Sidebar.propTypes = propTypes;
 Sidebar.Section = Section;
+
+Sidebar.filter = (queryParamName, value) => {
+  FlowRouter.setQueryParams({ [queryParamName]: value });
+};
+
+Sidebar.getActiveClass = (queryParamName, value) => {
+  const queryParam = FlowRouter.getQueryParam(queryParamName);
+  return queryParam === value ? 'active' : '';
+};
 
 export default Sidebar;
