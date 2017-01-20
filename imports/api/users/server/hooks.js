@@ -20,7 +20,7 @@ Accounts.onCreateUser((options, doc) => {
 /**
  * Validate email address
  */
-Accounts.validateNewUser(user => {
+Accounts.validateNewUser((user) => {
   const email = user.emails[0].address;
 
   if (/^[A-Z0-9'.1234z_%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i.test(email)) {

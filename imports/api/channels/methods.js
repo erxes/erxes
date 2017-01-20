@@ -9,7 +9,6 @@ if (Meteor.isServer) {
   import { sendNotification } from '/imports/api/server/utils';
 }
 
-
 const sendNotifications = (channelId, _memberIds, userId) => {
   const memberIds = _memberIds || [];
   const channel = Channels.findOne({ _id: channelId });

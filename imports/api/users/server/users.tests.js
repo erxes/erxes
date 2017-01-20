@@ -5,10 +5,11 @@ import { Meteor } from 'meteor/meteor';
 import { Random } from 'meteor/random';
 import { assert } from 'meteor/practicalmeteor:chai';
 import { Factory } from 'meteor/dburles:factory';
+
 import { Channels } from '/imports/api/channels/channels';
 import { Conversations } from '/imports/api/conversations/conversations';
-import { invite, updateInvitationInfos, remove } from './server/methods';
-import { ROLES } from './constants';
+import { ROLES } from '../constants';
+import { invite, updateInvitationInfos, remove } from './methods';
 
 
 if (Meteor.isServer) {
