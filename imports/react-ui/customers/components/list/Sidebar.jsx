@@ -13,7 +13,7 @@ const propTypes = {
 function Sidebar({ brands, integrations, tags }) {
   return (
     <Wrapper.Sidebar>
-      <Wrapper.Sidebar.Section collapsible length={brands.length}>
+      <Wrapper.Sidebar.Section collapsible={brands.length > 5}>
         <h3>
           Filter by brands
           <a
@@ -43,7 +43,7 @@ function Sidebar({ brands, integrations, tags }) {
           }
         </ul>
       </Wrapper.Sidebar.Section>
-      <Wrapper.Sidebar.Section collapsible length={integrations.length}>
+      <Wrapper.Sidebar.Section collapsible={integrations.length > 5}>
         <h3>
           Filter by integrations
           <a
