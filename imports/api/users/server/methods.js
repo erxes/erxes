@@ -7,7 +7,6 @@ import { Accounts } from 'meteor/accounts-base';
 import { sendEmail } from '/imports/api/server/utils';
 import { ErxesMixin } from '/imports/api/utils';
 import { Channels } from '/imports/api/channels/channels';
-import { Conversations } from '/imports/api/conversations/conversations';
 import {
   CreateInvitationSchema,
   UpdateInvitationSchema,
@@ -220,21 +219,6 @@ export const remove = new ValidatedMethod({
       throw new Meteor.Error(
         'users.remove.involvedInChannel',
         'Involved in channel',
-      );
-    }
-
-    // if the user involved in any conversation then can not delete this user
-    if (Conversations.find({ assignedUserId: userId }).count() > 0) {
-      throw new Meteor.Error(
-        'users.remove.involvedInConversation',
-        'Involved in conversation',
-      );
-    }
-
-    if (Conversations.find({ participatedUserIds: { $in: [userId] } }).count() > 0) {
-      throw new Meteor.Error(
-        'users.remove.involvedInConversation',
-        'Involved in conversation',
       );
     }
 
