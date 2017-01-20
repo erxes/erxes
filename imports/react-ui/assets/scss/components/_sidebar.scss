@@ -74,6 +74,7 @@
       float: right;
       color: $text-color-light;
       text-transform: none;
+      cursor: pointer;
 
       &:hover {
         color: $text-color;
@@ -93,6 +94,7 @@
     li {
       position: relative;
       overflow: hidden;
+
       > a {
         display: block;
         padding: 5px 20px;
@@ -101,6 +103,7 @@
         overflow: hidden;
         text-overflow: ellipsis;
         padding-right: 30px;
+        cursor: pointer;
 
         &:hover, &.active {
           background-color: $grey-light;

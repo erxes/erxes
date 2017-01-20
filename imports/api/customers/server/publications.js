@@ -6,6 +6,8 @@ import { _ } from 'meteor/underscore';
 import { Counts } from 'meteor/tmeasday:publish-counts';
 import { Integrations } from '/imports/api/integrations/integrations';
 import { KIND_CHOICES } from '/imports/api/integrations/constants';
+import { Tags } from '/imports/api/tags/tags';
+import { TAG_TYPES } from '/imports/api/tags/constants';
 import { Conversations } from '/imports/api/conversations/conversations';
 import { Brands } from '/imports/api/brands/brands';
 import { Customers } from '../customers';
@@ -17,6 +19,7 @@ Meteor.publishComposite('customers.list', function customersList(queryString) {
       check(queryString, {
         brand: Match.Optional(String),
         integration: Match.Optional(String),
+        tag: Match.Optional(String),
         limit: Match.Optional(Number),
         page: Match.Optional(String),
       });
@@ -49,6 +52,11 @@ Meteor.publishComposite('customers.list', function customersList(queryString) {
         selector.integrationId = { $in: intersectionedIds };
       }
 
+      // Filter by tag
+      if (queryString.tag) {
+        selector.tagIds = queryString.tag;
+      }
+
       const countCustomers = (name, query) => {
         Counts.publish(this, `customers.${name}`, Customers.find(query), { noReady: true });
       };
@@ -70,6 +78,11 @@ Meteor.publishComposite('customers.list', function customersList(queryString) {
           `integration.${integration}`,
           { integrationId: { $in: integrations.map(i => i._id) } },
         );
+      });
+
+      // Count customers by filter
+      Tags.find({ type: TAG_TYPES.CUSTOMER }).fetch().forEach((tag) => {
+        countCustomers(`tag.${tag._id}`, { tagIds: tag._id });
       });
 
       // Count current filtered customers

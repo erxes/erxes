@@ -2,6 +2,7 @@ import React from 'react';
 import { Label } from 'react-bootstrap';
 import moment from 'moment';
 import { FlowRouter } from 'meteor/kadira:flow-router';
+import { Tags } from '/imports/react-ui/common';
 
 
 const propTypes = {
@@ -13,12 +14,14 @@ function CustomerRow({ customer }) {
   const lastSeenAt = inAppMessagingData.lastSeenAt;
   const integration = customer.integration();
   const brand = customer.brand();
+  const tags = customer.getTags();
 
   return (
     <tr>
       <td>
         <a href={FlowRouter.path('customers/details', { id: customer._id })}>
-          {customer.name || '[no name]'}
+          {customer.name || '[no name]'}{' '}
+          <Tags tags={tags} size="small" />
         </a>
       </td>
       <td>{customer.email || '[no email]'}</td>

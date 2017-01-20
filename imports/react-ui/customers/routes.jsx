@@ -2,8 +2,7 @@ import React from 'react';
 import { mount } from 'react-mounter';
 import { FlowRouter } from 'meteor/kadira:flow-router';
 import { MainLayout } from '../layout/containers';
-import CustomersListContainer from './containers/CustomersListContainer';
-import { CustomerDetails } from './containers';
+import { CustomersList, CustomerDetails } from './containers';
 
 
 const group = FlowRouter.group({
@@ -14,7 +13,7 @@ group.route('/', {
   name: 'customers/list',
   action(params, queryParams) {
     mount(MainLayout, {
-      content: <CustomersListContainer queryParams={queryParams} />,
+      content: <CustomersList queryParams={queryParams} />,
     });
   },
 });
