@@ -2,7 +2,6 @@
 /* eslint-disable func-names, prefer-arrow-callback, no-underscore-dangle */
 
 import { Meteor } from 'meteor/meteor';
-import { Random } from 'meteor/random';
 import { assert } from 'meteor/practicalmeteor:chai';
 import { Factory } from 'meteor/dburles:factory';
 
@@ -159,39 +158,6 @@ if (Meteor.isServer) {
           );
 
           Channels.remove({});
-        });
-
-        it('involved in conversation:assinged', function () {
-          Factory.create('conversation', { assignedUserId: removeToUserId });
-
-          assert.throws(
-            () => {
-              remove._execute({ userId }, { userId: removeToUserId });
-            },
-
-            Meteor.Error,
-            /users.remove.involvedInConversation/,
-          );
-
-          Conversations.remove({});
-        });
-
-        it('involved in conversation:paticipated', function () {
-          Factory.create(
-            'conversation',
-            { participatedUserIds: [removeToUserId, Random.id()] },
-          );
-
-          assert.throws(
-            () => {
-              remove._execute({ userId }, { userId: removeToUserId });
-            },
-
-            Meteor.Error,
-            /users.remove.involvedInConversation/,
-          );
-
-          Conversations.remove({});
         });
 
         it('can not delete owner', function () {
