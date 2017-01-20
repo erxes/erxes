@@ -7,7 +7,6 @@ import {
   ButtonToolbar,
   Well,
 } from 'react-bootstrap';
-import { _ } from 'meteor/underscore';
 import Alert from 'meteor/erxes-notifier';
 import { Wrapper } from '/imports/react-ui/layout/components';
 import Sidebar from '../../Sidebar.jsx';
@@ -18,7 +17,7 @@ const propTypes = {
   save: PropTypes.func.isRequired,
 };
 
-export class Signature extends React.Component {
+class Signature extends React.Component {
   constructor(props) {
     super(props);
 
@@ -39,8 +38,8 @@ export class Signature extends React.Component {
       return {};
     }
 
-    return _.find(this.state.signatures, (signature) =>
-      signature.brandId.toString() === currentId.toString()
+    return this.state.signatures.find(signature =>
+      signature.brandId.toString() === currentId.toString(),
     );
   }
 
@@ -85,7 +84,7 @@ export class Signature extends React.Component {
               {this.props.signatures.map(signature =>
                 <option key={signature.brandId} value={signature.brandId}>
                   {signature.brandName}
-                </option>
+                </option>,
               )}
             </FormControl>
           </FormGroup>

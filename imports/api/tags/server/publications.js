@@ -1,13 +1,12 @@
 import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
-
 import { Tags } from '../tags';
 
 
 Meteor.publish('tags.tagList', function tagList(type) {
   check(type, String);
 
-  if (! this.userId) {
+  if (!this.userId) {
     return this.ready();
   }
 
@@ -18,7 +17,7 @@ Meteor.publish('tags.tagList', function tagList(type) {
 Meteor.publish('tags.tagListByIds', function tagList(tagIds) {
   check(tagIds, [String]);
 
-  if (! this.userId) {
+  if (!this.userId) {
     return this.ready();
   }
 

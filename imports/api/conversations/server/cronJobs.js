@@ -1,13 +1,10 @@
 import { Meteor } from 'meteor/meteor';
 import { _ } from 'meteor/underscore';
 import moment from 'moment';
-
 import { SyncedCron } from 'meteor/percolate:synced-cron';
-
 import { sendEmail } from '/imports/api/server/utils';
 import { Customers } from '/imports/api/customers/customers';
 import { Brands } from '/imports/api/brands/brands';
-
 import { Conversations } from '../conversations';
 import { CONVERSATION_STATUSES } from '../constants';
 import { Messages } from '../messages';
@@ -17,7 +14,7 @@ function sendMessageEmail() {
   // new or open conversations
   const conversations = Conversations.find(
     { status: { $in: [CONVERSATION_STATUSES.NEW, CONVERSATION_STATUSES.OPEN] } },
-    { fields: { _id: 1, customerId: 1, brandId: 1 } }
+    { fields: { _id: 1, customerId: 1, brandId: 1 } },
   );
 
   _.each(conversations.fetch(), (conversation) => {
@@ -33,7 +30,7 @@ function sendMessageEmail() {
         conversationId: conversation._id,
         customerId: { $exists: true },
       },
-      { sort: { createdAt: -1 } }
+      { sort: { createdAt: -1 } },
     ) || {};
 
     question.createdAt = moment(question.createdAt).format('DD MMM YY, HH:mm');
@@ -50,7 +47,7 @@ function sendMessageEmail() {
         // exclude internal notes
         internal: false,
       },
-      { sort: { createdAt: 1 } }
+      { sort: { createdAt: 1 } },
     ).fetch();
 
     _.each(adminMessages, (message) => {
@@ -75,7 +72,7 @@ function sendMessageEmail() {
     if (user && user.emailSignatures) {
       const signature = _.find(
         user.emailSignatures,
-        (s) => brand._id === s.brandId
+        s => brand._id === s.brandId,
       );
 
       if (signature) {
@@ -102,7 +99,7 @@ function sendMessageEmail() {
         isCustomerRead: { $exists: false },
       },
       { $set: { isCustomerRead: true } },
-      { multi: true }
+      { multi: true },
     );
   });
 }

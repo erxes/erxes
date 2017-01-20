@@ -50,7 +50,7 @@ function composer(props, onData) {
 
         // action
         configGetNotificationByEmail,
-      }
+      },
     );
   }
 }

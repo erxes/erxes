@@ -1,3 +1,5 @@
+/* global location */
+
 import { Meteor } from 'meteor/meteor';
 import { FlowRouter } from 'meteor/kadira:flow-router';
 import { composeWithTracker } from 'react-komposer';
@@ -32,7 +34,7 @@ function composer(props, onData) {
 
         Alert.success('Congrats');
         return FlowRouter.go('/settings/integrations/list');
-      }
+      },
     );
   };
 

@@ -12,7 +12,8 @@ const RESTRICTED_METHODS = [
 
 // all validated methods mixin
 // check login, permissions etc ..
-function ErxesMixin(_options) {
+// eslint-disable-next-line import/prefer-default-export
+export function ErxesMixin(_options) {
   const options = _options;
 
   // save real run
@@ -42,7 +43,3 @@ function ErxesMixin(_options) {
 
   return options;
 }
-
-export {
-  ErxesMixin,
-};

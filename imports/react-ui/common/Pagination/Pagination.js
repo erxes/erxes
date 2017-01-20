@@ -2,6 +2,7 @@ import { FlowRouter } from 'meteor/kadira:flow-router';
 import { Counts } from 'meteor/tmeasday:publish-counts';
 
 
+// eslint-disable-next-line import/prefer-default-export
 export const pagination = (queryParams, countName) => {
   let hasMore = false;
   const PER_PAGE = 20;

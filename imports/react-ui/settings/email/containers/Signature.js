@@ -32,9 +32,7 @@ function composer(props, onData) {
 
     Brands.find().forEach((brand) => {
       // previously configured signature
-      const oldEntry = _.find(emailSignatures, (signature) =>
-        signature.brandId === brand._id
-      );
+      const oldEntry = emailSignatures.find(signature => signature.brandId === brand._id);
 
       // default content
       let content = '';

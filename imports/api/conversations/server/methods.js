@@ -1,12 +1,12 @@
 import { Meteor } from 'meteor/meteor';
 import { ValidatedMethod } from 'meteor/mdg:validated-method';
-
 import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 import { ErxesMixin } from '/imports/api/utils';
 import { tagObject } from '/imports/api/tags/server/api';
 import { Conversations } from '../conversations';
 
 
+// eslint-disable-next-line import/prefer-default-export
 export const tag = new ValidatedMethod({
   name: 'conversations.tag',
   mixins: [ErxesMixin],

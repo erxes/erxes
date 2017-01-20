@@ -10,7 +10,7 @@ function composer({ queryParams }, onData) {
   const { limit, loadMore, hasMore } = pagination(queryParams, 'integrations.list.count');
   const integrationsHandler = Meteor.subscribe(
     'integrations.list',
-    Object.assign(queryParams, { limit })
+    Object.assign(queryParams, { limit }),
   );
   const brandsHandler = Meteor.subscribe('brands.list', 0);
 

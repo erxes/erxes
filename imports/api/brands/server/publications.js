@@ -2,7 +2,6 @@ import { Meteor } from 'meteor/meteor';
 import { Counts } from 'meteor/tmeasday:publish-counts';
 import { check } from 'meteor/check';
 import { _ } from 'meteor/underscore';
-
 import { Channels } from '/imports/api/channels/channels';
 import { Integrations } from '/imports/api/integrations/integrations';
 import { Brands } from '../brands';
@@ -11,26 +10,23 @@ import { Brands } from '../brands';
 Meteor.publish('brands.list', function brandsList(limit) {
   check(limit, Number);
 
-  if (! this.userId) {
+  if (!this.userId) {
     return this.ready();
   }
 
   Counts.publish(this, 'brands.list.count', Brands.find(), { noReady: true });
 
-  return Brands.find(
-    {},
-    {
-      fields: Brands.publicFields,
-      sort: { createdAt: -1 },
-      limit,
-    }
-  );
+  return Brands.find({}, {
+    fields: Brands.publicFields,
+    sort: { createdAt: -1 },
+    limit,
+  });
 });
 
 
 // return only available channels's related brands
 Meteor.publish('brands.list.inChannels', function brandsListInChannels() {
-  if (! this.userId) {
+  if (!this.userId) {
     return this.ready();
   }
 
@@ -55,7 +51,7 @@ Meteor.publish('brands.list.inChannels', function brandsListInChannels() {
 
   return Brands.find(
     { _id: { $in: brandIds } },
-    { fields: Brands.publicFields }
+    { fields: Brands.publicFields },
   );
 });
 
@@ -63,7 +59,7 @@ Meteor.publish('brands.list.inChannels', function brandsListInChannels() {
 Meteor.publish('brands.getById', function brandsGetById(id) {
   check(id, String);
 
-  if (! this.userId) {
+  if (!this.userId) {
     return this.ready();
   }
 

@@ -40,7 +40,7 @@ function composer({ queryParams }, onData) {
         updateInvitationInfos,
         hasMore,
         loadMore,
-      }
+      },
     );
   }
 }

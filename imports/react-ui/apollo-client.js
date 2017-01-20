@@ -9,6 +9,7 @@ const client = new ApolloClient({
   }),
 });
 
+// eslint-disable-next-line import/prefer-default-export
 export const newMessage = (messageId) => {
   client.mutate({
     mutation: gql`

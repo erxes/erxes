@@ -2,10 +2,11 @@ import { check, Match } from 'meteor/check';
 import { Meteor } from 'meteor/meteor';
 import { Mongo } from 'meteor/mongo';
 import { _ } from 'meteor/underscore';
-
 import { TAG_TYPES } from '../constants';
 import { Tags } from '../tags';
 
+
+// eslint-disable-next-line import/prefer-default-export
 export function tagObject({ tagIds, objectIds, collection }) {
   check(collection, Mongo.Collection);
   check(collection.TAG_TYPE, Match.Where((t) => { // eslint-disable-line new-cap
@@ -24,7 +25,7 @@ export function tagObject({ tagIds, objectIds, collection }) {
 
   const objects = collection.find(
     { _id: { $in: objectIds } },
-    { fields: { tagIds: 1 } }
+    { fields: { tagIds: 1 } },
   );
 
   let removeIds = [];
@@ -38,18 +39,18 @@ export function tagObject({ tagIds, objectIds, collection }) {
   Tags.update(
     { _id: { $in: removeIds } },
     { $inc: { objectCount: -1 } },
-    { multi: true }
+    { multi: true },
   );
 
   collection.update(
     { _id: { $in: objectIds } },
     { $set: { tagIds } },
-    { multi: true }
+    { multi: true },
   );
 
   Tags.update(
     { _id: { $in: tagIds } },
     { $inc: { objectCount: 1 } },
-    { multi: true }
+    { multi: true },
   );
 }

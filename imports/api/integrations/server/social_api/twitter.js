@@ -1,7 +1,6 @@
 import { Meteor } from 'meteor/meteor';
 import Twit from 'twit';
 import soc from 'social-oauth-client';
-
 import { Integrations } from '/imports/api/integrations/integrations';
 import { KIND_CHOICES } from '/imports/api/integrations/constants';
 import { Conversations } from '/imports/api/conversations/conversations';
@@ -66,7 +65,7 @@ const updateConversation = (_id) => {
         // if closed, reopen
         status: CONVERSATION_STATUSES.OPEN,
       },
-    }
+    },
   );
 };
 
@@ -201,12 +200,12 @@ const trackIntegration = (integration) => {
       }
     }
 
-    for (const mention of data.entities.user_mentions) {
+    data.entities.user_mentions.forEach((mention) => {
       // listen for only mentioned tweets
       if (mention.id === integrationUserId) {
         getOrCreateCommonConversation(data, integration);
       }
-    }
+    });
 
     return null;
   }));
@@ -251,7 +250,7 @@ export const tweetReply = (conversation, text) => {
         user_id: twitterData.directMessage.senderIdStr,
         text,
       },
-      Meteor.bindEnvironment(postCallback)
+      Meteor.bindEnvironment(postCallback),
     );
   }
 
@@ -264,7 +263,7 @@ export const tweetReply = (conversation, text) => {
       // replying tweet id
       in_reply_to_status_id: twitterData.idStr,
     },
-    Meteor.bindEnvironment(postCallback)
+    Meteor.bindEnvironment(postCallback),
   );
 };
 
@@ -297,7 +296,7 @@ export default {
             tokenSecret: data.tokens.auth.token_secret,
           },
         });
-      })
+      }),
     );
   },
 };

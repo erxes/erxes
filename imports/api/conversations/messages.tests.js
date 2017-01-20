@@ -4,18 +4,17 @@
 import { Meteor } from 'meteor/meteor';
 import { Random } from 'meteor/random';
 import { _ } from 'meteor/underscore';
-
 import { Factory } from 'meteor/dburles:factory';
 import { assert, chai } from 'meteor/practicalmeteor:chai';
 import { PublicationCollector } from 'meteor/johanbrook:publication-collector';
 import { Notifications } from 'meteor/erxes-notifications';
-
 import { Messages } from './messages';
 import { Conversations } from './conversations';
 import { addMessage } from './methods';
 
+
 if (Meteor.isServer) {
-  require('./server/publications.js');
+  import './server/publications.js';
 
   describe('conversation - messages', function () {
     describe('publications', function () {
@@ -41,7 +40,7 @@ if (Meteor.isServer) {
             (collections) => {
               chai.assert.equal(collections.conversation_messages.length, 2);
               done();
-            }
+            },
           );
         });
 
@@ -53,7 +52,7 @@ if (Meteor.isServer) {
             (collections) => {
               chai.assert.equal(collections.conversation_messages, undefined);
               done();
-            }
+            },
           );
         });
       });
@@ -73,10 +72,11 @@ if (Meteor.isServer) {
       describe('addMessage', function () {
         it('only works if you are logged in', function () {
           assert.throws(() => {
-            addMessage._execute(
-              {},
-              { content: 'lorem', conversationId: Random.id(), internal: false }
-            );
+            addMessage._execute({}, {
+              content: 'lorem',
+              conversationId: Random.id(),
+              internal: false,
+            });
           }, Meteor.Error, /loginRequired/);
         });
 
@@ -98,7 +98,7 @@ if (Meteor.isServer) {
 
           addMessage._execute(
             { userId },
-            { content: 'lorem', conversationId, internal: false }
+            { content: 'lorem', conversationId, internal: false },
           );
 
           assert.equal(Messages.find().count(), 1);
@@ -117,7 +117,7 @@ if (Meteor.isServer) {
 
           const response = addMessage._execute(
             { userId },
-            { content: 'lorem', conversationId, internal: true }
+            { content: 'lorem', conversationId, internal: true },
           );
 
           assert.equal(response, 'internalMessage');
