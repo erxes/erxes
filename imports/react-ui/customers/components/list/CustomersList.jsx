@@ -1,5 +1,6 @@
 import React, { PropTypes } from 'react';
 import { Table } from 'react-bootstrap';
+import { Counts } from 'meteor/tmeasday:publish-counts';
 import { Wrapper } from '/imports/react-ui/layout/components';
 import { Pagination } from '/imports/react-ui/common';
 import Sidebar from './Sidebar.jsx';
@@ -41,10 +42,12 @@ function CustomersList({ customers, brands, integrations, tags, loadMore, hasMor
     </Pagination>
   );
 
+  const breadcrumb = [{ title: `Customers (${Counts.get('customers.list.count')})` }];
+
   return (
     <div>
       <Wrapper
-        header={<Wrapper.Header breadcrumb={[{ title: 'Customers' }]} />}
+        header={<Wrapper.Header breadcrumb={breadcrumb} />}
         leftSidebar={
           <Sidebar
             brands={brands}
