@@ -12,7 +12,7 @@ const addGraphQLSubscriptions = (networkInterface, wsClient) =>
       unsubscribe: (id) => {
         wsClient.unsubscribe(id);
       },
-    }
+    },
   );
 
 export default addGraphQLSubscriptions;

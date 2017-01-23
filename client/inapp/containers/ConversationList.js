@@ -2,7 +2,7 @@ import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
 import gql from 'graphql-tag';
 import { graphql } from 'react-apollo';
-import { connection } from '../connection.js';
+import { connection } from '../connection';
 import { readMessages } from '../actions/messages';
 import { changeRoute, changeConversation } from '../actions/messenger';
 import { ConversationList as DumbConversationList } from '../components';
@@ -22,11 +22,17 @@ const ConversationList = (props) => {
     conversations,
   };
 
-  return <DumbConversationList { ...extendedProps } />;
+  return <DumbConversationList {...extendedProps} />;
 };
 
 ConversationList.propTypes = {
-  data: PropTypes.object.isRequired,
+  data: PropTypes.shape({
+    conversations: PropTypes.arrayOf(PropTypes.shape({
+      _id: PropTypes.string.isRequired,
+      content: PropTypes.string.isRequired,
+      date: PropTypes.instanceOf(Date),
+    })),
+  }),
 };
 
 
@@ -54,6 +60,7 @@ const ListWithData = graphql(
       conversations(${connection.queryParams}) {
         _id
         content
+        createdAt
       }
     }
   `,
@@ -63,7 +70,7 @@ const ListWithData = graphql(
       forceFetch: true,
       variables: connection.data,
     }),
-  }
+  },
 )(ConversationList);
 
 export default connect(() => ({}), mapDisptachToProps)(ListWithData);

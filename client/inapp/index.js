@@ -1,3 +1,4 @@
+/* global window, document */
 /* eslint-disable react/jsx-filename-extension */
 
 import React from 'react';
@@ -5,7 +6,7 @@ import ReactDOM from 'react-dom';
 import { ApolloProvider } from 'react-apollo';
 import gql from 'graphql-tag';
 import client, { wsClient, createStore } from '../apollo-client';
-import { connection } from './connection.js';
+import { connection } from './connection';
 import erxesReducers from './reducers';
 import { App } from './containers';
 import './sass/style.scss';
@@ -52,7 +53,7 @@ window.addEventListener('message', (event) => {
         <ApolloProvider store={createStore(erxesReducers)} client={client}>
           <App />
         </ApolloProvider>,
-        document.getElementById('root')
+        document.getElementById('root'),
       );
     });
   }

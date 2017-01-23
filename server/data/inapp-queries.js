@@ -51,8 +51,8 @@ export default {
         userId: { $exists: true },
       };
 
-      return Messages.findOne(messageQuery).then((message) =>
-        Users.findOne({ _id: message && message.userId })
+      return Messages.findOne(messageQuery).then(message =>
+        Users.findOne({ _id: message && message.userId }),
       );
     },
   },

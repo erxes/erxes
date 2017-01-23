@@ -9,7 +9,7 @@ const subscriptionManager = new SubscriptionManager({
   setupFunctions: {
     messageInserted: (options, args) => ({
       newMessagesChannel: {
-        filter: (message) =>
+        filter: message =>
           message.conversationId === args.conversationId
         ,
       },

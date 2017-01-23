@@ -1,3 +1,5 @@
+/* global FileReader, WebSocket */
+
 import EJSON from 'meteor-ejson';
 import DDP from 'ddp.js';
 import settings from './settings';

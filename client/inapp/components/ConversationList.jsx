@@ -1,5 +1,5 @@
 import React, { PropTypes } from 'react';
-import TopBar from './TopBar.jsx';
+import TopBar from './TopBar';
 import { ConversationItem } from '../containers';
 
 
@@ -31,7 +31,7 @@ function ConversationList({ conversations, createConversation, goToConversation 
               key={conversation._id}
               conversation={conversation}
               goToConversation={goToConversation}
-            />
+            />,
           )
         }
       </ul>

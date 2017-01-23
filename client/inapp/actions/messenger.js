@@ -1,3 +1,5 @@
+/* global window */
+
 import { MESSENGER_TOGGLE, CHANGE_ROUTE, CHANGE_CONVERSATION } from '../constants';
 
 export const toggle = (isVisible) => {

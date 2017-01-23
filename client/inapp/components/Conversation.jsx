@@ -1,5 +1,5 @@
 import React, { PropTypes } from 'react';
-import TopBar from './TopBar.jsx';
+import TopBar from './TopBar';
 import { MessageSender } from '../containers';
 import { MessagesList } from '../components';
 

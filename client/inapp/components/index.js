@@ -1,14 +1,14 @@
-import App from './App.jsx';
-import Attachment from './Attachment.jsx';
-import Messenger from './Messenger.jsx';
-import ConversationList from './ConversationList.jsx';
-import ConversationItem from './ConversationItem.jsx';
-import Conversation from './Conversation.jsx';
-import Launcher from './Launcher.jsx';
-import Message from './Message.jsx';
-import MessageSender from './MessageSender.jsx';
-import MessagesList from './MessagesList.jsx';
-import User from './User.jsx';
+import App from './App';
+import Attachment from './Attachment';
+import Messenger from './Messenger';
+import ConversationList from './ConversationList';
+import ConversationItem from './ConversationItem';
+import Conversation from './Conversation';
+import Launcher from './Launcher';
+import Message from './Message';
+import MessageSender from './MessageSender';
+import MessagesList from './MessagesList';
+import User from './User';
 
 
 export {

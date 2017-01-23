@@ -4,7 +4,8 @@
   "description": "Apollo Api",
   "scripts": {
     "start": "node dist/server.js",
-    "test": "./node_modules/.bin/mocha data/tests --reporter spec --compilers js:babel-core/register",
+    "start-local": "nodemon server/server.js --exec babel-node",
+    "test": "./node_modules/.bin/mocha server/data/tests --reporter spec --compilers js:babel-core/register",
     "bundle": "./node_modules/.bin/webpack",
     "build": "babel server --out-dir dist --ignore tests --copy-files"
   },
@@ -25,6 +26,7 @@
     "graphql": "^0.8.2",
     "graphql-server-express": "^0.4.3",
     "graphql-subscriptions": "^0.2.2",
+    "graphql-tag": "^1.2.3",
     "graphql-tools": "^0.8.4",
     "meteor-ejson": "^0.6.3",
     "meteor-random": "0.0.3",
@@ -34,6 +36,7 @@
     "react-apollo": "^0.7.1",
     "react-dom": "^15.4.1",
     "react-redux": "^5.0.1",
+    "redux": "^3.6.0",
     "redux-thunk": "^2.1.0",
     "subscriptions-transport-ws": "^0.3.1",
     "underscore": "^1.8.3"

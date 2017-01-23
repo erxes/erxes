@@ -1,5 +1,10 @@
-import { Messages, Conversations } from './connectors';
-import { Brands, Customers, Integrations } from './connectors';
+import {
+  Messages,
+  Conversations,
+  Brands,
+  Customers,
+  Integrations,
+} from './connectors';
 
 const CONVERSATION_STATUSES = {
   NEW: 'new',
@@ -19,7 +24,7 @@ export const getIntegration = (brandCode, kind) =>
       Integrations.findOne({
         brandId: brand._id,
         kind,
-      })
+      }),
     );
 
 
@@ -38,7 +43,7 @@ export const getCustomer = (integrationId, email) =>
 export const createCustomer = ({ integrationId, email, name }) => {
   // create new customer
   const customerObj = new Customers({
-    createdAt: new Date,
+    createdAt: new Date(),
     email,
     name,
     integrationId,
@@ -117,7 +122,7 @@ export const getOrCreateConversation = (doc) => {
 
         // if conversation is closed then reopen it.
         status: CONVERSATION_STATUSES.OPEN,
-      }
+      },
     );
 
     return Promise.resolve(doc.conversationId);
@@ -140,7 +145,7 @@ export const createMessage = (doc) => {
   const { conversationId, userId, customerId, message, attachments } = doc;
 
   const messageOptions = {
-    createdAt: new Date,
+    createdAt: new Date(),
     conversationId,
     customerId,
     userId,
@@ -156,7 +161,7 @@ export const createMessage = (doc) => {
   const messageObj = new Messages(messageOptions);
 
   // save and return newly created one
-  return messageObj.save().then((_id) => Messages.findOne({ _id }));
+  return messageObj.save().then(_id => Messages.findOne({ _id }));
 };
 
 
@@ -175,12 +180,12 @@ export const createConversationWithMessage = (doc) => {
   })
 
   // create message
-  .then((conversationId) =>
+  .then(conversationId =>
     createMessage({
       conversationId,
       customerId,
       message: content,
-    })
+    }),
   );
 };
 
@@ -199,6 +204,6 @@ export const markCustomerAsNotActive = (customerId) => {
       },
     },
 
-    () => {}
+    () => {},
   );
 };

@@ -92,12 +92,12 @@ class Conversation extends Subscriber {
       user,
     };
 
-    return <DumbConversation { ...extendedProps } />;
+    return <DumbConversation {...extendedProps} />;
   }
 }
 
 
-const mapStateToProps = state => {
+const mapStateToProps = (state) => {
   const isNewConversation = !state.activeConversation;
 
   return { conversationId: state.activeConversation, isNewConversation };
@@ -130,11 +130,11 @@ const withData = graphql(
     }
   `,
   {
-    options: (ownProps) => ({
+    options: ownProps => ({
       forceFetch: true,
       variables: { conversationId: ownProps.conversationId },
     }),
-  }
+  },
 );
 
 const WithData = withData(Conversation);

@@ -1,5 +1,8 @@
-import { getIntegration, createConversationWithMessage } from './utils';
-import { getOrCreateCustomer } from './utils';
+import {
+  getIntegration,
+  createConversationWithMessage,
+  getOrCreateCustomer,
+} from './utils';
 
 export default {
   /*
@@ -7,7 +10,7 @@ export default {
    */
   chatConnect(root, args) {
     return getIntegration(args.brandCode, 'chat')
-      .then((integ) => integ._id)
+      .then(integ => integ._id)
 
       // catch exception
       .catch((error) => {
@@ -25,12 +28,12 @@ export default {
     return getOrCreateCustomer({ integrationId, email })
 
       // create chat conversation
-      .then((customerId) =>
+      .then(customerId =>
         createConversationWithMessage({
           integrationId,
           customerId,
           content,
-        })
+        }),
       )
 
       // catch exception

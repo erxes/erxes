@@ -40,6 +40,7 @@ const typeDefs = `
     integrationId: String!
     status: String!
     content: String
+    createdAt: Date
     readUserIds: [String]
   }
 

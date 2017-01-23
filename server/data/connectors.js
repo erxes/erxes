@@ -11,7 +11,7 @@ export const connectToMongo = () => {
         // after server reload, user must not reload widget manually
         auto_reconnect: true,
       },
-    }
+    },
   );
 };
 

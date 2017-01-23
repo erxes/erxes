@@ -39,7 +39,7 @@ app.use(cors(corsOptions));
 app.use('/graphql', graphqlExpress(() =>
   ({
     schema,
-  })
+  }),
 ));
 
 // in app messaging url
@@ -76,13 +76,13 @@ const httpServer = createServer((request, response) => {
 });
 
 httpServer.listen(WS_PORT, () => console.log( // eslint-disable-line no-console
-  `Websocket Server is now running on http://localhost:${WS_PORT}`
+  `Websocket Server is now running on http://localhost:${WS_PORT}`,
 ));
 
 // subscription server
 const server = new SubscriptionServer( // eslint-disable-line no-unused-vars
   { subscriptionManager },
-  httpServer
+  httpServer,
 );
 
 // receive inAppConnected message and save integrationId, customerId in

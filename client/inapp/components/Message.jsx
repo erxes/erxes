@@ -1,8 +1,7 @@
 import React, { PropTypes } from 'react';
 import moment from 'moment';
 import classNames from 'classnames';
-import { User } from '../components';
-import { Attachment } from '../components';
+import { User, Attachment } from '../components';
 
 
 const propTypes = {
@@ -29,7 +28,7 @@ function Message({ content, attachments, user, createdAt }) {
         {hasAttachment ? <Attachment path={attachments[0].url} /> : null}
         {
           !hasAttachment ? content.split('\n').map((line, index) =>
-            <span key={index}>{line}<br /></span>
+            <span key={index}>{line}<br /></span>,
           ) : null
         }
       </div>

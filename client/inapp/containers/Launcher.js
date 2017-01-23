@@ -18,7 +18,7 @@ class Launcher extends NotificationSubscriber {
       notificationCount: this.props.data.totalUnreadCount,
     };
 
-    return <DumbLauncher { ...extendedProps } />;
+    return <DumbLauncher {...extendedProps} />;
   }
 }
 
@@ -50,7 +50,7 @@ const LauncherWithData = graphql(
       forceFetch: true,
       variables: connection.data,
     }),
-  }
+  },
 )(Launcher);
 
 export default connect(mapStateToProps, mapDisptachToProps)(LauncherWithData);

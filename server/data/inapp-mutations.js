@@ -1,7 +1,12 @@
 import { Messages, Customers } from './connectors';
 import { pubsub } from './subscription-manager';
-import { getIntegration, getCustomer, getOrCreateConversation } from './utils';
-import { createMessage, createCustomer } from './utils';
+import {
+  getIntegration,
+  getCustomer,
+  getOrCreateConversation,
+  createMessage,
+  createCustomer,
+} from './utils';
 
 export default {
   simulateInsertMessage(root, args) {
@@ -48,7 +53,7 @@ export default {
               'inAppMessagingData.lastSeenAt': now,
               'inAppMessagingData.isActive': true,
             } },
-            () => {}
+            () => {},
           );
 
           if ((now - customer.inAppMessagingData.lastSeenAt) > 30 * 60 * 1000) {
@@ -56,7 +61,7 @@ export default {
             Customers.update(
               { _id: customer._id },
               { $inc: { 'inAppMessagingData.sessionCount': 1 } },
-              () => {}
+              () => {},
             );
           }
 
@@ -68,7 +73,7 @@ export default {
       })
 
       // return integrationId, customerId
-      .then((customer) => ({
+      .then(customer => ({
         integrationId,
         customerId: customer._id,
       }))
@@ -96,13 +101,13 @@ export default {
     })
 
     // create message
-    .then((id) =>
+    .then(id =>
       createMessage({
         conversationId: id,
         customerId,
         message,
         attachments,
-      })
+      }),
     )
 
     // publish change
@@ -130,7 +135,7 @@ export default {
         isCustomerRead: { $exists: false },
       },
       { isCustomerRead: true },
-      { multi: true }
+      { multi: true },
     )
 
     // notify all notification subscribers that message's read

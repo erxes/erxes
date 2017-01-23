@@ -9,5 +9,9 @@
   },
   "rules": {
     "no-underscore-dangle": ["error", { "allow": ["_id"] }]
+  },
+  "globals": {
+    "window": true,
+    "document": true
   }
 }
