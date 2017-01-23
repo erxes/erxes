@@ -1,5 +1,4 @@
 import React, { PropTypes, Component } from 'react';
-import ScrollArea from 'react-scrollbar';
 import classNames from 'classnames';
 import { FlowRouter } from 'meteor/kadira:flow-router';
 
@@ -11,9 +10,7 @@ const propTypes = {
 
 function Sidebar({ children, size = 'medium' }) {
   return (
-    <ScrollArea horizontal={false}>
-      <div className={`sidebar ${size}`}>{children}</div>
-    </ScrollArea>
+    <div className={`sidebar ${size}`}>{children}</div>
   );
 }
 

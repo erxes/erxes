@@ -1,6 +1,7 @@
 .navigation {
   width: $nav-width;
   background-color: $main-color;
+  flex-shrink: 0;
 
   .logo {
     background-color: darken($main-color, 5%);

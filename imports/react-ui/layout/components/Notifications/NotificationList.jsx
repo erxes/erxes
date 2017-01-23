@@ -1,11 +1,11 @@
 import React, { PropTypes, Component } from 'react';
 import { _ } from 'meteor/underscore';
-import { NotificationListRow } from '../../containers';
 import { Button } from 'react-bootstrap';
 import Alert from 'meteor/erxes-notifier';
-import { Wrapper } from '../';
-import { EmptyState, Pagination } from '/imports/react-ui/common';
 import Sidebar from '/imports/react-ui/settings/Sidebar.jsx';
+import { EmptyState, Pagination } from '/imports/react-ui/common';
+import { NotificationListRow } from '../../containers';
+import { Wrapper } from '../';
 
 
 class NotificationList extends Component {
@@ -23,7 +23,7 @@ class NotificationList extends Component {
         bulk.push(notification._id);
       }
     });
-    this.props.markAsRead(this.state.bulk, error => {
+    this.props.markAsRead(this.state.bulk, (error) => {
       if (error) {
         return Alert.error('Error', error.reason);
       }
@@ -45,7 +45,7 @@ class NotificationList extends Component {
               <NotificationListRow
                 notification={notif}
                 key={key}
-              />
+              />,
             )
           }
         </ul>
