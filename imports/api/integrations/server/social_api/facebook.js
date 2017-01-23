@@ -237,12 +237,19 @@ export class SaveWebhookResponse {
 
     postId = response.id;
 
+    let status = CONVERSATION_STATUSES.NEW;
+
+    // if we are posting from our page, close it automatically
+    if (this.integration.facebookData.pageIds.includes(senderId)) {
+      status = CONVERSATION_STATUSES.CLOSED;
+    }
+
     this.getOrCreateConversation({
       findSelector: {
         'facebookData.kind': FACEBOOK_DATA_KINDS.FEED,
         'facebookData.postId': postId,
       },
-      status: CONVERSATION_STATUSES.NEW,
+      status,
       senderId,
       facebookData: {
         kind: FACEBOOK_DATA_KINDS.FEED,

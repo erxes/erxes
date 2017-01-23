@@ -10,19 +10,23 @@ import { Conversations } from '/imports/api/conversations/conversations';
 import { CONVERSATION_STATUSES, FACEBOOK_DATA_KINDS } from '/imports/api/conversations/constants';
 import { Messages } from '/imports/api/conversations/messages';
 
-import { SaveWebhookResponse } from '../facebook';
+import { graphRequest, SaveWebhookResponse } from '../facebook';
 
 describe('facebook integration: get or create conversation', function () {
   const senderId = 2242424244;
   const pageId = '2252525525';
 
-  // This test suite requires increased amount of time.
-  // Default waiting time is now 5s in this suite.
-  this.timeout(5000);
+  after(function () {
+    graphRequest.get.restore(); // unwraps the spy
+  });
 
-  beforeEach(function () {
+  before(function () {
+    // clear
     Conversations.remove({});
     Messages.remove({});
+
+    // mock all requests
+    sinon.stub(graphRequest, 'get', () => {});
   });
 
   it('get or create conversation', function () {
