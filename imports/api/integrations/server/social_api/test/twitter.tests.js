@@ -15,7 +15,7 @@ import {
   getOrCreateCommonConversation,
   tweetReply,
   getOrCreateDirectMessageConversation,
-} from './twitter';
+} from '../twitter';
 
 
 describe('twitter integration', function () {

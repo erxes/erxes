@@ -127,7 +127,7 @@ export class SaveWebhookResponse {
   getOrCreateConversation(params) {
     // extract params
     const {
-      findSelector, senderId, facebookData,
+      findSelector, status, senderId, facebookData,
       content, attachments, msgFacebookData,
     } = params;
 
@@ -140,7 +140,7 @@ export class SaveWebhookResponse {
       const conversationId = Conversations.insert({
         integrationId: this.integration._id,
         customerId: this.getOrCreateCustomer(senderId),
-        status: CONVERSATION_STATUSES.NEW,
+        status,
         content,
 
         // save facebook infos
@@ -186,7 +186,7 @@ export class SaveWebhookResponse {
       return;
     }
 
-    // ingore duplicated action when like
+    // ignore duplicated action when like
     if (value.verb === 'add' && value.item === 'like') {
       return;
     }
@@ -237,11 +237,19 @@ export class SaveWebhookResponse {
 
     postId = response.id;
 
+    let status = CONVERSATION_STATUSES.NEW;
+
+    // if we are posting from our page, close it automatically
+    if (this.integration.facebookData.pageIds.includes(senderId)) {
+      status = CONVERSATION_STATUSES.CLOSED;
+    }
+
     this.getOrCreateConversation({
       findSelector: {
         'facebookData.kind': FACEBOOK_DATA_KINDS.FEED,
         'facebookData.postId': postId,
       },
+      status,
       senderId,
       facebookData: {
         kind: FACEBOOK_DATA_KINDS.FEED,
@@ -291,6 +299,7 @@ export class SaveWebhookResponse {
           },
         ],
       },
+      status: CONVERSATION_STATUSES.NEW,
       senderId,
       facebookData: {
         kind: FACEBOOK_DATA_KINDS.MESSENGER,

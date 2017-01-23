@@ -24,7 +24,7 @@ Meteor.publishComposite('conversations.list', function conversationsList(params)
 
   const user = Meteor.users.findOne(this.userId);
 
-  // query builder
+  // initiate query builder
   const qb = new ListQueryBuilder(params, user);
 
   // check params
