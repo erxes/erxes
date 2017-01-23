@@ -4,7 +4,7 @@
   "description": "Apollo Api",
   "scripts": {
     "start": "node dist/server.js",
-    "start-local": "nodemon server/server.js --exec babel-node",
+    "local": "nodemon server/server.js --exec babel-node",
     "test": "./node_modules/.bin/mocha server/data/tests --reporter spec --compilers js:babel-core/register",
     "bundle": "./node_modules/.bin/webpack",
     "build": "babel server --out-dir dist --ignore tests --copy-files"

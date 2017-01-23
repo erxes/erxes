@@ -6,7 +6,7 @@ import {
   Integrations,
 } from './connectors';
 
-const CONVERSATION_STATUSES = {
+export const CONVERSATION_STATUSES = {
   NEW: 'new',
   OPEN: 'open',
   CLOSED: 'closed',

@@ -1,4 +1,4 @@
-import { Messages, Customers } from './connectors';
+import { Conversations, Messages, Customers } from './connectors';
 import { pubsub } from './subscription-manager';
 import {
   getIntegration,
@@ -6,6 +6,7 @@ import {
   getOrCreateConversation,
   createMessage,
   createCustomer,
+  CONVERSATION_STATUSES,
 } from './utils';
 
 export default {
@@ -110,8 +111,20 @@ export default {
       }),
     )
 
-    // publish change
     .then((msg) => {
+      Conversations.update(
+        { _id: msg.conversationId },
+        { $set: {
+          // if conversation is closed then reopen it.
+          status: CONVERSATION_STATUSES.OPEN,
+
+          // empty read users list then it will be shown as unread again
+          readUserIds: [],
+        } },
+        () => {},
+      );
+
+      // publish change
       pubsub.publish('newMessagesChannel', msg);
       pubsub.publish('notification');
 
