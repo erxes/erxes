@@ -33,7 +33,9 @@ Meteor.publishComposite('conversations.list', function conversationsList(params)
   const queries = qb.queries;
 
   const countPublish = (name, query) => {
-    Counts.publish(this, name, Conversations.find(query), { noReady: true });
+    Meteor.defer(() => {
+      Counts.publish(this, name, Conversations.find(query), { noReady: true });
+    });
   };
 
   // by channels
