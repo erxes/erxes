@@ -2,17 +2,21 @@ import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
 import { _ } from 'meteor/underscore';
 import { ValidatedMethod } from 'meteor/mdg:validated-method';
-import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 
 import { ErxesMixin } from '/imports/api/utils';
-import { KIND_CHOICES } from '/imports/api/integrations/constants';
-import { Messages, FormSchema } from '/imports/api/conversations/messages';
 import { tagObject } from '/imports/api/tags/server/api';
-import { Conversations } from '/imports/api/conversations/conversations';
-import { CONVERSATION_STATUSES } from '/imports/api/conversations/constants';
 import { sendNotification, sendEmail } from '/imports/api/server/utils';
+import { KIND_CHOICES } from '/imports/api/integrations/constants';
 import { tweetReply } from '/imports/api/integrations/server/social_api/twitter';
 import { facebookReply } from '/imports/api/integrations/server/social_api/facebook';
+import { Messages, FormSchema } from '/imports/api/conversations/messages';
+import {
+  Conversations,
+  ConversationIdsSchema,
+  AssignSchema,
+  ChangeStatusSchema,
+  TagSchema,
+} from '/imports/api/conversations/conversations';
 
 /*
  * all possible users they can get notifications
@@ -133,35 +137,33 @@ export const addMessage = new ValidatedMethod({
   },
 });
 
+
+const checkConversationsExistance = (conversationIds) => {
+  const selector = { _id: { $in: conversationIds } };
+  const conversations = Conversations.find(selector).fetch();
+
+  if (conversations.length !== conversationIds.length) {
+    throw new Meteor.Error(
+      'conversations.conversationNotFound',
+      'Conversation not found.',
+    );
+  }
+
+  return { selector, conversations };
+};
+
+
 /*
  * assign employee to conversation
  */
 export const assign = new ValidatedMethod({
   name: 'conversations.assign',
   mixins: [ErxesMixin],
-
-  validate: new SimpleSchema({
-    conversationIds: {
-      type: [String],
-      regEx: SimpleSchema.RegEx.Id,
-    },
-
-    assignedUserId: {
-      type: String,
-      regEx: SimpleSchema.RegEx.Id,
-    },
-  }).validator(),
+  validate: AssignSchema.validator(),
 
   run({ conversationIds, assignedUserId }) {
-    const selector = { _id: { $in: conversationIds } };
-    const conversations = Conversations.find(selector).fetch();
-
-    if (conversations.length !== conversationIds.length) {
-      throw new Meteor.Error(
-        'conversations.assign.conversationNotFound',
-        'Conversation not found.',
-      );
-    }
+    // check conversations existance
+    const { selector } = checkConversationsExistance(conversationIds);
 
     if (!Meteor.users.findOne(assignedUserId)) {
       throw new Meteor.Error(
@@ -202,24 +204,11 @@ export const assign = new ValidatedMethod({
 export const unassign = new ValidatedMethod({
   name: 'conversations.unassign',
   mixins: [ErxesMixin],
-
-  validate: new SimpleSchema({
-    conversationIds: {
-      type: [String],
-      regEx: SimpleSchema.RegEx.Id,
-    },
-  }).validator(),
+  validate: ConversationIdsSchema.validator(),
 
   run({ conversationIds }) {
-    const selector = { _id: { $in: conversationIds } };
-    const conversations = Conversations.find(selector).fetch();
-
-    if (conversations.length !== conversationIds.length) {
-      throw new Meteor.Error(
-        'conversations.unassign.conversationNotFound',
-        'Conversation not found.',
-      );
-    }
+    // check conversations existance
+    checkConversationsExistance(conversationIds);
 
     Conversations.update(
       { _id: { $in: conversationIds } },
@@ -236,28 +225,11 @@ export const unassign = new ValidatedMethod({
 export const changeStatus = new ValidatedMethod({
   name: 'conversations.changeStatus',
   mixins: [ErxesMixin],
-
-  validate: new SimpleSchema({
-    conversationIds: {
-      type: [String],
-      regEx: SimpleSchema.RegEx.Id,
-    },
-    status: {
-      type: String,
-      allowedValues: CONVERSATION_STATUSES.ALL_LIST,
-    },
-  }).validator(),
+  validate: ChangeStatusSchema.validator(),
 
   run({ conversationIds, status }) {
-    const selector = { _id: { $in: conversationIds } };
-    const conversations = Conversations.find(selector).fetch();
-
-    if (conversations.length !== conversationIds.length) {
-      throw new Meteor.Error(
-        'conversations.changeStatus.conversationNotFound',
-        'Conversation not found.',
-      );
-    }
+    // check conversations existance
+    const { conversations } = checkConversationsExistance(conversationIds);
 
     Conversations.update(
       { _id: { $in: conversationIds } },
@@ -287,24 +259,11 @@ export const changeStatus = new ValidatedMethod({
 export const star = new ValidatedMethod({
   name: 'conversations.star',
   mixins: [ErxesMixin],
-
-  validate: new SimpleSchema({
-    conversationIds: {
-      type: [String],
-      regEx: SimpleSchema.RegEx.Id,
-    },
-  }).validator(),
+  validate: ConversationIdsSchema.validator(),
 
   run({ conversationIds }) {
-    const selector = { _id: { $in: conversationIds } };
-    const conversations = Conversations.find(selector).fetch();
-
-    if (conversations.length !== conversationIds.length) {
-      throw new Meteor.Error(
-        'conversations.star.conversationNotFound',
-        'Conversation not found.',
-      );
-    }
+    // check conversations existance
+    checkConversationsExistance(conversationIds);
 
     Meteor.users.update(
       this.userId,
@@ -319,18 +278,68 @@ export const star = new ValidatedMethod({
 export const unstar = new ValidatedMethod({
   name: 'conversations.unstar',
   mixins: [ErxesMixin],
-
-  validate: new SimpleSchema({
-    conversationIds: {
-      type: [String],
-      regEx: SimpleSchema.RegEx.Id,
-    },
-  }).validator(),
+  validate: ConversationIdsSchema.validator(),
 
   run({ conversationIds }) {
+    // check conversations existance
+    checkConversationsExistance(conversationIds);
+
     Meteor.users.update(
       this.userId,
       { $pull: { 'details.starredConversationIds': { $in: conversationIds } } },
+    );
+  },
+});
+
+/*
+ * tag conversation
+ */
+export const tag = new ValidatedMethod({
+  name: 'conversations.tag',
+  mixins: [ErxesMixin],
+  validate: TagSchema.validator(),
+
+  run({ conversationIds, tagIds }) {
+    // check conversations existance
+    checkConversationsExistance(conversationIds);
+
+    tagObject({ tagIds, objectIds: conversationIds, collection: Conversations });
+  },
+});
+
+
+/*
+ * add or remove user from given conversations's participated list
+ */
+export const toggleParticipate = new ValidatedMethod({
+  name: 'conversations.toggleParticipate',
+  mixins: [ErxesMixin],
+  validate: ConversationIdsSchema.validator(),
+
+  run({ conversationIds }) {
+    // check conversations existance
+    const { selector } = checkConversationsExistance(conversationIds);
+
+    const extendSelector = {
+      ...selector,
+      participatedUserIds: { $in: [this.userId] },
+    };
+
+    // not previously added
+    if (Conversations.find(extendSelector).count() === 0) {
+      // add
+      return Conversations.update(
+        selector,
+        { $addToSet: { participatedUserIds: this.userId } },
+        { multi: true },
+      );
+    }
+
+    // remove
+    return Conversations.update(
+      selector,
+      { $pull: { participatedUserIds: { $in: [this.userId] } } },
+      { multi: true },
     );
   },
 });
@@ -371,35 +380,5 @@ export const markAsRead = new ValidatedMethod({
     }
 
     return 'not affected';
-  },
-});
-
-/*
- * tag conversation
- */
-export const tag = new ValidatedMethod({
-  name: 'conversations.tag',
-  mixins: [ErxesMixin],
-
-  validate: new SimpleSchema({
-    conversationIds: {
-      type: [String],
-      regEx: SimpleSchema.RegEx.Id,
-    },
-    tagIds: {
-      type: [String],
-      regEx: SimpleSchema.RegEx.Id,
-    },
-  }).validator(),
-
-  run({ conversationIds, tagIds }) {
-    const conversations = Conversations.find({ _id: { $in: conversationIds } }).fetch();
-
-    if (conversations.length !== conversationIds.length) {
-      throw new Meteor.Error('conversations.tag.conversationNotFound',
-        'Conversation not found.');
-    }
-
-    tagObject({ tagIds, objectIds: conversationIds, collection: Conversations });
   },
 });
