@@ -191,7 +191,7 @@ describe('conversations', function () {
             { userId },
             { assignedUserId: Random.id(), conversationIds: [Random.id()] },
           );
-        }, Meteor.Error, /conversations.assign.conversationNotFound/);
+        }, Meteor.Error, /conversations.conversationNotFound/);
       });
 
       it('user must exist', function () {
@@ -252,7 +252,7 @@ describe('conversations', function () {
       it('conversation must exist', function () {
         assert.throws(() => {
           unassign._execute({ userId }, { conversationIds: [Random.id()] });
-        }, Meteor.Error, /conversations.unassign.conversationNotFound/);
+        }, Meteor.Error, /conversations.conversationNotFound/);
       });
 
       it('unassign', function () {
@@ -303,7 +303,7 @@ describe('conversations', function () {
       it('conversation must exist', function () {
         assert.throws(() => {
           changeStatus._execute({ userId }, randomData);
-        }, Meteor.Error, /conversations.changeStatus.conversationNotFound/);
+        }, Meteor.Error, /conversations.conversationNotFound/);
       });
 
       it('wrong status', function () {
@@ -367,7 +367,7 @@ describe('conversations', function () {
             { userId },
             { conversationIds: [Random.id()], tagIds: [Random.id()] },
           );
-        }, Meteor.Error, /conversations.tag.conversationNotFound/);
+        }, Meteor.Error, /conversations.conversationNotFound/);
       });
 
       it('tag', function () {
@@ -411,7 +411,7 @@ describe('conversations', function () {
       it('conversation must exist', function () {
         assert.throws(() => {
           star._execute({ userId }, { conversationIds: [Random.id()] });
-        }, Meteor.Error, /conversations.star.conversationNotFound/);
+        }, Meteor.Error, /conversations.conversationNotFound/);
       });
 
       it('star', function () {
@@ -450,7 +450,7 @@ describe('conversations', function () {
       });
 
       it('unstar', function () {
-        const conversationIds = [Random.id(), Random.id()];
+        const conversationIds = [Factory.create('conversation')._id];
 
         Meteor.users.update(
           userId,

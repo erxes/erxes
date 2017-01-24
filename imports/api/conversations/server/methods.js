@@ -5,12 +5,12 @@ import { ValidatedMethod } from 'meteor/mdg:validated-method';
 import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 
 import { ErxesMixin } from '/imports/api/utils';
-import { KIND_CHOICES } from '/imports/api/integrations/constants';
-import { Messages, FormSchema } from '/imports/api/conversations/messages';
 import { tagObject } from '/imports/api/tags/server/api';
+import { Messages, FormSchema } from '/imports/api/conversations/messages';
 import { Conversations } from '/imports/api/conversations/conversations';
 import { CONVERSATION_STATUSES } from '/imports/api/conversations/constants';
 import { sendNotification, sendEmail } from '/imports/api/server/utils';
+import { KIND_CHOICES } from '/imports/api/integrations/constants';
 import { tweetReply } from '/imports/api/integrations/server/social_api/twitter';
 import { facebookReply } from '/imports/api/integrations/server/social_api/facebook';
 
@@ -133,6 +133,22 @@ export const addMessage = new ValidatedMethod({
   },
 });
 
+
+const checkConversationsExistance = (conversationIds) => {
+  const selector = { _id: { $in: conversationIds } };
+  const conversations = Conversations.find(selector).fetch();
+
+  if (conversations.length !== conversationIds.length) {
+    throw new Meteor.Error(
+      'conversations.conversationNotFound',
+      'Conversation not found.',
+    );
+  }
+
+  return { selector, conversations };
+};
+
+
 /*
  * assign employee to conversation
  */
@@ -153,15 +169,8 @@ export const assign = new ValidatedMethod({
   }).validator(),
 
   run({ conversationIds, assignedUserId }) {
-    const selector = { _id: { $in: conversationIds } };
-    const conversations = Conversations.find(selector).fetch();
-
-    if (conversations.length !== conversationIds.length) {
-      throw new Meteor.Error(
-        'conversations.assign.conversationNotFound',
-        'Conversation not found.',
-      );
-    }
+    // check conversations existance
+    const { selector } = checkConversationsExistance(conversationIds);
 
     if (!Meteor.users.findOne(assignedUserId)) {
       throw new Meteor.Error(
@@ -211,15 +220,8 @@ export const unassign = new ValidatedMethod({
   }).validator(),
 
   run({ conversationIds }) {
-    const selector = { _id: { $in: conversationIds } };
-    const conversations = Conversations.find(selector).fetch();
-
-    if (conversations.length !== conversationIds.length) {
-      throw new Meteor.Error(
-        'conversations.unassign.conversationNotFound',
-        'Conversation not found.',
-      );
-    }
+    // check conversations existance
+    checkConversationsExistance(conversationIds);
 
     Conversations.update(
       { _id: { $in: conversationIds } },
@@ -249,15 +251,8 @@ export const changeStatus = new ValidatedMethod({
   }).validator(),
 
   run({ conversationIds, status }) {
-    const selector = { _id: { $in: conversationIds } };
-    const conversations = Conversations.find(selector).fetch();
-
-    if (conversations.length !== conversationIds.length) {
-      throw new Meteor.Error(
-        'conversations.changeStatus.conversationNotFound',
-        'Conversation not found.',
-      );
-    }
+    // check conversations existance
+    const { conversations } = checkConversationsExistance(conversationIds);
 
     Conversations.update(
       { _id: { $in: conversationIds } },
@@ -296,15 +291,8 @@ export const star = new ValidatedMethod({
   }).validator(),
 
   run({ conversationIds }) {
-    const selector = { _id: { $in: conversationIds } };
-    const conversations = Conversations.find(selector).fetch();
-
-    if (conversations.length !== conversationIds.length) {
-      throw new Meteor.Error(
-        'conversations.star.conversationNotFound',
-        'Conversation not found.',
-      );
-    }
+    // check conversations existance
+    checkConversationsExistance(conversationIds);
 
     Meteor.users.update(
       this.userId,
@@ -328,6 +316,9 @@ export const unstar = new ValidatedMethod({
   }).validator(),
 
   run({ conversationIds }) {
+    // check conversations existance
+    checkConversationsExistance(conversationIds);
+
     Meteor.users.update(
       this.userId,
       { $pull: { 'details.starredConversationIds': { $in: conversationIds } } },
@@ -393,12 +384,8 @@ export const tag = new ValidatedMethod({
   }).validator(),
 
   run({ conversationIds, tagIds }) {
-    const conversations = Conversations.find({ _id: { $in: conversationIds } }).fetch();
-
-    if (conversations.length !== conversationIds.length) {
-      throw new Meteor.Error('conversations.tag.conversationNotFound',
-        'Conversation not found.');
-    }
+    // check conversations existance
+    checkConversationsExistance(conversationIds);
 
     tagObject({ tagIds, objectIds: conversationIds, collection: Conversations });
   },
