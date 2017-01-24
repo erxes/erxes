@@ -1,5 +1,5 @@
+import { Meteor } from 'meteor/meteor';
 import { composeWithTracker } from 'react-komposer';
-import { addMessage } from '/imports/api/conversations/methods';
 import { newMessage } from '/imports/react-ui/apollo-client';
 import { KIND_CHOICES } from '/imports/api/integrations/constants';
 import { RespondBox } from '../components';
@@ -18,7 +18,7 @@ function composer(props, onData) {
       callback(error, messageId);
     };
 
-    addMessage.call(message, cb);
+    Meteor.call('conversations.addMessage', message, cb);
   };
 
   onData(null, {

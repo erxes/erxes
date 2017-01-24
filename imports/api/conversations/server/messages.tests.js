@@ -11,8 +11,7 @@ import { Notifications } from 'meteor/erxes-notifications';
 
 import { Messages } from '../messages';
 import { Conversations } from '../conversations';
-import { addMessage } from '../methods';
-
+import { addMessage } from './methods';
 import './publications.js';
 
 describe('conversation - messages', function () {

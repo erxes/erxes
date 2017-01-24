@@ -22,7 +22,6 @@ import '/imports/api/integrations/server/social_api';
 import '/imports/api/conversations/server/publications';
 import '/imports/api/conversations/server/methods';
 import '/imports/api/conversations/server/cronJobs';
-import '/imports/api/conversations/methods';
 
 import '/imports/api/tags/server/publications';
 import '/imports/api/tags/methods';

@@ -1,12 +1,12 @@
+import { Meteor } from 'meteor/meteor';
 import { composeWithTracker } from 'react-komposer';
-import { changeStatus as method } from '/imports/api/conversations/methods';
 import { CONVERSATION_STATUSES } from '/imports/api/conversations/constants';
 import { Resolver } from '../components';
 
 
 function composer(props, onData) {
   const changeStatus = (args, callback) => {
-    method.call(args, callback);
+    Meteor.call('conversations.changeStatus', args, callback);
   };
 
   onData(null, {

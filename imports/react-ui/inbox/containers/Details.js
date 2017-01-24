@@ -2,10 +2,6 @@ import { Meteor } from 'meteor/meteor';
 import { ReactiveVar } from 'meteor/reactive-var';
 import { composeWithTracker } from 'react-komposer';
 import { Conversations } from '/imports/api/conversations/conversations';
-import {
-  changeStatus as method,
-  markAsRead,
-} from '/imports/api/conversations/methods';
 import { Messages } from '/imports/api/conversations/messages';
 import { Integrations } from '/imports/api/integrations/integrations';
 import { Loader } from '/imports/react-ui/common';
@@ -20,7 +16,11 @@ function composer({ id, channelId }, onData) {
 
   // =============== actions
   const changeStatus = (conversationId, status, callback) => {
-    method.call({ conversationIds: [conversationId], status }, callback);
+    Meteor.call(
+      'conversations.changeStatus',
+      { conversationIds: [conversationId], status },
+      callback,
+    );
   };
 
   const setAttachmentPreview = (previewObject) => {
@@ -52,7 +52,7 @@ function composer({ id, channelId }, onData) {
       const readUserIds = conversation.readUserIds || [];
 
       if (!readUserIds.includes(Meteor.userId())) {
-        markAsRead.call({ conversationId: id });
+        Meteor.call('conversations.markAsRead', { conversationId: id });
       }
 
       onData(
