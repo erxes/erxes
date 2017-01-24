@@ -28,27 +28,20 @@ class ConversationsCollection extends Mongo.Collection {
     return super.insert(conversation, callback);
   }
 
-  update(selector, modifier, options) {
-    const set = modifier.$set || {};
-
-    if (set.number) {
-      throw new Meteor.Error('invalid-data', 'Can\'t change "number" field!');
-    }
-
-    return super.update(selector, modifier, options);
-  }
-
   remove(selector, callback) {
     const conversations = this.find(selector).fetch();
 
     const result = super.remove(selector, callback);
 
     let removeIds = [];
+
     conversations.forEach((obj) => {
       removeIds.push(obj.tagIds || []);
     });
 
     removeIds = _.uniq(_.flatten(removeIds));
+
+    // remove tag items that using removing conversations
     Tags.update({ _id: { $in: removeIds } }, { $inc: { objectCount: -1 } });
 
     return result;
@@ -90,14 +83,14 @@ Conversations.helpers({
   },
 });
 
-export function addParticipator({ conversationId, userId }) {
+export const addParticipator = ({ conversationId, userId }) => {
   if (conversationId && userId) {
     Conversations.update(
       conversationId,
       { $addToSet: { participatedUserIds: userId } },
     );
   }
-}
+};
 
 Conversations.deny({
   insert() { return true; },
@@ -251,6 +244,48 @@ Conversations.schema = new SimpleSchema({
 });
 
 Conversations.attachSchema(Conversations.schema);
+
+// Helper schemas. Using in method checks
+export const ConversationIdsSchema = new SimpleSchema({
+  conversationIds: {
+    type: [String],
+    regEx: SimpleSchema.RegEx.Id,
+  },
+});
+
+export const AssignSchema = new SimpleSchema({
+  conversationIds: {
+    type: [String],
+    regEx: SimpleSchema.RegEx.Id,
+  },
+
+  assignedUserId: {
+    type: String,
+    regEx: SimpleSchema.RegEx.Id,
+  },
+});
+
+export const ChangeStatusSchema = new SimpleSchema({
+  conversationIds: {
+    type: [String],
+    regEx: SimpleSchema.RegEx.Id,
+  },
+  status: {
+    type: String,
+    allowedValues: CONVERSATION_STATUSES.ALL_LIST,
+  },
+});
+
+export const TagSchema = new SimpleSchema({
+  conversationIds: {
+    type: [String],
+    regEx: SimpleSchema.RegEx.Id,
+  },
+  tagIds: {
+    type: [String],
+    regEx: SimpleSchema.RegEx.Id,
+  },
+});
 
 Conversations.publicFields = {
   number: 1,

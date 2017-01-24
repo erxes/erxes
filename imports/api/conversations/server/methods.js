@@ -2,17 +2,21 @@ import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
 import { _ } from 'meteor/underscore';
 import { ValidatedMethod } from 'meteor/mdg:validated-method';
-import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 
 import { ErxesMixin } from '/imports/api/utils';
 import { tagObject } from '/imports/api/tags/server/api';
-import { Messages, FormSchema } from '/imports/api/conversations/messages';
-import { Conversations } from '/imports/api/conversations/conversations';
-import { CONVERSATION_STATUSES } from '/imports/api/conversations/constants';
 import { sendNotification, sendEmail } from '/imports/api/server/utils';
 import { KIND_CHOICES } from '/imports/api/integrations/constants';
 import { tweetReply } from '/imports/api/integrations/server/social_api/twitter';
 import { facebookReply } from '/imports/api/integrations/server/social_api/facebook';
+import { Messages, FormSchema } from '/imports/api/conversations/messages';
+import {
+  Conversations,
+  ConversationIdsSchema,
+  AssignSchema,
+  ChangeStatusSchema,
+  TagSchema,
+} from '/imports/api/conversations/conversations';
 
 /*
  * all possible users they can get notifications
@@ -155,18 +159,7 @@ const checkConversationsExistance = (conversationIds) => {
 export const assign = new ValidatedMethod({
   name: 'conversations.assign',
   mixins: [ErxesMixin],
-
-  validate: new SimpleSchema({
-    conversationIds: {
-      type: [String],
-      regEx: SimpleSchema.RegEx.Id,
-    },
-
-    assignedUserId: {
-      type: String,
-      regEx: SimpleSchema.RegEx.Id,
-    },
-  }).validator(),
+  validate: AssignSchema.validator(),
 
   run({ conversationIds, assignedUserId }) {
     // check conversations existance
@@ -211,13 +204,7 @@ export const assign = new ValidatedMethod({
 export const unassign = new ValidatedMethod({
   name: 'conversations.unassign',
   mixins: [ErxesMixin],
-
-  validate: new SimpleSchema({
-    conversationIds: {
-      type: [String],
-      regEx: SimpleSchema.RegEx.Id,
-    },
-  }).validator(),
+  validate: ConversationIdsSchema.validator(),
 
   run({ conversationIds }) {
     // check conversations existance
@@ -238,17 +225,7 @@ export const unassign = new ValidatedMethod({
 export const changeStatus = new ValidatedMethod({
   name: 'conversations.changeStatus',
   mixins: [ErxesMixin],
-
-  validate: new SimpleSchema({
-    conversationIds: {
-      type: [String],
-      regEx: SimpleSchema.RegEx.Id,
-    },
-    status: {
-      type: String,
-      allowedValues: CONVERSATION_STATUSES.ALL_LIST,
-    },
-  }).validator(),
+  validate: ChangeStatusSchema.validator(),
 
   run({ conversationIds, status }) {
     // check conversations existance
@@ -282,13 +259,7 @@ export const changeStatus = new ValidatedMethod({
 export const star = new ValidatedMethod({
   name: 'conversations.star',
   mixins: [ErxesMixin],
-
-  validate: new SimpleSchema({
-    conversationIds: {
-      type: [String],
-      regEx: SimpleSchema.RegEx.Id,
-    },
-  }).validator(),
+  validate: ConversationIdsSchema.validator(),
 
   run({ conversationIds }) {
     // check conversations existance
@@ -307,13 +278,7 @@ export const star = new ValidatedMethod({
 export const unstar = new ValidatedMethod({
   name: 'conversations.unstar',
   mixins: [ErxesMixin],
-
-  validate: new SimpleSchema({
-    conversationIds: {
-      type: [String],
-      regEx: SimpleSchema.RegEx.Id,
-    },
-  }).validator(),
+  validate: ConversationIdsSchema.validator(),
 
   run({ conversationIds }) {
     // check conversations existance
@@ -371,17 +336,7 @@ export const markAsRead = new ValidatedMethod({
 export const tag = new ValidatedMethod({
   name: 'conversations.tag',
   mixins: [ErxesMixin],
-
-  validate: new SimpleSchema({
-    conversationIds: {
-      type: [String],
-      regEx: SimpleSchema.RegEx.Id,
-    },
-    tagIds: {
-      type: [String],
-      regEx: SimpleSchema.RegEx.Id,
-    },
-  }).validator(),
+  validate: TagSchema.validator(),
 
   run({ conversationIds, tagIds }) {
     // check conversations existance
