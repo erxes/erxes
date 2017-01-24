@@ -291,6 +291,59 @@ export const unstar = new ValidatedMethod({
   },
 });
 
+/*
+ * tag conversation
+ */
+export const tag = new ValidatedMethod({
+  name: 'conversations.tag',
+  mixins: [ErxesMixin],
+  validate: TagSchema.validator(),
+
+  run({ conversationIds, tagIds }) {
+    // check conversations existance
+    checkConversationsExistance(conversationIds);
+
+    tagObject({ tagIds, objectIds: conversationIds, collection: Conversations });
+  },
+});
+
+
+/*
+ * add or remove user from given conversations's participated list
+ */
+export const toggleParticipate = new ValidatedMethod({
+  name: 'conversations.toggleParticipate',
+  mixins: [ErxesMixin],
+  validate: ConversationIdsSchema.validator(),
+
+  run({ conversationIds }) {
+    // check conversations existance
+    const { selector } = checkConversationsExistance(conversationIds);
+
+    const extendSelector = {
+      ...selector,
+      participatedUserIds: { $in: [this.userId] },
+    };
+
+    // not previously added
+    if (Conversations.find(extendSelector).count() === 0) {
+      // add
+      return Conversations.update(
+        selector,
+        { $addToSet: { participatedUserIds: this.userId } },
+        { multi: true },
+      );
+    }
+
+    // remove
+    return Conversations.update(
+      selector,
+      { $pull: { participatedUserIds: { $in: [this.userId] } } },
+      { multi: true },
+    );
+  },
+});
+
 
 /*
  * mark given conversation as read for current user
@@ -327,21 +380,5 @@ export const markAsRead = new ValidatedMethod({
     }
 
     return 'not affected';
-  },
-});
-
-/*
- * tag conversation
- */
-export const tag = new ValidatedMethod({
-  name: 'conversations.tag',
-  mixins: [ErxesMixin],
-  validate: TagSchema.validator(),
-
-  run({ conversationIds, tagIds }) {
-    // check conversations existance
-    checkConversationsExistance(conversationIds);
-
-    tagObject({ tagIds, objectIds: conversationIds, collection: Conversations });
   },
 });

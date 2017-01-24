@@ -17,7 +17,10 @@ import './publications';
 
 import { Conversations } from '../conversations';
 import { CONVERSATION_STATUSES } from '../constants';
-import { assign, unassign, changeStatus, star, unstar, tag } from './methods';
+import {
+  assign, unassign, changeStatus,
+  star, unstar, tag, toggleParticipate,
+} from './methods';
 
 describe('conversations', function () {
   describe('publications', function () {
@@ -463,6 +466,36 @@ describe('conversations', function () {
           Meteor.users.findOne(userId).details.starredConversationIds.length,
           0,
         );
+      });
+    });
+
+    describe('toggle participate', function () {
+      it('add & remove', function () {
+        const prevUserId = Factory.create('user')._id;
+
+        let conversation = Factory.create('conversation', {
+          participatedUserIds: [prevUserId],
+        });
+
+        const conversationIds = [conversation._id];
+
+        // first call =================
+        toggleParticipate._execute({ userId }, { conversationIds });
+
+        // get updated conversation
+        conversation = Conversations.findOne({ _id: { $in: conversationIds } });
+
+        // check added or not
+        assert.deepEqual(conversation.participatedUserIds, [prevUserId, userId]);
+
+        // second call ==================
+        toggleParticipate._execute({ userId }, { conversationIds });
+
+        // get updated conversation
+        conversation = Conversations.findOne({ _id: { $in: conversationIds } });
+
+        // check removed or not
+        assert.deepEqual(conversation.participatedUserIds, [prevUserId]);
       });
     });
   });
