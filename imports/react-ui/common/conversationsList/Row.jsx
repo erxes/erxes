@@ -4,7 +4,7 @@ import { FlowRouter } from 'meteor/kadira:flow-router';
 import { NameCard, Tags } from '/imports/react-ui/common';
 import { Tags as TagsCollection } from '/imports/api/tags/tags';
 import Starrer from './Starrer';
-import Participate from './Participate.jsx';
+import Participate from './Participate';
 import Assignees from './Assignees.jsx';
 
 
@@ -14,7 +14,7 @@ const propTypes = {
   starred: PropTypes.bool.isRequired,
   channelId: PropTypes.string,
   isRead: PropTypes.bool,
-  isParticipate: PropTypes.bool,
+  isParticipated: PropTypes.bool,
 };
 
 class Row extends Component {
@@ -50,7 +50,7 @@ class Row extends Component {
   }
 
   render() {
-    const { conversation, starred, isRead, isParticipate } = this.props;
+    const { conversation, starred, isRead, isParticipated } = this.props;
     const { createdAt, content, messageCount } = conversation;
     const customer = conversation.customer();
     const isReadClass = !isRead ? 'unread' : null;
@@ -97,7 +97,7 @@ class Row extends Component {
         <div className="column">
           <div className="conversation-togglers">
             <Starrer conversation={conversation} starred={starred} />
-            <Participate participated={isParticipate} />
+            <Participate conversation={conversation} participated={isParticipated} />
           </div>
         </div>
       </li>
