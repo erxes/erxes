@@ -17,8 +17,7 @@ import './publications';
 
 import { Conversations } from '../conversations';
 import { CONVERSATION_STATUSES } from '../constants';
-import { assign, unassign, changeStatus, star, unstar } from '../methods';
-import { tag } from './methods';
+import { assign, unassign, changeStatus, star, unstar, tag } from './methods';
 
 describe('conversations', function () {
   describe('publications', function () {
