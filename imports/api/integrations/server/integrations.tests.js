@@ -22,6 +22,12 @@ describe('integrations', function () {
 
       userId = Factory.create('user')._id;
       brandId = Factory.create('brand', { userId })._id;
+
+      // unwrap the spy
+      if (twitter.trackIntegration.restore) {
+        twitter.trackIntegration.restore();
+        twitter.authenticate.restore();
+      }
     });
 
     it('add in app messsaging', function () {
@@ -112,10 +118,6 @@ describe('integrations', function () {
       assert.equal(integration.twitterData.id, twitterUserId);
       assert.equal(integration.twitterData.token, 'access_token');
       assert.equal(integration.twitterData.tokenSecret, 'auth.token_secret');
-
-      // unwrap the spy
-      twitter.trackIntegration.restore();
-      twitter.authenticate.restore();
     });
 
     describe('remove', function () {
