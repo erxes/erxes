@@ -12,7 +12,6 @@ import { CustomersList } from '../components';
 function composer({ queryParams }, onData) {
   const { limit, loadMore, hasMore } = pagination(queryParams, 'customers.list.count');
 
-  const startTime = performance.now();
   const customersHandle = Meteor.subscribe('customers.list', Object.assign(queryParams, { limit }));
 
   /**
@@ -25,9 +24,6 @@ function composer({ queryParams }, onData) {
   const tagsHandle = Meteor.subscribe('tags.tagList', TAG_TYPES.CUSTOMER);
 
   if (customersHandle.ready() && brandsHandle.ready() && tagsHandle.ready()) {
-    const endTime = performance.now();
-    console.log(`${endTime - startTime} ms`);
-
     onData(null, {
       customers: Customers.find({}, { sort: { lastSeenAt: -1 } }).fetch(),
       brands: Brands.find({}, { sort: { name: 1 } }).fetch(),
