@@ -32,13 +32,19 @@ Meteor.publishComposite('customers.list', function customersList(queryString) {
 
       // filter by brand
       if (queryString.brand) {
-        const integrations = Integrations.find({ brandId: queryString.brand }).fetch();
+        const integrations = Integrations.find(
+          { brandId: queryString.brand },
+          { fields: { _id: 1 } },
+        ).fetch();
         selector.integrationId = { $in: integrations.map(i => i._id) };
       }
 
       // filter by integration
       if (queryString.integration) {
-        const integrations = Integrations.find({ kind: queryString.integration }).fetch();
+        const integrations = Integrations.find(
+          { kind: queryString.integration },
+          { fields: { _id: 1 } },
+        ).fetch();
 
         /**
          * Since both of brand and integration filters use a same integrationId field
@@ -58,13 +64,22 @@ Meteor.publishComposite('customers.list', function customersList(queryString) {
       }
 
       const countCustomers = (name, query) => {
-        Counts.publish(this, `customers.${name}`, Customers.find(query), { noReady: true });
+        Meteor.defer(() => {
+          Counts.publish(
+            this,
+            `customers.${name}`,
+            Customers.find(query, { fields: { _id: 1 } }),
+            { noReady: true },
+          );
+        });
       };
 
       // Count customers by brand
-      Brands.find().fetch().forEach((brand) => {
-        const integrations = Integrations.find({ brandId: brand._id }).fetch();
-
+      Brands.find({}, { fields: { _id: 1 } }).fetch().forEach((brand) => {
+        const integrations = Integrations.find(
+          { brandId: brand._id },
+          { fields: { _id: 1 } },
+        ).fetch();
         countCustomers(
           `brand.${brand._id}`,
           { integrationId: { $in: integrations.map(i => i._id) } },
@@ -73,7 +88,10 @@ Meteor.publishComposite('customers.list', function customersList(queryString) {
 
       // Count customers by integration
       KIND_CHOICES.ALL_LIST.forEach((integration) => {
-        const integrations = Integrations.find({ kind: integration }).fetch();
+        const integrations = Integrations.find(
+          { kind: integration },
+          { fields: { _id: 1 } },
+        ).fetch();
         countCustomers(
           `integration.${integration}`,
           { integrationId: { $in: integrations.map(i => i._id) } },
@@ -81,7 +99,7 @@ Meteor.publishComposite('customers.list', function customersList(queryString) {
       });
 
       // Count customers by filter
-      Tags.find({ type: TAG_TYPES.CUSTOMER }).fetch().forEach((tag) => {
+      Tags.find({ type: TAG_TYPES.CUSTOMER }, { fields: { _id: 1 } }).fetch().forEach((tag) => {
         countCustomers(`tag.${tag._id}`, { tagIds: tag._id });
       });
 
@@ -99,7 +117,7 @@ Meteor.publishComposite('customers.list', function customersList(queryString) {
     children: [
       {
         find(customer) {
-          return Integrations.find(customer.integrationId);
+          return Integrations.find(customer.integrationId, { fields: Integrations.publicFields });
         },
       },
     ],
