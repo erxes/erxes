@@ -12,10 +12,11 @@ import { CustomersList } from '../components';
 function composer({ queryParams }, onData) {
   const { limit, loadMore, hasMore } = pagination(queryParams, 'customers.list.count');
 
+  const startTime = performance.now();
   const customersHandle = Meteor.subscribe('customers.list', Object.assign(queryParams, { limit }));
 
   /**
-   * We need to display all 'brands' on the Sidebar
+   * We need to display all 'brands' and 'tags' on the Sidebar
    * even if no customers are related to them.
    * So these subscriptions are made here separately
    * instead of being made in customers subscription (composite subscription).
@@ -23,13 +24,18 @@ function composer({ queryParams }, onData) {
   const brandsHandle = Meteor.subscribe('brands.list', 100);
   const tagsHandle = Meteor.subscribe('tags.tagList', TAG_TYPES.CUSTOMER);
 
-  const customers = Customers.find({}, { sort: { lastSeenAt: -1 } }).fetch();
-  const brands = Brands.find({}, { sort: { name: 1 } }).fetch();
-  const integrations = KIND_CHOICES.ALL_LIST;
-  const tags = Tags.find({ type: TAG_TYPES.CUSTOMER }).fetch();
-
   if (customersHandle.ready() && brandsHandle.ready() && tagsHandle.ready()) {
-    onData(null, { customers, brands, integrations, tags, loadMore, hasMore });
+    const endTime = performance.now();
+    console.log(`${endTime - startTime} ms`);
+
+    onData(null, {
+      customers: Customers.find({}, { sort: { lastSeenAt: -1 } }).fetch(),
+      brands: Brands.find({}, { sort: { name: 1 } }).fetch(),
+      integrations: KIND_CHOICES.ALL_LIST,
+      tags: Tags.find({ type: TAG_TYPES.CUSTOMER }).fetch(),
+      loadMore,
+      hasMore,
+    });
   }
 }
 
