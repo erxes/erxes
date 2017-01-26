@@ -1,11 +1,13 @@
+import { _ } from 'meteor/underscore';
 import React, { PropTypes, Component } from 'react';
-import ReactDOM from 'react-dom';
 import {
   Button,
   FormGroup,
   FormControl,
   Checkbox,
   ControlLabel,
+  DropdownButton,
+  MenuItem,
 } from 'react-bootstrap';
 import Alert from 'meteor/erxes-notifier';
 
@@ -14,6 +16,7 @@ import uploadHandler from '/imports/api/client/uploadHandler';
 
 const propTypes = {
   conversation: PropTypes.object.isRequired,
+  responseTemplates: PropTypes.array.isRequired,
   sendMessage: PropTypes.func.isRequired,
   setAttachmentPreview: PropTypes.func.isRequired,
 };
@@ -36,6 +39,7 @@ class RespondBox extends Component {
     this.addMessage = this.addMessage.bind(this);
     this.toggleForm = this.toggleForm.bind(this);
     this.handleFileInput = this.handleFileInput.bind(this);
+    this.onResponseTemplateSelect = this.onResponseTemplateSelect.bind(this);
   }
 
   onReply(e) {
@@ -48,18 +52,16 @@ class RespondBox extends Component {
     this.addMessage(true);
   }
 
-  handleReplyKeyPress(e) {
-    if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
-      e.preventDefault();
-      this.addMessage();
-    }
-  }
+  onResponseTemplateSelect(eventKey) {
+    const content = document.getElementById('content');
 
-  handleNoteKeyPress(e) {
-    if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
-      e.preventDefault();
-      this.addMessage(true);
-    }
+    const responseTemplates = this.props.responseTemplates;
+
+    // find response template using event key
+    const responseTemplate = _.find(responseTemplates, t => t._id === eventKey);
+
+    // set content from response template value
+    content.value = responseTemplate.content;
   }
 
   handleFileInput(e) {
@@ -77,7 +79,7 @@ class RespondBox extends Component {
         afterUpload: ({ response, fileInfo }) => {
           // set attachments
           this.state.attachments.push(
-            Object.assign({ url: response.url }, fileInfo)
+            Object.assign({ url: response.url }, fileInfo),
           );
 
           // remove preview
@@ -89,34 +91,48 @@ class RespondBox extends Component {
 
         afterRead: ({ result, fileInfo }) => {
           this.props.setAttachmentPreview(
-            Object.assign({ data: result }, fileInfo)
+            Object.assign({ data: result }, fileInfo),
           );
         },
-      }
+      },
     );
   }
 
   addMessage(isInternal = false) {
     const { conversation, sendMessage } = this.props;
     const { attachments } = this.state;
-    const { reply, note } = this.refs;
-    const node = ReactDOM.findDOMNode(isInternal ? note : reply);
+    const content = document.getElementById('content');
 
     const message = {
       conversationId: conversation._id,
-      content: node.value || ' ',
+      content: content.value || ' ',
       internal: isInternal,
       attachments,
     };
 
-    sendMessage(message, error => {
+    sendMessage(message, (error) => {
       if (error) {
         Alert.error(error.reason);
       } else {
         this.setState({ attachments: [] });
       }
     });
-    node.value = '';
+
+    content.value = '';
+  }
+
+  handleReplyKeyPress(e) {
+    if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
+      e.preventDefault();
+      this.addMessage();
+    }
+  }
+
+  handleNoteKeyPress(e) {
+    if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
+      e.preventDefault();
+      this.addMessage(true);
+    }
   }
 
   toggleForm() {
@@ -125,18 +141,48 @@ class RespondBox extends Component {
     });
   }
 
+  renderResponseTemplates() {
+    const { responseTemplates } = this.props;
+
+    return (
+      <div className="response-template">
+        <DropdownButton
+          bsStyle="link"
+          title="Response template"
+          dropup
+          id="response-template"
+          onSelect={this.onResponseTemplateSelect}
+        >
+
+          <MenuItem eventKey="save">Save</MenuItem>
+          <MenuItem divider />
+
+          {responseTemplates.map(template => (
+            <MenuItem key={template._id} eventKey={template._id}>
+              {template.name}
+            </MenuItem>
+          ))}
+        </DropdownButton>
+      </div>
+    );
+  }
+
   render() {
     const Buttons = (
       <div>
         <Button type="submit" bsStyle="link">
           <i className="ion-reply" /> Send
         </Button>
+
         <ControlLabel className="btn btn-link btn-attach">
           <i className="ion-android-attach" /> Attach
           <input type="file" onChange={this.handleFileInput} />
         </ControlLabel>
+
+        {this.renderResponseTemplates()}
       </div>
     );
+
     const formConversation = (
       <form id="reply-form" onSubmit={this.onReply}>
         <FormGroup>
@@ -144,7 +190,7 @@ class RespondBox extends Component {
             componentClass="textarea"
             rows={4}
             placeholder="Type your message here..."
-            ref="reply"
+            id="content"
             onKeyDown={this.handleReplyKeyPress}
           />
         </FormGroup>
@@ -160,7 +206,7 @@ class RespondBox extends Component {
             componentClass="textarea"
             rows={4}
             placeholder="Type your note here..."
-            ref="note"
+            id="content"
             onKeyDown={this.handleNoteKeyPress}
           />
         </FormGroup>
@@ -172,6 +218,7 @@ class RespondBox extends Component {
     return (
       <div className="respond-box">
         {this.state.toggle ? formConversation : formNote}
+
         <Checkbox onChange={this.toggleForm}>
           Leave as internal note
         </Checkbox>

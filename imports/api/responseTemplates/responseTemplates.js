@@ -27,6 +27,17 @@ ResponseTemplates.schema = new SimpleSchema({
   content: {
     type: String,
   },
+
+  files: {
+    type: [new SimpleSchema({
+      url: { type: String },
+      type: { type: String, optional: true },
+      name: { type: String, optional: true },
+      size: { type: Number, optional: true },
+    })],
+
+    optional: true,
+  },
 });
 
 ResponseTemplates.attachSchema(ResponseTemplates.schema);
