@@ -1,4 +1,3 @@
-import { _ } from 'meteor/underscore';
 import React, { PropTypes, Component } from 'react';
 import {
   Button,
@@ -6,12 +5,11 @@ import {
   FormControl,
   Checkbox,
   ControlLabel,
-  DropdownButton,
-  MenuItem,
 } from 'react-bootstrap';
 import Alert from 'meteor/erxes-notifier';
 
 import uploadHandler from '/imports/api/client/uploadHandler';
+import ResponseTemplate from './ResponseTemplate.jsx';
 
 
 const propTypes = {
@@ -39,7 +37,6 @@ class RespondBox extends Component {
     this.addMessage = this.addMessage.bind(this);
     this.toggleForm = this.toggleForm.bind(this);
     this.handleFileInput = this.handleFileInput.bind(this);
-    this.onResponseTemplateSelect = this.onResponseTemplateSelect.bind(this);
   }
 
   onReply(e) {
@@ -50,18 +47,6 @@ class RespondBox extends Component {
   onNote(e) {
     e.preventDefault();
     this.addMessage(true);
-  }
-
-  onResponseTemplateSelect(eventKey) {
-    const content = document.getElementById('content');
-
-    const responseTemplates = this.props.responseTemplates;
-
-    // find response template using event key
-    const responseTemplate = _.find(responseTemplates, t => t._id === eventKey);
-
-    // set content from response template value
-    content.value = responseTemplate.content;
   }
 
   handleFileInput(e) {
@@ -141,32 +126,6 @@ class RespondBox extends Component {
     });
   }
 
-  renderResponseTemplates() {
-    const { responseTemplates } = this.props;
-
-    return (
-      <div className="response-template">
-        <DropdownButton
-          bsStyle="link"
-          title="Response template"
-          dropup
-          id="response-template"
-          onSelect={this.onResponseTemplateSelect}
-        >
-
-          <MenuItem eventKey="save">Save</MenuItem>
-          <MenuItem divider />
-
-          {responseTemplates.map(template => (
-            <MenuItem key={template._id} eventKey={template._id}>
-              {template.name}
-            </MenuItem>
-          ))}
-        </DropdownButton>
-      </div>
-    );
-  }
-
   render() {
     const Buttons = (
       <div>
@@ -179,7 +138,10 @@ class RespondBox extends Component {
           <input type="file" onChange={this.handleFileInput} />
         </ControlLabel>
 
-        {this.renderResponseTemplates()}
+        <ResponseTemplate
+          brandId={this.props.conversation.integration().brandId}
+          responseTemplates={this.props.responseTemplates}
+        />
       </div>
     );
 
