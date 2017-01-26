@@ -19,6 +19,8 @@ import { ModalTrigger } from '/imports/react-ui/common';
 const propTypes = {
   brandId: PropTypes.string.isRequired,
   responseTemplates: PropTypes.array.isRequired,
+  onSelect: PropTypes.func.isRequired,
+  attachments: PropTypes.array,
 };
 
 class ResponseTemplate extends Component {
@@ -34,6 +36,7 @@ class ResponseTemplate extends Component {
       brandId: this.props.brandId,
       name: document.getElementById('template-name').value,
       content: document.getElementById('content').value,
+      files: this.props.attachments,
     };
 
     add.call({ doc }, (error) => {
@@ -50,17 +53,12 @@ class ResponseTemplate extends Component {
       return document.getElementById('response-template-handler').click();
     }
 
-    const content = document.getElementById('content');
-
     const responseTemplates = this.props.responseTemplates;
 
     // find response template using event key
     const responseTemplate = _.find(responseTemplates, t => t._id === eventKey);
 
-    // set content from response template value
-    content.value = responseTemplate.content;
-
-    return 'setted';
+    return this.props.onSelect(responseTemplate);
   }
 
   render() {

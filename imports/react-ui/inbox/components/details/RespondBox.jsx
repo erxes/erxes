@@ -37,6 +37,7 @@ class RespondBox extends Component {
     this.addMessage = this.addMessage.bind(this);
     this.toggleForm = this.toggleForm.bind(this);
     this.handleFileInput = this.handleFileInput.bind(this);
+    this.onSelectTemplate = this.onSelectTemplate.bind(this);
   }
 
   onReply(e) {
@@ -47,6 +48,16 @@ class RespondBox extends Component {
   onNote(e) {
     e.preventDefault();
     this.addMessage(true);
+  }
+
+  onSelectTemplate(responseTemplate) {
+    const content = document.getElementById('content');
+
+    // set content from response template value
+    content.value = responseTemplate.content;
+
+    // set attachment from response template files
+    this.setState({ attachments: responseTemplate.files });
   }
 
   handleFileInput(e) {
@@ -69,9 +80,6 @@ class RespondBox extends Component {
 
           // remove preview
           this.props.setAttachmentPreview(null);
-
-          // add message
-          this.addMessage();
         },
 
         afterRead: ({ result, fileInfo }) => {
@@ -140,13 +148,27 @@ class RespondBox extends Component {
 
         <ResponseTemplate
           brandId={this.props.conversation.integration().brandId}
+          attachments={this.state.attachments}
           responseTemplates={this.props.responseTemplates}
+          onSelect={this.onSelectTemplate}
         />
       </div>
     );
 
+
+    // after file upload show indicator
+    let attachmentsIndicator = '';
+
+    const attachments = this.state.attachments || [];
+    const attachmentsCount = attachments.length;
+
+    if (attachmentsCount > 0) {
+      attachmentsIndicator = `has ${attachmentsCount} attachments`;
+    }
+
     const formConversation = (
       <form id="reply-form" onSubmit={this.onReply}>
+        {attachmentsIndicator}
         <FormGroup>
           <FormControl
             componentClass="textarea"
