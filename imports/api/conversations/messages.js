@@ -104,6 +104,12 @@ const facebookSchema = new SimpleSchema({
     optional: true,
   },
 
+  // when share video
+  videoId: {
+    type: String,
+    optional: true,
+  },
+
   link: {
     type: String,
     optional: true,

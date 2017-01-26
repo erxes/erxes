@@ -205,7 +205,7 @@ export class SaveWebhookResponse {
 
     let messageText = value.message;
 
-    // when photo share, there will be no text, so link instead
+    // when photo, video share, there will be no text, so link instead
     if (!messageText && value.link) {
       messageText = value.link;
     }
@@ -266,6 +266,7 @@ export class SaveWebhookResponse {
         item: value.item,
         reactionType: value.reaction_type,
         photoId: value.photo_id,
+        videoId: value.video_id,
         link: value.link,
       },
     });
