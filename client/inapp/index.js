@@ -36,10 +36,6 @@ window.addEventListener('message', (event) => {
     .then(({ data }) => {
       const inAppData = data.inAppConnect;
 
-      if (!inAppData) {
-        throw new Error('Integration not found');
-      }
-
       // save connection info
       connection.data = inAppData;
 
@@ -55,6 +51,11 @@ window.addEventListener('message', (event) => {
         </ApolloProvider>,
         document.getElementById('root'),
       );
+    })
+
+    .catch((error) => {
+      console.log(error); // eslint-disable-line
+      console.log('Integration not found'); // eslint-disable-line
     });
   }
 });

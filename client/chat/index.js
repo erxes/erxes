@@ -31,10 +31,6 @@ window.addEventListener('message', (event) => {
     .then(({ data }) => {
       const integrationId = data.chatConnect;
 
-      if (!integrationId) {
-        throw new Error('Integration not found');
-      }
-
       // save connection info
       connection.data = { integrationId };
 
@@ -43,8 +39,13 @@ window.addEventListener('message', (event) => {
         <ApolloProvider store={createStore(erxesReducers)} client={client}>
           <App />
         </ApolloProvider>,
-        document.getElementById('root')
+        document.getElementById('root'),
       );
+    })
+
+    .catch((error) => {
+      console.log(error); // eslint-disable-line
+      console.log('Integration not found'); // eslint-disable-line
     });
   }
 });
