@@ -8,7 +8,8 @@ import Sidebar from './Sidebar.jsx';
 
 
 const propTypes = {
-  conversations: PropTypes.array.isRequired,
+  readConversations: PropTypes.array.isRequired,
+  unreadConversations: PropTypes.array.isRequired,
   channels: PropTypes.array.isRequired,
   brands: PropTypes.array.isRequired,
   tags: PropTypes.array.isRequired,
@@ -21,7 +22,8 @@ const propTypes = {
 
 function List(props) {
   const {
-    conversations,
+    readConversations,
+    unreadConversations,
     channels,
     tags,
     channelId,
@@ -73,13 +75,29 @@ function List(props) {
 
   const actionBar = <Wrapper.ActionBar left={actionBarLeft} />;
 
-  const content = (
+  const renderUnreadConversations = (
     <ConversationsList
-      conversations={conversations}
+      conversations={unreadConversations}
       user={user}
       channelId={channelId}
       toggleBulk={toggleBulk}
     />
+  );
+
+  const renderReadConversations = (
+    <ConversationsList
+      conversations={readConversations}
+      user={user}
+      channelId={channelId}
+      toggleBulk={toggleBulk}
+    />
+  );
+
+  const content = (
+    <div>
+      {renderUnreadConversations}
+      {renderReadConversations}
+    </div>
   );
 
   const empty = (
@@ -104,7 +122,10 @@ function List(props) {
         }
 
         actionBar={bulk.length ? actionBar : false}
-        content={conversations.length !== 0 ? content : empty}
+        content={
+          unreadConversations.length === 0 && readConversations.length === 0
+          ? empty : content
+        }
       />
     </div>
   );

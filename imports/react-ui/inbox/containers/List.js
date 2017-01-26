@@ -47,7 +47,6 @@ function composer({ channelId, queryParams }, onData) {
 
   const tagsHandle = Meteor.subscribe('tags.tagList', TAG_TYPES.CONVERSATION);
 
-  const conversations = Conversations.find({}, { sort: { createdAt: -1 } }).fetch();
   const channels = Channels.find({}, { sort: { name: 1 } }).fetch();
   const brands = Brands.find({}, { sort: { name: 1 } }).fetch();
 
@@ -63,6 +62,20 @@ function composer({ channelId, queryParams }, onData) {
     );
 
     if (integrationsHandle.ready()) {
+      const conversationSort = { sort: { createdAt: -1 } };
+
+      // unread conversations
+      const unreadConversations = Conversations.find(
+        { readUserIds: { $nin: [user._id] } },
+        conversationSort,
+      ).fetch();
+
+      // read conversations
+      const readConversations = Conversations.find(
+        { readUserIds: { $in: [user._id] } },
+        conversationSort,
+      ).fetch();
+
       // props
       onData(
         null,
@@ -70,7 +83,8 @@ function composer({ channelId, queryParams }, onData) {
           bulk: bulk.get(),
           toggleBulk,
           emptyBulk,
-          conversations,
+          unreadConversations,
+          readConversations,
           channels,
           starredConversationIds,
           tags,
