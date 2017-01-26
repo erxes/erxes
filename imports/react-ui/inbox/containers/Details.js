@@ -4,13 +4,15 @@ import { composeWithTracker } from 'react-komposer';
 import { Conversations } from '/imports/api/conversations/conversations';
 import { Messages } from '/imports/api/conversations/messages';
 import { Integrations } from '/imports/api/integrations/integrations';
+import { ResponseTemplates } from '/imports/api/responseTemplates/responseTemplates';
 import { Loader } from '/imports/react-ui/common';
 import { Details } from '../components';
 
 const attachmentPreview = new ReactiveVar({});
 
 function composer({ id, channelId }, onData) {
-  // conversation, messages subscriptions
+  // subscriptions
+  Meteor.subscribe('responseTemplates.list');
   const conversationHandle = Meteor.subscribe('conversations.detail', id);
   const messagesHandle = Meteor.subscribe('conversations.messageList', id);
 
@@ -64,6 +66,7 @@ function composer({ id, channelId }, onData) {
           changeStatus,
           setAttachmentPreview,
           attachmentPreview: attachmentPreview.get(),
+          responseTemplates: ResponseTemplates.find().fetch(),
         },
       );
     }

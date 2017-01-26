@@ -14,6 +14,7 @@ import './settings/routes.jsx';
 import './settings/brands/routes.jsx';
 import './settings/integrations/routes.jsx';
 import './settings/channels/routes.jsx';
+import './settings/responseTemplates/routes.jsx';
 import './settings/email/routes.jsx';
 import './settings/team/routes.jsx';
 import './settings/profile/routes.jsx';

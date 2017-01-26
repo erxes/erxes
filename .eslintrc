@@ -25,6 +25,7 @@
   "globals": {
     "Package": false,
     "Npm": false,
+    "document": false,
     "Mixins": false
   }
 }
