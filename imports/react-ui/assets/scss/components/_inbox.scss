@@ -1,3 +1,6 @@
+$fbpost-border-color: #e5e6e9 #dfe0e4 #d0d1d5;
+$fbpost-barckground: #f6f7f9;
+
 .conversations-list {
   margin: 0;
   padding: 0;
@@ -17,7 +20,7 @@
 
     &:hover {
       .conversation-togglers a {
-        display: inline-block;;
+        display: inline-block;
       }
     }
 
@@ -39,7 +42,7 @@
         color: $gray-dark;
       }
 
-      header{
+      header {
         .tags{
           display: inline-block;
           margin-left: 15px;
@@ -125,13 +128,22 @@
       }
     }
 
+    &.fbpost .body {
+      padding: 12px;
+      background: $fbpost-barckground;
+      border: 1px solid;
+      border-color: $fbpost-border-color;
+      border-radius: 4px;
+    }
+
     &.attach-preview {
       .body {
         padding: 0;
         position: relative;
         min-width: 80px;
         min-height: 50px;
-        > div[data-loader='circle-side']{
+
+        > div[data-loader='circle-side'] {
           position: absolute;
           top: 50%;
           left: 50%;

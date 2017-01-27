@@ -11,13 +11,17 @@ const propTypes = {
 };
 
 function Message({ message, staff, isSameUser }) {
-  const isReaction = message.facebookData && message.facebookData.item === 'reaction';
+  const faceboodData = message.facebookData;
+  const isReaction = faceboodData && faceboodData.item === 'reaction';
+  const isPhotoPost = faceboodData && faceboodData.item === 'photo';
+  const isVideoPost = faceboodData && faceboodData.item === 'video' && faceboodData.videoId;
   const hasAttachment = message.attachments && message.attachments.length > 0;
   const classes = classNames({
     message: true,
     staff,
-    internal: !!message.internal,
-    attachment: !!hasAttachment,
+    internal: message.internal,
+    attachment: hasAttachment || isPhotoPost || isVideoPost,
+    fbpost: isPhotoPost || isVideoPost,
   });
 
   const prop = staff
@@ -42,9 +46,35 @@ function Message({ message, staff, isSameUser }) {
     return fullName;
   };
 
+  const renderVideoIframe = () => {
+    if (isVideoPost) {
+      const iframeSrc = `https://www.facebook.com/video/embed?video_id=${faceboodData.videoId}&width=500`;
+      return (
+        <iframe
+          src={iframeSrc}
+          width="500"
+          height="280"
+          scrolling="no"
+          frameBorder="0"
+          allowTransparency="true"
+        />
+      );
+    }
+    return null;
+  };
+
+  const renderAttachment = () => {
+    if (hasAttachment) {
+      return <Attachment path={message.attachments[0].url} type={message.attachments[0].type} />;
+    } else if (isPhotoPost) {
+      return <Attachment path={faceboodData.link} type="image" photoId={faceboodData.photoId} />;
+    }
+    return null;
+  };
+
   const renderMessage = () => {
     if (isReaction) {
-      const reactingClass = `reaction-${message.facebookData.reactionType}`;
+      const reactingClass = `reaction-${faceboodData.reactionType}`;
       return (
         <Tip text={renderName()}>
           <div className="reaction">
@@ -63,13 +93,8 @@ function Message({ message, staff, isSameUser }) {
               <span key={index}>{line}<br /></span>,
             )
           }
-          {
-            hasAttachment ?
-              <Attachment
-                path={message.attachments[0].url}
-                type={message.attachments[0].type}
-              /> : null
-          }
+          {renderVideoIframe()}
+          {renderAttachment()}
           <footer>
             {moment(message.createdAt).fromNow()}
           </footer>
@@ -78,9 +103,7 @@ function Message({ message, staff, isSameUser }) {
     );
   };
 
-  return (
-    renderMessage()
-  );
+  return renderMessage();
 }
 
 Message.propTypes = propTypes;
