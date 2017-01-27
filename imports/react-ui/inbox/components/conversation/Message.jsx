@@ -52,7 +52,7 @@ function Message({ message, staff, isSameUser }) {
       return (
         <iframe
           src={iframeSrc}
-          width="500"
+          width="480"
           height="280"
           scrolling="no"
           frameBorder="0"
@@ -67,7 +67,17 @@ function Message({ message, staff, isSameUser }) {
     if (hasAttachment) {
       return <Attachment path={message.attachments[0].url} type={message.attachments[0].type} />;
     } else if (isPhotoPost) {
-      return <Attachment path={faceboodData.link} type="image" photoId={faceboodData.photoId} />;
+      const iframeSrc = `https://www.facebook.com/plugins/post.php?href=https://www.facebook.com/photo.php?fbid=${faceboodData.photoId}`;
+      return (
+        <iframe
+          src={iframeSrc}
+          width="480"
+          height="280"
+          scrolling="no"
+          frameBorder="0"
+          allowTransparency="true"
+        />)
+      ;
     }
     return null;
   };
