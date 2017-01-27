@@ -5,7 +5,7 @@
     position: absolute;
     right: 20px;
     bottom: 0;
-    color: #888;
+    color: $text-color-light;
     line-height: 22px;
 
     input {
@@ -14,29 +14,29 @@
   }
 
   .form-group {
-      margin: 0;
+    margin: 0;
   }
 
   textarea {
-    border: none;
+    border: 0;
     border-bottom-left-radius: 0;
     border-bottom-right-radius: 0;
     padding: 18px 20px;
     resize: none;
   }
 
-  #reply-form textarea{
-    background: $message-background
+  #reply-form textarea {
+    background: $message-background;
   }
 
-  #internal-note-form textarea{
-    background: $internal-background
+  #internal-note-form textarea {
+    background: $internal-background;
   }
 
   .btn-attach input[type="file"] {
     display: none;
   }
-  
+
   .response-template {
     display: inline-block;
   }

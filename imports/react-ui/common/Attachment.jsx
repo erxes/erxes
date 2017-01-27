@@ -4,18 +4,23 @@ import React, { PropTypes } from 'react';
 const propTypes = {
   path: PropTypes.string.isRequired,
   type: PropTypes.string,
+  photoId: PropTypes.string,
 };
 
 class Attachment extends React.Component {
   constructor(props) {
     super(props);
 
-    this.handleClick = this.handleClick.bind(this);
     this.renderAtachment = this.renderAtachment.bind(this);
+    this.renderPath = this.renderPath.bind(this);
   }
 
-  handleClick(e) {
-    e.preventDefault();
+  renderPath() {
+    const { path, photoId } = this.props;
+    if (photoId) {
+      return `https://www.facebook.com/${this.props.photoId}`;
+    }
+    return path;
   }
 
   renderAtachment({ path, type }) {
@@ -88,7 +93,7 @@ class Attachment extends React.Component {
 
   render() {
     return (
-      <a className="download-attachment" href={this.props.path} target="_blank">
+      <a className="download-attachment" href={this.renderPath()} target="_blank">
         {this.renderAtachment(this.props)}
         <i className="ion-android-download" />
       </a>
