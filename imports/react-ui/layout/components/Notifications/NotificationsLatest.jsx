@@ -1,19 +1,21 @@
 import React, { PropTypes } from 'react';
 import { FlowRouter } from 'meteor/kadira:flow-router';
 import ScrollArea from 'react-scrollbar';
-import { NotificationRow } from '../../containers';
 import { EmptyState } from '/imports/react-ui/common';
+import { NotificationRow } from '../../containers';
 
 
 function NotificationsLatest({ notifications }) {
   const notifCount = notifications.length;
+
   let seeAll = <a href={FlowRouter.path('/notifications')}>See all</a>;
+
   let content = (
     <ScrollArea className="notifications-area" horizontal={false}>
       <ul className="notifications-list">
         {
           notifications.map((notif, key) =>
-            <NotificationRow notification={notif} key={key} />
+            <NotificationRow notification={notif} key={key} />,
           )
         }
       </ul>

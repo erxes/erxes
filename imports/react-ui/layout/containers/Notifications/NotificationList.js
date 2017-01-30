@@ -6,7 +6,11 @@ import { NotificationList } from '../../components';
 
 
 function composer({ queryParams }, onData) {
-  const { limit, loadMore, hasMore } = pagination(queryParams, 'notifications.list.count');
+  const { limit, loadMore, hasMore } = pagination(
+    queryParams,
+    'notifications.list.count',
+  );
+
   const handler = Meteor.subscribe('notifications.latest', {
     limit,
     requireRead: false,
@@ -18,7 +22,7 @@ function composer({ queryParams }, onData) {
 
   if (handler.ready()) {
     const createdUserIds = [];
-    const notifications = Notifications.find().fetch();
+    const notifications = Notifications.find({}, { sort: { date: -1 } }).fetch();
 
     notifications.forEach((notification) => {
       createdUserIds.push(notification.createdUser);

@@ -13,7 +13,11 @@ function composer(props, onData) {
 
   if (handler.ready()) {
     const createdUserIds = [];
-    const notifications = Notifications.find({}, { limit: 10 }).fetch();
+
+    const notifications = Notifications.find(
+      {},
+      { limit: 10, sort: { date: -1 } },
+    );
 
     notifications.forEach((notification) => {
       createdUserIds.push(notification.createdUser);
@@ -21,7 +25,7 @@ function composer(props, onData) {
 
     Meteor.subscribe('users.list', { ids: createdUserIds });
 
-    onData(null, { notifications });
+    onData(null, { notifications: notifications.fetch() });
   }
 }
 
