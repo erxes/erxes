@@ -7,13 +7,20 @@ import { Channels } from '/imports/api/channels/channels';
 import { Brands } from '/imports/api/brands/brands';
 import { Tags } from '/imports/api/tags/tags';
 import { TAG_TYPES } from '/imports/api/tags/constants';
-import { Loader } from '/imports/react-ui/common';
+import { Loader, pagination } from '/imports/react-ui/common';
 import { List } from '../components';
 
 
 const bulk = new ReactiveVar([]);
 
 function composer({ channelId, queryParams }, onData) {
+  const { limit, loadMore, hasMore } = pagination(
+    queryParams,
+    'conversations.counts.list',
+  );
+
+  queryParams.limit = limit; // eslint-disable-line no-param-reassign
+
   // actions ===========
   const toggleBulk = (conversation, toAdd) => {
     let entries = bulk.get();
@@ -81,6 +88,8 @@ function composer({ channelId, queryParams }, onData) {
         null,
         {
           bulk: bulk.get(),
+          loadMore,
+          hasMore,
           toggleBulk,
           emptyBulk,
           unreadConversations,

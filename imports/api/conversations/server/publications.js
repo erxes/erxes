@@ -113,6 +113,12 @@ Meteor.publishComposite('conversations.list', function conversationsList(params)
     );
   });
 
+  // list counts
+  countPublish(
+    'conversations.counts.list',
+    qb.mainQuery(),
+  );
+
   return {
     find() {
       return Conversations.find(
@@ -120,6 +126,7 @@ Meteor.publishComposite('conversations.list', function conversationsList(params)
         {
           fields: Conversations.publicField,
           sort: { createdAt: -1 },
+          limit: params.limit || 0,
         },
       );
     },

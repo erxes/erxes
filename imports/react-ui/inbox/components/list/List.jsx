@@ -1,6 +1,11 @@
 import React, { PropTypes } from 'react';
 import { Button } from 'react-bootstrap';
-import { TaggerPopover, EmptyState, ConversationsList } from '/imports/react-ui/common';
+import {
+  Pagination,
+  TaggerPopover,
+  EmptyState,
+  ConversationsList,
+} from '/imports/react-ui/common';
 import { Wrapper } from '/imports/react-ui/layout/components';
 import { AssignBoxPopover } from '../';
 import { Resolver } from '../../containers';
@@ -10,6 +15,8 @@ import Sidebar from './Sidebar.jsx';
 const propTypes = {
   readConversations: PropTypes.array.isRequired,
   unreadConversations: PropTypes.array.isRequired,
+  loadMore: PropTypes.func.isRequired,
+  hasMore: PropTypes.bool.isRequired,
   channels: PropTypes.array.isRequired,
   brands: PropTypes.array.isRequired,
   tags: PropTypes.array.isRequired,
@@ -24,6 +31,8 @@ function List(props) {
   const {
     readConversations,
     unreadConversations,
+    hasMore,
+    loadMore,
     channels,
     tags,
     channelId,
@@ -94,10 +103,10 @@ function List(props) {
   );
 
   const content = (
-    <div>
+    <Pagination hasMore={hasMore} loadMore={loadMore}>
       {renderUnreadConversations}
       {renderReadConversations}
-    </div>
+    </Pagination>
   );
 
   const empty = (

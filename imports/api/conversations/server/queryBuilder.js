@@ -21,6 +21,7 @@ export default class ListQueryBuilder {
 
   checkParams() {
     check(this.params, {
+      limit: Match.Optional(Number),
       channelId: Match.Optional(String),
       status: Match.Optional(String),
       unassigned: Match.Optional(String),
