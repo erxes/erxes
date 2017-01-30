@@ -18,17 +18,20 @@ class NotificationList extends Component {
 
   markAllRead() {
     const { bulk } = this.state;
+
     _.each(this.props.notifications, (notification) => {
       if (!notification.isRead) {
         bulk.push(notification._id);
       }
     });
+
     this.props.markAsRead(this.state.bulk, (error) => {
       if (error) {
         return Alert.error('Error', error.reason);
       }
       return Alert.success('All notifications have been seen');
     });
+
     this.setState({ bulk: [] });
   }
 
@@ -69,6 +72,7 @@ class NotificationList extends Component {
         </Button>
       </div>
     );
+
     const actionBar = <Wrapper.ActionBar left={actionBarLeft} />;
 
     return (

@@ -18,25 +18,23 @@ Meteor.publish('notifications.latest', function notifs(params) {
   const { limit, requireRead, title } = params;
 
   const filters = { receiver: this.userId };
-  const sort = {};
 
-  Counts.publish(this, 'notifications.list.count', Notifications.find(), { noReady: true });
+  Counts.publish(
+    this,
+    'notifications.list.count',
+    Notifications.find(),
+    { noReady: true },
+  );
 
   if (requireRead) {
     filters.isRead = false;
-
-    // if only unread notifications then sort by date
-    sort.date = -1;
-  } else {
-    // if all notifications then sort by isRead
-    sort.isRead = 1;
   }
 
   if (title) {
     filters.title = title;
   }
 
-  return Notifications.find(filters, { sort, limit });
+  return Notifications.find(filters, { sort: { date: -1 }, limit });
 });
 
 
