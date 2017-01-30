@@ -146,6 +146,14 @@ Customers.helpers({
     return Integrations.findOne(this.integrationId);
   },
 
+  getIntegrationData() {
+    return {
+      inAppMessaging: this.inAppMessagingData || {},
+      twitter: this.twitterData || {},
+      facebook: this.facebookData || {},
+    };
+  },
+
   brand() {
     const integration = this.integration();
     return Brands.findOne(integration && integration.brandId);
