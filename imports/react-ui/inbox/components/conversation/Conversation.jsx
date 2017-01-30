@@ -1,11 +1,10 @@
 import React, { PropTypes, Component } from 'react';
 import { _ } from 'meteor/underscore';
-import Message from './Message.jsx';
 import { Spinner } from '/imports/react-ui/common';
+import Message from './Message.jsx';
 
 
 const propTypes = {
-  conversation: PropTypes.object.isRequired,
   messages: PropTypes.array.isRequired,
   attachmentPreview: PropTypes.object,
 };
@@ -38,7 +37,7 @@ class Conversation extends Component {
   }
 
   render() {
-    const { conversation, messages } = this.props;
+    const { messages } = this.props;
     let tempId;
 
     const rows = [];
@@ -52,9 +51,9 @@ class Conversation extends Component {
             message.customerId === tempId
           }
           message={message}
-          staff={message.customerId !== conversation.customerId}
+          staff={!message.customerId}
           key={message._id}
-        />
+        />,
       );
 
       tempId = message.userId ? message.userId : message.customerId;
