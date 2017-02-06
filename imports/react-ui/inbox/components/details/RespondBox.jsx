@@ -24,30 +24,20 @@ class RespondBox extends Component {
     super(props);
 
     this.state = {
-      replyContent: null,
-      noteContent: null,
-      toggle: true,
+      isInternal: false,
       attachments: [],
     };
 
-    this.onReply = this.onReply.bind(this);
-    this.onNote = this.onNote.bind(this);
-    this.handleReplyKeyPress = this.handleReplyKeyPress.bind(this);
-    this.handleNoteKeyPress = this.handleNoteKeyPress.bind(this);
-    this.addMessage = this.addMessage.bind(this);
+    this.onSubmit = this.onSubmit.bind(this);
+    this.handleKeyPress = this.handleKeyPress.bind(this);
     this.toggleForm = this.toggleForm.bind(this);
     this.handleFileInput = this.handleFileInput.bind(this);
     this.onSelectTemplate = this.onSelectTemplate.bind(this);
   }
 
-  onReply(e) {
+  onSubmit(e) {
     e.preventDefault();
     this.addMessage();
-  }
-
-  onNote(e) {
-    e.preventDefault();
-    this.addMessage(true);
   }
 
   onSelectTemplate(responseTemplate) {
@@ -91,9 +81,9 @@ class RespondBox extends Component {
     );
   }
 
-  addMessage(isInternal = false) {
+  addMessage() {
     const { conversation, sendMessage } = this.props;
-    const { attachments } = this.state;
+    const { isInternal, attachments } = this.state;
     const content = document.getElementById('content');
 
     const message = {
@@ -114,23 +104,16 @@ class RespondBox extends Component {
     content.value = '';
   }
 
-  handleReplyKeyPress(e) {
+  handleKeyPress(e) {
     if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
       e.preventDefault();
       this.addMessage();
     }
   }
 
-  handleNoteKeyPress(e) {
-    if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
-      e.preventDefault();
-      this.addMessage(true);
-    }
-  }
-
   toggleForm() {
     this.setState({
-      toggle: !this.state.toggle,
+      isInternal: !this.state.isInternal,
     });
   }
 
@@ -166,42 +149,30 @@ class RespondBox extends Component {
       attachmentsIndicator = `has ${attachmentsCount} attachments`;
     }
 
-    const formConversation = (
-      <form id="reply-form" onSubmit={this.onReply}>
-        {attachmentsIndicator}
-        <FormGroup>
-          <FormControl
-            componentClass="textarea"
-            rows={4}
-            placeholder="Type your message here..."
-            id="content"
-            onKeyDown={this.handleReplyKeyPress}
-          />
-        </FormGroup>
+    let formId = 'reply-form';
+    let placeholder = 'Type your message here...';
 
-        {Buttons}
-      </form>
-    );
-
-    const formNote = (
-      <form id="internal-note-form" onSubmit={this.onNote}>
-        <FormGroup>
-          <FormControl
-            componentClass="textarea"
-            rows={4}
-            placeholder="Type your note here..."
-            id="content"
-            onKeyDown={this.handleNoteKeyPress}
-          />
-        </FormGroup>
-
-        {Buttons}
-      </form>
-    );
+    if (this.state.isInternal) {
+      formId = 'internal-note-form';
+      placeholder = 'Type your note here...';
+    }
 
     return (
       <div className="respond-box">
-        {this.state.toggle ? formConversation : formNote}
+        <form id={formId} onSubmit={this.onSubmit}>
+          {attachmentsIndicator}
+          <FormGroup>
+            <FormControl
+              componentClass="textarea"
+              rows={4}
+              placeholder={placeholder}
+              id="content"
+              onKeyDown={this.handleKeyPress}
+            />
+          </FormGroup>
+
+          {Buttons}
+        </form>
 
         <Checkbox onChange={this.toggleForm}>
           Leave as internal note
