@@ -11,7 +11,15 @@ function composer(props, onData) {
   const brands = Brands.find().fetch();
 
   const save = (doc) => {
-    Meteor.call('integrations.addInAppMessaging', { doc }, (error) => {
+    let methodName = 'integrations.addInAppMessaging';
+    let params = { doc };
+
+    if (props.integration) {
+      methodName = 'integrations.editInAppMessaging';
+      params = { _id: props.integration._id, doc };
+    }
+
+    Meteor.call(methodName, params, (error) => {
       if (error) {
         return Alert.error(error.error);
       }

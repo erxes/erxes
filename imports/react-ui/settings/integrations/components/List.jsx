@@ -31,12 +31,13 @@ class List extends Component {
         integration={integration}
         brands={brands}
         removeIntegration={removeIntegration}
-      />
+      />,
     );
   }
 
   render() {
     const { loadMore, hasMore } = this.props;
+
     const actionBarLeft = (
       <Button bsStyle="link" href={FlowRouter.path('settings/integrations/add')}>
         <i className="ion-plus-circled" /> Add integrations

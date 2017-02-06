@@ -8,7 +8,15 @@ import { assert } from 'meteor/practicalmeteor:chai';
 
 import { Integrations } from '../integrations';
 import { KIND_CHOICES } from '../constants';
-import { addInAppMessaging, addChat, remove, addFacebook, addTwitter } from './methods';
+import {
+  addInAppMessaging,
+  editInAppMessaging,
+  addChat,
+  editChat,
+  remove,
+  addFacebook,
+  addTwitter,
+} from './methods';
 import twitter from './social_api/twitter';
 
 
@@ -43,6 +51,28 @@ describe('integrations', function () {
       assert.equal(integration.brandId, brandId);
     });
 
+    it('edit in app messsaging', function () {
+      const kind = KIND_CHOICES.IN_APP_MESSAGING;
+      const inApp = Factory.create('integration', { name: 'Old in app', kind });
+      const nameToUpdate = 'updated in app';
+      const brandToUpdate = Factory.create('brand')._id;
+
+      editInAppMessaging._execute(
+        { userId },
+        {
+          _id: inApp._id,
+          doc: { name: nameToUpdate, brandId: brandToUpdate },
+        },
+      );
+
+      const integration = Integrations.findOne({ });
+
+      // check field values
+      assert.equal(integration.name, nameToUpdate);
+      assert.equal(integration.kind, kind);
+      assert.equal(integration.brandId, brandToUpdate);
+    });
+
     it('add chat', function () {
       addChat._execute(
         { userId },
@@ -55,6 +85,29 @@ describe('integrations', function () {
       assert.equal(integration.kind, KIND_CHOICES.CHAT);
       assert.equal(integration.brandId, brandId);
     });
+
+    it('edit chat', function () {
+      const kind = KIND_CHOICES.CHAT;
+      const chat = Factory.create('integration', { name: 'Old chat', kind });
+      const nameToUpdate = 'updated chat';
+      const brandToUpdate = Factory.create('brand')._id;
+
+      editChat._execute(
+        { userId },
+        {
+          _id: chat._id,
+          doc: { name: nameToUpdate, brandId: brandToUpdate },
+        },
+      );
+
+      const integration = Integrations.findOne({ });
+
+      // check field values
+      assert.equal(integration.name, nameToUpdate);
+      assert.equal(integration.kind, kind);
+      assert.equal(integration.brandId, brandToUpdate);
+    });
+
 
     it('add facebook', function () {
       const appId = '24242424242';
