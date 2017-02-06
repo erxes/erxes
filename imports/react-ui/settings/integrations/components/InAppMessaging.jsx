@@ -15,19 +15,7 @@ import SelectBrand from './SelectBrand.jsx';
 
 
 class InAppMessaging extends Component {
-  constructor(props, context) {
-    super(props, context);
-
-    this.state = {
-      code: '',
-      copied: false,
-    };
-
-    this.handleSubmit = this.handleSubmit.bind(this);
-    this.handleBrandChange = this.handleBrandChange.bind(this);
-  }
-
-  getInstallCode(brandCode) {
+  static getInstallCode(brandCode) {
     return `
       <script>
         window.erxesSettings = {
@@ -47,9 +35,21 @@ class InAppMessaging extends Component {
     `;
   }
 
+  constructor(props, context) {
+    super(props, context);
+
+    this.state = {
+      code: '',
+      copied: false,
+    };
+
+    this.handleSubmit = this.handleSubmit.bind(this);
+    this.handleBrandChange = this.handleBrandChange.bind(this);
+  }
+
   updateInstallCodeValue(brandId) {
     const brand = Brands.findOne(brandId);
-    const code = this.getInstallCode(brand.code);
+    const code = InAppMessaging.getInstallCode(brand.code);
 
     this.setState({ code, copied: false });
   }
@@ -61,6 +61,8 @@ class InAppMessaging extends Component {
   handleSubmit(e) {
     e.preventDefault();
 
+    this.context.closeModal();
+
     this.props.save({
       name: document.getElementById('integration-name').value,
       brandId: document.getElementById('selectBrand').value,
@@ -68,6 +70,8 @@ class InAppMessaging extends Component {
   }
 
   render() {
+    const integration = this.props.integration || {};
+
     return (
       <form className="margined" onSubmit={this.handleSubmit}>
         <FormGroup controlId="integration-name">
@@ -75,11 +79,13 @@ class InAppMessaging extends Component {
           <FormControl
             type="text"
             required
+            defaultValue={integration.name}
           />
         </FormGroup>
 
         <SelectBrand
           brands={this.props.brands}
+          defaultValue={integration.brandId}
           onChange={this.handleBrandChange}
         />
 
@@ -113,8 +119,13 @@ class InAppMessaging extends Component {
 }
 
 InAppMessaging.propTypes = {
-  brands: PropTypes.array.isRequired,
+  brands: PropTypes.array.isRequired, // eslint-disable-line react/forbid-prop-types
   save: PropTypes.func.isRequired,
+  integration: PropTypes.object, // eslint-disable-line react/forbid-prop-types
+};
+
+InAppMessaging.contextTypes = {
+  closeModal: PropTypes.func.isRequired,
 };
 
 export default InAppMessaging;

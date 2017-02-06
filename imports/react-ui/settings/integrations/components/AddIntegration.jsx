@@ -30,6 +30,7 @@ function AddIntegration() {
     <div className="margined integration-types">
       <div className="box">
         <h2>In app messaging</h2>
+
         <ModalTrigger title="Add in app messaging" trigger={triggerInApp}>
           <InAppMessaging />
         </ModalTrigger>

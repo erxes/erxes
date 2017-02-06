@@ -29,6 +29,21 @@ export const addInAppMessaging = new ValidatedMethod({
   },
 });
 
+// edit in app messaging
+export const editInAppMessaging = new ValidatedMethod({
+  name: 'integrations.editInAppMessaging',
+  mixins: [ErxesMixin],
+
+  validate({ _id, doc }) {
+    check(_id, String);
+    check(doc, { name: String, brandId: String });
+  },
+
+  run({ _id, doc }) {
+    return Integrations.update({ _id }, { $set: doc });
+  },
+});
+
 
 // add chat
 export const addChat = new ValidatedMethod({
@@ -43,6 +58,21 @@ export const addChat = new ValidatedMethod({
     return Integrations.insert(
       _.extend(doc, { kind: KIND_CHOICES.CHAT }),
     );
+  },
+});
+
+// edit chat
+export const editChat = new ValidatedMethod({
+  name: 'integrations.editChat',
+  mixins: [ErxesMixin],
+
+  validate({ _id, doc }) {
+    check(_id, String);
+    check(doc, { name: String, brandId: String });
+  },
+
+  run({ _id, doc }) {
+    return Integrations.update({ _id }, { $set: doc });
   },
 });
 
