@@ -25,11 +25,11 @@
     resize: none;
   }
 
-  #reply-form textarea {
+  #reply-form .RichEditor-root {
     background: $message-background;
   }
 
-  #internal-note-form textarea {
+  #internal-note-form .RichEditor-root {
     background: $internal-background;
   }
 

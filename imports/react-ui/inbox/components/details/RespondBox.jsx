@@ -1,16 +1,16 @@
 import React, { PropTypes, Component } from 'react';
-import {
-  Button,
-  FormGroup,
-  FormControl,
-  Checkbox,
-  ControlLabel,
-} from 'react-bootstrap';
+import { Button, Checkbox, ControlLabel } from 'react-bootstrap';
 import Alert from 'meteor/erxes-notifier';
 
+import {
+  ErxesEditor,
+  createEmptyState,
+  toHTML,
+  getDefaultKeyBinding,
+  createStateFromHTML,
+} from '/imports/react-ui/common/Editor.jsx';
 import uploadHandler from '/imports/api/client/uploadHandler';
 import ResponseTemplate from './ResponseTemplate.jsx';
-
 
 const propTypes = {
   conversation: PropTypes.object.isRequired,
@@ -24,15 +24,27 @@ class RespondBox extends Component {
     super(props);
 
     this.state = {
+      // Using this key in editor component rendering. Draftjs content
+      // can not be setted. So updating key will cause editor component
+      // rerender. And our editor's content will render with new chosen
+      // response template's content
+      editorKey: 'editor',
+
+      editorState: createEmptyState(),
       isInternal: false,
       attachments: [],
     };
 
     this.onSubmit = this.onSubmit.bind(this);
-    this.handleKeyPress = this.handleKeyPress.bind(this);
+    this.handleEditorKeyPress = this.handleEditorKeyPress.bind(this);
     this.toggleForm = this.toggleForm.bind(this);
     this.handleFileInput = this.handleFileInput.bind(this);
     this.onSelectTemplate = this.onSelectTemplate.bind(this);
+    this.onEditorContentChange = this.onEditorContentChange.bind(this);
+  }
+
+  onEditorContentChange(editorState) {
+    this.setState({ editorState });
   }
 
   onSubmit(e) {
@@ -41,13 +53,19 @@ class RespondBox extends Component {
   }
 
   onSelectTemplate(responseTemplate) {
-    const content = document.getElementById('content');
+    const editorState = createStateFromHTML(responseTemplate.content);
 
-    // set content from response template value
-    content.value = responseTemplate.content;
+    this.setState({
+      // Updating key will cause editor component
+      // rerender. And our editor's content will render with new chosen
+      // response template's content
+      editorKey: `${this.state.editorKey}Updated`,
 
-    // set attachment from response template files
-    this.setState({ attachments: responseTemplate.files });
+      editorState,
+
+      // set attachment from response template files
+      attachments: responseTemplate.files,
+    });
   }
 
   handleFileInput(e) {
@@ -83,12 +101,14 @@ class RespondBox extends Component {
 
   addMessage() {
     const { conversation, sendMessage } = this.props;
-    const { isInternal, attachments } = this.state;
-    const content = document.getElementById('content');
+    const { isInternal, attachments, editorState } = this.state;
+
+    // get editor content
+    const content = toHTML(editorState);
 
     const message = {
       conversationId: conversation._id,
-      content: content.value || ' ',
+      content: content || ' ',
       internal: isInternal,
       attachments,
     };
@@ -100,15 +120,14 @@ class RespondBox extends Component {
         this.setState({ attachments: [] });
       }
     });
-
-    content.value = '';
   }
 
-  handleKeyPress(e) {
+  handleEditorKeyPress(e) {
     if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
-      e.preventDefault();
-      this.addMessage();
+      return this.addMessage();
     }
+
+    return getDefaultKeyBinding(e);
   }
 
   toggleForm() {
@@ -132,12 +151,12 @@ class RespondBox extends Component {
         <ResponseTemplate
           brandId={this.props.conversation.integration().brandId}
           attachments={this.state.attachments}
+          content={toHTML(this.state.editorState)}
           responseTemplates={this.props.responseTemplates}
           onSelect={this.onSelectTemplate}
         />
       </div>
     );
-
 
     // after file upload show indicator
     let attachmentsIndicator = '';
@@ -161,15 +180,14 @@ class RespondBox extends Component {
       <div className="respond-box">
         <form id={formId} onSubmit={this.onSubmit}>
           {attachmentsIndicator}
-          <FormGroup>
-            <FormControl
-              componentClass="textarea"
-              rows={4}
-              placeholder={placeholder}
-              id="content"
-              onKeyDown={this.handleKeyPress}
-            />
-          </FormGroup>
+
+          <ErxesEditor
+            key={this.state.editorKey}
+            state={this.state.editorState}
+            placeholder={placeholder}
+            onChange={this.onEditorContentChange}
+            keyBindingFn={this.handleEditorKeyPress}
+          />
 
           {Buttons}
         </form>
