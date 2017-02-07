@@ -107,6 +107,10 @@ $fbpost-barckground: #f6f7f9;
       .body {
         background-color: $message-background;
         margin: 0 50px 20px 0;
+
+        p {
+          margin: 0px;
+        }
       }
 
       footer {

@@ -1,16 +1,16 @@
 import React, { PropTypes, Component } from 'react';
-import {
-  Button,
-  FormGroup,
-  FormControl,
-  Checkbox,
-  ControlLabel,
-} from 'react-bootstrap';
+import { Button, Checkbox, ControlLabel } from 'react-bootstrap';
 import Alert from 'meteor/erxes-notifier';
 
+import {
+  ErxesEditor,
+  createEmptyState,
+  toHTML,
+  getDefaultKeyBinding,
+  createStateFromHTML,
+} from '/imports/react-ui/common/Editor.jsx';
 import uploadHandler from '/imports/api/client/uploadHandler';
 import ResponseTemplate from './ResponseTemplate.jsx';
-
 
 const propTypes = {
   conversation: PropTypes.object.isRequired,
@@ -24,40 +24,48 @@ class RespondBox extends Component {
     super(props);
 
     this.state = {
-      replyContent: null,
-      noteContent: null,
-      toggle: true,
+      // Using this key in editor component rendering. Draftjs content
+      // can not be setted. So updating key will cause editor component
+      // rerender. And our editor's content will render with new chosen
+      // response template's content
+      editorKey: 'editor',
+
+      editorState: createEmptyState(),
+      isInternal: false,
       attachments: [],
     };
 
-    this.onReply = this.onReply.bind(this);
-    this.onNote = this.onNote.bind(this);
-    this.handleReplyKeyPress = this.handleReplyKeyPress.bind(this);
-    this.handleNoteKeyPress = this.handleNoteKeyPress.bind(this);
-    this.addMessage = this.addMessage.bind(this);
+    this.onSubmit = this.onSubmit.bind(this);
+    this.handleEditorKeyPress = this.handleEditorKeyPress.bind(this);
     this.toggleForm = this.toggleForm.bind(this);
     this.handleFileInput = this.handleFileInput.bind(this);
     this.onSelectTemplate = this.onSelectTemplate.bind(this);
+    this.onEditorContentChange = this.onEditorContentChange.bind(this);
   }
 
-  onReply(e) {
+  onEditorContentChange(editorState) {
+    this.setState({ editorState });
+  }
+
+  onSubmit(e) {
     e.preventDefault();
     this.addMessage();
   }
 
-  onNote(e) {
-    e.preventDefault();
-    this.addMessage(true);
-  }
-
   onSelectTemplate(responseTemplate) {
-    const content = document.getElementById('content');
+    const editorState = createStateFromHTML(responseTemplate.content);
 
-    // set content from response template value
-    content.value = responseTemplate.content;
+    this.setState({
+      // Updating key will cause editor component
+      // rerender. And our editor's content will render with new chosen
+      // response template's content
+      editorKey: `${this.state.editorKey}Updated`,
 
-    // set attachment from response template files
-    this.setState({ attachments: responseTemplate.files });
+      editorState,
+
+      // set attachment from response template files
+      attachments: responseTemplate.files,
+    });
   }
 
   handleFileInput(e) {
@@ -91,14 +99,16 @@ class RespondBox extends Component {
     );
   }
 
-  addMessage(isInternal = false) {
+  addMessage() {
     const { conversation, sendMessage } = this.props;
-    const { attachments } = this.state;
-    const content = document.getElementById('content');
+    const { isInternal, attachments, editorState } = this.state;
+
+    // get editor content
+    const content = toHTML(editorState);
 
     const message = {
       conversationId: conversation._id,
-      content: content.value || ' ',
+      content: content || ' ',
       internal: isInternal,
       attachments,
     };
@@ -110,27 +120,27 @@ class RespondBox extends Component {
         this.setState({ attachments: [] });
       }
     });
-
-    content.value = '';
   }
 
-  handleReplyKeyPress(e) {
+  handleEditorKeyPress(e) {
     if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
-      e.preventDefault();
       this.addMessage();
-    }
-  }
 
-  handleNoteKeyPress(e) {
-    if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
-      e.preventDefault();
-      this.addMessage(true);
+      // clear content
+      this.setState({
+        editorKey: `${this.state.editorKey}Cleared`,
+        editorState: createStateFromHTML(''),
+      });
+
+      return null;
     }
+
+    return getDefaultKeyBinding(e);
   }
 
   toggleForm() {
     this.setState({
-      toggle: !this.state.toggle,
+      isInternal: !this.state.isInternal,
     });
   }
 
@@ -149,12 +159,12 @@ class RespondBox extends Component {
         <ResponseTemplate
           brandId={this.props.conversation.integration().brandId}
           attachments={this.state.attachments}
+          content={toHTML(this.state.editorState)}
           responseTemplates={this.props.responseTemplates}
           onSelect={this.onSelectTemplate}
         />
       </div>
     );
-
 
     // after file upload show indicator
     let attachmentsIndicator = '';
@@ -166,42 +176,29 @@ class RespondBox extends Component {
       attachmentsIndicator = `has ${attachmentsCount} attachments`;
     }
 
-    const formConversation = (
-      <form id="reply-form" onSubmit={this.onReply}>
-        {attachmentsIndicator}
-        <FormGroup>
-          <FormControl
-            componentClass="textarea"
-            rows={4}
-            placeholder="Type your message here..."
-            id="content"
-            onKeyDown={this.handleReplyKeyPress}
-          />
-        </FormGroup>
+    let formId = 'reply-form';
+    let placeholder = 'Type your message here...';
 
-        {Buttons}
-      </form>
-    );
-
-    const formNote = (
-      <form id="internal-note-form" onSubmit={this.onNote}>
-        <FormGroup>
-          <FormControl
-            componentClass="textarea"
-            rows={4}
-            placeholder="Type your note here..."
-            id="content"
-            onKeyDown={this.handleNoteKeyPress}
-          />
-        </FormGroup>
-
-        {Buttons}
-      </form>
-    );
+    if (this.state.isInternal) {
+      formId = 'internal-note-form';
+      placeholder = 'Type your note here...';
+    }
 
     return (
       <div className="respond-box">
-        {this.state.toggle ? formConversation : formNote}
+        <form id={formId} onSubmit={this.onSubmit}>
+          {attachmentsIndicator}
+
+          <ErxesEditor
+            key={this.state.editorKey}
+            state={this.state.editorState}
+            placeholder={placeholder}
+            onChange={this.onEditorContentChange}
+            keyBindingFn={this.handleEditorKeyPress}
+          />
+
+          {Buttons}
+        </form>
 
         <Checkbox onChange={this.toggleForm}>
           Leave as internal note

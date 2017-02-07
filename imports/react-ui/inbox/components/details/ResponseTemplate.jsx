@@ -21,6 +21,7 @@ const propTypes = {
   responseTemplates: PropTypes.array.isRequired,
   onSelect: PropTypes.func.isRequired,
   attachments: PropTypes.array,
+  content: PropTypes.string.isRequired,
 };
 
 class ResponseTemplate extends Component {
@@ -35,7 +36,7 @@ class ResponseTemplate extends Component {
     const doc = {
       brandId: this.props.brandId,
       name: document.getElementById('template-name').value,
-      content: document.getElementById('content').value,
+      content: this.props.content,
       files: this.props.attachments,
     };
 

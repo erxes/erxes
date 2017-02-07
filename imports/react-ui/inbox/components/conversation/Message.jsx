@@ -38,17 +38,20 @@ function Message({ message, staff, isSameUser }) {
 
   const renderName = () => {
     let fullName = 'Unknown';
+
     if (prop.user) {
       fullName = prop.user.deteails && prop.user.deteails.fullName;
     } else if (prop.customer) {
       fullName = prop.customer.name;
     }
+
     return fullName;
   };
 
   const renderVideoIframe = () => {
     if (isVideoPost) {
       const iframeSrc = `https://www.facebook.com/video/embed?video_id=${faceboodData.videoId}&width=500`;
+
       return (
         <iframe
           src={iframeSrc}
@@ -85,6 +88,7 @@ function Message({ message, staff, isSameUser }) {
   const renderMessage = () => {
     if (isReaction) {
       const reactingClass = `reaction-${faceboodData.reactionType}`;
+
       return (
         <Tip text={renderName()}>
           <div className="reaction">
@@ -98,11 +102,8 @@ function Message({ message, staff, isSameUser }) {
       <div className={classes}>
         {renderAvatar()}
         <div className="body">
-          {
-            message.content.split('\n').map((line, index) =>
-              <span key={index}>{line}<br /></span>,
-            )
-          }
+          <span dangerouslySetInnerHTML={{ __html: message.content }} />
+
           {renderVideoIframe()}
           {renderAttachment()}
           <footer>
