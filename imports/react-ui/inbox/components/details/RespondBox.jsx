@@ -124,7 +124,15 @@ class RespondBox extends Component {
 
   handleEditorKeyPress(e) {
     if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
-      return this.addMessage();
+      this.addMessage();
+
+      // clear content
+      this.setState({
+        editorKey: `${this.state.editorKey}Cleared`,
+        editorState: createStateFromHTML(''),
+      });
+
+      return null;
     }
 
     return getDefaultKeyBinding(e);
