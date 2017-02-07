@@ -26,11 +26,7 @@ function Message({ content, attachments, user, createdAt }) {
 
       <div className={messageClasses}>
         {hasAttachment ? <Attachment path={attachments[0].url} /> : null}
-        {
-          !hasAttachment ? content.split('\n').map((line, index) =>
-            <span key={index}>{line}<br /></span>,
-          ) : null
-        }
+        <span dangerouslySetInnerHTML={{ __html: content }} />
       </div>
       <div className="date">
         {moment(createdAt).fromNow()}
