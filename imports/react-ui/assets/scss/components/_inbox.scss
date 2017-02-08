@@ -107,10 +107,6 @@ $fbpost-barckground: #f6f7f9;
       .body {
         background-color: $message-background;
         margin: 0 50px 20px 0;
-
-        p {
-          margin: 0px;
-        }
       }
 
       footer {
@@ -188,6 +184,31 @@ $fbpost-barckground: #f6f7f9;
 
       img {
         max-width: 100%;
+      }
+
+      p {
+        margin: 0;
+      }
+
+      ul {
+        padding-left: 25px;
+      }
+
+      ol {
+        padding-left: 25px;
+      }
+
+      h3 {
+        margin-top: 0;
+      }
+
+      blockquote {
+        margin-bottom: 0;
+        border-color: $border-grey;
+      }
+
+      pre {
+        margin-bottom: 0;
       }
     }
 
