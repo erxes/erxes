@@ -120,17 +120,17 @@ class RespondBox extends Component {
         this.setState({ attachments: [] });
       }
     });
+
+    // clear content
+    this.setState({
+      editorKey: `${this.state.editorKey}Cleared`,
+      editorState: createStateFromHTML(''),
+    });
   }
 
   handleEditorKeyPress(e) {
     if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
       this.addMessage();
-
-      // clear content
-      this.setState({
-        editorKey: `${this.state.editorKey}Cleared`,
-        editorState: createStateFromHTML(''),
-      });
 
       return null;
     }
