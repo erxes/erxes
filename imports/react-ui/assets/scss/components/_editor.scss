@@ -75,6 +75,8 @@ $editor-text-color: #999;
   margin-right: 16px;
   padding: 2px 0;
   display: inline-block;
+  min-width: 10px;
+  text-align: center;
 
   &:hover {
     color: lighten($main-color, 35%);
