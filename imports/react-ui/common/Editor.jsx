@@ -54,17 +54,18 @@ class StyleButton extends React.Component {
 
 StyleButton.propTypes = {
   active: PropTypes.bool,
-  label: PropTypes.string,
+  label: PropTypes.object,
   style: PropTypes.string,
+  title: PropTypes.string,
   onToggle: PropTypes.func,
 };
 
 const BLOCK_TYPES = [
-  { label: 'H', style: 'header-three', title: 'Heading' },
-  { label: 'Blockquote', style: 'blockquote', title: 'Blockquote' },
-  { label: 'UL', style: 'unordered-list-item', title: 'Unordered list' },
-  { label: 'OL', style: 'ordered-list-item', title: 'Ordered list' },
-  { label: 'Code Block', style: 'code-block', title: 'Code Block' },
+  { label: <b>H</b>, style: 'header-three', title: 'Heading' },
+  { label: <i className="ion-quote" />, style: 'blockquote', title: 'Blockquote' },
+  { label: <i className="ion-ios-circle-filled" />, style: 'unordered-list-item', title: 'Unordered list' },
+  { label: <i className="ion-pound" />, style: 'ordered-list-item', title: 'Ordered list' },
+  { label: <i className="ion-code" />, style: 'code-block', title: 'Code Block' },
 ];
 
 const BlockStyleControls = (props) => {
@@ -80,7 +81,7 @@ const BlockStyleControls = (props) => {
     <div className="RichEditor-controls">
       {BLOCK_TYPES.map(type =>
         <StyleButton
-          key={type.label}
+          key={type.title}
           active={type.style === blockType}
           label={type.label}
           onToggle={onToggle}
@@ -98,10 +99,10 @@ BlockStyleControls.propTypes = {
 };
 
 const INLINE_STYLES = [
-  { label: 'Bold', style: 'BOLD', title: 'Bold' },
-  { label: 'Italic', style: 'ITALIC', title: 'Italic' },
-  { label: 'Underline', style: 'UNDERLINE', title: 'Underline' },
-  { label: 'Monospace', style: 'CODE', title: 'Monospace' },
+  { label: <b>B</b>, style: 'BOLD', title: 'Bold' },
+  { label: <i>I</i>, style: 'ITALIC', title: 'Italic' },
+  { label: <u>U</u>, style: 'UNDERLINE', title: 'Underline' },
+  { label: <span><tt>M</tt></span>, style: 'CODE', title: 'Monospace' },
 ];
 
 const InlineStyleControls = ({ onToggle, editorState }) => {
@@ -111,7 +112,7 @@ const InlineStyleControls = ({ onToggle, editorState }) => {
     <div className="RichEditor-controls">
       {INLINE_STYLES.map(type =>
         <StyleButton
-          key={type.label}
+          key={type.title}
           active={currentStyle.has(type.style)}
           label={type.label}
           onToggle={onToggle}
