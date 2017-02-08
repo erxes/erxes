@@ -4,9 +4,9 @@
   padding: 20px;
   margin: 0;
   flex: 1;
+  list-style: none;
 
   li {
-    list-style: none;
     position: relative;
     overflow: hidden;
     margin-bottom: 10px;
@@ -52,7 +52,7 @@
   }
 
   p {
-    margin-top: 0;
+    margin: 0;
   }
 
   img {
@@ -61,6 +61,53 @@
     background: lighten($grey, 10%);
     min-width: 60px;
     min-height: 30px;
+  }
+
+  ul {
+    padding-left: 20px;
+    list-style-type: disc;
+
+    li {
+      overflow: visible;
+      margin-bottom: 5px;
+    }
+  }
+
+  ol {
+    padding-left: 20px;
+    list-style-type: decimal;
+
+    li {
+      overflow: visible;
+      margin-bottom: 5px;
+    }
+  }
+
+  h3 {
+    margin-top: 0;
+    font-size: 16px;
+    margin-bottom: 8px;
+  }
+
+  blockquote {
+    margin: 0;
+    padding: 10px 20px;
+    font-size: 16px;
+    border-left: 5px solid #ddd;
+  }
+
+  pre {
+    display: block;
+    padding: 9.5px;
+    margin: 0;
+    font-size: 13px;
+    line-height: 1.42857143;
+    color: #333;
+    word-break: break-all;
+    word-wrap: break-word;
+    background-color: #f5f5f5;
+    border: 1px solid #ccc;
+    border-radius: 4px;
   }
 }
 
