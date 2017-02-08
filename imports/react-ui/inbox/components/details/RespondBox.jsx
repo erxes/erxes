@@ -187,7 +187,6 @@ class RespondBox extends Component {
     return (
       <div className="respond-box">
         <form id={formId} onSubmit={this.onSubmit}>
-          {attachmentsIndicator}
 
           <ErxesEditor
             key={this.state.editorKey}
@@ -196,7 +195,7 @@ class RespondBox extends Component {
             onChange={this.onEditorContentChange}
             keyBindingFn={this.handleEditorKeyPress}
           />
-
+          {attachmentsIndicator}
           {Buttons}
         </form>
 

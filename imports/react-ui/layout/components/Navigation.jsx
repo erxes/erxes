@@ -12,17 +12,17 @@ function Navigation() {
       <nav className="nav-menu">
         <Tip placement="right" text="Inbox">
           <a href="/inbox">
-            <i className="ion-email"></i>
+            <i className="ion-email" />
           </a>
         </Tip>
         <Tip placement="right" text="Customers">
           <a href="/customers">
-            <i className="ion-person-stalker"></i>
+            <i className="ion-person-stalker" />
           </a>
         </Tip>
         <Tip placement="right" text="Settings">
           <a href={FlowRouter.path('settings/channels/list')}>
-            <i className="ion-gear-a"></i>
+            <i className="ion-gear-a" />
           </a>
         </Tip>
       </nav>
