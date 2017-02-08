@@ -102,7 +102,6 @@ const INLINE_STYLES = [
   { label: <b>B</b>, style: 'BOLD', title: 'Bold' },
   { label: <i>I</i>, style: 'ITALIC', title: 'Italic' },
   { label: <u>U</u>, style: 'UNDERLINE', title: 'Underline' },
-  { label: <span><tt>M</tt></span>, style: 'CODE', title: 'Monospace' },
 ];
 
 const InlineStyleControls = ({ onToggle, editorState }) => {
