@@ -167,13 +167,25 @@ class RespondBox extends Component {
     );
 
     // after file upload show indicator
-    let attachmentsIndicator = '';
+    let attachmentsIndicator = null;
 
     const attachments = this.state.attachments || [];
     const attachmentsCount = attachments.length;
 
     if (attachmentsCount > 0) {
-      attachmentsIndicator = `has ${attachmentsCount} attachments`;
+      attachmentsIndicator = (
+        <div className="attachment-indicator">
+          {attachments.map(attachment =>
+            <div className="attachment" key={attachment.name}>
+              <div className="preview">
+                <div className="preview-img" style={{ backgroundImage: `url('${attachment.url}')` }} />
+              </div>
+              <div className="file-name">{attachment.name}</div>
+              <div className="file-size">({Math.round(attachment.size / 1000)}kB)</div>
+            </div>
+          )}
+        </div>
+      );
     }
 
     let formId = 'reply-form';

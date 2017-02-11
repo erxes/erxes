@@ -27,6 +27,8 @@
 
   #reply-form .RichEditor-root {
     background: $message-background;
+    border-top-left-radius: $border-radius;
+    border-top-right-radius: $border-radius;
   }
 
   #internal-note-form .RichEditor-root {

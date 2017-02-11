@@ -63,3 +63,43 @@
     }
   }
 }
+
+.attachment-indicator {
+  background: $message-background;
+  display: flex;
+  flex-direction: row;
+
+  .attachment {
+    display: flex;
+    max-width: 220px;
+    padding: 4px;
+    margin: 5px 0 5px 5px;
+    font-size: 13px;
+    border-radius: $border-radius;
+    background-color: $white;
+    align-items: center;
+
+    .preview {
+      margin-right: 5px;
+    }
+
+    .preview-img {
+      width: 26px;
+      height: 26px;
+      background-size: cover;
+      background-position: 50%;
+      border-radius: $border-radius / 2;
+    }
+
+    .file-name {
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      margin-right: 5px;
+    }
+
+    .file-size {
+      color: $text-color-light;
+    }
+  }
+}
