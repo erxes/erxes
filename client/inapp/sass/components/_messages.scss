@@ -49,6 +49,10 @@
     padding: 0;
     background: none;
     border: 0;
+
+    > span {
+      display: none;
+    }
   }
 
   p {

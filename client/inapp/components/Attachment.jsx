@@ -2,21 +2,20 @@ import React, { PropTypes } from 'react';
 
 
 const propTypes = {
-  path: PropTypes.string.isRequired,
+  attachment: PropTypes.object.isRequired,
 };
 
-function Attachment({ path }) {
-  function renderAtachment(filePath) {
-    const filename = filePath.split('/').pop();
-    const fileExtension = filePath.split('.').pop();
+function Attachment({ attachment }) {
+  function renderAtachment() {
+    const fileExtension = attachment.url.split('.').pop();
 
     if (['png', 'jpeg', 'jpg'].indexOf(fileExtension) > -1) {
-      return <img role="presentation" src={filePath} />;
+      return <img role="presentation" src={attachment.url} />;
     }
 
     return (
       <div className="file-wrapper">
-        <i className="file" /> <span>{filename}</span>
+        <i className="file" /> <span>{attachment.name}</span>
       </div>
     );
   }
@@ -24,12 +23,12 @@ function Attachment({ path }) {
   return (
     <a
       className="download-attachment"
-      href={path}
+      href={attachment.url}
       target="_blank"
       title="Download"
       rel="noopener noreferrer"
     >
-      {renderAtachment(path)}
+      {renderAtachment()}
     </a>
   );
 }
