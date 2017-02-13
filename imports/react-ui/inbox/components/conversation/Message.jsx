@@ -68,7 +68,7 @@ function Message({ message, staff, isSameUser }) {
 
   const renderAttachment = () => {
     if (hasAttachment) {
-      return <Attachment path={message.attachments[0].url} type={message.attachments[0].type} />;
+      return <Attachment attachment={message.attachments[0]} />;
     } else if (isPhotoPost) {
       const iframeSrc = `https://www.facebook.com/plugins/post.php?href=https://www.facebook.com/photo.php?fbid=${faceboodData.photoId}`;
       return (
