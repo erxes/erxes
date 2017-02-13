@@ -3,7 +3,8 @@
   react/forbid-prop-types */
 
 import React, { PropTypes } from 'react';
-import Draft, { Editor, EditorState, ContentState, RichUtils } from 'draft-js';
+import Draft, { EditorState, ContentState, RichUtils } from 'draft-js';
+import Editor from 'draft-js-plugins-editor';
 import { stateToHTML } from 'draft-js-export-html';
 
 function getBlockStyle(block) {
@@ -132,11 +133,8 @@ export class ErxesEditor extends React.Component {
   constructor(props) {
     super(props);
 
-    this.state = { editorState: props.state };
-
     this.focus = () => this.refs.editor.focus();
 
-    this.onChange = this.onChange.bind(this);
     this.handleKeyCommand = this.handleKeyCommand.bind(this);
     this.onTab = this.onTab.bind(this);
     this.toggleBlockType = this.toggleBlockType.bind(this);
@@ -144,22 +142,18 @@ export class ErxesEditor extends React.Component {
   }
 
   onTab(e) {
+    const { onChange, editorState } = this.props;
     const maxDepth = 4;
-    this.onChange(RichUtils.onTab(e, this.state.editorState, maxDepth));
-  }
 
-  onChange(editorState) {
-    this.setState({ editorState });
-
-    this.props.onChange(editorState);
+    onChange(RichUtils.onTab(e, editorState, maxDepth));
   }
 
   handleKeyCommand(command) {
-    const { editorState } = this.state;
+    const { onChange, editorState } = this.props;
     const newState = RichUtils.handleKeyCommand(editorState, command);
 
     if (newState) {
-      this.onChange(newState);
+      onChange(newState);
 
       return true;
     }
@@ -168,25 +162,29 @@ export class ErxesEditor extends React.Component {
   }
 
   toggleBlockType(blockType) {
-    this.onChange(
+    const { onChange, editorState } = this.props;
+
+    onChange(
       RichUtils.toggleBlockType(
-        this.state.editorState,
+        editorState,
         blockType,
       ),
     );
   }
 
   toggleInlineStyle(inlineStyle) {
-    this.onChange(
+    const { onChange, editorState } = this.props;
+
+    onChange(
       RichUtils.toggleInlineStyle(
-        this.state.editorState,
+        editorState,
         inlineStyle,
       ),
     );
   }
 
   render() {
-    const { editorState } = this.state;
+    const { editorState } = this.props;
 
     // If the user changes block type before entering any text, we can
     // either style the placeholder or hide it. Let's just hide it now.
@@ -219,13 +217,16 @@ export class ErxesEditor extends React.Component {
             customStyleMap={styleMap}
             editorState={editorState}
             handleKeyCommand={this.handleKeyCommand}
-            onChange={this.onChange}
             onTab={this.onTab}
+            onChange={this.props.onChange}
             placeholder={this.props.placeholder}
             keyBindingFn={this.props.keyBindingFn}
             ref="editor"
+            plugins={this.props.plugins}
             spellCheck
           />
+
+          {this.props.pluginContent}
         </div>
       </div>
     );
@@ -233,15 +234,15 @@ export class ErxesEditor extends React.Component {
 }
 
 ErxesEditor.propTypes = {
-  state: PropTypes.object,
+  editorState: PropTypes.object,
   onChange: PropTypes.func,
+  pluginContent: PropTypes.object,
+  plugins: PropTypes.array,
   keyBindingFn: PropTypes.func,
   placeholder: PropTypes.string,
 };
 
-export const createEmptyState = () => EditorState.createEmpty();
 export const toHTML = state => stateToHTML(state.getCurrentContent());
-export const getDefaultKeyBinding = e => Draft.getDefaultKeyBinding(e);
 
 export const createStateFromHTML = (html) => {
   const blocksFromHTML = Draft.convertFromHTML(html);
@@ -250,3 +251,6 @@ export const createStateFromHTML = (html) => {
 
   return editorState;
 };
+
+export const clearContent = editorState =>
+  EditorState.push(editorState, ContentState.createFromText(''));

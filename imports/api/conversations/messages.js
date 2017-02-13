@@ -21,6 +21,7 @@ class MessagesCollection extends Mongo.Collection {
 
     messageCountDenormalizer.afterInsertMessage(message);
 
+    // add created user to participators
     if (message.userId) {
       addParticipator({
         conversationId: message.conversationId,
@@ -28,13 +29,23 @@ class MessagesCollection extends Mongo.Collection {
       });
     }
 
+    // add mentioned users to participators
+    _.each(message.mentionedUserIds || [], (userId) => {
+      addParticipator({
+        conversationId: message.conversationId,
+        userId,
+      });
+    });
+
     return result;
   }
 
   remove(selector) {
     const messages = this.find(selector).fetch();
     const result = super.remove(selector);
+
     messageCountDenormalizer.afterRemoveMessages(messages);
+
     return result;
   }
 }
@@ -73,6 +84,11 @@ export const FormSchema = new SimpleSchema({
       size: { type: Number, optional: true },
     })],
 
+    optional: true,
+  },
+
+  mentionedUserIds: {
+    type: [String],
     optional: true,
   },
 
@@ -167,6 +183,7 @@ Messages.attachSchema(Messages.schema);
 Messages.publicFields = {
   content: 1,
   attachments: 1,
+  mentionedUserIds: 1,
   conversationId: 1,
   customerId: 1,
   userId: 1,

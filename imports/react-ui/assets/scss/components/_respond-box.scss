@@ -43,3 +43,14 @@
     display: inline-block;
   }
 }
+
+.mentioned-person {
+  color: #575f67;
+  cursor: pointer;
+  display: inline-block;
+  background: #e6f3ff;
+  padding-left: 2px;
+  padding-right: 2px;
+  border-radius: 2px;
+  text-decoration: none;
+}

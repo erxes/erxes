@@ -1,5 +1,6 @@
 import { Meteor } from 'meteor/meteor';
 import { composeWithTracker } from 'react-komposer';
+import { fromJS } from 'immutable';
 import { newMessage } from '/imports/react-ui/apollo-client';
 import { KIND_CHOICES } from '/imports/api/integrations/constants';
 import { RespondBox } from '../components';
@@ -21,9 +22,21 @@ function composer(props, onData) {
     Meteor.call('conversations.addMessage', message, cb);
   };
 
+  const teamMembers = [];
+
+  Meteor.users.find().forEach(user => (
+    teamMembers.push({
+      _id: user._id,
+      name: user.username,
+      fullName: user.details.fullName,
+      avatar: user.details.avatar,
+    })
+  ));
+
   onData(null, {
     conversation: props.conversation,
     sendMessage,
+    teamMembers: fromJS(teamMembers),
   });
 }
 
