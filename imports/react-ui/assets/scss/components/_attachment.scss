@@ -32,13 +32,9 @@
 
 .message {
   &.staff {
-    .download-attachment {
-      > i {
-        right: auto;
-        left: 50%;
-        top: 50%;
-      }
-
+    .download-attachment .file-size {
+      left: 0;
+      right: auto;
     }
   }
 
@@ -81,9 +77,10 @@
 
     .file-size {
       position: absolute;
-      margin-top: 2px;
+      margin-top: 3px;
       color: $text-color-light;
       font-size: 12px;
+      right: 0;
     }
   }
 }
