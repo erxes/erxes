@@ -26,7 +26,7 @@
   }
 
   &:hover {
-    box-shadow: 0 1px 1px rgba(0,0,0,.06);
+    box-shadow: 0 1px 1px rgba(0, 0, 0, .06);
   }
 }
 
@@ -35,11 +35,10 @@
     .download-attachment {
       > i {
         right: auto;
-        left: 2px;
+        left: 50%;
+        top: 50%;
       }
-      img{
-        background: $gray-lighter;
-      }
+
     }
   }
 
@@ -48,18 +47,43 @@
     position: relative;
     @include transition(all .2s ease);
 
-    > i {
-      display: none;
+    .overlay {
+      opacity: 0;
+      width: 100%;
+      height: 100%;
       position: absolute;
-      right: 2px;
-      color: $gray-light;
+      background: rgba(0, 0, 0, .5);
+      border-radius: $border-radius;
+      left: 0;
+      top: 0;
+      @include transition(all .2s ease);
     }
 
-    &:hover {
-      opacity: 0.8;
-      > i {
-        display: block;
-      }
+    .icon {
+      position: absolute;
+      color: $white;
+      width: 30px;
+      height: 30px;
+      text-align: center;
+      border-radius: 15px;
+      line-height: 28px;
+      left: 50%;
+      top: 50%;
+      border: 1px solid $white;
+      margin-left: -15px;
+      margin-top: -15px;
+    }
+
+    &:hover .icon,
+    &:hover .overlay {
+      opacity: 1;
+    }
+
+    .file-size {
+      position: absolute;
+      margin-top: 2px;
+      color: $text-color-light;
+      font-size: 12px;
     }
   }
 }

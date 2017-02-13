@@ -2,8 +2,7 @@ import React, { PropTypes } from 'react';
 
 
 const propTypes = {
-  path: PropTypes.string.isRequired,
-  type: PropTypes.string,
+  attachment: PropTypes.object.isRequired,
 };
 
 class Attachment extends React.Component {
@@ -13,17 +12,18 @@ class Attachment extends React.Component {
     this.renderAtachment = this.renderAtachment.bind(this);
   }
 
-  renderAtachment({ path, type }) {
+  renderAtachment({ attachment }) {
     // when facebook attachments, it is not possible to determine file type
     // from extension, so determine it by type property
-    if (type === 'image') {
+    if (attachment.type === 'image/jpeg' || attachment.type === 'image/png') {
       return (
-        <img role="presentation" src={path} />
+        <img role="presentation" src={attachment.url} />
       );
     }
 
-    const filename = path.split('/').pop();
-    const fileExtension = path.split('.').pop();
+    console.log(attachment);
+
+    const fileExtension = attachment.url.split('.').pop();
 
     let filePreview;
     switch (fileExtension) {
@@ -31,7 +31,7 @@ class Attachment extends React.Component {
       case 'jpeg':
       case 'jpg':
         filePreview = (
-          <img role="presentation" src={path} />
+          <img role="presentation" src={attachment.url} />
         );
         break;
       case 'doc':
@@ -44,7 +44,7 @@ class Attachment extends React.Component {
       case 'pptx':
         filePreview = (
           <div className="file-wrapper">
-            <i className="ion-document-text" /> <span>{filename}</span>
+            <i className="ion-document-text" /> <span>{attachment.name}</span>
           </div>
         );
         break;
@@ -52,7 +52,7 @@ class Attachment extends React.Component {
       case 'avi':
         filePreview = (
           <div className="file-wrapper">
-            <i className="ion-videocamera" /> <span>{filename}</span>
+            <i className="ion-videocamera" /> <span>{attachment.name}</span>
           </div>
         );
         break;
@@ -60,21 +60,21 @@ class Attachment extends React.Component {
       case 'wav':
         filePreview = (
           <div className="file-wrapper">
-            <i className="ion-volume-medium" /> <span>{filename}</span>
+            <i className="ion-volume-medium" /> <span>{attachment.name}</span>
           </div>
         );
         break;
       case 'zip':
         filePreview = (
           <div className="file-wrapper">
-            <i className="ion-android-archive" /> <span>{filename}</span>
+            <i className="ion-android-archive" /> <span>{attachment.name}</span>
           </div>
         );
         break;
       default:
         filePreview = (
           <div className="file-wrapper">
-            <i className="ion-document" /> <span>{filename}</span>
+            <i className="ion-document" /> <span>{attachment.name}</span>
           </div>
         );
     }
@@ -82,10 +82,18 @@ class Attachment extends React.Component {
   }
 
   render() {
+    const props = this.props;
     return (
-      <a className="download-attachment" href={this.props.path} target="_blank">
-        {this.renderAtachment(this.props)}
-        <i className="ion-android-download" />
+      <a className="download-attachment" href={props.attachment.url} target="_blank">
+        {this.renderAtachment(props)}
+        <div className="overlay">
+          <div className="icon">
+            <i className="ion-android-download" />
+          </div>
+        </div>
+        <div className="file-size">
+          {Math.round(props.attachment.size / 1000)}kB
+        </div>
       </a>
     );
   }
