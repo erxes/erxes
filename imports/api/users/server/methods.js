@@ -57,6 +57,7 @@ const updateUserCommonInfos = (userId, doc) => {
         'details.twitterUsername': doc.twitterUsername,
         'details.avatar': doc.avatar,
         'details.fullName': doc.fullName,
+        'details.position': doc.position,
         'emails.0.address': doc.email,
       },
     },
@@ -84,8 +85,8 @@ export const invite = new ValidatedMethod({
 
   run(doc) {
     const {
-      username, twitterUsername, avatar, fullName, email, role, channelIds,
-      password, passwordConfirmation,
+      username, twitterUsername, avatar, position, fullName, email, role,
+      channelIds, password, passwordConfirmation,
     } = doc;
 
     checkPasswordConfirmation(password, passwordConfirmation);
@@ -105,7 +106,7 @@ export const invite = new ValidatedMethod({
     // set profile infos
     updateUserCommonInfos(
       userId,
-      { twitterUsername, username, avatar, fullName, email },
+      { twitterUsername, username, avatar, fullName, position, email },
     );
 
     // add new user to channels
@@ -135,7 +136,7 @@ export const updateInvitationInfos = new ValidatedMethod({
 
   run(doc) {
     const {
-      userId, twitterUsername, username, avatar, fullName, email,
+      userId, twitterUsername, position, username, avatar, fullName, email,
       role, channelIds, password, passwordConfirmation,
     } = doc;
 
@@ -156,7 +157,7 @@ export const updateInvitationInfos = new ValidatedMethod({
     if (!user.isOwner) {
       updateUserCommonInfos(
         userId,
-        { username, twitterUsername, avatar, fullName, email },
+        { username, twitterUsername, avatar, position, fullName, email },
       );
 
        // update role

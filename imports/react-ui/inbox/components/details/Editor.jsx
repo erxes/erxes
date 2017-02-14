@@ -1,19 +1,11 @@
 /* eslint-disable no-underscore-dangle */
 
-import { _ } from 'meteor/underscore';
-import React, { PropTypes } from 'react';
 import createMentionPlugin, { defaultSuggestionsFilter } from 'draft-js-mention-plugin';
+import { EditorState, ContentState, getDefaultKeyBinding } from 'draft-js';
+import React, { PropTypes } from 'react';
+import { _ } from 'meteor/underscore';
 import { fromJS } from 'immutable';
-import {
-  EditorState,
-  ContentState,
-  getDefaultKeyBinding,
-} from 'draft-js';
-import {
-  ErxesEditor,
-  toHTML,
-  createStateFromHTML,
-} from '/imports/react-ui/common/Editor.jsx';
+import { ErxesEditor, toHTML, createStateFromHTML } from '/imports/react-ui/common/Editor.jsx';
 
 const extractEntries = (mention) => {
   const entries = mention._root.entries;
@@ -91,7 +83,7 @@ export default class Editor extends React.Component {
     _.each(this.state.collectedMentions, (m) => {
       content = content.replace(
         `@${m.name}`,
-        `<span data-user-id='${m._id}' class='mentioned-person'>@${m.fullName}</span>`,
+        `<span data-user-id='${m._id}' class='mentioned-person'>@${m.name}</span>`,
       );
     });
 
