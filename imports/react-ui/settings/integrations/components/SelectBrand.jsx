@@ -16,6 +16,7 @@ const SelectBrand = ({ brands, onChange, defaultValue }) => (
       onChange={onChange}
     >
 
+      <option />
       {brands.map(brand =>
         <option key={brand._id} value={brand._id}>{brand.name}</option>,
       )}

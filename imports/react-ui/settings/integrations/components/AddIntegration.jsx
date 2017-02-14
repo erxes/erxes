@@ -45,9 +45,11 @@ function AddIntegration() {
 
       <div className="box">
         <h2>Social integrations</h2>
+
         <Button href={FlowRouter.path('settings/integrations/twitter')}>
           <i className="ion-social-twitter" /> Add twitter
         </Button>
+
         <ModalTrigger title="Add facebook page" trigger={triggerFb}>
           <Facebook />
         </ModalTrigger>
