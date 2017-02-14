@@ -28,7 +28,7 @@ function composer(props, onData) {
     teamMembers.push({
       _id: user._id,
       name: user.username,
-      fullName: user.details.fullName,
+      title: user.details.position,
       avatar: user.details.avatar,
     })
   ));

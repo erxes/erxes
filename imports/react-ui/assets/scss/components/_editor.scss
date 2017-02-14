@@ -85,3 +85,80 @@ $editor-text-color: #999;
 .RichEditor-activeButton {
   color: $main-color;
 }
+
+/********************** mentions ********************************/
+
+.draftJsMentionPlugin__mention__29BEd, .draftJsMentionPlugin__mention__29BEd:visited {
+  color: #575f67;
+  cursor: pointer;
+  display: inline-block;
+  background: #e6f3ff;
+  padding-left: 2px;
+  padding-right: 2px;
+  border-radius: 2px;
+  text-decoration: none;
+}
+
+.draftJsMentionPlugin__mention__29BEd:hover, .draftJsMentionPlugin__mention__29BEd:focus {
+  color: #677584;
+  background: #edf5fd;
+  outline: 0; /* reset for :focus */
+}
+
+.draftJsMentionPlugin__mention__29BEd:active {
+  color: #222;
+  background: #455261;
+}
+.draftJsMentionPlugin__mentionSuggestionsEntry__3mSwm {
+  padding: 7px 10px 3px 10px;
+  -webkit-transition: background-color 0.4s cubic-bezier(.27,1.27,.48,.56);
+  transition: background-color 0.4s cubic-bezier(.27,1.27,.48,.56);
+}
+
+.draftJsMentionPlugin__mentionSuggestionsEntry__3mSwm:active {
+  background-color: #cce7ff;
+}
+
+.draftJsMentionPlugin__mentionSuggestionsEntryFocused__3LcTd {
+  background-color: #e6f3ff;
+}
+
+.draftJsMentionPlugin__mentionSuggestionsEntryText__3Jobq {
+  display: inline-block;
+  margin-left: 8px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 368px;
+  font-size: 0.9em;
+  margin-bottom: 0.2em;
+}
+
+.draftJsMentionPlugin__mentionSuggestionsEntryAvatar__1xgA9 {
+  display: inline-block;
+  width: 24px;
+  height: 24px;
+  border-radius: 12px;
+}
+.draftJsMentionPlugin__mentionSuggestions__2DWjA {
+  border: 1px solid #eee;
+  margin-top: 1.75em;
+  position: absolute;
+  min-width: 220px;
+  max-width: 440px;
+  background: #fff;
+  border-radius: 2px;
+  box-shadow: 0px 4px 30px 0px rgba(220,220,220,1);
+  cursor: pointer;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  z-index: 2;
+  display: -webkit-box;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+          flex-direction: column;
+  box-sizing: border-box;
+  -webkit-transform: scale(0);
+          transform: scale(0);
+}

@@ -7,6 +7,34 @@ import { _ } from 'meteor/underscore';
 import { fromJS } from 'immutable';
 import { ErxesEditor, toHTML, createStateFromHTML } from '/imports/react-ui/common/Editor.jsx';
 
+const MentionEntry = (props) => {
+  const { mention, theme, searchValue, ...parentProps } = props; // eslint-disable-line
+
+  return (
+    <div {...parentProps}>
+      <div className={theme.mentionSuggestionsEntryContainer}>
+        <div className={theme.mentionSuggestionsEntryContainerLeft}>
+          <img
+            src={mention.get('avatar')}
+            className={theme.mentionSuggestionsEntryAvatar}
+            role="presentation"
+          />
+        </div>
+
+        <div className={theme.mentionSuggestionsEntryContainerRight}>
+          <div className={theme.mentionSuggestionsEntryText}>
+            {mention.get('name')}
+          </div>
+
+          <div className={theme.mentionSuggestionsEntryTitle}>
+            {mention.get('title')}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const extractEntries = (mention) => {
   const entries = mention._root.entries;
   const keys = _.map(entries, entry => entry[0]);
@@ -112,6 +140,7 @@ export default class Editor extends React.Component {
       <MentionSuggestions
         onSearchChange={this.onSearchChange}
         suggestions={this.props.showMentions ? this.state.suggestions : fromJS([])}
+        entryComponent={MentionEntry}
         onAddMention={this.onAddMention}
         onChange={this.onChange}
       />

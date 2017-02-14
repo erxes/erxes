@@ -24,5 +24,4 @@ import './settings/profile/routes.jsx';
  */
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.min.js';
-import 'draft-js-mention-plugin/lib/plugin.css';
 import './assets/scss/main.scss';
