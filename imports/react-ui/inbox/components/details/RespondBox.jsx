@@ -21,6 +21,7 @@ class RespondBox extends Component {
     this.state = {
       isInternal: false,
       attachments: [],
+      responseTemplate: '',
       content: '',
       mentionedUserIds: [],
     };
@@ -58,6 +59,8 @@ class RespondBox extends Component {
 
   onSelectTemplate(responseTemplate) {
     this.setState({
+      responseTemplate: responseTemplate.content,
+
       // set attachment from response template files
       attachments: responseTemplate.files,
     });
@@ -133,7 +136,7 @@ class RespondBox extends Component {
   }
 
   render() {
-    const isInternal = this.state.isInternal;
+    const { isInternal, responseTemplate } = this.state;
 
     const Buttons = (
       <div>
@@ -190,13 +193,13 @@ class RespondBox extends Component {
       <div className="respond-box">
         <form id={formId} onSubmit={this.onSubmit}>
           <Editor
-            key={this.state.editorKey}
             onChange={this.onEditorContentChange}
             onAddMention={this.onAddMention}
             onShifEnter={this.onShifEnter}
             placeholder={placeholder}
             mentions={this.props.teamMembers}
             showMentions={isInternal}
+            responseTemplate={responseTemplate}
           />
 
           {attachmentsIndicator}

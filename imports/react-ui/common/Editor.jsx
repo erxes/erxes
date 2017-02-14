@@ -244,12 +244,11 @@ ErxesEditor.propTypes = {
 
 export const toHTML = state => stateToHTML(state.getCurrentContent());
 
-export const createStateFromHTML = (html) => {
+export const createStateFromHTML = (editorState, html) => {
   const blocksFromHTML = Draft.convertFromHTML(html);
   const content = ContentState.createFromBlockArray(blocksFromHTML);
-  const editorState = EditorState.createWithContent(content);
 
-  return editorState;
+  return EditorState.push(editorState, content);
 };
 
 export const clearContent = editorState =>

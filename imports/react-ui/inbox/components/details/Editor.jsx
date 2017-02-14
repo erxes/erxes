@@ -9,7 +9,11 @@ import {
   ContentState,
   getDefaultKeyBinding,
 } from 'draft-js';
-import { ErxesEditor, toHTML } from '/imports/react-ui/common/Editor.jsx';
+import {
+  ErxesEditor,
+  toHTML,
+  createStateFromHTML,
+} from '/imports/react-ui/common/Editor.jsx';
 
 const extractEntries = (mention) => {
   const entries = mention._root.entries;
@@ -41,6 +45,18 @@ export default class Editor extends React.Component {
     this.onSearchChange = this.onSearchChange.bind(this);
     this.onAddMention = this.onAddMention.bind(this);
     this.getContent = this.getContent.bind(this);
+  }
+
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.responseTemplate !== this.props.responseTemplate) {
+      // set editor state from response template
+      this.setState({
+        editorState: createStateFromHTML(
+          this.state.editorState,
+          nextProps.responseTemplate,
+        ),
+      });
+    }
   }
 
   onChange(editorState) {
@@ -127,5 +143,6 @@ Editor.propTypes = {
   onAddMention: PropTypes.func,
   onShifEnter: PropTypes.func,
   showMentions: PropTypes.bool,
+  responseTemplate: PropTypes.string,
   mentions: PropTypes.object, // eslint-disable-line
 };
