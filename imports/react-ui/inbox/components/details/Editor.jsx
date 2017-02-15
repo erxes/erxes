@@ -109,8 +109,11 @@ export default class Editor extends React.Component {
 
     // replace mention content
     _.each(this.state.collectedMentions, (m) => {
+      const toFind = `@${m.name}`;
+      const re = new RegExp(toFind, 'g');
+
       content = content.replace(
-        `@${m.name}`,
+        re,
         `<span data-user-id='${m._id}' class='mentioned-person'>@${m.name}</span>`,
       );
     });
