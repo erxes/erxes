@@ -14,11 +14,13 @@ const sendNotifications = (channelId, _memberIds, userId) => {
   const channel = Channels.findOne({ _id: channelId });
 
   if (Meteor.isServer) {
+    const content = `You have invited to '${channel.name}' channel.`
+
     sendNotification({
       createdUser: userId,
       notifType: 'channelMembersChange',
-      title: 'New channel invitation',
-      content: `You are a member of channel ${channel.name}, now`,
+      title: content,
+      content,
       link: `/inbox/${channel._id}`,
 
       // exclude current user

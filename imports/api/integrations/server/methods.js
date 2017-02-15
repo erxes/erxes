@@ -175,7 +175,7 @@ export const remove = new ValidatedMethod({
     if (Channels.find({ integrationIds: { $in: [id] } }).count() > 0) {
       throw new Meteor.Error(
         'integrations.remove.usedInChannel',
-        'Used in channel',
+        'You cannot delete this integration. It belongs to other channel.',
       );
     }
 

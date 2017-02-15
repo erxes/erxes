@@ -203,7 +203,7 @@ export const remove = new ValidatedMethod({
     if (user.isOwner) {
       throw new Meteor.Error(
         'users.remove.canNotDeleteOwner',
-        'Can not delete owner',
+        'You cannot delete the owner.',
       );
     }
 
@@ -211,14 +211,14 @@ export const remove = new ValidatedMethod({
     if (Channels.find({ userId }).count() > 0) {
       throw new Meteor.Error(
         'users.remove.involvedInChannel',
-        'Involved in channel',
+        'You cannot delete this user. This user belongs other channel.',
       );
     }
 
     if (Channels.find({ memberIds: { $in: [userId] } }).count() > 0) {
       throw new Meteor.Error(
         'users.remove.involvedInChannel',
-        'Involved in channel',
+        'You cannot delete this user. This user belongs other channel.',
       );
     }
 

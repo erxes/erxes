@@ -78,8 +78,7 @@ export const addMessage = new ValidatedMethod({
       );
     }
 
-    const messagedUser = Meteor.users.findOne({ _id: this.userId });
-    const title = `${messagedUser.details.fullName} reflected on a conversation`;
+    const title = 'You have a new message.';
 
     // send notification
     sendNotification({
@@ -182,9 +181,7 @@ export const assign = new ValidatedMethod({
 
     // send notification
     _.each(updatedConversations, (conversation) => {
-      const assignedUser = Meteor.users.findOne({ _id: assignedUserId });
-      const content = `Conversation's assigned person changed to
-        ${assignedUser.details.fullName}`;
+      const content = 'Assigned user has changed';
 
       sendNotification({
         createdUser: this.userId,
@@ -239,7 +236,7 @@ export const changeStatus = new ValidatedMethod({
 
     // send notification
     _.each(conversations, (conversation) => {
-      const content = `Conversation's status changed to ${status}`;
+      const content = 'Conversation status has changed.';
 
       sendNotification({
         createdUser: this.userId,
