@@ -2,6 +2,7 @@ import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
 import { _ } from 'meteor/underscore';
 import { ValidatedMethod } from 'meteor/mdg:validated-method';
+import strip from 'strip';
 
 import { ErxesMixin } from '/imports/api/utils';
 import { tagObject } from '/imports/api/tags/server/api';
@@ -71,7 +72,7 @@ export const addMessage = new ValidatedMethod({
 
     // if there is no attachments and no content then throw content required
     // error
-    if (attachments.length === 0 && !content.trim()) {
+    if (attachments.length === 0 && !strip(content)) {
       throw new Meteor.Error(
         'conversations.addMessage.contentRequired',
         'Content is required',
