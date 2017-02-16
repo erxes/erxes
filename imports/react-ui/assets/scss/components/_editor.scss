@@ -94,7 +94,7 @@ $mention-shadow: 0 0 10px -3px rgba(0, 0, 0, 0.5);
 @mixin mention-default {
   cursor: pointer;
   display: inline-block;
-  background: $message-background;
+  font-weight: bold;
   padding-left: 2px;
   padding-right: 2px;
   border-radius: $border-radius;
