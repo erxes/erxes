@@ -20,6 +20,7 @@ export default {
       return Messages.count({
         conversationId,
         userId: { $exists: true },
+        internal: false,
         isCustomerRead: { $exists: false },
       });
     },
@@ -40,6 +41,7 @@ export default {
         return Messages.count({
           conversationId: { $in: conversationIds },
           userId: { $exists: true },
+          internal: false,
           isCustomerRead: { $exists: false },
         });
       });
