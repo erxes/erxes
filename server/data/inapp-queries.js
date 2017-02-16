@@ -13,7 +13,7 @@ export default {
     },
 
     messages(root, { conversationId }) {
-      return Messages.find({ conversationId }).sort({ createdAt: 1 });
+      return Messages.find({ conversationId, internal: false }).sort({ createdAt: 1 });
     },
 
     unreadCount(root, { conversationId }) {
