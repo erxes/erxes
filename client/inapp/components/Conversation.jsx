@@ -23,7 +23,7 @@ function Conversation({ messages, isNewConversation, goToConversationList, user 
     }
 
     if (user) {
-      const avatar = user.details.avatar || 'https://www.erxes.org/assets/images/userDefaultIcon.png';
+      const avatar = user.details.avatar || 'https://crm.nmma.co/assets/images/userDefaultIcon.png';
       return (
         <div className="erxes-staff-profile">
           <img src={avatar} alt={user.details.fullName} />

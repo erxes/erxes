@@ -25,7 +25,7 @@ function Message({ content, attachments, user, createdAt }) {
       {user ? <User user={user} /> : null}
 
       <div className={messageClasses}>
-        {hasAttachment ? <Attachment path={attachments[0].url} /> : null}
+        {hasAttachment ? <Attachment attachment={attachments[0]} /> : null}
         <span dangerouslySetInnerHTML={{ __html: content }} />
       </div>
       <div className="date">
