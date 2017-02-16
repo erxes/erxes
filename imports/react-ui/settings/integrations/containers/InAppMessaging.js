@@ -21,7 +21,7 @@ function composer(props, onData) {
 
     Meteor.call(methodName, params, (error) => {
       if (error) {
-        return Alert.error(error.error);
+        return Alert.error(error.reason);
       }
 
       Alert.success('Congrats');

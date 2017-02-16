@@ -2,14 +2,8 @@ import React, { PropTypes, Component } from 'react';
 import { Button, Checkbox, ControlLabel } from 'react-bootstrap';
 import Alert from 'meteor/erxes-notifier';
 
-import {
-  ErxesEditor,
-  createEmptyState,
-  toHTML,
-  getDefaultKeyBinding,
-  createStateFromHTML,
-} from '/imports/react-ui/common/Editor.jsx';
 import uploadHandler from '/imports/api/client/uploadHandler';
+import Editor from './Editor.jsx';
 import ResponseTemplate from './ResponseTemplate.jsx';
 
 const propTypes = {
@@ -17,6 +11,7 @@ const propTypes = {
   responseTemplates: PropTypes.array.isRequired,
   sendMessage: PropTypes.func.isRequired,
   setAttachmentPreview: PropTypes.func.isRequired,
+  teamMembers: PropTypes.object,
 };
 
 class RespondBox extends Component {
@@ -24,48 +19,56 @@ class RespondBox extends Component {
     super(props);
 
     this.state = {
-      // Using this key in editor component rendering. Draftjs content
-      // can not be setted. So updating key will cause editor component
-      // rerender. And our editor's content will render with new chosen
-      // response template's content
-      editorKey: 'editor',
-
-      editorState: createEmptyState(),
       isInternal: false,
       attachments: [],
+      responseTemplate: '',
+      content: '',
+      mentionedUserIds: [],
     };
 
+    // on editor content change
+    this.onEditorContentChange = this.onEditorContentChange.bind(this);
+
+    // on new members mention
+    this.onAddMention = this.onAddMention.bind(this);
+
+    // on shift + enter press in editor
+    this.onShifEnter = this.onShifEnter.bind(this);
+
     this.onSubmit = this.onSubmit.bind(this);
-    this.handleEditorKeyPress = this.handleEditorKeyPress.bind(this);
     this.toggleForm = this.toggleForm.bind(this);
     this.handleFileInput = this.handleFileInput.bind(this);
     this.onSelectTemplate = this.onSelectTemplate.bind(this);
-    this.onEditorContentChange = this.onEditorContentChange.bind(this);
   }
 
-  onEditorContentChange(editorState) {
-    this.setState({ editorState });
+  // save editor current content to state
+  onEditorContentChange(content) {
+    this.setState({ content });
+  }
+
+  // save mentioned user to state
+  onAddMention(mentionedUserIds) {
+    this.setState({ mentionedUserIds });
   }
 
   onSubmit(e) {
     e.preventDefault();
+
     this.addMessage();
   }
 
   onSelectTemplate(responseTemplate) {
-    const editorState = createStateFromHTML(responseTemplate.content);
-
     this.setState({
-      // Updating key will cause editor component
-      // rerender. And our editor's content will render with new chosen
-      // response template's content
-      editorKey: `${this.state.editorKey}Updated`,
-
-      editorState,
+      responseTemplate: responseTemplate.content,
 
       // set attachment from response template files
       attachments: responseTemplate.files,
     });
+  }
+
+  // on shift + enter press in editor
+  onShifEnter() {
+    this.addMessage();
   }
 
   handleFileInput(e) {
@@ -101,41 +104,29 @@ class RespondBox extends Component {
 
   addMessage() {
     const { conversation, sendMessage } = this.props;
-    const { isInternal, attachments, editorState } = this.state;
-
-    // get editor content
-    const content = toHTML(editorState);
+    const { isInternal, attachments, content, mentionedUserIds } = this.state;
 
     const message = {
       conversationId: conversation._id,
       content: content || ' ',
       internal: isInternal,
       attachments,
+      mentionedUserIds,
     };
 
     sendMessage(message, (error) => {
       if (error) {
-        Alert.error(error.reason);
-      } else {
-        this.setState({ attachments: [] });
+        return Alert.error(error.reason);
       }
+
+      // clear attachments
+      return this.setState({ attachments: [] });
     });
 
-    // clear content
     this.setState({
-      editorKey: `${this.state.editorKey}Cleared`,
-      editorState: createStateFromHTML(''),
+      // clear mentioned user ids
+      mentionedUserIds: [],
     });
-  }
-
-  handleEditorKeyPress(e) {
-    if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
-      this.addMessage();
-
-      return null;
-    }
-
-    return getDefaultKeyBinding(e);
   }
 
   toggleForm() {
@@ -145,6 +136,8 @@ class RespondBox extends Component {
   }
 
   render() {
+    const { isInternal, responseTemplate } = this.state;
+
     const Buttons = (
       <div>
         <Button type="submit" bsStyle="link">
@@ -159,7 +152,7 @@ class RespondBox extends Component {
         <ResponseTemplate
           brandId={this.props.conversation.integration().brandId}
           attachments={this.state.attachments}
-          content={toHTML(this.state.editorState)}
+          content={this.state.content}
           responseTemplates={this.props.responseTemplates}
           onSelect={this.onSelectTemplate}
         />
@@ -182,7 +175,7 @@ class RespondBox extends Component {
               </div>
               <div className="file-name">{attachment.name}</div>
               <div className="file-size">({Math.round(attachment.size / 1000)}kB)</div>
-            </div>
+            </div>,
           )}
         </div>
       );
@@ -191,7 +184,7 @@ class RespondBox extends Component {
     let formId = 'reply-form';
     let placeholder = 'Type your message here...';
 
-    if (this.state.isInternal) {
+    if (isInternal) {
       formId = 'internal-note-form';
       placeholder = 'Type your note here...';
     }
@@ -199,14 +192,16 @@ class RespondBox extends Component {
     return (
       <div className="respond-box">
         <form id={formId} onSubmit={this.onSubmit}>
-
-          <ErxesEditor
-            key={this.state.editorKey}
-            state={this.state.editorState}
-            placeholder={placeholder}
+          <Editor
             onChange={this.onEditorContentChange}
-            keyBindingFn={this.handleEditorKeyPress}
+            onAddMention={this.onAddMention}
+            onShifEnter={this.onShifEnter}
+            placeholder={placeholder}
+            mentions={this.props.teamMembers}
+            showMentions={isInternal}
+            responseTemplate={responseTemplate}
           />
+
           {attachmentsIndicator}
           {Buttons}
         </form>

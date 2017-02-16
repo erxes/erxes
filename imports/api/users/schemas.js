@@ -14,6 +14,11 @@ const CommonInfo = {
     type: String,
   },
 
+  position: {
+    type: String,
+    optional: true,
+  },
+
   username: {
     type: String,
   },

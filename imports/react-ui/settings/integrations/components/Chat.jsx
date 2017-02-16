@@ -36,8 +36,16 @@ class Chat extends Component {
   constructor(props, context) {
     super(props, context);
 
+    let code = '';
+
+    // showed install code automatically in edit mode
+    if (props.integration) {
+      const brand = Brands.findOne(props.integration.brandId);
+      code = Chat.getInstallCode(brand.code);
+    }
+
     this.state = {
-      code: '',
+      code,
       copied: false,
     };
 
@@ -46,10 +54,12 @@ class Chat extends Component {
   }
 
   updateInstallCodeValue(brandId) {
-    const brand = Brands.findOne(brandId);
-    const code = Chat.getInstallCode(brand.code);
+    if (brandId) {
+      const brand = Brands.findOne(brandId);
+      const code = Chat.getInstallCode(brand.code);
 
-    this.setState({ code, copied: false });
+      this.setState({ code, copied: false });
+    }
   }
 
   handleBrandChange(e) {

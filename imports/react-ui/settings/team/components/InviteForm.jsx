@@ -40,6 +40,7 @@ class InviteForm extends Component {
 
     const doc = {
       avatar: document.getElementById('avatar').value,
+      position: document.getElementById('position').value,
       fullName: document.getElementById('fullName').value,
       username: document.getElementById('username').value,
       twitterUsername: document.getElementById('twitterUsername').value,
@@ -55,7 +56,7 @@ class InviteForm extends Component {
       doc.userId = this.props.user._id;
     }
 
-    this.props.save(doc, error => {
+    this.props.save(doc, (error) => {
       if (error) {
         return Alert.error(error.reason);
       }

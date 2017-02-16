@@ -89,6 +89,15 @@ class UserCommonInfos extends React.Component {
         </FormGroup>
 
         <FormGroup>
+          <ControlLabel>Position</ControlLabel>
+          <FormControl
+            type="text"
+            id="position"
+            defaultValue={user.details.position}
+          />
+        </FormGroup>
+
+        <FormGroup>
           <ControlLabel>Username</ControlLabel>
           <FormControl
             type="text"

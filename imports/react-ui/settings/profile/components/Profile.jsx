@@ -31,6 +31,7 @@ class Profile extends React.Component {
       {
         avatar: document.getElementById('avatar').value,
         fullName: document.getElementById('fullName').value,
+        position: document.getElementById('position').value,
         username: document.getElementById('username').value,
         email: document.getElementById('email').value,
         twitterUsername: document.getElementById('twitterUsername').value,
