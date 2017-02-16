@@ -21,8 +21,6 @@ class Attachment extends React.Component {
       );
     }
 
-    console.log(attachment);
-
     const fileExtension = attachment.url.split('.').pop();
 
     let filePreview;

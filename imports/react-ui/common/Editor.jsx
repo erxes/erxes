@@ -226,8 +226,8 @@ export class ErxesEditor extends React.Component {
             spellCheck
           />
 
-          {this.props.pluginContent}
         </div>
+        {this.props.pluginContent}
       </div>
     );
   }
