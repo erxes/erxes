@@ -14,7 +14,7 @@ import { Brands } from '/imports/api/brands/brands';
 import SelectBrand from './SelectBrand.jsx';
 
 
-class Chat extends Component {
+class CommonCreateUpdate extends Component {
   static getInstallCode(brandCode) {
     return `
       <script>
@@ -41,7 +41,7 @@ class Chat extends Component {
     // showed install code automatically in edit mode
     if (props.integration) {
       const brand = Brands.findOne(props.integration.brandId);
-      code = Chat.getInstallCode(brand.code);
+      code = CommonCreateUpdate.getInstallCode(brand.code);
     }
 
     this.state = {
@@ -56,7 +56,7 @@ class Chat extends Component {
   updateInstallCodeValue(brandId) {
     if (brandId) {
       const brand = Brands.findOne(brandId);
-      const code = Chat.getInstallCode(brand.code);
+      const code = CommonCreateUpdate.getInstallCode(brand.code);
 
       this.setState({ code, copied: false });
     }
@@ -126,14 +126,14 @@ class Chat extends Component {
   }
 }
 
-Chat.propTypes = {
+CommonCreateUpdate.propTypes = {
   brands: PropTypes.array.isRequired, // eslint-disable-line react/forbid-prop-types
-  save: PropTypes.func.isRequired,
   integration: PropTypes.object, // eslint-disable-line react/forbid-prop-types
+  save: PropTypes.func.isRequired,
 };
 
-Chat.contextTypes = {
+CommonCreateUpdate.contextTypes = {
   closeModal: PropTypes.func.isRequired,
 };
 
-export default Chat;
+export default CommonCreateUpdate;

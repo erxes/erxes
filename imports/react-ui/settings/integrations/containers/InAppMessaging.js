@@ -1,6 +1,6 @@
 import { composeWithTracker } from 'react-komposer';
 import { Spinner } from '/imports/react-ui/common';
-import { InAppMessaging } from '../components';
+import { Common } from '../components';
 import composer from './commonComposer';
 
 export default composeWithTracker(
@@ -9,4 +9,4 @@ export default composeWithTracker(
     editMethodName: 'editInAppMessaging',
   }),
   Spinner,
-)(InAppMessaging);
+)(Common);
