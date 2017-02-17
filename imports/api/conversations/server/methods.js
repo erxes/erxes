@@ -8,8 +8,8 @@ import { ErxesMixin } from '/imports/api/utils';
 import { tagObject } from '/imports/api/tags/server/api';
 import { sendNotification, sendEmail } from '/imports/api/server/utils';
 import { KIND_CHOICES } from '/imports/api/integrations/constants';
-import { tweetReply } from '/imports/api/integrations/server/social_api/twitter';
-import { facebookReply } from '/imports/api/integrations/server/social_api/facebook';
+import { tweetReply } from '/imports/api/integrations/social/server/twitter';
+import { facebookReply } from '/imports/api/integrations/social/server/facebook';
 import { Messages, FormSchema } from '/imports/api/conversations/messages';
 import {
   Conversations,

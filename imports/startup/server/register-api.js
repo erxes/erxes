@@ -17,7 +17,7 @@ import '/imports/api/channels/methods';
 
 import '/imports/api/integrations/server/publications';
 import '/imports/api/integrations/server/methods';
-import '/imports/api/integrations/server/social_api';
+import '/imports/api/integrations/social/server';
 
 import '/imports/api/conversations/server/publications';
 import '/imports/api/conversations/server/methods';

@@ -7,6 +7,7 @@ import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 import { Factory } from 'meteor/dburles:factory';
 import { Brands } from '/imports/api/brands/brands';
 import { Channels } from '/imports/api/channels/channels';
+import { facebookSchema, twitterSchema } from './social/social';
 import { KIND_CHOICES } from './constants';
 
 class IntegrationCollections extends Mongo.Collection {}
@@ -20,31 +21,6 @@ Integrations.deny({
   remove() { return true; },
 });
 
-// twitter schemas ==============
-const twitterSchema = new SimpleSchema({
-  id: {
-    type: Number,
-  },
-
-  token: {
-    type: String,
-  },
-
-  tokenSecret: {
-    type: String,
-  },
-});
-
-// facebook schemas ==============
-const facebookSchema = new SimpleSchema({
-  appId: {
-    type: String,
-  },
-
-  pageIds: {
-    type: [String],
-  },
-});
 
 Integrations.schema = new SimpleSchema({
   // in app messaging, twitter ...
