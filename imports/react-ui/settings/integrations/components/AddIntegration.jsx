@@ -4,7 +4,7 @@ import { FlowRouter } from 'meteor/kadira:flow-router';
 import { Wrapper } from '/imports/react-ui/layout/components';
 import { ModalTrigger } from '/imports/react-ui/common';
 import Sidebar from '../../Sidebar.jsx';
-import { InAppMessaging, Chat, Facebook } from '../containers';
+import { InAppMessaging, Chat, Facebook, Form } from '../containers';
 
 
 function AddIntegration() {
@@ -17,6 +17,12 @@ function AddIntegration() {
   const triggerChat = (
     <Button>
       <i className="ion-chatbubbles" /> Add chat
+    </Button>
+  );
+
+  const triggerForm = (
+    <Button>
+      <i className="ion-chatbubbles" /> Add form
     </Button>
   );
 
@@ -40,6 +46,13 @@ function AddIntegration() {
         <h2>Chat</h2>
         <ModalTrigger title="Add chat" trigger={triggerChat}>
           <Chat />
+        </ModalTrigger>
+      </div>
+
+      <div className="box">
+        <h2>Form</h2>
+        <ModalTrigger title="Add form" trigger={triggerForm}>
+          <Form />
         </ModalTrigger>
       </div>
 
