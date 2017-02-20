@@ -13,9 +13,11 @@ function TwitterSection({ customer }) {
     return null;
   }
 
+  const { Title } = Wrapper.Sidebar.Section;
+
   return (
     <Wrapper.Sidebar.Section>
-      <h3>Twitter</h3>
+      <Title>Twitter</Title>
       <ul className="filters no-link">
         <li>
           Name

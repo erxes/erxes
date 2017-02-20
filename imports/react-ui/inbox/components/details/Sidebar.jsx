@@ -4,8 +4,8 @@ import { Button, Collapse } from 'react-bootstrap';
 import Alert from 'meteor/erxes-notifier';
 import { Wrapper } from '/imports/react-ui/layout/components';
 import { NameCard, EmptyState, Tagger } from '/imports/react-ui/common';
-import { AssignBox } from '../../containers';
 import { CONVERSATION_STATUSES } from '/imports/api/conversations/constants';
+import { AssignBox } from '../../containers';
 
 
 const propTypes = {
@@ -80,7 +80,7 @@ class Sidebar extends Component {
         <li>
           Facebook URL
           <span className="counter">
-            <a target="_blank" href={link}>[view]</a>
+            <a target="_blank" href={link} rel="noopener noreferrer">[view]</a>
           </span>
         </li>
       );
@@ -92,13 +92,14 @@ class Sidebar extends Component {
   render() {
     const { conversation, messagesCount } = this.props;
     const integration = conversation.integration();
+    const { Title, QuickButtons } = Wrapper.Sidebar.Section;
 
     return (
       <Wrapper.Sidebar>
         {this.renderStatusButton()}
 
         <Wrapper.Sidebar.Section>
-          <h3>Details</h3>
+          <Title>Details</Title>
           <ul className="filters no-link">
             <li>
               Opened
@@ -133,10 +134,11 @@ class Sidebar extends Component {
         </Wrapper.Sidebar.Section>
 
         <Wrapper.Sidebar.Section>
-          <h3>
-            Assigned to
+          <Title>Assigned to</Title>
+
+          <QuickButtons>
             <a
-              href="#"
+              tabIndex={0}
               className="quick-button"
               onClick={(e) => {
                 e.preventDefault();
@@ -146,7 +148,7 @@ class Sidebar extends Component {
             >
               <i className="ion-gear-a" />
             </a>
-          </h3>
+          </QuickButtons>
 
           <Collapse in={this.state.isAssignerVisible}>
             <div>
@@ -173,12 +175,12 @@ class Sidebar extends Component {
         </Wrapper.Sidebar.Section>
 
         <Wrapper.Sidebar.Section>
-          <h3>Participators</h3>
+          <Title>Participators</Title>
           <ul className="filters no-link">
-            {conversation.participatedUsers().map((user) =>
+            {conversation.participatedUsers().map(user =>
               <li key={user._id}>
                 <NameCard user={user} avatarSize={45} />
-              </li>
+              </li>,
             )}
             {
               conversation.participatedUsers().length === 0 ?
@@ -193,10 +195,11 @@ class Sidebar extends Component {
         </Wrapper.Sidebar.Section>
 
         <Wrapper.Sidebar.Section>
-          <h3>
-            Tags
+          <Title>Tags</Title>
+
+          <QuickButtons>
             <a
-              href="#"
+              tabIndex={0}
               className="quick-button"
               onClick={(e) => {
                 e.preventDefault();
@@ -206,7 +209,7 @@ class Sidebar extends Component {
             >
               <i className="ion-gear-a" />
             </a>
-          </h3>
+          </QuickButtons>
 
           <Collapse in={this.state.isTaggerVisible}>
             <div>
@@ -220,11 +223,11 @@ class Sidebar extends Component {
           </Collapse>
 
           <ul className="filters no-link">
-            {conversation.tags().map((tag) =>
+            {conversation.tags().map(tag =>
               <li key={tag._id}>
                 <i className="icon ion-pricetag" style={{ color: tag.colorCode }} />
                 {tag.name}
-              </li>
+              </li>,
             )}
             {
               conversation.tags().length === 0 ?

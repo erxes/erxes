@@ -10,6 +10,7 @@ import './inbox/routes.jsx';
 import './engage/routes.jsx';
 import './home/routes.jsx';
 import './tags/routes.jsx';
+import './segments/routes.jsx';
 import './settings/routes.jsx';
 import './settings/brands/routes.jsx';
 import './settings/integrations/routes.jsx';

@@ -47,19 +47,21 @@ class TaggerSection extends Component {
   render() {
     const { customer } = this.props;
     const tags = customer.getTags();
+    const { Title, QuickButtons } = Wrapper.Sidebar.Section;
 
     return (
       <Wrapper.Sidebar.Section>
-        <h3>
-          Tags
+        <Title>Tags</Title>
+
+        <QuickButtons>
           <a
-            href="#"
+            tabIndex={0}
             className="quick-button"
             onClick={this.toggleTagger}
           >
             <i className="ion-gear-a" />
           </a>
-        </h3>
+        </QuickButtons>
 
         <Collapse in={this.state.isTaggerVisible}>
           <div>

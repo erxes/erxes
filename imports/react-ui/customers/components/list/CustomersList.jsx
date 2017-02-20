@@ -3,12 +3,13 @@ import { Table } from 'react-bootstrap';
 import { Counts } from 'meteor/tmeasday:publish-counts';
 import { Wrapper } from '/imports/react-ui/layout/components';
 import { Pagination } from '/imports/react-ui/common';
-import Sidebar from './Sidebar.jsx';
+import Sidebar from './sidebar/Sidebar.jsx';
 import CustomerRow from './CustomerRow.jsx';
 
 
 const propTypes = {
   customers: PropTypes.array.isRequired,
+  segments: PropTypes.array.isRequired,
   brands: PropTypes.array.isRequired,
   integrations: PropTypes.array.isRequired,
   tags: PropTypes.array.isRequired,
@@ -16,7 +17,7 @@ const propTypes = {
   hasMore: PropTypes.bool.isRequired,
 };
 
-function CustomersList({ customers, brands, integrations, tags, loadMore, hasMore }) {
+function CustomersList({ customers, segments, brands, integrations, tags, loadMore, hasMore }) {
   const content = (
     <Pagination hasMore={hasMore} loadMore={loadMore}>
       <Table>
@@ -50,6 +51,7 @@ function CustomersList({ customers, brands, integrations, tags, loadMore, hasMor
         header={<Wrapper.Header breadcrumb={breadcrumb} />}
         leftSidebar={
           <Sidebar
+            segments={segments}
             brands={brands}
             integrations={integrations}
             tags={tags}

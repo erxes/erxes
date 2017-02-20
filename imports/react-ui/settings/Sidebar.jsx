@@ -4,10 +4,12 @@ import { Wrapper } from '/imports/react-ui/layout/components';
 
 
 function Sidebar() {
+  const { Title, QuickButtons } = Wrapper.Sidebar.Section;
+
   return (
     <Wrapper.Sidebar>
       <Wrapper.Sidebar.Section>
-        <h3>Account settings</h3>
+        <Title>Account settings</Title>
         <ul className="filters">
           <li>
             <a href={FlowRouter.path('settings/channels/list')}>
@@ -37,12 +39,12 @@ function Sidebar() {
         </ul>
       </Wrapper.Sidebar.Section>
       <Wrapper.Sidebar.Section>
-        <h3>
-          Integrations
+        <Title>Integrations</Title>
+        <QuickButtons>
           <a href={FlowRouter.path('settings/integrations/list')} className="quick-button">
             All
           </a>
-        </h3>
+        </QuickButtons>
         <ul className="filters">
           <li>
             <a href={'/settings/integrations?kind=in_app_messaging'}>
@@ -67,7 +69,7 @@ function Sidebar() {
         </ul>
       </Wrapper.Sidebar.Section>
       <Wrapper.Sidebar.Section>
-        <h3>Personal settings</h3>
+        <Title>Personal settings</Title>
         <ul className="filters">
           <li>
             <a href={FlowRouter.path('/settings/profile')}>

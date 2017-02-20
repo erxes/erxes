@@ -52,10 +52,12 @@ function RightSidebar({ conversation }) {
     return null;
   };
 
+  const { Title } = Wrapper.Sidebar.Section;
+
   return (
     <Wrapper.Sidebar size="wide">
       <Wrapper.Sidebar.Section>
-        <h3>Customer details</h3>
+        <Title>Customer details</Title>
         <ul className="filters no-link">
           <li>
             <NameCard customer={customer} avatarSize={50} />

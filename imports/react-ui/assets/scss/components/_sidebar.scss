@@ -28,6 +28,7 @@
     border-radius: $border-radius;
     margin-bottom: $box-margin;
     padding-bottom: 20px;
+    position: relative;
 
 
     &.collapsible {
@@ -69,21 +70,6 @@
     text-transform: uppercase;
     padding: 20px;
     margin: 0;
-
-    .quick-button {
-      float: right;
-      color: $text-color-light;
-      text-transform: none;
-      cursor: pointer;
-
-      &:hover {
-        color: $text-color;
-      }
-
-      i {
-        font-size: 14px;
-      }
-    }
   }
 
   .filters {
@@ -156,6 +142,29 @@
       button:first-child {
         flex: 1;
       }
+    }
+  }
+}
+
+.section-quick-buttons {
+  position: absolute;
+  right: 20px;
+  top: 16px;
+
+  .quick-button {
+    float: left;
+    color: $text-color-light;
+    text-transform: none;
+    cursor: pointer;
+    margin-left: 8px;
+    font-size: 12px;
+
+    &:hover {
+      color: $text-color;
+    }
+
+    i {
+      font-size: 14px;
     }
   }
 }

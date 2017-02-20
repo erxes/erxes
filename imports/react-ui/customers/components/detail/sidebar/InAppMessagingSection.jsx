@@ -15,9 +15,11 @@ function InAppMessagingSection({ customer }) {
     return null;
   }
 
+  const { Title } = Wrapper.Sidebar.Section;
+
   return (
     <Wrapper.Sidebar.Section>
-      <h3>In app messaging</h3>
+      <Title>In app messaging</Title>
       <ul className="filters no-link">
         <li>
           Status

@@ -11,6 +11,7 @@ import { TAG_TYPES } from '/imports/api/tags/constants';
 import { Conversations } from '/imports/api/conversations/conversations';
 import { Brands } from '/imports/api/brands/brands';
 import { Customers } from '../customers';
+import Segments from '../segments';
 
 
 Meteor.publishComposite('customers.list', function customersList(queryString) {
@@ -22,6 +23,7 @@ Meteor.publishComposite('customers.list', function customersList(queryString) {
         tag: Match.Optional(String),
         limit: Match.Optional(Number),
         page: Match.Optional(String),
+        segment: Match.Optional(String),
       });
 
       if (!this.userId) {
@@ -29,6 +31,65 @@ Meteor.publishComposite('customers.list', function customersList(queryString) {
       }
 
       const selector = {};
+
+      // Filter by segments
+      if (queryString.segment) {
+        const segment = Segments.findOne(queryString.segment);
+        const query = {};
+        const anyOfConditions = segment.connector === 'any';
+
+        if (anyOfConditions) {
+          query.$or = [];
+        }
+
+        segment.conditions.forEach(({ field, operator, value }) => {
+          let op;
+          const transformedValue = operator.type === 'string' ? value.toLowerCase() : value;
+
+          switch (operator) {
+            case 'e':
+            case 'et':
+            default:
+              op = transformedValue;
+              break;
+            case 'dne':
+              op = { $ne: transformedValue };
+              break;
+            case 'c':
+              op = { $regex: `.*${transformedValue}.*` };
+              break;
+            case 'dnc':
+              op = { $not: `.*${transformedValue}.*` };
+              break;
+            case 'igt':
+              op = { $gt: transformedValue };
+              break;
+            case 'ilt':
+              op = { $lt: transformedValue };
+              break;
+            case 'it':
+              op = true;
+              break;
+            case 'if':
+              op = false;
+              break;
+            case 'is':
+              op = { $exits: true };
+              break;
+            case 'ins':
+              op = { $exits: false };
+              break;
+          }
+
+          if (anyOfConditions) {
+            query.$or.push({ [field]: op });
+          } else {
+            query[field] = op;
+          }
+        });
+
+        Object.assign(selector, query);
+      }
 
       // filter by brand
       if (queryString.brand) {
@@ -62,6 +123,8 @@ Meteor.publishComposite('customers.list', function customersList(queryString) {
       if (queryString.tag) {
         selector.tagIds = queryString.tag;
       }
+
+      console.log(JSON.stringify(selector));
 
       const countCustomers = (name, query) => {
         Meteor.defer(() => {
@@ -159,5 +222,29 @@ Meteor.publishComposite('customers.details', function customersDetails(id) {
         ],
       },
     ],
+  };
+});
+
+Meteor.publishComposite('customers.segments', {
+  find() {
+    if (!this.userId) {
+      return this.ready();
+    }
+
+    return Segments.find({});
+  },
+});
+
+Meteor.publishComposite('customers.segmentById', function segmentById(id) {
+  return {
+    find() {
+      check(id, String);
+
+      if (!this.userId) {
+        return this.ready();
+      }
+
+      return Segments.find(id);
+    },
   };
 });

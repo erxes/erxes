@@ -3,6 +3,7 @@
 
 import React, { PropTypes } from 'react';
 import { Counts } from 'meteor/tmeasday:publish-counts';
+import { FlowRouter } from 'meteor/kadira:flow-router';
 import { EmptyState } from '/imports/react-ui/common';
 import { Wrapper } from '/imports/react-ui/layout/components';
 import { CONVERSATION_STATUSES } from '/imports/api/conversations/constants';
@@ -132,19 +133,21 @@ class Sidebar extends React.Component {
     );
   }
 
-
-  static renderSectionHeader(text, queryParamName) {
+  static renderSectionHeader(queryParamName) {
     const onClick = () => {
       Wrapper.Sidebar.filter(queryParamName, '');
     };
 
     return (
-      <h3>
-        {text}
-        <a href="" className="quick-button" onClick={onClick}>
-          Clear
-        </a>
-      </h3>
+      <Wrapper.Sidebar.Section.QuickButtons>
+        {
+          FlowRouter.getQueryParam(queryParamName)
+            ? <a href="" className="quick-button" onClick={onClick}>
+              <i className="ion-close-circled" />
+            </a>
+            : null
+        }
+      </Wrapper.Sidebar.Section.QuickButtons>
     );
   }
 
@@ -165,11 +168,13 @@ class Sidebar extends React.Component {
   render() {
     const { channels, tags, brands } = this.props;
     const integrationTypes = INTEGRATIONS_TYPES.ALL_LIST;
+    const { Title, QuickButtons } = Wrapper.Sidebar.Section;
 
     return (
       <Wrapper.Sidebar>
         <Wrapper.Sidebar.Section collapsible={channels.length > 5}>
-          {Sidebar.renderSectionHeader('Channels', 'channelId')}
+          <Title>Channels</Title>
+          {Sidebar.renderSectionHeader('channelId')}
           <ul className="filters">
             {channels.map(channel => Sidebar.renderChannel(channel))}
             {Sidebar.renderEmptyState(channels, 'No channel', 'icon-pound')}
@@ -177,7 +182,8 @@ class Sidebar extends React.Component {
         </Wrapper.Sidebar.Section>
 
         <Wrapper.Sidebar.Section collapsible={brands.length > 5}>
-          {Sidebar.renderSectionHeader('Brands', 'brandId')}
+          <Title>Brands</Title>
+          {Sidebar.renderSectionHeader('brandId')}
           <ul className="filters">
             {brands.map(brand => Sidebar.renderBrand(brand))}
             {Sidebar.renderEmptyState(brands, 'No brand', 'icon-flag')}
@@ -185,7 +191,8 @@ class Sidebar extends React.Component {
         </Wrapper.Sidebar.Section>
 
         <Wrapper.Sidebar.Section collapsible={integrationTypes.length > 5}>
-          {Sidebar.renderSectionHeader('Integrations', 'integrationType')}
+          <Title>Integrations</Title>
+          {Sidebar.renderSectionHeader('integrationType')}
           <ul className="filters">
             {integrationTypes.map((t, i) => Sidebar.renderIntegration(t, i))}
             {Sidebar.renderEmptyState(integrationTypes, 'No integration', 'icon-flag')}
@@ -193,12 +200,12 @@ class Sidebar extends React.Component {
         </Wrapper.Sidebar.Section>
 
         <Wrapper.Sidebar.Section>
-          <h3>
-            Filter by status
-            <a onClick={Sidebar.clearStatusFilter} className="quick-button">
-              Clear
+          <Title>Filter by status</Title>
+          <QuickButtons>
+            <a href="" className="quick-button" onClick={Sidebar.clearStatusFilter}>
+              <i className="ion-close-circled" />
             </a>
-          </h3>
+          </QuickButtons>
           <ul className="filters">
             {Sidebar.renderSingleFilter(
               'unassigned', 'true', 'unassiged', 'Unassigned')}
@@ -215,7 +222,8 @@ class Sidebar extends React.Component {
         </Wrapper.Sidebar.Section>
 
         <Wrapper.Sidebar.Section collapsible={tags.length > 5}>
-          {Sidebar.renderSectionHeader('Filter by tags', 'tagId')}
+          <Title>Filter by tags</Title>
+          {Sidebar.renderSectionHeader('tagId')}
 
           <ul className="filters">
             {tags.map(tag => Sidebar.renderTag(tag))}
