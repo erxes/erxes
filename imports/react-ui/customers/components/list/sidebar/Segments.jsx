@@ -54,6 +54,7 @@ function Segments({ segments }) {
                 className={getActiveClass('segment', segment._id)}
                 onClick={() => { filter('segment', segment._id); }}
               >
+                <i className="ion-pie-graph icon" style={{ color: segment.color }} />
                 {segment.name}
                 <span className="counter">
                   {Counts.get(`customers.segment.${segment._id}`)}
