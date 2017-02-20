@@ -1,17 +1,16 @@
 .paginate-wrapper {
-  flex: 1;
-  display: flex;
-  height: 100%;
-  flex-direction: column;
+  display: table;
+  min-height: 100%;
+  width: 100%;
 
   .paginate-button {
     text-align: center;
-    margin-top: auto;
+    display: table-footer-group;
 
-    >.btn {
+    > .btn {
       width: 100%;
-      border: none;
-      border-top: 1px solid #ddd;
+      border: 0;
+      border-top: 1px solid $gray-lighter;
       text-transform: uppercase;
       font-size: 12px;
       font-weight: 400;

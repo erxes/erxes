@@ -8,6 +8,7 @@
 
   &.medium {
     width: $sidebar-width-medium;
+    flex-shrink: 0;
   }
 
   &.wide {
