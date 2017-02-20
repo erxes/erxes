@@ -20,16 +20,16 @@ const propTypes = {
 function CustomersList({ customers, segments, brands, integrations, tags, loadMore, hasMore }) {
   const content = (
     <Pagination hasMore={hasMore} loadMore={loadMore}>
-      <Table>
+      <Table className="no-wrap">
         <thead>
           <tr>
+            <th className="less-space" />
             <th>Name</th>
             <th>Email</th>
             <th>Brand</th>
             <th>Integration</th>
             <th>Last online</th>
             <th>Session count</th>
-            <th>Status</th>
           </tr>
         </thead>
         <tbody>
