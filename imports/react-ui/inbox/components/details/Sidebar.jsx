@@ -4,8 +4,8 @@ import { Button, Collapse } from 'react-bootstrap';
 import Alert from 'meteor/erxes-notifier';
 import { Wrapper } from '/imports/react-ui/layout/components';
 import { NameCard, EmptyState, Tagger } from '/imports/react-ui/common';
-import { AssignBox } from '../../containers';
 import { CONVERSATION_STATUSES } from '/imports/api/conversations/constants';
+import { AssignBox } from '../../containers';
 
 
 const propTypes = {
@@ -80,7 +80,7 @@ class Sidebar extends Component {
         <li>
           Facebook URL
           <span className="counter">
-            <a target="_blank" href={link}>[view]</a>
+            <a target="_blank" href={link} rel="noopener noreferrer">[view]</a>
           </span>
         </li>
       );
@@ -136,7 +136,7 @@ class Sidebar extends Component {
           <h3>
             Assigned to
             <a
-              href="#"
+              tabIndex={0}
               className="quick-button"
               onClick={(e) => {
                 e.preventDefault();
@@ -175,10 +175,10 @@ class Sidebar extends Component {
         <Wrapper.Sidebar.Section>
           <h3>Participators</h3>
           <ul className="filters no-link">
-            {conversation.participatedUsers().map((user) =>
+            {conversation.participatedUsers().map(user =>
               <li key={user._id}>
                 <NameCard user={user} avatarSize={45} />
-              </li>
+              </li>,
             )}
             {
               conversation.participatedUsers().length === 0 ?
@@ -196,7 +196,7 @@ class Sidebar extends Component {
           <h3>
             Tags
             <a
-              href="#"
+              tabIndex={0}
               className="quick-button"
               onClick={(e) => {
                 e.preventDefault();
@@ -220,11 +220,11 @@ class Sidebar extends Component {
           </Collapse>
 
           <ul className="filters no-link">
-            {conversation.tags().map((tag) =>
+            {conversation.tags().map(tag =>
               <li key={tag._id}>
                 <i className="icon ion-pricetag" style={{ color: tag.colorCode }} />
                 {tag.name}
-              </li>
+              </li>,
             )}
             {
               conversation.tags().length === 0 ?
