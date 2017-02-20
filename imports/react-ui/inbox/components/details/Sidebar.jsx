@@ -92,13 +92,14 @@ class Sidebar extends Component {
   render() {
     const { conversation, messagesCount } = this.props;
     const integration = conversation.integration();
+    const { Title, QuickButtons } = Wrapper.Sidebar.Section;
 
     return (
       <Wrapper.Sidebar>
         {this.renderStatusButton()}
 
         <Wrapper.Sidebar.Section>
-          <h3>Details</h3>
+          <Title>Details</Title>
           <ul className="filters no-link">
             <li>
               Opened
@@ -133,8 +134,9 @@ class Sidebar extends Component {
         </Wrapper.Sidebar.Section>
 
         <Wrapper.Sidebar.Section>
-          <h3>
-            Assigned to
+          <Title>Assigned to</Title>
+
+          <QuickButtons>
             <a
               tabIndex={0}
               className="quick-button"
@@ -146,7 +148,7 @@ class Sidebar extends Component {
             >
               <i className="ion-gear-a" />
             </a>
-          </h3>
+          </QuickButtons>
 
           <Collapse in={this.state.isAssignerVisible}>
             <div>
@@ -173,7 +175,7 @@ class Sidebar extends Component {
         </Wrapper.Sidebar.Section>
 
         <Wrapper.Sidebar.Section>
-          <h3>Participators</h3>
+          <Title>Participators</Title>
           <ul className="filters no-link">
             {conversation.participatedUsers().map(user =>
               <li key={user._id}>
@@ -193,8 +195,9 @@ class Sidebar extends Component {
         </Wrapper.Sidebar.Section>
 
         <Wrapper.Sidebar.Section>
-          <h3>
-            Tags
+          <Title>Tags</Title>
+
+          <QuickButtons>
             <a
               tabIndex={0}
               className="quick-button"
@@ -206,7 +209,7 @@ class Sidebar extends Component {
             >
               <i className="ion-gear-a" />
             </a>
-          </h3>
+          </QuickButtons>
 
           <Collapse in={this.state.isTaggerVisible}>
             <div>

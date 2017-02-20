@@ -13,9 +13,11 @@ function FacebookSection({ customer }) {
     return null;
   }
 
+  const { Title } = Wrapper.Sidebar.Section;
+
   return (
     <Wrapper.Sidebar.Section>
-      <h3>Facebook</h3>
+      <Title>Facebook</Title>
       <ul className="filters no-link">
         <li>
           ID

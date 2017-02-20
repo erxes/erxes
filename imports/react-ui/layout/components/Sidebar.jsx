@@ -60,6 +60,29 @@ class Section extends Component {
   }
 }
 
+function Title({ children }) {
+  return (
+    <h3>{children}</h3>
+  );
+}
+Title.propTypes = {
+  children: PropTypes.node.isRequired,
+};
+
+function QuickButtons({ children }) {
+  return (
+    <div className="section-quick-buttons">
+      {children}
+    </div>
+  );
+}
+QuickButtons.propTypes = {
+  children: PropTypes.node,
+};
+
+Section.Title = Title;
+Section.QuickButtons = QuickButtons;
+
 Section.propTypes = {
   children: PropTypes.node,
   collapsible: PropTypes.bool,
