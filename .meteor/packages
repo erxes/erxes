@@ -32,7 +32,7 @@ stub-collections
 reywood:publish-composite
 dburles:collection-helpers
 percolate:synced-cron
-fourseven:scss
+fourseven:scss@4.5.0
 practicalmeteor:chai
 alanning:roles
 shell-server@0.2.1
@@ -40,4 +40,4 @@ erxes-notifier
 erxes-notifications
 meteorhacks:picker
 dispatch:mocha
-johanbrook:publication-collector@=1.0.4
+johanbrook:publication-collector@1.0.6
