@@ -14,6 +14,7 @@
   "rules": {
     "no-underscore-dangle": ["error", { "allow": ["_id"] }],
     "import/no-absolute-path": 0,
+    "no-confusing-arrow": 0,
 
     // use temporarily these rules because meteor packages can't be resolved
     "import/extensions": 0,
