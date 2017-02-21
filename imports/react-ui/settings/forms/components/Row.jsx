@@ -53,6 +53,12 @@ class Row extends Component {
               <Form form={this.props.form} />
             </ModalTrigger>
 
+            <Tip text="Manage Fields">
+              <a href={`/settings/forms/manage-fields/${form._id}`}>
+                <i className="ion-navicon-round" />
+              </a>
+            </Tip>
+
             <Tip text="Delete">
               <Button bsStyle="link" onClick={this.removeForm}>
                 <i className="ion-close-circled" />

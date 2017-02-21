@@ -5,7 +5,7 @@ import { _ } from 'meteor/underscore';
 import { check } from 'meteor/check';
 import { ValidatedMethod } from 'meteor/mdg:validated-method';
 import { ErxesMixin } from '/imports/api/utils';
-import { Forms, Collections, Schemas } from './forms';
+import { Forms, Fields, Collections, Schemas } from './forms';
 
 export const add = new ValidatedMethod({
   name: 'forms.add',
@@ -53,19 +53,24 @@ export const remove = new ValidatedMethod({
   },
 });
 
+/* ----------------------- fields ----------------------- */
 
-Meteor.methods({
-  /* ----------------------- fields ----------------------- */
+// add field
+export const addField = new ValidatedMethod({
+  name: 'forms.addField',
+  mixins: [ErxesMixin],
 
-  'forms.createField': (formId, doc) => {
+  validate({ formId, doc }) {
     check(formId, String);
-    check(doc, Schemas.Field);
+    check(doc, Fields.schema);
+  },
 
+  run({ formId, doc }) {
     // set form id
     doc.formId = formId;
 
     // find last field by order
-    const lastField = Collections.Fields.findOne(
+    const lastField = Fields.findOne(
       {},
       { fields: { order: 1 }, sort: { order: -1 } },
     );
@@ -80,9 +85,11 @@ Meteor.methods({
     doc.order = order;
 
     // insert field
-    return Collections.Fields.insert(doc);
+    return Fields.insert(doc);
   },
+});
 
+Meteor.methods({
   'forms.updateField': (formId, fieldId, doc) => {
     check(formId, String);
     check(fieldId, String);

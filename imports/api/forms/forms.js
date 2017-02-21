@@ -45,6 +45,7 @@ Fields.schema = new SimpleSchema({
 
   text: {
     type: String,
+    optional: true,
   },
 
   name: {
