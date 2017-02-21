@@ -54,7 +54,7 @@ function Tags({ tags }) {
                 className={getActiveClass('tag', tag._id)}
                 onClick={() => { filter('tag', tag._id); }}
               >
-                <i className="fa fa-tag icon" style={{ color: tag.colorCode }} />
+                <i className="ion-pricetag icon" style={{ color: tag.colorCode }} />
                 {tag.name}
                 <span className="counter">
                   {Counts.get(`customers.tag.${tag._id}`)}
