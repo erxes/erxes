@@ -26,5 +26,8 @@ import '/imports/api/conversations/server/cronJobs';
 import '/imports/api/tags/server/publications';
 import '/imports/api/tags/methods';
 
+import '/imports/api/forms/server/publications';
+import '/imports/api/forms/methods';
+
 import '/imports/api/responseTemplates/server/publications';
 import '/imports/api/responseTemplates/methods';
