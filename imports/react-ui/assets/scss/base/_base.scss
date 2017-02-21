@@ -33,7 +33,7 @@ body {
     > div:not(.wrapper-loader) {
       display: flex;
       flex: 1;
-      width: 100%;
+      max-width: 100%;
       padding-left: 70px;
       margin-left: -70px;
     }

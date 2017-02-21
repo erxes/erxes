@@ -50,7 +50,7 @@ class Tagger extends Component {
       return {
         _id,
         title: name,
-        image: <i className="icon ion-pricetags" style={{ color: colorCode }} />,
+        image: <i className="icon ion-pricetag" style={{ color: colorCode }} />,
         selectedBy: state,
       };
     });

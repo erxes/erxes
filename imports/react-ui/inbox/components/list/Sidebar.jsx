@@ -91,7 +91,7 @@ class Sidebar extends React.Component {
           onClick={onClick}
         >
 
-          <i className="fa fa-tag icon" style={{ color: tag.colorCode }} />
+          <i className="ion-pricetag icon" style={{ color: tag.colorCode }} />
           {tag.name}
           <span className="counter">
             {Counts.get(`conversations.counts.byTag${tag._id}`)}
