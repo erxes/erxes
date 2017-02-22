@@ -3,7 +3,7 @@ export default {
     const query = {};
     const anyOfConditions = segment.connector === 'any';
 
-    if (anyOfConditions) {
+    if (anyOfConditions && segment.conditions.length) {
       query.$or = [];
     }
 
