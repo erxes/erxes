@@ -2,6 +2,7 @@ import { composeWithTracker } from 'react-komposer';
 import { Meteor } from 'meteor/meteor';
 import { createSegment, editSegment } from '/imports/api/customers/methods';
 import { Loader } from '/imports/react-ui/common';
+import { Customers } from '/imports/api/customers/customers';
 import Segments from '/imports/api/customers/segments';
 import { SegmentsForm } from '../components';
 
@@ -11,8 +12,28 @@ function composer(props, onData) {
     ? Meteor.subscribe('customers.segmentById', props.id).ready()
     : true;
 
+  const schema = Customers.simpleSchema().schema();
+  const fields = Object.keys(schema)
+    .filter((key) => {
+      // Accepts only below types of fields
+      const acceptedTypes = ['String', 'Number', 'Boolean', 'Date'];
+      const isAcceptedType = acceptedTypes.indexOf(schema[key].type.name) > -1;
+
+      // Exclude the fields which is used for internal use
+      const [parentFieldName] = key.split('.');
+      const notInternalUseField = Customers.internalUseFields.indexOf(parentFieldName) < 0;
+
+      return isAcceptedType && notInternalUseField;
+    })
+    .map(key => ({
+      _id: key,
+      title: schema[key].label || key,
+      selectedBy: 'none',
+    }));
+
   if (handle) {
     onData(null, {
+      fields,
       segment: Segments.findOne(props.id),
       create({ doc }, callback) {
         createSegment.call(doc, callback);
