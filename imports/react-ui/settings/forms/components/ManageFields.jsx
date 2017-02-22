@@ -12,12 +12,16 @@ const propTypes = {
   fields: PropTypes.array.isRequired,
 };
 
+const editingFieldDefaultValue = {
+  isRequired: false,
+};
+
 class ManageFields extends Component {
   constructor(props) {
     super(props);
 
     this.state = {
-      editingField: {},
+      editingField: editingFieldDefaultValue,
     };
 
     // attribute change events
@@ -25,6 +29,7 @@ class ManageFields extends Component {
     this.onChangeName = this.onChangeName.bind(this);
     this.onChangeText = this.onChangeText.bind(this);
     this.onChangeDescription = this.onChangeDescription.bind(this);
+    this.onChangeOptions = this.onChangeOptions.bind(this);
     this.onChangeIsRequired = this.onChangeIsRequired.bind(this);
 
     this.onSubmit = this.onSubmit.bind(this);
@@ -40,6 +45,7 @@ class ManageFields extends Component {
       name: editingField.name,
       text: editingField.text,
       description: editingField.text,
+      options: editingField.options,
       isRequired: editingField.isRequired,
     };
 
@@ -70,6 +76,10 @@ class ManageFields extends Component {
     this.setChanges('description', e.target.value);
   }
 
+  onChangeOptions(e) {
+    this.setChanges('options', e.target.value.split('\n'));
+  }
+
   onChangeIsRequired(e) {
     this.setChanges('isRequired', e.target.checked);
   }
@@ -83,8 +93,14 @@ class ManageFields extends Component {
     const _id = this.state.editingField._id;
 
     if (_id) {
+      // reset editing field state
+      const reset = () => {
+        this.setState({ editingField: editingFieldDefaultValue });
+      };
+
       const onDelete = () => {
         this.props.deleteField(_id);
+        reset();
       };
 
       return (
@@ -92,6 +108,11 @@ class ManageFields extends Component {
           <button type="button" className="btn btn-sm btn-danger" onClick={onDelete}>
             Delete
           </button>
+
+          <button type="button" className="btn btn-sm btn-primary" onClick={reset}>
+            Create new
+          </button>
+
           <button type="submit" className="btn btn-sm btn-success">
             Save changes
           </button>
@@ -108,7 +129,7 @@ class ManageFields extends Component {
     return (
       <form className="margined" onSubmit={this.onSubmit}>
         <p className="form-group">
-          <label className="control-label" htmlFor="type">Төрөл:</label>
+          <label className="control-label" htmlFor="type">Type:</label>
 
           <select
             id="type"
@@ -151,6 +172,17 @@ class ManageFields extends Component {
             className="form-control"
             value={editingField.description || ''}
             onChange={this.onChangeDescription}
+          />
+        </p>
+
+        <p className="form-group">
+          <label className="control-label" htmlFor="type">Options:</label>
+
+          <textarea
+            id="options"
+            className="form-control"
+            value={(editingField.options || []).join('\n')}
+            onChange={this.onChangeOptions}
           />
         </p>
 

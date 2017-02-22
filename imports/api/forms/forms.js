@@ -37,6 +37,12 @@ Fields.schema = new SimpleSchema({
     allowedValues: ['input', 'textarea', 'radio', 'check', 'select', 'divider'],
   },
 
+  name: {
+    type: String,
+    regEx: /^[a-z0-9A-Z]*$/,
+    max: 50,
+  },
+
   check: {
     type: String,
     optional: true,
@@ -46,13 +52,6 @@ Fields.schema = new SimpleSchema({
   text: {
     type: String,
     optional: true,
-  },
-
-  name: {
-    type: String,
-    optional: true,
-    regEx: /^[a-z0-9A-Z]*$/,
-    max: 50,
   },
 
   description: {
