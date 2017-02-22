@@ -12,6 +12,7 @@ import { Conversations } from '/imports/api/conversations/conversations';
 import { Brands } from '/imports/api/brands/brands';
 import { Customers } from '../customers';
 import Segments from '../segments';
+import QueryBuilder from './queryBuilder';
 
 
 Meteor.publishComposite('customers.list', function customersList(queryString) {
@@ -35,59 +36,7 @@ Meteor.publishComposite('customers.list', function customersList(queryString) {
       // Filter by segments
       if (queryString.segment) {
         const segment = Segments.findOne(queryString.segment);
-        const query = {};
-        const anyOfConditions = segment.connector === 'any';
-
-        if (anyOfConditions) {
-          query.$or = [];
-        }
-
-        segment.conditions.forEach(({ field, operator, value }) => {
-          let op;
-          const transformedValue = operator.type === 'string' ? value.toLowerCase() : value;
-
-          switch (operator) {
-            case 'e':
-            case 'et':
-            default:
-              op = transformedValue;
-              break;
-            case 'dne':
-              op = { $ne: transformedValue };
-              break;
-            case 'c':
-              op = { $regex: `.*${transformedValue}.*` };
-              break;
-            case 'dnc':
-              op = { $not: `.*${transformedValue}.*` };
-              break;
-            case 'igt':
-              op = { $gt: transformedValue };
-              break;
-            case 'ilt':
-              op = { $lt: transformedValue };
-              break;
-            case 'it':
-              op = true;
-              break;
-            case 'if':
-              op = false;
-              break;
-            case 'is':
-              op = { $exits: true };
-              break;
-            case 'ins':
-              op = { $exits: false };
-              break;
-          }
-
-          if (anyOfConditions) {
-            query.$or.push({ [field]: op });
-          } else {
-            query[field] = op;
-          }
-        });
-
+        const query = QueryBuilder.segments(segment);
         Object.assign(selector, query);
       }
 
@@ -124,8 +73,6 @@ Meteor.publishComposite('customers.list', function customersList(queryString) {
         selector.tagIds = queryString.tag;
       }
 
-      console.log(JSON.stringify(selector));
-
       const countCustomers = (name, query) => {
         Meteor.defer(() => {
           Counts.publish(
@@ -136,6 +83,11 @@ Meteor.publishComposite('customers.list', function customersList(queryString) {
           );
         });
       };
+
+      // Count customers by segments
+      Segments.find().fetch().forEach((segment) => {
+        countCustomers(`segment.${segment._id}`, QueryBuilder.segments(segment));
+      });
 
       // Count customers by brand
       Brands.find({}, { fields: { _id: 1 } }).fetch().forEach((brand) => {

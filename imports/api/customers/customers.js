@@ -197,6 +197,12 @@ Customers.publicFields = {
   tagIds: 1,
 };
 
+/**
+ * This fields list is used for not displaying
+ * internal use fields on customer segments form.
+ */
+Customers.internalUseFields = ['tagIds', 'integrationId'];
+
 Factory.define('customer', Customers, {
   email: () => faker.internet.email(),
   integrationId: () => Random.id(),

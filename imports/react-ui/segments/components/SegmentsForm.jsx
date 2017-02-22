@@ -12,25 +12,14 @@ import {
   Panel,
 } from 'react-bootstrap';
 import { FlowRouter } from 'meteor/kadira:flow-router';
-import { Customers } from '/imports/api/customers/customers';
 import { Wrapper } from '/imports/react-ui/layout/components';
 import Alert from 'meteor/erxes-notifier';
 import Conditions from './Conditions.jsx';
 import AddConditionButton from './AddConditionButton.jsx';
 
 
-const schema = Customers.simpleSchema().schema();
-const fields = Object.keys(schema).map((key) => {
-  const field = schema[key];
-  return {
-    _id: key,
-    title: field.label || key,
-    selectedBy: 'none',
-  };
-});
-
-
 const propTypes = {
+  fields: PropTypes.array.isRequired,
   create: PropTypes.func.isRequired,
   edit: PropTypes.func.isRequired,
   segment: PropTypes.object,
@@ -125,7 +114,7 @@ class SegmentsForm extends Component {
   }
 
   render() {
-    const { segment } = this.props;
+    const { fields, segment } = this.props;
 
     const breadcrumb = [
       { title: 'Segments', link: '/segments' },
