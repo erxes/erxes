@@ -1,10 +1,13 @@
+/* eslint-disable jsx-a11y/no-static-element-interactions */
+
 import React, { PropTypes } from 'react';
 
-export default class Field extends React.Component {
-  static renderSelect(options, attrs = {}) {
+export default class FieldPreview extends React.Component {
+  static renderSelect(options = [], attrs = {}) {
     return (
       <select
         {...attrs}
+        disabled
         className="form-control"
       >
 
@@ -19,6 +22,7 @@ export default class Field extends React.Component {
     return (
       <input
         {...attrs}
+        disabled
         className="form-control"
       />
     );
@@ -28,9 +32,20 @@ export default class Field extends React.Component {
     return (
       <textarea
         {...attrs}
+        disabled
         className="form-control"
       />
     );
+  }
+
+  constructor(props) {
+    super(props);
+
+    this.onClick = this.onClick.bind(this);
+  }
+
+  onClick() {
+    this.props.onClick(this.props.field);
   }
 
   renderControl() {
@@ -38,16 +53,16 @@ export default class Field extends React.Component {
 
     switch (field.type) {
       case 'select':
-        return Field.renderSelect(field.options);
+        return FieldPreview.renderSelect(field.options);
 
       case 'input':
-        return Field.renderInput({});
+        return FieldPreview.renderInput({});
 
       case 'textarea':
-        return Field.renderTextArea({});
+        return FieldPreview.renderTextarea({});
 
       default:
-        return Field.renderInput({ type: 'text' });
+        return FieldPreview.renderInput({ type: 'text' });
     }
   }
 
@@ -55,19 +70,18 @@ export default class Field extends React.Component {
     const { field } = this.props;
 
     return (
-      <div className="row">
-        <span className="control-label col-md-3">{field.text}: </span>
+      <div className="form-group field-preview" onClick={this.onClick}>
+        <label className="control-label" htmlFor={`prew-${field._id}`}>
+          {field.text}:
+        </label>
 
-        <div className="col-md-6">
-          {this.renderControl()}
-        </div>
-
-        <div className="clearfix" />
+        {this.renderControl()}
       </div>
     );
   }
 }
 
-Field.propTypes = {
+FieldPreview.propTypes = {
   field: PropTypes.object, // eslint-disable-line
+  onClick: PropTypes.func,
 };

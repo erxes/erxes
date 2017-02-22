@@ -5,7 +5,7 @@ import { _ } from 'meteor/underscore';
 import { check } from 'meteor/check';
 import { ValidatedMethod } from 'meteor/mdg:validated-method';
 import { ErxesMixin } from '/imports/api/utils';
-import { Forms, Fields, Collections, Schemas } from './forms';
+import { Forms, Fields, Collections } from './forms';
 
 export const add = new ValidatedMethod({
   name: 'forms.add',
@@ -89,19 +89,23 @@ export const addField = new ValidatedMethod({
   },
 });
 
-Meteor.methods({
-  'forms.updateField': (formId, fieldId, doc) => {
-    check(formId, String);
-    check(fieldId, String);
+// edit field
+export const editField = new ValidatedMethod({
+  name: 'forms.editField',
+  mixins: [ErxesMixin],
 
-    check(doc, Schemas.Field);
-
-    // update field
-    Collections.Fields.update(fieldId, doc);
-
-    return fieldId;
+  validate({ _id, doc }) {
+    check(_id, String);
+    check(doc, Fields.schema);
   },
 
+  run({ _id, doc }) {
+    // update field
+    return Fields.update({ _id }, { $set: doc });
+  },
+});
+
+Meteor.methods({
   'forms.deleteField': (docId) => {
     check(docId, String);
 
