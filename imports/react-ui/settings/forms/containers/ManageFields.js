@@ -6,6 +6,7 @@ import { Fields } from '/imports/api/forms/forms';
 import {
   addField as addFieldMethod,
   editField as editFieldMethod,
+  removeField as deleteFieldMethod,
 } from '/imports/api/forms/methods';
 import { ManageFields } from '../components';
 
@@ -35,9 +36,16 @@ function composer(props, onData) {
     editFieldMethod.call({ _id, doc }, callback);
   };
 
+  const deleteField = (_id) => {
+    if (confirm('Are you sure ?')) { // eslint-disable-line
+      deleteFieldMethod.call({ _id }, callback);
+    }
+  };
+
   return onData(null, {
     addField,
     editField,
+    deleteField,
     fields: Fields.find({ formId }).fetch(),
   });
 }

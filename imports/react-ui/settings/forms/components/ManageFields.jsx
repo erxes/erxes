@@ -8,6 +8,7 @@ import FieldPreview from './FieldPreview.jsx';
 const propTypes = {
   addField: PropTypes.func.isRequired,
   editField: PropTypes.func.isRequired,
+  deleteField: PropTypes.func.isRequired,
   fields: PropTypes.array.isRequired,
 };
 
@@ -79,13 +80,26 @@ class ManageFields extends Component {
   }
 
   renderButtons() {
-    let text = 'Add';
+    const _id = this.state.editingField._id;
 
-    if (this.state.editingField._id) {
-      text = 'Save';
+    if (_id) {
+      const onDelete = () => {
+        this.props.deleteField(_id);
+      };
+
+      return (
+        <div className="btn-group">
+          <button type="button" className="btn btn-sm btn-danger" onClick={onDelete}>
+            Delete
+          </button>
+          <button type="submit" className="btn btn-sm btn-success">
+            Save changes
+          </button>
+        </div>
+      );
     }
 
-    return <button type="submit" className="btn btn-success">{text}</button>;
+    return <button type="submit" className="btn btn-sm btn-success">Add</button>;
   }
 
   renderForm() {

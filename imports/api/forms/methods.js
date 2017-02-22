@@ -105,14 +105,21 @@ export const editField = new ValidatedMethod({
   },
 });
 
-Meteor.methods({
-  'forms.deleteField': (docId) => {
-    check(docId, String);
+// remove field
+export const removeField = new ValidatedMethod({
+  name: 'forms.removeField',
+  mixins: [ErxesMixin],
 
-    // remove
-    Collections.Fields.remove(docId);
+  validate({ _id }) {
+    check(_id, String);
   },
 
+  run({ _id }) {
+    Fields.remove(_id);
+  },
+});
+
+Meteor.methods({
   'forms.updateFieldOrder': (formId, orders) => {
     check(formId, String);
     check(orders, Object);
