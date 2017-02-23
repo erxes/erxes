@@ -40,6 +40,14 @@ class FieldsPreview extends React.Component {
     };
   }
 
+  componentWillUpdate(nextProps) {
+    if (this.state.fields.length !== nextProps.fields.length) {
+      this.setState({
+        fields: nextProps.fields,
+      });
+    }
+  }
+
   onSortEnd({ oldIndex, newIndex }) {
     const reorderedFields = arrayMove(this.state.fields, oldIndex, newIndex);
 
