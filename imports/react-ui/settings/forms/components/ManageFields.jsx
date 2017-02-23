@@ -3,14 +3,7 @@
 import React, { PropTypes, Component } from 'react';
 import { Wrapper } from '/imports/react-ui/layout/components';
 import Sidebar from '../../Sidebar.jsx';
-import FieldPreview from './FieldPreview.jsx';
-
-const propTypes = {
-  addField: PropTypes.func.isRequired,
-  editField: PropTypes.func.isRequired,
-  deleteField: PropTypes.func.isRequired,
-  fields: PropTypes.array.isRequired,
-};
+import FieldsPreview from './FieldsPreview.jsx';
 
 const editingFieldDefaultValue = {
   isRequired: false,
@@ -33,7 +26,7 @@ class ManageFields extends Component {
     this.onChangeIsRequired = this.onChangeIsRequired.bind(this);
 
     this.onSubmit = this.onSubmit.bind(this);
-    this.onFieldPreviewClick = this.onFieldPreviewClick.bind(this);
+    this.onFieldEdit = this.onFieldEdit.bind(this);
   }
 
   onSubmit(e) {
@@ -56,7 +49,7 @@ class ManageFields extends Component {
     return this.props.addField(doc);
   }
 
-  onFieldPreviewClick(field) {
+  onFieldEdit(field) {
     this.setState({ editingField: field });
   }
 
@@ -211,13 +204,11 @@ class ManageFields extends Component {
 
         <div className="col-sm-8">
           <div className="margined">
-            {this.props.fields.map(field =>
-              <FieldPreview
-                key={field._id}
-                field={field}
-                onClick={this.onFieldPreviewClick}
-              />,
-            )}
+            <FieldsPreview
+              fields={this.props.fields}
+              onFieldEdit={this.onFieldEdit}
+              onSort={this.props.onSort}
+            />
           </div>
         </div>
       </div>
@@ -238,6 +229,12 @@ class ManageFields extends Component {
   }
 }
 
-ManageFields.propTypes = propTypes;
+ManageFields.propTypes = {
+  addField: PropTypes.func.isRequired,
+  editField: PropTypes.func.isRequired,
+  deleteField: PropTypes.func.isRequired,
+  onSort: PropTypes.func.isRequired,
+  fields: PropTypes.array.isRequired, // eslint-disable-line
+};
 
 export default ManageFields;

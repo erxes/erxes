@@ -41,11 +41,11 @@ export default class FieldPreview extends React.Component {
   constructor(props) {
     super(props);
 
-    this.onClick = this.onClick.bind(this);
+    this.onEdit = this.onEdit.bind(this);
   }
 
-  onClick() {
-    this.props.onClick(this.props.field);
+  onEdit() {
+    this.props.onEdit(this.props.field);
   }
 
   renderControl() {
@@ -70,7 +70,8 @@ export default class FieldPreview extends React.Component {
     const { field } = this.props;
 
     return (
-      <div className="form-group field-preview" onClick={this.onClick}>
+      <div className="form-group field-preview" onClick={this.onEdit}>
+
         <label className="control-label" htmlFor={`prew-${field._id}`}>
           {field.text}:
         </label>
@@ -83,5 +84,5 @@ export default class FieldPreview extends React.Component {
 
 FieldPreview.propTypes = {
   field: PropTypes.object, // eslint-disable-line
-  onClick: PropTypes.func,
+  onEdit: PropTypes.func,
 };

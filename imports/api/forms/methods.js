@@ -1,11 +1,10 @@
 /* eslint-disable no-param-reassign */
 
-import { Meteor } from 'meteor/meteor';
 import { _ } from 'meteor/underscore';
 import { check } from 'meteor/check';
 import { ValidatedMethod } from 'meteor/mdg:validated-method';
 import { ErxesMixin } from '/imports/api/utils';
-import { Forms, Fields, Collections } from './forms';
+import { Forms, Fields } from './forms';
 
 export const add = new ValidatedMethod({
   name: 'forms.add',
@@ -119,15 +118,19 @@ export const removeField = new ValidatedMethod({
   },
 });
 
-Meteor.methods({
-  'forms.updateFieldOrder': (formId, orders) => {
-    check(formId, String);
-    check(orders, Object);
+// update field's orders
+export const updateFieldsOrder = new ValidatedMethod({
+  name: 'forms.updateFieldsOrder',
+  mixins: [ErxesMixin],
 
+  validate({ orderDics }) {
+    check(orderDics, Array);
+  },
+
+  run({ orderDics }) {
     // update each field's order
-    _.each(_.keys(orders), (fieldId) => {
-      const order = orders[fieldId];
-      Collections.Fields.update({ _id: fieldId }, { $set: { order } });
+    _.each(orderDics, ({ _id, order }) => {
+      Fields.update({ _id }, { $set: { order } });
     });
   },
 });
