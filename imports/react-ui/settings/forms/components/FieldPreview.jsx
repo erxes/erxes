@@ -7,7 +7,6 @@ export default class FieldPreview extends React.Component {
     return (
       <select
         {...attrs}
-        disabled
         className="form-control"
       >
 
@@ -22,7 +21,6 @@ export default class FieldPreview extends React.Component {
     return (
       <input
         {...attrs}
-        disabled
         className="form-control"
       />
     );
@@ -32,9 +30,21 @@ export default class FieldPreview extends React.Component {
     return (
       <textarea
         {...attrs}
-        disabled
         className="form-control"
       />
+    );
+  }
+
+  static renderRadioOrCheckInputs(name, options, type) {
+    return (
+      <div>
+        {options.map((option, index) => (
+          <div key={index}>
+            {FieldPreview.renderInput({ type, name })}
+            <span>{option}</span>
+          </div>
+        ))}
+      </div>
     );
   }
 
@@ -50,13 +60,21 @@ export default class FieldPreview extends React.Component {
 
   renderControl() {
     const field = this.props.field;
+    const options = field.options || [];
+    const name = field.name;
 
     switch (field.type) {
       case 'select':
-        return FieldPreview.renderSelect(field.options);
+        return FieldPreview.renderSelect(options);
 
       case 'input':
         return FieldPreview.renderInput({});
+
+      case 'check':
+        return FieldPreview.renderRadioOrCheckInputs(name, options, 'checkbox');
+
+      case 'radio':
+        return FieldPreview.renderRadioOrCheckInputs(name, options, 'radio');
 
       case 'textarea':
         return FieldPreview.renderTextarea({});

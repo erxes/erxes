@@ -135,6 +135,8 @@ class ManageFields extends Component {
             <option value="input">Input</option>
             <option value="textarea">Text area</option>
             <option value="select">Select</option>
+            <option value="check">Checkbox</option>
+            <option value="radio">Radio button</option>
           </select>
         </p>
 
