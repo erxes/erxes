@@ -5,11 +5,11 @@ import {
   TaggerPopover,
   EmptyState,
   ConversationsList,
+  LoadingContent,
 } from '/imports/react-ui/common';
 import { Wrapper } from '/imports/react-ui/layout/components';
 import { AssignBoxPopover } from '../';
-import { Resolver } from '../../containers';
-import Sidebar from './Sidebar.jsx';
+import { Resolver, Sidebar } from '../../containers';
 
 
 const propTypes = {
@@ -17,14 +17,12 @@ const propTypes = {
   unreadConversations: PropTypes.array.isRequired,
   loadMore: PropTypes.func.isRequired,
   hasMore: PropTypes.bool.isRequired,
-  channels: PropTypes.array.isRequired,
-  brands: PropTypes.array.isRequired,
-  tags: PropTypes.array.isRequired,
   channelId: PropTypes.string,
   user: PropTypes.object,
   bulk: PropTypes.array.isRequired,
   toggleBulk: PropTypes.func.isRequired,
   emptyBulk: PropTypes.func.isRequired,
+  conversationReady: PropTypes.bool,
 };
 
 function List(props) {
@@ -33,14 +31,12 @@ function List(props) {
     unreadConversations,
     hasMore,
     loadMore,
-    channels,
-    tags,
     channelId,
-    brands,
     user,
     bulk,
     toggleBulk,
     emptyBulk,
+    conversationReady,
   } = props;
 
   /**
@@ -117,24 +113,26 @@ function List(props) {
     />
   );
 
+  const mainContent = () => {
+    if (unreadConversations.length === 0 && readConversations.length === 0 && conversationReady) {
+      return empty;
+    } else if (
+      unreadConversations.length === 0 &&
+      readConversations.length === 0 &&
+      !conversationReady
+    ) {
+      return <LoadingContent items={5} />;
+    }
+    return content;
+  };
+
   return (
     <div>
       <Wrapper
         header={<Wrapper.Header breadcrumb={[{ title: 'Inbox' }]} />}
-
-        leftSidebar={
-          <Sidebar
-            channels={channels}
-            brands={brands}
-            tags={tags}
-          />
-        }
-
+        leftSidebar={<Sidebar />}
         actionBar={bulk.length ? actionBar : false}
-        content={
-          unreadConversations.length === 0 && readConversations.length === 0
-          ? empty : content
-        }
+        content={mainContent()}
       />
     </div>
   );

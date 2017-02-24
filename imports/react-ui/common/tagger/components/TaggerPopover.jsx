@@ -1,6 +1,6 @@
 import React, { PropTypes } from 'react';
 import { OverlayTrigger, Popover } from 'react-bootstrap';
-import { Tagger } from '../..';
+import { Tagger } from '/imports/react-ui/common';
 
 
 const propTypes = {

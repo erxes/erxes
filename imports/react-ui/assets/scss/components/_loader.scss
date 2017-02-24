@@ -5,6 +5,7 @@
   background: $main-color;
   width: $nav-width;
   height: $header-height;
+  z-index: 101;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 

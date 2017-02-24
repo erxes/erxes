@@ -1,6 +1,7 @@
 import { Meteor } from 'meteor/meteor';
 import { composeWithTracker } from 'react-komposer';
 import { CONVERSATION_STATUSES } from '/imports/api/conversations/constants';
+import { Loader } from '/imports/react-ui/common';
 import { Resolver } from '../components';
 
 
@@ -16,4 +17,4 @@ function composer(props, onData) {
   });
 }
 
-export default composeWithTracker(composer)(Resolver);
+export default composeWithTracker(composer, Loader)(Resolver);
