@@ -1,10 +1,12 @@
 import NameCard from './nameCard/NameCard.jsx';
 import Avatar from './nameCard/Avatar.jsx';
-import Tagger from './tagger/containers/Tagger.js';
+import Tagger from './tagger/containers/Tagger';
 import TaggerPopover from './tagger/components/TaggerPopover.jsx';
 import ModalTrigger from './ModalTrigger.jsx';
 import Tags from './Tags.jsx';
 import Loader from './Loader.jsx';
+import LoadingSidebar from './Loading/LoadingSidebar.jsx';
+import LoadingContent from './Loading/LoadingContent.jsx';
 import Spinner from './Spinner.jsx';
 import Attachment from './Attachment.jsx';
 import Tip from './Tip.jsx';
@@ -35,4 +37,6 @@ export {
   Pagination,
   pagination,
   ConversationsList,
+  LoadingSidebar,
+  LoadingContent,
 };

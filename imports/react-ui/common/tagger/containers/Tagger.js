@@ -1,12 +1,12 @@
-import { composeWithTracker } from 'react-komposer';
 import { Meteor } from 'meteor/meteor';
+import { composeWithTracker } from 'react-komposer';
+import { Spinner } from '/imports/react-ui/common';
 import { TAG_TYPES } from '/imports/api/tags/constants';
 import { Tags } from '/imports/api/tags/tags';
 import { Customers } from '/imports/api/customers/customers';
 import { Conversations } from '/imports/api/conversations/conversations';
 import { tagConversation } from '/imports/api/conversations/client/methods';
 import Tagger from '../components/Tagger.jsx';
-import { Spinner } from '../..';
 
 
 function composer(props, onData) {

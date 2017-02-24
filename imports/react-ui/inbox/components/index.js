@@ -1,4 +1,5 @@
 import List from './list/List.jsx';
+import Sidebar from './list/Sidebar.jsx';
 import Details from './details/Details.jsx';
 import RespondBox from './details/RespondBox.jsx';
 import AssignBox from './assignBox/AssignBox.jsx';
@@ -13,4 +14,5 @@ export {
   AssignBox,
   AssignBoxPopover,
   Resolver,
+  Sidebar,
 };
