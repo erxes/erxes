@@ -136,16 +136,34 @@ class Sidebar extends React.Component {
     );
   }
 
-  static renderSectionHeader(queryParamName) {
+  static renderSectionHeader(queryParamName, otherButton) {
     const onClick = () => {
       Wrapper.Sidebar.filter(queryParamName, '');
     };
 
     return (
       <Wrapper.Sidebar.Section.QuickButtons>
+        {otherButton}
         {
           FlowRouter.getQueryParam(queryParamName)
             ? <a href="" className="quick-button" onClick={onClick}>
+              <i className="ion-close-circled" />
+            </a>
+            : null
+        }
+      </Wrapper.Sidebar.Section.QuickButtons>
+    );
+  }
+
+  static renderFilterSectionHeader() {
+    return (
+      <Wrapper.Sidebar.Section.QuickButtons>
+        {
+          FlowRouter.getQueryParam('participating') ||
+          FlowRouter.getQueryParam('unassigned') ||
+          FlowRouter.getQueryParam('status') ||
+          FlowRouter.getQueryParam('starred')
+            ? <a href="" className="quick-button" onClick={Sidebar.clearStatusFilter}>
               <i className="ion-close-circled" />
             </a>
             : null
@@ -175,7 +193,15 @@ class Sidebar extends React.Component {
   render() {
     const { channels, tags, brands, channelsReady, tagsReady, brandsReady } = this.props;
     const integrationTypes = INTEGRATIONS_TYPES.ALL_LIST;
-    const { Title, QuickButtons } = Wrapper.Sidebar.Section;
+    const { Title } = Wrapper.Sidebar.Section;
+    const manageTags = (
+      <a
+        href={FlowRouter.path('tags/list', { type: 'conversation' })}
+        className="quick-button"
+      >
+        <i className="ion-gear-a" />
+      </a>
+    );
 
     return (
       <Wrapper.Sidebar>
@@ -208,11 +234,7 @@ class Sidebar extends React.Component {
 
         <Wrapper.Sidebar.Section>
           <Title>Filter by status</Title>
-          <QuickButtons>
-            <a href="" className="quick-button" onClick={Sidebar.clearStatusFilter}>
-              <i className="ion-close-circled" />
-            </a>
-          </QuickButtons>
+          {Sidebar.renderFilterSectionHeader()}
           <ul className="filters">
             {Sidebar.renderSingleFilter(
               'unassigned', 'true', 'unassiged', 'Unassigned')}
@@ -230,7 +252,7 @@ class Sidebar extends React.Component {
 
         <Wrapper.Sidebar.Section collapsible={tags.length > 5}>
           <Title>Filter by tags</Title>
-          {Sidebar.renderSectionHeader('tagId')}
+          {Sidebar.renderSectionHeader('tagId', manageTags)}
 
           <ul className="filters">
             {tags.map(tag => Sidebar.renderTag(tag))}
