@@ -26,13 +26,17 @@ const propTypes = {
 };
 
 class SegmentsForm extends Component {
+  static generateRandomColorCode() {
+    return `#${Math.random().toString(16).slice(2, 8)}`;
+  }
+
   constructor(props) {
     super(props);
 
     this.state = props.segment ? props.segment : {
       name: '',
       description: '',
-      color: '#000',
+      color: SegmentsForm.generateRandomColorCode(),
       conditions: [],
       connector: 'any',
     };
@@ -115,6 +119,17 @@ class SegmentsForm extends Component {
 
   render() {
     const { fields, segment } = this.props;
+    const selectedFieldIds = this.state.conditions.map(c => c.field);
+
+    // Change fields' selectedBy states
+    // const changedFields = fields.map(field =>
+    //   Object.assign(field, {
+    //     selectedBy: selectedFieldIds.indexOf(field._id) > -1 ? 'all' : 'none',
+    //   }),
+    // );
+
+    // Exclude fields that are already selected
+    const changedFields = fields.filter(field => selectedFieldIds.indexOf(field._id) < 0);
 
     const breadcrumb = [
       { title: 'Segments', link: '/segments' },
@@ -190,7 +205,7 @@ class SegmentsForm extends Component {
               }
               footer={
                 <AddConditionButton
-                  fields={fields}
+                  fields={changedFields}
                   addCondition={this.addCondition}
                 />
               }
