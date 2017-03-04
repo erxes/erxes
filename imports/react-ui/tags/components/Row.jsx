@@ -1,3 +1,5 @@
+/* eslint-env browser */
+
 import React, { PropTypes } from 'react';
 import { Button } from 'react-bootstrap';
 import Alert from 'meteor/erxes-notifier';
@@ -7,16 +9,17 @@ import { Form } from '../containers';
 
 const propTypes = {
   tag: PropTypes.object.isRequired,
+  type: PropTypes.string.isRequired,
   remove: PropTypes.object.isRequired,
 };
 
-function Row({ tag, remove }) {
+function Row({ tag, type, remove }) {
   function removeTag() {
     if (!confirm('Are you sure you want to delete this tag?')) { // eslint-disable-line no-alert
       return;
     }
 
-    remove.call([tag._id], error => {
+    remove.call([tag._id], (error) => {
       if (error) {
         return Alert.error(error.reason);
       }
@@ -39,7 +42,7 @@ function Row({ tag, remove }) {
       <td className="text-right">
         <ActionButtons>
           <ModalTrigger title="Edit response" trigger={editTrigger}>
-            <Form type="conversation" tag={tag} />
+            <Form type={type} tag={tag} />
           </ModalTrigger>
 
           <Tip text="Delete">
