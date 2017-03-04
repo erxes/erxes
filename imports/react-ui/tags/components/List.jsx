@@ -42,8 +42,9 @@ function List({ tags, type, remove }) {
             <Row
               key={tag._id}
               tag={tag}
+              type={type}
               remove={remove}
-            />
+            />,
           )
         }
       </tbody>

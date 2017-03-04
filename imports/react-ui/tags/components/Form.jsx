@@ -14,6 +14,10 @@ const contextTypes = {
 };
 
 class Form extends Component {
+  static generateRandomColorCode() {
+    return `#${Math.random().toString(16).slice(2, 8)}`;
+  }
+
   constructor(props, context) {
     super(props, context);
 
@@ -21,16 +25,12 @@ class Form extends Component {
 
     this.state = {
       name: tag ? tag.name : '',
-      colorCode: tag ? tag.colorCode : this.generateRandomColorCode(),
+      colorCode: tag ? tag.colorCode : Form.generateRandomColorCode(),
     };
 
     this.submit = this.submit.bind(this);
     this.handleName = this.handleName.bind(this);
     this.handleColorCode = this.handleColorCode.bind(this);
-  }
-
-  generateRandomColorCode() {
-    return `#${Math.random().toString(16).slice(2, 8)}`;
   }
 
   submit(e) {
@@ -39,7 +39,7 @@ class Form extends Component {
     const { type, submit } = this.props;
     const { name, colorCode } = this.state;
 
-    submit({ name, type, colorCode }, error => {
+    submit({ name, type, colorCode }, (error) => {
       if (error) {
         return Alert.error(error.reason);
       }
