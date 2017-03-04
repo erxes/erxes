@@ -35,6 +35,7 @@ class AddConditionButton extends Component {
         <FilterableList
           items={this.props.fields}
           onClick={this.addCondition}
+          showCheckmark={false}
         />
       </Popover>
     );

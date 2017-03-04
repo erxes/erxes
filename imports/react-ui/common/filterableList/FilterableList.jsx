@@ -14,7 +14,7 @@ const propTypes = {
     link: PropTypes.element,
     onClick: PropTypes.func,
   })),
-  selected: PropTypes.array,
+  showCheckmark: PropTypes.bool,
   className: PropTypes.string,
 
   // hooks
@@ -59,10 +59,10 @@ class FilterableList extends Component {
   }
 
   renderItems() {
-    const { items } = this.props;
+    const { items, showCheckmark = true } = this.props;
     const { key } = this.state;
 
-    return items.map(item => {
+    return items.map((item) => {
       // filter items by key
       if (key && item.title.toLowerCase().indexOf(key) < 0) {
         return false;
@@ -71,7 +71,7 @@ class FilterableList extends Component {
       return (
         <li
           key={item._id}
-          className={item.selectedBy}
+          className={showCheckmark ? item.selectedBy : ''}
           onClick={() => { this.toggleItem(item._id); }}
         >
           {item.image} {item.title}
@@ -99,7 +99,7 @@ class FilterableList extends Component {
               this.props.links && this.props.links.map(link =>
                 <li key={link.href}>
                   <a onClick={link.onClick} href={link.href}>{link.title}</a>
-                </li>
+                </li>,
               )
             }
           </ul>
