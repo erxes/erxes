@@ -4,7 +4,7 @@
 import React, { PropTypes } from 'react';
 import { Counts } from 'meteor/tmeasday:publish-counts';
 import { FlowRouter } from 'meteor/kadira:flow-router';
-import { EmptyState } from '/imports/react-ui/common';
+import { EmptyState, LoadingSidebar } from '/imports/react-ui/common';
 import { Wrapper } from '/imports/react-ui/layout/components';
 import { CONVERSATION_STATUSES } from '/imports/api/conversations/constants';
 import { KIND_CHOICES as INTEGRATIONS_TYPES } from '/imports/api/integrations/constants';
@@ -13,6 +13,9 @@ const propTypes = {
   channels: PropTypes.array.isRequired,
   brands: PropTypes.array.isRequired,
   tags: PropTypes.array.isRequired,
+  channelsReady: PropTypes.bool,
+  brandsReady: PropTypes.bool,
+  tagsReady: PropTypes.bool,
 };
 
 class Sidebar extends React.Component {
@@ -133,13 +136,14 @@ class Sidebar extends React.Component {
     );
   }
 
-  static renderSectionHeader(queryParamName) {
+  static renderSectionHeader(queryParamName, otherButton) {
     const onClick = () => {
       Wrapper.Sidebar.filter(queryParamName, '');
     };
 
     return (
       <Wrapper.Sidebar.Section.QuickButtons>
+        {otherButton}
         {
           FlowRouter.getQueryParam(queryParamName)
             ? <a href="" className="quick-button" onClick={onClick}>
@@ -151,8 +155,25 @@ class Sidebar extends React.Component {
     );
   }
 
-  static renderEmptyState(list, text, iconClassName) {
-    if (list.length === 0) {
+  static renderFilterSectionHeader() {
+    return (
+      <Wrapper.Sidebar.Section.QuickButtons>
+        {
+          FlowRouter.getQueryParam('participating') ||
+          FlowRouter.getQueryParam('unassigned') ||
+          FlowRouter.getQueryParam('status') ||
+          FlowRouter.getQueryParam('starred')
+            ? <a href="" className="quick-button" onClick={Sidebar.clearStatusFilter}>
+              <i className="ion-close-circled" />
+            </a>
+            : null
+        }
+      </Wrapper.Sidebar.Section.QuickButtons>
+    );
+  }
+
+  static renderEmptyState(list, text, iconClassName, isReady) {
+    if (list.length === 0 && isReady) {
       return (
         <EmptyState
           icon={<i className={iconClassName} />}
@@ -162,13 +183,25 @@ class Sidebar extends React.Component {
       );
     }
 
+    if (list.length === 0 && !isReady) {
+      return <LoadingSidebar.Lines />;
+    }
+
     return null;
   }
 
   render() {
-    const { channels, tags, brands } = this.props;
+    const { channels, tags, brands, channelsReady, tagsReady, brandsReady } = this.props;
     const integrationTypes = INTEGRATIONS_TYPES.ALL_LIST;
-    const { Title, QuickButtons } = Wrapper.Sidebar.Section;
+    const { Title } = Wrapper.Sidebar.Section;
+    const manageTags = (
+      <a
+        href={FlowRouter.path('tags/list', { type: 'conversation' })}
+        className="quick-button"
+      >
+        <i className="ion-gear-a" />
+      </a>
+    );
 
     return (
       <Wrapper.Sidebar>
@@ -177,7 +210,7 @@ class Sidebar extends React.Component {
           {Sidebar.renderSectionHeader('channelId')}
           <ul className="filters">
             {channels.map(channel => Sidebar.renderChannel(channel))}
-            {Sidebar.renderEmptyState(channels, 'No channel', 'icon-pound')}
+            {Sidebar.renderEmptyState(channels, 'No channel', 'ion-pound', channelsReady)}
           </ul>
         </Wrapper.Sidebar.Section>
 
@@ -186,7 +219,7 @@ class Sidebar extends React.Component {
           {Sidebar.renderSectionHeader('brandId')}
           <ul className="filters">
             {brands.map(brand => Sidebar.renderBrand(brand))}
-            {Sidebar.renderEmptyState(brands, 'No brand', 'icon-flag')}
+            {Sidebar.renderEmptyState(brands, 'No brand', 'ion-flag', brandsReady)}
           </ul>
         </Wrapper.Sidebar.Section>
 
@@ -195,17 +228,13 @@ class Sidebar extends React.Component {
           {Sidebar.renderSectionHeader('integrationType')}
           <ul className="filters">
             {integrationTypes.map((t, i) => Sidebar.renderIntegration(t, i))}
-            {Sidebar.renderEmptyState(integrationTypes, 'No integration', 'icon-flag')}
+            {Sidebar.renderEmptyState(integrationTypes, 'No integration', 'ion-flag')}
           </ul>
         </Wrapper.Sidebar.Section>
 
         <Wrapper.Sidebar.Section>
           <Title>Filter by status</Title>
-          <QuickButtons>
-            <a href="" className="quick-button" onClick={Sidebar.clearStatusFilter}>
-              <i className="ion-close-circled" />
-            </a>
-          </QuickButtons>
+          {Sidebar.renderFilterSectionHeader()}
           <ul className="filters">
             {Sidebar.renderSingleFilter(
               'unassigned', 'true', 'unassiged', 'Unassigned')}
@@ -223,11 +252,11 @@ class Sidebar extends React.Component {
 
         <Wrapper.Sidebar.Section collapsible={tags.length > 5}>
           <Title>Filter by tags</Title>
-          {Sidebar.renderSectionHeader('tagId')}
+          {Sidebar.renderSectionHeader('tagId', manageTags)}
 
           <ul className="filters">
             {tags.map(tag => Sidebar.renderTag(tag))}
-            {Sidebar.renderEmptyState(tags, 'No tags', 'icon-pricetag')}
+            {Sidebar.renderEmptyState(tags, 'No tags', 'ion-pricetag', tagsReady)}
           </ul>
         </Wrapper.Sidebar.Section>
       </Wrapper.Sidebar>

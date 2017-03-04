@@ -1,5 +1,6 @@
 import { composeWithTracker } from 'react-komposer';
 import { add, edit } from '/imports/api/tags/methods';
+import { Loader } from '/imports/react-ui/common';
 import { Form } from '../components';
 
 
@@ -15,4 +16,4 @@ function composer({ tag, type }, onData) {
   onData(null, { tag, type, submit });
 }
 
-export default composeWithTracker(composer)(Form);
+export default composeWithTracker(composer, Loader)(Form);

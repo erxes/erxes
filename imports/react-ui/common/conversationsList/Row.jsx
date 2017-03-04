@@ -69,7 +69,7 @@ class Row extends Component {
 
         <div className="body">
           <header>
-            <span className="customer-name">{customer.name}</span>
+            <span className="customer-name">{customer && customer._id && customer.name}</span>
             <span> opened about </span>
             <time>{moment(createdAt).fromNow()}</time>
             <Tags tags={tags} size="small" />
@@ -81,7 +81,7 @@ class Row extends Component {
             <div className="source">
               <i className="ion-chatbox" />
               <div className="name">
-                To {integration.brand().name} via {integration.kind}
+                To {integration && integration.brand().name} via {integration && integration.kind}
               </div>
             </div>
 

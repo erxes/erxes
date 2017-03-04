@@ -1,5 +1,6 @@
 import { Meteor } from 'meteor/meteor';
 import { composeWithTracker } from 'react-komposer';
+import { Loader } from '/imports/react-ui/common';
 import MainLayout from '../components/MainLayout.jsx';
 
 
@@ -10,4 +11,4 @@ function composer(props, onData) {
   });
 }
 
-export default composeWithTracker(composer)(MainLayout);
+export default composeWithTracker(composer, Loader)(MainLayout);
