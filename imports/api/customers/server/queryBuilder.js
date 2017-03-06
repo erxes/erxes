@@ -1,3 +1,6 @@
+import moment from 'moment';
+
+
 export default {
   segments(segment) {
     const query = {};
@@ -7,7 +10,7 @@ export default {
       query.$or = [];
     }
 
-    segment.conditions.forEach(({ field, operator, type, value }) => {
+    segment.conditions.forEach(({ field, operator, type, dateUnit, value }) => {
       let op;
       let transformedValue;
 
@@ -16,6 +19,7 @@ export default {
           transformedValue = value.toLowerCase();
           break;
         case 'number':
+        case 'date':
           transformedValue = parseInt(value, 10);
           break;
         default:
@@ -49,6 +53,28 @@ export default {
           break;
         case 'if':
           op = false;
+          break;
+        case 'wlt':
+          op = {
+            $gte: moment().subtract(transformedValue, dateUnit).toDate(),
+            $lte: new Date(),
+          };
+          break;
+        case 'wmt':
+          op = {
+            $lte: moment().subtract(transformedValue, dateUnit).toDate(),
+          };
+          break;
+        case 'wow':
+          op = {
+            $lte: moment().add(transformedValue, dateUnit).toDate(),
+            $gte: new Date(),
+          };
+          break;
+        case 'woa':
+          op = {
+            $gte: moment().add(transformedValue, dateUnit).toDate(),
+          };
           break;
         case 'is':
           op = { $exists: true };
