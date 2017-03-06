@@ -19,22 +19,6 @@ class List extends Component {
     this.renderObjects = this.renderObjects.bind(this);
   }
 
-  renderObject(object) {
-    const { removeResTemplate } = this.props;
-
-    return (
-      <tr>
-        <td>{object.brand().name}</td>
-        <td>{object.name}</td>
-        <td>{object.content}</td>
-
-        <td>
-          <button onClick={removeResTemplate}>remove</button>
-        </td>
-      </tr>
-    );
-  }
-
   renderObjects() {
     const { objects, brands, removeResTemplate } = this.props;
 
@@ -71,7 +55,6 @@ class List extends Component {
           <tr>
             <th>Brand</th>
             <th>Name</th>
-            <th>content</th>
             <th className="text-right">Actions</th>
           </tr>
         </thead>
