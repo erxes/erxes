@@ -66,7 +66,11 @@ class Form extends Component {
         <FormGroup controlId="template-brand-id">
           <ControlLabel>Brand</ControlLabel>
 
-          <FormControl componentClass="select" placeholder="Select Brand">
+          <FormControl
+            componentClass="select"
+            placeholder="Select Brand"
+            defaultValue={resTemplate.brand()._id}
+          >
             {brands.map(brand =>
               <option key={brand._id} value={brand._id}>{brand.name}</option>,
             )}

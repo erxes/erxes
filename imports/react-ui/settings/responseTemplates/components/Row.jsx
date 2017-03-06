@@ -45,7 +45,6 @@ class Row extends Component {
       <tr>
         <td>{resTemplate.brand().name}</td>
         <td>{resTemplate.name}</td>
-        <td>{resTemplate.content}</td>
 
         <td className="text-right">
           <ActionButtons>
