@@ -1,9 +1,8 @@
 import React, { PropTypes } from 'react';
-import { Dropdown, MenuItem } from 'react-bootstrap';
 import { Counts } from 'meteor/tmeasday:publish-counts';
 import { FlowRouter } from 'meteor/kadira:flow-router';
 import { Wrapper } from '/imports/react-ui/layout/components';
-import { DropdownToggle, EmptyState } from '/imports/react-ui/common';
+import { EmptyState } from '/imports/react-ui/common';
 
 
 const propTypes = {
@@ -18,16 +17,12 @@ function Integrations({ integrations }) {
       <Section.Title>Filter by integrations</Section.Title>
 
       <Section.QuickButtons>
-        <Dropdown id="dropdown-user" className="quick-button" pullRight>
-          <DropdownToggle bsRole="toggle">
-            <i className="ion-more" />
-          </DropdownToggle>
-          <Dropdown.Menu>
-            <MenuItem href={FlowRouter.path('settings/integrations/list')}>
-              Manage integrations
-            </MenuItem>
-          </Dropdown.Menu>
-        </Dropdown>
+        <a
+          href={FlowRouter.path('settings/integrations/list')}
+          className="quick-button"
+        >
+          <i className="ion-gear-a" />
+        </a>
 
         {
           FlowRouter.getQueryParam('integration')
