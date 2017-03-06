@@ -3,14 +3,14 @@
  */
 
 import { Meteor } from 'meteor/meteor';
-import { check } from 'meteor/check';
+import { check, Match } from 'meteor/check';
 import { Forms, Fields } from '../forms';
 
 // form list
-Meteor.publish('forms.list', function formList(limit) {
-  check(limit, Number);
+Meteor.publish('forms.list', (limit) => {
+  check(limit, Match.Optional(Number));
 
-  return Forms.find({ createdUser: this.userId });
+  return Forms.find();
 });
 
 // form detail

@@ -60,6 +60,11 @@ function Sidebar() {
             </a>
           </li>
           <li>
+            <a href={'/settings/integrations?kind=form'}>
+              <i className="icon ion-arrow-right-b" />Form
+            </a>
+          </li>
+          <li>
             <a href={'/settings/integrations?kind=twitter'}>
               <i className="icon ion-arrow-right-b" />Twitter
             </a>

@@ -3,7 +3,7 @@ import { Button } from 'react-bootstrap';
 import Alert from 'meteor/erxes-notifier';
 import { ModalTrigger, Tip, ActionButtons } from '/imports/react-ui/common';
 import { KIND_CHOICES } from '/imports/api/integrations/constants';
-import { Chat, InAppMessaging } from '../containers';
+import { Chat, Form, InAppMessaging } from '../containers';
 
 
 const propTypes = {
@@ -53,6 +53,14 @@ class Row extends Component {
       return (
         <ModalTrigger title="Edit integration" trigger={editTrigger}>
           <Chat integration={this.props.integration} />
+        </ModalTrigger>
+      );
+    }
+
+    if (kind === KIND_CHOICES.FORM) {
+      return (
+        <ModalTrigger title="Edit integration" trigger={editTrigger}>
+          <Form integration={this.props.integration} />
         </ModalTrigger>
       );
     }

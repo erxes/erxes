@@ -97,6 +97,8 @@ class CommonCreateUpdate extends Component {
           onChange={this.handleBrandChange}
         />
 
+        {this.extraContent && this.extraContent()}
+
         <FormGroup controlId="install-code">
           <ControlLabel>Install code</ControlLabel>
           <div className="markdown-wrapper">

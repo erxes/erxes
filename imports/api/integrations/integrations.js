@@ -71,6 +71,7 @@ Integrations.publicFields = {
   name: 1,
   kind: 1,
   brandId: 1,
+  formId: 1,
 };
 
 Factory.define('integration', Integrations, {
