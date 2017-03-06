@@ -5,16 +5,13 @@ import { _ } from 'meteor/underscore';
 import { ErxesMixin } from '/imports/api/utils';
 import { Channels } from './channels';
 
-if (Meteor.isServer) {
-  import { sendNotification } from '/imports/api/server/utils';
-}
-
 const sendNotifications = (channelId, _memberIds, userId) => {
   const memberIds = _memberIds || [];
   const channel = Channels.findOne({ _id: channelId });
 
   if (Meteor.isServer) {
-    const content = `You have invited to '${channel.name}' channel.`
+    const { sendNotification } = require('/imports/api/server/utils'); // eslint-disable-line
+    const content = `You have invited to '${channel.name}' channel.`;
 
     sendNotification({
       createdUser: userId,
