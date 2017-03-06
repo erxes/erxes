@@ -11,7 +11,7 @@ export default class FieldPreview extends React.Component {
       >
 
         {options.map((option, index) =>
-          <option key={index} value={option.value}>{option.text}</option>,
+          <option key={index} value={option}>{option}</option>,
         )}
       </select>
     );
@@ -91,7 +91,8 @@ export default class FieldPreview extends React.Component {
       <div className="form-group field-preview" onClick={this.onEdit}>
 
         <label className="control-label" htmlFor={`prew-${field._id}`}>
-          {field.text}:
+          {field.text}
+          {field.isRequired ? <span className="required">*</span> : null}:
         </label>
 
         {this.renderControl()}
