@@ -1,3 +1,6 @@
+import faker from 'faker';
+import { Random } from 'meteor/random';
+import { Factory } from 'meteor/dburles:factory';
 import { Mongo } from 'meteor/mongo';
 import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 
@@ -20,7 +23,7 @@ Forms.schema = new SimpleSchema({
 
 
 const FormSchemaExtra = new SimpleSchema({
-  createdUser: {
+  createdUserId: {
     type: String,
   },
 
@@ -90,3 +93,19 @@ Forms.attachSchema(FormSchemaExtra);
 
 Fields.attachSchema(Fields.schema);
 Fields.attachSchema(FieldSchemaExtra);
+
+
+Factory.define('form', Forms, {
+  title: () => faker.random.word(),
+  code: () => faker.random.word(),
+  createdUserId: () => Random.id(),
+  createdDate: () => faker.date.recent(),
+});
+
+Factory.define('formField', Fields, {
+  formId: () => Random.id(),
+  type: 'input',
+  name: faker.random.word(),
+  isRequired: false,
+  order: () => faker.random.number(),
+});

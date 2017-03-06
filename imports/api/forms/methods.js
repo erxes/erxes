@@ -1,5 +1,6 @@
 /* eslint-disable no-param-reassign */
 
+import { Meteor } from 'meteor/meteor';
 import { _ } from 'meteor/underscore';
 import { check } from 'meteor/check';
 import { ValidatedMethod } from 'meteor/mdg:validated-method';
@@ -15,7 +16,7 @@ export const add = new ValidatedMethod({
   },
 
   run({ doc }) {
-    doc.createdUser = this.userId;
+    doc.createdUserId = this.userId;
     doc.createdDate = new Date();
 
     // create
@@ -48,6 +49,14 @@ export const remove = new ValidatedMethod({
   },
 
   run(id) {
+    // check whether has any field
+    if (Fields.find({ formId: id }).count() > 0) {
+      throw new Meteor.Error(
+        'forms.cannotDelete',
+        'You cannot delete this form. This form has some fields.',
+      );
+    }
+
     return Forms.remove(id);
   },
 });
