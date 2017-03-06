@@ -85,6 +85,12 @@ class ManageFields extends Component {
   renderButtons() {
     const _id = this.state.editingField._id;
 
+    const toListButton = (
+      <a href="/settings/forms" className="btn btn-sm btn-default">
+        to list
+      </a>
+    );
+
     if (_id) {
       // reset editing field state
       const reset = () => {
@@ -98,6 +104,8 @@ class ManageFields extends Component {
 
       return (
         <div className="btn-group">
+          {toListButton}
+
           <button type="button" className="btn btn-sm btn-danger" onClick={onDelete}>
             Delete
           </button>
@@ -113,7 +121,13 @@ class ManageFields extends Component {
       );
     }
 
-    return <button type="submit" className="btn btn-sm btn-success">Add</button>;
+    return (
+      <div className="btn-group">
+        {toListButton}
+
+        <button type="submit" className="btn btn-sm btn-success">Add</button>
+      </div>
+    );
   }
 
   renderForm() {
