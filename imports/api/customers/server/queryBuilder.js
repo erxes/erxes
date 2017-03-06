@@ -16,7 +16,7 @@ export default {
 
       switch (type) {
         case 'string':
-          transformedValue = value.toLowerCase();
+          transformedValue = value && value.toLowerCase();
           break;
         case 'number':
         case 'date':
