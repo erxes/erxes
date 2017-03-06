@@ -4,6 +4,7 @@
 import { Meteor } from 'meteor/meteor';
 import { assert } from 'meteor/practicalmeteor:chai';
 import { Factory } from 'meteor/dburles:factory';
+import { Integrations } from '/imports/api/integrations/integrations';
 
 import '/imports/api/users/factory';
 
@@ -48,7 +49,7 @@ describe('forms', function () {
     });
 
     describe('remove', function () {
-      it('can not delete', function () {
+      it('can not delete because it has some fields', function () {
         Factory.create('formField', { formId, name: 'firstName' });
 
         assert.throws(
@@ -56,11 +57,26 @@ describe('forms', function () {
             remove._execute({ userId }, formId);
           },
           Meteor.Error,
-          /forms.cannotDelete/,
+          /forms.cannotDelete.hasFields/,
         );
 
         // remove fields to make form available to remove
         Fields.remove({});
+      });
+
+      it('can not delete because it used in integration', function () {
+        Factory.create('integration', { formId });
+
+        assert.throws(
+          () => {
+            remove._execute({ userId }, formId);
+          },
+          Meteor.Error,
+          /forms.cannotDelete.usedInIntegration/,
+        );
+
+        // remove integration to make form available to remove
+        Integrations.remove({});
       });
 
       it('remove successfully', function () {

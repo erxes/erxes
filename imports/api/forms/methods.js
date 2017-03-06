@@ -4,6 +4,7 @@ import { Meteor } from 'meteor/meteor';
 import { _ } from 'meteor/underscore';
 import { check } from 'meteor/check';
 import { ValidatedMethod } from 'meteor/mdg:validated-method';
+import { Integrations } from '/imports/api/integrations/integrations';
 import { ErxesMixin } from '/imports/api/utils';
 import { Forms, Fields } from './forms';
 
@@ -52,8 +53,16 @@ export const remove = new ValidatedMethod({
     // check whether has any field
     if (Fields.find({ formId: id }).count() > 0) {
       throw new Meteor.Error(
-        'forms.cannotDelete',
+        'forms.cannotDelete.hasFields',
         'You cannot delete this form. This form has some fields.',
+      );
+    }
+
+    // check whether used in integration
+    if (Integrations.find({ formId: id }).count() > 0) {
+      throw new Meteor.Error(
+        'forms.cannotDelete.usedInIntegration',
+        'You cannot delete this form. This form used in integration.',
       );
     }
 

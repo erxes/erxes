@@ -37,6 +37,11 @@ Integrations.schema = new SimpleSchema({
     type: String,
   },
 
+  formId: {
+    type: String,
+    optional: true,
+  },
+
   // twitter authentication info
   twitterData: {
     type: twitterSchema,

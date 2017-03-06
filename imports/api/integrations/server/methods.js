@@ -74,6 +74,38 @@ export const editChat = new ValidatedMethod({
   },
 });
 
+
+// add form
+export const addForm = new ValidatedMethod({
+  name: 'integrations.addForm',
+  mixins: [ErxesMixin],
+
+  validate({ doc }) {
+    check(doc, { name: String, brandId: String, formId: String });
+  },
+
+  run({ doc }) {
+    return Integrations.insert(
+      _.extend(doc, { kind: KIND_CHOICES.FORM }),
+    );
+  },
+});
+
+// edit form
+export const editForm = new ValidatedMethod({
+  name: 'integrations.editForm',
+  mixins: [ErxesMixin],
+
+  validate({ _id, doc }) {
+    check(_id, String);
+    check(doc, { name: String, brandId: String, formId: String });
+  },
+
+  run({ _id, doc }) {
+    return Integrations.update({ _id }, { $set: doc });
+  },
+});
+
 // integration remove
 export const remove = new ValidatedMethod({
   name: 'integrations.remove',
