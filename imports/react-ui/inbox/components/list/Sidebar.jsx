@@ -136,14 +136,19 @@ class Sidebar extends React.Component {
     );
   }
 
-  static renderSectionHeader(queryParamName, otherButton) {
+  static renderSectionHeader(queryParamName, buttonLink) {
     const onClick = () => {
       Wrapper.Sidebar.filter(queryParamName, '');
     };
 
     return (
       <Wrapper.Sidebar.Section.QuickButtons>
-        {otherButton}
+        <a
+          href={buttonLink}
+          className="quick-button"
+        >
+          <i className="ion-gear-a" />
+        </a>
         {
           FlowRouter.getQueryParam(queryParamName)
             ? <a href="" className="quick-button" onClick={onClick}>
@@ -194,20 +199,16 @@ class Sidebar extends React.Component {
     const { channels, tags, brands, channelsReady, tagsReady, brandsReady } = this.props;
     const integrationTypes = INTEGRATIONS_TYPES.ALL_LIST;
     const { Title } = Wrapper.Sidebar.Section;
-    const manageTags = (
-      <a
-        href={FlowRouter.path('tags/list', { type: 'conversation' })}
-        className="quick-button"
-      >
-        <i className="ion-gear-a" />
-      </a>
-    );
+    const manageTags = FlowRouter.path('tags/list', { type: 'conversation' });
+    const manageBrands = FlowRouter.path('settings/brands/list');
+    const manageChannels = FlowRouter.path('settings/channels/list');
+    const manageIntegrations = FlowRouter.path('settings/integrations/list');
 
     return (
       <Wrapper.Sidebar>
         <Wrapper.Sidebar.Section collapsible={channels.length > 5}>
           <Title>Channels</Title>
-          {Sidebar.renderSectionHeader('channelId')}
+          {Sidebar.renderSectionHeader('channelId', manageChannels)}
           <ul className="filters">
             {channels.map(channel => Sidebar.renderChannel(channel))}
             {Sidebar.renderEmptyState(channels, 'No channel', 'ion-pound', channelsReady)}
@@ -216,7 +217,7 @@ class Sidebar extends React.Component {
 
         <Wrapper.Sidebar.Section collapsible={brands.length > 5}>
           <Title>Brands</Title>
-          {Sidebar.renderSectionHeader('brandId')}
+          {Sidebar.renderSectionHeader('brandId', manageBrands)}
           <ul className="filters">
             {brands.map(brand => Sidebar.renderBrand(brand))}
             {Sidebar.renderEmptyState(brands, 'No brand', 'ion-flag', brandsReady)}
@@ -225,7 +226,7 @@ class Sidebar extends React.Component {
 
         <Wrapper.Sidebar.Section collapsible={integrationTypes.length > 5}>
           <Title>Integrations</Title>
-          {Sidebar.renderSectionHeader('integrationType')}
+          {Sidebar.renderSectionHeader('integrationType', manageIntegrations)}
           <ul className="filters">
             {integrationTypes.map((t, i) => Sidebar.renderIntegration(t, i))}
             {Sidebar.renderEmptyState(integrationTypes, 'No integration', 'ion-flag')}

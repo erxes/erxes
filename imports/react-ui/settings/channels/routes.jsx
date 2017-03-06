@@ -1,7 +1,7 @@
 import React from 'react';
 import { mount } from 'react-mounter';
-import settingsRoute from '../routes.jsx';
 import { MainLayout } from '/imports/react-ui/layout/containers';
+import settingsRoute from '../routes.jsx';
 import { ChannelList, ChannelForm } from './containers';
 
 
