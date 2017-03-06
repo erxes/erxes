@@ -1,6 +1,6 @@
 import { Mongo } from 'meteor/mongo';
 import { SimpleSchema } from 'meteor/aldeed:simple-schema';
-import { types, connectors } from './constants';
+import { types, connectors, dateUnits } from './constants';
 
 
 const conditionSchema = new SimpleSchema({
@@ -13,6 +13,11 @@ const conditionSchema = new SimpleSchema({
   value: {
     type: String,
     optional: true,
+  },
+  dateUnit: {
+    type: String,
+    optional: true,
+    allowedValues: Object.keys(dateUnits),
   },
   type: {
     type: String,
