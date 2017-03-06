@@ -7,9 +7,21 @@ export default {
       query.$or = [];
     }
 
-    segment.conditions.forEach(({ field, operator, value }) => {
+    segment.conditions.forEach(({ field, operator, type, value }) => {
       let op;
-      const transformedValue = operator.type === 'string' ? value.toLowerCase() : value;
+      let transformedValue;
+
+      switch (type) {
+        case 'string':
+          transformedValue = value.toLowerCase();
+          break;
+        case 'number':
+          transformedValue = parseInt(value, 10);
+          break;
+        default:
+          transformedValue = value;
+          break;
+      }
 
       switch (operator) {
         case 'e':
