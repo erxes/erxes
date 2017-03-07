@@ -9,44 +9,56 @@ const propTypes = {
 
 function LoadingContent({ items, isTable }) {
   return (
+    isTable ? <TableRow items={items} /> : <Row items={items} />
+  );
+}
+
+function Row({ items }) {
+  return (
     <div>
-      {_.times(items, (n) => {
-        if (isTable) {
-          return <TableRow key={n} />;
-        }
-        return <Row key={n} />;
-      },
-    )}
+      {_.times(items, n =>
+        <div key={n} className="loading-item bordered">
+          <div className="circle animate" />
+          <div className="line-wrapper">
+            <div className="line width20 animate" />
+            <div className="line width70 animate" />
+            <div className="line width40 animate" />
+          </div>
+        </div>,
+      )}
     </div>
   );
 }
 
-function Row() {
+
+function TableRow({ items }) {
+  const getRandom = (min, max) => Math.floor((Math.random() * ((max - min) + 1)) + min);
+
   return (
-    <div className="loading-item bordered">
-      <div className="circle animate" />
-      <div className="line-wrapper">
-        <div className="line width20 animate" />
-        <div className="line width70 animate" />
-        <div className="line width40 animate" />
-      </div>
-    </div>
+    <tbody>
+      {_.times(items, n =>
+        <tr key={n}>
+          <td className="less-space">
+            <div className="circle animate" />
+          </td>
+          <td><div style={{ width: `${getRandom(60, 100)}%` }} className="line animate" /></td>
+          <td><div style={{ width: `${getRandom(60, 100)}%` }} className="line animate" /></td>
+          <td><div style={{ width: `${getRandom(60, 100)}%` }} className="line animate" /></td>
+          <td><div style={{ width: `${getRandom(60, 100)}%` }} className="line animate" /></td>
+          <td><div style={{ width: `${getRandom(60, 100)}%` }} className="line animate" /></td>
+          <td><div style={{ width: `${getRandom(60, 100)}%` }} className="line animate" /></td>
+        </tr>,
+      )}
+    </tbody>
   );
 }
 
-function TableRow() {
-  // todo
-  return (
-    <div className="loading-item bordered">
-      <div className="line-wrapper">
-        <div className="line width20 animate" />
-        <div className="line width85 animate" />
-        <div className="line width65 animate" />
-        <div className="line width40 animate" />
-      </div>
-    </div>
-  );
-}
+TableRow.propTypes = {
+  items: PropTypes.number.isRequired,
+};
+Row.propTypes = {
+  items: PropTypes.number.isRequired,
+};
 
 LoadingContent.propTypes = propTypes;
 
