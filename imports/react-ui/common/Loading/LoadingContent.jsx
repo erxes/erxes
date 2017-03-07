@@ -27,8 +27,7 @@ function Row() {
       <div className="circle animate" />
       <div className="line-wrapper">
         <div className="line width20 animate" />
-        <div className="line width85 animate" />
-        <div className="line width65 animate" />
+        <div className="line width70 animate" />
         <div className="line width40 animate" />
       </div>
     </div>

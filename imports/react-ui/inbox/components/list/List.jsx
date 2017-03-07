@@ -116,11 +116,7 @@ function List(props) {
   const mainContent = () => {
     if (unreadConversations.length === 0 && readConversations.length === 0 && conversationReady) {
       return empty;
-    } else if (
-      unreadConversations.length === 0 &&
-      readConversations.length === 0 &&
-      !conversationReady
-    ) {
+    } else if (!conversationReady) {
       return <LoadingContent items={5} />;
     }
     return content;
