@@ -14,7 +14,7 @@
   align-items: center;
 
   .animate {
-    animation: pulse .6s infinite alternate;
+    animation: pulse .5s infinite alternate;
   }
 
   &.bordered {
@@ -35,7 +35,7 @@
 
     .line {
       height: 8px;
-      margin: 10px 0;
+      margin: 13px 0;
       background: $border-grey;
       border-radius: $border-radius;
 
@@ -53,7 +53,7 @@
     }
 
     .animate {
-      animation: pulse .6s infinite alternate;
+      animation: pulse .5s infinite alternate;
     }
   }
 
