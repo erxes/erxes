@@ -7,6 +7,7 @@ import Tags from './Tags.jsx';
 import Loader from './Loader.jsx';
 import LoadingSidebar from './Loading/LoadingSidebar.jsx';
 import LoadingContent from './Loading/LoadingContent.jsx';
+import Loading from './Loading/Loading.jsx';
 import Spinner from './Spinner.jsx';
 import Attachment from './Attachment.jsx';
 import Tip from './Tip.jsx';
@@ -39,4 +40,5 @@ export {
   ConversationsList,
   LoadingSidebar,
   LoadingContent,
+  Loading,
 };

@@ -6,7 +6,7 @@ import { Brands } from '/imports/api/brands/brands';
 import { Tags } from '/imports/api/tags/tags';
 import { KIND_CHOICES } from '/imports/api/integrations/constants';
 import { TAG_TYPES } from '/imports/api/tags/constants';
-import { Loader, pagination } from '/imports/react-ui/common';
+import { pagination, Loading } from '/imports/react-ui/common';
 import { CustomersList } from '../components';
 
 
@@ -39,4 +39,4 @@ function composer({ queryParams }, onData) {
   }
 }
 
-export default composeWithTracker(composer, Loader)(CustomersList);
+export default composeWithTracker(composer, Loading)(CustomersList);
