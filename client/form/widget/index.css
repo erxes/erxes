@@ -1,0 +1,17 @@
+#erxes-iframe {
+  position: fixed;
+  bottom: 12px;
+  right: 12px;
+  border: none;
+  z-index: 100000000;
+}
+
+.erxes-form-hidden {
+  width: 72px;
+  height: 72px;
+}
+
+.erxes-form-shown {
+  width: 386px;
+  height: 300px;
+}

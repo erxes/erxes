@@ -30,6 +30,7 @@ const BrandSchema = Mongoose.Schema({
 const IntegrationSchema = Mongoose.Schema({
   _id: { type: String, unique: true, default: () => Random.id() },
   brandId: String,
+  formId: String,
   kind: String,
 });
 
@@ -73,6 +74,23 @@ const MessageSchema = Mongoose.Schema({
   internal: Boolean,
 });
 
+const FormSchema = Mongoose.Schema({
+  _id: { type: String, unique: true, default: () => Random.id() },
+  title: String,
+});
+
+const FormFieldSchema = Mongoose.Schema({
+  _id: { type: String, unique: true, default: () => Random.id() },
+  formId: String,
+  type: String,
+  name: String,
+  check: String,
+  text: String,
+  description: String,
+  options: [String],
+  isRequired: Boolean,
+  order: Number,
+});
 
 const Users = Mongoose.model('users', UserSchema);
 const Brands = Mongoose.model('brands', BrandSchema);
@@ -80,5 +98,10 @@ const Integrations = Mongoose.model('integrations', IntegrationSchema);
 const Customers = Mongoose.model('customers', CustomerSchema);
 const Conversations = Mongoose.model('conversations', ConversationSchema);
 const Messages = Mongoose.model('conversation_messages', MessageSchema);
+const Forms = Mongoose.model('forms', FormSchema);
+const FormFields = Mongoose.model('form_fields', FormFieldSchema);
 
-export { Users, Brands, Integrations, Customers, Conversations, Messages };
+export {
+  Users, Brands, Integrations, Customers, Conversations,
+  Messages, Forms, FormFields,
+};

@@ -42,7 +42,7 @@ app.use('/graphql', graphqlExpress(() =>
   }),
 ));
 
-// in app messaging url
+// routes ===
 app.get('/inapp', (req, res) => {
   res.sendFile('inapp.html', { root: __dirname });
 });
@@ -51,7 +51,6 @@ app.get('/inapp-test', (req, res) => {
   res.sendFile('inapp-test.html', { root: __dirname });
 });
 
-// chat url
 app.get('/chat', (req, res) => {
   res.sendFile('chat.html', { root: __dirname });
 });
@@ -60,7 +59,15 @@ app.get('/chat-test', (req, res) => {
   res.sendFile('chat-test.html', { root: __dirname });
 });
 
-// graphiql
+app.get('/form', (req, res) => {
+  res.sendFile('form.html', { root: __dirname });
+});
+
+app.get('/form-test', (req, res) => {
+  res.sendFile('form-test.html', { root: __dirname });
+});
+
+// graphiql ==
 app.use('/graphiql', graphiqlExpress({
   endpointURL: '/graphql',
 }));

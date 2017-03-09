@@ -1,7 +1,9 @@
 import { makeExecutableSchema } from 'graphql-tools';
 import inAppQueries from './inapp-queries';
+import formQueries from './form-queries';
 import inAppMutations from './inapp-mutations';
 import ChatMutations from './chat-mutations';
+import FormMutations from './form-mutations';
 import subscriptions from './subscriptions';
 import customTypes from './custom-types';
 
@@ -55,6 +57,24 @@ const typeDefs = `
     internal: Boolean
   }
 
+  type Field {
+    _id: String
+    formId: String
+    name: String
+    type: String
+    check: String
+    text: String
+    description: String
+    options: [String]
+    isRequired: Boolean
+    order: Int
+  }
+
+  type Form {
+    title: String
+    fields: [Field]
+  }
+
   # the schema allows the following queries:
   type RootQuery {
     conversations(integrationId: String!, customerId: String!): [Conversation]
@@ -62,11 +82,19 @@ const typeDefs = `
     messages(conversationId: String): [Message]
     unreadCount(conversationId: String): Int
     conversationLastStaff(_id: String): User
+
+    # form =====
+    form(formId: String): Form
   }
 
   type InAppConnectResponse {
     integrationId: String!
     customerId: String!
+  }
+
+  type FormConnectResponse {
+    integrationId: String!
+    formId: String!
   }
 
   type Mutation {
@@ -79,6 +107,8 @@ const typeDefs = `
 
     chatConnect(brandCode: String!): String
     chatCreateConversation(integrationId: String!, email: String!, content: String!): Message
+
+    formConnect(brandCode: String!): FormConnectResponse
   }
 
   # subscriptions
@@ -99,10 +129,12 @@ const typeDefs = `
 const resolvers = {
   ...customTypes,
   ...inAppQueries,
+  ...formQueries,
   ...subscriptions,
   Mutation: {
     ...inAppMutations,
     ...ChatMutations,
+    ...FormMutations,
   },
 };
 
