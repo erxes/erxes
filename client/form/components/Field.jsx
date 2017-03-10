@@ -48,6 +48,25 @@ export default class Field extends React.Component {
     );
   }
 
+  constructor(props) {
+    super(props);
+
+    this.onInputChange = this.onInputChange.bind(this);
+    this.onSelectChange = this.onSelectChange.bind(this);
+  }
+
+  onInputChange(e) {
+    const { onChange, field } = this.props;
+
+    onChange({ fieldId: field._id, text: field.text, value: e.target.value });
+  }
+
+  onSelectChange(e) {
+    const { onChange, field } = this.props;
+
+    onChange({ fieldId: field._id, text: field.text, value: e.target.value });
+  }
+
   renderControl() {
     const field = this.props.field;
     const options = field.options || [];
@@ -58,7 +77,7 @@ export default class Field extends React.Component {
         return Field.renderSelect(options);
 
       case 'input':
-        return Field.renderInput({});
+        return Field.renderInput({ onChange: this.onInputChange });
 
       case 'check':
         return Field.renderRadioOrCheckInputs(name, options, 'checkbox');
@@ -93,4 +112,5 @@ export default class Field extends React.Component {
 
 Field.propTypes = {
   field: PropTypes.object, // eslint-disable-line
+  onChange: PropTypes.func,
 };

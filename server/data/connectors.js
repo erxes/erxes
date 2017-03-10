@@ -72,6 +72,7 @@ const MessageSchema = Mongoose.Schema({
   createdAt: Date,
   isCustomerRead: Boolean,
   internal: Boolean,
+  formWidgetData: Object,
 });
 
 const FormSchema = Mongoose.Schema({

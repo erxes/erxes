@@ -142,20 +142,11 @@ export const getOrCreateConversation = (doc) => {
  */
 
 export const createMessage = (doc) => {
-  const { conversationId, userId, customerId, message, attachments } = doc;
-
   const messageOptions = {
     createdAt: new Date(),
-    conversationId,
-    customerId,
-    userId,
-    content: message,
     internal: false,
+    ...doc,
   };
-
-  if (attachments) {
-    messageOptions.attachments = attachments;
-  }
 
   // create message object
   const messageObj = new Messages(messageOptions);

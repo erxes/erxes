@@ -6,6 +6,7 @@ import gql from 'graphql-tag';
 import { graphql } from 'react-apollo';
 import { connection } from '../connection';
 import { Form as DumbForm } from '../components';
+import { saveForm } from '../actions/index';
 
 const Form = (props) => {
   const extendedProps = {
@@ -42,7 +43,11 @@ Form.propTypes = {
 };
 
 
-const mapDispatchToProps = () => ({});
+const mapDispatchToProps = dispatch => ({
+  onSubmit(doc) {
+    dispatch(saveForm(doc));
+  },
+});
 
 const FormWithData = graphql(
   gql`

@@ -35,6 +35,12 @@ const typeDefs = `
     size: Int
   }
 
+  input FieldValueInput {
+    _id: String!
+    text: String
+    value: String
+  }
+
   # conversation ===========
   type Conversation {
     _id: String!
@@ -97,6 +103,10 @@ const typeDefs = `
     formId: String!
   }
 
+  type SaveFormResponse {
+    errors: [String]
+  }
+
   type Mutation {
     inAppConnect(brandCode: String!, email: String!, data: JSON): InAppConnectResponse
     insertMessage(integrationId: String!, customerId: String!,
@@ -109,6 +119,7 @@ const typeDefs = `
     chatCreateConversation(integrationId: String!, email: String!, content: String!): Message
 
     formConnect(brandCode: String!): FormConnectResponse
+    saveForm(integrationId: String!, formId: String!, values: [FieldValueInput]): SaveFormResponse
   }
 
   # subscriptions
