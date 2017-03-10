@@ -28,7 +28,7 @@ function composer({ queryParams }, onData) {
   if (customersHandle.ready() && segmentsHandle.ready()
     && brandsHandle.ready() && tagsHandle.ready()) {
     onData(null, {
-      customers: Customers.find({}, { sort: { lastSeenAt: -1 } }).fetch(),
+      customers: Customers.find({}, { sort: { 'inAppMessagingData.lastSeenAt': -1 } }).fetch(),
       segments: Segments.find({}, { sort: { name: 1 } }).fetch(),
       brands: Brands.find({}, { sort: { name: 1 } }).fetch(),
       integrations: KIND_CHOICES.ALL_LIST,
