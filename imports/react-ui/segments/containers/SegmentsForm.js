@@ -15,10 +15,9 @@ function composer(props, onData) {
   const schema = Customers.simpleSchema().schema();
   const fields = Object.keys(schema)
     .filter((key) => {
-      console.log(schema[key]);
-      // Accepts only below types of fields
-      const acceptedTypes = ['String', 'Number', 'Boolean', 'Date'];
-      const isAcceptedType = acceptedTypes.indexOf(schema[key].type.name) > -1;
+      // Can't accepts below types of fields
+      const unacceptedTypes = ['Object', 'Array'];
+      const isAcceptedType = unacceptedTypes.indexOf(schema[key].type.name) < 0;
 
       // Exclude the fields which is used for internal use
       const [parentFieldName] = key.split('.');
