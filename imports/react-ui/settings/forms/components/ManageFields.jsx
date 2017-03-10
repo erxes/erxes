@@ -97,8 +97,11 @@ class ManageFields extends Component {
         this.setState({ editingField: editingFieldDefaultValue });
       };
 
-      const onDelete = () => {
+      const onDelete = (e) => {
+        e.preventDefault();
+
         this.props.deleteField(_id);
+
         reset();
       };
 

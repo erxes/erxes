@@ -54,11 +54,11 @@ Conversations.TAG_TYPE = 'conversation';
 
 Conversations.helpers({
   customer() {
-    return Customers.findOne(this.customerId);
+    return Customers.findOne(this.customerId) || {};
   },
 
   integration() {
-    return Integrations.findOne(this.integrationId);
+    return Integrations.findOne(this.integrationId) || {};
   },
 
   tags() {
@@ -187,6 +187,7 @@ Conversations.schema = new SimpleSchema({
   customerId: {
     type: String,
     regEx: SimpleSchema.RegEx.Id,
+    optional: true,
   },
 
   integrationId: {

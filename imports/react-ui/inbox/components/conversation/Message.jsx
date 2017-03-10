@@ -1,3 +1,6 @@
+/* eslint-disable react/no-danger */
+
+import { _ } from 'meteor/underscore';
 import React, { PropTypes } from 'react';
 import moment from 'moment';
 import classNames from 'classnames';
@@ -16,6 +19,7 @@ function Message({ message, staff, isSameUser }) {
   const isPhotoPost = faceboodData && faceboodData.item === 'photo';
   const isVideoPost = faceboodData && faceboodData.item === 'video' && faceboodData.videoId;
   const hasAttachment = message.attachments && message.attachments.length > 0;
+
   const classes = classNames({
     message: true,
     staff,
@@ -39,10 +43,12 @@ function Message({ message, staff, isSameUser }) {
   const renderName = () => {
     let fullName = 'Unknown';
 
-    if (prop.user) {
-      fullName = prop.user.deteails && prop.user.deteails.fullName;
-    } else if (prop.customer) {
-      fullName = prop.customer.name;
+    const { user, customer } = prop;
+
+    if (user) {
+      fullName = user.details && user.deteails.fullName;
+    } else if (customer) {
+      fullName = customer.name;
     }
 
     return fullName;
@@ -50,7 +56,8 @@ function Message({ message, staff, isSameUser }) {
 
   const renderVideoIframe = () => {
     if (isVideoPost) {
-      const iframeSrc = `https://www.facebook.com/video/embed?video_id=${faceboodData.videoId}&width=500`;
+      const iframeSrc = `https://www.facebook.com/video/embed
+        ?video_id=${faceboodData.videoId}&width=500`;
 
       return (
         <iframe
@@ -63,6 +70,23 @@ function Message({ message, staff, isSameUser }) {
         />
       );
     }
+
+    return null;
+  };
+
+  const renderFormWidgetData = () => {
+    if (message.formWidgetData) {
+      return (
+        <div>
+          {_.map(message.formWidgetData, (data, index) => ((
+            <p key={index}>
+              <span>{data.text}: </span> <span>{data.value}</span>
+            </p>
+          )))}
+        </div>
+      );
+    }
+
     return null;
   };
 
@@ -70,7 +94,9 @@ function Message({ message, staff, isSameUser }) {
     if (hasAttachment) {
       return <Attachment attachment={message.attachments[0]} />;
     } else if (isPhotoPost) {
-      const iframeSrc = `https://www.facebook.com/plugins/post.php?href=https://www.facebook.com/photo.php?fbid=${faceboodData.photoId}`;
+      const iframeSrc = `https://www.facebook.com/plugins/post.php?
+        href=https://www.facebook.com/photo.php?fbid=${faceboodData.photoId}`;
+
       return (
         <iframe
           src={iframeSrc}
@@ -82,6 +108,7 @@ function Message({ message, staff, isSameUser }) {
         />)
       ;
     }
+
     return null;
   };
 
@@ -106,6 +133,7 @@ function Message({ message, staff, isSameUser }) {
 
           {renderVideoIframe()}
           {renderAttachment()}
+          {renderFormWidgetData()}
           <footer>
             {moment(message.createdAt).fromNow()}
           </footer>
