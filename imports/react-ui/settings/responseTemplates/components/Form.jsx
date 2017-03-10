@@ -69,7 +69,7 @@ class Form extends Component {
           <FormControl
             componentClass="select"
             placeholder="Select Brand"
-            defaultValue={resTemplate.brand()._id}
+            defaultValue={resTemplate.brand && resTemplate.brand()._id}
           >
             {brands.map(brand =>
               <option key={brand._id} value={brand._id}>{brand.name}</option>,
