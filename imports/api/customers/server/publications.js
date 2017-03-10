@@ -123,7 +123,7 @@ Meteor.publishComposite('customers.list', function customersList(queryString) {
 
       const options = {
         fields: Customers.publicFields,
-        sort: { lastSeenAt: -1 },
+        sort: { 'inAppMessagingData.lastSeenAt': -1 },
         limit: queryString.limit || 0,
       };
 
