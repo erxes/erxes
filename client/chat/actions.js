@@ -1,8 +1,13 @@
 import gql from 'graphql-tag';
-import { FORM_TOGGLE, CONVERSATION_SENT } from '../constants';
-import { EMAIL_LOCAL_STORAGE_KEY, NEW_CONVERSATION, STATUS_CHANGED } from '../constants';
-import client from '../../apollo-client';
-import { connection } from '../connection';
+import {
+  FORM_TOGGLE,
+  CONVERSATION_SENT,
+  EMAIL_LOCAL_STORAGE_KEY,
+  NEW_CONVERSATION,
+  STATUS_CHANGED,
+} from './constants';
+import client from '../apollo-client';
+import { connection } from './connection';
 
 export const toggle = (isVisible) => {
   // notify parent window launcher state
@@ -16,8 +21,8 @@ export const toggle = (isVisible) => {
   };
 };
 
-export const createConversation = (doc) =>
-  (dispatch) =>
+export const createConversation = doc =>
+  dispatch =>
     client.mutate({
       mutation: gql`
         mutation chatCreateConversation(${connection.queryVariables},
@@ -43,14 +48,12 @@ export const createConversation = (doc) =>
     });
 
 
-export const cacheEmail = (email) =>
-  () =>
-    localStorage.setItem(EMAIL_LOCAL_STORAGE_KEY, email);
+export const cacheEmail = email => () =>
+  localStorage.setItem(EMAIL_LOCAL_STORAGE_KEY, email);
 
 
-export const newConversation = () =>
-  (dispatch) =>
-    dispatch({
-      type: STATUS_CHANGED,
-      status: NEW_CONVERSATION,
-    });
+export const newConversation = () => dispatch =>
+  dispatch({
+    type: STATUS_CHANGED,
+    status: NEW_CONVERSATION,
+  });

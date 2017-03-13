@@ -1,6 +1,9 @@
-import { FORM_TOGGLE, EMAIL_LOCAL_STORAGE_KEY } from '../constants';
-import { NEW_CONVERSATION, STATUS_CHANGED } from '../constants';
-
+import {
+  FORM_TOGGLE,
+  EMAIL_LOCAL_STORAGE_KEY,
+  NEW_CONVERSATION,
+  STATUS_CHANGED,
+} from './constants';
 
 /**
  * Indicates messenger box's visibility.

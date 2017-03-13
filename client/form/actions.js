@@ -1,8 +1,8 @@
 import _ from 'underscore';
 import gql from 'graphql-tag';
-import { FORM_TOGGLE, FORM_SENT, STATUS_CHANGED } from '../constants';
-import client from '../../apollo-client';
-import { connection } from '../connection';
+import { FORM_TOGGLE, FORM_SENT, STATUS_CHANGED } from './constants';
+import client from '../apollo-client';
+import { connection } from './connection';
 
 export const toggle = (isVisible) => {
   // notify parent window launcher state

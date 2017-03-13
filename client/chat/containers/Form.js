@@ -1,5 +1,5 @@
 import { connect } from 'react-redux';
-import { createConversation, cacheEmail, newConversation } from '../actions/index';
+import { createConversation, cacheEmail, newConversation } from '../actions';
 import { Form } from '../components';
 
 const mapStateToProps = state => ({

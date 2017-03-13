@@ -1,4 +1,4 @@
-import { FORM_TOGGLE } from '../constants';
+import { FORM_TOGGLE } from './constants';
 
 // Indicates messenger box's visibility.
 const isVisible = (state = false, action) => {

@@ -6,7 +6,7 @@ import gql from 'graphql-tag';
 import { graphql } from 'react-apollo';
 import { connection } from '../connection';
 import { Form as DumbForm } from '../components';
-import { saveForm } from '../actions/index';
+import { saveForm } from '../actions';
 
 const Form = (props) => {
   const extendedProps = {
