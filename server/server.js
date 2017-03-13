@@ -19,11 +19,31 @@ const GRAPHQL_PORT = settings.GRAPHQL_PORT;
 
 const app = express();
 
+// set the view engine to ejs
+app.set('view engine', 'ejs');
+
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
 // Express Middleware for serving static files
 app.use('/build', express.static(path.join(__dirname, '../static')));
+
+// routes ===
+app.get('/inapp', (req, res) => {
+  res.render('widget', { type: 'inapp' });
+});
+
+app.get('/chat', (req, res) => {
+  res.render('widget', { type: 'chat' });
+});
+
+app.get('/form', (req, res) => {
+  res.render('widget', { type: 'form' });
+});
+
+app.get('/test', (req, res) => {
+  res.render('widget-test', { type: req.query.type });
+});
 
 const corsOptions = {
   origin(origin, callback) {
@@ -41,31 +61,6 @@ app.use('/graphql', graphqlExpress(() =>
     schema,
   }),
 ));
-
-// routes ===
-app.get('/inapp', (req, res) => {
-  res.sendFile('inapp.html', { root: __dirname });
-});
-
-app.get('/inapp-test', (req, res) => {
-  res.sendFile('inapp-test.html', { root: __dirname });
-});
-
-app.get('/chat', (req, res) => {
-  res.sendFile('chat.html', { root: __dirname });
-});
-
-app.get('/chat-test', (req, res) => {
-  res.sendFile('chat-test.html', { root: __dirname });
-});
-
-app.get('/form', (req, res) => {
-  res.sendFile('form.html', { root: __dirname });
-});
-
-app.get('/form-test', (req, res) => {
-  res.sendFile('form-test.html', { root: __dirname });
-});
 
 // graphiql ==
 app.use('/graphiql', graphiqlExpress({
