@@ -2,7 +2,7 @@
 
 import Mongoose from 'mongoose';
 import Random from 'meteor-random';
-import settings from '../server-settings';
+import settings from '../settings';
 
 export const connectToMongo = () => {
   Mongoose.connect(
