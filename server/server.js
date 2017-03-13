@@ -19,11 +19,28 @@ const GRAPHQL_PORT = settings.GRAPHQL_PORT;
 
 const app = express();
 
-// set the view engine to ejs
-app.set('view engine', 'ejs');
-
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
+
+const corsOptions = {
+  origin(origin, callback) {
+    // origin is white listed
+    callback(null, settings.ALLOWED_DOMAINS.includes(origin));
+  },
+
+  credentials: true,
+};
+
+app.use(cors(corsOptions));
+
+app.use('/graphql', graphqlExpress(() =>
+  ({
+    schema,
+  }),
+));
+
+// set the view engine to ejs
+app.set('view engine', 'ejs');
 
 // Express Middleware for serving static files
 app.use('/build', express.static(path.join(__dirname, '../static')));
@@ -44,23 +61,6 @@ app.get('/form', (req, res) => {
 app.get('/test', (req, res) => {
   res.render('widget-test', { type: req.query.type });
 });
-
-const corsOptions = {
-  origin(origin, callback) {
-    // origin is white listed
-    callback(null, settings.ALLOWED_DOMAINS.includes(origin));
-  },
-
-  credentials: true,
-};
-
-app.use(cors(corsOptions));
-
-app.use('/graphql', graphqlExpress(() =>
-  ({
-    schema,
-  }),
-));
 
 // graphiql ==
 app.use('/graphiql', graphiqlExpress({

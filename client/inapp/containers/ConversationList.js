@@ -10,7 +10,7 @@ import { ConversationList as DumbConversationList } from '../components';
 const ConversationList = (props) => {
   const { data } = props;
 
-  let conversations = props.data.conversations;
+  let conversations = props.data.conversations || [];
 
   // show empty list while waiting
   if (data.loading) {

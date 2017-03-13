@@ -106,7 +106,7 @@ export default {
       createMessage({
         conversationId: id,
         customerId,
-        message,
+        content: message,
         attachments,
       }),
     )

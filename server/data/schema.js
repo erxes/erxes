@@ -139,8 +139,10 @@ const typeDefs = `
 
 const resolvers = {
   ...customTypes,
-  ...inAppQueries,
-  ...formQueries,
+  RootQuery: {
+    ...inAppQueries,
+    ...formQueries,
+  },
   ...subscriptions,
   Mutation: {
     ...inAppMutations,

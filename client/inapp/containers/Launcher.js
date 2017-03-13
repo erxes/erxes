@@ -15,7 +15,7 @@ class Launcher extends NotificationSubscriber {
 
     const extendedProps = {
       ...this.props,
-      notificationCount: this.props.data.totalUnreadCount,
+      notificationCount: this.props.data.totalUnreadCount || 0,
     };
 
     return <DumbLauncher {...extendedProps} />;

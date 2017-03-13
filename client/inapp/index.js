@@ -1,23 +1,19 @@
 /* eslint-disable react/jsx-filename-extension */
 
-import React from 'react';
-import ReactDOM from 'react-dom';
-import { ApolloProvider } from 'react-apollo';
 import gql from 'graphql-tag';
-import client, { wsClient, createStore } from '../apollo-client';
+import client, { wsClient } from '../apollo-client';
+import widgetConnect from '../widgetConnect';
 import { connection } from './connection';
-import erxesReducers from './reducers';
+import reducers from './reducers';
 import { App } from './containers';
 import './sass/style.scss';
 
-// listen for widget toggle
-window.addEventListener('message', (event) => {
-  // connect to api using passed settings
-  if (event.data.fromPublisher) {
+widgetConnect({
+  connectMutation: (event) => {
     const settings = event.data.settings;
 
     // call connect mutation
-    client.mutate({
+    return client.mutate({
       mutation: gql`
         mutation connect($brandCode: String!, $email: String!) {
           inAppConnect(brandCode: $brandCode, email: $email) {
@@ -30,31 +26,25 @@ window.addEventListener('message', (event) => {
         brandCode: settings.brand_id,
         email: settings.email,
       },
-    })
-
-    .then(({ data }) => {
-      const inAppData = data.inAppConnect;
-
-      // save connection info
-      connection.data = inAppData;
-
-      // send connected message to ws server and server will save given
-      // data to connection. So when connection closed, we will use
-      // customerId to mark customer as not active
-      wsClient.sendMessage({ type: 'inAppConnected', value: inAppData });
-
-      // render root react component
-      ReactDOM.render(
-        <ApolloProvider store={createStore(erxesReducers)} client={client}>
-          <App />
-        </ApolloProvider>,
-        document.getElementById('root'),
-      );
-    })
-
-    .catch((error) => {
-      console.log(error); // eslint-disable-line
-      console.log('Integration not found'); // eslint-disable-line
     });
-  }
+  },
+
+  connectCallback: (data) => {
+    const inAppData = data.inAppConnect;
+
+    // save connection info
+    connection.data = {
+      customerId: inAppData.customerId,
+      integrationId: inAppData.integrationId,
+    };
+
+    // send connected message to ws server and server will save given
+    // data to connection. So when connection closed, we will use
+    // customerId to mark customer as not active
+    wsClient.sendMessage({ type: 'inAppConnected', value: inAppData });
+  },
+
+  AppContainer: App,
+
+  reducers,
 });
