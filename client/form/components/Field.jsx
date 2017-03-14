@@ -10,6 +10,8 @@ export default class Field extends React.Component {
         className="form-control"
       >
 
+        <option />
+
         {options.map((option, index) =>
           <option key={index} value={option}>{option}</option>,
         )}
@@ -68,6 +70,7 @@ export default class Field extends React.Component {
     this.onInputChange = this.onInputChange.bind(this);
     this.onRadioButtonsChange = this.onRadioButtonsChange.bind(this);
     this.onCheckboxesChange = this.onCheckboxesChange.bind(this);
+    this.onTextAreaChange = this.onTextAreaChange.bind(this);
     this.onSelectChange = this.onSelectChange.bind(this);
   }
 
@@ -97,6 +100,10 @@ export default class Field extends React.Component {
     this.onChange(values);
   }
 
+  onTextAreaChange(e) {
+    this.onChange(e.target.value);
+  }
+
   onSelectChange(e) {
     this.onChange(e.target.value);
   }
@@ -108,7 +115,7 @@ export default class Field extends React.Component {
 
     switch (field.type) {
       case 'select':
-        return Field.renderSelect(options);
+        return Field.renderSelect(options, { onChange: this.onSelectChange });
 
       case 'input':
         return Field.renderInput({ onChange: this.onInputChange });
@@ -120,7 +127,7 @@ export default class Field extends React.Component {
         return Field.renderRadioButtons(name, options, this.onRadioButtonsChange);
 
       case 'textarea':
-        return Field.renderTextarea({});
+        return Field.renderTextarea({ onChange: this.onTextAreaChange });
 
       default:
         return Field.renderInput({ type: 'text' });
