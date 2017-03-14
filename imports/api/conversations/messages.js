@@ -173,6 +173,7 @@ Messages.schema = new SimpleSchema([
 
     formWidgetData: {
       type: Object,
+      optional: true,
       blackbox: true,
     },
 
