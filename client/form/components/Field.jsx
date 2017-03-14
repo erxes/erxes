@@ -35,12 +35,25 @@ export default class Field extends React.Component {
     );
   }
 
-  static renderRadioOrCheckInputs(name, options, type) {
+  static renderCheckboxes(name, options, onChange) {
     return (
       <div>
         {options.map((option, index) => (
           <div key={index}>
-            {Field.renderInput({ type, name })}
+            {Field.renderInput({ type: 'checkbox', 'data-option': option, name, onChange })}
+            <span>{option}</span>
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  static renderRadioButtons(name, options, onChange) {
+    return (
+      <div>
+        {options.map((option, index) => (
+          <div key={index}>
+            {Field.renderInput({ type: 'radio', 'data-option': option, name, onChange })}
             <span>{option}</span>
           </div>
         ))}
@@ -51,20 +64,41 @@ export default class Field extends React.Component {
   constructor(props) {
     super(props);
 
+    this.onChange = this.onChange.bind(this);
     this.onInputChange = this.onInputChange.bind(this);
+    this.onRadioButtonsChange = this.onRadioButtonsChange.bind(this);
+    this.onCheckboxesChange = this.onCheckboxesChange.bind(this);
     this.onSelectChange = this.onSelectChange.bind(this);
   }
 
-  onInputChange(e) {
+  onChange(value) {
     const { onChange, field } = this.props;
 
-    onChange({ fieldId: field._id, text: field.text, value: e.target.value });
+    onChange({ fieldId: field._id, text: field.text, value });
+  }
+
+  onInputChange(e) {
+    this.onChange(e.target.value);
+  }
+
+  onRadioButtonsChange(e) {
+    this.onChange(e.target.dataset.option);
+  }
+
+  onCheckboxesChange() {
+    const values = [];
+
+    document.getElementsByName(this.props.field.name).forEach((checkbox) => {
+      if (checkbox.checked) {
+        values.push(checkbox.dataset.option);
+      }
+    });
+
+    this.onChange(values);
   }
 
   onSelectChange(e) {
-    const { onChange, field } = this.props;
-
-    onChange({ fieldId: field._id, text: field.text, value: e.target.value });
+    this.onChange(e.target.value);
   }
 
   renderControl() {
@@ -80,10 +114,10 @@ export default class Field extends React.Component {
         return Field.renderInput({ onChange: this.onInputChange });
 
       case 'check':
-        return Field.renderRadioOrCheckInputs(name, options, 'checkbox');
+        return Field.renderCheckboxes(name, options, this.onCheckboxesChange);
 
       case 'radio':
-        return Field.renderRadioOrCheckInputs(name, options, 'radio');
+        return Field.renderRadioButtons(name, options, this.onRadioButtonsChange);
 
       case 'textarea':
         return Field.renderTextarea({});
