@@ -1,6 +1,6 @@
 import Random from 'meteor-random';
 import faker from 'faker';
-import { Integrations, Brands } from '../connectors';
+import { Integrations, Brands, Forms, FormFields } from '../connectors';
 
 export const brandFactory = (params) => {
   const brand = new Brands({
@@ -21,4 +21,27 @@ export const integrationFactory = (params) => {
   });
 
   return integration.save();
+};
+
+export const formFactory = ({ title }) => {
+  const form = new Forms({
+    title: title || faker.random.word(),
+  });
+
+  return form.save();
+};
+
+export const formFieldFactory = (params) => {
+  const field = new FormFields({
+    formId: params.formId || Random.id(),
+    type: faker.random.word(),
+    name: faker.random.word(),
+    check: faker.random.word(),
+    text: faker.random.word(),
+    description: faker.random.word(),
+    isRequired: params.isRequired || false,
+    number: faker.random.word(),
+  });
+
+  return field.save();
 };

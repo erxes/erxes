@@ -2,7 +2,7 @@ import _ from 'underscore';
 import { Forms, FormFields } from './connectors';
 import { getIntegration, createConversation, createMessage } from './utils';
 
-export const validate = (submissions, formId) =>
+export const validate = (formId, submissions) =>
   FormFields.find({ formId })
     .then((fields) => {
       const errors = [];
@@ -20,13 +20,13 @@ export const validate = (submissions, formId) =>
     });
 
 
-const saveValues = ({ integrationId, values, formId }) =>
+export const saveValues = ({ integrationId, values, formId }) =>
   Forms.findOne({ _id: formId })
     .then((form) => {
       const content = form.title;
 
       // create conversation
-      createConversation({
+      return createConversation({
         integrationId,
         content,
       })
@@ -35,7 +35,7 @@ const saveValues = ({ integrationId, values, formId }) =>
       .then(conversationId =>
         createMessage({
           conversationId,
-          message: content,
+          content,
           formWidgetData: values,
         }),
       )
@@ -58,13 +58,11 @@ export default {
       });
   },
 
-  /*
-   * Create new conversation using form data
-   */
+  // create new conversation using form data
   saveForm(root, args) {
     const { formId, values } = args;
 
-    return validate(values, formId).then((errors) => {
+    return validate(formId, values).then((errors) => {
       if (errors.length > 0) {
         return errors;
       }

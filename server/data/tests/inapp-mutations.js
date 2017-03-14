@@ -165,7 +165,6 @@ describe('Mutations', () => {
             const p2 = Conversations.findOne({}).then((conversation) => {
               expect(conversation.customerId).to.equal(customerId);
               expect(conversation.integrationId).to.equal(integrationId);
-              expect(conversation.integrationId).to.equal(integrationId);
               expect(conversation.content).to.equal(message);
               expect(conversation.status).to.equal('open');
               expect(conversation.number).to.equal(1);
