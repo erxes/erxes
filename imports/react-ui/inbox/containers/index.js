@@ -3,6 +3,7 @@ import Details from './Details';
 import RespondBox from './RespondBox';
 import AssignBox from './AssignBox';
 import Resolver from './Resolver';
+import ResponseTemplate from './ResponseTemplate';
 import Sidebar from './Sidebar';
 
 
@@ -12,5 +13,6 @@ export {
   RespondBox,
   AssignBox,
   Resolver,
+  ResponseTemplate,
   Sidebar,
 };
