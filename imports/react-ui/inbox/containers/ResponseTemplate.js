@@ -2,6 +2,7 @@ import { Meteor } from 'meteor/meteor';
 import { composeWithTracker } from 'react-komposer';
 import { ResponseTemplates } from '/imports/api/responseTemplates/responseTemplates';
 import { Brands } from '/imports/api/brands/brands';
+import { Loader } from '/imports/react-ui/common';
 import { ResponseTemplate } from '../components';
 
 
@@ -20,4 +21,4 @@ function composer(props, onData) {
   }
 }
 
-export default composeWithTracker(composer, null)(ResponseTemplate);
+export default composeWithTracker(composer, Loader)(ResponseTemplate);
