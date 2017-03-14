@@ -94,7 +94,7 @@ export default class Field extends React.Component {
   }
 
   render() {
-    const { field } = this.props;
+    const { field, error } = this.props;
 
     return (
       <div className="form-group">
@@ -104,6 +104,8 @@ export default class Field extends React.Component {
           {field.isRequired ? <span className="required">*</span> : null}:
         </label>
 
+        {error && error.text}
+
         {this.renderControl()}
       </div>
     );
@@ -112,5 +114,6 @@ export default class Field extends React.Component {
 
 Field.propTypes = {
   field: PropTypes.object, // eslint-disable-line
+  error: PropTypes.object, // eslint-disable-line
   onChange: PropTypes.func,
 };

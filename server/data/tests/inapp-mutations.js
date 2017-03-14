@@ -3,6 +3,7 @@
 import { expect } from 'chai';
 import { Customers, Brands, Integrations, Conversations, Messages } from '../connectors';
 import { createCustomer, createConversation, createMessage } from '../utils';
+import { brandFactory, integrationFactory } from './factories';
 import inAppMutations from '../inapp-mutations';
 
 
@@ -29,21 +30,8 @@ describe('Mutations', () => {
     // create initial values
     beforeEach((done) => {
       // create brand
-      const brand = new Brands({
-        code: brandCode,
-        userId: 'DFDFDFDERERERE',
-        createdAt: new Date(),
-      });
-
-      // create integration
-      brand.save().then((brandId) => {
-        const integration = new Integrations({
-          brandId,
-          name: 'In app messaging',
-          kind: 'in_app_messaging',
-        });
-
-        integration.save().then(({ _id }) => {
+      brandFactory({ code: brandCode }).then((brandId) => {
+        integrationFactory({ brandId, kind: 'in_app_messaging' }).then(({ _id }) => {
           integrationId = _id;
           done();
         });

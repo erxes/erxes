@@ -1,3 +1,4 @@
+import _ from 'underscore';
 import React, { PropTypes } from 'react';
 
 import Field from './Field';
@@ -9,9 +10,13 @@ export default class Form extends React.Component {
     this.onSubmit = this.onSubmit.bind(this);
     this.onFieldValueChange = this.onFieldValueChange.bind(this);
 
-    this.state = {
-      doc: {},
-    };
+    const doc = {};
+
+    _.each(this.props.form.fields, (field) => {
+      doc[field._id] = { text: '', value: '' };
+    });
+
+    this.state = { doc };
   }
 
   onFieldValueChange({ fieldId, text, value }) {
@@ -27,15 +32,22 @@ export default class Form extends React.Component {
   }
 
   renderFields() {
-    const fields = this.props.form.fields;
+    const { form, submitResponse } = this.props;
+    const fields = form.fields;
+    const errors = submitResponse.errors || [];
 
-    return fields.map(field =>
-      <Field
-        key={field._id}
-        field={field}
-        onChange={this.onFieldValueChange}
-      />,
-    );
+    return fields.map((field) => {
+      const fieldError = errors.find(error => error.fieldId === field._id);
+
+      return (
+        <Field
+          key={field._id}
+          field={field}
+          error={fieldError}
+          onChange={this.onFieldValueChange}
+        />
+      );
+    });
   }
 
   render() {
@@ -72,6 +84,16 @@ Form.propTypes = {
       options: PropTypes.arrayOf(PropTypes.string),
       isRequired: PropTypes.bool,
       order: PropTypes.number,
+    })),
+  }),
+
+  submitResponse: PropTypes.shape({
+    status: PropTypes.string,
+
+    errors: PropTypes.arrayOf(PropTypes.shape({
+      fieldId: PropTypes.string,
+      code: PropTypes.string,
+      text: PropTypes.string,
     })),
   }),
 

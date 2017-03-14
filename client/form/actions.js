@@ -1,6 +1,6 @@
 import _ from 'underscore';
 import gql from 'graphql-tag';
-import { FORM_TOGGLE, FORM_SENT, STATUS_CHANGED } from './constants';
+import { FORM_TOGGLE, SUCCESS, ERROR, FORM_SUBMITTED } from './constants';
 import client from '../apollo-client';
 import { connection } from './connection';
 
@@ -31,7 +31,9 @@ export const saveForm = doc => (dispatch) => {
     mutation: gql`
       mutation saveForm($integrationId: String!, $formId: String!, $values: [FieldValueInput]) {
         saveForm(integrationId: $integrationId, formId: $formId, values: $values) {
-          errors
+          fieldId
+          code
+          text
         }
       }`,
 
@@ -42,11 +44,19 @@ export const saveForm = doc => (dispatch) => {
     },
   })
 
-  .then(() => {
-    // notify as sent
+  .then(({ data }) => {
+    const errors = data.saveForm;
+
+    let status = SUCCESS;
+
+    if (errors.length > 0) {
+      status = ERROR;
+    }
+
     dispatch({
-      type: STATUS_CHANGED,
-      status: FORM_SENT,
+      type: FORM_SUBMITTED,
+      status,
+      errors,
     });
   });
 };

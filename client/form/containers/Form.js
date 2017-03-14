@@ -42,6 +42,9 @@ Form.propTypes = {
   }),
 };
 
+const mapStateToProps = state => ({
+  submitResponse: state.submitResponse,
+});
 
 const mapDispatchToProps = dispatch => ({
   onSubmit(doc) {
@@ -81,4 +84,4 @@ const FormWithData = graphql(
   },
 )(Form);
 
-export default connect(() => ({}), mapDispatchToProps)(FormWithData);
+export default connect(mapStateToProps, mapDispatchToProps)(FormWithData);

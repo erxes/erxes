@@ -103,8 +103,10 @@ const typeDefs = `
     formId: String!
   }
 
-  type SaveFormResponse {
-    errors: [String]
+  type Error {
+    fieldId: String
+    code: String
+    text: String
   }
 
   type Mutation {
@@ -119,7 +121,7 @@ const typeDefs = `
     chatCreateConversation(integrationId: String!, email: String!, content: String!): Message
 
     formConnect(brandCode: String!): FormConnectResponse
-    saveForm(integrationId: String!, formId: String!, values: [FieldValueInput]): SaveFormResponse
+    saveForm(integrationId: String!, formId: String!, values: [FieldValueInput]): [Error]
   }
 
   # subscriptions

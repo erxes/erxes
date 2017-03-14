@@ -1,3 +1,4 @@
 export const FORM_TOGGLE = 'FORM_TOGGLE';
-export const FORM_SENT = 'FORM_SENT';
-export const STATUS_CHANGED = 'STATUS_CHANGED';
+export const SUCCESS = 'SUCCESS';
+export const ERROR = 'ERROR';
+export const FORM_SUBMITTED = 'FORM_SUBMITTED';
