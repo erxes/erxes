@@ -1,6 +1,5 @@
 /* eslint-env mocha */
 
-import mongoose from 'mongoose';
 import { expect } from 'chai';
 import { Customers, Brands, Integrations, Conversations, Messages } from '../connectors';
 import { createCustomer, createConversation, createMessage } from '../utils';
@@ -20,10 +19,6 @@ const expectPromise = (done, promise, callback) => {
 };
 
 describe('Mutations', () => {
-  before(() => {
-    mongoose.connect('mongodb://localhost/node-test');
-  });
-
   describe('inAppConnect', () => {
     let integrationId;
     let customerId;
@@ -184,7 +179,7 @@ describe('Mutations', () => {
               expect(conversation.integrationId).to.equal(integrationId);
               expect(conversation.integrationId).to.equal(integrationId);
               expect(conversation.content).to.equal(message);
-              expect(conversation.status).to.equal('new');
+              expect(conversation.status).to.equal('open');
               expect(conversation.number).to.equal(1);
               expect(conversation.messageCount).to.equal(0);
               expect(messageObj.createdAt).to.not.equal(undefined);
