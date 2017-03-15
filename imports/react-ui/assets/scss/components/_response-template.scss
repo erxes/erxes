@@ -15,6 +15,11 @@
     .popover-body {
       flex: 1;
       overflow: auto;
+
+      li {
+        padding: 10px 20px;
+        border-bottom: 1px solid #ddd;
+      }
     }
 
     .popover-footer {
@@ -33,6 +38,10 @@
       flex: 1;
       flex-direction: row;
       align-items: baseline;
+
+      &:first-child {
+        margin-right: 5px;
+      }
     }
 
     span {

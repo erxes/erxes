@@ -139,8 +139,6 @@ class ResponseTemplate extends Component {
               />
             </div>
             <div className="column">
-              <span>Brand</span>
-
               <FormControl
                 componentClass="select"
                 placeholder="Select Brand"
