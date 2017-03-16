@@ -1,5 +1,6 @@
 import { Meteor } from 'meteor/meteor';
-import { composeWithTracker } from 'react-komposer';
+import { compose } from 'react-komposer';
+import { getTrackerLoader } from '/imports/react-ui/utils';
 import { Counts } from 'meteor/tmeasday:publish-counts';
 import { Loader } from '/imports/react-ui/common';
 import QuickNavigation from '../components/QuickNavigation.jsx';
@@ -14,4 +15,4 @@ function composer(props, onData) {
   }
 }
 
-export default composeWithTracker(composer, Loader)(QuickNavigation);
+export default compose(getTrackerLoader(composer, Loader))(QuickNavigation);

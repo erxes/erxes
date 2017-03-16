@@ -1,5 +1,6 @@
 import { Meteor } from 'meteor/meteor';
-import { composeWithTracker } from 'react-komposer';
+import { compose } from 'react-komposer';
+import { getTrackerLoader } from '/imports/react-ui/utils';
 import { _ } from 'meteor/underscore';
 import { Channels } from '/imports/api/channels/channels';
 import { Brands } from '/imports/api/brands/brands';
@@ -49,4 +50,4 @@ function composer({ channelId, queryParams }, onData) {
   );
 }
 
-export default composeWithTracker(composer, Loader)(Sidebar);
+export default compose(getTrackerLoader(composer, Loader))(Sidebar);
