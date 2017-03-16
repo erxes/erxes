@@ -37,7 +37,10 @@ const FormSchemaExtra = new SimpleSchema({
 Fields.schema = new SimpleSchema({
   type: {
     type: String,
-    allowedValues: ['input', 'textarea', 'radio', 'check', 'select', 'divider'],
+    allowedValues: [
+      'input', 'textarea', 'radio', 'check',
+      'select', 'divider', 'email', 'firstName', 'lastName',
+    ],
   },
 
   name: {

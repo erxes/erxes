@@ -14,6 +14,7 @@ class ManageFields extends Component {
     super(props);
 
     this.state = {
+      chosenFieldType: null,
       editingField: editingFieldDefaultValue,
     };
 
@@ -54,6 +55,7 @@ class ManageFields extends Component {
   }
 
   onChangeType(e) {
+    this.setState({ chosenFieldType: e.target.value });
     this.setChanges('type', e.target.value);
   }
 
@@ -133,6 +135,27 @@ class ManageFields extends Component {
     );
   }
 
+  renderOptionsTextArea() {
+    const { editingField, chosenFieldType } = this.state;
+
+    if (!['select', 'check', 'radio'].includes(chosenFieldType)) {
+      return null;
+    }
+
+    return (
+      <p className="form-group">
+        <label className="control-label" htmlFor="type">Options:</label>
+
+        <textarea
+          id="options"
+          className="form-control"
+          value={(editingField.options || []).join('\n')}
+          onChange={this.onChangeOptions}
+        />
+      </p>
+    );
+  }
+
   renderForm() {
     const editingField = this.state.editingField;
 
@@ -154,6 +177,9 @@ class ManageFields extends Component {
             <option value="select">Select</option>
             <option value="check">Checkbox</option>
             <option value="radio">Radio button</option>
+            <option value="email">Email</option>
+            <option value="firstName">First name</option>
+            <option value="lastName">Last name</option>
           </select>
         </p>
 
@@ -187,16 +213,7 @@ class ManageFields extends Component {
           />
         </p>
 
-        <p className="form-group">
-          <label className="control-label" htmlFor="type">Options:</label>
-
-          <textarea
-            id="options"
-            className="form-control"
-            value={(editingField.options || []).join('\n')}
-            onChange={this.onChangeOptions}
-          />
-        </p>
+        {this.renderOptionsTextArea()}
 
         <p className="form-group">
           <label className="control-label" htmlFor="isRequired">Is required:</label>
