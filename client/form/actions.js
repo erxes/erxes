@@ -17,11 +17,12 @@ export const toggle = (isVisible) => {
 };
 
 export const saveForm = doc => (dispatch) => {
-  const values = _.map(_.keys(doc), (fieldId) => {
-    const { value, text } = doc[fieldId];
+  const submissions = _.map(_.keys(doc), (fieldId) => {
+    const { value, text, type } = doc[fieldId];
 
     return {
       _id: fieldId,
+      type,
       text,
       value,
     };
@@ -29,8 +30,8 @@ export const saveForm = doc => (dispatch) => {
 
   client.mutate({
     mutation: gql`
-      mutation saveForm($integrationId: String!, $formId: String!, $values: [FieldValueInput]) {
-        saveForm(integrationId: $integrationId, formId: $formId, values: $values) {
+      mutation saveForm($integrationId: String!, $formId: String!, $submissions: [FieldValueInput]) {
+        saveForm(integrationId: $integrationId, formId: $formId, submissions: $submissions) {
           fieldId
           code
           text
@@ -40,7 +41,7 @@ export const saveForm = doc => (dispatch) => {
     variables: {
       integrationId: connection.data.integrationId,
       formId: connection.data.formId,
-      values,
+      submissions,
     },
   })
 

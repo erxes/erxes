@@ -37,6 +37,7 @@ const typeDefs = `
 
   input FieldValueInput {
     _id: String!
+    type: String
     text: String
     value: String
   }
@@ -121,7 +122,7 @@ const typeDefs = `
     chatCreateConversation(integrationId: String!, email: String!, content: String!): Message
 
     formConnect(brandCode: String!): FormConnectResponse
-    saveForm(integrationId: String!, formId: String!, values: [FieldValueInput]): [Error]
+    saveForm(integrationId: String!, formId: String!, submissions: [FieldValueInput]): [Error]
   }
 
   # subscriptions

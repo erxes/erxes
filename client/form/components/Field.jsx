@@ -77,7 +77,7 @@ export default class Field extends React.Component {
   onChange(value) {
     const { onChange, field } = this.props;
 
-    onChange({ fieldId: field._id, text: field.text, value });
+    onChange({ fieldId: field._id, value });
   }
 
   onInputChange(e) {
@@ -117,9 +117,6 @@ export default class Field extends React.Component {
       case 'select':
         return Field.renderSelect(options, { onChange: this.onSelectChange });
 
-      case 'input':
-        return Field.renderInput({ onChange: this.onInputChange });
-
       case 'check':
         return Field.renderCheckboxes(name, options, this.onCheckboxesChange);
 
@@ -130,7 +127,7 @@ export default class Field extends React.Component {
         return Field.renderTextarea({ onChange: this.onTextAreaChange });
 
       default:
-        return Field.renderInput({ type: 'text' });
+        return Field.renderInput({ onChange: this.onInputChange });
     }
   }
 

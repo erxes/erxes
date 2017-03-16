@@ -13,16 +13,16 @@ export default class Form extends React.Component {
     const doc = {};
 
     _.each(this.props.form.fields, (field) => {
-      doc[field._id] = { text: '', value: '' };
+      doc[field._id] = { text: field.text, type: field.type, value: '' };
     });
 
     this.state = { doc };
   }
 
-  onFieldValueChange({ fieldId, text, value }) {
+  onFieldValueChange({ fieldId, value }) {
     const doc = this.state.doc;
 
-    doc[fieldId] = { text, value };
+    doc[fieldId].value = value;
 
     this.setState({ doc });
   }
