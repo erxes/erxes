@@ -1,6 +1,7 @@
 import { Meteor } from 'meteor/meteor';
 import { _ } from 'meteor/underscore';
-import { composeWithTracker } from 'react-komposer';
+import { compose } from 'react-komposer';
+import { getTrackerLoader } from '/imports/react-ui/utils';
 import { Brands } from '/imports/api/brands/brands';
 import { Loader } from '/imports/react-ui/common';
 import { Signature } from '../components';
@@ -52,4 +53,4 @@ function composer(props, onData) {
   }
 }
 
-export default composeWithTracker(composer, Loader)(Signature);
+export default compose(getTrackerLoader(composer, Loader))(Signature);

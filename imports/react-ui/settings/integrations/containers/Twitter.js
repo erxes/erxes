@@ -2,7 +2,8 @@
 
 import { Meteor } from 'meteor/meteor';
 import { FlowRouter } from 'meteor/kadira:flow-router';
-import { composeWithTracker } from 'react-komposer';
+import { compose } from 'react-komposer';
+import { getTrackerLoader } from '/imports/react-ui/utils';
 import { Loader } from '/imports/react-ui/common';
 import Alert from 'meteor/erxes-notifier';
 import { Brands } from '/imports/api/brands/brands';
@@ -45,4 +46,4 @@ function composer(props, onData) {
   return null;
 }
 
-export default composeWithTracker(composer, Loader)(Twitter);
+export default compose(getTrackerLoader(composer, Loader))(Twitter);

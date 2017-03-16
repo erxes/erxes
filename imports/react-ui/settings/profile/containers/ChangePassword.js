@@ -1,4 +1,5 @@
-import { composeWithTracker } from 'react-komposer';
+import { compose } from 'react-komposer';
+import { getTrackerLoader } from '/imports/react-ui/utils';
 import { Meteor } from 'meteor/meteor';
 import { Accounts } from 'meteor/accounts-base';
 import Alert from 'meteor/erxes-notifier';
@@ -24,4 +25,4 @@ function composer(props, onData) {
   onData(null, { user: Meteor.user(), save });
 }
 
-export default composeWithTracker(composer)(ChangePassword);
+export default compose(getTrackerLoader(composer))(ChangePassword);

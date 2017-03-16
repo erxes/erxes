@@ -1,4 +1,5 @@
-import { composeWithTracker } from 'react-komposer';
+import { compose } from 'react-komposer';
+import { getTrackerLoader } from '/imports/react-ui/utils';
 import { Meteor } from 'meteor/meteor';
 import { Brands } from '/imports/api/brands/brands';
 import { configEmail } from '/imports/api/brands/methods';
@@ -63,4 +64,4 @@ function composer(props, onData) {
   onData(null, { brand, configEmail: configFn, defaultTemplate });
 }
 
-export default composeWithTracker(composer)(Config);
+export default compose(getTrackerLoader(composer))(Config);

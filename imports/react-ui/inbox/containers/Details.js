@@ -1,6 +1,7 @@
 import { Meteor } from 'meteor/meteor';
 import { ReactiveVar } from 'meteor/reactive-var';
-import { composeWithTracker } from 'react-komposer';
+import { compose } from 'react-komposer';
+import { getTrackerLoader } from '/imports/react-ui/utils';
 import { Conversations } from '/imports/api/conversations/conversations';
 import { Messages } from '/imports/api/conversations/messages';
 import { Integrations } from '/imports/api/integrations/integrations';
@@ -71,4 +72,4 @@ function composer({ id, channelId }, onData) {
   }
 }
 
-export default composeWithTracker(composer, Loader)(Details);
+export default compose(getTrackerLoader(composer, Loader))(Details);
