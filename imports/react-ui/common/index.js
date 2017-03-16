@@ -18,6 +18,7 @@ import Pagination from './Pagination/Pagination.jsx';
 import { pagination } from './Pagination/Pagination';
 import FilterableList from './filterableList/FilterableList.jsx';
 import ConversationsList from './conversationsList/ConversationsList.jsx';
+import LoadMore from './LoadMore.jsx';
 
 
 export {
@@ -41,4 +42,5 @@ export {
   LoadingSidebar,
   LoadingContent,
   Loading,
+  LoadMore,
 };

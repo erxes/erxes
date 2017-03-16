@@ -177,6 +177,46 @@ Meteor.publishComposite('customers.details', function customersDetails(id) {
   };
 });
 
+Meteor.publishComposite('customers.listForSegmentPreview',
+  function listForSegmentPreview(segment, limit = 0) {
+    return {
+      find() {
+        check(segment, Object);
+        check(limit, Number);
+
+        if (!this.userId) {
+          return this.ready();
+        }
+
+        const query = QueryBuilder.segments(segment);
+        const options = {
+          fields: Customers.publicFields,
+          sort: { 'inAppMessagingData.lastSeenAt': -1 },
+          limit,
+        };
+
+        Meteor.defer(() => {
+          Counts.publish(
+            this,
+            'customers.list.count',
+            Customers.find(query, { fields: { _id: 1 } }),
+            { noReady: true },
+          );
+        });
+
+        return Customers.find(query, options);
+      },
+      children: [
+        {
+          find(customer) {
+            return Integrations.find(customer.integrationId, { fields: Integrations.publicFields });
+          },
+        },
+      ],
+    };
+  },
+);
+
 Meteor.publishComposite('customers.segments', {
   find() {
     if (!this.userId) {
