@@ -20,6 +20,7 @@ class ManageFields extends Component {
 
     // attribute change events
     this.onChangeType = this.onChangeType.bind(this);
+    this.onChangeValidation = this.onChangeValidation.bind(this);
     this.onChangeName = this.onChangeName.bind(this);
     this.onChangeText = this.onChangeText.bind(this);
     this.onChangeDescription = this.onChangeDescription.bind(this);
@@ -36,6 +37,7 @@ class ManageFields extends Component {
     const editingField = this.state.editingField;
     const doc = {
       type: editingField.type,
+      validation: editingField.validation,
       name: editingField.name,
       text: editingField.text,
       description: editingField.text,
@@ -57,6 +59,10 @@ class ManageFields extends Component {
   onChangeType(e) {
     this.setState({ chosenFieldType: e.target.value });
     this.setChanges('type', e.target.value);
+  }
+
+  onChangeValidation(e) {
+    this.setChanges('validation', e.target.value);
   }
 
   onChangeName(e) {
@@ -180,6 +186,23 @@ class ManageFields extends Component {
             <option value="email">Email</option>
             <option value="firstName">First name</option>
             <option value="lastName">Last name</option>
+          </select>
+        </p>
+
+        <p className="form-group">
+          <label className="control-label" htmlFor="validation">Validation:</label>
+
+          <select
+            id="validation"
+            className="form-control"
+            value={editingField.validation || ''}
+            onChange={this.onChangeValidation}
+          >
+
+            <option />
+            <option value="email">Email</option>
+            <option value="number">Number</option>
+            <option value="date">Date</option>
           </select>
         </p>
 
