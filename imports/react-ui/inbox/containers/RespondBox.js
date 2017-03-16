@@ -1,5 +1,6 @@
 import { Meteor } from 'meteor/meteor';
-import { composeWithTracker } from 'react-komposer';
+import { compose } from 'react-komposer';
+import { getTrackerLoader } from '/imports/react-ui/utils';
 import { fromJS } from 'immutable';
 import { newMessage } from '/imports/react-ui/apollo-client';
 import { KIND_CHOICES } from '/imports/api/integrations/constants';
@@ -40,4 +41,4 @@ function composer(props, onData) {
   });
 }
 
-export default composeWithTracker(composer)(RespondBox);
+export default compose(getTrackerLoader(composer))(RespondBox);

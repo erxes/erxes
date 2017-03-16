@@ -4,11 +4,10 @@ import Alert from 'meteor/erxes-notifier';
 
 import uploadHandler from '/imports/api/client/uploadHandler';
 import Editor from './Editor.jsx';
-import ResponseTemplate from './ResponseTemplate.jsx';
+import { ResponseTemplate } from '../../containers';
 
 const propTypes = {
   conversation: PropTypes.object.isRequired,
-  responseTemplates: PropTypes.array.isRequired,
   sendMessage: PropTypes.func.isRequired,
   setAttachmentPreview: PropTypes.func.isRequired,
   teamMembers: PropTypes.object,
@@ -153,7 +152,6 @@ class RespondBox extends Component {
           brandId={this.props.conversation.integration().brandId}
           attachments={this.state.attachments}
           content={this.state.content}
-          responseTemplates={this.props.responseTemplates}
           onSelect={this.onSelectTemplate}
         />
       </div>

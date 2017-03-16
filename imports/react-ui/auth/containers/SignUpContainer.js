@@ -1,5 +1,6 @@
 import { Accounts } from 'meteor/accounts-base';
-import { composeWithTracker } from 'react-komposer';
+import { compose } from 'react-komposer';
+import { getTrackerLoader } from '/imports/react-ui/utils';
 import { SignUp } from '../components';
 
 
@@ -9,4 +10,4 @@ function composer(props, onData) {
   onData(null, { createUser });
 }
 
-export default composeWithTracker(composer)(SignUp);
+export default compose(getTrackerLoader(composer))(SignUp);

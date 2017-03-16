@@ -9,7 +9,6 @@ import { RespondBox } from '../../containers';
 const propTypes = {
   conversation: PropTypes.object.isRequired,
   messages: PropTypes.array.isRequired,
-  responseTemplates: PropTypes.array.isRequired,
   channelId: PropTypes.string,
   changeStatus: PropTypes.func.isRequired,
   attachmentPreview: PropTypes.object,
@@ -24,7 +23,6 @@ function Details(props) {
     changeStatus,
     attachmentPreview,
     setAttachmentPreview,
-    responseTemplates,
   } = props;
 
   const content = (
@@ -60,7 +58,6 @@ function Details(props) {
           <RespondBox
             conversation={conversation}
             setAttachmentPreview={setAttachmentPreview}
-            responseTemplates={responseTemplates}
           />
         }
         rightSidebar={<RightSidebar conversation={conversation} />}

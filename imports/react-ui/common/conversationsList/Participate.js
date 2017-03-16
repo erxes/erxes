@@ -1,5 +1,6 @@
 import { Meteor } from 'meteor/meteor';
-import { composeWithTracker } from 'react-komposer';
+import { compose } from 'react-komposer';
+import { getTrackerLoader } from '/imports/react-ui/utils';
 import Participate from './Participate.jsx';
 
 
@@ -14,4 +15,4 @@ function composer(props, onData) {
   });
 }
 
-export default composeWithTracker(composer)(Participate);
+export default compose(getTrackerLoader(composer))(Participate);

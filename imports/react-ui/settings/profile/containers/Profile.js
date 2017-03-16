@@ -1,4 +1,5 @@
-import { composeWithTracker } from 'react-komposer';
+import { compose } from 'react-komposer';
+import { getTrackerLoader } from '/imports/react-ui/utils';
 import { Meteor } from 'meteor/meteor';
 import { Profile } from '../components';
 
@@ -18,4 +19,4 @@ function composer(props, onData) {
   onData(null, { user, save });
 }
 
-export default composeWithTracker(composer)(Profile);
+export default compose(getTrackerLoader(composer))(Profile);

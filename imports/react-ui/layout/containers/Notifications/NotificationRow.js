@@ -1,5 +1,6 @@
 import { Meteor } from 'meteor/meteor';
-import { composeWithTracker } from 'react-komposer';
+import { compose } from 'react-komposer';
+import { getTrackerLoader } from '/imports/react-ui/utils';
 import { NotificationRow } from '../../components';
 
 
@@ -14,4 +15,4 @@ function composer(props, onData) {
   onData(null, { markAsRead, createdUser });
 }
 
-export default composeWithTracker(composer)(NotificationRow);
+export default compose(getTrackerLoader(composer))(NotificationRow);

@@ -1,5 +1,6 @@
 import { Meteor } from 'meteor/meteor';
-import { composeWithTracker } from 'react-komposer';
+import { compose } from 'react-komposer';
+import { getTrackerLoader } from '/imports/react-ui/utils';
 import Starrer from './Starrer.jsx';
 
 
@@ -15,4 +16,4 @@ function composer(props, onData) {
   });
 }
 
-export default composeWithTracker(composer)(Starrer);
+export default compose(getTrackerLoader(composer))(Starrer);
