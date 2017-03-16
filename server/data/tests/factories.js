@@ -34,9 +34,9 @@ export const formFactory = ({ title }) => {
 export const formFieldFactory = (params) => {
   const field = new FormFields({
     formId: params.formId || Random.id(),
-    type: faker.random.word(),
+    type: params.type || faker.random.word(),
     name: faker.random.word(),
-    check: faker.random.word(),
+    validation: params.validation || faker.random.word(),
     text: faker.random.word(),
     description: faker.random.word(),
     isRequired: params.isRequired || false,

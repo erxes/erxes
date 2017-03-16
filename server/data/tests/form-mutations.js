@@ -76,31 +76,88 @@ describe('Form mutations', () => {
 
   describe('validate', () => {
     const formId = 'DFDFDAFD';
-    let fieldId;
+
+    let requiredFieldId = '';
+    let emailFieldId = '';
+    let numberFieldId = '';
+    let dateFieldId = '';
+    let validDateFieldId = '';
+    let validNumberFieldId = '';
 
     beforeEach((done) => {
       // create required form field
       formFieldFactory({ formId, isRequired: true }).then((field) => {
-        fieldId = field._id;
+        requiredFieldId = field._id;
+      })
 
-        done();
-      });
+      .then(() =>
+        formFieldFactory({ formId, validation: 'email' }).then((field) => {
+          emailFieldId = field._id;
+        }),
+      )
+
+      .then(() =>
+        formFieldFactory({ formId, validation: 'number' }).then((field) => {
+          numberFieldId = field._id;
+        }),
+      )
+
+      .then(() =>
+        formFieldFactory({ formId, validation: 'number' }).then((field) => {
+          validNumberFieldId = field._id;
+        }),
+      )
+
+      .then(() =>
+        formFieldFactory({ formId, validation: 'date' }).then((field) => {
+          validDateFieldId = field._id;
+        }),
+      )
+
+      .then(() =>
+        formFieldFactory({ formId, validation: 'date' }).then((field) => {
+          dateFieldId = field._id;
+
+          done();
+        }),
+      );
     });
 
     it('validate', (done) => {
+      const submissions = [
+        { _id: requiredFieldId, value: null },
+        { _id: emailFieldId, value: 'email', validation: 'email' },
+        { _id: numberFieldId, value: 'number', validation: 'number' },
+        { _id: validNumberFieldId, value: 10, validation: 'number' },
+        { _id: dateFieldId, value: 'date', validation: 'date' },
+        { _id: validDateFieldId, value: '2012-09-01', validation: 'date' },
+      ];
+
       // call function
       expectPromise(
         done,
-        validate(formId, [{ _id: fieldId, value: null }]),
+        validate(formId, submissions),
         (errors) => {
-          // must be 1 error
-          expect(errors.length).equal(1);
+          // must be 4 error
+          expect(errors.length).equal(4);
 
-          const error = errors[0];
+          const [requiredError, emailError, numberError, dateError] = errors;
 
-          // check error attributes
-          expect(error.fieldId).equal(fieldId);
-          expect(error.code).equal('required');
+          // required
+          expect(requiredError.fieldId).equal(requiredFieldId);
+          expect(requiredError.code).equal('required');
+
+          // email
+          expect(emailError.fieldId).equal(emailFieldId);
+          expect(emailError.code).equal('invalidEmail');
+
+          // number
+          expect(numberError.fieldId).equal(numberFieldId);
+          expect(numberError.code).equal('invalidNumber');
+
+          // date
+          expect(dateError.fieldId).equal(dateFieldId);
+          expect(dateError.code).equal('invalidDate');
 
           done();
         });
@@ -179,6 +236,7 @@ describe('Form mutations', () => {
 
           // check message fields
           const p4 = Messages.findOne({}).then((message) => {
+            expect(message.conversationId).to.not.be.null;
             expect(message.content).to.equal(formTitle);
             expect(message.formWidgetData).to.deep.equal(submissions);
           });

@@ -84,6 +84,7 @@ const FormFieldSchema = Mongoose.Schema({
   _id: { type: String, unique: true, default: () => Random.id() },
   formId: String,
   type: String,
+  validation: String,
   name: String,
   check: String,
   text: String,

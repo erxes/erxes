@@ -1,4 +1,5 @@
 import _ from 'underscore';
+import validator from 'validator';
 import { Forms, FormFields } from './connectors';
 import {
   getIntegration,
@@ -16,9 +17,28 @@ export const validate = (formId, submissions) =>
       fields.forEach((field) => {
         // find submission object by _id
         const submission = _.find(submissions, sub => sub._id === field._id);
+        const value = submission.value || '';
+        const type = field.type;
+        const validation = field.validation;
 
-        if (field.isRequired && !submission.value) {
+        // required
+        if (field.isRequired && !value) {
           errors.push({ fieldId: field._id, code: 'required', text: 'Required' });
+        }
+
+        // email
+        if ((type === 'email' || validation === 'email') && !validator.isEmail(value)) {
+          errors.push({ fieldId: field._id, code: 'invalidEmail', text: 'Invalid email' });
+        }
+
+        // number
+        if (validation === 'number' && !validator.isNumeric(value.toString())) {
+          errors.push({ fieldId: field._id, code: 'invalidNumber', text: 'Invalid number' });
+        }
+
+        // date
+        if (validation === 'date' && !validator.isISO8601(value)) {
+          errors.push({ fieldId: field._id, code: 'invalidDate', text: 'Invalid Date' });
         }
       });
 
@@ -71,13 +91,13 @@ export const saveValues = ({ integrationId, submissions, formId }) =>
       return getOrCreateCustomer(integrationId, email, `${lastName} ${firstName}`)
 
       // create conversation
-      .then((customerId) => {
+      .then(customerId =>
         createConversation({
           integrationId,
           customerId,
           content,
-        });
-      })
+        }),
+      )
 
       // create message
       .then(conversationId =>

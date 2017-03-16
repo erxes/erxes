@@ -40,7 +40,8 @@
     "redux": "^3.6.0",
     "redux-thunk": "^2.1.0",
     "subscriptions-transport-ws": "^0.3.1",
-    "underscore": "^1.8.3"
+    "underscore": "^1.8.3",
+    "validator": "^7.0.0"
   },
   "devDependencies": {
     "babel-cli": "^6.18.0",
