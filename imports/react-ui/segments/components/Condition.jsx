@@ -1,5 +1,6 @@
 import React, { PropTypes, Component } from 'react';
 import { Form, FormControl, Button } from 'react-bootstrap';
+import debounce from 'lodash/debounce';
 import { types, operators, dateUnits } from '/imports/api/customers/constants';
 
 
@@ -15,8 +16,12 @@ class Condition extends Component {
 
     this.state = this.props.condition;
     this.handleInputValue = this.handleInputValue.bind(this);
+    this.handleValue = this.handleValue.bind(this);
     this.removeCondition = this.removeCondition.bind(this);
     this.renderValueInput = this.renderValueInput.bind(this);
+
+    // debounce text input
+    this.changeCondition = debounce(this.props.changeCondition, 350);
   }
 
   handleInputValue(e) {
@@ -32,6 +37,18 @@ class Condition extends Component {
     this.setState(states, () => {
       const { field, operator, value, dateUnit, type } = this.state;
       this.props.changeCondition({ field, operator, value, dateUnit, type });
+    });
+  }
+
+  // changeCondition will be fired after 350ms
+  handleValue(e) {
+    e.preventDefault();
+
+    const val = e.target.value;
+
+    this.setState({ value: val }, () => {
+      const { field, operator, value, dateUnit, type } = this.state;
+      this.changeCondition({ field, operator, value, dateUnit, type });
     });
   }
 
@@ -52,7 +69,7 @@ class Condition extends Component {
         name="value"
         type={type === 'number' ? 'number' : 'text'}
         value={this.state.value}
-        onChange={this.handleInputValue}
+        onChange={this.handleValue}
       />
     );
 

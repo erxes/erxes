@@ -3,7 +3,6 @@ import {
   Form,
   ButtonGroup,
   Button,
-  Table,
   Row,
   Col,
   FormGroup,
@@ -12,10 +11,11 @@ import {
   Panel,
 } from 'react-bootstrap';
 import { FlowRouter } from 'meteor/kadira:flow-router';
-import { Wrapper } from '/imports/react-ui/layout/components';
 import Alert from 'meteor/erxes-notifier';
+import { Wrapper } from '/imports/react-ui/layout/components';
 import Conditions from './Conditions.jsx';
 import AddConditionButton from './AddConditionButton.jsx';
+import { Preview } from '../containers';
 
 
 const propTypes = {
@@ -155,7 +155,7 @@ class SegmentsForm extends Component {
       <div className="margined">
         <Row>
           <Col sm={5}>
-            <Form>
+            <Form onSubmit={this.save}>
               <FormGroup>
                 <ControlLabel>Name</ControlLabel>
                 <FormControl
@@ -218,16 +218,7 @@ class SegmentsForm extends Component {
             </Panel>
           </Col>
           <Col sm={7}>
-            <Table>
-              <thead>
-                <tr>
-                  <th>Name</th>
-                  <th>Email</th>
-                  <th>Brand</th>
-                  <th>Integration</th>
-                </tr>
-              </thead>
-            </Table>
+            <Preview segment={this.state} />
           </Col>
         </Row>
       </div>
