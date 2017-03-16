@@ -1,4 +1,5 @@
-import { composeWithTracker } from 'react-komposer';
+import { compose } from 'react-komposer';
+import { getTrackerLoader } from '/imports/react-ui/utils';
 import { Meteor } from 'meteor/meteor';
 import { FlowRouter } from 'meteor/kadira:flow-router';
 import { Loader } from '/imports/react-ui/common';
@@ -20,4 +21,13 @@ function composer({ segment }, onData) {
   }
 }
 
-export default composeWithTracker(composer, Loader)(Preview);
+const options = {
+  loadingHandler: Loader,
+  propsToWatch: ['segment'],
+  shouldSubscribe(currentProps, nextProps) {
+    return currentProps.segment.connector !== nextProps.segment.connector
+      || currentProps.segment.conditions !== nextProps.segment.conditions;
+  },
+};
+
+export default compose(getTrackerLoader(composer), options)(Preview);
