@@ -2,6 +2,7 @@ import { Meteor } from 'meteor/meteor';
 import { Brands } from '/imports/api/brands/brands';
 import { Forms } from '/imports/api/forms/forms';
 import { composeWithTracker } from 'react-komposer';
+import { FORM_LOAD_TYPES } from '/imports/api/integrations/constants';
 import { Spinner } from '/imports/react-ui/common';
 import { Form } from '../components';
 import { saveCallback } from './utils';
@@ -16,8 +17,11 @@ const composer = (props, onData) => {
   const save = doc =>
     saveCallback(doc, 'addForm', 'editForm', props.integration);
 
+  const loadTypes = Object.values(FORM_LOAD_TYPES);
+  loadTypes.splice(-1, 1);
+
   if (brandsHandler.ready() && formsHandler.ready()) {
-    return onData(null, { brands, forms, save });
+    return onData(null, { brands, forms, save, loadTypes });
   }
 
   return null;

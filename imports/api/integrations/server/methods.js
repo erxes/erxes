@@ -81,7 +81,7 @@ export const addForm = new ValidatedMethod({
   mixins: [ErxesMixin],
 
   validate({ doc }) {
-    check(doc, { name: String, brandId: String, formId: String });
+    check(doc, Integrations.formSchema);
   },
 
   run({ doc }) {
@@ -98,7 +98,7 @@ export const editForm = new ValidatedMethod({
 
   validate({ _id, doc }) {
     check(_id, String);
-    check(doc, { name: String, brandId: String, formId: String });
+    check(doc, Integrations.formSchema);
   },
 
   run({ _id, doc }) {
