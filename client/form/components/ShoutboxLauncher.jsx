@@ -12,7 +12,7 @@ function Launcher({ isFormVisible, onClick }) {
   };
 
   return (
-    <div className="erxes-launcher" onClick={clickHandler} />
+    <div className="shoutbox-launcher" onClick={clickHandler} />
   );
 }
 

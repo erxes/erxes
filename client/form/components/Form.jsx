@@ -54,7 +54,7 @@ export default class Form extends React.Component {
     const { form } = this.props;
 
     return (
-      <div className="erxes-form">
+      <div>
         <h3>{form.title}</h3>
         {this.renderFields()}
 

@@ -1,10 +1,10 @@
 import App from './App';
-import Launcher from './Launcher';
+import ShoutboxLauncher from './ShoutboxLauncher';
 import Form from './Form';
 
 
 export {
   App,
   Form,
-  Launcher,
+  ShoutboxLauncher,
 };

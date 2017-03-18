@@ -1,10 +1,10 @@
-import { FORM_TOGGLE, FORM_SUBMITTED } from './constants';
+import { SHOUTBOX_FORM_TOGGLE, FORM_SUBMITTED } from './constants';
 
 // Indicates messenger box's visibility.
-const isVisible = (state = false, action) => {
+const isShoutboxFormVisible = (state = false, action) => {
   switch (action.type) {
-    case FORM_TOGGLE:
-      return !state;
+    case SHOUTBOX_FORM_TOGGLE:
+      return action.isVisible;
 
     default:
       return state;
@@ -24,7 +24,7 @@ const submitResponse = (state = {}, action) => {
 };
 
 const form = {
-  isVisible,
+  isShoutboxFormVisible,
   submitResponse,
 };
 

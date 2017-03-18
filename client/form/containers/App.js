@@ -1,9 +1,19 @@
 import { connect } from 'react-redux';
 import { App } from '../components';
+import { closeModal } from '../actions';
+import { connection } from '../connection';
 
 
 const mapStateToProps = state => ({
-  isFormVisible: state.isVisible,
+  isShoutboxFormVisible: state.isShoutboxFormVisible,
+  loadType: connection.data.formLoadType,
 });
 
-export default connect(mapStateToProps)(App);
+
+const mapDisptachToProps = dispatch => ({
+  onModalClose() {
+    dispatch(closeModal);
+  },
+});
+
+export default connect(mapStateToProps, mapDisptachToProps)(App);

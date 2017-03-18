@@ -31,6 +31,7 @@ const IntegrationSchema = Mongoose.Schema({
   _id: { type: String, unique: true, default: () => Random.id() },
   brandId: String,
   formId: String,
+  formLoadType: String,
   kind: String,
 });
 

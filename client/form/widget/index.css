@@ -1,4 +1,22 @@
-#erxes-iframe {
+.erxes-embed-iframe {
+  width: 500px;
+  border: none;
+  margin: 0 auto;
+}
+
+.erxes-modal-iframe {
+  position: fixed; /* Stay in place */
+  z-index: 1000000; /* Sit on top */
+  left: 0;
+  top: 0;
+  width: 100%; /* Full width */
+  height: 100%; /* Full height */
+  overflow: auto; /* Enable scroll if needed */
+  background-color: rgb(0,0,0); /* Fallback color */
+  background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+}
+
+.erxes-shoutbox-iframe {
   position: fixed;
   bottom: 12px;
   right: 12px;
@@ -6,12 +24,16 @@
   z-index: 100000000;
 }
 
-.erxes-form-hidden {
+.erxes-shoutbox-form-hidden {
   width: 72px;
   height: 72px;
 }
 
-.erxes-form-shown {
+.erxes-shoutbox-form-shown {
   width: 386px;
   height: 300px;
+}
+
+.hidden {
+  display: none !important;
 }

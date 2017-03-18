@@ -12,7 +12,6 @@ const API_URL = settings.API_URL;
 // add iframe
 let iframe = document.createElement('iframe');
 iframe.id = 'erxes-iframe';
-iframe.className = 'erxes-form-hidden';
 iframe.src = `${API_URL}/form`;
 iframe.style.display = 'none';
 
@@ -31,15 +30,46 @@ iframe.onload = () => {
   }, '*');
 };
 
-// listen for widget toggle
+// listen for messages from widget
 window.addEventListener('message', (event) => {
-  if (event.data.fromErxes) {
-    iframe = document.querySelector('#erxes-iframe');
+  const data = event.data;
 
-    iframe.className = 'erxes-form-shown';
+  if (!data.fromErxes) {
+    return;
+  }
 
-    if (event.data.isFormVisible) {
-      iframe.className = 'erxes-form-hidden';
+  if (data.action === 'connected') {
+    const loadType = data.connectionInfo.formConnect.formLoadType;
+
+    if (loadType === 'embedded') {
+      iframe.className = 'erxes-embed-iframe';
+      document.querySelector('[data-erxes-embed]').appendChild(iframe);
     }
+
+    if (loadType === 'modal') {
+      iframe.className = 'erxes-modal-iframe hidden';
+
+      document.querySelector('[data-erxes-modal]').addEventListener('click', () => {
+        iframe.className = 'erxes-modal-iframe';
+      });
+    }
+
+    if (loadType === 'shoutbox') {
+      iframe.className = 'erxes-shoutbox-iframe';
+    }
+
+    return;
+  }
+
+  // user clicked the close button in modal
+  if (data.closeModal) {
+    iframe.className = 'erxes-modal-iframe hidden';
+
+    return;
+  }
+
+  // user clicked shoutbox's widget
+  if (data.fromShoutbox) {
+    iframe.className = `erxes-shoutbox-iframe erxes-shoutbox-form-${data.isVisible ? 'shown' : 'hidden'}`;
   }
 });

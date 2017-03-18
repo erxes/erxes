@@ -1,20 +1,48 @@
 import _ from 'underscore';
 import gql from 'graphql-tag';
-import { FORM_TOGGLE, SUCCESS, ERROR, FORM_SUBMITTED } from './constants';
+import { SHOUTBOX_FORM_TOGGLE, SUCCESS, ERROR, FORM_SUBMITTED } from './constants';
 import client from '../apollo-client';
 import { connection } from './connection';
 
-export const toggle = (isVisible) => {
+export const toggleShoutbox = (isVisible) => {
   // notify parent window launcher state
   window.parent.postMessage({
     fromErxes: true,
-    isFormVisible: isVisible,
+    fromShoutbox: true,
+    isVisible: !isVisible,
   }, '*');
 
   return {
-    type: FORM_TOGGLE,
+    type: SHOUTBOX_FORM_TOGGLE,
+    isVisible: !isVisible,
   };
 };
+
+
+export const closeModal = () => {
+  // notify parent window that close modal
+  window.parent.postMessage({
+    fromErxes: true,
+    closeModal: true,
+  }, '*');
+};
+
+
+export const connect = brandCode =>
+  client.mutate({
+    mutation: gql`
+      mutation formConnect($brandCode: String!) {
+        formConnect(brandCode: $brandCode) {
+          integrationId,
+          formId,
+          formLoadType
+        }
+      }`,
+
+    variables: {
+      brandCode,
+    },
+  });
 
 export const saveForm = doc => (dispatch) => {
   const submissions = _.map(_.keys(doc), (fieldId) => {

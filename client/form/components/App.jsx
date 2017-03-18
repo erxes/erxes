@@ -1,19 +1,38 @@
 import React, { PropTypes } from 'react';
-import { Form, Launcher } from '../containers';
+import { Form, ShoutboxLauncher } from '../containers';
 
 
 const propTypes = {
-  isFormVisible: PropTypes.bool.isRequired,
+  isShoutboxFormVisible: PropTypes.bool.isRequired,
+  loadType: PropTypes.string.isRequired,
+  onModalClose: PropTypes.func,
 };
 
-function App({ isFormVisible }) {
-  return (
-    <div className="erxes-widget">
-      { isFormVisible ? <Form /> : null }
+function App({ isShoutboxFormVisible, loadType, onModalClose }) {
+  if (loadType === 'shoutbox') {
+    return (
+      <div className="erxes-shoutbox-form">
+        { isShoutboxFormVisible ? <Form /> : null }
 
-      <Launcher />
-    </div>
-  );
+        <ShoutboxLauncher />
+      </div>
+    );
+  }
+
+  if (loadType === 'embedded') {
+    return <Form />;
+  }
+
+  if (loadType === 'modal') {
+    return (
+      <div>
+        <button onClick={onModalClose}>close</button>
+        <Form />
+      </div>
+    );
+  }
+
+  return null;
 }
 
 App.propTypes = propTypes;

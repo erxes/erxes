@@ -1,9 +1,8 @@
 /* eslint-disable react/jsx-filename-extension */
 
-import gql from 'graphql-tag';
-import client from '../apollo-client';
 import widgetConnect from '../widgetConnect';
 import { connection } from './connection';
+import { connect } from './actions';
 import reducers from './reducers';
 import { App } from './containers';
 import './sass/style.scss';
@@ -13,19 +12,7 @@ widgetConnect({
     const settings = event.data.settings;
 
     // call connect mutation
-    return client.mutate({
-      mutation: gql`
-        mutation formConnect($brandCode: String!) {
-          formConnect(brandCode: $brandCode) {
-            integrationId,
-            formId
-          }
-        }`,
-
-      variables: {
-        brandCode: settings.brand_id,
-      },
-    });
+    return connect(settings.brand_id);
   },
 
   connectCallback: (data) => {

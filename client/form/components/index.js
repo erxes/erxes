@@ -1,10 +1,10 @@
-import App from './App.jsx';
-import Launcher from './Launcher.jsx';
-import Form from './Form.jsx';
+import App from './App';
+import ShoutboxLauncher from './ShoutboxLauncher';
+import Form from './Form';
 
 
 export {
   App,
   Form,
-  Launcher,
+  ShoutboxLauncher,
 };
