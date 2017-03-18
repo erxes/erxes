@@ -11,7 +11,7 @@ const propTypes = {
 function App({ isShoutboxFormVisible, loadType, onModalClose }) {
   if (loadType === 'shoutbox') {
     return (
-      <div className="erxes-shoutbox-form">
+      <div className="shoutbox-form">
         { isShoutboxFormVisible ? <Form /> : null }
 
         <ShoutboxLauncher />

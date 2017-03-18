@@ -1,9 +1,7 @@
 @import url('https://fonts.googleapis.com/css?family=Roboto:300,400&subset=cyrillic-ext');
 
 @import "base/variables";
-@import "base/mixins";
-@import "base/base";
 
 @import "components/form";
 @import "components/topbar";
-@import "components/launcher";
+@import "components/shoutbox-launcher";
