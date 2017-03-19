@@ -1,4 +1,11 @@
-import { SHOUTBOX_FORM_TOGGLE, FORM_SUBMITTED } from './constants';
+import {
+  SHOUTBOX_FORM_TOGGLE,
+  INITIAL,
+  ERROR,
+  SUCCESS,
+  FORM_SUBMIT,
+  CREATE_NEW,
+} from './constants';
 
 // Indicates messenger box's visibility.
 const isShoutboxFormVisible = (state = false, action) => {
@@ -11,12 +18,27 @@ const isShoutboxFormVisible = (state = false, action) => {
   }
 };
 
-// Indicates whether a conversation is created successfully
-const submitResponse = (state = {}, action) => {
-  if (action.type === FORM_SUBMITTED) {
+// Indicates whether form submitted with error, successfully or user clicked
+// new button
+const currentStatus = (state = { status: INITIAL }, action) => {
+  // form submitted
+  if (action.type === FORM_SUBMIT) {
+    if (action.status === ERROR) {
+      return {
+        status: ERROR,
+        errors: action.errors,
+      };
+    }
+
     return {
-      status: action.status,
-      errors: action.errors,
+      status: SUCCESS,
+    };
+  }
+
+  // create new button clicked
+  if (action.type === CREATE_NEW) {
+    return {
+      status: INITIAL,
     };
   }
 
@@ -25,7 +47,7 @@ const submitResponse = (state = {}, action) => {
 
 const form = {
   isShoutboxFormVisible,
-  submitResponse,
+  currentStatus,
 };
 
 export default form;

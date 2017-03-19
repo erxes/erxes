@@ -6,7 +6,7 @@ import gql from 'graphql-tag';
 import { graphql } from 'react-apollo';
 import { connection } from '../connection';
 import { Form as DumbForm } from '../components';
-import { saveForm } from '../actions';
+import { saveForm, createNew } from '../actions';
 
 const Form = (props) => {
   const extendedProps = {
@@ -43,12 +43,16 @@ Form.propTypes = {
 };
 
 const mapStateToProps = state => ({
-  submitResponse: state.submitResponse,
+  currentStatus: state.currentStatus,
 });
 
 const mapDispatchToProps = dispatch => ({
   onSubmit(doc) {
     dispatch(saveForm(doc));
+  },
+
+  onCreateNew() {
+    dispatch(createNew());
   },
 });
 

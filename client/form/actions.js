@@ -1,6 +1,13 @@
 import _ from 'underscore';
 import gql from 'graphql-tag';
-import { SHOUTBOX_FORM_TOGGLE, SUCCESS, ERROR, FORM_SUBMITTED } from './constants';
+import {
+  SHOUTBOX_FORM_TOGGLE,
+  SUCCESS,
+  ERROR,
+  FORM_SUBMIT,
+  CREATE_NEW,
+  INITIAL,
+} from './constants';
 import client from '../apollo-client';
 import { connection } from './connection';
 
@@ -83,9 +90,16 @@ export const saveForm = doc => (dispatch) => {
     }
 
     dispatch({
-      type: FORM_SUBMITTED,
+      type: FORM_SUBMIT,
       status,
       errors,
     });
+  });
+};
+
+export const createNew = () => (dispatch) => {
+  dispatch({
+    type: CREATE_NEW,
+    status: INITIAL,
   });
 };

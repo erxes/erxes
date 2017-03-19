@@ -2,6 +2,7 @@ import _ from 'underscore';
 import React, { PropTypes } from 'react';
 
 import Field from './Field';
+import { SUCCESS, INITIAL } from '../constants';
 
 export default class Form extends React.Component {
   constructor(props) {
@@ -10,15 +11,20 @@ export default class Form extends React.Component {
     this.onSubmit = this.onSubmit.bind(this);
     this.onFieldValueChange = this.onFieldValueChange.bind(this);
 
-    const doc = {};
-
-    _.each(this.props.form.fields, (field) => {
-      doc[field._id] = { text: field.text, type: field.type, value: '' };
-    });
-
-    this.state = { doc };
+    this.state = { doc: this.resetDocState() };
   }
 
+  componentWillUpdate(nextProps) {
+    const currentStatus = this.props.currentStatus.status;
+    const nextStatus = nextProps.currentStatus.status;
+
+    // after successfull save and create new button, reset doc state
+    if ((currentStatus !== nextStatus) && nextStatus === INITIAL) {
+      this.setState({ doc: this.resetDocState() });
+    }
+  }
+
+  // after any field value change, save it's value to state
   onFieldValueChange({ fieldId, value }) {
     const doc = this.state.doc;
 
@@ -31,10 +37,20 @@ export default class Form extends React.Component {
     this.props.onSubmit(this.state.doc);
   }
 
+  resetDocState() {
+    const doc = {};
+
+    _.each(this.props.form.fields, (field) => {
+      doc[field._id] = { text: field.text, type: field.type, value: '' };
+    });
+
+    return doc;
+  }
+
   renderFields() {
-    const { form, submitResponse } = this.props;
+    const { form, currentStatus } = this.props;
     const fields = form.fields;
-    const errors = submitResponse.errors || [];
+    const errors = currentStatus.errors || [];
 
     return fields.map((field) => {
       const fieldError = errors.find(error => error.fieldId === field._id);
@@ -50,7 +66,7 @@ export default class Form extends React.Component {
     });
   }
 
-  render() {
+  renderForm() {
     const { form } = this.props;
 
     return (
@@ -67,6 +83,30 @@ export default class Form extends React.Component {
         </button>
       </div>
     );
+  }
+
+  renderSuccessForm() {
+    const { form, onCreateNew } = this.props;
+
+    return (
+      <div>
+        <h3>{form.title}</h3>
+
+        Thanks
+
+        <button onClick={onCreateNew}>create new</button>
+      </div>
+    );
+  }
+
+  render() {
+    const { currentStatus } = this.props;
+
+    if (currentStatus.status === SUCCESS) {
+      return this.renderSuccessForm();
+    }
+
+    return this.renderForm();
   }
 }
 
@@ -87,15 +127,10 @@ Form.propTypes = {
     })),
   }),
 
-  submitResponse: PropTypes.shape({
+  currentStatus: PropTypes.shape({
     status: PropTypes.string,
-
-    errors: PropTypes.arrayOf(PropTypes.shape({
-      fieldId: PropTypes.string,
-      code: PropTypes.string,
-      text: PropTypes.string,
-    })),
   }),
 
   onSubmit: PropTypes.func,
+  onCreateNew: PropTypes.func,
 };

@@ -49,8 +49,10 @@ window.addEventListener('message', (event) => {
     if (loadType === 'modal') {
       iframe.className = 'erxes-modal-iframe hidden';
 
-      document.querySelector('[data-erxes-modal]').addEventListener('click', () => {
-        iframe.className = 'erxes-modal-iframe';
+      document.querySelectorAll('[data-erxes-modal]').forEach((elm) => {
+        elm.addEventListener('click', () => {
+          iframe.className = 'erxes-modal-iframe';
+        });
       });
     }
 
