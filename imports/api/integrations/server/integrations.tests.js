@@ -105,7 +105,7 @@ describe('integrations', function () {
 
       addForm._execute(
         { userId },
-        { doc: { name: 'Foo', brandId, formId } },
+        { doc: { name: 'Foo', brandId, formId, formLoadType: 'modal' } },
       );
 
       const integration = Integrations.findOne({ name: 'Foo' });
@@ -127,7 +127,7 @@ describe('integrations', function () {
         { userId },
         {
           _id: form._id,
-          doc: { name: nameToUpdate, brandId, formId },
+          doc: { name: nameToUpdate, brandId, formId, formLoadType: 'modal' },
         },
       );
 

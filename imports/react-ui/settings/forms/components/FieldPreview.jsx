@@ -67,9 +67,6 @@ export default class FieldPreview extends React.Component {
       case 'select':
         return FieldPreview.renderSelect(options);
 
-      case 'input':
-        return FieldPreview.renderInput({});
-
       case 'check':
         return FieldPreview.renderRadioOrCheckInputs(name, options, 'checkbox');
 
