@@ -42,8 +42,10 @@ export default class Field extends React.Component {
       <div>
         {options.map((option, index) => (
           <div key={index}>
-            {Field.renderInput({ type: 'checkbox', 'data-option': option, name, onChange })}
-            <span>{option}</span>
+            <label>
+              {Field.renderInput({ type: 'checkbox', 'data-option': option, name, onChange })}
+              {option}
+            </label>
           </div>
         ))}
       </div>
@@ -142,7 +144,7 @@ export default class Field extends React.Component {
           {field.isRequired ? <span className="required">*</span> : null}:
         </label>
 
-        {error && error.text}
+        <span className="error">{error && error.text}</span>
 
         {this.renderControl()}
       </div>

@@ -51,7 +51,10 @@ window.addEventListener('message', (event) => {
 
       document.querySelectorAll('[data-erxes-modal]').forEach((elm) => {
         elm.addEventListener('click', () => {
+          const iframeDocument = iframe.contentWindow.document;
+
           iframe.className = 'erxes-modal-iframe';
+          iframeDocument.querySelector('.modal-form').className = 'modal-form open';
         });
       });
     }
@@ -65,8 +68,9 @@ window.addEventListener('message', (event) => {
 
   // user clicked the close button in modal
   if (data.closeModal) {
+    const iframeDocument = iframe.contentWindow.document;
     iframe.className = 'erxes-modal-iframe hidden';
-
+    iframeDocument.querySelector('.modal-form').className = 'modal-form';
     return;
   }
 

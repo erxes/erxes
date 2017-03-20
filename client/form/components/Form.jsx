@@ -70,17 +70,25 @@ export default class Form extends React.Component {
     const { form } = this.props;
 
     return (
-      <div>
-        <h3>{form.title}</h3>
-        {this.renderFields()}
+      <div className="erxes-form">
+        <div className="erxes-topbar thiner">
+          <div className="erxes-middle">
+            <div className="erxes-topbar-title">
+              <div>{form.title}</div>
+            </div>
+          </div>
+        </div>
+        <div className="erxes-form-content">
+          {this.renderFields()}
 
-        <button
-          type="button"
-          onClick={this.onSubmit}
-          className="btn btn-success"
-        >
-          Submit
-        </button>
+          <button
+            type="button"
+            onClick={this.onSubmit}
+            className="btn btn-block"
+          >
+            Submit
+          </button>
+        </div>
       </div>
     );
   }
@@ -89,12 +97,22 @@ export default class Form extends React.Component {
     const { form, onCreateNew } = this.props;
 
     return (
-      <div>
-        <h3>{form.title}</h3>
-
-        Thanks
-
-        <button onClick={onCreateNew}>create new</button>
+      <div className="erxes-form">
+        <div className="erxes-topbar thiner">
+          <div className="erxes-middle">
+            <div className="erxes-topbar-title">
+              <div>{form.title}</div>
+            </div>
+          </div>
+        </div>
+        <div className="erxes-form-content">
+          <div className="erxes-result">
+            <span>
+              Thanks for your message. We will respond as soon as we can.
+            </span>
+            <button className="btn" onClick={onCreateNew}>Create new</button>
+          </div>
+        </div>
       </div>
     );
   }

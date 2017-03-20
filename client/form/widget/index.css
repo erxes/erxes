@@ -2,6 +2,7 @@
   width: 500px;
   border: none;
   margin: 0 auto;
+  height: 100%;
 }
 
 .erxes-modal-iframe {
@@ -9,11 +10,8 @@
   z-index: 1000000; /* Sit on top */
   left: 0;
   top: 0;
-  width: 100%; /* Full width */
-  height: 100%; /* Full height */
-  overflow: auto; /* Enable scroll if needed */
-  background-color: rgb(0,0,0); /* Fallback color */
-  background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+  min-width: 100%; /* Full width */
+  min-height: 100%; /* Full height */
 }
 
 .erxes-shoutbox-iframe {
@@ -31,7 +29,8 @@
 
 .erxes-shoutbox-form-shown {
   width: 386px;
-  height: 300px;
+  height: calc(100% - 20px);
+  max-height: 660px;
 }
 
 .hidden {

@@ -13,5 +13,6 @@
 
 .erxes-messenger-shown {
   width: 386px;
-  height: calc(100% - 50px);
+  height: calc(100% - 20px);
+  max-height: 660px;
 }
