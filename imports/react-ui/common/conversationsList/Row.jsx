@@ -55,6 +55,7 @@ class Row extends Component {
     const customer = conversation.customer();
     const isReadClass = !isRead ? 'unread' : null;
     const integration = conversation.integration();
+    const brandName = integration.brand && integration.brand().name;
 
     // TODO: use embedded tags list of the conversation object
     const tags = TagsCollection.find({ _id: { $in: conversation.tagIds || [] } }).fetch();
@@ -74,14 +75,16 @@ class Row extends Component {
             <time>{moment(createdAt).fromNow()}</time>
             <Tags tags={tags} size="small" />
           </header>
+
           <div className="content" onClick={this.goDetail}>
             {content}
           </div>
+
           <footer>
             <div className="source">
               <i className="ion-chatbox" />
               <div className="name">
-                To {integration && integration.brand().name} via {integration && integration.kind}
+                To {brandName} via {integration && integration.kind}
               </div>
             </div>
 

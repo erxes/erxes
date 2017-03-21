@@ -1,4 +1,5 @@
-import { composeWithTracker } from 'react-komposer';
+import { compose } from 'react-komposer';
+import { getTrackerLoader } from '/imports/react-ui/utils';
 import { Meteor } from 'meteor/meteor';
 import { Forms } from '/imports/api/forms/forms';
 import { Loader, pagination } from '/imports/react-ui/common';
@@ -20,4 +21,4 @@ function composer({ queryParams }, onData) {
   }
 }
 
-export default composeWithTracker(composer, Loader)(List);
+export default compose(getTrackerLoader(composer), Loader)(List);
