@@ -12,6 +12,8 @@ import {
   editInAppMessaging,
   addChat,
   editChat,
+  addForm,
+  editForm,
   remove,
 } from './methods';
 
@@ -96,6 +98,45 @@ describe('integrations', function () {
       assert.equal(integration.name, nameToUpdate);
       assert.equal(integration.kind, kind);
       assert.equal(integration.brandId, brandToUpdate);
+    });
+
+    it('add form', function () {
+      const formId = Factory.create('form')._id;
+
+      addForm._execute(
+        { userId },
+        { doc: { name: 'Foo', brandId, formId, formLoadType: 'modal' } },
+      );
+
+      const integration = Integrations.findOne({ name: 'Foo' });
+
+      // check field values
+      assert.equal(integration.kind, KIND_CHOICES.FORM);
+      assert.equal(integration.brandId, brandId);
+      assert.equal(integration.formId, formId);
+    });
+
+    it('edit form', function () {
+      const formId = Factory.create('form')._id;
+      const kind = KIND_CHOICES.FORM;
+      const name = 'Old form';
+      const form = Factory.create('integration', { name, kind, formId });
+      const nameToUpdate = 'updated form';
+
+      editForm._execute(
+        { userId },
+        {
+          _id: form._id,
+          doc: { name: nameToUpdate, brandId, formId, formLoadType: 'modal' },
+        },
+      );
+
+      const integration = Integrations.findOne({ });
+
+      // check field values
+      assert.equal(integration.name, nameToUpdate);
+      assert.equal(integration.kind, kind);
+      assert.equal(integration.formId, formId);
     });
 
     describe('remove', function () {

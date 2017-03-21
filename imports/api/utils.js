@@ -5,6 +5,7 @@ const RESTRICTED_METHODS = [
   'users.invite', 'users.updateAccessInfo', 'users.remove',
   'brands.add', 'brands.edit', 'brands.remove', 'brands.configEmail',
   'channels.add', 'channels.edit', 'channels.remove',
+  'forms.add', 'forms.edit', 'forms.remove',
   'integrations.add', 'integrations.edit', 'integrations.remove',
   'integrations.addInAppMessaging', 'integrations.addTwitter',
   'integrations.addFacebook',

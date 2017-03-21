@@ -1,0 +1,15 @@
+.form-builder {
+  .field-preview {
+    border: 1px dotted;
+    padding: 20px 20px;
+    opacity: 0.5;
+  }
+
+  .drag-handler {
+    cursor: pointer;
+  }
+
+  .required {
+    color: red;
+  }
+}

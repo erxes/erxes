@@ -36,6 +36,11 @@ function Sidebar() {
               <i className="icon ion-arrow-right-b" />Email appearance
             </a>
           </li>
+          <li>
+            <a href={FlowRouter.path('settings/forms/list')}>
+              <i className="icon ion-arrow-right-b" />Forms
+            </a>
+          </li>
         </ul>
       </Wrapper.Sidebar.Section>
       <Wrapper.Sidebar.Section>
@@ -54,6 +59,11 @@ function Sidebar() {
           <li>
             <a href={'/settings/integrations?kind=chat'}>
               <i className="icon ion-arrow-right-b" />Chat
+            </a>
+          </li>
+          <li>
+            <a href={'/settings/integrations?kind=form'}>
+              <i className="icon ion-arrow-right-b" />Form
             </a>
           </li>
           <li>

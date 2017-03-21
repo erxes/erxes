@@ -8,11 +8,11 @@ import { Factory } from 'meteor/dburles:factory';
 import { Brands } from '/imports/api/brands/brands';
 import { Channels } from '/imports/api/channels/channels';
 import { facebookSchema, twitterSchema } from './social/social';
-import { KIND_CHOICES } from './constants';
+import { KIND_CHOICES, FORM_LOAD_TYPES } from './constants';
 
 class IntegrationCollections extends Mongo.Collection {}
 
-// eslint-disable-next-line import/prefer-default-export
+// eslint-disable-next-line
 export const Integrations = new IntegrationCollections('integrations');
 
 Integrations.deny({
@@ -21,6 +21,23 @@ Integrations.deny({
   remove() { return true; },
 });
 
+Integrations.formSchema = new SimpleSchema({
+  name: {
+    type: String,
+  },
+
+  brandId: {
+    type: String,
+  },
+
+  formId: {
+    type: String,
+  },
+
+  formLoadType: {
+    type: String,
+  },
+});
 
 Integrations.schema = new SimpleSchema({
   // in app messaging, twitter ...
@@ -35,6 +52,17 @@ Integrations.schema = new SimpleSchema({
 
   brandId: {
     type: String,
+  },
+
+  formId: {
+    type: String,
+    optional: true,
+  },
+
+  formLoadType: {
+    type: String,
+    allowedValues: FORM_LOAD_TYPES.ALL_LIST,
+    optional: true,
   },
 
   // twitter authentication info
@@ -66,6 +94,8 @@ Integrations.publicFields = {
   name: 1,
   kind: 1,
   brandId: 1,
+  formId: 1,
+  formLoadType: 1,
 };
 
 Factory.define('integration', Integrations, {

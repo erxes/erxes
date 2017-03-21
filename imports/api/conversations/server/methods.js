@@ -108,9 +108,12 @@ export const addMessage = new ValidatedMethod({
 
     const customer = conversation.customer();
 
-    // if conversation's integration kind is chat, then send reply to
+    // if conversation's integration kind is chat or form, then send reply to
     // customer's email
-    if (integration.kind === KIND_CHOICES.CHAT && customer && customer.email) {
+    const kind = integration.kind;
+    const email = customer ? customer.email : '';
+
+    if ((kind === KIND_CHOICES.CHAT || kind === KIND_CHOICES.FORM) && email) {
       sendEmail({
         to: customer.email,
         subject: 'Reply',
