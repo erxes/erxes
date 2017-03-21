@@ -12,4 +12,4 @@ function composer(props, onData) {
   });
 }
 
-export default compose(getTrackerLoader(composer, Loader))(MainLayout);
+export default compose(getTrackerLoader(composer), Loader)(MainLayout);

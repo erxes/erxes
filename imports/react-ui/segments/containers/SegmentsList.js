@@ -20,4 +20,4 @@ function composer(props, onData) {
   }
 }
 
-export default compose(getTrackerLoader(composer, Loader))(SegmentsList);
+export default compose(getTrackerLoader(composer), Loader)(SegmentsList);

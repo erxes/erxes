@@ -10,4 +10,4 @@ function composer({ object }, onData) {
   });
 }
 
-export default compose(getTrackerLoader(composer, Spinner))(Form);
+export default compose(getTrackerLoader(composer), Spinner)(Form);

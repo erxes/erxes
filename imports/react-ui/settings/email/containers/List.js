@@ -17,4 +17,4 @@ function composer(props, onData) {
   }
 }
 
-export default compose(getTrackerLoader(composer, Loader))(List);
+export default compose(getTrackerLoader(composer), Loader)(List);

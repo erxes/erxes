@@ -53,4 +53,4 @@ function composer(props, onData) {
   }
 }
 
-export default compose(getTrackerLoader(composer, Loader))(Signature);
+export default compose(getTrackerLoader(composer), Loader)(Signature);

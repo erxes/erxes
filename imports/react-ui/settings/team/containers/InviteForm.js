@@ -18,4 +18,4 @@ function composer({ user }, onData) {
   }
 }
 
-export default compose(getTrackerLoader(composer, Spinner))(InviteForm);
+export default compose(getTrackerLoader(composer), Spinner)(InviteForm);

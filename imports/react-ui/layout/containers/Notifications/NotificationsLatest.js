@@ -30,4 +30,4 @@ function composer(props, onData) {
   }
 }
 
-export default compose(getTrackerLoader(composer, Spinner))(NotificationsLatest);
+export default compose(getTrackerLoader(composer), Spinner)(NotificationsLatest);

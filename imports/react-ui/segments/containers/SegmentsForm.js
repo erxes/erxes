@@ -46,4 +46,4 @@ function composer(props, onData) {
   }
 }
 
-export default compose(getTrackerLoader(composer, Loader))(SegmentsForm);
+export default compose(getTrackerLoader(composer), Loader)(SegmentsForm);

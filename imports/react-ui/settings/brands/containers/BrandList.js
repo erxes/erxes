@@ -21,4 +21,4 @@ function composer({ queryParams }, onData) {
   }
 }
 
-export default compose(getTrackerLoader(composer, Loader))(BrandList);
+export default compose(getTrackerLoader(composer), Loader)(BrandList);

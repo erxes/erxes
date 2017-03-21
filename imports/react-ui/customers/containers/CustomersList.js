@@ -40,4 +40,4 @@ function composer({ queryParams }, onData) {
   }
 }
 
-export default compose(getTrackerLoader(composer, Loading))(CustomersList);
+export default compose(getTrackerLoader(composer), Loading)(CustomersList);

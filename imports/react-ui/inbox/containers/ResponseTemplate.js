@@ -22,4 +22,4 @@ function composer(props, onData) {
   }
 }
 
-export default compose(getTrackerLoader(composer, Loader))(ResponseTemplate);
+export default compose(getTrackerLoader(composer), Loader)(ResponseTemplate);

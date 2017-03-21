@@ -56,4 +56,4 @@ function composer(props, onData) {
   }
 }
 
-export default compose(getTrackerLoader(composer, Loader))(NotificationSettings);
+export default compose(getTrackerLoader(composer), Loader)(NotificationSettings);

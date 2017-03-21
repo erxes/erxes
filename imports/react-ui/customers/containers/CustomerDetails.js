@@ -18,4 +18,4 @@ function composer({ id }, onData) {
   }
 }
 
-export default compose(getTrackerLoader(composer, Loader))(CustomerDetails);
+export default compose(getTrackerLoader(composer), Loader)(CustomerDetails);
