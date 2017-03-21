@@ -17,4 +17,4 @@ function composer({ tag, type }, onData) {
   onData(null, { tag, type, submit });
 }
 
-export default compose(getTrackerLoader(composer, Loader))(Form);
+export default compose(getTrackerLoader(composer), Loader)(Form);

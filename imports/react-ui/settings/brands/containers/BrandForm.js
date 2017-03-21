@@ -10,4 +10,4 @@ function composer({ brand }, onData) {
   });
 }
 
-export default compose(getTrackerLoader(composer, Spinner))(BrandForm);
+export default compose(getTrackerLoader(composer), Spinner)(BrandForm);

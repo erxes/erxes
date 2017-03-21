@@ -46,4 +46,4 @@ function composer({ queryParams }, onData) {
   }
 }
 
-export default compose(getTrackerLoader(composer, Loader))(UsersList);
+export default compose(getTrackerLoader(composer), Loader)(UsersList);

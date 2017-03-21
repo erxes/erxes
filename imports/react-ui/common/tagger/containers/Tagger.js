@@ -36,4 +36,4 @@ function composer(props, onData) {
   }
 }
 
-export default compose(getTrackerLoader(composer, Spinner))(Tagger);
+export default compose(getTrackerLoader(composer), Spinner)(Tagger);

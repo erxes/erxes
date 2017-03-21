@@ -50,4 +50,4 @@ function composer({ channelId, queryParams }, onData) {
   );
 }
 
-export default compose(getTrackerLoader(composer, Loader))(Sidebar);
+export default compose(getTrackerLoader(composer), Loader)(Sidebar);

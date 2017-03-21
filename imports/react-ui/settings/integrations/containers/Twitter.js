@@ -46,4 +46,4 @@ function composer(props, onData) {
   return null;
 }
 
-export default compose(getTrackerLoader(composer, Loader))(Twitter);
+export default compose(getTrackerLoader(composer), Loader)(Twitter);

@@ -18,4 +18,4 @@ function composer(props, onData) {
   });
 }
 
-export default compose(getTrackerLoader(composer, Loader))(Resolver);
+export default compose(getTrackerLoader(composer), Loader)(Resolver);

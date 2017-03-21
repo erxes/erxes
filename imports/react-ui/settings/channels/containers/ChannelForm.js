@@ -30,4 +30,4 @@ function composer({ channel }, onData) {
   }
 }
 
-export default compose(getTrackerLoader(composer, Spinner))(ChannelForm);
+export default compose(getTrackerLoader(composer), Spinner)(ChannelForm);

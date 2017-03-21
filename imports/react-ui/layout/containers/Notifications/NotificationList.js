@@ -35,4 +35,4 @@ function composer({ queryParams }, onData) {
   }
 }
 
-export default compose(getTrackerLoader(composer, Loader))(NotificationList);
+export default compose(getTrackerLoader(composer), Loader)(NotificationList);

@@ -19,4 +19,4 @@ function composer({ queryParams }, onData) {
   onData(null, { channels, removeChannel, loadMore, hasMore });
 }
 
-export default compose(getTrackerLoader(composer, Loader))(ChannelList);
+export default compose(getTrackerLoader(composer), Loader)(ChannelList);
