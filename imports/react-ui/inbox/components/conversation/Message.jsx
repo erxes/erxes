@@ -77,7 +77,7 @@ function Message({ message, staff, isSameUser }) {
   const renderFormWidgetData = () => {
     if (message.formWidgetData) {
       return (
-        <div>
+        <div className="form-data">
           {_.map(message.formWidgetData, (data, index) => ((
             <p key={index}>
               <span>{data.text}: </span> <span>{data.value}</span>

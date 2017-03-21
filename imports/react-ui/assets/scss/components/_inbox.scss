@@ -220,6 +220,26 @@ $fbpost-barckground: #f6f7f9;
       font-size: 12px;
     }
   }
+
+  .form-data {
+    display: table;
+    min-width: 160px;
+    margin-top: 15px;
+
+    p {
+      display: table-row;
+      line-height: 25px;
+    }
+
+    span {
+      display: table-cell;
+      text-align: left;
+
+      &:first-child {
+        font-weight: bold;
+      }
+    }
+  }
 }
 
 .reaction {
