@@ -47,7 +47,7 @@ app.use('/build', express.static(path.join(__dirname, '../static')));
 
 // routes ===
 app.get('/inapp', (req, res) => {
-  res.render('widget', { type: 'inapp' });
+  res.render('widget', { type: 'inApp' });
 });
 
 app.get('/chat', (req, res) => {
