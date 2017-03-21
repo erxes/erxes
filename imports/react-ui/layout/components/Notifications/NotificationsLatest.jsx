@@ -1,6 +1,6 @@
 import React, { PropTypes } from 'react';
 import { FlowRouter } from 'meteor/kadira:flow-router';
-import ScrollArea from 'react-scrollbar';
+import { Scrollbars } from 'react-custom-scrollbars';
 import { EmptyState } from '/imports/react-ui/common';
 import { NotificationRow } from '../../containers';
 
@@ -11,7 +11,12 @@ function NotificationsLatest({ notifications }) {
   let seeAll = <a href={FlowRouter.path('/notifications')}>See all</a>;
 
   let content = (
-    <ScrollArea className="notifications-area" horizontal={false}>
+    <Scrollbars
+      className="notifications-area"
+      style={{ maxHeight: 300 }}
+      autoHide
+      autoHeight
+    >
       <ul className="notifications-list">
         {
           notifications.map((notif, key) =>
@@ -19,7 +24,7 @@ function NotificationsLatest({ notifications }) {
           )
         }
       </ul>
-    </ScrollArea>
+    </Scrollbars>
   );
 
   if (notifCount === 0) {

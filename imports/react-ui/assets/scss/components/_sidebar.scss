@@ -1,6 +1,7 @@
 .sidebar {
   overflow-y: auto;
   box-sizing: border-box;
+  display: flex;
 
   &.narrow {
     width: $sidebar-width-narrow;
