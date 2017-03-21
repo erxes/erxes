@@ -6,7 +6,7 @@
     "airbnb",
     "plugin:meteor/recommended"
   ],
-  "parserOptions":{
+  "parserOptions": {
     "ecmaFeatures": {
       "experimentalObjectRestSpread": true
     }

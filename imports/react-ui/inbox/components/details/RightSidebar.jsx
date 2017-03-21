@@ -16,7 +16,7 @@ function RightSidebar({ conversation }) {
   const renderTwitterData = () => {
     if (integration.kind === 'twitter') {
       return (
-        <li><img src={customer.twitterData.profileImageUrl} /></li>
+        <img src={customer.twitterData.profileImageUrl} />
       );
     }
 
@@ -61,15 +61,15 @@ function RightSidebar({ conversation }) {
         <ul className="filters no-link">
           <li>
             <NameCard customer={customer} avatarSize={50} />
+            {renderTwitterData()}
           </li>
 
           {renderInAppMessagingData()}
-          {renderTwitterData()}
           {renderFacebookData()}
         </ul>
         <div className="box">
           <Button
-            href={FlowRouter.path('customers/details', { id: customer._id })}
+            href={FlowRouter.path('customers/details', { id: customer && customer._id })}
             className="action-btn btn-sm"
           >
             View customer profile

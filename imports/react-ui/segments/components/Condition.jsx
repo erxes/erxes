@@ -1,6 +1,7 @@
 import React, { PropTypes, Component } from 'react';
 import { Form, FormControl, Button } from 'react-bootstrap';
-import { types, operators } from '../constants';
+import debounce from 'lodash/debounce';
+import { types, operators, dateUnits } from '/imports/api/customers/constants';
 
 
 const propTypes = {
@@ -15,8 +16,12 @@ class Condition extends Component {
 
     this.state = this.props.condition;
     this.handleInputValue = this.handleInputValue.bind(this);
+    this.handleValue = this.handleValue.bind(this);
     this.removeCondition = this.removeCondition.bind(this);
     this.renderValueInput = this.renderValueInput.bind(this);
+
+    // debounce text input
+    this.changeCondition = debounce(this.props.changeCondition, 350);
   }
 
   handleInputValue(e) {
@@ -30,8 +35,20 @@ class Condition extends Component {
     }
 
     this.setState(states, () => {
-      const { field, operator, value, type } = this.state;
-      this.props.changeCondition({ field, operator, value, type });
+      const { field, operator, value, dateUnit, type } = this.state;
+      this.props.changeCondition({ field, operator, value, dateUnit, type });
+    });
+  }
+
+  // changeCondition will be fired after 350ms
+  handleValue(e) {
+    e.preventDefault();
+
+    const val = e.target.value;
+
+    this.setState({ value: val }, () => {
+      const { field, operator, value, dateUnit, type } = this.state;
+      this.changeCondition({ field, operator, value, dateUnit, type });
     });
   }
 
@@ -47,13 +64,37 @@ class Condition extends Component {
       return null;
     }
 
-    return (
+    const valueInput = (
       <FormControl
         name="value"
         type={type === 'number' ? 'number' : 'text'}
         value={this.state.value}
-        onChange={this.handleInputValue}
+        onChange={this.handleValue}
       />
+    );
+
+    const dateUnitInput = (
+      <FormControl
+        name="dateUnit"
+        componentClass="select"
+        placeholder="select"
+        value={this.state.dateUnit}
+        onChange={this.handleInputValue}
+      >
+        {
+          Object.keys(dateUnits).map(key =>
+            <option value={key} key={key}>{dateUnits[key]}</option>,
+          )
+        }
+      </FormControl>
+    );
+
+    return (
+      <span>
+        {valueInput}
+        {type === 'date' ? dateUnitInput : null}
+        {type === 'date' && (operator === 'wlt' || operator === 'wmt') ? ' ago' : null}
+      </span>
     );
   }
 

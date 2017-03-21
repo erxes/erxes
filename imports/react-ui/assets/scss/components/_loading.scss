@@ -1,3 +1,10 @@
+@mixin line {
+  height: 8px;
+  margin: 13px 0;
+  background: $border-grey;
+  border-radius: $border-radius;
+}
+
 .loading-wrapper {
   padding: 20px 0;
 
@@ -14,7 +21,7 @@
   align-items: center;
 
   .animate {
-    animation: pulse .6s infinite alternate;
+    animation: pulse .5s infinite alternate;
   }
 
   &.bordered {
@@ -34,10 +41,7 @@
     flex: 1;
 
     .line {
-      height: 8px;
-      margin: 10px 0;
-      background: $border-grey;
-      border-radius: $border-radius;
+      @include line;
 
       &:first-child {
         margin-top: 0;
@@ -53,7 +57,7 @@
     }
 
     .animate {
-      animation: pulse .6s infinite alternate;
+      animation: pulse .5s infinite alternate;
     }
   }
 
@@ -77,6 +81,28 @@
     width: 70%;
   }
 }
+
+
+.loading-table {
+  .line {
+    @include line;
+    margin: 5px 0;
+  }
+
+  .circle {
+    width: 16px;
+    height: 16px;
+    border-radius: 8px;
+    background: $border-grey;
+    flex-shrink: 0;
+    margin: auto;
+  }
+
+  .animate {
+    animation: pulse .5s infinite alternate;
+  }
+}
+
 
 @keyframes pulse {
   0% {

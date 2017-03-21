@@ -1,4 +1,5 @@
-import { composeWithTracker } from 'react-komposer';
+import { compose } from 'react-komposer';
+import { getTrackerLoader } from '/imports/react-ui/utils';
 import { Meteor } from 'meteor/meteor';
 import { Customers } from '/imports/api/customers/customers';
 import Segments from '/imports/api/customers/segments';
@@ -6,7 +7,7 @@ import { Brands } from '/imports/api/brands/brands';
 import { Tags } from '/imports/api/tags/tags';
 import { KIND_CHOICES } from '/imports/api/integrations/constants';
 import { TAG_TYPES } from '/imports/api/tags/constants';
-import { Loader, pagination } from '/imports/react-ui/common';
+import { pagination, Loading } from '/imports/react-ui/common';
 import { CustomersList } from '../components';
 
 
@@ -28,7 +29,7 @@ function composer({ queryParams }, onData) {
   if (customersHandle.ready() && segmentsHandle.ready()
     && brandsHandle.ready() && tagsHandle.ready()) {
     onData(null, {
-      customers: Customers.find({}, { sort: { lastSeenAt: -1 } }).fetch(),
+      customers: Customers.find({}, { sort: { 'inAppMessagingData.lastSeenAt': -1 } }).fetch(),
       segments: Segments.find({}, { sort: { name: 1 } }).fetch(),
       brands: Brands.find({}, { sort: { name: 1 } }).fetch(),
       integrations: KIND_CHOICES.ALL_LIST,
@@ -39,4 +40,4 @@ function composer({ queryParams }, onData) {
   }
 }
 
-export default composeWithTracker(composer, Loader)(CustomersList);
+export default compose(getTrackerLoader(composer), Loading)(CustomersList);

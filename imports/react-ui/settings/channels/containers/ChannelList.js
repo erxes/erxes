@@ -1,4 +1,5 @@
-import { composeWithTracker } from 'react-komposer';
+import { compose } from 'react-komposer';
+import { getTrackerLoader } from '/imports/react-ui/utils';
 import { Meteor } from 'meteor/meteor';
 import { Channels } from '/imports/api/channels/channels';
 import { remove } from '/imports/api/channels/methods';
@@ -18,4 +19,4 @@ function composer({ queryParams }, onData) {
   onData(null, { channels, removeChannel, loadMore, hasMore });
 }
 
-export default composeWithTracker(composer, Loader)(ChannelList);
+export default compose(getTrackerLoader(composer), Loader)(ChannelList);

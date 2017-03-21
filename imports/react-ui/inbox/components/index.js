@@ -5,6 +5,7 @@ import RespondBox from './details/RespondBox.jsx';
 import AssignBox from './assignBox/AssignBox.jsx';
 import AssignBoxPopover from './assignBox/AssignBoxPopover.jsx';
 import Resolver from './resolver/Resolver.jsx';
+import ResponseTemplate from './details/ResponseTemplate.jsx';
 
 
 export {
@@ -15,4 +16,5 @@ export {
   AssignBoxPopover,
   Resolver,
   Sidebar,
+  ResponseTemplate,
 };

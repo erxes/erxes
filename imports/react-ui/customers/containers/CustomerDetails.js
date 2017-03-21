@@ -1,4 +1,5 @@
-import { composeWithTracker } from 'react-komposer';
+import { compose } from 'react-komposer';
+import { getTrackerLoader } from '/imports/react-ui/utils';
 import { Meteor } from 'meteor/meteor';
 import { Customers } from '/imports/api/customers/customers';
 import { Conversations } from '/imports/api/conversations/conversations';
@@ -17,4 +18,4 @@ function composer({ id }, onData) {
   }
 }
 
-export default composeWithTracker(composer, Loader)(CustomerDetails);
+export default compose(getTrackerLoader(composer), Loader)(CustomerDetails);

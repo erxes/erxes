@@ -1,6 +1,7 @@
 import { Meteor } from 'meteor/meteor';
 import { Notifications } from 'meteor/erxes-notifications';
-import { composeWithTracker } from 'react-komposer';
+import { compose } from 'react-komposer';
+import { getTrackerLoader } from '/imports/react-ui/utils';
 import { Loader, pagination } from '/imports/react-ui/common';
 import { NotificationList } from '../../components';
 
@@ -34,4 +35,4 @@ function composer({ queryParams }, onData) {
   }
 }
 
-export default composeWithTracker(composer, Loader)(NotificationList);
+export default compose(getTrackerLoader(composer), Loader)(NotificationList);

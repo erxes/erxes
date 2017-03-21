@@ -7,6 +7,7 @@ import Tags from './Tags.jsx';
 import Loader from './Loader.jsx';
 import LoadingSidebar from './Loading/LoadingSidebar.jsx';
 import LoadingContent from './Loading/LoadingContent.jsx';
+import Loading from './Loading/Loading.jsx';
 import Spinner from './Spinner.jsx';
 import Attachment from './Attachment.jsx';
 import Tip from './Tip.jsx';
@@ -17,6 +18,7 @@ import Pagination from './Pagination/Pagination.jsx';
 import { pagination } from './Pagination/Pagination';
 import FilterableList from './filterableList/FilterableList.jsx';
 import ConversationsList from './conversationsList/ConversationsList.jsx';
+import LoadMore from './LoadMore.jsx';
 
 
 export {
@@ -39,4 +41,6 @@ export {
   ConversationsList,
   LoadingSidebar,
   LoadingContent,
+  Loading,
+  LoadMore,
 };

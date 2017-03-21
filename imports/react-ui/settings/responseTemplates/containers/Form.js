@@ -1,4 +1,5 @@
-import { composeWithTracker } from 'react-komposer';
+import { compose } from 'react-komposer';
+import { getTrackerLoader } from '/imports/react-ui/utils';
 import { Spinner } from '/imports/react-ui/common';
 import { Form } from '../components';
 
@@ -9,4 +10,4 @@ function composer({ object }, onData) {
   });
 }
 
-export default composeWithTracker(composer, Spinner)(Form);
+export default compose(getTrackerLoader(composer), Spinner)(Form);

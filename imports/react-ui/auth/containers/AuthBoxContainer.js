@@ -1,5 +1,6 @@
 import { Meteor } from 'meteor/meteor';
-import { composeWithTracker } from 'react-komposer';
+import { compose } from 'react-komposer';
+import { getTrackerLoader } from '/imports/react-ui/utils';
 import { AuthBox } from '../components';
 
 
@@ -17,4 +18,4 @@ function composer(props, onData) {
   });
 }
 
-export default composeWithTracker(composer)(AuthBox);
+export default compose(getTrackerLoader(composer))(AuthBox);

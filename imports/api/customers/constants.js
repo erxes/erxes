@@ -7,6 +7,7 @@ export const types = {
   string: 'String',
   number: 'Number',
   boolean: 'Boolean',
+  date: 'Date',
 };
 
 export const operators = {
@@ -31,4 +32,18 @@ export const operators = {
     { name: 'is set', value: 'is', noInput: true },
     { name: 'is not set', value: 'ins', noInput: true },
   ],
+  date: [
+    { name: 'was less than', value: 'wlt' },
+    { name: 'was more than', value: 'wmt' },
+    { name: 'will occur within', value: 'wow' },
+    { name: 'will occur after', value: 'woa' },
+    { name: 'is set', value: 'is', noInput: true },
+    { name: 'is not set', value: 'ins', noInput: true },
+  ],
+};
+
+export const dateUnits = {
+  days: 'days',
+  weeks: 'weeks',
+  months: 'months',
 };
