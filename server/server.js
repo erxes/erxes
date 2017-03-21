@@ -42,6 +42,8 @@ app.use('/graphql', graphqlExpress(() =>
 // set the view engine to ejs
 app.set('view engine', 'ejs');
 
+app.set('views', path.join(__dirname, '../views'));
+
 // Express Middleware for serving static files
 app.use('/build', express.static(path.join(__dirname, '../static')));
 
