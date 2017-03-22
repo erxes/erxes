@@ -6,7 +6,7 @@ export const toggle = (isVisible) => {
   // notify parent window launcher state
   window.parent.postMessage({
     fromErxes: true,
-    isMessengerVisible: isVisible,
+    isMessengerVisible: !isVisible,
   }, '*');
 
   return {

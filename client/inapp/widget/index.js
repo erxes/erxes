@@ -36,10 +36,10 @@ window.addEventListener('message', (event) => {
   if (event.data.fromErxes) {
     iframe = document.querySelector('#erxes-iframe');
 
-    iframe.className = 'erxes-messenger-shown';
+    iframe.className = 'erxes-messenger-hidden';
 
     if (event.data.isMessengerVisible) {
-      iframe.className = 'erxes-messenger-hidden';
+      iframe.className = 'erxes-messenger-shown';
     }
   }
 });
