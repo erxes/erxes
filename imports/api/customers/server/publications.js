@@ -12,7 +12,7 @@ import { Conversations } from '/imports/api/conversations/conversations';
 import { Brands } from '/imports/api/brands/brands';
 import { Customers } from '../customers';
 import Segments from '../segments';
-import QueryBuilder from './queryBuilder';
+import QueryBuilder from '../queryBuilder';
 
 
 Meteor.publishComposite('customers.list', function customersList(queryString) {
