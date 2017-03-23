@@ -24,7 +24,8 @@
   width: 100%;
   min-height: 100%;
   position: absolute;
-  opacity: 0;
+  background-color: #000; /* Fallback color */
+  background-color: rgba(0, 0, 0, 0.6); /* Black w/ opacity */
   @include prefix((
     transition: opacity .15s linear
   ), webkit moz ms o);
@@ -34,10 +35,6 @@
     width: 500px;
     @include prefix((
       transition: transform 0.3s ease
-    ), webkit moz ms o);
-
-    @include prefix((
-      transform: translate(0,-25%)
     ), webkit moz ms o);
   }
 
@@ -64,7 +61,7 @@
     position: absolute;
     right: 50%;
     margin-right: -237px;
-    top: 58px;
+    top: 67px;
     width: 40px;
     height: 40px;
     text-align: center;

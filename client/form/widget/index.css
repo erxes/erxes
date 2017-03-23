@@ -12,6 +12,7 @@
   top: 0;
   min-width: 100%; /* Full width */
   min-height: 100%; /* Full height */
+  border: none;
 }
 
 .erxes-shoutbox-iframe {
