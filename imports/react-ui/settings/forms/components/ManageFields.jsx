@@ -129,7 +129,7 @@ class ManageFields extends Component {
   renderOptionsTextArea() {
     const { editingField, chosenFieldType } = this.state;
 
-    if (!['select', 'check', 'radio'].includes(chosenFieldType)) {
+    if (!['select', 'check', 'radio'].includes(chosenFieldType || editingField.type)) {
       return null;
     }
 
