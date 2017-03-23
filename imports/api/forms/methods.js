@@ -152,3 +152,31 @@ export const updateFieldsOrder = new ValidatedMethod({
     });
   },
 });
+
+// duplicate form
+export const duplicate = new ValidatedMethod({
+  name: 'forms.duplicate',
+  mixins: [ErxesMixin],
+
+  validate({ id }) {
+    check(id, String);
+  },
+
+  run({ id }) {
+    const form = Forms.findOne(id);
+
+    const formParams = _.omit(form, '_id');
+    formParams.title = `${form.title} duplicated`;
+
+    // duplicate form
+    const newFormId = Forms.insert(formParams);
+
+    // duplicate fields
+    Fields.find({ formId: id }).forEach((field) => {
+      const fieldParams = _.omit(field, '_id');
+      fieldParams.formId = newFormId;
+
+      Fields.insert(fieldParams);
+    });
+  },
+});

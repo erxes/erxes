@@ -13,7 +13,6 @@ export const Fields = new Mongo.Collection('form_fields');
 Forms.schema = new SimpleSchema({
   title: {
     type: String,
-    unique: true,
   },
 
   description: {

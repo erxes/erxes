@@ -10,7 +10,7 @@ import '/imports/api/users/factory';
 
 import { Forms, Fields } from '../forms';
 import {
-  add, edit, remove, addField, editField,
+  add, edit, remove, duplicate, addField, editField,
   removeField, updateFieldsOrder,
 } from '../methods';
 
@@ -137,6 +137,25 @@ describe('forms', function () {
       const field = Fields.findOne({ _id });
 
       assert.equal(field.order, 10);
+    });
+
+    it('duplicate', function () {
+      Factory.create('formField', { formId });
+
+      duplicate._execute(
+        { userId },
+        { id: formId },
+      );
+
+      const form = Forms.findOne(formId);
+
+      // check copied form
+      assert.equal(Forms.find({ title: `${form.title} duplicated` }).count(), 1);
+
+      const newForm = Forms.findOne({ title: `${form.title} duplicated` });
+
+      // check copied field
+      assert.equal(Fields.find({ formId: newForm._id }).count(), 1);
     });
   });
 });

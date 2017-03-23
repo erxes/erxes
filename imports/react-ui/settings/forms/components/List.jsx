@@ -9,6 +9,7 @@ import Row from './Row.jsx';
 const propTypes = {
   forms: PropTypes.array.isRequired,
   removeForm: PropTypes.func.isRequired,
+  duplicateForm: PropTypes.func.isRequired,
   loadMore: PropTypes.func.isRequired,
   hasMore: PropTypes.bool.isRequired,
 };
@@ -21,13 +22,14 @@ class List extends Component {
   }
 
   renderForms() {
-    const { forms, removeForm } = this.props;
+    const { forms, removeForm, duplicateForm } = this.props;
 
     return forms.map(form =>
       <Row
         key={form._id}
         form={form}
         removeForm={removeForm}
+        duplicateForm={duplicateForm}
       />,
     );
   }

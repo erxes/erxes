@@ -3,7 +3,7 @@ import { getTrackerLoader } from '/imports/react-ui/utils';
 import { Meteor } from 'meteor/meteor';
 import { Forms } from '/imports/api/forms/forms';
 import { Loader, pagination } from '/imports/react-ui/common';
-import { remove } from '/imports/api/forms/methods';
+import { remove, duplicate } from '/imports/api/forms/methods';
 import { List } from '../components';
 
 
@@ -16,8 +16,12 @@ function composer({ queryParams }, onData) {
     remove.call(id, callback);
   };
 
+  const duplicateForm = (id, callback) => {
+    duplicate.call({ id }, callback);
+  };
+
   if (subHandle.ready()) {
-    onData(null, { forms, removeForm, loadMore, hasMore });
+    onData(null, { forms, removeForm, duplicateForm, loadMore, hasMore });
   }
 }
 

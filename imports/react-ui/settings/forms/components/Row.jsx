@@ -9,6 +9,7 @@ import { Form } from '../containers';
 const propTypes = {
   form: PropTypes.object.isRequired,
   removeForm: PropTypes.func.isRequired,
+  duplicateForm: PropTypes.func.isRequired,
 };
 
 class Row extends Component {
@@ -16,6 +17,7 @@ class Row extends Component {
     super(props);
 
     this.removeForm = this.removeForm.bind(this);
+    this.duplicateForm = this.duplicateForm.bind(this);
   }
 
   removeForm() {
@@ -29,6 +31,18 @@ class Row extends Component {
       }
 
       return Alert.success('Form has deleted.');
+    });
+  }
+
+  duplicateForm() {
+    const { form, duplicateForm } = this.props;
+
+    duplicateForm(form._id, (error) => {
+      if (error) {
+        return Alert.error(error.reason || error.message);
+      }
+
+      return Alert.success('Form has duplicated.');
     });
   }
 
@@ -57,6 +71,12 @@ class Row extends Component {
               <a href={`/settings/forms/manage-fields/${form._id}`}>
                 <i className="ion-navicon-round" />
               </a>
+            </Tip>
+
+            <Tip text="Duplicate">
+              <Button bsStyle="link" onClick={this.duplicateForm}>
+                <i className="ion-ios-browsers" />
+              </Button>
             </Tip>
 
             <Tip text="Delete">
