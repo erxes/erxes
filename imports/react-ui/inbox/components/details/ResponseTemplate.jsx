@@ -4,18 +4,15 @@ import React, { PropTypes, Component } from 'react';
 import { FlowRouter } from 'meteor/kadira:flow-router';
 import strip from 'strip';
 import {
-  Modal,
-  ButtonToolbar,
   Button,
-  FormGroup,
   FormControl,
-  ControlLabel,
   Popover,
   OverlayTrigger,
 } from 'react-bootstrap';
 
 import { add } from '/imports/api/responseTemplates/methods';
-import { ModalTrigger, EmptyState } from '/imports/react-ui/common';
+import { EmptyState } from '/imports/react-ui/common';
+import ResponseTemplateModal from './ResponseTemplateModal.jsx';
 
 
 const propTypes = {
@@ -33,6 +30,7 @@ class ResponseTemplate extends Component {
 
     this.state = {
       key: '',
+      brandId: props.brandId,
       options: this.filterByBrand(props.brandId),
     };
 
@@ -43,10 +41,10 @@ class ResponseTemplate extends Component {
     this.filterByBrand = this.filterByBrand.bind(this);
   }
 
-  onSave() {
+  onSave(brandId, name) {
     const doc = {
-      brandId: this.props.brandId,
-      name: document.getElementById('template-name').value,
+      brandId,
+      name,
       content: this.props.content,
       files: this.props.attachments,
     };
@@ -69,13 +67,12 @@ class ResponseTemplate extends Component {
 
     // find response template using event key
     const responseTemplate = _.find(responseTemplates, t => t._id === eventKey);
-
     return this.props.onSelect(responseTemplate);
   }
 
   onFilter(e) {
     const options = this.filterByBrand(e.target.value);
-    this.setState({ options });
+    this.setState({ options, brandId: e.target.value });
   }
 
   filterByBrand(brandId) {
@@ -118,7 +115,7 @@ class ResponseTemplate extends Component {
 
 
   render() {
-    const { brands, content } = this.props;
+    const { brands, content, brandId } = this.props;
 
     const saveTrigger = (
       <Button id="response-template-handler" bsStyle="link">
@@ -143,7 +140,7 @@ class ResponseTemplate extends Component {
                 componentClass="select"
                 placeholder="Select Brand"
                 onChange={this.onFilter}
-                defaultValue={this.props.brandId}
+                defaultValue={this.state.brandId}
               >
                 {brands.map(brand =>
                   <option key={brand._id} value={brand._id}>{brand.name}</option>,
@@ -161,7 +158,9 @@ class ResponseTemplate extends Component {
         <div className="popover-footer">
           <ul className="popover-list linked text-center">
             <li>
-              <a href={FlowRouter.path('settings/responseTemplates/list')}>Manage templates</a>
+              <a href={FlowRouter.path('settings/responseTemplates/list')}>
+                Manage templates
+              </a>
             </li>
           </ul>
         </div>
@@ -177,31 +176,16 @@ class ResponseTemplate extends Component {
           rootClose
         >
           <Button bsStyle="link" className="dropup">
-            <i className="ion-clipboard" /> Response templates <span className="caret" />
+            <i className="ion-clipboard" /> Templates <span className="caret" />
           </Button>
         </OverlayTrigger>
 
-        <ModalTrigger
-          title="Create response template"
+        <ResponseTemplateModal
           trigger={strip(content) ? saveTrigger : <span />}
-        >
-          <FormGroup>
-            <ControlLabel>Name</ControlLabel>
-            <FormControl id="template-name" type="text" required />
-          </FormGroup>
-
-          <Modal.Footer>
-            <ButtonToolbar className="pull-right">
-              <Button
-                onClick={this.onSave}
-                type="button"
-                bsStyle="primary"
-              >
-                Save
-              </Button>
-            </ButtonToolbar>
-          </Modal.Footer>
-        </ModalTrigger>
+          brands={brands}
+          brandId={brandId}
+          onSave={this.onSave}
+        />
       </div>
     );
   }
