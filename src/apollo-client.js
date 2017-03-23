@@ -14,11 +14,11 @@ import addGraphQLSubscriptions from './subscriptions';
 import settings from './settings';
 
 // websocket
-export const wsClient = new Client(settings.WEBSOCKET_URL, {
+export const wsClient = new Client(settings.API_WEBSOCKET_URL, {
   reconnect: true,
 });
 
-const networkInterface = createNetworkInterface({ uri: settings.API_URL });
+const networkInterface = createNetworkInterface({ uri: settings.API_GRAPHQL_URL });
 
 const networkInterfaceWithSubscriptions = addGraphQLSubscriptions(
   networkInterface,

@@ -3,8 +3,10 @@
 import path from 'path';
 import express from 'express';
 import bodyParser from 'body-parser';
-import settings from './settings';
+import dotenv from 'dotenv';
 
+
+dotenv.config();
 
 const app = express();
 
@@ -34,7 +36,7 @@ app.get('/test', (req, res) => {
   res.render('widget-test', { type: req.query.type });
 });
 
-const port = settings.PORT;
+const port = process.env.PORT || 3000;
 app.listen(port, () => {
   console.log(`Widget scripts are now running on port ${port}`);
 });

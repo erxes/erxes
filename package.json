@@ -23,6 +23,7 @@
     "body-parser": "^1.15.2",
     "classnames": "^2.2.5",
     "ddp.js": "^2.2.0",
+    "dotenv": "^4.0.0",
     "ejs": "^2.5.6",
     "express": "^4.14.0",
     "graphql-tag": "^1.2.3",
