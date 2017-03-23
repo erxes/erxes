@@ -67,7 +67,6 @@ const typeDefs = `
   type Field {
     _id: String
     formId: String
-    name: String
     type: String
     check: String
     text: String

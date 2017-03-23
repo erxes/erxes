@@ -55,6 +55,9 @@ export default class Form extends React.Component {
     return fields.map((field) => {
       const fieldError = errors.find(error => error.fieldId === field._id);
 
+      // generating name attribute automatically
+      field.name = `erxes-form-field-${field._id}`; // eslint-disable-line
+
       return (
         <Field
           key={field._id}
@@ -134,7 +137,6 @@ Form.propTypes = {
 
     fields: PropTypes.arrayOf(PropTypes.shape({
       _id: PropTypes.string.isRequired,
-      name: PropTypes.string.isRequired,
       type: PropTypes.string,
       check: PropTypes.string,
       text: PropTypes.string,

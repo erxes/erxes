@@ -86,7 +86,6 @@ const FormFieldSchema = Mongoose.Schema({
   formId: String,
   type: String,
   validation: String,
-  name: String,
   check: String,
   text: String,
   description: String,

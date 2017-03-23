@@ -23,7 +23,7 @@ function App({ isShoutboxFormVisible, loadType, onModalClose }) {
     return <Form />;
   }
 
-  if (loadType === 'modal') {
+  if (loadType === 'popup') {
     return (
       <div className="modal-form">
         <div className="close" onClick={onModalClose} />

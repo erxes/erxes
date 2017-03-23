@@ -46,7 +46,7 @@ window.addEventListener('message', (event) => {
       document.querySelector('[data-erxes-embed]').appendChild(iframe);
     }
 
-    if (loadType === 'modal') {
+    if (loadType === 'popup') {
       iframe.className = 'erxes-modal-iframe hidden';
 
       document.querySelectorAll('[data-erxes-modal]').forEach((elm) => {
