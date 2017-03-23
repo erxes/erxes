@@ -31,7 +31,7 @@ class Form extends Component {
     const params = {
       doc: {
         title: document.getElementById('title').value,
-        code: document.getElementById('code').value,
+        description: document.getElementById('description').value,
       },
     };
 
@@ -66,8 +66,14 @@ class Form extends Component {
         </FormGroup>
 
         <FormGroup>
-          <ControlLabel>Code</ControlLabel>
-          <FormControl id="code" defaultValue={form.code} required />
+          <ControlLabel>Description</ControlLabel>
+
+          <FormControl
+            id="description"
+            componentClass="textarea"
+            rows={5}
+            defaultValue={form.description}
+          />
         </FormGroup>
 
         <Modal.Footer>

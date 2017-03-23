@@ -11,7 +11,7 @@ export const KIND_CHOICES = {
 
 export const FORM_LOAD_TYPES = {
   SHOUTBOX: 'shoutbox',
-  MODAL: 'modal',
+  POPUP: 'popup',
   EMBEDDED: 'embedded',
-  ALL_LIST: ['shoutbox', 'modal', 'embedded'],
+  ALL_LIST: ['shoutbox', 'popup', 'embedded'],
 };

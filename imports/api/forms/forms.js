@@ -16,8 +16,9 @@ Forms.schema = new SimpleSchema({
     unique: true,
   },
 
-  code: {
+  description: {
     type: String,
+    optional: true,
   },
 });
 
@@ -41,12 +42,6 @@ Fields.schema = new SimpleSchema({
       'input', 'textarea', 'radio', 'check',
       'select', 'divider', 'email', 'firstName', 'lastName',
     ],
-  },
-
-  name: {
-    type: String,
-    regEx: /^[a-z0-9A-Z]*$/,
-    max: 50,
   },
 
   validation: {
@@ -100,7 +95,7 @@ Fields.attachSchema(FieldSchemaExtra);
 
 Factory.define('form', Forms, {
   title: () => faker.random.word(),
-  code: () => faker.random.word(),
+  description: () => faker.random.word(),
   createdUserId: () => Random.id(),
   createdDate: () => faker.date.recent(),
 });
@@ -108,7 +103,6 @@ Factory.define('form', Forms, {
 Factory.define('formField', Fields, {
   formId: () => Random.id(),
   type: 'input',
-  name: faker.random.word(),
   isRequired: false,
   order: () => faker.random.number(),
 });
