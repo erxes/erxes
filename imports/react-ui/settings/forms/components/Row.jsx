@@ -21,7 +21,7 @@ class Row extends Component {
   }
 
   removeForm() {
-    if (!confirm('Are you sure?')) return; // eslint-disable-line
+    if (!confirm('Are you sure ?')) return; // eslint-disable-line
 
     const { form, removeForm } = this.props;
 
@@ -35,6 +35,8 @@ class Row extends Component {
   }
 
   duplicateForm() {
+    if (!confirm('Are you sure ?')) return; // eslint-disable-line
+
     const { form, duplicateForm } = this.props;
 
     duplicateForm(form._id, (error) => {
