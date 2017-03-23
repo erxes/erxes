@@ -39,7 +39,7 @@ class ManageFields extends Component {
       type: editingField.type,
       validation: editingField.validation,
       text: editingField.text,
-      description: editingField.text,
+      description: editingField.description,
       options: editingField.options,
       isRequired: editingField.isRequired,
     };
