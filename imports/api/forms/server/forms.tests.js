@@ -34,7 +34,7 @@ describe('forms', function () {
       assert.equal(Forms.find().count(), 1);
 
       // method call
-      add._execute({ userId }, { doc: { title: 'Test form', code: 'test-form' } });
+      add._execute({ userId }, { doc: { title: 'Test form', description: 'description' } });
 
       assert.equal(Forms.find().count(), 2);
     });
@@ -42,7 +42,7 @@ describe('forms', function () {
     it('edit', function () {
       edit._execute(
         { userId },
-        { id: formId, doc: { title: 'Updated title', code: 'updated-code' } },
+        { id: formId, doc: { title: 'Updated title', description: 'updated description' } },
       );
 
       assert.equal(Forms.findOne(formId).title, 'Updated title');
@@ -94,7 +94,7 @@ describe('forms', function () {
 
       addField._execute(
         { userId },
-        { formId, doc: { type: 'input', name: 'firstName', isRequired: false } },
+        { formId, doc: { type: 'input', isRequired: false } },
       );
 
       // checking creation
@@ -106,20 +106,20 @@ describe('forms', function () {
     });
 
     it('edit field', function () {
-      const _id = Factory.create('formField', { name: 'firstName' })._id;
+      const _id = Factory.create('formField', { text: 'firstName' })._id;
 
       editField._execute(
         { userId },
-        { _id, doc: { type: 'input', name: 'updatedFirstName', isRequired: true } },
+        { _id, doc: { type: 'input', text: 'updatedFirstName', isRequired: true } },
       );
 
       const field = Fields.findOne({ _id });
 
-      assert.equal(field.name, 'updatedFirstName');
+      assert.equal(field.text, 'updatedFirstName');
     });
 
     it('remove field', function () {
-      const _id = Factory.create('formField', { name: 'firstName' })._id;
+      const _id = Factory.create('formField', { text: 'firstName' })._id;
 
       removeField._execute({ userId }, { _id });
 
@@ -127,7 +127,7 @@ describe('forms', function () {
     });
 
     it('update fields order', function () {
-      const _id = Factory.create('formField', { name: 'firstName' })._id;
+      const _id = Factory.create('formField', { text: 'firstName' })._id;
 
       updateFieldsOrder._execute(
         { userId },
