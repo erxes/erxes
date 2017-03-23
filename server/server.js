@@ -22,16 +22,7 @@ const app = express();
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
-const corsOptions = {
-  origin(origin, callback) {
-    // origin is white listed
-    callback(null, settings.ALLOWED_DOMAINS.includes(origin));
-  },
-
-  credentials: true,
-};
-
-app.use(cors(corsOptions));
+app.use(cors());
 
 app.use('/graphql', graphqlExpress(() =>
   ({
