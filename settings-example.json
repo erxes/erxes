@@ -1,12 +1,12 @@
 {
   "public": {
-    "CDN_HOST": "http://127.0.0.1/static",
+    "CDN_HOST": "https://localhost:7020/static",
     "APOLLO_CLIENT_URL": "http://localhost:8080/graphql"
   },
   "accounts": {
     "emailTemplates": {
       "siteName": "Erxes",
-      "from": "no-reply@erxes.org"
+      "from": "no-reply@erxes.io"
     }
   },
   "COMPANY_NAME": "",
@@ -18,10 +18,10 @@
 
   "FACEBOOK_APPS": [
     {
-      "NAME": "app name",
-      "ID": "app id",
-      "VERIFY_TOKEN": "webhooks's verify token",
-      "ACCESS_TOKEN": "user access token"
+      "NAME": "",
+      "ID": "",
+      "VERIFY_TOKEN": "",
+      "ACCESS_TOKEN": ""
     }
   ]
 }
