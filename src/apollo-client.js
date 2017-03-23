@@ -18,7 +18,7 @@ export const wsClient = new Client(settings.WEBSOCKET_URL, {
   reconnect: true,
 });
 
-const networkInterface = createNetworkInterface({ uri: '/graphql' });
+const networkInterface = createNetworkInterface({ uri: settings.API_URL });
 
 const networkInterfaceWithSubscriptions = addGraphQLSubscriptions(
   networkInterface,

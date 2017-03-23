@@ -7,13 +7,13 @@ import settings from '../../settings';
 // css
 import './index.css';
 
-const API_URL = settings.API_URL;
+const DOMAIN = settings.DOMAIN;
 
 // add iframe
 let iframe = document.createElement('iframe');
 iframe.id = 'erxes-iframe';
 iframe.className = 'erxes-messenger-hidden';
-iframe.src = `${API_URL}/inapp`;
+iframe.src = `${DOMAIN}/inapp`;
 iframe.style.display = 'none';
 
 document.body.appendChild(iframe);

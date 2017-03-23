@@ -7,12 +7,12 @@ import settings from '../../settings';
 // css
 import './index.css';
 
-const API_URL = settings.API_URL;
+const DOMAIN = settings.DOMAIN;
 
 // add iframe
 let iframe = document.createElement('iframe');
 iframe.id = 'erxes-iframe';
-iframe.src = `${API_URL}/form`;
+iframe.src = `${DOMAIN}/form`;
 iframe.style.display = 'none';
 
 document.body.appendChild(iframe);

@@ -4,12 +4,12 @@ var path = require('path');
 
 module.exports = {
   entry: {
-    inApp: './client/inapp/index.js',
-    inAppWidget: './client/inapp/widget/index.js',
-    chat: './client/chat/index.js',
-    chatWidget: './client/chat/widget/index.js',
-    form: './client/form/index.js',
-    formWidget: './client/form/widget/index.js',
+    inApp: './dist/inapp/index.js',
+    inAppWidget: './dist/inapp/widget/index.js',
+    chat: './dist/chat/index.js',
+    chatWidget: './dist/chat/widget/index.js',
+    form: './dist/form/index.js',
+    formWidget: './dist/form/widget/index.js',
   },
 
   output: {
