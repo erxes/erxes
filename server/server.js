@@ -4,7 +4,6 @@ import bodyParser from 'body-parser';
 import { graphqlExpress, graphiqlExpress } from 'graphql-server-express';
 import { createServer } from 'http';
 import { SubscriptionServer } from 'subscriptions-transport-ws';
-import cors from 'cors';
 
 import settings from './settings';
 import { connectToMongo } from './data/connectors';
@@ -21,6 +20,12 @@ const app = express();
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
+
+const cors = (req, res, next) => {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Headers', 'X-Requested-With');
+  next();
+};
 
 app.use(cors());
 
