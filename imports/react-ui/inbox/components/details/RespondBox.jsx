@@ -205,7 +205,7 @@ class RespondBox extends Component {
         </form>
 
         <Checkbox onChange={this.toggleForm}>
-          Leave as internal note
+          Internal note
         </Checkbox>
       </div>
     );
