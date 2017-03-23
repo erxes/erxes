@@ -21,7 +21,6 @@ class ManageFields extends Component {
     // attribute change events
     this.onChangeType = this.onChangeType.bind(this);
     this.onChangeValidation = this.onChangeValidation.bind(this);
-    this.onChangeName = this.onChangeName.bind(this);
     this.onChangeText = this.onChangeText.bind(this);
     this.onChangeDescription = this.onChangeDescription.bind(this);
     this.onChangeOptions = this.onChangeOptions.bind(this);
@@ -35,10 +34,10 @@ class ManageFields extends Component {
     e.preventDefault();
 
     const editingField = this.state.editingField;
+
     const doc = {
       type: editingField.type,
       validation: editingField.validation,
-      name: editingField.name,
       text: editingField.text,
       description: editingField.text,
       options: editingField.options,
@@ -65,10 +64,6 @@ class ManageFields extends Component {
     this.setChanges('validation', e.target.value);
   }
 
-  onChangeName(e) {
-    this.setChanges('name', e.target.value);
-  }
-
   onChangeText(e) {
     this.setChanges('text', e.target.value);
   }
@@ -85,19 +80,13 @@ class ManageFields extends Component {
     this.setChanges('isRequired', e.target.checked);
   }
 
-  setChanges(fieldName, value) {
-    this.state.editingField[fieldName] = value;
+  setChanges(attributeName, value) {
+    this.state.editingField[attributeName] = value;
     this.setState({ editingField: this.state.editingField });
   }
 
   renderButtons() {
     const _id = this.state.editingField._id;
-
-    const toListButton = (
-      <a href="/settings/forms" className="btn btn-sm btn-default">
-        to list
-      </a>
-    );
 
     if (_id) {
       // reset editing field state
@@ -115,8 +104,6 @@ class ManageFields extends Component {
 
       return (
         <div className="btn-group">
-          {toListButton}
-
           <button type="button" className="btn btn-sm btn-danger" onClick={onDelete}>
             Delete
           </button>
@@ -134,8 +121,6 @@ class ManageFields extends Component {
 
     return (
       <div className="btn-group">
-        {toListButton}
-
         <button type="submit" className="btn btn-sm btn-success">Add</button>
       </div>
     );
@@ -204,16 +189,6 @@ class ManageFields extends Component {
             <option value="number">Number</option>
             <option value="date">Date</option>
           </select>
-        </p>
-
-        <p className="form-group">
-          <label className="control-label" htmlFor="name">Name:</label>
-          <input
-            id="name"
-            className="form-control"
-            value={editingField.name || ''}
-            onChange={this.onChangeName}
-          />
         </p>
 
         <p className="form-group">
