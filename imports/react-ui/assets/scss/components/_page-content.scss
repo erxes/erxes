@@ -32,6 +32,12 @@
       min-height: 100%;
     }
 
+    .scroll-area {
+      height: 100%;
+      overflow: auto;
+      position: relative;
+    }
+
     .margined {
       margin: $box-inner-space;
       overflow: hidden;
