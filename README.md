@@ -1,5 +1,5 @@
 
-erxes is an open-source messaging platform for customer success.
+erxes is an AI meets open source messaging platform for sales and marketing
 
 [![Build Status](https://travis-ci.org/erxes/erxes.svg?branch=develop)](https://travis-ci.org/erxes/erxes)
 [![MIT licensed](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/erxes/erxes/develop/LICENSE.md)
