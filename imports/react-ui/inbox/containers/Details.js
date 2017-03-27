@@ -1,11 +1,10 @@
 import { Meteor } from 'meteor/meteor';
 import { ReactiveVar } from 'meteor/reactive-var';
 import { compose } from 'react-komposer';
-import { getTrackerLoader } from '/imports/react-ui/utils';
+import { getTrackerLoader, composerOptions } from '/imports/react-ui/utils';
 import { Conversations } from '/imports/api/conversations/conversations';
 import { Messages } from '/imports/api/conversations/messages';
 import { Integrations } from '/imports/api/integrations/integrations';
-import { Loader } from '/imports/react-ui/common';
 import { Details } from '../components';
 
 const attachmentPreview = new ReactiveVar({});
@@ -72,4 +71,4 @@ function composer({ id, channelId }, onData) {
   }
 }
 
-export default compose(getTrackerLoader(composer), Loader)(Details);
+export default compose(getTrackerLoader(composer), composerOptions({}))(Details);

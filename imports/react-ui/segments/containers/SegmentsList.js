@@ -1,9 +1,8 @@
 import { compose } from 'react-komposer';
-import { getTrackerLoader } from '/imports/react-ui/utils';
+import { getTrackerLoader, composerOptions } from '/imports/react-ui/utils';
 import { Meteor } from 'meteor/meteor';
 import Segments from '/imports/api/customers/segments';
 import { removeSegment } from '/imports/api/customers/methods';
-import { Loader } from '/imports/react-ui/common';
 import { SegmentsList } from '../components';
 
 
@@ -20,4 +19,4 @@ function composer(props, onData) {
   }
 }
 
-export default compose(getTrackerLoader(composer), Loader)(SegmentsList);
+export default compose(getTrackerLoader(composer), composerOptions({}))(SegmentsList);

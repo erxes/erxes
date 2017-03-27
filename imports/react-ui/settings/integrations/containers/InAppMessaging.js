@@ -1,6 +1,5 @@
 import { compose } from 'react-komposer';
-import { getTrackerLoader } from '/imports/react-ui/utils';
-import { Spinner } from '/imports/react-ui/common';
+import { getTrackerLoader, composerOptions } from '/imports/react-ui/utils';
 import { Common } from '../components';
 import composer from './commonComposer';
 
@@ -10,5 +9,5 @@ export default compose(getTrackerLoader(
     addMethodName: 'addInAppMessaging',
     editMethodName: 'editInAppMessaging',
   }),
-  Spinner,
+  composerOptions({ spinner: true }),
 ))(Common);

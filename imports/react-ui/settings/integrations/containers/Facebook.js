@@ -2,9 +2,8 @@ import { Meteor } from 'meteor/meteor';
 import { FlowRouter } from 'meteor/kadira:flow-router';
 import { ReactiveVar } from 'meteor/reactive-var';
 import { compose } from 'react-komposer';
-import { getTrackerLoader } from '/imports/react-ui/utils';
+import { getTrackerLoader, composerOptions } from '/imports/react-ui/utils';
 import Alert from 'meteor/erxes-notifier';
-import { Spinner } from '/imports/react-ui/common';
 import { Brands } from '/imports/api/brands/brands';
 import { Facebook } from '../components';
 
@@ -63,4 +62,4 @@ function composer(props, onData) {
   return null;
 }
 
-export default compose(getTrackerLoader(composer), Spinner)(Facebook);
+export default compose(getTrackerLoader(composer), composerOptions({ spinner: true }))(Facebook);

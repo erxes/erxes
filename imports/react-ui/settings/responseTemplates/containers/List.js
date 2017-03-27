@@ -1,10 +1,9 @@
 import { compose } from 'react-komposer';
-import { getTrackerLoader } from '/imports/react-ui/utils';
+import { getTrackerLoader, composerOptions } from '/imports/react-ui/utils';
 import { Meteor } from 'meteor/meteor';
 import { Brands } from '/imports/api/brands/brands';
 import { ResponseTemplates } from '/imports/api/responseTemplates/responseTemplates';
 import { remove } from '/imports/api/responseTemplates/methods';
-import { Loader } from '/imports/react-ui/common';
 import { List } from '../components';
 
 
@@ -27,4 +26,4 @@ function composer({ queryParams }, onData) {
   }
 }
 
-export default compose(getTrackerLoader(composer), Loader)(List);
+export default compose(getTrackerLoader(composer), composerOptions({}))(List);

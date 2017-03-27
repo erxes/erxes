@@ -2,8 +2,7 @@ import { Meteor } from 'meteor/meteor';
 import { ReactiveVar } from 'meteor/reactive-var';
 import { Configs } from 'meteor/erxes-notifications';
 import { compose } from 'react-komposer';
-import { getTrackerLoader } from '/imports/react-ui/utils';
-import { Loader } from '/imports/react-ui/common';
+import { getTrackerLoader, composerOptions } from '/imports/react-ui/utils';
 import { NotificationSettings } from '../components';
 
 
@@ -56,4 +55,4 @@ function composer(props, onData) {
   }
 }
 
-export default compose(getTrackerLoader(composer), Loader)(NotificationSettings);
+export default compose(getTrackerLoader(composer), composerOptions({}))(NotificationSettings);

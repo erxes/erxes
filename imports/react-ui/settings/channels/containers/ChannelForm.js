@@ -1,9 +1,8 @@
 import { Meteor } from 'meteor/meteor';
 import { compose } from 'react-komposer';
-import { getTrackerLoader } from '/imports/react-ui/utils';
+import { getTrackerLoader, composerOptions } from '/imports/react-ui/utils';
 import { Integrations } from '/imports/api/integrations/integrations';
 import { Brands } from '/imports/api/brands/brands';
-import { Spinner } from '/imports/react-ui/common';
 import { ChannelForm } from '../components';
 
 
@@ -30,4 +29,4 @@ function composer({ channel }, onData) {
   }
 }
 
-export default compose(getTrackerLoader(composer), Spinner)(ChannelForm);
+export default compose(getTrackerLoader(composer), composerOptions({ spinner: true }))(ChannelForm);

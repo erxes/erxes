@@ -2,9 +2,8 @@ import { Meteor } from 'meteor/meteor';
 import { Brands } from '/imports/api/brands/brands';
 import { Forms } from '/imports/api/forms/forms';
 import { compose } from 'react-komposer';
-import { getTrackerLoader } from '/imports/react-ui/utils';
+import { getTrackerLoader, composerOptions } from '/imports/react-ui/utils';
 import { FORM_LOAD_TYPES } from '/imports/api/integrations/constants';
-import { Spinner } from '/imports/react-ui/common';
 import { Form } from '../components';
 import { saveCallback } from './utils';
 
@@ -28,4 +27,4 @@ const composer = (props, onData) => {
   return null;
 };
 
-export default compose(getTrackerLoader(composer), Spinner)(Form);
+export default compose(getTrackerLoader(composer), composerOptions({ spinner: true }))(Form);

@@ -1,8 +1,7 @@
 import { Meteor } from 'meteor/meteor';
 import { compose } from 'react-komposer';
-import { getTrackerLoader } from '/imports/react-ui/utils';
+import { getTrackerLoader, composerOptions } from '/imports/react-ui/utils';
 import { Channels } from '/imports/api/channels/channels';
-import { Spinner } from '/imports/react-ui/common';
 import { InviteForm } from '../components';
 
 
@@ -18,4 +17,4 @@ function composer({ user }, onData) {
   }
 }
 
-export default compose(getTrackerLoader(composer), Spinner)(InviteForm);
+export default compose(getTrackerLoader(composer), composerOptions({ spinner: true }))(InviteForm);
