@@ -61,18 +61,14 @@ class Row extends Component {
       <tr>
         <td>{form.title}</td>
         <td>{form.description}</td>
-        <td>{moment(form.createdAt).format('DD MMM YYYY, HH:mm')}</td>
+        <td>{moment(form.createdAt).format('DD MMM YYYY')}</td>
 
         <td className="text-right">
           <ActionButtons>
-            <ModalTrigger title="Edit form" trigger={editTrigger}>
-              <Form form={this.props.form} />
-            </ModalTrigger>
-
             <Tip text="Manage Fields">
-              <a href={`/settings/forms/manage-fields/${form._id}`}>
+              <Button bsStyle="link" href={`/settings/forms/manage-fields/${form._id}`}>
                 <i className="ion-navicon-round" />
-              </a>
+              </Button>
             </Tip>
 
             <Tip text="Duplicate">
@@ -80,6 +76,10 @@ class Row extends Component {
                 <i className="ion-ios-browsers" />
               </Button>
             </Tip>
+
+            <ModalTrigger title="Edit form" trigger={editTrigger}>
+              <Form form={this.props.form} />
+            </ModalTrigger>
 
             <Tip text="Delete">
               <Button bsStyle="link" onClick={this.removeForm}>

@@ -1,6 +1,16 @@
 /* eslint-disable jsx-a11y/no-static-element-interactions */
 
 import React, { PropTypes, Component } from 'react';
+import {
+  Col,
+  Row,
+  FormGroup,
+  ControlLabel,
+  FormControl,
+  Checkbox,
+  ButtonGroup,
+  Button,
+} from 'react-bootstrap';
 import { Wrapper } from '/imports/react-ui/layout/components';
 import Sidebar from '../../Sidebar.jsx';
 import FieldsPreview from './FieldsPreview.jsx';
@@ -103,26 +113,18 @@ class ManageFields extends Component {
       };
 
       return (
-        <div className="btn-group">
-          <button type="button" className="btn btn-sm btn-danger" onClick={onDelete}>
-            Delete
-          </button>
-
-          <button type="button" className="btn btn-sm btn-primary" onClick={reset}>
-            Create new
-          </button>
-
-          <button type="submit" className="btn btn-sm btn-success">
-            Save changes
-          </button>
-        </div>
+        <ButtonGroup>
+          <Button bsSize="small" bsStyle="danger" onClick={onDelete}>Delete</Button>
+          <Button bsSize="small" bsStyle="primary" onClick={reset}>New</Button>
+          <Button bsSize="small" type="submit" bsStyle="success">Save</Button>
+        </ButtonGroup>
       );
     }
 
     return (
-      <div className="btn-group">
-        <button type="submit" className="btn btn-sm btn-success">Add</button>
-      </div>
+      <ButtonGroup>
+        <Button bsSize="small" type="submit" bsStyle="success">Add</Button>
+      </ButtonGroup>
     );
   }
 
@@ -134,16 +136,16 @@ class ManageFields extends Component {
     }
 
     return (
-      <p className="form-group">
-        <label className="control-label" htmlFor="type">Options:</label>
+      <FormGroup>
+        <ControlLabel htmlFor="type">Options:</ControlLabel>
 
-        <textarea
+        <FormControl
           id="options"
-          className="form-control"
+          componentClass="textarea"
           value={(editingField.options || []).join('\n')}
           onChange={this.onChangeOptions}
         />
-      </p>
+      </FormGroup>
     );
   }
 
@@ -151,13 +153,13 @@ class ManageFields extends Component {
     const editingField = this.state.editingField;
 
     return (
-      <form className="margined" onSubmit={this.onSubmit}>
-        <p className="form-group">
-          <label className="control-label" htmlFor="type">Type:</label>
+      <form onSubmit={this.onSubmit}>
+        <FormGroup>
+          <ControlLabel htmlFor="type">Type:</ControlLabel>
 
-          <select
+          <FormControl
             id="type"
-            className="form-control"
+            componentClass="select"
             value={editingField.type || ''}
             onChange={this.onChangeType}
           >
@@ -171,15 +173,15 @@ class ManageFields extends Component {
             <option value="email">Email</option>
             <option value="firstName">First name</option>
             <option value="lastName">Last name</option>
-          </select>
-        </p>
+          </FormControl>
+        </FormGroup>
 
-        <p className="form-group">
-          <label className="control-label" htmlFor="validation">Validation:</label>
+        <FormGroup>
+          <ControlLabel htmlFor="validation">Validation:</ControlLabel>
 
-          <select
+          <FormControl
             id="validation"
-            className="form-control"
+            componentClass="select"
             value={editingField.validation || ''}
             onChange={this.onChangeValidation}
           >
@@ -188,63 +190,63 @@ class ManageFields extends Component {
             <option value="email">Email</option>
             <option value="number">Number</option>
             <option value="date">Date</option>
-          </select>
-        </p>
+          </FormControl>
+        </FormGroup>
 
-        <p className="form-group">
-          <label className="control-label" htmlFor="text">Text:</label>
-          <input
+        <FormGroup>
+          <ControlLabel htmlFor="text">Text:</ControlLabel>
+          <FormControl
             id="text"
-            className="form-control"
+            type="text"
             value={editingField.text || ''}
             onChange={this.onChangeText}
           />
-        </p>
+        </FormGroup>
 
-        <p className="form-group">
-          <label className="control-label" htmlFor="description">Description:</label>
-          <input
+        <FormGroup>
+          <ControlLabel htmlFor="description">Description:</ControlLabel>
+          <FormControl
             id="description"
-            className="form-control"
+            componentClass="textarea"
             value={editingField.description || ''}
             onChange={this.onChangeDescription}
           />
-        </p>
+        </FormGroup>
 
         {this.renderOptionsTextArea()}
+        <div className="flex-row">
+          <FormGroup className="flex-item">
+            <Checkbox
+              id="isRequired"
+              onChange={this.onChangeIsRequired}
+              checked={editingField.isRequired || false}
+            >
+              Required:
+            </Checkbox>
+          </FormGroup>
 
-        <p className="form-group">
-          <label className="control-label" htmlFor="isRequired">Is required:</label>
-          <input
-            id="isRequired"
-            type="checkbox"
-            className="form-control"
-            onChange={this.onChangeIsRequired}
-            checked={editingField.isRequired || false}
-          />
-        </p>
-
-        {this.renderButtons()}
+          {this.renderButtons()}
+        </div>
       </form>
     );
   }
 
   render() {
     const content = (
-      <div className="form-builder">
-        <div className="col-sm-4">
-          {this.renderForm()}
-        </div>
+      <div className="form-builder margined">
+        <Row>
+          <Col sm={5} className="fixed">
+            {this.renderForm()}
+          </Col>
 
-        <div className="col-sm-8">
-          <div className="margined">
+          <Col sm={7} xsOffset={5}>
             <FieldsPreview
               fields={this.props.fields}
               onFieldEdit={this.onFieldEdit}
               onSort={this.props.onSort}
             />
-          </div>
-        </div>
+          </Col>
+        </Row>
       </div>
     );
 

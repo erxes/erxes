@@ -3,7 +3,7 @@ import { _ } from 'meteor/underscore';
 import { compose } from 'react-komposer';
 import { getTrackerLoader } from '/imports/react-ui/utils';
 import Alert from 'meteor/erxes-notifier';
-import { Spinner } from '/imports/react-ui/common';
+import { Loader } from '/imports/react-ui/common';
 import { Fields } from '/imports/api/forms/forms';
 import {
   addField as addFieldMethod,
@@ -69,4 +69,4 @@ function composer(props, onData) {
   });
 }
 
-export default compose(getTrackerLoader(composer), Spinner)(ManageFields);
+export default compose(getTrackerLoader(composer), Loader)(ManageFields);

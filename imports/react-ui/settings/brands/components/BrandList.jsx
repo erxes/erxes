@@ -59,7 +59,7 @@ class BrandList extends Component {
               <th>Name</th>
               <th>Code</th>
               <th>Description</th>
-              <th width="180">Created At</th>
+              <th width="135">Created At</th>
               <th className="text-right">Actions</th>
             </tr>
           </thead>
