@@ -1,8 +1,7 @@
 import { compose } from 'react-komposer';
-import { getTrackerLoader } from '/imports/react-ui/utils';
+import { getTrackerLoader, composerOptions } from '/imports/react-ui/utils';
 import { Meteor } from 'meteor/meteor';
 import { createSegment, editSegment } from '/imports/api/customers/methods';
-import { Loader } from '/imports/react-ui/common';
 import { Customers } from '/imports/api/customers/customers';
 import Segments from '/imports/api/customers/segments';
 import { SegmentsForm } from '../components';
@@ -46,4 +45,4 @@ function composer(props, onData) {
   }
 }
 
-export default compose(getTrackerLoader(composer), Loader)(SegmentsForm);
+export default compose(getTrackerLoader(composer), composerOptions({}))(SegmentsForm);

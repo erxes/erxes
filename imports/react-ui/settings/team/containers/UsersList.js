@@ -1,7 +1,7 @@
 import { compose } from 'react-komposer';
-import { getTrackerLoader } from '/imports/react-ui/utils';
+import { getTrackerLoader, composerOptions } from '/imports/react-ui/utils';
 import { Meteor } from 'meteor/meteor';
-import { Loader, pagination } from '/imports/react-ui/common';
+import { pagination } from '/imports/react-ui/common';
 import { Channels } from '/imports/api/channels/channels';
 import { UsersList } from '../components';
 
@@ -46,4 +46,4 @@ function composer({ queryParams }, onData) {
   }
 }
 
-export default compose(getTrackerLoader(composer), Loader)(UsersList);
+export default compose(getTrackerLoader(composer), composerOptions({}))(UsersList);

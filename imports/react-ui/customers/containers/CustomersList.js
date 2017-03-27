@@ -1,5 +1,5 @@
 import { compose } from 'react-komposer';
-import { getTrackerLoader } from '/imports/react-ui/utils';
+import { getTrackerLoader, composerOptions } from '/imports/react-ui/utils';
 import { Meteor } from 'meteor/meteor';
 import { Customers } from '/imports/api/customers/customers';
 import Segments from '/imports/api/customers/segments';
@@ -7,7 +7,7 @@ import { Brands } from '/imports/api/brands/brands';
 import { Tags } from '/imports/api/tags/tags';
 import { KIND_CHOICES } from '/imports/api/integrations/constants';
 import { TAG_TYPES } from '/imports/api/tags/constants';
-import { pagination, Loading } from '/imports/react-ui/common';
+import { pagination } from '/imports/react-ui/common';
 import { CustomersList } from '../components';
 
 
@@ -40,4 +40,7 @@ function composer({ queryParams }, onData) {
   }
 }
 
-export default compose(getTrackerLoader(composer), Loading)(CustomersList);
+export default compose(
+  getTrackerLoader(composer),
+  composerOptions({ loading: true }),
+)(CustomersList);

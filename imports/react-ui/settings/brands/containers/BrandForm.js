@@ -1,6 +1,5 @@
 import { compose } from 'react-komposer';
-import { getTrackerLoader } from '/imports/react-ui/utils';
-import { Spinner } from '/imports/react-ui/common';
+import { getTrackerLoader, composerOptions } from '/imports/react-ui/utils';
 import { BrandForm } from '../components';
 
 
@@ -10,4 +9,4 @@ function composer({ brand }, onData) {
   });
 }
 
-export default compose(getTrackerLoader(composer), Spinner)(BrandForm);
+export default compose(getTrackerLoader(composer), composerOptions({ spinner: true }))(BrandForm);

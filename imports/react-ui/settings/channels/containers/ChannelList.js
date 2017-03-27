@@ -1,9 +1,9 @@
 import { compose } from 'react-komposer';
-import { getTrackerLoader } from '/imports/react-ui/utils';
+import { getTrackerLoader, composerOptions } from '/imports/react-ui/utils';
 import { Meteor } from 'meteor/meteor';
 import { Channels } from '/imports/api/channels/channels';
 import { remove } from '/imports/api/channels/methods';
-import { Loader, pagination } from '/imports/react-ui/common';
+import { pagination } from '/imports/react-ui/common';
 import { ChannelList } from '../components';
 
 
@@ -19,4 +19,4 @@ function composer({ queryParams }, onData) {
   onData(null, { channels, removeChannel, loadMore, hasMore });
 }
 
-export default compose(getTrackerLoader(composer), Loader)(ChannelList);
+export default compose(getTrackerLoader(composer), composerOptions({}))(ChannelList);

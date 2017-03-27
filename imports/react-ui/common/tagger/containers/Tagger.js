@@ -1,7 +1,6 @@
 import { Meteor } from 'meteor/meteor';
 import { compose } from 'react-komposer';
 import { getTrackerLoader } from '/imports/react-ui/utils';
-import { Spinner } from '/imports/react-ui/common';
 import { TAG_TYPES } from '/imports/api/tags/constants';
 import { Tags } from '/imports/api/tags/tags';
 import { Customers } from '/imports/api/customers/customers';
@@ -36,4 +35,4 @@ function composer(props, onData) {
   }
 }
 
-export default compose(getTrackerLoader(composer), Spinner)(Tagger);
+export default compose(getTrackerLoader(composer))(Tagger);

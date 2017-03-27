@@ -1,5 +1,6 @@
 import { Tracker } from 'meteor/tracker';
-
+import React from 'react';
+import { Loader, Spinner, Loading } from '/imports/react-ui/common';
 
 export function getTrackerLoader(reactiveMapper) {
   return (props, onData, env) => {
@@ -16,3 +17,20 @@ export function getTrackerLoader(reactiveMapper) {
     };
   };
 }
+
+export function composerOptions({ spinner, loading }) {
+  let Component = Loader;
+
+  if (spinner) {
+    Component = Spinner;
+  }
+
+  if (loading) {
+    Component = Loading;
+  }
+
+  return {
+    loadingHandler: () => <Component />,
+  };
+}
+

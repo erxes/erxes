@@ -1,8 +1,7 @@
 import { compose } from 'react-komposer';
-import { getTrackerLoader } from '/imports/react-ui/utils';
+import { getTrackerLoader, composerOptions } from '/imports/react-ui/utils';
 import { Meteor } from 'meteor/meteor';
 import { Conversations } from '/imports/api/conversations/conversations';
-import { Spinner } from '/imports/react-ui/common';
 import { AssignBox } from '../components';
 
 
@@ -35,4 +34,4 @@ function composer(props, onData) {
   }
 }
 
-export default compose(getTrackerLoader(composer), Spinner)(AssignBox);
+export default compose(getTrackerLoader(composer), composerOptions({ spinner: true }))(AssignBox);

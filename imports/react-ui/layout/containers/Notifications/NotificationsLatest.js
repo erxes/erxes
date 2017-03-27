@@ -1,8 +1,7 @@
 import { Meteor } from 'meteor/meteor';
 import { Notifications } from 'meteor/erxes-notifications';
 import { compose } from 'react-komposer';
-import { getTrackerLoader } from '/imports/react-ui/utils';
-import { Spinner } from '/imports/react-ui/common';
+import { getTrackerLoader, composerOptions } from '/imports/react-ui/utils';
 import { NotificationsLatest } from '../../components';
 
 
@@ -30,4 +29,7 @@ function composer(props, onData) {
   }
 }
 
-export default compose(getTrackerLoader(composer), Spinner)(NotificationsLatest);
+export default compose(
+  getTrackerLoader(composer),
+  composerOptions({ spinner: true }),
+)(NotificationsLatest);

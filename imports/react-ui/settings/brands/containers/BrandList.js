@@ -1,9 +1,9 @@
 import { compose } from 'react-komposer';
-import { getTrackerLoader } from '/imports/react-ui/utils';
+import { getTrackerLoader, composerOptions } from '/imports/react-ui/utils';
 import { Meteor } from 'meteor/meteor';
 import { Brands } from '/imports/api/brands/brands';
 import { remove } from '/imports/api/brands/methods';
-import { Loader, pagination } from '/imports/react-ui/common';
+import { pagination } from '/imports/react-ui/common';
 import { BrandList } from '../components';
 
 
@@ -21,4 +21,4 @@ function composer({ queryParams }, onData) {
   }
 }
 
-export default compose(getTrackerLoader(composer), Loader)(BrandList);
+export default compose(getTrackerLoader(composer), composerOptions({}))(BrandList);
