@@ -46,7 +46,7 @@ class Row extends Component {
         <td>{brand.name}</td>
         <td>{brand.code}</td>
         <td>{brand.description}</td>
-        <td>{moment(brand.createdAt).format('DD MMM YYYY, HH:mm')}</td>
+        <td>{moment(brand.createdAt).format('DD MMM YYYY')}</td>
 
         <td className="text-right">
           <ActionButtons>

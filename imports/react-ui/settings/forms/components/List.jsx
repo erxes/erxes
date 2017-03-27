@@ -60,8 +60,8 @@ class List extends Component {
             <tr>
               <th>Name</th>
               <th>Description</th>
-              <th width="180">Created At</th>
-              <th className="text-right">Actions</th>
+              <th width="135">Created At</th>
+              <th width="180" className="text-right">Actions</th>
             </tr>
           </thead>
           <tbody>

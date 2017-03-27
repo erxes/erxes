@@ -8,7 +8,7 @@ import FieldPreview from './FieldPreview.jsx';
 const DragHandle = SortableHandle(() => <span className="drag-handler">::::</span>);
 
 const FieldPreviewWrapper = props => (
-  <div>
+  <div className="draggable-field">
     <DragHandle />
     <FieldPreview {...props} />
   </div>
@@ -17,7 +17,7 @@ const FieldPreviewWrapper = props => (
 const SortableItem = SortableElement(FieldPreviewWrapper);
 
 const SortableList = SortableContainer(({ fields, onEdit }) =>
-  <div>
+  <div className="form-preview">
     {fields.map((field, index) =>
       <SortableItem
         key={`item-${index}`}
