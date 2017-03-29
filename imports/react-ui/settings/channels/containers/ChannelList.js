@@ -9,8 +9,13 @@ import { ChannelList } from '../components';
 
 function composer({ queryParams }, onData) {
   const { limit, loadMore, hasMore } = pagination(queryParams, 'channels.list.count');
-  Meteor.subscribe('channels.list', Object.assign(queryParams, { limit }));
-  const channels = Channels.find({ memberIds: Meteor.userId() }).fetch();
+
+  Meteor.subscribe(
+    'channels.list',
+    Object.assign(queryParams, { limit, origin: 'settings' }),
+  );
+
+  const channels = Channels.find().fetch();
 
   const removeChannel = (id, callback) => {
     remove.call(id, callback);
