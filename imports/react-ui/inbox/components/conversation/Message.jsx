@@ -4,6 +4,7 @@ import { _ } from 'meteor/underscore';
 import React, { PropTypes } from 'react';
 import moment from 'moment';
 import classNames from 'classnames';
+import { Table } from 'react-bootstrap';
 import { NameCard, Attachment, Tip } from '/imports/react-ui/common';
 
 
@@ -54,37 +55,26 @@ function Message({ message, staff, isSameUser }) {
     return fullName;
   };
 
+  const renderIframe = (src) => {
+    const iframeSrc = src;
+    return (
+      <iframe
+        src={iframeSrc}
+        width="480"
+        height="280"
+        scrolling="no"
+        frameBorder="0"
+        allowTransparency="true"
+      />
+    );
+  };
+
   const renderVideoIframe = () => {
     if (isVideoPost) {
       const iframeSrc = `https://www.facebook.com/video/embed
         ?video_id=${faceboodData.videoId}&width=500`;
 
-      return (
-        <iframe
-          src={iframeSrc}
-          width="480"
-          height="280"
-          scrolling="no"
-          frameBorder="0"
-          allowTransparency="true"
-        />
-      );
-    }
-
-    return null;
-  };
-
-  const renderFormWidgetData = () => {
-    if (message.formWidgetData) {
-      return (
-        <div className="form-data">
-          {_.map(message.formWidgetData, (data, index) => ((
-            <p key={index}>
-              <span>{data.text}: </span> <span>{data.value}</span>
-            </p>
-          )))}
-        </div>
-      );
+      return renderIframe(iframeSrc);
     }
 
     return null;
@@ -97,16 +87,7 @@ function Message({ message, staff, isSameUser }) {
       const iframeSrc = `https://www.facebook.com/plugins/post.php?
         href=https://www.facebook.com/photo.php?fbid=${faceboodData.photoId}`;
 
-      return (
-        <iframe
-          src={iframeSrc}
-          width="480"
-          height="280"
-          scrolling="no"
-          frameBorder="0"
-          allowTransparency="true"
-        />)
-      ;
+      return renderIframe(iframeSrc);
     }
 
     return null;
@@ -125,6 +106,24 @@ function Message({ message, staff, isSameUser }) {
       );
     }
 
+    if (message.formWidgetData) {
+      return (
+        <Table striped className="form-data">
+          <thead>
+            <tr><th className="text-center" colSpan="2">{message.content}</th></tr>
+          </thead>
+          <tbody>
+            {_.map(message.formWidgetData, (data, index) => ((
+              <tr key={index}>
+                <td><b>{data.text}:</b></td>
+                <td>{data.value}</td>
+              </tr>
+            )))}
+          </tbody>
+        </Table>
+      );
+    }
+
     return (
       <div className={classes}>
         {renderAvatar()}
@@ -133,7 +132,6 @@ function Message({ message, staff, isSameUser }) {
 
           {renderVideoIframe()}
           {renderAttachment()}
-          {renderFormWidgetData()}
           <footer>
             {moment(message.createdAt).fromNow()}
           </footer>
