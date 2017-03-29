@@ -2,7 +2,7 @@
 /* eslint-disable react/jsx-filename-extension */
 
 import ApolloClient, { createNetworkInterface } from 'apollo-client';
-import { Client } from 'subscriptions-transport-ws';
+import { SubscriptionClient } from 'subscriptions-transport-ws';
 import {
   combineReducers,
   applyMiddleware,
@@ -14,7 +14,7 @@ import addGraphQLSubscriptions from './subscriptions';
 import settings from './settings';
 
 // websocket
-export const wsClient = new Client(settings.API_WEBSOCKET_URL, {
+export const wsClient = new SubscriptionClient(settings.API_WEBSOCKET_URL, {
   reconnect: true,
 });
 

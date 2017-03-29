@@ -67,7 +67,7 @@ const ListWithData = graphql(
 
   {
     options: () => ({
-      forceFetch: true,
+      fetchPolicy: 'network-only',
       variables: connection.data,
     }),
   },

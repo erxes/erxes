@@ -78,7 +78,7 @@ const FormWithData = graphql(
 
   {
     options: () => ({
-      forceFetch: true,
+      fetchPolicy: 'network-only',
       variables: {
         formId: connection.data.formId,
       },

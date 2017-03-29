@@ -47,7 +47,7 @@ const LauncherWithData = graphql(
 
   {
     options: () => ({
-      forceFetch: true,
+      fetchPolicy: 'network-only',
       variables: connection.data,
     }),
   },
