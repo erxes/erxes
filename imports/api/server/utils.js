@@ -80,7 +80,7 @@ export const sendEmail = ({ to, subject, template }) => {
   }
 
   Email.send({
-    from: `${Meteor.settings.COMPANY_NAME} ${Meteor.settings.NO_REPLY_EMAIL}`,
+    from: Meteor.settings.NO_REPLY_EMAIL,
     to,
     subject,
     html,
