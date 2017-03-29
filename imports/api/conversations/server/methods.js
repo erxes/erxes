@@ -86,7 +86,7 @@ export const addMessage = new ValidatedMethod({
       createdUser: this.userId,
       notifType: 'conversationAddMessage',
       title,
-      content: title,
+      content,
       link: `/inbox/details/${conversation._id}`,
       receivers: conversationNotifReceivers(conversation, this.userId),
     });
