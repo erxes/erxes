@@ -1,6 +1,14 @@
 $fbpost-border-color: #e5e6e9 #dfe0e4 #d0d1d5;
 $fbpost-barckground: #f6f7f9;
 
+@mixin embed-post {
+  padding: 12px;
+  background: $fbpost-barckground;
+  border: 1px solid;
+  border-color: $fbpost-border-color;
+  border-radius: $border-radius;
+}
+
 .conversations-list {
   margin: 0;
   padding: 0;
@@ -130,11 +138,7 @@ $fbpost-barckground: #f6f7f9;
     }
 
     &.fbpost .body {
-      padding: 12px;
-      background: $fbpost-barckground;
-      border: 1px solid;
-      border-color: $fbpost-border-color;
-      border-radius: 4px;
+      @include embed-post;
     }
 
     &.attach-preview {
@@ -223,22 +227,19 @@ $fbpost-barckground: #f6f7f9;
   }
 
   .form-data {
-    display: table;
+    @include embed-post;
+    font-size: 12px;
     min-width: 160px;
-    margin-top: 15px;
+    margin-bottom: 15px;
+    background: none;
 
-    p {
-      display: table-row;
-      line-height: 25px;
+    tbody > tr > td {
+      padding: 10px 20px;
     }
 
-    span {
-      display: table-cell;
-      text-align: left;
-
-      &:first-child {
-        font-weight: bold;
-      }
+    thead > tr > th {
+      background: $grey;
+      border-bottom: 1px solid $border-grey;
     }
   }
 }
