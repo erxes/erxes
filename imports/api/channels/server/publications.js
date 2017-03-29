@@ -15,14 +15,17 @@ Meteor.publish('channels.list', function channelsList(params) {
     memberIds: Match.Optional([String]),
     integrationIds: Match.Optional([String]),
     limit: Match.Optional(Number),
+    origin: Match.Optional(String),
   });
 
   Counts.publish(this, 'channels.list.count', Channels.find(), { noReady: true });
+
+  const user = Meteor.users.findOne(this.userId);
   const query = {};
 
-  // filter by member ids
-  if (params.memberIds) {
-    query.memberIds = { $in: params.memberIds };
+  // show all channels in settings for only owners
+  if (!(params.origin === 'settings' && user.isOwner)) {
+    query.memberIds = { $in: [this.userId] };
   }
 
   // filter by intgration ids
