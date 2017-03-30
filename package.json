@@ -48,6 +48,7 @@
     "sinon": "^2.0.0"
   },
   "scripts": {
+    "start": "meteor --port 7010 --settings settings.json",
     "test": "meteor test --driver-package practicalmeteor:mocha --port 3001"
   },
   "postcss": {

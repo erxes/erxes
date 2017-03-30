@@ -1,0 +1,47 @@
+{
+  "public": {
+    "CDN_HOST": "https://localhost:7020/static",
+    "APOLLO_CLIENT_URL": "http://localhost:8080/graphql"
+  },
+  "accounts": {
+    "emailTemplates": {
+      "siteName": "Erxes",
+      "from": "no-reply@erxes.io"
+    }
+  },
+  "COMPANY_NAME": "",
+  "NO_REPLY_EMAIL": "",
+
+  "AWS_accessKeyId": "",
+  "AWS_secretAccessKey": "",
+  "AWS_bucket": "",
+
+  "FACEBOOK_APPS": [
+    {
+      "NAME": "",
+      "ID": "",
+      "VERIFY_TOKEN": "",
+      "ACCESS_TOKEN": ""
+    }
+  ],
+
+  "initialData": {
+    "user": {
+      "username": "admin",
+      "email": "admin@erxes.io",
+      "password": "admin123",
+      "fullName": "Erxes Admin"
+    },
+    "brand": {
+      "name": "Local publisher",
+      "code": "YDEdKj"
+    },
+    "integration": {
+      "name": "In-app-messaging for Local publisher",
+      "kind": "in_app_messaging"
+    },
+    "channel": {
+      "name": "Sales"
+    }
+  }
+}

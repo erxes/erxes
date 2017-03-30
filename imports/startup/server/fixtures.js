@@ -15,29 +15,17 @@ Meteor.startup(() => {
     return;
   }
 
-  const userId = Accounts.createUser({
-    username: 'admin',
-    email: 'admin@erxes.io',
-    password: 'admin123',
-    fullName: 'Erxes Admin',
-  });
+  const { user, brand, integration, channel } = Meteor.settings.initialData;
 
-  const brandId = Brands.insert({
-    userId,
-    name: 'Local publisher',
-    code: 'YDEdKj',
-  });
-
-  const integrationId = Integrations.insert({
-    brandId,
-    name: 'Local publisher in app messaging',
-    kind: 'in_app_messaging',
-  });
-
-  Channels.insert({
-    userId,
-    memberIds: [userId],
-    integrationIds: [integrationId],
-    name: 'Sales',
-  });
+  const userId = Accounts.createUser(user);
+  const brandId = Brands.insert(Object.assign({ userId }, brand));
+  const integrationId = Integrations.insert(Object.assign({ brandId }, integration));
+  Channels.insert(Object.assign(
+    {
+      userId,
+      memberIds: [userId],
+      integrationIds: [integrationId],
+    },
+    channel,
+  ));
 });
