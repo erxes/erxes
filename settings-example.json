@@ -23,5 +23,25 @@
       "VERIFY_TOKEN": "",
       "ACCESS_TOKEN": ""
     }
-  ]
+  ],
+
+  "initialData": {
+    "user": {
+      "username": "admin",
+      "email": "admin@erxes.io",
+      "password": "admin123",
+      "fullName": "Erxes Admin"
+    },
+    "brand": {
+      "name": "Local publisher",
+      "code": "YDEdKj"
+    },
+    "integration": {
+      "name": "In-app-messaging for Local publisher",
+      "kind": "in_app_messaging"
+    },
+    "channel": {
+      "name": "Sales"
+    }
+  }
 }
