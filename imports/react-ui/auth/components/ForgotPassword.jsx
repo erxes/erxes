@@ -49,7 +49,7 @@ class ForgotPassword extends React.Component {
               <img src="/assets/images/logo.png" alt="erxes" />
               <h1>Customer engagement. Redefined.</h1>
               <p>
-                erxes is an open-source messaging platform for customer success
+                erxes is an AI meets open source messaging platform for sales and marketing teams.
               </p>
               <a href="http://erxes.io/">&laquo; Go to home page</a>
             </div>
