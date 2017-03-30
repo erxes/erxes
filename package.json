@@ -1,7 +1,27 @@
 {
   "name": "erxes",
   "version": "1.0.0",
-  "description": "",
+  "description": "erxes is an AI meets open source messaging platform for sales and marketing teams.",
+  "homepage": "https://erxes.io",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/erxes/erxes"
+  },
+  "bugs": "https://github.com/erxes/erxes/issues",
+  "keywords": [
+    "meteor",
+    "node",
+    "graphql",
+    "apollo",
+    "mongodb",
+    "react"
+  ],
+  "license": "MIT",
+  "private": true,
+  "scripts": {
+    "start": "meteor --port 3000 --settings settings.json",
+    "test": "meteor test --driver-package practicalmeteor:mocha --port 3001"
+  },
   "dependencies": {
     "apollo-client": "^1.0.0-rc.2",
     "aws-sdk": "^2.28.0",
@@ -47,10 +67,6 @@
     "eslint-plugin-react": "^6.10.0",
     "sinon": "^2.0.0"
   },
-  "scripts": {
-    "start": "meteor --port 7010 --settings settings.json",
-    "test": "meteor test --driver-package practicalmeteor:mocha --port 3001"
-  },
   "postcss": {
     "plugins": {
       "autoprefixer": {
@@ -61,8 +77,5 @@
         ]
       }
     }
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC"
+  }
 }
