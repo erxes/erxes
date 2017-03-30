@@ -1,84 +1,49 @@
+# erxes [![Build Status](https://travis-ci.org/erxes/erxes.svg?branch=develop)](https://travis-ci.org/erxes/erxes) [![MIT licensed](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/erxes/erxes/develop/LICENSE.md) [![Join the chat at https://gitter.im/erxes/erxes](https://badges.gitter.im/erxes/erxes.svg)](https://gitter.im/erxes/erxes?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
-erxes is an open-source messaging platform for customer success.
-
-[![Build Status](https://travis-ci.org/erxes/erxes.svg?branch=develop)](https://travis-ci.org/erxes/erxes)
-[![MIT licensed](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/erxes/erxes/develop/LICENSE.md)
-[![Join the chat at https://gitter.im/erxes/erxes](https://badges.gitter.im/erxes/erxes.svg)](https://gitter.im/erxes/erxes?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
-
-erxes is built with JavaScript (ES6), Meteor, Node.js, GraphQL, Apollo, MongoDB and React.
+erxes is an AI meets open source messaging platform for sales and marketing teams.
 
 The project is maintained by erxes Inc, along with an amazing group of independent [contributors](https://github.com/erxes/erxes/graphs/contributors). We are striving to make customer experience better through our messaging platform.
 
-## Table of content
+## Quick links
 
-
-- [erxes.io](https://erxes.io/)
+- [Homepage](https://erxes.io/)
 - [Roadmap](https://github.com/erxes/erxes/projects/1)
 - [Community](https://community.erxes.io/)
 - [Blog](https://blog.erxes.io/)
 - [Developer Blog](https://dev.erxes.io/)
 
-## Developer install guide
+## Installation
 
-### Install meteor
+This repository is the main web app of the erxes platform that consists of 2 other repositories:
 
+- [API](https://github.com/erxes/erxes-api)
+- [Widgets](https://github.com/erxes/erxes-widgets)
+
+If you haven't installed **Meteor** yet on your machine:
 ```Shell
 curl https://install.meteor.com/ | sh
 ```
 
-### Setup
-
-Clone repo
-
+Clone erxes repository and install its dependencies:
 ```Shell
 git clone https://github.com/erxes/erxes.git
 cd erxes
-```
-
-Install dependencies
-
-```Shell
 meteor npm install
 ```
 
-Create settings file
-
+Create `settings.json` from default settings file and configure it on your own:
 ```Shell
-cp settings.json.example settings.json
+cp settings-example.json settings.json
 ```
 
-Configure settings. Open settings.json and edit it.
-
-```JSON
-{
-  "public": {
-    # your erxes deployed domain
-    "CDN_HOST": "http://127.0.0.1/static",
-    "APOLLO_CLIENT_URL": "http://localhost:8080/graphql"
-  },
-
-  "COMPANY_NAME": "{your_company_name}",
-  "NO_REPLY_EMAIL": "{no-reply@{domain}}",
-
-  # amazon s3 credientials. Using to upload attachments, profile pictures etc ...
-  "AWS_accessKeyId": "{access_key_id}",
-  "AWS_secretAccessKey": "{secret_access_key}",
-  "AWS_bucket": "{bucket_name}",
-}
-```
-
-Run
-
+To start the app:
 ```Shell
-./start.sh
+npm start
 ```
 
-Now, main app is running at <a href="localhost:7010" target="__blank">http://localhost:7010</a>.
-Default channel, brand, integration must be created. Login using
-```
-email: 'admin@erxes.io'
-password: 'admin123'
-```
+App is running at [http://localhost:7010](http://localhost:7010). You can **login** using the credential in the `settings.json`.
+
+**We haven't done yet:** We need to run [API](https://github.com/erxes/erxes-api) and  [Widgets](https://github.com/erxes/erxes-widgets) to make our erxes app fully functional. Please jump to their repositories.
 
 ## Copyright & License
-Copyright (c) 2017 erxes Inc - Released under the [MIT license.](https://github.com/erxes/erxes/blob/develop/LICENSE)
+Copyright (c) 2017 erxes Inc - Released under the [MIT license.](https://github.com/erxes/erxes/blob/develop/LICENSE.md)
