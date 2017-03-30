@@ -42,18 +42,14 @@ class Conversation extends Subscriber {
       },
 
       // push new message to messages list when subscription updated
-      updateQuery: (_previousResult, { subscriptionData }) => {
-        const previousResult = _previousResult;
-
+      updateQuery: (prev, { subscriptionData }) => {
         // get previous messages list
-        const messages = previousResult.messages || [];
+        const messages = prev.messages || [];
 
         // add new one
-        messages.push(subscriptionData.data.messageInserted);
-
-        previousResult.messages = messages;
-
-        return previousResult;
+        return Object.assign({}, prev, {
+          messages: [...messages, subscriptionData.data.messageInserted],
+        });
       },
     };
   }
