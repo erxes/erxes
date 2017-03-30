@@ -41,7 +41,7 @@ To start the app:
 npm start
 ```
 
-App is running at [http://localhost:7010](http://localhost:7010). You can **login** using the credential in the `settings.json`.
+App is running at [http://localhost:3000](http://localhost:3000). You can **login** using the credential in the `settings.json`.
 
 **We haven't done yet:** We need to run [API](https://github.com/erxes/erxes-api) and  [Widgets](https://github.com/erxes/erxes-widgets) to make our erxes app fully functional. Please jump to their repositories.
 
