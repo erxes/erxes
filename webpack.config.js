@@ -4,12 +4,12 @@ var path = require('path');
 
 module.exports = {
   entry: {
-    inApp: './client/inapp/index.js',
-    inAppWidget: './client/inapp/widget/index.js',
-    chat: './client/chat/index.js',
-    chatWidget: './client/chat/widget/index.js',
-    form: './client/form/index.js',
-    formWidget: './client/form/widget/index.js',
+    inApp: './dist/inapp/index.js',
+    inAppWidget: './dist/inapp/widget/index.js',
+    chat: './dist/chat/index.js',
+    chatWidget: './dist/chat/widget/index.js',
+    form: './dist/form/index.js',
+    formWidget: './dist/form/widget/index.js',
   },
 
   output: {
@@ -18,34 +18,27 @@ module.exports = {
   },
 
   module: {
-    loaders: [
+    rules: [
       {
         test: /\.jsx?$/,
         exclude: /node_modules/,
         loader: 'babel-loader',
-        query: {
+        options: {
           presets: ['es2015', 'react'],
         },
       },
-
       {
         test: /\.css$/,
-        loaders: ['style-loader', 'css-loader'],
+        use: ['style-loader', 'css-loader'],
       },
-
       {
         test: /\.scss$/,
-        loaders: ['style-loader', 'css-loader', 'sass-loader'],
-      },
-
-      {
-        test: /\.json$/,
-        loader: 'json-loader',
+        use: ['style-loader', 'css-loader', 'sass-loader'],
       },
     ],
   },
 
   resolve: {
-    extensions: ['', '.js', '.jsx'],
+    extensions: ['.js', '.jsx'],
   },
 };
