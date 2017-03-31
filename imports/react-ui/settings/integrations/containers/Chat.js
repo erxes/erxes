@@ -1,6 +1,6 @@
 import { compose } from 'react-komposer';
 import { getTrackerLoader, composerOptions } from '/imports/react-ui/utils';
-import { Common } from '../components';
+import { Chat } from '../components';
 import composer from './commonComposer';
 
 export default compose(getTrackerLoader(
@@ -9,4 +9,4 @@ export default compose(getTrackerLoader(
     editMethodName: 'editChat',
   }),
   composerOptions({ spinner: true }),
-))(Common);
+))(Chat);

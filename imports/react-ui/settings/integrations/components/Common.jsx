@@ -14,22 +14,17 @@ import { Brands } from '/imports/api/brands/brands';
 import SelectBrand from './SelectBrand.jsx';
 
 
-class CommonCreateUpdate extends Component {
-  static getInstallCode(brandCode) {
+class Common extends Component {
+  static installCodeIncludeScript(type) {
     return `
-      <script>
-        window.erxesSettings = {
-          brand_id: "${brandCode}"
-        };
-        (function() {
-          var script = document.createElement('script');
-          script.src = "${Meteor.settings.public.CDN_HOST}/chatWidget.bundle.js";
-          script.async = true;
+      (function() {
+        var script = document.createElement('script');
+        script.src = "${Meteor.settings.public.CDN_HOST}/${type}Widget.bundle.js";
+        script.async = true;
 
-          var entry = document.getElementsByTagName('script')[0];
-          entry.parentNode.insertBefore(script, entry);
-        })();
-      </script>
+        var entry = document.getElementsByTagName('script')[0];
+        entry.parentNode.insertBefore(script, entry);
+      })();
     `;
   }
 
@@ -41,7 +36,7 @@ class CommonCreateUpdate extends Component {
     // showed install code automatically in edit mode
     if (props.integration) {
       const brand = Brands.findOne(props.integration.brandId);
-      code = CommonCreateUpdate.getInstallCode(brand.code);
+      code = this.constructor.getInstallCode(brand.code);
     }
 
     this.state = {
@@ -56,7 +51,7 @@ class CommonCreateUpdate extends Component {
   updateInstallCodeValue(brandId) {
     if (brandId) {
       const brand = Brands.findOne(brandId);
-      const code = CommonCreateUpdate.getInstallCode(brand.code);
+      const code = this.constructor.getInstallCode(brand.code);
 
       this.setState({ code, copied: false });
     }
@@ -128,14 +123,14 @@ class CommonCreateUpdate extends Component {
   }
 }
 
-CommonCreateUpdate.propTypes = {
+Common.propTypes = {
   brands: PropTypes.array.isRequired, // eslint-disable-line react/forbid-prop-types
   integration: PropTypes.object, // eslint-disable-line react/forbid-prop-types
   save: PropTypes.func.isRequired,
 };
 
-CommonCreateUpdate.contextTypes = {
+Common.contextTypes = {
   closeModal: PropTypes.func.isRequired,
 };
 
-export default CommonCreateUpdate;
+export default Common;
