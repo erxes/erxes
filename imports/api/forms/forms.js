@@ -23,6 +23,10 @@ Forms.schema = new SimpleSchema({
 
 
 const FormSchemaExtra = new SimpleSchema({
+  code: {
+    type: String,
+  },
+
   createdUserId: {
     type: String,
   },
@@ -94,6 +98,7 @@ Fields.attachSchema(FieldSchemaExtra);
 
 Factory.define('form', Forms, {
   title: () => faker.random.word(),
+  code: () => Random.id(),
   description: () => faker.random.word(),
   createdUserId: () => Random.id(),
   createdDate: () => faker.date.recent(),

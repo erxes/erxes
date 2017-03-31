@@ -4,6 +4,8 @@ import Facebook from './Facebook.jsx';
 import AddIntegration from './AddIntegration.jsx';
 import Common from './Common.jsx';
 import Form from './Form.jsx';
+import InAppMessaging from './InAppMessaging.jsx';
+import Chat from './Chat.jsx';
 
 export {
   AddIntegration,
@@ -11,5 +13,7 @@ export {
   Twitter,
   Facebook,
   Form,
+  InAppMessaging,
+  Chat,
   Common,
 };

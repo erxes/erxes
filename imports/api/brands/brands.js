@@ -1,6 +1,4 @@
 import faker from 'faker';
-
-import { Meteor } from 'meteor/meteor';
 import { Mongo } from 'meteor/mongo';
 import { _ } from 'meteor/underscore';
 import { Random } from 'meteor/random';
@@ -13,35 +11,18 @@ class BrandsCollection extends Mongo.Collection {
   insert(doc, callback) {
     const brand = _.clone(doc);
 
-    // generate code automatically if there is no specified code
-    if (!brand.code) {
-      let code = Random.id().substr(0, 6);
+    // generate code automatically
+    let code = Random.id().substr(0, 6);
 
-      while (this.findOne({ code })) {
-        code = Random.id().substr(0, 6);
-      }
-
-      brand.code = code;
+    while (this.findOne({ code })) {
+      code = Random.id().substr(0, 6);
     }
 
-    if (this.findOne({ code: brand.code })) {
-      throw new Meteor.Error('invalid-data', 'Duplicated code!');
-    }
-
+    brand.code = code;
     brand.createdAt = new Date();
     brand.emailConfig = { type: 'simple' };
 
     return super.insert(brand, callback);
-  }
-
-  update(selector, modifier, options) {
-    const set = modifier.$set || {};
-
-    if (set.code) {
-      throw new Meteor.Error('invalid-data', 'Can\'t change code field!');
-    }
-
-    return super.update(selector, modifier, options);
   }
 }
 

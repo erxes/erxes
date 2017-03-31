@@ -41,7 +41,7 @@ describe('channels', function () {
       it('sends all channels', function (done) {
         const collector = new PublicationCollector({ userId });
         collector.collect('channels.list', {}, (collections) => {
-          chai.assert.equal(collections.channels.length, 7);
+          chai.assert.equal(collections.channels.length, 5);
           done();
         });
       });

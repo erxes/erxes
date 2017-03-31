@@ -1,6 +1,7 @@
 /* eslint-disable no-param-reassign */
 
 import { Meteor } from 'meteor/meteor';
+import { Random } from 'meteor/random';
 import { _ } from 'meteor/underscore';
 import { check } from 'meteor/check';
 import { ValidatedMethod } from 'meteor/mdg:validated-method';
@@ -17,6 +18,14 @@ export const add = new ValidatedMethod({
   },
 
   run({ doc }) {
+    // generate code automatically
+    let code = Random.id().substr(0, 6);
+
+    while (Forms.findOne({ code })) {
+      code = Random.id().substr(0, 6);
+    }
+
+    doc.code = code;
     doc.createdUserId = this.userId;
     doc.createdDate = new Date();
 
