@@ -14,7 +14,7 @@ const defaultTemplate = `<p>Dear {{fullName}},</p>
   {{/each}}
 </ul>
 <p><a href="{domain}">See all messages on <strong>{{domain}}</strong></a></p>
-<footer>Powered by <a href="https://erxes.org/" target="_blank">Erxes</a>.</footer>
+<footer>Powered by <a href="https://crm.nmma.co/" target="_blank">Erxes</a>.</footer>
 
 <style type="text/css">
     .erxes-mail {
