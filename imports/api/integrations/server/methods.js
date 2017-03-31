@@ -140,3 +140,17 @@ export const remove = new ValidatedMethod({
     return Integrations.remove(id);
   },
 });
+
+export const saveInAppMessagingApperance = new ValidatedMethod({
+  name: 'integrations.saveInAppMessagingApperance',
+  mixins: [ErxesMixin],
+
+  validate({ _id, doc }) {
+    check(_id, String);
+    check(doc, { color: String, wallpaper: String });
+  },
+
+  run({ _id, doc }) {
+    return Integrations.update({ _id }, { $set: { uiOptions: doc } });
+  },
+});

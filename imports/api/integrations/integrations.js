@@ -76,6 +76,13 @@ Integrations.schema = new SimpleSchema({
     type: facebookSchema,
     optional: true,
   },
+
+  // ui options
+  uiOptions: {
+    type: Object,
+    blackbox: true,
+    optional: true,
+  },
 });
 
 Integrations.attachSchema(Integrations.schema);

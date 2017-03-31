@@ -32,8 +32,9 @@ class Row extends Component {
     });
   }
 
-  renderEditLink() {
-    const kind = this.props.integration.kind;
+  renderExtraLinks() {
+    const integration = this.props.integration;
+    const kind = integration.kind;
 
     const editTrigger = (
       <Button bsStyle="link">
@@ -43,16 +44,26 @@ class Row extends Component {
 
     if (kind === KIND_CHOICES.IN_APP_MESSAGING) {
       return (
-        <ModalTrigger title="Edit integration" trigger={editTrigger}>
-          <InAppMessaging integration={this.props.integration} />
-        </ModalTrigger>
+        <div style={{ display: 'inline-block' }}>
+          <ModalTrigger title="Edit integration" trigger={editTrigger}>
+            <InAppMessaging integration={integration} />
+          </ModalTrigger>
+
+          <Button
+            bsStyle="link"
+            href={`/settings/integrations/in_app_messaging/appearance/${integration._id}`}
+          >
+
+            <i className="ion-eye" />
+          </Button>
+        </div>
       );
     }
 
     if (kind === KIND_CHOICES.CHAT) {
       return (
         <ModalTrigger title="Edit integration" trigger={editTrigger}>
-          <Chat integration={this.props.integration} />
+          <Chat integration={integration} />
         </ModalTrigger>
       );
     }
@@ -60,7 +71,7 @@ class Row extends Component {
     if (kind === KIND_CHOICES.FORM) {
       return (
         <ModalTrigger title="Edit integration" trigger={editTrigger}>
-          <Form integration={this.props.integration} />
+          <Form integration={integration} />
         </ModalTrigger>
       );
     }
@@ -79,7 +90,7 @@ class Row extends Component {
 
         <td className="text-right">
           <ActionButtons>
-            {this.renderEditLink()}
+            {this.renderExtraLinks()}
 
             <Tip text="Delete">
               <Button bsStyle="link" onClick={this.removeIntegration}>
