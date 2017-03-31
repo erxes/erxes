@@ -1,6 +1,6 @@
 # erxes Widgets
 
-Embedable widget scripts for erxes.
+Embedable widget scripts server for erxes.
 
 ## Running the server
 

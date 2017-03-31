@@ -1,23 +1,30 @@
 {
   "name": "erxes-widgets",
   "version": "0.1.0",
-  "description": "Embedable widget scripts for erxes",
+  "description": "Embedable widget scripts server for erxes",
+  "homepage": "https://erxes.io",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/erxes/erxes-widgets"
+  },
+  "bugs": "https://github.com/erxes/erxes-widgets/issues",
+  "keywords": [
+    "node",
+    "express",
+    "react",
+    "redux",
+    "webpack",
+    "graphql",
+    "apollo"
+  ],
+  "license": "MIT",
+  "private": true,
   "scripts": {
     "start": "node dist",
     "dev": "nodemon src --exec babel-node",
     "bundle": "webpack",
     "build": "babel src --out-dir dist --ignore tests --copy-files"
   },
-  "keywords": [
-    "Javascript",
-    "Node.js",
-    "Express",
-    "GraphQL",
-    "Apollo",
-    "React",
-    "Redux"
-  ],
-  "license": "MIT",
   "dependencies": {
     "apollo-client": "^1.0.0-rc.6",
     "body-parser": "^1.15.2",
