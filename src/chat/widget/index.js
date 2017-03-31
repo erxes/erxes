@@ -1,19 +1,19 @@
+/* global ROOT_URL */
+
 /*
  * Chat's embeddable script
  */
 
-import settings from '../../settings';
+// import settings from '../../settings';
 
 // css
 import './index.css';
-
-const DOMAIN = settings.DOMAIN;
 
 // add iframe
 let iframe = document.createElement('iframe');
 iframe.id = 'erxes-iframe';
 iframe.className = 'erxes-form-hidden';
-iframe.src = `${DOMAIN}/chat`;
+iframe.src = `${ROOT_URL}/chat`;
 iframe.style.display = 'none';
 
 document.body.appendChild(iframe);

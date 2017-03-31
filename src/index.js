@@ -36,7 +36,7 @@ app.get('/test', (req, res) => {
   res.render('widget-test', { type: req.query.type });
 });
 
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 3200;
 app.listen(port, () => {
   console.log(`Widget scripts are now running on port ${port}`);
 });

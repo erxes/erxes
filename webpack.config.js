@@ -1,6 +1,10 @@
 /* eslint-disable */
 
 var path = require('path');
+var webpack = require('webpack');
+require('dotenv').config();
+
+const { ROOT_URL, API_SUBSCRIPTIONS_URL, API_GRAPHQL_URL, DDP_URL } = process.env;
 
 module.exports = {
   entry: {
@@ -41,4 +45,13 @@ module.exports = {
   resolve: {
     extensions: ['.js', '.jsx'],
   },
+
+  plugins: [
+    new webpack.DefinePlugin({
+      ROOT_URL: JSON.stringify(ROOT_URL),
+      API_SUBSCRIPTIONS_URL: JSON.stringify(API_SUBSCRIPTIONS_URL),
+      API_GRAPHQL_URL: JSON.stringify(API_GRAPHQL_URL),
+      DDP_URL: JSON.stringify(DDP_URL),
+    }),
+  ],
 };

@@ -1,19 +1,17 @@
+/* global ROOT_URL */
+
 /*
  * InApp message's embeddable script
  */
 
-import settings from '../../settings';
-
 // css
 import './index.css';
-
-const DOMAIN = settings.DOMAIN;
 
 // add iframe
 let iframe = document.createElement('iframe');
 iframe.id = 'erxes-iframe';
 iframe.className = 'erxes-messenger-hidden';
-iframe.src = `${DOMAIN}/inapp`;
+iframe.src = `${ROOT_URL}/inapp`;
 iframe.style.display = 'none';
 
 document.body.appendChild(iframe);
