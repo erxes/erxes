@@ -60,6 +60,7 @@ class Row extends Component {
     return (
       <tr>
         <td>{form.title}</td>
+        <td>{form.code}</td>
         <td>{form.description}</td>
         <td>{moment(form.createdAt).format('DD MMM YYYY')}</td>
 

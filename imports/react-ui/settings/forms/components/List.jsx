@@ -59,6 +59,7 @@ class List extends Component {
           <thead>
             <tr>
               <th>Name</th>
+              <th>Code</th>
               <th>Description</th>
               <th width="135">Created At</th>
               <th width="180" className="text-right">Actions</th>

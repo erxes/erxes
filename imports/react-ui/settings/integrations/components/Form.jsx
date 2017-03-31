@@ -34,7 +34,7 @@ class Form extends Common {
       const brand = Brands.findOne(props.integration.brandId);
       const form = Forms.findOne(props.integration.formId);
 
-      code = this.constructor.getInstallCode(brand.code, form._id);
+      code = this.constructor.getInstallCode(brand.code, form.code);
     }
 
     this.state = { code, copied: false };
@@ -50,7 +50,7 @@ class Form extends Common {
     if (brandId && formId) {
       const brand = Brands.findOne(brandId);
       const form = Forms.findOne(formId);
-      const code = this.constructor.getInstallCode(brand.code, form._id);
+      const code = this.constructor.getInstallCode(brand.code, form.code);
 
       this.setState({ code, copied: false });
     }
