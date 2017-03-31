@@ -1,5 +1,5 @@
 import { Meteor } from 'meteor/meteor';
-import { check } from 'meteor/check';
+import { Match, check } from 'meteor/check';
 import { ValidatedMethod } from 'meteor/mdg:validated-method';
 import { _ } from 'meteor/underscore';
 import { ErxesMixin } from '/imports/api/utils';
@@ -147,7 +147,7 @@ export const saveInAppMessagingApperance = new ValidatedMethod({
 
   validate({ _id, doc }) {
     check(_id, String);
-    check(doc, { color: String, wallpaper: String });
+    check(doc, { color: String, wallpaper: Match.Optional(String) });
   },
 
   run({ _id, doc }) {

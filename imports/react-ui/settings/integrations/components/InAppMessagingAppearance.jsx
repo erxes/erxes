@@ -15,7 +15,10 @@ class Appearance extends Component {
   constructor(props) {
     super(props);
 
-    this.state = { color: '', wallpaper: 1 };
+    this.state = {
+      color: props.prevOptions.color || '#452679',
+      wallpaper: props.prevOptions.wallpaper || '1',
+    };
 
     this.save = this.save.bind(this);
     this.onColorChange = this.onColorChange.bind(this);
@@ -42,6 +45,7 @@ class Appearance extends Component {
         onChange={this.onWallpaperChange}
         name="wallpaper"
         value={value}
+        checked={this.state.wallpaper === value}
         inline
       >
 
@@ -58,6 +62,7 @@ class Appearance extends Component {
           <FormControl
             name="color"
             type="color"
+            value={this.state.color}
             onChange={this.onColorChange}
           />
         </FormGroup>
@@ -66,10 +71,10 @@ class Appearance extends Component {
           <ControlLabel>Choose a wallpaper</ControlLabel>
 
           <div>
-            {this.renderWallpaperRadio(1)}
-            {this.renderWallpaperRadio(2)}
-            {this.renderWallpaperRadio(3)}
-            {this.renderWallpaperRadio(4)}
+            {this.renderWallpaperRadio('1')}
+            {this.renderWallpaperRadio('2')}
+            {this.renderWallpaperRadio('3')}
+            {this.renderWallpaperRadio('4')}
           </div>
         </FormGroup>
       </div>
@@ -110,6 +115,7 @@ class Appearance extends Component {
 }
 
 Appearance.propTypes = {
+  prevOptions: PropTypes.object.isRequired, // eslint-disable-line
   save: PropTypes.func.isRequired,
 };
 

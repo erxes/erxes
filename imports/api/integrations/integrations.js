@@ -103,6 +103,7 @@ Integrations.publicFields = {
   brandId: 1,
   formId: 1,
   formLoadType: 1,
+  uiOptions: 1,
 };
 
 Factory.define('integration', Integrations, {
