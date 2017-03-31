@@ -1,6 +1,5 @@
 $light-gray: #f8f8f8;
 $unread-bg: #f3f1f7;
-$assignee-bg: #ecf0f7;
 
 #popover-notification {
   right: 15px;
@@ -69,19 +68,21 @@ $assignee-bg: #ecf0f7;
         background: $light-gray;
         cursor: pointer;
       }
+
       a.first-line {
         margin-top: 0;
         white-space: normal;
-        font-weight: normal;
+        font-weight: 500;
+        font-size: 13px;
+      }
+
+      .second-line {
+        font-size: 12px;
       }
     }
 
     &.unread {
       background: $unread-bg;
-
-      &.conversationAssigneeChange{
-        background: $assignee-bg;
-      }
     }
   }
 }

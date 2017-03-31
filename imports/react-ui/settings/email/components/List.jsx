@@ -1,7 +1,7 @@
 import React, { PropTypes } from 'react';
-import Row from './Row.jsx';
 import { Table } from 'react-bootstrap';
 import { Wrapper } from '/imports/react-ui/layout/components';
+import Row from './Row.jsx';
 import Sidebar from '../../Sidebar.jsx';
 
 
@@ -21,7 +21,7 @@ function List({ brands }) {
       </thead>
       <tbody>
         {brands.map(brand =>
-          <Row brand={brand} key={brand.code} />
+          <Row brand={brand} key={brand.code} />,
         )}
       </tbody>
     </Table>
