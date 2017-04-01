@@ -56,6 +56,14 @@ class Row extends Component {
 
             <i className="ion-eye" />
           </Button>
+
+          <Button
+            bsStyle="link"
+            href={`/settings/integrations/in_app_messaging/availability/${integration._id}`}
+          >
+
+            <i className="ion-hammer" />
+          </Button>
         </div>
       );
     }
