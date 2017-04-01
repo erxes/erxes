@@ -23,9 +23,16 @@ This configuration matches with the default configurations of other erxes platfo
 
 #### 4. Start the server.
 
+For development:
+
+```Shell
+npm run dev
+```
+
+For production:
+
 ```Shell
 npm run build
-npm run bundle
 npm start
 ```
 
