@@ -54,6 +54,37 @@ class Availability extends Component {
     this.props.save(this.state);
   }
 
+  renderOnlineHours() {
+    if (this.state.availabilityMethod === 'manual') {
+      return null;
+    }
+
+    return (
+      <OnlineHours
+        prevOptions={this.props.prevOptions.onlineHours}
+        onChange={this.onOnlineHoursChange}
+      />
+    );
+  }
+
+  renderIsOnline() {
+    if (this.state.availabilityMethod === 'auto') {
+      return null;
+    }
+
+    return (
+      <FormGroup>
+        <Checkbox
+          checked={this.state.isOnline}
+          onChange={this.onIsOnlineChange}
+          inline
+        >
+          Is online
+        </Checkbox>
+      </FormGroup>
+    );
+  }
+
   render() {
     const content = (
       <div className="margined">
@@ -80,20 +111,8 @@ class Availability extends Component {
           </Radio>
         </FormGroup>
 
-        <FormGroup>
-          <Checkbox
-            checked={this.state.isOnline}
-            onChange={this.onIsOnlineChange}
-            inline
-          >
-            Is online
-          </Checkbox>
-        </FormGroup>
-
-        <OnlineHours
-          prevOptions={this.props.prevOptions.onlineHours}
-          onChange={this.onOnlineHoursChange}
-        />
+        {this.renderIsOnline()}
+        {this.renderOnlineHours()}
 
         <FormGroup>
           <ControlLabel>Time zone</ControlLabel>
