@@ -23,6 +23,9 @@ class Availability extends Component {
       isOnline: props.prevOptions.isOnline || false,
       timezone: props.prevOptions.timezone || '',
       onlineHours: props.prevOptions.onlineHours || [],
+      welcomeMessage: props.prevOptions.welcomeMessage || '',
+      awayMessage: props.prevOptions.awayMessage || '',
+      thankYouMessage: props.prevOptions.thankYouMessage || '',
     };
 
     this.save = this.save.bind(this);
@@ -30,6 +33,9 @@ class Availability extends Component {
     this.onIsOnlineChange = this.onIsOnlineChange.bind(this);
     this.onTimezoneChange = this.onTimezoneChange.bind(this);
     this.onOnlineHoursChange = this.onOnlineHoursChange.bind(this);
+    this.onWelcomeMessageChange = this.onWelcomeMessageChange.bind(this);
+    this.onAwayMessageChange = this.onAwayMessageChange.bind(this);
+    this.onThankYouMessageChange = this.onThankYouMessageChange.bind(this);
   }
 
   onMethodChange(e) {
@@ -46,6 +52,18 @@ class Availability extends Component {
 
   onOnlineHoursChange(onlineHours) {
     this.setState({ onlineHours });
+  }
+
+  onWelcomeMessageChange(e) {
+    this.setState({ welcomeMessage: e.target.value });
+  }
+
+  onAwayMessageChange(e) {
+    this.setState({ awayMessage: e.target.value });
+  }
+
+  onThankYouMessageChange(e) {
+    this.setState({ thankYouMessage: e.target.value });
   }
 
   save(e) {
@@ -119,7 +137,6 @@ class Availability extends Component {
 
           <FormControl
             componentClass="select"
-            name="timezone"
             value={this.state.timezone}
             onChange={this.onTimezoneChange}
           >
@@ -128,6 +145,40 @@ class Availability extends Component {
               <option key={index} value={timezone.value}>{timezone.text}</option>,
             )}
           </FormControl>
+        </FormGroup>
+
+        <p>Online messaging</p>
+
+        <FormGroup>
+          <ControlLabel>Welcome message</ControlLabel>
+
+          <FormControl
+            componentClass="textarea"
+            value={this.state.welcomeMessage}
+            onChange={this.onWelcomeMessageChange}
+          />
+        </FormGroup>
+
+        <p>Offline messaging</p>
+
+        <FormGroup>
+          <ControlLabel>Away message</ControlLabel>
+
+          <FormControl
+            componentClass="textarea"
+            value={this.state.awayMessage}
+            onChange={this.onAwayMessageChange}
+          />
+        </FormGroup>
+
+        <FormGroup>
+          <ControlLabel>Thank you message</ControlLabel>
+
+          <FormControl
+            componentClass="textarea"
+            value={this.state.thankYouMessage}
+            onChange={this.onThankYouMessageChange}
+          />
         </FormGroup>
       </div>
     );

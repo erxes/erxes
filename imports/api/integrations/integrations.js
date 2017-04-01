@@ -80,6 +80,21 @@ export const inAppSchema = new SimpleSchema({
     type: String,
     optional: true,
   },
+
+  welcomeMessage: {
+    type: String,
+    optional: true,
+  },
+
+  awayMessage: {
+    type: String,
+    optional: true,
+  },
+
+  thankYouMessage: {
+    type: String,
+    optional: true,
+  },
 });
 
 Integrations.schema = new SimpleSchema({
