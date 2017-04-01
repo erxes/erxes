@@ -1,8 +1,7 @@
-/* global FileReader, WebSocket */
+/* global FileReader, WebSocket, DDP_URL */
 
 import EJSON from 'meteor-ejson';
 import DDP from 'ddp.js';
-import settings from './settings';
 
 
 /**
@@ -44,7 +43,7 @@ export default function uploadHandler({ file, afterRead, uploadAction }) {
 
 // create ddp instance
 const ddp = new DDP({
-  endpoint: settings.DDP_URL,
+  endpoint: DDP_URL,
   SocketConstructor: WebSocket,
 });
 
