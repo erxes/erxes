@@ -20,10 +20,9 @@
   "license": "MIT",
   "private": true,
   "scripts": {
-    "start": "node dist",
-    "dev": "nodemon src --exec babel-node",
-    "bundle": "webpack",
-    "build": "babel src --out-dir dist --ignore tests --copy-files"
+    "dev": "webpack --watch --progress & nodemon server --exec babel-node",
+    "build": "webpack && babel server --out-dir dist --copy-files --ignore tests",
+    "start": "node dist"
   },
   "dependencies": {
     "apollo-client": "^1.0.0-rc.6",

@@ -8,12 +8,12 @@ const { ROOT_URL, API_SUBSCRIPTIONS_URL, API_GRAPHQL_URL, DDP_URL } = process.en
 
 module.exports = {
   entry: {
-    inApp: './dist/inapp/index.js',
-    inAppWidget: './dist/inapp/widget/index.js',
-    chat: './dist/chat/index.js',
-    chatWidget: './dist/chat/widget/index.js',
-    form: './dist/form/index.js',
-    formWidget: './dist/form/widget/index.js',
+    inApp: './client/inapp/index.js',
+    inAppWidget: './client/inapp/widget/index.js',
+    chat: './client/chat/index.js',
+    chatWidget: './client/chat/widget/index.js',
+    form: './client/form/index.js',
+    formWidget: './client/form/widget/index.js',
   },
 
   output: {
