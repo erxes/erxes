@@ -7,7 +7,7 @@ import { Conversations } from '/imports/api/conversations/conversations';
 import { Messages } from '/imports/api/conversations/messages';
 import { Customers } from '/imports/api/customers/customers';
 import { Channels } from '/imports/api/channels/channels';
-import { Integrations } from '../integrations';
+import { Integrations, inAppSchema } from '../integrations';
 import { KIND_CHOICES } from '../constants';
 
 
@@ -152,5 +152,19 @@ export const saveInAppMessagingApperance = new ValidatedMethod({
 
   run({ _id, doc }) {
     return Integrations.update({ _id }, { $set: { uiOptions: doc } });
+  },
+});
+
+export const saveInAppMessagingAvailability = new ValidatedMethod({
+  name: 'integrations.saveInAppMessagingAvailability',
+  mixins: [ErxesMixin],
+
+  validate({ _id, doc }) {
+    check(_id, String);
+    check(doc, inAppSchema);
+  },
+
+  run({ _id, doc }) {
+    return Integrations.update({ _id }, { $set: { inAppData: doc } });
   },
 });

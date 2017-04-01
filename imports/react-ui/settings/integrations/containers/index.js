@@ -1,6 +1,7 @@
 import List from './List';
 import InAppMessaging from './InAppMessaging';
 import InAppMessagingAppearance from './InAppMessagingAppearance';
+import InAppMessagingAvailability from './InAppMessagingAvailability';
 import Chat from './Chat';
 import Form from './Form';
 import Twitter from './Twitter';
@@ -12,6 +13,7 @@ export {
   Facebook,
   InAppMessaging,
   InAppMessagingAppearance,
+  InAppMessagingAvailability,
   Chat,
   Form,
 };

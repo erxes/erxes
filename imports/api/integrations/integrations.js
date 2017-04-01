@@ -39,6 +39,48 @@ Integrations.formSchema = new SimpleSchema({
   },
 });
 
+const onlineHoursSchema = new SimpleSchema({
+  _id: {
+    type: String,
+  },
+
+  day: {
+    type: String,
+  },
+
+  from: {
+    type: String,
+  },
+
+  to: {
+    type: String,
+  },
+});
+
+// in app ==============
+export const inAppSchema = new SimpleSchema({
+  // manual, auto
+  availabilityMethod: {
+    type: String,
+    optional: true,
+  },
+
+  isAvailable: {
+    type: Boolean,
+    optional: true,
+  },
+
+  onlineHours: {
+    type: [onlineHoursSchema],
+    optional: true,
+  },
+
+  timezone: {
+    type: String,
+    optional: true,
+  },
+});
+
 Integrations.schema = new SimpleSchema({
   // in app messaging, twitter ...
   kind: {
@@ -62,6 +104,12 @@ Integrations.schema = new SimpleSchema({
   formLoadType: {
     type: String,
     allowedValues: FORM_LOAD_TYPES.ALL_LIST,
+    optional: true,
+  },
+
+  // in app availability, and text options
+  inAppData: {
+    type: inAppSchema,
     optional: true,
   },
 
@@ -104,6 +152,7 @@ Integrations.publicFields = {
   formId: 1,
   formLoadType: 1,
   uiOptions: 1,
+  inAppData: 1,
 };
 
 Factory.define('integration', Integrations, {

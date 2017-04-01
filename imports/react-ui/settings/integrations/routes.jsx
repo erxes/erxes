@@ -8,6 +8,7 @@ import {
   InAppMessaging,
   Twitter,
   InAppMessagingAppearance,
+  InAppMessagingAvailability,
 } from './containers';
 
 import { AddIntegration } from './components';
@@ -34,6 +35,19 @@ integrations.route('/in_app_messaging/appearance/:integrationId', {
       MainLayout,
       {
         content: <InAppMessagingAppearance integrationId={integrationId} />,
+      },
+    );
+  },
+});
+
+integrations.route('/in_app_messaging/availability/:integrationId', {
+  name: 'settings/integrations/in_app_messaging/availability',
+
+  action({ integrationId }) {
+    mount(
+      MainLayout,
+      {
+        content: <InAppMessagingAvailability integrationId={integrationId} />,
       },
     );
   },
