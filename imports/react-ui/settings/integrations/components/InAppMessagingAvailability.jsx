@@ -5,6 +5,7 @@ import {
   ControlLabel,
   FormControl,
   Radio,
+  Checkbox,
   Button,
   ButtonGroup,
 } from 'react-bootstrap';
@@ -19,18 +20,24 @@ class Availability extends Component {
 
     this.state = {
       availabilityMethod: props.prevOptions.availabilityMethod || 'manual',
+      isOnline: props.prevOptions.isOnline || false,
       timezone: props.prevOptions.timezone || '',
       onlineHours: props.prevOptions.onlineHours || [],
     };
 
     this.save = this.save.bind(this);
     this.onMethodChange = this.onMethodChange.bind(this);
+    this.onIsOnlineChange = this.onIsOnlineChange.bind(this);
     this.onTimezoneChange = this.onTimezoneChange.bind(this);
     this.onOnlineHoursChange = this.onOnlineHoursChange.bind(this);
   }
 
   onMethodChange(e) {
     this.setState({ availabilityMethod: e.target.value });
+  }
+
+  onIsOnlineChange(e) {
+    this.setState({ isOnline: e.target.checked });
   }
 
   onTimezoneChange(e) {
@@ -71,6 +78,16 @@ class Availability extends Component {
           >
             Set to follow your schedule
           </Radio>
+        </FormGroup>
+
+        <FormGroup>
+          <Checkbox
+            checked={this.state.isOnline}
+            onChange={this.onIsOnlineChange}
+            inline
+          >
+            Is online
+          </Checkbox>
         </FormGroup>
 
         <OnlineHours

@@ -63,9 +63,10 @@ export const inAppSchema = new SimpleSchema({
   availabilityMethod: {
     type: String,
     optional: true,
+    allowedValues: ['manual', 'auto'],
   },
 
-  isAvailable: {
+  isOnline: {
     type: Boolean,
     optional: true,
   },
