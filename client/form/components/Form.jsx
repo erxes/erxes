@@ -55,9 +55,6 @@ export default class Form extends React.Component {
     return fields.map((field) => {
       const fieldError = errors.find(error => error.fieldId === field._id);
 
-      // generating name attribute automatically
-      field.name = `erxes-form-field-${field._id}`; // eslint-disable-line
-
       return (
         <Field
           key={field._id}
@@ -70,14 +67,12 @@ export default class Form extends React.Component {
   }
 
   renderForm() {
-    const { form } = this.props;
-
     return (
       <div className="erxes-form">
         <div className="erxes-topbar thiner">
           <div className="erxes-middle">
             <div className="erxes-topbar-title">
-              <div>{form.title}</div>
+              <div>{this.props.integrationName}</div>
             </div>
           </div>
         </div>
@@ -97,14 +92,14 @@ export default class Form extends React.Component {
   }
 
   renderSuccessForm() {
-    const { form, onCreateNew } = this.props;
+    const { integrationName, onCreateNew } = this.props;
 
     return (
       <div className="erxes-form">
         <div className="erxes-topbar thiner">
           <div className="erxes-middle">
             <div className="erxes-topbar-title">
-              <div>{form.title}</div>
+              <div>{integrationName}</div>
             </div>
           </div>
         </div>
@@ -132,6 +127,7 @@ export default class Form extends React.Component {
 }
 
 Form.propTypes = {
+  integrationName: PropTypes.string,
   form: PropTypes.shape({
     title: PropTypes.string,
 

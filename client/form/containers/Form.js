@@ -12,6 +12,7 @@ const Form = (props) => {
   const extendedProps = {
     ...props,
     form: props.data.form,
+    integrationName: connection.data.integrationName,
   };
 
   if (props.data.loading) {
@@ -28,6 +29,7 @@ Form.propTypes = {
 
       fields: PropTypes.arrayOf(PropTypes.shape({
         _id: PropTypes.string.isRequired,
+        name: PropTypes.string.isRequired,
         type: PropTypes.string,
         check: PropTypes.string,
         text: PropTypes.string,
@@ -64,6 +66,7 @@ const FormWithData = graphql(
         fields {
           _id
           formId
+          name
           type
           check
           text
