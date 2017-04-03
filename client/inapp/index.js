@@ -18,6 +18,8 @@ widgetConnect({
         mutation connect($brandCode: String!, $email: String!) {
           inAppConnect(brandCode: $brandCode, email: $email) {
             integrationId,
+            inAppData,
+            uiOptions,
             customerId,
           }
         }`,
@@ -33,10 +35,7 @@ widgetConnect({
     const inAppData = data.inAppConnect;
 
     // save connection info
-    connection.data = {
-      customerId: inAppData.customerId,
-      integrationId: inAppData.integrationId,
-    };
+    connection.data = inAppData;
 
     // send connected message to ws server and server will save given
     // data to connection. So when connection closed, we will use
