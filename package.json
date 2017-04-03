@@ -28,6 +28,7 @@
     "apollo-client": "^1.0.0-rc.6",
     "body-parser": "^1.15.2",
     "classnames": "^2.2.5",
+    "cors": "^2.8.3",
     "ddp.js": "^2.2.0",
     "dotenv": "^4.0.0",
     "ejs": "^2.5.6",
