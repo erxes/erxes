@@ -5,11 +5,13 @@ import {
   ControlLabel,
   FormControl,
   Radio,
-  Checkbox,
   Button,
+  Col,
+  Row,
   ButtonGroup,
 } from 'react-bootstrap';
 import Select from 'react-select-plus';
+import Toggle from 'react-toggle';
 import { Wrapper } from '/imports/react-ui/layout/components';
 import Sidebar from '../../Sidebar.jsx';
 import { timezones } from '../constants';
@@ -93,90 +95,100 @@ class Availability extends Component {
 
     return (
       <FormGroup>
-        <Checkbox
+        <Toggle
+          className="wide"
           checked={this.state.isOnline}
           onChange={this.onIsOnlineChange}
-          inline
-        >
-          Is online
-        </Checkbox>
+          icons={{
+            checked: <span>Online</span>,
+            unchecked: <span>Offline</span>,
+          }}
+        />
       </FormGroup>
     );
   }
 
   render() {
     const content = (
-      <div className="margined">
-        <FormGroup>
-          <Radio
-            name="method"
-            value="manual"
-            checked={this.state.availabilityMethod === 'manual'}
-            onChange={this.onMethodChange}
-            inline
-          >
+      <div className="margined type-box">
+        <Row>
+          <Col md={5}>
+            <h2>Online messaging</h2>
 
-            Turn online/offline manually
-          </Radio>
+            <FormGroup>
+              <ControlLabel>Welcome message</ControlLabel>
 
-          <Radio
-            name="method"
-            value="auto"
-            checked={this.state.availabilityMethod === 'auto'}
-            onChange={this.onMethodChange}
-            inline
-          >
-            Set to follow your schedule
-          </Radio>
-        </FormGroup>
+              <FormControl
+                componentClass="textarea"
+                rows={3}
+                value={this.state.welcomeMessage}
+                onChange={this.onWelcomeMessageChange}
+              />
+            </FormGroup>
 
-        {this.renderIsOnline()}
-        {this.renderOnlineHours()}
+            <h2>Offline messaging</h2>
 
-        <FormGroup>
-          <ControlLabel>Time zone</ControlLabel>
+            <FormGroup>
+              <ControlLabel>Away message</ControlLabel>
 
-          <Select
-            value={this.state.timezone}
-            options={timezones}
-            onChange={this.onTimezoneChange}
-            clearable={false}
-          />
-        </FormGroup>
+              <FormControl
+                componentClass="textarea"
+                rows={3}
+                value={this.state.awayMessage}
+                onChange={this.onAwayMessageChange}
+              />
+            </FormGroup>
 
-        <p>Online messaging</p>
+            <FormGroup>
+              <ControlLabel>Thank you message</ControlLabel>
 
-        <FormGroup>
-          <ControlLabel>Welcome message</ControlLabel>
+              <FormControl
+                componentClass="textarea"
+                rows={3}
+                value={this.state.thankYouMessage}
+                onChange={this.onThankYouMessageChange}
+              />
+            </FormGroup>
+          </Col>
+          <Col md={7}>
+            <h2>Hours & Availability</h2>
+            <FormGroup>
+              <Radio
+                name="method"
+                value="manual"
+                checked={this.state.availabilityMethod === 'manual'}
+                onChange={this.onMethodChange}
+                inline
+              >
+                Turn online/offline manually
+              </Radio>
 
-          <FormControl
-            componentClass="textarea"
-            value={this.state.welcomeMessage}
-            onChange={this.onWelcomeMessageChange}
-          />
-        </FormGroup>
+              <Radio
+                name="method"
+                value="auto"
+                checked={this.state.availabilityMethod === 'auto'}
+                onChange={this.onMethodChange}
+                inline
+              >
+                Set to follow your schedule
+              </Radio>
+            </FormGroup>
 
-        <p>Offline messaging</p>
+            {this.renderIsOnline()}
+            {this.renderOnlineHours()}
 
-        <FormGroup>
-          <ControlLabel>Away message</ControlLabel>
+            <FormGroup>
+              <ControlLabel>Time zone</ControlLabel>
 
-          <FormControl
-            componentClass="textarea"
-            value={this.state.awayMessage}
-            onChange={this.onAwayMessageChange}
-          />
-        </FormGroup>
-
-        <FormGroup>
-          <ControlLabel>Thank you message</ControlLabel>
-
-          <FormControl
-            componentClass="textarea"
-            value={this.state.thankYouMessage}
-            onChange={this.onThankYouMessageChange}
-          />
-        </FormGroup>
+              <Select
+                value={this.state.timezone}
+                options={timezones}
+                onChange={this.onTimezoneChange}
+                clearable={false}
+              />
+            </FormGroup>
+          </Col>
+        </Row>
       </div>
     );
 

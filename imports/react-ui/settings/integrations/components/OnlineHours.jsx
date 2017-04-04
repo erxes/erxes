@@ -1,5 +1,5 @@
 import React, { PropTypes, Component } from 'react';
-import { FormGroup, ControlLabel } from 'react-bootstrap';
+import { FormGroup, ControlLabel, Button } from 'react-bootstrap';
 import Select from 'react-select-plus';
 import { days, hours } from '../constants';
 
@@ -74,37 +74,38 @@ class OnlineHours extends Component {
 
     const { _id, day, from, to } = onlineHour;
     return (
-      <div key={_id}>
-
+      <div className="flex-row" key={_id}>
         <Select
+          className="flex-item"
           value={day}
           options={days}
           onChange={onDayChange}
           clearable={false}
         />
-        from
-
+        <span>from</span>
         <Select
+          className="flex-item"
           onChange={onFromChange}
           value={from}
           options={hours}
           clearable={false}
         />
-        to
+        <span>to</span>
         <Select
+          className="flex-item"
           onChange={onToChange}
           value={to}
           options={hours}
           clearable={false}
         />
 
-        <button
-          type="button"
-          className="btn btn-xs btn-danger"
+        <Button
+          className="shrinked"
+          bsStyle="link"
           onClick={remove}
         >
           <i className="ion-close-circled" />
-        </button>
+        </Button>
       </div>
     );
   }
@@ -117,14 +118,15 @@ class OnlineHours extends Component {
         {this.state.onlineHours.map(onlineHour =>
           this.renderOnlineHour(onlineHour),
         )}
-
-        <button
-          type="button"
-          className="btn btn-xs btn-success"
-          onClick={this.addTime}
-        >
-          Add time
-        </button>
+        <div>
+          <Button
+            className="shrinked"
+            bsStyle="link"
+            onClick={this.addTime}
+          >
+            <i className="ion-plus-circled" /> Add another time
+          </Button>
+        </div>
       </FormGroup>
     );
   }

@@ -32,3 +32,11 @@
 .form-group {
   margin-bottom: 20px;
 }
+
+.radio-inline {
+  input[type='radio'] {
+    margin-left: -19px;
+    margin-top: 3px;
+  }
+}
+

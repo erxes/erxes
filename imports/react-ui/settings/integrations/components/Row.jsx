@@ -45,25 +45,27 @@ class Row extends Component {
     if (kind === KIND_CHOICES.IN_APP_MESSAGING) {
       return (
         <div style={{ display: 'inline-block' }}>
+          <Tip text="Appearance">
+            <Button
+              bsStyle="link"
+              href={`/settings/integrations/in_app_messaging/appearance/${integration._id}`}
+            >
+              <i className="ion-paintbucket" />
+            </Button>
+          </Tip>
+
+          <Tip text="Hours & Availability">
+            <Button
+              bsStyle="link"
+              href={`/settings/integrations/in_app_messaging/availability/${integration._id}`}
+            >
+              <i className="ion-gear-a" />
+            </Button>
+          </Tip>
+
           <ModalTrigger title="Edit integration" trigger={editTrigger}>
             <InAppMessaging integration={integration} />
           </ModalTrigger>
-
-          <Button
-            bsStyle="link"
-            href={`/settings/integrations/in_app_messaging/appearance/${integration._id}`}
-          >
-
-            <i className="ion-eye" />
-          </Button>
-
-          <Button
-            bsStyle="link"
-            href={`/settings/integrations/in_app_messaging/availability/${integration._id}`}
-          >
-
-            <i className="ion-hammer" />
-          </Button>
         </div>
       );
     }

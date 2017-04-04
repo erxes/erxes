@@ -1,5 +1,6 @@
 import React, { PropTypes } from 'react';
 import { _ } from 'meteor/underscore';
+import Toggle from 'react-toggle';
 import { Wrapper } from '/imports/react-ui/layout/components';
 import { Checkbox } from 'react-bootstrap';
 import Alert from 'meteor/erxes-notifier';
@@ -50,47 +51,51 @@ class NotificationSettings extends React.Component {
 
   renderNotifType(type, key) {
     return (
-      <li key={key}>
-        <Checkbox
+      <div key={key} className="flex-inline">
+        <Toggle
           value={type.name}
           checked={this.isChecked(type)}
           onChange={this.onTypeChange}
-        >
-
-          {type.text}
-        </Checkbox>
-      </li>
+          icons={{
+            checked: null,
+            unchecked: null,
+          }}
+        />
+        {type.text}
+      </div>
     );
   }
 
   renderModule(module, mindex) {
     return (
-      <li key={mindex}>
+      <div key={mindex}>
         <h5>{module.description}</h5>
-        <ul>
-          {module.types.map(
-            (type, index) => this.renderNotifType(type, `${mindex}${index}`)
-          )}
-        </ul>
-      </li>
+        {module.types.map(
+          (type, index) => this.renderNotifType(type, `${mindex}${index}`)
+        )}
+      </div>
     );
   }
 
   render() {
     const content = (
       <div className="margined notification-settings">
-        <Checkbox
-          defaultChecked={this.props.getNotificationByEmail}
-          onChange={this.onEmailConfigChange}
-        >
-        Get notification by email
-        </Checkbox>
-
-        <ul>
+        <div className="flex-inline">
+          <Toggle
+            defaultChecked={this.props.getNotificationByEmail}
+            onChange={this.onEmailConfigChange}
+            icons={{
+              checked: null,
+              unchecked: null,
+            }}
+          />
+          Get notification by email
+        </div>
+        <div className="margined">
           {this.props.modules.map(
-            (module, index) => this.renderModule(module, index)
+            (module, index) => this.renderModule(module, index),
           )}
-        </ul>
+        </div>
       </div>
     );
 

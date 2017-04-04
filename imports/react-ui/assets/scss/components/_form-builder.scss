@@ -75,4 +75,27 @@
       margin-right: 5px;
     }
   }
+
+  > span {
+    margin: 0 5px;
+  }
+
+  ~ .flex-row {
+    margin-top: 10px;
+  }
+
+  > button {
+    margin-left: 10px;
+  }
+}
+
+.flex-inline {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin-bottom: 10px;
+
+  > div {
+    margin-right: 8px;
+  }
 }
