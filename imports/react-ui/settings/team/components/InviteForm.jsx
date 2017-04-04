@@ -1,5 +1,5 @@
 import React, { PropTypes, Component } from 'react';
-import ReactSelectize from 'react-selectize';
+import Select from 'react-select-plus';
 import {
   FormGroup,
   ControlLabel,
@@ -88,13 +88,14 @@ class InviteForm extends Component {
       <FormGroup>
         <ControlLabel>Choose the channels</ControlLabel><br />
 
-        <ReactSelectize.MultiSelect
-          options={self.generateChannelsParams(channels)}
+        <Select
           placeholder="Choose channels"
-          values={self.state.selectedChannels}
-          onValuesChange={(items) => {
+          value={self.state.selectedChannels}
+          options={self.generateChannelsParams(channels)}
+          onChange={(items) => {
             self.setState({ selectedChannels: items });
           }}
+          multi
         />
 
       </FormGroup>

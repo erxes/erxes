@@ -1,5 +1,6 @@
 import React, { PropTypes, Component } from 'react';
 import { FormGroup, ControlLabel } from 'react-bootstrap';
+import Select from 'react-select-plus';
 import { days, hours } from '../constants';
 
 class OnlineHours extends Component {
@@ -60,42 +61,42 @@ class OnlineHours extends Component {
     };
 
     const onDayChange = (e) => {
-      this.onTimeItemChange(onlineHour._id, 'day', e.target.value);
+      this.onTimeItemChange(onlineHour._id, 'day', e.value);
     };
 
     const onFromChange = (e) => {
-      this.onTimeItemChange(onlineHour._id, 'from', e.target.value);
+      this.onTimeItemChange(onlineHour._id, 'from', e.value);
     };
 
     const onToChange = (e) => {
-      this.onTimeItemChange(onlineHour._id, 'to', e.target.value);
+      this.onTimeItemChange(onlineHour._id, 'to', e.value);
     };
 
     const { _id, day, from, to } = onlineHour;
-
     return (
       <div key={_id}>
-        <select onChange={onDayChange} value={day}>
-          {days.map((d, index) =>
-            <option key={index} value={d.value}>{d.text}</option>,
-          )}
-        </select>
 
+        <Select
+          value={day}
+          options={days}
+          onChange={onDayChange}
+          clearable={false}
+        />
         from
 
-        <select onChange={onFromChange} value={from}>
-          {hours.map((h, index) =>
-            <option key={index} value={h.value}>{h.text}</option>,
-          )}
-        </select>
-
+        <Select
+          onChange={onFromChange}
+          value={from}
+          options={hours}
+          clearable={false}
+        />
         to
-
-        <select onChange={onToChange} value={to}>
-          {hours.map((h, index) =>
-            <option key={index} value={h.value}>{h.text}</option>,
-          )}
-        </select>
+        <Select
+          onChange={onToChange}
+          value={to}
+          options={hours}
+          clearable={false}
+        />
 
         <button
           type="button"

@@ -9,6 +9,7 @@ import {
   Button,
   ButtonGroup,
 } from 'react-bootstrap';
+import Select from 'react-select-plus';
 import { Wrapper } from '/imports/react-ui/layout/components';
 import Sidebar from '../../Sidebar.jsx';
 import { timezones } from '../constants';
@@ -47,7 +48,7 @@ class Availability extends Component {
   }
 
   onTimezoneChange(e) {
-    this.setState({ timezone: e.target.value });
+    this.setState({ timezone: e.value });
   }
 
   onOnlineHoursChange(onlineHours) {
@@ -135,16 +136,12 @@ class Availability extends Component {
         <FormGroup>
           <ControlLabel>Time zone</ControlLabel>
 
-          <FormControl
-            componentClass="select"
+          <Select
             value={this.state.timezone}
+            options={timezones}
             onChange={this.onTimezoneChange}
-          >
-
-            {timezones.map((timezone, index) =>
-              <option key={index} value={timezone.value}>{timezone.text}</option>,
-            )}
-          </FormControl>
+            clearable={false}
+          />
         </FormGroup>
 
         <p>Online messaging</p>

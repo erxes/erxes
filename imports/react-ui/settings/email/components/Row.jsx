@@ -1,7 +1,7 @@
 import React, { PropTypes } from 'react';
 import { Button } from 'react-bootstrap';
-import { Config } from '../containers';
 import { Tip, ActionButtons, ModalTrigger } from '/imports/react-ui/common';
+import { Config } from '../containers';
 
 
 const propTypes = {
