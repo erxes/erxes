@@ -3,6 +3,7 @@ import gql from 'graphql-tag';
 import { connect } from 'react-redux';
 import { graphql } from 'react-apollo';
 import Subscriber from './Subscriber';
+import { connection } from '../connection';
 import { changeRoute, changeConversation } from '../actions/messenger';
 import { Conversation as DumbConversation } from '../components';
 
@@ -86,6 +87,7 @@ class Conversation extends Subscriber {
       ...props,
       messages,
       user,
+      data: connection.data,
     };
 
     return <DumbConversation {...extendedProps} />;

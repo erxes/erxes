@@ -8,10 +8,11 @@ const propTypes = {
   messages: PropTypes.array.isRequired,
   goToConversationList: PropTypes.func.isRequired,
   user: PropTypes.object,
+  data: PropTypes.object,
   isNewConversation: PropTypes.bool,
 };
 
-function Conversation({ messages, isNewConversation, goToConversationList, user }) {
+function Conversation({ messages, isNewConversation, goToConversationList, user, data }) {
   function renderTitle() {
     if (isNewConversation) {
       return (
@@ -36,14 +37,17 @@ function Conversation({ messages, isNewConversation, goToConversationList, user 
     return null;
   }
 
+  const color = data.uiOptions && data.uiOptions.color;
+
   return (
     <div className="erxes-messenger">
       <TopBar
         middle={renderTitle()}
         buttonClass="back"
+        color={color}
         onButtonClick={goToConversationList}
       />
-      <MessagesList messages={messages} />
+      <MessagesList color={color} messages={messages} />
       <MessageSender placeholder={isNewConversation ? 'Send a message ...' : 'Write a reply ...'} />
     </div>
   );
