@@ -7,9 +7,10 @@ const propTypes = {
   conversations: PropTypes.array.isRequired,
   createConversation: PropTypes.func.isRequired,
   goToConversation: PropTypes.func.isRequired,
+  data: PropTypes.object,
 };
 
-function ConversationList({ conversations, createConversation, goToConversation }) {
+function ConversationList({ conversations, createConversation, goToConversation, data }) {
   const title = (
     <div className="erxes-topbar-title">
       <div>Conversations</div>
@@ -17,11 +18,14 @@ function ConversationList({ conversations, createConversation, goToConversation 
     </div>
   );
 
+  const color = data.uiOptions && data.uiOptions.color;
+
   return (
     <div className="erxes-messenger">
       <TopBar
         middle={title}
         buttonClass="new"
+        color={color}
         onButtonClick={createConversation}
       />
       <ul className="erxes-conversation-list">
