@@ -29,6 +29,10 @@
     text-decoration: none;
     color: $text-color;
   }
+
+  &.shrinked {
+    padding: 8px 0;
+  }
 }
 
 .btn-primary {

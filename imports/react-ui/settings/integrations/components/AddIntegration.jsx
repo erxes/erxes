@@ -33,7 +33,7 @@ function AddIntegration() {
   );
 
   const content = (
-    <div className="margined integration-types">
+    <div className="margined type-box">
       <div className="box">
         <h2>In app messaging</h2>
 

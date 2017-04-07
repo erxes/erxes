@@ -2,7 +2,15 @@ import React from 'react';
 import { mount } from 'react-mounter';
 import { MainLayout } from '/imports/react-ui/layout/containers';
 import settingsRoute from '../routes.jsx';
-import { List, InAppMessaging, Twitter } from './containers';
+
+import {
+  List,
+  InAppMessaging,
+  Twitter,
+  InAppMessagingAppearance,
+  InAppMessagingAvailability,
+} from './containers';
+
 import { AddIntegration } from './components';
 
 
@@ -16,6 +24,32 @@ integrations.route('/in_app_messaging', {
 
   action() {
     mount(MainLayout, { content: <InAppMessaging /> });
+  },
+});
+
+integrations.route('/in_app_messaging/appearance/:integrationId', {
+  name: 'settings/integrations/in_app_messaging/appearance',
+
+  action({ integrationId }) {
+    mount(
+      MainLayout,
+      {
+        content: <InAppMessagingAppearance integrationId={integrationId} />,
+      },
+    );
+  },
+});
+
+integrations.route('/in_app_messaging/availability/:integrationId', {
+  name: 'settings/integrations/in_app_messaging/availability',
+
+  action({ integrationId }) {
+    mount(
+      MainLayout,
+      {
+        content: <InAppMessagingAvailability integrationId={integrationId} />,
+      },
+    );
   },
 });
 

@@ -1,5 +1,5 @@
 import React, { PropTypes, Component } from 'react';
-import ReactSelectize from 'react-selectize';
+import Select from 'react-select-plus';
 import {
   FormGroup,
   ControlLabel,
@@ -17,7 +17,6 @@ const propTypes = {
   integrations: PropTypes.array.isRequired,
   members: PropTypes.array.isRequired,
   channel: PropTypes.object,
-  brands: PropTypes.array,
   selectedIntegrations: PropTypes.array,
   selectedMembers: PropTypes.array,
 };
@@ -34,7 +33,6 @@ class ChannelForm extends Component {
     this.generateIntegrationsParams = this.generateIntegrationsParams.bind(this);
     this.generateMembersParams = this.generateMembersParams.bind(this);
     this.collectValues = this.collectValues.bind(this);
-    this.generateGroups = this.generateGroups.bind(this);
     this.state = {
       selectedIntegrations: this.generateIntegrationsParams(props.selectedIntegrations),
       selectedMembers: this.generateMembersParams(props.selectedMembers),
@@ -45,6 +43,38 @@ class ChannelForm extends Component {
     return items.map(item => (
       item.value
     ));
+  }
+
+  generateGroupedIntegrations(integrations) {
+    const brandsMap = {};
+
+    integrations.forEach((integration) => {
+      const brand = integration.brand();
+      const brandName = brand.name;
+
+      if (!brandsMap[brandName]) {
+        brandsMap[brandName] = [];
+      }
+
+      brandsMap[brandName].push(
+        {
+          channels: integration.channels(),
+          value: integration._id,
+          label: integration.name,
+          kind: integration.kind,
+        },
+      );
+    });
+
+    const results = [];
+
+    Object.keys(brandsMap).forEach((brandName) => {
+      results.push({
+        label: brandName,
+        options: brandsMap[brandName],
+      });
+    });
+    return results;
   }
 
   generateIntegrationsParams(integrations) {
@@ -64,15 +94,6 @@ class ChannelForm extends Component {
       {
         value: member._id,
         label: member.details.fullName || '',
-      }
-    ));
-  }
-
-  generateGroups(brands) {
-    return brands.map(({ _id, name }) => (
-      {
-        groupId: _id,
-        title: name,
       }
     ));
   }
@@ -105,9 +126,10 @@ class ChannelForm extends Component {
   }
 
   renderChannelTip(channels) {
-    const count = channels.length;
+    const array = channels || [];
+    const count = array.length;
     if (count !== 0) {
-      const channelNames = channels.map(c => (c.name));
+      const channelNames = array.map(c => (c.name));
       return (
         <Tip text={channelNames.toString()}>
           <div className="channel-round">
@@ -123,8 +145,7 @@ class ChannelForm extends Component {
     const onClick = () => {
       this.context.closeModal();
     };
-    const MultiSelect = ReactSelectize.MultiSelect;
-    const { brands, integrations, members } = this.props;
+    const { integrations, members } = this.props;
     const channel = this.props.channel || { memberIds: [], integrationIds: [] };
     const self = this;
     return (
@@ -154,33 +175,34 @@ class ChannelForm extends Component {
         <FormGroup>
           <ControlLabel>Integrations</ControlLabel>
 
-          <MultiSelect
-            groups={self.generateGroups(brands)}
-            options={self.generateIntegrationsParams(integrations)}
-            placeholder="Choose integration"
-            values={self.state.selectedIntegrations}
-            onValuesChange={(items) => {
+          <Select
+            placeholder="Choose integrations"
+            onChange={(items) => {
               self.setState({ selectedIntegrations: items });
             }}
-            renderOption={item => (
+            optionRenderer={option => (
               <div className="simple-option">
-                <span>{item.label}</span>
-                <span className="kind"> {item.kind}</span>
-                {self.renderChannelTip(item.channels)}
+                <span>{option.label}</span>
+                <span className="kind"> {option.kind}</span>
+                {self.renderChannelTip(option.channels)}
               </div>
             )}
+            value={self.state.selectedIntegrations}
+            options={self.generateGroupedIntegrations(integrations)}
+            multi
           />
         </FormGroup>
         <FormGroup>
           <ControlLabel>Members</ControlLabel>
 
-          <MultiSelect
-            options={self.generateMembersParams(members)}
+          <Select
             placeholder="Choose members"
-            values={self.state.selectedMembers}
-            onValuesChange={(items) => {
+            onChange={(items) => {
               self.setState({ selectedMembers: items });
             }}
+            value={self.state.selectedMembers}
+            options={self.generateMembersParams(members)}
+            multi
           />
         </FormGroup>
 

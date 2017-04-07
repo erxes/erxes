@@ -1,5 +1,5 @@
 import { Meteor } from 'meteor/meteor';
-import { check } from 'meteor/check';
+import { Match, check } from 'meteor/check';
 import { ValidatedMethod } from 'meteor/mdg:validated-method';
 import { _ } from 'meteor/underscore';
 import { ErxesMixin } from '/imports/api/utils';
@@ -7,7 +7,7 @@ import { Conversations } from '/imports/api/conversations/conversations';
 import { Messages } from '/imports/api/conversations/messages';
 import { Customers } from '/imports/api/customers/customers';
 import { Channels } from '/imports/api/channels/channels';
-import { Integrations } from '../integrations';
+import { Integrations, inAppSchema } from '../integrations';
 import { KIND_CHOICES } from '../constants';
 
 
@@ -138,5 +138,33 @@ export const remove = new ValidatedMethod({
     Customers.remove({ integrationId: id });
 
     return Integrations.remove(id);
+  },
+});
+
+export const saveInAppMessagingApperance = new ValidatedMethod({
+  name: 'integrations.saveInAppMessagingApperance',
+  mixins: [ErxesMixin],
+
+  validate({ _id, doc }) {
+    check(_id, String);
+    check(doc, { color: String, wallpaper: Match.Optional(String) });
+  },
+
+  run({ _id, doc }) {
+    return Integrations.update({ _id }, { $set: { uiOptions: doc } });
+  },
+});
+
+export const saveInAppMessagingAvailability = new ValidatedMethod({
+  name: 'integrations.saveInAppMessagingAvailability',
+  mixins: [ErxesMixin],
+
+  validate({ _id, doc }) {
+    check(_id, String);
+    check(doc, inAppSchema);
+  },
+
+  run({ _id, doc }) {
+    return Integrations.update({ _id }, { $set: { inAppData: doc } });
   },
 });

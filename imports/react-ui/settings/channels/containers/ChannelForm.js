@@ -2,7 +2,6 @@ import { Meteor } from 'meteor/meteor';
 import { compose } from 'react-komposer';
 import { getTrackerLoader, composerOptions } from '/imports/react-ui/utils';
 import { Integrations } from '/imports/api/integrations/integrations';
-import { Brands } from '/imports/api/brands/brands';
 import { ChannelForm } from '../components';
 
 
@@ -22,7 +21,6 @@ function composer({ channel }, onData) {
     onData(null, {
       integrations: Integrations.find().fetch(),
       members: Meteor.users.find().fetch(),
-      brands: Brands.find().fetch(),
       selectedIntegrations,
       selectedMembers,
     });

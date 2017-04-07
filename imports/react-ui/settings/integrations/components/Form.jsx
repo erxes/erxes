@@ -16,7 +16,7 @@ class Form extends Common {
     return `
       <script>
         window.erxesSettings = {
-          brand_id: "${brandCode}"
+          brand_id: "${brandCode}",
           form_id: "${formCode}"
         };
         ${Form.installCodeIncludeScript('form')}
