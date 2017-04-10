@@ -14,6 +14,7 @@ const messageQuery = `
     _id
     details {
       avatar
+      fullName
     }
   }
   content
@@ -123,6 +124,7 @@ const withData = graphql(
         _id,
         details {
           avatar
+          fullName
         }
       }
     }
