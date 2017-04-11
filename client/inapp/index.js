@@ -15,8 +15,8 @@ widgetConnect({
     // call connect mutation
     return client.mutate({
       mutation: gql`
-        mutation connect($brandCode: String!, $email: String!) {
-          inAppConnect(brandCode: $brandCode, email: $email) {
+        mutation connect($brandCode: String!, $email: String!, $name: String) {
+          inAppConnect(brandCode: $brandCode, email: $email, name: $name) {
             integrationId,
             customerId,
           }
@@ -25,6 +25,7 @@ widgetConnect({
       variables: {
         brandCode: settings.brand_id,
         email: settings.email,
+        name: settings.name,
       },
     });
   },
