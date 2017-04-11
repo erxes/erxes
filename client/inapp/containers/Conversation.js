@@ -74,7 +74,6 @@ class Conversation extends Subscriber {
 
   render() {
     const props = this.props;
-
     let messages = props.data.messages || [];
     let user = props.data.conversationLastStaff;
 

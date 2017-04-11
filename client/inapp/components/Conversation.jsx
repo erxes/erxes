@@ -49,7 +49,6 @@ function Conversation({ messages, isNewConversation, goToConversationList, user,
   }
 
   const color = data.uiOptions && data.uiOptions.color;
-
   return (
     <div className="erxes-messenger">
       <TopBar
@@ -58,7 +57,7 @@ function Conversation({ messages, isNewConversation, goToConversationList, user,
         color={color}
         onButtonClick={goToConversationList}
       />
-      <MessagesList color={color} messages={messages} />
+      <MessagesList data={data} messages={messages} />
       <MessageSender placeholder={isNewConversation ? 'Send a message ...' : 'Write a reply ...'} />
     </div>
   );

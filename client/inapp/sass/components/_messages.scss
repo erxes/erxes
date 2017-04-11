@@ -20,6 +20,18 @@
       color: $text-color;
       margin-left: 50px;
     }
+
+    &.erxes-spacial-message {
+      padding: 20px;
+      border-radius: 4px;
+      border: 1px solid #ddd;
+      background: #fff;
+      color: #666;
+
+      &:last-child {
+        margin-bottom: 0;
+      }
+    }
   }
 }
 
