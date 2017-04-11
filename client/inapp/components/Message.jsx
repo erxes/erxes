@@ -9,9 +9,10 @@ const propTypes = {
   user: PropTypes.object,
   createdAt: PropTypes.number.isRequired,
   attachments: PropTypes.array,
+  color: PropTypes.string,
 };
 
-function Message({ content, attachments, user, createdAt }) {
+function Message({ content, attachments, user, createdAt, color }) {
   const itemClasses = classNames({ 'from-customer': !user });
   const messageClasses = classNames('erxes-message', {
     attachment: attachments && attachments.length > 0,
@@ -20,11 +21,15 @@ function Message({ content, attachments, user, createdAt }) {
 
   const hasAttachment = attachments && attachments.length > 0;
 
+  const messageBackground = {
+    backgroundColor: !user ? color : null,
+  };
+
   return (
     <li className={itemClasses}>
       {user ? <User user={user} /> : null}
 
-      <div className={messageClasses}>
+      <div style={messageBackground} className={messageClasses}>
         {hasAttachment ? <Attachment attachment={attachments[0]} /> : null}
         <span dangerouslySetInnerHTML={{ __html: content }} />
       </div>

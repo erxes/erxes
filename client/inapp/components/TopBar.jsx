@@ -5,11 +5,12 @@ const propTypes = {
   middle: PropTypes.node,
   buttonClass: PropTypes.string.isRequired,
   onButtonClick: PropTypes.func.isRequired,
+  color: PropTypes.string,
 };
 
-function TopBar({ middle, buttonClass, onButtonClick }) {
+function TopBar({ middle, buttonClass, onButtonClick, color }) {
   return (
-    <div className="erxes-topbar">
+    <div className="erxes-topbar" style={{ backgroundColor: color }}>
       <div
         className={`topbar-button left ${buttonClass}`}
         onClick={onButtonClick}
