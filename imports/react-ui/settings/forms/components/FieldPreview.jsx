@@ -37,7 +37,7 @@ export default class FieldPreview extends React.Component {
 
   static renderRadioOrCheckInputs(options, type) {
     return (
-      <div>
+      <div className="check-control">
         {options.map((option, index) => (
           <div key={index}>
             {FieldPreview.renderInput({ type })}
@@ -90,6 +90,8 @@ export default class FieldPreview extends React.Component {
           {field.text}
           {field.isRequired ? <span className="required">*</span> : null}:
         </label>
+
+        <span className="description">{field.description}</span>
 
         {this.renderControl()}
       </div>

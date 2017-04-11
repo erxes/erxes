@@ -1,6 +1,6 @@
 .form-builder {
   .field-preview {
-    opacity: 0.7;
+    opacity: 0.8;
     margin: 0;
 
     &:hover,
@@ -30,6 +30,19 @@
 
   .draggable-field {
     box-shadow: none;
+  }
+
+  label {
+    margin-bottom: 0;
+  }
+
+  .description {
+    display: block;
+    font-size: 13px;
+  }
+
+  .form-control, .check-control {
+    margin-top: 8px;
   }
 }
 

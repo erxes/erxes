@@ -229,8 +229,8 @@ $fbpost-barckground: #f6f7f9;
   .form-data {
     @include embed-post;
     font-size: 12px;
-    min-width: 160px;
-    margin-bottom: 15px;
+    padding: 0;
+    margin-bottom: 20px;
     background: none;
 
     tbody > tr > td {

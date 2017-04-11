@@ -108,19 +108,21 @@ function Message({ message, staff, isSameUser }) {
 
     if (message.formWidgetData) {
       return (
-        <Table striped className="form-data">
-          <thead>
-            <tr><th className="text-center" colSpan="2">{message.content}</th></tr>
-          </thead>
-          <tbody>
-            {_.map(message.formWidgetData, (data, index) => ((
-              <tr key={index}>
-                <td><b>{data.text}:</b></td>
-                <td>{data.value}</td>
-              </tr>
-            )))}
-          </tbody>
-        </Table>
+        <div className="form-data">
+          <Table striped>
+            <thead>
+              <tr><th className="text-center" colSpan="2">{message.content}</th></tr>
+            </thead>
+            <tbody>
+              {_.map(message.formWidgetData, (data, index) => ((
+                <tr key={index}>
+                  <td width="40%"><b>{data.text}:</b></td>
+                  <td width="60%">{data.value}</td>
+                </tr>
+              )))}
+            </tbody>
+          </Table>
+        </div>
       );
     }
 
