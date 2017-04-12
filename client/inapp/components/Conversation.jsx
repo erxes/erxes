@@ -14,15 +14,6 @@ const propTypes = {
 
 function Conversation({ messages, isNewConversation, goToConversationList, user, data }) {
   function renderTitle() {
-    if (isNewConversation) {
-      return (
-        <div className="erxes-topbar-title">
-          <div>New conversation</div>
-          <span>with Support staffs</span>
-        </div>
-      );
-    }
-
     if (user) {
       const isOnline = data.inAppData && data.inAppData.isOnline;
       const avatar = user.details.avatar || 'https://crm.nmma.co/assets/images/userDefaultIcon.png';
@@ -45,7 +36,12 @@ function Conversation({ messages, isNewConversation, goToConversationList, user,
       );
     }
 
-    return null;
+    return (
+      <div className="erxes-topbar-title">
+        <div>Conversation</div>
+        <span>with Support staff</span>
+      </div>
+    );
   }
 
   const color = data.uiOptions && data.uiOptions.color;

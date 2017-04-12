@@ -23,35 +23,45 @@ class MessagesList extends Component {
     }
   }
 
+  renderAwayMessage(inAppData) {
+    if (inAppData && !inAppData.isOnline && inAppData.awayMessage) {
+      return (
+        <li className="erxes-spacial-message away">
+          {inAppData.awayMessage}
+        </li>
+      );
+    }
+    return null;
+  }
+
+  renderWelcomeMessage(inAppData) {
+    if (inAppData && inAppData.isOnline && inAppData.welcomeMessage) {
+      return (
+        <li className="erxes-spacial-message">
+          {inAppData.welcomeMessage}
+        </li>
+      );
+    }
+    return null;
+  }
+
   render() {
     const { data } = this.props;
-    const inAppData = data.inAppData;
     const color = data.uiOptions && data.uiOptions.color;
-    const isOnline = inAppData && inAppData.isOnline;
-    const awayMessage = (
-      <li className="erxes-spacial-message">
-        {inAppData.awayMessage}
-      </li>
-    );
-
-    const welcomeMessage = (
-      <li className="erxes-spacial-message">
-        {inAppData.welcomeMessage}
-      </li>
-    );
+    const inAppData = data.inAppData;
 
     return (
       <ul
         className="erxes-messages-list"
         ref={node => { this.node = node; }}
       >
-        {isOnline ? welcomeMessage : null}
+        {this.renderWelcomeMessage(inAppData)}
         {
           this.props.messages.map(message =>
             <Message color={color} key={message._id} {...message} />,
           )
         }
-        {!isOnline ? awayMessage : null}
+        {this.renderAwayMessage(inAppData)}
       </ul>
     );
   }

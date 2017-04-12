@@ -80,7 +80,7 @@ class Conversation extends Subscriber {
     // show empty list while waiting
     if (props.data.loading) {
       messages = [];
-      user = { details: {} };
+      user = null;
     }
 
     const extendedProps = {
