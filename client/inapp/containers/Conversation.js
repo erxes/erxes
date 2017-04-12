@@ -14,6 +14,7 @@ const messageQuery = `
     _id
     details {
       avatar
+      fullName
     }
   }
   content
@@ -73,14 +74,13 @@ class Conversation extends Subscriber {
 
   render() {
     const props = this.props;
-
     let messages = props.data.messages || [];
     let user = props.data.conversationLastStaff;
 
     // show empty list while waiting
     if (props.data.loading) {
       messages = [];
-      user = { details: {} };
+      user = null;
     }
 
     const extendedProps = {
@@ -123,6 +123,7 @@ const withData = graphql(
         _id,
         details {
           avatar
+          fullName
         }
       }
     }

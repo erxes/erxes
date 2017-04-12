@@ -14,31 +14,37 @@ const propTypes = {
 
 function Conversation({ messages, isNewConversation, goToConversationList, user, data }) {
   function renderTitle() {
-    if (isNewConversation) {
-      return (
-        <div className="erxes-topbar-title">
-          <div>New conversation</div>
-          <span>with Support staffs</span>
+    if (user) {
+      const isOnline = data.inAppData && data.inAppData.isOnline;
+      const avatar = user.details.avatar || 'https://crm.nmma.co/assets/images/userDefaultIcon.png';
+
+      const state = (
+        <div className="erxes-staff-company">
+          { isOnline ?
+            <div className="erxes-state online"><span /> Online</div> :
+            <div className="erxes-state offline"><span /> Offline</div>
+          }
         </div>
       );
-    }
 
-    if (user) {
-      const avatar = user.details.avatar || 'https://crm.nmma.co/assets/images/userDefaultIcon.png';
       return (
         <div className="erxes-staff-profile">
           <img src={avatar} alt={user.details.fullName} />
           <div className="erxes-staff-name">{user.details.fullName}</div>
-          <div className="erxes-staff-company">Support staff</div>
+          {state}
         </div>
       );
     }
 
-    return null;
+    return (
+      <div className="erxes-topbar-title">
+        <div>Conversation</div>
+        <span>with Support staff</span>
+      </div>
+    );
   }
 
   const color = data.uiOptions && data.uiOptions.color;
-
   return (
     <div className="erxes-messenger">
       <TopBar
@@ -47,7 +53,7 @@ function Conversation({ messages, isNewConversation, goToConversationList, user,
         color={color}
         onButtonClick={goToConversationList}
       />
-      <MessagesList color={color} messages={messages} />
+      <MessagesList data={data} messages={messages} />
       <MessageSender placeholder={isNewConversation ? 'Send a message ...' : 'Write a reply ...'} />
     </div>
   );

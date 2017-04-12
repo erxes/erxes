@@ -75,9 +75,28 @@
   }
 
   .erxes-staff-company {
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 300;
   }
+
+  .erxes-state {
+    > span {
+      width: 8px;
+      height: 8px;
+      border-radius: 4px;
+      display: inline-block;
+      margin-bottom: 1px;
+    }
+
+    &.online span {
+      background-color: #67b04f;
+    }
+
+    &.offline span {
+      background-color: #ddd;
+    }
+  }
+
 }
 
 .erxes-topbar-title {

@@ -1,4 +1,11 @@
+@mixin bg-option {
+  background-repeat: repeat;
+  background-position: 0 0;
+}
+
 .erxes-messages-list {
+  display: flex;
+  flex-direction: column;
   background-color: $bg-color;
   overflow: auto;
   padding: 20px;
@@ -8,7 +15,6 @@
 
   li {
     position: relative;
-    overflow: hidden;
     margin-bottom: 10px;
 
     &.from-customer {
@@ -20,6 +26,37 @@
       color: $text-color;
       margin-left: 50px;
     }
+
+    &.erxes-spacial-message {
+      padding: 20px;
+      border-radius: 4px;
+      border: 1px solid #ddd;
+      background: #fff;
+      color: #666;
+      margin-bottom: 20px;
+
+      &.away {
+        margin-bottom: 0;
+        margin-top: auto;
+      }
+    }
+  }
+
+  &.bg-1 {
+    background-image: url($bg-1);
+    @include bg-option;
+  }
+  &.bg-2 {
+    background-image: url($bg-2);
+    @include bg-option;
+  }
+  &.bg-3 {
+    background-image: url($bg-3);
+    @include bg-option;
+  }
+  &.bg-4 {
+    background-image: url($bg-4);
+    @include bg-option;
   }
 }
 
@@ -30,7 +67,7 @@
   position: relative;
   margin: 0 20px 5px 50px;
   display: inline-block;
-  word-wrap: break-word;
+  word-break: break-word;
   color: $text-color;
   text-align: left;
 
@@ -57,6 +94,7 @@
 
   p {
     margin: 0;
+    word-break: break-word;
   }
 
   img {
