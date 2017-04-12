@@ -1,3 +1,8 @@
+@mixin bg-option {
+  background-repeat: repeat;
+  background-position: 0 0;
+}
+
 .erxes-messages-list {
   display: flex;
   flex-direction: column;
@@ -35,6 +40,23 @@
         margin-top: auto;
       }
     }
+  }
+
+  &.bg-1 {
+    background-image: url($bg-1);
+    @include bg-option;
+  }
+  &.bg-2 {
+    background-image: url($bg-2);
+    @include bg-option;
+  }
+  &.bg-3 {
+    background-image: url($bg-3);
+    @include bg-option;
+  }
+  &.bg-4 {
+    background-image: url($bg-4);
+    @include bg-option;
   }
 }
 

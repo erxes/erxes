@@ -1,4 +1,5 @@
 import React, { PropTypes, Component } from 'react';
+import classNames from 'classnames';
 import { Message } from '../components';
 
 
@@ -48,11 +49,13 @@ class MessagesList extends Component {
   render() {
     const { data } = this.props;
     const color = data.uiOptions && data.uiOptions.color;
+    const bg = data.uiOptions && data.uiOptions.wallpaper;
     const inAppData = data.inAppData;
+    const messagesClasses = classNames('erxes-messages-list', { [`bg-${bg}`]: bg });
 
     return (
       <ul
-        className="erxes-messages-list"
+        className={messagesClasses}
         ref={node => { this.node = node; }}
       >
         {this.renderWelcomeMessage(inAppData)}

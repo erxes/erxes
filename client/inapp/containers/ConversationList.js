@@ -62,6 +62,12 @@ const ListWithData = graphql(
         _id
         content
         createdAt
+        participatedUsers {
+          details {
+            fullName
+            avatar
+          }
+        }
       }
     }
   `,
