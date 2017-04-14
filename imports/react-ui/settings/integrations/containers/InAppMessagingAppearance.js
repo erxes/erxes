@@ -31,6 +31,7 @@ const composer = (props, onData) => {
   return onData(null, {
     prevOptions: integration.uiOptions || {},
     save,
+    user: Meteor.user(),
   });
 };
 
