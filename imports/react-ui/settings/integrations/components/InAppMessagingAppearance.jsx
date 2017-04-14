@@ -1,15 +1,17 @@
 import React, { PropTypes, Component } from 'react';
 import { FlowRouter } from 'meteor/kadira:flow-router';
 import {
-  FormGroup,
-  ControlLabel,
-  FormControl,
-  Radio,
   Button,
   ButtonGroup,
+  OverlayTrigger,
+  Popover,
 } from 'react-bootstrap';
+import classnames from 'classnames';
+import { ChromePicker } from 'react-color';
 import { Wrapper } from '/imports/react-ui/layout/components';
 import Sidebar from '../../Sidebar.jsx';
+import WidgetPreview from './WidgetPreview.jsx';
+
 
 class Appearance extends Component {
   constructor(props) {
@@ -26,11 +28,11 @@ class Appearance extends Component {
   }
 
   onColorChange(e) {
-    this.setState({ color: e.target.value });
+    this.setState({ color: e.hex });
   }
 
-  onWallpaperChange(e) {
-    this.setState({ wallpaper: e.target.value });
+  onWallpaperChange(value) {
+    this.setState({ wallpaper: value });
   }
 
   save(e) {
@@ -39,44 +41,65 @@ class Appearance extends Component {
     this.props.save(this.state);
   }
 
-  renderWallpaperRadio(value) {
-    return (
-      <Radio
-        onChange={this.onWallpaperChange}
-        name="wallpaper"
-        value={value}
-        checked={this.state.wallpaper === value}
-        inline
-      >
+  renderWallpaperSelect(value) {
+    const isSelected = this.state.wallpaper === value;
+    const selectorClass = classnames('background-selector', {
+      selected: isSelected,
+    });
 
-        {value}
-      </Radio>
+    return (
+      <a
+        href=""
+        className={selectorClass}
+        onClick={() => this.onWallpaperChange(value)}
+        style={{ borderColor: isSelected ? this.state.color : 'transparent' }}
+      >
+        <div className={`background-${value}`} />
+      </a>
     );
   }
 
   render() {
+    const popoverTop = (
+      <Popover id="color-picker">
+        <ChromePicker color={this.state.color} onChange={this.onColorChange} />
+      </Popover>
+    );
+
     const content = (
       <div className="margined">
-        <FormGroup>
-          <ControlLabel>Choose a custom color</ControlLabel>
-          <FormControl
-            name="color"
-            type="color"
-            value={this.state.color}
-            onChange={this.onColorChange}
-          />
-        </FormGroup>
-
-        <FormGroup>
-          <ControlLabel>Choose a wallpaper</ControlLabel>
-
+        <div className="widget-appearance type-box">
           <div>
-            {this.renderWallpaperRadio('1')}
-            {this.renderWallpaperRadio('2')}
-            {this.renderWallpaperRadio('3')}
-            {this.renderWallpaperRadio('4')}
+            <WidgetPreview
+              color={this.state.color}
+              wallpaper={this.state.wallpaper}
+              user={this.props.user}
+            />
           </div>
-        </FormGroup>
+
+          <div className="widget-settings">
+            <div className="box">
+              <h2>Choose a custom color</h2>
+              <OverlayTrigger trigger="click" rootClose placement="bottom" overlay={popoverTop}>
+                <div className="color-pick">
+                  <div style={{ backgroundColor: this.state.color }} />
+                </div>
+              </OverlayTrigger>
+            </div>
+
+            <div className="box">
+              <h2>Choose a wallpaper</h2>
+
+              <div className="widget-backgrounds">
+                {this.renderWallpaperSelect('1')}
+                {this.renderWallpaperSelect('2')}
+                {this.renderWallpaperSelect('3')}
+                {this.renderWallpaperSelect('4')}
+                {this.renderWallpaperSelect('5')}
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     );
 
@@ -116,6 +139,7 @@ class Appearance extends Component {
 
 Appearance.propTypes = {
   prevOptions: PropTypes.object.isRequired, // eslint-disable-line
+  user: PropTypes.object.isRequired, // eslint-disable-line
   save: PropTypes.func.isRequired,
 };
 

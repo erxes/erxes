@@ -1,3 +1,5 @@
+$bg-widget-background:        #faf9fb;
+
 .integration-item {
   .checkbox {
     margin-top: 0;
@@ -38,5 +40,87 @@
     position: absolute;
     right: 20px;
     top: 20px;
+  }
+}
+
+.widget-appearance {
+  display: flex;
+  flex-direction: row;
+
+  > div {
+    padding: 10px 30px 10px 10px;
+  }
+}
+
+.color-pick {
+  border-radius: $border-radius;
+  display: inline-block;
+  padding: 5px;
+  border: 1px solid $border-grey;
+  cursor: pointer;
+
+  > div {
+    width: 80px;
+    height: 15px;
+  }
+}
+
+.chrome-picker {
+  box-shadow: none !important;
+}
+
+.widget-backgrounds {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+}
+
+.background-selector {
+  border: 3px solid transparent;
+  margin-right: 15px;
+  border-radius: $border-radius;
+  transition: border-color .3s;
+
+  &:last-child {
+    margin-right: 0;
+  }
+
+  &.selected {
+    border-color: $border-grey;
+  }
+
+  &:hover {
+    cursor: pointer;
+  }
+
+  > div {
+    width: 80px;
+    height: 40px;
+    margin: 5px;
+    border: 1px solid $border-grey;
+    background-repeat: repeat;
+    background-position: 0 0;
+    background-size: 220%;
+
+    &.background-1 {
+      background-image: url("/assets/images/patterns/bg-1.png");
+    }
+
+    &.background-2 {
+      background-image: url("/assets/images/patterns/bg-2.png");
+      background-position: 80px 260px;
+    }
+
+    &.background-3 {
+      background-image: url("/assets/images/patterns/bg-3.png");
+    }
+
+    &.background-4 {
+      background-image: url("/assets/images/patterns/bg-4.png");
+    }
+
+    &.background-5 {
+      background: $bg-widget-background;
+    }
   }
 }
