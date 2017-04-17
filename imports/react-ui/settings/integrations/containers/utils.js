@@ -17,6 +17,6 @@ export const saveCallback = (doc, addMethodName, editMethodName, integration) =>
     }
 
     Alert.success('Congrats');
-    return FlowRouter.go('/settings/integrations/list');
+    return FlowRouter.go('/settings/integrations/list', {}, FlowRouter.current().queryParams);
   });
 };
