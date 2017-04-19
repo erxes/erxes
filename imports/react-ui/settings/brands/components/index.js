@@ -1,4 +1,4 @@
-import BrandForm from './BrandForm.jsx';
-import BrandList from './BrandList.jsx';
+import BrandForm from './BrandForm';
+import BrandList from './BrandList';
 
 export { BrandForm, BrandList };

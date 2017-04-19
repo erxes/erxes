@@ -1,25 +1,41 @@
-import { FlowRouter } from 'meteor/kadira:flow-router';
-import { Counts } from 'meteor/tmeasday:publish-counts';
+import React, { PropTypes, Component } from 'react';
+import { Button } from 'react-bootstrap';
 
-// eslint-disable-next-line import/prefer-default-export
-export const pagination = (queryParams, countName) => {
-  let hasMore = false;
-  const PER_PAGE = 20;
-  const limit = parseInt(queryParams.limit, 10) || PER_PAGE;
-  const listCount = Counts.get(countName);
+const propTypes = {
+  children: PropTypes.node.isRequired,
+  loadMore: PropTypes.func.isRequired,
+  hasMore: PropTypes.bool.isRequired,
+};
 
-  const loadMore = () => {
-    const qParams = { limit: limit + PER_PAGE };
-    FlowRouter.setQueryParams(qParams);
-  };
+class Pagination extends Component {
+  constructor(props) {
+    super(props);
 
-  if (listCount > limit) {
-    hasMore = true;
+    this.state = { isOpen: false };
+
+    this.loadMore = this.loadMore.bind(this);
   }
 
-  return {
-    limit,
-    loadMore,
-    hasMore,
-  };
-};
+  loadMore() {
+    this.setState({ isOpen: false });
+  }
+
+  render() {
+    const { children, loadMore, hasMore } = this.props;
+
+    return (
+      <div className="paginate-wrapper">
+        {children}
+        {hasMore
+          ? <div className="paginate-button">
+              <Button onClick={loadMore}>Load more</Button>
+            </div>
+          : null}
+      </div>
+    );
+  }
+}
+
+Pagination.propTypes = propTypes;
+
+export default Pagination;

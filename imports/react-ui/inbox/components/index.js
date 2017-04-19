@@ -1,11 +1,11 @@
-import List from './list/List.jsx';
-import Sidebar from './list/Sidebar.jsx';
-import Details from './details/Details.jsx';
-import RespondBox from './details/RespondBox.jsx';
-import AssignBox from './assignBox/AssignBox.jsx';
-import AssignBoxPopover from './assignBox/AssignBoxPopover.jsx';
-import Resolver from './resolver/Resolver.jsx';
-import ResponseTemplate from './details/ResponseTemplate.jsx';
+import List from './list/List';
+import Sidebar from './list/Sidebar';
+import Details from './details/Details';
+import RespondBox from './details/RespondBox';
+import AssignBox from './assignBox/AssignBox';
+import AssignBoxPopover from './assignBox/AssignBoxPopover';
+import Resolver from './resolver/Resolver';
+import ResponseTemplate from './details/ResponseTemplate';
 
 export {
   List,

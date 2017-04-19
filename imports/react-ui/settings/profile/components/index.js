@@ -1,5 +1,5 @@
-import Profile from './Profile.jsx';
-import ChangePassword from './ChangePassword.jsx';
-import NotificationSettings from './NotificationSettings.jsx';
+import Profile from './Profile';
+import ChangePassword from './ChangePassword';
+import NotificationSettings from './NotificationSettings';
 
 export { Profile, ChangePassword, NotificationSettings };

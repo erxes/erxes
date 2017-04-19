@@ -1,5 +1,5 @@
-import List from './List.jsx';
-import Config from './Config.jsx';
-import Signature from './Signature.jsx';
+import List from './List';
+import Config from './Config';
+import Signature from './Signature';
 
 export { List, Config, Signature };

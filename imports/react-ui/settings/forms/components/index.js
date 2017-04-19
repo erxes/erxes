@@ -1,5 +1,5 @@
-import Form from './Form.jsx';
-import List from './List.jsx';
-import ManageFields from './ManageFields.jsx';
+import Form from './Form';
+import List from './List';
+import ManageFields from './ManageFields';
 
 export { Form, List, ManageFields };
