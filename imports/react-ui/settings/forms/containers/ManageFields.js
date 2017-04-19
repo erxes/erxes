@@ -3,7 +3,7 @@ import { _ } from 'meteor/underscore';
 import { compose } from 'react-komposer';
 import { getTrackerLoader, composerOptions } from '/imports/react-ui/utils';
 import Alert from 'meteor/erxes-notifier';
-import { Fields } from '/imports/api/forms/forms';
+import { Fields, Forms } from '/imports/api/forms/forms';
 import {
   addField as addFieldMethod,
   editField as editFieldMethod,
@@ -21,6 +21,9 @@ function composer(props, onData) {
   if (!(formHandler.ready() && fieldsHandler.ready())) {
     return false;
   }
+
+  const formsHandler = Meteor.subscribe('forms.list');
+  const form = Forms.findOne(formId);
 
   // common callback
   const callback = (error) => {
@@ -59,11 +62,18 @@ function composer(props, onData) {
     updateFieldsOrder.call({ orderDics }, callback);
   };
 
+  let formTitle = '';
+
+  if (formsHandler.ready()) {
+    formTitle = form.title;
+  }
+
   return onData(null, {
     addField,
     editField,
     deleteField,
     onSort,
+    formTitle,
     fields: Fields.find({ formId }, { sort: { order: 1 } }).fetch(),
   });
 }
