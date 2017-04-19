@@ -21,7 +21,14 @@
   "scripts": {
     "start": "meteor --port 3000 --settings settings.json",
     "test": "meteor test --driver-package practicalmeteor:mocha --port 3001",
-    "format": "prettier --write --print-width 100 --single-quote --trailing-comma all 'imports/**/*.js'"
+    "format": "prettier --write --print-width 100 --single-quote --trailing-comma all 'imports/**/*.js'",
+    "precommit": "lint-staged"
+  },
+  "lint-staged": {
+    "*.js": [
+      "prettier --write --print-width 100 --single-quote --trailing-comma all",
+      "git add"
+    ]
   },
   "dependencies": {
     "apollo-client": "^1.0.0-rc.2",
@@ -63,6 +70,8 @@
     "autoprefixer": "^6.7.7",
     "eslint": "^3.19.0",
     "eslint-plugin-react": "^6.10.3",
+    "husky": "^0.13.3",
+    "lint-staged": "^3.4.0",
     "prettier": "^1.1.0",
     "sinon": "^2.0.0"
   },
