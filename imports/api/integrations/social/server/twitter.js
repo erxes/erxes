@@ -165,10 +165,12 @@ export const TwitMap = {};
 const trackIntegration = (integration) => {
   const integrationUserId = integration.twitterData.id;
 
+  const { consumerKey, consumerSecret } = Meteor.settings.services.twitter;
+
   // Twit instance
   const twit = new Twit({
-    consumer_key: Meteor.settings.TWITTER_CONSUMER_KEY,
-    consumer_secret: Meteor.settings.TWITTER_CONSUMER_SECRET,
+    consumer_key: consumerKey,
+    consumer_secret: consumerSecret,
     access_token: integration.twitterData.token,
     access_token_secret: integration.twitterData.tokenSecret,
   });
@@ -268,10 +270,11 @@ export const tweetReply = (conversation, text) => {
 };
 
 // twitter oauth ===============
+const { consumerKey, consumerSecret, redirectUrl } = Meteor.settings.services.twitter;
 const socTwitter = new soc.Twitter({
-  CONSUMER_KEY: Meteor.settings.TWITTER_CONSUMER_KEY,
-  CONSUMER_SECRET: Meteor.settings.TWITTER_CONSUMER_SECRET,
-  REDIRECT_URL: Meteor.settings.TWITTER_REDIRECT_URL,
+  CONSUMER_KEY: consumerKey,
+  CONSUMER_SECRET: consumerSecret,
+  REDIRECT_URL: redirectUrl,
 });
 
 Meteor.methods({

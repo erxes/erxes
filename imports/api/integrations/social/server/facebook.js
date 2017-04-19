@@ -372,12 +372,12 @@ export class SaveWebhookResponse {
  * receive per app webhook response
  */
 export const receiveWebhookResponse = (app, data) => {
-  const selector = { kind: KIND_CHOICES.FACEBOOK, 'facebookData.appId': app.ID };
+  const selector = { kind: KIND_CHOICES.FACEBOOK, 'facebookData.appId': app.id };
 
   Integrations.find(selector).forEach((integration) => {
     // when new message or other kind of activity in page
     const saveWebhookResponse = new SaveWebhookResponse(
-      app.ACCESS_TOKEN,
+      app.accessToken,
       integration,
       data,
     );
@@ -386,14 +386,14 @@ export const receiveWebhookResponse = (app, data) => {
   });
 };
 
-_.each(Meteor.settings.FACEBOOK_APPS, (app) => {
-  Picker.route(`/service/facebook/${app.ID}/webhook-callback`, (params, req, res) => {
+_.each(Meteor.settings.services.facebook, (app) => {
+  Picker.route(`/service/facebook/${app.id}/webhook-callback`, (params, req, res) => {
     const query = params.query;
 
     // when the endpoint is registered as a webhook, it must echo back
     // the 'hub.challenge' value it receives in the query arguments
     if (query['hub.mode'] === 'subscribe' && query['hub.challenge']) {
-      if (query['hub.verify_token'] !== app.VERIFY_TOKEN) {
+      if (query['hub.verify_token'] !== app.verifyToken) {
         res.end('Verification token mismatch');
       }
 
@@ -414,14 +414,14 @@ _.each(Meteor.settings.FACEBOOK_APPS, (app) => {
  */
 export const facebookReply = (conversation, text, messageId) => {
   const app = _.find(
-    Meteor.settings.FACEBOOK_APPS,
-    a => a.ID === conversation.integration().facebookData.appId,
+    Meteor.settings.services.facebook,
+    a => a.id === conversation.integration().facebookData.appId,
   );
 
   // page access token
   const response = graphRequest.get(
     `${conversation.facebookData.pageId}/?fields=access_token`,
-    app.ACCESS_TOKEN,
+    app.accessToken,
   );
 
   // messenger reply

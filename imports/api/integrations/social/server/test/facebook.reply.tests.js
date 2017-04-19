@@ -26,10 +26,10 @@ describe('facebook integration: reply', function () {
     Messages.remove();
 
     // mock settings
-    Meteor.settings.FACEBOOK_APPS = [{
-      ID: 'id',
-      NAME: 'name',
-      ACCESS_TOKEN: 'access_token',
+    Meteor.settings.services.facebook = [{
+      id: 'id',
+      name: 'name',
+      accessToken: 'access_token',
     }];
 
     // create integration

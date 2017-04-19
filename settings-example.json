@@ -1,29 +1,36 @@
 {
   "public": {
-    "CDN_HOST": "http://localhost:3100/build",
+    "CDN_HOST": "http://localhost:3200/build",
     "APOLLO_CLIENT_URL": "http://localhost:3100/graphql"
   },
-  "accounts": {
-    "emailTemplates": {
-      "siteName": "Erxes",
-      "from": "no-reply@erxes.io"
+
+  "company": {
+    "name": "Erxes Inc.",
+    "email": "info@erxes.io",
+    "noReplyEmail": "no-reply@erxes.io"
+  },
+
+  "services": {
+    "aws": {
+      "accessKeyId": "",
+      "secretAccessKey": "",
+      "bucket": "",
+      "prefix": ""
+    },
+    "facebook": [
+      {
+        "id": "",
+        "name": "",
+        "verifyToken": "",
+        "accessToken": ""
+      },
+    ],
+    "twitter": {
+      "consumerKey": "",
+      "consumerSecret": "",
+      "redirectUrl": "https://localhost:3000/service/oauth/twitter_callback"
     }
   },
-  "COMPANY_NAME": "",
-  "NO_REPLY_EMAIL": "",
-
-  "AWS_accessKeyId": "",
-  "AWS_secretAccessKey": "",
-  "AWS_bucket": "",
-
-  "FACEBOOK_APPS": [
-    {
-      "NAME": "",
-      "ID": "",
-      "VERIFY_TOKEN": "",
-      "ACCESS_TOKEN": ""
-    }
-  ],
 
   "initialData": {
     "user": {

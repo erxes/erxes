@@ -9,10 +9,7 @@ import { Notifications } from 'meteor/erxes-notifications';
 
 // save binary data to amazon s3
 export const uploadFile = ({ name, data }) => {
-  const accessKeyId = Meteor.settings.AWS_accessKeyId;
-  const secretAccessKey = Meteor.settings.AWS_secretAccessKey;
-  const bucket = Meteor.settings.AWS_bucket;
-  const prefix = Meteor.settings.AWS_prefix || '';
+  const { accessKeyId, secretAccessKey, bucket, prefix = '' } = Meteor.settings.services.aws;
 
   // check credentials
   if (!(accessKeyId || secretAccessKey || bucket)) {
@@ -80,7 +77,7 @@ export const sendEmail = ({ to, subject, template }) => {
   }
 
   Email.send({
-    from: Meteor.settings.NO_REPLY_EMAIL,
+    from: Meteor.settings.company.noReplyEmail,
     to,
     subject,
     html,
