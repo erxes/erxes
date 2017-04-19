@@ -2,7 +2,6 @@ import { Meteor } from 'meteor/meteor';
 import ApolloClient, { createNetworkInterface } from 'apollo-client';
 import gql from 'graphql-tag';
 
-
 const client = new ApolloClient({
   networkInterface: createNetworkInterface({
     uri: Meteor.settings.public.APOLLO_CLIENT_URL,
@@ -10,7 +9,7 @@ const client = new ApolloClient({
 });
 
 // eslint-disable-next-line import/prefer-default-export
-export const newMessage = (messageId) => {
+export const newMessage = messageId => {
   client.mutate({
     mutation: gql`
       mutation simulateInsertMessage($messageId: String) {

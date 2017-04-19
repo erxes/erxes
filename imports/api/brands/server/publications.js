@@ -6,7 +6,6 @@ import { Channels } from '/imports/api/channels/channels';
 import { Integrations } from '/imports/api/integrations/integrations';
 import { Brands } from '../brands';
 
-
 Meteor.publish('brands.list', function brandsList(limit) {
   check(limit, Number);
 
@@ -16,13 +15,15 @@ Meteor.publish('brands.list', function brandsList(limit) {
 
   Counts.publish(this, 'brands.list.count', Brands.find(), { noReady: true });
 
-  return Brands.find({}, {
-    fields: Brands.publicFields,
-    sort: { createdAt: -1 },
-    limit,
-  });
+  return Brands.find(
+    {},
+    {
+      fields: Brands.publicFields,
+      sort: { createdAt: -1 },
+      limit,
+    },
+  );
 });
-
 
 // return only available channels's related brands
 Meteor.publish('brands.list.inChannels', function brandsListInChannels() {
@@ -38,23 +39,19 @@ Meteor.publish('brands.list.inChannels', function brandsListInChannels() {
   // all available integration ids
   let integrationIds = [];
 
-  channels.forEach((channel) => {
+  channels.forEach(channel => {
     integrationIds = _.union(integrationIds, channel.integrationIds || []);
   });
 
   // find all possible brand ids
   const brandIds = [];
 
-  Integrations.find({ _id: { $in: integrationIds } }).forEach((integration) => {
+  Integrations.find({ _id: { $in: integrationIds } }).forEach(integration => {
     brandIds.push(integration.brandId);
   });
 
-  return Brands.find(
-    { _id: { $in: brandIds } },
-    { fields: Brands.publicFields },
-  );
+  return Brands.find({ _id: { $in: brandIds } }, { fields: Brands.publicFields });
 });
-
 
 Meteor.publish('brands.getById', function brandsGetById(id) {
   check(id, String);

@@ -17,9 +17,8 @@ import {
   getOrCreateDirectMessageConversation,
 } from '../twitter';
 
-
-describe('twitter integration', function () {
-  describe('get or create converstaion', function () {
+describe('twitter integration', function() {
+  describe('get or create converstaion', function() {
     let integration;
 
     const twitterUser = {
@@ -30,7 +29,7 @@ describe('twitter integration', function () {
       profile_image_url: 'profile_image_url',
     };
 
-    beforeEach(function () {
+    beforeEach(function() {
       // clear previous data
       Integrations.remove({});
       Conversations.remove({});
@@ -39,7 +38,7 @@ describe('twitter integration', function () {
       integration = Factory.create('integration');
     });
 
-    it('common', function () {
+    it('common', function() {
       const tweetId = 2424244244;
 
       // creat conversation
@@ -70,7 +69,7 @@ describe('twitter integration', function () {
       assert.equal(conversation.status, CONVERSATION_STATUSES.OPEN);
     });
 
-    it('direct message', function () {
+    it('direct message', function() {
       const senderId = 2424424242;
       const recipientId = 92442424424242;
 
@@ -114,12 +113,12 @@ describe('twitter integration', function () {
     });
   });
 
-  describe('reply', function () {
+  describe('reply', function() {
     let integration;
     let twit;
     let stub;
 
-    beforeEach(function () {
+    beforeEach(function() {
       // clear previous data
       Conversations.remove({});
       Integrations.remove({});
@@ -142,12 +141,12 @@ describe('twitter integration', function () {
       stub = sinon.stub(twit, 'post', () => {});
     });
 
-    afterEach(function () {
+    afterEach(function() {
       // unwrap the spy
       twit.post.restore();
     });
 
-    it('direct message', function () {
+    it('direct message', function() {
       const text = 'reply';
       const senderId = 242424242;
 
@@ -169,18 +168,15 @@ describe('twitter integration', function () {
 
       // check twit post params
       assert.equal(
-        stub.calledWith(
-          'direct_messages/new',
-          {
-            user_id: senderId.toString(),
-            text,
-          },
-        ),
+        stub.calledWith('direct_messages/new', {
+          user_id: senderId.toString(),
+          text,
+        }),
         true,
       );
     });
 
-    it('tweet', function () {
+    it('tweet', function() {
       const text = 'reply';
       const tweetIdStr = '242424242';
       const screenName = 'test';
@@ -199,24 +195,21 @@ describe('twitter integration', function () {
 
       // check twit post params
       assert.equal(
-        stub.calledWith(
-          'statuses/update',
-          {
-            status: `@${screenName} ${text}`,
+        stub.calledWith('statuses/update', {
+          status: `@${screenName} ${text}`,
 
-            // replying tweet id
-            in_reply_to_status_id: tweetIdStr,
-          },
-        ),
+          // replying tweet id
+          in_reply_to_status_id: tweetIdStr,
+        }),
         true,
       );
     });
   });
 
-  describe('tweet', function () {
+  describe('tweet', function() {
     let integration;
 
-    beforeEach(function () {
+    beforeEach(function() {
       // clear previous data
       Conversations.remove({});
       Messages.remove({});
@@ -227,7 +220,7 @@ describe('twitter integration', function () {
       integration = Factory.create('integration');
     });
 
-    it('mention', function () {
+    it('mention', function() {
       let tweetText = '@test hi';
       const tweetId = 242424242424;
       const tweetIdStr = '242424242424';
@@ -320,7 +313,7 @@ describe('twitter integration', function () {
       assert.equal(newMessage.content, tweetText);
     });
 
-    it('direct message', function () {
+    it('direct message', function() {
       // direct message
       const data = {
         id: 33324242424242,

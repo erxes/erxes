@@ -17,24 +17,20 @@ import {
   remove,
 } from './methods';
 
-
-describe('integrations', function () {
-  describe('methods', function () {
+describe('integrations', function() {
+  describe('methods', function() {
     let userId;
     let brandId;
 
-    beforeEach(function () {
+    beforeEach(function() {
       Integrations.remove({});
 
       userId = Factory.create('user')._id;
       brandId = Factory.create('brand', { userId })._id;
     });
 
-    it('add in app messsaging', function () {
-      addInAppMessaging._execute(
-        { userId },
-        { doc: { name: 'Foo', brandId } },
-      );
+    it('add in app messsaging', function() {
+      addInAppMessaging._execute({ userId }, { doc: { name: 'Foo', brandId } });
 
       const integration = Integrations.findOne({ name: 'Foo' });
 
@@ -43,7 +39,7 @@ describe('integrations', function () {
       assert.equal(integration.brandId, brandId);
     });
 
-    it('edit in app messsaging', function () {
+    it('edit in app messsaging', function() {
       const kind = KIND_CHOICES.IN_APP_MESSAGING;
       const inApp = Factory.create('integration', { name: 'Old in app', kind });
       const nameToUpdate = 'updated in app';
@@ -57,7 +53,7 @@ describe('integrations', function () {
         },
       );
 
-      const integration = Integrations.findOne({ });
+      const integration = Integrations.findOne({});
 
       // check field values
       assert.equal(integration.name, nameToUpdate);
@@ -65,11 +61,8 @@ describe('integrations', function () {
       assert.equal(integration.brandId, brandToUpdate);
     });
 
-    it('add chat', function () {
-      addChat._execute(
-        { userId },
-        { doc: { name: 'Foo', brandId } },
-      );
+    it('add chat', function() {
+      addChat._execute({ userId }, { doc: { name: 'Foo', brandId } });
 
       const integration = Integrations.findOne({ name: 'Foo' });
 
@@ -78,7 +71,7 @@ describe('integrations', function () {
       assert.equal(integration.brandId, brandId);
     });
 
-    it('edit chat', function () {
+    it('edit chat', function() {
       const kind = KIND_CHOICES.CHAT;
       const chat = Factory.create('integration', { name: 'Old chat', kind });
       const nameToUpdate = 'updated chat';
@@ -92,7 +85,7 @@ describe('integrations', function () {
         },
       );
 
-      const integration = Integrations.findOne({ });
+      const integration = Integrations.findOne({});
 
       // check field values
       assert.equal(integration.name, nameToUpdate);
@@ -100,7 +93,7 @@ describe('integrations', function () {
       assert.equal(integration.brandId, brandToUpdate);
     });
 
-    it('add form', function () {
+    it('add form', function() {
       const formId = Factory.create('form')._id;
 
       addForm._execute(
@@ -116,7 +109,7 @@ describe('integrations', function () {
       assert.equal(integration.formId, formId);
     });
 
-    it('edit form', function () {
+    it('edit form', function() {
       const formId = Factory.create('form')._id;
       const kind = KIND_CHOICES.FORM;
       const name = 'Old form';
@@ -131,7 +124,7 @@ describe('integrations', function () {
         },
       );
 
-      const integration = Integrations.findOne({ });
+      const integration = Integrations.findOne({});
 
       // check field values
       assert.equal(integration.name, nameToUpdate);
@@ -139,8 +132,8 @@ describe('integrations', function () {
       assert.equal(integration.formId, formId);
     });
 
-    describe('remove', function () {
-      it('can not remove integration used in channel', function () {
+    describe('remove', function() {
+      it('can not remove integration used in channel', function() {
         // create integration
         const integrationId = Factory.create('integration')._id;
 
@@ -152,13 +145,12 @@ describe('integrations', function () {
           () => {
             remove._execute({ userId }, integrationId);
           },
-
           Meteor.Error,
           /integrations.remove.usedInChannel/,
         );
       });
 
-      it('remove', function () {
+      it('remove', function() {
         const integrationId = Factory.create('integration')._id; // create
 
         assert.equal(Integrations.find().count(), 1); // check created

@@ -23,17 +23,14 @@ function composer({ id, channelId }, onData) {
     );
   };
 
-  const setAttachmentPreview = (previewObject) => {
+  const setAttachmentPreview = previewObject => {
     attachmentPreview.set(previewObject);
   };
 
   // subscriptions are ready
   if (conversationHandle.ready() && messagesHandle.ready()) {
     const conversation = Conversations.findOne(id);
-    const messages = Messages.find(
-      { conversationId: id },
-      { sort: { createdAt: 1 } },
-    ).fetch();
+    const messages = Messages.find({ conversationId: id }, { sort: { createdAt: 1 } }).fetch();
 
     const integrationId = conversation.integrationId;
 
@@ -56,17 +53,14 @@ function composer({ id, channelId }, onData) {
         Meteor.call('conversations.markAsRead', { conversationId: id });
       }
 
-      onData(
-        null,
-        {
-          conversation,
-          messages,
-          channelId,
-          changeStatus,
-          setAttachmentPreview,
-          attachmentPreview: attachmentPreview.get(),
-        },
-      );
+      onData(null, {
+        conversation,
+        messages,
+        channelId,
+        changeStatus,
+        setAttachmentPreview,
+        attachmentPreview: attachmentPreview.get(),
+      });
     }
   }
 }

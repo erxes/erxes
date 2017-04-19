@@ -9,7 +9,6 @@ import { Channels } from '/imports/api/channels/channels';
 
 import { CONVERSATION_STATUSES } from '/imports/api/conversations/constants';
 
-
 export default class ListQueryBuilder {
   constructor(params, user = null) {
     this.params = params;
@@ -34,9 +33,7 @@ export default class ListQueryBuilder {
   }
 
   defaultFilters() {
-    let statusFilter = this.statusFilter(
-      [CONVERSATION_STATUSES.NEW, CONVERSATION_STATUSES.OPEN],
-    );
+    let statusFilter = this.statusFilter([CONVERSATION_STATUSES.NEW, CONVERSATION_STATUSES.OPEN]);
 
     if (this.params.status === 'closed') {
       statusFilter = this.statusFilter([CONVERSATION_STATUSES.CLOSED]);
@@ -56,8 +53,9 @@ export default class ListQueryBuilder {
    */
   intersectIntegrationIds(...queries) {
     // filter only queries with $in field
-    const with$in = _.filter(queries, q =>
-      q.integrationId && q.integrationId.$in && q.integrationId.$in.length > 0,
+    const with$in = _.filter(
+      queries,
+      q => q.integrationId && q.integrationId.$in && q.integrationId.$in.length > 0,
     );
 
     // [{$in: ['id1', 'id2']}, {$in: ['id3', 'id1', 'id4']}]
@@ -85,7 +83,7 @@ export default class ListQueryBuilder {
     // find all posssible integrations
     let availIntegrationIds = [];
 
-    Channels.find(channelFilter).forEach((channel) => {
+    Channels.find(channelFilter).forEach(channel => {
       availIntegrationIds = _.union(availIntegrationIds, channel.integrationIds);
     });
 
@@ -237,9 +235,7 @@ export default class ListQueryBuilder {
 
     // filter by integration type
     if (this.params.integrationType) {
-      this.queries.integrationType = this.integrationTypeFilter(
-        this.params.integrationType,
-      );
+      this.queries.integrationType = this.integrationTypeFilter(this.params.integrationType);
     }
   }
 

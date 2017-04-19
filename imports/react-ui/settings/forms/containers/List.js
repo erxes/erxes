@@ -6,7 +6,6 @@ import { pagination } from '/imports/react-ui/common';
 import { remove, duplicate } from '/imports/api/forms/methods';
 import { List } from '../components';
 
-
 function composer({ queryParams }, onData) {
   const { limit, loadMore, hasMore } = pagination(queryParams, 'forms.list.count');
   const subHandle = Meteor.subscribe('forms.list', limit);

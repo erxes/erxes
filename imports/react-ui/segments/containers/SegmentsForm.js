@@ -6,15 +6,12 @@ import { Customers } from '/imports/api/customers/customers';
 import Segments from '/imports/api/customers/segments';
 import { SegmentsForm } from '../components';
 
-
 function composer(props, onData) {
-  const handle = props.id
-    ? Meteor.subscribe('customers.segmentById', props.id).ready()
-    : true;
+  const handle = props.id ? Meteor.subscribe('customers.segmentById', props.id).ready() : true;
 
   const schema = Customers.simpleSchema().schema();
   const fields = Object.keys(schema)
-    .filter((key) => {
+    .filter(key => {
       // Can't accepts below types of fields
       const unacceptedTypes = ['Object', 'Array'];
       const isAcceptedType = unacceptedTypes.indexOf(schema[key].type.name) < 0;

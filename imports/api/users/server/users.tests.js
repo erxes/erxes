@@ -10,15 +10,14 @@ import { Conversations } from '/imports/api/conversations/conversations';
 import { ROLES } from '../constants';
 import { invite, updateInvitationInfos, remove } from './methods';
 
-
 if (Meteor.isServer) {
-  describe('users', function () {
-    describe('methods', function () {
-      describe('invite', function () {
+  describe('users', function() {
+    describe('methods', function() {
+      describe('invite', function() {
         let userId;
         let channel;
 
-        beforeEach(function () {
+        beforeEach(function() {
           // remove old datas
           Meteor.users.remove({});
           Channels.remove({});
@@ -30,7 +29,7 @@ if (Meteor.isServer) {
           channel = Factory.create('channel', { memberIds: [] });
         });
 
-        it('invite', function () {
+        it('invite', function() {
           const doc = {
             email: 'invited@gmail.com',
             username: 'invited',
@@ -60,14 +59,14 @@ if (Meteor.isServer) {
         });
       });
 
-      describe('updateInvitationInfos', function () {
+      describe('updateInvitationInfos', function() {
         let userId;
         let invitedUserId;
         let channel1Id;
         let channel2Id;
         let channel3Id;
 
-        beforeEach(function () {
+        beforeEach(function() {
           // remove old datas
           Meteor.users.remove({});
           Channels.remove({});
@@ -82,7 +81,7 @@ if (Meteor.isServer) {
           channel3Id = Factory.create('channel')._id;
         });
 
-        it('updateInvitationInfos', function () {
+        it('updateInvitationInfos', function() {
           // ===== update channels, role
           updateInvitationInfos._execute(
             { userId },
@@ -112,11 +111,11 @@ if (Meteor.isServer) {
         });
       });
 
-      describe('remove', function () {
+      describe('remove', function() {
         let userId;
         let removeToUserId;
 
-        beforeEach(function () {
+        beforeEach(function() {
           Meteor.users.remove({});
 
           // Generate a 'user'
@@ -124,7 +123,7 @@ if (Meteor.isServer) {
           removeToUserId = Factory.create('user')._id;
         });
 
-        it('involved in channel:created', function () {
+        it('involved in channel:created', function() {
           Factory.create('channel', { userId: removeToUserId });
 
           // must be 2 user
@@ -134,7 +133,6 @@ if (Meteor.isServer) {
             () => {
               remove._execute({ userId }, { userId: removeToUserId });
             },
-
             Meteor.Error,
             /users.remove.involvedInChannel/,
           );
@@ -145,14 +143,13 @@ if (Meteor.isServer) {
           Channels.remove({});
         });
 
-        it('involved in channel:in members', function () {
+        it('involved in channel:in members', function() {
           Factory.create('channel', { memberIds: [removeToUserId] });
 
           assert.throws(
             () => {
               remove._execute({ userId }, { userId: removeToUserId });
             },
-
             Meteor.Error,
             /users.remove.involvedInChannel/,
           );
@@ -160,14 +157,13 @@ if (Meteor.isServer) {
           Channels.remove({});
         });
 
-        it('can not delete owner', function () {
+        it('can not delete owner', function() {
           const owner = Factory.create('user', { isOwner: 1 });
 
           assert.throws(
             () => {
               remove._execute({ userId }, { userId: owner._id });
             },
-
             Meteor.Error,
             /users.remove.canNotDeleteOwner/,
           );
@@ -175,7 +171,7 @@ if (Meteor.isServer) {
           Conversations.remove({});
         });
 
-        it('remove successfully', function () {
+        it('remove successfully', function() {
           // must be 2 user
           assert.equal(Meteor.users.find().count(), 2);
 

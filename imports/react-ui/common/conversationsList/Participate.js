@@ -1,18 +1,36 @@
-import { Meteor } from 'meteor/meteor';
-import { compose } from 'react-komposer';
-import { getTrackerLoader } from '/imports/react-ui/utils';
-import Participate from './Participate.jsx';
+import React, { PropTypes } from 'react';
+import Alert from 'meteor/erxes-notifier';
+import classNames from 'classnames';
 
+const propTypes = {
+  conversation: PropTypes.object.isRequired,
+  participated: PropTypes.bool.isRequired,
+  toggleParticipate: PropTypes.func.isRequired,
+};
 
-function composer(props, onData) {
-  const toggleParticipate = ({ starred, conversationIds }, callback) => {
-    Meteor.call('conversations.toggleParticipate', { conversationIds }, callback);
-  };
+function Participate({ toggleParticipate, conversation, participated }) {
+  function toggle() {
+    toggleParticipate({ conversationIds: [conversation._id] }, error => {
+      if (error) {
+        return Alert.error(error.reason || error.message || error.toString());
+      }
 
-  onData(null, {
-    conversation: props.conversation,
-    toggleParticipate,
+      return Alert.success('Success');
+    });
+  }
+
+  const iconClassName = classNames({
+    'ion-ios-eye': participated,
+    'ion-ios-eye-outline': !participated,
   });
+
+  return (
+    <a onClick={toggle} className={participated ? 'visible' : ''} tabIndex={0}>
+      <i className={iconClassName} />
+    </a>
+  );
 }
 
-export default compose(getTrackerLoader(composer))(Participate);
+Participate.propTypes = propTypes;
+
+export default Participate;

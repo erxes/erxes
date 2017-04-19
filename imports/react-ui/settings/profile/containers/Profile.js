@@ -1,8 +1,7 @@
 import { compose } from 'react-komposer';
-import { getTrackerLoader, composerOptions } from '/imports/react-ui/utils';
+import { getTrackerLoader } from '/imports/react-ui/utils';
 import { Meteor } from 'meteor/meteor';
 import { Profile } from '../components';
-
 
 function composer(props, onData) {
   const user = Meteor.user();

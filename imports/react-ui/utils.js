@@ -30,7 +30,8 @@ export function composerOptions({ spinner, loading }) {
   }
 
   return {
-    loadingHandler: () => <Component />,
+    loadingHandler() {
+      return <Component />;
+    },
   };
 }
-

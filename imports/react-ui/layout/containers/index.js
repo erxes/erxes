@@ -6,7 +6,6 @@ import NotificationListRow from './Notifications/NotificationListRow';
 import NotificationsLatest from './Notifications/NotificationsLatest';
 import NotificationRow from './Notifications/NotificationRow';
 
-
 export {
   AuthLayout,
   MainLayout,

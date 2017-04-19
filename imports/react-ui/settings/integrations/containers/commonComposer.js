@@ -7,8 +7,7 @@ export default ({ addMethodName, editMethodName }) =>
     const brandsHandler = Meteor.subscribe('brands.list', 0);
     const brands = Brands.find().fetch();
 
-    const save = doc =>
-      saveCallback(doc, addMethodName, editMethodName, props.integration);
+    const save = doc => saveCallback(doc, addMethodName, editMethodName, props.integration);
 
     if (brandsHandler.ready()) {
       return onData(null, { brands, save });

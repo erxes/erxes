@@ -13,7 +13,7 @@ import { Messages } from '/imports/api/conversations/messages';
 
 import { graphRequest, SaveWebhookResponse } from '../facebook';
 
-describe('facebook integration: save webhook response', function () {
+describe('facebook integration: save webhook response', function() {
   let senderId = 2242424244;
   const pageId = '2252525525';
   const postId = '242422242424244';
@@ -22,11 +22,11 @@ describe('facebook integration: save webhook response', function () {
   let saveWebhookResponse;
   let integration;
 
-  after(function () {
+  after(function() {
     graphRequest.get.restore(); // unwraps the spy
   });
 
-  before(function () {
+  before(function() {
     integration = Factory.create('integration', {
       facebookData: {
         appId: '242424242422',
@@ -34,7 +34,7 @@ describe('facebook integration: save webhook response', function () {
       },
     });
 
-    sinon.stub(graphRequest, 'get', (path) => {
+    sinon.stub(graphRequest, 'get', path => {
       // mock get page access token
       if (path.includes('/?fields=access_token')) {
         return {
@@ -55,21 +55,17 @@ describe('facebook integration: save webhook response', function () {
       };
     });
 
-    saveWebhookResponse = new SaveWebhookResponse(
-      'access_token',
-      integration,
-      {},
-    );
+    saveWebhookResponse = new SaveWebhookResponse('access_token', integration, {});
   });
 
-  beforeEach(function () {
+  beforeEach(function() {
     // clear previous datas
     Conversations.remove({});
     Customers.remove({});
     Messages.remove({});
   });
 
-  it('via messenger event', function () {
+  it('via messenger event', function() {
     // first time ========================
 
     assert.equal(Conversations.find().count(), 0); // 0 conversations
@@ -79,12 +75,14 @@ describe('facebook integration: save webhook response', function () {
     senderId = '2242424244';
     let messageText = 'from messenger';
 
-    const attachments = [{
-      type: 'image',
-      payload: {
-        url: 'attachment_url',
+    const attachments = [
+      {
+        type: 'image',
+        payload: {
+          url: 'attachment_url',
+        },
       },
-    }];
+    ];
 
     // customer says from messenger via messenger
     saveWebhookResponse.data = {
@@ -135,10 +133,7 @@ describe('facebook integration: save webhook response', function () {
     assert.equal(message.customerId, customer._id);
     assert.equal(message.internal, false);
     assert.equal(message.content, messageText);
-    assert.deepEqual(
-      message.attachments,
-      [{ type: 'image', url: 'attachment_url' }],
-    );
+    assert.deepEqual(message.attachments, [{ type: 'image', url: 'attachment_url' }]);
 
     // second time ========================
 
@@ -174,7 +169,6 @@ describe('facebook integration: save webhook response', function () {
     // must be created new message
     assert.equal(Messages.find().count(), 2);
 
-
     // check conversation field updates
     conversation = Conversations.findOne();
     assert.equal(conversation.readUserIds.length, 0);
@@ -188,7 +182,7 @@ describe('facebook integration: save webhook response', function () {
     assert.equal(newMessage.content, messageText);
   });
 
-  it('via feed event', function () {
+  it('via feed event', function() {
     // first time ========================
 
     assert.equal(Conversations.find().count(), 0); // 0 conversations
@@ -252,7 +246,6 @@ describe('facebook integration: save webhook response', function () {
     assert.equal(message.content, messageText);
     assert.deepEqual(message.facebookData, { item: 'post', senderId, link });
 
-
     // second time ========================
 
     // customer commented hi on above post again
@@ -290,7 +283,6 @@ describe('facebook integration: save webhook response', function () {
     // must be created new message
     assert.equal(Messages.find().count(), 2);
 
-
     // check conversation field updates
     conversation = Conversations.findOne();
     assert.equal(conversation.readUserIds.length, 0);
@@ -304,9 +296,10 @@ describe('facebook integration: save webhook response', function () {
     assert.equal(newMessage.content, messageText);
     assert.equal(newMessage.attachments, null);
 
-    assert.deepEqual(
-      newMessage.facebookData,
-      { item: 'comment', senderId, reactionType: 'haha' },
-    );
+    assert.deepEqual(newMessage.facebookData, {
+      item: 'comment',
+      senderId,
+      reactionType: 'haha',
+    });
   });
 });

@@ -9,10 +9,7 @@ import { Notifications } from 'meteor/erxes-notifications';
 
 // save binary data to amazon s3
 export const uploadFile = ({ name, data }) => {
-  const accessKeyId = Meteor.settings.AWS_accessKeyId;
-  const secretAccessKey = Meteor.settings.AWS_secretAccessKey;
-  const bucket = Meteor.settings.AWS_bucket;
-  const prefix = Meteor.settings.AWS_prefix || '';
+  const { accessKeyId, secretAccessKey, bucket, prefix = '' } = Meteor.settings.services.aws;
 
   // check credentials
   if (!(accessKeyId || secretAccessKey || bucket)) {
@@ -47,7 +44,6 @@ export const uploadFile = ({ name, data }) => {
   return response;
 };
 
-
 // send email helpers ====================
 function applyTemplate(data, templateName) {
   let template = Assets.getText(`emailTemplates/${templateName}.html`);
@@ -69,7 +65,7 @@ export const sendEmail = ({ to, subject, template }) => {
   if (isCustom) {
     html = content;
 
-  // invitation, notification emails can be same
+    // invitation, notification emails can be same
   } else {
     html = applyTemplate({ content }, 'base');
   }
@@ -80,7 +76,7 @@ export const sendEmail = ({ to, subject, template }) => {
   }
 
   Email.send({
-    from: Meteor.settings.NO_REPLY_EMAIL,
+    from: Meteor.settings.company.noReplyEmail,
     to,
     subject,
     html,
@@ -88,7 +84,7 @@ export const sendEmail = ({ to, subject, template }) => {
 };
 
 // send notification helper
-export const sendNotification = (_doc) => {
+export const sendNotification = _doc => {
   const doc = _doc;
 
   // Splitting receivers
@@ -96,7 +92,7 @@ export const sendNotification = (_doc) => {
   delete doc.receivers;
 
   // Inserting entry to every receiver
-  _.each(receivers, (receiverId) => {
+  _.each(receivers, receiverId => {
     doc.receiver = receiverId;
 
     // create notification

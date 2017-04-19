@@ -35,7 +35,6 @@ const getOrCreateCustomer = (integrationId, user) => {
   });
 };
 
-
 /*
  * create new message
  */
@@ -54,7 +53,7 @@ const createMessage = (conversation, content, user) => {
 /*
  * new message received in old converation, update status adn readUsers
  */
-const updateConversation = (_id) => {
+const updateConversation = _id => {
   Conversations.update(
     { _id },
     {
@@ -84,7 +83,7 @@ export const getOrCreateCommonConversation = (data, integration) => {
     // if closed, reopen it
     updateConversation(conversation._id);
 
-  // create new conversation
+    // create new conversation
   } else {
     const conversationId = Conversations.insert({
       content: data.text,
@@ -106,7 +105,6 @@ export const getOrCreateCommonConversation = (data, integration) => {
   // create new message
   createMessage(conversation, data.text, data.user);
 };
-
 
 /*
  * create new conversation by direct message
@@ -130,7 +128,7 @@ export const getOrCreateDirectMessageConversation = (data, integration) => {
     // if closed, reopen it
     updateConversation(conversation._id);
 
-  // create new conversation
+    // create new conversation
   } else {
     const conversationId = Conversations.insert({
       content: data.text,
@@ -162,13 +160,15 @@ export const getOrCreateDirectMessageConversation = (data, integration) => {
 // save twit instances by integration id
 export const TwitMap = {};
 
-const trackIntegration = (integration) => {
+const trackIntegration = integration => {
   const integrationUserId = integration.twitterData.id;
+
+  const { consumerKey, consumerSecret } = Meteor.settings.services.twitter;
 
   // Twit instance
   const twit = new Twit({
-    consumer_key: Meteor.settings.TWITTER_CONSUMER_KEY,
-    consumer_secret: Meteor.settings.TWITTER_CONSUMER_SECRET,
+    consumer_key: consumerKey,
+    consumer_secret: consumerSecret,
     access_token: integration.twitterData.token,
     access_token_secret: integration.twitterData.tokenSecret,
   });
@@ -180,56 +180,61 @@ const trackIntegration = (integration) => {
   const stream = twit.stream('user');
 
   // listen for timeline
-  stream.on('tweet', Meteor.bindEnvironment((data) => {
-    // When situations like integration is deleted but trackIntegration
-    // version of that integration is still running, new conversations being
-    // created using non existing integrationId
-    if (!Integrations.findOne({ _id: integration._id })) {
-      return null;
-    }
+  stream.on(
+    'tweet',
+    Meteor.bindEnvironment(data => {
+      // When situations like integration is deleted but trackIntegration
+      // version of that integration is still running, new conversations being
+      // created using non existing integrationId
+      if (!Integrations.findOne({ _id: integration._id })) {
+        return null;
+      }
 
-    // if user is replying to some tweet
-    if (data.in_reply_to_status_id) {
-      const conversation = Conversations.findOne({
-        'twitterData.id': data.in_reply_to_status_id,
+      // if user is replying to some tweet
+      if (data.in_reply_to_status_id) {
+        const conversation = Conversations.findOne({
+          'twitterData.id': data.in_reply_to_status_id,
+        });
+
+        // and that tweet must exists
+        if (conversation) {
+          return getOrCreateCommonConversation(data, integration);
+        }
+      }
+
+      data.entities.user_mentions.forEach(mention => {
+        // listen for only mentioned tweets
+        if (mention.id === integrationUserId) {
+          getOrCreateCommonConversation(data, integration);
+        }
       });
 
-      // and that tweet must exists
-      if (conversation) {
-        return getOrCreateCommonConversation(data, integration);
-      }
-    }
-
-    data.entities.user_mentions.forEach((mention) => {
-      // listen for only mentioned tweets
-      if (mention.id === integrationUserId) {
-        getOrCreateCommonConversation(data, integration);
-      }
-    });
-
-    return null;
-  }));
+      return null;
+    }),
+  );
 
   // listen for direct messages
-  stream.on('direct_message', Meteor.bindEnvironment((data) => {
-    // When situations like integration is deleted but trackIntegration
-    // version of that integration is still running, new conversations being
-    // created using non existing integrationId
-    if (!Integrations.findOne({ _id: integration._id })) {
-      return;
-    }
+  stream.on(
+    'direct_message',
+    Meteor.bindEnvironment(data => {
+      // When situations like integration is deleted but trackIntegration
+      // version of that integration is still running, new conversations being
+      // created using non existing integrationId
+      if (!Integrations.findOne({ _id: integration._id })) {
+        return;
+      }
 
-    getOrCreateDirectMessageConversation(data.direct_message, integration);
-  }));
+      getOrCreateDirectMessageConversation(data.direct_message, integration);
+    }),
+  );
 };
 
 // track all twitter integrations for the first time
-Integrations.find({ kind: KIND_CHOICES.TWITTER }).forEach((integration) => {
+Integrations.find({ kind: KIND_CHOICES.TWITTER }).forEach(integration => {
   trackIntegration(integration);
 });
 
-
-const postCallback = (error) => {
+const postCallback = error => {
   if (error) {
     throw Error(error.message);
   }
@@ -268,10 +273,11 @@ export const tweetReply = (conversation, text) => {
 };
 
 // twitter oauth ===============
+const { consumerKey, consumerSecret, redirectUrl } = Meteor.settings.services.twitter;
 const socTwitter = new soc.Twitter({
-  CONSUMER_KEY: Meteor.settings.TWITTER_CONSUMER_KEY,
-  CONSUMER_SECRET: Meteor.settings.TWITTER_CONSUMER_SECRET,
-  REDIRECT_URL: Meteor.settings.TWITTER_REDIRECT_URL,
+  CONSUMER_KEY: consumerKey,
+  CONSUMER_SECRET: consumerSecret,
+  REDIRECT_URL: redirectUrl,
 });
 
 Meteor.methods({
@@ -286,7 +292,7 @@ export default {
   authenticate: (queryParams, callback) => {
     // after user clicked authenticate button
     socTwitter.callback({ query: queryParams }).then(
-      Meteor.bindEnvironment((data) => {
+      Meteor.bindEnvironment(data => {
         // return integration info
         callback({
           name: data.info.name,

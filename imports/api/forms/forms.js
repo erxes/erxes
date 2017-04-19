@@ -21,7 +21,6 @@ Forms.schema = new SimpleSchema({
   },
 });
 
-
 const FormSchemaExtra = new SimpleSchema({
   code: {
     type: String,
@@ -36,14 +35,20 @@ const FormSchemaExtra = new SimpleSchema({
   },
 });
 
-
 // fields
 Fields.schema = new SimpleSchema({
   type: {
     type: String,
     allowedValues: [
-      'input', 'textarea', 'radio', 'check',
-      'select', 'divider', 'email', 'firstName', 'lastName',
+      'input',
+      'textarea',
+      'radio',
+      'check',
+      'select',
+      'divider',
+      'email',
+      'firstName',
+      'lastName',
     ],
   },
 
@@ -74,7 +79,6 @@ Fields.schema = new SimpleSchema({
   },
 });
 
-
 const FieldSchemaExtra = new SimpleSchema({
   formId: {
     type: String,
@@ -86,7 +90,6 @@ const FieldSchemaExtra = new SimpleSchema({
   },
 });
 
-
 /* ----------------------- Collections ----------------------- */
 
 Forms.attachSchema(Forms.schema);
@@ -94,7 +97,6 @@ Forms.attachSchema(FormSchemaExtra);
 
 Fields.attachSchema(Fields.schema);
 Fields.attachSchema(FieldSchemaExtra);
-
 
 Factory.define('form', Forms, {
   title: () => faker.random.word(),

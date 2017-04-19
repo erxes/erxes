@@ -8,7 +8,6 @@ import { Integrations } from '/imports/api/integrations/integrations';
 import { Brands } from '/imports/api/brands/brands';
 import { Tags } from '/imports/api/tags/tags';
 
-
 const inAppMessagingSchema = new SimpleSchema({
   lastSeenAt: {
     type: Date,
@@ -50,7 +49,6 @@ const twitterSchema = new SimpleSchema({
     type: String,
   },
 });
-
 
 const facebookSchema = new SimpleSchema({
   id: {
@@ -124,7 +122,7 @@ class CustomersCollection extends Mongo.Collection {
     // remove tags
     let removeIds = [];
 
-    customers.forEach((obj) => {
+    customers.forEach(obj => {
       removeIds.push(obj.tagIds || []);
     });
 
@@ -163,7 +161,7 @@ Customers.helpers({
     const results = [];
     const data = this.inAppMessagingData.customData || {};
 
-    _.each(_.keys(data), (key) => {
+    _.each(_.keys(data), key => {
       results.push({
         name: key.replace(/_/g, ' '),
         value: data[key],
@@ -181,9 +179,15 @@ Customers.helpers({
 Customers.TAG_TYPE = 'customer';
 
 Customers.deny({
-  insert() { return true; },
-  update() { return true; },
-  remove() { return true; },
+  insert() {
+    return true;
+  },
+  update() {
+    return true;
+  },
+  remove() {
+    return true;
+  },
 });
 
 Customers.publicFields = {

@@ -12,15 +12,15 @@ import { Messages } from '/imports/api/conversations/messages';
 
 import { graphRequest, SaveWebhookResponse } from '../facebook';
 
-describe('facebook integration: get or create conversation', function () {
+describe('facebook integration: get or create conversation', function() {
   const senderId = 2242424244;
   const pageId = '2252525525';
 
-  after(function () {
+  after(function() {
     graphRequest.get.restore(); // unwraps the spy
   });
 
-  before(function () {
+  before(function() {
     // clear
     Conversations.remove({});
     Messages.remove({});
@@ -29,16 +29,12 @@ describe('facebook integration: get or create conversation', function () {
     sinon.stub(graphRequest, 'get', () => {});
   });
 
-  it('get or create conversation', function () {
+  it('get or create conversation', function() {
     const postId = '32242442442';
     const customerId = Factory.create('customer')._id;
     const integration = Factory.create('integration');
 
-    const saveWebhookResponse = new SaveWebhookResponse(
-      'access_token',
-      integration,
-      {},
-    );
+    const saveWebhookResponse = new SaveWebhookResponse('access_token', integration, {});
     saveWebhookResponse.currentPageId = pageId;
 
     // mock getOrCreateCustomer

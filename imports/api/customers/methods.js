@@ -3,7 +3,6 @@ import { check } from 'meteor/check';
 import { ErxesMixin } from '/imports/api/utils';
 import Segments from './segments';
 
-
 export const createSegment = new ValidatedMethod({
   name: 'customers.createSegment',
   mixins: [ErxesMixin],

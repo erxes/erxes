@@ -5,7 +5,6 @@ import { Customers } from '/imports/api/customers/customers';
 import { Conversations } from '/imports/api/conversations/conversations';
 import { CustomerDetails } from '../components';
 
-
 function composer({ id }, onData) {
   const customerHandle = Meteor.subscribe('customers.details', id);
 

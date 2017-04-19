@@ -3,7 +3,6 @@ import { compose } from 'react-komposer';
 import { getTrackerLoader } from '/imports/react-ui/utils';
 import { AuthBox } from '../components';
 
-
 function composer(props, onData) {
   const user = Meteor.user();
   const loggingIn = Meteor.loggingIn();

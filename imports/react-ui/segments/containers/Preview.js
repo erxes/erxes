@@ -6,14 +6,15 @@ import { Loader } from '/imports/react-ui/common';
 import { Customers } from '/imports/api/customers/customers';
 import { Preview } from '../components';
 
-
 function composer({ segment }, onData) {
   const limit = parseInt(FlowRouter.getQueryParam('limit'), 10) || 20;
   const customersHandle = Meteor.subscribe('customers.listForSegmentPreview', segment, limit);
 
   if (customersHandle.ready()) {
-    const customers = Customers
-      .find({}, { sort: { 'inAppMessagingData.lastSeenAt': -1 }, limit }).fetch();
+    const customers = Customers.find(
+      {},
+      { sort: { 'inAppMessagingData.lastSeenAt': -1 }, limit },
+    ).fetch();
 
     onData(null, {
       customers,
@@ -25,8 +26,10 @@ const options = {
   loadingHandler: Loader,
   propsToWatch: ['segment'],
   shouldSubscribe(currentProps, nextProps) {
-    return currentProps.segment.connector !== nextProps.segment.connector
-      || currentProps.segment.conditions !== nextProps.segment.conditions;
+    return (
+      currentProps.segment.connector !== nextProps.segment.connector ||
+      currentProps.segment.conditions !== nextProps.segment.conditions
+    );
   },
 };
 

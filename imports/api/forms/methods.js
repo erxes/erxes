@@ -96,10 +96,7 @@ export const addField = new ValidatedMethod({
     doc.formId = formId;
 
     // find last field by order
-    const lastField = Fields.findOne(
-      {},
-      { fields: { order: 1 }, sort: { order: -1 } },
-    );
+    const lastField = Fields.findOne({}, { fields: { order: 1 }, sort: { order: -1 } });
 
     // if there is no field then start with 0
     let order = 0;
@@ -181,7 +178,7 @@ export const duplicate = new ValidatedMethod({
     const newFormId = Forms.insert(formParams);
 
     // duplicate fields
-    Fields.find({ formId: id }).forEach((field) => {
+    Fields.find({ formId: id }).forEach(field => {
       const fieldParams = _.omit(field, '_id');
       fieldParams.formId = newFormId;
 

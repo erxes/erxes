@@ -5,8 +5,7 @@ import { Brands } from '/imports/api/brands/brands';
 // Response template collection
 class Collection extends Mongo.Collection {}
 
-
-export const ResponseTemplates = new Collection('response_templates'); // eslint-disable-line import/prefer-default-export
+export const ResponseTemplates = new Collection('response_templates');
 
 // collection helpers
 ResponseTemplates.helpers({
@@ -29,12 +28,14 @@ ResponseTemplates.schema = new SimpleSchema({
   },
 
   files: {
-    type: [new SimpleSchema({
-      url: { type: String },
-      type: { type: String, optional: true },
-      name: { type: String, optional: true },
-      size: { type: Number, optional: true },
-    })],
+    type: [
+      new SimpleSchema({
+        url: { type: String },
+        type: { type: String, optional: true },
+        name: { type: String, optional: true },
+        size: { type: Number, optional: true },
+      }),
+    ],
 
     optional: true,
   },

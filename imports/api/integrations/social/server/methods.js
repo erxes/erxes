@@ -19,10 +19,8 @@ export const addTwitter = new ValidatedMethod({
 
   run({ brandId, queryParams }) {
     // authenticate via twitter and get logged in user's infos
-    twitter.authenticate(queryParams, (doc) => {
-      const id = Integrations.insert(
-        _.extend(doc, { brandId, kind: KIND_CHOICES.TWITTER }),
-      );
+    twitter.authenticate(queryParams, doc => {
+      const id = Integrations.insert(_.extend(doc, { brandId, kind: KIND_CHOICES.TWITTER }));
 
       // start tracking newly created twitter integration
       const integration = Integrations.findOne({ _id: id });
@@ -66,9 +64,9 @@ export const getFacebookAppList = new ValidatedMethod({
   validate() {},
 
   run() {
-    return _.map(Meteor.settings.FACEBOOK_APPS, app => ({
-      id: app.ID,
-      name: app.NAME,
+    return _.map(Meteor.settings.services.facebook, app => ({
+      id: app.id,
+      name: app.name,
     }));
   },
 });
@@ -83,12 +81,12 @@ export const getFacebookPageList = new ValidatedMethod({
   },
 
   run({ appId }) {
-    const app = _.find(Meteor.settings.FACEBOOK_APPS, a => a.ID === appId);
+    const app = _.find(Meteor.settings.services.facebook, a => a.id === appId);
 
     if (!app) {
       return [];
     }
 
-    return getPageList(app.ACCESS_TOKEN);
+    return getPageList(app.accessToken);
   },
 });

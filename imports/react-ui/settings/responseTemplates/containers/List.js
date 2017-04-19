@@ -6,7 +6,6 @@ import { ResponseTemplates } from '/imports/api/responseTemplates/responseTempla
 import { remove } from '/imports/api/responseTemplates/methods';
 import { List } from '../components';
 
-
 function composer({ queryParams }, onData) {
   const templatesHandler = Meteor.subscribe('responseTemplates.list');
   const brandsHandler = Meteor.subscribe('brands.list', 100);

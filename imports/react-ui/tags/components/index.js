@@ -1,8 +1,4 @@
-import List from './List.jsx';
-import Form from './Form.jsx';
+import List from './List';
+import Form from './Form';
 
-
-export {
-  List,
-  Form,
-};
+export { List, Form };

@@ -11,7 +11,7 @@ export const saveCallback = (doc, addMethodName, editMethodName, integration) =>
     params = { _id: integration._id, doc };
   }
 
-  Meteor.call(methodName, params, (error) => {
+  Meteor.call(methodName, params, error => {
     if (error) {
       return Alert.error(error.reason);
     }

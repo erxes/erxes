@@ -8,7 +8,6 @@ import { Customers } from '/imports/api/customers/customers';
 import { Conversations } from '/imports/api/conversations/conversations';
 import { TAG_TYPES } from './constants';
 
-
 class TagsCollection extends Mongo.Collection {
   insert(doc, callback) {
     // extend doc with auto values
@@ -70,8 +69,7 @@ class TagsCollection extends Mongo.Collection {
 
     // can't remove a tag with tagged objects
     if (count > 0) {
-      throw new Meteor.Error('tags.remove.restricted',
-        'Can\'t remove a tag with tagged object(s)');
+      throw new Meteor.Error('tags.remove.restricted', "Can't remove a tag with tagged object(s)");
     }
 
     return super.remove(selector, callback);
@@ -81,11 +79,16 @@ class TagsCollection extends Mongo.Collection {
 export const Tags = new TagsCollection('tags');
 
 Tags.deny({
-  insert() { return true; },
-  update() { return true; },
-  remove() { return true; },
+  insert() {
+    return true;
+  },
+  update() {
+    return true;
+  },
+  remove() {
+    return true;
+  },
 });
-
 
 export const FormSchema = new SimpleSchema({
   name: {

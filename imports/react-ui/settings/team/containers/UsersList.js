@@ -31,18 +31,15 @@ function composer({ queryParams }, onData) {
   if (usersHandle.ready() && channelsHandle.ready()) {
     const channels = Channels.find().fetch();
 
-    onData(
-      null,
-      {
-        users,
-        channels,
-        inviteMember,
-        deactivate,
-        updateInvitationInfos,
-        hasMore,
-        loadMore,
-      },
-    );
+    onData(null, {
+      users,
+      channels,
+      inviteMember,
+      deactivate,
+      updateInvitationInfos,
+      hasMore,
+      loadMore,
+    });
   }
 }
 

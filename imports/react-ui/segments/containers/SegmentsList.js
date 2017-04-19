@@ -5,7 +5,6 @@ import Segments from '/imports/api/customers/segments';
 import { removeSegment } from '/imports/api/customers/methods';
 import { SegmentsList } from '../components';
 
-
 function composer(props, onData) {
   const segmentsHandle = Meteor.subscribe('customers.segments');
 

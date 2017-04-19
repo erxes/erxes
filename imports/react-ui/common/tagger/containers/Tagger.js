@@ -6,8 +6,7 @@ import { Tags } from '/imports/api/tags/tags';
 import { Customers } from '/imports/api/customers/customers';
 import { Conversations } from '/imports/api/conversations/conversations';
 import { tagConversation } from '/imports/api/conversations/client/methods';
-import Tagger from '../components/Tagger.jsx';
-
+import Tagger from '../components/Tagger';
 
 function composer(props, onData) {
   const { type } = props;

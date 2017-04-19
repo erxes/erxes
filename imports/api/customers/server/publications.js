@@ -14,7 +14,6 @@ import { Customers } from '../customers';
 import Segments from '../segments';
 import QueryBuilder from '../queryBuilder';
 
-
 Meteor.publishComposite('customers.list', function customersList(queryString) {
   return {
     find() {
@@ -75,46 +74,41 @@ Meteor.publishComposite('customers.list', function customersList(queryString) {
 
       const countCustomers = (name, query) => {
         Meteor.defer(() => {
-          Counts.publish(
-            this,
-            `customers.${name}`,
-            Customers.find(query, { fields: { _id: 1 } }),
-            { noReady: true },
-          );
+          Counts.publish(this, `customers.${name}`, Customers.find(query, { fields: { _id: 1 } }), {
+            noReady: true,
+          });
         });
       };
 
       // Count customers by segments
-      Segments.find().fetch().forEach((segment) => {
+      Segments.find().fetch().forEach(segment => {
         countCustomers(`segment.${segment._id}`, QueryBuilder.segments(segment));
       });
 
       // Count customers by brand
-      Brands.find({}, { fields: { _id: 1 } }).fetch().forEach((brand) => {
+      Brands.find({}, { fields: { _id: 1 } }).fetch().forEach(brand => {
         const integrations = Integrations.find(
           { brandId: brand._id },
           { fields: { _id: 1 } },
         ).fetch();
-        countCustomers(
-          `brand.${brand._id}`,
-          { integrationId: { $in: integrations.map(i => i._id) } },
-        );
+        countCustomers(`brand.${brand._id}`, {
+          integrationId: { $in: integrations.map(i => i._id) },
+        });
       });
 
       // Count customers by integration
-      KIND_CHOICES.ALL_LIST.forEach((integration) => {
+      KIND_CHOICES.ALL_LIST.forEach(integration => {
         const integrations = Integrations.find(
           { kind: integration },
           { fields: { _id: 1 } },
         ).fetch();
-        countCustomers(
-          `integration.${integration}`,
-          { integrationId: { $in: integrations.map(i => i._id) } },
-        );
+        countCustomers(`integration.${integration}`, {
+          integrationId: { $in: integrations.map(i => i._id) },
+        });
       });
 
       // Count customers by filter
-      Tags.find({ type: TAG_TYPES.CUSTOMER }, { fields: { _id: 1 } }).fetch().forEach((tag) => {
+      Tags.find({ type: TAG_TYPES.CUSTOMER }, { fields: { _id: 1 } }).fetch().forEach(tag => {
         countCustomers(`tag.${tag._id}`, { tagIds: tag._id });
       });
 
@@ -132,7 +126,9 @@ Meteor.publishComposite('customers.list', function customersList(queryString) {
     children: [
       {
         find(customer) {
-          return Integrations.find(customer.integrationId, { fields: Integrations.publicFields });
+          return Integrations.find(customer.integrationId, {
+            fields: Integrations.publicFields,
+          });
         },
       },
     ],
@@ -165,10 +161,9 @@ Meteor.publishComposite('customers.details', function customersDetails(id) {
         children: [
           {
             find(conversation) {
-              return Meteor.users.find(
-                conversation.assignedUserId,
-                { fields: { details: 1, emails: 1 } },
-              );
+              return Meteor.users.find(conversation.assignedUserId, {
+                fields: { details: 1, emails: 1 },
+              });
             },
           },
         ],
@@ -177,45 +172,48 @@ Meteor.publishComposite('customers.details', function customersDetails(id) {
   };
 });
 
-Meteor.publishComposite('customers.listForSegmentPreview',
-  function listForSegmentPreview(segment, limit = 0) {
-    return {
-      find() {
-        check(segment, Object);
-        check(limit, Number);
+Meteor.publishComposite('customers.listForSegmentPreview', function listForSegmentPreview(
+  segment,
+  limit = 0,
+) {
+  return {
+    find() {
+      check(segment, Object);
+      check(limit, Number);
 
-        if (!this.userId) {
-          return this.ready();
-        }
+      if (!this.userId) {
+        return this.ready();
+      }
 
-        const query = QueryBuilder.segments(segment);
-        const options = {
-          fields: Customers.publicFields,
-          sort: { 'inAppMessagingData.lastSeenAt': -1 },
-          limit,
-        };
+      const query = QueryBuilder.segments(segment);
+      const options = {
+        fields: Customers.publicFields,
+        sort: { 'inAppMessagingData.lastSeenAt': -1 },
+        limit,
+      };
 
-        Meteor.defer(() => {
-          Counts.publish(
-            this,
-            'customers.list.count',
-            Customers.find(query, { fields: { _id: 1 } }),
-            { noReady: true },
-          );
-        });
+      Meteor.defer(() => {
+        Counts.publish(
+          this,
+          'customers.list.count',
+          Customers.find(query, { fields: { _id: 1 } }),
+          { noReady: true },
+        );
+      });
 
-        return Customers.find(query, options);
-      },
-      children: [
-        {
-          find(customer) {
-            return Integrations.find(customer.integrationId, { fields: Integrations.publicFields });
-          },
+      return Customers.find(query, options);
+    },
+    children: [
+      {
+        find(customer) {
+          return Integrations.find(customer.integrationId, {
+            fields: Integrations.publicFields,
+          });
         },
-      ],
-    };
-  },
-);
+      },
+    ],
+  };
+});
 
 Meteor.publishComposite('customers.segments', {
   find() {

@@ -33,7 +33,6 @@ export const edit = new ValidatedMethod({
   },
 });
 
-
 // response template remove
 export const remove = new ValidatedMethod({
   name: 'responseTemplates.remove',

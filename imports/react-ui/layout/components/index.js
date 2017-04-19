@@ -1,16 +1,15 @@
-import AuthLayout from './AuthLayout.jsx';
-import Header from './Header.jsx';
-import MainLayout from './MainLayout.jsx';
-import Navigation from './Navigation.jsx';
-import NotFound from './NotFound.jsx';
-import PageContent from './PageContent.jsx';
-import Sidebar from './Sidebar.jsx';
-import Wrapper from './Wrapper.jsx';
-import NotificationList from './Notifications/NotificationList.jsx';
-import NotificationListRow from './Notifications/NotificationListRow.jsx';
-import NotificationsLatest from './Notifications/NotificationsLatest.jsx';
-import NotificationRow from './Notifications/NotificationRow.jsx';
-
+import AuthLayout from './AuthLayout';
+import Header from './Header';
+import MainLayout from './MainLayout';
+import Navigation from './Navigation';
+import NotFound from './NotFound';
+import PageContent from './PageContent';
+import Sidebar from './Sidebar';
+import Wrapper from './Wrapper';
+import NotificationList from './Notifications/NotificationList';
+import NotificationListRow from './Notifications/NotificationListRow';
+import NotificationsLatest from './Notifications/NotificationsLatest';
+import NotificationRow from './Notifications/NotificationRow';
 
 export {
   AuthLayout,

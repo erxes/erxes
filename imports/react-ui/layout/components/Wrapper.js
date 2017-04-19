@@ -1,0 +1,38 @@
+import React, { PropTypes } from 'react';
+import Header from './Header';
+import Sidebar from './Sidebar';
+import PageContent from './PageContent';
+import ActionBar from './ActionBar';
+import { QuickNavigation } from '../containers';
+
+const propTypes = {
+  header: PropTypes.element.isRequired,
+  leftSidebar: PropTypes.element,
+  actionBar: PropTypes.node,
+  content: PropTypes.element.isRequired,
+  footer: PropTypes.node,
+  rightSidebar: PropTypes.element,
+};
+
+function Wrapper({ header, leftSidebar, actionBar, content, footer, rightSidebar }) {
+  return (
+    <div className="wrapper">
+      {header}
+      <div className="wrapper-content">
+        {leftSidebar}
+        <PageContent actionBar={actionBar} footer={footer}>
+          {content}
+        </PageContent>
+        {rightSidebar}
+      </div>
+      <QuickNavigation />
+    </div>
+  );
+}
+
+Wrapper.propTypes = propTypes;
+Wrapper.Header = Header;
+Wrapper.Sidebar = Sidebar;
+Wrapper.ActionBar = ActionBar;
+
+export default Wrapper;

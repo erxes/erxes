@@ -3,7 +3,6 @@ import { compose } from 'react-komposer';
 import { getTrackerLoader } from '/imports/react-ui/utils';
 import { SignIn } from '../components';
 
-
 function composer(props, onData) {
   const loginWithPassword = Meteor.loginWithPassword;
 

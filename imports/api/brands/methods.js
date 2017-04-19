@@ -32,7 +32,11 @@ export const edit = new ValidatedMethod({
   },
 
   run({ id, doc }) {
-    const brand = Brands.findOne(id, { fields: { userId: 1 } });
+    const brand = Brands.findOne(id, {
+      fields: {
+        userId: 1,
+      },
+    });
 
     if (!brand) {
       throw new Meteor.Error('brands.edit.notFound', 'Brand not found');
@@ -41,7 +45,6 @@ export const edit = new ValidatedMethod({
     return Brands.update(id, { $set: doc });
   },
 });
-
 
 // brand remove
 export const remove = new ValidatedMethod({
@@ -62,7 +65,6 @@ export const remove = new ValidatedMethod({
     return Brands.remove(id);
   },
 });
-
 
 // config email
 export const configEmail = new ValidatedMethod({

@@ -1,10 +1,9 @@
-import AuthBox from './AuthBox.jsx';
-import SignIn from './SignIn.jsx';
-// import SignUp from './SignUp.jsx';
-import ForgotPassword from './ForgotPassword.jsx';
-import ResetPassword from './ResetPassword.jsx';
-import UserCommonInfos from './UserCommonInfos.jsx';
-
+import AuthBox from './AuthBox';
+import SignIn from './SignIn';
+// import SignUp from './SignUp';
+import ForgotPassword from './ForgotPassword';
+import ResetPassword from './ResetPassword';
+import UserCommonInfos from './UserCommonInfos';
 
 export {
   AuthBox,

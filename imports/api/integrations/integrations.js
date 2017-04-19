@@ -16,9 +16,15 @@ class IntegrationCollections extends Mongo.Collection {}
 export const Integrations = new IntegrationCollections('integrations');
 
 Integrations.deny({
-  insert() { return true; },
-  update() { return true; },
-  remove() { return true; },
+  insert() {
+    return true;
+  },
+  update() {
+    return true;
+  },
+  remove() {
+    return true;
+  },
 });
 
 Integrations.formSchema = new SimpleSchema({

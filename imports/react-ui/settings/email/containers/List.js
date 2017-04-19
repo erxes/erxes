@@ -4,7 +4,6 @@ import { Meteor } from 'meteor/meteor';
 import { Brands } from '/imports/api/brands/brands';
 import { List } from '../components';
 
-
 function composer(props, onData) {
   const brandsHandle = Meteor.subscribe('brands.list', 0);
 

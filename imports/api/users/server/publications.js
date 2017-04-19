@@ -4,7 +4,6 @@ import { Meteor } from 'meteor/meteor';
 import { Match, check } from 'meteor/check';
 import { Counts } from 'meteor/tmeasday:publish-counts';
 
-
 const publicFields = {
   isOwner: 1,
   username: 1,
@@ -31,7 +30,9 @@ Meteor.publish('users.list', function usersList(params) {
     return this.ready();
   }
 
-  Counts.publish(this, 'users.list.count', Meteor.users.find(), { noReady: true });
+  Counts.publish(this, 'users.list.count', Meteor.users.find(), {
+    noReady: true,
+  });
 
   return Meteor.users.find({}, { fields: publicFields, limit: params.limit });
 });

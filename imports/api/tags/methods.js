@@ -4,7 +4,6 @@ import { ValidatedMethod } from 'meteor/mdg:validated-method';
 import { ErxesMixin } from '/imports/api/utils';
 import { Tags, FormSchema } from './tags';
 
-
 export const add = new ValidatedMethod({
   name: 'tags.add',
   validate: FormSchema.validator(),

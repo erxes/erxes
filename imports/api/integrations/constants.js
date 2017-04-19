@@ -8,7 +8,6 @@ export const KIND_CHOICES = {
   ALL_LIST: ['in_app_messaging', 'chat', 'form', 'twitter', 'facebook'],
 };
 
-
 export const FORM_LOAD_TYPES = {
   SHOUTBOX: 'shoutbox',
   POPUP: 'popup',

@@ -10,12 +10,11 @@ import { KIND_CHOICES } from '/imports/api/integrations/constants';
 import { addFacebook, addTwitter } from '../methods';
 import twitter from '../twitter';
 
-
-describe('social methods', function () {
+describe('social methods', function() {
   let userId;
   let brandId;
 
-  beforeEach(function () {
+  beforeEach(function() {
     Integrations.remove({});
 
     userId = Factory.create('user')._id;
@@ -28,7 +27,7 @@ describe('social methods', function () {
     }
   });
 
-  it('add facebook', function () {
+  it('add facebook', function() {
     const appId = '24242424242';
     const pageIds = ['9934324242424242', '42424242424'];
 
@@ -51,25 +50,21 @@ describe('social methods', function () {
     assert.deepEqual(integration.facebookData.pageIds, pageIds);
   });
 
-  it('add twitter', function () {
+  it('add twitter', function() {
     const twitterUserId = 24242424244242;
 
     // stub twitter authenticate
-    sinon.stub(
-      twitter,
-      'authenticate',
-      (queryString, callback) => {
-        callback({
-          name: 'Twitter',
-          twitterData: {
-            // authenticated user's twitter id,
-            id: twitterUserId,
-            token: 'access_token',
-            tokenSecret: 'auth.token_secret',
-          },
-        });
-      },
-    );
+    sinon.stub(twitter, 'authenticate', (queryString, callback) => {
+      callback({
+        name: 'Twitter',
+        twitterData: {
+          // authenticated user's twitter id,
+          id: twitterUserId,
+          token: 'access_token',
+          tokenSecret: 'auth.token_secret',
+        },
+      });
+    });
 
     // stub track twitter integration
     sinon.stub(twitter, 'trackIntegration', () => {});

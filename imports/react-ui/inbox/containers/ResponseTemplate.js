@@ -5,7 +5,6 @@ import { ResponseTemplates } from '/imports/api/responseTemplates/responseTempla
 import { Brands } from '/imports/api/brands/brands';
 import { ResponseTemplate } from '../components';
 
-
 function composer(props, onData) {
   const brandHandle = Meteor.subscribe('brands.list', 0);
   const brands = Brands.find({}, { sort: { name: 1 } }).fetch();

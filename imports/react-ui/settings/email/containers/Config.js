@@ -5,7 +5,6 @@ import { Brands } from '/imports/api/brands/brands';
 import { configEmail } from '/imports/api/brands/methods';
 import { Config } from '../components';
 
-
 const defaultTemplate = `<p>Dear {{fullName}},</p>
 <p>You received following messages at <strong>{{brandName}}</strong>:</p>
 <ul class="messages">

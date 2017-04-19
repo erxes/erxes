@@ -10,7 +10,6 @@ import { Channels } from '/imports/api/channels/channels';
 import { Integrations, inAppSchema } from '../integrations';
 import { KIND_CHOICES } from '../constants';
 
-
 // add in app messaging
 export const addInAppMessaging = new ValidatedMethod({
   name: 'integrations.addInAppMessaging',
@@ -21,9 +20,7 @@ export const addInAppMessaging = new ValidatedMethod({
   },
 
   run({ doc }) {
-    return Integrations.insert(
-      _.extend(doc, { kind: KIND_CHOICES.IN_APP_MESSAGING }),
-    );
+    return Integrations.insert(_.extend(doc, { kind: KIND_CHOICES.IN_APP_MESSAGING }));
   },
 });
 
@@ -42,7 +39,6 @@ export const editInAppMessaging = new ValidatedMethod({
   },
 });
 
-
 // add chat
 export const addChat = new ValidatedMethod({
   name: 'integrations.addChat',
@@ -53,9 +49,7 @@ export const addChat = new ValidatedMethod({
   },
 
   run({ doc }) {
-    return Integrations.insert(
-      _.extend(doc, { kind: KIND_CHOICES.CHAT }),
-    );
+    return Integrations.insert(_.extend(doc, { kind: KIND_CHOICES.CHAT }));
   },
 });
 
@@ -74,7 +68,6 @@ export const editChat = new ValidatedMethod({
   },
 });
 
-
 // add form
 export const addForm = new ValidatedMethod({
   name: 'integrations.addForm',
@@ -85,9 +78,7 @@ export const addForm = new ValidatedMethod({
   },
 
   run({ doc }) {
-    return Integrations.insert(
-      _.extend(doc, { kind: KIND_CHOICES.FORM }),
-    );
+    return Integrations.insert(_.extend(doc, { kind: KIND_CHOICES.FORM }));
   },
 });
 

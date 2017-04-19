@@ -7,10 +7,7 @@ import { Messages } from '/imports/api/conversations/messages';
 import { Customers } from '/imports/api/customers/customers';
 import { Integrations } from '/imports/api/integrations/integrations';
 import { KIND_CHOICES } from '/imports/api/integrations/constants';
-import {
-  CONVERSATION_STATUSES,
-  FACEBOOK_DATA_KINDS,
-} from '/imports/api/conversations/constants';
+import { CONVERSATION_STATUSES, FACEBOOK_DATA_KINDS } from '/imports/api/conversations/constants';
 
 /*
  * Common graph api request wrapper
@@ -26,7 +23,7 @@ export const graphRequest = {
     try {
       return wrappedGraph(path, ...otherParams);
 
-    // catch session expired or some other error
+      // catch session expired or some other error
     } catch (e) {
       console.log(e.message); // eslint-disable-line no-console
       return e.message;
@@ -45,13 +42,13 @@ export const graphRequest = {
 /*
  * get list of pages that authorized user owns
  */
-export const getPageList = (accessToken) => {
+export const getPageList = accessToken => {
   const response = graphRequest.get('/me/accounts?limit=100', accessToken);
 
   const pages = [];
 
   // collect only some fields
-  _.each(response.data, (page) => {
+  _.each(response.data, page => {
     pages.push({
       id: page.id,
       name: page.name,
@@ -83,7 +80,7 @@ export class SaveWebhookResponse {
     const integration = this.integration;
 
     if (data.object === 'page') {
-      _.each(data.entry, (entry) => {
+      _.each(data.entry, entry => {
         // check receiving page is in integration's page list
         if (!integration.facebookData.pageIds.includes(entry.id)) {
           return;
@@ -107,7 +104,7 @@ export class SaveWebhookResponse {
 
   // via page messenger
   viaMessengerEvent(entry) {
-    _.each(entry.messaging, (messagingEvent) => {
+    _.each(entry.messaging, messagingEvent => {
       // someone sent us a message
       if (messagingEvent.message) {
         this.getOrCreateConversationByMessenger(messagingEvent);
@@ -117,7 +114,7 @@ export class SaveWebhookResponse {
 
   // wall post
   viaFeedEvent(entry) {
-    _.each(entry.changes, (event) => {
+    _.each(entry.changes, event => {
       // someone posted on our wall
       this.getOrCreateConversationByFeed(event.value);
     });
@@ -127,8 +124,13 @@ export class SaveWebhookResponse {
   getOrCreateConversation(params) {
     // extract params
     const {
-      findSelector, status, senderId, facebookData,
-      content, attachments, msgFacebookData,
+      findSelector,
+      status,
+      senderId,
+      facebookData,
+      content,
+      attachments,
+      msgFacebookData,
     } = params;
 
     let conversation = Conversations.findOne({
@@ -151,7 +153,7 @@ export class SaveWebhookResponse {
       });
       conversation = Conversations.findOne(conversationId);
 
-    // update conversation
+      // update conversation
     } else {
       Conversations.update(
         { _id: conversation._id },
@@ -330,10 +332,7 @@ export class SaveWebhookResponse {
     }
 
     // get page access token
-    let res = graphRequest.get(
-      `${this.currentPageId}/?fields=access_token`,
-      this.userAccessToken,
-    );
+    let res = graphRequest.get(`${this.currentPageId}/?fields=access_token`, this.userAccessToken);
 
     // get user info
     res = graphRequest.get(`/${fbUserId}`, res.access_token);
@@ -372,28 +371,27 @@ export class SaveWebhookResponse {
  * receive per app webhook response
  */
 export const receiveWebhookResponse = (app, data) => {
-  const selector = { kind: KIND_CHOICES.FACEBOOK, 'facebookData.appId': app.ID };
+  const selector = {
+    kind: KIND_CHOICES.FACEBOOK,
+    'facebookData.appId': app.id,
+  };
 
-  Integrations.find(selector).forEach((integration) => {
+  Integrations.find(selector).forEach(integration => {
     // when new message or other kind of activity in page
-    const saveWebhookResponse = new SaveWebhookResponse(
-      app.ACCESS_TOKEN,
-      integration,
-      data,
-    );
+    const saveWebhookResponse = new SaveWebhookResponse(app.accessToken, integration, data);
 
     saveWebhookResponse.start();
   });
 };
 
-_.each(Meteor.settings.FACEBOOK_APPS, (app) => {
-  Picker.route(`/service/facebook/${app.ID}/webhook-callback`, (params, req, res) => {
+_.each(Meteor.settings.services.facebook, app => {
+  Picker.route(`/service/facebook/${app.id}/webhook-callback`, (params, req, res) => {
     const query = params.query;
 
     // when the endpoint is registered as a webhook, it must echo back
     // the 'hub.challenge' value it receives in the query arguments
     if (query['hub.mode'] === 'subscribe' && query['hub.challenge']) {
-      if (query['hub.verify_token'] !== app.VERIFY_TOKEN) {
+      if (query['hub.verify_token'] !== app.verifyToken) {
         res.end('Verification token mismatch');
       }
 
@@ -414,24 +412,25 @@ _.each(Meteor.settings.FACEBOOK_APPS, (app) => {
  */
 export const facebookReply = (conversation, text, messageId) => {
   const app = _.find(
-    Meteor.settings.FACEBOOK_APPS,
-    a => a.ID === conversation.integration().facebookData.appId,
+    Meteor.settings.services.facebook,
+    a => a.id === conversation.integration().facebookData.appId,
   );
 
   // page access token
   const response = graphRequest.get(
     `${conversation.facebookData.pageId}/?fields=access_token`,
-    app.ACCESS_TOKEN,
+    app.accessToken,
   );
 
   // messenger reply
   if (conversation.facebookData.kind === FACEBOOK_DATA_KINDS.MESSENGER) {
-    return graphRequest.post('me/messages', response.access_token,
+    return graphRequest.post(
+      'me/messages',
+      response.access_token,
       {
         recipient: { id: conversation.facebookData.senderId },
         message: { text },
       },
-
       () => {},
     );
   }
@@ -441,16 +440,12 @@ export const facebookReply = (conversation, text, messageId) => {
     const postId = conversation.facebookData.postId;
 
     // post reply
-    const commentResponse = graphRequest.post(
-      `${postId}/comments`, response.access_token,
-      { message: text },
-    );
+    const commentResponse = graphRequest.post(`${postId}/comments`, response.access_token, {
+      message: text,
+    });
 
     // save commentId in message object
-    Messages.update(
-      { _id: messageId },
-      { $set: { 'facebookData.commentId': commentResponse.id } },
-    );
+    Messages.update({ _id: messageId }, { $set: { 'facebookData.commentId': commentResponse.id } });
   }
 
   return null;

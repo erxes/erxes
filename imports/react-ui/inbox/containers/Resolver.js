@@ -4,7 +4,6 @@ import { getTrackerLoader, composerOptions } from '/imports/react-ui/utils';
 import { CONVERSATION_STATUSES } from '/imports/api/conversations/constants';
 import { Resolver } from '../components';
 
-
 function composer(props, onData) {
   const changeStatus = (args, callback) => {
     Meteor.call('conversations.changeStatus', args, callback);

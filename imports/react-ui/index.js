@@ -3,23 +3,23 @@
 /**
  * Routes
  */
-import './layout/routes.jsx';
-import './customers/routes.jsx';
-import './auth/routes.jsx';
-import './inbox/routes.jsx';
-import './engage/routes.jsx';
-import './home/routes.jsx';
-import './tags/routes.jsx';
-import './segments/routes.jsx';
-import './settings/routes.jsx';
-import './settings/brands/routes.jsx';
-import './settings/integrations/routes.jsx';
-import './settings/channels/routes.jsx';
-import './settings/responseTemplates/routes.jsx';
-import './settings/email/routes.jsx';
-import './settings/forms/routes.jsx';
-import './settings/team/routes.jsx';
-import './settings/profile/routes.jsx';
+import './layout/routes';
+import './customers/routes';
+import './auth/routes';
+import './inbox/routes';
+import './engage/routes';
+import './home/routes';
+import './tags/routes';
+import './segments/routes';
+import './settings/routes';
+import './settings/brands/routes';
+import './settings/integrations/routes';
+import './settings/channels/routes';
+import './settings/responseTemplates/routes';
+import './settings/email/routes';
+import './settings/forms/routes';
+import './settings/team/routes';
+import './settings/profile/routes';
 
 /**
  * Styles

@@ -1,8 +1,4 @@
-import UsersList from './UsersList.jsx';
-import InviteForm from './InviteForm.jsx';
+import UsersList from './UsersList';
+import InviteForm from './InviteForm';
 
-
-export {
-  UsersList,
-  InviteForm,
-};
+export { UsersList, InviteForm };
