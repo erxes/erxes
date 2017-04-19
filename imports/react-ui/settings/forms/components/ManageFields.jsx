@@ -251,8 +251,9 @@ class ManageFields extends Component {
     );
 
     const breadcrumb = [
-      { title: 'Settings', link: '/settings/forms' },
-      { title: 'Forms' },
+      { title: 'Settings', link: '/settings/channels' },
+      { title: 'Forms', link: '/settings/forms' },
+      { title: this.props.formTitle },
     ];
 
     return (
@@ -270,6 +271,7 @@ ManageFields.propTypes = {
   editField: PropTypes.func.isRequired,
   deleteField: PropTypes.func.isRequired,
   onSort: PropTypes.func.isRequired,
+  formTitle: PropTypes.string.isRequired,
   fields: PropTypes.array.isRequired, // eslint-disable-line
 };
 
