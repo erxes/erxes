@@ -7,7 +7,6 @@ import classNames from 'classnames';
 import { Table } from 'react-bootstrap';
 import { NameCard, Attachment, Tip } from '/imports/react-ui/common';
 
-
 const propTypes = {
   message: PropTypes.object.isRequired,
   staff: PropTypes.bool,
@@ -29,9 +28,7 @@ function Message({ message, staff, isSameUser }) {
     fbpost: isPhotoPost || isVideoPost,
   });
 
-  const prop = staff
-    ? { user: message.user() }
-    : { customer: message.customer() };
+  const prop = staff ? { user: message.user() } : { customer: message.customer() };
 
   const renderAvatar = () => {
     if (!isSameUser) {
@@ -55,7 +52,7 @@ function Message({ message, staff, isSameUser }) {
     return fullName;
   };
 
-  const renderIframe = (src) => {
+  const renderIframe = src => {
     const iframeSrc = src;
     return (
       <iframe
@@ -111,15 +108,17 @@ function Message({ message, staff, isSameUser }) {
         <div className="form-data">
           <Table striped>
             <thead>
-              <tr><th className="text-center" colSpan="2">{message.content}</th></tr>
+              <tr>
+                <th className="text-center" colSpan="2">{message.content}</th>
+              </tr>
             </thead>
             <tbody>
-              {_.map(message.formWidgetData, (data, index) => ((
+              {_.map(message.formWidgetData, (data, index) => (
                 <tr key={index}>
                   <td width="40%"><b>{data.text}:</b></td>
                   <td width="60%">{data.value}</td>
                 </tr>
-              )))}
+              ))}
             </tbody>
           </Table>
         </div>

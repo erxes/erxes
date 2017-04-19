@@ -2,7 +2,6 @@ import React from 'react';
 import { FlowRouter } from 'meteor/kadira:flow-router';
 import { Wrapper } from '/imports/react-ui/layout/components';
 
-
 function Sidebar() {
   const { Title, QuickButtons } = Wrapper.Sidebar.Section;
 

@@ -10,7 +10,6 @@ import {
 import Alert from 'meteor/erxes-notifier';
 import { add, edit } from '/imports/api/responseTemplates/methods';
 
-
 const propTypes = {
   resTemplate: PropTypes.object,
   brands: PropTypes.array,
@@ -46,7 +45,7 @@ class Form extends Component {
       params.id = this.props.resTemplate._id;
     }
 
-    methodName.call(params, (error) => {
+    methodName.call(params, error => {
       if (error) return Alert.error(error.message);
 
       Alert.success('Congrats');
@@ -71,21 +70,14 @@ class Form extends Component {
             placeholder="Select Brand"
             defaultValue={resTemplate.brand && resTemplate.brand()._id}
           >
-            {brands.map(brand =>
-              <option key={brand._id} value={brand._id}>{brand.name}</option>,
-            )}
+            {brands.map(brand => <option key={brand._id} value={brand._id}>{brand.name}</option>)}
           </FormControl>
         </FormGroup>
 
         <FormGroup>
           <ControlLabel>Name</ControlLabel>
 
-          <FormControl
-            id="template-name"
-            defaultValue={resTemplate.name}
-            type="text"
-            required
-          />
+          <FormControl id="template-name" defaultValue={resTemplate.name} type="text" required />
         </FormGroup>
 
         <FormGroup>

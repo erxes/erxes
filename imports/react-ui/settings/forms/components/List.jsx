@@ -24,14 +24,9 @@ class List extends Component {
   renderForms() {
     const { forms, removeForm, duplicateForm } = this.props;
 
-    return forms.map(form =>
-      <Row
-        key={form._id}
-        form={form}
-        removeForm={removeForm}
-        duplicateForm={duplicateForm}
-      />,
-    );
+    return forms.map(form => (
+      <Row key={form._id} form={form} removeForm={removeForm} duplicateForm={duplicateForm} />
+    ));
   }
 
   render() {
@@ -49,9 +44,7 @@ class List extends Component {
       </ModalTrigger>
     );
 
-    const actionBar = (
-      <Wrapper.ActionBar left={actionBarLeft} />
-    );
+    const actionBar = <Wrapper.ActionBar left={actionBarLeft} />;
 
     const content = (
       <Pagination loadMore={loadMore} hasMore={hasMore}>
@@ -72,10 +65,7 @@ class List extends Component {
       </Pagination>
     );
 
-    const breadcrumb = [
-      { title: 'Settings', link: '/settings/forms' },
-      { title: 'Forms' },
-    ];
+    const breadcrumb = [{ title: 'Settings', link: '/settings/forms' }, { title: 'Forms' }];
 
     return (
       <Wrapper

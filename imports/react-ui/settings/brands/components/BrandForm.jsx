@@ -10,7 +10,6 @@ import {
 import Alert from 'meteor/erxes-notifier';
 import { add, edit } from '/imports/api/brands/methods';
 
-
 const propTypes = {
   brand: PropTypes.object,
 };
@@ -44,8 +43,8 @@ class BrandForm extends Component {
       params.id = this.props.brand._id;
     }
 
-    methodName.call(params, (error) => {
-      if (error) return Alert.error('Can\'t save brand', error.reason);
+    methodName.call(params, error => {
+      if (error) return Alert.error("Can't save brand", error.reason);
 
       Alert.success('Congrats', 'Brand is successfully saved.');
       return this.context.closeModal();
@@ -63,12 +62,7 @@ class BrandForm extends Component {
       <form onSubmit={this.save}>
         <FormGroup>
           <ControlLabel>Name</ControlLabel>
-          <FormControl
-            id="brand-name"
-            type="text"
-            defaultValue={brand.name}
-            required
-          />
+          <FormControl id="brand-name" type="text" defaultValue={brand.name} required />
         </FormGroup>
 
         <FormGroup>

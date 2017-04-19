@@ -1,7 +1,6 @@
 import React, { PropTypes } from 'react';
 import { Label } from 'react-bootstrap';
 
-
 const SIZES = ['small', 'medium', 'large'];
 
 const propTypes = {
@@ -12,17 +11,11 @@ const propTypes = {
 function Tags({ tags, size }) {
   return (
     <div className="tags">
-      {
-        tags.map(tag =>
-          <Label
-            key={tag.name}
-            style={{ backgroundColor: tag.colorCode }}
-            className={size}
-          >
-            {tag.name}
-          </Label>
-        )
-      }
+      {tags.map(tag => (
+        <Label key={tag.name} style={{ backgroundColor: tag.colorCode }} className={size}>
+          {tag.name}
+        </Label>
+      ))}
     </div>
   );
 }

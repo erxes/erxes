@@ -4,7 +4,6 @@ import moment from 'moment';
 import { FlowRouter } from 'meteor/kadira:flow-router';
 import { NameCard, Tip } from '/imports/react-ui/common';
 
-
 class NotificationListRow extends Component {
   constructor(props) {
     super(props);
@@ -46,7 +45,7 @@ class NotificationListRow extends Component {
         <div className="column markRead">
           <Tip text="Mark as Read">
             <span onClick={this.markAsRead}>
-              <i className="ion-android-radio-button-off"></i>
+              <i className="ion-android-radio-button-off" />
             </span>
           </Tip>
         </div>

@@ -4,7 +4,6 @@ import { MainLayout } from '/imports/react-ui/layout/containers';
 import settingsRoute from '../routes.jsx';
 import { BrandList } from './containers';
 
-
 const brands = settingsRoute.group({
   prefix: '/brands',
 });

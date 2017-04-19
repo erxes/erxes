@@ -1,6 +1,5 @@
 import moment from 'moment';
 
-
 export default {
   segments(segment) {
     const query = {};

@@ -4,7 +4,6 @@ import { getTrackerLoader } from '/imports/react-ui/utils';
 import Alert from 'meteor/erxes-notifier';
 import AlertsWrapper from '../components/AlertsWrapper.jsx';
 
-
 function composer(props, onData) {
   onData(null, { alerts: Alert.Collections.Alerts.find().fetch() });
 }

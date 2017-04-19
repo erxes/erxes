@@ -1,7 +1,6 @@
 import React from 'react';
 import Alert from 'meteor/erxes-notifier';
 
-
 const propTypes = {
   alert: React.PropTypes.shape({
     _id: React.PropTypes.string,

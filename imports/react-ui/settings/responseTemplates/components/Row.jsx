@@ -4,7 +4,6 @@ import Alert from 'meteor/erxes-notifier';
 import { ModalTrigger, Tip, ActionButtons } from '/imports/react-ui/common';
 import { Form } from '../containers';
 
-
 const propTypes = {
   resTemplate: PropTypes.object.isRequired,
   brands: PropTypes.array.isRequired,
@@ -23,7 +22,7 @@ class Row extends Component {
 
     const { resTemplate, removeResTemplate } = this.props;
 
-    removeResTemplate(resTemplate._id, (error) => {
+    removeResTemplate(resTemplate._id, error => {
       if (error) {
         return Alert.error(error.message);
       }

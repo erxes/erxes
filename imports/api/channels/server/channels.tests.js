@@ -14,9 +14,9 @@ import { add, edit, remove } from '../methods';
 
 import './publications.js';
 
-describe('channels', function () {
-  describe('mutators', function () {
-    it('builds correctly from factory', function () {
+describe('channels', function() {
+  describe('mutators', function() {
+    it('builds correctly from factory', function() {
       const brand = Factory.create('brand');
       assert.typeOf(brand, 'object');
       assert.typeOf(brand.createdAt, 'date');
@@ -24,11 +24,11 @@ describe('channels', function () {
     });
   });
 
-  describe('publications', function () {
+  describe('publications', function() {
     const userId = Factory.create('user')._id;
     let channel;
 
-    before(function () {
+    before(function() {
       Channels.remove({});
       _.times(2, () => Factory.create('channel'));
       _.times(2, () => Factory.create('channel', { memberIds: [userId] }));
@@ -37,30 +37,30 @@ describe('channels', function () {
       channel = Factory.create('channel', { userId });
     });
 
-    describe('channels.list', function () {
-      it('sends all channels', function (done) {
+    describe('channels.list', function() {
+      it('sends all channels', function(done) {
         const collector = new PublicationCollector({ userId });
-        collector.collect('channels.list', {}, (collections) => {
+        collector.collect('channels.list', {}, collections => {
           chai.assert.equal(collections.channels.length, 5);
           done();
         });
       });
     });
 
-    describe('channels.list', function () {
-      it('do not send channels without user', function (done) {
+    describe('channels.list', function() {
+      it('do not send channels without user', function(done) {
         const collector = new PublicationCollector();
-        collector.collect('channels.list', {}, (collections) => {
+        collector.collect('channels.list', {}, collections => {
           chai.assert.equal(collections.channels, undefined);
           done();
         });
       });
     });
 
-    describe('channels.getById', function () {
-      it('sends channel by id', function (done) {
+    describe('channels.getById', function() {
+      it('sends channel by id', function(done) {
         const collector = new PublicationCollector({ userId });
-        collector.collect('channels.getById', channel._id, (collections) => {
+        collector.collect('channels.getById', channel._id, collections => {
           chai.assert.equal(collections.channels.length, 1);
           chai.assert.equal(collections.channels[0]._id, channel._id);
           done();
@@ -69,11 +69,11 @@ describe('channels', function () {
     });
   });
 
-  describe('methods', function () {
+  describe('methods', function() {
     let userId;
     let channelId;
 
-    beforeEach(function () {
+    beforeEach(function() {
       // Clear
       Channels.remove({});
       Notifications.remove({});
@@ -82,18 +82,15 @@ describe('channels', function () {
       // Generate a 'user'
       userId = Factory.create('user')._id;
 
-      channelId = Factory.create(
-        'channel',
-        {
-          name: 'foo',
-          userId,
-          memberIds: [Factory.create('user')._id],
-        },
-      )._id;
+      channelId = Factory.create('channel', {
+        name: 'foo',
+        userId,
+        memberIds: [Factory.create('user')._id],
+      })._id;
     });
 
-    describe('add', function () {
-      it('only works if you are logged in', function () {
+    describe('add', function() {
+      it('only works if you are logged in', function() {
         assert.throws(
           () => {
             add._execute(
@@ -112,7 +109,7 @@ describe('channels', function () {
         );
       });
 
-      it('add', function () {
+      it('add', function() {
         const newMemberId = Factory.create('user')._id;
 
         assert.equal(Channels.find().count(), 1);
@@ -144,8 +141,8 @@ describe('channels', function () {
       });
     });
 
-    describe('edit', function () {
-      it('only works if you are logged in', function () {
+    describe('edit', function() {
+      it('only works if you are logged in', function() {
         assert.throws(
           () => {
             edit._execute(
@@ -165,7 +162,7 @@ describe('channels', function () {
         );
       });
 
-      it('not found', function () {
+      it('not found', function() {
         assert.throws(
           () => {
             edit._execute(
@@ -185,7 +182,7 @@ describe('channels', function () {
         );
       });
 
-      it('edit', function () {
+      it('edit', function() {
         edit._execute(
           { userId },
           {
@@ -202,20 +199,28 @@ describe('channels', function () {
       });
     });
 
-    describe('remove', function () {
-      it('only works if you are logged in', function () {
-        assert.throws(() => {
-          remove._execute({}, channelId);
-        }, Meteor.Error, /loginRequired/);
+    describe('remove', function() {
+      it('only works if you are logged in', function() {
+        assert.throws(
+          () => {
+            remove._execute({}, channelId);
+          },
+          Meteor.Error,
+          /loginRequired/,
+        );
       });
 
-      it('not found', function () {
-        assert.throws(() => {
-          remove._execute({ userId }, Random.id());
-        }, Meteor.Error, /channels.remove.notFound/);
+      it('not found', function() {
+        assert.throws(
+          () => {
+            remove._execute({ userId }, Random.id());
+          },
+          Meteor.Error,
+          /channels.remove.notFound/,
+        );
       });
 
-      it('remove', function () {
+      it('remove', function() {
         assert.equal(Channels.find().count(), 1);
 
         remove._execute({ userId }, channelId);

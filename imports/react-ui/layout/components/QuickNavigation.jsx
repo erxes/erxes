@@ -27,12 +27,9 @@ function QuickNavigation({ unreadCount }) {
           overlay={popoverNotification}
         >
           <div className="action-button">
-            <i className="ion-android-notifications"></i>
+            <i className="ion-android-notifications" />
             <Badge>
-              {
-                unreadCount !== 0 ?
-                unreadCount : null
-              }
+              {unreadCount !== 0 ? unreadCount : null}
             </Badge>
           </div>
         </OverlayTrigger>

@@ -20,7 +20,6 @@ import FilterableList from './filterableList/FilterableList.jsx';
 import ConversationsList from './conversationsList/ConversationsList.jsx';
 import LoadMore from './LoadMore.jsx';
 
-
 export {
   NameCard,
   Avatar,

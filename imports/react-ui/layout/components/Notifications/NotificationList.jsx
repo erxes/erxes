@@ -7,7 +7,6 @@ import { EmptyState, Pagination } from '/imports/react-ui/common';
 import { NotificationListRow } from '../../containers';
 import { Wrapper } from '../';
 
-
 class NotificationList extends Component {
   constructor(props) {
     super(props);
@@ -19,13 +18,13 @@ class NotificationList extends Component {
   markAllRead() {
     const { bulk } = this.state;
 
-    _.each(this.props.notifications, (notification) => {
+    _.each(this.props.notifications, notification => {
       if (!notification.isRead) {
         bulk.push(notification._id);
       }
     });
 
-    this.props.markAsRead(this.state.bulk, (error) => {
+    this.props.markAsRead(this.state.bulk, error => {
       if (error) {
         return Alert.error('Error', error.reason);
       }
@@ -43,14 +42,9 @@ class NotificationList extends Component {
     let content = (
       <Pagination loadMore={loadMore} hasMore={hasMore}>
         <ul className="conversations-list notif-list">
-          {
-            notifications.map((notif, key) =>
-              <NotificationListRow
-                notification={notif}
-                key={key}
-              />,
-            )
-          }
+          {notifications.map((notif, key) => (
+            <NotificationListRow notification={notif} key={key} />
+          ))}
         </ul>
       </Pagination>
     );
@@ -84,7 +78,6 @@ class NotificationList extends Component {
       />
     );
   }
-
 }
 
 NotificationList.propTypes = {

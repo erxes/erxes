@@ -4,7 +4,6 @@ import { getTrackerLoader, composerOptions } from '/imports/react-ui/utils';
 import { Channels } from '/imports/api/channels/channels';
 import { InviteForm } from '../components';
 
-
 function composer({ user }, onData) {
   const channelsHandle = Meteor.subscribe('channels.list', {});
 

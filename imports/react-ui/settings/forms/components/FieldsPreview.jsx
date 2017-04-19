@@ -1,8 +1,5 @@
 import React, { PropTypes } from 'react';
-import {
-  SortableContainer, SortableElement,
-  SortableHandle, arrayMove,
-} from 'react-sortable-hoc';
+import { SortableContainer, SortableElement, SortableHandle, arrayMove } from 'react-sortable-hoc';
 import FieldPreview from './FieldPreview.jsx';
 
 const DragHandle = SortableHandle(() => <span className="drag-handler">::::</span>);
@@ -16,18 +13,13 @@ const FieldPreviewWrapper = props => (
 
 const SortableItem = SortableElement(FieldPreviewWrapper);
 
-const SortableList = SortableContainer(({ fields, onEdit }) =>
+const SortableList = SortableContainer(({ fields, onEdit }) => (
   <div className="form-preview">
-    {fields.map((field, index) =>
-      <SortableItem
-        key={`item-${index}`}
-        index={index}
-        field={field}
-        onEdit={onEdit}
-      />,
-    )}
-  </div>,
-);
+    {fields.map((field, index) => (
+      <SortableItem key={`item-${index}`} index={index} field={field} onEdit={onEdit} />
+    ))}
+  </div>
+));
 
 class FieldsPreview extends React.Component {
   constructor(props) {

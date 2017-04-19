@@ -48,7 +48,6 @@ export const add = new ValidatedMethod({
   },
 });
 
-
 // channel edit
 export const edit = new ValidatedMethod({
   name: 'channels.edit',
@@ -82,7 +81,6 @@ export const edit = new ValidatedMethod({
     sendNotifications(id, updatedChannel.memberIds, this.userId);
   },
 });
-
 
 // channel remove
 export const remove = new ValidatedMethod({

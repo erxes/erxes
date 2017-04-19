@@ -2,7 +2,6 @@ import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
 import { ResponseTemplates } from '../responseTemplates';
 
-
 Meteor.publish('responseTemplates.list', function responseTemplatesList() {
   if (!this.userId) {
     return this.ready();

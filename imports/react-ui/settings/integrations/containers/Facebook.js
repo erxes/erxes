@@ -7,7 +7,6 @@ import Alert from 'meteor/erxes-notifier';
 import { Brands } from '/imports/api/brands/brands';
 import { Facebook } from '../components';
 
-
 const apps = new ReactiveVar([]);
 const pages = new ReactiveVar([]);
 
@@ -21,22 +20,18 @@ function composer(props, onData) {
     });
   }
 
-  const save = (doc) => {
-    Meteor.call(
-      'integrations.addFacebook', doc,
+  const save = doc => {
+    Meteor.call('integrations.addFacebook', doc, error => {
+      if (error) {
+        return Alert.error(error.error);
+      }
 
-      (error) => {
-        if (error) {
-          return Alert.error(error.error);
-        }
-
-        Alert.success('Congrats');
-        return FlowRouter.go('/settings/integrations/list');
-      },
-    );
+      Alert.success('Congrats');
+      return FlowRouter.go('/settings/integrations/list');
+    });
   };
 
-  const getPages = (appId) => {
+  const getPages = appId => {
     Meteor.call('integrations.getFacebookPageList', { appId }, (err, res) => {
       if (err) {
         return Alert.error(err.reason);
@@ -47,16 +42,13 @@ function composer(props, onData) {
   };
 
   if (brandsHandler.ready()) {
-    return onData(
-      null,
-      {
-        brands,
-        save,
-        getPages,
-        apps: apps.get(),
-        pages: pages.get(),
-      },
-    );
+    return onData(null, {
+      brands,
+      save,
+      getPages,
+      apps: apps.get(),
+      pages: pages.get(),
+    });
   }
 
   return null;

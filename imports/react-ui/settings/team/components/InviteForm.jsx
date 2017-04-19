@@ -11,7 +11,6 @@ import {
 import Alert from 'meteor/erxes-notifier';
 import { UserCommonInfos } from '/imports/react-ui/auth/components';
 
-
 const propTypes = {
   user: PropTypes.object.isRequired,
   save: PropTypes.func.isRequired,
@@ -56,7 +55,7 @@ class InviteForm extends Component {
       doc.userId = this.props.user._id;
     }
 
-    this.props.save(doc, (error) => {
+    this.props.save(doc, error => {
       if (error) {
         return Alert.error(error.reason);
       }
@@ -67,18 +66,14 @@ class InviteForm extends Component {
   }
 
   generateChannelsParams(channels) {
-    return channels.map(channel => (
-      {
-        value: channel._id,
-        label: channel.name,
-      }
-    ));
+    return channels.map(channel => ({
+      value: channel._id,
+      label: channel.name,
+    }));
   }
 
   collectValues(items) {
-    return items.map(item => (
-      item.value
-    ));
+    return items.map(item => item.value);
   }
 
   renderChannels() {
@@ -92,7 +87,7 @@ class InviteForm extends Component {
           placeholder="Choose channels"
           value={self.state.selectedChannels}
           options={self.generateChannelsParams(channels)}
-          onChange={(items) => {
+          onChange={items => {
             self.setState({ selectedChannels: items });
           }}
           multi
@@ -112,18 +107,12 @@ class InviteForm extends Component {
 
         <FormGroup>
           <ControlLabel>Password</ControlLabel>
-          <FormControl
-            id="password"
-            type="password"
-          />
+          <FormControl id="password" type="password" />
         </FormGroup>
 
         <FormGroup>
           <ControlLabel>Password confirmation</ControlLabel>
-          <FormControl
-            id="password-confirmation"
-            type="password"
-          />
+          <FormControl id="password-confirmation" type="password" />
         </FormGroup>
 
         <FormGroup controlId="role">

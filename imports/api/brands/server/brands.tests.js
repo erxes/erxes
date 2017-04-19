@@ -16,42 +16,42 @@ import { add, edit, remove } from '../methods';
 
 import './publications';
 
-describe('brands', function () {
-  describe('publications', function () {
+describe('brands', function() {
+  describe('publications', function() {
     const userId = Factory.create('user')._id;
     const limit = 100;
 
     let brand;
 
-    before(function () {
+    before(function() {
       Brands.remove({});
       _.times(2, () => Factory.create('brand', { userId }));
       _.times(2, () => Factory.create('brand', { userId: Random.id() }));
       brand = Factory.create('brand', { userId });
     });
 
-    describe('brands.list', function () {
-      it('sends all brands', function (done) {
+    describe('brands.list', function() {
+      it('sends all brands', function(done) {
         const collector = new PublicationCollector({ userId });
-        collector.collect('brands.list', limit, (collections) => {
+        collector.collect('brands.list', limit, collections => {
           assert.equal(collections.brands.length, 5);
           done();
         });
       });
 
-      it('do not send brands without user', function (done) {
+      it('do not send brands without user', function(done) {
         const collector = new PublicationCollector();
-        collector.collect('brands.list', limit, (collections) => {
+        collector.collect('brands.list', limit, collections => {
           assert.equal(collections.brands, undefined);
           done();
         });
       });
     });
 
-    describe('brands.getById', function () {
-      it('sends brand by id', function (done) {
+    describe('brands.getById', function() {
+      it('sends brand by id', function(done) {
         const collector = new PublicationCollector({ userId });
-        collector.collect('brands.getById', brand._id, (collections) => {
+        collector.collect('brands.getById', brand._id, collections => {
           assert.equal(collections.brands.length, 1);
           assert.equal(collections.brands[0]._id, brand._id);
           done();
@@ -60,12 +60,12 @@ describe('brands', function () {
     });
   });
 
-  describe('methods', function () {
+  describe('methods', function() {
     let userId;
     let brandId;
     let customerId;
 
-    beforeEach(function () {
+    beforeEach(function() {
       // Clear
       Brands.remove({});
       Customers.remove({});
@@ -77,8 +77,8 @@ describe('brands', function () {
       customerId = Factory.create('customer', { brandId })._id;
     });
 
-    describe('add', function () {
-      it('only works if you are logged in', function () {
+    describe('add', function() {
+      it('only works if you are logged in', function() {
         assert.throws(
           () => {
             add._execute({}, { doc: { name: 'Foo' } });
@@ -88,7 +88,7 @@ describe('brands', function () {
         );
       });
 
-      it('add', function () {
+      it('add', function() {
         assert.equal(Brands.find().count(), 1);
 
         add._execute({ userId }, { doc: { name: 'Foo' } });
@@ -97,8 +97,8 @@ describe('brands', function () {
       });
     });
 
-    describe('edit', function () {
-      it('only works if you are logged in', function () {
+    describe('edit', function() {
+      it('only works if you are logged in', function() {
         assert.throws(
           () => {
             edit._execute({}, { id: brandId, doc: { name: 'Bar' } });
@@ -108,31 +108,25 @@ describe('brands', function () {
         );
       });
 
-      it('not found', function () {
+      it('not found', function() {
         assert.throws(
           () => {
-            edit._execute(
-              { userId },
-              { id: Random.id(), doc: { name: 'Bar' } },
-            );
+            edit._execute({ userId }, { id: Random.id(), doc: { name: 'Bar' } });
           },
           Meteor.Error,
           /brands.edit.notFound/,
         );
       });
 
-      it('edit', function () {
-        edit._execute(
-          { userId },
-          { id: brandId, doc: { name: 'Bar' } },
-        );
+      it('edit', function() {
+        edit._execute({ userId }, { id: brandId, doc: { name: 'Bar' } });
 
         assert.equal(Brands.findOne(brandId).name, 'Bar');
       });
     });
 
-    describe('remove', function () {
-      it('only works if you are logged in', function () {
+    describe('remove', function() {
+      it('only works if you are logged in', function() {
         assert.throws(
           () => {
             remove._execute({}, brandId);
@@ -142,7 +136,7 @@ describe('brands', function () {
         );
       });
 
-      it('not found', function () {
+      it('not found', function() {
         assert.throws(
           () => {
             remove._execute({ userId }, Random.id());
@@ -152,7 +146,7 @@ describe('brands', function () {
         );
       });
 
-      it('remove', function () {
+      it('remove', function() {
         assert.equal(Brands.find().count(), 1);
         Customers.remove(customerId);
 

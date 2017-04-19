@@ -13,7 +13,6 @@ import CopyToClipboard from 'react-copy-to-clipboard';
 import { Brands } from '/imports/api/brands/brands';
 import SelectBrand from './SelectBrand.jsx';
 
-
 class Common extends Component {
   static installCodeIncludeScript(type) {
     return `
@@ -79,11 +78,7 @@ class Common extends Component {
       <form className="margined" onSubmit={this.handleSubmit}>
         <FormGroup controlId="integration-name">
           <ControlLabel>Name</ControlLabel>
-          <FormControl
-            type="text"
-            defaultValue={integration.name}
-            required
-          />
+          <FormControl type="text" defaultValue={integration.name} required />
         </FormGroup>
 
         <SelectBrand
@@ -98,18 +93,16 @@ class Common extends Component {
           <ControlLabel>Install code</ControlLabel>
           <div className="markdown-wrapper">
             <ReactMarkdown source={this.state.code} />
-            {
-              this.state.code ?
-                <CopyToClipboard
+            {this.state.code
+              ? <CopyToClipboard
                   text={this.state.code}
                   onCopy={() => this.setState({ copied: true })}
                 >
                   <Button bsSize="small" bsStyle="primary">
                     {this.state.copied ? 'Copied' : 'Copy to clipboard'}
                   </Button>
-                </CopyToClipboard> :
-                null
-            }
+                </CopyToClipboard>
+              : null}
           </div>
         </FormGroup>
 

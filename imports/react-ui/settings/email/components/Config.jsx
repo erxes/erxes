@@ -10,7 +10,6 @@ import {
 } from 'react-bootstrap';
 import Alert from 'meteor/erxes-notifier';
 
-
 const propTypes = {
   brand: PropTypes.object.isRequired,
   configEmail: PropTypes.func.isRequired,
@@ -25,8 +24,10 @@ class Config extends Component {
   constructor(props) {
     super(props);
 
-    const { type, template } = props.brand.emailConfig ||
-      { type: 'simple', template: '' };
+    const { type, template } = props.brand.emailConfig || {
+      type: 'simple',
+      template: '',
+    };
 
     this.state = { type, template: template || props.defaultTemplate };
 

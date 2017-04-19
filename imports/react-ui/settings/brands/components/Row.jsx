@@ -5,7 +5,6 @@ import Alert from 'meteor/erxes-notifier';
 import { BrandForm } from '../containers';
 import { ModalTrigger, Tip, ActionButtons } from '/imports/react-ui/common';
 
-
 const propTypes = {
   brand: PropTypes.object.isRequired,
   removeBrand: PropTypes.func.isRequired,
@@ -25,7 +24,7 @@ class Row extends Component {
 
     removeBrand(brand._id, error => {
       if (error) {
-        return Alert.error('Can\'t delete a brand', error.reason);
+        return Alert.error("Can't delete a brand", error.reason);
       }
 
       return Alert.success('Congrats', 'Brand has deleted.');

@@ -1,15 +1,8 @@
 import React, { PropTypes } from 'react';
-import {
-  Button,
-  FormGroup,
-  ControlLabel,
-  FormControl,
-  ButtonToolbar,
-} from 'react-bootstrap';
+import { Button, FormGroup, ControlLabel, FormControl, ButtonToolbar } from 'react-bootstrap';
 import Alert from 'meteor/erxes-notifier';
 import { Wrapper } from '/imports/react-ui/layout/components';
 import Sidebar from '../../Sidebar.jsx';
-
 
 const propTypes = {
   user: PropTypes.object.isRequired,
@@ -32,12 +25,11 @@ class ChangePassword extends React.Component {
         newPassword: document.getElementById('new-password').value,
         confirmation: document.getElementById('new-password-confirmation').value,
       },
-
-      (error) => {
+      error => {
         if (error) return Alert.error(error.reason);
 
         return Alert.success('Your password has been changed, now and forever more!');
-      }
+      },
     );
   }
 
@@ -47,20 +39,12 @@ class ChangePassword extends React.Component {
         <form onSubmit={this.handleSubmit}>
           <FormGroup>
             <ControlLabel>Current Password</ControlLabel>
-            <FormControl
-              type="password"
-              placeholder="Current password"
-              id="current-password"
-            />
+            <FormControl type="password" placeholder="Current password" id="current-password" />
           </FormGroup>
 
           <FormGroup>
             <ControlLabel>New Password</ControlLabel>
-            <FormControl
-              type="password"
-              placeholder="Enter new password"
-              id="new-password"
-            />
+            <FormControl type="password" placeholder="Enter new password" id="new-password" />
           </FormGroup>
 
           <FormGroup>

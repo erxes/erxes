@@ -3,7 +3,6 @@ import { getTrackerLoader, composerOptions } from '/imports/react-ui/utils';
 import { add, edit } from '/imports/api/tags/methods';
 import { Form } from '../components';
 
-
 function composer({ tag, type }, onData) {
   function submit(doc, callback) {
     if (tag) {

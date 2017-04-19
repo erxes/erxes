@@ -18,7 +18,9 @@ Meteor.publish('channels.list', function channelsList(params) {
     origin: Match.Optional(String),
   });
 
-  Counts.publish(this, 'channels.list.count', Channels.find(), { noReady: true });
+  Counts.publish(this, 'channels.list.count', Channels.find(), {
+    noReady: true,
+  });
 
   const user = Meteor.users.findOne(this.userId);
   const query = {};
@@ -47,8 +49,5 @@ Meteor.publish('channels.getById', function channelsGetById(id) {
     return this.ready();
   }
 
-  return Channels.find(
-    { _id: id },
-    { fields: Channels.publicFields },
-  );
+  return Channels.find({ _id: id }, { fields: Channels.publicFields });
 });

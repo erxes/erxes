@@ -4,7 +4,6 @@ import moment from 'moment';
 import { FlowRouter } from 'meteor/kadira:flow-router';
 import { NameCard } from '/imports/react-ui/common';
 
-
 class NotificationRow extends Component {
   constructor(props) {
     super(props);

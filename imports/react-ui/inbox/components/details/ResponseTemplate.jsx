@@ -3,17 +3,11 @@ import Alert from 'meteor/erxes-notifier';
 import React, { PropTypes, Component } from 'react';
 import { FlowRouter } from 'meteor/kadira:flow-router';
 import strip from 'strip';
-import {
-  Button,
-  FormControl,
-  Popover,
-  OverlayTrigger,
-} from 'react-bootstrap';
+import { Button, FormControl, Popover, OverlayTrigger } from 'react-bootstrap';
 
 import { add } from '/imports/api/responseTemplates/methods';
 import { EmptyState } from '/imports/react-ui/common';
 import ResponseTemplateModal from './ResponseTemplateModal.jsx';
-
 
 const propTypes = {
   brandId: PropTypes.string.isRequired,
@@ -49,7 +43,7 @@ class ResponseTemplate extends Component {
       files: this.props.attachments,
     };
 
-    add.call({ doc }, (error) => {
+    add.call({ doc }, error => {
       if (error) return Alert.error(error.message);
 
       Alert.success('Congrats');
@@ -76,9 +70,7 @@ class ResponseTemplate extends Component {
   }
 
   filterByBrand(brandId) {
-    return _.filter(this.props.responseTemplates, option =>
-      option.brandId === brandId,
-    );
+    return _.filter(this.props.responseTemplates, option => option.brandId === brandId);
   }
 
   filterItems(e) {
@@ -89,16 +81,10 @@ class ResponseTemplate extends Component {
     const { options, key } = this.state;
 
     if (options.length === 0) {
-      return (
-        <EmptyState
-          icon={<i className="ion-clipboard" />}
-          text="No templates"
-          size="small"
-        />
-      );
+      return <EmptyState icon={<i className="ion-clipboard" />} text="No templates" size="small" />;
     }
 
-    return options.map((item) => {
+    return options.map(item => {
       // filter items by key
       if (key && item.name.toLowerCase().indexOf(key) < 0) {
         return false;
@@ -112,7 +98,6 @@ class ResponseTemplate extends Component {
       );
     });
   }
-
 
   render() {
     const { brands, content, brandId } = this.props;
@@ -142,9 +127,11 @@ class ResponseTemplate extends Component {
                 onChange={this.onFilter}
                 defaultValue={this.state.brandId}
               >
-                {brands.map(brand =>
-                  <option key={brand._id} value={brand._id}>{brand.name}</option>,
-                )}
+                {brands.map(brand => (
+                  <option key={brand._id} value={brand._id}>
+                    {brand.name}
+                  </option>
+                ))}
               </FormControl>
             </div>
           </div>
@@ -169,12 +156,7 @@ class ResponseTemplate extends Component {
 
     return (
       <div className="response-template">
-        <OverlayTrigger
-          trigger="click"
-          placement="top"
-          overlay={popover}
-          rootClose
-        >
+        <OverlayTrigger trigger="click" placement="top" overlay={popover} rootClose>
           <Button bsStyle="link" className="dropup">
             <i className="ion-clipboard" /> Templates <span className="caret" />
           </Button>

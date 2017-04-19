@@ -1,13 +1,8 @@
 import React, { PropTypes, Component } from 'react';
-import {
-  Modal,
-  Button,
-  ButtonToolbar,
-} from 'react-bootstrap';
+import { Modal, Button, ButtonToolbar } from 'react-bootstrap';
 import { Wrapper } from '/imports/react-ui/layout/components';
 import Sidebar from '../../Sidebar.jsx';
 import SelectBrand from './SelectBrand.jsx';
-
 
 class Twitter extends Component {
   constructor(props, context) {

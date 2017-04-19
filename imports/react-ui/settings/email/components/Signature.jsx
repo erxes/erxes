@@ -1,16 +1,8 @@
 import React, { PropTypes } from 'react';
-import {
-  FormGroup,
-  ControlLabel,
-  FormControl,
-  Button,
-  ButtonToolbar,
-  Well,
-} from 'react-bootstrap';
+import { FormGroup, ControlLabel, FormControl, Button, ButtonToolbar, Well } from 'react-bootstrap';
 import Alert from 'meteor/erxes-notifier';
 import { Wrapper } from '/imports/react-ui/layout/components';
 import Sidebar from '../../Sidebar.jsx';
-
 
 const propTypes = {
   signatures: PropTypes.array.isRequired,
@@ -38,8 +30,8 @@ class Signature extends React.Component {
       return {};
     }
 
-    return this.state.signatures.find(signature =>
-      signature.brandId.toString() === currentId.toString(),
+    return this.state.signatures.find(
+      signature => signature.brandId.toString() === currentId.toString(),
     );
   }
 
@@ -57,7 +49,7 @@ class Signature extends React.Component {
   handleSubmit(e) {
     e.preventDefault();
 
-    this.props.save(this.state.signatures, (error) => {
+    this.props.save(this.state.signatures, error => {
       if (error) return Alert.error(error.reason);
 
       return Alert.success('Congrats');
@@ -81,11 +73,11 @@ class Signature extends React.Component {
             <FormControl componentClass="select">
               <option>------------</option>
 
-              {this.props.signatures.map(signature =>
+              {this.props.signatures.map(signature => (
                 <option key={signature.brandId} value={signature.brandId}>
                   {signature.brandName}
-                </option>,
-              )}
+                </option>
+              ))}
             </FormControl>
           </FormGroup>
 

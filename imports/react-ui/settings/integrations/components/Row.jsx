@@ -5,7 +5,6 @@ import { ModalTrigger, Tip, ActionButtons } from '/imports/react-ui/common';
 import { KIND_CHOICES } from '/imports/api/integrations/constants';
 import { Chat, Form, InAppMessaging } from '../containers';
 
-
 const propTypes = {
   integration: PropTypes.object.isRequired,
   removeIntegration: PropTypes.func.isRequired,
@@ -23,9 +22,9 @@ class Row extends Component {
 
     const { integration, removeIntegration } = this.props;
 
-    removeIntegration(integration._id, (error) => {
+    removeIntegration(integration._id, error => {
       if (error) {
-        return Alert.error('Can\'t delete a integration', error.reason);
+        return Alert.error("Can't delete a integration", error.reason);
       }
 
       return Alert.success('Congrats', 'Integration has deleted.');

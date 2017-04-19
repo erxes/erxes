@@ -4,7 +4,6 @@ import { compose } from 'react-komposer';
 import { getTrackerLoader, composerOptions } from '/imports/react-ui/utils';
 import { NotificationsLatest } from '../../components';
 
-
 function composer(props, onData) {
   const handler = Meteor.subscribe('notifications.latest', {
     limit: 10,
@@ -14,12 +13,9 @@ function composer(props, onData) {
   if (handler.ready()) {
     const createdUserIds = [];
 
-    const notifications = Notifications.find(
-      {},
-      { limit: 10, sort: { date: -1 } },
-    );
+    const notifications = Notifications.find({}, { limit: 10, sort: { date: -1 } });
 
-    notifications.forEach((notification) => {
+    notifications.forEach(notification => {
       createdUserIds.push(notification.createdUser);
     });
 
@@ -29,7 +25,6 @@ function composer(props, onData) {
   }
 }
 
-export default compose(
-  getTrackerLoader(composer),
-  composerOptions({ spinner: true }),
-)(NotificationsLatest);
+export default compose(getTrackerLoader(composer), composerOptions({ spinner: true }))(
+  NotificationsLatest,
+);

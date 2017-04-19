@@ -4,25 +4,15 @@ import { Scrollbars } from 'react-custom-scrollbars';
 import { EmptyState } from '/imports/react-ui/common';
 import { NotificationRow } from '../../containers';
 
-
 function NotificationsLatest({ notifications }) {
   const notifCount = notifications.length;
 
   let seeAll = <a href={FlowRouter.path('/notifications')}>See all</a>;
 
   let content = (
-    <Scrollbars
-      className="notifications-area"
-      style={{ maxHeight: 300 }}
-      autoHide
-      autoHeight
-    >
+    <Scrollbars className="notifications-area" style={{ maxHeight: 300 }} autoHide autoHeight>
       <ul className="notifications-list">
-        {
-          notifications.map((notif, key) =>
-            <NotificationRow notification={notif} key={key} />,
-          )
-        }
+        {notifications.map((notif, key) => <NotificationRow notification={notif} key={key} />)}
       </ul>
     </Scrollbars>
   );

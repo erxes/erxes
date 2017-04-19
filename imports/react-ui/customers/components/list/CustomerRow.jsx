@@ -3,7 +3,6 @@ import moment from 'moment';
 import { FlowRouter } from 'meteor/kadira:flow-router';
 import { Tags } from '/imports/react-ui/common';
 
-
 const propTypes = {
   customer: React.PropTypes.object.isRequired,
 };
@@ -18,11 +17,9 @@ function CustomerRow({ customer }) {
   return (
     <tr>
       <td className="less-space text-center">
-        {
-          inAppMessagingData.isActive
-            ? <i className="ion-record text-success" />
-            : <i className="ion-record text-muted" />
-        }
+        {inAppMessagingData.isActive
+          ? <i className="ion-record text-success" />
+          : <i className="ion-record text-muted" />}
       </td>
       <td>
         <a href={FlowRouter.path('customers/details', { id: customer._id })}>

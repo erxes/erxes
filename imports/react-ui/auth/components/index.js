@@ -5,7 +5,6 @@ import ForgotPassword from './ForgotPassword.jsx';
 import ResetPassword from './ResetPassword.jsx';
 import UserCommonInfos from './UserCommonInfos.jsx';
 
-
 export {
   AuthBox,
   SignIn,

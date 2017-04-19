@@ -1,7 +1,4 @@
 import UsersList from './UsersList';
 import InviteForm from './InviteForm';
 
-export {
-  UsersList,
-  InviteForm,
-};
+export { UsersList, InviteForm };

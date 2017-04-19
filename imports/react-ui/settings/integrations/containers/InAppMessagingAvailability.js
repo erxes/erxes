@@ -6,13 +6,11 @@ import { Integrations } from '/imports/api/integrations/integrations';
 import { InAppMessagingAvailability } from '../components';
 
 const composer = (props, onData) => {
-  const save = (doc) => {
+  const save = doc => {
     Meteor.call(
       'integrations.saveInAppMessagingAvailability',
-
       { _id: props.integrationId, doc },
-
-      (error) => {
+      error => {
         if (error) return Alert.error(error.reason);
 
         return Alert.success('Successfully saved.');
@@ -34,7 +32,6 @@ const composer = (props, onData) => {
   });
 };
 
-export default compose(getTrackerLoader(
-  composer,
-  composerOptions({ spinner: true }),
-))(InAppMessagingAvailability);
+export default compose(getTrackerLoader(composer, composerOptions({ spinner: true })))(
+  InAppMessagingAvailability,
+);

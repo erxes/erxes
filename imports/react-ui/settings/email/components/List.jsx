@@ -4,7 +4,6 @@ import { Wrapper } from '/imports/react-ui/layout/components';
 import Row from './Row.jsx';
 import Sidebar from '../../Sidebar.jsx';
 
-
 const propTypes = {
   brands: PropTypes.array.isRequired,
 };
@@ -20,9 +19,7 @@ function List({ brands }) {
         </tr>
       </thead>
       <tbody>
-        {brands.map(brand =>
-          <Row brand={brand} key={brand.code} />,
-        )}
+        {brands.map(brand => <Row brand={brand} key={brand.code} />)}
       </tbody>
     </Table>
   );

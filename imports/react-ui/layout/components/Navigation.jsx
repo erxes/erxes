@@ -2,7 +2,6 @@ import React from 'react';
 import { FlowRouter } from 'meteor/kadira:flow-router';
 import { Tip } from '/imports/react-ui/common';
 
-
 function Navigation() {
   return (
     <aside className="navigation">

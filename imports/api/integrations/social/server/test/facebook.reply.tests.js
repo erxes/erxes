@@ -14,23 +14,25 @@ import { Messages } from '/imports/api/conversations/messages';
 
 import { graphRequest, facebookReply } from '../facebook';
 
-describe('facebook integration: reply', function () {
+describe('facebook integration: reply', function() {
   const senderId = 2242424244;
   let integration;
   const pageId = '2252525525';
 
-  beforeEach(function () {
+  beforeEach(function() {
     // clear previous data
     Conversations.remove({});
     Integrations.remove({});
     Messages.remove();
 
     // mock settings
-    Meteor.settings.services.facebook = [{
-      id: 'id',
-      name: 'name',
-      accessToken: 'access_token',
-    }];
+    Meteor.settings.services.facebook = [
+      {
+        id: 'id',
+        name: 'name',
+        accessToken: 'access_token',
+      },
+    ];
 
     // create integration
     integration = Factory.create('integration', {
@@ -44,13 +46,13 @@ describe('facebook integration: reply', function () {
     }));
   });
 
-  afterEach(function () {
+  afterEach(function() {
     // unwraps the spy
     graphRequest.get.restore();
     graphRequest.post.restore();
   });
 
-  it('messenger', function () {
+  it('messenger', function() {
     const conversation = Factory.create('conversation', {
       integrationId: integration._id,
       'facebookData.kind': FACEBOOK_DATA_KINDS.MESSENGER,
@@ -70,7 +72,7 @@ describe('facebook integration: reply', function () {
     assert.equal(stub.calledWith('me/messages', 'page_access_token'), true);
   });
 
-  it('feed', function () {
+  it('feed', function() {
     const conversation = Factory.create('conversation', {
       integrationId: integration._id,
       'facebookData.kind': FACEBOOK_DATA_KINDS.FEED,
@@ -98,10 +100,7 @@ describe('facebook integration: reply', function () {
 
     // check mongo update
     assert.equal(
-      mongoStub.calledWith(
-        { _id: messageId },
-        { $set: { 'facebookData.commentId': 'commentId' } },
-      ),
+      mongoStub.calledWith({ _id: messageId }, { $set: { 'facebookData.commentId': 'commentId' } }),
       true,
     );
 

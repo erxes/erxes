@@ -4,7 +4,6 @@ import { Counts } from 'meteor/tmeasday:publish-counts';
 import { LoadMore } from '/imports/react-ui/common';
 import { CustomerRow } from '/imports/react-ui/customers/components';
 
-
 const propTypes = {
   customers: PropTypes.array.isRequired,
 };
@@ -25,11 +24,7 @@ function Preview({ customers }) {
           </tr>
         </thead>
         <tbody>
-          {
-            customers.map(customer =>
-              <CustomerRow customer={customer} key={customer._id} />,
-            )
-          }
+          {customers.map(customer => <CustomerRow customer={customer} key={customer._id} />)}
         </tbody>
       </Table>
       <LoadMore all={Counts.get('customers.list.count')} perPage={20} />

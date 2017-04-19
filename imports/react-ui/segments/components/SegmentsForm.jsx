@@ -17,7 +17,6 @@ import Conditions from './Conditions.jsx';
 import AddConditionButton from './AddConditionButton.jsx';
 import { Preview } from '../containers';
 
-
 const propTypes = {
   fields: PropTypes.array.isRequired,
   create: PropTypes.func.isRequired,
@@ -33,13 +32,15 @@ class SegmentsForm extends Component {
   constructor(props) {
     super(props);
 
-    this.state = props.segment ? props.segment : {
-      name: '',
-      description: '',
-      color: SegmentsForm.generateRandomColorCode(),
-      conditions: [],
-      connector: 'any',
-    };
+    this.state = props.segment
+      ? props.segment
+      : {
+          name: '',
+          description: '',
+          color: SegmentsForm.generateRandomColorCode(),
+          conditions: [],
+          connector: 'any',
+        };
 
     this.addCondition = this.addCondition.bind(this);
     this.changeCondition = this.changeCondition.bind(this);
@@ -53,18 +54,13 @@ class SegmentsForm extends Component {
 
   addCondition(condition) {
     this.setState({
-      conditions: [
-        ...this.state.conditions,
-        condition,
-      ],
+      conditions: [...this.state.conditions, condition],
     });
   }
 
   changeCondition(condition) {
     this.setState({
-      conditions: this.state.conditions.map(c =>
-        c.field === condition.field ? condition : c,
-      ),
+      conditions: this.state.conditions.map(c => (c.field === condition.field ? condition : c)),
     });
   }
 
@@ -104,7 +100,7 @@ class SegmentsForm extends Component {
     const params = { doc: { name, description, color, connector, conditions } };
     Object.assign(params, segment ? { id: segment._id } : {});
 
-    submit(params, (error) => {
+    submit(params, error => {
       if (error) {
         return Alert.error(error.reason);
       }
@@ -204,10 +200,7 @@ class SegmentsForm extends Component {
                 </div>
               }
               footer={
-                <AddConditionButton
-                  fields={changedFields}
-                  addCondition={this.addCondition}
-                />
+                <AddConditionButton fields={changedFields} addCondition={this.addCondition} />
               }
             >
               <Conditions

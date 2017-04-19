@@ -3,7 +3,6 @@ import { Spinner } from '/imports/react-ui/common';
 import Navigation from './Navigation.jsx';
 import AlertContainer from '../../common/alert/containers/AlertContainer';
 
-
 const propTypes = {
   content: PropTypes.element,
   userId: PropTypes.string,

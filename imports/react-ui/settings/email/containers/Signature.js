@@ -13,7 +13,7 @@ function composer(props, onData) {
     const doc = [];
 
     // remove brandName from list
-    _.each(signatures, (signature) => {
+    _.each(signatures, signature => {
       doc.push({
         brandId: signature.brandId,
         signature: signature.content,
@@ -30,7 +30,7 @@ function composer(props, onData) {
     const emailSignatures = currentUser.emailSignatures || [];
     const signatures = [];
 
-    Brands.find().forEach((brand) => {
+    Brands.find().forEach(brand => {
       // previously configured signature
       const oldEntry = emailSignatures.find(signature => signature.brandId === brand._id);
 

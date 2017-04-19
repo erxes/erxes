@@ -1,6 +1,5 @@
 import React, { PropTypes } from 'react';
 
-
 const propTypes = {
   actionBar: PropTypes.node,
   footer: PropTypes.node,

@@ -2,7 +2,6 @@ import React, { PropTypes, Component } from 'react';
 import { FormGroup, ControlLabel, FormControl, Button } from 'react-bootstrap';
 import Alert from 'meteor/erxes-notifier';
 
-
 const propTypes = {
   tag: PropTypes.object,
   type: PropTypes.string.isRequired,
@@ -39,7 +38,7 @@ class Form extends Component {
     const { type, submit } = this.props;
     const { name, colorCode } = this.state;
 
-    submit({ name, type, colorCode }, (error) => {
+    submit({ name, type, colorCode }, error => {
       if (error) {
         return Alert.error(error.reason);
       }
@@ -64,21 +63,12 @@ class Form extends Component {
       <form onSubmit={this.submit}>
         <FormGroup controlId="name">
           <ControlLabel>Name</ControlLabel>
-          <FormControl
-            type="text"
-            value={name}
-            onChange={this.handleName}
-            required
-          />
+          <FormControl type="text" value={name} onChange={this.handleName} required />
         </FormGroup>
 
         <FormGroup controlId="colorCode">
           <ControlLabel>Color code</ControlLabel>
-          <FormControl
-            type="color"
-            value={colorCode}
-            onChange={this.handleColorCode}
-          />
+          <FormControl type="color" value={colorCode} onChange={this.handleColorCode} />
         </FormGroup>
 
         <Button type="submit">Save</Button>

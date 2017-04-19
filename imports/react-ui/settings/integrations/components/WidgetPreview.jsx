@@ -5,7 +5,7 @@ function WidgetPreview({ color, wallpaper, user }) {
   const fullName = (user.details && user.details.fullName) || 'Support staff';
   const backgroundClasses = `erxes-messages-list background-${wallpaper}`;
   return (
-    <div className="widget-preview" >
+    <div className="widget-preview">
       <div className="erxes-topbar" style={{ backgroundColor: color }}>
         <div className="topbar-button" />
         <div className="erxes-middle">
@@ -34,10 +34,7 @@ function WidgetPreview({ color, wallpaper, user }) {
           <div className="date">1 hour ago</div>
         </li>
         <li className="from-customer">
-          <div
-            className="erxes-message from-customer"
-            style={{ backgroundColor: color }}
-          >
+          <div className="erxes-message from-customer" style={{ backgroundColor: color }}>
             We need your help!
           </div>
           <div className="date">6 minutes ago</div>

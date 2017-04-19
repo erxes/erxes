@@ -1,7 +1,6 @@
 import React, { PropTypes } from 'react';
 import ListRow from './Row.jsx';
 
-
 const propTypes = {
   conversations: PropTypes.array.isRequired,
   user: PropTypes.object.isRequired,
@@ -14,19 +13,17 @@ function Conversations({ conversations, user, toggleBulk, channelId }) {
 
   return (
     <ul className="conversations-list">
-      {
-        conversations.map(c =>
-          <ListRow
-            key={c._id}
-            conversation={c}
-            isRead={c.readUserIds && c.readUserIds.indexOf(user._id) > -1}
-            starred={starredConversationIds.indexOf(c._id) !== -1}
-            isParticipated={!!c.participatedUserIds && c.participatedUserIds.indexOf(user._id) > -1}
-            toggleBulk={toggleBulk}
-            channelId={channelId}
-          />,
-        )
-      }
+      {conversations.map(c => (
+        <ListRow
+          key={c._id}
+          conversation={c}
+          isRead={c.readUserIds && c.readUserIds.indexOf(user._id) > -1}
+          starred={starredConversationIds.indexOf(c._id) !== -1}
+          isParticipated={!!c.participatedUserIds && c.participatedUserIds.indexOf(user._id) > -1}
+          toggleBulk={toggleBulk}
+          channelId={channelId}
+        />
+      ))}
     </ul>
   );
 }

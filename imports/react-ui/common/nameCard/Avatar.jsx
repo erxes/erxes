@@ -1,6 +1,5 @@
 import React, { PropTypes, Component } from 'react';
 
-
 const propTypes = {
   user: PropTypes.object,
   customer: PropTypes.object,
@@ -25,10 +24,7 @@ class Avatar extends Component {
   renderInitials(fullName) {
     const { size } = this.props;
     const initials = fullName
-      ? fullName.split(' ')
-          .map(s => s.charAt(0))
-          .join('.')
-          .toUpperCase()
+      ? fullName.split(' ').map(s => s.charAt(0)).join('.').toUpperCase()
       : <div className="no-user" style={this.generateStyle(size)} />;
 
     return (
@@ -54,13 +50,11 @@ class Avatar extends Component {
 
     return (
       // TODO: jump to user profile
-      <a href="#" className="avatar">
-        {
-          avatar
-            ? this.renderImage(avatar, fullName)
-            : this.renderInitials(fullName)
-        }
-      </a>
+      (
+        <a href="#" className="avatar">
+          {avatar ? this.renderImage(avatar, fullName) : this.renderInitials(fullName)}
+        </a>
+      )
     );
   }
 }

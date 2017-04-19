@@ -2,7 +2,6 @@ import React, { PropTypes } from 'react';
 import Alert from 'meteor/erxes-notifier';
 import classNames from 'classnames';
 
-
 const propTypes = {
   conversation: PropTypes.object.isRequired,
   participated: PropTypes.bool.isRequired,
@@ -11,7 +10,7 @@ const propTypes = {
 
 function Participate({ toggleParticipate, conversation, participated }) {
   function toggle() {
-    toggleParticipate({ conversationIds: [conversation._id] }, (error) => {
+    toggleParticipate({ conversationIds: [conversation._id] }, error => {
       if (error) {
         return Alert.error(error.reason || error.message || error.toString());
       }

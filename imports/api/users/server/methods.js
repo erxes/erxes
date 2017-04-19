@@ -14,7 +14,6 @@ import {
   EmailSignaturesSchema,
 } from '../schemas';
 
-
 // ***************** helpers ******************* //
 
 // update user's channels
@@ -27,11 +26,7 @@ const updateUserChannels = (channelIds, userId) => {
   );
 
   // add to given channels
-  Channels.update(
-    { _id: { $in: channelIds } },
-    { $push: { memberIds: userId } },
-    { multi: true },
-  );
+  Channels.update({ _id: { $in: channelIds } }, { $push: { memberIds: userId } }, { multi: true });
 };
 
 // update user's common infos
@@ -43,25 +38,19 @@ const updateUserCommonInfos = (userId, doc) => {
 
   // check twitterUsername duplication
   if (doc.twitterUsername && user) {
-    throw new Meteor.Error(
-      'users.updateInfo.wrongTwitterUsername',
-      'Duplicated twitter username',
-    );
+    throw new Meteor.Error('users.updateInfo.wrongTwitterUsername', 'Duplicated twitter username');
   }
 
-  Meteor.users.update(
-    userId,
-    {
-      $set: {
-        username: doc.username,
-        'details.twitterUsername': doc.twitterUsername,
-        'details.avatar': doc.avatar,
-        'details.fullName': doc.fullName,
-        'details.position': doc.position,
-        'emails.0.address': doc.email,
-      },
+  Meteor.users.update(userId, {
+    $set: {
+      username: doc.username,
+      'details.twitterUsername': doc.twitterUsername,
+      'details.avatar': doc.avatar,
+      'details.fullName': doc.fullName,
+      'details.position': doc.position,
+      'emails.0.address': doc.email,
     },
-  );
+  });
 };
 
 const checkPasswordConfirmation = (password, passwordConfirmation) => {
@@ -73,9 +62,7 @@ const checkPasswordConfirmation = (password, passwordConfirmation) => {
   }
 };
 
-
 // ***************** methods ******************* //
-
 
 // create user and invite to given channels
 export const invite = new ValidatedMethod({
@@ -85,29 +72,39 @@ export const invite = new ValidatedMethod({
 
   run(doc) {
     const {
-      username, twitterUsername, avatar, position, fullName, email, role,
-      channelIds, password, passwordConfirmation,
+      username,
+      twitterUsername,
+      avatar,
+      position,
+      fullName,
+      email,
+      role,
+      channelIds,
+      password,
+      passwordConfirmation,
     } = doc;
 
     checkPasswordConfirmation(password, passwordConfirmation);
 
     // create user with given email and role
-    const userId = Accounts.createUser(
-      {
-        email,
-        invite: true,
-        details: { role },
-      },
-    );
+    const userId = Accounts.createUser({
+      email,
+      invite: true,
+      details: { role },
+    });
 
     // set new password
     Accounts.setPassword(userId, password);
 
     // set profile infos
-    updateUserCommonInfos(
-      userId,
-      { twitterUsername, username, avatar, fullName, position, email },
-    );
+    updateUserCommonInfos(userId, {
+      twitterUsername,
+      username,
+      avatar,
+      fullName,
+      position,
+      email,
+    });
 
     // add new user to channels
     updateUserChannels(channelIds, userId);
@@ -127,7 +124,6 @@ export const invite = new ValidatedMethod({
   },
 });
 
-
 // update invitation info
 export const updateInvitationInfos = new ValidatedMethod({
   name: 'users.updateInvitationInfos',
@@ -136,8 +132,17 @@ export const updateInvitationInfos = new ValidatedMethod({
 
   run(doc) {
     const {
-      userId, twitterUsername, position, username, avatar, fullName, email,
-      role, channelIds, password, passwordConfirmation,
+      userId,
+      twitterUsername,
+      position,
+      username,
+      avatar,
+      fullName,
+      email,
+      role,
+      channelIds,
+      password,
+      passwordConfirmation,
     } = doc;
 
     // update user channels channels
@@ -155,12 +160,16 @@ export const updateInvitationInfos = new ValidatedMethod({
 
     // if user is not owner then update profile infos
     if (!user.isOwner) {
-      updateUserCommonInfos(
-        userId,
-        { username, twitterUsername, avatar, position, fullName, email },
-      );
+      updateUserCommonInfos(userId, {
+        username,
+        twitterUsername,
+        avatar,
+        position,
+        fullName,
+        email,
+      });
 
-       // update role
+      // update role
       Meteor.users.update(userId, { $set: { 'details.role': role } });
     }
   },
@@ -177,16 +186,12 @@ export const editProfile = new ValidatedMethod({
     const result = Accounts._checkPassword(Meteor.user(), doc.currentPassword);
 
     if (result.error) {
-      throw new Meteor.Error(
-        'users.editProfile.invalidPassword',
-        result.error.reason,
-      );
+      throw new Meteor.Error('users.editProfile.invalidPassword', result.error.reason);
     }
 
     return updateUserCommonInfos(this.userId, doc);
   },
 });
-
 
 // remove user
 export const remove = new ValidatedMethod({
@@ -202,10 +207,7 @@ export const remove = new ValidatedMethod({
 
     // can not delete owner
     if (user.isOwner) {
-      throw new Meteor.Error(
-        'users.remove.canNotDeleteOwner',
-        'You cannot delete the owner.',
-      );
+      throw new Meteor.Error('users.remove.canNotDeleteOwner', 'You cannot delete the owner.');
     }
 
     // if the user involved in any channel then can not delete this user
@@ -228,7 +230,6 @@ export const remove = new ValidatedMethod({
   },
 });
 
-
 export const configEmailSignature = new ValidatedMethod({
   name: 'users.configEmailSignature',
   mixins: [ErxesMixin],
@@ -238,7 +239,6 @@ export const configEmailSignature = new ValidatedMethod({
     Meteor.users.update(this.userId, { $set: { emailSignatures: signatures } });
   },
 });
-
 
 // get notification by email config
 export const configGetNotificationByEmail = new ValidatedMethod({
@@ -250,9 +250,8 @@ export const configGetNotificationByEmail = new ValidatedMethod({
   },
 
   run({ isAllowed }) {
-    Meteor.users.update(
-      this.userId,
-      { $set: { 'details.getNotificationByEmail': isAllowed } },
-    );
+    Meteor.users.update(this.userId, {
+      $set: { 'details.getNotificationByEmail': isAllowed },
+    });
   },
 });

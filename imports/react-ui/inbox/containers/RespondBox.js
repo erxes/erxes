@@ -25,14 +25,14 @@ function composer(props, onData) {
 
   const teamMembers = [];
 
-  Meteor.users.find().forEach(user => (
+  Meteor.users.find().forEach(user =>
     teamMembers.push({
       _id: user._id,
       name: user.username,
       title: user.details.position,
       avatar: user.details.avatar,
-    })
-  ));
+    }),
+  );
 
   onData(null, {
     conversation: props.conversation,

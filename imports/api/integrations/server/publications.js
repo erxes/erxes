@@ -5,7 +5,6 @@ import { Match, check } from 'meteor/check';
 import { Counts } from 'meteor/tmeasday:publish-counts';
 import { Integrations } from '../integrations';
 
-
 Meteor.publish('integrations.list', function integrationList(params) {
   check(params, {
     brandIds: Match.Optional([String]),
@@ -25,23 +24,16 @@ Meteor.publish('integrations.list', function integrationList(params) {
     selector.kind = params.kind;
   }
 
-  Counts.publish(
-    this,
-    'integrations.list.count',
-    Integrations.find(selector, {}),
-    { noReady: true },
-  );
+  Counts.publish(this, 'integrations.list.count', Integrations.find(selector, {}), {
+    noReady: true,
+  });
 
-  return Integrations.find(
-    selector,
-    {
-      fields: Integrations.publicFields,
-      sort: { createdAt: -1 },
-      limit: params.limit,
-    },
-  );
+  return Integrations.find(selector, {
+    fields: Integrations.publicFields,
+    sort: { createdAt: -1 },
+    limit: params.limit,
+  });
 });
-
 
 Meteor.publish('integrations.getById', function integrationsGetById(id) {
   check(id, String);

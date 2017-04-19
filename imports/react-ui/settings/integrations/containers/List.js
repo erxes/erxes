@@ -6,7 +6,6 @@ import { Brands } from '/imports/api/brands/brands';
 import { pagination } from '/imports/react-ui/common';
 import { List } from '../components';
 
-
 function composer({ queryParams }, onData) {
   const { limit, loadMore, hasMore } = pagination(queryParams, 'integrations.list.count');
   const integrationsHandler = Meteor.subscribe(
@@ -23,7 +22,13 @@ function composer({ queryParams }, onData) {
   };
 
   if (integrationsHandler.ready() && brandsHandler.ready()) {
-    onData(null, { integrations, brands, removeIntegration, loadMore, hasMore });
+    onData(null, {
+      integrations,
+      brands,
+      removeIntegration,
+      loadMore,
+      hasMore,
+    });
   }
 }
 

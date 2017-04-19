@@ -12,7 +12,6 @@ import { Tip } from '/imports/react-ui/common';
 import Alert from 'meteor/erxes-notifier';
 import { add, edit } from '/imports/api/channels/methods';
 
-
 const propTypes = {
   integrations: PropTypes.array.isRequired,
   members: PropTypes.array.isRequired,
@@ -40,15 +39,13 @@ class ChannelForm extends Component {
   }
 
   collectValues(items) {
-    return items.map(item => (
-      item.value
-    ));
+    return items.map(item => item.value);
   }
 
   generateGroupedIntegrations(integrations) {
     const brandsMap = {};
 
-    integrations.forEach((integration) => {
+    integrations.forEach(integration => {
       const brand = integration.brand();
       const brandName = brand.name;
 
@@ -56,19 +53,17 @@ class ChannelForm extends Component {
         brandsMap[brandName] = [];
       }
 
-      brandsMap[brandName].push(
-        {
-          channels: integration.channels(),
-          value: integration._id,
-          label: integration.name,
-          kind: integration.kind,
-        },
-      );
+      brandsMap[brandName].push({
+        channels: integration.channels(),
+        value: integration._id,
+        label: integration.name,
+        kind: integration.kind,
+      });
     });
 
     const results = [];
 
-    Object.keys(brandsMap).forEach((brandName) => {
+    Object.keys(brandsMap).forEach(brandName => {
       results.push({
         label: brandName,
         options: brandsMap[brandName],
@@ -78,24 +73,20 @@ class ChannelForm extends Component {
   }
 
   generateIntegrationsParams(integrations) {
-    return integrations.map(integration => (
-      {
-        channels: integration.channels(),
-        value: integration._id,
-        label: integration.name,
-        kind: integration.kind,
-        groupId: integration.brandId,
-      }
-    ));
+    return integrations.map(integration => ({
+      channels: integration.channels(),
+      value: integration._id,
+      label: integration.name,
+      kind: integration.kind,
+      groupId: integration.brandId,
+    }));
   }
 
   generateMembersParams(members) {
-    return members.map(member => (
-      {
-        value: member._id,
-        label: member.details.fullName || '',
-      }
-    ));
+    return members.map(member => ({
+      value: member._id,
+      label: member.details.fullName || '',
+    }));
   }
 
   save(e) {
@@ -117,7 +108,7 @@ class ChannelForm extends Component {
       params.id = this.props.channel._id;
     }
 
-    methodName.call(params, (error) => {
+    methodName.call(params, error => {
       if (error) return Alert.error(error.reason);
 
       Alert.success('Congrats');
@@ -129,7 +120,7 @@ class ChannelForm extends Component {
     const array = channels || [];
     const count = array.length;
     if (count !== 0) {
-      const channelNames = array.map(c => (c.name));
+      const channelNames = array.map(c => c.name);
       return (
         <Tip text={channelNames.toString()}>
           <div className="channel-round">
@@ -153,12 +144,7 @@ class ChannelForm extends Component {
         <FormGroup>
           <ControlLabel>Name</ControlLabel>
 
-          <FormControl
-            id="channel-name"
-            defaultValue={channel.name}
-            type="text"
-            required
-          />
+          <FormControl id="channel-name" defaultValue={channel.name} type="text" required />
         </FormGroup>
 
         <FormGroup>
@@ -177,7 +163,7 @@ class ChannelForm extends Component {
 
           <Select
             placeholder="Choose integrations"
-            onChange={(items) => {
+            onChange={items => {
               self.setState({ selectedIntegrations: items });
             }}
             optionRenderer={option => (
@@ -197,7 +183,7 @@ class ChannelForm extends Component {
 
           <Select
             placeholder="Choose members"
-            onChange={(items) => {
+            onChange={items => {
               self.setState({ selectedMembers: items });
             }}
             value={self.state.selectedMembers}

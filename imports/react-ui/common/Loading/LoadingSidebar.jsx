@@ -24,7 +24,6 @@ function Rows() {
   );
 }
 
-
 function Lines({ title }) {
   return (
     <div className="loading-item">

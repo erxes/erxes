@@ -3,7 +3,6 @@ import { Wrapper } from '/imports/react-ui/layout/components';
 import { Loader, LoadingContent, LoadingSidebar } from '/imports/react-ui/common';
 import { Table } from 'react-bootstrap';
 
-
 function Loading() {
   const content = (
     <Table className="no-wrap loading-table">

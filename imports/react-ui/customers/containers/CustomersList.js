@@ -10,7 +10,6 @@ import { TAG_TYPES } from '/imports/api/tags/constants';
 import { pagination } from '/imports/react-ui/common';
 import { CustomersList } from '../components';
 
-
 function composer({ queryParams }, onData) {
   const { limit, loadMore, hasMore } = pagination(queryParams, 'customers.list.count');
 
@@ -26,8 +25,9 @@ function composer({ queryParams }, onData) {
   const brandsHandle = Meteor.subscribe('brands.list', 100);
   const tagsHandle = Meteor.subscribe('tags.tagList', TAG_TYPES.CUSTOMER);
 
-  if (customersHandle.ready() && segmentsHandle.ready()
-    && brandsHandle.ready() && tagsHandle.ready()) {
+  if (
+    customersHandle.ready() && segmentsHandle.ready() && brandsHandle.ready() && tagsHandle.ready()
+  ) {
     onData(null, {
       customers: Customers.find({}, { sort: { 'inAppMessagingData.lastSeenAt': -1 } }).fetch(),
       segments: Segments.find({}, { sort: { name: 1 } }).fetch(),
@@ -40,7 +40,6 @@ function composer({ queryParams }, onData) {
   }
 }
 
-export default compose(
-  getTrackerLoader(composer),
-  composerOptions({ loading: true }),
-)(CustomersList);
+export default compose(getTrackerLoader(composer), composerOptions({ loading: true }))(
+  CustomersList,
+);

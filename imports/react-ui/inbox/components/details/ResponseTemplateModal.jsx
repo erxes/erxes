@@ -9,7 +9,6 @@ import {
 } from 'react-bootstrap';
 import { ModalTrigger } from '/imports/react-ui/common';
 
-
 const propTypes = {
   onSave: PropTypes.func.isRequired,
   brands: PropTypes.array,
@@ -37,22 +36,13 @@ class ResponseTemplateModal extends Component {
     const { brands, trigger, brandId } = this.props;
 
     return (
-      <ModalTrigger
-        title="Create response template"
-        trigger={trigger}
-      >
+      <ModalTrigger title="Create response template" trigger={trigger}>
 
         <FormGroup controlId="template-brand-id">
           <ControlLabel>Brand</ControlLabel>
 
-          <FormControl
-            componentClass="select"
-            placeholder="Select Brand"
-            defaultValue={brandId}
-          >
-            {brands.map(brand =>
-              <option key={brand._id} value={brand._id}>{brand.name}</option>,
-            )}
+          <FormControl componentClass="select" placeholder="Select Brand" defaultValue={brandId}>
+            {brands.map(brand => <option key={brand._id} value={brand._id}>{brand.name}</option>)}
           </FormControl>
         </FormGroup>
 

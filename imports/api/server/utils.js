@@ -44,7 +44,6 @@ export const uploadFile = ({ name, data }) => {
   return response;
 };
 
-
 // send email helpers ====================
 function applyTemplate(data, templateName) {
   let template = Assets.getText(`emailTemplates/${templateName}.html`);
@@ -66,7 +65,7 @@ export const sendEmail = ({ to, subject, template }) => {
   if (isCustom) {
     html = content;
 
-  // invitation, notification emails can be same
+    // invitation, notification emails can be same
   } else {
     html = applyTemplate({ content }, 'base');
   }
@@ -85,7 +84,7 @@ export const sendEmail = ({ to, subject, template }) => {
 };
 
 // send notification helper
-export const sendNotification = (_doc) => {
+export const sendNotification = _doc => {
   const doc = _doc;
 
   // Splitting receivers
@@ -93,7 +92,7 @@ export const sendNotification = (_doc) => {
   delete doc.receivers;
 
   // Inserting entry to every receiver
-  _.each(receivers, (receiverId) => {
+  _.each(receivers, receiverId => {
     doc.receiver = receiverId;
 
     // create notification

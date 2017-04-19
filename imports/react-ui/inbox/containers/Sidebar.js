@@ -12,10 +12,9 @@ function composer({ channelId, queryParams }, onData) {
   const user = Meteor.user();
 
   // show only involved channels
-  const channelsHandle = Meteor.subscribe(
-    'channels.list',
-    { memberIds: [user._id] },
-  );
+  const channelsHandle = Meteor.subscribe('channels.list', {
+    memberIds: [user._id],
+  });
 
   // show only available channels's related brands
   const brandHandle = Meteor.subscribe('brands.list.inChannels');
@@ -27,26 +26,19 @@ function composer({ channelId, queryParams }, onData) {
   const brands = Brands.find({}, { sort: { name: 1 } }).fetch();
 
   // integrations subscription
-  Meteor.subscribe(
-    'integrations.list',
-    { brandIds: _.pluck(brands, '_id') },
-  );
-
+  Meteor.subscribe('integrations.list', { brandIds: _.pluck(brands, '_id') });
 
   const tags = Tags.find({ type: TAG_TYPES.CONVERSATION }).fetch();
 
   // props
-  onData(
-    null,
-    {
-      tags,
-      channels,
-      brands,
-      channelsReady: channelsHandle.ready(),
-      tagsReady: tagsHandle.ready(),
-      brandsReady: brandHandle.ready(),
-    },
-  );
+  onData(null, {
+    tags,
+    channels,
+    brands,
+    channelsReady: channelsHandle.ready(),
+    tagsReady: tagsHandle.ready(),
+    brandsReady: brandHandle.ready(),
+  });
 }
 
 export default compose(getTrackerLoader(composer), composerOptions({}))(Sidebar);

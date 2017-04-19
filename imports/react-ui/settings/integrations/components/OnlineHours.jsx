@@ -60,15 +60,15 @@ class OnlineHours extends Component {
       this.removeTime(onlineHour._id);
     };
 
-    const onDayChange = (e) => {
+    const onDayChange = e => {
       this.onTimeItemChange(onlineHour._id, 'day', e.value);
     };
 
-    const onFromChange = (e) => {
+    const onFromChange = e => {
       this.onTimeItemChange(onlineHour._id, 'from', e.value);
     };
 
-    const onToChange = (e) => {
+    const onToChange = e => {
       this.onTimeItemChange(onlineHour._id, 'to', e.value);
     };
 
@@ -99,11 +99,7 @@ class OnlineHours extends Component {
           clearable={false}
         />
 
-        <Button
-          className="shrinked"
-          bsStyle="link"
-          onClick={remove}
-        >
+        <Button className="shrinked" bsStyle="link" onClick={remove}>
           <i className="ion-close-circled" />
         </Button>
       </div>
@@ -115,15 +111,9 @@ class OnlineHours extends Component {
       <FormGroup>
         <ControlLabel>Online hours</ControlLabel>
 
-        {this.state.onlineHours.map(onlineHour =>
-          this.renderOnlineHour(onlineHour),
-        )}
+        {this.state.onlineHours.map(onlineHour => this.renderOnlineHour(onlineHour))}
         <div>
-          <Button
-            className="shrinked"
-            bsStyle="link"
-            onClick={this.addTime}
-          >
+          <Button className="shrinked" bsStyle="link" onClick={this.addTime}>
             <i className="ion-plus-circled" /> Add another time
           </Button>
         </div>

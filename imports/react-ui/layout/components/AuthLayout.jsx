@@ -1,7 +1,6 @@
 import React, { PropTypes } from 'react';
 import AlertContainer from '../../common/alert/containers/AlertContainer';
 
-
 const propTypes = {
   content: PropTypes.element,
 };

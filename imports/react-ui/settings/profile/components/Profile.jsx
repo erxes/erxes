@@ -1,16 +1,9 @@
 import React, { PropTypes } from 'react';
-import {
-  FormGroup,
-  ControlLabel,
-  FormControl,
-  Button,
-  ButtonToolbar,
-} from 'react-bootstrap';
+import { FormGroup, ControlLabel, FormControl, Button, ButtonToolbar } from 'react-bootstrap';
 import Alert from 'meteor/erxes-notifier';
 import { UserCommonInfos } from '/imports/react-ui/auth/components';
 import { Wrapper } from '/imports/react-ui/layout/components';
 import Sidebar from '../../Sidebar.jsx';
-
 
 const propTypes = {
   user: PropTypes.object.isRequired,
@@ -37,12 +30,11 @@ class Profile extends React.Component {
         twitterUsername: document.getElementById('twitterUsername').value,
         currentPassword: document.getElementById('password').value,
       },
-
-      (error) => {
+      error => {
         if (error) return Alert.error(error.reason);
 
         return Alert.success('Your profile has been updated and good to go!');
-      }
+      },
     );
   }
 
@@ -53,10 +45,7 @@ class Profile extends React.Component {
 
         <FormGroup>
           <ControlLabel>Current password</ControlLabel>
-          <FormControl
-            id="password"
-            type="password"
-          />
+          <FormControl id="password" type="password" />
         </FormGroup>
 
         <ButtonToolbar className="pull-right">

@@ -7,7 +7,7 @@ import { _ } from 'meteor/underscore';
 import { fromJS } from 'immutable';
 import { ErxesEditor, toHTML, createStateFromHTML } from '/imports/react-ui/common/Editor.jsx';
 
-const MentionEntry = (props) => {
+const MentionEntry = props => {
   const { mention, theme, searchValue, ...parentProps } = props; // eslint-disable-line
 
   return (
@@ -35,7 +35,7 @@ const MentionEntry = (props) => {
   );
 };
 
-const extractEntries = (mention) => {
+const extractEntries = mention => {
   const entries = mention._root.entries;
   const keys = _.map(entries, entry => entry[0]);
   const values = _.map(entries, entry => entry[1]);
@@ -71,10 +71,7 @@ export default class Editor extends React.Component {
     if (nextProps.responseTemplate !== this.props.responseTemplate) {
       // set editor state from response template
       this.setState({
-        editorState: createStateFromHTML(
-          this.state.editorState,
-          nextProps.responseTemplate,
-        ),
+        editorState: createStateFromHTML(this.state.editorState, nextProps.responseTemplate),
       });
     }
   }
@@ -108,7 +105,7 @@ export default class Editor extends React.Component {
     let content = toHTML(editorState);
 
     // replace mention content
-    _.each(this.state.collectedMentions, (m) => {
+    _.each(this.state.collectedMentions, m => {
       const toFind = `@${m.name}`;
       const re = new RegExp(toFind, 'g');
 

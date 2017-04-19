@@ -5,7 +5,6 @@ import Alert from 'meteor/erxes-notifier';
 import { ModalTrigger, Tip, ActionButtons } from '/imports/react-ui/common';
 import { Form } from '../containers';
 
-
 const propTypes = {
   form: PropTypes.object.isRequired,
   removeForm: PropTypes.func.isRequired,
@@ -25,7 +24,7 @@ class Row extends Component {
 
     const { form, removeForm } = this.props;
 
-    removeForm(form._id, (error) => {
+    removeForm(form._id, error => {
       if (error) {
         return Alert.error(error.reason);
       }
@@ -39,7 +38,7 @@ class Row extends Component {
 
     const { form, duplicateForm } = this.props;
 
-    duplicateForm(form._id, (error) => {
+    duplicateForm(form._id, error => {
       if (error) {
         return Alert.error(error.reason || error.message);
       }

@@ -1,19 +1,22 @@
 import React, { PropTypes, Component } from 'react';
 import Filter from './Filter.jsx';
 
-
 const propTypes = {
-  items: PropTypes.arrayOf(PropTypes.shape({
-    _id: PropTypes.string.isRequired,
-    title: PropTypes.string.isRequired,
-    image: PropTypes.element,
-    selectedBy: PropTypes.string.isRequired,
-  })).isRequired,
-  links: PropTypes.arrayOf(PropTypes.shape({
-    title: PropTypes.string.isRequired,
-    link: PropTypes.element,
-    onClick: PropTypes.func,
-  })),
+  items: PropTypes.arrayOf(
+    PropTypes.shape({
+      _id: PropTypes.string.isRequired,
+      title: PropTypes.string.isRequired,
+      image: PropTypes.element,
+      selectedBy: PropTypes.string.isRequired,
+    }),
+  ).isRequired,
+  links: PropTypes.arrayOf(
+    PropTypes.shape({
+      title: PropTypes.string.isRequired,
+      link: PropTypes.element,
+      onClick: PropTypes.func,
+    }),
+  ),
   showCheckmark: PropTypes.bool,
   className: PropTypes.string,
 
@@ -62,7 +65,7 @@ class FilterableList extends Component {
     const { items, showCheckmark = true } = this.props;
     const { key } = this.state;
 
-    return items.map((item) => {
+    return items.map(item => {
       // filter items by key
       if (key && item.title.toLowerCase().indexOf(key) < 0) {
         return false;
@@ -72,7 +75,9 @@ class FilterableList extends Component {
         <li
           key={item._id}
           className={showCheckmark ? item.selectedBy : ''}
-          onClick={() => { this.toggleItem(item._id); }}
+          onClick={() => {
+            this.toggleItem(item._id);
+          }}
         >
           {item.image} {item.title}
         </li>
@@ -95,13 +100,12 @@ class FilterableList extends Component {
 
         <div className="popover-footer">
           <ul className="popover-list linked">
-            {
-              this.props.links && this.props.links.map(link =>
+            {this.props.links &&
+              this.props.links.map(link => (
                 <li key={link.href}>
                   <a onClick={link.onClick} href={link.href}>{link.title}</a>
-                </li>,
-              )
-            }
+                </li>
+              ))}
           </ul>
         </div>
       </div>

@@ -1,6 +1,5 @@
 import React from 'react';
 
-
 function NotFound() {
   return (
     <div className="auth-content">
@@ -12,7 +11,7 @@ function NotFound() {
             <p>
               erxes is an open-source messaging platform for customer success
             </p>
-            <a href="http://erxes.io/">&laquo; Go to home page</a>
+            <a href="http://erxes.io/">« Go to home page</a>
           </div>
         </div>
       </div>

@@ -8,7 +8,6 @@ import InAppMessagingSection from './InAppMessagingSection.jsx';
 import TwitterSection from './TwitterSection.jsx';
 import FacebookSection from './FacebookSection.jsx';
 
-
 const propTypes = {
   customer: PropTypes.object.isRequired,
 };

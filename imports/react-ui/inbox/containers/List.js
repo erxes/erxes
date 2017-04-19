@@ -7,14 +7,10 @@ import { Conversations } from '/imports/api/conversations/conversations';
 import { pagination } from '/imports/react-ui/common';
 import { List } from '../components';
 
-
 const bulk = new ReactiveVar([]);
 
 function composer({ channelId, queryParams }, onData) {
-  const { limit, loadMore, hasMore } = pagination(
-    queryParams,
-    'conversations.counts.list',
-  );
+  const { limit, loadMore, hasMore } = pagination(queryParams, 'conversations.counts.list');
 
   queryParams.limit = limit; // eslint-disable-line no-param-reassign
 
@@ -57,22 +53,19 @@ function composer({ channelId, queryParams }, onData) {
   ).fetch();
 
   // props
-  onData(
-    null,
-    {
-      bulk: bulk.get(),
-      loadMore,
-      hasMore,
-      toggleBulk,
-      emptyBulk,
-      unreadConversations,
-      readConversations,
-      starredConversationIds,
-      channelId,
-      user,
-      conversationReady: conversationHandle.ready(),
-    },
-  );
+  onData(null, {
+    bulk: bulk.get(),
+    loadMore,
+    hasMore,
+    toggleBulk,
+    emptyBulk,
+    unreadConversations,
+    readConversations,
+    starredConversationIds,
+    channelId,
+    user,
+    conversationReady: conversationHandle.ready(),
+  });
 }
 
 export default compose(getTrackerLoader(composer), composerOptions({}))(List);

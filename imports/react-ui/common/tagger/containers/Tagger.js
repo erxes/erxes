@@ -8,7 +8,6 @@ import { Conversations } from '/imports/api/conversations/conversations';
 import { tagConversation } from '/imports/api/conversations/client/methods';
 import Tagger from '../components/Tagger.jsx';
 
-
 function composer(props, onData) {
   const { type } = props;
 

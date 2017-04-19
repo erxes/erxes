@@ -10,7 +10,6 @@ import {
   ResetPasswordContainer,
 } from './containers';
 
-
 function checkAuth(context, redirect) {
   if (Meteor.userId()) {
     redirect('/');

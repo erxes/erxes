@@ -2,7 +2,6 @@ import React from 'react';
 import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
 import AlertItem from './AlertItem.jsx';
 
-
 const propTypes = {
   alerts: React.PropTypes.array.isRequired,
 };
@@ -16,11 +15,7 @@ function AlertsWrapper({ alerts }) {
         transitionLeaveTimeout={300}
         transitionAppearTimeout={500}
       >
-        {
-          alerts.map(alert =>
-            <AlertItem alert={alert} key={alert._id} />
-          )
-        }
+        {alerts.map(alert => <AlertItem alert={alert} key={alert._id} />)}
       </ReactCSSTransitionGroup>
     </div>
   );

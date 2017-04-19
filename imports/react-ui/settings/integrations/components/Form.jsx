@@ -1,10 +1,6 @@
 import React, { PropTypes } from 'react';
 
-import {
-  FormGroup,
-  ControlLabel,
-  FormControl,
-} from 'react-bootstrap';
+import { FormGroup, ControlLabel, FormControl } from 'react-bootstrap';
 
 import { Brands } from '/imports/api/brands/brands';
 import { Forms } from '/imports/api/forms/forms';
@@ -93,24 +89,21 @@ class Form extends Common {
           >
 
             <option />
-            {this.props.forms.map(form =>
-              <option key={form._id} value={form._id}>{form.title}</option>,
-            )}
+            {this.props.forms.map(form => (
+              <option key={form._id} value={form._id}>{form.title}</option>
+            ))}
           </FormControl>
         </FormGroup>
 
         <FormGroup controlId="formLoadType">
           <ControlLabel>Load</ControlLabel>
 
-          <FormControl
-            componentClass="select"
-            defaultValue={integration.formLoadType}
-          >
+          <FormControl componentClass="select" defaultValue={integration.formLoadType}>
 
             <option />
-            {this.props.loadTypes.map((type, index) =>
-              <option key={index} value={type}>{type}</option>,
-            )}
+            {this.props.loadTypes.map((type, index) => (
+              <option key={index} value={type}>{type}</option>
+            ))}
           </FormControl>
         </FormGroup>
       </div>

@@ -12,7 +12,6 @@ import {
 } from '/imports/api/forms/methods';
 import { ManageFields } from '../components';
 
-
 function composer(props, onData) {
   const formId = props.formId;
   const formHandler = Meteor.subscribe('forms.detail', formId);
@@ -26,7 +25,7 @@ function composer(props, onData) {
   const form = Forms.findOne(formId);
 
   // common callback
-  const callback = (error) => {
+  const callback = error => {
     if (error) {
       return Alert.error(error.message);
     }
@@ -35,7 +34,7 @@ function composer(props, onData) {
   };
 
   // create field
-  const addField = (doc) => {
+  const addField = doc => {
     addFieldMethod.call({ formId: props.formId, doc }, callback);
   };
 
@@ -45,14 +44,15 @@ function composer(props, onData) {
   };
 
   // delete field
-  const deleteField = (_id) => {
-    if (confirm('Are you sure ?')) { // eslint-disable-line
+  const deleteField = _id => {
+    if (confirm('Are you sure ?')) {
+      // eslint-disable-line
       deleteFieldMethod.call({ _id }, callback);
     }
   };
 
   // update orders
-  const onSort = (fields) => {
+  const onSort = fields => {
     const orderDics = [];
 
     _.each(fields, (field, index) => {

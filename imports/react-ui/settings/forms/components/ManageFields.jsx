@@ -91,8 +91,9 @@ class ManageFields extends Component {
   }
 
   setChanges(attributeName, value) {
-    this.state.editingField[attributeName] = value;
-    this.setState({ editingField: this.state.editingField });
+    const { editingField } = this.state;
+    editingField[attributeName] = value;
+    this.setState({ editingField });
   }
 
   renderButtons() {
@@ -104,7 +105,7 @@ class ManageFields extends Component {
         this.setState({ editingField: editingFieldDefaultValue });
       };
 
-      const onDelete = (e) => {
+      const onDelete = e => {
         e.preventDefault();
 
         this.props.deleteField(_id);
@@ -114,7 +115,9 @@ class ManageFields extends Component {
 
       return (
         <ButtonGroup>
-          <Button bsSize="small" bsStyle="danger" onClick={onDelete}>Delete</Button>
+          <Button bsSize="small" bsStyle="danger" onClick={onDelete}>
+            Delete
+          </Button>
           <Button bsSize="small" bsStyle="primary" onClick={reset}>New</Button>
           <Button bsSize="small" type="submit" bsStyle="success">Save</Button>
         </ButtonGroup>

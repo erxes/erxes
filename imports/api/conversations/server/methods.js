@@ -41,7 +41,6 @@ const conversationNotifReceivers = (conversation, currentUserId) => {
   return userIds;
 };
 
-
 /*
  * create new message from admin
  */
@@ -73,10 +72,7 @@ export const addMessage = new ValidatedMethod({
     // if there is no attachments and no content then throw content required
     // error
     if (attachments.length === 0 && !strip(content)) {
-      throw new Meteor.Error(
-        'conversations.addMessage.contentRequired',
-        'Content is required',
-      );
+      throw new Meteor.Error('conversations.addMessage.contentRequired', 'Content is required');
     }
 
     const title = 'You have a new message.';
@@ -140,21 +136,16 @@ export const addMessage = new ValidatedMethod({
   },
 });
 
-
-const checkConversationsExistance = (conversationIds) => {
+const checkConversationsExistance = conversationIds => {
   const selector = { _id: { $in: conversationIds } };
   const conversations = Conversations.find(selector).fetch();
 
   if (conversations.length !== conversationIds.length) {
-    throw new Meteor.Error(
-      'conversations.conversationNotFound',
-      'Conversation not found.',
-    );
+    throw new Meteor.Error('conversations.conversationNotFound', 'Conversation not found.');
   }
 
   return { selector, conversations };
 };
-
 
 /*
  * assign employee to conversation
@@ -169,10 +160,7 @@ export const assign = new ValidatedMethod({
     const { selector } = checkConversationsExistance(conversationIds);
 
     if (!Meteor.users.findOne(assignedUserId)) {
-      throw new Meteor.Error(
-        'conversations.assign.userNotFound',
-        'User not found.',
-      );
+      throw new Meteor.Error('conversations.assign.userNotFound', 'User not found.');
     }
 
     Conversations.update(
@@ -184,7 +172,7 @@ export const assign = new ValidatedMethod({
     const updatedConversations = Conversations.find(selector).fetch();
 
     // send notification
-    _.each(updatedConversations, (conversation) => {
+    _.each(updatedConversations, conversation => {
       const content = 'Assigned user has changed';
 
       sendNotification({
@@ -219,7 +207,6 @@ export const unassign = new ValidatedMethod({
   },
 });
 
-
 /*
  * change conversation status. closed, open etc...
  */
@@ -232,14 +219,10 @@ export const changeStatus = new ValidatedMethod({
     // check conversations existance
     const { conversations } = checkConversationsExistance(conversationIds);
 
-    Conversations.update(
-      { _id: { $in: conversationIds } },
-      { $set: { status } },
-      { multi: true },
-    );
+    Conversations.update({ _id: { $in: conversationIds } }, { $set: { status } }, { multi: true });
 
     // send notification
-    _.each(conversations, (conversation) => {
+    _.each(conversations, conversation => {
       const content = 'Conversation status has changed.';
 
       sendNotification({
@@ -266,10 +249,11 @@ export const star = new ValidatedMethod({
     // check conversations existance
     checkConversationsExistance(conversationIds);
 
-    Meteor.users.update(
-      this.userId,
-      { $addToSet: { 'details.starredConversationIds': { $each: conversationIds } } },
-    );
+    Meteor.users.update(this.userId, {
+      $addToSet: {
+        'details.starredConversationIds': { $each: conversationIds },
+      },
+    });
   },
 });
 
@@ -285,10 +269,9 @@ export const unstar = new ValidatedMethod({
     // check conversations existance
     checkConversationsExistance(conversationIds);
 
-    Meteor.users.update(
-      this.userId,
-      { $pull: { 'details.starredConversationIds': { $in: conversationIds } } },
-    );
+    Meteor.users.update(this.userId, {
+      $pull: { 'details.starredConversationIds': { $in: conversationIds } },
+    });
   },
 });
 
@@ -304,10 +287,13 @@ export const tag = new ValidatedMethod({
     // check conversations existance
     checkConversationsExistance(conversationIds);
 
-    tagObject({ tagIds, objectIds: conversationIds, collection: Conversations });
+    tagObject({
+      tagIds,
+      objectIds: conversationIds,
+      collection: Conversations,
+    });
   },
 });
-
 
 /*
  * add or remove user from given conversations's participated list
@@ -344,7 +330,6 @@ export const toggleParticipate = new ValidatedMethod({
     );
   },
 });
-
 
 /*
  * mark given conversation as read for current user

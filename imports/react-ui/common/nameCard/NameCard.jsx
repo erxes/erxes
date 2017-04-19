@@ -1,7 +1,6 @@
 import React, { PropTypes } from 'react';
 import Avatar from './Avatar.jsx';
 
-
 const propTypes = {
   user: PropTypes.object,
   customer: PropTypes.object,
@@ -16,7 +15,7 @@ function NameCard({ user, customer, firstLine, secondLine, singleLine, avatarSiz
   let second;
 
   if (user || firstLine || secondLine) {
-    first = firstLine || user.details && user.details.fullName;
+    first = firstLine || (user.details && user.details.fullName);
     second = !singleLine && (secondLine || `@${user.username}`);
   } else if (customer) {
     first = firstLine || customer.name;

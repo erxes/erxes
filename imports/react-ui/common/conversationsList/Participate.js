@@ -3,7 +3,6 @@ import { compose } from 'react-komposer';
 import { getTrackerLoader } from '/imports/react-ui/utils';
 import Participate from './Participate.jsx';
 
-
 function composer(props, onData) {
   const toggleParticipate = ({ starred, conversationIds }, callback) => {
     Meteor.call('conversations.toggleParticipate', { conversationIds }, callback);

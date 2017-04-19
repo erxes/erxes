@@ -1,7 +1,6 @@
 import React, { PropTypes, Component } from 'react';
 import { Modal } from 'react-bootstrap';
 
-
 const propTypes = {
   title: PropTypes.string.isRequired,
   trigger: PropTypes.element.isRequired,
@@ -38,7 +37,9 @@ class ModalTrigger extends Component {
     const { title, trigger, children } = this.props;
 
     // add onclick event to the trigger component
-    const triggerComponent = React.cloneElement(trigger, { onClick: this.openModal });
+    const triggerComponent = React.cloneElement(trigger, {
+      onClick: this.openModal,
+    });
 
     return (
       <span>

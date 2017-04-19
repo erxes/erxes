@@ -11,7 +11,6 @@ import { Wrapper } from '/imports/react-ui/layout/components';
 import { AssignBoxPopover } from '../';
 import { Resolver, Sidebar } from '../../containers';
 
-
 const propTypes = {
   readConversations: PropTypes.array.isRequired,
   unreadConversations: PropTypes.array.isRequired,
@@ -50,10 +49,7 @@ function List(props) {
 
   const actionBarLeft = (
     <div>
-      <Resolver
-        conversations={bulk}
-        afterSave={emptyBulk}
-      />
+      <Resolver conversations={bulk} afterSave={emptyBulk} />
 
       <TaggerPopover
         type="conversation"

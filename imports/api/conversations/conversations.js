@@ -35,7 +35,7 @@ class ConversationsCollection extends Mongo.Collection {
 
     let removeIds = [];
 
-    conversations.forEach((obj) => {
+    conversations.forEach(obj => {
       removeIds.push(obj.tagIds || []);
     });
 
@@ -85,17 +85,22 @@ Conversations.helpers({
 
 export const addParticipator = ({ conversationId, userId }) => {
   if (conversationId && userId) {
-    Conversations.update(
-      conversationId,
-      { $addToSet: { participatedUserIds: userId } },
-    );
+    Conversations.update(conversationId, {
+      $addToSet: { participatedUserIds: userId },
+    });
   }
 };
 
 Conversations.deny({
-  insert() { return true; },
-  update() { return true; },
-  remove() { return true; },
+  insert() {
+    return true;
+  },
+  update() {
+    return true;
+  },
+  remove() {
+    return true;
+  },
 });
 
 // twitter schemas ====================

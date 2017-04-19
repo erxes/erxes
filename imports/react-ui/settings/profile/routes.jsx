@@ -4,7 +4,6 @@ import settingsRoute from '../routes.jsx';
 import { MainLayout } from '/imports/react-ui/layout/containers';
 import { Profile, ChangePassword, NotificationSettings } from './containers';
 
-
 const profile = settingsRoute.group({
   prefix: '/profile',
 });

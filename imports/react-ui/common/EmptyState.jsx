@@ -1,6 +1,5 @@
 import React, { PropTypes } from 'react';
 
-
 const propTypes = {
   text: PropTypes.string.isRequired,
   icon: PropTypes.object.isRequired,

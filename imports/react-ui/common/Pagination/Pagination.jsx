@@ -1,13 +1,11 @@
 import React, { PropTypes, Component } from 'react';
 import { Button } from 'react-bootstrap';
 
-
 const propTypes = {
   children: PropTypes.node.isRequired,
   loadMore: PropTypes.func.isRequired,
   hasMore: PropTypes.bool.isRequired,
 };
-
 
 class Pagination extends Component {
   constructor(props) {
@@ -28,11 +26,11 @@ class Pagination extends Component {
     return (
       <div className="paginate-wrapper">
         {children}
-        {
-          hasMore ?
-            <div className="paginate-button"><Button onClick={loadMore}>Load more</Button></div> :
-            null
-        }
+        {hasMore
+          ? <div className="paginate-button">
+              <Button onClick={loadMore}>Load more</Button>
+            </div>
+          : null}
       </div>
     );
   }

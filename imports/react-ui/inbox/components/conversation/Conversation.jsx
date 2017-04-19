@@ -3,7 +3,6 @@ import { _ } from 'meteor/underscore';
 import { Spinner } from '/imports/react-ui/common';
 import Message from './Message.jsx';
 
-
 const propTypes = {
   messages: PropTypes.array.isRequired,
   attachmentPreview: PropTypes.object,
@@ -23,10 +22,9 @@ class Conversation extends Component {
       return (
         <div className="message staff attach-preview">
           <div className="body">
-            {attachmentPreview.type.startsWith('image') ?
-              <img role="presentation" src={attachmentPreview.data} /> :
-              <div className="attach-file" />
-            }
+            {attachmentPreview.type.startsWith('image')
+              ? <img role="presentation" src={attachmentPreview.data} />
+              : <div className="attach-file" />}
             <Spinner />
           </div>
         </div>
@@ -42,14 +40,10 @@ class Conversation extends Component {
 
     const rows = [];
 
-    _.each(messages, (message) => {
+    _.each(messages, message => {
       rows.push(
         <Message
-          isSameUser={
-            message.userId ?
-            message.userId === tempId :
-            message.customerId === tempId
-          }
+          isSameUser={message.userId ? message.userId === tempId : message.customerId === tempId}
           message={message}
           staff={!message.customerId}
           key={message._id}
@@ -66,7 +60,6 @@ class Conversation extends Component {
       </div>
     );
   }
-
 }
 
 Conversation.propTypes = propTypes;

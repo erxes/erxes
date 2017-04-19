@@ -6,7 +6,6 @@ import Alert from 'meteor/erxes-notifier';
 import { Tags, ModalTrigger, Tip, ActionButtons } from '/imports/react-ui/common';
 import { Form } from '../containers';
 
-
 const propTypes = {
   tag: PropTypes.object.isRequired,
   type: PropTypes.string.isRequired,
@@ -15,11 +14,12 @@ const propTypes = {
 
 function Row({ tag, type, remove }) {
   function removeTag() {
-    if (!confirm('Are you sure you want to delete this tag?')) { // eslint-disable-line no-alert
+    if (!confirm('Are you sure you want to delete this tag?')) {
+      // eslint-disable-line no-alert
       return;
     }
 
-    remove.call([tag._id], (error) => {
+    remove.call([tag._id], error => {
       if (error) {
         return Alert.error(error.reason);
       }

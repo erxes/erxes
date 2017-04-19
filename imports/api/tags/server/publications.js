@@ -2,7 +2,6 @@ import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
 import { Tags } from '../tags';
 
-
 Meteor.publish('tags.tagList', function tagList(type) {
   check(type, String);
 
@@ -12,7 +11,6 @@ Meteor.publish('tags.tagList', function tagList(type) {
 
   return Tags.find({ type }, { fields: Tags.publicFields });
 });
-
 
 Meteor.publish('tags.tagListByIds', function tagList(tagIds) {
   check(tagIds, [String]);

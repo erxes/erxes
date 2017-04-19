@@ -3,7 +3,6 @@ import { FlowRouter } from 'meteor/kadira:flow-router';
 import Alert from 'meteor/erxes-notifier';
 import { FilterableList } from '../..';
 
-
 const propTypes = {
   tags: PropTypes.array.isRequired,
   targets: PropTypes.array.isRequired,
@@ -26,7 +25,9 @@ class Tagger extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    this.setState({ tagsForList: this.generateTagsParams(nextProps.tags, nextProps.targets) });
+    this.setState({
+      tagsForList: this.generateTagsParams(nextProps.tags, nextProps.targets),
+    });
   }
 
   /**
@@ -35,8 +36,10 @@ class Tagger extends Component {
   generateTagsParams(tags, targets) {
     return tags.map(({ _id, name, colorCode }) => {
       // Current tag's selection state (all, some or none)
-      const count = targets.reduce((memo, target) =>
-        memo + (target.tagIds && target.tagIds.indexOf(_id) > -1), 0);
+      const count = targets.reduce(
+        (memo, target) => memo + (target.tagIds && target.tagIds.indexOf(_id) > -1),
+        0,
+      );
 
       let state = 'none';
       if (count > 0) {
@@ -64,7 +67,7 @@ class Tagger extends Component {
     };
 
     // eslint-disable-next-line consistent-return
-    tag(param, (error) => {
+    tag(param, error => {
       if (error) {
         return Alert.error(error.reason);
       }
@@ -83,10 +86,12 @@ class Tagger extends Component {
   render() {
     const { className, event, type } = this.props;
 
-    const links = [{
-      title: 'Manage tags',
-      href: FlowRouter.path('tags/list', { type }),
-    }];
+    const links = [
+      {
+        title: 'Manage tags',
+        href: FlowRouter.path('tags/list', { type }),
+      },
+    ];
 
     const props = {
       className,
@@ -95,9 +100,7 @@ class Tagger extends Component {
       [event]: this.tag,
     };
 
-    return (
-      <FilterableList {...props} />
-    );
+    return <FilterableList {...props} />;
   }
 }
 

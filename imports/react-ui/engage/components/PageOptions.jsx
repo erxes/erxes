@@ -3,10 +3,11 @@ import React from 'react';
 class PageOptions extends React.Component {
   render() {
     return (
-
       <div className="page-options">
         <div className="btn-group btn-group-sm" role="group" aria-label="...">
-          <button type="button" className="btn btn-default">Create Message</button>
+          <button type="button" className="btn btn-default">
+            Create Message
+          </button>
         </div>
 
         <div className="pull-right">

@@ -4,14 +4,9 @@ import { Meteor } from 'meteor/meteor';
 import { Conversations } from '/imports/api/conversations/conversations';
 import { AssignBox } from '../components';
 
-
 function composer(props, onData) {
   const assign = ({ targetIds, assignedUserId }, callback) => {
-    Meteor.call(
-      'conversations.assign',
-      { conversationIds: targetIds, assignedUserId },
-      callback,
-    );
+    Meteor.call('conversations.assign', { conversationIds: targetIds, assignedUserId }, callback);
   };
 
   const clear = (conversationIds, callback) => {

@@ -6,7 +6,6 @@ import { Pagination } from '/imports/react-ui/common';
 import Sidebar from '../../Sidebar.jsx';
 import Row from './Row.jsx';
 
-
 const propTypes = {
   integrations: PropTypes.array.isRequired,
   brands: PropTypes.array.isRequired,
@@ -25,14 +24,14 @@ class List extends Component {
   renderIntegrations() {
     const { brands, integrations, removeIntegration } = this.props;
 
-    return integrations.map(integration =>
+    return integrations.map(integration => (
       <Row
         key={integration._id}
         integration={integration}
         brands={brands}
         removeIntegration={removeIntegration}
-      />,
-    );
+      />
+    ));
   }
 
   render() {

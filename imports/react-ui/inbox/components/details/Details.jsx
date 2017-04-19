@@ -5,7 +5,6 @@ import RightSidebar from './RightSidebar.jsx';
 import Conversation from '../conversation/Conversation.jsx';
 import { RespondBox } from '../../containers';
 
-
 const propTypes = {
   conversation: PropTypes.object.isRequired,
   messages: PropTypes.array.isRequired,
@@ -22,7 +21,7 @@ class Details extends Component {
 
   componentWillUpdate() {
     const { node } = this;
-    this.shouldScrollBottom = (node.scrollTop + node.offsetHeight) === node.scrollHeight;
+    this.shouldScrollBottom = node.scrollTop + node.offsetHeight === node.scrollHeight;
   }
 
   componentDidUpdate() {
@@ -42,7 +41,12 @@ class Details extends Component {
     } = this.props;
 
     const content = (
-      <div className="scroll-area" ref={(node) => { this.node = node; }}>
+      <div
+        className="scroll-area"
+        ref={node => {
+          this.node = node;
+        }}
+      >
         <div className="margined">
           <Conversation
             conversation={conversation}
@@ -53,10 +57,7 @@ class Details extends Component {
       </div>
     );
 
-    const breadcrumb = [
-      { title: 'Inbox', link: '/inbox' },
-      { title: 'Conversation' },
-    ];
+    const breadcrumb = [{ title: 'Inbox', link: '/inbox' }, { title: 'Conversation' }];
 
     return (
       <div>
@@ -70,20 +71,15 @@ class Details extends Component {
               channelId={channelId}
             />
           }
-
           content={content}
           footer={
-            <RespondBox
-              conversation={conversation}
-              setAttachmentPreview={setAttachmentPreview}
-            />
+            <RespondBox conversation={conversation} setAttachmentPreview={setAttachmentPreview} />
           }
           rightSidebar={<RightSidebar conversation={conversation} />}
         />
       </div>
     );
   }
-
 }
 
 Details.propTypes = propTypes;

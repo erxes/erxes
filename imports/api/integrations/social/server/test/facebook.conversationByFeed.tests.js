@@ -10,18 +10,18 @@ import { CONVERSATION_STATUSES } from '/imports/api/conversations/constants';
 import { Messages } from '/imports/api/conversations/messages';
 import { graphRequest, SaveWebhookResponse } from '../facebook';
 
-describe('facebook integration: get or create conversation by feed info', function () {
-  after(function () {
+describe('facebook integration: get or create conversation by feed info', function() {
+  after(function() {
     graphRequest.get.restore(); // unwraps the spy
   });
 
-  before(function () {
+  before(function() {
     // clear
     Conversations.remove({});
     Messages.remove({});
 
     // mock all requests
-    sinon.stub(graphRequest, 'get', (path) => {
+    sinon.stub(graphRequest, 'get', path => {
       if (path.includes('/?fields=access_token')) {
         return {
           access_token: '244242442442',
@@ -32,7 +32,7 @@ describe('facebook integration: get or create conversation by feed info', functi
     });
   });
 
-  it('admin posts', function () {
+  it('admin posts', function() {
     const senderId = 'DFDFDEREREEFFFD';
     const postId = 'DFJDFJDIF';
 

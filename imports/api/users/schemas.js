@@ -2,7 +2,6 @@ import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 import { _ } from 'meteor/underscore';
 import { ROLES } from './constants';
 
-
 // user common infos schema
 const CommonInfo = {
   avatar: {
@@ -47,7 +46,6 @@ const InvitationCommon = _.extend({}, CommonInfo, {
     optional: true,
   },
 });
-
 
 export const CreateInvitationSchema = new SimpleSchema([
   InvitationCommon,

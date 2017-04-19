@@ -3,7 +3,6 @@ import { OverlayTrigger, Popover, Button } from 'react-bootstrap';
 import { FilterableList } from '/imports/react-ui/common';
 import { types, operators, dateUnits } from '/imports/api/customers/constants';
 
-
 const propTypes = {
   fields: PropTypes.array.isRequired,
   addCondition: PropTypes.func.isRequired,
@@ -43,7 +42,9 @@ class AddConditionButton extends Component {
 
     return (
       <OverlayTrigger
-        ref={(overlayTrigger) => { this.overlayTrigger = overlayTrigger; }}
+        ref={overlayTrigger => {
+          this.overlayTrigger = overlayTrigger;
+        }}
         trigger="click"
         placement="bottom"
         overlay={popover}

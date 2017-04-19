@@ -13,11 +13,9 @@ import {
 
 import { AddIntegration } from './components';
 
-
 const integrations = settingsRoute.group({
   prefix: '/integrations',
 });
-
 
 integrations.route('/in_app_messaging', {
   name: 'settings/integrations/in_app_messaging',
@@ -31,12 +29,9 @@ integrations.route('/in_app_messaging/appearance/:integrationId', {
   name: 'settings/integrations/in_app_messaging/appearance',
 
   action({ integrationId }) {
-    mount(
-      MainLayout,
-      {
-        content: <InAppMessagingAppearance integrationId={integrationId} />,
-      },
-    );
+    mount(MainLayout, {
+      content: <InAppMessagingAppearance integrationId={integrationId} />,
+    });
   },
 });
 
@@ -44,12 +39,9 @@ integrations.route('/in_app_messaging/availability/:integrationId', {
   name: 'settings/integrations/in_app_messaging/availability',
 
   action({ integrationId }) {
-    mount(
-      MainLayout,
-      {
-        content: <InAppMessagingAvailability integrationId={integrationId} />,
-      },
-    );
+    mount(MainLayout, {
+      content: <InAppMessagingAvailability integrationId={integrationId} />,
+    });
   },
 });
 
@@ -69,7 +61,6 @@ integrations.route('/add', {
     mount(MainLayout, { content: <AddIntegration /> });
   },
 });
-
 
 integrations.route('/oauth/twitter_callback', {
   name: 'settings/integrations/twitter/oauth/callback',

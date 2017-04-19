@@ -6,7 +6,6 @@ import Sidebar from '../../Sidebar.jsx';
 import { BrandForm } from '../containers';
 import Row from './Row.jsx';
 
-
 const propTypes = {
   brands: PropTypes.array.isRequired,
   removeBrand: PropTypes.func.isRequired,
@@ -24,13 +23,7 @@ class BrandList extends Component {
   renderBrands() {
     const { brands, removeBrand } = this.props;
 
-    return brands.map(brand =>
-      <Row
-        key={brand._id}
-        brand={brand}
-        removeBrand={removeBrand}
-      />
-    );
+    return brands.map(brand => <Row key={brand._id} brand={brand} removeBrand={removeBrand} />);
   }
 
   render() {
@@ -47,9 +40,7 @@ class BrandList extends Component {
       </ModalTrigger>
     );
 
-    const actionBar = (
-      <Wrapper.ActionBar left={actionBarLeft} />
-    );
+    const actionBar = <Wrapper.ActionBar left={actionBarLeft} />;
 
     const content = (
       <Pagination loadMore={loadMore} hasMore={hasMore}>
@@ -70,10 +61,7 @@ class BrandList extends Component {
       </Pagination>
     );
 
-    const breadcrumb = [
-      { title: 'Settings', link: '/settings/brands' },
-      { title: 'Brands' },
-    ];
+    const breadcrumb = [{ title: 'Settings', link: '/settings/brands' }, { title: 'Brands' }];
 
     return (
       <div>

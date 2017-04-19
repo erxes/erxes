@@ -6,13 +6,11 @@ import { Integrations } from '/imports/api/integrations/integrations';
 import { InAppMessagingAppearance } from '../components';
 
 const composer = (props, onData) => {
-  const save = (doc) => {
+  const save = doc => {
     Meteor.call(
       'integrations.saveInAppMessagingApperance',
-
       { _id: props.integrationId, doc },
-
-      (error) => {
+      error => {
         if (error) return Alert.error(error.reason);
 
         return Alert.success('Successfully saved.');
@@ -35,7 +33,6 @@ const composer = (props, onData) => {
   });
 };
 
-export default compose(getTrackerLoader(
-  composer,
-  composerOptions({ spinner: true }),
-))(InAppMessagingAppearance);
+export default compose(getTrackerLoader(composer, composerOptions({ spinner: true })))(
+  InAppMessagingAppearance,
+);

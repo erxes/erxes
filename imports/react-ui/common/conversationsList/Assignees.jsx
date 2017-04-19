@@ -6,8 +6,9 @@ const propTypes = {
 
 function Assignees({ conversation }) {
   const assignedUser = conversation.assignedUser();
-  const assignedUserName = assignedUser && assignedUser.details && assignedUser.details.fullName ?
-                `Assigned to ${assignedUser.details.fullName}` : 'Not assigned';
+  const assignedUserName = assignedUser && assignedUser.details && assignedUser.details.fullName
+    ? `Assigned to ${assignedUser.details.fullName}`
+    : 'Not assigned';
 
   return (
     <span className="assignee">

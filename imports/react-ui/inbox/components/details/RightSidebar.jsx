@@ -4,7 +4,6 @@ import { FlowRouter } from 'meteor/kadira:flow-router';
 import { NameCard } from '/imports/react-ui/common';
 import { Wrapper } from '/imports/react-ui/layout/components';
 
-
 const propTypes = {
   conversation: PropTypes.object.isRequired,
 };
@@ -15,9 +14,7 @@ function RightSidebar({ conversation }) {
 
   const renderTwitterData = () => {
     if (integration.kind === 'twitter') {
-      return (
-        <img src={customer.twitterData.profileImageUrl} />
-      );
+      return <img src={customer.twitterData.profileImageUrl} />;
     }
 
     return null;
@@ -69,7 +66,9 @@ function RightSidebar({ conversation }) {
         </ul>
         <div className="box">
           <Button
-            href={FlowRouter.path('customers/details', { id: customer && customer._id })}
+            href={FlowRouter.path('customers/details', {
+              id: customer && customer._id,
+            })}
             className="action-btn btn-sm"
           >
             View customer profile

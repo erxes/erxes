@@ -3,7 +3,6 @@ import moment from 'moment';
 import { Label } from 'react-bootstrap';
 import { Wrapper } from '/imports/react-ui/layout/components';
 
-
 const propTypes = {
   customer: PropTypes.object.isRequired,
 };
@@ -24,11 +23,9 @@ function InAppMessagingSection({ customer }) {
         <li>
           Status
           <span className="counter">
-            {
-              inAppMessagingData.isActive
-                ? <Label bsStyle="success">Online</Label>
-                : <Label>Offline</Label>
-            }
+            {inAppMessagingData.isActive
+              ? <Label bsStyle="success">Online</Label>
+              : <Label>Offline</Label>}
           </span>
         </li>
         <li>

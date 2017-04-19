@@ -6,7 +6,6 @@ import { ModalTrigger } from '/imports/react-ui/common';
 import Sidebar from '../../Sidebar.jsx';
 import { InAppMessaging, Chat, Form, Facebook } from '../containers';
 
-
 function AddIntegration() {
   const triggerInApp = (
     <Button>

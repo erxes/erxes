@@ -3,7 +3,6 @@ import { FormGroup, FormControl, Button } from 'react-bootstrap';
 import { FlowRouter } from 'meteor/kadira:flow-router';
 import Alert from 'meteor/erxes-notifier';
 
-
 const propTypes = {
   loginWithPassword: React.PropTypes.func.isRequired,
 };
@@ -26,7 +25,7 @@ class SignIn extends React.Component {
     e.preventDefault();
 
     const { email, password } = this.state;
-    this.props.loginWithPassword(email, password, (err) => {
+    this.props.loginWithPassword(email, password, err => {
       if (err) {
         return Alert.error('The username and password entered did not match. Give it another go?');
       }
@@ -56,7 +55,7 @@ class SignIn extends React.Component {
               <p>
                 erxes is an AI meets open source messaging platform for sales and marketing teams.
               </p>
-              <a href="http://erxes.io/">&laquo; Go to home page</a>
+              <a href="http://erxes.io/">« Go to home page</a>
             </div>
           </div>
           <div className="col-md-5">

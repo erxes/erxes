@@ -2,12 +2,24 @@ import { Meteor } from 'meteor/meteor';
 import { ROLES } from '/imports/api/users/constants';
 
 const RESTRICTED_METHODS = [
-  'users.invite', 'users.updateAccessInfo', 'users.remove',
-  'brands.add', 'brands.edit', 'brands.remove', 'brands.configEmail',
-  'channels.add', 'channels.edit', 'channels.remove',
-  'forms.add', 'forms.edit', 'forms.remove',
-  'integrations.add', 'integrations.edit', 'integrations.remove',
-  'integrations.addInAppMessaging', 'integrations.addTwitter',
+  'users.invite',
+  'users.updateAccessInfo',
+  'users.remove',
+  'brands.add',
+  'brands.edit',
+  'brands.remove',
+  'brands.configEmail',
+  'channels.add',
+  'channels.edit',
+  'channels.remove',
+  'forms.add',
+  'forms.edit',
+  'forms.remove',
+  'integrations.add',
+  'integrations.edit',
+  'integrations.remove',
+  'integrations.addInAppMessaging',
+  'integrations.addTwitter',
   'integrations.addFacebook',
 ];
 
@@ -32,7 +44,8 @@ export function ErxesMixin(_options) {
 
       // check contributor permissions
       if (
-        user.details && user.details.role === ROLES.CONTRIBUTOR &&
+        user.details &&
+        user.details.role === ROLES.CONTRIBUTOR &&
         RESTRICTED_METHODS.includes(_options.name)
       ) {
         throw new Meteor.Error('permissionDenied', 'Permission denied.');
@@ -45,7 +58,7 @@ export function ErxesMixin(_options) {
   return options;
 }
 
-export const wait = (ms) => {
+export const wait = ms => {
   const start = new Date().getTime();
   let end = start;
 

@@ -1,7 +1,6 @@
 import React from 'react';
 import { FlowRouter } from 'meteor/kadira:flow-router';
 
-
 const propTypes = {
   user: React.PropTypes.object,
   loggingIn: React.PropTypes.bool.isRequired,

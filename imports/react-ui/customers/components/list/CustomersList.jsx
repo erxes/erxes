@@ -6,7 +6,6 @@ import { Pagination } from '/imports/react-ui/common';
 import Sidebar from './sidebar/Sidebar.jsx';
 import CustomerRow from './CustomerRow.jsx';
 
-
 const propTypes = {
   customers: PropTypes.array.isRequired,
   segments: PropTypes.array.isRequired,
@@ -33,11 +32,7 @@ function CustomersList({ customers, segments, brands, integrations, tags, loadMo
           </tr>
         </thead>
         <tbody>
-          {
-            customers.map(customer =>
-              <CustomerRow customer={customer} key={customer._id} />,
-            )
-          }
+          {customers.map(customer => <CustomerRow customer={customer} key={customer._id} />)}
         </tbody>
       </Table>
     </Pagination>
@@ -50,12 +45,7 @@ function CustomersList({ customers, segments, brands, integrations, tags, loadMo
       <Wrapper
         header={<Wrapper.Header breadcrumb={breadcrumb} />}
         leftSidebar={
-          <Sidebar
-            segments={segments}
-            brands={brands}
-            integrations={integrations}
-            tags={tags}
-          />
+          <Sidebar segments={segments} brands={brands} integrations={integrations} tags={tags} />
         }
         content={content}
       />

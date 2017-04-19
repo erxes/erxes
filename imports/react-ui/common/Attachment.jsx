@@ -1,6 +1,5 @@
 import React, { PropTypes } from 'react';
 
-
 const propTypes = {
   attachment: PropTypes.object.isRequired,
 };
@@ -16,9 +15,7 @@ class Attachment extends React.Component {
     // when facebook attachments, it is not possible to determine file type
     // from extension, so determine it by type property
     if (attachment.type === 'image/jpeg' || attachment.type === 'image/png') {
-      return (
-        <img role="presentation" src={attachment.url} />
-      );
+      return <img role="presentation" src={attachment.url} />;
     }
 
     const fileExtension = attachment.url.split('.').pop();
@@ -28,9 +25,7 @@ class Attachment extends React.Component {
       case 'png':
       case 'jpeg':
       case 'jpg':
-        filePreview = (
-          <img role="presentation" src={attachment.url} />
-        );
+        filePreview = <img role="presentation" src={attachment.url} />;
         break;
       case 'doc':
       case 'docx':

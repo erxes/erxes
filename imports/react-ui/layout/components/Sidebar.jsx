@@ -3,7 +3,6 @@ import classNames from 'classnames';
 import { Scrollbars } from 'react-custom-scrollbars';
 import { FlowRouter } from 'meteor/kadira:flow-router';
 
-
 const propTypes = {
   children: PropTypes.node,
   size: PropTypes.oneOf(['narrow', 'medium', 'wide']),
@@ -56,7 +55,11 @@ class Section extends Component {
     };
     return (
       <div className={classes} style={height}>
-        <div ref={(node) => { this.node = node; }}>
+        <div
+          ref={node => {
+            this.node = node;
+          }}
+        >
           {children}
         </div>
         {collapsible ? this.renderCollapseButton() : null}
@@ -66,9 +69,7 @@ class Section extends Component {
 }
 
 function Title({ children }) {
-  return (
-    <h3>{children}</h3>
-  );
+  return <h3>{children}</h3>;
 }
 Title.propTypes = {
   children: PropTypes.node.isRequired,

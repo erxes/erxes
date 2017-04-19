@@ -5,7 +5,6 @@ import { Random } from 'meteor/random';
 import { Factory } from 'meteor/dburles:factory';
 import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 
-
 // Brand collection
 class BrandsCollection extends Mongo.Collection {
   insert(doc, callback) {
@@ -31,9 +30,15 @@ export const Brands = new BrandsCollection('brands');
 // Deny all client-side updates since we will be using methods to manage
 // this collection
 Brands.deny({
-  insert() { return true; },
-  update() { return true; },
-  remove() { return true; },
+  insert() {
+    return true;
+  },
+  update() {
+    return true;
+  },
+  remove() {
+    return true;
+  },
 });
 
 export const emailConfigSchema = new SimpleSchema({

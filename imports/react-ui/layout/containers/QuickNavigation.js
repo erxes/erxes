@@ -4,7 +4,6 @@ import { getTrackerLoader, composerOptions } from '/imports/react-ui/utils';
 import { Counts } from 'meteor/tmeasday:publish-counts';
 import QuickNavigation from '../components/QuickNavigation.jsx';
 
-
 function composer(props, onData) {
   const handler = Meteor.subscribe('notifications.unreadCount');
 

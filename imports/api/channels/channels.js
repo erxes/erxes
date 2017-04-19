@@ -5,7 +5,6 @@ import { _ } from 'meteor/underscore';
 import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 import { Factory } from 'meteor/dburles:factory';
 
-
 class ChannelsCollection extends Mongo.Collection {
   insert(doc, callback) {
     // extend doc with auto values
@@ -31,9 +30,15 @@ class ChannelsCollection extends Mongo.Collection {
 export const Channels = new ChannelsCollection('channels');
 
 Channels.deny({
-  insert() { return true; },
-  update() { return true; },
-  remove() { return true; },
+  insert() {
+    return true;
+  },
+  update() {
+    return true;
+  },
+  remove() {
+    return true;
+  },
 });
 
 Channels.schema = new SimpleSchema({

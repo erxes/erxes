@@ -43,7 +43,7 @@ class Form extends Component {
       params.id = this.props.form._id;
     }
 
-    method.call(params, (error) => {
+    method.call(params, error => {
       if (error) return Alert.error(error.reason);
 
       Alert.success('Form is successfully saved.');

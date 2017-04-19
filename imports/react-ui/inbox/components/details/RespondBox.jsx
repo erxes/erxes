@@ -75,30 +75,23 @@ class RespondBox extends Component {
 
     const file = e.target.files[0];
 
-    uploadHandler(
-      {
-        file,
+    uploadHandler({
+      file,
 
-        beforeUpload: () => {
-        },
+      beforeUpload: () => {},
 
-        afterUpload: ({ response, fileInfo }) => {
-          // set attachments
-          this.state.attachments.push(
-            Object.assign({ url: response.url }, fileInfo),
-          );
+      afterUpload: ({ response, fileInfo }) => {
+        // set attachments
+        this.state.attachments.push(Object.assign({ url: response.url }, fileInfo));
 
-          // remove preview
-          this.props.setAttachmentPreview(null);
-        },
-
-        afterRead: ({ result, fileInfo }) => {
-          this.props.setAttachmentPreview(
-            Object.assign({ data: result }, fileInfo),
-          );
-        },
+        // remove preview
+        this.props.setAttachmentPreview(null);
       },
-    );
+
+      afterRead: ({ result, fileInfo }) => {
+        this.props.setAttachmentPreview(Object.assign({ data: result }, fileInfo));
+      },
+    });
   }
 
   addMessage() {
@@ -113,7 +106,7 @@ class RespondBox extends Component {
       mentionedUserIds,
     };
 
-    sendMessage(message, (error) => {
+    sendMessage(message, error => {
       if (error) {
         return Alert.error(error.reason);
       }
@@ -166,15 +159,20 @@ class RespondBox extends Component {
     if (attachmentsCount > 0) {
       attachmentsIndicator = (
         <div className="attachment-indicator">
-          {attachments.map(attachment =>
+          {attachments.map(attachment => (
             <div className="attachment" key={attachment.name}>
               <div className="preview">
-                <div className="preview-img" style={{ backgroundImage: `url('${attachment.url}')` }} />
+                <div
+                  className="preview-img"
+                  style={{ backgroundImage: `url('${attachment.url}')` }}
+                />
               </div>
               <div className="file-name">{attachment.name}</div>
-              <div className="file-size">({Math.round(attachment.size / 1000)}kB)</div>
-            </div>,
-          )}
+              <div className="file-size">
+                ({Math.round(attachment.size / 1000)}kB)
+              </div>
+            </div>
+          ))}
         </div>
       );
     }

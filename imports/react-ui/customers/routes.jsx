@@ -4,7 +4,6 @@ import { FlowRouter } from 'meteor/kadira:flow-router';
 import { MainLayout } from '../layout/containers';
 import { CustomersList, CustomerDetails } from './containers';
 
-
 const group = FlowRouter.group({
   prefix: '/customers',
 });

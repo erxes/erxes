@@ -1,12 +1,7 @@
 import React, { PropTypes } from 'react';
-import {
-  FormGroup,
-  ControlLabel,
-  FormControl,
-} from 'react-bootstrap';
+import { FormGroup, ControlLabel, FormControl } from 'react-bootstrap';
 import Alert from 'meteor/erxes-notifier';
 import uploadHandler from '/imports/api/client/uploadHandler';
-
 
 const propTypes = {
   user: PropTypes.object.isRequired,
@@ -61,58 +56,30 @@ class UserCommonInfos extends React.Component {
         <FormGroup>
           <ControlLabel>Photo</ControlLabel>
 
-          <img
-            alt="avatar"
-            className="avatar"
-            style={avatarPreviewStyle}
-            src={avatarPreviewUrl}
-          />
+          <img alt="avatar" className="avatar" style={avatarPreviewStyle} src={avatarPreviewUrl} />
 
-          <FormControl
-            type="file"
-            onChange={this.handleImageChange}
-          />
-          <input
-            type="hidden"
-            id="avatar"
-            value={avatar}
-          />
+          <FormControl type="file" onChange={this.handleImageChange} />
+          <input type="hidden" id="avatar" value={avatar} />
         </FormGroup>
 
         <FormGroup>
           <ControlLabel>Name</ControlLabel>
-          <FormControl
-            type="text"
-            id="fullName"
-            defaultValue={user.details.fullName}
-          />
+          <FormControl type="text" id="fullName" defaultValue={user.details.fullName} />
         </FormGroup>
 
         <FormGroup>
           <ControlLabel>Position</ControlLabel>
-          <FormControl
-            type="text"
-            id="position"
-            defaultValue={user.details.position}
-          />
+          <FormControl type="text" id="position" defaultValue={user.details.position} />
         </FormGroup>
 
         <FormGroup>
           <ControlLabel>Username</ControlLabel>
-          <FormControl
-            type="text"
-            id="username"
-            defaultValue={user.username}
-          />
+          <FormControl type="text" id="username" defaultValue={user.username} />
         </FormGroup>
 
         <FormGroup>
           <ControlLabel>Email</ControlLabel>
-          <FormControl
-            type="email"
-            id="email"
-            defaultValue={user.emails[0].address}
-          />
+          <FormControl type="email" id="email" defaultValue={user.emails[0].address} />
         </FormGroup>
 
         <FormGroup>

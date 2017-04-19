@@ -5,7 +5,6 @@ import { ErxesMixin } from '/imports/api/utils';
 import { tagObject } from '/imports/api/tags/server/api';
 import { Customers } from '../customers';
 
-
 // eslint-disable-next-line import/prefer-default-export
 export const tag = new ValidatedMethod({
   name: 'customers.tag',
@@ -26,8 +25,7 @@ export const tag = new ValidatedMethod({
     const conversations = Customers.find({ _id: { $in: customerIds } }).fetch();
 
     if (conversations.length !== customerIds.length) {
-      throw new Meteor.Error('customers.tag.customerNotFound',
-        'Customer not found.');
+      throw new Meteor.Error('customers.tag.customerNotFound', 'Customer not found.');
     }
 
     tagObject({ tagIds, objectIds: customerIds, collection: Customers });

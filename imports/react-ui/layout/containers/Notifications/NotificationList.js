@@ -5,12 +5,8 @@ import { getTrackerLoader, composerOptions } from '/imports/react-ui/utils';
 import { pagination } from '/imports/react-ui/common';
 import { NotificationList } from '../../components';
 
-
 function composer({ queryParams }, onData) {
-  const { limit, loadMore, hasMore } = pagination(
-    queryParams,
-    'notifications.list.count',
-  );
+  const { limit, loadMore, hasMore } = pagination(queryParams, 'notifications.list.count');
 
   const handler = Meteor.subscribe('notifications.latest', {
     limit,
@@ -25,7 +21,7 @@ function composer({ queryParams }, onData) {
     const createdUserIds = [];
     const notifications = Notifications.find({}, { sort: { date: -1 } }).fetch();
 
-    notifications.forEach((notification) => {
+    notifications.forEach(notification => {
       createdUserIds.push(notification.createdUser);
     });
 

@@ -9,8 +9,10 @@ import { stateToHTML } from 'draft-js-export-html';
 
 function getBlockStyle(block) {
   switch (block.getType()) {
-    case 'blockquote': return 'RichEditor-blockquote';
-    default: return null;
+    case 'blockquote':
+      return 'RichEditor-blockquote';
+    default:
+      return null;
   }
 }
 
@@ -30,7 +32,7 @@ class StyleButton extends React.Component {
 
     const { style, onToggle } = props;
 
-    this.onToggle = (e) => {
+    this.onToggle = e => {
       e.preventDefault();
       onToggle(style);
     };
@@ -63,13 +65,29 @@ StyleButton.propTypes = {
 
 const BLOCK_TYPES = [
   { label: <b>H</b>, style: 'header-three', title: 'Heading' },
-  { label: <i className="ion-quote" />, style: 'blockquote', title: 'Blockquote' },
-  { label: <i className="ion-ios-circle-filled" />, style: 'unordered-list-item', title: 'Unordered list' },
-  { label: <i className="ion-pound" />, style: 'ordered-list-item', title: 'Ordered list' },
-  { label: <i className="ion-code" />, style: 'code-block', title: 'Code Block' },
+  {
+    label: <i className="ion-quote" />,
+    style: 'blockquote',
+    title: 'Blockquote',
+  },
+  {
+    label: <i className="ion-ios-circle-filled" />,
+    style: 'unordered-list-item',
+    title: 'Unordered list',
+  },
+  {
+    label: <i className="ion-pound" />,
+    style: 'ordered-list-item',
+    title: 'Ordered list',
+  },
+  {
+    label: <i className="ion-code" />,
+    style: 'code-block',
+    title: 'Code Block',
+  },
 ];
 
-const BlockStyleControls = (props) => {
+const BlockStyleControls = props => {
   const { editorState, onToggle } = props;
 
   const selection = editorState.getSelection();
@@ -80,7 +98,7 @@ const BlockStyleControls = (props) => {
 
   return (
     <div className="RichEditor-controls">
-      {BLOCK_TYPES.map(type =>
+      {BLOCK_TYPES.map(type => (
         <StyleButton
           key={type.title}
           active={type.style === blockType}
@@ -88,8 +106,8 @@ const BlockStyleControls = (props) => {
           onToggle={onToggle}
           style={type.style}
           title={type.title}
-        />,
-      )}
+        />
+      ))}
     </div>
   );
 };
@@ -110,7 +128,7 @@ const InlineStyleControls = ({ onToggle, editorState }) => {
 
   return (
     <div className="RichEditor-controls">
-      {INLINE_STYLES.map(type =>
+      {INLINE_STYLES.map(type => (
         <StyleButton
           key={type.title}
           active={currentStyle.has(type.style)}
@@ -118,8 +136,8 @@ const InlineStyleControls = ({ onToggle, editorState }) => {
           onToggle={onToggle}
           style={type.style}
           title={type.title}
-        />,
-      )}
+        />
+      ))}
     </div>
   );
 };
@@ -164,23 +182,13 @@ export class ErxesEditor extends React.Component {
   toggleBlockType(blockType) {
     const { onChange, editorState } = this.props;
 
-    onChange(
-      RichUtils.toggleBlockType(
-        editorState,
-        blockType,
-      ),
-    );
+    onChange(RichUtils.toggleBlockType(editorState, blockType));
   }
 
   toggleInlineStyle(inlineStyle) {
     const { onChange, editorState } = this.props;
 
-    onChange(
-      RichUtils.toggleInlineStyle(
-        editorState,
-        inlineStyle,
-      ),
-    );
+    onChange(RichUtils.toggleInlineStyle(editorState, inlineStyle));
   }
 
   render() {
@@ -200,15 +208,9 @@ export class ErxesEditor extends React.Component {
     return (
       <div className="RichEditor-root">
         <div className="RichEditor-controls-root">
-          <BlockStyleControls
-            editorState={editorState}
-            onToggle={this.toggleBlockType}
-          />
+          <BlockStyleControls editorState={editorState} onToggle={this.toggleBlockType} />
 
-          <InlineStyleControls
-            editorState={editorState}
-            onToggle={this.toggleInlineStyle}
-          />
+          <InlineStyleControls editorState={editorState} onToggle={this.toggleInlineStyle} />
         </div>
 
         <div className={className} onClick={this.focus}>

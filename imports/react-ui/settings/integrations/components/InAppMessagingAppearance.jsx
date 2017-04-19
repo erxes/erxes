@@ -1,17 +1,11 @@
 import React, { PropTypes, Component } from 'react';
 import { FlowRouter } from 'meteor/kadira:flow-router';
-import {
-  Button,
-  ButtonGroup,
-  OverlayTrigger,
-  Popover,
-} from 'react-bootstrap';
+import { Button, ButtonGroup, OverlayTrigger, Popover } from 'react-bootstrap';
 import classnames from 'classnames';
 import { ChromePicker } from 'react-color';
 import { Wrapper } from '/imports/react-ui/layout/components';
 import Sidebar from '../../Sidebar.jsx';
 import WidgetPreview from './WidgetPreview.jsx';
-
 
 class Appearance extends Component {
   constructor(props) {

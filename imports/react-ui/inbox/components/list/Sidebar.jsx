@@ -26,10 +26,7 @@ class Sidebar extends React.Component {
 
     return (
       <li key={channel._id}>
-        <a
-          className={Wrapper.Sidebar.getActiveClass('channelId', channel._id)}
-          onClick={onClick}
-        >
+        <a className={Wrapper.Sidebar.getActiveClass('channelId', channel._id)} onClick={onClick}>
 
           <span className="icon">#</span>{channel.name}
           <span className="counter">
@@ -47,10 +44,7 @@ class Sidebar extends React.Component {
 
     return (
       <li key={brand._id}>
-        <a
-          className={Wrapper.Sidebar.getActiveClass('brandId', brand._id)}
-          onClick={onClick}
-        >
+        <a className={Wrapper.Sidebar.getActiveClass('brandId', brand._id)} onClick={onClick}>
 
           <span className="icon">#</span>{brand.name}
           <span className="counter">
@@ -89,10 +83,7 @@ class Sidebar extends React.Component {
 
     return (
       <li key={tag._id}>
-        <a
-          className={Wrapper.Sidebar.getActiveClass('tagId', tag._id)}
-          onClick={onClick}
-        >
+        <a className={Wrapper.Sidebar.getActiveClass('tagId', tag._id)} onClick={onClick}>
 
           <i className="ion-pricetag icon" style={{ color: tag.colorCode }} />
           {tag.name}
@@ -143,19 +134,14 @@ class Sidebar extends React.Component {
 
     return (
       <Wrapper.Sidebar.Section.QuickButtons>
-        <a
-          href={buttonLink}
-          className="quick-button"
-        >
+        <a href={buttonLink} className="quick-button">
           <i className="ion-gear-a" />
         </a>
-        {
-          FlowRouter.getQueryParam(queryParamName)
-            ? <a href="" className="quick-button" onClick={onClick}>
+        {FlowRouter.getQueryParam(queryParamName)
+          ? <a href="" className="quick-button" onClick={onClick}>
               <i className="ion-close-circled" />
             </a>
-            : null
-        }
+          : null}
       </Wrapper.Sidebar.Section.QuickButtons>
     );
   }
@@ -163,29 +149,21 @@ class Sidebar extends React.Component {
   static renderFilterSectionHeader() {
     return (
       <Wrapper.Sidebar.Section.QuickButtons>
-        {
-          FlowRouter.getQueryParam('participating') ||
+        {FlowRouter.getQueryParam('participating') ||
           FlowRouter.getQueryParam('unassigned') ||
           FlowRouter.getQueryParam('status') ||
           FlowRouter.getQueryParam('starred')
-            ? <a href="" className="quick-button" onClick={Sidebar.clearStatusFilter}>
+          ? <a href="" className="quick-button" onClick={Sidebar.clearStatusFilter}>
               <i className="ion-close-circled" />
             </a>
-            : null
-        }
+          : null}
       </Wrapper.Sidebar.Section.QuickButtons>
     );
   }
 
   static renderEmptyState(list, text, iconClassName, isReady) {
     if (list.length === 0 && isReady) {
-      return (
-        <EmptyState
-          icon={<i className={iconClassName} />}
-          text={text}
-          size="small"
-        />
-      );
+      return <EmptyState icon={<i className={iconClassName} />} text={text} size="small" />;
     }
 
     if (list.length === 0 && !isReady) {
@@ -237,15 +215,16 @@ class Sidebar extends React.Component {
           <Title>Filter by status</Title>
           {Sidebar.renderFilterSectionHeader()}
           <ul className="filters">
-            {Sidebar.renderSingleFilter(
-              'unassigned', 'true', 'unassiged', 'Unassigned')}
+            {Sidebar.renderSingleFilter('unassigned', 'true', 'unassiged', 'Unassigned')}
+
+            {Sidebar.renderSingleFilter('participating', 'true', 'participating', 'Participating')}
 
             {Sidebar.renderSingleFilter(
-              'participating', 'true',
-              'participating', 'Participating')}
-
-            {Sidebar.renderSingleFilter(
-              'status', CONVERSATION_STATUSES.CLOSED, 'resolved', 'Resolved')}
+              'status',
+              CONVERSATION_STATUSES.CLOSED,
+              'resolved',
+              'Resolved',
+            )}
 
             {Sidebar.renderSingleFilter('starred', 'true', 'starred', 'Starred')}
           </ul>

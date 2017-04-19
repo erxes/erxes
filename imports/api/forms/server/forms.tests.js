@@ -10,18 +10,24 @@ import '/imports/api/users/factory';
 
 import { Forms, Fields } from '../forms';
 import {
-  add, edit, remove, duplicate, addField, editField,
-  removeField, updateFieldsOrder,
+  add,
+  edit,
+  remove,
+  duplicate,
+  addField,
+  editField,
+  removeField,
+  updateFieldsOrder,
 } from '../methods';
 
 import './publications';
 
-describe('forms', function () {
-  describe('methods', function () {
+describe('forms', function() {
+  describe('methods', function() {
     let userId;
     let formId;
 
-    beforeEach(function () {
+    beforeEach(function() {
       // Clear
       Forms.remove({});
       Fields.remove({});
@@ -30,7 +36,7 @@ describe('forms', function () {
       formId = Factory.create('form')._id;
     });
 
-    it('add', function () {
+    it('add', function() {
       assert.equal(Forms.find().count(), 1);
 
       // method call
@@ -39,17 +45,20 @@ describe('forms', function () {
       assert.equal(Forms.find().count(), 2);
     });
 
-    it('edit', function () {
+    it('edit', function() {
       edit._execute(
         { userId },
-        { id: formId, doc: { title: 'Updated title', description: 'updated description' } },
+        {
+          id: formId,
+          doc: { title: 'Updated title', description: 'updated description' },
+        },
       );
 
       assert.equal(Forms.findOne(formId).title, 'Updated title');
     });
 
-    describe('remove', function () {
-      it('can not delete because it has some fields', function () {
+    describe('remove', function() {
+      it('can not delete because it has some fields', function() {
         Factory.create('formField', { formId, name: 'firstName' });
 
         assert.throws(
@@ -64,7 +73,7 @@ describe('forms', function () {
         Fields.remove({});
       });
 
-      it('can not delete because it used in integration', function () {
+      it('can not delete because it used in integration', function() {
         Factory.create('integration', { formId });
 
         assert.throws(
@@ -79,7 +88,7 @@ describe('forms', function () {
         Integrations.remove({});
       });
 
-      it('remove successfully', function () {
+      it('remove successfully', function() {
         assert.equal(Forms.find().count(), 1);
 
         remove._execute({ userId }, formId);
@@ -88,14 +97,11 @@ describe('forms', function () {
       });
     });
 
-    it('add new field', function () {
+    it('add new field', function() {
       // making sure that no previous fields
       assert.equal(Fields.find().count(), 0);
 
-      addField._execute(
-        { userId },
-        { formId, doc: { type: 'input', isRequired: false } },
-      );
+      addField._execute({ userId }, { formId, doc: { type: 'input', isRequired: false } });
 
       // checking creation
       assert.equal(Fields.find().count(), 1);
@@ -105,12 +111,15 @@ describe('forms', function () {
       assert.equal(field.order, 0);
     });
 
-    it('edit field', function () {
+    it('edit field', function() {
       const _id = Factory.create('formField', { text: 'firstName' })._id;
 
       editField._execute(
         { userId },
-        { _id, doc: { type: 'input', text: 'updatedFirstName', isRequired: true } },
+        {
+          _id,
+          doc: { type: 'input', text: 'updatedFirstName', isRequired: true },
+        },
       );
 
       const field = Fields.findOne({ _id });
@@ -118,7 +127,7 @@ describe('forms', function () {
       assert.equal(field.text, 'updatedFirstName');
     });
 
-    it('remove field', function () {
+    it('remove field', function() {
       const _id = Factory.create('formField', { text: 'firstName' })._id;
 
       removeField._execute({ userId }, { _id });
@@ -126,26 +135,20 @@ describe('forms', function () {
       assert.equal(Fields.find().count(), 0);
     });
 
-    it('update fields order', function () {
+    it('update fields order', function() {
       const _id = Factory.create('formField', { text: 'firstName' })._id;
 
-      updateFieldsOrder._execute(
-        { userId },
-        { orderDics: [{ _id, order: 10 }] },
-      );
+      updateFieldsOrder._execute({ userId }, { orderDics: [{ _id, order: 10 }] });
 
       const field = Fields.findOne({ _id });
 
       assert.equal(field.order, 10);
     });
 
-    it('duplicate', function () {
+    it('duplicate', function() {
       Factory.create('formField', { formId });
 
-      duplicate._execute(
-        { userId },
-        { id: formId },
-      );
+      duplicate._execute({ userId }, { id: formId });
 
       const form = Forms.findOne(formId);
 

@@ -2,10 +2,8 @@ import React, { PropTypes } from 'react';
 import { _ } from 'meteor/underscore';
 import Toggle from 'react-toggle';
 import { Wrapper } from '/imports/react-ui/layout/components';
-import { Checkbox } from 'react-bootstrap';
 import Alert from 'meteor/erxes-notifier';
 import Sidebar from '../../Sidebar.jsx';
-
 
 class NotificationSettings extends React.Component {
   constructor(props) {
@@ -19,7 +17,7 @@ class NotificationSettings extends React.Component {
 
   onTypeChange(e) {
     // save config
-    this.props.save(e.target.value, e.target.checked, (error) => {
+    this.props.save(e.target.value, e.target.checked, error => {
       if (error) return Alert.error(error.reason);
       return Alert.success('Congrats');
     });
@@ -27,19 +25,14 @@ class NotificationSettings extends React.Component {
 
   onEmailConfigChange(e) {
     // save get notification by email config
-    this.props.configGetNotificationByEmail(
-      { isAllowed: e.target.checked },
-      (error) => {
-        if (error) return Alert.error(error.reason);
-        return Alert.success('Congrats');
-      }
-    );
+    this.props.configGetNotificationByEmail({ isAllowed: e.target.checked }, error => {
+      if (error) return Alert.error(error.reason);
+      return Alert.success('Congrats');
+    });
   }
 
   isChecked(notifType) {
-    const oldEntry = _.find(this.props.configs, (config) =>
-      config.notifType === notifType.name
-    );
+    const oldEntry = _.find(this.props.configs, config => config.notifType === notifType.name);
 
     // if no previous configuration found then default is checked
     if (!oldEntry) {
@@ -70,9 +63,7 @@ class NotificationSettings extends React.Component {
     return (
       <div key={mindex}>
         <h5>{module.description}</h5>
-        {module.types.map(
-          (type, index) => this.renderNotifType(type, `${mindex}${index}`)
-        )}
+        {module.types.map((type, index) => this.renderNotifType(type, `${mindex}${index}`))}
       </div>
     );
   }
@@ -92,9 +83,7 @@ class NotificationSettings extends React.Component {
           Get notification by email
         </div>
         <div className="margined">
-          {this.props.modules.map(
-            (module, index) => this.renderModule(module, index),
-          )}
+          {this.props.modules.map((module, index) => this.renderModule(module, index))}
         </div>
       </div>
     );
@@ -125,6 +114,5 @@ NotificationSettings.propTypes = {
   // previously configured value
   getNotificationByEmail: PropTypes.bool.isRequired,
 };
-
 
 export default NotificationSettings;

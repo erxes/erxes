@@ -1,6 +1,5 @@
 import React, { PropTypes } from 'react';
 
-
 const propTypes = {
   left: PropTypes.node,
   right: PropTypes.node,

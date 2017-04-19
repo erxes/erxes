@@ -1,10 +1,9 @@
 import React, { PropTypes } from 'react';
-import { Table, ButtonToolbar, Button } from 'react-bootstrap';
+import { Table, Button } from 'react-bootstrap';
 import { Wrapper } from '/imports/react-ui/layout/components';
 import { ModalTrigger } from '/imports/react-ui/common';
 import Row from './Row.jsx';
 import { Form } from '../containers';
-
 
 const propTypes = {
   tags: PropTypes.array.isRequired,
@@ -25,9 +24,7 @@ function List({ tags, type, remove }) {
     </ModalTrigger>
   );
 
-  const actionBar = (
-    <Wrapper.ActionBar left={actionBarLeft} />
-  );
+  const actionBar = <Wrapper.ActionBar left={actionBarLeft} />;
   const content = (
     <Table>
       <thead>
@@ -37,16 +34,7 @@ function List({ tags, type, remove }) {
         </tr>
       </thead>
       <tbody>
-        {
-          tags.map(tag =>
-            <Row
-              key={tag._id}
-              tag={tag}
-              type={type}
-              remove={remove}
-            />,
-          )
-        }
+        {tags.map(tag => <Row key={tag._id} tag={tag} type={type} remove={remove} />)}
       </tbody>
     </Table>
   );

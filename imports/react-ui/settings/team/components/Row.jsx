@@ -4,7 +4,6 @@ import Alert from 'meteor/erxes-notifier';
 import { ModalTrigger, Tip, ActionButtons } from '/imports/react-ui/common';
 import { InviteForm } from '../containers';
 
-
 const propTypes = {
   user: PropTypes.object.isRequired,
   deactivate: PropTypes.func.isRequired,
@@ -20,11 +19,13 @@ class Row extends Component {
   }
 
   deactivate() {
-    if (!confirm('Are you sure?')) { return; } // eslint-disable-line no-alert
+    if (!confirm('Are you sure?')) {
+      return;
+    } // eslint-disable-line no-alert
 
     const { user, deactivate } = this.props;
 
-    deactivate(user._id, (error) => {
+    deactivate(user._id, error => {
       if (error) {
         return Alert.error(error.reason);
       }

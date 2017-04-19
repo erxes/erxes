@@ -5,7 +5,6 @@ import { Tags } from '/imports/api/tags/tags';
 import { remove } from '/imports/api/tags/methods';
 import { List } from '../components';
 
-
 function composer({ type }, onData) {
   const tagsHandle = Meteor.subscribe('tags.tagList', type);
 

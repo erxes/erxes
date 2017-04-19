@@ -4,7 +4,6 @@ import { MainLayout } from '/imports/react-ui/layout/containers';
 import settingsRoute from '../routes.jsx';
 import { ChannelList, ChannelForm } from './containers';
 
-
 const channels = settingsRoute.group({
   prefix: '/channels',
 });

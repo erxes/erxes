@@ -3,7 +3,6 @@ import { FlowRouter } from 'meteor/kadira:flow-router';
 import { FormGroup, FormControl, Button } from 'react-bootstrap';
 import Alert from 'meteor/erxes-notifier';
 
-
 const propTypes = {
   forgotPassword: React.PropTypes.func.isRequired,
 };
@@ -51,7 +50,7 @@ class ForgotPassword extends React.Component {
               <p>
                 erxes is an AI meets open source messaging platform for sales and marketing teams.
               </p>
-              <a href="http://erxes.io/">&laquo; Go to home page</a>
+              <a href="http://erxes.io/">« Go to home page</a>
             </div>
           </div>
           <div className="col-md-5">

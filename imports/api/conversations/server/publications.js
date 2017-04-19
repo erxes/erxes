@@ -14,12 +14,15 @@ import { Messages } from '../messages';
 
 import ListQueryBuilder from './queryBuilder';
 
-
 Meteor.publishComposite('conversations.list', function conversationsList(params) {
   check(params, Object);
 
   if (!this.userId) {
-    return { find() { this.ready(); } };
+    return {
+      find() {
+        this.ready();
+      },
+    };
   }
 
   const user = Meteor.users.findOne(this.userId);
@@ -39,7 +42,7 @@ Meteor.publishComposite('conversations.list', function conversationsList(params)
   };
 
   // by channels
-  Channels.find().forEach((channel) => {
+  Channels.find().forEach(channel => {
     countPublish(
       `conversations.counts.byChannel${channel._id}`,
       _.extend({}, queries.default, qb.channelFilter(channel._id)),
@@ -47,7 +50,7 @@ Meteor.publishComposite('conversations.list', function conversationsList(params)
   });
 
   // by brands
-  Brands.find().forEach((brand) => {
+  Brands.find().forEach(brand => {
     countPublish(
       `conversations.counts.byBrand${brand._id}`,
       _.extend(
@@ -62,8 +65,11 @@ Meteor.publishComposite('conversations.list', function conversationsList(params)
   countPublish(
     'conversations.counts.unassiged',
     _.extend(
-      {}, queries.default, queries.integrations,
-      queries.integrationType, qb.unassignedFilter(),
+      {},
+      queries.default,
+      queries.integrations,
+      queries.integrationType,
+      qb.unassignedFilter(),
     ),
   );
 
@@ -71,8 +77,11 @@ Meteor.publishComposite('conversations.list', function conversationsList(params)
   countPublish(
     'conversations.counts.participating',
     _.extend(
-      {}, queries.default, queries.integrations,
-      queries.integrationType, qb.participatingFilter(),
+      {},
+      queries.default,
+      queries.integrations,
+      queries.integrationType,
+      qb.participatingFilter(),
     ),
   );
 
@@ -80,8 +89,11 @@ Meteor.publishComposite('conversations.list', function conversationsList(params)
   countPublish(
     'conversations.counts.starred',
     _.extend(
-      {}, queries.default, queries.integrations,
-      queries.integrationType, qb.starredFilter(),
+      {},
+      queries.default,
+      queries.integrations,
+      queries.integrationType,
+      qb.starredFilter(),
     ),
   );
 
@@ -89,13 +101,16 @@ Meteor.publishComposite('conversations.list', function conversationsList(params)
   countPublish(
     'conversations.counts.resolved',
     _.extend(
-      {}, queries.default, queries.integrations,
-      queries.integrationType, qb.statusFilter(['closed']),
+      {},
+      queries.default,
+      queries.integrations,
+      queries.integrationType,
+      qb.statusFilter(['closed']),
     ),
   );
 
   // by integration type
-  _.each(KIND_CHOICES.ALL_LIST, (integrationType) => {
+  _.each(KIND_CHOICES.ALL_LIST, integrationType => {
     countPublish(
       `conversations.counts.byIntegrationType${integrationType}`,
       _.extend({}, queries.default, qb.integrationTypeFilter(integrationType)),
@@ -103,49 +118,44 @@ Meteor.publishComposite('conversations.list', function conversationsList(params)
   });
 
   // by tag
-  Tags.find().forEach((tag) => {
+  Tags.find().forEach(tag => {
     countPublish(
       `conversations.counts.byTag${tag._id}`,
       _.extend(
-        {}, queries.default, queries.integrations,
-        queries.integrationType, qb.tagFilter(tag._id),
+        {},
+        queries.default,
+        queries.integrations,
+        queries.integrationType,
+        qb.tagFilter(tag._id),
       ),
     );
   });
 
   // list counts
-  countPublish(
-    'conversations.counts.list',
-    qb.mainQuery(),
-  );
+  countPublish('conversations.counts.list', qb.mainQuery());
 
   return {
     find() {
-      return Conversations.find(
-        qb.mainQuery(),
-        {
-          fields: Conversations.publicField,
-          sort: { createdAt: -1 },
-          limit: params.limit || 0,
-        },
-      );
+      return Conversations.find(qb.mainQuery(), {
+        fields: Conversations.publicField,
+        sort: { createdAt: -1 },
+        limit: params.limit || 0,
+      });
     },
 
     children: [
       {
         find(conversation) {
-          return Customers.find(
-            conversation.customerId,
-            { fields: Customers.publicFields },
-          );
+          return Customers.find(conversation.customerId, {
+            fields: Customers.publicFields,
+          });
         },
       },
       {
         find(conversation) {
-          return Meteor.users.find(
-            conversation.assignedUserId,
-            { fields: { details: 1, emails: 1 } },
-          );
+          return Meteor.users.find(conversation.assignedUserId, {
+            fields: { details: 1, emails: 1 },
+          });
         },
       },
     ],
@@ -156,9 +166,12 @@ Meteor.publishComposite('conversations.detail', function conversationsDetail(id)
   check(id, String);
 
   if (!this.userId) {
-    return { find() { this.ready(); } };
+    return {
+      find() {
+        this.ready();
+      },
+    };
   }
-
 
   return {
     find() {
@@ -168,18 +181,16 @@ Meteor.publishComposite('conversations.detail', function conversationsDetail(id)
     children: [
       {
         find(conversation) {
-          return Customers.find(
-            conversation.customerId,
-            { fields: Customers.publicFields },
-          );
+          return Customers.find(conversation.customerId, {
+            fields: Customers.publicFields,
+          });
         },
       },
       {
         find(conversation) {
-          return Meteor.users.find(
-            conversation.assignedUserId,
-            { fields: { details: 1, emails: 1 } },
-          );
+          return Meteor.users.find(conversation.assignedUserId, {
+            fields: { details: 1, emails: 1 },
+          });
         },
       },
     ],
@@ -190,32 +201,31 @@ Meteor.publishComposite('conversations.messageList', function messageList(conver
   check(conversationId, String);
 
   if (!this.userId) {
-    return { find() { this.ready(); } };
+    return {
+      find() {
+        this.ready();
+      },
+    };
   }
 
   return {
     find() {
-      return Messages.find(
-        { conversationId },
-        { fields: Messages.publicFields },
-      );
+      return Messages.find({ conversationId }, { fields: Messages.publicFields });
     },
 
     children: [
       {
         find(message) {
-          return Customers.find(
-            message.customerId,
-            { fields: Customers.publicFields },
-          );
+          return Customers.find(message.customerId, {
+            fields: Customers.publicFields,
+          });
         },
       },
       {
         find(message) {
-          return Meteor.users.find(
-            message.userId,
-            { fields: { details: 1, emails: 1 } },
-          );
+          return Meteor.users.find(message.userId, {
+            fields: { details: 1, emails: 1 },
+          });
         },
       },
     ],

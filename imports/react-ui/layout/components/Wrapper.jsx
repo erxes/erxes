@@ -5,7 +5,6 @@ import PageContent from './PageContent.jsx';
 import ActionBar from './ActionBar.jsx';
 import { QuickNavigation } from '../containers';
 
-
 const propTypes = {
   header: PropTypes.element.isRequired,
   leftSidebar: PropTypes.element,

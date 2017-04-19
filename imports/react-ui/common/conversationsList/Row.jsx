@@ -7,7 +7,6 @@ import Starrer from './Starrer';
 import Participate from './Participate';
 import Assignees from './Assignees.jsx';
 
-
 const propTypes = {
   conversation: PropTypes.object.isRequired,
   toggleBulk: PropTypes.func,
@@ -58,7 +57,9 @@ class Row extends Component {
     const brandName = integration.brand && integration.brand().name;
 
     // TODO: use embedded tags list of the conversation object
-    const tags = TagsCollection.find({ _id: { $in: conversation.tagIds || [] } }).fetch();
+    const tags = TagsCollection.find({
+      _id: { $in: conversation.tagIds || [] },
+    }).fetch();
 
     return (
       <li className={isReadClass}>
@@ -70,7 +71,9 @@ class Row extends Component {
 
         <div className="body">
           <header>
-            <span className="customer-name">{customer && customer._id && customer.name}</span>
+            <span className="customer-name">
+              {customer && customer._id && customer.name}
+            </span>
             <span> opened about </span>
             <time>{moment(createdAt).fromNow()}</time>
             <Tags tags={tags} size="small" />
@@ -92,7 +95,9 @@ class Row extends Component {
 
             <div className="info">
               <span><i className="ion-reply" /> {messageCount}</span>
-              <span><i className="ion-person" /> {conversation.participatorCount()}</span>
+              <span>
+                <i className="ion-person" /> {conversation.participatorCount()}
+              </span>
             </div>
           </footer>
         </div>

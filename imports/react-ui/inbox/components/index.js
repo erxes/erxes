@@ -7,7 +7,6 @@ import AssignBoxPopover from './assignBox/AssignBoxPopover.jsx';
 import Resolver from './resolver/Resolver.jsx';
 import ResponseTemplate from './details/ResponseTemplate.jsx';
 
-
 export {
   List,
   Details,

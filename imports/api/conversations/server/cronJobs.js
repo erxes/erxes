@@ -9,20 +9,25 @@ import { Conversations } from '../conversations';
 import { CONVERSATION_STATUSES } from '../constants';
 import { Messages } from '../messages';
 
-
 function sendMessageEmail() {
   // new or open conversations
   const conversations = Conversations.find(
-    { status: { $in: [CONVERSATION_STATUSES.NEW, CONVERSATION_STATUSES.OPEN] } },
+    {
+      status: { $in: [CONVERSATION_STATUSES.NEW, CONVERSATION_STATUSES.OPEN] },
+    },
     { fields: { _id: 1, customerId: 1, brandId: 1 } },
   );
 
-  _.each(conversations.fetch(), (conversation) => {
+  _.each(conversations.fetch(), conversation => {
     const customer = Customers.findOne(conversation.customerId);
     const brand = Brands.findOne(conversation.brandId);
 
-    if (!customer || !customer.email) { return; }
-    if (!brand) { return; }
+    if (!customer || !customer.email) {
+      return;
+    }
+    if (!brand) {
+      return;
+    }
 
     // user's last non answered question
     const question = Messages.findOne(
@@ -50,7 +55,7 @@ function sendMessageEmail() {
       { sort: { createdAt: 1 } },
     ).fetch();
 
-    _.each(adminMessages, (message) => {
+    _.each(adminMessages, message => {
       const answer = message;
 
       // add user object to answer
@@ -70,10 +75,7 @@ function sendMessageEmail() {
     const user = Meteor.users.findOne(answers[0].userId);
 
     if (user && user.emailSignatures) {
-      const signature = _.find(
-        user.emailSignatures,
-        s => brand._id === s.brandId,
-      );
+      const signature = _.find(user.emailSignatures, s => brand._id === s.brandId);
 
       if (signature) {
         data.signature = signature.signature;
@@ -105,7 +107,7 @@ function sendMessageEmail() {
 }
 
 SyncedCron.add({
-  name: 'Send unread conversation messages to customer\'s email',
+  name: "Send unread conversation messages to customer's email",
 
   schedule(parser) {
     // return parser.text('every 10 seconds');

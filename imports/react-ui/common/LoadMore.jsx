@@ -1,7 +1,6 @@
 import React, { PropTypes } from 'react';
 import { FlowRouter } from 'meteor/kadira:flow-router';
 
-
 const propTypes = {
   perPage: PropTypes.number,
   all: PropTypes.number.isRequired,
@@ -15,9 +14,7 @@ function LoadMore({ perPage = 20, all, paramName = 'limit' }) {
     FlowRouter.setQueryParams({ [paramName]: loaded + perPage });
   };
 
-  return (
-    loaded < all ? <button onClick={load}>Load more</button> : null
-  );
+  return loaded < all ? <button onClick={load}>Load more</button> : null;
 }
 
 LoadMore.propTypes = propTypes;

@@ -11,7 +11,6 @@ import {
 } from 'react-bootstrap';
 import SelectBrand from './SelectBrand.jsx';
 
-
 class Facebook extends Component {
   constructor(props, context) {
     super(props, context);
@@ -27,7 +26,7 @@ class Facebook extends Component {
   collectCheckboxValues(name) {
     const values = [];
 
-    _.each(document.getElementsByName(name), (elem) => {
+    _.each(document.getElementsByName(name), elem => {
       if (elem.checked) {
         values.push(elem.value);
       }
@@ -55,11 +54,7 @@ class Facebook extends Component {
         <FormGroup>
           <ControlLabel>Name</ControlLabel>
 
-          <FormControl
-            id="name"
-            type="text"
-            required
-          />
+          <FormControl id="name" type="text" required />
         </FormGroup>
 
         <SelectBrand brands={brands} />
@@ -67,33 +62,25 @@ class Facebook extends Component {
         <FormGroup controlId="app">
           <ControlLabel>App</ControlLabel>
 
-          <FormControl
-            componentClass="select"
-            placeholder="Select app"
-            onChange={this.onAppChange}
-          >
+          <FormControl componentClass="select" placeholder="Select app" onChange={this.onAppChange}>
             <option>Select app ...</option>
 
-            {apps.map((app, index) =>
+            {apps.map((app, index) => (
               <option key={`app${index}`} value={app.id}>{app.name}</option>
-            )}
+            ))}
           </FormControl>
         </FormGroup>
 
         <FormGroup>
           <ControlLabel>Pages</ControlLabel>
 
-          {pages.map(page =>
+          {pages.map(page => (
             <div key={page.id}>
-              <Checkbox
-                name="pages"
-                key={page.id}
-                value={page.id}
-              >
-              {page.name}
+              <Checkbox name="pages" key={page.id} value={page.id}>
+                {page.name}
               </Checkbox>
             </div>
-          )}
+          ))}
         </FormGroup>
 
         <Modal.Footer>

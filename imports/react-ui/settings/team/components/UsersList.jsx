@@ -6,7 +6,6 @@ import { InviteForm } from '../containers';
 import Sidebar from '../../Sidebar.jsx';
 import Row from './Row.jsx';
 
-
 const propTypes = {
   users: PropTypes.array.isRequired,
   channels: PropTypes.array.isRequired,
@@ -27,7 +26,7 @@ class UsersList extends Component {
   renderRows() {
     const { users, channels, deactivate, updateInvitationInfos } = this.props;
 
-    return users.map(user =>
+    return users.map(user => (
       <Row
         user={user}
         channels={channels}
@@ -35,7 +34,7 @@ class UsersList extends Component {
         updateInvitationInfos={updateInvitationInfos}
         key={user._id}
       />
-    );
+    ));
   }
 
   render() {
@@ -56,9 +55,7 @@ class UsersList extends Component {
       </ModalTrigger>
     );
 
-    const actionBar = (
-      <Wrapper.ActionBar left={actionBarLeft} />
-    );
+    const actionBar = <Wrapper.ActionBar left={actionBarLeft} />;
 
     const content = (
       <Pagination loadMore={loadMore} hasMore={hasMore}>

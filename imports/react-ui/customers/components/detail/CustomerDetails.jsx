@@ -5,7 +5,6 @@ import Content from './Content.jsx';
 import Sidebar from './sidebar/Sidebar.jsx';
 import RightSidebar from './RightSidebar.jsx';
 
-
 const propTypes = {
   customer: PropTypes.object.isRequired,
   conversations: PropTypes.array.isRequired,

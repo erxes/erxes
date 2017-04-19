@@ -1,7 +1,6 @@
 import React, { PropTypes } from 'react';
 import { Wrapper } from '/imports/react-ui/layout/components';
 
-
 const propTypes = {
   customer: PropTypes.object.isRequired,
 };

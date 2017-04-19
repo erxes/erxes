@@ -3,7 +3,6 @@ import { Form, FormControl, Button } from 'react-bootstrap';
 import debounce from 'lodash/debounce';
 import { types, operators, dateUnits } from '/imports/api/customers/constants';
 
-
 const propTypes = {
   condition: PropTypes.object.isRequired,
   changeCondition: PropTypes.func.isRequired,
@@ -81,11 +80,7 @@ class Condition extends Component {
         value={this.state.dateUnit}
         onChange={this.handleInputValue}
       >
-        {
-          Object.keys(dateUnits).map(key =>
-            <option value={key} key={key}>{dateUnits[key]}</option>,
-          )
-        }
+        {Object.keys(dateUnits).map(key => <option value={key} key={key}>{dateUnits[key]}</option>)}
       </FormControl>
     );
 
@@ -112,11 +107,9 @@ class Condition extends Component {
             value={this.state.operator}
             onChange={this.handleInputValue}
           >
-            {
-              operators[this.state.type].map(c =>
-                <option value={c.value} key={c.value}>{c.name}</option>,
-              )
-            }
+            {operators[this.state.type].map(c => (
+              <option value={c.value} key={c.value}>{c.name}</option>
+            ))}
           </FormControl>{' '}
           {this.renderValueInput()}
         </div>
@@ -128,16 +121,9 @@ class Condition extends Component {
             value={this.state.type}
             onChange={this.handleInputValue}
           >
-            {
-              Object.keys(types).map(key =>
-                <option value={key} key={key}>{types[key]}</option>,
-              )
-            }
+            {Object.keys(types).map(key => <option value={key} key={key}>{types[key]}</option>)}
           </FormControl>
-          <Button
-            bsStyle="link"
-            onClick={this.removeCondition}
-          >
+          <Button bsStyle="link" onClick={this.removeCondition}>
             <i className="ion-close-circled" />
           </Button>
         </div>

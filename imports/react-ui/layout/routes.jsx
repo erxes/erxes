@@ -5,13 +5,7 @@ import { FlowRouter } from 'meteor/kadira:flow-router';
 import { AuthLayout, NotificationList, MainLayout } from './containers';
 import NotFound from './components/NotFound.jsx';
 
-
-const publicRoutes = [
-  'auth/signUp',
-  'auth/signIn',
-  'auth/forgotPassword',
-  'auth/resetPassword',
-];
+const publicRoutes = ['auth/signUp', 'auth/signIn', 'auth/forgotPassword', 'auth/resetPassword'];
 
 function checkAuthentication(context, redirect) {
   if (!Meteor.userId()) {
@@ -21,7 +15,6 @@ function checkAuthentication(context, redirect) {
 
 FlowRouter.triggers.enter([checkAuthentication], { except: publicRoutes });
 
-
 FlowRouter.notFound = {
   action: () => {
     mount(AuthLayout, { content: <NotFound /> });
@@ -30,7 +23,9 @@ FlowRouter.notFound = {
 
 FlowRouter.route('/notifications', {
   action(params, queryParams) {
-    mount(MainLayout, { content: <NotificationList queryParams={queryParams} /> });
+    mount(MainLayout, {
+      content: <NotificationList queryParams={queryParams} />,
+    });
   },
   name: 'notifications',
 });

@@ -1,7 +1,6 @@
 import React, { PropTypes } from 'react';
 import Condition from './Condition.jsx';
 
-
 const propTypes = {
   conditions: PropTypes.array.isRequired,
   changeCondition: PropTypes.func.isRequired,
@@ -11,16 +10,14 @@ const propTypes = {
 function Conditions({ conditions, changeCondition, removeCondition }) {
   return (
     <div>
-      {
-        conditions.map(condition =>
-          <Condition
-            condition={condition}
-            changeCondition={changeCondition}
-            removeCondition={removeCondition}
-            key={condition.field}
-          />,
-        )
-      }
+      {conditions.map(condition => (
+        <Condition
+          condition={condition}
+          changeCondition={changeCondition}
+          removeCondition={removeCondition}
+          key={condition.field}
+        />
+      ))}
     </div>
   );
 }

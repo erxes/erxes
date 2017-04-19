@@ -22,14 +22,14 @@ class List extends Component {
   renderObjects() {
     const { objects, brands, removeResTemplate } = this.props;
 
-    return objects.map(resTemplate =>
+    return objects.map(resTemplate => (
       <Row
         brands={brands}
         key={resTemplate._id}
         resTemplate={resTemplate}
         removeResTemplate={removeResTemplate}
-      />,
-    );
+      />
+    ));
   }
 
   render() {
@@ -45,9 +45,7 @@ class List extends Component {
       </ModalTrigger>
     );
 
-    const actionBar = (
-      <Wrapper.ActionBar left={actionBarLeft} />
-    );
+    const actionBar = <Wrapper.ActionBar left={actionBarLeft} />;
 
     const content = (
       <Table>

@@ -30,7 +30,7 @@ class MessagesCollection extends Mongo.Collection {
     }
 
     // add mentioned users to participators
-    _.each(message.mentionedUserIds || [], (userId) => {
+    _.each(message.mentionedUserIds || [], userId => {
       addParticipator({
         conversationId: message.conversationId,
         userId,
@@ -63,9 +63,15 @@ Messages.helpers({
 });
 
 Messages.deny({
-  insert() { return true; },
-  update() { return true; },
-  remove() { return true; },
+  insert() {
+    return true;
+  },
+  update() {
+    return true;
+  },
+  remove() {
+    return true;
+  },
 });
 
 export const FormSchema = new SimpleSchema({
@@ -77,12 +83,14 @@ export const FormSchema = new SimpleSchema({
   },
 
   attachments: {
-    type: [new SimpleSchema({
-      url: { type: String },
-      type: { type: String, optional: true },
-      name: { type: String, optional: true },
-      size: { type: Number, optional: true },
-    })],
+    type: [
+      new SimpleSchema({
+        url: { type: String },
+        type: { type: String, optional: true },
+        name: { type: String, optional: true },
+        size: { type: Number, optional: true },
+      }),
+    ],
 
     optional: true,
   },

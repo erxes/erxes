@@ -1,14 +1,7 @@
 import React from 'react';
 import { FlowRouter } from 'meteor/kadira:flow-router';
-import {
-  FormGroup,
-  ControlLabel,
-  FormControl,
-  Button,
-  Well,
-} from 'react-bootstrap';
+import { FormGroup, FormControl, Button } from 'react-bootstrap';
 import Alert from 'meteor/erxes-notifier';
-
 
 const propTypes = {
   token: React.PropTypes.string.isRequired,
@@ -31,7 +24,7 @@ class ResetPassword extends React.Component {
 
     resetPassword(token, this.state.newPassword, err => {
       if (err) {
-        return Alert.error('Couldn\'t reset your password');
+        return Alert.error("Couldn't reset your password");
       }
 
       return FlowRouter.go('/');
@@ -55,7 +48,7 @@ class ResetPassword extends React.Component {
               <p>
                 erxes is an AI meets open source messaging platform for sales and marketing teams.
               </p>
-              <a href="http://erxes.io/">&laquo; Go to home page</a>
+              <a href="http://erxes.io/">« Go to home page</a>
             </div>
           </div>
           <div className="col-md-5">

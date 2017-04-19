@@ -4,7 +4,6 @@ import React, { PropTypes, Component } from 'react';
 import Alert from 'meteor/erxes-notifier';
 import { FilterableList } from '/imports/react-ui/common';
 
-
 const propTypes = {
   targets: PropTypes.array.isRequired,
   assignees: PropTypes.array.isRequired,
@@ -28,35 +27,39 @@ class AssignBox extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    this.setState(
-      { assingeesForList: this.generateAssignParams(nextProps.assignees, nextProps.targets) }
-    );
+    this.setState({
+      assingeesForList: this.generateAssignParams(nextProps.assignees, nextProps.targets),
+    });
   }
 
   assign(items, id) {
     const { assign, targets } = this.props;
-    assign({
-      targetIds: targets.map(t => t._id),
-      assignedUserId: id,
-    }, error => {
-      if (error) {
-        Alert.error(error.reason);
+    assign(
+      {
+        targetIds: targets.map(t => t._id),
+        assignedUserId: id,
+      },
+      error => {
+        if (error) {
+          Alert.error(error.reason);
 
-        if (this.props.afterSave) {
-          this.props.afterSave();
+          if (this.props.afterSave) {
+            this.props.afterSave();
+          }
         }
-      }
-      return Alert.success('The conversation Assignee has been renewed.');
-    });
+        return Alert.success('The conversation Assignee has been renewed.');
+      },
+    );
   }
 
   generateAssignParams(assignees, targets) {
-    return assignees.map((assignee) => {
+    return assignees.map(assignee => {
       // Current tag's selection state (all, some or none)
       const count = targets.reduce(
         (memo, target) =>
-        memo + (target.assignedUserId && target.assignedUserId.indexOf(assignee._id) > -1),
-      0);
+          memo + (target.assignedUserId && target.assignedUserId.indexOf(assignee._id) > -1),
+        0,
+      );
       let state = 'none';
       if (count === targets.length) {
         state = 'all';
@@ -85,11 +88,13 @@ class AssignBox extends Component {
   render() {
     const { event, className } = this.props;
 
-    const links = [{
-      title: 'Remove assignee',
-      href: '#',
-      onClick: this.removeAssignee,
-    }];
+    const links = [
+      {
+        title: 'Remove assignee',
+        href: '#',
+        onClick: this.removeAssignee,
+      },
+    ];
 
     const props = {
       className,
@@ -98,9 +103,7 @@ class AssignBox extends Component {
       [event]: this.assign,
     };
 
-    return (
-      <FilterableList {...props} />
-    );
+    return <FilterableList {...props} />;
   }
 }
 

@@ -5,7 +5,6 @@ import { compose } from 'react-komposer';
 import { getTrackerLoader, composerOptions } from '/imports/react-ui/utils';
 import { NotificationSettings } from '../components';
 
-
 const modules = new ReactiveVar([]);
 
 // fetch modules
@@ -38,20 +37,17 @@ function composer(props, onData) {
       getNotificationByEmail = true;
     }
 
-    onData(
-      null,
-      {
-        modules: modules.get(),
-        configs,
-        save,
+    onData(null, {
+      modules: modules.get(),
+      configs,
+      save,
 
-        // previously configured value
-        getNotificationByEmail,
+      // previously configured value
+      getNotificationByEmail,
 
-        // action
-        configGetNotificationByEmail,
-      },
-    );
+      // action
+      configGetNotificationByEmail,
+    });
   }
 }
 

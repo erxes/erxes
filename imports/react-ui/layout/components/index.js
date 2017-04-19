@@ -11,7 +11,6 @@ import NotificationListRow from './Notifications/NotificationListRow.jsx';
 import NotificationsLatest from './Notifications/NotificationsLatest.jsx';
 import NotificationRow from './Notifications/NotificationRow.jsx';
 
-
 export {
   AuthLayout,
   Header,

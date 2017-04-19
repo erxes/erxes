@@ -1,14 +1,7 @@
 import React from 'react';
 import { FlowRouter } from 'meteor/kadira:flow-router';
-import {
-  FormGroup,
-  ControlLabel,
-  FormControl,
-  Button,
-  Well,
-} from 'react-bootstrap';
+import { FormGroup, ControlLabel, FormControl, Button, Well } from 'react-bootstrap';
 import Alert from 'meteor/erxes-notifier';
-
 
 const propTypes = {
   createUser: React.PropTypes.func.isRequired,

@@ -1,9 +1,5 @@
 import React, { PropTypes } from 'react';
-import {
-  FormGroup,
-  ControlLabel,
-  FormControl,
-} from 'react-bootstrap';
+import { FormGroup, ControlLabel, FormControl } from 'react-bootstrap';
 
 const SelectBrand = ({ brands, onChange, defaultValue }) => (
   <FormGroup controlId="selectBrand">
@@ -17,9 +13,7 @@ const SelectBrand = ({ brands, onChange, defaultValue }) => (
     >
 
       <option />
-      {brands.map(brand =>
-        <option key={brand._id} value={brand._id}>{brand.name}</option>,
-      )}
+      {brands.map(brand => <option key={brand._id} value={brand._id}>{brand.name}</option>)}
     </FormControl>
   </FormGroup>
 );

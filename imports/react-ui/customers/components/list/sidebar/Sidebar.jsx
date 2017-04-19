@@ -5,7 +5,6 @@ import Brands from './Brands.jsx';
 import Integrations from './Integrations.jsx';
 import Tags from './Tags.jsx';
 
-
 const propTypes = {
   segments: PropTypes.array.isRequired,
   brands: PropTypes.array.isRequired,

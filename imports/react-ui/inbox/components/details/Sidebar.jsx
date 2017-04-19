@@ -7,7 +7,6 @@ import { NameCard, EmptyState, Tagger } from '/imports/react-ui/common';
 import { CONVERSATION_STATUSES } from '/imports/api/conversations/constants';
 import { AssignBox } from '../../containers';
 
-
 const propTypes = {
   conversation: PropTypes.object.isRequired,
   messagesCount: PropTypes.number.isRequired,
@@ -61,11 +60,7 @@ class Sidebar extends Component {
     }
 
     return (
-      <Button
-        bsStyle={bsStyle}
-        onClick={this.changeStatus}
-        className="action-btn"
-      >
+      <Button bsStyle={bsStyle} onClick={this.changeStatus} className="action-btn">
         {icon} {text}
       </Button>
     );
@@ -110,7 +105,7 @@ class Sidebar extends Component {
             <li>
               Channels
               <div className="value">
-                {integration.channels().map(c => (<span key={c._id}>{c.name}</span>))}
+                {integration.channels().map(c => <span key={c._id}>{c.name}</span>)}
               </div>
             </li>
             <li>
@@ -140,7 +135,7 @@ class Sidebar extends Component {
             <a
               tabIndex={0}
               className="quick-button"
-              onClick={(e) => {
+              onClick={e => {
                 e.preventDefault();
                 const { isAssignerVisible } = this.state;
                 this.setState({ isAssignerVisible: !isAssignerVisible });
@@ -160,37 +155,33 @@ class Sidebar extends Component {
             </div>
           </Collapse>
           <ul className="filters no-link">
-            {
-              !conversation.assignedUser() ?
-                <EmptyState
+            {!conversation.assignedUser()
+              ? <EmptyState
                   icon={<i className="ion-person" />}
                   text="Not assigned yet"
                   size="small"
-                /> :
-                <li>
+                />
+              : <li>
                   <NameCard user={conversation.assignedUser()} avatarSize={45} />
-                </li>
-            }
+                </li>}
           </ul>
         </Wrapper.Sidebar.Section>
 
         <Wrapper.Sidebar.Section>
           <Title>Participators</Title>
           <ul className="filters no-link">
-            {conversation.participatedUsers().map(user =>
+            {conversation.participatedUsers().map(user => (
               <li key={user._id}>
                 <NameCard user={user} avatarSize={45} />
-              </li>,
-            )}
-            {
-              conversation.participatedUsers().length === 0 ?
-                <EmptyState
+              </li>
+            ))}
+            {conversation.participatedUsers().length === 0
+              ? <EmptyState
                   icon={<i className="ion-at" />}
                   text="Not participated yet"
                   size="small"
-                /> :
-                null
-            }
+                />
+              : null}
           </ul>
         </Wrapper.Sidebar.Section>
 
@@ -201,7 +192,7 @@ class Sidebar extends Component {
             <a
               tabIndex={0}
               className="quick-button"
-              onClick={(e) => {
+              onClick={e => {
                 e.preventDefault();
                 const { isTaggerVisible } = this.state;
                 this.setState({ isTaggerVisible: !isTaggerVisible });
@@ -223,21 +214,19 @@ class Sidebar extends Component {
           </Collapse>
 
           <ul className="filters no-link">
-            {conversation.tags().map(tag =>
+            {conversation.tags().map(tag => (
               <li key={tag._id}>
                 <i className="icon ion-pricetag" style={{ color: tag.colorCode }} />
                 {tag.name}
-              </li>,
-            )}
-            {
-              conversation.tags().length === 0 ?
-                <EmptyState
+              </li>
+            ))}
+            {conversation.tags().length === 0
+              ? <EmptyState
                   icon={<i className="ion-pricetags" />}
                   text="Not tagged yet"
                   size="small"
-                /> :
-                null
-            }
+                />
+              : null}
           </ul>
         </Wrapper.Sidebar.Section>
       </Wrapper.Sidebar>

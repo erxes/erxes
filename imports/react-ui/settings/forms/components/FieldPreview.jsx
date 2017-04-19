@@ -5,34 +5,19 @@ import React, { PropTypes } from 'react';
 export default class FieldPreview extends React.Component {
   static renderSelect(options = [], attrs = {}) {
     return (
-      <select
-        {...attrs}
-        className="form-control"
-      >
+      <select {...attrs} className="form-control">
 
-        {options.map((option, index) =>
-          <option key={index} value={option}>{option}</option>,
-        )}
+        {options.map((option, index) => <option key={index} value={option}>{option}</option>)}
       </select>
     );
   }
 
   static renderInput(attrs) {
-    return (
-      <input
-        {...attrs}
-        className="form-control"
-      />
-    );
+    return <input {...attrs} className="form-control" />;
   }
 
   static renderTextarea(attrs) {
-    return (
-      <textarea
-        {...attrs}
-        className="form-control"
-      />
-    );
+    return <textarea {...attrs} className="form-control" />;
   }
 
   static renderRadioOrCheckInputs(options, type) {

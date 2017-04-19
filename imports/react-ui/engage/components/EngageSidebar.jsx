@@ -48,7 +48,7 @@ class InboxSidebar extends React.Component {
               </li>
             </ul>
             <div className="show-more">
-              <a href="#" >+10 more</a>
+              <a href="#">+10 more</a>
             </div>
           </div>
 
@@ -75,7 +75,7 @@ class InboxSidebar extends React.Component {
                   <span className="counter">10</span>
                 </a>
               </li>
-              <div className="divider"></div>
+              <div className="divider" />
               <li>
                 <a href="#">
                   All Unresolved
@@ -102,7 +102,7 @@ class InboxSidebar extends React.Component {
               </li>
             </ul>
             <div className="show-more">
-              <a href="#" >+10 more</a>
+              <a href="#">+10 more</a>
             </div>
           </div>
         </div>

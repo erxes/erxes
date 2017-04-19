@@ -6,7 +6,6 @@ import Sidebar from '../../Sidebar.jsx';
 import { ChannelForm } from '../containers';
 import Row from './Row.jsx';
 
-
 const propTypes = {
   channels: PropTypes.array.isRequired,
   removeChannel: PropTypes.func.isRequired,
@@ -24,26 +23,24 @@ class ChannelList extends Component {
   renderChannels() {
     const { channels, removeChannel } = this.props;
 
-    return channels.map(channel =>
-      <Row
-        key={channel._id}
-        channel={channel}
-        removeChannel={removeChannel}
-      />
-    );
+    return channels.map(channel => (
+      <Row key={channel._id} channel={channel} removeChannel={removeChannel} />
+    ));
   }
 
   render() {
     const { loadMore, hasMore } = this.props;
-    const trigger = <Button bsStyle="link"><i className="ion-plus-circled" /> New channel</Button>;
+    const trigger = (
+      <Button bsStyle="link">
+        <i className="ion-plus-circled" /> New channel
+      </Button>
+    );
     const actionBarLeft = (
       <ModalTrigger title="New channel" trigger={trigger}>
         <ChannelForm />
       </ModalTrigger>
     );
-    const actionBar = (
-      <Wrapper.ActionBar left={actionBarLeft} />
-    );
+    const actionBar = <Wrapper.ActionBar left={actionBarLeft} />;
 
     const content = (
       <Pagination loadMore={loadMore} hasMore={hasMore}>
@@ -63,10 +60,7 @@ class ChannelList extends Component {
       </Pagination>
     );
 
-    const breadcrumb = [
-      { title: 'Settings', link: '/settings/channels' },
-      { title: 'Channels' },
-    ];
+    const breadcrumb = [{ title: 'Settings', link: '/settings/channels' }, { title: 'Channels' }];
 
     return (
       <div>

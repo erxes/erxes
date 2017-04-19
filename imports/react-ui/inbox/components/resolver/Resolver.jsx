@@ -3,7 +3,6 @@ import _ from 'lodash';
 import { Button } from 'react-bootstrap';
 import Alert from 'meteor/erxes-notifier';
 
-
 const propTypes = {
   conversations: PropTypes.array.isRequired,
   single: PropTypes.bool,
@@ -30,9 +29,12 @@ class Resolver extends Component {
   }
 
   changeStatus(status) {
-    const args = { conversationIds: _.map(this.props.conversations, '_id'), status };
+    const args = {
+      conversationIds: _.map(this.props.conversations, '_id'),
+      status,
+    };
 
-    this.props.changeStatus(args, (error) => {
+    this.props.changeStatus(args, error => {
       if (error) {
         Alert.error('Error', error.reason);
       }
@@ -49,18 +51,19 @@ class Resolver extends Component {
 
   render() {
     const { conversations, CONVERSATION_STATUSES } = this.props;
-    const allNotClosed = _.reduce(conversations, (memo, conversation) =>
-      conversation.status !== CONVERSATION_STATUSES.CLOSED, true);
+    const allNotClosed = _.reduce(
+      conversations,
+      (memo, conversation) => conversation.status !== CONVERSATION_STATUSES.CLOSED,
+      true,
+    );
 
-    return (
-      allNotClosed
-        ? <Button bsStyle="link" onClick={this.resolve}>
+    return allNotClosed
+      ? <Button bsStyle="link" onClick={this.resolve}>
           <i className="ion-checkmark-circled" /> Resolve
         </Button>
-        : <Button bsStyle="link" onClick={this.open}>
+      : <Button bsStyle="link" onClick={this.open}>
           <i className="ion-refresh" /> Open
-        </Button>
-    );
+        </Button>;
   }
 }
 

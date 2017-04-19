@@ -20,12 +20,14 @@ Meteor.startup(() => {
   const userId = Accounts.createUser(user);
   const brandId = Brands.insert(Object.assign({ userId }, brand));
   const integrationId = Integrations.insert(Object.assign({ brandId }, integration));
-  Channels.insert(Object.assign(
-    {
-      userId,
-      memberIds: [userId],
-      integrationIds: [integrationId],
-    },
-    channel,
-  ));
+  Channels.insert(
+    Object.assign(
+      {
+        userId,
+        memberIds: [userId],
+        integrationIds: [integrationId],
+      },
+      channel,
+    ),
+  );
 });

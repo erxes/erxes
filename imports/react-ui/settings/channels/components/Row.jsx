@@ -4,7 +4,6 @@ import Alert from 'meteor/erxes-notifier';
 import { ChannelForm } from '../containers';
 import { ModalTrigger, Tip, ActionButtons } from '/imports/react-ui/common';
 
-
 const propTypes = {
   channel: PropTypes.object.isRequired,
   removeChannel: PropTypes.func.isRequired,
@@ -24,7 +23,7 @@ class Row extends Component {
 
     removeChannel(channel._id, error => {
       if (error) {
-        return Alert.error('Can\'t delete a channel', error.reason);
+        return Alert.error("Can't delete a channel", error.reason);
       }
 
       return Alert.success('Congrats', 'Channel has deleted.');
