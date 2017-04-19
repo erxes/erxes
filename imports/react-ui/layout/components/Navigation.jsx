@@ -7,7 +7,7 @@ function Navigation() {
   return (
     <aside className="navigation">
       <a href="/" className="logo">
-        <img src="/assets/images/logo.png" alt="erxes" />
+        <img src="/images/logo.png" alt="erxes" />
       </a>
       <nav className="nav-menu">
         <Tip placement="right" text="Inbox">

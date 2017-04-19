@@ -7,7 +7,7 @@ function NotFound() {
       <div className="container">
         <div className="col-md-7">
           <div className="auth-description not-found">
-            <img src="/assets/images/logo.png" alt="erxes" />
+            <img src="/images/logo.png" alt="erxes" />
             <h1>404. This page is not found.</h1>
             <p>
               erxes is an open-source messaging platform for customer success

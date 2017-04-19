@@ -1,7 +1,7 @@
 import React, { PropTypes } from 'react';
 
 function WidgetPreview({ color, wallpaper, user }) {
-  const avatar = (user.details && user.details.avatar) || '/assets/images/userDefaultIcon.png';
+  const avatar = (user.details && user.details.avatar) || '/images/userDefaultIcon.png';
   const fullName = (user.details && user.details.fullName) || 'Support staff';
   const backgroundClasses = `erxes-messages-list background-${wallpaper}`;
   return (

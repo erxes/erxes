@@ -51,7 +51,7 @@ class SignIn extends React.Component {
         <div className="container">
           <div className="col-md-7">
             <div className="auth-description">
-              <img src="/assets/images/logo.png" alt="erxes" />
+              <img src="/images/logo.png" alt="erxes" />
               <h1>Customer engagement. Redefined.</h1>
               <p>
                 erxes is an AI meets open source messaging platform for sales and marketing teams.

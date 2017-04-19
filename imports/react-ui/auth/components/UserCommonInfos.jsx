@@ -16,7 +16,7 @@ class UserCommonInfos extends React.Component {
   constructor(props) {
     super(props);
 
-    const defaultAvatar = '/assets/images/userDefaultIcon.png';
+    const defaultAvatar = '/images/userDefaultIcon.png';
 
     this.state = {
       avatar: this.props.user.details.avatar,
