@@ -7,10 +7,6 @@ import { Integrations } from '/imports/api/integrations/integrations';
 
 // if the database is empty on server start, create some sample data.
 Meteor.startup(() => {
-  if (process.env.NODE_ENV !== 'development') {
-    return;
-  }
-
   if (Meteor.users.find().count() !== 0) {
     return;
   }
