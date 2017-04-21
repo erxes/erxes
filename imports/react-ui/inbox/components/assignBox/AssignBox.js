@@ -69,7 +69,7 @@ class AssignBox extends Component {
 
       return {
         _id: assignee._id,
-        title: assignee.details.fullName,
+        title: assignee.details.fullName || assignee.emails[0].address,
         image: null,
         selectedBy: state,
       };
