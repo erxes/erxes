@@ -1,5 +1,4 @@
 /* eslint-env mocha */
-/* eslint-disable func-names, prefer-arrow-callback, no-underscore-dangle */
 
 import { Meteor } from 'meteor/meteor';
 import { Random } from 'meteor/random';
@@ -8,10 +7,8 @@ import { Factory } from 'meteor/dburles:factory';
 import { assert, chai } from 'meteor/practicalmeteor:chai';
 import { PublicationCollector } from 'meteor/johanbrook:publication-collector';
 import { Notifications } from 'meteor/erxes-notifications';
-
 import { Channels } from '/imports/api/channels/channels';
 import { add, edit, remove } from '../methods';
-
 import './publications.js';
 
 describe('channels', function() {

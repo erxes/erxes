@@ -25,7 +25,6 @@ const RESTRICTED_METHODS = [
 
 // all validated methods mixin
 // check login, permissions etc ..
-// eslint-disable-next-line import/prefer-default-export
 export function ErxesMixin(_options) {
   const options = _options;
 

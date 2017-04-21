@@ -1,5 +1,3 @@
-/* eslint-disable no-param-reassign */
-
 import { Meteor } from 'meteor/meteor';
 import { Random } from 'meteor/random';
 import { _ } from 'meteor/underscore';
@@ -153,7 +151,7 @@ export const updateFieldsOrder = new ValidatedMethod({
 
   run({ orderDics }) {
     // update each field's order
-    _.each(orderDics, ({ _id, order }) => {
+    orderDics.forEach(({ _id, order }) => {
       Fields.update({ _id }, { $set: { order } });
     });
   },
@@ -170,12 +168,11 @@ export const duplicate = new ValidatedMethod({
 
   run({ id }) {
     const form = Forms.findOne(id);
-
-    const formParams = _.omit(form, '_id');
-    formParams.title = `${form.title} duplicated`;
+    form.title = `${form.title} duplicated`;
+    delete form._id;
 
     // duplicate form
-    const newFormId = Forms.insert(formParams);
+    const newFormId = Forms.insert(form);
 
     // duplicate fields
     Fields.find({ formId: id }).forEach(field => {

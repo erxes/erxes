@@ -1,14 +1,13 @@
 import faker from 'faker';
 import { Mongo } from 'meteor/mongo';
 import { Random } from 'meteor/random';
-import { _ } from 'meteor/underscore';
 import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 import { Factory } from 'meteor/dburles:factory';
 
 class ChannelsCollection extends Mongo.Collection {
   insert(doc, callback) {
     // extend doc with auto values
-    const modifier = _.extend(
+    const modifier = Object.assign(
       {
         createdAt: new Date(),
         conversationCount: 0,
@@ -26,7 +25,6 @@ class ChannelsCollection extends Mongo.Collection {
   }
 }
 
-// eslint-disable-next-line import/prefer-default-export
 export const Channels = new ChannelsCollection('channels');
 
 Channels.deny({
@@ -45,17 +43,14 @@ Channels.schema = new SimpleSchema({
   name: {
     type: String,
   },
-
   description: {
     type: String,
     optional: true,
   },
-
   integrationIds: {
     type: [String],
     regEx: SimpleSchema.RegEx.Id,
   },
-
   memberIds: {
     type: [String],
     regEx: SimpleSchema.RegEx.Id,
@@ -66,7 +61,6 @@ Channels.schemaExtra = new SimpleSchema({
   createdAt: {
     type: Date,
   },
-
   userId: {
     type: String,
     regEx: SimpleSchema.RegEx.Id,

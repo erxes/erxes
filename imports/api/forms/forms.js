@@ -14,7 +14,6 @@ Forms.schema = new SimpleSchema({
   title: {
     type: String,
   },
-
   description: {
     type: String,
     optional: true,
@@ -25,11 +24,9 @@ const FormSchemaExtra = new SimpleSchema({
   code: {
     type: String,
   },
-
   createdUserId: {
     type: String,
   },
-
   createdDate: {
     type: Date,
   },
@@ -51,18 +48,15 @@ Fields.schema = new SimpleSchema({
       'lastName',
     ],
   },
-
   validation: {
     type: String,
     optional: true,
     allowedValues: ['number', 'date', 'email'],
   },
-
   text: {
     type: String,
     optional: true,
   },
-
   description: {
     type: String,
     optional: true,
@@ -83,7 +77,6 @@ const FieldSchemaExtra = new SimpleSchema({
   formId: {
     type: String,
   },
-
   order: {
     type: Number,
     optional: true,

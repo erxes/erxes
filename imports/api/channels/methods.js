@@ -1,7 +1,6 @@
 import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
 import { ValidatedMethod } from 'meteor/mdg:validated-method';
-import { _ } from 'meteor/underscore';
 import { ErxesMixin } from '/imports/api/utils';
 import { Channels } from './channels';
 
@@ -21,7 +20,7 @@ const sendNotifications = (channelId, _memberIds, userId) => {
       link: `/inbox/${channel._id}`,
 
       // exclude current user
-      receivers: _.without(memberIds, userId),
+      receivers: memberIds.map(id => id !== userId),
     });
   }
 };
@@ -37,7 +36,7 @@ export const add = new ValidatedMethod({
   },
 
   run({ doc }) {
-    const obj = _.extend({ userId: this.userId }, doc);
+    const obj = Object.assign({ userId: this.userId }, doc);
 
     const channelId = Channels.insert(obj);
 
@@ -65,7 +64,7 @@ export const edit = new ValidatedMethod({
       throw new Meteor.Error('channels.edit.notFound', 'Channel not found');
     }
 
-    _.extend(doc, { memberIds: doc.memberIds || [] });
+    Object.assign(doc, { memberIds: doc.memberIds || [] });
 
     // add current user to members automatically
     if (doc.memberIds.indexOf(this.userId) === -1) {

@@ -109,7 +109,7 @@ const schema = new SimpleSchema({
 
 class CustomersCollection extends Mongo.Collection {
   insert(doc, callback) {
-    const customer = _.extend({ createdAt: new Date() }, doc);
+    const customer = Object.assign({ createdAt: new Date() }, doc);
 
     return super.insert(customer, callback);
   }
@@ -133,7 +133,6 @@ class CustomersCollection extends Mongo.Collection {
   }
 }
 
-// eslint-disable-next-line import/prefer-default-export
 export const Customers = new CustomersCollection('customers');
 
 Customers.attachSchema(schema);

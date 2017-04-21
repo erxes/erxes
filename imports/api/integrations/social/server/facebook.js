@@ -1,7 +1,6 @@
 import graph from 'fbgraph';
 import { Picker } from 'meteor/meteorhacks:picker';
 import { Meteor } from 'meteor/meteor';
-import { _ } from 'meteor/underscore';
 import { Conversations } from '/imports/api/conversations/conversations';
 import { Messages } from '/imports/api/conversations/messages';
 import { Customers } from '/imports/api/customers/customers';
@@ -45,17 +44,10 @@ export const graphRequest = {
 export const getPageList = accessToken => {
   const response = graphRequest.get('/me/accounts?limit=100', accessToken);
 
-  const pages = [];
-
-  // collect only some fields
-  _.each(response.data, page => {
-    pages.push({
-      id: page.id,
-      name: page.name,
-    });
-  });
-
-  return pages;
+  return response.data.map(page => ({
+    id: page.id,
+    name: page.name,
+  }));
 };
 
 /*
@@ -80,7 +72,7 @@ export class SaveWebhookResponse {
     const integration = this.integration;
 
     if (data.object === 'page') {
-      _.each(data.entry, entry => {
+      data.entry.forEach(entry => {
         // check receiving page is in integration's page list
         if (!integration.facebookData.pageIds.includes(entry.id)) {
           return;
@@ -104,7 +96,7 @@ export class SaveWebhookResponse {
 
   // via page messenger
   viaMessengerEvent(entry) {
-    _.each(entry.messaging, messagingEvent => {
+    entry.messaging.forEach(messagingEvent => {
       // someone sent us a message
       if (messagingEvent.message) {
         this.getOrCreateConversationByMessenger(messagingEvent);
@@ -114,7 +106,7 @@ export class SaveWebhookResponse {
 
   // wall post
   viaFeedEvent(entry) {
-    _.each(entry.changes, event => {
+    entry.changes.forEach(event => {
       // someone posted on our wall
       this.getOrCreateConversationByFeed(event.value);
     });
@@ -282,7 +274,7 @@ export class SaveWebhookResponse {
     const messageText = event.message.text || 'attachment';
 
     // collect attachment's url, type fields
-    const attachments = _.map(event.message.attachments || [], attachment => ({
+    const attachments = (event.message.attachments || []).map(attachment => ({
       type: attachment.type,
       url: attachment.payload.url,
     }));
@@ -384,7 +376,7 @@ export const receiveWebhookResponse = (app, data) => {
   });
 };
 
-_.each(Meteor.settings.services.facebook, app => {
+Meteor.settings.services.facebook.forEach(app => {
   Picker.route(`/service/facebook/${app.id}/webhook-callback`, (params, req, res) => {
     const query = params.query;
 
@@ -398,7 +390,7 @@ _.each(Meteor.settings.services.facebook, app => {
       res.end(query['hub.challenge']);
     }
 
-    res.statusCode = 200; // eslint-disable-line no-param-reassign
+    res.statusCode = 200;
 
     // receive per app webhook response
     receiveWebhookResponse(app, req.body);
@@ -411,8 +403,7 @@ _.each(Meteor.settings.services.facebook, app => {
  * post reply to page conversation or comment to wall post
  */
 export const facebookReply = (conversation, text, messageId) => {
-  const app = _.find(
-    Meteor.settings.services.facebook,
+  const app = Meteor.settings.services.facebook.find(
     a => a.id === conversation.integration().facebookData.appId,
   );
 

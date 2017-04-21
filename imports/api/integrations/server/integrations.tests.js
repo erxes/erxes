@@ -1,10 +1,8 @@
 /* eslint-env mocha */
-/* eslint-disable func-names, prefer-arrow-callback, no-underscore-dangle */
 
 import { Meteor } from 'meteor/meteor';
 import { Factory } from 'meteor/dburles:factory';
 import { assert } from 'meteor/practicalmeteor:chai';
-
 import { Integrations } from '../integrations';
 import { KIND_CHOICES } from '../constants';
 import {

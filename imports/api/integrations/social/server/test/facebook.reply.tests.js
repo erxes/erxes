@@ -1,17 +1,13 @@
 /* eslint-env mocha */
-/* eslint-disable func-names, prefer-arrow-callback */
-/* eslint-disable no-underscore-dangle */
 
+import sinon from 'sinon';
 import { Meteor } from 'meteor/meteor';
 import { Factory } from 'meteor/dburles:factory';
 import { assert } from 'meteor/practicalmeteor:chai';
-import sinon from 'sinon';
-
 import { Conversations } from '/imports/api/conversations/conversations';
 import { FACEBOOK_DATA_KINDS } from '/imports/api/conversations/constants';
 import { Integrations } from '/imports/api/integrations/integrations';
 import { Messages } from '/imports/api/conversations/messages';
-
 import { graphRequest, facebookReply } from '../facebook';
 
 describe('facebook integration: reply', function() {

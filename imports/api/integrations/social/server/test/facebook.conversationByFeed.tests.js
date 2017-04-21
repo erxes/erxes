@@ -1,6 +1,4 @@
 /* eslint-env mocha */
-/* eslint-disable func-names, prefer-arrow-callback */
-/* eslint-disable no-underscore-dangle */
 
 import sinon from 'sinon';
 import { assert } from 'meteor/practicalmeteor:chai';

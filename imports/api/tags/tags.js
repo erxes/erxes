@@ -1,7 +1,6 @@
 import { Mongo } from 'meteor/mongo';
 import { Meteor } from 'meteor/meteor';
 import { Random } from 'meteor/random';
-import { _ } from 'meteor/underscore';
 import { Factory } from 'meteor/dburles:factory';
 import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 import { Customers } from '/imports/api/customers/customers';
@@ -11,7 +10,7 @@ import { TAG_TYPES } from './constants';
 class TagsCollection extends Mongo.Collection {
   insert(doc, callback) {
     // extend doc with auto values
-    const tag = _.extend(
+    const tag = Object.assign(
       {
         createdAt: new Date(),
         objectCount: 0,
@@ -94,12 +93,10 @@ export const FormSchema = new SimpleSchema({
   name: {
     type: String,
   },
-
   type: {
     type: String,
     allowedValues: TAG_TYPES.ALL_LIST,
   },
-
   colorCode: {
     type: String,
   },
@@ -111,7 +108,6 @@ Tags.schema = new SimpleSchema([
     createdAt: {
       type: Date,
     },
-
     objectCount: {
       type: Number,
     },

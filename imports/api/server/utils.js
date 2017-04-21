@@ -1,10 +1,7 @@
-/* global Assets: false */
-
 import AWS from 'aws-sdk';
 import Handlebars from 'handlebars';
 import { Meteor } from 'meteor/meteor';
 import { Email } from 'meteor/email';
-import { _ } from 'meteor/underscore';
 import { Notifications } from 'meteor/erxes-notifications';
 
 // save binary data to amazon s3
@@ -92,11 +89,11 @@ export const sendNotification = _doc => {
   delete doc.receivers;
 
   // Inserting entry to every receiver
-  _.each(receivers, receiverId => {
+  receivers.forEach(receiverId => {
     doc.receiver = receiverId;
 
     // create notification
-    const response = Notifications.create(_.clone(doc));
+    const response = Notifications.create(Object.assign({}, doc));
 
     // if receiver did not disable to get this notification
     if (response === 'ok') {

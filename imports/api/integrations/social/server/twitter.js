@@ -1,6 +1,6 @@
-import { Meteor } from 'meteor/meteor';
 import Twit from 'twit';
 import soc from 'social-oauth-client';
+import { Meteor } from 'meteor/meteor';
 import { Integrations } from '/imports/api/integrations/integrations';
 import { KIND_CHOICES } from '/imports/api/integrations/constants';
 import { Conversations } from '/imports/api/conversations/conversations';
