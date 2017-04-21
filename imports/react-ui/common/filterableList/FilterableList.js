@@ -5,7 +5,7 @@ const propTypes = {
   items: PropTypes.arrayOf(
     PropTypes.shape({
       _id: PropTypes.string.isRequired,
-      title: PropTypes.string.isRequired,
+      title: PropTypes.string,
       image: PropTypes.element,
       selectedBy: PropTypes.string.isRequired,
     }),
@@ -79,7 +79,7 @@ class FilterableList extends Component {
             this.toggleItem(item._id);
           }}
         >
-          {item.image} {item.title}
+          {item.image} {item.title || '[undefined]'}
         </li>
       );
     });
