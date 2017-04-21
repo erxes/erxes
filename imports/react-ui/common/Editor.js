@@ -2,7 +2,8 @@
   jsx-a11y/no-static-element-interactions, react/no-multi-comp,
   react/forbid-prop-types */
 
-import React, { PropTypes } from 'react';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import Draft, { EditorState, ContentState, RichUtils } from 'draft-js';
 import Editor from 'draft-js-plugins-editor';
 import { stateToHTML } from 'draft-js-export-html';
@@ -26,7 +27,7 @@ const styleMap = {
   },
 };
 
-class StyleButton extends React.Component {
+class StyleButton extends Component {
   constructor(props) {
     super(props);
 
@@ -147,7 +148,7 @@ InlineStyleControls.propTypes = {
   editorState: PropTypes.object,
 };
 
-export class ErxesEditor extends React.Component {
+export class ErxesEditor extends Component {
   constructor(props) {
     super(props);
 

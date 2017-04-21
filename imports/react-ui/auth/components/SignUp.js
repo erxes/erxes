@@ -1,13 +1,14 @@
-import React from 'react';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import { FlowRouter } from 'meteor/kadira:flow-router';
 import { FormGroup, ControlLabel, FormControl, Button, Well } from 'react-bootstrap';
 import Alert from 'meteor/erxes-notifier';
 
 const propTypes = {
-  createUser: React.PropTypes.func.isRequired,
+  createUser: PropTypes.func.isRequired,
 };
 
-class SignUp extends React.Component {
+class SignUp extends Component {
   constructor(props) {
     super(props);
 

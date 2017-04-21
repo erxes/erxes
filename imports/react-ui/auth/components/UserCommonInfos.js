@@ -1,4 +1,5 @@
-import React, { PropTypes } from 'react';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import { FormGroup, ControlLabel, FormControl } from 'react-bootstrap';
 import Alert from 'meteor/erxes-notifier';
 import uploadHandler from '/imports/api/client/uploadHandler';
@@ -7,7 +8,7 @@ const propTypes = {
   user: PropTypes.object.isRequired,
 };
 
-class UserCommonInfos extends React.Component {
+class UserCommonInfos extends Component {
   constructor(props) {
     super(props);
 

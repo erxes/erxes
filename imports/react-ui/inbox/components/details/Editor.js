@@ -1,6 +1,7 @@
 import createMentionPlugin, { defaultSuggestionsFilter } from 'draft-js-mention-plugin';
 import { EditorState, ContentState, getDefaultKeyBinding } from 'draft-js';
-import React, { PropTypes } from 'react';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import { _ } from 'meteor/underscore';
 import { fromJS } from 'immutable';
 import { ErxesEditor, toHTML, createStateFromHTML } from '/imports/react-ui/common/Editor';
@@ -48,7 +49,7 @@ const mentionPlugin = createMentionPlugin({
 const { MentionSuggestions } = mentionPlugin;
 const plugins = [mentionPlugin];
 
-export default class Editor extends React.Component {
+export default class Editor extends Component {
   constructor(props) {
     super(props);
 

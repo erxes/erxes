@@ -1,7 +1,8 @@
 /* eslint-disable react/no-danger */
 
 import { _ } from 'meteor/underscore';
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import moment from 'moment';
 import classNames from 'classnames';
 import { Table } from 'react-bootstrap';

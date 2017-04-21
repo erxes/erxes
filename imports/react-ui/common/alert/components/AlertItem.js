@@ -1,16 +1,17 @@
-import React from 'react';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import Alert from 'meteor/erxes-notifier';
 
 const propTypes = {
-  alert: React.PropTypes.shape({
-    _id: React.PropTypes.string,
-    type: React.PropTypes.string,
-    title: React.PropTypes.string,
-    message: React.PropTypes.string,
+  alert: PropTypes.shape({
+    _id: PropTypes.string,
+    type: PropTypes.string,
+    title: PropTypes.string,
+    message: PropTypes.string,
   }),
 };
 
-class AlertItem extends React.Component {
+class AlertItem extends Component {
   componentDidMount() {
     setInterval(() => {
       Alert.Collections.Alerts.remove(this.props.alert._id);

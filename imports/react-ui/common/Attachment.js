@@ -1,10 +1,11 @@
-import React, { PropTypes } from 'react';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 
 const propTypes = {
   attachment: PropTypes.object.isRequired,
 };
 
-class Attachment extends React.Component {
+class Attachment extends Component {
   constructor(props) {
     super(props);
 

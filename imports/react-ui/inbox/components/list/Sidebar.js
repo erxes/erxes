@@ -1,7 +1,8 @@
 /* eslint-disable jsx-a11y/no-static-element-interactions */
 /* eslint-disable jsx-a11y/href-no-hash */
 
-import React, { PropTypes } from 'react';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import { Counts } from 'meteor/tmeasday:publish-counts';
 import { FlowRouter } from 'meteor/kadira:flow-router';
 import { EmptyState, LoadingSidebar } from '/imports/react-ui/common';
@@ -18,7 +19,7 @@ const propTypes = {
   tagsReady: PropTypes.bool,
 };
 
-class Sidebar extends React.Component {
+class Sidebar extends Component {
   static renderChannel(channel) {
     const onClick = () => {
       Wrapper.Sidebar.filter('channelId', channel._id);

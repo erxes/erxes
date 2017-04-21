@@ -1,4 +1,5 @@
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import { Tabs, Tab } from 'react-bootstrap';
 import { Meteor } from 'meteor/meteor';
 import { ConversationsList, EmptyState } from '/imports/react-ui/common';

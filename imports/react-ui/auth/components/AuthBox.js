@@ -1,14 +1,15 @@
-import React from 'react';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import { FlowRouter } from 'meteor/kadira:flow-router';
 
 const propTypes = {
-  user: React.PropTypes.object,
-  loggingIn: React.PropTypes.bool.isRequired,
-  loginWithPassword: React.PropTypes.func.isRequired,
-  logout: React.PropTypes.func.isRequired,
+  user: PropTypes.object,
+  loggingIn: PropTypes.bool.isRequired,
+  loginWithPassword: PropTypes.func.isRequired,
+  logout: PropTypes.func.isRequired,
 };
 
-class AuthBox extends React.Component {
+class AuthBox extends Component {
   constructor(props) {
     super(props);
 

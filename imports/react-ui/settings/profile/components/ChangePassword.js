@@ -1,4 +1,5 @@
-import React, { PropTypes } from 'react';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import { Button, FormGroup, ControlLabel, FormControl, ButtonToolbar } from 'react-bootstrap';
 import Alert from 'meteor/erxes-notifier';
 import { Wrapper } from '/imports/react-ui/layout/components';
@@ -9,7 +10,7 @@ const propTypes = {
   save: PropTypes.func.isRequired,
 };
 
-class ChangePassword extends React.Component {
+class ChangePassword extends Component {
   constructor(props) {
     super(props);
 

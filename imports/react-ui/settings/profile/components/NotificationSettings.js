@@ -1,11 +1,12 @@
-import React, { PropTypes } from 'react';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import { _ } from 'meteor/underscore';
 import Toggle from 'react-toggle';
 import { Wrapper } from '/imports/react-ui/layout/components';
 import Alert from 'meteor/erxes-notifier';
 import Sidebar from '../../Sidebar';
 
-class NotificationSettings extends React.Component {
+class NotificationSettings extends Component {
   constructor(props) {
     super(props);
 

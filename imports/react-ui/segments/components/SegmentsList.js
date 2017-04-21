@@ -1,6 +1,7 @@
 /* eslint-env browser */
 
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import { Button, Table } from 'react-bootstrap';
 import { FlowRouter } from 'meteor/kadira:flow-router';
 import Alert from 'meteor/erxes-notifier';

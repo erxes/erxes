@@ -1,14 +1,15 @@
-import React from 'react';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import { FlowRouter } from 'meteor/kadira:flow-router';
 import { FormGroup, FormControl, Button } from 'react-bootstrap';
 import Alert from 'meteor/erxes-notifier';
 
 const propTypes = {
-  token: React.PropTypes.string.isRequired,
-  resetPassword: React.PropTypes.func.isRequired,
+  token: PropTypes.string.isRequired,
+  resetPassword: PropTypes.func.isRequired,
 };
 
-class ResetPassword extends React.Component {
+class ResetPassword extends Component {
   constructor(props) {
     super(props);
 

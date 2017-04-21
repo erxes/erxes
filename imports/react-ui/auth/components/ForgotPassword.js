@@ -1,13 +1,14 @@
-import React from 'react';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import { FlowRouter } from 'meteor/kadira:flow-router';
 import { FormGroup, FormControl, Button } from 'react-bootstrap';
 import Alert from 'meteor/erxes-notifier';
 
 const propTypes = {
-  forgotPassword: React.PropTypes.func.isRequired,
+  forgotPassword: PropTypes.func.isRequired,
 };
 
-class ForgotPassword extends React.Component {
+class ForgotPassword extends Component {
   constructor(props) {
     super(props);
 
