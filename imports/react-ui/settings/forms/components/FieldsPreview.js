@@ -1,4 +1,5 @@
-import React, { PropTypes } from 'react';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import { SortableContainer, SortableElement, SortableHandle, arrayMove } from 'react-sortable-hoc';
 import FieldPreview from './FieldPreview';
 
@@ -21,7 +22,7 @@ const SortableList = SortableContainer(({ fields, onEdit }) => (
   </div>
 ));
 
-class FieldsPreview extends React.Component {
+class FieldsPreview extends Component {
   constructor(props) {
     super(props);
 

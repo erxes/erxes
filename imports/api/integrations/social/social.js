@@ -5,11 +5,9 @@ export const twitterSchema = new SimpleSchema({
   id: {
     type: Number,
   },
-
   token: {
     type: String,
   },
-
   tokenSecret: {
     type: String,
   },
@@ -20,7 +18,6 @@ export const facebookSchema = new SimpleSchema({
   appId: {
     type: String,
   },
-
   pageIds: {
     type: [String],
   },

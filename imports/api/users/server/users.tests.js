@@ -1,10 +1,8 @@
 /* eslint-env mocha */
-/* eslint-disable func-names, prefer-arrow-callback, no-underscore-dangle */
 
 import { Meteor } from 'meteor/meteor';
 import { assert } from 'meteor/practicalmeteor:chai';
 import { Factory } from 'meteor/dburles:factory';
-
 import { Channels } from '/imports/api/channels/channels';
 import { Conversations } from '/imports/api/conversations/conversations';
 import { ROLES } from '../constants';

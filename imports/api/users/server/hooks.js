@@ -1,5 +1,4 @@
 import { Meteor } from 'meteor/meteor';
-import { _ } from 'meteor/underscore';
 import { Accounts } from 'meteor/accounts-base';
 
 Accounts.onCreateUser((options, doc) => {
@@ -7,7 +6,7 @@ Accounts.onCreateUser((options, doc) => {
     throw new Meteor.Error(403, 'Can not register');
   }
 
-  const user = _.extend({ details: options.details || {} }, doc);
+  const user = Object.assign({ details: options.details || {} }, doc);
 
   if (Meteor.users.find().count() === 0) {
     user.isOwner = true;

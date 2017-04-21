@@ -45,7 +45,7 @@ Meteor.publishComposite('conversations.list', function conversationsList(params)
   Channels.find().forEach(channel => {
     countPublish(
       `conversations.counts.byChannel${channel._id}`,
-      _.extend({}, queries.default, qb.channelFilter(channel._id)),
+      Object.assign({}, queries.default, qb.channelFilter(channel._id)),
     );
   });
 
@@ -53,7 +53,7 @@ Meteor.publishComposite('conversations.list', function conversationsList(params)
   Brands.find().forEach(brand => {
     countPublish(
       `conversations.counts.byBrand${brand._id}`,
-      _.extend(
+      Object.assign(
         {},
         queries.default,
         qb.intersectIntegrationIds(queries.channel, qb.brandFilter(brand._id)),
@@ -64,7 +64,7 @@ Meteor.publishComposite('conversations.list', function conversationsList(params)
   // unassigned count
   countPublish(
     'conversations.counts.unassiged',
-    _.extend(
+    Object.assign(
       {},
       queries.default,
       queries.integrations,
@@ -76,7 +76,7 @@ Meteor.publishComposite('conversations.list', function conversationsList(params)
   // participating count
   countPublish(
     'conversations.counts.participating',
-    _.extend(
+    Object.assign(
       {},
       queries.default,
       queries.integrations,
@@ -88,7 +88,7 @@ Meteor.publishComposite('conversations.list', function conversationsList(params)
   // starred count
   countPublish(
     'conversations.counts.starred',
-    _.extend(
+    Object.assign(
       {},
       queries.default,
       queries.integrations,
@@ -100,7 +100,7 @@ Meteor.publishComposite('conversations.list', function conversationsList(params)
   // resolved count
   countPublish(
     'conversations.counts.resolved',
-    _.extend(
+    Object.assign(
       {},
       queries.default,
       queries.integrations,
@@ -113,7 +113,7 @@ Meteor.publishComposite('conversations.list', function conversationsList(params)
   _.each(KIND_CHOICES.ALL_LIST, integrationType => {
     countPublish(
       `conversations.counts.byIntegrationType${integrationType}`,
-      _.extend({}, queries.default, qb.integrationTypeFilter(integrationType)),
+      Object.assign({}, queries.default, qb.integrationTypeFilter(integrationType)),
     );
   });
 
@@ -121,7 +121,7 @@ Meteor.publishComposite('conversations.list', function conversationsList(params)
   Tags.find().forEach(tag => {
     countPublish(
       `conversations.counts.byTag${tag._id}`,
-      _.extend(
+      Object.assign(
         {},
         queries.default,
         queries.integrations,

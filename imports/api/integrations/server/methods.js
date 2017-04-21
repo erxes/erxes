@@ -1,7 +1,6 @@
 import { Meteor } from 'meteor/meteor';
 import { Match, check } from 'meteor/check';
 import { ValidatedMethod } from 'meteor/mdg:validated-method';
-import { _ } from 'meteor/underscore';
 import { ErxesMixin } from '/imports/api/utils';
 import { Conversations } from '/imports/api/conversations/conversations';
 import { Messages } from '/imports/api/conversations/messages';
@@ -20,7 +19,7 @@ export const addInAppMessaging = new ValidatedMethod({
   },
 
   run({ doc }) {
-    return Integrations.insert(_.extend(doc, { kind: KIND_CHOICES.IN_APP_MESSAGING }));
+    return Integrations.insert(Object.assign(doc, { kind: KIND_CHOICES.IN_APP_MESSAGING }));
   },
 });
 
@@ -49,7 +48,7 @@ export const addChat = new ValidatedMethod({
   },
 
   run({ doc }) {
-    return Integrations.insert(_.extend(doc, { kind: KIND_CHOICES.CHAT }));
+    return Integrations.insert(Object.assign(doc, { kind: KIND_CHOICES.CHAT }));
   },
 });
 
@@ -78,7 +77,7 @@ export const addForm = new ValidatedMethod({
   },
 
   run({ doc }) {
-    return Integrations.insert(_.extend(doc, { kind: KIND_CHOICES.FORM }));
+    return Integrations.insert(Object.assign(doc, { kind: KIND_CHOICES.FORM }));
   },
 });
 
@@ -117,7 +116,7 @@ export const remove = new ValidatedMethod({
 
     // conversations
     const conversations = Conversations.find({ integrationId: id }).fetch();
-    const conversationIds = _.pluck(conversations, '_id');
+    const conversationIds = conversations.map(c => c._id);
 
     // remove messages
     Messages.remove({ conversationId: { $in: conversationIds } });

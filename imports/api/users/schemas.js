@@ -1,5 +1,4 @@
 import { SimpleSchema } from 'meteor/aldeed:simple-schema';
-import { _ } from 'meteor/underscore';
 import { ROLES } from './constants';
 
 // user common infos schema
@@ -8,24 +7,19 @@ const CommonInfo = {
     type: String,
     optional: true,
   },
-
   fullName: {
     type: String,
   },
-
   position: {
     type: String,
     optional: true,
   },
-
   username: {
     type: String,
   },
-
   twitterUsername: {
     type: String,
   },
-
   email: {
     type: String,
     regEx: SimpleSchema.RegEx.Email,
@@ -33,7 +27,7 @@ const CommonInfo = {
 };
 
 // ************* invitation  ***************** //
-const InvitationCommon = _.extend({}, CommonInfo, {
+const InvitationCommon = Object.assign({}, CommonInfo, {
   // owner, admin, contributor
   role: {
     type: String,
@@ -49,12 +43,10 @@ const InvitationCommon = _.extend({}, CommonInfo, {
 
 export const CreateInvitationSchema = new SimpleSchema([
   InvitationCommon,
-
   {
     password: {
       type: String,
     },
-
     passwordConfirmation: {
       type: String,
     },
@@ -63,17 +55,14 @@ export const CreateInvitationSchema = new SimpleSchema([
 
 export const UpdateInvitationSchema = new SimpleSchema([
   InvitationCommon,
-
   {
     userId: {
       type: String,
     },
-
     password: {
       type: String,
       optional: true,
     },
-
     passwordConfirmation: {
       type: String,
       optional: true,
@@ -84,7 +73,6 @@ export const UpdateInvitationSchema = new SimpleSchema([
 // profile
 export const ProfileSchema = new SimpleSchema([
   CommonInfo,
-
   {
     currentPassword: {
       type: String,
@@ -102,7 +90,6 @@ export const EmailSignaturesSchema = new SimpleSchema({
           type: String,
           regEx: SimpleSchema.RegEx.Id,
         },
-
         signature: {
           type: String,
         },

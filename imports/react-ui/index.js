@@ -1,5 +1,3 @@
-/* eslint-disable import/first */
-
 /**
  * Routes
  */
@@ -7,7 +5,6 @@ import './layout/routes';
 import './customers/routes';
 import './auth/routes';
 import './inbox/routes';
-import './engage/routes';
 import './home/routes';
 import './tags/routes';
 import './segments/routes';

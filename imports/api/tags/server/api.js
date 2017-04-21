@@ -5,13 +5,11 @@ import { _ } from 'meteor/underscore';
 import { TAG_TYPES } from '../constants';
 import { Tags } from '../tags';
 
-// eslint-disable-next-line import/prefer-default-export
 export function tagObject({ tagIds, objectIds, collection }) {
   check(collection, Mongo.Collection);
   check(
     collection.TAG_TYPE,
     Match.Where(t => {
-      // eslint-disable-line new-cap
       check(t, String);
       return TAG_TYPES.ALL_LIST.indexOf(t) > -1;
     }),

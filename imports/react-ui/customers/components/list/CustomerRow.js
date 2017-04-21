@@ -1,10 +1,11 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import moment from 'moment';
 import { FlowRouter } from 'meteor/kadira:flow-router';
 import { Tags } from '/imports/react-ui/common';
 
 const propTypes = {
-  customer: React.PropTypes.object.isRequired,
+  customer: PropTypes.object.isRequired,
 };
 
 function CustomerRow({ customer }) {

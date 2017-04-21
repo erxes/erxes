@@ -1,4 +1,5 @@
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import { Spinner } from '/imports/react-ui/common';
 import Navigation from './Navigation';
 import AlertContainer from '../../common/alert/containers/AlertContainer';

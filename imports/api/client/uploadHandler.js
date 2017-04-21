@@ -1,9 +1,7 @@
 import { Meteor } from 'meteor/meteor';
 import uploadHandlerBase from './uploadHandlerBase';
 
-export default function uploadHandler(params) {
-  const { file, afterRead, beforeUpload, afterUpload } = params;
-
+export default function uploadHandler({ file, afterRead, beforeUpload, afterUpload }) {
   uploadHandlerBase({
     // Blob object
     file,

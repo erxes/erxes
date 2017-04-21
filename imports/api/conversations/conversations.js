@@ -1,13 +1,10 @@
 import faker from 'faker';
-
 import { Meteor } from 'meteor/meteor';
 import { Mongo } from 'meteor/mongo';
 import { Random } from 'meteor/random';
 import { _ } from 'meteor/underscore';
-
 import { Factory } from 'meteor/dburles:factory';
 import { SimpleSchema } from 'meteor/aldeed:simple-schema';
-
 import { Customers } from '/imports/api/customers/customers';
 import { Integrations } from '/imports/api/integrations/integrations';
 import { Tags } from '/imports/api/tags/tags';
@@ -16,7 +13,7 @@ import { CONVERSATION_STATUSES, FACEBOOK_DATA_KINDS } from './constants';
 
 class ConversationsCollection extends Mongo.Collection {
   insert(doc, callback) {
-    const conversation = _.extend(
+    const conversation = Object.assign(
       {
         createdAt: new Date(),
         number: this.find().count() + 1,
@@ -30,18 +27,14 @@ class ConversationsCollection extends Mongo.Collection {
 
   remove(selector, callback) {
     const conversations = this.find(selector).fetch();
-
     const result = super.remove(selector, callback);
 
+    // remove tag items that using removing conversations
     let removeIds = [];
-
     conversations.forEach(obj => {
       removeIds.push(obj.tagIds || []);
     });
-
     removeIds = _.uniq(_.flatten(removeIds));
-
-    // remove tag items that using removing conversations
     Tags.update({ _id: { $in: removeIds } }, { $inc: { objectCount: -1 } });
 
     return result;
@@ -56,30 +49,21 @@ Conversations.helpers({
   customer() {
     return Customers.findOne(this.customerId) || {};
   },
-
   integration() {
     return Integrations.findOne(this.integrationId) || {};
   },
-
   tags() {
     return Tags.find({ _id: { $in: this.tagIds || [] } }).fetch();
   },
-
   assignedUser() {
     return Meteor.users.findOne(this.assignedUserId);
   },
-
   participatedUsers() {
     const query = { _id: { $in: this.participatedUserIds || [] } };
     return Meteor.users.find(query).fetch();
   },
-
   participatorCount() {
-    if (this.participatedUserIds) {
-      return this.participatedUserIds.length;
-    }
-
-    return 0;
+    return (this.participatedUserIds && this.participatedUserIds.length) || 0;
   },
 });
 
@@ -108,15 +92,12 @@ const twitterDirectMessageSchema = new SimpleSchema({
   senderId: {
     type: Number,
   },
-
   senderIdStr: {
     type: String,
   },
-
   recipientId: {
     type: Number,
   },
-
   recipientIdStr: {
     type: String,
   },
@@ -127,21 +108,17 @@ const twitterSchema = new SimpleSchema({
     type: Number,
     optional: true,
   },
-
   idStr: {
     type: String,
     optional: true,
   },
-
   screenName: {
     type: String,
     optional: true,
   },
-
   isDirectMessage: {
     type: Boolean,
   },
-
   directMessage: {
     type: twitterDirectMessageSchema,
     optional: true,
@@ -154,16 +131,13 @@ const facebookSchema = new SimpleSchema({
     type: String,
     allowedValues: FACEBOOK_DATA_KINDS.ALL_LIST,
   },
-
   senderName: {
     type: String,
     optional: true,
   },
-
   senderId: {
     type: String,
   },
-
   recipientId: {
     type: String,
     optional: true,
@@ -184,49 +158,40 @@ Conversations.schema = new SimpleSchema({
   number: {
     type: Number,
   },
-
   content: {
     type: String,
   },
-
   customerId: {
     type: String,
     regEx: SimpleSchema.RegEx.Id,
     optional: true,
   },
-
   integrationId: {
     type: String,
     regEx: SimpleSchema.RegEx.Id,
   },
-
   twitterData: {
     type: twitterSchema,
     optional: true,
   },
-
   facebookData: {
     type: facebookSchema,
     optional: true,
   },
-
   assignedUserId: {
     type: String,
     regEx: SimpleSchema.RegEx.Id,
     optional: true,
   },
-
   status: {
     type: String,
     allowedValues: CONVERSATION_STATUSES.ALL_LIST,
   },
-
   participatedUserIds: {
     type: [String],
     regEx: SimpleSchema.RegEx.Id,
     optional: true,
   },
-
   tagIds: {
     type: [String],
     regEx: SimpleSchema.RegEx.Id,
@@ -243,7 +208,6 @@ Conversations.schema = new SimpleSchema({
   createdAt: {
     type: Date,
   },
-
   messageCount: {
     type: Number,
   },
@@ -264,7 +228,6 @@ export const AssignSchema = new SimpleSchema({
     type: [String],
     regEx: SimpleSchema.RegEx.Id,
   },
-
   assignedUserId: {
     type: String,
     regEx: SimpleSchema.RegEx.Id,

@@ -1,5 +1,4 @@
 /* eslint-env mocha */
-/* eslint-disable func-names, prefer-arrow-callback, no-underscore-dangle */
 
 import Twit from 'twit';
 import sinon from 'sinon';

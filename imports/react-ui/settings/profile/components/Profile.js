@@ -1,4 +1,5 @@
-import React, { PropTypes } from 'react';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import { FormGroup, ControlLabel, FormControl, Button, ButtonToolbar } from 'react-bootstrap';
 import Alert from 'meteor/erxes-notifier';
 import { UserCommonInfos } from '/imports/react-ui/auth/components';
@@ -10,7 +11,7 @@ const propTypes = {
   save: PropTypes.func.isRequired,
 };
 
-class Profile extends React.Component {
+class Profile extends Component {
   constructor(props) {
     super(props);
 

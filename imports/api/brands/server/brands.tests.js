@@ -1,5 +1,4 @@
 /* eslint-env mocha */
-/* eslint-disable func-names, prefer-arrow-callback, no-underscore-dangle */
 
 import { Meteor } from 'meteor/meteor';
 import { Random } from 'meteor/random';
@@ -7,13 +6,10 @@ import { _ } from 'meteor/underscore';
 import { Factory } from 'meteor/dburles:factory';
 import { assert } from 'meteor/practicalmeteor:chai';
 import { PublicationCollector } from 'meteor/johanbrook:publication-collector';
-
 import '/imports/api/users/factory';
-
 import { Customers } from '/imports/api/customers/customers';
 import { Brands } from '../brands';
 import { add, edit, remove } from '../methods';
-
 import './publications';
 
 describe('brands', function() {

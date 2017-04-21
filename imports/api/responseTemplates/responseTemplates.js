@@ -18,15 +18,12 @@ ResponseTemplates.schema = new SimpleSchema({
   brandId: {
     type: String,
   },
-
   name: {
     type: String,
   },
-
   content: {
     type: String,
   },
-
   files: {
     type: [
       new SimpleSchema({
@@ -36,7 +33,6 @@ ResponseTemplates.schema = new SimpleSchema({
         size: { type: Number, optional: true },
       }),
     ],
-
     optional: true,
   },
 });

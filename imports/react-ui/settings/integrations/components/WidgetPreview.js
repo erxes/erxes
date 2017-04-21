@@ -1,4 +1,5 @@
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 
 function WidgetPreview({ color, wallpaper, user }) {
   const avatar = (user.details && user.details.avatar) || '/images/userDefaultIcon.png';

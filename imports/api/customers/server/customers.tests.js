@@ -1,5 +1,4 @@
 /* eslint-env mocha */
-/* eslint-disable func-names, prefer-arrow-callback */
 
 import { Random } from 'meteor/random';
 import { _ } from 'meteor/underscore';

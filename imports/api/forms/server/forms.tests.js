@@ -1,5 +1,4 @@
 /* eslint-env mocha */
-/* eslint-disable func-names, prefer-arrow-callback, no-underscore-dangle */
 
 import { Meteor } from 'meteor/meteor';
 import { assert } from 'meteor/practicalmeteor:chai';

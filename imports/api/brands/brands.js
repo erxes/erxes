@@ -1,6 +1,5 @@
 import faker from 'faker';
 import { Mongo } from 'meteor/mongo';
-import { _ } from 'meteor/underscore';
 import { Random } from 'meteor/random';
 import { Factory } from 'meteor/dburles:factory';
 import { SimpleSchema } from 'meteor/aldeed:simple-schema';
@@ -8,11 +7,10 @@ import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 // Brand collection
 class BrandsCollection extends Mongo.Collection {
   insert(doc, callback) {
-    const brand = _.clone(doc);
+    const brand = Object.assign({}, doc);
 
     // generate code automatically
     let code = Random.id().substr(0, 6);
-
     while (this.findOne({ code })) {
       code = Random.id().substr(0, 6);
     }
@@ -46,7 +44,6 @@ export const emailConfigSchema = new SimpleSchema({
     type: String,
     allowedValues: ['simple', 'custom'],
   },
-
   template: {
     type: String,
     optional: true,
@@ -57,7 +54,6 @@ Brands.schema = new SimpleSchema({
   name: {
     type: String,
   },
-
   description: {
     type: String,
     optional: true,
@@ -68,22 +64,18 @@ Brands.schemaExtra = new SimpleSchema({
   code: {
     type: String,
   },
-
   userId: {
     type: String,
     regEx: SimpleSchema.RegEx.Id,
   },
-
   createdAt: {
     type: Date,
   },
-
   schema: {
     type: Object,
     blackbox: true,
     optional: true,
   },
-
   emailConfig: {
     type: emailConfigSchema,
     optional: true,

@@ -1,4 +1,5 @@
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import { Table } from 'react-bootstrap';
 import { Counts } from 'meteor/tmeasday:publish-counts';
 import { Wrapper } from '/imports/react-ui/layout/components';

@@ -1,10 +1,9 @@
 import { Match, check } from 'meteor/check';
 import { ValidatedMethod } from 'meteor/mdg:validated-method';
-
 import { uploadFile } from './utils';
 
 // save binary data to amazon s3
-// eslint-disable-next-line import/prefer-default-export
+
 export const uploadFileMethod = new ValidatedMethod({
   name: 'uploadFile',
 

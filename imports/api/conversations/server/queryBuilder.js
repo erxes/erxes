@@ -1,12 +1,7 @@
-/* eslint-disable new-cap */
-/* eslint-disable class-methods-use-this */
-
 import { check, Match } from 'meteor/check';
 import { _ } from 'meteor/underscore';
-
 import { Integrations } from '/imports/api/integrations/integrations';
 import { Channels } from '/imports/api/channels/channels';
-
 import { CONVERSATION_STATUSES } from '/imports/api/conversations/constants';
 
 export default class ListQueryBuilder {
@@ -53,13 +48,12 @@ export default class ListQueryBuilder {
    */
   intersectIntegrationIds(...queries) {
     // filter only queries with $in field
-    const with$in = _.filter(
-      queries,
+    const withIn = queries.filter(
       q => q.integrationId && q.integrationId.$in && q.integrationId.$in.length > 0,
     );
 
     // [{$in: ['id1', 'id2']}, {$in: ['id3', 'id1', 'id4']}]
-    const $ins = _.pluck(with$in, 'integrationId');
+    const $ins = _.pluck(withIn, 'integrationId');
 
     // [['id1', 'id2'], ['id3', 'id1', 'id4']]
     const nestedIntegrationIds = _.pluck($ins, '$in');

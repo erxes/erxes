@@ -1,6 +1,7 @@
 /* eslint-env browser */
 
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import { Button } from 'react-bootstrap';
 import Alert from 'meteor/erxes-notifier';
 import { Tags, ModalTrigger, Tip, ActionButtons } from '/imports/react-ui/common';

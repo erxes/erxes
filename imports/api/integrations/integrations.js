@@ -1,8 +1,6 @@
 import faker from 'faker';
-
 import { Mongo } from 'meteor/mongo';
 import { Random } from 'meteor/random';
-
 import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 import { Factory } from 'meteor/dburles:factory';
 import { Brands } from '/imports/api/brands/brands';
@@ -12,7 +10,6 @@ import { KIND_CHOICES, FORM_LOAD_TYPES } from './constants';
 
 class IntegrationCollections extends Mongo.Collection {}
 
-// eslint-disable-next-line
 export const Integrations = new IntegrationCollections('integrations');
 
 Integrations.deny({
@@ -31,15 +28,12 @@ Integrations.formSchema = new SimpleSchema({
   name: {
     type: String,
   },
-
   brandId: {
     type: String,
   },
-
   formId: {
     type: String,
   },
-
   formLoadType: {
     type: String,
   },
@@ -49,15 +43,12 @@ const onlineHoursSchema = new SimpleSchema({
   _id: {
     type: String,
   },
-
   day: {
     type: String,
   },
-
   from: {
     type: String,
   },
-
   to: {
     type: String,
   },
@@ -76,27 +67,22 @@ export const inAppSchema = new SimpleSchema({
     type: Boolean,
     optional: true,
   },
-
   onlineHours: {
     type: [onlineHoursSchema],
     optional: true,
   },
-
   timezone: {
     type: String,
     optional: true,
   },
-
   welcomeMessage: {
     type: String,
     optional: true,
   },
-
   awayMessage: {
     type: String,
     optional: true,
   },
-
   thankYouMessage: {
     type: String,
     optional: true,
@@ -113,16 +99,13 @@ Integrations.schema = new SimpleSchema({
   name: {
     type: String,
   },
-
   brandId: {
     type: String,
   },
-
   formId: {
     type: String,
     optional: true,
   },
-
   formLoadType: {
     type: String,
     allowedValues: FORM_LOAD_TYPES.ALL_LIST,
@@ -161,7 +144,6 @@ Integrations.helpers({
   brand() {
     return Brands.findOne(this.brandId) || {};
   },
-
   channels() {
     return Channels.find({ integrationIds: { $in: [this._id] } }).fetch();
   },

@@ -1,11 +1,12 @@
-import React, { PropTypes } from 'react';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 
 const propTypes = {
   children: PropTypes.node.isRequired,
   onClick: PropTypes.func,
 };
 
-class DropdownToggle extends React.Component {
+class DropdownToggle extends Component {
   constructor(props, context) {
     super(props, context);
 

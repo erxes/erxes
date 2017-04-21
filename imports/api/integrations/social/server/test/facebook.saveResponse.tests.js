@@ -1,16 +1,12 @@
 /* eslint-env mocha */
-/* eslint-disable func-names, prefer-arrow-callback */
-/* eslint-disable no-underscore-dangle */
 
+import sinon from 'sinon';
 import { Factory } from 'meteor/dburles:factory';
 import { assert } from 'meteor/practicalmeteor:chai';
-import sinon from 'sinon';
-
 import { Conversations } from '/imports/api/conversations/conversations';
 import { CONVERSATION_STATUSES, FACEBOOK_DATA_KINDS } from '/imports/api/conversations/constants';
 import { Customers } from '/imports/api/customers/customers';
 import { Messages } from '/imports/api/conversations/messages';
-
 import { graphRequest, SaveWebhookResponse } from '../facebook';
 
 describe('facebook integration: save webhook response', function() {

@@ -1,8 +1,6 @@
 import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
 import { ValidatedMethod } from 'meteor/mdg:validated-method';
-import { _ } from 'meteor/underscore';
-
 import { ErxesMixin } from '/imports/api/utils';
 import { Brands, emailConfigSchema } from './brands';
 
@@ -16,7 +14,7 @@ export const add = new ValidatedMethod({
   },
 
   run({ doc }) {
-    const id = Brands.insert(_.extend({ userId: this.userId }, doc));
+    const id = Brands.insert(Object.assign({ userId: this.userId }, doc));
     return id;
   },
 });

@@ -15,7 +15,7 @@ import { addParticipator } from './conversations';
 
 class MessagesCollection extends Mongo.Collection {
   insert(doc, callback) {
-    const message = _.extend({ createdAt: new Date() }, doc);
+    const message = Object.assign({ createdAt: new Date() }, doc);
 
     const result = super.insert(message, callback);
 

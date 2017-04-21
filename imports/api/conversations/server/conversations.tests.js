@@ -1,5 +1,4 @@
 /* eslint-env mocha */
-/* eslint-disable func-names, prefer-arrow-callback, no-underscore-dangle */
 
 import { Meteor } from 'meteor/meteor';
 import { Random } from 'meteor/random';
@@ -34,7 +33,7 @@ describe('conversations', function() {
         integrationIds: [integrationId],
       });
 
-      _.extend(conversationOptions, { integrationId });
+      Object.assign(conversationOptions, { integrationId });
 
       return _.times(count, () => Factory.create('conversation', conversationOptions)._id);
     };

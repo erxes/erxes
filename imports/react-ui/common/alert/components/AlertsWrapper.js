@@ -1,9 +1,10 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
 import AlertItem from './AlertItem';
 
 const propTypes = {
-  alerts: React.PropTypes.array.isRequired,
+  alerts: PropTypes.array.isRequired,
 };
 
 function AlertsWrapper({ alerts }) {

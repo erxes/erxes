@@ -1,5 +1,3 @@
-/* eslint-disable no-underscore-dangle */
-
 import { Meteor } from 'meteor/meteor';
 import { ValidatedMethod } from 'meteor/mdg:validated-method';
 import { check } from 'meteor/check';

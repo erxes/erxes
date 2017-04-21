@@ -1,5 +1,3 @@
-/* eslint-disable no-underscore-dangle */
-
 import { Messages } from './messages.js';
 import { Conversations } from './conversations.js';
 
