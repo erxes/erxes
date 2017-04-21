@@ -1,5 +1,3 @@
-/* eslint-disable no-underscore-dangle */
-
 import createMentionPlugin, { defaultSuggestionsFilter } from 'draft-js-mention-plugin';
 import { EditorState, ContentState, getDefaultKeyBinding } from 'draft-js';
 import React, { PropTypes } from 'react';
