@@ -51,6 +51,7 @@ $fbpost-barckground: #f6f7f9;
       }
 
       header {
+        position: relative;
         .tags{
           display: inline-block;
           margin-left: 15px;
@@ -92,6 +93,30 @@ $fbpost-barckground: #f6f7f9;
             margin-right: 15px;
           }
         }
+      }
+    }
+
+    &.simple-row {
+      padding: 15px;
+
+      header {
+        margin-bottom: 5px;
+      }
+
+      time {
+        font-size: 12px;
+      }
+
+      .column {
+        margin-right: 15px;
+      }
+
+      .content {
+        margin: 5px 0;
+      }
+
+      .tags {
+        display: inherit;
       }
     }
   }

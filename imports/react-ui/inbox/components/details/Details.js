@@ -1,16 +1,15 @@
 import React, { PropTypes, Component } from 'react';
 import { Wrapper } from '/imports/react-ui/layout/components';
-import Sidebar from './Sidebar';
 import RightSidebar from './RightSidebar';
 import Conversation from '../conversation/Conversation';
-import { RespondBox } from '../../containers';
+import { RespondBox, DetailSidebar } from '../../containers';
 
 const propTypes = {
   conversation: PropTypes.object.isRequired,
   messages: PropTypes.array.isRequired,
-  channelId: PropTypes.string,
   changeStatus: PropTypes.func.isRequired,
   attachmentPreview: PropTypes.object,
+  queryParams: PropTypes.object.isRequired,
   setAttachmentPreview: PropTypes.func.isRequired,
 };
 
@@ -34,10 +33,10 @@ class Details extends Component {
     const {
       conversation,
       messages,
-      channelId,
       changeStatus,
       attachmentPreview,
       setAttachmentPreview,
+      queryParams,
     } = this.props;
 
     const content = (
@@ -64,18 +63,20 @@ class Details extends Component {
         <Wrapper
           header={<Wrapper.Header breadcrumb={breadcrumb} />}
           leftSidebar={
-            <Sidebar
+            <DetailSidebar
               conversation={conversation}
               messagesCount={messages.length}
               changeStatus={changeStatus}
-              channelId={channelId}
+              queryParams={queryParams}
             />
           }
           content={content}
           footer={
             <RespondBox conversation={conversation} setAttachmentPreview={setAttachmentPreview} />
           }
-          rightSidebar={<RightSidebar conversation={conversation} />}
+          rightSidebar={
+            <RightSidebar conversation={conversation} messagesCount={messages.length} />
+          }
         />
       </div>
     );

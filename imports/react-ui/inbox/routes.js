@@ -21,7 +21,9 @@ group.route('/details/:id', {
   name: 'inbox/details',
   action(params, queryParams) {
     mount(MainLayout, {
-      content: <Details id={params.id} channelId={queryParams.channelId} />,
+      content: (
+        <Details id={params.id} channelId={queryParams.channelId} queryParams={queryParams} />
+      ),
     });
   },
 });

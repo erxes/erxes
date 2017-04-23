@@ -1,16 +1,22 @@
 import React, { PropTypes, Component } from 'react';
-import moment from 'moment';
-import { Button, Collapse } from 'react-bootstrap';
+import { Button } from 'react-bootstrap';
 import Alert from 'meteor/erxes-notifier';
+import { Pagination, ConversationsList } from '/imports/react-ui/common';
 import { Wrapper } from '/imports/react-ui/layout/components';
-import { NameCard, EmptyState, Tagger } from '/imports/react-ui/common';
 import { CONVERSATION_STATUSES } from '/imports/api/conversations/constants';
-import { AssignBox } from '../../containers';
 
 const propTypes = {
   conversation: PropTypes.object.isRequired,
-  messagesCount: PropTypes.number.isRequired,
   changeStatus: PropTypes.func.isRequired,
+  readConversations: PropTypes.array.isRequired,
+  unreadConversations: PropTypes.array.isRequired,
+  loadMore: PropTypes.func.isRequired,
+  hasMore: PropTypes.bool.isRequired,
+  channelId: PropTypes.string,
+  bulk: PropTypes.array.isRequired,
+  toggleBulk: PropTypes.func.isRequired,
+  emptyBulk: PropTypes.func.isRequired,
+  user: PropTypes.object,
 };
 
 class Sidebar extends Component {
@@ -20,9 +26,6 @@ class Sidebar extends Component {
     this.state = {
       // current conversation is open or closed
       status: props.conversation.status,
-
-      isTaggerVisible: false,
-      isAssignerVisible: false,
     };
 
     this.changeStatus = this.changeStatus.bind(this);
@@ -66,168 +69,42 @@ class Sidebar extends Component {
     );
   }
 
-  renderFacebookPostUrl() {
-    const conversation = this.props.conversation;
-    const integration = conversation.integration();
-    if (integration.kind === 'facebook' && conversation.facebookData.kind === 'feed') {
-      const link = `http://facebook.com/${conversation.facebookData.postId}`;
-      return (
-        <li>
-          Facebook URL
-          <span className="counter">
-            <a target="_blank" href={link} rel="noopener noreferrer">[view]</a>
-          </span>
-        </li>
-      );
-    }
-
-    return null;
-  }
-
   render() {
-    const { conversation, messagesCount } = this.props;
-    const integration = conversation.integration();
-    const { Title, QuickButtons } = Wrapper.Sidebar.Section;
+    const { Title } = Wrapper.Sidebar.Section;
+
+    const {
+      readConversations,
+      unreadConversations,
+      hasMore,
+      loadMore,
+      channelId,
+      user,
+      toggleBulk,
+    } = this.props;
 
     return (
-      <Wrapper.Sidebar>
+      <Wrapper.Sidebar size="wide">
         {this.renderStatusButton()}
-
         <Wrapper.Sidebar.Section>
-          <Title>Details</Title>
-          <ul className="filters no-link">
-            <li>
-              Opened
-              <span className="counter">
-                {moment(conversation.createdAt).fromNow()}
-              </span>
-            </li>
-            <li>
-              Channels
-              <div className="value">
-                {integration.channels().map(c => <span key={c._id}>{c.name}</span>)}
-              </div>
-            </li>
-            <li>
-              Brand
-              <span className="counter">
-                {integration.brand().name}
-              </span>
-            </li>
-            <li>
-              Integration
-              <span className="counter">
-                {integration.kind}
-              </span>
-            </li>
-            <li>
-              Conversations
-              <span className="counter">{messagesCount}</span>
-            </li>
-            {this.renderFacebookPostUrl()}
-          </ul>
-        </Wrapper.Sidebar.Section>
 
-        <Wrapper.Sidebar.Section>
-          <Title>Assigned to</Title>
+          <Title>Conversations</Title>
+          <Pagination hasMore={hasMore} loadMore={loadMore}>
+            <ConversationsList
+              conversations={unreadConversations}
+              user={user}
+              toggleBulk={toggleBulk}
+              channelId={channelId}
+              simple
+            />
+            <ConversationsList
+              conversations={readConversations}
+              user={user}
+              toggleBulk={toggleBulk}
+              channelId={channelId}
+              simple
+            />
+          </Pagination>
 
-          <QuickButtons>
-            <a
-              tabIndex={0}
-              className="quick-button"
-              onClick={e => {
-                e.preventDefault();
-                const { isAssignerVisible } = this.state;
-                this.setState({ isAssignerVisible: !isAssignerVisible });
-              }}
-            >
-              <i className="ion-gear-a" />
-            </a>
-          </QuickButtons>
-
-          <Collapse in={this.state.isAssignerVisible}>
-            <div>
-              <AssignBox
-                targets={[conversation._id]}
-                className="sidebar-accordion"
-                event="onClick"
-              />
-            </div>
-          </Collapse>
-          <ul className="filters no-link">
-            {!conversation.assignedUser()
-              ? <EmptyState
-                  icon={<i className="ion-person" />}
-                  text="Not assigned yet"
-                  size="small"
-                />
-              : <li>
-                  <NameCard user={conversation.assignedUser()} avatarSize={45} />
-                </li>}
-          </ul>
-        </Wrapper.Sidebar.Section>
-
-        <Wrapper.Sidebar.Section>
-          <Title>Participators</Title>
-          <ul className="filters no-link">
-            {conversation.participatedUsers().map(user => (
-              <li key={user._id}>
-                <NameCard user={user} avatarSize={45} />
-              </li>
-            ))}
-            {conversation.participatedUsers().length === 0
-              ? <EmptyState
-                  icon={<i className="ion-at" />}
-                  text="Not participated yet"
-                  size="small"
-                />
-              : null}
-          </ul>
-        </Wrapper.Sidebar.Section>
-
-        <Wrapper.Sidebar.Section>
-          <Title>Tags</Title>
-
-          <QuickButtons>
-            <a
-              tabIndex={0}
-              className="quick-button"
-              onClick={e => {
-                e.preventDefault();
-                const { isTaggerVisible } = this.state;
-                this.setState({ isTaggerVisible: !isTaggerVisible });
-              }}
-            >
-              <i className="ion-gear-a" />
-            </a>
-          </QuickButtons>
-
-          <Collapse in={this.state.isTaggerVisible}>
-            <div>
-              <Tagger
-                type="conversation"
-                targets={[this.props.conversation._id]}
-                className="sidebar-accordion"
-                event="onClick"
-              />
-            </div>
-          </Collapse>
-
-          <ul className="filters no-link">
-            {conversation.tags().map(tag => (
-              <li key={tag._id}>
-                <i className="icon ion-pricetag" style={{ color: tag.colorCode }} />
-                {tag.name}
-              </li>
-            ))}
-            {conversation.tags().length === 0
-              ? <EmptyState
-                  icon={<i className="ion-pricetags" />}
-                  text="Not tagged yet"
-                  size="small"
-                />
-              : null}
-          </ul>
         </Wrapper.Sidebar.Section>
       </Wrapper.Sidebar>
     );
