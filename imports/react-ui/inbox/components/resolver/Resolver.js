@@ -6,6 +6,9 @@ import Alert from 'meteor/erxes-notifier';
 const propTypes = {
   conversations: PropTypes.array.isRequired,
   single: PropTypes.bool,
+  resolveText: PropTypes.string,
+  openText: PropTypes.string,
+  bsStyle: PropTypes.string,
   changeStatus: PropTypes.func.isRequired,
   afterSave: PropTypes.func.isRequired,
   CONVERSATION_STATUSES: PropTypes.object.isRequired,
@@ -50,7 +53,8 @@ class Resolver extends Component {
   }
 
   render() {
-    const { conversations, CONVERSATION_STATUSES } = this.props;
+    const { conversations, CONVERSATION_STATUSES, resolveText, openText, bsStyle } = this.props;
+    const style = bsStyle || 'link';
     const allNotClosed = _.reduce(
       conversations,
       (memo, conversation) => conversation.status !== CONVERSATION_STATUSES.CLOSED,
@@ -58,11 +62,11 @@ class Resolver extends Component {
     );
 
     return allNotClosed
-      ? <Button bsStyle="link" onClick={this.resolve}>
-          <i className="ion-checkmark-circled" /> Resolve
+      ? <Button className="action-btn" bsStyle={style} onClick={this.resolve}>
+          <i className="ion-checkmark-circled" /> {resolveText ? resolveText : 'Resolve'}
         </Button>
-      : <Button bsStyle="link" onClick={this.open}>
-          <i className="ion-refresh" /> Open
+      : <Button className="action-btn" bsStyle={style} onClick={this.open}>
+          <i className="ion-refresh" /> {openText ? openText : 'Open'}
         </Button>;
   }
 }

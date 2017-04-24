@@ -5,13 +5,15 @@ import { FlowRouter } from 'meteor/kadira:flow-router';
 
 const propTypes = {
   children: PropTypes.node,
+  fixedContent: PropTypes.node,
   size: PropTypes.oneOf(['narrow', 'medium', 'wide']),
 };
 
-function Sidebar({ children, size = 'medium' }) {
+function Sidebar({ children, size = 'medium', fixedContent }) {
   return (
     <div className={`sidebar ${size}`}>
-      <Scrollbars style={{ flex: 1, height: 'auto' }} autoHide>
+      {fixedContent}
+      <Scrollbars className="scroll-wrapper" style={{ flex: 1, height: 'auto' }} autoHide>
         {children}
       </Scrollbars>
     </div>
@@ -45,8 +47,8 @@ class Section extends Component {
   }
 
   render() {
-    const { children, collapsible } = this.props;
-    const classes = classNames({
+    const { children, collapsible, className } = this.props;
+    const classes = classNames(className, {
       section: true,
       collapsible,
     });
@@ -92,6 +94,7 @@ Section.QuickButtons = QuickButtons;
 Section.propTypes = {
   children: PropTypes.node,
   collapsible: PropTypes.bool,
+  className: PropTypes.string,
 };
 
 Sidebar.propTypes = propTypes;

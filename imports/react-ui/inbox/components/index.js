@@ -6,6 +6,7 @@ import AssignBox from './assignBox/AssignBox';
 import AssignBoxPopover from './assignBox/AssignBoxPopover';
 import Resolver from './resolver/Resolver';
 import ResponseTemplate from './details/ResponseTemplate';
+import DetailSidebar from './details/Sidebar';
 
 export {
   List,
@@ -16,4 +17,5 @@ export {
   Resolver,
   Sidebar,
   ResponseTemplate,
+  DetailSidebar,
 };

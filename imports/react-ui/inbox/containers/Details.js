@@ -9,7 +9,7 @@ import { Details } from '../components';
 
 const attachmentPreview = new ReactiveVar({});
 
-function composer({ id, channelId }, onData) {
+function composer({ id, channelId, queryParams }, onData) {
   // subscriptions
   const conversationHandle = Meteor.subscribe('conversations.detail', id);
   const messagesHandle = Meteor.subscribe('conversations.messageList', id);
@@ -59,6 +59,7 @@ function composer({ id, channelId }, onData) {
         channelId,
         changeStatus,
         setAttachmentPreview,
+        queryParams,
         attachmentPreview: attachmentPreview.get(),
       });
     }

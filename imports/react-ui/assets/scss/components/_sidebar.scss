@@ -2,6 +2,8 @@
   overflow-y: auto;
   box-sizing: border-box;
   display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
 
   &.narrow {
     width: $sidebar-width-narrow;
@@ -9,7 +11,6 @@
 
   &.medium {
     width: $sidebar-width-medium;
-    flex-shrink: 0;
   }
 
   &.wide {
@@ -31,7 +32,6 @@
     margin-bottom: $box-margin;
     padding-bottom: 20px;
     position: relative;
-
 
     &.collapsible {
       overflow: hidden;
@@ -59,6 +59,10 @@
           cursor: pointer;
         }
       }
+    }
+    
+    &.full {
+      flex: 1;
     }
 
     &:last-child {
@@ -195,5 +199,12 @@
 
   .popover-list {
     max-height: none;
+  }
+}
+
+.scroll-wrapper {
+  > div {
+    display: flex;
+    flex-direction: column;
   }
 }

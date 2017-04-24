@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { SortableContainer, SortableElement, SortableHandle, arrayMove } from 'react-sortable-hoc';
+import { EmptyState } from '/imports/react-ui/common';
 import FieldPreview from './FieldPreview';
 
 const DragHandle = SortableHandle(() => <span className="drag-handler">::::</span>);
@@ -19,6 +20,10 @@ const SortableList = SortableContainer(({ fields, onEdit }) => (
     {fields.map((field, index) => (
       <SortableItem key={`item-${index}`} index={index} field={field} onEdit={onEdit} />
     ))}
+
+    {fields.length == 0
+      ? <EmptyState icon={<i className="ion-clipboard" />} text="No items" size="small" />
+      : null}
   </div>
 ));
 
