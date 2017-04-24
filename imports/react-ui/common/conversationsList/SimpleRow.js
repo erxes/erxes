@@ -65,7 +65,6 @@ class SimpleRow extends Component {
           <header>
             <span className="customer-name">
               {customer && customer._id && customer.name}
-              B.Ganzorig
             </span>
 
             <time>

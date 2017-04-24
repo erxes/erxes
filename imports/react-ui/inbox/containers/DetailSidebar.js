@@ -9,7 +9,7 @@ import { DetailSidebar } from '../components';
 
 const bulk = new ReactiveVar([]);
 
-function composer({ channelId, queryParams }, onData) {
+function composer({ conversation, channelId, queryParams }, onData) {
   const { limit, loadMore, hasMore } = pagination(queryParams, 'conversations.counts.list');
   queryParams.limit = limit; // eslint-disable-line no-param-reassign
 
@@ -34,8 +34,6 @@ function composer({ channelId, queryParams }, onData) {
   const user = Meteor.user();
   const conversationHandle = Meteor.subscribe('conversations.list', queryParams);
 
-  const starredConversationIds = user.details.starredConversationIds || [];
-
   const conversationSort = { sort: { createdAt: -1 } };
 
   // unread conversations
@@ -46,7 +44,10 @@ function composer({ channelId, queryParams }, onData) {
 
   // read conversations
   const readConversations = Conversations.find(
-    { readUserIds: { $in: [user._id] } },
+    {
+      readUserIds: { $in: [user._id] },
+      _id: { $ne: conversation._id },
+    },
     conversationSort,
   ).fetch();
 
@@ -57,7 +58,6 @@ function composer({ channelId, queryParams }, onData) {
     hasMore,
     unreadConversations,
     readConversations,
-    starredConversationIds,
     channelId,
     user,
     toggleBulk,

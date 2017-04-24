@@ -1,8 +1,14 @@
 import React, { PropTypes, Component } from 'react';
 import { Button } from 'react-bootstrap';
 import Alert from 'meteor/erxes-notifier';
-import { Pagination, ConversationsList } from '/imports/react-ui/common';
+import {
+  Pagination,
+  ConversationsList,
+  LoadingContent,
+  EmptyState,
+} from '/imports/react-ui/common';
 import { Wrapper } from '/imports/react-ui/layout/components';
+import { Resolver } from '../../containers';
 import { CONVERSATION_STATUSES } from '/imports/api/conversations/constants';
 
 const propTypes = {
@@ -17,6 +23,7 @@ const propTypes = {
   toggleBulk: PropTypes.func.isRequired,
   emptyBulk: PropTypes.func.isRequired,
   user: PropTypes.object,
+  conversationReady: PropTypes.bool,
 };
 
 class Sidebar extends Component {
@@ -52,8 +59,21 @@ class Sidebar extends Component {
   }
 
   renderStatusButton() {
-    let text = 'Resolve';
+    const { bulk, emptyBulk } = this.props;
     let bsStyle = 'success';
+
+    if (bulk.length !== 0) {
+      return (
+        <Resolver
+          conversations={bulk}
+          afterSave={emptyBulk}
+          resolveText="Resolve selected"
+          bsStyle={bsStyle}
+        />
+      );
+    }
+
+    let text = 'Resolve';
     let icon = <i className="ion-checkmark-circled" />;
 
     if (this.state.status === CONVERSATION_STATUSES.CLOSED) {
@@ -69,9 +89,7 @@ class Sidebar extends Component {
     );
   }
 
-  render() {
-    const { Title } = Wrapper.Sidebar.Section;
-
+  renderSidebarContent() {
     const {
       readConversations,
       unreadConversations,
@@ -80,31 +98,49 @@ class Sidebar extends Component {
       channelId,
       user,
       toggleBulk,
+      conversationReady,
     } = this.props;
 
+    if (unreadConversations.length === 0 && readConversations.length === 0 && conversationReady) {
+      return (
+        <EmptyState
+          text="There aren’t any conversations."
+          size="small"
+          icon={<i className="ion-email" />}
+        />
+      );
+    } else if (!conversationReady) {
+      return <LoadingContent items={5} />;
+    }
+
     return (
-      <Wrapper.Sidebar size="wide">
-        {this.renderStatusButton()}
-        <Wrapper.Sidebar.Section>
+      <Pagination hasMore={hasMore} loadMore={loadMore}>
+        <ConversationsList
+          conversations={unreadConversations}
+          user={user}
+          toggleBulk={toggleBulk}
+          channelId={channelId}
+          simple
+        />
+        <ConversationsList
+          conversations={readConversations}
+          user={user}
+          toggleBulk={toggleBulk}
+          channelId={channelId}
+          simple
+        />
+      </Pagination>
+    );
+  }
 
+  render() {
+    const { Title } = Wrapper.Sidebar.Section;
+
+    return (
+      <Wrapper.Sidebar size="wide" fixedContent={this.renderStatusButton()}>
+        <Wrapper.Sidebar.Section className="full">
           <Title>Conversations</Title>
-          <Pagination hasMore={hasMore} loadMore={loadMore}>
-            <ConversationsList
-              conversations={unreadConversations}
-              user={user}
-              toggleBulk={toggleBulk}
-              channelId={channelId}
-              simple
-            />
-            <ConversationsList
-              conversations={readConversations}
-              user={user}
-              toggleBulk={toggleBulk}
-              channelId={channelId}
-              simple
-            />
-          </Pagination>
-
+          {this.renderSidebarContent()}
         </Wrapper.Sidebar.Section>
       </Wrapper.Sidebar>
     );
