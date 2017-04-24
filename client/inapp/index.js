@@ -15,9 +15,11 @@ widgetConnect({
     // call connect mutation
     return client.mutate({
       mutation: gql`
-        mutation connect($brandCode: String!, $email: String!) {
-          inAppConnect(brandCode: $brandCode, email: $email) {
+        mutation connect($brandCode: String!, $email: String!, $name: String) {
+          inAppConnect(brandCode: $brandCode, email: $email, name: $name) {
             integrationId,
+            inAppData,
+            uiOptions,
             customerId,
           }
         }`,
@@ -25,6 +27,7 @@ widgetConnect({
       variables: {
         brandCode: settings.brand_id,
         email: settings.email,
+        name: settings.name,
       },
     });
   },
@@ -33,10 +36,7 @@ widgetConnect({
     const inAppData = data.inAppConnect;
 
     // save connection info
-    connection.data = {
-      customerId: inAppData.customerId,
-      integrationId: inAppData.integrationId,
-    };
+    connection.data = inAppData;
 
     // send connected message to ws server and server will save given
     // data to connection. So when connection closed, we will use

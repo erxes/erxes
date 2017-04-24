@@ -12,7 +12,7 @@ widgetConnect({
     const settings = event.data.settings;
 
     // call connect mutation
-    return connect(settings.brand_id);
+    return connect(settings.brand_id, settings.form_id);
   },
 
   connectCallback: (data) => {

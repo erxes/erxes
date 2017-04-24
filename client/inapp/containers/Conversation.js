@@ -3,6 +3,7 @@ import gql from 'graphql-tag';
 import { connect } from 'react-redux';
 import { graphql } from 'react-apollo';
 import Subscriber from './Subscriber';
+import { connection } from '../connection';
 import { changeRoute, changeConversation } from '../actions/messenger';
 import { Conversation as DumbConversation } from '../components';
 
@@ -42,18 +43,14 @@ class Conversation extends Subscriber {
       },
 
       // push new message to messages list when subscription updated
-      updateQuery: (_previousResult, { subscriptionData }) => {
-        const previousResult = _previousResult;
-
+      updateQuery: (prev, { subscriptionData }) => {
         // get previous messages list
-        const messages = previousResult.messages || [];
+        const messages = prev.messages || [];
 
         // add new one
-        messages.push(subscriptionData.data.messageInserted);
-
-        previousResult.messages = messages;
-
-        return previousResult;
+        return Object.assign({}, prev, {
+          messages: [...messages, subscriptionData.data.messageInserted],
+        });
       },
     };
   }
@@ -90,6 +87,7 @@ class Conversation extends Subscriber {
       ...props,
       messages,
       user,
+      data: connection.data,
     };
 
     return <DumbConversation {...extendedProps} />;
@@ -131,7 +129,7 @@ const withData = graphql(
   `,
   {
     options: ownProps => ({
-      forceFetch: true,
+      fetchPolicy: 'network-only',
       variables: { conversationId: ownProps.conversationId },
     }),
   },

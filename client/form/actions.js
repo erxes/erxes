@@ -35,12 +35,13 @@ export const closeModal = () => {
 };
 
 
-export const connect = brandCode =>
+export const connect = (brandCode, formCode) =>
   client.mutate({
     mutation: gql`
-      mutation formConnect($brandCode: String!) {
-        formConnect(brandCode: $brandCode) {
+      mutation formConnect($brandCode: String!, $formCode: String!) {
+        formConnect(brandCode: $brandCode, formCode: $formCode) {
           integrationId,
+          integrationName,
           formId,
           formLoadType
         }
@@ -48,6 +49,7 @@ export const connect = brandCode =>
 
     variables: {
       brandCode,
+      formCode,
     },
   });
 

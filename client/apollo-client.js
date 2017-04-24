@@ -1,8 +1,8 @@
-/* global window */
+/* global window, API_SUBSCRIPTIONS_URL, API_GRAPHQL_URL */
 /* eslint-disable react/jsx-filename-extension */
 
 import ApolloClient, { createNetworkInterface } from 'apollo-client';
-import { Client } from 'subscriptions-transport-ws';
+import { SubscriptionClient } from 'subscriptions-transport-ws';
 import {
   combineReducers,
   applyMiddleware,
@@ -11,14 +11,14 @@ import {
 } from 'redux';
 import thunkMiddleware from 'redux-thunk';
 import addGraphQLSubscriptions from './subscriptions';
-import settings from './settings';
 
 // websocket
-export const wsClient = new Client(settings.WEBSOCKET_URL, {
-  reconnect: true,
-});
+export const wsClient = new SubscriptionClient(
+  API_SUBSCRIPTIONS_URL,
+  { reconnect: true },
+);
 
-const networkInterface = createNetworkInterface({ uri: '/graphql' });
+const networkInterface = createNetworkInterface({ uri: API_GRAPHQL_URL });
 
 const networkInterfaceWithSubscriptions = addGraphQLSubscriptions(
   networkInterface,

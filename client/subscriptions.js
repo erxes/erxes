@@ -1,4 +1,4 @@
-import { print } from 'graphql-tag/printer';
+import { print } from 'graphql/language/printer';
 
 const addGraphQLSubscriptions = (networkInterface, wsClient) =>
   Object.assign(

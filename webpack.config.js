@@ -1,6 +1,10 @@
 /* eslint-disable */
 
 var path = require('path');
+var webpack = require('webpack');
+require('dotenv').config();
+
+const { ROOT_URL, API_SUBSCRIPTIONS_URL, API_GRAPHQL_URL, DDP_URL } = process.env;
 
 module.exports = {
   entry: {
@@ -18,34 +22,36 @@ module.exports = {
   },
 
   module: {
-    loaders: [
+    rules: [
       {
         test: /\.jsx?$/,
         exclude: /node_modules/,
         loader: 'babel-loader',
-        query: {
+        options: {
           presets: ['es2015', 'react'],
         },
       },
-
       {
         test: /\.css$/,
-        loaders: ['style-loader', 'css-loader'],
+        use: ['style-loader', 'css-loader'],
       },
-
       {
         test: /\.scss$/,
-        loaders: ['style-loader', 'css-loader', 'sass-loader'],
-      },
-
-      {
-        test: /\.json$/,
-        loader: 'json-loader',
+        use: ['style-loader', 'css-loader', 'sass-loader'],
       },
     ],
   },
 
   resolve: {
-    extensions: ['', '.js', '.jsx'],
+    extensions: ['.js', '.jsx'],
   },
+
+  plugins: [
+    new webpack.DefinePlugin({
+      ROOT_URL: JSON.stringify(ROOT_URL),
+      API_SUBSCRIPTIONS_URL: JSON.stringify(API_SUBSCRIPTIONS_URL),
+      API_GRAPHQL_URL: JSON.stringify(API_GRAPHQL_URL),
+      DDP_URL: JSON.stringify(DDP_URL),
+    }),
+  ],
 };

@@ -1,18 +1,18 @@
+/* global ROOT_URL */
+
 /*
  * Form's embeddable script
  */
 
-import settings from '../../settings';
+// import settings from '../../settings';
 
 // css
 import './index.css';
 
-const API_URL = settings.API_URL;
-
 // add iframe
 let iframe = document.createElement('iframe');
 iframe.id = 'erxes-iframe';
-iframe.src = `${API_URL}/form`;
+iframe.src = `${ROOT_URL}/form`;
 iframe.style.display = 'none';
 
 document.body.appendChild(iframe);

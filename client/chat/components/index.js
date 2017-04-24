@@ -1,6 +1,6 @@
-import App from './App.jsx';
-import Launcher from './Launcher.jsx';
-import Form from './Form.jsx';
+import App from './App';
+import Launcher from './Launcher';
+import Form from './Form';
 
 
 export {

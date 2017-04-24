@@ -4,6 +4,7 @@ import { Message } from '../components';
 
 const propTypes = {
   messages: PropTypes.array.isRequired,
+  color: PropTypes.string,
 };
 
 class MessagesList extends Component {
@@ -30,7 +31,7 @@ class MessagesList extends Component {
       >
         {
           this.props.messages.map(message =>
-            <Message key={message._id} {...message} />,
+            <Message color={this.props.color} key={message._id} {...message} />,
           )
         }
       </ul>

@@ -20,6 +20,7 @@ const ConversationList = (props) => {
   const extendedProps = {
     ...props,
     conversations,
+    data: connection.data,
   };
 
   return <DumbConversationList {...extendedProps} />;
@@ -67,7 +68,7 @@ const ListWithData = graphql(
 
   {
     options: () => ({
-      forceFetch: true,
+      fetchPolicy: 'network-only',
       variables: connection.data,
     }),
   },
