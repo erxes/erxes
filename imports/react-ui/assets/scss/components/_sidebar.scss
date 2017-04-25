@@ -60,9 +60,9 @@
         }
       }
     }
-    
+
     &.full {
-      flex: 1;
+      min-height: 100%;
     }
 
     &:last-child {
@@ -199,12 +199,5 @@
 
   .popover-list {
     max-height: none;
-  }
-}
-
-.scroll-wrapper {
-  > div {
-    display: flex;
-    flex-direction: column;
   }
 }
