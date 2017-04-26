@@ -12,7 +12,11 @@ import { Customers } from '../customers';
 import Segments from '../segments';
 import QueryBuilder from '../queryBuilder';
 
-Meteor.publishComposite('customers.list', function customersList(queryString) {
+/**
+ * Publishes customers
+ * @param {Object} queryString URL query parameters used for filtering customers
+ */
+Meteor.publishComposite('customers.list', function(queryString) {
   return {
     find() {
       check(queryString, {
@@ -133,7 +137,11 @@ Meteor.publishComposite('customers.list', function customersList(queryString) {
   };
 });
 
-Meteor.publishComposite('customers.details', function customersDetails(id) {
+/**
+ * Publishes customer details data
+ * @param {String} id Customer id
+ */
+Meteor.publishComposite('customers.details', function(id) {
   return {
     find() {
       check(id, String);
@@ -170,10 +178,13 @@ Meteor.publishComposite('customers.details', function customersDetails(id) {
   };
 });
 
-Meteor.publishComposite('customers.listForSegmentPreview', function listForSegmentPreview(
-  segment,
-  limit = 0,
-) {
+/**
+ * Publishes customers list for the preview
+ * when creating/editing a customer segment
+ * @param {Object} segment   Segment that's being created/edited
+ * @param {Number} [limit=0] Customers limit (for pagination)
+ */
+Meteor.publishComposite('customers.listForSegmentPreview', function(segment, limit = 0) {
   return {
     find() {
       check(segment, Object);
@@ -213,6 +224,9 @@ Meteor.publishComposite('customers.listForSegmentPreview', function listForSegme
   };
 });
 
+/**
+ * Publishes all customer segments
+ */
 Meteor.publishComposite('customers.segments', {
   find() {
     if (!this.userId) {
@@ -223,7 +237,11 @@ Meteor.publishComposite('customers.segments', {
   },
 });
 
-Meteor.publishComposite('customers.segmentById', function segmentById(id) {
+/**
+ * Publishes single segment
+ * @param {String} id Segment id
+ */
+Meteor.publishComposite('customers.segmentById', function(id) {
   return {
     find() {
       check(id, String);
