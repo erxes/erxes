@@ -1,15 +1,17 @@
 import React, { PropTypes, Component } from 'react';
-import { Button } from 'react-bootstrap';
+import { Button, Dropdown, MenuItem } from 'react-bootstrap';
 import Alert from 'meteor/erxes-notifier';
 import {
   Pagination,
   ConversationsList,
   LoadingContent,
   EmptyState,
+  DropdownToggle,
 } from '/imports/react-ui/common';
 import { Wrapper } from '/imports/react-ui/layout/components';
 import { Resolver } from '../../containers';
 import { CONVERSATION_STATUSES } from '/imports/api/conversations/constants';
+import { KIND_CHOICES as INTEGRATIONS_TYPES } from '/imports/api/integrations/constants';
 
 const propTypes = {
   conversation: PropTypes.object.isRequired,
@@ -33,6 +35,7 @@ class Sidebar extends Component {
     this.state = {
       // current conversation is open or closed
       status: props.conversation.status,
+      selectedIntegration: 'All Integration',
     };
 
     this.changeStatus = this.changeStatus.bind(this);
@@ -133,13 +136,54 @@ class Sidebar extends Component {
     );
   }
 
+  renderIntegration(integrationType, index) {
+    const onClick = () => {
+      Wrapper.Sidebar.filter('integrationType', integrationType);
+      this.setState({ selectedIntegration: integrationType });
+    };
+
+    return (
+      <MenuItem
+        key={index}
+        onClick={onClick}
+        className={Wrapper.Sidebar.getActiveClass('integrationType', integrationType)}
+      >
+        {integrationType}
+      </MenuItem>
+    );
+  }
+
+  renderSectionHeader() {
+    const queryParamName = 'integrationType';
+    const { Section, filter } = Wrapper.Sidebar;
+    const integrations = INTEGRATIONS_TYPES.ALL_LIST;
+    const onClick = () => {
+      filter(queryParamName, '');
+      this.setState({ selectedIntegration: 'All Integrations' });
+    };
+
+    return (
+      <Section.QuickButtons>
+        <Dropdown id="dropdown-integration" className="quick-button" pullRight>
+          <DropdownToggle bsRole="toggle">
+            {this.state.selectedIntegration} <i className="ion-android-arrow-dropdown" />
+          </DropdownToggle>
+          <Dropdown.Menu>
+            <MenuItem onClick={onClick}>All Integrations</MenuItem>
+            {integrations.map((t, i) => this.renderIntegration(t, i))}
+          </Dropdown.Menu>
+        </Dropdown>
+      </Section.QuickButtons>
+    );
+  }
+
   render() {
     const { Title } = Wrapper.Sidebar.Section;
-
     return (
       <Wrapper.Sidebar size="wide" fixedContent={this.renderStatusButton()}>
         <Wrapper.Sidebar.Section className="full">
-          <Title>Conversations</Title>
+          <Title>CONVERSATIONS</Title>
+          {this.renderSectionHeader()}
           {this.renderSidebarContent()}
         </Wrapper.Sidebar.Section>
       </Wrapper.Sidebar>
