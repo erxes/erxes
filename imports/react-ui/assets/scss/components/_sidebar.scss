@@ -64,6 +64,15 @@
 
     &.full {
       min-height: 100%;
+      padding-bottom: 0;
+      display: flex;
+
+      > div {
+        width: 100%;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+      }
     }
 
     &:last-child {

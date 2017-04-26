@@ -178,15 +178,16 @@ class Sidebar extends Component {
   }
 
   render() {
-    const { Title } = Wrapper.Sidebar.Section;
+    const Sidebar = Wrapper.Sidebar;
+    const { Title } = Sidebar.Section;
     return (
-      <Wrapper.Sidebar size="wide" fixedContent={this.renderStatusButton()}>
-        <Wrapper.Sidebar.Section className="full">
+      <Sidebar size="wide" fixedContent={this.renderStatusButton()}>
+        <Sidebar.Section className="full">
           <Title>CONVERSATIONS</Title>
           {this.renderSectionHeader()}
           {this.renderSidebarContent()}
-        </Wrapper.Sidebar.Section>
-      </Wrapper.Sidebar>
+        </Sidebar.Section>
+      </Sidebar>
     );
   }
 }
