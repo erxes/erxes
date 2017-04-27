@@ -75,21 +75,22 @@ Meteor.publishComposite('customers.list', function(queryString) {
       }
 
       const countCustomers = (name, query) => {
-        Meteor.defer(() => {
-          // counts must be related to each other
-          const findQuery = Object.assign({}, selector, query);
+        // counts must be related to each other
+        const findQuery = Object.assign({}, selector, query);
 
-          Counts.publish(
-            this,
-            `customers.${name}`,
-            Customers.find(findQuery, { fields: { _id: 1 } }),
-            {
-              noReady: true,
-              nonReactive: true,
-            },
-          );
-        });
+        Counts.publish(
+          this,
+          `customers.${name}`,
+          Customers.find(findQuery, { fields: { _id: 1 } }),
+          {
+            noReady: true,
+            nonReactive: true,
+          },
+        );
       };
+
+      // Count current filtered customers
+      countCustomers('list.count', selector);
 
       // Count customers by segments
       Segments.find().fetch().forEach(segment => {
@@ -122,9 +123,6 @@ Meteor.publishComposite('customers.list', function(queryString) {
       Tags.find({ type: TAG_TYPES.CUSTOMER }, { fields: { _id: 1 } }).fetch().forEach(tag => {
         countCustomers(`tag.${tag._id}`, { tagIds: tag._id });
       });
-
-      // Count current filtered customers
-      countCustomers('list.count', selector);
 
       const options = {
         fields: Customers.publicFields,
