@@ -36,10 +36,10 @@ export default {
           op = { $ne: transformedValue };
           break;
         case 'c':
-          op = { $regex: `.*${transformedValue}.*` };
+          op = { $regex: new RegExp(`.*${transformedValue}.*`, 'i') };
           break;
         case 'dnc':
-          op = { $not: `.*${transformedValue}.*` };
+          op = { $regex: new RegExp(`^((?!${transformedValue}).)*$`, 'i') };
           break;
         case 'igt':
           op = { $gt: transformedValue };
