@@ -76,9 +76,17 @@ Meteor.publishComposite('customers.list', function(queryString) {
 
       const countCustomers = (name, query) => {
         Meteor.defer(() => {
-          Counts.publish(this, `customers.${name}`, Customers.find(query, { fields: { _id: 1 } }), {
-            noReady: true,
-          });
+          // counts must be related to each other
+          const findQuery = Object.assign({}, selector, query);
+
+          Counts.publish(
+            this,
+            `customers.${name}`,
+            Customers.find(findQuery, { fields: { _id: 1 } }),
+            {
+              noReady: true,
+            },
+          );
         });
       };
 
