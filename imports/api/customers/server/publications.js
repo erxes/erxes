@@ -85,6 +85,7 @@ Meteor.publishComposite('customers.list', function(queryString) {
             Customers.find(findQuery, { fields: { _id: 1 } }),
             {
               noReady: true,
+              nonReactive: true,
             },
           );
         });
