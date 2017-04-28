@@ -1,3 +1,8 @@
+@mixin active-state {
+  background-color: $grey-light;
+  color: $text-color;
+}
+
 .dropdown-menu {
   border: 0;
   box-shadow: $box-shadow;
@@ -9,6 +14,18 @@
     &:hover {
       color: $text-color;
       background-color: $grey-light;
+    }
+  }
+
+  > .active > a {
+    @include active-state;
+
+    &:focus {
+      @include active-state;
+    }
+
+    &:hover {
+      @include active-state;
     }
   }
 }

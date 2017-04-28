@@ -8,6 +8,7 @@ import {
   EmptyState,
   DropdownToggle,
 } from '/imports/react-ui/common';
+import { FlowRouter } from 'meteor/kadira:flow-router';
 import { Wrapper } from '/imports/react-ui/layout/components';
 import { Resolver } from '../../containers';
 import { CONVERSATION_STATUSES } from '/imports/api/conversations/constants';
@@ -35,7 +36,7 @@ class Sidebar extends Component {
     this.state = {
       // current conversation is open or closed
       status: props.conversation.status,
-      selectedIntegration: 'All Integration',
+      selectedIntegration: FlowRouter.getQueryParam('integrationType') || 'All Integrations',
     };
 
     this.changeStatus = this.changeStatus.bind(this);
