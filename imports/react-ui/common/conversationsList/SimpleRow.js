@@ -27,9 +27,11 @@ class SimpleRow extends Component {
   }
 
   goDetail() {
-    const { conversation, channelId } = this.props;
-
-    FlowRouter.go('inbox/details', { id: conversation._id }, { channelId });
+    FlowRouter.go(
+      'inbox/details',
+      { id: this.props.conversation._id },
+      FlowRouter.current().queryParams,
+    );
   }
 
   renderCheckbox() {
