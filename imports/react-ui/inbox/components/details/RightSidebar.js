@@ -243,6 +243,8 @@ class RightSidebar extends Component {
                   icon={<i className="ion-pricetags" />}
                   text="Not tagged yet"
                   size="small"
+                  linkUrl={FlowRouter.path('tags/list', { type: 'conversation' })}
+                  linkText="Manage tags"
                 />
               : null}
           </ul>
