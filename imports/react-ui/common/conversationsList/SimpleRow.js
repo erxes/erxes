@@ -50,6 +50,8 @@ class SimpleRow extends Component {
     const { conversation, isRead } = this.props;
     const { createdAt, content } = conversation;
     const customer = conversation.customer();
+    const integration = conversation.integration();
+    const brandName = integration.brand && integration.brand().name;
     const rowClasses = classNames('simple-row', { unread: !isRead });
     // TODO: use embedded tags list of the conversation object
     const tags = TagsCollection.find({
@@ -77,6 +79,7 @@ class SimpleRow extends Component {
           <Tags tags={tags} size="small" />
 
           <div className="content" onClick={this.goDetail}>
+            <span className="brandname">to {brandName} - </span>
             {content}
           </div>
         </div>
