@@ -10,23 +10,11 @@ function composer(props, onData) {
   const handle = props.id ? Meteor.subscribe('customers.segmentById', props.id).ready() : true;
 
   const schema = Customers.simpleSchema().schema();
-  const fields = Object.keys(schema)
-    .filter(key => {
-      // Can't accepts below types of fields
-      const unacceptedTypes = ['Object', 'Array'];
-      const isAcceptedType = unacceptedTypes.indexOf(schema[key].type.name) < 0;
-
-      // Exclude the fields which is used for internal use
-      const [parentFieldName] = key.split('.');
-      const notInternalUseField = Customers.internalUseFields.indexOf(parentFieldName) < 0;
-
-      return isAcceptedType && notInternalUseField;
-    })
-    .map(key => ({
-      _id: key,
-      title: schema[key].label || key,
-      selectedBy: 'none',
-    }));
+  const fields = Customers.getPublicFields().map(key => ({
+    _id: key,
+    title: schema[key].label || key,
+    selectedBy: 'none',
+  }));
 
   if (handle) {
     onData(null, {

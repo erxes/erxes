@@ -9,6 +9,7 @@ import CustomerRow from './CustomerRow';
 
 const propTypes = {
   customers: PropTypes.array.isRequired,
+  customerFields: PropTypes.array.isRequired,
   segments: PropTypes.array.isRequired,
   brands: PropTypes.array.isRequired,
   integrations: PropTypes.array.isRequired,
@@ -17,23 +18,29 @@ const propTypes = {
   hasMore: PropTypes.bool.isRequired,
 };
 
-function CustomersList({ customers, segments, brands, integrations, tags, loadMore, hasMore }) {
+function CustomersList({
+  customers,
+  customerFields,
+  segments,
+  brands,
+  integrations,
+  tags,
+  loadMore,
+  hasMore,
+}) {
   const content = (
     <Pagination hasMore={hasMore} loadMore={loadMore}>
       <Table className="no-wrap">
         <thead>
           <tr>
-            <th className="less-space" />
-            <th>Name</th>
-            <th>Email</th>
-            <th>Brand</th>
-            <th>Integration</th>
-            <th>Last online</th>
-            <th>Session count</th>
+            {customerFields.map(field => <th key={field}>{field}</th>)}
+            <th>Tags</th>
           </tr>
         </thead>
         <tbody>
-          {customers.map(customer => <CustomerRow customer={customer} key={customer._id} />)}
+          {customers.map(customer => (
+            <CustomerRow customer={customer} customerFields={customerFields} key={customer._id} />
+          ))}
         </tbody>
       </Table>
     </Pagination>

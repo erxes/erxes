@@ -12,15 +12,12 @@ const inAppMessagingSchema = new SimpleSchema({
   lastSeenAt: {
     type: Date,
   },
-
   sessionCount: {
     type: Number,
   },
-
   isActive: {
     type: Boolean,
   },
-
   customData: {
     type: Object,
     blackbox: true,
@@ -32,19 +29,15 @@ const twitterSchema = new SimpleSchema({
   id: {
     type: Number,
   },
-
   idStr: {
     type: String,
   },
-
   name: {
     type: String,
   },
-
   screenName: {
     type: String,
   },
-
   profileImageUrl: {
     type: String,
   },
@@ -54,7 +47,6 @@ const facebookSchema = new SimpleSchema({
   id: {
     type: String,
   },
-
   profilePic: {
     type: String,
     optional: true,
@@ -66,41 +58,33 @@ const schema = new SimpleSchema({
     type: String,
     optional: true,
   },
-
   email: {
     type: String,
     regEx: SimpleSchema.RegEx.Email,
     optional: true,
   },
-
   integrationId: {
     type: String,
     regEx: SimpleSchema.RegEx.Id,
   },
-
   tagIds: {
     type: [String],
     regEx: SimpleSchema.RegEx.Id,
     optional: true,
   },
-
   createdAt: {
     type: Date,
   },
 
-  // in app messaging data
+  // Integration data
   inAppMessagingData: {
     type: inAppMessagingSchema,
     optional: true,
   },
-
-  // twitter data
   twitterData: {
     type: twitterSchema,
     optional: true,
   },
-
-  // facebook data
   facebookData: {
     type: facebookSchema,
     optional: true,
@@ -116,7 +100,6 @@ class CustomersCollection extends Mongo.Collection {
 
   remove(selector, callback) {
     const customers = this.find(selector).fetch();
-
     const result = super.remove(selector, callback);
 
     // remove tags
@@ -131,6 +114,29 @@ class CustomersCollection extends Mongo.Collection {
 
     return result;
   }
+
+  /**
+   * Public displayable fields of customer object.
+   * Only the child fields (leaf fields).
+   * They're used for construct the table columns and segment filter fields.
+   * @return {Array.String} Fields names
+   */
+  getPublicFields() {
+    const schema = this.simpleSchema().schema();
+    const fields = Object.keys(schema).filter(key => {
+      // Can't accepts below types of fields
+      const unacceptedTypes = ['Object', 'Array'];
+      const isAcceptedType = unacceptedTypes.indexOf(schema[key].type.name) < 0;
+
+      // Exclude the fields which is used for internal use
+      const [parentFieldName] = key.split('.');
+      const notInternalUseField = this.internalUseFields.indexOf(parentFieldName) < 0;
+
+      return isAcceptedType && notInternalUseField;
+    });
+
+    return fields;
+  }
 }
 
 export const Customers = new CustomersCollection('customers');
@@ -142,7 +148,6 @@ Customers.helpers({
   integration() {
     return Integrations.findOne(this.integrationId);
   },
-
   getIntegrationData() {
     return {
       inAppMessaging: this.inAppMessagingData || {},
@@ -150,12 +155,10 @@ Customers.helpers({
       facebook: this.facebookData || {},
     };
   },
-
   brand() {
     const integration = this.integration();
     return Brands.findOne(integration && integration.brandId);
   },
-
   getInAppMessagingCustomData() {
     const results = [];
     const data = this.inAppMessagingData.customData || {};
@@ -169,7 +172,6 @@ Customers.helpers({
 
     return results;
   },
-
   getTags() {
     return Tags.find({ _id: { $in: this.tagIds || [] } }).fetch();
   },

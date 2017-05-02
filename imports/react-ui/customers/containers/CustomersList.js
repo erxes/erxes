@@ -29,6 +29,7 @@ function composer({ queryParams }, onData) {
     customersHandle.ready() && segmentsHandle.ready() && brandsHandle.ready() && tagsHandle.ready()
   ) {
     onData(null, {
+      customerFields: Meteor.user() && Meteor.user().configs.customerFields,
       customers: Customers.find({}, { sort: { 'inAppMessagingData.lastSeenAt': -1 } }).fetch(),
       segments: Segments.find({}, { sort: { name: 1 } }).fetch(),
       brands: Brands.find({}, { sort: { name: 1 } }).fetch(),

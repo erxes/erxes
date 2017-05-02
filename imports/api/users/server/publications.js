@@ -8,6 +8,7 @@ const publicFields = {
   details: 1,
   emailSignatures: 1,
   emails: 1,
+  configs: 1,
 };
 
 Meteor.publish(null, function loggedInUserFields() {
