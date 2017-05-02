@@ -18,6 +18,7 @@ function composer({ segment }, onData) {
 
     onData(null, {
       customers,
+      customerFields: Customers.getPublicFields(),
     });
   }
 }

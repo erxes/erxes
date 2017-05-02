@@ -11,12 +11,15 @@ import { Tags } from '/imports/api/tags/tags';
 const inAppMessagingSchema = new SimpleSchema({
   lastSeenAt: {
     type: Date,
+    label: 'IAM: Last online',
   },
   sessionCount: {
     type: Number,
+    label: 'IAM: Session count',
   },
   isActive: {
     type: Boolean,
+    label: 'IAM: Is online',
   },
   customData: {
     type: Object,
@@ -28,28 +31,35 @@ const inAppMessagingSchema = new SimpleSchema({
 const twitterSchema = new SimpleSchema({
   id: {
     type: Number,
+    label: 'Twitter: ID (Number)',
   },
   idStr: {
     type: String,
+    label: 'Twitter: ID (String)',
   },
   name: {
     type: String,
+    label: 'Twitter: Name',
   },
   screenName: {
     type: String,
+    label: 'Twitter: Screen name',
   },
   profileImageUrl: {
     type: String,
+    label: 'Twitter: Profile photo',
   },
 });
 
 const facebookSchema = new SimpleSchema({
   id: {
     type: String,
+    label: 'Facebook: ID',
   },
   profilePic: {
     type: String,
     optional: true,
+    label: 'Facebook: Profile photo',
   },
 });
 
@@ -57,11 +67,13 @@ const schema = new SimpleSchema({
   name: {
     type: String,
     optional: true,
+    label: 'Name',
   },
   email: {
     type: String,
     regEx: SimpleSchema.RegEx.Email,
     optional: true,
+    label: 'Email',
   },
   integrationId: {
     type: String,
@@ -74,6 +86,7 @@ const schema = new SimpleSchema({
   },
   createdAt: {
     type: Date,
+    label: 'Member since',
   },
 
   // Integration data
@@ -123,17 +136,22 @@ class CustomersCollection extends Mongo.Collection {
    */
   getPublicFields() {
     const schema = this.simpleSchema().schema();
-    const fields = Object.keys(schema).filter(key => {
-      // Can't accepts below types of fields
-      const unacceptedTypes = ['Object', 'Array'];
-      const isAcceptedType = unacceptedTypes.indexOf(schema[key].type.name) < 0;
+    const fields = Object.keys(schema)
+      .filter(key => {
+        // Can't accepts below types of fields
+        const unacceptedTypes = ['Object', 'Array'];
+        const isAcceptedType = unacceptedTypes.indexOf(schema[key].type.name) < 0;
 
-      // Exclude the fields which is used for internal use
-      const [parentFieldName] = key.split('.');
-      const notInternalUseField = this.internalUseFields.indexOf(parentFieldName) < 0;
+        // Exclude the fields which is used for internal use
+        const [parentFieldName] = key.split('.');
+        const notInternalUseField = this.internalUseFields.indexOf(parentFieldName) < 0;
 
-      return isAcceptedType && notInternalUseField;
-    });
+        return isAcceptedType && notInternalUseField;
+      })
+      .map(key => ({
+        key,
+        label: schema[key].label || key,
+      }));
 
     return fields;
   }

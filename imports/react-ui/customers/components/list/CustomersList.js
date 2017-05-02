@@ -33,7 +33,7 @@ function CustomersList({
       <Table className="no-wrap">
         <thead>
           <tr>
-            {customerFields.map(field => <th key={field}>{field}</th>)}
+            {customerFields.map(({ key, label }) => <th key={key}>{label}</th>)}
             <th>Tags</th>
           </tr>
         </thead>

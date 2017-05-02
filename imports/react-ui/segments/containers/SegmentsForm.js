@@ -8,11 +8,9 @@ import { SegmentsForm } from '../components';
 
 function composer(props, onData) {
   const handle = props.id ? Meteor.subscribe('customers.segmentById', props.id).ready() : true;
-
-  const schema = Customers.simpleSchema().schema();
-  const fields = Customers.getPublicFields().map(key => ({
+  const fields = Customers.getPublicFields().map(({ key, label }) => ({
     _id: key,
-    title: schema[key].label || key,
+    title: label,
     selectedBy: 'none',
   }));
 

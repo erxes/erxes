@@ -25,12 +25,12 @@ function formatValue(value) {
 function CustomerRow({ customer, customerFields }) {
   return (
     <tr>
-      {customerFields.map((field, index) => (
-        <td key={field}>
+      {customerFields.map(({ key }, index) => (
+        <td key={key}>
           {index > 0
-            ? formatValue(_.get(customer, field))
+            ? formatValue(_.get(customer, key))
             : <a href={FlowRouter.path('customers/details', { id: customer._id })}>
-                {formatValue(_.get(customer, field))}
+                {formatValue(_.get(customer, key))}
               </a>}
         </td>
       ))}
