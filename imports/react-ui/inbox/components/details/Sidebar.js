@@ -34,8 +34,6 @@ class Sidebar extends Component {
     super(props);
 
     this.state = {
-      // current conversation is open or closed
-      status: props.conversation.status,
       selectedIntegration: FlowRouter.getQueryParam('integrationType') || 'All Integrations',
     };
 
@@ -44,17 +42,17 @@ class Sidebar extends Component {
 
   // change resolved status
   changeStatus() {
-    let status = CONVERSATION_STATUSES.CLOSED;
+    let status = this.props.conversation.status;
 
-    if (this.state.status === CONVERSATION_STATUSES.CLOSED) {
+    if (status === CONVERSATION_STATUSES.CLOSED) {
       status = CONVERSATION_STATUSES.OPEN;
+    } else {
+      status = CONVERSATION_STATUSES.CLOSED;
     }
-
-    this.setState({ status });
 
     // call change status method
     this.props.changeStatus(this.props.conversation._id, status, () => {
-      if (this.state.status === CONVERSATION_STATUSES.CLOSED) {
+      if (status === CONVERSATION_STATUSES.CLOSED) {
         Alert.success('The conversation has been resolved!');
       } else {
         Alert.info('The conversation has been reopened and restored to Inbox.');
@@ -80,7 +78,7 @@ class Sidebar extends Component {
     let text = 'Resolve';
     let icon = <i className="ion-checkmark-circled" />;
 
-    if (this.state.status === CONVERSATION_STATUSES.CLOSED) {
+    if (this.props.conversation.status === CONVERSATION_STATUSES.CLOSED) {
       text = 'Open';
       bsStyle = 'warning';
       icon = <i className="ion-refresh" />;
