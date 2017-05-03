@@ -33,7 +33,7 @@ function composer({ conversation, channelId, queryParams }, onData) {
   // subscriptions ==================
   const user = Meteor.user();
   const conversationHandle = Meteor.subscribe('conversations.list', queryParams);
-
+  Meteor.subscribe('integrations.list', {});
   const conversationSort = { sort: { createdAt: -1 } };
 
   // unread conversations
