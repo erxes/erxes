@@ -1,6 +1,8 @@
+$break-small: 380px;
+
 .erxes-messenger {
   position: fixed;
-  width: 370px;
+  width: calc(100% - 16px);
   background: $white;
   box-shadow: 0 5px 15px -3px rgba($black, 0.15);
   z-index: 999999999;
@@ -12,4 +14,12 @@
   overflow: hidden;
   right: 8px;
   bottom: 86px;
+
+  @media screen and (max-width: $break-small) {
+    width: 100%;
+    max-height: none;
+    height: 100%;
+    right: 0;
+    bottom: 0;
+  }
 }

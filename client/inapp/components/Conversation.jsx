@@ -16,7 +16,7 @@ function Conversation({ messages, isNewConversation, goToConversationList, user,
   function renderTitle() {
     if (user) {
       const isOnline = data.inAppData && data.inAppData.isOnline;
-      const avatar = user.details.avatar || 'https://crm.nmma.co/assets/images/userDefaultIcon.png';
+      const avatar = user.details.avatar || 'https://crm.nmma.co/images/userDefaultIcon.png';
 
       const state = (
         <div className="erxes-staff-company">

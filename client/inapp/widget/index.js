@@ -8,13 +8,23 @@
 import './index.css';
 
 // add iframe
+const erxesContainer = document.createElement('div');
+erxesContainer.id = 'erxes-container';
+erxesContainer.className = 'erxes-messenger-hidden';
+
 let iframe = document.createElement('iframe');
 iframe.id = 'erxes-iframe';
-iframe.className = 'erxes-messenger-hidden';
 iframe.src = `${ROOT_URL}/inapp`;
 iframe.style.display = 'none';
 
-document.body.appendChild(iframe);
+erxesContainer.appendChild(iframe);
+document.body.appendChild(erxesContainer);
+
+// meta
+const meta = document.createElement('meta');
+meta.name = 'viewport';
+meta.content = 'initial-scale=1, width=device-width';
+document.getElementsByTagName('head')[0].appendChild(meta);
 
 // send erxes settings to iframe
 iframe = document.querySelector('#erxes-iframe');
@@ -34,10 +44,10 @@ window.addEventListener('message', (event) => {
   if (event.data.fromErxes) {
     iframe = document.querySelector('#erxes-iframe');
 
-    iframe.className = 'erxes-messenger-hidden';
+    erxesContainer.className = 'erxes-messenger-hidden';
 
     if (event.data.isMessengerVisible) {
-      iframe.className = 'erxes-messenger-shown';
+      erxesContainer.className = 'erxes-messenger-shown';
     }
   }
 });

@@ -1,4 +1,5 @@
 import React, { PropTypes } from 'react';
+import classNames from 'classnames';
 
 
 const propTypes = {
@@ -13,8 +14,16 @@ function Launcher({ isMessengerVisible, onClick, notificationCount, color }) {
     onClick(isMessengerVisible);
   };
 
+  const launcherClasses = classNames('erxes-launcher', {
+    'close': isMessengerVisible
+  });
+
   return (
-    <div className="erxes-launcher" onClick={clickHandler} style={{ backgroundColor: color }}>
+    <div
+      className={launcherClasses}
+      onClick={clickHandler}
+      style={{ backgroundColor: color }}
+    >
       {notificationCount ? <span>{notificationCount}</span> : null}
     </div>
   );
