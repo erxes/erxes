@@ -6,6 +6,7 @@ import { Wrapper } from '/imports/react-ui/layout/components';
 import { Pagination } from '/imports/react-ui/common';
 import Sidebar from './sidebar/Sidebar';
 import CustomerRow from './CustomerRow';
+import { ManageColumns } from '../../containers';
 
 const propTypes = {
   customers: PropTypes.array.isRequired,
@@ -33,6 +34,9 @@ function CustomersList({
       <Table className="no-wrap">
         <thead>
           <tr>
+            <th>
+              <ManageColumns />
+            </th>
             {customerFields.map(({ key, label }) => <th key={key}>{label}</th>)}
             <th>Tags</th>
           </tr>

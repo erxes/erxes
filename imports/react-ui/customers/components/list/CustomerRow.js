@@ -25,13 +25,14 @@ function formatValue(value) {
 function CustomerRow({ customer, customerFields }) {
   return (
     <tr>
-      {customerFields.map(({ key }, index) => (
+      <td>
+        <a href={FlowRouter.path('customers/details', { id: customer._id })}>
+          <i className="ion-log-in" />
+        </a>
+      </td>
+      {customerFields.map(({ key }) => (
         <td key={key}>
-          {index > 0
-            ? formatValue(_.get(customer, key))
-            : <a href={FlowRouter.path('customers/details', { id: customer._id })}>
-                {formatValue(_.get(customer, key))}
-              </a>}
+          {formatValue(_.get(customer, key))}
         </td>
       ))}
       <td>
