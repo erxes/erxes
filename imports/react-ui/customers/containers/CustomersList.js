@@ -29,6 +29,10 @@ function composer({ queryParams }, onData) {
     customersHandle.ready() && segmentsHandle.ready() && brandsHandle.ready() && tagsHandle.ready()
   ) {
     onData(null, {
+      // If there's no customer fields config, all fields will be selected
+      customerFields: (Meteor.user() && Meteor.user().configs.customerFields) ||
+        Customers.getPublicFields(),
+
       customers: Customers.find({}, { sort: { 'inAppMessagingData.lastSeenAt': -1 } }).fetch(),
       segments: Segments.find({}, { sort: { name: 1 } }).fetch(),
       brands: Brands.find({}, { sort: { name: 1 } }).fetch(),

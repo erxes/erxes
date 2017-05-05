@@ -125,7 +125,9 @@ Meteor.publishComposite('customers.list', function(queryString) {
       });
 
       const options = {
+        // TODO: Select customer fields based on current user's config
         fields: Customers.publicFields,
+
         sort: { 'inAppMessagingData.lastSeenAt': -1 },
         limit: queryString.limit || 0,
       };

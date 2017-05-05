@@ -6,9 +6,11 @@ import { Wrapper } from '/imports/react-ui/layout/components';
 import { Pagination } from '/imports/react-ui/common';
 import Sidebar from './sidebar/Sidebar';
 import CustomerRow from './CustomerRow';
+import { ManageColumns } from '../../containers';
 
 const propTypes = {
   customers: PropTypes.array.isRequired,
+  customerFields: PropTypes.array.isRequired,
   segments: PropTypes.array.isRequired,
   brands: PropTypes.array.isRequired,
   integrations: PropTypes.array.isRequired,
@@ -17,23 +19,32 @@ const propTypes = {
   hasMore: PropTypes.bool.isRequired,
 };
 
-function CustomersList({ customers, segments, brands, integrations, tags, loadMore, hasMore }) {
+function CustomersList({
+  customers,
+  customerFields,
+  segments,
+  brands,
+  integrations,
+  tags,
+  loadMore,
+  hasMore,
+}) {
   const content = (
     <Pagination hasMore={hasMore} loadMore={loadMore}>
       <Table className="no-wrap">
         <thead>
           <tr>
-            <th className="less-space" />
-            <th>Name</th>
-            <th>Email</th>
-            <th>Brand</th>
-            <th>Integration</th>
-            <th>Last online</th>
-            <th>Session count</th>
+            <th>
+              <ManageColumns />
+            </th>
+            {customerFields.map(({ key, label }) => <th key={key}>{label}</th>)}
+            <th>Tags</th>
           </tr>
         </thead>
         <tbody>
-          {customers.map(customer => <CustomerRow customer={customer} key={customer._id} />)}
+          {customers.map(customer => (
+            <CustomerRow customer={customer} customerFields={customerFields} key={customer._id} />
+          ))}
         </tbody>
       </Table>
     </Pagination>

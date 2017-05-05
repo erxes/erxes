@@ -1,38 +1,43 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import moment from 'moment';
+import _ from 'lodash';
 import { FlowRouter } from 'meteor/kadira:flow-router';
 import { Tags } from '/imports/react-ui/common';
 
 const propTypes = {
   customer: PropTypes.object.isRequired,
+  customerFields: PropTypes.array.isRequired,
 };
 
-function CustomerRow({ customer }) {
-  const inAppMessagingData = customer.inAppMessagingData || {};
-  const lastSeenAt = inAppMessagingData.lastSeenAt;
-  const integration = customer.integration();
-  const brand = customer.brand();
-  const tags = customer.getTags();
+function formatValue(value) {
+  if (value && value instanceof Date) {
+    return moment(value).fromNow();
+  }
 
+  if (typeof value === 'boolean') {
+    return value.toString();
+  }
+
+  return value || 'N/A';
+}
+
+function CustomerRow({ customer, customerFields }) {
   return (
     <tr>
-      <td className="less-space text-center">
-        {inAppMessagingData.isActive
-          ? <i className="ion-record text-success" />
-          : <i className="ion-record text-muted" />}
-      </td>
       <td>
         <a href={FlowRouter.path('customers/details', { id: customer._id })}>
-          {customer.name || '[no name]'}{' '}
-          <Tags tags={tags} size="small" />
+          <i className="ion-log-in" />
         </a>
       </td>
-      <td>{customer.email || '[no email]'}</td>
-      <td>{brand && brand.name}</td>
-      <td>{integration && integration.name}</td>
-      <td>{lastSeenAt && moment(lastSeenAt).fromNow()}</td>
-      <td>{inAppMessagingData.sessionCount}</td>
+      {customerFields.map(({ key }) => (
+        <td key={key}>
+          {formatValue(_.get(customer, key))}
+        </td>
+      ))}
+      <td>
+        <Tags tags={customer.getTags()} size="small" />
+      </td>
     </tr>
   );
 }

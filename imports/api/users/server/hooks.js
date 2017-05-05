@@ -1,5 +1,6 @@
 import { Meteor } from 'meteor/meteor';
 import { Accounts } from 'meteor/accounts-base';
+import { Customers } from '/imports/api/customers/customers';
 
 Accounts.onCreateUser((options, doc) => {
   if (Meteor.users.find().count() > 0 && !options.invite) {
@@ -11,6 +12,12 @@ Accounts.onCreateUser((options, doc) => {
   if (Meteor.users.find().count() === 0) {
     user.isOwner = true;
   }
+
+  // For various user specific configurations
+  user.configs = {};
+
+  // Save customer fields selection config
+  user.configs.customerFields = Customers.getPublicFields();
 
   return user;
 });
