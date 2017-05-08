@@ -54,7 +54,7 @@ window.addEventListener('message', (event) => {
 
     if (loadType === 'embedded') {
       erxesContainer.className = 'erxes-embed-iframe';
-      // document.querySelector('[data-erxes-embed]').appendChild(erxesContainer);
+      document.querySelector('[data-erxes-embed]').appendChild(erxesContainer);
     }
 
     if (loadType === 'popup') {
