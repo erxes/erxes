@@ -7,11 +7,12 @@
 // css
 import './index.css';
 
-// add iframe
+// container
 const erxesContainer = document.createElement('div');
 erxesContainer.id = 'erxes-container';
 erxesContainer.className = 'erxes-messenger-hidden';
 
+// add iframe
 let iframe = document.createElement('iframe');
 iframe.id = 'erxes-iframe';
 iframe.src = `${ROOT_URL}/inapp`;

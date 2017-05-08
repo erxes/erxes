@@ -1,3 +1,5 @@
+$break-small: 415px;
+$break-medium: 500px;
 // shoutbox form
 .shoutbox-form {
   font-family: 'Roboto', Helvetica, Arial, sans-serif;
@@ -16,6 +18,14 @@
   overflow: hidden;
   right: 8px;
   bottom: 86px;
+
+  @media screen and (max-width: $break-small) {
+    width: 100%;
+    max-height: none;
+    height: 100%;
+    right: 0;
+    bottom: 0;
+  }
 }
 
 // modal form
@@ -39,6 +49,11 @@
     @include prefix((
       transform: translate(0,-25%)
     ), webkit moz ms o);
+
+    @media screen and (max-width: $break-medium) {
+      width: 100%;
+      margin: 0;
+    }
   }
 
   &.open {
@@ -84,6 +99,12 @@
       cursor: pointer;
       background-color: rgba($black, .2);
     }
+
+    @media screen and (max-width: $break-medium) {
+      margin-right: auto;
+      right: 10px;
+      top: 8px;
+    }
   }
 }
 
@@ -92,6 +113,7 @@
   margin: 0;
   font-size: 14px;
   line-height: 1.5;
+  height: 100%;
   display: flex;
   flex-direction: column;
   border-radius: 4px;

@@ -10,7 +10,7 @@
   border-top-right-radius: $border-radius;
 
   .erxes-middle {
-    display: inline-block;
+    display: flex;
   }
 
   &.thiner {
@@ -23,9 +23,18 @@
   font-weight: 600;
   line-height: 1.2em;
   margin-top: 18px;
-
+  padding: 0 60px;
+  min-width: 0;
+  flex: 1;
+  
   span {
     font-size: 14px;
     font-weight: 300;
+  }
+
+  > div {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 }
