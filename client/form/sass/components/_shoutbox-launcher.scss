@@ -1,3 +1,5 @@
+$break-small: 415px;
+
 .shoutbox-launcher {
   color: $white;
   line-height: 56px;
@@ -11,7 +13,8 @@
   bottom: 8px;
   right: 8px;
   box-shadow: 0 0 10px 0 rgba($black, .2);
-  background: $main-color url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACgAAAAoCAYAAACM/rhtAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyNpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuNS1jMDE0IDc5LjE1MTQ4MSwgMjAxMy8wMy8xMy0xMjowOToxNSAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENDIChNYWNpbnRvc2gpIiB4bXBNTTpJbnN0YW5jZUlEPSJ4bXAuaWlkOjE4RTFGN0RBOThGMzExRTY4MTlDQzI2M0M5MDJCODE2IiB4bXBNTTpEb2N1bWVudElEPSJ4bXAuZGlkOjE4RTFGN0RCOThGMzExRTY4MTlDQzI2M0M5MDJCODE2Ij4gPHhtcE1NOkRlcml2ZWRGcm9tIHN0UmVmOmluc3RhbmNlSUQ9InhtcC5paWQ6MzQ2NDM2N0Y5OEVFMTFFNjgxOUNDMjYzQzkwMkI4MTYiIHN0UmVmOmRvY3VtZW50SUQ9InhtcC5kaWQ6MzQ2NDM2ODA5OEVFMTFFNjgxOUNDMjYzQzkwMkI4MTYiLz4gPC9yZGY6RGVzY3JpcHRpb24+IDwvcmRmOlJERj4gPC94OnhtcG1ldGE+IDw/eHBhY2tldCBlbmQ9InIiPz7dFbt2AAABlklEQVR42uzYvUsDMQCH4Tvt4AcIikXESaHoUhDdRRwcHKSoqwiKg9C5FCf/Bgcdis6COIiDuAs61IKDjoIIiqAOflFBPd9AwBtqvV5CLkMCDxx3afojl0ty5wdB4NlcmjzLiwvoArqAFgbsbqRyynC4DKq29mA7xnBja8A17No6BpdxiedGf6gyBntwH6HeMOYxbvopfsXsP3U6sIMCvk0HfEMnpurUKeFUilfEdktBCifI1ri2ghf0qfyHakAhhyukQ+dGUEVRtX1f04b1WD5wYp5rRQVfyOJDpWFdK0lBhtyWAQeQUw2nYwyG7QW/5UhXu77Gd5JRlEPHFdt2M3Oh40ldjerqwUGc4w6fSMtx+GRLD66L4Sx7cVqeK2ppWcNAnpEPxlLo3ISOSVrHRN2Ga2z9sZKUVAOq3uJVPCBf49qm3F4NJXWLM7hFf506zVhIah48wAYOI2y5xJP9bnKpE8vYWYRwXpxdtGrAFjkR5028K8S5xYvYx6ONAXvRhQtbvywEJsPpXIvdxyMX0AVMqvwIMAAEaSQ4y2c8jAAAAABJRU5ErkJggg==") center no-repeat;
+  background: $main-color url($icon-erxes) center no-repeat;
+  transition: background 0.3s ease-in-out;
 
   span {
     position: absolute;
@@ -26,5 +29,32 @@
     text-align: center;
     line-height: 20px;
     font-size: 10px;
+  }
+
+  &.close {
+    background: $main-color url($icon-close-big) no-repeat 50%;;
+  }
+
+  &:hover {
+    box-shadow: 0 0 15px 0 rgba($black, .3);
+  }
+
+  @media screen and (max-width: $break-small) {
+    &.close {
+      top: 8px;
+      right: 15px;
+      width: 40px;
+      height: 40px;
+      line-height: 40px;
+      border-radius: 4px;
+      display: block;
+      z-index: 1000000000;
+      box-shadow: none;
+      background: $main-color url($icon-close) no-repeat 50%;;
+
+      &:hover {
+        background-color: rgba($black, .2);
+      }
+    }
   }
 }

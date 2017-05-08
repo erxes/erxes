@@ -1,4 +1,5 @@
 import React, { PropTypes } from 'react';
+import classNames from 'classnames';
 
 const propTypes = {
   onClick: PropTypes.func.isRequired,
@@ -10,8 +11,12 @@ function Launcher({ isFormVisible, onClick }) {
     onClick(isFormVisible);
   };
 
+  const launcherClasses = classNames('shoutbox-launcher', {
+    'close': isFormVisible
+  });
+
   return (
-    <div className="shoutbox-launcher" onClick={clickHandler} />
+    <div className={launcherClasses} onClick={clickHandler} />
   );
 }
 
