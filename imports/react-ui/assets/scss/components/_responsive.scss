@@ -1,0 +1,44 @@
+// for small desktops
+@media only screen and (max-width: $breakpoint-ds) {
+  .sidebar {
+    flex-shrink: 1;
+
+    .section {
+      font-size: 12px;
+    }
+
+    .filters li {
+      .counter {
+        margin-top: 0;
+      }
+    }
+  }
+}
+
+// for medium devices
+@media only screen and (max-width: $breakpoint-md) {
+  .hidden-tb {
+    display: none;
+  }
+
+  .sidebar {
+    &.medium {
+      width: $sidebar-width-narrow;
+    }
+
+    &.wide {
+      width: $sidebar-width-medium;
+    }
+  }
+
+  .main-content {
+    min-width: 320px;
+  }
+}
+
+// for small devices
+@media only screen and (max-width: $breakpoint-sm) {
+  .sidebar {
+    flex-shrink: 0;
+  }
+}

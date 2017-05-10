@@ -79,7 +79,7 @@ class SimpleRow extends Component {
           <Tags tags={tags} size="small" />
 
           <div className="content" onClick={this.goDetail}>
-            <span className="brandname">to {brandName} - </span>
+            <span className="brandname hidden-tb">to {brandName} - </span>
             {content}
           </div>
         </div>
