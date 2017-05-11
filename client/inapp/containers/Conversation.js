@@ -87,6 +87,7 @@ class Conversation extends Subscriber {
       ...props,
       messages,
       user,
+      isOnline: connection.data.inAppData.isOnline,
       data: connection.data,
     };
 

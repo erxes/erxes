@@ -12,11 +12,20 @@ const propTypes = {
   isNewConversation: PropTypes.bool,
 };
 
-function Conversation({ messages, isNewConversation, goToConversationList, user, data }) {
+function Conversation(props) {
+  const {
+    messages,
+    isNewConversation,
+    goToConversationList,
+    user,
+    isOnline,
+    data,
+  } = props;
+
   function renderTitle() {
     if (user) {
-      const isOnline = data.inAppData && data.inAppData.isOnline;
-      const avatar = user.details.avatar || 'https://crm.nmma.co/images/userDefaultIcon.png';
+      const defaultImage = 'https://crm.nmma.co/images/userDefaultIcon.png';
+      const avatar = user.details.avatar || defaultImage;
 
       const state = (
         <div className="erxes-staff-company">
@@ -45,6 +54,8 @@ function Conversation({ messages, isNewConversation, goToConversationList, user,
   }
 
   const color = data.uiOptions && data.uiOptions.color;
+  const placeholder = isNewConversation ? 'Send a message ...' : 'Write a reply ...';
+
   return (
     <div className="erxes-messenger">
       <TopBar
@@ -54,7 +65,7 @@ function Conversation({ messages, isNewConversation, goToConversationList, user,
         onButtonClick={goToConversationList}
       />
       <MessagesList data={data} messages={messages} />
-      <MessageSender placeholder={isNewConversation ? 'Send a message ...' : 'Write a reply ...'} />
+      <MessageSender isOnline={isOnline} placeholder={placeholder} />
     </div>
   );
 }
