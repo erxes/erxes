@@ -4,8 +4,10 @@ import { getTrackerLoader, composerOptions } from '/imports/react-ui/utils';
 import MainLayout from '../components/MainLayout';
 
 function composer(props, onData) {
+  const user = Meteor.user();
+
   onData(null, {
-    userId: Meteor.userId(),
+    userId: user && user._id,
     loggingIn: Meteor.loggingIn(),
   });
 }

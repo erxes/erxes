@@ -95,24 +95,34 @@ export default class Editor extends Component {
     collectedMentions.push(mention);
 
     this.setState({ collectedMentions });
-
-    // send mentioned user to parent
-    this.props.onAddMention(_.pluck(collectedMentions, '_id'));
   }
 
   getContent(editorState) {
     let content = toHTML(editorState);
+
+    // some mentioned people may have been deleted
+    const finalMentions = [];
 
     // replace mention content
     _.each(this.state.collectedMentions, m => {
       const toFind = `@${m.name}`;
       const re = new RegExp(toFind, 'g');
 
+      // collect only not removed mentions
+      const findResult = content.match(re);
+
+      if (findResult && findResult.length > 0) {
+        finalMentions.push(m);
+      }
+
       content = content.replace(
         re,
         `<span data-user-id='${m._id}' class='mentioned-person'>@${m.name}</span>`,
       );
     });
+
+    // send mentioned user to parent
+    this.props.onAddMention(_.pluck(finalMentions, '_id'));
 
     return content;
   }

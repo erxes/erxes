@@ -9,11 +9,11 @@ import { TAG_TYPES } from '/imports/api/tags/constants';
 import { Sidebar } from '../components';
 
 function composer({ channelId, queryParams }, onData) {
-  const user = Meteor.user();
+  const userId = Meteor.userId();
 
   // show only involved channels
   const channelsHandle = Meteor.subscribe('channels.list', {
-    memberIds: [user._id],
+    memberIds: [userId],
   });
 
   // show only available channels's related brands

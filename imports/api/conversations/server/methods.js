@@ -97,7 +97,7 @@ export const addMessage = new ValidatedMethod({
 
     // send reply to twitter
     if (integration.kind === KIND_CHOICES.TWITTER) {
-      return tweetReply(conversation, content);
+      return tweetReply(conversation, strip(content));
     }
 
     const messageId = Messages.insert({ ...doc, userId });
@@ -129,7 +129,7 @@ export const addMessage = new ValidatedMethod({
     // send reply to facebook
     if (integration.kind === KIND_CHOICES.FACEBOOK) {
       // when facebook kind is feed, assign commentId in extraData
-      facebookReply(conversation, content, messageId);
+      facebookReply(conversation, strip(content), messageId);
     }
 
     return messageId;

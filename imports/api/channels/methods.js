@@ -20,7 +20,7 @@ const sendNotifications = (channelId, _memberIds, userId) => {
       link: `/inbox/${channel._id}`,
 
       // exclude current user
-      receivers: memberIds.map(id => id !== userId),
+      receivers: memberIds.filter(id => id !== userId),
     });
   }
 };
