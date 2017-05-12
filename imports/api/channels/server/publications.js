@@ -4,10 +4,6 @@ import { Counts } from 'meteor/tmeasday:publish-counts';
 import { Channels } from '../channels';
 
 Meteor.publish('channels.list', function channelsList(params) {
-  if (!this.userId) {
-    return this.ready();
-  }
-
   // check params
   check(params, {
     memberIds: Match.Optional([String]),
@@ -15,6 +11,10 @@ Meteor.publish('channels.list', function channelsList(params) {
     limit: Match.Optional(Number),
     origin: Match.Optional(String),
   });
+
+  if (!this.userId) {
+    return this.ready();
+  }
 
   Counts.publish(this, 'channels.list.count', Channels.find(), {
     noReady: true,
