@@ -8,10 +8,10 @@ const propTypes = {
   customer: PropTypes.object.isRequired,
 };
 
-function InAppMessagingSection({ customer }) {
-  const { inAppMessagingData } = customer;
+function MessengerSection({ customer }) {
+  const { messengerData } = customer;
 
-  if (!inAppMessagingData) {
+  if (!messengerData) {
     return null;
   }
 
@@ -19,12 +19,12 @@ function InAppMessagingSection({ customer }) {
 
   return (
     <Wrapper.Sidebar.Section>
-      <Title>In app messaging</Title>
+      <Title>Messenger</Title>
       <ul className="filters no-link">
         <li>
           Status
           <span className="counter">
-            {inAppMessagingData.isActive
+            {messengerData.isActive
               ? <Label bsStyle="success">Online</Label>
               : <Label>Offline</Label>}
           </span>
@@ -32,13 +32,13 @@ function InAppMessagingSection({ customer }) {
         <li>
           Last online
           <span className="counter">
-            {moment(inAppMessagingData.lastSeenAt).fromNow()}
+            {moment(messengerData.lastSeenAt).fromNow()}
           </span>
         </li>
         <li>
           Session count
           <span className="counter">
-            {inAppMessagingData.sessionCount}
+            {messengerData.sessionCount}
           </span>
         </li>
       </ul>
@@ -46,6 +46,6 @@ function InAppMessagingSection({ customer }) {
   );
 }
 
-InAppMessagingSection.propTypes = propTypes;
+MessengerSection.propTypes = propTypes;
 
-export default InAppMessagingSection;
+export default MessengerSection;

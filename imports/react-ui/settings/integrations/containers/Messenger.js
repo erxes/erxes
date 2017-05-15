@@ -1,14 +1,14 @@
 import { compose } from 'react-komposer';
 import { getTrackerLoader, composerOptions } from '/imports/react-ui/utils';
-import { InAppMessaging } from '../components';
+import { Messenger } from '../components';
 import composer from './commonComposer';
 
 export default compose(
   getTrackerLoader(
     composer({
-      addMethodName: 'addInAppMessaging',
-      editMethodName: 'editInAppMessaging',
+      addMethodName: 'addMessenger',
+      editMethodName: 'editMessenger',
     }),
     composerOptions({ spinner: true }),
   ),
-)(InAppMessaging);
+)(Messenger);

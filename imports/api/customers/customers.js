@@ -8,7 +8,7 @@ import { Integrations } from '/imports/api/integrations/integrations';
 import { Brands } from '/imports/api/brands/brands';
 import { Tags } from '/imports/api/tags/tags';
 
-const inAppMessagingSchema = new SimpleSchema({
+const messengerMessagingSchema = new SimpleSchema({
   lastSeenAt: {
     type: Date,
     label: 'IAM: Last online',
@@ -90,8 +90,8 @@ const schema = new SimpleSchema({
   },
 
   // Integration data
-  inAppMessagingData: {
-    type: inAppMessagingSchema,
+  messengerMessagingData: {
+    type: messengerMessagingSchema,
     optional: true,
   },
   twitterData: {
@@ -168,7 +168,7 @@ Customers.helpers({
   },
   getIntegrationData() {
     return {
-      inAppMessaging: this.inAppMessagingData || {},
+      messengerMessaging: this.messengerMessagingData || {},
       twitter: this.twitterData || {},
       facebook: this.facebookData || {},
     };
@@ -177,9 +177,9 @@ Customers.helpers({
     const integration = this.integration();
     return Brands.findOne(integration && integration.brandId);
   },
-  getInAppMessagingCustomData() {
+  getMessengerCustomData() {
     const results = [];
-    const data = this.inAppMessagingData.customData || {};
+    const data = this.messengerMessagingData.customData || {};
 
     _.each(_.keys(data), key => {
       results.push({
@@ -214,7 +214,7 @@ Customers.publicFields = {
   email: 1,
   integrationId: 1,
   createdAt: 1,
-  inAppMessagingData: 1,
+  messengerMessagingData: 1,
   twitterData: 1,
   facebookData: 1,
   tagIds: 1,

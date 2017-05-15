@@ -4,7 +4,7 @@ import moment from 'moment';
 import { Wrapper } from '/imports/react-ui/layout/components';
 import { NameCard } from '/imports/react-ui/common';
 import TaggerSection from './TaggerSection';
-import InAppMessagingSection from './InAppMessagingSection';
+import MessengerSection from './MessengerSection';
 import TwitterSection from './TwitterSection';
 import FacebookSection from './FacebookSection';
 
@@ -31,7 +31,7 @@ class Sidebar extends Component {
         <div className="action-btn">
           <Dropdown id="contact-user" pullRight>
             <Button bsStyle="success">
-              <i className="icon ion-chatbox" /> Send an In App Message
+              <i className="icon ion-chatbox" /> Send an messanger message
             </Button>
             <Dropdown.Toggle bsStyle="success" />
             <Dropdown.Menu>
@@ -63,7 +63,7 @@ class Sidebar extends Component {
           </ul>
         </Wrapper.Sidebar.Section>
 
-        <InAppMessagingSection customer={customer} />
+        <MessengerSection customer={customer} />
         <TwitterSection customer={customer} />
         <FacebookSection customer={customer} />
         <TaggerSection customer={customer} />

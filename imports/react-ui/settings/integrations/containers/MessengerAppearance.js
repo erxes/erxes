@@ -3,19 +3,15 @@ import { compose } from 'react-komposer';
 import Alert from 'meteor/erxes-notifier';
 import { getTrackerLoader, composerOptions } from '/imports/react-ui/utils';
 import { Integrations } from '/imports/api/integrations/integrations';
-import { InAppMessagingAppearance } from '../components';
+import { MessengerAppearance } from '../components';
 
 const composer = (props, onData) => {
   const save = doc => {
-    Meteor.call(
-      'integrations.saveInAppMessagingApperance',
-      { _id: props.integrationId, doc },
-      error => {
-        if (error) return Alert.error(error.reason);
+    Meteor.call('integrations.saveMessengerApperance', { _id: props.integrationId, doc }, error => {
+      if (error) return Alert.error(error.reason);
 
-        return Alert.success('Successfully saved.');
-      },
-    );
+      return Alert.success('Successfully saved.');
+    });
   };
 
   const handler = Meteor.subscribe('integrations.getById', props.integrationId);
@@ -34,5 +30,5 @@ const composer = (props, onData) => {
 };
 
 export default compose(getTrackerLoader(composer, composerOptions({ spinner: true })))(
-  InAppMessagingAppearance,
+  MessengerAppearance,
 );
