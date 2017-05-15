@@ -30,7 +30,9 @@ function composer({ queryParams }, onData) {
   ) {
     onData(null, {
       // If there's no customer fields config, all fields will be selected
-      customerFields: (Meteor.user() && Meteor.user().configs.customerFields) ||
+      customerFields: (Meteor.user() &&
+        Meteor.user().configs &&
+        Meteor.user().configs.customerFields) ||
         Customers.getPublicFields(),
 
       customers: Customers.find({}, { sort: { 'inAppMessagingData.lastSeenAt': -1 } }).fetch(),
