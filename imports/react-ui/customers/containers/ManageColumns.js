@@ -7,7 +7,8 @@ import { ManageColumns } from '../components';
 function composer(props, onData) {
   // If there's no customer fields config, all fields will be selected
   const selected =
-    (Meteor.user() && Meteor.user().configs.customerFields) || Customers.getPublicFields();
+    (Meteor.user() && Meteor.user().configs && Meteor.user().configs.customerFields) ||
+    Customers.getPublicFields();
   const saveConfig = fields => {
     Meteor.call('users.configCustomerFields', { fields });
   };
