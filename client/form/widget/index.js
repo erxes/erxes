@@ -20,7 +20,17 @@ iframe.src = `${ROOT_URL}/form`;
 iframe.style.display = 'none';
 
 erxesContainer.appendChild(iframe);
-document.body.appendChild(erxesContainer);
+
+// if there is an placeholder for embed then add new iframe to it
+const embedContainer = document.querySelector('[data-erxes-embed]');
+
+if (embedContainer) {
+  embedContainer.appendChild(erxesContainer);
+
+// otherwise add to body
+} else {
+  document.body.appendChild(erxesContainer);
+}
 
 // meta
 const meta = document.createElement('meta');
@@ -54,7 +64,6 @@ window.addEventListener('message', (event) => {
 
     if (loadType === 'embedded') {
       erxesContainer.className = 'erxes-embed-iframe';
-      document.querySelector('[data-erxes-embed]').appendChild(erxesContainer);
     }
 
     if (loadType === 'popup') {
