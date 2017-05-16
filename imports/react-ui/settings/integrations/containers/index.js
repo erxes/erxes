@@ -1,7 +1,7 @@
 import List from './List';
-import InAppMessaging from './InAppMessaging';
-import InAppMessagingAppearance from './InAppMessagingAppearance';
-import InAppMessagingAvailability from './InAppMessagingAvailability';
+import Messenger from './Messenger';
+import MessengerAppearance from './MessengerAppearance';
+import MessengerAvailability from './MessengerAvailability';
 import Chat from './Chat';
 import Form from './Form';
 import Twitter from './Twitter';
@@ -11,9 +11,9 @@ export {
   List,
   Twitter,
   Facebook,
-  InAppMessaging,
-  InAppMessagingAppearance,
-  InAppMessagingAvailability,
+  Messenger,
+  MessengerAppearance,
+  MessengerAvailability,
   Chat,
   Form,
 };

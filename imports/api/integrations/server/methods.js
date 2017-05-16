@@ -6,12 +6,12 @@ import { Conversations } from '/imports/api/conversations/conversations';
 import { Messages } from '/imports/api/conversations/messages';
 import { Customers } from '/imports/api/customers/customers';
 import { Channels } from '/imports/api/channels/channels';
-import { Integrations, inAppSchema } from '../integrations';
+import { Integrations, messengerSchema } from '../integrations';
 import { KIND_CHOICES } from '../constants';
 
-// add in app messaging
-export const addInAppMessaging = new ValidatedMethod({
-  name: 'integrations.addInAppMessaging',
+// add messenger
+export const addMessenger = new ValidatedMethod({
+  name: 'integrations.addMessenger',
   mixins: [ErxesMixin],
 
   validate({ doc }) {
@@ -19,13 +19,13 @@ export const addInAppMessaging = new ValidatedMethod({
   },
 
   run({ doc }) {
-    return Integrations.insert(Object.assign(doc, { kind: KIND_CHOICES.IN_APP_MESSAGING }));
+    return Integrations.insert(Object.assign(doc, { kind: KIND_CHOICES.MESSENGER }));
   },
 });
 
-// edit in app messaging
-export const editInAppMessaging = new ValidatedMethod({
-  name: 'integrations.editInAppMessaging',
+// edit messenger
+export const editMessenger = new ValidatedMethod({
+  name: 'integrations.editMessenger',
   mixins: [ErxesMixin],
 
   validate({ _id, doc }) {
@@ -131,8 +131,8 @@ export const remove = new ValidatedMethod({
   },
 });
 
-export const saveInAppMessagingApperance = new ValidatedMethod({
-  name: 'integrations.saveInAppMessagingApperance',
+export const saveMessengerApperance = new ValidatedMethod({
+  name: 'integrations.saveMessengerApperance',
   mixins: [ErxesMixin],
 
   validate({ _id, doc }) {
@@ -145,16 +145,16 @@ export const saveInAppMessagingApperance = new ValidatedMethod({
   },
 });
 
-export const saveInAppMessagingAvailability = new ValidatedMethod({
-  name: 'integrations.saveInAppMessagingAvailability',
+export const saveMessengerAvailability = new ValidatedMethod({
+  name: 'integrations.saveMessengerAvailability',
   mixins: [ErxesMixin],
 
   validate({ _id, doc }) {
     check(_id, String);
-    check(doc, inAppSchema);
+    check(doc, messengerSchema);
   },
 
   run({ _id, doc }) {
-    return Integrations.update({ _id }, { $set: { inAppData: doc } });
+    return Integrations.update({ _id }, { $set: { messengerData: doc } });
   },
 });

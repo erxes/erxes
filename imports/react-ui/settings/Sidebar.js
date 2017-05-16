@@ -51,8 +51,8 @@ function Sidebar() {
         </QuickButtons>
         <ul className="filters">
           <li>
-            <a href={'/settings/integrations?kind=in_app_messaging'}>
-              <i className="icon ion-arrow-right-b" />Inn app messaging
+            <a href={'/settings/integrations?kind=messenger'}>
+              <i className="icon ion-arrow-right-b" />Messenger
             </a>
           </li>
           <li>

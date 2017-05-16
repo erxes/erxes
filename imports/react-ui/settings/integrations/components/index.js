@@ -4,9 +4,9 @@ import Facebook from './Facebook';
 import AddIntegration from './AddIntegration';
 import Common from './Common';
 import Form from './Form';
-import InAppMessaging from './InAppMessaging';
-import InAppMessagingAppearance from './InAppMessagingAppearance';
-import InAppMessagingAvailability from './InAppMessagingAvailability';
+import Messenger from './Messenger';
+import MessengerAppearance from './MessengerAppearance';
+import MessengerAvailability from './MessengerAvailability';
 import Chat from './Chat';
 
 export {
@@ -15,9 +15,9 @@ export {
   Twitter,
   Facebook,
   Form,
-  InAppMessaging,
-  InAppMessagingAppearance,
-  InAppMessagingAvailability,
+  Messenger,
+  MessengerAppearance,
+  MessengerAvailability,
   Chat,
   Common,
 };

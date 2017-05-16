@@ -3,7 +3,7 @@ import { Button } from 'react-bootstrap';
 import Alert from 'meteor/erxes-notifier';
 import { ModalTrigger, Tip, ActionButtons } from '/imports/react-ui/common';
 import { KIND_CHOICES } from '/imports/api/integrations/constants';
-import { Chat, Form, InAppMessaging } from '../containers';
+import { Chat, Form, Messenger } from '../containers';
 
 const propTypes = {
   integration: PropTypes.object.isRequired,
@@ -41,13 +41,13 @@ class Row extends Component {
       </Button>
     );
 
-    if (kind === KIND_CHOICES.IN_APP_MESSAGING) {
+    if (kind === KIND_CHOICES.MESSENGER) {
       return (
         <div style={{ display: 'inline-block' }}>
           <Tip text="Appearance">
             <Button
               bsStyle="link"
-              href={`/settings/integrations/in_app_messaging/appearance/${integration._id}`}
+              href={`/settings/integrations/messenger/appearance/${integration._id}`}
             >
               <i className="ion-paintbucket" />
             </Button>
@@ -56,14 +56,14 @@ class Row extends Component {
           <Tip text="Hours & Availability">
             <Button
               bsStyle="link"
-              href={`/settings/integrations/in_app_messaging/availability/${integration._id}`}
+              href={`/settings/integrations/messenger/availability/${integration._id}`}
             >
               <i className="ion-gear-a" />
             </Button>
           </Tip>
 
           <ModalTrigger title="Edit integration" trigger={editTrigger}>
-            <InAppMessaging integration={integration} />
+            <Messenger integration={integration} />
           </ModalTrigger>
         </div>
       );

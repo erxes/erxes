@@ -54,8 +54,8 @@ const onlineHoursSchema = new SimpleSchema({
   },
 });
 
-// in app ==============
-export const inAppSchema = new SimpleSchema({
+// messenger ==============
+export const messengerSchema = new SimpleSchema({
   // manual, auto
   availabilityMethod: {
     type: String,
@@ -90,7 +90,7 @@ export const inAppSchema = new SimpleSchema({
 });
 
 Integrations.schema = new SimpleSchema({
-  // in app messaging, twitter ...
+  // messenger , twitter ...
   kind: {
     type: String,
     allowedValues: KIND_CHOICES.ALL_LIST,
@@ -112,9 +112,9 @@ Integrations.schema = new SimpleSchema({
     optional: true,
   },
 
-  // in app availability, and text options
-  inAppData: {
-    type: inAppSchema,
+  // messenger availability, and text options
+  messengerData: {
+    type: messengerSchema,
     optional: true,
   },
 
@@ -156,11 +156,11 @@ Integrations.publicFields = {
   formId: 1,
   formLoadType: 1,
   uiOptions: 1,
-  inAppData: 1,
+  messengerData: 1,
 };
 
 Factory.define('integration', Integrations, {
   name: () => faker.random.word(),
-  kind: KIND_CHOICES.IN_APP_MESSAGING,
+  kind: KIND_CHOICES.MESSENGER,
   brandId: () => Random.id(),
 });

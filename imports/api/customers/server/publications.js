@@ -128,7 +128,7 @@ Meteor.publishComposite('customers.list', function(queryString) {
         // TODO: Select customer fields based on current user's config
         fields: Customers.publicFields,
 
-        sort: { 'inAppMessagingData.lastSeenAt': -1 },
+        sort: { 'messengerData.lastSeenAt': -1 },
         limit: queryString.limit || 0,
       };
 
@@ -219,7 +219,7 @@ Meteor.publishComposite('customers.listForSegmentPreview', function(segment, lim
       const query = QueryBuilder.segments(segment);
       const options = {
         fields: Customers.publicFields,
-        sort: { 'inAppMessagingData.lastSeenAt': -1 },
+        sort: { 'messengerData.lastSeenAt': -1 },
         limit,
       };
 

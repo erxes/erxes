@@ -3,12 +3,12 @@ import { compose } from 'react-komposer';
 import Alert from 'meteor/erxes-notifier';
 import { getTrackerLoader, composerOptions } from '/imports/react-ui/utils';
 import { Integrations } from '/imports/api/integrations/integrations';
-import { InAppMessagingAvailability } from '../components';
+import { MessengerAvailability } from '../components';
 
 const composer = (props, onData) => {
   const save = doc => {
     Meteor.call(
-      'integrations.saveInAppMessagingAvailability',
+      'integrations.saveMessengerAvailability',
       { _id: props.integrationId, doc },
       error => {
         if (error) return Alert.error(error.reason);
@@ -27,11 +27,11 @@ const composer = (props, onData) => {
   const integration = Integrations.findOne(props.integrationId);
 
   return onData(null, {
-    prevOptions: integration.inAppData || {},
+    prevOptions: integration.messengerData || {},
     save,
   });
 };
 
 export default compose(getTrackerLoader(composer, composerOptions({ spinner: true })))(
-  InAppMessagingAvailability,
+  MessengerAvailability,
 );
