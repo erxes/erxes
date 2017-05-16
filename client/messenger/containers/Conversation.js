@@ -1,7 +1,7 @@
 import React from 'react';
 import gql from 'graphql-tag';
 import { connect } from 'react-redux';
-import { graphql } from 'react-apollo';
+import { graphql, compose } from 'react-apollo';
 import Subscriber from './Subscriber';
 import { connection } from '../connection';
 import { changeRoute, changeConversation } from '../actions/messenger';
@@ -87,6 +87,7 @@ class Conversation extends Subscriber {
       ...props,
       messages,
       user,
+      isOnline: props.data.isMessengerOnline,
       data: connection.data,
     };
 
@@ -112,9 +113,9 @@ const mapDisptachToProps = dispatch => ({
   },
 });
 
-const withData = graphql(
+const query = graphql(
   gql`
-    query ($conversationId: String!) {
+    query ($conversationId: String!, $integrationId: String!) {
       messages(conversationId: $conversationId) {
         ${messageQuery}
       }
@@ -126,16 +127,20 @@ const withData = graphql(
           fullName
         }
       }
+
+      isMessengerOnline(integrationId: $integrationId)
     }
   `,
   {
     options: ownProps => ({
       fetchPolicy: 'network-only',
-      variables: { conversationId: ownProps.conversationId },
+      pollInterval: 30000,
+      variables: {
+        conversationId: ownProps.conversationId,
+        integrationId: connection.data.integrationId,
+      },
     }),
   },
 );
 
-const WithData = withData(Conversation);
-
-export default connect(mapStateToProps, mapDisptachToProps)(WithData);
+export default connect(mapStateToProps, mapDisptachToProps)(query(Conversation))
