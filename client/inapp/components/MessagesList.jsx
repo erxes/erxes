@@ -5,6 +5,7 @@ import { Message } from '../components';
 
 const propTypes = {
   messages: PropTypes.array.isRequired,
+  isOnline: PropTypes.bool,
   data: PropTypes.object,
 };
 
@@ -24,8 +25,8 @@ class MessagesList extends Component {
     }
   }
 
-  renderAwayMessage(inAppData) {
-    if (inAppData && !inAppData.isOnline && inAppData.awayMessage) {
+  renderAwayMessage(isOnline, inAppData) {
+    if (inAppData && !isOnline && inAppData.awayMessage) {
       return (
         <li className="erxes-spacial-message away">
           {inAppData.awayMessage}
@@ -35,8 +36,8 @@ class MessagesList extends Component {
     return null;
   }
 
-  renderWelcomeMessage(inAppData) {
-    if (inAppData && inAppData.isOnline && inAppData.welcomeMessage) {
+  renderWelcomeMessage(isOnline, inAppData) {
+    if (inAppData && isOnline && inAppData.welcomeMessage) {
       return (
         <li className="erxes-spacial-message">
           {inAppData.welcomeMessage}
@@ -47,7 +48,7 @@ class MessagesList extends Component {
   }
 
   render() {
-    const { data } = this.props;
+    const { isOnline, data } = this.props;
     const color = data.uiOptions && data.uiOptions.color;
     const bg = data.uiOptions && data.uiOptions.wallpaper;
     const inAppData = data.inAppData;
@@ -58,13 +59,13 @@ class MessagesList extends Component {
         className={messagesClasses}
         ref={node => { this.node = node; }}
       >
-        {this.renderWelcomeMessage(inAppData)}
+        {this.renderWelcomeMessage(isOnline, inAppData)}
         {
           this.props.messages.map(message =>
             <Message color={color} key={message._id} {...message} />,
           )
         }
-        {this.renderAwayMessage(inAppData)}
+        {this.renderAwayMessage(isOnline, inAppData)}
       </ul>
     );
   }
