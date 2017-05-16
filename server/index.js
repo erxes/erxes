@@ -23,8 +23,8 @@ app.set('views', path.join(__dirname, 'views'));
 app.use('/build', express.static(path.join(__dirname, '../static')));
 
 // routes
-app.get('/inapp', (req, res) => {
-  res.render('widget', { type: 'inApp' });
+app.get('/messenger', (req, res) => {
+  res.render('widget', { type: 'messenger' });
 });
 
 app.get('/chat', (req, res) => {
