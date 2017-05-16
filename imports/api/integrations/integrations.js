@@ -90,7 +90,7 @@ export const messengerSchema = new SimpleSchema({
 });
 
 Integrations.schema = new SimpleSchema({
-  // messenger messaging, twitter ...
+  // messenger , twitter ...
   kind: {
     type: String,
     allowedValues: KIND_CHOICES.ALL_LIST,

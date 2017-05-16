@@ -9,7 +9,7 @@ import { Channels } from '/imports/api/channels/channels';
 import { Integrations, messengerSchema } from '../integrations';
 import { KIND_CHOICES } from '../constants';
 
-// add messenger messaging
+// add messenger
 export const addMessenger = new ValidatedMethod({
   name: 'integrations.addMessenger',
   mixins: [ErxesMixin],
@@ -23,7 +23,7 @@ export const addMessenger = new ValidatedMethod({
   },
 });
 
-// edit messenger messaging
+// edit messenger
 export const editMessenger = new ValidatedMethod({
   name: 'integrations.editMessenger',
   mixins: [ErxesMixin],
