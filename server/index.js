@@ -27,6 +27,11 @@ app.get('/messenger', (req, res) => {
   res.render('widget', { type: 'messenger' });
 });
 
+// remove this code after replacing all scripts
+app.get('/inapp', (req, res) => {
+  res.render('widget', { type: 'messenger' });
+});
+
 app.get('/chat', (req, res) => {
   res.render('widget', { type: 'chat' });
 });
