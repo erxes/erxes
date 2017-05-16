@@ -16,9 +16,9 @@ widgetConnect({
     return client.mutate({
       mutation: gql`
         mutation connect($brandCode: String!, $email: String!, $name: String) {
-          inAppConnect(brandCode: $brandCode, email: $email, name: $name) {
+          messengerConnect(brandCode: $brandCode, email: $email, name: $name) {
             integrationId,
-            inAppData,
+            messengerData,
             uiOptions,
             customerId,
           }
@@ -33,15 +33,15 @@ widgetConnect({
   },
 
   connectCallback: (data) => {
-    const inAppData = data.inAppConnect;
+    const messengerData = data.messengerConnect;
 
     // save connection info
-    connection.data = inAppData;
+    connection.data = messengerData;
 
     // send connected message to ws server and server will save given
     // data to connection. So when connection closed, we will use
     // customerId to mark customer as not active
-    wsClient.sendMessage({ type: 'inAppConnected', value: inAppData });
+    wsClient.sendMessage({ type: 'messengerConnected', value: messengerData });
   },
 
   AppContainer: App,

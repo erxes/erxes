@@ -1,7 +1,7 @@
 /* global ROOT_URL */
 
 /*
- * InApp message's embeddable script
+ * Messenger message's embeddable script
  */
 
 // css
@@ -15,7 +15,7 @@ erxesContainer.className = 'erxes-messenger-hidden';
 // add iframe
 let iframe = document.createElement('iframe');
 iframe.id = 'erxes-iframe';
-iframe.src = `${ROOT_URL}/inapp`;
+iframe.src = `${ROOT_URL}/messenger`;
 iframe.style.display = 'none';
 
 erxesContainer.appendChild(iframe);
