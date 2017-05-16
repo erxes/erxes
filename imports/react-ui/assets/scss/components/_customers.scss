@@ -1,0 +1,35 @@
+.customers-internal-notes-list {
+  list-style: none;
+  padding-left: 20px;
+  padding-right: 20px;
+
+  li {
+    margin-bottom: 15px;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+
+  .note {
+    background: $light-gray-background;
+    border-radius: $border-radius;
+    padding: 10px 12px;
+  }
+
+  .meta {
+    overflow: hidden;
+  }
+
+  .who,
+  .when,
+  .delete {
+    font-size: 11px;
+  }
+}
+
+.customers-internal-notes-form {
+  padding-left: 20px;
+  padding-right: 20px;
+  margin-bottom: 15px;
+}

@@ -183,6 +183,19 @@ Meteor.publishComposite('customers.details', function(id) {
           },
         ],
       },
+      // Publish the users who wrote internal notes for this customer
+      {
+        find(customer) {
+          const userIds =
+            customer.internalNotes && customer.internalNotes.map(note => note.createdBy);
+
+          if (!userIds) {
+            return this.ready();
+          }
+
+          return Meteor.users.find({ _id: { $in: userIds } });
+        },
+      },
     ],
   };
 });

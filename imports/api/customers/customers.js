@@ -63,6 +63,23 @@ const facebookSchema = new SimpleSchema({
   },
 });
 
+const internalNoteSchema = new SimpleSchema({
+  _id: {
+    type: String,
+    regEx: SimpleSchema.RegEx.Id,
+  },
+  content: {
+    type: String,
+  },
+  createdBy: {
+    type: String,
+    regEx: SimpleSchema.RegEx.Id,
+  },
+  createdDate: {
+    type: Date,
+  },
+});
+
 const schema = new SimpleSchema({
   name: {
     type: String,
@@ -87,6 +104,10 @@ const schema = new SimpleSchema({
   createdAt: {
     type: Date,
     label: 'Member since',
+  },
+  internalNotes: {
+    type: [internalNoteSchema],
+    optional: true,
   },
 
   // Integration data
@@ -218,13 +239,14 @@ Customers.publicFields = {
   twitterData: 1,
   facebookData: 1,
   tagIds: 1,
+  internalNotes: 1,
 };
 
 /**
  * This fields list is used for not displaying
  * internal use fields on customer segments form.
  */
-Customers.internalUseFields = ['tagIds', 'integrationId'];
+Customers.internalUseFields = ['tagIds', 'integrationId', 'internalNotes'];
 
 Factory.define('customer', Customers, {
   email: () => faker.internet.email(),
