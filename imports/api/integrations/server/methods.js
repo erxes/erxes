@@ -38,35 +38,6 @@ export const editMessenger = new ValidatedMethod({
   },
 });
 
-// add chat
-export const addChat = new ValidatedMethod({
-  name: 'integrations.addChat',
-  mixins: [ErxesMixin],
-
-  validate({ doc }) {
-    check(doc, { name: String, brandId: String });
-  },
-
-  run({ doc }) {
-    return Integrations.insert(Object.assign(doc, { kind: KIND_CHOICES.CHAT }));
-  },
-});
-
-// edit chat
-export const editChat = new ValidatedMethod({
-  name: 'integrations.editChat',
-  mixins: [ErxesMixin],
-
-  validate({ _id, doc }) {
-    check(_id, String);
-    check(doc, { name: String, brandId: String });
-  },
-
-  run({ _id, doc }) {
-    return Integrations.update({ _id }, { $set: doc });
-  },
-});
-
 // add form
 export const addForm = new ValidatedMethod({
   name: 'integrations.addForm',

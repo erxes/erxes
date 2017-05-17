@@ -56,11 +56,6 @@ function Sidebar() {
             </a>
           </li>
           <li>
-            <a href={'/settings/integrations?kind=chat'}>
-              <i className="icon ion-arrow-right-b" />Chat
-            </a>
-          </li>
-          <li>
             <a href={'/settings/integrations?kind=form'}>
               <i className="icon ion-arrow-right-b" />Form
             </a>

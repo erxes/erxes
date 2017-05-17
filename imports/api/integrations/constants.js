@@ -1,10 +1,9 @@
 export const KIND_CHOICES = {
   MESSENGER: 'messenger',
-  CHAT: 'chat',
   FORM: 'form',
   TWITTER: 'twitter',
   FACEBOOK: 'facebook',
-  ALL_LIST: ['messenger', 'chat', 'form', 'twitter', 'facebook'],
+  ALL_LIST: ['messenger', 'form', 'twitter', 'facebook'],
 };
 
 export const FORM_LOAD_TYPES = {

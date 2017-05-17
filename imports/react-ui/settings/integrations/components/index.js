@@ -7,7 +7,6 @@ import Form from './Form';
 import Messenger from './Messenger';
 import MessengerAppearance from './MessengerAppearance';
 import MessengerAvailability from './MessengerAvailability';
-import Chat from './Chat';
 
 export {
   AddIntegration,
@@ -18,6 +17,5 @@ export {
   Messenger,
   MessengerAppearance,
   MessengerAvailability,
-  Chat,
   Common,
 };

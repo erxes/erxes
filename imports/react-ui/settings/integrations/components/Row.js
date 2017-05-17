@@ -3,7 +3,7 @@ import { Button } from 'react-bootstrap';
 import Alert from 'meteor/erxes-notifier';
 import { ModalTrigger, Tip, ActionButtons } from '/imports/react-ui/common';
 import { KIND_CHOICES } from '/imports/api/integrations/constants';
-import { Chat, Form, Messenger } from '../containers';
+import { Form, Messenger } from '../containers';
 
 const propTypes = {
   integration: PropTypes.object.isRequired,
@@ -66,14 +66,6 @@ class Row extends Component {
             <Messenger integration={integration} />
           </ModalTrigger>
         </div>
-      );
-    }
-
-    if (kind === KIND_CHOICES.CHAT) {
-      return (
-        <ModalTrigger title="Edit integration" trigger={editTrigger}>
-          <Chat integration={integration} />
-        </ModalTrigger>
       );
     }
 
