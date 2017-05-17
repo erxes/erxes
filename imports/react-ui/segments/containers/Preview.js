@@ -13,11 +13,12 @@ function composer({ segment }, onData) {
   if (customersHandle.ready()) {
     const customers = Customers.find(
       {},
-      { sort: { 'inAppMessagingData.lastSeenAt': -1 }, limit },
+      { sort: { 'messengerData.lastSeenAt': -1 }, limit },
     ).fetch();
 
     onData(null, {
       customers,
+      customerFields: Customers.getPublicFields(),
     });
   }
 }

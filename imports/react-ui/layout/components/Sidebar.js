@@ -13,7 +13,7 @@ function Sidebar({ children, size = 'medium', fixedContent }) {
   return (
     <div className={`sidebar ${size}`}>
       {fixedContent}
-      <Scrollbars className="scroll-wrapper" style={{ flex: 1, height: 'auto' }} autoHide>
+      <Scrollbars style={{ flex: 1, height: 'auto' }} autoHide>
         {children}
       </Scrollbars>
     </div>

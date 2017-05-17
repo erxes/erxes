@@ -5,15 +5,7 @@ import { Factory } from 'meteor/dburles:factory';
 import { assert } from 'meteor/practicalmeteor:chai';
 import { Integrations } from '../integrations';
 import { KIND_CHOICES } from '../constants';
-import {
-  addInAppMessaging,
-  editInAppMessaging,
-  addChat,
-  editChat,
-  addForm,
-  editForm,
-  remove,
-} from './methods';
+import { addMessenger, editMessenger, addForm, editForm, remove } from './methods';
 
 describe('integrations', function() {
   describe('methods', function() {
@@ -27,58 +19,26 @@ describe('integrations', function() {
       brandId = Factory.create('brand', { userId })._id;
     });
 
-    it('add in app messsaging', function() {
-      addInAppMessaging._execute({ userId }, { doc: { name: 'Foo', brandId } });
+    it('add messenger messsaging', function() {
+      addMessenger._execute({ userId }, { doc: { name: 'Foo', brandId } });
 
       const integration = Integrations.findOne({ name: 'Foo' });
 
       // check field values
-      assert.equal(integration.kind, KIND_CHOICES.IN_APP_MESSAGING);
+      assert.equal(integration.kind, KIND_CHOICES.MESSENGER);
       assert.equal(integration.brandId, brandId);
     });
 
-    it('edit in app messsaging', function() {
-      const kind = KIND_CHOICES.IN_APP_MESSAGING;
-      const inApp = Factory.create('integration', { name: 'Old in app', kind });
-      const nameToUpdate = 'updated in app';
+    it('edit messenger messsaging', function() {
+      const kind = KIND_CHOICES.MESSENGER;
+      const messenger = Factory.create('integration', { name: 'Old messenger', kind });
+      const nameToUpdate = 'updated messenger';
       const brandToUpdate = Factory.create('brand')._id;
 
-      editInAppMessaging._execute(
+      editMessenger._execute(
         { userId },
         {
-          _id: inApp._id,
-          doc: { name: nameToUpdate, brandId: brandToUpdate },
-        },
-      );
-
-      const integration = Integrations.findOne({});
-
-      // check field values
-      assert.equal(integration.name, nameToUpdate);
-      assert.equal(integration.kind, kind);
-      assert.equal(integration.brandId, brandToUpdate);
-    });
-
-    it('add chat', function() {
-      addChat._execute({ userId }, { doc: { name: 'Foo', brandId } });
-
-      const integration = Integrations.findOne({ name: 'Foo' });
-
-      // check field values
-      assert.equal(integration.kind, KIND_CHOICES.CHAT);
-      assert.equal(integration.brandId, brandId);
-    });
-
-    it('edit chat', function() {
-      const kind = KIND_CHOICES.CHAT;
-      const chat = Factory.create('integration', { name: 'Old chat', kind });
-      const nameToUpdate = 'updated chat';
-      const brandToUpdate = Factory.create('brand')._id;
-
-      editChat._execute(
-        { userId },
-        {
-          _id: chat._id,
+          _id: messenger._id,
           doc: { name: nameToUpdate, brandId: brandToUpdate },
         },
       );

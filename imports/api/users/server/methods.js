@@ -5,6 +5,7 @@ import { Accounts } from 'meteor/accounts-base';
 import { sendEmail } from '/imports/api/server/utils';
 import { ErxesMixin } from '/imports/api/utils';
 import { Channels } from '/imports/api/channels/channels';
+import { Customers } from '/imports/api/customers/customers';
 import {
   CreateInvitationSchema,
   UpdateInvitationSchema,
@@ -250,6 +251,37 @@ export const configGetNotificationByEmail = new ValidatedMethod({
   run({ isAllowed }) {
     Meteor.users.update(this.userId, {
       $set: { 'details.getNotificationByEmail': isAllowed },
+    });
+  },
+});
+
+/**
+ * Saves column selection config of customers list table
+ * to the user's object
+ */
+export const configCustomerFields = new ValidatedMethod({
+  name: 'users.configCustomerFields',
+  mixins: [ErxesMixin],
+
+  validate({ fields }) {
+    check(fields, Array);
+
+    // Check if the fields are correctly named
+    const schemaFields = Customers.getPublicFields();
+    fields.forEach(({ key }) => {
+      const isCorrectField = schemaFields.find(f => f.key === key);
+      if (!isCorrectField) {
+        throw new Meteor.Error(
+          'users.configs.wrongCsutomerField',
+          'Wrong customer field declaration.',
+        );
+      }
+    });
+  },
+
+  run({ fields }) {
+    Meteor.users.update(this.userId, {
+      $set: { 'configs.customerFields': fields },
     });
   },
 });

@@ -1,16 +1,16 @@
 import Common from './Common';
 
-class InAppMessaging extends Common {
+class Messenger extends Common {
   static getInstallCode(brandCode) {
     return `
       <script>
         window.erxesSettings = {
           brand_id: "${brandCode}"
         };
-        ${InAppMessaging.installCodeIncludeScript('inApp')}
+        ${Messenger.installCodeIncludeScript('messenger')}
       </script>
     `;
   }
 }
 
-export default InAppMessaging;
+export default Messenger;

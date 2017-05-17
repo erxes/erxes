@@ -23,7 +23,7 @@ function Details({ customer, conversations }) {
         header={<Wrapper.Header breadcrumb={breadcrumb} />}
         leftSidebar={<Sidebar customer={customer} />}
         content={<Content conversations={conversations} />}
-        rightSidebar={<RightSidebar />}
+        rightSidebar={<RightSidebar customerId={customer._id} />}
       />
     </div>
   );

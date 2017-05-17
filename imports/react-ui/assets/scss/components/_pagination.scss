@@ -23,3 +23,16 @@
     }
   }
 }
+
+.section.full {
+  .paginate-wrapper {
+    display: flex;
+    min-height: auto;
+    flex-direction: column;
+    flex: 1;
+
+    .paginate-button {
+      margin-top: auto;
+    }
+  }
+}

@@ -11,9 +11,9 @@ function composer(props, onData) {
     const cb = (error, messageId) => {
       const integration = props.conversation.integration();
 
-      // if conversation is in app messaging then notify graphql subscription
+      // if conversation is messenger then notify graphql subscription
       // server that new message inserted
-      if (!error && integration.kind === KIND_CHOICES.IN_APP_MESSAGING) {
+      if (!error && integration.kind === KIND_CHOICES.MESSENGER) {
         newMessage(messageId);
       }
 

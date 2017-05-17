@@ -18,7 +18,7 @@ const RESTRICTED_METHODS = [
   'integrations.add',
   'integrations.edit',
   'integrations.remove',
-  'integrations.addInAppMessaging',
+  'integrations.addMessenger',
   'integrations.addTwitter',
   'integrations.addFacebook',
 ];

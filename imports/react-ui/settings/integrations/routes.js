@@ -3,13 +3,7 @@ import { mount } from 'react-mounter';
 import { MainLayout } from '/imports/react-ui/layout/containers';
 import settingsRoute from '../routes';
 
-import {
-  List,
-  InAppMessaging,
-  Twitter,
-  InAppMessagingAppearance,
-  InAppMessagingAvailability,
-} from './containers';
+import { List, Messenger, Twitter, MessengerAppearance, MessengerAvailability } from './containers';
 
 import { AddIntegration } from './components';
 
@@ -17,30 +11,30 @@ const integrations = settingsRoute.group({
   prefix: '/integrations',
 });
 
-integrations.route('/in_app_messaging', {
-  name: 'settings/integrations/in_app_messaging',
+integrations.route('/messenger', {
+  name: 'settings/integrations/messenger',
 
   action() {
-    mount(MainLayout, { content: <InAppMessaging /> });
+    mount(MainLayout, { content: <Messenger /> });
   },
 });
 
-integrations.route('/in_app_messaging/appearance/:integrationId', {
-  name: 'settings/integrations/in_app_messaging/appearance',
+integrations.route('/messenger/appearance/:integrationId', {
+  name: 'settings/integrations/messenger/appearance',
 
   action({ integrationId }) {
     mount(MainLayout, {
-      content: <InAppMessagingAppearance integrationId={integrationId} />,
+      content: <MessengerAppearance integrationId={integrationId} />,
     });
   },
 });
 
-integrations.route('/in_app_messaging/availability/:integrationId', {
-  name: 'settings/integrations/in_app_messaging/availability',
+integrations.route('/messenger/availability/:integrationId', {
+  name: 'settings/integrations/messenger/availability',
 
   action({ integrationId }) {
     mount(MainLayout, {
-      content: <InAppMessagingAvailability integrationId={integrationId} />,
+      content: <MessengerAvailability integrationId={integrationId} />,
     });
   },
 });

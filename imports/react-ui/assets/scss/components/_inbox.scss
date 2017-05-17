@@ -99,10 +99,6 @@ $fbpost-barckground: #f6f7f9;
     &.simple-row {
       padding: 15px;
 
-      header {
-        margin-bottom: 5px;
-      }
-
       time {
         font-size: 12px;
       }
@@ -113,6 +109,13 @@ $fbpost-barckground: #f6f7f9;
 
       .content {
         margin: 5px 0;
+        font-size: 12px;
+        max-height: 36px;
+        line-height: 18px;
+
+        .brandname {
+          font-weight: 600;
+        }
       }
 
       .tags {
@@ -123,7 +126,6 @@ $fbpost-barckground: #f6f7f9;
 }
 
 .conversation {
-
   .message {
     margin-bottom: 10px;
     padding-right: 20%;

@@ -4,6 +4,7 @@
   display: flex;
   flex-direction: column;
   flex-shrink: 0;
+  border-radius: $border-radius;
 
   &.narrow {
     width: $sidebar-width-narrow;
@@ -60,9 +61,18 @@
         }
       }
     }
-    
+
     &.full {
-      flex: 1;
+      min-height: 100%;
+      padding-bottom: 0;
+      display: flex;
+
+      > div {
+        width: 100%;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+      }
     }
 
     &:last-child {
@@ -199,12 +209,5 @@
 
   .popover-list {
     max-height: none;
-  }
-}
-
-.scroll-wrapper {
-  > div {
-    display: flex;
-    flex-direction: column;
   }
 }

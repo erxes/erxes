@@ -33,11 +33,11 @@ class RightSidebar extends Component {
     return null;
   }
 
-  renderInAppMessagingData() {
+  renderMessengerData() {
     const customer = this.props.conversation.customer();
     const integration = this.props.conversation.integration();
-    if (integration.kind === 'in_app_messaging') {
-      return customer.getInAppMessagingCustomData().map(data => (
+    if (integration.kind === 'messenger') {
+      return customer.getMessengerCustomData().map(data => (
         <li key={data.value}>
           <span className="capitalize">{data.name}</span>
           <span className="counter">{data.value}</span>
@@ -98,7 +98,7 @@ class RightSidebar extends Component {
               {this.renderTwitterData()}
             </li>
 
-            {this.renderInAppMessagingData()}
+            {this.renderMessengerData()}
             {this.renderFacebookData()}
           </ul>
           <div className="box">
@@ -243,6 +243,8 @@ class RightSidebar extends Component {
                   icon={<i className="ion-pricetags" />}
                   text="Not tagged yet"
                   size="small"
+                  linkUrl={FlowRouter.path('tags/list', { type: 'conversation' })}
+                  linkText="Manage tags"
                 />
               : null}
           </ul>

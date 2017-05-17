@@ -12,7 +12,11 @@ import { Customers } from '../customers';
 import Segments from '../segments';
 import QueryBuilder from '../queryBuilder';
 
-Meteor.publishComposite('customers.list', function customersList(queryString) {
+/**
+ * Publishes customers
+ * @param {Object} queryString URL query parameters used for filtering customers
+ */
+Meteor.publishComposite('customers.list', function(queryString) {
   return {
     find() {
       check(queryString, {
@@ -71,12 +75,22 @@ Meteor.publishComposite('customers.list', function customersList(queryString) {
       }
 
       const countCustomers = (name, query) => {
-        Meteor.defer(() => {
-          Counts.publish(this, `customers.${name}`, Customers.find(query, { fields: { _id: 1 } }), {
+        // counts must be related to each other
+        const findQuery = Object.assign({}, selector, query);
+
+        Counts.publish(
+          this,
+          `customers.${name}`,
+          Customers.find(findQuery, { fields: { _id: 1 } }),
+          {
             noReady: true,
-          });
-        });
+            nonReactive: true,
+          },
+        );
       };
+
+      // Count current filtered customers
+      countCustomers('list.count', selector);
 
       // Count customers by segments
       Segments.find().fetch().forEach(segment => {
@@ -110,12 +124,11 @@ Meteor.publishComposite('customers.list', function customersList(queryString) {
         countCustomers(`tag.${tag._id}`, { tagIds: tag._id });
       });
 
-      // Count current filtered customers
-      countCustomers('list.count', selector);
-
       const options = {
+        // TODO: Select customer fields based on current user's config
         fields: Customers.publicFields,
-        sort: { 'inAppMessagingData.lastSeenAt': -1 },
+
+        sort: { 'messengerData.lastSeenAt': -1 },
         limit: queryString.limit || 0,
       };
 
@@ -133,7 +146,11 @@ Meteor.publishComposite('customers.list', function customersList(queryString) {
   };
 });
 
-Meteor.publishComposite('customers.details', function customersDetails(id) {
+/**
+ * Publishes customer details data
+ * @param {String} id Customer id
+ */
+Meteor.publishComposite('customers.details', function(id) {
   return {
     find() {
       check(id, String);
@@ -166,14 +183,30 @@ Meteor.publishComposite('customers.details', function customersDetails(id) {
           },
         ],
       },
+      // Publish the users who wrote internal notes for this customer
+      {
+        find(customer) {
+          const userIds =
+            customer.internalNotes && customer.internalNotes.map(note => note.createdBy);
+
+          if (!userIds) {
+            return this.ready();
+          }
+
+          return Meteor.users.find({ _id: { $in: userIds } });
+        },
+      },
     ],
   };
 });
 
-Meteor.publishComposite('customers.listForSegmentPreview', function listForSegmentPreview(
-  segment,
-  limit = 0,
-) {
+/**
+ * Publishes customers list for the preview
+ * when creating/editing a customer segment
+ * @param {Object} segment   Segment that's being created/edited
+ * @param {Number} [limit=0] Customers limit (for pagination)
+ */
+Meteor.publishComposite('customers.listForSegmentPreview', function(segment, limit = 0) {
   return {
     find() {
       check(segment, Object);
@@ -186,7 +219,7 @@ Meteor.publishComposite('customers.listForSegmentPreview', function listForSegme
       const query = QueryBuilder.segments(segment);
       const options = {
         fields: Customers.publicFields,
-        sort: { 'inAppMessagingData.lastSeenAt': -1 },
+        sort: { 'messengerData.lastSeenAt': -1 },
         limit,
       };
 
@@ -213,6 +246,9 @@ Meteor.publishComposite('customers.listForSegmentPreview', function listForSegme
   };
 });
 
+/**
+ * Publishes all customer segments
+ */
 Meteor.publishComposite('customers.segments', {
   find() {
     if (!this.userId) {
@@ -223,7 +259,11 @@ Meteor.publishComposite('customers.segments', {
   },
 });
 
-Meteor.publishComposite('customers.segmentById', function segmentById(id) {
+/**
+ * Publishes single segment
+ * @param {String} id Segment id
+ */
+Meteor.publishComposite('customers.segmentById', function(id) {
   return {
     find() {
       check(id, String);
