@@ -6,6 +6,12 @@
 }
 
 .erxes-embed-iframe {
+  position: relative !important;
+  margin: 0 auto;
+  height: 100%;
+}
+
+.erxes-embed-iframe > iframe {
   width: 100%;
   border: none;
   margin: 0 auto;
