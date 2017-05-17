@@ -33,7 +33,7 @@ app.get('/inapp', (req, res) => {
 });
 
 app.get('/chat', (req, res) => {
-  res.render('widget', { type: 'chat' });
+  res.render('widget', { type: 'messenger' });
 });
 
 app.get('/form', (req, res) => {
