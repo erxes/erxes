@@ -10,8 +10,6 @@ module.exports = {
   entry: {
     messenger: './client/messenger/index.js',
     messengerWidget: './client/messenger/widget/index.js',
-    chat: './client/chat/index.js',
-    chatWidget: './client/chat/widget/index.js',
     form: './client/form/index.js',
     formWidget: './client/form/widget/index.js',
   },
