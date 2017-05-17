@@ -7,7 +7,11 @@
 }
 
 /*loader*/
-#erxes-container:before {
+[data-erxes-embed] {
+  position: relative;
+}
+
+[data-erxes-embed]:before {
   content: ' ';
   position: absolute;
   right: 50%;
