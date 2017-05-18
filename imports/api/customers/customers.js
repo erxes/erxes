@@ -92,6 +92,10 @@ const schema = new SimpleSchema({
     optional: true,
     label: 'Email',
   },
+  isUser: {
+    type: Boolean,
+    label: 'Is user of one of our products',
+  },
   integrationId: {
     type: String,
     regEx: SimpleSchema.RegEx.Id,
@@ -233,6 +237,7 @@ Customers.deny({
 Customers.publicFields = {
   name: 1,
   email: 1,
+  isUser: 1,
   integrationId: 1,
   createdAt: 1,
   messengerData: 1,
