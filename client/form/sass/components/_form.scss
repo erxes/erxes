@@ -1,3 +1,5 @@
+$break-small: 415px;
+$break-medium: 500px;
 // shoutbox form
 .shoutbox-form {
   font-family: 'Roboto', Helvetica, Arial, sans-serif;
@@ -16,6 +18,14 @@
   overflow: hidden;
   right: 8px;
   bottom: 86px;
+
+  @media screen and (max-width: $break-small) {
+    width: 100%;
+    max-height: none;
+    height: 100%;
+    right: 0;
+    bottom: 0;
+  }
 }
 
 // modal form
@@ -36,6 +46,15 @@
     @include prefix((
       transition: transform 0.3s ease
     ), webkit moz ms o);
+
+    @include prefix((
+      transform: translate(0,-25%)
+    ), webkit moz ms o);
+
+    @media screen and (max-width: $break-medium) {
+      width: 100%;
+      margin: 0;
+    }
   }
 
   &.open {
@@ -81,6 +100,12 @@
       cursor: pointer;
       background-color: rgba($black, .2);
     }
+
+    @media screen and (max-width: $break-medium) {
+      margin-right: auto;
+      right: 10px;
+      top: 8px;
+    }
   }
 }
 
@@ -89,6 +114,7 @@
   margin: 0;
   font-size: 14px;
   line-height: 1.5;
+  height: 100%;
   display: flex;
   flex-direction: column;
   border-radius: 4px;
@@ -133,14 +159,18 @@
     margin-bottom: 15px;
 
     .control-label {
-      display: inline-block;
       max-width: 100%;
-      margin-bottom: 5px;
       font-weight: 500;
 
       > .required {
-        margin-left: 4px;
+        margin-left: 2px;
       }
+    }
+
+    .description {
+      color: #666;
+      font-size: 13px;
+      display: block;
     }
 
     .form-control {
@@ -149,6 +179,7 @@
       height: 34px;
       padding: 6px 12px;
       line-height: 1.42857143;
+      margin-top: 8px;
       background-color: #fff;
       background-image: none;
       border: 1px solid $border-color;
@@ -172,6 +203,10 @@
       &:focus {
         border-color: lighten($main-color, 20%)
       }
+    }
+
+    .check-control {
+      margin-top: 8px;
     }
 
     textarea.form-control {

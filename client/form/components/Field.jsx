@@ -39,7 +39,7 @@ export default class Field extends React.Component {
 
   static renderCheckboxes(name, options, onChange) {
     return (
-      <div>
+      <div className="check-control">
         {options.map((option, index) => (
           <div key={index}>
             <label>
@@ -143,9 +143,8 @@ export default class Field extends React.Component {
           {field.text}
           {field.isRequired ? <span className="required">*</span> : null}:
         </label>
-
         <span className="error">{error && error.text}</span>
-
+        {field.description ? <span className="description">{field.description}</span> : null}
         {this.renderControl()}
       </div>
     );

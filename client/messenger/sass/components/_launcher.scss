@@ -1,6 +1,6 @@
 $break-small: 415px;
 
-.shoutbox-launcher {
+.erxes-launcher {
   color: $white;
   line-height: 56px;
   text-align: center;
@@ -41,7 +41,7 @@ $break-small: 415px;
 
   @media screen and (max-width: $break-small) {
     &.close {
-      top: 8px;
+      top: 15px;
       right: 15px;
       width: 40px;
       height: 40px;

@@ -9,13 +9,34 @@
 // css
 import './index.css';
 
+// container
+const erxesContainer = document.createElement('div');
+erxesContainer.id = 'erxes-container';
+
 // add iframe
 let iframe = document.createElement('iframe');
 iframe.id = 'erxes-iframe';
 iframe.src = `${ROOT_URL}/form`;
 iframe.style.display = 'none';
 
-document.body.appendChild(iframe);
+erxesContainer.appendChild(iframe);
+
+// if there is an placeholder for embed then add new iframe to it
+const embedContainer = document.querySelector('[data-erxes-embed]');
+
+if (embedContainer) {
+  embedContainer.appendChild(erxesContainer);
+
+// otherwise add to body
+} else {
+  document.body.appendChild(erxesContainer);
+}
+
+// meta
+const meta = document.createElement('meta');
+meta.name = 'viewport';
+meta.content = 'initial-scale=1, width=device-width';
+document.getElementsByTagName('head')[0].appendChild(meta);
 
 // send erxes settings to iframe
 iframe = document.querySelector('#erxes-iframe');
@@ -42,22 +63,24 @@ window.addEventListener('message', (event) => {
     const loadType = data.connectionInfo.formConnect.formLoadType;
 
     if (loadType === 'embedded') {
-      iframe.className = 'erxes-embed-iframe';
-      document.querySelector('[data-erxes-embed]').appendChild(iframe);
+      erxesContainer.className = 'erxes-embed-iframe';
     }
 
     if (loadType === 'popup') {
-      iframe.className = 'erxes-modal-iframe hidden';
+      erxesContainer.className = 'erxes-modal-iframe hidden';
 
       document.querySelectorAll('[data-erxes-modal]').forEach((elm) => {
         elm.addEventListener('click', () => {
-          iframe.className = 'erxes-modal-iframe';
+          const iframeDocument = iframe.contentWindow.document;
+
+          erxesContainer.className = 'erxes-modal-iframe';
+          iframeDocument.querySelector('.modal-form').className = 'modal-form open';
         });
       });
     }
 
     if (loadType === 'shoutbox') {
-      iframe.className = 'erxes-shoutbox-iframe';
+      erxesContainer.className = 'erxes-shoutbox-iframe erxes-shoutbox-form-hidden';
     }
 
     return;
@@ -65,12 +88,14 @@ window.addEventListener('message', (event) => {
 
   // user clicked the close button in modal
   if (data.closeModal) {
-    iframe.className = 'erxes-modal-iframe hidden';
+    const iframeDocument = iframe.contentWindow.document;
+    erxesContainer.className = 'erxes-modal-iframe hidden';
+    iframeDocument.querySelector('.modal-form').className = 'modal-form';
     return;
   }
 
   // user clicked shoutbox's widget
   if (data.fromShoutbox) {
-    iframe.className = `erxes-shoutbox-iframe erxes-shoutbox-form-${data.isVisible ? 'shown' : 'hidden'}`;
+    erxesContainer.className = `erxes-shoutbox-iframe erxes-shoutbox-form-${data.isVisible ? 'shown' : 'hidden'}`;
   }
 });
