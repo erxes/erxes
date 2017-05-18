@@ -60,6 +60,9 @@ export const sendVisitorFirstMessage = (email, message) =>
       dispatch(sendMessage(message))
 
       .then(() => {
+        // change route
+        dispatch(changeRoute('conversation'));
+
         // mark as email received
         dispatch({ type: RECEIVE_EMAIL });
       });
