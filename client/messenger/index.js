@@ -12,6 +12,8 @@ widgetConnect({
   connectMutation: (event) => {
     const settings = event.data.settings;
 
+    const clientPassedEmail = settings.email;
+
     // retrieve previously cached email from local storage
     const cachedEmail = localStorage.getItem(EMAIL_LOCAL_STORAGE_KEY);
 
@@ -32,6 +34,10 @@ widgetConnect({
     return connect({
       brandCode: settings.brand_id,
       email: settings.email,
+
+      // if client passed email automatically then consider this as user
+      isUser: Boolean(clientPassedEmail),
+
       name: settings.name,
     });
   },

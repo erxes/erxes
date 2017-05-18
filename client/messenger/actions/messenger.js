@@ -47,6 +47,7 @@ export const sendVisitorFirstMessage = (email, message) =>
     connect({
       brandCode: connection.settings.brand_id,
       name: connection.settings.name,
+      isUser: false,
       email,
     })
 
