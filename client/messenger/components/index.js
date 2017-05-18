@@ -5,6 +5,8 @@ import ConversationList from './ConversationList';
 import ConversationItem from './ConversationItem';
 import Conversation from './Conversation';
 import Launcher from './Launcher';
+import VisitorLauncher from './VisitorLauncher';
+import VisitorForm from './VisitorForm';
 import Message from './Message';
 import MessageSender from './MessageSender';
 import MessagesList from './MessagesList';
@@ -19,6 +21,8 @@ export {
   ConversationItem,
   Conversation,
   Launcher,
+  VisitorLauncher,
+  VisitorForm,
   Message,
   MessageSender,
   MessagesList,

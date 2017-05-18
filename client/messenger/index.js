@@ -1,9 +1,8 @@
 /* eslint-disable react/jsx-filename-extension */
 
-import gql from 'graphql-tag';
-import client, { wsClient } from '../apollo-client';
+import { wsClient } from '../apollo-client';
 import widgetConnect from '../widgetConnect';
-import { connection } from './connection';
+import { connection, connect } from './connection';
 import reducers from './reducers';
 import { App } from './containers';
 import './sass/style.scss';
@@ -12,23 +11,18 @@ widgetConnect({
   connectMutation: (event) => {
     const settings = event.data.settings;
 
-    // call connect mutation
-    return client.mutate({
-      mutation: gql`
-        mutation connect($brandCode: String!, $email: String!, $name: String) {
-          messengerConnect(brandCode: $brandCode, email: $email, name: $name) {
-            integrationId,
-            messengerData,
-            uiOptions,
-            customerId,
-          }
-        }`,
+    // save user passed settings on connection. using this information in action
+    connection.settings = settings;
 
-      variables: {
-        brandCode: settings.brand_id,
-        email: settings.email,
-        name: settings.name,
-      },
+    if (!settings.email) {
+      return Promise.resolve({ data: {} });
+    }
+
+    // call connect mutation
+    return connect({
+      brandCode: settings.brand_id,
+      email: settings.email,
+      name: settings.name,
     });
   },
 
