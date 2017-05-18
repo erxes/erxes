@@ -3,6 +3,7 @@
 import { wsClient } from '../apollo-client';
 import widgetConnect from '../widgetConnect';
 import { connection, connect } from './connection';
+import { EMAIL_LOCAL_STORAGE_KEY } from './constants';
 import reducers from './reducers';
 import { App } from './containers';
 import './sass/style.scss';
@@ -11,9 +12,18 @@ widgetConnect({
   connectMutation: (event) => {
     const settings = event.data.settings;
 
+    // retrieve previously cached email from local storage
+    const cachedEmail = localStorage.getItem(EMAIL_LOCAL_STORAGE_KEY);
+
+    if (cachedEmail) {
+      settings.email = cachedEmail;
+    }
+
     // save user passed settings on connection. using this information in action
     connection.settings = settings;
 
+    // if there is no email specified in user settings then
+    // work as visitor mode
     if (!settings.email) {
       return Promise.resolve({ data: {} });
     }
