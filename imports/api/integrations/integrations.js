@@ -6,7 +6,7 @@ import { Factory } from 'meteor/dburles:factory';
 import { Brands } from '/imports/api/brands/brands';
 import { Channels } from '/imports/api/channels/channels';
 import { facebookSchema, twitterSchema } from './social/social';
-import { KIND_CHOICES, FORM_LOAD_TYPES } from './constants';
+import { KIND_CHOICES, FORM_LOAD_TYPES, FORM_SUCCESS_ACTIONS } from './constants';
 
 class IntegrationCollections extends Mongo.Collection {}
 
@@ -24,18 +24,38 @@ Integrations.deny({
   },
 });
 
-Integrations.formSchema = new SimpleSchema({
-  name: {
+// form integration options
+export const formSchema = new SimpleSchema({
+  loadType: {
     type: String,
+    allowedValues: FORM_LOAD_TYPES.ALL_LIST,
+    optional: true,
   },
-  brandId: {
+
+  successAction: {
     type: String,
+    allowedValues: FORM_SUCCESS_ACTIONS.ALL_LIST,
+    optional: true,
   },
-  formId: {
+
+  emailTitle: {
     type: String,
+    optional: true,
   },
-  formLoadType: {
+
+  emailContent: {
     type: String,
+    optional: true,
+  },
+
+  thankContent: {
+    type: String,
+    optional: true,
+  },
+
+  redirectUrl: {
+    type: String,
+    optional: true,
   },
 });
 
@@ -106,9 +126,10 @@ Integrations.schema = new SimpleSchema({
     type: String,
     optional: true,
   },
-  formLoadType: {
-    type: String,
-    allowedValues: FORM_LOAD_TYPES.ALL_LIST,
+
+  // form integration options
+  formData: {
+    type: formSchema,
     optional: true,
   },
 

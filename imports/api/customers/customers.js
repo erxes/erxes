@@ -95,6 +95,7 @@ const schema = new SimpleSchema({
   isUser: {
     type: Boolean,
     label: 'Is user of one of our products',
+    optional: true,
   },
   integrationId: {
     type: String,
