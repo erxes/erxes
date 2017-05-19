@@ -175,8 +175,8 @@ Integrations.publicFields = {
   kind: 1,
   brandId: 1,
   formId: 1,
-  formLoadType: 1,
   uiOptions: 1,
+  formData: 1,
   messengerData: 1,
 };
 
