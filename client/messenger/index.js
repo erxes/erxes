@@ -19,7 +19,7 @@ widgetConnect({
     const cachedEmail = localStorage.getItem(EMAIL_LOCAL_STORAGE_KEY);
 
     if (cachedEmail) {
-      // settings.email = cachedEmail;
+      settings.email = cachedEmail;
     }
 
     // save user passed settings on connection. using this information in action
