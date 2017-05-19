@@ -25,19 +25,22 @@ class Form extends Common {
     super(props, context);
 
     let code = '';
+    const integration = props.integration || {};
+    const formData = integration.formData || {};
 
     // showed install code automatically in edit mode
-    if (props.integration) {
-      const brand = Brands.findOne(props.integration.brandId);
-      const form = Forms.findOne(props.integration.formId);
+    if (integration) {
+      const brand = Brands.findOne(integration.brandId);
+      const form = Forms.findOne(integration.formId);
 
       code = this.constructor.getInstallCode(brand.code, form.code);
     }
 
-    this.state = { code, copied: false };
+    this.state = { code, copied: false, successAction: formData.successAction };
 
     this.handleBrandChange = this.handleBrandChange.bind(this);
     this.handleFormChange = this.handleFormChange.bind(this);
+    this.handleSuccessActionChange = this.handleSuccessActionChange.bind(this);
   }
 
   updateInstallCodeValue() {
@@ -61,6 +64,12 @@ class Form extends Common {
     this.updateInstallCodeValue();
   }
 
+  handleSuccessActionChange() {
+    this.setState({
+      successAction: document.getElementById('successAction').value,
+    });
+  }
+
   handleSubmit(e) {
     e.preventDefault();
 
@@ -82,6 +91,52 @@ class Form extends Common {
         redirectUrl: document.getElementById('redirectUrl').value,
       },
     });
+  }
+
+  renderEmailFields(formData) {
+    if (this.state.successAction === 'email') {
+      return (
+        <div>
+          <FormGroup controlId="emailTitle">
+            <ControlLabel>Email title</ControlLabel>
+            <FormControl type="text" defaultValue={formData.emailTitle} />
+          </FormGroup>
+
+          <FormGroup controlId="emailContent">
+            <ControlLabel>Email content</ControlLabel>
+            <FormControl
+              componentClass="textarea"
+              type="text"
+              defaultValue={formData.emailContent}
+            />
+          </FormGroup>
+        </div>
+      );
+    }
+  }
+
+  renderRedirectUrl(formData) {
+    if (this.state.successAction === 'redirect') {
+      return (
+        <div>
+          <FormGroup controlId="redirectUrl">
+            <ControlLabel>Redirect url</ControlLabel>
+            <FormControl type="text" defaultValue={formData.redirectUrl} />
+          </FormGroup>
+        </div>
+      );
+    }
+  }
+
+  renderThankContent(formData) {
+    if (this.state.successAction === 'onPage') {
+      return (
+        <FormGroup controlId="thankContent">
+          <ControlLabel>Thank content</ControlLabel>
+          <FormControl componentClass="textarea" type="text" defaultValue={formData.thankContent} />
+        </FormGroup>
+      );
+    }
   }
 
   extraContent() {
@@ -122,7 +177,11 @@ class Form extends Common {
         <FormGroup controlId="successAction">
           <ControlLabel>On success</ControlLabel>
 
-          <FormControl componentClass="select" defaultValue={formData.successAction}>
+          <FormControl
+            onChange={this.handleSuccessActionChange}
+            componentClass="select"
+            defaultValue={formData.successAction}
+          >
 
             <option />
             {this.props.successActions.map((action, index) => (
@@ -131,25 +190,9 @@ class Form extends Common {
           </FormControl>
         </FormGroup>
 
-        <FormGroup controlId="emailTitle">
-          <ControlLabel>Email title</ControlLabel>
-          <FormControl type="text" defaultValue={formData.emailTitle} />
-        </FormGroup>
-
-        <FormGroup controlId="emailContent">
-          <ControlLabel>Email content</ControlLabel>
-          <FormControl componentClass="textarea" type="text" defaultValue={formData.emailContent} />
-        </FormGroup>
-
-        <FormGroup controlId="redirectUrl">
-          <ControlLabel>Redirect url</ControlLabel>
-          <FormControl type="text" defaultValue={formData.redirectUrl} />
-        </FormGroup>
-
-        <FormGroup controlId="thankContent">
-          <ControlLabel>Thank content</ControlLabel>
-          <FormControl componentClass="textarea" type="text" defaultValue={formData.thankContent} />
-        </FormGroup>
+        {this.renderEmailFields(formData)}
+        {this.renderRedirectUrl(formData)}
+        {this.renderThankContent(formData)}
       </div>
     );
   }
