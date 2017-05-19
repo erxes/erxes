@@ -1,17 +1,15 @@
 import React, { PropTypes } from 'react';
-import TopBar from './TopBar';
-import { ConversationItem } from '../containers';
+import { ConversationItem, TopBar } from '../containers';
 
 
 const propTypes = {
   conversations: PropTypes.array.isRequired,
   createConversation: PropTypes.func.isRequired,
   goToConversation: PropTypes.func.isRequired,
-  color: PropTypes.string.isRequired,
 };
 
 function ConversationList({ conversations, createConversation,
-  goToConversation, color }) {
+  goToConversation }) {
   const title = (
     <div className="erxes-topbar-title">
       <div>Conversations</div>
@@ -24,7 +22,6 @@ function ConversationList({ conversations, createConversation,
       <TopBar
         middle={title}
         buttonClass="new"
-        color={color}
         onButtonClick={createConversation}
       />
       <ul className="erxes-conversation-list">

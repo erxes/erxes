@@ -76,4 +76,8 @@ class MessageSender extends Component {
 
 MessageSender.propTypes = propTypes;
 
+MessageSender.defaultProps = {
+  placeholder: null,
+};
+
 export default MessageSender;

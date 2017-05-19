@@ -24,4 +24,9 @@ function TopBar({ middle, buttonClass, onButtonClick, color }) {
 
 TopBar.propTypes = propTypes;
 
+TopBar.defaultProps = {
+  middle: null,
+  color: null,
+};
+
 export default TopBar;

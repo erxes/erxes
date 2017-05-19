@@ -21,6 +21,7 @@ export default class Form extends React.Component {
     this.onSubmit = this.onSubmit.bind(this);
     this.handleMessageChange = this.handleMessageChange.bind(this);
     this.handleEmailChange = this.handleEmailChange.bind(this);
+    this.handleKeyPress = this.handleKeyPress.bind(this);
   }
 
   onSubmit() {
@@ -54,9 +55,22 @@ export default class Form extends React.Component {
     this.setState({ email: e.target.value });
   }
 
+  handleKeyPress(e) {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+
+      const { content } = this.state;
+      if (e.shiftKey && !this.state.showEmailInput) {
+        this.setState({ content: `${content}\n` });
+      } else {
+        this.onSubmit();
+      }
+    }
+  }
+
   renderContent() {
     const sendButton = (
-      <button type="button" onClick={this.onSubmit}>send</button>
+      <button type="button" onClick={this.onSubmit} />
     );
 
     if (this.state.showEmailInput) {
@@ -71,6 +85,7 @@ export default class Form extends React.Component {
           <input
             placeholder="email@domain.com"
             type="email"
+            onKeyDown={this.handleKeyPress}
             value={this.state.email}
             onChange={this.handleEmailChange}
           />
@@ -89,6 +104,7 @@ export default class Form extends React.Component {
         </div>
         <textarea
           placeholder="Send a message"
+          onKeyDown={this.handleKeyPress}
           value={this.state.content}
           onChange={this.handleMessageChange}
         />

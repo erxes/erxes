@@ -36,4 +36,8 @@ function ConversationItem({ conversation, notificationCount, goToConversation })
 
 ConversationItem.propTypes = propTypes;
 
+ConversationItem.defaultProps = {
+  notificationCount: 0,
+};
+
 export default ConversationItem;

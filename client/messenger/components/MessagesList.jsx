@@ -1,6 +1,6 @@
 import React, { PropTypes, Component } from 'react';
 import classNames from 'classnames';
-import { Message } from '../components';
+import { Message } from '../containers';
 
 
 const propTypes = {
@@ -49,7 +49,6 @@ class MessagesList extends Component {
 
   render() {
     const { isOnline, data } = this.props;
-    const color = data.uiOptions && data.uiOptions.color;
     const bg = data.uiOptions && data.uiOptions.wallpaper;
     const messengerData = data.messengerData;
     const messagesClasses = classNames('erxes-messages-list', { [`bg-${bg}`]: bg });
@@ -63,7 +62,7 @@ class MessagesList extends Component {
         {this.renderWelcomeMessage(isOnline, messengerData)}
         {
           this.props.messages.map(message =>
-            <Message color={color} key={message._id} {...message} />,
+            <Message key={message._id} {...message} />,
           )
         }
         {this.renderAwayMessage(isOnline, messengerData)}
@@ -73,5 +72,10 @@ class MessagesList extends Component {
 }
 
 MessagesList.propTypes = propTypes;
+
+MessagesList.defaultProps = {
+  isOnline: false,
+  data: null,
+};
 
 export default MessagesList;

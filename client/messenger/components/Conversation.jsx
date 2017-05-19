@@ -1,6 +1,5 @@
 import React, { PropTypes } from 'react';
-import TopBar from './TopBar';
-import { MessageSender } from '../containers';
+import { MessageSender, TopBar } from '../containers';
 import { MessagesList } from '../components';
 
 
@@ -11,7 +10,6 @@ const propTypes = {
   data: PropTypes.object,
   isNewConversation: PropTypes.bool,
   isOnline: PropTypes.bool,
-  color: PropTypes.string,
 };
 
 function Conversation(props) {
@@ -22,7 +20,6 @@ function Conversation(props) {
     user,
     data,
     isOnline,
-    color,
   } = props;
 
   function renderTitle() {
@@ -63,7 +60,6 @@ function Conversation(props) {
       <TopBar
         middle={renderTitle()}
         buttonClass="back"
-        color={color}
         onButtonClick={goToConversationList}
       />
       <MessagesList data={data} messages={messages} />
@@ -73,5 +69,12 @@ function Conversation(props) {
 }
 
 Conversation.propTypes = propTypes;
+
+Conversation.defaultProps = {
+  user: {},
+  data: {},
+  isNewConversation: false,
+  isOnline: false,
+};
 
 export default Conversation;
