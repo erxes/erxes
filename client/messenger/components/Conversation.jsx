@@ -10,6 +10,8 @@ const propTypes = {
   user: PropTypes.object,
   data: PropTypes.object,
   isNewConversation: PropTypes.bool,
+  isOnline: PropTypes.bool,
+  color: PropTypes.string,
 };
 
 function Conversation(props) {
@@ -18,8 +20,9 @@ function Conversation(props) {
     isNewConversation,
     goToConversationList,
     user,
-    isOnline,
     data,
+    isOnline,
+    color,
   } = props;
 
   function renderTitle() {
@@ -53,7 +56,6 @@ function Conversation(props) {
     );
   }
 
-  const color = data.uiOptions && data.uiOptions.color;
   const placeholder = isNewConversation ? 'Send a message ...' : 'Write a reply ...';
 
   return (

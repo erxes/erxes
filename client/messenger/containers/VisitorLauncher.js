@@ -1,9 +1,10 @@
 import { connect } from 'react-redux';
 import { toggle } from '../actions/messenger';
-import { VisitorLauncher } from '../components';
+import { Launcher } from '../components';
 
 const mapStateToProps = state => ({
-  isFormVisible: state.isVisible,
+  isMessengerVisible: state.isVisible,
+  notificationCount: 0,
 });
 
 const mapDisptachToProps = dispatch => ({
@@ -12,4 +13,4 @@ const mapDisptachToProps = dispatch => ({
   },
 });
 
-export default connect(mapStateToProps, mapDisptachToProps)(VisitorLauncher);
+export default connect(mapStateToProps, mapDisptachToProps)(Launcher);

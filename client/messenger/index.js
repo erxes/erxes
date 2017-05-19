@@ -1,6 +1,7 @@
 /* eslint-disable react/jsx-filename-extension */
 
-import { wsClient } from '../apollo-client';
+import gql from 'graphql-tag';
+import client, { wsClient } from '../apollo-client';
 import widgetConnect from '../widgetConnect';
 import { connection, connect } from './connection';
 import { EMAIL_LOCAL_STORAGE_KEY } from './constants';
@@ -18,7 +19,7 @@ widgetConnect({
     const cachedEmail = localStorage.getItem(EMAIL_LOCAL_STORAGE_KEY);
 
     if (cachedEmail) {
-      settings.email = cachedEmail;
+      // settings.email = cachedEmail;
     }
 
     // save user passed settings on connection. using this information in action
@@ -27,7 +28,17 @@ widgetConnect({
     // if there is no email specified in user settings then
     // work as visitor mode
     if (!settings.email) {
-      return Promise.resolve({ data: {} });
+      // call get messenger integration query
+      return client.query({
+        query: gql`
+          query getIntegration($brandCode: String!) {
+            getMessengerIntegration(brandCode: $brandCode) {
+              uiOptions,
+            }
+          }`,
+
+        variables: { brandCode: settings.brand_id },
+      });
     }
 
     // call connect mutation
@@ -43,7 +54,7 @@ widgetConnect({
   },
 
   connectCallback: (data) => {
-    const messengerData = data.messengerConnect;
+    const messengerData = data.messengerConnect || data.getMessengerIntegration;
 
     // save connection info
     connection.data = messengerData;

@@ -98,6 +98,8 @@ export default class Form extends React.Component {
   }
 
   render() {
+    const { color } = this.props;
+
     const title = (
       <div className="erxes-topbar-title">
         <div>Conversation</div>
@@ -106,7 +108,7 @@ export default class Form extends React.Component {
     );
 
     const topBar = (
-      <div className="erxes-topbar">
+      <div className="erxes-topbar" style={{ backgroundColor: color }}>
         <div className="erxes-middle">
           {title}
         </div>
@@ -125,4 +127,5 @@ export default class Form extends React.Component {
 
 Form.propTypes = {
   sendVisitorFirstMessage: PropTypes.func.isRequired,
+  color: PropTypes.string.isRequired,
 };

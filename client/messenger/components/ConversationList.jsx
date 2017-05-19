@@ -7,18 +7,17 @@ const propTypes = {
   conversations: PropTypes.array.isRequired,
   createConversation: PropTypes.func.isRequired,
   goToConversation: PropTypes.func.isRequired,
-  data: PropTypes.object,
+  color: PropTypes.string.isRequired,
 };
 
-function ConversationList({ conversations, createConversation, goToConversation, data }) {
+function ConversationList({ conversations, createConversation,
+  goToConversation, color }) {
   const title = (
     <div className="erxes-topbar-title">
       <div>Conversations</div>
       <span>with Support staffs</span>
     </div>
   );
-
-  const color = data.uiOptions && data.uiOptions.color;
 
   return (
     <div className="erxes-messenger">

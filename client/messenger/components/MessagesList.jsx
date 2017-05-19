@@ -54,6 +54,7 @@ class MessagesList extends Component {
     const messengerData = data.messengerData;
     const messagesClasses = classNames('erxes-messages-list', { [`bg-${bg}`]: bg });
 
+
     return (
       <ul
         className={messagesClasses}

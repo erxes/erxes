@@ -20,7 +20,6 @@ const ConversationList = (props) => {
   const extendedProps = {
     ...props,
     conversations,
-    data: connection.data,
   };
 
   return <DumbConversationList {...extendedProps} />;
