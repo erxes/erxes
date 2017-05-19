@@ -75,6 +75,12 @@ class Form extends Common {
 
     this.context.closeModal();
 
+    const getElementById = id => {
+      const element = document.getElementById(id);
+
+      return (element && element.value) || '';
+    };
+
     this.props.save({
       mainDoc: {
         name: document.getElementById('integration-name').value,
@@ -83,12 +89,12 @@ class Form extends Common {
       },
 
       formDoc: {
-        loadType: document.getElementById('loadType').value,
-        successAction: document.getElementById('successAction').value,
-        emailTitle: document.getElementById('emailTitle').value,
-        emailContent: document.getElementById('emailContent').value,
-        thankContent: document.getElementById('thankContent').value,
-        redirectUrl: document.getElementById('redirectUrl').value,
+        loadType: getElementById('loadType'),
+        successAction: getElementById('successAction'),
+        emailTitle: getElementById('emailTitle'),
+        emailContent: getElementById('emailContent'),
+        thankContent: getElementById('thankContent'),
+        redirectUrl: getElementById('redirectUrl'),
       },
     });
   }
