@@ -43,7 +43,7 @@ export const connect = (brandCode, formCode) =>
           integrationId,
           integrationName,
           formId,
-          formLoadType
+          formData
         }
       }`,
 

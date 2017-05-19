@@ -60,7 +60,7 @@ window.addEventListener('message', (event) => {
   }
 
   if (data.action === 'connected') {
-    const loadType = data.connectionInfo.formConnect.formLoadType;
+    const loadType = data.connectionInfo.formConnect.formData.loadType;
 
     if (loadType === 'embedded') {
       erxesContainer.className = 'erxes-embed-iframe';
