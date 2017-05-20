@@ -38,12 +38,32 @@ export const formSchema = new SimpleSchema({
     optional: true,
   },
 
-  emailTitle: {
+  fromEmail: {
     type: String,
     optional: true,
   },
 
-  emailContent: {
+  userEmailTitle: {
+    type: String,
+    optional: true,
+  },
+
+  userEmailContent: {
+    type: String,
+    optional: true,
+  },
+
+  adminEmails: {
+    type: [String],
+    optional: true,
+  },
+
+  adminEmailTitle: {
+    type: String,
+    optional: true,
+  },
+
+  adminEmailContent: {
     type: String,
     optional: true,
   },

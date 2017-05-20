@@ -91,8 +91,12 @@ class Form extends Common {
       formDoc: {
         loadType: getElementById('loadType'),
         successAction: getElementById('successAction'),
-        emailTitle: getElementById('emailTitle'),
-        emailContent: getElementById('emailContent'),
+        fromEmail: getElementById('fromEmail'),
+        userEmailTitle: getElementById('userEmailTitle'),
+        userEmailContent: getElementById('userEmailContent'),
+        adminEmails: getElementById('adminEmails').split(','),
+        adminEmailTitle: getElementById('adminEmailTitle'),
+        adminEmailContent: getElementById('adminEmailContent'),
         thankContent: getElementById('thankContent'),
         redirectUrl: getElementById('redirectUrl'),
       },
@@ -103,17 +107,41 @@ class Form extends Common {
     if (this.state.successAction === 'email') {
       return (
         <div>
-          <FormGroup controlId="emailTitle">
-            <ControlLabel>Email title</ControlLabel>
-            <FormControl type="text" defaultValue={formData.emailTitle} />
+          <FormGroup controlId="fromEmail">
+            <ControlLabel>From email</ControlLabel>
+            <FormControl type="text" defaultValue={formData.fromEmail} />
           </FormGroup>
 
-          <FormGroup controlId="emailContent">
-            <ControlLabel>Email content</ControlLabel>
+          <FormGroup controlId="userEmailTitle">
+            <ControlLabel>User email title</ControlLabel>
+            <FormControl type="text" defaultValue={formData.userEmailTitle} />
+          </FormGroup>
+
+          <FormGroup controlId="userEmailContent">
+            <ControlLabel>User email content</ControlLabel>
             <FormControl
               componentClass="textarea"
               type="text"
-              defaultValue={formData.emailContent}
+              defaultValue={formData.userEmailContent}
+            />
+          </FormGroup>
+
+          <FormGroup controlId="adminEmails">
+            <ControlLabel>Admin emails</ControlLabel>
+            <FormControl type="text" defaultValue={formData.adminEmails} />
+          </FormGroup>
+
+          <FormGroup controlId="adminEmailTitle">
+            <ControlLabel>Admin email title</ControlLabel>
+            <FormControl type="text" defaultValue={formData.adminEmailTitle} />
+          </FormGroup>
+
+          <FormGroup controlId="adminEmailContent">
+            <ControlLabel>Admin email content</ControlLabel>
+            <FormControl
+              componentClass="textarea"
+              type="text"
+              defaultValue={formData.adminEmailContent}
             />
           </FormGroup>
         </div>
@@ -130,17 +158,6 @@ class Form extends Common {
             <FormControl type="text" defaultValue={formData.redirectUrl} />
           </FormGroup>
         </div>
-      );
-    }
-  }
-
-  renderThankContent(formData) {
-    if (this.state.successAction === 'onPage') {
-      return (
-        <FormGroup controlId="thankContent">
-          <ControlLabel>Thank content</ControlLabel>
-          <FormControl componentClass="textarea" type="text" defaultValue={formData.thankContent} />
-        </FormGroup>
       );
     }
   }
@@ -198,7 +215,11 @@ class Form extends Common {
 
         {this.renderEmailFields(formData)}
         {this.renderRedirectUrl(formData)}
-        {this.renderThankContent(formData)}
+
+        <FormGroup controlId="thankContent">
+          <ControlLabel>Thank content</ControlLabel>
+          <FormControl componentClass="textarea" type="text" defaultValue={formData.thankContent} />
+        </FormGroup>
       </div>
     );
   }
