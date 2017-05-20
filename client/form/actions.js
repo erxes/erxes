@@ -67,11 +67,14 @@ export const saveForm = doc => (dispatch) => {
 
   client.mutate({
     mutation: gql`
-      mutation saveForm($integrationId: String!, $formId: String!, $submissions: [FieldValueInput]) {
-        saveForm(integrationId: $integrationId, formId: $formId, submissions: $submissions) {
-          fieldId
-          code
-          text
+      mutation saveForm($integrationId: String!, $formId: String!,
+        $submissions: [FieldValueInput]) {
+
+        saveForm(integrationId: $integrationId, formId: $formId,
+          submissions: $submissions) {
+            fieldId
+            code
+            text
         }
       }`,
 
@@ -103,5 +106,24 @@ export const createNew = () => (dispatch) => {
   dispatch({
     type: CREATE_NEW,
     status: INITIAL,
+  });
+};
+
+export const sendEmail = (toEmails, fromEmail, title, content) => () => {
+  client.mutate({
+    mutation: gql`
+      mutation sendEmail($toEmails: [String], $fromEmail: String,
+        $title: String, $content: String) {
+
+        sendEmail(toEmails: $toEmails, fromEmail: $fromEmail,
+          title: $title, content: $content)
+      }`,
+
+    variables: {
+      toEmails,
+      fromEmail,
+      title,
+      content,
+    },
   });
 };

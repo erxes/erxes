@@ -91,7 +91,7 @@ export default class Form extends React.Component {
     );
   }
 
-  renderSuccessForm() {
+  renderSuccessForm(thankContent) {
     const { integrationName, onCreateNew } = this.props;
 
     return (
@@ -106,7 +106,10 @@ export default class Form extends React.Component {
         <div className="erxes-form-content">
           <div className="erxes-result">
             <span>
-              Thanks for your message. We will respond as soon as we can.
+              {
+                thankContent ||
+                'Thanks for your message. We will respond as soon as we can.'
+              }
             </span>
             <button className="btn" onClick={onCreateNew}>Create new</button>
           </div>
@@ -116,10 +119,42 @@ export default class Form extends React.Component {
   }
 
   render() {
-    const { currentStatus } = this.props;
+    const { form, currentStatus, sendEmail, formConfig } = this.props;
 
     if (currentStatus.status === SUCCESS) {
-      return this.renderSuccessForm();
+      const {
+        successAction,
+        redirectUrl,
+        fromEmail,
+        userEmailTitle,
+        userEmailContent,
+        adminEmails,
+        adminEmailTitle,
+        adminEmailContent,
+        thankContent,
+      } = formConfig;
+
+      // redirect to some url
+      if (successAction === 'redirect') {
+        window.open(redirectUrl);
+      }
+
+      // send email to user and admins
+      if (successAction === 'email') {
+        const emailField = form.fields.find(f => f.validation === 'email');
+
+        if (emailField) {
+          const email = this.state.doc[emailField._id].value;
+
+          // send email to user
+          sendEmail([email], fromEmail, userEmailTitle, userEmailContent);
+
+          // send email to admins
+          sendEmail([adminEmails], fromEmail, adminEmailTitle, adminEmailContent);
+        }
+      }
+
+      return this.renderSuccessForm(thankContent);
     }
 
     return this.renderForm();
@@ -128,6 +163,12 @@ export default class Form extends React.Component {
 
 Form.propTypes = {
   integrationName: PropTypes.string,
+
+  formConfig: PropTypes.shape({
+    successAction: PropTypes.string,
+    thankContent: PropTypes.string,
+  }),
+
   form: PropTypes.shape({
     title: PropTypes.string,
 
@@ -140,6 +181,7 @@ Form.propTypes = {
       options: PropTypes.arrayOf(PropTypes.string),
       isRequired: PropTypes.bool,
       order: PropTypes.number,
+      validation: PropTypes.string,
     })),
   }),
 
@@ -149,4 +191,5 @@ Form.propTypes = {
 
   onSubmit: PropTypes.func,
   onCreateNew: PropTypes.func,
+  sendEmail: PropTypes.func,
 };

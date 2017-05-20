@@ -9,6 +9,7 @@
   },
   "rules": {
     "no-underscore-dangle": ["error", { "allow": ["_id"] }],
+    "react/require-default-props": "off",
     "import/no-extraneous-dependencies": ["error", { "devDependencies": true }]
   },
   "globals": {
