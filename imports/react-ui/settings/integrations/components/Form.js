@@ -29,7 +29,7 @@ class Form extends Common {
     const formData = integration.formData || {};
 
     // showed install code automatically in edit mode
-    if (integration) {
+    if (integration._id) {
       const brand = Brands.findOne(integration.brandId);
       const form = Forms.findOne(integration.formId);
 
