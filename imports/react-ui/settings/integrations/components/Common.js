@@ -117,8 +117,8 @@ class Common extends Component {
 }
 
 Common.propTypes = {
-  brands: PropTypes.array.isRequired, // eslint-disable-line react/forbid-prop-types
-  integration: PropTypes.object, // eslint-disable-line react/forbid-prop-types
+  brands: PropTypes.array.isRequired, // eslint-disable-line
+  integration: PropTypes.object, // eslint-disable-line
   save: PropTypes.func.isRequired,
 };
 
