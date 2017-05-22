@@ -1,19 +1,22 @@
 import React, { PropTypes } from 'react';
+import classNames from 'classnames';
 import { Messenger, Launcher, VisitorLauncher, VisitorForm } from '../containers';
 
 function App({ isMessengerVisible, isEmailReceived, color }) {
+  const widgetClasses = classNames('erxes-widget', { opened: isMessengerVisible });
+
   if (isEmailReceived) {
     return (
-      <div className="erxes-widget">
-        {isMessengerVisible ? <Messenger /> : null}
+      <div className={widgetClasses}>
+        <Messenger />
         <Launcher color={color} />
       </div>
     );
   }
 
   return (
-    <div className="erxes-widget">
-      { isMessengerVisible ? <VisitorForm color={color} /> : null }
+    <div className={widgetClasses}>
+      <VisitorForm color={color} />
       <VisitorLauncher color={color} />
     </div>
   );

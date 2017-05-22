@@ -9,4 +9,18 @@
   button, input, textarea {
     font-family: 'Roboto', Helvetica, Arial, sans-serif;
   }
+
+  &.opened .erxes-form {
+    @include prefix((
+      opacity: 1
+    ), webkit moz ms o);
+    visibility: visible;
+  }
+
+  &.opened .erxes-messenger {
+    @include prefix((
+      opacity: 1
+    ), webkit moz ms o);
+    visibility: visible;
+  }
 }

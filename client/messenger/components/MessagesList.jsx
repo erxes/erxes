@@ -25,7 +25,8 @@ class MessagesList extends Component {
     }
   }
 
-  renderAwayMessage(isOnline, messengerData) {
+  renderAwayMessage(messengerData) {
+    const { isOnline } = this.props;
     if (messengerData && !isOnline && messengerData.awayMessage) {
       return (
         <li className="erxes-spacial-message away">
@@ -36,7 +37,8 @@ class MessagesList extends Component {
     return null;
   }
 
-  renderWelcomeMessage(isOnline, messengerData) {
+  renderWelcomeMessage(messengerData) {
+    const { isOnline } = this.props;
     if (messengerData && isOnline && messengerData.welcomeMessage) {
       return (
         <li className="erxes-spacial-message">
@@ -48,24 +50,23 @@ class MessagesList extends Component {
   }
 
   render() {
-    const { isOnline, data } = this.props;
+    const { data } = this.props;
     const bg = data.uiOptions && data.uiOptions.wallpaper;
     const messengerData = data.messengerData;
     const messagesClasses = classNames('erxes-messages-list', { [`bg-${bg}`]: bg });
 
-
     return (
       <ul
         className={messagesClasses}
-        ref={node => { this.node = node; }}
+        ref={(node) => { this.node = node; }}
       >
-        {this.renderWelcomeMessage(isOnline, messengerData)}
+        {this.renderWelcomeMessage(messengerData)}
         {
           this.props.messages.map(message =>
             <Message key={message._id} {...message} />,
           )
         }
-        {this.renderAwayMessage(isOnline, messengerData)}
+        {this.renderAwayMessage(messengerData)}
       </ul>
     );
   }

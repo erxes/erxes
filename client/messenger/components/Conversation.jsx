@@ -62,8 +62,8 @@ function Conversation(props) {
         buttonClass="back"
         onButtonClick={goToConversationList}
       />
-      <MessagesList data={data} messages={messages} />
-      <MessageSender isOnline={isOnline} placeholder={placeholder} />
+      <MessagesList isOnline={isOnline} data={data} messages={messages} />
+      <MessageSender placeholder={placeholder} />
     </div>
   );
 }
