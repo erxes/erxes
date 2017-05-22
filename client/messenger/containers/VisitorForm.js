@@ -1,8 +1,11 @@
 import { connect } from 'react-redux';
+import { connection } from '../connection';
 import { sendVisitorFirstMessage } from '../actions/messenger';
 import { VisitorForm } from '../components';
 
-const mapStateToProps = () => ({});
+const mapStateToProps = () => ({
+  data: connection.data,
+});
 
 const mapDisptachToProps = dispatch => ({
   sendVisitorFirstMessage(...args) {

@@ -34,6 +34,7 @@ widgetConnect({
           query getIntegration($brandCode: String!) {
             getMessengerIntegration(brandCode: $brandCode) {
               uiOptions,
+              messengerData,
             }
           }`,
 

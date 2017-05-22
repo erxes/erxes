@@ -15,7 +15,7 @@ function Launcher({ isMessengerVisible, onClick, notificationCount, color }) {
   };
 
   const launcherClasses = classNames('erxes-launcher', {
-    'close': isMessengerVisible,
+    close: isMessengerVisible,
   });
 
   return (

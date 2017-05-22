@@ -67,6 +67,29 @@ export default class Form extends React.Component {
       }
     }
   }
+  renderWelcomeMessage() {
+    const messengerData = this.props.data.messengerData;
+    const isOnline = messengerData && messengerData.isOnline;
+    if (messengerData && isOnline && messengerData.welcomeMessage) {
+      return (
+        <span>
+          {messengerData.welcomeMessage}
+        </span>
+      );
+    } else if (messengerData && !isOnline && messengerData.awayMessage) {
+      return (
+        <span>
+          {messengerData.awayMessage}
+        </span>
+      );
+    }
+    return (
+      <span>
+        Hello! We’d love to help you out!
+        Leave us a message and we’ll get back to you as soon as possible
+      </span>
+    );
+  }
 
   renderContent() {
     const sendButton = (
@@ -97,10 +120,7 @@ export default class Form extends React.Component {
     return (
       <div className="erxes-form-wrapper">
         <div className="erxes-information">
-          <span>
-            Hello! We’d love to help you out!
-            Leave us a message and we’ll get back to you as soon as possible
-          </span>
+          {this.renderWelcomeMessage()}
         </div>
         <textarea
           placeholder="Send a message"
@@ -143,5 +163,6 @@ export default class Form extends React.Component {
 
 Form.propTypes = {
   sendVisitorFirstMessage: PropTypes.func.isRequired,
-  color: PropTypes.string.isRequired,
+  color: PropTypes.string,
+  data: PropTypes.object,
 };
