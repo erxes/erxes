@@ -11,23 +11,23 @@ import './sass/style.scss';
 
 widgetConnect({
   connectMutation: (event) => {
-    const settings = event.data.settings;
+    const setting = event.data.setting;
 
-    const clientPassedEmail = settings.email;
+    const clientPassedEmail = setting.email;
 
     // retrieve previously cached email from local storage
     const cachedEmail = localStorage.getItem(EMAIL_LOCAL_STORAGE_KEY);
 
     if (cachedEmail) {
-      settings.email = cachedEmail;
+      setting.email = cachedEmail;
     }
 
-    // save user passed settings on connection. using this information in action
-    connection.settings = settings;
+    // save user passed setting on connection. using this information in action
+    connection.setting = setting;
 
-    // if there is no email specified in user settings then
+    // if there is no email specified in user setting then
     // work as visitor mode
-    if (!settings.email) {
+    if (!setting.email) {
       // call get messenger integration query
       return client.query({
         query: gql`
@@ -38,19 +38,19 @@ widgetConnect({
             }
           }`,
 
-        variables: { brandCode: settings.brand_id },
+        variables: { brandCode: setting.brand_id },
       });
     }
 
     // call connect mutation
     return connect({
-      brandCode: settings.brand_id,
-      email: settings.email,
+      brandCode: setting.brand_id,
+      email: setting.email,
 
       // if client passed email automatically then consider this as user
       isUser: Boolean(clientPassedEmail),
 
-      name: settings.name,
+      name: setting.name,
     });
   },
 

@@ -2,7 +2,7 @@ import gql from 'graphql-tag';
 import client from '../apollo-client';
 
 export const connection = {
-  settings: {},
+  setting: {},
   data: {},
   queryVariables: '$integrationId: String!, $customerId: String!',
   queryParams: 'integrationId: $integrationId, customerId: $customerId',
