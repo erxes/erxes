@@ -8,8 +8,8 @@ import client, { createStore } from './apollo-client';
 // base connect function for all widgets
 const widgetConnect = ({ connectMutation, connectCallback, AppContainer, reducers }) => {
   window.addEventListener('message', (event) => {
-    // connect to api using passed settings
-    if (!(event.data.fromPublisher && event.data.settings)) {
+    // connect to api using passed setting
+    if (!(event.data.fromPublisher && event.data.setting)) {
       return;
     }
 
@@ -27,6 +27,7 @@ const widgetConnect = ({ connectMutation, connectCallback, AppContainer, reducer
         fromErxes: true,
         action: 'connected',
         connectionInfo: data,
+        setting: event.data.setting,
       }, '*');
 
       // render root react component

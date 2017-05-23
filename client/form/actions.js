@@ -15,6 +15,7 @@ export const toggleShoutbox = (isVisible) => {
   // notify parent window launcher state
   window.parent.postMessage({
     fromErxes: true,
+    setting: connection.setting,
     fromShoutbox: true,
     isVisible: !isVisible,
   }, '*');
@@ -30,6 +31,7 @@ export const closeModal = () => {
   // notify parent window that close modal
   window.parent.postMessage({
     fromErxes: true,
+    setting: connection.setting,
     closeModal: true,
   }, '*');
 };

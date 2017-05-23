@@ -1,8 +1,12 @@
-#erxes-container {
+[id^=erxes-container] {
   position: fixed;
   bottom: 0px;
   right: 0px;
   z-index: 1000000000;
+  border: none;
+}
+
+[id^=erxes-container] > iframe {
   border: none;
 }
 
@@ -24,10 +28,6 @@
   width: 20px;
   height: 20px;
   z-index: -1;
-}
-
-#erxes-container > iframe {
-  border: none;
 }
 
 .erxes-embed-iframe {
@@ -81,7 +81,7 @@
 }
 
 @media only screen and (max-width: 420px) {
-  #erxes-container {
+  [id^=erxes-container] {
     width: 100%;
     max-height: none;
   }
@@ -90,7 +90,7 @@
     height: 100%;
   }
 
-  #erxes-iframe {
+  [id^=erxes-iframe] {
     bottom: 0;
     right: 0;
   }
