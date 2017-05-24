@@ -72,7 +72,7 @@ const isAttachingFile = (state = false, action) => {
  * Indicates whether received email from user.
  */
 const isEmailReceived = (state = false, action) => {
-  if (connection.settings.email) {
+  if (connection.setting.email) {
     return true;
   }
 

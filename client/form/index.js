@@ -8,6 +8,10 @@ import { App } from './containers';
 import './sass/style.scss';
 
 widgetConnect({
+  postParams: {
+    fromForms: true,
+  },
+
   connectMutation: (event) => {
     const setting = event.data.setting;
 

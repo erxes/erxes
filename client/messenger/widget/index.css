@@ -1,11 +1,11 @@
-#erxes-container {
+#erxes-messenger-container {
   position: fixed;
   bottom: 0px;
   right: 0px;
   z-index: 1000000000;
 }
 
-#erxes-iframe {
+#erxes-messenger-iframe {
   position: fixed;
   bottom: 12px;
   right: 12px;
@@ -31,7 +31,7 @@
 }
 
 @media only screen and (max-width: 420px) {
-  #erxes-container {
+  #erxes-messenger-container {
     width: 100%;
     max-height: none;
   }
@@ -40,7 +40,7 @@
     height: 100%;
   }
 
-  #erxes-iframe {
+  #erxes-messenger-iframe {
     bottom: 0;
     right: 0;
   }

@@ -6,7 +6,15 @@ import { ApolloProvider } from 'react-apollo';
 import client, { createStore } from './apollo-client';
 
 // base connect function for all widgets
-const widgetConnect = ({ connectMutation, connectCallback, AppContainer, reducers }) => {
+const widgetConnect = (params) => {
+  const {
+    postParams,
+    connectMutation,
+    connectCallback,
+    AppContainer,
+    reducers,
+  } = params;
+
   window.addEventListener('message', (event) => {
     // connect to api using passed setting
     if (!(event.data.fromPublisher && event.data.setting)) {
@@ -25,6 +33,7 @@ const widgetConnect = ({ connectMutation, connectCallback, AppContainer, reducer
       // notify parent window that connected
       window.parent.postMessage({
         fromErxes: true,
+        ...postParams,
         action: 'connected',
         connectionInfo: data,
         setting: event.data.setting,

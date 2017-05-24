@@ -15,6 +15,7 @@ export const toggle = (isVisible) => {
   // notify parent window launcher state
   window.parent.postMessage({
     fromErxes: true,
+    fromMessenger: true,
     isMessengerVisible: !isVisible,
   }, '*');
 
@@ -45,8 +46,8 @@ export const sendVisitorFirstMessage = (email, message) =>
 
     // call connect mutation
     connect({
-      brandCode: connection.settings.brand_id,
-      name: connection.settings.name,
+      brandCode: connection.setting.brand_id,
+      name: connection.setting.name,
       isUser: false,
       email,
     })

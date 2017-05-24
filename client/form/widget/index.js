@@ -101,7 +101,7 @@ formSettings.forEach((formSetting) => {
 window.addEventListener('message', (event) => {
   const data = event.data;
 
-  if (!data.fromErxes) {
+  if (!(data.fromErxes && data.fromForms)) {
     return null;
   }
 

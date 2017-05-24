@@ -41,7 +41,7 @@ app.get('/form', (req, res) => {
 });
 
 app.get('/test', (req, res) => {
-  res.render('widget-test', { type: req.query.type });
+  res.render('widget-test');
 });
 
 const port = process.env.PORT || 3200;
