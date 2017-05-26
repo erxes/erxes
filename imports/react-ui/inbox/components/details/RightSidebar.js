@@ -88,6 +88,7 @@ class RightSidebar extends Component {
     const { conversation, messagesCount } = this.props;
     const customer = this.props.conversation.customer();
     const integration = conversation.integration();
+
     return (
       <Wrapper.Sidebar>
         <Wrapper.Sidebar.Section>
@@ -96,6 +97,13 @@ class RightSidebar extends Component {
             <li>
               <NameCard customer={customer} avatarSize={50} />
               {this.renderTwitterData()}
+            </li>
+
+            <li>
+              Is User
+              <span className="counter">
+                {Boolean(customer.isUser).toString()}
+              </span>
             </li>
 
             {this.renderMessengerData()}

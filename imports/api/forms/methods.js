@@ -7,6 +7,17 @@ import { Integrations } from '/imports/api/integrations/integrations';
 import { ErxesMixin } from '/imports/api/utils';
 import { Forms, Fields } from './forms';
 
+const generateCode = () => {
+  // generate code automatically
+  let code = Random.id().substr(0, 6);
+
+  while (Forms.findOne({ code })) {
+    code = Random.id().substr(0, 6);
+  }
+
+  return code;
+};
+
 export const add = new ValidatedMethod({
   name: 'forms.add',
   mixins: [ErxesMixin],
@@ -16,14 +27,7 @@ export const add = new ValidatedMethod({
   },
 
   run({ doc }) {
-    // generate code automatically
-    let code = Random.id().substr(0, 6);
-
-    while (Forms.findOne({ code })) {
-      code = Random.id().substr(0, 6);
-    }
-
-    doc.code = code;
+    doc.code = generateCode();
     doc.createdUserId = this.userId;
     doc.createdDate = new Date();
 
@@ -168,7 +172,10 @@ export const duplicate = new ValidatedMethod({
 
   run({ id }) {
     const form = Forms.findOne(id);
+
     form.title = `${form.title} duplicated`;
+    form.code = generateCode();
+
     delete form._id;
 
     // duplicate form
