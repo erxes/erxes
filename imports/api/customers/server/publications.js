@@ -190,7 +190,7 @@ Meteor.publishComposite('customers.details', function(id) {
             customer.internalNotes && customer.internalNotes.map(note => note.createdBy);
 
           if (!userIds) {
-            return this.ready();
+            return;
           }
 
           return Meteor.users.find({ _id: { $in: userIds } });
