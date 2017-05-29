@@ -1,4 +1,5 @@
 import React, { PropTypes } from 'react';
+import classNames from 'classnames';
 import { Form, ShoutboxLauncher } from '../containers';
 
 
@@ -9,11 +10,11 @@ const propTypes = {
 };
 
 function App({ isShoutboxFormVisible, loadType, onModalClose }) {
+  const widgetClasses = classNames('shoutbox-form', { opened: isShoutboxFormVisible });
   if (loadType === 'shoutbox') {
     return (
-      <div className="shoutbox-form">
-        { isShoutboxFormVisible ? <Form /> : null }
-
+      <div className={widgetClasses}>
+        <Form />
         <ShoutboxLauncher />
       </div>
     );

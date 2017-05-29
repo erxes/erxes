@@ -1,6 +1,9 @@
 /* eslint-disable jsx-a11y/no-static-element-interactions */
 
 import React, { PropTypes } from 'react';
+import DatePicker from 'react-datepicker';
+import moment from 'moment';
+
 
 export default class Field extends React.Component {
   static renderSelect(options = [], attrs = {}) {
@@ -68,22 +71,33 @@ export default class Field extends React.Component {
   constructor(props) {
     super(props);
 
+    this.state = {
+      dateValue: '',
+    };
+
     this.onChange = this.onChange.bind(this);
+    this.onDateChange = this.onDateChange.bind(this);
     this.onInputChange = this.onInputChange.bind(this);
     this.onRadioButtonsChange = this.onRadioButtonsChange.bind(this);
     this.onCheckboxesChange = this.onCheckboxesChange.bind(this);
     this.onTextAreaChange = this.onTextAreaChange.bind(this);
     this.onSelectChange = this.onSelectChange.bind(this);
+
+    this.renderDatepicker = this.renderDatepicker.bind(this);
   }
 
   onChange(value) {
     const { onChange, field } = this.props;
-
     onChange({ fieldId: field._id, value });
   }
 
   onInputChange(e) {
     this.onChange(e.target.value);
+  }
+
+  onDateChange(momentObj) {
+    this.setState({ dateValue: momentObj });
+    this.onChange(momentObj.toDate());
   }
 
   onRadioButtonsChange(e) {
@@ -110,10 +124,27 @@ export default class Field extends React.Component {
     this.onChange(e.target.value);
   }
 
+  renderDatepicker() {
+    return (
+      <DatePicker
+        selected={this.state.dateValue}
+        onChange={this.onDateChange}
+        className="form-control"
+        dateFormat="YYYY/MM/DD"
+        placeholderText="Click to select a date"
+      />
+    );
+  }
+
   renderControl() {
     const field = this.props.field;
     const options = field.options || [];
     const name = field.name;
+    const validation = field.validation || 'text';
+
+    if (validation === 'date') {
+      return this.renderDatepicker();
+    }
 
     switch (field.type) {
       case 'select':
@@ -129,7 +160,7 @@ export default class Field extends React.Component {
         return Field.renderTextarea({ onChange: this.onTextAreaChange });
 
       default:
-        return Field.renderInput({ onChange: this.onInputChange });
+        return Field.renderInput({ onChange: this.onInputChange, type: validation });
     }
   }
 

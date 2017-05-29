@@ -41,7 +41,12 @@ export default class Form extends React.Component {
     const doc = {};
 
     _.each(this.props.form.fields, (field) => {
-      doc[field._id] = { text: field.text, type: field.type, value: '' };
+      doc[field._id] = {
+        text: field.text,
+        type: field.type,
+        validation: field.validation,
+        value: '',
+      };
     });
 
     return doc;
@@ -84,7 +89,7 @@ export default class Form extends React.Component {
             onClick={this.onSubmit}
             className="btn btn-block"
           >
-            Submit
+            Send
           </button>
         </div>
       </div>

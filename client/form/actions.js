@@ -59,13 +59,14 @@ export const connect = (brandCode, formCode) =>
 
 export const saveForm = doc => (dispatch) => {
   const submissions = _.map(_.keys(doc), (fieldId) => {
-    const { value, text, type } = doc[fieldId];
+    const { value, text, type, validation } = doc[fieldId];
 
     return {
       _id: fieldId,
       type,
       text,
       value,
+      validation,
     };
   });
 
