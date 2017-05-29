@@ -4,6 +4,9 @@ erxes is an AI meets open source messaging platform for sales and marketing team
 
 The project is maintained by erxes Inc, along with an amazing group of independent [contributors](https://github.com/erxes/erxes/graphs/contributors). We are striving to make customer experience better through our messaging platform.
 
+## Code coverage
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/e31a4910eb3d41b4bf5c942d343aeb9f)](https://www.codacy.com/app/info_74/erxes?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=erxes/erxes&amp;utm_campaign=Badge_Grade)
+
 ## Quick links
 
 - [Homepage](https://erxes.io/)
