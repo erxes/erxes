@@ -22,7 +22,9 @@
     "start": "meteor --port 3000 --settings settings.json",
     "test": "meteor test --driver-package practicalmeteor:mocha --port 3001 --settings settings.json",
     "format": "prettier --write --print-width 100 --single-quote --trailing-comma all 'imports/**/*.js'",
-    "precommit": "lint-staged"
+    "precommit": "lint-staged",
+    "snyk-protect": "snyk protect",
+    "prepublish": "npm run snyk-protect"
   },
   "lint-staged": {
     "*.js": [
@@ -65,7 +67,8 @@
     "react-toggle": "^3.0.1",
     "social-oauth-client": "^0.1.6",
     "strip": "^3.0.0",
-    "twit": "^2.2.5"
+    "twit": "^2.2.5",
+    "snyk": "^1.31.0"
   },
   "devDependencies": {
     "autoprefixer": "^6.7.7",
@@ -86,5 +89,6 @@
         ]
       }
     }
-  }
+  },
+  "snyk": true
 }

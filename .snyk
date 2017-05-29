@@ -1,0 +1,22 @@
+# Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.
+version: v1.7.1
+# ignores vulnerabilities until expiry date; change duration by modifying expiry date
+ignore:
+  'npm:qs:20170213':
+    - fbgraph > qs:
+        reason: None given
+        expires: '2017-06-28T05:25:43.994Z'
+    - social-oauth-client > googleapis > request > qs:
+        reason: None given
+        expires: '2017-06-28T05:25:43.994Z'
+# patches apply the minimum changes required to fix a vulnerability
+patch:
+  'npm:ms:20170412':
+    - bcrypt > node-pre-gyp > tar-pack > debug > ms:
+        patched: '2017-05-29T05:25:43.998Z'
+  'npm:request:20160119':
+    - social-oauth-client > googleapis > request:
+        patched: '2017-05-29T05:25:43.998Z'
+  'npm:tough-cookie:20160722':
+    - social-oauth-client > googleapis > request > tough-cookie:
+        patched: '2017-05-29T05:25:43.998Z'
