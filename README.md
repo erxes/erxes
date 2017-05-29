@@ -6,6 +6,7 @@ The project is maintained by erxes Inc, along with an amazing group of independe
 
 ## Code coverage
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/e31a4910eb3d41b4bf5c942d343aeb9f)](https://www.codacy.com/app/info_74/erxes?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=erxes/erxes&amp;utm_campaign=Badge_Grade)
+[![Known Vulnerabilities](https://snyk.io/test/github/erxes/erxes/badge.svg)](https://snyk.io/test/github/erxes/erxes)
 
 ## Quick links
 
