@@ -7,7 +7,7 @@ import { Messages } from '/imports/api/engage/engage';
 import { MessageForm } from '../components';
 
 function composer({ messageId }, onData) {
-  const handler = Meteor.subscribe('engage.messages.detail', messageId);
+  const handler = Meteor.subscribe('engage.messages.detail', messageId || '');
 
   // wait for detail subscription
   if (!handler.ready()) {

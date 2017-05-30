@@ -8,6 +8,13 @@ const group = FlowRouter.group({
   prefix: '/engage',
 });
 
+group.route('/', {
+  name: 'engage/messages/list',
+  action() {
+    mount(MainLayout, { content: <MessageList /> });
+  },
+});
+
 group.route('/messages/list', {
   name: 'engage/messages/list',
   action() {
