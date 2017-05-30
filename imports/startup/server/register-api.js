@@ -33,5 +33,8 @@ import '/imports/api/forms/methods';
 import '/imports/api/responseTemplates/server/publications';
 import '/imports/api/responseTemplates/methods';
 
+import '/imports/api/emailTemplates/server/publications';
+import '/imports/api/emailTemplates/methods';
+
 import '/imports/api/engage/server/publications';
 import '/imports/api/engage/methods';

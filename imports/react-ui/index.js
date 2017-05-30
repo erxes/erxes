@@ -14,6 +14,7 @@ import './settings/brands/routes';
 import './settings/integrations/routes';
 import './settings/channels/routes';
 import './settings/responseTemplates/routes';
+import './settings/emailTemplates/routes';
 import './settings/email/routes';
 import './settings/forms/routes';
 import './settings/team/routes';
