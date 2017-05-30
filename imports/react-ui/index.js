@@ -7,6 +7,7 @@ import './auth/routes';
 import './inbox/routes';
 import './home/routes';
 import './tags/routes';
+import './engage/routes';
 import './segments/routes';
 import './settings/routes';
 import './settings/brands/routes';

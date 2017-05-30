@@ -17,5 +17,5 @@ Meteor.publish('engage.messages.list', limit => {
 Meteor.publish('engage.messages.detail', function engageDetail(id) {
   check(id, String);
 
-  return Messages.find();
+  return Messages.find({ _id: id });
 });
