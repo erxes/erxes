@@ -13,6 +13,7 @@ import { Wrapper } from '/imports/react-ui/layout/components';
 const propTypes = {
   message: PropTypes.object,
   save: PropTypes.func.isRequired,
+  segments: PropTypes.array.isRequired,
 };
 
 class MessageForm extends Component {
@@ -27,12 +28,29 @@ class MessageForm extends Component {
 
     const doc = {
       customerIds: [],
+      segmentId: document.getElementById('segmentId').value,
       title: document.getElementById('title').value,
       content: document.getElementById('content').value,
       isAuto: document.getElementById('isAuto').checked,
     };
 
     this.props.save(doc);
+  }
+
+  renderSegments(defaultValue) {
+    const renderSegment = segment => {
+      return <option key={segment._id} value={segment._id}>{segment.name}</option>;
+    };
+
+    return (
+      <FormGroup>
+        <ControlLabel>Segment</ControlLabel>
+
+        <FormControl componentClass="select" id="segmentId" defaultValue={defaultValue}>
+          {this.props.segments.map(segment => renderSegment(segment))}
+        </FormControl>
+      </FormGroup>
+    );
   }
 
   render() {
@@ -58,6 +76,8 @@ class MessageForm extends Component {
     const content = (
       <div className="margined">
         <form onSubmit={this.save}>
+          {this.renderSegments(message.segmentId)}
+
           <FormGroup>
             <ControlLabel>Title</ControlLabel>
             <FormControl id="title" defaultValue={message.title} required />
