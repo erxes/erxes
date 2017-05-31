@@ -103,7 +103,6 @@ function Message({ message, staff, isSameUser }) {
         </Tip>
       );
     }
-
     if (message.formWidgetData) {
       return (
         <div className="form-data">
@@ -117,7 +116,9 @@ function Message({ message, staff, isSameUser }) {
               {_.map(message.formWidgetData, (data, index) => (
                 <tr key={index}>
                   <td width="40%"><b>{data.text}:</b></td>
-                  <td width="60%">{data.value}</td>
+                  {data.validation === 'date'
+                    ? <td width="60%">{moment(data.value).format('YYYY/MM/DD')}</td>
+                    : <td width="60%">{data.value}</td>}
                 </tr>
               ))}
             </tbody>
