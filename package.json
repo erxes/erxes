@@ -20,9 +20,15 @@
   "private": true,
   "scripts": {
     "start": "meteor --port 3000 --settings settings.json",
-    "test": "meteor test --driver-package practicalmeteor:mocha --port 3001 --settings settings.json",
+    "test": "nyc --reporter=html --reporter=text mocha",
+    "coverage-data": "nyc report --reporter=text-lcov",
+    "coverage": "nyc report --reporter=text-lcov | coveralls",
     "format": "prettier --write --print-width 100 --single-quote --trailing-comma all 'imports/**/*.js'",
     "precommit": "lint-staged"
+  },
+  "nyc": {
+    "include": ["**/test/test.js"],
+    "exclude": ["**/test/test2.js"]
   },
   "lint-staged": {
     "*.js": [
@@ -69,10 +75,14 @@
   },
   "devDependencies": {
     "autoprefixer": "^6.7.7",
+    "coveralls": "^2.13.1",
     "eslint": "^3.19.0",
     "eslint-plugin-react": "^6.10.3",
     "husky": "^0.13.3",
+    "istanbul": "0.3.5",
     "lint-staged": "^3.4.0",
+    "mocha": "2.0.0",
+    "nyc": "^10.3.2",
     "prettier": "^1.1.0",
     "sinon": "^2.0.0"
   },
