@@ -82,7 +82,6 @@ class MessageForm extends Component {
     e.preventDefault();
 
     const doc = {
-      customerIds: [],
       segmentId: document.getElementById('segmentId').value,
       title: document.getElementById('title').value,
       isAuto: document.getElementById('isAuto').checked,

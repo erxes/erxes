@@ -3,11 +3,12 @@
 import { assert } from 'meteor/practicalmeteor:chai';
 import { Factory } from 'meteor/dburles:factory';
 
+import Segments from '/imports/api/customers/segments';
 import '/imports/api/users/factory';
 
-import { Messages } from '../engage';
 import { messagesAdd, messagesEdit, messagesRemove } from '../methods';
-import { replaceKeys } from '../utils';
+import { Messages } from '../engage';
+import { replaceKeys, send } from '../utils';
 
 import './publications';
 
@@ -32,7 +33,6 @@ describe('engage', function() {
         segmentId: 'FDDFEFEFDAFDSFE',
         title: 'Test message',
         email: emailContent,
-        customerIds: ['DFDAFDFAFDFDFD'],
         isAuto: true,
       };
 
@@ -46,7 +46,6 @@ describe('engage', function() {
         segmentId: 'FDDFEFEFDAFDSFE',
         title: 'Updated title',
         email: emailContent,
-        customerIds: ['DFDAFDFAFDFDFD'],
         isAuto: true,
       };
 
@@ -89,6 +88,33 @@ describe('engage', function() {
       });
 
       assert.equal(response, `${fullName}${position}${email}`);
+    });
+
+    it('send', function() {
+      const user = Factory.create('user');
+      const fromEmail = 'from@yahoo.com';
+      const subject = '{{ customer.name }}';
+      const content = '{{ user.email }} {{ customer.email }}';
+
+      // create customer from segment
+      Factory.create('customer', { name: 'name' });
+
+      const segmentId = Segments.insert({
+        name: 'test segment',
+        color: '#fff',
+        connector: 'all',
+        conditions: [
+          {
+            field: 'name',
+            operator: 'c',
+            value: 'n',
+            dateUnit: 'days',
+            type: 'string',
+          },
+        ],
+      });
+
+      send({ user, segmentId, fromEmail, subject, content });
     });
   });
 });

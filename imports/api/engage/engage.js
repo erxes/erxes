@@ -32,9 +32,6 @@ Messages.schema = new SimpleSchema({
     type: EmailSchema,
     optional: true,
   },
-  customerIds: {
-    type: [String],
-  },
   isAuto: {
     type: Boolean,
   },
