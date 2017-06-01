@@ -19,6 +19,7 @@ const propTypes = {
   save: PropTypes.func.isRequired,
   segments: PropTypes.array.isRequired,
   templates: PropTypes.array,
+  users: PropTypes.array,
 };
 
 class MessageForm extends Component {
@@ -84,11 +85,11 @@ class MessageForm extends Component {
     const doc = {
       segmentId: document.getElementById('segmentId').value,
       title: document.getElementById('title').value,
+      fromUserId: document.getElementById('fromUserId').value,
       isAuto: document.getElementById('isAuto').checked,
       email: {
         templateId: document.getElementById('emailTemplateId').value,
         subject: document.getElementById('emailSubject').value,
-        from: document.getElementById('emailFrom').value,
         content: this.state.content,
       },
     };
@@ -148,13 +149,21 @@ class MessageForm extends Component {
           </FormGroup>
 
           <FormGroup>
-            <ControlLabel>Email subject</ControlLabel>
-            <FormControl id="emailSubject" defaultValue={email.subject} required />
+            <ControlLabel>From</ControlLabel>
+
+            <FormControl id="fromUserId" componentClass="select" defaultValue={message.fromUserId}>
+
+              {this.props.users.map(u => (
+                <option key={u._id} value={u._id}>
+                  {u.fullName || u.username}
+                </option>
+              ))}
+            </FormControl>
           </FormGroup>
 
           <FormGroup>
-            <ControlLabel>Email from</ControlLabel>
-            <FormControl id="emailFrom" defaultValue={email.from} required />
+            <ControlLabel>Email subject</ControlLabel>
+            <FormControl id="emailSubject" defaultValue={email.subject} required />
           </FormGroup>
 
           <Row>

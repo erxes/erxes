@@ -13,9 +13,6 @@ const EmailSchema = new SimpleSchema({
   subject: {
     type: String,
   },
-  from: {
-    type: String,
-  },
   content: {
     type: String,
   },
@@ -26,6 +23,9 @@ Messages.schema = new SimpleSchema({
     type: String,
   },
   title: {
+    type: String,
+  },
+  fromUserId: {
     type: String,
   },
   email: {

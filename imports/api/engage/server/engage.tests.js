@@ -18,7 +18,6 @@ describe('engage', function() {
     let messageId;
 
     const emailContent = {
-      from: 'from@yahoo.com',
       subject: 'subject',
       content: 'content',
     };
@@ -31,6 +30,7 @@ describe('engage', function() {
       // method call
       const doc = {
         segmentId: 'FDDFEFEFDAFDSFE',
+        fromUserId: 'FDDFEFEFDAFDSFE',
         title: 'Test message',
         email: emailContent,
         isAuto: true,
@@ -44,6 +44,7 @@ describe('engage', function() {
     it('edit', function() {
       const doc = {
         segmentId: 'FDDFEFEFDAFDSFE',
+        fromUserId: 'FDDFEFEFDAFDSFE',
         title: 'Updated title',
         email: emailContent,
         isAuto: true,
@@ -91,8 +92,7 @@ describe('engage', function() {
     });
 
     it('send', function() {
-      const user = Factory.create('user');
-      const fromEmail = 'from@yahoo.com';
+      const fromUserId = Factory.create('user')._id;
       const subject = '{{ customer.name }}';
       const content = '{{ user.email }} {{ customer.email }}';
 
@@ -114,7 +114,7 @@ describe('engage', function() {
         ],
       });
 
-      send({ user, segmentId, fromEmail, subject, content });
+      send({ fromUserId, segmentId, subject, content });
     });
   });
 });

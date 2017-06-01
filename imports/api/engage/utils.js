@@ -1,3 +1,4 @@
+import { Meteor } from 'meteor/meteor';
 import { Email } from 'meteor/email';
 import customerQueryBuilder from '/imports/api/customers/queryBuilder';
 import Segments from '/imports/api/customers/segments';
@@ -18,8 +19,9 @@ export const replaceKeys = ({ content, customer, user }) => {
   return result;
 };
 
-export const send = ({ user, segmentId, fromEmail, subject, content }) => {
+export const send = ({ fromUserId, segmentId, subject, content }) => {
   const segment = Segments.findOne({ _id: segmentId });
+  const user = Meteor.users.findOne({ _id: fromUserId });
 
   // find matched customers
   const customers = Customers.find(customerQueryBuilder.segments(segment));
@@ -30,7 +32,7 @@ export const send = ({ user, segmentId, fromEmail, subject, content }) => {
 
     // send email
     Email.send({
-      from: fromEmail,
+      from: user.email,
       to: customer.email,
       subject: replacedSubject,
       html: replacedContent,
