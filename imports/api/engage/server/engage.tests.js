@@ -15,6 +15,12 @@ describe('engage', function() {
     let userId;
     let messageId;
 
+    const emailContent = {
+      from: 'from@yahoo.com',
+      subject: 'subject',
+      content: 'content',
+    };
+
     beforeEach(function() {
       userId = Factory.create('user')._id;
     });
@@ -22,8 +28,9 @@ describe('engage', function() {
     it('add', function() {
       // method call
       const doc = {
+        segmentId: 'FDDFEFEFDAFDSFE',
         title: 'Test message',
-        content: 'content',
+        email: emailContent,
         customerIds: ['DFDAFDFAFDFDFD'],
         isAuto: true,
       };
@@ -35,8 +42,9 @@ describe('engage', function() {
 
     it('edit', function() {
       const doc = {
+        segmentId: 'FDDFEFEFDAFDSFE',
         title: 'Updated title',
-        content: 'content',
+        email: emailContent,
         customerIds: ['DFDAFDFAFDFDFD'],
         isAuto: true,
       };

@@ -5,6 +5,22 @@ import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 
 export const Messages = new Mongo.Collection('engage_messages');
 
+const EmailSchema = new SimpleSchema({
+  templateId: {
+    type: String,
+    optional: true,
+  },
+  subject: {
+    type: String,
+  },
+  from: {
+    type: String,
+  },
+  content: {
+    type: String,
+  },
+});
+
 Messages.schema = new SimpleSchema({
   segmentId: {
     type: String,
@@ -12,8 +28,9 @@ Messages.schema = new SimpleSchema({
   title: {
     type: String,
   },
-  content: {
-    type: String,
+  email: {
+    type: EmailSchema,
+    optional: true,
   },
   customerIds: {
     type: [String],
