@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import moment from 'moment';
 import { Table, Button } from 'react-bootstrap';
 import { FlowRouter } from 'meteor/kadira:flow-router';
 import { Wrapper } from '/imports/react-ui/layout/components';
@@ -33,6 +34,9 @@ function List({ messages, remove }) {
     return (
       <tr key={message._id}>
         <td>{message.title}</td>
+        <td>{message.fromUser().username}</td>
+        <td>{moment(message.createdDate).format('DD MMM YYYY')}</td>
+
         <td className="text-right">
           <ActionButtons>
             <Tip text="Edit">
@@ -57,6 +61,8 @@ function List({ messages, remove }) {
       <thead>
         <tr>
           <th>Title</th>
+          <th>From</th>
+          <th>Created date</th>
           <th className="text-right">Actions</th>
         </tr>
       </thead>

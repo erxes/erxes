@@ -1,3 +1,4 @@
+import { Meteor } from 'meteor/meteor';
 import faker from 'faker';
 import { Factory } from 'meteor/dburles:factory';
 import { Mongo } from 'meteor/mongo';
@@ -47,6 +48,12 @@ Messages.schemaExtra = new SimpleSchema({
   },
   createdDate: {
     type: Date,
+  },
+});
+
+Messages.helpers({
+  fromUser() {
+    return Meteor.users.findOne(this.fromUserId) || {};
   },
 });
 

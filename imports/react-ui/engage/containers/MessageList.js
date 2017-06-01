@@ -8,6 +8,7 @@ import { MessageList } from '../components';
 
 function composer(params, onData) {
   const handler = Meteor.subscribe('engage.messages.list');
+  Meteor.subscribe('users.list', {});
 
   const remove = messageId => {
     if (!confirm('Are you sure?')) return; // eslint-disable-line no-alert
