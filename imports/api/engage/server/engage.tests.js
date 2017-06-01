@@ -7,6 +7,7 @@ import '/imports/api/users/factory';
 
 import { Messages } from '../engage';
 import { messagesAdd, messagesEdit, messagesRemove } from '../methods';
+import { replaceKeys } from '../utils';
 
 import './publications';
 
@@ -60,6 +61,34 @@ describe('engage', function() {
       messagesRemove._execute({ userId }, messageId);
 
       assert.equal(Messages.find().count(), 0);
+    });
+  });
+
+  describe('utils', function() {
+    it('replaceKeys', function() {
+      const name = 'name';
+      const email = 'email@gmail.com';
+
+      // replace customer fields
+      let response = replaceKeys({
+        content: `{{customer.name}}{{customer.name}}{{customer.email}}`,
+        customer: Factory.create('customer', { name, email }),
+        user: {},
+      });
+
+      assert.equal(response, `${name}${name}${email}`);
+
+      // replace user fields
+      const fullName = 'full name';
+      const position = 'position';
+
+      response = replaceKeys({
+        content: `{{user.fullName}}{{user.position}}{{user.email}}`,
+        customer: {},
+        user: Factory.create('user', { fullName, position, email }),
+      });
+
+      assert.equal(response, `${fullName}${position}${email}`);
     });
   });
 });
