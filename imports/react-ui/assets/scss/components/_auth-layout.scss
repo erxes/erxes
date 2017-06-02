@@ -1,3 +1,5 @@
+$aut-core-color: #6b60a6;
+
 .auth-layout {
   background: url("/images/sign-in.jpg") no-repeat;
   background-size: cover;
@@ -6,7 +8,7 @@
   position: relative;
 
   &::before {
-    content: '';
+    content: "";
     background-color: rgba($main-color, .7);
     position: absolute;
     width: 100%;
@@ -58,11 +60,11 @@
   box-shadow: 0 0 15px rgba($black, .5);
 
   ::-webkit-input-placeholder {
-    color: #6b60a6;
+    color: $aut-core-color;
   }
 
   h2 {
-    color: #6b60a6;
+    color: $aut-core-color;
     font-size: 30px;
     font-weight: 400;
     margin: 0 0 50px;
@@ -72,14 +74,14 @@
     border: 0;
     border-bottom: 1px solid lighten($main-color, 40%);
     padding: 0 0 6px;
-    color: #6b60a6;
+    color: $aut-core-color;
     border-radius: 0;
     font-size: 16px;
   }
 
   button {
     @include transition(background .2s ease);
-    background-color: #6b60a6;
+    background-color: $aut-core-color;
     color: $white;
     text-transform: uppercase;
     font-weight: 600;
@@ -93,7 +95,7 @@
     &:active.focus,
     &:active:focus,
     &:focus {
-      background-color: lighten(#6b60a6, 10%);
+      background-color: lighten($aut-core-color, 10%);
       color: $white;
     }
   }

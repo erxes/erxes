@@ -15,37 +15,12 @@
     .popover-body {
       flex: 1;
       overflow: auto;
-
-      li {
-        padding: 10px 20px;
-        border-bottom: 1px solid $border-grey;
-      }
+      padding: 0;
     }
 
     .popover-footer {
       align-self: flex-end;
       width: 100%;
-    }
-  }
-
-  .inline-header {
-    display: flex;
-    flex: 2;
-    font-size: 12px;
-
-    .column {
-      display: flex;
-      flex: 1;
-      flex-direction: row;
-      align-items: baseline;
-
-      &:first-child {
-        margin-right: 5px;
-      }
-    }
-
-    span {
-      margin: 0 8px;
     }
   }
 
@@ -58,10 +33,17 @@
     li {
       white-space: normal;
       font-size: 12px;
+      padding: 10px 20px;
+      border-bottom: 1px solid $grey;
     }
 
     li:hover {
       cursor: pointer;
+    }
+
+    &.linked li {
+      padding: 0;
+      border-bottom: 0;
     }
   }
 
@@ -78,5 +60,26 @@
 
   .empty-state {
     flex: 1;
+  }
+}
+
+.inline-header {
+  display: flex;
+  flex: 2;
+  font-size: 12px;
+
+  .column {
+    display: flex;
+    flex: 1;
+    flex-direction: row;
+    align-items: baseline;
+
+    &:first-child {
+      margin-right: 5px;
+    }
+  }
+
+  span {
+    margin: 0 8px;
   }
 }

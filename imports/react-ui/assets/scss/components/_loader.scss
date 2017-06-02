@@ -1,3 +1,6 @@
+$white-transparent-01: rgba(255, 255, 255, 0.1);
+$black-transparent-02: rgba(0, 0, 0, .2);
+
 .wrapper-loader {
   position: fixed;
   top: 0;
@@ -6,7 +9,7 @@
   width: $nav-width;
   height: $header-height;
   z-index: 101;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid $white-transparent-01;
 }
 
 [data-loader] {
@@ -22,17 +25,17 @@
 
   @include prefix((animation: circle infinite .75s linear), webkit moz o);
 
-  border: 2px solid #fff;
-  border-top-color: rgba(0, 0, 0, .2);
-  border-right-color: rgba(0, 0, 0, .2);
-  border-bottom-color: rgba(0, 0, 0, .2);
+  border: 2px solid $white;
+  border-top-color: $black-transparent-02;
+  border-right-color: $black-transparent-02;
+  border-bottom-color: $black-transparent-02;
   border-radius: 100%;
 }
 
 .full-loader {
   height: 100%;
 
-  [data-loader='circle-side']{
+  [data-loader='circle-side'] {
     position: absolute;
     left: 50%;
     top: 50%;
@@ -48,33 +51,40 @@
   0% {
     @include prefix((transform: rotate(0)), webkit moz o);
   }
+
   100% {
     @include prefix((transform: rotate(360deg)), webkit moz o);
   }
 }
+
 @-moz-keyframes circle
 {
   0% {
     @include prefix((transform: rotate(0)), webkit moz o);
   }
+
   100% {
     @include prefix((transform: rotate(360deg)), webkit moz o);
   }
 }
+
 @-o-keyframes circle
 {
   0% {
     @include prefix((transform: rotate(0)), webkit moz o);
   }
+
   100% {
     @include prefix((transform: rotate(360deg)), webkit moz o);
   }
 }
+
 @keyframes circle
 {
   0% {
     @include prefix((transform: rotate(0)), webkit moz o);
   }
+
   100% {
     @include prefix((transform: rotate(360deg)), webkit moz o);
   }
