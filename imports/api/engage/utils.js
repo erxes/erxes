@@ -30,9 +30,11 @@ export const send = ({ fromUserId, segmentId, subject, content }) => {
     const replacedSubject = replaceKeys({ content: subject, customer, user });
     const replacedContent = replaceKeys({ content, customer, user });
 
+    const userEmail = user.emails.pop();
+
     // send email
     Email.send({
-      from: user.email,
+      from: userEmail.address,
       to: customer.email,
       subject: replacedSubject,
       html: replacedContent,
