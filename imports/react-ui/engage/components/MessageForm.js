@@ -9,8 +9,12 @@ import {
   FormControl,
   FormGroup,
 } from 'react-bootstrap';
+
 import { FlowRouter } from 'meteor/kadira:flow-router';
 import { Wrapper } from '/imports/react-ui/layout/components';
+
+import { EMAIL_CONTENT_PLACEHOLDER, EMAIL_CONTENT_CLASS } from '/imports/api/engage/constants';
+
 import ContentBuilder from './ContentBuilder';
 
 const propTypes = {
@@ -30,7 +34,7 @@ class MessageForm extends Component {
     const content = email.content || '';
 
     // current template
-    let currentTemplate = '<div class="main"></div>';
+    let currentTemplate = EMAIL_CONTENT_PLACEHOLDER;
 
     if (email.templateId) {
       currentTemplate = this.findTemplate(email.templateId);
@@ -66,7 +70,7 @@ class MessageForm extends Component {
   }
 
   renderBuilder() {
-    const contentContainer = document.getElementsByClassName('main');
+    const contentContainer = document.getElementsByClassName(EMAIL_CONTENT_CLASS);
     const message = this.props.message || { email: {} };
 
     // render editor to content

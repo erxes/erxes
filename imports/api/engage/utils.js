@@ -1,8 +1,12 @@
 import { Meteor } from 'meteor/meteor';
 import { Email } from 'meteor/email';
+
 import customerQueryBuilder from '/imports/api/customers/queryBuilder';
 import Segments from '/imports/api/customers/segments';
+import { EmailTemplates } from '/imports/api/emailTemplates/emailTemplates';
 import { Customers } from '/imports/api/customers/customers';
+
+import { EMAIL_CONTENT_PLACEHOLDER } from './constants';
 
 export const replaceKeys = ({ content, customer, user }) => {
   let result = content;
@@ -19,16 +23,25 @@ export const replaceKeys = ({ content, customer, user }) => {
   return result;
 };
 
-export const send = ({ fromUserId, segmentId, subject, content }) => {
+export const send = ({ fromUserId, segmentId, templateId, subject, content }) => {
   const segment = Segments.findOne({ _id: segmentId });
+  const template = EmailTemplates.findOne(templateId);
   const user = Meteor.users.findOne({ _id: fromUserId });
 
   // find matched customers
   const customers = Customers.find(customerQueryBuilder.segments(segment));
 
   customers.forEach(customer => {
+    // replace keys in subject
     const replacedSubject = replaceKeys({ content: subject, customer, user });
-    const replacedContent = replaceKeys({ content, customer, user });
+
+    // replace keys such as {{ customer.name }} in content
+    let replacedContent = replaceKeys({ content, customer, user });
+
+    // if sender choosed some template then use it
+    if (template) {
+      replacedContent = template.content.replace(EMAIL_CONTENT_PLACEHOLDER, replacedContent);
+    }
 
     const userEmail = user.emails.pop();
 

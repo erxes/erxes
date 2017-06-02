@@ -22,6 +22,7 @@ export const messagesAdd = new ValidatedMethod({
       send({
         fromUserId: doc.fromUserId,
         segmentId: doc.segmentId,
+        templateId: doc.email.templateId,
         subject: doc.email.subject,
         content: doc.email.content,
       });
