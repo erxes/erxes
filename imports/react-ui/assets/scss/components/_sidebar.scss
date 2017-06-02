@@ -38,28 +38,6 @@
       overflow: hidden;
       position: relative;
       @include transition(max-height .4s);
-
-      .toggle-collapse {
-        outline: 0;
-        width: 100%;
-        color: $grey-dark;
-        position: absolute;
-        bottom: 0;
-        text-align: center;
-        font-size: 12px;
-        background: -moz-linear-gradient(90deg, rgba(255,255,255,1) 0%, rgba(255,255,255,1) 51%, rgba(255,255,255,0) 100%); /* ff3.6+ */
-        background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, rgba(255,255,255,0)), color-stop(49%, rgba(255,255,255,1)), color-stop(100%, rgba(255,255,255,1))); /* safari4+,chrome */
-        background: -webkit-linear-gradient(90deg, rgba(255,255,255,1) 0%, rgba(255,255,255,1) 51%, rgba(255,255,255,0) 100%); /* safari5.1+,chrome10+ */
-        background: -o-linear-gradient(90deg, rgba(255,255,255,1) 0%, rgba(255,255,255,1) 51%, rgba(255,255,255,0) 100%); /* opera 11.10+ */
-        background: -ms-linear-gradient(90deg, rgba(255,255,255,1) 0%, rgba(255,255,255,1) 51%, rgba(255,255,255,0) 100%); /* ie10+ */
-        background: linear-gradient(0deg, rgba(255,255,255,1) 0%, rgba(255,255,255,1) 51%, rgba(255,255,255,0) 100%); /* w3c */
-        filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ffffff', endColorstr='#ffffff',GradientType=0 ); /* ie6-9 */
-
-        &:hover {
-          color: $gray-light;
-          cursor: pointer;
-        }
-      }
     }
 
     &.full {
@@ -77,6 +55,28 @@
 
     &:last-child {
       margin-bottom: 0;
+    }
+  }
+
+  .collapsible .toggle-collapse {
+    outline: 0;
+    width: 100%;
+    color: $grey-dark;
+    position: absolute;
+    bottom: 0;
+    text-align: center;
+    font-size: 12px;
+    background: -moz-linear-gradient(90deg, rgba(255,255,255,1) 0%, rgba(255,255,255,1) 51%, rgba(255,255,255,0) 100%); /* ff3.6+ */
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, rgba(255,255,255,0)), color-stop(49%, rgba(255,255,255,1)), color-stop(100%, rgba(255,255,255,1))); /* safari4+,chrome */
+    background: -webkit-linear-gradient(90deg, rgba(255,255,255,1) 0%, rgba(255,255,255,1) 51%, rgba(255,255,255,0) 100%); /* safari5.1+,chrome10+ */
+    background: -o-linear-gradient(90deg, rgba(255,255,255,1) 0%, rgba(255,255,255,1) 51%, rgba(255,255,255,0) 100%); /* opera 11.10+ */
+    background: -ms-linear-gradient(90deg, rgba(255,255,255,1) 0%, rgba(255,255,255,1) 51%, rgba(255,255,255,0) 100%); /* ie10+ */
+    background: linear-gradient(0deg, rgba(255,255,255,1) 0%, rgba(255,255,255,1) 51%, rgba(255,255,255,0) 100%); /* w3c */
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ffffff', endColorstr='#ffffff',GradientType=0 ); /* ie6-9 */
+
+    &:hover {
+      color: $gray-light;
+      cursor: pointer;
     }
   }
 
@@ -112,49 +112,47 @@
           background-color: $grey-light;
         }
       }
+    }
 
-      .icon {
-        margin-right: 6px;
-        color: $text-color-light;
-      }
+    .icon {
+      margin-right: 6px;
+      color: $text-color-light;
+    }
 
-      .counter {
-        font-size: 12px;
-        text-align: right;
-        color: $text-color-light;
+    .counter {
+      font-size: 12px;
+      text-align: right;
+      color: $text-color-light;
+      margin-top: 2px;
+      position: absolute;
+      right: 20px;
+    }
+
+    .value {
+      font-size: 12px;
+      text-align: right;
+      color: $text-color-light;
+      float: right;
+
+      span {
+        display: block;
         margin-top: 2px;
-        position: absolute;
-        right: 20px;
-      }
-
-      .value {
-        font-size: 12px;
-        text-align: right;
-        color: $text-color-light;
-        float: right;
-
-        span {
-          display: block;
-          margin-top: 2px;
-        }
       }
     }
 
-    &.no-link {
-      li {
-        display: block;
-        padding: 5px 20px;
-        color: $text-color;
-        position: relative;
+    &.no-link li {
+      display: block;
+      padding: 5px 20px;
+      color: $text-color;
+      position: relative;
 
-        > img {
-          position: absolute;
-          top: 5px;
-          left: 20px;
-          width: 50px;
-          height: 50px;
-          border-radius: 25px;
-        }
+      > img {
+        position: absolute;
+        top: 5px;
+        left: 20px;
+        width: 50px;
+        height: 50px;
+        border-radius: 25px;
       }
     }
   }

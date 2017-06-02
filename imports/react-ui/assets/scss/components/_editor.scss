@@ -1,3 +1,6 @@
+//colors
+$color-mention-active: darken($message-background, 10%);
+$mention-shadow: 0 0 10px -3px $black-transparent;
 $editor-text-color: #999;
 
 .RichEditor-root {
@@ -85,11 +88,6 @@ $editor-text-color: #999;
 .RichEditor-activeButton {
   color: $main-color;
 }
-
-//colors
-$color-mention-active: darken($message-background, 10%);
-$mention-shadow: 0 0 10px -3px rgba(0, 0, 0, 0.5);
-
 
 @mixin mention-default {
   cursor: pointer;

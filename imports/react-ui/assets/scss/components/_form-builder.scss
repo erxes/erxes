@@ -41,7 +41,11 @@
     font-size: 13px;
   }
 
-  .form-control, .check-control {
+  .form-control {
+    margin-top: 8px;
+  }
+
+  .check-control {
     margin-top: 8px;
   }
 }

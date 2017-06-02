@@ -42,14 +42,14 @@
 
     .line {
       @include line;
+    }
 
-      &:first-child {
-        margin-top: 0;
-      }
+    .line:first-child {
+      margin-top: 0;
+    }
 
-      &:last-child {
-        margin-bottom: 0;
-      }
+    .line:last-child {
+      margin-bottom: 0;
     }
 
     .title {
