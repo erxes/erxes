@@ -6,11 +6,11 @@ import AlertContainer from '../../common/alert/containers/AlertContainer';
 
 const propTypes = {
   content: PropTypes.element,
-  userId: PropTypes.string,
+  loggedIn: PropTypes.bool.isRequired,
   loggingIn: PropTypes.bool.isRequired,
 };
 
-function MainLayout({ content, userId, loggingIn }) {
+function MainLayout({ content, loggedIn, loggingIn }) {
   if (loggingIn) {
     return (
       <div className="full-loader">
@@ -19,7 +19,7 @@ function MainLayout({ content, userId, loggingIn }) {
     );
   }
 
-  if (!userId) {
+  if (!loggedIn) {
     return false;
   }
 
