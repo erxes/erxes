@@ -8,24 +8,31 @@ import { Tip, ActionButtons } from '/imports/react-ui/common';
 import Sidebar from './Sidebar';
 
 const propTypes = {
+  type: PropTypes.string,
   messages: PropTypes.array.isRequired,
   remove: PropTypes.func.isRequired,
 };
 
-function List({ messages, remove }) {
-  const actionBarLeft = (
-    <Button bsStyle="link">
-      <a href="/engage/messages/create">
-        <i className="ion-plus-circled" />
-        New Message
-      </a>
-    </Button>
-  );
+class List extends React.Component {
+  renderEditLink(message) {
+    // show only if auto
+    if (this.props.type !== 'auto') {
+      return null;
+    }
 
-  const actionBar = <Wrapper.ActionBar left={actionBarLeft} />;
-
-  const renderRows = message => {
     const editUrl = FlowRouter.path(`/engage/messages/edit/${message._id}`);
+
+    return (
+      <Tip text="Edit">
+        <Button bsStyle="link" href={editUrl}>
+          <i className="ion-edit" />
+        </Button>
+      </Tip>
+    );
+  }
+
+  renderRows(message) {
+    const remove = this.props.remove;
 
     const removeAction = () => {
       remove(message._id);
@@ -39,11 +46,7 @@ function List({ messages, remove }) {
 
         <td className="text-right">
           <ActionButtons>
-            <Tip text="Edit">
-              <Button bsStyle="link" href={editUrl}>
-                <i className="ion-edit" />
-              </Button>
-            </Tip>
+            {this.renderEditLink(message)}
 
             <Tip text="Delete">
               <Button bsStyle="link" onClick={removeAction}>
@@ -54,34 +57,49 @@ function List({ messages, remove }) {
         </td>
       </tr>
     );
-  };
+  }
 
-  const content = (
-    <Table>
-      <thead>
-        <tr>
-          <th>Title</th>
-          <th>From</th>
-          <th>Created date</th>
-          <th className="text-right">Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        {messages.map(message => renderRows(message))}
-      </tbody>
-    </Table>
-  );
+  render() {
+    const { type, messages } = this.props;
 
-  return (
-    <div>
-      <Wrapper
-        header={<Wrapper.Header breadcrumb={[{ title: 'Messages' }]} />}
-        leftSidebar={<Sidebar />}
-        actionBar={actionBar}
-        content={content}
-      />
-    </div>
-  );
+    const actionBarLeft = (
+      <Button bsStyle="link">
+        <a href={`/engage/messages/create?type=${type || ''}`}>
+          <i className="ion-plus-circled" />
+          New {type === 'auto' ? 'auto' : 'manual'} message
+        </a>
+      </Button>
+    );
+
+    const actionBar = <Wrapper.ActionBar left={actionBarLeft} />;
+
+    const content = (
+      <Table>
+        <thead>
+          <tr>
+            <th>Title</th>
+            <th>From</th>
+            <th>Created date</th>
+            <th className="text-right">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {messages.map(message => this.renderRows(message))}
+        </tbody>
+      </Table>
+    );
+
+    return (
+      <div>
+        <Wrapper
+          header={<Wrapper.Header breadcrumb={[{ title: 'Messages' }]} />}
+          leftSidebar={<Sidebar />}
+          actionBar={actionBar}
+          content={content}
+        />
+      </div>
+    );
+  }
 }
 
 List.propTypes = propTypes;

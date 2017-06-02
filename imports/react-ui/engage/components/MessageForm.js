@@ -7,7 +7,6 @@ import {
   Button,
   ControlLabel,
   FormControl,
-  Checkbox,
   FormGroup,
 } from 'react-bootstrap';
 import { FlowRouter } from 'meteor/kadira:flow-router';
@@ -86,7 +85,6 @@ class MessageForm extends Component {
       segmentId: document.getElementById('segmentId').value,
       title: document.getElementById('title').value,
       fromUserId: document.getElementById('fromUserId').value,
-      isAuto: document.getElementById('isAuto').checked,
       email: {
         templateId: document.getElementById('emailTemplateId').value,
         subject: document.getElementById('emailSubject').value,
@@ -191,12 +189,6 @@ class MessageForm extends Component {
               <div dangerouslySetInnerHTML={{ __html: this.state.currentTemplate }} />
             </Col>
           </Row>
-
-          <FormGroup>
-            <ControlLabel>Is auto</ControlLabel>
-
-            <Checkbox defaultChecked={message.isAuto} id="isAuto" />
-          </FormGroup>
         </form>
       </div>
     );

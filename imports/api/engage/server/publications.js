@@ -7,10 +7,12 @@ import { check, Match } from 'meteor/check';
 import { Messages } from '../engage';
 
 // engage list
-Meteor.publish('engage.messages.list', limit => {
-  check(limit, Match.Optional(Number));
+Meteor.publish('engage.messages.list', params => {
+  check(params, {
+    type: Match.Optional(String),
+  });
 
-  return Messages.find();
+  return Messages.find({ isAuto: params.type === 'auto' });
 });
 
 // engage detail

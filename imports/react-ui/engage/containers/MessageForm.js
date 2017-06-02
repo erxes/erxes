@@ -9,7 +9,7 @@ import Segments from '/imports/api/customers/segments';
 import { Messages } from '/imports/api/engage/engage';
 import { MessageForm } from '../components';
 
-function composer({ messageId }, onData) {
+function composer({ messageId, type }, onData) {
   const handler = Meteor.subscribe('engage.messages.detail', messageId || '');
   const segmentsHandle = Meteor.subscribe('customers.segments');
   const templatesHandler = Meteor.subscribe('emailTemplates.list');
@@ -42,6 +42,8 @@ function composer({ messageId }, onData) {
     if (messageId) {
       return messagesEdit.call({ id: messageId, doc }, callback);
     }
+
+    doc.isAuto = type === 'auto';
 
     return messagesAdd.call({ doc }, callback);
   };

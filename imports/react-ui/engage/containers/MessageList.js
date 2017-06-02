@@ -6,8 +6,8 @@ import { Messages } from '/imports/api/engage/engage';
 import { messagesRemove } from '/imports/api/engage/methods';
 import { MessageList } from '../components';
 
-function composer(params, onData) {
-  const handler = Meteor.subscribe('engage.messages.list');
+function composer({ type }, onData) {
+  const handler = Meteor.subscribe('engage.messages.list', { type });
   Meteor.subscribe('users.list', {});
 
   const remove = messageId => {
@@ -15,15 +15,16 @@ function composer(params, onData) {
 
     messagesRemove.call(messageId, error => {
       if (error) {
-        return Alert.error("Can't delete a channel", error.reason);
+        return Alert.error("Can't delete a message", error.reason);
       }
 
-      return Alert.success('Congrats', 'Channel has deleted.');
+      return Alert.success('Congrats', 'Message has deleted.');
     });
   };
 
   if (handler.ready()) {
     onData(null, {
+      type,
       messages: Messages.find().fetch(),
       remove,
     });

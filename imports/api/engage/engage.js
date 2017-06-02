@@ -35,6 +35,7 @@ Messages.schema = new SimpleSchema({
   },
   isAuto: {
     type: Boolean,
+    optional: true,
   },
   stopDate: {
     type: Date,

@@ -9,7 +9,7 @@ const group = FlowRouter.group({
 });
 
 group.route('/', {
-  name: 'engage/messages/list',
+  name: 'engage/home',
   action() {
     mount(MainLayout, { content: <MessageList /> });
   },
@@ -17,15 +17,15 @@ group.route('/', {
 
 group.route('/messages/list', {
   name: 'engage/messages/list',
-  action() {
-    mount(MainLayout, { content: <MessageList /> });
+  action(params, queryParams) {
+    mount(MainLayout, { content: <MessageList type={queryParams.type} /> });
   },
 });
 
 group.route('/messages/create', {
   name: 'engage/messages/create',
-  action() {
-    mount(MainLayout, { content: <MessageForm /> });
+  action(params, queryParams) {
+    mount(MainLayout, { content: <MessageForm type={queryParams.type} /> });
   },
 });
 

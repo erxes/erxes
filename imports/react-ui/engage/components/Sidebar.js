@@ -1,4 +1,5 @@
 import React from 'react';
+import { FlowRouter } from 'meteor/kadira:flow-router';
 import { Wrapper } from '/imports/react-ui/layout/components';
 
 function Sidebar() {
@@ -10,10 +11,14 @@ function Sidebar() {
         <Title>Filter</Title>
         <ul className="filters">
           <li>
-            <a><i className="icon ion-arrow-right-b" />Auto</a>
+            <a href={`${FlowRouter.path('engage/messages/list')}?type=auto`}>
+              <i className="icon ion-arrow-right-b" />Auto
+            </a>
           </li>
           <li>
-            <a><i className="icon ion-arrow-right-b" />Manual</a>
+            <a href={FlowRouter.path('engage/messages/list')}>
+              <i className="icon ion-arrow-right-b" />Manual
+            </a>
           </li>
         </ul>
       </Wrapper.Sidebar.Section>
