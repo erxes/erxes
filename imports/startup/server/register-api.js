@@ -37,4 +37,4 @@ import '/imports/api/emailTemplates/server/publications';
 import '/imports/api/emailTemplates/methods';
 
 import '/imports/api/engage/server/publications';
-import '/imports/api/engage/methods';
+import '/imports/api/engage/server/methods';

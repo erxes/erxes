@@ -6,10 +6,9 @@ import { Factory } from 'meteor/dburles:factory';
 import Segments from '/imports/api/customers/segments';
 import '/imports/api/users/factory';
 
-import { messagesAdd, messagesEdit, messagesRemove } from '../methods';
 import { Messages } from '../engage';
 import { replaceKeys, send } from '../utils';
-
+import { messagesAdd, messagesEdit, messagesRemove } from './methods';
 import './publications';
 
 describe('engage', function() {

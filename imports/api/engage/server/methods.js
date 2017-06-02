@@ -1,7 +1,8 @@
 import { check } from 'meteor/check';
 import { ValidatedMethod } from 'meteor/mdg:validated-method';
 import { ErxesMixin } from '/imports/api/utils';
-import { Messages } from './engage';
+import { Messages } from '../engage';
+import { send } from '../utils';
 
 // add messsage
 export const messagesAdd = new ValidatedMethod({
@@ -15,6 +16,16 @@ export const messagesAdd = new ValidatedMethod({
   run({ doc }) {
     doc.createdUserId = this.userId;
     doc.createdDate = new Date();
+
+    // if manual then send emails immediately
+    if (!doc.isAuto) {
+      send({
+        fromUserId: doc.fromUserId,
+        segmentId: doc.segmentId,
+        subject: doc.email.subject,
+        content: doc.email.content,
+      });
+    }
 
     // create
     return Messages.insert(doc);

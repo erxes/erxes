@@ -4,7 +4,6 @@ import Alert from 'meteor/erxes-notifier';
 import { FlowRouter } from 'meteor/kadira:flow-router';
 import { getTrackerLoader, composerOptions } from '/imports/react-ui/utils';
 import { EmailTemplates } from '/imports/api/emailTemplates/emailTemplates';
-import { messagesAdd, messagesEdit } from '/imports/api/engage/methods';
 import Segments from '/imports/api/customers/segments';
 import { Messages } from '/imports/api/engage/engage';
 import { MessageForm } from '../components';
@@ -40,12 +39,12 @@ function composer({ messageId, type }, onData) {
   // save
   const save = doc => {
     if (messageId) {
-      return messagesEdit.call({ id: messageId, doc }, callback);
+      return Meteor.call('engage.messages.edit', { id: messageId, doc }, callback);
     }
 
     doc.isAuto = type === 'auto';
 
-    return messagesAdd.call({ doc }, callback);
+    return Meteor.call('engage.messages.add', { doc }, callback);
   };
 
   // props
