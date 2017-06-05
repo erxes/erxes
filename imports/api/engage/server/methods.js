@@ -17,19 +17,17 @@ export const messagesAdd = new ValidatedMethod({
     doc.createdUserId = this.userId;
     doc.createdDate = new Date();
 
+    // create
+    const messageId = Messages.insert(doc);
+
     // if manual then send emails immediately
     if (!doc.isAuto) {
-      send({
-        fromUserId: doc.fromUserId,
-        segmentId: doc.segmentId,
-        templateId: doc.email.templateId,
-        subject: doc.email.subject,
-        content: doc.email.content,
-      });
+      const message = Messages.findOne(messageId);
+
+      send(message);
     }
 
-    // create
-    return Messages.insert(doc);
+    return messageId;
   },
 });
 

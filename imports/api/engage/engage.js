@@ -3,6 +3,7 @@ import faker from 'faker';
 import { Factory } from 'meteor/dburles:factory';
 import { Mongo } from 'meteor/mongo';
 import { SimpleSchema } from 'meteor/aldeed:simple-schema';
+import Segments from '/imports/api/customers/segments';
 
 export const Messages = new Mongo.Collection('engage_messages');
 
@@ -55,6 +56,10 @@ Messages.schemaExtra = new SimpleSchema({
 Messages.helpers({
   fromUser() {
     return Meteor.users.findOne(this.fromUserId) || {};
+  },
+
+  segment() {
+    return Segments.findOne(this.segmentId) || {};
   },
 });
 

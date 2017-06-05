@@ -6,8 +6,9 @@ import { Messages } from '/imports/api/engage/engage';
 import { MessageList } from '../components';
 
 function composer({ type }, onData) {
-  const handler = Meteor.subscribe('engage.messages.list', { type });
+  Meteor.subscribe('engage.messages.list', { type });
   Meteor.subscribe('users.list', {});
+  Meteor.subscribe('customers.segments');
 
   const remove = messageId => {
     if (!confirm('Are you sure?')) return; // eslint-disable-line no-alert
@@ -21,13 +22,11 @@ function composer({ type }, onData) {
     });
   };
 
-  if (handler.ready()) {
-    onData(null, {
-      type,
-      messages: Messages.find().fetch(),
-      remove,
-    });
-  }
+  onData(null, {
+    type,
+    messages: Messages.find().fetch(),
+    remove,
+  });
 }
 
 export default compose(getTrackerLoader(composer), composerOptions({}))(MessageList);

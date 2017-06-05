@@ -41,6 +41,7 @@ class List extends React.Component {
     return (
       <tr key={message._id}>
         <td>{message.title}</td>
+        <td>{message.segment().name}</td>
         <td>{message.fromUser().username}</td>
         <td>{moment(message.createdDate).format('DD MMM YYYY')}</td>
 
@@ -78,6 +79,7 @@ class List extends React.Component {
         <thead>
           <tr>
             <th>Title</th>
+            <th>Segment</th>
             <th>From</th>
             <th>Created date</th>
             <th className="text-right">Actions</th>

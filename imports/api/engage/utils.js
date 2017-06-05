@@ -23,13 +23,20 @@ export const replaceKeys = ({ content, customer, user }) => {
   return result;
 };
 
-export const send = ({ fromUserId, segmentId, templateId, subject, content }) => {
-  const segment = Segments.findOne({ _id: segmentId });
+export const send = message => {
+  const { fromUserId, segmentId } = message;
+  const { templateId, subject, content } = message.email;
+
+  const user = Meteor.users.findOne(fromUserId);
+  const userEmail = user.emails.pop();
+  const segment = Segments.findOne(segmentId);
   const template = EmailTemplates.findOne(templateId);
-  const user = Meteor.users.findOne({ _id: fromUserId });
 
   // find matched customers
   const customers = Customers.find(customerQueryBuilder.segments(segment));
+
+  // initiate transporter
+  const { service, auth } = Meteor.settings.mail || {};
 
   customers.forEach(customer => {
     // replace keys in subject
@@ -43,14 +50,18 @@ export const send = ({ fromUserId, segmentId, templateId, subject, content }) =>
       replacedContent = template.content.replace(EMAIL_CONTENT_PLACEHOLDER, replacedContent);
     }
 
-    const userEmail = user.emails.pop();
-
     // send email
-    Email.send({
-      from: userEmail.address,
-      to: customer.email,
-      subject: replacedSubject,
-      html: replacedContent,
-    });
+    Email.send(
+      {
+        from: userEmail.address,
+        to: customer.email,
+        subject: replacedSubject,
+        html: replacedContent,
+      },
+      (error, info) => {
+        console.log(error); // eslint-disable-line
+        console.log(info); // eslint-disable-line
+      },
+    );
   });
 };
