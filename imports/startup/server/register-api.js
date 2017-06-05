@@ -38,3 +38,4 @@ import '/imports/api/emailTemplates/methods';
 
 import '/imports/api/engage/server/publications';
 import '/imports/api/engage/server/methods';
+import '/imports/api/engage/server/cronJobs';
