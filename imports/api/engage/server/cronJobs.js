@@ -8,7 +8,7 @@ SyncedCron.add({
   name: 'Send auto messages',
 
   schedule(parser) {
-    return parser.text('every 1 minutes');
+    return parser.text('every day at 11pm');
   },
 
   job() {
