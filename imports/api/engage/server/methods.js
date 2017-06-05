@@ -16,6 +16,7 @@ export const messagesAdd = new ValidatedMethod({
   run({ doc }) {
     doc.createdUserId = this.userId;
     doc.createdDate = new Date();
+    doc.deliveryReports = {};
 
     // create
     const messageId = Messages.insert(doc);

@@ -51,6 +51,12 @@ Messages.schemaExtra = new SimpleSchema({
   createdDate: {
     type: Date,
   },
+  // for example, save each customers's email delivery reports by messageId
+  deliveryReports: {
+    type: Object,
+    blackbox: true,
+    optional: true,
+  },
 });
 
 Messages.helpers({

@@ -38,11 +38,36 @@ class List extends React.Component {
       remove(message._id);
     };
 
+    let status = 'sending';
+    let successCount = 0;
+    let failedCount = 0;
+
+    const deliveryReports = Object.values(message.deliveryReports);
+    const totalCount = deliveryReports.length;
+
+    deliveryReports.forEach(report => {
+      if (report.status === 'sent') {
+        successCount++;
+      }
+
+      if (report.status === 'failed') {
+        failedCount++;
+      }
+    });
+
+    if (totalCount === successCount + failedCount) {
+      status = 'sent';
+    }
+
     return (
       <tr key={message._id}>
         <td>{message.title}</td>
         <td>{message.segment().name}</td>
         <td>{message.fromUser().username}</td>
+        <td>{status}</td>
+        <td>{totalCount}</td>
+        <td>{successCount}</td>
+        <td>{failedCount}</td>
         <td>{moment(message.createdDate).format('DD MMM YYYY')}</td>
 
         <td className="text-right">
@@ -81,6 +106,10 @@ class List extends React.Component {
             <th>Title</th>
             <th>Segment</th>
             <th>From</th>
+            <th>Status</th>
+            <th>Total</th>
+            <th>Sent</th>
+            <th>Failed</th>
             <th>Created date</th>
             <th className="text-right">Actions</th>
           </tr>
