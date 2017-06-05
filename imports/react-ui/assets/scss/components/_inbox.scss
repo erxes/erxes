@@ -1,11 +1,13 @@
-$fbpost-border-color: #e5e6e9 #dfe0e4 #d0d1d5;
+$fb-border-top: #e5e6e9;
+$fb-border-right: #dfe0e4;
+$fb-border-bottom: #d0d1d5;
 $fbpost-barckground: #f6f7f9;
 
 @mixin embed-post {
   padding: 12px;
   background: $fbpost-barckground;
   border: 1px solid;
-  border-color: $fbpost-border-color;
+  border-color: $fb-border-top $fb-border-right $fb-border-bottom;
   border-radius: $border-radius;
 }
 
@@ -13,6 +15,63 @@ $fbpost-barckground: #f6f7f9;
   margin: 0;
   padding: 0;
   list-style: none;
+
+  .body {
+    flex: 1;
+
+    &:hover {
+      color: $gray-dark;
+    }
+
+    header {
+      position: relative;
+    }
+
+    .tags {
+      display: inline-block;
+      margin-left: 15px;
+    }
+
+    .customer-name {
+      font-weight: bold;
+    }
+
+    .content {
+      background: none;
+      margin: 10px 0;
+      cursor: pointer;
+      word-break: break-word;
+      overflow: hidden;
+      max-height: 20px;
+    }
+
+    footer {
+      font-size: 13px;
+      color: $gray-light;
+    }
+  }
+
+  .source,
+  .assignee,
+  .info {
+    display: inline-block;
+    margin-right: 30px;
+  }
+
+  .source {
+    .name {
+      display: inline-block;
+      margin-left: 6px;
+    }
+  }
+
+  .info {
+    color: $gray-light;
+
+    span {
+      margin-right: 15px;
+    }
+  }
 
   > li {
     padding: 20px;
@@ -26,101 +85,48 @@ $fbpost-barckground: #f6f7f9;
       border-left: 1px solid $main-color;
     }
 
-    &:hover {
-      .conversation-togglers a {
-        display: inline-block;
-      }
+    &:hover .conversation-togglers a {
+      display: inline-block;
     }
 
     .column {
       margin-right: 20px;
+    }
+  }
 
-      &.markRead {
-        margin-right: 0;
-        >span:hover{
-          cursor: pointer;
-        }
-      }
+  .column.markRead {
+    margin-right: 0;
+
+    > span:hover {
+      cursor: pointer;
+    }
+  }
+
+  .simple-row {
+    padding: 15px;
+
+    time {
+      font-size: 12px;
     }
 
-    .body {
-      flex: 1;
-
-      &:hover {
-        color: $gray-dark;
-      }
-
-      header {
-        position: relative;
-        .tags{
-          display: inline-block;
-          margin-left: 15px;
-        }
-      }
-
-      .customer-name {
-        font-weight: bold;
-      }
-
-      .content {
-        background: none;
-        margin: 10px 0;
-        cursor: pointer;
-        word-break: break-word;
-        overflow: hidden;
-        max-height: 20px;
-      }
-
-      footer {
-        font-size: 13px;
-        color: $gray-light;
-        .source, .assignee, .info {
-          display: inline-block;
-          margin-right: 30px;
-        }
-
-        .source {
-          .name {
-            display: inline-block;
-            margin-left: 6px;
-          }
-        }
-
-        .info {
-          color: $gray-light;
-
-          span {
-            margin-right: 15px;
-          }
-        }
-      }
+    .column {
+      margin-right: 15px;
     }
 
-    &.simple-row {
-      padding: 15px;
+    .content {
+      margin: 5px 0;
+      font-size: 12px;
+      max-height: 36px;
+      line-height: 18px;
+    }
 
-      time {
-        font-size: 12px;
-      }
+    .brandname {
+      font-weight: 600;
+    }
 
-      .column {
-        margin-right: 15px;
-      }
-
-      .content {
-        margin: 5px 0;
-        font-size: 12px;
-        max-height: 36px;
-        line-height: 18px;
-
-        .brandname {
-          font-weight: 600;
-        }
-      }
-
-      .tags {
-        display: inherit;
-      }
+    .tags {
+      display: inherit;
+      margin-left: 0;
     }
   }
 }
@@ -151,7 +157,7 @@ $fbpost-barckground: #f6f7f9;
       }
     }
 
-    &.attachment .body{
+    &.attachment .body {
       padding: 0;
       background-color: transparent;
 
@@ -159,6 +165,7 @@ $fbpost-barckground: #f6f7f9;
         display: block;
         margin-bottom: 5px;
       }
+
       img {
         border-radius: 3px;
       }
@@ -168,80 +175,37 @@ $fbpost-barckground: #f6f7f9;
       @include embed-post;
     }
 
-    &.attach-preview {
-      .body {
-        padding: 0;
-        position: relative;
-        min-width: 80px;
-        min-height: 50px;
+    &.attach-preview .body {
+      padding: 0;
+      position: relative;
+      min-width: 80px;
+      min-height: 50px;
 
-        > div[data-loader='circle-side'] {
-          position: absolute;
-          top: 50%;
-          left: 50%;
-          margin-left: -12px;
-          margin-top: -12px;
-        }
+      > div[data-loader='circle-side'] {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        margin-left: -12px;
+        margin-top: -12px;
+      }
 
-        img {
-          opacity: 0.5;
-          border-radius: 3px;
-        }
+      img {
+        opacity: 0.5;
+        border-radius: 3px;
+      }
 
-        .attach-file {
-          width: 270px;
-          height: 54px;
-        }
+      .attach-file {
+        width: 270px;
+        height: 54px;
       }
     }
 
     .avatar {
-       position: absolute;
+      position: absolute;
     }
 
-    &.internal {
-      .body {
-        background-color: $internal-background;
-      }
-    }
-
-    .body {
-      margin: 0 0 20px 50px;
-      padding: 12px 15px;
-      color: $gray-dark;
-      border-radius: 5px;
-      background: $grey;
-      flex-grow: 0;
-      word-break: break-word;
-
-      img {
-        max-width: 100%;
-      }
-
-      p {
-        margin: 0;
-      }
-
-      ul {
-        padding-left: 25px;
-      }
-
-      ol {
-        padding-left: 25px;
-      }
-
-      h3 {
-        margin-top: 0;
-      }
-
-      blockquote {
-        margin-bottom: 0;
-        border-color: $border-grey;
-      }
-
-      pre {
-        margin-bottom: 0;
-      }
+    &.internal .body {
+      background-color: $internal-background;
     }
 
     footer {
@@ -250,6 +214,45 @@ $fbpost-barckground: #f6f7f9;
       left: 50px;
       color: $gray-light;
       font-size: 12px;
+    }
+  }
+
+  .body {
+    margin: 0 0 20px 50px;
+    padding: 12px 15px;
+    color: $gray-dark;
+    border-radius: 5px;
+    background: $grey;
+    flex-grow: 0;
+    word-break: break-word;
+
+    img {
+      max-width: 100%;
+    }
+
+    p {
+      margin: 0;
+    }
+
+    ul {
+      padding-left: 25px;
+    }
+
+    ol {
+      padding-left: 25px;
+    }
+
+    h3 {
+      margin-top: 0;
+    }
+
+    blockquote {
+      margin-bottom: 0;
+      border-color: $border-grey;
+    }
+
+    pre {
+      margin-bottom: 0;
     }
   }
 

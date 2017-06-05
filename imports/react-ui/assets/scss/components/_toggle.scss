@@ -1,6 +1,7 @@
 //colors
 $disabled: #4d4d4d;
 $alabaster: #fafafa;
+$transparent: rgba(0, 0, 0, 0);
 
 .react-toggle {
   display: inline-block;
@@ -11,8 +12,7 @@ $alabaster: #fafafa;
   padding: 0;
   -webkit-touch-callout: none;
   @include prefix((user-select: none), webkit moz o khtml ms);
-  -webkit-tap-highlight-color: rgba(0,0,0,0);
-  -webkit-tap-highlight-color: transparent;
+  -webkit-tap-highlight-color: $transparent;
 
   &:hover:not(.react-toggle--disabled) .react-toggle-track {
     background-color: $black;
