@@ -20,9 +20,7 @@
   "private": true,
   "scripts": {
     "start": "meteor --port 3000 --settings settings.json",
-    "test": "nyc --reporter=html --reporter=text mocha",
-    "coverage-data": "nyc report --reporter=text-lcov",
-    "coverage": "nyc report --reporter=text-lcov | coveralls",
+    "test": "meteor test --driver-package practicalmeteor:mocha --port 3001 --settings settings.json",
     "format": "prettier --write --print-width 100 --single-quote --trailing-comma all 'imports/**/*.js'",
     "precommit": "lint-staged"
   },
