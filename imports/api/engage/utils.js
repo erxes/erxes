@@ -35,9 +35,6 @@ export const send = message => {
   // find matched customers
   const customers = Customers.find(customerQueryBuilder.segments(segment));
 
-  // initiate transporter
-  const { service, auth } = Meteor.settings.mail || {};
-
   customers.forEach(customer => {
     // replace keys in subject
     const replacedSubject = replaceKeys({ content: subject, customer, user });
