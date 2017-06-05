@@ -1,0 +1,10 @@
+{
+    "coverage": {
+        "On windows"
+        "coverage_app_folder": "C:\\Users\\you\\dev\\meteor-app\\",
+        "On unix"
+        "coverage_app_folder": "/Users/you/meteor-app/",
+        "is_coverage_active": true,
+        "verbose": false
+    }
+}
