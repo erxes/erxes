@@ -15,7 +15,7 @@ import { Wrapper } from '/imports/react-ui/layout/components';
 
 import { EMAIL_CONTENT_PLACEHOLDER, EMAIL_CONTENT_CLASS } from '/imports/api/engage/constants';
 
-import ContentBuilder from './ContentBuilder';
+import Editor from './Editor';
 
 const propTypes = {
   message: PropTypes.object,
@@ -76,7 +76,7 @@ class MessageForm extends Component {
     // render editor to content
     if (contentContainer.length > 0) {
       ReactDom.render(
-        <ContentBuilder defaultValue={message.email.content} onChange={this.onContentChange} />,
+        <Editor defaultValue={message.email.content} onChange={this.onContentChange} />,
         contentContainer[0],
       );
     }
@@ -155,11 +155,11 @@ class MessageForm extends Component {
 
             <FormControl id="fromUserId" componentClass="select" defaultValue={message.fromUserId}>
 
-              {this.props.users.map(u => (
+              {this.props.users.map(u =>
                 <option key={u._id} value={u._id}>
                   {u.fullName || u.username}
-                </option>
-              ))}
+                </option>,
+              )}
             </FormControl>
           </FormGroup>
 
@@ -180,11 +180,11 @@ class MessageForm extends Component {
                   defaultValue={email.templateId}
                 >
 
-                  {this.props.templates.map(t => (
+                  {this.props.templates.map(t =>
                     <option key={t._id} value={t._id}>
                       {t.name}
-                    </option>
-                  ))}
+                    </option>,
+                  )}
                 </FormControl>
               </FormGroup>
             </Col>
