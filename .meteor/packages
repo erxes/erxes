@@ -24,7 +24,7 @@ kadira:flow-router@2.11.0
 aldeed:simple-schema
 seba:minifiers-autoprefixer
 dburles:factory
-practicalmeteor:mocha
+practicalmeteor:mocha@2.4.5_6
 tmeasday:publish-counts
 reywood:publish-composite
 dburles:collection-helpers
@@ -39,3 +39,5 @@ johanbrook:publication-collector@1.0.6
 erxes-notifier
 erxes-notifications
 stub-collections
+lmieulet:meteor-coverage
+practicalmeteor:mocha-console-runner
