@@ -7,17 +7,22 @@ import Segments from '/imports/api/customers/segments';
 import { SegmentsForm } from '../components';
 
 function composer(props, onData) {
-  const handle = props.id ? Meteor.subscribe('customers.segmentById', props.id).ready() : true;
+  const segmentHandle = props.id
+    ? Meteor.subscribe('customers.segmentById', props.id).ready()
+    : true;
+  const headSegmentsHandle = Meteor.subscribe('customers.headSegments');
+
   const fields = Customers.getPublicFields().map(({ key, label }) => ({
     _id: key,
     title: label,
     selectedBy: 'none',
   }));
 
-  if (handle) {
+  if (segmentHandle && headSegmentsHandle.ready()) {
     onData(null, {
       fields,
       segment: Segments.findOne(props.id),
+      headSegments: Segments.find().fetch().filter(segment => !segment.subOf),
       create({ doc }, callback) {
         createSegment.call(doc, callback);
       },
