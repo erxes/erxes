@@ -22,6 +22,7 @@ const propTypes = {
   create: PropTypes.func.isRequired,
   edit: PropTypes.func.isRequired,
   segment: PropTypes.object,
+  headSegments: PropTypes.array.isRequired,
 };
 
 class SegmentsForm extends Component {
@@ -37,6 +38,7 @@ class SegmentsForm extends Component {
       : {
           name: '',
           description: '',
+          subOf: '',
           color: SegmentsForm.generateRandomColorCode(),
           conditions: [],
           connector: 'any',
@@ -45,6 +47,7 @@ class SegmentsForm extends Component {
     this.addCondition = this.addCondition.bind(this);
     this.changeCondition = this.changeCondition.bind(this);
     this.removeCondition = this.removeCondition.bind(this);
+    this.handleChange = this.handleChange.bind(this);
     this.handleNameChange = this.handleNameChange.bind(this);
     this.handleDescriptionChange = this.handleDescriptionChange.bind(this);
     this.handleColorChange = this.handleColorChange.bind(this);
@@ -68,6 +71,11 @@ class SegmentsForm extends Component {
     this.setState({
       conditions: this.state.conditions.filter(c => c.field !== conditionField),
     });
+  }
+
+  handleChange(e) {
+    e.preventDefault();
+    this.setState({ [e.target.name]: e.target.value });
   }
 
   handleNameChange(e) {
@@ -96,8 +104,8 @@ class SegmentsForm extends Component {
     const { segment, create, edit } = this.props;
 
     const submit = segment ? edit : create;
-    const { name, description, color, connector, conditions } = this.state;
-    const params = { doc: { name, description, color, connector, conditions } };
+    const { name, description, subOf, color, connector, conditions } = this.state;
+    const params = { doc: { name, description, subOf, color, connector, conditions } };
     Object.assign(params, segment ? { id: segment._id } : {});
 
     submit(params, error => {
@@ -172,6 +180,20 @@ class SegmentsForm extends Component {
                 />
               </FormGroup>
               <FormGroup>
+                <ControlLabel>Sub segment of</ControlLabel>
+                <FormControl
+                  name="subOf"
+                  componentClass="select"
+                  value={this.state.subOf}
+                  onChange={this.handleChange}
+                >
+                  <option value="">[not selected]</option>
+                  {this.props.headSegments.map(segment => (
+                    <option value={segment._id} key={segment._id}>{segment.name}</option>
+                  ))}
+                </FormControl>
+              </FormGroup>
+              <FormGroup>
                 <ControlLabel>Color</ControlLabel>
                 <FormControl
                   name="color"
@@ -181,6 +203,8 @@ class SegmentsForm extends Component {
                 />
               </FormGroup>
             </Form>
+          </Col>
+          <Col sm={7}>
             <Panel
               header={
                 <div className="clearfix">
@@ -204,16 +228,17 @@ class SegmentsForm extends Component {
               }
             >
               <Conditions
+                parentSegmentId={this.state.subOf}
                 conditions={this.state.conditions}
                 changeCondition={this.changeCondition}
                 removeCondition={this.removeCondition}
               />
             </Panel>
           </Col>
-          <Col sm={7}>
-            <Preview segment={this.state} />
-          </Col>
         </Row>
+
+        <h3>Preview</h3>
+        <Preview segment={this.state} />
       </div>
     );
 

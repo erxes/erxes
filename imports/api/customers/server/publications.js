@@ -216,7 +216,9 @@ Meteor.publishComposite('customers.listForSegmentPreview', function(segment, lim
         return this.ready();
       }
 
-      const query = QueryBuilder.segments(segment);
+      const headSegment = Segments.findOne(segment.subOf);
+
+      const query = QueryBuilder.segments(segment, headSegment);
       const options = {
         fields: Customers.publicFields,
         sort: { 'messengerData.lastSeenAt': -1 },
@@ -275,4 +277,17 @@ Meteor.publishComposite('customers.segmentById', function(id) {
       return Segments.find(id);
     },
   };
+});
+
+/**
+ * Publishes the segments without parent segment
+ */
+Meteor.publishComposite('customers.headSegments', {
+  find() {
+    if (!this.userId) {
+      return this.ready();
+    }
+
+    return Segments.find({ subOf: { $exists: false } });
+  },
 });
