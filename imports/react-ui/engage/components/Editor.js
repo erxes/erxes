@@ -8,7 +8,7 @@ export default class Editor extends Component {
     super(props);
 
     this.state = {
-      editorState: createStateFromHTML(EditorState.createEmpty(), props.defaultValue),
+      editorState: createStateFromHTML(EditorState.createEmpty(), props.defaultValue || ''),
     };
 
     this.onChange = this.onChange.bind(this);
