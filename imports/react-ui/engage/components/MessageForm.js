@@ -180,6 +180,7 @@ class MessageForm extends Component {
                   defaultValue={email.templateId}
                 >
 
+                  <option />
                   {this.props.templates.map(t =>
                     <option key={t._id} value={t._id}>
                       {t.name}
