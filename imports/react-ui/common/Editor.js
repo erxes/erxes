@@ -99,7 +99,7 @@ const BlockStyleControls = props => {
 
   return (
     <div className="RichEditor-controls">
-      {BLOCK_TYPES.map(type => (
+      {BLOCK_TYPES.map(type =>
         <StyleButton
           key={type.title}
           active={type.style === blockType}
@@ -107,8 +107,8 @@ const BlockStyleControls = props => {
           onToggle={onToggle}
           style={type.style}
           title={type.title}
-        />
-      ))}
+        />,
+      )}
     </div>
   );
 };
@@ -129,7 +129,7 @@ const InlineStyleControls = ({ onToggle, editorState }) => {
 
   return (
     <div className="RichEditor-controls">
-      {INLINE_STYLES.map(type => (
+      {INLINE_STYLES.map(type =>
         <StyleButton
           key={type.title}
           active={currentStyle.has(type.style)}
@@ -137,8 +137,8 @@ const InlineStyleControls = ({ onToggle, editorState }) => {
           onToggle={onToggle}
           style={type.style}
           title={type.title}
-        />
-      ))}
+        />,
+      )}
     </div>
   );
 };
@@ -193,7 +193,7 @@ export class ErxesEditor extends Component {
   }
 
   render() {
-    const { editorState } = this.props;
+    const { editorState, controls } = this.props;
 
     // If the user changes block type before entering any text, we can
     // either style the placeholder or hide it. Let's just hide it now.
@@ -212,6 +212,8 @@ export class ErxesEditor extends Component {
           <BlockStyleControls editorState={editorState} onToggle={this.toggleBlockType} />
 
           <InlineStyleControls editorState={editorState} onToggle={this.toggleInlineStyle} />
+
+          {controls ? controls : null}
         </div>
 
         <div className={className} onClick={this.focus}>
@@ -239,6 +241,8 @@ export class ErxesEditor extends Component {
 ErxesEditor.propTypes = {
   editorState: PropTypes.object,
   onChange: PropTypes.func,
+  // extra control rows
+  controls: PropTypes.array,
   pluginContent: PropTypes.object,
   plugins: PropTypes.array,
   keyBindingFn: PropTypes.func,
