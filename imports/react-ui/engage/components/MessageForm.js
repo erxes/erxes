@@ -1,14 +1,6 @@
 import React, { PropTypes, Component } from 'react';
 import ReactDom from 'react-dom';
-import {
-  Row,
-  Col,
-  ButtonGroup,
-  Button,
-  ControlLabel,
-  FormControl,
-  FormGroup,
-} from 'react-bootstrap';
+import { ButtonGroup, Button, FormControl, FormGroup } from 'react-bootstrap';
 
 import { FlowRouter } from 'meteor/kadira:flow-router';
 import { Wrapper } from '/imports/react-ui/layout/components';
@@ -110,8 +102,6 @@ class MessageForm extends Component {
 
     return (
       <FormGroup>
-        <ControlLabel>Segment</ControlLabel>
-
         <FormControl componentClass="select" id="segmentId" defaultValue={defaultValue}>
           {this.props.segments.map(segment => renderSegment(segment))}
         </FormControl>
@@ -119,11 +109,73 @@ class MessageForm extends Component {
     );
   }
 
+  renderChannelType() {
+    return (
+      <div className="row-section">
+        <div className="row-heading">
+          <h4>Channel</h4>
+        </div>
+        <div className="row-content">
+          <div className="button-box text-center selected">
+            <span>Email</span>
+            <p>Delivered to a user's email inbox <br />Customize with your own templates</p>
+          </div>
+          <div className="button-box text-center">
+            <span>Messenger</span>
+            <p>Delivered inside your app<br />Reach active users</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  renderEmailHeader() {
+    const message = this.props.message || {};
+    const email = message.email || {};
+
+    return (
+      <div className="email-header">
+        <div className="header-row">
+          <span>From:</span>
+          <FormControl id="fromUserId" componentClass="select" defaultValue={message.fromUserId}>
+            {this.props.users.map(u =>
+              <option key={u._id} value={u._id}>
+                {u.fullName || u.username}
+              </option>,
+            )}
+          </FormControl>
+        </div>
+
+        <div className="header-row">
+          <span>Email subject:</span>
+          <FormControl id="emailSubject" defaultValue={email.subject} required />
+        </div>
+
+        <div className="header-row">
+          <span>Email template:</span>
+          <FormControl
+            id="emailTemplateId"
+            componentClass="select"
+            onChange={this.onTemplateChange}
+            defaultValue={email.templateId}
+          >
+
+            <option />
+            {this.props.templates.map(t =>
+              <option key={t._id} value={t._id}>
+                {t.name}
+              </option>,
+            )}
+          </FormControl>
+        </div>
+      </div>
+    );
+  }
+
   render() {
     const breadcrumb = [{ title: 'Engage', link: '/engage' }];
 
     const message = this.props.message || {};
-    const email = message.email || {};
 
     const actionBar = (
       <Wrapper.ActionBar
@@ -141,59 +193,43 @@ class MessageForm extends Component {
     );
 
     const content = (
-      <div className="margined">
+      <div className="engage-box">
         <form onSubmit={this.save}>
-          {this.renderSegments(message.segmentId)}
+          <div className="row-section">
+            <div className="row-heading">
+              <h4>Title</h4>
+            </div>
+            <div className="row-content">
+              <FormControl id="title" defaultValue={message.title} required />
+            </div>
+          </div>
 
-          <FormGroup>
-            <ControlLabel>Title</ControlLabel>
-            <FormControl id="title" defaultValue={message.title} required />
-          </FormGroup>
+          <div className="row-section">
+            <div className="row-heading">
+              <h4>Segment</h4>
+            </div>
+            <div className="row-content">
+              {this.renderSegments(message.segmentId)}
+              <p>Send email to each customer who belongs to above segment</p>
+            </div>
+          </div>
 
-          <FormGroup>
-            <ControlLabel>From</ControlLabel>
+          {this.renderChannelType()}
 
-            <FormControl id="fromUserId" componentClass="select" defaultValue={message.fromUserId}>
-
-              {this.props.users.map(u =>
-                <option key={u._id} value={u._id}>
-                  {u.fullName || u.username}
-                </option>,
-              )}
-            </FormControl>
-          </FormGroup>
-
-          <FormGroup>
-            <ControlLabel>Email subject</ControlLabel>
-            <FormControl id="emailSubject" defaultValue={email.subject} required />
-          </FormGroup>
-
-          <Row>
-            <Col md={4}>
-              <FormGroup>
-                <ControlLabel>Email templates</ControlLabel>
-
-                <FormControl
-                  id="emailTemplateId"
-                  componentClass="select"
-                  onChange={this.onTemplateChange}
-                  defaultValue={email.templateId}
-                >
-
-                  <option />
-                  {this.props.templates.map(t =>
-                    <option key={t._id} value={t._id}>
-                      {t.name}
-                    </option>,
-                  )}
-                </FormControl>
-              </FormGroup>
-            </Col>
-
-            <Col md={8}>
-              <div dangerouslySetInnerHTML={{ __html: this.state.currentTemplate }} />
-            </Col>
-          </Row>
+          <div className="row-section">
+            <div className="row-heading">
+              <h4>Content</h4>
+            </div>
+            <div className="row-content">
+              <div className="browser-preview">
+                <div className="browser-icons" />
+                {this.renderEmailHeader()}
+                <div className="email-content">
+                  <div dangerouslySetInnerHTML={{ __html: this.state.currentTemplate }} />
+                </div>
+              </div>
+            </div>
+          </div>
         </form>
       </div>
     );

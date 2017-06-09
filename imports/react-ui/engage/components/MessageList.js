@@ -97,7 +97,7 @@ class List extends React.Component {
     const actionBar = <Wrapper.ActionBar left={actionBarLeft} />;
 
     const content = (
-      <Table>
+      <Table className="no-wrap">
         <thead>
           <tr>
             <th>Title</th>

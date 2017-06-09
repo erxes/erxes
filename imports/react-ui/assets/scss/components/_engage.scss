@@ -1,0 +1,153 @@
+$light-gray: #aaa;
+$transparent-border: rgba(0, 0, 0, 0.05);
+
+@mixin browser-icon {
+  content: "";
+  width: 10px;
+  height: 10px;
+  border-radius: 10px;
+  background: $light-gray;
+  display: inline-block;
+  position: absolute;
+  left: -15px;
+  top: 0;
+}
+
+.row-section {
+  padding: 30px;
+  display: flex;
+  border-bottom: 1px solid $transparent-border;
+
+  .row-heading {
+    flex-basis: 160px;
+
+    h4 {
+      margin: 0;
+      font-weight: bold;
+      font-size: 16px;
+    }
+  }
+
+  .row-content {
+    flex: 1;
+  }
+}
+
+.browser-preview {
+  position: relative;
+  border: 1px solid $border-grey;
+  border-radius: $border-radius / 2;
+
+  &::before {
+    content: "";
+    display: block;
+    z-index: 10;
+    height: 40px;
+    background: $light-gray-background;
+    border-bottom: 1px solid $transparent-border;
+    transition: all 0.5s;
+  }
+
+  .browser-icons {
+    width: 10px;
+    height: 10px;
+    border-radius: 10px;
+    background: $light-gray;
+    position: absolute;
+    top: 15px;
+    left: 27px;
+    z-index: 10;
+
+    &::before {
+      @include browser-icon;
+    }
+
+    &::after {
+      @include browser-icon;
+      left: 15px;
+    }
+  }
+}
+
+.email-header {
+  .header-row {
+    padding: 0 10px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid $transparent-border;
+
+    span {
+      color: $light-gray;
+      flex-basis: 130px;
+    }
+
+    .form-control {
+      border: 0;
+      padding: 8px 10px;
+    }
+  }
+}
+
+.email-content {
+  padding: 30px 30px 30px 120px;
+  flex: 1;
+  min-height: 300px;
+}
+
+.button-box {
+  cursor: pointer;
+  display: inline-block;
+  padding: 25px;
+  margin-bottom: 25px;
+  margin-right: 25px;
+  background: $white;
+  min-width: 250px;
+  border: 1px solid $transparent-border;
+  border-radius: $border-radius / 2;
+  box-shadow: 0 1px 1px $transparent-border;
+  transition: all .3s ease-in-out;
+  position: relative;
+
+  span {
+    font-size: 16px;
+    margin-bottom: 10px;
+    font-weight: bold;
+  }
+
+  p {
+    margin-bottom: 0;
+    color: $gray-light;
+  }
+
+  &.selected {
+    border-color: lighten($main-color, 20%);
+    box-shadow: inset 0 0 0 1px lighten($main-color, 20%);
+
+    &::after {
+      content: "\f122";
+      font-family: "Ionicons";
+      speak: none;
+      font-style: normal;
+      font-weight: normal;
+      font-variant: normal;
+      text-transform: none;
+      text-rendering: auto;
+      line-height: 1;
+      -webkit-font-smoothing: antialiased;
+      position: absolute;
+      bottom: 0;
+      right: 0;
+      padding: 3px 5px;
+      color: $white;
+      background: lighten($main-color, 20%);
+      border-top-left-radius: $border-radius / 2;
+    }
+  }
+
+  &:hover {
+    border-color: lighten($main-color, 10%);
+  }
+}

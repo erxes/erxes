@@ -7,6 +7,7 @@ $sidebar-width-wide:                340px;
 $action-bar-height:                 50px;
 $box-margin:                        15px;
 $box-inner-space:                   20px;
+$bos-shadow-color:                  rgba(0, 0, 0, .5);
 
 // Colors
 $main-color:                        #452679;
@@ -30,7 +31,7 @@ $gray-light:                        lighten($black, 46.7%) !default; // #777
 $gray-lighter:                      lighten($black, 93.5%) !default; // #eee
 
 $border-radius:                     4px;
-$box-shadow:                        0 2px 10px -3px rgba(0, 0, 0, .5);
+$box-shadow:                        0 2px 10px -3px $bos-shadow-color;
 
 $success-color:                     #67b04f;
 $error-color:                       #e85a5a;
