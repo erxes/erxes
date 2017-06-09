@@ -13,7 +13,7 @@ const propTypes = {
 function QuickNavigation({ unreadCount }) {
   const user = Meteor.user();
   const popoverNotification = (
-    <Popover id="popover-notification" title="Notifications">
+    <Popover id="popover-notification" className="notification-popover" title="Notifications">
       <NotificationsLatest />
     </Popover>
   );

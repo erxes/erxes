@@ -1,6 +1,3 @@
-$white-transparent-01: rgba(255, 255, 255, 0.1);
-$black-transparent-02: rgba(0, 0, 0, .2);
-
 .wrapper-loader {
   position: fixed;
   top: 0;
@@ -9,7 +6,7 @@ $black-transparent-02: rgba(0, 0, 0, .2);
   width: $nav-width;
   height: $header-height;
   z-index: 101;
-  border-bottom: 1px solid $white-transparent-01;
+  border-bottom: 1px solid rgba($white, 0.1);
 }
 
 [data-loader] {
@@ -26,9 +23,9 @@ $black-transparent-02: rgba(0, 0, 0, .2);
   @include prefix((animation: circle infinite .75s linear), webkit moz o);
 
   border: 2px solid $white;
-  border-top-color: $black-transparent-02;
-  border-right-color: $black-transparent-02;
-  border-bottom-color: $black-transparent-02;
+  border-top-color: rgba($black, .2);
+  border-right-color: rgba($black, .2);
+  border-bottom-color: rgba($black, .2);
   border-radius: 100%;
 }
 
@@ -44,7 +41,7 @@ $black-transparent-02: rgba(0, 0, 0, .2);
   }
 }
 
-
+// scss-lint:disable VendorPrefix
 
 @-webkit-keyframes circle
 {

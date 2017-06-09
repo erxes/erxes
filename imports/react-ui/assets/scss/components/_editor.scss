@@ -135,8 +135,12 @@ $editor-text-color: #999;
   box-sizing: border-box;
   transform: scale(0);
   bottom: 100%;
+
+  // scss-lint:disable ImportantRule
   top: auto !important;
   left: 0 !important;
+  // scss-lint:enable ImportantRule
+
   max-height: 300px;
   overflow: auto;
 }

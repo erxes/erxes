@@ -50,7 +50,7 @@ class Sidebar extends Component {
 
         <Wrapper.Sidebar.Section>
           <h3>Customer details</h3>
-          <ul className="filters no-link">
+          <ul className="sidebar-list no-link">
             <li>
               <NameCard customer={customer} avatarSize={50} />
             </li>

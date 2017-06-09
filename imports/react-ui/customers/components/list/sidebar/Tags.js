@@ -34,7 +34,7 @@ function Tags({ tags }) {
           : null}
       </Section.QuickButtons>
 
-      <ul className="filters">
+      <ul className="sidebar-list">
         {tags.length
           ? tags.map(tag => (
               <li key={tag._id}>
