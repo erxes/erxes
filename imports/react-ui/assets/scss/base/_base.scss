@@ -21,6 +21,7 @@ body {
     }
   }
 
+  // scss-lint:disable IdSelector
   > #react-root {
     height: 100%;
   }
@@ -49,12 +50,4 @@ body {
 
 .text-bold {
   font-weight: bold;
-}
-
-.capitalize {
-  display: inline-block;
-}
-
-.capitalize::first-letter {
-  text-transform: uppercase !important;
 }

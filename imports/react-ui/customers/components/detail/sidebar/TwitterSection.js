@@ -18,7 +18,7 @@ function TwitterSection({ customer }) {
   return (
     <Wrapper.Sidebar.Section>
       <Title>Twitter</Title>
-      <ul className="filters no-link">
+      <ul className="sidebar-list no-link">
         <li>
           Name
           <span className="counter">{twitterData.name}</span>

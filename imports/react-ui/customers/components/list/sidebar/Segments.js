@@ -50,7 +50,7 @@ function Segments({ segments }) {
           : null}
       </Section.QuickButtons>
 
-      <ul className="filters">
+      <ul className="sidebar-list">
         {orderedSegments.length
           ? orderedSegments.map(segment => (
               <li key={segment._id}>

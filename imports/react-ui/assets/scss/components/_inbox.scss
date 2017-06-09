@@ -1,15 +1,17 @@
 $fb-border-top: #e5e6e9;
 $fb-border-right: #dfe0e4;
 $fb-border-bottom: #d0d1d5;
-$fbpost-barckground: #f6f7f9;
+$fbpost-background: #f6f7f9;
 
 @mixin embed-post {
   padding: 12px;
-  background: $fbpost-barckground;
+  background: $fbpost-background;
   border: 1px solid;
   border-color: $fb-border-top $fb-border-right $fb-border-bottom;
   border-radius: $border-radius;
 }
+
+// Conversation list
 
 .conversations-list {
   margin: 0;
@@ -131,90 +133,18 @@ $fbpost-barckground: #f6f7f9;
   }
 }
 
-.conversation {
-  .message {
-    margin-bottom: 10px;
-    padding-right: 20%;
-    display: flex;
-    flex-direction: row;
-    position: relative;
-    clear: both;
+// Conversation details
 
-    &.staff {
-      padding-right: 0;
-      padding-left: 20%;
-      text-align: right;
-      flex-direction: row-reverse;
+.conversation-message-container {
+  margin-bottom: 10px;
+  padding-right: 20%;
+  display: flex;
+  flex-direction: row;
+  position: relative;
+  clear: both;
 
-      .body {
-        background-color: $message-background;
-        margin: 0 50px 20px 0;
-      }
-
-      footer {
-        right: 50px;
-        left: auto;
-      }
-    }
-
-    &.attachment .body {
-      padding: 0;
-      background-color: transparent;
-
-      > span {
-        display: block;
-        margin-bottom: 5px;
-      }
-
-      img {
-        border-radius: 3px;
-      }
-    }
-
-    &.fbpost .body {
-      @include embed-post;
-    }
-
-    &.attach-preview .body {
-      padding: 0;
-      position: relative;
-      min-width: 80px;
-      min-height: 50px;
-
-      > div[data-loader='circle-side'] {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        margin-left: -12px;
-        margin-top: -12px;
-      }
-
-      img {
-        opacity: 0.5;
-        border-radius: 3px;
-      }
-
-      .attach-file {
-        width: 270px;
-        height: 54px;
-      }
-    }
-
-    .avatar {
-      position: absolute;
-    }
-
-    &.internal .body {
-      background-color: $internal-background;
-    }
-
-    footer {
-      position: absolute;
-      bottom: 0;
-      left: 50px;
-      color: $gray-light;
-      font-size: 12px;
-    }
+  .avatar {
+    position: absolute;
   }
 
   .body {
@@ -256,23 +186,102 @@ $fbpost-barckground: #f6f7f9;
     }
   }
 
-  .form-data {
-    @include embed-post;
+  footer {
+    position: absolute;
+    bottom: 0;
+    left: 50px;
+    color: $gray-light;
     font-size: 12px;
-    padding: 0;
-    margin-bottom: 20px;
-    background: none;
+  }
+}
 
-    tbody > tr > td {
-      padding: 10px 20px;
+.staff {
+  padding-right: 0;
+  padding-left: 20%;
+  text-align: right;
+  flex-direction: row-reverse;
+
+  .body {
+    background-color: $message-background;
+    margin: 0 50px 20px 0;
+  }
+
+  footer {
+    right: 50px;
+    left: auto;
+  }
+}
+
+.attachment {
+  .body {
+    padding: 0;
+    background-color: transparent;
+
+    > span {
+      display: block;
+      margin-bottom: 5px;
     }
 
-    thead > tr > th {
-      background: $grey;
-      border-bottom: 1px solid $border-grey;
+    img {
+      border-radius: 3px;
     }
   }
 }
+
+.fbpost {
+  .body {
+    @include embed-post;
+  }
+}
+
+.attach-preview {
+  .body {
+    padding: 0;
+    position: relative;
+    min-width: 80px;
+    min-height: 50px;
+
+    > div[data-loader='circle-side'] {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      margin-left: -12px;
+      margin-top: -12px;
+    }
+
+    img {
+      opacity: 0.5;
+      border-radius: 3px;
+    }
+
+    .attach-file {
+      width: 270px;
+      height: 54px;
+    }
+  }
+}
+
+.internal .body {
+  background-color: $internal-background;
+}
+
+.form-data {
+  @include embed-post;
+  font-size: 12px;
+  padding: 0;
+  margin-bottom: 20px;
+  background: none;
+
+  td {
+    padding: 10px 20px;
+  }
+
+  th {
+    background: $grey;
+    border-bottom: 1px solid $border-grey;
+  }
+}
+
 
 .reaction {
   display: inline-block;
@@ -290,12 +299,16 @@ $fbpost-barckground: #f6f7f9;
     background-repeat: no-repeat;
     background-size: auto;
 
-    &.reaction-like {
-      background-position: -34px 0;
+    &.reaction-angry {
+      background-position: 0 0;
     }
 
-    &.reaction-wow {
-      background-position: -85px 0;
+    &.reaction-haha {
+      background-position: -17px 0;
+    }
+
+    &.reaction-like {
+      background-position: -34px 0;
     }
 
     &.reaction-love {
@@ -306,12 +319,8 @@ $fbpost-barckground: #f6f7f9;
       background-position: -68px 0;
     }
 
-    &.reaction-haha {
-      background-position: -17px 0;
-    }
-
-    &.reaction-angry {
-      background-position: 0 0;
+    &.reaction-wow {
+      background-position: -85px 0;
     }
   }
 }

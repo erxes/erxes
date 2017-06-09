@@ -34,7 +34,7 @@ function Integrations({ integrations }) {
           : null}
       </Section.QuickButtons>
 
-      <ul className="filters">
+      <ul className="sidebar-list">
         {integrations.length
           ? integrations.map(integration => (
               <li key={integration}>
