@@ -15,3 +15,10 @@ export const EMAIL_CONTENT_KEYS_FOR_SELECT = [
     ],
   },
 ];
+
+export const statusFilters = [
+  { key: 'live', value: 'Live' },
+  { key: 'draft', value: 'Draft' },
+  { key: 'paused', value: 'Paused' },
+  { key: 'yours', value: 'Your messages' },
+];
