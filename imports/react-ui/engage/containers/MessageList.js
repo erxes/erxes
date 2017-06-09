@@ -6,7 +6,7 @@ import { Messages } from '/imports/api/engage/engage';
 import { MessageList } from '../components';
 
 function composer({ type }, onData) {
-  Meteor.subscribe('engage.messages.list', { type });
+  const messagesHandler = Meteor.subscribe('engage.messages.list', { type });
   Meteor.subscribe('users.list', {});
   Meteor.subscribe('customers.segments');
 
@@ -22,11 +22,13 @@ function composer({ type }, onData) {
     });
   };
 
-  onData(null, {
-    type,
-    messages: Messages.find().fetch(),
-    remove,
-  });
+  if (messagesHandler.ready()) {
+    onData(null, {
+      type,
+      messages: Messages.find().fetch(),
+      remove,
+    });
+  }
 }
 
 export default compose(getTrackerLoader(composer), composerOptions({}))(MessageList);

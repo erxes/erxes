@@ -32,7 +32,7 @@ function composer({ messageId, type }, onData) {
       Alert.error(error.reason || error.message);
     } else {
       Alert.success('Form is successfully saved.');
-      FlowRouter.go('/engage/messages/list');
+      FlowRouter.go('/engage/home');
     }
   };
 

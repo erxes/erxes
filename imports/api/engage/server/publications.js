@@ -21,8 +21,9 @@ Meteor.publish('engage.messages.list', function engageMessagesList(params) {
   let query = {};
 
   // basic count helper
-  const count = (name, q) => {
-    Counts.publish(this, name, Messages.find(q), { noReady: true });
+  const count = (name, selector) => {
+    const fields = { _id: 1 };
+    Counts.publish(this, name, Messages.find(selector, { fields }), { noReady: true });
   };
 
   // all count

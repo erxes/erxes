@@ -201,7 +201,7 @@ class MessageForm extends Component {
               <i className="ion-checkmark-circled" /> Save & draft
             </Button>
 
-            <Button bsStyle="link" href={FlowRouter.path('engage/messages/list')}>
+            <Button bsStyle="link" href={FlowRouter.path('engage/home')}>
               <i className="ion-close-circled" /> Cancel
             </Button>
           </ButtonGroup>

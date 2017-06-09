@@ -11,7 +11,7 @@ function Main() {
       <Title>Filter</Title>
       <ul className="filters">
         <li>
-          <a href={`${FlowRouter.path('engage/messages/list')}`}>
+          <a href={`${FlowRouter.path('engage/home')}`}>
             <i className="icon ion-arrow-right-b" />All
 
             <span className="counter">
@@ -20,7 +20,7 @@ function Main() {
           </a>
         </li>
         <li>
-          <a href={`${FlowRouter.path('engage/messages/list')}?type=auto`}>
+          <a href={`${FlowRouter.path('engage/home')}?type=auto`}>
             <i className="icon ion-arrow-right-b" />Auto
 
             <span className="counter">
@@ -29,7 +29,7 @@ function Main() {
           </a>
         </li>
         <li>
-          <a href={`${FlowRouter.path('engage/messages/list')}?type=manual`}>
+          <a href={`${FlowRouter.path('engage/home')}?type=manual`}>
             <i className="icon ion-arrow-right-b" />Manual
 
             <span className="counter">
