@@ -25,6 +25,15 @@ Meteor.publish('engage.messages.list', function engageMessagesList(params) {
     Counts.publish(this, name, Messages.find(q), { noReady: true });
   };
 
+  // all count
+  count('engage.messages.all', {});
+
+  // auto count
+  count('engage.messages.auto', { isAuto: true });
+
+  // manual count
+  count('engage.messages.manual', { isAuto: false });
+
   // manual or auto
   if (params.type) {
     query.isAuto = params.type === 'auto';
