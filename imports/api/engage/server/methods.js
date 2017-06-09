@@ -21,8 +21,8 @@ export const messagesAdd = new ValidatedMethod({
     // create
     const messageId = Messages.insert(doc);
 
-    // if manual then send emails immediately
-    if (!doc.isAuto) {
+    // if manual and live then send emails immediately
+    if (!doc.isAuto && doc.isLive) {
       const message = Messages.findOne(messageId);
 
       send(message);
