@@ -41,6 +41,11 @@ class Row extends Component {
 
     return (
       <tr>
+        <td>
+          <div className="iframe-preview">
+            <iframe srcDoc={emailTemplate.content} />
+          </div>
+        </td>
         <td>{emailTemplate.name}</td>
 
         <td className="text-right">

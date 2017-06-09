@@ -89,18 +89,15 @@ class List extends React.Component {
     const { type, messages } = this.props;
 
     const actionBarLeft = (
-      <Button bsStyle="link">
-        <a href={`/engage/messages/create?type=${type || ''}`}>
-          <i className="ion-plus-circled" />
-          New {type === 'auto' ? 'auto' : 'manual'} message
-        </a>
+      <Button bsStyle="link" href={`/engage/messages/create?type=${type || ''}`}>
+        <i className="ion-plus-circled" /> New {type === 'auto' ? 'auto' : 'manual'} message
       </Button>
     );
 
     const actionBar = <Wrapper.ActionBar left={actionBarLeft} />;
 
     const content = (
-      <Table>
+      <Table className="no-wrap">
         <thead>
           <tr>
             <th>Title</th>

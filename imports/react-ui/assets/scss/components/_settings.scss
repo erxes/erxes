@@ -1,5 +1,22 @@
 $bg-widget-background:        #faf9fb;
 
+.iframe-preview {
+  width: 140px;
+  height: 100px;
+  overflow: hidden;
+  border: 1px solid $border-grey;
+  border-radius: $border-radius;
+
+  iframe {
+    transform: scale(.2);
+    transform-origin: 0 0;
+    pointer-events: none;
+    width: 510%;
+    height: 500%;
+    border: 0;
+  }
+}
+
 .integration-item {
   .checkbox {
     margin-top: 0;
