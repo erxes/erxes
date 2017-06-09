@@ -16,7 +16,7 @@ const propTypes = {
 class List extends React.Component {
   renderEditLink(message) {
     // show only if auto
-    if (this.props.type !== 'auto') {
+    if (message.isAuto) {
       return null;
     }
 
@@ -85,14 +85,24 @@ class List extends React.Component {
     );
   }
 
-  render() {
-    const { type, messages } = this.props;
+  renderNewButton() {
+    const type = this.props.type;
 
-    const actionBarLeft = (
-      <Button bsStyle="link" href={`/engage/messages/create?type=${type || ''}`}>
-        <i className="ion-plus-circled" /> New {type === 'auto' ? 'auto' : 'manual'} message
-      </Button>
-    );
+    if (type) {
+      const text = `New ${type === 'auto' ? 'auto' : 'manual'} message`;
+
+      return (
+        <Button bsStyle="link" href={`/engage/messages/create?type=${type || ''}`}>
+          <i className="ion-plus-circled" /> {text}
+        </Button>
+      );
+    }
+  }
+
+  render() {
+    const { messages } = this.props;
+
+    const actionBarLeft = this.renderNewButton();
 
     const actionBar = <Wrapper.ActionBar left={actionBarLeft} />;
 
