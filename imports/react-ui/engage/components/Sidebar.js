@@ -8,16 +8,16 @@ function Sidebar() {
   return (
     <Wrapper.Sidebar>
       <Wrapper.Sidebar.Section>
-        <Title>Filter</Title>
+        <Title>Filter by type</Title>
         <ul className="filters">
           <li>
             <a href={`${FlowRouter.path('engage/messages/list')}?type=auto`}>
-              <i className="icon ion-arrow-right-b" />Auto
+              <span className="icon">#</span> Auto messages
             </a>
           </li>
           <li>
             <a href={FlowRouter.path('engage/messages/list')}>
-              <i className="icon ion-arrow-right-b" />Manual
+              <span className="icon">#</span> Manual messages
             </a>
           </li>
         </ul>

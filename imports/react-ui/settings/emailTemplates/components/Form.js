@@ -22,7 +22,12 @@ class Form extends Component {
   constructor(props) {
     super(props);
 
+    // states
+    this.state = { contentTemplate: this.props.emailTemplate.content };
+
     this.save = this.save.bind(this);
+    this.renderPreview = this.renderPreview.bind(this);
+    this.onTemplateChange = this.onTemplateChange.bind(this);
   }
 
   save(e) {
@@ -51,6 +56,23 @@ class Form extends Component {
     });
   }
 
+  onTemplateChange(e) {
+    this.setState({ contentTemplate: e.target.value });
+  }
+
+  renderPreview() {
+    if (this.state.contentTemplate) {
+      return (
+        <FormGroup>
+          <ControlLabel>Preview</ControlLabel>
+
+          <div dangerouslySetInnerHTML={{ __html: this.state.contentTemplate }} />
+        </FormGroup>
+      );
+    }
+    return null;
+  }
+
   render() {
     const onClick = () => {
       this.context.closeModal();
@@ -73,9 +95,12 @@ class Form extends Component {
             id="template-content"
             componentClass="textarea"
             rows={5}
+            onChange={this.onTemplateChange}
             defaultValue={emailTemplate.content}
           />
         </FormGroup>
+
+        {this.renderPreview()}
 
         <Modal.Footer>
           <ButtonToolbar className="pull-right">

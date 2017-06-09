@@ -21,13 +21,13 @@ class List extends Component {
   renderObjects() {
     const { objects, removeEmailTemplate } = this.props;
 
-    return objects.map(emailTemplate => (
+    return objects.map(emailTemplate =>
       <Row
         key={emailTemplate._id}
         emailTemplate={emailTemplate}
         removeEmailTemplate={removeEmailTemplate}
-      />
-    ));
+      />,
+    );
   }
 
   render() {
@@ -49,6 +49,7 @@ class List extends Component {
       <Table>
         <thead>
           <tr>
+            <th width="140" />
             <th>Name</th>
             <th className="text-right">Actions</th>
           </tr>
