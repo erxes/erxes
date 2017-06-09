@@ -22,10 +22,31 @@ function composer({ type }, onData) {
     });
   };
 
+  const setLive = messageId => {
+    Meteor.call('engage.messages.setLive', messageId, () => {
+      return Alert.success('Live');
+    });
+  };
+
+  const setLiveManual = messageId => {
+    Meteor.call('engage.messages.setLiveManual', messageId, () => {
+      return Alert.success('Live');
+    });
+  };
+
+  const setPause = messageId => {
+    Meteor.call('engage.messages.setPause', messageId, () => {
+      return Alert.success('Paused');
+    });
+  };
+
   if (messagesHandler.ready()) {
     onData(null, {
       type,
       messages: Messages.find().fetch(),
+      setLive,
+      setLiveManual,
+      setPause,
       remove,
     });
   }

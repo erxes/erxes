@@ -11,24 +11,63 @@ const propTypes = {
   type: PropTypes.string,
   messages: PropTypes.array.isRequired,
   remove: PropTypes.func.isRequired,
+  setLive: PropTypes.func.isRequired,
+  setLiveManual: PropTypes.func.isRequired,
+  setPause: PropTypes.func.isRequired,
 };
 
 class List extends React.Component {
-  renderEditLink(message) {
-    // show only if auto
-    if (message.isAuto) {
-      return null;
-    }
-
-    const editUrl = FlowRouter.path(`/engage/messages/edit/${message._id}`);
-
+  renderLink(msg, text, className, onClick) {
     return (
-      <Tip text="Edit">
-        <Button bsStyle="link" href={editUrl}>
-          <i className="ion-edit" />
+      <Tip text={text} key={`${text}-${msg._id}`}>
+        <Button bsStyle="link" onClick={onClick}>
+          <i className={className} />
         </Button>
       </Tip>
     );
+  }
+
+  rowEdit(message) {
+    FlowRouter.go(`/engage/messages/edit/${message._id}`);
+  }
+
+  rowPause(message) {
+    this.props.setPause(message._id);
+  }
+
+  rowLive(message) {
+    this.props.setLive(message._id);
+  }
+
+  rowLiveManual(message) {
+    this.props.setLiveManual(message._id);
+  }
+
+  renderLinks(msg) {
+    const edit = this.renderLink(msg, 'Edit', 'ion-edit', this.rowEdit.bind(this, msg));
+    const pause = this.renderLink(msg, 'Pause', 'ion-gear-a', this.rowPause.bind(this, msg));
+    const live = this.renderLink(
+      msg,
+      'Set live',
+      'ion-paper-airplane',
+      this.rowLive.bind(this, msg),
+    );
+
+    if (msg.isAuto) {
+      if (msg.isDraft) {
+        return [edit, live];
+      }
+
+      if (msg.isLive) {
+        return [edit, pause];
+      }
+
+      return [edit, live];
+    }
+
+    if (msg.isDraft) {
+      return this.renderLink('Set live', 'ion-paper-airplane', this.rowLiveManual.bind(this, msg));
+    }
   }
 
   renderRows(message) {
@@ -72,7 +111,7 @@ class List extends React.Component {
 
         <td className="text-right">
           <ActionButtons>
-            {this.renderEditLink(message)}
+            {this.renderLinks(message)}
 
             <Tip text="Delete">
               <Button bsStyle="link" onClick={removeAction}>

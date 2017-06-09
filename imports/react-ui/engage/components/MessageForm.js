@@ -37,6 +37,7 @@ class MessageForm extends Component {
 
     // binds
     this.generateDoc = this.generateDoc.bind(this);
+    this.save = this.save.bind(this);
     this.saveAndLive = this.saveAndLive.bind(this);
     this.saveAndDraft = this.saveAndDraft.bind(this);
     this.onContentChange = this.onContentChange.bind(this);
@@ -91,6 +92,11 @@ class MessageForm extends Component {
     };
 
     return doc;
+  }
+
+  save(e) {
+    const doc = this.generateDoc(e);
+    this.props.save(doc);
   }
 
   saveAndLive(e) {
@@ -184,6 +190,32 @@ class MessageForm extends Component {
     );
   }
 
+  renderButtons(message) {
+    const save = (
+      <Button bsStyle="link" onClick={this.save}>
+        <i className="ion-checkmark-circled" /> Save
+      </Button>
+    );
+
+    const saveAndLive = (
+      <Button bsStyle="link" onClick={this.saveAndLive} key="action-save-live">
+        <i className="ion-checkmark-circled" /> Save & live
+      </Button>
+    );
+
+    const saveAndDraft = (
+      <Button bsStyle="link" onClick={this.saveAndDraft} key="action-save-draft">
+        <i className="ion-checkmark-circled" /> Save & draft
+      </Button>
+    );
+
+    if (message._id) {
+      return save;
+    } else {
+      return [saveAndLive, saveAndDraft];
+    }
+  }
+
   render() {
     const breadcrumb = [{ title: 'Engage', link: '/engage' }];
 
@@ -193,13 +225,7 @@ class MessageForm extends Component {
       <Wrapper.ActionBar
         left={
           <ButtonGroup>
-            <Button bsStyle="link" onClick={this.saveAndLive}>
-              <i className="ion-checkmark-circled" /> Save & live
-            </Button>
-
-            <Button bsStyle="link" onClick={this.saveAndDraft}>
-              <i className="ion-checkmark-circled" /> Save & draft
-            </Button>
+            {this.renderButtons(message)}
 
             <Button bsStyle="link" href={FlowRouter.path('engage/home')}>
               <i className="ion-close-circled" /> Cancel

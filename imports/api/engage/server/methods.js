@@ -60,3 +60,50 @@ export const messagesRemove = new ValidatedMethod({
     return Messages.remove(id);
   },
 });
+
+// set live
+export const messagesSetLive = new ValidatedMethod({
+  name: 'engage.messages.setLive',
+  mixins: [ErxesMixin],
+
+  validate(id) {
+    check(id, String);
+  },
+
+  run(id) {
+    return Messages.update(id, { $set: { isLive: true, isDraft: false } });
+  },
+});
+
+// set pause
+export const messagesSetPause = new ValidatedMethod({
+  name: 'engage.messages.setPause',
+  mixins: [ErxesMixin],
+
+  validate(id) {
+    check(id, String);
+  },
+
+  run(id) {
+    return Messages.update(id, { $set: { isLive: false } });
+  },
+});
+
+// set live manual
+export const messagesSetLiveManual = new ValidatedMethod({
+  name: 'engage.messages.setLiveManual',
+  mixins: [ErxesMixin],
+
+  validate(id) {
+    check(id, String);
+  },
+
+  run(id) {
+    Messages.update(id, { $set: { isLive: true, isDraft: false } });
+
+    const message = Messages.findOne(id);
+
+    // if manual and live then send emails
+    send(message);
+  },
+});
