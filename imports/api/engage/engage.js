@@ -38,6 +38,14 @@ Messages.schema = new SimpleSchema({
     type: Boolean,
     optional: true,
   },
+  isDraft: {
+    type: Boolean,
+    optional: true,
+  },
+  isLive: {
+    type: Boolean,
+    optional: true,
+  },
   stopDate: {
     type: Date,
     optional: true,

@@ -44,7 +44,9 @@ class MessageForm extends Component {
     this.state = { content, currentTemplate };
 
     // binds
-    this.save = this.save.bind(this);
+    this.generateDoc = this.generateDoc.bind(this);
+    this.saveAndLive = this.saveAndLive.bind(this);
+    this.saveAndDraft = this.saveAndDraft.bind(this);
     this.onContentChange = this.onContentChange.bind(this);
     this.onTemplateChange = this.onTemplateChange.bind(this);
   }
@@ -82,7 +84,7 @@ class MessageForm extends Component {
     }
   }
 
-  save(e) {
+  generateDoc(e) {
     e.preventDefault();
 
     const doc = {
@@ -96,7 +98,17 @@ class MessageForm extends Component {
       },
     };
 
-    this.props.save(doc);
+    return doc;
+  }
+
+  saveAndLive(e) {
+    const doc = this.generateDoc(e);
+    this.props.save({ isLive: true, isDraft: false, ...doc });
+  }
+
+  saveAndDraft(e) {
+    const doc = this.generateDoc(e);
+    this.props.save({ isLive: false, isDraft: true, ...doc });
   }
 
   onContentChange(content) {
@@ -129,9 +141,14 @@ class MessageForm extends Component {
       <Wrapper.ActionBar
         left={
           <ButtonGroup>
-            <Button bsStyle="link" onClick={this.save}>
-              <i className="ion-checkmark-circled" /> Save
+            <Button bsStyle="link" onClick={this.saveAndLive}>
+              <i className="ion-checkmark-circled" /> Save & live
             </Button>
+
+            <Button bsStyle="link" onClick={this.saveAndDraft}>
+              <i className="ion-checkmark-circled" /> Save & draft
+            </Button>
+
             <Button bsStyle="link" href={FlowRouter.path('engage/messages/list')}>
               <i className="ion-close-circled" /> Cancel
             </Button>
