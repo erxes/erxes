@@ -35,3 +35,14 @@ export const tagSchemaOptions = () => ({
     optional: true,
   },
 });
+
+export const TagSchema = new SimpleSchema({
+  targetIds: {
+    type: [String],
+    regEx: SimpleSchema.RegEx.Id,
+  },
+  tagIds: {
+    type: [String],
+    regEx: SimpleSchema.RegEx.Id,
+  },
+});

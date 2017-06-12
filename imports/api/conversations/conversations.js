@@ -223,17 +223,6 @@ export const ChangeStatusSchema = new SimpleSchema({
   },
 });
 
-export const TagSchema = new SimpleSchema({
-  conversationIds: {
-    type: [String],
-    regEx: SimpleSchema.RegEx.Id,
-  },
-  tagIds: {
-    type: [String],
-    regEx: SimpleSchema.RegEx.Id,
-  },
-});
-
 Conversations.publicFields = {
   number: 1,
   assignedUserId: 1,

@@ -5,6 +5,7 @@ import { ValidatedMethod } from 'meteor/mdg:validated-method';
 import strip from 'strip';
 
 import { ErxesMixin } from '/imports/api/utils';
+import { TagSchema } from '/imports/api/tags/utils';
 import { tagObject } from '/imports/api/tags/server/api';
 import { sendNotification, sendEmail } from '/imports/api/server/utils';
 import { KIND_CHOICES } from '/imports/api/integrations/constants';
@@ -16,7 +17,6 @@ import {
   ConversationIdsSchema,
   AssignSchema,
   ChangeStatusSchema,
-  TagSchema,
 } from '/imports/api/conversations/conversations';
 
 /*
@@ -283,13 +283,13 @@ export const tag = new ValidatedMethod({
   mixins: [ErxesMixin],
   validate: TagSchema.validator(),
 
-  run({ conversationIds, tagIds }) {
+  run({ targetIds, tagIds }) {
     // check conversations existance
-    checkConversationsExistance(conversationIds);
+    checkConversationsExistance(targetIds);
 
     tagObject({
       tagIds,
-      objectIds: conversationIds,
+      objectIds: targetIds,
       collection: Conversations,
     });
   },
