@@ -3,13 +3,26 @@ import { Factory } from 'meteor/dburles:factory';
 import { Mongo } from 'meteor/mongo';
 import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 
-export const Topics = new Mongo.Collection('knowledgebase_topics');
-export const Articles = new Mongo.Collection('knowledgebase_articles');
+export const KBGroups = new Mongo.Collection('knowledgebase_groups');
+export const KBTopics = new Mongo.Collection('knowledgebase_topics');
+export const KBArticles = new Mongo.Collection('knowledgebase_articles');
 
 /* ----------------------- Schemas ----------------------- */
 
+KBGroups.schema = new SimpleSchema({
+  title: {
+    type: String,
+  },
+  description: {
+    type: String,
+  },
+  code: {
+    type: String,
+  },
+});
+
 // topics
-Topics.schema = new SimpleSchema({
+KBTopics.schema = new SimpleSchema({
   title: {
     type: String,
   },
@@ -17,10 +30,13 @@ Topics.schema = new SimpleSchema({
     type: String,
     optional: true,
   },
+  groupId: {
+    type: String,
+  },
 });
 
 // articles
-Articles.schema = new SimpleSchema({
+KBArticles.schema = new SimpleSchema({
   title: {
     type: String,
   },
@@ -30,12 +46,17 @@ Articles.schema = new SimpleSchema({
   content: {
     type: String,
   },
+  topicId: {
+    type: String,
+  },
 });
 
 /* ----------------------- Collections ----------------------- */
 
-Topics.attachScema(Topics.schema);
+KBGroups.attachSchema(KBGroups.schema);
 
-Articles.attachSchema(Articles.schema);
+KBTopics.attachScema(KBTopics.schema);
+
+KBArticles.attachSchema(KBArticles.schema);
 
 // fixtures
