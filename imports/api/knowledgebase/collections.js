@@ -9,6 +9,18 @@ export const KBArticles = new Mongo.Collection('knowledgebase_articles');
 
 /* ----------------------- Schemas ----------------------- */
 
+const KBBaseSchema = new SimpleSchema({
+  code: {
+    type: String,
+  },
+  createdUserId: {
+    type: String,
+  },
+  createdDate: {
+    type: Date,
+  },
+});
+
 KBGroups.schema = new SimpleSchema({
   title: {
     type: String,
@@ -54,9 +66,12 @@ KBArticles.schema = new SimpleSchema({
 /* ----------------------- Collections ----------------------- */
 
 KBGroups.attachSchema(KBGroups.schema);
+KBGroups.attachSchema(KBBaseSchema);
 
-KBTopics.attachScema(KBTopics.schema);
+KBTopics.attachSchema(KBTopics.schema);
+KBTopics.attachSchema(KBBaseSchema);
 
 KBArticles.attachSchema(KBArticles.schema);
+KBArticles.attachSchema(KBBaseSchema);
 
 // fixtures
