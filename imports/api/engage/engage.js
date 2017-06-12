@@ -1,11 +1,13 @@
 import { Meteor } from 'meteor/meteor';
 import faker from 'faker';
 import { Factory } from 'meteor/dburles:factory';
-import { Mongo } from 'meteor/mongo';
 import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 import Segments from '/imports/api/customers/segments';
+import { TagsCollection, tagsHelper, tagSchemaOptions } from '/imports/api/tags/utils';
 
-export const Messages = new Mongo.Collection('engage_messages');
+export const Messages = new TagsCollection('engage_messages');
+
+Messages.TAG_TYPE = 'engageMessage';
 
 const EmailSchema = new SimpleSchema({
   templateId: {
@@ -50,6 +52,7 @@ Messages.schema = new SimpleSchema({
     type: Date,
     optional: true,
   },
+  ...tagSchemaOptions(),
 });
 
 Messages.schemaExtra = new SimpleSchema({
@@ -75,6 +78,8 @@ Messages.helpers({
   segment() {
     return Segments.findOne(this.segmentId) || {};
   },
+
+  ...tagsHelper,
 });
 
 Messages.attachSchema(Messages.schema);
