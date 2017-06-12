@@ -1,8 +1,6 @@
 import { check } from 'meteor/check';
 import { ValidatedMethod } from 'meteor/mdg:validated-method';
 import { ErxesMixin } from '/imports/api/utils';
-import { tagObject } from '/imports/api/tags/server/api';
-import { TagSchema } from '/imports/api/tags/utils';
 import { Messages } from '../engage';
 import { send } from '../utils';
 
@@ -107,20 +105,5 @@ export const messagesSetLiveManual = new ValidatedMethod({
 
     // if manual and live then send emails
     send(message);
-  },
-});
-
-// tag message
-export const tag = new ValidatedMethod({
-  name: 'engage.messages.tag',
-  mixins: [ErxesMixin],
-  validate: TagSchema.validator(),
-
-  run({ targetIds, tagIds }) {
-    tagObject({
-      tagIds,
-      objectIds: targetIds,
-      collection: Messages,
-    });
   },
 });

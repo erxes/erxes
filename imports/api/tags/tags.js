@@ -100,6 +100,21 @@ Tags.schema = new SimpleSchema([
 
 Tags.attachSchema(Tags.schema);
 
+// helper for conversation, customer, engage message etc ...
+export const TagItemSchema = new SimpleSchema({
+  type: {
+    type: String,
+  },
+  targetIds: {
+    type: [String],
+    regEx: SimpleSchema.RegEx.Id,
+  },
+  tagIds: {
+    type: [String],
+    regEx: SimpleSchema.RegEx.Id,
+  },
+});
+
 Tags.publicFields = {
   name: 1,
   type: 1,

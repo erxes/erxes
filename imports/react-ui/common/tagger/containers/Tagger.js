@@ -12,19 +12,7 @@ function composer(props, onData) {
   const { type } = props;
 
   function tag({ targetIds, tagIds }, callback) {
-    const params = [{ targetIds, tagIds }, callback];
-
-    let methodName = 'conversations.tag';
-
-    if (type === TAG_TYPES.CUSTOMER) {
-      methodName = 'customers.tag';
-    }
-
-    if (type === TAG_TYPES.ENGAGE_MESSAGE) {
-      methodName = 'engage.messages.tag';
-    }
-
-    return Meteor.call(methodName, ...params);
+    return Meteor.call('tags.tag', { type, targetIds, tagIds }, callback);
   }
 
   let collection = Conversations;

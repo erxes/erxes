@@ -3,30 +3,18 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Button } from 'react-bootstrap';
-import Alert from 'meteor/erxes-notifier';
 import { Tags, ModalTrigger, Tip, ActionButtons } from '/imports/react-ui/common';
 import { Form } from '../containers';
 
 const propTypes = {
   tag: PropTypes.object.isRequired,
   type: PropTypes.string.isRequired,
-  remove: PropTypes.object.isRequired,
+  remove: PropTypes.func.isRequired,
 };
 
 function Row({ tag, type, remove }) {
   function removeTag() {
-    if (!confirm('Are you sure you want to delete this tag?')) {
-      // eslint-disable-line no-alert
-      return;
-    }
-
-    remove.call([tag._id], error => {
-      if (error) {
-        return Alert.error(error.reason);
-      }
-
-      return Alert.success('The tag has been deleted, forever!');
-    });
+    remove(tag);
   }
 
   const editTrigger = (

@@ -5,8 +5,6 @@ import { ValidatedMethod } from 'meteor/mdg:validated-method';
 import strip from 'strip';
 
 import { ErxesMixin } from '/imports/api/utils';
-import { TagSchema } from '/imports/api/tags/utils';
-import { tagObject } from '/imports/api/tags/server/api';
 import { sendNotification, sendEmail } from '/imports/api/server/utils';
 import { KIND_CHOICES } from '/imports/api/integrations/constants';
 import { tweetReply } from '/imports/api/integrations/social/server/twitter';
@@ -271,26 +269,6 @@ export const unstar = new ValidatedMethod({
 
     Meteor.users.update(this.userId, {
       $pull: { 'details.starredConversationIds': { $in: conversationIds } },
-    });
-  },
-});
-
-/*
- * tag conversation
- */
-export const tag = new ValidatedMethod({
-  name: 'conversations.tag',
-  mixins: [ErxesMixin],
-  validate: TagSchema.validator(),
-
-  run({ targetIds, tagIds }) {
-    // check conversations existance
-    checkConversationsExistance(targetIds);
-
-    tagObject({
-      tagIds,
-      objectIds: targetIds,
-      collection: Conversations,
     });
   },
 });

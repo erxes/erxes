@@ -3,8 +3,11 @@ import { check } from 'meteor/check';
 import { ValidatedMethod } from 'meteor/mdg:validated-method';
 import { Customers } from '/imports/api/customers/customers';
 import { Conversations } from '/imports/api/conversations/conversations';
+import { Messages } from '/imports/api/engage/engage';
 import { ErxesMixin } from '/imports/api/utils';
-import { Tags, FormSchema } from './tags';
+import { Tags, FormSchema, TagItemSchema } from '../tags';
+import { TAG_TYPES } from '../constants';
+import { tagObject } from './api';
 
 export const add = new ValidatedMethod({
   name: 'tags.add',
@@ -49,8 +52,11 @@ export const remove = new ValidatedMethod({
       throw new Meteor.Error('tags.remove.notFound', 'Tag not found');
     }
 
-    let count = Customers.find({ tagIds: { $in: ids } }).count();
+    let count = 0;
+
+    count += Customers.find({ tagIds: { $in: ids } }).count();
     count += Conversations.find({ tagIds: { $in: ids } }).count();
+    count += Messages.find({ tagIds: { $in: ids } }).count();
 
     // can't remove a tag with tagged objects
     if (count > 0) {
@@ -58,5 +64,30 @@ export const remove = new ValidatedMethod({
     }
 
     return Tags.remove({ _id: { $in: ids } });
+  },
+});
+
+// actual tag action
+export const tag = new ValidatedMethod({
+  name: 'tags.tag',
+  mixins: [ErxesMixin],
+  validate: TagItemSchema.validator(),
+
+  run({ type, targetIds, tagIds }) {
+    let collection = Conversations;
+
+    if (type === TAG_TYPES.CUSTOMER) {
+      collection = Customers;
+    }
+
+    if (type === TAG_TYPES.ENGAGE_MESSAGE) {
+      collection = Messages;
+    }
+
+    tagObject({
+      tagIds,
+      objectIds: targetIds,
+      collection,
+    });
   },
 });
