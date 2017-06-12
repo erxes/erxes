@@ -12,6 +12,12 @@ import { tagObject } from './api';
 
 describe('tags', function() {
   describe('mutators', function() {
+    let userId;
+
+    beforeEach(function() {
+      userId = Factory.create('user')._id;
+    });
+
     afterEach(function() {
       Tags.remove({});
     });
@@ -46,7 +52,7 @@ describe('tags', function() {
 
       assert.throws(
         () => {
-          Tags.remove(tag._id);
+          remove._execute({ userId }, [tag._id]);
         },
         Meteor.Error,
         /tags.remove.restricted/,

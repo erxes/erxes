@@ -113,7 +113,7 @@ describe('engage', function() {
         ],
       });
 
-      send({ fromUserId, segmentId, subject, content });
+      send({ fromUserId, segmentId, email: { subject, content } });
     });
   });
 });

@@ -3,8 +3,6 @@ import { Meteor } from 'meteor/meteor';
 import { Random } from 'meteor/random';
 import { Factory } from 'meteor/dburles:factory';
 import { SimpleSchema } from 'meteor/aldeed:simple-schema';
-import { Customers } from '/imports/api/customers/customers';
-import { Conversations } from '/imports/api/conversations/conversations';
 import { TAG_TYPES } from './constants';
 
 class TagsCollection extends Mongo.Collection {
@@ -58,20 +56,6 @@ class TagsCollection extends Mongo.Collection {
     }
 
     return true;
-  }
-
-  remove(selector, callback) {
-    const tagIds = this.find(selector, { fields: { _id: 1 } }).map(t => t._id);
-
-    let count = Customers.find({ tagIds: { $in: tagIds } }).count();
-    count += Conversations.find({ tagIds: { $in: tagIds } }).count();
-
-    // can't remove a tag with tagged objects
-    if (count > 0) {
-      throw new Meteor.Error('tags.remove.restricted', "Can't remove a tag with tagged object(s)");
-    }
-
-    return super.remove(selector, callback);
   }
 }
 
