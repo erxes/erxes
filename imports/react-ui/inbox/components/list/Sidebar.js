@@ -5,7 +5,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Counts } from 'meteor/tmeasday:publish-counts';
 import { FlowRouter } from 'meteor/kadira:flow-router';
-import { EmptyState, LoadingSidebar } from '/imports/react-ui/common';
+import { TagFilter, EmptyState, LoadingSidebar } from '/imports/react-ui/common';
 import { Wrapper } from '/imports/react-ui/layout/components';
 import { CONVERSATION_STATUSES } from '/imports/api/conversations/constants';
 import { KIND_CHOICES as INTEGRATIONS_TYPES } from '/imports/api/integrations/constants';
@@ -71,25 +71,6 @@ class Sidebar extends Component {
           <span className="icon">#</span>{integrationType}
           <span className="counter">
             {Counts.get(`conversations.counts.byIntegrationType${integrationType}`)}
-          </span>
-        </a>
-      </li>
-    );
-  }
-
-  static renderTag(tag) {
-    const onClick = () => {
-      Wrapper.Sidebar.filter('tagId', tag._id);
-    };
-
-    return (
-      <li key={tag._id}>
-        <a className={Wrapper.Sidebar.getActiveClass('tagId', tag._id)} onClick={onClick}>
-
-          <i className="ion-pricetag icon" style={{ color: tag.colorCode }} />
-          {tag.name}
-          <span className="counter">
-            {Counts.get(`conversations.counts.byTag${tag._id}`)}
           </span>
         </a>
       </li>
@@ -175,10 +156,9 @@ class Sidebar extends Component {
   }
 
   render() {
-    const { channels, tags, brands, channelsReady, tagsReady, brandsReady } = this.props;
+    const { channels, tags, brands, channelsReady, brandsReady } = this.props;
     const integrationTypes = INTEGRATIONS_TYPES.ALL_LIST;
     const { Title } = Wrapper.Sidebar.Section;
-    const manageTags = FlowRouter.path('tags/list', { type: 'conversation' });
     const manageBrands = FlowRouter.path('settings/brands/list');
     const manageChannels = FlowRouter.path('settings/channels/list');
     const manageIntegrations = FlowRouter.path('settings/integrations/list');
@@ -231,15 +211,11 @@ class Sidebar extends Component {
           </ul>
         </Wrapper.Sidebar.Section>
 
-        <Wrapper.Sidebar.Section collapsible={tags.length > 5}>
-          <Title>Filter by tags</Title>
-          {Sidebar.renderSectionHeader('tagId', manageTags)}
-
-          <ul className="filters">
-            {tags.map(tag => Sidebar.renderTag(tag))}
-            {Sidebar.renderEmptyState(tags, 'No tags', 'ion-pricetag', tagsReady)}
-          </ul>
-        </Wrapper.Sidebar.Section>
+        <TagFilter
+          tags={tags}
+          publishCountName="conversations.counts.byTag"
+          manageUrl="tags/conversation"
+        />
       </Wrapper.Sidebar>
     );
   }
