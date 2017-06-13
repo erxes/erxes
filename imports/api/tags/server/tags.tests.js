@@ -7,7 +7,7 @@ import { assert } from 'meteor/practicalmeteor:chai';
 import { Conversations } from '/imports/api/conversations/conversations';
 import { Tags } from '../tags';
 import { TAG_TYPES } from '../constants';
-import { add, edit, remove } from '../methods';
+import { add, edit, remove } from './methods';
 import { tagObject } from './api';
 
 describe('tags', function() {

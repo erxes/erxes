@@ -20,7 +20,7 @@ export default class ListQueryBuilder {
       status: Match.Optional(String),
       unassigned: Match.Optional(String),
       brandId: Match.Optional(String),
-      tagId: Match.Optional(String),
+      tag: Match.Optional(String),
       integrationType: Match.Optional(String),
       participating: Match.Optional(String),
       starred: Match.Optional(String),
@@ -223,8 +223,8 @@ export default class ListQueryBuilder {
     }
 
     // filter by tag
-    if (this.params.tagId) {
-      this.queries.tag = this.tagFilter(this.params.tagId);
+    if (this.params.tag) {
+      this.queries.tag = this.tagFilter(this.params.tag);
     }
 
     // filter by integration type
