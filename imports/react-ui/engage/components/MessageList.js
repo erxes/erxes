@@ -9,6 +9,7 @@ import Sidebar from './Sidebar';
 const propTypes = {
   type: PropTypes.string,
   messages: PropTypes.array.isRequired,
+  tags: PropTypes.array.isRequired,
   bulk: PropTypes.array.isRequired,
   emptyBulk: PropTypes.func.isRequired,
   toggleBulk: PropTypes.func.isRequired,
@@ -30,7 +31,7 @@ class List extends React.Component {
   }
 
   render() {
-    const { messages, bulk, emptyBulk } = this.props;
+    const { messages, tags, bulk, emptyBulk } = this.props;
     const targets = bulk.map(b => b._id);
 
     const actionBarLeft = (
@@ -84,7 +85,7 @@ class List extends React.Component {
       <div>
         <Wrapper
           header={<Wrapper.Header breadcrumb={[{ title: 'Messages' }]} />}
-          leftSidebar={<Sidebar />}
+          leftSidebar={<Sidebar tags={tags} />}
           actionBar={actionBar}
           content={content}
         />
