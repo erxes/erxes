@@ -1,6 +1,6 @@
 import React, { PropTypes, Component } from 'react';
 import ReactDom from 'react-dom';
-import { ButtonGroup, Button, FormControl, FormGroup } from 'react-bootstrap';
+import { ButtonGroup, Button, FormControl } from 'react-bootstrap';
 
 import { FlowRouter } from 'meteor/kadira:flow-router';
 import { Wrapper } from '/imports/react-ui/layout/components';
