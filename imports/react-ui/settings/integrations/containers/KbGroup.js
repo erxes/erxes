@@ -9,7 +9,7 @@ import { saveCallback } from './utils';
 
 const composer = (props, onData) => {
   const brandsHandler = Meteor.subscribe('brands.list', 0);
-  const formsHandler = Meteor.subscribe('kbgroups.list');
+  const formsHandler = Meteor.subscribe('kb_groups.list');
 
   const brands = Brands.find().fetch();
   const kbGroups = KbGroups.find().fetch();

@@ -27,7 +27,7 @@ function AddIntegration() {
 
   const triggerKbGroup = (
     <Button>
-      <i className="ion-social-kb" /> Add kb group
+      Add kb group
     </Button>
   );
 
@@ -50,6 +50,7 @@ function AddIntegration() {
 
       <div className="box">
         <h2>KB Group</h2>
+
         <ModalTrigger title="Add kbgroup" trigger={triggerKbGroup}>
           <KbGroup />
         </ModalTrigger>

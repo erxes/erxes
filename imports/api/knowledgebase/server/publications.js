@@ -7,14 +7,14 @@ import { check, Match } from 'meteor/check';
 import { KbGroups } from '../collections';
 
 // form list
-Meteor.publish('kbgroups.list', limit => {
+Meteor.publish('kb_groups.list', limit => {
   check(limit, Match.Optional(Number));
 
   return KbGroups.find();
 });
 
 // form detail
-Meteor.publish('kbgroups.detail', id => {
+Meteor.publish('kb_groups.detail', id => {
   check(id, String);
 
   return KbGroups.find({ createdUser: this.userId, _id: id });

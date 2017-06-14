@@ -32,3 +32,6 @@ import '/imports/api/forms/methods';
 
 import '/imports/api/responseTemplates/server/publications';
 import '/imports/api/responseTemplates/methods';
+
+import '/imports/api/knowledgebase/server/publications';
+import '/imports/api/knowledgebase/methods';

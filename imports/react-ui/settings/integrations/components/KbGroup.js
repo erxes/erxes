@@ -1,8 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import { FormGroup, ControlLabel, FormControl } from 'react-bootstrap';
-
 import { Brands } from '/imports/api/brands/brands';
 import { KbGroups } from '/imports/api/knowledgebase/collections';
 
@@ -10,6 +8,7 @@ import Common from './Common';
 
 class KbGroup extends Common {
   static getInstallCode(brandCode, formCode) {
+    console.log('getInstallCode');
     return `
       <script>
         window.erxesSettings = {
@@ -21,6 +20,7 @@ class KbGroup extends Common {
   }
 
   constructor(props, context) {
+    console.log('constructor');
     super(props, context);
 
     let code = '';
@@ -29,8 +29,9 @@ class KbGroup extends Common {
 
     // showed install code automatically in edit mode
     if (integration._id) {
+      console.log('inside condition');
       const brand = Brands.findOne(integration.brandId);
-      const form = KbGroup.findOne(integration.formId);
+      const form = KbGroups.findOne(integration.formId);
 
       code = this.constructor.getInstallCode(brand.code, form.code);
     }
@@ -43,6 +44,7 @@ class KbGroup extends Common {
   }
 
   updateInstallCodeValue() {
+    console.log('updateInstallCodeValue');
     const brandId = document.getElementById('selectBrand').value;
     const formId = document.getElementById('formId').value;
 

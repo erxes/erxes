@@ -1,3 +1,4 @@
+import faker from 'faker';
 import { Random } from 'meteor/random';
 import { Factory } from 'meteor/dburles:factory';
 import { Mongo } from 'meteor/mongo';
@@ -66,12 +67,19 @@ KBArticles.schema = new SimpleSchema({
 /* ----------------------- Collections ----------------------- */
 
 KbGroups.attachSchema(KbGroups.schema);
-KbGroups.attachSchema(KBBaseSchema);
+KbGroups.attachSchema(KbBaseSchema);
 
 KBTopics.attachSchema(KBTopics.schema);
-KBTopics.attachSchema(KBBaseSchema);
+KBTopics.attachSchema(KbBaseSchema);
 
 KBArticles.attachSchema(KBArticles.schema);
-KBArticles.attachSchema(KBBaseSchema);
+KBArticles.attachSchema(KbBaseSchema);
 
 // fixtures
+Factory.define('knowledgebase_group', KbGroups, {
+  title: () => faker.random.word(),
+  description: () => faker.random.word(),
+  code: () => Random.id(),
+  createdUserId: () => Random.id(),
+  createdDate: () => faker.date.recent(),
+});
