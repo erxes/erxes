@@ -13,10 +13,7 @@ class KbGroup extends Common {
     return `
       <script>
         window.erxesSettings = {
-          forms: [{
-            brand_id: "${brandCode}",
-            form_id: "${formCode}"
-          }],
+          
         };
         ${KbGroup.installCodeIncludeScript('form')}
       </script>
