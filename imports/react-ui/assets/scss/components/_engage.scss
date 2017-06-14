@@ -30,6 +30,7 @@ $transparent-border: rgba(0, 0, 0, 0.05);
 
   .row-content {
     flex: 1;
+    min-width: 0;
   }
 }
 

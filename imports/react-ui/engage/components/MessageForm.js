@@ -220,6 +220,14 @@ class MessageForm extends Component {
     const breadcrumb = [{ title: 'Engage', link: '/engage' }];
 
     const message = this.props.message || {};
+    const sidebar = (
+      <Wrapper.Sidebar size="wide">
+        <Wrapper.Sidebar.Section>
+          <Wrapper.Sidebar.Section.Title>Filter</Wrapper.Sidebar.Section.Title>
+
+        </Wrapper.Sidebar.Section>
+      </Wrapper.Sidebar>
+    );
 
     const actionBar = (
       <Wrapper.ActionBar
@@ -283,6 +291,7 @@ class MessageForm extends Component {
           header={<Wrapper.Header breadcrumb={breadcrumb} />}
           actionBar={actionBar}
           content={content}
+          leftSidebar={sidebar}
         />
       </div>
     );

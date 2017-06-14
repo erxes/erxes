@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import moment from 'moment';
-import { Table, Button } from 'react-bootstrap';
+import { Table, Button, Label } from 'react-bootstrap';
 import { FlowRouter } from 'meteor/kadira:flow-router';
 import { Wrapper } from '/imports/react-ui/layout/components';
 import { Tip, ActionButtons } from '/imports/react-ui/common';
@@ -45,7 +45,7 @@ class List extends React.Component {
 
   renderLinks(msg) {
     const edit = this.renderLink(msg, 'Edit', 'ion-edit', this.rowEdit.bind(this, msg));
-    const pause = this.renderLink(msg, 'Pause', 'ion-gear-a', this.rowPause.bind(this, msg));
+    const pause = this.renderLink(msg, 'Pause', 'ion-pause', this.rowPause.bind(this, msg));
     const live = this.renderLink(
       msg,
       'Set live',
@@ -77,7 +77,7 @@ class List extends React.Component {
       remove(message._id);
     };
 
-    let status = 'sending';
+    let status = <Label bsStyle="info">Sending</Label>;
     let successCount = 0;
     let failedCount = 0;
 
@@ -95,7 +95,7 @@ class List extends React.Component {
     });
 
     if (totalCount === successCount + failedCount) {
-      status = 'sent';
+      status = <Label bsStyle="success">Sent</Label>;
     }
 
     return (
@@ -124,26 +124,24 @@ class List extends React.Component {
     );
   }
 
-  renderNewButton() {
+  renderActionBar() {
     const type = this.props.type;
 
     if (type) {
       const text = `New ${type === 'auto' ? 'auto' : 'manual'} message`;
 
-      return (
+      const leftButton = (
         <Button bsStyle="link" href={`/engage/messages/create?type=${type || ''}`}>
           <i className="ion-plus-circled" /> {text}
         </Button>
       );
+
+      return <Wrapper.ActionBar left={leftButton} />;
     }
   }
 
   render() {
     const { messages } = this.props;
-
-    const actionBarLeft = this.renderNewButton();
-
-    const actionBar = <Wrapper.ActionBar left={actionBarLeft} />;
 
     const content = (
       <Table className="no-wrap">
@@ -171,7 +169,7 @@ class List extends React.Component {
         <Wrapper
           header={<Wrapper.Header breadcrumb={[{ title: 'Messages' }]} />}
           leftSidebar={<Sidebar />}
-          actionBar={actionBar}
+          actionBar={this.renderActionBar()}
           content={content}
         />
       </div>
