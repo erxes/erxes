@@ -14,7 +14,7 @@ const composer = (props, onData) => {
   const brands = Brands.find().fetch();
   const kbGroups = KbGroups.find().fetch();
 
-  const save = doc => saveCallback(doc, 'addForm', 'editForm', props.integration);
+  const save = doc => saveCallback(doc, 'addKbGroup', 'editForm', props.integration);
 
   const loadTypes = Object.values(FORM_LOAD_TYPES);
   loadTypes.splice(-1, 1);
