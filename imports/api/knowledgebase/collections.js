@@ -3,13 +3,13 @@ import { Factory } from 'meteor/dburles:factory';
 import { Mongo } from 'meteor/mongo';
 import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 
-export const KBGroups = new Mongo.Collection('knowledgebase_groups');
+export const KbGroups = new Mongo.Collection('knowledgebase_groups');
 export const KBTopics = new Mongo.Collection('knowledgebase_topics');
 export const KBArticles = new Mongo.Collection('knowledgebase_articles');
 
 /* ----------------------- Schemas ----------------------- */
 
-const KBBaseSchema = new SimpleSchema({
+const KbBaseSchema = new SimpleSchema({
   code: {
     type: String,
   },
@@ -21,7 +21,7 @@ const KBBaseSchema = new SimpleSchema({
   },
 });
 
-KBGroups.schema = new SimpleSchema({
+KbGroups.schema = new SimpleSchema({
   title: {
     type: String,
   },
@@ -65,8 +65,8 @@ KBArticles.schema = new SimpleSchema({
 
 /* ----------------------- Collections ----------------------- */
 
-KBGroups.attachSchema(KBGroups.schema);
-KBGroups.attachSchema(KBBaseSchema);
+KbGroups.attachSchema(KbGroups.schema);
+KbGroups.attachSchema(KBBaseSchema);
 
 KBTopics.attachSchema(KBTopics.schema);
 KBTopics.attachSchema(KBBaseSchema);

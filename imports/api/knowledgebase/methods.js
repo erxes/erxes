@@ -2,13 +2,13 @@ import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
 import { ValidatedMethod } from 'meteor/mdg:validated-method';
 import { ErxesMixin } from '/imports/api/utils';
-import { KBGroups } from './collections';
+import { KbGroups } from './collections';
 
 const generateCode = () => {
   // generate code automatically
   let code = Random.id().substr(0, 6);
 
-  while (KBGroups.findOne({ code })) {
+  while (KbGroups.findOne({ code })) {
     code = Random.id().substr(0, 6);
   }
 
@@ -20,7 +20,7 @@ export const add = new ValidatedMethod({
   mixins: [ErxesMixin],
 
   validate({ doc }) {
-    check(doc, KBGroups.schema);
+    check(doc, KbGroups.schema);
   },
 
   run({ doc }) {
@@ -29,7 +29,7 @@ export const add = new ValidatedMethod({
     doc.createdDate = new Date();
 
     // create
-    return KBGroups.insert(doc);
+    return KbGroups.insert(doc);
   },
 });
 
@@ -40,11 +40,11 @@ export const edit = new ValidatedMethod({
 
   validate({ id, doc }) {
     check(id, String);
-    check(doc, KBGroups.schema);
+    check(doc, KbGroups.schema);
   },
 
   run({ id, doc }) {
-    return KBGroups.update(id, { $set: doc });
+    return KbGroups.update(id, { $set: doc });
   },
 });
 
@@ -66,6 +66,6 @@ export const remove = new ValidatedMethod({
       );
     }
 
-    return KBGroups.remove(id);
+    return KbGroups.remove(id);
   },
 });

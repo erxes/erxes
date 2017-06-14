@@ -10,14 +10,14 @@ import { KbGroups } from '../collections';
 Meteor.publish('kbgroups.list', limit => {
   check(limit, Match.Optional(Number));
 
-  return KBGroups.find();
+  return KbGroups.find();
 });
 
 // form detail
 Meteor.publish('kbgroups.detail', id => {
   check(id, String);
 
-  return KBGroups.find({ createdUser: this.userId, _id: id });
+  return KbGroups.find({ createdUser: this.userId, _id: id });
 });
 
 // // form field list

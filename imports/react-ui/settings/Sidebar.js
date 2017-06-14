@@ -70,6 +70,11 @@ function Sidebar() {
               <i className="icon ion-arrow-right-b" />Facebook
             </a>
           </li>
+          <li>
+            <a href={'/settings/integrations?kind=kbgroup'}>
+              <i className="icon ion-arrow-right-b" />KB Group
+            </a>
+          </li>
         </ul>
       </Wrapper.Sidebar.Section>
       <Wrapper.Sidebar.Section>
