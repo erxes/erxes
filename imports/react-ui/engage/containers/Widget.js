@@ -8,16 +8,17 @@ function composer(props, onData) {
   Meteor.subscribe('emailTemplates.list');
 
   // save
-  const save = doc => {
+  const save = (doc, callback) => {
     doc.isAuto = false;
     doc.isLive = true;
 
     return Meteor.call('engage.messages.add', { doc }, error => {
       if (error) {
-        Alert.error(error.reason || error.message);
-      } else {
-        Alert.success('Form is successfully saved.');
+        return Alert.error(error.reason || error.message);
       }
+
+      Alert.success('Form is successfully saved.');
+      callback();
     });
   };
 
