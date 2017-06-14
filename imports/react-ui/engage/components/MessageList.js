@@ -85,7 +85,7 @@ class List extends React.Component {
     return (
       <div>
         <Wrapper
-          header={<Wrapper.Header breadcrumb={[{ title: 'Messages' }]} />}
+          header={<Wrapper.Header breadcrumb={[{ title: 'Engage' }]} />}
           leftSidebar={<Sidebar tags={tags} />}
           actionBar={actionBar}
           content={content}

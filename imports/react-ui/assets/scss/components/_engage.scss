@@ -34,41 +34,6 @@ $transparent-border: rgba(0, 0, 0, 0.05);
   }
 }
 
-.browser-preview {
-  position: relative;
-  border-radius: $border-radius;
-
-  &::before {
-    content: "";
-    display: block;
-    z-index: 10;
-    height: 40px;
-    background: $light-gray-background;
-    border-bottom: 1px solid $transparent-border;
-    transition: all 0.5s;
-  }
-
-  .browser-icons {
-    width: 10px;
-    height: 10px;
-    border-radius: 10px;
-    background: $light-gray;
-    position: absolute;
-    top: 15px;
-    left: 37px;
-    z-index: 10;
-
-    &::before {
-      @include browser-icon;
-    }
-
-    &::after {
-      @include browser-icon;
-      left: 15px;
-    }
-  }
-}
-
 .email-header {
   .header-row {
     padding: 5px 20px;
@@ -86,7 +51,7 @@ $transparent-border: rgba(0, 0, 0, 0.05);
 
     .form-control {
       border: 0;
-      padding: 8px 10px;
+      padding: 8px;
     }
   }
 }
@@ -95,6 +60,14 @@ $transparent-border: rgba(0, 0, 0, 0.05);
   padding: 20px;
   flex: 1;
   min-height: 300px;
+
+  .erxes-email-content select {
+    border: 0;
+    outline: 0;
+    background: 0;
+    margin-top: 3px;
+    color: $text-color-light;
+  }
 }
 
 .button-box {

@@ -213,7 +213,7 @@ class MessageForm extends Component {
   }
 
   render() {
-    const breadcrumb = [{ title: 'Engage', link: '/engage' }];
+    const breadcrumb = [{ title: 'Engage', link: '/engage' }, { title: 'Message' }];
 
     const message = this.props.message || {};
 
@@ -256,8 +256,7 @@ class MessageForm extends Component {
     );
 
     const content = (
-      <div className="browser-preview">
-        <div className="browser-icons" />
+      <div>
         {this.renderEmailHeader()}
         <div className="email-content">
           <div dangerouslySetInnerHTML={{ __html: this.state.currentTemplate }} />
