@@ -16,28 +16,13 @@ const propTypes = {
 };
 
 class List extends React.Component {
-  renderNewButton() {
-    const type = this.props.type;
+  renderTagger() {
+    const { bulk, emptyBulk } = this.props;
 
-    if (type) {
-      const text = `New ${type === 'auto' ? 'auto' : 'manual'} message`;
+    if (bulk.length) {
+      const targets = bulk.map(b => b._id);
 
-      const leftButton = (
-        <Button bsStyle="link" href={`/engage/messages/create?type=${type || ''}`}>
-          <i className="ion-plus-circled" /> {text}
-        </Button>
-      );
-
-      return <Wrapper.ActionBar left={leftButton} />;
-    }
-  }
-
-  render() {
-    const { messages, tags, bulk, emptyBulk } = this.props;
-    const targets = bulk.map(b => b._id);
-
-    const actionBarLeft = (
-      <div>
+      return (
         <TaggerPopover
           type="engageMessage"
           targets={targets}
@@ -48,12 +33,26 @@ class List extends React.Component {
           }
           afterSave={emptyBulk}
         />
+      );
+    }
+  }
 
-        {this.renderNewButton()}
+  render() {
+    const { messages, tags } = this.props;
+
+    const actionBarLeft = (
+      <div>
+        <Button bsStyle="link" href={'/engage/messages/create?type=auto'}>
+          <i className="ion-plus-circled" /> New auto message
+        </Button>
+        <Button bsStyle="link" href={'/engage/messages/create?type=manual'}>
+          <i className="ion-plus-circled" /> New manual message
+        </Button>
+        {this.renderTagger()}
       </div>
     );
 
-    const actionBar = <Wrapper.ActionBar left={bulk.length ? actionBarLeft : false} />;
+    const actionBar = <Wrapper.ActionBar left={actionBarLeft} />;
 
     const content = (
       <Table className="no-wrap">

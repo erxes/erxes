@@ -119,29 +119,25 @@ class MessageForm extends Component {
     };
 
     return (
-      <FormGroup>
+      <div className="box">
         <FormControl componentClass="select" id="segmentId" defaultValue={defaultValue}>
           {this.props.segments.map(segment => renderSegment(segment))}
         </FormControl>
-      </FormGroup>
+        <p>Send email to each customer who belongs to above segment</p>
+      </div>
     );
   }
 
   renderChannelType() {
     return (
-      <div className="row-section">
-        <div className="row-heading">
-          <h4>Channel</h4>
+      <div className="box">
+        <div className="button-box text-center selected">
+          <span>Email</span>
+          <p>Delivered to a user's email inbox <br />Customize with your own templates</p>
         </div>
-        <div className="row-content">
-          <div className="button-box text-center selected">
-            <span>Email</span>
-            <p>Delivered to a user's email inbox <br />Customize with your own templates</p>
-          </div>
-          <div className="button-box text-center">
-            <span>Messenger</span>
-            <p>Delivered inside your app<br />Reach active users</p>
-          </div>
+        <div className="button-box text-center">
+          <span>Messenger</span>
+          <p>Delivered inside your app<br />Reach active users</p>
         </div>
       </div>
     );
@@ -220,12 +216,28 @@ class MessageForm extends Component {
     const breadcrumb = [{ title: 'Engage', link: '/engage' }];
 
     const message = this.props.message || {};
+
+    const { Section } = Wrapper.Sidebar;
+    const { Title } = Wrapper.Sidebar.Section;
+
     const sidebar = (
       <Wrapper.Sidebar size="wide">
-        <Wrapper.Sidebar.Section>
-          <Wrapper.Sidebar.Section.Title>Filter</Wrapper.Sidebar.Section.Title>
-
-        </Wrapper.Sidebar.Section>
+        <form onSubmit={this.save}>
+          <Section>
+            <Title>Title</Title>
+            <div className="box">
+              <FormControl id="title" defaultValue={message.title} required />
+            </div>
+          </Section>
+          <Section>
+            <Title>Choose segment</Title>
+            {this.renderSegments(message.segmentId)}
+          </Section>
+          <Section>
+            <Title>Channel</Title>
+            {this.renderChannelType()}
+          </Section>
+        </form>
       </Wrapper.Sidebar>
     );
 
@@ -244,56 +256,22 @@ class MessageForm extends Component {
     );
 
     const content = (
-      <div className="engage-box">
-        <form onSubmit={this.save}>
-          <div className="row-section">
-            <div className="row-heading">
-              <h4>Title</h4>
-            </div>
-            <div className="row-content">
-              <FormControl id="title" defaultValue={message.title} required />
-            </div>
-          </div>
-
-          <div className="row-section">
-            <div className="row-heading">
-              <h4>Segment</h4>
-            </div>
-            <div className="row-content">
-              {this.renderSegments(message.segmentId)}
-              <p>Send email to each customer who belongs to above segment</p>
-            </div>
-          </div>
-
-          {this.renderChannelType()}
-
-          <div className="row-section">
-            <div className="row-heading">
-              <h4>Content</h4>
-            </div>
-            <div className="row-content">
-              <div className="browser-preview">
-                <div className="browser-icons" />
-                {this.renderEmailHeader()}
-                <div className="email-content">
-                  <div dangerouslySetInnerHTML={{ __html: this.state.currentTemplate }} />
-                </div>
-              </div>
-            </div>
-          </div>
-        </form>
+      <div className="browser-preview">
+        <div className="browser-icons" />
+        {this.renderEmailHeader()}
+        <div className="email-content">
+          <div dangerouslySetInnerHTML={{ __html: this.state.currentTemplate }} />
+        </div>
       </div>
     );
 
     return (
-      <div>
-        <Wrapper
-          header={<Wrapper.Header breadcrumb={breadcrumb} />}
-          actionBar={actionBar}
-          content={content}
-          leftSidebar={sidebar}
-        />
-      </div>
+      <Wrapper
+        header={<Wrapper.Header breadcrumb={breadcrumb} />}
+        actionBar={actionBar}
+        content={content}
+        leftSidebar={sidebar}
+      />
     );
   }
 }
