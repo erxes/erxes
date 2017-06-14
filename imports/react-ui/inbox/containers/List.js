@@ -1,10 +1,10 @@
 import { Meteor } from 'meteor/meteor';
 import { ReactiveVar } from 'meteor/reactive-var';
-import { _ } from 'meteor/underscore';
 import { compose } from 'react-komposer';
 import { getTrackerLoader, composerOptions } from '/imports/react-ui/utils';
 import { Conversations } from '/imports/api/conversations/conversations';
 import { pagination } from '/imports/react-ui/common';
+import { toggleBulk as commonToggleBulk } from '/imports/react-ui/common/utils';
 import { List } from '../components';
 
 const bulk = new ReactiveVar([]);
@@ -15,22 +15,8 @@ function composer({ channelId, queryParams }, onData) {
   queryParams.limit = limit; // eslint-disable-line no-param-reassign
 
   // actions ===========
-  const toggleBulk = (conversation, toAdd) => {
-    let entries = bulk.get();
-
-    // remove old entry
-    entries = _.without(entries, _.findWhere(entries, { _id: conversation._id }));
-
-    if (toAdd) {
-      entries.push(conversation);
-    }
-
-    bulk.set(entries);
-  };
-
-  const emptyBulk = () => {
-    bulk.set([]);
-  };
+  const toggleBulk = (conv, toAdd) => commonToggleBulk(bulk, conv, toAdd);
+  const emptyBulk = () => bulk.set([]);
 
   // subscriptions ==================
   const user = Meteor.user();

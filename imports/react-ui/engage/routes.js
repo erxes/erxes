@@ -11,7 +11,7 @@ const group = FlowRouter.group({
 group.route('/', {
   name: 'engage/home',
   action(params, queryParams) {
-    mount(MainLayout, { content: <MessageList type={queryParams.type} /> });
+    mount(MainLayout, { content: <MessageList queryParams={queryParams} /> });
   },
 });
 

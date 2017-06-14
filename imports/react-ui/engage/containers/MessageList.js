@@ -1,53 +1,34 @@
 import { Meteor } from 'meteor/meteor';
-import Alert from 'meteor/erxes-notifier';
+import { ReactiveVar } from 'meteor/reactive-var';
 import { compose } from 'react-komposer';
 import { getTrackerLoader, composerOptions } from '/imports/react-ui/utils';
 import { Messages } from '/imports/api/engage/engage';
+import { Tags } from '/imports/api/tags/tags';
+import { TAG_TYPES } from '/imports/api/tags/constants';
+import { toggleBulk as commonToggleBulk } from '/imports/react-ui/common/utils';
 import { MessageList } from '../components';
 
-function composer({ type }, onData) {
-  const messagesHandler = Meteor.subscribe('engage.messages.list', { type });
+const bulk = new ReactiveVar([]);
+
+function composer({ queryParams }, onData) {
+  const messagesHandler = Meteor.subscribe('engage.messages.list', queryParams);
+
   Meteor.subscribe('users.list', {});
   Meteor.subscribe('customers.segments');
+  Meteor.subscribe('tags.tagList', TAG_TYPES.ENGAGE_MESSAGE);
 
-  const remove = messageId => {
-    if (!confirm('Are you sure?')) return; // eslint-disable-line no-alert
-
-    Meteor.call('engage.messages.remove', messageId, error => {
-      if (error) {
-        return Alert.error("Can't delete a message", error.reason);
-      }
-
-      return Alert.success('Congrats', 'Message has deleted.');
-    });
-  };
-
-  const setLive = messageId => {
-    Meteor.call('engage.messages.setLive', messageId, () => {
-      return Alert.success('Live');
-    });
-  };
-
-  const setLiveManual = messageId => {
-    Meteor.call('engage.messages.setLiveManual', messageId, () => {
-      return Alert.success('Live');
-    });
-  };
-
-  const setPause = messageId => {
-    Meteor.call('engage.messages.setPause', messageId, () => {
-      return Alert.success('Paused');
-    });
-  };
+  // actions ===========
+  const toggleBulk = (message, toAdd) => commonToggleBulk(bulk, message, toAdd);
+  const emptyBulk = () => bulk.set([]);
 
   if (messagesHandler.ready()) {
     onData(null, {
-      type,
+      type: queryParams.type,
       messages: Messages.find().fetch(),
-      setLive,
-      setLiveManual,
-      setPause,
-      remove,
+      tags: Tags.find({ type: TAG_TYPES.ENGAGE_MESSAGE }).fetch(),
+      bulk: bulk.get(),
+      toggleBulk,
+      emptyBulk,
     });
   }
 }

@@ -5,6 +5,8 @@
 import { Meteor } from 'meteor/meteor';
 import { check, Match } from 'meteor/check';
 import { Counts } from 'meteor/tmeasday:publish-counts';
+import { Tags } from '/imports/api/tags/tags';
+import { TAG_TYPES } from '/imports/api/tags/constants';
 import { Messages } from '../engage';
 
 // engage list
@@ -12,6 +14,7 @@ Meteor.publish('engage.messages.list', function engageMessagesList(params) {
   check(params, {
     type: Match.Optional(String),
     status: Match.Optional(String),
+    tag: Match.Optional(String),
   });
 
   if (!this.userId) {
@@ -39,6 +42,8 @@ Meteor.publish('engage.messages.list', function engageMessagesList(params) {
   if (params.type) {
     query.isAuto = params.type === 'auto';
   }
+
+  // status filter && count ===================
 
   // status query builder
   const statusQueryBuilder = status => {
@@ -69,6 +74,23 @@ Meteor.publish('engage.messages.list', function engageMessagesList(params) {
   ['live', 'draft', 'paused', 'yours'].forEach(status =>
     count(`engage.messages.status.${status}`, { ...query, ...statusQueryBuilder(status) }),
   );
+
+  // Tag filter && count ===================
+
+  const tagQueryBuilder = tagId => ({ tagIds: tagId });
+
+  const tags = Tags.find({ type: TAG_TYPES.ENGAGE_MESSAGE }, { fields: { _id: 1 } });
+
+  tags
+    .fetch()
+    .forEach(tag =>
+      count(`engage.messages.tag.${tag._id}`, { ...query, ...tagQueryBuilder(tag._id) }),
+    );
+
+  // filter by tag
+  if (params.tag) {
+    query = { ...query, ...tagQueryBuilder(params.tag) };
+  }
 
   return Messages.find(query);
 });

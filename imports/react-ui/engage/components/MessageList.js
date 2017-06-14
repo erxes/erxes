@@ -1,130 +1,22 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import moment from 'moment';
-import { Table, Button, Label } from 'react-bootstrap';
-import { FlowRouter } from 'meteor/kadira:flow-router';
+import { Table, Button } from 'react-bootstrap';
 import { Wrapper } from '/imports/react-ui/layout/components';
-import { Tip, ActionButtons } from '/imports/react-ui/common';
+import { TaggerPopover } from '/imports/react-ui/common';
+import { MessageListRow } from '../containers';
 import Sidebar from './Sidebar';
 
 const propTypes = {
   type: PropTypes.string,
   messages: PropTypes.array.isRequired,
-  remove: PropTypes.func.isRequired,
-  setLive: PropTypes.func.isRequired,
-  setLiveManual: PropTypes.func.isRequired,
-  setPause: PropTypes.func.isRequired,
+  tags: PropTypes.array.isRequired,
+  bulk: PropTypes.array.isRequired,
+  emptyBulk: PropTypes.func.isRequired,
+  toggleBulk: PropTypes.func.isRequired,
 };
 
 class List extends React.Component {
-  renderLink(msg, text, className, onClick) {
-    return (
-      <Tip text={text} key={`${text}-${msg._id}`}>
-        <Button bsStyle="link" onClick={onClick}>
-          <i className={className} />
-        </Button>
-      </Tip>
-    );
-  }
-
-  rowEdit(message) {
-    FlowRouter.go(`/engage/messages/edit/${message._id}`);
-  }
-
-  rowPause(message) {
-    this.props.setPause(message._id);
-  }
-
-  rowLive(message) {
-    this.props.setLive(message._id);
-  }
-
-  rowLiveManual(message) {
-    this.props.setLiveManual(message._id);
-  }
-
-  renderLinks(msg) {
-    const edit = this.renderLink(msg, 'Edit', 'ion-edit', this.rowEdit.bind(this, msg));
-    const pause = this.renderLink(msg, 'Pause', 'ion-pause', this.rowPause.bind(this, msg));
-    const live = this.renderLink(
-      msg,
-      'Set live',
-      'ion-paper-airplane',
-      this.rowLive.bind(this, msg),
-    );
-
-    if (msg.isAuto) {
-      if (msg.isDraft) {
-        return [edit, live];
-      }
-
-      if (msg.isLive) {
-        return [edit, pause];
-      }
-
-      return [edit, live];
-    }
-
-    if (msg.isDraft) {
-      return this.renderLink('Set live', 'ion-paper-airplane', this.rowLiveManual.bind(this, msg));
-    }
-  }
-
-  renderRows(message) {
-    const remove = this.props.remove;
-
-    const removeAction = () => {
-      remove(message._id);
-    };
-
-    let status = <Label bsStyle="info">Sending</Label>;
-    let successCount = 0;
-    let failedCount = 0;
-
-    const deliveryReports = Object.values(message.deliveryReports);
-    const totalCount = deliveryReports.length;
-
-    deliveryReports.forEach(report => {
-      if (report.status === 'sent') {
-        successCount++;
-      }
-
-      if (report.status === 'failed') {
-        failedCount++;
-      }
-    });
-
-    if (totalCount === successCount + failedCount) {
-      status = <Label bsStyle="success">Sent</Label>;
-    }
-
-    return (
-      <tr key={message._id}>
-        <td>{message.title}</td>
-        <td>{message.segment().name}</td>
-        <td>{message.fromUser().username}</td>
-        <td>{status}</td>
-        <td>{totalCount}</td>
-        <td>{successCount}</td>
-        <td>{failedCount}</td>
-        <td>{moment(message.createdDate).format('DD MMM YYYY')}</td>
-
-        <td className="text-right">
-          <ActionButtons>
-            {this.renderLinks(message)}
-
-            <Tip text="Delete">
-              <Button bsStyle="link" onClick={removeAction}>
-                <i className="ion-close-circled" />
-              </Button>
-            </Tip>
-          </ActionButtons>
-        </td>
-      </tr>
-    );
-  }
-
-  renderActionBar() {
+  renderNewButton() {
     const type = this.props.type;
 
     if (type) {
@@ -141,12 +33,33 @@ class List extends React.Component {
   }
 
   render() {
-    const { messages } = this.props;
+    const { messages, tags, bulk, emptyBulk } = this.props;
+    const targets = bulk.map(b => b._id);
+
+    const actionBarLeft = (
+      <div>
+        <TaggerPopover
+          type="engageMessage"
+          targets={targets}
+          trigger={
+            <Button bsStyle="link">
+              <i className="ion-pricetags" /> Tag <span className="caret" />
+            </Button>
+          }
+          afterSave={emptyBulk}
+        />
+
+        {this.renderNewButton()}
+      </div>
+    );
+
+    const actionBar = <Wrapper.ActionBar left={bulk.length ? actionBarLeft : false} />;
 
     const content = (
       <Table className="no-wrap">
         <thead>
           <tr>
+            <th />
             <th>Title</th>
             <th>Segment</th>
             <th>From</th>
@@ -159,7 +72,13 @@ class List extends React.Component {
           </tr>
         </thead>
         <tbody>
-          {messages.map(message => this.renderRows(message))}
+          {messages.map(message =>
+            <MessageListRow
+              toggleBulk={this.props.toggleBulk}
+              key={message._id}
+              message={message}
+            />,
+          )}
         </tbody>
       </Table>
     );
@@ -168,8 +87,8 @@ class List extends React.Component {
       <div>
         <Wrapper
           header={<Wrapper.Header breadcrumb={[{ title: 'Messages' }]} />}
-          leftSidebar={<Sidebar />}
-          actionBar={this.renderActionBar()}
+          leftSidebar={<Sidebar tags={tags} />}
+          actionBar={actionBar}
           content={content}
         />
       </div>
