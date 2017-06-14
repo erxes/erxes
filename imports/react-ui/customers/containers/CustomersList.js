@@ -1,6 +1,7 @@
+import { Meteor } from 'meteor/meteor';
+import { ReactiveVar } from 'meteor/reactive-var';
 import { compose } from 'react-komposer';
 import { getTrackerLoader, composerOptions } from '/imports/react-ui/utils';
-import { Meteor } from 'meteor/meteor';
 import { Customers } from '/imports/api/customers/customers';
 import Segments from '/imports/api/customers/segments';
 import { Brands } from '/imports/api/brands/brands';
@@ -8,7 +9,10 @@ import { Tags } from '/imports/api/tags/tags';
 import { KIND_CHOICES } from '/imports/api/integrations/constants';
 import { TAG_TYPES } from '/imports/api/tags/constants';
 import { pagination } from '/imports/react-ui/common';
+import { toggleBulk as commonToggleBulk } from '/imports/react-ui/common/utils';
 import { CustomersList } from '../components';
+
+const bulk = new ReactiveVar([]);
 
 function composer({ queryParams }, onData) {
   const { limit, loadMore, hasMore } = pagination(queryParams, 'customers.list.count');
@@ -25,6 +29,9 @@ function composer({ queryParams }, onData) {
   const brandsHandle = Meteor.subscribe('brands.list', 100);
   const tagsHandle = Meteor.subscribe('tags.tagList', TAG_TYPES.CUSTOMER);
 
+  // actions ===========
+  const toggleBulk = (customer, toAdd) => commonToggleBulk(bulk, customer, toAdd);
+
   if (
     customersHandle.ready() &&
     segmentsHandle.ready() &&
@@ -33,10 +40,9 @@ function composer({ queryParams }, onData) {
   ) {
     onData(null, {
       // If there's no customer fields config, all fields will be selected
-      customerFields: (Meteor.user() &&
-        Meteor.user().configs &&
-        Meteor.user().configs.customerFields) ||
-        Customers.getPublicFields(),
+      customerFields:
+        (Meteor.user() && Meteor.user().configs && Meteor.user().configs.customerFields) ||
+          Customers.getPublicFields(),
 
       customers: Customers.find({}, { sort: { 'messengerData.lastSeenAt': -1 } }).fetch(),
       segments: Segments.find({}, { sort: { name: 1 } }).fetch(),
@@ -45,6 +51,8 @@ function composer({ queryParams }, onData) {
       tags: Tags.find({ type: TAG_TYPES.CUSTOMER }).fetch(),
       loadMore,
       hasMore,
+      bulk: bulk.get(),
+      toggleBulk,
     });
   }
 }
