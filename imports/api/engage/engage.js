@@ -23,9 +23,16 @@ const EmailSchema = new SimpleSchema({
 });
 
 Messages.schema = new SimpleSchema({
+  // targets
   segmentId: {
     type: String,
+    optional: true,
   },
+  customerIds: {
+    type: [String],
+    optional: true,
+  },
+
   title: {
     type: String,
   },

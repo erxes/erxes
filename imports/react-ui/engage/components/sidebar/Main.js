@@ -8,7 +8,7 @@ function Main() {
 
   return (
     <Wrapper.Sidebar.Section>
-      <Title>Filter</Title>
+      <Title>Type</Title>
       <ul className="filters">
         <li>
           <a href={`${FlowRouter.path('engage/home')}`}>

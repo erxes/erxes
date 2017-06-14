@@ -30,16 +30,21 @@ export const replaceKeys = ({ content, customer, user }) => {
 };
 
 export const send = message => {
-  const { fromUserId, segmentId } = message;
+  const { fromUserId, segmentId, customerIds } = message;
   const { templateId, subject, content } = message.email;
 
   const user = Meteor.users.findOne(fromUserId);
   const userEmail = user.emails.pop();
-  const segment = Segments.findOne(segmentId);
   const template = EmailTemplates.findOne(templateId);
 
   // find matched customers
-  const customers = Customers.find(customerQueryBuilder.segments(segment)).fetch();
+  let targetIds = customerIds || [];
+
+  if (segmentId) {
+    targetIds = customerQueryBuilder.segments(Segments.findOne(segmentId));
+  }
+
+  const customers = Customers.find({ _id: { $in: targetIds } }).fetch();
 
   // create reusable transporter object using the default SMTP transport
   const { host, port, secure, auth } = Meteor.settings.mail || {};
