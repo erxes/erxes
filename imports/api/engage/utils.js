@@ -38,13 +38,13 @@ export const send = message => {
   const template = EmailTemplates.findOne(templateId);
 
   // find matched customers
-  let targetIds = customerIds || [];
+  let customerQuery = { _id: { $in: customerIds || [] } };
 
   if (segmentId) {
-    targetIds = customerQueryBuilder.segments(Segments.findOne(segmentId));
+    customerQuery = customerQueryBuilder.segments(Segments.findOne(segmentId));
   }
 
-  const customers = Customers.find({ _id: { $in: targetIds } }).fetch();
+  const customers = Customers.find(customerQuery).fetch();
 
   // create reusable transporter object using the default SMTP transport
   const { host, port, secure, auth } = Meteor.settings.mail || {};
@@ -91,7 +91,7 @@ export const send = message => {
         // set new status
         const status = error ? 'failed' : 'sent';
 
-        // save saves
+        // update status
         Messages.update(
           { _id: message._id },
           {
