@@ -61,14 +61,14 @@ function CustomersList({
     </Pagination>
   );
 
-  const actionBarLeft = bulk.length > 0 ? <Widget customers={bulk} /> : null;
+  const actionBar = <Wrapper.ActionBar left={<Widget customers={bulk} />} />;
   const breadcrumb = [{ title: `Customers (${Counts.get('customers.list.count')})` }];
 
   return (
     <div>
       <Wrapper
         header={<Wrapper.Header breadcrumb={breadcrumb} />}
-        actionBar={<Wrapper.ActionBar left={actionBarLeft} />}
+        actionBar={bulk.length > 0 ? actionBar : false}
         leftSidebar={
           <Sidebar segments={segments} brands={brands} integrations={integrations} tags={tags} />
         }

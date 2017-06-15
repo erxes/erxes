@@ -46,13 +46,18 @@ class WidgetForm extends Component {
   }
 
   renderCustomers() {
-    return this.props.customers.map(customer => {
-      return (
-        <p key={customer._id.toString()}>
-          {customer.name} - {customer.email}
-        </p>
-      );
-    });
+    return (
+      <FormGroup>
+        <ControlLabel>To:</ControlLabel>
+        <div className="recipients">
+          {this.props.customers.map(customer =>
+            <div className="recipient" key={customer._id.toString()}>
+              <strong>{customer.name}</strong> {customer.email}
+            </div>,
+          )}
+        </div>
+      </FormGroup>
+    );
   }
 
   render() {
@@ -61,17 +66,17 @@ class WidgetForm extends Component {
         {this.renderCustomers()}
 
         <FormGroup>
-          <ControlLabel>Title</ControlLabel>
+          <ControlLabel>Title:</ControlLabel>
           <FormControl id="title" type="text" required />
         </FormGroup>
 
         <FormGroup>
-          <ControlLabel>Email subject</ControlLabel>
+          <ControlLabel>Email subject:</ControlLabel>
           <FormControl id="emailSubject" type="text" required />
         </FormGroup>
 
         <FormGroup>
-          <ControlLabel>Email templates</ControlLabel>
+          <ControlLabel>Email templates:</ControlLabel>
 
           <FormControl id="emailTemplateId" componentClass="select">
 
@@ -85,13 +90,15 @@ class WidgetForm extends Component {
         </FormGroup>
 
         <FormGroup>
-          <ControlLabel>Content</ControlLabel>
-          <Editor onChange={this.onContentChange} />
+          <ControlLabel>Content:</ControlLabel>
+          <div className="editor-bordered">
+            <Editor onChange={this.onContentChange} />
+          </div>
         </FormGroup>
 
         <Modal.Footer>
           <ButtonToolbar className="pull-right">
-            <Button type="submit" bsStyle="primary">Save</Button>
+            <Button type="submit" bsStyle="primary">Send</Button>
           </ButtonToolbar>
         </Modal.Footer>
       </form>

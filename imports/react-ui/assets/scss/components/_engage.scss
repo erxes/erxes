@@ -60,14 +60,6 @@ $transparent-border: rgba(0, 0, 0, 0.05);
   padding: 20px;
   flex: 1;
   min-height: 300px;
-
-  .erxes-email-content select {
-    border: 0;
-    outline: 0;
-    background: 0;
-    margin-top: 3px;
-    color: $text-color-light;
-  }
 }
 
 .button-box {
@@ -124,5 +116,18 @@ $transparent-border: rgba(0, 0, 0, 0.05);
 
   &:hover {
     border-color: lighten($main-color, 10%);
+  }
+}
+
+.recipients {
+  .recipient {
+    padding: 3px 5px;
+    border: 1px solid $border-grey;
+    border-radius: $border-radius;
+    display: inline-block;
+    margin-right: 5px;
+    margin-bottom: 5px;
+    background: $grey-light;
+    font-size: 13px;
   }
 }

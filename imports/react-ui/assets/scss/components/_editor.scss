@@ -1,7 +1,20 @@
 $editor-text-color: #999;
 
+.editor-bordered {
+  border: 1px solid $border-grey;
+  border-radius: $border-radius;
+}
+
 .RichEditor-root {
   font-size: 14px;
+
+  select {
+    border: 0;
+    outline: 0;
+    background: 0;
+    margin-top: 3px;
+    color: $text-color-light;
+  }
 }
 
 .RichEditor-editor {
