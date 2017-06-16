@@ -51,6 +51,7 @@ widgetConnect({
       isUser: Boolean(clientPassedEmail),
 
       name: setting.name,
+      data: setting.data,
     });
   },
 
