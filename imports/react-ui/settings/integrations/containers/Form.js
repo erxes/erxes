@@ -3,7 +3,7 @@ import { Brands } from '/imports/api/brands/brands';
 import { Forms } from '/imports/api/forms/forms';
 import { compose } from 'react-komposer';
 import { getTrackerLoader, composerOptions } from '/imports/react-ui/utils';
-import { FORM_LOAD_TYPES } from '/imports/api/integrations/constants';
+import { FORM_LOAD_TYPES, FORM_SUCCESS_ACTIONS } from '/imports/api/integrations/constants';
 import { Form } from '../components';
 import { saveCallback } from './utils';
 
@@ -19,8 +19,11 @@ const composer = (props, onData) => {
   const loadTypes = Object.values(FORM_LOAD_TYPES);
   loadTypes.splice(-1, 1);
 
+  const successActions = Object.values(FORM_SUCCESS_ACTIONS);
+  successActions.splice(-1, 1);
+
   if (brandsHandler.ready() && formsHandler.ready()) {
-    return onData(null, { brands, forms, save, loadTypes });
+    return onData(null, { brands, forms, save, loadTypes, successActions });
   }
 
   return null;

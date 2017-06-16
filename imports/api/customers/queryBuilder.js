@@ -1,95 +1,102 @@
 import moment from 'moment';
 
 export default {
-  segments(segment) {
-    const query = {};
-    const anyOfConditions = segment.connector === 'any';
+  segments(segment, headSegment) {
+    const query = { $and: [] };
 
-    if (anyOfConditions && segment.conditions.length) {
-      query.$or = [];
+    const childQuery = {
+      [segment.connector === 'any' ? '$or' : '$and']: segment.conditions.map(condition => ({
+        [condition.field]: convertConditionToQuery(condition),
+      })),
+    };
+    if (segment.conditions.length) {
+      query.$and.push(childQuery);
     }
 
-    segment.conditions.forEach(({ field, operator, type, dateUnit, value }) => {
-      let op;
-      let transformedValue;
+    // Fetching parent segment
+    const embeddedParentSegment = typeof segment.getParentSegment === 'function'
+      ? segment.getParentSegment()
+      : null;
+    const parentSegment = headSegment || embeddedParentSegment;
 
-      switch (type) {
-        case 'string':
-          transformedValue = value && value.toLowerCase();
-          break;
-        case 'number':
-        case 'date':
-          transformedValue = parseInt(value, 10);
-          break;
-        default:
-          transformedValue = value;
-          break;
+    if (parentSegment) {
+      const parentQuery = {
+        [parentSegment.connector === 'any'
+          ? '$or'
+          : '$and']: parentSegment.conditions.map(condition => ({
+          [condition.field]: convertConditionToQuery(condition),
+        })),
+      };
+      if (parentSegment.conditions.length) {
+        query.$and.push(parentQuery);
       }
+    }
 
-      switch (operator) {
-        case 'e':
-        case 'et':
-        default:
-          op = transformedValue;
-          break;
-        case 'dne':
-          op = { $ne: transformedValue };
-          break;
-        case 'c':
-          op = { $regex: new RegExp(`.*${transformedValue}.*`, 'i') };
-          break;
-        case 'dnc':
-          op = { $regex: new RegExp(`^((?!${transformedValue}).)*$`, 'i') };
-          break;
-        case 'igt':
-          op = { $gt: transformedValue };
-          break;
-        case 'ilt':
-          op = { $lt: transformedValue };
-          break;
-        case 'it':
-          op = true;
-          break;
-        case 'if':
-          op = false;
-          break;
-        case 'wlt':
-          op = {
-            $gte: moment().subtract(transformedValue, dateUnit).toDate(),
-            $lte: new Date(),
-          };
-          break;
-        case 'wmt':
-          op = {
-            $lte: moment().subtract(transformedValue, dateUnit).toDate(),
-          };
-          break;
-        case 'wow':
-          op = {
-            $lte: moment().add(transformedValue, dateUnit).toDate(),
-            $gte: new Date(),
-          };
-          break;
-        case 'woa':
-          op = {
-            $gte: moment().add(transformedValue, dateUnit).toDate(),
-          };
-          break;
-        case 'is':
-          op = { $exists: true };
-          break;
-        case 'ins':
-          op = { $exists: false };
-          break;
-      }
-
-      if (anyOfConditions) {
-        query.$or.push({ [field]: op });
-      } else {
-        query[field] = op;
-      }
-    });
-
-    return query;
+    return query.$and.length ? query : {};
   },
 };
+
+function convertConditionToQuery(condition) {
+  const { operator, type, dateUnit, value } = condition;
+  let transformedValue;
+
+  switch (type) {
+    case 'string':
+      transformedValue = value && value.toLowerCase();
+      break;
+    case 'number':
+    case 'date':
+      transformedValue = parseInt(value, 10);
+      break;
+    default:
+      transformedValue = value;
+      break;
+  }
+
+  switch (operator) {
+    case 'e':
+    case 'et':
+    default:
+      return transformedValue;
+    case 'dne':
+      return { $ne: transformedValue };
+    case 'c':
+      return { $regex: new RegExp(`.*${escapeRegExp(transformedValue)}.*`, 'i') };
+    case 'dnc':
+      return { $regex: new RegExp(`^((?!${escapeRegExp(transformedValue)}).)*$`, 'i') };
+    case 'igt':
+      return { $gt: transformedValue };
+    case 'ilt':
+      return { $lt: transformedValue };
+    case 'it':
+      return true;
+    case 'if':
+      return false;
+    case 'wlt':
+      return {
+        $gte: moment().subtract(transformedValue, dateUnit).toDate(),
+        $lte: new Date(),
+      };
+    case 'wmt':
+      return {
+        $lte: moment().subtract(transformedValue, dateUnit).toDate(),
+      };
+    case 'wow':
+      return {
+        $lte: moment().add(transformedValue, dateUnit).toDate(),
+        $gte: new Date(),
+      };
+    case 'woa':
+      return {
+        $gte: moment().add(transformedValue, dateUnit).toDate(),
+      };
+    case 'is':
+      return { $exists: true };
+    case 'ins':
+      return { $exists: false };
+  }
+}
+
+function escapeRegExp(string) {
+  return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
+}

@@ -13,6 +13,11 @@ const propTypes = {
 function Segments({ segments }) {
   const { Section, filter, getActiveClass } = Wrapper.Sidebar;
 
+  const orderedSegments = [];
+  segments.filter(segment => !segment.subOf).map(segment => {
+    orderedSegments.push(segment, ...segment.getSubSegments());
+  });
+
   return (
     <Section collapsible={segments.length > 5}>
       <Section.Title>Filter by segments</Section.Title>
@@ -45,9 +50,9 @@ function Segments({ segments }) {
           : null}
       </Section.QuickButtons>
 
-      <ul className="filters">
-        {segments.length
-          ? segments.map(segment => (
+      <ul className="sidebar-list">
+        {orderedSegments.length
+          ? orderedSegments.map(segment => (
               <li key={segment._id}>
                 <a
                   tabIndex={0}
@@ -56,6 +61,7 @@ function Segments({ segments }) {
                     filter('segment', segment._id);
                   }}
                 >
+                  {segment.subOf ? '\u00a0\u00a0\u00a0\u00a0\u00a0' : null}
                   <i className="ion-pie-graph icon" style={{ color: segment.color }} />
                   {segment.name}
                   <span className="counter">

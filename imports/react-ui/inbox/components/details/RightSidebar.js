@@ -39,7 +39,7 @@ class RightSidebar extends Component {
     if (integration.kind === 'messenger') {
       return customer.getMessengerCustomData().map(data => (
         <li key={data.value}>
-          <span className="capitalize">{data.name}</span>
+          <span>{data.name}</span>
           <span className="counter">{data.value}</span>
         </li>
       ));
@@ -54,7 +54,7 @@ class RightSidebar extends Component {
       const link = `http://facebook.com/${this.props.conversation.facebookData.senderId}`;
       return (
         <li>
-          <span className="capitalize">Facebook profile</span>
+          <span>Facebook profile</span>
           <span className="counter">
             <a target="_blank" rel="noopener noreferrer" href={link}>[view]</a>
           </span>
@@ -88,14 +88,22 @@ class RightSidebar extends Component {
     const { conversation, messagesCount } = this.props;
     const customer = this.props.conversation.customer();
     const integration = conversation.integration();
+
     return (
       <Wrapper.Sidebar>
         <Wrapper.Sidebar.Section>
           <Title>Customer details</Title>
-          <ul className="filters no-link">
+          <ul className="sidebar-list no-link">
             <li>
               <NameCard customer={customer} avatarSize={50} />
               {this.renderTwitterData()}
+            </li>
+
+            <li>
+              Is User
+              <span className="counter">
+                {Boolean(customer.isUser).toString()}
+              </span>
             </li>
 
             {this.renderMessengerData()}
@@ -113,7 +121,7 @@ class RightSidebar extends Component {
 
         <Wrapper.Sidebar.Section>
           <Title>Conversation Details</Title>
-          <ul className="filters no-link">
+          <ul className="sidebar-list no-link">
             <li>
               Opened
               <span className="counter">
@@ -172,7 +180,7 @@ class RightSidebar extends Component {
               />
             </div>
           </Collapse>
-          <ul className="filters no-link">
+          <ul className="sidebar-list no-link">
             {!conversation.assignedUser()
               ? <EmptyState
                   icon={<i className="ion-person" />}
@@ -187,7 +195,7 @@ class RightSidebar extends Component {
 
         <Wrapper.Sidebar.Section>
           <Title>Participators</Title>
-          <ul className="filters no-link">
+          <ul className="sidebar-list no-link">
             {conversation.participatedUsers().map(user => (
               <li key={user._id}>
                 <NameCard user={user} avatarSize={45} />
@@ -231,7 +239,7 @@ class RightSidebar extends Component {
             </div>
           </Collapse>
 
-          <ul className="filters no-link">
+          <ul className="sidebar-list no-link">
             {conversation.tags().map(tag => (
               <li key={tag._id}>
                 <i className="icon ion-pricetag" style={{ color: tag.colorCode }} />

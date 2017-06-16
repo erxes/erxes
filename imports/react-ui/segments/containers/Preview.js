@@ -29,7 +29,8 @@ const options = {
   shouldSubscribe(currentProps, nextProps) {
     return (
       currentProps.segment.connector !== nextProps.segment.connector ||
-      currentProps.segment.conditions !== nextProps.segment.conditions
+      currentProps.segment.conditions !== nextProps.segment.conditions ||
+      currentProps.segment.subOf !== nextProps.segment.subOf
     );
   },
 };

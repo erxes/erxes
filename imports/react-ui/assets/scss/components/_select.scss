@@ -6,10 +6,8 @@ $black-6: rgba(0, 0, 0, 0.06);
 $black-75: rgba(0, 0, 0, 0.075);
 $channel-round: #ece6f8;
 
-@mixin border-box{
-  -webkit-box-sizing: border-box;
-  -moz-box-sizing: border-box;
-  box-sizing: border-box;
+@mixin border-box {
+  @include prefix((box-sizing: border-box), webkit moz o);
 }
 
 @mixin placeholder {
@@ -149,24 +147,26 @@ $channel-round: #ece6f8;
   @include placeholder;
 }
 
-.has-value {
-  &.is-pseudo-focused {
-    .Select-input {
-      opacity: 0;
+.has-value.is-pseudo-focused {
+  .Select-input {
+    opacity: 0;
+  }
+
+  &.Select--single > .Select-control .Select-value {
+    .Select-value-label {
+      color: $gray-dark;
     }
 
-    &.Select--single > .Select-control .Select-value {
-      .Select-value-label {
-        color: $gray-dark;
+    a.Select-value-label {
+      cursor: pointer;
+      text-decoration: none;
+
+      &:hover {
+        @include focused-state;
       }
 
-      a.Select-value-label {
-        cursor: pointer;
-        text-decoration: none;
-
-        &:hover, &:focus {
-          @include focused-state;
-        }
+      &:focus {
+        @include focused-state;
       }
     }
   }
@@ -180,7 +180,11 @@ $channel-round: #ece6f8;
       cursor: pointer;
       text-decoration: none;
 
-      &:hover, &:focus {
+      &:hover {
+        @include focused-state;
+      }
+
+      &:focus {
         @include focused-state;
       }
     }
@@ -220,9 +224,7 @@ $channel-round: #ece6f8;
 }
 
 .Select-loading {
-  -webkit-animation: Select-animation-spin 400ms infinite linear;
-  -o-animation: Select-animation-spin 400ms infinite linear;
-  animation: Select-animation-spin 400ms infinite linear;
+  @include prefix((Select-animation-spin 400ms infinite linear), webkit moz o);
   width: 16px;
   height: 16px;
   box-sizing: border-box;
@@ -235,9 +237,7 @@ $channel-round: #ece6f8;
 }
 
 .Select-clear-zone {
-  -webkit-animation: Select-animation-fadeIn 200ms;
-  -o-animation: Select-animation-fadeIn 200ms;
-  animation: Select-animation-fadeIn 200ms;
+  @include prefix((animation: Select-animation-fadeIn 200msr), webkit moz o);
   color: $text-color-light;
   cursor: pointer;
   display: table-cell;
@@ -295,7 +295,12 @@ $channel-round: #ece6f8;
     border-right: 1px solid $color-light-purple;
     padding: 1px 5px 3px;
 
-    &:hover, &:focus {
+    &:hover {
+      background-color: darken($light-gray-background, 5%);
+      color: darken($main-color, 5%);
+    }
+
+    &:focus {
       background-color: darken($light-gray-background, 5%);
       color: darken($main-color, 5%);
     }
@@ -326,7 +331,15 @@ $channel-round: #ece6f8;
       cursor: not-allowed;
       border-right: 1px solid $disabled-border;
 
-      &:hover, &:focus, &:active {
+      &:hover {
+        background-color: $disabled-gray;
+      }
+
+      &:focus {
+        background-color: $disabled-gray;
+      }
+
+      &:active {
         background-color: $disabled-gray;
       }
     }
@@ -403,7 +416,11 @@ $channel-round: #ece6f8;
   display: block;
   padding: 8px 10px;
 
-  ~ .Select-option, .Select-option-group {
+  ~ .Select-option {
+    padding-left: 20px;
+  }
+
+  .Select-option-group {
     padding-left: 20px;
   }
 }
@@ -466,6 +483,7 @@ $channel-round: #ece6f8;
   }
 }
 
+// scss-lint:disable VendorPrefix
 @-webkit-keyframes Select-animation-fadeIn {
   from {
     opacity: 0;

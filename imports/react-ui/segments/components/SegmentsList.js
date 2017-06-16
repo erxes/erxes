@@ -1,5 +1,3 @@
-/* eslint-env browser */
-
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Button, Table } from 'react-bootstrap';
@@ -16,13 +14,17 @@ const propTypes = {
 function SegmentsList({ segments, removeSegment }) {
   const remove = id => {
     if (confirm('Are you sure?')) {
-      // eslint-disable-line no-alert
       removeSegment(
         { id },
         error => (error ? Alert.error(error.reason) : Alert.success('Successfully deleted.')),
       );
     }
   };
+
+  const parentSegments = [];
+  segments.filter(segment => !segment.subOf).map(segment => {
+    parentSegments.push(segment, ...segment.getSubSegments());
+  });
 
   const content = (
     <Table>
@@ -35,9 +37,9 @@ function SegmentsList({ segments, removeSegment }) {
         </tr>
       </thead>
       <tbody>
-        {segments.map(segment => (
+        {parentSegments.map(segment => (
           <tr key={segment._id}>
-            <td>{segment.name}</td>
+            <td>{segment.subOf ? '\u2014\u2014' : null} {segment.name}</td>
             <td>{segment.description}</td>
             <td>{segment.color}</td>
             <td className="text-right">

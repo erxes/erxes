@@ -56,7 +56,10 @@ describe('integrations', function() {
 
       addForm._execute(
         { userId },
-        { doc: { name: 'Foo', brandId, formId, formLoadType: 'popup' } },
+        {
+          mainDoc: { name: 'Foo', brandId, formId },
+          formDoc: { loadType: 'popup' },
+        },
       );
 
       const integration = Integrations.findOne({ name: 'Foo' });
@@ -65,6 +68,7 @@ describe('integrations', function() {
       assert.equal(integration.kind, KIND_CHOICES.FORM);
       assert.equal(integration.brandId, brandId);
       assert.equal(integration.formId, formId);
+      assert.deepEqual(integration.formData, { loadType: 'popup' });
     });
 
     it('edit form', function() {
@@ -78,7 +82,8 @@ describe('integrations', function() {
         { userId },
         {
           _id: form._id,
-          doc: { name: nameToUpdate, brandId, formId, formLoadType: 'popup' },
+          mainDoc: { name: nameToUpdate, brandId, formId },
+          formDoc: { loadType: 'popup' },
         },
       );
 
@@ -88,6 +93,7 @@ describe('integrations', function() {
       assert.equal(integration.name, nameToUpdate);
       assert.equal(integration.kind, kind);
       assert.equal(integration.formId, formId);
+      assert.deepEqual(integration.formData, { loadType: 'popup' });
     });
 
     describe('remove', function() {

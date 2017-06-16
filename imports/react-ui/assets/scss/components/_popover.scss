@@ -4,13 +4,11 @@
   box-shadow: $box-shadow;
   padding: 0;
 
-  &.bottom {
-    > .arrow {
-      border-bottom-color: transparent;
+  &.bottom > .arrow {
+    border-bottom-color: transparent;
 
-      &:after {
-        top: 4px;
-      }
+    &::after {
+      top: 4px;
     }
   }
 }
@@ -62,6 +60,7 @@
   padding: 0;
   list-style: none;
   overflow: auto;
+
   li {
     position: relative;
     display: block;
@@ -71,7 +70,11 @@
     text-overflow: ellipsis;
     font-size: 13px;
 
-    &:hover, &:focus {
+    &:hover {
+      background: $grey-light;
+    }
+
+    &:focus {
       background: $grey-light;
     }
 
@@ -80,43 +83,39 @@
     }
   }
 
-  &.selectable {
-    li {
-      cursor: pointer;
-      padding-left: 30px;
+  &.selectable li {
+    cursor: pointer;
+    padding-left: 30px;
 
-      &:before {
-        font-family: Ionicons;
-        font-size: 10px;
-        width: 15px;
-        height: 15px;
-        z-index: 30;
-        text-align: center;
-        position: absolute;
-        color: $gray-dark;
-        top: 50%;
-        left: 10px;
-        margin-top: -7px;
-      }
+    &::before {
+      font-family: Ionicons;
+      font-size: 10px;
+      width: 15px;
+      height: 15px;
+      z-index: 30;
+      text-align: center;
+      position: absolute;
+      color: $gray-dark;
+      top: 50%;
+      left: 10px;
+      margin-top: -7px;
+    }
 
-      &.all:before {
-        content: "\f121";
-      }
+    &.all::before {
+      content: "\f121";
+    }
 
-      &.some:before {
-        content: "\f208";
-      }
+    &.some::before {
+      content: "\f208";
     }
   }
 
-  &.linked {
-    li {
-      padding: 0;
+  &.linked li {
+    padding: 0;
 
-      a {
-        display: block;
-        padding: 5px 20px;
-      }
+    a {
+      display: block;
+      padding: 5px 20px;
     }
   }
 }

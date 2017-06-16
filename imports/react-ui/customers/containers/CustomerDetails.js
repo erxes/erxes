@@ -8,10 +8,10 @@ import { CustomerDetails } from '../components';
 function composer({ id }, onData) {
   const customerHandle = Meteor.subscribe('customers.details', id);
 
-  const customer = Customers.findOne(id);
-  const conversations = Conversations.find({}, { sort: { createdAt: -1 } }).fetch();
-
   if (customerHandle.ready()) {
+    const customer = Customers.findOne(id);
+    const conversations = Conversations.find({}, { sort: { createdAt: -1 } }).fetch();
+
     onData(null, { customer, conversations });
   }
 }

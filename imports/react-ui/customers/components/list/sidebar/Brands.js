@@ -33,7 +33,7 @@ function Brands({ brands }) {
           : null}
       </Section.QuickButtons>
 
-      <ul className="filters">
+      <ul className="sidebar-list">
         {brands.map(brand => (
           <li key={brand._id}>
             <a

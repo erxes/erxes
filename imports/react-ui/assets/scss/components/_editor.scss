@@ -1,3 +1,6 @@
+//colors
+$color-mention-active: darken($message-background, 10%);
+$mention-shadow: 0 0 10px -3px $black-transparent;
 $editor-text-color: #999;
 
 .RichEditor-root {
@@ -86,11 +89,6 @@ $editor-text-color: #999;
   color: $main-color;
 }
 
-//colors
-$color-mention-active: darken($message-background, 10%);
-$mention-shadow: 0 0 10px -3px rgba(0, 0, 0, 0.5);
-
-
 @mixin mention-default {
   cursor: pointer;
   display: inline-block;
@@ -137,8 +135,12 @@ $mention-shadow: 0 0 10px -3px rgba(0, 0, 0, 0.5);
   box-sizing: border-box;
   transform: scale(0);
   bottom: 100%;
+
+  // scss-lint:disable ImportantRule
   top: auto !important;
   left: 0 !important;
+  // scss-lint:enable ImportantRule
+
   max-height: 300px;
   overflow: auto;
 }

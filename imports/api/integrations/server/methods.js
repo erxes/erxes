@@ -6,7 +6,7 @@ import { Conversations } from '/imports/api/conversations/conversations';
 import { Messages } from '/imports/api/conversations/messages';
 import { Customers } from '/imports/api/customers/customers';
 import { Channels } from '/imports/api/channels/channels';
-import { Integrations, messengerSchema } from '../integrations';
+import { Integrations, messengerSchema, formSchema } from '../integrations';
 import { KIND_CHOICES } from '../constants';
 
 // add messenger
@@ -38,17 +38,24 @@ export const editMessenger = new ValidatedMethod({
   },
 });
 
+const generateFormDoc = (mainDoc, formDoc) =>
+  Object.assign(mainDoc, {
+    kind: KIND_CHOICES.FORM,
+    formData: formDoc,
+  });
+
 // add form
 export const addForm = new ValidatedMethod({
   name: 'integrations.addForm',
   mixins: [ErxesMixin],
 
-  validate({ doc }) {
-    check(doc, Integrations.formSchema);
+  validate({ mainDoc, formDoc }) {
+    check(mainDoc, { name: String, brandId: String, formId: String });
+    check(formDoc, formSchema);
   },
 
-  run({ doc }) {
-    return Integrations.insert(Object.assign(doc, { kind: KIND_CHOICES.FORM }));
+  run({ mainDoc, formDoc }) {
+    return Integrations.insert(generateFormDoc(mainDoc, formDoc));
   },
 });
 
@@ -57,13 +64,14 @@ export const editForm = new ValidatedMethod({
   name: 'integrations.editForm',
   mixins: [ErxesMixin],
 
-  validate({ _id, doc }) {
+  validate({ _id, mainDoc, formDoc }) {
     check(_id, String);
-    check(doc, Integrations.formSchema);
+    check(mainDoc, { name: String, brandId: String, formId: String });
+    check(formDoc, formSchema);
   },
 
-  run({ _id, doc }) {
-    return Integrations.update({ _id }, { $set: doc });
+  run({ _id, mainDoc, formDoc }) {
+    return Integrations.update({ _id }, { $set: generateFormDoc(mainDoc, formDoc) });
   },
 });
 

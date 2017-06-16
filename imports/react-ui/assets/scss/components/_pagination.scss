@@ -16,15 +16,11 @@
       font-weight: 400;
       color: $text-color-light;
       border-radius: 0;
-
-      &:focus {
-        background: none;
-      }
     }
   }
 }
 
-.section.full {
+.sidebar-section.full {
   .paginate-wrapper {
     display: flex;
     min-height: auto;

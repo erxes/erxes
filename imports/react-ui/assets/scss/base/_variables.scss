@@ -23,6 +23,7 @@ $internal-background:               #fcf0ad;
 $light-gray-background:             #f3f1f7;
 
 $black:                             #000 !default;
+$black-transparent:                 rgba(0, 0, 0, .5);
 $gray-darker:                       lighten($black, 13.5%) !default; // #222
 $gray-dark:                         lighten($black, 20%) !default;   // #333
 $gray:                              lighten($black, 33.5%) !default; // #555
@@ -30,7 +31,7 @@ $gray-light:                        lighten($black, 46.7%) !default; // #777
 $gray-lighter:                      lighten($black, 93.5%) !default; // #eee
 
 $border-radius:                     4px;
-$box-shadow:                        0 2px 10px -3px rgba(0, 0, 0, .5);
+$box-shadow:                        0 2px 10px -3px $black-transparent;
 
 $success-color:                     #67b04f;
 $error-color:                       #e85a5a;
