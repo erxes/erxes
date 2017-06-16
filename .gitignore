@@ -2,5 +2,3 @@ node_modules
 settings.json
 .DS_Store
 npm-debug.log*
-coverage/*
-.nyc_output/*
