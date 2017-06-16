@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import moment from 'moment';
 import { Button, Label } from 'react-bootstrap';
-import { Tip, ActionButtons } from '/imports/react-ui/common';
+import { Tip, ActionButtons, NameCard } from '/imports/react-ui/common';
 
 const propTypes = {
   message: PropTypes.object.isRequired,
@@ -83,15 +83,25 @@ class Row extends React.Component {
 
     return (
       <tr key={message._id}>
-        <td><input type="checkbox" onChange={this.toggleBulk} /></td>
+        <td className="less-space">
+          <input type="checkbox" onChange={this.toggleBulk} />
+        </td>
         <td>{message.title}</td>
-        <td>{message.segment().name}</td>
-        <td>{message.fromUser().username}</td>
+        <td><i className="ion-pie-graph" /> {message.segment().name}</td>
+        <td className="text-normal">
+          <NameCard user={message.fromUser()} avatarSize={32} singleLine />
+        </td>
         <td>{status}</td>
-        <td>{totalCount}</td>
-        <td>{successCount}</td>
-        <td>{failedCount}</td>
-        <td>{moment(message.createdDate).format('DD MMM YYYY')}</td>
+        <td className="cell-icon text-primary">
+          <i className="ion-cube" /><b> {totalCount}</b>
+        </td>
+        <td className="cell-icon text-success">
+          <i className="ion-checkmark-circled" /><b> {successCount}</b>
+        </td>
+        <td className="cell-icon text-warning">
+          <i className="ion-alert-circled" /><b> {failedCount}</b>
+        </td>
+        <td><i className="ion-calendar" /> {moment(message.createdDate).format('DD MMM YYYY')}</td>
 
         <td className="text-right">
           <ActionButtons>
