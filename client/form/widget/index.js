@@ -1,101 +1,141 @@
 /* global ROOT_URL */
+/* eslint-disable no-param-reassign */
 
 /*
  * Form's embeddable script
  */
 
-// import settings from '../../settings';
-
 // css
 import './index.css';
 
-// container
-const erxesContainer = document.createElement('div');
-erxesContainer.id = 'erxes-container';
-
-// add iframe
-let iframe = document.createElement('iframe');
-iframe.id = 'erxes-iframe';
-iframe.src = `${ROOT_URL}/form`;
-iframe.style.display = 'none';
-
-erxesContainer.appendChild(iframe);
-
-// if there is an placeholder for embed then add new iframe to it
-const embedContainer = document.querySelector('[data-erxes-embed]');
-
-if (embedContainer) {
-  embedContainer.appendChild(erxesContainer);
-
-// otherwise add to body
-} else {
-  document.body.appendChild(erxesContainer);
-}
-
-// meta
+// add meta to head
 const meta = document.createElement('meta');
 meta.name = 'viewport';
 meta.content = 'initial-scale=1, width=device-width';
 document.getElementsByTagName('head')[0].appendChild(meta);
 
-// send erxes settings to iframe
-iframe = document.querySelector('#erxes-iframe');
 
-// after iframe load send connection info
-iframe.onload = () => {
-  iframe.style.display = 'inherit';
+// create iframe helper
+const createIframe = (setting) => {
+  const formId = setting.form_id;
 
-  iframe.contentWindow.postMessage({
-    fromPublisher: true,
-    settings: window.erxesSettings,
-  }, '*');
+  // container
+  let container = document.createElement('div');
+  const containerId = `erxes-container-${formId}`;
+  const iframeId = `erxes-iframe-${formId}`;
+
+  container.id = containerId;
+
+  // add iframe
+  let iframe = document.createElement('iframe');
+
+  iframe.id = iframeId;
+  iframe.src = `${ROOT_URL}/form`;
+  iframe.style.display = 'none';
+
+  container.appendChild(iframe);
+
+  // if there is an placeholder for embed then add new iframe to it
+  const embedContainer = document.querySelector(`[data-erxes-embed="${formId}"]`);
+
+  if (embedContainer) {
+    embedContainer.appendChild(container);
+
+  // otherwise add to body
+  } else {
+    document.body.appendChild(container);
+  }
+
+  iframe = document.querySelector(`#${iframeId}`);
+
+  // send erxes setting to iframe
+  // after iframe load send connection info
+  iframe.onload = () => {
+    iframe.style.display = 'inherit';
+
+    iframe.contentWindow.postMessage({
+      fromPublisher: true,
+      setting,
+    }, '*');
+  };
+
+  container = document.querySelector(`#${containerId}`);
+  iframe = document.querySelector(`#${iframeId}`);
+
+  return { container, iframe };
 };
+
+const addClassesToIframe = ({ formId, loadType, container, iframe }) => {
+  if (loadType === 'embedded') {
+    container.className = 'erxes-embed-iframe';
+  }
+
+  if (loadType === 'popup') {
+    container.className = 'erxes-modal-iframe hidden';
+
+    document.querySelectorAll(`[data-erxes-modal="${formId}"]`).forEach((elm) => {
+      elm.addEventListener('click', () => {
+        const iframeDocument = iframe.contentWindow.document;
+
+        container.className = 'erxes-modal-iframe';
+        iframeDocument.querySelector('.modal-form').className = 'modal-form open';
+      });
+    });
+  }
+
+  if (loadType === 'shoutbox') {
+    container.className = 'erxes-shoutbox-iframe erxes-shoutbox-form-hidden';
+  }
+};
+
+const formSettings = window.erxesSettings.forms || [];
+
+// create iframes and save with index
+const iframesMapping = {};
+
+formSettings.forEach((formSetting) => {
+  iframesMapping[JSON.stringify(formSetting)] = createIframe(formSetting);
+});
 
 // listen for messages from widget
 window.addEventListener('message', (event) => {
   const data = event.data;
 
-  if (!data.fromErxes) {
-    return;
+  if (!(data.fromErxes && data.fromForms)) {
+    return null;
   }
 
+  const setting = data.setting;
+
+  const { container, iframe } = iframesMapping[JSON.stringify(setting)];
+
   if (data.action === 'connected') {
-    const loadType = data.connectionInfo.formConnect.formLoadType;
+    const loadType = data.connectionInfo.formConnect.formData.loadType;
 
-    if (loadType === 'embedded') {
-      erxesContainer.className = 'erxes-embed-iframe';
-    }
-
-    if (loadType === 'popup') {
-      erxesContainer.className = 'erxes-modal-iframe hidden';
-
-      document.querySelectorAll('[data-erxes-modal]').forEach((elm) => {
-        elm.addEventListener('click', () => {
-          const iframeDocument = iframe.contentWindow.document;
-
-          erxesContainer.className = 'erxes-modal-iframe';
-          iframeDocument.querySelector('.modal-form').className = 'modal-form open';
-        });
-      });
-    }
-
-    if (loadType === 'shoutbox') {
-      erxesContainer.className = 'erxes-shoutbox-iframe erxes-shoutbox-form-hidden';
-    }
-
-    return;
+    // add classes according to load type
+    return addClassesToIframe({
+      formId: setting.form_id,
+      loadType,
+      container,
+      iframe,
+    });
   }
 
   // user clicked the close button in modal
   if (data.closeModal) {
     const iframeDocument = iframe.contentWindow.document;
-    erxesContainer.className = 'erxes-modal-iframe hidden';
+
+    container.className = 'erxes-modal-iframe hidden';
+
     iframeDocument.querySelector('.modal-form').className = 'modal-form';
-    return;
+
+    return null;
   }
 
   // user clicked shoutbox's widget
   if (data.fromShoutbox) {
-    erxesContainer.className = `erxes-shoutbox-iframe erxes-shoutbox-form-${data.isVisible ? 'shown' : 'hidden'}`;
+    container.className = `erxes-shoutbox-iframe erxes-shoutbox-form-${data.isVisible ? 'shown' : 'hidden'}`;
   }
+
+  return null;
 });

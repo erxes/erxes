@@ -42,4 +42,10 @@ function Message({ content, attachments, user, createdAt, color }) {
 
 Message.propTypes = propTypes;
 
+Message.defaultProps = {
+  user: null,
+  color: null,
+  attachments: [],
+};
+
 export default Message;

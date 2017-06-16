@@ -8,14 +8,24 @@ import { App } from './containers';
 import './sass/style.scss';
 
 widgetConnect({
+  postParams: {
+    fromForms: true,
+  },
+
   connectMutation: (event) => {
-    const settings = event.data.settings;
+    const setting = event.data.setting;
+
+    connection.setting = setting;
 
     // call connect mutation
-    return connect(settings.brand_id, settings.form_id);
+    return connect(setting.brand_id, setting.form_id);
   },
 
   connectCallback: (data) => {
+    if (!data.formConnect) {
+      throw new Error('Integration not found');
+    }
+
     // save connection info
     connection.data = data.formConnect;
   },

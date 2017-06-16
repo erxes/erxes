@@ -6,13 +6,14 @@ import gql from 'graphql-tag';
 import { graphql } from 'react-apollo';
 import { connection } from '../connection';
 import { Form as DumbForm } from '../components';
-import { saveForm, createNew } from '../actions';
+import { saveForm, createNew, sendEmail } from '../actions';
 
 const Form = (props) => {
   const extendedProps = {
     ...props,
     form: props.data.form,
     integrationName: connection.data.integrationName,
+    formConfig: connection.data.formData,
   };
 
   if (props.data.loading) {
@@ -55,6 +56,10 @@ const mapDispatchToProps = dispatch => ({
   onCreateNew() {
     dispatch(createNew());
   },
+
+  sendEmail(...args) {
+    dispatch(sendEmail(...args));
+  },
 });
 
 const FormWithData = graphql(
@@ -74,6 +79,7 @@ const FormWithData = graphql(
           options
           isRequired
           order
+          validation
         }
       }
     }

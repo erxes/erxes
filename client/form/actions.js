@@ -15,6 +15,8 @@ export const toggleShoutbox = (isVisible) => {
   // notify parent window launcher state
   window.parent.postMessage({
     fromErxes: true,
+    fromForms: true,
+    setting: connection.setting,
     fromShoutbox: true,
     isVisible: !isVisible,
   }, '*');
@@ -30,6 +32,8 @@ export const closeModal = () => {
   // notify parent window that close modal
   window.parent.postMessage({
     fromErxes: true,
+    fromForms: true,
+    setting: connection.setting,
     closeModal: true,
   }, '*');
 };
@@ -43,7 +47,7 @@ export const connect = (brandCode, formCode) =>
           integrationId,
           integrationName,
           formId,
-          formLoadType
+          formData
         }
       }`,
 
@@ -55,23 +59,27 @@ export const connect = (brandCode, formCode) =>
 
 export const saveForm = doc => (dispatch) => {
   const submissions = _.map(_.keys(doc), (fieldId) => {
-    const { value, text, type } = doc[fieldId];
+    const { value, text, type, validation } = doc[fieldId];
 
     return {
       _id: fieldId,
       type,
       text,
       value,
+      validation,
     };
   });
 
   client.mutate({
     mutation: gql`
-      mutation saveForm($integrationId: String!, $formId: String!, $submissions: [FieldValueInput]) {
-        saveForm(integrationId: $integrationId, formId: $formId, submissions: $submissions) {
-          fieldId
-          code
-          text
+      mutation saveForm($integrationId: String!, $formId: String!,
+        $submissions: [FieldValueInput]) {
+
+        saveForm(integrationId: $integrationId, formId: $formId,
+          submissions: $submissions) {
+            fieldId
+            code
+            text
         }
       }`,
 
@@ -103,5 +111,24 @@ export const createNew = () => (dispatch) => {
   dispatch({
     type: CREATE_NEW,
     status: INITIAL,
+  });
+};
+
+export const sendEmail = (toEmails, fromEmail, title, content) => () => {
+  client.mutate({
+    mutation: gql`
+      mutation sendEmail($toEmails: [String], $fromEmail: String,
+        $title: String, $content: String) {
+
+        sendEmail(toEmails: $toEmails, fromEmail: $fromEmail,
+          title: $title, content: $content)
+      }`,
+
+    variables: {
+      toEmails,
+      fromEmail,
+      title,
+      content,
+    },
   });
 };

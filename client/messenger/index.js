@@ -3,37 +3,60 @@
 import gql from 'graphql-tag';
 import client, { wsClient } from '../apollo-client';
 import widgetConnect from '../widgetConnect';
-import { connection } from './connection';
+import { connection, connect } from './connection';
+import { EMAIL_LOCAL_STORAGE_KEY } from './constants';
 import reducers from './reducers';
 import { App } from './containers';
 import './sass/style.scss';
 
 widgetConnect({
   connectMutation: (event) => {
-    const settings = event.data.settings;
+    const setting = event.data.setting;
+
+    const clientPassedEmail = setting.email;
+
+    // retrieve previously cached email from local storage
+    const cachedEmail = localStorage.getItem(EMAIL_LOCAL_STORAGE_KEY);
+
+    if (cachedEmail) {
+      setting.email = cachedEmail;
+    }
+
+    // save user passed setting on connection. using this information in action
+    connection.setting = setting;
+
+    // if there is no email specified in user setting then
+    // work as visitor mode
+    if (!setting.email) {
+      // call get messenger integration query
+      return client.query({
+        query: gql`
+          query getIntegration($brandCode: String!) {
+            getMessengerIntegration(brandCode: $brandCode) {
+              uiOptions,
+              messengerData,
+            }
+          }`,
+
+        variables: { brandCode: setting.brand_id },
+      });
+    }
 
     // call connect mutation
-    return client.mutate({
-      mutation: gql`
-        mutation connect($brandCode: String!, $email: String!, $name: String) {
-          messengerConnect(brandCode: $brandCode, email: $email, name: $name) {
-            integrationId,
-            messengerData,
-            uiOptions,
-            customerId,
-          }
-        }`,
+    return connect({
+      brandCode: setting.brand_id,
+      email: setting.email,
 
-      variables: {
-        brandCode: settings.brand_id,
-        email: settings.email,
-        name: settings.name,
-      },
+      // if client passed email automatically then consider this as user
+      isUser: Boolean(clientPassedEmail),
+
+      name: setting.name,
+      data: setting.data,
     });
   },
 
   connectCallback: (data) => {
-    const messengerData = data.messengerConnect;
+    const messengerData = data.messengerConnect || data.getMessengerIntegration;
 
     // save connection info
     connection.data = messengerData;

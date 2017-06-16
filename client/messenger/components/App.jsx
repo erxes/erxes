@@ -1,20 +1,35 @@
 import React, { PropTypes } from 'react';
-import { Messenger, Launcher } from '../containers';
+import classNames from 'classnames';
+import { Messenger, Launcher, VisitorLauncher, VisitorForm } from '../containers';
 
+function App({ isMessengerVisible, isEmailReceived, color }) {
+  const widgetClasses = classNames('erxes-widget', { opened: isMessengerVisible });
 
-const propTypes = {
-  isMessengerVisible: PropTypes.bool.isRequired,
-};
+  if (isEmailReceived) {
+    return (
+      <div className={widgetClasses}>
+        <Messenger />
+        <Launcher color={color} />
+      </div>
+    );
+  }
 
-function App({ isMessengerVisible }) {
   return (
-    <div className="erxes-widget">
-      {isMessengerVisible ? <Messenger /> : null}
-      <Launcher />
+    <div className={widgetClasses}>
+      <VisitorForm color={color} />
+      <VisitorLauncher color={color} />
     </div>
   );
 }
 
-App.propTypes = propTypes;
+App.propTypes = {
+  isMessengerVisible: PropTypes.bool.isRequired,
+  isEmailReceived: PropTypes.bool.isRequired,
+  color: PropTypes.string,
+};
+
+App.defaultProps = {
+  color: null,
+};
 
 export default App;

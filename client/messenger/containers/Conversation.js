@@ -1,7 +1,7 @@
 import React from 'react';
 import gql from 'graphql-tag';
 import { connect } from 'react-redux';
-import { graphql, compose } from 'react-apollo';
+import { graphql } from 'react-apollo';
 import Subscriber from './Subscriber';
 import { connection } from '../connection';
 import { changeRoute, changeConversation } from '../actions/messenger';
@@ -143,4 +143,4 @@ const query = graphql(
   },
 );
 
-export default connect(mapStateToProps, mapDisptachToProps)(query(Conversation))
+export default connect(mapStateToProps, mapDisptachToProps)(query(Conversation));

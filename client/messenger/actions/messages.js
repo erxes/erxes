@@ -25,7 +25,7 @@ export const sendMessage = (message, attachments) =>
     // current conversation
     const currentConversationId = state.activeConversation;
 
-    client.mutate({
+    return client.mutate({
       mutation: gql`
         mutation insertMessage(${connection.queryVariables}, $message: String,
             $conversationId: String!, $attachments: [AttachmentInput]) {

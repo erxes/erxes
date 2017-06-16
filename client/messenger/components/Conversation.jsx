@@ -1,6 +1,5 @@
 import React, { PropTypes } from 'react';
-import TopBar from './TopBar';
-import { MessageSender } from '../containers';
+import { MessageSender, TopBar } from '../containers';
 import { MessagesList } from '../components';
 
 
@@ -10,6 +9,7 @@ const propTypes = {
   user: PropTypes.object,
   data: PropTypes.object,
   isNewConversation: PropTypes.bool,
+  isOnline: PropTypes.bool,
 };
 
 function Conversation(props) {
@@ -18,8 +18,8 @@ function Conversation(props) {
     isNewConversation,
     goToConversationList,
     user,
-    isOnline,
     data,
+    isOnline,
   } = props;
 
   function renderTitle() {
@@ -53,7 +53,6 @@ function Conversation(props) {
     );
   }
 
-  const color = data.uiOptions && data.uiOptions.color;
   const placeholder = isNewConversation ? 'Send a message ...' : 'Write a reply ...';
 
   return (
@@ -61,15 +60,21 @@ function Conversation(props) {
       <TopBar
         middle={renderTitle()}
         buttonClass="back"
-        color={color}
         onButtonClick={goToConversationList}
       />
-      <MessagesList data={data} messages={messages} />
-      <MessageSender isOnline={isOnline} placeholder={placeholder} />
+      <MessagesList isOnline={isOnline} data={data} messages={messages} />
+      <MessageSender placeholder={placeholder} />
     </div>
   );
 }
 
 Conversation.propTypes = propTypes;
+
+Conversation.defaultProps = {
+  user: {},
+  data: {},
+  isNewConversation: false,
+  isOnline: false,
+};
 
 export default Conversation;

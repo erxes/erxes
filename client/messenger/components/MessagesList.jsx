@@ -1,6 +1,6 @@
 import React, { PropTypes, Component } from 'react';
 import classNames from 'classnames';
-import { Message } from '../components';
+import { Message } from '../containers';
 
 
 const propTypes = {
@@ -25,7 +25,8 @@ class MessagesList extends Component {
     }
   }
 
-  renderAwayMessage(isOnline, messengerData) {
+  renderAwayMessage(messengerData) {
+    const { isOnline } = this.props;
     if (messengerData && !isOnline && messengerData.awayMessage) {
       return (
         <li className="erxes-spacial-message away">
@@ -36,7 +37,8 @@ class MessagesList extends Component {
     return null;
   }
 
-  renderWelcomeMessage(isOnline, messengerData) {
+  renderWelcomeMessage(messengerData) {
+    const { isOnline } = this.props;
     if (messengerData && isOnline && messengerData.welcomeMessage) {
       return (
         <li className="erxes-spacial-message">
@@ -48,8 +50,7 @@ class MessagesList extends Component {
   }
 
   render() {
-    const { isOnline, data } = this.props;
-    const color = data.uiOptions && data.uiOptions.color;
+    const { data } = this.props;
     const bg = data.uiOptions && data.uiOptions.wallpaper;
     const messengerData = data.messengerData;
     const messagesClasses = classNames('erxes-messages-list', { [`bg-${bg}`]: bg });
@@ -57,20 +58,25 @@ class MessagesList extends Component {
     return (
       <ul
         className={messagesClasses}
-        ref={node => { this.node = node; }}
+        ref={(node) => { this.node = node; }}
       >
-        {this.renderWelcomeMessage(isOnline, messengerData)}
+        {this.renderWelcomeMessage(messengerData)}
         {
           this.props.messages.map(message =>
-            <Message color={color} key={message._id} {...message} />,
+            <Message key={message._id} {...message} />,
           )
         }
-        {this.renderAwayMessage(isOnline, messengerData)}
+        {this.renderAwayMessage(messengerData)}
       </ul>
     );
   }
 }
 
 MessagesList.propTypes = propTypes;
+
+MessagesList.defaultProps = {
+  isOnline: false,
+  data: null,
+};
 
 export default MessagesList;

@@ -14,7 +14,7 @@ $break-small: 415px;
   right: 8px;
   box-shadow: 0 0 10px 0 rgba($black, .2);
   background: $main-color url($icon-erxes) center no-repeat;
-  transition: background 0.3s ease-in-out;
+  transition: background 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
 
   span {
     position: absolute;
@@ -36,7 +36,7 @@ $break-small: 415px;
   }
 
   &:hover {
-    box-shadow: 0 0 15px 0 rgba($black, .3);
+    box-shadow: 0 0 12px 0 rgba($black, .3);
   }
 
   @media screen and (max-width: $break-small) {
