@@ -56,6 +56,7 @@ class MessageForm extends Component {
     if (this.state.method === 'messenger') {
       doc.messenger = {
         kind: document.getElementById('messengerKind').value,
+        sentAs: document.getElementById('messengerSentAs').value,
         content: this.state.messengerContent,
       };
     }

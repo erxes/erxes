@@ -4,7 +4,7 @@ import { Factory } from 'meteor/dburles:factory';
 import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 import Segments from '/imports/api/customers/segments';
 import { TagsCollection, tagsHelper, tagSchemaOptions } from '/imports/api/tags/utils';
-import { MESSENGER_KINDS, METHODS } from './constants';
+import { MESSENGER_KINDS, METHODS, SENT_AS_CHOICES } from './constants';
 
 export const Messages = new TagsCollection('engage_messages');
 
@@ -27,6 +27,10 @@ const MessengerSchema = new SimpleSchema({
   kind: {
     type: String,
     allowedValues: MESSENGER_KINDS.ALL_LIST,
+  },
+  sentAs: {
+    type: String,
+    allowedValues: SENT_AS_CHOICES.ALL_LIST,
   },
   content: {
     type: String,

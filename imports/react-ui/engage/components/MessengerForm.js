@@ -1,6 +1,6 @@
 import React, { PropTypes, Component } from 'react';
 import { FormControl } from 'react-bootstrap';
-import { MESSENGER_KINDS } from '/imports/api/engage/constants';
+import { MESSENGER_KINDS, SENT_AS_CHOICES } from '/imports/api/engage/constants';
 import Editor from './Editor';
 
 const propTypes = {
@@ -29,7 +29,6 @@ class MessengerForm extends Component {
         <div className="header-row">
           <span>Message type:</span>
           <FormControl id="messengerKind" componentClass="select" defaultValue={messenger.kind}>
-
             <option />
             {MESSENGER_KINDS.SELECT_OPTIONS.map(k =>
               <option key={k.value} value={k.value}>
@@ -37,6 +36,17 @@ class MessengerForm extends Component {
               </option>,
             )}
           </FormControl>
+
+          <span>Sent as:</span>
+          <FormControl id="messengerSentAs" componentClass="select" defaultValue={messenger.sentAs}>
+            <option />
+            {SENT_AS_CHOICES.SELECT_OPTIONS.map(s =>
+              <option key={s.value} value={s.value}>
+                {s.text}
+              </option>,
+            )}
+          </FormControl>
+
         </div>
 
         <Editor defaultValue={messenger.content} onChange={this.onContentChange} />,

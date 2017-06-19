@@ -40,3 +40,15 @@ export const METHODS = {
   EMAIL: 'email',
   ALL_LIST: ['messenger', 'email'],
 };
+
+export const SENT_AS_CHOICES = {
+  BADGE: 'badge',
+  SNIPPET: 'snippet',
+  FULL_MESSAGE: 'fullMessage',
+  ALL_LIST: ['badge', 'snippet', 'fullMessage'],
+  SELECT_OPTIONS: [
+    { value: 'badge', text: 'Badge' },
+    { value: 'snippet', text: 'Snippet' },
+    { value: 'fullMessage', text: 'Show the full message' },
+  ],
+};
