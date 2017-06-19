@@ -1,13 +1,11 @@
 import React, { PropTypes, Component } from 'react';
-import ReactDom from 'react-dom';
 import { ButtonGroup, Button, FormControl } from 'react-bootstrap';
 
 import { FlowRouter } from 'meteor/kadira:flow-router';
 import { Wrapper } from '/imports/react-ui/layout/components';
 
-import { EMAIL_CONTENT_PLACEHOLDER, EMAIL_CONTENT_CLASS } from '/imports/api/engage/constants';
-
-import Editor from './Editor';
+import EmailForm from './EmailForm';
+import MessengerForm from './MessengerForm';
 
 const propTypes = {
   message: PropTypes.object,
@@ -22,74 +20,45 @@ class MessageForm extends Component {
     super(props);
 
     const message = props.message || {};
-    const email = message.email || {};
-    const content = email.content || '';
 
-    // current template
-    let currentTemplate = EMAIL_CONTENT_PLACEHOLDER;
-
-    if (email.templateId) {
-      currentTemplate = this.findTemplate(email.templateId);
-    }
-
-    // states
-    this.state = { content, currentTemplate };
+    this.state = { emailContent: '', messengerContent: '', method: message.method || 'email' };
 
     // binds
     this.generateDoc = this.generateDoc.bind(this);
     this.save = this.save.bind(this);
     this.saveAndLive = this.saveAndLive.bind(this);
     this.saveAndDraft = this.saveAndDraft.bind(this);
-    this.onContentChange = this.onContentChange.bind(this);
-    this.onTemplateChange = this.onTemplateChange.bind(this);
-  }
-
-  onTemplateChange(e) {
-    this.setState({ currentTemplate: this.findTemplate(e.target.value) });
-  }
-
-  componentDidMount() {
-    this.renderBuilder();
-  }
-
-  componentDidUpdate(prevProps, prevState) {
-    // only after current template change
-    if (this.state.currentTemplate !== prevState.currentTemplate) {
-      this.renderBuilder();
-    }
-  }
-
-  findTemplate(id) {
-    const template = this.props.templates.find(t => t._id === id);
-    return template.content;
-  }
-
-  renderBuilder() {
-    const contentContainer = document.getElementsByClassName(EMAIL_CONTENT_CLASS);
-    const message = this.props.message || { email: {} };
-
-    // render editor to content
-    if (contentContainer.length > 0) {
-      ReactDom.render(
-        <Editor defaultValue={message.email.content} onChange={this.onContentChange} />,
-        contentContainer[0],
-      );
-    }
+    this.onEmailContentChange = this.onEmailContentChange.bind(this);
+    this.onMessengerContentChange = this.onMessengerContentChange.bind(this);
+    this.onMethodChange = this.onMethodChange.bind(this);
   }
 
   generateDoc(e) {
     e.preventDefault();
 
+    const method = document.querySelector('input[name="method"]:checked');
+
     const doc = {
       segmentId: document.getElementById('segmentId').value,
       title: document.getElementById('title').value,
       fromUserId: document.getElementById('fromUserId').value,
-      email: {
+      method: method ? method.value : '',
+    };
+
+    if (this.state.method === 'email') {
+      doc.email = {
         templateId: document.getElementById('emailTemplateId').value,
         subject: document.getElementById('emailSubject').value,
-        content: this.state.content,
-      },
-    };
+        content: this.state.emailContent,
+      };
+    }
+
+    if (this.state.method === 'messenger') {
+      doc.messenger = {
+        kind: document.getElementById('messengerKind').value,
+        content: this.state.messengerContent,
+      };
+    }
 
     return doc;
   }
@@ -109,8 +78,16 @@ class MessageForm extends Component {
     this.props.save({ isLive: false, isDraft: true, ...doc });
   }
 
-  onContentChange(content) {
-    this.setState({ content });
+  onEmailContentChange(content) {
+    this.setState({ emailContent: content });
+  }
+
+  onMessengerContentChange(content) {
+    this.setState({ messengerContent: content });
+  }
+
+  onMethodChange(e) {
+    this.setState({ method: e.target.value });
   }
 
   renderSegments(defaultValue) {
@@ -129,58 +106,34 @@ class MessageForm extends Component {
   }
 
   renderChannelType() {
+    const method = this.state.method;
+
     return (
       <div className="box">
         <div className="button-box text-center selected">
           <span>Email</span>
+          <input
+            type="radio"
+            name="method"
+            value="email"
+            onChange={this.onMethodChange}
+            defaultChecked={method === 'email'}
+          />
+
           <p>Delivered to a user's email inbox <br />Customize with your own templates</p>
         </div>
+
         <div className="button-box text-center">
           <span>Messenger</span>
+          <input
+            type="radio"
+            name="method"
+            value="messenger"
+            onChange={this.onMethodChange}
+            defaultChecked={method === 'messenger'}
+          />
+
           <p>Delivered inside your app<br />Reach active users</p>
-        </div>
-      </div>
-    );
-  }
-
-  renderEmailHeader() {
-    const message = this.props.message || {};
-    const email = message.email || {};
-
-    return (
-      <div className="email-header">
-        <div className="header-row">
-          <span>From:</span>
-          <FormControl id="fromUserId" componentClass="select" defaultValue={message.fromUserId}>
-            {this.props.users.map(u =>
-              <option key={u._id} value={u._id}>
-                {u.fullName || u.username}
-              </option>,
-            )}
-          </FormControl>
-        </div>
-
-        <div className="header-row">
-          <span>Email subject:</span>
-          <FormControl id="emailSubject" defaultValue={email.subject} required />
-        </div>
-
-        <div className="header-row">
-          <span>Email template:</span>
-          <FormControl
-            id="emailTemplateId"
-            componentClass="select"
-            onChange={this.onTemplateChange}
-            defaultValue={email.templateId}
-          >
-
-            <option />
-            {this.props.templates.map(t =>
-              <option key={t._id} value={t._id}>
-                {t.name}
-              </option>,
-            )}
-          </FormControl>
         </div>
       </div>
     );
@@ -215,7 +168,7 @@ class MessageForm extends Component {
   render() {
     const breadcrumb = [{ title: 'Engage', link: '/engage' }, { title: 'Message' }];
 
-    const message = this.props.message || {};
+    const message = this.props.message || { email: {}, messenger: {} };
 
     const { Section } = Wrapper.Sidebar;
     const { Title } = Wrapper.Sidebar.Section;
@@ -229,10 +182,30 @@ class MessageForm extends Component {
               <FormControl id="title" defaultValue={message.title} required />
             </div>
           </Section>
+
+          <Section>
+            <Title>From</Title>
+            <div className="box">
+              <FormControl
+                id="fromUserId"
+                componentClass="select"
+                defaultValue={message.fromUserId}
+              >
+
+                {this.props.users.map(u =>
+                  <option key={u._id} value={u._id}>
+                    {u.fullName || u.username}
+                  </option>,
+                )}
+              </FormControl>
+            </div>
+          </Section>
+
           <Section>
             <Title>Choose segment</Title>
             {this.renderSegments(message.segmentId)}
           </Section>
+
           <Section>
             <Title>Channel</Title>
             {this.renderChannelType()}
@@ -255,14 +228,13 @@ class MessageForm extends Component {
       />
     );
 
-    const content = (
-      <div>
-        {this.renderEmailHeader()}
-        <div className="email-content">
-          <div dangerouslySetInnerHTML={{ __html: this.state.currentTemplate }} />
-        </div>
-      </div>
-    );
+    const content = this.state.method === 'email'
+      ? <EmailForm
+          message={message}
+          templates={this.props.templates}
+          onContentChange={this.onEmailContentChange}
+        />
+      : <MessengerForm message={message} onContentChange={this.onMessengerContentChange} />;
 
     return (
       <Wrapper

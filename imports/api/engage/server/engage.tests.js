@@ -31,6 +31,7 @@ describe('engage', function() {
         segmentId: 'FDDFEFEFDAFDSFE',
         fromUserId: 'FDDFEFEFDAFDSFE',
         title: 'Test message',
+        method: 'email',
         email: emailContent,
         isAuto: true,
       };
@@ -46,6 +47,7 @@ describe('engage', function() {
         fromUserId: 'FDDFEFEFDAFDSFE',
         title: 'Updated title',
         email: emailContent,
+        method: 'email',
         isAuto: true,
       };
 

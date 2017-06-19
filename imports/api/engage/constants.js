@@ -22,3 +22,21 @@ export const statusFilters = [
   { key: 'paused', value: 'Paused' },
   { key: 'yours', value: 'Your messages' },
 ];
+
+export const MESSENGER_KINDS = {
+  CHAT: 'chat',
+  NOTE: 'note',
+  POST: 'post',
+  ALL_LIST: ['chat', 'note', 'post'],
+  SELECT_OPTIONS: [
+    { value: 'chat', text: 'Chat' },
+    { value: 'note', text: 'Note' },
+    { value: 'post', text: 'Post' },
+  ],
+};
+
+export const METHODS = {
+  MESSENGER: 'messenger',
+  EMAIL: 'email',
+  ALL_LIST: ['messenger', 'email'],
+};
