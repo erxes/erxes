@@ -19,14 +19,14 @@ function NameCard({ user, customer, firstLine, secondLine, singleLine, avatarSiz
     first = firstLine || (user.details && user.details.fullName);
     second = !singleLine && (secondLine || `@${user.username}`);
   } else if (customer) {
-    first = firstLine || customer.name;
+    first = firstLine || customer.name || (singleLine && (customer.name || customer.email));
     second = !singleLine && (secondLine || customer.email);
   }
 
   return (
     <div className="name-card">
       <Avatar user={user} customer={customer} size={avatarSize} />
-      <div className="text" style={{ marginLeft: `${avatarSize + 10}px` }}>
+      <div className="text">
         <a href="#" className="first-line">{first}</a>
         <div className="second-line">{second}</div>
       </div>
