@@ -42,6 +42,7 @@ function Sidebar() {
           </li>
         </ul>
       </Wrapper.Sidebar.Section>
+
       <Wrapper.Sidebar.Section>
         <Title>Integrations</Title>
         <QuickButtons>
@@ -77,6 +78,23 @@ function Sidebar() {
           </li>
         </ul>
       </Wrapper.Sidebar.Section>
+
+      <Wrapper.Sidebar.Section>
+        <Title>Knowledge base</Title>
+        <QuickButtons>
+          <a href={FlowRouter.path('settings/knowledgebase/list')} className="quick-button">
+            All
+          </a>
+        </QuickButtons>
+        <ul className="filters">
+          <li>
+            <a href={'/settings/knowledgebase?kind=kbgroup'}>
+              <i className="icon ion-arrow-right-b" />KB Group
+            </a>
+          </li>
+        </ul>
+      </Wrapper.Sidebar.Section>
+
       <Wrapper.Sidebar.Section>
         <Title>Personal settings</Title>
         <ul className="filters">

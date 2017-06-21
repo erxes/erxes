@@ -11,9 +11,6 @@ export const KBArticles = new Mongo.Collection('knowledgebase_articles');
 /* ----------------------- Schemas ----------------------- */
 
 const KbBaseSchema = new SimpleSchema({
-  code: {
-    type: String,
-  },
   createdUserId: {
     type: String,
   },
@@ -75,7 +72,6 @@ KBTopics.attachSchema(KbBaseSchema);
 KBArticles.attachSchema(KBArticles.schema);
 KBArticles.attachSchema(KbBaseSchema);
 
-// fixtures
 Factory.define('knowledgebase_group', KbGroups, {
   title: () => faker.random.word(),
   description: () => faker.random.word(),

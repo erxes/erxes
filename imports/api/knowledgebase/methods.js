@@ -16,7 +16,7 @@ const generateCode = () => {
 };
 
 export const add = new ValidatedMethod({
-  name: 'kbgroups.add',
+  name: 'kb_groups.add',
   mixins: [ErxesMixin],
 
   validate({ doc }) {
@@ -35,7 +35,7 @@ export const add = new ValidatedMethod({
 
 // form edit
 export const edit = new ValidatedMethod({
-  name: 'kbgroups.edit',
+  name: 'kb_groups.edit',
   mixins: [ErxesMixin],
 
   validate({ id, doc }) {
@@ -50,7 +50,7 @@ export const edit = new ValidatedMethod({
 
 // form remove
 export const remove = new ValidatedMethod({
-  name: 'kbgroups.remove',
+  name: 'kb_groups.remove',
   mixins: [ErxesMixin],
 
   validate(id) {

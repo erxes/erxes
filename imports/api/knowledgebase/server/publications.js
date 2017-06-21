@@ -3,14 +3,34 @@
  */
 
 import { Meteor } from 'meteor/meteor';
-import { check, Match } from 'meteor/check';
+import { Match, check } from 'meteor/check';
+import { Counts } from 'meteor/tmeasday:publish-counts';
 import { KbGroups } from '../collections';
 
 // form list
-Meteor.publish('kb_groups.list', limit => {
-  check(limit, Match.Optional(Number));
+Meteor.publish('kb_groups.list', function kbGroupsList(params) {
+  // console.log("params: ", params);
+  check(params, {
+    limit: Match.Optional(Number),
+  });
 
-  return KbGroups.find();
+  // const selector = {};
+
+  // // filter by brand
+  // if (params.brandIds) {
+  //   selector.brandId = { $in: params.brandIds };
+  // }
+
+  // // filter by kind
+  // if (params.kind) {
+  //   selector.kind = params.kind;
+  // }
+
+  Counts.publish(this, 'kb_groups.list.count', KbGroups.find({}, {}), {
+    noReady: true,
+  });
+
+  return KbGroups.find({});
 });
 
 // form detail
@@ -19,14 +39,3 @@ Meteor.publish('kb_groups.detail', id => {
 
   return KbGroups.find({ createdUser: this.userId, _id: id });
 });
-
-// // form field list
-// Meteor.publish('forms.fieldList', formIds => {
-//   check(formIds, [String]);
-
-//   const selector = {
-//     $and: [{ formId: { $in: formIds } }],
-//   };
-
-//   return Fields.find(selector, { sort: { order: 1 } });
-// });

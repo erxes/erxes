@@ -20,7 +20,6 @@ class KbGroup extends Common {
   }
 
   constructor(props, context) {
-    console.log('constructor');
     super(props, context);
 
     let code = '';
