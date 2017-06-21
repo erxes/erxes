@@ -7,7 +7,6 @@ import { pagination } from '/imports/react-ui/common';
 import { List } from '../components';
 
 function composer({ queryParams }, onData) {
-  console.log('onData: ', onData);
   const { limit, loadMore, hasMore } = pagination(queryParams, 'integrations.list.count');
   const integrationsHandler = Meteor.subscribe(
     'integrations.list',

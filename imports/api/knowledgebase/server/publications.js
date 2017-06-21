@@ -14,18 +14,6 @@ Meteor.publish('kb_groups.list', function kbGroupsList(params) {
     limit: Match.Optional(Number),
   });
 
-  // const selector = {};
-
-  // // filter by brand
-  // if (params.brandIds) {
-  //   selector.brandId = { $in: params.brandIds };
-  // }
-
-  // // filter by kind
-  // if (params.kind) {
-  //   selector.kind = params.kind;
-  // }
-
   Counts.publish(this, 'kb_groups.list.count', KbGroups.find({}, {}), {
     noReady: true,
   });
