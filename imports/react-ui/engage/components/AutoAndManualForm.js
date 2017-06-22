@@ -155,7 +155,13 @@ class AutoAndManualForm extends FormBase {
       );
     }
 
-    return <MessengerForm message={message} onContentChange={this.onMessengerContentChange} />;
+    return (
+      <MessengerForm
+        showMessengerType
+        message={message}
+        onContentChange={this.onMessengerContentChange}
+      />
+    );
   }
 }
 

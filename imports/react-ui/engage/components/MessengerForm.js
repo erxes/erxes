@@ -6,6 +6,7 @@ import Editor from './Editor';
 const propTypes = {
   message: PropTypes.object.isRequired,
   onContentChange: PropTypes.func.isRequired,
+  showMessengerType: PropTypes.bool,
 };
 
 class MessengerForm extends Component {
@@ -20,13 +21,10 @@ class MessengerForm extends Component {
     this.props.onContentChange(content);
   }
 
-  render() {
-    const message = this.props.message || {};
-    const messenger = message.messenger || {};
-
-    return (
-      <div>
-        <div className="header-row">
+  renderMessageType(messenger) {
+    if (this.props.showMessengerType) {
+      return (
+        <div>
           <span>Message type:</span>
           <FormControl id="messengerKind" componentClass="select" defaultValue={messenger.kind}>
             <option />
@@ -36,6 +34,19 @@ class MessengerForm extends Component {
               </option>,
             )}
           </FormControl>
+        </div>
+      );
+    }
+  }
+
+  render() {
+    const message = this.props.message || {};
+    const messenger = message.messenger || {};
+
+    return (
+      <div>
+        <div className="header-row">
+          {this.renderMessageType(messenger)}
 
           <span>Sent as:</span>
           <FormControl id="messengerSentAs" componentClass="select" defaultValue={messenger.sentAs}>

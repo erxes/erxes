@@ -27,6 +27,7 @@ const MessengerSchema = new SimpleSchema({
   kind: {
     type: String,
     allowedValues: MESSENGER_KINDS.ALL_LIST,
+    optional: true,
   },
   sentAs: {
     type: String,
