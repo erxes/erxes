@@ -59,3 +59,22 @@ export const SENT_AS_CHOICES = {
     { value: 'fullMessage', text: 'Show the full message' },
   ],
 };
+
+export const VISITOR_AUDIENCE_RULES = [
+  { value: '', text: '' },
+  { value: 'browserLanguage', text: 'Browser language' },
+  { value: 'currentPageUrl', text: 'Current page url' },
+];
+
+export const RULE_CONDITIONS = {
+  browserLanguage: [
+    { value: 'is', text: 'is' },
+    { value: 'isNot', text: 'is not' },
+    { value: 'startsWith', text: 'starts with' },
+  ],
+  currentPageUrl: [
+    { value: 'is', text: 'is' },
+    { value: 'isNot', text: 'is not' },
+    { value: 'startsWith', text: 'starts with' },
+  ],
+};

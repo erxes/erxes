@@ -23,6 +23,22 @@ const EmailSchema = new SimpleSchema({
   },
 });
 
+// visistor auto message's per rule schema
+const RuleSchema = new SimpleSchema({
+  _id: { type: String },
+
+  // browserLanguage, currentUrl, etc ...
+  kind: { type: String },
+
+  // Browser language, Current url etc ...
+  text: { type: String },
+
+  // is, isNot, startsWith
+  condition: { type: String },
+
+  value: { type: String, optional: true },
+});
+
 const MessengerSchema = new SimpleSchema({
   kind: {
     type: String,
@@ -35,6 +51,10 @@ const MessengerSchema = new SimpleSchema({
   },
   content: {
     type: String,
+  },
+  rules: {
+    type: [RuleSchema],
+    optional: true,
   },
 });
 
