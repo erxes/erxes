@@ -53,15 +53,17 @@ class VisitorForm extends FormBase {
 
     const selectedOption = e.target.options[e.target.selectedIndex];
 
-    rules.push({
-      _id: Math.random().toString(),
-      kind: selectedOption.value,
-      text: selectedOption.text,
-      condition: '',
-      value: '',
-    });
+    if (selectedOption.value) {
+      rules.push({
+        _id: Math.random().toString(),
+        kind: selectedOption.value,
+        text: selectedOption.text,
+        condition: '',
+        value: '',
+      });
 
-    this.setState({ rules });
+      this.setState({ rules });
+    }
   }
 
   renderRule(rule) {
