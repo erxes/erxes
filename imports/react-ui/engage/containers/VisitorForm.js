@@ -1,12 +1,11 @@
 import { Meteor } from 'meteor/meteor';
 import { compose } from 'react-komposer';
-import Alert from 'meteor/erxes-notifier';
-import { FlowRouter } from 'meteor/kadira:flow-router';
 import { getTrackerLoader, composerOptions } from '/imports/react-ui/utils';
 import { Messages } from '/imports/api/engage/engage';
+import { methodCallback } from '/imports/react-ui/engage/utils';
 import { VisitorForm } from '../components';
 
-function composer({ messageId, kind }, onData) {
+function composer({ messageId }, onData) {
   const handler = Meteor.subscribe('engage.messages.detail', messageId || '');
   const usersHandler = Meteor.subscribe('users.list', {});
 
@@ -15,25 +14,13 @@ function composer({ messageId, kind }, onData) {
     return null;
   }
 
-  // callback
-  const callback = error => {
-    if (error) {
-      Alert.error(error.reason || error.message);
-    } else {
-      Alert.success('Form is successfully saved.');
-      FlowRouter.go('/engage');
-    }
-  };
-
   // save
   const save = doc => {
     if (messageId) {
-      return Meteor.call('engage.messages.edit', { id: messageId, doc }, callback);
+      return Meteor.call('engage.messages.edit', { id: messageId, doc }, methodCallback);
     }
 
-    doc.kind = kind;
-
-    return Meteor.call('engage.messages.add', { doc }, callback);
+    return Meteor.call('engage.messages.add', { doc }, methodCallback);
   };
 
   // props

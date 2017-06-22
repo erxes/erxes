@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { METHODS } from '/imports/api/engage/constants';
+import { METHODS, MESSAGE_KINDS } from '/imports/api/engage/constants';
 
 import FormBase from './FormBase';
 import MessengerForm from './MessengerForm';
@@ -19,6 +19,7 @@ class VisitorForm extends FormBase {
     e.preventDefault();
 
     const doc = {
+      kind: MESSAGE_KINDS.VISITOR_AUTO,
       title: document.getElementById('title').value,
       fromUserId: document.getElementById('fromUserId').value,
       method: METHODS.MESSENGER,
