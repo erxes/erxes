@@ -1,6 +1,13 @@
 export const EMAIL_CONTENT_CLASS = 'erxes-email-content';
 export const EMAIL_CONTENT_PLACEHOLDER = `<div class="${EMAIL_CONTENT_CLASS}"></div>`;
 
+export const MESSAGE_KINDS = {
+  AUTO: 'auto',
+  VISITOR_AUTO: 'visitorAuto',
+  MANUAL: 'manual',
+  ALL_LIST: ['auto', 'visitorAuto', 'manual'],
+};
+
 export const EMAIL_CONTENT_KEYS_FOR_SELECT = [
   {
     group: { value: 'customer', text: 'Customer' },
