@@ -33,7 +33,7 @@ describe('engage', function() {
         title: 'Test message',
         method: 'email',
         email: emailContent,
-        isAuto: true,
+        kind: 'auto',
       };
 
       messageId = messagesAdd._execute({ userId }, { doc });
@@ -48,7 +48,7 @@ describe('engage', function() {
         title: 'Updated title',
         email: emailContent,
         method: 'email',
-        isAuto: true,
+        kind: 'auto',
       };
 
       messagesEdit._execute({ userId }, { id: messageId, doc });

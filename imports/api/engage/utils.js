@@ -11,7 +11,7 @@ import Segments from '/imports/api/customers/segments';
 import { EmailTemplates } from '/imports/api/emailTemplates/emailTemplates';
 import { Customers } from '/imports/api/customers/customers';
 
-import { EMAIL_CONTENT_PLACEHOLDER } from './constants';
+import { EMAIL_CONTENT_PLACEHOLDER, METHODS } from './constants';
 import { Messages } from './engage';
 
 export const replaceKeys = ({ content, customer, user }) => {
@@ -29,7 +29,18 @@ export const replaceKeys = ({ content, customer, user }) => {
   return result;
 };
 
-export const send = message => {
+const findCustomers = ({ customerIds, segmentId }) => {
+  // find matched customers
+  let customerQuery = { _id: { $in: customerIds || [] } };
+
+  if (segmentId) {
+    customerQuery = customerQueryBuilder.segments(Segments.findOne(segmentId));
+  }
+
+  return Customers.find(customerQuery).fetch();
+};
+
+const sendViaEmail = message => {
   const { fromUserId, segmentId, customerIds } = message;
   const { templateId, subject, content } = message.email;
 
@@ -38,13 +49,7 @@ export const send = message => {
   const template = EmailTemplates.findOne(templateId);
 
   // find matched customers
-  let customerQuery = { _id: { $in: customerIds || [] } };
-
-  if (segmentId) {
-    customerQuery = customerQueryBuilder.segments(Segments.findOne(segmentId));
-  }
-
-  const customers = Customers.find(customerQuery).fetch();
+  const customers = findCustomers({ customerIds, segmentId });
 
   // create reusable transporter object using the default SMTP transport
   const { host, port, secure, auth } = Meteor.settings.mail || {};
@@ -103,4 +108,67 @@ export const send = message => {
       }),
     );
   });
+};
+
+const sendViaMessenger = message => {
+  const { fromUserId, segmentId, customerIds } = message;
+  const { content } = message.messenger;
+
+  const user = Meteor.users.findOne(fromUserId);
+
+  // find matched customers
+  const customers = findCustomers({ customerIds, segmentId });
+
+  customers.forEach(customer => {
+    // replace keys such as {{ customer.name }} in content
+    let replacedContent = replaceKeys({ content, customer, user });
+
+    // add new delivery report
+    Messages.update(
+      { _id: message._id },
+      {
+        $set: {
+          [`deliveryReports.${mailMessageId}`]: {
+            customerId: customer._id,
+            status: 'pending',
+          },
+        },
+      },
+    );
+
+    // send email
+    transporter.sendMail(
+      {
+        from: userEmail.address,
+        to: customer.email,
+        subject: replacedSubject,
+        html: replacedContent,
+        messageId: mailMessageId,
+      },
+      Meteor.bindEnvironment((error, info) => {
+        // set new status
+        const status = error ? 'failed' : 'sent';
+
+        // update status
+        Messages.update(
+          { _id: message._id },
+          {
+            $set: {
+              [`deliveryReports.${info.messageId}.status`]: status,
+            },
+          },
+        );
+      }),
+    );
+  });
+};
+
+export const send = message => {
+  if (message.method === METHODS.EMAIL) {
+    return sendViaEmail(message);
+  }
+
+  if (message.method === METHODS.MESSENGER) {
+    return sendViaMessenger(message);
+  }
 };

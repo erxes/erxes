@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import moment from 'moment';
 import { Button, Label } from 'react-bootstrap';
 import { Tip, ActionButtons, NameCard } from '/imports/react-ui/common';
+import { MESSAGE_KINDS } from '/imports/api/engage/constants';
 
 const propTypes = {
   message: PropTypes.object.isRequired,
@@ -37,7 +38,7 @@ class Row extends React.Component {
     const pause = this.renderLink('Pause', 'ion-pause', this.props.setPause);
     const live = this.renderLink('Set live', 'ion-paper-airplane', this.props.setLive);
 
-    if (msg.isAuto) {
+    if (msg.kind !== MESSAGE_KINDS.MANUAL) {
       if (msg.isDraft) {
         return [edit, live];
       }

@@ -18,7 +18,7 @@ group.route('/', {
 group.route('/messages/create', {
   name: 'engage/messages/create',
   action(params, queryParams) {
-    mount(MainLayout, { content: <MessageForm type={queryParams.type} /> });
+    mount(MainLayout, { content: <MessageForm kind={queryParams.kind} /> });
   },
 });
 

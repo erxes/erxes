@@ -23,7 +23,7 @@ function composer({ queryParams }, onData) {
 
   if (messagesHandler.ready()) {
     onData(null, {
-      type: queryParams.type,
+      kind: queryParams.kind,
       messages: Messages.find().fetch(),
       tags: Tags.find({ type: TAG_TYPES.ENGAGE_MESSAGE }).fetch(),
       bulk: bulk.get(),

@@ -3,7 +3,7 @@ import { Messages } from '/imports/api/engage/engage';
 import { send } from '/imports/api/engage/utils';
 
 const sendAutoMessage = () =>
-  Messages.find({ isAuto: true, isLive: true }).forEach(message => send(message));
+  Messages.find({ kind: 'auto', isLive: true }).forEach(message => send(message));
 
 SyncedCron.add({
   name: 'Send auto messages',

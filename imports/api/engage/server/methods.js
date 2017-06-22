@@ -2,6 +2,7 @@ import { check } from 'meteor/check';
 import { ValidatedMethod } from 'meteor/mdg:validated-method';
 import { ErxesMixin } from '/imports/api/utils';
 import { Messages } from '../engage';
+import { MESSAGE_KINDS } from '../constants';
 import { send } from '../utils';
 
 // add messsage
@@ -21,8 +22,8 @@ export const messagesAdd = new ValidatedMethod({
     // create
     const messageId = Messages.insert(doc);
 
-    // if manual and live then send emails immediately
-    if (!doc.isAuto && doc.isLive) {
+    // if manual and live then send immediately
+    if (!doc.kind === MESSAGE_KINDS.AUTO && doc.isLive) {
       const message = Messages.findOne(messageId);
 
       send(message);
@@ -103,7 +104,7 @@ export const messagesSetLiveManual = new ValidatedMethod({
 
     const message = Messages.findOne(id);
 
-    // if manual and live then send emails
+    // if manual and live then send
     send(message);
   },
 });

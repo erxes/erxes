@@ -7,7 +7,6 @@ import { MessageListRow } from '../containers';
 import Sidebar from './Sidebar';
 
 const propTypes = {
-  type: PropTypes.string,
   messages: PropTypes.array.isRequired,
   tags: PropTypes.array.isRequired,
   bulk: PropTypes.array.isRequired,
@@ -42,10 +41,15 @@ class List extends React.Component {
 
     const actionBarLeft = (
       <div>
-        <Button bsStyle="link" href={'/engage/messages/create?type=auto'}>
+        <Button bsStyle="link" href={'/engage/messages/create?kind=auto'}>
           <i className="ion-plus-circled" /> New auto message
         </Button>
-        <Button bsStyle="link" href={'/engage/messages/create?type=manual'}>
+
+        <Button bsStyle="link" href={'/engage/messages/create?kind=visitorAuto'}>
+          <i className="ion-plus-circled" /> New visitor auto message
+        </Button>
+
+        <Button bsStyle="link" href={'/engage/messages/create?kind=manual'}>
           <i className="ion-plus-circled" /> New manual message
         </Button>
         {this.renderTagger()}

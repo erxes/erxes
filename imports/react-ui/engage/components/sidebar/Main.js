@@ -8,7 +8,7 @@ function Main() {
 
   return (
     <Wrapper.Sidebar.Section>
-      <Title>Type</Title>
+      <Title>Kind</Title>
       <ul className="filters">
         <li>
           <a href={`${FlowRouter.path('engage/home')}`}>
@@ -20,7 +20,7 @@ function Main() {
           </a>
         </li>
         <li>
-          <a href={`${FlowRouter.path('engage/home')}?type=auto`}>
+          <a href={`${FlowRouter.path('engage/home')}?kind=auto`}>
             <i className="icon ion-arrow-right-b" />Auto
 
             <span className="counter">
@@ -29,7 +29,16 @@ function Main() {
           </a>
         </li>
         <li>
-          <a href={`${FlowRouter.path('engage/home')}?type=manual`}>
+          <a href={`${FlowRouter.path('engage/home')}?kind=visitorAuto`}>
+            <i className="icon ion-arrow-right-b" />Visitor auto
+
+            <span className="counter">
+              {Counts.get('engage.messages.visitorAuto')}
+            </span>
+          </a>
+        </li>
+        <li>
+          <a href={`${FlowRouter.path('engage/home')}?kind=manual`}>
             <i className="icon ion-arrow-right-b" />Manual
 
             <span className="counter">

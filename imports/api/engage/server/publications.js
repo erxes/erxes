@@ -7,12 +7,13 @@ import { check, Match } from 'meteor/check';
 import { Counts } from 'meteor/tmeasday:publish-counts';
 import { Tags } from '/imports/api/tags/tags';
 import { TAG_TYPES } from '/imports/api/tags/constants';
+import { MESSAGE_KINDS } from '../constants';
 import { Messages } from '../engage';
 
 // engage list
 Meteor.publish('engage.messages.list', function engageMessagesList(params) {
   check(params, {
-    type: Match.Optional(String),
+    kind: Match.Optional(String),
     status: Match.Optional(String),
     tag: Match.Optional(String),
   });
@@ -33,14 +34,17 @@ Meteor.publish('engage.messages.list', function engageMessagesList(params) {
   count('engage.messages.all', {});
 
   // auto count
-  count('engage.messages.auto', { isAuto: true });
+  count('engage.messages.auto', { kind: MESSAGE_KINDS.AUTO });
+
+  // visitor auto count
+  count('engage.messages.visitorAuto', { kind: MESSAGE_KINDS.VISITOR_AUTO });
 
   // manual count
-  count('engage.messages.manual', { isAuto: false });
+  count('engage.messages.manual', { kind: MESSAGE_KINDS.MANUAL });
 
   // manual or auto
-  if (params.type) {
-    query.isAuto = params.type === 'auto';
+  if (params.kind) {
+    query.kind = params.kind;
   }
 
   // status filter && count ===================
