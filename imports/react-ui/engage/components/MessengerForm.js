@@ -24,7 +24,7 @@ class MessengerForm extends Component {
   renderMessageType(messenger) {
     if (this.props.showMessengerType) {
       return (
-        <div>
+        <div className="header-row">
           <span>Message type:</span>
           <FormControl id="messengerKind" componentClass="select" defaultValue={messenger.kind}>
             <option />
@@ -45,22 +45,27 @@ class MessengerForm extends Component {
 
     return (
       <div>
-        <div className="header-row">
+        <div className="form-header">
           {this.renderMessageType(messenger)}
-
-          <span>Sent as:</span>
-          <FormControl id="messengerSentAs" componentClass="select" defaultValue={messenger.sentAs}>
-            <option />
-            {SENT_AS_CHOICES.SELECT_OPTIONS.map(s =>
-              <option key={s.value} value={s.value}>
-                {s.text}
-              </option>,
-            )}
-          </FormControl>
-
+          <div className="header-row">
+            <span>Sent as:</span>
+            <FormControl
+              id="messengerSentAs"
+              componentClass="select"
+              defaultValue={messenger.sentAs}
+            >
+              <option />
+              {SENT_AS_CHOICES.SELECT_OPTIONS.map(s =>
+                <option key={s.value} value={s.value}>
+                  {s.text}
+                </option>,
+              )}
+            </FormControl>
+          </div>
         </div>
-
-        <Editor defaultValue={messenger.content} onChange={this.onContentChange} />,
+        <div className="form-content">
+          <Editor defaultValue={messenger.content} onChange={this.onContentChange} />
+        </div>
       </div>
     );
   }

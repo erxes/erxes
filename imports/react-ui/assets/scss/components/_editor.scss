@@ -1,4 +1,5 @@
 $editor-text-color: #999;
+$transparent-border: rgba(0, 0, 0, 0.05);
 
 .editor-bordered {
   border: 1px solid $border-grey;
@@ -78,6 +79,20 @@ $editor-text-color: #999;
     font-size: 14px;
     user-select: none;
     margin-bottom: 5px;
+  }
+}
+
+.form-content {
+  .RichEditor-controls-root {
+    padding: 10px 20px 5px;
+  }
+
+  .public-DraftEditor-content {
+    padding: 20px;
+  }
+
+  .RichEditor-editor {
+    border-color: $transparent-border;
   }
 }
 

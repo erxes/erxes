@@ -80,8 +80,18 @@ class FormBase extends Component {
     return null;
   }
 
+  renderTitle() {
+    const kind = FlowRouter.getQueryParam('kind');
+    if (kind == 'auto') {
+      return 'Auto message';
+    } else if (kind == 'manual') {
+      return 'Manual message';
+    }
+    return 'Visitor auto message';
+  }
+
   render() {
-    const breadcrumb = [{ title: 'Engage', link: '/engage' }, { title: 'Message' }];
+    const breadcrumb = [{ title: 'Engage', link: '/engage' }, { title: this.renderTitle() }];
 
     const message = this.getMessage();
 

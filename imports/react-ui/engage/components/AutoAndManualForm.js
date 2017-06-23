@@ -26,19 +26,18 @@ class AutoAndManualForm extends FormBase {
     // binds
     this.onEmailContentChange = this.onEmailContentChange.bind(this);
     this.onMessengerContentChange = this.onMessengerContentChange.bind(this);
-    this.onMethodChange = this.onMethodChange.bind(this);
   }
 
   generateDoc(e) {
     e.preventDefault();
 
-    const method = document.querySelector('input[name="method"]:checked');
+    const method = this.state.method;
 
     const doc = {
       segmentId: document.getElementById('segmentId').value,
       title: document.getElementById('title').value,
       fromUserId: document.getElementById('fromUserId').value,
-      method: method ? method.value : '',
+      method,
     };
 
     if (this.state.method === 'email') {
@@ -68,8 +67,8 @@ class AutoAndManualForm extends FormBase {
     this.setState({ messengerContent: content });
   }
 
-  onMethodChange(e) {
-    this.setState({ method: e.target.value });
+  onClickBox(method) {
+    this.setState({ method });
   }
 
   renderSegments(defaultValue) {
@@ -89,32 +88,23 @@ class AutoAndManualForm extends FormBase {
 
   renderChannelType() {
     const method = this.state.method;
+    const boxClass = 'button-box text-center';
 
     return (
       <div className="box">
-        <div className="button-box text-center selected">
+        <div
+          className={`${boxClass} ${method === 'email' ? 'selected' : ''}`}
+          onClick={() => this.onClickBox('email')}
+        >
           <span>Email</span>
-          <input
-            type="radio"
-            name="method"
-            value="email"
-            onChange={this.onMethodChange}
-            defaultChecked={method === 'email'}
-          />
-
           <p>Delivered to a user's email inbox <br />Customize with your own templates</p>
         </div>
 
-        <div className="button-box text-center">
+        <div
+          className={`${boxClass} ${method === 'messenger' ? 'selected' : ''}`}
+          onClick={() => this.onClickBox('messenger')}
+        >
           <span>Messenger</span>
-          <input
-            type="radio"
-            name="method"
-            value="messenger"
-            onChange={this.onMethodChange}
-            defaultChecked={method === 'messenger'}
-          />
-
           <p>Delivered inside your app<br />Reach active users</p>
         </div>
       </div>

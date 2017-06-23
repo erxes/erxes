@@ -1,5 +1,5 @@
 import React from 'react';
-import { FormControl } from 'react-bootstrap';
+import { FormControl, Button, ControlLabel, FormGroup } from 'react-bootstrap';
 
 import { METHODS, MESSAGE_KINDS } from '/imports/api/engage/constants';
 import { Wrapper } from '/imports/react-ui/layout/components';
@@ -96,26 +96,32 @@ class VisitorForm extends FormBase {
     };
 
     return (
-      <div key={rule._id}>
-        {rule.text}:
-
-        <div className="col-sm-12">
-          <select className="col-sm-6" defaultValue={rule.condition} onChange={onChangeCondition}>
-
+      <FormGroup key={rule._id}>
+        <ControlLabel>{rule.text}:</ControlLabel>
+        <div className="flex-form">
+          <FormControl
+            className="flex-item"
+            componentClass="select"
+            defaultValue={rule.condition}
+            onChange={onChangeCondition}
+          >
             {RULE_CONDITIONS[rule.kind].map((cond, index) =>
               <option key={index} value={cond.value}>{cond.text}</option>,
             )}
-          </select>
+          </FormControl>
 
-          <input className="col-sm-4" value={rule.value} onChange={onChangeValue} />
+          <FormControl
+            className="flex-item"
+            type="text"
+            value={rule.value}
+            onChange={onChangeValue}
+          />
 
-          <button className="col-sm-2" onClick={remove}>x</button>
-
-          <div className="clearfix" />
+          <Button className="flex-item" bsSize="small" onClick={remove} bsStyle="danger">
+            <i className="ion-close-round" />
+          </Button>
         </div>
-
-        <div className="clearfix" />
-      </div>
+      </FormGroup>
     );
   }
 
@@ -125,21 +131,17 @@ class VisitorForm extends FormBase {
 
     return (
       <Section>
-        <Title>Choose your audience</Title>
-
-        <div>
-          {this.state.rules.map(rule => this.renderRule(rule))}
-        </div>
-
-        <br />
-        <div>
-          <p>Add rule</p>
-
+        <Title>Add rule</Title>
+        <div className="box">
           <FormControl componentClass="select" onChange={this.addRule}>
             {VISITOR_AUDIENCE_RULES.map((rule, index) =>
               <option key={index} value={rule.value}>{rule.text}</option>,
             )}
           </FormControl>
+        </div>
+
+        <div className="box">
+          {this.state.rules.map(rule => this.renderRule(rule))}
         </div>
       </Section>
     );

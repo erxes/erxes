@@ -27,7 +27,15 @@
 
     p {
       margin-bottom: 0;
-      margin-top: 10px;
+      margin-top: 5px;
+    }
+
+    .form-group:last-child {
+      margin-bottom: 0;
+    }
+
+    .form-group:first-child {
+      margin-top: 20px;
     }
   }
 

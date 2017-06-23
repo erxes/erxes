@@ -77,7 +77,7 @@ class EmailForm extends Component {
     const email = message.email || {};
 
     return (
-      <div className="email-header">
+      <div className="form-header">
         <div className="header-row">
           <span>Email subject:</span>
           <FormControl id="emailSubject" defaultValue={email.subject} required />
@@ -91,7 +91,6 @@ class EmailForm extends Component {
             onChange={this.onTemplateChange}
             defaultValue={email.templateId}
           >
-
             <option />
             {templates.map(t =>
               <option key={t._id} value={t._id}>
@@ -108,7 +107,7 @@ class EmailForm extends Component {
     return (
       <div>
         {this.renderHeader()}
-        <div className="email-content">
+        <div className="form-content">
           <div dangerouslySetInnerHTML={{ __html: this.state.currentTemplate }} />
         </div>
       </div>
