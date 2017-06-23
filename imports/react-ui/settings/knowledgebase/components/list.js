@@ -4,9 +4,10 @@ import { FlowRouter } from 'meteor/kadira:flow-router';
 import { Wrapper } from '/imports/react-ui/layout/components';
 import { Pagination } from '/imports/react-ui/common';
 import Sidebar from '../../Sidebar';
+import Row from './row';
 
 const propTypes = {
-  // integrations: PropTypes.array.isRequired,
+  kbGroups: PropTypes.array.isRequired,
   brands: PropTypes.array.isRequired,
   removeKbGroup: PropTypes.func.isRequired,
   loadMore: PropTypes.func.isRequired,
@@ -16,6 +17,16 @@ const propTypes = {
 class List extends Component {
   constructor(props) {
     super(props);
+
+    this.renderKbGroups = this.renderKbGroups.bind(this);
+  }
+
+  renderKbGroups() {
+    const { brands, kbGroups, removeKbGroup } = this.props;
+
+    return kbGroups.map(kbGroup => (
+      <Row key={kbGroup._id} kbGroup={kbGroup} brands={brands} removeKbGroup={removeKbGroup} />
+    ));
   }
 
   render() {
@@ -40,7 +51,9 @@ class List extends Component {
               <th width="183" className="text-right">Actions</th>
             </tr>
           </thead>
-          <tbody />
+          <tbody>
+            {this.renderKbGroups()}
+          </tbody>{' '}
         </Table>
       </Pagination>
     );
