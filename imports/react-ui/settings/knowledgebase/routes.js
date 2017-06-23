@@ -5,6 +5,8 @@ import settingsRoute from '../routes';
 
 import { List } from './containers';
 
+import { AddKnowledgeBase } from './components';
+
 const knowledgebase = settingsRoute.group({
   prefix: '/knowledgebase',
 });
@@ -16,6 +18,22 @@ knowledgebase.route('/list', {
     mount(MainLayout, { content: <List queryParams={queryParams} /> });
   },
 });
+
+knowledgebase.route('/add', {
+  name: 'settings/integrations/add',
+
+  action() {
+    mount(MainLayout, { content: <AddKnowledgeBase /> });
+  },
+});
+
+// integrations.route('/add', {
+//   name: 'settings/knowledgebase/add',
+
+//   action() {
+//     mount(MainLayout, { content: <AddKbGroup /> });
+//   },
+// });
 
 // integrations.route('/messenger', {
 //   name: 'settings/integrations/messenger',
