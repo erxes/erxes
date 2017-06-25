@@ -40,6 +40,9 @@ const RuleSchema = new SimpleSchema({
 });
 
 const MessengerSchema = new SimpleSchema({
+  brandId: {
+    type: String,
+  },
   kind: {
     type: String,
     allowedValues: MESSENGER_KINDS.ALL_LIST,
@@ -119,9 +122,11 @@ Messages.schemaExtra = new SimpleSchema({
   createdUserId: {
     type: String,
   },
+
   createdDate: {
     type: Date,
   },
+
   // for example, save each customers's email delivery reports by messageId
   deliveryReports: {
     type: Object,

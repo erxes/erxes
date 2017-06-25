@@ -10,6 +10,9 @@ import customerQueryBuilder from '/imports/api/customers/queryBuilder';
 import Segments from '/imports/api/customers/segments';
 import { EmailTemplates } from '/imports/api/emailTemplates/emailTemplates';
 import { Customers } from '/imports/api/customers/customers';
+import { Integrations } from '/imports/api/integrations/integrations';
+import { KIND_CHOICES } from '/imports/api/integrations/constants';
+import { createConversation, createMessage } from '/imports/api/conversations/utils';
 
 import { EMAIL_CONTENT_PLACEHOLDER, METHODS } from './constants';
 import { Messages } from './engage';
@@ -40,6 +43,12 @@ const findCustomers = ({ customerIds, segmentId }) => {
   return Customers.find(customerQuery).fetch();
 };
 
+const saveMatchedCustomerIds = (messageId, customers) =>
+  Messages.update(
+    { _id: messageId },
+    { $set: { customerIds: customers.map(customer => customer._id) } },
+  );
+
 const sendViaEmail = message => {
   const { fromUserId, segmentId, customerIds } = message;
   const { templateId, subject, content } = message.email;
@@ -50,6 +59,9 @@ const sendViaEmail = message => {
 
   // find matched customers
   const customers = findCustomers({ customerIds, segmentId });
+
+  // save matched customer ids
+  saveMatchedCustomerIds(message._id, customers);
 
   // create reusable transporter object using the default SMTP transport
   const { host, port, secure, auth } = Meteor.settings.mail || {};
@@ -112,23 +124,35 @@ const sendViaEmail = message => {
 
 const sendViaMessenger = message => {
   const { fromUserId, segmentId, customerIds } = message;
-  const { content } = message.messenger;
+  const { brandId, content } = message.messenger;
 
   const user = Meteor.users.findOne(fromUserId);
+
+  // find integration
+  const integration = Integrations.findOne({
+    brandId,
+    kind: KIND_CHOICES.MESSENGER,
+  });
+
+  if (!integration) {
+    return 'Integration not found';
+  }
 
   // find matched customers
   const customers = findCustomers({ customerIds, segmentId });
 
+  // save matched customer ids
+  saveMatchedCustomerIds(message._id, customers);
+
   customers.forEach(customer => {
-    // replace keys such as {{ customer.name }} in content
-    let replacedContent = replaceKeys({ content, customer, user });
+    const messageId = Random.id();
 
     // add new delivery report
     Messages.update(
       { _id: message._id },
       {
         $set: {
-          [`deliveryReports.${mailMessageId}`]: {
+          [`deliveryReports.${messageId}`]: {
             customerId: customer._id,
             status: 'pending',
           },
@@ -136,30 +160,24 @@ const sendViaMessenger = message => {
       },
     );
 
-    // send email
-    transporter.sendMail(
-      {
-        from: userEmail.address,
-        to: customer.email,
-        subject: replacedSubject,
-        html: replacedContent,
-        messageId: mailMessageId,
-      },
-      Meteor.bindEnvironment((error, info) => {
-        // set new status
-        const status = error ? 'failed' : 'sent';
+    // replace keys in content
+    const replacedContent = replaceKeys({ content, customer, user });
 
-        // update status
-        Messages.update(
-          { _id: message._id },
-          {
-            $set: {
-              [`deliveryReports.${info.messageId}.status`]: status,
-            },
-          },
-        );
-      }),
-    );
+    // create conversation
+    const conversationId = createConversation({
+      customerId: customer._id,
+      integrationId: integration._id,
+      content: replacedContent,
+    });
+
+    // create message
+    createMessage({
+      engageData: message.messenger,
+      conversationId,
+      userId: fromUserId,
+      customerId: customer._id,
+      content: replacedContent,
+    });
   });
 };
 

@@ -23,7 +23,7 @@ export const messagesAdd = new ValidatedMethod({
     const messageId = Messages.insert(doc);
 
     // if manual and live then send immediately
-    if (!doc.kind === MESSAGE_KINDS.AUTO && doc.isLive) {
+    if (doc.kind === MESSAGE_KINDS.MANUAL && doc.isLive) {
       const message = Messages.findOne(messageId);
 
       send(message);

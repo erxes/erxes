@@ -9,6 +9,7 @@ import MessengerForm from './MessengerForm';
 const propTypes = {
   segments: PropTypes.array.isRequired,
   templates: PropTypes.array,
+  brands: PropTypes.array,
 };
 
 /*
@@ -50,6 +51,7 @@ class AutoAndManualForm extends FormBase {
 
     if (this.state.method === 'messenger') {
       doc.messenger = {
+        brandId: document.getElementById('brandId').value,
         kind: document.getElementById('messengerKind').value,
         sentAs: document.getElementById('messengerSentAs').value,
         content: this.state.messengerContent,
@@ -150,6 +152,7 @@ class AutoAndManualForm extends FormBase {
         showMessengerType
         message={message}
         onContentChange={this.onMessengerContentChange}
+        brands={this.props.brands}
       />
     );
   }

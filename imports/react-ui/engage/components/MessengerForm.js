@@ -7,6 +7,7 @@ const propTypes = {
   message: PropTypes.object.isRequired,
   onContentChange: PropTypes.func.isRequired,
   showMessengerType: PropTypes.bool,
+  brands: PropTypes.array,
 };
 
 class MessengerForm extends Component {
@@ -42,11 +43,21 @@ class MessengerForm extends Component {
   render() {
     const message = this.props.message || {};
     const messenger = message.messenger || {};
+    const brands = this.props.brands;
 
     return (
       <div>
         <div className="form-header">
+          <div className="header-row">
+            <span>Brand:</span>
+            <FormControl id="brandId" componentClass="select" defaultValue={messenger.brandId}>
+              <option />
+              {brands.map(b => <option key={b._id} value={b._id}>{b.name}</option>)}
+            </FormControl>
+          </div>
+
           {this.renderMessageType(messenger)}
+
           <div className="header-row">
             <span>Sent as:</span>
             <FormControl

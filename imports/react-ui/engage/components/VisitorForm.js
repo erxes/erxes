@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { PropTypes } from 'react';
 import { FormControl, Button, ControlLabel, FormGroup } from 'react-bootstrap';
 
 import { METHODS, MESSAGE_KINDS } from '/imports/api/engage/constants';
@@ -9,7 +9,9 @@ import { VISITOR_AUDIENCE_RULES, RULE_CONDITIONS } from '/imports/api/engage/con
 import FormBase from './FormBase';
 import MessengerForm from './MessengerForm';
 
-const propTypes = {};
+const propTypes = {
+  brands: PropTypes.array,
+};
 
 class VisitorForm extends FormBase {
   constructor(props) {
@@ -36,6 +38,7 @@ class VisitorForm extends FormBase {
       method: METHODS.MESSENGER,
       messenger: {
         rules: this.state.rules,
+        brandId: document.getElementById('brandId').value,
         sentAs: document.getElementById('messengerSentAs').value,
         content: this.state.messengerContent,
       },
@@ -150,7 +153,13 @@ class VisitorForm extends FormBase {
   renderContent() {
     const message = this.getMessage();
 
-    return <MessengerForm message={message} onContentChange={this.onMessengerContentChange} />;
+    return (
+      <MessengerForm
+        message={message}
+        onContentChange={this.onMessengerContentChange}
+        brands={this.props.brands}
+      />
+    );
   }
 }
 
