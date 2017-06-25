@@ -29,7 +29,7 @@ export const messagesAdd = new ValidatedMethod({
       send(message);
     }
 
-    return messageId;
+    return { messageId, method: doc.method };
   },
 });
 
@@ -44,7 +44,9 @@ export const messagesEdit = new ValidatedMethod({
   },
 
   run({ id, doc }) {
-    return Messages.update(id, { $set: doc });
+    Messages.update(id, { $set: doc });
+
+    return { messageId: id, method: doc.method };
   },
 });
 

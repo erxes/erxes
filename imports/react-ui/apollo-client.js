@@ -22,3 +22,12 @@ export const newMessage = messageId => {
     },
   });
 };
+
+export const notify = () => {
+  client.mutate({
+    mutation: gql`
+      mutation notify {
+        notify
+      }`,
+  });
+};
