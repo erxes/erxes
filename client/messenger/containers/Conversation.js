@@ -19,6 +19,7 @@ const messageQuery = `
   }
   content
   createdAt
+  engageData
   attachments{
     url
     name
