@@ -16,6 +16,8 @@ widgetConnect({
       brandCode: setting.brand_id,
       email: setting.email,
 
+      cachedCustomerId: localStorage.getItem('erxesCustomerId'),
+
       // if client passed email automatically then consider this as user
       isUser: Boolean(setting.email),
 
@@ -29,6 +31,9 @@ widgetConnect({
 
     // save connection info
     connection.data = messengerData;
+
+    // save customer id to identify visitor next time
+    localStorage.setItem('erxesCustomerId', messengerData.customerId);
 
     // send connected message to ws server and server will save given
     // data to connection. So when connection closed, we will use
