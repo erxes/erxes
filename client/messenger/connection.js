@@ -12,7 +12,7 @@ export const connect = ({ brandCode, email, name, isUser, data }) =>
   // call connect mutation
   client.mutate({
     mutation: gql`
-      mutation connect($brandCode: String!, $email: String!,
+      mutation connect($brandCode: String!, $email: String,
         $name: String, $isUser: Boolean, $data: JSON) {
 
         messengerConnect(brandCode: $brandCode, email: $email,

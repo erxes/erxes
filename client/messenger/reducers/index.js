@@ -4,11 +4,9 @@ import {
   MESSENGER_TOGGLE,
   CHANGE_ROUTE,
   CHANGE_CONVERSATION,
-  RECEIVE_EMAIL,
+  ASK_EMAIL,
+  SAVED_EMAIL,
 } from '../constants';
-
-import { connection } from '../connection';
-
 
 /**
  * Indicates messenger box's visibility.
@@ -71,12 +69,12 @@ const isAttachingFile = (state = false, action) => {
 /**
  * Indicates whether received email from user.
  */
-const isEmailReceived = (state = false, action) => {
-  if (connection.setting.email) {
-    return true;
+const isObtainedEmail = (state = true, action) => {
+  if (action.type === ASK_EMAIL) {
+    return false;
   }
 
-  if (action.type === RECEIVE_EMAIL) {
+  if (action.type === SAVED_EMAIL) {
     return true;
   }
 
@@ -85,7 +83,7 @@ const isEmailReceived = (state = false, action) => {
 
 const messenger = {
   isVisible,
-  isEmailReceived,
+  isObtainedEmail,
   activeRoute,
   activeConversation,
   isAttachingFile,

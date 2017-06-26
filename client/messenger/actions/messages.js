@@ -1,5 +1,5 @@
 import gql from 'graphql-tag';
-import { SENDING_ATTACHMENT, ATTACHMENT_SENT } from '../constants';
+import { SENDING_ATTACHMENT, ATTACHMENT_SENT, ASK_EMAIL } from '../constants';
 import { connection } from '../connection';
 import { changeConversation } from './messenger';
 import client from '../../apollo-client';
@@ -20,6 +20,11 @@ export const readMessages = conversationId =>
 
 export const sendMessage = (message, attachments) =>
   (dispatch, getState) => {
+    // if visitor then ask for email
+    if (!connection.setting.email) {
+      dispatch({ type: ASK_EMAIL });
+    }
+
     const state = getState();
 
     // current conversation
@@ -56,7 +61,12 @@ export const sendMessage = (message, attachments) =>
 
 export const sendFile = file =>
   (dispatch, getState) => {
-    uploadHandler({
+    // if visitor then ask for email
+    if (!connection.setting.email) {
+      dispatch({ type: ASK_EMAIL });
+    }
+
+    return uploadHandler({
       file,
       uploadAction: ({ data, fileInfo }) => {
         dispatch({ type: SENDING_ATTACHMENT });

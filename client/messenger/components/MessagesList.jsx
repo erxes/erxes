@@ -5,7 +5,9 @@ import { Message } from '../containers';
 
 const propTypes = {
   messages: PropTypes.array.isRequired,
+  saveEmail: PropTypes.func,
   isOnline: PropTypes.bool,
+  isObtainedEmail: PropTypes.bool,
   data: PropTypes.object,
 };
 
@@ -34,6 +36,7 @@ class MessagesList extends Component {
         </li>
       );
     }
+
     return null;
   }
 
@@ -46,6 +49,21 @@ class MessagesList extends Component {
         </li>
       );
     }
+
+    return null;
+  }
+
+  renderEmailPrompt() {
+    if (!this.props.isObtainedEmail) {
+      return (
+        <div>
+          <input id="visitor-email" />
+
+          <button onClick={this.props.saveEmail}>ok</button>
+        </div>
+      );
+    }
+
     return null;
   }
 
@@ -67,6 +85,7 @@ class MessagesList extends Component {
           )
         }
         {this.renderAwayMessage(messengerData)}
+        {this.renderEmailPrompt()}
       </ul>
     );
   }

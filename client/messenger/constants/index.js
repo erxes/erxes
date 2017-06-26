@@ -1,8 +1,8 @@
 export const SENDING_ATTACHMENT = 'SENDING_ATTACHMENT';
 export const ATTACHMENT_SENT = 'ATTACHMENT_SENT';
-export const EMAIL_LOCAL_STORAGE_KEY = 'erxesMessengerWidgetEmail';
 
 export const MESSENGER_TOGGLE = 'MESSENGER_TOGGLE';
 export const CHANGE_ROUTE = 'CHANGE_ROUTE';
 export const CHANGE_CONVERSATION = 'CHANGE_CONVERSATION';
-export const RECEIVE_EMAIL = 'RECEIVE_EMAIL';
+export const ASK_EMAIL = 'ASK_EMAIL';
+export const SAVED_EMAIL = 'SAVED_EMAIL';

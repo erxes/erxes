@@ -1,15 +1,10 @@
 /* global window */
 
-import {
-  MESSENGER_TOGGLE,
-  CHANGE_ROUTE,
-  CHANGE_CONVERSATION,
-  RECEIVE_EMAIL,
-  EMAIL_LOCAL_STORAGE_KEY,
-} from '../constants';
+import gql from 'graphql-tag';
 
-import { connection, connect } from '../connection';
-import { sendMessage } from './messages';
+import { MESSENGER_TOGGLE, CHANGE_ROUTE, CHANGE_CONVERSATION, SAVED_EMAIL } from '../constants';
+import { connection } from '../connection';
+import client from '../../apollo-client';
 
 export const toggle = (isVisible) => {
   // notify parent window launcher state
@@ -39,38 +34,20 @@ export const changeConversation = conversationId =>
     dispatch(changeActiveConversation(conversationId));
   };
 
-export const sendVisitorFirstMessage = (email, message) =>
-  (dispatch) => {
-    // save email to local storage
-    localStorage.setItem(EMAIL_LOCAL_STORAGE_KEY, email);
+export const saveEmail = email => dispatch =>
+  client.mutate({
+    mutation: gql`
+      mutation saveCustomerEmail($customerId: String!, $email: String!) {
+        saveCustomerEmail(customerId: $customerId, email: $email)
+      }`,
 
-    // call connect mutation
-    connect({
-      brandCode: connection.setting.brand_id,
-      name: connection.setting.name,
-      isUser: false,
+    variables: {
+      customerId: connection.data.customerId,
       email,
-    })
+    },
+  })
 
-    .then(({ data }) => {
-      const messengerData = data.messengerConnect;
-
-      // save connection info
-      connection.data = messengerData;
-
-      // call send message mutation
-      dispatch(sendMessage(message))
-
-      .then(() => {
-        // change route
-        dispatch(changeRoute('conversation'));
-
-        // mark as email received
-        dispatch({ type: RECEIVE_EMAIL });
-      });
-    })
-
-    .catch((error) => {
-      console.log(error); // eslint-disable-line
-    });
-  };
+  // after mutation
+  .then(() => {
+    dispatch({ type: SAVED_EMAIL });
+  });
