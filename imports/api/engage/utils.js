@@ -14,7 +14,7 @@ import { Integrations } from '/imports/api/integrations/integrations';
 import { KIND_CHOICES } from '/imports/api/integrations/constants';
 import { createConversation, createMessage } from '/imports/api/conversations/utils';
 
-import { EMAIL_CONTENT_PLACEHOLDER, METHODS } from './constants';
+import { EMAIL_CONTENT_PLACEHOLDER, METHODS, MESSAGE_KINDS } from './constants';
 import { Messages } from './engage';
 
 export const replaceKeys = ({ content, customer, user }) => {
@@ -182,11 +182,14 @@ const sendViaMessenger = message => {
 };
 
 export const send = message => {
-  if (message.method === METHODS.EMAIL) {
+  const { method, kind } = message;
+
+  if (method === METHODS.EMAIL) {
     return sendViaEmail(message);
   }
 
-  if (message.method === METHODS.MESSENGER) {
+  // when kind is visitor auto, do not do anything
+  if (method === METHODS.MESSENGER && kind === MESSAGE_KINDS.AUTO) {
     return sendViaMessenger(message);
   }
 };
