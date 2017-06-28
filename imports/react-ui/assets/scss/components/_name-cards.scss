@@ -1,6 +1,6 @@
-/**
- * Name cards
- */
+//
+// Name cards
+//
 
 .avatar {
   display: block;
@@ -8,13 +8,13 @@
   border-radius: 40px;
 
   .no-user {
-    background: url('/images/userDefaultIcon.png') center no-repeat;
+    background: url("/images/userDefaultIcon.png") center no-repeat;
     background-size: 100%;
   }
 
   img {
     width: 100%;
-    background: #f8f8f8;
+    background: $light-gray-background;
   }
 
   div {
@@ -23,6 +23,7 @@
     font-weight: bold;
     font-size: 13px;
     color: $text-color;
+    overflow: hidden;
   }
 }
 
