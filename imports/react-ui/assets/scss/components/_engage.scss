@@ -50,8 +50,8 @@ $transparent-border: rgba(0, 0, 0, 0.05);
     }
 
     .form-control {
-      border: 0;
-      padding: 8px;
+      border-color: $transparent-border;
+      padding: 8px 10px;
     }
   }
 }
