@@ -3,8 +3,7 @@ export const KIND_CHOICES = {
   FORM: 'form',
   TWITTER: 'twitter',
   FACEBOOK: 'facebook',
-  KB_GROUP: 'kb_group',
-  ALL_LIST: ['messenger', 'form', 'twitter', 'facebook', 'kb_group'],
+  ALL_LIST: ['messenger', 'form', 'twitter', 'facebook'],
 };
 
 export const FORM_LOAD_TYPES = {

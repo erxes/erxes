@@ -5,15 +5,5 @@ import MessengerAvailability from './MessengerAvailability';
 import Form from './Form';
 import Twitter from './Twitter';
 import Facebook from './Facebook';
-import KbGroup from './KbGroup';
 
-export {
-  List,
-  Twitter,
-  Facebook,
-  Messenger,
-  MessengerAppearance,
-  MessengerAvailability,
-  Form,
-  KbGroup,
-};
+export { List, Twitter, Facebook, Messenger, MessengerAppearance, MessengerAvailability, Form };

@@ -10,7 +10,7 @@ import {
 import ReactMarkdown from 'react-markdown';
 import SelectBrand from './SelectBrand';
 
-class KbGroup extends Component {
+class KbTopic extends Component {
   constructor(props, context) {
     super(props, context);
 
@@ -80,4 +80,4 @@ class KbGroup extends Component {
   }
 }
 
-export default KbGroup;
+export default KbTopic;

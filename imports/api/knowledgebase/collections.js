@@ -4,7 +4,7 @@ import { Factory } from 'meteor/dburles:factory';
 import { Mongo } from 'meteor/mongo';
 import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 
-export const KbGroups = new Mongo.Collection('knowledgebase_groups');
+export const KbTopics = new Mongo.Collection('knowledgebase_topics');
 export const KbCategories = new Mongo.Collection('knowledgebase_categories');
 export const KBArticles = new Mongo.Collection('knowledgebase_articles');
 
@@ -21,7 +21,7 @@ const KbBaseSchema = new SimpleSchema({
   },
 });
 
-KbGroups.schema = new SimpleSchema({
+KbTopics.schema = new SimpleSchema({
   title: {
     type: String,
   },
@@ -67,8 +67,8 @@ KBArticles.schema = new SimpleSchema({
 
 /* ----------------------- Collections ----------------------- */
 
-KbGroups.attachSchema(KbGroups.schema);
-KbGroups.attachSchema(KbBaseSchema);
+KbTopics.attachSchema(KbTopics.schema);
+KbTopics.attachSchema(KbBaseSchema);
 
 KbCategories.attachSchema(KbCategories.schema);
 KbCategories.attachSchema(KbBaseSchema);
@@ -76,7 +76,7 @@ KbCategories.attachSchema(KbBaseSchema);
 KBArticles.attachSchema(KBArticles.schema);
 KBArticles.attachSchema(KbBaseSchema);
 
-Factory.define('knowledgebase_group', KbGroups, {
+Factory.define('knowledgebase_group', KbTopics, {
   title: () => faker.random.word(),
   description: () => faker.random.word(),
   code: () => Random.id(),

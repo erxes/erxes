@@ -7,7 +7,6 @@ import Form from './Form';
 import Messenger from './Messenger';
 import MessengerAppearance from './MessengerAppearance';
 import MessengerAvailability from './MessengerAvailability';
-import KbGroup from './KbGroup';
 
 export {
   AddIntegration,
@@ -19,5 +18,4 @@ export {
   MessengerAppearance,
   MessengerAvailability,
   Common,
-  KbGroup,
 };

@@ -1,5 +1,5 @@
 import List from './list';
-import KbGroup from './group';
+import KbTopic from './topic';
 import AddKnowledgeBase from './add_knowledge_base';
 
-export { List, KbGroup, AddKnowledgeBase };
+export { List, KbTopic, AddKnowledgeBase };

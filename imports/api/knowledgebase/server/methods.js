@@ -2,11 +2,11 @@ import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
 import { ValidatedMethod } from 'meteor/mdg:validated-method';
 import { ErxesMixin } from '/imports/api/utils';
-import { KbGroups } from '../collections';
+import { KbTopics } from '../collections';
 
 // add
-export const addKbGroup = new ValidatedMethod({
-  name: 'knowledgebase.addKbGroup',
+export const addKbTopic = new ValidatedMethod({
+  name: 'knowledgebase.addKbTopic',
   mixins: [ErxesMixin],
 
   validate({ doc }) {
@@ -14,13 +14,13 @@ export const addKbGroup = new ValidatedMethod({
   },
 
   run({ doc }) {
-    return KbGroups.insert(Object.assign(doc));
+    return KbTopics.insert(Object.assign(doc));
   },
 });
 
 // edit
-export const editKbGroup = new ValidatedMethod({
-  name: 'knowledgebase.editKbGroup',
+export const editKbTopic = new ValidatedMethod({
+  name: 'knowledgebase.editKbTopic',
   mixins: [ErxesMixin],
 
   validate({ _id, doc }) {
@@ -29,6 +29,6 @@ export const editKbGroup = new ValidatedMethod({
   },
 
   run({ _id, doc }) {
-    return KbGroups.update({ _id }, { $set: doc });
+    return KbTopics.update({ _id }, { $set: doc });
   },
 });

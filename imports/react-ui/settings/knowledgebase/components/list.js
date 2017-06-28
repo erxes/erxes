@@ -7,9 +7,9 @@ import Sidebar from '../../Sidebar';
 import Row from './row';
 
 const propTypes = {
-  kbGroups: PropTypes.array.isRequired,
+  kbTopics: PropTypes.array.isRequired,
   brands: PropTypes.array.isRequired,
-  removeKbGroup: PropTypes.func.isRequired,
+  removeKbTopic: PropTypes.func.isRequired,
   loadMore: PropTypes.func.isRequired,
   hasMore: PropTypes.bool.isRequired,
 };
@@ -18,14 +18,14 @@ class List extends Component {
   constructor(props) {
     super(props);
 
-    this.renderKbGroups = this.renderKbGroups.bind(this);
+    this.renderKbTopics = this.renderKbTopics.bind(this);
   }
 
-  renderKbGroups() {
-    const { brands, kbGroups, removeKbGroup } = this.props;
+  renderKbTopics() {
+    const { brands, kbTopics, removeKbTopic } = this.props;
 
-    return kbGroups.map(kbGroup => (
-      <Row key={kbGroup._id} kbGroup={kbGroup} brands={brands} removeKbGroup={removeKbGroup} />
+    return kbTopics.map(kbTopic => (
+      <Row key={kbTopics._id} kbTopic={kbTopic} brands={brands} removeKbTopic={removeKbTopic} />
     ));
   }
 
@@ -33,8 +33,8 @@ class List extends Component {
     const { loadMore, hasMore } = this.props;
 
     const actionBarLeft = (
-      <Button bsStyle="link" href={FlowRouter.path('settings/integrations/add')}>
-        <i className="ion-plus-circled" /> Add group
+      <Button bsStyle="link" href={FlowRouter.path('settings/knowledgebase/add')}>
+        <i className="ion-plus-circled" /> Add topic
       </Button>
     );
 
@@ -52,7 +52,7 @@ class List extends Component {
             </tr>
           </thead>
           <tbody>
-            {this.renderKbGroups()}
+            {this.renderKbTopics()}
           </tbody>{' '}
         </Table>
       </Pagination>

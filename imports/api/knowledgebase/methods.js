@@ -2,13 +2,13 @@ import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
 import { ValidatedMethod } from 'meteor/mdg:validated-method';
 import { ErxesMixin } from '/imports/api/utils';
-import { KbGroups } from './collections';
+import { KbTopics } from './collections';
 
 const generateCode = () => {
   // generate code automatically
   let code = Random.id().substr(0, 6);
 
-  while (KbGroups.findOne({ code })) {
+  while (KbTopics.findOne({ code })) {
     code = Random.id().substr(0, 6);
   }
 
@@ -16,11 +16,11 @@ const generateCode = () => {
 };
 
 export const add = new ValidatedMethod({
-  name: 'kb_groups.add',
+  name: 'kb_topics.add',
   mixins: [ErxesMixin],
 
   validate({ doc }) {
-    check(doc, KbGroups.schema);
+    check(doc, KbTopics.schema);
   },
 
   run({ doc }) {
@@ -29,28 +29,28 @@ export const add = new ValidatedMethod({
     doc.createdDate = new Date();
 
     // create
-    return KbGroups.insert(doc);
+    return KbTopics.insert(doc);
   },
 });
 
 // form edit
 export const edit = new ValidatedMethod({
-  name: 'kb_groups.edit',
+  name: 'kb_topics.edit',
   mixins: [ErxesMixin],
 
   validate({ id, doc }) {
     check(id, String);
-    check(doc, KbGroups.schema);
+    check(doc, KbTopics.schema);
   },
 
   run({ id, doc }) {
-    return KbGroups.update(id, { $set: doc });
+    return KbTopics.update(id, { $set: doc });
   },
 });
 
 // form remove
 export const remove = new ValidatedMethod({
-  name: 'kb_groups.remove',
+  name: 'kb_topics.remove',
   mixins: [ErxesMixin],
 
   validate(id) {
@@ -66,6 +66,6 @@ export const remove = new ValidatedMethod({
       );
     }
 
-    return KbGroups.remove(id);
+    return KbTopics.remove(id);
   },
 });

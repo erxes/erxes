@@ -4,22 +4,22 @@ import { FlowRouter } from 'meteor/kadira:flow-router';
 import { Wrapper } from '/imports/react-ui/layout/components';
 import { ModalTrigger } from '/imports/react-ui/common';
 import Sidebar from '../../Sidebar';
-import { KbGroup } from '../containers';
+import { KbTopic } from '../containers';
 
 function AddKnowledgeBase() {
-  const triggerKbGroup = (
+  const triggerKbTopic = (
     <Button>
-      Add kb group
+      Add kb topic
     </Button>
   );
 
   const content = (
     <div className="margined type-box">
       <div className="box">
-        <h2>KB Group</h2>
+        <h2>Knowledge base topic</h2>
 
-        <ModalTrigger title="Add kbgroup" trigger={triggerKbGroup}>
-          <KbGroup />
+        <ModalTrigger title="Add topic" trigger={triggerKbTopic}>
+          <KbTopic />
         </ModalTrigger>
       </div>
     </div>
@@ -27,8 +27,8 @@ function AddKnowledgeBase() {
 
   const breadcrumb = [
     { title: 'Settings', link: '/settings/channels' },
-    { title: 'Integrations', link: '/settings/integrations' },
-    { title: 'Add Integrations' },
+    { title: 'Knowledge base', link: '/settings/knowledgebase' },
+    { title: 'Add knowledge base' },
   ];
 
   return (

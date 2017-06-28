@@ -18,7 +18,7 @@ knowledgebase.route('/list', {
 });
 
 knowledgebase.route('/add', {
-  name: 'settings/integrations/add',
+  name: 'settings/knowledgebase/add',
 
   action() {
     mount(MainLayout, { content: <AddKnowledgeBase /> });

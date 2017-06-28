@@ -2,26 +2,26 @@ import React, { PropTypes, Component } from 'react';
 import { Button } from 'react-bootstrap';
 import Alert from 'meteor/erxes-notifier';
 import { ModalTrigger, Tip, ActionButtons } from '/imports/react-ui/common';
-import { KbGroup } from '../containers';
+import { KbTopic } from '../containers';
 
 const propTypes = {
-  kbGroup: PropTypes.object.isRequired,
-  removeKbGroup: PropTypes.func.isRequired,
+  kbTopic: PropTypes.object.isRequired,
+  removeKbTopic: PropTypes.func.isRequired,
 };
 
 class Row extends Component {
   constructor(props) {
     super(props);
 
-    this.removeKbGroup = this.removeKbGroup.bind(this);
+    this.removeKbTopic = this.removeKbTopic.bind(this);
   }
 
-  removeKbGroup() {
+  removeKbTopic() {
     if (!confirm('Are you sure?')) return; // eslint-disable-line
 
-    const { kbGroup, removeKbGroup } = this.props;
+    const { kbGroup, removeKbTopic } = this.props;
 
-    removeKbGroup(kbGroup._id, error => {
+    removeKbTopic(kbGroup._id, error => {
       if (error) {
         return Alert.error("Can't delete a integration", error.reason);
       }
@@ -31,8 +31,8 @@ class Row extends Component {
   }
 
   renderExtraLinks() {
-    const kbGroup = this.props.kbGroup;
-    const kind = kbGroup.kind;
+    const kbTopic = this.props.kbTopic;
+    const kind = kbTopic.kind;
 
     const editTrigger = (
       <Button bsStyle="link">
@@ -57,7 +57,7 @@ class Row extends Component {
             {this.renderExtraLinks()}
 
             <Tip text="Delete">
-              <Button bsStyle="link" onClick={this.removeKbGroup}>
+              <Button bsStyle="link" onClick={this.removeKbTopic}>
                 <i className="ion-close-circled" />
               </Button>
             </Tip>

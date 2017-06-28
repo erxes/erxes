@@ -1,4 +1,4 @@
 import List from './list';
-import KbGroup from './group';
+import KbTopic from './topic';
 
-export { List, KbGroup };
+export { List, KbTopic };
