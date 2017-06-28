@@ -172,7 +172,10 @@ const sendViaMessenger = message => {
 
     // create message
     createMessage({
-      engageData: message.messenger,
+      engageData: {
+        fromUserId,
+        ...message.messenger,
+      },
       conversationId,
       userId: fromUserId,
       customerId: customer._id,
