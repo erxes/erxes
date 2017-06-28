@@ -15,7 +15,7 @@ const propTypes = {
 function Details({ customer, conversations, queryParams }) {
   const breadcrumb = [
     { title: 'Customers', link: FlowRouter.path('customers/list') },
-    { title: customer.name || customer.email },
+    { title: customer.name || customer.email || 'N/A' },
   ];
 
   return (

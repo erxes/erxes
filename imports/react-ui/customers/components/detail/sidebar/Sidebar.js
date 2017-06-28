@@ -1,7 +1,8 @@
 import React, { PropTypes, Component } from 'react';
 import { Button, Dropdown, MenuItem } from 'react-bootstrap';
+import { FlowRouter } from 'meteor/kadira:flow-router';
 import { Wrapper } from '/imports/react-ui/layout/components';
-import { Pagination, EmptyState, NameCard } from '/imports/react-ui/common';
+import { Pagination, NameCard } from '/imports/react-ui/common';
 
 const propTypes = {
   customers: PropTypes.array.isRequired,
@@ -52,7 +53,12 @@ class Sidebar extends Component {
                 <input type="checkbox" />
               </div>
               <div className="column">
-                <NameCard avatarSize={36} customer={c} singleLine />
+                <NameCard
+                  url={FlowRouter.path('customers/details', { id: c._id })}
+                  avatarSize={36}
+                  customer={c}
+                  singleLine
+                />
               </div>
             </li>,
           )}
