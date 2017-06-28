@@ -189,7 +189,7 @@ export const send = message => {
   }
 
   // when kind is visitor auto, do not do anything
-  if (method === METHODS.MESSENGER && kind === MESSAGE_KINDS.AUTO) {
+  if (method === METHODS.MESSENGER && kind !== MESSAGE_KINDS.VISITOR_AUTO) {
     return sendViaMessenger(message);
   }
 };
