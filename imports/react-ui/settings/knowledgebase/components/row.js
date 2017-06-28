@@ -44,11 +44,11 @@ class Row extends Component {
   }
 
   render() {
-    const kbGroup = this.props.kbGroup;
+    const kbTopic = this.props.kbTopic;
 
     return (
       <tr>
-        <td>{kbGroup.name}</td>
+        <td>{kbTopic.name}</td>
         <td />
         <td />
 
