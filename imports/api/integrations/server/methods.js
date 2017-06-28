@@ -137,16 +137,3 @@ export const saveMessengerAvailability = new ValidatedMethod({
     return Integrations.update({ _id }, { $set: { messengerData: doc } });
   },
 });
-
-export const addKbGroup = new ValidatedMethod({
-  name: 'integrations.addKbGroup',
-  mixins: [ErxesMixin],
-
-  validate({ doc }) {
-    check(doc, { title: String, brandId: String });
-  },
-
-  run({ doc }) {
-    return Integrations.insert(Object.assign(doc, { kind: KIND_CHOICES.KB_GROUP }));
-  },
-});

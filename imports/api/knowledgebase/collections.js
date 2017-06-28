@@ -13,9 +13,11 @@ export const KBArticles = new Mongo.Collection('knowledgebase_articles');
 const KbBaseSchema = new SimpleSchema({
   createdUserId: {
     type: String,
+    optional: true,
   },
   createdDate: {
     type: Date,
+    optional: true,
   },
 });
 
@@ -25,9 +27,11 @@ KbGroups.schema = new SimpleSchema({
   },
   description: {
     type: String,
+    optional: true,
   },
   code: {
     type: String,
+    optional: true,
   },
 });
 

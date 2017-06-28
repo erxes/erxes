@@ -40,14 +40,6 @@ class Row extends Component {
       </Button>
     );
 
-    return (
-      <div style={{ display: 'inline-block' }}>
-        <ModalTrigger title="Edit integration" trigger={editTrigger}>
-          <Messenger kbGroup={kbGroup} />
-        </ModalTrigger>
-      </div>
-    );
-
     return null;
   }
 
@@ -57,8 +49,8 @@ class Row extends Component {
     return (
       <tr>
         <td>{kbGroup.name}</td>
-        <td>{kbGroup.kind}</td>
-        <td>{kbGroup.brand().name}</td>
+        <td />
+        <td />
 
         <td className="text-right">
           <ActionButtons>

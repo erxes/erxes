@@ -13,6 +13,21 @@ import SelectBrand from './SelectBrand';
 class KbGroup extends Component {
   constructor(props, context) {
     super(props, context);
+
+    let code = '';
+
+    // showed install code automatically in edit mode
+    if (props.group) {
+      const brand = Brands.findOne(props.group.brandId);
+      code = this.constructor.getInstallCode(brand.code);
+    }
+
+    this.state = {
+      code,
+      copied: false,
+    };
+
+    this.handleSubmit = this.handleSubmit.bind(this);
   }
 
   render() {
@@ -20,16 +35,29 @@ class KbGroup extends Component {
 
     return (
       <form className="margined" onSubmit={this.handleSubmit}>
-        <FormGroup controlId="integration-name">
+        <FormGroup controlId="knowledgebase-title">
           <ControlLabel>Name</ControlLabel>
           <FormControl type="text" defaultValue={group.title} required />
         </FormGroup>
 
-        <SelectBrand
-          brands={this.props.brands}
-          defaultValue={group.brandId}
-          onChange={this.handleBrandChange}
-        />
+        <SelectBrand brands={this.props.brands} defaultValue={group.brandId} />
+
+        <FormGroup controlId="install-code">
+          <ControlLabel>Install code</ControlLabel>
+          <div className="markdown-wrapper">
+            <ReactMarkdown source={this.state.code} />
+            {this.state.code
+              ? <CopyToClipboard
+                  text={this.state.code}
+                  onCopy={() => this.setState({ copied: true })}
+                >
+                  <Button bsSize="small" bsStyle="primary">
+                    {this.state.copied ? 'Copied' : 'Copy to clipboard'}
+                  </Button>
+                </CopyToClipboard>
+              : null}
+          </div>
+        </FormGroup>
 
         <Modal.Footer>
           <ButtonToolbar className="pull-right">
@@ -43,10 +71,10 @@ class KbGroup extends Component {
   handleSubmit(e) {
     e.preventDefault();
 
-    this.context.closeModal();
+    // this.context.closeModal(); // TODO
 
     this.props.save({
-      title: document.getElementById('title').value,
+      title: document.getElementById('knowledgebase-title').value,
       brandId: document.getElementById('selectBrand').value,
     });
   }

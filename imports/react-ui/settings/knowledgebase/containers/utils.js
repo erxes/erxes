@@ -3,11 +3,11 @@ import { FlowRouter } from 'meteor/kadira:flow-router';
 import Alert from 'meteor/erxes-notifier';
 
 export const saveCallback = (paramsDic, addMethodName, editMethodName, integration) => {
-  let methodName = `integrations.${addMethodName}`;
+  let methodName = `knowledgebase.${addMethodName}`;
   let params = { ...paramsDic };
 
   if (integration && integration._id) {
-    methodName = `integrations.${editMethodName}`;
+    methodName = `knowledgebase.${editMethodName}`;
     params = { _id: integration._id, ...paramsDic };
   }
 
@@ -17,6 +17,6 @@ export const saveCallback = (paramsDic, addMethodName, editMethodName, integrati
     }
 
     Alert.success('Congrats');
-    return FlowRouter.go('/settings/integrations/list', {}, FlowRouter.current().queryParams);
+    return FlowRouter.go('/settings/knowledgebase/list', {}, FlowRouter.current().queryParams);
   });
 };
