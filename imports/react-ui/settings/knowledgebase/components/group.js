@@ -1,5 +1,13 @@
 import React, { Component } from 'react';
-import { FormGroup, ControlLabel, FormControl } from 'react-bootstrap';
+import {
+  FormGroup,
+  ControlLabel,
+  FormControl,
+  Button,
+  ButtonToolbar,
+  Modal,
+} from 'react-bootstrap';
+import ReactMarkdown from 'react-markdown';
 import SelectBrand from './SelectBrand';
 
 class KbGroup extends Component {
@@ -22,6 +30,12 @@ class KbGroup extends Component {
           defaultValue={group.brandId}
           onChange={this.handleBrandChange}
         />
+
+        <Modal.Footer>
+          <ButtonToolbar className="pull-right">
+            <Button type="submit" bsStyle="primary">Save</Button>
+          </ButtonToolbar>
+        </Modal.Footer>
       </form>
     );
   }
