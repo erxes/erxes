@@ -17,6 +17,14 @@ knowledgebase.route('/list', {
   },
 });
 
+knowledgebase.route('/', {
+  name: 'settings/knowledgebase/list',
+
+  action(params, queryParams) {
+    mount(MainLayout, { content: <List queryParams={queryParams} /> });
+  },
+});
+
 knowledgebase.route('/add', {
   name: 'settings/knowledgebase/add',
 
