@@ -5,7 +5,7 @@ import { Mongo } from 'meteor/mongo';
 import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 
 export const KbGroups = new Mongo.Collection('knowledgebase_groups');
-export const KBTopics = new Mongo.Collection('knowledgebase_topics');
+export const KbCategories = new Mongo.Collection('knowledgebase_categories');
 export const KBArticles = new Mongo.Collection('knowledgebase_articles');
 
 /* ----------------------- Schemas ----------------------- */
@@ -36,7 +36,7 @@ KbGroups.schema = new SimpleSchema({
 });
 
 // topics
-KBTopics.schema = new SimpleSchema({
+KbCategories.schema = new SimpleSchema({
   title: {
     type: String,
   },
@@ -70,8 +70,8 @@ KBArticles.schema = new SimpleSchema({
 KbGroups.attachSchema(KbGroups.schema);
 KbGroups.attachSchema(KbBaseSchema);
 
-KBTopics.attachSchema(KBTopics.schema);
-KBTopics.attachSchema(KbBaseSchema);
+KbCategories.attachSchema(KbCategories.schema);
+KbCategories.attachSchema(KbBaseSchema);
 
 KBArticles.attachSchema(KBArticles.schema);
 KBArticles.attachSchema(KbBaseSchema);
