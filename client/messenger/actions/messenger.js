@@ -11,13 +11,35 @@ export const toggle = (isVisible) => {
   window.parent.postMessage({
     fromErxes: true,
     fromMessenger: true,
-    isMessengerVisible: !isVisible,
+    purpose: 'messenger',
+    isVisible: !isVisible,
   }, '*');
 
   return {
     type: MESSENGER_TOGGLE,
   };
 };
+
+export const toggleNotifer = (isVisible) => {
+  // notify state
+  window.parent.postMessage({
+    fromErxes: true,
+    fromMessenger: true,
+    purpose: 'notifier',
+    isVisible: !isVisible,
+  }, '*');
+};
+
+export const toggleNotiferFull = (isVisible) => {
+  // notify state
+  window.parent.postMessage({
+    fromErxes: true,
+    fromMessenger: true,
+    purpose: 'notifierFull',
+    isVisible: !isVisible,
+  }, '*');
+};
+
 
 export const changeRoute = route => ({
   type: CHANGE_ROUTE,

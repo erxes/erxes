@@ -44,6 +44,7 @@
     "react-redux": "^5.0.1",
     "redux": "^3.6.0",
     "redux-thunk": "^2.1.0",
+    "striptags": "^3.0.1",
     "subscriptions-transport-ws": "0.5.3",
     "underscore": "^1.8.3"
   },

@@ -4,41 +4,27 @@
 }
 
 .erxes-messages-list {
-  display: flex;
-  flex-direction: column;
   background-color: $bg-color;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  list-style: none;
+  margin: 0;
   overflow: auto;
   padding: 20px;
-  margin: 0;
-  flex: 1;
-  list-style: none;
 
   li {
-    position: relative;
     margin-bottom: 10px;
+    position: relative;
 
     &.from-customer {
       text-align: right;
     }
 
     .date {
-      font-size: 11px;
       color: $text-color;
+      font-size: 11px;
       margin-left: 50px;
-    }
-
-    &.erxes-spacial-message {
-      padding: 20px;
-      border-radius: 4px;
-      border: 1px solid #ddd;
-      background: #fff;
-      color: #666;
-      margin-bottom: 20px;
-
-      &.away {
-        margin-bottom: 0;
-        margin-top: auto;
-      }
     }
   }
 
@@ -46,35 +32,85 @@
     background-image: url($bg-1);
     @include bg-option;
   }
+
   &.bg-2 {
     background-image: url($bg-2);
     @include bg-option;
   }
+
   &.bg-3 {
     background-image: url($bg-3);
     @include bg-option;
   }
+
   &.bg-4 {
     background-image: url($bg-4);
     @include bg-option;
   }
 }
 
+.erxes-spacial-message {
+  background: $white;
+  border: 1px solid $border-gray;
+  border-radius: 4px;
+  color: $text-color;
+  margin-bottom: 20px;
+  padding: 20px;
+
+  &.away {
+    margin-bottom: 0;
+    margin-top: auto;
+  }
+
+  &.ml50 {
+    margin-left: 50px;
+  }
+}
+
+.ask-email {
+  display: flex;
+  flex-direction: row;
+  flex-shrink: 0;
+  margin-top: 5px;
+
+  input {
+    border: 1px solid $main-color;
+    border-bottom-left-radius: $border-radius;
+    border-top-left-radius: $border-radius;
+    box-sizing: border-box;
+    flex: 1;
+    font-size: 14px;
+    height: 34px;
+    outline: 0;
+    padding: 10px;
+  }
+
+  button {
+    background: $main-color url($icon-back) center no-repeat;
+    border: 0;
+    border-bottom-left-radius: 4px;
+    border-top-left-radius: 4px;
+    outline: 0;
+    transform: rotate(180deg);
+    width: 31px;
+  }
+}
+
 .erxes-message {
-  padding: 12px 15px;
   background-color: $grey;
   border-radius: $border-radius;
-  position: relative;
-  margin: 0 20px 5px 50px;
-  display: inline-block;
-  word-break: break-word;
   color: $text-color;
+  display: inline-block;
+  margin: 0 20px 5px 50px;
+  padding: 12px 15px;
+  position: relative;
   text-align: left;
+  word-break: break-word;
 
   &.from-customer {
-    margin: 0 0 5px 20px;
     background-color: $main-color;
     color: $white;
+    margin: 0 0 5px 20px;
     text-align: right;
 
     .file-wrapper {
@@ -83,9 +119,9 @@
   }
 
   &.attachment {
-    padding: 0;
     background: none;
     border: 0;
+    padding: 0;
 
     > span {
       display: none;
@@ -98,53 +134,53 @@
   }
 
   img {
-    max-width: 240px;
-    border-radius: $border-radius;
     background: lighten($grey, 10%);
-    min-width: 60px;
+    border-radius: $border-radius;
+    max-width: 240px;
     min-height: 30px;
+    min-width: 60px;
   }
 
   ul {
-    padding-left: 20px;
     list-style-type: disc;
+    padding-left: 20px;
 
     li {
-      overflow: visible;
       margin-bottom: 5px;
+      overflow: visible;
     }
   }
 
   ol {
-    padding-left: 20px;
     list-style-type: decimal;
+    padding-left: 20px;
 
     li {
-      overflow: visible;
       margin-bottom: 5px;
+      overflow: visible;
     }
   }
 
   h3 {
-    margin-top: 0;
     font-size: 16px;
     margin-bottom: 8px;
+    margin-top: 0;
   }
 
   blockquote {
+    border-left: 5px solid $border-gray;
+    font-size: 16px;
     margin: 0;
     padding: 10px 20px;
-    font-size: 16px;
-    border-left: 5px solid #ddd;
   }
 
   pre {
     display: block;
-    padding: 9.5px;
     margin: 0;
     font-size: 13px;
     line-height: 1.42857143;
     color: #333;
+    padding: 9.5px;
     word-break: break-all;
     word-wrap: break-word;
     background-color: #f5f5f5;
@@ -161,9 +197,7 @@
   padding-left: 40px;
   color: $text-color;
   background: lighten($grey, 10%);
-  @include prefix((
-    transition: border 0.3s ease-in-out
-  ), webkit moz ms o);
+  @include prefix(( transition: border 0.3s ease-in-out ), webkit moz ms o);
 
   i {
     width: 30px;
@@ -198,9 +232,7 @@
   text-decoration: none;
 
   img {
-    @include prefix((
-      transition: opacity 0.3s ease-in-out
-    ), webkit moz ms o);
+    @include prefix(( transition: opacity 0.3s ease-in-out ), webkit moz ms o);
 
     &:hover {
       opacity: 0.8;

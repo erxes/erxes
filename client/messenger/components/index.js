@@ -11,6 +11,7 @@ import Message from './Message';
 import MessageSender from './MessageSender';
 import MessagesList from './MessagesList';
 import User from './User';
+import EngageMessage from './EngageMessage';
 
 
 export {
@@ -27,4 +28,5 @@ export {
   MessageSender,
   MessagesList,
   User,
+  EngageMessage,
 };

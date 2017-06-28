@@ -3,7 +3,7 @@ import gql from 'graphql-tag';
 import { connect } from 'react-redux';
 import { graphql } from 'react-apollo';
 import { Notifier as DumbNotifier } from '../components';
-import { changeRoute, toggle, changeConversation } from '../actions/messenger';
+import { changeRoute, toggle, changeConversation, toggleNotifer } from '../actions/messenger';
 import { readMessages } from '../actions/messages';
 
 import { connection } from '../connection';
@@ -14,7 +14,6 @@ class Notifier extends NotificationSubscriber {
     if (this.props.data.loading) {
       return null;
     }
-
     const extendedProps = {
       ...this.props,
       lastUnreadMessage: this.props.data.lastUnreadMessage || {},
@@ -41,6 +40,10 @@ const mapDisptachToProps = dispatch => ({
 
     // mark as read
     dispatch(readMessages(conversationId));
+
+    toggleNotifer();
+
+    toggle();
   },
 });
 
@@ -48,8 +51,26 @@ const NotifierWithData = graphql(
   gql`
     query lastUnreadMessage(${connection.queryVariables}) {
       lastUnreadMessage(${connection.queryParams}) {
+        _id
         conversationId
         content
+        user {
+          details {
+            fullName
+            avatar
+          }
+        }
+        engageData {
+          content
+          kind
+          sentAs
+          fromUser {
+            details {
+              fullName
+              avatar
+            }
+          }
+        }
       }
     }
   `,

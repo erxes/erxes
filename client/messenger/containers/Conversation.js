@@ -19,7 +19,17 @@ const messageQuery = `
   }
   content
   createdAt
-  engageData
+  engageData {
+    content
+    kind
+    sentAs
+    fromUser {
+      details {
+        fullName
+        avatar
+      }
+    }
+  }
   attachments{
     url
     name
