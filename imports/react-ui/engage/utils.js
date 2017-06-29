@@ -2,7 +2,7 @@ import { FlowRouter } from 'meteor/kadira:flow-router';
 import Alert from 'meteor/erxes-notifier';
 import { notify } from '/imports/react-ui/apollo-client';
 
-export const methodCallback = (error, { method }) => {
+export const methodCallback = (error, response) => {
   if (error) {
     return Alert.error(error.reason || error.message);
   }
@@ -10,7 +10,7 @@ export const methodCallback = (error, { method }) => {
   Alert.success('Form is successfully saved.');
 
   // notify apollo server that new message arrived
-  if (method === 'messenger') {
+  if (response.method === 'messenger') {
     notify();
   }
 
