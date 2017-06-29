@@ -2,7 +2,6 @@ import { compose } from 'react-komposer';
 import { getTrackerLoader, composerOptions } from '/imports/react-ui/utils';
 import { Meteor } from 'meteor/meteor';
 import { KbCategories } from '/imports/api/knowledgebase/collections';
-import { Brands } from '/imports/api/brands/brands';
 import { pagination } from '/imports/react-ui/common';
 import { CategoryList } from '../components';
 
@@ -13,17 +12,16 @@ function categoriesComposer({ queryParams }, onData) {
     Object.assign(queryParams, { limit }),
   );
 
-  const kbCategories = KbCategories.find().fetch();
+  const items = KbCategories.find().fetch();
 
-  const removeKbCategory = (id, callback) => {
+  const removeItem = (id, callback) => {
     Meteor.call('kb_categories.remove', id, callback);
   };
 
   if (kbCategoriesHandler.ready()) {
     onData(null, {
-      kbCategories,
-      function() {},
-      removeKbCategory,
+      items,
+      removeItem,
       loadMore,
       hasMore,
     });

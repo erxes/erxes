@@ -1,9 +1,11 @@
-import React, { Component, PropTypes } from 'react';
+import React, { PropTypes } from 'react';
 import { Table, Button } from 'react-bootstrap';
 import { FlowRouter } from 'meteor/kadira:flow-router';
 import { Wrapper } from '/imports/react-ui/layout/components';
 import { Pagination } from '/imports/react-ui/common';
 import Sidebar from '../../../Sidebar';
+
+// console.log("sidebar: ", Sidebar);
 
 const propTypes = {
   items: PropTypes.array.isRequired,
@@ -13,11 +15,15 @@ const propTypes = {
   hasMore: PropTypes.bool.isRequired,
 };
 
-class CommonList extends Component {
+class CommonList extends React.Component {
   constructor(props) {
     super(props);
 
     this.renderItems = this.renderItems.bind(this);
+    this.getActionBar = this.getActionBar.bind(this);
+    this.getContent = this.getContent.bind(this);
+    this.getHeader = this.getHeader.bind(this);
+    this.render = this.render.bind(this);
   }
 
   renderItems() {

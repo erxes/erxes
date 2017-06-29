@@ -1,81 +1,87 @@
-import React, { Component, PropTypes } from 'react';
+import React, { PropTypes } from 'react';
 import { Table, Button } from 'react-bootstrap';
 import { FlowRouter } from 'meteor/kadira:flow-router';
 import { Wrapper } from '/imports/react-ui/layout/components';
 import { Pagination } from '/imports/react-ui/common';
 import Sidebar from '../../Sidebar';
-import Row from './row';
-import CommonList from './common';
+import CategoryRow from './category';
+import { CommonList } from './common';
 
+// console.log("CommonList: ", CommonList);
+// console.log("CategoryRow: ", CategoryRow);
+// console.log("Sidebar: ", Sidebar);
 const propTypes = {
-  kbCategories: PropTypes.array.isRequired,
-  brands: PropTypes.array.isRequired,
-  removeKbCategory: PropTypes.func.isRequired,
+  items: PropTypes.array.isRequired,
+  removeItem: PropTypes.func.isRequired,
   loadMore: PropTypes.func.isRequired,
   hasMore: PropTypes.bool.isRequired,
 };
 
-class CategoryList extends Component {
+class CategoryList extends CommonList {
   constructor(props) {
+    console.log('props: ', props);
     super(props);
 
-    this.renderKbCategories = this.renderKbCategories.bind(this);
+    // this.renderItems = this.renderItems.bind(this);
+    // this.getActionBar = this.getActionBar.bind(this);
+    // this.getContent = this.getContent.bind(this);
+    // this.getHeader = this.getHeader.bind(this);
+    // this.render = this.render.bind(this);
   }
 
-  renderKbCategories() {
-    const { brands, kbTopics, removeKbCategory } = this.props;
+  renderItems() {
+    const { items, removeItem } = this.props;
 
-    return kbCategories.map(kbTopic => (
-      <Row
-        key={kbCategories._id}
-        kbTopic={kbTopic}
-        brands={brands}
-        removeKbCategory={removeKbCategory}
-      />
-    ));
+    return items.map(item => <Row key={item._id} item={item} removeItem={removeItem} />);
   }
 
-  render() {
-    const { loadMore, hasMore } = this.props;
+  getHeader() {
+    const breadcrumb = [
+      { title: 'Knowledge base', link: '/settings/knowledgebase' },
+      { title: 'Categories' },
+    ];
 
+    return <Wrapper.Header breadcrumb={breadcrumb} />;
+  }
+
+  getActionBar() {
     const actionBarLeft = (
-      <Button bsStyle="link" href={FlowRouter.path('settings/knowledgebase/add')}>
-        <i className="ion-plus-circled" /> Add topic
+      <Button bsStyle="link" href={FlowRouter.path('settings/knowledgebase/categories/add')}>
+        <i className="ion-plus-circled" /> Add category
       </Button>
     );
 
-    const actionBar = <Wrapper.ActionBar left={actionBarLeft} />;
+    return <Wrapper.ActionBar left={actionBarLeft} />;
+  }
 
-    const content = (
+  getContent() {
+    const { loadMore, hasMore } = this.props;
+    return (
       <Pagination loadMore={loadMore} hasMore={hasMore}>
         <Table>
           <thead>
             <tr>
               <th>Name</th>
-              <th>Kind</th>
               <th>Brand</th>
               <th width="183" className="text-right">Actions</th>
             </tr>
           </thead>
           <tbody>
-            {this.renderKbCategories()}
-          </tbody>{' '}
+            {this.renderItems()}
+          </tbody>
         </Table>
       </Pagination>
     );
+  }
 
-    const breadcrumb = [
-      { title: 'Settings', link: '/settings/integrations' },
-      { title: 'Integrations' },
-    ];
-
+  render() {
     return (
       <div>
         <Wrapper
-          header={<Wrapper.Header breadcrumb={breadcrumb} />}
+          header={this.getHeader()}
           leftSidebar={<Sidebar />}
-          actionBar={actionBar}
-          content={content}
+          actionBar={this.getActionBar()}
+          content={this.getContent()}
         />
       </div>
     );
