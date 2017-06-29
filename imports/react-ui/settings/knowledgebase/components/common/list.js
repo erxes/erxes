@@ -5,8 +5,6 @@ import { Wrapper } from '/imports/react-ui/layout/components';
 import { Pagination } from '/imports/react-ui/common';
 import Sidebar from '../../../Sidebar';
 
-// console.log("sidebar: ", Sidebar);
-
 const propTypes = {
   items: PropTypes.array.isRequired,
   brands: PropTypes.array.isRequired,

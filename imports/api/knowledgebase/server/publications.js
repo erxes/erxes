@@ -35,7 +35,7 @@ Meteor.publish('kb_categories.list', function kbCategoriesList(params) {
     limit: Match.Optional(Number),
   });
 
-  Counts.publish(this, 'kb_Categories.list.count', KbCategories.find({}, {}), {
+  Counts.publish(this, 'kb_categories.list.count', KbCategories.find({}, {}), {
     noReady: true,
   });
 

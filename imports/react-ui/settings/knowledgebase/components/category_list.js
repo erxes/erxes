@@ -7,9 +7,6 @@ import Sidebar from '../../Sidebar';
 import CategoryRow from './category';
 import { CommonList } from './common';
 
-// console.log("CommonList: ", CommonList);
-// console.log("CategoryRow: ", CategoryRow);
-// console.log("Sidebar: ", Sidebar);
 const propTypes = {
   items: PropTypes.array.isRequired,
   removeItem: PropTypes.func.isRequired,
@@ -19,20 +16,13 @@ const propTypes = {
 
 class CategoryList extends CommonList {
   constructor(props) {
-    console.log('props: ', props);
     super(props);
-
-    // this.renderItems = this.renderItems.bind(this);
-    // this.getActionBar = this.getActionBar.bind(this);
-    // this.getContent = this.getContent.bind(this);
-    // this.getHeader = this.getHeader.bind(this);
-    // this.render = this.render.bind(this);
   }
 
   renderItems() {
     const { items, removeItem } = this.props;
 
-    return items.map(item => <Row key={item._id} item={item} removeItem={removeItem} />);
+    return items.map(item => <CategoryRow key={item._id} item={item} removeItem={removeItem} />);
   }
 
   getHeader() {
@@ -71,19 +61,6 @@ class CategoryList extends CommonList {
           </tbody>
         </Table>
       </Pagination>
-    );
-  }
-
-  render() {
-    return (
-      <div>
-        <Wrapper
-          header={this.getHeader()}
-          leftSidebar={<Sidebar />}
-          actionBar={this.getActionBar()}
-          content={this.getContent()}
-        />
-      </div>
     );
   }
 }
