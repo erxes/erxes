@@ -1,0 +1,1 @@
+import CommonList from './list';

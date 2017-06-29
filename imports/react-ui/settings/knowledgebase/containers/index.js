@@ -1,4 +1,5 @@
-import List from './list';
+import TopicList from './topic_list';
+import CategoryList from './category_list';
 import KbTopic from './topic';
 
-export { List, KbTopic };
+export { TopicList, CategoryList, KbTopic };

@@ -1,6 +1,6 @@
-import List from './list';
-import CommonList from '../common/list';
+import CategoryList from './category_list';
+import TopicList from './topic_list';
 import KbTopic from './topic';
 import AddKnowledgeBase from './add_knowledge_base';
 
-export { List, KbTopic, AddKnowledgeBase, CommonList };
+export { CategoryList, TopicList, KbTopic, AddKnowledgeBase };

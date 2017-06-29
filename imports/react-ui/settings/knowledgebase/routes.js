@@ -2,31 +2,39 @@ import React from 'react';
 import { mount } from 'react-mounter';
 import { MainLayout } from '/imports/react-ui/layout/containers';
 import settingsRoute from '../routes';
-import { List } from './containers';
+import { TopicList, CategoryList } from './containers';
 import { AddKnowledgeBase } from './components';
 
 const knowledgebase = settingsRoute.group({
   prefix: '/knowledgebase',
 });
 
-knowledgebase.route('/list', {
-  name: 'settings/knowledgebase/list',
-
-  action(params, queryParams) {
-    mount(MainLayout, { content: <List queryParams={queryParams} /> });
-  },
-});
-
 knowledgebase.route('/', {
   name: 'settings/knowledgebase/list',
 
   action(params, queryParams) {
-    mount(MainLayout, { content: <List queryParams={queryParams} /> });
+    mount(MainLayout, { content: <TopicList queryParams={queryParams} /> });
   },
 });
 
 knowledgebase.route('/add', {
   name: 'settings/knowledgebase/add',
+
+  action() {
+    mount(MainLayout, { content: <AddKnowledgeBase /> });
+  },
+});
+
+knowledgebase.route('/categories/', {
+  name: 'settings/knowledgebase/categories',
+
+  action(params, queryParams) {
+    mount(MainLayout, { content: <CategoryList queryParams={queryParams} /> });
+  },
+});
+
+knowledgebase.route('/categories/add', {
+  name: 'settings/knowledgebase/categories/add',
 
   action() {
     mount(MainLayout, { content: <AddKnowledgeBase /> });

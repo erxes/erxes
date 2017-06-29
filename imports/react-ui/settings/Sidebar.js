@@ -83,8 +83,14 @@ function Sidebar() {
         </QuickButtons>
         <ul className="filters">
           <li>
-            <a href={'/settings/knowledgebase/'}>
-              <i className="icon ion-arrow-right-b" />topics
+            <a href={'/settings/knowledgebase'}>
+              <i className="icon ion-arrow-right-b" />Topics
+            </a>
+          </li>
+
+          <li>
+            <a href={'/settings/knowledgebase/categories'}>
+              <i className="icon ion-arrow-right-b" />Categories
             </a>
           </li>
         </ul>

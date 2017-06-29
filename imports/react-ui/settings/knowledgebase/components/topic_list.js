@@ -5,6 +5,7 @@ import { Wrapper } from '/imports/react-ui/layout/components';
 import { Pagination } from '/imports/react-ui/common';
 import Sidebar from '../../Sidebar';
 import Row from './row';
+import CommonList from './common';
 
 const propTypes = {
   kbTopics: PropTypes.array.isRequired,
@@ -14,7 +15,7 @@ const propTypes = {
   hasMore: PropTypes.bool.isRequired,
 };
 
-class List extends Component {
+class TopicList extends Component {
   constructor(props) {
     super(props);
 
@@ -25,7 +26,7 @@ class List extends Component {
     const { brands, kbTopics, removeKbTopic } = this.props;
 
     return kbTopics.map(kbTopic => (
-      <Row key={kbTopics._id} kbTopic={kbTopic} brands={brands} removeKbTopic={removeKbTopic} />
+      <Row key={kbTopic._id} kbTopic={kbTopic} brands={brands} removeKbTopic={removeKbTopic} />
     ));
   }
 
@@ -76,6 +77,6 @@ class List extends Component {
   }
 }
 
-List.propTypes = propTypes;
+TopicList.propTypes = propTypes;
 
-export default List;
+export default TopicList;

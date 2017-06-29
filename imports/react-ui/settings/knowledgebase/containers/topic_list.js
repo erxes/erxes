@@ -4,9 +4,9 @@ import { Meteor } from 'meteor/meteor';
 import { KbTopics } from '/imports/api/knowledgebase/collections';
 import { Brands } from '/imports/api/brands/brands';
 import { pagination } from '/imports/react-ui/common';
-import { List } from '../components';
+import { TopicList } from '../components';
 
-function composer({ queryParams }, onData) {
+function topicsComposer({ queryParams }, onData) {
   const { limit, loadMore, hasMore } = pagination(queryParams, 'kb_topics.list.count'); // TODO
   const kbTopicsHandler = Meteor.subscribe('kb_topics.list', Object.assign(queryParams, { limit }));
   const brandsHandler = Meteor.subscribe('brands.list', 0);
@@ -29,4 +29,4 @@ function composer({ queryParams }, onData) {
   }
 }
 
-export default compose(getTrackerLoader(composer), composerOptions({}))(List);
+export default compose(getTrackerLoader(topicsComposer), composerOptions({}))(TopicList);
