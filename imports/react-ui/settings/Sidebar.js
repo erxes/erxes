@@ -71,11 +71,6 @@ function Sidebar() {
               <i className="icon ion-arrow-right-b" />Facebook
             </a>
           </li>
-          <li>
-            <a href={'/settings/integrations?kind=kbgroup'}>
-              <i className="icon ion-arrow-right-b" />KB Group
-            </a>
-          </li>
         </ul>
       </Wrapper.Sidebar.Section>
 
@@ -88,8 +83,8 @@ function Sidebar() {
         </QuickButtons>
         <ul className="filters">
           <li>
-            <a href={'/settings/knowledgebase?kind=kbgroup'}>
-              <i className="icon ion-arrow-right-b" />KB Group
+            <a href={'/settings/knowledgebase/'}>
+              <i className="icon ion-arrow-right-b" />topics
             </a>
           </li>
         </ul>

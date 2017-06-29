@@ -4,7 +4,6 @@ import { FlowRouter } from 'meteor/kadira:flow-router';
 import { Wrapper } from '/imports/react-ui/layout/components';
 import { Pagination } from '/imports/react-ui/common';
 import Sidebar from '../../Sidebar';
-import Row from './row';
 
 const propTypes = {
   items: PropTypes.array.isRequired,
@@ -22,11 +21,7 @@ class CommonList extends Component {
   }
 
   renderItems() {
-    const { brands, items, removeItem } = this.props;
-
-    return items.map(item => (
-      <Row key={item._id} item={item} brands={brands} removeItem={removeItem} />
-    ));
+    return null;
   }
 
   getActionBar() {
@@ -83,6 +78,6 @@ class CommonList extends Component {
   }
 }
 
-List.propTypes = propTypes;
+CommonList.propTypes = propTypes;
 
 export default CommonList;
