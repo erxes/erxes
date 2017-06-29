@@ -11,18 +11,18 @@ function topicsComposer({ queryParams }, onData) {
   const kbTopicsHandler = Meteor.subscribe('kb_topics.list', Object.assign(queryParams, { limit }));
   const brandsHandler = Meteor.subscribe('brands.list', 0);
 
-  const kbTopics = KbTopics.find().fetch();
+  const items = KbTopics.find().fetch();
   const brands = Brands.find().fetch();
 
-  const removeKbTopic = (id, callback) => {
+  const removeItem = (id, callback) => {
     Meteor.call('kb_topics.remove', id, callback);
   };
 
   if (kbTopicsHandler.ready() && brandsHandler.ready()) {
     onData(null, {
-      kbTopics,
+      items,
       brands,
-      removeKbTopic,
+      removeItem,
       loadMore,
       hasMore,
     });

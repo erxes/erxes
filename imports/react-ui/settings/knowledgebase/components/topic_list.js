@@ -5,7 +5,7 @@ import { Wrapper } from '/imports/react-ui/layout/components';
 import { Pagination } from '/imports/react-ui/common';
 import Sidebar from '../../Sidebar';
 import Row from './row';
-import CommonList from './common';
+import { CommonList } from './common';
 
 const propTypes = {
   kbTopics: PropTypes.array.isRequired,
@@ -15,33 +15,40 @@ const propTypes = {
   hasMore: PropTypes.bool.isRequired,
 };
 
-class TopicList extends Component {
+class TopicList extends CommonList {
   constructor(props) {
     super(props);
-
-    this.renderKbTopics = this.renderKbTopics.bind(this);
   }
 
-  renderKbTopics() {
-    const { brands, kbTopics, removeKbTopic } = this.props;
+  renderItems() {
+    const { items, removeItem } = this.props;
 
-    return kbTopics.map(kbTopic => (
-      <Row key={kbTopic._id} kbTopic={kbTopic} brands={brands} removeKbTopic={removeKbTopic} />
-    ));
+    return items.map(item => <TopicRow key={item._id} item={item} removeItem={removeItem} />);
   }
 
-  render() {
-    const { loadMore, hasMore } = this.props;
+  getHeader() {
+    const breadcrumb = [
+      { title: 'Topics', link: '/settings/knowledgebase' },
+      { title: 'Categories' },
+    ];
 
+    return <Wrapper.Header breadcrumb={breadcrumb} />;
+  }
+
+  getActionBar() {
     const actionBarLeft = (
       <Button bsStyle="link" href={FlowRouter.path('settings/knowledgebase/add')}>
         <i className="ion-plus-circled" /> Add topic
       </Button>
     );
 
-    const actionBar = <Wrapper.ActionBar left={actionBarLeft} />;
+    return <Wrapper.ActionBar left={actionBarLeft} />;
+  }
 
-    const content = (
+  getContent() {
+    const { loadMore, hasMore } = this.props;
+
+    return (
       <Pagination loadMore={loadMore} hasMore={hasMore}>
         <Table>
           <thead>
@@ -53,26 +60,10 @@ class TopicList extends Component {
             </tr>
           </thead>
           <tbody>
-            {this.renderKbTopics()}
-          </tbody>{' '}
+            {this.renderItems()}
+          </tbody>
         </Table>
       </Pagination>
-    );
-
-    const breadcrumb = [
-      { title: 'Settings', link: '/settings/integrations' },
-      { title: 'Integrations' },
-    ];
-
-    return (
-      <div>
-        <Wrapper
-          header={<Wrapper.Header breadcrumb={breadcrumb} />}
-          leftSidebar={<Sidebar />}
-          actionBar={actionBar}
-          content={content}
-        />
-      </div>
     );
   }
 }
