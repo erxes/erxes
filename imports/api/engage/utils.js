@@ -165,6 +165,7 @@ const sendViaMessenger = message => {
 
     // create conversation
     const conversationId = createConversation({
+      userId: fromUserId,
       customerId: customer._id,
       integrationId: integration._id,
       content: replacedContent,
