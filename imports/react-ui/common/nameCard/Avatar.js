@@ -4,6 +4,7 @@ const propTypes = {
   user: PropTypes.object,
   customer: PropTypes.object,
   size: PropTypes.number,
+  url: PropTypes.string,
 };
 
 class Avatar extends Component {
@@ -35,7 +36,7 @@ class Avatar extends Component {
   }
 
   render() {
-    const { user, customer } = this.props;
+    const { user, customer, url } = this.props;
     let avatar;
     let fullName;
 
@@ -50,11 +51,9 @@ class Avatar extends Component {
 
     return (
       // TODO: jump to user profile
-      (
-        <a href="#" className="avatar">
-          {avatar ? this.renderImage(avatar, fullName) : this.renderInitials(fullName)}
-        </a>
-      )
+      <a href="#" className="avatar">
+        {avatar ? this.renderImage(avatar, fullName) : this.renderInitials(fullName)}
+      </a>
     );
   }
 }

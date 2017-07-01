@@ -24,20 +24,27 @@
   }
 }
 
+.text-normal .name-card .first-line {
+  font-weight: normal;
+}
+
 .name-card {
   overflow: hidden;
+  display: flex;
+  align-items: center;
 
   .avatar {
     float: left;
+    padding: 0;
   }
 
   .text {
-    margin-left: 50px;
+    margin-left: 10px;
   }
 
   .first-line {
+    padding: 0;
     font-weight: bold;
-    margin-top: 3px;
     display: block;
     color: $text-color;
     text-overflow: ellipsis;
