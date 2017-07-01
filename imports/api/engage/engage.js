@@ -127,6 +127,12 @@ Messages.schemaExtra = new SimpleSchema({
     type: Date,
   },
 
+  // read customer ids
+  messengerReceivedCustomerIds: {
+    type: [String],
+    optional: true,
+  },
+
   // for example, save each customers's email delivery reports by messageId
   deliveryReports: {
     type: Object,
