@@ -1,6 +1,7 @@
 import React, { PropTypes, Component } from 'react';
 import moment from 'moment';
 import { FlowRouter } from 'meteor/kadira:flow-router';
+import strip from 'strip';
 import { NameCard, Tags } from '/imports/react-ui/common';
 import { Tags as TagsCollection } from '/imports/api/tags/tags';
 import Starrer from './StarrerContainer';
@@ -80,7 +81,7 @@ class Row extends Component {
           </header>
 
           <div className="content" onClick={this.goDetail}>
-            {content}
+            {strip(content)}
           </div>
 
           <footer>
