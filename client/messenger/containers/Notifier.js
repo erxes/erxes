@@ -14,9 +14,16 @@ class Notifier extends NotificationSubscriber {
     if (this.props.data.loading) {
       return null;
     }
+
+    const lastUnreadMessage = this.props.data.lastUnreadMessage;
+
+    if (!lastUnreadMessage || !lastUnreadMessage._id) {
+      return null;
+    }
+
     const extendedProps = {
       ...this.props,
-      lastUnreadMessage: this.props.data.lastUnreadMessage || {},
+      lastUnreadMessage,
     };
 
     return <DumbNotifier {...extendedProps} />;

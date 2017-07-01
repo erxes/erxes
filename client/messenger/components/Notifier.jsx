@@ -9,20 +9,21 @@ const propTypes = {
 };
 
 class Notifier extends React.Component {
-
   componentDidMount() {
-    if (this.props.lastUnreadMessage._id) {
-      if (this.props.lastUnreadMessage.engageData && this.props.lastUnreadMessage.engageData.sentAs === 'fullMessage') {
-        toggleNotiferFull();
-      } else {
-        toggleNotifer();
-      }
-    }
+    this.showUnreadMessage();
   }
 
   componentDidUpdate() {
-    if (this.props.lastUnreadMessage._id) {
-      if (this.props.lastUnreadMessage.engageData && this.props.lastUnreadMessage.engageData.sentAs === 'fullMessage') {
+    this.showUnreadMessage();
+  }
+
+  showUnreadMessage() {
+    const lastUnreadMessage = this.props.lastUnreadMessage;
+
+    if (lastUnreadMessage._id) {
+      const engageData = lastUnreadMessage.engageData;
+
+      if (engageData && engageData.sentAs === 'fullMessage') {
         toggleNotiferFull();
       } else {
         toggleNotifer();
@@ -32,19 +33,20 @@ class Notifier extends React.Component {
 
   renderNotificationBody() {
     const { lastUnreadMessage } = this.props;
+    const { engageData, user, content } = lastUnreadMessage;
 
-    if (lastUnreadMessage.engageData) {
-      return <EngageMessage engageData={lastUnreadMessage.engageData} />;
+    if (engageData) {
+      return <EngageMessage engageData={engageData} />;
     }
 
     return (
       <div className="notification-wrapper">
         <div className="user-info">
-          <User user={lastUnreadMessage.user} />
-          {lastUnreadMessage.user.details.fullName}
+          <User user={user} />
+          {user.details.fullName}
         </div>
         <div className="notification-body">
-          {striptags(lastUnreadMessage.content)}
+          {striptags(content)}
         </div>
       </div>
     );
