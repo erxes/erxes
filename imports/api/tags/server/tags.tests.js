@@ -7,11 +7,17 @@ import { assert } from 'meteor/practicalmeteor:chai';
 import { Conversations } from '/imports/api/conversations/conversations';
 import { Tags } from '../tags';
 import { TAG_TYPES } from '../constants';
-import { add, edit, remove } from '../methods';
+import { add, edit, remove } from './methods';
 import { tagObject } from './api';
 
 describe('tags', function() {
   describe('mutators', function() {
+    let userId;
+
+    beforeEach(function() {
+      userId = Factory.create('user')._id;
+    });
+
     afterEach(function() {
       Tags.remove({});
     });
@@ -46,7 +52,7 @@ describe('tags', function() {
 
       assert.throws(
         () => {
-          Tags.remove(tag._id);
+          remove._execute({ userId }, [tag._id]);
         },
         Meteor.Error,
         /tags.remove.restricted/,

@@ -26,9 +26,13 @@ function NameCard({ user, customer, firstLine, secondLine, singleLine, avatarSiz
   return (
     <div className="name-card">
       <Avatar user={user} customer={customer} size={avatarSize} />
-      <div className="text" style={{ marginLeft: `${avatarSize + 10}px` }}>
-        <a href="#" className="first-line">{first}</a>
-        <div className="second-line">{second}</div>
+      <div className="text">
+        <a href="#" className="first-line">
+          {first}
+        </a>
+        <div className="second-line">
+          {second}
+        </div>
       </div>
     </div>
   );

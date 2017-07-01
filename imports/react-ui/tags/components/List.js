@@ -9,7 +9,7 @@ import { Form } from '../containers';
 const propTypes = {
   tags: PropTypes.array.isRequired,
   type: PropTypes.string.isRequired,
-  remove: PropTypes.object.isRequired,
+  remove: PropTypes.func.isRequired,
 };
 
 function List({ tags, type, remove }) {

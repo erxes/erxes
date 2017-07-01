@@ -13,6 +13,7 @@ class Avatar extends Component {
       height: size,
       lineHeight: `${size}px`,
       borderRadius: `${size}px`,
+      fontSize: `${size / 3}px`,
     };
   }
 
@@ -50,11 +51,9 @@ class Avatar extends Component {
 
     return (
       // TODO: jump to user profile
-      (
-        <a href="#" className="avatar">
-          {avatar ? this.renderImage(avatar, fullName) : this.renderInitials(fullName)}
-        </a>
-      )
+      <a href="#" className="avatar">
+        {avatar ? this.renderImage(avatar, fullName) : this.renderInitials(fullName)}
+      </a>
     );
   }
 }
