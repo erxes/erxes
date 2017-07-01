@@ -174,6 +174,7 @@ const sendViaMessenger = message => {
     // create message
     createMessage({
       engageData: {
+        messageId: message._id,
         fromUserId,
         ...message.messenger,
       },
