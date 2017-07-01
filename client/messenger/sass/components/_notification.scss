@@ -18,7 +18,7 @@ $core-spacing: 20px;
     height: calc(100% - 110px);
   }
 
-  .notification-wrapper {
+  .flex-notification {
     display: flex;
     flex-direction: column;
     width: 100%;
@@ -46,6 +46,10 @@ $core-spacing: 20px;
       margin-bottom: 0;
       overflow: auto;
       padding: 0 $core-spacing $core-spacing;
+    }
+
+    img {
+      max-width: 100%;
     }
   }
 

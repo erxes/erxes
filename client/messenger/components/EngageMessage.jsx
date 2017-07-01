@@ -6,21 +6,35 @@ const propTypes = {
   engageData: PropTypes.object,
 };
 
-function EngageMessage({ engageData }) {
-  const user = engageData.fromUser;
-  const bodyClass = `notification-body ${engageData.sentAs}`;
+class EngageMessage extends React.Component {
+  renderNotificationContent() {
+    const { content, sentAs, fromUser } = this.props.engageData;
+    const bodyClass = `notification-body ${sentAs}`;
 
-  return (
-    <div className="notification-wrapper">
-      <div className="user-info">
-        <User user={user} />
-        {user.details.fullName}
+    if (sentAs === 'badge') {
+      return null;
+    }
+
+    return (
+      <div className="flex-notification">
+        <div className="user-info">
+          <User user={fromUser} />
+          {fromUser.details.fullName}
+        </div>
+        <div className={bodyClass}>
+          {
+            sentAs === 'fullMessage' ?
+              <span dangerouslySetInnerHTML={{ __html: content }} /> :
+              striptags(content)
+          }
+        </div>
       </div>
-      <div className={bodyClass}>
-        {striptags(engageData.content)}
-      </div>
-    </div>
-  );
+    );
+  }
+
+  render() {
+    return this.renderNotificationContent();
+  }
 }
 
 EngageMessage.propTypes = propTypes;

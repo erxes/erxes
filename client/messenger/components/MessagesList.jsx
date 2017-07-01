@@ -70,7 +70,7 @@ class MessagesList extends Component {
   }
 
   render() {
-    const { data } = this.props;
+    const { data, messages } = this.props;
     const bg = data.uiOptions && data.uiOptions.wallpaper;
     const messengerData = data.messengerData;
     const messagesClasses = classNames('erxes-messages-list', { [`bg-${bg}`]: bg });
@@ -81,7 +81,7 @@ class MessagesList extends Component {
       >
         {this.renderWelcomeMessage(messengerData)}
         {
-          this.props.messages.map(message =>
+          messages.map(message =>
             <Message key={message._id} {...message} />,
           )
         }
