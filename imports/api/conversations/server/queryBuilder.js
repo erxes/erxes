@@ -37,6 +37,17 @@ export default class ListQueryBuilder {
     return {
       ...this.integrationsFilter(),
       ...statusFilter,
+
+      $or: [
+        // exclude engage messages if customer did not reply
+        {
+          userId: { $exists: true },
+          messageCount: { $gt: 1 },
+        },
+        {
+          userId: { $exists: false },
+        },
+      ],
     };
   }
 
