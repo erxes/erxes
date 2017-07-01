@@ -23,6 +23,11 @@ widgetConnect({
 
       name: setting.name,
       data: setting.data,
+
+      browserInfo: {
+        url: window.parent.location.pathname, // eslint-disable-line
+        language: window.parent.navigator.language, // eslint-disable-line
+      },
     });
   },
 

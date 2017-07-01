@@ -13,10 +13,12 @@ export const connect = variables =>
   client.mutate({
     mutation: gql`
       mutation connect($brandCode: String!, $email: String,
-        $name: String, $isUser: Boolean, $data: JSON, $cachedCustomerId: String) {
+        $name: String, $isUser: Boolean, $data: JSON,
+        $browserInfo: JSON, $cachedCustomerId: String) {
 
         messengerConnect(brandCode: $brandCode, email: $email, name: $name,
-          isUser: $isUser, data: $data, cachedCustomerId: $cachedCustomerId) {
+          isUser: $isUser, data: $data, browserInfo: $browserInfo,
+          cachedCustomerId: $cachedCustomerId) {
 
           integrationId,
           messengerData,
