@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import { graphql } from 'react-apollo';
 import { Notifier as DumbNotifier } from '../components';
 import { changeRoute, toggle, changeConversation, toggleNotifer } from '../actions/messenger';
-import { readMessages } from '../actions/messages';
+import { readEngageMessage } from '../actions/messages';
 
 import { connection } from '../connection';
 import NotificationSubscriber from './NotificationSubscriber';
@@ -35,7 +35,7 @@ const mapStateToProps = state => ({
 });
 
 const mapDisptachToProps = dispatch => ({
-  changeConversation(conversationId) {
+  readMessage({ conversationId, engageData }) {
     // show messenger
     dispatch(toggle());
 
@@ -46,7 +46,7 @@ const mapDisptachToProps = dispatch => ({
     dispatch(changeConversation(conversationId));
 
     // mark as read
-    dispatch(readMessages(conversationId));
+    dispatch(readEngageMessage({ conversationId, engageData }));
 
     toggleNotifer();
 
@@ -68,6 +68,7 @@ const NotifierWithData = graphql(
           }
         }
         engageData {
+          messageId,
           content
           kind
           sentAs

@@ -5,7 +5,7 @@ import { User, EngageMessage } from '../components';
 
 const propTypes = {
   lastUnreadMessage: PropTypes.object,
-  changeConversation: PropTypes.func,
+  readMessage: PropTypes.func,
 };
 
 class Notifier extends React.Component {
@@ -61,12 +61,15 @@ class Notifier extends React.Component {
   }
 
   render() {
-    const { lastUnreadMessage, changeConversation } = this.props;
+    const { lastUnreadMessage, readMessage } = this.props;
     if (lastUnreadMessage._id) {
       return (
         <div
           className={this.renderClass()}
-          onClick={() => changeConversation(lastUnreadMessage.conversationId)}
+          onClick={() => readMessage({
+            conversationId: lastUnreadMessage.conversationId,
+            engageData: lastUnreadMessage.engageData,
+          })}
         >
           {this.renderNotificationBody()}
         </div>

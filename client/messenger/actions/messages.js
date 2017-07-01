@@ -18,6 +18,22 @@ export const readMessages = conversationId =>
     },
   });
 
+export const readEngageMessage = ({ conversationId, engageData }) => () => {
+  readMessages(conversationId);
+
+  client.mutate({
+    mutation: gql`
+      mutation readEngageMessage($messageId: String!, $customerId: String!) {
+        readEngageMessage(messageId: $messageId, customerId: $customerId)
+      }`,
+
+    variables: {
+      messageId: engageData.messageId,
+      customerId: connection.data.customerId,
+    },
+  });
+};
+
 export const sendMessage = (message, attachments) =>
   (dispatch, getState) => {
     // if visitor then ask for email
