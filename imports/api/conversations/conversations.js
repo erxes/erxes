@@ -32,6 +32,9 @@ Conversations.helpers({
   customer() {
     return Customers.findOne(this.customerId) || {};
   },
+  user() {
+    return Meteor.users.findOne(this.userId);
+  },
   integration() {
     return Integrations.findOne(this.integrationId) || {};
   },
@@ -68,7 +71,7 @@ Conversations.deny({
   },
 });
 
-// twitter schemas ====================
+// twitter schema ====================
 const twitterDirectMessageSchema = new SimpleSchema({
   senderId: {
     type: Number,
@@ -106,7 +109,7 @@ const twitterSchema = new SimpleSchema({
   },
 });
 
-// facebook schemas
+// facebook schema
 const facebookSchema = new SimpleSchema({
   kind: {
     type: String,
@@ -136,19 +139,21 @@ const facebookSchema = new SimpleSchema({
 });
 
 Conversations.schema = new SimpleSchema({
-  number: {
-    type: Number,
-  },
   content: {
     type: String,
+  },
+  integrationId: {
+    type: String,
+    regEx: SimpleSchema.RegEx.Id,
   },
   customerId: {
     type: String,
     regEx: SimpleSchema.RegEx.Id,
     optional: true,
   },
-  integrationId: {
+  userId: {
     type: String,
+    optional: true,
     regEx: SimpleSchema.RegEx.Id,
   },
   twitterData: {
@@ -184,7 +189,14 @@ Conversations.schema = new SimpleSchema({
   createdAt: {
     type: Date,
   },
+
+  // number of total messages
   messageCount: {
+    type: Number,
+  },
+
+  // number of total conversations
+  number: {
     type: Number,
   },
 
@@ -228,6 +240,7 @@ Conversations.publicFields = {
   assignedUserId: 1,
   content: 1,
   customerId: 1,
+  userId: 1,
   integrationId: 1,
   status: 1,
   createdAt: 1,

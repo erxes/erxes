@@ -36,7 +36,7 @@ describe('engage', function() {
         kind: 'auto',
       };
 
-      messageId = messagesAdd._execute({ userId }, { doc });
+      messageId = messagesAdd._execute({ userId }, { doc }).messageId;
 
       assert.equal(Messages.find().count(), 1);
     });
