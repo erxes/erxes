@@ -1,12 +1,12 @@
 #erxes-messenger-container {
   position: fixed;
-  bottom: 0px;
-  right: 0px;
+  bottom: 0;
+  right: 0;
   z-index: 1000000000;
 }
 
 #erxes-messenger-iframe {
-  position: fixed;
+  position: absolute;
   bottom: 12px;
   right: 12px;
   border: none;
@@ -24,11 +24,23 @@
   max-height: 660px;
 }
 
-.erxes-messenger-shown > iframe {
+.erxes-messenger-shown > iframe,
+.erxes-notifier-shown > iframe {
   width: 100%;
   height: 100%;
   position: absolute !important;
 }
+
+.erxes-notifier-shown {
+  width: 360px;
+  height: 220px;
+}
+
+.erxes-notifier-shown.fullMessage {
+  height: 550px;
+  max-height: 100%;
+}
+
 
 @media only screen and (max-width: 420px) {
   #erxes-messenger-container {

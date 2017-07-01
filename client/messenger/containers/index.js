@@ -6,9 +6,9 @@ import ConversationList from './ConversationList';
 import ConversationItem from './ConversationItem';
 import Conversation from './Conversation';
 import Launcher from './Launcher';
-import VisitorLauncher from './VisitorLauncher';
-import VisitorForm from './VisitorForm';
+import Notifier from './Notifier';
 import MessageSender from './MessageSender';
+import MessagesList from './MessagesList';
 
 
 export {
@@ -20,7 +20,7 @@ export {
   ConversationItem,
   Conversation,
   Launcher,
-  VisitorLauncher,
-  VisitorForm,
+  Notifier,
   MessageSender,
+  MessagesList,
 };

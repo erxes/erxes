@@ -19,6 +19,17 @@ const messageQuery = `
   }
   content
   createdAt
+  engageData {
+    content
+    kind
+    sentAs
+    fromUser {
+      details {
+        fullName
+        avatar
+      }
+    }
+  }
   attachments{
     url
     name
@@ -99,7 +110,11 @@ class Conversation extends Subscriber {
 const mapStateToProps = (state) => {
   const isNewConversation = !state.activeConversation;
 
-  return { conversationId: state.activeConversation, isNewConversation };
+  return {
+    isObtainedEmail: state.isObtainedEmail,
+    conversationId: state.activeConversation,
+    isNewConversation,
+  };
 };
 
 const mapDisptachToProps = dispatch => ({

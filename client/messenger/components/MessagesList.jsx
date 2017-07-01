@@ -5,7 +5,9 @@ import { Message } from '../containers';
 
 const propTypes = {
   messages: PropTypes.array.isRequired,
+  saveEmail: PropTypes.func,
   isOnline: PropTypes.bool,
+  isObtainedEmail: PropTypes.bool,
   data: PropTypes.object,
 };
 
@@ -34,6 +36,7 @@ class MessagesList extends Component {
         </li>
       );
     }
+
     return null;
   }
 
@@ -46,15 +49,31 @@ class MessagesList extends Component {
         </li>
       );
     }
+
+    return null;
+  }
+
+  renderEmailPrompt() {
+    if (!this.props.isObtainedEmail) {
+      return (
+        <li className="erxes-spacial-message ml50">
+          <label htmlFor="visitor-email">Get notified</label>
+          <div className="ask-email">
+            <input id="visitor-email" placeholder="email@domain.com" />
+            <button onClick={this.props.saveEmail} />
+          </div>
+        </li>
+      );
+    }
+
     return null;
   }
 
   render() {
-    const { data } = this.props;
+    const { data, messages } = this.props;
     const bg = data.uiOptions && data.uiOptions.wallpaper;
     const messengerData = data.messengerData;
     const messagesClasses = classNames('erxes-messages-list', { [`bg-${bg}`]: bg });
-
     return (
       <ul
         className={messagesClasses}
@@ -62,11 +81,12 @@ class MessagesList extends Component {
       >
         {this.renderWelcomeMessage(messengerData)}
         {
-          this.props.messages.map(message =>
+          messages.map(message =>
             <Message key={message._id} {...message} />,
           )
         }
         {this.renderAwayMessage(messengerData)}
+        {this.renderEmailPrompt()}
       </ul>
     );
   }

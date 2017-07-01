@@ -8,15 +8,18 @@ export const connection = {
   queryParams: 'integrationId: $integrationId, customerId: $customerId',
 };
 
-export const connect = ({ brandCode, email, name, isUser, data }) =>
+export const connect = variables =>
   // call connect mutation
   client.mutate({
     mutation: gql`
-      mutation connect($brandCode: String!, $email: String!,
-        $name: String, $isUser: Boolean, $data: JSON) {
+      mutation connect($brandCode: String!, $email: String,
+        $name: String, $isUser: Boolean, $data: JSON,
+        $browserInfo: JSON, $cachedCustomerId: String) {
 
-        messengerConnect(brandCode: $brandCode, email: $email,
-          name: $name, isUser: $isUser, data: $data) {
+        messengerConnect(brandCode: $brandCode, email: $email, name: $name,
+          isUser: $isUser, data: $data, browserInfo: $browserInfo,
+          cachedCustomerId: $cachedCustomerId) {
+
           integrationId,
           messengerData,
           uiOptions,
@@ -24,5 +27,5 @@ export const connect = ({ brandCode, email, name, isUser, data }) =>
         }
       }`,
 
-    variables: { brandCode, email, name, isUser, data },
+    variables,
   });

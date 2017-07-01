@@ -1,5 +1,6 @@
 import React, { PropTypes } from 'react';
 import moment from 'moment';
+import striptags from 'striptags';
 import classNames from 'classnames';
 
 
@@ -27,7 +28,7 @@ function ConversationItem({ conversation, notificationCount, goToConversation })
         </div>
         <div className="erxes-name">{fullName}</div>
         <div className="erxes-last-message">
-          {content}
+          {striptags(content)}
         </div>
       </div>
     </li>

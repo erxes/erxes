@@ -1,6 +1,5 @@
 import React, { PropTypes } from 'react';
-import { MessageSender, TopBar } from '../containers';
-import { MessagesList } from '../components';
+import { MessagesList, MessageSender, TopBar } from '../containers';
 
 
 const propTypes = {
@@ -62,6 +61,7 @@ function Conversation(props) {
         buttonClass="back"
         onButtonClick={goToConversationList}
       />
+
       <MessagesList isOnline={isOnline} data={data} messages={messages} />
       <MessageSender placeholder={placeholder} />
     </div>

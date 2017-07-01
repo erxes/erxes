@@ -45,13 +45,21 @@ iframe.onload = () => {
 
 // listen for widget toggle
 window.addEventListener('message', (event) => {
-  if (event.data.fromErxes && event.data.fromMessenger) {
+  const data = event.data;
+
+  if (data.fromErxes && data.fromMessenger) {
     iframe = document.querySelector(`#${iframeId}`);
 
-    erxesContainer.className = 'erxes-messenger-hidden';
+    if (data.purpose === 'messenger') {
+      erxesContainer.className = `erxes-messenger-${data.isVisible ? 'shown' : 'hidden'}`;
+    }
 
-    if (event.data.isMessengerVisible) {
-      erxesContainer.className = 'erxes-messenger-shown';
+    if (data.purpose === 'notifier') {
+      erxesContainer.className += ` erxes-notifier-${data.isVisible ? 'shown' : 'hidden'}`;
+    }
+
+    if (data.purpose === 'notifierFull') {
+      erxesContainer.className += ` erxes-notifier-${data.isVisible ? 'shown' : 'hidden'} fullMessage`;
     }
   }
 });
