@@ -145,21 +145,6 @@ const sendViaMessenger = message => {
   saveMatchedCustomerIds(message._id, customers);
 
   customers.forEach(customer => {
-    const messageId = Random.id();
-
-    // add new delivery report
-    Messages.update(
-      { _id: message._id },
-      {
-        $set: {
-          [`deliveryReports.${messageId}`]: {
-            customerId: customer._id,
-            status: 'pending',
-          },
-        },
-      },
-    );
-
     // replace keys in content
     const replacedContent = replaceKeys({ content, customer, user });
 
