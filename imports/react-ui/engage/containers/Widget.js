@@ -15,9 +15,12 @@ function composer(props, onData) {
     doc.kind = MESSAGE_KINDS.MANUAL;
     doc.isLive = true;
 
-    return Meteor.call('engage.messages.add', { doc }, (...params) => {
-      methodCallback(...params);
-      callback();
+    return Meteor.call('engage.messages.add', { doc }, (error, result) => {
+      methodCallback(error, result);
+
+      if (!error) {
+        callback();
+      }
     });
   };
 
