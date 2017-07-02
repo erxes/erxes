@@ -18,8 +18,8 @@ export const readMessages = conversationId =>
     },
   });
 
-export const readEngageMessage = ({ conversationId, engageData }) => () => {
-  readMessages(conversationId);
+export const readEngageMessage = ({ conversationId, engageData }) => (dispatch) => {
+  dispatch(readMessages(conversationId));
 
   client.mutate({
     mutation: gql`
