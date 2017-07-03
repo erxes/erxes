@@ -31,6 +31,11 @@ function Sidebar() {
             </a>
           </li>
           <li>
+            <a href={FlowRouter.path('settings/emailTemplates/list')}>
+              <i className="icon ion-arrow-right-b" />Email templates
+            </a>
+          </li>
+          <li>
             <a href={FlowRouter.path('settings/emails/list')}>
               <i className="icon ion-arrow-right-b" />Email appearance
             </a>

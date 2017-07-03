@@ -1,6 +1,7 @@
 import React, { PropTypes, Component } from 'react';
 import moment from 'moment';
 import { FlowRouter } from 'meteor/kadira:flow-router';
+import strip from 'strip';
 import classNames from 'classnames';
 import { NameCard, Tags } from '/imports/react-ui/common';
 import { Tags as TagsCollection } from '/imports/api/tags/tags';
@@ -79,8 +80,10 @@ class SimpleRow extends Component {
           <Tags tags={tags} size="small" />
 
           <div className="content" onClick={this.goDetail}>
-            <span className="brandname hidden-tb">to {brandName} - </span>
-            {content}
+            <span className="brandname hidden-tb">
+              to {brandName} -{' '}
+            </span>
+            {strip(content)}
           </div>
         </div>
       </li>

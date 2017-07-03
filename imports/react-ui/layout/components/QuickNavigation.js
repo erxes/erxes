@@ -52,9 +52,7 @@ class QuickNavigation extends Component {
             <Dropdown.Menu>
               <NameCard user={user} />
               <MenuItem divider />
-              <MenuItem href={FlowRouter.path('/settings/profile')}>
-                Edit Profile
-              </MenuItem>
+              <MenuItem href={FlowRouter.path('/settings/profile')}>Edit Profile</MenuItem>
               <MenuItem href={FlowRouter.path('settings/change-password')}>
                 Change password
               </MenuItem>

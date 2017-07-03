@@ -15,10 +15,21 @@ export const newMessage = messageId => {
         simulateInsertMessage(messageId: $messageId) {
           _id
         }
-      }`,
+      }
+    `,
 
     variables: {
       messageId,
     },
+  });
+};
+
+export const notify = () => {
+  client.mutate({
+    mutation: gql`
+      mutation notify {
+        notify
+      }
+    `,
   });
 };

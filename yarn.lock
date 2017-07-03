@@ -2188,6 +2188,10 @@ node-uuid@~1.4.3, node-uuid@~1.4.7:
   version "1.4.8"
   resolved "https://registry.yarnpkg.com/node-uuid/-/node-uuid-1.4.8.tgz#b040eb0923968afabf8d32fb1f17f1167fdab907"
 
+node4mailer@^4.0.3:
+  version "4.0.3"
+  resolved "https://registry.yarnpkg.com/node4mailer/-/node4mailer-4.0.3.tgz#8f0c7a6737527a128530185a14c2e879989a8910"
+
 nopt@~3.0.6:
   version "3.0.6"
   resolved "https://registry.yarnpkg.com/nopt/-/nopt-3.0.6.tgz#c6465dbf08abcd4db359317f79ac68a646b28ff9"

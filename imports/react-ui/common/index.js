@@ -4,6 +4,7 @@ import Tagger from './tagger/containers/Tagger';
 import TaggerPopover from './tagger/components/TaggerPopover';
 import ModalTrigger from './ModalTrigger';
 import Tags from './Tags';
+import TagFilter from './TagFilter';
 import Loader from './Loader';
 import LoadingSidebar from './loading/LoadingSidebar';
 import LoadingContent from './loading/LoadingContent';
@@ -27,6 +28,7 @@ export {
   TaggerPopover,
   ModalTrigger,
   Tags,
+  TagFilter,
   Loader,
   Spinner,
   Tip,

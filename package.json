@@ -1,6 +1,6 @@
 {
   "name": "erxes",
-  "version": "0.3.1",
+  "version": "0.4.0",
   "description": "erxes is an AI meets open source messaging platform for sales and marketing teams.",
   "homepage": "https://erxes.io",
   "repository": {
@@ -48,6 +48,7 @@
     "lodash": "^4.17.4",
     "meteor-node-stubs": "^0.2.6",
     "moment": "^2.17.1",
+    "node4mailer": "^4.0.3",
     "prop-types": "^15.5.8",
     "react": "^15.4.2",
     "react-addons-css-transition-group": "^15.4.2",

@@ -16,7 +16,7 @@ import './publications';
 
 import { Conversations } from '../conversations';
 import { CONVERSATION_STATUSES } from '../constants';
-import { assign, unassign, changeStatus, star, unstar, tag, toggleParticipate } from './methods';
+import { assign, unassign, changeStatus, star, unstar, toggleParticipate } from './methods';
 
 describe('conversations', function() {
   describe('publications', function() {
@@ -110,7 +110,7 @@ describe('conversations', function() {
       });
 
       it('filter by tags', function(done) {
-        checkCollectionLength(done, { unassigned: '1', tagId }, 4);
+        checkCollectionLength(done, { unassigned: '1', tag: tagId }, 4);
       });
 
       it('filter by participator', function(done) {
@@ -343,46 +343,6 @@ describe('conversations', function() {
 
         assert.equal(notif.notifType, 'conversationStateChange');
         assert.equal(notif.receiver, participatedUserId);
-      });
-    });
-
-    describe('tag', function() {
-      it('only works if you are logged in', function() {
-        assert.throws(
-          () => {
-            tag._execute({}, { conversationIds: [Random.id()], tagIds: [Random.id()] });
-          },
-          Meteor.Error,
-          /loginRequired/,
-        );
-      });
-
-      it('conversation must exist', function() {
-        assert.throws(
-          () => {
-            tag._execute({ userId }, { conversationIds: [Random.id()], tagIds: [Random.id()] });
-          },
-          Meteor.Error,
-          /conversations.conversationNotFound/,
-        );
-      });
-
-      it('tag', function() {
-        Factory.create('channel', { memberIds: [userId] });
-        const tagIds = [Factory.create('tag', { type: Conversations.TAG_TYPE })._id];
-
-        const conversationIds = [
-          Factory.create('conversation')._id,
-          Factory.create('conversation')._id,
-        ];
-
-        assert.equal(Conversations.findOne(conversationIds[0]).tagIds, undefined);
-        assert.equal(Conversations.findOne(conversationIds[1]).tagIds, undefined);
-
-        tag._execute({ userId }, { conversationIds, tagIds });
-
-        assert.equal(Conversations.findOne(conversationIds[0]).tagIds[0], tagIds[0]);
-        assert.equal(Conversations.findOne(conversationIds[1]).tagIds[0], tagIds[0]);
       });
     });
 
