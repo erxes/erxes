@@ -22,7 +22,7 @@ class QuickNavigation extends Component {
     const unreadCount = this.props.unreadCount;
     const user = Meteor.user();
     const popoverNotification = (
-      <Popover id="popover-notification" title="Notifications">
+      <Popover id="npopover" className="notification-popover" title="Notifications">
         <NotificationsLatest />
       </Popover>
     );
