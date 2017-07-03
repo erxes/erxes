@@ -116,7 +116,11 @@ export const saveMessengerApperance = new ValidatedMethod({
 
   validate({ _id, doc }) {
     check(_id, String);
-    check(doc, { color: String, wallpaper: Match.Optional(String) });
+    check(doc, {
+      color: String,
+      wallpaper: Match.Optional(String),
+      logo: Match.Optional(String),
+    });
   },
 
   run({ _id, doc }) {
