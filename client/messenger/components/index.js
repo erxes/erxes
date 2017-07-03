@@ -6,11 +6,12 @@ import ConversationList from './ConversationList';
 import ConversationItem from './ConversationItem';
 import Conversation from './Conversation';
 import Launcher from './Launcher';
-import VisitorForm from './VisitorForm';
+import Notifier from './Notifier';
 import Message from './Message';
 import MessageSender from './MessageSender';
 import MessagesList from './MessagesList';
 import User from './User';
+import EngageMessage from './EngageMessage';
 
 
 export {
@@ -22,9 +23,10 @@ export {
   ConversationItem,
   Conversation,
   Launcher,
-  VisitorForm,
+  Notifier,
   Message,
   MessageSender,
   MessagesList,
   User,
+  EngageMessage,
 };
