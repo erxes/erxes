@@ -13,8 +13,12 @@ $break-small: 415px;
   bottom: 8px;
   right: 8px;
   box-shadow: 0 0 10px 0 rgba($black, .2);
-  background: $main-color url($icon-erxes) center no-repeat;
-  transition: background 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+  transition: box-shadow 0.3s ease-in-out;
+  background-image: url($icon-erxes);
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-color: $main-color;
 
   span {
     position: absolute;
@@ -32,7 +36,9 @@ $break-small: 415px;
   }
 
   &.close {
-    background: $main-color url($icon-close-big) no-repeat 50%;;
+    background-image: url($icon-close-big) !important;
+    background-position: 50%;
+    background-size: inherit;
   }
 
   &:hover {

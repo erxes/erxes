@@ -21,6 +21,7 @@ app.set('views', path.join(__dirname, 'views'));
 
 // generated scripts
 app.use('/build', express.static(path.join(__dirname, '../static')));
+app.use('/static', express.static('public'));
 
 // routes
 app.get('/messenger', (req, res) => {

@@ -6,10 +6,10 @@ const propTypes = {
   onClick: PropTypes.func.isRequired,
   notificationCount: PropTypes.number.isRequired,
   isMessengerVisible: PropTypes.bool.isRequired,
-  color: PropTypes.string,
+  uiOptions: PropTypes.object,
 };
 
-function Launcher({ isMessengerVisible, onClick, notificationCount, color }) {
+function Launcher({ isMessengerVisible, onClick, notificationCount, uiOptions }) {
   const clickHandler = () => {
     onClick(isMessengerVisible);
   };
@@ -18,11 +18,14 @@ function Launcher({ isMessengerVisible, onClick, notificationCount, color }) {
     close: isMessengerVisible,
   });
 
+  const { color, logo } = uiOptions;
+  const defaultLogo = '/static/images/widget-logo.png';
+
   return (
     <div
       className={launcherClasses}
       onClick={clickHandler}
-      style={{ backgroundColor: color }}
+      style={{ backgroundColor: color, backgroundImage: `url(${logo || defaultLogo })` }}
     >
       {notificationCount ? <span>{notificationCount}</span> : null}
     </div>
@@ -32,7 +35,7 @@ function Launcher({ isMessengerVisible, onClick, notificationCount, color }) {
 Launcher.propTypes = propTypes;
 
 Launcher.defaultProps = {
-  color: null,
+  uiOptions: null,
 };
 
 export default Launcher;

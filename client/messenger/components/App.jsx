@@ -2,7 +2,7 @@ import React, { PropTypes } from 'react';
 import classNames from 'classnames';
 import { Messenger, Launcher, Notifier } from '../containers';
 
-function App({ isMessengerVisible, color }) {
+function App({ isMessengerVisible, uiOptions }) {
   const widgetClasses = classNames('erxes-widget', { opened: isMessengerVisible });
 
   return (
@@ -10,18 +10,18 @@ function App({ isMessengerVisible, color }) {
       { isMessengerVisible ? null : <Notifier /> }
 
       <Messenger />
-      <Launcher color={color} />
+      <Launcher uiOptions={uiOptions} />
     </div>
   );
 }
 
 App.propTypes = {
   isMessengerVisible: PropTypes.bool.isRequired,
-  color: PropTypes.string,
+  uiOptions: PropTypes.object,
 };
 
 App.defaultProps = {
-  color: null,
+  uiOptions: null,
 };
 
 export default App;
