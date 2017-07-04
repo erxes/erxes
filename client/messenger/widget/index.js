@@ -39,7 +39,13 @@ iframe.onload = () => {
 
   iframe.contentWindow.postMessage({
     fromPublisher: true,
-    setting: window.erxesSettings.messenger,
+    setting: {
+      ...window.erxesSettings.messenger,
+      browserInfo: {
+        url: location.pathname, // eslint-disable-line
+        language: parent.navigator.language, // eslint-disable-line
+      },
+    },
   }, '*');
 };
 
