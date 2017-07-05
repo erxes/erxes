@@ -141,3 +141,19 @@ $bg-widget-background: #faf9fb;
     }
   }
 }
+
+.logo-container {
+    color: #fff;
+    line-height: 56px;
+    text-align: center;
+    border-radius: 28px;
+    width: 56px;
+    height: 56px;
+    cursor: pointer;
+    box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.2);
+    overflow: hidden;
+}
+
+.logo-container img {
+    max-width: 100%;
+}
