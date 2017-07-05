@@ -4,7 +4,7 @@ import { App } from '../components';
 
 const mapStateToProps = state => ({
   isMessengerVisible: state.isVisible,
-  color: connection.data.uiOptions && connection.data.uiOptions.color,
+  uiOptions: connection.data.uiOptions || {},
 });
 
 export default connect(mapStateToProps)(App);
