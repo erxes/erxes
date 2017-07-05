@@ -11,6 +11,8 @@ widgetConnect({
   connectMutation: (event) => {
     const setting = event.data.setting;
 
+    connection.setting = setting;
+
     // call connect mutation
     return connect({
       brandCode: setting.brand_id,
