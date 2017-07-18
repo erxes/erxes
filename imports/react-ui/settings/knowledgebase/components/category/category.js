@@ -8,7 +8,6 @@ import {
   Modal,
 } from 'react-bootstrap';
 import ReactMarkdown from 'react-markdown';
-import SelectBrand from '../SelectBrand';
 
 class KbCategory extends Component {
   constructor(props, context) {
@@ -25,8 +24,6 @@ class KbCategory extends Component {
           <ControlLabel>Name</ControlLabel>
           <FormControl type="text" defaultValue={group.title} required />
         </FormGroup>
-
-        <SelectBrand brands={this.props.brands} defaultValue={group.brandId} />
 
         <Modal.Footer>
           <ButtonToolbar className="pull-right">

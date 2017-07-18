@@ -1,3 +1,6 @@
 import KbCategoryList from './category_list';
+import KbCategory from './category';
 
-export { KbCategoryList };
+console.log('KbCategory 3:', KbCategory);
+
+export { KbCategoryList, KbCategory };

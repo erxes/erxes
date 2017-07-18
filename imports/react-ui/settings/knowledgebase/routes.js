@@ -17,13 +17,13 @@ knowledgebase.route('/', {
   },
 });
 
-// knowledgebase.route('/add', {
-//   name: 'settings/knowledgebase/add',
+knowledgebase.route('/add', {
+  name: 'settings/knowledgebase/add',
 
-//   action() {
-//     mount(MainLayout, { content: <AddKnowledgeBase /> });
-//   },
-// });
+  action() {
+    mount(MainLayout, { content: <AddKnowledgeBase /> });
+  },
+});
 
 knowledgebase.route('/categories/', {
   name: 'settings/knowledgebase/categories',
@@ -37,6 +37,6 @@ knowledgebase.route('/categories/add', {
   name: 'settings/knowledgebase/categories/add',
 
   action() {
-    mount(MainLayout, { content: <AddKnowledgeBase /> });
+    mount(MainLayout, { content: <AddCategory /> });
   },
 });

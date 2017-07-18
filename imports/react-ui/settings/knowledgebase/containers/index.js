@@ -1,4 +1,6 @@
 import { KbTopicList, KbTopic } from './topic';
-import { KbCategoryList } from './category';
+import { KbCategoryList, KbCategory } from './category';
 
-export { KbTopicList, KbCategoryList, KbTopic };
+console.log('KbCategory 4: ', KbCategory);
+
+export { KbTopicList, KbCategoryList, KbTopic, KbCategory };

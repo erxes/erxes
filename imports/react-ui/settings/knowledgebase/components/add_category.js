@@ -7,19 +7,19 @@ import Sidebar from '../../Sidebar';
 import { KbCategory } from '../containers';
 
 function AddCategory() {
-  const triggerKbTopic = (
+  const triggerKbCategory = (
     <Button>
-      Add kb topic
+      Add kb category
     </Button>
   );
 
   const content = (
     <div className="margined type-box">
       <div className="box">
-        <h2>Knowledge base topic</h2>
+        <h2>Knowledge base category</h2>
 
-        <ModalTrigger title="Add category" trigger={triggerKbTopic}>
-          <KbTopic />
+        <ModalTrigger title="Add category" trigger={triggerKbCategory}>
+          <KbCategory />
         </ModalTrigger>
       </div>
     </div>

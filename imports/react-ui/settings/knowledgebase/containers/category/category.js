@@ -5,17 +5,11 @@ import { getTrackerLoader, composerOptions } from '/imports/react-ui/utils';
 import { KbCategory } from '../../components';
 import { saveCallback } from '../utils';
 
+console.log('KbCategory 2: ', KbCategory);
+
 const composer = (props, onData) => {
-  const brandsHandler = Meteor.subscribe('brands.list', 0);
-  const brands = Brands.find().fetch();
-
   const save = doc => saveCallback({ doc }, 'addKbCategory', 'editKbCategory', props.integration);
-
-  if (brandsHandler.ready()) {
-    return onData(null, { brands, save });
-  }
-
-  return null;
+  return onData(null, { save });
 };
 
 export default compose(getTrackerLoader(composer), composerOptions({ spinner: true }))(KbCategory);
