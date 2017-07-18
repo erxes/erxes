@@ -8,7 +8,7 @@ import {
   Modal,
 } from 'react-bootstrap';
 import ReactMarkdown from 'react-markdown';
-import SelectBrand from './SelectBrand';
+import SelectBrand from '../SelectBrand';
 
 class KbTopic extends Component {
   constructor(props, context) {

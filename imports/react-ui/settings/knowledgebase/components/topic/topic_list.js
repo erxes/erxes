@@ -1,33 +1,35 @@
-import React, { PropTypes } from 'react';
+import React, { Component, PropTypes } from 'react';
 import { Table, Button } from 'react-bootstrap';
 import { FlowRouter } from 'meteor/kadira:flow-router';
 import { Wrapper } from '/imports/react-ui/layout/components';
 import { Pagination } from '/imports/react-ui/common';
-import Sidebar from '../../Sidebar';
-import CategoryRow from './category';
-import { CommonList } from './common';
+import Sidebar from '../../../Sidebar';
+import KbTopicRow from './topic_row';
+import { CommonList } from '../common';
 
 const propTypes = {
   items: PropTypes.array.isRequired,
+  brands: PropTypes.array.isRequired,
   removeItem: PropTypes.func.isRequired,
   loadMore: PropTypes.func.isRequired,
   hasMore: PropTypes.bool.isRequired,
 };
 
-class CategoryList extends CommonList {
+class KbTopicList extends CommonList {
   constructor(props) {
     super(props);
   }
 
   renderItems() {
     const { items, removeItem } = this.props;
+    console.log('this.props: ', this.props);
 
-    return items.map(item => <CategoryRow key={item._id} item={item} removeItem={removeItem} />);
+    return items.map(item => <KbTopicRow key={item._id} item={item} removeItem={removeItem} />);
   }
 
   getHeader() {
     const breadcrumb = [
-      { title: 'Knowledge base', link: '/settings/knowledgebase' },
+      { title: 'Topics', link: '/settings/knowledgebase' },
       { title: 'Categories' },
     ];
 
@@ -36,8 +38,8 @@ class CategoryList extends CommonList {
 
   getActionBar() {
     const actionBarLeft = (
-      <Button bsStyle="link" href={FlowRouter.path('settings/knowledgebase/categories/add')}>
-        <i className="ion-plus-circled" /> Add category
+      <Button bsStyle="link" href={FlowRouter.path('settings/knowledgebase/add')}>
+        <i className="ion-plus-circled" /> Add topic
       </Button>
     );
 
@@ -46,12 +48,14 @@ class CategoryList extends CommonList {
 
   getContent() {
     const { loadMore, hasMore } = this.props;
+
     return (
       <Pagination loadMore={loadMore} hasMore={hasMore}>
         <Table>
           <thead>
             <tr>
               <th>Name</th>
+              <th>Kind</th>
               <th>Brand</th>
               <th width="183" className="text-right">Actions</th>
             </tr>
@@ -65,6 +69,6 @@ class CategoryList extends CommonList {
   }
 }
 
-CategoryList.propTypes = propTypes;
+KbTopicList.propTypes = propTypes;
 
-export default CategoryList;
+export default KbTopicList;

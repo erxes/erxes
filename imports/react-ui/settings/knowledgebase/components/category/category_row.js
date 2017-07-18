@@ -2,26 +2,25 @@ import React, { PropTypes, Component } from 'react';
 import { Button } from 'react-bootstrap';
 import Alert from 'meteor/erxes-notifier';
 import { ModalTrigger, Tip, ActionButtons } from '/imports/react-ui/common';
-import { KbTopic } from '../containers';
 
 const propTypes = {
-  kbTopic: PropTypes.object.isRequired,
-  removeKbTopic: PropTypes.func.isRequired,
+  item: PropTypes.object.isRequired,
+  removeItem: PropTypes.func.isRequired,
 };
 
-class Row extends Component {
+class KbCategoryRow extends Component {
   constructor(props) {
     super(props);
 
-    this.removeKbTopic = this.removeKbTopic.bind(this);
+    this.removeItem = this.removeItem.bind(this);
   }
 
-  removeKbTopic() {
+  removeItem() {
     if (!confirm('Are you sure?')) return; // eslint-disable-line
 
-    const { kbGroup, removeKbTopic } = this.props;
+    const { item, removeItem } = this.props;
 
-    removeKbTopic(kbGroup._id, error => {
+    removeItem(item._id, error => {
       if (error) {
         return Alert.error("Can't delete a integration", error.reason);
       }
@@ -31,8 +30,8 @@ class Row extends Component {
   }
 
   renderExtraLinks() {
-    const kbTopic = this.props.kbTopic;
-    const kind = kbTopic.kind;
+    const item = this.props.item;
+    const kind = item.kind;
 
     const editTrigger = (
       <Button bsStyle="link">
@@ -44,11 +43,11 @@ class Row extends Component {
   }
 
   render() {
-    const kbTopic = this.props.kbTopic;
+    const item = this.props.item;
 
     return (
       <tr>
-        <td>{kbTopic.name}</td>
+        <td>{item.name}</td>
         <td />
         <td />
 
@@ -57,7 +56,7 @@ class Row extends Component {
             {this.renderExtraLinks()}
 
             <Tip text="Delete">
-              <Button bsStyle="link" onClick={this.removeKbTopic}>
+              <Button bsStyle="link" onClick={this.removeItem}>
                 <i className="ion-close-circled" />
               </Button>
             </Tip>
@@ -68,6 +67,6 @@ class Row extends Component {
   }
 }
 
-Row.propTypes = propTypes;
+KbCategoryRow.propTypes = propTypes;
 
-export default Row;
+export default KbCategoryRow;

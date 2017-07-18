@@ -3,7 +3,7 @@ import { getTrackerLoader, composerOptions } from '/imports/react-ui/utils';
 import { Meteor } from 'meteor/meteor';
 import { KbCategories } from '/imports/api/knowledgebase/collections';
 import { pagination } from '/imports/react-ui/common';
-import { CategoryList } from '../components';
+import { KbCategoryList } from '../../components';
 
 function categoriesComposer({ queryParams }, onData) {
   const { limit, loadMore, hasMore } = pagination(queryParams, 'kb_categories.list.count'); // TODO
@@ -28,4 +28,4 @@ function categoriesComposer({ queryParams }, onData) {
   }
 }
 
-export default compose(getTrackerLoader(categoriesComposer), composerOptions({}))(CategoryList);
+export default compose(getTrackerLoader(categoriesComposer), composerOptions({}))(KbCategoryList);

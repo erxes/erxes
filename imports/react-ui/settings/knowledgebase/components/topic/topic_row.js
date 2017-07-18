@@ -2,25 +2,26 @@ import React, { PropTypes, Component } from 'react';
 import { Button } from 'react-bootstrap';
 import Alert from 'meteor/erxes-notifier';
 import { ModalTrigger, Tip, ActionButtons } from '/imports/react-ui/common';
+import { KbTopic } from '../../containers';
 
 const propTypes = {
   item: PropTypes.object.isRequired,
   removeItem: PropTypes.func.isRequired,
 };
 
-class CategoryRow extends Component {
+class KbTopicRow extends Component {
   constructor(props) {
     super(props);
 
-    this.removeItem = this.removeItem.bind(this);
+    this.removeKbTopic = this.removeKbTopic.bind(this);
   }
 
-  removeItem() {
+  removeKbTopic() {
     if (!confirm('Are you sure?')) return; // eslint-disable-line
 
-    const { item, removeItem } = this.props;
+    const { kbGroup, removeKbTopic } = this.props;
 
-    removeItem(item._id, error => {
+    removeKbTopic(kbGroup._id, error => {
       if (error) {
         return Alert.error("Can't delete a integration", error.reason);
       }
@@ -44,6 +45,7 @@ class CategoryRow extends Component {
 
   render() {
     const item = this.props.item;
+    console.log('item: ', item);
 
     return (
       <tr>
@@ -67,6 +69,6 @@ class CategoryRow extends Component {
   }
 }
 
-CategoryRow.propTypes = propTypes;
+KbTopicRow.propTypes = propTypes;
 
-export default CategoryRow;
+export default KbTopicRow;

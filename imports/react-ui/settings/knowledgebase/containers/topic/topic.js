@@ -2,8 +2,8 @@ import { Brands } from '/imports/api/brands/brands';
 import { Meteor } from 'meteor/meteor';
 import { compose } from 'react-komposer';
 import { getTrackerLoader, composerOptions } from '/imports/react-ui/utils';
-import { KbTopic } from '../components';
-import { saveCallback } from './utils';
+import { KbTopic } from '../../components';
+import { saveCallback } from '../utils';
 
 const composer = (props, onData) => {
   const brandsHandler = Meteor.subscribe('brands.list', 0);

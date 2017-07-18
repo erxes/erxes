@@ -4,7 +4,7 @@ import { Meteor } from 'meteor/meteor';
 import { KbTopics } from '/imports/api/knowledgebase/collections';
 import { Brands } from '/imports/api/brands/brands';
 import { pagination } from '/imports/react-ui/common';
-import { TopicList } from '../components';
+import { KbTopicList } from '../../components/topic';
 
 function topicsComposer({ queryParams }, onData) {
   const { limit, loadMore, hasMore } = pagination(queryParams, 'kb_topics.list.count'); // TODO
@@ -29,4 +29,4 @@ function topicsComposer({ queryParams }, onData) {
   }
 }
 
-export default compose(getTrackerLoader(topicsComposer), composerOptions({}))(TopicList);
+export default compose(getTrackerLoader(topicsComposer), composerOptions({}))(KbTopicList);

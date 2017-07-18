@@ -2,7 +2,7 @@ import React from 'react';
 import { mount } from 'react-mounter';
 import { MainLayout } from '/imports/react-ui/layout/containers';
 import settingsRoute from '../routes';
-import { TopicList, CategoryList } from './containers';
+import { KbTopicList } from './containers';
 import { AddKnowledgeBase } from './components';
 
 const knowledgebase = settingsRoute.group({
@@ -13,30 +13,30 @@ knowledgebase.route('/', {
   name: 'settings/knowledgebase/list',
 
   action(params, queryParams) {
-    mount(MainLayout, { content: <TopicList queryParams={queryParams} /> });
+    mount(MainLayout, { content: <KbTopicList queryParams={queryParams} /> });
   },
 });
 
-knowledgebase.route('/add', {
-  name: 'settings/knowledgebase/add',
+// knowledgebase.route('/add', {
+//   name: 'settings/knowledgebase/add',
 
-  action() {
-    mount(MainLayout, { content: <AddKnowledgeBase /> });
-  },
-});
+//   action() {
+//     mount(MainLayout, { content: <AddKnowledgeBase /> });
+//   },
+// });
 
-knowledgebase.route('/categories/', {
-  name: 'settings/knowledgebase/categories',
+// knowledgebase.route('/categories/', {
+//   name: 'settings/knowledgebase/categories',
 
-  action(params, queryParams) {
-    mount(MainLayout, { content: <CategoryList queryParams={queryParams} /> });
-  },
-});
+//   action(params, queryParams) {
+//     mount(MainLayout, { content: <KbCategoryList queryParams={queryParams} /> });
+//   },
+// });
 
-knowledgebase.route('/categories/add', {
-  name: 'settings/knowledgebase/categories/add',
+// knowledgebase.route('/categories/add', {
+//   name: 'settings/knowledgebase/categories/add',
 
-  action() {
-    mount(MainLayout, { content: <AddKnowledgeBase /> });
-  },
-});
+//   action() {
+//     mount(MainLayout, { content: <AddKnowledgeBase /> });
+//   },
+// });
