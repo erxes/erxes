@@ -93,6 +93,12 @@ function Sidebar() {
               <i className="icon ion-arrow-right-b" />Categories
             </a>
           </li>
+
+          <li>
+            <a href={'/settings/knowledgebase/articles'}>
+              <i className="icon ion-arrow-right-b" />Articles
+            </a>
+          </li>
         </ul>
       </Wrapper.Sidebar.Section>
 

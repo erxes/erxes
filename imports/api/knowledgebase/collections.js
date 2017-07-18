@@ -6,7 +6,7 @@ import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 
 export const KbTopics = new Mongo.Collection('knowledgebase_topics');
 export const KbCategories = new Mongo.Collection('knowledgebase_categories');
-export const KBArticles = new Mongo.Collection('knowledgebase_articles');
+export const KbArticles = new Mongo.Collection('knowledgebase_articles');
 
 /* ----------------------- Schemas ----------------------- */
 
@@ -44,13 +44,13 @@ KbCategories.schema = new SimpleSchema({
     type: String,
     optional: true,
   },
-  groupId: {
+  topicId: {
     type: String,
   },
 });
 
 // articles
-KBArticles.schema = new SimpleSchema({
+KbArticles.schema = new SimpleSchema({
   title: {
     type: String,
   },
@@ -60,7 +60,7 @@ KBArticles.schema = new SimpleSchema({
   content: {
     type: String,
   },
-  topicId: {
+  categoryId: {
     type: String,
   },
 });
@@ -73,8 +73,8 @@ KbTopics.attachSchema(KbBaseSchema);
 KbCategories.attachSchema(KbCategories.schema);
 KbCategories.attachSchema(KbBaseSchema);
 
-KBArticles.attachSchema(KBArticles.schema);
-KBArticles.attachSchema(KbBaseSchema);
+KbArticles.attachSchema(KbArticles.schema);
+KbArticles.attachSchema(KbBaseSchema);
 
 Factory.define('knowledgebase_group', KbTopics, {
   title: () => faker.random.word(),
