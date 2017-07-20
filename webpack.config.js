@@ -12,7 +12,8 @@ module.exports = {
     messengerWidget: './client/messenger/widget/index.js',
     form: './client/form/index.js',
     formWidget: './client/form/widget/index.js',
-    knowledgeBaseWidget: './client/messenger/widget/index.js',
+    knowledgebase: './client/knowledgebase/index.js',
+    knowledgebaseWidget: './client/knowledgebase/widget/index.js',
   },
 
   output: {

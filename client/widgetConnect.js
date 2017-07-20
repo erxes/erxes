@@ -5,6 +5,7 @@ import ReactDOM from 'react-dom';
 import { ApolloProvider } from 'react-apollo';
 import client, { createStore } from './apollo-client';
 
+
 // base connect function for all widgets
 const widgetConnect = (params) => {
   const {

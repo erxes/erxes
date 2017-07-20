@@ -24,7 +24,7 @@ erxesContainer.className = 'erxes-messenger-hidden';
 // add iframe
 let iframe = document.createElement('iframe');
 iframe.id = iframeId;
-iframe.src = `${ROOT_URL}/messenger`;
+iframe.src = `${ROOT_URL}/knowledgebase`;
 iframe.style.display = 'none';
 
 erxesContainer.appendChild(iframe);

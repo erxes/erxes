@@ -49,6 +49,10 @@ app.get('/kb-test', (req, res) => {
   res.render('knowledgebase-test');
 });
 
+app.get('/knowledgebase', (req, res) => {
+  res.render('widget', { type: 'knowledgebase' });
+});
+
 const port = process.env.PORT || 3200;
 
 app.listen(port, () => {
