@@ -106,10 +106,6 @@ export const messengerSchema = new SimpleSchema({
     type: Boolean,
     optional: true,
   },
-  hideConversationList: {
-    type: Boolean,
-    optional: true,
-  },
   onlineHours: {
     type: [onlineHoursSchema],
     optional: true,
