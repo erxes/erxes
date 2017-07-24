@@ -24,7 +24,6 @@ class Availability extends Component {
     this.state = {
       availabilityMethod: props.prevOptions.availabilityMethod || 'manual',
       isOnline: props.prevOptions.isOnline || false,
-      hideConversationList: props.prevOptions.hideConversationList || false,
       timezone: props.prevOptions.timezone || '',
       onlineHours: props.prevOptions.onlineHours || [],
       welcomeMessage: props.prevOptions.welcomeMessage || '',
@@ -35,7 +34,6 @@ class Availability extends Component {
     this.save = this.save.bind(this);
     this.onMethodChange = this.onMethodChange.bind(this);
     this.onIsOnlineChange = this.onIsOnlineChange.bind(this);
-    this.onIsHideConversationListChange = this.onIsHideConversationListChange.bind(this);
     this.onTimezoneChange = this.onTimezoneChange.bind(this);
     this.onOnlineHoursChange = this.onOnlineHoursChange.bind(this);
     this.onWelcomeMessageChange = this.onWelcomeMessageChange.bind(this);
@@ -49,10 +47,6 @@ class Availability extends Component {
 
   onIsOnlineChange(e) {
     this.setState({ isOnline: e.target.checked });
-  }
-
-  onIsHideConversationListChange(e) {
-    this.setState({ hideConversationList: e.target.checked });
   }
 
   onTimezoneChange(e) {
@@ -114,26 +108,6 @@ class Availability extends Component {
     );
   }
 
-  renderHideConversationList() {
-    return (
-      <div>
-        <h2>Hide conversation list</h2>
-
-        <FormGroup>
-          <Toggle
-            className="wide"
-            checked={this.state.hideConversationList}
-            onChange={this.onIsHideConversationListChange}
-            icons={{
-              checked: <span>True</span>,
-              unchecked: <span>False</span>,
-            }}
-          />
-        </FormGroup>
-      </div>
-    );
-  }
-
   render() {
     const content = (
       <div className="margined type-box">
@@ -175,8 +149,6 @@ class Availability extends Component {
                 onChange={this.onThankYouMessageChange}
               />
             </FormGroup>
-
-            {this.renderHideConversationList()}
           </Col>
           <Col md={7}>
             <h2>Hours & Availability</h2>

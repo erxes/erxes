@@ -36,13 +36,18 @@ class RightSidebar extends Component {
   renderMessengerData() {
     const customer = this.props.conversation.customer();
     const integration = this.props.conversation.integration();
+
     if (integration.kind === 'messenger') {
-      return customer.getMessengerCustomData().map(data => (
+      return customer.getMessengerCustomData().map(data =>
         <li key={data.value}>
-          <span>{data.name}</span>
-          <span className="counter">{data.value}</span>
-        </li>
-      ));
+          <span>
+            {data.name}
+          </span>
+          <span className="counter">
+            {data.value}
+          </span>
+        </li>,
+      );
     }
 
     return null;
@@ -56,7 +61,9 @@ class RightSidebar extends Component {
         <li>
           <span>Facebook profile</span>
           <span className="counter">
-            <a target="_blank" rel="noopener noreferrer" href={link}>[view]</a>
+            <a target="_blank" rel="noopener noreferrer" href={link}>
+              [view]
+            </a>
           </span>
         </li>
       );
@@ -74,7 +81,9 @@ class RightSidebar extends Component {
         <li>
           Facebook URL
           <span className="counter">
-            <a target="_blank" href={link} rel="noopener noreferrer">[view]</a>
+            <a target="_blank" href={link} rel="noopener noreferrer">
+              [view]
+            </a>
           </span>
         </li>
       );
@@ -101,9 +110,7 @@ class RightSidebar extends Component {
 
             <li>
               Is User
-              <span className="counter">
-                {Boolean(customer.isUser).toString()}
-              </span>
+              <span className="counter">{Boolean(customer.isUser).toString()}</span>
             </li>
 
             {this.renderMessengerData()}
@@ -124,27 +131,25 @@ class RightSidebar extends Component {
           <ul className="sidebar-list no-link">
             <li>
               Opened
-              <span className="counter">
-                {moment(conversation.createdAt).fromNow()}
-              </span>
+              <span className="counter">{moment(conversation.createdAt).fromNow()}</span>
             </li>
             <li>
               Channels
               <div className="value">
-                {integration.channels().map(c => <span key={c._id}>{c.name}</span>)}
+                {integration.channels().map(c =>
+                  <span key={c._id}>
+                    {c.name}
+                  </span>,
+                )}
               </div>
             </li>
             <li>
               Brand
-              <span className="counter">
-                {integration.brand().name}
-              </span>
+              <span className="counter">{integration.brand().name}</span>
             </li>
             <li>
               Integration
-              <span className="counter">
-                {integration.kind}
-              </span>
+              <span className="counter">{integration.kind}</span>
             </li>
             <li>
               Conversations
@@ -196,11 +201,11 @@ class RightSidebar extends Component {
         <Wrapper.Sidebar.Section>
           <Title>Participators</Title>
           <ul className="sidebar-list no-link">
-            {conversation.participatedUsers().map(user => (
+            {conversation.participatedUsers().map(user =>
               <li key={user._id}>
                 <NameCard user={user} avatarSize={45} />
-              </li>
-            ))}
+              </li>,
+            )}
             {conversation.participatedUsers().length === 0
               ? <EmptyState
                   icon={<i className="ion-at" />}
@@ -240,12 +245,12 @@ class RightSidebar extends Component {
           </Collapse>
 
           <ul className="sidebar-list no-link">
-            {conversation.tags().map(tag => (
+            {conversation.tags().map(tag =>
               <li key={tag._id}>
                 <i className="icon ion-pricetag" style={{ color: tag.colorCode }} />
                 {tag.name}
-              </li>
-            ))}
+              </li>,
+            )}
             {conversation.tags().length === 0
               ? <EmptyState
                   icon={<i className="ion-pricetags" />}
