@@ -53,14 +53,22 @@ class MessagesList extends Component {
     return null;
   }
 
-  renderEmailPrompt() {
+  renderEmailPrompt(color) {
     if (!this.props.isObtainedEmail) {
       return (
         <li className="erxes-spacial-message ml50">
           <label htmlFor="visitor-email">Get notified</label>
           <div className="ask-email">
-            <input id="visitor-email" placeholder="email@domain.com" />
-            <button onClick={this.props.saveEmail} />
+            <input
+              id="visitor-email"
+              placeholder="email@domain.com"
+              style={{ borderColor: color }}
+            />
+
+            <button
+              onClick={this.props.saveEmail}
+              style={{ backgroundColor: color }}
+            />
           </div>
         </li>
       );
@@ -71,9 +79,12 @@ class MessagesList extends Component {
 
   render() {
     const { data, messages } = this.props;
-    const bg = data.uiOptions && data.uiOptions.wallpaper;
+    const uiOptions = data.uiOptions || {};
+    const bg = uiOptions.wallpaper;
+    const color = uiOptions.color;
     const messengerData = data.messengerData;
     const messagesClasses = classNames('erxes-messages-list', { [`bg-${bg}`]: bg });
+
     return (
       <ul
         className={messagesClasses}
@@ -86,7 +97,7 @@ class MessagesList extends Component {
           )
         }
         {this.renderAwayMessage(messengerData)}
-        {this.renderEmailPrompt()}
+        {this.renderEmailPrompt(color)}
       </ul>
     );
   }

@@ -29,3 +29,25 @@ export const connect = variables =>
 
     variables,
   });
+
+
+// get local storage
+const getLocalStorage = () =>
+  JSON.parse(localStorage.getItem('erxes') || '{}');
+
+
+// get local storage item
+export const getLocalStorageItem = (key) => {
+  const erxesStorage = getLocalStorage();
+
+  return erxesStorage[key];
+};
+
+// set local storage item
+export const setLocalStorageItem = (key, value) => {
+  const erxesStorage = getLocalStorage();
+
+  erxesStorage[key] = value;
+
+  localStorage.setItem('erxes', JSON.stringify(erxesStorage));
+};

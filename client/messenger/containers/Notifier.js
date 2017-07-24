@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import { graphql } from 'react-apollo';
 import { Notifier as DumbNotifier } from '../components';
 import { changeRoute, toggle, changeConversation, toggleNotifer } from '../actions/messenger';
-import { readEngageMessage } from '../actions/messages';
+import { readEngageMessage, readMessages } from '../actions/messages';
 
 import { connection } from '../connection';
 import NotificationSubscriber from './NotificationSubscriber';
@@ -21,9 +21,12 @@ class Notifier extends NotificationSubscriber {
       return null;
     }
 
+    const uiOptions = connection.data.uiOptions || {};
+
     const extendedProps = {
       ...this.props,
       lastUnreadMessage,
+      color: uiOptions.color,
     };
 
     return <DumbNotifier {...extendedProps} />;
@@ -46,7 +49,12 @@ const mapDisptachToProps = dispatch => ({
     dispatch(changeConversation(conversationId));
 
     // mark as read
-    dispatch(readEngageMessage({ conversationId, engageData }));
+    dispatch(readMessages(conversationId));
+
+    // if engage message then add this customer to received list
+    if (engageData) {
+      dispatch(readEngageMessage({ engageData }));
+    }
 
     toggleNotifer();
 
