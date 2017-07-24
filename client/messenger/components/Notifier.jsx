@@ -6,6 +6,7 @@ import { User, EngageMessage } from '../components';
 const propTypes = {
   lastUnreadMessage: PropTypes.object,
   readMessage: PropTypes.func,
+  color: PropTypes.string,
 };
 
 class Notifier extends React.Component {
@@ -54,18 +55,22 @@ class Notifier extends React.Component {
 
   renderClass() {
     const { lastUnreadMessage } = this.props;
+
     if (lastUnreadMessage.engageData) {
       return `erxes-notification ${lastUnreadMessage.engageData.sentAs}`;
     }
+
     return 'erxes-notification';
   }
 
   render() {
-    const { lastUnreadMessage, readMessage } = this.props;
+    const { lastUnreadMessage, readMessage, color } = this.props;
+
     if (lastUnreadMessage._id) {
       return (
         <div
           className={this.renderClass()}
+          style={{ backgroundColor: color }}
           onClick={() => readMessage({
             conversationId: lastUnreadMessage.conversationId,
             engageData: lastUnreadMessage.engageData,
