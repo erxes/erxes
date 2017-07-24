@@ -6,10 +6,11 @@ const propTypes = {
   conversations: PropTypes.array.isRequired,
   createConversation: PropTypes.func.isRequired,
   goToConversation: PropTypes.func.isRequired,
+  color: PropTypes.string,
 };
 
 function ConversationList({ conversations, createConversation,
-  goToConversation }) {
+  goToConversation, color }) {
   const title = (
     <div className="erxes-topbar-title">
       <div>Conversations</div>
@@ -18,7 +19,7 @@ function ConversationList({ conversations, createConversation,
   );
 
   return (
-    <div className="erxes-messenger">
+    <div className="erxes-messenger" style={{ border: `2px solid ${color}` }}>
       <TopBar
         middle={title}
         buttonClass="new"
