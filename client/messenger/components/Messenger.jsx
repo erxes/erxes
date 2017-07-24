@@ -4,15 +4,16 @@ import { ConversationList, Conversation } from '../containers';
 
 const propTypes = {
   activeRoute: PropTypes.string.isRequired,
+  color: PropTypes.string.isRequired,
 };
 
-function Messenger({ activeRoute }) {
+function Messenger({ activeRoute, color }) {
   switch (activeRoute) {
     case 'conversation':
-      return <Conversation />;
+      return <Conversation color={color} />;
     default:
     case 'conversationList':
-      return <ConversationList />;
+      return <ConversationList color={color} />;
   }
 }
 

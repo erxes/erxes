@@ -79,16 +79,4 @@ const ListWithData = graphql(
   },
 )(ConversationList);
 
-const Container = (props) => {
-  const messengerData = connection.data.messengerData || {};
-
-  if (messengerData.hideConversationList) {
-    const fakeData = { data: { conversations: [] } };
-
-    return <ConversationList {... { ...props, ...fakeData }} />;
-  }
-
-  return <ListWithData {...props} />;
-};
-
-export default connect(() => ({}), mapDisptachToProps)(Container);
+export default connect(() => ({}), mapDisptachToProps)(ListWithData);

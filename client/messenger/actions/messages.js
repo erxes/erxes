@@ -18,9 +18,7 @@ export const readMessages = conversationId =>
     },
   });
 
-export const readEngageMessage = ({ conversationId, engageData }) => (dispatch) => {
-  dispatch(readMessages(conversationId));
-
+export const readEngageMessage = ({ engageData }) => () =>
   client.mutate({
     mutation: gql`
       mutation readEngageMessage($messageId: String!, $customerId: String!) {
@@ -32,7 +30,6 @@ export const readEngageMessage = ({ conversationId, engageData }) => (dispatch) 
       customerId: connection.data.customerId,
     },
   });
-};
 
 export const sendMessage = (message, attachments) =>
   (dispatch, getState) => {

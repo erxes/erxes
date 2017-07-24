@@ -3,7 +3,7 @@
 import gql from 'graphql-tag';
 
 import { MESSENGER_TOGGLE, CHANGE_ROUTE, CHANGE_CONVERSATION, SAVED_EMAIL } from '../constants';
-import { connection } from '../connection';
+import { connection, setLocalStorageItem, getLocalStorageItem } from '../connection';
 import client from '../../apollo-client';
 
 export const toggle = (isVisible) => {
@@ -46,15 +46,24 @@ export const changeRoute = route => ({
   route,
 });
 
-export const changeActiveConversation = conversationId => ({
-  type: CHANGE_CONVERSATION,
-  conversationId,
-});
+export const changeConversation = (conversationId) => {
+  // save last conversationId
+  setLocalStorageItem('lastConversationId', conversationId);
 
-export const changeConversation = conversationId =>
-  (dispatch) => {
-    dispatch(changeActiveConversation(conversationId));
+  return {
+    type: CHANGE_CONVERSATION,
+    conversationId,
   };
+};
+
+export const openLastConversation = () => {
+  const conversationId = getLocalStorageItem('lastConversationId');
+
+  return {
+    type: CHANGE_CONVERSATION,
+    conversationId,
+  };
+};
 
 export const saveEmail = email => dispatch =>
   client.mutate({
