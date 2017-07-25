@@ -1,6 +1,6 @@
 import gql from 'graphql-tag';
 import { SENDING_ATTACHMENT, ATTACHMENT_SENT, ASK_EMAIL } from '../constants';
-import { connection } from '../connection';
+import { connection, getLocalStorageItem } from '../connection';
 import { changeConversation } from './messenger';
 import client from '../../apollo-client';
 import uploadHandler, { uploadFile } from '../../uploadHandler';
@@ -33,8 +33,8 @@ export const readEngageMessage = ({ engageData }) => () =>
 
 export const sendMessage = (message, attachments) =>
   (dispatch, getState) => {
-    // if visitor then ask for email
-    if (!connection.setting.email) {
+    // if visitor did not give email then ask for email
+    if (!connection.setting.email && !getLocalStorageItem('visitorEmail')) {
       dispatch({ type: ASK_EMAIL });
     }
 
@@ -74,8 +74,8 @@ export const sendMessage = (message, attachments) =>
 
 export const sendFile = file =>
   (dispatch, getState) => {
-    // if visitor then ask for email
-    if (!connection.setting.email) {
+    // if visitor did not give email then ask for email
+    if (!connection.setting.email && !getLocalStorageItem('visitorEmail')) {
       dispatch({ type: ASK_EMAIL });
     }
 
