@@ -1,6 +1,6 @@
 import React, { PropTypes } from 'react';
 import classNames from 'classnames';
-import { Messenger, Launcher, Notifier } from '../containers';
+import { KnowledgeBase, Launcher, Notifier } from '../containers';
 
 function App({ isMessengerVisible, uiOptions }) {
   const widgetClasses = classNames('erxes-widget', { opened: isMessengerVisible });
@@ -9,7 +9,7 @@ function App({ isMessengerVisible, uiOptions }) {
     <div className={widgetClasses}>
       { isMessengerVisible ? null : <Notifier /> }
 
-      <Messenger />
+      <KnowledgeBase />
       <Launcher uiOptions={uiOptions} />
     </div>
   );

@@ -1,6 +1,6 @@
 import App from './App';
 import TopBar from './TopBar';
-import Messenger from './Messenger';
+import Topic from './Topic';
 import Message from './Message';
 import ConversationList from './ConversationList';
 import ConversationItem from './ConversationItem';
@@ -14,7 +14,7 @@ import MessagesList from './MessagesList';
 export {
   App,
   TopBar,
-  Messenger,
+  Topic,
   Message,
   ConversationList,
   ConversationItem,

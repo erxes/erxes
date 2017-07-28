@@ -1,9 +1,9 @@
 import { connect } from 'react-redux';
-import { Messenger } from '../components';
+import { Topic } from '../components';
 
 
 const mapStateToProps = state => ({
   activeRoute: state.activeRoute,
 });
 
-export default connect(mapStateToProps)(Messenger);
+export default connect(mapStateToProps)(Topic);

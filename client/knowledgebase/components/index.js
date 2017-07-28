@@ -1,7 +1,7 @@
 import App from './App';
 import Attachment from './Attachment';
 import TopBar from './TopBar';
-import Messenger from './Messenger';
+import Topic from './Topic';
 import ConversationList from './ConversationList';
 import ConversationItem from './ConversationItem';
 import Conversation from './Conversation';
@@ -18,7 +18,7 @@ export {
   App,
   Attachment,
   TopBar,
-  Messenger,
+  Topic,
   ConversationList,
   ConversationItem,
   Conversation,

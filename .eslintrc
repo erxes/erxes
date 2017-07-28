@@ -4,7 +4,8 @@
   ],
   "parserOptions":{
     "ecmaFeatures": {
-      "experimentalObjectRestSpread": true
+      "experimentalObjectRestSpread": true,
+      "jsx": true,
     }
   },
   "rules": {
@@ -16,6 +17,9 @@
     "window": true,
     "localStorage": true,
     "$": true,
-    "document": true
+    "document": true,
+  },
+  "env": {
+    "es6": true,
   }
 }
