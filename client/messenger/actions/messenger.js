@@ -80,5 +80,8 @@ export const saveEmail = email => dispatch =>
 
   // after mutation
   .then(() => {
+    // save email
+    setLocalStorageItem('visitorEmail', email);
+
     dispatch({ type: SAVED_EMAIL });
   });
