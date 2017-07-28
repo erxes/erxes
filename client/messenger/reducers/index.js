@@ -41,7 +41,7 @@ const activeRoute = (state = 'conversationList', action) => {
  */
 const activeConversation = (state = '', action) => {
   if (action.type === CHANGE_CONVERSATION) {
-    return action.conversationId;
+    return action.conversationId || '';
   }
 
   return state;
