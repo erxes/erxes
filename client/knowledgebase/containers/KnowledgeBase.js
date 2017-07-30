@@ -13,6 +13,10 @@ const KnowledgeBase = (props) => {
     ...props,
   };
 
+  if (props.data.loading) {
+    return null;
+  }
+
   return <DumbKnowledgeBase {...extendedProps} />;
 };
 
@@ -34,6 +38,7 @@ KnowledgeBase.propTypes = {
         })),
       })),
     }),
+    loading: PropTypes.bool,
   }),
 };
 

@@ -5,18 +5,17 @@ import Category from './Category';
 export default class KnowledgeBase extends React.Component {
 
   renderCategories() {
-    console.log('props 2: ', this.props);
     const { kbTopic } = this.props;
-    // const categories = kbTopic.categories;
+    const categories = kbTopic.categories;
 
-    // return categories.map((category) => {
-    //   return (
-    //     <Category
-    //       key={category._id}
-    //       category={category}
-    //     />
-    //   );
-    // });
+    return categories.map((category) => {
+      return (
+        <Category
+          key={category._id}
+          category={category}
+        />
+      );
+    });
   }
 
   renderTopic() {
@@ -35,10 +34,6 @@ export default class KnowledgeBase extends React.Component {
   }
 
   render() {
-    const { kbTopic } = this.props;
-    console.log('props: ', this.props);
-    console.log('KnowledgeBase.kbTopic: ', kbTopic);
-
     return this.renderTopic();
   }
 }
