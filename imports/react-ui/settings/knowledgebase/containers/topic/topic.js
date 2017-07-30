@@ -9,7 +9,8 @@ const composer = (props, onData) => {
   const brandsHandler = Meteor.subscribe('brands.list', 0);
   const brands = Brands.find().fetch();
 
-  const save = doc => saveCallback({ doc }, 'addKbTopic', 'editKbTopic', props.item);
+  const save = doc =>
+    saveCallback({ doc }, 'addKbTopic', 'editKbTopic', props.item, '/settings/knowledgebase');
 
   if (brandsHandler.ready()) {
     return onData(null, { brands, save });

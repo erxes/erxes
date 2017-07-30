@@ -2,7 +2,7 @@ import { Meteor } from 'meteor/meteor';
 import { FlowRouter } from 'meteor/kadira:flow-router';
 import Alert from 'meteor/erxes-notifier';
 
-export const saveCallback = (paramsDic, addMethodName, editMethodName, item) => {
+export const saveCallback = (paramsDic, addMethodName, editMethodName, item, redirectPath) => {
   let methodName = `knowledgebase.${addMethodName}`;
   let params = { ...paramsDic };
 
@@ -17,6 +17,6 @@ export const saveCallback = (paramsDic, addMethodName, editMethodName, item) => 
     }
 
     Alert.success('Congrats');
-    return FlowRouter.go('/settings/knowledgebase/', {}, FlowRouter.current().queryParams);
+    return FlowRouter.go(redirectPath, {}, FlowRouter.current().queryParams);
   });
 };

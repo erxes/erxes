@@ -1,22 +1,31 @@
 import React from 'react';
 import { Button } from 'react-bootstrap';
-import { FlowRouter } from 'meteor/kadira:flow-router';
 import { Wrapper } from '/imports/react-ui/layout/components';
 import { ModalTrigger } from '/imports/react-ui/common';
 import Sidebar from '../../Sidebar';
-import { KbCategory } from '../containers';
+import { KbTopic, KbCategory } from '../containers';
 
-function AddCategory() {
+function AddKnowledgeBase() {
+  const triggerKbTopic = (
+    <Button>
+      Add a topic
+    </Button>
+  );
+
   const triggerKbCategory = (
     <Button>
-      Add kb category
+      Add a category
     </Button>
   );
 
   const content = (
     <div className="margined type-box">
       <div className="box">
-        <h2>Knowledge base category</h2>
+        <h2>Knowledge base topic</h2>
+
+        <ModalTrigger title="Add topic" trigger={triggerKbTopic}>
+          <KbTopic />
+        </ModalTrigger>
 
         <ModalTrigger title="Add category" trigger={triggerKbCategory}>
           <KbCategory />
@@ -42,4 +51,4 @@ function AddCategory() {
   );
 }
 
-export default AddCategory;
+export default AddKnowledgeBase;

@@ -2,9 +2,11 @@ import React, { PropTypes, Component } from 'react';
 import { Button } from 'react-bootstrap';
 import Alert from 'meteor/erxes-notifier';
 import { ModalTrigger, Tip, ActionButtons } from '/imports/react-ui/common';
+import { KbCategory } from '../../containers';
 
 const propTypes = {
   item: PropTypes.object.isRequired,
+  topics: PropTypes.array.isRequired,
   removeItem: PropTypes.func.isRequired,
 };
 
@@ -12,10 +14,10 @@ class KbCategoryRow extends Component {
   constructor(props) {
     super(props);
 
-    this.removeItem = this.removeItem.bind(this);
+    this.remove = this.remove.bind(this);
   }
 
-  removeItem() {
+  remove() {
     if (!confirm('Are you sure?')) return; // eslint-disable-line
 
     const { item, removeItem } = this.props;
@@ -29,9 +31,8 @@ class KbCategoryRow extends Component {
     });
   }
 
-  renderExtraLinks() {
-    const item = this.props.item;
-    const kind = item.kind;
+  render() {
+    const { item, topics } = this.props;
 
     const editTrigger = (
       <Button bsStyle="link">
@@ -39,24 +40,20 @@ class KbCategoryRow extends Component {
       </Button>
     );
 
-    return null;
-  }
-
-  render() {
-    const item = this.props.item;
-
     return (
       <tr>
-        <td>{item.name}</td>
-        <td />
-        <td />
+        <td>{item.title}</td>
+        <td>{item.description}</td>
+        <td>{item.topic().title}</td>
 
         <td className="text-right">
           <ActionButtons>
-            {this.renderExtraLinks()}
+            <ModalTrigger title="Edit category" trigger={editTrigger}>
+              <KbCategory item={item} topics={topics} />
+            </ModalTrigger>
 
             <Tip text="Delete">
-              <Button bsStyle="link" onClick={this.removeItem}>
+              <Button bsStyle="link" onClick={this.remove}>
                 <i className="ion-close-circled" />
               </Button>
             </Tip>

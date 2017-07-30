@@ -48,7 +48,7 @@ class KbTopicRow extends Component {
 
         <td className="text-right">
           <ActionButtons>
-            <ModalTrigger title="Edit integration" trigger={editTrigger}>
+            <ModalTrigger title="Edit category" trigger={editTrigger}>
               <KbTopic item={item} brands={brands} />
             </ModalTrigger>
 

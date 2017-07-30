@@ -3,12 +3,12 @@ import { Table, Button } from 'react-bootstrap';
 import { FlowRouter } from 'meteor/kadira:flow-router';
 import { Wrapper } from '/imports/react-ui/layout/components';
 import { Pagination } from '/imports/react-ui/common';
-import Sidebar from '../../../Sidebar';
-import CategoryRow from './category_row';
+import CategoryRow from './row';
 import { CommonList } from '../common';
 
 const propTypes = {
   items: PropTypes.array.isRequired,
+  topics: PropTypes.array.isRequired,
   removeItem: PropTypes.func.isRequired,
   loadMore: PropTypes.func.isRequired,
   hasMore: PropTypes.bool.isRequired,
@@ -20,9 +20,11 @@ class KbCategoryList extends CommonList {
   }
 
   renderItems() {
-    const { items, removeItem } = this.props;
+    const { items, topics, removeItem } = this.props;
 
-    return items.map(item => <CategoryRow key={item._id} item={item} removeItem={removeItem} />);
+    return items.map(item => (
+      <CategoryRow key={item._id} item={item} topics={topics} removeItem={removeItem} />
+    ));
   }
 
   getHeader() {
@@ -36,8 +38,8 @@ class KbCategoryList extends CommonList {
 
   getActionBar() {
     const actionBarLeft = (
-      <Button bsStyle="link" href={FlowRouter.path('settings/knowledgebase/categories/add')}>
-        <i className="ion-plus-circled" /> Add category
+      <Button bsStyle="link" href={FlowRouter.path('settings/knowledgebase/add')}>
+        <i className="ion-plus-circled" /> Add
       </Button>
     );
 
@@ -52,7 +54,8 @@ class KbCategoryList extends CommonList {
           <thead>
             <tr>
               <th>Name</th>
-              <th>Brand</th>
+              <th>Description</th>
+              <th>Topic</th>
               <th width="183" className="text-right">Actions</th>
             </tr>
           </thead>

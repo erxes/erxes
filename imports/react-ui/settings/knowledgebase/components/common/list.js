@@ -31,7 +31,7 @@ class CommonList extends React.Component {
   getActionBar() {
     const actionBarLeft = (
       <Button bsStyle="link" href={FlowRouter.path('settings/knowledgebase/add')}>
-        <i className="ion-plus-circled" /> Add topic
+        <i className="ion-plus-circled" /> Add
       </Button>
     );
 

@@ -22,6 +22,7 @@ const KbBaseSchema = new SimpleSchema({
   },
 });
 
+// topics
 KbTopics.schema = new SimpleSchema({
   title: {
     type: String,
@@ -40,7 +41,7 @@ KbTopics.schema = new SimpleSchema({
   },
 });
 
-// topics
+// categories
 KbCategories.schema = new SimpleSchema({
   title: {
     type: String,
@@ -51,6 +52,7 @@ KbCategories.schema = new SimpleSchema({
   },
   topicId: {
     type: String,
+    regEx: SimpleSchema.RegEx.Id,
   },
 });
 
@@ -83,6 +85,12 @@ KbTopics.helpers({
 
 KbCategories.attachSchema(KbCategories.schema);
 KbCategories.attachSchema(KbBaseSchema);
+
+KbCategories.helpers({
+  topic() {
+    return KbTopics.findOne(this.topicId) || {};
+  },
+});
 
 KbArticles.attachSchema(KbArticles.schema);
 KbArticles.attachSchema(KbBaseSchema);

@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, PropTypes } from 'react';
 import {
   FormGroup,
   ControlLabel,
@@ -7,7 +7,7 @@ import {
   ButtonToolbar,
   Modal,
 } from 'react-bootstrap';
-import ReactMarkdown from 'react-markdown';
+import SelectTopic from '../SelectTopic';
 
 class KbCategory extends Component {
   constructor(props, context) {
@@ -16,14 +16,22 @@ class KbCategory extends Component {
   }
 
   render() {
-    const group = this.props.group || {};
+    const item = this.props.item || {};
+    const { topics } = this.props;
 
     return (
       <form className="margined" onSubmit={this.handleSubmit}>
-        <FormGroup controlId="knowledgebase-title">
-          <ControlLabel>Name</ControlLabel>
-          <FormControl type="text" defaultValue={group.title} required />
+        <FormGroup controlId="knowledgebase-category-title">
+          <ControlLabel>Title</ControlLabel>
+          <FormControl type="text" defaultValue={item.title} required />
         </FormGroup>
+
+        <FormGroup controlId="knowledgebase-category-description">
+          <ControlLabel>Description</ControlLabel>
+          <FormControl type="text" defaultValue={item.description} />
+        </FormGroup>
+
+        <SelectTopic topics={topics} defaultValue={item.topicId} />
 
         <Modal.Footer>
           <ButtonToolbar className="pull-right">
@@ -37,13 +45,23 @@ class KbCategory extends Component {
   handleSubmit(e) {
     e.preventDefault();
 
-    // this.context.closeModal(); // TODO
+    this.context.closeModal();
 
     this.props.save({
-      title: document.getElementById('knowledgebase-title').value,
-      brandId: document.getElementById('selectBrand').value,
+      title: document.getElementById('knowledgebase-category-title').value,
+      description: document.getElementById('knowledgebase-category-description').value,
+      topicId: document.getElementById('selectTopic').value,
     });
   }
 }
+
+KbCategory.propTypes = {
+  ...KbCategory.propTypes,
+  topics: PropTypes.array.isRequired, // eslint-disable-line
+};
+
+KbCategory.contextTypes = {
+  closeModal: PropTypes.func.isRequired,
+};
 
 export default KbCategory;

@@ -1,7 +1,7 @@
 import { check } from 'meteor/check';
 import { ValidatedMethod } from 'meteor/mdg:validated-method';
 import { ErxesMixin } from '/imports/api/utils';
-import { KbTopics } from '../collections';
+import { KbTopics, KbCategories } from '../collections';
 
 // add
 export const addKbTopic = new ValidatedMethod({
@@ -32,7 +32,7 @@ export const editKbTopic = new ValidatedMethod({
   },
 });
 
-// edit
+// remove
 export const removeKbTopic = new ValidatedMethod({
   name: 'knowledgebase.removeKbTopic',
   mixins: [ErxesMixin],
@@ -43,5 +43,48 @@ export const removeKbTopic = new ValidatedMethod({
 
   run(id) {
     return KbTopics.remove(id);
+  },
+});
+
+// add
+export const addKbCategory = new ValidatedMethod({
+  name: 'knowledgebase.addKbCategory',
+  mixins: [ErxesMixin],
+
+  validate({ doc }) {
+    check(doc, { title: String, description: String, topicId: String });
+  },
+
+  run({ doc }) {
+    return KbCategories.insert(Object.assign(doc));
+  },
+});
+
+// edit
+export const editKbCategory = new ValidatedMethod({
+  name: 'knowledgebase.editKbCategory',
+  mixins: [ErxesMixin],
+
+  validate({ _id, doc }) {
+    check(_id, String);
+    check(doc, { title: String, description: String, topicId: String });
+  },
+
+  run({ _id, doc }) {
+    return KbCategories.update({ _id }, { $set: doc });
+  },
+});
+
+// remove
+export const removeKbCategory = new ValidatedMethod({
+  name: 'knowledgebase.removeKbCategory',
+  mixins: [ErxesMixin],
+
+  validate(id) {
+    check(id, String);
+  },
+
+  run(id) {
+    return KbCategories.remove(id);
   },
 });
