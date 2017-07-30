@@ -33,6 +33,10 @@ KbTopics.schema = new SimpleSchema({
     type: String,
     optional: true,
   },
+  brandId: {
+    type: String,
+    regEx: SimpleSchema.RegEx.Id,
+  },
 });
 
 // topics

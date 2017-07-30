@@ -3,7 +3,7 @@ import { mount } from 'react-mounter';
 import { MainLayout } from '/imports/react-ui/layout/containers';
 import settingsRoute from '../routes';
 import { KbTopicList, KbCategoryList, KbArticleList } from './containers';
-import { AddKnowledgeBase, AddCategory } from './components';
+import { AddTopic, AddCategory } from './components';
 
 const knowledgebase = settingsRoute.group({
   prefix: '/knowledgebase',
@@ -21,7 +21,7 @@ knowledgebase.route('/add', {
   name: 'settings/knowledgebase/add',
 
   action() {
-    mount(MainLayout, { content: <AddKnowledgeBase /> });
+    mount(MainLayout, { content: <AddTopic /> });
   },
 });
 

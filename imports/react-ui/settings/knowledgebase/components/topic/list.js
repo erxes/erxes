@@ -1,10 +1,9 @@
-import React, { Component, PropTypes } from 'react';
+import React, { PropTypes } from 'react';
 import { Table, Button } from 'react-bootstrap';
 import { FlowRouter } from 'meteor/kadira:flow-router';
 import { Wrapper } from '/imports/react-ui/layout/components';
 import { Pagination } from '/imports/react-ui/common';
-import Sidebar from '../../../Sidebar';
-import KbTopicRow from './topic_row';
+import KbTopicRow from './row';
 import { CommonList } from '../common';
 
 const propTypes = {
@@ -22,7 +21,6 @@ class KbTopicList extends CommonList {
 
   renderItems() {
     const { items, removeItem } = this.props;
-    console.log('this.props: ', this.props);
 
     return items.map(item => <KbTopicRow key={item._id} item={item} removeItem={removeItem} />);
   }
@@ -54,8 +52,8 @@ class KbTopicList extends CommonList {
         <Table>
           <thead>
             <tr>
-              <th>Name</th>
-              <th>Kind</th>
+              <th>Title</th>
+              <th>Description</th>
               <th>Brand</th>
               <th width="183" className="text-right">Actions</th>
             </tr>

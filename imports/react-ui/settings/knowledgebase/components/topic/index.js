@@ -1,5 +1,5 @@
-import KbTopicRow from './topic_row';
+import KbTopicRow from './row';
 import KbTopic from './topic';
-import KbTopicList from './topic_list';
+import KbTopicList from './list';
 
 export { KbTopicRow, KbTopic, KbTopicList };

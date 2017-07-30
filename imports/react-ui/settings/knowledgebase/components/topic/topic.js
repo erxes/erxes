@@ -12,18 +12,10 @@ import SelectBrand from '../SelectBrand';
 
 class KbTopic extends Component {
   constructor(props, context) {
+    console.log('props: ', props);
     super(props, context);
 
-    let code = '';
-
-    // showed install code automatically in edit mode
-    if (props.group) {
-      const brand = Brands.findOne(props.group.brandId);
-      code = this.constructor.getInstallCode(brand.code);
-    }
-
     this.state = {
-      code,
       copied: false,
     };
 

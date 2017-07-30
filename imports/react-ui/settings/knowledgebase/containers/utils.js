@@ -17,6 +17,6 @@ export const saveCallback = (paramsDic, addMethodName, editMethodName, integrati
     }
 
     Alert.success('Congrats');
-    return FlowRouter.go('/settings/knowledgebase/list', {}, FlowRouter.current().queryParams);
+    return FlowRouter.go('/settings/knowledgebase/', {}, FlowRouter.current().queryParams);
   });
 };
