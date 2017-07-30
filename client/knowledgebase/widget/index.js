@@ -40,7 +40,7 @@ iframe.onload = () => {
   iframe.contentWindow.postMessage({
     fromPublisher: true,
     setting: {
-      ...window.erxesSettings.messenger,
+      ...window.erxesSettings.knowledgeBase,
       browserInfo: {
         url: location.pathname, // eslint-disable-line
         language: parent.navigator.language, // eslint-disable-line

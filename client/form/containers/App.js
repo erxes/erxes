@@ -1,5 +1,5 @@
 import { connect } from 'react-redux';
-import { App } from '../components';
+import App from '../components/App';
 import { closeModal } from '../actions';
 import { connection } from '../connection';
 

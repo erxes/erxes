@@ -1,51 +1,32 @@
-/* eslint-disable react/jsx-filename-extension */
-
-import { wsClient } from '../apollo-client';
-import widgetConnect from '../widgetConnect';
-import { connection, connect } from './connection';
-import reducers from './reducers';
+import { ApolloProvider } from 'react-apollo';
+import React from 'react';
+import ReactDOM from 'react-dom';
+import client, { createStore } from '../apollo-client';
 import { App } from './containers';
-import './sass/style.scss';
+import { connection } from './connection';
 
+window.addEventListener('message', (event) => {
+  if (!(event.data.fromPublisher && event.data.setting)) {
+    return;
+  }
 
-widgetConnect({
-  connectMutation: (event) => {
-    const setting = event.data.setting;
+  console.log('setting: ', event.data.setting);
 
-    connection.setting = setting;
+  connection.data.topicId = event.data.setting.topic_id;
+  // notify parent window that connected
+  // window.parent.postMessage({
+  //   fromErxes: true,
+  //   fromKnowledgeBase: true,
+  //   action: 'connected',
+  //   connectionInfo: data,
+  //   setting: event.data.setting,
+  // }, '*');
 
-    // call connect mutation
-    return connect({
-      brandCode: setting.brand_id,
-      email: setting.email,
+  ReactDOM.render(
+    <ApolloProvider store={createStore({})} client={client}>
+      <App />
+    </ApolloProvider>,
+    document.getElementById('root'),
+  );
 
-      cachedCustomerId: localStorage.getItem('erxesCustomerId'),
-
-      // if client passed email automatically then consider this as user
-      isUser: Boolean(setting.email),
-
-      name: setting.name,
-      data: setting.data,
-      browserInfo: setting.browserInfo,
-    });
-  },
-
-  connectCallback: (data) => {
-    const messengerData = data.messengerConnect;
-
-    // save connection info
-    connection.data = messengerData;
-
-    // save customer id to identify visitor next time
-    localStorage.setItem('erxesCustomerId', messengerData.customerId);
-
-    // send connected message to ws server and server will save given
-    // data to connection. So when connection closed, we will use
-    // customerId to mark customer as not active
-    wsClient.sendMessage({ type: 'messengerConnected', value: messengerData });
-  },
-
-  AppContainer: App,
-
-  reducers,
 });

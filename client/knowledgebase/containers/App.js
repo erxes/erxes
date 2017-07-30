@@ -3,8 +3,12 @@ import { connection } from '../connection';
 import { App } from '../components';
 
 const mapStateToProps = state => ({
-  isMessengerVisible: state.isVisible,
+  isKbVisible: state.isVisible,
   uiOptions: connection.data.uiOptions || {},
 });
 
-export default connect(mapStateToProps)(App);
+const mapDisptachToProps = dispatch => ({
+});
+
+
+export default connect(mapStateToProps, mapDisptachToProps)(App);

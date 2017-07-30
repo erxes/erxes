@@ -1,26 +1,19 @@
 import App from './App';
-import TopBar from './TopBar';
 import Topic from './Topic';
 import Message from './Message';
-import ConversationList from './ConversationList';
-import ConversationItem from './ConversationItem';
 import Conversation from './Conversation';
-import Launcher from './Launcher';
 import Notifier from './Notifier';
 import MessageSender from './MessageSender';
 import MessagesList from './MessagesList';
-
+import KnowledgeBase from './KnowledgeBase';
 
 export {
   App,
-  TopBar,
   Topic,
   Message,
-  ConversationList,
-  ConversationItem,
   Conversation,
-  Launcher,
   Notifier,
   MessageSender,
   MessagesList,
+  KnowledgeBase,
 };

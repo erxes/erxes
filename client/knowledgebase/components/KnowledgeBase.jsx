@@ -1,15 +1,63 @@
 import React, { PropTypes } from 'react';
-import { Topic } from '../containers';
 
+import Category from './Category';
 
-const propTypes = {
-  activeRoute: PropTypes.string.isRequired,
-};
+export default class KnowledgeBase extends React.Component {
 
-function KnowledgeBase() {
-  return <Topic />;
+  renderCategories() {
+    console.log('props 2: ', this.props);
+    const { kbTopic } = this.props;
+    // const categories = kbTopic.categories;
+
+    // return categories.map((category) => {
+    //   return (
+    //     <Category
+    //       key={category._id}
+    //       category={category}
+    //     />
+    //   );
+    // });
+  }
+
+  renderTopic() {
+    return (
+      <div className="erxes-form">
+        <div className="erxes-topbar thiner">
+          <div className="erxes-middle">
+            <div className="erxes-topbar-title" />
+          </div>
+        </div>
+        <div className="erxes-form-content">
+          {this.renderCategories()}
+        </div>
+      </div>
+    );
+  }
+
+  render() {
+    const { kbTopic } = this.props;
+    console.log('props: ', this.props);
+    console.log('KnowledgeBase.kbTopic: ', kbTopic);
+
+    return this.renderTopic();
+  }
 }
 
-KnowledgeBase.propTypes = propTypes;
+KnowledgeBase.propTypes = {
+  kbTopic: PropTypes.shape({
+    title: PropTypes.string,
+    description: PropTypes.string,
 
-export default KnowledgeBase;
+    categories: PropTypes.arrayOf(PropTypes.shape({
+      _id: PropTypes.string.isRequired,
+      title: PropTypes.string,
+      description: PropTypes.string,
+
+      articles: PropTypes.arrayOf(PropTypes.shape({
+        _id: PropTypes.string.isRequired,
+        title: PropTypes.string,
+        description: PropTypes.string,
+      })),
+    })),
+  }),
+};
