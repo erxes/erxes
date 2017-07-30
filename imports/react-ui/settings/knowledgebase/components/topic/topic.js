@@ -1,4 +1,4 @@
-import React, { PropTypes, Component } from 'react';
+import React, { PropTypes } from 'react';
 import {
   FormGroup,
   ControlLabel,
@@ -9,16 +9,15 @@ import {
 } from 'react-bootstrap';
 import ReactMarkdown from 'react-markdown';
 import SelectBrand from '../SelectBrand';
+import { CommonItem } from '../common';
 
-class KbTopic extends Component {
+class KbTopic extends CommonItem {
   constructor(props, context) {
     super(props, context);
 
     this.state = {
       copied: false,
     };
-
-    this.handleSubmit = this.handleSubmit.bind(this);
   }
 
   render() {
@@ -66,10 +65,7 @@ class KbTopic extends Component {
   }
 
   handleSubmit(e) {
-    e.preventDefault();
-
-    this.context.closeModal();
-
+    super.handleSubmit(e);
     this.props.save({
       title: document.getElementById('knowledgebase-title').value,
       description: document.getElementById('knowledgebase-description').value,
@@ -79,12 +75,8 @@ class KbTopic extends Component {
 }
 
 KbTopic.propTypes = {
+  ...KbTopic.propTypes,
   brands: PropTypes.array.isRequired, // eslint-disable-line
-  save: PropTypes.func.isRequired,
-};
-
-KbTopic.contextTypes = {
-  closeModal: PropTypes.func.isRequired,
 };
 
 export default KbTopic;
