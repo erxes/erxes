@@ -23,16 +23,21 @@ class KbTopic extends Component {
   }
 
   render() {
-    const group = this.props.group || {};
+    const topic = this.props.topic || {};
 
     return (
       <form className="margined" onSubmit={this.handleSubmit}>
         <FormGroup controlId="knowledgebase-title">
-          <ControlLabel>Name</ControlLabel>
-          <FormControl type="text" defaultValue={group.title} required />
+          <ControlLabel>Title</ControlLabel>
+          <FormControl type="text" defaultValue={topic.title} required />
         </FormGroup>
 
-        <SelectBrand brands={this.props.brands} defaultValue={group.brandId} />
+        <FormGroup controlId="knowledgebase-description">
+          <ControlLabel>Description</ControlLabel>
+          <FormControl type="text" defaultValue={topic.description} />
+        </FormGroup>
+
+        <SelectBrand brands={this.props.brands} defaultValue={topic.brandId} />
 
         <FormGroup controlId="install-code">
           <ControlLabel>Install code</ControlLabel>
@@ -67,6 +72,7 @@ class KbTopic extends Component {
 
     this.props.save({
       title: document.getElementById('knowledgebase-title').value,
+      description: document.getElementById('knowledgebase-description').value,
       brandId: document.getElementById('selectBrand').value,
     });
   }

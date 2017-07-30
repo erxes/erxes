@@ -1,8 +1,7 @@
 import React, { PropTypes, Component } from 'react';
 import { Button } from 'react-bootstrap';
 import Alert from 'meteor/erxes-notifier';
-import { ModalTrigger, Tip, ActionButtons } from '/imports/react-ui/common';
-import { KbTopic } from '../../containers';
+import { Tip, ActionButtons } from '/imports/react-ui/common';
 
 const propTypes = {
   item: PropTypes.object.isRequired,
@@ -19,9 +18,9 @@ class KbTopicRow extends Component {
   removeKbTopic() {
     if (!confirm('Are you sure?')) return; // eslint-disable-line
 
-    const { kbGroup, removeKbTopic } = this.props;
+    const { item, removeItem } = this.props;
 
-    removeKbTopic(kbGroup._id, error => {
+    removeItem(item._id, error => {
       if (error) {
         return Alert.error("Can't delete a integration", error.reason);
       }
@@ -31,9 +30,6 @@ class KbTopicRow extends Component {
   }
 
   renderExtraLinks() {
-    const item = this.props.item;
-    const kind = item.kind;
-
     const editTrigger = (
       <Button bsStyle="link">
         <Tip text="Edit"><i className="ion-edit" /></Tip>
@@ -48,9 +44,9 @@ class KbTopicRow extends Component {
 
     return (
       <tr>
-        <td>{item.name}</td>
-        <td />
-        <td />
+        <td>{item.title}</td>
+        <td>{item.description}</td>
+        <td>{item.brand}</td>
 
         <td className="text-right">
           <ActionButtons>
