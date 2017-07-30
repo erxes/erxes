@@ -1,11 +1,13 @@
 import React, { PropTypes, Component } from 'react';
 import { Button } from 'react-bootstrap';
 import Alert from 'meteor/erxes-notifier';
-import { Tip, ActionButtons } from '/imports/react-ui/common';
+import { ModalTrigger, Tip, ActionButtons } from '/imports/react-ui/common';
+import { KbTopic } from '../../containers';
 
 const propTypes = {
   item: PropTypes.object.isRequired,
   removeItem: PropTypes.func.isRequired,
+  brands: PropTypes.array.isRequired,
 };
 
 class KbTopicRow extends Component {
@@ -29,18 +31,14 @@ class KbTopicRow extends Component {
     });
   }
 
-  renderExtraLinks() {
+  render() {
+    const { item, brands } = this.props;
+
     const editTrigger = (
       <Button bsStyle="link">
         <Tip text="Edit"><i className="ion-edit" /></Tip>
       </Button>
     );
-
-    return null;
-  }
-
-  render() {
-    const item = this.props.item;
 
     return (
       <tr>
@@ -50,7 +48,9 @@ class KbTopicRow extends Component {
 
         <td className="text-right">
           <ActionButtons>
-            {this.renderExtraLinks()}
+            <ModalTrigger title="Edit integration" trigger={editTrigger}>
+              <KbTopic item={item} brands={brands} />
+            </ModalTrigger>
 
             <Tip text="Delete">
               <Button bsStyle="link" onClick={this.remove}>

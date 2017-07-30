@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { PropTypes, Component } from 'react';
 import {
   FormGroup,
   ControlLabel,
@@ -12,7 +12,6 @@ import SelectBrand from '../SelectBrand';
 
 class KbTopic extends Component {
   constructor(props, context) {
-    console.log('props: ', props);
     super(props, context);
 
     this.state = {
@@ -23,21 +22,22 @@ class KbTopic extends Component {
   }
 
   render() {
-    const topic = this.props.topic || {};
+    const item = this.props.item || {};
+    const { brands } = this.props;
 
     return (
       <form className="margined" onSubmit={this.handleSubmit}>
         <FormGroup controlId="knowledgebase-title">
           <ControlLabel>Title</ControlLabel>
-          <FormControl type="text" defaultValue={topic.title} required />
+          <FormControl type="text" defaultValue={item.title} required />
         </FormGroup>
 
         <FormGroup controlId="knowledgebase-description">
           <ControlLabel>Description</ControlLabel>
-          <FormControl type="text" defaultValue={topic.description} />
+          <FormControl type="text" defaultValue={item.description} />
         </FormGroup>
 
-        <SelectBrand brands={this.props.brands} defaultValue={topic.brandId} />
+        <SelectBrand brands={brands} defaultValue={item.brandId} />
 
         <FormGroup controlId="install-code">
           <ControlLabel>Install code</ControlLabel>
@@ -68,7 +68,7 @@ class KbTopic extends Component {
   handleSubmit(e) {
     e.preventDefault();
 
-    // this.context.closeModal(); // TODO
+    this.context.closeModal();
 
     this.props.save({
       title: document.getElementById('knowledgebase-title').value,
@@ -77,5 +77,14 @@ class KbTopic extends Component {
     });
   }
 }
+
+KbTopic.propTypes = {
+  brands: PropTypes.array.isRequired, // eslint-disable-line
+  save: PropTypes.func.isRequired,
+};
+
+KbTopic.contextTypes = {
+  closeModal: PropTypes.func.isRequired,
+};
 
 export default KbTopic;

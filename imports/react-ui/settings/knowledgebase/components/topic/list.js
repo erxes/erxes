@@ -20,9 +20,11 @@ class KbTopicList extends CommonList {
   }
 
   renderItems() {
-    const { items, removeItem } = this.props;
+    const { items, brands, removeItem } = this.props;
 
-    return items.map(item => <KbTopicRow key={item._id} item={item} removeItem={removeItem} />);
+    return items.map(item => (
+      <KbTopicRow key={item._id} item={item} brands={brands} removeItem={removeItem} />
+    ));
   }
 
   getHeader() {

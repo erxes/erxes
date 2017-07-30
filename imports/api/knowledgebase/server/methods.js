@@ -24,7 +24,7 @@ export const editKbTopic = new ValidatedMethod({
 
   validate({ _id, doc }) {
     check(_id, String);
-    check(doc, { name: String, description: String, brandId: String });
+    check(doc, { title: String, description: String, brandId: String });
   },
 
   run({ _id, doc }) {
