@@ -1,3 +1,4 @@
-import KbArticleList from './article_list';
+import KbArticleList from './list';
+import KbArticle from './article';
 
-export { KbArticleList };
+export { KbArticleList, KbArticle };

@@ -3,7 +3,7 @@ import { Button } from 'react-bootstrap';
 import { Wrapper } from '/imports/react-ui/layout/components';
 import { ModalTrigger } from '/imports/react-ui/common';
 import Sidebar from '../../Sidebar';
-import { KbTopic, KbCategory } from '../containers';
+import { KbTopic, KbCategory, KbArticle } from '../containers';
 
 function AddKnowledgeBase() {
   const triggerKbTopic = (
@@ -18,10 +18,16 @@ function AddKnowledgeBase() {
     </Button>
   );
 
+  const triggerKbArticle = (
+    <Button>
+      Add an article
+    </Button>
+  );
+
   const content = (
     <div className="margined type-box">
       <div className="box">
-        <h2>Knowledge base topic</h2>
+        <h2>Knowledge base</h2>
 
         <ModalTrigger title="Add topic" trigger={triggerKbTopic}>
           <KbTopic />
@@ -29,6 +35,10 @@ function AddKnowledgeBase() {
 
         <ModalTrigger title="Add category" trigger={triggerKbCategory}>
           <KbCategory />
+        </ModalTrigger>
+
+        <ModalTrigger title="Add article" trigger={triggerKbArticle}>
+          <KbArticle />
         </ModalTrigger>
       </div>
     </div>

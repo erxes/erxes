@@ -95,6 +95,12 @@ KbCategories.helpers({
 KbArticles.attachSchema(KbArticles.schema);
 KbArticles.attachSchema(KbBaseSchema);
 
+KbArticles.helpers({
+  category() {
+    return KbCategories.findOne(this.categoryId) || {};
+  },
+});
+
 Factory.define('knowledgebase_group', KbTopics, {
   title: () => faker.random.word(),
   description: () => faker.random.word(),
