@@ -15,7 +15,7 @@ function topicsComposer({ queryParams }, onData) {
   const brands = Brands.find().fetch();
 
   const removeItem = (id, callback) => {
-    Meteor.call('kb_topics.remove', id, callback);
+    Meteor.call('knowledgebase.removeKbTopic', id, callback);
   };
 
   if (kbTopicsHandler.ready() && brandsHandler.ready()) {

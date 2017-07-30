@@ -31,3 +31,17 @@ export const editKbTopic = new ValidatedMethod({
     return KbTopics.update({ _id }, { $set: doc });
   },
 });
+
+// edit
+export const removeKbTopic = new ValidatedMethod({
+  name: 'knowledgebase.removeKbTopic',
+  mixins: [ErxesMixin],
+
+  validate(id) {
+    check(id, String);
+  },
+
+  run(id) {
+    return KbTopics.remove(id);
+  },
+});

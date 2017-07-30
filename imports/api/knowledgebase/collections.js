@@ -3,6 +3,7 @@ import { Random } from 'meteor/random';
 import { Factory } from 'meteor/dburles:factory';
 import { Mongo } from 'meteor/mongo';
 import { SimpleSchema } from 'meteor/aldeed:simple-schema';
+import { Brands } from '/imports/api/brands/brands';
 
 export const KbTopics = new Mongo.Collection('knowledgebase_topics');
 export const KbCategories = new Mongo.Collection('knowledgebase_categories');
@@ -73,6 +74,12 @@ KbArticles.schema = new SimpleSchema({
 
 KbTopics.attachSchema(KbTopics.schema);
 KbTopics.attachSchema(KbBaseSchema);
+
+KbTopics.helpers({
+  brand() {
+    return Brands.findOne(this.brandId) || {};
+  },
+});
 
 KbCategories.attachSchema(KbCategories.schema);
 KbCategories.attachSchema(KbBaseSchema);

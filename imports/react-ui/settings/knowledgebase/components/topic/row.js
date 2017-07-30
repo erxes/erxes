@@ -12,10 +12,10 @@ class KbTopicRow extends Component {
   constructor(props) {
     super(props);
 
-    this.removeKbTopic = this.removeKbTopic.bind(this);
+    this.remove = this.remove.bind(this);
   }
 
-  removeKbTopic() {
+  remove() {
     if (!confirm('Are you sure?')) return; // eslint-disable-line
 
     const { item, removeItem } = this.props;
@@ -46,14 +46,14 @@ class KbTopicRow extends Component {
       <tr>
         <td>{item.title}</td>
         <td>{item.description}</td>
-        <td>{item.brand}</td>
+        <td>{item.brand().name}</td>
 
         <td className="text-right">
           <ActionButtons>
             {this.renderExtraLinks()}
 
             <Tip text="Delete">
-              <Button bsStyle="link" onClick={this.removeItem}>
+              <Button bsStyle="link" onClick={this.remove}>
                 <i className="ion-close-circled" />
               </Button>
             </Tip>
