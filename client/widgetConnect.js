@@ -26,8 +26,6 @@ const widgetConnect = (params) => {
     connectMutation(event)
 
     .then(({ data }) => {
-      console.log('connected ...'); // eslint-disable-line
-      console.log("data: ", data);
 
       // save connection info
       connectCallback(data);

@@ -19,7 +19,7 @@ const container = 'erxes-messenger-container';
 // container
 const erxesContainer = document.createElement('div');
 erxesContainer.id = container;
-erxesContainer.className = 'erxes-messenger-hidden';
+erxesContainer.className = '';
 
 // add iframe
 let iframe = document.createElement('iframe');

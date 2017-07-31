@@ -1,8 +1,26 @@
 import React, { PropTypes } from 'react';
-
+import { connection } from '../connection';
 import Category from './Category';
 
 export default class KnowledgeBase extends React.Component {
+
+  constructor(props, context) {
+    super(props, context);
+    console.log('props: ', props);
+
+    this.onChangeHandler = this.onChangeHandler.bind(this);
+  }
+
+  onChangeHandler(e) {
+    console.log('value:', e.target.value);
+    connection.data.searchString = e.target.value
+    let { data } = this.props;
+    console.log('connection.data: ', connection.data);
+    data.refetch({
+      topicId: connection.data.topicId,
+      searchString: connection.data.searchString,
+    });
+  }
 
   renderCategories() {
     const { kbTopic } = this.props;
@@ -11,6 +29,7 @@ export default class KnowledgeBase extends React.Component {
     console.log('kbTopic: ', kbTopic);
 
     return categories.map((category) => {
+      console.log('category: ', category.title);
       return (
         <Category
           key={category._id}
@@ -25,7 +44,7 @@ export default class KnowledgeBase extends React.Component {
       <div className="erxes-form">
         <div className="erxes-topbar thiner">
           <div className="erxes-middle">
-            <div className="erxes-topbar-title" />
+            <input onChange={this.onChangeHandler} value={connection.data.searchString} />
           </div>
         </div>
         <div className="erxes-form-content">

@@ -17,7 +17,7 @@ const KnowledgeBase = (props) => {
     return null;
   }
 
-  return <DumbKnowledgeBase {...extendedProps} />;
+  return <DumbKnowledgeBase {...extendedProps} data={props.data}/>;
 };
 
 KnowledgeBase.propTypes = {
@@ -75,7 +75,7 @@ const KnowledgeBaseWithData = graphql(
       fetchPolicy: 'network-only',
       variables: {
         topicId: connection.data.topicId,
-        searchString: connection.data.searchString || null,
+        searchString: connection.data.searchString,
       },
     }),
   },
