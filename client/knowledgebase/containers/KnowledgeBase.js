@@ -55,10 +55,12 @@ const KnowledgeBaseWithData = graphql(
         description
 
         categories {
+          _id
           title
           description
 
           articles {
+            _id
             title
             summary
             content
