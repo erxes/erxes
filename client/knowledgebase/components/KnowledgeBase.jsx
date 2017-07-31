@@ -8,6 +8,8 @@ export default class KnowledgeBase extends React.Component {
     const { kbTopic } = this.props;
     const categories = kbTopic.categories;
 
+    console.log('kbTopic: ', kbTopic);
+
     return categories.map((category) => {
       return (
         <Category
@@ -51,7 +53,8 @@ KnowledgeBase.propTypes = {
       articles: PropTypes.arrayOf(PropTypes.shape({
         _id: PropTypes.string.isRequired,
         title: PropTypes.string,
-        description: PropTypes.string,
+        summary: PropTypes.string,
+        content: PropTypes.string,
       })),
     })),
   }),

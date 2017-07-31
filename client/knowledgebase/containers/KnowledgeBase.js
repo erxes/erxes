@@ -34,7 +34,8 @@ KnowledgeBase.propTypes = {
         articles: PropTypes.arrayOf(PropTypes.shape({
           _id: PropTypes.string.isRequired,
           title: PropTypes.string,
-          description: PropTypes.string,
+          summary: PropTypes.string,
+          content: PropTypes.string,
         })),
       })),
     }),
@@ -51,9 +52,17 @@ const KnowledgeBaseWithData = graphql(
     query kbTopic($topicId: String!, $searchString: String) {
       kbTopic(topicId: $topicId, searchString: $searchString) {
         title
+        description
 
         categories {
           title
+          description
+
+          articles {
+            title
+            summary
+            content
+          }
         }
       }
     }
@@ -64,7 +73,7 @@ const KnowledgeBaseWithData = graphql(
       fetchPolicy: 'network-only',
       variables: {
         topicId: connection.data.topicId,
-        searchString: connection.data.searchString,
+        searchString: connection.data.searchString || null,
       },
     }),
   },
