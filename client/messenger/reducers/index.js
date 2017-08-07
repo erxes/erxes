@@ -6,6 +6,7 @@ import {
   CHANGE_CONVERSATION,
   ASK_EMAIL,
   SAVED_EMAIL,
+  END_CONVERSATION,
 } from '../constants';
 
 /**
@@ -81,12 +82,21 @@ const isObtainedEmail = (state = true, action) => {
   return state;
 };
 
+const isConversationEnded = (state = false, action) => {
+  if (action.type === END_CONVERSATION) {
+    return true;
+  }
+
+  return state;
+};
+
 const messenger = {
   isVisible,
   isObtainedEmail,
   activeRoute,
   activeConversation,
   isAttachingFile,
+  isConversationEnded,
 };
 
 export default messenger;

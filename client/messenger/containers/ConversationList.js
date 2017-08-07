@@ -1,4 +1,4 @@
-import React, { PropTypes } from 'react';
+import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
 import gql from 'graphql-tag';
 import { graphql } from 'react-apollo';
@@ -7,23 +7,31 @@ import { readMessages } from '../actions/messages';
 import { changeRoute, changeConversation } from '../actions/messenger';
 import { ConversationList as DumbConversationList } from '../components';
 
-const ConversationList = (props) => {
-  const { data } = props;
-
-  let conversations = props.data.conversations || [];
-
-  // show empty list while waiting
-  if (data.loading) {
-    conversations = [];
+class ConversationList extends Component {
+  componentDidUpdate() {
+    if (this.props.isConversationEnded) {
+      this.props.data.refetch();
+    }
   }
 
-  const extendedProps = {
-    ...props,
-    conversations,
-  };
+  render() {
+    const { data } = this.props;
 
-  return <DumbConversationList {...extendedProps} />;
-};
+    let conversations = data.conversations || [];
+
+    // show empty list while waiting
+    if (data.loading) {
+      conversations = [];
+    }
+
+    const extendedProps = {
+      ...this.props,
+      conversations,
+    };
+
+    return <DumbConversationList {...extendedProps} />;
+  }
+}
 
 ConversationList.propTypes = {
   data: PropTypes.shape({
@@ -32,7 +40,9 @@ ConversationList.propTypes = {
       content: PropTypes.string.isRequired,
       date: PropTypes.instanceOf(Date),
     })),
+    refetch: PropTypes.func,
   }),
+  isConversationEnded: PropTypes.bool,
 };
 
 
@@ -52,6 +62,10 @@ const mapDisptachToProps = dispatch => ({
     // mark as read
     dispatch(readMessages(conversationId));
   },
+});
+
+const mapStateToProps = state => ({
+  isConversationEnded: state.isConversationEnded,
 });
 
 const ListWithData = graphql(
@@ -79,4 +93,4 @@ const ListWithData = graphql(
   },
 )(ConversationList);
 
-export default connect(() => ({}), mapDisptachToProps)(ListWithData);
+export default connect(mapStateToProps, mapDisptachToProps)(ListWithData);

@@ -6,9 +6,16 @@ const propTypes = {
   buttonClass: PropTypes.string.isRequired,
   onButtonClick: PropTypes.func.isRequired,
   color: PropTypes.string,
+  endConversation: PropTypes.func,
 };
 
-function TopBar({ middle, buttonClass, onButtonClick, color }) {
+function TopBar({ middle, buttonClass, onButtonClick, color, endConversation }) {
+  const onEndConversation = () => {
+    if (confirm('Do you want to end this conversation ?')) {
+      endConversation();
+    }
+  };
+
   return (
     <div className="erxes-topbar" style={{ backgroundColor: color }}>
       <div
@@ -17,6 +24,10 @@ function TopBar({ middle, buttonClass, onButtonClick, color }) {
       />
       <div className="erxes-middle">
         {middle}
+      </div>
+
+      <div className={`topbar-button right`} onClick={onEndConversation}>
+        o
       </div>
     </div>
   );

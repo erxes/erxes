@@ -2,7 +2,14 @@
 
 import gql from 'graphql-tag';
 
-import { MESSENGER_TOGGLE, CHANGE_ROUTE, CHANGE_CONVERSATION, SAVED_EMAIL } from '../constants';
+import {
+  MESSENGER_TOGGLE,
+  CHANGE_ROUTE,
+  CHANGE_CONVERSATION,
+  SAVED_EMAIL,
+  END_CONVERSATION,
+} from '../constants';
+
 import { connection, setLocalStorageItem, getLocalStorageItem } from '../connection';
 import client from '../../apollo-client';
 
@@ -85,3 +92,17 @@ export const saveEmail = email => dispatch =>
 
     dispatch({ type: SAVED_EMAIL });
   });
+
+
+export const endConversation = () => (dispatch) => {
+  // reset local storage items
+  setLocalStorageItem('visitorEmail', '');
+  setLocalStorageItem('lastConversationId', '');
+  setLocalStorageItem('customerId', '');
+
+  // remove customerId from connection data
+  connection.data.customerId = '';
+
+  dispatch({ type: END_CONVERSATION });
+  dispatch({ type: CHANGE_CONVERSATION, conversationId: '' });
+};
