@@ -18,6 +18,7 @@ class RespondBox extends Component {
     super(props);
 
     this.state = {
+      editorKey: 'editor',
       isInternal: false,
       attachments: [],
       responseTemplate: '',
@@ -54,6 +55,9 @@ class RespondBox extends Component {
     e.preventDefault();
 
     this.addMessage();
+
+    // redrawing editor after sned button, so editor content will be reseted
+    this.setState({ editorKey: `${this.state.editorKey}Key` });
   }
 
   onSelectTemplate(responseTemplate) {
@@ -159,7 +163,7 @@ class RespondBox extends Component {
     if (attachmentsCount > 0) {
       attachmentsIndicator = (
         <div className="attachment-indicator">
-          {attachments.map(attachment => (
+          {attachments.map(attachment =>
             <div className="attachment" key={attachment.name}>
               <div className="preview">
                 <div
@@ -167,12 +171,14 @@ class RespondBox extends Component {
                   style={{ backgroundImage: `url('${attachment.url}')` }}
                 />
               </div>
-              <div className="file-name">{attachment.name}</div>
+              <div className="file-name">
+                {attachment.name}
+              </div>
               <div className="file-size">
                 ({Math.round(attachment.size / 1000)}kB)
               </div>
-            </div>
-          ))}
+            </div>,
+          )}
         </div>
       );
     }
@@ -189,6 +195,7 @@ class RespondBox extends Component {
       <div className="respond-box">
         <form id={formId} onSubmit={this.onSubmit}>
           <Editor
+            key={this.state.editorKey}
             onChange={this.onEditorContentChange}
             onAddMention={this.onAddMention}
             onShifEnter={this.onShifEnter}
@@ -202,9 +209,7 @@ class RespondBox extends Component {
           {Buttons}
         </form>
 
-        <Checkbox onChange={this.toggleForm}>
-          Internal note
-        </Checkbox>
+        <Checkbox onChange={this.toggleForm}>Internal note</Checkbox>
       </div>
     );
   }
