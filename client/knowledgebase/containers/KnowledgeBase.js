@@ -17,7 +17,7 @@ const KnowledgeBase = (props) => {
     return null;
   }
 
-  return <DumbKnowledgeBase {...extendedProps} data={props.data}/>;
+  return <DumbKnowledgeBase {...extendedProps} />;
 };
 
 KnowledgeBase.propTypes = {

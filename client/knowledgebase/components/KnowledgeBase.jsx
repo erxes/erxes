@@ -6,7 +6,7 @@ export default class KnowledgeBase extends React.Component {
 
   constructor(props, context) {
     super(props, context);
-    console.log('props: ', props);
+    console.log('KnowledgeBase.js.props: ', props);
 
     this.onChangeHandler = this.onChangeHandler.bind(this);
   }
@@ -29,7 +29,6 @@ export default class KnowledgeBase extends React.Component {
     console.log('kbTopic: ', kbTopic);
 
     return categories.map((category) => {
-      console.log('category: ', category.title);
       return (
         <Category
           key={category._id}

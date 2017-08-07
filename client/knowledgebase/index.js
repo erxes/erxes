@@ -28,5 +28,4 @@ window.addEventListener('message', (event) => {
     </ApolloProvider>,
     document.getElementById('root'),
   );
-
 });
