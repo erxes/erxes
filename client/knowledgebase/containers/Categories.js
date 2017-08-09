@@ -9,8 +9,8 @@ import { Categories as DumbCategories } from '../components';
 
 const Categories = (props) => {
   const extendedProps = {
-    kbTopic: props.data.kbTopic,
     ...props,
+    kbTopic: props.data.kbTopic,
   };
 
   if (props.data.loading) {
@@ -44,7 +44,7 @@ Categories.propTypes = {
 };
 
 const mapStateToProps = state => ({
-  currentStatus: state.currentStatus,
+
 });
 
 const CategoriesWithData = graphql(

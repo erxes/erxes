@@ -1,5 +1,4 @@
 import React, { PropTypes } from 'react';
-import { connection } from '../connection';
 import Category from './Category';
 
 export default class Categories extends React.Component {
@@ -25,8 +24,7 @@ export default class Categories extends React.Component {
   renderCategories() {
     const { kbTopic } = this.props;
     const categories = kbTopic.categories;
-    console.log('kbTopic: ', kbTopic);
-    console.log('categories: ', categories);
+    console.log('Categories.jsx.props: ', this.props);
 
     return categories.map((category) => {
       return (

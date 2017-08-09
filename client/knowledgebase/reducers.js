@@ -10,12 +10,14 @@ const displayType = (state = { displayType: CONTENT_TYPE_TOPIC,
                                topicId: connection.data.topicId }, action) => {
   switch (action.type) {
     case SWITCH_TO_ARTICLE_DISPLAY: {
+      console.log('aaa 1');
       return {
         displayType: CONTENT_TYPE_ARTICLE,
         articleId: action.articleId,
       };
     }
     case SWITCH_TO_TOPIC_DISPLAY: {
+      console.log('aaa 2');
       return {
         displayType: CONTENT_TYPE_TOPIC,
         topicId: action.topicId,
