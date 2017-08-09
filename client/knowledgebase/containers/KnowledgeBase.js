@@ -1,13 +1,18 @@
 import { connect } from 'react-redux';
-import { connection } from '../connection';
 import { KnowledgeBase } from '../components';
+import { switchToArticleDisplay, switchToTopicDisplay } from '../actions';
 
 const mapStateToProps = state => ({
-  isKbVisible: state.isVisible,
-  uiOptions: connection.data.uiOptions || {},
+  displayType: state.displayType,
 });
 
 const mapDisptachToProps = dispatch => ({
+  onSwitchToArticleDisplay() {
+    dispatch(switchToArticleDisplay);
+  },
+  onSwitchToTopicDisplay() {
+    dispatch(switchToTopicDisplay);
+  },
 });
 
 
