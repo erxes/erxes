@@ -69,13 +69,12 @@ const CategoriesWithData = graphql(
       }
     }
   `,
-
   {
-    options: () => ({
+    options: (ownProps) => ({
       fetchPolicy: 'network-only',
       variables: {
         topicId: connection.data.topicId,
-        searchString: connection.data.searchString,
+        searchString: ownProps.searchStr,
       },
     }),
   },

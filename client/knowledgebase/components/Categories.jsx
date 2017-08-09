@@ -3,9 +3,11 @@ import Category from './Category';
 
 export default class Categories extends React.Component {
 
-  constructor(props, context) {
+  constructor(props, context, aa) {
     super(props, context);
     console.log('KnowledgeBase.js.props: ', props);
+    console.log('KnowledgeBase.js.context: ', context);
+    console.log('KnowledgeBase.js.aa: ', aa);
 
     // this.onChangeHandler = this.onChangeHandler.bind(this);
   }

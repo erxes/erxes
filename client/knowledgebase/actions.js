@@ -1,8 +1,11 @@
-import { SWITCH_TO_ARTICLE_DISPLAY } from './constants';
+import {
+  SWITCH_TO_ARTICLE_DISPLAY,
+  SWITCH_TO_TOPIC_DISPLAY,
+  UPDATE_SEARCH_STRING,
+} from './constants';
 
-console.log('SWITCH_TO_ARTICLE_DISPLAY', SWITCH_TO_ARTICLE_DISPLAY);
 export const switchToArticleDisplay = (data) => {
-  console.log('dispatch: ', data);
+  console.log('dispatch.data: ', data);
   return {
     type: SWITCH_TO_ARTICLE_DISPLAY,
     articleData: {
@@ -11,6 +14,18 @@ export const switchToArticleDisplay = (data) => {
   };
 };
 
-export const switchToTopicDisplay = (dispatch) => {
-  console.log('dispatch: ', dispatch);
+export const switchToTopicDisplay = (data) => {
+  console.log('dispatch.dispatch: ', data)
+  return {
+    type: SWITCH_TO_TOPIC_DISPLAY,
+    searchStr: '',
+  };
+};
+
+export const updateSearchString = (searchStr) => {
+  console.log('updateSearchString.dispatch.dispatch: ', searchStr)
+  return {
+    type: UPDATE_SEARCH_STRING,
+    searchStr,
+  };
 };

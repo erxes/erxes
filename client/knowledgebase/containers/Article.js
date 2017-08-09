@@ -1,6 +1,6 @@
 import { connect } from 'react-redux';
 import { Article } from '../components';
-import { switchToArticleDisplay, switchToTopicDisplay } from '../actions';
+import { switchToArticleDisplay } from '../actions';
 
 const mapStateToProps = (state, ownProps) => ({
   ...ownProps,

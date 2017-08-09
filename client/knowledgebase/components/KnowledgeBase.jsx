@@ -7,6 +7,19 @@ export default class KnowledgeBase extends React.Component {
   constructor(props) {
     super(props);
     console.log('props: ', props);
+    this.onClickHandler = this.onClickHandler.bind(this);
+    this.onChangeHandler = this.onChangeHandler.bind(this);
+  }
+
+  onClickHandler(event) {
+
+  }
+
+  onChangeHandler(event) {
+    event.preventDefault();
+    console.log('KnowledgeBase.jsx.props: ', this.props);
+    const { onUpdateSearchString } = this.props;
+    onUpdateSearchString(event.target.value);
   }
 
   render() {
@@ -21,10 +34,10 @@ export default class KnowledgeBase extends React.Component {
           <div className="erxes-form">
             <div className="erxes-topbar thiner">
               <div className="erxes-middle">
-                <input />
+                <input onChange={this.onChangeHandler} />
               </div>
             </div>
-            <Categories />
+            <Categories searchStr={displayType.topicData.searchStr} />
           </div>
         </div>
       );
@@ -32,6 +45,7 @@ export default class KnowledgeBase extends React.Component {
       console.log('cccc');
       return (
         <div>
+          <div> <a href="" onClick={this.onClickHandler}>Categories</a> </div>
           <div className="erxes-form">
             <ArticleDetail articleData={displayType.articleData} />
           </div>
@@ -46,5 +60,5 @@ export default class KnowledgeBase extends React.Component {
 KnowledgeBase.propTypes = {
   displayType: PropTypes.object,
   onSwitchToTopicDisplay: PropTypes.func,
-  onSwitchToArticleDisplay: PropTypes.func,
+  onUpdateSearchString: PropTypes.func,
 };
