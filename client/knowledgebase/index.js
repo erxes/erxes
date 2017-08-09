@@ -4,6 +4,7 @@ import ReactDOM from 'react-dom';
 import client, { createStore } from '../apollo-client';
 import { App } from './containers';
 import { connection } from './connection';
+import reducers from './reducers';
 
 window.addEventListener('message', (event) => {
   if (!(event.data.fromPublisher && event.data.setting)) {
@@ -23,7 +24,7 @@ window.addEventListener('message', (event) => {
   // }, '*');
 
   ReactDOM.render(
-    <ApolloProvider store={createStore({})} client={client}>
+    <ApolloProvider store={createStore(reducers)} client={client}>
       <App />
     </ApolloProvider>,
     document.getElementById('root'),

@@ -8,19 +8,19 @@ export default class Categories extends React.Component {
     super(props, context);
     console.log('KnowledgeBase.js.props: ', props);
 
-    this.onChangeHandler = this.onChangeHandler.bind(this);
+    // this.onChangeHandler = this.onChangeHandler.bind(this);
   }
 
-  onChangeHandler(e) {
-    console.log('value:', e.target.value);
-    connection.data.searchString = e.target.value
-    let { data } = this.props;
-    console.log('connection.data: ', connection.data);
-    data.refetch({
-      topicId: connection.data.topicId,
-      searchString: connection.data.searchString,
-    });
-  }
+  // onChangeHandler(e) {
+  //   console.log('value:', e.target.value);
+  //   connection.data.searchString = e.target.value
+  //   let { data } = this.props;
+  //   console.log('connection.data: ', connection.data);
+  //   data.refetch({
+  //     topicId: connection.data.topicId,
+  //     searchString: connection.data.searchString,
+  //   });
+  // }
 
   renderCategories() {
     const { kbTopic } = this.props;
@@ -40,16 +40,8 @@ export default class Categories extends React.Component {
 
   render() {
     return (
-      <div className="erxes-form">
-        <div className="erxes-topbar thiner">
-          <div className="erxes-middle">
-            <input onChange={this.onChangeHandler} value={connection.data.searchString} />
-          </div>
-        </div>
-
-        <div>
-          {this.renderCategories()}
-        </div>
+      <div>
+        {this.renderCategories()}
       </div>
     );
   }

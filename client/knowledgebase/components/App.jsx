@@ -2,10 +2,14 @@ import React, { PropTypes } from 'react';
 import classNames from 'classnames';
 import { KnowledgeBase } from '../containers';
 
-function App({ uiOptions }) {
+function App({ displayType,
+                onSwitchToArticleDisplay, onSwitchToTopicDisplay }) {
   const widgetClasses = classNames('erxes-widget');
 
-  console.log('uiOptions: ', uiOptions);
+  console.log('onSwitchToTopicDisplay: ', onSwitchToTopicDisplay);
+  console.log('onSwitchToArticleDisplay: ', onSwitchToArticleDisplay);
+  console.log('displayType: ', displayType);
+
   return (
     <div className={widgetClasses}>
       <KnowledgeBase />
@@ -14,7 +18,9 @@ function App({ uiOptions }) {
 }
 
 App.propTypes = {
-  uiOptions: PropTypes.object,
+  displayType: PropTypes.object,
+  onSwitchToTopicDisplay: PropTypes.func,
+  onSwitchToArticleDisplay: PropTypes.func,
 };
 
 export default App;

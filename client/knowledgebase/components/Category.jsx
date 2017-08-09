@@ -1,7 +1,6 @@
 import React, { PropTypes } from 'react';
 import Article from './Article';
 
-
 export default class Category extends React.Component {
   renderArticles() {
     const { category } = this.props;
