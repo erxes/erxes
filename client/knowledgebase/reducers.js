@@ -13,7 +13,7 @@ const displayType = (state = { displayType: CONTENT_TYPE_TOPIC,
       console.log('aaa 1');
       return {
         displayType: CONTENT_TYPE_ARTICLE,
-        articleId: action.articleId,
+        articleData: action.articleData,
       };
     }
     case SWITCH_TO_TOPIC_DISPLAY: {

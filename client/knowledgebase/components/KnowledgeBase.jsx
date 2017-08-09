@@ -1,5 +1,5 @@
 import React, { PropTypes } from 'react';
-import { Categories } from '../containers';
+import { Categories, ArticleDetail } from '../containers';
 import { CONTENT_TYPE_TOPIC, CONTENT_TYPE_ARTICLE } from '../constants';
 
 
@@ -11,6 +11,8 @@ export default class KnowledgeBase extends React.Component {
 
   render() {
     const { displayType } = this.props;
+
+    console.log('displayType: ', displayType);
 
     if (displayType.displayType === CONTENT_TYPE_TOPIC) {
       console.log('bbbb');
@@ -31,12 +33,7 @@ export default class KnowledgeBase extends React.Component {
       return (
         <div>
           <div className="erxes-form">
-            <div className="erxes-topbar thiner">
-              <div className="erxes-middle">
-                <input />
-              </div>
-            </div>
-            <Categories />
+            <ArticleDetail articleData={displayType.articleData} />
           </div>
         </div>
       );
