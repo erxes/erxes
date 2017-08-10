@@ -1,4 +1,5 @@
 import React, { PropTypes } from 'react';
+import Select from 'react-select-plus';
 import {
   FormGroup,
   ControlLabel,
@@ -23,12 +24,27 @@ class KbTopic extends CommonItem {
       code = this.constructor.getInstallCode(props.item._id);
     }
 
+    this.handleBrandChange = this.handleBrandChange.bind(this);
+
     this.state = {
       code,
       copied: false,
+      selectedCategories: this.getSelectedCategories(),
     };
+  }
 
-    this.handleBrandChange = this.handleBrandChange.bind(this);
+  getSelectedCategories() {
+    const { item } = this.props;
+    return item.categoryIds;
+
+    // return integrations.map(integration => ({
+    //   channels: integration.channels(),
+    //   value: integration._id,
+    //   label: integration.name,
+    //   kind: integration.kind,
+    //   groupId: integration.brandId,
+    // }));
+    // return [];
   }
 
   handleBrandChange() {
@@ -80,11 +96,32 @@ class KbTopic extends CommonItem {
           <FormControl type="text" defaultValue={item.description} />
         </FormGroup>
 
-        <SelectBrand
-          brands={brands}
-          defaultValue={item.brandId}
-          onChange={this.handleBrandChange}
-        />
+        <FormGroup>
+          <SelectBrand
+            brands={brands}
+            defaultValue={item.brandId}
+            onChange={this.handleBrandChange}
+          />
+        </FormGroup>
+
+        <FormGroup>
+          <ControlLabel>Categories</ControlLabel>
+
+          <Select
+            placeholder="Choose integrations"
+            onChange={items => {
+              this.setState({ selectedCategories: items });
+            }}
+            optionRenderer={option => (
+              <div className="simple-option">
+                <span>{option.label}</span>
+              </div>
+            )}
+            value={this.state.selectedCategories}
+            options={this.getCategories()}
+            multi
+          />
+        </FormGroup>
 
         {this.renderInstallCode()}
 
@@ -95,6 +132,21 @@ class KbTopic extends CommonItem {
         </Modal.Footer>
       </form>
     );
+  }
+
+  getCategories() {
+    const results = [];
+
+    const { categories } = this.props;
+
+    results.push({
+      label: 'Categories',
+      options: categories.map(category => ({
+        label: category.title,
+        value: category._id,
+      })),
+    });
+    return results;
   }
 
   renderInstallCode() {
@@ -124,10 +176,19 @@ class KbTopic extends CommonItem {
 
   handleSubmit(e) {
     super.handleSubmit(e);
+    // console.log('selectedCategories: ', this.state.selectedCategories);
+
+    let categoryIds = [];
+
+    for (var i = 0; i < this.state.selectedCategories.length; i++) {
+      categoryIds.push(this.state.selectedCategories[i].value);
+    }
+
     this.props.save({
       title: document.getElementById('knowledgebase-title').value,
       description: document.getElementById('knowledgebase-description').value,
       brandId: document.getElementById('selectBrand').value,
+      categoryIds: categoryIds,
     });
   }
 }

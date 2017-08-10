@@ -39,6 +39,10 @@ KbTopics.schema = new SimpleSchema({
     type: String,
     regEx: SimpleSchema.RegEx.Id,
   },
+  categoryIds: {
+    type: [String],
+    optional: true,
+  },
 });
 
 // categories
