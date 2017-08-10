@@ -110,16 +110,24 @@ function Message({ message, staff, isSameUser }) {
           <Table striped>
             <thead>
               <tr>
-                <th className="text-center" colSpan="2">{message.content}</th>
+                <th className="text-center" colSpan="2">
+                  {message.content}
+                </th>
               </tr>
             </thead>
             <tbody>
-              {_.map(message.formWidgetData, (data, index) => (
+              {_.map(message.formWidgetData, (data, index) =>
                 <tr key={index}>
-                  <td width="40%"><b>{data.text}:</b></td>
-                  <td width="60%">{data.value}</td>
-                </tr>
-              ))}
+                  <td width="40%">
+                    <b>
+                      {data.text}:
+                    </b>
+                  </td>
+                  <td width="60%">
+                    {data.value}
+                  </td>
+                </tr>,
+              )}
             </tbody>
           </Table>
         </div>
@@ -135,7 +143,7 @@ function Message({ message, staff, isSameUser }) {
           {renderVideoIframe()}
           {renderAttachment()}
           <footer>
-            {moment(message.createdAt).fromNow()}
+            {moment(message.createdAt).format('YYYY-MM-DD, HH:mm:ss')}
           </footer>
         </div>
       </div>
