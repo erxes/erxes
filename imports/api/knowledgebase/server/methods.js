@@ -9,7 +9,6 @@ export const addKbTopic = new ValidatedMethod({
   mixins: [ErxesMixin],
 
   validate({ doc }) {
-    console.log('addKbTopic: ', doc);
     check(doc, { title: String, description: String, brandId: String, categoryIds: Array });
   },
 
@@ -25,7 +24,7 @@ export const editKbTopic = new ValidatedMethod({
 
   validate({ _id, doc }) {
     check(_id, String);
-    check(doc, { title: String, description: String, brandId: String });
+    check(doc, { title: String, description: String, brandId: String, categoryIds: Array });
   },
 
   run({ _id, doc }) {

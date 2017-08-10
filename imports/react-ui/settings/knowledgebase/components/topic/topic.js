@@ -35,7 +35,7 @@ class KbTopic extends CommonItem {
 
   getSelectedCategories() {
     const { item } = this.props;
-    return item.categoryIds;
+    return (item && item.categoryIds) || [];
 
     // return integrations.map(integration => ({
     //   channels: integration.channels(),
