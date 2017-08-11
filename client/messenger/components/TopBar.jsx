@@ -26,9 +26,7 @@ function TopBar({ middle, buttonClass, onButtonClick, color, endConversation }) 
         {middle}
       </div>
 
-      <div className={`topbar-button right`} onClick={onEndConversation}>
-        o
-      </div>
+      <div className={`topbar-button right close`} onClick={onEndConversation} />
     </div>
   );
 }
