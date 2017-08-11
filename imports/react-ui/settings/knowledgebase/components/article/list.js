@@ -1,9 +1,9 @@
 import React, { PropTypes } from 'react';
-import { Table, Button } from 'react-bootstrap';
-import { FlowRouter } from 'meteor/kadira:flow-router';
+import { Table } from 'react-bootstrap';
 import { Wrapper } from '/imports/react-ui/layout/components';
 import { Pagination } from '/imports/react-ui/common';
 import ArticleRow from './row';
+import { ActionButtons } from '../../components';
 import { CommonList } from '../common';
 
 const propTypes = {
@@ -22,9 +22,9 @@ class KbCategoryList extends CommonList {
   renderItems() {
     const { items, categories, removeItem } = this.props;
 
-    return items.map(item => (
-      <ArticleRow key={item._id} item={item} categories={categories} removeItem={removeItem} />
-    ));
+    return items.map(item =>
+      <ArticleRow key={item._id} item={item} categories={categories} removeItem={removeItem} />,
+    );
   }
 
   getHeader() {
@@ -34,13 +34,7 @@ class KbCategoryList extends CommonList {
   }
 
   getActionBar() {
-    const actionBarLeft = (
-      <Button bsStyle="link" href={FlowRouter.path('settings/knowledgebase/add')}>
-        <i className="ion-plus-circled" /> Add
-      </Button>
-    );
-
-    return <Wrapper.ActionBar left={actionBarLeft} />;
+    return <Wrapper.ActionBar left={<ActionButtons />} />;
   }
 
   getContent() {
@@ -53,7 +47,9 @@ class KbCategoryList extends CommonList {
               <th>Title</th>
               <th>Summary</th>
               <th>Category</th>
-              <th width="183" className="text-right">Actions</th>
+              <th width="183" className="text-right">
+                Actions
+              </th>
             </tr>
           </thead>
           <tbody>

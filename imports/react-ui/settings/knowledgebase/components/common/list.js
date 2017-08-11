@@ -1,8 +1,8 @@
 import React, { PropTypes } from 'react';
-import { Table, Button } from 'react-bootstrap';
-import { FlowRouter } from 'meteor/kadira:flow-router';
+import { Table } from 'react-bootstrap';
 import { Wrapper } from '/imports/react-ui/layout/components';
 import { Pagination } from '/imports/react-ui/common';
+import { ActionButtons } from '../';
 import Sidebar from '../../../Sidebar';
 
 const propTypes = {
@@ -29,13 +29,7 @@ class CommonList extends React.Component {
   }
 
   getActionBar() {
-    const actionBarLeft = (
-      <Button bsStyle="link" href={FlowRouter.path('settings/knowledgebase/add')}>
-        <i className="ion-plus-circled" /> Add
-      </Button>
-    );
-
-    return <Wrapper.ActionBar left={actionBarLeft} />;
+    return <Wrapper.ActionBar left={<ActionButtons />} />;
   }
 
   getContent() {
@@ -48,7 +42,9 @@ class CommonList extends React.Component {
             <tr>
               <th>Name</th>
               <th>Brand</th>
-              <th width="183" className="text-right">Actions</th>
+              <th width="183" className="text-right">
+                Actions
+              </th>
             </tr>
           </thead>
           <tbody>
