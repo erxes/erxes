@@ -9,19 +9,7 @@ export default class Categories extends React.Component {
     console.log('KnowledgeBase.js.context: ', context);
     console.log('KnowledgeBase.js.aa: ', aa);
 
-    // this.onChangeHandler = this.onChangeHandler.bind(this);
   }
-
-  // onChangeHandler(e) {
-  //   console.log('value:', e.target.value);
-  //   connection.data.searchString = e.target.value
-  //   let { data } = this.props;
-  //   console.log('connection.data: ', connection.data);
-  //   data.refetch({
-  //     topicId: connection.data.topicId,
-  //     searchString: connection.data.searchString,
-  //   });
-  // }
 
   renderCategories() {
     const { kbTopic } = this.props;

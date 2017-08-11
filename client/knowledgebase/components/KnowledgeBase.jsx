@@ -25,10 +25,8 @@ export default class KnowledgeBase extends React.Component {
   render() {
     const { displayType } = this.props;
 
-    console.log('displayType: ', displayType);
-
     if (displayType.displayType === CONTENT_TYPE_TOPIC) {
-      console.log('bbbb');
+      console.log('bbbb: ', displayType);
       return (
         <div>
           <div className="erxes-form">

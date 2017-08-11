@@ -12,7 +12,7 @@ const mapDisptachToProps = dispatch => ({
   },
   onUpdateSearchString(searchStr) {
     dispatch(updateSearchString(searchStr));
-  }
+  },
 });
 
 
