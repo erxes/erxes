@@ -3,11 +3,11 @@ import { compose } from 'react-komposer';
 import { getTrackerLoader, composerOptions } from '/imports/react-ui/utils';
 import { KbCategory } from '../../components';
 import { saveCallback } from '../utils';
-import { KbTopics } from '/imports/api/knowledgebase/collections';
+import { KbArticles } from '/imports/api/knowledgebase/collections';
 
 const composer = (props, onData) => {
-  const topicsHandler = Meteor.subscribe('kb_topics.list', {});
-  const topics = KbTopics.find().fetch();
+  const articlesHandler = Meteor.subscribe('kb_articles.list', { limit: 0 });
+  const articles = KbArticles.find().fetch();
 
   const save = doc =>
     saveCallback(
@@ -18,8 +18,8 @@ const composer = (props, onData) => {
       '/settings/knowledgebase/categories',
     );
 
-  if (topicsHandler.ready()) {
-    return onData(null, { topics, save });
+  if (articlesHandler.ready()) {
+    return onData(null, { articles, save });
   }
 
   return null;

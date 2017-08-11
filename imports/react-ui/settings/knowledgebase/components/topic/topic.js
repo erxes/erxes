@@ -36,15 +36,6 @@ class KbTopic extends CommonItem {
   getSelectedCategories() {
     const { item } = this.props;
     return (item && item.categoryIds) || [];
-
-    // return integrations.map(integration => ({
-    //   channels: integration.channels(),
-    //   value: integration._id,
-    //   label: integration.name,
-    //   kind: integration.kind,
-    //   groupId: integration.brandId,
-    // }));
-    // return [];
   }
 
   handleBrandChange() {
@@ -108,7 +99,7 @@ class KbTopic extends CommonItem {
           <ControlLabel>Categories</ControlLabel>
 
           <Select
-            placeholder="Choose integrations"
+            placeholder="Choose categories"
             onChange={items => {
               this.setState({ selectedCategories: items });
             }}

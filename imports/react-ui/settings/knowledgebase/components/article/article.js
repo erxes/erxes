@@ -7,7 +7,6 @@ import {
   ButtonToolbar,
   Modal,
 } from 'react-bootstrap';
-import SelectCategory from '../SelectCategory';
 
 class KbArticle extends Component {
   constructor(props, context) {
@@ -17,7 +16,6 @@ class KbArticle extends Component {
 
   render() {
     const item = this.props.item || {};
-    const { categories } = this.props;
 
     return (
       <form className="margined" onSubmit={this.handleSubmit}>
@@ -35,8 +33,6 @@ class KbArticle extends Component {
           <ControlLabel>Content</ControlLabel>
           <FormControl type="text" defaultValue={item.content} />
         </FormGroup>
-
-        <SelectCategory categories={categories} defaultValue={item.categoryId} />
 
         <Modal.Footer>
           <ButtonToolbar className="pull-right">
@@ -56,14 +52,12 @@ class KbArticle extends Component {
       title: document.getElementById('knowledgebase-article-title').value,
       summary: document.getElementById('knowledgebase-article-summary').value,
       content: document.getElementById('knowledgebase-article-content').value,
-      categoryId: document.getElementById('selectCategory').value,
     });
   }
 }
 
 KbArticle.propTypes = {
   ...KbArticle.propTypes,
-  categories: PropTypes.array.isRequired, // eslint-disable-line
 };
 
 KbArticle.contextTypes = {

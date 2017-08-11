@@ -54,9 +54,9 @@ KbCategories.schema = new SimpleSchema({
     type: String,
     optional: true,
   },
-  topicId: {
-    type: String,
-    regEx: SimpleSchema.RegEx.Id,
+  articleIds: {
+    type: [String],
+    optional: true,
   },
 });
 
@@ -69,9 +69,6 @@ KbArticles.schema = new SimpleSchema({
     type: String,
   },
   content: {
-    type: String,
-  },
-  categoryId: {
     type: String,
   },
 });
