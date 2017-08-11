@@ -2,7 +2,12 @@
 
 import { wsClient } from '../apollo-client';
 import widgetConnect from '../widgetConnect';
-import { connection, connect } from './connection';
+import {
+  connection,
+  connect,
+  getLocalStorageItem,
+  setLocalStorageItem,
+} from './connection';
 import reducers from './reducers';
 import { App } from './containers';
 import './sass/style.scss';
@@ -18,7 +23,7 @@ widgetConnect({
       brandCode: setting.brand_id,
       email: setting.email,
 
-      cachedCustomerId: localStorage.getItem('erxesCustomerId'),
+      cachedCustomerId: getLocalStorageItem('customerId'),
 
       // if client passed email automatically then consider this as user
       isUser: Boolean(setting.email),
@@ -36,7 +41,7 @@ widgetConnect({
     connection.data = messengerData;
 
     // save customer id to identify visitor next time
-    localStorage.setItem('erxesCustomerId', messengerData.customerId);
+    setLocalStorageItem('customerId', messengerData.customerId);
 
     // send connected message to ws server and server will save given
     // data to connection. So when connection closed, we will use

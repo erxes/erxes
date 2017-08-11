@@ -1,7 +1,7 @@
 $core-spacing: 20px;
 
 .erxes-notification {
-  background: $bg-color;
+  color: $white;
   border-radius: $border-radius;
   bottom: 86px;
   box-shadow: 0 5px 15px -3px rgba($black, .15);
@@ -31,7 +31,6 @@ $core-spacing: 20px;
 
   .notification-body {
     -webkit-box-orient: vertical;
-    color: $text-color;
     display: -webkit-box;
     -webkit-line-clamp: 2;
     line-height: 22px;

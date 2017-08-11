@@ -9,6 +9,7 @@ const propTypes = {
   data: PropTypes.object,
   isNewConversation: PropTypes.bool,
   isOnline: PropTypes.bool,
+  color: PropTypes.string,
 };
 
 function Conversation(props) {
@@ -19,6 +20,7 @@ function Conversation(props) {
     user,
     data,
     isOnline,
+    color,
   } = props;
 
   function renderTitle() {
@@ -55,7 +57,7 @@ function Conversation(props) {
   const placeholder = isNewConversation ? 'Send a message ...' : 'Write a reply ...';
 
   return (
-    <div className="erxes-messenger">
+    <div className="erxes-messenger" style={{ border: `2px solid ${color}` }}>
       <TopBar
         middle={renderTitle()}
         buttonClass="back"
