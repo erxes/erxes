@@ -7,9 +7,11 @@ import { EmptyState } from '/imports/react-ui/common';
 
 const propTypes = {
   tags: PropTypes.array.isRequired,
+  manageUrl: PropTypes.string.isRequired,
+  publishCountName: PropTypes.string.isRequired,
 };
 
-function Tags({ tags }) {
+function TagFilter({ tags, manageUrl, publishCountName }) {
   const { Section, filter, getActiveClass } = Wrapper.Sidebar;
 
   return (
@@ -17,7 +19,7 @@ function Tags({ tags }) {
       <Section.Title>Filter by tags</Section.Title>
 
       <Section.QuickButtons>
-        <a href={FlowRouter.path('tags/customer')} className="quick-button">
+        <a href={FlowRouter.path(manageUrl)} className="quick-button">
           <i className="ion-gear-a" />
         </a>
 
@@ -34,7 +36,7 @@ function Tags({ tags }) {
           : null}
       </Section.QuickButtons>
 
-      <ul className="filters">
+      <ul className="sidebar-list">
         {tags.length
           ? tags.map(tag => (
               <li key={tag._id}>
@@ -48,7 +50,7 @@ function Tags({ tags }) {
                   <i className="ion-pricetag icon" style={{ color: tag.colorCode }} />
                   {tag.name}
                   <span className="counter">
-                    {Counts.get(`customers.tag.${tag._id}`)}
+                    {Counts.get(`${publishCountName}${tag._id}`)}
                   </span>
                 </a>
               </li>
@@ -59,6 +61,6 @@ function Tags({ tags }) {
   );
 }
 
-Tags.propTypes = propTypes;
+TagFilter.propTypes = propTypes;
 
-export default Tags;
+export default TagFilter;

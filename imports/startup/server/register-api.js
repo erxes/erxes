@@ -25,13 +25,20 @@ import '/imports/api/conversations/server/methods';
 import '/imports/api/conversations/server/cronJobs';
 
 import '/imports/api/tags/server/publications';
-import '/imports/api/tags/methods';
+import '/imports/api/tags/server/methods';
 
 import '/imports/api/forms/server/publications';
 import '/imports/api/forms/methods';
 
 import '/imports/api/responseTemplates/server/publications';
 import '/imports/api/responseTemplates/methods';
+
+import '/imports/api/emailTemplates/server/publications';
+import '/imports/api/emailTemplates/methods';
+
+import '/imports/api/engage/server/publications';
+import '/imports/api/engage/server/methods';
+import '/imports/api/engage/server/cronJobs';
 
 import '/imports/api/knowledgebase/server/publications';
 import '/imports/api/knowledgebase/server/methods';

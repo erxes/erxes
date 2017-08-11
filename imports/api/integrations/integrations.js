@@ -102,7 +102,6 @@ export const messengerSchema = new SimpleSchema({
     optional: true,
     allowedValues: ['manual', 'auto'],
   },
-
   isOnline: {
     type: Boolean,
     optional: true,

@@ -8,6 +8,7 @@ import { Tags } from '/imports/react-ui/common';
 const propTypes = {
   customer: PropTypes.object.isRequired,
   customerFields: PropTypes.array.isRequired,
+  toggleBulk: PropTypes.func.isRequired,
 };
 
 function formatValue(value) {
@@ -22,9 +23,16 @@ function formatValue(value) {
   return value || 'N/A';
 }
 
-function CustomerRow({ customer, customerFields }) {
+function CustomerRow({ customer, customerFields, toggleBulk }) {
+  const onChange = e => {
+    toggleBulk(customer, e.target.checked);
+  };
+
   return (
     <tr>
+      <td>
+        <input type="checkbox" onChange={onChange} />
+      </td>
       <td>
         <a href={FlowRouter.path('customers/details', { id: customer._id })}>
           <i className="ion-log-in" />

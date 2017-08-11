@@ -1,5 +1,22 @@
 $bg-widget-background: #faf9fb;
 
+.iframe-preview {
+  width: 140px;
+  height: 100px;
+  overflow: hidden;
+  border: 1px solid $border-grey;
+  border-radius: $border-radius;
+
+  iframe {
+    transform: scale(.2);
+    transform-origin: 0 0;
+    pointer-events: none;
+    width: 510%;
+    height: 500%;
+    border: 0;
+  }
+}
+
 .integration-item {
   .checkbox {
     margin-top: 0;
@@ -123,4 +140,20 @@ $bg-widget-background: #faf9fb;
       background: $bg-widget-background;
     }
   }
+}
+
+.logo-container {
+    color: #fff;
+    line-height: 56px;
+    text-align: center;
+    border-radius: 28px;
+    width: 56px;
+    height: 56px;
+    cursor: pointer;
+    box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.2);
+    overflow: hidden;
+}
+
+.logo-container img {
+    max-width: 100%;
 }

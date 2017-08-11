@@ -18,7 +18,7 @@ function FacebookSection({ customer }) {
   return (
     <Wrapper.Sidebar.Section>
       <Title>Facebook</Title>
-      <ul className="filters no-link">
+      <ul className="sidebar-list no-link">
         <li>
           ID
           <span className="counter">{facebookData.id}</span>

@@ -1,17 +1,15 @@
 import faker from 'faker';
 import { Meteor } from 'meteor/meteor';
-import { Mongo } from 'meteor/mongo';
 import { Random } from 'meteor/random';
-import { _ } from 'meteor/underscore';
 import { Factory } from 'meteor/dburles:factory';
 import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 import { Customers } from '/imports/api/customers/customers';
 import { Integrations } from '/imports/api/integrations/integrations';
-import { Tags } from '/imports/api/tags/tags';
+import { TagsCollection, tagsHelper, tagSchemaOptions } from '/imports/api/tags/utils';
 
 import { CONVERSATION_STATUSES, FACEBOOK_DATA_KINDS } from './constants';
 
-class ConversationsCollection extends Mongo.Collection {
+class ConversationsCollection extends TagsCollection {
   insert(doc, callback) {
     const conversation = Object.assign(
       {
@@ -24,21 +22,6 @@ class ConversationsCollection extends Mongo.Collection {
 
     return super.insert(conversation, callback);
   }
-
-  remove(selector, callback) {
-    const conversations = this.find(selector).fetch();
-    const result = super.remove(selector, callback);
-
-    // remove tag items that using removing conversations
-    let removeIds = [];
-    conversations.forEach(obj => {
-      removeIds.push(obj.tagIds || []);
-    });
-    removeIds = _.uniq(_.flatten(removeIds));
-    Tags.update({ _id: { $in: removeIds } }, { $inc: { objectCount: -1 } });
-
-    return result;
-  }
 }
 
 export const Conversations = new ConversationsCollection('conversations');
@@ -49,11 +32,11 @@ Conversations.helpers({
   customer() {
     return Customers.findOne(this.customerId) || {};
   },
+  user() {
+    return Meteor.users.findOne(this.userId);
+  },
   integration() {
     return Integrations.findOne(this.integrationId) || {};
-  },
-  tags() {
-    return Tags.find({ _id: { $in: this.tagIds || [] } }).fetch();
   },
   assignedUser() {
     return Meteor.users.findOne(this.assignedUserId);
@@ -65,6 +48,7 @@ Conversations.helpers({
   participatorCount() {
     return (this.participatedUserIds && this.participatedUserIds.length) || 0;
   },
+  ...tagsHelper,
 });
 
 export const addParticipator = ({ conversationId, userId }) => {
@@ -87,7 +71,7 @@ Conversations.deny({
   },
 });
 
-// twitter schemas ====================
+// twitter schema ====================
 const twitterDirectMessageSchema = new SimpleSchema({
   senderId: {
     type: Number,
@@ -125,7 +109,7 @@ const twitterSchema = new SimpleSchema({
   },
 });
 
-// facebook schemas
+// facebook schema
 const facebookSchema = new SimpleSchema({
   kind: {
     type: String,
@@ -155,19 +139,21 @@ const facebookSchema = new SimpleSchema({
 });
 
 Conversations.schema = new SimpleSchema({
-  number: {
-    type: Number,
-  },
   content: {
     type: String,
+  },
+  integrationId: {
+    type: String,
+    regEx: SimpleSchema.RegEx.Id,
   },
   customerId: {
     type: String,
     regEx: SimpleSchema.RegEx.Id,
     optional: true,
   },
-  integrationId: {
+  userId: {
     type: String,
+    optional: true,
     regEx: SimpleSchema.RegEx.Id,
   },
   twitterData: {
@@ -192,11 +178,6 @@ Conversations.schema = new SimpleSchema({
     regEx: SimpleSchema.RegEx.Id,
     optional: true,
   },
-  tagIds: {
-    type: [String],
-    regEx: SimpleSchema.RegEx.Id,
-    optional: true,
-  },
 
   // users's informed history
   readUserIds: {
@@ -208,9 +189,18 @@ Conversations.schema = new SimpleSchema({
   createdAt: {
     type: Date,
   },
+
+  // number of total messages
   messageCount: {
     type: Number,
   },
+
+  // number of total conversations
+  number: {
+    type: Number,
+  },
+
+  ...tagSchemaOptions(),
 });
 
 Conversations.attachSchema(Conversations.schema);
@@ -245,22 +235,12 @@ export const ChangeStatusSchema = new SimpleSchema({
   },
 });
 
-export const TagSchema = new SimpleSchema({
-  conversationIds: {
-    type: [String],
-    regEx: SimpleSchema.RegEx.Id,
-  },
-  tagIds: {
-    type: [String],
-    regEx: SimpleSchema.RegEx.Id,
-  },
-});
-
 Conversations.publicFields = {
   number: 1,
   assignedUserId: 1,
   content: 1,
   customerId: 1,
+  userId: 1,
   integrationId: 1,
   status: 1,
   createdAt: 1,

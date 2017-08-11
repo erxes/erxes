@@ -3,13 +3,13 @@
   .sidebar {
     flex-shrink: 1;
 
-    .section {
-      font-size: 12px;
-    }
-
     .filters .counter {
       margin-top: 0;
     }
+  }
+
+  .sidebar-section {
+    font-size: 12px;
   }
 }
 

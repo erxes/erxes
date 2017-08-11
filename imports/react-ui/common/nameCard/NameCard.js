@@ -9,9 +9,10 @@ const propTypes = {
   firstLine: PropTypes.node,
   secondLine: PropTypes.node,
   avatarSize: PropTypes.number,
+  url: PropTypes.string,
 };
 
-function NameCard({ user, customer, firstLine, secondLine, singleLine, avatarSize }) {
+function NameCard({ user, customer, firstLine, secondLine, singleLine, avatarSize, url }) {
   let first;
   let second;
 
@@ -19,16 +20,21 @@ function NameCard({ user, customer, firstLine, secondLine, singleLine, avatarSiz
     first = firstLine || (user.details && user.details.fullName);
     second = !singleLine && (secondLine || `@${user.username}`);
   } else if (customer) {
-    first = firstLine || customer.name;
-    second = !singleLine && (secondLine || customer.email);
+    first =
+      firstLine || customer.name || (singleLine && (customer.name || customer.email || 'N/A'));
+    second = !singleLine && (secondLine || customer.email || 'N/A');
   }
 
   return (
     <div className="name-card">
       <Avatar user={user} customer={customer} size={avatarSize} />
-      <div className="text" style={{ marginLeft: `${avatarSize + 10}px` }}>
-        <a href="#" className="first-line">{first}</a>
-        <div className="second-line">{second}</div>
+      <div className="text">
+        <a href={url ? url : '#'} className="first-line">
+          {first}
+        </a>
+        <div className="second-line">
+          {second}
+        </div>
       </div>
     </div>
   );

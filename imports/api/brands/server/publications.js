@@ -1,13 +1,13 @@
 import { Meteor } from 'meteor/meteor';
 import { Counts } from 'meteor/tmeasday:publish-counts';
-import { check } from 'meteor/check';
+import { Match, check } from 'meteor/check';
 import { _ } from 'meteor/underscore';
 import { Channels } from '/imports/api/channels/channels';
 import { Integrations } from '/imports/api/integrations/integrations';
 import { Brands } from '../brands';
 
 Meteor.publish('brands.list', function brandsList(limit) {
-  check(limit, Number);
+  check(limit, Match.Optional(Number));
 
   if (!this.userId) {
     return this.ready();
@@ -20,7 +20,7 @@ Meteor.publish('brands.list', function brandsList(limit) {
     {
       fields: Brands.publicFields,
       sort: { createdAt: -1 },
-      limit,
+      limit: limit || 100,
     },
   );
 });

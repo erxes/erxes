@@ -483,6 +483,7 @@ $channel-round: #ece6f8;
   }
 }
 
+// scss-lint:disable VendorPrefix
 @-webkit-keyframes Select-animation-fadeIn {
   from {
     opacity: 0;

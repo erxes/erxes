@@ -4,6 +4,7 @@ const propTypes = {
   user: PropTypes.object,
   customer: PropTypes.object,
   size: PropTypes.number,
+  url: PropTypes.string,
 };
 
 class Avatar extends Component {
@@ -13,6 +14,7 @@ class Avatar extends Component {
       height: size,
       lineHeight: `${size}px`,
       borderRadius: `${size}px`,
+      fontSize: `${size / 3}px`,
     };
   }
 
@@ -35,7 +37,7 @@ class Avatar extends Component {
   }
 
   render() {
-    const { user, customer } = this.props;
+    const { user, customer, url } = this.props;
     let avatar;
     let fullName;
 

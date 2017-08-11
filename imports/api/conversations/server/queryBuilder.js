@@ -20,7 +20,7 @@ export default class ListQueryBuilder {
       status: Match.Optional(String),
       unassigned: Match.Optional(String),
       brandId: Match.Optional(String),
-      tagId: Match.Optional(String),
+      tag: Match.Optional(String),
       integrationType: Match.Optional(String),
       participating: Match.Optional(String),
       starred: Match.Optional(String),
@@ -37,6 +37,17 @@ export default class ListQueryBuilder {
     return {
       ...this.integrationsFilter(),
       ...statusFilter,
+
+      $or: [
+        // exclude engage messages if customer did not reply
+        {
+          userId: { $exists: true },
+          messageCount: { $gt: 1 },
+        },
+        {
+          userId: { $exists: false },
+        },
+      ],
     };
   }
 
@@ -223,8 +234,8 @@ export default class ListQueryBuilder {
     }
 
     // filter by tag
-    if (this.params.tagId) {
-      this.queries.tag = this.tagFilter(this.params.tagId);
+    if (this.params.tag) {
+      this.queries.tag = this.tagFilter(this.params.tag);
     }
 
     // filter by integration type

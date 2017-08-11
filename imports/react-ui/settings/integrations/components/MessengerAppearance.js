@@ -3,6 +3,7 @@ import { FlowRouter } from 'meteor/kadira:flow-router';
 import { Button, ButtonGroup, OverlayTrigger, Popover } from 'react-bootstrap';
 import classnames from 'classnames';
 import { ChromePicker } from 'react-color';
+import uploadHandler from '/imports/api/client/uploadHandler';
 import { Wrapper } from '/imports/react-ui/layout/components';
 import Sidebar from '../../Sidebar';
 import WidgetPreview from './WidgetPreview';
@@ -14,11 +15,15 @@ class Appearance extends Component {
     this.state = {
       color: props.prevOptions.color || '#452679',
       wallpaper: props.prevOptions.wallpaper || '1',
+      logo: props.prevOptions.logo,
+      logoPreviewStyle: {},
+      logoPreviewUrl: props.prevOptions.logo || '/images/widget-logo.png',
     };
 
     this.save = this.save.bind(this);
     this.onColorChange = this.onColorChange.bind(this);
     this.onWallpaperChange = this.onWallpaperChange.bind(this);
+    this.handleLogoChange = this.handleLogoChange.bind(this);
   }
 
   onColorChange(e) {
@@ -29,10 +34,37 @@ class Appearance extends Component {
     this.setState({ wallpaper: value });
   }
 
+  handleLogoChange(e) {
+    const imageFile = e.target.files[0];
+
+    uploadHandler({
+      file: imageFile,
+
+      beforeUpload: () => {
+        this.setState({ logoPreviewStyle: { opacity: '0.2' } });
+      },
+
+      afterUpload: ({ response }) => {
+        this.setState({
+          logo: response.url,
+          logoPreviewStyle: { opacity: '1' },
+        });
+      },
+
+      afterRead: ({ result }) => {
+        this.setState({ logoPreviewUrl: result });
+      },
+    });
+  }
+
   save(e) {
     e.preventDefault();
 
-    this.props.save(this.state);
+    this.props.save({
+      color: this.state.color,
+      wallpaper: this.state.wallpaper,
+      logo: this.state.logo,
+    });
   }
 
   renderWallpaperSelect(value) {
@@ -59,6 +91,8 @@ class Appearance extends Component {
         <ChromePicker color={this.state.color} onChange={this.onColorChange} />
       </Popover>
     );
+
+    const { logo, logoPreviewStyle, logoPreviewUrl } = this.state;
 
     const content = (
       <div className="margined">
@@ -91,6 +125,17 @@ class Appearance extends Component {
                 {this.renderWallpaperSelect('4')}
                 {this.renderWallpaperSelect('5')}
               </div>
+            </div>
+
+            <div className="box">
+              <h2>Choose a logo</h2>
+
+              <div className="logo-container" style={{ backgroundColor: this.state.color }}>
+                <img alt="logo" className="logo" style={logoPreviewStyle} src={logoPreviewUrl} />
+              </div>
+
+              <input type="file" onChange={this.handleLogoChange} />
+              <input type="hidden" id="logo" value={logo} />
             </div>
           </div>
         </div>

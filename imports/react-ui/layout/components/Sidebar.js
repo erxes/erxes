@@ -49,7 +49,7 @@ class Section extends Component {
   render() {
     const { children, collapsible, className } = this.props;
     const classes = classNames(className, {
-      section: true,
+      'sidebar-section': true,
       collapsible,
     });
     const height = {

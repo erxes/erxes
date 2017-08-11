@@ -105,7 +105,10 @@ class SegmentsForm extends Component {
 
     const submit = segment ? edit : create;
     const { name, description, subOf, color, connector, conditions } = this.state;
-    const params = { doc: { name, description, subOf, color, connector, conditions } };
+    const params = { doc: { name, description, color, connector, conditions } };
+    if (subOf) {
+      params.subOf = subOf;
+    }
     Object.assign(params, segment ? { id: segment._id } : {});
 
     submit(params, error => {

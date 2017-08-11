@@ -9,7 +9,7 @@ function Sidebar() {
     <Wrapper.Sidebar>
       <Wrapper.Sidebar.Section>
         <Title>Account settings</Title>
-        <ul className="filters">
+        <ul className="sidebar-list">
           <li>
             <a href={FlowRouter.path('settings/channels/list')}>
               <i className="icon ion-arrow-right-b" />Channels
@@ -28,6 +28,11 @@ function Sidebar() {
           <li>
             <a href={FlowRouter.path('settings/responseTemplates/list')}>
               <i className="icon ion-arrow-right-b" />Response templates
+            </a>
+          </li>
+          <li>
+            <a href={FlowRouter.path('settings/emailTemplates/list')}>
+              <i className="icon ion-arrow-right-b" />Email templates
             </a>
           </li>
           <li>
@@ -50,7 +55,7 @@ function Sidebar() {
             All
           </a>
         </QuickButtons>
-        <ul className="filters">
+        <ul className="sidebar-list">
           <li>
             <a href={'/settings/integrations?kind=messenger'}>
               <i className="icon ion-arrow-right-b" />Messenger
@@ -104,7 +109,7 @@ function Sidebar() {
 
       <Wrapper.Sidebar.Section>
         <Title>Personal settings</Title>
-        <ul className="filters">
+        <ul className="sidebar-list">
           <li>
             <a href={FlowRouter.path('/settings/profile')}>
               <i className="icon ion-arrow-right-b" />Profile

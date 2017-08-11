@@ -22,7 +22,7 @@ function Message({ message, staff, isSameUser }) {
   const hasAttachment = message.attachments && message.attachments.length > 0;
 
   const classes = classNames({
-    message: true,
+    'conversation-message-container': true,
     staff,
     internal: message.internal,
     attachment: hasAttachment || isPhotoPost || isVideoPost,
@@ -81,11 +81,13 @@ function Message({ message, staff, isSameUser }) {
   const renderAttachment = () => {
     if (hasAttachment) {
       return <Attachment attachment={message.attachments[0]} />;
-    } else if (isPhotoPost) {
-      const iframeSrc = `https://www.facebook.com/plugins/post.php?
-        href=https://www.facebook.com/photo.php?fbid=${faceboodData.photoId}`;
+    }
 
-      return renderIframe(iframeSrc);
+    if (isPhotoPost) {
+      return renderIframe(
+        `https://www.facebook.com/plugins/post.php?
+        href=https://www.facebook.com/photo.php?fbid=${faceboodData.photoId}`,
+      );
     }
 
     return null;
@@ -135,10 +137,10 @@ function Message({ message, staff, isSameUser }) {
 
           {renderVideoIframe()}
           {renderAttachment()}
-          <footer>
-            {moment(message.createdAt).fromNow()}
-          </footer>
         </div>
+        <footer>
+          {moment(message.createdAt).fromNow()}
+        </footer>
       </div>
     );
   };

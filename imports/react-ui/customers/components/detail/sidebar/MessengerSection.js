@@ -20,7 +20,7 @@ function MessengerSection({ customer }) {
   return (
     <Wrapper.Sidebar.Section>
       <Title>Messenger</Title>
-      <ul className="filters no-link">
+      <ul className="sidebar-list no-link">
         <li>
           Status
           <span className="counter">
