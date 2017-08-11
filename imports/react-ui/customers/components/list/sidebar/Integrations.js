@@ -34,9 +34,9 @@ function Integrations({ integrations }) {
           : null}
       </Section.QuickButtons>
 
-      <ul className="filters">
+      <ul className="sidebar-list">
         {integrations.length
-          ? integrations.map(integration => (
+          ? integrations.map(integration =>
               <li key={integration}>
                 <a
                   tabIndex={0}
@@ -50,8 +50,8 @@ function Integrations({ integrations }) {
                     {Counts.get(`customers.integration.${integration}`)}
                   </span>
                 </a>
-              </li>
-            ))
+              </li>,
+            )
           : <EmptyState
               icon={<i className="ion-arrow-swap" />}
               text="No integrations"

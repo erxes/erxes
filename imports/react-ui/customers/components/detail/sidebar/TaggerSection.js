@@ -31,12 +31,12 @@ class TaggerSection extends Component {
       );
     }
 
-    return tags.map(({ _id, colorCode, name }) => (
+    return tags.map(({ _id, colorCode, name }) =>
       <li key={_id}>
         <i className="icon ion-pricetag" style={{ color: colorCode }} />
         {name}
-      </li>
-    ));
+      </li>,
+    );
   }
 
   render() {
@@ -65,7 +65,7 @@ class TaggerSection extends Component {
           </div>
         </Collapse>
 
-        <ul className="filters no-link">
+        <ul className="sidebar-list no-link">
           {this.renderTags(tags)}
         </ul>
       </Wrapper.Sidebar.Section>

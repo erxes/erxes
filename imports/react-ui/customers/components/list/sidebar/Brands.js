@@ -33,8 +33,8 @@ function Brands({ brands }) {
           : null}
       </Section.QuickButtons>
 
-      <ul className="filters">
-        {brands.map(brand => (
+      <ul className="sidebar-list">
+        {brands.map(brand =>
           <li key={brand._id}>
             <a
               tabIndex={0}
@@ -48,8 +48,8 @@ function Brands({ brands }) {
                 {Counts.get(`customers.brand.${brand._id}`)}
               </span>
             </a>
-          </li>
-        ))}
+          </li>,
+        )}
         {!brands.length
           ? <EmptyState icon={<i className="ion-flag" />} text="No brands" size="small" />
           : null}

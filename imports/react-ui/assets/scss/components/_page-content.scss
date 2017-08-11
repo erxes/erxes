@@ -41,10 +41,12 @@
     .margined {
       margin: $box-inner-space;
       overflow: hidden;
+    }
+  }
 
-      &.type-box {
-        overflow: visible;
-      }
+  .margined {
+    &.type-box {
+      overflow: visible;
     }
   }
 

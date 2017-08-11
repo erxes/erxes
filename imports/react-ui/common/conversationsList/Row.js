@@ -1,6 +1,7 @@
 import React, { PropTypes, Component } from 'react';
 import moment from 'moment';
 import { FlowRouter } from 'meteor/kadira:flow-router';
+import strip from 'strip';
 import { NameCard, Tags } from '/imports/react-ui/common';
 import { Tags as TagsCollection } from '/imports/api/tags/tags';
 import Starrer from './StarrerContainer';
@@ -75,12 +76,14 @@ class Row extends Component {
               {customer && customer._id && customer.name}
             </span>
             <span> opened about </span>
-            <time>{moment(createdAt).fromNow()}</time>
+            <time>
+              {moment(createdAt).fromNow()}
+            </time>
             <Tags tags={tags} size="small" />
           </header>
 
           <div className="content" onClick={this.goDetail}>
-            {content}
+            {strip(content)}
           </div>
 
           <footer>
@@ -94,7 +97,9 @@ class Row extends Component {
             <Assignees conversation={conversation} />
 
             <div className="info">
-              <span><i className="ion-reply" /> {messageCount}</span>
+              <span>
+                <i className="ion-reply" /> {messageCount}
+              </span>
               <span>
                 <i className="ion-person" /> {conversation.participatorCount()}
               </span>

@@ -2,13 +2,13 @@ import { Meteor } from 'meteor/meteor';
 import { FlowRouter } from 'meteor/kadira:flow-router';
 import Alert from 'meteor/erxes-notifier';
 
-export const saveCallback = (doc, addMethodName, editMethodName, integration) => {
+export const saveCallback = (paramsDic, addMethodName, editMethodName, integration) => {
   let methodName = `integrations.${addMethodName}`;
-  let params = { doc };
+  let params = { ...paramsDic };
 
-  if (integration) {
+  if (integration && integration._id) {
     methodName = `integrations.${editMethodName}`;
-    params = { _id: integration._id, doc };
+    params = { _id: integration._id, ...paramsDic };
   }
 
   Meteor.call(methodName, params, error => {

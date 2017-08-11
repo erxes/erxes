@@ -22,7 +22,7 @@ function Message({ message, staff, isSameUser }) {
   const hasAttachment = message.attachments && message.attachments.length > 0;
 
   const classes = classNames({
-    message: true,
+    'conversation-message-container': true,
     staff,
     internal: message.internal,
     attachment: hasAttachment || isPhotoPost || isVideoPost,
@@ -81,11 +81,13 @@ function Message({ message, staff, isSameUser }) {
   const renderAttachment = () => {
     if (hasAttachment) {
       return <Attachment attachment={message.attachments[0]} />;
-    } else if (isPhotoPost) {
-      const iframeSrc = `https://www.facebook.com/plugins/post.php?
-        href=https://www.facebook.com/photo.php?fbid=${faceboodData.photoId}`;
+    }
 
-      return renderIframe(iframeSrc);
+    if (isPhotoPost) {
+      return renderIframe(
+        `https://www.facebook.com/plugins/post.php?
+        href=https://www.facebook.com/photo.php?fbid=${faceboodData.photoId}`,
+      );
     }
 
     return null;
@@ -103,7 +105,6 @@ function Message({ message, staff, isSameUser }) {
         </Tip>
       );
     }
-
     if (message.formWidgetData) {
       return (
         <div className="form-data">
@@ -123,9 +124,13 @@ function Message({ message, staff, isSameUser }) {
                       {data.text}:
                     </b>
                   </td>
-                  <td width="60%">
-                    {data.value}
-                  </td>
+                  {data.validation === 'date'
+                    ? <td width="60%">
+                        {moment(data.value).format('YYYY/MM/DD')}
+                      </td>
+                    : <td width="60%">
+                        {data.value}
+                      </td>}
                 </tr>,
               )}
             </tbody>
@@ -142,10 +147,10 @@ function Message({ message, staff, isSameUser }) {
 
           {renderVideoIframe()}
           {renderAttachment()}
-          <footer>
-            {moment(message.createdAt).format('YYYY-MM-DD, HH:mm:ss')}
-          </footer>
         </div>
+        <footer>
+          {moment(message.createdAt).format('YYYY-MM-DD, HH:mm:ss')}
+        </footer>
       </div>
     );
   };

@@ -20,7 +20,7 @@ function MessengerSection({ customer }) {
   return (
     <Wrapper.Sidebar.Section>
       <Title>Messenger</Title>
-      <ul className="filters no-link">
+      <ul className="sidebar-list no-link">
         <li>
           Status
           <span className="counter">
@@ -31,15 +31,11 @@ function MessengerSection({ customer }) {
         </li>
         <li>
           Last online
-          <span className="counter">
-            {moment(messengerData.lastSeenAt).fromNow()}
-          </span>
+          <span className="counter">{moment(messengerData.lastSeenAt).fromNow()}</span>
         </li>
         <li>
           Session count
-          <span className="counter">
-            {messengerData.sessionCount}
-          </span>
+          <span className="counter">{messengerData.sessionCount}</span>
         </li>
       </ul>
     </Wrapper.Sidebar.Section>

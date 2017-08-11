@@ -13,6 +13,11 @@ const propTypes = {
 function Segments({ segments }) {
   const { Section, filter, getActiveClass } = Wrapper.Sidebar;
 
+  const orderedSegments = [];
+  segments.filter(segment => !segment.subOf).map(segment => {
+    orderedSegments.push(segment, ...segment.getSubSegments());
+  });
+
   return (
     <Section collapsible={segments.length > 5}>
       <Section.Title>Filter by segments</Section.Title>
@@ -23,12 +28,8 @@ function Segments({ segments }) {
             <i className="ion-more" />
           </DropdownToggle>
           <Dropdown.Menu>
-            <MenuItem href={FlowRouter.path('segments/new')}>
-              New segment
-            </MenuItem>
-            <MenuItem href={FlowRouter.path('segments/list')}>
-              Manage segments
-            </MenuItem>
+            <MenuItem href={FlowRouter.path('segments/new')}>New segment</MenuItem>
+            <MenuItem href={FlowRouter.path('segments/list')}>Manage segments</MenuItem>
           </Dropdown.Menu>
         </Dropdown>
 
@@ -45,9 +46,9 @@ function Segments({ segments }) {
           : null}
       </Section.QuickButtons>
 
-      <ul className="filters">
-        {segments.length
-          ? segments.map(segment => (
+      <ul className="sidebar-list">
+        {orderedSegments.length
+          ? orderedSegments.map(segment =>
               <li key={segment._id}>
                 <a
                   tabIndex={0}
@@ -56,14 +57,15 @@ function Segments({ segments }) {
                     filter('segment', segment._id);
                   }}
                 >
+                  {segment.subOf ? '\u00a0\u00a0\u00a0\u00a0\u00a0' : null}
                   <i className="ion-pie-graph icon" style={{ color: segment.color }} />
                   {segment.name}
                   <span className="counter">
                     {Counts.get(`customers.segment.${segment._id}`)}
                   </span>
                 </a>
-              </li>
-            ))
+              </li>,
+            )
           : <EmptyState icon={<i className="ion-pie-graph" />} text="No segments" size="small" />}
       </ul>
     </Section>

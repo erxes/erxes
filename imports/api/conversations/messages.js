@@ -179,6 +179,12 @@ Messages.schema = new SimpleSchema([
       optional: true,
     },
 
+    engageData: {
+      type: Object,
+      optional: true,
+      blackbox: true,
+    },
+
     formWidgetData: {
       type: Object,
       optional: true,
@@ -202,6 +208,7 @@ Messages.publicFields = {
   customerId: 1,
   userId: 1,
   createdAt: 1,
+  engageData: 1,
   formWidgetData: 1,
   facebookData: 1,
   internal: 1,

@@ -5,7 +5,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Counts } from 'meteor/tmeasday:publish-counts';
 import { FlowRouter } from 'meteor/kadira:flow-router';
-import { EmptyState, LoadingSidebar } from '/imports/react-ui/common';
+import { TagFilter, EmptyState, LoadingSidebar } from '/imports/react-ui/common';
 import { Wrapper } from '/imports/react-ui/layout/components';
 import { CONVERSATION_STATUSES } from '/imports/api/conversations/constants';
 import { KIND_CHOICES as INTEGRATIONS_TYPES } from '/imports/api/integrations/constants';
@@ -28,8 +28,8 @@ class Sidebar extends Component {
     return (
       <li key={channel._id}>
         <a className={Wrapper.Sidebar.getActiveClass('channelId', channel._id)} onClick={onClick}>
-
-          <span className="icon">#</span>{channel.name}
+          <span className="icon">#</span>
+          {channel.name}
           <span className="counter">
             {Counts.get(`conversations.counts.byChannel${channel._id}`)}
           </span>
@@ -46,8 +46,8 @@ class Sidebar extends Component {
     return (
       <li key={brand._id}>
         <a className={Wrapper.Sidebar.getActiveClass('brandId', brand._id)} onClick={onClick}>
-
-          <span className="icon">#</span>{brand.name}
+          <span className="icon">#</span>
+          {brand.name}
           <span className="counter">
             {Counts.get(`conversations.counts.byBrand${brand._id}`)}
           </span>
@@ -67,8 +67,8 @@ class Sidebar extends Component {
           className={Wrapper.Sidebar.getActiveClass('integrationType', integrationType)}
           onClick={onClick}
         >
-
-          <span className="icon">#</span>{integrationType}
+          <span className="icon">#</span>
+          {integrationType}
           <span className="counter">
             {Counts.get(`conversations.counts.byIntegrationType${integrationType}`)}
           </span>
@@ -85,7 +85,6 @@ class Sidebar extends Component {
     return (
       <li key={tag._id}>
         <a className={Wrapper.Sidebar.getActiveClass('tagId', tag._id)} onClick={onClick}>
-
           <i className="ion-pricetag icon" style={{ color: tag.colorCode }} />
           {tag.name}
           <span className="counter">
@@ -118,7 +117,6 @@ class Sidebar extends Component {
           className={Wrapper.Sidebar.getActiveClass(queryParamName, queryParamValue)}
           onClick={onClick}
         >
-
           {text}
           <span className="counter">
             {Counts.get(`conversations.counts.${countName}`)}
@@ -151,9 +149,9 @@ class Sidebar extends Component {
     return (
       <Wrapper.Sidebar.Section.QuickButtons>
         {FlowRouter.getQueryParam('participating') ||
-          FlowRouter.getQueryParam('unassigned') ||
-          FlowRouter.getQueryParam('status') ||
-          FlowRouter.getQueryParam('starred')
+        FlowRouter.getQueryParam('unassigned') ||
+        FlowRouter.getQueryParam('status') ||
+        FlowRouter.getQueryParam('starred')
           ? <a href="" className="quick-button" onClick={Sidebar.clearStatusFilter}>
               <i className="ion-close-circled" />
             </a>
@@ -175,10 +173,9 @@ class Sidebar extends Component {
   }
 
   render() {
-    const { channels, tags, brands, channelsReady, tagsReady, brandsReady } = this.props;
+    const { channels, tags, brands, channelsReady, brandsReady } = this.props;
     const integrationTypes = INTEGRATIONS_TYPES.ALL_LIST;
     const { Title } = Wrapper.Sidebar.Section;
-    const manageTags = FlowRouter.path('tags/list', { type: 'conversation' });
     const manageBrands = FlowRouter.path('settings/brands/list');
     const manageChannels = FlowRouter.path('settings/channels/list');
     const manageIntegrations = FlowRouter.path('settings/integrations/list');
@@ -188,7 +185,7 @@ class Sidebar extends Component {
         <Wrapper.Sidebar.Section collapsible={channels.length > 5}>
           <Title>Channels</Title>
           {Sidebar.renderSectionHeader('channelId', manageChannels)}
-          <ul className="filters">
+          <ul className="sidebar-list">
             {channels.map(channel => Sidebar.renderChannel(channel))}
             {Sidebar.renderEmptyState(channels, 'No channel', 'ion-pound', channelsReady)}
           </ul>
@@ -197,7 +194,7 @@ class Sidebar extends Component {
         <Wrapper.Sidebar.Section collapsible={brands.length > 5}>
           <Title>Brands</Title>
           {Sidebar.renderSectionHeader('brandId', manageBrands)}
-          <ul className="filters">
+          <ul className="sidebar-list">
             {brands.map(brand => Sidebar.renderBrand(brand))}
             {Sidebar.renderEmptyState(brands, 'No brand', 'ion-flag', brandsReady)}
           </ul>
@@ -206,7 +203,7 @@ class Sidebar extends Component {
         <Wrapper.Sidebar.Section collapsible={integrationTypes.length > 5}>
           <Title>Integrations</Title>
           {Sidebar.renderSectionHeader('integrationType', manageIntegrations)}
-          <ul className="filters">
+          <ul className="sidebar-list">
             {integrationTypes.map((t, i) => Sidebar.renderIntegration(t, i))}
             {Sidebar.renderEmptyState(integrationTypes, 'No integration', 'ion-flag')}
           </ul>
@@ -215,7 +212,7 @@ class Sidebar extends Component {
         <Wrapper.Sidebar.Section>
           <Title>Filter by status</Title>
           {Sidebar.renderFilterSectionHeader()}
-          <ul className="filters">
+          <ul className="sidebar-list">
             {Sidebar.renderSingleFilter('unassigned', 'true', 'unassiged', 'Unassigned')}
 
             {Sidebar.renderSingleFilter('participating', 'true', 'participating', 'Participating')}
@@ -231,15 +228,11 @@ class Sidebar extends Component {
           </ul>
         </Wrapper.Sidebar.Section>
 
-        <Wrapper.Sidebar.Section collapsible={tags.length > 5}>
-          <Title>Filter by tags</Title>
-          {Sidebar.renderSectionHeader('tagId', manageTags)}
-
-          <ul className="filters">
-            {tags.map(tag => Sidebar.renderTag(tag))}
-            {Sidebar.renderEmptyState(tags, 'No tags', 'ion-pricetag', tagsReady)}
-          </ul>
-        </Wrapper.Sidebar.Section>
+        <TagFilter
+          tags={tags}
+          publishCountName="conversations.counts.byTag"
+          manageUrl="tags/conversation"
+        />
       </Wrapper.Sidebar>
     );
   }

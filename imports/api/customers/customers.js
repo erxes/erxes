@@ -1,12 +1,11 @@
 import faker from 'faker';
-import { Mongo } from 'meteor/mongo';
 import { Random } from 'meteor/random';
 import { _ } from 'meteor/underscore';
 import { Factory } from 'meteor/dburles:factory';
 import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 import { Integrations } from '/imports/api/integrations/integrations';
 import { Brands } from '/imports/api/brands/brands';
-import { Tags } from '/imports/api/tags/tags';
+import { TagsCollection, tagsHelper, tagSchemaOptions } from '/imports/api/tags/utils';
 
 const messengerSchema = new SimpleSchema({
   lastSeenAt: {
@@ -92,14 +91,14 @@ const schema = new SimpleSchema({
     optional: true,
     label: 'Email',
   },
+  isUser: {
+    type: Boolean,
+    label: 'Is user of one of our products',
+    optional: true,
+  },
   integrationId: {
     type: String,
     regEx: SimpleSchema.RegEx.Id,
-  },
-  tagIds: {
-    type: [String],
-    regEx: SimpleSchema.RegEx.Id,
-    optional: true,
   },
   createdAt: {
     type: Date,
@@ -123,30 +122,15 @@ const schema = new SimpleSchema({
     type: facebookSchema,
     optional: true,
   },
+
+  ...tagSchemaOptions(),
 });
 
-class CustomersCollection extends Mongo.Collection {
+class CustomersCollection extends TagsCollection {
   insert(doc, callback) {
     const customer = Object.assign({ createdAt: new Date() }, doc);
 
     return super.insert(customer, callback);
-  }
-
-  remove(selector, callback) {
-    const customers = this.find(selector).fetch();
-    const result = super.remove(selector, callback);
-
-    // remove tags
-    let removeIds = [];
-
-    customers.forEach(obj => {
-      removeIds.push(obj.tagIds || []);
-    });
-
-    removeIds = _.uniq(_.flatten(removeIds));
-    Tags.update({ _id: { $in: removeIds } }, { $inc: { objectCount: -1 } });
-
-    return result;
   }
 
   /**
@@ -212,7 +196,7 @@ Customers.helpers({
     return results;
   },
   getTags() {
-    return Tags.find({ _id: { $in: this.tagIds || [] } }).fetch();
+    return tagsHelper.tags();
   },
 });
 
@@ -233,6 +217,7 @@ Customers.deny({
 Customers.publicFields = {
   name: 1,
   email: 1,
+  isUser: 1,
   integrationId: 1,
   createdAt: 1,
   messengerData: 1,

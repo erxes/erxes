@@ -1,7 +1,11 @@
-$light-gray: #f8f8f8;
 $unread-bg: #f3f1f7;
 
-#popover-notification {
+@mixin hover-state {
+  background: $grey-light;
+  cursor: pointer;
+}
+
+.notification-popover {
   right: 15px;
   max-width: 360px;
 }
@@ -18,6 +22,12 @@ $unread-bg: #f3f1f7;
 
     .body:hover {
       cursor: pointer;
+    }
+  }
+
+  .text {
+    .second-line {
+      margin-top: 3px;
     }
   }
 }
@@ -52,7 +62,8 @@ $unread-bg: #f3f1f7;
 
   li {
     padding: 0 !important;
-    border-bottom: 1px solid $border-grey;
+    border-bottom: 1px solid $grey;
+    @include transition(all .2s ease);
 
     &:last-child {
       border: 0;
@@ -62,27 +73,32 @@ $unread-bg: #f3f1f7;
       display: block;
       padding: 10px 20px;
       color: $gray-dark;
-      @include transition(all .2s ease);
-
-      &:hover, &:focus {
-        background: $light-gray;
-        cursor: pointer;
-      }
-
-      a.first-line {
-        margin-top: 0;
-        white-space: normal;
-        font-weight: 500;
-        font-size: 13px;
-      }
-
-      .second-line {
-        font-size: 12px;
-      }
     }
 
     &.unread {
       background: $unread-bg;
+    }
+
+    &:hover {
+      @include hover-state;
+    }
+
+    &:focus {
+      @include hover-state;
+    }
+  }
+
+  .text {
+    a.first-line {
+      margin-top: 0;
+      white-space: normal;
+      font-weight: 500;
+      font-size: 13px;
+    }
+
+    .second-line {
+      font-size: 12px;
+      margin-top: 3px;
     }
   }
 }

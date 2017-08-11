@@ -1,7 +1,24 @@
+//colors
+$color-mention-active: darken($message-background, 10%);
+$mention-shadow: 0 0 10px -3px $black-transparent;
 $editor-text-color: #999;
+$transparent-border: rgba(0, 0, 0, 0.05);
+
+.editor-bordered {
+  border: 1px solid $border-grey;
+  border-radius: $border-radius;
+}
 
 .RichEditor-root {
   font-size: 14px;
+
+  select {
+    border: 0;
+    outline: 0;
+    background: 0;
+    margin-top: 3px;
+    color: $text-color-light;
+  }
 }
 
 .RichEditor-editor {
@@ -68,6 +85,21 @@ $editor-text-color: #999;
   }
 }
 
+.form-content {
+  .RichEditor-controls-root {
+    padding: 10px 20px 5px;
+  }
+
+  .public-DraftEditor-content {
+    padding: 20px;
+    min-height: 300px;
+  }
+
+  .RichEditor-editor {
+    border-color: $transparent-border;
+  }
+}
+
 .RichEditor-styleButton {
   color: $editor-text-color;
   cursor: pointer;
@@ -85,11 +117,6 @@ $editor-text-color: #999;
 .RichEditor-activeButton {
   color: $main-color;
 }
-
-//colors
-$color-mention-active: darken($message-background, 10%);
-$mention-shadow: 0 0 10px -3px rgba(0, 0, 0, 0.5);
-
 
 @mixin mention-default {
   cursor: pointer;
@@ -137,8 +164,12 @@ $mention-shadow: 0 0 10px -3px rgba(0, 0, 0, 0.5);
   box-sizing: border-box;
   transform: scale(0);
   bottom: 100%;
+
+  // scss-lint:disable ImportantRule
   top: auto !important;
   left: 0 !important;
+  // scss-lint:enable ImportantRule
+
   max-height: 300px;
   overflow: auto;
 }

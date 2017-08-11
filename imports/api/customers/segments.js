@@ -32,6 +32,11 @@ const schema = new SimpleSchema({
     type: String,
     optional: true,
   },
+  subOf: {
+    type: String,
+    regEx: SimpleSchema.RegEx.Id,
+    optional: true,
+  },
   color: {
     type: String,
   },
@@ -54,8 +59,17 @@ class SegmentsCollection extends Mongo.Collection {
   }
 }
 
-const Customers = new SegmentsCollection('segments');
+const Segments = new SegmentsCollection('segments');
 
-Customers.attachSchema(schema);
+Segments.attachSchema(schema);
 
-export default Customers;
+Segments.helpers({
+  getParentSegment() {
+    return Segments.findOne(this.subOf);
+  },
+  getSubSegments() {
+    return Segments.find({ subOf: this._id }).fetch();
+  },
+});
+
+export default Segments;

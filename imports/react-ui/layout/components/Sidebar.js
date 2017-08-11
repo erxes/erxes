@@ -49,7 +49,7 @@ class Section extends Component {
   render() {
     const { children, collapsible, className } = this.props;
     const classes = classNames(className, {
-      section: true,
+      'sidebar-section': true,
       collapsible,
     });
     const height = {
@@ -71,7 +71,11 @@ class Section extends Component {
 }
 
 function Title({ children }) {
-  return <h3>{children}</h3>;
+  return (
+    <h3>
+      {children}
+    </h3>
+  );
 }
 Title.propTypes = {
   children: PropTypes.node.isRequired,

@@ -1,10 +1,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Wrapper } from '/imports/react-ui/layout/components';
+import { TagFilter } from '/imports/react-ui/common';
 import Segments from './Segments';
 import Brands from './Brands';
 import Integrations from './Integrations';
-import Tags from './Tags';
 
 const propTypes = {
   segments: PropTypes.array.isRequired,
@@ -19,7 +19,8 @@ function Sidebar({ segments, brands, integrations, tags }) {
       <Segments segments={segments} />
       <Brands brands={brands} />
       <Integrations integrations={integrations} />
-      <Tags tags={tags} />
+
+      <TagFilter tags={tags} publishCountName="customers.tag." manageUrl="tags/customer" />
     </Wrapper.Sidebar>
   );
 }

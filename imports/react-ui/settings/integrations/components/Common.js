@@ -108,7 +108,9 @@ class Common extends Component {
 
         <Modal.Footer>
           <ButtonToolbar className="pull-right">
-            <Button type="submit" bsStyle="primary">Save</Button>
+            <Button type="submit" bsStyle="primary">
+              Save
+            </Button>
           </ButtonToolbar>
         </Modal.Footer>
       </form>
@@ -117,8 +119,8 @@ class Common extends Component {
 }
 
 Common.propTypes = {
-  brands: PropTypes.array.isRequired, // eslint-disable-line react/forbid-prop-types
-  integration: PropTypes.object, // eslint-disable-line react/forbid-prop-types
+  brands: PropTypes.array.isRequired, // eslint-disable-line
+  integration: PropTypes.object, // eslint-disable-line
   save: PropTypes.func.isRequired,
 };
 
