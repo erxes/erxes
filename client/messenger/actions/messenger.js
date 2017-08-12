@@ -95,14 +95,40 @@ export const saveEmail = email => dispatch =>
 
 
 export const endConversation = () => (dispatch) => {
-  // reset local storage items
-  setLocalStorageItem('visitorEmail', '');
-  setLocalStorageItem('lastConversationId', '');
-  setLocalStorageItem('customerId', '');
+  const setting = connection.setting;
 
-  // remove customerId from connection data
-  connection.data.customerId = '';
+  // ignore this action for inapp
+  if (setting.email) {
+    return;
+  }
 
-  dispatch({ type: END_CONVERSATION });
-  dispatch({ type: CHANGE_CONVERSATION, conversationId: '' });
+  client.mutate({
+    mutation: gql`
+      mutation endConversation($brandCode: String!, $data: JSON) {
+        endConversation(brandCode: $brandCode, data: $data) {
+          customerId
+        }
+      }`,
+
+    variables: {
+      brandCode: setting.brand_id,
+      data: setting.data,
+    },
+  })
+
+  // after mutation
+  .then(({ data }) => {
+    const { customerId } = data.endConversation;
+
+    // reset local storage items
+    setLocalStorageItem('visitorEmail', '');
+    setLocalStorageItem('lastConversationId', '');
+    setLocalStorageItem('customerId', customerId);
+
+    // update connection customerId
+    connection.data.customerId = customerId;
+
+    dispatch({ type: END_CONVERSATION });
+    dispatch({ type: CHANGE_ROUTE, route: 'conversations' });
+  });
 };
