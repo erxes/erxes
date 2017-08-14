@@ -2,7 +2,14 @@
 
 import gql from 'graphql-tag';
 
-import { MESSENGER_TOGGLE, CHANGE_ROUTE, CHANGE_CONVERSATION, SAVED_EMAIL } from '../constants';
+import {
+  MESSENGER_TOGGLE,
+  CHANGE_ROUTE,
+  CHANGE_CONVERSATION,
+  SAVED_EMAIL,
+  END_CONVERSATION,
+} from '../constants';
+
 import { connection, setLocalStorageItem, getLocalStorageItem } from '../connection';
 import client from '../../apollo-client';
 
@@ -85,3 +92,43 @@ export const saveEmail = email => dispatch =>
 
     dispatch({ type: SAVED_EMAIL });
   });
+
+
+export const endConversation = () => (dispatch) => {
+  const setting = connection.setting;
+
+  // ignore this action for inapp
+  if (setting.email) {
+    return;
+  }
+
+  client.mutate({
+    mutation: gql`
+      mutation endConversation($brandCode: String!, $data: JSON) {
+        endConversation(brandCode: $brandCode, data: $data) {
+          customerId
+        }
+      }`,
+
+    variables: {
+      brandCode: setting.brand_id,
+      data: setting.data,
+    },
+  })
+
+  // after mutation
+  .then(({ data }) => {
+    const { customerId } = data.endConversation;
+
+    // reset local storage items
+    setLocalStorageItem('visitorEmail', '');
+    setLocalStorageItem('lastConversationId', '');
+    setLocalStorageItem('customerId', customerId);
+
+    // update connection customerId
+    connection.data.customerId = customerId;
+
+    dispatch({ type: END_CONVERSATION });
+    dispatch({ type: CHANGE_ROUTE, route: 'conversations' });
+  });
+};

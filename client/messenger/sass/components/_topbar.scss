@@ -46,6 +46,10 @@
     background: url($icon-back) no-repeat 50%;
   }
 
+  &.close {
+    background: url($icon-close) no-repeat 50%;
+  }
+
   &:hover {
     background-color: rgba($black, .2);
   }
