@@ -65,8 +65,9 @@ class Form extends Component {
       return (
         <FormGroup>
           <ControlLabel>Preview</ControlLabel>
-
-          <div dangerouslySetInnerHTML={{ __html: this.state.contentTemplate }} />
+          <div style={{ overflow: 'auto' }}>
+            <div dangerouslySetInnerHTML={{ __html: this.state.contentTemplate }} />
+          </div>
         </FormGroup>
       );
     }
