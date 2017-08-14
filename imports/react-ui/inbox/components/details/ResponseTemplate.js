@@ -61,6 +61,8 @@ class ResponseTemplate extends Component {
 
     // find response template using event key
     const responseTemplate = _.find(responseTemplates, t => t._id === eventKey);
+
+    this.refs.overlay.hide();
     return this.props.onSelect(responseTemplate);
   }
 
@@ -86,14 +88,22 @@ class ResponseTemplate extends Component {
 
     return options.map(item => {
       // filter items by key
-      if (key && item.name.toLowerCase().indexOf(key) < 0) {
+      if (
+        key &&
+        item.name.toLowerCase().indexOf(key) < 0 &&
+        (key && item.content.toLowerCase().indexOf(key) < 0)
+      ) {
         return false;
       }
 
       return (
         <li key={item._id} onClick={() => this.onSelect(item._id)}>
-          <div className="template-title">{item.name}</div>
-          <div className="template-content">{strip(item.content)}</div>
+          <div className="template-title">
+            {item.name}
+          </div>
+          <div className="template-content">
+            {strip(item.content)}
+          </div>
         </li>
       );
     });
@@ -145,9 +155,7 @@ class ResponseTemplate extends Component {
         <div className="popover-footer">
           <ul className="popover-list linked text-center">
             <li>
-              <a href={FlowRouter.path('settings/responseTemplates/list')}>
-                Manage templates
-              </a>
+              <a href={FlowRouter.path('settings/responseTemplates/list')}>Manage templates</a>
             </li>
           </ul>
         </div>
@@ -156,7 +164,7 @@ class ResponseTemplate extends Component {
 
     return (
       <div className="response-template">
-        <OverlayTrigger trigger="click" placement="top" overlay={popover} rootClose>
+        <OverlayTrigger trigger="click" placement="top" overlay={popover} rootClose ref="overlay">
           <Button bsStyle="link" className="dropup">
             <i className="ion-clipboard" /> Templates <span className="caret" />
           </Button>

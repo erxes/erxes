@@ -71,7 +71,11 @@ class Section extends Component {
 }
 
 function Title({ children }) {
-  return <h3>{children}</h3>;
+  return (
+    <h3>
+      {children}
+    </h3>
+  );
 }
 Title.propTypes = {
   children: PropTypes.node.isRequired,

@@ -28,12 +28,8 @@ function Segments({ segments }) {
             <i className="ion-more" />
           </DropdownToggle>
           <Dropdown.Menu>
-            <MenuItem href={FlowRouter.path('segments/new')}>
-              New segment
-            </MenuItem>
-            <MenuItem href={FlowRouter.path('segments/list')}>
-              Manage segments
-            </MenuItem>
+            <MenuItem href={FlowRouter.path('segments/new')}>New segment</MenuItem>
+            <MenuItem href={FlowRouter.path('segments/list')}>Manage segments</MenuItem>
           </Dropdown.Menu>
         </Dropdown>
 
