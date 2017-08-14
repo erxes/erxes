@@ -179,10 +179,11 @@ class Form extends Common {
             onChange={this.handleFormChange}
             defaultValue={integration.formId}
           >
-
             <option />
             {this.props.forms.map(form => (
-              <option key={form._id} value={form._id}>{form.title}</option>
+              <option key={form._id} value={form._id}>
+                {form.title}
+              </option>
             ))}
           </FormControl>
         </FormGroup>
@@ -191,10 +192,11 @@ class Form extends Common {
           <ControlLabel>Load</ControlLabel>
 
           <FormControl componentClass="select" defaultValue={formData.loadType}>
-
             <option />
             {this.props.loadTypes.map((type, index) => (
-              <option key={index} value={type}>{type}</option>
+              <option key={index} value={type}>
+                {type}
+              </option>
             ))}
           </FormControl>
         </FormGroup>
@@ -207,10 +209,11 @@ class Form extends Common {
             componentClass="select"
             defaultValue={formData.successAction}
           >
-
             <option />
             {this.props.successActions.map((action, index) => (
-              <option key={index} value={action}>{action}</option>
+              <option key={index} value={action}>
+                {action}
+              </option>
             ))}
           </FormControl>
         </FormGroup>

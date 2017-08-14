@@ -192,7 +192,9 @@ class SegmentsForm extends Component {
                 >
                   <option value="">[not selected]</option>
                   {this.props.headSegments.map(segment => (
-                    <option value={segment._id} key={segment._id}>{segment.name}</option>
+                    <option value={segment._id} key={segment._id}>
+                      {segment.name}
+                    </option>
                   ))}
                 </FormControl>
               </FormGroup>
@@ -221,7 +223,8 @@ class SegmentsForm extends Component {
                       >
                         <option value="any">any</option>
                         <option value="all">all</option>
-                      </FormControl> of the following conditions
+                      </FormControl>{' '}
+                      of the following conditions
                     </Form>
                   </div>
                 </div>

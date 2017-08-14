@@ -31,15 +31,11 @@ function MessengerSection({ customer }) {
         </li>
         <li>
           Last online
-          <span className="counter">
-            {moment(messengerData.lastSeenAt).fromNow()}
-          </span>
+          <span className="counter">{moment(messengerData.lastSeenAt).fromNow()}</span>
         </li>
         <li>
           Session count
-          <span className="counter">
-            {messengerData.sessionCount}
-          </span>
+          <span className="counter">{messengerData.sessionCount}</span>
         </li>
       </ul>
     </Wrapper.Sidebar.Section>

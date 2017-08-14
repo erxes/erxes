@@ -16,7 +16,11 @@ function Conditions({ conditions, changeCondition, removeCondition, parentSegmen
     <div>
       {parentSegmentId
         ? <a href={FlowRouter.path('segments/edit', { id: parentSegmentId })} target="_blank">
-            <h4><Label>Parent segment conditions <i className="ion-android-open" /></Label></h4>
+            <h4>
+              <Label>
+                Parent segment conditions <i className="ion-android-open" />
+              </Label>
+            </h4>
             <br />
           </a>
         : null}
