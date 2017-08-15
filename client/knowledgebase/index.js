@@ -5,6 +5,7 @@ import client, { createStore } from '../apollo-client';
 import { App } from './containers';
 import { connection } from './connection';
 import reducers from './reducers';
+import './sass/style.scss';
 
 window.addEventListener('message', (event) => {
   if (!(event.data.fromPublisher && event.data.setting)) {

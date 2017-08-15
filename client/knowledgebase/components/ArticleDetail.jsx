@@ -6,15 +6,11 @@ export default class ArticleDetail extends React.Component {
     const { articleData } = this.props;
     console.log('this.props: ', this.props);
     return (
-      <div>
-        <div>
-          {articleData.title}
-        </div>
-        <div>
-          {articleData.summary}
-        </div>
-        <div>
-          {articleData.content}
+      <div className="erxes-article detail">
+        <h1>{articleData.title}</h1>
+        <div className="erxes-article-content">
+          <p>{articleData.summary}</p>
+          <p>{articleData.content}</p>
         </div>
       </div>
     );

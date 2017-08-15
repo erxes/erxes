@@ -3,7 +3,7 @@ import classNames from 'classnames';
 import { KnowledgeBase } from '../containers';
 
 function App() {
-  const widgetClasses = classNames('erxes-widget');
+  const widgetClasses = classNames('erxes-widget-kb');
 
   return (
     <div className={widgetClasses}>

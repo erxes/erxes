@@ -7,12 +7,7 @@ export default class KnowledgeBase extends React.Component {
   constructor(props) {
     super(props);
     console.log('props: ', props);
-    this.onClickHandler = this.onClickHandler.bind(this);
     this.onChangeHandler = this.onChangeHandler.bind(this);
-  }
-
-  onClickHandler(event) {
-
   }
 
   onChangeHandler(event) {
@@ -29,13 +24,15 @@ export default class KnowledgeBase extends React.Component {
       console.log('bbbb: ', displayType);
       return (
         <div>
-          <div className="erxes-form">
-            <div className="erxes-topbar thiner">
-              <div className="erxes-middle">
-                <input onChange={this.onChangeHandler} />
-              </div>
+          <div className="erxes-searchbar">
+            <div className="erxes-knowledge-container">
+              <input onChange={this.onChangeHandler} />
             </div>
-            <Categories searchStr={displayType.topicData.searchStr} />
+          </div>
+          <div className="erxes-content">
+            <div className="erxes-knowledge-container">
+              <Categories searchStr={displayType.topicData.searchStr} />
+            </div>
           </div>
         </div>
       );
@@ -43,9 +40,15 @@ export default class KnowledgeBase extends React.Component {
       console.log('cccc');
       return (
         <div>
-          <div> <a href="" onClick={this.onClickHandler}>Categories</a> </div>
-          <div className="erxes-form">
-            <ArticleDetail articleData={displayType.articleData} />
+          <div className="erxes-searchbar">
+            <div className="erxes-knowledge-container">
+              <a href="" className="back" onClick={this.onClickHandler} />
+            </div>
+          </div>
+          <div className="erxes-content">
+            <div className="erxes-knowledge-container">
+              <ArticleDetail articleData={displayType.articleData} />
+            </div>
           </div>
         </div>
       );

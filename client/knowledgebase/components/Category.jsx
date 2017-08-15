@@ -17,7 +17,7 @@ export default class Category extends React.Component {
     console.log('category: ', category);
     return (
       <div>
-        {category.title}
+        <h1>{category.title}</h1>
         {this.renderArticles()}
       </div>
     );

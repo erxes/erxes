@@ -4,11 +4,5 @@
 @import 'base/mixins';
 @import 'base/base';
 
-@import 'components/launcher';
-@import 'components/messenger';
-@import 'components/topbar';
-@import 'components/conversations';
-@import 'components/messages';
-@import 'components/message-sender';
-@import 'components/visitor-form';
-@import 'components/notification';
+@import 'components/searchbar';
+@import 'components/knowledgebase';
