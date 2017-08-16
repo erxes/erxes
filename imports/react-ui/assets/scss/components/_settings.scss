@@ -152,8 +152,9 @@ $bg-widget-background: #faf9fb;
     cursor: pointer;
     box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.2);
     overflow: hidden;
-}
-
-.logo-container img {
-    max-width: 100%;
+    background-position: center;
+    background-size: 46px;
+    background-repeat: no-repeat;
+    margin-top: 10px;
+    float: right;
 }
