@@ -1,12 +1,15 @@
 import React, { PropTypes } from 'react';
-import { Categories, ArticleDetail } from '../containers';
-import { CONTENT_TYPE_TOPIC, CONTENT_TYPE_ARTICLE } from '../constants';
+import { Categories, CategoryDetail, ArticleDetail } from '../containers';
+import {
+  CONTENT_TYPE_TOPIC,
+  CONTENT_TYPE_CATEGORY,
+  CONTENT_TYPE_ARTICLE,
+} from '../constants';
 
 
 export default class KnowledgeBase extends React.Component {
   constructor(props) {
     super(props);
-    console.log('props: ', props);
     this.onClickHandler = this.onClickHandler.bind(this);
     this.onChangeHandler = this.onChangeHandler.bind(this);
   }
@@ -25,13 +28,14 @@ export default class KnowledgeBase extends React.Component {
   render() {
     const { displayType } = this.props;
 
+    console.log('KnowledgeBase.render: ', displayType);
     if (displayType.displayType === CONTENT_TYPE_TOPIC) {
       console.log('bbbb: ', displayType);
       return (
         <div>
-          <div className="erxes-form">
-            <div className="erxes-topbar thiner">
-              <div className="erxes-middle">
+          <div>
+            <div>
+              <div>
                 <input onChange={this.onChangeHandler} />
               </div>
             </div>
@@ -39,12 +43,22 @@ export default class KnowledgeBase extends React.Component {
           </div>
         </div>
       );
+    } else if (displayType.displayType === CONTENT_TYPE_CATEGORY) {
+      console.log('cccc: ', displayType);
+      return (
+        <div>
+          <div> <a href="" onClick={this.onClickHandler}>Topic</a> </div>
+          <div>
+            <CategoryDetail categoryData={displayType.categoryData} />
+          </div>
+        </div>
+      );
     } else if (displayType.displayType === CONTENT_TYPE_ARTICLE) {
-      console.log('cccc');
+      console.log('dddd: ', displayType);
       return (
         <div>
           <div> <a href="" onClick={this.onClickHandler}>Categories</a> </div>
-          <div className="erxes-form">
+          <div>
             <ArticleDetail articleData={displayType.articleData} />
           </div>
         </div>

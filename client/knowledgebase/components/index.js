@@ -1,14 +1,16 @@
 import App from './App';
 import Article from './Article';
-import ArticleDetail from './ArticleDetail';
 import Category from './Category';
 import Categories from './Categories';
 import KnowledgeBase from './KnowledgeBase';
+import ArticleDetail from './ArticleDetail';
+import CategoryDetail from './CategoryDetail';
 
 export {
   App,
   Article,
   ArticleDetail,
+  CategoryDetail,
   Category,
   Categories,
   KnowledgeBase,

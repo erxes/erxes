@@ -1,27 +1,20 @@
 import React, { PropTypes } from 'react';
-import Category from './Category';
+import { Category } from '../containers';
 
 export default class Categories extends React.Component {
 
   constructor(props, context, aa) {
     super(props, context);
-    console.log('KnowledgeBase.js.props: ', props);
-    console.log('KnowledgeBase.js.context: ', context);
-    console.log('KnowledgeBase.js.aa: ', aa);
-
+    console.log('Categories.jsx: ', props, context, aa, Category);
   }
 
   renderCategories() {
     const { kbTopic } = this.props;
     const categories = kbTopic.categories;
-    console.log('Categories.jsx.props: ', this.props);
 
     return categories.map((category) => {
       return (
-        <Category
-          key={category._id}
-          category={category}
-        />
+        <Category key={category._id} category={category} />
       );
     });
   }

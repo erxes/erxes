@@ -1,24 +1,33 @@
 import React, { PropTypes } from 'react';
-import { Article } from '../containers';
 
 export default class Category extends React.Component {
-  renderArticles() {
+  constructor(props) {
+    super(props);
+    this.handleOnClick = this.handleOnClick.bind(this);
+  }
+
+  handleOnClick(event) {
+    event.preventDefault();
     const { category } = this.props;
-    const articles = category.articles;
-    return articles.map((article) => {
-      return (
-        <Article key={article._id} article={article} />
-      );
+    const { onSwitchToCategoryDisplay } = this.props;
+    onSwitchToCategoryDisplay({
+      _id: category._id,
+      title: category.title,
+      description: category.description,
+      articles: category.articles,
     });
   }
 
   renderCategory() {
     const { category } = this.props;
-    console.log('category: ', category);
     return (
       <div>
-        {category.title}
-        {this.renderArticles()}
+        <div>
+          <a href="" onClick={this.handleOnClick}>{category.title}</a>
+        </div>
+        <div>
+          {category.description}
+        </div>
       </div>
     );
   }
@@ -30,4 +39,5 @@ export default class Category extends React.Component {
 
 Category.propTypes = {
   category: PropTypes.object, // eslint-disable-line
+  onSwitchToCategoryDisplay: PropTypes.func
 };
