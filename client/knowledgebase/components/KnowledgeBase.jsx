@@ -64,9 +64,15 @@ export default class KnowledgeBase extends React.Component {
     } else if (displayType.displayType === CONTENT_TYPE_ARTICLE) {
       return (
         <div>
-          <div> <a href="" onClick={this.onCategoryClickHandler}>Categories</a> </div>
-          <div>
-            <ArticleDetail data={displayType.data} />
+          <div className="erxes-searchbar">
+            <div className="erxes-knowledge-container">
+              <a href="" className="back" onClick={this.onCategoryClickHandler} />
+            </div>
+          </div>
+          <div className="erxes-content">
+            <div className="erxes-knowledge-container">
+              <ArticleDetail data={displayType.data} />
+            </div>
           </div>
         </div>
       );

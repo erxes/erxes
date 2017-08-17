@@ -17,12 +17,8 @@ export default class CategoryDetail extends React.Component {
     const { category } = this.props;
     return (
       <div>
-        <div>
-          {category.title}
-        </div>
-        <div>
-          {category.description}
-        </div>
+        <h1>{category.title}</h1>
+        {category.description}
         <div>
           {this.renderArticles()}
         </div>

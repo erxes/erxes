@@ -21,12 +21,10 @@ export default class Category extends React.Component {
     console.log('category: ', category);
     return (
       <div>
-        <div>
-          <a href="" onClick={this.handleOnClick}>{category.title}</a>
-        </div>
-        <div>
-          {category.description}
-        </div>
+        <a href="" onClick={this.handleOnClick}>
+          <h1>{category.title}</h1>
+        </a>
+        {category.description}
       </div>
     );
   }
