@@ -9,9 +9,7 @@ export const switchToArticleDisplay = (data) => {
   console.log('article dispatch.data: ', data);
   return {
     type: SWITCH_TO_ARTICLE_DISPLAY,
-    articleData: {
-      ...data,
-    },
+    data,
   };
 };
 
@@ -19,9 +17,7 @@ export const switchToCategoryDisplay = (data) => {
   console.log('category dispatch.data: ', data);
   return {
     type: SWITCH_TO_CATEGORY_DISPLAY,
-    categoryData: {
-      ...data,
-    },
+    ...data, // todo
   };
 };
 

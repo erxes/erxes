@@ -12,10 +12,22 @@ export default class KnowledgeBase extends React.Component {
     super(props);
     this.onClickHandler = this.onClickHandler.bind(this);
     this.onChangeHandler = this.onChangeHandler.bind(this);
+    this.onCategoryClickHandler = this.onCategoryClickHandler.bind(this);
+    // this.onTopicClickHandler = this.onTopicClickHandler.bind(this);
   }
 
   onClickHandler(event) {
 
+  }
+
+  onCategoryClickHandler(event) {
+    event.preventDefault();
+    console.log('category click handler: ', event);
+    console.log('this.props.displayType: ', this.props.displayType);
+    const { onSwitchToCategoryDisplay } = this.props;
+    onSwitchToCategoryDisplay({
+      category: this.props.displayType.data.category
+    });
   }
 
   onChangeHandler(event) {
@@ -47,9 +59,9 @@ export default class KnowledgeBase extends React.Component {
       console.log('cccc: ', displayType);
       return (
         <div>
-          <div> <a href="" onClick={this.onClickHandler}>Topic</a> </div>
+          <div> <a href="" onClick={this.onTopicClickHandler}>Topic</a> </div>
           <div>
-            <CategoryDetail categoryData={displayType.categoryData} />
+            <CategoryDetail category={displayType.category} />
           </div>
         </div>
       );
@@ -57,9 +69,9 @@ export default class KnowledgeBase extends React.Component {
       console.log('dddd: ', displayType);
       return (
         <div>
-          <div> <a href="" onClick={this.onClickHandler}>Categories</a> </div>
+          <div> <a href="" onClick={this.onCategoryClickHandler}>Categories</a> </div>
           <div>
-            <ArticleDetail articleData={displayType.articleData} />
+            <ArticleDetail data={displayType.data} />
           </div>
         </div>
       );
@@ -72,5 +84,6 @@ export default class KnowledgeBase extends React.Component {
 KnowledgeBase.propTypes = {
   displayType: PropTypes.object,
   onSwitchToTopicDisplay: PropTypes.func,
+  onSwitchToCategoryDisplay: PropTypes.func,
   onUpdateSearchString: PropTypes.func,
 };

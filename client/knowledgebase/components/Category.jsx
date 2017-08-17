@@ -11,10 +11,7 @@ export default class Category extends React.Component {
     const { category } = this.props;
     const { onSwitchToCategoryDisplay } = this.props;
     onSwitchToCategoryDisplay({
-      _id: category._id,
-      title: category.title,
-      description: category.description,
-      articles: category.articles,
+      category,
     });
   }
 

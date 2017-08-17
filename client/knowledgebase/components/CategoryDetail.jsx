@@ -4,24 +4,24 @@ import { Article } from '../containers';
 export default class CategoryDetail extends React.Component {
 
   renderArticles() {
-    const articles = this.props.categoryData.articles;
+    const { category } = this.props;
+    const articles = category.articles;
     return articles.map((article) => {
       return (
-        <Article key={article._id} article={article} />
+        <Article key={article._id} category={category} article={article} />
       );
     });
   }
 
   renderCategory() {
-    const { categoryData } = this.props;
-    console.log('this.props: ', this.props);
+    const { category } = this.props;
     return (
       <div>
         <div>
-          {categoryData.title}
+          {category.title}
         </div>
         <div>
-          {categoryData.description}
+          {category.description}
         </div>
         <div>
           {this.renderArticles()}
@@ -36,5 +36,5 @@ export default class CategoryDetail extends React.Component {
 }
 
 CategoryDetail.propTypes = {
-  categoryData: PropTypes.object, // eslint-disable-line
+  category: PropTypes.object, // eslint-disable-line
 };

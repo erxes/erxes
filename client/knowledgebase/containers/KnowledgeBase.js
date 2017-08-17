@@ -1,6 +1,6 @@
 import { connect } from 'react-redux';
 import { KnowledgeBase } from '../components';
-import { switchToTopicDisplay, updateSearchString } from '../actions';
+import { switchToCategoryDisplay, switchToTopicDisplay, updateSearchString } from '../actions';
 
 const mapStateToProps = state => ({
   displayType: state.displayType,
@@ -9,6 +9,9 @@ const mapStateToProps = state => ({
 const mapDisptachToProps = dispatch => ({
   onSwitchToTopicDisplay() {
     dispatch(switchToTopicDisplay());
+  },
+  onSwitchToCategoryDisplay(category) {
+    dispatch(switchToCategoryDisplay(category));
   },
   onUpdateSearchString(searchStr) {
     dispatch(updateSearchString(searchStr));

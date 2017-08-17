@@ -11,8 +11,6 @@ window.addEventListener('message', (event) => {
     return;
   }
 
-  console.log('setting: ', event.data.setting);
-
   connection.data.topicId = event.data.setting.topic_id;
   // notify parent window that connected
   // window.parent.postMessage({

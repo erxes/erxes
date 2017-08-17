@@ -3,18 +3,17 @@ import React, { PropTypes } from 'react';
 export default class ArticleDetail extends React.Component {
 
   renderArticle() {
-    const { articleData } = this.props;
-    console.log('this.props: ', this.props);
+    const { data } = this.props;
     return (
       <div>
         <div>
-          {articleData.title}
+          {data.title}
         </div>
         <div>
-          {articleData.summary}
+          {data.summary}
         </div>
         <div>
-          {articleData.content}
+          {data.content}
         </div>
       </div>
     );
@@ -26,5 +25,5 @@ export default class ArticleDetail extends React.Component {
 }
 
 ArticleDetail.propTypes = {
-  articleData: PropTypes.object, // eslint-disable-line
+  data: PropTypes.object, // eslint-disable-line
 };

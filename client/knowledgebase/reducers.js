@@ -18,21 +18,18 @@ const displayType = (
     } }, action) => {
   switch (action.type) {
     case SWITCH_TO_ARTICLE_DISPLAY: {
-      console.log('aaa 1', action);
       return {
         displayType: CONTENT_TYPE_ARTICLE,
-        articleData: action.articleData,
+        ...action,
       };
     }
     case SWITCH_TO_CATEGORY_DISPLAY: {
-      console.log('aaa 2', action);
       return {
         displayType: CONTENT_TYPE_CATEGORY,
-        categoryData: action.categoryData,
+        category: action.category,
       };
     }
     case SWITCH_TO_TOPIC_DISPLAY: {
-      console.log('aaa 3', action);
       return {
         displayType: CONTENT_TYPE_TOPIC,
         topicData: {
@@ -42,7 +39,6 @@ const displayType = (
       };
     }
     case UPDATE_SEARCH_STRING: {
-      console.log('aaa 3');
       return {
         displayType: CONTENT_TYPE_TOPIC,
         topicData: {
@@ -52,7 +48,6 @@ const displayType = (
       };
     }
     default: {
-      console.log('displayType.state: ', state);
       return state;
     }
   }

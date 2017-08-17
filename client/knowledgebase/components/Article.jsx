@@ -10,13 +10,14 @@ export default class Article extends React.Component {
   handleOnClick(event) {
     event.preventDefault();
     const { article } = this.props;
+    const { category } = this.props;
     const { onSwitchToArticleDisplay } = this.props;
-    console.log('article._id: ', article._id);
     onSwitchToArticleDisplay({
       _id: article._id,
       title: article.title,
       summary: article.summary,
       content: article.content,
+      category,
     });
   }
 
@@ -39,5 +40,6 @@ export default class Article extends React.Component {
 
 Article.propTypes = {
   article: PropTypes.object, // eslint-disable-line
-  onSwitchToArticleDisplay: PropTypes.func
+  category: PropTypes.object, // eslint-disable-line
+  onSwitchToArticleDisplay: PropTypes.func // eslint-disable-line
 };
