@@ -24,12 +24,10 @@ export default class Article extends React.Component {
   renderArticle() {
     const { article } = this.props;
     return (
-      <div>
-        <div>
-          <a href="" onClick={this.handleOnClick}>{article.title}</a>
-        </div>
-        <div>{article.summary}</div>
-      </div>
+      <a href="" className="erxes-article" onClick={this.handleOnClick}>
+        <h3>{article.title}</h3>
+        <p>{article.summary}</p>
+      </a>
     );
   }
 

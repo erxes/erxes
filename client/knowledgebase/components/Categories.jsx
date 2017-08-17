@@ -3,11 +3,6 @@ import { Category } from '../containers';
 
 export default class Categories extends React.Component {
 
-  constructor(props, context, aa) {
-    super(props, context);
-    console.log('Categories.jsx: ', props, context, aa, Category);
-  }
-
   renderCategories() {
     const { kbTopic } = this.props;
     const categories = kbTopic.categories;

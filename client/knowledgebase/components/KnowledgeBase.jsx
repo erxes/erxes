@@ -22,8 +22,6 @@ export default class KnowledgeBase extends React.Component {
 
   onCategoryClickHandler(event) {
     event.preventDefault();
-    console.log('category click handler: ', event);
-    console.log('this.props.displayType: ', this.props.displayType);
     const { onSwitchToCategoryDisplay } = this.props;
     onSwitchToCategoryDisplay({
       category: this.props.displayType.data.category
@@ -39,24 +37,22 @@ export default class KnowledgeBase extends React.Component {
 
   render() {
     const { displayType } = this.props;
-
-    console.log('KnowledgeBase.render: ', displayType);
     if (displayType.displayType === CONTENT_TYPE_TOPIC) {
-      console.log('bbbb: ', displayType);
       return (
         <div>
-          <div>
-            <div>
-              <div>
-                <input onChange={this.onChangeHandler} />
-              </div>
+          <div className="erxes-searchbar">
+            <div className="erxes-knowledge-container">
+              <input onChange={this.onChangeHandler} />
             </div>
-            <Categories searchStr={displayType.topicData.searchStr} />
+          </div>
+          <div className="erxes-content">
+            <div className="erxes-knowledge-container">
+              <Categories searchStr={displayType.topicData.searchStr} />
+            </div>
           </div>
         </div>
       );
     } else if (displayType.displayType === CONTENT_TYPE_CATEGORY) {
-      console.log('cccc: ', displayType);
       return (
         <div>
           <div> <a href="" onClick={this.onTopicClickHandler}>Topic</a> </div>
@@ -66,7 +62,6 @@ export default class KnowledgeBase extends React.Component {
         </div>
       );
     } else if (displayType.displayType === CONTENT_TYPE_ARTICLE) {
-      console.log('dddd: ', displayType);
       return (
         <div>
           <div> <a href="" onClick={this.onCategoryClickHandler}>Categories</a> </div>

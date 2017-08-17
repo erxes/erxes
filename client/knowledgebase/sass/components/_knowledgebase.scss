@@ -1,0 +1,60 @@
+.erxes-knowledge-container {
+  max-width: 900px;
+  margin: 0 auto;
+  color: $text-color;
+}
+
+.erxes-content {
+  padding: 25px;
+
+  h1 {
+    color: #333;
+    font-weight: normal;
+    margin-top: 0;
+  }
+}
+
+.erxes-article {
+  display: block;
+  padding: 25px;
+  text-decoration: none;
+  background: $white;
+  margin-bottom: 25px;
+  border: 1px solid $border-gray;
+  border-radius: $border-radius;
+  box-shadow: 0 6px 8px 0 rgba(0,0,0,0.07);
+
+  h3 {
+    font-size: 18px;
+    margin-bottom: 5px;
+    margin-top: 0;
+    color: #555;
+  }
+
+  p {
+    color: $text-color;
+    line-height: 24px;
+    font-size: 15px;
+    margin: 0;
+  }
+
+  &.detail {
+    padding: 50px 60px;
+
+    h1 {
+      color: #333;
+      font-size: 30px;
+      margin-top: 0;
+      font-weight: normal;
+    }
+
+    .erxes-article-content {
+
+      p {
+        margin-bottom: 15px;
+        font-size: 16px;
+        line-height: 28px;
+      }
+    }
+  }
+}

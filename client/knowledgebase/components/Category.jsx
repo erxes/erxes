@@ -1,4 +1,5 @@
 import React, { PropTypes } from 'react';
+import { Article } from '../containers';
 
 export default class Category extends React.Component {
   constructor(props) {
@@ -17,6 +18,7 @@ export default class Category extends React.Component {
 
   renderCategory() {
     const { category } = this.props;
+    console.log('category: ', category);
     return (
       <div>
         <div>

@@ -1,59 +1,20 @@
-#erxes-messenger-container {
-  position: fixed;
-  bottom: 0;
-  right: 0;
-  z-index: 1000000000;
+#erxes-knowledge-container {
+  min-height: 100%;
+  background: #f3f5f7;
+  border-radius: 4px;
 }
 
-#erxes-messenger-iframe {
-  position: absolute;
-  bottom: 12px;
-  right: 12px;
-  border: none;
-  z-index: 100000000;
-}
-
-.erxes-messenger-hidden > iframe {
-  width: 72px;
-  height: 72px;
-}
-
-.erxes-messenger-shown {
-  width: 416px;
-  height: calc(100% - 20px);
-  max-height: 660px;
-}
-
-.erxes-messenger-shown > iframe,
-.erxes-notifier-shown > iframe {
+#erxes-knowledge-iframe {
   width: 100%;
-  height: 100%;
-  position: absolute !important;
-}
-
-.erxes-notifier-shown {
-  width: 360px;
-  height: 220px;
-}
-
-.erxes-notifier-shown.fullMessage {
-  height: 550px;
-  max-height: 100%;
+  border: none;
+  min-height: 100%;
+  position: absolute;
 }
 
 
 @media only screen and (max-width: 420px) {
-  #erxes-messenger-container {
+  #erxes-knowledge-container {
     width: 100%;
     max-height: none;
-  }
-
-  .erxes-messenger-shown {
-    height: 100%;
-  }
-
-  #erxes-messenger-iframe {
-    bottom: 0;
-    right: 0;
   }
 }

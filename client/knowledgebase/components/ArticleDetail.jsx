@@ -5,15 +5,11 @@ export default class ArticleDetail extends React.Component {
   renderArticle() {
     const { data } = this.props;
     return (
-      <div>
-        <div>
-          {data.title}
-        </div>
-        <div>
-          {data.summary}
-        </div>
-        <div>
-          {data.content}
+      <div className="erxes-article detail">
+        <h1>{data.title}</h1>
+        <div className="erxes-article-content">
+          <p>{data.summary}</p>
+          <p>{data.content}</p>
         </div>
       </div>
     );

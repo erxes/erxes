@@ -13,8 +13,8 @@ meta.name = 'viewport';
 meta.content = 'initial-scale=1, width=device-width';
 document.getElementsByTagName('head')[0].appendChild(meta);
 
-const iframeId = 'erxes-messenger-iframe';
-const container = 'erxes-messenger-container';
+const iframeId = 'erxes-knowledge-iframe';
+const container = 'erxes-knowledge-container';
 
 // container
 const erxesContainer = document.createElement('div');
@@ -28,7 +28,17 @@ iframe.src = `${ROOT_URL}/knowledgebase`;
 iframe.style.display = 'none';
 
 erxesContainer.appendChild(iframe);
-document.body.appendChild(erxesContainer);
+
+// if there is an placeholder for embed then add new iframe to it
+const embedContainer = document.querySelector(`[data-erxes-embed]`);
+
+if (embedContainer) {
+  embedContainer.appendChild(erxesContainer);
+
+// otherwise add to body
+} else {
+  document.body.appendChild(erxesContainer);
+}
 
 // send erxes setting to iframe
 iframe = document.querySelector(`#${iframeId}`);
