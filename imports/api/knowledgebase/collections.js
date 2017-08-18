@@ -79,6 +79,10 @@ KbArticles.schema = new SimpleSchema({
   content: {
     type: String,
   },
+  status: {
+    type: String,
+    allowedValues: ['draft', 'publish'],
+  },
 });
 
 /* ----------------------- Collections ----------------------- */

@@ -108,6 +108,7 @@ export const addKbArticle = new ValidatedMethod({
       title: String,
       summary: String,
       content: String,
+      status: String,
     });
   },
 
@@ -129,6 +130,7 @@ export const editKbArticle = new ValidatedMethod({
       title: String,
       summary: String,
       content: String,
+      status: String,
     });
   },
 
