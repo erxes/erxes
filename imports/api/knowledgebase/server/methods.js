@@ -30,6 +30,7 @@ export const editKbTopic = new ValidatedMethod({
   },
 
   run({ _id, doc }) {
+    console.log('doc: ', doc);
     doc.modifiedBy = this.userId;
     doc.modifiedDate = new Date();
     return KbTopics.update({ _id }, { $set: doc });
@@ -56,12 +57,12 @@ export const addKbCategory = new ValidatedMethod({
   mixins: [ErxesMixin],
 
   validate({ doc }) {
-    doc.createdBy = this.userId;
-    doc.createdDate = new Date();
     check(doc, { title: String, description: String, articleIds: Array });
   },
 
   run({ doc }) {
+    doc.createdBy = this.userId;
+    doc.createdDate = new Date();
     return KbCategories.insert(Object.assign(doc));
   },
 });

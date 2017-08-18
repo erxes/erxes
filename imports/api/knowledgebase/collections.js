@@ -95,20 +95,8 @@ KbTopics.helpers({
 KbCategories.attachSchema(KbCategories.schema);
 KbCategories.attachSchema(KbBaseSchema);
 
-KbCategories.helpers({
-  topic() {
-    return KbTopics.findOne(this.topicId) || {};
-  },
-});
-
 KbArticles.attachSchema(KbArticles.schema);
 KbArticles.attachSchema(KbBaseSchema);
-
-KbArticles.helpers({
-  category() {
-    return KbCategories.findOne(this.categoryId) || {};
-  },
-});
 
 Factory.define('knowledgebase_group', KbTopics, {
   title: () => faker.random.word(),
