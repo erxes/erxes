@@ -8,9 +8,7 @@ export default class Categories extends React.Component {
     const categories = kbTopic.categories;
 
     return categories.map((category) => {
-      return (
-        <Category key={category._id} category={category} />
-      );
+      return <Category key={category._id} category={category} />;
     });
   }
 
@@ -32,12 +30,23 @@ Categories.propTypes = {
       _id: PropTypes.string.isRequired,
       title: PropTypes.string,
       description: PropTypes.string,
-
+      authors: PropTypes.arrayOf(PropTypes.shape({
+        details: PropTypes.shape({
+          fullName: PropTypes.string,
+          avatar: PropTypes.string,
+        }),
+        articleCount: PropTypes.string,
+      })),
+      numOfArticles: PropTypes.string,
       articles: PropTypes.arrayOf(PropTypes.shape({
         _id: PropTypes.string.isRequired,
         title: PropTypes.string,
         summary: PropTypes.string,
         content: PropTypes.string,
+        createdBy: PropTypes.string,
+        modifiedBy: PropTypes.string,
+        createdDate: PropTypes.date,
+        modifiedDate: PropTypes.date,
       })),
     })),
   }),

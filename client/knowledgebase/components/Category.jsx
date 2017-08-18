@@ -17,12 +17,37 @@ export default class Category extends React.Component {
 
   renderCategory() {
     const { category } = this.props;
-    console.log('category: ', category);
+    const authors = category.authors;
+
+    let text = '';
+
+    if (authors.length >= 1) {
+      text = '' + text + authors[0].details.avatar + ' ' + authors[0].details.fullName;
+    }
+
+    if (authors.length >= 2) {
+      text = ', ' + text + authors[1].details.avatar + ' ' + authors[1].details.fullName;
+    }
+
+    if (authors.length >= 3) {
+      text = ', ' + text + authors[2].details.avatar + ' ' + authors[2].details.fullName;
+    }
+
+    if (authors.length >= 4) {
+      text = text + ' and ' + (authors.length - 3) + ' people';
+    }
+
     return (
       <div>
         <a href="" onClick={this.handleOnClick}>
           <h1>{category.title}</h1>
         </a>
+        <h3>
+          There are {category.numOfArticles} articles in this category
+        </h3>
+        <h3>
+          Written by {text}
+        </h3>
         {category.description}
       </div>
     );
