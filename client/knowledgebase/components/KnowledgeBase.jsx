@@ -24,7 +24,7 @@ export default class KnowledgeBase extends React.Component {
     event.preventDefault();
     const { onSwitchToCategoryDisplay } = this.props;
     onSwitchToCategoryDisplay({
-      category: this.props.displayType.data.category
+      category: this.props.displayType.data.category,
     });
   }
 

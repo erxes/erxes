@@ -49,21 +49,31 @@ const mapStateToProps = state => ({
 
 const CategoriesWithData = graphql(
   gql`
-    query kbTopic($topicId: String!, $searchString: String) {
-      kbTopic(topicId: $topicId, searchString: $searchString) {
+    query kbTopic($topicId: String!) {
+      kbTopic(topicId: $topicId) {
         title
         description
-
         categories {
           _id
           title
           description
-
+          numOfArticles
+          authors {
+            details {
+              fullName
+              avatar
+            }
+            articleCount
+          }
           articles {
             _id
             title
             summary
             content
+            createdBy
+            createdDate
+            modifiedBy
+            modifiedDate
           }
         }
       }
@@ -74,7 +84,6 @@ const CategoriesWithData = graphql(
       fetchPolicy: 'network-only',
       variables: {
         topicId: connection.data.topicId,
-        searchString: ownProps.searchStr,
       },
     }),
   },

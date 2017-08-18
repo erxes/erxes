@@ -1,5 +1,4 @@
 import React, { PropTypes } from 'react';
-import { Article } from '../containers';
 
 export default class Category extends React.Component {
   constructor(props) {
