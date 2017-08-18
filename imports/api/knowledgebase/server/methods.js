@@ -13,6 +13,8 @@ export const addKbTopic = new ValidatedMethod({
   },
 
   run({ doc }) {
+    doc.createdBy = this.userId;
+    doc.createdDate = new Date();
     return KbTopics.insert(Object.assign(doc));
   },
 });
@@ -28,6 +30,8 @@ export const editKbTopic = new ValidatedMethod({
   },
 
   run({ _id, doc }) {
+    doc.modifiedBy = this.userId;
+    doc.modifiedDate = new Date();
     return KbTopics.update({ _id }, { $set: doc });
   },
 });
@@ -52,6 +56,8 @@ export const addKbCategory = new ValidatedMethod({
   mixins: [ErxesMixin],
 
   validate({ doc }) {
+    doc.createdBy = this.userId;
+    doc.createdDate = new Date();
     check(doc, { title: String, description: String, articleIds: Array });
   },
 
@@ -71,6 +77,8 @@ export const editKbCategory = new ValidatedMethod({
   },
 
   run({ _id, doc }) {
+    doc.modifiedBy = this.userId;
+    doc.modifiedDate = new Date();
     return KbCategories.update({ _id }, { $set: doc });
   },
 });
@@ -103,6 +111,8 @@ export const addKbArticle = new ValidatedMethod({
   },
 
   run({ doc }) {
+    doc.createdBy = this.userId;
+    doc.createdDate = new Date();
     return KbArticles.insert(Object.assign(doc));
   },
 });
@@ -122,6 +132,8 @@ export const editKbArticle = new ValidatedMethod({
   },
 
   run({ _id, doc }) {
+    doc.modifiedBy = this.userId;
+    doc.modifiedDate = new Date();
     return KbArticles.update({ _id }, { $set: doc });
   },
 });

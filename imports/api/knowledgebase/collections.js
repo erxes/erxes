@@ -12,11 +12,19 @@ export const KbArticles = new Mongo.Collection('knowledgebase_articles');
 /* ----------------------- Schemas ----------------------- */
 
 const KbBaseSchema = new SimpleSchema({
-  createdUserId: {
+  createdBy: {
     type: String,
-    optional: true,
+    regEx: SimpleSchema.RegEx.Id,
   },
   createdDate: {
+    type: Date,
+  },
+  modifiedBy: {
+    type: String,
+    regEx: SimpleSchema.RegEx.Id,
+    optional: true,
+  },
+  modifiedDate: {
     type: Date,
     optional: true,
   },
