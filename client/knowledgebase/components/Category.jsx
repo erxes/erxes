@@ -39,6 +39,9 @@ export default class Category extends React.Component {
 
     return (
       <div>
+        <div>
+          icon: {category.icon}
+        </div>
         <a href="" onClick={this.handleOnClick}>
           <h1>{category.title}</h1>
         </a>

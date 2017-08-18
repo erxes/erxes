@@ -30,6 +30,7 @@ Categories.propTypes = {
       _id: PropTypes.string.isRequired,
       title: PropTypes.string,
       description: PropTypes.string,
+      icon: PropTypes.string,
       authors: PropTypes.arrayOf(PropTypes.shape({
         details: PropTypes.shape({
           fullName: PropTypes.string,
