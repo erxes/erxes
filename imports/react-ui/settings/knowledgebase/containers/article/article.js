@@ -1,4 +1,3 @@
-import { Meteor } from 'meteor/meteor';
 import { compose } from 'react-komposer';
 import { getTrackerLoader, composerOptions } from '/imports/react-ui/utils';
 import { KbArticle } from '../../components';

@@ -1,7 +1,7 @@
 import { KbCategoryList, KbCategory } from './category';
 import { KbTopicList, KbTopic } from './topic';
 import { KbArticleList, KbArticle } from './article';
-import AddKnowledgeBase from './add_knowledge_base';
+import ActionButtons from './action_buttons';
 
 export {
   KbCategoryList,
@@ -10,5 +10,5 @@ export {
   KbTopic,
   KbArticleList,
   KbArticle,
-  AddKnowledgeBase,
+  ActionButtons,
 };
