@@ -66,6 +66,9 @@ KbCategories.schema = new SimpleSchema({
     type: [String],
     optional: true,
   },
+  icon: {
+    type: String,
+  },
 });
 
 // articles

@@ -15,12 +15,19 @@ class KbCategory extends Component {
     this.handleSubmit = this.handleSubmit.bind(this);
     this.state = {
       selectedArticles: this.getSelectedArticles(),
+      selectedIcon: this.getSelectedIcon(),
     };
+    this.handleIconChange = this.handleIconChange.bind(this);
   }
 
   getSelectedArticles() {
     const { item } = this.props;
     return (item && item.articleIds) || [];
+  }
+
+  getSelectedIcon() {
+    const { item } = this.props;
+    return (item && item.icon) || 'testIcon';
   }
 
   getArticles() {
@@ -36,6 +43,25 @@ class KbCategory extends Component {
       })),
     });
     return results;
+  }
+
+  getIcons() {
+    const options = [
+      { label: 'testIcon', value: 'testIcon' },
+      { label: 'testIcon2', value: 'testIcon2' },
+      { label: 'testIcon3', value: 'testIcon3' },
+    ];
+
+    return options.map(opt => {
+      return <option key={opt.value} value={opt.value}>{opt.label}</option>;
+    });
+  }
+
+  handleIconChange(event) {
+    console.log('event.target.value: ', event.target.value);
+    this.setState({
+      selectedIcon: event.target.value,
+    });
   }
 
   render() {
@@ -54,7 +80,7 @@ class KbCategory extends Component {
         </FormGroup>
 
         <FormGroup>
-          <ControlLabel>Categories</ControlLabel>
+          <ControlLabel>Articles</ControlLabel>
 
           <Select
             placeholder="Choose articles"
@@ -70,6 +96,18 @@ class KbCategory extends Component {
             options={this.getArticles()}
             multi
           />
+        </FormGroup>
+
+        <FormGroup controlId="knowledgebase-category-icon">
+          <ControlLabel>Icon</ControlLabel>
+          <FormControl
+            componentClass="select"
+            placeholder="select"
+            onChange={this.handleIconChange}
+            value={this.state.selectedIcon}
+          >
+            {this.getIcons()}
+          </FormControl>
         </FormGroup>
 
         <Modal.Footer>
@@ -96,6 +134,7 @@ class KbCategory extends Component {
       title: document.getElementById('knowledgebase-category-title').value,
       description: document.getElementById('knowledgebase-category-description').value,
       articleIds: articleIds,
+      icon: this.state.selectedIcon,
     });
   }
 }

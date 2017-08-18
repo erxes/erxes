@@ -57,7 +57,7 @@ export const addKbCategory = new ValidatedMethod({
   mixins: [ErxesMixin],
 
   validate({ doc }) {
-    check(doc, { title: String, description: String, articleIds: Array });
+    check(doc, { title: String, description: String, articleIds: Array, icon: String });
   },
 
   run({ doc }) {
@@ -74,7 +74,7 @@ export const editKbCategory = new ValidatedMethod({
 
   validate({ _id, doc }) {
     check(_id, String);
-    check(doc, { title: String, description: String, articleIds: Array });
+    check(doc, { title: String, description: String, articleIds: Array, icon: String });
   },
 
   run({ _id, doc }) {
