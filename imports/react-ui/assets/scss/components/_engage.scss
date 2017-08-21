@@ -58,7 +58,40 @@ $transparent-border: rgba(0, 0, 0, 0.05);
 
 .form-content {
   flex: 1;
-  min-height: 300px;
+  min-height: 160px;
+}
+
+.web-preview {
+  border: 1px solid $border-grey;
+  box-shadow: 0 1px 7px 0 rgba(202,203,204,.2);
+  background-color: #fff;
+  min-height: 400px;
+  margin: 60px;
+  position: relative;
+  background-image: url('/images/row.png');
+  background-repeat: repeat-y;
+  background-position: center;
+  background-size: 475px 56px;
+  margin-right: calc(50% - 220px);
+
+  .messenger-preview {
+    width: 400px;
+    position: absolute;
+    right: 15px;
+    bottom: 15px;
+    z-index: 20;
+  }
+
+  &:after {
+    background: linear-gradient(to bottom right,rgba(255,255,255,1) 0,rgba(255,255,255,1) 35%,rgba(255,255,255,.14) 75%,rgba(255,255,255,0) 100%);
+    content: '';
+    position: absolute;
+    left: -3px;
+    top: -3px;
+    bottom: -3px;
+    width: 103%;
+  }
+
 }
 
 .button-box {

@@ -79,7 +79,11 @@ class MessengerForm extends Component {
           </div>
         </div>
         <div className="form-content">
-          <Editor defaultValue={messenger.content} onChange={this.onContentChange} />
+          <div className="web-preview">
+            <div className="messenger-preview">
+              <Editor defaultValue={messenger.content} onChange={this.onContentChange} />
+            </div>
+          </div>
         </div>
       </div>
     );

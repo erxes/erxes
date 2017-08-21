@@ -97,7 +97,7 @@ class Appearance extends Component {
     const content = (
       <div className="margined">
         <div className="widget-appearance type-box">
-          <div style={{ position: 'relative' }}>
+          <div>
             <WidgetPreview
               color={this.state.color}
               wallpaper={this.state.wallpaper}
