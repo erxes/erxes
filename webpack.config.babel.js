@@ -1,12 +1,12 @@
-/* eslint-disable */
+import path from 'path';
+import webpack from 'webpack';
+import dotenv from 'dotenv';
 
-var path = require('path');
-var webpack = require('webpack');
-require('dotenv').config();
+dotenv.config();
 
 const { ROOT_URL, API_SUBSCRIPTIONS_URL, API_GRAPHQL_URL, DDP_URL } = process.env;
 
-module.exports = {
+export default {
   entry: {
     messenger: './client/messenger/index.js',
     messengerWidget: './client/messenger/widget/index.js',
