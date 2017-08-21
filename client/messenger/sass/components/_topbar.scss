@@ -38,13 +38,6 @@
     transition: background 0.3s ease-in-out
   ), webkit moz ms o);
 
-  &.new {
-    background: url($icon-new) no-repeat 50%;
-  }
-
-  &.back {
-    background: url($icon-back) no-repeat 50%;
-  }
 
   &.close {
     background: url($icon-close) no-repeat 50%;

@@ -119,7 +119,7 @@
   }
 
   &.attachment {
-    background: none;
+    background: none !important;
     border: 0;
     padding: 0;
 
@@ -199,17 +199,13 @@
   background: lighten($grey, 10%);
   @include prefix(( transition: border 0.3s ease-in-out ), webkit moz ms o);
 
-  i {
-    width: 30px;
+  svg {
     height: 30px;
+    fill: $text-color;
     position: absolute;
-    left: 10px;
-    top: 12px;
-    line-height: 30px;
+    left: 13px;
+    top: 11px;
     color: $text-color;
-    background-image: url($icon-file);
-    background-position: 0 0;
-    background-repeat: no-repeat;
   }
 
   span {

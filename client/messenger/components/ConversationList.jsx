@@ -1,5 +1,6 @@
 import React, { PropTypes, Component } from 'react';
 import { ConversationItem, TopBar } from '../containers';
+import Ionicon from 'react-ionicons';
 
 
 const propTypes = {
@@ -26,10 +27,10 @@ class ConversationList extends Component {
     );
 
     return (
-      <div className="erxes-messenger" style={{ border: `2px solid ${color}` }}>
+      <div className="erxes-messenger" style={{ border: `1px solid ${color}` }}>
         <TopBar
           middle={title}
-          buttonClass="new"
+          buttonIcon={<Ionicon icon="ion-plus-round" fontSize="16px" className="icon white" />}
           onButtonClick={createConversation}
         />
         <ul className="erxes-conversation-list">

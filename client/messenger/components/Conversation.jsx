@@ -1,5 +1,6 @@
 import React, { PropTypes } from 'react';
 import { MessagesList, MessageSender, TopBar } from '../containers';
+import Ionicon from 'react-ionicons';
 
 
 const propTypes = {
@@ -57,10 +58,10 @@ function Conversation(props) {
   const placeholder = isNewConversation ? 'Send a message ...' : 'Write a reply ...';
 
   return (
-    <div className="erxes-messenger" style={{ border: `2px solid ${color}` }}>
+    <div className="erxes-messenger" style={{ border: `1px solid ${color}` }}>
       <TopBar
         middle={renderTitle()}
-        buttonClass="back"
+        buttonIcon={<Ionicon icon="ion-ios-arrow-back" className="icon white" />}
         onButtonClick={goToConversationList}
       />
 

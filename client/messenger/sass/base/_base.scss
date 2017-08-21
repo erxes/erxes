@@ -24,3 +24,16 @@
     visibility: visible;
   }
 }
+
+.icon {
+  height: 40px;
+
+  &.white {
+    fill: $white;
+  }
+
+  &.attach {
+    fill: $text-color;
+    height: 35px;
+  }
+}
