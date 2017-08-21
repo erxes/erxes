@@ -43,23 +43,23 @@ function CustomersList({
             <th>
               <ManageColumns />
             </th>
-            {customerFields.map(({ key, label }) =>
+            {customerFields.map(({ key, label }) => (
               <th key={key}>
                 {label}
-              </th>,
-            )}
+              </th>
+            ))}
             <th>Tags</th>
           </tr>
         </thead>
         <tbody>
-          {customers.map(customer =>
+          {customers.map(customer => (
             <CustomerRow
               customer={customer}
               customerFields={customerFields}
               key={customer._id}
               toggleBulk={toggleBulk}
-            />,
-          )}
+            />
+          ))}
         </tbody>
       </Table>
     </Pagination>

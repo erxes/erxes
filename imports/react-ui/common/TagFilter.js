@@ -38,7 +38,7 @@ function TagFilter({ tags, manageUrl, publishCountName }) {
 
       <ul className="sidebar-list">
         {tags.length
-          ? tags.map(tag =>
+          ? tags.map(tag => (
               <li key={tag._id}>
                 <a
                   tabIndex={0}
@@ -53,8 +53,8 @@ function TagFilter({ tags, manageUrl, publishCountName }) {
                     {Counts.get(`${publishCountName}${tag._id}`)}
                   </span>
                 </a>
-              </li>,
-            )
+              </li>
+            ))
           : <EmptyState icon={<i className="ion-pricetag" />} text="No tags" size="small" />}
       </ul>
     </Section>
