@@ -62,7 +62,7 @@
     "eslint-plugin-jsx-a11y": "^4.0.0",
     "eslint-plugin-react": "^6.9.0",
     "json-loader": "^0.5.4",
-    "node-sass": "^4.1.0",
+    "node-sass": "^4.5.3",
     "nodemon": "^1.11.0",
     "sass-loader": "^6.0.3",
     "style-loader": "^0.16.1",
