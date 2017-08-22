@@ -75,12 +75,13 @@ class KbCategory extends Component {
             onChange={items => {
               this.setState({ selectedArticles: items });
             }}
-            optionRenderer={option =>
+            optionRenderer={option => (
               <div className="simple-option">
                 <span>
                   {option.label}
                 </span>
-              </div>}
+              </div>
+            )}
             value={this.state.selectedArticles}
             options={this.getArticles()}
             multi
@@ -114,7 +115,7 @@ class KbCategory extends Component {
     let articleIds = [];
 
     for (var i = 0; i < this.state.selectedArticles.length; i++) {
-      articleIds.push(this.state.selectedArticles[i].value);
+      articleIds.push(this.state.selectedArticles[i].value || this.state.selectedArticles[i]);
     }
 
     this.context.closeModal();
