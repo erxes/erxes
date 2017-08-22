@@ -1,12 +1,13 @@
-/* eslint-disable */
+import path from 'path';
+import webpack from 'webpack';
+import dotenv from 'dotenv';
+// import { BundleAnalyzerPlugin } from 'webpack-bundle-analyzer';
 
-var path = require('path');
-var webpack = require('webpack');
-require('dotenv').config();
+dotenv.config();
 
 const { ROOT_URL, API_SUBSCRIPTIONS_URL, API_GRAPHQL_URL, DDP_URL } = process.env;
 
-module.exports = {
+export default {
   entry: {
     messenger: './client/messenger/index.js',
     messengerWidget: './client/messenger/widget/index.js',
@@ -32,10 +33,12 @@ module.exports = {
       {
         test: /\.css$/,
         use: ['style-loader', 'css-loader'],
+        exclude: /node_modules/,
       },
       {
         test: /\.scss$/,
         use: ['style-loader', 'css-loader', 'sass-loader'],
+        exclude: /node_modules/,
       },
     ],
   },
@@ -51,5 +54,6 @@ module.exports = {
       API_GRAPHQL_URL: JSON.stringify(API_GRAPHQL_URL),
       DDP_URL: JSON.stringify(DDP_URL),
     }),
+    // new BundleAnalyzerPlugin(),
   ],
 };
