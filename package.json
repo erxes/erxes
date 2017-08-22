@@ -58,6 +58,7 @@
     "react-copy-to-clipboard": "^4.2.3",
     "react-custom-scrollbars": "^4.0.2",
     "react-dom": "^15.4.2",
+    "react-ionicons": "^1.5.7",
     "react-komposer": "^2.0.0",
     "react-markdown": "^2.4.6",
     "react-mounter": "^1.2.0",

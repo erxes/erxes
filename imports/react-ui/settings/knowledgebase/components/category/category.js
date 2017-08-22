@@ -8,6 +8,7 @@ import {
   ButtonToolbar,
   Modal,
 } from 'react-bootstrap';
+import { icons } from '../../icons.constant';
 
 class KbCategory extends Component {
   constructor(props, context) {
@@ -46,14 +47,12 @@ class KbCategory extends Component {
   }
 
   getIcons() {
-    const options = [
-      { label: 'testIcon', value: 'testIcon' },
-      { label: 'testIcon2', value: 'testIcon2' },
-      { label: 'testIcon3', value: 'testIcon3' },
-    ];
-
-    return options.map(opt => {
-      return <option key={opt.value} value={opt.value}>{opt.label}</option>;
+    return icons.map(opt => {
+      return (
+        <option key={opt} value={opt}>
+          {opt}
+        </option>
+      );
     });
   }
 
@@ -87,11 +86,12 @@ class KbCategory extends Component {
             onChange={items => {
               this.setState({ selectedArticles: items });
             }}
-            optionRenderer={option => (
+            optionRenderer={option =>
               <div className="simple-option">
-                <span>{option.label}</span>
-              </div>
-            )}
+                <span>
+                  {option.label}
+                </span>
+              </div>}
             value={this.state.selectedArticles}
             options={this.getArticles()}
             multi
@@ -112,7 +112,9 @@ class KbCategory extends Component {
 
         <Modal.Footer>
           <ButtonToolbar className="pull-right">
-            <Button type="submit" bsStyle="primary">Save</Button>
+            <Button type="submit" bsStyle="primary">
+              Save
+            </Button>
           </ButtonToolbar>
         </Modal.Footer>
       </form>
