@@ -18,7 +18,7 @@ class KbCategory extends Component {
       selectedArticles: this.getSelectedArticles(),
       selectedIcon: this.getSelectedIcon(),
     };
-    this.handleIconChange = this.handleIconChange.bind(this);
+    this.onChangeIcon = this.onChangeIcon.bind(this);
   }
 
   getSelectedArticles() {
@@ -46,20 +46,9 @@ class KbCategory extends Component {
     return results;
   }
 
-  getIcons() {
-    return icons.map(opt => {
-      return (
-        <option key={opt} value={opt}>
-          {opt}
-        </option>
-      );
-    });
-  }
-
-  handleIconChange(event) {
-    console.log('event.target.value: ', event.target.value);
+  onChangeIcon(obj) {
     this.setState({
-      selectedIcon: event.target.value,
+      selectedIcon: obj.value,
     });
   }
 
@@ -100,14 +89,12 @@ class KbCategory extends Component {
 
         <FormGroup controlId="knowledgebase-category-icon">
           <ControlLabel>Icon</ControlLabel>
-          <FormControl
-            componentClass="select"
-            placeholder="select"
-            onChange={this.handleIconChange}
+          <Select
+            name="form-field-name"
             value={this.state.selectedIcon}
-          >
-            {this.getIcons()}
-          </FormControl>
+            options={icons}
+            onChange={this.onChangeIcon}
+          />
         </FormGroup>
 
         <Modal.Footer>
