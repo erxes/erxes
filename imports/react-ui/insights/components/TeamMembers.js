@@ -1,11 +1,11 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import Select from 'react-select-plus';
-import { Wrapper } from '/imports/react-ui/layout/components';
-import { ControlLabel } from 'react-bootstrap';
-import { integrationOptions, selectOptions } from '../utils';
-import { KIND_CHOICES as INTEGRATIONS_TYPES } from '/imports/api/integrations/constants';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
+
+import Sidebar from './Sidebar';
+import Filter from './Filter';
+
+import { Wrapper } from '/imports/react-ui/layout/components';
 
 const propTypes = {
   mainData: PropTypes.array.isRequired,
@@ -20,26 +20,12 @@ class TeamMembers extends React.Component {
     // states
     this.state = {
       width: 600,
-      brandId: '',
-      integrationType: '',
     };
   }
 
   componentDidMount() {
     const width = $('#insightWrapper').width();
     this.setState({ width });
-  }
-
-  onTypeChange(value) {
-    const integrationType = value ? value.value : '';
-    this.setState({ integrationType });
-    Wrapper.Sidebar.filter('integrationType', integrationType);
-  }
-
-  onBrandChange(value) {
-    const brandId = value ? value.value : '';
-    this.setState({ brandId });
-    Wrapper.Sidebar.filter('brandId', brandId);
   }
 
   renderChart(userData, index) {
@@ -70,46 +56,11 @@ class TeamMembers extends React.Component {
 
   render() {
     const { mainData, usersData, brands } = this.props;
-    const integrations = INTEGRATIONS_TYPES.ALL_LIST;
 
     const content = (
       <div className="insight-wrapper">
-        <div className="insight-filter">
-          <div className="row">
-            <div className="pull-right col-sm-2">
-              <ControlLabel>Integrations</ControlLabel>
-              <Select
-                placeholder="Choose integrations"
-                value={this.state.integrationType}
-                onChange={value => this.onTypeChange(value)}
-                optionRenderer={option =>
-                  <div className="simple-option">
-                    <span>
-                      {option.label}
-                    </span>
-                  </div>}
-                options={integrationOptions(integrations)}
-              />
-            </div>
+        <Filter brands={brands} />
 
-            <div className="pull-right col-sm-2">
-              <ControlLabel>Brands</ControlLabel>
-
-              <Select
-                placeholder="Choose brands"
-                value={this.state.brandId}
-                onChange={value => this.onBrandChange(value)}
-                optionRenderer={option =>
-                  <div className="simple-option">
-                    <span>
-                      {option.label}
-                    </span>
-                  </div>}
-                options={selectOptions(brands)}
-              />
-            </div>
-          </div>
-        </div>
         <div className="margined" id="insightWrapper">
           <LineChart width={this.state.width} height={300} data={mainData}>
             <XAxis dataKey="name" />
@@ -117,7 +68,7 @@ class TeamMembers extends React.Component {
             <CartesianGrid strokeDasharray="3 3" />
             <Tooltip />
             <Legend />
-            <Line type="monotone" dataKey="count" stroke="#8884d8" activeDot={{ r: 8 }} />
+            <Line type="monotone" dataKey="count" stroke="#452679" activeDot={{ r: 8 }} />
           </LineChart>
           {usersData.map((data, index) => this.renderChart(data, index))};
         </div>
@@ -128,6 +79,7 @@ class TeamMembers extends React.Component {
       <div>
         <Wrapper
           header={<Wrapper.Header breadcrumb={[{ title: 'Team members' }]} />}
+          leftSidebar={<Sidebar />}
           content={content}
         />
       </div>

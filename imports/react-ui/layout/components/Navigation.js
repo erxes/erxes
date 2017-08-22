@@ -25,7 +25,7 @@ function Navigation() {
           </a>
         </Tip>
         <Tip placement="right" text="Insight">
-          <a href="/insight">
+          <a href="/insights">
             <i className="ion-arrow-graph-up-right" />
           </a>
         </Tip>
