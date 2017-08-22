@@ -16,6 +16,7 @@ export default class CategoryDetail extends React.Component {
 
   renderCategory() {
     const { category } = this.props;
+    console.log('categorydetail: ', category);
     return (
       <div className="category-container">
         <div className="flex-item spaced">

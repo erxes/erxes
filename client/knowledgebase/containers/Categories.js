@@ -47,6 +47,10 @@ Categories.propTypes = {
           modifiedBy: PropTypes.string,
           createdDate: PropTypes.date,
           modifiedDate: PropTypes.date,
+          authorDetails: PropTypes.shape({
+            fullName: PropTypes.string,
+            avatar: PropTypes.string,
+          }),
         })),
       })),
     }),
@@ -86,6 +90,10 @@ const CategoriesWithData = graphql(
             createdDate
             modifiedBy
             modifiedDate
+            authorDetails {
+              fullName
+              avatar
+            }
           }
         }
       }
