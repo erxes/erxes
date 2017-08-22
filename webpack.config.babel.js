@@ -1,6 +1,7 @@
 import path from 'path';
 import webpack from 'webpack';
 import dotenv from 'dotenv';
+// import { BundleAnalyzerPlugin } from 'webpack-bundle-analyzer';
 
 dotenv.config();
 
@@ -32,10 +33,12 @@ export default {
       {
         test: /\.css$/,
         use: ['style-loader', 'css-loader'],
+        exclude: /node_modules/,
       },
       {
         test: /\.scss$/,
         use: ['style-loader', 'css-loader', 'sass-loader'],
+        exclude: /node_modules/,
       },
     ],
   },
@@ -51,5 +54,6 @@ export default {
       API_GRAPHQL_URL: JSON.stringify(API_GRAPHQL_URL),
       DDP_URL: JSON.stringify(DDP_URL),
     }),
+    // new BundleAnalyzerPlugin(),
   ],
 };

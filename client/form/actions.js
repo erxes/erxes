@@ -1,4 +1,3 @@
-import _ from 'underscore';
 import gql from 'graphql-tag';
 import {
   SHOUTBOX_FORM_TOGGLE,
@@ -58,7 +57,7 @@ export const connect = (brandCode, formCode) =>
   });
 
 export const saveForm = doc => (dispatch) => {
-  const submissions = _.map(_.keys(doc), (fieldId) => {
+  const submissions = Object.keys(doc).map((fieldId) => {
     const { value, text, type, validation } = doc[fieldId];
 
     return {
