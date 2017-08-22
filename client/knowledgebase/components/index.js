@@ -7,6 +7,7 @@ import KnowledgeBase from './KnowledgeBase';
 import ArticleDetail from './ArticleDetail';
 import CategoryDetail from './CategoryDetail';
 import BackButton from './BackButton';
+import ItemMeta from './ItemMeta';
 
 export {
   App,
@@ -18,4 +19,5 @@ export {
   KnowledgeBase,
   Searchbar,
   BackButton,
+  ItemMeta,
 };

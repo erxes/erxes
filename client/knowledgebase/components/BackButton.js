@@ -10,7 +10,7 @@ const propTypes = {
 function BackButton({ onClickHandler, text }) {
   return (
     <button onClick={onClickHandler} className="back">
-      <Ionicons icon="ion-chevron-left" fontSize="11px" color="#888" />
+      <Ionicons icon="ion-chevron-left" fontSize="10px" color="#888" />
       {text}
     </button>
   );

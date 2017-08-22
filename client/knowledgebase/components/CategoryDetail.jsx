@@ -1,6 +1,7 @@
 import React, { PropTypes } from 'react';
 import Ionicons from 'react-ionicons';
 import { Article } from '../containers';
+import { ItemMeta } from '../components';
 
 export default class CategoryDetail extends React.Component {
 
@@ -14,9 +15,8 @@ export default class CategoryDetail extends React.Component {
     });
   }
 
-  renderCategory() {
+  render() {
     const { category } = this.props;
-    console.log('categorydetail: ', category);
     return (
       <div className="category-container">
         <div className="flex-item spaced">
@@ -26,6 +26,7 @@ export default class CategoryDetail extends React.Component {
           <div className="topic-content">
             <h1>{category.title}</h1>
             {category.description}
+            <ItemMeta category={category} />
           </div>
         </div>
 
@@ -34,10 +35,6 @@ export default class CategoryDetail extends React.Component {
         </div>
       </div>
     );
-  }
-
-  render() {
-    return this.renderCategory();
   }
 }
 

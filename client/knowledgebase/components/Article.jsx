@@ -1,4 +1,5 @@
 import React, { PropTypes } from 'react';
+import moment from 'moment';
 
 export default class Article extends React.Component {
 
@@ -17,16 +18,38 @@ export default class Article extends React.Component {
       title: article.title,
       summary: article.summary,
       content: article.content,
+      authorDetails: article.authorDetails,
+      createdDate: article.createdDate,
+      modifiedDate: article.modifiedDate,
       category,
     });
   }
 
   render() {
     const { article } = this.props;
+    const author = article.authorDetails;
+
     return (
       <a href="" className="erxes-kb-item" onClick={this.handleOnClick}>
         <h3>{article.title}</h3>
         <p>{article.summary}</p>
+        <div className="item-meta flex-item">
+          <div className="avatars">
+            <img
+              alt={author.fullName}
+              src={author.avatar || '/static/images/userDefaultIcon.png'}
+            />
+          </div>
+          <div>
+            <div>
+              Written by <span>{author.fullName}</span>
+            </div>
+            <div>
+              {article.modifiedDate ? 'Modified ' : 'Created '}
+              {moment(article.modifiedDate ? article.modifiedDate : article.createdDate).fromNow()}
+            </div>
+          </div>
+        </div>
       </a>
     );
   }
