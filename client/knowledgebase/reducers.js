@@ -6,6 +6,7 @@ import {
   CONTENT_TYPE_ARTICLE,
   CONTENT_TYPE_CATEGORY,
   CONTENT_TYPE_TOPIC,
+  CONTENT_TYPE_SEARCH,
 } from './constants';
 import { connection } from './connection';
 
@@ -40,7 +41,7 @@ const displayType = (
     }
     case UPDATE_SEARCH_STRING: {
       return {
-        displayType: CONTENT_TYPE_TOPIC,
+        displayType: CONTENT_TYPE_SEARCH,
         topicData: {
           topicId: connection.data.topicId,
           searchStr: action.searchStr,

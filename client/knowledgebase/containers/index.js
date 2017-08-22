@@ -5,6 +5,7 @@ import Article from './Article';
 import Category from './Category';
 import ArticleDetail from './ArticleDetail';
 import CategoryDetail from './CategoryDetail';
+import SearchBar from './SearchBar';
 
 export {
   App,
@@ -14,4 +15,5 @@ export {
   Category,
   ArticleDetail,
   CategoryDetail,
+  SearchBar,
 };

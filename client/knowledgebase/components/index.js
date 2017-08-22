@@ -1,7 +1,7 @@
 import App from './App';
 import Article from './Article';
 import Category from './Category';
-import Searchbar from './Searchbar';
+import SearchBar from './SearchBar';
 import Categories from './Categories';
 import KnowledgeBase from './KnowledgeBase';
 import ArticleDetail from './ArticleDetail';
@@ -16,6 +16,6 @@ export {
   Category,
   Categories,
   KnowledgeBase,
-  Searchbar,
+  SearchBar,
   BackButton,
 };

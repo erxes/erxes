@@ -79,7 +79,6 @@ export default class Category extends React.Component {
     );
   }
 
-
   render() {
     return this.renderCategory();
   }
