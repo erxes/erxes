@@ -16,7 +16,7 @@ export default class Category extends React.Component {
     });
   }
 
-  renderAvatarts() {
+  renderAvatars() {
     const authors = this.props.category.authors;
     return authors.map((author) => {
       return (
@@ -29,7 +29,7 @@ export default class Category extends React.Component {
     });
   }
 
-  renderCategory() {
+  render() {
     const { category } = this.props;
     const authors = category.authors;
     console.log(category);
@@ -62,7 +62,7 @@ export default class Category extends React.Component {
             {category.description}
             <div className="topic-meta flex-item">
               <div className="avatars">
-                {this.renderAvatarts()}
+                {this.renderAvatars()}
               </div>
               <div>
                 <div>
@@ -77,10 +77,6 @@ export default class Category extends React.Component {
         </a>
       </div>
     );
-  }
-
-  render() {
-    return this.renderCategory();
   }
 }
 

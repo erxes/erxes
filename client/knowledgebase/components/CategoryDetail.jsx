@@ -1,22 +1,10 @@
 import React, { PropTypes } from 'react';
 import Ionicons from 'react-ionicons';
-import { Article } from '../containers';
+import { Articles } from '../components';
 
 export default class CategoryDetail extends React.Component {
-
-  renderArticles() {
+  render() {
     const { category } = this.props;
-    const articles = category.articles;
-    return articles.map((article) => {
-      return (
-        <Article key={article._id} category={category} article={article} />
-      );
-    });
-  }
-
-  renderCategory() {
-    const { category } = this.props;
-    console.log('categorydetail: ', category);
     return (
       <div className="category-container">
         <div className="flex-item spaced">
@@ -28,16 +16,9 @@ export default class CategoryDetail extends React.Component {
             {category.description}
           </div>
         </div>
-
-        <div>
-          {this.renderArticles()}
-        </div>
+        <Articles category={category} articles={category.articles} />
       </div>
     );
-  }
-
-  render() {
-    return this.renderCategory();
   }
 }
 

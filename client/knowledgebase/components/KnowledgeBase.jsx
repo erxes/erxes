@@ -1,5 +1,5 @@
 import React, { PropTypes } from 'react';
-import { Categories, CategoryDetail, ArticleDetail, SearchBar } from '../containers';
+import { Categories, Articles, CategoryDetail, ArticleDetail, SearchBar } from '../containers';
 import { BackButton } from '../components';
 import {
   CONTENT_TYPE_TOPIC,
@@ -40,6 +40,7 @@ export default class KnowledgeBase extends React.Component {
   render() {
     const { displayType } = this.props;
     if (displayType.displayType === CONTENT_TYPE_TOPIC) {
+      console.log('CONTENT_TYPE_TOPIC');
       return (
         <div>
           <SearchBar />
@@ -51,6 +52,7 @@ export default class KnowledgeBase extends React.Component {
         </div>
       );
     } else if (displayType.displayType === CONTENT_TYPE_CATEGORY) {
+      console.log('CONTENT_TYPE_CATEGORY');
       return (
         <div>
           <SearchBar />
@@ -63,6 +65,7 @@ export default class KnowledgeBase extends React.Component {
         </div>
       );
     } else if (displayType.displayType === CONTENT_TYPE_ARTICLE) {
+      console.log('CONTENT_TYPE_ARTICLE');
       return (
         <div>
           <SearchBar />
@@ -75,11 +78,13 @@ export default class KnowledgeBase extends React.Component {
         </div>
       );
     } else if (displayType.displayType === CONTENT_TYPE_SEARCH) {
+      console.log('CONTENT_TYPE_SEARCH');
       return (
         <div>
           <SearchBar searchStr={displayType.topicData.searchStr} />
           <div className="erxes-content">
             <div className="erxes-knowledge-container">
+              <Articles searchString={displayType.topicData.searchStr} />
             </div>
           </div>
         </div>

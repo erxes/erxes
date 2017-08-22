@@ -31,6 +31,12 @@ export const switchToTopicDisplay = (data) => {
 
 export const updateSearchString = (searchStr) => {
   console.log('updateSearchString.dispatch.dispatch: ', searchStr)
+  if (searchStr.length === 0) {
+    return {
+      type: SWITCH_TO_TOPIC_DISPLAY,
+      searchStr: '',
+    };
+  }
   return {
     type: UPDATE_SEARCH_STRING,
     searchStr,

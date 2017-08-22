@@ -1,5 +1,6 @@
 import App from './App';
 import Article from './Article';
+import Articles from './Articles';
 import Category from './Category';
 import SearchBar from './SearchBar';
 import Categories from './Categories';
@@ -11,6 +12,7 @@ import BackButton from './BackButton';
 export {
   App,
   Article,
+  Articles,
   ArticleDetail,
   CategoryDetail,
   Category,
