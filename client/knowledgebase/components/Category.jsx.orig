@@ -17,6 +17,22 @@ export default class Category extends React.Component {
     });
   }
 
+<<<<<<< HEAD
+  renderAvatars() {
+    const authors = this.props.category.authors;
+    return authors.map((author) => {
+      return (
+        <img
+          alt={author.details.fullName}
+          key={author.details.fullName}
+          src={author.details.avatar || '/static/images/userDefaultIcon.png'}
+        />
+      );
+    });
+  }
+
+=======
+>>>>>>> d214ac9011a71e0ef4f617ad7eed5b545a66fbea
   render() {
     const { category } = this.props;
 
@@ -29,7 +45,23 @@ export default class Category extends React.Component {
           <div className="topic-content">
             <h3>{category.title}</h3>
             {category.description}
+<<<<<<< HEAD
+            <div className="topic-meta flex-item">
+              <div className="avatars">
+                {this.renderAvatars()}
+              </div>
+              <div>
+                <div>
+                  There are {category.numOfArticles} articles in this category
+                </div>
+                <div>
+                  Written by <span>{text}</span>
+                </div>
+              </div>
+            </div>
+=======
             <ItemMeta category={category} />
+>>>>>>> d214ac9011a71e0ef4f617ad7eed5b545a66fbea
           </div>
         </a>
       </div>
