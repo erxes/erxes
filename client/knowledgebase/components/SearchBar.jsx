@@ -14,7 +14,8 @@ export default class SearchBar extends React.Component {
   }
 
   render() {
-    const { searchStr } = this.props;
+    let { searchStr } = this.props;
+    searchStr = searchStr || '';
     return (
       <div className="erxes-searchbar">
         <div className="erxes-knowledge-container">

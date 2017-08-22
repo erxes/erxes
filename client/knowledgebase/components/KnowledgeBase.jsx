@@ -58,20 +58,23 @@ export default class KnowledgeBase extends React.Component {
           <SearchBar />
           <div className="erxes-content">
             <div className="erxes-knowledge-container">
-              <BackButton onClickHandler={this.onTopicClickHandler} text="Back to topics" />
+              <BackButton onClickHandler={this.onTopicClickHandler} text="Back to categories" />
               <CategoryDetail category={displayType.category} />
             </div>
           </div>
         </div>
       );
     } else if (displayType.displayType === CONTENT_TYPE_ARTICLE) {
-      console.log('CONTENT_TYPE_ARTICLE');
+      console.log('CONTENT_TYPE_ARTICLE.displayType: ', displayType);
       return (
         <div>
           <SearchBar />
           <div className="erxes-content">
             <div className="erxes-knowledge-container">
-              <BackButton onClickHandler={this.onCategoryClickHandler} text="Back to categories" />
+              <BackButton
+                onClickHandler={displayType.data.category != null ? this.onCategoryClickHandler : this.onTopicClickHandler}
+                text={displayType.data.category != null ? 'Back to categories' : 'Back to top'}
+              />
               <ArticleDetail data={displayType.data} />
             </div>
           </div>
@@ -81,7 +84,7 @@ export default class KnowledgeBase extends React.Component {
       console.log('CONTENT_TYPE_SEARCH');
       return (
         <div>
-          <SearchBar searchStr={displayType.topicData.searchStr} />
+          <SearchBar searchStr={displayType.topicData.searchStr || ''} />
           <div className="erxes-content">
             <div className="erxes-knowledge-container">
               <Articles searchString={displayType.topicData.searchStr} />
