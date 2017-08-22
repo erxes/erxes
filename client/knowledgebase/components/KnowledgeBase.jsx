@@ -1,5 +1,6 @@
 import React, { PropTypes } from 'react';
 import { Categories, CategoryDetail, ArticleDetail } from '../containers';
+import { Searchbar, BackButton } from '../components';
 import {
   CONTENT_TYPE_TOPIC,
   CONTENT_TYPE_CATEGORY,
@@ -10,14 +11,14 @@ import {
 export default class KnowledgeBase extends React.Component {
   constructor(props) {
     super(props);
-    this.onClickHandler = this.onClickHandler.bind(this);
+
     this.onChangeHandler = this.onChangeHandler.bind(this);
     this.onCategoryClickHandler = this.onCategoryClickHandler.bind(this);
-    // this.onTopicClickHandler = this.onTopicClickHandler.bind(this);
+    this.onTopicClickHandler = this.onTopicClickHandler.bind(this);
   }
 
-  onClickHandler(event) {
-
+  onTopicClickHandler() {
+    this.props.onSwitchToTopicDisplay();
   }
 
   onCategoryClickHandler(event) {
@@ -30,7 +31,6 @@ export default class KnowledgeBase extends React.Component {
 
   onChangeHandler(event) {
     event.preventDefault();
-    console.log('KnowledgeBase.jsx.props: ', this.props);
     const { onUpdateSearchString } = this.props;
     onUpdateSearchString(event.target.value);
   }
@@ -40,11 +40,7 @@ export default class KnowledgeBase extends React.Component {
     if (displayType.displayType === CONTENT_TYPE_TOPIC) {
       return (
         <div>
-          <div className="erxes-searchbar">
-            <div className="erxes-knowledge-container">
-              <input onChange={this.onChangeHandler} />
-            </div>
-          </div>
+          <Searchbar onChangeHandler={this.onChangeHandler} />
           <div className="erxes-content">
             <div className="erxes-knowledge-container">
               <Categories searchStr={displayType.topicData.searchStr} />
@@ -55,35 +51,34 @@ export default class KnowledgeBase extends React.Component {
     } else if (displayType.displayType === CONTENT_TYPE_CATEGORY) {
       return (
         <div>
-          <div> <a href="" onClick={this.onTopicClickHandler}>Topic</a> </div>
-          <div>
-            <CategoryDetail category={displayType.category} />
+          <Searchbar onChangeHandler={this.onChangeHandler} />
+          <div className="erxes-content">
+            <div className="erxes-knowledge-container">
+              <BackButton onClickHandler={this.onTopicClickHandler} text="Back to topics" />
+              <CategoryDetail category={displayType.category} />
+            </div>
           </div>
         </div>
       );
     } else if (displayType.displayType === CONTENT_TYPE_ARTICLE) {
       return (
         <div>
-          <div className="erxes-searchbar">
-            <div className="erxes-knowledge-container">
-              <a href="" className="back" onClick={this.onCategoryClickHandler} />
-            </div>
-          </div>
+          <div className="erxes-searchbar" />
           <div className="erxes-content">
             <div className="erxes-knowledge-container">
+              <BackButton onClickHandler={this.onCategoryClickHandler} text="Back to categories" />
               <ArticleDetail data={displayType.data} />
             </div>
           </div>
         </div>
       );
     }
-    console.log('aaaa');
     return null;
   }
 }
 
 KnowledgeBase.propTypes = {
-  displayType: PropTypes.object,
+  displayType: PropTypes.object, // eslint-disable-line
   onSwitchToTopicDisplay: PropTypes.func,
   onSwitchToCategoryDisplay: PropTypes.func,
   onUpdateSearchString: PropTypes.func,

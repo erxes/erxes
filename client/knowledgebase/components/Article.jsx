@@ -21,18 +21,14 @@ export default class Article extends React.Component {
     });
   }
 
-  renderArticle() {
+  render() {
     const { article } = this.props;
     return (
-      <a href="" className="erxes-article" onClick={this.handleOnClick}>
+      <a href="" className="erxes-kb-item" onClick={this.handleOnClick}>
         <h3>{article.title}</h3>
         <p>{article.summary}</p>
       </a>
     );
-  }
-
-  render() {
-    return this.renderArticle();
   }
 }
 

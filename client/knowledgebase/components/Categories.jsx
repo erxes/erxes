@@ -1,24 +1,12 @@
 import React, { PropTypes } from 'react';
 import { Category } from '../containers';
 
-export default class Categories extends React.Component {
-
-  renderCategories() {
-    const { kbTopic } = this.props;
-    const categories = kbTopic.categories;
-
-    return categories.map((category) => {
-      return <Category key={category._id} category={category} />;
-    });
-  }
-
-  render() {
-    return (
-      <div>
-        {this.renderCategories()}
-      </div>
-    );
-  }
+export default function Categories({ kbTopic }) {
+  return (
+    <div>
+      {kbTopic.categories.map(category => <Category key={category._id} category={category} />)}
+    </div>
+  );
 }
 
 Categories.propTypes = {

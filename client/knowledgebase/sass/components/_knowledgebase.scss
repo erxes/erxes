@@ -14,7 +14,7 @@
   }
 }
 
-.erxes-article {
+.erxes-kb-item {
   display: block;
   padding: 25px;
   text-decoration: none;
@@ -23,6 +23,10 @@
   border: 1px solid $border-gray;
   border-radius: $border-radius;
   box-shadow: 0 6px 8px 0 rgba(0,0,0,0.07);
+
+  &:last-child {
+    margin-bottom: 0;
+  }
 
   h3 {
     font-size: 18px;
@@ -57,4 +61,94 @@
       }
     }
   }
+}
+
+.flex-item {
+  display: flex;
+  flex-direction: row;
+  text-decoration: none;
+
+  .topic-icon {
+    flex-basis: 80px;
+    align-self: center;
+    text-align: center;
+    margin-right: 25px;
+  }
+
+  .topic-content {
+    display: flex;
+    flex-direction: column;
+    color: $text-color;
+    font-size: 16px;
+
+    .topic-meta {
+      margin-top: 5px;
+      font-size: 13px;
+    }
+
+    span {
+      color: darken($text-color, 10%);
+    }
+  }
+
+  &.spaced {
+    margin-bottom: 25px;
+  }
+
+  .avatars {
+    display: flex;
+    margin-right: 10px;
+
+    img {
+      width: 32px;
+      height: 32px;
+      border-radius: 18px;
+      border: 2px solid $white;
+      z-index: 4;
+
+      &:nth-child(n+2) {
+        margin-left: -10px;
+      }
+
+      &:nth-child(2) {
+        z-index: 3;
+        opacity: .8;
+      }
+
+      &:nth-child(3) {
+        z-index: 2;
+        opacity: .6;
+      }
+
+      &:nth-child(4) {
+        z-index: 1;
+        opacity: .4;
+      }
+    }
+  }
+}
+
+.back {
+  display: block;
+  text-decoration: none;
+  margin-bottom: 15px;
+  background: none;
+  outline: 0;
+  border: 0;
+  color: $main-color;
+
+  svg {
+    margin-right: 5px;
+  }
+
+  &:hover {
+    color: darken($main-color, 15%);
+    cursor: pointer;
+  }
+}
+
+.category-container {
+  background: rgba(0, 0, 0, 0.044);
+  padding: 25px;
+  border-radius: $border-radius;
 }
