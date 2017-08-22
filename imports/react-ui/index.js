@@ -21,6 +21,7 @@ import './settings/team/routes';
 import './settings/profile/routes';
 
 import './settings/knowledgebase/routes';
+import './insights/routes';
 
 /**
  * Styles

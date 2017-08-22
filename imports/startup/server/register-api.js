@@ -41,3 +41,5 @@ import '/imports/api/engage/server/cronJobs';
 
 import '/imports/api/knowledgebase/server/publications';
 import '/imports/api/knowledgebase/server/methods';
+
+import '/imports/api/insights/server/publications';
