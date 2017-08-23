@@ -8,6 +8,7 @@ import {
   ButtonToolbar,
   Modal,
 } from 'react-bootstrap';
+import Ionicons from 'react-ionicons';
 import { icons } from '../../icons.constant';
 
 class KbCategory extends Component {
@@ -19,6 +20,7 @@ class KbCategory extends Component {
       selectedIcon: this.getSelectedIcon(),
     };
     this.onChangeIcon = this.onChangeIcon.bind(this);
+    this.renderOption = this.renderOption.bind(this);
   }
 
   getSelectedArticles() {
@@ -52,6 +54,15 @@ class KbCategory extends Component {
     });
   }
 
+  renderOption(option) {
+    return (
+      <div className="icon-option">
+        <Ionicons icon={option.value} />
+        {option.label}
+      </div>
+    );
+  }
+
   render() {
     const item = this.props.item || {};
 
@@ -75,13 +86,12 @@ class KbCategory extends Component {
             onChange={items => {
               this.setState({ selectedArticles: items });
             }}
-            optionRenderer={option => (
+            optionRenderer={option =>
               <div className="simple-option">
                 <span>
                   {option.label}
                 </span>
-              </div>
-            )}
+              </div>}
             value={this.state.selectedArticles}
             options={this.getArticles()}
             multi
@@ -95,6 +105,8 @@ class KbCategory extends Component {
             value={this.state.selectedIcon}
             options={icons}
             onChange={this.onChangeIcon}
+            optionRenderer={this.renderOption}
+            valueRenderer={this.renderOption}
           />
         </FormGroup>
 
