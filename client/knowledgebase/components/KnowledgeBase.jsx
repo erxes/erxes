@@ -32,7 +32,6 @@ export default class KnowledgeBase extends React.Component {
 
   onSearchChangeHandler(event) {
     event.preventDefault();
-    console.log('onSearchChangeHandler: ', event.target.value);
     const { onUpdateSearchString } = this.props;
     onUpdateSearchString(event.target.value);
   }
@@ -40,7 +39,6 @@ export default class KnowledgeBase extends React.Component {
   render() {
     const { displayType } = this.props;
     if (displayType.displayType === CONTENT_TYPE_TOPIC) {
-      console.log('CONTENT_TYPE_TOPIC');
       return (
         <div>
           <SearchBar />
@@ -52,7 +50,6 @@ export default class KnowledgeBase extends React.Component {
         </div>
       );
     } else if (displayType.displayType === CONTENT_TYPE_CATEGORY) {
-      console.log('CONTENT_TYPE_CATEGORY');
       return (
         <div>
           <SearchBar />
@@ -65,7 +62,6 @@ export default class KnowledgeBase extends React.Component {
         </div>
       );
     } else if (displayType.displayType === CONTENT_TYPE_ARTICLE) {
-      console.log('CONTENT_TYPE_ARTICLE.displayType: ', displayType);
       return (
         <div>
           <SearchBar />
@@ -81,7 +77,6 @@ export default class KnowledgeBase extends React.Component {
         </div>
       );
     } else if (displayType.displayType === CONTENT_TYPE_SEARCH) {
-      console.log('CONTENT_TYPE_SEARCH');
       return (
         <div>
           <SearchBar searchStr={displayType.topicData.searchStr || ''} />

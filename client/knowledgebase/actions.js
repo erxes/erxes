@@ -6,7 +6,6 @@ import {
 } from './constants';
 
 export const switchToArticleDisplay = (data) => {
-  console.log('article dispatch.data: ', data);
   return {
     type: SWITCH_TO_ARTICLE_DISPLAY,
     data,
@@ -14,7 +13,6 @@ export const switchToArticleDisplay = (data) => {
 };
 
 export const switchToCategoryDisplay = (data) => {
-  console.log('category dispatch.data: ', data);
   return {
     type: SWITCH_TO_CATEGORY_DISPLAY,
     ...data, // todo
@@ -22,7 +20,6 @@ export const switchToCategoryDisplay = (data) => {
 };
 
 export const switchToTopicDisplay = (data) => {
-  console.log('topic dispatch.dispatch: ', data)
   return {
     type: SWITCH_TO_TOPIC_DISPLAY,
     searchStr: '',
@@ -30,7 +27,6 @@ export const switchToTopicDisplay = (data) => {
 };
 
 export const updateSearchString = (searchStr) => {
-  console.log('updateSearchString.dispatch.dispatch: ', searchStr)
   if (searchStr.length === 0) {
     return {
       type: SWITCH_TO_TOPIC_DISPLAY,
