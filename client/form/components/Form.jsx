@@ -38,7 +38,7 @@ export default class Form extends React.Component {
   resetDocState() {
     const doc = {};
 
-    this.props.form.fields.each((field) => {
+    this.props.form.fields.forEach((field) => {
       doc[field._id] = {
         text: field.text,
         type: field.type,
