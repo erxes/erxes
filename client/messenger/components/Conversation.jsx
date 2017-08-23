@@ -1,4 +1,6 @@
-import React, { PropTypes } from 'react';
+/* eslint-disable jsx-a11y/no-static-element-interactions */
+
+import React, { Component, PropTypes } from 'react';
 import { MessagesList, MessageSender, TopBar } from '../containers';
 
 
@@ -12,18 +14,27 @@ const propTypes = {
   color: PropTypes.string,
 };
 
-function Conversation(props) {
-  const {
-    messages,
-    isNewConversation,
-    goToConversationList,
-    user,
-    data,
-    isOnline,
-    color,
-  } = props;
+class Conversation extends Component {
+  constructor(props) {
+    super(props);
 
-  function renderTitle() {
+    this.state = { isFocused: false };
+
+    this.onClick = this.onClick.bind(this);
+    this.onTextInputBlur = this.onTextInputBlur.bind(this);
+  }
+
+  onClick() {
+    this.setState({ isFocused: true });
+  }
+
+  onTextInputBlur() {
+    this.setState({ isFocused: false });
+  }
+
+  renderTitle() {
+    const { user, isOnline } = this.props;
+
     if (user) {
       const defaultImage = 'https://crm.nmma.co/images/userDefaultIcon.png';
       const avatar = user.details.avatar || defaultImage;
@@ -54,20 +65,40 @@ function Conversation(props) {
     );
   }
 
-  const placeholder = isNewConversation ? 'Send a message ...' : 'Write a reply ...';
+  render() {
+    const {
+      messages,
+      isNewConversation,
+      goToConversationList,
+      data,
+      isOnline,
+      color,
+    } = this.props;
 
-  return (
-    <div className="erxes-messenger" style={{ border: `2px solid ${color}` }}>
-      <TopBar
-        middle={renderTitle()}
-        buttonClass="back"
-        onButtonClick={goToConversationList}
-      />
+    const placeholder = isNewConversation ? 'Send a message ...' : 'Write a reply ...';
 
-      <MessagesList isOnline={isOnline} data={data} messages={messages} />
-      <MessageSender placeholder={placeholder} />
-    </div>
-  );
+    return (
+      <div
+        className="erxes-messenger"
+        style={{ border: `2px solid ${color}` }}
+        onClick={this.onClick}
+      >
+
+        <TopBar
+          middle={this.renderTitle()}
+          buttonClass="back"
+          onButtonClick={goToConversationList}
+        />
+
+        <MessagesList isOnline={isOnline} data={data} messages={messages} />
+        <MessageSender
+          placeholder={placeholder}
+          isParentFocused={this.state.isFocused}
+          onTextInputBlur={this.onTextInputBlur}
+        />
+      </div>
+    );
+  }
 }
 
 Conversation.propTypes = propTypes;
