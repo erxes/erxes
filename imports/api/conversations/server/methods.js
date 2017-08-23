@@ -73,6 +73,9 @@ export const addMessage = new ValidatedMethod({
       throw new Meteor.Error('conversations.addMessage.contentRequired', 'Content is required');
     }
 
+    // setting conversation's content to last message
+    Conversations.update({ _id: doc.conversationId }, { $set: { content } });
+
     const title = 'You have a new message.';
 
     // send notification
