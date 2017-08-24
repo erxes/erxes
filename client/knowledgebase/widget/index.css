@@ -4,6 +4,15 @@
   border-radius: 4px;
 }
 
+.erxes-knowledge-container-shoutbox {
+  /* shoutbox css below */
+  position: absolute;
+  right: 0;
+  max-width: 300px;
+  min-width: 300px;  
+}
+
+
 #erxes-knowledge-iframe {
   width: 100%;
   border: none;

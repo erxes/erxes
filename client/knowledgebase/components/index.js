@@ -1,25 +1,27 @@
 import App from './App';
-import Article from './Article';
-import Articles from './Articles';
-import Category from './Category';
-import SearchBar from './SearchBar';
-import Categories from './Categories';
 import KnowledgeBase from './KnowledgeBase';
-import ArticleDetail from './ArticleDetail';
+import SearchBar from './SearchBar';
+import Launcher from './Launcher';
+import Categories from './Categories';
+import Category from './Category';
 import CategoryDetail from './CategoryDetail';
+import Articles from './Articles';
+import Article from './Article';
+import ArticleDetail from './ArticleDetail';
 import BackButton from './BackButton';
 import ItemMeta from './ItemMeta';
 
 export {
   App,
-  Article,
-  Articles,
-  ArticleDetail,
-  CategoryDetail,
-  Category,
-  Categories,
   KnowledgeBase,
   SearchBar,
+  Launcher,
+  Categories,
+  Category,
+  CategoryDetail,
+  Articles,
+  Article,
+  ArticleDetail,
   BackButton,
   ItemMeta,
 };

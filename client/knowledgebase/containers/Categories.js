@@ -8,6 +8,7 @@ import { connection } from '../connection';
 import { Categories as DumbCategories } from '../components';
 
 const Categories = (props) => {
+  console.log('connection: ', connection);
   const extendedProps = {
     ...props,
     kbTopic: props.data.kbTopic,
@@ -103,7 +104,7 @@ const CategoriesWithData = graphql(
     options: (ownProps) => ({
       fetchPolicy: 'network-only',
       variables: {
-        topicId: connection.data.topicId,
+        topicId: connection.setting.topic_id,
       },
     }),
   },

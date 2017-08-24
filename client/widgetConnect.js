@@ -42,7 +42,7 @@ const widgetConnect = (params) => {
       // render root react component
       ReactDOM.render(
         <ApolloProvider store={createStore(reducers)} client={client}>
-          <AppContainer />
+          <AppContainer data={data} />
         </ApolloProvider>,
         document.getElementById('root'),
       );
