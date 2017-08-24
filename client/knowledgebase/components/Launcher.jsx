@@ -2,15 +2,16 @@ import React, { PropTypes } from 'react';
 import classNames from 'classnames';
 
 const propTypes = {
-  // onClick: PropTypes.func.isRequired,
+  isLauncherVisible: PropTypes.bool,
 };
 
-function Launcher() {
+function Launcher({ isLauncherVisible }) {
   // const clickHandler = () => {
   //   onClick(isMessengerVisible);
   // };
 
   const launcherClasses = classNames('erxes-launcher', {
+    close: !isLauncherVisible,
   });
 
   // const { color, logo } = uiOptions;

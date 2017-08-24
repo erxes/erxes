@@ -38,3 +38,10 @@ export const updateSearchString = (searchStr) => {
     searchStr,
   };
 };
+
+export const toggleLauncher = (isToggled) => {
+  return {
+    type: 'launcher_toggle',
+    isToggled: !isToggled,
+  };
+};

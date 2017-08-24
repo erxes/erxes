@@ -54,8 +54,16 @@ const displayType = (
   }
 };
 
+const isVisible = (state = true, action) => {
+  if (action.type === 'launcher_toggle') {
+    return action.isToggled;
+  }
+  return true;
+};
+
 const knowledgeBase = {
   displayType,
+  isVisible,
 };
 
 export default knowledgeBase;
