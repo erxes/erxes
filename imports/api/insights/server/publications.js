@@ -25,7 +25,8 @@ Meteor.publishComposite('insights.integration', function Circle(params) {
   const { brandId } = params;
   let { startDate, endDate } = params;
 
-  const messageSelector = { userId: { $ne: null } };
+  const conversationSelector = { messageCount: { $ne: null } };
+  const integrationSelector = {};
 
   if (!startDate || !endDate) {
     const fullDate = new Date();
@@ -37,7 +38,7 @@ Meteor.publishComposite('insights.integration', function Circle(params) {
     endDate = `${year}/${month + 1}/${date}`;
   }
 
-  messageSelector.createdAt = { $gte: new Date(startDate), $lte: new Date(endDate) };
+  conversationSelector.createdAt = { $gte: new Date(startDate), $lte: new Date(endDate) };
   const startTime = new Date(startDate).getTime();
   const endTime = new Date(endDate).getTime();
 
@@ -49,23 +50,28 @@ Meteor.publishComposite('insights.integration', function Circle(params) {
     };
   }
 
-  let conversationSelector = {};
-
-  const collectConversation = selector => {
-    const integrations = Integrations.find(selector);
-    const integrationIds = _.pluck(integrations.fetch(), '_id');
-    if (integrationIds.length > 0) {
-      conversationSelector = { integrationId: { $in: integrationIds } };
-    }
-  };
-
-  if (conversationSelector.integrationId) {
-    const conversations = Conversations.find(conversationSelector);
-    const conversationIds = _.pluck(conversations.fetch(), '_id');
-    messageSelector.conversationId = { $in: conversationIds };
+  if (brandId) {
+    integrationSelector.brandId = brandId;
   }
 
-  const messages = Messages.find(messageSelector).fetch();
+  const integrations = Integrations.find(integrationSelector);
+  const stack = {};
+
+  integrations.forEach(detail => {
+    // Хэрвээ бараа өмнө группд ороогүй бол
+    if (!stack[detail.kind]) {
+      stack[detail.kind] = [detail._id];
+    } else {
+      stack[detail.kind].push(detail._id);
+    }
+  });
+
+  _.each(_.keys(stack), kind => {
+    conversationSelector.integrationId = { $in: stack[kind] };
+    const count = Conversations.find(conversationSelector).count();
+    const data = { name: kind, value: count };
+    this.added('integration', kind, data);
+  });
 
   return {
     find() {

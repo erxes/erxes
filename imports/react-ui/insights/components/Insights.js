@@ -12,28 +12,32 @@ const propTypes = {
 };
 
 class Insights extends React.Component {
+  constructor(props) {
+    super(props);
+
+    // states
+    this.state = {
+      width: 800,
+      height: 600,
+    };
+  }
+
+  componentDidMount() {
+    const width = $('#insightWrapper').width();
+    const height = $('.main-content').height();
+    this.setState({ width, height });
+  }
+
   render() {
     const { data, brands } = this.props;
+    const width = this.state.width;
+    const height = this.state.height * 0.85;
 
-    const circleData = [
-      { name: 'Group A', value: 400 },
-      { name: 'Group B', value: 300 },
-      { name: 'Group C', value: 300 },
-      { name: 'Group D', value: 200 },
-    ];
-
-    const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042'];
+    const COLORS = ['#337ab7', '#5cb85c', '#5bc0de', '#f0ad4e', '#d9534f'];
+    const classNames = ['primary', 'success', 'info', 'warning', 'danger'];
 
     const RADIAN = Math.PI / 180;
-    const renderCustomizedLabel = ({
-      cx,
-      cy,
-      midAngle,
-      innerRadius,
-      outerRadius,
-      percent,
-      index,
-    }) => {
+    const renderCustomizedLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent }) => {
       const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
       const x = cx + radius * Math.cos(-midAngle * RADIAN);
       const y = cy + radius * Math.sin(-midAngle * RADIAN);
@@ -53,21 +57,34 @@ class Insights extends React.Component {
 
     const content = (
       <div className="insight-wrapper">
+        <div className="integration-kind col-sm-6">
+          {data.map((detail, index) =>
+            <span key={index} className="kind-item">
+              <span className={`label label-${classNames[index]}`}>
+                {detail.name}
+              </span>
+              <span className="kind-count">
+                {detail.value}
+              </span>
+            </span>,
+          )}
+        </div>
+
         <Filter brands={brands} hideIntegration={true} />
 
         <div className="margined" id="insightWrapper">
-          <PieChart width={800} height={400} onMouseEnter={this.onPieEnter}>
+          <PieChart width={width} height={height} onMouseEnter={this.onPieEnter}>
             <Pie
-              data={circleData}
-              dataKey="name"
-              cx={300}
-              cy={200}
+              data={data}
+              dataKey="value"
+              cx={width * 0.5}
+              cy={height * 0.5}
               labelLine={false}
               label={renderCustomizedLabel}
-              outerRadius={80}
+              outerRadius={height * 0.48}
               fill="#8884d8"
             >
-              {circleData.map((entry, index) =>
+              {data.map((entry, index) =>
                 <Cell key={index} fill={COLORS[index % COLORS.length]} />,
               )}
             </Pie>

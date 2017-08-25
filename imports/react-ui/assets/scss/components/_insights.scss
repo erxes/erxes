@@ -27,4 +27,26 @@
 			}
 		}
 	}
+
+	.integration-kind {
+    position: absolute;
+    margin-top: 50px;
+    z-index: 1;
+
+    .kind-item {
+    	display: inline-block;
+    	margin-right: 20px;
+
+    	.label {
+    		margin-right: 4px;
+    		display: inline-block;
+    		padding: 5px 10px;
+    	}
+
+    	.kind-count {
+    		font-size: 12px;
+    		font-weight: bold;
+    	}
+    }
+	}
 }

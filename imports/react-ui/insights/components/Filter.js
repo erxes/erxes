@@ -35,6 +35,36 @@ class Filter extends React.Component {
     Wrapper.Sidebar.filter('brandId', brandId);
   }
 
+  onDateChange(type, e) {
+    const target = $(e.currentTarget);
+    Wrapper.Sidebar.filter(type, target.val());
+  }
+
+  dateFilter() {
+    return (
+      <div className="col-sm-4 pull-right">
+        <div className="col-sm-6">
+          <ControlLabel>Start date</ControlLabel>
+          <input
+            id="startDate"
+            type="date"
+            className="form-control"
+            onChange={this.onDateChange.bind(this, 'startDate')}
+          />
+        </div>
+        <div className="col-sm-6">
+          <ControlLabel>End date</ControlLabel>
+          <input
+            id="endDate"
+            type="date"
+            className="form-control"
+            onChange={this.onDateChange.bind(this, 'endDate')}
+          />
+        </div>
+      </div>
+    );
+  }
+
   renderIntegrations() {
     const integrations = INTEGRATIONS_TYPES.ALL_LIST;
     const { hideIntegration } = this.props;
@@ -91,6 +121,7 @@ class Filter extends React.Component {
         <div className="row">
           {this.renderIntegrations()}
           {this.renderBrands()}
+          {this.dateFilter()}
         </div>
       </div>
     );
