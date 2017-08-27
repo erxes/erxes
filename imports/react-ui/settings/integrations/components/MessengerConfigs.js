@@ -17,11 +17,12 @@ import Sidebar from '../../Sidebar';
 import { timezones } from '../constants';
 import OnlineHours from './OnlineHours';
 
-class Availability extends Component {
+class Configs extends Component {
   constructor(props) {
     super(props);
 
     this.state = {
+      notifyCustomer: props.prevOptions.notifyCustomer || false,
       availabilityMethod: props.prevOptions.availabilityMethod || 'manual',
       isOnline: props.prevOptions.isOnline || false,
       timezone: props.prevOptions.timezone || '',
@@ -33,6 +34,7 @@ class Availability extends Component {
 
     this.save = this.save.bind(this);
     this.onMethodChange = this.onMethodChange.bind(this);
+    this.onNotifyCustomerChange = this.onNotifyCustomerChange.bind(this);
     this.onIsOnlineChange = this.onIsOnlineChange.bind(this);
     this.onTimezoneChange = this.onTimezoneChange.bind(this);
     this.onOnlineHoursChange = this.onOnlineHoursChange.bind(this);
@@ -43,6 +45,10 @@ class Availability extends Component {
 
   onMethodChange(e) {
     this.setState({ availabilityMethod: e.target.value });
+  }
+
+  onNotifyCustomerChange(e) {
+    this.setState({ notifyCustomer: e.target.checked });
   }
 
   onIsOnlineChange(e) {
@@ -94,17 +100,18 @@ class Availability extends Component {
     }
 
     return (
-      <FormGroup>
+      <div className="flex-inline">
         <Toggle
           className="wide"
           checked={this.state.isOnline}
           onChange={this.onIsOnlineChange}
           icons={{
-            checked: <span>Online</span>,
-            unchecked: <span>Offline</span>,
+            checked: <span>Yes</span>,
+            unchecked: <span>No</span>,
           }}
         />
-      </FormGroup>
+        <span>Is online</span>
+      </div>
     );
   }
 
@@ -188,6 +195,23 @@ class Availability extends Component {
               />
             </FormGroup>
           </Col>
+
+          <Col md={7}>
+            <h2>Other configs</h2>
+
+            <div className="flex-inline">
+              <Toggle
+                className="wide"
+                checked={this.state.notifyCustomer}
+                onChange={this.onNotifyCustomerChange}
+                icons={{
+                  checked: <span>Yes</span>,
+                  unchecked: <span>No</span>,
+                }}
+              />
+              <span>Notify customer</span>
+            </div>
+          </Col>
         </Row>
       </div>
     );
@@ -226,9 +250,9 @@ class Availability extends Component {
   }
 }
 
-Availability.propTypes = {
+Configs.propTypes = {
   prevOptions: PropTypes.object.isRequired, // eslint-disable-line
   save: PropTypes.func.isRequired,
 };
 
-export default Availability;
+export default Configs;
