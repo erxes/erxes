@@ -37,7 +37,9 @@ class Row extends Component {
 
     const editTrigger = (
       <Button bsStyle="link">
-        <Tip text="Edit"><i className="ion-edit" /></Tip>
+        <Tip text="Edit">
+          <i className="ion-edit" />
+        </Tip>
       </Button>
     );
 
@@ -53,10 +55,10 @@ class Row extends Component {
             </Button>
           </Tip>
 
-          <Tip text="Hours & Availability">
+          <Tip text="Hours, Availability & Other configs">
             <Button
               bsStyle="link"
-              href={`/settings/integrations/messenger/availability/${integration._id}`}
+              href={`/settings/integrations/messenger/configs/${integration._id}`}
             >
               <i className="ion-gear-a" />
             </Button>
@@ -85,9 +87,15 @@ class Row extends Component {
 
     return (
       <tr>
-        <td>{integration.name}</td>
-        <td>{integration.kind}</td>
-        <td>{integration.brand().name}</td>
+        <td>
+          {integration.name}
+        </td>
+        <td>
+          {integration.kind}
+        </td>
+        <td>
+          {integration.brand().name}
+        </td>
 
         <td className="text-right">
           <ActionButtons>
