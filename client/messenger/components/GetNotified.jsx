@@ -46,7 +46,7 @@ class GetNotified extends Component {
               className={type === 'phone' ? 'current' : ''}
               onClick={() => this.setGetNotifiedType('phone')}
             >
-              Phone
+              SMS
             </span>
           </p>
 
