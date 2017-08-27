@@ -1,5 +1,5 @@
 import gql from 'graphql-tag';
-import { SENDING_ATTACHMENT, ATTACHMENT_SENT, ASK_GET_NOTIFIED } from '../constants';
+import { SENDING_ATTACHMENT, ATTACHMENT_SENT, ASK_GET_NOTIFIED, MESSAGE_SENT } from '../constants';
 import { connection, getLocalStorageItem } from '../connection';
 import { changeConversation } from './messenger';
 import client from '../../apollo-client';
@@ -67,6 +67,8 @@ export const sendMessage = (message, attachments) =>
 
     // after mutation
     .then(({ data }) => {
+      dispatch({ type: MESSAGE_SENT });
+
       // if there is no current conversation new conversation will be created
       if (!currentConversationId) {
         dispatch(changeConversation(data.insertMessage.conversationId));

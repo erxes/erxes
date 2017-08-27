@@ -1,5 +1,6 @@
 import {
   SENDING_ATTACHMENT,
+  MESSAGE_SENT,
   ATTACHMENT_SENT,
   MESSENGER_TOGGLE,
   CHANGE_ROUTE,
@@ -85,6 +86,10 @@ const isObtainedGetNotifiedType = (state = true, action) => {
 const isConversationEnded = (state = false, action) => {
   if (action.type === END_CONVERSATION) {
     return true;
+  }
+
+  if (action.type === MESSAGE_SENT) {
+    return false;
   }
 
   return state;

@@ -131,6 +131,7 @@ export const endConversation = () => (dispatch) => {
     // update connection customerId
     connection.data.customerId = customerId;
 
+    dispatch({ type: CHANGE_CONVERSATION, conversationId: '' });
     dispatch({ type: END_CONVERSATION });
     dispatch({ type: CHANGE_ROUTE, route: 'conversations' });
   });
