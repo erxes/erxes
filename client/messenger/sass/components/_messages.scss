@@ -67,7 +67,7 @@
   }
 }
 
-.ask-email {
+.ask-get-notified {
   display: flex;
   flex-direction: row;
   flex-shrink: 0;
@@ -269,4 +269,15 @@
   &:hover {
     background: lighten($grey, 10%);
   }
+}
+
+.get-notified-type span {
+  display: inline-block;
+  cursor: pointer;
+  margin-right: 5px;
+}
+
+.get-notified-type span.current {
+  font-weight: bold;
+  border-bottom: 1px solid;
 }

@@ -1,16 +1,25 @@
+/* eslint-disable jsx-a11y/no-static-element-interactions */
+
 import React, { PropTypes, Component } from 'react';
 
 class GetNotified extends Component {
   constructor(props) {
     super(props);
 
+    this.state = { type: 'email' };
+
     this.saveGetNotifedValue = this.saveGetNotifedValue.bind(this);
+    this.setGetNotifiedType = this.setGetNotifiedType.bind(this);
+  }
+
+  setGetNotifiedType(type) {
+    this.setState({ type });
   }
 
   saveGetNotifedValue(e) {
     e.preventDefault();
 
-    const type = 'email';
+    const type = this.state.type;
     const value = document.querySelector('#get-notified-value').value;
 
     this.props.saveGetNotifedValue(type, value);
@@ -18,15 +27,33 @@ class GetNotified extends Component {
 
   render() {
     const { color } = this.props;
+    const { type } = this.state;
 
     if (!this.props.isObtainedGetNotifiedType) {
       return (
         <li className="erxes-spacial-message ml50">
           <label htmlFor="get-notified-value">Get notified</label>
-          <div className="ask-email">
+
+          <p className="get-notified-type">
+            <span
+              className={type === 'email' ? 'current' : ''}
+              onClick={() => this.setGetNotifiedType('email')}
+            >
+              Email
+            </span>
+
+            <span
+              className={type === 'phone' ? 'current' : ''}
+              onClick={() => this.setGetNotifiedType('phone')}
+            >
+              Phone
+            </span>
+          </p>
+
+          <div className="ask-get-notified">
             <input
               id="get-notified-value"
-              placeholder="email@domain.com"
+              placeholder={type === 'email' ? 'email@domain.com' : 'sms ...'}
               style={{ borderColor: color }}
             />
 
