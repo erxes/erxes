@@ -91,6 +91,11 @@ const schema = new SimpleSchema({
     optional: true,
     label: 'Email',
   },
+  phone: {
+    type: String,
+    optional: true,
+    label: 'Phone number',
+  },
   isUser: {
     type: Boolean,
     label: 'Is user of one of our products',
@@ -217,6 +222,7 @@ Customers.deny({
 Customers.publicFields = {
   name: 1,
   email: 1,
+  phone: 1,
   isUser: 1,
   integrationId: 1,
   createdAt: 1,

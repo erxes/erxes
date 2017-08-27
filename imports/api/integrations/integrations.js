@@ -96,6 +96,11 @@ const onlineHoursSchema = new SimpleSchema({
 
 // messenger ==============
 export const messengerSchema = new SimpleSchema({
+  notifyCustomer: {
+    type: Boolean,
+    optional: true,
+  },
+
   // manual, auto
   availabilityMethod: {
     type: String,
@@ -152,7 +157,7 @@ Integrations.schema = new SimpleSchema({
     optional: true,
   },
 
-  // messenger availability, and text options
+  // messenger availability, text and other options
   messengerData: {
     type: messengerSchema,
     optional: true,

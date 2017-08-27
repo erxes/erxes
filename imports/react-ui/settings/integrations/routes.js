@@ -3,7 +3,7 @@ import { mount } from 'react-mounter';
 import { MainLayout } from '/imports/react-ui/layout/containers';
 import settingsRoute from '../routes';
 
-import { List, Messenger, Twitter, MessengerAppearance, MessengerAvailability } from './containers';
+import { List, Messenger, Twitter, MessengerAppearance, MessengerConfigs } from './containers';
 
 import { AddIntegration } from './components';
 
@@ -29,12 +29,12 @@ integrations.route('/messenger/appearance/:integrationId', {
   },
 });
 
-integrations.route('/messenger/availability/:integrationId', {
-  name: 'settings/integrations/messenger/availability',
+integrations.route('/messenger/configs/:integrationId', {
+  name: 'settings/integrations/messenger/configs',
 
   action({ integrationId }) {
     mount(MainLayout, {
-      content: <MessengerAvailability integrationId={integrationId} />,
+      content: <MessengerConfigs integrationId={integrationId} />,
     });
   },
 });
