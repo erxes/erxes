@@ -72,7 +72,11 @@ export const openLastConversation = () => {
   };
 };
 
-export const saveGetNotifedValue = (type, value) => dispatch =>
+export const saveGetNotifedValue = (type, value) => (dispatch) => {
+  if (!value) {
+    return;
+  }
+
   client.mutate({
     mutation: gql`
       mutation saveCustomerGetNotified($customerId: String!, $type: String!, $value: String!) {
@@ -94,6 +98,7 @@ export const saveGetNotifedValue = (type, value) => dispatch =>
 
     dispatch({ type: GET_NOTIFIED_VALUE_SAVED });
   });
+};
 
 
 export const endConversation = () => (dispatch) => {
