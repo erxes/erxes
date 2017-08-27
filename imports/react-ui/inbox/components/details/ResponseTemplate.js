@@ -53,16 +53,14 @@ class ResponseTemplate extends Component {
   }
 
   onSelect(eventKey) {
-    if (eventKey === 'save') {
-      return document.getElementById('response-template-handler').click();
-    }
-
     const responseTemplates = this.props.responseTemplates;
 
     // find response template using event key
     const responseTemplate = _.find(responseTemplates, t => t._id === eventKey);
 
+    // hide selector
     this.refs.overlay.hide();
+
     return this.props.onSelect(responseTemplate);
   }
 
@@ -137,11 +135,11 @@ class ResponseTemplate extends Component {
                 onChange={this.onFilter}
                 defaultValue={this.state.brandId}
               >
-                {brands.map(brand => (
+                {brands.map(brand =>
                   <option key={brand._id} value={brand._id}>
                     {brand.name}
-                  </option>
-                ))}
+                  </option>,
+                )}
               </FormControl>
             </div>
           </div>
