@@ -1,5 +1,5 @@
 import gql from 'graphql-tag';
-import { SENDING_ATTACHMENT, ATTACHMENT_SENT, ASK_EMAIL } from '../constants';
+import { SENDING_ATTACHMENT, ATTACHMENT_SENT, ASK_GET_NOTIFIED, MESSAGE_SENT } from '../constants';
 import { connection, getLocalStorageItem } from '../connection';
 import { changeConversation } from './messenger';
 import client from '../../apollo-client';
@@ -33,9 +33,11 @@ export const readEngageMessage = ({ engageData }) => () =>
 
 export const sendMessage = (message, attachments) =>
   (dispatch, getState) => {
-    // if visitor did not give email then ask for email
-    if (!connection.setting.email && !getLocalStorageItem('visitorEmail')) {
-      dispatch({ type: ASK_EMAIL });
+    const { email, phone } = connection.setting;
+
+    // if visitor did not give email or phone then ask
+    if (!(email || phone) && !getLocalStorageItem('getNotifiedType')) {
+      dispatch({ type: ASK_GET_NOTIFIED });
     }
 
     const state = getState();
@@ -65,6 +67,8 @@ export const sendMessage = (message, attachments) =>
 
     // after mutation
     .then(({ data }) => {
+      dispatch({ type: MESSAGE_SENT });
+
       // if there is no current conversation new conversation will be created
       if (!currentConversationId) {
         dispatch(changeConversation(data.insertMessage.conversationId));
@@ -74,9 +78,11 @@ export const sendMessage = (message, attachments) =>
 
 export const sendFile = file =>
   (dispatch, getState) => {
-    // if visitor did not give email then ask for email
-    if (!connection.setting.email && !getLocalStorageItem('visitorEmail')) {
-      dispatch({ type: ASK_EMAIL });
+    const { email, phone } = connection.setting;
+
+    // if visitor did not give email or phone then ask
+    if (!(email || phone) && !getLocalStorageItem('getNotifiedType')) {
+      dispatch({ type: ASK_GET_NOTIFIED });
     }
 
     return uploadHandler({

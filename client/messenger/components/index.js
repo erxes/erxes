@@ -12,6 +12,7 @@ import MessageSender from './MessageSender';
 import MessagesList from './MessagesList';
 import User from './User';
 import EngageMessage from './EngageMessage';
+import GetNotified from './GetNotified';
 
 
 export {
@@ -29,4 +30,5 @@ export {
   MessagesList,
   User,
   EngageMessage,
+  GetNotified,
 };

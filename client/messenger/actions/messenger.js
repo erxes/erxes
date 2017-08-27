@@ -6,7 +6,7 @@ import {
   MESSENGER_TOGGLE,
   CHANGE_ROUTE,
   CHANGE_CONVERSATION,
-  SAVED_EMAIL,
+  GET_NOTIFIED_VALUE_SAVED,
   END_CONVERSATION,
 } from '../constants';
 
@@ -72,26 +72,33 @@ export const openLastConversation = () => {
   };
 };
 
-export const saveEmail = email => dispatch =>
+export const saveGetNotifedValue = (type, value) => (dispatch) => {
+  if (!value) {
+    return;
+  }
+
   client.mutate({
     mutation: gql`
-      mutation saveCustomerEmail($customerId: String!, $email: String!) {
-        saveCustomerEmail(customerId: $customerId, email: $email)
+      mutation saveCustomerGetNotified($customerId: String!, $type: String!, $value: String!) {
+        saveCustomerGetNotified(customerId: $customerId, type: $type, value: $value)
       }`,
 
     variables: {
       customerId: connection.data.customerId,
-      email,
+      type,
+      value,
     },
   })
 
   // after mutation
   .then(() => {
     // save email
-    setLocalStorageItem('visitorEmail', email);
+    setLocalStorageItem('getNotifiedType', type);
+    setLocalStorageItem('getNotifiedValue', value);
 
-    dispatch({ type: SAVED_EMAIL });
+    dispatch({ type: GET_NOTIFIED_VALUE_SAVED });
   });
+};
 
 
 export const endConversation = () => (dispatch) => {
@@ -121,13 +128,15 @@ export const endConversation = () => (dispatch) => {
     const { customerId } = data.endConversation;
 
     // reset local storage items
-    setLocalStorageItem('visitorEmail', '');
+    setLocalStorageItem('getNotifiedType', '');
+    setLocalStorageItem('getNotifiedValue', '');
     setLocalStorageItem('lastConversationId', '');
     setLocalStorageItem('customerId', customerId);
 
     // update connection customerId
     connection.data.customerId = customerId;
 
+    dispatch({ type: CHANGE_CONVERSATION, conversationId: '' });
     dispatch({ type: END_CONVERSATION });
     dispatch({ type: CHANGE_ROUTE, route: 'conversations' });
   });
