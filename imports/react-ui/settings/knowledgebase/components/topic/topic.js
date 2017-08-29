@@ -14,7 +14,7 @@ import CopyToClipboard from 'react-copy-to-clipboard';
 import { CommonItem } from '../common';
 
 const propTypes = {
-  item: PropTypes.Object,
+  item: PropTypes.object,
   brands: PropTypes.array.isRequired,
   categories: PropTypes.array.isRequired,
   save: PropTypes.func.isRequired,
