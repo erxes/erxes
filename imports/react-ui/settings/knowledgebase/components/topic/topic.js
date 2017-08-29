@@ -40,16 +40,37 @@ class KbTopic extends CommonItem {
     this.handleBrandChange = this.handleBrandChange.bind(this);
   }
 
-  getSelectedCategories() {
-    const { item } = this.props;
-    return (item && item.categoryIds) || [];
+  getCategories() {
+    const { categories } = this.props;
+    let results = [];
+
+    results.push({
+      label: 'Categories',
+      options: categories.map(category => ({
+        label: category.title,
+        value: category._id,
+      })),
+    });
+    return results;
   }
 
-  handleBrandChange() {
-    if (this.props.item && this.props.item._id) {
-      const code = this.constructor.getInstallCode(this.props.item._id);
-      this.setState({ code, copied: false });
+  getSelectedCategories() {
+    const { categories, item } = this.props;
+    let results = [];
+
+    if (item != null) {
+      const categoryIds = item.categoryIds || [];
+      categories.map(category => {
+        if (categoryIds.indexOf(category._id) != -1) {
+          results.push({
+            label: category.title,
+            value: category._id,
+          });
+        }
+      });
     }
+
+    return results;
   }
 
   static installCodeIncludeScript() {
@@ -76,6 +97,67 @@ class KbTopic extends CommonItem {
         ${KbTopic.installCodeIncludeScript()}
       </script>
     `;
+  }
+
+  renderInstallCode() {
+    if (this.props.item && this.props.item._id) {
+      return (
+        <FormGroup controlId="install-code">
+          <ControlLabel>Install code</ControlLabel>
+          <div className="markdown-wrapper">
+            <ReactMarkdown source={this.state.code} />
+            {this.state.code
+              ? <CopyToClipboard
+                  text={this.state.code}
+                  onCopy={() => this.setState({ copied: true })}
+                >
+                  <Button bsSize="small" bsStyle="primary">
+                    {this.state.copied ? 'Copied' : 'Copy to clipboard'}
+                  </Button>
+                </CopyToClipboard>
+              : null}
+          </div>
+        </FormGroup>
+      );
+    } else {
+      return null;
+    }
+  }
+
+  handleBrandChange() {
+    if (this.props.item && this.props.item._id) {
+      const code = this.constructor.getInstallCode(this.props.item._id);
+      this.setState({ code, copied: false });
+    }
+  }
+
+  handleSubmit(e) {
+    super.handleSubmit(e);
+
+    let categoryIds = []; // TODO: refactor
+
+    console.log('this.state: ', this.state);
+    for (var i = 0; i < this.state.selectedCategories.length; i++) {
+      categoryIds.push(this.state.selectedCategories[i].value);
+    }
+
+    const { item } = this.props;
+
+    let newValues = {
+      title: document.getElementById('knowledgebase-title').value,
+      description: document.getElementById('knowledgebase-description').value,
+      brandId: document.getElementById('selectBrand').value,
+      categoryIds,
+    };
+
+    if (item && item._id) {
+      newValues.createdBy = item.createdBy;
+      newValues.createdDate = item.createdDate;
+      newValues.modifiedBy = item.modifiedBy;
+      newValues.modifiedDate = item.modifiedDate;
+    }
+    this.props.save(newValues);
+    this.context.closeModal();
   }
 
   render() {
@@ -130,65 +212,6 @@ class KbTopic extends CommonItem {
         </Modal.Footer>
       </form>
     );
-  }
-
-  getCategories() {
-    const results = [];
-
-    const { categories } = this.props;
-
-    results.push({
-      label: 'Categories',
-      options: categories.map(category => ({
-        label: category.title,
-        value: category._id,
-      })),
-    });
-    return results;
-  }
-
-  renderInstallCode() {
-    if (this.props.item && this.props.item._id) {
-      return (
-        <FormGroup controlId="install-code">
-          <ControlLabel>Install code</ControlLabel>
-          <div className="markdown-wrapper">
-            <ReactMarkdown source={this.state.code} />
-            {this.state.code
-              ? <CopyToClipboard
-                  text={this.state.code}
-                  onCopy={() => this.setState({ copied: true })}
-                >
-                  <Button bsSize="small" bsStyle="primary">
-                    {this.state.copied ? 'Copied' : 'Copy to clipboard'}
-                  </Button>
-                </CopyToClipboard>
-              : null}
-          </div>
-        </FormGroup>
-      );
-    } else {
-      return null;
-    }
-  }
-
-  handleSubmit(e) {
-    super.handleSubmit(e);
-
-    let categoryIds = []; // TODO: refactor
-
-    for (var i = 0; i < this.state.selectedCategories.length; i++) {
-      categoryIds.push(this.state.selectedCategories[i].value);
-    }
-
-    this.props.save({
-      title: document.getElementById('knowledgebase-title').value,
-      description: document.getElementById('knowledgebase-description').value,
-      brandId: document.getElementById('selectBrand').value,
-      categoryIds: categoryIds,
-    });
-
-    this.context.closeModal();
   }
 }
 

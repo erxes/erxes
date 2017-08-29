@@ -2,6 +2,7 @@ import { check } from 'meteor/check';
 import { ValidatedMethod } from 'meteor/mdg:validated-method';
 import { ErxesMixin } from '/imports/api/utils';
 import { KbTopics, KbCategories, KbArticles } from '../collections';
+import { KbTopicsSchema, KbCategoriesSchema, KbArticlesSchema } from '../schema';
 
 // add
 export const addKbTopic = new ValidatedMethod({
@@ -9,13 +10,15 @@ export const addKbTopic = new ValidatedMethod({
   mixins: [ErxesMixin],
 
   validate({ doc }) {
-    check(doc, { title: String, description: String, brandId: String, categoryIds: Array });
+    check({ ...doc, createdBy: this.userId, createdDate: new Date() }, KbTopicsSchema);
   },
 
   run({ doc }) {
-    doc.createdBy = this.userId;
-    doc.createdDate = new Date();
-    return KbTopics.insert(Object.assign(doc));
+    return KbTopics.insert({
+      ...doc,
+      createdBy: this.userId,
+      createdDate: new Date(),
+    });
   },
 });
 
@@ -26,13 +29,20 @@ export const editKbTopic = new ValidatedMethod({
 
   validate({ _id, doc }) {
     check(_id, String);
-    check(doc, { title: String, description: String, brandId: String, categoryIds: Array });
+    check(doc, KbTopicsSchema);
   },
 
   run({ _id, doc }) {
-    doc.modifiedBy = this.userId;
-    doc.modifiedDate = new Date();
-    return KbTopics.update({ _id }, { $set: doc });
+    return KbTopics.update(
+      { _id },
+      {
+        $set: {
+          ...doc,
+          modifiedBy: this.userId,
+          modifiedDate: new Date(),
+        },
+      },
+    );
   },
 });
 
@@ -56,12 +66,15 @@ export const addKbCategory = new ValidatedMethod({
   mixins: [ErxesMixin],
 
   validate({ doc }) {
-    check(doc, { title: String, description: String, articleIds: Array, icon: String });
+    check({ ...doc, createdBy: this.userId, createdDate: new Date() }, KbCategoriesSchema);
   },
 
   run({ doc }) {
-    doc.createdBy = this.userId;
-    doc.createdDate = new Date();
+    doc = {
+      ...doc,
+      createdBy: this.userId,
+      createdDate: new Date(),
+    };
     return KbCategories.insert(Object.assign(doc));
   },
 });
@@ -73,13 +86,22 @@ export const editKbCategory = new ValidatedMethod({
 
   validate({ _id, doc }) {
     check(_id, String);
-    check(doc, { title: String, description: String, articleIds: Array, icon: String });
+    check(doc, KbCategoriesSchema);
   },
 
   run({ _id, doc }) {
     doc.modifiedBy = this.userId;
     doc.modifiedDate = new Date();
-    return KbCategories.update({ _id }, { $set: doc });
+    return KbCategories.update(
+      { _id },
+      {
+        $set: {
+          ...doc,
+          modifiedBy: this.userId,
+          modifiedDate: new Date(),
+        },
+      },
+    );
   },
 });
 

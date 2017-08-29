@@ -30,8 +30,22 @@ class KbCategory extends Component {
   }
 
   getSelectedArticles() {
-    const { item } = this.props;
-    return (item && item.articleIds) || [];
+    const { articles, item } = this.props;
+    let results = [];
+
+    if (item != null) {
+      const articleIds = item.articleIds || [];
+      articles.map(article => {
+        if (articleIds.indexOf(article._id) != -1) {
+          results.push({
+            label: article.title,
+            value: article._id,
+          });
+        }
+      });
+    }
+
+    return results;
   }
 
   getSelectedIcon() {
@@ -69,6 +83,37 @@ class KbCategory extends Component {
     this.setState({
       selectedIcon: event.target.value,
     });
+  }
+
+  handleSubmit(e) {
+    e.preventDefault();
+
+    let articleIds = []; // TODO: refactor
+
+    for (var i = 0; i < this.state.selectedArticles.length; i++) {
+      articleIds.push(this.state.selectedArticles[i].value);
+    }
+
+    const { item } = this.props;
+
+    let newValues = {
+      title: document.getElementById('knowledgebase-category-title').value,
+      description: document.getElementById('knowledgebase-category-description').value,
+      articleIds,
+      icon: this.state.selectedIcon,
+    };
+
+    if (item && item._id) {
+      newValues = {
+        ...newValues,
+        createdBy: item.createdBy,
+        createdDate: item.createdDate,
+        modifiedBy: item.modifiedBy,
+        modifiedDate: item.modifiedDate,
+      };
+    }
+    this.props.save(newValues);
+    this.context.closeModal();
   }
 
   render() {
@@ -128,25 +173,6 @@ class KbCategory extends Component {
         </Modal.Footer>
       </form>
     );
-  }
-
-  handleSubmit(e) {
-    e.preventDefault();
-
-    let articleIds = [];
-
-    for (var i = 0; i < this.state.selectedArticles.length; i++) {
-      articleIds.push(this.state.selectedArticles[i].value || this.state.selectedArticles[i]); // TODO: needs refactoring
-    }
-
-    this.context.closeModal();
-
-    this.props.save({
-      title: document.getElementById('knowledgebase-category-title').value,
-      description: document.getElementById('knowledgebase-category-description').value,
-      articleIds,
-      icon: this.state.selectedIcon,
-    });
   }
 }
 

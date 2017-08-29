@@ -7,7 +7,6 @@ export const KbTopics = new Mongo.Collection('knowledgebase_topics');
 export const KbCategories = new Mongo.Collection('knowledgebase_categories');
 export const KbArticles = new Mongo.Collection('knowledgebase_articles');
 
-KbTopics.schema = KbTopicsSchema;
 KbTopics.attachSchema(KbTopicsSchema);
 KbTopics.helpers({
   brand() {
@@ -15,8 +14,6 @@ KbTopics.helpers({
   },
 });
 
-KbCategories.schema = KbCategoriesSchema;
 KbCategories.attachSchema(KbCategoriesSchema);
 
-KbArticles.schema = KbArticlesSchema;
 KbArticles.attachSchema(KbArticlesSchema);
