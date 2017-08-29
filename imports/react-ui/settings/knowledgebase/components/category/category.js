@@ -8,6 +8,7 @@ import {
   ButtonToolbar,
   Modal,
 } from 'react-bootstrap';
+import Ionicons from 'react-ionicons';
 import { icons } from '../../icons.constant';
 
 const propTypes = {
@@ -26,7 +27,8 @@ class KbCategory extends Component {
     };
 
     this.handleSubmit = this.handleSubmit.bind(this);
-    this.handleIconChange = this.handleIconChange.bind(this);
+    this.onChangeIcon = this.onChangeIcon.bind(this);
+    this.renderOption = this.renderOption.bind(this);
   }
 
   getSelectedArticles() {
@@ -68,21 +70,19 @@ class KbCategory extends Component {
     return results;
   }
 
-  getIcons() {
-    return icons.map(opt => {
-      return (
-        <option key={opt} value={opt}>
-          {opt}
-        </option>
-      );
+  onChangeIcon(obj) {
+    this.setState({
+      selectedIcon: obj.value,
     });
   }
 
-  handleIconChange(event) {
-    // TODO: refactor, move inside render method
-    this.setState({
-      selectedIcon: event.target.value,
-    });
+  renderOption(option) {
+    return (
+      <div className="icon-option">
+        <Ionicons icon={option.value} />
+        {option.label}
+      </div>
+    );
   }
 
   handleSubmit(e) {
@@ -154,14 +154,14 @@ class KbCategory extends Component {
 
         <FormGroup controlId="knowledgebase-category-icon">
           <ControlLabel>Icon</ControlLabel>
-          <FormControl
-            componentClass="select"
-            placeholder="select"
-            onChange={this.handleIconChange}
+          <Select
+            name="form-field-name"
             value={this.state.selectedIcon}
-          >
-            {this.getIcons()}
-          </FormControl>
+            options={icons}
+            onChange={this.onChangeIcon}
+            optionRenderer={this.renderOption}
+            valueRenderer={this.renderOption}
+          />
         </FormGroup>
 
         <Modal.Footer>

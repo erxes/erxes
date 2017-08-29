@@ -75,7 +75,7 @@ export const addKbCategory = new ValidatedMethod({
       createdBy: this.userId,
       createdDate: new Date(),
     };
-    return KbCategories.insert(Object.assign(doc));
+    return KbCategories.insert(doc);
   },
 });
 
@@ -90,8 +90,6 @@ export const editKbCategory = new ValidatedMethod({
   },
 
   run({ _id, doc }) {
-    doc.modifiedBy = this.userId;
-    doc.modifiedDate = new Date();
     return KbCategories.update(
       { _id },
       {
@@ -125,18 +123,16 @@ export const addKbArticle = new ValidatedMethod({
   mixins: [ErxesMixin],
 
   validate({ doc }) {
-    check(doc, {
-      title: String,
-      summary: String,
-      content: String,
-      status: String,
-    });
+    check(doc, KbArticlesSchema);
   },
 
   run({ doc }) {
-    doc.createdBy = this.userId;
-    doc.createdDate = new Date();
-    return KbArticles.insert(Object.assign(doc));
+    doc = {
+      ...doc,
+      createdBy: this.userId,
+      createdDate: new Date(),
+    };
+    return KbArticles.insert(doc);
   },
 });
 
@@ -147,18 +143,20 @@ export const editKbArticle = new ValidatedMethod({
 
   validate({ _id, doc }) {
     check(_id, String);
-    check(doc, {
-      title: String,
-      summary: String,
-      content: String,
-      status: String,
-    });
+    check(doc, KbArticlesSchema);
   },
 
   run({ _id, doc }) {
-    doc.modifiedBy = this.userId;
-    doc.modifiedDate = new Date();
-    return KbArticles.update({ _id }, { $set: doc });
+    return KbArticles.update(
+      { _id },
+      {
+        $set: {
+          ...doc,
+          modifiedBy: this.userId,
+          modifiedDate: new Date(),
+        },
+      },
+    );
   },
 });
 
