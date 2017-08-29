@@ -39,6 +39,31 @@ class KbArticle extends Component {
     });
   }
 
+  handleSubmit(e) {
+    e.preventDefault();
+
+    const { item } = this.props;
+
+    let newValues = {
+      title: document.getElementById('knowledgebase-article-title').value,
+      summary: document.getElementById('knowledgebase-article-summary').value,
+      content: document.getElementById('knowledgebase-article-content').value,
+      status: this.state.status,
+    };
+
+    if (item && item._id) {
+      newValues = {
+        ...newValues,
+        createdBy: item.createdBy,
+        createdDate: item.createdDate,
+        modifiedBy: item.modifiedBy,
+        modifiedDate: item.modifiedDate,
+      };
+    }
+    this.props.save(newValues);
+    this.context.closeModal();
+  }
+
   render() {
     let status = this.state.status;
     const { item = {} } = this.props;
@@ -80,19 +105,6 @@ class KbArticle extends Component {
         </Modal.Footer>
       </form>
     );
-  }
-
-  handleSubmit(e) {
-    e.preventDefault();
-
-    this.props.save({
-      title: document.getElementById('knowledgebase-article-title').value,
-      summary: document.getElementById('knowledgebase-article-summary').value,
-      content: document.getElementById('knowledgebase-article-content').value,
-      status: this.state.status,
-    });
-
-    this.context.closeModal();
   }
 }
 

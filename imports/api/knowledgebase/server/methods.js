@@ -123,7 +123,7 @@ export const addKbArticle = new ValidatedMethod({
   mixins: [ErxesMixin],
 
   validate({ doc }) {
-    check(doc, KbArticlesSchema);
+    check({ ...doc, createdBy: this.userId, createdDate: new Date() }, KbArticlesSchema);
   },
 
   run({ doc }) {
