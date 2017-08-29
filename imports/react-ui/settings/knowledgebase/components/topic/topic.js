@@ -29,7 +29,7 @@ class KbTopic extends CommonItem {
 
     // showed install code automatically in edit mode
     if (props.item) {
-      code = this.constructor.getInstallCode(props.item._id);
+      code = this.constructor.getInstallCode();
     }
 
     this.state = {
@@ -87,12 +87,13 @@ class KbTopic extends CommonItem {
     `;
   }
 
-  static getInstallCode(topicId) {
+  static getInstallCode() {
+    const { item } = this.props.item;
     return `
       <script>
         window.erxesSettings = {
           knowledgeBase: {
-            topic_id: "${topicId}"
+            topic_id: "${item._id}"
           },
         };
         ${KbTopic.installCodeIncludeScript()}
@@ -127,7 +128,7 @@ class KbTopic extends CommonItem {
 
   handleBrandChange() {
     if (this.props.item && this.props.item._id) {
-      const code = this.constructor.getInstallCode(this.props.item._id);
+      const code = this.constructor.getInstallCode();
       this.setState({ code, copied: false });
     }
   }
