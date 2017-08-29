@@ -1,4 +1,5 @@
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import Select from 'react-select-plus';
 import {
   FormGroup,
@@ -136,7 +137,6 @@ class KbTopic extends CommonItem {
 
     let categoryIds = []; // TODO: refactor
 
-    console.log('this.state: ', this.state);
     for (var i = 0; i < this.state.selectedCategories.length; i++) {
       categoryIds.push(this.state.selectedCategories[i].value);
     }

@@ -12,13 +12,12 @@ function articlesComposer({ queryParams }, onData) {
     Object.assign(queryParams, { limit }),
   );
 
-  const items = KbArticles.find().fetch();
-
   const removeItem = (id, callback) => {
     Meteor.call('knowledgebase.removeKbArticle', id, callback);
   };
 
   if (kbArticlesHandler.ready()) {
+    const items = KbArticles.find().fetch();
     onData(null, {
       items,
       removeItem,

@@ -1,4 +1,5 @@
-import React, { Component, PropTypes } from 'react';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import {
   FormGroup,
   ControlLabel,
@@ -11,6 +12,10 @@ import {
 const propTypes = {
   item: PropTypes.object,
   save: PropTypes.func.isRequired,
+};
+
+const contextTypes = {
+  closeModal: PropTypes.func.isRequired,
 };
 
 class KbArticle extends Component {
@@ -110,8 +115,6 @@ class KbArticle extends Component {
 
 KbArticle.propTypes = propTypes;
 
-KbArticle.contextTypes = {
-  closeModal: PropTypes.func.isRequired,
-};
+KbArticle.contextTypes = contextTypes;
 
 export default KbArticle;

@@ -2,6 +2,12 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { FormGroup, ControlLabel, FormControl } from 'react-bootstrap';
 
+const propTypes = {
+  brands: PropTypes.array.isRequired, // eslint-disable-line react/forbid-prop-types
+  onChange: PropTypes.func,
+  defaultValue: PropTypes.string,
+};
+
 const SelectBrand = ({ brands, onChange, defaultValue }) => (
   <FormGroup controlId="selectBrand">
     <ControlLabel>Brand</ControlLabel>
@@ -19,10 +25,6 @@ const SelectBrand = ({ brands, onChange, defaultValue }) => (
   </FormGroup>
 );
 
-SelectBrand.propTypes = {
-  brands: PropTypes.array.isRequired, // eslint-disable-line react/forbid-prop-types
-  onChange: PropTypes.func,
-  defaultValue: PropTypes.string,
-};
+SelectBrand.propTypes = propTypes;
 
 export default SelectBrand;

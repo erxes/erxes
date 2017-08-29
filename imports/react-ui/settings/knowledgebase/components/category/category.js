@@ -1,4 +1,5 @@
-import React, { Component, PropTypes } from 'react';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import Select from 'react-select-plus';
 import {
   FormGroup,
@@ -26,9 +27,9 @@ class KbCategory extends Component {
       selectedIcon: this.getSelectedIcon(),
     };
 
+    this.renderOption = this.renderOption.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
     this.onChangeIcon = this.onChangeIcon.bind(this);
-    this.renderOption = this.renderOption.bind(this);
   }
 
   getSelectedArticles() {
@@ -117,7 +118,7 @@ class KbCategory extends Component {
   }
 
   render() {
-    const item = this.props.item || {};
+    const { item = {} } = this.props.item;
 
     return (
       <form className="margined" onSubmit={this.handleSubmit}>
