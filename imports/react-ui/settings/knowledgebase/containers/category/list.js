@@ -12,12 +12,12 @@ function categoriesComposer({ queryParams }, onData) {
     Object.assign(queryParams, { limit }),
   );
 
-  const items = KbCategories.find().fetch();
   const removeItem = (id, callback) => {
     Meteor.call('knowledgebase.removeKbCategory', id, callback);
   };
 
   if (kbCategoriesHandler.ready()) {
+    const items = KbCategories.find().fetch();
     onData(null, {
       items,
       removeItem,

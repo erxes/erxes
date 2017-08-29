@@ -7,7 +7,6 @@ import { KbArticles } from '/imports/api/knowledgebase/collections';
 
 const composer = (props, onData) => {
   const articlesHandler = Meteor.subscribe('kb_articles.list', { limit: 0 });
-  const articles = KbArticles.find().fetch();
 
   const save = doc =>
     saveCallback(
@@ -19,6 +18,7 @@ const composer = (props, onData) => {
     );
 
   if (articlesHandler.ready()) {
+    const articles = KbArticles.find().fetch();
     return onData(null, { articles, save });
   }
 

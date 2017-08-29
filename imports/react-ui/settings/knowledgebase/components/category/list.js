@@ -46,7 +46,6 @@ class KbCategoryList extends CommonList {
             <tr>
               <th>Name</th>
               <th>Description</th>
-              <th>Topic</th>
               <th width="183" className="text-right">
                 Actions
               </th>

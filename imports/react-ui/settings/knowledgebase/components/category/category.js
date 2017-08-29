@@ -10,14 +10,22 @@ import {
 } from 'react-bootstrap';
 import { icons } from '../../icons.constant';
 
+const propTypes = {
+  item: PropTypes.object,
+  articles: PropTypes.array.isRequired, // eslint-disable-line
+  save: PropTypes.func.isRequired,
+};
+
 class KbCategory extends Component {
   constructor(props, context) {
     super(props, context);
-    this.handleSubmit = this.handleSubmit.bind(this);
+
     this.state = {
       selectedArticles: this.getSelectedArticles(),
       selectedIcon: this.getSelectedIcon(),
     };
+
+    this.handleSubmit = this.handleSubmit.bind(this);
     this.handleIconChange = this.handleIconChange.bind(this);
   }
 
@@ -57,6 +65,7 @@ class KbCategory extends Component {
   }
 
   handleIconChange(event) {
+    // TODO: refactor, move inside render method
     this.setState({
       selectedIcon: event.target.value,
     });
@@ -127,7 +136,7 @@ class KbCategory extends Component {
     let articleIds = [];
 
     for (var i = 0; i < this.state.selectedArticles.length; i++) {
-      articleIds.push(this.state.selectedArticles[i].value || this.state.selectedArticles[i]);
+      articleIds.push(this.state.selectedArticles[i].value || this.state.selectedArticles[i]); // TODO: needs refactoring
     }
 
     this.context.closeModal();
@@ -135,16 +144,13 @@ class KbCategory extends Component {
     this.props.save({
       title: document.getElementById('knowledgebase-category-title').value,
       description: document.getElementById('knowledgebase-category-description').value,
-      articleIds: articleIds,
+      articleIds,
       icon: this.state.selectedIcon,
     });
   }
 }
 
-KbCategory.propTypes = {
-  ...KbCategory.propTypes,
-  articles: PropTypes.array.isRequired, // eslint-disable-line
-};
+KbCategory.propTypes = propTypes;
 
 KbCategory.contextTypes = {
   closeModal: PropTypes.func.isRequired,

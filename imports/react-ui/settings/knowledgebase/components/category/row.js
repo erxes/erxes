@@ -43,7 +43,6 @@ class KbCategoryRow extends Component {
       <tr>
         <td>{item.title}</td>
         <td>{item.description}</td>
-        <td />
 
         <td className="text-right">
           <ActionButtons>
