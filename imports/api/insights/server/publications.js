@@ -7,6 +7,38 @@ import { Integrations } from '/imports/api/integrations/integrations';
 import { Conversations } from '/imports/api/conversations/conversations';
 import { Messages } from '/imports/api/conversations/messages';
 
+function conversationFilter(brandId, integrationType, messageSelector) {
+  let conversationSelector = {};
+
+  const collectIntegration = selector => {
+    const integrations = Integrations.find(selector);
+    const integrationIds = _.pluck(integrations.fetch(), '_id');
+    if (integrationIds.length > 0) {
+      conversationSelector = { integrationId: { $in: integrationIds } };
+    }
+  };
+
+  if (brandId && !integrationType) {
+    collectIntegration({ brandId });
+  }
+
+  if (!brandId && integrationType) {
+    collectIntegration({ kind: integrationType });
+  }
+
+  if (brandId && integrationType) {
+    collectIntegration({ brandId, kind: integrationType });
+  }
+
+  if (conversationSelector.integrationId) {
+    const conversations = Conversations.find(conversationSelector);
+    const conversationIds = _.pluck(conversations.fetch(), '_id');
+    messageSelector.conversationId = { $in: conversationIds };
+  }
+
+  return messageSelector;
+}
+
 Meteor.publishComposite('insights.integration', function Circle(params) {
   check(params, {
     startDate: Match.Optional(String),
@@ -124,36 +156,8 @@ Meteor.publishComposite('insights.teamMembers', function teamMembers(params) {
   }
 
   const duration = endTime - startTime;
-
-  let conversationSelector = {};
-
-  const collectConversation = selector => {
-    const integrations = Integrations.find(selector);
-    const integrationIds = _.pluck(integrations.fetch(), '_id');
-    if (integrationIds.length > 0) {
-      conversationSelector = { integrationId: { $in: integrationIds } };
-    }
-  };
-
-  if (brandId && !integrationType) {
-    collectConversation({ brandId });
-  }
-
-  if (!brandId && integrationType) {
-    collectConversation({ kind: integrationType });
-  }
-
-  if (brandId && integrationType) {
-    collectConversation({ brandId, kind: integrationType });
-  }
-
-  if (conversationSelector.integrationId) {
-    const conversations = Conversations.find(conversationSelector);
-    const conversationIds = _.pluck(conversations.fetch(), '_id');
-    messageSelector.conversationId = { $in: conversationIds };
-  }
-
-  const messages = Messages.find(messageSelector).fetch();
+  const messageFilter = conversationFilter(brandId, integrationType, messageSelector);
+  const messages = Messages.find(messageFilter).fetch();
 
   const insertData = (collection, loopCount) => {
     const results = [];
@@ -193,6 +197,74 @@ Meteor.publishComposite('insights.teamMembers', function teamMembers(params) {
       const data = { fullName: userDetails.fullName, avatar: userDetails.avatar, data: userData };
       this.added('users_data', index, data);
     }
+  });
+
+  return {
+    find() {
+      return this.ready();
+    },
+  };
+});
+
+Meteor.publishComposite('punch.card', function Circle(params) {
+  check(params, {
+    endDate: Match.Optional(String),
+    brandId: Match.Optional(String),
+    integrationType: Match.Optional(String),
+  });
+
+  if (!this.userId) {
+    return {
+      find() {
+        this.ready();
+      },
+    };
+  }
+
+  const { brandId, integrationType } = params;
+  let { endDate } = params;
+
+  const messageSelector = { userId: null };
+
+  if (!endDate) {
+    endDate = new Date();
+  }
+
+  const end = moment(endDate).format('YYYY-MM-DD');
+  const start = moment(end).add(-7, 'days');
+
+  messageSelector.createdAt = { $gte: new Date(start), $lte: new Date(end) };
+
+  const messageFilter = conversationFilter(brandId, integrationType, messageSelector);
+  const messages = Messages.find(messageFilter).fetch();
+
+  const stack = {};
+  let maxValue = 0;
+
+  for (let i = 0; i < 7 * 24; i++) {
+    const startTime = moment(start).add(i, 'hours');
+    const endTime = moment(start).add(i + 1, 'hours');
+
+    const count = messages.filter(
+      message => startTime < message.createdAt && message.createdAt < endTime,
+    ).length;
+
+    const dayCount = startTime.weekday();
+
+    if (maxValue < count) {
+      maxValue = count;
+    }
+
+    if (!stack[dayCount]) {
+      stack[dayCount] = [count];
+    } else {
+      stack[dayCount].push(count);
+    }
+  }
+
+  _.each(_.keys(stack), kind => {
+    const data = { day: kind, value: stack[kind], maxValue };
+    this.added('punch_card', kind, data);
   });
 
   return {

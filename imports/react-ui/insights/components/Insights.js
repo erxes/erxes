@@ -31,7 +31,7 @@ class Insights extends React.Component {
   render() {
     const { data, brands } = this.props;
     const width = this.state.width;
-    const height = this.state.height * 0.85;
+    const height = this.state.height * 0.8;
 
     const COLORS = ['#337ab7', '#5cb85c', '#5bc0de', '#f0ad4e', '#d9534f'];
     const classNames = ['primary', 'success', 'info', 'warning', 'danger'];

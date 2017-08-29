@@ -10,6 +10,7 @@ import { Wrapper } from '/imports/react-ui/layout/components';
 const propTypes = {
   brands: PropTypes.array.isRequired,
   hideIntegration: PropTypes.bool,
+  hideStartDate: PropTypes.bool,
 };
 
 class Filter extends React.Component {
@@ -41,18 +42,21 @@ class Filter extends React.Component {
   }
 
   dateFilter() {
+    const { hideStartDate } = this.props;
     return (
       <div className="col-sm-4 pull-right">
-        <div className="col-sm-6">
-          <ControlLabel>Start date</ControlLabel>
-          <input
-            id="startDate"
-            type="date"
-            className="form-control"
-            onChange={this.onDateChange.bind(this, 'startDate')}
-          />
-        </div>
-        <div className="col-sm-6">
+        {hideStartDate
+          ? null
+          : <div className="col-sm-6">
+              <ControlLabel>Start date</ControlLabel>
+              <input
+                id="startDate"
+                type="date"
+                className="form-control"
+                onChange={this.onDateChange.bind(this, 'startDate')}
+              />
+            </div>}
+        <div className="col-sm-6 pull-right">
           <ControlLabel>End date</ControlLabel>
           <input
             id="endDate"
@@ -68,7 +72,7 @@ class Filter extends React.Component {
   renderIntegrations() {
     const integrations = INTEGRATIONS_TYPES.ALL_LIST;
     const { hideIntegration } = this.props;
-    const hide = hideIntegration ? hideIntegration : false;
+    const hide = hideIntegration || false;
 
     if (hide) {
       return null;

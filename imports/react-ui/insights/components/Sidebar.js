@@ -15,6 +15,9 @@ function Sidebar() {
           <li>
             <a href={FlowRouter.path('insights/team-members')}>Team members</a>
           </li>
+          <li>
+            <a href={FlowRouter.path('insights/punch-card')}>Punch card</a>
+          </li>
         </ul>
       </Wrapper.Sidebar.Section>
     </Wrapper.Sidebar>

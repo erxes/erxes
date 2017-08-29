@@ -49,4 +49,31 @@
     	}
     }
 	}
+
+	.punch-card {
+		td {
+			div {
+				display: inline-block;
+				width: 4%;
+				text-align: center;
+				position: relative;
+				height:36px;
+				
+				.punch-bar{
+					background-color: #337ab7;
+					width: 30%;
+				}
+
+				&.punch-val::after {
+					content: ' ';
+					display: block;
+					width: 1px;
+					height: 10px;
+					position: absolute;
+					margin-left: 50%;
+					background-color: #eee;
+				}
+			}
+		}
+	}
 }
