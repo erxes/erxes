@@ -13,6 +13,13 @@ import SelectBrand from '../SelectBrand';
 import CopyToClipboard from 'react-copy-to-clipboard';
 import { CommonItem } from '../common';
 
+const propTypes = {
+  item: PropTypes.Object, // eslint-disable-line
+  brands: PropTypes.array.isRequired,
+  categories: PropTypes.array.isRequired,
+  save: PropTypes.func.isRequired,
+};
+
 class KbTopic extends CommonItem {
   constructor(props, context) {
     super(props, context);
@@ -59,6 +66,7 @@ class KbTopic extends CommonItem {
   }
 
   static getInstallCode(topicId) {
+    // TODO: need to check this!
     return `
       <script>
         window.erxesSettings = {
@@ -167,7 +175,6 @@ class KbTopic extends CommonItem {
 
   handleSubmit(e) {
     super.handleSubmit(e);
-    // console.log('selectedCategories: ', this.state.selectedCategories);
 
     let categoryIds = [];
 
@@ -184,9 +191,6 @@ class KbTopic extends CommonItem {
   }
 }
 
-KbTopic.propTypes = {
-  ...KbTopic.propTypes,
-  brands: PropTypes.array.isRequired, // eslint-disable-line
-};
+KbTopic.propTypes = propTypes;
 
 export default KbTopic;

@@ -6,7 +6,6 @@ import { KbCategory } from '../../containers';
 
 const propTypes = {
   item: PropTypes.object.isRequired,
-  topics: PropTypes.array.isRequired,
   removeItem: PropTypes.func.isRequired,
 };
 
@@ -32,7 +31,7 @@ class KbCategoryRow extends Component {
   }
 
   render() {
-    const { item, topics } = this.props;
+    const { item } = this.props;
 
     const editTrigger = (
       <Button bsStyle="link">
@@ -49,7 +48,7 @@ class KbCategoryRow extends Component {
         <td className="text-right">
           <ActionButtons>
             <ModalTrigger title="Edit category" trigger={editTrigger}>
-              <KbCategory item={item} topics={topics} />
+              <KbCategory item={item} />
             </ModalTrigger>
 
             <Tip text="Delete">

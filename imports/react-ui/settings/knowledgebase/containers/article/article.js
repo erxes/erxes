@@ -13,7 +13,8 @@ const composer = (props, onData) => {
       '/settings/knowledgebase/articles',
     );
 
-  return onData(null, { save });
+  const { item } = props;
+  return onData(null, { item, save });
 };
 
 export default compose(getTrackerLoader(composer), composerOptions({ spinner: true }))(KbArticle);

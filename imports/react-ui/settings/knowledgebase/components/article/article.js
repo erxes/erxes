@@ -8,13 +8,19 @@ import {
   Modal,
 } from 'react-bootstrap';
 
+const propTypes = {
+  item: PropTypes.object,
+  save: PropTypes.func.isRequired,
+};
+
 class KbArticle extends Component {
   constructor(props, context) {
     super(props, context);
-    this.handleSubmit = this.handleSubmit.bind(this);
     this.state = {
       status: this.getCurrentStatus(),
     };
+
+    this.handleSubmit = this.handleSubmit.bind(this);
     this.handleStatusChange = this.handleStatusChange.bind(this);
   }
 
@@ -27,7 +33,7 @@ class KbArticle extends Component {
   }
 
   handleStatusChange(event) {
-    console.log('event.target.value: ', event.target.value);
+    // TODO: can be refactored by moving it inside render method
     this.setState({
       status: event.target.value,
     });
@@ -35,7 +41,7 @@ class KbArticle extends Component {
 
   render() {
     let status = this.state.status;
-    const item = this.props.item || {};
+    const { item = {} } = this.props;
 
     return (
       <form className="margined" onSubmit={this.handleSubmit}>
@@ -79,20 +85,18 @@ class KbArticle extends Component {
   handleSubmit(e) {
     e.preventDefault();
 
-    this.context.closeModal();
-
     this.props.save({
       title: document.getElementById('knowledgebase-article-title').value,
       summary: document.getElementById('knowledgebase-article-summary').value,
       content: document.getElementById('knowledgebase-article-content').value,
       status: this.state.status,
     });
+
+    this.context.closeModal();
   }
 }
 
-KbArticle.propTypes = {
-  ...KbArticle.propTypes,
-};
+KbArticle.propTypes = propTypes;
 
 KbArticle.contextTypes = {
   closeModal: PropTypes.func.isRequired,

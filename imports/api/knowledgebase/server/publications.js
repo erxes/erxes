@@ -9,7 +9,6 @@ import { KbTopics, KbCategories, KbArticles } from '../collections';
 
 // topic list
 Meteor.publish('kb_topics.list', function kbTopicsList(params) {
-  // console.log("params: ", params);
   check(params, {
     limit: Match.Optional(Number),
   });
@@ -18,7 +17,12 @@ Meteor.publish('kb_topics.list', function kbTopicsList(params) {
     noReady: true,
   });
 
-  return KbTopics.find({});
+  let options = {};
+  if (params.limit == null || params.limit === 0) {
+    options = { limit: params.limit || 20 };
+  }
+
+  return KbTopics.find({}, options);
 });
 
 // topic detail
@@ -30,7 +34,6 @@ Meteor.publish('kb_topics.detail', id => {
 
 // category list
 Meteor.publish('kb_categories.list', function kbCategoriesList(params) {
-  // console.log("params: ", params);
   check(params, {
     limit: Match.Optional(Number),
   });
@@ -39,7 +42,11 @@ Meteor.publish('kb_categories.list', function kbCategoriesList(params) {
     noReady: true,
   });
 
-  return KbCategories.find({});
+  let options = {};
+  if (params.limit == null || params.limit === 0) {
+    options = { limit: params.limit || 20 };
+  }
+  return KbCategories.find({}, options);
 });
 
 // category detail
@@ -51,7 +58,6 @@ Meteor.publish('kb_categories.detail', id => {
 
 // article list
 Meteor.publish('kb_articles.list', function kbArticlesList(params) {
-  // console.log("params: ", params);
   check(params, {
     limit: Match.Optional(Number),
   });
@@ -60,7 +66,12 @@ Meteor.publish('kb_articles.list', function kbArticlesList(params) {
     noReady: true,
   });
 
-  return KbArticles.find({});
+  let options = {};
+  if (params.limit == null || params.limit === 0) {
+    options = { limit: params.limit || 20 };
+  }
+
+  return KbArticles.find({}, options);
 });
 
 // article detail

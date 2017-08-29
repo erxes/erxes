@@ -57,7 +57,6 @@ class KbCategory extends Component {
   }
 
   handleIconChange(event) {
-    console.log('event.target.value: ', event.target.value);
     this.setState({
       selectedIcon: event.target.value,
     });

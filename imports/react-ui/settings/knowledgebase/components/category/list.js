@@ -8,7 +8,6 @@ import { CommonList } from '../common';
 
 const propTypes = {
   items: PropTypes.array.isRequired,
-  topics: PropTypes.array.isRequired,
   removeItem: PropTypes.func.isRequired,
   loadMore: PropTypes.func.isRequired,
   hasMore: PropTypes.bool.isRequired,
@@ -20,11 +19,9 @@ class KbCategoryList extends CommonList {
   }
 
   renderItems() {
-    const { items, topics, removeItem } = this.props;
+    const { items, removeItem } = this.props;
 
-    return items.map(item =>
-      <CategoryRow key={item._id} item={item} topics={topics} removeItem={removeItem} />,
-    );
+    return items.map(item => <CategoryRow key={item._id} item={item} removeItem={removeItem} />);
   }
 
   getHeader() {

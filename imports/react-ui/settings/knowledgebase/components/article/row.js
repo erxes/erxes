@@ -6,7 +6,6 @@ import { KbArticle } from '../../containers';
 
 const propTypes = {
   item: PropTypes.object.isRequired,
-  categories: PropTypes.array.isRequired,
   removeItem: PropTypes.func.isRequired,
 };
 
@@ -32,7 +31,7 @@ class KbArticleRow extends Component {
   }
 
   render() {
-    const { item, categories } = this.props;
+    const { item } = this.props;
 
     const editTrigger = (
       <Button bsStyle="link">
@@ -44,12 +43,11 @@ class KbArticleRow extends Component {
       <tr>
         <td>{item.title}</td>
         <td>{item.summary}</td>
-        <td />
 
         <td className="text-right">
           <ActionButtons>
             <ModalTrigger title="Edit article" trigger={editTrigger}>
-              <KbArticle item={item} categories={categories} />
+              <KbArticle item={item} />
             </ModalTrigger>
 
             <Tip text="Delete">

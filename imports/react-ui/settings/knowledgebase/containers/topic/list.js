@@ -7,7 +7,7 @@ import { pagination } from '/imports/react-ui/common';
 import { KbTopicList } from '../../components/topic';
 
 function topicsComposer({ queryParams }, onData) {
-  const { limit, loadMore, hasMore } = pagination(queryParams, 'kb_topics.list.count'); // TODO
+  const { limit, loadMore, hasMore } = pagination(queryParams, 'kb_topics.list.count');
   const kbTopicsHandler = Meteor.subscribe('kb_topics.list', Object.assign(queryParams, { limit }));
   const brandsHandler = Meteor.subscribe('brands.list', 0);
 

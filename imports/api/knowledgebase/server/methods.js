@@ -30,7 +30,6 @@ export const editKbTopic = new ValidatedMethod({
   },
 
   run({ _id, doc }) {
-    console.log('doc: ', doc);
     doc.modifiedBy = this.userId;
     doc.modifiedDate = new Date();
     return KbTopics.update({ _id }, { $set: doc });

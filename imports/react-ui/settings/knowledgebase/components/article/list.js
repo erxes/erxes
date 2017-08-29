@@ -2,13 +2,12 @@ import React, { PropTypes } from 'react';
 import { Table } from 'react-bootstrap';
 import { Wrapper } from '/imports/react-ui/layout/components';
 import { Pagination } from '/imports/react-ui/common';
-import ArticleRow from './row';
+import KbArticleRow from './row';
 import { ActionButtons } from '../../components';
 import { CommonList } from '../common';
 
 const propTypes = {
   items: PropTypes.array.isRequired,
-  categories: PropTypes.array.isRequired,
   removeItem: PropTypes.func.isRequired,
   loadMore: PropTypes.func.isRequired,
   hasMore: PropTypes.bool.isRequired,
@@ -20,16 +19,13 @@ class KbCategoryList extends CommonList {
   }
 
   renderItems() {
-    const { items, categories, removeItem } = this.props;
+    const { items, removeItem } = this.props;
 
-    return items.map(item =>
-      <ArticleRow key={item._id} item={item} categories={categories} removeItem={removeItem} />,
-    );
+    return items.map(item => <KbArticleRow key={item._id} item={item} removeItem={removeItem} />);
   }
 
   getHeader() {
     const breadcrumb = [{ title: 'Knowledge base', link: '/settings/knowledgebase' }];
-
     return <Wrapper.Header breadcrumb={breadcrumb} />;
   }
 
@@ -46,7 +42,6 @@ class KbCategoryList extends CommonList {
             <tr>
               <th>Title</th>
               <th>Summary</th>
-              <th>Category</th>
               <th width="183" className="text-right">
                 Actions
               </th>
