@@ -89,12 +89,7 @@ class KbCategory extends Component {
   handleSubmit(e) {
     e.preventDefault();
 
-    let articleIds = []; // TODO: refactor
-
-    for (var i = 0; i < this.state.selectedArticles.length; i++) {
-      articleIds.push(this.state.selectedArticles[i].value);
-    }
-
+    const articleIds = this.state.selectedArticles.map(article => article.value);
     const { item } = this.props;
 
     let newValues = {
@@ -118,7 +113,7 @@ class KbCategory extends Component {
   }
 
   render() {
-    const { item = {} } = this.props.item;
+    const { item = {} } = this.props;
 
     return (
       <form className="margined" onSubmit={this.handleSubmit}>

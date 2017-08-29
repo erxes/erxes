@@ -134,13 +134,7 @@ class KbTopic extends CommonItem {
 
   handleSubmit(e) {
     super.handleSubmit(e);
-
-    let categoryIds = []; // TODO: refactor
-
-    for (var i = 0; i < this.state.selectedCategories.length; i++) {
-      categoryIds.push(this.state.selectedCategories[i].value);
-    }
-
+    const categoryIds = this.state.selectedCategories.map(category => category.value);
     const { item } = this.props;
 
     let newValues = {
@@ -161,7 +155,7 @@ class KbTopic extends CommonItem {
   }
 
   render() {
-    const item = this.props.item || {};
+    const { item = {} } = this.props;
     const { brands } = this.props;
 
     return (
