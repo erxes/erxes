@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { FormGroup, ControlLabel, FormControl } from 'react-bootstrap';
 
 const propTypes = {
-  categories: PropTypes.array.isRequired, // eslint-disable-line react/forbid-prop-types
+  categories: PropTypes.array.isRequired,
   defaultValue: PropTypes.string,
 };
 

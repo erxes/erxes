@@ -70,7 +70,7 @@ class KbArticle extends Component {
   }
 
   render() {
-    let status = this.state.status;
+    const status = this.state.status;
     const { item = {} } = this.props;
 
     return (
