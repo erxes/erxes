@@ -17,8 +17,6 @@ class CommonItem extends React.Component {
 
   handleSubmit(e) {
     e.preventDefault();
-
-    this.context.closeModal();
   }
 }
 

@@ -14,7 +14,7 @@ import CopyToClipboard from 'react-copy-to-clipboard';
 import { CommonItem } from '../common';
 
 const propTypes = {
-  item: PropTypes.Object, // eslint-disable-line
+  item: PropTypes.Object,
   brands: PropTypes.array.isRequired,
   categories: PropTypes.array.isRequired,
   save: PropTypes.func.isRequired,
@@ -31,13 +31,13 @@ class KbTopic extends CommonItem {
       code = this.constructor.getInstallCode(props.item._id);
     }
 
-    this.handleBrandChange = this.handleBrandChange.bind(this);
-
     this.state = {
       code,
       copied: false,
       selectedCategories: this.getSelectedCategories(),
     };
+
+    this.handleBrandChange = this.handleBrandChange.bind(this);
   }
 
   getSelectedCategories() {
@@ -52,11 +52,11 @@ class KbTopic extends CommonItem {
     }
   }
 
-  static installCodeIncludeScript(type) {
+  static installCodeIncludeScript() {
     return `
       (function() {
         var script = document.createElement('script');
-        script.src = "${Meteor.settings.public.CDN_HOST}/${type}Widget.bundle.js";
+        script.src = "${Meteor.settings.public.CDN_HOST}/knowledgeBaseWidget.bundle.js";
         script.async = true;
 
         var entry = document.getElementsByTagName('script')[0];
@@ -66,15 +66,14 @@ class KbTopic extends CommonItem {
   }
 
   static getInstallCode(topicId) {
-    // TODO: need to check this!
     return `
       <script>
         window.erxesSettings = {
-          messenger: {
+          knowledgeBase: {
             topic_id: "${topicId}"
           },
         };
-        ${KbTopic.installCodeIncludeScript('knowledgeBase')}
+        ${KbTopic.installCodeIncludeScript()}
       </script>
     `;
   }
@@ -176,7 +175,7 @@ class KbTopic extends CommonItem {
   handleSubmit(e) {
     super.handleSubmit(e);
 
-    let categoryIds = [];
+    let categoryIds = []; // TODO: refactor
 
     for (var i = 0; i < this.state.selectedCategories.length; i++) {
       categoryIds.push(this.state.selectedCategories[i].value);
@@ -188,6 +187,8 @@ class KbTopic extends CommonItem {
       brandId: document.getElementById('selectBrand').value,
       categoryIds: categoryIds,
     });
+
+    this.context.closeModal();
   }
 }
 
