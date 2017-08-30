@@ -16,6 +16,7 @@ import {
   AssignSchema,
   ChangeStatusSchema,
 } from '/imports/api/conversations/conversations';
+import { CONVERSATION_STATUSES } from '/imports/api/conversations/constants';
 
 /*
  * all possible users they can get notifications
@@ -72,6 +73,9 @@ export const addMessage = new ValidatedMethod({
     if (attachments.length === 0 && !strip(content)) {
       throw new Meteor.Error('conversations.addMessage.contentRequired', 'Content is required');
     }
+
+    // setting conversation's content to last message
+    Conversations.update({ _id: doc.conversationId }, { $set: { content } });
 
     const title = 'You have a new message.';
 
@@ -221,6 +225,33 @@ export const changeStatus = new ValidatedMethod({
 
     // send notification
     _.each(conversations, conversation => {
+      // if associated integration's notify customer config is setted as true
+      // send email to customer, when conversation close
+      if (status === CONVERSATION_STATUSES.CLOSED) {
+        const customer = conversation.customer();
+        const integration = conversation.integration();
+        const messengerData = integration.messengerData || {};
+        const notifyCustomer = messengerData.notifyCustomer || false;
+
+        if (notifyCustomer && customer.email) {
+          // send email to customer
+          sendEmail({
+            to: customer.email,
+            subject: 'Conversation detail',
+            template: {
+              name: 'conversationDetail',
+              data: {
+                conversationDetail: {
+                  title: 'Conversation detail',
+                  messages: Messages.find({ conversationId: conversation._id }).fetch(),
+                  date: new Date(),
+                },
+              },
+            },
+          });
+        }
+      }
+
       const content = 'Conversation status has changed.';
 
       sendNotification({

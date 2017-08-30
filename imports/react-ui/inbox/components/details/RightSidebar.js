@@ -92,6 +92,17 @@ class RightSidebar extends Component {
     return null;
   }
 
+  renderPhone(phone) {
+    if (phone) {
+      return (
+        <li>
+          Phone
+          <span className="counter">{phone}</span>
+        </li>
+      );
+    }
+  }
+
   render() {
     const { Title, QuickButtons } = Wrapper.Sidebar.Section;
     const { conversation, messagesCount } = this.props;
@@ -113,6 +124,7 @@ class RightSidebar extends Component {
               <span className="counter">{Boolean(customer.isUser).toString()}</span>
             </li>
 
+            {this.renderPhone(customer.phone)}
             {this.renderMessengerData()}
             {this.renderFacebookData()}
           </ul>
