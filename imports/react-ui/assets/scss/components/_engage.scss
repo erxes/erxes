@@ -61,18 +61,55 @@ $transparent-border: rgba(0, 0, 0, 0.05);
   min-height: 160px;
 }
 
+.flex-content {
+  display: flex;
+  flex-direction: row;
+  margin-top: 6px;
+
+  h2 {
+    text-transform: uppercase;
+    font-weight: 400;
+    border-bottom: 1px solid $transparent-border;;
+    padding: 12px 20px;
+    font-size: 12px;
+    color: $text-color-light;
+    margin: 0;
+    position: relative;
+    z-index: 10;
+  }
+
+  .messenger-content {
+    flex-basis: 420px;
+    flex-shrink: 0;
+  }
+
+  .preview-content {
+    padding: 0 20px;
+    line-height: 22px;
+    margin-bottom: 20px;
+    color: #686868;
+    font-size: 14px;
+  }
+}
+
 .web-preview {
   border: 1px solid $border-grey;
   box-shadow: 0 1px 7px 0 rgba(202,203,204,.2);
   background-color: #fff;
   min-height: 400px;
-  margin: 60px;
+  flex: 1;
   position: relative;
   background-image: url('/images/row.png');
   background-repeat: repeat-y;
   background-position: center;
   background-size: 475px 56px;
-  margin-right: calc(50% - 220px);
+  min-width: 300px;
+  margin-top: -1px;
+  margin-right: 20px;
+
+  &.type-fullMessage {
+    min-height: 565px;
+  }
 
   .messenger-preview {
     width: 400px;
@@ -80,6 +117,9 @@ $transparent-border: rgba(0, 0, 0, 0.05);
     right: 15px;
     bottom: 15px;
     z-index: 20;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
   }
 
   &:after {
@@ -89,9 +129,8 @@ $transparent-border: rgba(0, 0, 0, 0.05);
     left: -3px;
     top: -3px;
     bottom: -3px;
-    width: 103%;
+    width: calc(100% + 15px);
   }
-
 }
 
 .button-box {
