@@ -14,11 +14,18 @@ class FormBase extends Component {
   constructor(props) {
     super(props);
 
+    const message = props.message || {};
+    this.state = { fromUser: message.fromUserId || '' };
     // binds
     this.generateDoc = this.generateDoc.bind(this);
     this.save = this.save.bind(this);
     this.saveAndLive = this.saveAndLive.bind(this);
     this.saveAndDraft = this.saveAndDraft.bind(this);
+    this.onChangeUser = this.onChangeUser.bind(this);
+  }
+
+  componentDidMount() {
+    this.setState({ fromUser: document.getElementById('fromUserId').value });
   }
 
   getMessage() {
@@ -90,6 +97,10 @@ class FormBase extends Component {
     return 'Visitor auto message';
   }
 
+  onChangeUser(e) {
+    this.setState({ fromUser: e.target.value });
+  }
+
   render() {
     const breadcrumb = [{ title: 'Engage', link: '/engage' }, { title: this.renderTitle() }];
 
@@ -115,6 +126,7 @@ class FormBase extends Component {
                 id="fromUserId"
                 componentClass="select"
                 defaultValue={message.fromUserId}
+                onChange={this.onChangeUser}
               >
                 {this.props.users.map(u =>
                   <option key={u._id} value={u._id}>

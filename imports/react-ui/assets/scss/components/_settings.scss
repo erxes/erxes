@@ -151,9 +151,27 @@ $bg-widget-background: #faf9fb;
     height: 56px;
     cursor: pointer;
     box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.2);
-    overflow: hidden;
-}
+    background-color: $main-color;
+    background-image: url('/images/widget-logo.png');
+    background-position: center;
+    background-size: 46px;
+    background-repeat: no-repeat;
+    margin-top: 10px;
+    position: relative;
+    float: right;
 
-.logo-container img {
-    max-width: 100%;
+    span {
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      background: #f74040;
+      display: block;
+      right: -2px;
+      top: -5px;
+      color: #fff;
+      border-radius: 10px;
+      text-align: center;
+      line-height: 20px;
+      font-size: 10px;
+    }
 }

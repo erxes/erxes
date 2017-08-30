@@ -162,6 +162,7 @@ class VisitorForm extends FormBase {
     return (
       <MessengerForm
         message={message}
+        fromUser={this.state.fromUser || ''}
         onContentChange={this.onMessengerContentChange}
         brands={this.props.brands}
       />
