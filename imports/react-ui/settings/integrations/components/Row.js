@@ -1,5 +1,5 @@
 import React, { PropTypes, Component } from 'react';
-import { Button } from 'react-bootstrap';
+import { Button, Label } from 'react-bootstrap';
 import Alert from 'meteor/erxes-notifier';
 import { ModalTrigger, Tip, ActionButtons } from '/imports/react-ui/common';
 import { KIND_CHOICES } from '/imports/api/integrations/constants';
@@ -15,6 +15,7 @@ class Row extends Component {
     super(props);
 
     this.removeIntegration = this.removeIntegration.bind(this);
+    this.getTypeName = this.getTypeName.bind(this);
   }
 
   removeIntegration() {
@@ -82,6 +83,25 @@ class Row extends Component {
     return null;
   }
 
+  getTypeName() {
+    const kind = this.props.integration.kind;
+    let type = 'defult';
+
+    if (kind === KIND_CHOICES.FORM) {
+      type = 'form';
+    }
+
+    if (kind === KIND_CHOICES.TWITTER) {
+      type = 'twitter';
+    }
+
+    if (kind === KIND_CHOICES.FACEBOOK) {
+      type = 'facebook';
+    }
+
+    return type;
+  }
+
   render() {
     const integration = this.props.integration;
 
@@ -91,7 +111,9 @@ class Row extends Component {
           {integration.name}
         </td>
         <td>
-          {integration.kind}
+          <Label className={`label-${this.getTypeName()}`}>
+            {integration.kind}
+          </Label>
         </td>
         <td>
           {integration.brand().name}
