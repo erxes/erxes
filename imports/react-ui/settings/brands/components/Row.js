@@ -1,6 +1,6 @@
 import React, { PropTypes, Component } from 'react';
 import moment from 'moment';
-import { Button } from 'react-bootstrap';
+import { Button, Label } from 'react-bootstrap';
 import Alert from 'meteor/erxes-notifier';
 import { BrandForm } from '../containers';
 import { ModalTrigger, Tip, ActionButtons } from '/imports/react-ui/common';
@@ -43,7 +43,7 @@ class Row extends Component {
     return (
       <tr>
         <td>{brand.name}</td>
-        <td>{brand.code}</td>
+        <td><Label>{brand.code}</Label></td>
         <td>{brand.description}</td>
         <td>{moment(brand.createdAt).format('DD MMM YYYY')}</td>
 

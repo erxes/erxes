@@ -1,3 +1,23 @@
 .label {
   border-radius: $border-radius;
+
+  &-default {
+    background-color: lighten($main-color, 20%);
+  }
+
+  &-facebook {
+    background-color: #3B5998;
+  }
+
+  &-twitter {
+    background-color: #1dcaff;
+  }
+
+  &-form {
+    background-color: #f0ad4e;
+  }
+
+  &-primary {
+    background-color: $text-color-light;
+  }
 }
