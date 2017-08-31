@@ -1,14 +1,15 @@
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { KnowledgeBase, Launcher } from '../containers';
 
-function App(props, dispatchProps) {
-  console.log('props: ', props);
-  console.log('dispatchProps: ', dispatchProps);
-  console.log('loadType: ', props.data.kbLoader.loadType);
+const propTypes = {
+  data: PropTypes.object,
+};
 
-  const loadType = props.data.kbLoader.loadType;
+function App(props) {
   const widgetClasses = classNames('erxes-widget-kb');
+  const { loadType } = props.data.kbLoader;
 
   if (loadType === 'embedded') {
     return (
@@ -16,20 +17,22 @@ function App(props, dispatchProps) {
         <KnowledgeBase />
       </div>
     );
-  } else if (loadType === 'shoutbox') {
+  }
+
+  if (loadType === 'shoutbox') {
     return (
       <div className={widgetClasses}>
         <KnowledgeBase />
         <Launcher />
       </div>
     );
-  } else if (loadType === 'popup') {
+  }
+
+  if (loadType === 'popup') {
     return null;
   }
 }
 
-App.propTypes = {
-  data: PropTypes.object,
-};
+App.propTypes = propTypes;
 
 export default App;

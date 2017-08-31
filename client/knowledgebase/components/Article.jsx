@@ -1,8 +1,14 @@
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import moment from 'moment';
 
-export default class Article extends React.Component {
+const propTypes = {
+  article: PropTypes.object, // eslint-disable-line
+  category: PropTypes.object, // eslint-disable-line
+  onSwitchToArticleDisplay: PropTypes.func,
+};
 
+export default class Article extends React.Component {
   constructor(props) {
     super(props);
     this.handleOnClick = this.handleOnClick.bind(this);
@@ -10,9 +16,7 @@ export default class Article extends React.Component {
 
   handleOnClick(event) {
     event.preventDefault();
-    const { article } = this.props;
-    const { category } = this.props;
-    const { onSwitchToArticleDisplay } = this.props;
+    const { article, category, onSwitchToArticleDisplay } = this.props;
     onSwitchToArticleDisplay({
       _id: article._id,
       title: article.title,
@@ -55,8 +59,4 @@ export default class Article extends React.Component {
   }
 }
 
-Article.propTypes = {
-  article: PropTypes.object, // eslint-disable-line
-  category: PropTypes.object, // eslint-disable-line
-  onSwitchToArticleDisplay: PropTypes.func // eslint-disable-line
-};
+Article.propTypes = propTypes;

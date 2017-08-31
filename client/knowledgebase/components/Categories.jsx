@@ -1,15 +1,8 @@
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import { Category } from '../containers';
 
-export default function Categories({ kbTopic }) {
-  return (
-    <div>
-      {kbTopic.categories.map(category => <Category key={category._id} category={category} />)}
-    </div>
-  );
-}
-
-Categories.propTypes = {
+const propTypes = {
   kbTopic: PropTypes.shape({
     title: PropTypes.string,
     description: PropTypes.string,
@@ -44,3 +37,13 @@ Categories.propTypes = {
     })),
   }),
 };
+
+export default function Categories({ kbTopic }) {
+  return (
+    <div>
+      {kbTopic.categories.map(category => <Category key={category._id} category={category} />)}
+    </div>
+  );
+}
+
+Categories.propTypes = propTypes;

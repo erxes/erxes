@@ -1,27 +1,14 @@
 /* eslint-disable react/jsx-filename-extension */
 
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import gql from 'graphql-tag';
 import { graphql } from 'react-apollo';
 import { connection } from '../connection';
 import { Categories as DumbCategories } from '../components';
 
-const Categories = (props) => {
-  console.log('connection: ', connection);
-  const extendedProps = {
-    ...props,
-    kbTopic: props.data.kbTopic,
-  };
-
-  if (props.data.loading) {
-    return null;
-  }
-
-  return <DumbCategories {...extendedProps} />;
-};
-
-Categories.propTypes = {
+const propTypes = {
   data: PropTypes.shape({
     kbTopic: PropTypes.shape({
       title: PropTypes.string,
@@ -59,9 +46,20 @@ Categories.propTypes = {
   }),
 };
 
-const mapStateToProps = state => ({
+const Categories = (props) => {
+  const extendedProps = {
+    ...props,
+    kbTopic: props.data.kbTopic,
+  };
 
-});
+  if (props.data.loading) {
+    return null;
+  }
+
+  return <DumbCategories {...extendedProps} />;
+};
+
+Categories.propTypes = propTypes;
 
 const CategoriesWithData = graphql(
   gql`
@@ -110,4 +108,4 @@ const CategoriesWithData = graphql(
   },
 )(Categories);
 
-export default connect(mapStateToProps)(CategoriesWithData);
+export default connect()(CategoriesWithData);

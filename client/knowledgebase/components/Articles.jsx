@@ -1,5 +1,24 @@
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import { Article } from '../containers';
+
+const propTypes = {
+  articles: PropTypes.arrayOf(PropTypes.shape({
+    _id: PropTypes.string.isRequired,
+    title: PropTypes.string,
+    summary: PropTypes.string,
+    content: PropTypes.string,
+    createdBy: PropTypes.string,
+    modifiedBy: PropTypes.string,
+    createdDate: PropTypes.date,
+    modifiedDate: PropTypes.date,
+    authorDetails: PropTypes.shape({
+      fullName: PropTypes.string,
+      avatar: PropTypes.string,
+    }),
+  })),
+  category: PropTypes.object,
+};
 
 export default class Articles extends React.Component {
   renderArticles() {
@@ -20,20 +39,4 @@ export default class Articles extends React.Component {
   }
 }
 
-Articles.propTypes = {
-  articles: PropTypes.arrayOf(PropTypes.shape({
-    _id: PropTypes.string.isRequired,
-    title: PropTypes.string,
-    summary: PropTypes.string,
-    content: PropTypes.string,
-    createdBy: PropTypes.string,
-    modifiedBy: PropTypes.string,
-    createdDate: PropTypes.date,
-    modifiedDate: PropTypes.date,
-    authorDetails: PropTypes.shape({
-      fullName: PropTypes.string,
-      avatar: PropTypes.string,
-    }),
-  })),
-  category: PropTypes.object,
-};
+Articles.propTypes = propTypes;

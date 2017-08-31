@@ -1,4 +1,11 @@
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
+
+const propTypes = {
+  category: PropTypes.object, // eslint-disable-line
+  searchStr: PropTypes.string,
+  onUpdateSearchString: PropTypes.func,
+};
 
 export default class SearchBar extends React.Component {
   constructor(props) {
@@ -13,8 +20,7 @@ export default class SearchBar extends React.Component {
   }
 
   render() {
-    let { searchStr } = this.props;
-    searchStr = searchStr || '';
+    const { searchStr = ' ' } = this.props;
     return (
       <div className="erxes-searchbar">
         <div className="erxes-knowledge-container">
@@ -25,8 +31,4 @@ export default class SearchBar extends React.Component {
   }
 }
 
-SearchBar.propTypes = {
-  category: PropTypes.object, // eslint-disable-line
-  searchStr: PropTypes.string,
-  onUpdateSearchString: PropTypes.func,
-};
+SearchBar.propTypes = propTypes;

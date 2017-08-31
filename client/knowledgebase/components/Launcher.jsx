@@ -1,4 +1,5 @@
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import classNames from 'classnames';
 
 const propTypes = {
@@ -27,7 +28,6 @@ function Launcher({ isLauncherVisible }) {
 
 Launcher.propTypes = propTypes;
 
-Launcher.defaultProps = {
-};
+Launcher.defaultProps = {};
 
 export default Launcher;

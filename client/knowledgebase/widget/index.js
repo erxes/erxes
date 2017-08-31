@@ -61,8 +61,6 @@ iframe.onload = () => {
 
 // listen for widget toggle
 window.addEventListener('message', (event) => {
-  console.log('knowledgebase from widget event: ', event);
-  console.log(event.data.connectionInfo.kbLoader.loadType);
   const loadType = event.data.connectionInfo.kbLoader.loadType;
   const data = event.data;
   // .erxes-knowledge-container-shoutbox

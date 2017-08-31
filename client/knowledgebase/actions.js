@@ -15,11 +15,11 @@ export const switchToArticleDisplay = (data) => {
 export const switchToCategoryDisplay = (data) => {
   return {
     type: SWITCH_TO_CATEGORY_DISPLAY,
-    ...data, // todo
+    ...data,
   };
 };
 
-export const switchToTopicDisplay = (data) => {
+export const switchToTopicDisplay = () => {
   return {
     type: SWITCH_TO_TOPIC_DISPLAY,
     searchStr: '',

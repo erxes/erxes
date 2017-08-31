@@ -1,26 +1,14 @@
 /* eslint-disable react/jsx-filename-extension */
 
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import gql from 'graphql-tag';
 import { graphql } from 'react-apollo';
 import { connection } from '../connection';
 import { Articles as DumbArticles } from '../components';
 
-const Articles = (props) => {
-  const extendedProps = {
-    ...props,
-    articles: props.data.kbSearchArticles,
-  };
-
-  if (props.data.loading) {
-    return null;
-  }
-
-  return <DumbArticles {...extendedProps} />;
-};
-
-Articles.propTypes = {
+const propTypes = {
   data: PropTypes.shape({
     kbSearchArticles: PropTypes.arrayOf(PropTypes.shape({
       _id: PropTypes.string.isRequired,
@@ -40,9 +28,20 @@ Articles.propTypes = {
   }),
 };
 
-const mapStateToProps = state => ({
+const Articles = (props) => {
+  const extendedProps = {
+    ...props,
+    articles: props.data.kbSearchArticles,
+  };
 
-});
+  if (props.data.loading) {
+    return null;
+  }
+
+  return <DumbArticles {...extendedProps} />;
+};
+
+Articles.propTypes = propTypes;
 
 const ArticlesWithData = graphql(
   gql`
@@ -67,11 +66,11 @@ const ArticlesWithData = graphql(
     options: (ownProps) => ({
       fetchPolicy: 'network-only',
       variables: {
-        topicId: connection.data.topicId,
+        topicId: connection.setting.topic_id,
         searchString: ownProps.searchString,
       },
     }),
   },
 )(Articles);
 
-export default connect(mapStateToProps)(ArticlesWithData);
+export default connect()(ArticlesWithData);

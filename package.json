@@ -25,6 +25,7 @@
     "start": "node dist"
   },
   "dependencies": {
+    "prop-types": "^15.5.8",
     "apollo-client": "^1.0.0-rc.6",
     "body-parser": "^1.15.2",
     "classnames": "^2.2.5",

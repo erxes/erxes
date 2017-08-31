@@ -42,8 +42,6 @@ widgetConnect({
   },
 
   connectCallback: (data) => {
-    console.log('knowledge base connected');
-    console.log('data: ', data);
     // connection.data.topicId = data.setting.topic_id;
   },
 

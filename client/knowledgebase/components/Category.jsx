@@ -1,6 +1,12 @@
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import Ionicons from 'react-ionicons';
 import { ItemMeta } from '../components';
+
+const propTypes = {
+  category: PropTypes.object, // eslint-disable-line
+  onSwitchToCategoryDisplay: PropTypes.func,
+};
 
 export default class Category extends React.Component {
   constructor(props) {
@@ -10,8 +16,7 @@ export default class Category extends React.Component {
 
   handleOnClick(event) {
     event.preventDefault();
-    const { category } = this.props;
-    const { onSwitchToCategoryDisplay } = this.props;
+    const { category, onSwitchToCategoryDisplay } = this.props;
     onSwitchToCategoryDisplay({
       category,
     });
@@ -37,7 +42,4 @@ export default class Category extends React.Component {
   }
 }
 
-Category.propTypes = {
-  category: PropTypes.object, // eslint-disable-line
-  onSwitchToCategoryDisplay: PropTypes.func,
-};
+Category.propTypes = propTypes;

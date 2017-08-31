@@ -1,5 +1,10 @@
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import moment from 'moment';
+
+const propTypes = {
+  data: PropTypes.object, // eslint-disable-line
+};
 
 export default function ArticleDetail({ data }) {
   const author = data.authorDetails;
@@ -31,6 +36,4 @@ export default function ArticleDetail({ data }) {
   );
 }
 
-ArticleDetail.propTypes = {
-  data: PropTypes.object, // eslint-disable-line
-};
+ArticleDetail.propTypes = propTypes;

@@ -1,4 +1,5 @@
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import { Categories, Articles, CategoryDetail, ArticleDetail, SearchBar } from '../containers';
 import { BackButton } from '../components';
 import {
@@ -8,6 +9,12 @@ import {
   CONTENT_TYPE_SEARCH,
 } from '../constants';
 
+const propTypes = {
+  displayType: PropTypes.object, // eslint-disable-line
+  onSwitchToTopicDisplay: PropTypes.func,
+  onSwitchToCategoryDisplay: PropTypes.func,
+  onUpdateSearchString: PropTypes.func,
+};
 
 export default class KnowledgeBase extends React.Component {
   constructor(props) {
@@ -68,8 +75,10 @@ export default class KnowledgeBase extends React.Component {
           <div className="erxes-content">
             <div className="erxes-knowledge-container">
               <BackButton
-                onClickHandler={displayType.data.category != null ? this.onCategoryClickHandler : this.onTopicClickHandler}
-                text={displayType.data.category != null ? 'Back to categories' : 'Back to top'}
+                onClickHandler={displayType.data.category != null ?
+                  this.onCategoryClickHandler : this.onTopicClickHandler}
+                text={displayType.data.category != null ?
+                  'Back to categories' : 'Back to top'}
               />
               <ArticleDetail data={displayType.data} />
             </div>
@@ -92,9 +101,4 @@ export default class KnowledgeBase extends React.Component {
   }
 }
 
-KnowledgeBase.propTypes = {
-  displayType: PropTypes.object, // eslint-disable-line
-  onSwitchToTopicDisplay: PropTypes.func,
-  onSwitchToCategoryDisplay: PropTypes.func,
-  onUpdateSearchString: PropTypes.func,
-};
+KnowledgeBase.propTypes = propTypes;
