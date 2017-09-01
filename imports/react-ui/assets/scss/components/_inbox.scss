@@ -112,13 +112,12 @@ $fbpost-background: #f6f7f9;
   .simple-row {
     padding: 15px;
 
-    &.vertical {
-      flex-direction: column;
-      align-items: baseline;
-    }
+    &.baseline {
+      align-items: flex-start;
 
-    .customer-name {
-      margin-right: 5px;
+      input[type=checkbox] {
+        margin-top: 13px;
+      }
     }
 
     time {
@@ -142,6 +141,10 @@ $fbpost-background: #f6f7f9;
       display: -webkit-box;
       -webkit-line-clamp: 2;
       word-wrap: break-word;
+
+      &:hover {
+        cursor: pointer;
+      }
     }
 
     .brandname {
@@ -150,6 +153,7 @@ $fbpost-background: #f6f7f9;
 
     .tags {
       margin-left: 0;
+      display: block;
     }
 
     .items-horizontal {
