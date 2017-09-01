@@ -103,6 +103,16 @@ class Appearance extends Component {
               wallpaper={this.state.wallpaper}
               user={this.props.user}
             />
+            <div
+              className="logo-container"
+              style={Object.assign(
+                {
+                  backgroundColor: this.state.color,
+                  backgroundImage: `url(${logoPreviewUrl})`,
+                },
+                logoPreviewStyle,
+              )}
+            />
           </div>
 
           <div className="widget-settings">
@@ -129,10 +139,6 @@ class Appearance extends Component {
 
             <div className="box">
               <h2>Choose a logo</h2>
-
-              <div className="logo-container" style={{ backgroundColor: this.state.color }}>
-                <img alt="logo" className="logo" style={logoPreviewStyle} src={logoPreviewUrl} />
-              </div>
 
               <input type="file" onChange={this.handleLogoChange} />
               <input type="hidden" id="logo" value={logo} />

@@ -53,7 +53,7 @@ class SimpleRow extends Component {
     const customer = conversation.customer();
     const integration = conversation.integration();
     const brandName = integration.brand && integration.brand().name;
-    const rowClasses = classNames('simple-row', { unread: !isRead });
+    const rowClasses = classNames('simple-row', { unread: !isRead }, 'vertical');
     // TODO: use embedded tags list of the conversation object
     const tags = TagsCollection.find({
       _id: { $in: conversation.tagIds || [] },
@@ -61,31 +61,34 @@ class SimpleRow extends Component {
 
     return (
       <li className={rowClasses}>
-        {this.renderCheckbox()}
-        <div className="column">
-          <NameCard.Avatar size={44} customer={customer} />
-        </div>
+        <div className="items-horizontal">
+          {this.renderCheckbox()}
+          <div className="column">
+            <NameCard.Avatar size={40} customer={customer} />
+          </div>
 
-        <div className="body">
-          <header>
-            <span className="customer-name">
-              {customer && customer._id && customer.name}
-            </span>
-
-            <time>
-              <span> opened </span>
-              {moment(createdAt).fromNow()}
-            </time>
-          </header>
-          <Tags tags={tags} size="small" />
-
-          <div className="content" onClick={this.goDetail}>
-            <span className="brandname hidden-tb">
-              to {brandName} -{' '}
-            </span>
-            {strip(content)}
+          <div className="body">
+            <header>
+              <span className="customer-name">
+                {customer && customer._id && customer.name}
+              </span>
+              <div className="customer-email">
+                {customer && customer._id && customer.email}
+              </div>
+            </header>
           </div>
         </div>
+        <div className="content" onClick={this.goDetail}>
+          <span className="brandname hidden-tb">
+            to {brandName}
+            <time>
+              {moment(createdAt).format('YYYY-MM-DD, HH:mm:ss')}
+            </time>
+            - {' '}
+          </span>
+          {strip(content)}
+        </div>
+        <Tags tags={tags} size="small" />
       </li>
     );
   }

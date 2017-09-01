@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Button, Collapse } from 'react-bootstrap';
+import { Button, Collapse, Label } from 'react-bootstrap';
 import { FlowRouter } from 'meteor/kadira:flow-router';
 import moment from 'moment';
 import { Wrapper } from '/imports/react-ui/layout/components';
@@ -38,7 +38,7 @@ class RightSidebar extends Component {
     const integration = this.props.conversation.integration();
 
     if (integration.kind === 'messenger') {
-      return customer.getMessengerCustomData().map(data =>
+      return customer.getMessengerCustomData().map(data => (
         <li key={data.value}>
           <span>
             {data.name}
@@ -46,8 +46,8 @@ class RightSidebar extends Component {
           <span className="counter">
             {data.value}
           </span>
-        </li>,
-      );
+        </li>
+      ));
     }
 
     return null;
@@ -120,8 +120,7 @@ class RightSidebar extends Component {
             </li>
 
             <li>
-              Is User
-              <span className="counter">{Boolean(customer.isUser).toString()}</span>
+              {customer.isUser ? <Label>user</Label> : <Label bsStyle="primary">not user</Label>}
             </li>
 
             {this.renderPhone(customer.phone)}
@@ -148,11 +147,11 @@ class RightSidebar extends Component {
             <li>
               Channels
               <div className="value">
-                {integration.channels().map(c =>
+                {integration.channels().map(c => (
                   <span key={c._id}>
                     {c.name}
-                  </span>,
-                )}
+                  </span>
+                ))}
               </div>
             </li>
             <li>
@@ -213,11 +212,11 @@ class RightSidebar extends Component {
         <Wrapper.Sidebar.Section>
           <Title>Participators</Title>
           <ul className="sidebar-list no-link">
-            {conversation.participatedUsers().map(user =>
+            {conversation.participatedUsers().map(user => (
               <li key={user._id}>
                 <NameCard user={user} avatarSize={45} />
-              </li>,
-            )}
+              </li>
+            ))}
             {conversation.participatedUsers().length === 0
               ? <EmptyState
                   icon={<i className="ion-at" />}
@@ -257,12 +256,12 @@ class RightSidebar extends Component {
           </Collapse>
 
           <ul className="sidebar-list no-link">
-            {conversation.tags().map(tag =>
+            {conversation.tags().map(tag => (
               <li key={tag._id}>
                 <i className="icon ion-pricetag" style={{ color: tag.colorCode }} />
                 {tag.name}
-              </li>,
-            )}
+              </li>
+            ))}
             {conversation.tags().length === 0
               ? <EmptyState
                   icon={<i className="ion-pricetags" />}
