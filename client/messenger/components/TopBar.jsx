@@ -1,9 +1,9 @@
 import React, { PropTypes } from 'react';
-
+import Ionicon from 'react-ionicons';
 
 const propTypes = {
   middle: PropTypes.node,
-  buttonClass: PropTypes.string.isRequired,
+  buttonIcon: PropTypes.node.isRequired,
   onButtonClick: PropTypes.func.isRequired,
   color: PropTypes.string,
   endConversation: PropTypes.func,
@@ -11,7 +11,7 @@ const propTypes = {
   isConversationEnded: PropTypes.bool,
 };
 
-function TopBar({ middle, buttonClass, onButtonClick, color, isChat, isConversationEnded, endConversation }) {
+function TopBar({ middle, buttonIcon, onButtonClick, color, isChat, isConversationEnded, endConversation }) {
   const onEndConversation = () => {
     if (confirm('Do you want to end this conversation ?')) {
       endConversation();
@@ -30,7 +30,9 @@ function TopBar({ middle, buttonClass, onButtonClick, color, isChat, isConversat
 
   return (
     <div className="erxes-topbar" style={{ backgroundColor: color }}>
-      <div className={`topbar-button left ${buttonClass}`} onClick={onButtonClick} />
+      <div className="topbar-button left" onClick={onButtonClick} >
+        {buttonIcon}
+      </div>
       <div className="erxes-middle">
         {middle}
       </div>

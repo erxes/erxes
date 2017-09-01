@@ -1,4 +1,5 @@
 import React, { PropTypes, Component } from 'react';
+import Ionicon from 'react-ionicons';
 
 
 const propTypes = {
@@ -82,8 +83,9 @@ class MessageSender extends Component {
             this.props.isAttachingFile
               ? <div className="loader" />
               : <label htmlFor="file-upload" className="btn-attach">
+                <Ionicon icon="ion-android-attach" fontSize="20px" className="icon attach" />
                 <input id="file-upload" type="file" onChange={this.handleFileInput} />
-              </label>
+                </label>
           }
         </form>
       </div>

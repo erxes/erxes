@@ -70,7 +70,7 @@ class Notifier extends React.Component {
       return (
         <div
           className={this.renderClass()}
-          style={{ backgroundColor: color }}
+          style={{ borderColor: color }}
           onClick={() => readMessage({
             conversationId: lastUnreadMessage.conversationId,
             engageData: lastUnreadMessage.engageData,

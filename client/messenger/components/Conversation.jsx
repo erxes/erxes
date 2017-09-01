@@ -2,6 +2,7 @@
 
 import React, { Component, PropTypes } from 'react';
 import { MessagesList, MessageSender, TopBar } from '../containers';
+import Ionicon from 'react-ionicons';
 
 
 const propTypes = {
@@ -84,11 +85,13 @@ class Conversation extends Component {
         onClick={this.onClick}
       >
 
-        <TopBar
-          middle={this.renderTitle()}
-          buttonClass="back"
-          onButtonClick={goToConversationList}
-        />
+  return (
+    <div className="erxes-messenger" style={{ border: `1px solid ${color}` }}>
+      <TopBar
+        middle={renderTitle()}
+        buttonIcon={<Ionicon icon="ion-ios-arrow-back" className="icon white" />}
+        onButtonClick={goToConversationList}
+      />
 
         <MessagesList isOnline={isOnline} data={data} messages={messages} />
         <MessageSender
