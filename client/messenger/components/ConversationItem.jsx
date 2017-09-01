@@ -13,7 +13,7 @@ const propTypes = {
 function ConversationItem({ conversation, notificationCount, goToConversation }) {
   const { _id, content, createdAt } = conversation;
   const participatedUser = conversation.participatedUsers[0];
-  const avatar = (participatedUser && participatedUser.details.avatar) || 'https://crm.nmma.co/images/userDefaultIcon.png';
+  const avatar = (participatedUser && participatedUser.details.avatar) || '/static/images/user.png';
   const fullName = (participatedUser && participatedUser.details.fullName) || 'Support staff';
 
   return (
