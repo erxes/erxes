@@ -37,7 +37,7 @@ class Conversation extends Component {
     const { user, isOnline } = this.props;
 
     if (user) {
-      const defaultImage = 'https://crm.nmma.co/images/userDefaultIcon.png';
+      const defaultImage = '/static/images/user.png';
       const avatar = user.details.avatar || defaultImage;
 
       const state = (
