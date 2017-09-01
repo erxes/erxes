@@ -53,7 +53,7 @@ class GetNotified extends Component {
           <div className="ask-get-notified">
             <input
               id="get-notified-value"
-              placeholder={type === 'email' ? 'email@domain.com' : 'sms ...'}
+              placeholder={type === 'email' ? 'email@domain.com' : 'phone number ...'}
               style={{ borderColor: color }}
             />
 

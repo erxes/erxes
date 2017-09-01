@@ -274,10 +274,10 @@
 .get-notified-type span {
   display: inline-block;
   cursor: pointer;
-  margin-right: 5px;
-}
+  margin-right: 10px;
 
-.get-notified-type span.current {
-  font-weight: bold;
-  border-bottom: 1px solid;
+  &.current {
+    font-weight: bold;
+    border-bottom: 1px solid;
+  }
 }
