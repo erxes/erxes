@@ -59,7 +59,6 @@ class SimpleRow extends Component {
       _id: { $in: conversation.tagIds || [] },
     }).fetch();
 
-    console.log(customer);
     return (
       <li className={rowClasses}>
         <div className="items-horizontal">
