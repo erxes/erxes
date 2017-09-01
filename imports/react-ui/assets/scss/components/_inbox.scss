@@ -38,6 +38,11 @@ $fbpost-background: #f6f7f9;
       font-weight: bold;
     }
 
+    .customer-email {
+      font-size: 13px;
+      color: $text-color-light;
+    }
+
     .content {
       background: none;
       margin: 10px 0;
@@ -107,8 +112,20 @@ $fbpost-background: #f6f7f9;
   .simple-row {
     padding: 15px;
 
+    &.vertical {
+      flex-direction: column;
+      align-items: baseline;
+    }
+
+    .customer-name {
+      margin-right: 5px;
+    }
+
     time {
-      font-size: 12px;
+      font-weight: normal;
+      font-style: italic;
+      font-size: 11px;
+      margin: 0 5px;
     }
 
     .column {
@@ -120,6 +137,11 @@ $fbpost-background: #f6f7f9;
       font-size: 12px;
       max-height: 36px;
       line-height: 18px;
+      overflow: hidden;
+      -webkit-box-orient: vertical;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      word-wrap: break-word;
     }
 
     .brandname {
@@ -127,8 +149,14 @@ $fbpost-background: #f6f7f9;
     }
 
     .tags {
-      display: inherit;
       margin-left: 0;
+    }
+
+    .items-horizontal {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      width: 100%;
     }
   }
 }
