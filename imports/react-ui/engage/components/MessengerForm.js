@@ -1,12 +1,13 @@
 import React, { PropTypes, Component } from 'react';
 import { FormControl } from 'react-bootstrap';
 import { MESSENGER_KINDS, SENT_AS_CHOICES } from '/imports/api/engage/constants';
-import Editor from './Editor';
+import { MessengerPreview } from '../containers';
 
 const propTypes = {
   message: PropTypes.object.isRequired,
   onContentChange: PropTypes.func.isRequired,
   showMessengerType: PropTypes.bool,
+  fromUser: PropTypes.string.isRequired,
   brands: PropTypes.array,
 };
 
@@ -14,12 +15,19 @@ class MessengerForm extends Component {
   constructor(props) {
     super(props);
 
+    this.state = { sentAs: props.message.messenger.sentAs || '' };
+
     // binds
     this.onContentChange = this.onContentChange.bind(this);
+    this.onChangeSentAs = this.onChangeSentAs.bind(this);
   }
 
   onContentChange(content) {
     this.props.onContentChange(content);
+  }
+
+  onChangeSentAs(e) {
+    this.setState({ sentAs: e.target.value });
   }
 
   renderMessageType(messenger) {
@@ -44,7 +52,6 @@ class MessengerForm extends Component {
     const message = this.props.message || {};
     const messenger = message.messenger || {};
     const brands = this.props.brands;
-
     return (
       <div>
         <div className="form-header">
@@ -67,6 +74,7 @@ class MessengerForm extends Component {
             <FormControl
               id="messengerSentAs"
               componentClass="select"
+              onChange={this.onChangeSentAs}
               defaultValue={messenger.sentAs}
             >
               <option />
@@ -79,7 +87,12 @@ class MessengerForm extends Component {
           </div>
         </div>
         <div className="form-content">
-          <Editor defaultValue={messenger.content} onChange={this.onContentChange} />
+          <MessengerPreview
+            sentAs={this.state.sentAs}
+            content={messenger.content}
+            fromUser={this.props.fromUser}
+            onContentChange={this.props.onContentChange}
+          />
         </div>
       </div>
     );

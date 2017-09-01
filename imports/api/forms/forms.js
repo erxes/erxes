@@ -51,7 +51,7 @@ Fields.schema = new SimpleSchema({
   validation: {
     type: String,
     optional: true,
-    allowedValues: ['number', 'date', 'email'],
+    allowedValues: ['', 'number', 'date', 'email'],
   },
   text: {
     type: String,

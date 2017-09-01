@@ -22,7 +22,12 @@ class AutoAndManualForm extends FormBase {
 
     const message = props.message || {};
 
-    this.state = { emailContent: '', messengerContent: '', method: message.method || 'email' };
+    this.state = {
+      emailContent: '',
+      messengerContent: '',
+      method: message.method || 'email',
+      fromUser: message.fromUserId || '',
+    };
 
     // binds
     this.onEmailContentChange = this.onEmailContentChange.bind(this);
@@ -159,6 +164,7 @@ class AutoAndManualForm extends FormBase {
       <MessengerForm
         showMessengerType
         message={message}
+        fromUser={this.state.fromUser}
         onContentChange={this.onMessengerContentChange}
         brands={this.props.brands}
       />

@@ -8,8 +8,7 @@ function composer(props, onData) {
   const brandsHandle = Meteor.subscribe('brands.list', 0);
 
   if (brandsHandle.ready()) {
-    const selector = { userId: Meteor.userId() };
-    const brands = Brands.find(selector).fetch();
+    const brands = Brands.find({}).fetch();
 
     onData(null, { brands });
   }

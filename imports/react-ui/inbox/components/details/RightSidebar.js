@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Button, Collapse } from 'react-bootstrap';
+import { Button, Collapse, Label } from 'react-bootstrap';
 import { FlowRouter } from 'meteor/kadira:flow-router';
 import moment from 'moment';
 import { Wrapper } from '/imports/react-ui/layout/components';
@@ -92,6 +92,17 @@ class RightSidebar extends Component {
     return null;
   }
 
+  renderPhone(phone) {
+    if (phone) {
+      return (
+        <li>
+          Phone
+          <span className="counter">{phone}</span>
+        </li>
+      );
+    }
+  }
+
   render() {
     const { Title, QuickButtons } = Wrapper.Sidebar.Section;
     const { conversation, messagesCount } = this.props;
@@ -109,10 +120,10 @@ class RightSidebar extends Component {
             </li>
 
             <li>
-              Is User
-              <span className="counter">{Boolean(customer.isUser).toString()}</span>
+              {customer.isUser ? <Label>user</Label> : <Label bsStyle="primary">not user</Label>}
             </li>
 
+            {this.renderPhone(customer.phone)}
             {this.renderMessengerData()}
             {this.renderFacebookData()}
           </ul>
