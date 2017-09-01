@@ -1,0 +1,83 @@
+.insight-wrapper{
+
+	.insight-filter{
+		padding: 20px;
+	}
+
+	.insight-user-data{
+		margin-bottom: 20px;
+
+		.user-profile {
+			margin-bottom: 20px;
+			line-height: 40px;
+			height: 40px;
+			overflow: hidden;
+
+			img{
+				width: 40px;
+				height: 40px;
+				border-radius: 50%;
+				margin: 0 20px;
+				float: left;
+			}
+
+			.full-name{
+				float: left;
+				font-size: 15px;
+				font-weight: bold;
+			}
+		}
+	}
+
+	.integration-kind {
+    position: absolute;
+    margin-top: 50px;
+    z-index: 1;
+
+    .kind-item {
+    	display: inline-block;
+    	margin-right: 20px;
+
+    	.label {
+    		margin-right: 4px;
+    		display: inline-block;
+    		padding: 5px 10px;
+    	}
+
+    	.kind-count {
+    		font-size: 12px;
+    		font-weight: bold;
+    	}
+    }
+	}
+
+	.punch-card {
+
+		td {
+
+			div {
+				
+				display: inline-block;
+				width: 4%;
+				text-align: center;
+				position: relative;
+				height:36px;
+				
+				.punch-bar{
+					background-color: #337ab7;
+					width: 30%;
+				}
+
+				&.punch-val::after {
+					content: ' ';
+					display: block;
+					width: 1px;
+					height: 10px;
+					position: absolute;
+					margin-left: 50%;
+					background-color: #eee;
+				}
+			}
+		}
+	}
+}

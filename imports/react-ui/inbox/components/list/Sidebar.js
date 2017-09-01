@@ -149,9 +149,9 @@ class Sidebar extends Component {
     return (
       <Wrapper.Sidebar.Section.QuickButtons>
         {FlowRouter.getQueryParam('participating') ||
-        FlowRouter.getQueryParam('unassigned') ||
-        FlowRouter.getQueryParam('status') ||
-        FlowRouter.getQueryParam('starred')
+          FlowRouter.getQueryParam('unassigned') ||
+          FlowRouter.getQueryParam('status') ||
+          FlowRouter.getQueryParam('starred')
           ? <a href="" className="quick-button" onClick={Sidebar.clearStatusFilter}>
               <i className="ion-close-circled" />
             </a>

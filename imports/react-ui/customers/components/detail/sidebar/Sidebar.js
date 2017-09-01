@@ -47,7 +47,7 @@ class Sidebar extends Component {
     return (
       <Pagination hasMore={hasMore} loadMore={loadMore}>
         <ul className="conversations-list">
-          {customers.map(c =>
+          {customers.map(c => (
             <li className="simple-row text-normal" key={c._id}>
               <div className="column">
                 <input type="checkbox" />
@@ -60,8 +60,8 @@ class Sidebar extends Component {
                   singleLine
                 />
               </div>
-            </li>,
-          )}
+            </li>
+          ))}
         </ul>
       </Pagination>
     );

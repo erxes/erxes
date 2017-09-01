@@ -70,11 +70,11 @@ class WidgetForm extends Component {
       <FormGroup>
         <ControlLabel>To:</ControlLabel>
         <div className="recipients">
-          {this.props.customers.map(customer =>
+          {this.props.customers.map(customer => (
             <div className="recipient" key={customer._id.toString()}>
               <strong>{customer.name}</strong> {customer.email}
-            </div>,
-          )}
+            </div>
+          ))}
         </div>
       </FormGroup>
     );
@@ -94,11 +94,11 @@ class WidgetForm extends Component {
 
             <FormControl id="emailTemplateId" componentClass="select">
               <option />
-              {this.props.emailTemplates.map(t =>
+              {this.props.emailTemplates.map(t => (
                 <option key={t._id} value={t._id}>
                   {t.name}
-                </option>,
-              )}
+                </option>
+              ))}
             </FormControl>
           </FormGroup>
         </div>
@@ -115,11 +115,11 @@ class WidgetForm extends Component {
 
             <FormControl id="brandId" componentClass="select">
               <option />
-              {this.props.brands.map((b, index) =>
+              {this.props.brands.map((b, index) => (
                 <option key={`brand-${index}`} value={b._id}>
                   {b.name}
-                </option>,
-              )}
+                </option>
+              ))}
             </FormControl>
           </FormGroup>
 
@@ -128,11 +128,11 @@ class WidgetForm extends Component {
 
             <FormControl id="messengerKind" componentClass="select">
               <option />
-              {this.props.messengerKinds.map((t, index) =>
+              {this.props.messengerKinds.map((t, index) => (
                 <option key={`messengerKind-${index}`} value={t.value}>
                   {t.text}
-                </option>,
-              )}
+                </option>
+              ))}
             </FormControl>
           </FormGroup>
 
@@ -141,11 +141,11 @@ class WidgetForm extends Component {
 
             <FormControl id="sentAs" componentClass="select">
               <option />
-              {this.props.sentAsChoices.map((t, index) =>
+              {this.props.sentAsChoices.map((t, index) => (
                 <option key={`sentAs-${index}`} value={t.value}>
                   {t.text}
-                </option>,
-              )}
+                </option>
+              ))}
             </FormControl>
           </FormGroup>
         </div>
