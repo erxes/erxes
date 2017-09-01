@@ -1,7 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Wrapper } from '/imports/react-ui/layout/components';
-
 import Sidebar from './Sidebar';
 import Filter from './Filter';
 

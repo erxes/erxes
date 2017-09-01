@@ -3,8 +3,8 @@ import { Mongo } from 'meteor/mongo';
 import { compose } from 'react-komposer';
 import { getTrackerLoader, composerOptions } from '/imports/react-ui/utils';
 import { Brands } from '/imports/api/brands/brands';
-
 import { Insights } from '../components';
+
 const Integration = new Mongo.Collection('integration');
 
 function composer({ queryParams }, onData) {

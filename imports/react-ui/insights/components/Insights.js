@@ -2,7 +2,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Wrapper } from '/imports/react-ui/layout/components';
 import { PieChart, Pie, Cell } from 'recharts';
-
 import Sidebar from './Sidebar';
 import Filter from './Filter';
 
@@ -15,7 +14,6 @@ class Insights extends React.Component {
   constructor(props) {
     super(props);
 
-    // states
     this.state = {
       width: 800,
       height: 600,
@@ -23,7 +21,7 @@ class Insights extends React.Component {
   }
 
   componentDidMount() {
-    const width = $('#insightWrapper').width();
+    const width = this.wrapper.clientWidth;
     const height = $('.main-content').height();
     this.setState({ width, height });
   }
@@ -56,7 +54,12 @@ class Insights extends React.Component {
     };
 
     const content = (
-      <div className="insight-wrapper">
+      <div
+        className="insight-wrapper"
+        ref={node => {
+          this.wrapper = node;
+        }}
+      >
         <div className="integration-kind col-sm-6">
           {data.map((detail, index) =>
             <span key={index} className="kind-item">

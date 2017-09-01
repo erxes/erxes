@@ -2,7 +2,6 @@ import { Meteor } from 'meteor/meteor';
 import { check, Match } from 'meteor/check';
 import { _ } from 'meteor/underscore';
 import moment from 'moment';
-
 import { Integrations } from '/imports/api/integrations/integrations';
 import { Conversations } from '/imports/api/conversations/conversations';
 import { Messages } from '/imports/api/conversations/messages';
@@ -39,7 +38,7 @@ function conversationFilter(brandId, integrationType, messageSelector) {
   return messageSelector;
 }
 
-Meteor.publishComposite('insights.integration', function Circle(params) {
+Meteor.publishComposite('insights.integration', function(params) {
   check(params, {
     startDate: Match.Optional(String),
     endDate: Match.Optional(String),
@@ -90,7 +89,6 @@ Meteor.publishComposite('insights.integration', function Circle(params) {
   const stack = {};
 
   integrations.forEach(detail => {
-    // Хэрвээ бараа өмнө группд ороогүй бол
     if (!stack[detail.kind]) {
       stack[detail.kind] = [detail._id];
     } else {
@@ -112,7 +110,7 @@ Meteor.publishComposite('insights.integration', function Circle(params) {
   };
 });
 
-Meteor.publishComposite('insights.teamMembers', function teamMembers(params) {
+Meteor.publishComposite('insights.teamMembers', function(params) {
   check(params, {
     startDate: Match.Optional(String),
     endDate: Match.Optional(String),
@@ -206,7 +204,7 @@ Meteor.publishComposite('insights.teamMembers', function teamMembers(params) {
   };
 });
 
-Meteor.publishComposite('punch.card', function Circle(params) {
+Meteor.publishComposite('insights.punch.card', function(params) {
   check(params, {
     endDate: Match.Optional(String),
     brandId: Match.Optional(String),

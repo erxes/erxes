@@ -1,10 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
-
 import Sidebar from './Sidebar';
 import Filter from './Filter';
-
 import { Wrapper } from '/imports/react-ui/layout/components';
 
 const propTypes = {
@@ -17,14 +15,13 @@ class TeamMembers extends React.Component {
   constructor(props) {
     super(props);
 
-    // states
     this.state = {
       width: 600,
     };
   }
 
   componentDidMount() {
-    const width = $('#insightWrapper').width();
+    const width = this.wrapper.clientWidth;
     this.setState({ width });
   }
 
@@ -58,7 +55,12 @@ class TeamMembers extends React.Component {
     const { mainData, usersData, brands } = this.props;
 
     const content = (
-      <div className="insight-wrapper">
+      <div
+        className="insight-wrapper"
+        ref={node => {
+          this.wrapper = node;
+        }}
+      >
         <Filter brands={brands} />
 
         <div className="margined" id="insightWrapper">

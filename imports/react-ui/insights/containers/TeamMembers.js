@@ -3,7 +3,6 @@ import { Mongo } from 'meteor/mongo';
 import { compose } from 'react-komposer';
 import { getTrackerLoader, composerOptions } from '/imports/react-ui/utils';
 import { Brands } from '/imports/api/brands/brands';
-
 import { TeamMembers } from '../components';
 
 const MainGraph = new Mongo.Collection('main_graph');

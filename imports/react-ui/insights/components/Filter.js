@@ -4,7 +4,6 @@ import Select from 'react-select-plus';
 import { ControlLabel } from 'react-bootstrap';
 import { integrationOptions, selectOptions } from '../utils';
 import { KIND_CHOICES as INTEGRATIONS_TYPES } from '/imports/api/integrations/constants';
-
 import { Wrapper } from '/imports/react-ui/layout/components';
 
 const propTypes = {
@@ -17,7 +16,6 @@ class Filter extends React.Component {
   constructor(props) {
     super(props);
 
-    // states
     this.state = {
       brandId: '',
       integrationType: '',
