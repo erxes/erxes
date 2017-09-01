@@ -24,9 +24,7 @@ class Details extends Component {
   }
 
   componentDidUpdate() {
-    if (this.shouldScrollBottom) {
-      this.node.scrollTop = this.node.scrollHeight;
-    }
+    this.node.scrollTop = this.node.scrollHeight;
   }
 
   render() {
