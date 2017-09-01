@@ -34,7 +34,7 @@ function Message({ content, attachments, user, createdAt, color }) {
         <span dangerouslySetInnerHTML={{ __html: content }} />
       </div>
       <div className="date">
-        {moment(createdAt).fromNow()}
+        {moment(createdAt).format('YYYY-MM-DD, HH:mm:ss')}
       </div>
     </li>
   );

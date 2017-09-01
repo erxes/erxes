@@ -131,6 +131,10 @@
   p {
     margin-top: 0;
     word-break: break-word;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
   }
 
   img {

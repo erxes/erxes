@@ -1,8 +1,8 @@
 /* eslint-disable jsx-a11y/no-static-element-interactions */
 
 import React, { Component, PropTypes } from 'react';
-import { MessagesList, MessageSender, TopBar } from '../containers';
 import Ionicon from 'react-ionicons';
+import { MessagesList, MessageSender, TopBar } from '../containers';
 
 
 const propTypes = {
@@ -79,19 +79,12 @@ class Conversation extends Component {
     const placeholder = isNewConversation ? 'Send a message ...' : 'Write a reply ...';
 
     return (
-      <div
-        className="erxes-messenger"
-        style={{ border: `2px solid ${color}` }}
-        onClick={this.onClick}
-      >
-
-  return (
-    <div className="erxes-messenger" style={{ border: `1px solid ${color}` }}>
-      <TopBar
-        middle={renderTitle()}
-        buttonIcon={<Ionicon icon="ion-ios-arrow-back" className="icon white" />}
-        onButtonClick={goToConversationList}
-      />
+      <div onClick={this.onClick} className="erxes-messenger" style={{ border: `1px solid ${color}` }}>
+        <TopBar
+          middle={this.renderTitle()}
+          buttonIcon={<Ionicon icon="ion-ios-arrow-back" className="icon white" />}
+          onButtonClick={goToConversationList}
+        />
 
         <MessagesList isOnline={isOnline} data={data} messages={messages} />
         <MessageSender
