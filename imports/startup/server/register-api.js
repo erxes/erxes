@@ -40,4 +40,4 @@ import '/imports/api/engage/server/methods';
 import '/imports/api/engage/server/cronJobs';
 
 import '/imports/api/knowledgebase/server/publications';
-import '/imports/api/knowledgebase/server/methods';
+import '/imports/api/knowledgebase/methods';

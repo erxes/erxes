@@ -1,8 +1,8 @@
 import { check } from 'meteor/check';
 import { ValidatedMethod } from 'meteor/mdg:validated-method';
 import { ErxesMixin } from '/imports/api/utils';
-import { KbTopics, KbCategories, KbArticles } from '../collections';
-import { KbTopicsSchema, KbCategoriesSchema, KbArticlesSchema } from '../schema';
+import { KbTopics, KbCategories, KbArticles } from './collections';
+import { KbTopicsSchema, KbCategoriesSchema, KbArticlesSchema } from './schema';
 
 // add
 export const addKbTopic = new ValidatedMethod({
@@ -147,6 +147,7 @@ export const editKbArticle = new ValidatedMethod({
   },
 
   run({ _id, doc }) {
+    console.log('editKbArticle.run: ', _id, doc);
     return KbArticles.update(
       { _id },
       {
@@ -155,6 +156,9 @@ export const editKbArticle = new ValidatedMethod({
           modifiedBy: this.userId,
           modifiedDate: new Date(),
         },
+      },
+      err => {
+        console.log('err: ', err);
       },
     );
   },
