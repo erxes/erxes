@@ -147,7 +147,6 @@ export const editKbArticle = new ValidatedMethod({
   },
 
   run({ _id, doc }) {
-    console.log('editKbArticle.run: ', _id, doc);
     return KbArticles.update(
       { _id },
       {
