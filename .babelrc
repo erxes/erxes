@@ -1,0 +1,9 @@
+{
+  "passPerPreset": true,
+  "presets": [
+    "es2015"
+  ],
+  "plugins": [
+    "transform-object-rest-spread"
+  ]
+}
