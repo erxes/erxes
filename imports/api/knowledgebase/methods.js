@@ -156,9 +156,6 @@ export const editKbArticle = new ValidatedMethod({
           modifiedDate: new Date(),
         },
       },
-      err => {
-        console.log('err: ', err);
-      },
     );
   },
 });
