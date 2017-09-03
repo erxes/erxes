@@ -1,1 +1,5 @@
-export default {};
+import channels from './channels';
+
+export default {
+  ...channels,
+};
