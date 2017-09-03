@@ -1,6 +1,6 @@
+import { Meteor } from 'meteor/meteor';
 import { compose } from 'react-komposer';
 import { getTrackerLoader } from '/imports/react-ui/utils';
-import { Meteor } from 'meteor/meteor';
 import { Brands } from '/imports/api/brands/brands';
 import { Config } from '../components';
 
@@ -46,17 +46,21 @@ const defaultTemplate = `<p>Dear {{fullName}},</p>
     }
 </style>`;
 
-function composer(props, onData) {
-  const brandsHandle = Meteor.subscribe('brands.getById', props.brandId);
+function composer({ brandId, refetch }, onData) {
+  const brandsHandle = Meteor.subscribe('brands.getById', brandId);
 
   if (!brandsHandle.ready()) {
     return;
   }
 
-  const brand = Brands.findOne(props.brandId);
+  const brand = Brands.findOne(brandId);
 
-  const configFn = (...params) => {
-    Meteor.call('configEmail', ...params);
+  const configFn = (doc, callback) => {
+    Meteor.call('brands.configEmail', doc, (...params) => {
+      refetch();
+
+      callback(...params);
+    });
   };
 
   onData(null, { brand, configEmail: configFn, defaultTemplate });
