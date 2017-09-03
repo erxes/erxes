@@ -17,7 +17,8 @@ export const types = `
 
 export const queries = `
   type Query {
-    channels: [Channel]
+    channels(limit: Int!): [Channel]
+    totalChannelsCount: Int
   }
 `;
 
