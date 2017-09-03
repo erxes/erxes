@@ -7,7 +7,7 @@ import '/imports/api/users/server/methods';
 import '/imports/api/server/methods';
 
 import '/imports/api/brands/server/publications';
-import '/imports/api/brands/methods';
+import '/imports/api/brands/server/methods';
 
 import '/imports/api/customers/server/publications';
 import '/imports/api/customers/methods';

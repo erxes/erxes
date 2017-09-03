@@ -1,13 +1,13 @@
 import React, { PropTypes, Component } from 'react';
 import moment from 'moment';
 import { Button, Label } from 'react-bootstrap';
-import Alert from 'meteor/erxes-notifier';
 import { BrandForm } from '../containers';
 import { ModalTrigger, Tip, ActionButtons } from '/imports/react-ui/common';
 
 const propTypes = {
   brand: PropTypes.object.isRequired,
   removeBrand: PropTypes.func.isRequired,
+  saveBrand: PropTypes.func.isRequired,
 };
 
 class Row extends Component {
@@ -18,21 +18,11 @@ class Row extends Component {
   }
 
   removeBrand() {
-    if (!confirm('Are you sure?')) return; // eslint-disable-line no-alert
-
-    const { brand, removeBrand } = this.props;
-
-    removeBrand(brand._id, error => {
-      if (error) {
-        return Alert.error("Can't delete a brand", error.reason);
-      }
-
-      return Alert.success('Congrats', 'Brand has deleted.');
-    });
+    this.props.removeBrand(this.props.brand._id);
   }
 
   render() {
-    const brand = this.props.brand;
+    const { brand, saveBrand } = this.props;
 
     const editTrigger = (
       <Button bsStyle="link">
@@ -50,7 +40,7 @@ class Row extends Component {
         <td className="text-right">
           <ActionButtons>
             <ModalTrigger title="Edit brand" trigger={editTrigger}>
-              <BrandForm brand={this.props.brand} />
+              <BrandForm brand={this.props.brand} saveBrand={saveBrand} />
             </ModalTrigger>
 
             <Tip text="Delete">

@@ -9,6 +9,7 @@ import Row from './Row';
 const propTypes = {
   brands: PropTypes.array.isRequired,
   removeBrand: PropTypes.func.isRequired,
+  saveBrand: PropTypes.func.isRequired,
   loadMore: PropTypes.func.isRequired,
   hasMore: PropTypes.bool.isRequired,
 };
@@ -21,13 +22,16 @@ class BrandList extends Component {
   }
 
   renderBrands() {
-    const { brands, removeBrand } = this.props;
+    const { brands, removeBrand, saveBrand } = this.props;
 
-    return brands.map(brand => <Row key={brand._id} brand={brand} removeBrand={removeBrand} />);
+    return brands.map(brand => (
+      <Row key={brand._id} brand={brand} removeBrand={removeBrand} saveBrand={saveBrand} />
+    ));
   }
 
   render() {
-    const { loadMore, hasMore } = this.props;
+    const { loadMore, hasMore, saveBrand } = this.props;
+
     const trigger = (
       <Button bsStyle="link">
         <i className="ion-plus-circled" /> New brand
@@ -36,7 +40,7 @@ class BrandList extends Component {
 
     const actionBarLeft = (
       <ModalTrigger title="New brand" trigger={trigger}>
-        <BrandForm />
+        <BrandForm saveBrand={saveBrand} />
       </ModalTrigger>
     );
 

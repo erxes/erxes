@@ -2,7 +2,6 @@ import { compose } from 'react-komposer';
 import { getTrackerLoader } from '/imports/react-ui/utils';
 import { Meteor } from 'meteor/meteor';
 import { Brands } from '/imports/api/brands/brands';
-import { configEmail } from '/imports/api/brands/methods';
 import { Config } from '../components';
 
 const defaultTemplate = `<p>Dear {{fullName}},</p>
@@ -57,7 +56,7 @@ function composer(props, onData) {
   const brand = Brands.findOne(props.brandId);
 
   const configFn = (...params) => {
-    configEmail.call(...params);
+    Meteor.call('configEmail', ...params);
   };
 
   onData(null, { brand, configEmail: configFn, defaultTemplate });

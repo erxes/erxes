@@ -14,6 +14,7 @@ const ChannelListContainer = props => {
 
   const { loadMore, hasMore } = pagination(queryParams, totalCountQuery.totalChannelsCount);
 
+  // remove action
   const removeChannel = id => {
     if (!confirm('Are you sure?')) return;
 
@@ -32,6 +33,7 @@ const ChannelListContainer = props => {
     });
   };
 
+  // create or update action
   const saveChannel = (params, callback, channel) => {
     let methodName = 'channels.add';
 

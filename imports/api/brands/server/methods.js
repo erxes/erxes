@@ -2,7 +2,7 @@ import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
 import { ValidatedMethod } from 'meteor/mdg:validated-method';
 import { ErxesMixin } from '/imports/api/utils';
-import { Brands, emailConfigSchema } from './brands';
+import { Brands, emailConfigSchema } from '../brands';
 
 // brand add
 export const add = new ValidatedMethod({
