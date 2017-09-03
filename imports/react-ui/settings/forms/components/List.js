@@ -1,83 +1,46 @@
-import React, { PropTypes, Component } from 'react';
-import { Button, Table } from 'react-bootstrap';
-import { Wrapper } from '/imports/react-ui/layout/components';
-import { ModalTrigger, Pagination } from '/imports/react-ui/common';
-import Sidebar from '../../Sidebar';
-import { Form } from '../containers';
+import React from 'react';
+import { Table } from 'react-bootstrap';
+import { List } from '../../common/components';
+import Form from './Form';
 import Row from './Row';
 
-const propTypes = {
-  forms: PropTypes.array.isRequired,
-  removeForm: PropTypes.func.isRequired,
-  duplicateForm: PropTypes.func.isRequired,
-  loadMore: PropTypes.func.isRequired,
-  hasMore: PropTypes.bool.isRequired,
-};
-
-class List extends Component {
+class FormList extends List {
   constructor(props) {
     super(props);
 
-    this.renderForms = this.renderForms.bind(this);
+    this.title = 'New form';
   }
 
-  renderForms() {
-    const { forms, removeForm, duplicateForm } = this.props;
-
-    return forms.map(form => (
-      <Row key={form._id} form={form} removeForm={removeForm} duplicateForm={duplicateForm} />
-    ));
+  renderRow(props) {
+    return <Row {...props} />;
   }
 
-  render() {
-    const { loadMore, hasMore } = this.props;
+  renderForm(props) {
+    return <Form {...props} />;
+  }
 
-    const trigger = (
-      <Button bsStyle="link">
-        <i className="ion-plus-circled" /> New form
-      </Button>
-    );
-
-    const actionBarLeft = (
-      <ModalTrigger title="New form" trigger={trigger}>
-        <Form />
-      </ModalTrigger>
-    );
-
-    const actionBar = <Wrapper.ActionBar left={actionBarLeft} />;
-
-    const content = (
-      <Pagination loadMore={loadMore} hasMore={hasMore}>
-        <Table>
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>Code</th>
-              <th>Description</th>
-              <th width="135">Created At</th>
-              <th width="180" className="text-right">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {this.renderForms()}
-          </tbody>
-        </Table>
-      </Pagination>
-    );
-
-    const breadcrumb = [{ title: 'Settings', link: '/settings/forms' }, { title: 'Forms' }];
-
+  renderContent() {
     return (
-      <Wrapper
-        header={<Wrapper.Header breadcrumb={breadcrumb} />}
-        leftSidebar={<Sidebar />}
-        actionBar={actionBar}
-        content={content}
-      />
+      <Table>
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Code</th>
+            <th>Description</th>
+            <th width="135">Created At</th>
+            <th className="text-right">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {this.renderObjects()}
+        </tbody>
+      </Table>
     );
+  }
+
+  breadcrumb() {
+    return [{ title: 'Settings', link: '/settings/forms' }, { title: 'Forms' }];
   }
 }
 
-List.propTypes = propTypes;
-
-export default List;
+export default FormList;
