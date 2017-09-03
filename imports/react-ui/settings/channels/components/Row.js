@@ -1,12 +1,12 @@
 import React, { PropTypes, Component } from 'react';
 import { Button, Label } from 'react-bootstrap';
-import Alert from 'meteor/erxes-notifier';
 import { ChannelForm } from '../containers';
 import { ModalTrigger, Tip, ActionButtons } from '/imports/react-ui/common';
 
 const propTypes = {
   channel: PropTypes.object.isRequired,
   removeChannel: PropTypes.func.isRequired,
+  saveChannel: PropTypes.func.isRequired,
 };
 
 class Row extends Component {
@@ -17,21 +17,12 @@ class Row extends Component {
   }
 
   removeChannel() {
-    if (!confirm('Are you sure?')) return; // eslint-disable-line no-alert
-
-    const { channel, removeChannel } = this.props;
-
-    removeChannel(channel._id, error => {
-      if (error) {
-        return Alert.error("Can't delete a channel", error.reason);
-      }
-
-      return Alert.success('Congrats', 'Channel has deleted.');
-    });
+    this.props.removeChannel(this.props.channel._id);
   }
 
   render() {
-    const { name, description } = this.props.channel;
+    const { channel, saveChannel } = this.props;
+    const { name, description } = channel;
 
     const editTrigger = (
       <Button bsStyle="link">
@@ -48,7 +39,7 @@ class Row extends Component {
         <td className="text-right">
           <ActionButtons>
             <ModalTrigger title="Edit channel" trigger={editTrigger}>
-              <ChannelForm channel={this.props.channel} />
+              <ChannelForm channel={channel} saveChannel={saveChannel} />
             </ModalTrigger>
 
             <Tip text="Delete">

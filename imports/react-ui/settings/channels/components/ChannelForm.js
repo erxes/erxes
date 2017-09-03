@@ -9,10 +9,9 @@ import {
   Button,
 } from 'react-bootstrap';
 import { Tip } from '/imports/react-ui/common';
-import Alert from 'meteor/erxes-notifier';
-import { add, edit } from '/imports/api/channels/methods';
 
 const propTypes = {
+  saveChannel: PropTypes.func.isRequired,
   integrations: PropTypes.array.isRequired,
   members: PropTypes.array.isRequired,
   channel: PropTypes.object,
@@ -28,7 +27,8 @@ class ChannelForm extends Component {
   constructor(props) {
     super(props);
 
-    this.save = this.save.bind(this);
+    this.saveChannel = this.saveChannel.bind(this);
+
     this.generateIntegrationsParams = this.generateIntegrationsParams.bind(this);
     this.generateMembersParams = this.generateMembersParams.bind(this);
     this.collectValues = this.collectValues.bind(this);
@@ -89,31 +89,23 @@ class ChannelForm extends Component {
     }));
   }
 
-  save(e) {
+  saveChannel(e) {
     e.preventDefault();
-    const params = {
-      doc: {
-        name: document.getElementById('channel-name').value,
-        description: document.getElementById('channel-description').value,
-        memberIds: this.collectValues(this.state.selectedMembers),
-        integrationIds: this.collectValues(this.state.selectedIntegrations),
+
+    this.props.saveChannel(
+      {
+        doc: {
+          name: document.getElementById('channel-name').value,
+          description: document.getElementById('channel-description').value,
+          memberIds: this.collectValues(this.state.selectedMembers),
+          integrationIds: this.collectValues(this.state.selectedIntegrations),
+        },
       },
-    };
-
-    let methodName = add;
-
-    // if edit mode
-    if (this.props.channel) {
-      methodName = edit;
-      params.id = this.props.channel._id;
-    }
-
-    methodName.call(params, error => {
-      if (error) return Alert.error(error.reason);
-
-      Alert.success('Congrats');
-      return this.context.closeModal();
-    });
+      () => {
+        this.context.closeModal();
+      },
+      this.props.channel,
+    );
   }
 
   renderChannelTip(channels) {
@@ -136,11 +128,13 @@ class ChannelForm extends Component {
     const onClick = () => {
       this.context.closeModal();
     };
+
     const { integrations, members } = this.props;
     const channel = this.props.channel || { memberIds: [], integrationIds: [] };
     const self = this;
+
     return (
-      <form onSubmit={this.save}>
+      <form onSubmit={this.saveChannel}>
         <FormGroup>
           <ControlLabel>Name</ControlLabel>
 

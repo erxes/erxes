@@ -1,28 +1,26 @@
 import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
 import { ValidatedMethod } from 'meteor/mdg:validated-method';
+import { sendNotification } from '/imports/api/server/utils';
 import { ErxesMixin } from '/imports/api/utils';
-import { Channels } from './channels';
+import { Channels } from '../channels';
 
 const sendNotifications = (channelId, _memberIds, userId) => {
   const memberIds = _memberIds || [];
   const channel = Channels.findOne({ _id: channelId });
 
-  if (Meteor.isServer) {
-    const { sendNotification } = require('/imports/api/server/utils'); // eslint-disable-line
-    const content = `You have invited to '${channel.name}' channel.`;
+  const content = `You have invited to '${channel.name}' channel.`;
 
-    sendNotification({
-      createdUser: userId,
-      notifType: 'channelMembersChange',
-      title: content,
-      content,
-      link: `/inbox/${channel._id}`,
+  sendNotification({
+    createdUser: userId,
+    notifType: 'channelMembersChange',
+    title: content,
+    content,
+    link: `/inbox/${channel._id}`,
 
-      // exclude current user
-      receivers: memberIds.filter(id => id !== userId),
-    });
-  }
+    // exclude current user
+    receivers: memberIds.filter(id => id !== userId),
+  });
 };
 
 // channel add

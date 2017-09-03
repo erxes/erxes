@@ -11,6 +11,7 @@ function composer({ channel }, onData) {
 
   let selectedIntegrations = [];
   let selectedMembers = [];
+
   if (channel) {
     selectedIntegrations = Integrations.find({
       _id: { $in: channel.integrationIds },

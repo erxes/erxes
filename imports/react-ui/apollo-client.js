@@ -1,6 +1,5 @@
 import { Meteor } from 'meteor/meteor';
-import ApolloClient, { createNetworkInterface } from 'apollo-client';
-import gql from 'graphql-tag';
+import { ApolloClient, createNetworkInterface } from 'react-apollo';
 
 const client = new ApolloClient({
   networkInterface: createNetworkInterface({
@@ -8,28 +7,4 @@ const client = new ApolloClient({
   }),
 });
 
-export const newMessage = messageId => {
-  client.mutate({
-    mutation: gql`
-      mutation simulateInsertMessage($messageId: String) {
-        simulateInsertMessage(messageId: $messageId) {
-          _id
-        }
-      }
-    `,
-
-    variables: {
-      messageId,
-    },
-  });
-};
-
-export const notify = () => {
-  client.mutate({
-    mutation: gql`
-      mutation notify {
-        notify
-      }
-    `,
-  });
-};
+export default client;

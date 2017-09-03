@@ -9,6 +9,7 @@ import Row from './Row';
 const propTypes = {
   channels: PropTypes.array.isRequired,
   removeChannel: PropTypes.func.isRequired,
+  saveChannel: PropTypes.func.isRequired,
   loadMore: PropTypes.func.isRequired,
   hasMore: PropTypes.bool.isRequired,
 };
@@ -21,25 +22,33 @@ class ChannelList extends Component {
   }
 
   renderChannels() {
-    const { channels, removeChannel } = this.props;
+    const { channels, removeChannel, saveChannel } = this.props;
 
     return channels.map(channel => (
-      <Row key={channel._id} channel={channel} removeChannel={removeChannel} />
+      <Row
+        key={channel._id}
+        channel={channel}
+        saveChannel={saveChannel}
+        removeChannel={removeChannel}
+      />
     ));
   }
 
   render() {
-    const { loadMore, hasMore } = this.props;
+    const { loadMore, hasMore, saveChannel } = this.props;
+
     const trigger = (
       <Button bsStyle="link">
         <i className="ion-plus-circled" /> New channel
       </Button>
     );
+
     const actionBarLeft = (
       <ModalTrigger title="New channel" trigger={trigger}>
-        <ChannelForm />
+        <ChannelForm saveChannel={saveChannel} />
       </ModalTrigger>
     );
+
     const actionBar = <Wrapper.ActionBar left={actionBarLeft} />;
 
     const content = (
