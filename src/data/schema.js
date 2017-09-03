@@ -23,6 +23,14 @@ export const types = `
     createdAt: Date
     emailConfig: JSON
   }
+
+  type ResponseTemplate {
+    _id: String!
+    name: String
+    content: String
+    brandId: String
+    files: [JSON]
+  }
 `;
 
 export const queries = `
@@ -32,6 +40,9 @@ export const queries = `
 
     brands(limit: Int!): [Brand]
     totalBrandsCount: Int
+
+    responseTemplates(limit: Int!): [ResponseTemplate]
+    totalResponseTemplatesCount: Int
   }
 `;
 

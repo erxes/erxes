@@ -1,4 +1,5 @@
 import Channels from './Channels';
+import ResponseTemplates from './ResponseTemplates';
 import Brands from './Brands';
 
-export { Channels, Brands };
+export { Channels, ResponseTemplates, Brands };
