@@ -38,6 +38,15 @@ export const types = `
     name: String
     content: String
   }
+
+  type Form {
+    _id: String!
+    title: String
+    code: String
+    description: String
+    createdUserId: String
+    createdDate: Date
+  }
 `;
 
 export const queries = `
@@ -53,6 +62,9 @@ export const queries = `
 
     emailTemplates(limit: Int!): [EmailTemplate]
     totalEmailTemplatesCount: Int
+
+    forms(limit: Int!): [Form]
+    totalFormsCount: Int
   }
 `;
 
