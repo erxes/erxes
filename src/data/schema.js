@@ -13,12 +13,25 @@ export const types = `
     conversationCount: Int
     openConversationCount: Int
   }
+
+  type Brand {
+    _id: String!
+    name: String
+    description: String
+    code: String
+    userId: String
+    createdAt: Date
+    emailConfig: JSON
+  }
 `;
 
 export const queries = `
   type Query {
     channels(limit: Int!): [Channel]
     totalChannelsCount: Int
+
+    brands(limit: Int!): [Brand]
+    totalBrandsCount: Int
   }
 `;
 

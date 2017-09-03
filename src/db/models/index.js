@@ -1,3 +1,4 @@
 import Channels from './Channels';
+import Brands from './Brands';
 
-export { Channels };
+export { Channels, Brands };
