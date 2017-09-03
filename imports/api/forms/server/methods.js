@@ -5,7 +5,7 @@ import { check } from 'meteor/check';
 import { ValidatedMethod } from 'meteor/mdg:validated-method';
 import { Integrations } from '/imports/api/integrations/integrations';
 import { ErxesMixin } from '/imports/api/utils';
-import { Forms, Fields } from './forms';
+import { Forms, Fields } from '../forms';
 
 const generateCode = () => {
   // generate code automatically

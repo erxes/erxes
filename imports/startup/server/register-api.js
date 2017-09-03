@@ -27,7 +27,7 @@ import '/imports/api/tags/server/publications';
 import '/imports/api/tags/server/methods';
 
 import '/imports/api/forms/server/publications';
-import '/imports/api/forms/methods';
+import '/imports/api/forms/server/methods';
 
 import '/imports/api/responseTemplates/server/publications';
 import '/imports/api/responseTemplates/server/methods';

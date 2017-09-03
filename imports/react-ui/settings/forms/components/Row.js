@@ -1,12 +1,50 @@
 import React from 'react';
 import moment from 'moment';
-import { Label } from 'react-bootstrap';
+import { Button, Label } from 'react-bootstrap';
+import { Tip, ActionButtons } from '/imports/react-ui/common';
 import { Row as CommonRow } from '../../common/components';
 import { Form } from './';
 
 class Row extends CommonRow {
+  constructor(props) {
+    super(props);
+
+    this.duplicateForm = this.duplicateForm.bind(this);
+  }
+
   renderForm(props) {
     return <Form {...props} />;
+  }
+
+  duplicateForm() {
+    const { object, duplicateForm } = this.props;
+
+    duplicateForm(object._id);
+  }
+
+  renderActions() {
+    const { object } = this.props;
+
+    return (
+      <td className="text-right">
+        <ActionButtons>
+          <Tip text="Manage Fields">
+            <Button bsStyle="link" href={`/settings/forms/manage-fields/${object._id}`}>
+              <i className="ion-navicon-round" />
+            </Button>
+          </Tip>
+
+          <Tip text="Duplicate">
+            <Button bsStyle="link" onClick={this.duplicateForm}>
+              <i className="ion-ios-browsers" />
+            </Button>
+          </Tip>
+
+          {this.renderEditAction()}
+          {this.renderRemoveAction()}
+        </ActionButtons>
+      </td>
+    );
   }
 
   render() {

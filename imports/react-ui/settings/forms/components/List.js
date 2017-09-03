@@ -1,8 +1,8 @@
 import React from 'react';
 import { Table } from 'react-bootstrap';
 import { List } from '../../common/components';
+import { Row } from '../containers';
 import Form from './Form';
-import Row from './Row';
 
 class FormList extends List {
   constructor(props) {
@@ -28,7 +28,7 @@ class FormList extends List {
             <th>Code</th>
             <th>Description</th>
             <th width="135">Created At</th>
-            <th className="text-right">Actions</th>
+            <th width="180" className="text-right">Actions</th>
           </tr>
         </thead>
         <tbody>

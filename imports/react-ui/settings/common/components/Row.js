@@ -13,13 +13,25 @@ class Row extends Component {
     super(props);
 
     this.remove = this.remove.bind(this);
+    this.renderRemoveAction = this.renderRemoveAction.bind(this);
+    this.renderEditAction = this.renderEditAction.bind(this);
   }
 
   remove() {
     this.props.remove(this.props.object._id);
   }
 
-  renderActions() {
+  renderRemoveAction() {
+    return (
+      <Tip text="Delete">
+        <Button bsStyle="link" onClick={this.remove}>
+          <i className="ion-close-circled" />
+        </Button>
+      </Tip>
+    );
+  }
+
+  renderEditAction() {
     const { object, save } = this.props;
 
     const editTrigger = (
@@ -29,17 +41,18 @@ class Row extends Component {
     );
 
     return (
+      <ModalTrigger title="Edit" trigger={editTrigger}>
+        {this.renderForm({ object, save })}
+      </ModalTrigger>
+    );
+  }
+
+  renderActions() {
+    return (
       <td className="text-right">
         <ActionButtons>
-          <ModalTrigger title="Edit" trigger={editTrigger}>
-            {this.renderForm({ object, save })}
-          </ModalTrigger>
-
-          <Tip text="Delete">
-            <Button bsStyle="link" onClick={this.remove}>
-              <i className="ion-close-circled" />
-            </Button>
-          </Tip>
+          {this.renderEditAction()}
+          {this.renderRemoveAction()}
         </ActionButtons>
       </td>
     );
