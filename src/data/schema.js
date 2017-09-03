@@ -4,15 +4,9 @@ export const types = `
 
   type User {
     _id: String!
-    avatar: String
-    fullName: String,
-    position: String
     username: String
-    twitterUsername: String
-    email: String
-    role: String
-    channelIds: [String]
-    signatures: [JSON]
+    details: JSON
+    emails: JSON
   }
 
   type Channel {
@@ -43,7 +37,7 @@ export const types = `
     content: String
     brandId: String
     brand: Brand,
-    files: [JSON]
+    files: JSON
   }
 
   type EmailTemplate {

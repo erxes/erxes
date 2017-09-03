@@ -7,15 +7,9 @@ const UserSchema = mongoose.Schema({
     unique: true,
     default: () => Random.id(),
   },
-  avatar: String,
-  fullName: String,
-  position: String,
   username: String,
-  twitterUsername: String,
-  email: String,
-  role: String,
-  channelIds: [String],
-  signatures: [Object],
+  details: Object,
+  emails: Object,
 });
 
 const Users = mongoose.model('users', UserSchema);
