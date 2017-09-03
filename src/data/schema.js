@@ -29,7 +29,14 @@ export const types = `
     name: String
     content: String
     brandId: String
+    brand: Brand,
     files: [JSON]
+  }
+
+  type EmailTemplate {
+    _id: String!
+    name: String
+    content: String
   }
 `;
 
@@ -43,6 +50,9 @@ export const queries = `
 
     responseTemplates(limit: Int!): [ResponseTemplate]
     totalResponseTemplatesCount: Int
+
+    emailTemplates(limit: Int!): [EmailTemplate]
+    totalEmailTemplatesCount: Int
   }
 `;
 
