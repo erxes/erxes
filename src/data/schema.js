@@ -2,6 +2,19 @@ export const types = `
   scalar JSON
   scalar Date
 
+  type User {
+    _id: String!
+    avatar: String
+    fullName: String,
+    position: String
+    username: String
+    twitterUsername: String
+    email: String
+    role: String
+    channelIds: [String]
+    signatures: [JSON]
+  }
+
   type Channel {
     _id: String!
     name: String
@@ -51,6 +64,9 @@ export const types = `
 
 export const queries = `
   type Query {
+    users(limit: Int!): [User]
+    totalUsersCount: Int
+
     channels(limit: Int!): [Channel]
     totalChannelsCount: Int
 
