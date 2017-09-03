@@ -1,7 +1,7 @@
 import { check } from 'meteor/check';
 import { ValidatedMethod } from 'meteor/mdg:validated-method';
 import { ErxesMixin } from '/imports/api/utils';
-import { ResponseTemplates } from './responseTemplates';
+import { ResponseTemplates } from '../responseTemplates';
 
 // response template add
 export const add = new ValidatedMethod({

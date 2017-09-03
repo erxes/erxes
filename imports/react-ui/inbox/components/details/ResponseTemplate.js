@@ -5,7 +5,6 @@ import { FlowRouter } from 'meteor/kadira:flow-router';
 import strip from 'strip';
 import { Button, FormControl, Popover, OverlayTrigger } from 'react-bootstrap';
 
-import { add } from '/imports/api/responseTemplates/methods';
 import { EmptyState } from '/imports/react-ui/common';
 import ResponseTemplateModal from './ResponseTemplateModal';
 
@@ -43,7 +42,7 @@ class ResponseTemplate extends Component {
       files: this.props.attachments,
     };
 
-    add.call({ doc }, error => {
+    Meteor.call('responseTemplates.add', { doc }, error => {
       if (error) return Alert.error(error.message);
 
       Alert.success('Congrats');
@@ -135,11 +134,11 @@ class ResponseTemplate extends Component {
                 onChange={this.onFilter}
                 defaultValue={this.state.brandId}
               >
-                {brands.map(brand =>
+                {brands.map(brand => (
                   <option key={brand._id} value={brand._id}>
                     {brand.name}
-                  </option>,
-                )}
+                  </option>
+                ))}
               </FormControl>
             </div>
           </div>
