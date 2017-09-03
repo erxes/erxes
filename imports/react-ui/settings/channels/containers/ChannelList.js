@@ -6,22 +6,22 @@ import { pagination } from '/imports/react-ui/common';
 import { ChannelList } from '../components';
 
 const ChannelListContainer = props => {
-  const { data, queryParams } = props;
-  const { loading, channels } = data;
+  const { totalCountQuery, listQuery, queryParams } = props;
 
-  if (loading) {
+  if (totalCountQuery.loading || listQuery.loading) {
     return null;
   }
 
-  const { loadMore, hasMore } = pagination(queryParams, 'channels.list.count');
+  const { loadMore, hasMore } = pagination(queryParams, totalCountQuery.totalChannelsCount);
 
   const removeChannel = id => {
     if (!confirm('Are you sure?')) return;
 
     Meteor.call('channels.remove', id, error => {
       if (!error) {
-        // update list query
-        data.refetch();
+        // update queries
+        listQuery.refetch();
+        totalCountQuery.refetch();
       }
 
       if (error) {
@@ -44,8 +44,9 @@ const ChannelListContainer = props => {
     Meteor.call(methodName, params, error => {
       if (error) return Alert.error(error.reason);
 
-      // update list query
-      data.refetch();
+      // update queries
+      listQuery.refetch();
+      totalCountQuery.refetch();
 
       Alert.success('Congrats');
 
@@ -55,7 +56,7 @@ const ChannelListContainer = props => {
 
   const updatedProps = {
     ...props,
-    channels,
+    channels: listQuery.channels,
     loadMore,
     hasMore,
     removeChannel,
@@ -66,15 +67,16 @@ const ChannelListContainer = props => {
 };
 
 ChannelListContainer.propTypes = {
-  data: PropTypes.object,
+  totalCountQuery: PropTypes.object,
+  listQuery: PropTypes.object,
   queryParams: PropTypes.object,
 };
 
 export default compose(
   graphql(
     gql`
-      query channels {
-        channels {
+      query channels($limit: Int!) {
+        channels(limit: $limit) {
           _id
           name
           description
@@ -83,5 +85,25 @@ export default compose(
         }
       }
     `,
+    {
+      name: 'listQuery',
+      options: ({ queryParams }) => {
+        return {
+          variables: {
+            limit: queryParams.limit || 10,
+          },
+        };
+      },
+    },
+  ),
+  graphql(
+    gql`
+      query totalChannelsCount {
+        totalChannelsCount
+      }
+    `,
+    {
+      name: 'totalCountQuery',
+    },
   ),
 )(ChannelListContainer);
