@@ -116,7 +116,7 @@ class Row extends Component {
           </Label>
         </td>
         <td>
-          {integration.brand().name}
+          {integration.brand ? integration.brand.name : ''}
         </td>
 
         <td className="text-right">
