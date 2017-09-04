@@ -42,6 +42,8 @@ export const types = `
     twitterData: JSON
     facebookData: JSON
     uiOptions: JSON
+
+    brand: Brand
   }
 
   type ResponseTemplate {
@@ -71,25 +73,25 @@ export const types = `
 
 export const queries = `
   type Query {
-    users(limit: Int!): [User]
+    users(limit: Int): [User]
     totalUsersCount: Int
 
-    channels(limit: Int!): [Channel]
+    channels(limit: Int): [Channel]
     totalChannelsCount: Int
 
-    brands(limit: Int!): [Brand]
+    brands(limit: Int): [Brand]
     totalBrandsCount: Int
 
-    integrations(limit: Int!): [Integration]
-    totalIntegrationsCount: Int
+    integrations(limit: Int, kind: String): [Integration]
+    totalIntegrationsCount(kind: String): Int
 
-    responseTemplates(limit: Int!): [ResponseTemplate]
+    responseTemplates(limit: Int): [ResponseTemplate]
     totalResponseTemplatesCount: Int
 
-    emailTemplates(limit: Int!): [EmailTemplate]
+    emailTemplates(limit: Int): [EmailTemplate]
     totalEmailTemplatesCount: Int
 
-    forms(limit: Int!): [Form]
+    forms(limit: Int): [Form]
     totalFormsCount: Int
   }
 `;

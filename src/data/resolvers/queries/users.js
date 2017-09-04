@@ -2,7 +2,13 @@ import { Users } from '../../../db/models';
 
 export default {
   users(root, { limit }) {
-    return Users.find({}).limit(limit);
+    const users = Users.find({});
+
+    if (limit) {
+      return users.limit(limit);
+    }
+
+    return users;
   },
 
   totalUsersCount() {

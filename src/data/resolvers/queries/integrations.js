@@ -1,11 +1,23 @@
 import { Integrations } from '../../../db/models';
 
 export default {
-  integrations(root, { limit }) {
-    return Integrations.find({}).limit(limit);
+  integrations(root, { limit, kind }) {
+    const query = {};
+
+    if (kind) {
+      query.kind = kind;
+    }
+
+    const integrations = Integrations.find(query);
+
+    if (limit) {
+      return integrations.limit(limit);
+    }
+
+    return integrations;
   },
 
-  totalIntegrationsCount() {
-    return Integrations.find({}).count();
+  totalIntegrationsCount(root, { kind }) {
+    return Integrations.find({ kind }).count();
   },
 };

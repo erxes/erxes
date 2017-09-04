@@ -9,6 +9,7 @@ const IntegrationSchema = mongoose.Schema({
   },
   kind: String,
   name: String,
+  brandId: String,
   formId: String,
   formData: Object,
   messengerData: Object,

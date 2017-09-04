@@ -2,7 +2,13 @@ import { ResponseTemplates } from '../../../db/models';
 
 export default {
   responseTemplates(root, { limit }) {
-    return ResponseTemplates.find({}).limit(limit);
+    const responseTemplate = ResponseTemplates.find({});
+
+    if (limit) {
+      return responseTemplate.limit(limit);
+    }
+
+    return responseTemplate;
   },
 
   totalResponseTemplatesCount() {

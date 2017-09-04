@@ -2,7 +2,13 @@ import { Forms } from '../../../db/models';
 
 export default {
   forms(root, { limit }) {
-    return Forms.find({}).limit(limit);
+    const forms = Forms.find({});
+
+    if (limit) {
+      return forms.limit(limit);
+    }
+
+    return forms;
   },
 
   totalFormsCount() {
