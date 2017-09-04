@@ -66,7 +66,7 @@ SignatureContainer.propTypes = {
 export default compose(
   graphql(
     gql`
-      query objects($limit: Int!) {
+      query objects($limit: Int) {
         brands(limit: $limit) {
           _id
           name
@@ -75,13 +75,6 @@ export default compose(
     `,
     {
       name: 'brandsQuery',
-      options: () => {
-        return {
-          variables: {
-            limit: 100,
-          },
-        };
-      },
     },
   ),
 )(SignatureContainer);

@@ -27,7 +27,7 @@ class ChannelForm extends CommonForm {
     const brandsMap = {};
 
     integrations.forEach(integration => {
-      const brand = integration.brand();
+      const brand = integration.brand || {};
       const brandName = brand.name;
 
       if (!brandsMap[brandName]) {
@@ -35,7 +35,7 @@ class ChannelForm extends CommonForm {
       }
 
       brandsMap[brandName].push({
-        channels: integration.channels(),
+        channels: integration.channels,
         value: integration._id,
         label: integration.name,
         kind: integration.kind,
@@ -56,7 +56,7 @@ class ChannelForm extends CommonForm {
 
   generateIntegrationsParams(integrations) {
     return integrations.map(integration => ({
-      channels: integration.channels(),
+      channels: integration.channels,
       value: integration._id,
       label: integration.name,
       kind: integration.kind,
