@@ -32,7 +32,7 @@ const commonListComposer = options => {
         }
 
         if (error) {
-          return Alert.error("Can't delete a object", error.reason);
+          return Alert.error(error.reason);
         }
 
         return Alert.success('Congrats', 'Successfully deleted.');
