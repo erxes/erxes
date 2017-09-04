@@ -1,4 +1,4 @@
-import { Forms } from '../../../db/models';
+import { Forms, FormFields } from '../../../db/models';
 
 export default {
   forms(root, { limit }) {
@@ -13,5 +13,9 @@ export default {
 
   totalFormsCount() {
     return Forms.find({}).count();
+  },
+
+  formFields(root, { formId }) {
+    return FormFields.find({ formId });
   },
 };

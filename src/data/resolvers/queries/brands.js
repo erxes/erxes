@@ -11,6 +11,10 @@ export default {
     return brands;
   },
 
+  brandDetail(root, { _id }) {
+    return Brands.findOne({ _id });
+  },
+
   totalBrandsCount() {
     return Brands.find({}).count();
   },

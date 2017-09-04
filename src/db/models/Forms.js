@@ -14,6 +14,22 @@ const FormSchema = mongoose.Schema({
   createdDate: Date,
 });
 
-const Forms = mongoose.model('forms', FormSchema);
+export const Forms = mongoose.model('forms', FormSchema);
 
-export default Forms;
+const FieldSchema = mongoose.Schema({
+  _id: {
+    type: String,
+    unique: true,
+    default: () => Random.id(),
+  },
+  formId: String,
+  type: String,
+  validation: String,
+  text: String,
+  description: String,
+  options: [String],
+  isRequired: Boolean,
+  order: Number,
+});
+
+export const FormFields = mongoose.model('form_fields', FieldSchema);

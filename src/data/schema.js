@@ -44,6 +44,7 @@ export const types = `
     uiOptions: JSON
 
     brand: Brand
+    channels: [Channel]
   }
 
   type ResponseTemplate {
@@ -69,6 +70,18 @@ export const types = `
     createdUserId: String
     createdDate: Date
   }
+
+  type FormField {
+    _id: String!
+    formId: String
+    type: String
+    validation: String
+    text: String
+    description: String
+    options: [String]
+    isRequired: Boolean
+    order: Int
+  }
 `;
 
 export const queries = `
@@ -80,6 +93,7 @@ export const queries = `
     totalChannelsCount: Int
 
     brands(limit: Int): [Brand]
+    brandDetail(_id: String!): Brand
     totalBrandsCount: Int
 
     integrations(limit: Int, kind: String): [Integration]
@@ -92,6 +106,7 @@ export const queries = `
     totalEmailTemplatesCount: Int
 
     forms(limit: Int): [Form]
+    formFields(formId: String!): [FormField]
     totalFormsCount: Int
   }
 `;
