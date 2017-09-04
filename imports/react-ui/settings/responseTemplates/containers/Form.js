@@ -1,17 +1,37 @@
-import { compose } from 'react-komposer';
-import { getTrackerLoader, composerOptions } from '/imports/react-ui/utils';
-import { Brands } from '/imports/api/brands/brands';
+import React, { PropTypes } from 'react';
+import { compose, gql, graphql } from 'react-apollo';
 import { Form } from '../components';
 
-function composer({ object }, onData) {
-  const brandsHandler = Meteor.subscribe('brands.list', 100);
+const FormContainer = props => {
+  const { brandsQuery } = props;
 
-  if (brandsHandler.ready()) {
-    onData(null, {
-      object,
-      brands: Brands.find({}).fetch(),
-    });
+  if (brandsQuery.loading) {
+    return null;
   }
-}
 
-export default compose(getTrackerLoader(composer), composerOptions({ spinner: true }))(Form);
+  const updatedProps = {
+    ...props,
+    brands: brandsQuery.brands,
+  };
+
+  return <Form {...updatedProps} />;
+};
+
+FormContainer.propTypes = {
+  object: PropTypes.object,
+  brandsQuery: PropTypes.object,
+};
+
+export default compose(
+  graphql(
+    gql`
+      query brands {
+        brands {
+          _id
+          name
+        }
+      }
+    `,
+    { name: 'brandsQuery' },
+  ),
+)(FormContainer);

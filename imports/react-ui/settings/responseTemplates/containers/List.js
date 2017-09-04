@@ -11,6 +11,7 @@ export default commonListComposer({
         responseTemplates(limit: $limit) {
           _id
           name
+          brandId
           brand {
             name
           }
