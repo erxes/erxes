@@ -1,23 +1,52 @@
-import { Meteor } from 'meteor/meteor';
-import { compose } from 'react-komposer';
-import { getTrackerLoader, composerOptions } from '/imports/react-ui/utils';
-import { Channels } from '/imports/api/channels/channels';
+import React, { PropTypes } from 'react';
+import { compose, gql, graphql } from 'react-apollo';
 import { UserForm } from '../components';
 
-function composer({ object = {} }, onData) {
-  const channelsHandle = Meteor.subscribe('channels.list', {});
+const UserFormContainer = props => {
+  const { object = {}, channelsQuery } = props;
 
-  if (channelsHandle.ready()) {
-    let selectedChannels = [];
-
-    if (object._id) {
-      selectedChannels = Channels.find({ memberIds: object._id }).fetch();
-    }
-
-    const channels = Channels.find({}).fetch();
-
-    onData(null, { selectedChannels, channels });
+  if (channelsQuery.loading) {
+    return null;
   }
-}
 
-export default compose(getTrackerLoader(composer), composerOptions({ spinner: true }))(UserForm);
+  const channels = channelsQuery.channels;
+
+  let selectedChannels = [];
+
+  if (object._id) {
+    selectedChannels = channels.filter(c => c.memberIds.includes(object._id));
+  }
+
+  const updatedProps = {
+    ...props,
+    selectedChannels,
+    channels,
+  };
+
+  return <UserForm {...updatedProps} />;
+};
+
+UserFormContainer.propTypes = {
+  object: PropTypes.object,
+  channelsQuery: PropTypes.object,
+};
+
+export default compose(
+  graphql(
+    gql`
+      query channels {
+        channels {
+          _id
+          name
+          memberIds
+        }
+      }
+    `,
+    {
+      name: 'channelsQuery',
+      options: () => ({
+        fetchPolicy: 'network-only',
+      }),
+    },
+  ),
+)(UserFormContainer);
