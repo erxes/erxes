@@ -31,6 +31,19 @@ export const types = `
     emailConfig: JSON
   }
 
+  type Integration {
+    _id: String!
+    kind: String
+    name: String
+    code: String
+    formId: String
+    formData: JSON
+    messengerData: JSON
+    twitterData: JSON
+    facebookData: JSON
+    uiOptions: JSON
+  }
+
   type ResponseTemplate {
     _id: String!
     name: String
@@ -66,6 +79,9 @@ export const queries = `
 
     brands(limit: Int!): [Brand]
     totalBrandsCount: Int
+
+    integrations(limit: Int!): [Integration]
+    totalIntegrationsCount: Int
 
     responseTemplates(limit: Int!): [ResponseTemplate]
     totalResponseTemplatesCount: Int
