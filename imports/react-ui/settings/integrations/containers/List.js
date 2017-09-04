@@ -17,7 +17,13 @@ const ListContainer = props => {
   const { loadMore, hasMore } = pagination(queryParams, totalCount);
 
   const removeIntegration = (id, callback) => {
-    Meteor.call('integrations.remove', id, callback);
+    Meteor.call('integrations.remove', id, (...params) => {
+      // refresh queries
+      listQuery.refetch();
+      totalCountQuery.refetch();
+
+      callback(...params);
+    });
   };
 
   const updatedProps = {
@@ -59,18 +65,27 @@ export default compose(
             limit: queryParams.limit || 20,
             kind: queryParams.kind,
           },
+          fetchPolicy: 'network-only',
         };
       },
     },
   ),
   graphql(
     gql`
-      query totalIntegrationsCount {
-        totalIntegrationsCount
+      query totalIntegrationsCount($kind: String) {
+        totalIntegrationsCount(kind: $kind)
       }
     `,
     {
       name: 'totalCountQuery',
+      options: ({ queryParams }) => {
+        return {
+          variables: {
+            kind: queryParams.kind,
+          },
+          fetchPolicy: 'network-only',
+        };
+      },
     },
   ),
 )(ListContainer);
