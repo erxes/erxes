@@ -26,10 +26,10 @@ class Row extends Component {
 
     removeIntegration(integration._id, error => {
       if (error) {
-        return Alert.error("Can't delete a integration", error.reason);
+        return Alert.error(error.reason);
       }
 
-      return Alert.success('Congrats', 'Integration has deleted.');
+      return Alert.success('Congrats');
     });
   }
 

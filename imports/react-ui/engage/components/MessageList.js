@@ -10,6 +10,7 @@ const propTypes = {
   messages: PropTypes.array.isRequired,
   tags: PropTypes.array.isRequired,
   bulk: PropTypes.array.isRequired,
+  refetch: PropTypes.func.isRequired,
   emptyBulk: PropTypes.func.isRequired,
   toggleBulk: PropTypes.func.isRequired,
 };
@@ -37,7 +38,7 @@ class List extends React.Component {
   }
 
   render() {
-    const { messages, tags } = this.props;
+    const { messages, tags, toggleBulk, refetch } = this.props;
 
     const actionBarLeft = (
       <div>
@@ -75,13 +76,14 @@ class List extends React.Component {
           </tr>
         </thead>
         <tbody>
-          {messages.map(message =>
+          {messages.map(message => (
             <MessageListRow
-              toggleBulk={this.props.toggleBulk}
+              toggleBulk={toggleBulk}
+              refetch={refetch}
               key={message._id}
               message={message}
-            />,
-          )}
+            />
+          ))}
         </tbody>
       </Table>
     );
