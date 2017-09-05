@@ -9,12 +9,14 @@ const EngageMessageSchema = mongoose.Schema({
   title: String,
   fromUserId: String,
   method: String,
-  email: Object,
-  messenger: Object,
   isDraft: Boolean,
   isLive: Boolean,
   stopDate: Date,
+  createdDate: Date,
   messengerReceivedCustomerIds: [String],
+
+  email: Object,
+  messenger: Object,
   deliveryReports: Object,
 });
 

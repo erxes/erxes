@@ -3,6 +3,7 @@ import Query from './queries';
 import ResponseTemplate from './responseTemplate';
 import Integration from './integration';
 import Form from './form';
+import EngageMessage from './Engage';
 
 export default {
   ...customScalars,
@@ -10,6 +11,7 @@ export default {
   ResponseTemplate,
   Integration,
   Form,
+  EngageMessage,
 
   Query,
 };

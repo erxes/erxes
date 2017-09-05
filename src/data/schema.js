@@ -95,13 +95,18 @@ export const types = `
     title: String
     fromUserId: String
     method: String
-    email: JSON
-    messenger: JSON
     isDraft: Boolean
     isLive: Boolean
     stopDate: Date
+    createdDate: Date
     messengerReceivedCustomerIds: [String]
+
+    email: JSON
+    messenger: JSON
     deliveryReports: JSON
+
+    segment: Segment
+    fromUser: User
   }
 
   type Tag {
@@ -164,7 +169,7 @@ export const queries = `
     totalFormsCount: Int
 
     engageMessages(kind: String, status: String, tag: String): [EngageMessage]
-    engageMessageDetail(_id: String!): EngageMessage
+    engageMessageDetail(_id: String): EngageMessage
     totalEngageMessagesCount: Int
 
     tags(type: String): [Tag]
