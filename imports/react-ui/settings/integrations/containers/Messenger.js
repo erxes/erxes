@@ -1,21 +1,48 @@
-import { Meteor } from 'meteor/meteor';
-import { compose } from 'react-komposer';
-import { Brands } from '/imports/api/brands/brands';
-import { getTrackerLoader, composerOptions } from '/imports/react-ui/utils';
+import React, { PropTypes } from 'react';
+import { compose, gql, graphql } from 'react-apollo';
 import { Messenger } from '../components';
 import { saveCallback } from './utils';
 
-const composer = (props, onData) => {
-  const brandsHandler = Meteor.subscribe('brands.list', 0);
-  const brands = Brands.find().fetch();
+const MessengerContainer = props => {
+  const { brandsQuery, integration, refetch } = props;
 
-  const save = doc => saveCallback({ doc }, 'addMessenger', 'editMessenger', props.integration);
-
-  if (brandsHandler.ready()) {
-    return onData(null, { brands, save });
+  if (brandsQuery.loading) {
+    return null;
   }
 
-  return null;
+  const save = doc => saveCallback({ doc }, 'addMessenger', 'editMessenger', integration, refetch);
+
+  const updatedProps = {
+    ...props,
+    save,
+    brands: brandsQuery.brands,
+  };
+
+  return <Messenger {...updatedProps} />;
 };
 
-export default compose(getTrackerLoader(composer, composerOptions({ spinner: true })))(Messenger);
+MessengerContainer.propTypes = {
+  integration: PropTypes.object,
+  brandsQuery: PropTypes.object,
+  refetch: PropTypes.func,
+};
+
+export default compose(
+  graphql(
+    gql`
+      query brands {
+        brands {
+          _id
+          name
+          code
+        }
+      }
+    `,
+    {
+      name: 'brandsQuery',
+      options: () => ({
+        fetchPolicy: 'network-only',
+      }),
+    },
+  ),
+)(MessengerContainer);

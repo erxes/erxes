@@ -8,6 +8,7 @@ import { Form, Messenger } from '../containers';
 const propTypes = {
   integration: PropTypes.object.isRequired,
   removeIntegration: PropTypes.func.isRequired,
+  refetch: PropTypes.func.isRequired,
 };
 
 class Row extends Component {
@@ -33,7 +34,7 @@ class Row extends Component {
   }
 
   renderExtraLinks() {
-    const integration = this.props.integration;
+    const { integration, refetch } = this.props;
     const kind = integration.kind;
 
     const editTrigger = (
@@ -66,7 +67,7 @@ class Row extends Component {
           </Tip>
 
           <ModalTrigger title="Edit integration" trigger={editTrigger}>
-            <Messenger integration={integration} />
+            <Messenger integration={integration} refetch={refetch} />
           </ModalTrigger>
         </div>
       );

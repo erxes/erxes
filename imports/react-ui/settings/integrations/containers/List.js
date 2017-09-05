@@ -29,6 +29,7 @@ const ListContainer = props => {
   const updatedProps = {
     ...this.props,
     integrations,
+    refetch: listQuery.refetch,
     loadMore,
     hasMore,
     removeIntegration,
@@ -49,10 +50,13 @@ export default compose(
       query objects($limit: Int!, $kind: String) {
         integrations(limit: $limit, kind: $kind) {
           _id
+          brandId
           name
           kind
           brand {
+            _id
             name
+            code
           }
         }
       }
