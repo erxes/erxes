@@ -3,8 +3,7 @@ import PropTypes from 'prop-types';
 import { Table, Button } from 'react-bootstrap';
 import { Wrapper } from '/imports/react-ui/layout/components';
 import { TaggerPopover } from '/imports/react-ui/common';
-import { MessageListRow } from '../containers';
-import Sidebar from './Sidebar';
+import { MessageListRow, Sidebar as SidebarContainers } from '../containers';
 
 const propTypes = {
   messages: PropTypes.array.isRequired,
@@ -88,11 +87,19 @@ class List extends React.Component {
       </Table>
     );
 
+    const sidebar = (
+      <Wrapper.Sidebar>
+        <SidebarContainers.Main />
+        <SidebarContainers.Status />
+        <SidebarContainers.Tag tags={tags} />
+      </Wrapper.Sidebar>
+    );
+
     return (
       <div>
         <Wrapper
           header={<Wrapper.Header breadcrumb={[{ title: 'Engage' }]} />}
-          leftSidebar={<Sidebar tags={tags} />}
+          leftSidebar={sidebar}
           actionBar={actionBar}
           content={content}
         />

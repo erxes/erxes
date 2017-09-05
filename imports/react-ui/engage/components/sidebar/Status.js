@@ -1,9 +1,8 @@
-import React from 'react';
-import { Counts } from 'meteor/tmeasday:publish-counts';
+import React, { PropTypes } from 'react';
 import { Wrapper } from '/imports/react-ui/layout/components';
 import { statusFilters } from '/imports/api/engage/constants';
 
-function Status() {
+function Status({ counts }) {
   const { Section, filter, getActiveClass } = Wrapper.Sidebar;
 
   return (
@@ -11,7 +10,7 @@ function Status() {
       <Section.Title>Status</Section.Title>
 
       <ul className="sidebar-list">
-        {statusFilters.map((status, index) =>
+        {statusFilters.map((status, index) => (
           <li key={index}>
             <a
               tabIndex={0}
@@ -22,14 +21,18 @@ function Status() {
             >
               {status.value}
               <span className="counter">
-                {Counts.get(`engage.messages.status.${status.key}`)}
+                {counts[status.key]}
               </span>
             </a>
-          </li>,
-        )}
+          </li>
+        ))}
       </ul>
     </Section>
   );
 }
+
+Status.propTypes = {
+  counts: PropTypes.object,
+};
 
 export default Status;
