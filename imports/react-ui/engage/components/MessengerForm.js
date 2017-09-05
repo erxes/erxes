@@ -15,7 +15,10 @@ class MessengerForm extends Component {
   constructor(props) {
     super(props);
 
-    this.state = { sentAs: props.message.messenger.sentAs || '' };
+    const { message } = this.props;
+    const messenger = message.messenger || {};
+
+    this.state = { sentAs: messenger.sentAs || '' };
 
     // binds
     this.onContentChange = this.onContentChange.bind(this);
@@ -37,11 +40,11 @@ class MessengerForm extends Component {
           <span>Message type:</span>
           <FormControl id="messengerKind" componentClass="select" defaultValue={messenger.kind}>
             <option />
-            {MESSENGER_KINDS.SELECT_OPTIONS.map(k =>
+            {MESSENGER_KINDS.SELECT_OPTIONS.map(k => (
               <option key={k.value} value={k.value}>
                 {k.text}
-              </option>,
-            )}
+              </option>
+            ))}
           </FormControl>
         </div>
       );
@@ -52,6 +55,7 @@ class MessengerForm extends Component {
     const message = this.props.message || {};
     const messenger = message.messenger || {};
     const brands = this.props.brands;
+
     return (
       <div>
         <div className="form-header">
@@ -59,11 +63,11 @@ class MessengerForm extends Component {
             <span>Brand:</span>
             <FormControl id="brandId" componentClass="select" defaultValue={messenger.brandId}>
               <option />
-              {brands.map(b =>
+              {brands.map(b => (
                 <option key={b._id} value={b._id}>
                   {b.name}
-                </option>,
-              )}
+                </option>
+              ))}
             </FormControl>
           </div>
 
@@ -78,11 +82,11 @@ class MessengerForm extends Component {
               defaultValue={messenger.sentAs}
             >
               <option />
-              {SENT_AS_CHOICES.SELECT_OPTIONS.map(s =>
+              {SENT_AS_CHOICES.SELECT_OPTIONS.map(s => (
                 <option key={s.value} value={s.value}>
                   {s.text}
-                </option>,
-              )}
+                </option>
+              ))}
             </FormControl>
           </div>
         </div>

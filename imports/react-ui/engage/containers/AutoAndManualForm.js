@@ -1,31 +1,32 @@
 import { Meteor } from 'meteor/meteor';
-import { compose } from 'react-komposer';
-import { getTrackerLoader, composerOptions } from '/imports/react-ui/utils';
-import { EmailTemplates } from '/imports/api/emailTemplates/emailTemplates';
-import Segments from '/imports/api/customers/segments';
-import { Messages } from '/imports/api/engage/engage';
+import React, { PropTypes } from 'react';
+import { compose, gql, graphql } from 'react-apollo';
 import { methodCallback } from '/imports/react-ui/engage/utils';
 import { AutoAndManualForm } from '../components';
 
-function composer({ messageId, kind }, onData) {
-  const handler = Meteor.subscribe('engage.messages.detail', messageId || '');
-  const segmentsHandle = Meteor.subscribe('customers.segments');
-  const templatesHandler = Meteor.subscribe('emailTemplates.list');
-  const usersHandler = Meteor.subscribe('users.list', {});
+const AutoAndManualFormContainer = props => {
+  const {
+    engageMessageDetailQuery,
+    usersQuery,
+    segmentsQuery,
+    emailTemplatesQuery,
+    messageId,
+    kind,
+  } = props;
 
-  const templates = EmailTemplates.find({}).fetch();
-
-  // wait for detail subscription
   if (
-    !handler.ready() ||
-    !segmentsHandle.ready() ||
-    !templatesHandler.ready() ||
-    !usersHandler.ready()
+    engageMessageDetailQuery.loading ||
+    usersQuery.loading ||
+    segmentsQuery.loading ||
+    emailTemplatesQuery.loading
   ) {
     return null;
   }
 
-  const message = Messages.findOne({ _id: messageId });
+  const templates = emailTemplatesQuery.emailTemplates;
+  const message = engageMessageDetailQuery.engageMessageDetail;
+  const segments = segmentsQuery.segments;
+  const users = usersQuery.users;
 
   // save
   const save = doc => {
@@ -38,11 +39,92 @@ function composer({ messageId, kind }, onData) {
     return Meteor.call('engage.messages.add', { doc }, methodCallback);
   };
 
-  // props
-  const segments = Segments.find({}).fetch();
-  const users = Meteor.users.find({}).fetch();
+  const updatedProps = {
+    ...props,
+    save,
+    message,
+    segments,
+    templates,
+    users,
+  };
 
-  onData(null, { save, message, segments, templates, users });
-}
+  return <AutoAndManualForm {...updatedProps} />;
+};
 
-export default compose(getTrackerLoader(composer), composerOptions({}))(AutoAndManualForm);
+AutoAndManualFormContainer.propTypes = {
+  messageId: PropTypes.string,
+  kind: PropTypes.string,
+  engageMessageDetailQuery: PropTypes.object,
+  usersQuery: PropTypes.object,
+  segmentsQuery: PropTypes.object,
+  emailTemplatesQuery: PropTypes.object,
+};
+
+export default compose(
+  graphql(
+    gql`
+      query engageMessageDetail($_id: String) {
+        engageMessageDetail(_id: $_id) {
+          _id
+          kind
+          segmentId
+          customerIds
+          title
+          fromUserId
+          method
+          email
+          isDraft
+          isLive
+          stopDate
+          createdDate
+
+          messenger
+        }
+      }
+    `,
+    {
+      name: 'engageMessageDetailQuery',
+      options: ({ messageId }) => ({
+        fetchPolicy: 'network-only',
+        variables: {
+          _id: messageId,
+        },
+      }),
+    },
+  ),
+  graphql(
+    gql`
+      query users {
+        users {
+          _id
+          username
+          details
+        }
+      }
+    `,
+    { name: 'usersQuery' },
+  ),
+  graphql(
+    gql`
+      query emailTemplates {
+        emailTemplates {
+          _id
+          name
+          content
+        }
+      }
+    `,
+    { name: 'emailTemplatesQuery' },
+  ),
+  graphql(
+    gql`
+      query segments {
+        segments {
+          _id
+          name
+        }
+      }
+    `,
+    { name: 'segmentsQuery' },
+  ),
+)(AutoAndManualFormContainer);
