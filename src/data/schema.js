@@ -36,6 +36,7 @@ export const types = `
     kind: String
     name: String
     code: String
+    brandId: String
     formId: String
     formData: JSON
     messengerData: JSON
@@ -44,6 +45,7 @@ export const types = `
     uiOptions: JSON
 
     brand: Brand
+    form: Form
     channels: [Channel]
   }
 
@@ -69,6 +71,8 @@ export const types = `
     description: String
     createdUserId: String
     createdDate: Date
+
+    fields: [FormField]
   }
 
   type FormField {
@@ -106,7 +110,7 @@ export const queries = `
     totalEmailTemplatesCount: Int
 
     forms(limit: Int): [Form]
-    formFields(formId: String!): [FormField]
+    formDetail(_id: String!): Form
     totalFormsCount: Int
   }
 `;
