@@ -86,6 +86,23 @@ export const types = `
     isRequired: Boolean
     order: Int
   }
+
+  type EngageMessage {
+    _id: String!
+    kind: String
+    segmentId: String
+    customerIds: [String]
+    title: String
+    fromUserId: String
+    method: String
+    email: JSON
+    messenger: JSON
+    isDraft: Boolean
+    isLive: Boolean
+    stopDate: Date
+    messengerReceivedCustomerIds: [String]
+    deliveryReports: JSON
+  }
 `;
 
 export const queries = `
@@ -112,6 +129,10 @@ export const queries = `
     forms(limit: Int): [Form]
     formDetail(_id: String!): Form
     totalFormsCount: Int
+
+    engageMessages(limit: Int): [EngageMessage]
+    engageMessageDetail(_id: String!): EngageMessage
+    totalEngageMessagesCount: Int
   }
 `;
 

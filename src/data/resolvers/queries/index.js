@@ -5,6 +5,7 @@ import integrations from './integrations';
 import forms from './forms';
 import responseTemplates from './responseTemplates';
 import emailTemplates from './emailTemplates';
+import engages from './engages';
 
 export default {
   ...users,
@@ -14,4 +15,5 @@ export default {
   ...forms,
   ...responseTemplates,
   ...emailTemplates,
+  ...engages,
 };
