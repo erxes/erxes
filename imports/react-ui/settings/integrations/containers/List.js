@@ -58,6 +58,13 @@ export default compose(
             name
             code
           }
+          formData
+          formId
+          form {
+            _id
+            title
+            code
+          }
         }
       }
     `,

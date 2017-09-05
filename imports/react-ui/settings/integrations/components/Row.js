@@ -76,7 +76,7 @@ class Row extends Component {
     if (kind === KIND_CHOICES.FORM) {
       return (
         <ModalTrigger title="Edit integration" trigger={editTrigger}>
-          <Form integration={integration} />
+          <Form integration={integration} refetch={refetch} />
         </ModalTrigger>
       );
     }
