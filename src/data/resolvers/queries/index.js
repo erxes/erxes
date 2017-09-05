@@ -6,6 +6,8 @@ import forms from './forms';
 import responseTemplates from './responseTemplates';
 import emailTemplates from './emailTemplates';
 import engages from './engages';
+import tags from './tags';
+import customers from './customers';
 
 export default {
   ...users,
@@ -16,4 +18,6 @@ export default {
   ...responseTemplates,
   ...emailTemplates,
   ...engages,
+  ...tags,
+  ...customers,
 };

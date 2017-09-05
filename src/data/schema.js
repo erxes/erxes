@@ -103,6 +103,39 @@ export const types = `
     messengerReceivedCustomerIds: [String]
     deliveryReports: JSON
   }
+
+  type Tag {
+    _id: String!
+    name: String
+    type: String
+    color: String
+    createdAt: Date
+    objectCount: Int
+  }
+
+  type Customer {
+    _id: String!
+    integrationId: String
+    name: String
+    email: String
+    phone: String
+    isUser: Boolean
+    createdAt: Date
+    internalNotes: JSON
+    messengerData: JSON
+    twitterData: JSON
+    facebookData: JSON
+  }
+
+  type Segment {
+    _id: String!
+    name: String
+    description: String
+    subOf: String
+    color: String
+    connector: String
+    conditions: JSON
+  }
 `;
 
 export const queries = `
@@ -130,9 +163,14 @@ export const queries = `
     formDetail(_id: String!): Form
     totalFormsCount: Int
 
-    engageMessages(limit: Int): [EngageMessage]
+    engageMessages(kind: String, status: String, tag: String): [EngageMessage]
     engageMessageDetail(_id: String!): EngageMessage
     totalEngageMessagesCount: Int
+
+    tags(type: String): [Tag]
+
+    customers(limit: Int): [Customer]
+    segments: [Segment]
   }
 `;
 

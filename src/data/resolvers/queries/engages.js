@@ -1,14 +1,49 @@
 import { EngageMessages } from '../../../db/models';
 
-export default {
-  engageMessages(root, { limit }) {
-    const engageMessages = EngageMessages.find({});
+// status query builder
+const statusQueryBuilder = status => {
+  if (status === 'live') {
+    return { isLive: true };
+  }
 
-    if (limit) {
-      return engageMessages.limit(limit);
+  if (status === 'draft') {
+    return { isDraft: true };
+  }
+
+  if (status === 'paused') {
+    return { isLive: false };
+  }
+
+  if (status === 'yours') {
+    return { fromUserId: this.userId };
+  }
+
+  return {};
+};
+
+export default {
+  engageMessages(root, { kind, status, tag }) {
+    let query = {};
+
+    // manual or auto
+    if (kind) {
+      query.kind = kind;
     }
 
-    return engageMessages;
+    // filter by status
+    if (status) {
+      query = { ...query, ...statusQueryBuilder(status) };
+    }
+
+    // Tag filter && count ===================
+    const tagQueryBuilder = tagId => ({ tagIds: tagId });
+
+    // filter by tag
+    if (tag) {
+      query = { ...query, ...tagQueryBuilder(tag) };
+    }
+
+    return EngageMessages.find(query);
   },
 
   engageMessageDetail(root, { _id }) {
