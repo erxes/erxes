@@ -1,22 +1,25 @@
 /* global location */
 
-import { Meteor } from 'meteor/meteor';
+import React, { PropTypes } from 'react';
 import { FlowRouter } from 'meteor/kadira:flow-router';
-import { compose } from 'react-komposer';
-import { getTrackerLoader, composerOptions } from '/imports/react-ui/utils';
 import Alert from 'meteor/erxes-notifier';
-import { Brands } from '/imports/api/brands/brands';
+import { compose, gql, graphql } from 'react-apollo';
 import { Twitter } from '../components';
 
-function composer(props, onData) {
-  if (props.type === 'link') {
+const TwitterContainer = props => {
+  const { brandsQuery, type } = props;
+
+  if (brandsQuery.loading) {
+    return null;
+  }
+
+  if (type === 'link') {
     return Meteor.call('integrations.getTwitterAuthorizeUrl', (err, url) => {
       location.href = url;
     });
   }
 
-  const brandsHandler = Meteor.subscribe('brands.list', 0);
-  const brands = Brands.find().fetch();
+  const brands = brandsQuery.brands;
 
   const save = brandId => {
     Meteor.call(
@@ -36,11 +39,35 @@ function composer(props, onData) {
     );
   };
 
-  if (brandsHandler.ready()) {
-    return onData(null, { brands, save });
-  }
+  const updatedProps = {
+    ...props,
+    brands,
+    save,
+  };
 
-  return null;
-}
+  return <Twitter {...updatedProps} />;
+};
 
-export default compose(getTrackerLoader(composer), composerOptions({}))(Twitter);
+TwitterContainer.propTypes = {
+  type: PropTypes.string,
+  brandsQuery: PropTypes.object,
+};
+
+export default compose(
+  graphql(
+    gql`
+      query brands {
+        brands {
+          _id
+          name
+        }
+      }
+    `,
+    {
+      name: 'brandsQuery',
+      options: () => ({
+        fetchPolicy: 'network-only',
+      }),
+    },
+  ),
+)(TwitterContainer);
