@@ -28,6 +28,7 @@
     ]
   },
   "dependencies": {
+    "babel-preset-env": "^1.6.0",
     "body-parser": "^1.17.1",
     "cors": "^2.8.1",
     "dotenv": "^4.0.0",

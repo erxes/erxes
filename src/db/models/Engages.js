@@ -13,6 +13,7 @@ const EngageMessageSchema = mongoose.Schema({
   isLive: Boolean,
   stopDate: Date,
   createdDate: Date,
+  tagIds: [String],
   messengerReceivedCustomerIds: [String],
 
   email: Object,

@@ -1,4 +1,10 @@
-import { EngageMessages } from '../../../db/models';
+import { EngageMessages, Tags } from '../../../db/models';
+
+// basic count helper
+const count = selector => EngageMessages.find(selector).count();
+
+// Tag query builder
+const tagQueryBuilder = tagId => ({ tagIds: tagId });
 
 // status query builder
 const statusQueryBuilder = status => {
@@ -15,17 +21,78 @@ const statusQueryBuilder = status => {
   }
 
   if (status === 'yours') {
-    return { fromUserId: this.userId };
+    return { fromUserId: '' };
   }
 
   return {};
 };
 
+// count for each kind
+const countsByKind = async () => ({
+  all: await count({}),
+  auto: await count({ kind: 'auto' }),
+  visitorAuto: await count({ kind: 'visitorAuto' }),
+  manual: await count({ kind: 'manual' }),
+});
+
+// count for each status type
+const countsByStatus = async ({ kind }) => {
+  const query = {};
+
+  if (kind) {
+    query.kind = kind;
+  }
+
+  return {
+    live: await count({ ...query, ...statusQueryBuilder('live') }),
+    draft: await count({ ...query, ...statusQueryBuilder('draft') }),
+    paused: await count({ ...query, ...statusQueryBuilder('paused') }),
+    yours: await count({ ...query, ...statusQueryBuilder('yours') }),
+  };
+};
+
+// cout for each tag
+const countsByTag = async ({ kind, status }) => {
+  let query = {};
+
+  if (kind) {
+    query.kind = kind;
+  }
+
+  if (status) {
+    query = { ...query, ...statusQueryBuilder(status) };
+  }
+
+  const tags = await Tags.find({ type: 'engageMessage' });
+
+  const response = {};
+
+  for (let tag of tags) {
+    response[tag._id] = await count({ ...query, ...tagQueryBuilder(tag._id) });
+  }
+
+  return response;
+};
+
 export default {
+  async engageMessageCounts(root, { name, kind, status }) {
+    if (name === 'kind') {
+      return countsByKind();
+    }
+
+    if (name === 'status') {
+      return countsByStatus({ kind });
+    }
+
+    if (name === 'tag') {
+      return countsByTag({ kind, status });
+    }
+  },
+
   engageMessages(root, { kind, status, tag }) {
     let query = {};
 
-    // manual or auto
+    // filter by kind
     if (kind) {
       query.kind = kind;
     }
@@ -34,9 +101,6 @@ export default {
     if (status) {
       query = { ...query, ...statusQueryBuilder(status) };
     }
-
-    // Tag filter && count ===================
-    const tagQueryBuilder = tagId => ({ tagIds: tagId });
 
     // filter by tag
     if (tag) {
