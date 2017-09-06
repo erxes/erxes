@@ -1,7 +1,8 @@
 #erxes-knowledge-container {
   min-height: 100%;
-  background: #f3f5f7;
+  background: #fcfcfc;
   border-radius: 4px;
+  position: relative;
 }
 
 .erxes-knowledge-container-shoutbox {
@@ -9,7 +10,7 @@
   position: absolute;
   right: 0;
   max-width: 300px;
-  min-width: 300px;  
+  min-width: 300px;
 }
 
 

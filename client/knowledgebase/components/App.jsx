@@ -11,14 +11,6 @@ function App(props) {
   const widgetClasses = classNames('erxes-widget-kb');
   const { loadType } = props.data.kbLoader;
 
-  if (loadType === 'embedded') {
-    return (
-      <div className={widgetClasses}>
-        <KnowledgeBase />
-      </div>
-    );
-  }
-
   if (loadType === 'shoutbox') {
     return (
       <div className={widgetClasses}>
@@ -31,6 +23,12 @@ function App(props) {
   if (loadType === 'popup') {
     return null;
   }
+
+  return (
+    <div className={widgetClasses}>
+      <KnowledgeBase />
+    </div>
+  );
 }
 
 App.propTypes = propTypes;

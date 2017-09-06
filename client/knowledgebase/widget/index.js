@@ -30,15 +30,15 @@ iframe.style.display = 'none';
 erxesContainer.appendChild(iframe);
 
 // if there is an placeholder for embed then add new iframe to it
-// const embedContainer = document.querySelector(`[data-erxes-embed]`);
-// if (embedContainer) {
-//   embedContainer.appendChild(erxesContainer);
-// // otherwise add to body
-// } else {
-//   document.body.appendChild(erxesContainer);
-// }
 
-document.body.appendChild(erxesContainer);
+const embedContainer = document.querySelector('[data-erxes-kbase]');
+if (embedContainer) {
+  embedContainer.appendChild(erxesContainer);
+// otherwise add to body
+} else {
+  document.body.appendChild(erxesContainer);
+}
+
 
 // send erxes setting to iframe
 iframe = document.querySelector(`#${iframeId}`);
