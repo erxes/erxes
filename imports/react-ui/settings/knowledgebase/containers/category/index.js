@@ -1,4 +1,4 @@
-import KbCategoryList from './list';
-import KbCategory from './category';
+import KbCategoryList from './List';
+import KbCategory from './Category';
 
 export { KbCategoryList, KbCategory };

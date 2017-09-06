@@ -1,4 +1,4 @@
-import CommonList from './list';
-import CommonItem from './item';
+import CommonList from './List';
+import CommonItem from './Item';
 
 export { CommonList, CommonItem };

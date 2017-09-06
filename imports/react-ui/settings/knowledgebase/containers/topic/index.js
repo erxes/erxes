@@ -1,4 +1,4 @@
-import KbTopic from './topic';
-import KbTopicList from './list';
+import KbTopic from './Topic';
+import KbTopicList from './List';
 
 export { KbTopic, KbTopicList };

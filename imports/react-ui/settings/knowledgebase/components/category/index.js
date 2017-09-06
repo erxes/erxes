@@ -1,5 +1,5 @@
-import KbCategoryRow from './row';
-import KbCategoryList from './list';
-import KbCategory from './category';
+import KbCategoryRow from './Row';
+import KbCategoryList from './List';
+import KbCategory from './Category';
 
 export { KbCategoryRow, KbCategoryList, KbCategory };
