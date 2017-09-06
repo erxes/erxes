@@ -10,7 +10,7 @@ import { Categories as DumbCategories } from '../components';
 
 const propTypes = {
   data: PropTypes.shape({
-    kbTopic: PropTypes.shape({
+    getKbTopic: PropTypes.shape({
       title: PropTypes.string,
       description: PropTypes.string,
       categories: PropTypes.arrayOf(PropTypes.shape({
@@ -49,7 +49,7 @@ const propTypes = {
 const Categories = (props) => {
   const extendedProps = {
     ...props,
-    kbTopic: props.data.kbTopic,
+    kbTopic: props.data.getKbTopic,
   };
 
   if (props.data.loading) {
@@ -63,8 +63,8 @@ Categories.propTypes = propTypes;
 
 const CategoriesWithData = graphql(
   gql`
-    query kbTopic($topicId: String!) {
-      kbTopic(topicId: $topicId) {
+    query getKbTopic($topicId: String!) {
+      getKbTopic(topicId: $topicId) {
         title
         description
         categories {
