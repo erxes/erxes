@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { Table } from 'react-bootstrap';
 import { Wrapper } from '/imports/react-ui/layout/components';
 import { Pagination } from '/imports/react-ui/common';
-import KbArticleRow from './row';
+import KbArticleRow from './Row';
 import { ActionButtons } from '../../components';
 import { CommonList } from '../common';
 
@@ -48,9 +48,7 @@ class KbCategoryList extends CommonList {
               </th>
             </tr>
           </thead>
-          <tbody>
-            {this.renderItems()}
-          </tbody>
+          <tbody>{this.renderItems()}</tbody>
         </Table>
       </Pagination>
     );

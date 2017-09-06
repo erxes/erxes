@@ -4,7 +4,7 @@ import { Table } from 'react-bootstrap';
 import { Wrapper } from '/imports/react-ui/layout/components';
 import { Pagination } from '/imports/react-ui/common';
 import { ActionButtons } from '../../components';
-import CategoryRow from './row';
+import CategoryRow from './Row';
 import { CommonList } from '../common';
 
 const propTypes = {
@@ -52,9 +52,7 @@ class KbCategoryList extends CommonList {
               </th>
             </tr>
           </thead>
-          <tbody>
-            {this.renderItems()}
-          </tbody>
+          <tbody>{this.renderItems()}</tbody>
         </Table>
       </Pagination>
     );
