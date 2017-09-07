@@ -1,7 +1,7 @@
 import React, { PropTypes } from 'react';
 import { FlowRouter } from 'meteor/kadira:flow-router';
 import { compose, gql, graphql } from 'react-apollo';
-import { Sidebar } from '../../components';
+import { CountsByTag } from '/imports/react-ui/common';
 
 const TagContainer = props => {
   const { countsQuery } = props;
@@ -15,7 +15,7 @@ const TagContainer = props => {
     counts: countsQuery.engageMessageCounts,
   };
 
-  return <Sidebar.Tag {...updatedProps} />;
+  return <CountsByTag {...updatedProps} />;
 };
 
 TagContainer.propTypes = {

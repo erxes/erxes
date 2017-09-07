@@ -1,13 +1,19 @@
 import { Meteor } from 'meteor/meteor';
+import { FlowRouter } from 'meteor/kadira:flow-router';
 import React, { PropTypes } from 'react';
 import { compose, gql, graphql } from 'react-apollo';
 import { TAG_TYPES } from '/imports/api/tags/constants';
 import { Sidebar } from '../components';
 
 const SidebarContainer = props => {
-  const { channelsQuery, tagsQuery, brandsQuery } = props;
+  const { conversationCountsQuery, channelsQuery, tagsQuery, brandsQuery } = props;
 
-  if (channelsQuery.loading || tagsQuery.loading || brandsQuery.loading) {
+  if (
+    conversationCountsQuery.loading ||
+    channelsQuery.loading ||
+    tagsQuery.loading ||
+    brandsQuery.loading
+  ) {
     return null;
   }
 
@@ -15,12 +21,14 @@ const SidebarContainer = props => {
   const channels = channelsQuery.channels;
   const brands = brandsQuery.brands;
   const tags = tagsQuery.tags;
+  const counts = conversationCountsQuery.conversationCounts;
 
   const updatedProps = {
     ...props,
     tags,
     channels,
     brands,
+    counts,
   };
 
   return <Sidebar {...updatedProps} />;
@@ -30,6 +38,7 @@ SidebarContainer.propTypes = {
   channelsQuery: PropTypes.object,
   tagsQuery: PropTypes.object,
   brandsQuery: PropTypes.object,
+  conversationCountsQuery: PropTypes.object,
 };
 
 export default compose(
@@ -81,6 +90,23 @@ export default compose(
         return {
           variables: {
             type: TAG_TYPES.CONVERSATION,
+          },
+        };
+      },
+    },
+  ),
+  graphql(
+    gql`
+      query conversationCounts($params: ConversationListParams) {
+        conversationCounts(params: $params)
+      }
+    `,
+    {
+      name: 'conversationCountsQuery',
+      options: () => {
+        return {
+          variables: {
+            params: FlowRouter.current().queryParams,
           },
         };
       },

@@ -67,8 +67,8 @@ ListContainer.propTypes = {
 export default compose(
   graphql(
     gql`
-      query objects($limit: Int!) {
-        conversations(limit: $limit) {
+      query objects($params: ConversationListParams) {
+        conversations(params: $params) {
           _id
           content
           createdAt
@@ -101,7 +101,7 @@ export default compose(
       options: ({ queryParams }) => {
         return {
           variables: {
-            limit: queryParams.limit || 20,
+            params: queryParams,
           },
         };
       },
