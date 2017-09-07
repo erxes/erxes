@@ -75,8 +75,8 @@ DetailSidebarContainer.propTypes = {
 export default compose(
   graphql(
     gql`
-      query conversations($limit: Int) {
-        conversations(limit: $limit) {
+      query conversations($params: ConversationListParams) {
+        conversations(params: $params) {
           _id
           readUserIds
           content
@@ -105,7 +105,7 @@ export default compose(
       options: ({ queryParams }) => ({
         fetchPolicy: 'network-only',
         variables: {
-          limit: queryParams.limit || 20,
+          params: queryParams,
         },
       }),
     },
