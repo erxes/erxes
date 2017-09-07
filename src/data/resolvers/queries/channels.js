@@ -1,8 +1,14 @@
 import { Channels } from '../../../db/models';
 
 export default {
-  channels(root, { limit }) {
-    const channels = Channels.find({});
+  channels(root, { limit, memberIds }) {
+    const query = {};
+
+    if (memberIds) {
+      query.memberIds = { $in: memberIds };
+    }
+
+    const channels = Channels.find(query);
 
     if (limit) {
       return channels.limit(limit);

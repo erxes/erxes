@@ -1,13 +1,21 @@
 import { Conversations } from '../../../db/models';
+import QueryBuilder from './conversationQueryBuilder';
 
 export default {
-  conversations(root, { limit }) {
-    const conversations = Conversations.find({});
+  async conversations(root, { params }) {
+    // initiate query builder
+    const qb = new QueryBuilder(params, { _id: 'uTaHtqQMptvhspvAK' });
 
-    if (limit) {
-      return conversations.limit(limit);
-    }
+    await qb.buildAllQueries();
 
-    return conversations;
+    return Conversations.find(qb.mainQuery());
+  },
+
+  conversationDetail(root, { _id }) {
+    return Conversations.findOne({ _id });
+  },
+
+  totalConversationsCount() {
+    return Conversations.find({}).count();
   },
 };

@@ -2,6 +2,18 @@ export const types = `
   scalar JSON
   scalar Date
 
+  input ConversationListParams {
+    limit: Int,
+    channelId: String
+    status: String
+    unassigned: String
+    brandId: String
+    tag: String
+    integrationType: String
+    participating: String
+    starred: String
+  }
+
   type User {
     _id: String!
     username: String
@@ -158,6 +170,15 @@ export const types = `
     tagIds: [String]
     twitterData: JSON
     facebookData: JSON
+
+    messages: [ConversationMessage]
+    tags: [Tag]
+    customer: Customer
+    integration: Integration
+    user: User
+    assignedUser: User
+    participatedUsers: [User]
+    participatorCount: Int
   }
 
   type ConversationMessage {
@@ -174,6 +195,9 @@ export const types = `
     engageData: JSON
     formWidgetData: JSON
     facebookData: JSON
+
+    user: User
+    customer: Customer
   }
 `;
 
@@ -182,7 +206,7 @@ export const queries = `
     users(limit: Int): [User]
     totalUsersCount: Int
 
-    channels(limit: Int): [Channel]
+    channels(limit: Int, memberIds: [String]): [Channel]
     totalChannelsCount: Int
 
     brands(limit: Int): [Brand]
@@ -212,7 +236,9 @@ export const queries = `
     customers(limit: Int): [Customer]
     segments: [Segment]
 
-    conversations(limit: Int): [Conversation]
+    conversations(params: ConversationListParams): [Conversation]
+    conversationDetail(_id: String!): Conversation
+    totalConversationsCount: Int
   }
 `;
 
