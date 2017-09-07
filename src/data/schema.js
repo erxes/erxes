@@ -141,6 +141,40 @@ export const types = `
     connector: String
     conditions: JSON
   }
+
+  type Conversation {
+    _id: String!
+    content: String
+    integrationId: String
+    customerId: String
+    userId: String
+    assignedUserId: String
+    participatedUserIds: [String]
+    readUserIds: [String]
+    createdAt: Date
+    status: String
+    messageCount: Int
+    number: Int
+    tagIds: [String]
+    twitterData: JSON
+    facebookData: JSON
+  }
+
+  type ConversationMessage {
+    _id: String!
+    content: String
+    attachments: JSON
+    mentionedUserIds: [String]
+    conversationId: String
+    internal: Boolean
+    customerId: String
+    userId: String
+    createdAt: Date
+    isCustomerRead: Boolean
+    engageData: JSON
+    formWidgetData: JSON
+    facebookData: JSON
+  }
 `;
 
 export const queries = `
@@ -177,6 +211,8 @@ export const queries = `
 
     customers(limit: Int): [Customer]
     segments: [Segment]
+
+    conversations(limit: Int): [Conversation]
   }
 `;
 

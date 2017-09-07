@@ -8,6 +8,7 @@ import emailTemplates from './emailTemplates';
 import engages from './engages';
 import tags from './tags';
 import customers from './customers';
+import conversations from './conversations';
 
 export default {
   ...users,
@@ -20,4 +21,5 @@ export default {
   ...engages,
   ...tags,
   ...customers,
+  ...conversations,
 };

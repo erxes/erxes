@@ -8,6 +8,7 @@ import EngageMessages from './Engages';
 import Tags from './Tags';
 import { Forms, FormFields } from './Forms';
 import { Customers, Segments } from './Customers';
+import { Conversations, Messages as ConversationMessages } from './Conversations';
 
 export {
   Users,
@@ -22,4 +23,6 @@ export {
   Tags,
   Segments,
   Customers,
+  Conversations,
+  ConversationMessages,
 };
