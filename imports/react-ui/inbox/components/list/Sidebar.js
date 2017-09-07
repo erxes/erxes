@@ -5,7 +5,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Counts } from 'meteor/tmeasday:publish-counts';
 import { FlowRouter } from 'meteor/kadira:flow-router';
-import { TagFilter, EmptyState, LoadingSidebar } from '/imports/react-ui/common';
+import { TagFilter, EmptyState } from '/imports/react-ui/common';
 import { Wrapper } from '/imports/react-ui/layout/components';
 import { CONVERSATION_STATUSES } from '/imports/api/conversations/constants';
 import { KIND_CHOICES as INTEGRATIONS_TYPES } from '/imports/api/integrations/constants';
@@ -14,9 +14,6 @@ const propTypes = {
   channels: PropTypes.array.isRequired,
   brands: PropTypes.array.isRequired,
   tags: PropTypes.array.isRequired,
-  channelsReady: PropTypes.bool,
-  brandsReady: PropTypes.bool,
-  tagsReady: PropTypes.bool,
 };
 
 class Sidebar extends Component {
@@ -149,9 +146,9 @@ class Sidebar extends Component {
     return (
       <Wrapper.Sidebar.Section.QuickButtons>
         {FlowRouter.getQueryParam('participating') ||
-        FlowRouter.getQueryParam('unassigned') ||
-        FlowRouter.getQueryParam('status') ||
-        FlowRouter.getQueryParam('starred')
+          FlowRouter.getQueryParam('unassigned') ||
+          FlowRouter.getQueryParam('status') ||
+          FlowRouter.getQueryParam('starred')
           ? <a href="" className="quick-button" onClick={Sidebar.clearStatusFilter}>
               <i className="ion-close-circled" />
             </a>
@@ -160,20 +157,16 @@ class Sidebar extends Component {
     );
   }
 
-  static renderEmptyState(list, text, iconClassName, isReady) {
-    if (list.length === 0 && isReady) {
+  static renderEmptyState(list, text, iconClassName) {
+    if (list.length === 0) {
       return <EmptyState icon={<i className={iconClassName} />} text={text} size="small" />;
-    }
-
-    if (list.length === 0 && !isReady) {
-      return <LoadingSidebar.Lines />;
     }
 
     return null;
   }
 
   render() {
-    const { channels, tags, brands, channelsReady, brandsReady } = this.props;
+    const { channels, tags, brands } = this.props;
     const integrationTypes = INTEGRATIONS_TYPES.ALL_LIST;
     const { Title } = Wrapper.Sidebar.Section;
     const manageBrands = FlowRouter.path('settings/brands/list');
@@ -187,7 +180,7 @@ class Sidebar extends Component {
           {Sidebar.renderSectionHeader('channelId', manageChannels)}
           <ul className="sidebar-list">
             {channels.map(channel => Sidebar.renderChannel(channel))}
-            {Sidebar.renderEmptyState(channels, 'No channel', 'ion-pound', channelsReady)}
+            {Sidebar.renderEmptyState(channels, 'No channel', 'ion-pound')}
           </ul>
         </Wrapper.Sidebar.Section>
 
@@ -196,7 +189,7 @@ class Sidebar extends Component {
           {Sidebar.renderSectionHeader('brandId', manageBrands)}
           <ul className="sidebar-list">
             {brands.map(brand => Sidebar.renderBrand(brand))}
-            {Sidebar.renderEmptyState(brands, 'No brand', 'ion-flag', brandsReady)}
+            {Sidebar.renderEmptyState(brands, 'No brand', 'ion-flag')}
           </ul>
         </Wrapper.Sidebar.Section>
 
