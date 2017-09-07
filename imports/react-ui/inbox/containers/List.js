@@ -1,18 +1,24 @@
 import { Meteor } from 'meteor/meteor';
+import React, { PropTypes } from 'react';
+import { compose, gql, graphql } from 'react-apollo';
 import { ReactiveVar } from 'meteor/reactive-var';
-import { compose } from 'react-komposer';
-import { getTrackerLoader, composerOptions } from '/imports/react-ui/utils';
-import { Conversations } from '/imports/api/conversations/conversations';
 import { pagination } from '/imports/react-ui/common';
 import { toggleBulk as commonToggleBulk } from '/imports/react-ui/common/utils';
 import { List } from '../components';
 
 const bulk = new ReactiveVar([]);
 
-function composer({ channelId, queryParams }, onData) {
-  const { limit, loadMore, hasMore } = pagination(queryParams, 'conversations.counts.list');
+const ListContainer = props => {
+  const { queryParams, channelId, conversationsQuery, totalCountQuery } = props;
 
-  queryParams.limit = limit; // eslint-disable-line no-param-reassign
+  if (conversationsQuery.loading || totalCountQuery.loading) {
+    return null;
+  }
+
+  const conversations = conversationsQuery.conversations;
+  const totalCount = totalCountQuery.totalConversationsCount;
+
+  const { loadMore, hasMore } = pagination(queryParams, totalCount);
 
   // actions ===========
   const toggleBulk = (conv, toAdd) => commonToggleBulk(bulk, conv, toAdd);
@@ -20,26 +26,22 @@ function composer({ channelId, queryParams }, onData) {
 
   // subscriptions ==================
   const user = Meteor.user();
-  const conversationHandle = Meteor.subscribe('conversations.list', queryParams);
-
   const starredConversationIds = user.details.starredConversationIds || [];
 
-  const conversationSort = { sort: { createdAt: -1 } };
+  // const conversationSort = { sort: { createdAt: -1 } };
 
   // unread conversations
-  const unreadConversations = Conversations.find(
-    { readUserIds: { $nin: [user._id] } },
-    conversationSort,
-  ).fetch();
+  const unreadConversations = conversations.filter(
+    conv => !(conv.readUserIds || []).includes(user._id),
+  );
 
   // read conversations
-  const readConversations = Conversations.find(
-    { readUserIds: { $in: [user._id] } },
-    conversationSort,
-  ).fetch();
+  const readConversations = conversations.filter(conv =>
+    (conv.readUserIds || []).includes(user._id),
+  );
 
-  // props
-  onData(null, {
+  const updatedProps = {
+    ...props,
     bulk: bulk.get(),
     loadMore,
     hasMore,
@@ -50,8 +52,69 @@ function composer({ channelId, queryParams }, onData) {
     starredConversationIds,
     channelId,
     user,
-    conversationReady: conversationHandle.ready(),
-  });
-}
+  };
 
-export default compose(getTrackerLoader(composer), composerOptions({}))(List);
+  return <List {...updatedProps} />;
+};
+
+ListContainer.propTypes = {
+  channelId: PropTypes.string,
+  queryParams: PropTypes.object,
+  conversationsQuery: PropTypes.object,
+  totalCountQuery: PropTypes.object,
+};
+
+export default compose(
+  graphql(
+    gql`
+      query objects($limit: Int!) {
+        conversations(limit: $limit) {
+          _id
+          content
+          createdAt
+          participatorCount
+          readUserIds
+          participatedUserIds
+          tags {
+            _id
+            name
+          }
+          customer {
+            _id
+            name
+          }
+          integration {
+            _id
+            name
+            kind
+
+            brand {
+              _id
+              name
+            }
+          }
+        }
+      }
+    `,
+    {
+      name: 'conversationsQuery',
+      options: ({ queryParams }) => {
+        return {
+          variables: {
+            limit: queryParams.limit || 20,
+          },
+        };
+      },
+    },
+  ),
+  graphql(
+    gql`
+      query totalConversationsCount {
+        totalConversationsCount
+      }
+    `,
+    {
+      name: 'totalCountQuery',
+    },
+  ),
+)(ListContainer);

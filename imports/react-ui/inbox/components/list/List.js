@@ -1,13 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Button } from 'react-bootstrap';
-import {
-  Pagination,
-  TaggerPopover,
-  EmptyState,
-  ConversationsList,
-  LoadingContent,
-} from '/imports/react-ui/common';
+import { Pagination, TaggerPopover, EmptyState, ConversationsList } from '/imports/react-ui/common';
 import { Wrapper } from '/imports/react-ui/layout/components';
 import { AssignBoxPopover } from '../';
 import { Resolver, Sidebar } from '../../containers';
@@ -22,7 +16,6 @@ const propTypes = {
   bulk: PropTypes.array.isRequired,
   toggleBulk: PropTypes.func.isRequired,
   emptyBulk: PropTypes.func.isRequired,
-  conversationReady: PropTypes.bool,
 };
 
 function List(props) {
@@ -36,7 +29,6 @@ function List(props) {
     bulk,
     toggleBulk,
     emptyBulk,
-    conversationReady,
   } = props;
 
   /**
@@ -111,11 +103,10 @@ function List(props) {
   );
 
   const mainContent = () => {
-    if (unreadConversations.length === 0 && readConversations.length === 0 && conversationReady) {
+    if (unreadConversations.length === 0 && readConversations.length === 0) {
       return empty;
-    } else if (!conversationReady) {
-      return <LoadingContent items={5} />;
     }
+
     return content;
   };
 
