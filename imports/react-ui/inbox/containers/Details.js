@@ -1,18 +1,20 @@
 import { Meteor } from 'meteor/meteor';
+import React, { PropTypes } from 'react';
+import { compose, gql, graphql } from 'react-apollo';
 import { ReactiveVar } from 'meteor/reactive-var';
-import { compose } from 'react-komposer';
-import { getTrackerLoader, composerOptions } from '/imports/react-ui/utils';
-import { Conversations } from '/imports/api/conversations/conversations';
-import { Messages } from '/imports/api/conversations/messages';
-import { Integrations } from '/imports/api/integrations/integrations';
 import { Details } from '../components';
 
 const attachmentPreview = new ReactiveVar({});
 
-function composer({ id, channelId, queryParams }, onData) {
-  // subscriptions
-  const conversationHandle = Meteor.subscribe('conversations.detail', id);
-  const messagesHandle = Meteor.subscribe('conversations.messageList', id);
+const DetailsContainer = props => {
+  const { channelId, queryParams, conversationDetailQuery } = props;
+
+  if (conversationDetailQuery.loading) {
+    return null;
+  }
+
+  const conversation = conversationDetailQuery.conversationDetail;
+  const messages = conversation.messages;
 
   // =============== actions
   const changeStatus = (conversationId, status, callback) => {
@@ -27,48 +29,92 @@ function composer({ id, channelId, queryParams }, onData) {
     attachmentPreview.set(previewObject);
   };
 
-  // subscriptions are ready
-  if (conversationHandle.ready() && messagesHandle.ready()) {
-    const conversation = Conversations.findOne(id);
+  // mark as read
+  const readUserIds = conversation.readUserIds || [];
 
-    if (!conversation) {
-      return;
-    }
-
-    const messages = Messages.find({ conversationId: id }, { sort: { createdAt: 1 } }).fetch();
-
-    const integrationId = conversation.integrationId;
-
-    // sub subscriptions
-    const integrationHandle = Meteor.subscribe('integrations.getById', integrationId);
-    const tagsHandle = Meteor.subscribe('tags.tagListByIds', conversation.tagIds || []);
-    const usersHandle = Meteor.subscribe('users.list', {});
-
-    if (integrationHandle.ready() && tagsHandle.ready() && usersHandle.ready()) {
-      const integration = Integrations.findOne({ _id: integrationId });
-
-      // brand, channels subscription
-      Meteor.subscribe('brands.getById', integration.brandId);
-      Meteor.subscribe('channels.list', { integrationIds: [integration._id] });
-
-      // mark as read
-      const readUserIds = conversation.readUserIds || [];
-
-      if (!readUserIds.includes(Meteor.userId())) {
-        Meteor.call('conversations.markAsRead', { conversationId: id });
-      }
-
-      onData(null, {
-        conversation,
-        messages,
-        channelId,
-        changeStatus,
-        setAttachmentPreview,
-        queryParams,
-        attachmentPreview: attachmentPreview.get(),
-      });
-    }
+  if (!readUserIds.includes(Meteor.userId())) {
+    Meteor.call('conversations.markAsRead', { conversationId: conversation._id });
   }
-}
 
-export default compose(getTrackerLoader(composer), composerOptions({}))(Details);
+  const updatedProps = {
+    ...props,
+    conversation,
+    messages,
+    channelId,
+    changeStatus,
+    setAttachmentPreview,
+    queryParams,
+    attachmentPreview: attachmentPreview.get(),
+  };
+
+  return <Details {...updatedProps} />;
+};
+
+DetailsContainer.propTypes = {
+  channelId: PropTypes.string,
+  queryParams: PropTypes.object,
+  conversationDetailQuery: PropTypes.object,
+};
+
+export default compose(
+  graphql(
+    gql`
+      query conversationDetail($_id: String!) {
+        conversationDetail(_id: $_id) {
+          _id
+          assignedUser {
+            _id
+            details
+          }
+          integration {
+            _id
+            brandId,
+            brand {
+              _id
+              name
+            }
+            channels {
+              _id
+              name
+            }
+          }
+          customer {
+            _id
+            name
+          }
+          messages {
+            _id
+            content
+            user {
+              _id
+              username
+              details
+            }
+            customer {
+              _id
+              name
+            }
+          }
+          participatedUsers {
+            _id
+            details
+          }
+          tags {
+            _id
+            name
+            color
+          }
+        }
+      }
+    `,
+    {
+      name: 'conversationDetailQuery',
+      options: ({ id }) => ({
+        fetchPolicy: 'network-only',
+        variables: {
+          _id: id,
+        },
+      }),
+    },
+  ),
+)(DetailsContainer);
