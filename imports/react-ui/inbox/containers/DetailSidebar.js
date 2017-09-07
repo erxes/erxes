@@ -1,17 +1,24 @@
-import { Meteor } from 'meteor/meteor';
+import React, { PropTypes } from 'react';
+import { compose, gql, graphql } from 'react-apollo';
 import { ReactiveVar } from 'meteor/reactive-var';
 import { _ } from 'meteor/underscore';
-import { compose } from 'react-komposer';
-import { getTrackerLoader, composerOptions } from '/imports/react-ui/utils';
-import { Conversations } from '/imports/api/conversations/conversations';
 import { pagination } from '/imports/react-ui/common';
 import { DetailSidebar } from '../components';
 
 const bulk = new ReactiveVar([]);
 
-function composer({ conversation, channelId, queryParams }, onData) {
-  const { limit, loadMore, hasMore } = pagination(queryParams, 'conversations.counts.list');
-  queryParams.limit = limit; // eslint-disable-line no-param-reassign
+const DetailSidebarContainer = props => {
+  const { channelId, conversation, totalCountQuery, conversationsQuery, queryParams } = props;
+
+  if (conversationsQuery.loading || totalCountQuery.loading) {
+    return null;
+  }
+
+  const user = Meteor.user();
+  const conversations = conversationsQuery.conversations;
+  const totalCount = totalCountQuery.totalConversationsCount;
+
+  const { loadMore, hasMore } = pagination(queryParams, totalCount);
 
   // actions ===========
   const toggleBulk = (conversation, toAdd) => {
@@ -30,29 +37,19 @@ function composer({ conversation, channelId, queryParams }, onData) {
   const emptyBulk = () => {
     bulk.set([]);
   };
-  // subscriptions ==================
-  const user = Meteor.user();
-  const conversationHandle = Meteor.subscribe('conversations.list', queryParams);
-  Meteor.subscribe('integrations.list', {});
-  const conversationSort = { sort: { createdAt: -1 } };
+
+  // const conversationSort = { sort: { createdAt: -1 } };
 
   // unread conversations
-  const unreadConversations = Conversations.find(
-    { readUserIds: { $nin: [user._id] } },
-    conversationSort,
-  ).fetch();
+  const unreadConversations = conversations.filter(conv => !conv.readUserIds.includes(user._id));
 
   // read conversations
-  const readConversations = Conversations.find(
-    {
-      readUserIds: { $in: [user._id] },
-      _id: { $ne: conversation._id },
-    },
-    conversationSort,
-  ).fetch();
+  const readConversations = conversations.filter(
+    conv => conv.readUserIds.includes(user._id) && conv._id !== conversation._id,
+  );
 
-  // props
-  onData(null, {
+  const updatedProps = {
+    ...props,
     bulk: bulk.get(),
     loadMore,
     hasMore,
@@ -62,8 +59,68 @@ function composer({ conversation, channelId, queryParams }, onData) {
     user,
     toggleBulk,
     emptyBulk,
-    conversationReady: conversationHandle.ready(),
-  });
-}
+  };
 
-export default compose(getTrackerLoader(composer), composerOptions({}))(DetailSidebar);
+  return <DetailSidebar {...updatedProps} />;
+};
+
+DetailSidebarContainer.propTypes = {
+  conversation: PropTypes.object,
+  queryParams: PropTypes.object,
+  channelId: PropTypes.string,
+  conversationsQuery: PropTypes.object,
+  totalCountQuery: PropTypes.object,
+};
+
+export default compose(
+  graphql(
+    gql`
+      query conversations($limit: Int) {
+        conversations(limit: $limit) {
+          _id
+          readUserIds
+          content
+          createdAt
+          customer {
+            _id
+            name
+          }
+          integration {
+            _id
+            brand {
+              _id
+              name
+            }
+          }
+          tags {
+            _id
+            name
+            color
+          }
+        }
+      }
+    `,
+    {
+      name: 'conversationsQuery',
+      options: ({ queryParams }) => ({
+        fetchPolicy: 'network-only',
+        variables: {
+          limit: queryParams.limit || 20,
+        },
+      }),
+    },
+  ),
+  graphql(
+    gql`
+      query totalConversationsCount {
+        totalConversationsCount
+      }
+    `,
+    {
+      name: 'totalCountQuery',
+      options: () => ({
+        fetchPolicy: 'network-only',
+      }),
+    },
+  ),
+)(DetailSidebarContainer);
