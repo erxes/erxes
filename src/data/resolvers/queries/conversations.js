@@ -15,7 +15,7 @@ export default {
   async conversationCounts(root, { params }) {
     const response = {
       byChannels: {},
-      byIntegrationType: {},
+      byIntegrationTypes: {},
       byBrands: {},
       byTags: {},
     };
@@ -97,7 +97,7 @@ export default {
 
     // by integration type
     for (let intT of INTEGRATION_KIND_CHOICES.ALL_LIST) {
-      response.byIntegrationType[intT._id] = await count(
+      response.byIntegrationTypes[intT] = await count(
         Object.assign({}, queries.default, await qb.integrationTypeFilter(intT)),
       );
     }
