@@ -200,9 +200,7 @@ Customers.helpers({
 
     return results;
   },
-  getTags() {
-    return tagsHelper.tags();
-  },
+  ...tagsHelper,
 });
 
 Customers.TAG_TYPE = 'customer';

@@ -41,7 +41,7 @@ class TaggerSection extends Component {
 
   render() {
     const { customer } = this.props;
-    const tags = customer.getTags();
+    const tags = customer.tags();
     const { Title, QuickButtons } = Wrapper.Sidebar.Section;
 
     return (
