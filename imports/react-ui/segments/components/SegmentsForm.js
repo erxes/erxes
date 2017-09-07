@@ -107,7 +107,7 @@ class SegmentsForm extends Component {
     const { name, description, subOf, color, connector, conditions } = this.state;
     const params = { doc: { name, description, color, connector, conditions } };
     if (subOf) {
-      params.subOf = subOf;
+      params.doc.subOf = subOf;
     }
     Object.assign(params, segment ? { id: segment._id } : {});
 
