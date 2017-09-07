@@ -37,7 +37,7 @@ export default class Builder {
    *  {integrationId: {$in: ['id3', 'id1', 'id4']}
    * ]
    */
-  async intersectIntegrationIds(...queries) {
+  intersectIntegrationIds(...queries) {
     // filter only queries with $in field
     const withIn = queries.filter(
       q => q.integrationId && q.integrationId.$in && q.integrationId.$in.length > 0,

@@ -237,6 +237,7 @@ export const queries = `
     segments: [Segment]
 
     conversations(params: ConversationListParams): [Conversation]
+    conversationCounts(params: ConversationListParams): JSON
     conversationDetail(_id: String!): Conversation
     totalConversationsCount: Int
   }
