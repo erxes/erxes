@@ -75,13 +75,13 @@ class List extends React.Component {
           </tr>
         </thead>
         <tbody>
-          {messages.map(message =>
+          {messages.map(message => (
             <MessageListRow
               toggleBulk={this.props.toggleBulk}
               key={message._id}
               message={message}
-            />,
-          )}
+            />
+          ))}
         </tbody>
       </Table>
     );
