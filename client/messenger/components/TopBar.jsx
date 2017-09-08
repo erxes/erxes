@@ -11,7 +11,15 @@ const propTypes = {
   isConversationEnded: PropTypes.bool,
 };
 
-function TopBar({ middle, buttonIcon, onButtonClick, color, isChat, isConversationEnded, endConversation }) {
+function TopBar({
+    middle,
+    buttonIcon,
+    onButtonClick,
+    color,
+    isChat,
+    isConversationEnded,
+    endConversation,
+  }) {
   const onEndConversation = () => {
     if (confirm('Do you want to end this conversation ?')) {
       endConversation();
@@ -21,7 +29,14 @@ function TopBar({ middle, buttonIcon, onButtonClick, color, isChat, isConversati
   const renderEndConversation = () => {
     if (isChat && !isConversationEnded) {
       return (
-        <div className="topbar-button right close" onClick={onEndConversation} />
+        <a
+          href=""
+          className="topbar-button right"
+          onClick={onEndConversation}
+          title="End conversation"
+        >
+          <Ionicon icon="ion-android-exit" className="icon white" />
+        </a>
       );
     }
 
@@ -30,13 +45,12 @@ function TopBar({ middle, buttonIcon, onButtonClick, color, isChat, isConversati
 
   return (
     <div className="erxes-topbar" style={{ backgroundColor: color }}>
-      <div className="topbar-button left" onClick={onButtonClick} >
+      <a href="" className="topbar-button left" onClick={onButtonClick} >
         {buttonIcon}
-      </div>
+      </a>
       <div className="erxes-middle">
         {middle}
       </div>
-
       {renderEndConversation()}
     </div>
   );

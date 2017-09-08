@@ -19,7 +19,7 @@ $break-medium: 500px;
       opacity: 0
     ), webkit moz ms o);
     visibility: hidden;
-    transition: opacity 0.3s ease-in-out, bottom 0.3s ease-in-out;
+    transition: opacity .3s ease-in-out, bottom .3s ease-in-out;
 
     @media screen and (max-width: $break-small) {
       width: 100%;
@@ -45,7 +45,7 @@ $break-medium: 500px;
   min-height: 100%;
   position: absolute;
   background-color: #000; /* Fallback color */
-  background-color: rgba(0, 0, 0, 0.6); /* Black w/ opacity */
+  background-color: rgba(0, 0, 0, .6); /* Black w/ opacity */
   @include prefix((
     transition: opacity .15s linear
   ), webkit moz ms o);
@@ -69,7 +69,7 @@ $break-medium: 500px;
 
   &.open {
     background-color: #000; /* Fallback color */
-    background-color: rgba(0, 0, 0, 0.6); /* Black w/ opacity */
+    background-color: rgba(0, 0, 0, .6); /* Black w/ opacity */
     opacity: 1;
 
     .erxes-form {
@@ -95,20 +95,19 @@ $break-medium: 500px;
     height: 40px;
     text-align: center;
     border-radius: $border-radius;
-    background: url($icon-close) no-repeat 50%;
     z-index: 9999999999;
 
     @include prefix((
-      transition: all 0.3s ease-in-out
+      transition: all .3s ease-in-out
     ), webkit moz ms o);
 
     @include prefix((
-      transform: translate(0,-25%)
+      transform: translate(0, -25%)
     ), webkit moz ms o);
 
     &:hover {
-      cursor: pointer;
       background-color: rgba($black, .2);
+      cursor: pointer;
     }
 
     @media screen and (max-width: $break-medium) {
@@ -150,7 +149,7 @@ $break-medium: 500px;
       padding: 10px 20px;
       cursor: pointer;
       @include prefix((
-        transition: background 0.3s ease-in-out
+        transition: background .3s ease-in-out
       ), webkit moz ms o);
 
       &:focus,
@@ -197,7 +196,7 @@ $break-medium: 500px;
       color: lighten($black, 10%);
       border-radius: $border-radius;
       @include prefix((
-        transition: all 0.3s ease-in-out
+        transition: all .3s ease-in-out
       ), webkit moz ms o);
       -webkit-box-sizing: border-box;
          -moz-box-sizing: border-box;
