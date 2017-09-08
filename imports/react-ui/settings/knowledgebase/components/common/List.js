@@ -48,7 +48,9 @@ class CommonList extends React.Component {
               </th>
             </tr>
           </thead>
-          <tbody>{this.renderItems()}</tbody>
+          <tbody>
+            {this.renderItems()}
+          </tbody>
         </Table>
       </Pagination>
     );

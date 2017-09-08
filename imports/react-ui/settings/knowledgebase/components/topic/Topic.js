@@ -107,16 +107,16 @@ class KbTopic extends CommonItem {
           <ControlLabel>Install code</ControlLabel>
           <div className="markdown-wrapper">
             <ReactMarkdown source={this.state.code} />
-            {this.state.code ? (
-              <CopyToClipboard
-                text={this.state.code}
-                onCopy={() => this.setState({ copied: true })}
-              >
-                <Button bsSize="small" bsStyle="primary">
-                  {this.state.copied ? 'Copied' : 'Copy to clipboard'}
-                </Button>
-              </CopyToClipboard>
-            ) : null}
+            {this.state.code
+              ? <CopyToClipboard
+                  text={this.state.code}
+                  onCopy={() => this.setState({ copied: true })}
+                >
+                  <Button bsSize="small" bsStyle="primary">
+                    {this.state.copied ? 'Copied' : 'Copy to clipboard'}
+                  </Button>
+                </CopyToClipboard>
+              : null}
           </div>
         </FormGroup>
       );
@@ -201,9 +201,7 @@ class KbTopic extends CommonItem {
 
         <Modal.Footer>
           <ButtonToolbar className="pull-right">
-            <Button type="submit" bsStyle="primary">
-              Save
-            </Button>
+            <Button type="submit" bsStyle="primary">Save</Button>
           </ButtonToolbar>
         </Modal.Footer>
       </form>

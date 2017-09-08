@@ -36,9 +36,7 @@ class KbCategoryRow extends Component {
 
     const editTrigger = (
       <Button bsStyle="link">
-        <Tip text="Edit">
-          <i className="ion-edit" />
-        </Tip>
+        <Tip text="Edit"><i className="ion-edit" /></Tip>
       </Button>
     );
 

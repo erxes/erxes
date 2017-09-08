@@ -137,7 +137,9 @@ class KbCategory extends Component {
             }}
             optionRenderer={option => (
               <div className="simple-option">
-                <span>{option.label}</span>
+                <span>
+                  {option.label}
+                </span>
               </div>
             )}
             value={this.state.selectedArticles}
