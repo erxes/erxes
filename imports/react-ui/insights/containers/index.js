@@ -1,5 +1,5 @@
-import Insights from './Insights';
-import TeamMembers from './TeamMembers';
-import PunchCard from './PunchCard';
+import VolumeReport from './VolumeReport';
+import ResponseReport from './ResponseReport';
+import FirstResponse from './FirstResponse';
 
-export { Insights, TeamMembers, PunchCard };
+export { VolumeReport, ResponseReport, FirstResponse };

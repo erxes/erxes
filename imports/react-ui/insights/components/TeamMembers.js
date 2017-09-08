@@ -1,31 +1,16 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
-import Sidebar from './Sidebar';
-import Filter from './Filter';
-import { Wrapper } from '/imports/react-ui/layout/components';
+import Chart from './Chart';
 
 const propTypes = {
-  mainData: PropTypes.array.isRequired,
-  usersData: PropTypes.array.isRequired,
-  brands: PropTypes.array.isRequired,
+  datas: PropTypes.array.isRequired,
+  width: PropTypes.number,
 };
 
 class TeamMembers extends React.Component {
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      width: 600,
-    };
-  }
-
-  componentDidMount() {
-    const width = this.wrapper.clientWidth;
-    this.setState({ width });
-  }
-
   renderChart(userData, index) {
+    const { width } = this.props;
+
     return (
       <div className="col-sm-6 insight-user-data" key={index}>
         <div className="user-profile">
@@ -38,52 +23,18 @@ class TeamMembers extends React.Component {
           <div className="clearfix" />
         </div>
         <div>
-          <LineChart width={this.state.width * 0.45} height={200} data={userData.data}>
-            <XAxis dataKey="name" />
-            <YAxis />
-            <CartesianGrid strokeDasharray="3 3" />
-            <Tooltip />
-            <Legend />
-            <Line type="monotone" dataKey="count" stroke="#5884d8" activeDot={{ r: 4 }} />
-          </LineChart>
+          <Chart width={width * 0.45} height={200} data={userData.data} />
         </div>
       </div>
     );
   }
 
   render() {
-    const { mainData, usersData, brands } = this.props;
-
-    const content = (
-      <div
-        className="insight-wrapper"
-        ref={node => {
-          this.wrapper = node;
-        }}
-      >
-        <Filter brands={brands} />
-
-        <div className="margined" id="insightWrapper">
-          <LineChart width={this.state.width} height={300} data={mainData}>
-            <XAxis dataKey="name" />
-            <YAxis />
-            <CartesianGrid strokeDasharray="3 3" />
-            <Tooltip />
-            <Legend />
-            <Line type="monotone" dataKey="count" stroke="#452679" activeDot={{ r: 8 }} />
-          </LineChart>
-          {usersData.map((data, index) => this.renderChart(data, index))};
-        </div>
-      </div>
-    );
+    const { datas } = this.props;
 
     return (
       <div>
-        <Wrapper
-          header={<Wrapper.Header breadcrumb={[{ title: 'Team members' }]} />}
-          leftSidebar={<Sidebar />}
-          content={content}
-        />
+        {datas.map((data, index) => this.renderChart(data, index))};
       </div>
     );
   }

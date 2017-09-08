@@ -43,6 +43,7 @@ Meteor.publishComposite('insights.integration', function(params) {
     startDate: Match.Optional(String),
     endDate: Match.Optional(String),
     brandId: Match.Optional(String),
+    integrationType: Match.Optional(String),
   });
 
   if (!this.userId) {
@@ -110,7 +111,8 @@ Meteor.publishComposite('insights.integration', function(params) {
   };
 });
 
-Meteor.publishComposite('insights.teamMembers', function(params) {
+Meteor.publishComposite('insights.teamMembers', function(params, type) {
+  check(type, Match.Optional(String));
   check(params, {
     startDate: Match.Optional(String),
     endDate: Match.Optional(String),
@@ -129,7 +131,13 @@ Meteor.publishComposite('insights.teamMembers', function(params) {
   const { brandId, integrationType } = params;
   let { startDate, endDate } = params;
 
-  const messageSelector = { userId: { $ne: null } };
+  let volumeOrResponse = null;
+
+  if (type === 'response') {
+    volumeOrResponse = { $ne: null };
+  }
+
+  const messageSelector = { userId: volumeOrResponse };
 
   if (!startDate || !endDate) {
     const fullDate = new Date();
@@ -173,29 +181,31 @@ Meteor.publishComposite('insights.teamMembers', function(params) {
     return results;
   };
 
-  const userIds = [];
-  messages.forEach(message => {
-    const registered = userIds.filter(userId => userId === message.userId).length;
-    if (registered === 0) {
-      userIds.push(message.userId);
-    }
-  });
-
   const mainData = insertData(messages, 10);
   mainData.forEach((data, index) => {
     this.added('main_graph', index, data);
   });
 
-  userIds.forEach((userId, index) => {
-    const userMessages = messages.filter(message => userId === message.userId);
-    const user = Meteor.users.findOne(userId);
-    if (user) {
-      const userDetails = user.details;
-      const userData = insertData(userMessages, 5);
-      const data = { fullName: userDetails.fullName, avatar: userDetails.avatar, data: userData };
-      this.added('users_data', index, data);
-    }
-  });
+  if (type === 'response') {
+    const userIds = [];
+    messages.forEach(message => {
+      const registered = userIds.filter(userId => userId === message.userId).length;
+      if (registered === 0) {
+        userIds.push(message.userId);
+      }
+    });
+
+    userIds.forEach((userId, index) => {
+      const userMessages = messages.filter(message => userId === message.userId);
+      const user = Meteor.users.findOne(userId);
+      if (user) {
+        const userDetails = user.details;
+        const userData = insertData(userMessages, 5);
+        const data = { fullName: userDetails.fullName, avatar: userDetails.avatar, data: userData };
+        this.added('users_data', index, data);
+      }
+    });
+  }
 
   return {
     find() {
@@ -204,8 +214,10 @@ Meteor.publishComposite('insights.teamMembers', function(params) {
   };
 });
 
-Meteor.publishComposite('insights.punch.card', function(params) {
+Meteor.publishComposite('insights.punch.card', function(params, type) {
+  check(type, Match.Optional(String));
   check(params, {
+    startDate: Match.Optional(String),
     endDate: Match.Optional(String),
     brandId: Match.Optional(String),
     integrationType: Match.Optional(String),
@@ -222,7 +234,13 @@ Meteor.publishComposite('insights.punch.card', function(params) {
   const { brandId, integrationType } = params;
   let { endDate } = params;
 
-  const messageSelector = { userId: null };
+  let volumeOrResponse = null;
+
+  if (type === 'response') {
+    volumeOrResponse = { $ne: null };
+  }
+
+  const messageSelector = { userId: volumeOrResponse };
 
   if (!endDate) {
     endDate = new Date();

@@ -1,7 +1,7 @@
 import { compose } from 'react-komposer';
 import { Brands } from '/imports/api/brands/brands';
 import { getTrackerLoader, composerOptions } from '/imports/react-ui/utils';
-import { PunchCard } from '../components';
+import { FirstResponse } from '../components';
 import { PunchCardData } from '/imports/api/insights/collections';
 
 function composer({ queryParams }, onData) {
@@ -20,4 +20,4 @@ function composer({ queryParams }, onData) {
   }
 }
 
-export default compose(getTrackerLoader(composer), composerOptions({}))(PunchCard);
+export default compose(getTrackerLoader(composer), composerOptions({}))(FirstResponse);

@@ -2,7 +2,7 @@ import React from 'react';
 import { mount } from 'react-mounter';
 import { FlowRouter } from 'meteor/kadira:flow-router';
 import { MainLayout } from '../layout/containers';
-import { Insights, TeamMembers, PunchCard } from './containers';
+import { VolumeReport, ResponseReport, FirstResponse } from './containers';
 
 const group = FlowRouter.group({
   prefix: '/insights',
@@ -11,20 +11,20 @@ const group = FlowRouter.group({
 group.route('/', {
   name: 'insights',
   action(params, queryParams) {
-    mount(MainLayout, { content: <Insights queryParams={queryParams} /> });
+    mount(MainLayout, { content: <VolumeReport queryParams={queryParams} /> });
   },
 });
 
-group.route('/team-members', {
-  name: 'insights/team-members',
+group.route('/response-report', {
+  name: 'insights/response-report',
   action(params, queryParams) {
-    mount(MainLayout, { content: <TeamMembers queryParams={queryParams} /> });
+    mount(MainLayout, { content: <ResponseReport queryParams={queryParams} /> });
   },
 });
 
-group.route('/punch-card', {
-  name: 'insights/punch-card',
+group.route('/first-response', {
+  name: 'insights/first-response',
   action(params, queryParams) {
-    mount(MainLayout, { content: <PunchCard queryParams={queryParams} /> });
+    mount(MainLayout, { content: <FirstResponse queryParams={queryParams} /> });
   },
 });

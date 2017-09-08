@@ -1,0 +1,84 @@
+import React from 'react';
+import PropTypes from 'prop-types';
+import { Wrapper } from '/imports/react-ui/layout/components';
+import Sidebar from './Sidebar';
+import Filter from './Filter';
+import Chart from './Chart';
+import TeamMembers from './TeamMembers';
+import PunchCard from './PunchCard';
+
+const propTypes = {
+  trend: PropTypes.array.isRequired,
+  teamMembers: PropTypes.array.isRequired,
+  brands: PropTypes.array.isRequired,
+  punch: PropTypes.array.isRequired,
+};
+
+class ResponseReport extends React.Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      width: 600,
+    };
+  }
+
+  componentDidMount() {
+    const width = this.wrapper.clientWidth;
+    this.setState({ width });
+  }
+
+  renderTitle(title) {
+    return (
+      <div className="insight-title">
+        {title}
+      </div>
+    );
+  }
+
+  render() {
+    const { trend, teamMembers, punch, brands } = this.props;
+    const width = this.state.width;
+
+    const content = (
+      <div className="insight-wrapper">
+        <Filter brands={brands} />
+        <div className="margined">
+          <div
+            className="insight-row"
+            ref={node => {
+              this.wrapper = node;
+            }}
+          >
+            {this.renderTitle('Response Trend')}
+            <Chart width={width} height={300} data={trend} />
+          </div>
+
+          {width !== 600
+            ? <div className="insight-row">
+                {this.renderTitle('Punch card')}
+                <PunchCard data={punch} width={width} />
+              </div>
+            : null}
+
+          <div className="insight-row">
+            {this.renderTitle('Response by team members')}
+            <TeamMembers datas={teamMembers} width={width} />
+          </div>
+        </div>
+      </div>
+    );
+
+    return (
+      <Wrapper
+        header={<Wrapper.Header breadcrumb={[{ title: 'Response Report' }]} />}
+        leftSidebar={<Sidebar />}
+        content={content}
+      />
+    );
+  }
+}
+
+ResponseReport.propTypes = propTypes;
+
+export default ResponseReport;

@@ -10,13 +10,13 @@ function Sidebar() {
         <Title>Insights</Title>
         <ul className="sidebar-list">
           <li>
-            <a href={FlowRouter.path('insights')}>Insights</a>
+            <a href={FlowRouter.path('insights')}>Volume Report</a>
           </li>
           <li>
-            <a href={FlowRouter.path('insights/team-members')}>Team members</a>
+            <a href={FlowRouter.path('insights/response-report')}>Response Report</a>
           </li>
           <li>
-            <a href={FlowRouter.path('insights/punch-card')}>Punch card</a>
+            <a href={FlowRouter.path('insights/first-response')}>First Response Report</a>
           </li>
         </ul>
       </Wrapper.Sidebar.Section>

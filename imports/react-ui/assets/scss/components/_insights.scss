@@ -1,10 +1,22 @@
-.insight-wrapper{
+.insight-wrapper {
 
-	.insight-filter{
+	.insight-title {
+		text-align: center;
+		text-transform: uppercase;
+		font-weight: bold;
+		margin-bottom: 18px;
+	}
+
+	.insight-filter {
 		padding: 20px;
 	}
 
-	.insight-user-data{
+	.insight-row {
+		position: relative;
+		margin-bottom: 24px;
+	}
+
+	.insight-user-data {
 		margin-bottom: 20px;
 
 		.user-profile {
@@ -13,7 +25,7 @@
 			height: 40px;
 			overflow: hidden;
 
-			img{
+			img {
 				width: 40px;
 				height: 40px;
 				border-radius: 50%;
@@ -21,7 +33,7 @@
 				float: left;
 			}
 
-			.full-name{
+			.full-name {
 				float: left;
 				font-size: 15px;
 				font-weight: bold;
@@ -30,13 +42,13 @@
 	}
 
 	.integration-kind {
-    position: absolute;
-    margin-top: 50px;
-    z-index: 1;
+		position: absolute;
+		z-index: 2;
+		padding-left: 20px;
+		margin-top: 60px;
 
     .kind-item {
-    	display: inline-block;
-    	margin-right: 20px;
+    	margin-bottom: 12px;
 
     	.label {
     		margin-right: 4px;
@@ -50,34 +62,18 @@
     	}
     }
 	}
+}
 
-	.punch-card {
-
-		td {
-
-			div {
-				
-				display: inline-block;
-				width: 4%;
-				text-align: center;
-				position: relative;
-				height:36px;
-				
-				.punch-bar{
-					background-color: #337ab7;
-					width: 30%;
-				}
-
-				&.punch-val::after {
-					content: ' ';
-					display: block;
-					width: 1px;
-					height: 10px;
-					position: absolute;
-					margin-left: 50%;
-					background-color: #eee;
-				}
-			}
-		}
-	}
+#punch-card {
+  .axis path,
+  .axis line {
+    fill: none;
+    stroke: #333;
+    stroke-width: 1px;
+    shape-rendering: crispEdges;
+  }
+  
+  .axis text {
+    font-size: 0.875em;
+  }
 }
