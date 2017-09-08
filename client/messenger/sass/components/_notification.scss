@@ -2,7 +2,10 @@ $core-spacing: 20px;
 
 .erxes-notification {
   background: $bg-color;
+  border-color: transparent;
   border-radius: $border-radius;
+  border-style: solid;
+  border-width: 1px;
   bottom: 83px;
   box-shadow: 0 5px 15px -3px rgba($black, .35);
   box-sizing: border-box;
@@ -13,10 +16,6 @@ $core-spacing: 20px;
   transition: all .3s ease-in-out;
   width: calc(100% - 36px);
   z-index: 9998;
-  border-color: transparent;
-  border-width: 1px;
-  border-style: solid;
-  border-radius: $border-radius;
 
   &.fullMessage {
     height: calc(100% - 110px);
@@ -35,6 +34,7 @@ $core-spacing: 20px;
 
   .notification-body {
     -webkit-box-orient: vertical;
+    color: $text-color;
     display: -webkit-box;
     -webkit-line-clamp: 2;
     line-height: 22px;
@@ -42,7 +42,6 @@ $core-spacing: 20px;
     overflow: hidden;
     padding: 0 $core-spacing;
     word-wrap: break-word;
-    color: $text-color;
 
     &.fullMessage {
       display: block;

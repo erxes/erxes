@@ -1,5 +1,6 @@
 import React, { PropTypes } from 'react';
 import classNames from 'classnames';
+import Ionicon from 'react-ionicons';
 import { Form, ShoutboxLauncher } from '../containers';
 
 
@@ -27,7 +28,14 @@ function App({ isShoutboxFormVisible, loadType, onModalClose }) {
   if (loadType === 'popup') {
     return (
       <div className="modal-form">
-        <div className="close" onClick={onModalClose} />
+        <a
+          href=""
+          className="close"
+          onClick={onModalClose}
+          title="Close"
+        >
+          <Ionicon icon="ion-android-close" className="icon white" fontSize="20px" />
+        </a>
         <Form />
       </div>
     );
