@@ -4,7 +4,7 @@ import { ConversationList, Conversation } from '../containers';
 
 const propTypes = {
   activeRoute: PropTypes.string.isRequired,
-  color: PropTypes.string.isRequired,
+  color: PropTypes.string,
 };
 
 function Messenger({ activeRoute, color }) {
