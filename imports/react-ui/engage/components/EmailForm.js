@@ -92,11 +92,11 @@ class EmailForm extends Component {
             defaultValue={email.templateId}
           >
             <option />
-            {templates.map(t =>
+            {templates.map(t => (
               <option key={t._id} value={t._id}>
                 {t.name}
-              </option>,
-            )}
+              </option>
+            ))}
           </FormControl>
         </div>
       </div>

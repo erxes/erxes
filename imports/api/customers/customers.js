@@ -10,15 +10,15 @@ import { TagsCollection, tagsHelper, tagSchemaOptions } from '/imports/api/tags/
 const messengerSchema = new SimpleSchema({
   lastSeenAt: {
     type: Date,
-    label: 'IAM: Last online',
+    label: 'Messenger: Last online',
   },
   sessionCount: {
     type: Number,
-    label: 'IAM: Session count',
+    label: 'Messenger: Session count',
   },
   isActive: {
     type: Boolean,
-    label: 'IAM: Is online',
+    label: 'Messenger: Is online',
   },
   customData: {
     type: Object,
@@ -200,9 +200,7 @@ Customers.helpers({
 
     return results;
   },
-  getTags() {
-    return tagsHelper.tags();
-  },
+  ...tagsHelper,
 });
 
 Customers.TAG_TYPE = 'customer';

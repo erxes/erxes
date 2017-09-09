@@ -110,11 +110,11 @@ class VisitorForm extends FormBase {
             defaultValue={rule.condition}
             onChange={onChangeCondition}
           >
-            {RULE_CONDITIONS[rule.kind].map((cond, index) =>
+            {RULE_CONDITIONS[rule.kind].map((cond, index) => (
               <option key={index} value={cond.value}>
                 {cond.text}
-              </option>,
-            )}
+              </option>
+            ))}
           </FormControl>
 
           <FormControl
@@ -141,11 +141,11 @@ class VisitorForm extends FormBase {
         <Title>Add rule</Title>
         <div className="box">
           <FormControl componentClass="select" onChange={this.addRule}>
-            {VISITOR_AUDIENCE_RULES.map((rule, index) =>
+            {VISITOR_AUDIENCE_RULES.map((rule, index) => (
               <option key={index} value={rule.value}>
                 {rule.text}
-              </option>,
-            )}
+              </option>
+            ))}
           </FormControl>
         </div>
 

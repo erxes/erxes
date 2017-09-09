@@ -11,7 +11,7 @@ function Status() {
       <Section.Title>Status</Section.Title>
 
       <ul className="sidebar-list">
-        {statusFilters.map((status, index) =>
+        {statusFilters.map((status, index) => (
           <li key={index}>
             <a
               tabIndex={0}
@@ -25,8 +25,8 @@ function Status() {
                 {Counts.get(`engage.messages.status.${status.key}`)}
               </span>
             </a>
-          </li>,
-        )}
+          </li>
+        ))}
       </ul>
     </Section>
   );

@@ -116,11 +116,11 @@ class FormBase extends Component {
                 componentClass="select"
                 defaultValue={message.fromUserId}
               >
-                {this.props.users.map(u =>
+                {this.props.users.map(u => (
                   <option key={u._id} value={u._id}>
                     {u.fullName || u.username}
-                  </option>,
-                )}
+                  </option>
+                ))}
               </FormControl>
             </div>
           </Section>
