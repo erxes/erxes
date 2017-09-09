@@ -4,6 +4,7 @@ export default `query conversationDetail($_id: String!) {
     status
     assignedUser {
       _id
+      username
       details
     }
     integration {
@@ -39,6 +40,7 @@ export default `query conversationDetail($_id: String!) {
     }
     participatedUsers {
       _id
+      username
       details
     }
     tags {

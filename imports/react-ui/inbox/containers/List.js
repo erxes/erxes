@@ -1,62 +1,60 @@
 import { Meteor } from 'meteor/meteor';
 import React, { PropTypes } from 'react';
 import { compose, gql, graphql } from 'react-apollo';
-import { ReactiveVar } from 'meteor/reactive-var';
-import { pagination } from '/imports/react-ui/common';
-import { toggleBulk as commonToggleBulk } from '/imports/react-ui/common/utils';
+import { Bulk, pagination } from '/imports/react-ui/common';
 import { List } from '../components';
 import { queries } from '../graphql';
 
-const bulk = new ReactiveVar([]);
-
-const ListContainer = props => {
-  const { queryParams, channelId, conversationsQuery, totalCountQuery } = props;
-
-  if (conversationsQuery.loading || totalCountQuery.loading) {
-    return null;
+class ListContainer extends Bulk {
+  refetch() {
+    this.props.conversationsQuery.refetch();
   }
 
-  const conversations = conversationsQuery.conversations;
-  const totalCount = totalCountQuery.totalConversationsCount;
+  render() {
+    const { queryParams, channelId, conversationsQuery, totalCountQuery } = this.props;
 
-  const { loadMore, hasMore } = pagination(queryParams, totalCount);
+    if (conversationsQuery.loading || totalCountQuery.loading) {
+      return null;
+    }
 
-  // actions ===========
-  const toggleBulk = (conv, toAdd) => commonToggleBulk(bulk, conv, toAdd);
-  const emptyBulk = () => bulk.set([]);
+    const conversations = conversationsQuery.conversations;
+    const totalCount = totalCountQuery.totalConversationsCount;
 
-  // subscriptions ==================
-  const user = Meteor.user();
-  const starredConversationIds = user.details.starredConversationIds || [];
+    const { loadMore, hasMore } = pagination(queryParams, totalCount);
 
-  // const conversationSort = { sort: { createdAt: -1 } };
+    // subscriptions ==================
+    const user = Meteor.user();
+    const starredConversationIds = user.details.starredConversationIds || [];
 
-  // unread conversations
-  const unreadConversations = conversations.filter(
-    conv => !(conv.readUserIds || []).includes(user._id),
-  );
+    // const conversationSort = { sort: { createdAt: -1 } };
 
-  // read conversations
-  const readConversations = conversations.filter(conv =>
-    (conv.readUserIds || []).includes(user._id),
-  );
+    // unread conversations
+    const unreadConversations = conversations.filter(
+      conv => !(conv.readUserIds || []).includes(user._id),
+    );
 
-  const updatedProps = {
-    ...props,
-    bulk: bulk.get(),
-    loadMore,
-    hasMore,
-    toggleBulk,
-    emptyBulk,
-    unreadConversations,
-    readConversations,
-    starredConversationIds,
-    channelId,
-    user,
-  };
+    // read conversations
+    const readConversations = conversations.filter(conv =>
+      (conv.readUserIds || []).includes(user._id),
+    );
 
-  return <List {...updatedProps} />;
-};
+    const updatedProps = {
+      ...this.props,
+      bulk: this.state.bulk,
+      toggleBulk: this.toggleBulk,
+      emptyBulk: this.emptyBulk,
+      loadMore,
+      hasMore,
+      unreadConversations,
+      readConversations,
+      starredConversationIds,
+      channelId,
+      user,
+    };
+
+    return <List {...updatedProps} />;
+  }
+}
 
 ListContainer.propTypes = {
   channelId: PropTypes.string,

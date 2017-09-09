@@ -21,6 +21,7 @@ import { pagination } from './pagination/paginationUtils';
 import FilterableList from './filterableList/FilterableList';
 import ConversationsList from './conversationsList/ConversationsList';
 import LoadMore from './LoadMore';
+import Bulk from './Bulk';
 
 export {
   NameCard,
@@ -46,4 +47,5 @@ export {
   LoadingContent,
   Loading,
   LoadMore,
+  Bulk,
 };
