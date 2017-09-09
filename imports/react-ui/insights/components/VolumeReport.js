@@ -30,9 +30,9 @@ class VolumeReport extends React.Component {
 
   renderTitle(title) {
     return (
-      <div className="insight-title">
+      <h5 className="insight-title">
         {title}
-      </div>
+      </h5>
     );
   }
 

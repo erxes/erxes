@@ -34,7 +34,7 @@ class TeamMembers extends React.Component {
 
     return (
       <div>
-        {datas.map((data, index) => this.renderChart(data, index))};
+        {datas.map((data, index) => this.renderChart(data, index))}
       </div>
     );
   }

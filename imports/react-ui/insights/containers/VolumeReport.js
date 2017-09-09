@@ -6,7 +6,7 @@ import { VolumeReport } from '../components';
 import { PunchCardData, MainGraph, InsightData } from '/imports/api/insights/collections';
 
 function composer({ queryParams }, onData) {
-  const integrationHandle = Meteor.subscribe('insights.integration', queryParams);
+  const integrationHandle = Meteor.subscribe('insights.volume', queryParams);
   const teamMembersHandle = Meteor.subscribe('insights.teamMembers', queryParams, 'volume');
   const punchCardHandle = Meteor.subscribe('insights.punch.card', queryParams, 'volume');
 
