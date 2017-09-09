@@ -202,8 +202,12 @@ export const types = `
     user: User
     customer: Customer
   }
-`;
 
+  type ConversationUpdatedResponse {
+    type: String!
+    message: ConversationMessage
+  }
+`;
 export const queries = `
   type Query {
     users(limit: Int): [User]
@@ -249,11 +253,13 @@ export const queries = `
 export const mutations = `
   type Mutation {
     insertMessage(messageId: String!): ConversationMessage
+    changeConversationStatus(_id: String!): String
+    assignConversations(_ids: [String]!): [String]
   }
 `;
 
 export const subscriptions = `
   type Subscription {
-    conversationMessageAdded(conversationId: String!): ConversationMessage
+    conversationUpdated(conversationId: String!): ConversationUpdatedResponse
   }
 `;

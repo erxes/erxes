@@ -2,12 +2,12 @@ import { withFilter } from 'graphql-subscriptions';
 import { pubsub } from './';
 
 export default {
-  conversationMessageAdded: {
+  conversationUpdated: {
     subscribe: withFilter(
-      () => pubsub.asyncIterator('conversationMessageAdded'),
+      () => pubsub.asyncIterator('conversationUpdated'),
       // filter by conversationId
       (payload, variables) => {
-        return payload.conversationMessageAdded.conversationId === variables.conversationId;
+        return payload.conversationUpdated.conversationId === variables.conversationId;
       },
     ),
   },
