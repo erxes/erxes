@@ -33,15 +33,13 @@ function composer({ queryParams }, onData) {
   const toggleBulk = (customer, toAdd) => commonToggleBulk(bulk, customer, toAdd);
 
   if (
-    customersHandle.ready() &&
-    segmentsHandle.ready() &&
-    brandsHandle.ready() &&
-    tagsHandle.ready()
+    customersHandle.ready() && segmentsHandle.ready() && brandsHandle.ready() && tagsHandle.ready()
   ) {
     onData(null, {
       // If there's no customer fields config, all fields will be selected
-      customerFields:
-        (Meteor.user() && Meteor.user().configs && Meteor.user().configs.customerFields) ||
+      customerFields: (Meteor.user() &&
+        Meteor.user().configs &&
+        Meteor.user().configs.customerFields) ||
         Customers.getPublicFields(),
 
       customers: Customers.find({}, { sort: { 'messengerData.lastSeenAt': -1 } }).fetch(),

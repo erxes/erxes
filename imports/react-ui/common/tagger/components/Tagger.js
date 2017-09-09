@@ -53,7 +53,8 @@ class Tagger extends Component {
       return {
         _id,
         title: name,
-        image: <i className="icon ion-pricetag" style={{ color: colorCode }} />,
+        iconClass: 'ion-pricetag',
+        iconColor: colorCode,
         selectedBy: state,
       };
     });
@@ -61,12 +62,22 @@ class Tagger extends Component {
 
   tag(tags) {
     const { tag, targets, type, afterSave } = this.props;
+
+    // detect changes
+    const { tagsForList } = this.state;
+    const unchanged = tagsForList.reduce(
+      (prev, current, index) => prev && current.selectedBy === tags[index].selectedBy,
+      true,
+    );
+    if (unchanged) {
+      return;
+    }
+
     const param = {
       targetIds: targets.map(t => t._id),
       tagIds: tags.filter(t => t.selectedBy === 'all').map(t => t._id),
     };
 
-    // eslint-disable-next-line consistent-return
     tag(param, error => {
       if (error) {
         return Alert.error(error.reason);
@@ -96,7 +107,7 @@ class Tagger extends Component {
     const props = {
       className,
       links,
-      items: this.state.tagsForList,
+      items: JSON.parse(JSON.stringify(this.state.tagsForList)),
       [event]: this.tag,
     };
 

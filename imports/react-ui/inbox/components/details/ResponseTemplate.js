@@ -135,11 +135,11 @@ class ResponseTemplate extends Component {
                 onChange={this.onFilter}
                 defaultValue={this.state.brandId}
               >
-                {brands.map(brand =>
+                {brands.map(brand => (
                   <option key={brand._id} value={brand._id}>
                     {brand.name}
-                  </option>,
-                )}
+                  </option>
+                ))}
               </FormControl>
             </div>
           </div>
