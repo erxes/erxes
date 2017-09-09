@@ -2,20 +2,27 @@ import { Meteor } from 'meteor/meteor';
 import { compose } from 'react-komposer';
 import { getTrackerLoader } from '/imports/react-ui/utils';
 import { fromJS } from 'immutable';
-import { newMessage } from '/imports/react-ui/apollo-client';
-import { KIND_CHOICES } from '/imports/api/integrations/constants';
+import { mutate } from '/imports/react-ui/apollo-client';
 import { RespondBox } from '../components';
 
-function composer(props, onData) {
+function composer({ conversation }, onData) {
   const sendMessage = (message, callback) => {
     const cb = (error, messageId) => {
-      const integration = props.conversation.integration();
+      // notify graphql subscription server that new message inserted
+      mutate({
+        mutation: `
+          mutation sendMessage($messageId: String!) {
+            insertMessage(messageId: $messageId) {
+              _id
+              content
+            }
+          }
+        `,
 
-      // if conversation is messenger then notify graphql subscription
-      // server that new message inserted
-      if (!error && integration.kind === KIND_CHOICES.MESSENGER) {
-        newMessage(messageId);
-      }
+        variables: {
+          messageId,
+        },
+      });
 
       callback(error, messageId);
     };
@@ -35,7 +42,7 @@ function composer(props, onData) {
   );
 
   onData(null, {
-    conversation: props.conversation,
+    conversation,
     sendMessage,
     teamMembers: fromJS(teamMembers),
   });

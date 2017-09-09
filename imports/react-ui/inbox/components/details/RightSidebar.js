@@ -39,7 +39,7 @@ class RightSidebar extends Component {
     const integration = this.props.conversation.integration || {};
 
     if (integration.kind === 'messenger') {
-      return customer.getMessengerCustomData().map(data => (
+      return customer.getMessengerCustomData.map(data => (
         <li key={data.value}>
           <span>
             {data.name}

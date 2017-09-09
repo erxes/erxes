@@ -31,6 +31,7 @@
     ]
   },
   "dependencies": {
+    "add-graphql-subscriptions": "^1.0.1",
     "aws-sdk": "^2.28.0",
     "bcrypt": "^1.0.2",
     "body-parser": "^1.17.1",
@@ -65,6 +66,7 @@
     "react-toggle": "^3.0.1",
     "social-oauth-client": "^0.1.6",
     "strip": "^3.0.0",
+    "subscriptions-transport-ws": "^0.8.2",
     "twit": "^2.2.5"
   },
   "devDependencies": {
