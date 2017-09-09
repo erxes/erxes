@@ -6,6 +6,7 @@ export default `query objects($params: ConversationListParams) {
     participatorCount
     readUserIds
     participatedUserIds
+    status
     tags {
       _id
       name

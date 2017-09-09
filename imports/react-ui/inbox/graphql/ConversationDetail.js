@@ -1,6 +1,7 @@
 export default `query conversationDetail($_id: String!) {
   conversationDetail(_id: $_id) {
     _id
+    status
     assignedUser {
       _id
       details

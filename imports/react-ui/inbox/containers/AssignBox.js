@@ -6,7 +6,11 @@ import { AssignBox } from '../components';
 
 function composer(props, onData) {
   const assign = ({ targetIds, assignedUserId }, callback) => {
-    Meteor.call('conversations.assign', { conversationIds: targetIds, assignedUserId }, callback);
+    const params = { conversationIds: targetIds, assignedUserId };
+
+    Meteor.call('conversations.assign', params, (...params) => {
+      callback(...params);
+    });
   };
 
   const clear = (conversationIds, callback) => {

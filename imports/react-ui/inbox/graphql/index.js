@@ -1,5 +1,15 @@
-import ConversationList from './ConversationList.js';
-import ConversationDetail from './ConversationDetail.js';
-import MessageSubscription from './MessageSubscription.js';
+import conversationList from './conversationList.js';
+import conversationDetail from './conversationDetail.js';
+import conversationUpdatedSubscription from './conversationUpdatedSubscription.js';
+import mutations from './mutations.js';
 
-export { ConversationList, ConversationDetail, MessageSubscription };
+const queries = {
+  conversationList,
+  conversationDetail,
+};
+
+const subscriptions = {
+  conversationUpdated: conversationUpdatedSubscription,
+};
+
+export { queries, subscriptions, mutations };

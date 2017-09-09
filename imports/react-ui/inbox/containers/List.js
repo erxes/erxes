@@ -5,7 +5,7 @@ import { ReactiveVar } from 'meteor/reactive-var';
 import { pagination } from '/imports/react-ui/common';
 import { toggleBulk as commonToggleBulk } from '/imports/react-ui/common/utils';
 import { List } from '../components';
-import { ConversationList as ConversationListQuery } from '../graphql';
+import { queries } from '../graphql';
 
 const bulk = new ReactiveVar([]);
 
@@ -66,7 +66,7 @@ ListContainer.propTypes = {
 };
 
 export default compose(
-  graphql(gql(ConversationListQuery), {
+  graphql(gql(queries.conversationList), {
     name: 'conversationsQuery',
     options: ({ queryParams }) => {
       return {

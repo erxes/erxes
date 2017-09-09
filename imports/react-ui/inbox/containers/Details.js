@@ -2,8 +2,9 @@ import { Meteor } from 'meteor/meteor';
 import React, { PropTypes, Component } from 'react';
 import { compose, gql, graphql } from 'react-apollo';
 import { ReactiveVar } from 'meteor/reactive-var';
+import { mutate } from '/imports/react-ui/apollo-client';
 import { Details } from '../components';
-import { ConversationDetail as ConversationDetailQuery, MessageSubscription } from '../graphql';
+import { queries, mutations, subscriptions } from '../graphql';
 
 const attachmentPreview = new ReactiveVar({});
 
@@ -13,15 +14,20 @@ class DetailsContainer extends Component {
 
     // lister for new message insert
     conversationDetailQuery.subscribeToMore({
-      document: gql(MessageSubscription),
+      document: gql(subscriptions.conversationUpdated),
       variables: { conversationId: id },
       updateQuery: (prev, { subscriptionData }) => {
         if (!subscriptionData.data) {
           return prev;
         }
 
-        // newly created message
-        const newMessage = subscriptionData.data.conversationMessageAdded;
+        const { type, message } = subscriptionData.data.conversationUpdated;
+
+        // if some changes except newMessage occur, refetch query
+        if (type !== 'newMessage') {
+          this.props.conversationDetailQuery.refetch();
+          return prev;
+        }
 
         const conversationDetail = prev.conversationDetail;
         const messages = conversationDetail.messages;
@@ -30,7 +36,7 @@ class DetailsContainer extends Component {
         const next = Object.assign({}, prev, {
           conversationDetail: Object.assign({
             ...conversationDetail,
-            messages: [...messages, newMessage],
+            messages: [...messages, message],
           }),
         });
 
@@ -54,7 +60,15 @@ class DetailsContainer extends Component {
       Meteor.call(
         'conversations.changeStatus',
         { conversationIds: [conversationId], status },
-        callback,
+        (...params) => {
+          // call changeStatus mutation
+          mutate({
+            mutation: mutations.changeConversationStatus,
+            variables: { _id: conversation._id },
+          });
+
+          callback(...params);
+        },
       );
     };
 
@@ -94,7 +108,7 @@ DetailsContainer.propTypes = {
 };
 
 export default compose(
-  graphql(gql(ConversationDetailQuery), {
+  graphql(gql(queries.conversationDetail), {
     name: 'conversationDetailQuery',
     options: ({ id }) => ({
       variables: {
