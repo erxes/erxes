@@ -254,6 +254,6 @@ export const mutations = `
 
 export const subscriptions = `
   type Subscription {
-    conversationMessageAdded: ConversationMessage
+    conversationMessageAdded(conversationId: String!): ConversationMessage
   }
 `;
