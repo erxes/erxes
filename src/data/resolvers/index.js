@@ -1,9 +1,12 @@
 import customScalars from './customScalars';
+import Mutation from './mutations';
 import Query from './queries';
+import Subscription from './subscriptions';
 import ResponseTemplate from './responseTemplate';
 import Integration from './integration';
 import Form from './form';
 import EngageMessage from './Engage';
+import Customer from './Customer';
 import Conversation from './Conversation';
 import ConversationMessage from './ConversationMessage';
 
@@ -13,9 +16,12 @@ export default {
   ResponseTemplate,
   Integration,
   Form,
+  Customer,
   EngageMessage,
   Conversation,
   ConversationMessage,
 
+  Mutation,
   Query,
+  Subscription,
 };

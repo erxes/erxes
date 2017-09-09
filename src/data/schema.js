@@ -142,6 +142,9 @@ export const types = `
     messengerData: JSON
     twitterData: JSON
     facebookData: JSON
+
+    getIntegrationData: JSON
+    getMessengerCustomData: JSON
   }
 
   type Segment {
@@ -244,7 +247,13 @@ export const queries = `
 `;
 
 export const mutations = `
+  type Mutation {
+    insertMessage(messageId: String!): ConversationMessage
+  }
 `;
 
 export const subscriptions = `
+  type Subscription {
+    conversationMessageAdded: ConversationMessage
+  }
 `;

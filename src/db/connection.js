@@ -27,10 +27,7 @@ if (!isTest) {
 export function connect() {
   return mongoose
     .connect(DB_URI, {
-      server: {
-        // after server reload, user must not reload widget manually
-        auto_reconnect: true,
-      },
+      useMongoClient: true,
     })
     .then(() => {
       // empty (drop) database before running tests
