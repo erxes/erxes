@@ -1,50 +1,103 @@
 import _ from 'underscore';
-import { Integrations, Customers, Segments } from '../../../db/models';
+import { Brands, Tags, Integrations, Customers, Segments } from '../../../db/models';
+import { TAG_TYPES, INTEGRATION_KIND_CHOICES } from '../../constants';
 import QueryBuilder from './customerQueryBuilder.js';
+
+const listQuery = async params => {
+  const selector = {};
+
+  // Filter by segments
+  if (params.segment) {
+    const segment = await Segments.findOne({ _id: params.segment });
+    const query = QueryBuilder.segments(segment);
+    Object.assign(selector, query);
+  }
+
+  // filter by brand
+  if (params.brand) {
+    const integrations = await Integrations.find({ brandId: params.brand });
+    selector.integrationId = { $in: integrations.map(i => i._id) };
+  }
+
+  // filter by integration
+  if (params.integration) {
+    const integrations = await Integrations.find({ kind: params.integration });
+    /**
+     * Since both of brand and integration filters use a same integrationId field
+     * we need to intersect two arrays of integration ids.
+     */
+    const ids = integrations.map(i => i._id);
+    const intersectionedIds = selector.integrationId
+      ? _.intersection(ids, selector.integrationId.$in)
+      : ids;
+
+    selector.integrationId = { $in: intersectionedIds };
+  }
+
+  // Filter by tag
+  if (params.tag) {
+    selector.tagIds = params.tag;
+  }
+
+  return selector;
+};
 
 export default {
   async customers(root, { params }) {
-    const selector = {};
-
-    // Filter by segments
-    if (params.segment) {
-      const segment = await Segments.findOne({ _id: params.segment });
-      const query = QueryBuilder.segments(segment);
-      Object.assign(selector, query);
-    }
-
-    // filter by brand
-    if (params.brand) {
-      const integrations = await Integrations.find({ brandId: params.brand });
-      selector.integrationId = { $in: integrations.map(i => i._id) };
-    }
-
-    // filter by integration
-    if (params.integration) {
-      const integrations = await Integrations.find({ kind: params.integration });
-      /**
-       * Since both of brand and integration filters use a same integrationId field
-       * we need to intersect two arrays of integration ids.
-       */
-      const ids = integrations.map(i => i._id);
-      const intersectionedIds = selector.integrationId
-        ? _.intersection(ids, selector.integrationId.$in)
-        : ids;
-
-      selector.integrationId = { $in: intersectionedIds };
-    }
-
-    // Filter by tag
-    if (params.tag) {
-      selector.tagIds = params.tag;
-    }
-
-    const sort = { 'messengerData.lastSeenAt': -1 };
-    const limit = params.limit || 0;
+    const selector = await listQuery(params);
 
     return Customers.find(selector)
-      .sort(sort)
-      .limit(limit);
+      .sort({ 'messengerData.lastSeenAt': -1 })
+      .limit(params.limit || 0);
+  },
+
+  async customerCounts(root, { params }) {
+    const counts = { bySegment: {}, byBrand: {}, byIntegrationType: {}, byTag: {} };
+    const selector = await listQuery(params);
+
+    const count = query => {
+      const findQuery = Object.assign({}, selector, query);
+      return Customers.find(findQuery).count();
+    };
+
+    // Count current filtered customers
+    counts.all = await count(selector);
+
+    // Count customers by segments
+    const segments = await Segments.find();
+
+    for (let s of segments) {
+      counts.bySegment[s._id] = await count(QueryBuilder.segments(s));
+    }
+
+    // Count customers by brand
+    const brands = await Brands.find({});
+
+    for (let brand of brands) {
+      const integrations = await Integrations.find({ brandId: brand._id });
+
+      counts.byBrand[brand._id] = await count({
+        integrationId: { $in: integrations.map(i => i._id) },
+      });
+    }
+
+    // Count customers by integration
+    for (let kind of INTEGRATION_KIND_CHOICES.ALL_LIST) {
+      const integrations = await Integrations.find({ kind });
+
+      counts.byIntegrationType[kind] = await count({
+        integrationId: { $in: integrations.map(i => i._id) },
+      });
+    }
+
+    // Count customers by filter
+    const tags = await Tags.find({ type: TAG_TYPES.CUSTOMER });
+
+    for (let tag of tags) {
+      counts.byTag[tag._id] = await count({ tagIds: tag._id });
+    }
+
+    return counts;
   },
 
   /**

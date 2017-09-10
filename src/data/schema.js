@@ -256,6 +256,7 @@ export const queries = `
     tags(type: String): [Tag]
 
     customers(params: CustomerListParams): [Customer]
+    customerCounts(params: CustomerListParams): JSON
     customerDetail(_id: String!): Customer
     customerListForSegmentPreview(segment: JSON, limit: Int): [Customer]
     totalCustomersCount: Int

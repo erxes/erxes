@@ -12,3 +12,10 @@ export const INTEGRATION_KIND_CHOICES = {
   FACEBOOK: 'facebook',
   ALL_LIST: ['messenger', 'form', 'twitter', 'facebook'],
 };
+
+export const TAG_TYPES = {
+  CONVERSATION: 'conversation',
+  CUSTOMER: 'customer',
+  ENGAGE_MESSAGE: 'engageMessage',
+  ALL_LIST: ['conversation', 'customer', 'engageMessage'],
+};
