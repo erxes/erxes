@@ -1,3 +1,5 @@
+import { Conversations, Tags } from '../../db/models';
+
 export default {
   getIntegrationData(customer) {
     return {
@@ -19,5 +21,13 @@ export default {
     });
 
     return results;
+  },
+
+  getTags(customer) {
+    return Tags.find({ _id: { $in: customer.tagIds || [] } });
+  },
+
+  conversations(customer) {
+    return Conversations.find({ customerId: customer._id });
   },
 };

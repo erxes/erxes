@@ -39,9 +39,10 @@
     "graphql-server-module-graphiql": "^0.8.2",
     "graphql-subscriptions": "^0.4.3",
     "graphql-tools": "^1.0.0",
-    "subscriptions-transport-ws": "^0.7.3",
-    "mongoose": "^4.9.2",
     "meteor-random": "^0.0.3",
+    "moment": "^2.18.1",
+    "mongoose": "^4.9.2",
+    "subscriptions-transport-ws": "^0.7.3",
     "underscore": "^1.8.3"
   },
   "devDependencies": {

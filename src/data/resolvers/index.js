@@ -7,6 +7,7 @@ import Integration from './integration';
 import Form from './form';
 import EngageMessage from './Engage';
 import Customer from './Customer';
+import Segment from './Segment';
 import Conversation from './Conversation';
 import ConversationMessage from './ConversationMessage';
 
@@ -17,6 +18,7 @@ export default {
   Integration,
   Form,
   Customer,
+  Segment,
   EngageMessage,
   Conversation,
   ConversationMessage,

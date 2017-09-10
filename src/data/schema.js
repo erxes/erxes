@@ -14,6 +14,15 @@ export const types = `
     starred: String
   }
 
+  input CustomerListParams {
+    brand: String,
+    integration: String,
+    tag: String,
+    limit: Int,
+    page: String,
+    segment: String,
+  }
+
   type User {
     _id: String!
     username: String
@@ -138,13 +147,16 @@ export const types = `
     phone: String
     isUser: Boolean
     createdAt: Date
+    tagIds: [String]
     internalNotes: JSON
     messengerData: JSON
     twitterData: JSON
     facebookData: JSON
 
+    conversations: [Conversation]
     getIntegrationData: JSON
     getMessengerCustomData: JSON
+    getTags: [Tag]
   }
 
   type Segment {
@@ -155,6 +167,9 @@ export const types = `
     color: String
     connector: String
     conditions: JSON
+
+    getParentSegment: Segment
+    getSubSegments: [Segment]
   }
 
   type Conversation {
@@ -240,7 +255,9 @@ export const queries = `
 
     tags(type: String): [Tag]
 
-    customers(limit: Int): [Customer]
+    customers(params: CustomerListParams): [Customer]
+    customerDetail(_id: String!): Customer
+    totalCustomersCount: Int
     segments: [Segment]
 
     conversations(params: ConversationListParams): [Conversation]
