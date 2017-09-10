@@ -9,6 +9,7 @@ const propTypes = {
   objects: PropTypes.array.isRequired,
   remove: PropTypes.func.isRequired,
   save: PropTypes.func.isRequired,
+  refetch: PropTypes.func.isRequired,
   loadMore: PropTypes.func.isRequired,
   hasMore: PropTypes.bool.isRequired,
 };
@@ -21,9 +22,17 @@ class List extends Component {
   }
 
   renderObjects() {
-    const { objects, remove, save } = this.props;
+    const { objects, remove, save, refetch } = this.props;
 
-    return objects.map(object => this.renderRow({ key: object._id, object, remove, save }));
+    return objects.map(object =>
+      this.renderRow({
+        key: object._id,
+        object,
+        remove,
+        refetch,
+        save,
+      }),
+    );
   }
 
   render() {

@@ -64,6 +64,7 @@ const commonListComposer = options => {
 
     const updatedProps = {
       ...this.props,
+      refetch: listQuery.refetch,
       objects,
       loadMore,
       hasMore,

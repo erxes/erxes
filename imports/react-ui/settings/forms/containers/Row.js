@@ -4,7 +4,7 @@ import Alert from 'meteor/erxes-notifier';
 import { getTrackerLoader, composerOptions } from '/imports/react-ui/utils';
 import { Row } from '../components';
 
-function composer(props, onData) {
+function composer({ refetch }, onData) {
   const duplicateForm = id => {
     if (!confirm('Are you sure ?')) return;
 
@@ -12,6 +12,8 @@ function composer(props, onData) {
       if (error) {
         return Alert.error(error.reason || error.message);
       }
+
+      refetch();
 
       return Alert.success('Form has duplicated.');
     });
