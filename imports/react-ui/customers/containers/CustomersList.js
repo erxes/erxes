@@ -66,6 +66,14 @@ CustomerListContainer.propTypes = {
 export default compose(
   graphql(gql(queries.customers), {
     name: 'customersQuery',
+    options: ({ queryParams }) => ({
+      variables: {
+        params: {
+          ...queryParams,
+          limit: queryParams.limit || 20,
+        },
+      },
+    }),
   }),
   graphql(gql(queries.segments), { name: 'segmentsQuery' }),
   graphql(gql(queries.tags), {

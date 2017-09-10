@@ -18,8 +18,8 @@ const customerFields = `
 `;
 
 export const customers = `
-  query customers {
-    customers {
+  query customers($params: CustomerListParams) {
+    customers(params: $params) {
       ${customerFields}
     }
   }
@@ -30,7 +30,12 @@ export const customerDetail = `
     customerDetail(_id: $_id) {
       ${customerFields}
       conversations {
+        _id
         content
+        tags {
+          _id
+          name
+        }
       }
     }
   }

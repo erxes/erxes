@@ -10,7 +10,7 @@ import '/imports/api/brands/server/publications';
 import '/imports/api/brands/server/methods';
 
 import '/imports/api/customers/server/publications';
-import '/imports/api/customers/methods';
+import '/imports/api/customers/server/methods';
 
 import '/imports/api/channels/server/publications';
 import '/imports/api/channels/server/methods';

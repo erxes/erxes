@@ -12,7 +12,10 @@ const CustomerDetailsContainer = props => {
 
   const updatedProps = {
     ...props,
-    customer: customerDetailQuery.customerDetail,
+    customer: {
+      ...customerDetailQuery.customerDetail,
+      refetch: customerDetailQuery.refetch,
+    },
   };
 
   return <CustomerDetails {...updatedProps} />;

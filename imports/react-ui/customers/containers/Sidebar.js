@@ -1,22 +1,51 @@
-import { compose } from 'react-komposer';
-import { getTrackerLoader, composerOptions } from '/imports/react-ui/utils';
-import { Meteor } from 'meteor/meteor';
-import { Customers } from '/imports/api/customers/customers';
+import React, { PropTypes } from 'react';
+import { compose, gql, graphql } from 'react-apollo';
 import { KIND_CHOICES } from '/imports/api/integrations/constants';
 import { pagination } from '/imports/react-ui/common';
+import { queries } from '../graphql';
 import { Sidebar } from '../components';
 
-function composer({ queryParams }, onData) {
-  const { limit, loadMore, hasMore } = pagination(queryParams, 'customers.list.count');
+class CustomerListContainer extends React.Component {
+  render() {
+    const { queryParams, customersQuery, totalCountQuery } = this.props;
 
-  Meteor.subscribe('customers.list', Object.assign(queryParams, { limit }));
+    if (customersQuery.loading || totalCountQuery.loading) {
+      return null;
+    }
 
-  onData(null, {
-    customers: Customers.find({}, { sort: { 'messengerData.lastSeenAt': -1 } }).fetch(),
-    integrations: KIND_CHOICES.ALL_LIST,
-    loadMore,
-    hasMore,
-  });
+    const { totalCustomersCount } = totalCountQuery;
+    const { loadMore, hasMore } = pagination(queryParams, totalCustomersCount);
+
+    const updatedProps = {
+      ...this.props,
+
+      customers: customersQuery.customers,
+      integrations: KIND_CHOICES.ALL_LIST,
+      loadMore,
+      hasMore,
+    };
+
+    return <Sidebar {...updatedProps} />;
+  }
 }
 
-export default compose(getTrackerLoader(composer), composerOptions({}))(Sidebar);
+CustomerListContainer.propTypes = {
+  customersQuery: PropTypes.object,
+  totalCountQuery: PropTypes.object,
+  queryParams: PropTypes.object,
+};
+
+export default compose(
+  graphql(gql(queries.customers), {
+    name: 'customersQuery',
+    options: ({ queryParams }) => ({
+      variables: {
+        params: {
+          ...queryParams,
+          limit: queryParams.limit || 20,
+        },
+      },
+    }),
+  }),
+  graphql(gql(queries.totalCustomersCount), { name: 'totalCountQuery' }),
+)(CustomerListContainer);

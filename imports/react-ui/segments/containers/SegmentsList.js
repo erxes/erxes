@@ -2,7 +2,6 @@ import { compose } from 'react-komposer';
 import { getTrackerLoader, composerOptions } from '/imports/react-ui/utils';
 import { Meteor } from 'meteor/meteor';
 import Segments from '/imports/api/customers/segments';
-import { removeSegment } from '/imports/api/customers/methods';
 import { SegmentsList } from '../components';
 
 function composer(props, onData) {
@@ -12,7 +11,7 @@ function composer(props, onData) {
     onData(null, {
       segments: Segments.find({}, { sort: { name: 1 } }).fetch(),
       removeSegment({ id }, callback) {
-        removeSegment.call(id, callback);
+        Meteor.call('customers.removeSegment', id, callback);
       },
     });
   }

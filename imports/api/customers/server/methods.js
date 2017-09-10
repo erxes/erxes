@@ -2,8 +2,8 @@ import { ValidatedMethod } from 'meteor/mdg:validated-method';
 import { check } from 'meteor/check';
 import { Random } from 'meteor/random';
 import { ErxesMixin } from '/imports/api/utils';
-import Segments from './segments';
-import { Customers } from './customers';
+import Segments from '../segments';
+import { Customers } from '../customers';
 
 /**
  * Segments
@@ -84,9 +84,11 @@ export const removeInternalNote = new ValidatedMethod({
   run({ customerId, internalNoteId }) {
     const notes = Customers.findOne(customerId).internalNotes || [];
     const canDelete = !!notes.find(n => n.createdBy === this.userId);
+
     if (!canDelete) {
       throw new Meteor.Error('permissionDenied', 'Permission denied.');
     }
+
     Customers.update(customerId, { $pull: { internalNotes: { _id: internalNoteId } } });
   },
 });

@@ -1,7 +1,6 @@
 import { compose } from 'react-komposer';
 import { getTrackerLoader, composerOptions } from '/imports/react-ui/utils';
 import { Meteor } from 'meteor/meteor';
-import { createSegment, editSegment } from '/imports/api/customers/methods';
 import { Customers } from '/imports/api/customers/customers';
 import Segments from '/imports/api/customers/segments';
 import { SegmentsForm } from '../components';
@@ -24,10 +23,10 @@ function composer(props, onData) {
       segment: Segments.findOne(props.id),
       headSegments: Segments.find().fetch().filter(segment => !segment.subOf),
       create({ doc }, callback) {
-        createSegment.call(doc, callback);
+        Meteor.call('customers.createSegment', doc, callback);
       },
       edit({ id, doc }, callback) {
-        editSegment.call({ id, doc }, callback);
+        Meteor.call('customers.editSegment', { id, doc }, callback);
       },
     });
   }
