@@ -1,27 +1,42 @@
+const customerFields = `
+    _id
+    name
+    email
+    phone
+    isUser
+    integrationId
+    createdAt
+    messengerData
+    twitterData
+    facebookData
+    tagIds
+    internalNotes
+    getTags {
+      _id
+      name
+    }
+`;
+
 export const customers = `
   query customers {
     customers {
-      _id
-      name
-      email
-      phone
-      isUser
-      integrationId
-      createdAt
-      messengerData
-      twitterData
-      facebookData
-      tagIds
-      internalNotes
-      getTags {
-        _id
-        name
+      ${customerFields}
+    }
+  }
+`;
+
+export const customerDetail = `
+  query customerDetail($_id: String!) {
+    customerDetail(_id: $_id) {
+      ${customerFields}
+      conversations {
+        content
       }
     }
   }
 `;
 
-const segment = `
+const segmentFields = `
   _id
   name
   description
@@ -34,10 +49,10 @@ const segment = `
 export const segments = `
   query segments {
     segments {
-      ${segment}
+      ${segmentFields}
 
       getSubSegments {
-        ${segment}
+        ${segmentFields}
       }
     }
   }
