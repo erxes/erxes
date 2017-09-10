@@ -17,6 +17,7 @@ class CustomerListContainer extends Bulk {
       segmentsQuery,
       brandsQuery,
       tagsQuery,
+      customerCountsQuery,
     } = this.props;
 
     if (
@@ -24,6 +25,7 @@ class CustomerListContainer extends Bulk {
       totalCountQuery.loading ||
       segmentsQuery.loading ||
       brandsQuery.loading ||
+      customerCountsQuery.loading ||
       tagsQuery.loading
     ) {
       return null;
@@ -41,6 +43,7 @@ class CustomerListContainer extends Bulk {
         Customers.getPublicFields(),
 
       customers: customersQuery.customers,
+      counts: customerCountsQuery.customerCounts,
       segments: segmentsQuery.segments,
       brands: brandsQuery.brands,
       integrations: KIND_CHOICES.ALL_LIST,
@@ -61,11 +64,23 @@ CustomerListContainer.propTypes = {
   tagsQuery: PropTypes.object,
   brandsQuery: PropTypes.object,
   totalCountQuery: PropTypes.object,
+  customerCountsQuery: PropTypes.object,
 };
 
 export default compose(
   graphql(gql(queries.customers), {
     name: 'customersQuery',
+    options: ({ queryParams }) => ({
+      variables: {
+        params: {
+          ...queryParams,
+          limit: queryParams.limit || 20,
+        },
+      },
+    }),
+  }),
+  graphql(gql(queries.customerCounts), {
+    name: 'customerCountsQuery',
     options: ({ queryParams }) => ({
       variables: {
         params: {
