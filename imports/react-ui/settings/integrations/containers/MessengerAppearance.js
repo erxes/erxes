@@ -52,6 +52,7 @@ export default compose(
         variables: {
           _id: integrationId,
         },
+        fetchPolicy: 'network-only',
       }),
     },
   ),
