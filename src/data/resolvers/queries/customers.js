@@ -47,6 +47,23 @@ export default {
       .limit(limit);
   },
 
+  /**
+   * Publishes customers list for the preview
+   * when creating/editing a customer segment
+   * @param {Object} segment   Segment that's being created/edited
+   * @param {Number} [limit=0] Customers limit (for pagination)
+   */
+  async customerListForSegmentPreview(root, { segment, limit }) {
+    const headSegment = await Segments.findOne({ _id: segment.subOf });
+
+    const query = QueryBuilder.segments(segment, headSegment);
+    const sort = { 'messengerData.lastSeenAt': -1 };
+
+    return Customers.find(query)
+      .sort(sort)
+      .limit(limit);
+  },
+
   customerDetail(root, { _id }) {
     return Customers.findOne({ _id });
   },
@@ -57,5 +74,13 @@ export default {
 
   segments() {
     return Segments.find({});
+  },
+
+  headSegments() {
+    return Segments.find({ subOf: { $exists: false } });
+  },
+
+  segmentDetail(root, { _id }) {
+    return Segments.findOne({ _id });
   },
 };

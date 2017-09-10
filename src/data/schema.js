@@ -257,8 +257,11 @@ export const queries = `
 
     customers(params: CustomerListParams): [Customer]
     customerDetail(_id: String!): Customer
+    customerListForSegmentPreview(segment: JSON, limit: Int): [Customer]
     totalCustomersCount: Int
     segments: [Segment]
+    headSegments: [Segment]
+    segmentDetail(_id: String): Segment
 
     conversations(params: ConversationListParams): [Conversation]
     conversationCounts(params: ConversationListParams): JSON
