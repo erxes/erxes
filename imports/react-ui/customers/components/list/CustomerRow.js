@@ -8,7 +8,7 @@ import { Tags } from '/imports/react-ui/common';
 const propTypes = {
   customer: PropTypes.object.isRequired,
   customerFields: PropTypes.array.isRequired,
-  toggleBulk: PropTypes.func.isRequired,
+  toggleBulk: PropTypes.func,
 };
 
 function formatValue(value) {
@@ -25,7 +25,9 @@ function formatValue(value) {
 
 function CustomerRow({ customer, customerFields, toggleBulk }) {
   const onChange = e => {
-    toggleBulk(customer, e.target.checked);
+    if (toggleBulk) {
+      toggleBulk(customer, e.target.checked);
+    }
   };
 
   return (
