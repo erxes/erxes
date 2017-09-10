@@ -1,12 +1,15 @@
 import { Meteor } from 'meteor/meteor';
-import { compose } from 'react-komposer';
+import React, { PropTypes } from 'react';
+import { compose, gql, graphql } from 'react-apollo';
 import Alert from 'meteor/erxes-notifier';
-import { getTrackerLoader, composerOptions } from '/imports/react-ui/utils';
-import { Tags } from '/imports/api/tags/tags';
 import { List } from '../components';
 
-function composer({ type }, onData) {
-  const tagsHandle = Meteor.subscribe('tags.tagList', type);
+const ListContainer = props => {
+  const { tagsQuery, type } = props;
+
+  if (tagsQuery.loading) {
+    return null;
+  }
 
   const remove = tag => {
     if (!confirm('Are you sure you want to delete this tag?')) {
@@ -23,13 +26,41 @@ function composer({ type }, onData) {
     });
   };
 
-  if (tagsHandle.ready()) {
-    onData(null, {
-      tags: Tags.find({ type }).fetch(),
-      type,
-      remove,
-    });
-  }
-}
+  const updatedProps = {
+    ...props,
+    tags: tagsQuery.tags,
+    type,
+    remove,
+  };
 
-export default compose(getTrackerLoader(composer), composerOptions({}))(List);
+  return <List {...updatedProps} />;
+};
+
+ListContainer.propTypes = {
+  type: PropTypes.string,
+  tagsQuery: PropTypes.object,
+};
+
+export default compose(
+  graphql(
+    gql`
+      query tagsQuery($type: String) {
+        tags(type: $type) {
+          _id
+          name
+          type
+          color
+          createdAt
+          objectCount
+        }
+      }
+    `,
+    {
+      name: 'tagsQuery',
+      options: ({ type }) => ({
+        variables: { type },
+        fetchPolicy: 'network-only',
+      }),
+    },
+  ),
+)(ListContainer);
