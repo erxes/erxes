@@ -38,13 +38,13 @@ function CustomerRow({ customer, customerFields, toggleBulk }) {
           <i className="ion-log-in" />
         </a>
       </td>
-      {customerFields.map(({ key }) =>
+      {customerFields.map(({ key }) => (
         <td key={key}>
           {formatValue(_.get(customer, key))}
-        </td>,
-      )}
+        </td>
+      ))}
       <td>
-        <Tags tags={customer.getTags()} size="small" />
+        <Tags tags={customer.getTags} size="small" />
       </td>
     </tr>
   );

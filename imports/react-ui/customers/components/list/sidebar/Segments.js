@@ -15,7 +15,7 @@ function Segments({ segments }) {
 
   const orderedSegments = [];
   segments.filter(segment => !segment.subOf).map(segment => {
-    orderedSegments.push(segment, ...segment.getSubSegments());
+    orderedSegments.push(segment, ...segment.getSubSegments);
   });
 
   return (
