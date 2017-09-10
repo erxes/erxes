@@ -134,7 +134,7 @@ export const types = `
     _id: String!
     name: String
     type: String
-    color: String
+    colorCode: String
     createdAt: Date
     objectCount: Int
   }
@@ -236,6 +236,7 @@ export const queries = `
     totalBrandsCount: Int
 
     integrations(limit: Int, kind: String): [Integration]
+    integrationDetail(_id: String!): Integration
     totalIntegrationsCount(kind: String): Int
 
     responseTemplates(limit: Int): [ResponseTemplate]

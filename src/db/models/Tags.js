@@ -9,7 +9,7 @@ const TagSchema = mongoose.Schema({
   },
   name: String,
   type: String,
-  color: String,
+  colorCode: String,
   createdAt: Date,
   objectCount: Number,
 });

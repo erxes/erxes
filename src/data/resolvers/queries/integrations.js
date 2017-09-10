@@ -17,6 +17,10 @@ export default {
     return integrations;
   },
 
+  integrationDetail(root, { _id }) {
+    return Integrations.findOne({ _id });
+  },
+
   totalIntegrationsCount(root, { kind }) {
     return Integrations.find({ kind }).count();
   },
