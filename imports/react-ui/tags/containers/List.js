@@ -22,8 +22,24 @@ const ListContainer = props => {
         return Alert.error(error.reason);
       }
 
+      tagsQuery.refetch();
+
       return Alert.success('The tag has been deleted, forever!');
     });
+  };
+
+  const save = ({ tag, doc, callback }) => {
+    const cb = (...params) => {
+      callback(...params);
+
+      tagsQuery.refetch();
+    };
+
+    if (tag) {
+      return Meteor.call('tags.edit', { id: tag._id, doc }, cb);
+    }
+
+    return Meteor.call('tags.add', doc, cb);
   };
 
   const updatedProps = {
@@ -31,6 +47,7 @@ const ListContainer = props => {
     tags: tagsQuery.tags,
     type,
     remove,
+    save,
   };
 
   return <List {...updatedProps} />;
@@ -49,7 +66,7 @@ export default compose(
           _id
           name
           type
-          color
+          colorCode
           createdAt
           objectCount
         }
