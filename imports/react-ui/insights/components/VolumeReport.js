@@ -4,6 +4,7 @@ import { Wrapper } from '/imports/react-ui/layout/components';
 import Sidebar from './Sidebar';
 import Filter from './Filter';
 import Chart from './Chart';
+import Summary from './Summary';
 import PunchCard from './PunchCard';
 import Insights from './Insights';
 
@@ -12,6 +13,7 @@ const propTypes = {
   trend: PropTypes.array.isRequired,
   brands: PropTypes.array.isRequired,
   punch: PropTypes.array.isRequired,
+  summary: PropTypes.array.isRequired,
 };
 
 class VolumeReport extends React.Component {
@@ -37,7 +39,7 @@ class VolumeReport extends React.Component {
   }
 
   render() {
-    const { trend, punch, insights, brands } = this.props;
+    const { trend, punch, insights, summary, brands } = this.props;
     const width = this.state.width;
 
     const content = (
@@ -52,6 +54,11 @@ class VolumeReport extends React.Component {
           >
             {this.renderTitle('Volume Trend')}
             <Chart width={width} height={300} data={trend} />
+          </div>
+
+          <div className="insight-row">
+            {this.renderTitle('Volume summary')}
+            <Summary data={summary} />
           </div>
 
           {width !== 600

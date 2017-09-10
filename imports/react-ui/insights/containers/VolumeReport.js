@@ -3,7 +3,7 @@ import { compose } from 'react-komposer';
 import { getTrackerLoader, composerOptions } from '/imports/react-ui/utils';
 import { Brands } from '/imports/api/brands/brands';
 import { VolumeReport } from '../components';
-import { PunchCardData, MainGraph, InsightData } from '/imports/api/insights/collections';
+import { PunchCardData, MainGraph, InsightData, Summary } from '/imports/api/insights/collections';
 
 function composer({ queryParams }, onData) {
   const integrationHandle = Meteor.subscribe('insights.volume', queryParams);
@@ -23,12 +23,14 @@ function composer({ queryParams }, onData) {
     const insights = InsightData.find().fetch();
     const trend = MainGraph.find().fetch();
     const punch = PunchCardData.find().fetch();
+    const summary = Summary.find().fetch();
 
     onData(null, {
       insights,
       trend,
       brands,
       punch,
+      summary,
     });
   }
 }

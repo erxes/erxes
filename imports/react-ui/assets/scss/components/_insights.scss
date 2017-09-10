@@ -62,6 +62,24 @@
     	}
     }
 	}
+
+	.summary-item {
+		border: 1px solid #ddd;
+		text-align: center;
+		border-radius: 5px;
+		margin-bottom: 30px;
+		padding: 12px;
+
+		.summary-title {
+			margin-bottom:4px;
+			text-transform: uppercase;
+		}
+
+		.summary-count {
+			font-weight: bold;
+			font-size: 24px;
+		}
+	}
 }
 
 #punch-card {

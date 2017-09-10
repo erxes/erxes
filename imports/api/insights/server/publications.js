@@ -66,13 +66,9 @@ Meteor.publishComposite('insights.volume', function(params) {
   const integrationSelector = {};
 
   if (!startDate || !endDate) {
-    const fullDate = new Date();
-    const year = fullDate.getFullYear();
-    const month = fullDate.getMonth();
-    const date = fullDate.getDate();
-
-    startDate = `${year - 1}/${month - 1}/${date}`;
-    endDate = `${year}/${month + 1}/${date}`;
+    endDate = new Date();
+    const year = moment(endDate).year();
+    startDate = moment(endDate).year(year - 1);
   }
 
   conversationSelector.createdAt = { $gte: new Date(startDate), $lte: new Date(endDate) };
@@ -145,13 +141,9 @@ Meteor.publishComposite('insights.teamMembers', function(params, type) {
   const messageSelector = { userId: volumeOrResponse };
 
   if (!startDate || !endDate) {
-    const fullDate = new Date();
-    const year = fullDate.getFullYear();
-    const month = fullDate.getMonth();
-    const date = fullDate.getDate();
-
-    startDate = `${year - 1}/${month - 1}/${date}`;
-    endDate = `${year}/${month + 1}/${date}`;
+    endDate = new Date();
+    const year = moment(endDate).year();
+    startDate = moment(endDate).year(year - 1);
   }
 
   messageSelector.createdAt = { $gte: new Date(startDate), $lte: new Date(endDate) };
@@ -223,6 +215,61 @@ Meteor.publishComposite('insights.teamMembers', function(params, type) {
       }
     });
   }
+
+  const month = moment(endDate).month();
+  const summaries = [
+    {
+      title: 'In time range',
+      start: startDate,
+      end: endDate,
+    },
+    {
+      title: 'This month',
+      start: moment(1, 'DD'),
+      end: moment(),
+    },
+    {
+      title: 'This week',
+      start: moment(endDate).weekday(0),
+      end: endDate,
+    },
+    {
+      title: 'Today',
+      start: moment(endDate).add(-1, 'days'),
+      end: endDate,
+    },
+    {
+      title: 'Last 30 days',
+      start: moment(endDate).add(-30, 'days'),
+      end: endDate,
+    },
+    {
+      title: 'Last month',
+      start: moment(month, 'MM'),
+      end: moment(month + 1, 'MM'),
+    },
+    {
+      title: 'Last week',
+      start: moment(endDate).weekday(-7),
+      end: moment(endDate).weekday(0),
+    },
+    {
+      title: 'Yesterday',
+      start: moment(endDate).add(-2, 'days'),
+      end: moment(endDate).add(-1, 'days'),
+    },
+  ];
+
+  summaries.forEach((summary, index) => {
+    const start = new Date(summary.start).getTime();
+    const end = new Date(summary.end).getTime();
+
+    const count = messages.filter(message => start < message.createdAt && message.createdAt < end)
+      .length;
+
+    const data = { title: summary.title, count };
+    this.added('summary', index, data);
+  });
 
   return {
     find() {
@@ -335,13 +382,9 @@ Meteor.publishComposite('insights.first.response', function(params) {
   const messageSelector = { userId: { $ne: null } };
 
   if (!startDate || !endDate) {
-    const fullDate = new Date();
-    const year = fullDate.getFullYear();
-    const month = fullDate.getMonth();
-    const date = fullDate.getDate();
-
-    startDate = `${year - 1}/${month - 1}/${date}`;
-    endDate = `${year}/${month + 1}/${date}`;
+    endDate = new Date();
+    const year = moment(endDate).year();
+    startDate = moment(endDate).year(year - 1);
   }
 
   const conversationSelector = { messageCount: { $gt: 2 } };

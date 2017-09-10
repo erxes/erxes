@@ -3,7 +3,7 @@ import { compose } from 'react-komposer';
 import { getTrackerLoader, composerOptions } from '/imports/react-ui/utils';
 import { Brands } from '/imports/api/brands/brands';
 import { ResponseReport } from '../components';
-import { PunchCardData, MainGraph, UsersData } from '/imports/api/insights/collections';
+import { PunchCardData, MainGraph, UsersData, Summary } from '/imports/api/insights/collections';
 
 function composer({ queryParams }, onData) {
   const teamMembersHandle = Meteor.subscribe('insights.teamMembers', queryParams, 'response');
@@ -16,12 +16,14 @@ function composer({ queryParams }, onData) {
     const trend = MainGraph.find().fetch();
     const teamMembers = UsersData.find().fetch();
     const punch = PunchCardData.find().fetch();
+    const summary = Summary.find().fetch();
 
     onData(null, {
       trend,
       teamMembers,
       brands,
       punch,
+      summary,
     });
   }
 }

@@ -4,6 +4,7 @@ import { Wrapper } from '/imports/react-ui/layout/components';
 import Sidebar from './Sidebar';
 import Filter from './Filter';
 import Chart from './Chart';
+import Summary from './Summary';
 import TeamMembers from './TeamMembers';
 import PunchCard from './PunchCard';
 
@@ -12,6 +13,7 @@ const propTypes = {
   teamMembers: PropTypes.array.isRequired,
   brands: PropTypes.array.isRequired,
   punch: PropTypes.array.isRequired,
+  summary: PropTypes.array.isRequired,
 };
 
 class ResponseReport extends React.Component {
@@ -37,7 +39,7 @@ class ResponseReport extends React.Component {
   }
 
   render() {
-    const { trend, teamMembers, punch, brands } = this.props;
+    const { trend, teamMembers, punch, summary, brands } = this.props;
     const width = this.state.width;
 
     const content = (
@@ -52,6 +54,11 @@ class ResponseReport extends React.Component {
           >
             {this.renderTitle('Response Trend')}
             <Chart width={width} height={300} data={trend} />
+          </div>
+
+          <div className="insight-row">
+            {this.renderTitle('Response Times summary')}
+            <Summary data={summary} />
           </div>
 
           {width !== 600
