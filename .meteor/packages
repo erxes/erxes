@@ -25,7 +25,6 @@ aldeed:simple-schema
 seba:minifiers-autoprefixer
 dburles:factory
 practicalmeteor:mocha@2.4.5_6
-reywood:publish-composite
 dburles:collection-helpers
 percolate:synced-cron
 fourseven:scss@4.5.0
@@ -36,4 +35,3 @@ dispatch:mocha
 
 erxes-notifier
 erxes-notifications
-stub-collections
