@@ -1,35 +1,30 @@
 import React, { PropTypes } from 'react';
 import { compose, gql, graphql } from 'react-apollo';
-import { ReactiveVar } from 'meteor/reactive-var';
 import { TAG_TYPES } from '/imports/api/tags/constants';
-import { toggleBulk as commonToggleBulk } from '/imports/react-ui/common/utils';
+import { Bulk } from '/imports/react-ui/common';
 import { MessageList } from '../components';
 
-const bulk = new ReactiveVar([]);
+class MessageListContainer extends Bulk {
+  render() {
+    const { queryParams, tagsQuery, engageMessagesQuery } = this.props;
 
-const MessageListContainer = props => {
-  const { queryParams, tagsQuery, engageMessagesQuery } = props;
+    if (tagsQuery.loading || engageMessagesQuery.loading) {
+      return null;
+    }
 
-  if (tagsQuery.loading || engageMessagesQuery.loading) {
-    return null;
+    const updatedProps = {
+      kind: queryParams.kind,
+      messages: engageMessagesQuery.engageMessages,
+      tags: tagsQuery.tags,
+      bulk: this.state.bulk,
+      toggleBulk: this.toggleBulk,
+      emptyBulk: this.emptyBulk,
+      refetch: engageMessagesQuery.refetch,
+    };
+
+    return <MessageList {...updatedProps} />;
   }
-
-  // actions ===========
-  const toggleBulk = (message, toAdd) => commonToggleBulk(bulk, message, toAdd);
-  const emptyBulk = () => bulk.set([]);
-
-  const updatedProps = {
-    kind: queryParams.kind,
-    messages: engageMessagesQuery.engageMessages,
-    tags: tagsQuery.tags,
-    bulk: bulk.get(),
-    toggleBulk,
-    emptyBulk,
-    refetch: engageMessagesQuery.refetch,
-  };
-
-  return <MessageList {...updatedProps} />;
-};
+}
 
 MessageListContainer.propTypes = {
   type: PropTypes.string,
