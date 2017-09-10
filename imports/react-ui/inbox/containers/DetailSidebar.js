@@ -1,68 +1,55 @@
 import React, { PropTypes } from 'react';
 import { compose, gql, graphql } from 'react-apollo';
-import { ReactiveVar } from 'meteor/reactive-var';
-import { _ } from 'meteor/underscore';
-import { pagination } from '/imports/react-ui/common';
+import { Bulk, pagination } from '/imports/react-ui/common';
 import { DetailSidebar } from '../components';
+import { queries } from '../graphql';
 
-const bulk = new ReactiveVar([]);
+class DetailSidebarContainer extends Bulk {
+  render() {
+    const {
+      channelId,
+      conversation,
+      totalCountQuery,
+      conversationsQuery,
+      queryParams,
+    } = this.props;
 
-const DetailSidebarContainer = props => {
-  const { channelId, conversation, totalCountQuery, conversationsQuery, queryParams } = props;
-
-  if (conversationsQuery.loading || totalCountQuery.loading) {
-    return null;
-  }
-
-  const user = Meteor.user();
-  const conversations = conversationsQuery.conversations;
-  const totalCount = totalCountQuery.totalConversationsCount;
-
-  const { loadMore, hasMore } = pagination(queryParams, totalCount);
-
-  // actions ===========
-  const toggleBulk = (conversation, toAdd) => {
-    let entries = bulk.get();
-
-    // remove old entry
-    entries = _.without(entries, _.findWhere(entries, { _id: conversation._id }));
-
-    if (toAdd) {
-      entries.push(conversation);
+    if (conversationsQuery.loading || totalCountQuery.loading) {
+      return null;
     }
 
-    bulk.set(entries);
-  };
+    const user = Meteor.user();
+    const conversations = conversationsQuery.conversations;
+    const totalCount = totalCountQuery.totalConversationsCount;
 
-  const emptyBulk = () => {
-    bulk.set([]);
-  };
+    const { loadMore, hasMore } = pagination(queryParams, totalCount);
 
-  // const conversationSort = { sort: { createdAt: -1 } };
+    // const conversationSort = { sort: { createdAt: -1 } };
 
-  // unread conversations
-  const unreadConversations = conversations.filter(conv => !conv.readUserIds.includes(user._id));
+    // unread conversations
+    const unreadConversations = conversations.filter(conv => !conv.readUserIds.includes(user._id));
 
-  // read conversations
-  const readConversations = conversations.filter(
-    conv => conv.readUserIds.includes(user._id) && conv._id !== conversation._id,
-  );
+    // read conversations
+    const readConversations = conversations.filter(
+      conv => conv.readUserIds.includes(user._id) && conv._id !== conversation._id,
+    );
 
-  const updatedProps = {
-    ...props,
-    bulk: bulk.get(),
-    loadMore,
-    hasMore,
-    unreadConversations,
-    readConversations,
-    channelId,
-    user,
-    toggleBulk,
-    emptyBulk,
-  };
+    const updatedProps = {
+      ...this.props,
+      bulk: this.state.bulk,
+      loadMore,
+      hasMore,
+      unreadConversations,
+      readConversations,
+      channelId,
+      user,
+      toggleBulk: this.toggleBulk,
+      emptyBulk: this.emptyBulk,
+    };
 
-  return <DetailSidebar {...updatedProps} />;
-};
+    return <DetailSidebar {...updatedProps} />;
+  }
+}
 
 DetailSidebarContainer.propTypes = {
   conversation: PropTypes.object,
@@ -73,43 +60,15 @@ DetailSidebarContainer.propTypes = {
 };
 
 export default compose(
-  graphql(
-    gql`
-      query conversations($params: ConversationListParams) {
-        conversations(params: $params) {
-          _id
-          readUserIds
-          content
-          createdAt
-          customer {
-            _id
-            name
-          }
-          integration {
-            _id
-            brand {
-              _id
-              name
-            }
-          }
-          tags {
-            _id
-            name
-            color
-          }
-        }
-      }
-    `,
-    {
-      name: 'conversationsQuery',
-      options: ({ queryParams }) => ({
-        fetchPolicy: 'network-only',
-        variables: {
-          params: queryParams,
-        },
-      }),
-    },
-  ),
+  graphql(gql(queries.conversationList), {
+    name: 'conversationsQuery',
+    options: ({ queryParams }) => ({
+      fetchPolicy: 'network-only',
+      variables: {
+        params: queryParams,
+      },
+    }),
+  }),
   graphql(
     gql`
       query totalConversationsCount {
