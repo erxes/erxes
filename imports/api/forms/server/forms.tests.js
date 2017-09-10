@@ -17,9 +17,7 @@ import {
   editField,
   removeField,
   updateFieldsOrder,
-} from '../methods';
-
-import './publications';
+} from './methods';
 
 describe('forms', function() {
   describe('methods', function() {

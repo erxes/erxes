@@ -2,51 +2,14 @@
 
 import { Meteor } from 'meteor/meteor';
 import { Random } from 'meteor/random';
-import { _ } from 'meteor/underscore';
 import { Factory } from 'meteor/dburles:factory';
-import { assert, chai } from 'meteor/practicalmeteor:chai';
-import { PublicationCollector } from 'meteor/johanbrook:publication-collector';
+import { assert } from 'meteor/practicalmeteor:chai';
 import { Notifications } from 'meteor/erxes-notifications';
 
 import { Messages } from '../messages';
-import { Conversations } from '../conversations';
 import { addMessage } from './methods';
-import './publications.js';
 
 describe('conversation - messages', function() {
-  describe('publications', function() {
-    let conversationId;
-    const userId = Factory.create('user')._id;
-
-    before(function() {
-      Conversations.remove({});
-      Messages.remove({});
-
-      conversationId = Factory.create('conversation')._id;
-
-      _.times(2, () => Factory.create('message'));
-      _.times(2, () => Factory.create('message', { conversationId }));
-    });
-
-    describe('conversations.messageList', function() {
-      it('sends all messages', function(done) {
-        const collector = new PublicationCollector({ userId });
-        collector.collect('conversations.messageList', conversationId, collections => {
-          chai.assert.equal(collections.conversation_messages.length, 2);
-          done();
-        });
-      });
-
-      it('do not send messages without user', function(done) {
-        const collector = new PublicationCollector();
-        collector.collect('conversations.messageList', conversationId, collections => {
-          chai.assert.equal(collections.conversation_messages, undefined);
-          done();
-        });
-      });
-    });
-  });
-
   describe('methods', function() {
     let userId;
 

@@ -34,7 +34,6 @@ practicalmeteor:chai
 alanning:roles
 meteorhacks:picker
 dispatch:mocha
-johanbrook:publication-collector@1.0.6
 
 erxes-notifier
 erxes-notifications
