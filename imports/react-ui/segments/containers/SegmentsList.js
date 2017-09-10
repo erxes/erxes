@@ -14,7 +14,10 @@ const SegmentListContainer = props => {
     ...props,
     segments: segmentsQuery.segments,
     removeSegment({ id }, callback) {
-      Meteor.call('customers.removeSegment', id, callback);
+      Meteor.call('customers.removeSegment', id, (...params) => {
+        segmentsQuery.refetch();
+        callback(...params);
+      });
     },
   };
 

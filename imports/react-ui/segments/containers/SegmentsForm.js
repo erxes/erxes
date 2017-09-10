@@ -56,7 +56,7 @@ const segmentFields = `
 export default compose(
   graphql(
     gql`
-      query segmentDetail($_id: String!) {
+      query segmentDetail($_id: String) {
         segmentDetail(_id: $_id) {
           ${segmentFields}
           getSubSegments {
