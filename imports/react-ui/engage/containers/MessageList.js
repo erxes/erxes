@@ -72,7 +72,7 @@ export default compose(
           _id
           name
           type
-          color
+          colorCode
         }
       }
     `,

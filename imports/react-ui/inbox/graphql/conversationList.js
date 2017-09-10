@@ -10,6 +10,7 @@ export default `query objects($params: ConversationListParams) {
     tags {
       _id
       name
+      colorCode
     }
     customer {
       _id

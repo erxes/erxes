@@ -46,7 +46,7 @@ export default `query conversationDetail($_id: String!) {
     tags {
       _id
       name
-      color
+      colorCode
     }
   }
 }`;
