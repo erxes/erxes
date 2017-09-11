@@ -37,8 +37,22 @@ const messageQuery = `
 `;
 
 class Conversation extends React.Component {
-  componentWillMount() {
-    const { conversationId, data } = this.props;
+  componentWillReceiveProps(nextProps) {
+    this.subscribe(this.props);
+
+    if (this.props.data.loading) {
+      return;
+    }
+
+    // when new conversation, conversationId props will be null. So after first
+    // message creation update subscription with new conversationId variable
+    if (!this.props.conversationId && nextProps.conversationId) {
+      this.subscribe(this.props);
+    }
+  }
+
+  subscribe(props) {
+    const { conversationId, data } = props;
 
     // lister for new message insert
     data.subscribeToMore({
