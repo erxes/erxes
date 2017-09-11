@@ -3,7 +3,7 @@ import React, { PropTypes } from 'react';
 import { compose, gql, graphql } from 'react-apollo';
 import { fromJS } from 'immutable';
 import { mutate } from '/imports/react-ui/apollo-client';
-import { queries } from '../graphql';
+import { queries, mutations } from '../graphql';
 import { RespondBox } from '../components';
 
 const RespondBoxContainer = props => {
@@ -16,20 +16,7 @@ const RespondBoxContainer = props => {
   const sendMessage = (message, callback) => {
     const cb = (error, messageId) => {
       // notify graphql subscription server that new message inserted
-      mutate({
-        mutation: `
-          mutation sendMessage($messageId: String!) {
-            insertMessage(messageId: $messageId) {
-              _id
-              content
-            }
-          }
-        `,
-
-        variables: {
-          messageId,
-        },
-      });
+      mutate({ mutation: mutations.sendMessage, variables: { messageId } });
 
       callback(error, messageId);
     };

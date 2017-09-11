@@ -1,6 +1,17 @@
 export default `
   _id
   content
+  attachments
+  mentionedUserIds
+  conversationId
+  internal
+  customerId
+  userId
+  createdAt
+  isCustomerRead
+  engageData
+  formWidgetData
+  facebookData
   user {
     _id
     username
@@ -10,7 +21,4 @@ export default `
     _id
     name
   }
-  formWidgetData
-  engageData
-  facebookData
 `;

@@ -3,6 +3,7 @@ import messageFields from './messageFields.js';
 export default `query conversationDetail($_id: String!) {
   conversationDetail(_id: $_id) {
     _id
+    content
     status
     assignedUser {
       _id
