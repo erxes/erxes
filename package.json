@@ -37,6 +37,7 @@
     "body-parser": "^1.17.1",
     "bootstrap": "^3.3.7",
     "classnames": "^2.2.5",
+    "d3-punchcard": "^1.0.1",
     "draft-js": "^0.10.0",
     "draft-js-export-html": "^0.5.2",
     "draft-js-mention-plugin": "^2.0.0-beta9",
