@@ -35,4 +35,18 @@ export default {
 
     return [_ids];
   },
+
+  async readConversationMessages(root, { _id }) {
+    const conversation = await Conversations.findOne({ _id });
+
+    pubsub.publish('conversationUpdated', {
+      conversationUpdated: { conversationId: _id, type: 'readStateChanged' },
+    });
+
+    pubsub.publish('conversationNotification', {
+      conversationNotification: { customerId: conversation.customerId },
+    });
+
+    return _id;
+  },
 };

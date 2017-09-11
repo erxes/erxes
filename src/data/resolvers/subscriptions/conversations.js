@@ -13,6 +13,16 @@ export default {
   },
 
   conversationNotification: {
-    subscribe: () => pubsub.asyncIterator('conversationNotification'),
+    subscribe: withFilter(
+      () => pubsub.asyncIterator('conversationNotification'),
+      // filter by customerId
+      (payload, variables) => {
+        if (variables.customerId) {
+          return payload.conversationNotification.customerId === variables.customerId;
+        }
+
+        return true;
+      },
+    ),
   },
 };

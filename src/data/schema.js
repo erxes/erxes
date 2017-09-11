@@ -277,12 +277,13 @@ export const mutations = `
     insertMessage(messageId: String!): ConversationMessage
     changeConversationStatus(_id: String!): String
     assignConversations(_ids: [String]!): [String]
+    readConversationMessages(_id: String!): String
   }
 `;
 
 export const subscriptions = `
   type Subscription {
     conversationUpdated(conversationId: String!): ConversationUpdatedResponse
-    conversationNotification(customerId: String!): String
+    conversationNotification(customerId: String): String
   }
 `;
