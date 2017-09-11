@@ -37,26 +37,21 @@ const messageQuery = `
 `;
 
 class Conversation extends React.Component {
-  constuctor() {
-    this.subscription = null;
+  componentWillMount() {
+    const { data, conversationId } = this.props;
+
+    this.subscribe(data, conversationId);
   }
 
   componentWillReceiveProps(nextProps) {
-      // first time subscription creation
-    if (!this.subscription && !nextProps.data.loading) {
-      this.subscription = this.subscribe(this.props);
-    }
-
     // when new conversation, conversationId props will be null. So after first
     // message creation update subscription with new conversationId variable
-    if (!this.props.conversationId && nextProps.conversationId) {
-      this.subscription = this.subscribe(this.props);
+    if (this.props.conversationId !== nextProps.conversationId) {
+      this.subscribe(this.props.data, nextProps.conversationId);
     }
   }
 
-  subscribe(props) {
-    const { conversationId, data } = props;
-
+  subscribe(data, conversationId) {
     // lister for new message insert
     return data.subscribeToMore({
       document: gql`
@@ -159,8 +154,6 @@ const query = graphql(
   `,
   {
     options: ownProps => ({
-      fetchPolicy: 'network-only',
-      pollInterval: 30000,
       variables: {
         conversationId: ownProps.conversationId,
         integrationId: connection.data.integrationId,

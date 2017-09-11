@@ -77,24 +77,26 @@ export const sendMessage = (message, attachments) =>
     .then(({ data }) => {
       const message = data.insertMessage;
 
-      // notify for main app
-      // above mutation will be removed after we implement insertMessage
-      // login in main api
-      clientForMainApp.mutate({
-        mutation: gql`
-          mutation insertMessage($messageId: String!) {
-            insertMessage(messageId: $messageId) {
-              _id
-            }
-          }`,
-
-        variables: { messageId: message._id },
-      })
-
       dispatch({ type: MESSAGE_SENT });
 
+      if (currentConversationId) {
+        // notify for main app
+        // above mutation will be removed after we implement insertMessage
+        // login in main api
+        clientForMainApp.mutate({
+          mutation: gql`
+            mutation insertMessage($messageId: String!) {
+              insertMessage(messageId: $messageId) {
+                _id
+              }
+            }`,
+
+          variables: { messageId: message._id },
+        });
+
       // if there is no current conversation new conversation will be created
-      if (!currentConversationId) {
+      // redirect to one
+      } else {
         dispatch(changeConversation(message.conversationId));
       }
     });
