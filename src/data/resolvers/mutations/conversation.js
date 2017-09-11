@@ -49,4 +49,15 @@ export default {
 
     return _id;
   },
+
+  async saveFormWidget(root, { messageId }) {
+    const message = await ConversationMessages.findOne({ _id: messageId });
+    const conversation = await Conversations.findOne({ _id: message.conversationId });
+
+    pubsub.publish('conversationNotification', {
+      conversationNotification: { customerId: conversation.customerId },
+    });
+
+    return 'saved';
+  },
 };

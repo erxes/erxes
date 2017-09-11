@@ -278,6 +278,7 @@ export const mutations = `
     changeConversationStatus(_id: String!): String
     assignConversations(_ids: [String]!): [String]
     readConversationMessages(_id: String!): String
+    saveFormWidget(messageId: String!): String
   }
 `;
 
