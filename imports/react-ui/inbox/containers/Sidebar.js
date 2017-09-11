@@ -8,19 +8,14 @@ import { Sidebar } from '../components';
 const SidebarContainer = props => {
   const { conversationCountsQuery, channelsQuery, tagsQuery, brandsQuery } = props;
 
-  if (
-    conversationCountsQuery.loading ||
-    channelsQuery.loading ||
-    tagsQuery.loading ||
-    brandsQuery.loading
-  ) {
+  if (conversationCountsQuery.loading) {
     return null;
   }
 
   // show only available channels's related brands
-  const channels = channelsQuery.channels;
-  const brands = brandsQuery.brands;
-  const tags = tagsQuery.tags;
+  const channels = channelsQuery.channels || [];
+  const brands = brandsQuery.brands || [];
+  const tags = tagsQuery.tags || [];
   const counts = conversationCountsQuery.conversationCounts;
 
   const updatedProps = {
@@ -28,6 +23,9 @@ const SidebarContainer = props => {
     tags,
     channels,
     brands,
+    channelsReady: !channelsQuery.loading,
+    tagsReady: !tagsQuery.loading,
+    brandsReady: !brandsQuery.loading,
     counts,
   };
 

@@ -78,7 +78,10 @@ export default compose(
     options: ({ queryParams }) => {
       return {
         variables: {
-          params: queryParams,
+          params: {
+            ...queryParams,
+            limit: queryParams.limit || 20,
+          },
         },
         fetchPolicy: 'network-only',
       };

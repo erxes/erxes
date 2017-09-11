@@ -4,16 +4,19 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { FlowRouter } from 'meteor/kadira:flow-router';
-import { CountsByTag, EmptyState } from '/imports/react-ui/common';
+import { CountsByTag, EmptyState, LoadingSidebar } from '/imports/react-ui/common';
 import { Wrapper } from '/imports/react-ui/layout/components';
 import { CONVERSATION_STATUSES } from '/imports/api/conversations/constants';
 import { KIND_CHOICES as INTEGRATIONS_TYPES } from '/imports/api/integrations/constants';
 
 const propTypes = {
+  counts: PropTypes.object,
   channels: PropTypes.array.isRequired,
   brands: PropTypes.array.isRequired,
   tags: PropTypes.array.isRequired,
-  counts: PropTypes.object,
+  channelsReady: PropTypes.bool,
+  brandsReady: PropTypes.bool,
+  tagsReady: PropTypes.bool,
 };
 
 class Sidebar extends Component {
@@ -28,7 +31,7 @@ class Sidebar extends Component {
           <span className="icon">#</span>
           {channel.name}
           <span className="counter">
-            {counts.byChannels[channel._id]}
+            {counts[channel._id]}
           </span>
         </a>
       </li>
@@ -46,7 +49,7 @@ class Sidebar extends Component {
           <span className="icon">#</span>
           {brand.name}
           <span className="counter">
-            {counts.byBrands[brand._id]}
+            {counts[brand._id]}
           </span>
         </a>
       </li>
@@ -67,7 +70,7 @@ class Sidebar extends Component {
           <span className="icon">#</span>
           {integrationType}
           <span className="counter">
-            {counts.byIntegrationTypes[integrationType]}
+            {counts[integrationType]}
           </span>
         </a>
       </li>
@@ -85,7 +88,7 @@ class Sidebar extends Component {
           <i className="ion-pricetag icon" style={{ color: tag.colorCode }} />
           {tag.name}
           <span className="counter">
-            {counts.byTags[tag._id]}
+            {counts[tag._id]}
           </span>
         </a>
       </li>
@@ -100,7 +103,7 @@ class Sidebar extends Component {
   }
 
   // unassigned, participatedUser, status, etc ...
-  static renderSingleFilter(queryParamName, queryParamValue, countName, text, counts) {
+  static renderSingleFilter(queryParamName, queryParamValue, countName, text, count) {
     const onClick = () => {
       // clear previous values
       Sidebar.clearStatusFilter();
@@ -116,7 +119,7 @@ class Sidebar extends Component {
         >
           {text}
           <span className="counter">
-            {counts[countName]}
+            {count}
           </span>
         </a>
       </li>
@@ -157,16 +160,20 @@ class Sidebar extends Component {
     );
   }
 
-  static renderEmptyState(list, text, iconClassName) {
-    if (list.length === 0) {
+  static renderEmptyState(list, text, iconClassName, isReady) {
+    if (list.length === 0 && isReady) {
       return <EmptyState icon={<i className={iconClassName} />} text={text} size="small" />;
+    }
+
+    if (list.length === 0 && !isReady) {
+      return <LoadingSidebar.Lines />;
     }
 
     return null;
   }
 
   render() {
-    const { channels, tags, brands, counts } = this.props;
+    const { channels, tags, brands, counts, channelsReady, brandsReady } = this.props;
     const integrationTypes = INTEGRATIONS_TYPES.ALL_LIST;
     const { Title } = Wrapper.Sidebar.Section;
     const manageBrands = FlowRouter.path('settings/brands/list');
@@ -179,8 +186,8 @@ class Sidebar extends Component {
           <Title>Channels</Title>
           {Sidebar.renderSectionHeader('channelId', manageChannels)}
           <ul className="sidebar-list">
-            {channels.map(channel => Sidebar.renderChannel(channel, counts))}
-            {Sidebar.renderEmptyState(channels, 'No channel', 'ion-pound')}
+            {channels.map(channel => Sidebar.renderChannel(channel, counts.byChannels))}
+            {Sidebar.renderEmptyState(channels, 'No channel', 'ion-pound', channelsReady)}
           </ul>
         </Wrapper.Sidebar.Section>
 
@@ -188,16 +195,19 @@ class Sidebar extends Component {
           <Title>Brands</Title>
           {Sidebar.renderSectionHeader('brandId', manageBrands)}
           <ul className="sidebar-list">
-            {brands.map(brand => Sidebar.renderBrand(brand, counts))}
-            {Sidebar.renderEmptyState(brands, 'No brand', 'ion-flag')}
+            {brands.map(brand => Sidebar.renderBrand(brand, counts.byBrands))}
+            {Sidebar.renderEmptyState(brands, 'No brand', 'ion-flag', brandsReady)}
           </ul>
         </Wrapper.Sidebar.Section>
 
         <Wrapper.Sidebar.Section collapsible={integrationTypes.length > 5}>
           <Title>Integrations</Title>
           {Sidebar.renderSectionHeader('integrationType', manageIntegrations)}
+
           <ul className="sidebar-list">
-            {integrationTypes.map((t, i) => Sidebar.renderIntegration(t, i, counts))}
+            {integrationTypes.map((t, i) =>
+              Sidebar.renderIntegration(t, i, counts.byIntegrationTypes),
+            )}
             {Sidebar.renderEmptyState(integrationTypes, 'No integration', 'ion-flag')}
           </ul>
         </Wrapper.Sidebar.Section>
@@ -205,16 +215,20 @@ class Sidebar extends Component {
         <Wrapper.Sidebar.Section>
           <Title>Filter by status</Title>
           {Sidebar.renderFilterSectionHeader()}
-
           <ul className="sidebar-list">
-            {Sidebar.renderSingleFilter('unassigned', 'true', 'unassiged', 'Unassigned', counts)}
-
+            {Sidebar.renderSingleFilter(
+              'unassigned',
+              'true',
+              'unassiged',
+              'Unassigned',
+              counts.unassigned,
+            )}
             {Sidebar.renderSingleFilter(
               'participating',
               'true',
               'participating',
               'Participating',
-              counts,
+              counts.participating,
             )}
 
             {Sidebar.renderSingleFilter(
@@ -222,10 +236,10 @@ class Sidebar extends Component {
               CONVERSATION_STATUSES.CLOSED,
               'resolved',
               'Resolved',
-              counts,
+              counts.resolved,
             )}
 
-            {Sidebar.renderSingleFilter('starred', 'true', 'starred', 'Starred', counts)}
+            {Sidebar.renderSingleFilter('starred', 'true', 'starred', 'Starred', counts.starred)}
           </ul>
         </Wrapper.Sidebar.Section>
 
