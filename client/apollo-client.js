@@ -1,32 +1,39 @@
-/* global window, API_SUBSCRIPTIONS_URL, API_GRAPHQL_URL */
-/* eslint-disable react/jsx-filename-extension */
+/* global window, API_SUBSCRIPTIONS_URL, API_GRAPHQL_URL, MAIN_API_GRAPHQL_URL */
 
-import ApolloClient, { createNetworkInterface } from 'apollo-client';
+import { ApolloClient, createNetworkInterface } from 'react-apollo';
 import { SubscriptionClient } from 'subscriptions-transport-ws';
+import { addGraphQLSubscriptions } from 'add-graphql-subscriptions';
+import thunkMiddleware from 'redux-thunk';
+
 import {
   combineReducers,
   applyMiddleware,
   compose,
   createStore as reduxCreateStore,
 } from 'redux';
-import thunkMiddleware from 'redux-thunk';
-import addGraphQLSubscriptions from './subscriptions';
 
-// websocket
-export const wsClient = new SubscriptionClient(
-  API_SUBSCRIPTIONS_URL,
-  { reconnect: true },
-);
+/*
+ * We will use this client to call main api's mutations. So that main app will
+ * know about database changes
+ */
+export const clientForMainApp = new ApolloClient({
+  networkInterface: addGraphQLSubscriptions(
+    createNetworkInterface({ uri: MAIN_API_GRAPHQL_URL }),
+  ),
+});
 
-const networkInterface = createNetworkInterface({ uri: API_GRAPHQL_URL });
+// subscription server
+export const wsClient = new SubscriptionClient(API_SUBSCRIPTIONS_URL, {
+  reconnect: true,
+});
 
-const networkInterfaceWithSubscriptions = addGraphQLSubscriptions(
-  networkInterface,
-  wsClient,
-);
-
+// create your ApolloClient instance with the modified network interface
 const client = new ApolloClient({
-  networkInterface: networkInterfaceWithSubscriptions,
+  // Extend the network interface with the WebSocket
+  networkInterface: addGraphQLSubscriptions(
+    createNetworkInterface({ uri: API_GRAPHQL_URL }),
+    wsClient,
+  ),
 });
 
 // create store

@@ -1,21 +1,27 @@
 {
   "extends": [
-    "airbnb"
+    "eslint:recommended",
+    "plugin:react/recommended"
   ],
-  "parserOptions":{
+  "env": {
+    "browser": true,
+    "node": true,
+    "es6": true,
+    "meteor": true
+  },
+  "parserOptions": {
+    "ecmaVersion": 2017,
+    "sourceType": "module",
     "ecmaFeatures": {
+      "jsx": true,
+      "modules": true,
       "experimentalObjectRestSpread": true
     }
   },
+  "plugins": [
+    "react"
+  ],
   "rules": {
-    "no-underscore-dangle": ["error", { "allow": ["_id"] }],
-    "react/require-default-props": "off",
-    "import/no-extraneous-dependencies": ["error", { "devDependencies": true }]
-  },
-  "globals": {
-    "window": true,
-    "localStorage": true,
-    "$": true,
-    "document": true
+    "max-len": ["error", 100]
   }
 }

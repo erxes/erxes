@@ -1,12 +1,10 @@
-import React from 'react';
+import React, { PropTypes } from 'react';
 import gql from 'graphql-tag';
 import { connect } from 'react-redux';
 import { graphql } from 'react-apollo';
-import Subscriber from './Subscriber';
 import { connection } from '../connection';
 import { changeRoute, changeConversation } from '../actions/messenger';
 import { Conversation as DumbConversation } from '../components';
-
 
 const messageQuery = `
   _id
@@ -38,49 +36,45 @@ const messageQuery = `
   }
 `;
 
+class Conversation extends React.Component {
+  componentWillMount() {
+    const { conversationId, data } = this.props;
 
-class Conversation extends Subscriber {
-  subscribeOptions(props) {
-    return {
+    // lister for new message insert
+    data.subscribeToMore({
       document: gql`
-        subscription onMessageInserted($conversationId: String!) {
-          messageInserted(conversationId: $conversationId) {
-            ${messageQuery}
+        subscription conversationUpdated($conversationId: String!) {
+          conversationUpdated(conversationId: $conversationId) {
+            type
+            message {
+              ${messageQuery}
+            }
           }
-        }
-      `,
-
-      variables: {
-        conversationId: props.conversationId,
-      },
-
-      // push new message to messages list when subscription updated
+        }`
+      ,
+      variables: { conversationId },
       updateQuery: (prev, { subscriptionData }) => {
-        // get previous messages list
-        const messages = prev.messages || [];
+        if (!subscriptionData.data) {
+          return prev;
+        }
 
-        // add new one
-        return Object.assign({}, prev, {
-          messages: [...messages, subscriptionData.data.messageInserted],
+        const { type, message } = subscriptionData.data.conversationUpdated;
+
+        // if some changes except newMessage occur, refetch query
+        if (type !== 'newMessage') {
+          return prev;
+        }
+
+        const messages = prev.messages;
+
+        // add new message to messages list
+        const next = Object.assign({}, prev, {
+          messages: [...messages, message],
         });
+
+        return next;
       },
-    };
-  }
-
-  componentWillReceiveProps(nextProps) {
-    const props = this.props;
-    const { subscribeToMore } = props.data;
-
-    // first time subscription creation
-    if (!this.subscription && !nextProps.data.loading) {
-      this.subscription = [subscribeToMore(this.subscribeOptions(props))];
-    }
-
-    // when new conversation, conversationId props will be null. So after first
-    // message creation update subscription with new conversationId variable
-    if (!props.conversationId && nextProps.conversationId) {
-      this.subscription = [subscribeToMore(this.subscribeOptions(nextProps))];
-    }
+    });
   }
 
   render() {
@@ -157,5 +151,10 @@ const query = graphql(
     }),
   },
 );
+
+Conversation.propTypes = {
+  data: PropTypes.object,
+  conversationId: PropTypes.string,
+}
 
 export default connect(mapStateToProps, mapDisptachToProps)(query(Conversation));
