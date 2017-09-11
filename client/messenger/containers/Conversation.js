@@ -37,17 +37,20 @@ const messageQuery = `
 `;
 
 class Conversation extends React.Component {
-  componentWillReceiveProps(nextProps) {
-    this.subscribe(this.props);
+  constuctor() {
+    this.subscription = null;
+  }
 
-    if (this.props.data.loading) {
-      return;
+  componentWillReceiveProps(nextProps) {
+      // first time subscription creation
+    if (!this.subscription && !nextProps.data.loading) {
+      this.subscription = this.subscribe(this.props);
     }
 
     // when new conversation, conversationId props will be null. So after first
     // message creation update subscription with new conversationId variable
     if (!this.props.conversationId && nextProps.conversationId) {
-      this.subscribe(this.props);
+      this.subscription = this.subscribe(this.props);
     }
   }
 
@@ -55,7 +58,7 @@ class Conversation extends React.Component {
     const { conversationId, data } = props;
 
     // lister for new message insert
-    data.subscribeToMore({
+    return data.subscribeToMore({
       document: gql`
         subscription conversationUpdated($conversationId: String!) {
           conversationUpdated(conversationId: $conversationId) {
