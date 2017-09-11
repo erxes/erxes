@@ -1,11 +1,18 @@
 import { Meteor } from 'meteor/meteor';
-import { compose } from 'react-komposer';
-import { getTrackerLoader } from '/imports/react-ui/utils';
+import React, { PropTypes } from 'react';
+import { compose, gql, graphql } from 'react-apollo';
 import { fromJS } from 'immutable';
 import { mutate } from '/imports/react-ui/apollo-client';
+import { queries } from '../graphql';
 import { RespondBox } from '../components';
 
-function composer({ conversation }, onData) {
+const RespondBoxContainer = props => {
+  const { usersQuery } = props;
+
+  if (usersQuery.loading) {
+    return null;
+  }
+
   const sendMessage = (message, callback) => {
     const cb = (error, messageId) => {
       // notify graphql subscription server that new message inserted
@@ -32,20 +39,27 @@ function composer({ conversation }, onData) {
 
   const teamMembers = [];
 
-  Meteor.users.find().forEach(user =>
+  for (let user of usersQuery.users) {
     teamMembers.push({
       _id: user._id,
       name: user.username,
       title: user.details.position,
       avatar: user.details.avatar,
-    }),
-  );
+    });
+  }
 
-  onData(null, {
-    conversation,
+  const updatedProps = {
+    ...props,
     sendMessage,
     teamMembers: fromJS(teamMembers),
-  });
-}
+  };
 
-export default compose(getTrackerLoader(composer))(RespondBox);
+  return <RespondBox {...updatedProps} />;
+};
+
+RespondBoxContainer.propTypes = {
+  object: PropTypes.object,
+  usersQuery: PropTypes.object,
+};
+
+export default compose(graphql(gql(queries.userList), { name: 'usersQuery' }))(RespondBoxContainer);

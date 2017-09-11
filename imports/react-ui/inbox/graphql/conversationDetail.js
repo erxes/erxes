@@ -1,3 +1,5 @@
+import messageFields from './messageFields.js';
+
 export default `query conversationDetail($_id: String!) {
   conversationDetail(_id: $_id) {
     _id
@@ -26,20 +28,7 @@ export default `query conversationDetail($_id: String!) {
       getMessengerCustomData
     }
     messages {
-      _id
-      content
-      user {
-        _id
-        username
-        details
-      }
-      customer {
-        _id
-        name
-      }
-      formWidgetData
-      engageData
-      facebookData
+      ${messageFields}
     }
     participatedUsers {
       _id
