@@ -37,6 +37,9 @@ export default `query conversationDetail($_id: String!) {
         _id
         name
       }
+      formWidgetData
+      engageData
+      facebookData
     }
     participatedUsers {
       _id
@@ -48,5 +51,6 @@ export default `query conversationDetail($_id: String!) {
       name
       colorCode
     }
+    facebookData
   }
 }`;
