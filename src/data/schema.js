@@ -275,6 +275,7 @@ export const queries = `
 export const mutations = `
   type Mutation {
     insertMessage(messageId: String!): ConversationMessage
+    widgetConversationMessage(messageId: String): String
     changeConversationStatus(_id: String!): String
     assignConversations(_ids: [String]!): [String]
   }
@@ -283,5 +284,6 @@ export const mutations = `
 export const subscriptions = `
   type Subscription {
     conversationUpdated(conversationId: String!): ConversationUpdatedResponse
+    conversationNotification: String
   }
 `;

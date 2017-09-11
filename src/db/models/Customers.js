@@ -19,6 +19,28 @@ const CustomerSchema = mongoose.Schema({
   facebookData: Object,
 });
 
+class Customer {
+  /**
+   * Mark customer as inactive
+   * @param  {String} customerId
+   * @return {Promise} Updated customer
+   */
+  static markCustomerAsNotActive(customerId) {
+    return this.findByIdAndUpdate(
+      customerId,
+      {
+        $set: {
+          'messengerData.isActive': false,
+          'messengerData.lastSeenAt': new Date(),
+        },
+      },
+      { new: true },
+    );
+  }
+}
+
+CustomerSchema.loadClass(Customer);
+
 export const Customers = mongoose.model('customers', CustomerSchema);
 
 const SegmentSchema = mongoose.Schema({

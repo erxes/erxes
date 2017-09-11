@@ -10,7 +10,22 @@ export default {
       conversationUpdated: { conversationId, type: 'newMessage', message },
     });
 
+    pubsub.publish('conversationNotification', {
+      conversationNotification: 'newMessage',
+    });
+
     return message;
+  },
+
+  async widgetConversationMessage(root, { messageId }) {
+    const message = await ConversationMessages.findOne({ _id: messageId });
+    const conversationId = message.conversationId;
+
+    pubsub.publish('conversationUpdated', {
+      conversationUpdated: { conversationId, type: 'newMessage', message },
+    });
+
+    return 'notified';
   },
 
   changeConversationStatus(root, { _id }) {

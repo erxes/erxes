@@ -11,4 +11,8 @@ export default {
       },
     ),
   },
+
+  conversationNotification: {
+    subscribe: () => pubsub.asyncIterator('conversationNotification'),
+  },
 };

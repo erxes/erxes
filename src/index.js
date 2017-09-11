@@ -8,6 +8,7 @@ import { createServer } from 'http';
 import { execute, subscribe } from 'graphql';
 import { graphqlExpress, graphiqlExpress } from 'graphql-server-express';
 import { SubscriptionServer } from 'subscriptions-transport-ws';
+import { Customers } from './db/models';
 import { connect } from './db/connection';
 import schema from './data';
 
@@ -41,6 +42,24 @@ server.listen(PORT, () => {
       execute,
       subscribe,
       schema,
+
+      onConnect(connectionParams, webSocket) {
+        webSocket.on('message', message => {
+          const parsedMessage = JSON.parse(message).id || {};
+
+          if (parsedMessage.type === 'messengerConnected') {
+            webSocket.messengerData = parsedMessage.value;
+          }
+        });
+      },
+
+      onDisconnect(webSocket) {
+        const messengerData = webSocket.messengerData;
+
+        if (messengerData) {
+          Customers.markCustomerAsNotActive(messengerData.customerId);
+        }
+      },
     },
     {
       server,
