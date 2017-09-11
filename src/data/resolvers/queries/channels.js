@@ -3,6 +3,7 @@ import { Channels } from '../../../db/models';
 export default {
   channels(root, { limit, memberIds }) {
     const query = {};
+    const sort = { createdAt: -1 };
 
     if (memberIds) {
       query.memberIds = { $in: memberIds };
@@ -11,10 +12,10 @@ export default {
     const channels = Channels.find(query);
 
     if (limit) {
-      return channels.limit(limit);
+      return channels.limit(limit).sort(sort);
     }
 
-    return channels;
+    return channels.sort(sort);
   },
 
   totalChannelsCount() {

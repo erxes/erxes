@@ -9,7 +9,9 @@ export default {
 
     await qb.buildAllQueries();
 
-    return Conversations.find(qb.mainQuery()).sort({ createdAt: -1 });
+    return Conversations.find(qb.mainQuery())
+      .sort({ createdAt: -1 })
+      .limit(params.limit);
   },
 
   async conversationCounts(root, { params }) {

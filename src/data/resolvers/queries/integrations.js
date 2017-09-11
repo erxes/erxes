@@ -3,6 +3,7 @@ import { Integrations } from '../../../db/models';
 export default {
   integrations(root, { limit, kind }) {
     const query = {};
+    const sort = { createdAt: -1 };
 
     if (kind) {
       query.kind = kind;
@@ -11,10 +12,10 @@ export default {
     const integrations = Integrations.find(query);
 
     if (limit) {
-      return integrations.limit(limit);
+      return integrations.sort(sort).limit(limit);
     }
 
-    return integrations;
+    return integrations.sort(sort);
   },
 
   integrationDetail(root, { _id }) {
