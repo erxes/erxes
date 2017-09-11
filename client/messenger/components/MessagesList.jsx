@@ -16,7 +16,7 @@ class MessagesList extends Component {
 
   componentWillUpdate() {
     const { node } = this;
-    this.shouldScrollBottom = (node.scrollTop + node.offsetHeight) === node.scrollHeight;
+    this.shouldScrollBottom = node.scrollHeight - (node.scrollTop + node.offsetHeight) < 30;
   }
 
   componentDidUpdate() {
