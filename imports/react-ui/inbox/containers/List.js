@@ -3,9 +3,18 @@ import React, { PropTypes } from 'react';
 import { compose, gql, graphql } from 'react-apollo';
 import { Bulk, pagination } from '/imports/react-ui/common';
 import { List } from '../components';
-import { queries } from '../graphql';
+import { queries, subscriptions } from '../graphql';
 
 class ListContainer extends Bulk {
+  componentWillMount() {
+    this.props.conversationsQuery.subscribeToMore({
+      document: gql(subscriptions.conversationNotification),
+      updateQuery: () => {
+        this.props.conversationsQuery.refetch();
+      },
+    });
+  }
+
   refetch() {
     this.props.conversationsQuery.refetch();
   }
@@ -71,6 +80,7 @@ export default compose(
         variables: {
           params: queryParams,
         },
+        fetchPolicy: 'network-only',
       };
     },
   }),

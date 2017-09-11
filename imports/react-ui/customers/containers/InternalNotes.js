@@ -5,7 +5,7 @@ import { getTrackerLoader } from '/imports/react-ui/utils';
 import { InternalNotes } from '../components';
 
 function composer({ customer }, onData) {
-  const internalNotes = [...customer.internalNotes];
+  const internalNotes = [...(customer.internalNotes || [])];
 
   if (internalNotes) {
     internalNotes.sort((a, b) => b.createdDate - a.createdDate);

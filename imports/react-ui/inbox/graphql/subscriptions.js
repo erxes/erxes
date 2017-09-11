@@ -1,4 +1,4 @@
-export default `
+export const conversationUpdated = `
   subscription onConversationUpdated($conversationId: String!) {
     conversationUpdated(conversationId: $conversationId) {
       type
@@ -16,5 +16,11 @@ export default `
         }
       }
     }
+  }
+`;
+
+export const conversationNotification = `
+  subscription conversationNotification {
+    conversationNotification
   }
 `;
