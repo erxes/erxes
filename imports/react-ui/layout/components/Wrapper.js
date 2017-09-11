@@ -13,15 +13,16 @@ const propTypes = {
   content: PropTypes.element.isRequired,
   footer: PropTypes.node,
   rightSidebar: PropTypes.element,
+  relative: PropTypes.bool,
 };
 
-function Wrapper({ header, leftSidebar, actionBar, content, footer, rightSidebar }) {
+function Wrapper({ header, leftSidebar, actionBar, content, footer, rightSidebar, relative }) {
   return (
     <div className="wrapper">
       {header}
       <div className="wrapper-content">
         {leftSidebar}
-        <PageContent actionBar={actionBar} footer={footer}>
+        <PageContent relative={relative} actionBar={actionBar} footer={footer}>
           {content}
         </PageContent>
         {rightSidebar}

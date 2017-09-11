@@ -75,6 +75,7 @@ class Details extends Component {
           rightSidebar={
             <RightSidebar conversation={conversation} messagesCount={messages.length} />
           }
+          relative
         />
       </div>
     );

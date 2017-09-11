@@ -28,6 +28,10 @@
     border-radius: $border-radius;
     overflow: auto;
 
+    &.relative-content {
+      position: relative;
+    }
+
     .scrollarea-content {
       min-height: 100%;
     }
@@ -35,7 +39,11 @@
     .scroll-area {
       height: 100%;
       overflow: auto;
-      position: relative;
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      top: 0;
     }
 
     .margined {
