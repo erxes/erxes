@@ -83,7 +83,6 @@ export default compose(
             limit: queryParams.limit || 20,
           },
         },
-        fetchPolicy: 'network-only',
       };
     },
   }),

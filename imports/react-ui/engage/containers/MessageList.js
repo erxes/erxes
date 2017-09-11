@@ -45,9 +45,11 @@ export default compose(
           isLive
           createdDate
           segment {
+            _id
             name
           }
           fromUser {
+            _id
             details
           }
         }
