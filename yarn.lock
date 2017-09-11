@@ -4211,6 +4211,12 @@ promise@^7.1.1:
   dependencies:
     asap "~2.0.3"
 
+prop-types@15.5.6:
+  version "15.5.6"
+  resolved "https://registry.yarnpkg.com/prop-types/-/prop-types-15.5.6.tgz#797a915b1714b645ebb7c5d6cc690346205bd2aa"
+  dependencies:
+    fbjs "^0.8.9"
+
 prop-types@^15.5.8:
   version "15.5.10"
   resolved "https://registry.yarnpkg.com/prop-types/-/prop-types-15.5.10.tgz#2797dfc3126182e3a95e3dfbb2e893ddd7456154"
@@ -4366,13 +4372,21 @@ react-datepicker@^0.46.0:
     react-onclickoutside "^5.11.1"
     tether "^1.4.0"
 
-"react-dom@0.14.x || 15.* || ^15.0.0 || ^16.0.0-alpha", react-dom@^15.4.1:
+"react-dom@0.14.x || 15.* || ^15.0.0 || ^16.0.0-alpha", react-dom@15.4.2, react-dom@^15.4.1:
   version "15.4.2"
   resolved "https://registry.yarnpkg.com/react-dom/-/react-dom-15.4.2.tgz#015363f05b0a1fd52ae9efdd3a0060d90695208f"
   dependencies:
     fbjs "^0.8.1"
     loose-envify "^1.1.0"
     object-assign "^4.1.0"
+
+react-ionicons@^1.5.7:
+  version "1.5.8"
+  resolved "https://registry.yarnpkg.com/react-ionicons/-/react-ionicons-1.5.8.tgz#78aaf34c8b1bb6207916ed98e4fdb36c0bfa03fc"
+  dependencies:
+    prop-types "15.5.6"
+    react "15.4.2"
+    react-dom "15.4.2"
 
 react-onclickoutside@^5.11.1:
   version "5.11.1"
@@ -4390,7 +4404,7 @@ react-redux@^5.0.1:
     lodash-es "^4.2.0"
     loose-envify "^1.1.0"
 
-react@^15.4.1:
+react@15.4.2, react@^15.4.1:
   version "15.4.2"
   resolved "https://registry.yarnpkg.com/react/-/react-15.4.2.tgz#41f7991b26185392ba9bae96c8889e7e018397ef"
   dependencies:

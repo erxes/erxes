@@ -24,16 +24,15 @@ export default {
     rules: [
       {
         test: /\.jsx?$/,
-        exclude: /node_modules/,
         loader: 'babel-loader',
         options: {
           presets: ['es2015', 'react'],
         },
+        exclude: /node_modules/,
       },
       {
         test: /\.css$/,
         use: ['style-loader', 'css-loader'],
-        exclude: /node_modules/,
       },
       {
         test: /\.scss$/,
