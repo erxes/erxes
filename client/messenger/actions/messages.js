@@ -88,9 +88,7 @@ export const sendMessage = (message, attachments) =>
             }
           }`,
 
-        variables: {
-          messageId: message._id,
-        },
+        variables: { messageId: message._id },
       })
 
       dispatch({ type: MESSAGE_SENT });
