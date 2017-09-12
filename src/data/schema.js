@@ -12,6 +12,7 @@ export const types = `
     integrationType: String
     participating: String
     starred: String
+    ids: [String]
   }
 
   input CustomerListParams {
@@ -21,6 +22,7 @@ export const types = `
     limit: Int,
     page: String,
     segment: String,
+    ids: [String]
   }
 
   type User {
@@ -121,6 +123,7 @@ export const types = `
     stopDate: Date
     createdDate: Date
     messengerReceivedCustomerIds: [String]
+    tagIds: [String]
 
     email: JSON
     messenger: JSON
@@ -249,7 +252,7 @@ export const queries = `
     formDetail(_id: String!): Form
     totalFormsCount: Int
 
-    engageMessages(kind: String, status: String, tag: String): [EngageMessage]
+    engageMessages(kind: String, status: String, tag: String, ids: [String]): [EngageMessage]
     engageMessageDetail(_id: String): EngageMessage
     engageMessageCounts(name: String!, kind: String, status: String): JSON
     totalEngageMessagesCount: Int

@@ -89,7 +89,11 @@ export default {
     }
   },
 
-  engageMessages(root, { kind, status, tag }) {
+  engageMessages(root, { kind, status, tag, ids }) {
+    if (ids) {
+      return EngageMessages.find({ _id: { $in: ids } });
+    }
+
     let query = {};
 
     // filter by kind

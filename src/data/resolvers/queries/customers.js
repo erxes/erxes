@@ -44,6 +44,10 @@ const listQuery = async params => {
 
 export default {
   async customers(root, { params }) {
+    if (params.ids) {
+      return Customers.find({ _id: { $in: params.ids } }).sort({ 'messengerData.lastSeenAt': -1 });
+    }
+
     const selector = await listQuery(params);
 
     return Customers.find(selector)

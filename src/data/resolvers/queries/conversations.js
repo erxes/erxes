@@ -4,6 +4,11 @@ import QueryBuilder from './conversationQueryBuilder';
 
 export default {
   async conversations(root, { params }) {
+    // filter by ids of conversations
+    if (params && params.ids) {
+      return Conversations.find({ _id: { $in: params.ids } }).sort({ createdAt: -1 });
+    }
+
     // initiate query builder
     const qb = new QueryBuilder(params, { _id: 'uTaHtqQMptvhspvAK' });
 
