@@ -26,7 +26,10 @@ class MessageSender extends Component {
 
   componentWillReceiveProps(nextProps) {
     if (nextProps.isParentFocused) { // eslint-disable-line
-      this.props.readMessages(this.props.conversationId);
+      if (this.props.conversationId) {
+        this.props.readMessages(this.props.conversationId);
+      }
+
       this.textarea.focus();
     }
   }

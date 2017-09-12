@@ -2,21 +2,29 @@ import gql from 'graphql-tag';
 import { SENDING_ATTACHMENT, ATTACHMENT_SENT, ASK_GET_NOTIFIED, MESSAGE_SENT } from '../constants';
 import { connection, getLocalStorageItem } from '../connection';
 import { changeConversation } from './messenger';
-import client from '../../apollo-client';
+import client, { clientForMainApp } from '../../apollo-client';
 import uploadHandler, { uploadFile } from '../../uploadHandler';
 
-export const readMessages = conversationId =>
-  // mark as read
-  () => client.mutate({
+export const readMessages = conversationId => () => {
+  client.mutate({
     mutation: gql`
       mutation readConversationMessages($conversationId: String) {
         readConversationMessages(conversationId: $conversationId)
       }`,
 
-    variables: {
-      conversationId,
-    },
+    variables: { conversationId },
   });
+
+  // above mutation will be removed after we implement readMessages login in main api
+  clientForMainApp.mutate({
+    mutation: gql`
+      mutation readConversationMessages($conversationId: String!) {
+        readConversationMessages(_id: $conversationId)
+      }`,
+
+    variables: { conversationId },
+  });
+}
 
 export const readEngageMessage = ({ engageData }) => () =>
   client.mutate({
@@ -67,12 +75,29 @@ export const sendMessage = (message, attachments) =>
 
     // after mutation
     .then(({ data }) => {
+      const message = data.insertMessage;
+
       dispatch({ type: MESSAGE_SENT });
 
-      // if there is no current conversation new conversation will be created
-      if (!currentConversationId) {
-        dispatch(changeConversation(data.insertMessage.conversationId));
-      }
+      // notify for main app
+      // above mutation will be removed after we implement insertMessage
+      // login in main api
+      clientForMainApp.mutate({
+        mutation: gql`
+          mutation insertMessage($messageId: String!) {
+            insertMessage(messageId: $messageId) {
+              _id
+            }
+          }`,
+
+        variables: { messageId: message._id },
+      })
+
+      .then(() => {
+        if (!currentConversationId) {
+          dispatch(changeConversation(message.conversationId));
+        }
+      });
     });
   };
 
