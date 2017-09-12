@@ -5,6 +5,7 @@ import {
   Pagination,
   ConversationsList,
   EmptyState,
+  LoadingContent,
   DropdownToggle,
 } from '/imports/react-ui/common';
 import { FlowRouter } from 'meteor/kadira:flow-router';
@@ -25,6 +26,7 @@ const propTypes = {
   toggleBulk: PropTypes.func.isRequired,
   emptyBulk: PropTypes.func.isRequired,
   user: PropTypes.object,
+  conversationReady: PropTypes.bool,
 };
 
 class Sidebar extends Component {
@@ -98,9 +100,10 @@ class Sidebar extends Component {
       channelId,
       user,
       toggleBulk,
+      conversationReady,
     } = this.props;
 
-    if (unreadConversations.length === 0 && readConversations.length === 0) {
+    if (unreadConversations.length === 0 && readConversations.length === 0 && !conversationReady) {
       return (
         <EmptyState
           text="There aren’t any conversations."
@@ -108,6 +111,8 @@ class Sidebar extends Component {
           icon={<i className="ion-email" />}
         />
       );
+    } else if (conversationReady) {
+      return <LoadingContent items={5} />;
     }
 
     return (

@@ -4,6 +4,7 @@ import { compose, gql, graphql } from 'react-apollo';
 import { ReactiveVar } from 'meteor/reactive-var';
 import { mutate } from '/imports/react-ui/apollo-client';
 import { Details } from '../components';
+import { Loading } from '/imports/react-ui/common';
 import { queries, mutations, subscriptions } from '../graphql';
 
 const attachmentPreview = new ReactiveVar({});
@@ -49,7 +50,7 @@ class DetailsContainer extends Component {
     const { channelId, queryParams, conversationDetailQuery } = this.props;
 
     if (conversationDetailQuery.loading) {
-      return null;
+      return <Loading title="Conversation" spin sidebarSize="wide" hasRightSidebar />;
     }
 
     const conversation = conversationDetailQuery.conversationDetail;

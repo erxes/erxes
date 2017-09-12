@@ -1,7 +1,7 @@
 import React, { PropTypes } from 'react';
 import { compose, gql, graphql } from 'react-apollo';
 import { TAG_TYPES } from '/imports/api/tags/constants';
-import { Bulk } from '/imports/react-ui/common';
+import { Bulk, Loading } from '/imports/react-ui/common';
 import { MessageList } from '../components';
 
 class MessageListContainer extends Bulk {
@@ -9,7 +9,7 @@ class MessageListContainer extends Bulk {
     const { queryParams, tagsQuery, engageMessagesQuery } = this.props;
 
     if (tagsQuery.loading || engageMessagesQuery.loading) {
-      return null;
+      return <Loading title="Engage" />;
     }
 
     const updatedProps = {

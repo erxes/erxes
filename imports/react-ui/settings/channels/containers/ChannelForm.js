@@ -1,12 +1,13 @@
 import React, { PropTypes } from 'react';
 import { compose, gql, graphql } from 'react-apollo';
+import { Spinner } from '/imports/react-ui/common';
 import { ChannelForm } from '../components';
 
 const ChannelFormContainer = props => {
   const { object, integrationsQuery, usersQuery, brandsQuery } = props;
 
   if (usersQuery.loading || brandsQuery.loading || integrationsQuery.loading) {
-    return null;
+    return <Spinner />;
   }
 
   const integrations = integrationsQuery.integrations || [];

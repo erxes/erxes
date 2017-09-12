@@ -5,11 +5,12 @@ import { Wrapper } from '/imports/react-ui/layout/components';
 
 const propTypes = {
   items: PropTypes.number,
+  size: PropTypes.string,
 };
 
-function LoadingSidebar({ items }) {
+function LoadingSidebar({ items, size = 'medium' }) {
   return (
-    <Wrapper.Sidebar>
+    <Wrapper.Sidebar size={size}>
       {_.times(items, n => <Rows key={n} />)}
     </Wrapper.Sidebar>
   );

@@ -1,13 +1,14 @@
 import React, { PropTypes } from 'react';
 import { compose, gql, graphql } from 'react-apollo';
 import { Meteor } from 'meteor/meteor';
+import { Loader } from '/imports/react-ui/common';
 import { SegmentsList } from '../components';
 
 const SegmentListContainer = props => {
   const { segmentsQuery } = props;
 
   if (segmentsQuery.loading) {
-    return null;
+    return <Loader />;
   }
 
   const updatedProps = {

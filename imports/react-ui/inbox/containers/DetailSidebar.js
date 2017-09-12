@@ -14,14 +14,9 @@ class DetailSidebarContainer extends Bulk {
       queryParams,
     } = this.props;
 
-    if (conversationsQuery.loading || totalCountQuery.loading) {
-      return null;
-    }
-
     const user = Meteor.user();
-    const conversations = conversationsQuery.conversations;
+    const conversations = conversationsQuery.conversations || [];
     const totalCount = totalCountQuery.totalConversationsCount;
-
     const { loadMore, hasMore } = pagination(queryParams, totalCount);
 
     // const conversationSort = { sort: { createdAt: -1 } };
@@ -45,6 +40,7 @@ class DetailSidebarContainer extends Bulk {
       user,
       toggleBulk: this.toggleBulk,
       emptyBulk: this.emptyBulk,
+      conversationReady: conversationsQuery.loading,
     };
 
     return <DetailSidebar {...updatedProps} />;

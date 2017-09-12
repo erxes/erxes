@@ -1,6 +1,7 @@
 import { Meteor } from 'meteor/meteor';
 import React, { PropTypes } from 'react';
 import { compose, gql, graphql } from 'react-apollo';
+import { Loading } from '/imports/react-ui/common';
 import { Customers } from '/imports/api/customers/customers';
 import { KIND_CHOICES } from '/imports/api/integrations/constants';
 import { TAG_TYPES } from '/imports/api/tags/constants';
@@ -28,7 +29,7 @@ class CustomerListContainer extends Bulk {
       customerCountsQuery.loading ||
       tagsQuery.loading
     ) {
-      return null;
+      return <Loading title="Customers" />;
     }
 
     const { totalCustomersCount } = totalCountQuery;

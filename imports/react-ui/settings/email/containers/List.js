@@ -1,12 +1,13 @@
 import React, { PropTypes } from 'react';
 import { gql, graphql, compose } from 'react-apollo';
+import { Loading } from '/imports/react-ui/common';
 import { List } from '../components';
 
 const ListContainer = props => {
   const { listQuery } = props;
 
   if (listQuery.loading) {
-    return null;
+    return <Loading title="Email appearance" />;
   }
 
   const brands = listQuery.brands;

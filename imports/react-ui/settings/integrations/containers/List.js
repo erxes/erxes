@@ -1,14 +1,14 @@
 import { Meteor } from 'meteor/meteor';
 import React, { PropTypes } from 'react';
 import { compose, gql, graphql } from 'react-apollo';
-import { pagination } from '/imports/react-ui/common';
+import { pagination, Loading } from '/imports/react-ui/common';
 import { List } from '../components';
 
 const ListContainer = props => {
   const { listQuery, totalCountQuery, queryParams } = props;
 
   if (totalCountQuery.loading || listQuery.loading) {
-    return null;
+    return <Loading title="Integrations" />;
   }
 
   const totalCount = totalCountQuery.totalIntegrationsCount;
