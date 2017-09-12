@@ -36,7 +36,7 @@ $break-small: 415px;
   }
 
   &.close {
-    background-image: url($icon-close-big) !important;
+    background-image: url('/static/images/close.svg') !important;
     background-position: 50%;
     background-size: inherit;
     transition: background .3s ease-in-out;

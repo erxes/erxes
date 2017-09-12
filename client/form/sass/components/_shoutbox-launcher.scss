@@ -32,7 +32,7 @@ $break-small: 415px;
   }
 
   &.close {
-    background: $main-color url($icon-close-big) no-repeat 50%;;
+    background: $main-color url('/static/images/close.svg') no-repeat 50%;;
   }
 
   &:hover {

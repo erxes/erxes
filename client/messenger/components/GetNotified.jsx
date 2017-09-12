@@ -1,7 +1,8 @@
 /* eslint-disable jsx-a11y/no-static-element-interactions */
 
 import React, { PropTypes, Component } from 'react';
-import Ionicon from 'react-ionicons';
+import { iconRight } from '../../icons/Icons';
+
 
 class GetNotified extends Component {
   constructor(props) {
@@ -62,7 +63,7 @@ class GetNotified extends Component {
               onClick={this.saveGetNotifedValue}
               style={{ backgroundColor: color }}
             >
-              <Ionicon icon="ion-ios-arrow-right" color="#fff" />
+              {iconRight}
             </button>
           </div>
         </li>

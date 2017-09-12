@@ -1,5 +1,5 @@
 import React, { PropTypes } from 'react';
-import Ionicon from 'react-ionicons';
+import { iconAttach } from '../../icons/Icons';
 
 
 const propTypes = {
@@ -17,7 +17,7 @@ function Attachment({ attachment }) {
 
     return (
       <div className="file-wrapper">
-        <Ionicon icon="ion-android-attach" fontSize="18px" />
+        {iconAttach}
         <span>{attachment.name}</span>
       </div>
     );

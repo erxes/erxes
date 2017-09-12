@@ -1,5 +1,5 @@
 import React, { PropTypes } from 'react';
-import Ionicon from 'react-ionicons';
+import { iconExit } from '../../icons/Icons';
 
 const propTypes = {
   middle: PropTypes.node,
@@ -35,7 +35,7 @@ function TopBar({
           onClick={onEndConversation}
           title="End conversation"
         >
-          <Ionicon icon="ion-android-exit" className="icon white" />
+          {iconExit}
         </a>
       );
     }
