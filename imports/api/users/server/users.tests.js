@@ -6,7 +6,7 @@ import { Factory } from 'meteor/dburles:factory';
 import { Channels } from '/imports/api/channels/channels';
 import { Conversations } from '/imports/api/conversations/conversations';
 import { ROLES } from '../constants';
-import { invite, updateInvitationInfos, remove } from './methods';
+import { invite, edit, remove } from './methods';
 
 if (Meteor.isServer) {
   describe('users', function() {
@@ -46,7 +46,7 @@ if (Meteor.isServer) {
           assert.equal(channel.memberIds.length, 1);
 
           // ===== invite user
-          invite._execute({ userId }, doc);
+          invite._execute({ userId }, { doc });
 
           // must be created 1 user
           assert.equal(Meteor.users.find().count(), 2);
@@ -81,16 +81,18 @@ if (Meteor.isServer) {
 
         it('updateInvitationInfos', function() {
           // ===== update channels, role
-          updateInvitationInfos._execute(
+          edit._execute(
             { userId },
             {
-              userId: invitedUserId,
-              email: 'invited@gmail.com',
-              username: 'invited',
-              twitterUsername: 'twitterUsername',
-              fullName: 'FirstName LastName',
-              role: 'admin',
-              channelIds: [channel1Id, channel3Id],
+              id: invitedUserId,
+              doc: {
+                email: 'invited@gmail.com',
+                username: 'invited',
+                twitterUsername: 'twitterUsername',
+                fullName: 'FirstName LastName',
+                role: 'admin',
+                channelIds: [channel1Id, channel3Id],
+              },
             },
           );
 
@@ -129,7 +131,7 @@ if (Meteor.isServer) {
 
           assert.throws(
             () => {
-              remove._execute({ userId }, { userId: removeToUserId });
+              remove._execute({ userId }, removeToUserId);
             },
             Meteor.Error,
             /users.remove.involvedInChannel/,
@@ -146,7 +148,7 @@ if (Meteor.isServer) {
 
           assert.throws(
             () => {
-              remove._execute({ userId }, { userId: removeToUserId });
+              remove._execute({ userId }, removeToUserId);
             },
             Meteor.Error,
             /users.remove.involvedInChannel/,
@@ -160,7 +162,7 @@ if (Meteor.isServer) {
 
           assert.throws(
             () => {
-              remove._execute({ userId }, { userId: owner._id });
+              remove._execute({ userId }, owner._id);
             },
             Meteor.Error,
             /users.remove.canNotDeleteOwner/,
@@ -174,7 +176,7 @@ if (Meteor.isServer) {
           assert.equal(Meteor.users.find().count(), 2);
 
           // method call
-          remove._execute({ userId }, { userId: removeToUserId });
+          remove._execute({ userId }, removeToUserId);
 
           // must be deleted
           assert.equal(Meteor.users.find().count(), 1);

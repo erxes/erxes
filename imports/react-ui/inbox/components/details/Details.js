@@ -11,6 +11,7 @@ const propTypes = {
   attachmentPreview: PropTypes.object,
   queryParams: PropTypes.object.isRequired,
   setAttachmentPreview: PropTypes.func.isRequired,
+  refetch: PropTypes.func.isRequired,
 };
 
 class Details extends Component {
@@ -73,7 +74,11 @@ class Details extends Component {
             <RespondBox conversation={conversation} setAttachmentPreview={setAttachmentPreview} />
           }
           rightSidebar={
-            <RightSidebar conversation={conversation} messagesCount={messages.length} />
+            <RightSidebar
+              conversation={conversation}
+              messagesCount={messages.length}
+              refetch={this.props.refetch}
+            />
           }
           relative
         />

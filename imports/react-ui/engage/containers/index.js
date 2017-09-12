@@ -5,7 +5,14 @@ import AutoAndManualForm from './AutoAndManualForm';
 import VisitorForm from './VisitorForm';
 import MessengerPreview from './MessengerPreview';
 
+// sidebar
+import Main from './sidebar/Main';
+import Status from './sidebar/Status';
+import Tag from './sidebar/Tag';
+
 import Widget from './Widget';
+
+const Sidebar = { Main, Status, Tag };
 
 export {
   MessageList,
@@ -15,4 +22,5 @@ export {
   VisitorForm,
   Widget,
   MessengerPreview,
+  Sidebar,
 };

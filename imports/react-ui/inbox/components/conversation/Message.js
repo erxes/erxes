@@ -15,6 +15,8 @@ const propTypes = {
 };
 
 function Message({ message, staff, isSameUser }) {
+  const user = message.user || {};
+  const customer = message.customer || {};
   const faceboodData = message.facebookData;
   const isReaction = faceboodData && faceboodData.item === 'reaction';
   const isPhotoPost = faceboodData && faceboodData.item === 'photo';
@@ -29,7 +31,7 @@ function Message({ message, staff, isSameUser }) {
     fbpost: isPhotoPost || isVideoPost,
   });
 
-  const prop = staff ? { user: message.user() } : { customer: message.customer() };
+  const prop = staff ? { user } : { customer };
 
   const renderAvatar = () => {
     if (!isSameUser) {

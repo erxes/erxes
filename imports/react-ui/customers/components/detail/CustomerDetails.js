@@ -8,11 +8,10 @@ import RightSidebar from './sidebar/RightSidebar';
 
 const propTypes = {
   customer: PropTypes.object.isRequired,
-  conversations: PropTypes.array.isRequired,
   queryParams: PropTypes.object.isRequired,
 };
 
-function Details({ customer, conversations, queryParams }) {
+function Details({ customer, queryParams }) {
   const breadcrumb = [
     { title: 'Customers', link: FlowRouter.path('customers/list') },
     { title: customer.name || customer.email || 'N/A' },
@@ -23,7 +22,7 @@ function Details({ customer, conversations, queryParams }) {
       <Wrapper
         header={<Wrapper.Header breadcrumb={breadcrumb} />}
         leftSidebar={<Sidebar customer={customer} queryParams={queryParams} />}
-        content={<Content conversations={conversations} />}
+        content={<Content conversations={customer.conversations} />}
         rightSidebar={<RightSidebar customer={customer} />}
       />
     </div>

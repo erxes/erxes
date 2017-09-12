@@ -4,7 +4,6 @@ import { FlowRouter } from 'meteor/kadira:flow-router';
 import strip from 'strip';
 import classNames from 'classnames';
 import { NameCard, Tags } from '/imports/react-ui/common';
-import { Tags as TagsCollection } from '/imports/api/tags/tags';
 
 const propTypes = {
   conversation: PropTypes.object.isRequired,
@@ -49,15 +48,12 @@ class SimpleRow extends Component {
 
   render() {
     const { conversation, isRead } = this.props;
-    const { createdAt, content } = conversation;
-    const customer = conversation.customer();
-    const integration = conversation.integration();
-    const brandName = integration.brand && integration.brand().name;
+    const { createdAt, content, tags } = conversation;
+    const customer = conversation.customer || {};
+    const integration = conversation.integration || {};
+    const brand = integration.brand || {};
+    const brandName = brand.name;
     const rowClasses = classNames('simple-row', { unread: !isRead }, 'baseline');
-    // TODO: use embedded tags list of the conversation object
-    const tags = TagsCollection.find({
-      _id: { $in: conversation.tagIds || [] },
-    }).fetch();
 
     return (
       <li className={rowClasses}>

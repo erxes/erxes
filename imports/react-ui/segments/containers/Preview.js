@@ -1,38 +1,63 @@
-import { compose } from 'react-komposer';
-import { getTrackerLoader } from '/imports/react-ui/utils';
-import { Meteor } from 'meteor/meteor';
+import React, { PropTypes } from 'react';
+import { compose, gql, graphql } from 'react-apollo';
 import { FlowRouter } from 'meteor/kadira:flow-router';
-import { Loader } from '/imports/react-ui/common';
 import { Customers } from '/imports/api/customers/customers';
 import { Preview } from '../components';
 
-function composer({ segment }, onData) {
-  const limit = parseInt(FlowRouter.getQueryParam('limit'), 10) || 20;
-  const customersHandle = Meteor.subscribe('customers.listForSegmentPreview', segment, limit);
+class PreviewContainer extends React.Component {
+  render() {
+    const { customersQuery } = this.props;
 
-  if (customersHandle.ready()) {
-    const customers = Customers.find(
-      {},
-      { sort: { 'messengerData.lastSeenAt': -1 }, limit },
-    ).fetch();
+    if (customersQuery.loading) {
+      return null;
+    }
 
-    onData(null, {
-      customers,
+    const updatedProps = {
+      ...this.props,
+      customers: customersQuery.customerListForSegmentPreview,
       customerFields: Customers.getPublicFields(),
-    });
+    };
+
+    return <Preview {...updatedProps} />;
   }
 }
 
-const options = {
-  loadingHandler: Loader,
-  propsToWatch: ['segment'],
-  shouldSubscribe(currentProps, nextProps) {
-    return (
-      currentProps.segment.connector !== nextProps.segment.connector ||
-      currentProps.segment.conditions !== nextProps.segment.conditions ||
-      currentProps.segment.subOf !== nextProps.segment.subOf
-    );
-  },
+PreviewContainer.propTypes = {
+  segment: PropTypes.object,
+  customersQuery: PropTypes.object,
 };
 
-export default compose(getTrackerLoader(composer), options)(Preview);
+export default compose(
+  graphql(
+    gql`
+      query customerListForSegmentPreview($segment: JSON, $limit: Int) {
+        customerListForSegmentPreview(segment: $segment, limit: $limit) {
+          _id
+          name
+          email
+          phone
+          isUser
+          integrationId
+          createdAt
+          messengerData
+          twitterData
+          facebookData
+          tagIds
+          getTags {
+            _id
+            name
+          }
+        }
+      }
+    `,
+    {
+      name: 'customersQuery',
+      options: ({ segment }) => ({
+        variables: {
+          segment,
+          limit: parseInt(FlowRouter.getQueryParam('limit'), 10) || 20,
+        },
+      }),
+    },
+  ),
+)(PreviewContainer);

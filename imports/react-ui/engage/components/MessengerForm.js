@@ -15,7 +15,10 @@ class MessengerForm extends Component {
   constructor(props) {
     super(props);
 
-    this.state = { sentAs: props.message.messenger.sentAs || '' };
+    const { message } = this.props;
+    const messenger = message.messenger || {};
+
+    this.state = { sentAs: messenger.sentAs || '' };
 
     // binds
     this.onContentChange = this.onContentChange.bind(this);
@@ -52,6 +55,7 @@ class MessengerForm extends Component {
     const message = this.props.message || {};
     const messenger = message.messenger || {};
     const brands = this.props.brands;
+
     return (
       <div>
         <div className="form-header">

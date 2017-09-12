@@ -1,16 +1,15 @@
-import { compose } from 'react-komposer';
-import { getTrackerLoader, composerOptions } from '/imports/react-ui/utils';
 import { Meteor } from 'meteor/meteor';
-import { createSegment, editSegment } from '/imports/api/customers/methods';
+import React, { PropTypes } from 'react';
+import { compose, gql, graphql } from 'react-apollo';
 import { Customers } from '/imports/api/customers/customers';
-import Segments from '/imports/api/customers/segments';
 import { SegmentsForm } from '../components';
 
-function composer(props, onData) {
-  const segmentHandle = props.id
-    ? Meteor.subscribe('customers.segmentById', props.id).ready()
-    : true;
-  const headSegmentsHandle = Meteor.subscribe('customers.headSegments');
+const SegmentsFormContainer = props => {
+  const { segmentDetailQuery, headSegmentsQuery } = props;
+
+  if (segmentDetailQuery.loading || headSegmentsQuery.loading) {
+    return null;
+  }
 
   const fields = Customers.getPublicFields().map(({ key, label }) => ({
     _id: key,
@@ -18,19 +17,76 @@ function composer(props, onData) {
     selectedBy: 'none',
   }));
 
-  if (segmentHandle && headSegmentsHandle.ready()) {
-    onData(null, {
-      fields,
-      segment: Segments.findOne(props.id),
-      headSegments: Segments.find().fetch().filter(segment => !segment.subOf),
-      create({ doc }, callback) {
-        createSegment.call(doc, callback);
-      },
-      edit({ id, doc }, callback) {
-        editSegment.call({ id, doc }, callback);
-      },
-    });
-  }
-}
+  const segment = segmentDetailQuery.segmentDetail;
+  const headSegments = headSegmentsQuery.headSegments;
 
-export default compose(getTrackerLoader(composer), composerOptions({}))(SegmentsForm);
+  const updatedProps = {
+    ...props,
+    fields,
+    segment,
+    headSegments,
+
+    create({ doc }, callback) {
+      Meteor.call('customers.createSegment', doc, callback);
+    },
+
+    edit({ id, doc }, callback) {
+      Meteor.call('customers.editSegment', { id, doc }, callback);
+    },
+  };
+
+  return <SegmentsForm {...updatedProps} />;
+};
+
+SegmentsFormContainer.propTypes = {
+  segmentDetailQuery: PropTypes.object,
+  headSegmentsQuery: PropTypes.object,
+};
+
+const segmentFields = `
+  _id
+  name
+  description
+  subOf
+  color
+  connector
+  conditions
+`;
+
+export default compose(
+  graphql(
+    gql`
+      query segmentDetail($_id: String) {
+        segmentDetail(_id: $_id) {
+          ${segmentFields}
+          getSubSegments {
+            ${segmentFields}
+          }
+        }
+      }
+    `,
+    {
+      name: 'segmentDetailQuery',
+      options: ({ id }) => ({
+        variables: {
+          _id: id,
+        },
+      }),
+    },
+  ),
+  graphql(
+    gql`
+      query headSegments {
+        headSegments {
+          ${segmentFields}
+          getSubSegments {
+            ${segmentFields}
+          }
+        }
+      }
+    `,
+    {
+      name: 'headSegmentsQuery',
+    },
+  ),
+)(SegmentsFormContainer);

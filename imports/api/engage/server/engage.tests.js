@@ -9,7 +9,6 @@ import '/imports/api/users/factory';
 import { Messages } from '../engage';
 import { replaceKeys, send } from '../utils';
 import { messagesAdd, messagesEdit, messagesRemove } from './methods';
-import './publications';
 
 describe('engage', function() {
   describe('methods', function() {

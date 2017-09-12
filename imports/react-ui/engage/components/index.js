@@ -6,6 +6,12 @@ import VisitorForm from './VisitorForm';
 import Widget from './Widget';
 import MessengerPreview from './MessengerPreview';
 
+// sidebar
+import Main from './sidebar/Main';
+import Status from './sidebar/Status';
+
+const Sidebar = { Main, Status };
+
 export {
   MessageList,
   MessageListRow,
@@ -14,4 +20,5 @@ export {
   VisitorForm,
   Widget,
   MessengerPreview,
+  Sidebar,
 };

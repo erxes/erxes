@@ -5,7 +5,7 @@ import { compose } from 'react-komposer';
 import { getTrackerLoader, composerOptions } from '/imports/react-ui/utils';
 import { MessageListRow } from '../components';
 
-function composer({ message }, onData) {
+function composer({ message, refetch }, onData) {
   const messageId = message._id;
 
   const edit = () => {
@@ -20,24 +20,29 @@ function composer({ message }, onData) {
         return Alert.error("Can't delete a message", error.reason);
       }
 
+      refetch();
+
       return Alert.success('Congrats', 'Message has deleted.');
     });
   };
 
   const setLive = () => {
     Meteor.call('engage.messages.setLive', messageId, () => {
+      refetch();
       return Alert.success('Live');
     });
   };
 
   const setLiveManual = () => {
     Meteor.call('engage.messages.setLiveManual', messageId, () => {
+      refetch();
       return Alert.success('Live');
     });
   };
 
   const setPause = () => {
     Meteor.call('engage.messages.setPause', messageId, () => {
+      refetch();
       return Alert.success('Paused');
     });
   };

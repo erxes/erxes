@@ -4,8 +4,8 @@ import Alert from 'meteor/erxes-notifier';
 import {
   Pagination,
   ConversationsList,
-  LoadingContent,
   EmptyState,
+  LoadingContent,
   DropdownToggle,
 } from '/imports/react-ui/common';
 import { FlowRouter } from 'meteor/kadira:flow-router';
@@ -103,7 +103,7 @@ class Sidebar extends Component {
       conversationReady,
     } = this.props;
 
-    if (unreadConversations.length === 0 && readConversations.length === 0 && conversationReady) {
+    if (unreadConversations.length === 0 && readConversations.length === 0 && !conversationReady) {
       return (
         <EmptyState
           text="There aren’t any conversations."
@@ -111,7 +111,7 @@ class Sidebar extends Component {
           icon={<i className="ion-email" />}
         />
       );
-    } else if (!conversationReady) {
+    } else if (conversationReady) {
       return <LoadingContent items={5} />;
     }
 

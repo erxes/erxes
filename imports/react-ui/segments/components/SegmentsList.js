@@ -23,7 +23,7 @@ function SegmentsList({ segments, removeSegment }) {
 
   const parentSegments = [];
   segments.filter(segment => !segment.subOf).map(segment => {
-    parentSegments.push(segment, ...segment.getSubSegments());
+    parentSegments.push(segment, ...segment.getSubSegments);
   });
 
   const content = (

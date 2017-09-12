@@ -4,7 +4,7 @@ import Tagger from './tagger/containers/Tagger';
 import TaggerPopover from './tagger/components/TaggerPopover';
 import ModalTrigger from './ModalTrigger';
 import Tags from './Tags';
-import TagFilter from './TagFilter';
+import CountsByTag from './CountsByTag';
 import Loader from './Loader';
 import LoadingSidebar from './loading/LoadingSidebar';
 import LoadingContent from './loading/LoadingContent';
@@ -20,6 +20,7 @@ import { pagination } from './pagination/paginationUtils';
 import FilterableList from './filterableList/FilterableList';
 import ConversationsList from './conversationsList/ConversationsList';
 import LoadMore from './LoadMore';
+import Bulk from './Bulk';
 
 export {
   NameCard,
@@ -28,7 +29,7 @@ export {
   TaggerPopover,
   ModalTrigger,
   Tags,
-  TagFilter,
+  CountsByTag,
   Loader,
   Spinner,
   Tip,
@@ -44,4 +45,5 @@ export {
   LoadingContent,
   Loading,
   LoadMore,
+  Bulk,
 };
