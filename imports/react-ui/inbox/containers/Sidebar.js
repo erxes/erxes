@@ -8,15 +8,12 @@ import { Sidebar } from '../components';
 const SidebarContainer = props => {
   const { conversationCountsQuery, channelsQuery, tagsQuery, brandsQuery } = props;
 
-  if (conversationCountsQuery.loading) {
-    return null;
-  }
-
+  const defaultCounts = { byIntegrationTypes: {}, byTags: {}, byChannels: {}, byBrands: {} };
   // show only available channels's related brands
   const channels = channelsQuery.channels || [];
   const brands = brandsQuery.brands || [];
   const tags = tagsQuery.tags || [];
-  const counts = conversationCountsQuery.conversationCounts;
+  const counts = conversationCountsQuery.conversationCounts || defaultCounts;
 
   const updatedProps = {
     ...props,
@@ -28,7 +25,6 @@ const SidebarContainer = props => {
     brandsReady: !brandsQuery.loading,
     counts,
   };
-
   return <Sidebar {...updatedProps} />;
 };
 
