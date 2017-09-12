@@ -1,7 +1,7 @@
 /* eslint-disable jsx-a11y/no-static-element-interactions */
 
 import React, { Component, PropTypes } from 'react';
-import Ionicon from 'react-ionicons';
+import { iconLeft } from '../../icons/Icons';
 import { MessagesList, MessageSender, TopBar } from '../containers';
 
 
@@ -82,7 +82,7 @@ class Conversation extends Component {
       <div onClick={this.onClick} className="erxes-messenger" style={{ border: `1px solid ${color}` }}>
         <TopBar
           middle={this.renderTitle()}
-          buttonIcon={<Ionicon icon="ion-ios-arrow-back" className="icon white" />}
+          buttonIcon={iconLeft}
           onButtonClick={goToConversationList}
         />
 

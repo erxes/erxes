@@ -1,6 +1,6 @@
 import React, { PropTypes } from 'react';
 import classNames from 'classnames';
-import Ionicon from 'react-ionicons';
+import { iconClose } from '../../icons/Icons';
 import { Form, ShoutboxLauncher } from '../containers';
 
 
@@ -34,7 +34,7 @@ function App({ isShoutboxFormVisible, loadType, onModalClose }) {
           onClick={onModalClose}
           title="Close"
         >
-          <Ionicon icon="ion-android-close" className="icon white" fontSize="20px" />
+          {iconClose}
         </a>
         <Form />
       </div>

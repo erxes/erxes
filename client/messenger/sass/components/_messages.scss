@@ -65,6 +65,10 @@
   &.ml50 {
     margin-left: 50px;
   }
+
+  &~.erxes-spacial-message {
+    margin-top: 15px;
+  }
 }
 
 .ask-get-notified {
@@ -93,6 +97,10 @@
     outline: 0;
     width: 31px;
     padding: 4px;
+
+    svg {
+      margin-top: 3px;
+    }
   }
 }
 
@@ -205,11 +213,10 @@
 
   svg {
     height: 30px;
-    fill: $text-color;
-    position: absolute;
     left: 13px;
+    position: absolute;
     top: 11px;
-    color: $text-color;
+    width: 16px;
   }
 
   span {

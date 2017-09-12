@@ -1,6 +1,5 @@
 import React, { PropTypes, Component } from 'react';
-import Ionicon from 'react-ionicons';
-import { iconPlus } from '../../icons/Icons';
+import { iconAttach } from '../../icons/Icons';
 
 const propTypes = {
   placeholder: PropTypes.string,
@@ -83,7 +82,7 @@ class MessageSender extends Component {
             this.props.isAttachingFile
               ? <div className="loader" />
               : <label htmlFor="file-upload" className="btn-attach">
-                {iconPlus}
+                {iconAttach}
                 <input id="file-upload" type="file" onChange={this.handleFileInput} />
               </label>
           }
