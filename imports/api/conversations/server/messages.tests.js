@@ -81,12 +81,14 @@ describe('conversation - messages', function() {
       it('internal messsage', function() {
         const conversationId = Factory.create('conversation', {})._id;
 
-        const response = addMessage._execute(
+        const messageId = addMessage._execute(
           { userId },
           { content: 'lorem', conversationId, internal: true },
         );
 
-        assert.equal(response, 'internalMessage');
+        const message = Messages.findOne({ _id: messageId });
+
+        assert.equal(message.internal, true);
       });
     });
   });

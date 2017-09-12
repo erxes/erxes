@@ -9,8 +9,8 @@ const ChannelFormContainer = props => {
     return null;
   }
 
-  const integrations = integrationsQuery.integrations;
-  const members = usersQuery.users;
+  const integrations = integrationsQuery.integrations || [];
+  const members = usersQuery.users || [];
 
   let selectedIntegrations = [];
   let selectedMembers = [];
@@ -46,9 +46,11 @@ export default compose(
           _id
           name
           brand {
+            _id
             name
           }
           channels {
+            _id
             name
           }
         }

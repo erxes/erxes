@@ -13,6 +13,7 @@ export default commonListComposer({
           name
           brandId
           brand {
+            _id
             name
           }
           content
