@@ -2,6 +2,7 @@ import { Meteor } from 'meteor/meteor';
 import React, { PropTypes } from 'react';
 import { compose, gql, graphql } from 'react-apollo';
 import { methodCallback } from '/imports/react-ui/engage/utils';
+import { Loading } from '/imports/react-ui/common';
 import { AutoAndManualForm } from '../components';
 
 const AutoAndManualFormContainer = props => {
@@ -20,7 +21,7 @@ const AutoAndManualFormContainer = props => {
     segmentsQuery.loading ||
     emailTemplatesQuery.loading
   ) {
-    return null;
+    return <Loading title="New message" spin sidebarSize="wide" />;
   }
 
   const templates = emailTemplatesQuery.emailTemplates;

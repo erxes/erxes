@@ -8,7 +8,7 @@ const CustomerDetailsContainer = props => {
   const { customerDetailQuery } = props;
 
   if (customerDetailQuery.loading) {
-    return <Loading sidebarSize="wide" spin hasRightSidebar />;
+    return <Loading title="Customers" sidebarSize="wide" spin hasRightSidebar />;
   }
 
   const updatedProps = {

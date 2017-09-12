@@ -2,13 +2,14 @@ import { Meteor } from 'meteor/meteor';
 import React, { PropTypes } from 'react';
 import { compose, gql, graphql } from 'react-apollo';
 import { methodCallback } from '/imports/react-ui/engage/utils';
+import { Loading } from '/imports/react-ui/common';
 import { VisitorForm } from '../components';
 
 const VisitorFormContainer = props => {
   const { engageMessageDetailQuery, usersQuery, messageId } = props;
 
   if (engageMessageDetailQuery.loading || usersQuery.loading) {
-    return null;
+    return <Loading title="Visitor auto message" spin sidebarSize="wide" />;
   }
 
   // save
