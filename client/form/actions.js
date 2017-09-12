@@ -7,7 +7,7 @@ import {
   CREATE_NEW,
   INITIAL,
 } from './constants';
-import client from '../apollo-client';
+import client, { clientForMainApp } from '../apollo-client';
 import { connection } from './connection';
 
 export const toggleShoutbox = (isVisible) => {
@@ -76,9 +76,13 @@ export const saveForm = doc => (dispatch) => {
 
         saveForm(integrationId: $integrationId, formId: $formId,
           submissions: $submissions) {
-            fieldId
-            code
-            text
+            status
+            messageId
+            errors {
+              fieldId
+              code
+              text
+            }
         }
       }`,
 
@@ -90,17 +94,25 @@ export const saveForm = doc => (dispatch) => {
   })
 
   .then(({ data }) => {
-    const errors = data.saveForm;
+    const { status, errors, messageId } = data.saveForm;
 
-    let status = SUCCESS;
+    // if successfully saved then instruct main app to publish changes
+    if (status === 'ok') {
+      clientForMainApp.mutate({
+        mutation: gql`
+          mutation saveFormWidget($messageId: String!) {
+            saveFormWidget(messageId: $messageId)
+          }`,
 
-    if (errors.length > 0) {
-      status = ERROR;
+        variables: {
+          messageId,
+        },
+      });
     }
 
     dispatch({
       type: FORM_SUBMIT,
-      status,
+      status: status === 'ok' ? SUCCESS : ERROR,
       errors,
     });
   });

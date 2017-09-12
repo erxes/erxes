@@ -1,14 +1,30 @@
+import React, { PropTypes } from 'react';
 import gql from 'graphql-tag';
-import Subscriber from './Subscriber';
+import { connection } from '../connection';
 
+export default class NotificationSubscriber extends React.Component {
+  componentWillMount() {
+    const { data } = this.props;
 
-export default class NotificationSubscriber extends Subscriber {
-  subscribeToMoreOptions() {
-    return {
-      document: gql`subscription notification {notification}`,
+    // lister for new message insert
+    data.subscribeToMore({
+      document: gql`
+        subscription conversationNotification($customerId: String) {
+          conversationNotification(customerId: $customerId)
+        }`
+      ,
+
+      variables: {
+        customerId: connection.data.customerId,
+      },
+
       updateQuery: () => {
         this.props.data.refetch();
       },
-    };
+    });
   }
+}
+
+NotificationSubscriber.propTypes = {
+  data: PropTypes.object,
 }
