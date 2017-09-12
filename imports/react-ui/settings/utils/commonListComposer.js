@@ -2,7 +2,7 @@ import { Meteor } from 'meteor/meteor';
 import React, { PropTypes } from 'react';
 import { compose } from 'react-apollo';
 import Alert from 'meteor/erxes-notifier';
-import { pagination } from '/imports/react-ui/common';
+import { pagination, Loading } from '/imports/react-ui/common';
 
 const commonListComposer = options => {
   const { name, gqlListQuery, gqlTotalCountQuery, ListComponent } = options;
@@ -11,7 +11,7 @@ const commonListComposer = options => {
     const { listQuery, totalCountQuery, queryParams } = props;
 
     if (totalCountQuery.loading || listQuery.loading) {
-      return null;
+      return <Loading title="Settings" />;
     }
 
     const capsName = name.charAt(0).toUpperCase() + name.substr(1);
