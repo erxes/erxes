@@ -28,7 +28,7 @@ export default {
   },
 
   messages(conv) {
-    return ConversationMessages.find({ conversationId: conv._id });
+    return ConversationMessages.find({ conversationId: conv._id }).sort({ createdAt: 1 });
   },
 
   tags(conv) {
