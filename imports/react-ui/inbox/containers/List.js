@@ -56,6 +56,7 @@ class ListContainer extends Bulk {
       channelId,
       user,
       conversationReady: conversationsQuery.loading && totalCountQuery.loading,
+      refetch: this.refetch,
     };
 
     return <List {...updatedProps} />;

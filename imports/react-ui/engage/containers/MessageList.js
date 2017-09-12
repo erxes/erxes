@@ -52,6 +52,7 @@ export default compose(
             _id
             details
           }
+          tagIds
         }
       }
     `,

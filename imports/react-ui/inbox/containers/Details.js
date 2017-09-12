@@ -93,6 +93,7 @@ class DetailsContainer extends Component {
       setAttachmentPreview,
       queryParams,
       attachmentPreview: attachmentPreview.get(),
+      refetch: conversationDetailQuery.refetch,
     };
 
     return <Details {...updatedProps} />;

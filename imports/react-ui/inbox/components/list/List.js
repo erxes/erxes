@@ -23,6 +23,7 @@ const propTypes = {
   toggleBulk: PropTypes.func.isRequired,
   emptyBulk: PropTypes.func.isRequired,
   conversationReady: PropTypes.bool,
+  refetch: PropTypes.func.isRequired,
 };
 
 function List(props) {
@@ -37,6 +38,7 @@ function List(props) {
     toggleBulk,
     emptyBulk,
     conversationReady,
+    refetch,
   } = props;
 
   /**
@@ -60,7 +62,10 @@ function List(props) {
             <i className="ion-pricetags" /> Tag <span className="caret" />
           </Button>
         }
-        afterSave={emptyBulk}
+        afterSave={() => {
+          emptyBulk();
+          refetch();
+        }}
       />
 
       <AssignBoxPopover
