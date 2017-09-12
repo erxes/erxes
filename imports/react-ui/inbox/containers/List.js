@@ -59,6 +59,7 @@ class ListContainer extends Bulk {
       starredConversationIds,
       channelId,
       user,
+      refetch: this.refetch,
     };
 
     return <List {...updatedProps} />;

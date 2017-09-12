@@ -11,6 +11,7 @@ import { AssignBox } from '../../containers';
 const propTypes = {
   conversation: PropTypes.object.isRequired,
   messagesCount: PropTypes.number.isRequired,
+  refetch: PropTypes.func.isRequired,
 };
 
 class RightSidebar extends Component {
@@ -256,6 +257,7 @@ class RightSidebar extends Component {
                 targets={[conversation._id]}
                 className="sidebar-accordion"
                 event="onClick"
+                afterSave={this.props.refetch}
               />
             </div>
           </Collapse>

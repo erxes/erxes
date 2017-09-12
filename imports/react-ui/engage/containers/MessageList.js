@@ -50,6 +50,7 @@ export default compose(
           fromUser {
             details
           }
+          tagIds
         }
       }
     `,

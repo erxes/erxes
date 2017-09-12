@@ -81,6 +81,7 @@ export default compose(
         tags(type: $type) {
           _id
           name
+          colorCode
         }
       }
     `,

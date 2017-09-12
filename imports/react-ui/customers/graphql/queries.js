@@ -83,6 +83,7 @@ export const tags = `
     tags(type: $type) {
       _id
       name
+      colorCode
     }
   }
 `;
