@@ -2,11 +2,13 @@ import { Conversations, ConversationMessages } from '../../../db/models';
 import { pubsub } from '../subscriptions';
 
 export default {
+  // will implement actual db changes after removing meteor
   async insertMessage(root, { messageId }) {
     const message = await ConversationMessages.findOne({ _id: messageId });
     const conversationId = message.conversationId;
     const conversation = await Conversations.findOne({ _id: conversationId });
 
+    // notify new message
     pubsub.publish('conversationUpdated', {
       conversationUpdated: { conversationId, type: 'newMessage', message },
     });
@@ -18,6 +20,9 @@ export default {
     return message;
   },
 
+  /*
+   * resolve or reopen conversation
+   */
   changeConversationStatus(root, { _id }) {
     pubsub.publish('conversationUpdated', {
       conversationUpdated: { conversationId: _id, type: 'statusChanged' },
@@ -36,6 +41,7 @@ export default {
     return [_ids];
   },
 
+  // will implement actual db changes after removing meteor
   async readConversationMessages(root, { _id }) {
     const conversation = await Conversations.findOne({ _id });
 
@@ -50,6 +56,7 @@ export default {
     return _id;
   },
 
+  // will implement actual db changes after removing meteor
   async saveFormWidget(root, { messageId }) {
     const message = await ConversationMessages.findOne({ _id: messageId });
     const conversation = await Conversations.findOne({ _id: message.conversationId });

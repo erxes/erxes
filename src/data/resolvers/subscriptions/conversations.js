@@ -2,6 +2,9 @@ import { withFilter } from 'graphql-subscriptions';
 import { pubsub } from './';
 
 export default {
+  /*
+   * Listen for new message insertion, status change of requested conversation
+  */
   conversationUpdated: {
     subscribe: withFilter(
       () => pubsub.asyncIterator('conversationUpdated'),
@@ -12,6 +15,9 @@ export default {
     ),
   },
 
+  /*
+   * Listen for conversation updates by customerId
+   */
   conversationNotification: {
     subscribe: withFilter(
       () => pubsub.asyncIterator('conversationNotification'),
