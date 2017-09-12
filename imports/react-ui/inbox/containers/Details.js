@@ -81,7 +81,9 @@ class DetailsContainer extends Component {
     const readUserIds = conversation.readUserIds || [];
 
     if (!readUserIds.includes(Meteor.userId())) {
-      Meteor.call('conversations.markAsRead', { conversationId: conversation._id });
+      Meteor.call('conversations.markAsRead', { conversationId: conversation._id }, () => {
+        conversationDetailQuery.refetch();
+      });
     }
 
     const updatedProps = {
