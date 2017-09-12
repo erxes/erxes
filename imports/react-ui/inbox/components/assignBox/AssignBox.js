@@ -34,6 +34,7 @@ class AssignBox extends Component {
 
   assign(items, id) {
     const { assign, targets } = this.props;
+
     assign(
       {
         targetIds: targets.map(t => t._id),
@@ -60,7 +61,9 @@ class AssignBox extends Component {
           memo + (target.assignedUserId && target.assignedUserId.indexOf(assignee._id) > -1),
         0,
       );
+
       let state = 'none';
+
       if (count === targets.length) {
         state = 'all';
       } else if (count < targets.length && count > 0) {
