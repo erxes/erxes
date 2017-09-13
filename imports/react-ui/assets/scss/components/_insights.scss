@@ -1,14 +1,31 @@
+$violet: #a174e2;
+$bg-data: #faf9fb;
+$title-color: #888;
+$shadow-color: rgba(0, 0, 0, .12);
+$item-shadow: 0 3px 1px -2px $shadow-color, 0 2px 2px 0 $shadow-color, 0 1px 5px 0 $shadow-color;
+
 .insight-wrapper {
 
 	.insight-title {
-		text-align: center;
 		text-transform: uppercase;
-		font-weight: bold;
-		margin-bottom: 18px;
+    font-weight: 400;
+    padding: 10px 0;
+    color: $title-color;
+    margin: 20px 0 10px;
+	}
+
+	.insight-content {
+		margin: 30px;
 	}
 
 	.insight-filter {
-		padding: 20px;
+		padding: 20px 30px;
+		border-bottom: 1px solid $gray-lighter;
+		background: $bg-data;
+
+		h5 {
+			margin-top: 0;
+		}
 	}
 
 	.insight-row {
@@ -17,19 +34,22 @@
 	}
 
 	.insight-user-data {
-		margin-bottom: 20px;
+		margin-bottom: 30px;
+		border: 1px solid $gray-lighter;
+		border-radius: $border-radius;
 
 		.user-profile {
-			margin-bottom: 20px;
 			line-height: 40px;
-			height: 40px;
+			padding: 15px 20px;
 			overflow: hidden;
+			max-height: 70px;
+			border-bottom: 1px solid $gray-lighter;
 
 			img {
 				width: 40px;
 				height: 40px;
 				border-radius: 50%;
-				margin: 0 20px;
+				margin-right: 20px;
 				float: left;
 			}
 
@@ -39,6 +59,18 @@
 				font-weight: bold;
 			}
 		}
+
+		.chart-wrapper {
+			padding: 20px 0 10px;
+			border: 0;
+		}
+	}
+
+	.chart-wrapper {
+		padding: 20px 20px 20px 0;
+		border: 1px solid $gray-lighter;
+		border-radius: $border-radius;
+		background: $bg-data;
 	}
 
 	.integration-kind {
@@ -64,14 +96,15 @@
 	}
 
 	.summary-item {
-		border: 1px solid #ddd;
 		text-align: center;
 		border-radius: 5px;
 		margin-bottom: 30px;
 		padding: 12px;
+		background: $bg-data;
+		box-shadow: $item-shadow;
 
 		.summary-title {
-			margin-bottom:4px;
+			margin-bottom: 4px;
 			text-transform: uppercase;
 		}
 
@@ -82,16 +115,34 @@
 	}
 }
 
+.flex-row {
+  display: flex;
+  flex-direction: row;
+
+  .flex-item {
+    flex: 1;
+
+    ~ .flex-item {
+      margin-left: 20px;
+    }
+  }
+}
+
 #punch-card {
   .axis path,
   .axis line {
     fill: none;
-    stroke: #333;
+    stroke: $gray-light;
     stroke-width: 1px;
     shape-rendering: crispEdges;
   }
-  
+
   .axis text {
     font-size: 0.875em;
+		fill: $gray-light;
   }
+
+	circle {
+		fill: $main-color !important;
+	}
 }

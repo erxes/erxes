@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { Col, Row } from 'react-bootstrap';
 import Chart from './Chart';
 
 const propTypes = {
@@ -12,20 +13,19 @@ class TeamMembers extends React.Component {
     const { width } = this.props;
 
     return (
-      <div className="col-sm-6 insight-user-data" key={index}>
-        <div className="user-profile">
-          <a href="#">
-            <img src={userData.avatar} alt={userData.fullName} />
-          </a>
-          <span className="full-name">
-            {userData.fullName}
-          </span>
-          <div className="clearfix" />
-        </div>
-        <div>
+      <Col sm={6} key={index}>
+        <div className="insight-user-data">
+          <div className="user-profile">
+            <a href="#">
+              <img src={userData.avatar || '/images/userDefaultIcon.png'} alt={userData.fullName} />
+            </a>
+            <span className="full-name">
+              {userData.fullName}
+            </span>
+          </div>
           <Chart width={width * 0.45} height={200} data={userData.data} />
         </div>
-      </div>
+      </Col>
     );
   }
 
@@ -33,9 +33,9 @@ class TeamMembers extends React.Component {
     const { datas } = this.props;
 
     return (
-      <div>
+      <Row>
         {datas.map((data, index) => this.renderChart(data, index))}
-      </div>
+      </Row>
     );
   }
 }

@@ -15,10 +15,10 @@ class Insights extends React.Component {
   render() {
     const { data, wrapperWidth } = this.props;
     const width = (wrapperWidth || 400) * 0.5;
-    const height = width * 0.8;
+    const height = width * 0.5;
 
-    const COLORS = ['#5cb85c', '#5bc0de', '#f0ad4e', '#d9534f', '#7242c3'];
-    const classNames = ['success', 'info', 'warning', 'danger', 'default'];
+    const COLORS = ['#7242c3', '#1dcaff', '#3B5998', '#f0ad4e', '#ccc'];
+    const classNames = ['default', 'twitter', 'facebook', 'form', 'primary'];
 
     const RADIAN = Math.PI / 180;
     const renderCustomizedLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent }) => {
@@ -40,9 +40,9 @@ class Insights extends React.Component {
     };
 
     return (
-      <div>
+      <div className="chart-wrapper">
         <div className="integration-kind" style={{ marginLeft: width }}>
-          {data.map((detail, index) =>
+          {data.map((detail, index) => (
             <div key={index} className="kind-item">
               <span className={`label label-${classNames[index]}`}>
                 {detail.name}
@@ -50,8 +50,8 @@ class Insights extends React.Component {
               <span className="kind-count">
                 {detail.value}
               </span>
-            </div>,
-          )}
+            </div>
+          ))}
         </div>
 
         <PieChart width={width} height={height} onMouseEnter={this.onPieEnter}>

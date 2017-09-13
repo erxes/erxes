@@ -45,7 +45,12 @@ class VolumeReport extends React.Component {
     const content = (
       <div className="insight-wrapper">
         <Filter brands={brands} />
-        <div className="margined">
+        <div className="insight-content">
+          <div className="insight-row">
+            {this.renderTitle('Volume summary')}
+            <Summary data={summary} />
+          </div>
+
           <div
             className="insight-row"
             ref={node => {
@@ -53,12 +58,7 @@ class VolumeReport extends React.Component {
             }}
           >
             {this.renderTitle('Volume Trend')}
-            <Chart width={width} height={300} data={trend} />
-          </div>
-
-          <div className="insight-row">
-            {this.renderTitle('Volume summary')}
-            <Summary data={summary} />
+            <Chart width={width} height={320} data={trend} />
           </div>
 
           {width !== 600
@@ -76,9 +76,11 @@ class VolumeReport extends React.Component {
       </div>
     );
 
+    const breadcrumb = [{ title: 'Insights', link: '/insight' }, { title: 'Volume Report' }];
+
     return (
       <Wrapper
-        header={<Wrapper.Header breadcrumb={[{ title: 'Volume Report' }]} />}
+        header={<Wrapper.Header breadcrumb={breadcrumb} />}
         leftSidebar={<Sidebar />}
         content={content}
       />

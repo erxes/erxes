@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { Col, Row } from 'react-bootstrap';
 
 const propTypes = {
   data: PropTypes.array.isRequired,
@@ -8,7 +9,7 @@ const propTypes = {
 class Summary extends React.Component {
   renderSummary(sum) {
     return (
-      <div className="col-sm-3" key={Math.random()}>
+      <Col sm={3} key={Math.random()}>
         <div className="summary-item">
           <div className="summary-title">
             {sum.title}
@@ -17,16 +18,16 @@ class Summary extends React.Component {
             {sum.count}
           </span>
         </div>
-      </div>
+      </Col>
     );
   }
 
   render() {
     const { data } = this.props;
     return (
-      <div>
+      <Row>
         {data.map(detail => this.renderSummary(detail))}
-      </div>
+      </Row>
     );
   }
 }

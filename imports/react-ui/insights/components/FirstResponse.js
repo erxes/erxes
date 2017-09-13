@@ -41,7 +41,7 @@ class FirstResponse extends React.Component {
     const content = (
       <div className="insight-wrapper">
         <Filter brands={brands} />
-        <div className="margined">
+        <div className="insight-content">
           <div
             className="insight-row"
             ref={node => {
@@ -60,9 +60,14 @@ class FirstResponse extends React.Component {
       </div>
     );
 
+    const breadcrumb = [
+      { title: 'Insights', link: '/insight' },
+      { title: 'First Response Report' },
+    ];
+
     return (
       <Wrapper
-        header={<Wrapper.Header breadcrumb={[{ title: 'First Response Report' }]} />}
+        header={<Wrapper.Header breadcrumb={breadcrumb} />}
         leftSidebar={<Sidebar />}
         content={content}
       />

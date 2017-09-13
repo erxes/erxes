@@ -1,6 +1,6 @@
 import React from 'react';
-import { Wrapper } from '/imports/react-ui/layout/components';
 import { FlowRouter } from 'meteor/kadira:flow-router';
+import { Wrapper } from '/imports/react-ui/layout/components';
 
 function Sidebar() {
   const { Title } = Wrapper.Sidebar.Section;

@@ -45,7 +45,12 @@ class ResponseReport extends React.Component {
     const content = (
       <div className="insight-wrapper">
         <Filter brands={brands} />
-        <div className="margined">
+        <div className="insight-content">
+          <div className="insight-row">
+            {this.renderTitle('Response Times summary')}
+            <Summary data={summary} />
+          </div>
+
           <div
             className="insight-row"
             ref={node => {
@@ -54,11 +59,6 @@ class ResponseReport extends React.Component {
           >
             {this.renderTitle('Response Trend')}
             <Chart width={width} height={300} data={trend} />
-          </div>
-
-          <div className="insight-row">
-            {this.renderTitle('Response Times summary')}
-            <Summary data={summary} />
           </div>
 
           {width !== 600
@@ -76,9 +76,11 @@ class ResponseReport extends React.Component {
       </div>
     );
 
+    const breadcrumb = [{ title: 'Insights', link: '/insight' }, { title: 'Response Report' }];
+
     return (
       <Wrapper
-        header={<Wrapper.Header breadcrumb={[{ title: 'Response Report' }]} />}
+        header={<Wrapper.Header breadcrumb={breadcrumb} />}
         leftSidebar={<Sidebar />}
         content={content}
       />

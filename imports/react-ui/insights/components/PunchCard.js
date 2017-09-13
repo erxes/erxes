@@ -48,7 +48,7 @@ class PunchCard extends React.Component {
   }
 
   render() {
-    return <div id="punch-card" />;
+    return <div id="punch-card" className="chart-wrapper" />;
   }
 }
 

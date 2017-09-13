@@ -40,29 +40,15 @@ class Filter extends React.Component {
   }
 
   dateFilter() {
-    const { hideStartDate } = this.props;
     return (
-      <div className="col-sm-4 pull-right">
-        {hideStartDate
-          ? null
-          : <div className="col-sm-6">
-              <ControlLabel>Start date</ControlLabel>
-              <input
-                id="startDate"
-                type="date"
-                className="form-control"
-                onChange={this.onDateChange.bind(this, 'startDate')}
-              />
-            </div>}
-        <div className="col-sm-6 pull-right">
-          <ControlLabel>End date</ControlLabel>
-          <input
-            id="endDate"
-            type="date"
-            className="form-control"
-            onChange={this.onDateChange.bind(this, 'endDate')}
-          />
-        </div>
+      <div className="flex-item">
+        <ControlLabel>End date</ControlLabel>
+        <input
+          id="endDate"
+          type="date"
+          className="form-control"
+          onChange={this.onDateChange.bind(this, 'endDate')}
+        />
       </div>
     );
   }
@@ -77,18 +63,19 @@ class Filter extends React.Component {
     }
 
     return (
-      <div className="pull-right col-sm-2">
+      <div className="flex-item">
         <ControlLabel>Integrations</ControlLabel>
         <Select
           placeholder="Choose integrations"
           value={this.state.integrationType}
           onChange={value => this.onTypeChange(value)}
-          optionRenderer={option =>
+          optionRenderer={option => (
             <div className="simple-option">
               <span>
                 {option.label}
               </span>
-            </div>}
+            </div>
+          )}
           options={integrationOptions(integrations)}
         />
       </div>
@@ -98,19 +85,20 @@ class Filter extends React.Component {
   renderBrands() {
     const { brands } = this.props;
     return (
-      <div className="pull-right col-sm-2">
+      <div className="flex-item">
         <ControlLabel>Brands</ControlLabel>
 
         <Select
           placeholder="Choose brands"
           value={this.state.brandId}
           onChange={value => this.onBrandChange(value)}
-          optionRenderer={option =>
+          optionRenderer={option => (
             <div className="simple-option">
               <span>
                 {option.label}
               </span>
-            </div>}
+            </div>
+          )}
           options={selectOptions(brands)}
         />
       </div>
@@ -118,11 +106,25 @@ class Filter extends React.Component {
   }
 
   render() {
+    const { hideStartDate } = this.props;
     return (
       <div className="insight-filter">
-        <div className="row">
+        <h5 className="insight-title">Filter</h5>
+        <div className="flex-row">
           {this.renderIntegrations()}
           {this.renderBrands()}
+          {hideStartDate
+            ? null
+            : <div className="flex-item">
+                <ControlLabel>Start date</ControlLabel>
+                <input
+                  id="startDate"
+                  type="date"
+                  className="form-control"
+                  onChange={this.onDateChange.bind(this, 'startDate')}
+                />
+              </div>}
+
           {this.dateFilter()}
         </div>
       </div>
