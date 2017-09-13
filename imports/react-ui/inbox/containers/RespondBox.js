@@ -17,7 +17,9 @@ const RespondBoxContainer = props => {
   const sendMessage = (message, callback) => {
     const cb = (error, messageId) => {
       // notify graphql subscription server that new message inserted
-      mutate({ mutation: mutations.sendMessage, variables: { messageId } });
+      if (!error) {
+        mutate({ mutation: mutations.sendMessage, variables: { messageId } });
+      }
 
       callback(error, messageId);
     };
