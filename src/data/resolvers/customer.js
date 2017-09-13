@@ -11,7 +11,8 @@ export default {
 
   getMessengerCustomData(customer) {
     const results = [];
-    const data = customer.messengerData.customData || {};
+    const messengerData = customer.messengerData || {};
+    const data = messengerData.customData || {};
 
     Object.keys(data).forEach(key => {
       results.push({
