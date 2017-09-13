@@ -5,11 +5,11 @@ import Subscription from './subscriptions';
 import ResponseTemplate from './responseTemplate';
 import Integration from './integration';
 import Form from './form';
-import EngageMessage from './Engage';
-import Customer from './Customer';
-import Segment from './Segment';
-import Conversation from './Conversation';
-import ConversationMessage from './ConversationMessage';
+import EngageMessage from './engage';
+import Customer from './customer';
+import Segment from './segment';
+import Conversation from './conversation';
+import ConversationMessage from './conversationMessage';
 
 export default {
   ...customScalars,
