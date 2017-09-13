@@ -19,7 +19,8 @@ class Attachment extends Component {
       return <img role="presentation" src={attachment.url} />;
     }
 
-    const fileExtension = attachment.url.split('.').pop();
+    const url = attachment.url || attachment.name || '';
+    const fileExtension = url.split('.').pop();
 
     let filePreview;
     switch (fileExtension) {
