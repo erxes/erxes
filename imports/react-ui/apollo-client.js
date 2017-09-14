@@ -8,10 +8,26 @@ const { APOLLO_CLIENT_URL, APOLLO_CLIENT_SUBSCRIPTION_URL } = Meteor.settings.pu
 
 const wsClient = new SubscriptionClient(APOLLO_CLIENT_SUBSCRIPTION_URL, {
   reconnect: true,
+  connectionParams: {
+    token: Meteor.userId(),
+  },
 });
 
 // Create a normal network interface:
 const networkInterface = createNetworkInterface({ uri: APOLLO_CLIENT_URL });
+
+// Attach user credentials
+networkInterface.use([
+  {
+    applyMiddleware(req, next) {
+      if (!req.options.headers) {
+        req.options.headers = {};
+      }
+      req.options.headers['authorization'] = Meteor.userId() ? `Bearer ${Meteor.userId()}` : null;
+      next();
+    },
+  },
+]);
 
 // Extend the network interface with the WebSocket
 const networkInterfaceWithSubscriptions = addGraphQLSubscriptions(networkInterface, wsClient);
