@@ -17,6 +17,7 @@ const messageQuery = `
   }
   content
   createdAt
+  internal
   engageData {
     content
     kind
@@ -74,6 +75,11 @@ class Conversation extends React.Component {
 
         // if some changes except newMessage occur, refetch query
         if (type !== 'newMessage') {
+          return prev;
+        }
+
+        // do not show internal messages
+        if (message.internal) {
           return prev;
         }
 
