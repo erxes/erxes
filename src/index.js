@@ -8,7 +8,9 @@ import { createServer } from 'http';
 import { execute, subscribe } from 'graphql';
 import { graphqlExpress, graphiqlExpress } from 'graphql-server-express';
 import { SubscriptionServer } from 'subscriptions-transport-ws';
-import { Customers } from './db/models';
+import passport from 'passport';
+import { Strategy } from 'passport-http-bearer';
+import { Customers, Users } from './db/models';
 import { connect } from './db/connection';
 import schema from './data';
 
@@ -25,7 +27,25 @@ app.use(bodyParser.json());
 
 app.use(cors());
 
-app.use('/graphql', graphqlExpress(() => ({ schema })));
+passport.use(
+  new Strategy(function(token, cb) {
+    Users.findById(token, function(err, user) {
+      if (err) {
+        return cb(err);
+      }
+      if (!user) {
+        return cb(null, false);
+      }
+      return cb(null, user);
+    });
+  }),
+);
+
+app.use(
+  '/graphql',
+  passport.authenticate('bearer', { session: false }),
+  graphqlExpress(req => ({ schema, context: { user: req.user } })),
+);
 
 // Wrap the Express server
 const server = createServer(app);
@@ -51,6 +71,16 @@ server.listen(PORT, () => {
             webSocket.messengerData = parsedMessage.value;
           }
         });
+
+        if (connectionParams.token) {
+          return Users.findById(connectionParams.token)
+            .then(user => ({ user }))
+            .catch(error => {
+              throw new Error(error);
+            });
+        }
+
+        throw new Error('Unauthorized!');
       },
 
       onDisconnect(webSocket) {

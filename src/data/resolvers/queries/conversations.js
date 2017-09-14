@@ -3,14 +3,14 @@ import { INTEGRATION_KIND_CHOICES } from '../../constants';
 import QueryBuilder from './conversationQueryBuilder';
 
 export default {
-  async conversations(root, { params }) {
+  async conversations(root, { params }, { user }) {
     // filter by ids of conversations
     if (params && params.ids) {
       return Conversations.find({ _id: { $in: params.ids } }).sort({ createdAt: -1 });
     }
 
     // initiate query builder
-    const qb = new QueryBuilder(params, { _id: 'uTaHtqQMptvhspvAK' });
+    const qb = new QueryBuilder(params, { _id: user._id });
 
     await qb.buildAllQueries();
 
@@ -19,7 +19,7 @@ export default {
       .limit(params.limit);
   },
 
-  async conversationCounts(root, { params }) {
+  async conversationCounts(root, { params }, { user }) {
     const response = {
       byChannels: {},
       byIntegrationTypes: {},
@@ -27,7 +27,7 @@ export default {
       byTags: {},
     };
 
-    const qb = new QueryBuilder(params, { _id: 'uTaHtqQMptvhspvAK' });
+    const qb = new QueryBuilder(params, { _id: user._id });
 
     await qb.buildAllQueries();
 
