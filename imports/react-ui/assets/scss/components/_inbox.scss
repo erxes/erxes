@@ -82,7 +82,7 @@ $fbpost-background: #f6f7f9;
 
   > li {
     padding: 20px;
-    border-bottom: 1px solid $border-grey;
+    border-bottom: 1px solid $grey;
     position: relative;
     display: flex;
     align-items: center;
@@ -111,14 +111,6 @@ $fbpost-background: #f6f7f9;
 
   .simple-row {
     padding: 15px;
-
-    &.baseline {
-      align-items: flex-start;
-
-      input[type=checkbox] {
-        margin-top: 13px;
-      }
-    }
 
     time {
       font-weight: normal;
@@ -161,6 +153,18 @@ $fbpost-background: #f6f7f9;
       flex-direction: row;
       align-items: center;
       width: 100%;
+    }
+  }
+
+  .baseline-row {
+    align-items: flex-start;
+
+    input[type=checkbox] {
+      margin-top: 14px;
+    }
+
+    .content {
+      margin: 10px 0;
     }
   }
 }

@@ -53,7 +53,8 @@ class SimpleRow extends Component {
     const integration = conversation.integration || {};
     const brand = integration.brand || {};
     const brandName = brand.name;
-    const rowClasses = classNames('simple-row', { unread: !isRead }, 'baseline');
+    const rowClasses = classNames('simple-row', { unread: !isRead }, 'baseline-row');
+    const isExistingCustomer = customer && customer._id;
 
     return (
       <li className={rowClasses}>
@@ -61,16 +62,19 @@ class SimpleRow extends Component {
         <div className="body">
           <div className="items-horizontal">
             <div className="column">
-              <NameCard.Avatar size={40} customer={customer} />
+              {(isExistingCustomer && customer.name) ||
+                (isExistingCustomer && customer.email) ||
+                (isExistingCustomer && customer.phone)
+                ? <NameCard.Avatar size={40} customer={customer} />
+                : null}
             </div>
 
             <header>
               <span className="customer-name">
-                {customer && customer._id && customer.name}
+                {isExistingCustomer && customer.name}
               </span>
               <div className="customer-email">
-                {(customer && customer._id && customer.email) ||
-                  (customer && customer._id && customer.phone)}
+                {(isExistingCustomer && customer.email) || (isExistingCustomer && customer.phone)}
               </div>
             </header>
           </div>

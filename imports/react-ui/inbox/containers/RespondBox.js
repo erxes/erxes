@@ -3,16 +3,11 @@ import React, { PropTypes } from 'react';
 import { compose, gql, graphql } from 'react-apollo';
 import { fromJS } from 'immutable';
 import { mutate } from '/imports/react-ui/apollo-client';
-import { Loader } from '/imports/react-ui/common';
 import { queries, mutations } from '../graphql';
 import { RespondBox } from '../components';
 
 const RespondBoxContainer = props => {
   const { usersQuery } = props;
-
-  if (usersQuery.loading) {
-    return <Loader />;
-  }
 
   const sendMessage = (message, callback) => {
     const cb = (error, messageId) => {
@@ -29,7 +24,7 @@ const RespondBoxContainer = props => {
 
   const teamMembers = [];
 
-  for (let user of usersQuery.users) {
+  for (let user of usersQuery.users || []) {
     teamMembers.push({
       _id: user._id,
       name: user.username,

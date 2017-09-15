@@ -1,12 +1,13 @@
 import React, { PropTypes } from 'react';
 import { compose, gql, graphql } from 'react-apollo';
 import { Sidebar } from '../../components';
+import { LoadingSidebar } from '/imports/react-ui/common';
 
 const MainContainer = props => {
   const { countsQuery } = props;
 
   if (countsQuery.loading) {
-    return null;
+    return <LoadingSidebar.Section />;
   }
 
   const updatedProps = {

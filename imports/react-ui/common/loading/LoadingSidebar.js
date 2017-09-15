@@ -11,12 +11,12 @@ const propTypes = {
 function LoadingSidebar({ items, size = 'medium' }) {
   return (
     <Wrapper.Sidebar size={size}>
-      {_.times(items, n => <Rows key={n} />)}
+      {_.times(items, n => <Section key={n} />)}
     </Wrapper.Sidebar>
   );
 }
 
-function Rows() {
+function Section() {
   return (
     <Wrapper.Sidebar.Section>
       <div className="loading-wrapper side">
@@ -45,6 +45,7 @@ Lines.propTypes = {
   title: PropTypes.bool,
 };
 
+LoadingSidebar.Section = Section;
 LoadingSidebar.Lines = Lines;
 LoadingSidebar.propTypes = propTypes;
 
