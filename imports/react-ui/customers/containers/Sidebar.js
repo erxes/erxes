@@ -1,7 +1,7 @@
 import React, { PropTypes } from 'react';
 import { compose, gql, graphql } from 'react-apollo';
 import { KIND_CHOICES } from '/imports/api/integrations/constants';
-import { pagination, Spinner } from '/imports/react-ui/common';
+import { pagination } from '/imports/react-ui/common';
 import { queries } from '../graphql';
 import { Sidebar } from '../components';
 
@@ -9,17 +9,13 @@ class CustomerListContainer extends React.Component {
   render() {
     const { queryParams, customersQuery, totalCountQuery } = this.props;
 
-    if (customersQuery.loading || totalCountQuery.loading) {
-      return <Spinner />;
-    }
-
     const { totalCustomersCount } = totalCountQuery;
     const { loadMore, hasMore } = pagination(queryParams, totalCustomersCount);
 
     const updatedProps = {
       ...this.props,
 
-      customers: customersQuery.customers,
+      customers: customersQuery.customers || [],
       integrations: KIND_CHOICES.ALL_LIST,
       loadMore,
       hasMore,
