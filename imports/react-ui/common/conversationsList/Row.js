@@ -50,7 +50,7 @@ class Row extends Component {
 
   render() {
     const { conversation, starred, isRead, isParticipated } = this.props;
-    const { createdAt, content, messageCount } = conversation;
+    const { createdAt, content, messageCount, participatorCount } = conversation;
     const customer = conversation.customer || {};
     const integration = conversation.integration || {};
     const brand = integration.brand || {};
@@ -96,7 +96,7 @@ class Row extends Component {
                 <i className="ion-reply" /> {messageCount}
               </span>
               <span>
-                <i className="ion-person" /> {conversation.participatorCount}
+                <i className="ion-person" /> {participatorCount}
               </span>
             </div>
           </footer>
