@@ -26,6 +26,8 @@ export default `
     name
     getMessengerCustomData
   }
+  messageCount
+  participatorCount
   participatedUsers {
     _id
     username
