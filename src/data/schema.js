@@ -229,6 +229,7 @@ export const types = `
 export const queries = `
   type Query {
     users(limit: Int): [User]
+    userDetail(_id: String): User
     totalUsersCount: Int
 
     channels(limit: Int, memberIds: [String]): [Channel]
