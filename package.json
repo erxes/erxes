@@ -43,6 +43,7 @@
     "draft-js-plugins-editor": "^2.0.0-beta9",
     "faker": "^4.1.0",
     "fbgraph": "^1.4.1",
+    "graphql": "^0.11.3",
     "handlebars": "^4.0.6",
     "lodash": "^4.17.4",
     "meteor-node-stubs": "^0.2.6",
@@ -58,6 +59,7 @@
     "react-copy-to-clipboard": "^4.2.3",
     "react-custom-scrollbars": "^4.0.2",
     "react-dom": "^15.4.2",
+    "react-ionicons": "^1.5.9",
     "react-komposer": "^2.0.0",
     "react-markdown": "^2.4.6",
     "react-mounter": "^1.2.0",
@@ -66,7 +68,7 @@
     "react-toggle": "^3.0.1",
     "social-oauth-client": "^0.1.6",
     "strip": "^3.0.0",
-    "subscriptions-transport-ws": "^0.8.2",
+    "subscriptions-transport-ws": "^0.8.3",
     "twit": "^2.2.5"
   },
   "devDependencies": {

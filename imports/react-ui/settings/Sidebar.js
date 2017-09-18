@@ -77,6 +77,35 @@ function Sidebar() {
           </li>
         </ul>
       </Wrapper.Sidebar.Section>
+
+      <Wrapper.Sidebar.Section>
+        <Title>Knowledge base</Title>
+        <QuickButtons>
+          <a href={FlowRouter.path('settings/knowledgebase/list')} className="quick-button">
+            All
+          </a>
+        </QuickButtons>
+        <ul className="sidebar-list">
+          <li>
+            <a href={FlowRouter.path('settings/knowledgebase/list')}>
+              <i className="icon ion-arrow-right-b" />Topics
+            </a>
+          </li>
+
+          <li>
+            <a href={FlowRouter.path('settings/knowledgebase/categories')}>
+              <i className="icon ion-arrow-right-b" />Categories
+            </a>
+          </li>
+
+          <li>
+            <a href={FlowRouter.path('/settings/knowledgebase/articles')}>
+              <i className="icon ion-arrow-right-b" />Articles
+            </a>
+          </li>
+        </ul>
+      </Wrapper.Sidebar.Section>
+
       <Wrapper.Sidebar.Section>
         <Title>Personal settings</Title>
         <ul className="sidebar-list">
