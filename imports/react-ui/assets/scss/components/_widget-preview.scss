@@ -98,6 +98,42 @@ $box-shadow-preview: 0 2px 15px 0 $shadow-color, 0 1px 6px 0 $shadow-color-light
       height: 100%;
     }
   }
+
+  &.engage-message {
+    height: 135px;
+    color: #555;
+    background: #faf9fb;
+
+    &.type-snippet {
+      height: 135px;
+
+      .preview-content {
+        overflow: hidden;
+        -webkit-box-orient: vertical;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        word-wrap: break-word;
+      }
+    }
+
+    &.type-fullMessage {
+      height: 440px;
+      overflow: auto;
+    }
+
+    .name-card {
+      flex-shrink: 0;
+      padding: 20px 20px 10px;
+
+      .avatar div {
+        background: #ededed;
+      }
+    }
+
+    .RichEditor-styleButton {
+      margin-right: 8px;
+    }
+  }
 }
 
 .erxes-messages-list {
@@ -178,8 +214,3 @@ $box-shadow-preview: 0 2px 15px 0 $shadow-color, 0 1px 6px 0 $shadow-color-light
   color: $gray;
   border-top: 1px solid lighten($grey, 10%);
 }
-
-
-
-
-

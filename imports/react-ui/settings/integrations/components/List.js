@@ -8,8 +8,8 @@ import Row from './Row';
 
 const propTypes = {
   integrations: PropTypes.array.isRequired,
-  brands: PropTypes.array.isRequired,
   removeIntegration: PropTypes.func.isRequired,
+  refetch: PropTypes.func.isRequired,
   loadMore: PropTypes.func.isRequired,
   hasMore: PropTypes.bool.isRequired,
 };
@@ -22,13 +22,13 @@ class List extends Component {
   }
 
   renderIntegrations() {
-    const { brands, integrations, removeIntegration } = this.props;
+    const { integrations, refetch, removeIntegration } = this.props;
 
     return integrations.map(integration => (
       <Row
         key={integration._id}
         integration={integration}
-        brands={brands}
+        refetch={refetch}
         removeIntegration={removeIntegration}
       />
     ));

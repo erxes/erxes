@@ -1,98 +1,66 @@
-import React, { PropTypes, Component } from 'react';
+import React from 'react';
 import moment from 'moment';
 import { Button, Label } from 'react-bootstrap';
-import Alert from 'meteor/erxes-notifier';
-import { ModalTrigger, Tip, ActionButtons } from '/imports/react-ui/common';
-import { Form } from '../containers';
+import { Tip, ActionButtons } from '/imports/react-ui/common';
+import { Row as CommonRow } from '../../common/components';
+import { Form } from './';
 
-const propTypes = {
-  form: PropTypes.object.isRequired,
-  removeForm: PropTypes.func.isRequired,
-  duplicateForm: PropTypes.func.isRequired,
-};
-
-class Row extends Component {
+class Row extends CommonRow {
   constructor(props) {
     super(props);
 
-    this.removeForm = this.removeForm.bind(this);
     this.duplicateForm = this.duplicateForm.bind(this);
   }
 
-  removeForm() {
-    if (!confirm('Are you sure ?')) return; // eslint-disable-line
-
-    const { form, removeForm } = this.props;
-
-    removeForm(form._id, error => {
-      if (error) {
-        return Alert.error(error.reason);
-      }
-
-      return Alert.success('Form has deleted.');
-    });
+  renderForm(props) {
+    return <Form {...props} />;
   }
 
   duplicateForm() {
-    if (!confirm('Are you sure ?')) return; // eslint-disable-line
+    const { object, duplicateForm } = this.props;
 
-    const { form, duplicateForm } = this.props;
+    duplicateForm(object._id);
+  }
 
-    duplicateForm(form._id, error => {
-      if (error) {
-        return Alert.error(error.reason || error.message);
-      }
+  renderActions() {
+    const { object } = this.props;
 
-      return Alert.success('Form has duplicated.');
-    });
+    return (
+      <td className="text-right">
+        <ActionButtons>
+          <Tip text="Manage Fields">
+            <Button bsStyle="link" href={`/settings/forms/manage-fields/${object._id}`}>
+              <i className="ion-navicon-round" />
+            </Button>
+          </Tip>
+
+          <Tip text="Duplicate">
+            <Button bsStyle="link" onClick={this.duplicateForm}>
+              <i className="ion-ios-browsers" />
+            </Button>
+          </Tip>
+
+          {this.renderEditAction()}
+          {this.renderRemoveAction()}
+        </ActionButtons>
+      </td>
+    );
   }
 
   render() {
-    const form = this.props.form;
-
-    const editTrigger = (
-      <Button bsStyle="link">
-        <Tip text="Edit"><i className="ion-edit" /></Tip>
-      </Button>
-    );
+    const { object } = this.props;
 
     return (
       <tr>
-        <td>{form.title}</td>
-        <td><Label>{form.code}</Label></td>
-        <td>{form.description}</td>
-        <td>{moment(form.createdAt).format('DD MMM YYYY')}</td>
+        <td>{object.title}</td>
+        <td><Label>{object.code}</Label></td>
+        <td>{object.description}</td>
+        <td>{moment(object.createdAt).format('DD MMM YYYY')}</td>
 
-        <td className="text-right">
-          <ActionButtons>
-            <Tip text="Manage Fields">
-              <Button bsStyle="link" href={`/settings/forms/manage-fields/${form._id}`}>
-                <i className="ion-navicon-round" />
-              </Button>
-            </Tip>
-
-            <Tip text="Duplicate">
-              <Button bsStyle="link" onClick={this.duplicateForm}>
-                <i className="ion-ios-browsers" />
-              </Button>
-            </Tip>
-
-            <ModalTrigger title="Edit form" trigger={editTrigger}>
-              <Form form={this.props.form} />
-            </ModalTrigger>
-
-            <Tip text="Delete">
-              <Button bsStyle="link" onClick={this.removeForm}>
-                <i className="ion-close-circled" />
-              </Button>
-            </Tip>
-          </ActionButtons>
-        </td>
+        {this.renderActions()}
       </tr>
     );
   }
 }
-
-Row.propTypes = propTypes;
 
 export default Row;

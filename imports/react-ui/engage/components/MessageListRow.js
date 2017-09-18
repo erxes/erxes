@@ -65,8 +65,10 @@ class Row extends React.Component {
     let failedCount = 0;
 
     const { message, remove } = this.props;
+
     const deliveryReports = Object.values(message.deliveryReports);
     const totalCount = deliveryReports.length;
+    const segment = message.segment || {};
 
     deliveryReports.forEach(report => {
       if (report.status === 'sent') {
@@ -91,10 +93,10 @@ class Row extends React.Component {
           {message.title}
         </td>
         <td>
-          <i className="ion-pie-graph" /> {message.segment().name}
+          <i className="ion-pie-graph" /> {segment.name}
         </td>
         <td className="text-normal">
-          <NameCard user={message.fromUser()} avatarSize={32} singleLine />
+          <NameCard user={message.fromUser} avatarSize={32} singleLine />
         </td>
         <td>
           {status}

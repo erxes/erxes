@@ -1,15 +1,15 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Counts } from 'meteor/tmeasday:publish-counts';
 import { FlowRouter } from 'meteor/kadira:flow-router';
 import { Wrapper } from '/imports/react-ui/layout/components';
 import { EmptyState } from '/imports/react-ui/common';
 
 const propTypes = {
+  counts: PropTypes.object.isRequired,
   brands: PropTypes.array.isRequired,
 };
 
-function Brands({ brands }) {
+function Brands({ counts, brands }) {
   const { Section, filter, getActiveClass } = Wrapper.Sidebar;
 
   return (
@@ -45,7 +45,7 @@ function Brands({ brands }) {
             >
               {brand.name}
               <span className="counter">
-                {Counts.get(`customers.brand.${brand._id}`)}
+                {counts[brand._id]}
               </span>
             </a>
           </li>

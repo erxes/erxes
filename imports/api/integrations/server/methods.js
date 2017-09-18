@@ -128,8 +128,8 @@ export const saveMessengerApperance = new ValidatedMethod({
   },
 });
 
-export const saveMessengerAvailability = new ValidatedMethod({
-  name: 'integrations.saveMessengerAvailability',
+export const saveMessengerConfigs = new ValidatedMethod({
+  name: 'integrations.saveMessengerConfigs',
   mixins: [ErxesMixin],
 
   validate({ _id, doc }) {

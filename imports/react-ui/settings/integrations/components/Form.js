@@ -1,11 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-
 import { FormGroup, ControlLabel, FormControl } from 'react-bootstrap';
-
-import { Brands } from '/imports/api/brands/brands';
-import { Forms } from '/imports/api/forms/forms';
-
 import Common from './Common';
 
 class Form extends Common {
@@ -32,8 +27,8 @@ class Form extends Common {
 
     // showed install code automatically in edit mode
     if (integration._id) {
-      const brand = Brands.findOne(integration.brandId);
-      const form = Forms.findOne(integration.formId);
+      const brand = integration.brand;
+      const form = integration.form;
 
       code = this.constructor.getInstallCode(brand.code, form.code);
     }
@@ -50,8 +45,11 @@ class Form extends Common {
     const formId = document.getElementById('formId').value;
 
     if (brandId && formId) {
-      const brand = Brands.findOne(brandId);
-      const form = Forms.findOne(formId);
+      const { brands, forms } = this.props;
+
+      const brand = brands.find(brand => brand._id === brandId);
+      const form = forms.find(form => form._id === formId);
+
       const code = this.constructor.getInstallCode(brand.code, form.code);
 
       this.setState({ code, copied: false });
@@ -165,7 +163,7 @@ class Form extends Common {
   }
 
   extraContent() {
-    const integration = this.props.integration || {};
+    const { integration = {} } = this.props;
     const formData = integration.formData || {};
 
     return (
@@ -179,10 +177,11 @@ class Form extends Common {
             onChange={this.handleFormChange}
             defaultValue={integration.formId}
           >
-
             <option />
             {this.props.forms.map(form => (
-              <option key={form._id} value={form._id}>{form.title}</option>
+              <option key={form._id} value={form._id}>
+                {form.title}
+              </option>
             ))}
           </FormControl>
         </FormGroup>
@@ -191,10 +190,11 @@ class Form extends Common {
           <ControlLabel>Load</ControlLabel>
 
           <FormControl componentClass="select" defaultValue={formData.loadType}>
-
             <option />
             {this.props.loadTypes.map((type, index) => (
-              <option key={index} value={type}>{type}</option>
+              <option key={index} value={type}>
+                {type}
+              </option>
             ))}
           </FormControl>
         </FormGroup>
@@ -207,10 +207,11 @@ class Form extends Common {
             componentClass="select"
             defaultValue={formData.successAction}
           >
-
             <option />
             {this.props.successActions.map((action, index) => (
-              <option key={index} value={action}>{action}</option>
+              <option key={index} value={action}>
+                {action}
+              </option>
             ))}
           </FormControl>
         </FormGroup>

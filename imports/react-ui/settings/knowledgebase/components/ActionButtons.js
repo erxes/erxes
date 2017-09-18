@@ -1,9 +1,15 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { Button } from 'react-bootstrap';
 import { ModalTrigger } from '/imports/react-ui/common';
-import { KbTopic, KbCategory, KbArticle } from '../containers';
+import { NewKbTopic, KbCategory, KbArticle } from '../containers';
 
-function ActionButtons() {
+const propTypes = {
+  topicListRefetch: PropTypes.func,
+};
+
+function ActionButtons(props) {
+  const { topicListRefetch } = props;
   const triggerKbTopic = (
     <Button bsStyle="link">
       <i className="ion-plus-circled" /> Add Topic
@@ -25,7 +31,7 @@ function ActionButtons() {
   return (
     <div>
       <ModalTrigger title="Add topic" trigger={triggerKbTopic}>
-        <KbTopic />
+        <NewKbTopic listRefetch={topicListRefetch} />
       </ModalTrigger>
 
       <ModalTrigger title="Add category" trigger={triggerKbCategory}>
@@ -38,5 +44,7 @@ function ActionButtons() {
     </div>
   );
 }
+
+ActionButtons.propTypes = propTypes;
 
 export default ActionButtons;

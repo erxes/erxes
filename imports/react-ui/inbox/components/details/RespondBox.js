@@ -18,6 +18,7 @@ class RespondBox extends Component {
     super(props);
 
     this.state = {
+      editorKey: 'editor',
       isInternal: false,
       attachments: [],
       responseTemplate: '',
@@ -54,6 +55,9 @@ class RespondBox extends Component {
     e.preventDefault();
 
     this.addMessage();
+
+    // redrawing editor after sned button, so editor content will be reseted
+    this.setState({ editorKey: `${this.state.editorKey}Key` });
   }
 
   onSelectTemplate(responseTemplate) {
@@ -129,6 +133,7 @@ class RespondBox extends Component {
 
   render() {
     const { isInternal, responseTemplate } = this.state;
+    const integration = this.props.conversation.integration || {};
 
     const Buttons = (
       <div>
@@ -142,7 +147,7 @@ class RespondBox extends Component {
         </ControlLabel>
 
         <ResponseTemplate
-          brandId={this.props.conversation.integration().brandId}
+          brandId={integration.brandId}
           attachments={this.state.attachments}
           content={this.state.content}
           onSelect={this.onSelectTemplate}
@@ -167,7 +172,9 @@ class RespondBox extends Component {
                   style={{ backgroundImage: `url('${attachment.url}')` }}
                 />
               </div>
-              <div className="file-name">{attachment.name}</div>
+              <div className="file-name">
+                {attachment.name}
+              </div>
               <div className="file-size">
                 ({Math.round(attachment.size / 1000)}kB)
               </div>
@@ -189,6 +196,7 @@ class RespondBox extends Component {
       <div className="respond-box">
         <form id={formId} onSubmit={this.onSubmit}>
           <Editor
+            key={this.state.editorKey}
             onChange={this.onEditorContentChange}
             onAddMention={this.onAddMention}
             onShifEnter={this.onShifEnter}
@@ -202,9 +210,7 @@ class RespondBox extends Component {
           {Buttons}
         </form>
 
-        <Checkbox onChange={this.toggleForm}>
-          Internal note
-        </Checkbox>
+        <Checkbox onChange={this.toggleForm}>Internal note</Checkbox>
       </div>
     );
   }

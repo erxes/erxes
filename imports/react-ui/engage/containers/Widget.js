@@ -1,14 +1,18 @@
-import { compose } from 'react-komposer';
-import { getTrackerLoader, composerOptions } from '/imports/react-ui/utils';
-import { EmailTemplates } from '/imports/api/emailTemplates/emailTemplates';
-import { Brands } from '/imports/api/brands/brands';
+import React, { PropTypes } from 'react';
+import { compose, gql, graphql } from 'react-apollo';
 import { MESSENGER_KINDS, SENT_AS_CHOICES, MESSAGE_KINDS } from '/imports/api/engage/constants';
-import { Widget } from '../components';
 import { methodCallback } from '../utils';
+import { Widget } from '../components';
 
-function composer(props, onData) {
-  Meteor.subscribe('emailTemplates.list');
-  Meteor.subscribe('brands.list');
+const WidgetContainer = props => {
+  const { emailTemplatesQuery, brandsQuery } = props;
+
+  if (emailTemplatesQuery.loading || brandsQuery.loading) {
+    return null;
+  }
+
+  const emailTemplates = emailTemplatesQuery.emailTemplates;
+  const brands = brandsQuery.brands;
 
   // save
   const save = (doc, callback) => {
@@ -24,14 +28,45 @@ function composer(props, onData) {
     });
   };
 
-  onData(null, {
-    emailTemplates: EmailTemplates.find({}).fetch(),
-    brands: Brands.find({}).fetch(),
+  const updatedProps = {
+    ...props,
+    emailTemplates,
+    brands,
     save,
     messengerKinds: MESSENGER_KINDS.SELECT_OPTIONS,
     sentAsChoices: SENT_AS_CHOICES.SELECT_OPTIONS,
-    ...props,
-  });
-}
+  };
 
-export default compose(getTrackerLoader(composer), composerOptions({}))(Widget);
+  return <Widget {...updatedProps} />;
+};
+
+WidgetContainer.propTypes = {
+  emailTemplatesQuery: PropTypes.object,
+  brandsQuery: PropTypes.object,
+};
+
+export default compose(
+  graphql(
+    gql`
+      query emailTemplates {
+        emailTemplates {
+          _id
+          name
+          content
+        }
+      }
+    `,
+    { name: 'emailTemplatesQuery' },
+  ),
+  graphql(
+    gql`
+      query brands {
+        brands {
+          _id
+          name
+        }
+      }
+    `,
+    { name: 'brandsQuery' },
+  ),
+)(WidgetContainer);

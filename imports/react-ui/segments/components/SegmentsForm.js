@@ -107,7 +107,7 @@ class SegmentsForm extends Component {
     const { name, description, subOf, color, connector, conditions } = this.state;
     const params = { doc: { name, description, color, connector, conditions } };
     if (subOf) {
-      params.subOf = subOf;
+      params.doc.subOf = subOf;
     }
     Object.assign(params, segment ? { id: segment._id } : {});
 
@@ -178,7 +178,7 @@ class SegmentsForm extends Component {
                 <FormControl
                   name="description"
                   type="text"
-                  value={this.state.description}
+                  value={this.state.description || ''}
                   onChange={this.handleDescriptionChange}
                 />
               </FormGroup>
@@ -187,12 +187,14 @@ class SegmentsForm extends Component {
                 <FormControl
                   name="subOf"
                   componentClass="select"
-                  value={this.state.subOf}
+                  value={this.state.subOf || ''}
                   onChange={this.handleChange}
                 >
                   <option value="">[not selected]</option>
                   {this.props.headSegments.map(segment => (
-                    <option value={segment._id} key={segment._id}>{segment.name}</option>
+                    <option value={segment._id} key={segment._id}>
+                      {segment.name}
+                    </option>
                   ))}
                 </FormControl>
               </FormGroup>
@@ -221,7 +223,8 @@ class SegmentsForm extends Component {
                       >
                         <option value="any">any</option>
                         <option value="all">all</option>
-                      </FormControl> of the following conditions
+                      </FormControl>{' '}
+                      of the following conditions
                     </Form>
                   </div>
                 </div>

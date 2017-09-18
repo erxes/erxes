@@ -2,14 +2,13 @@ import { compose } from 'react-komposer';
 import { getTrackerLoader, composerOptions } from '/imports/react-ui/utils';
 import { KbArticle } from '../../components';
 import { saveCallback } from '../utils';
-import { addKbArticle, editKbArticle } from '/imports/api/knowledgebase/methods';
 
 const composer = (props, onData) => {
   const { item } = props;
-  let currentMethod = addKbArticle;
+  let currentMethod = 'addKbArticle';
 
   if (item != null && item._id) {
-    currentMethod = editKbArticle;
+    currentMethod = 'editKbArticle';
   }
 
   const save = doc => {

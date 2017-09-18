@@ -1,69 +1,81 @@
-import { Meteor } from 'meteor/meteor';
-import { ReactiveVar } from 'meteor/reactive-var';
-import { _ } from 'meteor/underscore';
-import { compose } from 'react-komposer';
-import { getTrackerLoader, composerOptions } from '/imports/react-ui/utils';
-import { Conversations } from '/imports/api/conversations/conversations';
-import { pagination } from '/imports/react-ui/common';
+import React, { PropTypes } from 'react';
+import { compose, gql, graphql } from 'react-apollo';
+import { Bulk, pagination } from '/imports/react-ui/common';
 import { DetailSidebar } from '../components';
+import { queries } from '../graphql';
 
-const bulk = new ReactiveVar([]);
+class DetailSidebarContainer extends Bulk {
+  render() {
+    const {
+      channelId,
+      conversation,
+      totalCountQuery,
+      conversationsQuery,
+      queryParams,
+    } = this.props;
 
-function composer({ conversation, channelId, queryParams }, onData) {
-  const { limit, loadMore, hasMore } = pagination(queryParams, 'conversations.counts.list');
-  queryParams.limit = limit; // eslint-disable-line no-param-reassign
+    const user = Meteor.user();
+    const conversations = conversationsQuery.conversations || [];
+    const totalCount = totalCountQuery.totalConversationsCount;
+    const { loadMore, hasMore } = pagination(queryParams, totalCount);
 
-  // actions ===========
-  const toggleBulk = (conversation, toAdd) => {
-    let entries = bulk.get();
+    // const conversationSort = { sort: { createdAt: -1 } };
 
-    // remove old entry
-    entries = _.without(entries, _.findWhere(entries, { _id: conversation._id }));
+    // unread conversations
+    const unreadConversations = conversations.filter(conv => !conv.readUserIds.includes(user._id));
 
-    if (toAdd) {
-      entries.push(conversation);
-    }
+    // read conversations
+    const readConversations = conversations.filter(
+      conv => conv.readUserIds.includes(user._id) && conv._id !== conversation._id,
+    );
 
-    bulk.set(entries);
-  };
+    const updatedProps = {
+      ...this.props,
+      bulk: this.state.bulk,
+      loadMore,
+      hasMore,
+      unreadConversations,
+      readConversations,
+      channelId,
+      user,
+      toggleBulk: this.toggleBulk,
+      emptyBulk: this.emptyBulk,
+      conversationReady: conversationsQuery.loading,
+    };
 
-  const emptyBulk = () => {
-    bulk.set([]);
-  };
-  // subscriptions ==================
-  const user = Meteor.user();
-  const conversationHandle = Meteor.subscribe('conversations.list', queryParams);
-  Meteor.subscribe('integrations.list', {});
-  const conversationSort = { sort: { createdAt: -1 } };
-
-  // unread conversations
-  const unreadConversations = Conversations.find(
-    { readUserIds: { $nin: [user._id] } },
-    conversationSort,
-  ).fetch();
-
-  // read conversations
-  const readConversations = Conversations.find(
-    {
-      readUserIds: { $in: [user._id] },
-      _id: { $ne: conversation._id },
-    },
-    conversationSort,
-  ).fetch();
-
-  // props
-  onData(null, {
-    bulk: bulk.get(),
-    loadMore,
-    hasMore,
-    unreadConversations,
-    readConversations,
-    channelId,
-    user,
-    toggleBulk,
-    emptyBulk,
-    conversationReady: conversationHandle.ready(),
-  });
+    return <DetailSidebar {...updatedProps} />;
+  }
 }
 
-export default compose(getTrackerLoader(composer), composerOptions({}))(DetailSidebar);
+DetailSidebarContainer.propTypes = {
+  conversation: PropTypes.object,
+  queryParams: PropTypes.object,
+  channelId: PropTypes.string,
+  conversationsQuery: PropTypes.object,
+  totalCountQuery: PropTypes.object,
+};
+
+export default compose(
+  graphql(gql(queries.conversationList), {
+    name: 'conversationsQuery',
+    options: ({ queryParams }) => ({
+      fetchPolicy: 'network-only',
+      variables: {
+        params: queryParams,
+      },
+    }),
+  }),
+  graphql(
+    gql`
+      query totalConversationsCount {
+        totalConversationsCount
+      }
+    `,
+    {
+      name: 'totalCountQuery',
+      options: () => ({
+        fetchPolicy: 'network-only',
+      }),
+    },
+  ),
+)(DetailSidebarContainer);

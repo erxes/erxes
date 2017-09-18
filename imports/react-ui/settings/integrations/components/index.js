@@ -6,7 +6,7 @@ import Common from './Common';
 import Form from './Form';
 import Messenger from './Messenger';
 import MessengerAppearance from './MessengerAppearance';
-import MessengerAvailability from './MessengerAvailability';
+import MessengerConfigs from './MessengerConfigs';
 
 export {
   AddIntegration,
@@ -16,6 +16,6 @@ export {
   Form,
   Messenger,
   MessengerAppearance,
-  MessengerAvailability,
+  MessengerConfigs,
   Common,
 };

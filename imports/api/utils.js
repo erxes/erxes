@@ -21,6 +21,8 @@ const RESTRICTED_METHODS = [
   'integrations.addMessenger',
   'integrations.addTwitter',
   'integrations.addFacebook',
+  'knowledgebase.addKbTopic',
+  'knowledgebase.editKbTopic',
 ];
 
 // all validated methods mixin

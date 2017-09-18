@@ -1,11 +1,37 @@
-import { compose } from 'react-komposer';
-import { getTrackerLoader, composerOptions } from '/imports/react-ui/utils';
+import React, { PropTypes } from 'react';
+import { compose, gql, graphql } from 'react-apollo';
 import { Form } from '../components';
 
-function composer({ object }, onData) {
-  onData(null, {
-    object,
-  });
-}
+const FormContainer = props => {
+  const { brandsQuery } = props;
 
-export default compose(getTrackerLoader(composer), composerOptions({ spinner: true }))(Form);
+  if (brandsQuery.loading) {
+    return null;
+  }
+
+  const updatedProps = {
+    ...props,
+    brands: brandsQuery.brands,
+  };
+
+  return <Form {...updatedProps} />;
+};
+
+FormContainer.propTypes = {
+  object: PropTypes.object,
+  brandsQuery: PropTypes.object,
+};
+
+export default compose(
+  graphql(
+    gql`
+      query brands {
+        brands {
+          _id
+          name
+        }
+      }
+    `,
+    { name: 'brandsQuery' },
+  ),
+)(FormContainer);

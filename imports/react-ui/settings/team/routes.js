@@ -4,7 +4,7 @@ import { mount } from 'react-mounter';
 import { MainLayout } from '/imports/react-ui/layout/containers';
 
 import settingsRoute from '../routes';
-import { UsersList } from './containers';
+import { UserList } from './containers';
 
 const team = settingsRoute.group({
   prefix: '/team',
@@ -12,7 +12,7 @@ const team = settingsRoute.group({
 
 team.route('/', {
   action(params, queryParams) {
-    mount(MainLayout, { content: <UsersList queryParams={queryParams} /> });
+    mount(MainLayout, { content: <UserList queryParams={queryParams} /> });
   },
   name: 'settings/team/list',
 });

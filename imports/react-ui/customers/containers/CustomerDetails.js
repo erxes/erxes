@@ -1,19 +1,38 @@
-import { compose } from 'react-komposer';
-import { getTrackerLoader, composerOptions } from '/imports/react-ui/utils';
-import { Meteor } from 'meteor/meteor';
-import { Customers } from '/imports/api/customers/customers';
-import { Conversations } from '/imports/api/conversations/conversations';
+import React, { PropTypes } from 'react';
+import { compose, gql, graphql } from 'react-apollo';
 import { CustomerDetails } from '../components';
+import { Loading } from '/imports/react-ui/common';
+import { queries } from '../graphql';
 
-function composer({ id, queryParams }, onData) {
-  const customerHandle = Meteor.subscribe('customers.details', id);
+const CustomerDetailsContainer = props => {
+  const { customerDetailQuery } = props;
 
-  if (customerHandle.ready()) {
-    const customer = Customers.findOne(id);
-    const conversations = Conversations.find({}, { sort: { createdAt: -1 } }).fetch();
-
-    onData(null, { customer, conversations });
+  if (customerDetailQuery.loading) {
+    return <Loading title="Customers" sidebarSize="wide" spin hasRightSidebar />;
   }
-}
 
-export default compose(getTrackerLoader(composer), composerOptions({}))(CustomerDetails);
+  const updatedProps = {
+    ...props,
+    customer: {
+      ...customerDetailQuery.customerDetail,
+      refetch: customerDetailQuery.refetch,
+    },
+  };
+
+  return <CustomerDetails {...updatedProps} />;
+};
+
+CustomerDetailsContainer.propTypes = {
+  customerDetailQuery: PropTypes.object,
+};
+
+export default compose(
+  graphql(gql(queries.customerDetail), {
+    name: 'customerDetailQuery',
+    options: ({ id }) => ({
+      variables: {
+        _id: id,
+      },
+    }),
+  }),
+)(CustomerDetailsContainer);

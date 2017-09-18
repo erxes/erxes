@@ -15,7 +15,7 @@ import CopyToClipboard from 'react-copy-to-clipboard';
 import { CommonItem } from '../common';
 
 const propTypes = {
-  item: PropTypes.object,
+  item: PropTypes.object.isRequired,
   brands: PropTypes.array.isRequired,
   categories: PropTypes.array.isRequired,
   save: PropTypes.func.isRequired,
@@ -56,22 +56,11 @@ class KbTopic extends CommonItem {
   }
 
   getSelectedCategories() {
-    const { categories, item } = this.props;
-    let results = [];
-
-    if (item != null) {
-      const categoryIds = item.categoryIds || [];
-      categories.map(category => {
-        if (categoryIds.indexOf(category._id) != -1) {
-          results.push({
-            label: category.title,
-            value: category._id,
-          });
-        }
-      });
-    }
-
-    return results;
+    const { item } = this.props;
+    return (item.categories || []).map(category => ({
+      label: category.title,
+      value: category._id,
+    }));
   }
 
   static installCodeIncludeScript() {
@@ -137,19 +126,18 @@ class KbTopic extends CommonItem {
     const categoryIds = this.state.selectedCategories.map(category => category.value);
     const { item } = this.props;
 
-    let newValues = {
+    var newValues = {
       title: document.getElementById('knowledgebase-title').value,
       description: document.getElementById('knowledgebase-description').value,
       brandId: document.getElementById('selectBrand').value,
       categoryIds,
+      _id: item._id,
+      createdBy: item.createdBy,
+      createdDate: new Date(item.createdDate),
+      modifiedBy: item.modifiedBy,
+      modifiedDate: new Date(item.modifiedDate),
     };
 
-    if (item && item._id) {
-      newValues.createdBy = item.createdBy;
-      newValues.createdDate = item.createdDate;
-      newValues.modifiedBy = item.modifiedBy;
-      newValues.modifiedDate = item.modifiedDate;
-    }
     this.props.save(newValues);
     this.context.closeModal();
   }
@@ -157,6 +145,8 @@ class KbTopic extends CommonItem {
   render() {
     const { item = {} } = this.props;
     const { brands } = this.props;
+    const { brand } = item;
+    const brandId = brand != null ? brand._id : '';
 
     return (
       <form className="margined" onSubmit={this.handleSubmit}>
@@ -171,11 +161,7 @@ class KbTopic extends CommonItem {
         </FormGroup>
 
         <FormGroup>
-          <SelectBrand
-            brands={brands}
-            defaultValue={item.brandId}
-            onChange={this.handleBrandChange}
-          />
+          <SelectBrand brands={brands} defaultValue={brandId} onChange={this.handleBrandChange} />
         </FormGroup>
 
         <FormGroup>

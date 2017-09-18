@@ -23,7 +23,7 @@ function SegmentsList({ segments, removeSegment }) {
 
   const parentSegments = [];
   segments.filter(segment => !segment.subOf).map(segment => {
-    parentSegments.push(segment, ...segment.getSubSegments());
+    parentSegments.push(segment, ...segment.getSubSegments);
   });
 
   const content = (
@@ -39,9 +39,15 @@ function SegmentsList({ segments, removeSegment }) {
       <tbody>
         {parentSegments.map(segment => (
           <tr key={segment._id}>
-            <td>{segment.subOf ? '\u2014\u2014' : null} {segment.name}</td>
-            <td>{segment.description}</td>
-            <td>{segment.color}</td>
+            <td>
+              {segment.subOf ? '\u2014\u2014' : null} {segment.name}
+            </td>
+            <td>
+              {segment.description}
+            </td>
+            <td>
+              {segment.color}
+            </td>
             <td className="text-right">
               <ActionButtons>
                 <Tip text="Edit">

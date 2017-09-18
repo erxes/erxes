@@ -44,7 +44,7 @@ class KbTopicRow extends Component {
       <tr>
         <td>{item.title}</td>
         <td>{item.description}</td>
-        <td>{item.brand().name}</td>
+        <td>{item.brand.name}</td>
 
         <td className="text-right">
           <ActionButtons>

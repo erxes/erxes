@@ -1,37 +1,18 @@
-import React, { PropTypes, Component } from 'react';
+import React from 'react';
 import Select from 'react-select-plus';
-import {
-  FormGroup,
-  ControlLabel,
-  FormControl,
-  ButtonToolbar,
-  Modal,
-  Button,
-} from 'react-bootstrap';
+import { FormGroup, ControlLabel, FormControl } from 'react-bootstrap';
 import { Tip } from '/imports/react-ui/common';
-import Alert from 'meteor/erxes-notifier';
-import { add, edit } from '/imports/api/channels/methods';
+import { Form as CommonForm } from '../../common/components';
 
-const propTypes = {
-  integrations: PropTypes.array.isRequired,
-  members: PropTypes.array.isRequired,
-  channel: PropTypes.object,
-  selectedIntegrations: PropTypes.array,
-  selectedMembers: PropTypes.array,
-};
-
-const contextTypes = {
-  closeModal: PropTypes.func.isRequired,
-};
-
-class ChannelForm extends Component {
+class ChannelForm extends CommonForm {
   constructor(props) {
     super(props);
 
-    this.save = this.save.bind(this);
     this.generateIntegrationsParams = this.generateIntegrationsParams.bind(this);
     this.generateMembersParams = this.generateMembersParams.bind(this);
+    this.generateDoc = this.generateDoc.bind(this);
     this.collectValues = this.collectValues.bind(this);
+
     this.state = {
       selectedIntegrations: this.generateIntegrationsParams(props.selectedIntegrations),
       selectedMembers: this.generateMembersParams(props.selectedMembers),
@@ -46,7 +27,7 @@ class ChannelForm extends Component {
     const brandsMap = {};
 
     integrations.forEach(integration => {
-      const brand = integration.brand();
+      const brand = integration.brand || {};
       const brandName = brand.name;
 
       if (!brandsMap[brandName]) {
@@ -54,7 +35,7 @@ class ChannelForm extends Component {
       }
 
       brandsMap[brandName].push({
-        channels: integration.channels(),
+        channels: integration.channels,
         value: integration._id,
         label: integration.name,
         kind: integration.kind,
@@ -69,16 +50,17 @@ class ChannelForm extends Component {
         options: brandsMap[brandName],
       });
     });
+
     return results;
   }
 
   generateIntegrationsParams(integrations) {
     return integrations.map(integration => ({
-      channels: integration.channels(),
+      channels: integration.channels,
       value: integration._id,
       label: integration.name,
       kind: integration.kind,
-      groupId: integration.brandId,
+      groupId: integration.channelId,
     }));
   }
 
@@ -89,9 +71,8 @@ class ChannelForm extends Component {
     }));
   }
 
-  save(e) {
-    e.preventDefault();
-    const params = {
+  generateDoc() {
+    return {
       doc: {
         name: document.getElementById('channel-name').value,
         description: document.getElementById('channel-description').value,
@@ -99,21 +80,6 @@ class ChannelForm extends Component {
         integrationIds: this.collectValues(this.state.selectedIntegrations),
       },
     };
-
-    let methodName = add;
-
-    // if edit mode
-    if (this.props.channel) {
-      methodName = edit;
-      params.id = this.props.channel._id;
-    }
-
-    methodName.call(params, error => {
-      if (error) return Alert.error(error.reason);
-
-      Alert.success('Congrats');
-      return this.context.closeModal();
-    });
   }
 
   renderChannelTip(channels) {
@@ -132,15 +98,13 @@ class ChannelForm extends Component {
     return null;
   }
 
-  render() {
-    const onClick = () => {
-      this.context.closeModal();
-    };
-    const { integrations, members } = this.props;
-    const channel = this.props.channel || { memberIds: [], integrationIds: [] };
+  renderContent() {
+    const { integrations, members, object } = this.props;
+    const channel = object || { memberIds: [], integrationIds: [] };
     const self = this;
+
     return (
-      <form onSubmit={this.save}>
+      <div>
         <FormGroup>
           <ControlLabel>Name</ControlLabel>
 
@@ -178,6 +142,7 @@ class ChannelForm extends Component {
             multi
           />
         </FormGroup>
+
         <FormGroup>
           <ControlLabel>Members</ControlLabel>
 
@@ -191,19 +156,9 @@ class ChannelForm extends Component {
             multi
           />
         </FormGroup>
-
-        <Modal.Footer>
-          <ButtonToolbar className="pull-right">
-            <Button bsStyle="link" onClick={onClick}>Cancel</Button>
-            <Button type="submit" bsStyle="primary">Save</Button>
-          </ButtonToolbar>
-        </Modal.Footer>
-      </form>
+      </div>
     );
   }
 }
-
-ChannelForm.propTypes = propTypes;
-ChannelForm.contextTypes = contextTypes;
 
 export default ChannelForm;

@@ -1,28 +1,47 @@
-import { compose } from 'react-komposer';
-import { getTrackerLoader, composerOptions } from '/imports/react-ui/utils';
-import { Meteor } from 'meteor/meteor';
-import { KbTopics } from '/imports/api/knowledgebase/collections';
-import { pagination } from '/imports/react-ui/common';
+import React from 'react';
+import PropTypes from 'prop-types';
+import { compose, gql, graphql } from 'react-apollo';
+import { Loading, pagination } from '/imports/react-ui/common';
+import queries from '../../queries';
 import { KbTopicList } from '../../components/topic';
 
-function topicsComposer({ queryParams }, onData) {
-  const { limit, loadMore, hasMore } = pagination(queryParams, 'kb_topics.list.count');
-  const kbTopicsHandler = Meteor.subscribe('kb_topics.list', Object.assign(queryParams, { limit }));
-  const brandsHandler = Meteor.subscribe('brands.list', 0);
+const TopicListContainer = props => {
+  const { getTopicListQuery, getTopicCountQuery, queryParams } = props;
+  const { limit, loadMore, hasMore } = pagination(queryParams, getTopicCountQuery.getKbTopicCount);
+
+  if (getTopicListQuery.loading) {
+    return <Loading title="Topic list" sidebarSize="wide" spin hasRightSideBar />;
+  }
 
   const removeItem = (id, callback) => {
     Meteor.call('knowledgebase.removeKbTopic', id, callback);
   };
 
-  if (kbTopicsHandler.ready() && brandsHandler.ready()) {
-    const items = KbTopics.find().fetch();
-    onData(null, {
-      items,
-      removeItem,
-      loadMore,
-      hasMore,
-    });
-  }
-}
+  const updatedProps = {
+    ...this.props,
+    // If there's no customer fields config, all fields will be selected
+    items: getTopicListQuery.getKbTopicList,
+    refetch: getTopicListQuery.refetch,
+    removeItem,
+    loadMore,
+    hasMore,
+    limit,
+  };
 
-export default compose(getTrackerLoader(topicsComposer), composerOptions({}))(KbTopicList);
+  return <KbTopicList {...updatedProps} />;
+};
+
+TopicListContainer.propTypes = {
+  getTopicListQuery: PropTypes.object,
+  getTopicCountQuery: PropTypes.object,
+  queryParams: PropTypes.object,
+};
+
+export default compose(
+  graphql(gql(queries.getTopicList), {
+    name: 'getTopicListQuery',
+  }),
+  graphql(gql(queries.getTopicCount), {
+    name: 'getTopicCountQuery',
+  }),
+)(TopicListContainer);

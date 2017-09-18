@@ -25,8 +25,6 @@ aldeed:simple-schema
 seba:minifiers-autoprefixer
 dburles:factory
 practicalmeteor:mocha@2.4.5_6
-tmeasday:publish-counts
-reywood:publish-composite
 dburles:collection-helpers
 percolate:synced-cron
 fourseven:scss@4.5.0
@@ -34,8 +32,6 @@ practicalmeteor:chai
 alanning:roles
 meteorhacks:picker
 dispatch:mocha
-johanbrook:publication-collector@1.0.6
 
 erxes-notifier
 erxes-notifications
-stub-collections

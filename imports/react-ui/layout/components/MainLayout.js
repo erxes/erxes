@@ -1,5 +1,7 @@
 import React from 'react';
+import { ApolloProvider } from 'react-apollo';
 import PropTypes from 'prop-types';
+import client from '/imports/react-ui/apollo-client';
 import { Spinner } from '/imports/react-ui/common';
 import Navigation from './Navigation';
 import AlertContainer from '../../common/alert/containers/AlertContainer';
@@ -24,11 +26,13 @@ function MainLayout({ content, loggedIn, loggingIn }) {
   }
 
   return (
-    <div className="layout">
-      <Navigation />
-      {content}
-      <AlertContainer />
-    </div>
+    <ApolloProvider client={client}>
+      <div className="layout">
+        <Navigation />
+        {content}
+        <AlertContainer />
+      </div>
+    </ApolloProvider>
   );
 }
 

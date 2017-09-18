@@ -1,20 +1,20 @@
-import { Meteor } from 'meteor/meteor';
-import { Brands } from '/imports/api/brands/brands';
-import { Forms } from '/imports/api/forms/forms';
-import { compose } from 'react-komposer';
-import { getTrackerLoader, composerOptions } from '/imports/react-ui/utils';
+import React, { PropTypes } from 'react';
+import { compose, gql, graphql } from 'react-apollo';
 import { FORM_LOAD_TYPES, FORM_SUCCESS_ACTIONS } from '/imports/api/integrations/constants';
 import { Form } from '../components';
 import { saveCallback } from './utils';
 
-const composer = (props, onData) => {
-  const brandsHandler = Meteor.subscribe('brands.list', 0);
-  const formsHandler = Meteor.subscribe('forms.list');
+const FormContainer = props => {
+  const { brandsQuery, formsQuery, integration, refetch } = props;
 
-  const brands = Brands.find().fetch();
-  const forms = Forms.find().fetch();
+  if (brandsQuery.loading || formsQuery.loading) {
+    return null;
+  }
 
-  const save = doc => saveCallback(doc, 'addForm', 'editForm', props.integration);
+  const brands = brandsQuery.brands;
+  const forms = formsQuery.forms;
+
+  const save = doc => saveCallback(doc, 'addForm', 'editForm', integration, refetch);
 
   const loadTypes = Object.values(FORM_LOAD_TYPES);
   loadTypes.splice(-1, 1);
@@ -22,11 +22,58 @@ const composer = (props, onData) => {
   const successActions = Object.values(FORM_SUCCESS_ACTIONS);
   successActions.splice(-1, 1);
 
-  if (brandsHandler.ready() && formsHandler.ready()) {
-    return onData(null, { brands, forms, save, loadTypes, successActions });
-  }
+  const updatedProps = {
+    ...props,
+    brands,
+    forms,
+    save,
+    loadTypes,
+    successActions,
+  };
 
-  return null;
+  return <Form {...updatedProps} />;
 };
 
-export default compose(getTrackerLoader(composer), composerOptions({ spinner: true }))(Form);
+FormContainer.propTypes = {
+  integration: PropTypes.object,
+  brandsQuery: PropTypes.object,
+  formsQuery: PropTypes.object,
+  refetch: PropTypes.func,
+};
+
+export default compose(
+  graphql(
+    gql`
+      query brands {
+        brands {
+          _id
+          name
+          code
+        }
+      }
+    `,
+    {
+      name: 'brandsQuery',
+      options: () => ({
+        fetchPolicy: 'network-only',
+      }),
+    },
+  ),
+  graphql(
+    gql`
+      query forms {
+        forms {
+          _id
+          title
+          code
+        }
+      }
+    `,
+    {
+      name: 'formsQuery',
+      options: () => ({
+        fetchPolicy: 'network-only',
+      }),
+    },
+  ),
+)(FormContainer);

@@ -6,7 +6,8 @@ const propTypes = {
     PropTypes.shape({
       _id: PropTypes.string.isRequired,
       title: PropTypes.string,
-      image: PropTypes.element,
+      iconClass: PropTypes.string,
+      iconColor: PropTypes.string,
       selectedBy: PropTypes.string.isRequired,
     }),
   ).isRequired,
@@ -49,7 +50,7 @@ class FilterableList extends Component {
   }
 
   toggleItem(id) {
-    const { items } = this.state;
+    const items = this.state.items;
     const item = items.find(i => i._id === id);
 
     items[items.indexOf(item)].selectedBy = item.selectedBy === 'all' ? 'none' : 'all';
@@ -79,7 +80,11 @@ class FilterableList extends Component {
             this.toggleItem(item._id);
           }}
         >
-          {item.image} {item.title || '[undefined]'}
+          {item.iconClass
+            ? <i className={`icon ${item.iconClass}`} style={{ color: item.iconColor }} />
+            : null}
+          {' '}
+          {item.title || '[undefined]'}
         </li>
       );
     });

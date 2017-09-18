@@ -4,15 +4,16 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Button } from 'react-bootstrap';
 import { Tags, ModalTrigger, Tip, ActionButtons } from '/imports/react-ui/common';
-import { Form } from '../containers';
+import Form from './Form';
 
 const propTypes = {
   tag: PropTypes.object.isRequired,
   type: PropTypes.string.isRequired,
   remove: PropTypes.func.isRequired,
+  save: PropTypes.func.isRequired,
 };
 
-function Row({ tag, type, remove }) {
+function Row({ tag, type, remove, save }) {
   function removeTag() {
     remove(tag);
   }
@@ -33,7 +34,7 @@ function Row({ tag, type, remove }) {
       <td className="text-right">
         <ActionButtons>
           <ModalTrigger title="Edit response" trigger={editTrigger}>
-            <Form type={type} tag={tag} />
+            <Form type={type} tag={tag} save={save} />
           </ModalTrigger>
 
           <Tip text="Delete">

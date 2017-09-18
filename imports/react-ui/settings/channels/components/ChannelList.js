@@ -1,80 +1,45 @@
-import React, { PropTypes, Component } from 'react';
-import { Button, Table } from 'react-bootstrap';
-import { Wrapper } from '/imports/react-ui/layout/components';
-import { ModalTrigger, Pagination } from '/imports/react-ui/common';
-import Sidebar from '../../Sidebar';
+import React from 'react';
+import { Table } from 'react-bootstrap';
+import { List } from '../../common/components';
 import { ChannelForm } from '../containers';
 import Row from './Row';
 
-const propTypes = {
-  channels: PropTypes.array.isRequired,
-  removeChannel: PropTypes.func.isRequired,
-  loadMore: PropTypes.func.isRequired,
-  hasMore: PropTypes.bool.isRequired,
-};
-
-class ChannelList extends Component {
+class ChannelList extends List {
   constructor(props) {
     super(props);
 
-    this.renderChannels = this.renderChannels.bind(this);
+    this.title = 'New channel';
   }
 
-  renderChannels() {
-    const { channels, removeChannel } = this.props;
-
-    return channels.map(channel => (
-      <Row key={channel._id} channel={channel} removeChannel={removeChannel} />
-    ));
+  renderRow(props) {
+    return <Row {...props} />;
   }
 
-  render() {
-    const { loadMore, hasMore } = this.props;
-    const trigger = (
-      <Button bsStyle="link">
-        <i className="ion-plus-circled" /> New channel
-      </Button>
-    );
-    const actionBarLeft = (
-      <ModalTrigger title="New channel" trigger={trigger}>
-        <ChannelForm />
-      </ModalTrigger>
-    );
-    const actionBar = <Wrapper.ActionBar left={actionBarLeft} />;
+  renderForm(props) {
+    return <ChannelForm {...props} />;
+  }
 
-    const content = (
-      <Pagination loadMore={loadMore} hasMore={hasMore}>
-        <Table>
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>Description</th>
-              <th>Status</th>
-              <th className="text-right">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {this.renderChannels()}
-          </tbody>
-        </Table>
-      </Pagination>
-    );
-
-    const breadcrumb = [{ title: 'Settings', link: '/settings/channels' }, { title: 'Channels' }];
-
+  renderContent() {
     return (
-      <div>
-        <Wrapper
-          header={<Wrapper.Header breadcrumb={breadcrumb} />}
-          leftSidebar={<Sidebar />}
-          actionBar={actionBar}
-          content={content}
-        />
-      </div>
+      <Table>
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Description</th>
+            <th>Status</th>
+            <th className="text-right">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {this.renderObjects()}
+        </tbody>
+      </Table>
     );
+  }
+
+  breadcrumb() {
+    return [{ title: 'Settings', link: '/settings/channels' }, { title: 'Channels' }];
   }
 }
-
-ChannelList.propTypes = propTypes;
 
 export default ChannelList;

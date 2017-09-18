@@ -1,21 +1,21 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Dropdown, MenuItem } from 'react-bootstrap';
-import { Counts } from 'meteor/tmeasday:publish-counts';
 import { FlowRouter } from 'meteor/kadira:flow-router';
 import { Wrapper } from '/imports/react-ui/layout/components';
 import { DropdownToggle, EmptyState } from '/imports/react-ui/common';
 
 const propTypes = {
+  counts: PropTypes.object.isRequired,
   segments: PropTypes.array.isRequired,
 };
 
-function Segments({ segments }) {
+function Segments({ counts, segments }) {
   const { Section, filter, getActiveClass } = Wrapper.Sidebar;
 
   const orderedSegments = [];
   segments.filter(segment => !segment.subOf).map(segment => {
-    orderedSegments.push(segment, ...segment.getSubSegments());
+    orderedSegments.push(segment, ...segment.getSubSegments);
   });
 
   return (
@@ -28,12 +28,8 @@ function Segments({ segments }) {
             <i className="ion-more" />
           </DropdownToggle>
           <Dropdown.Menu>
-            <MenuItem href={FlowRouter.path('segments/new')}>
-              New segment
-            </MenuItem>
-            <MenuItem href={FlowRouter.path('segments/list')}>
-              Manage segments
-            </MenuItem>
+            <MenuItem href={FlowRouter.path('segments/new')}>New segment</MenuItem>
+            <MenuItem href={FlowRouter.path('segments/list')}>Manage segments</MenuItem>
           </Dropdown.Menu>
         </Dropdown>
 
@@ -65,7 +61,7 @@ function Segments({ segments }) {
                   <i className="ion-pie-graph icon" style={{ color: segment.color }} />
                   {segment.name}
                   <span className="counter">
-                    {Counts.get(`customers.segment.${segment._id}`)}
+                    {counts[segment._id]}
                   </span>
                 </a>
               </li>

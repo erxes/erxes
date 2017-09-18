@@ -4,9 +4,11 @@ import Alert from 'meteor/erxes-notifier';
 import { FilterableList } from '../..';
 
 const propTypes = {
-  tags: PropTypes.array.isRequired,
-  targets: PropTypes.array.isRequired,
   type: PropTypes.string.isRequired,
+  tagsLoading: PropTypes.bool,
+  targetsLoading: PropTypes.bool,
+  tags: PropTypes.array,
+  targets: PropTypes.array,
   tag: PropTypes.func.isRequired,
   afterSave: PropTypes.func,
   event: PropTypes.oneOf(['onClick', 'onExit']),
@@ -33,7 +35,7 @@ class Tagger extends Component {
   /**
    * Returns array of tags object
    */
-  generateTagsParams(tags, targets) {
+  generateTagsParams(tags = [], targets = []) {
     return tags.map(({ _id, name, colorCode }) => {
       // Current tag's selection state (all, some or none)
       const count = targets.reduce(
@@ -53,7 +55,8 @@ class Tagger extends Component {
       return {
         _id,
         title: name,
-        image: <i className="icon ion-pricetag" style={{ color: colorCode }} />,
+        iconClass: 'ion-pricetag',
+        iconColor: colorCode,
         selectedBy: state,
       };
     });
@@ -61,12 +64,23 @@ class Tagger extends Component {
 
   tag(tags) {
     const { tag, targets, type, afterSave } = this.props;
+
+    // detect changes
+    const { tagsForList } = this.state;
+    const unchanged = tagsForList.reduce(
+      (prev, current, index) => prev && current.selectedBy === tags[index].selectedBy,
+      true,
+    );
+    if (unchanged) {
+      return;
+    }
+
     const param = {
+      type,
       targetIds: targets.map(t => t._id),
       tagIds: tags.filter(t => t.selectedBy === 'all').map(t => t._id),
     };
 
-    // eslint-disable-next-line consistent-return
     tag(param, error => {
       if (error) {
         return Alert.error(error.reason);
@@ -84,6 +98,11 @@ class Tagger extends Component {
   }
 
   render() {
+    const { targetsLoading, tagsLoading } = this.props;
+    if (targetsLoading || tagsLoading) {
+      return <div>Loading ...</div>;
+    }
+
     const { className, event, type } = this.props;
 
     const links = [
@@ -96,7 +115,7 @@ class Tagger extends Component {
     const props = {
       className,
       links,
-      items: this.state.tagsForList,
+      items: JSON.parse(JSON.stringify(this.state.tagsForList)),
       [event]: this.tag,
     };
 
