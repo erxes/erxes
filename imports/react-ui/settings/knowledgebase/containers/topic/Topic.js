@@ -6,27 +6,24 @@ import queries from '../../queries';
 import { KbTopic } from '../../components';
 import { saveCallback } from '../utils';
 
+const propTypes = {
+  item: PropTypes.object,
+  getTopicDetailQuery: PropTypes.object,
+  getCategoryListQuery: PropTypes.object,
+  getBrandListQuery: PropTypes.object,
+};
+
 const TopicDetailContainer = props => {
   const { item, getTopicDetailQuery, getBrandListQuery, getCategoryListQuery } = props;
-  // TODO: refetch might be needed in the props
 
-  // refetch - used when using popups to add/edit
   if (getTopicDetailQuery.loading || getBrandListQuery.loading || getCategoryListQuery.loading) {
     return <Loading title="Topic Detail" sidebarSize="wide" spin hasRightSideBar />;
   }
 
-  let currentMethod = 'addKbTopic';
-
-  if (item != null && item._id) {
-    currentMethod = 'editKbTopic';
-  }
-
   const save = doc => {
     let params = { doc };
-    if (item != null && item._id) {
-      params._id = item._id;
-    }
-    saveCallback(params, currentMethod, '/settings/knowledgebase/', getTopicDetailQuery.refetch);
+    params._id = item._id;
+    saveCallback(params, 'editKbTopic', '/settings/knowledgebase/', getTopicDetailQuery.refetch);
   };
 
   const updatedProps = {
@@ -39,17 +36,10 @@ const TopicDetailContainer = props => {
     categories: getCategoryListQuery.getKbCategoryList,
     save,
   };
-  // TODO: might need to change naming of KbTopic to smth like
-  //       KbTopicDetail to be similar with other code
   return <KbTopic {...updatedProps} />;
 };
 
-TopicDetailContainer.propTypes = {
-  item: PropTypes.object,
-  getTopicDetailQuery: PropTypes.object,
-  getCategoryListQuery: PropTypes.object,
-  getBrandListQuery: PropTypes.object,
-};
+TopicDetailContainer.propTypes = propTypes;
 
 export default compose(
   graphql(gql(queries.getTopicDetail), {

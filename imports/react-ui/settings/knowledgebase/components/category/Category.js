@@ -18,6 +18,10 @@ const propTypes = {
   save: PropTypes.func.isRequired,
 };
 
+const contextPropTypes = {
+  closeModal: PropTypes.func.isRequired,
+};
+
 class KbCategory extends Component {
   constructor(props, context) {
     super(props, context);
@@ -33,22 +37,12 @@ class KbCategory extends Component {
   }
 
   getSelectedArticles() {
-    const { articles, item } = this.props;
-    let results = [];
+    const { item } = this.props;
 
-    if (item != null) {
-      const articleIds = item.articleIds || [];
-      articles.map(article => {
-        if (articleIds.indexOf(article._id) != -1) {
-          results.push({
-            label: article.title,
-            value: article._id,
-          });
-        }
-      });
-    }
-
-    return results;
+    return (item.articles || []).map(article => ({
+      label: article.title,
+      value: article._id,
+    }));
   }
 
   getSelectedIcon() {
@@ -92,22 +86,16 @@ class KbCategory extends Component {
     const articleIds = this.state.selectedArticles.map(article => article.value);
     const { item } = this.props;
 
-    let newValues = {
+    const newValues = {
       title: document.getElementById('knowledgebase-category-title').value,
       description: document.getElementById('knowledgebase-category-description').value,
       articleIds,
       icon: this.state.selectedIcon,
+      createdBy: item.createdBy,
+      modifiedBy: item.modifiedBy,
+      createdDate: item.createdDate != null ? new Date(item.createdDate) : new Date(), // graphql mongoose driver returns
+      modifiedDate: item.modifiedDate != null ? new Date(item.modifiedDate) : new Date(), // timestamp instead of Date object
     };
-
-    if (item && item._id) {
-      newValues = {
-        ...newValues,
-        createdBy: item.createdBy,
-        createdDate: item.createdDate,
-        modifiedBy: item.modifiedBy,
-        modifiedDate: item.modifiedDate,
-      };
-    }
     this.props.save(newValues);
     this.context.closeModal();
   }
@@ -174,8 +162,6 @@ class KbCategory extends Component {
 
 KbCategory.propTypes = propTypes;
 
-KbCategory.contextTypes = {
-  closeModal: PropTypes.func.isRequired,
-};
+KbCategory.contextTypes = contextPropTypes;
 
 export default KbCategory;

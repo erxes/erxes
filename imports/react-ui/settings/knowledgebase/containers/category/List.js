@@ -1,30 +1,53 @@
-import { compose } from 'react-komposer';
-import { getTrackerLoader, composerOptions } from '/imports/react-ui/utils';
+import React from 'react';
+import PropTypes from 'prop-types';
+import { compose, gql, graphql } from 'react-apollo';
 import { Meteor } from 'meteor/meteor';
-import { KbCategories } from '/imports/api/knowledgebase/collections';
-import { pagination } from '/imports/react-ui/common';
-import { KbCategoryList } from '../../components';
+import { Loading, pagination } from '/imports/react-ui/common';
+// TODO: create directory named graphql and put queries inside it
+import queries from '../../queries';
+import { KbCategoryList } from '../../components/category';
 
-function categoriesComposer({ queryParams }, onData) {
-  const { limit, loadMore, hasMore } = pagination(queryParams, 'kb_categories.list.count');
-  const kbCategoriesHandler = Meteor.subscribe(
-    'kb_categories.list',
-    Object.assign(queryParams, { limit }),
+const propTypes = {
+  getCategoryListQuery: PropTypes.object.isRequired,
+  getCategoryCountQuery: PropTypes.object.isRequired,
+  queryParams: PropTypes.object.isRequired,
+};
+
+const CategoryListContainer = props => {
+  const { getCategoryListQuery, getCategoryCountQuery, queryParams } = props;
+  const { limit, loadMore, hasMore } = pagination(
+    queryParams,
+    getCategoryCountQuery.getKbCategoryCount,
   );
+
+  if (getCategoryListQuery.loading) {
+    return <Loading title="CategoryList" sidebarSize="wide" spin hasRightSideBar />;
+  }
 
   const removeItem = (id, callback) => {
     Meteor.call('knowledgebase.removeKbCategory', id, callback);
   };
 
-  if (kbCategoriesHandler.ready()) {
-    const items = KbCategories.find().fetch();
-    onData(null, {
-      items,
-      removeItem,
-      loadMore,
-      hasMore,
-    });
-  }
-}
+  const updatedProps = {
+    ...this.props,
+    items: getCategoryListQuery.getKbCategoryList,
+    refetch: getCategoryListQuery.refetch,
+    removeItem,
+    loadMore,
+    hasMore,
+    limit,
+  };
 
-export default compose(getTrackerLoader(categoriesComposer), composerOptions({}))(KbCategoryList);
+  return <KbCategoryList {...updatedProps} />;
+};
+
+CategoryListContainer.propTypes = propTypes;
+
+export default compose(
+  graphql(gql(queries.getCategoryList), {
+    name: 'getCategoryListQuery',
+  }),
+  graphql(gql(queries.getCategoryCount), {
+    name: 'getCategoryCountQuery',
+  }),
+)(CategoryListContainer);

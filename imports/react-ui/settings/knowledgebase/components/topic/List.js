@@ -27,8 +27,8 @@ class KbTopicList extends CommonList {
 
   getHeader() {
     const breadcrumb = [
-      { title: 'Topics', link: '/settings/knowledgebase' },
-      { title: 'Categories' },
+      { title: 'Knowledge base', link: '/settings/knowledgebase' },
+      { title: 'Topics' },
     ];
 
     return <Wrapper.Header breadcrumb={breadcrumb} />;

@@ -1,9 +1,17 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { compose, gql, graphql } from 'react-apollo';
+import { Meteor } from 'meteor/meteor';
 import { Loading, pagination } from '/imports/react-ui/common';
+// TODO: create directory named graphql and put queries inside it
 import queries from '../../queries';
 import { KbTopicList } from '../../components/topic';
+
+const propTypes = {
+  getTopicListQuery: PropTypes.object.isRequired,
+  getTopicCountQuery: PropTypes.object.isRequired,
+  queryParams: PropTypes.object.isRequired,
+};
 
 const TopicListContainer = props => {
   const { getTopicListQuery, getTopicCountQuery, queryParams } = props;
@@ -19,7 +27,6 @@ const TopicListContainer = props => {
 
   const updatedProps = {
     ...this.props,
-    // If there's no customer fields config, all fields will be selected
     items: getTopicListQuery.getKbTopicList,
     refetch: getTopicListQuery.refetch,
     removeItem,
@@ -31,11 +38,7 @@ const TopicListContainer = props => {
   return <KbTopicList {...updatedProps} />;
 };
 
-TopicListContainer.propTypes = {
-  getTopicListQuery: PropTypes.object,
-  getTopicCountQuery: PropTypes.object,
-  queryParams: PropTypes.object,
-};
+TopicListContainer.propTypes = propTypes;
 
 export default compose(
   graphql(gql(queries.getTopicList), {

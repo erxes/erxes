@@ -1,5 +1,14 @@
 import { KbTopicList, NewKbTopic, KbTopic } from './topic';
-import { KbCategoryList, KbCategory } from './category';
+import { KbCategoryList, KbCategory, NewKbCategory } from './category';
 import { KbArticleList, KbArticle } from './article';
 
-export { KbTopicList, KbCategoryList, NewKbTopic, KbTopic, KbCategory, KbArticleList, KbArticle };
+export {
+  KbTopicList,
+  NewKbTopic,
+  KbTopic,
+  KbCategoryList,
+  NewKbCategory,
+  KbCategory,
+  KbArticleList,
+  KbArticle,
+};

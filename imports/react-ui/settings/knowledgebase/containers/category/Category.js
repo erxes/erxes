@@ -1,33 +1,64 @@
-import { compose } from 'react-komposer';
-import { getTrackerLoader, composerOptions } from '/imports/react-ui/utils';
+import React from 'react';
+import PropTypes from 'prop-types';
+import { compose, gql, graphql } from 'react-apollo';
+import { Loading } from '/imports/react-ui/common';
+import queries from '../../queries';
 import { KbCategory } from '../../components';
 import { saveCallback } from '../utils';
-import { KbArticles } from '/imports/api/knowledgebase/collections';
 
-const composer = (props, onData) => {
-  const { item } = props;
-  let currentMethod = 'addKbCategory';
+const propTypes = {
+  item: PropTypes.object,
+  getCategoryDetailQuery: PropTypes.object,
+  getArticleListQuery: PropTypes.object,
+};
 
-  if (item != null && item._id) {
-    currentMethod = 'editKbCategory';
+const CategoryDetailContainer = props => {
+  const { item, getCategoryDetailQuery, getArticleListQuery } = props;
+
+  if (getArticleListQuery.loading || getCategoryDetailQuery.loading) {
+    return <Loading title="Category Detail" sidebarSize="wide" spin hasRightSideBar />;
   }
-
-  const articlesHandler = Meteor.subscribe('kb_articles.list', { limit: 0 });
 
   const save = doc => {
     let params = { doc };
-    if (item != null && item._id) {
-      params._id = item._id;
-    }
-    saveCallback(params, currentMethod, '/settings/knowledgebase/categories');
+    params._id = item._id;
+    saveCallback(
+      params,
+      'editKbCategory',
+      '/settings/knowledgebase/',
+      getCategoryDetailQuery.refetch,
+    );
   };
 
-  if (articlesHandler.ready()) {
-    const articles = KbArticles.find().fetch();
-    return onData(null, { articles, save });
-  }
-
-  return null;
+  const updatedProps = {
+    ...props,
+    item: {
+      ...getCategoryDetailQuery.getKbCategoryDetail,
+      refetch: getCategoryDetailQuery.refetch,
+    },
+    articles: getArticleListQuery.getKbArticleList,
+    save,
+  };
+  return <KbCategory {...updatedProps} />;
 };
 
-export default compose(getTrackerLoader(composer), composerOptions({ spinner: true }))(KbCategory);
+CategoryDetailContainer.propTypes = propTypes;
+
+export default compose(
+  graphql(gql(queries.getCategoryDetail), {
+    name: 'getCategoryDetailQuery',
+    options: params => {
+      return {
+        variables: {
+          _id: params.item._id,
+        },
+      };
+    },
+  }),
+  graphql(gql(queries.getArticleList), {
+    name: 'getArticleListQuery',
+    options: () => ({
+      fetchPolicy: 'network-only',
+    }),
+  }),
+)(CategoryDetailContainer);

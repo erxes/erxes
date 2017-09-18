@@ -21,6 +21,10 @@ const propTypes = {
   save: PropTypes.func.isRequired,
 };
 
+const contextPropTypes = {
+  closeModal: PropTypes.func.isRequired,
+};
+
 class KbTopic extends CommonItem {
   constructor(props, context) {
     super(props, context);
@@ -126,16 +130,15 @@ class KbTopic extends CommonItem {
     const categoryIds = this.state.selectedCategories.map(category => category.value);
     const { item } = this.props;
 
-    var newValues = {
+    const newValues = {
       title: document.getElementById('knowledgebase-title').value,
       description: document.getElementById('knowledgebase-description').value,
       brandId: document.getElementById('selectBrand').value,
       categoryIds,
-      _id: item._id,
       createdBy: item.createdBy,
-      createdDate: new Date(item.createdDate),
       modifiedBy: item.modifiedBy,
-      modifiedDate: new Date(item.modifiedDate),
+      createdDate: item.createdDate != null ? new Date(item.createdDate) : new Date(), // graphql mongoose driver returns
+      modifiedDate: item.modifiedDate != null ? new Date(item.modifiedDate) : new Date(), // timestamp instead of Date object
     };
 
     this.props.save(newValues);
@@ -196,5 +199,7 @@ class KbTopic extends CommonItem {
 }
 
 KbTopic.propTypes = propTypes;
+
+KbTopic.contextTypes = contextPropTypes;
 
 export default KbTopic;

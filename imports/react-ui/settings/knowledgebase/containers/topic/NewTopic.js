@@ -28,8 +28,6 @@ const NewTopicContainer = props => {
 };
 
 NewTopicContainer.propTypes = {
-  item: PropTypes.object,
-  getTopicDetailQuery: PropTypes.object,
   getCategoryListQuery: PropTypes.object,
   getBrandListQuery: PropTypes.object,
   listRefetch: PropTypes.func.isRequired,

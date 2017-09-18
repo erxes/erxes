@@ -9,6 +9,7 @@ import { CommonList } from '../common';
 
 const propTypes = {
   items: PropTypes.array.isRequired,
+  refetch: PropTypes.func.isRequired,
   removeItem: PropTypes.func.isRequired,
   loadMore: PropTypes.func.isRequired,
   hasMore: PropTypes.bool.isRequired,
@@ -21,7 +22,6 @@ class KbCategoryList extends CommonList {
 
   renderItems() {
     const { items, removeItem } = this.props;
-
     return items.map(item => <CategoryRow key={item._id} item={item} removeItem={removeItem} />);
   }
 
@@ -35,11 +35,13 @@ class KbCategoryList extends CommonList {
   }
 
   getActionBar() {
-    return <Wrapper.ActionBar left={<ActionButtons />} />;
+    const { refetch } = this.props;
+    return <Wrapper.ActionBar left={<ActionButtons categoryListRefetch={refetch} />} />;
   }
 
   getContent() {
     const { loadMore, hasMore } = this.props;
+
     return (
       <Pagination loadMore={loadMore} hasMore={hasMore}>
         <Table>

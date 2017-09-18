@@ -54,14 +54,52 @@ const getCategoryList = `
     getKbCategoryList {
       _id
       title
+      description
+    }
+  }
+`;
+
+const getCategoryDetail = `
+  query getKbCategoryDetail($_id: String!) {
+    getKbCategoryDetail(_id: $_id) {
+      _id
+      title
+      description
+      icon
+      createdBy
+      createdDate
+      modifiedBy
+      modifiedDate
+      articles {
+        _id
+        title
+      }
+    }
+  }
+`;
+
+const getCategoryCount = `
+  query getKbCategoryCount {
+    getKbCategoryCount
+  }
+`;
+
+const getArticleList = `
+  query getKbArticleList {
+    getKbArticleList {
+      _id
+      title
     }
   }
 `;
 
 export default {
+  getBrandList,
   getTopicDetail,
   getTopicList,
   getTopicCount,
-  getBrandList,
+  getCategoryDetail,
   getCategoryList,
+  getCategoryCount,
+  getArticleList,
 };
