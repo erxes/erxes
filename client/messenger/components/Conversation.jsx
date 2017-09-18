@@ -38,7 +38,8 @@ class Conversation extends Component {
 
     if (user) {
       const defaultImage = '/static/images/user.png';
-      const avatar = user.details.avatar || defaultImage;
+      const details = user.details || {};
+      const avatar = details.avatar || defaultImage;
 
       const state = (
         <div className="erxes-staff-company">
@@ -77,9 +78,10 @@ class Conversation extends Component {
     } = this.props;
 
     const placeholder = isNewConversation ? 'Send a message ...' : 'Write a reply ...';
+    const style = { border: `1px solid ${color}` };
 
     return (
-      <div onClick={this.onClick} className="erxes-messenger" style={{ border: `1px solid ${color}` }}>
+      <div onClick={this.onClick} className="erxes-messenger" style={style}>
         <TopBar
           middle={this.renderTitle()}
           buttonIcon={iconLeft}
