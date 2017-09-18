@@ -1,13 +1,14 @@
 import React, { PropTypes } from 'react';
 import { compose, gql, graphql } from 'react-apollo';
 import { Messenger } from '../components';
+import { Spinner } from '/imports/react-ui/common';
 import { saveCallback } from './utils';
 
 const MessengerContainer = props => {
   const { brandsQuery, integration, refetch } = props;
 
   if (brandsQuery.loading) {
-    return null;
+    return <Spinner />;
   }
 
   const save = doc => saveCallback({ doc }, 'addMessenger', 'editMessenger', integration, refetch);

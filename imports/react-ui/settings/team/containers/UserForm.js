@@ -1,12 +1,13 @@
 import React, { PropTypes } from 'react';
 import { compose, gql, graphql } from 'react-apollo';
 import { UserForm } from '../components';
+import { Spinner } from '/imports/react-ui/common';
 
 const UserFormContainer = props => {
   const { object = {}, channelsQuery } = props;
 
   if (channelsQuery.loading) {
-    return null;
+    return <Spinner />;
   }
 
   const channels = channelsQuery.channels;
