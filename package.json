@@ -1,6 +1,6 @@
 {
   "name": "erxes-app-api",
-  "version": "0.0.1",
+  "version": "0.6.0",
   "description": "GraphQL API for erxes main project",
   "homepage": "https://erxes.io",
   "repository": "https://github.com/erxes/erxes-app-api",
@@ -42,6 +42,7 @@
     "moment": "^2.18.1",
     "mongoose": "^4.9.2",
     "passport": "^0.4.0",
+    "passport-anonymous": "^1.0.1",
     "passport-http-bearer": "^1.0.1",
     "subscriptions-transport-ws": "^0.7.3",
     "underscore": "^1.8.3"

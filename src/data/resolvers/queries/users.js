@@ -12,6 +12,10 @@ export default {
     return users.sort(sort);
   },
 
+  userDetail(root, { _id }) {
+    return Users.findOne({ _id });
+  },
+
   totalUsersCount() {
     return Users.find({}).count();
   },
