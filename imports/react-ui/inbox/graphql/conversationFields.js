@@ -24,6 +24,7 @@ export default `
   customer {
     _id
     name
+    twitterData
     getMessengerCustomData
   }
   messageCount
@@ -38,6 +39,7 @@ export default `
     name
     colorCode
   }
+  twitterData
   facebookData
   readUserIds
 `;
