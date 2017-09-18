@@ -21,7 +21,7 @@ const CategoryListContainer = props => {
   );
 
   if (getCategoryListQuery.loading) {
-    return <Loading title="CategoryList" sidebarSize="wide" spin hasRightSideBar />;
+    return <Loading title="List of categories" sidebarSize="wide" spin hasRightSideBar />;
   }
 
   const removeItem = (id, callback) => {

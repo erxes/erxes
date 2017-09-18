@@ -1,34 +1,53 @@
+import React from 'react';
+import PropTypes from 'prop-types';
+import { compose, gql, graphql } from 'react-apollo';
 import { Meteor } from 'meteor/meteor';
-import { compose } from 'react-komposer';
-import { getTrackerLoader, composerOptions } from '/imports/react-ui/utils';
-import { KbArticles } from '/imports/api/knowledgebase/collections';
-import { pagination } from '/imports/react-ui/common';
-import { KbArticleList } from '../../components';
+import { Loading, pagination } from '/imports/react-ui/common';
+// TODO: create directory named graphql and put queries inside it
+import queries from '../../queries';
+import { KbArticleList } from '../../components/article';
 
-function articlesComposer({ queryParams }, onData) {
-  const { limit, loadMore, hasMore } = pagination(queryParams, 'kb_articles.list.count');
-  const kbArticlesHandler = Meteor.subscribe(
-    'kb_articles.list',
-    Object.assign(queryParams, { limit }),
+const propTypes = {
+  getArticleListQuery: PropTypes.object.isRequired,
+  getArticleCountQuery: PropTypes.object.isRequired,
+  queryParams: PropTypes.object.isRequired,
+};
+
+const ArticleListContainer = props => {
+  const { getArticleListQuery, getArticleCountQuery, queryParams } = props;
+  const { limit, loadMore, hasMore } = pagination(
+    queryParams,
+    getArticleCountQuery.getKbArticleCount,
   );
 
+  if (getArticleListQuery.loading) {
+    return <Loading title="List of articles" sidebarSize="wide" spin hasRightSideBar />;
+  }
+
   const removeItem = (id, callback) => {
-    Meteor.call('knowledgebase.removeKbArticle', id, (err, res) => {
-      if (!err) {
-        callback(res);
-      }
-    });
+    Meteor.call('knowledgebase.removeKbArticle', id, callback);
   };
 
-  if (kbArticlesHandler.ready()) {
-    const items = KbArticles.find().fetch();
-    onData(null, {
-      items,
-      removeItem,
-      loadMore,
-      hasMore,
-    });
-  }
-}
+  const updatedProps = {
+    ...this.props,
+    items: getArticleListQuery.getKbArticleList,
+    refetch: getArticleListQuery.refetch,
+    removeItem,
+    loadMore,
+    hasMore,
+    limit,
+  };
 
-export default compose(getTrackerLoader(articlesComposer), composerOptions({}))(KbArticleList);
+  return <KbArticleList {...updatedProps} />;
+};
+
+ArticleListContainer.propTypes = propTypes;
+
+export default compose(
+  graphql(gql(queries.getArticleList), {
+    name: 'getArticleListQuery',
+  }),
+  graphql(gql(queries.getArticleCount), {
+    name: 'getArticleCountQuery',
+  }),
+)(ArticleListContainer);

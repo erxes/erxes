@@ -30,7 +30,7 @@ const NewTopicContainer = props => {
 NewTopicContainer.propTypes = {
   getCategoryListQuery: PropTypes.object,
   getBrandListQuery: PropTypes.object,
-  listRefetch: PropTypes.func.isRequired,
+  listRefetch: PropTypes.func,
 };
 
 export default compose(

@@ -150,9 +150,7 @@ class KbCategory extends Component {
 
         <Modal.Footer>
           <ButtonToolbar className="pull-right">
-            <Button type="submit" bsStyle="primary">
-              Save
-            </Button>
+            <Button type="submit" bsStyle="primary">Save</Button>
           </ButtonToolbar>
         </Modal.Footer>
       </form>

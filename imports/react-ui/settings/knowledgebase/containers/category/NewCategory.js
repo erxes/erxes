@@ -9,7 +9,7 @@ import { saveCallback } from '../utils';
 const NewCategoryContainer = props => {
   const { getArticleListQuery, listRefetch } = props;
   const save = doc => {
-    saveCallback({ doc }, 'addKbCategory', '/settings/knowledgebase/', listRefetch);
+    saveCallback({ doc }, 'addKbCategory', '/settings/knowledgebase/categories', listRefetch);
   };
 
   if (getArticleListQuery.loading) {
@@ -27,7 +27,7 @@ const NewCategoryContainer = props => {
 
 NewCategoryContainer.propTypes = {
   getArticleListQuery: PropTypes.object,
-  listRefetch: PropTypes.func.isRequired,
+  listRefetch: PropTypes.func,
 };
 
 export default compose(

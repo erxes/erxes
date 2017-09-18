@@ -84,12 +84,35 @@ const getCategoryCount = `
   }
 `;
 
+const getArticleDetail = `
+  query getKbArticleDetail($_id: String!) {
+    getKbArticleDetail(_id: $_id) {
+      _id
+      title
+      summary
+      content
+      createdBy
+      createdDate
+      modifiedBy
+      modifiedDate
+    }
+  }
+`;
+
 const getArticleList = `
   query getKbArticleList {
     getKbArticleList {
       _id
       title
+      summary
+      content
     }
+  }
+`;
+
+const getArticleCount = `
+  query getKbArticleCount {
+    getKbArticleCount
   }
 `;
 
@@ -101,5 +124,7 @@ export default {
   getCategoryDetail,
   getCategoryList,
   getCategoryCount,
+  getArticleDetail,
   getArticleList,
+  getArticleCount,
 };

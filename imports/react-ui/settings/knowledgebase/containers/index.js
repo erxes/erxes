@@ -1,6 +1,6 @@
 import { KbTopicList, NewKbTopic, KbTopic } from './topic';
 import { KbCategoryList, KbCategory, NewKbCategory } from './category';
-import { KbArticleList, KbArticle } from './article';
+import { KbArticleList, KbArticle, NewKbArticle } from './article';
 
 export {
   KbTopicList,
@@ -10,5 +10,6 @@ export {
   NewKbCategory,
   KbCategory,
   KbArticleList,
+  NewKbArticle,
   KbArticle,
 };

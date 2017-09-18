@@ -31,7 +31,7 @@ class KbArticle extends Component {
 
   getCurrentStatus() {
     const { item } = this.props;
-    if (item == null) {
+    if (item._id == null) {
       return 'draft';
     }
     return item.status;
@@ -46,7 +46,6 @@ class KbArticle extends Component {
 
   handleSubmit(e) {
     e.preventDefault();
-
     const { item } = this.props;
 
     let newValues = {
@@ -54,17 +53,11 @@ class KbArticle extends Component {
       summary: document.getElementById('knowledgebase-article-summary').value,
       content: document.getElementById('knowledgebase-article-content').value,
       status: this.state.status,
+      createdBy: item.createdBy,
+      modifiedBy: item.modifiedBy,
+      createdDate: item.createdDate != null ? new Date(item.createdDate) : new Date(), // graphql mongoose driver returns
+      modifiedDate: item.modifiedDate != null ? new Date(item.modifiedDate) : new Date(), // timestamp instead of Date object
     };
-
-    if (item && item._id) {
-      newValues = {
-        ...newValues,
-        createdBy: item.createdBy,
-        createdDate: item.createdDate,
-        modifiedBy: item.modifiedBy,
-        modifiedDate: item.modifiedDate,
-      };
-    }
     this.props.save(newValues);
     this.context.closeModal();
   }
