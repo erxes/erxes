@@ -3,12 +3,13 @@ import { FlowRouter } from 'meteor/kadira:flow-router';
 import Alert from 'meteor/erxes-notifier';
 import { compose, gql, graphql } from 'react-apollo';
 import { Twitter } from '../components';
+import { Spinner } from '/imports/react-ui/common';
 
 const TwitterContainer = props => {
   const { brandsQuery, type } = props;
 
   if (brandsQuery.loading) {
-    return null;
+    return <Spinner />;
   }
 
   if (type === 'link') {

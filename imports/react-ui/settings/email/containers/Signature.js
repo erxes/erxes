@@ -3,12 +3,13 @@ import { _ } from 'meteor/underscore';
 import React, { PropTypes } from 'react';
 import { compose, gql, graphql } from 'react-apollo';
 import { Signature } from '../components';
+import { Spinner } from '/imports/react-ui/common';
 
 const SignatureContainer = props => {
   const { brandsQuery } = props;
 
   if (brandsQuery.loading) {
-    return null;
+    return <Spinner />;
   }
 
   // save email configs action
