@@ -272,7 +272,7 @@ export const queries = `
     conversations(params: ConversationListParams): [Conversation]
     conversationCounts(params: ConversationListParams): JSON
     conversationDetail(_id: String!): Conversation
-    totalConversationsCount: Int
+    totalConversationsCount(params: ConversationListParams): Int
   }
 `;
 

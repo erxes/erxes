@@ -131,7 +131,12 @@ export default {
     return Conversations.findOne({ _id });
   },
 
-  totalConversationsCount() {
-    return Conversations.find({}).count();
+  async totalConversationsCount(root, { params }, { user }) {
+    // initiate query builder
+    const qb = new QueryBuilder(params, { _id: user._id });
+
+    await qb.buildAllQueries();
+
+    return Conversations.find(qb.mainQuery()).count();
   },
 };
