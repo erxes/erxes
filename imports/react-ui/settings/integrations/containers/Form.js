@@ -2,13 +2,14 @@ import React, { PropTypes } from 'react';
 import { compose, gql, graphql } from 'react-apollo';
 import { FORM_LOAD_TYPES, FORM_SUCCESS_ACTIONS } from '/imports/api/integrations/constants';
 import { Form } from '../components';
+import { Spinner } from '/imports/react-ui/common';
 import { saveCallback } from './utils';
 
 const FormContainer = props => {
   const { brandsQuery, formsQuery, integration, refetch } = props;
 
   if (brandsQuery.loading || formsQuery.loading) {
-    return null;
+    return <Spinner />;
   }
 
   const brands = brandsQuery.brands;

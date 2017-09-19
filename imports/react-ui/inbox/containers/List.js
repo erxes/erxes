@@ -81,6 +81,7 @@ export default compose(
             limit: queryParams.limit || 20,
           },
         },
+        fetchPolicy: 'network-only',
       };
     },
   }),
@@ -92,6 +93,9 @@ export default compose(
     `,
     {
       name: 'totalCountQuery',
+      options: () => ({
+        fetchPolicy: 'network-only',
+      }),
     },
   ),
 )(ListContainer);
