@@ -22,5 +22,6 @@ export const userList = `query objects {
     _id
     username
     details
+    emails
   }
 }`;

@@ -4,12 +4,13 @@ import { FlowRouter } from 'meteor/kadira:flow-router';
 import { compose, gql, graphql } from 'react-apollo';
 import Alert from 'meteor/erxes-notifier';
 import { Facebook } from '../components';
+import { Spinner } from '/imports/react-ui/common';
 
 const FacebookContainer = props => {
   const { brandsQuery } = props;
 
   if (brandsQuery.loading) {
-    return null;
+    return <Spinner />;
   }
 
   const brands = brandsQuery.brands;
