@@ -25,6 +25,7 @@ export const clientForMainApp = new ApolloClient({
 // subscription server
 export const wsClient = new SubscriptionClient(API_SUBSCRIPTIONS_URL, {
   reconnect: true,
+  timeout: 30000,
 });
 
 // create your ApolloClient instance with the modified network interface
