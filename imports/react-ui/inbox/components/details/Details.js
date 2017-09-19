@@ -1,6 +1,7 @@
 import React, { PropTypes, Component } from 'react';
 import { Wrapper } from '/imports/react-ui/layout/components';
 import RightSidebar from './RightSidebar';
+import LeftSidebar from './LeftSidebar';
 import Conversation from '../conversation/Conversation';
 import { RespondBox } from '../../containers';
 
@@ -29,7 +30,13 @@ class Details extends Component {
   }
 
   render() {
-    const { conversation, messages, attachmentPreview, setAttachmentPreview } = this.props;
+    const {
+      changeStatus,
+      conversation,
+      messages,
+      attachmentPreview,
+      setAttachmentPreview,
+    } = this.props;
 
     const content = (
       <div
@@ -58,13 +65,14 @@ class Details extends Component {
           footer={
             <RespondBox conversation={conversation} setAttachmentPreview={setAttachmentPreview} />
           }
-          rightSidebar={
-            <RightSidebar
+          leftSidebar={
+            <LeftSidebar
               conversation={conversation}
               messagesCount={messages.length}
-              refetch={this.props.refetch}
+              changeStatus={changeStatus}
             />
           }
+          rightSidebar={<RightSidebar conversation={conversation} refetch={this.props.refetch} />}
           relative
         />
       </div>
