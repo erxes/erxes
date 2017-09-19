@@ -7,13 +7,14 @@ const propTypes = {
   type: PropTypes.string.isRequired,
   targets: PropTypes.arrayOf(PropTypes.string).isRequired,
   trigger: PropTypes.element.isRequired,
+  afterSave: PropTypes.func,
   container: PropTypes.element,
 };
 
-function TaggerPopover({ targets, type, trigger, container }) {
+function TaggerPopover({ targets, type, trigger, afterSave, container }) {
   const popover = (
     <Popover id="tags-popover" title="Choose your tags">
-      <Tagger targets={targets} type={type} event="onExit" />
+      <Tagger targets={targets} type={type} event="onExit" afterSave={afterSave} />
     </Popover>
   );
 

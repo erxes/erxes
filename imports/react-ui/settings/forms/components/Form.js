@@ -1,93 +1,38 @@
-import React, { PropTypes, Component } from 'react';
-import {
-  FormGroup,
-  ControlLabel,
-  FormControl,
-  ButtonToolbar,
-  Modal,
-  Button,
-} from 'react-bootstrap';
-import Alert from 'meteor/erxes-notifier';
-import { add, edit } from '/imports/api/forms/methods';
+import React from 'react';
+import { FormGroup, ControlLabel, FormControl } from 'react-bootstrap';
+import { Form as CommonForm } from '../../common/components';
 
-const propTypes = {
-  form: PropTypes.object,
-};
-
-const contextTypes = {
-  closeModal: PropTypes.func.isRequired,
-};
-
-class Form extends Component {
-  constructor(props) {
-    super(props);
-
-    this.save = this.save.bind(this);
-  }
-
-  save(e) {
-    e.preventDefault();
-
-    const params = {
+class Form extends CommonForm {
+  generateDoc() {
+    return {
       doc: {
-        title: document.getElementById('title').value,
-        description: document.getElementById('description').value,
+        title: document.getElementById('form-title').value,
+        description: document.getElementById('form-description').value,
       },
     };
-
-    let method = add;
-
-    // if edit mode
-    if (this.props.form) {
-      method = edit;
-      params.id = this.props.form._id;
-    }
-
-    method.call(params, error => {
-      if (error) return Alert.error(error.reason);
-
-      Alert.success('Form is successfully saved.');
-      return this.context.closeModal();
-    });
   }
 
-  render() {
-    const onClick = () => {
-      this.context.closeModal();
-    };
-
-    const form = this.props.form || {};
-
+  renderContent(form) {
     return (
-      <form onSubmit={this.save}>
+      <div>
         <FormGroup>
           <ControlLabel>Title</ControlLabel>
-          <FormControl id="title" defaultValue={form.title} required />
+          <FormControl id="form-title" type="text" defaultValue={form.title} required />
         </FormGroup>
 
         <FormGroup>
           <ControlLabel>Description</ControlLabel>
-
           <FormControl
-            id="description"
+            id="form-description"
             componentClass="textarea"
-            rows={5}
             defaultValue={form.description}
+            required
+            rows={5}
           />
         </FormGroup>
-
-        <Modal.Footer>
-          <ButtonToolbar className="pull-right">
-            <Button bsStyle="link" onClick={onClick}>Cancel</Button>
-            <Button type="submit" bsStyle="primary">Save</Button>
-          </ButtonToolbar>
-        </Modal.Footer>
-      </form>
+      </div>
     );
   }
 }
-
-Form.propTypes = propTypes;
-Form.contextTypes = contextTypes;
 
 export default Form;

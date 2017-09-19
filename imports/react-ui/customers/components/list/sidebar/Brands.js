@@ -1,15 +1,15 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Counts } from 'meteor/tmeasday:publish-counts';
 import { FlowRouter } from 'meteor/kadira:flow-router';
 import { Wrapper } from '/imports/react-ui/layout/components';
 import { EmptyState } from '/imports/react-ui/common';
 
 const propTypes = {
+  counts: PropTypes.object.isRequired,
   brands: PropTypes.array.isRequired,
 };
 
-function Brands({ brands }) {
+function Brands({ counts, brands }) {
   const { Section, filter, getActiveClass } = Wrapper.Sidebar;
 
   return (
@@ -20,17 +20,17 @@ function Brands({ brands }) {
           <i className="ion-gear-a" />
         </a>
 
-        {FlowRouter.getQueryParam('brand')
-          ? <a
-              tabIndex={0}
-              className="quick-button"
-              onClick={() => {
-                filter('brand', null);
-              }}
-            >
-              <i className="ion-close-circled" />
-            </a>
-          : null}
+        {FlowRouter.getQueryParam('brand') ? (
+          <a
+            tabIndex={0}
+            className="quick-button"
+            onClick={() => {
+              filter('brand', null);
+            }}
+          >
+            <i className="ion-close-circled" />
+          </a>
+        ) : null}
       </Section.QuickButtons>
 
       <ul className="sidebar-list">
@@ -44,15 +44,13 @@ function Brands({ brands }) {
               }}
             >
               {brand.name}
-              <span className="counter">
-                {Counts.get(`customers.brand.${brand._id}`)}
-              </span>
+              <span className="counter">{counts[brand._id]}</span>
             </a>
           </li>
         ))}
-        {!brands.length
-          ? <EmptyState icon={<i className="ion-flag" />} text="No brands" size="small" />
-          : null}
+        {!brands.length ? (
+          <EmptyState icon={<i className="ion-flag" />} text="No brands" size="small" />
+        ) : null}
       </ul>
     </Section>
   );

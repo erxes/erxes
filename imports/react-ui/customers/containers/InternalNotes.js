@@ -1,21 +1,36 @@
+import { Meteor } from 'meteor/meteor';
 import { compose } from 'react-komposer';
+import Alert from 'meteor/erxes-notifier';
 import { getTrackerLoader } from '/imports/react-ui/utils';
-import { Customers } from '/imports/api/customers/customers';
-import { createInternalNote, removeInternalNote } from '/imports/api/customers/methods';
 import { InternalNotes } from '../components';
 
-function composer({ customerId }, onData) {
-  const internalNotes = Customers.findOne(customerId).internalNotes;
+function composer({ customer }, onData) {
+  const internalNotes = [...(customer.internalNotes || [])];
+
   if (internalNotes) {
     internalNotes.sort((a, b) => b.createdDate - a.createdDate);
   }
+
   onData(null, {
     internalNotes: internalNotes || [],
+
     createInternalNote: content => {
-      createInternalNote.call({ customerId, internalNote: content });
+      const doc = { customerId: customer._id, internalNote: content };
+      Meteor.call('customers.createInternalNote', doc, () => {
+        customer.refetch();
+      });
     },
+
     removeInternalNote: internalNoteId => {
-      removeInternalNote.call({ customerId, internalNoteId });
+      const doc = { customerId: customer._id, internalNoteId };
+
+      Meteor.call('customers.removeInternalNote', doc, error => {
+        if (error) {
+          return Alert.error(error.message);
+        }
+
+        customer.refetch();
+      });
     },
   });
 }

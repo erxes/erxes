@@ -1,32 +1,56 @@
-import { compose } from 'react-komposer';
-import { getTrackerLoader, composerOptions } from '/imports/react-ui/utils';
-import { Meteor } from 'meteor/meteor';
-import { Conversations } from '/imports/api/conversations/conversations';
+import React, { PropTypes } from 'react';
+import { compose, gql, graphql } from 'react-apollo';
 import { AssignBox } from '../components';
+import { queries } from '../graphql';
 
-function composer(props, onData) {
+const AssignBoxContainer = props => {
+  const { usersQuery, conversationsQuery } = props;
+
+  if (usersQuery.loading || conversationsQuery.loading) {
+    return null;
+  }
+
   const assign = ({ targetIds, assignedUserId }, callback) => {
-    Meteor.call('conversations.assign', { conversationIds: targetIds, assignedUserId }, callback);
+    const params = { conversationIds: targetIds, assignedUserId };
+
+    Meteor.call('conversations.assign', params, (...params) => {
+      conversationsQuery.refetch();
+      callback(...params);
+    });
   };
 
   const clear = (conversationIds, callback) => {
+    conversationsQuery.refetch();
     Meteor.call('conversations.unassign', { conversationIds }, callback);
   };
 
-  const targets = Conversations.find({ _id: { $in: props.targets } }).fetch();
+  const updatedProps = {
+    ...props,
+    targets: conversationsQuery.conversations,
+    assignees: usersQuery.users,
+    assign,
+    clear,
+  };
 
-  const usersHandle = Meteor.subscribe('users.list', {});
+  return <AssignBox {...updatedProps} />;
+};
 
-  if (usersHandle.ready()) {
-    const assignees = Meteor.users.find().fetch();
+AssignBoxContainer.propTypes = {
+  targets: PropTypes.array,
+  usersQuery: PropTypes.object,
+  conversationsQuery: PropTypes.object,
+};
 
-    onData(null, {
-      targets,
-      assignees,
-      assign,
-      clear,
-    });
-  }
-}
-
-export default compose(getTrackerLoader(composer), composerOptions({ spinner: true }))(AssignBox);
+export default compose(
+  graphql(gql(queries.userList), { name: 'usersQuery' }),
+  graphql(gql(queries.conversationList), {
+    name: 'conversationsQuery',
+    options: ({ targets }) => ({
+      variables: {
+        params: {
+          ids: targets,
+        },
+      },
+    }),
+  }),
+)(AssignBoxContainer);

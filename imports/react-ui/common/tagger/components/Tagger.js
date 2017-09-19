@@ -4,9 +4,11 @@ import Alert from 'meteor/erxes-notifier';
 import { FilterableList } from '../..';
 
 const propTypes = {
-  tags: PropTypes.array.isRequired,
-  targets: PropTypes.array.isRequired,
   type: PropTypes.string.isRequired,
+  tagsLoading: PropTypes.bool,
+  targetsLoading: PropTypes.bool,
+  tags: PropTypes.array,
+  targets: PropTypes.array,
   tag: PropTypes.func.isRequired,
   afterSave: PropTypes.func,
   event: PropTypes.oneOf(['onClick', 'onExit']),
@@ -33,7 +35,7 @@ class Tagger extends Component {
   /**
    * Returns array of tags object
    */
-  generateTagsParams(tags, targets) {
+  generateTagsParams(tags = [], targets = []) {
     return tags.map(({ _id, name, colorCode }) => {
       // Current tag's selection state (all, some or none)
       const count = targets.reduce(
@@ -74,6 +76,7 @@ class Tagger extends Component {
     }
 
     const param = {
+      type,
       targetIds: targets.map(t => t._id),
       tagIds: tags.filter(t => t.selectedBy === 'all').map(t => t._id),
     };
@@ -83,9 +86,8 @@ class Tagger extends Component {
         return Alert.error(error.reason);
       }
 
-      const message = targets.length > 1
-        ? `Selected ${type}s have been tagged!`
-        : `The ${type} has been tagged!`;
+      const message =
+        targets.length > 1 ? `Selected ${type}s have been tagged!` : `The ${type} has been tagged!`;
       Alert.success(message);
 
       if (afterSave) {
@@ -95,6 +97,11 @@ class Tagger extends Component {
   }
 
   render() {
+    const { targetsLoading, tagsLoading } = this.props;
+    if (targetsLoading || tagsLoading) {
+      return <div>Loading ...</div>;
+    }
+
     const { className, event, type } = this.props;
 
     const links = [

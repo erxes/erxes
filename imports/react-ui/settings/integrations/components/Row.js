@@ -8,6 +8,7 @@ import { Form, Messenger } from '../containers';
 const propTypes = {
   integration: PropTypes.object.isRequired,
   removeIntegration: PropTypes.func.isRequired,
+  refetch: PropTypes.func.isRequired,
 };
 
 class Row extends Component {
@@ -25,15 +26,15 @@ class Row extends Component {
 
     removeIntegration(integration._id, error => {
       if (error) {
-        return Alert.error("Can't delete a integration", error.reason);
+        return Alert.error(error.reason);
       }
 
-      return Alert.success('Congrats', 'Integration has deleted.');
+      return Alert.success('Congrats');
     });
   }
 
   renderExtraLinks() {
-    const integration = this.props.integration;
+    const { integration, refetch } = this.props;
     const kind = integration.kind;
 
     const editTrigger = (
@@ -66,7 +67,7 @@ class Row extends Component {
           </Tip>
 
           <ModalTrigger title="Edit integration" trigger={editTrigger}>
-            <Messenger integration={integration} />
+            <Messenger integration={integration} refetch={refetch} />
           </ModalTrigger>
         </div>
       );
@@ -75,7 +76,7 @@ class Row extends Component {
     if (kind === KIND_CHOICES.FORM) {
       return (
         <ModalTrigger title="Edit integration" trigger={editTrigger}>
-          <Form integration={integration} />
+          <Form integration={integration} refetch={refetch} />
         </ModalTrigger>
       );
     }
@@ -107,17 +108,11 @@ class Row extends Component {
 
     return (
       <tr>
+        <td>{integration.name}</td>
         <td>
-          {integration.name}
+          <Label className={`label-${this.getTypeName()}`}>{integration.kind}</Label>
         </td>
-        <td>
-          <Label className={`label-${this.getTypeName()}`}>
-            {integration.kind}
-          </Label>
-        </td>
-        <td>
-          {integration.brand().name}
-        </td>
+        <td>{integration.brand ? integration.brand.name : ''}</td>
 
         <td className="text-right">
           <ActionButtons>

@@ -82,7 +82,7 @@ $fbpost-background: #f6f7f9;
 
   > li {
     padding: 20px;
-    border-bottom: 1px solid $border-grey;
+    border-bottom: 1px solid $grey;
     position: relative;
     display: flex;
     align-items: center;
@@ -112,15 +112,6 @@ $fbpost-background: #f6f7f9;
   .simple-row {
     padding: 15px;
 
-    &.vertical {
-      flex-direction: column;
-      align-items: baseline;
-    }
-
-    .customer-name {
-      margin-right: 5px;
-    }
-
     time {
       font-weight: normal;
       font-style: italic;
@@ -142,6 +133,10 @@ $fbpost-background: #f6f7f9;
       display: -webkit-box;
       -webkit-line-clamp: 2;
       word-wrap: break-word;
+
+      &:hover {
+        cursor: pointer;
+      }
     }
 
     .brandname {
@@ -150,6 +145,7 @@ $fbpost-background: #f6f7f9;
 
     .tags {
       margin-left: 0;
+      display: block;
     }
 
     .items-horizontal {
@@ -157,6 +153,18 @@ $fbpost-background: #f6f7f9;
       flex-direction: row;
       align-items: center;
       width: 100%;
+    }
+  }
+
+  .baseline-row {
+    align-items: flex-start;
+
+    input[type=checkbox] {
+      margin-top: 14px;
+    }
+
+    .content {
+      margin: 10px 0;
     }
   }
 }

@@ -104,7 +104,8 @@ $box-shadow-preview: 0 2px 15px 0 $shadow-color, 0 1px 6px 0 $shadow-color-light
     color: #555;
     background: #faf9fb;
 
-    &.type-snippet {
+    &.type-snippet,
+    &.type-default {
       height: 135px;
 
       .preview-content {

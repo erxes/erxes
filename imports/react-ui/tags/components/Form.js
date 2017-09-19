@@ -5,7 +5,7 @@ import Alert from 'meteor/erxes-notifier';
 const propTypes = {
   tag: PropTypes.object,
   type: PropTypes.string.isRequired,
-  submit: PropTypes.func.isRequired,
+  save: PropTypes.func.isRequired,
 };
 
 const contextTypes = {
@@ -14,7 +14,9 @@ const contextTypes = {
 
 class Form extends Component {
   static generateRandomColorCode() {
-    return `#${Math.random().toString(16).slice(2, 8)}`;
+    return `#${Math.random()
+      .toString(16)
+      .slice(2, 8)}`;
   }
 
   constructor(props, context) {
@@ -35,16 +37,20 @@ class Form extends Component {
   submit(e) {
     e.preventDefault();
 
-    const { type, submit } = this.props;
+    const { tag, type, save } = this.props;
     const { name, colorCode } = this.state;
 
-    submit({ name, type, colorCode }, error => {
-      if (error) {
-        return Alert.error(error.reason);
-      }
+    save({
+      tag,
+      doc: { name, type, colorCode },
+      callback: error => {
+        if (error) {
+          return Alert.error(error.reason);
+        }
 
-      Alert.success('The tag has been saved successfully.');
-      return this.context.closeModal();
+        Alert.success('The tag has been saved successfully.');
+        return this.context.closeModal();
+      },
     });
   }
 

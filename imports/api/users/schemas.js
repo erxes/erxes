@@ -56,9 +56,6 @@ export const CreateInvitationSchema = new SimpleSchema([
 export const UpdateInvitationSchema = new SimpleSchema([
   InvitationCommon,
   {
-    userId: {
-      type: String,
-    },
     password: {
       type: String,
       optional: true,

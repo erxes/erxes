@@ -4,7 +4,6 @@ import { FlowRouter } from 'meteor/kadira:flow-router';
 import strip from 'strip';
 import classNames from 'classnames';
 import { NameCard, Tags } from '/imports/react-ui/common';
-import { Tags as TagsCollection } from '/imports/api/tags/tags';
 
 const propTypes = {
   conversation: PropTypes.object.isRequired,
@@ -49,46 +48,44 @@ class SimpleRow extends Component {
 
   render() {
     const { conversation, isRead } = this.props;
-    const { createdAt, content } = conversation;
-    const customer = conversation.customer();
-    const integration = conversation.integration();
-    const brandName = integration.brand && integration.brand().name;
-    const rowClasses = classNames('simple-row', { unread: !isRead }, 'vertical');
-    // TODO: use embedded tags list of the conversation object
-    const tags = TagsCollection.find({
-      _id: { $in: conversation.tagIds || [] },
-    }).fetch();
+    const { createdAt, content, tags } = conversation;
+    const customer = conversation.customer || {};
+    const integration = conversation.integration || {};
+    const brand = integration.brand || {};
+    const brandName = brand.name;
+    const rowClasses = classNames('simple-row', { unread: !isRead }, 'baseline-row');
+    const isExistingCustomer = customer && customer._id;
 
     return (
       <li className={rowClasses}>
-        <div className="items-horizontal">
-          {this.renderCheckbox()}
-          <div className="column">
-            <NameCard.Avatar size={40} customer={customer} />
-          </div>
+        {this.renderCheckbox()}
+        <div className="body">
+          <div className="items-horizontal">
+            <div className="column">
+              {(isExistingCustomer && customer.name) ||
+              (isExistingCustomer && customer.email) ||
+              (isExistingCustomer && customer.phone) ? (
+                <NameCard.Avatar size={40} customer={customer} />
+              ) : null}
+            </div>
 
-          <div className="body">
             <header>
-              <span className="customer-name">
-                {customer && customer._id && customer.name}
-              </span>
+              <span className="customer-name">{isExistingCustomer && customer.name}</span>
               <div className="customer-email">
-                {customer && customer._id && customer.email}
+                {(isExistingCustomer && customer.email) || (isExistingCustomer && customer.phone)}
               </div>
             </header>
           </div>
+          <div className="content" onClick={this.goDetail}>
+            <span className="brandname hidden-tb">
+              to {brandName}
+              <time>{moment(createdAt).format('YYYY-MM-DD, HH:mm:ss')}</time>
+              - {' '}
+            </span>
+            {strip(content)}
+          </div>
+          <Tags tags={tags} size="small" />
         </div>
-        <div className="content" onClick={this.goDetail}>
-          <span className="brandname hidden-tb">
-            to {brandName}
-            <time>
-              {moment(createdAt).format('YYYY-MM-DD, HH:mm:ss')}
-            </time>
-            - {' '}
-          </span>
-          {strip(content)}
-        </div>
-        <Tags tags={tags} size="small" />
       </li>
     );
   }

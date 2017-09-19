@@ -5,7 +5,6 @@ import { FlowRouter } from 'meteor/kadira:flow-router';
 import strip from 'strip';
 import { Button, FormControl, Popover, OverlayTrigger } from 'react-bootstrap';
 
-import { add } from '/imports/api/responseTemplates/methods';
 import { EmptyState } from '/imports/react-ui/common';
 import ResponseTemplateModal from './ResponseTemplateModal';
 
@@ -43,7 +42,7 @@ class ResponseTemplate extends Component {
       files: this.props.attachments,
     };
 
-    add.call({ doc }, error => {
+    Meteor.call('responseTemplates.add', { doc }, error => {
       if (error) return Alert.error(error.message);
 
       Alert.success('Congrats');
@@ -96,12 +95,8 @@ class ResponseTemplate extends Component {
 
       return (
         <li key={item._id} onClick={() => this.onSelect(item._id)}>
-          <div className="template-title">
-            {item.name}
-          </div>
-          <div className="template-content">
-            {strip(item.content)}
-          </div>
+          <div className="template-title">{item.name}</div>
+          <div className="template-content">{strip(item.content)}</div>
         </li>
       );
     });
@@ -146,9 +141,7 @@ class ResponseTemplate extends Component {
         </div>
 
         <div className="popover-body">
-          <ul className="popover-list">
-            {this.renderItems()}
-          </ul>
+          <ul className="popover-list">{this.renderItems()}</ul>
         </div>
         <div className="popover-footer">
           <ul className="popover-list linked text-center">

@@ -24,6 +24,7 @@ class ManageFields extends Component {
     super(props);
 
     this.state = {
+      fields: props.fields,
       chosenFieldType: null,
       editingField: editingFieldDefaultValue,
     };
@@ -58,7 +59,14 @@ class ManageFields extends Component {
       return this.props.editField(editingField._id, doc);
     }
 
-    return this.props.addField(doc);
+    return this.props.addField(doc, fieldId => {
+      // newly created field to fields state
+      doc._id = fieldId;
+
+      this.state.fields.push(doc);
+
+      this.setState({ fields: this.state.fields });
+    });
   }
 
   onFieldEdit(field) {
@@ -92,7 +100,9 @@ class ManageFields extends Component {
 
   setChanges(attributeName, value) {
     const { editingField } = this.state;
+
     editingField[attributeName] = value;
+
     this.setState({ editingField });
   }
 
@@ -108,6 +118,12 @@ class ManageFields extends Component {
       const onDelete = e => {
         e.preventDefault();
 
+        // remove field from state
+        const fields = this.state.fields.filter(field => field._id !== _id);
+
+        this.setState({ fields });
+
+        // remove field from db
         this.props.deleteField(_id);
 
         reset();
@@ -118,15 +134,21 @@ class ManageFields extends Component {
           <Button bsSize="small" bsStyle="danger" onClick={onDelete}>
             Delete
           </Button>
-          <Button bsSize="small" bsStyle="primary" onClick={reset}>New</Button>
-          <Button bsSize="small" type="submit" bsStyle="success">Save</Button>
+          <Button bsSize="small" bsStyle="primary" onClick={reset}>
+            New
+          </Button>
+          <Button bsSize="small" type="submit" bsStyle="success">
+            Save
+          </Button>
         </ButtonGroup>
       );
     }
 
     return (
       <ButtonGroup>
-        <Button bsSize="small" type="submit" bsStyle="success">Add</Button>
+        <Button bsSize="small" type="submit" bsStyle="success">
+          Add
+        </Button>
       </ButtonGroup>
     );
   }
@@ -166,7 +188,6 @@ class ManageFields extends Component {
             value={editingField.type || ''}
             onChange={this.onChangeType}
           >
-
             <option />
             <option value="input">Input</option>
             <option value="textarea">Text area</option>
@@ -188,7 +209,6 @@ class ManageFields extends Component {
             value={editingField.validation || ''}
             onChange={this.onChangeValidation}
           >
-
             <option />
             <option value="email">Email</option>
             <option value="number">Number</option>
@@ -244,7 +264,7 @@ class ManageFields extends Component {
 
           <Col sm={7} xsOffset={5}>
             <FieldsPreview
-              fields={this.props.fields}
+              fields={this.state.fields}
               onFieldEdit={this.onFieldEdit}
               onSort={this.props.onSort}
             />

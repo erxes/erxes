@@ -15,7 +15,9 @@ class FormBase extends Component {
     super(props);
 
     const message = props.message || {};
+
     this.state = { fromUser: message.fromUserId || '' };
+
     // binds
     this.generateDoc = this.generateDoc.bind(this);
     this.save = this.save.bind(this);
@@ -89,11 +91,13 @@ class FormBase extends Component {
 
   renderTitle() {
     const kind = FlowRouter.getQueryParam('kind');
+
     if (kind == 'auto') {
       return 'Auto message';
     } else if (kind == 'manual') {
       return 'Manual message';
     }
+
     return 'Visitor auto message';
   }
 

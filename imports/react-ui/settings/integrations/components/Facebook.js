@@ -1,5 +1,7 @@
-import React, { PropTypes, Component } from 'react';
+import { Meteor } from 'meteor/meteor';
 import { _ } from 'meteor/underscore';
+import React, { PropTypes, Component } from 'react';
+import Alert from 'meteor/erxes-notifier';
 import {
   Modal,
   Button,
@@ -17,10 +19,30 @@ class Facebook extends Component {
 
     this.handleSubmit = this.handleSubmit.bind(this);
     this.onAppChange = this.onAppChange.bind(this);
+
+    this.state = { apps: [], pages: [] };
+  }
+
+  componentDidMount() {
+    const { apps } = this.state;
+
+    if (apps.length === 0) {
+      Meteor.call('integrations.getFacebookAppList', (err, res) => {
+        this.setState({ apps: res });
+      });
+    }
   }
 
   onAppChange() {
-    this.props.getPages(document.getElementById('app').value);
+    const appId = document.getElementById('app').value;
+
+    Meteor.call('integrations.getFacebookPageList', { appId }, (err, res) => {
+      if (err) {
+        return Alert.error(err.reason);
+      }
+
+      this.setState({ pages: res });
+    });
   }
 
   collectCheckboxValues(name) {
@@ -47,7 +69,8 @@ class Facebook extends Component {
   }
 
   render() {
-    const { brands, apps, pages } = this.props;
+    const { brands } = this.props;
+    const { apps, pages } = this.state;
 
     return (
       <form className="margined" onSubmit={this.handleSubmit}>
@@ -66,7 +89,9 @@ class Facebook extends Component {
             <option>Select app ...</option>
 
             {apps.map((app, index) => (
-              <option key={`app${index}`} value={app.id}>{app.name}</option>
+              <option key={`app${index}`} value={app.id}>
+                {app.name}
+              </option>
             ))}
           </FormControl>
         </FormGroup>
@@ -85,7 +110,9 @@ class Facebook extends Component {
 
         <Modal.Footer>
           <ButtonToolbar className="pull-right">
-            <Button type="submit" bsStyle="primary">Save</Button>
+            <Button type="submit" bsStyle="primary">
+              Save
+            </Button>
           </ButtonToolbar>
         </Modal.Footer>
       </form>
@@ -95,10 +122,7 @@ class Facebook extends Component {
 
 Facebook.propTypes = {
   save: PropTypes.func.isRequired,
-  getPages: PropTypes.func.isRequired,
   brands: PropTypes.array.isRequired,
-  apps: PropTypes.array.isRequired,
-  pages: PropTypes.array.isRequired,
 };
 
 export default Facebook;

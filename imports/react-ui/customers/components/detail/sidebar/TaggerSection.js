@@ -41,7 +41,7 @@ class TaggerSection extends Component {
 
   render() {
     const { customer } = this.props;
-    const tags = customer.tags();
+    const tags = customer.getTags;
     const { Title, QuickButtons } = Wrapper.Sidebar.Section;
 
     return (
@@ -65,9 +65,7 @@ class TaggerSection extends Component {
           </div>
         </Collapse>
 
-        <ul className="sidebar-list no-link">
-          {this.renderTags(tags)}
-        </ul>
+        <ul className="sidebar-list no-link">{this.renderTags(tags)}</ul>
       </Wrapper.Sidebar.Section>
     );
   }

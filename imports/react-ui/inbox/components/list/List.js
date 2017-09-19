@@ -23,6 +23,7 @@ const propTypes = {
   toggleBulk: PropTypes.func.isRequired,
   emptyBulk: PropTypes.func.isRequired,
   conversationReady: PropTypes.bool,
+  refetch: PropTypes.func.isRequired,
 };
 
 function List(props) {
@@ -37,6 +38,7 @@ function List(props) {
     toggleBulk,
     emptyBulk,
     conversationReady,
+    refetch,
   } = props;
 
   /**
@@ -60,7 +62,10 @@ function List(props) {
             <i className="ion-pricetags" /> Tag <span className="caret" />
           </Button>
         }
-        afterSave={emptyBulk}
+        afterSave={() => {
+          emptyBulk();
+          refetch();
+        }}
       />
 
       <AssignBoxPopover
@@ -111,11 +116,12 @@ function List(props) {
   );
 
   const mainContent = () => {
-    if (unreadConversations.length === 0 && readConversations.length === 0 && conversationReady) {
+    if (unreadConversations.length === 0 && readConversations.length === 0 && !conversationReady) {
       return empty;
-    } else if (!conversationReady) {
-      return <LoadingContent items={5} />;
+    } else if (conversationReady) {
+      return <LoadingContent items={6} />;
     }
+
     return content;
   };
 

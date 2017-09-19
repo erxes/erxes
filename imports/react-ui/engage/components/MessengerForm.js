@@ -1,5 +1,6 @@
 import React, { PropTypes, Component } from 'react';
 import { FormControl } from 'react-bootstrap';
+import Editor from './Editor';
 import { MESSENGER_KINDS, SENT_AS_CHOICES } from '/imports/api/engage/constants';
 import { MessengerPreview } from '../containers';
 
@@ -15,7 +16,10 @@ class MessengerForm extends Component {
   constructor(props) {
     super(props);
 
-    this.state = { sentAs: props.message.messenger.sentAs || '' };
+    const { message } = this.props;
+    const messenger = message.messenger || {};
+
+    this.state = { sentAs: messenger.sentAs || '', messengerContent: messenger.content || '' };
 
     // binds
     this.onContentChange = this.onContentChange.bind(this);
@@ -24,6 +28,7 @@ class MessengerForm extends Component {
 
   onContentChange(content) {
     this.props.onContentChange(content);
+    this.setState({ messengerContent: content });
   }
 
   onChangeSentAs(e) {
@@ -52,6 +57,7 @@ class MessengerForm extends Component {
     const message = this.props.message || {};
     const messenger = message.messenger || {};
     const brands = this.props.brands;
+
     return (
       <div>
         <div className="form-header">
@@ -87,12 +93,17 @@ class MessengerForm extends Component {
           </div>
         </div>
         <div className="form-content">
-          <MessengerPreview
-            sentAs={this.state.sentAs}
-            content={messenger.content}
-            fromUser={this.props.fromUser}
-            onContentChange={this.props.onContentChange}
-          />
+          <div className="flex-content">
+            <div className="messenger-content">
+              <h2>Content</h2>
+              <Editor defaultValue={messenger.content} onChange={this.onContentChange} />
+            </div>
+            <MessengerPreview
+              sentAs={this.state.sentAs}
+              content={this.state.messengerContent}
+              fromUser={this.props.fromUser}
+            />
+          </div>
         </div>
       </div>
     );

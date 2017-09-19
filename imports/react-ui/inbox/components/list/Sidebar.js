@@ -3,14 +3,14 @@
 
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Counts } from 'meteor/tmeasday:publish-counts';
 import { FlowRouter } from 'meteor/kadira:flow-router';
-import { TagFilter, EmptyState, LoadingSidebar } from '/imports/react-ui/common';
+import { CountsByTag, EmptyState, LoadingSidebar } from '/imports/react-ui/common';
 import { Wrapper } from '/imports/react-ui/layout/components';
 import { CONVERSATION_STATUSES } from '/imports/api/conversations/constants';
 import { KIND_CHOICES as INTEGRATIONS_TYPES } from '/imports/api/integrations/constants';
 
 const propTypes = {
+  counts: PropTypes.object,
   channels: PropTypes.array.isRequired,
   brands: PropTypes.array.isRequired,
   tags: PropTypes.array.isRequired,
@@ -20,7 +20,7 @@ const propTypes = {
 };
 
 class Sidebar extends Component {
-  static renderChannel(channel) {
+  static renderChannel(channel, counts) {
     const onClick = () => {
       Wrapper.Sidebar.filter('channelId', channel._id);
     };
@@ -30,15 +30,13 @@ class Sidebar extends Component {
         <a className={Wrapper.Sidebar.getActiveClass('channelId', channel._id)} onClick={onClick}>
           <span className="icon">#</span>
           {channel.name}
-          <span className="counter">
-            {Counts.get(`conversations.counts.byChannel${channel._id}`)}
-          </span>
+          <span className="counter">{counts[channel._id]}</span>
         </a>
       </li>
     );
   }
 
-  static renderBrand(brand) {
+  static renderBrand(brand, counts) {
     const onClick = () => {
       Wrapper.Sidebar.filter('brandId', brand._id);
     };
@@ -48,15 +46,13 @@ class Sidebar extends Component {
         <a className={Wrapper.Sidebar.getActiveClass('brandId', brand._id)} onClick={onClick}>
           <span className="icon">#</span>
           {brand.name}
-          <span className="counter">
-            {Counts.get(`conversations.counts.byBrand${brand._id}`)}
-          </span>
+          <span className="counter">{counts[brand._id]}</span>
         </a>
       </li>
     );
   }
 
-  static renderIntegration(integrationType, index) {
+  static renderIntegration(integrationType, index, counts) {
     const onClick = () => {
       Wrapper.Sidebar.filter('integrationType', integrationType);
     };
@@ -69,15 +65,13 @@ class Sidebar extends Component {
         >
           <span className="icon">#</span>
           {integrationType}
-          <span className="counter">
-            {Counts.get(`conversations.counts.byIntegrationType${integrationType}`)}
-          </span>
+          <span className="counter">{counts[integrationType]}</span>
         </a>
       </li>
     );
   }
 
-  static renderTag(tag) {
+  static renderTag(tag, counts) {
     const onClick = () => {
       Wrapper.Sidebar.filter('tagId', tag._id);
     };
@@ -87,9 +81,7 @@ class Sidebar extends Component {
         <a className={Wrapper.Sidebar.getActiveClass('tagId', tag._id)} onClick={onClick}>
           <i className="ion-pricetag icon" style={{ color: tag.colorCode }} />
           {tag.name}
-          <span className="counter">
-            {Counts.get(`conversations.counts.byTag${tag._id}`)}
-          </span>
+          <span className="counter">{counts[tag._id]}</span>
         </a>
       </li>
     );
@@ -103,7 +95,7 @@ class Sidebar extends Component {
   }
 
   // unassigned, participatedUser, status, etc ...
-  static renderSingleFilter(queryParamName, queryParamValue, countName, text) {
+  static renderSingleFilter(queryParamName, queryParamValue, countName, text, count) {
     const onClick = () => {
       // clear previous values
       Sidebar.clearStatusFilter();
@@ -118,9 +110,7 @@ class Sidebar extends Component {
           onClick={onClick}
         >
           {text}
-          <span className="counter">
-            {Counts.get(`conversations.counts.${countName}`)}
-          </span>
+          <span className="counter">{count}</span>
         </a>
       </li>
     );
@@ -136,11 +126,11 @@ class Sidebar extends Component {
         <a href={buttonLink} className="quick-button">
           <i className="ion-gear-a" />
         </a>
-        {FlowRouter.getQueryParam(queryParamName)
-          ? <a href="" className="quick-button" onClick={onClick}>
-              <i className="ion-close-circled" />
-            </a>
-          : null}
+        {FlowRouter.getQueryParam(queryParamName) ? (
+          <a href="" className="quick-button" onClick={onClick}>
+            <i className="ion-close-circled" />
+          </a>
+        ) : null}
       </Wrapper.Sidebar.Section.QuickButtons>
     );
   }
@@ -149,13 +139,13 @@ class Sidebar extends Component {
     return (
       <Wrapper.Sidebar.Section.QuickButtons>
         {FlowRouter.getQueryParam('participating') ||
-          FlowRouter.getQueryParam('unassigned') ||
-          FlowRouter.getQueryParam('status') ||
-          FlowRouter.getQueryParam('starred')
-          ? <a href="" className="quick-button" onClick={Sidebar.clearStatusFilter}>
-              <i className="ion-close-circled" />
-            </a>
-          : null}
+        FlowRouter.getQueryParam('unassigned') ||
+        FlowRouter.getQueryParam('status') ||
+        FlowRouter.getQueryParam('starred') ? (
+          <a href="" className="quick-button" onClick={Sidebar.clearStatusFilter}>
+            <i className="ion-close-circled" />
+          </a>
+        ) : null}
       </Wrapper.Sidebar.Section.QuickButtons>
     );
   }
@@ -173,7 +163,7 @@ class Sidebar extends Component {
   }
 
   render() {
-    const { channels, tags, brands, channelsReady, brandsReady } = this.props;
+    const { channels, tags, brands, counts, channelsReady, brandsReady } = this.props;
     const integrationTypes = INTEGRATIONS_TYPES.ALL_LIST;
     const { Title } = Wrapper.Sidebar.Section;
     const manageBrands = FlowRouter.path('settings/brands/list');
@@ -186,7 +176,7 @@ class Sidebar extends Component {
           <Title>Channels</Title>
           {Sidebar.renderSectionHeader('channelId', manageChannels)}
           <ul className="sidebar-list">
-            {channels.map(channel => Sidebar.renderChannel(channel))}
+            {channels.map(channel => Sidebar.renderChannel(channel, counts.byChannels))}
             {Sidebar.renderEmptyState(channels, 'No channel', 'ion-pound', channelsReady)}
           </ul>
         </Wrapper.Sidebar.Section>
@@ -195,7 +185,7 @@ class Sidebar extends Component {
           <Title>Brands</Title>
           {Sidebar.renderSectionHeader('brandId', manageBrands)}
           <ul className="sidebar-list">
-            {brands.map(brand => Sidebar.renderBrand(brand))}
+            {brands.map(brand => Sidebar.renderBrand(brand, counts.byBrands))}
             {Sidebar.renderEmptyState(brands, 'No brand', 'ion-flag', brandsReady)}
           </ul>
         </Wrapper.Sidebar.Section>
@@ -203,8 +193,11 @@ class Sidebar extends Component {
         <Wrapper.Sidebar.Section collapsible={integrationTypes.length > 5}>
           <Title>Integrations</Title>
           {Sidebar.renderSectionHeader('integrationType', manageIntegrations)}
+
           <ul className="sidebar-list">
-            {integrationTypes.map((t, i) => Sidebar.renderIntegration(t, i))}
+            {integrationTypes.map((t, i) =>
+              Sidebar.renderIntegration(t, i, counts.byIntegrationTypes),
+            )}
             {Sidebar.renderEmptyState(integrationTypes, 'No integration', 'ion-flag')}
           </ul>
         </Wrapper.Sidebar.Section>
@@ -213,26 +206,34 @@ class Sidebar extends Component {
           <Title>Filter by status</Title>
           {Sidebar.renderFilterSectionHeader()}
           <ul className="sidebar-list">
-            {Sidebar.renderSingleFilter('unassigned', 'true', 'unassiged', 'Unassigned')}
-
-            {Sidebar.renderSingleFilter('participating', 'true', 'participating', 'Participating')}
+            {Sidebar.renderSingleFilter(
+              'unassigned',
+              'true',
+              'unassiged',
+              'Unassigned',
+              counts.unassigned,
+            )}
+            {Sidebar.renderSingleFilter(
+              'participating',
+              'true',
+              'participating',
+              'Participating',
+              counts.participating,
+            )}
 
             {Sidebar.renderSingleFilter(
               'status',
               CONVERSATION_STATUSES.CLOSED,
               'resolved',
               'Resolved',
+              counts.resolved,
             )}
 
-            {Sidebar.renderSingleFilter('starred', 'true', 'starred', 'Starred')}
+            {Sidebar.renderSingleFilter('starred', 'true', 'starred', 'Starred', counts.starred)}
           </ul>
         </Wrapper.Sidebar.Section>
 
-        <TagFilter
-          tags={tags}
-          publishCountName="conversations.counts.byTag"
-          manageUrl="tags/conversation"
-        />
+        <CountsByTag tags={tags} counts={counts.byTags} manageUrl="tags/conversation" />
       </Wrapper.Sidebar>
     );
   }

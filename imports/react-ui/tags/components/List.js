@@ -4,15 +4,16 @@ import { Table, Button } from 'react-bootstrap';
 import { Wrapper } from '/imports/react-ui/layout/components';
 import { ModalTrigger } from '/imports/react-ui/common';
 import Row from './Row';
-import { Form } from '../containers';
+import Form from './Form';
 
 const propTypes = {
   tags: PropTypes.array.isRequired,
   type: PropTypes.string.isRequired,
   remove: PropTypes.func.isRequired,
+  save: PropTypes.func.isRequired,
 };
 
-function List({ tags, type, remove }) {
+function List({ tags, type, remove, save }) {
   const trigger = (
     <Button bsStyle="link">
       <i className="ion-plus-circled" /> Add tag
@@ -21,7 +22,7 @@ function List({ tags, type, remove }) {
 
   const actionBarLeft = (
     <ModalTrigger title="Add tag" trigger={trigger}>
-      <Form type={type} />
+      <Form type={type} save={save} />
     </ModalTrigger>
   );
 
@@ -35,7 +36,7 @@ function List({ tags, type, remove }) {
         </tr>
       </thead>
       <tbody>
-        {tags.map(tag => <Row key={tag._id} tag={tag} type={type} remove={remove} />)}
+        {tags.map(tag => <Row key={tag._id} tag={tag} type={type} save={save} remove={remove} />)}
       </tbody>
     </Table>
   );

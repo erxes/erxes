@@ -2,157 +2,15 @@
 
 import { Meteor } from 'meteor/meteor';
 import { Random } from 'meteor/random';
-import { _ } from 'meteor/underscore';
 import { Factory } from 'meteor/dburles:factory';
-import { assert, chai } from 'meteor/practicalmeteor:chai';
-import { PublicationCollector } from 'meteor/johanbrook:publication-collector';
+import { assert } from 'meteor/practicalmeteor:chai';
 import { Notifications } from 'meteor/erxes-notifications';
-
-import { Channels } from '/imports/api/channels/channels';
-import { Brands } from '/imports/api/brands/brands';
-import { Integrations } from '/imports/api/integrations/integrations';
-
-import './publications';
 
 import { Conversations } from '../conversations';
 import { CONVERSATION_STATUSES } from '../constants';
 import { assign, unassign, changeStatus, star, unstar, toggleParticipate } from './methods';
 
 describe('conversations', function() {
-  describe('publications', function() {
-    let userId;
-    let tagId;
-
-    const createConversations = (channelName, count, conversationOptions = {}) => {
-      const brandId = Factory.create('brand')._id;
-      const integrationId = Factory.create('integration', { brandId })._id;
-
-      Factory.create('channel', {
-        name: channelName,
-        memberIds: [userId],
-        integrationIds: [integrationId],
-      });
-
-      Object.assign(conversationOptions, { integrationId });
-
-      return _.times(count, () => Factory.create('conversation', conversationOptions)._id);
-    };
-
-    const checkCollectionLength = (done, options, length) => {
-      const collector = new PublicationCollector({ userId });
-
-      collector.collect('conversations.list', options, collections => {
-        chai.assert.notEqual(collections.conversations, undefined);
-        chai.assert.equal(collections.conversations.length, length);
-        done();
-      });
-    };
-
-    before(function() {
-      Conversations.remove({});
-      Brands.remove({});
-      Integrations.remove({});
-      Channels.remove({});
-
-      // create login user
-      userId = Factory.create('user')._id;
-
-      // assigned && participated 2
-      createConversations('sales', 2, {
-        participatedUserIds: [userId],
-        assignedUserId: userId,
-      });
-
-      // assigned && starred 3
-      const starredConversationIds = createConversations('support', 3, {
-        assignedUserId: userId,
-        starred: CONVERSATION_STATUSES.OPEN,
-      });
-
-      Meteor.users.update(userId, {
-        $set: { 'details.starredConversationIds': starredConversationIds },
-      });
-
-      // unassigned && tagged 4
-      tagId = Factory.create('tag', { type: Conversations.TAG_TYPE })._id;
-
-      createConversations('management', 4, { tagIds: [tagId] });
-
-      // closed 3
-      createConversations('specialSales', 3, {
-        assignedUserId: userId,
-        status: 'closed',
-      });
-    });
-
-    describe('conversations.list', function() {
-      it('sends all open/new conversations', function(done) {
-        // 2 + 3 + 4, ignored closed 3
-        checkCollectionLength(done, {}, 9);
-      });
-
-      it('filter by channel', function(done) {
-        const channelId = Channels.findOne({ name: 'sales' })._id;
-
-        checkCollectionLength(done, { channelId }, 2);
-      });
-
-      it('filter by status', function(done) {
-        checkCollectionLength(done, { status: 'closed' }, 3);
-      });
-
-      it('get unassigned conversations', function(done) {
-        checkCollectionLength(done, { unassigned: '1' }, 4);
-      });
-
-      it('get unassigned conversations', function(done) {
-        checkCollectionLength(done, { unassigned: '1' }, 4);
-      });
-
-      it('filter by tags', function(done) {
-        checkCollectionLength(done, { unassigned: '1', tag: tagId }, 4);
-      });
-
-      it('filter by participator', function(done) {
-        checkCollectionLength(done, { participating: 'true' }, 2);
-      });
-
-      it('filter by starred', function(done) {
-        checkCollectionLength(done, { starred: 'true' }, 3);
-      });
-
-      it('do not send conversations without user', function(done) {
-        const collector = new PublicationCollector();
-        collector.collect('conversations.list', {}, collections => {
-          chai.assert.equal(collections.conversations, undefined);
-          done();
-        });
-      });
-    });
-
-    describe('conversations.detail', function() {
-      it('sends conversation detail by id', function(done) {
-        const conversationId = Conversations.findOne()._id;
-
-        const collector = new PublicationCollector({ userId });
-        collector.collect('conversations.detail', conversationId, collections => {
-          chai.assert.equal(collections.conversations.length, 1);
-          done();
-        });
-      });
-
-      it('do not send conversation without user', function(done) {
-        const conversationId = Conversations.findOne()._id;
-
-        const collector = new PublicationCollector();
-        collector.collect('conversations.detail', conversationId, collections => {
-          chai.assert.equal(collections.conversations, undefined);
-          done();
-        });
-      });
-    });
-  });
-
   describe('methods', function() {
     let userId;
 

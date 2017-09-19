@@ -1,11 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-
 import { FormGroup, ControlLabel, FormControl } from 'react-bootstrap';
-
-import { Brands } from '/imports/api/brands/brands';
-import { Forms } from '/imports/api/forms/forms';
-
 import Common from './Common';
 
 class Form extends Common {
@@ -15,7 +10,7 @@ class Form extends Common {
         window.erxesSettings = {
           forms: [{
             brand_id: "${brandCode}",
-            form_id: "${formCode}"
+            form_id: "${formCode}",
           }],
         };
         ${Form.installCodeIncludeScript('form')}
@@ -32,8 +27,8 @@ class Form extends Common {
 
     // showed install code automatically in edit mode
     if (integration._id) {
-      const brand = Brands.findOne(integration.brandId);
-      const form = Forms.findOne(integration.formId);
+      const brand = integration.brand;
+      const form = integration.form;
 
       code = this.constructor.getInstallCode(brand.code, form.code);
     }
@@ -50,8 +45,11 @@ class Form extends Common {
     const formId = document.getElementById('formId').value;
 
     if (brandId && formId) {
-      const brand = Brands.findOne(brandId);
-      const form = Forms.findOne(formId);
+      const { brands, forms } = this.props;
+
+      const brand = brands.find(brand => brand._id === brandId);
+      const form = forms.find(form => form._id === formId);
+
       const code = this.constructor.getInstallCode(brand.code, form.code);
 
       this.setState({ code, copied: false });
@@ -165,7 +163,7 @@ class Form extends Common {
   }
 
   extraContent() {
-    const integration = this.props.integration || {};
+    const { integration = {} } = this.props;
     const formData = integration.formData || {};
 
     return (

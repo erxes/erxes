@@ -15,6 +15,8 @@ const propTypes = {
 };
 
 function Message({ message, staff, isSameUser }) {
+  const user = message.user || {};
+  const customer = message.customer || {};
   const faceboodData = message.facebookData;
   const isReaction = faceboodData && faceboodData.item === 'reaction';
   const isPhotoPost = faceboodData && faceboodData.item === 'photo';
@@ -29,7 +31,7 @@ function Message({ message, staff, isSameUser }) {
     fbpost: isPhotoPost || isVideoPost,
   });
 
-  const prop = staff ? { user: message.user() } : { customer: message.customer() };
+  const prop = staff ? { user } : { customer };
 
   const renderAvatar = () => {
     if (!isSameUser) {
@@ -120,17 +122,13 @@ function Message({ message, staff, isSameUser }) {
               {_.map(message.formWidgetData, (data, index) => (
                 <tr key={index}>
                   <td width="40%">
-                    <b>
-                      {data.text}:
-                    </b>
+                    <b>{data.text}:</b>
                   </td>
-                  {data.validation === 'date'
-                    ? <td width="60%">
-                        {moment(data.value).format('YYYY/MM/DD')}
-                      </td>
-                    : <td width="60%">
-                        {data.value}
-                      </td>}
+                  {data.validation === 'date' ? (
+                    <td width="60%">{moment(data.value).format('YYYY/MM/DD')}</td>
+                  ) : (
+                    <td width="60%">{data.value}</td>
+                  )}
                 </tr>
               ))}
             </tbody>
@@ -148,9 +146,7 @@ function Message({ message, staff, isSameUser }) {
           {renderVideoIframe()}
           {renderAttachment()}
         </div>
-        <footer>
-          {moment(message.createdAt).format('YYYY-MM-DD, HH:mm:ss')}
-        </footer>
+        <footer>{moment(message.createdAt).format('YYYY-MM-DD, HH:mm:ss')}</footer>
       </div>
     );
   };

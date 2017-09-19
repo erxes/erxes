@@ -1,17 +1,15 @@
 import { Meteor } from 'meteor/meteor';
-import { compose } from 'react-komposer';
-import { getTrackerLoader, composerOptions } from '/imports/react-ui/utils';
-import { Messages } from '/imports/api/engage/engage';
+import React, { PropTypes } from 'react';
+import { compose, gql, graphql } from 'react-apollo';
 import { methodCallback } from '/imports/react-ui/engage/utils';
+import { Loading } from '/imports/react-ui/common';
 import { VisitorForm } from '../components';
 
-function composer({ messageId }, onData) {
-  const handler = Meteor.subscribe('engage.messages.detail', messageId || '');
-  const usersHandler = Meteor.subscribe('users.list', {});
+const VisitorFormContainer = props => {
+  const { engageMessageDetailQuery, usersQuery, messageId } = props;
 
-  // wait for detail subscription
-  if (!handler.ready() || !usersHandler.ready()) {
-    return null;
+  if (engageMessageDetailQuery.loading || usersQuery.loading) {
+    return <Loading title="Visitor auto message" spin sidebarSize="wide" />;
   }
 
   // save
@@ -24,10 +22,66 @@ function composer({ messageId }, onData) {
   };
 
   // props
-  const message = Messages.findOne({ _id: messageId });
-  const users = Meteor.users.find({}).fetch();
+  const message = engageMessageDetailQuery.engageMessageDetail;
+  const users = usersQuery.users;
 
-  onData(null, { save, message, users });
-}
+  const updatedProps = {
+    ...props,
+    save,
+    message,
+    users,
+  };
 
-export default compose(getTrackerLoader(composer), composerOptions({}))(VisitorForm);
+  return <VisitorForm {...updatedProps} />;
+};
+
+VisitorFormContainer.propTypes = {
+  messageId: PropTypes.string,
+  engageMessageDetailQuery: PropTypes.object,
+  usersQuery: PropTypes.object,
+};
+
+export default compose(
+  graphql(
+    gql`
+      query engageMessageDetail($_id: String) {
+        engageMessageDetail(_id: $_id) {
+          _id
+          kind
+          segmentId
+          customerIds
+          title
+          fromUserId
+          method
+          email
+          isDraft
+          isLive
+          stopDate
+          createdDate
+          messenger
+        }
+      }
+    `,
+    {
+      name: 'engageMessageDetailQuery',
+      options: ({ messageId }) => ({
+        fetchPolicy: 'network-only',
+        variables: {
+          _id: messageId,
+        },
+      }),
+    },
+  ),
+  graphql(
+    gql`
+      query users {
+        users {
+          _id
+          username
+          details
+        }
+      }
+    `,
+    { name: 'usersQuery' },
+  ),
+)(VisitorFormContainer);

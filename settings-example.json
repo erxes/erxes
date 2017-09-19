@@ -1,7 +1,8 @@
 {
   "public": {
     "CDN_HOST": "http://localhost:3200/build",
-    "APOLLO_CLIENT_URL": "http://localhost:3100/graphql"
+    "APOLLO_CLIENT_URL": "http://localhost:3400/graphql",
+    "APOLLO_CLIENT_SUBSCRIPTION_URL": "ws://localhost:3400/subscriptions"
   },
 
   "company": {

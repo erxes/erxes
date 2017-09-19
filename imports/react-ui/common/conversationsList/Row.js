@@ -3,7 +3,6 @@ import moment from 'moment';
 import { FlowRouter } from 'meteor/kadira:flow-router';
 import strip from 'strip';
 import { NameCard, Tags } from '/imports/react-ui/common';
-import { Tags as TagsCollection } from '/imports/api/tags/tags';
 import Starrer from './StarrerContainer';
 import Participate from './ParticipateContainer';
 import Assignees from './Assignees';
@@ -51,16 +50,12 @@ class Row extends Component {
 
   render() {
     const { conversation, starred, isRead, isParticipated } = this.props;
-    const { createdAt, content, messageCount } = conversation;
-    const customer = conversation.customer();
+    const { createdAt, content, messageCount, participatorCount } = conversation;
+    const customer = conversation.customer || {};
+    const integration = conversation.integration || {};
+    const brand = integration.brand || {};
+    const brandName = brand.name;
     const isReadClass = !isRead ? 'unread' : null;
-    const integration = conversation.integration();
-    const brandName = integration.brand && integration.brand().name;
-
-    // TODO: use embedded tags list of the conversation object
-    const tags = TagsCollection.find({
-      _id: { $in: conversation.tagIds || [] },
-    }).fetch();
 
     return (
       <li className={isReadClass}>
@@ -72,14 +67,10 @@ class Row extends Component {
 
         <div className="body">
           <header>
-            <span className="customer-name">
-              {customer && customer._id && customer.name}
-            </span>
+            <span className="customer-name">{customer && customer._id && customer.name}</span>
             <span> opened about </span>
-            <time>
-              {moment(createdAt).fromNow()}
-            </time>
-            <Tags tags={tags} size="small" />
+            <time>{moment(createdAt).fromNow()}</time>
+            <Tags tags={conversation.tags} size="small" />
           </header>
 
           <div className="content" onClick={this.goDetail}>
@@ -101,7 +92,7 @@ class Row extends Component {
                 <i className="ion-reply" /> {messageCount}
               </span>
               <span>
-                <i className="ion-person" /> {conversation.participatorCount()}
+                <i className="ion-person" /> {participatorCount}
               </span>
             </div>
           </footer>

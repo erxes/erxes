@@ -65,8 +65,10 @@ class Row extends React.Component {
     let failedCount = 0;
 
     const { message, remove } = this.props;
+
     const deliveryReports = Object.values(message.deliveryReports);
     const totalCount = deliveryReports.length;
+    const segment = message.segment || {};
 
     deliveryReports.forEach(report => {
       if (report.status === 'sent') {
@@ -87,35 +89,25 @@ class Row extends React.Component {
         <td className="less-space">
           <input type="checkbox" onChange={this.toggleBulk} />
         </td>
+        <td>{message.title}</td>
         <td>
-          {message.title}
-        </td>
-        <td>
-          <i className="ion-pie-graph" /> {message.segment().name}
+          <i className="ion-pie-graph" /> {segment.name}
         </td>
         <td className="text-normal">
-          <NameCard user={message.fromUser()} avatarSize={32} singleLine />
+          <NameCard user={message.fromUser} avatarSize={32} singleLine />
         </td>
-        <td>
-          {status}
-        </td>
+        <td>{status}</td>
         <td className="cell-icon text-primary">
           <i className="ion-cube" />
-          <b>
-            {' '}{totalCount}
-          </b>
+          <b> {totalCount}</b>
         </td>
         <td className="cell-icon text-success">
           <i className="ion-checkmark-circled" />
-          <b>
-            {' '}{successCount}
-          </b>
+          <b> {successCount}</b>
         </td>
         <td className="cell-icon text-warning">
           <i className="ion-alert-circled" />
-          <b>
-            {' '}{failedCount}
-          </b>
+          <b> {failedCount}</b>
         </td>
         <td>
           <i className="ion-calendar" /> {moment(message.createdDate).format('DD MMM YYYY')}

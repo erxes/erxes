@@ -19,7 +19,8 @@ class Attachment extends Component {
       return <img role="presentation" src={attachment.url} />;
     }
 
-    const fileExtension = attachment.url.split('.').pop();
+    const url = attachment.url || attachment.name || '';
+    const fileExtension = url.split('.').pop();
 
     let filePreview;
     switch (fileExtension) {
@@ -85,9 +86,7 @@ class Attachment extends Component {
             <i className="ion-android-download" />
           </div>
         </div>
-        <div className="file-size">
-          {Math.round(props.attachment.size / 1000)}kB
-        </div>
+        <div className="file-size">{Math.round(props.attachment.size / 1000)}kB</div>
       </a>
     );
   }

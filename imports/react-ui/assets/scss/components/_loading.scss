@@ -5,6 +5,15 @@
   border-radius: $border-radius;
 }
 
+.loading-content {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  top: 0;
+  border-radius: $border-radius;
+}
+
 .loading-wrapper {
   padding: 20px 0;
 
@@ -113,4 +122,3 @@
     opacity: 1;
   }
 }
-
