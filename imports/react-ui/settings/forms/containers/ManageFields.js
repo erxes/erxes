@@ -1,28 +1,25 @@
 import { Meteor } from 'meteor/meteor';
 import { _ } from 'meteor/underscore';
-import { compose } from 'react-komposer';
-import { getTrackerLoader, composerOptions } from '/imports/react-ui/utils';
+import React, { PropTypes } from 'react';
+import { compose, gql, graphql } from 'react-apollo';
 import Alert from 'meteor/erxes-notifier';
-import { Fields, Forms } from '/imports/api/forms/forms';
-import {
-  addField as addFieldMethod,
-  editField as editFieldMethod,
-  removeField as deleteFieldMethod,
-  updateFieldsOrder,
-} from '/imports/api/forms/methods';
 import { ManageFields } from '../components';
 
-function composer(props, onData) {
-  const formId = props.formId;
-  const formHandler = Meteor.subscribe('forms.detail', formId);
-  const fieldsHandler = Meteor.subscribe('forms.fieldList', [formId]);
+const ManageFieldsContainer = props => {
+  const { formQuery } = props;
 
-  if (!(formHandler.ready() && fieldsHandler.ready())) {
+  if (formQuery.loading) {
     return false;
   }
 
-  const formsHandler = Meteor.subscribe('forms.list');
-  const form = Forms.findOne(formId);
+  const form = formQuery.formDetail;
+  const fields = [];
+
+  // cloning graphql results, because in component we need to change
+  // each field's attributes and it is immutable. so making it mutable
+  form.fields.forEach(field => {
+    fields.push({ ...field });
+  });
 
   // common callback
   const callback = error => {
@@ -34,20 +31,27 @@ function composer(props, onData) {
   };
 
   // create field
-  const addField = doc => {
-    addFieldMethod.call({ formId: props.formId, doc }, callback);
+  const addField = (doc, cb) => {
+    Meteor.call('forms.addField', { formId: props.formId, doc }, (err, res) => {
+      if (err) {
+        return Alert.error(err.message);
+      }
+
+      cb(res);
+      return Alert.success('Congrats');
+    });
   };
 
   // edit field
   const editField = (_id, doc) => {
-    editFieldMethod.call({ _id, doc }, callback);
+    Meteor.call('forms.editField', { _id, doc }, callback);
   };
 
   // delete field
   const deleteField = _id => {
     if (confirm('Are you sure ?')) {
       // eslint-disable-line
-      deleteFieldMethod.call({ _id }, callback);
+      Meteor.call('forms.removeField', { _id }, callback);
     }
   };
 
@@ -59,23 +63,56 @@ function composer(props, onData) {
       orderDics.push({ _id: field._id, order: index });
     });
 
-    updateFieldsOrder.call({ orderDics }, callback);
+    Meteor.call('forms.updateFieldsOrder', { orderDics }, callback);
   };
 
-  let formTitle = '';
-
-  if (formsHandler.ready()) {
-    formTitle = form.title;
-  }
-
-  return onData(null, {
+  const updatedProps = {
+    ...props,
     addField,
     editField,
     deleteField,
     onSort,
-    formTitle,
-    fields: Fields.find({ formId }, { sort: { order: 1 } }).fetch(),
-  });
-}
+    formTitle: form.title,
+    fields,
+  };
 
-export default compose(getTrackerLoader(composer), composerOptions({}))(ManageFields);
+  return <ManageFields {...updatedProps} />;
+};
+
+ManageFieldsContainer.propTypes = {
+  formQuery: PropTypes.object,
+  formFieldsQuery: PropTypes.object,
+};
+
+export default compose(
+  graphql(
+    gql`
+      query formDetail($formId: String!) {
+        formDetail(_id: $formId) {
+          _id
+          title
+          fields {
+            _id
+            type
+            validation
+            text
+            description
+            options
+            isRequired
+            order
+          }
+        }
+      }
+    `,
+    {
+      name: 'formQuery',
+      options: ({ formId }) => {
+        return {
+          variables: {
+            formId,
+          },
+        };
+      },
+    },
+  ),
+)(ManageFieldsContainer);

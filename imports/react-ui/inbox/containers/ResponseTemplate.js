@@ -1,23 +1,52 @@
-import { Meteor } from 'meteor/meteor';
-import { compose } from 'react-komposer';
-import { getTrackerLoader, composerOptions } from '/imports/react-ui/utils';
-import { ResponseTemplates } from '/imports/api/responseTemplates/responseTemplates';
-import { Brands } from '/imports/api/brands/brands';
+import React, { PropTypes } from 'react';
+import { compose, gql, graphql } from 'react-apollo';
 import { ResponseTemplate } from '../components';
 
-function composer(props, onData) {
-  const brandHandle = Meteor.subscribe('brands.list', 0);
-  const brands = Brands.find({}, { sort: { name: 1 } }).fetch();
-  const responseTemplatesHandle = Meteor.subscribe('responseTemplates.list');
+const ResponseTemplateContainer = props => {
+  const { brandsQuery, responseTemplatesQuery } = props;
 
-  const responseTemplates = ResponseTemplates.find({}).fetch();
-
-  if (brandHandle.ready() && responseTemplatesHandle.ready()) {
-    onData(null, {
-      brands,
-      responseTemplates,
-    });
+  if (responseTemplatesQuery.loading || brandsQuery.loading) {
+    return null;
   }
-}
 
-export default compose(getTrackerLoader(composer), composerOptions({}))(ResponseTemplate);
+  const updatedProps = {
+    ...props,
+    brands: brandsQuery.brands,
+    responseTemplates: responseTemplatesQuery.responseTemplates,
+  };
+
+  return <ResponseTemplate {...updatedProps} />;
+};
+
+ResponseTemplateContainer.propTypes = {
+  object: PropTypes.object,
+  brandsQuery: PropTypes.object,
+  responseTemplatesQuery: PropTypes.object,
+};
+
+export default compose(
+  graphql(
+    gql`
+      query brands {
+        brands {
+          _id
+          name
+        }
+      }
+    `,
+    { name: 'brandsQuery' },
+  ),
+  graphql(
+    gql`
+      query responseTemplates {
+        responseTemplates {
+          _id
+          name
+          brandId
+          content
+        }
+      }
+    `,
+    { name: 'responseTemplatesQuery' },
+  ),
+)(ResponseTemplateContainer);

@@ -2,60 +2,14 @@
 
 import { Meteor } from 'meteor/meteor';
 import { Random } from 'meteor/random';
-import { _ } from 'meteor/underscore';
 import { Factory } from 'meteor/dburles:factory';
 import { assert } from 'meteor/practicalmeteor:chai';
-import { PublicationCollector } from 'meteor/johanbrook:publication-collector';
 import '/imports/api/users/factory';
 import { Customers } from '/imports/api/customers/customers';
 import { Brands } from '../brands';
-import { add, edit, remove } from '../methods';
-import './publications';
+import { add, edit, remove } from './methods';
 
 describe('brands', function() {
-  describe('publications', function() {
-    const userId = Factory.create('user')._id;
-    const limit = 100;
-
-    let brand;
-
-    before(function() {
-      Brands.remove({});
-      _.times(2, () => Factory.create('brand', { userId }));
-      _.times(2, () => Factory.create('brand', { userId: Random.id() }));
-      brand = Factory.create('brand', { userId });
-    });
-
-    describe('brands.list', function() {
-      it('sends all brands', function(done) {
-        const collector = new PublicationCollector({ userId });
-        collector.collect('brands.list', limit, collections => {
-          assert.equal(collections.brands.length, 5);
-          done();
-        });
-      });
-
-      it('do not send brands without user', function(done) {
-        const collector = new PublicationCollector();
-        collector.collect('brands.list', limit, collections => {
-          assert.equal(collections.brands, undefined);
-          done();
-        });
-      });
-    });
-
-    describe('brands.getById', function() {
-      it('sends brand by id', function(done) {
-        const collector = new PublicationCollector({ userId });
-        collector.collect('brands.getById', brand._id, collections => {
-          assert.equal(collections.brands.length, 1);
-          assert.equal(collections.brands[0]._id, brand._id);
-          done();
-        });
-      });
-    });
-  });
-
   describe('methods', function() {
     let userId;
     let brandId;

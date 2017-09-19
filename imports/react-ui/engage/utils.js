@@ -10,9 +10,9 @@ export const methodCallback = (error, response) => {
   Alert.success('Form is successfully saved.');
 
   // notify apollo server that new message arrived
-  if (response.method === 'messenger') {
+  if (response.method === 'messenger' && notify) {
     notify();
   }
 
-  return FlowRouter.go('/engage');
+  FlowRouter.go('/engage');
 };

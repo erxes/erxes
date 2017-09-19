@@ -1,17 +1,51 @@
-import { compose } from 'react-komposer';
-import { getTrackerLoader, composerOptions } from '/imports/react-ui/utils';
-import { Meteor } from 'meteor/meteor';
-import { Brands } from '/imports/api/brands/brands';
+import React, { PropTypes } from 'react';
+import { gql, graphql, compose } from 'react-apollo';
+import { Loading } from '/imports/react-ui/common';
 import { List } from '../components';
 
-function composer(props, onData) {
-  const brandsHandle = Meteor.subscribe('brands.list', 0);
+const ListContainer = props => {
+  const { listQuery } = props;
 
-  if (brandsHandle.ready()) {
-    const brands = Brands.find({}).fetch();
-
-    onData(null, { brands });
+  if (listQuery.loading) {
+    return <Loading title="Email appearance" />;
   }
-}
 
-export default compose(getTrackerLoader(composer), composerOptions({}))(List);
+  const brands = listQuery.brands;
+
+  const updatedProps = {
+    ...this.props,
+    refetch: listQuery.refetch,
+    brands,
+  };
+
+  return <List {...updatedProps} />;
+};
+
+ListContainer.propTypes = {
+  listQuery: PropTypes.object,
+};
+
+export default compose(
+  graphql(
+    gql`
+    query objects($limit: Int!) {
+      brands(limit: $limit) {
+        _id
+        name
+        code
+        emailConfig
+      }
+    }
+  `,
+    {
+      name: 'listQuery',
+      options: () => {
+        return {
+          variables: {
+            limit: 100,
+          },
+        };
+      },
+    },
+  ),
+)(ListContainer);
