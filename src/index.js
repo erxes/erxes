@@ -76,16 +76,6 @@ server.listen(PORT, () => {
             webSocket.messengerData = parsedMessage.value;
           }
         });
-
-        if (connectionParams.token) {
-          return Users.findById(connectionParams.token)
-            .then(user => ({ user }))
-            .catch(error => {
-              throw new Error(error);
-            });
-        }
-
-        throw new Error('Unauthorized!');
       },
 
       onDisconnect(webSocket) {
