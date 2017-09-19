@@ -1,6 +1,6 @@
 import { KbCategoryList, KbCategory } from './category';
 import { KbTopicList, KbTopic } from './topic';
-import { KbArticleList, KbArticle } from './article';
+import { ArticleList, ArticleForm, ArticleRow } from './article';
 import ActionButtons from './ActionButtons';
 
 export {
@@ -8,7 +8,8 @@ export {
   KbCategory,
   KbTopicList,
   KbTopic,
-  KbArticleList,
-  KbArticle,
+  ArticleList,
+  ArticleForm,
+  ArticleRow,
   ActionButtons,
 };

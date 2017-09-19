@@ -1,5 +1,5 @@
-import KbArticleRow from './Row';
-import KbArticleList from './List';
-import KbArticle from './Article';
+import ArticleRow from './Row';
+import ArticleList from './List';
+import ArticleForm from './ArticleForm';
 
-export { KbArticleList, KbArticleRow, KbArticle };
+export { ArticleRow, ArticleList, ArticleForm };

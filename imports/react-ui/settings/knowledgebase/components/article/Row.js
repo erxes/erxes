@@ -1,68 +1,24 @@
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
-import { Button } from 'react-bootstrap';
-import Alert from 'meteor/erxes-notifier';
-import { ModalTrigger, Tip, ActionButtons } from '/imports/react-ui/common';
-import { KbArticle } from '../../containers';
+import React from 'react';
+import { Row as CommonRow } from '/imports/react-ui/settings/common/components';
+import { ArticleForm } from '../../containers';
 
-const propTypes = {
-  item: PropTypes.object.isRequired,
-  removeItem: PropTypes.func.isRequired,
-};
-
-class KbArticleRow extends Component {
-  constructor(props) {
-    super(props);
-
-    this.remove = this.remove.bind(this);
-  }
-
-  remove() {
-    if (!confirm('Are you sure?')) return; // eslint-disable-line
-
-    const { item, removeItem } = this.props;
-
-    removeItem(item._id, error => {
-      if (error) {
-        return Alert.error("Can't delete this article", error.reason);
-      }
-
-      return Alert.success('Congrats', 'Article has been deleted.');
-    });
+class ArticleRow extends CommonRow {
+  renderForm(props) {
+    return <ArticleForm {...props} />;
   }
 
   render() {
-    const { item } = this.props;
-
-    const editTrigger = (
-      <Button bsStyle="link">
-        <Tip text="Edit"><i className="ion-edit" /></Tip>
-      </Button>
-    );
+    const { object } = this.props;
 
     return (
       <tr>
-        <td>{item.title}</td>
-        <td>{item.summary}</td>
+        <td>{object.title}</td>
+        <td>{object.summary}</td>
 
-        <td className="text-right">
-          <ActionButtons>
-            <ModalTrigger title="Edit article" trigger={editTrigger}>
-              <KbArticle item={item} />
-            </ModalTrigger>
-
-            <Tip text="Delete">
-              <Button bsStyle="link" onClick={this.remove}>
-                <i className="ion-close-circled" />
-              </Button>
-            </Tip>
-          </ActionButtons>
-        </td>
+        {this.renderActions()}
       </tr>
     );
   }
 }
 
-KbArticleRow.propTypes = propTypes;
-
-export default KbArticleRow;
+export default ArticleRow;

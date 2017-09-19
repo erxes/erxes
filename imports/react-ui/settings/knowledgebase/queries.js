@@ -85,8 +85,8 @@ const getCategoryCount = `
 `;
 
 const getArticleDetail = `
-  query getKbArticleDetail($_id: String!) {
-    getKbArticleDetail(_id: $_id) {
+  query KnowledgeBaseArticlesDetail($_id: String!) {
+    KnowledgeBaseArticlesDetail(_id: $_id) {
       _id
       title
       summary
@@ -100,19 +100,24 @@ const getArticleDetail = `
 `;
 
 const getArticleList = `
-  query getKbArticleList {
-    getKbArticleList {
+  query KnowledgeBaseArticles {
+    KnowledgeBaseArticles {
       _id
       title
       summary
       content
+      status
+      createdBy
+      createdDate
+      modifiedBy
+      modifiedDate
     }
   }
 `;
 
 const getArticleCount = `
-  query getKbArticleCount {
-    getKbArticleCount
+  query totalKnowledgeBaseArticlesCount {
+    totalKnowledgeBaseArticlesCount
   }
 `;
 
