@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Button } from 'react-bootstrap';
+import { Button, Label } from 'react-bootstrap';
 import { Tip, ActionButtons, ModalTrigger } from '/imports/react-ui/common';
 import { Config } from '../containers';
 
@@ -28,7 +28,11 @@ function Row({ brand }) {
   return (
     <tr>
       <td>{name}</td>
-      <td>{emailConfig.type}</td>
+      <td>
+        <Label bsStyle={emailConfig.type == 'simple' ? 'default' : 'info'}>
+          {emailConfig.type}
+        </Label>
+      </td>
       <td className="text-right">
         <ActionButtons>
           <ModalTrigger title={title} trigger={editTrigger}>

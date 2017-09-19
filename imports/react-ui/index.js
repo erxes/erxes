@@ -19,6 +19,7 @@ import './settings/email/routes';
 import './settings/forms/routes';
 import './settings/team/routes';
 import './settings/profile/routes';
+import './insights/routes';
 
 /**
  * Styles
