@@ -59,10 +59,16 @@ export default compose(
         variables: {
           memberIds: [userId],
         },
+        fetchPolicy: 'network-only',
       };
     },
   }),
-  graphql(gql(queries.brandList), { name: 'brandsQuery' }),
+  graphql(gql(queries.brandList), {
+    name: 'brandsQuery',
+    options: () => ({
+      fetchPolicy: 'network-only',
+    }),
+  }),
   graphql(gql(queries.tagList), {
     name: 'tagsQuery',
     options: () => {
@@ -70,6 +76,7 @@ export default compose(
         variables: {
           type: TAG_TYPES.CONVERSATION,
         },
+        fetchPolicy: 'network-only',
       };
     },
   }),
@@ -80,6 +87,7 @@ export default compose(
         variables: {
           params: FlowRouter.current().queryParams,
         },
+        fetchPolicy: 'network-only',
       };
     },
   }),
