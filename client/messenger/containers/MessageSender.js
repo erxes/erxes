@@ -18,7 +18,9 @@ const mapDispatchToProps = dispatch => ({
   },
 
   readMessages(conversationId) {
-    dispatch(readMessages(conversationId));
+    if (conversationId) {
+      dispatch(readMessages(conversationId));
+    }
   },
 
   sendFile(file) {
