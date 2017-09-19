@@ -1,6 +1,7 @@
 import React from 'react';
 import { Row as CommonRow } from '../../common/components';
 import { UserForm } from '../containers';
+import { NameCard } from '/imports/react-ui/common';
 
 class Row extends CommonRow {
   renderForm(props) {
@@ -19,11 +20,13 @@ class Row extends CommonRow {
 
   render() {
     const { object } = this.props;
-    const { details, emails } = object;
+    const { emails } = object;
 
     return (
       <tr>
-        <td>{details.fullName}</td>
+        <td>
+          <NameCard user={object} avatarSize={30} singleLine />
+        </td>
         <td>{emails[0].address}</td>
         <td>
           {this.renderRole()}
