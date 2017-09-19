@@ -38,6 +38,10 @@ widgetConnect({
   connectCallback: (data) => {
     const messengerData = data.messengerConnect;
 
+    if (!messengerData.integrationId) {
+      throw new Error('Integration not found');
+    }
+
     // save connection info
     connection.data = messengerData;
 

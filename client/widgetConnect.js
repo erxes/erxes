@@ -25,10 +25,10 @@ const widgetConnect = (params) => {
     connectMutation(event)
 
     .then(({ data }) => {
-      console.log('connected ...'); // eslint-disable-line
-
-      // save connection info
+      // check connection and save connection info
       connectCallback(data);
+
+      console.log('connected ...'); // eslint-disable-line
 
       // notify parent window that connected
       window.parent.postMessage({
