@@ -2,7 +2,7 @@ import React, { PropTypes, Component } from 'react';
 import { Wrapper } from '/imports/react-ui/layout/components';
 import RightSidebar from './RightSidebar';
 import Conversation from '../conversation/Conversation';
-import { RespondBox, DetailSidebar } from '../../containers';
+import { RespondBox } from '../../containers';
 
 const propTypes = {
   conversation: PropTypes.object.isRequired,
@@ -29,14 +29,7 @@ class Details extends Component {
   }
 
   render() {
-    const {
-      conversation,
-      messages,
-      changeStatus,
-      attachmentPreview,
-      setAttachmentPreview,
-      queryParams,
-    } = this.props;
+    const { conversation, messages, attachmentPreview, setAttachmentPreview } = this.props;
 
     const content = (
       <div
@@ -61,14 +54,6 @@ class Details extends Component {
       <div>
         <Wrapper
           header={<Wrapper.Header breadcrumb={breadcrumb} />}
-          leftSidebar={
-            <DetailSidebar
-              conversation={conversation}
-              messagesCount={messages.length}
-              changeStatus={changeStatus}
-              queryParams={queryParams}
-            />
-          }
           content={content}
           footer={
             <RespondBox conversation={conversation} setAttachmentPreview={setAttachmentPreview} />
