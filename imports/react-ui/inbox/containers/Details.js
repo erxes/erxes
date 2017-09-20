@@ -50,7 +50,7 @@ class DetailsContainer extends Component {
     const { channelId, queryParams, conversationDetailQuery } = this.props;
 
     if (conversationDetailQuery.loading) {
-      return <Loading title="Conversation" spin sidebarSize="wide" hasRightSidebar />;
+      return <Loading title="Conversation" spin hasRightSidebar />;
     }
 
     const conversation = conversationDetailQuery.conversationDetail;
