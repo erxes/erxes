@@ -14,16 +14,6 @@ export const readMessages = conversationId => () => {
 
     variables: { conversationId },
   });
-
-  // above mutation will be removed after we implement readMessages login in main api
-  // clientForMainApp.mutate({
-  //   mutation: gql`
-  //     mutation readConversationMessages($conversationId: String!) {
-  //       readConversationMessages(_id: $conversationId)
-  //     }`,
-  //
-  //   variables: { conversationId },
-  // });
 }
 
 export const readEngageMessage = ({ engageData }) => () =>
