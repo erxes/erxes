@@ -4,6 +4,7 @@ import { compose, gql, graphql } from 'react-apollo';
 import { methodCallback } from '/imports/react-ui/engage/utils';
 import { Loading } from '/imports/react-ui/common';
 import { AutoAndManualForm } from '../components';
+import { queries } from '../graphql';
 
 const AutoAndManualFormContainer = props => {
   const {
@@ -13,21 +14,25 @@ const AutoAndManualFormContainer = props => {
     emailTemplatesQuery,
     messageId,
     kind,
+    customerCountsQuery,
   } = props;
 
   if (
     engageMessageDetailQuery.loading ||
     usersQuery.loading ||
     segmentsQuery.loading ||
-    emailTemplatesQuery.loading
+    emailTemplatesQuery.loading ||
+    customerCountsQuery.loading
   ) {
     return <Loading title="New message" spin sidebarSize="wide" />;
   }
-
   const templates = emailTemplatesQuery.emailTemplates;
   const message = engageMessageDetailQuery.engageMessageDetail;
   const segments = segmentsQuery.segments;
   const users = usersQuery.users;
+
+  // TODO change query to get only customerCounts
+  const counts = customerCountsQuery.customerCounts.bySegment;
 
   // save
   const save = doc => {
@@ -47,6 +52,7 @@ const AutoAndManualFormContainer = props => {
     segments,
     templates,
     users,
+    counts,
   };
 
   return <AutoAndManualForm {...updatedProps} />;
@@ -59,6 +65,7 @@ AutoAndManualFormContainer.propTypes = {
   usersQuery: PropTypes.object,
   segmentsQuery: PropTypes.object,
   emailTemplatesQuery: PropTypes.object,
+  customerCountsQuery: PropTypes.object,
 };
 
 export default compose(
@@ -93,18 +100,7 @@ export default compose(
       }),
     },
   ),
-  graphql(
-    gql`
-      query users {
-        users {
-          _id
-          username
-          details
-        }
-      }
-    `,
-    { name: 'usersQuery' },
-  ),
+  graphql(gql(queries.users), { name: 'usersQuery' }),
   graphql(
     gql`
       query emailTemplates {
@@ -117,15 +113,13 @@ export default compose(
     `,
     { name: 'emailTemplatesQuery' },
   ),
-  graphql(
-    gql`
-      query segments {
-        segments {
-          _id
-          name
-        }
-      }
-    `,
-    { name: 'segmentsQuery' },
-  ),
+  graphql(gql(queries.segments), { name: 'segmentsQuery' }),
+  graphql(gql(queries.customerCounts), {
+    name: 'customerCountsQuery',
+    options: () => ({
+      variables: {
+        params: {},
+      },
+    }),
+  }),
 )(AutoAndManualFormContainer);
