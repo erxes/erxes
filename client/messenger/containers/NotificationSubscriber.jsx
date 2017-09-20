@@ -6,11 +6,13 @@ export default class NotificationSubscriber extends React.Component {
   componentWillMount() {
     const { data } = this.props;
 
-    // lister for new message insert
+    // lister for all conversation changes for this customer
     data.subscribeToMore({
       document: gql`
-        subscription conversationNotification($customerId: String) {
-          conversationNotification(customerId: $customerId)
+        subscription conversationsChanged($customerId: String) {
+          conversationsChanged(customerId: $customerId) {
+            type
+          }
         }`
       ,
 

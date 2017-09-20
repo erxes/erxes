@@ -2,7 +2,7 @@ import gql from 'graphql-tag';
 import { SENDING_ATTACHMENT, ATTACHMENT_SENT, ASK_GET_NOTIFIED, MESSAGE_SENT } from '../constants';
 import { connection, getLocalStorageItem } from '../connection';
 import { changeConversation } from './messenger';
-import client, { clientForMainApp } from '../../apollo-client';
+import client from '../../apollo-client';
 import uploadHandler, { uploadFile } from '../../uploadHandler';
 
 export const readMessages = conversationId => () => {
@@ -16,14 +16,14 @@ export const readMessages = conversationId => () => {
   });
 
   // above mutation will be removed after we implement readMessages login in main api
-  clientForMainApp.mutate({
-    mutation: gql`
-      mutation readConversationMessages($conversationId: String!) {
-        readConversationMessages(_id: $conversationId)
-      }`,
-
-    variables: { conversationId },
-  });
+  // clientForMainApp.mutate({
+  //   mutation: gql`
+  //     mutation readConversationMessages($conversationId: String!) {
+  //       readConversationMessages(_id: $conversationId)
+  //     }`,
+  //
+  //   variables: { conversationId },
+  // });
 }
 
 export const readEngageMessage = ({ engageData }) => () =>
@@ -79,25 +79,9 @@ export const sendMessage = (message, attachments) =>
 
       dispatch({ type: MESSAGE_SENT });
 
-      // notify for main app
-      // above mutation will be removed after we implement insertMessage
-      // login in main api
-      clientForMainApp.mutate({
-        mutation: gql`
-          mutation insertMessage($messageId: String!) {
-            insertMessage(messageId: $messageId) {
-              _id
-            }
-          }`,
-
-        variables: { messageId: message._id },
-      })
-
-      .then(() => {
-        if (!currentConversationId) {
-          dispatch(changeConversation(message.conversationId));
-        }
-      });
+      if (!currentConversationId) {
+        dispatch(changeConversation(message.conversationId));
+      }
     });
   };
 

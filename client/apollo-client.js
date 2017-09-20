@@ -1,4 +1,4 @@
-/* global window, API_SUBSCRIPTIONS_URL, API_GRAPHQL_URL, MAIN_API_GRAPHQL_URL */
+/* global window, API_SUBSCRIPTIONS_URL, API_GRAPHQL_URL */
 
 import { ApolloClient, createNetworkInterface } from 'react-apollo';
 import { SubscriptionClient } from 'subscriptions-transport-ws';
@@ -11,16 +11,6 @@ import {
   compose,
   createStore as reduxCreateStore,
 } from 'redux';
-
-/*
- * We will use this client to call main api's mutations. So that main app will
- * know about database changes
- */
-export const clientForMainApp = new ApolloClient({
-  networkInterface: addGraphQLSubscriptions(
-    createNetworkInterface({ uri: MAIN_API_GRAPHQL_URL }),
-  ),
-});
 
 // subscription server
 export const wsClient = new SubscriptionClient(API_SUBSCRIPTIONS_URL, {
