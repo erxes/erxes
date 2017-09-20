@@ -5,6 +5,15 @@
 
 import { mutate } from '../../server/utils';
 
+export const messageInserted = messageId =>
+  mutate(
+    `
+    mutation {
+      conversationMessageInserted(_id: "${messageId}")
+    }
+  `,
+  );
+
 export const conversationsChanged = (conversationIds, type) =>
   mutate(
     `

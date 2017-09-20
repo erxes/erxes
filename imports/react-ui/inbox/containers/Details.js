@@ -12,23 +12,12 @@ class DetailsContainer extends Component {
   componentWillMount() {
     const { id, conversationDetailQuery } = this.props;
 
-    // lister for new message insert
+    // lister for new message insertion
     conversationDetailQuery.subscribeToMore({
-      document: gql(subscriptions.conversationUpdated),
-      variables: { conversationId: id },
+      document: gql(subscriptions.conversationMessageInserted),
+      variables: { _id: id },
       updateQuery: (prev, { subscriptionData }) => {
-        if (!subscriptionData.data) {
-          return prev;
-        }
-
-        const { type, message } = subscriptionData.data.conversationUpdated;
-
-        // if some changes except newMessage occur, refetch query
-        if (type !== 'newMessage') {
-          this.props.conversationDetailQuery.refetch();
-          return prev;
-        }
-
+        const message = subscriptionData.data.conversationMessageInserted;
         const conversationDetail = prev.conversationDetail;
         const messages = conversationDetail.messages;
 

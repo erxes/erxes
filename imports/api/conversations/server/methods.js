@@ -17,7 +17,7 @@ import {
   ChangeStatusSchema,
 } from '/imports/api/conversations/conversations';
 import { CONVERSATION_STATUSES } from '/imports/api/conversations/constants';
-import { conversationsChanged } from './apolloPubSubs';
+import { conversationsChanged, messageInserted } from './apolloPubSubs';
 
 /*
  * all possible users they can get notifications
@@ -103,6 +103,9 @@ export const addMessage = new ValidatedMethod({
     }
 
     const messageId = Messages.insert({ ...doc, userId });
+
+    // notify graphl subscription
+    messageInserted(messageId);
 
     const customer = conversation.customer();
 

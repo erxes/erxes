@@ -11,6 +11,14 @@ export const conversationUpdated = `
   }
 `;
 
+export const conversationMessageInserted = `
+  subscription conversationMessageInserted($_id: String!) {
+    conversationMessageInserted(_id: $_id) {
+      ${messageFields}
+    }
+  }
+`;
+
 export const conversationsChanged = `
   subscription conversationsChanged {
     conversationsChanged
