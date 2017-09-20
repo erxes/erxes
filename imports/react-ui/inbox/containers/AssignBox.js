@@ -13,14 +13,10 @@ const AssignBoxContainer = props => {
   const assign = ({ targetIds, assignedUserId }, callback) => {
     const params = { conversationIds: targetIds, assignedUserId };
 
-    Meteor.call('conversations.assign', params, (...params) => {
-      conversationsQuery.refetch();
-      callback(...params);
-    });
+    Meteor.call('conversations.assign', params, callback);
   };
 
   const clear = (conversationIds, callback) => {
-    conversationsQuery.refetch();
     Meteor.call('conversations.unassign', { conversationIds }, callback);
   };
 
