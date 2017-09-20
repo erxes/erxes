@@ -70,32 +70,24 @@ ListContainer.propTypes = {
   totalCountQuery: PropTypes.object,
 };
 
+const generateOptions = ({ queryParams }) => ({
+  variables: {
+    params: {
+      ...queryParams,
+      limit: queryParams.limit || 20,
+    },
+  },
+
+  fetchPolicy: 'network-only',
+});
+
 export default compose(
   graphql(gql(queries.conversationList), {
     name: 'conversationsQuery',
-    options: ({ queryParams }) => {
-      return {
-        variables: {
-          params: {
-            ...queryParams,
-            limit: queryParams.limit || 20,
-          },
-        },
-        fetchPolicy: 'network-only',
-      };
-    },
+    options: generateOptions,
   }),
-  graphql(
-    gql`
-      query totalConversationsCount {
-        totalConversationsCount
-      }
-    `,
-    {
-      name: 'totalCountQuery',
-      options: () => ({
-        fetchPolicy: 'network-only',
-      }),
-    },
-  ),
+  graphql(gql(queries.totalConversationsCount), {
+    name: 'totalCountQuery',
+    options: generateOptions,
+  }),
 )(ListContainer);
