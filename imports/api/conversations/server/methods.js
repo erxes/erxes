@@ -171,6 +171,9 @@ export const assign = new ValidatedMethod({
       { multi: true },
     );
 
+    // notify graphl subscription
+    conversationsChanged(conversationIds, 'statusChanged');
+
     const updatedConversations = Conversations.find(selector).fetch();
 
     // send notification
@@ -206,6 +209,9 @@ export const unassign = new ValidatedMethod({
       { $unset: { assignedUserId: 1 } },
       { multi: true },
     );
+
+    // notify graphl subscription
+    conversationsChanged(conversationIds, 'statusChanged');
   },
 });
 
