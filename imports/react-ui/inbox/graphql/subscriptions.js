@@ -11,8 +11,8 @@ export const conversationUpdated = `
   }
 `;
 
-export const conversationNotification = `
-  subscription conversationNotification {
-    conversationNotification
+export const conversationsChanged = `
+  subscription conversationsChanged {
+    conversationsChanged
   }
 `;

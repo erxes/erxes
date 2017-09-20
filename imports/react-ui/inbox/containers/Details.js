@@ -2,10 +2,9 @@ import { Meteor } from 'meteor/meteor';
 import React, { PropTypes, Component } from 'react';
 import { compose, gql, graphql } from 'react-apollo';
 import { ReactiveVar } from 'meteor/reactive-var';
-import { mutate } from '/imports/react-ui/apollo-client';
 import { Details } from '../components';
 import { Loading } from '/imports/react-ui/common';
-import { queries, mutations, subscriptions } from '../graphql';
+import { queries, subscriptions } from '../graphql';
 
 const attachmentPreview = new ReactiveVar({});
 
@@ -61,15 +60,7 @@ class DetailsContainer extends Component {
       Meteor.call(
         'conversations.changeStatus',
         { conversationIds: [conversationId], status },
-        (...params) => {
-          // call changeStatus mutation
-          mutate({
-            mutation: mutations.changeConversationStatus,
-            variables: { _id: conversation._id },
-          });
-
-          callback(...params);
-        },
+        callback,
       );
     };
 
