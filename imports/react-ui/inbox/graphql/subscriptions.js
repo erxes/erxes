@@ -1,12 +1,9 @@
 import messageFields from './messageFields.js';
 
-export const conversationUpdated = `
-  subscription onConversationUpdated($conversationId: String!) {
-    conversationUpdated(conversationId: $conversationId) {
+export const conversationChanged = `
+  subscription conversationChanged($_id: String!) {
+    conversationChanged(_id: $_id) {
       type
-      message {
-        ${messageFields}
-      }
     }
   }
 `;

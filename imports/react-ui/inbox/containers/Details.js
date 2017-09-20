@@ -32,6 +32,15 @@ class DetailsContainer extends Component {
         return next;
       },
     });
+
+    // lister for conversation changes like status, assignee
+    conversationDetailQuery.subscribeToMore({
+      document: gql(subscriptions.conversationChanged),
+      variables: { _id: id },
+      updateQuery: () => {
+        this.props.conversationDetailQuery.refetch();
+      },
+    });
   }
 
   render() {
