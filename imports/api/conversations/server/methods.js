@@ -17,6 +17,7 @@ import {
   ChangeStatusSchema,
 } from '/imports/api/conversations/conversations';
 import { CONVERSATION_STATUSES } from '/imports/api/conversations/constants';
+import { conversationsChanged } from './apolloPubSubs';
 
 /*
  * all possible users they can get notifications
@@ -221,6 +222,9 @@ export const changeStatus = new ValidatedMethod({
     const { conversations } = checkConversationsExistance(conversationIds);
 
     Conversations.update({ _id: { $in: conversationIds } }, { $set: { status } }, { multi: true });
+
+    // notify graphl subscription
+    conversationsChanged(conversationIds, 'statusChanged');
 
     // send notification
     _.each(conversations, conversation => {
