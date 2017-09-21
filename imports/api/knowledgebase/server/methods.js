@@ -6,7 +6,7 @@ import { KbTopicsSchema, KbCategoriesSchema, KbArticlesSchema } from '../schema'
 
 // add
 export const addKbTopic = new ValidatedMethod({
-  name: 'knowledgeBaseTopic.add',
+  name: 'knowledgeBaseTopics.add',
   mixins: [ErxesMixin],
 
   validate({ doc }) {
@@ -24,11 +24,12 @@ export const addKbTopic = new ValidatedMethod({
 
 // edit
 export const editKbTopic = new ValidatedMethod({
-  name: 'knowledgeBaseTopic.edit',
+  name: 'knowledgeBaseTopics.edit',
   mixins: [ErxesMixin],
 
-  validate({ _id, doc }) {
+  validate({ _id, createdBy, createdDate, doc }) {
     check(_id, String);
+    Object.assign(doc, { createdBy, createdDate: new Date(createdDate) });
     check(doc, KbTopicsSchema);
   },
 
@@ -48,7 +49,7 @@ export const editKbTopic = new ValidatedMethod({
 
 // remove
 export const removeKbTopic = new ValidatedMethod({
-  name: 'knowledgeBaseTopic.remove',
+  name: 'knowledgeBaseTopics.remove',
   mixins: [ErxesMixin],
 
   validate(id) {

@@ -1,39 +1,29 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import Select from 'react-select-plus';
-import {
-  FormGroup,
-  ControlLabel,
-  FormControl,
-  Button,
-  ButtonToolbar,
-  Modal,
-} from 'react-bootstrap';
+import { FormGroup, ControlLabel, FormControl, Button } from 'react-bootstrap';
 import ReactMarkdown from 'react-markdown';
+import { Form as CommonForm } from '/imports/react-ui/settings/common/components';
 import SelectBrand from '../SelectBrand';
 import CopyToClipboard from 'react-copy-to-clipboard';
-import { CommonItem } from '../common';
 
 const propTypes = {
-  item: PropTypes.object.isRequired,
+  object: PropTypes.object,
+  save: PropTypes.func,
   brands: PropTypes.array.isRequired,
   categories: PropTypes.array.isRequired,
-  save: PropTypes.func.isRequired,
 };
 
-const contextPropTypes = {
-  closeModal: PropTypes.func.isRequired,
-};
-
-class KbTopic extends CommonItem {
+class TopicForm extends CommonForm {
   constructor(props, context) {
     super(props, context);
 
     let code = '';
 
+    console.log('object: ', this.props.object);
     // showed install code automatically in edit mode
-    if (props.item) {
-      code = this.constructor.getInstallCode(props.item._id);
+    if (props.object) {
+      code = this.constructor.getInstallCode(props.object._id);
     }
 
     this.state = {
@@ -60,8 +50,8 @@ class KbTopic extends CommonItem {
   }
 
   getSelectedCategories() {
-    const { item } = this.props;
-    return (item.categories || []).map(category => ({
+    const { object = {} } = this.props;
+    return (object.categories || []).map(category => ({
       label: category.title,
       value: category._id,
     }));
@@ -88,13 +78,13 @@ class KbTopic extends CommonItem {
             topic_id: "${topicId}"
           },
         };
-        ${KbTopic.installCodeIncludeScript()}
+        ${TopicForm.installCodeIncludeScript()}
       </script>
     `;
   }
 
   renderInstallCode() {
-    if (this.props.item && this.props.item._id) {
+    if (this.props.object && this.props.object._id) {
       return (
         <FormGroup controlId="install-code">
           <ControlLabel>Install code</ControlLabel>
@@ -119,48 +109,42 @@ class KbTopic extends CommonItem {
   }
 
   handleBrandChange() {
-    if (this.props.item && this.props.item._id) {
-      const code = this.constructor.getInstallCode(this.props.item._id);
+    if (this.props.object && this.props.object._id) {
+      const code = this.constructor.getInstallCode(this.props.object._id);
       this.setState({ code, copied: false });
     }
   }
 
-  handleSubmit(e) {
-    super.handleSubmit(e);
+  generateDoc() {
     const categoryIds = this.state.selectedCategories.map(category => category.value);
-    const { item } = this.props;
+    const { object } = this.props;
 
-    const newValues = {
-      title: document.getElementById('knowledgebase-title').value,
-      description: document.getElementById('knowledgebase-description').value,
-      brandId: document.getElementById('selectBrand').value,
-      categoryIds,
-      createdBy: item.createdBy,
-      modifiedBy: item.modifiedBy,
-      createdDate: item.createdDate != null ? new Date(item.createdDate) : new Date(), // graphql mongoose driver returns
-      modifiedDate: item.modifiedDate != null ? new Date(item.modifiedDate) : new Date(), // timestamp instead of Date object
+    return {
+      ...object,
+      doc: {
+        title: document.getElementById('knowledgebase-title').value,
+        description: document.getElementById('knowledgebase-description').value,
+        brandId: document.getElementById('selectBrand').value,
+        categoryIds,
+      },
     };
-
-    this.props.save(newValues);
-    this.context.closeModal();
   }
 
-  render() {
-    const { item = {} } = this.props;
+  renderContent(object = {}) {
     const { brands } = this.props;
-    const { brand } = item;
+    const { brand } = object;
     const brandId = brand != null ? brand._id : '';
 
     return (
-      <form className="margined" onSubmit={this.handleSubmit}>
+      <div>
         <FormGroup controlId="knowledgebase-title">
           <ControlLabel>Title</ControlLabel>
-          <FormControl type="text" defaultValue={item.title} required />
+          <FormControl type="text" defaultValue={object.title} required />
         </FormGroup>
 
         <FormGroup controlId="knowledgebase-description">
           <ControlLabel>Description</ControlLabel>
-          <FormControl type="text" defaultValue={item.description} />
+          <FormControl type="text" defaultValue={object.description} />
         </FormGroup>
 
         <FormGroup>
@@ -187,19 +171,10 @@ class KbTopic extends CommonItem {
         </FormGroup>
 
         {this.renderInstallCode()}
-
-        <Modal.Footer>
-          <ButtonToolbar className="pull-right">
-            <Button type="submit" bsStyle="primary">Save</Button>
-          </ButtonToolbar>
-        </Modal.Footer>
-      </form>
+      </div>
     );
   }
 }
 
-KbTopic.propTypes = propTypes;
-
-KbTopic.contextTypes = contextPropTypes;
-
-export default KbTopic;
+TopicForm.propTypes = propTypes;
+export default TopicForm;

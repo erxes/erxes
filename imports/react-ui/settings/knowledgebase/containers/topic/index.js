@@ -1,5 +1,4 @@
-import KbTopic from './Topic';
-import NewKbTopic from './NewTopic';
-import KbTopicList from './List';
+import TopicForm from './TopicForm';
+import TopicList from './List';
 
-export { KbTopic, NewKbTopic, KbTopicList };
+export { TopicForm, TopicList };

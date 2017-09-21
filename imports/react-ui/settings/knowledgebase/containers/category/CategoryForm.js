@@ -5,10 +5,15 @@ import { Loading } from '/imports/react-ui/common';
 import queries from '../../queries';
 import { CategoryForm } from '../../components';
 
+const addPropTypes = {
+  getArticleListQuery: PropTypes.object.isRequired,
+  save: PropTypes.func.isRequired,
+};
+
 const editPropTypes = {
-  getCategoryDetailQuery: PropTypes.object,
-  getArticleListQuery: PropTypes.object,
-  save: PropTypes.func,
+  getCategoryDetailQuery: PropTypes.object.isRequired,
+  getArticleListQuery: PropTypes.object.isRequired,
+  save: PropTypes.func.isRequired,
 };
 
 const CategoryEditFormContainer = props => {
@@ -30,11 +35,6 @@ const CategoryEditFormContainer = props => {
 };
 
 CategoryEditFormContainer.propTypes = editPropTypes;
-
-const addPropTypes = {
-  getArticleListQuery: PropTypes.object,
-  save: PropTypes.func,
-};
 
 const CategoryAddFormContainer = props => {
   const { getArticleListQuery } = props;

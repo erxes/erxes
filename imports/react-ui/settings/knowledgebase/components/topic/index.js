@@ -1,5 +1,5 @@
-import KbTopicRow from './Row';
-import KbTopic from './Topic';
-import KbTopicList from './List';
+import TopicRow from './Row';
+import TopicForm from './TopicForm';
+import TopicList from './List';
 
-export { KbTopicRow, KbTopic, KbTopicList };
+export { TopicRow, TopicForm, TopicList };

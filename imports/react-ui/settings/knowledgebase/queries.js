@@ -1,6 +1,6 @@
 const getTopicDetail = `
-  query getKbTopicDetail($_id: String!) {
-    getKbTopicDetail(_id: $_id) {
+  query knowledgeBaseTopicsDetail($_id: String!) {
+    knowledgeBaseTopicsDetail(_id: $_id) {
       _id
       title
       description
@@ -21,8 +21,8 @@ const getTopicDetail = `
 `;
 
 const getTopicList = `
-  query getKbTopicList($limit: Int) {
-    getKbTopicList(limit: $limit) {
+  query knowledgeBaseTopics($limit: Int) {
+    knowledgeBaseTopics(limit: $limit) {
       _id
       title
       description
@@ -30,13 +30,21 @@ const getTopicList = `
         _id
         name
       }
+      categories {
+        _id
+        title
+      }
+      createdBy
+      createdDate
+      modifiedBy
+      modifiedDate
     }
   }
 `;
 
 const getTopicCount = `
-  query getKbTopicCount {
-    getKbTopicCount
+  query totalKnowledgeBaseTopicsCount {
+    totalKnowledgeBaseTopicsCount
   }
 `;
 

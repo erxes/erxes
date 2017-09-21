@@ -1,10 +1,11 @@
-import { KbTopicList, KbTopic } from './topic';
+import { TopicList, TopicForm, TopicRow } from './topic';
 import { CategoryList, CategoryRow, CategoryForm } from './category';
 import { ArticleList, ArticleForm, ArticleRow } from './article';
 
 export {
-  KbTopicList,
-  KbTopic,
+  TopicList,
+  TopicForm,
+  TopicRow,
   CategoryList,
   CategoryForm,
   CategoryRow,

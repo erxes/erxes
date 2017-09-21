@@ -6,7 +6,9 @@ import { Form as CommonForm } from '/imports/react-ui/settings/common/components
 import Ionicons from 'react-ionicons';
 import { icons } from '../../icons.constant';
 
-const additionalPropTypes = {
+const propTypes = {
+  object: PropTypes.object,
+  save: PropTypes.func,
   articles: PropTypes.array.isRequired,
 };
 
@@ -132,6 +134,6 @@ class CategoryForm extends CommonForm {
   }
 }
 
-Object.assign(CategoryForm.propTypes, additionalPropTypes);
+CategoryForm.propTypes = propTypes;
 
 export default CategoryForm;
