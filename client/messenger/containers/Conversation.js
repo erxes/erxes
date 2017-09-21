@@ -66,6 +66,10 @@ class Conversation extends React.Component {
       updateQuery: (prev, { subscriptionData }) => {
         const message = subscriptionData.data.conversationMessageInserted;
 
+        if (!message) {
+          return prev;
+        }
+
         // do not show internal messages
         if (message.internal) {
           return prev;
