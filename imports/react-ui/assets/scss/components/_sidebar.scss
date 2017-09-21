@@ -141,23 +141,23 @@
   li {
     position: relative;
     overflow: hidden;
+
+    > a {
+      display: block;
+      padding: 5px 20px;
+      color: $text-color;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      padding-right: 30px;
+      cursor: pointer;
+    }
   }
 
-  a {
-    display: block;
-    padding: 5px 20px;
+  > a:hover,
+  a.active {
     color: $text-color;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    padding-right: 30px;
-    cursor: pointer;
-
-    &:hover,
-    &.active {
-      color: $text-color;
-      background-color: $grey-light;
-    }
+    background-color: $grey-light;
   }
 
   .icon {
