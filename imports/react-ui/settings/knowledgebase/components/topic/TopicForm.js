@@ -20,7 +20,6 @@ class TopicForm extends CommonForm {
 
     let code = '';
 
-    console.log('object: ', this.props.object);
     // showed install code automatically in edit mode
     if (props.object) {
       code = this.constructor.getInstallCode(props.object._id);
