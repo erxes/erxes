@@ -7,13 +7,12 @@ const propTypes = {
   targets: PropTypes.arrayOf(PropTypes.string).isRequired,
   trigger: PropTypes.element.isRequired,
   container: PropTypes.element,
-  afterSave: PropTypes.func,
 };
 
-function AssignBoxPopover({ targets, trigger, container, afterSave }) {
+function AssignBoxPopover({ targets, trigger, container }) {
   const popover = (
     <Popover id="assign-popover" title="Choose person">
-      <AssignBox targets={targets} event="onClick" afterSave={afterSave} />
+      <AssignBox targets={targets} event="onClick" />
     </Popover>
   );
 

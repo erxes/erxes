@@ -9,7 +9,6 @@ const propTypes = {
   assignees: PropTypes.array.isRequired,
   assign: PropTypes.func.isRequired,
   clear: PropTypes.func.isRequired,
-  afterSave: PropTypes.func,
   event: PropTypes.oneOf(['onClick', 'onExit']),
   className: PropTypes.string,
 };
@@ -43,10 +42,6 @@ class AssignBox extends Component {
       error => {
         if (error) {
           Alert.error(error.reason);
-
-          if (this.props.afterSave) {
-            this.props.afterSave();
-          }
         }
         return Alert.success('The conversation Assignee has been renewed.');
       },
