@@ -55,10 +55,7 @@ CategoryAddFormContainer.propTypes = addPropTypes;
 const categoryFormComposer = options => {
   const { object } = options;
 
-  console.log('object: ', object);
-
   if (object && object._id) {
-    console.log('aaa');
     return compose(
       graphql(gql(queries.getCategoryDetail), {
         name: 'getCategoryDetailQuery',
@@ -79,7 +76,6 @@ const categoryFormComposer = options => {
     )(CategoryEditFormContainer);
   }
 
-  console.log('bbb');
   return compose(
     graphql(gql(queries.getArticleList), {
       name: 'getArticleListQuery',
