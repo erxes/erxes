@@ -1,70 +1,39 @@
+/*
+ * Will implement actual db changes after removing meteor
+ */
+
 import { Conversations, ConversationMessages } from '../../../db/models';
 import { pubsub } from '../subscriptions';
 
 export default {
-  // will implement actual db changes after removing meteor
-  async insertMessage(root, { messageId }) {
-    const message = await ConversationMessages.findOne({ _id: messageId });
+  async conversationMessageInserted(root, { _id }) {
+    const message = await ConversationMessages.findOne({ _id });
     const conversationId = message.conversationId;
     const conversation = await Conversations.findOne({ _id: conversationId });
 
-    // notify new message
-    pubsub.publish('conversationUpdated', {
-      conversationUpdated: { conversationId, type: 'newMessage', message },
+    pubsub.publish('conversationMessageInserted', {
+      conversationMessageInserted: message,
     });
 
-    pubsub.publish('conversationNotification', {
-      conversationNotification: { customerId: conversation.customerId },
+    pubsub.publish('conversationsChanged', {
+      conversationsChanged: { customerId: conversation.customerId, type: 'newMessage' },
     });
 
-    return message;
+    return 'done';
   },
 
-  /*
-   * resolve or reopen conversation
-   */
-  changeConversationStatus(root, { _id }) {
-    pubsub.publish('conversationUpdated', {
-      conversationUpdated: { conversationId: _id, type: 'statusChanged' },
-    });
-
-    return _id;
-  },
-
-  assignConversations(root, { _ids }) {
+  async conversationsChanged(root, { _ids, type }) {
     for (let _id of _ids) {
-      pubsub.publish('conversationUpdated', {
-        conversationUpdated: { conversationId: _id, type: 'assigneeChanged' },
+      const conversation = await Conversations.findOne({ _id });
+
+      // notify new message
+      pubsub.publish('conversationChanged', {
+        conversationChanged: { conversationId: _id, type },
+      });
+
+      pubsub.publish('conversationsChanged', {
+        conversationsChanged: { customerId: conversation.customerId, type },
       });
     }
-
-    return [_ids];
-  },
-
-  // will implement actual db changes after removing meteor
-  async readConversationMessages(root, { _id }) {
-    const conversation = await Conversations.findOne({ _id });
-
-    pubsub.publish('conversationUpdated', {
-      conversationUpdated: { conversationId: _id, type: 'readStateChanged' },
-    });
-
-    pubsub.publish('conversationNotification', {
-      conversationNotification: { customerId: conversation.customerId },
-    });
-
-    return _id;
-  },
-
-  // will implement actual db changes after removing meteor
-  async saveFormWidget(root, { messageId }) {
-    const message = await ConversationMessages.findOne({ _id: messageId });
-    const conversation = await Conversations.findOne({ _id: message.conversationId });
-
-    pubsub.publish('conversationNotification', {
-      conversationNotification: { customerId: conversation.customerId },
-    });
-
-    return 'saved';
   },
 };

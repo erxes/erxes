@@ -3,28 +3,42 @@ import { pubsub } from './';
 
 export default {
   /*
-   * Listen for new message insertion, status change of requested conversation
+   * Listen for conversation changes like status, assignee, read state
   */
-  conversationUpdated: {
+  conversationChanged: {
     subscribe: withFilter(
-      () => pubsub.asyncIterator('conversationUpdated'),
+      () => pubsub.asyncIterator('conversationChanged'),
       // filter by conversationId
       (payload, variables) => {
-        return payload.conversationUpdated.conversationId === variables.conversationId;
+        return payload.conversationChanged.conversationId === variables._id;
       },
     ),
   },
 
   /*
-   * Listen for conversation updates by customerId
-   */
-  conversationNotification: {
+   * Listen for new message insertion
+  */
+  conversationMessageInserted: {
     subscribe: withFilter(
-      () => pubsub.asyncIterator('conversationNotification'),
-      // filter by customerId
+      () => pubsub.asyncIterator('conversationMessageInserted'),
+      // filter by conversationId
+      (payload, variables) => {
+        return payload.conversationMessageInserted.conversationId === variables._id;
+      },
+    ),
+  },
+
+  /*
+   * Listen for any conversation changes like new message, read state, assignee
+   */
+  conversationsChanged: {
+    subscribe: withFilter(
+      () => pubsub.asyncIterator('conversationsChanged'),
+      // filter by customerId. customerId is not required.
+      // in widget we will filter all those changes by customerId
       (payload, variables) => {
         if (variables.customerId) {
-          return payload.conversationNotification.customerId === variables.customerId;
+          return payload.conversationsChanged.customerId === variables.customerId;
         }
 
         return true;

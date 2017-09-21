@@ -221,9 +221,14 @@ export const types = `
     customer: Customer
   }
 
-  type ConversationUpdatedResponse {
+  type ConversationChangedResponse {
+    conversationId: String!
     type: String!
-    message: ConversationMessage
+  }
+
+  type ConversationsChangedResponse {
+    type: String!
+    customerId: String!
   }
 `;
 export const queries = `
@@ -278,17 +283,15 @@ export const queries = `
 
 export const mutations = `
   type Mutation {
-    insertMessage(messageId: String!): ConversationMessage
-    changeConversationStatus(_id: String!): String
-    assignConversations(_ids: [String]!): [String]
-    readConversationMessages(_id: String!): String
-    saveFormWidget(messageId: String!): String
+    conversationsChanged(_ids: [String]!, type: String): String
+    conversationMessageInserted(_id: String!): String
   }
 `;
 
 export const subscriptions = `
   type Subscription {
-    conversationUpdated(conversationId: String!): ConversationUpdatedResponse
-    conversationNotification(customerId: String): String
+    conversationChanged(_id: String!): ConversationChangedResponse
+    conversationMessageInserted(_id: String!): ConversationMessage
+    conversationsChanged(customerId: String): ConversationsChangedResponse
   }
 `;
