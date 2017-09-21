@@ -50,8 +50,8 @@ const getBrandList = `
 `;
 
 const getCategoryList = `
-  query getKbCategoryList {
-    getKbCategoryList {
+  query knowledgeBaseCategories {
+    knowledgeBaseCategories {
       _id
       title
       description
@@ -60,8 +60,8 @@ const getCategoryList = `
 `;
 
 const getCategoryDetail = `
-  query getKbCategoryDetail($_id: String!) {
-    getKbCategoryDetail(_id: $_id) {
+  query knowledgeBaseCategoriesDetail($_id: String!) {
+    knowledgeBaseCategoriesDetail(_id: $_id) {
       _id
       title
       description
@@ -79,14 +79,14 @@ const getCategoryDetail = `
 `;
 
 const getCategoryCount = `
-  query getKbCategoryCount {
-    getKbCategoryCount
+  query totalKnowledgeBaseCategoriesCount {
+    totalKnowledgeBaseCategoriesCount
   }
 `;
 
 const getArticleDetail = `
-  query KnowledgeBaseArticlesDetail($_id: String!) {
-    KnowledgeBaseArticlesDetail(_id: $_id) {
+  query knowledgeBaseArticlesDetail($_id: String!) {
+    knowledgeBaseArticlesDetail(_id: $_id) {
       _id
       title
       summary
@@ -100,8 +100,8 @@ const getArticleDetail = `
 `;
 
 const getArticleList = `
-  query KnowledgeBaseArticles {
-    KnowledgeBaseArticles {
+  query knowledgeBaseArticles {
+    knowledgeBaseArticles {
       _id
       title
       summary

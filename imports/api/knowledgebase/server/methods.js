@@ -6,7 +6,7 @@ import { KbTopicsSchema, KbCategoriesSchema, KbArticlesSchema } from '../schema'
 
 // add
 export const addKbTopic = new ValidatedMethod({
-  name: 'KnowledgeBaseTopic.add',
+  name: 'knowledgeBaseTopic.add',
   mixins: [ErxesMixin],
 
   validate({ doc }) {
@@ -24,7 +24,7 @@ export const addKbTopic = new ValidatedMethod({
 
 // edit
 export const editKbTopic = new ValidatedMethod({
-  name: 'KnowledgeBaseTopic.edit',
+  name: 'knowledgeBaseTopic.edit',
   mixins: [ErxesMixin],
 
   validate({ _id, doc }) {
@@ -48,7 +48,7 @@ export const editKbTopic = new ValidatedMethod({
 
 // remove
 export const removeKbTopic = new ValidatedMethod({
-  name: 'KnowledgeBaseTopic.remove',
+  name: 'knowledgeBaseTopic.remove',
   mixins: [ErxesMixin],
 
   validate(id) {
@@ -62,7 +62,7 @@ export const removeKbTopic = new ValidatedMethod({
 
 // add
 export const addKbCategory = new ValidatedMethod({
-  name: 'KnowledgeBaseCategory.add',
+  name: 'knowledgeBaseCategories.add',
   mixins: [ErxesMixin],
 
   validate({ doc }) {
@@ -81,11 +81,12 @@ export const addKbCategory = new ValidatedMethod({
 
 // edit
 export const editKbCategory = new ValidatedMethod({
-  name: 'KnowledgeBaseCategory.edit',
+  name: 'knowledgeBaseCategories.edit',
   mixins: [ErxesMixin],
 
-  validate({ _id, doc }) {
+  validate({ _id, createdBy, createdDate, doc }) {
     check(_id, String);
+    Object.assign(doc, { createdBy, createdDate: new Date(createdDate) });
     check(doc, KbCategoriesSchema);
   },
 
@@ -105,7 +106,7 @@ export const editKbCategory = new ValidatedMethod({
 
 // remove
 export const removeKbCategory = new ValidatedMethod({
-  name: 'KnowledgeBaseCategory.remove',
+  name: 'knowledgeBaseCategories.remove',
   mixins: [ErxesMixin],
 
   validate(id) {
@@ -119,7 +120,7 @@ export const removeKbCategory = new ValidatedMethod({
 
 // add
 export const addKbArticle = new ValidatedMethod({
-  name: 'KnowledgeBaseArticles.add',
+  name: 'knowledgeBaseArticles.add',
   mixins: [ErxesMixin],
 
   validate({ doc }) {
@@ -138,7 +139,7 @@ export const addKbArticle = new ValidatedMethod({
 
 // edit
 export const editKbArticle = new ValidatedMethod({
-  name: 'KnowledgeBaseArticles.edit',
+  name: 'knowledgeBaseArticles.edit',
   mixins: [ErxesMixin],
 
   validate({ _id, createdBy, createdDate, doc }) {
@@ -163,7 +164,7 @@ export const editKbArticle = new ValidatedMethod({
 
 // remove
 export const removeKbArticle = new ValidatedMethod({
-  name: 'KnowledgeBaseArticles.remove',
+  name: 'knowledgeBaseArticles.remove',
   mixins: [ErxesMixin],
 
   validate(id) {

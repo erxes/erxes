@@ -1,66 +1,60 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import { Table } from 'react-bootstrap';
-import { Wrapper } from '/imports/react-ui/layout/components';
-import { Pagination } from '/imports/react-ui/common';
-import { ActionButtons } from '../../components';
+import { List as CommonList } from '/imports/react-ui/settings/common/components';
 import CategoryRow from './Row';
-import { CommonList } from '../common';
+import categoryFormComposer from '../../containers/category/CategoryForm';
 
-const propTypes = {
-  items: PropTypes.array.isRequired,
-  refetch: PropTypes.func.isRequired,
-  removeItem: PropTypes.func.isRequired,
-  loadMore: PropTypes.func.isRequired,
-  hasMore: PropTypes.bool.isRequired,
-};
-
-class KbCategoryList extends CommonList {
+class CategoryList extends CommonList {
   constructor(props) {
     super(props);
+
+    this.title = 'Add category';
   }
 
-  renderItems() {
-    const { items, removeItem } = this.props;
-    return items.map(item => <CategoryRow key={item._id} item={item} removeItem={removeItem} />);
+  renderRow(props) {
+    return <CategoryRow {...props} />;
   }
 
-  getHeader() {
-    const breadcrumb = [
-      { title: 'Knowledge base', link: '/settings/knowledgebase' },
-      { title: 'Categories' },
+  renderForm(props) {
+    const { object } = props;
+    const CategoryForm = categoryFormComposer({ object });
+
+    return <CategoryForm {...props} />;
+  }
+
+  breadcrumb() {
+    return [
+      {
+        title: 'Settings',
+        link: '/settings/channels',
+      },
+      {
+        title: 'Knowledge base',
+        link: '/settings/knowledgebase',
+      },
+      {
+        title: 'Categories',
+        link: '/settings/knowledgebase/categories',
+      },
     ];
-
-    return <Wrapper.Header breadcrumb={breadcrumb} />;
   }
 
-  getActionBar() {
-    const { refetch } = this.props;
-    return <Wrapper.ActionBar left={<ActionButtons categoryListRefetch={refetch} />} />;
-  }
-
-  getContent() {
-    const { loadMore, hasMore } = this.props;
-
+  renderContent() {
     return (
-      <Pagination loadMore={loadMore} hasMore={hasMore}>
-        <Table>
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>Description</th>
-              <th width="183" className="text-right">
-                Actions
-              </th>
-            </tr>
-          </thead>
-          <tbody>{this.renderItems()}</tbody>
-        </Table>
-      </Pagination>
+      <Table>
+        <thead>
+          <tr>
+            <th>Title</th>
+            <th>Description</th>
+            <th width="183" className="text-right">
+              Actions
+            </th>
+          </tr>
+        </thead>
+        <tbody>{this.renderObjects()}</tbody>
+      </Table>
     );
   }
 }
 
-KbCategoryList.propTypes = propTypes;
-
-export default KbCategoryList;
+export default CategoryList;

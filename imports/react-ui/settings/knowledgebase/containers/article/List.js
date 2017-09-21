@@ -5,7 +5,7 @@ import { ArticleList } from '../../components';
 import { commonListComposer } from '/imports/react-ui/settings/utils';
 
 export default commonListComposer({
-  name: 'KnowledgeBaseArticles',
+  name: 'knowledgeBaseArticles',
   gqlListQuery: graphql(gql(queries.getArticleList), {
     name: 'listQuery',
   }),

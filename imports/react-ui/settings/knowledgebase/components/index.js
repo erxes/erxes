@@ -1,15 +1,14 @@
-import { KbCategoryList, KbCategory } from './category';
 import { KbTopicList, KbTopic } from './topic';
+import { CategoryList, CategoryRow, CategoryForm } from './category';
 import { ArticleList, ArticleForm, ArticleRow } from './article';
-import ActionButtons from './ActionButtons';
 
 export {
-  KbCategoryList,
-  KbCategory,
   KbTopicList,
   KbTopic,
+  CategoryList,
+  CategoryForm,
+  CategoryRow,
   ArticleList,
   ArticleForm,
   ArticleRow,
-  ActionButtons,
 };

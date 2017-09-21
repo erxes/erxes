@@ -1,10 +1,10 @@
 import React from 'react';
 import { Table } from 'react-bootstrap';
-import { List } from '/imports/react-ui/settings/common/components';
+import { List as CommonList } from '/imports/react-ui/settings/common/components';
 import ArticleRow from './Row';
 import { ArticleForm } from '../../containers';
 
-class ArticleList extends List {
+class ArticleList extends CommonList {
   constructor(props) {
     super(props);
 

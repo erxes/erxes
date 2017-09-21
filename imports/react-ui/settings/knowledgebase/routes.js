@@ -2,7 +2,7 @@ import React from 'react';
 import { mount } from 'react-mounter';
 import { MainLayout } from '/imports/react-ui/layout/containers';
 import settingsRoute from '../routes';
-import { KbTopicList, KbCategoryList, ArticleList } from './containers';
+import { KbTopicList, CategoryList, ArticleList } from './containers';
 
 const knowledgebase = settingsRoute.group({
   prefix: '/knowledgebase',
@@ -20,7 +20,7 @@ knowledgebase.route('/categories/', {
   name: 'settings/knowledgebase/categories',
 
   action(params, queryParams) {
-    mount(MainLayout, { content: <KbCategoryList queryParams={queryParams} /> });
+    mount(MainLayout, { content: <CategoryList queryParams={queryParams} /> });
   },
 });
 

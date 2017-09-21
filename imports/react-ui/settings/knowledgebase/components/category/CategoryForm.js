@@ -1,28 +1,16 @@
-import React, { Component } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import Select from 'react-select-plus';
-import {
-  FormGroup,
-  ControlLabel,
-  FormControl,
-  Button,
-  ButtonToolbar,
-  Modal,
-} from 'react-bootstrap';
+import { FormGroup, ControlLabel, FormControl } from 'react-bootstrap';
+import { Form as CommonForm } from '/imports/react-ui/settings/common/components';
 import Ionicons from 'react-ionicons';
 import { icons } from '../../icons.constant';
 
-const propTypes = {
-  item: PropTypes.object,
-  articles: PropTypes.array.isRequired, // eslint-disable-line
-  save: PropTypes.func.isRequired,
+const additionalPropTypes = {
+  articles: PropTypes.array.isRequired,
 };
 
-const contextPropTypes = {
-  closeModal: PropTypes.func.isRequired,
-};
-
-class KbCategory extends Component {
+class CategoryForm extends CommonForm {
   constructor(props, context) {
     super(props, context);
 
@@ -32,22 +20,21 @@ class KbCategory extends Component {
     };
 
     this.renderOption = this.renderOption.bind(this);
-    this.handleSubmit = this.handleSubmit.bind(this);
     this.onChangeIcon = this.onChangeIcon.bind(this);
   }
 
   getSelectedArticles() {
-    const { item } = this.props;
+    const { object = {} } = this.props;
 
-    return (item.articles || []).map(article => ({
+    return (object.articles || []).map(article => ({
       label: article.title,
       value: article._id,
     }));
   }
 
   getSelectedIcon() {
-    const { item } = this.props;
-    return (item && item.icon) || 'testIcon';
+    const { object } = this.props;
+    return (object && object.icon) || '';
   }
 
   getArticles() {
@@ -80,39 +67,32 @@ class KbCategory extends Component {
     );
   }
 
-  handleSubmit(e) {
-    e.preventDefault();
-
+  generateDoc() {
+    const { object } = this.props;
     const articleIds = this.state.selectedArticles.map(article => article.value);
-    const { item } = this.props;
 
-    const newValues = {
-      title: document.getElementById('knowledgebase-category-title').value,
-      description: document.getElementById('knowledgebase-category-description').value,
-      articleIds,
-      icon: this.state.selectedIcon,
-      createdBy: item.createdBy,
-      modifiedBy: item.modifiedBy,
-      createdDate: item.createdDate != null ? new Date(item.createdDate) : new Date(), // graphql mongoose driver returns
-      modifiedDate: item.modifiedDate != null ? new Date(item.modifiedDate) : new Date(), // timestamp instead of Date object
+    return {
+      ...object,
+      doc: {
+        title: document.getElementById('knowledgebase-category-title').value,
+        description: document.getElementById('knowledgebase-category-description').value,
+        articleIds,
+        icon: this.state.selectedIcon,
+      },
     };
-    this.props.save(newValues);
-    this.context.closeModal();
   }
 
-  render() {
-    const { item = {} } = this.props;
-
+  renderContent(object = {}) {
     return (
-      <form className="margined" onSubmit={this.handleSubmit}>
+      <div>
         <FormGroup controlId="knowledgebase-category-title">
           <ControlLabel>Title</ControlLabel>
-          <FormControl type="text" defaultValue={item.title} required />
+          <FormControl type="text" defaultValue={object.title} required />
         </FormGroup>
 
         <FormGroup controlId="knowledgebase-category-description">
           <ControlLabel>Description</ControlLabel>
-          <FormControl type="text" defaultValue={item.description} />
+          <FormControl type="text" defaultValue={object.description} />
         </FormGroup>
 
         <FormGroup>
@@ -147,19 +127,11 @@ class KbCategory extends Component {
             valueRenderer={this.renderOption}
           />
         </FormGroup>
-
-        <Modal.Footer>
-          <ButtonToolbar className="pull-right">
-            <Button type="submit" bsStyle="primary">Save</Button>
-          </ButtonToolbar>
-        </Modal.Footer>
-      </form>
+      </div>
     );
   }
 }
 
-KbCategory.propTypes = propTypes;
+Object.assign(CategoryForm.propTypes, additionalPropTypes);
 
-KbCategory.contextTypes = contextPropTypes;
-
-export default KbCategory;
+export default CategoryForm;

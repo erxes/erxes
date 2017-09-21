@@ -1,5 +1,4 @@
-import KbCategoryList from './List';
-import KbCategory from './Category';
-import NewKbCategory from './NewCategory';
+import CategoryList from './List';
+import CategoryForm from './CategoryForm';
 
-export { KbCategoryList, KbCategory, NewKbCategory };
+export { CategoryList, CategoryForm };
