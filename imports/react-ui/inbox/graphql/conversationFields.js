@@ -29,6 +29,7 @@ export default `
   }
   messageCount
   participatorCount
+  participatedUserIds
   participatedUsers {
     _id
     username
