@@ -54,7 +54,7 @@ class CustomerListContainer extends Bulk {
       bulk: this.state.bulk,
       toggleBulk: this.toggleBulk,
     };
-    console.log(customerCountsQuery.customerCounts);
+
     return <CustomersList {...updatedProps} />;
   }
 }
