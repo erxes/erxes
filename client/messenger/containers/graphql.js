@@ -56,7 +56,23 @@ const conversationMessageInserted = `
   }
 `;
 
+const unreadCountQuery = `
+  query unreadCount($conversationId: String) {
+    unreadCount(conversationId: $conversationId)
+  }
+`;
+
+const conversationsChangedSubscription = `
+  subscription conversationsChanged($customerId: String) {
+    conversationsChanged(customerId: $customerId) {
+      type
+    }
+  }
+`;
+
 export default {
   conversationDetailQuery,
+  unreadCountQuery,
   conversationMessageInserted,
+  conversationsChangedSubscription,
 }
