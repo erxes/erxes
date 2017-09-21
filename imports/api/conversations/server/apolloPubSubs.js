@@ -18,7 +18,7 @@ export const conversationsChanged = (conversationIds, type) =>
   mutate(
     `
     mutation {
-      conversationsChanged(_ids: "${conversationIds}", type: "${type}")
+      conversationsChanged(_ids: ${JSON.stringify(conversationIds)}, type: "${type}")
     }
   `,
   );
