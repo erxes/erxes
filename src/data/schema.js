@@ -285,7 +285,6 @@ export const mutations = `
   type Mutation {
     conversationsChanged(_ids: [String]!, type: String): String
     conversationMessageInserted(_id: String!): String
-    saveFormWidget(messageId: String!): String
   }
 `;
 

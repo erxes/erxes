@@ -36,16 +36,4 @@ export default {
       });
     }
   },
-
-  // will implement actual db changes after removing meteor
-  async saveFormWidget(root, { messageId }) {
-    const message = await ConversationMessages.findOne({ _id: messageId });
-    const conversation = await Conversations.findOne({ _id: message.conversationId });
-
-    pubsub.publish('conversationsChanged', {
-      conversationsChanged: { customerId: conversation.customerId, type: 'newMessage' },
-    });
-
-    return 'saved';
-  },
 };
