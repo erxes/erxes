@@ -53,28 +53,20 @@ class Conversation extends React.Component {
   }
 
   subscribe(data, conversationId) {
-    // lister for new message insert
+    // lister for new message
     return data.subscribeToMore({
       document: gql`
-        subscription conversationUpdated($conversationId: String!) {
-          conversationUpdated(conversationId: $conversationId) {
-            type
-            message {
-              ${messageQuery}
-            }
+        subscription conversationMessageInserted($_id: String!) {
+          conversationMessageInserted(_id: $_id) {
+            ${messageQuery}
           }
         }`
       ,
-      variables: { conversationId },
+      variables: { _id: conversationId },
       updateQuery: (prev, { subscriptionData }) => {
-        if (!subscriptionData.data) {
-          return prev;
-        }
+        const message = subscriptionData.data.conversationMessageInserted;
 
-        const { type, message } = subscriptionData.data.conversationUpdated;
-
-        // if some changes except newMessage occur, refetch query
-        if (type !== 'newMessage') {
+        if (!message) {
           return prev;
         }
 
