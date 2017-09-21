@@ -69,50 +69,17 @@ AutoAndManualFormContainer.propTypes = {
 };
 
 export default compose(
-  graphql(
-    gql`
-      query engageMessageDetail($_id: String) {
-        engageMessageDetail(_id: $_id) {
-          _id
-          kind
-          segmentId
-          customerIds
-          title
-          fromUserId
-          method
-          email
-          isDraft
-          isLive
-          stopDate
-          createdDate
-
-          messenger
-        }
-      }
-    `,
-    {
-      name: 'engageMessageDetailQuery',
-      options: ({ messageId }) => ({
-        fetchPolicy: 'network-only',
-        variables: {
-          _id: messageId,
-        },
-      }),
-    },
-  ),
+  graphql(gql(queries.engageMessageDetail), {
+    name: 'engageMessageDetailQuery',
+    options: ({ messageId }) => ({
+      fetchPolicy: 'network-only',
+      variables: {
+        _id: messageId,
+      },
+    }),
+  }),
   graphql(gql(queries.users), { name: 'usersQuery' }),
-  graphql(
-    gql`
-      query emailTemplates {
-        emailTemplates {
-          _id
-          name
-          content
-        }
-      }
-    `,
-    { name: 'emailTemplatesQuery' },
-  ),
+  graphql(gql(queries.emailTemplates), { name: 'emailTemplatesQuery' }),
   graphql(gql(queries.segments), { name: 'segmentsQuery' }),
   graphql(gql(queries.customerCounts), {
     name: 'customerCountsQuery',
