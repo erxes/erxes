@@ -150,12 +150,22 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    padding-right: 30px;
+    padding-right: 45px;
     cursor: pointer;
+    @include transition(all .2s ease);
 
     &:hover,
-    &.active {
+    &.active ,
+    &:focus {
       color: $text-color;
+      background-color: $grey-light;
+      text-decoration: none;
+      outline: 0;
+    }
+
+    &.chosen {
+      color: $text-color;
+      font-weight: bold;
       background-color: $grey-light;
     }
   }
