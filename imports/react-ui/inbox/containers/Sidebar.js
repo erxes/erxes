@@ -9,7 +9,9 @@ import { queries, subscriptions } from '../graphql';
 class SidebarContainer extends React.Component {
   componentWillMount() {
     this.props.conversationCountsQuery.subscribeToMore({
-      document: gql(subscriptions.conversationNotification),
+      // listen for all conversation changes
+      document: gql(subscriptions.conversationsChanged),
+
       updateQuery: () => {
         this.props.conversationCountsQuery.refetch();
       },

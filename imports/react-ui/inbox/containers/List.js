@@ -8,7 +8,9 @@ import { queries, subscriptions } from '../graphql';
 class ListContainer extends Bulk {
   componentWillMount() {
     this.props.conversationsQuery.subscribeToMore({
-      document: gql(subscriptions.conversationNotification),
+      // listen for all conversation changes
+      document: gql(subscriptions.conversationsChanged),
+
       updateQuery: () => {
         this.props.conversationsQuery.refetch();
       },

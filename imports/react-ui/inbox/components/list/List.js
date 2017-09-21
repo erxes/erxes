@@ -52,7 +52,7 @@ function List(props) {
 
   const actionBarLeft = (
     <div>
-      <Resolver conversations={bulk} afterSave={emptyBulk} />
+      <Resolver conversations={bulk} />
 
       <TaggerPopover
         type="conversation"
@@ -75,7 +75,6 @@ function List(props) {
             <i className="ion-person" /> Assign <span className="caret" />
           </Button>
         }
-        afterSave={emptyBulk}
       />
     </div>
   );

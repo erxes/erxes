@@ -17,6 +17,7 @@ import {
   ChangeStatusSchema,
 } from '/imports/api/conversations/conversations';
 import { CONVERSATION_STATUSES } from '/imports/api/conversations/constants';
+import { conversationsChanged, messageInserted } from './apolloPubSubs';
 
 /*
  * all possible users they can get notifications
@@ -103,6 +104,9 @@ export const addMessage = new ValidatedMethod({
 
     const messageId = Messages.insert({ ...doc, userId });
 
+    // notify graphl subscription
+    messageInserted(messageId);
+
     const customer = conversation.customer();
 
     // if conversation's integration kind is form then send reply to
@@ -170,6 +174,9 @@ export const assign = new ValidatedMethod({
       { multi: true },
     );
 
+    // notify graphl subscription
+    conversationsChanged(conversationIds, 'statusChanged');
+
     const updatedConversations = Conversations.find(selector).fetch();
 
     // send notification
@@ -205,6 +212,9 @@ export const unassign = new ValidatedMethod({
       { $unset: { assignedUserId: 1 } },
       { multi: true },
     );
+
+    // notify graphl subscription
+    conversationsChanged(conversationIds, 'statusChanged');
   },
 });
 
@@ -221,6 +231,9 @@ export const changeStatus = new ValidatedMethod({
     const { conversations } = checkConversationsExistance(conversationIds);
 
     Conversations.update({ _id: { $in: conversationIds } }, { $set: { status } }, { multi: true });
+
+    // notify graphl subscription
+    conversationsChanged(conversationIds, 'statusChanged');
 
     // send notification
     _.each(conversations, conversation => {

@@ -10,7 +10,6 @@ const propTypes = {
   openText: PropTypes.string,
   bsStyle: PropTypes.string,
   changeStatus: PropTypes.func.isRequired,
-  afterSave: PropTypes.func.isRequired,
   CONVERSATION_STATUSES: PropTypes.object.isRequired,
 };
 
@@ -47,8 +46,6 @@ class Resolver extends Component {
       } else {
         Alert.info('The conversation has been reopened and restored to Inbox.');
       }
-
-      this.props.afterSave();
     });
   }
 
