@@ -5,37 +5,7 @@ import { graphql } from 'react-apollo';
 import { connection } from '../connection';
 import { changeRoute, changeConversation } from '../actions/messenger';
 import { Conversation as DumbConversation } from '../components';
-
-const messageQuery = `
-  _id
-  user {
-    _id
-    details {
-      avatar
-      fullName
-    }
-  }
-  content
-  createdAt
-  internal
-  engageData {
-    content
-    kind
-    sentAs
-    fromUser {
-      details {
-        fullName
-        avatar
-      }
-    }
-  }
-  attachments{
-    url
-    name
-    size
-    type
-  }
-`;
+import graphqlTypes from './graphql';
 
 class Conversation extends React.Component {
   componentWillMount() {
@@ -55,13 +25,7 @@ class Conversation extends React.Component {
   subscribe(data, conversationId) {
     // lister for new message
     return data.subscribeToMore({
-      document: gql`
-        subscription conversationMessageInserted($_id: String!) {
-          conversationMessageInserted(_id: $_id) {
-            ${messageQuery}
-          }
-        }`
-      ,
+      document: gql(graphqlTypes.conversationMessageInserted),
       variables: { _id: conversationId },
       updateQuery: (prev, { subscriptionData }) => {
         const message = subscriptionData.data.conversationMessageInserted;
@@ -133,23 +97,7 @@ const mapDisptachToProps = dispatch => ({
 });
 
 const query = graphql(
-  gql`
-    query ($conversationId: String!, $integrationId: String!) {
-      messages(conversationId: $conversationId) {
-        ${messageQuery}
-      }
-
-      conversationLastStaff(_id: $conversationId) {
-        _id,
-        details {
-          avatar
-          fullName
-        }
-      }
-
-      isMessengerOnline(integrationId: $integrationId)
-    }
-  `,
+  gql(graphqlTypes.conversationDetailQuery),
   {
     options: ownProps => ({
       variables: {

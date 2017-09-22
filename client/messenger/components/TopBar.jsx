@@ -20,6 +20,7 @@ function TopBar({
     isConversationEnded,
     endConversation,
   }) {
+
   const onEndConversation = () => {
     if (confirm('Do you want to end this conversation ?')) {
       endConversation();
@@ -30,7 +31,7 @@ function TopBar({
     if (isChat && !isConversationEnded) {
       return (
         <a
-          href=""
+          href="#"
           className="topbar-button right"
           onClick={onEndConversation}
           title="End conversation"
