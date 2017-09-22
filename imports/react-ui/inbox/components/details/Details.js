@@ -1,4 +1,5 @@
-import React, { PropTypes, Component } from 'react';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import { Wrapper } from '/imports/react-ui/layout/components';
 import RightSidebar from './RightSidebar';
 import LeftSidebar from './LeftSidebar';
