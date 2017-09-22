@@ -1,4 +1,5 @@
-import React, { PropTypes, Component } from 'react';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { Scrollbars } from 'react-custom-scrollbars';
 import { FlowRouter } from 'meteor/kadira:flow-router';
