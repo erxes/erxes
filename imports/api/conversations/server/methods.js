@@ -335,20 +335,22 @@ export const toggleParticipate = new ValidatedMethod({
 
     // not previously added
     if (Conversations.find(extendSelector).count() === 0) {
-      // add
-      return Conversations.update(
+      Conversations.update(
         selector,
         { $addToSet: { participatedUserIds: this.userId } },
         { multi: true },
       );
+    } else {
+      // remove
+      Conversations.update(
+        selector,
+        { $pull: { participatedUserIds: { $in: [this.userId] } } },
+        { multi: true },
+      );
     }
 
-    // remove
-    return Conversations.update(
-      selector,
-      { $pull: { participatedUserIds: { $in: [this.userId] } } },
-      { multi: true },
-    );
+    // notify graphl subscription
+    conversationsChanged(conversationIds, 'participatedStateChanged');
   },
 });
 
