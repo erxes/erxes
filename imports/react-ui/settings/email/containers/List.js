@@ -1,4 +1,5 @@
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import { gql, graphql, compose } from 'react-apollo';
 import { Loading } from '/imports/react-ui/common';
 import { List } from '../components';
