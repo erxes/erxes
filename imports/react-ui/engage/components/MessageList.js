@@ -38,7 +38,6 @@ class List extends React.Component {
 
   render() {
     const { messages, tags, toggleBulk, refetch } = this.props;
-
     const actionBarLeft = (
       <div>
         <Button bsStyle="link" href={'/engage/messages/create?kind=auto'}>
@@ -91,7 +90,7 @@ class List extends React.Component {
       <Wrapper.Sidebar>
         <SidebarContainers.Main />
         <SidebarContainers.Status />
-        <SidebarContainers.Tag tags={tags} />
+        <SidebarContainers.Tag tags={tags} manageUrl="tags/engageMessage" />
       </Wrapper.Sidebar>
     );
 

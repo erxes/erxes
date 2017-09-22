@@ -7,9 +7,10 @@ import { EmptyState } from '/imports/react-ui/common';
 const propTypes = {
   tags: PropTypes.array.isRequired,
   counts: PropTypes.object.isRequired,
+  manageUrl: PropTypes.string.isRequired,
 };
 
-function Tag({ tags, counts }) {
+function Tag({ tags, counts, manageUrl }) {
   const { Section, filter, getActiveClass } = Wrapper.Sidebar;
 
   return (
@@ -17,7 +18,7 @@ function Tag({ tags, counts }) {
       <Section.Title>Filter by tags</Section.Title>
 
       <Section.QuickButtons>
-        <a href={FlowRouter.path('/tags/engageMessage')} className="quick-button">
+        <a href={FlowRouter.path(manageUrl)} className="quick-button">
           <i className="ion-gear-a" />
         </a>
 
