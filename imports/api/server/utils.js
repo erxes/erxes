@@ -133,10 +133,10 @@ export const apolloNotifyNewMessage = messageId => {
   }
 
   mutate(
-    `mutation {
-      insertMessage(messageId: "${messageId}") {
-        _id
-      }
-    }`,
+    `
+    mutation {
+      conversationMessageInserted(_id: "${messageId}")
+    }
+  `,
   );
 };
