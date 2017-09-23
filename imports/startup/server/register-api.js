@@ -19,5 +19,3 @@ import '/imports/api/responseTemplates/server/methods';
 import '/imports/api/emailTemplates/methods';
 import '/imports/api/engage/server/methods';
 import '/imports/api/engage/server/cronJobs';
-
-import '/imports/api/insights/server/publications';

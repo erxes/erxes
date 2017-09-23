@@ -65,3 +65,9 @@ export const conversationCounts = `
     conversationCounts(params: $params)
   }
 `;
+
+export const totalConversationsCount = `
+  query totalConversationsCount($params: ConversationListParams) {
+    totalConversationsCount(params: $params)
+  }
+`;

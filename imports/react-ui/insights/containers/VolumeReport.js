@@ -1,38 +1,116 @@
-import { Meteor } from 'meteor/meteor';
-import { compose } from 'react-komposer';
-import { getTrackerLoader, composerOptions } from '/imports/react-ui/utils';
-import { Brands } from '/imports/api/brands/brands';
+import React, { PropTypes } from 'react';
+import { compose, gql, graphql } from 'react-apollo';
+import { Loading } from '/imports/react-ui/common';
 import { VolumeReport } from '../components';
-import { PunchCardData, MainGraph, InsightData, Summary } from '/imports/api/insights/collections';
 
-function composer({ queryParams }, onData) {
-  const integrationHandle = Meteor.subscribe('insights.volume', queryParams);
-  const teamMembersHandle = Meteor.subscribe('insights.teamMembers', queryParams, 'volume');
-  const punchCardHandle = Meteor.subscribe('insights.punch.card', queryParams, 'volume');
-
-  const brandHandle = Meteor.subscribe('brands.list', 0);
-
-  const brands = Brands.find({}, { sort: { name: 1 } }).fetch();
+const VolumeReportContainer = props => {
+  const { volumePieChartQuery, brandsQuery, punchCardQuery, mainQuery } = props;
 
   if (
-    brandHandle.ready() &&
-    integrationHandle.ready() &&
-    teamMembersHandle.ready() &&
-    punchCardHandle.ready()
+    volumePieChartQuery.loading ||
+    brandsQuery.loading ||
+    punchCardQuery.loading ||
+    mainQuery.loading
   ) {
-    const insights = InsightData.find().fetch();
-    const trend = MainGraph.find().fetch();
-    const punch = PunchCardData.find().fetch();
-    const summary = Summary.find().fetch();
-
-    onData(null, {
-      insights,
-      trend,
-      brands,
-      punch,
-      summary,
-    });
+    return <Loading title="Volume Report" />;
   }
-}
 
-export default compose(getTrackerLoader(composer), composerOptions({}))(VolumeReport);
+  const data = mainQuery.insightsMain;
+  const updatedProps = {
+    insights: volumePieChartQuery.insights,
+    trend: data.trend,
+    brands: brandsQuery.brands,
+    punch: punchCardQuery.insightsPunchCard,
+    summary: data.summary,
+  };
+
+  return <VolumeReport {...updatedProps} />;
+};
+
+VolumeReportContainer.propTypes = {
+  queryParams: PropTypes.object,
+  volumePieChartQuery: PropTypes.object,
+  brandsQuery: PropTypes.object,
+  punchCardQuery: PropTypes.object,
+  mainQuery: PropTypes.object,
+};
+
+export default compose(
+  graphql(
+    gql`
+      query insights($brandId: String, $startDate: String, $endDate: String) {
+        insights(brandId: $brandId, startDate: $startDate, endDate: $endDate) {
+          name
+          value
+        }
+      }
+    `,
+    {
+      name: 'volumePieChartQuery',
+      options: ({ queryParams }) => ({
+        fetchPolicy: 'network-only',
+        variables: {
+          brandId: queryParams.brandId,
+          endDate: queryParams.endDate,
+          startDate: queryParams.startDate,
+        },
+      }),
+    },
+  ),
+  graphql(
+    gql`
+      query insightsPunchCard($type: String, $integrationType: String,
+        $brandId: String, $endDate: String) {
+        insightsPunchCard(type: $type, integrationType: $integrationType,
+          brandId: $brandId, endDate: $endDate) {
+          day
+          value
+        }
+      }
+    `,
+    {
+      name: 'punchCardQuery',
+      options: ({ queryParams }) => ({
+        fetchPolicy: 'network-only',
+        variables: {
+          type: 'volume',
+          brandId: queryParams.brandId,
+          integrationType: queryParams.integrationType,
+          endDate: queryParams.endDate,
+        },
+      }),
+    },
+  ),
+  graphql(
+    gql`
+      query insightsMain($type: String, $integrationType: String,
+        $brandId: String, $startDate: String, $endDate: String) {
+        insightsMain(type: $type, integrationType: $integrationType,
+          brandId: $brandId, startDate: $startDate, endDate: $endDate)
+      }
+    `,
+    {
+      name: 'mainQuery',
+      options: ({ queryParams }) => ({
+        fetchPolicy: 'network-only',
+        variables: {
+          type: 'volume',
+          brandId: queryParams.brandId,
+          integrationType: queryParams.integrationType,
+          startDate: queryParams.startDate,
+          endDate: queryParams.endDate,
+        },
+      }),
+    },
+  ),
+  graphql(
+    gql`
+    query brands {
+      brands {
+        _id
+        name
+      }
+    }`,
+    { name: 'brandsQuery' },
+  ),
+)(VolumeReportContainer);
