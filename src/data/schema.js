@@ -230,6 +230,16 @@ export const types = `
     type: String!
     customerId: String!
   }
+
+  type InsightData {
+    name: String
+    value: Int
+  }
+
+  type InsightPunchCard {
+    day: String
+    value: [Int]
+  }
 `;
 export const queries = `
   type Query {
@@ -278,6 +288,14 @@ export const queries = `
     conversationCounts(params: ConversationListParams): JSON
     conversationDetail(_id: String!): Conversation
     totalConversationsCount(params: ConversationListParams): Int
+
+    insights(brandId: String, startDate: String, endDate: String): [InsightData]
+    insightsPunchCard(type: String, integrationType: String,
+        brandId: String, endDate: String): [InsightPunchCard]
+    insightsMain(type: String, integrationType: String,
+        brandId: String, startDate: String, endDate: String): JSON
+    insightsFirstResponse(integrationType: String, brandId: String,
+        startDate: String, endDate: String): JSON
   }
 `;
 
