@@ -62,10 +62,7 @@ export default compose(
       query insightsPunchCard($type: String, $integrationType: String,
         $brandId: String, $endDate: String) {
         insightsPunchCard(type: $type, integrationType: $integrationType,
-          brandId: $brandId, endDate: $endDate) {
-          day
-          value
-        }
+          brandId: $brandId, endDate: $endDate)
       }
     `,
     {

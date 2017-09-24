@@ -16,23 +16,6 @@ class PunchCard extends React.Component {
     this.renderPunchCard('update');
   }
 
-  generateData(data) {
-    const chartData = [];
-
-    data.map(detail => {
-      const day = detail.day;
-      const value = detail.value;
-
-      value.map((val, index) => {
-        if (val > 0) {
-          chartData.push([day, index, val]);
-        }
-      });
-    });
-
-    return chartData;
-  }
-
   renderPunchCard(type) {
     const { data, width } = this.props;
 
@@ -44,7 +27,7 @@ class PunchCard extends React.Component {
       chart = this.chart;
     }
 
-    chart.render(this.generateData(data));
+    chart.render(data);
   }
 
   render() {

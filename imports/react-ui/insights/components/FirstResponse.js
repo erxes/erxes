@@ -5,11 +5,13 @@ import Sidebar from './Sidebar';
 import Filter from './Filter';
 import Chart from './Chart';
 import TeamMembers from './TeamMembers';
+import { convertTime } from '../utils';
 
 const propTypes = {
   trend: PropTypes.array.isRequired,
   teamMembers: PropTypes.array.isRequired,
   brands: PropTypes.array.isRequired,
+  time: PropTypes.number,
 };
 
 class FirstResponse extends React.Component {
@@ -35,7 +37,7 @@ class FirstResponse extends React.Component {
   }
 
   render() {
-    const { trend, teamMembers, brands } = this.props;
+    const { trend, teamMembers, brands, time } = this.props;
     const width = this.state.width;
 
     const content = (
@@ -49,6 +51,9 @@ class FirstResponse extends React.Component {
             }}
           >
             {this.renderTitle('Daily First Response Resolve Rate')}
+            <span className="response-time">
+              ({convertTime(time)})
+            </span>
             <Chart width={width} height={300} data={trend} />
           </div>
 

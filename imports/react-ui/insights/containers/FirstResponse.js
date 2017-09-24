@@ -13,7 +13,8 @@ const FirstResponseReportContainer = props => {
   const data = firstResponseQuery.insightsFirstResponse;
   const updatedProps = {
     trend: data.trend,
-    teamMembers: [],
+    time: data.time,
+    teamMembers: data.teamMembers,
     brands: brandsQuery.brands,
   };
 

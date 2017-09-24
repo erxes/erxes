@@ -13,7 +13,7 @@ const ResponseReportContainer = props => {
   const data = mainQuery.insightsMain;
   const updatedProps = {
     trend: data.trend,
-    teamMembers: [],
+    teamMembers: data.teamMembers,
     brands: brandsQuery.brands,
     punch: punchCardQuery.insightsPunchCard,
     summary: data.summary,
@@ -35,10 +35,7 @@ export default compose(
       query insightsPunchCard($type: String, $integrationType: String,
         $brandId: String, $endDate: String) {
         insightsPunchCard(type: $type, integrationType: $integrationType,
-          brandId: $brandId, endDate: $endDate) {
-          day
-          value
-        }
+          brandId: $brandId, endDate: $endDate)
       }
     `,
     {
