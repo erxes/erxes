@@ -235,11 +235,6 @@ export const types = `
     name: String
     value: Int
   }
-
-  type InsightPunchCard {
-    day: String
-    value: [Int]
-  }
 `;
 export const queries = `
   type Query {
@@ -291,7 +286,7 @@ export const queries = `
 
     insights(brandId: String, startDate: String, endDate: String): [InsightData]
     insightsPunchCard(type: String, integrationType: String,
-        brandId: String, endDate: String): [InsightPunchCard]
+        brandId: String, endDate: String): JSON
     insightsMain(type: String, integrationType: String,
         brandId: String, startDate: String, endDate: String): JSON
     insightsFirstResponse(integrationType: String, brandId: String,
