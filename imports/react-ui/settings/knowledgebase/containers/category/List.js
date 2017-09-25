@@ -1,7 +1,6 @@
 import { gql, graphql } from 'react-apollo';
 import { commonListComposer } from '/imports/react-ui/settings/utils';
-// TODO: create directory named graphql and put queries inside it
-import queries from '../../queries';
+import { queries } from '../../graphql';
 import { CategoryList } from '../../components';
 
 export default commonListComposer({
