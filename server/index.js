@@ -45,10 +45,6 @@ app.get('/test', (req, res) => {
   res.render('widget-test');
 });
 
-app.get('/kb-test', (req, res) => {
-  res.render('knowledgebase-test');
-});
-
 app.get('/knowledgebase', (req, res) => {
   res.render('widget', { type: 'knowledgebase' });
 });
