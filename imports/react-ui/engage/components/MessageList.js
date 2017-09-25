@@ -63,12 +63,12 @@ class List extends React.Component {
           <tr>
             <th />
             <th>Title</th>
-            <th>Segment</th>
             <th>From</th>
             <th>Status</th>
             <th>Total</th>
             <th>Sent</th>
             <th>Failed</th>
+            <th>Type</th>
             <th>Created date</th>
             <th className="text-right">Actions</th>
           </tr>
