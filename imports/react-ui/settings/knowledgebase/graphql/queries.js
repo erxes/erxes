@@ -44,7 +44,7 @@ const getTopicList = `
 
 const getTopicCount = `
   query totalKnowledgeBaseTopicsCount {
-    totalKnowledgeBaseTopicsCount
+    knowledgeBaseTopicsTotalCount
   }
 `;
 
@@ -97,7 +97,7 @@ const getCategoryDetail = `
 
 const getCategoryCount = `
   query totalKnowledgeBaseCategoriesCount {
-    totalKnowledgeBaseCategoriesCount
+    knowledgeBaseCategoriesTotalCount
   }
 `;
 
@@ -134,7 +134,7 @@ const getArticleList = `
 
 const getArticleCount = `
   query totalKnowledgeBaseArticlesCount {
-    totalKnowledgeBaseArticlesCount
+    knowledgeBaseArticlesTotalCount
   }
 `;
 
