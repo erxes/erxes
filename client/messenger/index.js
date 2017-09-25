@@ -22,6 +22,7 @@ widgetConnect({
     return connect({
       brandCode: setting.brand_id,
       email: setting.email,
+      phone: setting.phone,
 
       cachedCustomerId: getLocalStorageItem('customerId'),
 
@@ -36,6 +37,10 @@ widgetConnect({
 
   connectCallback: (data) => {
     const messengerData = data.messengerConnect;
+
+    if (!messengerData.integrationId) {
+      throw new Error('Integration not found');
+    }
 
     // save connection info
     connection.data = messengerData;

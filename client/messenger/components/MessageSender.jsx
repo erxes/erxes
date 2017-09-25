@@ -1,11 +1,14 @@
 import React, { PropTypes, Component } from 'react';
-
+import { iconAttach } from '../../icons/Icons';
 
 const propTypes = {
   placeholder: PropTypes.string,
+  conversationId: PropTypes.string.isRequired,
   isAttachingFile: PropTypes.bool.isRequired,
   sendMessage: PropTypes.func.isRequired,
   sendFile: PropTypes.func.isRequired,
+  readMessages: PropTypes.func.isRequired,
+  onTextInputBlur: PropTypes.func.isRequired,
 };
 
 class MessageSender extends Component {
@@ -18,6 +21,17 @@ class MessageSender extends Component {
     this.handleMessageChange = this.handleMessageChange.bind(this);
     this.handleKeyPress = this.handleKeyPress.bind(this);
     this.handleFileInput = this.handleFileInput.bind(this);
+    this.handleOnBlur = this.handleOnBlur.bind(this);
+  }
+
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.isParentFocused) { // eslint-disable-line
+      if (this.props.conversationId) {
+        this.props.readMessages(this.props.conversationId);
+      }
+
+      this.textarea.focus();
+    }
   }
 
   onSubmit(e) {
@@ -28,6 +42,10 @@ class MessageSender extends Component {
 
   handleMessageChange(e) {
     this.setState({ message: e.target.value });
+  }
+
+  handleOnBlur() {
+    this.props.onTextInputBlur();
   }
 
   handleKeyPress(e) {
@@ -55,16 +73,19 @@ class MessageSender extends Component {
       <div>
         <form className="erxes-message-sender" onSubmit={this.onSubmit}>
           <textarea
+            ref={(textarea) => { this.textarea = textarea; }}
             className="reply"
             placeholder={this.props.placeholder}
             value={this.state.message}
             onChange={this.handleMessageChange}
+            onBlur={this.handleOnBlur}
             onKeyDown={this.handleKeyPress}
           />
           {
             this.props.isAttachingFile
               ? <div className="loader" />
               : <label htmlFor="file-upload" className="btn-attach">
+                {iconAttach}
                 <input id="file-upload" type="file" onChange={this.handleFileInput} />
               </label>
           }

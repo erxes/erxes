@@ -1,11 +1,13 @@
 import {
   SENDING_ATTACHMENT,
+  MESSAGE_SENT,
   ATTACHMENT_SENT,
   MESSENGER_TOGGLE,
   CHANGE_ROUTE,
   CHANGE_CONVERSATION,
-  ASK_EMAIL,
-  SAVED_EMAIL,
+  ASK_GET_NOTIFIED,
+  GET_NOTIFIED_VALUE_SAVED,
+  END_CONVERSATION,
 } from '../constants';
 
 /**
@@ -67,15 +69,27 @@ const isAttachingFile = (state = false, action) => {
 
 
 /**
- * Indicates whether received email from user.
+ * Indicates whether received email or phone from user.
  */
-const isObtainedEmail = (state = true, action) => {
-  if (action.type === ASK_EMAIL) {
+const isObtainedGetNotifiedType = (state = true, action) => {
+  if (action.type === ASK_GET_NOTIFIED) {
     return false;
   }
 
-  if (action.type === SAVED_EMAIL) {
+  if (action.type === GET_NOTIFIED_VALUE_SAVED) {
     return true;
+  }
+
+  return state;
+};
+
+const isConversationEnded = (state = false, action) => {
+  if (action.type === END_CONVERSATION) {
+    return true;
+  }
+
+  if (action.type === MESSAGE_SENT) {
+    return false;
   }
 
   return state;
@@ -83,10 +97,11 @@ const isObtainedEmail = (state = true, action) => {
 
 const messenger = {
   isVisible,
-  isObtainedEmail,
+  isObtainedGetNotifiedType,
   activeRoute,
   activeConversation,
   isAttachingFile,
+  isConversationEnded,
 };
 
 export default messenger;

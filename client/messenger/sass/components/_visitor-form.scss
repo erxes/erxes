@@ -4,7 +4,7 @@ $break-small: 415px;
   position: fixed;
   width: 370px;
   background: $white;
-  box-shadow: 0 5px 15px -3px rgba($black, 0.15);
+  box-shadow: 0 5px 15px -3px rgba($black, .15);
   z-index: 9998;
   display: flex;
   flex-direction: column;
@@ -17,100 +17,28 @@ $break-small: 415px;
     opacity: 0
   ), webkit moz ms o);
   visibility: hidden;
-  transition: opacity 0.3s ease-in-out, bottom 0.2s ease-in-out;
+  transition: opacity .3s ease-in-out, bottom .2s ease-in-out;
 
   .erxes-information {
-    padding: 25px 20px 20px;
-    color: $text-color;
     background: $bg-color;
+    color: $text-color;
+    padding: 25px 20px 20px;
 
     .erxes-error {
-      font-size: 12px;
       color: $red;
+      font-size: 12px;
     }
 
     @media screen and (max-width: $break-small) {
       flex: 1;
-    }
-  }
-
-  .erxes-form-wrapper {
-    position: relative;
-
-    input, textarea {
-      width: 100%;
-      height: 100%;
-      border: none;
-      outline: 0;
-      display: block;
-      font-size: 14px;
-      height: 50px;
-      line-height: 20px;
-      color: $text-color;
-      border-radius: $border-radius;
-      padding: 15px;
-      padding-right: 50px;
-      margin: 0;
-      resize: none;
-      -webkit-box-sizing: border-box;
-         -moz-box-sizing: border-box;
-              box-sizing: border-box;
-
-    }
-
-    > button {
-      position: absolute;
-      right: 10px;
-      bottom: 8px;
-      border: none;
-      outline: 0;
-      background-color: transparent;
-      background-image: url($icon-send);
-      background-position: 2px 3px;
-      background-repeat: no-repeat;
-      width: 35px;
-      height: 35px;
-      margin: 0;
-      cursor: pointer;
-      opacity: 0.6;
-
-      &:hover {
-        opacity: 1;
-      }
-    }
-
-    @media screen and (max-width: $break-small) {
-      display: flex;
-      flex-direction: column;
-      flex: 1;
-    }
-  }
-
-  .erxes-result {
-    text-align: center;
-
-    button {
-      background: $main-color;
-      padding: 7px 15px;
-      border-radius: $border-radius;
-      font-size: 14px;
-      color: $white;
-      border: none;
-      outline: 0;
-      display: block;
-      margin: 10px auto 0;
-
-      &:hover {
-        cursor: pointer;
-      }
     }
   }
 
   @media screen and (max-width: $break-small) {
-    width: 100%;
-    max-height: none;
-    height: 100%;
-    right: 0;
     bottom: 0;
+    height: 100%;
+    max-height: none;
+    right: 0;
+    width: 100%;
   }
 }

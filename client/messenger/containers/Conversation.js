@@ -1,86 +1,54 @@
-import React from 'react';
+import React, { PropTypes } from 'react';
 import gql from 'graphql-tag';
 import { connect } from 'react-redux';
 import { graphql } from 'react-apollo';
-import Subscriber from './Subscriber';
 import { connection } from '../connection';
 import { changeRoute, changeConversation } from '../actions/messenger';
 import { Conversation as DumbConversation } from '../components';
+import graphqlTypes from './graphql';
 
+class Conversation extends React.Component {
+  componentWillMount() {
+    const { data, conversationId } = this.props;
 
-const messageQuery = `
-  _id
-  user {
-    _id
-    details {
-      avatar
-      fullName
-    }
-  }
-  content
-  createdAt
-  engageData {
-    content
-    kind
-    sentAs
-    fromUser {
-      details {
-        fullName
-        avatar
-      }
-    }
-  }
-  attachments{
-    url
-    name
-    size
-    type
-  }
-`;
-
-
-class Conversation extends Subscriber {
-  subscribeOptions(props) {
-    return {
-      document: gql`
-        subscription onMessageInserted($conversationId: String!) {
-          messageInserted(conversationId: $conversationId) {
-            ${messageQuery}
-          }
-        }
-      `,
-
-      variables: {
-        conversationId: props.conversationId,
-      },
-
-      // push new message to messages list when subscription updated
-      updateQuery: (prev, { subscriptionData }) => {
-        // get previous messages list
-        const messages = prev.messages || [];
-
-        // add new one
-        return Object.assign({}, prev, {
-          messages: [...messages, subscriptionData.data.messageInserted],
-        });
-      },
-    };
+    this.subscribe(data, conversationId);
   }
 
   componentWillReceiveProps(nextProps) {
-    const props = this.props;
-    const { subscribeToMore } = props.data;
-
-    // first time subscription creation
-    if (!this.subscription && !nextProps.data.loading) {
-      this.subscription = [subscribeToMore(this.subscribeOptions(props))];
-    }
-
     // when new conversation, conversationId props will be null. So after first
     // message creation update subscription with new conversationId variable
-    if (!props.conversationId && nextProps.conversationId) {
-      this.subscription = [subscribeToMore(this.subscribeOptions(nextProps))];
+    if (this.props.conversationId !== nextProps.conversationId) {
+      this.subscribe(this.props.data, nextProps.conversationId);
     }
+  }
+
+  subscribe(data, conversationId) {
+    // lister for new message
+    return data.subscribeToMore({
+      document: gql(graphqlTypes.conversationMessageInserted),
+      variables: { _id: conversationId },
+      updateQuery: (prev, { subscriptionData }) => {
+        const message = subscriptionData.data.conversationMessageInserted;
+
+        if (!message) {
+          return prev;
+        }
+
+        // do not show internal messages
+        if (message.internal) {
+          return prev;
+        }
+
+        const messages = prev.messages;
+
+        // add new message to messages list
+        const next = Object.assign({}, prev, {
+          messages: [...messages, message],
+        });
+
+        return next;
+      },
+    });
   }
 
   render() {
@@ -129,27 +97,9 @@ const mapDisptachToProps = dispatch => ({
 });
 
 const query = graphql(
-  gql`
-    query ($conversationId: String!, $integrationId: String!) {
-      messages(conversationId: $conversationId) {
-        ${messageQuery}
-      }
-
-      conversationLastStaff(_id: $conversationId) {
-        _id,
-        details {
-          avatar
-          fullName
-        }
-      }
-
-      isMessengerOnline(integrationId: $integrationId)
-    }
-  `,
+  gql(graphqlTypes.conversationDetailQuery),
   {
     options: ownProps => ({
-      fetchPolicy: 'network-only',
-      pollInterval: 30000,
       variables: {
         conversationId: ownProps.conversationId,
         integrationId: connection.data.integrationId,
@@ -157,5 +107,10 @@ const query = graphql(
     }),
   },
 );
+
+Conversation.propTypes = {
+  data: PropTypes.object,
+  conversationId: PropTypes.string,
+}
 
 export default connect(mapStateToProps, mapDisptachToProps)(query(Conversation));

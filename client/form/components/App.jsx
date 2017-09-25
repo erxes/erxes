@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
+import { iconClose } from '../../icons/Icons';
 import { Form, ShoutboxLauncher } from '../containers';
 
 
@@ -28,7 +29,14 @@ function App({ isShoutboxFormVisible, loadType, onModalClose }) {
   if (loadType === 'popup') {
     return (
       <div className="modal-form">
-        <div className="close" onClick={onModalClose} />
+        <a
+          href=""
+          className="close"
+          onClick={onModalClose}
+          title="Close"
+        >
+          {iconClose}
+        </a>
         <Form />
       </div>
     );

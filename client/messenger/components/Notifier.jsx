@@ -35,6 +35,7 @@ class Notifier extends React.Component {
   renderNotificationBody() {
     const { lastUnreadMessage } = this.props;
     const { engageData, user, content } = lastUnreadMessage;
+    const details = user.details || {};
 
     if (engageData) {
       return <EngageMessage engageData={engageData} />;
@@ -44,7 +45,7 @@ class Notifier extends React.Component {
       <div className="notification-wrapper">
         <div className="user-info">
           <User user={user} />
-          {user.details.fullName}
+          {details.fullName}
         </div>
         <div className="notification-body">
           {striptags(content)}
@@ -70,7 +71,7 @@ class Notifier extends React.Component {
       return (
         <div
           className={this.renderClass()}
-          style={{ backgroundColor: color }}
+          style={{ borderColor: color }}
           onClick={() => readMessage({
             conversationId: lastUnreadMessage.conversationId,
             engageData: lastUnreadMessage.engageData,

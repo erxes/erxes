@@ -1,4 +1,5 @@
 import React, { PropTypes } from 'react';
+import { iconAttach } from '../../icons/Icons';
 
 
 const propTypes = {
@@ -7,7 +8,8 @@ const propTypes = {
 
 function Attachment({ attachment }) {
   function renderAtachment() {
-    const fileExtension = attachment.url.split('.').pop();
+    const attachmentName = attachment.url || '';
+    const fileExtension = attachmentName.split('.').pop();
 
     if (['png', 'jpeg', 'jpg'].indexOf(fileExtension) > -1) {
       return <img role="presentation" src={attachment.url} />;
@@ -15,7 +17,8 @@ function Attachment({ attachment }) {
 
     return (
       <div className="file-wrapper">
-        <i className="file" /> <span>{attachment.name}</span>
+        {iconAttach}
+        <span>{attachment.name}</span>
       </div>
     );
   }

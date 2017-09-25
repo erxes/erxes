@@ -5,7 +5,6 @@ import ReactDOM from 'react-dom';
 import { ApolloProvider } from 'react-apollo';
 import client, { createStore } from './apollo-client';
 
-
 // base connect function for all widgets
 const widgetConnect = (params) => {
   const {
@@ -26,9 +25,10 @@ const widgetConnect = (params) => {
     connectMutation(event)
 
     .then(({ data }) => {
-
-      // save connection info
+      // check connection and save connection info
       connectCallback(data);
+
+      console.log('connected ...'); // eslint-disable-line
 
       // notify parent window that connected
       window.parent.postMessage({
@@ -42,7 +42,7 @@ const widgetConnect = (params) => {
       // render root react component
       ReactDOM.render(
         <ApolloProvider store={createStore(reducers)} client={client}>
-          <AppContainer data={data} />
+          <AppContainer />
         </ApolloProvider>,
         document.getElementById('root'),
       );

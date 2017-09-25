@@ -1,6 +1,6 @@
 {
   "name": "erxes-widgets",
-  "version": "0.4.5",
+  "version": "0.6.0",
   "description": "Embedable widget scripts server for erxes",
   "homepage": "https://erxes.io",
   "repository": {
@@ -21,12 +21,11 @@
   "private": true,
   "scripts": {
     "dev": "webpack --watch --progress & nodemon server --exec babel-node",
-    "build": "webpack && babel server --out-dir dist --copy-files --ignore tests",
+    "build": "webpack --config=webpack.prod.config.babel.js && babel server --out-dir dist --copy-files --ignore tests",
     "start": "node dist"
   },
   "dependencies": {
-    "prop-types": "^15.5.8",
-    "apollo-client": "^1.0.0-rc.6",
+    "add-graphql-subscriptions": "^1.0.1",
     "body-parser": "^1.15.2",
     "classnames": "^2.2.5",
     "cors": "^2.8.3",
@@ -35,25 +34,23 @@
     "ejs": "^2.5.6",
     "express": "^4.14.0",
     "graphql": "^0.9.1",
-    "graphql-tag": "^2.0.0",
+    "graphql-tag": "^2.4.2",
     "meteor-ejson": "^0.6.3",
     "moment": "^2.17.1",
     "react": "^15.4.1",
-    "react-apollo": "^1.2.0",
+    "react-apollo": "^1.4.15",
     "react-datepicker": "^0.46.0",
     "react-dom": "^15.4.1",
-    "react-ionicons": "^1.5.7",
     "react-redux": "^5.0.1",
     "redux": "^3.6.0",
     "redux-thunk": "^2.1.0",
     "striptags": "^3.0.1",
-    "subscriptions-transport-ws": "0.5.3",
-    "underscore": "^1.8.3"
+    "subscriptions-transport-ws": "^0.8.2"
   },
   "devDependencies": {
     "babel-cli": "^6.18.0",
     "babel-core": "^6.21.0",
-    "babel-loader": "^6.2.10",
+    "babel-loader": "^7.1.2",
     "babel-plugin-transform-object-rest-spread": "^6.20.2",
     "babel-preset-es2015": "^6.18.0",
     "babel-preset-react": "^6.16.0",
@@ -64,10 +61,13 @@
     "eslint-plugin-jsx-a11y": "^4.0.0",
     "eslint-plugin-react": "^6.9.0",
     "json-loader": "^0.5.4",
-    "node-sass": "^4.1.0",
+    "node-sass": "^4.5.3",
     "nodemon": "^1.11.0",
-    "sass-loader": "^6.0.3",
+    "sass-loader": "^6.0.6",
     "style-loader": "^0.16.1",
-    "webpack": "^2.3.2"
+    "uglifyjs-webpack-plugin": "v1.0.0-beta.2",
+    "webpack": "^3.5.5",
+    "webpack-bundle-analyzer": "^2.9.0",
+    "webpack-merge": "^4.1.0"
   }
 }

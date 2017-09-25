@@ -1,4 +1,5 @@
 import React, { PropTypes } from 'react';
+import { iconPlus } from '../../icons/Icons';
 import { ConversationItem, TopBar } from '../containers';
 
 
@@ -9,8 +10,7 @@ const propTypes = {
   color: PropTypes.string,
 };
 
-function ConversationList({ conversations, createConversation,
-  goToConversation, color }) {
+function ConversationList({ conversations, createConversation, goToConversation, color }) {
   const title = (
     <div className="erxes-topbar-title">
       <div>Conversations</div>
@@ -19,10 +19,10 @@ function ConversationList({ conversations, createConversation,
   );
 
   return (
-    <div className="erxes-messenger" style={{ border: `2px solid ${color}` }}>
+    <div className="erxes-messenger" style={{ border: `1px solid ${color}` }}>
       <TopBar
         middle={title}
-        buttonClass="new"
+        buttonIcon={iconPlus}
         onButtonClick={createConversation}
       />
       <ul className="erxes-conversation-list">

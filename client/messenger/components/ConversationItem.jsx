@@ -13,7 +13,7 @@ const propTypes = {
 function ConversationItem({ conversation, notificationCount, goToConversation }) {
   const { _id, content, createdAt } = conversation;
   const participatedUser = conversation.participatedUsers[0];
-  const avatar = (participatedUser && participatedUser.details.avatar) || 'https://crm.nmma.co/images/userDefaultIcon.png';
+  const avatar = (participatedUser && participatedUser.details.avatar) || '/static/images/user.png';
   const fullName = (participatedUser && participatedUser.details.fullName) || 'Support staff';
 
   return (
@@ -24,7 +24,7 @@ function ConversationItem({ conversation, notificationCount, goToConversation })
       <img className="erxes-list-avatar" src={avatar} alt="" />
       <div className="erxes-right-side">
         <div className="erxes-date">
-          {moment(createdAt).fromNow()}
+          {moment(createdAt).format('YYYY-MM-DD, HH:mm:ss')}
         </div>
         <div className="erxes-name">{fullName}</div>
         <div className="erxes-last-message">

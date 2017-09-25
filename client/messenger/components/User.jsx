@@ -8,7 +8,7 @@ const propTypes = {
 
 function User({ user }) {
   const avatar = user && user.details && user.details.avatar;
-  const defaultAvatar = 'https://crm.nmma.co/images/userDefaultIcon.png';
+  const defaultAvatar = '/static/images/user.png';
 
   return (
     <div className="erxes-avatar">

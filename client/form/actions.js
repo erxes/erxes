@@ -1,4 +1,3 @@
-import _ from 'underscore';
 import gql from 'graphql-tag';
 import {
   SHOUTBOX_FORM_TOGGLE,
@@ -58,7 +57,7 @@ export const connect = (brandCode, formCode) =>
   });
 
 export const saveForm = doc => (dispatch) => {
-  const submissions = _.map(_.keys(doc), (fieldId) => {
+  const submissions = Object.keys(doc).map((fieldId) => {
     const { value, text, type, validation } = doc[fieldId];
 
     return {
@@ -77,9 +76,13 @@ export const saveForm = doc => (dispatch) => {
 
         saveForm(integrationId: $integrationId, formId: $formId,
           submissions: $submissions) {
-            fieldId
-            code
-            text
+            status
+            messageId
+            errors {
+              fieldId
+              code
+              text
+            }
         }
       }`,
 
@@ -91,17 +94,11 @@ export const saveForm = doc => (dispatch) => {
   })
 
   .then(({ data }) => {
-    const errors = data.saveForm;
-
-    let status = SUCCESS;
-
-    if (errors.length > 0) {
-      status = ERROR;
-    }
+    const { status, errors } = data.saveForm;
 
     dispatch({
       type: FORM_SUBMIT,
-      status,
+      status: status === 'ok' ? SUCCESS : ERROR,
       errors,
     });
   });

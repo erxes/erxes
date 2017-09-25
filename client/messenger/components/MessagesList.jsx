@@ -1,13 +1,11 @@
 import React, { PropTypes, Component } from 'react';
 import classNames from 'classnames';
-import { Message } from '../containers';
+import { Message, GetNotified } from '../containers';
 
 
 const propTypes = {
   messages: PropTypes.array.isRequired,
-  saveEmail: PropTypes.func,
   isOnline: PropTypes.bool,
-  isObtainedEmail: PropTypes.bool,
   data: PropTypes.object,
 };
 
@@ -18,7 +16,7 @@ class MessagesList extends Component {
 
   componentWillUpdate() {
     const { node } = this;
-    this.shouldScrollBottom = (node.scrollTop + node.offsetHeight) === node.scrollHeight;
+    this.shouldScrollBottom = node.scrollHeight - (node.scrollTop + node.offsetHeight) < 30;
   }
 
   componentDidUpdate() {
@@ -53,35 +51,10 @@ class MessagesList extends Component {
     return null;
   }
 
-  renderEmailPrompt(color) {
-    if (!this.props.isObtainedEmail) {
-      return (
-        <li className="erxes-spacial-message ml50">
-          <label htmlFor="visitor-email">Get notified</label>
-          <div className="ask-email">
-            <input
-              id="visitor-email"
-              placeholder="email@domain.com"
-              style={{ borderColor: color }}
-            />
-
-            <button
-              onClick={this.props.saveEmail}
-              style={{ backgroundColor: color }}
-            />
-          </div>
-        </li>
-      );
-    }
-
-    return null;
-  }
-
   render() {
     const { data, messages } = this.props;
     const uiOptions = data.uiOptions || {};
     const bg = uiOptions.wallpaper;
-    const color = uiOptions.color;
     const messengerData = data.messengerData;
     const messagesClasses = classNames('erxes-messages-list', { [`bg-${bg}`]: bg });
 
@@ -97,7 +70,8 @@ class MessagesList extends Component {
           )
         }
         {this.renderAwayMessage(messengerData)}
-        {this.renderEmailPrompt(color)}
+
+        <GetNotified />
       </ul>
     );
   }
