@@ -51,23 +51,13 @@ class Conversation extends React.Component {
       isMessengerOnlineQuery,
     } = this.props;
 
-    // show empty list while waiting
-    if (
-      conversationDetailQuery.loading ||
-      conversationLastStaffQuery.loading ||
-      isMessengerOnlineQuery.loading
-    ) {
-
-      return null;
-    }
-
     const conversationDetail = conversationDetailQuery.conversationDetail || {};
 
     const extendedProps = {
       ...this.props,
       messages: conversationDetail.messages || [],
-      user: conversationLastStaffQuery.conversationLastStaff,
-      isOnline: isMessengerOnlineQuery.isMessengerOnline,
+      user: conversationLastStaffQuery.conversationLastStaff || {},
+      isOnline: isMessengerOnlineQuery.isMessengerOnline || false,
       data: connection.data,
     };
 
