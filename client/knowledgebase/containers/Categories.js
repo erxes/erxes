@@ -11,7 +11,7 @@ import queries from './graphql';
 
 const propTypes = {
   data: PropTypes.shape({
-    getKbTopic: PropTypes.object,
+    knowledgeBaseTopicsDetail: PropTypes.object,
     loading: PropTypes.bool,
   }),
 };
@@ -19,7 +19,7 @@ const propTypes = {
 const Categories = (props) => {
   const extendedProps = {
     ...props,
-    kbTopic: props.data.getKbTopic,
+    kbTopic: props.data.knowledgeBaseTopicsDetail,
   };
 
   if (props.data.loading) {

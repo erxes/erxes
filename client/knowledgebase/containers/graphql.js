@@ -1,14 +1,14 @@
 const kbLoaderQuery = `
-  query kbLoader($topicId: String!) {
-    kbLoader(topicId: $topicId) {
+  query knowledgeBaseLoader($topicId: String!) {
+    knowledgeBaseLoader(topicId: $topicId) {
       loadType
     }
   }
 `;
 
 const kbSearchArticlesQuery = `
-  query kbSearchArticles($topicId: String!, $searchString: String!) {
-    kbSearchArticles(topicId: $topicId, searchString: $searchString) {
+  query knowledgeBaseArticlesSearch($topicId: String!, $searchString: String!) {
+    knowledgeBaseArticlesSearch(topicId: $topicId, searchString: $searchString) {
       _id
       title
       summary
@@ -26,8 +26,8 @@ const kbSearchArticlesQuery = `
 `;
 
 const getKbTopicQuery = `
-  query getKbTopic($topicId: String!) {
-    getKbTopic(topicId: $topicId) {
+  query knowledgeBaseTopicsDetail($topicId: String!) {
+    knowledgeBaseTopicsDetail(topicId: $topicId) {
       title
       description
       categories {
