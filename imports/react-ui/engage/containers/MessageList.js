@@ -54,6 +54,8 @@ export default compose(
             details
           }
           tagIds
+          messenger
+          email
         }
       }
     `,
