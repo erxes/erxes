@@ -9,6 +9,11 @@ import Tags from './Tags';
 import { Forms, FormFields } from './Forms';
 import { Customers, Segments } from './Customers';
 import { Conversations, Messages as ConversationMessages } from './Conversations';
+import {
+  KnowledgeBaseArticles,
+  KnowledgeBaseCategories,
+  KnowledgeBaseTopics,
+} from './knowledgeBase';
 
 export {
   Users,
@@ -25,4 +30,7 @@ export {
   Customers,
   Conversations,
   ConversationMessages,
+  KnowledgeBaseArticles,
+  KnowledgeBaseCategories,
+  KnowledgeBaseTopics,
 };
