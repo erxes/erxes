@@ -39,7 +39,7 @@ const displayType = (
       return {
         displayType: CONTENT_TYPE_TOPIC,
         topicData: {
-          topicId: action.topicId,
+          topicId: connection.data.topic_id,
           searchStr: action.searchStr,
         },
       };
@@ -48,7 +48,7 @@ const displayType = (
       return {
         displayType: CONTENT_TYPE_SEARCH,
         topicData: {
-          topicId: connection.data.topicId,
+          topicId: connection.data.topic_id,
           searchStr: action.searchStr,
         },
       };

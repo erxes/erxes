@@ -88,12 +88,15 @@ export default class KnowledgeBase extends React.Component {
   }
 
   render() {
+    const { displayType } = this.props;
     const widgetClasses = classNames('erxes-widget-kb');
+    const { topicData } = displayType;
+    const searchStr = topicData && topicData.searchStr || '';
 
     return (
       <div className={widgetClasses}>
         <div>
-          <SearchBar />
+          <SearchBar searchStr={searchStr}/>
           <div className="erxes-content">
             <div className="erxes-knowledge-container">
               {this.renderContent()}
