@@ -1,12 +1,9 @@
 import React from 'react';
 import { Row as CommonRow } from '/imports/react-ui/settings/common/components';
-import { CategoryForm as categoryFormComposer } from '../../containers';
+import { CategoryForm } from '../../containers';
 
 class CategoryRow extends CommonRow {
   renderForm(props) {
-    const { object } = props;
-    const CategoryForm = categoryFormComposer({ object });
-
     return <CategoryForm {...props} />;
   }
 

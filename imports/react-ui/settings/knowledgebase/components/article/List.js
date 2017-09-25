@@ -2,7 +2,7 @@ import React from 'react';
 import { Table } from 'react-bootstrap';
 import { List as CommonList } from '/imports/react-ui/settings/common/components';
 import ArticleRow from './Row';
-import { ArticleForm } from '../../containers';
+import { ArticleForm } from '../../components';
 
 class ArticleList extends CommonList {
   constructor(props) {

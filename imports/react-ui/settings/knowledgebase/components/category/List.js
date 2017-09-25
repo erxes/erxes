@@ -2,7 +2,7 @@ import React from 'react';
 import { Table } from 'react-bootstrap';
 import { List as CommonList } from '/imports/react-ui/settings/common/components';
 import CategoryRow from './Row';
-import categoryFormComposer from '../../containers/category/CategoryForm';
+import { CategoryForm } from '../../containers';
 
 class CategoryList extends CommonList {
   constructor(props) {
@@ -16,9 +16,6 @@ class CategoryList extends CommonList {
   }
 
   renderForm(props) {
-    const { object } = props;
-    const CategoryForm = categoryFormComposer({ object });
-
     return <CategoryForm {...props} />;
   }
 

@@ -63,6 +63,15 @@ const getCategoryList = `
       _id
       title
       description
+      icon
+      createdBy
+      createdDate
+      modifiedBy
+      modifiedDate
+      articles {
+        _id
+        title
+      }
     }
   }
 `;

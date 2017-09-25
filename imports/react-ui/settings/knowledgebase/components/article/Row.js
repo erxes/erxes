@@ -1,6 +1,6 @@
 import React from 'react';
 import { Row as CommonRow } from '/imports/react-ui/settings/common/components';
-import { ArticleForm } from '../../containers';
+import { ArticleForm } from '../../components';
 
 class ArticleRow extends CommonRow {
   renderForm(props) {
