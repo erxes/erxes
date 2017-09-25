@@ -43,61 +43,59 @@ export default class KnowledgeBase extends React.Component {
     onUpdateSearchString(event.target.value);
   }
 
-  render() {
+  renderContent() {
     const { displayType } = this.props;
     if (displayType.displayType === CONTENT_TYPE_TOPIC) {
       return (
-        <div>
-          <SearchBar />
-          <div className="erxes-content">
-            <div className="erxes-knowledge-container">
-              <Categories />
-            </div>
-          </div>
-        </div>
-      );
-    } else if (displayType.displayType === CONTENT_TYPE_CATEGORY) {
+        <Categories />
+      )
+    }
+
+    if (displayType.displayType === CONTENT_TYPE_CATEGORY) {
       return (
         <div>
-          <SearchBar />
-          <div className="erxes-content">
-            <div className="erxes-knowledge-container">
-              <BackButton onClickHandler={this.onTopicClickHandler} text="Back to categories" />
-              <CategoryDetail category={displayType.category} />
-            </div>
-          </div>
-        </div>
-      );
-    } else if (displayType.displayType === CONTENT_TYPE_ARTICLE) {
-      return (
-        <div>
-          <SearchBar />
-          <div className="erxes-content">
-            <div className="erxes-knowledge-container">
-              <BackButton
-                onClickHandler={displayType.data.category != null ?
-                  this.onCategoryClickHandler : this.onTopicClickHandler}
-                text={displayType.data.category != null ?
-                  'Back to categories' : 'Back to top'}
-              />
-              <ArticleDetail data={displayType.data} />
-            </div>
-          </div>
-        </div>
-      );
-    } else if (displayType.displayType === CONTENT_TYPE_SEARCH) {
-      return (
-        <div>
-          <SearchBar searchStr={displayType.topicData.searchStr || ''} />
-          <div className="erxes-content">
-            <div className="erxes-knowledge-container">
-              <Articles searchString={displayType.topicData.searchStr} />
-            </div>
-          </div>
+          <BackButton onClickHandler={this.onTopicClickHandler} text="Back to categories" />
+          <CategoryDetail category={displayType.category} />
         </div>
       );
     }
+
+    if (displayType.displayType === CONTENT_TYPE_ARTICLE) {
+      return (
+        <div>
+          <BackButton
+            onClickHandler={displayType.data.category != null ?
+              this.onCategoryClickHandler : this.onTopicClickHandler}
+            text={displayType.data.category != null ?
+              'Back to categories' : 'Back to top'}
+          />
+          <ArticleDetail data={displayType.data} />
+        </div>
+      );
+    }
+
+    if (displayType.displayType === CONTENT_TYPE_SEARCH) {
+      return (
+        <div>
+          <Articles searchString={displayType.topicData.searchStr} />
+        </div>
+      );
+    }
+
     return null;
+  }
+
+  render() {
+    return (
+      <div>
+        <SearchBar />
+        <div className="erxes-content">
+          <div className="erxes-knowledge-container">
+            {this.renderContent()}
+          </div>
+        </div>
+      </div>
+    );
   }
 }
 

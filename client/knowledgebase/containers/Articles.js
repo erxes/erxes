@@ -7,6 +7,7 @@ import gql from 'graphql-tag';
 import { graphql } from 'react-apollo';
 import { connection } from '../connection';
 import { Articles as DumbArticles } from '../components';
+import queries from './graphql';
 
 const propTypes = {
   data: PropTypes.shape({
@@ -31,24 +32,7 @@ const Articles = (props) => {
 Articles.propTypes = propTypes;
 
 const ArticlesWithData = graphql(
-  gql`
-    query kbSearchArticles($topicId: String!, $searchString: String!) {
-      kbSearchArticles(topicId: $topicId, searchString: $searchString) {
-        _id
-        title
-        summary
-        content
-        createdBy
-        createdDate
-        modifiedBy
-        modifiedDate
-        authorDetails {
-          fullName
-          avatar
-        }
-      }
-    }
-  `,
+  gql(queries.kbSearchArticlesQuery),
   {
     options: (ownProps) => ({
       fetchPolicy: 'network-only',

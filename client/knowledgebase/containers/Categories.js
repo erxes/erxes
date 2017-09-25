@@ -7,6 +7,7 @@ import gql from 'graphql-tag';
 import { graphql } from 'react-apollo';
 import { connection } from '../connection';
 import { Categories as DumbCategories } from '../components';
+import queries from './graphql';
 
 const propTypes = {
   data: PropTypes.shape({
@@ -31,42 +32,7 @@ const Categories = (props) => {
 Categories.propTypes = propTypes;
 
 const CategoriesWithData = graphql(
-  gql`
-    query getKbTopic($topicId: String!) {
-      getKbTopic(topicId: $topicId) {
-        title
-        description
-        categories {
-          _id
-          title
-          description
-          numOfArticles
-          icon
-          authors {
-            details {
-              fullName
-              avatar
-            }
-            articleCount
-          }
-          articles {
-            _id
-            title
-            summary
-            content
-            createdBy
-            createdDate
-            modifiedBy
-            modifiedDate
-            authorDetails {
-              fullName
-              avatar
-            }
-          }
-        }
-      }
-    }
-  `,
+  gql(queries.getKbTopicQuery),
   {
     options: () => ({
       fetchPolicy: 'network-only',

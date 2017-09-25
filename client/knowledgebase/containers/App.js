@@ -5,6 +5,7 @@ import gql from 'graphql-tag';
 import { connect } from 'react-redux';
 import { App as DumbApp } from '../components';
 import { connection } from '../connection';
+import queries from './graphql';
 
 const propTypes = {
   data: PropTypes.shape({
@@ -31,13 +32,7 @@ const App = (props) => {
 App.propTypes = propTypes;
 
 const AppWithData = graphql(
-  gql`
-    query kbLoader($topicId: String!) {
-      kbLoader(topicId: $topicId) {
-        loadType
-      }
-    }
-  `,
+  gql(queries.kbLoaderQuery),
   {
     options: () => {
       return {
