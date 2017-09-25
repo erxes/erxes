@@ -10,38 +10,7 @@ import { Categories as DumbCategories } from '../components';
 
 const propTypes = {
   data: PropTypes.shape({
-    getKbTopic: PropTypes.shape({
-      title: PropTypes.string,
-      description: PropTypes.string,
-      categories: PropTypes.arrayOf(PropTypes.shape({
-        _id: PropTypes.string.isRequired,
-        title: PropTypes.string,
-        description: PropTypes.string,
-        icon: PropTypes.string,
-        authors: PropTypes.arrayOf(PropTypes.shape({
-          details: PropTypes.shape({
-            fullName: PropTypes.string,
-            avatar: PropTypes.string,
-          }),
-          articleCount: PropTypes.string,
-        })),
-        numOfArticles: PropTypes.string,
-        articles: PropTypes.arrayOf(PropTypes.shape({
-          _id: PropTypes.string.isRequired,
-          title: PropTypes.string,
-          summary: PropTypes.string,
-          content: PropTypes.string,
-          createdBy: PropTypes.string,
-          modifiedBy: PropTypes.string,
-          createdDate: PropTypes.date,
-          modifiedDate: PropTypes.date,
-          authorDetails: PropTypes.shape({
-            fullName: PropTypes.string,
-            avatar: PropTypes.string,
-          }),
-        })),
-      })),
-    }),
+    getKbTopic: PropTypes.object,
     loading: PropTypes.bool,
   }),
 };
@@ -99,7 +68,7 @@ const CategoriesWithData = graphql(
     }
   `,
   {
-    options: (ownProps) => ({
+    options: () => ({
       fetchPolicy: 'network-only',
       variables: {
         topicId: connection.setting.topic_id,

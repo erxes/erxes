@@ -68,24 +68,10 @@ window.addEventListener('message', (event) => {
 
   const loadType = event.data.connectionInfo.kbLoader.loadType;
   const data = event.data;
-  // .erxes-knowledge-container-shoutbox
 
   if (data.fromErxes) {
-    // iframe = document.querySelector(`#${iframeId}`);
     if (loadType === 'shoutbox') {
       erxesContainer.className = 'erxes-knowledge-container-shoutbox';
     }
-
-    // if (data.purpose === 'messenger') {
-    //   erxesContainer.className = `erxes-messenger-${data.isVisible ? 'shown' : 'hidden'}`;
-    // }
-    //
-    // if (data.purpose === 'notifier') {
-    //   erxesContainer.className += ` erxes-notifier-${data.isVisible ? 'shown' : 'hidden'}`;
-    // }
-    //
-    // if (data.purpose === 'notifierFull') {
-    //   erxesContainer.className += ` erxes-notifier-${data.isVisible ? 'shown' : 'hidden'} fullMessage`;
-    // }
   }
 });

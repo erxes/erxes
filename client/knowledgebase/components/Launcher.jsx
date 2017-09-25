@@ -7,15 +7,10 @@ const propTypes = {
 };
 
 function Launcher({ isLauncherVisible }) {
-  // const clickHandler = () => {
-  //   onClick(isMessengerVisible);
-  // };
-
   const launcherClasses = classNames('erxes-launcher', {
     close: !isLauncherVisible,
   });
 
-  // const { color, logo } = uiOptions;
   const defaultLogo = '/static/images/widget-logo.png';
 
   return (

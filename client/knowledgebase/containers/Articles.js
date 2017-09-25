@@ -10,20 +10,7 @@ import { Articles as DumbArticles } from '../components';
 
 const propTypes = {
   data: PropTypes.shape({
-    kbSearchArticles: PropTypes.arrayOf(PropTypes.shape({
-      _id: PropTypes.string.isRequired,
-      title: PropTypes.string,
-      summary: PropTypes.string,
-      content: PropTypes.string,
-      createdBy: PropTypes.string,
-      modifiedBy: PropTypes.string,
-      createdDate: PropTypes.date,
-      modifiedDate: PropTypes.date,
-      authorDetails: PropTypes.shape({
-        fullName: PropTypes.string,
-        avatar: PropTypes.string,
-      }),
-    })),
+    kbSearchArticles: PropTypes.arrayOf(PropTypes.object),
     loading: PropTypes.bool,
   }),
 };
