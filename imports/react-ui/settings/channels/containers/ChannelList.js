@@ -32,7 +32,7 @@ export default commonListComposer({
   gqlTotalCountQuery: graphql(
     gql`
       query totalChannelsCount {
-        totalChannelsCount
+        channelsTotalCount
       }
     `,
     {

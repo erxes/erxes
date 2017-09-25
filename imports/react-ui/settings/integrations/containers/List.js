@@ -84,7 +84,7 @@ export default compose(
   graphql(
     gql`
       query totalIntegrationsCount($kind: String) {
-        totalIntegrationsCount(kind: $kind)
+        integrationsTotalCount(kind: $kind)
       }
     `,
     {
