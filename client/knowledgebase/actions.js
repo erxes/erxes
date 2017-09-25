@@ -5,6 +5,7 @@ import {
   UPDATE_SEARCH_STRING,
 } from './constants';
 
+// switch to Article detail
 export const switchToArticleDisplay = (data) => {
   return {
     type: SWITCH_TO_ARTICLE_DISPLAY,
@@ -12,6 +13,7 @@ export const switchToArticleDisplay = (data) => {
   };
 };
 
+// switch to Category Detail
 export const switchToCategoryDisplay = (data) => {
   return {
     type: SWITCH_TO_CATEGORY_DISPLAY,
@@ -19,6 +21,7 @@ export const switchToCategoryDisplay = (data) => {
   };
 };
 
+// switch to Topic (root) display
 export const switchToTopicDisplay = () => {
   return {
     type: SWITCH_TO_TOPIC_DISPLAY,
@@ -26,6 +29,7 @@ export const switchToTopicDisplay = () => {
   };
 };
 
+// updates search string, and swithces to article list display
 export const updateSearchString = (searchStr) => {
   if (searchStr.length === 0) {
     return {
@@ -36,12 +40,5 @@ export const updateSearchString = (searchStr) => {
   return {
     type: UPDATE_SEARCH_STRING,
     searchStr,
-  };
-};
-
-export const toggleLauncher = (isToggled) => {
-  return {
-    type: 'launcher_toggle',
-    isToggled: !isToggled,
   };
 };

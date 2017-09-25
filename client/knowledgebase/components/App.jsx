@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import { KnowledgeBase, Launcher } from '../containers';
+import { KnowledgeBase } from '../containers';
 
 const propTypes = {
   data: PropTypes.object,
@@ -15,7 +15,6 @@ function App(props) {
     return (
       <div className={widgetClasses}>
         <KnowledgeBase />
-        <Launcher />
       </div>
     );
   }

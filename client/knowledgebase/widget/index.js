@@ -58,20 +58,3 @@ iframe.onload = () => {
     },
   }, '*');
 };
-
-// listen for widget toggle
-window.addEventListener('message', (event) => {
-  // Work only with own postMessage
-  if (event.origin !== process.env.ROOT_URL) {
-    return;
-  }
-
-  const loadType = event.data.connectionInfo.kbLoader.loadType;
-  const data = event.data;
-
-  if (data.fromErxes) {
-    if (loadType === 'shoutbox') {
-      erxesContainer.className = 'erxes-knowledge-container-shoutbox';
-    }
-  }
-});
