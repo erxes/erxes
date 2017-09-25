@@ -58,7 +58,12 @@ export default compose(
         }
       }
     `,
-    { name: 'integrationsQuery' },
+    {
+      name: 'integrationsQuery',
+      options: () => ({
+        fetchPolicy: 'network-only',
+      }),
+    },
   ),
   graphql(
     gql`
@@ -69,7 +74,12 @@ export default compose(
         }
       }
     `,
-    { name: 'brandsQuery' },
+    {
+      name: 'brandsQuery',
+      options: () => ({
+        fetchPolicy: 'network-only',
+      }),
+    },
   ),
   graphql(
     gql`
@@ -80,6 +90,11 @@ export default compose(
         }
       }
     `,
-    { name: 'usersQuery' },
+    {
+      name: 'usersQuery',
+      options: () => ({
+        fetchPolicy: 'network-only',
+      }),
+    },
   ),
 )(ChannelFormContainer);

@@ -38,15 +38,17 @@
       "username": "admin",
       "email": "admin@erxes.io",
       "password": "admin123",
-      "fullName": "Erxes Admin"
+      "details": {
+        "fullName": "John Doe"
+      }
     },
     "brand": {
       "name": "Local publisher",
       "code": "YDEdKj"
     },
     "integration": {
-      "name": "In-app-messaging for Local publisher",
-      "kind": "in_app_messaging"
+      "name": "Messenger for Local publisher",
+      "kind": "messenger"
     },
     "channel": {
       "name": "Sales"
