@@ -3,7 +3,7 @@ import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 /* ----------------------- Schemas ----------------------- */
 
 // common fields
-const KbCommonSchemaDict = {
+const KbAutoFieldSchemaDict = {
   createdBy: {
     type: String,
     regEx: SimpleSchema.RegEx.Id,
@@ -22,9 +22,10 @@ const KbCommonSchemaDict = {
   },
 };
 
+const KbAutoFieldSchema = new SimpleSchema(KbAutoFieldSchemaDict);
+
 // topics
 const KbTopicsSchema = new SimpleSchema({
-  ...KbCommonSchemaDict,
   title: {
     type: String,
   },
@@ -48,7 +49,6 @@ const KbTopicsSchema = new SimpleSchema({
 
 // categories
 const KbCategoriesSchema = new SimpleSchema({
-  ...KbCommonSchemaDict,
   title: {
     type: String,
   },
@@ -67,7 +67,6 @@ const KbCategoriesSchema = new SimpleSchema({
 
 // articles
 const KbArticlesSchema = new SimpleSchema({
-  ...KbCommonSchemaDict,
   title: {
     type: String,
   },
@@ -83,4 +82,4 @@ const KbArticlesSchema = new SimpleSchema({
   },
 });
 
-export { KbTopicsSchema, KbCategoriesSchema, KbArticlesSchema };
+export { KbAutoFieldSchema, KbTopicsSchema, KbCategoriesSchema, KbArticlesSchema };

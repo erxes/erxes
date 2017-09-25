@@ -10,7 +10,7 @@ export const addKbTopic = new ValidatedMethod({
   mixins: [ErxesMixin],
 
   validate({ doc }) {
-    check({ ...doc, createdBy: this.userId, createdDate: new Date() }, KbTopicsSchema);
+    check(doc, KbTopicsSchema);
   },
 
   run({ doc }) {
@@ -27,9 +27,8 @@ export const editKbTopic = new ValidatedMethod({
   name: 'knowledgeBaseTopics.edit',
   mixins: [ErxesMixin],
 
-  validate({ _id, createdBy, createdDate, doc }) {
+  validate({ _id, doc }) {
     check(_id, String);
-    Object.assign(doc, { createdBy, createdDate: new Date(createdDate) });
     check(doc, KbTopicsSchema);
   },
 
@@ -67,7 +66,7 @@ export const addKbCategory = new ValidatedMethod({
   mixins: [ErxesMixin],
 
   validate({ doc }) {
-    check({ ...doc, createdBy: this.userId, createdDate: new Date() }, KbCategoriesSchema);
+    check(doc, KbCategoriesSchema);
   },
 
   run({ doc }) {
@@ -85,9 +84,8 @@ export const editKbCategory = new ValidatedMethod({
   name: 'knowledgeBaseCategories.edit',
   mixins: [ErxesMixin],
 
-  validate({ _id, createdBy, createdDate, doc }) {
+  validate({ _id, doc }) {
     check(_id, String);
-    Object.assign(doc, { createdBy, createdDate: new Date(createdDate) });
     check(doc, KbCategoriesSchema);
   },
 
@@ -115,6 +113,12 @@ export const removeKbCategory = new ValidatedMethod({
   },
 
   run(id) {
+    if (KbTopics.find({ categoryIds: { $in: [id] } }).count() > 0) {
+      throw new Meteor.Error(
+        'kbCategory.cannotDelete.usedInKbTopic',
+        'You can not delete this. This category is used in topic.',
+      );
+    }
     return KbCategories.remove(id);
   },
 });
@@ -125,7 +129,7 @@ export const addKbArticle = new ValidatedMethod({
   mixins: [ErxesMixin],
 
   validate({ doc }) {
-    check({ ...doc, createdBy: this.userId, createdDate: new Date() }, KbArticlesSchema);
+    check(doc, KbArticlesSchema);
   },
 
   run({ doc }) {
@@ -143,9 +147,8 @@ export const editKbArticle = new ValidatedMethod({
   name: 'knowledgeBaseArticles.edit',
   mixins: [ErxesMixin],
 
-  validate({ _id, createdBy, createdDate, doc }) {
+  validate({ _id, doc }) {
     check(_id, String);
-    Object.assign(doc, { createdBy, createdDate: new Date(createdDate) });
     check(doc, KbArticlesSchema);
   },
 
@@ -173,6 +176,12 @@ export const removeKbArticle = new ValidatedMethod({
   },
 
   run(id) {
+    if (KbCategories.find({ articleIds: { $in: [id] } }).count() > 0) {
+      throw new Meteor.Error(
+        'kbArticle.cannotDelete.usedInKbCategory',
+        'You can not delete this. This article is used in category.',
+      );
+    }
     return KbArticles.remove(id);
   },
 });
