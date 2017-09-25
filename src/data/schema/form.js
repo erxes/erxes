@@ -26,5 +26,5 @@ export const types = `
 export const queries = `
   forms(limit: Int): [Form]
   formDetail(_id: String!): Form
-  totalFormsCount: Int
+  formsTotalCount: Int
 `;

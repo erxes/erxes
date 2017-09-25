@@ -16,7 +16,7 @@ export default {
     return Forms.findOne({ _id });
   },
 
-  totalFormsCount() {
+  formsTotalCount() {
     return Forms.find({}).count();
   },
 };

@@ -22,7 +22,7 @@ export default {
     return Integrations.findOne({ _id });
   },
 
-  totalIntegrationsCount(root, { kind }) {
+  integrationsTotalCount(root, { kind }) {
     return Integrations.find({ kind }).count();
   },
 };

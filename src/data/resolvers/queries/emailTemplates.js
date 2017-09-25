@@ -11,7 +11,7 @@ export default {
     return emailTemplates;
   },
 
-  totalEmailTemplatesCount() {
+  emailTemplatesTotalCount() {
     return EmailTemplates.find({}).count();
   },
 };

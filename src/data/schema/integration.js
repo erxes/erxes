@@ -21,5 +21,5 @@ export const types = `
 export const queries = `
   integrations(limit: Int, kind: String): [Integration]
   integrationDetail(_id: String!): Integration
-  totalIntegrationsCount(kind: String): Int
+  integrationsTotalCount(kind: String): Int
 `;

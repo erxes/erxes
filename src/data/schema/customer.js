@@ -48,7 +48,7 @@ export const queries = `
   customerCounts(params: CustomerListParams): JSON
   customerDetail(_id: String!): Customer
   customerListForSegmentPreview(segment: JSON, limit: Int): [Customer]
-  totalCustomersCount: Int
+  customersTotalCount: Int
   segments: [Segment]
   headSegments: [Segment]
   segmentDetail(_id: String): Segment

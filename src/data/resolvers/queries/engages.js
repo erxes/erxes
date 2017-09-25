@@ -118,7 +118,7 @@ export default {
     return EngageMessages.findOne({ _id });
   },
 
-  totalEngageMessagesCount() {
+  engageMessagesTotalCount() {
     return EngageMessages.find({}).count();
   },
 };

@@ -11,7 +11,7 @@ export default {
     return responseTemplate;
   },
 
-  totalResponseTemplatesCount() {
+  responseTemplatesTotalCount() {
     return ResponseTemplates.find({}).count();
   },
 };
