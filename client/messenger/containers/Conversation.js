@@ -8,32 +8,35 @@ import graphqlTypes from './graphql';
 
 class Conversation extends React.Component {
   componentWillMount() {
-    const { messagesQuery, conversationId } = this.props;
+    const { conversationDetailQuery, conversationId } = this.props;
 
-    this.subscribe(messagesQuery, conversationId);
-  }
-
-  componentWillReceiveProps(nextProps) {
-    // when new conversation, conversationId props will be null. So after first
-    // message creation update subscription with new conversationId variable
-    if (this.props.conversationId !== nextProps.conversationId) {
-      this.subscribe(this.props.messagesQuery, nextProps.conversationId);
+    if (conversationId) {
+      this.subscribe(conversationDetailQuery, conversationId);
     }
   }
 
-  subscribe(messagesQuery, conversationId) {
+  subscribe(conversationDetailQuery, conversationId) {
     // lister for new message
-    return messagesQuery.subscribeToMore({
+    return conversationDetailQuery.subscribeToMore({
       document: gql(graphqlTypes.conversationMessageInserted),
       variables: { _id: conversationId },
       updateQuery: (prev, { subscriptionData }) => {
         const message = subscriptionData.data.conversationMessageInserted;
+        const conversationDetail = prev.conversationDetail;
+        const messages = conversationDetail.messages;
 
-        const messages = prev.messages;
+        // TODO: Doing this because of Missing field avatar in {}
+        // error. Will learn about this bug later
+        if (messages.length <= 1) {
+          return conversationDetailQuery.refetch();
+        }
 
         // add new message to messages list
         const next = Object.assign({}, prev, {
-          messages: [...messages, message]
+          conversationDetail: Object.assign({
+            ...conversationDetail,
+            messages: [...messages, message],
+          }),
         });
 
         return next;
@@ -43,14 +46,14 @@ class Conversation extends React.Component {
 
   render() {
     let {
-      messagesQuery,
+      conversationDetailQuery,
       conversationLastStaffQuery,
       isMessengerOnlineQuery,
     } = this.props;
 
     // show empty list while waiting
     if (
-      messagesQuery.loading ||
+      conversationDetailQuery.loading ||
       conversationLastStaffQuery.loading ||
       isMessengerOnlineQuery.loading
     ) {
@@ -58,9 +61,11 @@ class Conversation extends React.Component {
       return null;
     }
 
+    const conversationDetail = conversationDetailQuery.conversationDetail || {};
+
     const extendedProps = {
       ...this.props,
-      messages: messagesQuery.messages || [],
+      messages: conversationDetail.messages || [],
       user: conversationLastStaffQuery.conversationLastStaff,
       isOnline: isMessengerOnlineQuery.isMessengerOnline,
       data: connection.data,
@@ -94,9 +99,9 @@ const mapDisptachToProps = dispatch => ({
 
 const query = compose(
   graphql(
-    gql(graphqlTypes.messagesQuery),
+    gql(graphqlTypes.conversationDetailQuery),
     {
-      name: 'messagesQuery',
+      name: 'conversationDetailQuery',
       options: ownProps => ({
         variables: {
           conversationId: ownProps.conversationId,
@@ -133,11 +138,18 @@ const query = compose(
   )
 );
 
+const Container = (props) =>
+  <Conversation key={`widget-${props.conversationId || 0}`} {...props} />
+
+Container.propTypes = {
+  conversationId: PropTypes.string,
+}
+
 Conversation.propTypes = {
   conversationId: PropTypes.string,
-  messagesQuery: PropTypes.object,
+  conversationDetailQuery: PropTypes.object,
   conversationLastStaffQuery: PropTypes.object,
   isMessengerOnlineQuery: PropTypes.object,
 }
 
-export default connect(mapStateToProps, mapDisptachToProps)(query(Conversation));
+export default connect(mapStateToProps, mapDisptachToProps)(query(Container));

@@ -31,10 +31,14 @@ const messageFields = `
 `;
 
 
-const messagesQuery = `
+const conversationDetailQuery = `
   query ($conversationId: String!) {
-    messages(conversationId: $conversationId) {
-      ${messageFields}
+    conversationDetail(_id: $conversationId) {
+      _id
+      content
+      messages {
+        ${messageFields}
+      }
     }
   }
 `;
@@ -81,7 +85,7 @@ const conversationsChangedSubscription = `
 
 export default {
   messageFields,
-  messagesQuery,
+  conversationDetailQuery,
   conversationLastStaffQuery,
   isMessengerOnlineQuery,
   unreadCountQuery,
