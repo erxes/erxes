@@ -10,8 +10,8 @@ import {
 } from './constants';
 import { connection } from './connection';
 
-/*
- * display types used to switch between topic, category, article views.
+/**
+ * Display types used to switch between topic, category, article views.
  * UPDATE_SEARCH_STRING action type is used when searching for articles,
  * search content layout is same as article list used in category detail display.
  */
