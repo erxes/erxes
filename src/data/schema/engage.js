@@ -27,5 +27,5 @@ export const queries = `
   engageMessages(kind: String, status: String, tag: String, ids: [String]): [EngageMessage]
   engageMessageDetail(_id: String): EngageMessage
   engageMessageCounts(name: String!, kind: String, status: String): JSON
-  totalEngageMessagesCount: Int
+  engageMessagesTotalCount: Int
 `;

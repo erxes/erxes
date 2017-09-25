@@ -125,7 +125,7 @@ export default {
     return Customers.findOne({ _id });
   },
 
-  totalCustomersCount() {
+  customersTotalCount() {
     return Customers.find({}).count();
   },
 

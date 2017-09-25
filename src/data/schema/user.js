@@ -10,5 +10,5 @@ export const types = `
 export const queries = `
   users(limit: Int): [User]
   userDetail(_id: String): User
-  totalUsersCount: Int
+  usersTotalCount: Int
 `;

@@ -13,5 +13,5 @@ export const types = `
 export const queries = `
   brands(limit: Int): [Brand]
   brandDetail(_id: String!): Brand
-  totalBrandsCount: Int
+  brandsTotalCount: Int
 `;

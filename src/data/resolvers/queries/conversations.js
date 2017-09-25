@@ -131,7 +131,7 @@ export default {
     return Conversations.findOne({ _id });
   },
 
-  async totalConversationsCount(root, { params }, { user }) {
+  async conversationsTotalCount(root, { params }, { user }) {
     // initiate query builder
     const qb = new QueryBuilder(params, { _id: user._id });
 

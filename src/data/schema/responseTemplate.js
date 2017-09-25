@@ -11,5 +11,5 @@ export const types = `
 
 export const queries = `
   responseTemplates(limit: Int): [ResponseTemplate]
-  totalResponseTemplatesCount: Int
+  responseTemplatesTotalCount: Int
 `;

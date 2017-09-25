@@ -18,7 +18,7 @@ export default {
     return channels.sort(sort);
   },
 
-  totalChannelsCount() {
+  channelsTotalCount() {
     return Channels.find({}).count();
   },
 };

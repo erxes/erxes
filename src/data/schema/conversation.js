@@ -74,7 +74,7 @@ export const queries = `
   conversations(params: ConversationListParams): [Conversation]
   conversationCounts(params: ConversationListParams): JSON
   conversationDetail(_id: String!): Conversation
-  totalConversationsCount(params: ConversationListParams): Int
+  conversationsTotalCount(params: ConversationListParams): Int
 `;
 
 export const mutations = `

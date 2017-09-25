@@ -16,7 +16,7 @@ export default {
     return Users.findOne({ _id });
   },
 
-  totalUsersCount() {
+  usersTotalCount() {
     return Users.find({}).count();
   },
 };
