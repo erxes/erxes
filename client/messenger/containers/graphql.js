@@ -1,5 +1,6 @@
 const messageFields = `
   _id
+  conversationId
   user {
     _id
     details {
@@ -31,11 +32,19 @@ const messageFields = `
 
 
 const conversationDetailQuery = `
-  query ($conversationId: String!, $integrationId: String!) {
-    messages(conversationId: $conversationId) {
-      ${messageFields}
+  query ($conversationId: String!) {
+    conversationDetail(_id: $conversationId) {
+      _id
+      content
+      messages {
+        ${messageFields}
+      }
     }
+  }
+`;
 
+const conversationLastStaffQuery = `
+  query ($conversationId: String!) {
     conversationLastStaff(_id: $conversationId) {
       _id,
       details {
@@ -43,7 +52,11 @@ const conversationDetailQuery = `
         fullName
       }
     }
+  }
+`;
 
+const isMessengerOnlineQuery = `
+  query ($integrationId: String!) {
     isMessengerOnline(integrationId: $integrationId)
   }
 `;
@@ -73,6 +86,8 @@ const conversationsChangedSubscription = `
 export default {
   messageFields,
   conversationDetailQuery,
+  conversationLastStaffQuery,
+  isMessengerOnlineQuery,
   unreadCountQuery,
   conversationMessageInserted,
   conversationsChangedSubscription,
