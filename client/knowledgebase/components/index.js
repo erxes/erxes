@@ -1,4 +1,3 @@
-import App from './App';
 import KnowledgeBase from './KnowledgeBase';
 import SearchBar from './SearchBar';
 import Categories from './Categories';
@@ -11,7 +10,6 @@ import BackButton from './BackButton';
 import ItemMeta from './ItemMeta';
 
 export {
-  App,
   KnowledgeBase,
   SearchBar,
   Categories,

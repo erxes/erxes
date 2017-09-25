@@ -9,6 +9,7 @@ import {
   CONTENT_TYPE_ARTICLE,
   CONTENT_TYPE_SEARCH,
 } from '../constants';
+import classNames from 'classnames';
 
 const propTypes = {
   displayType: PropTypes.object, // eslint-disable-line
@@ -87,12 +88,16 @@ export default class KnowledgeBase extends React.Component {
   }
 
   render() {
+    const widgetClasses = classNames('erxes-widget-kb');
+
     return (
-      <div>
-        <SearchBar />
-        <div className="erxes-content">
-          <div className="erxes-knowledge-container">
-            {this.renderContent()}
+      <div className={widgetClasses}>
+        <div>
+          <SearchBar />
+          <div className="erxes-content">
+            <div className="erxes-knowledge-container">
+              {this.renderContent()}
+            </div>
           </div>
         </div>
       </div>

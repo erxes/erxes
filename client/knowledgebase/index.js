@@ -2,7 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import client, { createStore } from '../apollo-client';
 import { ApolloProvider } from 'react-apollo';
-import { App } from './containers';
+import { KnowledgeBase } from './containers';
 import { connection } from './connection';
 import reducers from './reducers';
 import './sass/style.scss';
@@ -16,7 +16,7 @@ window.addEventListener('message', (event) => {
   // render root react component
   ReactDOM.render(
     <ApolloProvider store={createStore(reducers)} client={client}>
-      <App />
+      <KnowledgeBase />
     </ApolloProvider>,
     document.getElementById('root'),
   );
