@@ -1,5 +1,6 @@
 const messageFields = `
   _id
+  conversationId
   user {
     _id
     details {
