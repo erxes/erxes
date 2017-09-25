@@ -1,5 +1,5 @@
 import React, { PropTypes, Component } from 'react';
-
+import { iconAttach } from '../../icons/Icons';
 
 const propTypes = {
   placeholder: PropTypes.string,
@@ -26,7 +26,10 @@ class MessageSender extends Component {
 
   componentWillReceiveProps(nextProps) {
     if (nextProps.isParentFocused) { // eslint-disable-line
-      this.props.readMessages(this.props.conversationId);
+      if (this.props.conversationId) {
+        this.props.readMessages(this.props.conversationId);
+      }
+
       this.textarea.focus();
     }
   }
@@ -82,6 +85,7 @@ class MessageSender extends Component {
             this.props.isAttachingFile
               ? <div className="loader" />
               : <label htmlFor="file-upload" className="btn-attach">
+                {iconAttach}
                 <input id="file-upload" type="file" onChange={this.handleFileInput} />
               </label>
           }

@@ -1,6 +1,7 @@
 /* eslint-disable jsx-a11y/no-static-element-interactions */
 
 import React, { Component, PropTypes } from 'react';
+import { iconLeft } from '../../icons/Icons';
 import { MessagesList, MessageSender, TopBar } from '../containers';
 
 
@@ -36,8 +37,9 @@ class Conversation extends Component {
     const { user, isOnline } = this.props;
 
     if (user) {
-      const defaultImage = 'https://crm.nmma.co/images/userDefaultIcon.png';
-      const avatar = user.details.avatar || defaultImage;
+      const defaultImage = '/static/images/user.png';
+      const details = user.details || {};
+      const avatar = details.avatar || defaultImage;
 
       const state = (
         <div className="erxes-staff-company">
@@ -76,17 +78,13 @@ class Conversation extends Component {
     } = this.props;
 
     const placeholder = isNewConversation ? 'Send a message ...' : 'Write a reply ...';
+    const style = { border: `1px solid ${color}` };
 
     return (
-      <div
-        className="erxes-messenger"
-        style={{ border: `2px solid ${color}` }}
-        onClick={this.onClick}
-      >
-
+      <div onClick={this.onClick} className="erxes-messenger" style={style}>
         <TopBar
           middle={this.renderTitle()}
-          buttonClass="back"
+          buttonIcon={iconLeft}
           onButtonClick={goToConversationList}
         />
 

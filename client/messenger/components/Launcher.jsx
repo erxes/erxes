@@ -25,7 +25,7 @@ function Launcher({ isMessengerVisible, onClick, notificationCount, uiOptions })
     <div
       className={launcherClasses}
       onClick={clickHandler}
-      style={{ backgroundColor: color, backgroundImage: `url(${logo || defaultLogo })` }}
+      style={{ backgroundColor: color, backgroundImage: `url(${logo || defaultLogo})` }}
     >
       {notificationCount ? <span>{notificationCount}</span> : null}
     </div>

@@ -29,22 +29,22 @@
   }
 
   &.bg-1 {
-    background-image: url($bg-1);
+    background-image: url('/static/images/bg-1.png');
     @include bg-option;
   }
 
   &.bg-2 {
-    background-image: url($bg-2);
+    background-image: url('/static/images/bg-2.png');
     @include bg-option;
   }
 
   &.bg-3 {
-    background-image: url($bg-3);
+    background-image: url('/static/images/bg-3.png');
     @include bg-option;
   }
 
   &.bg-4 {
-    background-image: url($bg-4);
+    background-image: url('/static/images/bg-4.png');
     @include bg-option;
   }
 }
@@ -65,6 +65,10 @@
   &.ml50 {
     margin-left: 50px;
   }
+
+  &~.erxes-spacial-message {
+    margin-top: 15px;
+  }
 }
 
 .ask-get-notified {
@@ -74,7 +78,7 @@
   margin-top: 5px;
 
   input {
-    border: 1px solid;
+    border: 1px solid $main-color;
     border-bottom-left-radius: $border-radius;
     border-top-left-radius: $border-radius;
     box-sizing: border-box;
@@ -86,13 +90,17 @@
   }
 
   button {
-    background: $main-color url($icon-back) center no-repeat;
+    background-color: $main-color;
     border: 0;
-    border-bottom-left-radius: 4px;
-    border-top-left-radius: 4px;
+    border-bottom-right-radius: 4px;
+    border-top-right-radius: 4px;
     outline: 0;
-    transform: rotate(180deg);
     width: 31px;
+    padding: 4px;
+
+    svg {
+      margin-top: 3px;
+    }
   }
 }
 
@@ -119,7 +127,7 @@
   }
 
   &.attachment {
-    background: none;
+    background: none !important;
     border: 0;
     padding: 0;
 
@@ -131,6 +139,10 @@
   p {
     margin-top: 0;
     word-break: break-word;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
   }
 
   img {
@@ -197,19 +209,14 @@
   padding-left: 40px;
   color: $text-color;
   background: lighten($grey, 10%);
-  @include prefix(( transition: border 0.3s ease-in-out ), webkit moz ms o);
+  @include prefix((transition: border .3s ease-in-out), webkit moz ms o);
 
-  i {
-    width: 30px;
+  svg {
     height: 30px;
+    left: 13px;
     position: absolute;
-    left: 10px;
-    top: 12px;
-    line-height: 30px;
-    color: $text-color;
-    background-image: url($icon-file);
-    background-position: 0 0;
-    background-repeat: no-repeat;
+    top: 11px;
+    width: 16px;
   }
 
   span {
@@ -232,10 +239,10 @@
   text-decoration: none;
 
   img {
-    @include prefix(( transition: opacity 0.3s ease-in-out ), webkit moz ms o);
+    @include prefix((transition: opacity .3s ease-in-out), webkit moz ms o);
 
     &:hover {
-      opacity: 0.8;
+      opacity: .8;
     }
   }
 }
@@ -250,8 +257,8 @@
   bottom: 20px;
 
   img {
-    width: 100%;
     height: 100%;
+    width: 100%;
   }
 }
 
@@ -272,12 +279,12 @@
 }
 
 .get-notified-type span {
-  display: inline-block;
   cursor: pointer;
-  margin-right: 5px;
-}
+  display: inline-block;
+  margin-right: 10px;
 
-.get-notified-type span.current {
-  font-weight: bold;
-  border-bottom: 1px solid;
+  &.current {
+    border-bottom: 1px solid;
+    font-weight: bold;
+  }
 }

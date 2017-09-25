@@ -5,18 +5,16 @@ import { changeConversation } from './messenger';
 import client from '../../apollo-client';
 import uploadHandler, { uploadFile } from '../../uploadHandler';
 
-export const readMessages = conversationId =>
-  // mark as read
-  () => client.mutate({
+export const readMessages = conversationId => () => {
+  client.mutate({
     mutation: gql`
       mutation readConversationMessages($conversationId: String) {
         readConversationMessages(conversationId: $conversationId)
       }`,
 
-    variables: {
-      conversationId,
-    },
+    variables: { conversationId },
   });
+}
 
 export const readEngageMessage = ({ engageData }) => () =>
   client.mutate({
@@ -67,11 +65,12 @@ export const sendMessage = (message, attachments) =>
 
     // after mutation
     .then(({ data }) => {
+      const message = data.insertMessage;
+
       dispatch({ type: MESSAGE_SENT });
 
-      // if there is no current conversation new conversation will be created
       if (!currentConversationId) {
-        dispatch(changeConversation(data.insertMessage.conversationId));
+        dispatch(changeConversation(message.conversationId));
       }
     });
   };

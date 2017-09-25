@@ -1,9 +1,9 @@
 import React, { PropTypes } from 'react';
-
+import { iconExit } from '../../icons/Icons';
 
 const propTypes = {
   middle: PropTypes.node,
-  buttonClass: PropTypes.string.isRequired,
+  buttonIcon: PropTypes.node.isRequired,
   onButtonClick: PropTypes.func.isRequired,
   color: PropTypes.string,
   endConversation: PropTypes.func,
@@ -11,7 +11,16 @@ const propTypes = {
   isConversationEnded: PropTypes.bool,
 };
 
-function TopBar({ middle, buttonClass, onButtonClick, color, isChat, isConversationEnded, endConversation }) {
+function TopBar({
+    middle,
+    buttonIcon,
+    onButtonClick,
+    color,
+    isChat,
+    isConversationEnded,
+    endConversation,
+  }) {
+
   const onEndConversation = () => {
     if (confirm('Do you want to end this conversation ?')) {
       endConversation();
@@ -21,7 +30,14 @@ function TopBar({ middle, buttonClass, onButtonClick, color, isChat, isConversat
   const renderEndConversation = () => {
     if (isChat && !isConversationEnded) {
       return (
-        <div className="topbar-button right close" onClick={onEndConversation} />
+        <a
+          href="#"
+          className="topbar-button right"
+          onClick={onEndConversation}
+          title="End conversation"
+        >
+          {iconExit}
+        </a>
       );
     }
 
@@ -30,11 +46,12 @@ function TopBar({ middle, buttonClass, onButtonClick, color, isChat, isConversat
 
   return (
     <div className="erxes-topbar" style={{ backgroundColor: color }}>
-      <div className={`topbar-button left ${buttonClass}`} onClick={onButtonClick} />
+      <a href="" className="topbar-button left" onClick={onButtonClick} >
+        {buttonIcon}
+      </a>
       <div className="erxes-middle">
         {middle}
       </div>
-
       {renderEndConversation()}
     </div>
   );

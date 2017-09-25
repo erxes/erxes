@@ -5,7 +5,13 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-const { ROOT_URL, API_SUBSCRIPTIONS_URL, API_GRAPHQL_URL, DDP_URL } = process.env;
+const {
+  ROOT_URL,
+  API_SUBSCRIPTIONS_URL,
+  API_GRAPHQL_URL,
+  MAIN_API_GRAPHQL_URL,
+  DDP_URL,
+} = process.env;
 
 export default {
   entry: {
@@ -24,16 +30,15 @@ export default {
     rules: [
       {
         test: /\.jsx?$/,
-        exclude: /node_modules/,
         loader: 'babel-loader',
         options: {
           presets: ['es2015', 'react'],
         },
+        exclude: /node_modules/,
       },
       {
         test: /\.css$/,
         use: ['style-loader', 'css-loader'],
-        exclude: /node_modules/,
       },
       {
         test: /\.scss$/,
@@ -52,6 +57,7 @@ export default {
       ROOT_URL: JSON.stringify(ROOT_URL),
       API_SUBSCRIPTIONS_URL: JSON.stringify(API_SUBSCRIPTIONS_URL),
       API_GRAPHQL_URL: JSON.stringify(API_GRAPHQL_URL),
+      MAIN_API_GRAPHQL_URL: JSON.stringify(MAIN_API_GRAPHQL_URL),
       DDP_URL: JSON.stringify(DDP_URL),
     }),
     // new BundleAnalyzerPlugin(),

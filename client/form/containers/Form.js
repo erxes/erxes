@@ -2,8 +2,7 @@
 
 import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
-import gql from 'graphql-tag';
-import { graphql } from 'react-apollo';
+import { gql, graphql } from 'react-apollo';
 import { connection } from '../connection';
 import { Form as DumbForm } from '../components';
 import { saveForm, createNew, sendEmail } from '../actions';

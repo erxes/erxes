@@ -13,9 +13,9 @@ $break-small: 415px;
   bottom: 8px;
   right: 8px;
   box-shadow: 0 0 10px 0 rgba($black, .2);
-  transition: box-shadow 0.3s ease-in-out;
-  background-image: url($icon-erxes);
-  background-size: contain;
+  transition: box-shadow .3s ease-in-out;
+  background-image: url('/static/images/widget-logo.png');
+  background-size: 40px;
   background-position: center;
   background-repeat: no-repeat;
   background-color: $main-color;
@@ -36,9 +36,10 @@ $break-small: 415px;
   }
 
   &.close {
-    background-image: url($icon-close-big) !important;
+    background-image: url('/static/images/close.svg') !important;
     background-position: 50%;
     background-size: inherit;
+    transition: background .3s ease-in-out;
   }
 
   &:hover {
@@ -48,7 +49,7 @@ $break-small: 415px;
   @media screen and (max-width: $break-small) {
     &.close {
       top: 15px;
-      right: 15px;
+      right: 60px;
       width: 40px;
       height: 40px;
       line-height: 40px;
@@ -56,7 +57,6 @@ $break-small: 415px;
       display: block;
       z-index: 1000000000;
       box-shadow: none;
-      background: $main-color url($icon-close) no-repeat 50%;;
 
       &:hover {
         background-color: rgba($black, .2);

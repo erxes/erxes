@@ -1,6 +1,8 @@
 /* eslint-disable jsx-a11y/no-static-element-interactions */
 
 import React, { PropTypes, Component } from 'react';
+import { iconRight } from '../../icons/Icons';
+
 
 class GetNotified extends Component {
   constructor(props) {
@@ -53,14 +55,16 @@ class GetNotified extends Component {
           <div className="ask-get-notified">
             <input
               id="get-notified-value"
-              placeholder={type === 'email' ? 'email@domain.com' : 'sms ...'}
+              placeholder={type === 'email' ? 'email@domain.com' : 'phone number ...'}
               style={{ borderColor: color }}
             />
 
             <button
               onClick={this.saveGetNotifedValue}
               style={{ backgroundColor: color }}
-            />
+            >
+              {iconRight}
+            </button>
           </div>
         </li>
       );

@@ -1,7 +1,6 @@
 import React, { PropTypes } from 'react';
-import gql from 'graphql-tag';
 import { connect } from 'react-redux';
-import { graphql } from 'react-apollo';
+import { gql, graphql } from 'react-apollo';
 import { changeRoute, toggle, openLastConversation } from '../actions/messenger';
 import { Launcher as DumbLauncher } from '../components';
 import { connection } from '../connection';

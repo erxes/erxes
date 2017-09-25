@@ -13,8 +13,8 @@ $break-small: 415px;
   bottom: 8px;
   right: 8px;
   box-shadow: 0 0 10px 0 rgba($black, .2);
-  background: $main-color url($icon-erxes) center no-repeat;
-  transition: background 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+  background: $main-color url('/static/images/widget-logo.png') center no-repeat;
+  transition: background .3s ease-in-out, box-shadow .3s ease-in-out;
 
   span {
     position: absolute;
@@ -32,7 +32,7 @@ $break-small: 415px;
   }
 
   &.close {
-    background: $main-color url($icon-close-big) no-repeat 50%;;
+    background: $main-color url('/static/images/close.svg') no-repeat 50%;;
   }
 
   &:hover {
@@ -50,7 +50,6 @@ $break-small: 415px;
       display: block;
       z-index: 1000000000;
       box-shadow: none;
-      background: $main-color url($icon-close) no-repeat 50%;;
 
       &:hover {
         background-color: rgba($black, .2);

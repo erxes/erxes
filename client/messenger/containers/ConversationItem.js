@@ -1,8 +1,8 @@
 import React, { PropTypes } from 'react';
-import gql from 'graphql-tag';
-import { graphql } from 'react-apollo';
+import { gql, graphql } from 'react-apollo';
 import { ConversationItem as DumbConversationItem } from '../components';
 import NotificationSubscriber from './NotificationSubscriber';
+import graphqTypes from './graphql';
 
 class ConversationItem extends NotificationSubscriber {
   render() {
@@ -20,11 +20,7 @@ ConversationItem.propTypes = {
 };
 
 export default graphql(
-  gql`
-    query unreadCount($conversationId: String) {
-      unreadCount(conversationId: $conversationId)
-    }
-  `,
+  gql(graphqTypes.unreadCountQuery),
   {
     options: (ownProps) => ({
       variables: { conversationId: ownProps.conversation._id },
