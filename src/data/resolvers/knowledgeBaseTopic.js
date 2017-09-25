@@ -6,6 +6,6 @@ export default {
   },
 
   categories(topic) {
-    return KnowledgeBaseCategories.find({ _id: topic.categoryIds });
+    return KnowledgeBaseCategories.find({ _id: { $in: topic.categoryIds } });
   },
 };
