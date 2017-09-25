@@ -90,6 +90,6 @@ export const tags = `
 
 export const totalCustomersCount = `
   query totalCustomersCount {
-    totalCustomersCount
+    customersTotalCount
   }
 `;
