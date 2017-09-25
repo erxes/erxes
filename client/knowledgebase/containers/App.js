@@ -1,8 +1,53 @@
+import React from 'react';
+import PropTypes from 'prop-types';
+import { graphql } from 'react-apollo';
+import gql from 'graphql-tag';
 import { connect } from 'react-redux';
-import { App } from '../components';
+import { App as DumbApp } from '../components';
+import { connection } from '../connection';
 
-const mapStateToProps = (state, ownProps) => ({
-  ...ownProps,
-});
+const propTypes = {
+  data: PropTypes.shape({
+    kbLoader: PropTypes.shape({
+      loadType: PropTypes.string,
+    }),
+    loading: PropTypes.bool,
+  }),
+};
 
-export default connect(mapStateToProps)(App);
+const App = (props) => {
+  const extendedProps = {
+    ...props,
+    kbLoader: props.data.kbLoader,
+  };
+
+  if (props.data.loading) {
+    return null;
+  }
+
+  return <DumbApp {...extendedProps} />;
+};
+
+App.propTypes = propTypes;
+
+const AppWithData = graphql(
+  gql`
+    query kbLoader($topicId: String!) {
+      kbLoader(topicId: $topicId) {
+        loadType
+      }
+    }
+  `,
+  {
+    options: () => {
+      return {
+        fetchPolicy: 'network-only',
+        variables: {
+          topicId: connection.setting.topic_id,
+        },
+      }
+    },
+  },
+)(App);
+
+export default connect()(AppWithData);
