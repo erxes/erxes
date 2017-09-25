@@ -1,44 +1,97 @@
 import { Meteor } from 'meteor/meteor';
-import { compose } from 'react-komposer';
-import { getTrackerLoader, composerOptions } from '/imports/react-ui/utils';
-import { _ } from 'meteor/underscore';
-import { Channels } from '/imports/api/channels/channels';
-import { Brands } from '/imports/api/brands/brands';
-import { Tags } from '/imports/api/tags/tags';
+import { FlowRouter } from 'meteor/kadira:flow-router';
+import React from 'react';
+import PropTypes from 'prop-types';
+import { compose, gql, graphql } from 'react-apollo';
 import { TAG_TYPES } from '/imports/api/tags/constants';
 import { Sidebar } from '../components';
+import { queries, subscriptions } from '../graphql';
 
-function composer({ channelId, queryParams }, onData) {
-  const userId = Meteor.userId();
+class SidebarContainer extends React.Component {
+  componentWillMount() {
+    this.props.conversationCountsQuery.subscribeToMore({
+      // listen for all conversation changes
+      document: gql(subscriptions.conversationsChanged),
 
-  // show only involved channels
-  const channelsHandle = Meteor.subscribe('channels.list', {
-    memberIds: [userId],
-  });
+      updateQuery: () => {
+        this.props.conversationCountsQuery.refetch();
+      },
+    });
+  }
 
-  // show only available channels's related brands
-  const brandHandle = Meteor.subscribe('brands.list.inChannels');
+  render() {
+    const { conversationCountsQuery, channelsQuery, tagsQuery, brandsQuery } = this.props;
 
-  const tagsHandle = Meteor.subscribe('tags.tagList', TAG_TYPES.CONVERSATION);
+    const defaultCounts = { byIntegrationTypes: {}, byTags: {}, byChannels: {}, byBrands: {} };
 
-  // show only available channels's related brands
-  const channels = Channels.find({}, { sort: { name: 1 } }).fetch();
-  const brands = Brands.find({}, { sort: { name: 1 } }).fetch();
+    // show only available channels's related brands
+    const channels = channelsQuery.channels || [];
+    const brands = brandsQuery.brands || [];
+    const tags = tagsQuery.tags || [];
+    const counts = conversationCountsQuery.conversationCounts || defaultCounts;
 
-  // integrations subscription
-  Meteor.subscribe('integrations.list', { brandIds: _.pluck(brands, '_id') });
+    const updatedProps = {
+      ...this.props,
+      tags,
+      channels,
+      brands,
+      channelsReady: !channelsQuery.loading,
+      tagsReady: !tagsQuery.loading,
+      brandsReady: !brandsQuery.loading,
+      counts,
+    };
 
-  const tags = Tags.find({ type: TAG_TYPES.CONVERSATION }).fetch();
-
-  // props
-  onData(null, {
-    tags,
-    channels,
-    brands,
-    channelsReady: channelsHandle.ready(),
-    tagsReady: tagsHandle.ready(),
-    brandsReady: brandHandle.ready(),
-  });
+    return <Sidebar {...updatedProps} />;
+  }
 }
 
-export default compose(getTrackerLoader(composer), composerOptions({}))(Sidebar);
+SidebarContainer.propTypes = {
+  channelsQuery: PropTypes.object,
+  tagsQuery: PropTypes.object,
+  brandsQuery: PropTypes.object,
+  conversationCountsQuery: PropTypes.object,
+};
+
+export default compose(
+  graphql(gql(queries.channelList), {
+    name: 'channelsQuery',
+    options: () => {
+      const userId = Meteor.userId();
+
+      return {
+        variables: {
+          memberIds: [userId],
+        },
+        fetchPolicy: 'network-only',
+      };
+    },
+  }),
+  graphql(gql(queries.brandList), {
+    name: 'brandsQuery',
+    options: () => ({
+      fetchPolicy: 'network-only',
+    }),
+  }),
+  graphql(gql(queries.tagList), {
+    name: 'tagsQuery',
+    options: () => {
+      return {
+        variables: {
+          type: TAG_TYPES.CONVERSATION,
+        },
+        fetchPolicy: 'network-only',
+      };
+    },
+  }),
+  graphql(gql(queries.conversationCounts), {
+    name: 'conversationCountsQuery',
+    options: () => {
+      return {
+        variables: {
+          params: FlowRouter.current().queryParams,
+        },
+        fetchPolicy: 'network-only',
+      };
+    },
+  }),
+)(SidebarContainer);

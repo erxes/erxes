@@ -1,57 +1,96 @@
 import { Meteor } from 'meteor/meteor';
-import { ReactiveVar } from 'meteor/reactive-var';
-import { compose } from 'react-komposer';
-import { getTrackerLoader, composerOptions } from '/imports/react-ui/utils';
-import { Conversations } from '/imports/api/conversations/conversations';
-import { pagination } from '/imports/react-ui/common';
-import { toggleBulk as commonToggleBulk } from '/imports/react-ui/common/utils';
+import React from 'react';
+import PropTypes from 'prop-types';
+import { compose, gql, graphql } from 'react-apollo';
+import { Bulk, pagination } from '/imports/react-ui/common';
 import { List } from '../components';
+import { queries, subscriptions } from '../graphql';
 
-const bulk = new ReactiveVar([]);
+class ListContainer extends Bulk {
+  componentWillMount() {
+    this.props.conversationsQuery.subscribeToMore({
+      // listen for all conversation changes
+      document: gql(subscriptions.conversationsChanged),
 
-function composer({ channelId, queryParams }, onData) {
-  const { limit, loadMore, hasMore } = pagination(queryParams, 'conversations.counts.list');
+      updateQuery: () => {
+        this.props.conversationsQuery.refetch();
+      },
+    });
+  }
 
-  queryParams.limit = limit; // eslint-disable-line no-param-reassign
+  refetch() {
+    this.props.conversationsQuery.refetch();
+  }
 
-  // actions ===========
-  const toggleBulk = (conv, toAdd) => commonToggleBulk(bulk, conv, toAdd);
-  const emptyBulk = () => bulk.set([]);
+  render() {
+    const { queryParams, channelId, conversationsQuery, totalCountQuery } = this.props;
 
-  // subscriptions ==================
-  const user = Meteor.user();
-  const conversationHandle = Meteor.subscribe('conversations.list', queryParams);
+    const conversations = conversationsQuery.conversations || [];
+    const totalCount = totalCountQuery.totalConversationsCount;
 
-  const starredConversationIds = user.details.starredConversationIds || [];
+    const { loadMore, hasMore } = pagination(queryParams, totalCount);
 
-  const conversationSort = { sort: { createdAt: -1 } };
+    // subscriptions ==================
+    const user = Meteor.user();
+    const starredConversationIds = user.details.starredConversationIds || [];
 
-  // unread conversations
-  const unreadConversations = Conversations.find(
-    { readUserIds: { $nin: [user._id] } },
-    conversationSort,
-  ).fetch();
+    // const conversationSort = { sort: { createdAt: -1 } };
 
-  // read conversations
-  const readConversations = Conversations.find(
-    { readUserIds: { $in: [user._id] } },
-    conversationSort,
-  ).fetch();
+    // unread conversations
+    const unreadConversations = conversations.filter(
+      conv => !(conv.readUserIds || []).includes(user._id),
+    );
 
-  // props
-  onData(null, {
-    bulk: bulk.get(),
-    loadMore,
-    hasMore,
-    toggleBulk,
-    emptyBulk,
-    unreadConversations,
-    readConversations,
-    starredConversationIds,
-    channelId,
-    user,
-    conversationReady: conversationHandle.ready(),
-  });
+    // read conversations
+    const readConversations = conversations.filter(conv =>
+      (conv.readUserIds || []).includes(user._id),
+    );
+
+    const updatedProps = {
+      ...this.props,
+      bulk: this.state.bulk,
+      toggleBulk: this.toggleBulk,
+      emptyBulk: this.emptyBulk,
+      loadMore,
+      hasMore,
+      unreadConversations,
+      readConversations,
+      starredConversationIds,
+      channelId,
+      user,
+      conversationReady: conversationsQuery.loading && totalCountQuery.loading,
+      refetch: this.refetch,
+    };
+
+    return <List {...updatedProps} />;
+  }
 }
 
-export default compose(getTrackerLoader(composer), composerOptions({}))(List);
+ListContainer.propTypes = {
+  channelId: PropTypes.string,
+  queryParams: PropTypes.object,
+  conversationsQuery: PropTypes.object,
+  totalCountQuery: PropTypes.object,
+};
+
+const generateOptions = ({ queryParams }) => ({
+  variables: {
+    params: {
+      ...queryParams,
+      limit: queryParams.limit || 20,
+    },
+  },
+
+  fetchPolicy: 'network-only',
+});
+
+export default compose(
+  graphql(gql(queries.conversationList), {
+    name: 'conversationsQuery',
+    options: generateOptions,
+  }),
+  graphql(gql(queries.totalConversationsCount), {
+    name: 'totalCountQuery',
+    options: generateOptions,
+  }),
+)(ListContainer);

@@ -1,8 +1,10 @@
-import React, { PropTypes, Component } from 'react';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import { Wrapper } from '/imports/react-ui/layout/components';
 import RightSidebar from './RightSidebar';
+import LeftSidebar from './LeftSidebar';
 import Conversation from '../conversation/Conversation';
-import { RespondBox, DetailSidebar } from '../../containers';
+import { RespondBox } from '../../containers';
 
 const propTypes = {
   conversation: PropTypes.object.isRequired,
@@ -11,6 +13,7 @@ const propTypes = {
   attachmentPreview: PropTypes.object,
   queryParams: PropTypes.object.isRequired,
   setAttachmentPreview: PropTypes.func.isRequired,
+  refetch: PropTypes.func.isRequired,
 };
 
 class Details extends Component {
@@ -24,19 +27,16 @@ class Details extends Component {
   }
 
   componentDidUpdate() {
-    if (this.shouldScrollBottom) {
-      this.node.scrollTop = this.node.scrollHeight;
-    }
+    this.node.scrollTop = this.node.scrollHeight;
   }
 
   render() {
     const {
+      changeStatus,
       conversation,
       messages,
-      changeStatus,
       attachmentPreview,
       setAttachmentPreview,
-      queryParams,
     } = this.props;
 
     const content = (
@@ -62,21 +62,19 @@ class Details extends Component {
       <div>
         <Wrapper
           header={<Wrapper.Header breadcrumb={breadcrumb} />}
-          leftSidebar={
-            <DetailSidebar
-              conversation={conversation}
-              messagesCount={messages.length}
-              changeStatus={changeStatus}
-              queryParams={queryParams}
-            />
-          }
           content={content}
           footer={
             <RespondBox conversation={conversation} setAttachmentPreview={setAttachmentPreview} />
           }
-          rightSidebar={
-            <RightSidebar conversation={conversation} messagesCount={messages.length} />
+          leftSidebar={
+            <LeftSidebar
+              conversation={conversation}
+              messagesCount={messages.length}
+              changeStatus={changeStatus}
+            />
           }
+          rightSidebar={<RightSidebar conversation={conversation} refetch={this.props.refetch} />}
+          relative
         />
       </div>
     );

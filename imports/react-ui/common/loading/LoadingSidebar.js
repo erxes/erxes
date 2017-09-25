@@ -5,17 +5,18 @@ import { Wrapper } from '/imports/react-ui/layout/components';
 
 const propTypes = {
   items: PropTypes.number,
+  size: PropTypes.string,
 };
 
-function LoadingSidebar({ items }) {
+function LoadingSidebar({ items, size = 'medium' }) {
   return (
-    <Wrapper.Sidebar>
-      {_.times(items, n => <Rows key={n} />)}
+    <Wrapper.Sidebar size={size}>
+      {_.times(items, n => <Section key={n} />)}
     </Wrapper.Sidebar>
   );
 }
 
-function Rows() {
+function Section() {
   return (
     <Wrapper.Sidebar.Section>
       <div className="loading-wrapper side">
@@ -44,6 +45,7 @@ Lines.propTypes = {
   title: PropTypes.bool,
 };
 
+LoadingSidebar.Section = Section;
 LoadingSidebar.Lines = Lines;
 LoadingSidebar.propTypes = propTypes;
 

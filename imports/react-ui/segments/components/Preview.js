@@ -1,7 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Table } from 'react-bootstrap';
-import { Counts } from 'meteor/tmeasday:publish-counts';
 import { LoadMore } from '/imports/react-ui/common';
 import { CustomerRow } from '/imports/react-ui/customers/components';
 
@@ -26,7 +25,7 @@ function Preview({ customers, customerFields }) {
           ))}
         </tbody>
       </Table>
-      <LoadMore all={Counts.get('customers.list.count')} perPage={20} />
+      <LoadMore all={0} perPage={20} />
     </div>
   );
 }

@@ -1,4 +1,5 @@
-import React, { PropTypes, Component } from 'react';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import { Table, Button } from 'react-bootstrap';
 import { FlowRouter } from 'meteor/kadira:flow-router';
 import { Wrapper } from '/imports/react-ui/layout/components';
@@ -8,8 +9,8 @@ import Row from './Row';
 
 const propTypes = {
   integrations: PropTypes.array.isRequired,
-  brands: PropTypes.array.isRequired,
   removeIntegration: PropTypes.func.isRequired,
+  refetch: PropTypes.func.isRequired,
   loadMore: PropTypes.func.isRequired,
   hasMore: PropTypes.bool.isRequired,
 };
@@ -22,13 +23,13 @@ class List extends Component {
   }
 
   renderIntegrations() {
-    const { brands, integrations, removeIntegration } = this.props;
+    const { integrations, refetch, removeIntegration } = this.props;
 
     return integrations.map(integration => (
       <Row
         key={integration._id}
         integration={integration}
-        brands={brands}
+        refetch={refetch}
         removeIntegration={removeIntegration}
       />
     ));

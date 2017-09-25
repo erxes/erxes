@@ -1,6 +1,7 @@
 import graph from 'fbgraph';
 import { Picker } from 'meteor/meteorhacks:picker';
 import { Meteor } from 'meteor/meteor';
+import { apolloNotifyNewMessage } from '/imports/api/server/utils';
 import { Conversations } from '/imports/api/conversations/conversations';
 import { Messages } from '/imports/api/conversations/messages';
 import { Customers } from '/imports/api/customers/customers';
@@ -276,7 +277,7 @@ export class SaveWebhookResponse {
     // collect attachment's url, type fields
     const attachments = (event.message.attachments || []).map(attachment => ({
       type: attachment.type,
-      url: attachment.payload.url,
+      url: attachment.payload ? attachment.payload.url : '',
     }));
 
     this.getOrCreateConversation({
@@ -347,7 +348,7 @@ export class SaveWebhookResponse {
   createMessage({ conversation, userId, content, attachments, facebookData }) {
     if (conversation) {
       // create new message
-      Messages.insert({
+      const messageId = Messages.insert({
         conversationId: conversation._id,
         customerId: this.getOrCreateCustomer(userId),
         content,
@@ -355,6 +356,11 @@ export class SaveWebhookResponse {
         facebookData,
         internal: false,
       });
+
+      // notify subscription server new message
+      apolloNotifyNewMessage(messageId);
+
+      return messageId;
     }
   }
 }

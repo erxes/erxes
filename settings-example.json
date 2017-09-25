@@ -1,7 +1,8 @@
 {
   "public": {
     "CDN_HOST": "http://localhost:3200/build",
-    "APOLLO_CLIENT_URL": "http://localhost:3100/graphql"
+    "APOLLO_CLIENT_URL": "http://localhost:3400/graphql",
+    "APOLLO_CLIENT_SUBSCRIPTION_URL": "ws://localhost:3400/subscriptions"
   },
 
   "company": {
@@ -37,15 +38,17 @@
       "username": "admin",
       "email": "admin@erxes.io",
       "password": "admin123",
-      "fullName": "Erxes Admin"
+      "details": {
+        "fullName": "John Doe"
+      }
     },
     "brand": {
       "name": "Local publisher",
       "code": "YDEdKj"
     },
     "integration": {
-      "name": "In-app-messaging for Local publisher",
-      "kind": "in_app_messaging"
+      "name": "Messenger for Local publisher",
+      "kind": "messenger"
     },
     "channel": {
       "name": "Sales"

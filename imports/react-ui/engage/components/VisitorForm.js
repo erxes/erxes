@@ -1,4 +1,5 @@
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import { FormControl, Button, ControlLabel, FormGroup } from 'react-bootstrap';
 
 import { METHODS, MESSAGE_KINDS } from '/imports/api/engage/constants';
@@ -162,6 +163,7 @@ class VisitorForm extends FormBase {
     return (
       <MessengerForm
         message={message}
+        fromUser={this.state.fromUser || ''}
         onContentChange={this.onMessengerContentChange}
         brands={this.props.brands}
       />

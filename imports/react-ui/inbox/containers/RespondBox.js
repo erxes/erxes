@@ -1,44 +1,41 @@
 import { Meteor } from 'meteor/meteor';
-import { compose } from 'react-komposer';
-import { getTrackerLoader } from '/imports/react-ui/utils';
+import React from 'react';
+import PropTypes from 'prop-types';
+import { compose, gql, graphql } from 'react-apollo';
 import { fromJS } from 'immutable';
-import { newMessage } from '/imports/react-ui/apollo-client';
-import { KIND_CHOICES } from '/imports/api/integrations/constants';
+import { queries } from '../graphql';
 import { RespondBox } from '../components';
 
-function composer(props, onData) {
+const RespondBoxContainer = props => {
+  const { usersQuery } = props;
+
   const sendMessage = (message, callback) => {
-    const cb = (error, messageId) => {
-      const integration = props.conversation.integration();
-
-      // if conversation is messenger then notify graphql subscription
-      // server that new message inserted
-      if (!error && integration.kind === KIND_CHOICES.MESSENGER) {
-        newMessage(messageId);
-      }
-
-      callback(error, messageId);
-    };
-
-    Meteor.call('conversations.addMessage', message, cb);
+    Meteor.call('conversations.addMessage', message, callback);
   };
 
   const teamMembers = [];
 
-  Meteor.users.find().forEach(user =>
+  for (let user of usersQuery.users || []) {
     teamMembers.push({
       _id: user._id,
       name: user.username,
       title: user.details.position,
       avatar: user.details.avatar,
-    }),
-  );
+    });
+  }
 
-  onData(null, {
-    conversation: props.conversation,
+  const updatedProps = {
+    ...props,
     sendMessage,
     teamMembers: fromJS(teamMembers),
-  });
-}
+  };
 
-export default compose(getTrackerLoader(composer))(RespondBox);
+  return <RespondBox {...updatedProps} />;
+};
+
+RespondBoxContainer.propTypes = {
+  object: PropTypes.object,
+  usersQuery: PropTypes.object,
+};
+
+export default compose(graphql(gql(queries.userList), { name: 'usersQuery' }))(RespondBoxContainer);

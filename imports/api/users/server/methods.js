@@ -65,11 +65,15 @@ const checkPasswordConfirmation = (password, passwordConfirmation) => {
 
 // create user and invite to given channels
 export const invite = new ValidatedMethod({
-  name: 'users.invite',
-  mixins: [ErxesMixin],
-  validate: CreateInvitationSchema.validator(),
+  name: 'users.add',
 
-  run(doc) {
+  mixins: [ErxesMixin],
+
+  validate({ doc }) {
+    check(doc, CreateInvitationSchema);
+  },
+
+  run({ doc }) {
     const {
       username,
       twitterUsername,
@@ -124,14 +128,20 @@ export const invite = new ValidatedMethod({
 });
 
 // update invitation info
-export const updateInvitationInfos = new ValidatedMethod({
-  name: 'users.updateInvitationInfos',
-  mixins: [ErxesMixin],
-  validate: UpdateInvitationSchema.validator(),
+export const edit = new ValidatedMethod({
+  name: 'users.edit',
 
-  run(doc) {
+  mixins: [ErxesMixin],
+
+  validate({ id, doc }) {
+    check(id, String);
+
+    // check doc
+    check(doc, UpdateInvitationSchema);
+  },
+
+  run({ id, doc }) {
     const {
-      userId,
       twitterUsername,
       position,
       username,
@@ -145,21 +155,21 @@ export const updateInvitationInfos = new ValidatedMethod({
     } = doc;
 
     // update user channels channels
-    updateUserChannels(channelIds, userId);
+    updateUserChannels(channelIds, id);
 
-    const user = Meteor.users.findOne(userId);
+    const user = Meteor.users.findOne(id);
 
     // change password
     if (doc.password) {
       checkPasswordConfirmation(password, passwordConfirmation);
 
       // set new password
-      Accounts.setPassword(userId, password);
+      Accounts.setPassword(id, password);
     }
 
     // if user is not owner then update profile infos
     if (!user.isOwner) {
-      updateUserCommonInfos(userId, {
+      updateUserCommonInfos(id, {
         username,
         twitterUsername,
         avatar,
@@ -169,7 +179,7 @@ export const updateInvitationInfos = new ValidatedMethod({
       });
 
       // update role
-      Meteor.users.update(userId, { $set: { 'details.role': role } });
+      Meteor.users.update(id, { $set: { 'details.role': role } });
     }
   },
 });
@@ -197,11 +207,11 @@ export const remove = new ValidatedMethod({
   name: 'users.remove',
   mixins: [ErxesMixin],
 
-  validate({ userId }) {
+  validate(userId) {
     check(userId, String);
   },
 
-  run({ userId }) {
+  run(userId) {
     const user = Meteor.users.findOne(userId);
 
     // can not delete owner

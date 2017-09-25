@@ -1,28 +1,47 @@
-import { compose } from 'react-komposer';
-import { getTrackerLoader, composerOptions } from '/imports/react-ui/utils';
-import { Meteor } from 'meteor/meteor';
-import { Brands } from '/imports/api/brands/brands';
-import { ResponseTemplates } from '/imports/api/responseTemplates/responseTemplates';
-import { remove } from '/imports/api/responseTemplates/methods';
+import { gql, graphql } from 'react-apollo';
+import { commonListComposer } from '../../utils';
 import { List } from '../components';
 
-function composer({ queryParams }, onData) {
-  const templatesHandler = Meteor.subscribe('responseTemplates.list');
-  const brandsHandler = Meteor.subscribe('brands.list', 100);
+export default commonListComposer({
+  name: 'responseTemplates',
 
-  const objects = ResponseTemplates.find({}).fetch();
+  gqlListQuery: graphql(
+    gql`
+      query objects($limit: Int!) {
+        responseTemplates(limit: $limit) {
+          _id
+          name
+          brandId
+          brand {
+            _id
+            name
+          }
+          content
+        }
+      }
+    `,
+    {
+      name: 'listQuery',
+      options: ({ queryParams }) => {
+        return {
+          variables: {
+            limit: queryParams.limit || 20,
+          },
+        };
+      },
+    },
+  ),
 
-  const removeResTemplate = (id, callback) => {
-    remove.call(id, callback);
-  };
+  gqlTotalCountQuery: graphql(
+    gql`
+      query totalResponseTemplatesCount {
+        responseTemplatesTotalCount
+      }
+    `,
+    {
+      name: 'totalCountQuery',
+    },
+  ),
 
-  if (templatesHandler.ready() && brandsHandler.ready()) {
-    onData(null, {
-      objects,
-      brands: Brands.find({}).fetch(),
-      removeResTemplate,
-    });
-  }
-}
-
-export default compose(getTrackerLoader(composer), composerOptions({}))(List);
+  ListComponent: List,
+});

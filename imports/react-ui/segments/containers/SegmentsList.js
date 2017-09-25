@@ -1,21 +1,63 @@
-import { compose } from 'react-komposer';
-import { getTrackerLoader, composerOptions } from '/imports/react-ui/utils';
+import React from 'react';
+import PropTypes from 'prop-types';
+import { compose, gql, graphql } from 'react-apollo';
 import { Meteor } from 'meteor/meteor';
-import Segments from '/imports/api/customers/segments';
-import { removeSegment } from '/imports/api/customers/methods';
+import { Loader } from '/imports/react-ui/common';
 import { SegmentsList } from '../components';
 
-function composer(props, onData) {
-  const segmentsHandle = Meteor.subscribe('customers.segments');
+const SegmentListContainer = props => {
+  const { segmentsQuery } = props;
 
-  if (segmentsHandle.ready()) {
-    onData(null, {
-      segments: Segments.find({}, { sort: { name: 1 } }).fetch(),
-      removeSegment({ id }, callback) {
-        removeSegment.call(id, callback);
-      },
-    });
+  if (segmentsQuery.loading) {
+    return <Loader />;
   }
-}
 
-export default compose(getTrackerLoader(composer), composerOptions({}))(SegmentsList);
+  const updatedProps = {
+    ...props,
+    segments: segmentsQuery.segments,
+    removeSegment({ id }, callback) {
+      Meteor.call('customers.removeSegment', id, (...params) => {
+        segmentsQuery.refetch();
+        callback(...params);
+      });
+    },
+  };
+
+  return <SegmentsList {...updatedProps} />;
+};
+
+SegmentListContainer.propTypes = {
+  object: PropTypes.object,
+  segmentsQuery: PropTypes.object,
+};
+
+const segmentFields = `
+  _id
+  name
+  description
+  subOf
+  color
+  connector
+  conditions
+`;
+
+export default compose(
+  graphql(
+    gql`
+      query segments {
+        segments {
+          ${segmentFields}
+          getSubSegments {
+            ${segmentFields}
+          }
+        }
+      }
+    `,
+    {
+      name: 'segmentsQuery',
+      options: () => ({
+        fetchPolicy: 'network-only',
+      }),
+    },
+  ),
+)(SegmentListContainer);

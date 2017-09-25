@@ -1,31 +1,100 @@
-import { Meteor } from 'meteor/meteor';
-import { compose } from 'react-komposer';
-import { getTrackerLoader, composerOptions } from '/imports/react-ui/utils';
-import { Integrations } from '/imports/api/integrations/integrations';
+import React from 'react';
+import PropTypes from 'prop-types';
+import { compose, gql, graphql } from 'react-apollo';
+import { Spinner } from '/imports/react-ui/common';
 import { ChannelForm } from '../components';
 
-function composer({ channel }, onData) {
-  const integrationHandle = Meteor.subscribe('integrations.list', {});
-  const userHandle = Meteor.subscribe('users.list', {});
-  const brandHandle = Meteor.subscribe('brands.list', 0);
+const ChannelFormContainer = props => {
+  const { object, integrationsQuery, usersQuery, brandsQuery } = props;
+
+  if (usersQuery.loading || brandsQuery.loading || integrationsQuery.loading) {
+    return <Spinner />;
+  }
+
+  const integrations = integrationsQuery.integrations || [];
+  const members = usersQuery.users || [];
 
   let selectedIntegrations = [];
   let selectedMembers = [];
-  if (channel) {
-    selectedIntegrations = Integrations.find({
-      _id: { $in: channel.integrationIds },
-    }).fetch();
-    selectedMembers = Meteor.users.find({ _id: { $in: channel.memberIds } }).fetch();
+
+  if (object) {
+    selectedIntegrations = integrations.filter(integ => object.integrationIds.includes(integ._id));
+    selectedMembers = members.filter(u => object.memberIds.includes(u._id));
   }
 
-  if (integrationHandle.ready() && userHandle.ready() && brandHandle.ready()) {
-    onData(null, {
-      integrations: Integrations.find().fetch(),
-      members: Meteor.users.find().fetch(),
-      selectedIntegrations,
-      selectedMembers,
-    });
-  }
-}
+  const updatedProps = {
+    ...props,
+    integrations,
+    members,
+    selectedIntegrations,
+    selectedMembers,
+  };
 
-export default compose(getTrackerLoader(composer), composerOptions({ spinner: true }))(ChannelForm);
+  return <ChannelForm {...updatedProps} />;
+};
+
+ChannelFormContainer.propTypes = {
+  object: PropTypes.object,
+  integrationsQuery: PropTypes.object,
+  brandsQuery: PropTypes.object,
+  usersQuery: PropTypes.object,
+};
+
+export default compose(
+  graphql(
+    gql`
+      query integrations {
+        integrations {
+          _id
+          name
+          brand {
+            _id
+            name
+          }
+          channels {
+            _id
+            name
+          }
+        }
+      }
+    `,
+    {
+      name: 'integrationsQuery',
+      options: () => ({
+        fetchPolicy: 'network-only',
+      }),
+    },
+  ),
+  graphql(
+    gql`
+      query brands {
+        brands {
+          _id
+          name
+        }
+      }
+    `,
+    {
+      name: 'brandsQuery',
+      options: () => ({
+        fetchPolicy: 'network-only',
+      }),
+    },
+  ),
+  graphql(
+    gql`
+      query users {
+        users {
+          _id
+          details
+        }
+      }
+    `,
+    {
+      name: 'usersQuery',
+      options: () => ({
+        fetchPolicy: 'network-only',
+      }),
+    },
+  ),
+)(ChannelFormContainer);

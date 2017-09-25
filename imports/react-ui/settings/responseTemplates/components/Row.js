@@ -1,68 +1,24 @@
-import React, { PropTypes, Component } from 'react';
-import { Button } from 'react-bootstrap';
-import Alert from 'meteor/erxes-notifier';
-import { ModalTrigger, Tip, ActionButtons } from '/imports/react-ui/common';
+import React from 'react';
+import { Row as CommonRow } from '../../common/components';
 import { Form } from '../containers';
 
-const propTypes = {
-  resTemplate: PropTypes.object.isRequired,
-  brands: PropTypes.array.isRequired,
-  removeResTemplate: PropTypes.func.isRequired,
-};
-
-class Row extends Component {
-  constructor(props) {
-    super(props);
-
-    this.removeResTemplate = this.removeResTemplate.bind(this);
-  }
-
-  removeResTemplate() {
-    if (!confirm('Are you sure?')) return; // eslint-disable-line
-
-    const { resTemplate, removeResTemplate } = this.props;
-
-    removeResTemplate(resTemplate._id, error => {
-      if (error) {
-        return Alert.error(error.message);
-      }
-
-      return Alert.success('Response template has deleted.');
-    });
+class Row extends CommonRow {
+  renderForm(props) {
+    return <Form {...props} />;
   }
 
   render() {
-    const { resTemplate, brands } = this.props;
-
-    const editTrigger = (
-      <Button bsStyle="link">
-        <Tip text="Edit"><i className="ion-edit" /></Tip>
-      </Button>
-    );
+    const { object } = this.props;
 
     return (
       <tr>
-        <td>{resTemplate.brand().name}</td>
-        <td>{resTemplate.name}</td>
+        <td>{object.brand.name}</td>
+        <td>{object.name}</td>
 
-        <td className="text-right">
-          <ActionButtons>
-            <ModalTrigger title="Edit resTemplate" trigger={editTrigger}>
-              <Form brands={brands} resTemplate={resTemplate} />
-            </ModalTrigger>
-
-            <Tip text="Delete">
-              <Button bsStyle="link" onClick={this.removeResTemplate}>
-                <i className="ion-close-circled" />
-              </Button>
-            </Tip>
-          </ActionButtons>
-        </td>
+        {this.renderActions()}
       </tr>
     );
   }
 }
-
-Row.propTypes = propTypes;
 
 export default Row;

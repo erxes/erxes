@@ -1,12 +1,15 @@
-import React, { PropTypes, Component } from 'react';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import { FormControl } from 'react-bootstrap';
-import { MESSENGER_KINDS, SENT_AS_CHOICES } from '/imports/api/engage/constants';
 import Editor from './Editor';
+import { MESSENGER_KINDS, SENT_AS_CHOICES } from '/imports/api/engage/constants';
+import { MessengerPreview } from '../containers';
 
 const propTypes = {
   message: PropTypes.object.isRequired,
   onContentChange: PropTypes.func.isRequired,
   showMessengerType: PropTypes.bool,
+  fromUser: PropTypes.string.isRequired,
   brands: PropTypes.array,
 };
 
@@ -14,12 +17,23 @@ class MessengerForm extends Component {
   constructor(props) {
     super(props);
 
+    const { message } = this.props;
+    const messenger = message.messenger || {};
+
+    this.state = { sentAs: messenger.sentAs || '', messengerContent: messenger.content || '' };
+
     // binds
     this.onContentChange = this.onContentChange.bind(this);
+    this.onChangeSentAs = this.onChangeSentAs.bind(this);
   }
 
   onContentChange(content) {
     this.props.onContentChange(content);
+    this.setState({ messengerContent: content });
+  }
+
+  onChangeSentAs(e) {
+    this.setState({ sentAs: e.target.value });
   }
 
   renderMessageType(messenger) {
@@ -67,6 +81,7 @@ class MessengerForm extends Component {
             <FormControl
               id="messengerSentAs"
               componentClass="select"
+              onChange={this.onChangeSentAs}
               defaultValue={messenger.sentAs}
             >
               <option />
@@ -79,7 +94,17 @@ class MessengerForm extends Component {
           </div>
         </div>
         <div className="form-content">
-          <Editor defaultValue={messenger.content} onChange={this.onContentChange} />
+          <div className="flex-content">
+            <div className="messenger-content">
+              <h2>Content</h2>
+              <Editor defaultValue={messenger.content} onChange={this.onContentChange} />
+            </div>
+            <MessengerPreview
+              sentAs={this.state.sentAs}
+              content={this.state.messengerContent}
+              fromUser={this.props.fromUser}
+            />
+          </div>
         </div>
       </div>
     );

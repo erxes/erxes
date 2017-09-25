@@ -1,24 +1,61 @@
-import { Meteor } from 'meteor/meteor';
-import { compose } from 'react-komposer';
-import { getTrackerLoader, composerOptions } from '/imports/react-ui/utils';
-import { Brands } from '/imports/api/brands/brands';
-
-import { Messages } from '/imports/api/engage/engage';
+import React from 'react';
+import PropTypes from 'prop-types';
+import { compose, gql, graphql } from 'react-apollo';
 import { MessageForm } from '../components';
 
-function composer({ messageId, kind }, onData) {
-  const messagesHandler = Meteor.subscribe('engage.messages.detail', messageId || '');
-  const brandsHandler = Meteor.subscribe('brands.list');
+const MessageFormContainer = props => {
+  const { engageMessageDetailQuery, brandsQuery, kind } = props;
 
-  // wait for detail subscription
-  if (!messagesHandler.ready() || !brandsHandler.ready()) {
+  if (engageMessageDetailQuery.loading || brandsQuery.loading) {
     return null;
   }
 
-  const message = Messages.findOne({ _id: messageId });
-  const brands = Brands.find().fetch();
+  const message = engageMessageDetailQuery.engageMessageDetail;
+  const brands = brandsQuery.brands;
 
-  onData(null, { kind: message ? message.kind : kind, brands });
-}
+  const updatedProps = {
+    ...props,
+    kind: message ? message.kind : kind,
+    brands,
+  };
 
-export default compose(getTrackerLoader(composer), composerOptions({}))(MessageForm);
+  return <MessageForm {...updatedProps} />;
+};
+
+MessageFormContainer.propTypes = {
+  kind: PropTypes.string,
+  engageMessageDetailQuery: PropTypes.object,
+  brandsQuery: PropTypes.object,
+};
+
+export default compose(
+  graphql(
+    gql`
+      query engageMessageDetail($_id: String) {
+        engageMessageDetail(_id: $_id) {
+          _id
+          kind
+        }
+      }
+    `,
+    {
+      name: 'engageMessageDetailQuery',
+      options: ({ messageId }) => ({
+        variables: {
+          _id: messageId,
+        },
+      }),
+    },
+  ),
+  graphql(
+    gql`
+      query brands {
+        brands {
+          _id
+          name
+        }
+      }
+    `,
+    { name: 'brandsQuery' },
+  ),
+)(MessageFormContainer);

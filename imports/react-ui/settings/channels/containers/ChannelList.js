@@ -1,23 +1,44 @@
-import { compose } from 'react-komposer';
-import { getTrackerLoader, composerOptions } from '/imports/react-ui/utils';
-import { Meteor } from 'meteor/meteor';
-import { Channels } from '/imports/api/channels/channels';
-import { remove } from '/imports/api/channels/methods';
-import { pagination } from '/imports/react-ui/common';
+import { gql, graphql } from 'react-apollo';
+import { commonListComposer } from '../../utils';
 import { ChannelList } from '../components';
 
-function composer({ queryParams }, onData) {
-  const { limit, loadMore, hasMore } = pagination(queryParams, 'channels.list.count');
+export default commonListComposer({
+  name: 'channels',
 
-  Meteor.subscribe('channels.list', Object.assign(queryParams, { limit, origin: 'settings' }));
+  gqlListQuery: graphql(
+    gql`
+      query channels($limit: Int!) {
+        channels(limit: $limit) {
+          _id
+          name
+          description
+          integrationIds
+          memberIds
+        }
+      }
+    `,
+    {
+      name: 'listQuery',
+      options: ({ queryParams }) => {
+        return {
+          variables: {
+            limit: queryParams.limit || 20,
+          },
+        };
+      },
+    },
+  ),
 
-  const channels = Channels.find().fetch();
+  gqlTotalCountQuery: graphql(
+    gql`
+      query totalChannelsCount {
+        channelsTotalCount
+      }
+    `,
+    {
+      name: 'totalCountQuery',
+    },
+  ),
 
-  const removeChannel = (id, callback) => {
-    remove.call(id, callback);
-  };
-
-  onData(null, { channels, removeChannel, loadMore, hasMore });
-}
-
-export default compose(getTrackerLoader(composer), composerOptions({}))(ChannelList);
+  ListComponent: ChannelList,
+});

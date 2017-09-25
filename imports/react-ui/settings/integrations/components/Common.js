@@ -1,5 +1,6 @@
 import { Meteor } from 'meteor/meteor';
-import React, { PropTypes, Component } from 'react';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import {
   FormGroup,
   ControlLabel,
@@ -10,7 +11,6 @@ import {
 } from 'react-bootstrap';
 import ReactMarkdown from 'react-markdown';
 import CopyToClipboard from 'react-copy-to-clipboard';
-import { Brands } from '/imports/api/brands/brands';
 import SelectBrand from './SelectBrand';
 
 class Common extends Component {
@@ -34,7 +34,7 @@ class Common extends Component {
 
     // showed install code automatically in edit mode
     if (props.integration) {
-      const brand = Brands.findOne(props.integration.brandId);
+      const brand = props.integration.brand;
       code = this.constructor.getInstallCode(brand.code);
     }
 
@@ -49,7 +49,8 @@ class Common extends Component {
 
   updateInstallCodeValue(brandId) {
     if (brandId) {
-      const brand = Brands.findOne(brandId);
+      const brand = this.props.brands.find(brand => brand._id === brandId);
+
       const code = this.constructor.getInstallCode(brand.code);
 
       this.setState({ code, copied: false });

@@ -1,31 +1,39 @@
 import { Meteor } from 'meteor/meteor';
-import { compose } from 'react-komposer';
-import { getTrackerLoader, composerOptions } from '/imports/react-ui/utils';
-import { EmailTemplates } from '/imports/api/emailTemplates/emailTemplates';
-import Segments from '/imports/api/customers/segments';
-import { Messages } from '/imports/api/engage/engage';
+import React from 'react';
+import PropTypes from 'prop-types';
+import { compose, gql, graphql } from 'react-apollo';
 import { methodCallback } from '/imports/react-ui/engage/utils';
+import { Loading } from '/imports/react-ui/common';
 import { AutoAndManualForm } from '../components';
+import { queries } from '../graphql';
 
-function composer({ messageId, kind }, onData) {
-  const handler = Meteor.subscribe('engage.messages.detail', messageId || '');
-  const segmentsHandle = Meteor.subscribe('customers.segments');
-  const templatesHandler = Meteor.subscribe('emailTemplates.list');
-  const usersHandler = Meteor.subscribe('users.list', {});
+const AutoAndManualFormContainer = props => {
+  const {
+    engageMessageDetailQuery,
+    usersQuery,
+    segmentsQuery,
+    emailTemplatesQuery,
+    messageId,
+    kind,
+    customerCountsQuery,
+  } = props;
 
-  const templates = EmailTemplates.find({}).fetch();
-
-  // wait for detail subscription
   if (
-    !handler.ready() ||
-    !segmentsHandle.ready() ||
-    !templatesHandler.ready() ||
-    !usersHandler.ready()
+    engageMessageDetailQuery.loading ||
+    usersQuery.loading ||
+    segmentsQuery.loading ||
+    emailTemplatesQuery.loading ||
+    customerCountsQuery.loading
   ) {
-    return null;
+    return <Loading title="New message" spin sidebarSize="wide" />;
   }
+  const templates = emailTemplatesQuery.emailTemplates;
+  const message = engageMessageDetailQuery.engageMessageDetail;
+  const segments = segmentsQuery.segments;
+  const users = usersQuery.users;
 
-  const message = Messages.findOne({ _id: messageId });
+  // TODO change query to get only customerCounts
+  const counts = customerCountsQuery.customerCounts.bySegment;
 
   // save
   const save = doc => {
@@ -38,11 +46,48 @@ function composer({ messageId, kind }, onData) {
     return Meteor.call('engage.messages.add', { doc }, methodCallback);
   };
 
-  // props
-  const segments = Segments.find({}).fetch();
-  const users = Meteor.users.find({}).fetch();
+  const updatedProps = {
+    ...props,
+    save,
+    message,
+    segments,
+    templates,
+    users,
+    counts,
+  };
 
-  onData(null, { save, message, segments, templates, users });
-}
+  return <AutoAndManualForm {...updatedProps} />;
+};
 
-export default compose(getTrackerLoader(composer), composerOptions({}))(AutoAndManualForm);
+AutoAndManualFormContainer.propTypes = {
+  messageId: PropTypes.string,
+  kind: PropTypes.string,
+  engageMessageDetailQuery: PropTypes.object,
+  usersQuery: PropTypes.object,
+  segmentsQuery: PropTypes.object,
+  emailTemplatesQuery: PropTypes.object,
+  customerCountsQuery: PropTypes.object,
+};
+
+export default compose(
+  graphql(gql(queries.engageMessageDetail), {
+    name: 'engageMessageDetailQuery',
+    options: ({ messageId }) => ({
+      fetchPolicy: 'network-only',
+      variables: {
+        _id: messageId,
+      },
+    }),
+  }),
+  graphql(gql(queries.users), { name: 'usersQuery' }),
+  graphql(gql(queries.emailTemplates), { name: 'emailTemplatesQuery' }),
+  graphql(gql(queries.segments), { name: 'segmentsQuery' }),
+  graphql(gql(queries.customerCounts), {
+    name: 'customerCountsQuery',
+    options: () => ({
+      variables: {
+        params: {},
+      },
+    }),
+  }),
+)(AutoAndManualFormContainer);

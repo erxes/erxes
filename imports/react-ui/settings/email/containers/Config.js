@@ -1,8 +1,7 @@
-import { compose } from 'react-komposer';
-import { getTrackerLoader } from '/imports/react-ui/utils';
 import { Meteor } from 'meteor/meteor';
-import { Brands } from '/imports/api/brands/brands';
-import { configEmail } from '/imports/api/brands/methods';
+import React from 'react';
+import PropTypes from 'prop-types';
+import { compose, gql, graphql } from 'react-apollo';
 import { Config } from '../components';
 
 const defaultTemplate = `<p>Dear {{fullName}},</p>
@@ -47,20 +46,56 @@ const defaultTemplate = `<p>Dear {{fullName}},</p>
     }
 </style>`;
 
-function composer(props, onData) {
-  const brandsHandle = Meteor.subscribe('brands.getById', props.brandId);
+const ConfigContainer = props => {
+  const { brandQuery, refetch } = props;
 
-  if (!brandsHandle.ready()) {
-    return;
+  if (brandQuery.loading) {
+    return null;
   }
 
-  const brand = Brands.findOne(props.brandId);
+  const configEmail = (doc, callback) => {
+    Meteor.call('brands.configEmail', doc, (...params) => {
+      refetch();
 
-  const configFn = (...params) => {
-    configEmail.call(...params);
+      callback(...params);
+    });
   };
 
-  onData(null, { brand, configEmail: configFn, defaultTemplate });
-}
+  const updatedProps = {
+    ...props,
+    brand: brandQuery.brandDetail,
+    configEmail,
+    defaultTemplate,
+  };
 
-export default compose(getTrackerLoader(composer))(Config);
+  return <Config {...updatedProps} />;
+};
+
+ConfigContainer.propTypes = {
+  brandQuery: PropTypes.object,
+  refetch: PropTypes.func,
+};
+
+export default compose(
+  graphql(
+    gql`
+      query brandDetail($brandId: String!) {
+        brandDetail(_id: $brandId) {
+          _id
+          name
+          emailConfig
+        }
+      }
+    `,
+    {
+      name: 'brandQuery',
+      options: ({ brandId }) => {
+        return {
+          variables: {
+            brandId,
+          },
+        };
+      },
+    },
+  ),
+)(ConfigContainer);

@@ -1,4 +1,5 @@
-import React, { PropTypes, Component } from 'react';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import { Button, Checkbox, ControlLabel } from 'react-bootstrap';
 import Alert from 'meteor/erxes-notifier';
 
@@ -133,6 +134,7 @@ class RespondBox extends Component {
 
   render() {
     const { isInternal, responseTemplate } = this.state;
+    const integration = this.props.conversation.integration || {};
 
     const Buttons = (
       <div>
@@ -146,7 +148,7 @@ class RespondBox extends Component {
         </ControlLabel>
 
         <ResponseTemplate
-          brandId={this.props.conversation.integration().brandId}
+          brandId={integration.brandId}
           attachments={this.state.attachments}
           content={this.state.content}
           onSelect={this.onSelectTemplate}

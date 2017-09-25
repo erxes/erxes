@@ -1,27 +1,44 @@
-import { compose } from 'react-komposer';
-import { getTrackerLoader, composerOptions } from '/imports/react-ui/utils';
-import { Meteor } from 'meteor/meteor';
-import { Forms } from '/imports/api/forms/forms';
-import { pagination } from '/imports/react-ui/common';
-import { remove, duplicate } from '/imports/api/forms/methods';
+import { gql, graphql } from 'react-apollo';
+import { commonListComposer } from '../../utils';
 import { List } from '../components';
 
-function composer({ queryParams }, onData) {
-  const { limit, loadMore, hasMore } = pagination(queryParams, 'forms.list.count');
-  const subHandle = Meteor.subscribe('forms.list', limit);
-  const forms = Forms.find().fetch();
+export default commonListComposer({
+  name: 'forms',
 
-  const removeForm = (id, callback) => {
-    remove.call(id, callback);
-  };
+  gqlListQuery: graphql(
+    gql`
+      query objects($limit: Int!) {
+        forms(limit: $limit) {
+          _id
+          code
+          title
+          description
+          createdDate
+        }
+      }
+    `,
+    {
+      name: 'listQuery',
+      options: ({ queryParams }) => {
+        return {
+          variables: {
+            limit: queryParams.limit || 20,
+          },
+        };
+      },
+    },
+  ),
 
-  const duplicateForm = (id, callback) => {
-    duplicate.call({ id }, callback);
-  };
+  gqlTotalCountQuery: graphql(
+    gql`
+      query totalFormsCount {
+        formsTotalCount
+      }
+    `,
+    {
+      name: 'totalCountQuery',
+    },
+  ),
 
-  if (subHandle.ready()) {
-    onData(null, { forms, removeForm, duplicateForm, loadMore, hasMore });
-  }
-}
-
-export default compose(getTrackerLoader(composer), composerOptions({}))(List);
+  ListComponent: List,
+});

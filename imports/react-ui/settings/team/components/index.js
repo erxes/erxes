@@ -1,4 +1,4 @@
-import UsersList from './UsersList';
-import InviteForm from './InviteForm';
+import UserList from './UserList';
+import UserForm from './UserForm';
 
-export { UsersList, InviteForm };
+export { UserList, UserForm };

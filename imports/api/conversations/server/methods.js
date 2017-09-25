@@ -17,6 +17,7 @@ import {
   ChangeStatusSchema,
 } from '/imports/api/conversations/conversations';
 import { CONVERSATION_STATUSES } from '/imports/api/conversations/constants';
+import { conversationsChanged, messageInserted } from './apolloPubSubs';
 
 /*
  * all possible users they can get notifications
@@ -93,8 +94,7 @@ export const addMessage = new ValidatedMethod({
 
     // do not send internal message to third service integrations
     if (doc.internal) {
-      Messages.insert({ ...doc, userId });
-      return 'internalMessage';
+      return Messages.insert({ ...doc, userId });
     }
 
     // send reply to twitter
@@ -103,6 +103,9 @@ export const addMessage = new ValidatedMethod({
     }
 
     const messageId = Messages.insert({ ...doc, userId });
+
+    // notify graphl subscription
+    messageInserted(messageId);
 
     const customer = conversation.customer();
 
@@ -171,6 +174,9 @@ export const assign = new ValidatedMethod({
       { multi: true },
     );
 
+    // notify graphl subscription
+    conversationsChanged(conversationIds, 'statusChanged');
+
     const updatedConversations = Conversations.find(selector).fetch();
 
     // send notification
@@ -206,6 +212,9 @@ export const unassign = new ValidatedMethod({
       { $unset: { assignedUserId: 1 } },
       { multi: true },
     );
+
+    // notify graphl subscription
+    conversationsChanged(conversationIds, 'statusChanged');
   },
 });
 
@@ -222,6 +231,9 @@ export const changeStatus = new ValidatedMethod({
     const { conversations } = checkConversationsExistance(conversationIds);
 
     Conversations.update({ _id: { $in: conversationIds } }, { $set: { status } }, { multi: true });
+
+    // notify graphl subscription
+    conversationsChanged(conversationIds, 'statusChanged');
 
     // send notification
     _.each(conversations, conversation => {
@@ -323,20 +335,22 @@ export const toggleParticipate = new ValidatedMethod({
 
     // not previously added
     if (Conversations.find(extendSelector).count() === 0) {
-      // add
-      return Conversations.update(
+      Conversations.update(
         selector,
         { $addToSet: { participatedUserIds: this.userId } },
         { multi: true },
       );
+    } else {
+      // remove
+      Conversations.update(
+        selector,
+        { $pull: { participatedUserIds: { $in: [this.userId] } } },
+        { multi: true },
+      );
     }
 
-    // remove
-    return Conversations.update(
-      selector,
-      { $pull: { participatedUserIds: { $in: [this.userId] } } },
-      { multi: true },
-    );
+    // notify graphl subscription
+    conversationsChanged(conversationIds, 'participatedStateChanged');
   },
 });
 

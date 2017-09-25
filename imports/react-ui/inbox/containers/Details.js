@@ -1,74 +1,111 @@
 import { Meteor } from 'meteor/meteor';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
+import { compose, gql, graphql } from 'react-apollo';
 import { ReactiveVar } from 'meteor/reactive-var';
-import { compose } from 'react-komposer';
-import { getTrackerLoader, composerOptions } from '/imports/react-ui/utils';
-import { Conversations } from '/imports/api/conversations/conversations';
-import { Messages } from '/imports/api/conversations/messages';
-import { Integrations } from '/imports/api/integrations/integrations';
 import { Details } from '../components';
+import { Loading } from '/imports/react-ui/common';
+import { queries, subscriptions } from '../graphql';
 
 const attachmentPreview = new ReactiveVar({});
 
-function composer({ id, channelId, queryParams }, onData) {
-  // subscriptions
-  const conversationHandle = Meteor.subscribe('conversations.detail', id);
-  const messagesHandle = Meteor.subscribe('conversations.messageList', id);
+class DetailsContainer extends Component {
+  componentWillMount() {
+    const { id, conversationDetailQuery } = this.props;
 
-  // =============== actions
-  const changeStatus = (conversationId, status, callback) => {
-    Meteor.call(
-      'conversations.changeStatus',
-      { conversationIds: [conversationId], status },
-      callback,
-    );
-  };
+    // lister for new message insertion
+    conversationDetailQuery.subscribeToMore({
+      document: gql(subscriptions.conversationMessageInserted),
+      variables: { _id: id },
+      updateQuery: (prev, { subscriptionData }) => {
+        const message = subscriptionData.data.conversationMessageInserted;
+        const conversationDetail = prev.conversationDetail;
+        const messages = conversationDetail.messages;
 
-  const setAttachmentPreview = previewObject => {
-    attachmentPreview.set(previewObject);
-  };
+        // add new message to messages list
+        const next = Object.assign({}, prev, {
+          conversationDetail: Object.assign({
+            ...conversationDetail,
+            messages: [...messages, message],
+          }),
+        });
 
-  // subscriptions are ready
-  if (conversationHandle.ready() && messagesHandle.ready()) {
-    const conversation = Conversations.findOne(id);
+        return next;
+      },
+    });
 
-    if (!conversation) {
-      return;
+    // lister for conversation changes like status, assignee
+    conversationDetailQuery.subscribeToMore({
+      document: gql(subscriptions.conversationChanged),
+      variables: { _id: id },
+      updateQuery: () => {
+        this.props.conversationDetailQuery.refetch();
+      },
+    });
+  }
+
+  render() {
+    const { channelId, queryParams, conversationDetailQuery } = this.props;
+
+    if (conversationDetailQuery.loading) {
+      return <Loading title="Conversation" spin hasRightSidebar />;
     }
 
-    const messages = Messages.find({ conversationId: id }, { sort: { createdAt: 1 } }).fetch();
+    const conversation = conversationDetailQuery.conversationDetail;
+    const messages = conversation.messages;
 
-    const integrationId = conversation.integrationId;
+    // =============== actions
+    const changeStatus = (conversationId, status, callback) => {
+      Meteor.call(
+        'conversations.changeStatus',
+        { conversationIds: [conversationId], status },
+        callback,
+      );
+    };
 
-    // sub subscriptions
-    const integrationHandle = Meteor.subscribe('integrations.getById', integrationId);
-    const tagsHandle = Meteor.subscribe('tags.tagListByIds', conversation.tagIds || []);
-    const usersHandle = Meteor.subscribe('users.list', {});
+    const setAttachmentPreview = previewObject => {
+      attachmentPreview.set(previewObject);
+    };
 
-    if (integrationHandle.ready() && tagsHandle.ready() && usersHandle.ready()) {
-      const integration = Integrations.findOne({ _id: integrationId });
+    // mark as read
+    const readUserIds = conversation.readUserIds || [];
 
-      // brand, channels subscription
-      Meteor.subscribe('brands.getById', integration.brandId);
-      Meteor.subscribe('channels.list', { integrationIds: [integration._id] });
-
-      // mark as read
-      const readUserIds = conversation.readUserIds || [];
-
-      if (!readUserIds.includes(Meteor.userId())) {
-        Meteor.call('conversations.markAsRead', { conversationId: id });
-      }
-
-      onData(null, {
-        conversation,
-        messages,
-        channelId,
-        changeStatus,
-        setAttachmentPreview,
-        queryParams,
-        attachmentPreview: attachmentPreview.get(),
-      });
+    if (!readUserIds.includes(Meteor.userId())) {
+      Meteor.call('conversations.markAsRead', { conversationId: conversation._id });
     }
+
+    const updatedProps = {
+      ...this.props,
+      conversation,
+      messages,
+      channelId,
+      changeStatus,
+      setAttachmentPreview,
+      queryParams,
+      attachmentPreview: attachmentPreview.get(),
+      refetch: conversationDetailQuery.refetch,
+    };
+
+    return <Details {...updatedProps} />;
   }
 }
 
-export default compose(getTrackerLoader(composer), composerOptions({}))(Details);
+DetailsContainer.propTypes = {
+  id: PropTypes.string,
+  channelId: PropTypes.string,
+  queryParams: PropTypes.object,
+  conversationDetailQuery: PropTypes.object,
+  subscribeToNewMessages: PropTypes.func,
+  data: PropTypes.object,
+};
+
+export default compose(
+  graphql(gql(queries.conversationDetail), {
+    name: 'conversationDetailQuery',
+    options: ({ id }) => ({
+      variables: {
+        _id: id,
+      },
+    }),
+  }),
+)(DetailsContainer);

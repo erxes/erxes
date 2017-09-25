@@ -1,23 +1,43 @@
-import { compose } from 'react-komposer';
-import { getTrackerLoader, composerOptions } from '/imports/react-ui/utils';
-import { Meteor } from 'meteor/meteor';
-import { Brands } from '/imports/api/brands/brands';
-import { remove } from '/imports/api/brands/methods';
-import { pagination } from '/imports/react-ui/common';
+import { gql, graphql } from 'react-apollo';
+import { commonListComposer } from '../../utils';
 import { BrandList } from '../components';
 
-function composer({ queryParams }, onData) {
-  const { limit, loadMore, hasMore } = pagination(queryParams, 'brands.list.count');
-  const subHandle = Meteor.subscribe('brands.list', limit);
-  const brands = Brands.find().fetch();
+export default commonListComposer({
+  name: 'brands',
 
-  const removeBrand = (id, callback) => {
-    remove.call(id, callback);
-  };
+  gqlListQuery: graphql(
+    gql`
+      query objects($limit: Int!) {
+        brands(limit: $limit) {
+          _id
+          code
+          name
+          description
+        }
+      }
+    `,
+    {
+      name: 'listQuery',
+      options: ({ queryParams }) => {
+        return {
+          variables: {
+            limit: queryParams.limit || 20,
+          },
+        };
+      },
+    },
+  ),
 
-  if (subHandle.ready()) {
-    onData(null, { brands, removeBrand, loadMore, hasMore });
-  }
-}
+  gqlTotalCountQuery: graphql(
+    gql`
+      query totalBrandsCount {
+        brandsTotalCount
+      }
+    `,
+    {
+      name: 'totalCountQuery',
+    },
+  ),
 
-export default compose(getTrackerLoader(composer), composerOptions({}))(BrandList);
+  ListComponent: BrandList,
+});

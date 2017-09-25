@@ -1,34 +1,61 @@
 import { Meteor } from 'meteor/meteor';
-import { compose } from 'react-komposer';
+import React from 'react';
+import PropTypes from 'prop-types';
+import { compose, gql, graphql } from 'react-apollo';
 import Alert from 'meteor/erxes-notifier';
-import { getTrackerLoader, composerOptions } from '/imports/react-ui/utils';
-import { Integrations } from '/imports/api/integrations/integrations';
 import { MessengerAppearance } from '../components';
+import { Loading } from '/imports/react-ui/common';
 
-const composer = (props, onData) => {
+const MessengerAppearanceContainer = props => {
+  const { integrationDetailQuery } = props;
+
+  if (integrationDetailQuery.loading) {
+    return <Loading title="Integrations" spin />;
+  }
+
+  const integration = integrationDetailQuery.integrationDetail;
+
   const save = doc => {
-    Meteor.call('integrations.saveMessengerApperance', { _id: props.integrationId, doc }, error => {
+    Meteor.call('integrations.saveMessengerApperance', { _id: integration._id, doc }, error => {
       if (error) return Alert.error(error.reason);
 
       return Alert.success('Successfully saved.');
     });
   };
 
-  const handler = Meteor.subscribe('integrations.getById', props.integrationId);
-
-  if (!handler.ready()) {
-    return null;
-  }
-
-  const integration = Integrations.findOne(props.integrationId);
-
-  return onData(null, {
+  const updatedProps = {
+    ...props,
     prevOptions: integration.uiOptions || {},
     save,
     user: Meteor.user(),
-  });
+  };
+
+  return <MessengerAppearance {...updatedProps} />;
 };
 
-export default compose(getTrackerLoader(composer, composerOptions({ spinner: true })))(
-  MessengerAppearance,
-);
+MessengerAppearanceContainer.propTypes = {
+  integrationDetailQuery: PropTypes.object,
+};
+
+export default compose(
+  graphql(
+    gql`
+      query integrationDetail($_id: String!) {
+        integrationDetail(_id: $_id) {
+          _id
+          name
+          uiOptions
+        }
+      }
+    `,
+    {
+      name: 'integrationDetailQuery',
+      options: ({ integrationId }) => ({
+        variables: {
+          _id: integrationId,
+        },
+        fetchPolicy: 'network-only',
+      }),
+    },
+  ),
+)(MessengerAppearanceContainer);

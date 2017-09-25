@@ -1,4 +1,5 @@
-import React, { PropTypes, Component } from 'react';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import { ButtonGroup, Button, FormControl } from 'react-bootstrap';
 
 import { FlowRouter } from 'meteor/kadira:flow-router';
@@ -14,11 +15,20 @@ class FormBase extends Component {
   constructor(props) {
     super(props);
 
+    const message = props.message || {};
+
+    this.state = { fromUser: message.fromUserId || '' };
+
     // binds
     this.generateDoc = this.generateDoc.bind(this);
     this.save = this.save.bind(this);
     this.saveAndLive = this.saveAndLive.bind(this);
     this.saveAndDraft = this.saveAndDraft.bind(this);
+    this.onChangeUser = this.onChangeUser.bind(this);
+  }
+
+  componentDidMount() {
+    this.setState({ fromUser: document.getElementById('fromUserId').value });
   }
 
   getMessage() {
@@ -82,12 +92,18 @@ class FormBase extends Component {
 
   renderTitle() {
     const kind = FlowRouter.getQueryParam('kind');
+
     if (kind == 'auto') {
       return 'Auto message';
     } else if (kind == 'manual') {
       return 'Manual message';
     }
+
     return 'Visitor auto message';
+  }
+
+  onChangeUser(e) {
+    this.setState({ fromUser: e.target.value });
   }
 
   render() {
@@ -115,6 +131,7 @@ class FormBase extends Component {
                 id="fromUserId"
                 componentClass="select"
                 defaultValue={message.fromUserId}
+                onChange={this.onChangeUser}
               >
                 {this.props.users.map(u => (
                   <option key={u._id} value={u._id}>

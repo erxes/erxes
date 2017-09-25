@@ -1,6 +1,7 @@
 /* eslint-disable react/jsx-no-bind */
 
-import React, { PropTypes, Component } from 'react';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import Alert from 'meteor/erxes-notifier';
 import { FilterableList } from '/imports/react-ui/common';
 
@@ -9,7 +10,6 @@ const propTypes = {
   assignees: PropTypes.array.isRequired,
   assign: PropTypes.func.isRequired,
   clear: PropTypes.func.isRequired,
-  afterSave: PropTypes.func,
   event: PropTypes.oneOf(['onClick', 'onExit']),
   className: PropTypes.string,
 };
@@ -34,6 +34,7 @@ class AssignBox extends Component {
 
   assign(items, id) {
     const { assign, targets } = this.props;
+
     assign(
       {
         targetIds: targets.map(t => t._id),
@@ -42,10 +43,6 @@ class AssignBox extends Component {
       error => {
         if (error) {
           Alert.error(error.reason);
-
-          if (this.props.afterSave) {
-            this.props.afterSave();
-          }
         }
         return Alert.success('The conversation Assignee has been renewed.');
       },
@@ -60,7 +57,9 @@ class AssignBox extends Component {
           memo + (target.assignedUserId && target.assignedUserId.indexOf(assignee._id) > -1),
         0,
       );
+
       let state = 'none';
+
       if (count === targets.length) {
         state = 'all';
       } else if (count < targets.length && count > 0) {

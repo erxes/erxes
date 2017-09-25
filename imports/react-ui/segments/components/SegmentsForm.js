@@ -1,4 +1,5 @@
-import React, { PropTypes, Component } from 'react';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import {
   Form,
   ButtonGroup,
@@ -178,7 +179,7 @@ class SegmentsForm extends Component {
                 <FormControl
                   name="description"
                   type="text"
-                  value={this.state.description}
+                  value={this.state.description || ''}
                   onChange={this.handleDescriptionChange}
                 />
               </FormGroup>
@@ -187,7 +188,7 @@ class SegmentsForm extends Component {
                 <FormControl
                   name="subOf"
                   componentClass="select"
-                  value={this.state.subOf}
+                  value={this.state.subOf || ''}
                   onChange={this.handleChange}
                 >
                   <option value="">[not selected]</option>

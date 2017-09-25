@@ -1,6 +1,7 @@
 /* eslint-disable jsx-a11y/no-static-element-interactions */
 
-import React, { PropTypes, Component } from 'react';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import {
   Col,
   Row,
@@ -24,6 +25,7 @@ class ManageFields extends Component {
     super(props);
 
     this.state = {
+      fields: props.fields,
       chosenFieldType: null,
       editingField: editingFieldDefaultValue,
     };
@@ -58,7 +60,14 @@ class ManageFields extends Component {
       return this.props.editField(editingField._id, doc);
     }
 
-    return this.props.addField(doc);
+    return this.props.addField(doc, fieldId => {
+      // newly created field to fields state
+      doc._id = fieldId;
+
+      this.state.fields.push(doc);
+
+      this.setState({ fields: this.state.fields });
+    });
   }
 
   onFieldEdit(field) {
@@ -92,7 +101,9 @@ class ManageFields extends Component {
 
   setChanges(attributeName, value) {
     const { editingField } = this.state;
+
     editingField[attributeName] = value;
+
     this.setState({ editingField });
   }
 
@@ -108,6 +119,12 @@ class ManageFields extends Component {
       const onDelete = e => {
         e.preventDefault();
 
+        // remove field from state
+        const fields = this.state.fields.filter(field => field._id !== _id);
+
+        this.setState({ fields });
+
+        // remove field from db
         this.props.deleteField(_id);
 
         reset();
@@ -244,7 +261,7 @@ class ManageFields extends Component {
 
           <Col sm={7} xsOffset={5}>
             <FieldsPreview
-              fields={this.props.fields}
+              fields={this.state.fields}
               onFieldEdit={this.onFieldEdit}
               onSort={this.props.onSort}
             />

@@ -1,4 +1,5 @@
-import React, { PropTypes, Component } from 'react';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import { Form, FormControl, Button } from 'react-bootstrap';
 import debounce from 'lodash/debounce';
 import { types, operators, dateUnits } from '/imports/api/customers/constants';

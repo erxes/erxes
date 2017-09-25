@@ -2,14 +2,11 @@
 
 import { Meteor } from 'meteor/meteor';
 import { Random } from 'meteor/random';
-import { _ } from 'meteor/underscore';
 import { Factory } from 'meteor/dburles:factory';
-import { assert, chai } from 'meteor/practicalmeteor:chai';
-import { PublicationCollector } from 'meteor/johanbrook:publication-collector';
+import { assert } from 'meteor/practicalmeteor:chai';
 import { Notifications } from 'meteor/erxes-notifications';
 import { Channels } from '/imports/api/channels/channels';
-import { add, edit, remove } from '../methods';
-import './publications.js';
+import { add, edit, remove } from './methods';
 
 describe('channels', function() {
   describe('mutators', function() {
@@ -18,51 +15,6 @@ describe('channels', function() {
       assert.typeOf(brand, 'object');
       assert.typeOf(brand.createdAt, 'date');
       assert.typeOf(brand.code, 'string');
-    });
-  });
-
-  describe('publications', function() {
-    const userId = Factory.create('user')._id;
-    let channel;
-
-    before(function() {
-      Channels.remove({});
-      _.times(2, () => Factory.create('channel'));
-      _.times(2, () => Factory.create('channel', { memberIds: [userId] }));
-
-      _.times(2, () => Factory.create('channel', { userId }));
-      channel = Factory.create('channel', { userId });
-    });
-
-    describe('channels.list', function() {
-      it('sends all channels', function(done) {
-        const collector = new PublicationCollector({ userId });
-        collector.collect('channels.list', {}, collections => {
-          chai.assert.equal(collections.channels.length, 5);
-          done();
-        });
-      });
-    });
-
-    describe('channels.list', function() {
-      it('do not send channels without user', function(done) {
-        const collector = new PublicationCollector();
-        collector.collect('channels.list', {}, collections => {
-          chai.assert.equal(collections.channels, undefined);
-          done();
-        });
-      });
-    });
-
-    describe('channels.getById', function() {
-      it('sends channel by id', function(done) {
-        const collector = new PublicationCollector({ userId });
-        collector.collect('channels.getById', channel._id, collections => {
-          chai.assert.equal(collections.channels.length, 1);
-          chai.assert.equal(collections.channels[0]._id, channel._id);
-          done();
-        });
-      });
     });
   });
 

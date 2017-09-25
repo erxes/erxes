@@ -33,7 +33,7 @@ function RightSidebar({ customer }) {
         <h3>Activities</h3>
         <EmptyState icon={<i className="ion-flash" />} text="No activities" size="small" />
       </Wrapper.Sidebar.Section>
-      <InternalNotes customerId={customer._id} />
+      <InternalNotes customer={customer} />
       <MessengerSection customer={customer} />
       <TwitterSection customer={customer} />
       <FacebookSection customer={customer} />

@@ -1,35 +1,39 @@
 import { Meteor } from 'meteor/meteor';
-import ApolloClient, { createNetworkInterface } from 'apollo-client';
-import gql from 'graphql-tag';
+import { ApolloClient, createNetworkInterface } from 'react-apollo';
+import { SubscriptionClient } from 'subscriptions-transport-ws';
+import { addGraphQLSubscriptions } from 'add-graphql-subscriptions';
 
-const client = new ApolloClient({
-  networkInterface: createNetworkInterface({
-    uri: Meteor.settings.public.APOLLO_CLIENT_URL,
-  }),
+const { APOLLO_CLIENT_URL, APOLLO_CLIENT_SUBSCRIPTION_URL } = Meteor.settings.public;
+
+const wsClient = new SubscriptionClient(APOLLO_CLIENT_SUBSCRIPTION_URL, {
+  reconnect: true,
+  connectionParams: {
+    token: Meteor.userId(),
+  },
 });
 
-export const newMessage = messageId => {
-  client.mutate({
-    mutation: gql`
-      mutation simulateInsertMessage($messageId: String) {
-        simulateInsertMessage(messageId: $messageId) {
-          _id
-        }
-      }
-    `,
+// Create a normal network interface:
+const networkInterface = createNetworkInterface({ uri: APOLLO_CLIENT_URL });
 
-    variables: {
-      messageId,
+// Attach user credentials
+networkInterface.use([
+  {
+    applyMiddleware(req, next) {
+      if (!req.options.headers) {
+        req.options.headers = {};
+      }
+      req.options.headers['authorization'] = Meteor.userId() ? `Bearer ${Meteor.userId()}` : null;
+      next();
     },
-  });
-};
+  },
+]);
 
-export const notify = () => {
-  client.mutate({
-    mutation: gql`
-      mutation notify {
-        notify
-      }
-    `,
-  });
-};
+// Extend the network interface with the WebSocket
+const networkInterfaceWithSubscriptions = addGraphQLSubscriptions(networkInterface, wsClient);
+
+// Finally, create your ApolloClient instance with the modified network interface
+const client = new ApolloClient({
+  networkInterface: networkInterfaceWithSubscriptions,
+});
+
+export default client;

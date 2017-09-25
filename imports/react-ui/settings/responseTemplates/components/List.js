@@ -1,53 +1,26 @@
-import React, { PropTypes, Component } from 'react';
-import { Button, Table } from 'react-bootstrap';
-import { Wrapper } from '/imports/react-ui/layout/components';
-import { ModalTrigger } from '/imports/react-ui/common';
+import React from 'react';
+import { Table } from 'react-bootstrap';
+import { List } from '../../common/components';
 import { Form } from '../containers';
-import Sidebar from '../../Sidebar';
 import Row from './Row';
 
-const propTypes = {
-  objects: PropTypes.array.isRequired,
-  brands: PropTypes.array.isRequired,
-  removeResTemplate: PropTypes.func.isRequired,
-};
-
-class List extends Component {
+class ResponseTemplateList extends List {
   constructor(props) {
     super(props);
 
-    this.renderObjects = this.renderObjects.bind(this);
+    this.title = 'New response template';
   }
 
-  renderObjects() {
-    const { objects, brands, removeResTemplate } = this.props;
-
-    return objects.map(resTemplate => (
-      <Row
-        brands={brands}
-        key={resTemplate._id}
-        resTemplate={resTemplate}
-        removeResTemplate={removeResTemplate}
-      />
-    ));
+  renderRow(props) {
+    return <Row {...props} />;
   }
 
-  render() {
-    const trigger = (
-      <Button bsStyle="link">
-        <i className="ion-plus-circled" /> New response template
-      </Button>
-    );
+  renderForm(props) {
+    return <Form {...props} />;
+  }
 
-    const actionBarLeft = (
-      <ModalTrigger title="New response template" trigger={trigger}>
-        <Form resTemplate={{}} brands={this.props.brands} />
-      </ModalTrigger>
-    );
-
-    const actionBar = <Wrapper.ActionBar left={actionBarLeft} />;
-
-    const content = (
+  renderContent() {
+    return (
       <Table>
         <thead>
           <tr>
@@ -61,25 +34,14 @@ class List extends Component {
         </tbody>
       </Table>
     );
+  }
 
-    const breadcrumb = [
+  breadcrumb() {
+    return [
       { title: 'Settings', link: '/settings/response-templates' },
       { title: 'Response templates' },
     ];
-
-    return (
-      <div>
-        <Wrapper
-          header={<Wrapper.Header breadcrumb={breadcrumb} />}
-          leftSidebar={<Sidebar />}
-          actionBar={actionBar}
-          content={content}
-        />
-      </div>
-    );
   }
 }
 
-List.propTypes = propTypes;
-
-export default List;
+export default ResponseTemplateList;

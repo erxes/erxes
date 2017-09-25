@@ -1,11 +1,11 @@
 import { _ } from 'meteor/underscore';
 import Alert from 'meteor/erxes-notifier';
-import React, { PropTypes, Component } from 'react';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import { FlowRouter } from 'meteor/kadira:flow-router';
 import strip from 'strip';
 import { Button, FormControl, Popover, OverlayTrigger } from 'react-bootstrap';
 
-import { add } from '/imports/api/responseTemplates/methods';
 import { EmptyState } from '/imports/react-ui/common';
 import ResponseTemplateModal from './ResponseTemplateModal';
 
@@ -43,7 +43,7 @@ class ResponseTemplate extends Component {
       files: this.props.attachments,
     };
 
-    add.call({ doc }, error => {
+    Meteor.call('responseTemplates.add', { doc }, error => {
       if (error) return Alert.error(error.message);
 
       Alert.success('Congrats');

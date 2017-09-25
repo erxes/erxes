@@ -2,6 +2,7 @@ import AWS from 'aws-sdk';
 import Handlebars from 'handlebars';
 import { Meteor } from 'meteor/meteor';
 import { Email } from 'meteor/email';
+import { HTTP } from 'meteor/http';
 import { Notifications } from 'meteor/erxes-notifications';
 
 // save binary data to amazon s3
@@ -115,4 +116,27 @@ export const sendNotification = _doc => {
       }
     }
   });
+};
+
+// send to post to graphql server
+export const mutate = query =>
+  HTTP.call('POST', Meteor.settings.public.APOLLO_CLIENT_URL, {
+    headers: { 'Content-Type': 'application/json' },
+    data: { query },
+  });
+
+// notify subscription server new message
+export const apolloNotifyNewMessage = messageId => {
+  // Don't do anyting in test mode
+  if (Meteor.isTest) {
+    return;
+  }
+
+  mutate(
+    `
+    mutation {
+      conversationMessageInserted(_id: "${messageId}")
+    }
+  `,
+  );
 };

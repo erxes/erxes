@@ -3,13 +3,13 @@ import PropTypes from 'prop-types';
 import { Table, Button } from 'react-bootstrap';
 import { Wrapper } from '/imports/react-ui/layout/components';
 import { TaggerPopover } from '/imports/react-ui/common';
-import { MessageListRow } from '../containers';
-import Sidebar from './Sidebar';
+import { MessageListRow, Sidebar as SidebarContainers } from '../containers';
 
 const propTypes = {
   messages: PropTypes.array.isRequired,
   tags: PropTypes.array.isRequired,
   bulk: PropTypes.array.isRequired,
+  refetch: PropTypes.func.isRequired,
   emptyBulk: PropTypes.func.isRequired,
   toggleBulk: PropTypes.func.isRequired,
 };
@@ -37,8 +37,7 @@ class List extends React.Component {
   }
 
   render() {
-    const { messages, tags } = this.props;
-
+    const { messages, tags, toggleBulk, refetch } = this.props;
     const actionBarLeft = (
       <div>
         <Button bsStyle="link" href={'/engage/messages/create?kind=auto'}>
@@ -64,12 +63,12 @@ class List extends React.Component {
           <tr>
             <th />
             <th>Title</th>
-            <th>Segment</th>
             <th>From</th>
             <th>Status</th>
             <th>Total</th>
             <th>Sent</th>
             <th>Failed</th>
+            <th>Type</th>
             <th>Created date</th>
             <th className="text-right">Actions</th>
           </tr>
@@ -77,7 +76,8 @@ class List extends React.Component {
         <tbody>
           {messages.map(message => (
             <MessageListRow
-              toggleBulk={this.props.toggleBulk}
+              toggleBulk={toggleBulk}
+              refetch={refetch}
               key={message._id}
               message={message}
             />
@@ -86,11 +86,19 @@ class List extends React.Component {
       </Table>
     );
 
+    const sidebar = (
+      <Wrapper.Sidebar>
+        <SidebarContainers.Main />
+        <SidebarContainers.Status />
+        <SidebarContainers.Tag tags={tags} manageUrl="tags/engageMessage" />
+      </Wrapper.Sidebar>
+    );
+
     return (
       <div>
         <Wrapper
           header={<Wrapper.Header breadcrumb={[{ title: 'Engage' }]} />}
-          leftSidebar={<Sidebar tags={tags} />}
+          leftSidebar={sidebar}
           actionBar={actionBar}
           content={content}
         />

@@ -1,25 +1,42 @@
-import { compose } from 'react-komposer';
-import { getTrackerLoader, composerOptions } from '/imports/react-ui/utils';
-import { Meteor } from 'meteor/meteor';
-import { EmailTemplates } from '/imports/api/emailTemplates/emailTemplates';
-import { remove } from '/imports/api/emailTemplates/methods';
+import { gql, graphql } from 'react-apollo';
+import { commonListComposer } from '../../utils';
 import { List } from '../components';
 
-function composer({ queryParams }, onData) {
-  const templatesHandler = Meteor.subscribe('emailTemplates.list');
+export default commonListComposer({
+  name: 'emailTemplates',
 
-  const objects = EmailTemplates.find({}).fetch();
+  gqlListQuery: graphql(
+    gql`
+      query objects($limit: Int!) {
+        emailTemplates(limit: $limit) {
+          _id
+          name
+          content
+        }
+      }
+    `,
+    {
+      name: 'listQuery',
+      options: ({ queryParams }) => {
+        return {
+          variables: {
+            limit: queryParams.limit || 20,
+          },
+        };
+      },
+    },
+  ),
 
-  const removeEmailTemplate = (id, callback) => {
-    remove.call(id, callback);
-  };
+  gqlTotalCountQuery: graphql(
+    gql`
+      query totalEmailTemplatesCount {
+        emailTemplatesTotalCount
+      }
+    `,
+    {
+      name: 'totalCountQuery',
+    },
+  ),
 
-  if (templatesHandler.ready()) {
-    onData(null, {
-      objects,
-      removeEmailTemplate,
-    });
-  }
-}
-
-export default compose(getTrackerLoader(composer), composerOptions({}))(List);
+  ListComponent: List,
+});

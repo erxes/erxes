@@ -38,6 +38,11 @@ $fbpost-background: #f6f7f9;
       font-weight: bold;
     }
 
+    .customer-email {
+      font-size: 13px;
+      color: $text-color-light;
+    }
+
     .content {
       background: none;
       margin: 10px 0;
@@ -45,6 +50,10 @@ $fbpost-background: #f6f7f9;
       word-break: break-word;
       overflow: hidden;
       max-height: 20px;
+      -webkit-box-orient: vertical;
+      display: -webkit-box;
+      -webkit-line-clamp: 1;
+      word-wrap: break-word;
     }
 
     footer {
@@ -77,7 +86,7 @@ $fbpost-background: #f6f7f9;
 
   > li {
     padding: 20px;
-    border-bottom: 1px solid $border-grey;
+    border-bottom: 1px solid $grey;
     position: relative;
     display: flex;
     align-items: center;
@@ -108,7 +117,10 @@ $fbpost-background: #f6f7f9;
     padding: 15px;
 
     time {
-      font-size: 12px;
+      font-weight: normal;
+      font-style: italic;
+      font-size: 11px;
+      margin: 0 5px;
     }
 
     .column {
@@ -120,6 +132,15 @@ $fbpost-background: #f6f7f9;
       font-size: 12px;
       max-height: 36px;
       line-height: 18px;
+      overflow: hidden;
+      -webkit-box-orient: vertical;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      word-wrap: break-word;
+
+      &:hover {
+        cursor: pointer;
+      }
     }
 
     .brandname {
@@ -127,8 +148,27 @@ $fbpost-background: #f6f7f9;
     }
 
     .tags {
-      display: inherit;
       margin-left: 0;
+      display: block;
+    }
+
+    .items-horizontal {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      width: 100%;
+    }
+  }
+
+  .baseline-row {
+    align-items: flex-start;
+
+    input[type=checkbox] {
+      margin-top: 14px;
+    }
+
+    .content {
+      margin: 10px 0;
     }
   }
 }
@@ -191,7 +231,7 @@ $fbpost-background: #f6f7f9;
     bottom: 0;
     left: 50px;
     color: $gray-light;
-    font-size: 12px;
+    font-size: 11px;
   }
 }
 

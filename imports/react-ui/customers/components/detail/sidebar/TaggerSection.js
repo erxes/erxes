@@ -1,4 +1,5 @@
-import React, { PropTypes, Component } from 'react';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import { Collapse } from 'react-bootstrap';
 import { Wrapper } from '/imports/react-ui/layout/components';
 import { EmptyState, Tagger } from '/imports/react-ui/common';
@@ -41,7 +42,7 @@ class TaggerSection extends Component {
 
   render() {
     const { customer } = this.props;
-    const tags = customer.tags();
+    const tags = customer.getTags;
     const { Title, QuickButtons } = Wrapper.Sidebar.Section;
 
     return (

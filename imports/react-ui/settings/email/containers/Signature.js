@@ -1,12 +1,17 @@
 import { Meteor } from 'meteor/meteor';
 import { _ } from 'meteor/underscore';
-import { compose } from 'react-komposer';
-import { getTrackerLoader, composerOptions } from '/imports/react-ui/utils';
-import { Brands } from '/imports/api/brands/brands';
+import React from 'react';
+import PropTypes from 'prop-types';
+import { compose, gql, graphql } from 'react-apollo';
 import { Signature } from '../components';
+import { Loading } from '/imports/react-ui/common';
 
-function composer(props, onData) {
-  const brandHandle = Meteor.subscribe('brands.list', 0);
+const SignatureContainer = props => {
+  const { brandsQuery } = props;
+
+  if (brandsQuery.loading) {
+    return <Loading title="Signature template" />;
+  }
 
   // save email configs action
   const save = (signatures, callback) => {
@@ -25,31 +30,53 @@ function composer(props, onData) {
     });
   };
 
-  if (brandHandle.ready()) {
-    const currentUser = Meteor.user();
-    const emailSignatures = currentUser.emailSignatures || [];
-    const signatures = [];
+  const currentUser = Meteor.user();
+  const emailSignatures = currentUser.emailSignatures || [];
+  const signatures = [];
 
-    Brands.find().forEach(brand => {
-      // previously configured signature
-      const oldEntry = emailSignatures.find(signature => signature.brandId === brand._id);
+  brandsQuery.brands.forEach(brand => {
+    // previously configured signature
+    const oldEntry = emailSignatures.find(signature => signature.brandId === brand._id);
 
-      // default content
-      let content = '';
+    // default content
+    let content = '';
 
-      if (oldEntry) {
-        content = oldEntry.signature;
-      }
+    if (oldEntry) {
+      content = oldEntry.signature;
+    }
 
-      signatures.push({
-        brandId: brand._id,
-        brandName: brand.name,
-        content,
-      });
+    signatures.push({
+      brandId: brand._id,
+      brandName: brand.name,
+      content,
     });
+  });
 
-    onData(null, { signatures, save });
-  }
-}
+  const updatedProps = {
+    ...this.props,
+    signatures,
+    save,
+  };
 
-export default compose(getTrackerLoader(composer), composerOptions({}))(Signature);
+  return <Signature {...updatedProps} />;
+};
+
+SignatureContainer.propTypes = {
+  brandsQuery: PropTypes.object,
+};
+
+export default compose(
+  graphql(
+    gql`
+      query objects($limit: Int) {
+        brands(limit: $limit) {
+          _id
+          name
+        }
+      }
+    `,
+    {
+      name: 'brandsQuery',
+    },
+  ),
+)(SignatureContainer);

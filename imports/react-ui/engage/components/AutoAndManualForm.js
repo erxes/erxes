@@ -1,15 +1,17 @@
-import React, { PropTypes } from 'react';
-import { FormControl } from 'react-bootstrap';
+import React from 'react';
+import PropTypes from 'prop-types';
 import { Wrapper } from '/imports/react-ui/layout/components';
 
 import FormBase from './FormBase';
 import EmailForm from './EmailForm';
 import MessengerForm from './MessengerForm';
+import Segments from './Segments';
 
 const propTypes = {
   segments: PropTypes.array.isRequired,
   templates: PropTypes.array,
   brands: PropTypes.array,
+  counts: PropTypes.object,
 };
 
 /*
@@ -22,11 +24,18 @@ class AutoAndManualForm extends FormBase {
 
     const message = props.message || {};
 
-    this.state = { emailContent: '', messengerContent: '', method: message.method || 'email' };
+    this.state = {
+      emailContent: '',
+      messengerContent: '',
+      method: message.method || 'email',
+      fromUser: message.fromUserId || '',
+      chosenSegment: message.segmentId || '',
+    };
 
     // binds
     this.onEmailContentChange = this.onEmailContentChange.bind(this);
     this.onMessengerContentChange = this.onMessengerContentChange.bind(this);
+    this.onChangeSegment = this.onChangeSegment.bind(this);
   }
 
   generateDoc(e) {
@@ -35,7 +44,7 @@ class AutoAndManualForm extends FormBase {
     const method = this.state.method;
 
     const doc = {
-      segmentId: document.getElementById('segmentId').value,
+      segmentId: this.state.chosenSegment,
       title: document.getElementById('title').value,
       fromUserId: document.getElementById('fromUserId').value,
       method,
@@ -73,23 +82,8 @@ class AutoAndManualForm extends FormBase {
     this.setState({ method });
   }
 
-  renderSegments(defaultValue) {
-    const renderSegment = segment => {
-      return (
-        <option key={segment._id} value={segment._id}>
-          {segment.name}
-        </option>
-      );
-    };
-
-    return (
-      <div className="box">
-        <FormControl componentClass="select" id="segmentId" defaultValue={defaultValue}>
-          {this.props.segments.map(segment => renderSegment(segment))}
-        </FormControl>
-        <p>Send email to each customer who belongs to above segment</p>
-      </div>
-    );
+  onChangeSegment(value) {
+    this.setState({ chosenSegment: value });
   }
 
   renderChannelType() {
@@ -129,10 +123,12 @@ class AutoAndManualForm extends FormBase {
 
     return (
       <div>
-        <Section>
-          <Title>Choose segment</Title>
-          {this.renderSegments(message.segmentId)}
-        </Section>
+        <Segments
+          segments={this.props.segments}
+          defaultSegment={message.segmentId}
+          onChangeSegments={this.onChangeSegment}
+          counts={this.props.counts}
+        />
 
         <Section>
           <Title>Channel</Title>
@@ -159,6 +155,7 @@ class AutoAndManualForm extends FormBase {
       <MessengerForm
         showMessengerType
         message={message}
+        fromUser={this.state.fromUser}
         onContentChange={this.onMessengerContentChange}
         brands={this.props.brands}
       />
