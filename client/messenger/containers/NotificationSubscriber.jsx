@@ -1,5 +1,5 @@
 import React, { PropTypes } from 'react';
-import gql from 'graphql-tag';
+import { gql } from 'react-apollo';
 import { connection } from '../connection';
 import graphqlTypes from './graphql';
 

@@ -30,12 +30,16 @@ const messageFields = `
 `;
 
 
-const conversationDetailQuery = `
-  query ($conversationId: String!, $integrationId: String!) {
+const messagesQuery = `
+  query ($conversationId: String!) {
     messages(conversationId: $conversationId) {
       ${messageFields}
     }
+  }
+`;
 
+const conversationLastStaffQuery = `
+  query ($conversationId: String!) {
     conversationLastStaff(_id: $conversationId) {
       _id,
       details {
@@ -43,7 +47,11 @@ const conversationDetailQuery = `
         fullName
       }
     }
+  }
+`;
 
+const isMessengerOnlineQuery = `
+  query ($integrationId: String!) {
     isMessengerOnline(integrationId: $integrationId)
   }
 `;
@@ -72,7 +80,9 @@ const conversationsChangedSubscription = `
 
 export default {
   messageFields,
-  conversationDetailQuery,
+  messagesQuery,
+  conversationLastStaffQuery,
+  isMessengerOnlineQuery,
   unreadCountQuery,
   conversationMessageInserted,
   conversationsChangedSubscription,
