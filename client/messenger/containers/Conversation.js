@@ -27,26 +27,8 @@ class Conversation extends React.Component {
     return data.subscribeToMore({
       document: gql(graphqlTypes.conversationMessageInserted),
       variables: { _id: conversationId },
-      updateQuery: (prev, { subscriptionData }) => {
-        const message = subscriptionData.data.conversationMessageInserted;
-
-        if (!message) {
-          return prev;
-        }
-
-        // do not show internal messages
-        if (message.internal) {
-          return prev;
-        }
-
-        const messages = prev.messages;
-
-        // add new message to messages list
-        const next = Object.assign({}, prev, {
-          messages: [...messages, message],
-        });
-
-        return next;
+      updateQuery: () => {
+        this.props.data.refetch();
       },
     });
   }

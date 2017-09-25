@@ -71,6 +71,7 @@ const conversationsChangedSubscription = `
 `;
 
 export default {
+  messageFields,
   conversationDetailQuery,
   unreadCountQuery,
   conversationMessageInserted,

@@ -8,6 +8,7 @@ import { readEngageMessage, readMessages } from '../actions/messages';
 
 import { connection } from '../connection';
 import NotificationSubscriber from './NotificationSubscriber';
+import graphqlTypes from './graphql';
 
 class Notifier extends NotificationSubscriber {
   render() {
@@ -66,27 +67,7 @@ const NotifierWithData = graphql(
   gql`
     query lastUnreadMessage(${connection.queryVariables}) {
       lastUnreadMessage(${connection.queryParams}) {
-        _id
-        conversationId
-        content
-        user {
-          details {
-            fullName
-            avatar
-          }
-        }
-        engageData {
-          messageId,
-          content
-          kind
-          sentAs
-          fromUser {
-            details {
-              fullName
-              avatar
-            }
-          }
-        }
+        ${graphqlTypes.messageFields}
       }
     }
   `,
