@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Categories, Articles, CategoryDetail, ArticleDetail, SearchBar } from '../containers';
+import { Categories, Articles, SearchBar } from '../containers';
+import { ArticleDetail, CategoryDetail } from '../components';
 import { BackButton } from '../components';
 import {
   CONTENT_TYPE_TOPIC,
