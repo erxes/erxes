@@ -151,13 +151,20 @@
       text-overflow: ellipsis;
       padding-right: 30px;
       cursor: pointer;
+      text-decoration: none;
+      outline: 0;
     }
   }
 
   > a:hover,
-  a.active {
+  a.active,
+  a.chosen {
     color: $text-color;
     background-color: $grey-light;
+  }
+
+  a.chosen {
+    font-weight: bold;
   }
 
   .icon {
