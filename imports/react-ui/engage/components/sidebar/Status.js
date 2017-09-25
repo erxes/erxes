@@ -1,4 +1,5 @@
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import { Wrapper } from '/imports/react-ui/layout/components';
 import { statusFilters } from '/imports/api/engage/constants';
 

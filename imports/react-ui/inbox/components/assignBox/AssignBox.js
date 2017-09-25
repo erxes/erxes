@@ -1,6 +1,7 @@
 /* eslint-disable react/jsx-no-bind */
 
-import React, { PropTypes, Component } from 'react';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import Alert from 'meteor/erxes-notifier';
 import { FilterableList } from '/imports/react-ui/common';
 

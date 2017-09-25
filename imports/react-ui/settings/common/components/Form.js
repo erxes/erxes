@@ -1,4 +1,5 @@
-import React, { PropTypes, Component } from 'react';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import { ButtonToolbar, Modal, Button } from 'react-bootstrap';
 
 const propTypes = {
@@ -37,7 +38,6 @@ class Form extends Component {
     return (
       <form onSubmit={this.save}>
         {this.renderContent(this.props.object || {})}
-
         <Modal.Footer>
           <ButtonToolbar className="pull-right">
             <Button bsStyle="link" onClick={onClick}>Cancel</Button>

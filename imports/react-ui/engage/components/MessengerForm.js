@@ -1,4 +1,5 @@
-import React, { PropTypes, Component } from 'react';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import { FormControl } from 'react-bootstrap';
 import Editor from './Editor';
 import { MESSENGER_KINDS, SENT_AS_CHOICES } from '/imports/api/engage/constants';

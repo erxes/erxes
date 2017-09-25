@@ -1,6 +1,7 @@
 import { _ } from 'meteor/underscore';
 import Alert from 'meteor/erxes-notifier';
-import React, { PropTypes, Component } from 'react';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import { FlowRouter } from 'meteor/kadira:flow-router';
 import strip from 'strip';
 import { Button, FormControl, Popover, OverlayTrigger } from 'react-bootstrap';

@@ -1,4 +1,5 @@
-import React, { PropTypes, Component } from 'react';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import { OverlayTrigger, Popover, Button } from 'react-bootstrap';
 import { FilterableList } from '/imports/react-ui/common';
 import { types, operators, dateUnits } from '/imports/api/customers/constants';

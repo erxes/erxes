@@ -1,5 +1,6 @@
 import { Meteor } from 'meteor/meteor';
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import { compose } from 'react-apollo';
 import Alert from 'meteor/erxes-notifier';
 import { pagination, Loading } from '/imports/react-ui/common';
