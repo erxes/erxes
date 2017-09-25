@@ -3,7 +3,7 @@ import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 /* ----------------------- Schemas ----------------------- */
 
 // common fields
-const KbAutoFieldSchemaDict = {
+const KbAutoFieldSchema = new SimpleSchema({
   createdBy: {
     type: String,
     regEx: SimpleSchema.RegEx.Id,
@@ -20,9 +20,7 @@ const KbAutoFieldSchemaDict = {
     type: Date,
     optional: true,
   },
-};
-
-const KbAutoFieldSchema = new SimpleSchema(KbAutoFieldSchemaDict);
+});
 
 // topics
 const KbTopicsSchema = new SimpleSchema({

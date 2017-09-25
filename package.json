@@ -43,7 +43,6 @@
     "draft-js-plugins-editor": "^2.0.0-beta9",
     "faker": "^4.1.0",
     "fbgraph": "^1.4.1",
-    "graphql": "^0.11.3",
     "handlebars": "^4.0.6",
     "lodash": "^4.17.4",
     "meteor-node-stubs": "^0.2.6",
@@ -68,7 +67,7 @@
     "react-toggle": "^3.0.1",
     "social-oauth-client": "^0.1.6",
     "strip": "^3.0.0",
-    "subscriptions-transport-ws": "^0.8.3",
+    "subscriptions-transport-ws": "^0.8.2",
     "twit": "^2.2.5"
   },
   "devDependencies": {
