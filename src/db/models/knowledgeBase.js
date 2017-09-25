@@ -60,12 +60,9 @@ const KbTopicsSchema = mongoose.Schema({
   modifiedDate: Date,
 });
 
-const KnowledgeBaseArticles = mongoose.model('knowledgebase_articles', KbArticlesSchema);
-const KnowledgeBaseCategories = mongoose.model('knowledgebase_categories', KbCategoriesSchema);
-const KnowledgeBaseTopics = mongoose.model('knowledgebase_topics', KbTopicsSchema);
-
-export default {
-  KnowledgeBaseArticles,
-  KnowledgeBaseCategories,
-  KnowledgeBaseTopics,
-};
+export const KnowledgeBaseArticles = mongoose.model('knowledgebase_articles', KbArticlesSchema);
+export const KnowledgeBaseCategories = mongoose.model(
+  'knowledgebase_categories',
+  KbCategoriesSchema,
+);
+export const KnowledgeBaseTopics = mongoose.model('knowledgebase_topics', KbTopicsSchema);

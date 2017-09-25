@@ -1,6 +1,8 @@
-import { KnowledgeBaseTopics } from '../../../db/models';
-import { KnowledgeBaseCategories } from '../../../db/models';
-import { KnowledgeBaseArticles } from '../../../db/models';
+import {
+  KnowledgeBaseTopics,
+  KnowledgeBaseCategories,
+  KnowledgeBaseArticles,
+} from '../../../db/models';
 
 export default {
   /**
@@ -71,7 +73,7 @@ export default {
    * Category total count
    * @return {Promise} category total count
    */
-  KnowledgeBaseCategoriesTotalCount() {
+  knowledgeBaseCategoriesTotalCount() {
     return KnowledgeBaseCategories.find({}).count();
   },
 
@@ -106,7 +108,7 @@ export default {
    * Total topic count
    * @return {Promise} count
    */
-  KnowledgeBaseTopicstTotalCount() {
+  knowledgeBaseTopicsTotalCount() {
     return KnowledgeBaseTopics.find({}).count();
   },
 };
