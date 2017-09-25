@@ -1,7 +1,7 @@
 /* global ROOT_URL */
 
 /*
- * Messenger message's embeddable script
+ * Knowledge base's embeddable script
  */
 
 // css
@@ -29,16 +29,8 @@ iframe.style.display = 'none';
 
 erxesContainer.appendChild(iframe);
 
-// if there is an placeholder for embed then add new iframe to it
-
 const embedContainer = document.querySelector('[data-erxes-kbase]');
-if (embedContainer) {
-  embedContainer.appendChild(erxesContainer);
-// otherwise add to body
-} else {
-  document.body.appendChild(erxesContainer);
-}
-
+embedContainer.appendChild(erxesContainer);
 
 // send erxes setting to iframe
 iframe = document.querySelector(`#${iframeId}`);
@@ -49,12 +41,6 @@ iframe.onload = () => {
 
   iframe.contentWindow.postMessage({
     fromPublisher: true,
-    setting: {
-      ...window.erxesSettings.knowledgeBase,
-      browserInfo: {
-        url: location.pathname, // eslint-disable-line
-        language: parent.navigator.language, // eslint-disable-line
-      },
-    },
+    setting: window.erxesSettings.knowledgeBase,
   }, '*');
 };
