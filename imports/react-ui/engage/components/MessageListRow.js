@@ -69,8 +69,8 @@ class Row extends React.Component {
         </div>
       );
     }
-
-    const rules = message.messenger.rules || [];
+    const messenger = message.messenger || {};
+    const rules = messenger.rules || [];
 
     return rules.map(rule => (
       <div key={rule._id} className="engage-rule">
