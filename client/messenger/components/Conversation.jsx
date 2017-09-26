@@ -52,8 +52,8 @@ class Conversation extends Component {
 
       return (
         <div className="erxes-staff-profile">
-          <img src={avatar} alt={user.details.fullName} />
-          <div className="erxes-staff-name">{user.details.fullName}</div>
+          <img src={avatar} alt={details.fullName} />
+          <div className="erxes-staff-name">{details.fullName}</div>
           {state}
         </div>
       );
