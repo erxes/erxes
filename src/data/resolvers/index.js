@@ -10,6 +10,8 @@ import Customer from './customer';
 import Segment from './segment';
 import Conversation from './conversation';
 import ConversationMessage from './conversationMessage';
+import KnowledgeBaseCategory from './knowledgeBaseCategory';
+import KnowledgeBaseTopic from './knowledgeBaseTopic';
 
 export default {
   ...customScalars,
@@ -26,4 +28,7 @@ export default {
   Mutation,
   Query,
   Subscription,
+
+  KnowledgeBaseCategory,
+  KnowledgeBaseTopic,
 };

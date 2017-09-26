@@ -18,6 +18,8 @@ import { types as TagTypes, queries as TagQueries } from './tag';
 
 import { types as CustomerTypes, queries as CustomerQueries } from './customer';
 
+import { types as KnowledgeBaseTypes, queries as KnowledgeBaseQueries } from './knowledgeBase';
+
 import {
   types as ConversationTypes,
   queries as ConversationQueries,
@@ -39,6 +41,7 @@ export const types = `
   ${FormTypes}
   ${CustomerTypes}
   ${ConversationTypes}
+  ${KnowledgeBaseTypes}
 `;
 
 export const queries = `
@@ -54,6 +57,7 @@ export const queries = `
     ${TagQueries}
     ${CustomerQueries}
     ${ConversationQueries}
+    ${KnowledgeBaseQueries}
   }
 `;
 
