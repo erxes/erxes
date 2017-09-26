@@ -1,4 +1,5 @@
-import React, { PropTypes, Component } from 'react';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import strip from 'strip';
 
 import { NameCard } from '/imports/react-ui/common';

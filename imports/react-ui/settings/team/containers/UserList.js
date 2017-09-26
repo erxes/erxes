@@ -31,7 +31,7 @@ export default commonListComposer({
   gqlTotalCountQuery: graphql(
     gql`
       query totalUsersCount {
-        totalUsersCount
+        usersTotalCount
       }
     `,
     {

@@ -10,9 +10,15 @@ class BrandsCollection extends Mongo.Collection {
     const brand = Object.assign({}, doc);
 
     // generate code automatically
-    let code = Random.id().substr(0, 6);
+    // if there is no brand code defined
+    let code = brand.code || Random.id().substr(0, 6);
     while (this.findOne({ code })) {
       code = Random.id().substr(0, 6);
+
+      if (brand.code) {
+        // eslint-disable-next-line no-console
+        console.log('User defined brand code already exists. New code is generated.');
+      }
     }
 
     brand.code = code;

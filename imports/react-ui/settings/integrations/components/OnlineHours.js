@@ -1,4 +1,5 @@
-import React, { PropTypes, Component } from 'react';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import { FormGroup, ControlLabel, Button } from 'react-bootstrap';
 import Select from 'react-select-plus';
 import { days, hours } from '../constants';

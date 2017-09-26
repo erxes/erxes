@@ -30,7 +30,7 @@ export default commonListComposer({
   gqlTotalCountQuery: graphql(
     gql`
       query totalEmailTemplatesCount {
-        totalEmailTemplatesCount
+        emailTemplatesTotalCount
       }
     `,
     {

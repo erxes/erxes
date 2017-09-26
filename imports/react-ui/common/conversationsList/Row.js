@@ -1,4 +1,5 @@
-import React, { PropTypes, Component } from 'react';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import moment from 'moment';
 import { FlowRouter } from 'meteor/kadira:flow-router';
 import strip from 'strip';

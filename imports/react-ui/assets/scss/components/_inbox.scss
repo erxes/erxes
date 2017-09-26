@@ -50,6 +50,10 @@ $fbpost-background: #f6f7f9;
       word-break: break-word;
       overflow: hidden;
       max-height: 20px;
+      -webkit-box-orient: vertical;
+      display: -webkit-box;
+      -webkit-line-clamp: 1;
+      word-wrap: break-word;
     }
 
     footer {
@@ -227,7 +231,7 @@ $fbpost-background: #f6f7f9;
     bottom: 0;
     left: 50px;
     color: $gray-light;
-    font-size: 12px;
+    font-size: 11px;
   }
 }
 
