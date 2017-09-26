@@ -12,7 +12,7 @@ const ListContainer = props => {
     return <Loading title="Integrations" />;
   }
 
-  const totalCount = totalCountQuery.totalIntegrationsCount;
+  const totalCount = totalCountQuery.integrationsTotalCount;
   const integrations = listQuery.integrations;
 
   const { loadMore, hasMore } = pagination(queryParams, totalCount);
