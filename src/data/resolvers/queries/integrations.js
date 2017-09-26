@@ -40,6 +40,12 @@ export default {
    * @return {Promise} total count
    */
   integrationsTotalCount(root, { kind }) {
-    return Integrations.find({ kind }).count();
+    const query = {};
+
+    if (kind) {
+      query.kind = kind;
+    }
+
+    return Integrations.find(query).count();
   },
 };
