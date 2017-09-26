@@ -13,7 +13,7 @@ import {
   KnowledgeBaseArticles,
   KnowledgeBaseCategories,
   KnowledgeBaseTopics,
-} from './knowledgeBase';
+} from './KnowledgeBase';
 
 export {
   Users,
