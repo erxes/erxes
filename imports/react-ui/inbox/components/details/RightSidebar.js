@@ -141,17 +141,15 @@ class RightSidebar extends Component {
             </div>
           </Collapse>
           <ul className="sidebar-list no-link">
-            {!assignedUser ? (
-              <EmptyState
-                icon={<i className="ion-person" />}
-                text="Not assigned yet"
-                size="small"
-              />
-            ) : (
-              <li>
-                <NameCard user={assignedUser} avatarSize={45} />
-              </li>
-            )}
+            {!assignedUser
+              ? <EmptyState
+                  icon={<i className="ion-person" />}
+                  text="Not assigned yet"
+                  size="small"
+                />
+              : <li>
+                  <NameCard user={assignedUser} avatarSize={45} />
+                </li>}
           </ul>
         </Wrapper.Sidebar.Section>
 
@@ -163,13 +161,13 @@ class RightSidebar extends Component {
                 <NameCard user={user} avatarSize={45} />
               </li>
             ))}
-            {participatedUsers.length === 0 ? (
-              <EmptyState
-                icon={<i className="ion-at" />}
-                text="Not participated yet"
-                size="small"
-              />
-            ) : null}
+            {participatedUsers.length === 0
+              ? <EmptyState
+                  icon={<i className="ion-at" />}
+                  text="Not participated yet"
+                  size="small"
+                />
+              : null}
           </ul>
         </Wrapper.Sidebar.Section>
 
@@ -208,15 +206,15 @@ class RightSidebar extends Component {
                 {tag.name}
               </li>
             ))}
-            {tags.length === 0 ? (
-              <EmptyState
-                icon={<i className="ion-pricetags" />}
-                text="Not tagged yet"
-                size="small"
-                linkUrl={FlowRouter.path('tags/list', { type: 'conversation' })}
-                linkText="Manage tags"
-              />
-            ) : null}
+            {tags.length === 0
+              ? <EmptyState
+                  icon={<i className="ion-pricetags" />}
+                  text="Not tagged yet"
+                  size="small"
+                  linkUrl={FlowRouter.path('tags/list', { type: 'conversation' })}
+                  linkText="Manage tags"
+                />
+              : null}
           </ul>
         </Wrapper.Sidebar.Section>
       </Wrapper.Sidebar>
