@@ -119,11 +119,17 @@ export const sendNotification = _doc => {
 };
 
 // send to post to graphql server
-export const mutate = query =>
+export const mutate = query => {
+  // Don't do anyting in test mode
+  if (Meteor.isTest) {
+    return;
+  }
+
   HTTP.call('POST', Meteor.settings.public.APOLLO_CLIENT_URL, {
     headers: { 'Content-Type': 'application/json' },
     data: { query },
   });
+};
 
 // notify subscription server new message
 export const apolloNotifyNewMessage = messageId => {
