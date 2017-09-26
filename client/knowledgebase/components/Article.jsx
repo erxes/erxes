@@ -22,7 +22,7 @@ export default class Article extends React.Component {
       title: article.title,
       summary: article.summary,
       content: article.content,
-      authorDetails: article.authorDetails,
+      author: article.author,
       createdDate: article.createdDate,
       modifiedDate: article.modifiedDate,
       category,
@@ -31,7 +31,7 @@ export default class Article extends React.Component {
 
   render() {
     const { article } = this.props;
-    const author = article.authorDetails;
+    const { author } = article;
 
     return (
       <a href="" className="erxes-kb-item" onClick={this.handleOnClick}>
@@ -40,13 +40,13 @@ export default class Article extends React.Component {
         <div className="item-meta flex-item">
           <div className="avatars">
             <img
-              alt={author.fullName}
-              src={author.avatar || '/static/images/userDefaultIcon.png'}
+              alt={author.details.fullName}
+              src={author.details.avatar || '/static/images/userDefaultIcon.png'}
             />
           </div>
           <div>
             <div>
-              Written by <span>{author.fullName}</span>
+              Written by <span>{author.details.fullName}</span>
             </div>
             <div>
               {article.modifiedDate ? 'Modified ' : 'Created '}

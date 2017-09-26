@@ -4,10 +4,10 @@ import Ionicons from 'react-ionicons';
 import { Articles, ItemMeta } from '../components';
 
 const propTypes = {
-  category: PropTypes.object, // eslint-disable-line
+  category: PropTypes.object,
 };
 
-function CategoryDetail({ category }) {
+function CategoryDetail({category}) {
   return (
     <div className="category-container">
       <div className="flex-item spaced">

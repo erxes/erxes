@@ -6,7 +6,7 @@ const propTypes = {
 };
 
 function ItemMeta({ category }) {
-  const authors = category.authors;
+  const { authors } = category;
   let text = '';
 
   function renderAvatars() {

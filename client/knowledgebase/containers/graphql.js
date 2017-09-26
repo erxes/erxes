@@ -17,13 +17,49 @@ const kbSearchArticlesQuery = `
       createdDate
       modifiedBy
       modifiedDate
-      authorDetails {
-        fullName
-        avatar
+      author {
+        details {
+          fullName
+          avatar
+        }
       }
     }
   }
 `;
+
+const getKbCategoryQuery = `
+  query knowledgeBaseCategoriesDetail($categoryId: String!) {
+    knowledgeBaseCategoriesDetail(categoryId: $categoryId) {
+      _id
+      title
+      description
+      numOfArticles
+      icon
+      authors {
+        details {
+          fullName
+          avatar
+        }
+      }
+      articles {
+        _id
+        title
+        summary
+        content
+        createdBy
+        createdDate
+        modifiedBy
+        modifiedDate
+        author {
+          details {
+            fullName
+            avatar
+          }
+        }
+      }
+    }
+  }
+`
 
 const getKbTopicQuery = `
   query knowledgeBaseTopicsDetail($topicId: String!) {
@@ -34,25 +70,10 @@ const getKbTopicQuery = `
         _id
         title
         description
-        numOfArticles
         icon
+        numOfArticles
         authors {
           details {
-            fullName
-            avatar
-          }
-          articleCount
-        }
-        articles {
-          _id
-          title
-          summary
-          content
-          createdBy
-          createdDate
-          modifiedBy
-          modifiedDate
-          authorDetails {
             fullName
             avatar
           }
@@ -65,5 +86,6 @@ const getKbTopicQuery = `
 export default {
   kbLoaderQuery,
   kbSearchArticlesQuery,
+  getKbCategoryQuery,
   getKbTopicQuery,
 }

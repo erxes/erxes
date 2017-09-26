@@ -8,6 +8,10 @@ const propTypes = {
 };
 
 export default class Articles extends React.Component {
+  constructor(props) {
+    super(props);
+  }
+
   renderArticles() {
     const { articles, category } = this.props;
     return articles.map(article => {

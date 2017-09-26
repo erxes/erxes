@@ -7,20 +7,20 @@ const propTypes = {
 };
 
 export default function ArticleDetail({ data }) {
-  const author = data.authorDetails;
+  const { author } = data;
   return (
     <div className="erxes-kb-item detail">
       <h1>{data.title}</h1>
       <div className="item-meta flex-item">
         <div className="avatars">
           <img
-            alt={author.fullName}
-            src={author.avatar || '/static/images/userDefaultIcon.png'}
+            alt={author.details.fullName}
+            src={author.details.avatar || '/static/images/userDefaultIcon.png'}
           />
         </div>
         <div>
           <div>
-            Written by <span>{author.fullName}</span>
+            Written by <span>{author.details.fullName}</span>
           </div>
           <div>
             {data.modifiedDate ? 'Modified ' : 'Created '}

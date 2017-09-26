@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Categories, Articles, SearchBar } from '../containers';
-import { ArticleDetail, CategoryDetail } from '../components';
+import { Categories, Articles, SearchBar, CategoryDetail } from '../containers';
+import { ArticleDetail } from '../components';
 import { BackButton } from '../components';
 import {
   CONTENT_TYPE_TOPIC,
@@ -69,7 +69,7 @@ export default class KnowledgeBase extends React.Component {
             onClickHandler={displayType.data.category != null ?
               this.onCategoryClickHandler : this.onTopicClickHandler}
             text={displayType.data.category != null ?
-              'Back to categories' : 'Back to top'}
+              'Back to articles' : 'Back to top'}
           />
           <ArticleDetail data={displayType.data} />
         </div>
