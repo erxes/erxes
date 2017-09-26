@@ -30,7 +30,11 @@ iframe.style.display = 'none';
 erxesContainer.appendChild(iframe);
 
 const embedContainer = document.querySelector('[data-erxes-kbase]');
-embedContainer.appendChild(erxesContainer);
+if (!embedContainer) {
+  console.log('Please create a "div" element with an attribute named "data-erxes-kbase"');
+} else {
+  embedContainer.appendChild(erxesContainer);
+}
 
 // send erxes setting to iframe
 iframe = document.querySelector(`#${iframeId}`);
