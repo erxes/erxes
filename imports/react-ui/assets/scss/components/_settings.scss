@@ -175,3 +175,13 @@ $bg-widget-background: #faf9fb;
       font-size: 10px;
     }
 }
+
+.icon-option {
+  display: flex;
+  align-items: center;
+
+  svg {
+    margin-right: 10px;
+    fill: lighten($main-color, 15%);
+  }
+}
