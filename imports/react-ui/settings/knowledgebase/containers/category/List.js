@@ -4,7 +4,7 @@ import { queries } from '../../graphql';
 import { CategoryList } from '../../components';
 
 export default commonListComposer({
-  name: 'knowledgeBaseCategories', // TODO: name must start with lowercase letter
+  name: 'knowledgeBaseCategories',
   gqlListQuery: graphql(gql(queries.getCategoryList), {
     name: 'listQuery',
   }),
