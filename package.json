@@ -1,6 +1,6 @@
 {
   "name": "erxes-widgets",
-  "version": "0.6.0",
+  "version": "0.6.1",
   "description": "Embedable widget scripts server for erxes",
   "homepage": "https://erxes.io",
   "repository": {
@@ -33,11 +33,9 @@
     "dotenv": "^4.0.0",
     "ejs": "^2.5.6",
     "express": "^4.14.0",
-    "graphql": "^0.9.1",
-    "graphql-tag": "^2.4.2",
     "meteor-ejson": "^0.6.3",
     "moment": "^2.17.1",
-    "react": "^15.4.1",
+    "react": "^15.4.2",
     "react-apollo": "^1.4.15",
     "react-datepicker": "^0.46.0",
     "react-dom": "^15.4.1",
