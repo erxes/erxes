@@ -1,6 +1,6 @@
 {
   "name": "erxes-widgets",
-  "version": "0.6.1",
+  "version": "0.7.0",
   "description": "Embedable widget scripts server for erxes",
   "homepage": "https://erxes.io",
   "repository": {
@@ -39,6 +39,7 @@
     "react-apollo": "^1.4.15",
     "react-datepicker": "^0.46.0",
     "react-dom": "^15.4.1",
+    "react-ionicons": "^1.5.9",
     "react-redux": "^5.0.1",
     "redux": "^3.6.0",
     "redux-thunk": "^2.1.0",
