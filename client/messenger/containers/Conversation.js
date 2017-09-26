@@ -25,6 +25,11 @@ class Conversation extends React.Component {
         const conversationDetail = prev.conversationDetail;
         const messages = conversationDetail.messages;
 
+        // do not show internal messages
+        if (message.internal) {
+          return prev;
+        }
+
         // TODO: Doing this because of Missing field avatar in {}
         // error. Will learn about this bug later
         if (messages.length <= 1) {
