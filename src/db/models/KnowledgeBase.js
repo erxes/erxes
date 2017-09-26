@@ -30,7 +30,7 @@ const KbCategoriesSchema = mongoose.Schema({
   title: String,
   description: String,
   articleIds: {
-    type: [],
+    type: [String],
     required: false,
   },
   icon: String,
@@ -50,7 +50,7 @@ const KbTopicsSchema = mongoose.Schema({
   brandId: String,
   description: String,
   categoryIds: {
-    type: [],
+    type: [String],
     required: false,
   },
   loadType: String,
