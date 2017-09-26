@@ -10,33 +10,29 @@ const conversationFilter = async (
 ) => {
   const collectIntegration = async selector => {
     const integrations = await Integrations.find(selector);
-
-    if (integrations.count() < 1) {
-      messageSelector.conversationId = 'notfoundconv';
-      return messageSelector;
-    }
-
-    const integrationIds = _.pluck(integrations, '_id');
-    if (integrationIds.length > 0) {
+    if (integrations.length < 1) {
+      messageSelector.conversationId = null;
+      conversationSelector.integrationId = null;
+    } else {
+      const integrationIds = _.pluck(integrations, '_id');
       conversationSelector.integrationId = { $in: integrationIds };
     }
   };
 
   if (brandId && !integrationType) {
-    collectIntegration({ brandId });
+    await collectIntegration({ brandId });
   }
 
   if (!brandId && integrationType) {
-    collectIntegration({ kind: integrationType });
+    await collectIntegration({ kind: integrationType });
   }
 
   if (brandId && integrationType) {
-    collectIntegration({ brandId, kind: integrationType });
+    await collectIntegration({ brandId, kind: integrationType });
   }
 
-  const conv = conversationSelector;
-  if (conv.integrationId || conv.createdAt) {
-    const conversations = await Conversations.find(conv);
+  const conversations = await Conversations.find(conversationSelector);
+  if (conversations.length > 0) {
     const conversationIds = _.pluck(conversations, '_id');
     messageSelector.conversationId = { $in: conversationIds };
   }
@@ -120,14 +116,17 @@ export default {
       volumeOrResponse = { $ne: null };
     }
 
-    const messageSelector = { userId: volumeOrResponse };
-
     if (!endDate) {
       endDate = new Date();
     }
 
     const end = moment(endDate).format('YYYY-MM-DD');
     const start = moment(end).add(-7, 'days');
+
+    const messageSelector = {
+      userId: volumeOrResponse,
+      createdAt: { $gte: start, $lte: end },
+    };
 
     const conversationSelector = {};
     const messageFilter = await conversationFilter(
@@ -136,6 +135,7 @@ export default {
       conversationSelector,
       messageSelector,
     );
+    const messages = await ConversationMessages.find(messageFilter);
 
     const punchCard = [];
     let count = 0;
@@ -143,8 +143,9 @@ export default {
       const startTime = moment(start).add(i, 'hours');
       const endTime = moment(start).add(i + 1, 'hours');
 
-      messageFilter.createdAt = { $gt: formatTime(startTime), $lte: formatTime(endTime) };
-      count = await ConversationMessages.find(messageFilter).count();
+      count = messages.filter(
+        message => startTime < message.createdAt && message.createdAt < endTime,
+      ).length;
 
       const dayCount = startTime.weekday();
 
@@ -188,6 +189,7 @@ export default {
       conversationSelector,
       messageSelector,
     );
+
     const messages = await ConversationMessages.find(messageFilter);
 
     const insightData = { teamMembers: [], summary: [] };
@@ -267,7 +269,7 @@ export default {
   },
 
   async insightsFirstResponse(root, { integrationType, brandId, startDate, endDate }) {
-    const messageSelector = {};
+    const messageSelector = { createdAt: { $ne: null } };
 
     if (!startDate || !endDate) {
       endDate = new Date();
@@ -305,16 +307,11 @@ export default {
       const conversationIds = messageFilter.conversationId.$in;
 
       for (let conversationId of conversationIds) {
-        clientMessage = await ConversationMessages.findOne({
-          conversationId,
-          userId: null,
-          createdAt: { $ne: null },
-        }).sort({ createdAt: 1 });
-        userMessage = await ConversationMessages.findOne({
-          conversationId,
-          userId: { $ne: null },
-          createdAt: { $ne: null },
-        }).sort({ createdAt: 1 });
+        messageFilter.conversationId = conversationId;
+        messageFilter.userId = null;
+        clientMessage = await ConversationMessages.findOne(messageFilter).sort({ createdAt: 1 });
+        messageFilter.userId = { $ne: null };
+        userMessage = await ConversationMessages.findOne(messageFilter).sort({ createdAt: 1 });
 
         if (userMessage && clientMessage) {
           responseTime = getTime(userMessage.createdAt) - getTime(clientMessage.createdAt);
