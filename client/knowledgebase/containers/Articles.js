@@ -11,7 +11,7 @@ import queries from './graphql';
 
 const propTypes = {
   data: PropTypes.shape({
-    knowledgeBaseArticlesSearch: PropTypes.arrayOf(PropTypes.object),
+    knowledgeBaseArticles: PropTypes.arrayOf(PropTypes.object),
     loading: PropTypes.bool,
   }),
 };
@@ -19,7 +19,7 @@ const propTypes = {
 const Articles = (props) => {
   const extendedProps = {
     ...props,
-    articles: props.data.knowledgeBaseArticlesSearch,
+    articles: props.data.knowledgeBaseArticles,
   };
 
   if (props.data.loading) {

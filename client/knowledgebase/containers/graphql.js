@@ -7,8 +7,8 @@ const kbLoaderQuery = `
 `;
 
 const kbSearchArticlesQuery = `
-  query knowledgeBaseArticlesSearch($topicId: String!, $searchString: String!) {
-    knowledgeBaseArticlesSearch(topicId: $topicId, searchString: $searchString) {
+  query knowledgeBaseArticles($topicId: String!, $searchString: String!) {
+    knowledgeBaseArticles(topicId: $topicId, searchString: $searchString) {
       _id
       title
       summary
