@@ -2,6 +2,7 @@ import React, { PropTypes } from 'react';
 import { compose, gql, graphql } from 'react-apollo';
 import { Loading } from '/imports/react-ui/common';
 import { FirstResponse } from '../components';
+import { queries } from '../graphql';
 
 const FirstResponseReportContainer = props => {
   const { brandsQuery, firstResponseQuery } = props;
@@ -28,27 +29,18 @@ FirstResponseReportContainer.propTypes = {
 };
 
 export default compose(
-  graphql(
-    gql`
-      query insightsFirstResponse($integrationType: String, $brandId: String, 
-        $startDate: String, $endDate: String) {
-        insightsFirstResponse(integrationType: $integrationType, brandId: $brandId, 
-          startDate: $startDate, endDate: $endDate)
-      }
-    `,
-    {
-      name: 'firstResponseQuery',
-      options: ({ queryParams }) => ({
-        fetchPolicy: 'network-only',
-        variables: {
-          brandId: queryParams.brandId,
-          integrationType: queryParams.integrationType,
-          startDate: queryParams.startDate,
-          endDate: queryParams.endDate,
-        },
-      }),
-    },
-  ),
+  graphql(gql(queries.insightsFirstResponse), {
+    name: 'firstResponseQuery',
+    options: ({ queryParams }) => ({
+      fetchPolicy: 'network-only',
+      variables: {
+        brandId: queryParams.brandId,
+        integrationType: queryParams.integrationType,
+        startDate: queryParams.startDate,
+        endDate: queryParams.endDate,
+      },
+    }),
+  }),
   graphql(
     gql`
     query brands {

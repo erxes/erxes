@@ -4,12 +4,10 @@ import Select from 'react-select-plus';
 import { ControlLabel } from 'react-bootstrap';
 import { integrationOptions, selectOptions } from '../utils';
 import { KIND_CHOICES as INTEGRATIONS_TYPES } from '/imports/api/integrations/constants';
-import { Wrapper } from '/imports/react-ui/layout/components';
+import { FlowRouter } from 'meteor/kadira:flow-router';
 
 const propTypes = {
   brands: PropTypes.array.isRequired,
-  hideIntegration: PropTypes.bool,
-  hideStartDate: PropTypes.bool,
 };
 
 class Filter extends React.Component {
@@ -17,26 +15,26 @@ class Filter extends React.Component {
     super(props);
 
     this.state = {
-      brandId: '',
-      integrationType: '',
+      brandId: FlowRouter.getQueryParam('brandId') || '',
+      integrationType: FlowRouter.getQueryParam('integrationType') || '',
     };
   }
 
   onTypeChange(value) {
     const integrationType = value ? value.value : '';
     this.setState({ integrationType });
-    Wrapper.Sidebar.filter('integrationType', integrationType);
+    FlowRouter.setQueryParams({ ['integrationType']: integrationType });
   }
 
   onBrandChange(value) {
     const brandId = value ? value.value : '';
     this.setState({ brandId });
-    Wrapper.Sidebar.filter('brandId', brandId);
+    FlowRouter.setQueryParams({ ['brandId']: brandId });
   }
 
   onDateChange(type, e) {
     const target = $(e.currentTarget);
-    Wrapper.Sidebar.filter(type, target.val());
+    FlowRouter.setQueryParams({ [type]: target.val() });
   }
 
   dateFilter() {
@@ -55,12 +53,6 @@ class Filter extends React.Component {
 
   renderIntegrations() {
     const integrations = INTEGRATIONS_TYPES.ALL_LIST;
-    const { hideIntegration } = this.props;
-    const hide = hideIntegration || false;
-
-    if (hide) {
-      return null;
-    }
 
     return (
       <div className="flex-item">
@@ -106,25 +98,21 @@ class Filter extends React.Component {
   }
 
   render() {
-    const { hideStartDate } = this.props;
     return (
       <div className="insight-filter">
         <h5 className="insight-title">Filter</h5>
         <div className="flex-row">
           {this.renderIntegrations()}
           {this.renderBrands()}
-          {hideStartDate
-            ? null
-            : <div className="flex-item">
-                <ControlLabel>Start date</ControlLabel>
-                <input
-                  id="startDate"
-                  type="date"
-                  className="form-control"
-                  onChange={this.onDateChange.bind(this, 'startDate')}
-                />
-              </div>}
-
+          <div className="flex-item">
+            <ControlLabel>Start date</ControlLabel>
+            <input
+              id="startDate"
+              type="date"
+              className="form-control"
+              onChange={this.onDateChange.bind(this, 'startDate')}
+            />
+          </div>
           {this.dateFilter()}
         </div>
       </div>

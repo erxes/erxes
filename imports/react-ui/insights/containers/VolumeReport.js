@@ -2,6 +2,7 @@ import React, { PropTypes } from 'react';
 import { compose, gql, graphql } from 'react-apollo';
 import { Loading } from '/imports/react-ui/common';
 import { VolumeReport } from '../components';
+import { queries } from '../graphql';
 
 const VolumeReportContainer = props => {
   const { volumePieChartQuery, brandsQuery, punchCardQuery, mainQuery } = props;
@@ -36,70 +37,42 @@ VolumeReportContainer.propTypes = {
 };
 
 export default compose(
-  graphql(
-    gql`
-      query insights($brandId: String, $startDate: String, $endDate: String) {
-        insights(brandId: $brandId, startDate: $startDate, endDate: $endDate) {
-          name
-          value
-        }
-      }
-    `,
-    {
-      name: 'volumePieChartQuery',
-      options: ({ queryParams }) => ({
-        fetchPolicy: 'network-only',
-        variables: {
-          brandId: queryParams.brandId,
-          endDate: queryParams.endDate,
-          startDate: queryParams.startDate,
-        },
-      }),
-    },
-  ),
-  graphql(
-    gql`
-      query insightsPunchCard($type: String, $integrationType: String,
-        $brandId: String, $endDate: String) {
-        insightsPunchCard(type: $type, integrationType: $integrationType,
-          brandId: $brandId, endDate: $endDate)
-      }
-    `,
-    {
-      name: 'punchCardQuery',
-      options: ({ queryParams }) => ({
-        fetchPolicy: 'network-only',
-        variables: {
-          type: 'volume',
-          brandId: queryParams.brandId,
-          integrationType: queryParams.integrationType,
-          endDate: queryParams.endDate,
-        },
-      }),
-    },
-  ),
-  graphql(
-    gql`
-      query insightsMain($type: String, $integrationType: String,
-        $brandId: String, $startDate: String, $endDate: String) {
-        insightsMain(type: $type, integrationType: $integrationType,
-          brandId: $brandId, startDate: $startDate, endDate: $endDate)
-      }
-    `,
-    {
-      name: 'mainQuery',
-      options: ({ queryParams }) => ({
-        fetchPolicy: 'network-only',
-        variables: {
-          type: 'volume',
-          brandId: queryParams.brandId,
-          integrationType: queryParams.integrationType,
-          startDate: queryParams.startDate,
-          endDate: queryParams.endDate,
-        },
-      }),
-    },
-  ),
+  graphql(gql(queries.insightsPieChart), {
+    name: 'volumePieChartQuery',
+    options: ({ queryParams }) => ({
+      fetchPolicy: 'network-only',
+      variables: {
+        brandId: queryParams.brandId,
+        endDate: queryParams.endDate,
+        startDate: queryParams.startDate,
+      },
+    }),
+  }),
+  graphql(gql(queries.insightsPunchCard), {
+    name: 'punchCardQuery',
+    options: ({ queryParams }) => ({
+      fetchPolicy: 'network-only',
+      variables: {
+        type: 'volume',
+        brandId: queryParams.brandId,
+        integrationType: queryParams.integrationType,
+        endDate: queryParams.endDate,
+      },
+    }),
+  }),
+  graphql(gql(queries.insightsMain), {
+    name: 'mainQuery',
+    options: ({ queryParams }) => ({
+      fetchPolicy: 'network-only',
+      variables: {
+        type: 'volume',
+        brandId: queryParams.brandId,
+        integrationType: queryParams.integrationType,
+        startDate: queryParams.startDate,
+        endDate: queryParams.endDate,
+      },
+    }),
+  }),
   graphql(
     gql`
     query brands {

@@ -11,6 +11,10 @@ export function integrationOptions(array) {
 }
 
 export function convertTime(second) {
+  if (!second) {
+    return 0;
+  }
+
   let hours = Math.floor(second / 3600);
   let minutes = Math.floor((second - hours * 3600) / 60);
   let seconds = second - hours * 3600 - minutes * 60;
