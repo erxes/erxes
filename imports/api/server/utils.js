@@ -126,11 +126,17 @@ export const mutate = query =>
   });
 
 // notify subscription server new message
-export const apolloNotifyNewMessage = messageId =>
+export const apolloNotifyNewMessage = messageId => {
+  // Don't do anyting in test mode
+  if (Meteor.isTest) {
+    return;
+  }
+
   mutate(
-    `mutation {
-      insertMessage(messageId: "${messageId}") {
-        _id
-      }
-    }`,
+    `
+    mutation {
+      conversationMessageInserted(_id: "${messageId}")
+    }
+  `,
   );
+};

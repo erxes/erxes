@@ -277,7 +277,7 @@ export class SaveWebhookResponse {
     // collect attachment's url, type fields
     const attachments = (event.message.attachments || []).map(attachment => ({
       type: attachment.type,
-      url: attachment.payload.url,
+      url: attachment.payload ? attachment.payload.url : '',
     }));
 
     this.getOrCreateConversation({

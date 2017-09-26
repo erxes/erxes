@@ -1,5 +1,6 @@
 import { Meteor } from 'meteor/meteor';
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import { compose, gql, graphql } from 'react-apollo';
 import { Bulk, pagination } from '/imports/react-ui/common';
 import { List } from '../components';
@@ -8,7 +9,9 @@ import { queries, subscriptions } from '../graphql';
 class ListContainer extends Bulk {
   componentWillMount() {
     this.props.conversationsQuery.subscribeToMore({
-      document: gql(subscriptions.conversationNotification),
+      // listen for all conversation changes
+      document: gql(subscriptions.conversationsChanged),
+
       updateQuery: () => {
         this.props.conversationsQuery.refetch();
       },
@@ -23,7 +26,7 @@ class ListContainer extends Bulk {
     const { queryParams, channelId, conversationsQuery, totalCountQuery } = this.props;
 
     const conversations = conversationsQuery.conversations || [];
-    const totalCount = totalCountQuery.totalConversationsCount;
+    const totalCount = totalCountQuery.conversationsTotalCount;
 
     const { loadMore, hasMore } = pagination(queryParams, totalCount);
 

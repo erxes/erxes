@@ -1,4 +1,5 @@
-import React, { PropTypes, Component } from 'react';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import {
   Form,
   ButtonGroup,
@@ -27,9 +28,7 @@ const propTypes = {
 
 class SegmentsForm extends Component {
   static generateRandomColorCode() {
-    return `#${Math.random()
-      .toString(16)
-      .slice(2, 8)}`;
+    return `#${Math.random().toString(16).slice(2, 8)}`;
   }
 
   constructor(props) {

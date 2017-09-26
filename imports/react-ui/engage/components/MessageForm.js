@@ -1,4 +1,5 @@
-import React, { Component, PropTypes } from 'react';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import { MESSAGE_KINDS } from '/imports/api/engage/constants';
 import { AutoAndManualForm, VisitorForm } from '../containers';
 

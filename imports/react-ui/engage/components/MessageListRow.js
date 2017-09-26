@@ -59,6 +59,26 @@ class Row extends React.Component {
     this.props.toggleBulk(this.props.message, e.target.checked);
   }
 
+  renderRules() {
+    const { message } = this.props;
+
+    if (message.segment) {
+      return (
+        <div className="engage-rule">
+          <i className="ion-pie-graph" /> {message.segment.name}
+        </div>
+      );
+    }
+    const messenger = message.messenger || {};
+    const rules = messenger.rules || [];
+
+    return rules.map(rule => (
+      <div key={rule._id} className="engage-rule">
+        <i className="ion-pie-graph" /> {rule.text} {rule.condition} {rule.value}
+      </div>
+    ));
+  }
+
   render() {
     let status = <Label bsStyle="info">Sending</Label>;
     let successCount = 0;
@@ -68,7 +88,6 @@ class Row extends React.Component {
 
     const deliveryReports = Object.values(message.deliveryReports);
     const totalCount = deliveryReports.length;
-    const segment = message.segment || {};
 
     deliveryReports.forEach(report => {
       if (report.status === 'sent') {
@@ -89,25 +108,39 @@ class Row extends React.Component {
         <td className="less-space">
           <input type="checkbox" onChange={this.toggleBulk} />
         </td>
-        <td>{message.title}</td>
         <td>
-          <i className="ion-pie-graph" /> {segment.name}
+          <b>{message.title}</b> {message.isDraft ? <Label bsStyle="primary">Draft</Label> : null}
+          {this.renderRules()}
         </td>
         <td className="text-normal">
           <NameCard user={message.fromUser} avatarSize={32} singleLine />
         </td>
-        <td>{status}</td>
+        <td>
+          {status}
+        </td>
         <td className="cell-icon text-primary">
           <i className="ion-cube" />
-          <b> {totalCount}</b>
+          <b>
+            {' '}{totalCount}
+          </b>
         </td>
         <td className="cell-icon text-success">
           <i className="ion-checkmark-circled" />
-          <b> {successCount}</b>
+          <b>
+            {' '}{successCount}
+          </b>
         </td>
         <td className="cell-icon text-warning">
           <i className="ion-alert-circled" />
-          <b> {failedCount}</b>
+          <b>
+            {' '}{failedCount}
+          </b>
+        </td>
+
+        <td>
+          {message.email
+            ? <div><i className="ion-email" /> Email</div>
+            : <div><i className="ion-chatbox" /> Messenger</div>}
         </td>
         <td>
           <i className="ion-calendar" /> {moment(message.createdDate).format('DD MMM YYYY')}

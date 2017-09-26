@@ -1,6 +1,6 @@
 {
   "name": "erxes",
-  "version": "0.6.0",
+  "version": "0.6.1",
   "description": "erxes is an AI meets open source messaging platform for sales and marketing teams.",
   "homepage": "https://erxes.io",
   "repository": {
@@ -33,7 +33,7 @@
   "dependencies": {
     "add-graphql-subscriptions": "^1.0.1",
     "aws-sdk": "^2.28.0",
-    "bcrypt": "^1.0.2",
+    "bcrypt": "^1.0.3",
     "body-parser": "^1.17.1",
     "bootstrap": "^3.3.7",
     "classnames": "^2.2.5",

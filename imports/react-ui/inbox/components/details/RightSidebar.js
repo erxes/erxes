@@ -40,12 +40,8 @@ class RightSidebar extends Component {
     if (integration.kind === 'messenger') {
       return customer.getMessengerCustomData.map(data => (
         <li key={data.value}>
-          <span>
-            {data.name}
-          </span>
-          <span className="counter">
-            {data.value}
-          </span>
+          <span>{data.name}</span>
+          <span className="counter">{data.value}</span>
         </li>
       ));
     }
@@ -87,8 +83,9 @@ class RightSidebar extends Component {
   render() {
     const { Title, QuickButtons } = Wrapper.Sidebar.Section;
     const { conversation } = this.props;
-    const { assignedUser, tags, participatedUsers, customer = {} } = conversation;
+    const { assignedUser, tags, participatedUsers } = conversation;
     const { isAssignerVisible, isTaggerVisible } = this.state;
+    const customer = conversation.customer || {};
 
     return (
       <Wrapper.Sidebar>

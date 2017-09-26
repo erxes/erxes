@@ -1,15 +1,16 @@
 import { Meteor } from 'meteor/meteor';
 import { _ } from 'meteor/underscore';
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import { compose, gql, graphql } from 'react-apollo';
 import { Signature } from '../components';
-import { Spinner } from '/imports/react-ui/common';
+import { Loading } from '/imports/react-ui/common';
 
 const SignatureContainer = props => {
   const { brandsQuery } = props;
 
   if (brandsQuery.loading) {
-    return <Spinner />;
+    return <Loading title="Signature template" />;
   }
 
   // save email configs action

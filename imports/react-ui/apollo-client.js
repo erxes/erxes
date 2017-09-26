@@ -2,7 +2,6 @@ import { Meteor } from 'meteor/meteor';
 import { ApolloClient, createNetworkInterface } from 'react-apollo';
 import { SubscriptionClient } from 'subscriptions-transport-ws';
 import { addGraphQLSubscriptions } from 'add-graphql-subscriptions';
-import gql from 'graphql-tag';
 
 const { APOLLO_CLIENT_URL, APOLLO_CLIENT_SUBSCRIPTION_URL } = Meteor.settings.public;
 
@@ -36,12 +35,5 @@ const networkInterfaceWithSubscriptions = addGraphQLSubscriptions(networkInterfa
 const client = new ApolloClient({
   networkInterface: networkInterfaceWithSubscriptions,
 });
-
-export const mutate = ({ mutation, variables }) => {
-  client.mutate({
-    mutation: gql(mutation),
-    variables,
-  });
-};
 
 export default client;

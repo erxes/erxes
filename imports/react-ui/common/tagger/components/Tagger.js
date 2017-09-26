@@ -1,4 +1,5 @@
-import React, { PropTypes, Component } from 'react';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import { FlowRouter } from 'meteor/kadira:flow-router';
 import Alert from 'meteor/erxes-notifier';
 import { FilterableList } from '../..';
@@ -86,8 +87,9 @@ class Tagger extends Component {
         return Alert.error(error.reason);
       }
 
-      const message =
-        targets.length > 1 ? `Selected ${type}s have been tagged!` : `The ${type} has been tagged!`;
+      const message = targets.length > 1
+        ? `Selected ${type}s have been tagged!`
+        : `The ${type} has been tagged!`;
       Alert.success(message);
 
       if (afterSave) {

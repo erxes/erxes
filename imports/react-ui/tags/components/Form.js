@@ -1,4 +1,5 @@
-import React, { PropTypes, Component } from 'react';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import { FormGroup, ControlLabel, FormControl, Button } from 'react-bootstrap';
 import Alert from 'meteor/erxes-notifier';
 
@@ -14,9 +15,7 @@ const contextTypes = {
 
 class Form extends Component {
   static generateRandomColorCode() {
-    return `#${Math.random()
-      .toString(16)
-      .slice(2, 8)}`;
+    return `#${Math.random().toString(16).slice(2, 8)}`;
   }
 
   constructor(props, context) {

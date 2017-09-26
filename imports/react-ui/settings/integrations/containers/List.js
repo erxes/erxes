@@ -1,5 +1,6 @@
 import { Meteor } from 'meteor/meteor';
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import { compose, gql, graphql } from 'react-apollo';
 import { pagination, Loading } from '/imports/react-ui/common';
 import { List } from '../components';
@@ -11,7 +12,7 @@ const ListContainer = props => {
     return <Loading title="Integrations" />;
   }
 
-  const totalCount = totalCountQuery.totalIntegrationsCount;
+  const totalCount = totalCountQuery.integrationsTotalCount;
   const integrations = listQuery.integrations;
 
   const { loadMore, hasMore } = pagination(queryParams, totalCount);
@@ -84,7 +85,7 @@ export default compose(
   graphql(
     gql`
       query totalIntegrationsCount($kind: String) {
-        totalIntegrationsCount(kind: $kind)
+        integrationsTotalCount(kind: $kind)
       }
     `,
     {

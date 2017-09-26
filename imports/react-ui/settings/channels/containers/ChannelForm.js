@@ -1,4 +1,5 @@
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import { compose, gql, graphql } from 'react-apollo';
 import { Spinner } from '/imports/react-ui/common';
 import { ChannelForm } from '../components';
@@ -57,7 +58,12 @@ export default compose(
         }
       }
     `,
-    { name: 'integrationsQuery' },
+    {
+      name: 'integrationsQuery',
+      options: () => ({
+        fetchPolicy: 'network-only',
+      }),
+    },
   ),
   graphql(
     gql`
@@ -68,7 +74,12 @@ export default compose(
         }
       }
     `,
-    { name: 'brandsQuery' },
+    {
+      name: 'brandsQuery',
+      options: () => ({
+        fetchPolicy: 'network-only',
+      }),
+    },
   ),
   graphql(
     gql`
@@ -79,6 +90,11 @@ export default compose(
         }
       }
     `,
-    { name: 'usersQuery' },
+    {
+      name: 'usersQuery',
+      options: () => ({
+        fetchPolicy: 'network-only',
+      }),
+    },
   ),
 )(ChannelFormContainer);

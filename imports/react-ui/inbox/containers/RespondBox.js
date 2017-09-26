@@ -1,25 +1,16 @@
 import { Meteor } from 'meteor/meteor';
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import { compose, gql, graphql } from 'react-apollo';
 import { fromJS } from 'immutable';
-import { mutate } from '/imports/react-ui/apollo-client';
-import { queries, mutations } from '../graphql';
+import { queries } from '../graphql';
 import { RespondBox } from '../components';
 
 const RespondBoxContainer = props => {
   const { usersQuery } = props;
 
   const sendMessage = (message, callback) => {
-    const cb = (error, messageId) => {
-      // notify graphql subscription server that new message inserted
-      if (!error) {
-        mutate({ mutation: mutations.sendMessage, variables: { messageId } });
-      }
-
-      callback(error, messageId);
-    };
-
-    Meteor.call('conversations.addMessage', message, cb);
+    Meteor.call('conversations.addMessage', message, callback);
   };
 
   const teamMembers = [];

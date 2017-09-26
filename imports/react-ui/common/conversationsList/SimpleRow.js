@@ -1,4 +1,5 @@
-import React, { PropTypes, Component } from 'react';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import moment from 'moment';
 import { FlowRouter } from 'meteor/kadira:flow-router';
 import strip from 'strip';
@@ -63,10 +64,10 @@ class SimpleRow extends Component {
           <div className="items-horizontal">
             <div className="column">
               {(isExistingCustomer && customer.name) ||
-              (isExistingCustomer && customer.email) ||
-              (isExistingCustomer && customer.phone) ? (
-                <NameCard.Avatar size={40} customer={customer} />
-              ) : null}
+                (isExistingCustomer && customer.email) ||
+                (isExistingCustomer && customer.phone)
+                ? <NameCard.Avatar size={40} customer={customer} />
+                : null}
             </div>
 
             <header>

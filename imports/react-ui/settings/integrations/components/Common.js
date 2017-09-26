@@ -1,5 +1,6 @@
 import { Meteor } from 'meteor/meteor';
-import React, { PropTypes, Component } from 'react';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import {
   FormGroup,
   ControlLabel,
@@ -93,16 +94,16 @@ class Common extends Component {
           <ControlLabel>Install code</ControlLabel>
           <div className="markdown-wrapper">
             <ReactMarkdown source={this.state.code} />
-            {this.state.code ? (
-              <CopyToClipboard
-                text={this.state.code}
-                onCopy={() => this.setState({ copied: true })}
-              >
-                <Button bsSize="small" bsStyle="primary">
-                  {this.state.copied ? 'Copied' : 'Copy to clipboard'}
-                </Button>
-              </CopyToClipboard>
-            ) : null}
+            {this.state.code
+              ? <CopyToClipboard
+                  text={this.state.code}
+                  onCopy={() => this.setState({ copied: true })}
+                >
+                  <Button bsSize="small" bsStyle="primary">
+                    {this.state.copied ? 'Copied' : 'Copy to clipboard'}
+                  </Button>
+                </CopyToClipboard>
+              : null}
           </div>
         </FormGroup>
 

@@ -1,4 +1,5 @@
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import { compose, gql, graphql } from 'react-apollo';
 import { MESSENGER_KINDS, SENT_AS_CHOICES, MESSAGE_KINDS } from '/imports/api/engage/constants';
 import { methodCallback } from '../utils';
