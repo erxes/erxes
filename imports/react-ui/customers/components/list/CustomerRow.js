@@ -11,13 +11,21 @@ const propTypes = {
   toggleBulk: PropTypes.func,
 };
 
-function formatValue(value) {
-  if (value && value instanceof Date) {
-    return moment(value).fromNow();
+function isTimeStamp(value) {
+  if (typeof value === 'string') {
+    value = parseInt(value);
   }
 
+  return Number.isInteger(value) && value > 1000000000 && value <= 999999999999999;
+}
+
+function formatValue(value) {
   if (typeof value === 'boolean') {
     return value.toString();
+  }
+
+  if (value && (moment(value, moment.ISO_8601).isValid() || isTimeStamp(value))) {
+    return moment(value).fromNow();
   }
 
   return value || 'N/A';
