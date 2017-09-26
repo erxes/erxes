@@ -1,12 +1,14 @@
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import { compose, gql, graphql } from 'react-apollo';
 import { Form } from '../components';
+import { Spinner } from '/imports/react-ui/common';
 
 const FormContainer = props => {
   const { brandsQuery } = props;
 
   if (brandsQuery.loading) {
-    return null;
+    return <Spinner />;
   }
 
   const updatedProps = {

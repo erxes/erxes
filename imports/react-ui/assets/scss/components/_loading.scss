@@ -96,6 +96,7 @@
   .line {
     @include line;
     margin: 5px 0;
+    @include transition(width .3s ease);
   }
 
   .circle {

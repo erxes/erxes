@@ -1,4 +1,5 @@
-import React, { PropTypes, Component } from 'react';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import _ from 'lodash';
 import { Button } from 'react-bootstrap';
 import Alert from 'meteor/erxes-notifier';
@@ -10,7 +11,6 @@ const propTypes = {
   openText: PropTypes.string,
   bsStyle: PropTypes.string,
   changeStatus: PropTypes.func.isRequired,
-  afterSave: PropTypes.func.isRequired,
   CONVERSATION_STATUSES: PropTypes.object.isRequired,
 };
 
@@ -47,8 +47,6 @@ class Resolver extends Component {
       } else {
         Alert.info('The conversation has been reopened and restored to Inbox.');
       }
-
-      this.props.afterSave();
     });
   }
 

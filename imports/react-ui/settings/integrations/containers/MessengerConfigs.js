@@ -1,14 +1,16 @@
 import { Meteor } from 'meteor/meteor';
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import { compose, gql, graphql } from 'react-apollo';
 import Alert from 'meteor/erxes-notifier';
 import { MessengerConfigs } from '../components';
+import { Loading } from '/imports/react-ui/common';
 
 const MessengerConfigsContainer = props => {
   const { integrationDetailQuery } = props;
 
   if (integrationDetailQuery.loading) {
-    return null;
+    return <Loading title="Integrations" spin />;
   }
 
   const integration = integrationDetailQuery.integrationDetail;

@@ -38,7 +38,6 @@ class List extends React.Component {
 
   render() {
     const { messages, tags, toggleBulk, refetch } = this.props;
-
     const actionBarLeft = (
       <div>
         <Button bsStyle="link" href={'/engage/messages/create?kind=auto'}>
@@ -64,12 +63,12 @@ class List extends React.Component {
           <tr>
             <th />
             <th>Title</th>
-            <th>Segment</th>
             <th>From</th>
             <th>Status</th>
             <th>Total</th>
             <th>Sent</th>
             <th>Failed</th>
+            <th>Type</th>
             <th>Created date</th>
             <th className="text-right">Actions</th>
           </tr>
@@ -91,7 +90,7 @@ class List extends React.Component {
       <Wrapper.Sidebar>
         <SidebarContainers.Main />
         <SidebarContainers.Status />
-        <SidebarContainers.Tag tags={tags} />
+        <SidebarContainers.Tag tags={tags} manageUrl="tags/engageMessage" />
       </Wrapper.Sidebar>
     );
 

@@ -1,5 +1,6 @@
 import { Meteor } from 'meteor/meteor';
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import { compose } from 'react-apollo';
 import Alert from 'meteor/erxes-notifier';
 import { pagination, Loading } from '/imports/react-ui/common';
@@ -14,8 +15,7 @@ const commonListComposer = options => {
       return <Loading title="Settings" />;
     }
 
-    const capsName = name.charAt(0).toUpperCase() + name.substr(1);
-    const totalCount = totalCountQuery[`total${capsName}Count`];
+    const totalCount = totalCountQuery[`${name}TotalCount`];
     const objects = listQuery[name];
 
     const { loadMore, hasMore } = pagination(queryParams, totalCount);

@@ -1,4 +1,5 @@
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import { compose, gql, graphql } from 'react-apollo';
 import { AssignBox } from '../components';
 import { queries } from '../graphql';
@@ -13,14 +14,10 @@ const AssignBoxContainer = props => {
   const assign = ({ targetIds, assignedUserId }, callback) => {
     const params = { conversationIds: targetIds, assignedUserId };
 
-    Meteor.call('conversations.assign', params, (...params) => {
-      conversationsQuery.refetch();
-      callback(...params);
-    });
+    Meteor.call('conversations.assign', params, callback);
   };
 
   const clear = (conversationIds, callback) => {
-    conversationsQuery.refetch();
     Meteor.call('conversations.unassign', { conversationIds }, callback);
   };
 

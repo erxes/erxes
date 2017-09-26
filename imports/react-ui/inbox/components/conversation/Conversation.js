@@ -1,4 +1,5 @@
-import React, { PropTypes, Component } from 'react';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import { _ } from 'meteor/underscore';
 import { Spinner } from '/imports/react-ui/common';
 import Message from './Message';

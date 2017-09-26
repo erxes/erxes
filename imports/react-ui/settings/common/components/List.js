@@ -1,4 +1,5 @@
-import React, { PropTypes, Component } from 'react';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import { Button } from 'react-bootstrap';
 import { ModalTrigger } from '/imports/react-ui/common';
 import { Wrapper } from '/imports/react-ui/layout/components';

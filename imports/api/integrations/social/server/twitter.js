@@ -1,6 +1,7 @@
 import Twit from 'twit';
 import soc from 'social-oauth-client';
 import { Meteor } from 'meteor/meteor';
+import { apolloNotifyNewMessage } from '/imports/api/server/utils';
 import { Integrations } from '/imports/api/integrations/integrations';
 import { KIND_CHOICES } from '/imports/api/integrations/constants';
 import { Conversations } from '/imports/api/conversations/conversations';
@@ -41,12 +42,17 @@ const getOrCreateCustomer = (integrationId, user) => {
 const createMessage = (conversation, content, user) => {
   if (conversation) {
     // create new message
-    Messages.insert({
+    const messageId = Messages.insert({
       conversationId: conversation._id,
       customerId: getOrCreateCustomer(conversation.integrationId, user),
       content,
       internal: false,
     });
+
+    // notify subscription server new message
+    apolloNotifyNewMessage(messageId);
+
+    return messageId;
   }
 };
 
@@ -99,11 +105,12 @@ export const getOrCreateCommonConversation = (data, integration) => {
         isDirectMessage: false,
       },
     });
+
     conversation = Conversations.findOne(conversationId);
   }
 
   // create new message
-  createMessage(conversation, data.text, data.user);
+  return createMessage(conversation, data.text, data.user);
 };
 
 /*
@@ -154,7 +161,7 @@ export const getOrCreateDirectMessageConversation = (data, integration) => {
   }
 
   // create new message
-  createMessage(conversation, data.text, data.sender);
+  return createMessage(conversation, data.text, data.sender);
 };
 
 // save twit instances by integration id

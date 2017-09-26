@@ -1,11 +1,11 @@
-import React, { PropTypes, Component } from 'react';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import strip from 'strip';
-import Editor from './Editor';
+
 import { NameCard } from '/imports/react-ui/common';
 
 const propTypes = {
   content: PropTypes.string,
-  onContentChange: PropTypes.func.isRequired,
   user: PropTypes.object,
   sentAs: PropTypes.string,
 };
@@ -13,44 +13,41 @@ const propTypes = {
 class MessengerPreview extends Component {
   constructor(props) {
     super(props);
-    this.state = { fromUser: '', messengerContent: props.content || '' };
+    this.state = { fromUser: '' };
+
     // binds
-    this.onContentChange = this.onContentChange.bind(this);
+    this.renderNotificationBody = this.renderNotificationBody.bind(this);
   }
 
-  onContentChange(content) {
-    this.props.onContentChange(content);
-    this.setState({ messengerContent: content });
+  renderNotificationBody() {
+    const { content, sentAs } = this.props;
+    const type = sentAs ? sentAs : 'default';
+    const classNames = `widget-preview engage-message type-${type}`;
+
+    if (sentAs != 'badge') {
+      return (
+        <div className={classNames}>
+          <NameCard user={this.props.user} singleLine />
+          <div
+            className="preview-content"
+            dangerouslySetInnerHTML={{ __html: sentAs == 'snippet' ? strip(content) : content }}
+          />
+        </div>
+      );
+    }
+
+    return null;
   }
 
   render() {
-    const { content, sentAs } = this.props;
-    const classNames = `widget-preview engage-message type-${sentAs}`;
+    const { sentAs } = this.props;
     return (
-      <div className="flex-content">
-        <div className="messenger-content">
-          <h2>Content</h2>
-          <Editor defaultValue={content} onChange={this.onContentChange} />
-        </div>
-        <div className={`web-preview type-${sentAs}`}>
-          <h2>Preview</h2>
-          <div className="messenger-preview">
-            {sentAs != 'badge'
-              ? <div className={classNames}>
-                  <NameCard user={this.props.user} singleLine />
-                  <div
-                    className="preview-content"
-                    dangerouslySetInnerHTML={{
-                      __html: sentAs == 'snippet'
-                        ? strip(this.state.messengerContent)
-                        : this.state.messengerContent,
-                    }}
-                  />
-                </div>
-              : null}
-            <div className="logo-container">
-              <span>1</span>
-            </div>
+      <div className={`web-preview type-${sentAs}`}>
+        <h2>Preview</h2>
+        <div className="messenger-preview">
+          {this.renderNotificationBody()}
+          <div className="logo-container">
+            <span>1</span>
           </div>
         </div>
       </div>

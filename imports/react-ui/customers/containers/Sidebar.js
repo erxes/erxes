@@ -1,4 +1,5 @@
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import { compose, gql, graphql } from 'react-apollo';
 import { KIND_CHOICES } from '/imports/api/integrations/constants';
 import { pagination } from '/imports/react-ui/common';

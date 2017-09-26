@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { Button } from 'react-bootstrap';
 
 const propTypes = {
   text: PropTypes.string.isRequired,
@@ -15,7 +16,7 @@ function EmptyState({ text, icon, size, linkUrl, linkText }) {
     <div className={classNames}>
       {icon}
       {text}
-      <a href={linkUrl}>{linkText}</a>
+      {linkUrl && linkText ? <Button bsSize="small" href={linkUrl}>{linkText}</Button> : null}
     </div>
   );
 }

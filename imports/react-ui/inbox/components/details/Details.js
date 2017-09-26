@@ -1,8 +1,10 @@
-import React, { PropTypes, Component } from 'react';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import { Wrapper } from '/imports/react-ui/layout/components';
 import RightSidebar from './RightSidebar';
+import LeftSidebar from './LeftSidebar';
 import Conversation from '../conversation/Conversation';
-import { RespondBox, DetailSidebar } from '../../containers';
+import { RespondBox } from '../../containers';
 
 const propTypes = {
   conversation: PropTypes.object.isRequired,
@@ -30,12 +32,11 @@ class Details extends Component {
 
   render() {
     const {
+      changeStatus,
       conversation,
       messages,
-      changeStatus,
       attachmentPreview,
       setAttachmentPreview,
-      queryParams,
     } = this.props;
 
     const content = (
@@ -61,25 +62,18 @@ class Details extends Component {
       <div>
         <Wrapper
           header={<Wrapper.Header breadcrumb={breadcrumb} />}
-          leftSidebar={
-            <DetailSidebar
-              conversation={conversation}
-              messagesCount={messages.length}
-              changeStatus={changeStatus}
-              queryParams={queryParams}
-            />
-          }
           content={content}
           footer={
             <RespondBox conversation={conversation} setAttachmentPreview={setAttachmentPreview} />
           }
-          rightSidebar={
-            <RightSidebar
+          leftSidebar={
+            <LeftSidebar
               conversation={conversation}
               messagesCount={messages.length}
-              refetch={this.props.refetch}
+              changeStatus={changeStatus}
             />
           }
+          rightSidebar={<RightSidebar conversation={conversation} refetch={this.props.refetch} />}
           relative
         />
       </div>

@@ -6,7 +6,7 @@ class Messenger extends Common {
       <script>
         window.erxesSettings = {
           messenger: {
-            brand_id: "${brandCode}"
+            brand_id: "${brandCode}",
           },
         };
         ${Messenger.installCodeIncludeScript('messenger')}

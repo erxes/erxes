@@ -1,4 +1,5 @@
-import React, { PropTypes, Component } from 'react';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import { FlowRouter } from 'meteor/kadira:flow-router';
 import { Button, ButtonGroup, OverlayTrigger, Popover } from 'react-bootstrap';
 import classnames from 'classnames';
