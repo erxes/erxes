@@ -15,8 +15,7 @@ const commonListComposer = options => {
       return <Loading title="Settings" />;
     }
 
-    const capsName = name.charAt(0).toUpperCase() + name.substr(1);
-    const totalCount = totalCountQuery[`total${capsName}Count`];
+    const totalCount = totalCountQuery[`${name}TotalCount`];
     const objects = listQuery[name];
 
     const { loadMore, hasMore } = pagination(queryParams, totalCount);
