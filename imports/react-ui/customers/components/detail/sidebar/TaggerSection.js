@@ -59,9 +59,10 @@ class TaggerSection extends Component {
           <div>
             <Tagger
               type="customer"
-              targets={[customer._id]}
+              targets={[customer]}
               className="sidebar-accordion"
               event="onClick"
+              afterSave={this.props.customer.refetch}
             />
           </div>
         </Collapse>

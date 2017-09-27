@@ -191,7 +191,7 @@ class RightSidebar extends Component {
             <div>
               <Tagger
                 type="conversation"
-                targets={[conversation._id]}
+                targets={[conversation]}
                 className="sidebar-accordion"
                 event="onClick"
                 afterSave={this.props.refetch}

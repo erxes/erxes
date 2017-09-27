@@ -20,6 +20,7 @@ import './settings/forms/routes';
 import './settings/team/routes';
 import './settings/profile/routes';
 import './insights/routes';
+import './settings/knowledgebase/routes';
 
 /**
  * Styles

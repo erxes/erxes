@@ -5,7 +5,7 @@ import { Tagger } from '/imports/react-ui/common';
 
 const propTypes = {
   type: PropTypes.string.isRequired,
-  targets: PropTypes.arrayOf(PropTypes.string).isRequired,
+  targets: PropTypes.arrayOf(Object).isRequired,
   trigger: PropTypes.element.isRequired,
   afterSave: PropTypes.func,
   container: PropTypes.element,
