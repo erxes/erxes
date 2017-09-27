@@ -20,8 +20,9 @@ class PunchCard extends React.Component {
     const { data, width } = this.props;
 
     let chart;
+    const color = '#452679';
     if (type === 'init') {
-      chart = D3PunchCard({ target: '#punch-card', width });
+      chart = D3PunchCard({ target: '#punch-card', width, color });
       this.chart = chart;
     } else {
       chart = this.chart;
@@ -31,7 +32,7 @@ class PunchCard extends React.Component {
   }
 
   render() {
-    return <div id="punch-card" className="chart-wrapper" />;
+    return <div id="punch-card" className="chart-wrapper punch-card" />;
   }
 }
 

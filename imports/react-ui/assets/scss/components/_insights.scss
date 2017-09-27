@@ -6,120 +6,120 @@ $item-shadow: 0 3px 1px -2px $shadow-color, 0 2px 2px 0 $shadow-color, 0 1px 5px
 
 .insight-wrapper {
 
-	.insight-title {
-		text-transform: uppercase;
+  .insight-title {
+    text-transform: uppercase;
     font-weight: 400;
     padding: 10px 0;
     color: $title-color;
     margin: 20px 0 10px;
-	}
+  }
 
-	.insight-content {
-		margin: 30px;
-	}
+  .insight-content {
+    margin: 30px;
+  }
 
-	.insight-filter {
-		padding: 20px 30px;
-		border-bottom: 1px solid $gray-lighter;
-		background: $bg-data;
+  .insight-filter {
+    padding: 20px 30px;
+    border-bottom: 1px solid $gray-lighter;
+    background: $bg-data;
 
-		h5 {
-			margin-top: 0;
-		}
-	}
-
-	.insight-row {
-		position: relative;
-		margin-bottom: 24px;
-	}
-
-	.insight-user-data {
-		margin-bottom: 30px;
-		border: 1px solid $gray-lighter;
-		border-radius: $border-radius;
-
-		.user-profile {
-			line-height: 40px;
-			padding: 15px 20px;
-			overflow: hidden;
-			max-height: 70px;
-			border-bottom: 1px solid $gray-lighter;
-
-			img {
-				width: 40px;
-				height: 40px;
-				border-radius: 50%;
-				margin-right: 20px;
-				float: left;
-			}
-
-			.full-name {
-				float: left;
-				font-size: 15px;
-				font-weight: bold;
-			}
-		}
-
-		.chart-wrapper {
-			padding: 20px 0 10px;
-			border: 0;
-		}
-	}
-
-	.chart-wrapper {
-		padding: 20px 20px 20px 0;
-		border: 1px solid $gray-lighter;
-		border-radius: $border-radius;
-		background: $bg-data;
-	}
-
-	.integration-kind {
-		position: absolute;
-		z-index: 2;
-		padding-left: 20px;
-		margin-top: 60px;
-
-    .kind-item {
-    	margin-bottom: 12px;
-
-    	.label {
-    		margin-right: 4px;
-    		display: inline-block;
-    		padding: 5px 10px;
-    	}
-
-    	.kind-count {
-    		font-size: 12px;
-    		font-weight: bold;
-    	}
+    h5 {
+      margin-top: 0;
     }
-	}
+  }
 
-	.summary-item {
-		text-align: center;
-		border-radius: 5px;
-		margin-bottom: 30px;
-		padding: 12px;
-		background: $bg-data;
-		box-shadow: $item-shadow;
+  .insight-row {
+    position: relative;
+    margin-bottom: 24px;
+  }
 
-		.summary-title {
-			margin-bottom: 4px;
-			text-transform: uppercase;
-		}
+  .chart-wrapper {
+    padding: 20px 20px 20px 0;
+    border: 1px solid $gray-lighter;
+    border-radius: $border-radius;
+    background: $bg-data;
+  }
 
-		.summary-count {
-			font-weight: bold;
-			font-size: 24px;
-		}
-	}
+  .summary-item {
+    text-align: center;
+    border-radius: 5px;
+    margin-bottom: 30px;
+    padding: 12px;
+    background: $bg-data;
+    box-shadow: $item-shadow;
 
-	.response-time {
-		z-index: 1;	
+    .summary-title {
+      margin-bottom: 4px;
+      text-transform: uppercase;
+    }
+
+    .summary-count {
+      font-weight: bold;
+      font-size: 24px;
+    }
+  }
+
+  .response-time {
+    z-index: 1;
     position: absolute;
     right: 0;
     top: 0;
-	}
+  }
+}
+
+.integration-kind {
+  position: absolute;
+  z-index: 2;
+  padding-left: 20px;
+  margin-top: 60px;
+
+  .kind-item {
+    margin-bottom: 12px;
+
+    .label {
+      margin-right: 4px;
+      display: inline-block;
+      padding: 5px 10px;
+    }
+
+    .kind-count {
+      font-size: 12px;
+      font-weight: bold;
+    }
+  }
+}
+
+.insight-user-data {
+  margin-bottom: 30px;
+  border: 1px solid $gray-lighter;
+  border-radius: $border-radius;
+
+  .user-profile {
+    line-height: 40px;
+    padding: 15px 20px;
+    overflow: hidden;
+    max-height: 70px;
+    border-bottom: 1px solid $gray-lighter;
+
+    img {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      margin-right: 20px;
+      float: left;
+    }
+
+    .full-name {
+      float: left;
+      font-size: 15px;
+      font-weight: bold;
+    }
+  }
+
+  .chart-wrapper {
+    padding: 20px 0 10px;
+    border: 0;
+  }
 }
 
 .flex-row {
@@ -135,7 +135,7 @@ $item-shadow: 0 3px 1px -2px $shadow-color, 0 2px 2px 0 $shadow-color, 0 1px 5px
   }
 }
 
-#punch-card {
+.punch-card {
   .axis path,
   .axis line {
     fill: none;
@@ -146,10 +146,6 @@ $item-shadow: 0 3px 1px -2px $shadow-color, 0 2px 2px 0 $shadow-color, 0 1px 5px
 
   .axis text {
     font-size: 0.875em;
-		fill: $gray-light;
+    fill: $gray-light;
   }
-
-	circle {
-		fill: $main-color !important;
-	}
 }

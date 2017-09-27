@@ -1,4 +1,5 @@
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import { compose, gql, graphql } from 'react-apollo';
 import { Loading } from '/imports/react-ui/common';
 import { ResponseReport } from '../components';
@@ -16,7 +17,7 @@ const ResponseReportContainer = props => {
     trend: data.trend,
     teamMembers: data.teamMembers,
     brands: brandsQuery.brands,
-    punch: punchCardQuery.insightsPunchCard,
+    punch: punchCardQuery.insightsPunchCard || [],
     summary: data.summary,
   };
 
