@@ -14,6 +14,7 @@ const customerFields = `
     getTags {
       _id
       name
+      colorCode
     }
 `;
 
