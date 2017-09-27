@@ -64,8 +64,8 @@ class FilterableList extends Component {
   }
 
   renderItems() {
-    const { items, showCheckmark = true } = this.props;
-    const { key } = this.state;
+    const { showCheckmark = true } = this.props;
+    const { items, key } = this.state;
 
     return items.map(item => {
       // filter items by key

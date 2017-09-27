@@ -2,18 +2,20 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { FlowRouter } from 'meteor/kadira:flow-router';
 import Alert from 'meteor/erxes-notifier';
-import { FilterableList } from '../..';
+import { TAG_TYPES } from '/imports/api/tags/constants';
+import { FilterableList, Spinner } from '../..';
 
 const propTypes = {
-  type: PropTypes.string.isRequired,
-  tagsLoading: PropTypes.bool,
-  targetsLoading: PropTypes.bool,
-  tags: PropTypes.array,
+  type: PropTypes.oneOf(TAG_TYPES.ALL_LIST),
   targets: PropTypes.array,
-  tag: PropTypes.func.isRequired,
   afterSave: PropTypes.func,
   event: PropTypes.oneOf(['onClick', 'onExit']),
   className: PropTypes.string,
+
+  // from container
+  loading: PropTypes.bool,
+  tags: PropTypes.array,
+  tag: PropTypes.func.isRequired,
 };
 
 class Tagger extends Component {
@@ -99,20 +101,17 @@ class Tagger extends Component {
   }
 
   render() {
-    const { targetsLoading, tagsLoading } = this.props;
-    if (targetsLoading || tagsLoading) {
-      return <div>Loading ...</div>;
+    if (this.props.loading) {
+      return <Spinner />;
     }
 
     const { className, event, type } = this.props;
-
     const links = [
       {
         title: 'Manage tags',
         href: FlowRouter.path('tags/list', { type }),
       },
     ];
-
     const props = {
       className,
       links,

@@ -35,6 +35,7 @@ export default `
     username
     details
   }
+  tagIds
   tags {
     _id
     name

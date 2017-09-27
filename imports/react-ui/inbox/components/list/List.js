@@ -56,7 +56,7 @@ function List(props) {
 
       <TaggerPopover
         type="conversation"
-        targets={targets}
+        targets={bulk}
         trigger={
           <Button bsStyle="link">
             <i className="ion-pricetags" /> Tag <span className="caret" />
