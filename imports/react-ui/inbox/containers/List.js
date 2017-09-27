@@ -26,7 +26,7 @@ class ListContainer extends Bulk {
     const { queryParams, channelId, conversationsQuery, totalCountQuery } = this.props;
 
     const conversations = conversationsQuery.conversations || [];
-    const totalCount = totalCountQuery.totalConversationsCount;
+    const totalCount = totalCountQuery.conversationsTotalCount;
 
     const { loadMore, hasMore } = pagination(queryParams, totalCount);
 
