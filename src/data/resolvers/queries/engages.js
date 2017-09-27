@@ -75,6 +75,15 @@ const countsByTag = async ({ kind, status }) => {
 };
 
 export default {
+  /**
+   * Group engage messages counts by kind, status, tag
+   *
+   * @param {Object} args
+   * @param {String} args.name
+   * @param {String} args.kind
+   * @param {String} args.status
+   * @return {Object} counts map
+   */
   async engageMessageCounts(root, { name, kind, status }) {
     if (name === 'kind') {
       return countsByKind();
@@ -89,6 +98,15 @@ export default {
     }
   },
 
+  /**
+   * Engage messages list
+   * @param {Object} args
+   * @param {String} args.kind
+   * @param {String} args.status
+   * @param {String} args.tag
+   * @param {[String]} args.ids
+   * @return {Promise} filtered messages list by given parameters
+   */
   engageMessages(root, { kind, status, tag, ids }) {
     if (ids) {
       return EngageMessages.find({ _id: { $in: ids } });
@@ -114,11 +132,21 @@ export default {
     return EngageMessages.find(query);
   },
 
+  /**
+   * Get one message
+   * @param {Object} args
+   * @param {String} args._id
+   * @return {Promise} found message
+   */
   engageMessageDetail(root, { _id }) {
     return EngageMessages.findOne({ _id });
   },
 
-  totalEngageMessagesCount() {
+  /**
+   * Get all messages count. We will use it in pager
+   * @return {Promise} total count
+   */
+  engageMessagesTotalCount() {
     return EngageMessages.find({}).count();
   },
 };

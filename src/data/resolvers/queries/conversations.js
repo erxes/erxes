@@ -3,6 +3,12 @@ import { INTEGRATION_KIND_CHOICES } from '../../constants';
 import QueryBuilder from './conversationQueryBuilder';
 
 export default {
+  /**
+   * Conversataions list
+   * @param {Object} args
+   * @param {ConversationListParams} args.params
+   * @return {Promise} filtered conversations list by given parameters
+   */
   async conversations(root, { params }, { user }) {
     // filter by ids of conversations
     if (params && params.ids) {
@@ -19,6 +25,16 @@ export default {
       .limit(params.limit);
   },
 
+  /**
+   * Group conversation counts by brands, channels, integrations, status
+   *
+   * @param {Object} args
+   * @param {Object} context
+   * @param {ConversationListParams} args.params
+   * @param {Object} context.user
+   *
+   * @return {Object} counts map
+   */
   async conversationCounts(root, { params }, { user }) {
     const response = {
       byChannels: {},
@@ -127,11 +143,21 @@ export default {
     return response;
   },
 
+  /**
+   * Get one conversation
+   * @param {Object} args
+   * @param {String} args._id
+   * @return {Promise} found conversation
+   */
   conversationDetail(root, { _id }) {
     return Conversations.findOne({ _id });
   },
 
-  async totalConversationsCount(root, { params }, { user }) {
+  /**
+   * Get all conversations count. We will use it in pager
+   * @return {Promise} total count
+   */
+  async conversationsTotalCount(root, { params }, { user }) {
     // initiate query builder
     const qb = new QueryBuilder(params, { _id: user._id });
 

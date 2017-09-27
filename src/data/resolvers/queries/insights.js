@@ -2,12 +2,26 @@ import { Integrations, Conversations, ConversationMessages, Users } from '../../
 import moment from 'moment';
 import _ from 'underscore';
 
-const conversationFilter = async (
+/**
+ * Builds messages find query selector.
+ * @param {Object} args
+ * @param {String} args.brandId
+ * @param {String} args.integrationType
+ * @param {Object} args.conversationSelector
+ * @param {Object} args.messageSelector
+ * @return {Promise} find input argument object.
+*/
+const messageFindObject = async (
   brandId,
   integrationType,
   conversationSelector,
   messageSelector,
 ) => {
+  /**
+   * Collect integration ids
+   * @param {Object} args
+   * @param {Object} args.selector
+  */
   const collectIntegration = async selector => {
     const integrations = await Integrations.find(selector);
     if (integrations.length < 1) {
@@ -40,6 +54,16 @@ const conversationFilter = async (
   return messageSelector;
 };
 
+/**
+ * Populates message collection into date range 
+ * by given duration and loop count for chart data.
+ * @param {Object} args
+ * @param {MessagesList} args.collection
+ * @param {Integer} args.loopCount
+ * @param {Integer} args.duration
+ * @param {Integer} args.starTime
+ * @return {[Object]} Chart data
+*/
 const insertData = (collection, loopCount, duration, startTime) => {
   const results = [];
   for (let i = 0; i < loopCount; i++) {
@@ -65,6 +89,15 @@ const getTime = time => {
 };
 
 export default {
+  /**
+   * Builds insights charting data contains 
+   * count of conversations in various integrations kinds.
+   * @param {Object} args
+   * @param {String} args.brandId
+   * @param {String} args.startDate
+   * @param {String} args.endDate
+   * @return {Promise} Array of conversation counts.  
+  */
   async insights(root, { brandId, startDate, endDate }) {
     const conversationSelector = { messageCount: { $ne: null } };
     const integrationSelector = {};
@@ -90,6 +123,7 @@ export default {
     const integrations = await Integrations.find(integrationSelector);
     const stack = {};
 
+    // integration group of kind
     for (let detail of integrations) {
       if (!stack[detail.kind]) {
         stack[detail.kind] = [detail._id];
@@ -109,6 +143,15 @@ export default {
     return insights;
   },
 
+  /**
+   * Prepares punch card data for conversation messages.
+   * @param {Object} args
+   * @param {String} args.type
+   * @param {String} args.brandId
+   * @param {String} args.endDate
+   * @param {String} args.integrationType
+   * @return {Promise} Punch card data
+  */
   async insightsPunchCard(root, { type, integrationType, brandId, endDate }) {
     let volumeOrResponse = null;
 
@@ -129,7 +172,7 @@ export default {
     };
 
     const conversationSelector = {};
-    const messageFilter = await conversationFilter(
+    const messageFilter = await messageFindObject(
       brandId,
       integrationType,
       conversationSelector,
@@ -138,16 +181,23 @@ export default {
     const messages = await ConversationMessages.find(messageFilter);
 
     const punchCard = [];
-    let count = 0;
+
+    let count = 0,
+      startTime = null,
+      endTime = null,
+      dayCount = 0;
+
+    // insert hourly message counts for all week duration
+    // into punch card array.
     for (let i = 0; i < 7 * 24; i++) {
-      const startTime = moment(start).add(i, 'hours');
-      const endTime = moment(start).add(i + 1, 'hours');
+      startTime = moment(start).add(i, 'hours');
+      endTime = moment(start).add(i + 1, 'hours');
 
       count = messages.filter(
         message => startTime < message.createdAt && message.createdAt < endTime,
       ).length;
 
-      const dayCount = startTime.weekday();
+      dayCount = startTime.weekday();
 
       if (count > 0) {
         punchCard.push([dayCount, i % 24, count]);
@@ -157,6 +207,15 @@ export default {
     return punchCard;
   },
 
+  /**
+   * Sends combined charting data for trends, summaries and team members.
+   * @param {Object} args
+   * @param {String} args.brandId
+   * @param {String} args.type
+   * @param {String} args.startDate
+   * @param {String} args.endDate
+   * @return {Promise} Object data { trend: [Object], teamMembers: [Object], summary: [] }
+  */
   async insightsMain(root, { type, integrationType, brandId, startDate, endDate }) {
     let volumeOrResponse = null;
 
@@ -183,7 +242,7 @@ export default {
     const duration = endTime - startTime;
     const conversationSelector = {};
 
-    const messageFilter = await conversationFilter(
+    const messageFilter = await messageFindObject(
       brandId,
       integrationType,
       conversationSelector,
@@ -197,14 +256,20 @@ export default {
 
     if (type === 'response') {
       const userIds = _.uniq(_.pluck(messages, 'userId'));
+      let user = null;
+      let userMessages = null;
+      let userDetail = null;
+      let userData = null;
+      let data = null;
 
+      // extracts unique team members data from messages collections.
       for (let userId of userIds) {
-        const user = await Users.findOne({ _id: userId });
+        user = await Users.findOne({ _id: userId });
         if (user) {
-          const userMessages = messages.filter(message => userId === message.userId);
-          const userDetail = user.details;
-          const userData = insertData(userMessages, 5, duration, startTime);
-          const data = {
+          userMessages = messages.filter(message => userId === message.userId);
+          userDetail = user.details;
+          userData = insertData(userMessages, 5, duration, startTime);
+          data = {
             fullName: userDetail.fullName,
             avatar: userDetail.avatar,
             graph: userData,
@@ -258,6 +323,7 @@ export default {
       },
     ];
 
+    // finds a respective message counts for different time intervals.
     for (let summary of summaries) {
       messageFilter.createdAt = { $gt: formatTime(summary.start), $lte: formatTime(summary.end) };
       const count = await ConversationMessages.find(messageFilter).count();
@@ -268,6 +334,14 @@ export default {
     return insightData;
   },
 
+  /**
+   * Calculates average first response time for each team members.
+   * @param {Object} args
+   * @param {String} args.brandId
+   * @param {String} args.startDate
+   * @param {String} args.endDate
+   * @return {Promise} Object data { trend: [Object], teamMembers: [Object], summary: [] }
+  */
   async insightsFirstResponse(root, { integrationType, brandId, startDate, endDate }) {
     const messageSelector = { createdAt: { $ne: null } };
 
@@ -287,7 +361,7 @@ export default {
     }
 
     const duration = endTime - startTime;
-    const messageFilter = await conversationFilter(
+    const messageFilter = await messageFindObject(
       brandId,
       integrationType,
       conversationSelector,
@@ -303,9 +377,10 @@ export default {
       responseTime = 0,
       allResponseTime = 0;
 
-    if (messageFilter.conversationId.$in) {
+    if (messageFilter.conversationId && messageFilter.conversationId.$in) {
       const conversationIds = messageFilter.conversationId.$in;
 
+      // Processes total first response time for each users.
       for (let conversationId of conversationIds) {
         messageFilter.conversationId = conversationId;
         messageFilter.userId = null;

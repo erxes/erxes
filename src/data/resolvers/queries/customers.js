@@ -43,6 +43,12 @@ const listQuery = async params => {
 };
 
 export default {
+  /**
+   * Customers list
+   * @param {Object} args
+   * @param {CustomerListParams} args.params
+   * @return {Promise} filtered customers list by given parameters
+   */
   async customers(root, { params }) {
     if (params.ids) {
       return Customers.find({ _id: { $in: params.ids } }).sort({ 'messengerData.lastSeenAt': -1 });
@@ -55,6 +61,12 @@ export default {
       .limit(params.limit || 0);
   },
 
+  /**
+   * Group customer counts by brands, segments, integrations, tags
+   * @param {Object} args
+   * @param {CustomerListParams} args.params
+   * @return {Object} counts map
+   */
   async customerCounts(root, { params }) {
     const counts = { bySegment: {}, byBrand: {}, byIntegrationType: {}, byTag: {} };
     const selector = await listQuery(params);
@@ -121,22 +133,46 @@ export default {
       .limit(limit);
   },
 
+  /**
+   * Get one customer
+   * @param {Object} args
+   * @param {String} args._id
+   * @return {Promise} found customer
+   */
   customerDetail(root, { _id }) {
     return Customers.findOne({ _id });
   },
 
-  totalCustomersCount() {
+  /**
+   * Get all customers count. We will use it in pager
+   * @return {Promise} total count
+   */
+  customersTotalCount() {
     return Customers.find({}).count();
   },
 
+  /**
+   * Segments list
+   * @return {Promise} segment objects
+   */
   segments() {
     return Segments.find({});
   },
 
+  /**
+   * Only segment that has no sub segments
+   * @return {Promise} segment objects
+   */
   headSegments() {
     return Segments.find({ subOf: { $exists: false } });
   },
 
+  /**
+   * Get one segment
+   * @param {Object} args
+   * @param {String} args._id
+   * @return {Promise} found segment
+   */
   segmentDetail(root, { _id }) {
     return Segments.findOne({ _id });
   },
