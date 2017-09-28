@@ -19,7 +19,7 @@ describe('facebook integration: get or create conversation by feed info', functi
     Messages.remove({});
 
     // mock all requests
-    sinon.stub(graphRequest, 'get', path => {
+    sinon.stub(graphRequest, 'get').callsFake(path => {
       if (path.includes('/?fields=access_token')) {
         return {
           access_token: '244242442442',
