@@ -14,6 +14,7 @@ const CustomerSchema = mongoose.Schema({
   isUser: Boolean,
   createdAt: Date,
   internalNotes: Object,
+  tagIds: [String],
   messengerData: Object,
   twitterData: Object,
   facebookData: Object,

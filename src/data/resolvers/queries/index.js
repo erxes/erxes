@@ -9,6 +9,7 @@ import engages from './engages';
 import tags from './tags';
 import customers from './customers';
 import conversations from './conversations';
+import insights from './insights';
 import knowledgeBase from './knowledgeBase';
 
 export default {
@@ -23,5 +24,6 @@ export default {
   ...tags,
   ...customers,
   ...conversations,
+  ...insights,
   ...knowledgeBase,
 };
