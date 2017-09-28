@@ -32,7 +32,7 @@ ResponseReportContainer.propTypes = {
 };
 
 export default compose(
-  graphql(gql(queries.insightsPieChart), {
+  graphql(gql(queries.punchCard), {
     name: 'punchCardQuery',
     options: ({ queryParams }) => ({
       fetchPolicy: 'network-only',
@@ -44,7 +44,7 @@ export default compose(
       },
     }),
   }),
-  graphql(gql(queries.insightsMain), {
+  graphql(gql(queries.main), {
     name: 'mainQuery',
     options: ({ queryParams }) => ({
       fetchPolicy: 'network-only',
@@ -57,14 +57,5 @@ export default compose(
       },
     }),
   }),
-  graphql(
-    gql`
-    query brands {
-      brands {
-        _id
-        name
-      }
-    }`,
-    { name: 'brandsQuery' },
-  ),
+  graphql(gql(queries.brands), { name: 'brandsQuery' }),
 )(ResponseReportContainer);
