@@ -88,8 +88,8 @@ function Sidebar() {
         </QuickButtons>
         <ul className="sidebar-list">
           <li>
-            <a href={FlowRouter.path('settings/knowledgebase/list')}>
-              <i className="icon ion-arrow-right-b" />Topics
+            <a href={FlowRouter.path('/settings/knowledgebase/articles')}>
+              <i className="icon ion-arrow-right-b" />Articles
             </a>
           </li>
 
@@ -100,10 +100,11 @@ function Sidebar() {
           </li>
 
           <li>
-            <a href={FlowRouter.path('/settings/knowledgebase/articles')}>
-              <i className="icon ion-arrow-right-b" />Articles
+            <a href={FlowRouter.path('settings/knowledgebase/list')}>
+              <i className="icon ion-arrow-right-b" />Topics
             </a>
           </li>
+
         </ul>
       </Wrapper.Sidebar.Section>
 

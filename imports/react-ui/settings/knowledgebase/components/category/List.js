@@ -31,7 +31,6 @@ class CategoryList extends CommonList {
       },
       {
         title: 'Categories',
-        link: '/settings/knowledgebase/categories',
       },
     ];
   }

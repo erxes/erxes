@@ -31,7 +31,6 @@ class ArticleList extends CommonList {
       },
       {
         title: 'Articles',
-        link: '/settings/knowledgebase/articles',
       },
     ];
   }
