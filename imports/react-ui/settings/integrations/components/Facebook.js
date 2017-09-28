@@ -90,7 +90,9 @@ class Facebook extends Component {
             <option>Select app ...</option>
 
             {apps.map((app, index) => (
-              <option key={`app${index}`} value={app.id}>{app.name}</option>
+              <option key={`app${index}`} value={app.id}>
+                {app.name}
+              </option>
             ))}
           </FormControl>
         </FormGroup>
@@ -109,7 +111,9 @@ class Facebook extends Component {
 
         <Modal.Footer>
           <ButtonToolbar className="pull-right">
-            <Button type="submit" bsStyle="primary">Save</Button>
+            <Button type="submit" bsStyle="primary">
+              Save
+            </Button>
           </ButtonToolbar>
         </Modal.Footer>
       </form>

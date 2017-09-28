@@ -26,10 +26,10 @@ MainContainer.propTypes = {
 export default compose(
   graphql(
     gql`
-    query kindCounts {
-      engageMessageCounts(name: "kind")
-    }
-  `,
+      query kindCounts {
+        engageMessageCounts(name: "kind")
+      }
+    `,
     { name: 'countsQuery' },
   ),
 )(MainContainer);

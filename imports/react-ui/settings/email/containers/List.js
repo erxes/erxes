@@ -29,15 +29,15 @@ ListContainer.propTypes = {
 export default compose(
   graphql(
     gql`
-    query objects($limit: Int!) {
-      brands(limit: $limit) {
-        _id
-        name
-        code
-        emailConfig
+      query objects($limit: Int!) {
+        brands(limit: $limit) {
+          _id
+          name
+          code
+          emailConfig
+        }
       }
-    }
-  `,
+    `,
     {
       name: 'listQuery',
       options: () => {

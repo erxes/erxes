@@ -26,7 +26,11 @@ class Form extends CommonForm {
             placeholder="Select Brand"
             defaultValue={resTemplate.brandId}
           >
-            {brands.map(brand => <option key={brand._id} value={brand._id}>{brand.name}</option>)}
+            {brands.map(brand => (
+              <option key={brand._id} value={brand._id}>
+                {brand.name}
+              </option>
+            ))}
           </FormControl>
         </FormGroup>
 

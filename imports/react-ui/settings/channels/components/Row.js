@@ -15,7 +15,9 @@ class Row extends CommonRow {
       <tr>
         <td>{object.name}</td>
         <td>{object.description}</td>
-        <td><Label bsStyle="success">Active</Label></td>
+        <td>
+          <Label bsStyle="success">Active</Label>
+        </td>
 
         {this.renderActions()}
       </tr>

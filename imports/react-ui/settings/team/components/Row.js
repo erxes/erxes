@@ -28,9 +28,7 @@ class Row extends CommonRow {
           <NameCard user={object} avatarSize={30} singleLine />
         </td>
         <td>{emails[0].address}</td>
-        <td>
-          {this.renderRole()}
-        </td>
+        <td>{this.renderRole()}</td>
 
         {this.renderActions()}
       </tr>

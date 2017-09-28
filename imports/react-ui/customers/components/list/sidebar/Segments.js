@@ -33,40 +33,40 @@ function Segments({ counts, segments }) {
           </Dropdown.Menu>
         </Dropdown>
 
-        {FlowRouter.getQueryParam('segment')
-          ? <a
-              tabIndex={0}
-              className="quick-button"
-              onClick={() => {
-                filter('segment', null);
-              }}
-            >
-              <i className="ion-close-circled" />
-            </a>
-          : null}
+        {FlowRouter.getQueryParam('segment') ? (
+          <a
+            tabIndex={0}
+            className="quick-button"
+            onClick={() => {
+              filter('segment', null);
+            }}
+          >
+            <i className="ion-close-circled" />
+          </a>
+        ) : null}
       </Section.QuickButtons>
 
       <ul className="sidebar-list">
-        {orderedSegments.length
-          ? orderedSegments.map(segment => (
-              <li key={segment._id}>
-                <a
-                  tabIndex={0}
-                  className={getActiveClass('segment', segment._id)}
-                  onClick={() => {
-                    filter('segment', segment._id);
-                  }}
-                >
-                  {segment.subOf ? '\u00a0\u00a0\u00a0\u00a0\u00a0' : null}
-                  <i className="ion-pie-graph icon" style={{ color: segment.color }} />
-                  {segment.name}
-                  <span className="counter">
-                    {counts[segment._id]}
-                  </span>
-                </a>
-              </li>
-            ))
-          : <EmptyState icon={<i className="ion-pie-graph" />} text="No segments" size="small" />}
+        {orderedSegments.length ? (
+          orderedSegments.map(segment => (
+            <li key={segment._id}>
+              <a
+                tabIndex={0}
+                className={getActiveClass('segment', segment._id)}
+                onClick={() => {
+                  filter('segment', segment._id);
+                }}
+              >
+                {segment.subOf ? '\u00a0\u00a0\u00a0\u00a0\u00a0' : null}
+                <i className="ion-pie-graph icon" style={{ color: segment.color }} />
+                {segment.name}
+                <span className="counter">{counts[segment._id]}</span>
+              </a>
+            </li>
+          ))
+        ) : (
+          <EmptyState icon={<i className="ion-pie-graph" />} text="No segments" size="small" />
+        )}
       </ul>
     </Section>
   );

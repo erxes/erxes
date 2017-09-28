@@ -40,8 +40,12 @@ class Form extends Component {
         {this.renderContent(this.props.object || {})}
         <Modal.Footer>
           <ButtonToolbar className="pull-right">
-            <Button bsStyle="link" onClick={onClick}>Cancel</Button>
-            <Button type="submit" bsStyle="primary">Save</Button>
+            <Button bsStyle="link" onClick={onClick}>
+              Cancel
+            </Button>
+            <Button type="submit" bsStyle="primary">
+              Save
+            </Button>
           </ButtonToolbar>
         </Modal.Footer>
       </form>

@@ -67,9 +67,7 @@ class TaggerSection extends Component {
           </div>
         </Collapse>
 
-        <ul className="sidebar-list no-link">
-          {this.renderTags(tags)}
-        </ul>
+        <ul className="sidebar-list no-link">{this.renderTags(tags)}</ul>
       </Wrapper.Sidebar.Section>
     );
   }

@@ -71,9 +71,7 @@ class SimpleRow extends Component {
             </div>
 
             <header>
-              <span className="customer-name">
-                {isExistingCustomer && customer.name}
-              </span>
+              <span className="customer-name">{isExistingCustomer && customer.name}</span>
               <div className="customer-email">
                 {(isExistingCustomer && customer.email) || (isExistingCustomer && customer.phone)}
               </div>
@@ -82,9 +80,7 @@ class SimpleRow extends Component {
           <div className="content" onClick={this.goDetail}>
             <span className="brandname hidden-tb">
               to {brandName}
-              <time>
-                {moment(createdAt).format('YYYY-MM-DD, HH:mm:ss')}
-              </time>
+              <time>{moment(createdAt).format('YYYY-MM-DD, HH:mm:ss')}</time>
               - {' '}
             </span>
             {strip(content)}

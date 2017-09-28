@@ -54,12 +54,12 @@ class List extends Component {
               <th>Name</th>
               <th>Kind</th>
               <th>Brand</th>
-              <th width="183" className="text-right">Actions</th>
+              <th width="183" className="text-right">
+                Actions
+              </th>
             </tr>
           </thead>
-          <tbody>
-            {this.renderIntegrations()}
-          </tbody>
+          <tbody>{this.renderIntegrations()}</tbody>
         </Table>
       </Pagination>
     );

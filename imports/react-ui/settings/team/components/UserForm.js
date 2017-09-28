@@ -33,7 +33,8 @@ class UserForm extends CommonForm {
 
     return (
       <FormGroup>
-        <ControlLabel>Choose the channels</ControlLabel><br />
+        <ControlLabel>Choose the channels</ControlLabel>
+        <br />
 
         <Select
           placeholder="Choose channels"
@@ -44,7 +45,6 @@ class UserForm extends CommonForm {
           }}
           multi
         />
-
       </FormGroup>
     );
   }

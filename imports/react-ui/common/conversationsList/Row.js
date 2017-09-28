@@ -68,13 +68,9 @@ class Row extends Component {
 
         <div className="body">
           <header>
-            <span className="customer-name">
-              {customer && customer._id && customer.name}
-            </span>
+            <span className="customer-name">{customer && customer._id && customer.name}</span>
             <span> opened about </span>
-            <time>
-              {moment(createdAt).fromNow()}
-            </time>
+            <time>{moment(createdAt).fromNow()}</time>
             <Tags tags={conversation.tags} size="small" />
           </header>
 

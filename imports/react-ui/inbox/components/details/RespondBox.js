@@ -173,12 +173,8 @@ class RespondBox extends Component {
                   style={{ backgroundImage: `url('${attachment.url}')` }}
                 />
               </div>
-              <div className="file-name">
-                {attachment.name}
-              </div>
-              <div className="file-size">
-                ({Math.round(attachment.size / 1000)}kB)
-              </div>
+              <div className="file-name">{attachment.name}</div>
+              <div className="file-size">({Math.round(attachment.size / 1000)}kB)</div>
             </div>
           ))}
         </div>

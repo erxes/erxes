@@ -42,12 +42,8 @@ function SegmentsList({ segments, removeSegment }) {
             <td>
               {segment.subOf ? '\u2014\u2014' : null} {segment.name}
             </td>
-            <td>
-              {segment.description}
-            </td>
-            <td>
-              {segment.color}
-            </td>
+            <td>{segment.description}</td>
+            <td>{segment.color}</td>
             <td className="text-right">
               <ActionButtons>
                 <Tip text="Edit">
