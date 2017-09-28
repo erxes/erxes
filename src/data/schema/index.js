@@ -20,6 +20,8 @@ import { types as CustomerTypes, queries as CustomerQueries } from './customer';
 
 import { types as InsightTypes, queries as InsightQueries } from './insight';
 
+import { types as KnowledgeBaseTypes, queries as KnowledgeBaseQueries } from './knowledgeBase';
+
 import {
   types as ConversationTypes,
   queries as ConversationQueries,
@@ -42,6 +44,7 @@ export const types = `
   ${CustomerTypes}
   ${ConversationTypes}
   ${InsightTypes}
+  ${KnowledgeBaseTypes}
 `;
 
 export const queries = `
@@ -58,6 +61,7 @@ export const queries = `
     ${CustomerQueries}
     ${ConversationQueries}
     ${InsightQueries}
+    ${KnowledgeBaseQueries}
   }
 `;
 
