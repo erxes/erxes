@@ -30,7 +30,7 @@ FirstResponseReportContainer.propTypes = {
 };
 
 export default compose(
-  graphql(gql(queries.insightsFirstResponse), {
+  graphql(gql(queries.firstResponse), {
     name: 'firstResponseQuery',
     options: ({ queryParams }) => ({
       fetchPolicy: 'network-only',
@@ -42,14 +42,5 @@ export default compose(
       },
     }),
   }),
-  graphql(
-    gql`
-    query brands {
-      brands {
-        _id
-        name
-      }
-    }`,
-    { name: 'brandsQuery' },
-  ),
+  graphql(gql(queries.brands), { name: 'brandsQuery' }),
 )(FirstResponseReportContainer);
