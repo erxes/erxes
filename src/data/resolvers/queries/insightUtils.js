@@ -131,7 +131,14 @@ export const generateTimeIntervals = (start, end) => {
   ];
 };
 
-export const generateUserData = async ({ userId, userMessages, duration, startTime }) => {
+/* Generate chart data for given user
+ * @param {String} userId
+ * @param {[Message]} userMessages
+ * @param {Number} duration
+ * @param {Number} startTime
+ * @return {Object} user detail informations with chart data
+ */
+export const generateUserChartData = async ({ userId, userMessages, duration, startTime }) => {
   const user = await Users.findOne({ _id: userId });
   const userData = generateChartData(userMessages, 5, duration, startTime);
 
@@ -158,9 +165,8 @@ export const getTime = time => {
   return new Date(time).getTime();
 };
 
-export const fixDates = (startDate, endDate) => {
+export const fixDates = (startDate, endDate = new Date()) => {
   if (!startDate || !endDate) {
-    endDate = new Date();
     const year = moment(endDate).year();
     startDate = moment(endDate).year(year - 1);
   }
@@ -177,4 +183,18 @@ export const generateDuration = ({ start, end }) => {
     endTime,
     duration: endTime - startTime,
   };
+};
+
+/* Determines user or client
+ * @param {String} type
+ * @return {Object} user selector
+ */
+export const generateUserSelector = type => {
+  let volumeOrResponse = null;
+
+  if (type === 'response') {
+    volumeOrResponse = { $ne: null };
+  }
+
+  return volumeOrResponse;
 };

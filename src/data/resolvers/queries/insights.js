@@ -6,9 +6,10 @@ import {
   fixDates,
   generateMessageSelector,
   generateTimeIntervals,
-  generateUserData,
+  generateUserChartData,
   generateDuration,
   generateChartData,
+  generateUserSelector,
   getTime,
   formatTime,
 } from './insightUtils';
@@ -26,11 +27,6 @@ export default {
   async insights(root, { brandId, startDate, endDate }) {
     const { start, end } = fixDates(startDate, endDate);
 
-    const conversationSelector = {
-      messageCount: { $ne: null },
-      createdAt: { $gte: new Date(start), $lte: new Date(end) },
-    };
-
     const integrationSelector = {};
 
     if (brandId) {
@@ -39,6 +35,7 @@ export default {
 
     const insights = [];
 
+    // count conversations by each integration kind
     for (let kind of INTEGRATION_KIND_CHOICES.ALL_LIST) {
       const integrationIds = await Integrations.find({ ...integrationSelector, kind }).select(
         '_id',
@@ -46,8 +43,11 @@ export default {
 
       insights.push({
         name: kind,
+
+        // find conversation counts of given integrations
         value: await Conversations.find({
-          ...conversationSelector,
+          messageCount: { $ne: null },
+          createdAt: { $gte: start, $lte: end },
           integrationId: { $in: integrationIds },
         }).count(),
       });
@@ -57,7 +57,7 @@ export default {
   },
 
   /**
-   * Prepares punch card data for conversation messages.
+   * Counts conversations by each hours in each days.
    * @param {Object} args
    * @param {String} args.type
    * @param {String} args.brandId
@@ -66,16 +66,6 @@ export default {
    * @return {Promise} Punch card data
   */
   async insightsPunchCard(root, { type, integrationType, brandId, endDate }) {
-    let volumeOrResponse = null;
-
-    if (type === 'response') {
-      volumeOrResponse = { $ne: null };
-    }
-
-    if (!endDate) {
-      endDate = new Date();
-    }
-
     const end = moment(endDate).format('YYYY-MM-DD');
     const start = moment(end).add(-7, 'days');
 
@@ -86,7 +76,10 @@ export default {
       {},
       // message selector
       {
-        userId: volumeOrResponse,
+        // client or user
+        userId: generateUserSelector(type),
+
+        // last 7 days
         createdAt: { $gte: start, $lte: end },
       },
     );
@@ -104,6 +97,7 @@ export default {
       const startTime = moment(start).add(i, 'hours');
       const endTime = moment(start).add(i + 1, 'hours');
 
+      // counting messages in one hour
       count = messages.filter(
         message => startTime < message.createdAt && message.createdAt < endTime,
       ).length;
@@ -111,6 +105,7 @@ export default {
       dayCount = startTime.weekday();
 
       if (count > 0) {
+        // 1(Monday), 1(am), 20 messages
         punchCard.push([dayCount, i % 24, count]);
       }
     }
@@ -128,12 +123,6 @@ export default {
    * @return {Promise} Object data { trend: [Object], teamMembers: [Object], summary: [] }
   */
   async insightsMain(root, { type, integrationType, brandId, startDate, endDate }) {
-    let volumeOrResponse = null;
-
-    if (type === 'response') {
-      volumeOrResponse = { $ne: null };
-    }
-
     const { start, end } = fixDates(startDate, endDate);
     const { duration, startTime } = generateDuration({ start, end });
 
@@ -144,11 +133,8 @@ export default {
       {},
       // message selector
       {
-        userId: volumeOrResponse,
-        createdAt: {
-          $gte: new Date(start),
-          $lte: new Date(end),
-        },
+        userId: generateUserSelector(type),
+        createdAt: { $gte: start, $lte: end },
       },
     );
 
@@ -163,10 +149,10 @@ export default {
     if (type === 'response') {
       const userIds = _.uniq(_.pluck(messages, 'userId'));
 
-      // extracts unique team members data from messages collections.
+      // generate detail and graph data for each user
       for (let userId of userIds) {
         insightData.teamMembers.push({
-          data: await generateUserData({
+          data: await generateUserChartData({
             userId,
             userMessages: messages.filter(message => userId === message.userId),
             duration,
@@ -212,7 +198,7 @@ export default {
       // conversation selector
       {
         messageCount: { $gt: 2 },
-        createdAt: { $gte: new Date(start), $lte: new Date(end) },
+        createdAt: { $gte: start, $lte: end },
       },
       // message selector
       { createdAt: { $ne: null } },
@@ -253,12 +239,14 @@ export default {
 
       let responseTime = 0;
 
+      // checking wheter or not this is actual conversation
       if (userMessage && clientMessage) {
         responseTime = getTime(userMessage.createdAt) - getTime(clientMessage.createdAt);
         responseTime = parseInt(responseTime / 1000);
 
         const userId = userMessage.userId;
 
+        // collecting each user's respond information
         firstResponseData.push({
           createdAt: userMessage.createdAt,
           userId,
@@ -279,6 +267,7 @@ export default {
       }
     }
 
+    // preparing trend chart data
     insightData.trend = generateChartData(firstResponseData, 10, duration, startTime);
 
     // Average response time for all messages
@@ -290,8 +279,9 @@ export default {
       // Average response time for users.
       let time = responseUserData[userId].responseTime / responseUserData[userId].count;
 
+      // preparing each team member's chart data
       insightData.teamMembers.push({
-        data: await generateUserData({
+        data: await generateUserChartData({
           userId,
           userMessages: firstResponseData.filter(message => userId === message.userId),
           duration,
