@@ -19,7 +19,9 @@ class List extends React.Component {
 
     const editTrigger = (
       <Button bsStyle="link">
-        <Tip text="Edit"><i className="ion-edit" /></Tip>
+        <Tip text="Edit">
+          <i className="ion-edit" />
+        </Tip>
       </Button>
     );
 
@@ -56,9 +58,7 @@ class List extends React.Component {
             <th className="text-right">Actions</th>
           </tr>
         </thead>
-        <tbody>
-          {brands.map(brand => this.renderRow(brand))}
-        </tbody>
+        <tbody>{brands.map(brand => this.renderRow(brand))}</tbody>
       </Table>
     );
 

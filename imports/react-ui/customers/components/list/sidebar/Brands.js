@@ -20,17 +20,17 @@ function Brands({ counts, brands }) {
           <i className="ion-gear-a" />
         </a>
 
-        {FlowRouter.getQueryParam('brand')
-          ? <a
-              tabIndex={0}
-              className="quick-button"
-              onClick={() => {
-                filter('brand', null);
-              }}
-            >
-              <i className="ion-close-circled" />
-            </a>
-          : null}
+        {FlowRouter.getQueryParam('brand') ? (
+          <a
+            tabIndex={0}
+            className="quick-button"
+            onClick={() => {
+              filter('brand', null);
+            }}
+          >
+            <i className="ion-close-circled" />
+          </a>
+        ) : null}
       </Section.QuickButtons>
 
       <ul className="sidebar-list">
@@ -44,15 +44,13 @@ function Brands({ counts, brands }) {
               }}
             >
               {brand.name}
-              <span className="counter">
-                {counts[brand._id]}
-              </span>
+              <span className="counter">{counts[brand._id]}</span>
             </a>
           </li>
         ))}
-        {!brands.length
-          ? <EmptyState icon={<i className="ion-flag" />} text="No brands" size="small" />
-          : null}
+        {!brands.length ? (
+          <EmptyState icon={<i className="ion-flag" />} text="No brands" size="small" />
+        ) : null}
       </ul>
     </Section>
   );

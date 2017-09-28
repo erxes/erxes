@@ -30,9 +30,7 @@ class Sidebar extends Component {
         <a className={Wrapper.Sidebar.getActiveClass('channelId', channel._id)} onClick={onClick}>
           <span className="icon">#</span>
           {channel.name}
-          <span className="counter">
-            {counts[channel._id]}
-          </span>
+          <span className="counter">{counts[channel._id]}</span>
         </a>
       </li>
     );
@@ -48,9 +46,7 @@ class Sidebar extends Component {
         <a className={Wrapper.Sidebar.getActiveClass('brandId', brand._id)} onClick={onClick}>
           <span className="icon">#</span>
           {brand.name}
-          <span className="counter">
-            {counts[brand._id]}
-          </span>
+          <span className="counter">{counts[brand._id]}</span>
         </a>
       </li>
     );
@@ -69,9 +65,7 @@ class Sidebar extends Component {
         >
           <span className="icon">#</span>
           {integrationType}
-          <span className="counter">
-            {counts[integrationType]}
-          </span>
+          <span className="counter">{counts[integrationType]}</span>
         </a>
       </li>
     );
@@ -87,9 +81,7 @@ class Sidebar extends Component {
         <a className={Wrapper.Sidebar.getActiveClass('tagId', tag._id)} onClick={onClick}>
           <i className="ion-pricetag icon" style={{ color: tag.colorCode }} />
           {tag.name}
-          <span className="counter">
-            {counts[tag._id]}
-          </span>
+          <span className="counter">{counts[tag._id]}</span>
         </a>
       </li>
     );
@@ -118,9 +110,7 @@ class Sidebar extends Component {
           onClick={onClick}
         >
           {text}
-          <span className="counter">
-            {count}
-          </span>
+          <span className="counter">{count}</span>
         </a>
       </li>
     );
@@ -136,11 +126,11 @@ class Sidebar extends Component {
         <a href={buttonLink} className="quick-button">
           <i className="ion-gear-a" />
         </a>
-        {FlowRouter.getQueryParam(queryParamName)
-          ? <a href="" className="quick-button" onClick={onClick}>
-              <i className="ion-close-circled" />
-            </a>
-          : null}
+        {FlowRouter.getQueryParam(queryParamName) ? (
+          <a href="" className="quick-button" onClick={onClick}>
+            <i className="ion-close-circled" />
+          </a>
+        ) : null}
       </Wrapper.Sidebar.Section.QuickButtons>
     );
   }
@@ -149,13 +139,13 @@ class Sidebar extends Component {
     return (
       <Wrapper.Sidebar.Section.QuickButtons>
         {FlowRouter.getQueryParam('participating') ||
-          FlowRouter.getQueryParam('unassigned') ||
-          FlowRouter.getQueryParam('status') ||
-          FlowRouter.getQueryParam('starred')
-          ? <a href="" className="quick-button" onClick={Sidebar.clearStatusFilter}>
-              <i className="ion-close-circled" />
-            </a>
-          : null}
+        FlowRouter.getQueryParam('unassigned') ||
+        FlowRouter.getQueryParam('status') ||
+        FlowRouter.getQueryParam('starred') ? (
+          <a href="" className="quick-button" onClick={Sidebar.clearStatusFilter}>
+            <i className="ion-close-circled" />
+          </a>
+        ) : null}
       </Wrapper.Sidebar.Section.QuickButtons>
     );
   }

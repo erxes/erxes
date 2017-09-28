@@ -22,7 +22,7 @@ describe('facebook integration: get or create conversation', function() {
     Messages.remove({});
 
     // mock all requests
-    sinon.stub(graphRequest, 'get', () => {});
+    sinon.stub(graphRequest, 'get').callsFake(() => {});
   });
 
   it('get or create conversation', function() {
@@ -34,7 +34,7 @@ describe('facebook integration: get or create conversation', function() {
     saveWebhookResponse.currentPageId = pageId;
 
     // mock getOrCreateCustomer
-    sinon.stub(saveWebhookResponse, 'getOrCreateCustomer', () => customerId);
+    sinon.stub(saveWebhookResponse, 'getOrCreateCustomer').callsFake(() => customerId);
 
     // check initial states
     assert.equal(Conversations.find().count(), 0);

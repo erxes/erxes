@@ -44,11 +44,7 @@ function CustomersList({
             <th>
               <ManageColumns />
             </th>
-            {customerFields.map(({ key, label }) => (
-              <th key={key}>
-                {label}
-              </th>
-            ))}
+            {customerFields.map(({ key, label }) => <th key={key}>{label}</th>)}
             <th>Tags</th>
           </tr>
         </thead>

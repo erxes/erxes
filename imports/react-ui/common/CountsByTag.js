@@ -48,9 +48,7 @@ function Tag({ tags, counts, manageUrl }) {
                 >
                   <i className="ion-pricetag icon" style={{ color: tag.colorCode }} />
                   {tag.name}
-                  <span className="counter">
-                    {counts[tag._id]}
-                  </span>
+                  <span className="counter">{counts[tag._id]}</span>
                 </a>
               </li>
             ))

@@ -109,17 +109,11 @@ class Row extends Component {
 
     return (
       <tr>
+        <td>{integration.name}</td>
         <td>
-          {integration.name}
+          <Label className={`label-${this.getTypeName()}`}>{integration.kind}</Label>
         </td>
-        <td>
-          <Label className={`label-${this.getTypeName()}`}>
-            {integration.kind}
-          </Label>
-        </td>
-        <td>
-          {integration.brand ? integration.brand.name : ''}
-        </td>
+        <td>{integration.brand ? integration.brand.name : ''}</td>
 
         <td className="text-right">
           <ActionButtons>

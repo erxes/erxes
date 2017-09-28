@@ -9,11 +9,7 @@ const propTypes = {
 };
 
 function LoadingSidebar({ items, size = 'medium' }) {
-  return (
-    <Wrapper.Sidebar size={size}>
-      {_.times(items, n => <Section key={n} />)}
-    </Wrapper.Sidebar>
-  );
+  return <Wrapper.Sidebar size={size}>{_.times(items, n => <Section key={n} />)}</Wrapper.Sidebar>;
 }
 
 function Section() {

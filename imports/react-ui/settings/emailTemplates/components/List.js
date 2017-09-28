@@ -29,9 +29,7 @@ class EmailTemplateList extends List {
             <th className="text-right">Actions</th>
           </tr>
         </thead>
-        <tbody>
-          {this.renderObjects()}
-        </tbody>
+        <tbody>{this.renderObjects()}</tbody>
       </Table>
     );
   }

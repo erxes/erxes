@@ -21,9 +21,7 @@ function Status({ counts }) {
               }}
             >
               {status.value}
-              <span className="counter">
-                {counts[status.key]}
-              </span>
+              <span className="counter">{counts[status.key]}</span>
             </a>
           </li>
         ))}

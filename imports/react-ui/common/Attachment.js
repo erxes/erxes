@@ -86,9 +86,7 @@ class Attachment extends Component {
             <i className="ion-android-download" />
           </div>
         </div>
-        <div className="file-size">
-          {Math.round(props.attachment.size / 1000)}kB
-        </div>
+        <div className="file-size">{Math.round(props.attachment.size / 1000)}kB</div>
       </a>
     );
   }

@@ -59,16 +59,15 @@ class TaggerSection extends Component {
           <div>
             <Tagger
               type="customer"
-              targets={[customer._id]}
+              targets={[customer]}
               className="sidebar-accordion"
               event="onClick"
+              afterSave={this.props.customer.refetch}
             />
           </div>
         </Collapse>
 
-        <ul className="sidebar-list no-link">
-          {this.renderTags(tags)}
-        </ul>
+        <ul className="sidebar-list no-link">{this.renderTags(tags)}</ul>
       </Wrapper.Sidebar.Section>
     );
   }

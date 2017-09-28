@@ -24,6 +24,11 @@ function Navigation() {
             <i className="ion-paper-airplane" />
           </a>
         </Tip>
+        <Tip placement="right" text="Insight">
+          <a href="/insights">
+            <i className="ion-arrow-graph-up-right" />
+          </a>
+        </Tip>
         <Tip placement="right" text="Settings">
           <a href={FlowRouter.path('settings/channels/list')}>
             <i className="ion-gear-a" />

@@ -21,42 +21,38 @@ function Integrations({ counts, integrations }) {
           <i className="ion-gear-a" />
         </a>
 
-        {FlowRouter.getQueryParam('integration')
-          ? <a
-              tabIndex={0}
-              className="quick-button"
-              onClick={() => {
-                filter('integration', null);
-              }}
-            >
-              <i className="ion-close-circled" />
-            </a>
-          : null}
+        {FlowRouter.getQueryParam('integration') ? (
+          <a
+            tabIndex={0}
+            className="quick-button"
+            onClick={() => {
+              filter('integration', null);
+            }}
+          >
+            <i className="ion-close-circled" />
+          </a>
+        ) : null}
       </Section.QuickButtons>
 
       <ul className="sidebar-list">
-        {integrations.length
-          ? integrations.map(integration => (
-              <li key={integration}>
-                <a
-                  tabIndex={0}
-                  className={getActiveClass('integration', integration)}
-                  onClick={() => {
-                    filter('integration', integration);
-                  }}
-                >
-                  {integration}
-                  <span className="counter">
-                    {counts[integration]}
-                  </span>
-                </a>
-              </li>
-            ))
-          : <EmptyState
-              icon={<i className="ion-arrow-swap" />}
-              text="No integrations"
-              size="small"
-            />}
+        {integrations.length ? (
+          integrations.map(integration => (
+            <li key={integration}>
+              <a
+                tabIndex={0}
+                className={getActiveClass('integration', integration)}
+                onClick={() => {
+                  filter('integration', integration);
+                }}
+              >
+                {integration}
+                <span className="counter">{counts[integration]}</span>
+              </a>
+            </li>
+          ))
+        ) : (
+          <EmptyState icon={<i className="ion-arrow-swap" />} text="No integrations" size="small" />
+        )}
       </ul>
     </Section>
   );

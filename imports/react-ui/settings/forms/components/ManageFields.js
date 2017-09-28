@@ -135,15 +135,21 @@ class ManageFields extends Component {
           <Button bsSize="small" bsStyle="danger" onClick={onDelete}>
             Delete
           </Button>
-          <Button bsSize="small" bsStyle="primary" onClick={reset}>New</Button>
-          <Button bsSize="small" type="submit" bsStyle="success">Save</Button>
+          <Button bsSize="small" bsStyle="primary" onClick={reset}>
+            New
+          </Button>
+          <Button bsSize="small" type="submit" bsStyle="success">
+            Save
+          </Button>
         </ButtonGroup>
       );
     }
 
     return (
       <ButtonGroup>
-        <Button bsSize="small" type="submit" bsStyle="success">Add</Button>
+        <Button bsSize="small" type="submit" bsStyle="success">
+          Add
+        </Button>
       </ButtonGroup>
     );
   }
@@ -183,7 +189,6 @@ class ManageFields extends Component {
             value={editingField.type || ''}
             onChange={this.onChangeType}
           >
-
             <option />
             <option value="input">Input</option>
             <option value="textarea">Text area</option>
@@ -205,7 +210,6 @@ class ManageFields extends Component {
             value={editingField.validation || ''}
             onChange={this.onChangeValidation}
           >
-
             <option />
             <option value="email">Email</option>
             <option value="number">Number</option>

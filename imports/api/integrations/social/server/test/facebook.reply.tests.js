@@ -37,7 +37,7 @@ describe('facebook integration: reply', function() {
     });
 
     // mock get page access token
-    sinon.stub(graphRequest, 'get', () => ({
+    sinon.stub(graphRequest, 'get').callsFake(() => ({
       access_token: 'page_access_token',
     }));
   });
@@ -59,7 +59,7 @@ describe('facebook integration: reply', function() {
     const text = 'to messenger';
 
     // mock post messenger reply
-    const stub = sinon.stub(graphRequest, 'post', () => {});
+    const stub = sinon.stub(graphRequest, 'post').callsFake(() => {});
 
     // reply
     facebookReply(conversation, text);
@@ -81,12 +81,12 @@ describe('facebook integration: reply', function() {
     const messageId = '242424242';
 
     // mock post messenger reply
-    const gpStub = sinon.stub(graphRequest, 'post', () => ({
+    const gpStub = sinon.stub(graphRequest, 'post').callsFake(() => ({
       id: 'commentId',
     }));
 
     // mock message update
-    const mongoStub = sinon.stub(Messages, 'update', () => {});
+    const mongoStub = sinon.stub(Messages, 'update').callsFake(() => {});
 
     // reply
     facebookReply(conversation, text, messageId);

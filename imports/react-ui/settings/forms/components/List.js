@@ -28,12 +28,12 @@ class FormList extends List {
             <th>Code</th>
             <th>Description</th>
             <th width="135">Created At</th>
-            <th width="180" className="text-right">Actions</th>
+            <th width="180" className="text-right">
+              Actions
+            </th>
           </tr>
         </thead>
-        <tbody>
-          {this.renderObjects()}
-        </tbody>
+        <tbody>{this.renderObjects()}</tbody>
       </Table>
     );
   }

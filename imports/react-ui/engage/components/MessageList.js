@@ -19,12 +19,10 @@ class List extends React.Component {
     const { bulk, emptyBulk } = this.props;
 
     if (bulk.length) {
-      const targets = bulk.map(b => b._id);
-
       return (
         <TaggerPopover
           type="engageMessage"
-          targets={targets}
+          targets={bulk}
           trigger={
             <Button bsStyle="link">
               <i className="ion-pricetags" /> Tag <span className="caret" />

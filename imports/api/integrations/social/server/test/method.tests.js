@@ -52,7 +52,7 @@ describe('social methods', function() {
     const twitterUserId = 24242424244242;
 
     // stub twitter authenticate
-    sinon.stub(twitter, 'authenticate', (queryString, callback) => {
+    sinon.stub(twitter, 'authenticate').callsFake((queryString, callback) => {
       callback({
         name: 'Twitter',
         twitterData: {
@@ -65,7 +65,7 @@ describe('social methods', function() {
     });
 
     // stub track twitter integration
-    sinon.stub(twitter, 'trackIntegration', () => {});
+    sinon.stub(twitter, 'trackIntegration').callsFake(() => {});
 
     addTwitter._execute(
       { userId },

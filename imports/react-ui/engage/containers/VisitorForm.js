@@ -59,7 +59,6 @@ export default compose(
           isLive
           stopDate
           createdDate
-
           messenger
         }
       }

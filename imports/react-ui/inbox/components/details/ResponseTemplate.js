@@ -96,12 +96,8 @@ class ResponseTemplate extends Component {
 
       return (
         <li key={item._id} onClick={() => this.onSelect(item._id)}>
-          <div className="template-title">
-            {item.name}
-          </div>
-          <div className="template-content">
-            {strip(item.content)}
-          </div>
+          <div className="template-title">{item.name}</div>
+          <div className="template-content">{strip(item.content)}</div>
         </li>
       );
     });
@@ -146,9 +142,7 @@ class ResponseTemplate extends Component {
         </div>
 
         <div className="popover-body">
-          <ul className="popover-list">
-            {this.renderItems()}
-          </ul>
+          <ul className="popover-list">{this.renderItems()}</ul>
         </div>
         <div className="popover-footer">
           <ul className="popover-list linked text-center">
