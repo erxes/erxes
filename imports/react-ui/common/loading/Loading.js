@@ -9,9 +9,10 @@ const propTypes = {
   spin: PropTypes.bool,
   title: PropTypes.string.isRequired,
   hasRightSidebar: PropTypes.bool,
+  items: PropTypes.number,
 };
 
-function Loading({ sidebarSize, spin = false, title, hasRightSidebar = false }) {
+function Loading({ sidebarSize, spin = false, title, hasRightSidebar = false, items = 4 }) {
   let content = (
     <Table className="no-wrap loading-table">
       <thead>
@@ -54,9 +55,9 @@ function Loading({ sidebarSize, spin = false, title, hasRightSidebar = false }) 
       <Loader />
       <Wrapper
         header={<Wrapper.Header breadcrumb={[{ title: title }]} />}
-        leftSidebar={<LoadingSidebar size={sidebarSize} items={4} />}
+        leftSidebar={<LoadingSidebar size={sidebarSize} items={items} />}
         content={content}
-        rightSidebar={hasRightSidebar ? <LoadingSidebar items={4} /> : null}
+        rightSidebar={hasRightSidebar ? <LoadingSidebar items={items} /> : null}
         relative
       />
     </div>

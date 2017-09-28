@@ -1,25 +1,21 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { compose, gql, graphql } from 'react-apollo';
-import { Loading } from '/imports/react-ui/common';
 import { ResponseReport } from '../components';
 import { queries } from '../graphql';
 
 const ResponseReportContainer = props => {
   const { brandsQuery, punchCardQuery, mainQuery, queryParams } = props;
 
-  if (brandsQuery.loading || punchCardQuery.loading || mainQuery.loading) {
-    return <Loading title="Response Report" />;
-  }
-
-  const data = mainQuery.insightsMain;
+  const data = mainQuery.insightsMain || {};
   const updatedProps = {
     queryParams,
-    trend: data.trend,
-    teamMembers: data.teamMembers,
-    brands: brandsQuery.brands,
+    trend: data.trend || [],
+    teamMembers: data.teamMembers || [],
+    brands: brandsQuery.brands || [],
     punch: punchCardQuery.insightsPunchCard || [],
-    summary: data.summary,
+    summary: data.summary || [],
+    isLoading: brandsQuery.loading || punchCardQuery.loading || mainQuery.loading,
   };
 
   return <ResponseReport {...updatedProps} />;
