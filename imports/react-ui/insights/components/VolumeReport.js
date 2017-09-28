@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Wrapper } from '/imports/react-ui/layout/components';
+import { Spinner } from '/imports/react-ui/common';
 import Sidebar from './Sidebar';
 import Filter from './Filter';
 import Chart from './Chart';
@@ -14,6 +15,7 @@ const propTypes = {
   brands: PropTypes.array.isRequired,
   punch: PropTypes.array.isRequired,
   summary: PropTypes.array.isRequired,
+  isLoading: PropTypes.bool.isRequired,
 };
 
 class VolumeReport extends React.Component {
@@ -25,9 +27,11 @@ class VolumeReport extends React.Component {
     };
   }
 
-  componentDidMount() {
-    const width = this.wrapper.clientWidth;
-    this.setState({ width });
+  componentDidUpdate(prevProps) {
+    if (prevProps.isLoading !== this.props.isLoading) {
+      const width = this.wrapper.clientWidth;
+      this.setState({ width });
+    }
   }
 
   renderTitle(title) {
@@ -38,11 +42,19 @@ class VolumeReport extends React.Component {
     );
   }
 
-  render() {
-    const { trend, punch, insights, summary, brands } = this.props;
+  mainContent() {
+    const { trend, punch, insights, summary, brands, isLoading } = this.props;
     const width = this.state.width;
 
-    const content = (
+    if (isLoading) {
+      return (
+        <div className="full-loader">
+          <Spinner />
+        </div>
+      );
+    }
+
+    return (
       <div className="insight-wrapper">
         <Filter brands={brands} />
         <div className="insight-content">
@@ -75,14 +87,16 @@ class VolumeReport extends React.Component {
         </div>
       </div>
     );
+  }
 
+  render() {
     const breadcrumb = [{ title: 'Insights', link: '/insight' }, { title: 'Volume Report' }];
 
     return (
       <Wrapper
         header={<Wrapper.Header breadcrumb={breadcrumb} />}
         leftSidebar={<Sidebar />}
-        content={content}
+        content={this.mainContent()}
       />
     );
   }

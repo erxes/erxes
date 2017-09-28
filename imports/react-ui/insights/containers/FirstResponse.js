@@ -1,23 +1,19 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { compose, gql, graphql } from 'react-apollo';
-import { Loading } from '/imports/react-ui/common';
 import { FirstResponse } from '../components';
 import { queries } from '../graphql';
 
 const FirstResponseReportContainer = props => {
   const { brandsQuery, firstResponseQuery } = props;
 
-  if (brandsQuery.loading || firstResponseQuery.loading) {
-    return <Loading title="First Response Report" items={1} spin />;
-  }
-
-  const data = firstResponseQuery.insightsFirstResponse;
+  const data = firstResponseQuery.insightsFirstResponse || {};
   const updatedProps = {
-    trend: data.trend,
+    trend: data.trend || [],
     time: data.time,
-    teamMembers: data.teamMembers,
-    brands: brandsQuery.brands,
+    teamMembers: data.teamMembers || [],
+    brands: brandsQuery.brands || [],
+    isLoading: brandsQuery.loading || firstResponseQuery.loading,
   };
 
   return <FirstResponse {...updatedProps} />;
