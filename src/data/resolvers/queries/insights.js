@@ -3,6 +3,7 @@ import moment from 'moment';
 import _ from 'underscore';
 import { INTEGRATION_KIND_CHOICES } from '../../constants';
 import {
+  fixDate,
   fixDates,
   generateMessageSelector,
   generateTimeIntervals,
@@ -66,7 +67,8 @@ export default {
    * @return {Promise} Punch card data
   */
   async insightsPunchCard(root, { type, integrationType, brandId, endDate }) {
-    const end = moment(endDate).format('YYYY-MM-DD');
+    // check & convert endDate's value
+    const end = moment(fixDate(endDate)).format('YYYY-MM-DD');
     const start = moment(end).add(-7, 'days');
 
     const messageSelector = await generateMessageSelector(
