@@ -5,6 +5,14 @@ $shadow-color: rgba(0, 0, 0, .12);
 $item-shadow: 0 3px 1px -2px $shadow-color, 0 2px 2px 0 $shadow-color, 0 1px 5px 0 $shadow-color;
 
 .insight-wrapper {
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
 
   .insight-title {
     text-transform: uppercase;
@@ -19,7 +27,8 @@ $item-shadow: 0 3px 1px -2px $shadow-color, 0 2px 2px 0 $shadow-color, 0 1px 5px
   }
 
   .insight-content {
-    margin: 30px;
+    padding: 0 30px 30px 30px;
+    overflow: auto;
   }
 
   .insight-filter {

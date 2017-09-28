@@ -95,6 +95,7 @@ class ResponseReport extends React.Component {
 
     return (
       <Wrapper
+        relative
         header={<Wrapper.Header breadcrumb={breadcrumb} />}
         leftSidebar={<Sidebar />}
         content={this.mainContent()}
