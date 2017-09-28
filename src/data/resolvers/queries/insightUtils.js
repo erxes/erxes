@@ -165,11 +165,29 @@ export const getTime = time => {
   return new Date(time).getTime();
 };
 
-export const fixDates = (startDate, endDate = new Date()) => {
-  if (!startDate || !endDate) {
-    const year = moment(endDate).year();
-    startDate = moment(endDate).year(year - 1);
+/*
+ * Converts given value to date or if value in valid date
+ * then returns default value
+ */
+export const fixDate = (value, defaultValue = new Date()) => {
+  var date = new Date(value);
+
+  if (!isNaN(date.getTime())) {
+    return date;
   }
+
+  return defaultValue;
+};
+
+export const fixDates = (startValue, endValue) => {
+  // convert given value or get today
+  const endDate = fixDate(endValue);
+
+  const year = moment(endDate).year();
+  const startDateDefaultValue = moment(endDate).year(year - 1);
+
+  // convert given value or generate from endDate
+  const startDate = fixDate(startValue, startDateDefaultValue);
 
   return { start: startDate, end: endDate };
 };
