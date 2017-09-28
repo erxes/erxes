@@ -12,6 +12,10 @@ $item-shadow: 0 3px 1px -2px $shadow-color, 0 2px 2px 0 $shadow-color, 0 1px 5px
     padding: 10px 0;
     color: $title-color;
     margin: 20px 0 10px;
+
+    span {
+      margin-left: 10px;
+    }
   }
 
   .insight-content {
@@ -57,13 +61,6 @@ $item-shadow: 0 3px 1px -2px $shadow-color, 0 2px 2px 0 $shadow-color, 0 1px 5px
       font-weight: bold;
       font-size: 24px;
     }
-  }
-
-  .response-time {
-    z-index: 1;
-    position: absolute;
-    right: 0;
-    top: 0;
   }
 }
 

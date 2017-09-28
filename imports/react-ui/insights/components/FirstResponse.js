@@ -32,10 +32,11 @@ class FirstResponse extends React.Component {
     }
   }
 
-  renderTitle(title) {
+  renderTitle(title, time) {
     return (
       <h5 className="insight-title">
         {title}
+        <span>({time})</span>
       </h5>
     );
   }
@@ -62,10 +63,7 @@ class FirstResponse extends React.Component {
               this.wrapper = node;
             }}
           >
-            {this.renderTitle('Daily First Response Resolve Rate')}
-            <span className="response-time">
-              ({convertTime(time)})
-            </span>
+            {this.renderTitle('Daily First Response Resolve Rate', convertTime(time))}
             <Chart width={width} height={300} data={trend} />
           </div>
 
