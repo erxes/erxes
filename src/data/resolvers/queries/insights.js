@@ -8,7 +8,7 @@ import {
   generateTimeIntervals,
   generateUserData,
   generateDuration,
-  insertData,
+  generateChartData,
   getTime,
   formatTime,
 } from './insightUtils';
@@ -82,7 +82,9 @@ export default {
     const messageSelector = await generateMessageSelector(
       brandId,
       integrationType,
+      // conversation selector
       {},
+      // message selector
       {
         userId: volumeOrResponse,
         createdAt: { $gte: start, $lte: end },
@@ -138,7 +140,9 @@ export default {
     const messageSelector = await generateMessageSelector(
       brandId,
       integrationType,
+      // conversation selector
       {},
+      // message selector
       {
         userId: volumeOrResponse,
         createdAt: {
@@ -153,7 +157,7 @@ export default {
     const insightData = {
       teamMembers: [],
       summary: [],
-      trend: insertData(messages, 10, duration, startTime),
+      trend: generateChartData(messages, 10, duration, startTime),
     };
 
     if (type === 'response') {
@@ -161,14 +165,14 @@ export default {
 
       // extracts unique team members data from messages collections.
       for (let userId of userIds) {
-        insightData.teamMembers.push(
-          generateUserData({
+        insightData.teamMembers.push({
+          data: await generateUserData({
             userId,
             userMessages: messages.filter(message => userId === message.userId),
             duration,
             startTime,
           }),
-        );
+        });
       }
     }
 
@@ -205,10 +209,12 @@ export default {
     const messageSelector = await generateMessageSelector(
       brandId,
       integrationType,
+      // conversation selector
       {
         messageCount: { $gt: 2 },
         createdAt: { $gte: new Date(start), $lte: new Date(end) },
       },
+      // message selector
       { createdAt: { $ne: null } },
     );
 
@@ -273,7 +279,7 @@ export default {
       }
     }
 
-    insightData.trend = insertData(firstResponseData, 10, duration, startTime);
+    insightData.trend = generateChartData(firstResponseData, 10, duration, startTime);
 
     // Average response time for all messages
     insightData.time = parseInt(allResponseTime / firstResponseData.length);
@@ -285,7 +291,7 @@ export default {
       let time = responseUserData[userId].responseTime / responseUserData[userId].count;
 
       insightData.teamMembers.push({
-        data: generateUserData({
+        data: await generateUserData({
           userId,
           userMessages: firstResponseData.filter(message => userId === message.userId),
           duration,

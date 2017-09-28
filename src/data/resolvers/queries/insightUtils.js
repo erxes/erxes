@@ -53,7 +53,7 @@ export const generateMessageSelector = async (
  * @param {Integer} args.starTime
  * @return {[Object]} Chart data
  */
-export const insertData = (collection, loopCount, duration, startTime) => {
+export const generateChartData = (collection, loopCount, duration, startTime) => {
   const results = [];
   let begin = 0;
   let end = 0;
@@ -74,6 +74,7 @@ export const insertData = (collection, loopCount, duration, startTime) => {
 
     results.push({ name: dateText, count });
   }
+
   return results;
 };
 
@@ -132,13 +133,15 @@ export const generateTimeIntervals = (start, end) => {
 
 export const generateUserData = async ({ userId, userMessages, duration, startTime }) => {
   const user = await Users.findOne({ _id: userId });
+  const userData = generateChartData(userMessages, 5, duration, startTime);
 
   if (!user) {
-    return {};
+    return {
+      graph: userData,
+    };
   }
 
   const userDetail = user.details;
-  const userData = insertData(userMessages, 5, duration, startTime);
 
   return {
     fullName: userDetail.fullName,
@@ -165,7 +168,7 @@ export const fixDates = (startDate, endDate) => {
   return { start: startDate, end: endDate };
 };
 
-export const generateDuration = (start, end) => {
+export const generateDuration = ({ start, end }) => {
   const startTime = getTime(start);
   const endTime = getTime(end);
 
