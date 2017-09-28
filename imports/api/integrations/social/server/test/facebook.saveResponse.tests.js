@@ -30,7 +30,7 @@ describe('facebook integration: save webhook response', function() {
       },
     });
 
-    sinon.stub(graphRequest, 'get', path => {
+    sinon.stub(graphRequest, 'get').callsFake(path => {
       // mock get page access token
       if (path.includes('/?fields=access_token')) {
         return {

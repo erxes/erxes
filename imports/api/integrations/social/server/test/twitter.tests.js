@@ -137,7 +137,7 @@ describe('twitter integration', function() {
       TwitMap[integration._id] = twit;
 
       // twit.post
-      stub = sinon.stub(twit, 'post', () => {});
+      stub = sinon.stub(twit, 'post').callsFake(() => {});
     });
 
     afterEach(function() {
