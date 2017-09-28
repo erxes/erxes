@@ -15,6 +15,7 @@ const propTypes = {
   brands: PropTypes.array.isRequired,
   punch: PropTypes.array.isRequired,
   summary: PropTypes.array.isRequired,
+  queryParams: PropTypes.object,
   isLoading: PropTypes.bool.isRequired,
 };
 
@@ -43,7 +44,7 @@ class ResponseReport extends React.Component {
   }
 
   mainContent() {
-    const { trend, teamMembers, punch, summary, brands, isLoading } = this.props;
+    const { trend, teamMembers, punch, summary, brands, isLoading, queryParams } = this.props;
     const width = this.state.width;
 
     if (isLoading) {
@@ -56,7 +57,7 @@ class ResponseReport extends React.Component {
 
     return (
       <div className="insight-wrapper">
-        <Filter brands={brands} />
+        <Filter brands={brands} queryParams={queryParams} />
         <div className="insight-content">
           <div className="insight-row">
             {this.renderTitle('Response Times summary')}

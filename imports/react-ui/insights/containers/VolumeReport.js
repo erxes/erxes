@@ -5,10 +5,11 @@ import { VolumeReport } from '../components';
 import { queries } from '../graphql';
 
 const VolumeReportContainer = props => {
-  const { volumePieChartQuery, brandsQuery, punchCardQuery, mainQuery } = props;
+  const { volumePieChartQuery, brandsQuery, punchCardQuery, mainQuery, queryParams } = props;
 
   const data = mainQuery.insightsMain || {};
   const updatedProps = {
+    queryParams,
     insights: volumePieChartQuery.insights || [],
     trend: data.trend || [],
     brands: brandsQuery.brands || [],

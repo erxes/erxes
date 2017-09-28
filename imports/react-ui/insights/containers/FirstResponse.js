@@ -5,10 +5,11 @@ import { FirstResponse } from '../components';
 import { queries } from '../graphql';
 
 const FirstResponseReportContainer = props => {
-  const { brandsQuery, firstResponseQuery } = props;
+  const { brandsQuery, firstResponseQuery, queryParams } = props;
 
   const data = firstResponseQuery.insightsFirstResponse || {};
   const updatedProps = {
+    queryParams,
     trend: data.trend || [],
     time: data.time,
     teamMembers: data.teamMembers || [],

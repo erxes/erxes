@@ -13,6 +13,7 @@ const propTypes = {
   teamMembers: PropTypes.array.isRequired,
   brands: PropTypes.array.isRequired,
   time: PropTypes.number,
+  queryParams: PropTypes.object,
   isLoading: PropTypes.bool,
 };
 
@@ -42,7 +43,7 @@ class FirstResponse extends React.Component {
   }
 
   mainContent() {
-    const { trend, teamMembers, brands, time, isLoading } = this.props;
+    const { trend, teamMembers, brands, time, isLoading, queryParams } = this.props;
     const width = this.state.width;
 
     if (isLoading) {
@@ -55,7 +56,7 @@ class FirstResponse extends React.Component {
 
     return (
       <div className="insight-wrapper">
-        <Filter brands={brands} />
+        <Filter brands={brands} queryParams={queryParams} />
         <div className="insight-content">
           <div
             className="insight-row"

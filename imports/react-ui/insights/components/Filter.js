@@ -4,40 +4,38 @@ import Select from 'react-select-plus';
 import { ControlLabel } from 'react-bootstrap';
 import { integrationOptions, selectOptions } from '../utils';
 import { KIND_CHOICES as INTEGRATIONS_TYPES } from '/imports/api/integrations/constants';
-import { FlowRouter } from 'meteor/kadira:flow-router';
+import { Wrapper } from '/imports/react-ui/layout/components';
 
 const propTypes = {
   brands: PropTypes.array.isRequired,
+  queryParams: PropTypes.object,
 };
 
 class Filter extends React.Component {
   constructor(props) {
     super(props);
 
-    this.state = {
-      brandId: FlowRouter.getQueryParam('brandId') || '',
-      integrationType: FlowRouter.getQueryParam('integrationType') || '',
-    };
+    this.state = props.queryParams || {};
   }
 
   onTypeChange(value) {
     const integrationType = value ? value.value : '';
     this.setState({ integrationType });
-    FlowRouter.setQueryParams({ ['integrationType']: integrationType });
+    Wrapper.Sidebar.filter('integrationType', integrationType);
   }
 
   onBrandChange(value) {
     const brandId = value ? value.value : '';
     this.setState({ brandId });
-    FlowRouter.setQueryParams({ ['brandId']: brandId });
+    Wrapper.Sidebar.filter('brandId', brandId);
   }
 
   onDateChange(type, e) {
     const target = $(e.currentTarget);
-    FlowRouter.setQueryParams({ [type]: target.val() });
+    Wrapper.Sidebar.filter(type, target.val());
   }
 
-  dateFilter() {
+  dateFilter(endDate) {
     return (
       <div className="flex-item">
         <ControlLabel>End date</ControlLabel>
@@ -45,6 +43,7 @@ class Filter extends React.Component {
           id="endDate"
           type="date"
           className="form-control"
+          defaultValue={endDate}
           onChange={this.onDateChange.bind(this, 'endDate')}
         />
       </div>
@@ -98,6 +97,7 @@ class Filter extends React.Component {
   }
 
   render() {
+    const { queryParams } = this.props;
     return (
       <div className="insight-filter">
         <h5 className="insight-title">Filter</h5>
@@ -110,10 +110,11 @@ class Filter extends React.Component {
               id="startDate"
               type="date"
               className="form-control"
+              defaultValue={queryParams.startDate}
               onChange={this.onDateChange.bind(this, 'startDate')}
             />
           </div>
-          {this.dateFilter()}
+          {this.dateFilter(queryParams.endDate)}
         </div>
       </div>
     );

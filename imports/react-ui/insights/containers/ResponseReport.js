@@ -5,10 +5,11 @@ import { ResponseReport } from '../components';
 import { queries } from '../graphql';
 
 const ResponseReportContainer = props => {
-  const { brandsQuery, punchCardQuery, mainQuery } = props;
+  const { brandsQuery, punchCardQuery, mainQuery, queryParams } = props;
 
   const data = mainQuery.insightsMain || {};
   const updatedProps = {
+    queryParams,
     trend: data.trend || [],
     teamMembers: data.teamMembers || [],
     brands: brandsQuery.brands || [],
