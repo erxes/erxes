@@ -14,6 +14,7 @@ const propTypes = {
   brands: PropTypes.array.isRequired,
   punch: PropTypes.array.isRequired,
   summary: PropTypes.array.isRequired,
+  queryParams: PropTypes.object,
 };
 
 class ResponseReport extends React.Component {
@@ -39,12 +40,12 @@ class ResponseReport extends React.Component {
   }
 
   render() {
-    const { trend, teamMembers, punch, summary, brands } = this.props;
+    const { trend, teamMembers, punch, summary, brands, queryParams } = this.props;
     const width = this.state.width;
 
     const content = (
       <div className="insight-wrapper">
-        <Filter brands={brands} />
+        <Filter brands={brands} queryParams={queryParams} />
         <div className="insight-content">
           <div className="insight-row">
             {this.renderTitle('Response Times summary')}

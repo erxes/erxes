@@ -12,6 +12,7 @@ const propTypes = {
   teamMembers: PropTypes.array.isRequired,
   brands: PropTypes.array.isRequired,
   time: PropTypes.number,
+  queryParams: PropTypes.object,
 };
 
 class FirstResponse extends React.Component {
@@ -37,12 +38,12 @@ class FirstResponse extends React.Component {
   }
 
   render() {
-    const { trend, teamMembers, brands, time } = this.props;
+    const { trend, teamMembers, brands, time, queryParams } = this.props;
     const width = this.state.width;
 
     const content = (
       <div className="insight-wrapper">
-        <Filter brands={brands} />
+        <Filter brands={brands} queryParams={queryParams} />
         <div className="insight-content">
           <div
             className="insight-row"
