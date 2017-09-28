@@ -26,7 +26,7 @@ class FirstResponse extends React.Component {
   }
 
   componentDidUpdate(prevProps) {
-    if (prevProps.isLoading !== this.props.isLoading) {
+    if (prevProps.isLoading && !this.props.isLoading) {
       const width = this.wrapper.clientWidth;
       this.setState({ width });
     }
