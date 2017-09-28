@@ -9,7 +9,7 @@ const FirstResponseReportContainer = props => {
   const { brandsQuery, firstResponseQuery } = props;
 
   if (brandsQuery.loading || firstResponseQuery.loading) {
-    return <Loading title="First Response Report" />;
+    return <Loading title="First Response Report" items={1} spin />;
   }
 
   const data = firstResponseQuery.insightsFirstResponse;
