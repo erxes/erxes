@@ -40,7 +40,7 @@ class Filter extends React.Component {
 
   onDateInputChange(type, date) {
     this.setState({ [type]: date });
-    Wrapper.Sidebar.filter(type, moment(date).format('YYYY-MM-DD'));
+    Wrapper.Sidebar.filter(type, date ? moment(date).format('YYYY-MM-DD') : null);
   }
 
   renderIntegrations() {
