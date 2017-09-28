@@ -2,6 +2,9 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import Select from 'react-select-plus';
 import { ControlLabel } from 'react-bootstrap';
+import DatePicker from 'react-datepicker';
+import moment from 'moment';
+import 'react-datepicker/dist/react-datepicker.css';
 import { integrationOptions, selectOptions } from '../utils';
 import { KIND_CHOICES as INTEGRATIONS_TYPES } from '/imports/api/integrations/constants';
 import { Wrapper } from '/imports/react-ui/layout/components';
@@ -15,7 +18,12 @@ class Filter extends React.Component {
   constructor(props) {
     super(props);
 
-    this.state = props.queryParams || {};
+    this.state = {
+      ...props.queryParams,
+      // check condition for showing placeholder
+      startDate: props.queryParams.startDate ? moment(props.queryParams.startDate) : '',
+      endDate: props.queryParams.endDate ? moment(props.queryParams.endDate) : '',
+    };
   }
 
   onTypeChange(value) {
@@ -30,24 +38,9 @@ class Filter extends React.Component {
     Wrapper.Sidebar.filter('brandId', brandId);
   }
 
-  onDateChange(type, e) {
-    const target = $(e.currentTarget);
-    Wrapper.Sidebar.filter(type, target.val());
-  }
-
-  dateFilter(endDate) {
-    return (
-      <div className="flex-item">
-        <ControlLabel>End date</ControlLabel>
-        <input
-          id="endDate"
-          type="date"
-          className="form-control"
-          defaultValue={endDate}
-          onChange={this.onDateChange.bind(this, 'endDate')}
-        />
-      </div>
-    );
+  onDateInputChange(type, date) {
+    this.setState({ [type]: date });
+    Wrapper.Sidebar.filter(type, moment(date).format('YYYY-MM-DD'));
   }
 
   renderIntegrations() {
@@ -97,7 +90,6 @@ class Filter extends React.Component {
   }
 
   render() {
-    const { queryParams } = this.props;
     return (
       <div className="insight-filter">
         <h5 className="insight-title">Filter</h5>
@@ -106,15 +98,22 @@ class Filter extends React.Component {
           {this.renderBrands()}
           <div className="flex-item">
             <ControlLabel>Start date</ControlLabel>
-            <input
-              id="startDate"
-              type="date"
+            <DatePicker
+              selected={this.state.startDate}
               className="form-control"
-              defaultValue={queryParams.startDate}
-              onChange={this.onDateChange.bind(this, 'startDate')}
+              placeholderText="Click to select a date"
+              onChange={this.onDateInputChange.bind(this, 'startDate')}
             />
           </div>
-          {this.dateFilter(queryParams.endDate)}
+          <div className="flex-item">
+            <ControlLabel>End date</ControlLabel>
+            <DatePicker
+              selected={this.state.endDate}
+              className="form-control"
+              placeholderText="Click to select a date"
+              onChange={this.onDateInputChange.bind(this, 'endDate')}
+            />
+          </div>
         </div>
       </div>
     );
