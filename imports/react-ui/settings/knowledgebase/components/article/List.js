@@ -9,6 +9,7 @@ class ArticleList extends CommonList {
     super(props);
 
     this.title = 'Add article';
+    this.size = 'large';
   }
 
   renderRow(props) {
@@ -31,7 +32,6 @@ class ArticleList extends CommonList {
       },
       {
         title: 'Articles',
-        link: '/settings/knowledgebase/articles',
       },
     ];
   }

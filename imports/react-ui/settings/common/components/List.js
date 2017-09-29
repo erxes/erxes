@@ -46,7 +46,7 @@ class List extends Component {
     );
 
     const actionBarLeft = (
-      <ModalTrigger title={this.title} trigger={trigger}>
+      <ModalTrigger size={this.size} title={this.title} trigger={trigger}>
         {this.renderForm({ save })}
       </ModalTrigger>
     );
