@@ -29,6 +29,9 @@ class TopicList extends CommonList {
         title: 'Knowledge base',
         link: '/settings/knowledgebase',
       },
+      {
+        title: 'Topic',
+      },
     ];
   }
 

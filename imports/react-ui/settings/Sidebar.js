@@ -81,11 +81,6 @@ function Sidebar() {
 
       <Wrapper.Sidebar.Section>
         <Title>Knowledge base</Title>
-        <QuickButtons>
-          <a href={FlowRouter.path('settings/knowledgebase/list')} className="quick-button">
-            All
-          </a>
-        </QuickButtons>
         <ul className="sidebar-list">
           <li>
             <a href={FlowRouter.path('/settings/knowledgebase/articles')}>
