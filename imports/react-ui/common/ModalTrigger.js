@@ -6,6 +6,7 @@ const propTypes = {
   title: PropTypes.string.isRequired,
   trigger: PropTypes.element.isRequired,
   children: PropTypes.node.isRequired,
+  size: PropTypes.string,
 };
 
 const childContextTypes = {
@@ -35,7 +36,7 @@ class ModalTrigger extends Component {
   }
 
   render() {
-    const { title, trigger, children } = this.props;
+    const { title, trigger, children, size } = this.props;
 
     // add onclick event to the trigger component
     const triggerComponent = React.cloneElement(trigger, {
@@ -46,7 +47,7 @@ class ModalTrigger extends Component {
       <span>
         {triggerComponent}
 
-        <Modal show={this.state.isOpen} onHide={this.closeModal}>
+        <Modal bsSize={size} show={this.state.isOpen} onHide={this.closeModal}>
           <Modal.Header closeButton>
             <Modal.Title>{title}</Modal.Title>
           </Modal.Header>

@@ -3,6 +3,12 @@ import { Row as CommonRow } from '/imports/react-ui/settings/common/components';
 import { ArticleForm } from '../../components';
 
 class ArticleRow extends CommonRow {
+  constructor(props) {
+    super(props);
+
+    this.size = 'large';
+  }
+
   renderForm(props) {
     return <ArticleForm {...props} />;
   }

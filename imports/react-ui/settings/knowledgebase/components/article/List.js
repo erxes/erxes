@@ -9,6 +9,7 @@ class ArticleList extends CommonList {
     super(props);
 
     this.title = 'Add article';
+    this.size = 'large';
   }
 
   renderRow(props) {
