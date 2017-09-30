@@ -25,6 +25,7 @@ import './settings/knowledgebase/routes';
 /**
  * Styles
  */
+import 'react-datepicker/dist/react-datepicker.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.min.js';
 import './assets/scss/main.scss';
