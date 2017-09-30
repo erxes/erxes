@@ -4,7 +4,6 @@ import Select from 'react-select-plus';
 import { ControlLabel } from 'react-bootstrap';
 import DatePicker from 'react-datepicker';
 import moment from 'moment';
-import 'react-datepicker/dist/react-datepicker.css';
 import { integrationOptions, selectOptions } from '../utils';
 import { KIND_CHOICES as INTEGRATIONS_TYPES } from '/imports/api/integrations/constants';
 import { Wrapper } from '/imports/react-ui/layout/components';
