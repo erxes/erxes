@@ -41,6 +41,15 @@ const conversationNotifReceivers = (conversation, currentUserId) => {
   return userIds;
 };
 
+const createMessage = (params) => {
+  const messageId = Messages.insert(params);
+
+  // notify graphl subscription
+  messageInserted(messageId);
+
+  return messageId;
+}
+
 /*
  * create new message from admin
  */
@@ -94,7 +103,7 @@ export const addMessage = new ValidatedMethod({
 
     // do not send internal message to third service integrations
     if (doc.internal) {
-      return Messages.insert({ ...doc, userId });
+      return createMessage({ ...doc, userId });
     }
 
     // send reply to twitter
@@ -102,10 +111,7 @@ export const addMessage = new ValidatedMethod({
       return tweetReply(conversation, strip(content));
     }
 
-    const messageId = Messages.insert({ ...doc, userId });
-
-    // notify graphl subscription
-    messageInserted(messageId);
+    const messageId = createMessage({ ...doc, userId });
 
     const customer = conversation.customer();
 
