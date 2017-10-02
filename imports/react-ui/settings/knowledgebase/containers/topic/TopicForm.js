@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { compose, gql, graphql } from 'react-apollo';
-import { Loading } from '/imports/react-ui/common';
+import { Spinner } from '/imports/react-ui/common';
 import { queries } from '../../graphql';
 import { TopicForm } from '../../components';
 
@@ -15,7 +15,7 @@ const TopicAddFormContainer = props => {
   const { getBrandListQuery, getCategoryListQuery } = props;
 
   if (getBrandListQuery.loading || getCategoryListQuery.loading) {
-    return <Loading title="Add topic" sidebarSize="wide" spin hasRightSideBar />;
+    return <Spinner />;
   }
 
   const updatedProps = {
