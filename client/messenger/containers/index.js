@@ -9,8 +9,7 @@ import Launcher from './Launcher';
 import Notifier from './Notifier';
 import MessageSender from './MessageSender';
 import MessagesList from './MessagesList';
-import GetNotified from './GetNotified';
-
+import AccquireInformation from './AccquireInformation';
 
 export {
   App,
@@ -24,5 +23,5 @@ export {
   Notifier,
   MessageSender,
   MessagesList,
-  GetNotified,
+  AccquireInformation,
 };

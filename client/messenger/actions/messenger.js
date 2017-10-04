@@ -6,11 +6,15 @@ import {
   MESSENGER_TOGGLE,
   CHANGE_ROUTE,
   CHANGE_CONVERSATION,
-  GET_NOTIFIED_VALUE_SAVED,
   END_CONVERSATION,
 } from '../constants';
 
-import { connection, setLocalStorageItem, getLocalStorageItem } from '../connection';
+import {
+  connection,
+  setLocalStorageItem,
+  getLocalStorageItem,
+} from '../connection';
+
 import client from '../../apollo-client';
 
 export const toggle = (isVisible) => {
@@ -72,7 +76,7 @@ export const openLastConversation = () => {
   };
 };
 
-export const saveGetNotifedValue = (type, value) => (dispatch) => {
+export const saveGetNotified = ({ type, value }) => (dispatch) => {
   if (!value) {
     return;
   }
@@ -96,7 +100,8 @@ export const saveGetNotifedValue = (type, value) => (dispatch) => {
     setLocalStorageItem('getNotifiedType', type);
     setLocalStorageItem('getNotifiedValue', value);
 
-    dispatch({ type: GET_NOTIFIED_VALUE_SAVED });
+    // redirect to conversation
+    dispatch({ type: CHANGE_ROUTE, route: 'conversation' });
   });
 };
 
@@ -138,6 +143,6 @@ export const endConversation = () => (dispatch) => {
 
     dispatch({ type: CHANGE_CONVERSATION, conversationId: '' });
     dispatch({ type: END_CONVERSATION });
-    dispatch({ type: CHANGE_ROUTE, route: 'conversations' });
+    dispatch({ type: CHANGE_ROUTE, route: 'accquireInformation' });
   });
 };

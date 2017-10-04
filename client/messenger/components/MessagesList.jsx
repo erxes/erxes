@@ -1,6 +1,6 @@
 import React, { PropTypes, Component } from 'react';
 import classNames from 'classnames';
-import { Message, GetNotified } from '../containers';
+import { Message } from '../containers';
 
 
 const propTypes = {
@@ -70,8 +70,6 @@ class MessagesList extends Component {
           )
         }
         {this.renderAwayMessage(messengerData)}
-
-        <GetNotified />
       </ul>
     );
   }

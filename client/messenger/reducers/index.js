@@ -5,10 +5,13 @@ import {
   MESSENGER_TOGGLE,
   CHANGE_ROUTE,
   CHANGE_CONVERSATION,
-  ASK_GET_NOTIFIED,
-  GET_NOTIFIED_VALUE_SAVED,
   END_CONVERSATION,
 } from '../constants';
+
+import {
+  connection,
+  getLocalStorageItem,
+} from '../connection';
 
 /**
  * Indicates messenger box's visibility.
@@ -28,13 +31,18 @@ const isVisible = (state = false, action) => {
  * Messenger box shows conversation list when appeared.
  */
 const activeRoute = (state = 'conversationList', action) => {
-  switch (action.type) {
-    case CHANGE_ROUTE:
-      return action.route;
-
-    default:
-      return state;
+  if (action.type === CHANGE_ROUTE) {
+    return action.route;
   }
+
+  const { email, phone } = connection.setting;
+
+  // if visitor did not give email or phone then ask
+  if (!(email || phone) && !getLocalStorageItem('getNotifiedType')) {
+    return 'accquireInformation'
+  }
+
+  return state;
 };
 
 
@@ -67,22 +75,6 @@ const isAttachingFile = (state = false, action) => {
   }
 };
 
-
-/**
- * Indicates whether received email or phone from user.
- */
-const isObtainedGetNotifiedType = (state = true, action) => {
-  if (action.type === ASK_GET_NOTIFIED) {
-    return false;
-  }
-
-  if (action.type === GET_NOTIFIED_VALUE_SAVED) {
-    return true;
-  }
-
-  return state;
-};
-
 const isConversationEnded = (state = false, action) => {
   if (action.type === END_CONVERSATION) {
     return true;
@@ -97,7 +89,6 @@ const isConversationEnded = (state = false, action) => {
 
 const messenger = {
   isVisible,
-  isObtainedGetNotifiedType,
   activeRoute,
   activeConversation,
   isAttachingFile,
