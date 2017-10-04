@@ -3,8 +3,8 @@ import { iconExit } from '../../icons/Icons';
 
 const propTypes = {
   middle: PropTypes.node,
-  buttonIcon: PropTypes.node.isRequired,
-  onButtonClick: PropTypes.func.isRequired,
+  onButtonClick: PropTypes.func,
+  buttonIcon: PropTypes.node,
   color: PropTypes.string,
   endConversation: PropTypes.func,
   isChat: PropTypes.bool,

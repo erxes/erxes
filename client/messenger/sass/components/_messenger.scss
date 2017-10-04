@@ -28,3 +28,59 @@ $break-small: 415px;
     width: 100%;
   }
 }
+
+.accquire-information {
+  height: 200px;
+}
+
+.accquire-information {
+  .content {
+    padding: 20px 40px;
+
+    .type {
+      span {
+        cursor: pointer;
+        display: inline-block;
+        margin-right: 10px;
+
+        &.current {
+          border-bottom: 1px solid;
+          font-weight: bold;
+        }
+      }
+    }
+
+    .form {
+      display: flex;
+      flex-direction: row;
+      flex-shrink: 0;
+      margin-top: 5px;
+
+      input {
+        border: 1px solid $main-color;
+        border-bottom-left-radius: $border-radius;
+        border-top-left-radius: $border-radius;
+        box-sizing: border-box;
+        flex: 1;
+        font-size: 14px;
+        height: 34px;
+        outline: 0;
+        padding: 10px;
+      }
+
+      button {
+        background-color: $main-color;
+        border: 0;
+        border-bottom-right-radius: 4px;
+        border-top-right-radius: 4px;
+        outline: 0;
+        width: 31px;
+        padding: 4px;
+
+        svg {
+          margin-top: 3px;
+        }
+      }
+    }
+  }
+}
