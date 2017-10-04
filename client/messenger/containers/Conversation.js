@@ -75,7 +75,6 @@ const mapStateToProps = (state) => {
   const isNewConversation = !state.activeConversation;
 
   return {
-    isObtainedEmail: state.isObtainedEmail,
     conversationId: state.activeConversation,
     isNewConversation,
   };

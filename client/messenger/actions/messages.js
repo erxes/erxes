@@ -31,13 +31,6 @@ export const readEngageMessage = ({ engageData }) => () =>
 
 export const sendMessage = (message, attachments) =>
   (dispatch, getState) => {
-    const { email, phone } = connection.setting;
-
-    // if visitor did not give email or phone then ask
-    if (!(email || phone) && !getLocalStorageItem('getNotifiedType')) {
-      dispatch({ type: ASK_GET_NOTIFIED });
-    }
-
     const state = getState();
 
     // current conversation
