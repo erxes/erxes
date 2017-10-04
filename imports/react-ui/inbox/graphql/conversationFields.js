@@ -26,6 +26,9 @@ export default `
     name
     twitterData
     getMessengerCustomData
+    isUser
+    email
+    phone
   }
   messageCount
   participatorCount
