@@ -32,9 +32,13 @@ export const connect = variables =>
 
 
 // get local storage
-const getLocalStorage = () =>
-  JSON.parse(localStorage.getItem('erxes') || '{}');
+const getLocalStorage = () => {
+  const brandId = connection.setting.brand_id;
 
+  const erxesConfig = JSON.parse(localStorage.getItem('erxes') || '{}');
+
+  return erxesConfig[brandId] || {};
+}
 
 // get local storage item
 export const getLocalStorageItem = (key) => {
@@ -45,9 +49,15 @@ export const getLocalStorageItem = (key) => {
 
 // set local storage item
 export const setLocalStorageItem = (key, value) => {
-  const erxesStorage = getLocalStorage();
+  const brandId = connection.setting.brand_id;
 
-  erxesStorage[key] = value;
+  const erxesStorage = JSON.parse(localStorage.getItem('erxes') || '{}');
+  const brandConfig = erxesStorage[brandId] || {};
+
+  brandConfig[key] = value;
+
+  // replace data with brandId
+  erxesStorage[brandId] = brandConfig;
 
   localStorage.setItem('erxes', JSON.stringify(erxesStorage));
 };
