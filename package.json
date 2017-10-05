@@ -19,7 +19,8 @@
     "build": "babel src --out-dir dist --ignore __tests__,tests --copy-files",
     "lint": "eslint src",
     "format": "prettier --write --print-width 100 --single-quote --trailing-comma all 'src/**/*.js'",
-    "precommit": "lint-staged"
+    "precommit": "lint-staged",
+    "test": "jest --config=test.config.json"
   },
   "lint-staged": {
     "*.js": [
@@ -57,6 +58,7 @@
     "jest": "^21.2.1",
     "lint-staged": "^3.6.0",
     "nodemon": "^1.11.0",
-    "prettier": "^1.4.4"
+    "prettier": "^1.4.4",
+    "shortid": "^2.2.8"
   }
 }
