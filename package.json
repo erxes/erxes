@@ -38,12 +38,12 @@
     "graphql-server-module-graphiql": "^0.8.2",
     "graphql-subscriptions": "^0.4.3",
     "graphql-tools": "^1.0.0",
+    "meteor-random": "^0.0.3",
     "moment": "^2.18.1",
     "mongoose": "^4.9.2",
     "passport": "^0.4.0",
     "passport-anonymous": "^1.0.1",
     "passport-http-bearer": "^1.0.1",
-    "shortid": "^2.2.8",
     "subscriptions-transport-ws": "^0.7.3",
     "underscore": "^1.8.3"
   },
