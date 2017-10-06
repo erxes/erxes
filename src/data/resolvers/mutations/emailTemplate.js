@@ -5,20 +5,20 @@ export default {
    * Create new email template
    * @return {Promise} email template object
    */
-  emailTemplateAdd(root, { name, content }, { user }) {
+  emailTemplateAdd(root, doc, { user }) {
     if (!user) throw new Error('Login required');
 
-    return EmailTemplates.create({ name, content });
+    return EmailTemplates.create(doc);
   },
 
   /**
    * Update email template
    * @return {Promise} email template object
    */
-  async emailTemplateEdit(root, { _id, name, content }, { user }) {
+  async emailTemplateEdit(root, { _id, ...fields }, { user }) {
     if (!user) throw new Error('Login required');
 
-    await EmailTemplates.update({ _id }, { name, content });
+    await EmailTemplates.update({ _id }, { $set: { ...fields } });
     return EmailTemplates.findOne({ _id });
   },
 
@@ -32,7 +32,7 @@ export default {
     const emailTemplateObj = await EmailTemplates.findOne({ _id });
 
     if (!emailTemplateObj) {
-      throw new Error('Email template not found with id ' + _id);
+      throw new Error(`Email template not found with id ${_id}`);
     }
 
     return emailTemplateObj.remove();

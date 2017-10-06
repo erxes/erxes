@@ -5,22 +5,22 @@ export default {
    * Create new brand
    * @return {Promise} brand object
    */
-  brandsAdd(root, { code, name, description }, { user }) {
+  brandsAdd(root, doc, { user }) {
     if (!user) throw new Error('Login required');
 
-    if (!code) throw new Error('Code is required field');
+    if (!doc.code) throw new Error('Code is required field');
 
-    return Brands.createBrand({ code, name, description, userId: user.id });
+    return Brands.createBrand({ userId: user._id, ...doc });
   },
 
   /**
    * Update brand
    * @return {Promise} brand object
    */
-  async brandsEdit(root, { _id, code, name, description }, { user }) {
+  async brandsEdit(root, { _id, ...fields }, { user }) {
     if (!user) throw new Error('Login required');
 
-    await Brands.update({ _id }, { code, name, description });
+    await Brands.update({ _id }, { $set: { ...fields } });
     return Brands.findOne({ _id });
   },
 
@@ -33,7 +33,7 @@ export default {
 
     const brandObj = await Brands.findOne({ _id });
 
-    if (!brandObj) throw new Error('Brand not found with id ' + _id);
+    if (!brandObj) throw new Error(`Brand not found with id ${_id}`);
 
     return brandObj.remove();
   },

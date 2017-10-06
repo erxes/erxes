@@ -68,14 +68,13 @@ describe('Email template mutations', () => {
   });
 
   test('Delete email template', async () => {
-    const deletedObj = await emailTemplateMutations.emailTemplateRemove(
+    await emailTemplateMutations.emailTemplateRemove(
       {},
       { _id: _emailTemplate.id },
       { user: _user },
     );
-    expect(deletedObj.id).toBe(_emailTemplate.id);
-    const emailTemplateObj = await EmailTemplates.findOne({ _id: _emailTemplate.id });
-    expect(emailTemplateObj).toBeNull();
+    const count = await EmailTemplates.find({ _id: _emailTemplate.id }).count();
+    expect(count).toBe(0);
   });
 
   test('Delete email template login required', async () => {

@@ -29,11 +29,10 @@ class Brand {
    * @param  {Object} brandObj object
    * @return {Promise} Newly created brand object
    */
-  static createBrand(brandObj, emailConfigData) {
+  static createBrand(doc) {
     return this.create({
-      ...brandObj,
+      ...doc,
       createdAt: new Date(),
-      emailConfig: emailConfigData,
     });
   }
 }
