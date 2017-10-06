@@ -20,7 +20,7 @@ export default {
   async brandsEdit(root, { _id, ...fields }, { user }) {
     if (!user) throw new Error('Login required');
 
-    await Brands.update({ _id }, { ...fields });
+    await Brands.update({ _id }, { $set: { ...fields } });
     return Brands.findOne({ _id });
   },
 

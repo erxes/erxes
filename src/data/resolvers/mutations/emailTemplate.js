@@ -8,7 +8,7 @@ export default {
   emailTemplateAdd(root, doc, { user }) {
     if (!user) throw new Error('Login required');
 
-    return EmailTemplates.create({ ...doc });
+    return EmailTemplates.create(doc);
   },
 
   /**
@@ -18,7 +18,7 @@ export default {
   async emailTemplateEdit(root, { _id, ...fields }, { user }) {
     if (!user) throw new Error('Login required');
 
-    await EmailTemplates.update({ _id }, { ...fields });
+    await EmailTemplates.update({ _id }, { $set: { ...fields } });
     return EmailTemplates.findOne({ _id });
   },
 
