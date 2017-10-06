@@ -5,20 +5,20 @@ export default {
    * Create new response template
    * @return {Promise} response template object
    */
-  responseTemplateAdd(root, { name, content, brandId, files }, { user }) {
+  responseTemplateAdd(root, doc, { user }) {
     if (!user) throw new Error('Login required');
 
-    return ResponseTemplates.create({ name, content, brandId, files });
+    return ResponseTemplates.create({ ...doc });
   },
 
   /**
    * Update response template
    * @return {Promise} response template object
    */
-  async responseTemplateEdit(root, { _id, name, content, brandId, files }, { user }) {
+  async responseTemplateEdit(root, { _id, ...fields }, { user }) {
     if (!user) throw new Error('Login required');
 
-    await ResponseTemplates.update({ _id }, { name, content, brandId, files });
+    await ResponseTemplates.update({ _id }, { ...fields });
     return ResponseTemplates.findOne({ _id });
   },
 
@@ -32,7 +32,7 @@ export default {
     const responseTemplateObj = await ResponseTemplates.findOne({ _id });
 
     if (!responseTemplateObj) {
-      throw new Error('Response template not found with id ' + _id);
+      throw new Error(`Response template not found with id ${_id}`);
     }
     return responseTemplateObj.remove();
   },
