@@ -68,17 +68,17 @@ class Channel {
     return this.create(doc);
   }
 
-  static updateChannel(id, doc) {
+  static updateChannel(_id, doc) {
     if (doc && doc._id) {
       delete doc._id;
     }
 
     this.preSave(doc);
-    return this.update({ _id: id }, doc);
+    return this.update({ _id }, doc);
   }
 
-  static removeChannel(id) {
-    return this.remove({ _id: id });
+  static removeChannel(_id) {
+    return this.remove({ _id });
   }
 }
 

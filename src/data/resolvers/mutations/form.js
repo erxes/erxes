@@ -3,39 +3,38 @@ export default {
   /**
    * Create a new form
    * @param {Object}
-   * @param {String} args.title
-   * @param {String} args.description
-   * @param {String} args.userId
+   * @param {String} doc.title
+   * @param {String} doc.description
+   * @param {String} doc.userId
    * @return {Promise} returns the form
    * @throws {Error} apollo level error based on validation
    */
-  formsCreate(root, args) {
-    return Forms.createForm(args);
+  formsCreate(root, doc) {
+    return Forms.createForm(doc);
   },
 
   /**
    * Update form data
    * @param {Object}
-   * @param {String} args.id
-   * @param {String} args.title
-   * @param {String} args.description
+   * @param {String} doc._id
+   * @param {String} doc.title
+   * @param {String} doc.description
    * @return {Promise} returns null
    * @throws {Error} apollo level error based on validation
    */
-  async formsUpdate(root, args) {
-    await Forms.updateForm(args);
-    return;
+  formsEdit(root, { _id, ...doc }) {
+    return Forms.updateForm(_id, doc);
   },
 
   /**
    * Remove a form
    * @param {Object}
-   * @param {String} id
+   * @param {String} _id
    * @return {Promise} null
    * @throws apollo level error based on validation
    */
-  formsRemove(root, { id }) {
-    return Forms.removeForm(id);
+  formsRemove(root, { _id }) {
+    return Forms.removeForm(_id);
   },
 
   /**
@@ -51,14 +50,12 @@ export default {
    * @return {Promise} return Promise(null)
    * @throws {Error} throws apollo error based on validation
    */
-  formsAddFormField(root, args) {
-    const { formId } = args;
-    delete args.formId;
-    return FormFields.createFormField(formId, args);
+  formsAddFormField(root, { formId, ...formFieldDoc }) {
+    return FormFields.createFormField(formId, formFieldDoc);
   },
 
   /**
-  * @param {String} args.id form field id
+  * @param {String} args._id form field id
   * @param {String} args.type
   * @param {String} args.validation
   * @param {String} args.text
@@ -68,28 +65,26 @@ export default {
   * @return {Promise} return Promise(null)
   * @throws {Error} throws apollo error based on validation
   */
-  formsUpdateFormField(root, args) {
-    const { id } = args;
-    delete args.id;
-    return FormFields.updateFormField(id, args);
+  formsEditFormField(root, { _id, ...formFieldDoc }) {
+    return FormFields.updateFormField(_id, formFieldDoc);
   },
 
   /**
    * Remove a channel
    * @param {Object}
-   * @param {String} id
+   * @param {String} _id
    * @return {Promise} null
    * @throws {Error} throws apollo error based on validation
    */
-  formsRemoveFormField(root, args) {
-    const { id } = args;
-    return FormFields.removeFormField(id);
+  formsRemoveFormField(root, { _id }) {
+    return FormFields.removeFormField(_id);
   },
 
   /**
    * Rearranges order based on given value
    * @param {Object}
-   * @param {Array} args.orderDics
+   * @param {String} args.orderDics.id
+   * @param {String} args.orderDics.order
    * @return {Promise} null
    * @throws {Error} throws apollo error based on validation
    */
@@ -100,12 +95,11 @@ export default {
   /**
    * Duplicates the form and its fields
    * @param {Object}
-   * @param {String} id
+   * @param {String} args._id
    * @return {Promise} returns form object
    * @throws {Error} throws apollo error based on validation
    */
-  formsDuplicate(root, args) {
-    const { id } = args;
-    return Forms.duplicate(id);
+  formsDuplicate(root, { _id }) {
+    return Forms.duplicate(_id);
   },
 };

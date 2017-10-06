@@ -32,48 +32,44 @@ class Form {
     const { createdUserId } = doc;
 
     if (!createdUserId) {
-      return Promise.reject(new Error('createdUserId must be supplied'));
+      throw 'createdUserId must be supplied';
     }
 
     doc.code = await this.generateCode();
     doc.createdDate = new Date();
+
     return this.create(doc);
   }
 
-  static updateForm(doc) {
-    let { id } = doc;
-    if (doc && doc.id) {
-      delete doc.id;
-    }
-
-    return this.update({ _id: id }, doc);
+  static updateForm(_id, doc) {
+    return this.update({ _id }, doc);
   }
 
-  static async removeForm(id) {
-    const fieldCount = await FormFields.find({ formId: id }).count();
+  static async removeForm(_id) {
+    const fieldCount = await FormFields.find({ formId: _id }).count();
 
     if (fieldCount > 0) {
       throw 'You cannot delete this form. This form has some fields.';
     }
 
-    const integrationCount = await Integrations.find({ formId: id }).count();
+    const integrationCount = await Integrations.find({ formId: _id }).count();
 
     if (integrationCount > 0) {
       throw 'You cannot delete this form. This form used in integration.';
     }
 
-    return this.remove({ _id: id });
+    return this.remove({ _id });
   }
 
-  static updateFormFieldsOrder(orderDics) {
+  static async updateFormFieldsOrder(orderDics) {
     // update each field's order
-    orderDics.forEach(async ({ id, order }) => {
-      await FormFields.updateFormField(id, { order });
-    });
+    for (let orderDic of orderDics) {
+      await FormFields.updateFormField(orderDic.id, { order: orderDic.order });
+    }
   }
 
-  static async duplicate(id) {
-    const form = await this.findOne({ _id: id });
+  static async duplicate(_id) {
+    const form = await this.findOne({ _id });
 
     // duplicate form
     const newForm = await this.createForm({
@@ -83,10 +79,10 @@ class Form {
     });
 
     // duplicate fields
-    const formFields = await FormFields.find({ formId: id });
+    const formFields = await FormFields.find({ formId: _id });
 
-    const promiseArray = formFields.map(field => {
-      const content = FormFields.createFormField(newForm._id, {
+    for (let field of formFields) {
+      await FormFields.createFormField(newForm._id, {
         type: field.type,
         validation: field.validation,
         text: field.text,
@@ -95,9 +91,8 @@ class Form {
         isRequired: field.isRequired,
         order: field.order,
       });
-      return content;
-    });
-    await Promise.all(promiseArray);
+    }
+
     return newForm;
   }
 }
@@ -126,16 +121,15 @@ const FormFieldSchema = mongoose.Schema({
 class FormField {
   static async createFormField(formId, doc) {
     const lastField = await FormFields.findOne({}, { order: 1 }, { sort: { order: -1 } });
-
     doc.formId = formId;
+
     // if there is no field then start with 0
     let order = 0;
-
     if (lastField) {
       order = lastField.order + 1;
     }
-
     doc.order = order;
+
     return this.create(doc);
   }
 

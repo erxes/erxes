@@ -33,25 +33,26 @@ describe('form creation tests', () => {
         description: 'Test form description',
       });
     } catch (e) {
-      expect(e.message).toEqual('createdUserId must be supplied');
+      expect(e).toEqual('createdUserId must be supplied');
     }
-  }),
-    test('form creating tests', async () => {
-      let form = await Forms.createForm({
-        title: 'Test form',
-        description: 'Test form description',
-        createdUserId: _user._id,
-      });
+  });
 
-      form = await Forms.findOne({ _id: form._id });
-
-      expect(form.title).toBe('Test form');
-      expect(form.description).toBe('Test form description');
-      expect(typeof form.code).toBe('string');
-      expect(form.code.length).toEqual(6);
-      expect(typeof form.createdDate).toBe('object');
-      expect(form.createdUserId).toBe(_user._id);
+  test('form creating tests', async () => {
+    let form = await Forms.createForm({
+      title: 'Test form',
+      description: 'Test form description',
+      createdUserId: _user._id,
     });
+
+    form = await Forms.findOne({ _id: form._id });
+
+    expect(form.title).toBe('Test form');
+    expect(form.description).toBe('Test form description');
+    expect(typeof form.code).toBe('string');
+    expect(form.code.length).toEqual(6);
+    expect(typeof form.createdDate).toBe('object');
+    expect(form.createdUserId).toBe(_user._id);
+  });
 });
 
 describe('form update tests', () => {
@@ -78,8 +79,7 @@ describe('form update tests', () => {
       createdUserId: _user._id,
     });
 
-    await Forms.updateForm({
-      id: form._id,
+    await Forms.updateForm(form._id, {
       title: 'Test form 2',
       description: 'Test form description 2',
     });
@@ -314,6 +314,7 @@ describe('test of form duplication', async () => {
 
   test('test of form duplication', async () => {
     const duplicatedForm = await Forms.duplicate(_form._id);
+
     expect(duplicatedForm.title).toBe(`${_form.title} duplicated`);
     expect(duplicatedForm.description).toBe(_form.description);
     expect(typeof duplicatedForm.code).toBe('string');
@@ -322,6 +323,7 @@ describe('test of form duplication', async () => {
 
     const formFieldsCount = await FormFields.find({}).count();
     const duplicateFormFieldsCount = await FormFields.find({ formId: duplicatedForm._id }).count();
+
     expect(formFieldsCount).toEqual(6);
     expect(duplicateFormFieldsCount).toEqual(3);
   });

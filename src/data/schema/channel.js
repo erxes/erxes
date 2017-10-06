@@ -26,12 +26,12 @@ export const mutations = `
     userId: String!): Channel
 
   channelsUpdate(
-    id: String!,
+    _id: String!,
     name: String!,
     description: String,
     memberIds: [String],
     integrationIds: [String],
     userId: String!): Boolean
 
-  channelsRemove(id: String!): Boolean
+  channelsRemove(_id: String!): Boolean
 `;

@@ -22,7 +22,7 @@ export const types = `
     order: Int
   }
 
-  input DicItem {
+  input OrderDicItem {
     id: String!
     order: Int!
   }
@@ -34,12 +34,12 @@ export const mutations = `
     description: String,
     createdUserId: String!): Form
 
-  formsUpdate(
-    id: String!,
+  formsEdit(
+    _id: String!,
     title: String!,
     description: String): Boolean
 
-  formsRemove(id: String!): Boolean
+  formsRemove(_id: String!): Boolean
 
   formsAddFormField(
     formId: String!,
@@ -50,8 +50,8 @@ export const mutations = `
     options: [String],
     isRequired: Boolean): FormField
 
-  formsUpdateFormField(
-    id: String!,
+  formsEditFormField(
+    _id: String!,
     type: String!,
     validation: String,
     text: String,
@@ -59,11 +59,11 @@ export const mutations = `
     options: [String],
     isRequired: Boolean): Boolean
 
-  formsRemoveFormField(id: String!): Boolean
+  formsRemoveFormField(_id: String!): Boolean
 
-  formsUpdateFormFieldsOrder(orderDics: [DicItem]): Boolean
+  formsUpdateFormFieldsOrder(orderDics: [OrderDicItem]): Boolean
 
-  formsDuplicate(id: String!): Form
+  formsDuplicate(_id: String!): Form
 `;
 
 export const queries = `

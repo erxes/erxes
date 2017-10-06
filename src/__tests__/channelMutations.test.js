@@ -44,15 +44,22 @@ describe('channel creation tests', () => {
 
     const doc = {
       name: 'Channel test',
+      description: 'test channel descripion',
       userId: _user._id,
       memberIds: [_user2._id],
       integrationIds: [_integration._id],
     };
 
     const channel = await Channels.createChannel(doc);
+
+    expect(channel.name).toEqual(doc.name);
+    expect(channel.description).toEqual(doc.description);
     expect(channel.memberIds.length).toBe(2);
-    expect(channel.conversationCount).toBe(0);
-    expect(channel.openConversationCount).toBe(0);
+    expect(channel.integrationIds.length).toEqual(1);
+    expect(channel.integrationIds[0]).toEqual(_integration._id);
+    expect(channel.userId).toEqual(doc.userId);
+    expect(channel.conversationCount).toEqual(0);
+    expect(channel.openConversationCount).toEqual(0);
   });
 });
 
@@ -60,6 +67,7 @@ describe('channel update tests', () => {
   let _user;
   let _user2;
   let _integration;
+
   /**
    * Before each test create test data
    * containing 2 users and an integration
@@ -82,6 +90,7 @@ describe('channel update tests', () => {
   test('update channel tests', async () => {
     const doc = {
       name: 'Channel test',
+      description: 'Channel test description',
       userId: _user._id,
       memberIds: [_user2._id],
       integrationIds: [_integration._id],
@@ -92,7 +101,16 @@ describe('channel update tests', () => {
     doc.memberIds = [_user2._id];
     await Channels.updateChannel(channel._id, doc);
     channel = await Channels.findOne({ _id: channel._id });
+    expect(channel.name).toEqual(doc.name);
+    expect(channel.description).toEqual(doc.description);
     expect(channel.memberIds.length).toBe(2);
+    expect(channel.memberIds[0]).toBe(_user2._id);
+    expect(channel.memberIds[1]).toBe(_user._id);
+    expect(channel.integrationIds.length).toEqual(1);
+    expect(channel.integrationIds[0]).toEqual(_integration._id);
+    expect(channel.userId).toEqual(doc.userId);
+    expect(channel.conversationCount).toEqual(0);
+    expect(channel.openConversationCount).toEqual(0);
 
     doc.memberIds = [_user._id];
     await Channels.updateChannel(channel._id, doc);
@@ -104,6 +122,7 @@ describe('channel update tests', () => {
 
 describe('channel remove test', () => {
   let _channel;
+
   /**
    * Before each test create test data
    * containing 2 users and an integration
@@ -114,6 +133,13 @@ describe('channel remove test', () => {
       name: 'Channel test',
       userId: user._id,
     });
+  });
+
+  /**
+   * Remove test data
+   */
+  afterEach(async () => {
+    await Channels.remove({});
   });
 
   test('channel remove test', async () => {
