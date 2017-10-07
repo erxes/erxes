@@ -2,7 +2,7 @@
 /* eslint-disable no-underscore-dangle */
 
 import { connect, disconnect } from '../db/connection';
-import { userFactory, formFactory, formFieldFactory } from '../db/factories';
+import { userFactory, formFactory, formFieldFactory, integrationFactory } from '../db/factories';
 import { Forms, Users, FormFields } from '../db/models';
 
 beforeAll(() => connect());
@@ -95,6 +95,7 @@ describe('form update tests', () => {
 
 describe('form remove tests', async () => {
   let _user;
+
   /**
    * Testing with an _user object
    */
@@ -120,6 +121,64 @@ describe('form remove tests', async () => {
     await Forms.removeForm(form._id);
     const formCount = await Forms.find({}).count();
     expect(formCount).toBe(0);
+  });
+});
+
+describe('test exception in form remove', async () => {
+  let _user;
+
+  /**
+   * Testing with an _user object
+   */
+  beforeEach(async () => {
+    _user = await userFactory({});
+  });
+
+  /**
+   * Deleting the data that was used in test
+   */
+  afterEach(async () => {
+    await Users.remove({});
+    await Forms.remove({});
+    await FormFields.remove({});
+  });
+
+  test('try to remove form with fields in it', async () => {
+    expect.assertions(2);
+    const form = await Forms.createForm({
+      title: 'Test form',
+      description: 'Test form description',
+      createdUserId: _user._id,
+    });
+
+    await FormFields.createFormField(form._id, {
+      type: 'shoutbox',
+      validation: 'number',
+      text: 'form field text',
+      description: 'form field description',
+    });
+
+    try {
+      await Forms.removeForm(form._id);
+    } catch (e) {
+      expect(e.message).toEqual('You cannot delete this form. This form has some fields.');
+    }
+
+    await FormFields.remove({});
+
+    await integrationFactory({
+      formId: form._id,
+      formData: {
+        loadType: 'shoutbox',
+        fromEmail: 'test@erxes.io',
+      },
+    });
+
+    try {
+      await Forms.removeForm(form._id);
+    } catch (e) {
+      expect(e.message).toEqual('You cannot delete this form. This form used in integration.');
+    }
   });
 });
 

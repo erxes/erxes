@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import shortid from 'shortid';
+import Random from 'meteor-random';
 import { Messages, Conversations } from './Conversations';
 import { Customers } from './Customers';
 import { KIND_CHOICES, FORM_SUCCESS_ACTIONS, FORM_LOAD_TYPES } from '../constants';
@@ -91,7 +91,7 @@ const UiOptionsSchema = mongoose.Schema({
 const IntegrationSchema = mongoose.Schema({
   _id: {
     type: String,
-    default: shortid.generate,
+    default: () => Random.id(),
   },
   kind: String,
   name: String,
@@ -157,8 +157,6 @@ class Integration {
   }
 
   static async removeIntegration(id) {
-    // remove messages
-    // conversations
     const conversations = await Conversations.find({ integrationId: id }, { _id: true });
 
     const conversationIds = [];

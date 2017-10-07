@@ -25,7 +25,7 @@ export const mutations = `
     integrationIds: [String],
     userId: String!): Channel
 
-  channelsUpdate(
+  channelsEdit(
     _id: String!,
     name: String!,
     description: String,

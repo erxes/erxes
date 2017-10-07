@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import shortid from 'shortid';
+import Random from 'meteor-random';
 import { createdAtModifier } from '../plugins';
 
 function ChannelCreationException(message) {
@@ -11,7 +11,7 @@ function ChannelCreationException(message) {
 const ChannelSchema = mongoose.Schema({
   _id: {
     type: String,
-    default: shortid.generate,
+    default: () => Random.id(),
   },
   name: {
     type: String,

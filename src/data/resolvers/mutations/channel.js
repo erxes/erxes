@@ -29,7 +29,7 @@ export default {
    * @return {Promise} returns null
    * @throws {Error} throws apollo level validation errors
    */
-  channelsUpdate(root, { _id, ...doc }) {
+  channelsEdit(root, { _id, ...doc }) {
     Channels.updateChannel(_id, doc);
     // TODO: sendNotifications method shoul be here
     return;

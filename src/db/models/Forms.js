@@ -1,11 +1,11 @@
 import mongoose from 'mongoose';
-import shortid from 'shortid';
+import Random from 'meteor-random';
 import Integrations from './Integrations';
 
 const FormSchema = mongoose.Schema({
   _id: {
     type: String,
-    default: shortid.generate,
+    default: () => Random.id(),
   },
   title: String,
   description: String,
@@ -17,11 +17,11 @@ const FormSchema = mongoose.Schema({
 class Form {
   static async generateCode() {
     // generate code automatically
-    let code = shortid.generate().substr(0, 6);
+    let code = Random.id().substr(0, 6);
     let foundForm = await Forms.findOne({ code });
 
     while (foundForm) {
-      code = shortid.generate().substr(0, 6);
+      code = Random.id().substr(0, 6);
       foundForm = await Forms.findOne({ code });
     }
 
@@ -49,13 +49,13 @@ class Form {
     const fieldCount = await FormFields.find({ formId: _id }).count();
 
     if (fieldCount > 0) {
-      throw 'You cannot delete this form. This form has some fields.';
+      throw new Error('You cannot delete this form. This form has some fields.');
     }
 
     const integrationCount = await Integrations.find({ formId: _id }).count();
 
     if (integrationCount > 0) {
-      throw 'You cannot delete this form. This form used in integration.';
+      throw new Error('You cannot delete this form. This form used in integration.');
     }
 
     return this.remove({ _id });
@@ -103,7 +103,7 @@ export const Forms = mongoose.model('forms', FormSchema);
 const FormFieldSchema = mongoose.Schema({
   _id: {
     type: String,
-    default: shortid.generate,
+    default: () => Random.id(),
   },
   type: String,
   validation: String,
@@ -125,9 +125,11 @@ class FormField {
 
     // if there is no field then start with 0
     let order = 0;
+
     if (lastField) {
       order = lastField.order + 1;
     }
+
     doc.order = order;
 
     return this.create(doc);

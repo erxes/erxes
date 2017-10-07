@@ -1,5 +1,6 @@
 import shortid from 'shortid';
 import faker from 'faker';
+import Random from 'meteor-random';
 
 import {
   Users,
@@ -28,9 +29,13 @@ export const integrationFactory = params => {
   return Integrations.create({
     name: faker.random.word(),
     kind: kind,
-    brandId: params.brandId || shortid.generate(),
-    formId: params.formId || shortid.generate(),
-    messengerData: { welcomeMessage: 'welcome' } || {},
+    brandId: params.brandId || Random.id(),
+    formId: params.formId || Random.id(),
+    messengerData: params.messengerData || { welcomeMessage: 'welcome' },
+    formData:
+      params.formData === 'form'
+        ? params.formData
+        : kind === 'form' ? { thankContent: 'thankContent' } : null,
   });
 };
 
@@ -38,7 +43,7 @@ export const brandFactory = (params = {}) => {
   const brand = new Brands({
     name: faker.random.word(),
     code: params.code || faker.random.word(),
-    userId: shortid.generate(),
+    userId: Random.id(),
     description: params.description || faker.random.word(),
     emailConfig: {
       type: 'simple',
@@ -62,7 +67,7 @@ export const responseTemplateFactory = (params = {}) => {
   const responseTemplate = new ResponseTemplates({
     name: faker.random.word(),
     content: params.content || faker.random.word(),
-    brandId: params.brandId || shortid.generate(),
+    brandId: params.brandId || Random.id(),
     files: [faker.random.image()],
   });
 
@@ -73,8 +78,8 @@ export const tagsFactory = (params = {}) => {
   const tag = new Tags({
     name: faker.random.word(),
     type: params.type || faker.random.word(),
-    colorCode: params.colorCode || shortid.generate(),
-    userId: shortid.generate(),
+    colorCode: params.colorCode || Random.id(),
+    userId: Random.id(),
   });
 
   return tag.save();
@@ -84,7 +89,7 @@ export const formFactory = ({ title, code, createdUserId }) => {
   return Forms.createForm({
     title: title || faker.random.word(),
     description: faker.random.word(),
-    code: code || shortid.generate(),
+    code: code || Random.id(),
     createdUserId,
   });
 };
