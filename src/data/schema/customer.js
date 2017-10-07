@@ -28,19 +28,6 @@ export const types = `
     getMessengerCustomData: JSON
     getTags: [Tag]
   }
-
-  type Segment {
-    _id: String!
-    name: String
-    description: String
-    subOf: String
-    color: String
-    connector: String
-    conditions: JSON
-
-    getParentSegment: Segment
-    getSubSegments: [Segment]
-  }
 `;
 
 export const queries = `
@@ -49,7 +36,4 @@ export const queries = `
   customerDetail(_id: String!): Customer
   customerListForSegmentPreview(segment: JSON, limit: Int): [Customer]
   customersTotalCount: Int
-  segments: [Segment]
-  headSegments: [Segment]
-  segmentDetail(_id: String): Segment
 `;

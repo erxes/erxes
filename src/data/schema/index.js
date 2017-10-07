@@ -26,6 +26,12 @@ import { types as TagTypes, queries as TagQueries } from './tag';
 
 import { types as CustomerTypes, queries as CustomerQueries } from './customer';
 
+import {
+  types as SegmentTypes,
+  queries as SegmentQueries,
+  mutations as SegmentMutations,
+} from './segment';
+
 import { types as InsightTypes, queries as InsightQueries } from './insight';
 
 import { types as KnowledgeBaseTypes, queries as KnowledgeBaseQueries } from './knowledgeBase';
@@ -50,6 +56,7 @@ export const types = `
   ${TagTypes}
   ${FormTypes}
   ${CustomerTypes}
+  ${SegmentTypes}
   ${ConversationTypes}
   ${InsightTypes}
   ${KnowledgeBaseTypes}
@@ -67,6 +74,7 @@ export const queries = `
     ${EngageQueries}
     ${TagQueries}
     ${CustomerQueries}
+    ${SegmentQueries}
     ${ConversationQueries}
     ${InsightQueries}
     ${KnowledgeBaseQueries}
@@ -79,6 +87,7 @@ export const mutations = `
     ${BrandMutations}
     ${ResponseTemplateMutations}
     ${EmailTemplateMutations}
+    ${SegmentMutations}
   }
 `;
 

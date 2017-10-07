@@ -7,7 +7,8 @@ import Integrations from './Integrations';
 import EngageMessages from './Engages';
 import Tags from './Tags';
 import { Forms, FormFields } from './Forms';
-import { Customers, Segments } from './Customers';
+import Customers from './Customers';
+import Segments from './Segments';
 import { Conversations, Messages as ConversationMessages } from './Conversations';
 import {
   KnowledgeBaseArticles,

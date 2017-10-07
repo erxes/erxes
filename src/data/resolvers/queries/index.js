@@ -8,6 +8,7 @@ import emailTemplates from './emailTemplates';
 import engages from './engages';
 import tags from './tags';
 import customers from './customers';
+import segments from './segments';
 import conversations from './conversations';
 import insights from './insights';
 import knowledgeBase from './knowledgeBase';
@@ -23,6 +24,7 @@ export default {
   ...engages,
   ...tags,
   ...customers,
+  ...segments,
   ...conversations,
   ...insights,
   ...knowledgeBase,
