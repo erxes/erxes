@@ -7,14 +7,18 @@ const CustomerSchema = mongoose.Schema({
     unique: true,
     default: () => Random.id(),
   },
-  integrationId: String,
+
   name: String,
   email: String,
   phone: String,
   isUser: Boolean,
+
+  integrationId: String,
   createdAt: Date,
+
   internalNotes: Object,
   tagIds: [String],
+
   messengerData: Object,
   twitterData: Object,
   facebookData: Object,

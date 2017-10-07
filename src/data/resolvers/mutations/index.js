@@ -3,6 +3,7 @@ import brands from './brands';
 import emailTemplate from './emailTemplate';
 import responseTemplate from './responseTemplate';
 import segments from './segments';
+import companies from './companies';
 
 export default {
   ...conversation,
@@ -10,4 +11,5 @@ export default {
   ...emailTemplate,
   ...responseTemplate,
   ...segments,
+  ...companies,
 };
