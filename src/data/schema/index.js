@@ -1,5 +1,7 @@
 import { types as UserTypes, queries as UserQueries } from './user';
 
+import { types as CompanyTypes, mutations as CompanyMutations } from './company';
+
 import { types as ChannelTypes, queries as ChannelQueries } from './channel';
 
 import { types as BrandTypes, queries as BrandQueries, mutations as BrandMutations } from './brand';
@@ -47,6 +49,7 @@ export const types = `
   scalar Date
 
   ${UserTypes}
+  ${CompanyTypes}
   ${ChannelTypes}
   ${BrandTypes}
   ${IntegrationTypes}
@@ -83,6 +86,7 @@ export const queries = `
 
 export const mutations = `
   type Mutation {
+    ${CompanyMutations}
     ${ConversationMutations}
     ${BrandMutations}
     ${ResponseTemplateMutations}
