@@ -42,12 +42,6 @@ class Channel {
    *
    */
   static preSave(doc) {
-    const { userId } = doc;
-
-    if (!userId) {
-      throw new ChannelCreationException('userId must be supplied');
-    }
-
     doc.memberIds = doc.memberIds || [];
 
     if (!doc.memberIds.includes(doc.userId)) {
@@ -62,6 +56,12 @@ class Channel {
    * @return {Promise} Newly created channel obj
    */
   static createChannel(doc) {
+    const { userId } = doc;
+
+    if (!userId) {
+      throw new ChannelCreationException('userId must be supplied');
+    }
+
     this.preSave(doc);
     doc.conversationCount = 0;
     doc.openConversationCount = 0;
@@ -70,7 +70,7 @@ class Channel {
 
   static updateChannel(_id, doc) {
     this.preSave(doc);
-    return this.update({ _id }, doc, { runValidators: true });
+    return this.update({ _id }, { $set: doc }, { runValidators: true });
   }
 
   static removeChannel(_id) {

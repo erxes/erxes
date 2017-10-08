@@ -125,20 +125,20 @@ class Integration {
     });
   }
 
-  static updateMessengerIntegration(id, { name, brandId }) {
-    return this.update({ _id: id }, { name, brandId }, { runValidators: true });
+  static updateMessengerIntegration(_id, { name, brandId }) {
+    return this.update({ _id }, { $set: { name, brandId } }, { runValidators: true });
   }
 
-  static saveMessengerAppearanceData(id, { color, wallpaper, logo }) {
+  static saveMessengerAppearanceData(_id, { color, wallpaper, logo }) {
     return this.update(
-      { _id: id },
-      { uiOptions: { color, wallpaper, logo } },
+      { _id },
+      { $set: { uiOptions: { color, wallpaper, logo } } },
       { runValdatiors: true },
     );
   }
 
-  static saveMessengerConfigs(id, messengerData) {
-    return this.update({ _id: id }, { messengerData }, { runValidators: true });
+  static saveMessengerConfigs(_id, messengerData) {
+    return this.update({ _id }, { $set: { messengerData } }, { runValidators: true });
   }
 
   static createFormIntegration({ formData, ...mainDoc }) {
@@ -153,7 +153,7 @@ class Integration {
 
   static updateFormIntegration(id, { formData, ...mainDoc }) {
     const doc = this.generateFormDoc(mainDoc, formData);
-    return this.update({ _id: id }, doc, { runValidators: true });
+    return this.update({ _id: id }, { $set: doc }, { runValidators: true });
   }
 
   static async removeIntegration(id) {

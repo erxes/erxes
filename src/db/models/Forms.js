@@ -42,7 +42,7 @@ class Form {
   }
 
   static updateForm(_id, doc) {
-    return this.update({ _id }, doc, { runValidators: true });
+    return this.update({ _id }, { $set: doc }, { runValidators: true });
   }
 
   static async removeForm(_id) {
@@ -136,7 +136,7 @@ class FormField {
   }
 
   static updateFormField(_id, doc) {
-    return this.update({ _id }, doc, { runValidators: true });
+    return this.update({ _id }, { $set: doc }, { runValidators: true });
   }
 
   static removeFormField(_id) {

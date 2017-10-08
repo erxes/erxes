@@ -118,6 +118,12 @@ describe('channel update tests', () => {
     channel = await Channels.findOne({ _id: channel._id });
     expect(channel.memberIds.length).toBe(1);
     expect(channel.memberIds[0]).toBe(_user._id);
+
+    await Channels.updateChannel(channel._id, {
+      name: 'Channel test 2',
+    });
+
+    expect(channel.description).toBe('Channel test description');
   });
 });
 
@@ -229,32 +235,3 @@ describe('mutations', () => {
     expect(channelCount).toBe(0);
   });
 });
-
-// describe('channel remove test', () => {
-//   let _channel;
-//
-//   /**
-//    * Before each test create test data
-//    * containing 2 users and an integration
-//    */
-//   beforeEach(async () => {
-//     const user = await userFactory({});
-//     _channel = await Channels.createChannel({
-//       name: 'Channel test',
-//       userId: user._id,
-//     });
-//   });
-//
-//   /**
-//    * Remove test data
-//    */
-//   afterEach(async () => {
-//     await Channels.remove({});
-//   });
-//
-//   test('channel remove test', async () => {
-//     await Channels.removeChannel(_channel._id);
-//     const channelCount = await Channels.find({}).count();
-//     expect(channelCount).toBe(0);
-//   });
-// });
