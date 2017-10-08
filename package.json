@@ -41,6 +41,7 @@
     "meteor-random": "^0.0.3",
     "moment": "^2.18.1",
     "mongoose": "^4.9.2",
+    "nodemailer": "^4.1.3",
     "passport": "^0.4.0",
     "passport-anonymous": "^1.0.1",
     "passport-http-bearer": "^1.0.1",
