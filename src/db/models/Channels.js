@@ -69,12 +69,8 @@ class Channel {
   }
 
   static updateChannel(_id, doc) {
-    if (doc && doc._id) {
-      delete doc._id;
-    }
-
     this.preSave(doc);
-    return this.update({ _id }, doc);
+    return this.update({ _id }, doc, { runValidators: true });
   }
 
   static removeChannel(_id) {

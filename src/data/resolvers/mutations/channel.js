@@ -30,9 +30,8 @@ export default {
    * @throws {Error} throws apollo level validation errors
    */
   channelsEdit(root, { _id, ...doc }) {
-    Channels.updateChannel(_id, doc);
     // TODO: sendNotifications method shoul be here
-    return;
+    return Channels.updateChannel(_id, doc);
   },
 
   /**
@@ -42,6 +41,6 @@ export default {
    * @return {Promise} null
    */
   channelsRemove(root, { _id }) {
-    return Channels.remove(_id);
+    return Channels.removeChannel(_id);
   },
 };

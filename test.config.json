@@ -1,4 +1,4 @@
 {
-  "testRegex": ".*test.js$",
+  "testRegex": ".*channelMutations.test.js$",
   "testEnvironment": "node"
 }
