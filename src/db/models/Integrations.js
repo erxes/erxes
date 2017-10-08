@@ -164,12 +164,13 @@ class Integration {
       conversationIds.push(c._id);
     });
 
+    // Remove messages
     await Messages.remove({ conversationId: { $in: conversationIds } });
 
-    // remove conversations
+    // Remove conversations
     await Conversations.remove({ integrationId: id });
 
-    // remove customers
+    // Remove customers
     await Customers.remove({ integrationId: id });
 
     return this.remove(id);

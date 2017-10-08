@@ -42,7 +42,7 @@ class Form {
   }
 
   static updateForm(_id, doc) {
-    return this.update({ _id }, doc);
+    return this.update({ _id }, doc, { runValidators: true });
   }
 
   static async removeForm(_id) {
@@ -135,12 +135,12 @@ class FormField {
     return this.create(doc);
   }
 
-  static updateFormField(id, doc) {
-    return this.update({ _id: id }, doc);
+  static updateFormField(_id, doc) {
+    return this.update({ _id }, doc, { runValidators: true });
   }
 
-  static removeFormField(id) {
-    return this.remove({ _id: id });
+  static removeFormField(_id) {
+    return this.remove({ _id });
   }
 }
 

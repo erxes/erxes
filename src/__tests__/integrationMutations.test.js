@@ -128,7 +128,7 @@ describe('create form integration test', () => {
     await Forms.remove({});
   });
 
-  test('create form integration test wihtout formData', async () => {
+  test('create form integration test without formData', async () => {
     const mainDoc = {
       name: 'form integration test',
       brandId: _brand._id,
@@ -522,10 +522,9 @@ describe('mutation test', () => {
     expect(integration.messengerData.thankYouMessage).toEqual('Thank you');
 
     const integrations = await Integrations.find({}, { _id: 1 });
-    const promiseArray = integrations.map(i => {
-      return mutations.integrationsRemove(null, { id: i._id });
-    });
-    await Promise.all(promiseArray);
+    for (let i of integrations) {
+      await mutations.integrationsRemove(null, { id: i._id });
+    }
 
     const integrationCount = await Integrations.find({}).count();
     expect(integrationCount).toEqual(0);

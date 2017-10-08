@@ -5,7 +5,7 @@ export default {
    * @param {Object}
    * @param {String} doc.title
    * @param {String} doc.description
-   * @param {String} doc.userId
+   * @param {String} doc.createdUserId
    * @return {Promise} returns the form
    * @throws {Error} apollo level error based on validation
    */
