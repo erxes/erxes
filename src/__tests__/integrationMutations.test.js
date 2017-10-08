@@ -280,6 +280,7 @@ describe('save integration messenger configurations test', () => {
   let _integration;
 
   /**
+   * Create integration object to be used with messenger data configurations
    */
   beforeEach(async () => {
     _brand = await brandFactory({});
@@ -291,6 +292,7 @@ describe('save integration messenger configurations test', () => {
   });
 
   /**
+   * Delete test data
    */
   afterEach(async () => {
     await Brands.remove({});

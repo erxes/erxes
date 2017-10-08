@@ -20,7 +20,7 @@
     "lint": "eslint src",
     "format": "prettier --write --print-width 100 --single-quote --trailing-comma all 'src/**/*.js'",
     "precommit": "lint-staged",
-    "test": "jest --config=test.config.json"
+    "test": "jest"
   },
   "lint-staged": {
     "*.js": [
