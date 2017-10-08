@@ -1,4 +1,3 @@
-import shortid from 'shortid';
 import faker from 'faker';
 import Random from 'meteor-random';
 
@@ -24,26 +23,11 @@ export const userFactory = (params = {}) => {
   return user.save();
 };
 
-export const integrationFactory = params => {
-  const kind = params.kind || 'messenger';
-  return Integrations.create({
-    name: faker.random.word(),
-    kind: kind,
-    brandId: params.brandId || Random.id(),
-    formId: params.formId || Random.id(),
-    messengerData: params.messengerData || { welcomeMessage: 'welcome' },
-    formData:
-      params.formData === 'form'
-        ? params.formData
-        : kind === 'form' ? { thankContent: 'thankContent' } : null,
-  });
-};
-
 export const brandFactory = (params = {}) => {
   const brand = new Brands({
     name: faker.random.word(),
     code: params.code || faker.random.word(),
-    userId: Random.id(),
+    userId: () => Random.id(),
     description: params.description || faker.random.word(),
     emailConfig: {
       type: 'simple',
@@ -72,6 +56,21 @@ export const responseTemplateFactory = (params = {}) => {
   });
 
   return responseTemplate.save();
+};
+
+export const integrationFactory = params => {
+  const kind = params.kind || 'messenger';
+  return Integrations.create({
+    name: faker.random.word(),
+    kind: kind,
+    brandId: params.brandId || Random.id(),
+    formId: params.formId || Random.id(),
+    messengerData: params.messengerData || { welcomeMessage: 'welcome' },
+    formData:
+      params.formData === 'form'
+        ? params.formData
+        : kind === 'form' ? { thankContent: 'thankContent' } : null,
+  });
 };
 
 export const tagsFactory = (params = {}) => {

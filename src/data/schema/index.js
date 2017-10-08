@@ -6,7 +6,7 @@ import {
   mutations as ChannelMutations,
 } from './channel';
 
-import { types as BrandTypes, queries as BrandQueries } from './brand';
+import { types as BrandTypes, queries as BrandQueries, mutations as BrandMutations } from './brand';
 
 import {
   types as IntegrationTypes,
@@ -14,9 +14,17 @@ import {
   mutations as IntegrationMutations,
 } from './integration';
 
-import { types as ResponseTemplate, queries as ResponseTemplateQueries } from './responseTemplate';
+import {
+  types as ResponseTemplate,
+  queries as ResponseTemplateQueries,
+  mutations as ResponseTemplateMutations,
+} from './responseTemplate';
 
-import { types as EmailTemplate, queries as EmailTemplateQueries } from './emailTemplate';
+import {
+  types as EmailTemplate,
+  queries as EmailTemplateQueries,
+  mutations as EmailTemplateMutations,
+} from './emailTemplate';
 
 import { types as FormTypes, queries as FormQueries, mutations as FormMutatons } from './form';
 
@@ -76,6 +84,9 @@ export const queries = `
 export const mutations = `
   type Mutation {
     ${ConversationMutations}
+    ${BrandMutations}
+    ${ResponseTemplateMutations}
+    ${EmailTemplateMutations}
     ${ChannelMutations}
     ${FormMutatons}
     ${IntegrationMutations}
