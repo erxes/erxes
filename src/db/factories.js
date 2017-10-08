@@ -1,7 +1,15 @@
 import faker from 'faker';
 import Random from 'meteor-random';
 
-import { Users, Brands, EmailTemplates, ResponseTemplates, Segments, Companies } from './models';
+import {
+  Users,
+  Brands,
+  EmailTemplates,
+  ResponseTemplates,
+  Customers,
+  Segments,
+  Companies,
+} from './models';
 
 export const userFactory = (params = {}) => {
   const user = new Users({
@@ -81,4 +89,14 @@ export const companyFactory = (params = {}) => {
   });
 
   return company.save();
+};
+
+export const customerFactory = (params = {}) => {
+  const customer = new Customers({
+    name: params.name || faker.random.word(),
+    email: params.email || faker.internet.email(),
+    phone: params.phone || faker.random.word(),
+  });
+
+  return customer.save();
 };

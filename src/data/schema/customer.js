@@ -37,3 +37,13 @@ export const queries = `
   customerListForSegmentPreview(segment: JSON, limit: Int): [Customer]
   customersTotalCount: Int
 `;
+
+const fields = `
+  name: String
+  email: String
+  phone: String
+`;
+
+export const mutations = `
+  customersEdit(_id: String!, ${fields}): Customer
+`;

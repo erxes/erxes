@@ -26,7 +26,11 @@ import { types as EngageTypes, queries as EngageQueries } from './engage';
 
 import { types as TagTypes, queries as TagQueries } from './tag';
 
-import { types as CustomerTypes, queries as CustomerQueries } from './customer';
+import {
+  types as CustomerTypes,
+  queries as CustomerQueries,
+  mutations as CustomerMutations,
+} from './customer';
 
 import {
   types as SegmentTypes,
@@ -91,6 +95,7 @@ export const mutations = `
     ${BrandMutations}
     ${ResponseTemplateMutations}
     ${EmailTemplateMutations}
+    ${CustomerMutations}
     ${SegmentMutations}
   }
 `;

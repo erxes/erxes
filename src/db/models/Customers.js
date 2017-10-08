@@ -25,6 +25,18 @@ const CustomerSchema = mongoose.Schema({
 });
 
 class Customer {
+  /*
+   * Update customer
+   * @param {String} _id customer id to update
+   * @param {Object} doc field values to update
+   * @return {Promise} updated customer object
+   */
+  static async updateCustomer(_id, doc) {
+    await this.update({ _id }, { $set: doc });
+
+    return this.findOne({ _id });
+  }
+
   /**
    * Mark customer as inactive
    * @param  {String} customerId
