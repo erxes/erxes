@@ -2,6 +2,7 @@ import users from './users';
 import channels from './channels';
 import brands from './brands';
 import integrations from './integrations';
+import fields from './fields';
 import forms from './forms';
 import responseTemplates from './responseTemplates';
 import emailTemplates from './emailTemplates';
@@ -18,6 +19,7 @@ export default {
   ...channels,
   ...brands,
   ...integrations,
+  ...fields,
   ...forms,
   ...responseTemplates,
   ...emailTemplates,

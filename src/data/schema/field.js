@@ -11,6 +11,15 @@ export const types = `
     isRequired: Boolean
     order: Int
   }
+
+  input OrderItem {
+    _id: String!
+    order: Int!
+  }
+`;
+
+export const queries = `
+  fields(contentType: String!, contentTypeId: String): [Field]
 `;
 
 const commonFields = `
@@ -27,4 +36,5 @@ export const mutations = `
   fieldsAdd(contentType: String!, contentTypeId: String, ${commonFields}): Field
   fieldsEdit(_id: String!, ${commonFields}): Field
   fieldsRemove(_id: String!): Field
+  fieldsUpdateOrder(orders: [OrderItem]): [Field]
 `;

@@ -74,4 +74,17 @@ describe('Fields', () => {
       expect(e.message).toEqual('Form not found with _id of DFAFDFADS');
     }
   });
+
+  test('updateOrder()', async () => {
+    const field1 = await fieldFactory();
+    const field2 = await fieldFactory();
+
+    const [updatedField1, updatedField2] = await Fields.updateOrder([
+      { _id: field1._id, order: 10 },
+      { _id: field2._id, order: 11 },
+    ]);
+
+    expect(updatedField1.order).toBe(10);
+    expect(updatedField2.order).toBe(11);
+  });
 });

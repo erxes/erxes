@@ -30,4 +30,15 @@ export default {
 
     return Fields.removeField(_id);
   },
+
+  /**
+   * Update field orders
+   * @param [OrderItem] [{ _id: [field id], order: [order value] }]
+   * @return {Promise} updated fields
+   */
+  fieldsUpdateOrder(root, { orders }, { user }) {
+    if (!user) throw new Error('Login required');
+
+    return Fields.updateOrder(orders);
+  },
 };

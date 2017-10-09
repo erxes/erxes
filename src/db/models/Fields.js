@@ -100,6 +100,30 @@ class Field {
 
     return fieldObj.remove();
   }
+
+  /*
+   * Update given fields orders
+   *
+   * @param [OrderItem] orders
+   * [{
+   *  _id: {String} field id
+   *  order: {Number} order
+   * }]
+   *
+   * @return [Field] updated fields
+   */
+  static async updateOrder(orders) {
+    const ids = [];
+
+    for (let { _id, order } of orders) {
+      ids.push(_id);
+
+      // update each fields order
+      await this.update({ _id }, { order });
+    }
+
+    return this.find({ _id: { $in: ids } }).sort({ order: 1 });
+  }
 }
 
 FieldSchema.loadClass(Field);

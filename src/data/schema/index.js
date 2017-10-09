@@ -20,7 +20,7 @@ import {
   mutations as EmailTemplateMutations,
 } from './emailTemplate';
 
-import { types as FieldTypes, mutations as FieldMutations } from './field';
+import { types as FieldTypes, queries as FieldQueries, mutations as FieldMutations } from './field';
 
 import { types as FormTypes, queries as FormQueries } from './form';
 
@@ -80,6 +80,7 @@ export const queries = `
     ${IntegrationQueries}
     ${ResponseTemplateQueries}
     ${EmailTemplateQueries}
+    ${FieldQueries}
     ${FormQueries}
     ${EngageQueries}
     ${TagQueries}
