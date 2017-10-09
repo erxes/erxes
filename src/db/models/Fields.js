@@ -1,0 +1,109 @@
+/*
+ * Extra fields for form, customer, company
+ */
+
+import mongoose from 'mongoose';
+import Random from 'meteor-random';
+import { FIELD_CONTENT_TYPES } from '../../constants';
+import { Forms } from './';
+
+const FieldSchema = mongoose.Schema({
+  _id: {
+    type: String,
+    unique: true,
+    default: () => Random.id(),
+  },
+
+  // form, customer, company
+  contentType: String,
+
+  // formId when contentType is form
+  contentTypeId: String,
+
+  type: String,
+  validation: String,
+  text: String,
+  description: String,
+  options: [String],
+  isRequired: Boolean,
+  order: Number,
+});
+
+class Field {
+  /* Create new field
+   *
+   * @param {String} contentType form, customer, company
+   * @param {String} contentTypeId when contentType is form, it will be
+   * formId
+   *
+   * @return {Promise} newly created field object
+   */
+  static async createField({ contentType, contentTypeId, ...fields }) {
+    const query = { contentType };
+
+    if (contentTypeId) {
+      query.contentTypeId = contentTypeId;
+    }
+
+    // form checks
+    if (contentType === FIELD_CONTENT_TYPES.FORM) {
+      if (!contentTypeId) {
+        throw new Error('Content type id is required');
+      }
+
+      const form = await Forms.findOne({ _id: contentTypeId });
+
+      if (!form) {
+        throw new Error(`Form not found with _id of ${contentTypeId}`);
+      }
+    }
+
+    // Generate order
+    // if there is no field then start with 0
+    let order = 0;
+
+    const lastField = await Fields.findOne(query).sort({ order: -1 });
+
+    if (lastField) {
+      order = lastField.order + 1;
+    }
+
+    return this.create({
+      contentType,
+      contentTypeId,
+      order,
+      ...fields,
+    });
+  }
+
+  /*
+   * Update field
+   * @param {String} _id field id to update
+   * @param {Object} doc field values to update
+   * @return {Promise} updated field object
+   */
+  static async updateField(_id, doc) {
+    await this.update({ _id }, { $set: doc });
+
+    return this.findOne({ _id });
+  }
+
+  /*
+   * Remove field
+   * @param {String} _id field id to remove
+   * @return {Promise}
+   */
+  static async removeField(_id) {
+    const fieldObj = await this.findOne({ _id });
+
+    if (!fieldObj) throw new Error(`Field not found with id ${_id}`);
+
+    return fieldObj.remove();
+  }
+}
+
+FieldSchema.loadClass(Field);
+
+const Fields = mongoose.model('fields', FieldSchema);
+
+export default Fields;

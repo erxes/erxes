@@ -6,6 +6,7 @@ import Brands from './Brands';
 import Integrations from './Integrations';
 import EngageMessages from './Engages';
 import Tags from './Tags';
+import Fields from './Fields';
 import { Forms, FormFields } from './Forms';
 import Customers from './Customers';
 import Companies from './Companies';
@@ -28,6 +29,7 @@ export {
   FormFields,
   EngageMessages,
   Tags,
+  Fields,
   Segments,
   Customers,
   Companies,

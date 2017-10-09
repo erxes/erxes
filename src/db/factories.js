@@ -7,6 +7,8 @@ import {
   EmailTemplates,
   ResponseTemplates,
   Customers,
+  Forms,
+  Fields,
   Segments,
   Companies,
 } from './models';
@@ -99,4 +101,26 @@ export const customerFactory = (params = {}) => {
   });
 
   return customer.save();
+};
+
+export const fieldFactory = (params = {}) => {
+  const field = new Fields({
+    type: params.type || 'input',
+    validation: params.validation || 'number',
+    text: params.text || faker.random.word(),
+    description: params.description || faker.random.word(),
+    isRequired: params.isRequired || false,
+    order: params.order || 0,
+  });
+
+  return field.save();
+};
+
+export const formFactory = ({ title, code, createdUserId }) => {
+  return Forms.create({
+    title: title || faker.random.word(),
+    description: faker.random.word(),
+    code: code || Random.id(),
+    createdUserId,
+  });
 };

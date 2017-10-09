@@ -5,6 +5,7 @@ import responseTemplate from './responseTemplate';
 import customers from './customers';
 import segments from './segments';
 import companies from './companies';
+import fields from './fields';
 
 export default {
   ...conversation,
@@ -14,4 +15,5 @@ export default {
   ...customers,
   ...segments,
   ...companies,
+  ...fields,
 };

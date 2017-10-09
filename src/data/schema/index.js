@@ -20,6 +20,8 @@ import {
   mutations as EmailTemplateMutations,
 } from './emailTemplate';
 
+import { types as FieldTypes, mutations as FieldMutations } from './field';
+
 import { types as FormTypes, queries as FormQueries } from './form';
 
 import { types as EngageTypes, queries as EngageQueries } from './engage';
@@ -61,6 +63,7 @@ export const types = `
   ${EmailTemplate}
   ${EngageTypes}
   ${TagTypes}
+  ${FieldTypes}
   ${FormTypes}
   ${CustomerTypes}
   ${SegmentTypes}
@@ -97,6 +100,7 @@ export const mutations = `
     ${EmailTemplateMutations}
     ${CustomerMutations}
     ${SegmentMutations}
+    ${FieldMutations}
   }
 `;
 
