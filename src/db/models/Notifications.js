@@ -1,5 +1,4 @@
 import mongoose from 'mongoose';
-import Configurations from './Configurations';
 
 // schemas
 const NotificationSchema = new mongoose.Schema({
@@ -27,7 +26,7 @@ class Notification {
     doc.createdUser = createdUser;
 
     // if receiver is configured to get this notification
-    const config = await Configurations.findOne({
+    const config = await NotificationConfigurations.findOne({
       user: doc.receiver,
       notifType: doc.notifType,
     });
@@ -50,4 +49,32 @@ class Notification {
 }
 
 NotificationSchema.loadClass(Notification);
-export default mongoose.model('notifications', NotificationSchema);
+export const Notifications = mongoose.model('notifications', NotificationSchema);
+
+const ConfigSchema = new mongoose.Schema({
+  // to whom this config is related
+  user: String,
+  notifType: String,
+  isAllowed: Boolean,
+});
+
+class Configuration {
+  static async createOrUpdateConfiguration({ notifType, isAllowed, user }) {
+    const selector = { user, notifType };
+
+    const oldOne = await this.findOne(selector);
+
+    // If already inserted then raise error
+    if (oldOne) {
+      await this.update({ _id: oldOne._id }, { $set: { isAllowed } });
+      return await this.findOne({ _id: oldOne._id });
+    }
+
+    // If it is first time then insert
+    selector.isAllowed = isAllowed;
+    return await this.create(selector);
+  }
+}
+
+ConfigSchema.loadClass(Configuration);
+export const NotificationConfigurations = mongoose.model('notification_configs', ConfigSchema);

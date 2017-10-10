@@ -1,4 +1,4 @@
-import { Configurations } from '../../../db/models';
+import { NotificationConfigurations } from '../../../db/models';
 import { MODULE_LIST } from '../../constants';
 
 export default {
@@ -7,6 +7,6 @@ export default {
   },
 
   configurationsSaveConfig(doc) {
-    return Configurations.saveConfig(doc);
+    return NotificationConfigurations.saveConfig(doc);
   },
 };

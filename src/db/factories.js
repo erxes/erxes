@@ -10,7 +10,7 @@ import {
   Tags,
   Forms,
   FormFields,
-  Configurations,
+  NotificationConfigurations,
 } from './models';
 
 export const userFactory = (params = {}) => {
@@ -112,7 +112,7 @@ export const configurationFactory = params => {
     isAllowed = true;
   }
 
-  return Configurations.createOrUpdateConfiguration({
+  return NotificationConfigurations.createOrUpdateConfiguration({
     user: params.user || userFactory({}),
     notifType: params.notifType || faker.random.word(),
     // which module's type it is. For example: indocuments

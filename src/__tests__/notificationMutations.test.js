@@ -2,7 +2,7 @@
 /* eslint-disable no-underscore-dangle */
 
 import { connect, disconnect } from '../db/connection';
-import { Notifications, Configurations, Users } from '../db/models';
+import { Notifications, NotificationConfigurations, Users } from '../db/models';
 // import mutations from '../data/resolvers/mutations';
 import { userFactory, configurationFactory } from '../db/factories';
 // import { sendNotification } from '../data/utils';
@@ -21,7 +21,7 @@ describe('Notification model tests', () => {
 
   afterEach(async () => {
     Notifications.remove({});
-    Configurations.remove({});
+    NotificationConfigurations.remove({});
     Users.remove({});
   });
 
