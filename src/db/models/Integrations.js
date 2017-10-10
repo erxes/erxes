@@ -2,7 +2,7 @@ import mongoose from 'mongoose';
 import Random from 'meteor-random';
 import { Messages, Conversations } from './Conversations';
 import { Customers } from './Customers';
-import { KIND_CHOICES, FORM_SUCCESS_ACTIONS, FORM_LOAD_TYPES } from '../constants';
+import { KIND_CHOICES, FORM_SUCCESS_ACTIONS, FORM_LOAD_TYPES } from '../../data/constants';
 
 const MessengerOnlineHoursSchema = mongoose.Schema({
   _id: {

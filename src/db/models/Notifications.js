@@ -60,6 +60,10 @@ const ConfigSchema = new mongoose.Schema({
 
 class Configuration {
   static async createOrUpdateConfiguration({ notifType, isAllowed, user }) {
+    if (!user) {
+      throw new Error('user must be supplied');
+    }
+
     const selector = { user, notifType };
 
     const oldOne = await this.findOne(selector);

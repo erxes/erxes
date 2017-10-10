@@ -29,7 +29,7 @@ describe('Notification model tests', () => {
     expect.assertions(1);
 
     await configurationFactory({
-      user: _user2,
+      user: _user2._id,
       notifType: 'channelMembersChange',
       isAllowed: false,
     });
@@ -53,7 +53,7 @@ describe('Notification model tests', () => {
 
   test('create and update', async () => {
     await configurationFactory({
-      user: _user2,
+      user: _user2._id,
       notifType: 'channelMembersChange',
     });
 
@@ -106,5 +106,40 @@ describe('Notification model tests', () => {
     await Notifications.removeNotification(notification._id);
 
     expect(await Notifications.find({}).count()).toEqual(0);
+  });
+});
+
+describe('NotificationConfiguration model tests', async () => {
+  test('model tests', async () => {
+    // New notification configuration
+
+    const user = await userFactory({});
+    const doc = {
+      notifType: 'conversationAddMessage',
+      isAllowed: true,
+      user: user._id,
+    };
+
+    let notificationConfigurations = await NotificationConfigurations.createOrUpdateConfiguration(
+      doc,
+    );
+    expect(notificationConfigurations.notifType).toEqual(doc.notifType);
+    expect(notificationConfigurations.isAllowed).toEqual(doc.isAllowed);
+    expect(notificationConfigurations.user).toEqual(doc.user);
+
+    // Another notification configuration
+    doc.notifType = 'conversationAssigneeChange';
+
+    notificationConfigurations = await NotificationConfigurations.createOrUpdateConfiguration(doc);
+    expect(notificationConfigurations.notifType).toEqual(doc.notifType);
+    expect(notificationConfigurations.isAllowed).toEqual(doc.isAllowed);
+    expect(notificationConfigurations.user).toEqual(doc.user);
+
+    // Change notification
+    doc.isAllowed = false;
+    notificationConfigurations = await NotificationConfigurations.createOrUpdateConfiguration(doc);
+    expect(notificationConfigurations.notifType).toEqual(doc.notifType);
+    expect(notificationConfigurations.isAllowed).toEqual(doc.isAllowed);
+    expect(notificationConfigurations.user).toEqual(doc.user);
   });
 });
