@@ -4,29 +4,24 @@ const ConfigSchema = new mongoose.Schema({
   // to whom this config is related
   user: String,
   notifType: String,
-  // which module's type it is. For example: indocuments
   isAllowed: Boolean,
 });
 
 class Configuration {
-  static saveConfig({ notifType, isAllowed, userId }) {
-    if (!userId) {
-      throw new Error('createdUserId must be supplied');
-    }
+  static async createOrUpdateConfiguration({ notifType, isAllowed, user }) {
+    const selector = { user, notifType };
 
-    const selector = { user: userId, notifType };
+    const oldOne = await this.findOne(selector);
 
-    const oldOne = this.findOne(selector);
-
-    // if already inserted then update isAllowed field
+    // If already inserted then raise error
     if (oldOne) {
-      this.update({ _id: oldOne._id }, { $set: { isAllowed } });
-
-      // if it is first time then insert
-    } else {
-      selector.isAllowed = isAllowed;
-      this.insert(selector);
+      await this.update({ _id: oldOne._id }, { $set: { isAllowed } });
+      return await this.findOne({ _id: oldOne._id });
     }
+
+    // If it is first time then insert
+    selector.isAllowed = isAllowed;
+    return await this.create(selector);
   }
 }
 

@@ -22,4 +22,8 @@ export const TAG_TYPES = {
 
 export const MODULE_LIST = [
   // TODO: need to collect modules
+  'channelMembersChange',
+  'conversationAddMessage',
+  'conversationAssigneeChange',
+  'conversationStateChange',
 ];

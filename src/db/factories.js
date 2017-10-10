@@ -10,6 +10,7 @@ import {
   Tags,
   Forms,
   FormFields,
+  Configurations,
 } from './models';
 
 export const userFactory = (params = {}) => {
@@ -94,7 +95,7 @@ export const formFactory = ({ title, code, createdUserId }) => {
 };
 
 export const formFieldFactory = (formId, params) => {
-  return FormFields.createFormField(formId || shortid.id(), {
+  return FormFields.createFormField(formId || Random.id(), {
     type: params.type || faker.random.word(),
     name: faker.random.word(),
     validation: params.validation || faker.random.word(),
@@ -102,5 +103,19 @@ export const formFieldFactory = (formId, params) => {
     description: faker.random.word(),
     isRequired: params.isRequired || false,
     number: faker.random.word(),
+  });
+};
+
+export const configurationFactory = params => {
+  let { isAllowed } = params;
+  if (isAllowed == null) {
+    isAllowed = true;
+  }
+
+  return Configurations.createOrUpdateConfiguration({
+    user: params.user || userFactory({}),
+    notifType: params.notifType || faker.random.word(),
+    // which module's type it is. For example: indocuments
+    isAllowed: isAllowed,
   });
 };
