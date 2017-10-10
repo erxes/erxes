@@ -1,8 +1,17 @@
-import { Notifications } from '../../../db/models';
+import { NotificationConfigurations, Notifications } from '../../../db/models';
 
 export default {
-  notificationsCreate(root, doc) {
-    return Notifications.createNotification(doc);
+  /**
+   * Save notification configuration
+   * @param {Object}
+   * @param {String.notifType} args.notifType
+   * @param {String.isAllowed} args.isAllowed
+   * @param {String.user} args.user
+   * @return {Promise} returns notification promise
+   * @throws {Error} apollo level error based on validation
+   */
+  notificationsSaveConfig(root, doc) {
+    return NotificationConfigurations.createOrUpdateConfiguration(doc);
   },
 
   /**

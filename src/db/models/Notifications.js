@@ -2,7 +2,7 @@ import mongoose from 'mongoose';
 
 // schemas
 const NotificationSchema = new mongoose.Schema({
-  notifType: String,
+  notifType: String, // TODO: type: enum
   title: String,
   link: String,
   content: String,
@@ -17,6 +17,16 @@ class Notification {
     return this.update({ _id: { $in: ids } }, { $set: { isRead: true } }, { multi: true });
   }
 
+  /** Create a notification
+   * @param {String} doc.notifType
+   * @param {String} doc.createdUser
+   * @param {String} doc.title
+   * @param {String} doc.content
+   * @param {String} doc.link
+   * @param {String} doc.receiver
+   * @return {Notification} Notification Object
+   * @throws {Exception} throws Exception if createdUser is not supplied
+   */
   static async createNotification({ createdUser, ...doc }) {
     if (!createdUser) {
       throw new Error('createdUser must be supplied');
