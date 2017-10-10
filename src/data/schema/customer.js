@@ -19,6 +19,8 @@ export const types = `
     createdAt: Date
     tagIds: [String]
     internalNotes: JSON
+
+    customFieldsData: JSON
     messengerData: JSON
     twitterData: JSON
     facebookData: JSON
@@ -42,6 +44,7 @@ const fields = `
   name: String
   email: String
   phone: String
+  customFieldsData: JSON
 `;
 
 export const mutations = `

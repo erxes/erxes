@@ -19,6 +19,7 @@ const CustomerSchema = mongoose.Schema({
   internalNotes: Object,
   tagIds: [String],
 
+  customFieldsData: Object,
   messengerData: Object,
   twitterData: Object,
   facebookData: Object,
