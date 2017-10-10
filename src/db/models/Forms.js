@@ -32,7 +32,7 @@ class Form {
     const { createdUserId } = doc;
 
     if (!createdUserId) {
-      throw 'createdUserId must be supplied';
+      throw new Error('createdUserId must be supplied');
     }
 
     doc.code = await this.generateCode();

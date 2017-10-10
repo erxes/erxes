@@ -20,7 +20,7 @@
     "lint": "eslint src",
     "format": "prettier --write --print-width 100 --single-quote --trailing-comma all 'src/**/*.js'",
     "precommit": "lint-staged",
-    "test": "jest"
+    "test": "jest --runInBand"
   },
   "lint-staged": {
     "*.js": [
@@ -58,6 +58,7 @@
     "husky": "^0.13.4",
     "jest": "^21.2.1",
     "lint-staged": "^3.6.0",
-    "nodemon": "^1.11.0"
+    "nodemon": "^1.11.0",
+    "prettier": "^1.4.4"
   }
 }

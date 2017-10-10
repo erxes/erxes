@@ -34,7 +34,7 @@ describe('form creation tests', () => {
         description: 'Test form description',
       });
     } catch (e) {
-      expect(e).toEqual('createdUserId must be supplied');
+      expect(e.message).toEqual('createdUserId must be supplied');
     }
   });
 

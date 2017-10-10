@@ -5,6 +5,8 @@ import responseTemplate from './responseTemplate';
 import channel from './channel';
 import form from './form';
 import integration from './integration';
+import configuration from './configuration';
+import notification from './notification';
 
 export default {
   ...conversation,
@@ -14,4 +16,6 @@ export default {
   ...channel,
   ...form,
   ...integration,
+  ...configuration,
+  ...notification,
 };

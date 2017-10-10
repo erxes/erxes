@@ -14,6 +14,8 @@ import {
   KnowledgeBaseCategories,
   KnowledgeBaseTopics,
 } from './KnowledgeBase';
+import Notifications from './Notifications';
+import Configurations from './Configurations';
 
 export {
   Users,
@@ -33,4 +35,6 @@ export {
   KnowledgeBaseArticles,
   KnowledgeBaseCategories,
   KnowledgeBaseTopics,
+  Notifications,
+  Configurations,
 };

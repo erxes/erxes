@@ -19,3 +19,7 @@ export const TAG_TYPES = {
   ENGAGE_MESSAGE: 'engageMessage',
   ALL_LIST: ['conversation', 'customer', 'engageMessage'],
 };
+
+export const MODULE_LIST = [
+  // TODO: need to collect modules
+];
