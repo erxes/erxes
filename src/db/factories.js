@@ -1,6 +1,6 @@
 import shortid from 'shortid';
 import faker from 'faker';
-import { Users, Tags } from './models';
+import { Users, Tags, Segments } from './models';
 
 export const userFactory = (params = {}) => {
   const user = new Users({
@@ -22,4 +22,12 @@ export const tagsFactory = (params = {}) => {
   });
 
   return tag.save();
+};
+
+export const segmentsFactory = (params = {}) => {
+  const segment = new Segments({
+    name: faker.random.word(),
+  });
+
+  return segment.save();
 };

@@ -21,6 +21,31 @@ const EngageMessageSchema = mongoose.Schema({
   deliveryReports: Object,
 });
 
+class Message {
+  /**
+   * Create engage message
+   * @param  {Object} doc object
+   * @return {Promise} Newly created message object
+   */
+  static createMessage(doc) {
+    return this.create({
+      ...doc,
+      deliveryReports: {},
+      createdUserId: doc.userId,
+      createdDate: new Date(),
+    });
+  }
+
+  static updateMessage(_id, doc) {
+    return this.update({ _id }, { $set: doc });
+  }
+
+  static removeMessage(_id) {
+    return this.remove({ _id });
+  }
+}
+
+EngageMessageSchema.loadClass(Message);
 const EngageMessages = mongoose.model('engage_messages', EngageMessageSchema);
 
 export default EngageMessages;

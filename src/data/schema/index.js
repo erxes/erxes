@@ -12,7 +12,11 @@ import { types as EmailTemplate, queries as EmailTemplateQueries } from './email
 
 import { types as FormTypes, queries as FormQueries } from './form';
 
-import { types as EngageTypes, queries as EngageQueries } from './engage';
+import {
+  types as EngageTypes,
+  queries as EngageQueries,
+  mutations as EngageMutations,
+} from './engage';
 
 import { types as TagTypes, queries as TagQueries, mutations as TagMutations } from './tag';
 
@@ -68,6 +72,7 @@ export const queries = `
 export const mutations = `
   type Mutation {
     ${ConversationMutations}
+    ${EngageMutations}
     ${TagMutations}
   }
 `;
