@@ -124,6 +124,10 @@ class Field {
 
     return this.find({ _id: { $in: ids } }).sort({ order: 1 });
   }
+
+  static getCustomerFields() {
+    return this.find({ contentType: FIELD_CONTENT_TYPES.CUSTOMER });
+  }
 }
 
 FieldSchema.loadClass(Field);

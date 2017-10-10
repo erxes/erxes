@@ -1,6 +1,99 @@
 import mongoose from 'mongoose';
 import Random from 'meteor-random';
 
+/*
+ * messenger schema
+ */
+const messengerSchema = mongoose.Schema(
+  {
+    lastSeenAt: {
+      type: Date,
+      label: 'Messenger: Last online',
+    },
+    sessionCount: {
+      type: Number,
+      label: 'Messenger: Session count',
+    },
+    isActive: {
+      type: Boolean,
+      label: 'Messenger: Is online',
+    },
+    customData: {
+      type: Object,
+      blackbox: true,
+      optional: true,
+    },
+  },
+  { _id: false },
+);
+
+/*
+ * twitter schema
+ */
+const twitterSchema = mongoose.Schema(
+  {
+    id: {
+      type: Number,
+      label: 'Twitter: ID (Number)',
+    },
+    idStr: {
+      type: String,
+      label: 'Twitter: ID (String)',
+    },
+    name: {
+      type: String,
+      label: 'Twitter: Name',
+    },
+    screenName: {
+      type: String,
+      label: 'Twitter: Screen name',
+    },
+    profileImageUrl: {
+      type: String,
+      label: 'Twitter: Profile photo',
+    },
+  },
+  { _id: false },
+);
+
+/*
+ * facebook schema
+ */
+const facebookSchema = mongoose.Schema(
+  {
+    id: {
+      type: String,
+      label: 'Facebook: ID',
+    },
+    profilePic: {
+      type: String,
+      optional: true,
+      label: 'Facebook: Profile photo',
+    },
+  },
+  { _id: false },
+);
+
+/*
+ * internal note schema
+ */
+const internalNoteSchema = mongoose.Schema({
+  _id: {
+    type: String,
+    unique: true,
+    default: () => Random.id(),
+  },
+  content: {
+    type: String,
+  },
+  createdBy: {
+    type: String,
+  },
+  createdDate: {
+    type: Date,
+  },
+});
+
 const CustomerSchema = mongoose.Schema({
   _id: {
     type: String,
@@ -8,21 +101,20 @@ const CustomerSchema = mongoose.Schema({
     default: () => Random.id(),
   },
 
-  name: String,
-  email: String,
-  phone: String,
-  isUser: Boolean,
+  name: { type: String, label: 'Name' },
+  email: { type: String, label: 'Email' },
+  phone: { type: String, label: 'Phone' },
+  isUser: { type: Boolean, label: 'Is user' },
+  createdAt: { type: Date, label: 'Created at' },
 
   integrationId: String,
-  createdAt: Date,
-
-  internalNotes: Object,
   tagIds: [String],
 
   customFieldsData: Object,
-  messengerData: Object,
-  twitterData: Object,
-  facebookData: Object,
+  internalNotes: [internalNoteSchema],
+  messengerData: messengerSchema,
+  twitterData: twitterSchema,
+  facebookData: facebookSchema,
 });
 
 class Customer {
