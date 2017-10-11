@@ -1,10 +1,15 @@
 import React from 'react';
-
 import { storiesOf } from '@storybook/react';
-import { action } from '@storybook/addon-actions';
+import { withKnobs, text, select } from "@storybook/addon-knobs";
 
-import { Button } from '@storybook/react/demo';
+import Button from "../src/components/Button";
 
 storiesOf('Button', module)
-  .add('with text', () => <Button onClick={action('clicked')}>Hello Button</Button>)
-  .add('with some emoji', () => <Button onClick={action('clicked')}>😀 😎 👍 💯</Button>);
+  .addDecorator(withKnobs)
+  .add("Primary", () => (
+    <Button
+      color={select("Color", ["primary", "default", "success"], "default")}
+    >
+      {text("Text", "Hello Button")}
+    </Button>
+  ));
