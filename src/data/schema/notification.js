@@ -19,16 +19,12 @@ export const types = `
   }
 `;
 
-export const mutations = `
-  notificationsSaveConfig (
-    notifType: String,
-    isAllowed: Boolean,
-    user: String,
-  ): NotificationConfiguration
-
-  notificationsMarkAsRead ( ids: [String]! ) : Boolean
-`;
-
 export const queries = `
   notificationsModules(ids: [String]) : [String]
+`;
+
+export const mutations = `
+  notificationsSaveConfig (notifType: String, isAllowed: Boolean): NotificationConfiguration
+
+  notificationsMarkAsRead ( ids: [String]! ) : Boolean
 `;

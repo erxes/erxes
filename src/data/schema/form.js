@@ -29,15 +29,9 @@ export const types = `
 `;
 
 export const mutations = `
-  formsCreate(
-    title: String!,
-    description: String,
-    createdUserId: String!): Form
+  formsCreate(title: String!, description: String): Form
 
-  formsEdit(
-    _id: String!,
-    title: String!,
-    description: String): Boolean
+  formsEdit(_id: String!, title: String!, description: String): Boolean
 
   formsRemove(_id: String!): Boolean
 

@@ -12,8 +12,13 @@ export default {
    * @param {String} doc.userId
    * @return {Promise} returns channel object
    * @throws {Error} throws apollo level validation errors
+   * @throws {Error} throws error if user is not logged in
    */
-  async channelsCreate(root, doc) {
+  async channelsCreate(root, doc, { user }) {
+    if (!user) {
+      throw new Error('Login required');
+    }
+
     const channel = Channels.createChannel(doc);
 
     sendChannelNotifications({
@@ -36,8 +41,13 @@ export default {
    * @param {String} doc.userId
    * @return {Promise} returns null
    * @throws {Error} throws apollo level validation errors
+   * @throws {Error} throws error if user is not logged in
    */
-  channelsEdit(root, { _id, ...doc }) {
+  channelsEdit(root, { _id, ...doc }, { user }) {
+    if (!user) {
+      throw new Error('Login required');
+    }
+
     sendChannelNotifications({
       channelId: _id,
       memberIds: doc.memberIds,
@@ -52,8 +62,13 @@ export default {
    * @param {Object}
    * @param {String} id
    * @return {Promise} null
+   * @throws {Error} throws error if user is not logged in
    */
-  channelsRemove(root, { _id }) {
+  channelsRemove(root, { _id }, { user }) {
+    if (!user) {
+      throw new Error('Login required');
+    }
+
     return Channels.removeChannel(_id);
   },
 };

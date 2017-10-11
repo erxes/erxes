@@ -2,44 +2,24 @@ import mongoose from 'mongoose';
 import Random from 'meteor-random';
 import { createdAtModifier } from '../plugins';
 
-function ChannelCreationException(message) {
-  this.message = message;
-  this.value = 'channel.create.exception';
-  this.toString = `${this.value} - ${this.value}`;
-}
-
+// schema for channel document
 const ChannelSchema = mongoose.Schema({
   _id: {
     type: String,
     default: () => Random.id(),
   },
-  name: {
-    type: String,
-    required: true,
-  },
+  name: String,
   description: String,
-  // TODO: Check if regex id is available for use
-  integrationIds: {
-    type: [String],
-  },
-  // TODO: Check if regex id is available for use
-  memberIds: {
-    type: [String],
-  },
-  userId: {
-    type: String,
-  },
-  conversationCount: {
-    type: Number,
-  },
-  openConversationCount: {
-    type: Number,
-  },
+  integrationIds: [String],
+  memberIds: [String],
+  userId: String,
+  conversationCount: Number,
+  openConversationCount: Number,
 });
 
 class Channel {
   /**
-   *
+   * Pre save filter method that adds userId to memberIds if it does not contain it
    */
   static preSave(doc) {
     doc.memberIds = doc.memberIds || [];
@@ -50,30 +30,50 @@ class Channel {
   }
 
   /**
-   * Create a new channel,
-   * adds `userId` to the `memberIds` if it doesn't contain it
-   * @param {Object} args
-   * @return {Promise} Newly created channel obj
+   * Create a new channel document
+   * @param {String} doc.name
+   * @param {String} doc.description
+   * @param {Array} doc.integrationIds
+   * @param {Array} doc.memberIds
+   * @param {String} doc.userId
+   * @return {Promise} Newly created channel document
    */
   static createChannel(doc) {
     const { userId } = doc;
 
     if (!userId) {
-      throw new ChannelCreationException('userId must be supplied');
+      throw new Error('userId must be supplied');
     }
 
     this.preSave(doc);
+
     doc.conversationCount = 0;
     doc.openConversationCount = 0;
 
     return this.create(doc);
   }
 
+  /**
+   * Updates a channel document
+   * adds `userId` to the `memberIds` if it doesn't contain it
+   * @param {String} doc.name
+   * @param {String} doc.description
+   * @param {Array} doc.integrationIds
+   * @param {Array} doc.memberIds
+   * @param {String} doc.userId
+   * @return {Promise}
+   */
   static updateChannel(_id, doc) {
     this.preSave(doc);
+
     return this.update({ _id }, { $set: doc }, { runValidators: true });
   }
 
+  /**
+   * Removes a channel document
+   * @param {String} _id
+   * @return {Promise}
+   */
   static removeChannel(_id) {
     return this.remove({ _id });
   }

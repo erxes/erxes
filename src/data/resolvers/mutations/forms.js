@@ -1,16 +1,22 @@
 import { Forms, FormFields } from '../../../db/models';
+
 export default {
   /**
    * Create a new form
    * @param {Object}
-   * @param {String} doc.title
-   * @param {String} doc.description
-   * @param {String} doc.createdUserId
+   * @param {String} args2.title
+   * @param {String} args2.description
+   * @param {String} args3.user
    * @return {Promise} returns the form
    * @throws {Error} apollo level error based on validation
+   * @throws {Error} throws error if user is not logged in
    */
-  formsCreate(root, doc) {
-    return Forms.createForm(doc);
+  formsCreate(root, doc, { user }) {
+    if (!user) {
+      throw new Error('Login required');
+    }
+
+    return Forms.createForm(doc, user);
   },
 
   /**
@@ -19,10 +25,16 @@ export default {
    * @param {String} doc._id
    * @param {String} doc.title
    * @param {String} doc.description
+   * @param {String} args3.user
    * @return {Promise} returns null
    * @throws {Error} apollo level error based on validation
+   * @throws {Error} throws error if user is not logged in
    */
-  formsEdit(root, { _id, ...doc }) {
+  formsEdit(root, { _id, ...doc }, { user }) {
+    if (!user) {
+      throw new Error('Login required');
+    }
+
     return Forms.updateForm(_id, doc);
   },
 
@@ -31,9 +43,14 @@ export default {
    * @param {Object}
    * @param {String} _id
    * @return {Promise} null
-   * @throws apollo level error based on validation
+   * @throws {Error} apollo level error based on validation
+   * @throws {Error} throws error if user is not logged in
    */
-  formsRemove(root, { _id }) {
+  formsRemove(root, { _id }, { user }) {
+    if (!user) {
+      throw new Error('Login required');
+    }
+
     return Forms.removeForm(_id);
   },
 
@@ -49,8 +66,13 @@ export default {
    * @param {Boolean} args.isRequired
    * @return {Promise} return Promise(null)
    * @throws {Error} throws apollo error based on validation
+   * @throws {Error} throws error if user is not logged in
    */
-  formsAddFormField(root, { formId, ...formFieldDoc }) {
+  formsAddFormField(root, { formId, ...formFieldDoc }, { user }) {
+    if (!user) {
+      throw new Error('Login required');
+    }
+
     return FormFields.createFormField(formId, formFieldDoc);
   },
 
@@ -64,8 +86,13 @@ export default {
   * @param {Boolean} args.isRequired
   * @return {Promise} return Promise(null)
   * @throws {Error} throws apollo error based on validation
+  * @throws {Error} throws error if user is not logged in
   */
-  formsEditFormField(root, { _id, ...formFieldDoc }) {
+  formsEditFormField(root, { _id, ...formFieldDoc }, { user }) {
+    if (!user) {
+      throw new Error('Login required');
+    }
+
     return FormFields.updateFormField(_id, formFieldDoc);
   },
 
@@ -75,8 +102,13 @@ export default {
    * @param {String} _id
    * @return {Promise} null
    * @throws {Error} throws apollo error based on validation
+   * @throws {Error} throws error if user is not logged in
    */
-  formsRemoveFormField(root, { _id }) {
+  formsRemoveFormField(root, { _id }, { user }) {
+    if (!user) {
+      throw new Error('Login required');
+    }
+
     return FormFields.removeFormField(_id);
   },
 
@@ -87,8 +119,13 @@ export default {
    * @param {String} args.orderDics.order
    * @return {Promise} null
    * @throws {Error} throws apollo error based on validation
+   * @throws {Error} throws error if user is not logged in
    */
-  formsUpdateFormFieldsOrder(root, { orderDics }) {
+  formsUpdateFormFieldsOrder(root, { orderDics }, { user }) {
+    if (!user) {
+      throw new Error('Login required');
+    }
+
     return Forms.updateFormFieldsOrder(orderDics);
   },
 
@@ -98,8 +135,13 @@ export default {
    * @param {String} args._id
    * @return {Promise} returns form object
    * @throws {Error} throws apollo error based on validation
+   * @throws {Error} throws error if user is not logged in
    */
-  formsDuplicate(root, { _id }) {
+  formsDuplicate(root, { _id }, { user }) {
+    if (!user) {
+      throw new Error('Login required');
+    }
+
     return Forms.duplicate(_id);
   },
 };

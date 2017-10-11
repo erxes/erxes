@@ -1,5 +1,6 @@
 import faker from 'faker';
 import Random from 'meteor-random';
+import { MODULES } from '../data/constants';
 
 import {
   Users,
@@ -11,6 +12,7 @@ import {
   Forms,
   FormFields,
   NotificationConfigurations,
+  Notifications,
 } from './models';
 
 export const userFactory = (params = {}) => {
@@ -106,16 +108,29 @@ export const formFieldFactory = (formId, params) => {
   });
 };
 
-export const configurationFactory = params => {
+export const notificationConfigurationFactory = params => {
   let { isAllowed } = params;
   if (isAllowed == null) {
     isAllowed = true;
   }
 
-  return NotificationConfigurations.createOrUpdateConfiguration({
-    user: params.user || userFactory({}),
-    notifType: params.notifType || faker.random.word(),
-    // which module's type it is. For example: indocuments
-    isAllowed: isAllowed,
+  return NotificationConfigurations.createOrUpdateConfiguration(
+    {
+      notifType: params.notifType || MODULES.CHANNEL_MEMBERS_CHANGE,
+      // which module's type it is. For example: indocuments
+      isAllowed,
+    },
+    params.user || userFactory({}),
+  );
+};
+
+export const notificationFactory = params => {
+  return Notifications.createNotification({
+    notifType: params.notifType || MODULES.CHANNEL_MEMBERS_CHANGE,
+    createdUser: params.createdUser || userFactory({}),
+    title: params.title || 'new Notification title',
+    content: params.content || 'new Notification content',
+    link: params.link || 'new Notification link',
+    receiver: params.receiver || userFactory({}),
   });
 };

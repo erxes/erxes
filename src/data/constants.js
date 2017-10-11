@@ -42,9 +42,16 @@ export const KIND_CHOICES = {
   ALL_LIST: ['messenger', 'form', 'twitter', 'facebook'],
 };
 
-export const MODULE_LIST = [
-  'channelMembersChange',
-  'conversationAddMessage',
-  'conversationAssigneeChange',
-  'conversationStateChange',
-];
+// module constants
+export const MODULES = {
+  CHANNEL_MEMBERS_CHANGE: 'channelMembersChange',
+  CONVERSATION_ADD_MESSAGE: 'conversationAddMessage',
+  CONVERSATION_ASSIGNEE_CHANGE: 'conversationAssigneeChange',
+  CONVERSATION_STATE_CHANGE: 'conversationStateChange',
+  ALL: [
+    'channelMembersChange',
+    'conversationAddMessage',
+    'conversationAssigneeChange',
+    'conversationStateChange',
+  ],
+};

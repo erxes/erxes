@@ -8,8 +8,13 @@ export default {
    * @param {String} doc.brandId
    * @return {Promise} returns the messenger integration
    * @throws {Error} apollo level error based on validation
+   * @throws {Error} throws error if user is not logged in
    */
-  integrationsCreateMessengerIntegration(root, doc) {
+  integrationsCreateMessengerIntegration(root, doc, { user }) {
+    if (!user) {
+      throw new Error('Login required');
+    }
+
     return Integrations.createMessengerIntegration(doc);
   },
 
@@ -21,8 +26,13 @@ export default {
    * @param {String} args.brandId
    * @return {Promise} returns null
    * @throws {Error} apollo level error based on validation
+   * @throws {Error} throws error if user is not logged in
    */
-  integrationsEditMessengerIntegration(root, { id, ...fields }) {
+  integrationsEditMessengerIntegration(root, { id, ...fields }, { user }) {
+    if (!user) {
+      throw new Error('Login required');
+    }
+
     return Integrations.updateMessengerIntegration(id, fields);
   },
 
@@ -35,8 +45,13 @@ export default {
    * @param {String} args.logo
    * @return {Promise} returns null
    * @throws {Error} apollo level error based on validation
+   * @throws {Error} throws error if user is not logged in
    */
-  integrationsSaveMessengerAppearanceData(root, { id, uiOptions }) {
+  integrationsSaveMessengerAppearanceData(root, { id, uiOptions }, { user }) {
+    if (!user) {
+      throw new Error('Login required');
+    }
+
     return Integrations.saveMessengerAppearanceData(id, uiOptions);
   },
 
@@ -56,8 +71,13 @@ export default {
    * @param {String} args.thankYouMessage
    * @return {Promise} returns null
    * @throws {Error} apollo level error based on validation
+   * @throws {Error} throws error if user is not logged in
    */
-  integrationsSaveMessengerConfigs(root, { id, messengerData }) {
+  integrationsSaveMessengerConfigs(root, { id, messengerData }, { user }) {
+    if (!user) {
+      throw new Error('Login required');
+    }
+
     return Integrations.saveMessengerConfigs(id, messengerData);
   },
 
@@ -70,8 +90,13 @@ export default {
    * @param {Object} doc.formData
    * @return {Promise} returns the messenger integration
    * @throws {Error} apollo level error based on validation
+   * @throws {Error} throws error if user is not logged in
    */
-  integrationsCreateFormIntegration(root, doc) {
+  integrationsCreateFormIntegration(root, doc, { user }) {
+    if (!user) {
+      throw new Error('Login required');
+    }
+
     return Integrations.createFormIntegration(doc);
   },
 
@@ -84,8 +109,13 @@ export default {
    * @param {Object} doc.formData
    * @return {Promise} returns null
    * @throws {Error} apollo level error based on validation
+   * @throws {Error} throws error if user is not logged in
    */
-  integrationsEditFormIntegration(root, { id, ...doc }) {
+  integrationsEditFormIntegration(root, { id, ...doc }, { user }) {
+    if (!user) {
+      throw new Error('Login required');
+    }
+
     return Integrations.updateFormIntegration(id, doc);
   },
 
@@ -95,8 +125,13 @@ export default {
    * @param {String} args.id
    * @return {Promise} returns the messenger integration
    * @throws {Error} apollo level error based on validation
+   * @throws {Error} throws error if user is not logged in
    */
-  integrationsRemove(root, { id }) {
+  integrationsRemove(root, { id }, { user }) {
+    if (!user) {
+      throw new Error('Login required');
+    }
+
     return Integrations.removeIntegration({ _id: id });
   },
 };

@@ -8,8 +8,9 @@ beforeAll(() => connect());
 afterAll(() => disconnect());
 
 describe('notification query test', () => {
-  test('notification query test', () => {
+  test('test of getting notification list with success', () => {
     const modules = queries.notificationsModules();
+
     expect(modules).toEqual(MODULE_LIST);
   });
 });

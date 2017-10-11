@@ -1,4 +1,4 @@
-import { MODULE_LIST } from '../../constants';
+import { MODULES } from '../../constants';
 
 export default {
   /**
@@ -7,6 +7,6 @@ export default {
    * @return {Promise} module list
    */
   notificationsModules() {
-    return MODULE_LIST;
+    return MODULES.ALL;
   },
 };
