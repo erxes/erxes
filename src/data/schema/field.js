@@ -20,6 +20,7 @@ export const types = `
 
 export const queries = `
   fields(contentType: String!, contentTypeId: String): [Field]
+  fieldsCombinedByContentType: JSON
 `;
 
 const commonFields = `

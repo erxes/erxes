@@ -19,18 +19,12 @@ export const types = `
     getParentSegment: Segment
     getSubSegments: [Segment]
   }
-
-  type SegmentField {
-    name: String!
-    label: String!
-  }
 `;
 
 export const queries = `
   segments: [Segment]
   segmentDetail(_id: String): Segment
   segmentsGetHeads: [Segment]
-  segmentsGetFields(kind: String): [SegmentField]
 `;
 
 const commonFields = `
