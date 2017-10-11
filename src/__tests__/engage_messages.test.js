@@ -13,18 +13,11 @@ describe('engage messages models', () => {
   let _user;
   let _segment = segmentsFactory();
 
-  /**
-   * Before each test create test data
-   * containing 2 users and an integration
-   */
   beforeEach(async () => {
     _user = await userFactory({});
     _segment = await segmentsFactory({});
   });
 
-  /**
-   * After each test remove the test data
-   */
   afterEach(async () => {
     await Users.remove({});
     await Segments.remove({});
@@ -95,10 +88,6 @@ describe('mutations', () => {
   let _segment = segmentsFactory();
   let _doc = null;
 
-  /**
-   * Before each test create test data
-   * containing 2 users and an integration
-   */
   beforeEach(async () => {
     _user = await userFactory({});
     _segment = await segmentsFactory({});
@@ -111,9 +100,6 @@ describe('mutations', () => {
     };
   });
 
-  /**
-   * After each test remove the test data
-   */
   afterEach(async () => {
     _doc = null;
     await Users.remove({});
