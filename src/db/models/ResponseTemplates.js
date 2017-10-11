@@ -10,7 +10,9 @@ const ResponseTemplateSchema = mongoose.Schema({
   name: String,
   content: String,
   brandId: String,
-  files: [Object],
+  files: {
+    type: Array,
+  },
 });
 
 const ResponseTemplates = mongoose.model('response_templates', ResponseTemplateSchema);
