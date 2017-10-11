@@ -123,7 +123,7 @@ class FormField {
     const lastField = await FormFields.findOne({}, { order: 1 }, { sort: { order: -1 } });
     doc.formId = formId;
 
-    // if there is no field then start with 0
+    // If there is no field then start with 0
     let order = 0;
 
     if (lastField) {

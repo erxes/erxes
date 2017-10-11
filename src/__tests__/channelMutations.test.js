@@ -100,8 +100,11 @@ describe('channel update tests', () => {
     let channel = await Channels.createChannel(doc);
 
     doc.memberIds = [_user2._id];
+
     await Channels.updateChannel(channel._id, doc);
+
     channel = await Channels.findOne({ _id: channel._id });
+
     expect(channel.name).toEqual(doc.name);
     expect(channel.description).toEqual(doc.description);
     expect(channel.memberIds.length).toBe(2);
@@ -211,8 +214,11 @@ describe('mutations', () => {
     };
 
     doc.memberIds = [_user2._id];
+
     await mutations.channelsEdit(null, { ...doc, _id: channel._id });
+
     channel = await Channels.findOne({ _id: channel._id });
+
     expect(channel.name).toEqual(doc.name);
     expect(channel.description).toEqual(doc.description);
     expect(channel.memberIds.length).toBe(2);
@@ -225,13 +231,17 @@ describe('mutations', () => {
     expect(channel.openConversationCount).toEqual(0);
 
     doc.memberIds = [_user._id];
+
     await mutations.channelsEdit(null, { ...doc, _id: channel._id });
+
     channel = await Channels.findOne({ _id: channel._id });
+
     expect(channel.memberIds.length).toBe(1);
     expect(channel.memberIds[0]).toBe(_user._id);
 
     await mutations.channelsRemove(null, { _id: channel._id });
     const channelCount = await Channels.find({}).count();
+
     expect(channelCount).toBe(0);
   });
 });

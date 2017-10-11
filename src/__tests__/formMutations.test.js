@@ -28,6 +28,7 @@ describe('form creation tests', () => {
 
   test('form creation test without userId supplied', async () => {
     expect.assertions(1);
+
     try {
       await Forms.createForm({
         title: 'Test form',
@@ -58,6 +59,7 @@ describe('form creation tests', () => {
 
 describe('form update tests', () => {
   let _user;
+
   /**
    * Testing with an _user object
    */
@@ -423,6 +425,7 @@ describe('mutations', () => {
     });
 
     const formAfterUpdate = await Forms.findOne({ _id: form._id });
+
     expect(formAfterUpdate.title).toBe('Test form 2');
     expect(formAfterUpdate.description).toBe('Test form description 2');
     expect(form.createdUserId).toBe(formAfterUpdate.createdUserId);
@@ -461,6 +464,7 @@ describe('mutations', () => {
     });
 
     const updatedFormField = await FormFields.findOne({ _id: newFormField._id });
+
     expect(updatedFormField.formId).toEqual(form._id);
     expect(updatedFormField.type).toEqual('mutation input 1');
     expect(updatedFormField.validation).toEqual('mutation number 1');

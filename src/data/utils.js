@@ -40,7 +40,7 @@ export const sendChannelNotifications = async ({ channelId, _memberIds, userId }
     content,
     link: `/inbox/${channel._id}`,
 
-    // exclude current user
+    // Exclude current user
     receivers: memberIds.filter(id => id !== userId),
   });
 };
@@ -61,9 +61,9 @@ export const sendNotification = async ({ receivers, ...doc }) => {
     doc.receiver = receiverId;
 
     try {
-      // create notification
+      // Create notification
       await Notifications.createNotification(doc);
-      // TODO: implement sendEmail
+      // TODO: Implement sendEmail
     } catch (e) {
       if (e.message != 'Configuration does not exist') {
         return e;

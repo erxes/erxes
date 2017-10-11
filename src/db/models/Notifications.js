@@ -1,7 +1,6 @@
 import mongoose from 'mongoose';
 import { MODULE_LIST } from '../../data/constants';
 
-// schemas
 const NotificationSchema = new mongoose.Schema({
   notifType: {
     type: String,
@@ -66,7 +65,7 @@ NotificationSchema.loadClass(Notification);
 export const Notifications = mongoose.model('notifications', NotificationSchema);
 
 const ConfigSchema = new mongoose.Schema({
-  // to whom this config is related
+  // To whom this config is related
   user: String,
   notifType: String,
   isAllowed: Boolean,
