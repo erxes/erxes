@@ -45,6 +45,7 @@ export default {
         // add to fields list
         if (label) {
           fields.push({
+            _id: Math.random(),
             name: `${namePrefix}${name}`,
             label,
           });
@@ -71,6 +72,7 @@ export default {
     // extend fields list using custom fields
     customFields.forEach(customField => {
       fields.push({
+        _id: Math.random(),
         name: `customFieldsData.${customField._id}`,
         label: customField.text,
       });
