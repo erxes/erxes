@@ -49,7 +49,7 @@ export const types = `
     thankYouMessage: String
   }
 
-  input MessengerUIOptions {
+  input MessengerUiOptions {
     color: String
     wallpaper: String
     logo: String

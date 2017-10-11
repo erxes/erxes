@@ -65,6 +65,7 @@ class Channel {
     this.preSave(doc);
     doc.conversationCount = 0;
     doc.openConversationCount = 0;
+
     return this.create(doc);
   }
 

@@ -1,8 +1,12 @@
 import mongoose from 'mongoose';
+import { MODULE_LIST } from '../../data/constants';
 
 // schemas
 const NotificationSchema = new mongoose.Schema({
-  notifType: String, // TODO: type: enum
+  notifType: {
+    type: String,
+    enum: MODULE_LIST,
+  },
   title: String,
   link: String,
   content: String,

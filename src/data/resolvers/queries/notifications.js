@@ -6,7 +6,7 @@ export default {
    * @param {Object} args
    * @return {Promise} module list
    */
-  notifiationsModules() {
+  notificationsModules() {
     return MODULE_LIST;
   },
 };

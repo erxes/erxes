@@ -5,8 +5,7 @@ import { connect, disconnect } from '../db/connection';
 import { Notifications, NotificationConfigurations, Users } from '../db/models';
 import mutations from '../data/resolvers/mutations';
 import { userFactory, configurationFactory } from '../db/factories';
-import { MODULE_LIST } from '../data/constants';
-import { sendChannelNotifications, sendNotification } from '../data/utils';
+import { sendNotification } from '../data/utils';
 
 beforeAll(() => connect());
 afterAll(() => disconnect());
@@ -125,6 +124,7 @@ describe('NotificationConfiguration model tests', async () => {
     let notificationConfigurations = await NotificationConfigurations.createOrUpdateConfiguration(
       doc,
     );
+
     expect(notificationConfigurations.notifType).toEqual(doc.notifType);
     expect(notificationConfigurations.isAllowed).toEqual(doc.isAllowed);
     expect(notificationConfigurations.user).toEqual(doc.user);
@@ -133,13 +133,16 @@ describe('NotificationConfiguration model tests', async () => {
     doc.notifType = 'conversationAssigneeChange';
 
     notificationConfigurations = await NotificationConfigurations.createOrUpdateConfiguration(doc);
+
     expect(notificationConfigurations.notifType).toEqual(doc.notifType);
     expect(notificationConfigurations.isAllowed).toEqual(doc.isAllowed);
     expect(notificationConfigurations.user).toEqual(doc.user);
 
     // Change notification
     doc.isAllowed = false;
+
     notificationConfigurations = await NotificationConfigurations.createOrUpdateConfiguration(doc);
+
     expect(notificationConfigurations.notifType).toEqual(doc.notifType);
     expect(notificationConfigurations.isAllowed).toEqual(doc.isAllowed);
     expect(notificationConfigurations.user).toEqual(doc.user);
@@ -157,6 +160,7 @@ describe('test mutations', () => {
   test('mutations', async () => {
     // notification confuration test
     const user = await userFactory({});
+
     const doc = {
       notifType: 'conversationAddMessage',
       isAllowed: true,
@@ -165,6 +169,7 @@ describe('test mutations', () => {
 
     let notificationConfigurations = await mutations.notificationsSaveConfig(null, doc);
     expect(notificationConfigurations.notifType).toEqual(doc.notifType);
+
     expect(notificationConfigurations.isAllowed).toEqual(doc.isAllowed);
     expect(notificationConfigurations.user).toEqual(doc.user);
 
@@ -172,34 +177,104 @@ describe('test mutations', () => {
     doc.notifType = 'conversationAssigneeChange';
 
     notificationConfigurations = await mutations.notificationsSaveConfig(null, doc);
+
     expect(notificationConfigurations.notifType).toEqual(doc.notifType);
     expect(notificationConfigurations.isAllowed).toEqual(doc.isAllowed);
     expect(notificationConfigurations.user).toEqual(doc.user);
 
     // Change notification
     doc.isAllowed = false;
+
     notificationConfigurations = await mutations.notificationsSaveConfig(null, doc);
+
     expect(notificationConfigurations.notifType).toEqual(doc.notifType);
     expect(notificationConfigurations.isAllowed).toEqual(doc.isAllowed);
     expect(notificationConfigurations.user).toEqual(doc.user);
   });
 
   test('send notifications', async () => {
-    const _user = userFactory({});
-    const _user2 = userFactory({});
-    const _user3 = userFactory({});
+    const _user = await userFactory({});
+    const _user2 = await userFactory({});
+    const _user3 = await userFactory({});
 
-    // Create notification
+    // Try to send notifications when there is config not allowing it
     const doc = {
       notifType: 'channelMembersChange',
       createdUser: _user._id,
       title: 'new Notification title',
       content: 'new Notification content',
       link: 'new Notification link',
-      receivers: [_user, _user2, _user3],
+      receivers: [_user._id, _user2._id, _user3._id],
     };
 
-    sendNotification(doc);
-    expect(await Notifications.find({}).count()).toEqual(0);
+    await NotificationConfigurations.createOrUpdateConfiguration({
+      notifType: 'channelMembersChange',
+      isAllowed: false,
+      user: _user._id,
+    });
+
+    await NotificationConfigurations.createOrUpdateConfiguration({
+      notifType: 'channelMembersChange',
+      isAllowed: false,
+      user: _user2._id,
+    });
+
+    await NotificationConfigurations.createOrUpdateConfiguration({
+      notifType: 'channelMembersChange',
+      isAllowed: false,
+      user: _user3._id,
+    });
+
+    await sendNotification(doc);
+
+    let notifications = await Notifications.find({});
+
+    expect(notifications.length).toEqual(0);
+
+    // Send notifications when there is config allowing it
+    await NotificationConfigurations.createOrUpdateConfiguration({
+      notifType: 'channelMembersChange',
+      isAllowed: true,
+      user: _user._id,
+    });
+
+    await NotificationConfigurations.createOrUpdateConfiguration({
+      notifType: 'channelMembersChange',
+      isAllowed: true,
+      user: _user2._id,
+    });
+
+    await NotificationConfigurations.createOrUpdateConfiguration({
+      notifType: 'channelMembersChange',
+      isAllowed: true,
+      user: _user3._id,
+    });
+
+    await sendNotification(doc);
+
+    notifications = await Notifications.find({});
+
+    expect(notifications.length).toEqual(3);
+
+    expect(notifications[0].notifType).toEqual(doc.notifType);
+    expect(notifications[0].createdUser).toEqual(doc.createdUser);
+    expect(notifications[0].title).toEqual(doc.title);
+    expect(notifications[0].content).toEqual(doc.content);
+    expect(notifications[0].link).toEqual(doc.link);
+    expect(notifications[0].receiver).toEqual(_user._id);
+
+    expect(notifications[1].notifType).toEqual(doc.notifType);
+    expect(notifications[1].createdUser).toEqual(doc.createdUser);
+    expect(notifications[1].title).toEqual(doc.title);
+    expect(notifications[1].content).toEqual(doc.content);
+    expect(notifications[1].link).toEqual(doc.link);
+    expect(notifications[1].receiver).toEqual(_user2._id);
+
+    expect(notifications[2].notifType).toEqual(doc.notifType);
+    expect(notifications[2].createdUser).toEqual(doc.createdUser);
+    expect(notifications[2].title).toEqual(doc.title);
+    expect(notifications[2].content).toEqual(doc.content);
+    expect(notifications[2].link).toEqual(doc.link);
+    expect(notifications[2].receiver).toEqual(_user3._id);
   });
 });

@@ -55,34 +55,21 @@ export const sendChannelNotifications = async ({ channelId, _memberIds, userId }
  * @param {Array} doc.receivers Array of userIds
  * @return null
  */
-export const sendNotification = ({ receivers, ...doc }) => {
+export const sendNotification = async ({ receivers, ...doc }) => {
   // Inserting entry to every receiver
   for (const receiverId of receivers) {
     doc.receiver = receiverId;
 
     try {
       // create notification
-      Notifications.createNotificaton(doc);
-
+      await Notifications.createNotification(doc);
       // TODO: implement sendEmail
-      // if receiver did not disable to get this notification
-      // const receiver = Users.findOne({ _id: receiverId });
-      // const details = receiver.details;
-      // if receiver did not disable email notification then send email
-      // if (!(details && details.getNotificationByEmail === false)) {
-      //   sendEmail({
-      //     to: receiver.emails[0].address,
-      //     subject: 'Notification',
-      //     template: {
-      //       name: 'notification',
-      //       data: {
-      //         notification: doc,
-      //       },
-      //     },
-      //   });
-      // }
     } catch (e) {
-      return new Error(e);
+      if (e.message != 'Configuration does not exist') {
+        return e;
+      }
     }
   }
+
+  return;
 };

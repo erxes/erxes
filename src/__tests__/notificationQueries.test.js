@@ -8,8 +8,8 @@ beforeAll(() => connect());
 afterAll(() => disconnect());
 
 describe('notification query test', () => {
-  test('notification query test', async () => {
-    const modules = await queries.notifiationsModules();
+  test('notification query test', () => {
+    const modules = queries.notificationsModules();
     expect(modules).toEqual(MODULE_LIST);
   });
 });

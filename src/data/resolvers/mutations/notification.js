@@ -4,9 +4,9 @@ export default {
   /**
    * Save notification configuration
    * @param {Object}
-   * @param {String.notifType} args.notifType
-   * @param {String.isAllowed} args.isAllowed
-   * @param {String.user} args.user
+   * @param {String} args.notifType
+   * @param {Boolean} args.isAllowed
+   * @param {String} args.user
    * @return {Promise} returns notification promise
    * @throws {Error} apollo level error based on validation
    */

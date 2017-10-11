@@ -39,6 +39,12 @@ import { types as InsightTypes, queries as InsightQueries } from './insight';
 import { types as KnowledgeBaseTypes, queries as KnowledgeBaseQueries } from './knowledgeBase';
 
 import {
+  types as NotificationTypes,
+  queries as NotificationQueries,
+  mutations as NotificationMutations,
+} from './notification';
+
+import {
   types as ConversationTypes,
   queries as ConversationQueries,
   mutations as ConversationMutations,
@@ -61,6 +67,7 @@ export const types = `
   ${ConversationTypes}
   ${InsightTypes}
   ${KnowledgeBaseTypes}
+  ${NotificationTypes}
 `;
 
 export const queries = `
@@ -78,6 +85,7 @@ export const queries = `
     ${ConversationQueries}
     ${InsightQueries}
     ${KnowledgeBaseQueries}
+    ${NotificationQueries}
   }
 `;
 
@@ -90,6 +98,7 @@ export const mutations = `
     ${ChannelMutations}
     ${FormMutatons}
     ${IntegrationMutations}
+    ${NotificationMutations}
   }
 `;
 

@@ -1,4 +1,5 @@
 import { Channels } from '../../../db/models';
+import { sendChannelNotifications } from '../../utils';
 
 export default {
   /**
@@ -12,9 +13,16 @@ export default {
    * @return {Promise} returns channel object
    * @throws {Error} throws apollo level validation errors
    */
-  channelsCreate(root, doc) {
-    // TODO: sendNotifications method should here
-    return Channels.createChannel(doc);
+  async channelsCreate(root, doc) {
+    const channel = Channels.createChannel(doc);
+
+    sendChannelNotifications({
+      userId: doc.userId,
+      memberIds: doc.memberIds,
+      channelId: channel._id,
+    });
+
+    return channel;
   },
 
   /**
@@ -30,7 +38,12 @@ export default {
    * @throws {Error} throws apollo level validation errors
    */
   channelsEdit(root, { _id, ...doc }) {
-    // TODO: sendNotifications method shoul be here
+    sendChannelNotifications({
+      channelId: _id,
+      memberIds: doc.memberIds,
+      userId: doc.userId,
+    });
+
     return Channels.updateChannel(_id, doc);
   },
 
