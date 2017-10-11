@@ -50,24 +50,24 @@ describe('Brands mutations', () => {
 
   test('Update brand', async () => {
     // get new brand object
-    const _brand_update = await brandFactory();
+    const _brandUpdate = await brandFactory();
 
     // update brand object
     const brandObj = await brandMutations.brandsEdit(
       {},
       {
         _id: _brand.id,
-        code: _brand_update.code,
-        name: _brand_update.name,
-        description: _brand_update.description,
+        code: _brandUpdate.code,
+        name: _brandUpdate.name,
+        description: _brandUpdate.description,
       },
       { user: _user },
     );
 
     // check changes
-    expect(brandObj.code).toBe(_brand_update.code);
-    expect(brandObj.name).toBe(_brand_update.name);
-    expect(brandObj.description).toBe(_brand_update.description);
+    expect(brandObj.code).toBe(_brandUpdate.code);
+    expect(brandObj.name).toBe(_brandUpdate.name);
+    expect(brandObj.description).toBe(_brandUpdate.description);
   });
 
   test('Update brand login required', async () => {

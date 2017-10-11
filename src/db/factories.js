@@ -1,7 +1,15 @@
 import faker from 'faker';
 import Random from 'meteor-random';
 
-import { Users, Brands, EmailTemplates, ResponseTemplates } from './models';
+import {
+  Users,
+  Brands,
+  EmailTemplates,
+  ResponseTemplates,
+  ConversationMessages,
+  Conversations,
+} from './models';
+import { CONVERSATION_STATUSES } from '../data/constants';
 
 export const userFactory = (params = {}) => {
   const user = new Users({
@@ -47,4 +55,34 @@ export const responseTemplateFactory = (params = {}) => {
   });
 
   return responseTemplate.save();
+};
+
+export const conversationFactory = (params = {}) => {
+  const conversation = new Conversations({
+    content: params.content || faker.lorem.sentence(),
+    customerId: params.customerId || Random.id(),
+    integrationId: params.integrationId || Random.id(),
+    status: CONVERSATION_STATUSES.NEW,
+  });
+
+  return conversation.save();
+};
+
+export const conversationMessageFactory = (params = {}) => {
+  const conversationMessage = new ConversationMessages({
+    content: params.content || faker.random.word(),
+    attachments: {},
+    mentionedUserIds: params.mentionedUserIds || [Random.id()],
+    conversationId: params.conversationId || Random.id(),
+    internal: params.internal || true,
+    customerId: params.customerId || Random.id(),
+    userId: params.userId || Random.id(),
+    createdAt: new Date(),
+    isCustomerRead: params.isCustomerRead || true,
+    engageData: params.engageData || {},
+    formWidgetData: params.formWidgetData || {},
+    facebookData: params.facebookData || {},
+  });
+
+  return conversationMessage.save();
 };

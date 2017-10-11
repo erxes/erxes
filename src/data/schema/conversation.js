@@ -68,6 +68,17 @@ export const types = `
     type: String!
     customerId: String!
   }
+
+  input ConversationMessageParams {
+    content: String,
+    mentionedUserIds: [String],
+    conversationId: String,
+    internal: Boolean,
+    customerId: String,
+    userId: String,
+    createdAt: Date,
+    isCustomerRead: Boolean,
+  }
 `;
 
 export const queries = `
@@ -78,6 +89,13 @@ export const queries = `
 `;
 
 export const mutations = `
-  conversationsChanged(_ids: [String]!, type: String): String
-  conversationMessageInserted(_id: String!): String
+  conversationMessageAdd(params: ConversationMessageParams): String
+  conversationsCheckExistance(_ids: [String]!): String
+  conversationsAssign(conversationIds: [String]!, assignedUserId: String): String
+  conversationsUnassign(_ids: [String]!): String
+  conversationsChangeStatus(_ids: [String]!): String
+  conversationsStar(_ids: [String]!): String
+  conversationsUnstar(_ids: [String]!): String
+  conversationsToggleParticipate(_ids: [String]!): String
+  conversationMarkAsRead(_id: String): String
 `;
