@@ -150,15 +150,4 @@ export default {
   customersTotalCount() {
     return Customers.find({}).count();
   },
-
-  /**
-   * Default list columns config
-   */
-  customersListConfig() {
-    return [
-      { name: 'name', label: 'Name', order: 1 },
-      { name: 'email', label: 'Email', order: 2 },
-      { name: 'phone', label: 'Phone', order: 3 },
-    ];
-  },
 };

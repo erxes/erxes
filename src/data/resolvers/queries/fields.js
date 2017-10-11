@@ -80,4 +80,15 @@ export default {
 
     return fields;
   },
+
+  /**
+   * Default list columns config
+   */
+  fieldsDefaultColumnsConfig() {
+    return [
+      { name: 'name', label: 'Name', order: 1 },
+      { name: 'email', label: 'Email', order: 2 },
+      { name: 'phone', label: 'Phone', order: 3 },
+    ];
+  },
 };

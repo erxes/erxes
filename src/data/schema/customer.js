@@ -30,12 +30,6 @@ export const types = `
     getMessengerCustomData: JSON
     getTags: [Tag]
   }
-
-  type CustomerListConfigItem {
-    name: String
-    label: String
-    order: Int
-  }
 `;
 
 export const queries = `
@@ -44,7 +38,6 @@ export const queries = `
   customerDetail(_id: String!): Customer
   customerListForSegmentPreview(segment: JSON, limit: Int): [Customer]
   customersTotalCount: Int
-  customersListConfig: [CustomerListConfigItem]
 `;
 
 const fields = `

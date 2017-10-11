@@ -16,11 +16,18 @@ export const types = `
     _id: String!
     order: Int!
   }
+
+  type ColumnConfigItem {
+    name: String
+    label: String
+    order: Int
+  }
 `;
 
 export const queries = `
   fields(contentType: String!, contentTypeId: String): [Field]
   fieldsCombinedByContentType: JSON
+  fieldsDefaultColumnsConfig: [ColumnConfigItem]
 `;
 
 const commonFields = `
