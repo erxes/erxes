@@ -55,3 +55,35 @@ export const MODULES = {
     'conversationStateChange',
   ],
 };
+
+export const FORM_FIELDS = {
+  TYPES: {
+    INPUT: 'input',
+    TEXT_AREA: 'textarea',
+    RADIO: 'radio',
+    CHECK: 'check',
+    SELECT: 'select',
+    DIVIDER: 'divider',
+    EMAIL: 'email',
+    FIRST_NAME: 'firstName',
+    LAST_NAME: 'lastName',
+    ALL: [
+      'input',
+      'textarea',
+      'radio',
+      'check',
+      'select',
+      'divider',
+      'email',
+      'firstName',
+      'lastName',
+    ],
+  },
+  VALIDATION: {
+    BLANK: '',
+    NUMBER: 'number',
+    DATE: 'date',
+    EMAIL: 'email',
+    ALL: ['', 'number', 'date', 'email'],
+  },
+};

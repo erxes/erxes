@@ -3,12 +3,13 @@ import { Forms, FormFields } from '../../../db/models';
 export default {
   /**
    * Create a new form
-   * @param {Object}
-   * @param {String} args2.title
-   * @param {String} args2.description
-   * @param {String} args3.user
-   * @return {Promise} returns the form
-   * @throws {Error} apollo level error based on validation
+   * @param {Object} root
+   * @param {Object} doc - Form object
+   * @param {string} doc.title - Form title
+   * @param {string} doc.description - Form description 
+   * @param {Object} doc.user - The user who created this form
+   * @return {Promise} returns the form promise
+   * @throws {Error} throws apollo level error based on validation
    * @throws {Error} throws error if user is not logged in
    */
   formsCreate(root, doc, { user }) {
@@ -21,11 +22,13 @@ export default {
 
   /**
    * Update form data
-   * @param {Object}
-   * @param {String} doc._id
-   * @param {String} doc.title
-   * @param {String} doc.description
-   * @param {String} args3.user
+   * @param {Object} root
+   * @param {Object} object2 - Form object
+   * @param {string} object2._id - Form id
+   * @param {string} object2.title - Form title
+   * @param {string} object2.description - Form description
+   * @param {Object} object3 - The middleware data
+   * @param {Object} object3.user - The user who is making this action
    * @return {Promise} returns null
    * @throws {Error} apollo level error based on validation
    * @throws {Error} throws error if user is not logged in
@@ -40,8 +43,11 @@ export default {
 
   /**
    * Remove a form
-   * @param {Object}
-   * @param {String} _id
+   * @param {Object} root
+   * @param {string} object2 - Graphql input data
+   * @param {string} object2._id - Form id
+   * @param {Object} object3 - The middleware data
+   * @param {Object} object3.user - The user making this action
    * @return {Promise} null
    * @throws {Error} apollo level error based on validation
    * @throws {Error} throws error if user is not logged in
@@ -56,14 +62,17 @@ export default {
 
   /**
    * Adds a form field to the form
-   * @param {Object}
-   * @param {String} args.formId
-   * @param {String} args.type
-   * @param {String} args.validation
-   * @param {String} args.text
-   * @param {String} args.description
-   * @param {Array} args.options
-   * @param {Boolean} args.isRequired
+   * @param {Object} root
+   * @param {Object} object2 - Form object
+   * @param {string} object2.formId - Form id
+   * @param {string} object2.type - Form field type
+   * @param {string} object2.validation - Form field data validation type
+   * @param {string} object2.text - Form field text
+   * @param {string} object2.description - Form field description
+   * @param {Array} object2.options - Form field options
+   * @param {Boolean} object2.isRequired - Shows whether the field is required or not
+   * @param {Object} object3 - Middleware data
+   * @param {Object} object3.user - 
    * @return {Promise} return Promise(null)
    * @throws {Error} throws apollo error based on validation
    * @throws {Error} throws error if user is not logged in
@@ -77,13 +86,17 @@ export default {
   },
 
   /**
-  * @param {String} args._id form field id
-  * @param {String} args.type
-  * @param {String} args.validation
-  * @param {String} args.text
-  * @param {String} args.description
-  * @param {Array} args.options
-  * @param {Boolean} args.isRequired
+  * @param {Object} root
+  * @param {string} object2 - Form field object
+  * @param {string} object2._id - Form field id
+  * @param {string} object2.type - Form field type
+  * @param {string} object2.validation - Form field data validation type
+  * @param {string} object2.text - Form field text
+  * @param {string} object2.description - Form field description
+  * @param {Array} object2.options - Form field options for select type
+  * @param {Boolean} object2.isRequired
+  * @param {Object} object3 - Middleware data
+  * @param {Object} object3.user - The user making this action
   * @return {Promise} return Promise(null)
   * @throws {Error} throws apollo error based on validation
   * @throws {Error} throws error if user is not logged in
@@ -97,9 +110,12 @@ export default {
   },
 
   /**
-   * Remove a channel
-   * @param {Object}
-   * @param {String} _id
+   * Remove a form field
+   * @param {Object} root
+   * @param {Object} object2 - Graphql input data
+   * @param {string} object2._id - Form field id
+   * @param {Object} object3 - Middleware data
+   * @param {Object} object3.user - The user making this action
    * @return {Promise} null
    * @throws {Error} throws apollo error based on validation
    * @throws {Error} throws error if user is not logged in
@@ -114,9 +130,11 @@ export default {
 
   /**
    * Rearranges order based on given value
-   * @param {Object}
-   * @param {String} args.orderDics.id
-   * @param {String} args.orderDics.order
+   * @param {Object} root
+   * @param {Object} object2 - Graphql input data
+   * @param {Object} object2.orderDics - Dictionary containing order values for form fields
+   * @param {Object} object3 - The middleware data 
+   * @param {Object} object3.user - The user making this action
    * @return {Promise} null
    * @throws {Error} throws apollo error based on validation
    * @throws {Error} throws error if user is not logged in
@@ -131,8 +149,11 @@ export default {
 
   /**
    * Duplicates the form and its fields
-   * @param {Object}
-   * @param {String} args._id
+   * @param {Object} root
+   * @param {Object} object2 - Graphql input data
+   * @param {string} object2._id - Form id
+   * @param {Object} object3 - Middleware data   
+   * @param {Object} object3.user - The user making this action
    * @return {Promise} returns form object
    * @throws {Error} throws apollo error based on validation
    * @throws {Error} throws error if user is not logged in

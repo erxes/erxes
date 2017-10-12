@@ -87,20 +87,22 @@ export const tagsFactory = (params = {}) => {
   return tag.save();
 };
 
-export const formFactory = ({ title, code, createdUserId }) => {
-  return Forms.createForm({
-    title: title || faker.random.word(),
-    description: faker.random.word(),
-    code: code || Random.id(),
+export const formFactory = ({ title, code, description, createdUserId }) => {
+  return Forms.createForm(
+    {
+      title: title || faker.random.word(),
+      description: description || faker.random.word(),
+      code: code || Random.id(),
+    },
     createdUserId,
-  });
+  );
 };
 
 export const formFieldFactory = (formId, params) => {
   return FormFields.createFormField(formId || Random.id(), {
-    type: params.type || faker.random.word(),
+    type: params.type || 'input',
     name: faker.random.word(),
-    validation: params.validation || faker.random.word(),
+    validation: params.validation || 'number',
     text: faker.random.word(),
     description: faker.random.word(),
     isRequired: params.isRequired || false,

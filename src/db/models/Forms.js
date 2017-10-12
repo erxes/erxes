@@ -1,6 +1,7 @@
 import mongoose from 'mongoose';
 import Random from 'meteor-random';
 import Integrations from './Integrations';
+import { FORM_FIELDS } from '../../data/constants';
 
 // schema for form document
 const FormSchema = mongoose.Schema({
@@ -9,7 +10,10 @@ const FormSchema = mongoose.Schema({
     default: () => Random.id(),
   },
   title: String,
-  description: String,
+  description: {
+    type: String,
+    required: false,
+  },
   code: String,
   createdUserId: String,
   createdDate: {
@@ -20,8 +24,8 @@ const FormSchema = mongoose.Schema({
 
 class Form {
   /**
-   * Generates a randomly generated and unique 6 letter code
-   * @return {String} random code
+   * Generates a random and unique 6 letter code
+   * @return {string} random code
    */
   static async generateCode() {
     let code;
@@ -29,7 +33,6 @@ class Form {
 
     do {
       code = Random.id().substr(0, 6);
-
       foundForm = await Forms.findOne({ code });
     } while (foundForm);
 
@@ -38,32 +41,34 @@ class Form {
 
   /**
    * Creates a form document
-   * @param {String} doc.title
-   * @param {String} doc.description
-   * @param {Date} doc.createdDate
-   * @param {String} createdUserId
-   * @return {Object} returns Form document
-   * @throws {Error} throws Error if createdUserId is not supplied
+   * @param {Object} doc - Form object
+   * @param {string} doc.title - Form title
+   * @param {string} doc.description - Form description
+   * @param {Date} doc.createdDate - Form creation date
+   * @param {Object|string} createdUser - the user who created this form,
+   * can be both user id or user object
+   * @return {Promise} returns Form document promise
+   * @throws {Error} throws Error if createdUser is not supplied
    */
-  static async createForm(doc, createdUserId) {
-    if (!createdUserId) {
-      throw new Error('createdUserId must be supplied');
+  static async createForm(doc, createdUser) {
+    if (!createdUser) {
+      throw new Error('createdUser must be supplied');
     }
 
     doc.code = await this.generateCode();
-
     doc.createdDate = new Date();
+    doc.createdUserId = createdUser;
 
     return this.create(doc);
   }
 
   /**
    * Updates a form document
-   * @param {String} _id
-   * @param {String} args.title
-   * @param {String} args.description
-   * @return {Object} returns Form document
-   * @throws {Error}
+   * @param {string} _id - Form id
+   * @param {Object} object - Form object
+   * @param {string} object.title - Form title
+   * @param {string} object.description - Form description
+   * @return {Promise} returns null
    */
   static updateForm(_id, { title, description }) {
     return this.update({ _id }, { $set: { title, description } }, { runValidators: true });
@@ -71,8 +76,8 @@ class Form {
 
   /**
    * Remove a form
-   * @param {String} _id
-   * @return {Promise}
+   * @param {string} _id - Form document id
+   * @return {Promise} returns null
    * @throws {Error} throws Error if this form has fields or if used in an integration
    */
   static async removeForm(_id) {
@@ -93,9 +98,10 @@ class Form {
 
   /**
    * Update order fields of form fields
-   * @param {String} orderDics[]._id
-   * @param {String} orderDics[].order
-   * @return {Null}
+   * @param {Object[]} orderDics - dictionary containing order values with user ids
+   * @param {string} orderDics[]._id - _id of FormField
+   * @param {string} orderDics[].order - order of FormField
+   * @return {Promise} null
    */
   static async updateFormFieldsOrder(orderDics) {
     // update each field's order
@@ -106,18 +112,20 @@ class Form {
 
   /**
    * Duplicates form and form fields of the form
-   * @param {String} _id form id
-   * @return {Object} returns the duplicated copy of the form
+   * @param {string} _id - form id
+   * @return {FormField} - returns the duplicated copy of the form
    */
   static async duplicate(_id) {
     const form = await this.findOne({ _id });
 
     // duplicate form
-    const newForm = await this.createForm({
-      title: `${form.title} duplicated`,
-      description: form.description,
-      createdUserId: form.createdUserId,
-    });
+    const newForm = await this.createForm(
+      {
+        title: `${form.title} duplicated`,
+        description: form.description,
+      },
+      form.createdUserId,
+    );
 
     // duplicate fields
     const formFields = await FormFields.find({ formId: _id });
@@ -147,27 +155,43 @@ const FormFieldSchema = mongoose.Schema({
     type: String,
     default: () => Random.id(),
   },
-  type: String, // TODO: change to enum
-  validation: String, // TODO: check if can be enum
+  type: {
+    type: String,
+    enum: FORM_FIELDS.TYPES.ALL,
+  },
+  validation: {
+    type: String,
+    enum: FORM_FIELDS.VALIDATION.ALL,
+  },
   text: String,
-  description: String,
-  options: [String],
+  description: {
+    type: String,
+    required: false,
+  },
+  options: {
+    type: [String],
+    required: false,
+  },
   isRequired: Boolean,
   formId: String,
-  order: Number,
+  order: {
+    type: Number,
+    required: false,
+  },
 });
 
 class FormField {
   /**
    * Creates a new form field document
-   * @param {String} formId id of the form document
-   * @param {String} doc.type
-   * @param {String} doc.validation
-   * @param {String} doc.text
-   * @param {String} doc.description
-   * @param {Array} doc.options
-   * @param {Boolean} doc.isRequired
-   * @return {Promise} returns form document promise
+   * @param {string} formId - Form id
+   * @param {Object} doc - FormField document object
+   * @param {string} doc.type - The type of form field (input, textarea, ...)
+   * @param {string} doc.validation - The type of data to validate to (nummber, date, ...)
+   * @param {string} doc.text - FormField text
+   * @param {string} doc.description - FormField description
+   * @param {String[]} doc.options - FormField select options (checkbox, radion buttons, ...)
+   * @param {Boolean} doc.isRequired - checks whether value is filled or not on validation
+   * @return {Promise} - returns form field document promise
    */
   static async createFormField(formId, doc) {
     const lastField = await FormFields.findOne({}, { order: 1 }, { sort: { order: -1 } });
@@ -182,13 +206,15 @@ class FormField {
 
   /**
    * Update a form field document
-   * @param {String} _id id of the form document
-   * @param {String} doc.type
-   * @param {String} doc.validation
-   * @param {String} doc.text
-   * @param {String} doc.description
-   * @param {Array} doc.options
-   * @param {Boolean} doc.isRequired
+   * @param {string} _id - id of the form document
+   * @param {Object} doc - FormField document or object
+   * @param {string} doc.type - The type of form field (input, textarea, etc...)
+   * @param {string} doc.validation - The type of data to validate to (nummber, date, ...)
+   * @param {Number} doc.order - FormField order value
+   * @param {string} doc.text - FormField text
+   * @param {string} doc.description - FormField description
+   * @param {String[]} doc.options - FormField select options (checkbox, radion buttons, ...)
+   * @param {Boolean} doc.isRequired checks whether value is filled or not on validation
    * @return {Promise}
    */
   static updateFormField(_id, doc) {
@@ -197,7 +223,7 @@ class FormField {
 
   /**
    * Remove form field
-   * @param {String} _id
+   * @param {string} _id - FormField id
    * @return {Promise}
    */
   static removeFormField(_id) {

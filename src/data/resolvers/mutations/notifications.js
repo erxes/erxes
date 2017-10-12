@@ -3,12 +3,13 @@ import { NotificationConfigurations, Notifications } from '../../../db/models';
 export default {
   /**
    * Save notification configuration
-   * @param {Object} args1
-   * @param {String} args2.notifType
-   * @param {Boolean} args2.isAllowed
-   * @param {String} args3.user
+   * @param {Object} object
+   * @param {Object} object - NotificationConfiguration object
+   * @param {string} object2.notifType - Notification configuration notification type (module)
+   * @param {Boolean} object2.isAllowed - Shows whether notifications will be received or not
+   * @param {Object} object3 - Middleware data
+   * @param {Object} object3.user - The user making this action
    * @return {Promise} returns notification promise
-   * @throws {Error} apollo level error based on validation
    * @throws {Error} throws error if user is not logged in
    */
   notificationsSaveConfig(root, doc, { user }) {
@@ -20,11 +21,13 @@ export default {
   },
 
   /**
-   * Create a new messenger integration
+   * Marks notification as read
    * @param {Object}
-   * @param {String} args.ids
-   * @return {Promise} returns the messenger integration
-   * @throws {Error} apollo level error based on validation
+   * @param {Object} object2 - Graphql input data
+   * @param {string} object2.ids - Notification ids
+   * @param {Object} object3 - Middleware data
+   * @param {Object} object3.user - The user making this action
+   * @return {Promise}
    * @throws {Error} throws error if user is not logged in
    */
   notificationsMarkAsRead(root, { ids }, { user }) {

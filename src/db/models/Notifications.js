@@ -31,7 +31,7 @@ const NotificationSchema = new mongoose.Schema({
 class Notification {
   /**
    * Marks notifications as read
-   * @param {Array} ids
+   * @param {String[]} ids - Notification ids
    * @return {Promise}
    */
   static markAsRead(ids) {
@@ -40,12 +40,13 @@ class Notification {
 
   /**
    * Create a notification
-   * @param {String} doc.notifType
-   * @param {String} doc.createdUser
-   * @param {String} doc.title
-   * @param {String} doc.content
-   * @param {String} doc.link
-   * @param {String} doc.receiver
+   * @param {Object} doc - Notification object
+   * @param {string} doc.notifType - Category of notification  (module)
+   * @param {string} doc.title - Notificaton title
+   * @param {string} doc.content - Notification content
+   * @param {string} doc.link - Notification link
+   * @param {Object|string} doc.receiver - Id of the user that will receive this notification
+   * @param {Object|string} createdUser - The user whose actions made this notification
    * @return {Notification} Notification Object
    * @throws {Exception} throws Exception if createdUser is not supplied
    */
@@ -73,14 +74,15 @@ class Notification {
 
   /**
    * Update a notification
-   * @param {String} _id
-   * @param {String} doc.notifType
-   * @param {String} doc.createdUser
-   * @param {String} doc.title
-   * @param {String} doc.content
-   * @param {String} doc.link
-   * @param {String} doc.receiver
-   * @return {Promise}
+   * @param {string} _id - Id of notification
+   * @param {Object} doc - Notification object
+   * @param {string} doc.notifType - Category of notification  (module)
+   * @param {string} doc.createdUser - The user whose actions made this notification
+   * @param {string} doc.title - Notificaton title
+   * @param {string} doc.content - Notification content
+   * @param {string} doc.link - Notification link
+   * @param {Object|string} doc.receiver - Id of the user that will receive this notification
+   * @return {Promise} The promise returns null
    */
   static updateNotification(_id, doc) {
     return this.update({ _id }, doc);
@@ -88,7 +90,7 @@ class Notification {
 
   /**
    * Remove a notification
-   * @param {String} _id
+   * @param {string} _id - Notification id
    * @return {Promise}
    */
   static removeNotification(_id) {
@@ -117,18 +119,20 @@ const ConfigSchema = new mongoose.Schema({
 
 class Configuration {
   /**
-   * creates an new notification or updates already existing notification configuration
-   * @param {String} args1.notifType
-   * @param {Boolean} args1.isAllowed
-   * @param {String} user
-   * @return {Object} returns NotificationConfigurations object
+   * Creates an new notification or updates already existing notification configuration
+   * @param {object} object - NotificationConfiguration object
+   * @param {string} object.notifType - NotificationType (module)
+   * @param {Boolean} object.isAllowed - Indicates whether notifications
+   *   will be received or not on the given channel
+   * @param {Object|string} user - The object or id of the user making this action
+   * @return {Promise} returns NotificationConfigurations object promise
    */
   static async createOrUpdateConfiguration({ notifType, isAllowed }, user) {
     if (!user) {
       throw new Error('user must be supplied');
     }
 
-    const selector = { user: user, notifType };
+    const selector = { user, notifType };
 
     const oldOne = await this.findOne(selector);
 
@@ -142,7 +146,7 @@ class Configuration {
     // If it is first time then insert
     selector.isAllowed = isAllowed;
 
-    return await this.create(selector);
+    return this.create(selector);
   }
 }
 
