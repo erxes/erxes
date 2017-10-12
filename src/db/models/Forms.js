@@ -45,7 +45,7 @@ class Form {
    * @param {string} doc.title - Form title
    * @param {string} doc.description - Form description
    * @param {Date} doc.createdDate - Form creation date
-   * @param {Object|string} createdUser - the user who created this form,
+   * @param {Object|string} createdUser - The user who is creating this form,
    * can be both user id or user object
    * @return {Promise} returns Form document promise
    * @throws {Error} throws Error if createdUser is not supplied
