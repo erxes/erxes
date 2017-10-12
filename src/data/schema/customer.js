@@ -25,6 +25,7 @@ export const types = `
     twitterData: JSON
     facebookData: JSON
 
+    companies: [Company]
     conversations: [Conversation]
     getIntegrationData: JSON
     getMessengerCustomData: JSON

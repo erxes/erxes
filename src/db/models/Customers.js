@@ -109,6 +109,7 @@ const CustomerSchema = mongoose.Schema({
 
   integrationId: String,
   tagIds: [String],
+  companyIds: [String],
 
   customFieldsData: Object,
   internalNotes: [internalNoteSchema],
