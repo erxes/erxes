@@ -46,7 +46,7 @@ describe('messenger integration model edit test', () => {
     _brand2 = await brandFactory({});
     _integration = await integrationFactory({
       kind: KIND_CHOICES.MESSENGER,
-      brandId: _brand,
+      brandId: _brand._id,
     });
   });
 

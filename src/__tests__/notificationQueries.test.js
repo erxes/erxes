@@ -2,15 +2,14 @@
 /* eslint-disable no-underscore-dangle */
 import { connect, disconnect } from '../db/connection';
 import { MODULES } from '../data/constants';
-import queries from '../data/resolvers/queries';
+import notificationsQueries from '../data/resolvers/queries/notifications';
 
 beforeAll(() => connect());
 afterAll(() => disconnect());
 
 describe('notification query test', () => {
   test('test of getting notification list with success', () => {
-    const modules = queries.notificationsModules();
-
-    expect(modules).toEqual(MODULES.ALL);
+    const modules = notificationsQueries.notificationsModules();
+    expect(modules).toBe(MODULES.ALL);
   });
 });

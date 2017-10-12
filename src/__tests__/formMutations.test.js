@@ -91,27 +91,19 @@ describe('form update tests', () => {
 });
 
 describe('form remove tests', async () => {
-  let _user;
+  let _form;
 
   beforeEach(async () => {
-    _user = await userFactory({});
+    _form = await formFactory({});
   });
 
   afterEach(async () => {
-    await Users.remove({});
     await Forms.remove({});
   });
 
-  test('check whether form removal is working successfully', async () => {
-    const form = await Forms.createForm(
-      {
-        title: 'Test form',
-        description: 'Test form description',
-      },
-      _user._id,
-    );
+  test('check if form removal is working successfully', async () => {
+    await Forms.removeForm(_form._id);
 
-    await Forms.removeForm(form._id);
     const formCount = await Forms.find({}).count();
 
     expect(formCount).toBe(0);
@@ -155,6 +147,8 @@ describe('test exception in remove form method', async () => {
       expect(e.message).toEqual('You cannot delete this form. This form has some fields.');
     }
 
+    await FormFields.remove({});
+
     await integrationFactory({
       formId: _form._id,
       formData: {
@@ -162,8 +156,6 @@ describe('test exception in remove form method', async () => {
         fromEmail: 'test@erxes.io',
       },
     });
-
-    await FormFields.remove({});
 
     try {
       await Forms.removeForm(_form._id);

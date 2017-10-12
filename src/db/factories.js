@@ -87,14 +87,14 @@ export const tagsFactory = (params = {}) => {
   return tag.save();
 };
 
-export const formFactory = ({ title, code, description, createdUserId }) => {
+export const formFactory = async ({ title, code, description, createdUserId }) => {
   return Forms.createForm(
     {
       title: title || faker.random.word(),
       description: description || faker.random.word(),
       code: code || Random.id(),
     },
-    createdUserId,
+    createdUserId || (await userFactory({})),
   );
 };
 

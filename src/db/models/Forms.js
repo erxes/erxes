@@ -77,7 +77,7 @@ class Form {
   /**
    * Remove a form
    * @param {string} _id - Form document id
-   * @return {Promise} returns null
+   * @return {Null} returns null
    * @throws {Error} throws Error if this form has fields or if used in an integration
    */
   static async removeForm(_id) {
@@ -93,7 +93,7 @@ class Form {
       throw new Error('You cannot delete this form. This form used in integration.');
     }
 
-    return this.remove({ _id });
+    return await this.remove({ _id });
   }
 
   /**
