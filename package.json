@@ -22,7 +22,8 @@
     "start": "meteor --port 3000 --settings settings.json",
     "test": "meteor test --driver-package practicalmeteor:mocha --port 3001 --settings settings.json",
     "format": "prettier --write --print-width 100 --single-quote --trailing-comma all 'imports/**/*.js'",
-    "precommit": "lint-staged"
+    "precommit": "lint-staged",
+    "postinstall": "opencollective postinstall"
   },
   "lint-staged": {
     "*.js": [
@@ -49,6 +50,7 @@
     "meteor-node-stubs": "^0.2.6",
     "moment": "^2.17.1",
     "node4mailer": "^4.0.3",
+    "opencollective": "^1.0.3",
     "prop-types": "^15.5.8",
     "react": "^15.4.2",
     "react-addons-css-transition-group": "^15.4.2",
@@ -92,5 +94,10 @@
         ]
       }
     }
+  },
+  "collective": {
+    "type": "opencollective",
+    "url": "https://opencollective.com/erxes",
+    "logo": "https://opencollective.com/opencollective/logo.txt"
   }
 }
