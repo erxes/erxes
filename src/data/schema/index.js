@@ -1,6 +1,10 @@
 import { types as UserTypes, queries as UserQueries } from './user';
 
-import { types as CompanyTypes, mutations as CompanyMutations } from './company';
+import {
+  types as CompanyTypes,
+  queries as CompanyQueries,
+  mutations as CompanyMutations,
+} from './company';
 
 import { types as ChannelTypes, queries as ChannelQueries } from './channel';
 
@@ -92,6 +96,7 @@ export const queries = `
     ${EngageQueries}
     ${TagQueries}
     ${InternalNoteQueries}
+    ${CompanyQueries}
     ${CustomerQueries}
     ${SegmentQueries}
     ${ConversationQueries}

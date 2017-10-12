@@ -10,36 +10,50 @@ const CompanySchema = mongoose.Schema({
 
   name: {
     type: String,
+    label: 'Name',
     optional: true,
   },
 
   size: {
     type: Number,
+    label: 'Size',
     optional: true,
   },
 
   industry: {
     type: String,
+    label: 'Industry',
     optional: true,
   },
 
   website: {
     type: String,
+    label: 'Website',
     optional: true,
   },
 
   plan: {
     type: String,
+    label: 'Plan',
     optional: true,
   },
 
-  lastSeenAt: Date,
-  sessionCount: Number,
+  lastSeenAt: {
+    type: Date,
+    label: 'Last seen at',
+  },
+
+  sessionCount: {
+    type: Number,
+    label: 'Session count',
+  },
 
   tagIds: {
     type: [String],
     optional: true,
   },
+
+  customFieldsData: Object,
 });
 
 class Company {

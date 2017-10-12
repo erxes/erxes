@@ -1,4 +1,11 @@
 export const types = `
+  input CompanyListParams {
+    limit: Int,
+    page: String,
+    segment: String,
+    ids: [String]
+  }
+
   type Company {
     _id: String!
     name: String
@@ -9,7 +16,16 @@ export const types = `
     lastSeenAt: Date
     sessionCount: Int
     tagIds: [String],
+
+    customFieldsData: JSON
   }
+`;
+
+export const queries = `
+  companies(params: CompanyListParams): [Company]
+  companyCounts(params: CompanyListParams): JSON
+  companyDetail(_id: String!): Company
+  companiesTotalCount: Int
 `;
 
 const commonFields = `
@@ -21,6 +37,7 @@ const commonFields = `
   lastSeenAt: Date,
   sessionCount: Int,
   tagIds: [String]
+  customFieldsData: JSON
 `;
 
 export const mutations = `

@@ -26,8 +26,8 @@ export const types = `
 
 export const queries = `
   fields(contentType: String!, contentTypeId: String): [Field]
-  fieldsCombinedByContentType: JSON
-  fieldsDefaultColumnsConfig: [ColumnConfigItem]
+  fieldsCombinedByContentType(contentType: String!): JSON
+  fieldsDefaultColumnsConfig(contentType: String!): [ColumnConfigItem]
 `;
 
 const commonFields = `

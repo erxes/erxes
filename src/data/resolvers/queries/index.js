@@ -10,6 +10,7 @@ import engages from './engages';
 import tags from './tags';
 import internalNotes from './internalNotes';
 import customers from './customers';
+import companies from './companies';
 import segments from './segments';
 import conversations from './conversations';
 import insights from './insights';
@@ -28,6 +29,7 @@ export default {
   ...tags,
   ...internalNotes,
   ...customers,
+  ...companies,
   ...segments,
   ...conversations,
   ...insights,

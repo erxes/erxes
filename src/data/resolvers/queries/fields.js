@@ -1,4 +1,5 @@
-import { Customers, Fields } from '../../../db/models';
+import { Companies, Customers, Fields } from '../../../db/models';
+import { FIELD_CONTENT_TYPES } from '../../../constants';
 
 export default {
   /**
@@ -26,7 +27,7 @@ export default {
    * @return {[JSON]}
    * [{ name: 'messengerData.isActive', text: 'Messenger: is Active' }]
    */
-  async fieldsCombinedByContentType() {
+  async fieldsCombinedByContentType(root, { contentType }) {
     /*
      * Generates fields using given schema
      * @param {Schema} schema Customers.schema etc ...
@@ -55,11 +56,17 @@ export default {
       return fields;
     };
 
-    // generate list using customer schema
-    let fields = generateFieldsFromSchema(Customers.schema, '');
+    let schema = Companies.schema;
 
-    Customers.schema.eachPath(name => {
-      const path = Customers.schema.paths[name];
+    if (contentType === FIELD_CONTENT_TYPES.CUSTOMER) {
+      schema = Customers.schema;
+    }
+
+    // generate list using customer or company schema
+    let fields = generateFieldsFromSchema(schema, '');
+
+    schema.eachPath(name => {
+      const path = schema.paths[name];
 
       // extend fields list using sub schema fields
       if (path.schema) {
@@ -67,7 +74,7 @@ export default {
       }
     });
 
-    const customFields = await Fields.getCustomerFields();
+    const customFields = await Fields.find({ contentType });
 
     // extend fields list using custom fields
     customFields.forEach(customField => {
@@ -84,11 +91,27 @@ export default {
   /**
    * Default list columns config
    */
-  fieldsDefaultColumnsConfig() {
-    return [
-      { name: 'name', label: 'Name', order: 1 },
-      { name: 'email', label: 'Email', order: 2 },
-      { name: 'phone', label: 'Phone', order: 3 },
-    ];
+  fieldsDefaultColumnsConfig(root, { contentType }) {
+    if (contentType === FIELD_CONTENT_TYPES.CUSTOMER) {
+      return [
+        { name: 'name', label: 'Name', order: 1 },
+        { name: 'email', label: 'Email', order: 2 },
+        { name: 'phone', label: 'Phone', order: 3 },
+      ];
+    }
+
+    if (contentType === FIELD_CONTENT_TYPES.COMPANY) {
+      return [
+        { name: 'name', label: 'Name', order: 1 },
+        { name: 'size', label: 'Size', order: 2 },
+        { name: 'website', label: 'Website', order: 3 },
+        { name: 'industry', label: 'Industry', order: 4 },
+        { name: 'plan', label: 'Plan', order: 5 },
+        { name: 'lastSeenAt', label: 'Last seen at', order: 6 },
+        { name: 'sessionCount', label: 'Session count', order: 7 },
+      ];
+    }
+
+    return [];
   },
 };
