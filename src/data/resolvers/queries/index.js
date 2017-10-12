@@ -8,6 +8,7 @@ import responseTemplates from './responseTemplates';
 import emailTemplates from './emailTemplates';
 import engages from './engages';
 import tags from './tags';
+import internalNotes from './internalNotes';
 import customers from './customers';
 import segments from './segments';
 import conversations from './conversations';
@@ -25,6 +26,7 @@ export default {
   ...emailTemplates,
   ...engages,
   ...tags,
+  ...internalNotes,
   ...customers,
   ...segments,
   ...conversations,

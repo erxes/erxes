@@ -6,6 +6,7 @@ import {
   Brands,
   EmailTemplates,
   ResponseTemplates,
+  InternalNotes,
   Customers,
   Forms,
   Fields,
@@ -80,6 +81,16 @@ export const segmentFactory = (params = {}) => {
   });
 
   return segment.save();
+};
+
+export const internalNoteFactory = (params = {}) => {
+  const internalNote = new InternalNotes({
+    contentType: params.contentType || 'customer',
+    contentTypeId: params.contentTypeId || 'DFASFDFSDAFDF',
+    content: params.content || faker.random.word(),
+  });
+
+  return internalNote.save();
 };
 
 export const companyFactory = (params = {}) => {

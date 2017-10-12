@@ -6,6 +6,7 @@ import ResponseTemplate from './responseTemplate';
 import Integration from './integration';
 import Form from './form';
 import EngageMessage from './engage';
+import InternalNote from './internalNote';
 import Customer from './customer';
 import Segment from './segment';
 import Conversation from './conversation';
@@ -19,6 +20,7 @@ export default {
   ResponseTemplate,
   Integration,
   Form,
+  InternalNote,
   Customer,
   Segment,
   EngageMessage,

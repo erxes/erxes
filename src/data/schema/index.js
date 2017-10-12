@@ -29,6 +29,12 @@ import { types as EngageTypes, queries as EngageQueries } from './engage';
 import { types as TagTypes, queries as TagQueries } from './tag';
 
 import {
+  types as InternalNoteTypes,
+  queries as InternalNoteQueries,
+  mutations as InternalNoteMutations,
+} from './internalNote';
+
+import {
   types as CustomerTypes,
   queries as CustomerQueries,
   mutations as CustomerMutations,
@@ -55,6 +61,7 @@ export const types = `
   scalar Date
 
   ${UserTypes}
+  ${InternalNoteTypes}
   ${CompanyTypes}
   ${ChannelTypes}
   ${BrandTypes}
@@ -84,6 +91,7 @@ export const queries = `
     ${FormQueries}
     ${EngageQueries}
     ${TagQueries}
+    ${InternalNoteQueries}
     ${CustomerQueries}
     ${SegmentQueries}
     ${ConversationQueries}
@@ -99,6 +107,7 @@ export const mutations = `
     ${BrandMutations}
     ${ResponseTemplateMutations}
     ${EmailTemplateMutations}
+    ${InternalNoteMutations}
     ${CustomerMutations}
     ${SegmentMutations}
     ${FieldMutations}

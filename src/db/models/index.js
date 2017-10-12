@@ -8,6 +8,7 @@ import EngageMessages from './Engages';
 import Tags from './Tags';
 import Fields from './Fields';
 import { Forms, FormFields } from './Forms';
+import InternalNotes from './InternalNotes';
 import Customers from './Customers';
 import Companies from './Companies';
 import Segments from './Segments';
@@ -31,6 +32,7 @@ export {
   Tags,
   Fields,
   Segments,
+  InternalNotes,
   Customers,
   Companies,
   Conversations,
