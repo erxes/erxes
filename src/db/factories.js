@@ -14,7 +14,7 @@ export const userFactory = (params = {}) => {
   return user.save();
 };
 
-export const tagsFactory = (params = {}) => {
+export const tagsFactory = (params = { type: 'engageMessage' }) => {
   const tag = new Tags({
     name: faker.random.word(),
     type: params.type || faker.random.word(),
@@ -25,7 +25,7 @@ export const tagsFactory = (params = {}) => {
   return tag.save();
 };
 
-export const segmentsFactory = (params = {}) => {
+export const segmentsFactory = () => {
   const segment = new Segments({
     name: faker.random.word(),
   });

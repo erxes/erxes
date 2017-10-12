@@ -1,11 +1,4 @@
 export const types = `
-  enum TagType {
-    all
-    customer
-    conversation
-    engageMessage
-  }
-  
   type Tag {
     _id: String!
     name: String
@@ -21,8 +14,8 @@ export const queries = `
 `;
 
 export const mutations = `
-	tagsAdd(name: String!, type: TagType!, colorCode: String): Tag
-	tagsEdit(_id: String!, name: String!, type: TagType!, colorCode: String): Tag
+	tagsAdd(name: String!, type: String!, colorCode: String): Tag
+	tagsEdit(_id: String!, name: String!, type: String!, colorCode: String): Tag
   tagsRemove(ids: [String!]!): Tag
-	tagsTag(type: TagType!, targetIds: [String!]!, tagIds: [String!]!): Tag
+	tagsTag(type: String!, targetIds: [String!]!, tagIds: [String!]!): Tag
 `;

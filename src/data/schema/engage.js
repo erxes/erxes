@@ -35,7 +35,7 @@ export const mutations = `
     segmentId: String!, method: String!, fromUserId: String!): EngageMessage
   messageEdit(_id: String!, title: String!, kind: String!,
     segmentId: String!, method: String!, fromUserId: String!): EngageMessage
-  messagesRemove(ids: [String!]!): Boolean
+  messagesRemove(ids: [String!]!): EngageMessage
   messagesSetLive(_id: String!): EngageMessage
   messagesSetPause(_id: String!): EngageMessage
   messagesSetLiveManual(_id: String!): EngageMessage

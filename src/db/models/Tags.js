@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
 import Random from 'meteor-random';
+import { TAG_TYPES } from '../../data/constants';
 
 const TagSchema = mongoose.Schema({
   _id: {
@@ -8,7 +9,10 @@ const TagSchema = mongoose.Schema({
     default: () => Random.id(),
   },
   name: String,
-  type: String,
+  type: {
+    type: String,
+    enum: TAG_TYPES.ALL_LIST,
+  },
   colorCode: String,
   createdAt: Date,
   objectCount: Number,
@@ -20,9 +24,9 @@ class Tag {
    * @param  {Object} tagObj object
    * @return {Promise} Newly created tag object
    */
-  static createTag(tagObj) {
+  static createTag(doc) {
     return this.create({
-      ...tagObj,
+      ...doc,
       createdAt: new Date(),
     });
   }

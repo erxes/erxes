@@ -59,7 +59,6 @@
     "jest": "^21.2.1",
     "lint-staged": "^3.6.0",
     "nodemon": "^1.11.0",
-    "prettier": "^1.4.4",
-    "shortid": "^2.2.8"
+    "prettier": "^1.4.4"
   }
 }

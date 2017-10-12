@@ -87,6 +87,7 @@ describe('mutations', () => {
   let _user;
   let _segment = segmentsFactory();
   let _doc = null;
+  let messageId;
 
   beforeEach(async () => {
     _user = await userFactory({});
@@ -108,7 +109,7 @@ describe('mutations', () => {
   });
 
   test('messages add', async () => {
-    const _message = await mutations.messagesAdd(null, _doc);
+    const _message = await mutations.messagesAdd(null, _doc, { user: _user });
     expect(_message.kind).toEqual(_doc.kind);
     expect(_message.title).toEqual(_doc.title);
     expect(_message.fromUserId).toEqual(_user._id);
@@ -117,14 +118,24 @@ describe('mutations', () => {
     expect(_message.isDraft).toEqual(_doc.isDraft);
   });
 
+  test('Create message login required', async () => {
+    expect.assertions(1);
+    try {
+      await mutations.messagesAdd({}, _doc, {});
+    } catch (e) {
+      expect(e.message).toEqual('Login required');
+    }
+  });
+
   test('messages edit', async () => {
     let message = await EngageMessages.createMessage(_doc);
+    messageId = message._id;
 
     _doc.title = 'Message test updated';
     _doc.isLive = false;
     _doc.isDraft = true;
 
-    await mutations.messageEdit(null, { _id: message._id, ..._doc });
+    await mutations.messageEdit(null, { _id: message._id, ..._doc }, { user: _user });
     message = await EngageMessages.findOne({ _id: message._id });
 
     expect(message.kind).toEqual(_doc.kind);
@@ -135,14 +146,32 @@ describe('mutations', () => {
     expect(message.isDraft).toEqual(_doc.isDraft);
   });
 
+  test('Update message login required', async () => {
+    expect.assertions(1);
+    try {
+      await mutations.messagesAdd({}, { _id: messageId, ..._doc }, {});
+    } catch (e) {
+      expect(e.message).toEqual('Login required');
+    }
+  });
+
   test('messages remove', async () => {
     const _message = await EngageMessages.createMessage(_doc);
+    messageId = _message._id;
 
-    const removeResult = await mutations.messagesRemove(null, _message._id);
-    expect(removeResult).toBe(true);
+    await mutations.messagesRemove(null, _message._id, { user: _user });
 
     const messagesCounts = await EngageMessages.find({}).count();
     expect(messagesCounts).toBe(0);
+  });
+
+  test('Remove message login required', async () => {
+    expect.assertions(1);
+    try {
+      await mutations.messagesAdd({}, messageId, {});
+    } catch (e) {
+      expect(e.message).toEqual('Login required');
+    }
   });
 
   test('set live', async () => {
@@ -151,7 +180,7 @@ describe('mutations', () => {
 
     let _message = await EngageMessages.createMessage(_doc);
 
-    _message = await mutations.messagesSetLive(null, _message._id);
+    _message = await mutations.messagesSetLive(null, _message._id, { user: _user });
     expect(_message.isLive).toEqual(true);
     expect(_message.isDraft).toEqual(false);
   });
@@ -161,7 +190,7 @@ describe('mutations', () => {
 
     let _message = await EngageMessages.createMessage(_doc);
 
-    _message = await mutations.messagesSetPause(null, _message._id);
+    _message = await mutations.messagesSetPause(null, _message._id, { user: _user });
     expect(_message.isLive).toEqual(false);
   });
 
@@ -171,7 +200,7 @@ describe('mutations', () => {
 
     let _message = await EngageMessages.createMessage(_doc);
 
-    _message = await mutations.messagesSetLiveManual(null, _message._id);
+    _message = await mutations.messagesSetLiveManual(null, _message._id, { user: _user });
     expect(_message.isLive).toEqual(true);
     expect(_message.isDraft).toEqual(false);
   });

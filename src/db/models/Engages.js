@@ -1,5 +1,41 @@
 import mongoose from 'mongoose';
 import Random from 'meteor-random';
+import { MESSENGER_KINDS, SENT_AS_CHOICES } from '../../data/constants';
+
+const EmailSchema = mongoose.Schema({
+  templateId: String,
+  subject: String,
+  content: String,
+});
+
+const RuleSchema = mongoose.Schema({
+  _id: String,
+
+  // browserLanguage, currentUrl, etc ...
+  kind: String,
+
+  // Browser language, Current url etc ...
+  text: String,
+
+  // is, isNot, startsWith
+  condition: String,
+
+  value: String,
+});
+
+const MessengerSchema = mongoose.Schema({
+  brandId: String,
+  kind: {
+    type: String,
+    enum: MESSENGER_KINDS.ALL_LIST,
+  },
+  sentAs: {
+    type: String,
+    enum: SENT_AS_CHOICES.ALL_LIST,
+  },
+  content: String,
+  rules: [RuleSchema],
+});
 
 const EngageMessageSchema = mongoose.Schema({
   _id: { type: String, unique: true, default: () => Random.id() },
@@ -16,8 +52,8 @@ const EngageMessageSchema = mongoose.Schema({
   tagIds: [String],
   messengerReceivedCustomerIds: [String],
 
-  email: Object,
-  messenger: Object,
+  email: EmailSchema,
+  messenger: MessengerSchema,
   deliveryReports: Object,
 });
 

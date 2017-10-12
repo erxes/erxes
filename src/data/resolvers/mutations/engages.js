@@ -16,8 +16,10 @@ export default {
    * @param {[String]} doc.tagIds
    * @return {Promise} message object
    */
-  async messagesAdd(root, doc) {
-    return await EngageMessages.createMessage(doc);
+  messagesAdd(root, doc, { user }) {
+    if (!user) throw new Error('Login required');
+
+    return EngageMessages.createMessage(doc);
   },
 
   /**
@@ -35,10 +37,12 @@ export default {
    * @param {[String]} doc.tagIds
    * @return {Promise} message object
    */
-  async messageEdit(root, { _id, ...doc }) {
+  async messageEdit(root, { _id, ...doc }, { user }) {
+    if (!user) throw new Error('Login required');
+
     await EngageMessages.updateMessage(_id, doc);
 
-    return await EngageMessages.findOne({ _id });
+    return EngageMessages.findOne({ _id });
   },
 
   /**
@@ -46,10 +50,14 @@ export default {
    * @param {String} id
    * @return {Promise} null
    */
-  async messagesRemove(root, _id) {
-    await EngageMessages.removeMessage(_id);
+  async messagesRemove(root, _id, { user }) {
+    if (!user) throw new Error('Login required');
 
-    return true;
+    const engageObj = await EngageMessages.findOne({ _id });
+
+    if (!engageObj) throw new Error(`Message not found with id ${_id}`);
+
+    return engageObj.remove();
   },
 
   /**
@@ -57,10 +65,12 @@ export default {
    * @param {String} id
    * @return {Promise} message object
    */
-  async messagesSetLive(root, _id) {
+  async messagesSetLive(root, _id, { user }) {
+    if (!user) throw new Error('Login required');
+
     await EngageMessages.updateMessage(_id, { isLive: true, isDraft: false });
 
-    return await EngageMessages.findOne({ _id });
+    return EngageMessages.findOne({ _id });
   },
 
   /**
@@ -68,10 +78,12 @@ export default {
    * @param {String} id
    * @return {Promise} message object
    */
-  async messagesSetPause(root, _id) {
+  async messagesSetPause(root, _id, { user }) {
+    if (!user) throw new Error('Login required');
+
     await EngageMessages.updateMessage(_id, { isLive: false });
 
-    return await EngageMessages.findOne({ _id });
+    return EngageMessages.findOne({ _id });
   },
 
   /**
@@ -79,9 +91,11 @@ export default {
    * @param {String} id
    * @return {Promise} message object
    */
-  async messagesSetLiveManual(root, _id) {
+  async messagesSetLiveManual(root, _id, { user }) {
+    if (!user) throw new Error('Login required');
+
     await EngageMessages.updateMessage(_id, { isLive: true, isDraft: false });
 
-    return await EngageMessages.findOne({ _id });
+    return EngageMessages.findOne({ _id });
   },
 };
