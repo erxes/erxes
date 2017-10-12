@@ -30,13 +30,13 @@ describe('Notification tests', () => {
 
     await notificationConfigurationFactory({
       user: _user2._id,
-      notifType: 'channelMembersChange',
+      notifType: MODULES.CHANNEL_MEMBERS_CHANGE,
       isAllowed: false,
     });
 
     // Create notification
     let doc = {
-      notifType: 'channelMembersChange',
+      notifType: MODULES.CHANNEL_MEMBERS_CHANGE,
       title: 'new Notification title',
       content: 'new Notification content',
       link: 'new Notification link',
