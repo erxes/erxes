@@ -23,7 +23,7 @@ export const types = `
   }
 
   input OrderDicItem {
-    id: String!
+    _id: String!
     order: Int!
   }
 `;

@@ -68,13 +68,13 @@ export const mutations = `
     brandId: String!): Integration
 
   integrationsEditMessengerIntegration(
-    id: String!,
+    _id: String!,
     name: String!,
     brandId: String!): Integration
 
-  integrationsSaveMessengerAppearanceData(id: String!, uiOptions: MessengerUiOptions): Boolean
+  integrationsSaveMessengerAppearanceData(_id: String!, uiOptions: MessengerUiOptions): Boolean
 
-  integrationsSaveMessengerConfigs(id: String!, messengerData: IntegrationMessengerData): Boolean
+  integrationsSaveMessengerConfigs(_id: String!, messengerData: IntegrationMessengerData): Boolean
 
   integrationsCreateFormIntegration(
     name: String!,
@@ -83,7 +83,7 @@ export const mutations = `
     formData: IntegrationFormData!): Integration
 
   integrationsEditFormIntegration(
-    id: String!
+    _id: String!
     name: String!,
     brandId: String!,
     formId: String,

@@ -6,10 +6,9 @@ export default {
    * @param {Object} root
    * @param {Object} doc - Form object
    * @param {string} doc.title - Form title
-   * @param {string} doc.description - Form description 
+   * @param {string} doc.description - Form description
    * @param {Object} doc.user - The user who created this form
    * @return {Promise} returns the form promise
-   * @throws {Error} throws apollo level error based on validation
    * @throws {Error} throws error if user is not logged in
    */
   formsCreate(root, doc, { user }) {
@@ -30,7 +29,6 @@ export default {
    * @param {Object} object3 - The middleware data
    * @param {Object} object3.user - The user who is making this action
    * @return {Promise} returns null
-   * @throws {Error} apollo level error based on validation
    * @throws {Error} throws error if user is not logged in
    */
   formsEdit(root, { _id, ...doc }, { user }) {
@@ -49,7 +47,6 @@ export default {
    * @param {Object} object3 - The middleware data
    * @param {Object} object3.user - The user making this action
    * @return {Promise} null
-   * @throws {Error} apollo level error based on validation
    * @throws {Error} throws error if user is not logged in
    */
   formsRemove(root, { _id }, { user }) {
@@ -72,9 +69,8 @@ export default {
    * @param {Array} object2.options - Form field options
    * @param {Boolean} object2.isRequired - Shows whether the field is required or not
    * @param {Object} object3 - Middleware data
-   * @param {Object} object3.user - 
+   * @param {Object} object3.user - The user making this action
    * @return {Promise} return Promise(null)
-   * @throws {Error} throws apollo error based on validation
    * @throws {Error} throws error if user is not logged in
    */
   formsAddFormField(root, { formId, ...formFieldDoc }, { user }) {
@@ -98,7 +94,6 @@ export default {
   * @param {Object} object3 - Middleware data
   * @param {Object} object3.user - The user making this action
   * @return {Promise} return Promise(null)
-  * @throws {Error} throws apollo error based on validation
   * @throws {Error} throws error if user is not logged in
   */
   formsEditFormField(root, { _id, ...formFieldDoc }, { user }) {
@@ -117,7 +112,6 @@ export default {
    * @param {Object} object3 - Middleware data
    * @param {Object} object3.user - The user making this action
    * @return {Promise} null
-   * @throws {Error} throws apollo error based on validation
    * @throws {Error} throws error if user is not logged in
    */
   formsRemoveFormField(root, { _id }, { user }) {
@@ -133,10 +127,9 @@ export default {
    * @param {Object} root
    * @param {Object} object2 - Graphql input data
    * @param {Object} object2.orderDics - Dictionary containing order values for form fields
-   * @param {Object} object3 - The middleware data 
+   * @param {Object} object3 - The middleware data
    * @param {Object} object3.user - The user making this action
    * @return {Promise} null
-   * @throws {Error} throws apollo error based on validation
    * @throws {Error} throws error if user is not logged in
    */
   formsUpdateFormFieldsOrder(root, { orderDics }, { user }) {
@@ -152,10 +145,9 @@ export default {
    * @param {Object} root
    * @param {Object} object2 - Graphql input data
    * @param {string} object2._id - Form id
-   * @param {Object} object3 - Middleware data   
+   * @param {Object} object3 - Middleware data
    * @param {Object} object3.user - The user making this action
    * @return {Promise} returns form object
-   * @throws {Error} throws apollo error based on validation
    * @throws {Error} throws error if user is not logged in
    */
   formsDuplicate(root, { _id }, { user }) {

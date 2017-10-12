@@ -3,7 +3,12 @@ import 'mongoose-type-email';
 import Random from 'meteor-random';
 import { Messages, Conversations } from './Conversations';
 import { Customers } from './Customers';
-import { KIND_CHOICES, FORM_SUCCESS_ACTIONS, FORM_LOAD_TYPES } from '../../data/constants';
+import {
+  KIND_CHOICES,
+  FORM_SUCCESS_ACTIONS,
+  FORM_LOAD_TYPES,
+  MESSENGER_DATA_AVAILABILITY,
+} from '../../data/constants';
 
 // subdocument schema for MessengerOnlineHours
 const MessengerOnlineHoursSchema = mongoose.Schema(
@@ -15,21 +20,13 @@ const MessengerOnlineHoursSchema = mongoose.Schema(
   { _id: false },
 );
 
-// messenger data availability constants
-export const MESSENGER_DATA_AVAILABILITY_CONSTANTS = {
-  MANUAL: 'manual',
-  AUTO: 'auto',
-  ALL: ['manual', 'auto'],
-};
-
 // subdocument schema for MessengerData
 const MessengerDataSchema = mongoose.Schema(
   {
     notifyCustomer: Boolean,
-    // manual, auto
     availabilityMethod: {
       type: String,
-      enum: MESSENGER_DATA_AVAILABILITY_CONSTANTS.ALL,
+      enum: MESSENGER_DATA_AVAILABILITY.ALL,
     },
     isOnline: {
       type: Boolean,
@@ -82,7 +79,10 @@ const IntegrationSchema = mongoose.Schema({
     type: String,
     default: () => Random.id(),
   },
-  kind: String,
+  kind: {
+    type: String,
+    enum: KIND_CHOICES.ALL,
+  },
   name: String,
   brandId: String,
   formId: String,
@@ -97,8 +97,8 @@ class Integration {
   /**
    * Generate form integration data based on the given form data (formData)
    * and integration data (mainDoc)
-   * @param {Object} mainDoc
-   * @param {Object} formData
+   * @param {Integration} mainDoc - Integration object without subdocuments
+   * @param {FormData} formData - Integration forData subdocument
    * @return {Object} returns an integration object
    */
   static generateFormDoc(mainDoc, formData) {
@@ -111,35 +111,46 @@ class Integration {
 
   /**
    * Create an integration, intended as a private method
-   * @param {String} doc.kind
-   * @param {String} doc.name
-   * @param {String} doc.brandId
-   * @param {String} doc.formId
-   * @param {String} doc.formData.loadType
-   * @param {String} doc.formData.successAction
-   * @param {String} doc.formData.formEmail
-   * @param {String} doc.formData.userEmailTitle
-   * @param {String} doc.formData.userEmailContent
-   * @param {Array} doc.formData.adminEmails
-   * @param {String} doc.formData.adminEmailTitle
-   * @param {String} doc.formData.adminEmailContent
-   * @param {String} doc.formData.thankContent
-   * @param {String} doc.formData.redirectUrl
-   * @param {Boolean} doc.messengerData.notifyCustomer
-   * @param {String} doc.messengerData.availabilityMethod
-   * @param {Boolean} doc.messengerData.isOnline
-   * @param {String} doc.messengerData.onlineHours.day
-   * @param {String} doc.messengerData.onlineHours.from
-   * @param {String} doc.messengerData.onlineHours.to
-   * @param {String} doc.messengerData.timezone
-   * @param {String} doc.messengerData.welcomeMessage
-   * @param {String} doc.messengerData.awayMessage
-   * @param {String} doc.messengerData.thankYouMessage
-   * @param {String} doc.messengerData.uiOptions.color
-   * @param {String} doc.messengerData.uiOptions.wallpaper
-   * @param {String} doc.messengerData.uiOptions.logo
-   * @param {Object} doc.twitterData
-   * @param {Object} doc.facebookData
+   * @param {Object} doc - Integration object
+   * @param {string} doc.kind - Integration kind
+   * @param {string} doc.name - Integration name
+   * @param {string} doc.brandId - Brand id of the related Brand
+   * @param {string} doc.formId - Form id (used in form integrations)
+   * @param {string} doc.formData.loadType - Load types for the embedded form
+   * @param {string} doc.formData.successAction - TODO: need more elaborate documentation
+   * @param {string} doc.formData.formEmail - TODO: need more elaborate documentation
+   * @param {string} doc.formData.userEmailTitle - TODO: need more elaborate documentation
+   * @param {string} doc.formData.userEmailContent - TODO: need more elaborate documentation
+   * @param {Array} doc.formData.adminEmails - TODO: need more elaborate documentation
+   * @param {string} doc.formData.adminEmailTitle - TODO: need more elaborate documentation
+   * @param {string} doc.formData.adminEmailContent - TODO: need more elaborate documentation
+   * @param {string} doc.formData.thankContent - TODO: need more elaborate documentation
+   * @param {string} doc.formData.redirectUrl - Form redirectUrl on submit
+   *    TODO: need more elaborate documentation
+   * @param {Object} doc.messengerData - MessengerData object
+   * @param {Boolean} doc.messengerData.notifyCustomer - Identicates whether
+   *    customer should be notified or not TODO: need more elaborate documentation
+   * @param {string} doc.messengerData.availabilityMethod - Sets messenger
+   *    availability method as auto or manual TODO: need more elaborate documentation
+   * @param {Boolean} doc.messengerData.isOnline - Identicates whether messenger in online or not
+   * @param {Object[]} doc.messengerData.onlineHours - OnlineHours object array
+   * @param {string} doc.messengerData.onlineHours.day - OnlineHours day
+   * @param {string} doc.messengerData.onlineHours.from - OnlineHours from
+   * @param {string} doc.messengerData.onlineHours.to  - OnlineHours to
+   * @param {string} doc.messengerData.timezone - Timezone
+   * @param {string} doc.messengerData.welcomeMessage - Message displayed on welcome
+   *    TODO: need more elaborate documentation
+   * @param {string} doc.messengerData.awayMessage - Message displayed when status becomes away
+   *    TODO: need more elaborate documentation
+   * @param {string} doc.messengerData.thankYouMessage - Thank you message
+   *    TODO: need more elaborate documentation
+   * @param {string} doc.messengerData.uiOptions.color - Color of messenger
+   * @param {string} doc.messengerData.uiOptions.wallpaper - Wallpaper image for messenger
+   * @param {string} doc.messengerData.uiOptions.logo - Logo used in the embedded messenger
+   * @param {Object} doc.twitterData - Twitter data
+   *    TODO: need more elaborate documentation
+   * @param {Object} doc.facebookData - Facebook data
+   *    TODO: need more elaborate documentation
    * @return {Promise} returns integration document promise
    */
   static createIntegration(doc) {
@@ -148,8 +159,9 @@ class Integration {
 
   /**
    * Create a messenger kind integration
-   * @param {String} args.name
-   * @param {String} args.brandId
+   * @param {Object} object - Integration object
+   * @param {string} object.name - Integration name
+   * @param {String} object.brandId - Integration brand id
    * @return {Promise} returns integration document promise
    */
   static createMessengerIntegration({ name, brandId }) {
@@ -161,10 +173,11 @@ class Integration {
   }
 
   /**
-   * Update a messenger integration
-   * @param {String} args.name
-   * @param {String} args.brandId
-   * @return {Promise}
+   * Update messenger integration document
+   * @param {Object} object - Integration main doc object
+   * @param {string} object.name - Integration name
+   * @param {string} object.brandId - Integration brand id
+   * @return {Promise} return null promise
    */
   static updateMessengerIntegration(_id, { name, brandId }) {
     return this.update({ _id }, { $set: { name, brandId } }, { runValidators: true });
@@ -172,11 +185,12 @@ class Integration {
 
   /**
    * Save messenger appearance data
-   * @param {String} _id
-   * @param {String} args.color
-   * @param {String} args.wallpaper
-   * @param {String} args.logo
-   * @return {Promise}
+   * @param {string} _id
+   * @param {Object} object - MessengerUiOptions object TODO: need more elaborate documentation
+   * @param {string} object.color - MessengerUiOptions color TODO: need more elaborate documentation
+   * @param {string} object.wallpaper - MessengerUiOptions wallpaper
+   * @param {string} object.logo - Messenger logo TODO: need more elaborate documentation
+   * @return {Promise} returns null promise
    */
   static saveMessengerAppearanceData(_id, { color, wallpaper, logo }) {
     return this.update(
@@ -188,20 +202,27 @@ class Integration {
 
   /**
   * Saves messenger data to integration document
-  * @param {Boolean} messengerData.notifyCustomer
-  * @param {String} messengerData.availabilityMethod
-  * @param {Boolean} messengerData.isOnline
-  * @param {String} messengerData.onlineHours.day
-  * @param {String} messengerData.onlineHours.from
-  * @param {String} messengerData.onlineHours.to
-  * @param {String} messengerData.timezone
-  * @param {String} messengerData.welcomeMessage
-  * @param {String} messengerData.awayMessage
-  * @param {String} messengerData.thankYouMessage
-  * @param {String} messengerData.uiOptions.color
-  * @param {String} messengerData.uiOptions.wallpaper
-  * @param {String} messengerData.uiOptions.logo
-  * @return {Promise}
+  * @param {Object} doc.messengerData - MessengerData object
+  * @param {Boolean} doc.messengerData.notifyCustomer - Identicates whether
+  *    customer should be notified or not TODO: need more elaborate documentation
+  * @param {string} doc.messengerData.availabilityMethod - Sets messenger
+  *    availability method as auto or manual TODO: need more elaborate documentation
+  * @param {Boolean} doc.messengerData.isOnline - Identicates whether messenger in online or not
+  * @param {Object[]} doc.messengerData.onlineHours - OnlineHours object array
+  * @param {string} doc.messengerData.onlineHours.day - OnlineHours day
+  * @param {string} doc.messengerData.onlineHours.from - OnlineHours from
+  * @param {string} doc.messengerData.onlineHours.to  - OnlineHours to
+  * @param {string} doc.messengerData.timezone - Timezone
+  * @param {string} doc.messengerData.welcomeMessage - Message displayed on welcome
+  *    TODO: need more elaborate documentation
+  * @param {string} doc.messengerData.awayMessage - Message displayed when status becomes away
+  *    TODO: need more elaborate documentation
+  * @param {string} doc.messengerData.thankYouMessage - Thank you message
+  *    TODO: need more elaborate documentation
+  * @param {string} doc.messengerData.uiOptions.color - Color of messenger
+  * @param {string} doc.messengerData.uiOptions.wallpaper - Wallpaper image for messenger
+  * @param {string} doc.messengerData.uiOptions.logo - Logo used in the embedded messenger
+  * @return {Promise} returns null promise
   */
   static saveMessengerConfigs(_id, messengerData) {
     return this.update({ _id }, { $set: { messengerData } }, { runValidators: true });
@@ -209,19 +230,21 @@ class Integration {
 
   /**
    * Create a form kind integration
-   * @param {String} args.formData.loadType
-   * @param {String} args.formData.successAction
-   * @param {String} args.formData.formEmail
-   * @param {String} args.formData.userEmailTitle
-   * @param {String} args.formData.userEmailContent
-   * @param {Array} args.formData.adminEmails
-   * @param {String} args.formData.adminEmailTitle
-   * @param {String} args.formData.adminEmailContent
-   * @param {String} args.formData.thankContent
-   * @param {String} args.formData.redirectUrl
-   * @param {String} args.mainDoc.name
-   * @param {String} args.mainDoc.brandId
-   * @param {String} args.mainDoc.formId
+   * @param {Object} args.formData - FormData object
+   * @param {string} doc.formData.loadType - Load types for the embedded form
+   * @param {string} doc.formData.successAction - TODO: need more elaborate documentation
+   * @param {string} doc.formData.formEmail - TODO: need more elaborate documentation
+   * @param {string} doc.formData.userEmailTitle - TODO: need more elaborate documentation
+   * @param {string} doc.formData.userEmailContent - TODO: need more elaborate documentation
+   * @param {Email[]} doc.formData.adminEmails - TODO: need more elaborate documentation
+   * @param {string} doc.formData.adminEmailTitle - TODO: need more elaborate documentation
+   * @param {string} doc.formData.adminEmailContent - TODO: need more elaborate documentation
+   * @param {string} doc.formData.thankContent - TODO: need more elaborate documentation
+   * @param {string} doc.formData.redirectUrl - Form redirectUrl on submit
+   * @param {string} args.mainDoc - Integration main document object
+   * @param {string} args.mainDoc.name - Integration name
+   * @param {string} args.mainDoc.brandId - Integration brand id
+   * @param {string} args.mainDoc.formId - Form id related to this integration
    * @return {Promise} returns form integration document promise
    * @throws {Exception} throws Exception if formData is notSupplied
    */
@@ -236,22 +259,24 @@ class Integration {
   }
 
   /**
-   * Update a form kind integration
-   * @param {String} _id integration id
-   * @param {String} args.formData.loadType
-   * @param {String} args.formData.successAction
-   * @param {String} args.formData.formEmail
-   * @param {String} args.formData.userEmailTitle
-   * @param {String} args.formData.userEmailContent
-   * @param {Array} args.formData.adminEmails
-   * @param {String} args.formData.adminEmailTitle
-   * @param {String} args.formData.adminEmailContent
-   * @param {String} args.formData.thankContent
-   * @param {String} args.formData.redirectUrl
-   * @param {String} args.mainDoc.name
-   * @param {String} args.mainDoc.brandId
-   * @param {String} args.mainDoc.formId
-   * @return {Promise}
+   * Update form integration
+   * @param {string} _id integration id
+   * @param {Object} args.formData - FormData object
+   * @param {string} doc.formData.loadType - Load types for the embedded form
+   * @param {string} doc.formData.successAction - TODO: need more elaborate documentation
+   * @param {string} doc.formData.formEmail - TODO: need more elaborate documentation
+   * @param {string} doc.formData.userEmailTitle - TODO: need more elaborate documentation
+   * @param {string} doc.formData.userEmailContent - TODO: need more elaborate documentation
+   * @param {Email[]} doc.formData.adminEmails - TODO: need more elaborate documentation
+   * @param {string} doc.formData.adminEmailTitle - TODO: need more elaborate documentation
+   * @param {string} doc.formData.adminEmailContent - TODO: need more elaborate documentation
+   * @param {string} doc.formData.thankContent - TODO: need more elaborate documentation
+   * @param {string} doc.formData.redirectUrl - Form redirectUrl on submit
+   * @param {string} args.mainDoc - Integration main document object
+   * @param {string} args.mainDoc.name - Integration name
+   * @param {string} args.mainDoc.brandId - Integration brand id
+   * @param {string} args.mainDoc.formId - Form id related to this integration
+   * @return {Promise} returns null promise
    */
   static updateFormIntegration(_id, { formData, ...mainDoc }) {
     const doc = this.generateFormDoc(mainDoc, formData);
@@ -260,12 +285,12 @@ class Integration {
   }
 
   /**
-   * Removes an integration plus its messages, conversations, customers
-   * @param {String} id
-   * @return {Promise}
+   * Remove integration in addition with its messages, conversations, customers
+   * @param {string} id - Integration id
+   * @return {Promise} returns null promise
    */
-  static async removeIntegration(id) {
-    const conversations = await Conversations.find({ integrationId: id }, { _id: true });
+  static async removeIntegration(_id) {
+    const conversations = await Conversations.find({ integrationId: _id }, { _id: true });
 
     const conversationIds = [];
 
@@ -277,12 +302,12 @@ class Integration {
     await Messages.remove({ conversationId: { $in: conversationIds } });
 
     // Remove conversations
-    await Conversations.remove({ integrationId: id });
+    await Conversations.remove({ integrationId: _id });
 
     // Remove customers
-    await Customers.remove({ integrationId: id });
+    await Customers.remove({ integrationId: _id });
 
-    return this.remove(id);
+    return this.remove({ _id });
   }
 }
 

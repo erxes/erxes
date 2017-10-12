@@ -20,11 +20,11 @@ export const types = `
 `;
 
 export const queries = `
-  notificationsModules(ids: [String]) : [String]
+  notificationsModules(_ids: [String]) : [String]
 `;
 
 export const mutations = `
   notificationsSaveConfig (notifType: String, isAllowed: Boolean): NotificationConfiguration
 
-  notificationsMarkAsRead ( ids: [String]! ) : Boolean
+  notificationsMarkAsRead ( _ids: [String]! ) : Boolean
 `;

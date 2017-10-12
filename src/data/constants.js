@@ -24,7 +24,7 @@ export const FORM_LOAD_TYPES = {
   SHOUTBOX: 'shoutbox',
   POPUP: 'popup',
   EMBEDDED: 'embedded',
-  ALL_LIST: ['', 'shoutbox', 'popup', 'embedded'],
+  ALL: ['', 'shoutbox', 'popup', 'embedded'],
 };
 
 export const FORM_SUCCESS_ACTIONS = {
@@ -39,7 +39,7 @@ export const KIND_CHOICES = {
   FORM: 'form',
   TWITTER: 'twitter',
   FACEBOOK: 'facebook',
-  ALL_LIST: ['messenger', 'form', 'twitter', 'facebook'],
+  ALL: ['messenger', 'form', 'twitter', 'facebook'],
 };
 
 // module constants
@@ -86,4 +86,11 @@ export const FORM_FIELDS = {
     EMAIL: 'email',
     ALL: ['', 'number', 'date', 'email'],
   },
+};
+
+// messenger data availability constants
+export const MESSENGER_DATA_AVAILABILITY = {
+  MANUAL: 'manual',
+  AUTO: 'auto',
+  ALL: ['manual', 'auto'],
 };

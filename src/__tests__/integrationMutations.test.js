@@ -2,6 +2,7 @@
 /* eslint-disable no-underscore-dangle */
 import faker from 'faker';
 import { connect, disconnect } from '../db/connection';
+import { KIND_CHOICES, FORM_LOAD_TYPES, MESSENGER_DATA_AVAILABILITY } from '../data/constants';
 import { brandFactory, integrationFactory, formFactory, userFactory } from '../db/factories';
 import { Integrations, Brands, Users, Forms } from '../db/models';
 import mutations from '../data/resolvers/mutations';
@@ -9,81 +10,79 @@ import mutations from '../data/resolvers/mutations';
 beforeAll(() => connect());
 afterAll(() => disconnect());
 
-describe('messenger integration add test', () => {
+describe('messenger integration model add method test', () => {
   let _brand;
-  /**
-   */
+
   beforeEach(async () => {
     _brand = await brandFactory({});
   });
 
-  /**
-   */
   afterEach(async () => {
     await Brands.remove({});
     await Integrations.remove({});
   });
 
-  test('messenger integration add test', async () => {
-    const integration = await Integrations.createMessengerIntegration({
+  test('check if messenger integration create method is running successfully', async () => {
+    const doc = {
       name: 'Integration test',
       brandId: _brand._id,
-    });
+    };
 
-    expect(integration.name).toBe('Integration test');
-    expect(integration.brandId).toBe(_brand._id);
-    expect(integration.kind).toBe('messenger');
+    const integration = await Integrations.createMessengerIntegration(doc);
+
+    expect(integration.name).toBe(doc.name);
+    expect(integration.brandId).toBe(doc.brandId);
+    expect(integration.kind).toBe(KIND_CHOICES.MESSENGER);
   });
 });
 
-describe('messenger integration edit test', () => {
+describe('messenger integration model edit test', () => {
   let _brand;
   let _integration;
-  /**
-   */
+  let _brand2;
+
   beforeEach(async () => {
     _brand = await brandFactory({});
+    _brand2 = await brandFactory({});
     _integration = await integrationFactory({
-      kind: 'messenger',
+      kind: KIND_CHOICES.MESSENGER,
+      brandId: _brand,
     });
   });
 
-  /**
-   */
   afterEach(async () => {
     await Brands.remove({});
     await Integrations.remove({});
   });
 
-  test('messenger integration edit test', async () => {
-    await Integrations.updateMessengerIntegration(_integration._id, {
+  test('check if messenger integration update method is running successfully', async () => {
+    const doc = {
       name: 'Integration test 2',
-      brandId: _brand._id,
+      brandId: _brand2._id,
       kind: 'new kind',
-    });
+    };
+
+    await Integrations.updateMessengerIntegration(_integration._id, doc);
 
     const updatedIntegration = await Integrations.findOne({ _id: _integration._id });
 
-    expect(updatedIntegration.name).toBe('Integration test 2');
-    expect(updatedIntegration.brandId).toBe(_brand._id);
-    expect(updatedIntegration.kind).toBe('messenger');
+    expect(updatedIntegration.name).toBe(doc.name);
+    expect(updatedIntegration.brandId).toBe(doc.brandId);
+    expect(updatedIntegration.kind).toBe(KIND_CHOICES.MESSENGER);
   });
 });
 
-describe('create form integration test without formData', () => {
+describe('form integration create model test without formData', () => {
   let _brand;
   let _form;
   let _user;
-  /**
-   */
+
   beforeEach(async () => {
     _brand = await brandFactory({});
     _user = await userFactory({});
     _form = await formFactory({ createdUserId: _user._id });
   });
 
-  /**
-   */
   afterEach(async () => {
     await Brands.remove({});
     await Integrations.remove({});
@@ -91,8 +90,9 @@ describe('create form integration test without formData', () => {
     await Forms.remove({});
   });
 
-  test('create form integration test wihtout formData', async () => {
+  test('check if create form integration test wihtout formData is throwing exception', async () => {
     expect.assertions(1);
+
     const mainDoc = {
       name: 'form integration test',
       brandId: _brand._id,
@@ -102,7 +102,7 @@ describe('create form integration test without formData', () => {
     try {
       await Integrations.createFormIntegration(mainDoc);
     } catch (e) {
-      expect(e).toEqual('formData must be supplied');
+      expect(e.message).toEqual('formData must be supplied');
     }
   });
 });
@@ -111,16 +111,13 @@ describe('create form integration test', () => {
   let _brand;
   let _form;
   let _user;
-  /**
-   */
+
   beforeEach(async () => {
     _brand = await brandFactory({});
     _user = await userFactory({});
     _form = await formFactory({ createdUserId: _user._id });
   });
 
-  /**
-   */
   afterEach(async () => {
     await Brands.remove({});
     await Integrations.remove({});
@@ -128,7 +125,7 @@ describe('create form integration test', () => {
     await Forms.remove({});
   });
 
-  test('create form integration test without formData', async () => {
+  test('test if create form integration is working successfully', async () => {
     const mainDoc = {
       name: 'form integration test',
       brandId: _brand._id,
@@ -136,16 +133,16 @@ describe('create form integration test', () => {
     };
 
     const formData = {
-      loadType: 'embedded',
+      loadType: FORM_LOAD_TYPES.EMBEDDED,
     };
 
     const integration = await Integrations.createFormIntegration({ ...mainDoc, formData });
 
     expect(integration.formId).toEqual(_form._id);
-    expect(integration.name).toEqual('form integration test');
+    expect(integration.name).toEqual(mainDoc.name);
     expect(integration.brandId).toEqual(_brand._id);
-    expect(integration.formData.loadType).toEqual('embedded');
-    expect(integration.kind).toEqual('form');
+    expect(integration.formData.loadType).toEqual(FORM_LOAD_TYPES.EMBEDDED);
+    expect(integration.kind).toEqual(KIND_CHOICES.FORM);
   });
 });
 
@@ -156,8 +153,7 @@ describe('edit form integration test', () => {
   let _form2;
   let _user;
   let _form_integration;
-  /**
-   */
+
   beforeEach(async () => {
     _brand = await brandFactory({});
     _brand2 = await brandFactory({});
@@ -168,15 +164,13 @@ describe('edit form integration test', () => {
       name: 'form integration test',
       brandId: _brand._id,
       formId: _form._id,
-      kind: 'form',
+      kind: KIND_CHOICES.FORM,
       formData: {
-        loadType: 'embedded',
+        loadType: FORM_LOAD_TYPES.EMBEDDED,
       },
     });
   });
 
-  /**
-   */
   afterEach(async () => {
     await Brands.remove({});
     await Integrations.remove({});
@@ -184,7 +178,7 @@ describe('edit form integration test', () => {
     await Forms.remove({});
   });
 
-  test('edit form integration  test', async () => {
+  test('test if integration form update method is running successfully', async () => {
     const mainDoc = {
       name: 'form integration test 2',
       brandId: _brand2._id,
@@ -192,7 +186,7 @@ describe('edit form integration test', () => {
     };
 
     const formData = {
-      loadType: 'shoutbox',
+      loadType: FORM_LOAD_TYPES.SHOUTBOX,
     };
 
     await Integrations.updateFormIntegration(_form_integration._id, {
@@ -202,18 +196,17 @@ describe('edit form integration test', () => {
 
     const integration = await Integrations.findOne({ _id: _form_integration._id });
 
-    expect(integration.name).toEqual('form integration test 2');
+    expect(integration.name).toEqual(mainDoc.name);
     expect(integration.formId).toEqual(_form2._id);
     expect(integration.brandId).toEqual(_brand2._id);
-    expect(integration.formData.loadType).toEqual('shoutbox');
+    expect(integration.formData.loadType).toEqual(FORM_LOAD_TYPES.SHOUTBOX);
   });
 });
 
-describe('remove integration test', () => {
+describe('remove integration model method test', () => {
   let _brand;
   let _integration;
-  /**
-   */
+
   beforeEach(async () => {
     _brand = await brandFactory({});
     _integration = await integrationFactory({
@@ -223,16 +216,17 @@ describe('remove integration test', () => {
     });
   });
 
-  /**
-   */
   afterEach(async () => {
     await Brands.remove({});
     await Integrations.remove({});
+    await Users.remove({});
   });
 
-  test('remove form integration test', async () => {
-    await mutations.integrationsRemove(null, { id: _integration._id });
+  test('test if remove form integration model method is working successfully', async () => {
+    await Integrations.removeIntegration({ _id: _integration._id });
+
     const integrationCount = await Integrations.find({}).count();
+
     expect(integrationCount).toEqual(0);
   });
 });
@@ -258,7 +252,7 @@ describe('save integration messenger appearance test', () => {
     await Integrations.remove({});
   });
 
-  test('save integration messenger appearance test', async () => {
+  test('test if save integration messenger appearance method is working successfully', async () => {
     const uiOptions = {
       color: faker.random.word(),
       wallpaper: faker.random.word(),
@@ -279,9 +273,6 @@ describe('save integration messenger configurations test', () => {
   let _brand;
   let _integration;
 
-  /**
-   * Create integration object to be used with messenger data configurations
-   */
   beforeEach(async () => {
     _brand = await brandFactory({});
     _integration = await integrationFactory({
@@ -291,18 +282,15 @@ describe('save integration messenger configurations test', () => {
     });
   });
 
-  /**
-   * Delete test data
-   */
   afterEach(async () => {
     await Brands.remove({});
     await Integrations.remove({});
   });
 
-  test('save integration messenger configurations test', async () => {
+  test('test if integration messenger save confiturations method is working correctly', async () => {
     const messengerData = {
       notifyCustomer: true,
-      availabilityMethod: 'manual',
+      availabilityMethod: MESSENGER_DATA_AVAILABILITY.MANUAL,
       isOnline: false,
       onlineHours: [
         {
@@ -326,23 +314,27 @@ describe('save integration messenger configurations test', () => {
 
     const integration = await Integrations.findOne({ _id: _integration._id });
 
-    expect(integration.messengerData.notifyCustomer).toEqual(true);
-    expect(integration.messengerData.availabilityMethod).toEqual('manual');
-    expect(integration.messengerData.isOnline).toEqual(false);
-    expect(integration.messengerData.onlineHours[0].day).toEqual('Monday');
-    expect(integration.messengerData.onlineHours[0].from).toEqual('8am');
-    expect(integration.messengerData.onlineHours[0].to).toEqual('12pm');
-    expect(integration.messengerData.onlineHours[1].day).toEqual('Monday');
-    expect(integration.messengerData.onlineHours[1].from).toEqual('2pm');
-    expect(integration.messengerData.onlineHours[1].to).toEqual('6pm');
-    expect(integration.messengerData.timezone).toEqual('CET');
-    expect(integration.messengerData.welcomeMessage).toEqual('Welcome user');
-    expect(integration.messengerData.awayMessage).toEqual('Bye bye');
-    expect(integration.messengerData.thankYouMessage).toEqual('Thank you');
+    expect(integration.messengerData.notifyCustomer).toEqual(messengerData.notifyCustomer);
+    expect(integration.messengerData.availabilityMethod).toEqual(messengerData.availabilityMethod);
+    expect(integration.messengerData.isOnline).toEqual(messengerData.isOnline);
+    expect(integration.messengerData.onlineHours[0].day).toEqual(messengerData.onlineHours[0].day);
+    expect(integration.messengerData.onlineHours[0].from).toEqual(
+      messengerData.onlineHours[0].from,
+    );
+    expect(integration.messengerData.onlineHours[0].to).toEqual(messengerData.onlineHours[0].to);
+    expect(integration.messengerData.onlineHours[1].day).toEqual(messengerData.onlineHours[1].day);
+    expect(integration.messengerData.onlineHours[1].from).toEqual(
+      messengerData.onlineHours[1].from,
+    );
+    expect(integration.messengerData.onlineHours[1].to).toEqual(messengerData.onlineHours[1].to);
+    expect(integration.messengerData.timezone).toEqual(messengerData.timezone);
+    expect(integration.messengerData.welcomeMessage).toEqual(messengerData.welcomeMessage);
+    expect(integration.messengerData.awayMessage).toEqual(messengerData.awayMessage);
+    expect(integration.messengerData.thankYouMessage).toEqual(messengerData.thankYouMessage);
 
     const newMessengerData = {
       notifyCustomer: false,
-      availabilityMethod: 'auto',
+      availabilityMethod: MESSENGER_DATA_AVAILABILITY.AUTO,
       isOnline: true,
       onlineHours: [
         {
@@ -366,126 +358,112 @@ describe('save integration messenger configurations test', () => {
 
     const updatedIntegration = await Integrations.findOne({ _id: _integration._id });
 
-    expect(updatedIntegration.messengerData.notifyCustomer).toEqual(false);
-    expect(updatedIntegration.messengerData.availabilityMethod).toEqual('auto');
-    expect(updatedIntegration.messengerData.isOnline).toEqual(true);
-    expect(updatedIntegration.messengerData.onlineHours[0].day).toEqual('Tuesday');
-    expect(updatedIntegration.messengerData.onlineHours[0].from).toEqual('9am');
-    expect(updatedIntegration.messengerData.onlineHours[0].to).toEqual('1pm');
-    expect(updatedIntegration.messengerData.onlineHours[1].day).toEqual('Tuesday');
-    expect(updatedIntegration.messengerData.onlineHours[1].from).toEqual('3pm');
-    expect(updatedIntegration.messengerData.onlineHours[1].to).toEqual('7pm');
-    expect(updatedIntegration.messengerData.timezone).toEqual('EET');
-    expect(updatedIntegration.messengerData.welcomeMessage).toEqual('Welcome customer');
-    expect(updatedIntegration.messengerData.awayMessage).toEqual('Good bye');
-    expect(updatedIntegration.messengerData.thankYouMessage).toEqual('Gracias');
+    expect(updatedIntegration.messengerData.notifyCustomer).toEqual(
+      newMessengerData.notifyCustomer,
+    );
+    expect(updatedIntegration.messengerData.availabilityMethod).toEqual(
+      newMessengerData.availabilityMethod,
+    );
+    expect(updatedIntegration.messengerData.isOnline).toEqual(newMessengerData.isOnline);
+    expect(updatedIntegration.messengerData.onlineHours[0].day).toEqual(
+      newMessengerData.onlineHours[0].day,
+    );
+    expect(updatedIntegration.messengerData.onlineHours[0].from).toEqual(
+      newMessengerData.onlineHours[0].from,
+    );
+    expect(updatedIntegration.messengerData.onlineHours[0].to).toEqual(
+      newMessengerData.onlineHours[0].to,
+    );
+    expect(updatedIntegration.messengerData.onlineHours[1].day).toEqual(
+      newMessengerData.onlineHours[1].day,
+    );
+    expect(updatedIntegration.messengerData.onlineHours[1].from).toEqual(
+      newMessengerData.onlineHours[1].from,
+    );
+    expect(updatedIntegration.messengerData.onlineHours[1].to).toEqual(
+      newMessengerData.onlineHours[1].to,
+    );
+    expect(updatedIntegration.messengerData.timezone).toEqual(newMessengerData.timezone);
+    expect(updatedIntegration.messengerData.welcomeMessage).toEqual(
+      newMessengerData.welcomeMessage,
+    );
+    expect(updatedIntegration.messengerData.awayMessage).toEqual(newMessengerData.awayMessage);
+    expect(updatedIntegration.messengerData.thankYouMessage).toEqual(
+      newMessengerData.thankYouMessage,
+    );
   });
 });
 
-describe('mutation test', () => {
-  let _brand;
-  let _brand2;
+describe('mutation tests', () => {
   let _user;
-  let _form;
-  let _form2;
 
   beforeEach(async () => {
-    _brand = await brandFactory({});
-    _brand2 = await brandFactory({});
     _user = await userFactory({});
-    _form = await formFactory({ createdUserId: _user._id });
-    _form2 = await formFactory({ createdUserId: _user._id });
-  }),
-    afterEach(async () => {
-      await Brands.remove({});
-      await Integrations.remove({});
-      await Users.remove({});
-      await Forms.remove({});
-    });
+  });
+
+  afterEach(async () => {
+    await Users.remove({});
+  });
 
   test('mutation test', async () => {
-    let integration = await mutations.integrationsCreateMessengerIntegration(null, {
+    // test Integrations.createMessengerIntegration ==========
+    const fakeBrandId = 'fakeBrandId';
+    const fakeIntegrationId = 'fakeIntegrationid';
+    const fakeFormId = 'fakeFormId';
+
+    let doc = {
       name: 'Integration test',
-      brandId: _brand._id,
-    });
+      brandId: fakeBrandId,
+    };
 
-    expect(integration.name).toBe('Integration test');
-    expect(integration.brandId).toBe(_brand._id);
-    expect(integration.kind).toBe('messenger');
+    Integrations.createMessengerIntegration = jest.fn();
 
-    await mutations.integrationsEditMessengerIntegration(null, {
-      id: integration._id,
+    await mutations.integrationsCreateMessengerIntegration(null, doc, { user: _user });
+
+    expect(Integrations.createMessengerIntegration).toBeCalledWith(doc);
+    expect(Integrations.createMessengerIntegration.mock.calls.length).toBe(1);
+
+    // test Integrations.updateMessengerIntegration =========================
+    doc = {
+      _id: fakeIntegrationId,
       name: 'Integration test 2',
-      brandId: _brand2._id,
-    });
+      brandId: fakeBrandId,
+    };
 
-    integration = await Integrations.findOne({ _id: integration._id });
+    Integrations.updateMessengerIntegration = jest.fn();
 
-    expect(integration.name).toEqual('Integration test 2');
-    expect(integration.brandId).toEqual(_brand2._id);
+    await mutations.integrationsEditMessengerIntegration(null, doc, { user: _user });
 
+    delete doc._id;
+
+    expect(Integrations.updateMessengerIntegration).toBeCalledWith(fakeIntegrationId, doc);
+    expect(Integrations.updateMessengerIntegration.mock.calls.length).toBe(1);
+
+    // test Integrations.saveMessengerConfigs =======================
     const uiOptions = {
       color: faker.random.word(),
       wallpaper: faker.random.word(),
       logo: faker.random.word(),
     };
 
-    await mutations.integrationsSaveMessengerAppearanceData(null, {
-      id: integration._id,
-      uiOptions,
-    });
+    Integrations.saveMessengerAppearanceData = jest.fn();
 
-    integration = await Integrations.findOne({ _id: integration._id });
+    await mutations.integrationsSaveMessengerAppearanceData(
+      null,
+      {
+        _id: fakeIntegrationId,
+        uiOptions,
+      },
+      { user: _user },
+    );
 
-    expect(integration.uiOptions.color).toEqual(uiOptions.color);
-    expect(integration.uiOptions.wallpaper).toEqual(uiOptions.wallpaper);
-    expect(integration.uiOptions.logo).toEqual(uiOptions.logo);
+    expect(Integrations.saveMessengerAppearanceData).toBeCalledWith(fakeIntegrationId, uiOptions);
+    expect(Integrations.saveMessengerAppearanceData.mock.calls.length).toBe(1);
 
-    let mainDoc = {
-      name: 'form integration test',
-      brandId: _brand._id,
-      formId: _form._id,
-    };
-
-    let formData = {
-      loadType: 'embedded',
-    };
-
-    let integration2 = await mutations.integrationsCreateFormIntegration(null, {
-      ...mainDoc,
-      formData,
-    });
-    expect(integration2.formId).toEqual(_form._id);
-    expect(integration2.name).toEqual('form integration test');
-    expect(integration2.brandId).toEqual(_brand._id);
-    expect(integration2.formData.loadType).toEqual('embedded');
-
-    mainDoc = {
-      name: 'form integration test 2',
-      brandId: _brand2._id,
-      formId: _form2._id,
-    };
-
-    formData = {
-      loadType: 'shoutbox',
-    };
-
-    await mutations.integrationsEditFormIntegration(null, {
-      id: integration2._id,
-      ...mainDoc,
-      formData,
-    });
-
-    const updatedIntegration = await Integrations.findOne({ _id: integration2._id });
-
-    expect(updatedIntegration.name).toEqual('form integration test 2');
-    expect(updatedIntegration.formId).toEqual(_form2._id);
-    expect(updatedIntegration.brandId).toEqual(_brand2._id);
-    expect(updatedIntegration.formData.loadType).toEqual('shoutbox');
-
+    // test Integrations.saveMessengerConfigs ===================
     const messengerData = {
       notifyCustomer: true,
-      availabilityMethod: 'manual',
+      availabilityMethod: MESSENGER_DATA_AVAILABILITY.AUTO,
       isOnline: false,
       onlineHours: [
         {
@@ -505,30 +483,75 @@ describe('mutation test', () => {
       thankYouMessage: 'Thank you',
     };
 
-    await mutations.integrationsSaveMessengerConfigs(null, { id: integration._id, messengerData });
+    Integrations.saveMessengerConfigs = jest.fn();
 
-    integration = await Integrations.findOne({ _id: integration._id });
+    await mutations.integrationsSaveMessengerConfigs(
+      null,
+      {
+        _id: fakeIntegrationId,
+        messengerData,
+      },
+      { user: _user },
+    );
 
-    expect(integration.messengerData.notifyCustomer).toEqual(true);
-    expect(integration.messengerData.availabilityMethod).toEqual('manual');
-    expect(integration.messengerData.isOnline).toEqual(false);
-    expect(integration.messengerData.onlineHours[0].day).toEqual('Monday');
-    expect(integration.messengerData.onlineHours[0].from).toEqual('8am');
-    expect(integration.messengerData.onlineHours[0].to).toEqual('12pm');
-    expect(integration.messengerData.onlineHours[1].day).toEqual('Monday');
-    expect(integration.messengerData.onlineHours[1].from).toEqual('2pm');
-    expect(integration.messengerData.onlineHours[1].to).toEqual('6pm');
-    expect(integration.messengerData.timezone).toEqual('CET');
-    expect(integration.messengerData.welcomeMessage).toEqual('Welcome user');
-    expect(integration.messengerData.awayMessage).toEqual('Bye bye');
-    expect(integration.messengerData.thankYouMessage).toEqual('Thank you');
+    expect(Integrations.saveMessengerConfigs).toBeCalledWith(fakeIntegrationId, messengerData);
+    expect(Integrations.saveMessengerConfigs.mock.calls.length).toBe(1);
 
-    const integrations = await Integrations.find({}, { _id: 1 });
-    for (let i of integrations) {
-      await mutations.integrationsRemove(null, { id: i._id });
-    }
+    // test Integrations.createFormIntegration =======================
+    let mainDoc = {
+      name: 'form integration test',
+      brandId: fakeBrandId,
+      formId: fakeFormId,
+    };
 
-    const integrationCount = await Integrations.find({}).count();
-    expect(integrationCount).toEqual(0);
+    let formData = {
+      loadType: FORM_LOAD_TYPES.EMBEDDED,
+    };
+
+    Integrations.createFormIntegration = jest.fn();
+
+    doc = {
+      ...mainDoc,
+      formData,
+    };
+
+    await mutations.integrationsCreateFormIntegration(null, doc, { user: _user });
+
+    expect(Integrations.createFormIntegration).toBeCalledWith(doc);
+    expect(Integrations.createFormIntegration.mock.calls.length).toBe(1);
+
+    // test Integrations.updateFormIntegration =====================
+    mainDoc = {
+      name: 'form integration test 2',
+      brandId: fakeBrandId,
+      formId: fakeFormId,
+    };
+
+    formData = {
+      loadType: FORM_LOAD_TYPES.SHOUTBOX,
+    };
+
+    doc = {
+      _id: fakeIntegrationId,
+      ...mainDoc,
+      formData,
+    };
+
+    Integrations.updateFormIntegration = jest.fn();
+
+    await mutations.integrationsEditFormIntegration(null, doc, { user: _user });
+
+    delete doc._id;
+
+    expect(Integrations.updateFormIntegration).toBeCalledWith(fakeIntegrationId, doc);
+    expect(Integrations.updateFormIntegration.mock.calls.length).toBe(1);
+
+    // test Integrations.removeIntegration ===========================
+    Integrations.removeIntegration = jest.fn();
+
+    await mutations.integrationsRemove(null, { _id: fakeIntegrationId }, { user: _user });
+
+    expect(Integrations.removeIntegration).toBeCalledWith(fakeIntegrationId);
+    expect(Integrations.removeIntegration.mock.calls.length).toBe(1);
   });
 });

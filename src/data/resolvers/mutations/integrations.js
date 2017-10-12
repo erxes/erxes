@@ -3,11 +3,13 @@ import { Integrations } from '../../../db/models';
 export default {
   /**
    * Create a new messenger integration
-   * @param {Object}
-   * @param {String} doc.title
-   * @param {String} doc.brandId
-   * @return {Promise} returns the messenger integration
-   * @throws {Error} apollo level error based on validation
+   * @param {Object} root
+   * @param {Object} doc - Integration main doc object
+   * @param {string} doc.name - Integration name
+   * @param {string} doc.brandId - Integration brand id
+   * @param {Object} object3 - The middleware data
+   * @param {Object} object3.user - The user making this action
+   * @return {Promise} return integration promise
    * @throws {Error} throws error if user is not logged in
    */
   integrationsCreateMessengerIntegration(root, doc, { user }) {
@@ -19,77 +21,78 @@ export default {
   },
 
   /**
-   * Edit a messenger integration
-   * @param {Object}
-   * @param {String} args.id
-   * @param {String} args.title
-   * @param {String} args.brandId
-   * @return {Promise} returns null
-   * @throws {Error} apollo level error based on validation
+   * Update messenger integration
+   * @param {Object} root
+   * @param {string} object2  - Integration main document object
+   * @param {string} object2._id - Integration id
+   * @param {string} object2.name - Integration name
+   * @param {string} object2.brandId - Integration brand id
+   * @param {Object} object3 - The middleware data
+   * @param {Object} object3.user - The user making this action
+   * @return {Promise} returns null promise
    * @throws {Error} throws error if user is not logged in
    */
-  integrationsEditMessengerIntegration(root, { id, ...fields }, { user }) {
+  integrationsEditMessengerIntegration(root, { _id, ...fields }, { user }) {
     if (!user) {
       throw new Error('Login required');
     }
 
-    return Integrations.updateMessengerIntegration(id, fields);
+    return Integrations.updateMessengerIntegration(_id, fields);
   },
 
   /**
-   * Edit/save messenger appearance data
-   * @param {Object}
-   * @param {String} args.id
-   * @param {String} args.color
-   * @param {String} args.wallpaper
-   * @param {String} args.logo
-   * @return {Promise} returns null
-   * @throws {Error} apollo level error based on validation
+   * Update/save messenger appearance data
+   * @param {Object} root
+   * @param {Object} object2 Graphql input data
+   * @param {string} object2._id - Integration id
+   * @param {Object} object2 - MessengerUiOptions subdocument object
+   * @param {string} object2.color - MessengerUiOptions color
+   * @param {string} object2.wallpaper - MessengerUiOptions wallpaper
+   * @param {string} object2.logo - MessengerUiOptions logo
+   * @param {Object} object3 - The middleware data
+   * @param {Object} object3.user - The user making this action
+   * @return {Promise} returns null promise
    * @throws {Error} throws error if user is not logged in
    */
-  integrationsSaveMessengerAppearanceData(root, { id, uiOptions }, { user }) {
+  integrationsSaveMessengerAppearanceData(root, { _id, uiOptions }, { user }) {
     if (!user) {
       throw new Error('Login required');
     }
 
-    return Integrations.saveMessengerAppearanceData(id, uiOptions);
+    return Integrations.saveMessengerAppearanceData(_id, uiOptions);
   },
 
   /**
-   * Edit/save messenger data
-   * @param {Object}
-   * @param {String} args.id
-   * @param {Boolean} args.notifyCustomer
-   * @param {String} args.availabilityMethod
-   * @param {Boolean} args.isOnline
-   * @param {String} args.onlineHours.day
-   * @param {String} args.onlineHours.from
-   * @param {String} args.onlineHours.to
-   * @param {String} args.timezone
-   * @param {String} args.welcomeMessage
-   * @param {String} args.awayMessage
-   * @param {String} args.thankYouMessage
-   * @return {Promise} returns null
-   * @throws {Error} apollo level error based on validation
+   * Update/save messenger data
+   * @param {Object} root
+   * @param {Object} object2 - Graphql input data
+   * @param {string} object2._id - Integration id
+   * @param {MessengerData} object2.messengerData - MessengerData subdocument
+   *     object related to this integration
+   * @param {Object} object3 - The middleware data
+   * @param {Object} object3.user - The user making this action
+   * @return {Promise} returns null promise
    * @throws {Error} throws error if user is not logged in
    */
-  integrationsSaveMessengerConfigs(root, { id, messengerData }, { user }) {
+  integrationsSaveMessengerConfigs(root, { _id, messengerData }, { user }) {
     if (!user) {
       throw new Error('Login required');
     }
 
-    return Integrations.saveMessengerConfigs(id, messengerData);
+    return Integrations.saveMessengerConfigs(_id, messengerData);
   },
 
   /**
    * Create a new messenger integration
-   * @param {Object}
-   * @param {String} doc.title
-   * @param {String} doc.brandId
-   * @param {String} doc.formId
-   * @param {Object} doc.formData
+   * @param {Object} root
+   * @param {Object} doc - Integration object
+   * @param {string} doc.name - Integration name
+   * @param {string} doc.brandId - Integration brand id
+   * @param {string} doc.formId - Integration form id
+   * @param {FormData} doc.formData - Integration form data sumbdocument object
+   * @param {Object} object3 - The middleware data
+   * @param {Object} object3.user - The user making this action
    * @return {Promise} returns the messenger integration
-   * @throws {Error} apollo level error based on validation
    * @throws {Error} throws error if user is not logged in
    */
   integrationsCreateFormIntegration(root, doc, { user }) {
@@ -103,35 +106,41 @@ export default {
   /**
    * Edit a form integration
    * @param {Object}
-   * @param {String} doc.title
-   * @param {String} doc.brandId
-   * @param {String} doc.formId
-   * @param {Object} doc.formData
-   * @return {Promise} returns null
-   * @throws {Error} apollo level error based on validation
+   * @param {Object} doc - Integration object
+   * @param {string} doc._id - Integration id
+   * @param {string} doc.name - Integration name
+   * @param {string} doc.brandId - Integration brand id
+   * @param {string} doc.formId - Integration form id
+   * @param {FormData} doc.formData - Integration form data subdocument object
+   * @param {Object} object3 - The middleware data
+   * @param {Object} object3.user - The user making this action
+   * @return {Promise} returns null promise
    * @throws {Error} throws error if user is not logged in
    */
-  integrationsEditFormIntegration(root, { id, ...doc }, { user }) {
+  integrationsEditFormIntegration(root, { _id, ...doc }, { user }) {
     if (!user) {
       throw new Error('Login required');
     }
 
-    return Integrations.updateFormIntegration(id, doc);
+    return Integrations.updateFormIntegration(_id, doc);
   },
 
   /**
   * Delete an integration
-   * @param {Object}
-   * @param {String} args.id
-   * @return {Promise} returns the messenger integration
+   * @param {Object} root
+   * @param {Object} object2 - Graphql input data
+   * @param {string} object2._id - Integration id
+   * @param {Object} object3 - The middleware data
+   * @param {Object} object3.user - The user making this action
+   * @return {Promise} returns null
    * @throws {Error} apollo level error based on validation
    * @throws {Error} throws error if user is not logged in
    */
-  integrationsRemove(root, { id }, { user }) {
+  integrationsRemove(root, { _id }, { user }) {
     if (!user) {
       throw new Error('Login required');
     }
 
-    return Integrations.removeIntegration({ _id: id });
+    return Integrations.removeIntegration(_id);
   },
 };
