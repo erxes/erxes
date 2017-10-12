@@ -1,7 +1,3 @@
-/*
- * Will implement actual db changes after removing meteor
- */
-
 import strip from 'strip';
 
 import {
@@ -40,6 +36,21 @@ const conversationsChanged = async (_ids, type) => {
   }
 };
 
+const createMessage = async (conversation, doc, userId) => {
+  const message = await ConversationMessages.createMessage({ ...doc, userId });
+
+  // subscribe
+  pubsub.publish('conversationMessageInserted', {
+    conversationMessageInserted: message,
+  });
+
+  pubsub.publish('conversationsChanged', {
+    conversationsChanged: { customerId: conversation.customerId, type: 'newMessage' },
+  });
+
+  return message._id;
+};
+
 export default {
   /**
    * Create new message in conversation
@@ -73,7 +84,7 @@ export default {
 
     // do not send internal message to third service integrations
     if (doc.internal) {
-      return ConversationMessages.createMessage({ ...doc, userId });
+      return createMessage(conversation, doc, userId);
     }
 
     const integration = await Integrations.findOne({ _id: conversation.integrationId });
@@ -87,18 +98,8 @@ export default {
       // TODO: return tweetReply(conversation, strip(content));
     }
 
-    const message = await ConversationMessages.createMessage({ ...doc, userId });
-    const messageId = message._id;
+    const messageId = await createMessage(conversation, doc, userId);
     const customer = await Customers.findOne({ _id: conversation.customerId });
-
-    // subscribe
-    pubsub.publish('conversationMessageInserted', {
-      conversationMessageInserted: message,
-    });
-
-    pubsub.publish('conversationsChanged', {
-      conversationsChanged: { customerId: conversation.customerId, type: 'newMessage' },
-    });
 
     // if conversation's integration kind is form then send reply to
     // customer's email
@@ -117,8 +118,11 @@ export default {
     return messageId;
   },
 
-  /*
-   * assign employee to conversation
+  /**
+   * Assign employee to conversation
+   * @param  {list} conversationIds
+   * @param  {String} assignedUserId
+   * @return {Promise} String
    */
   async conversationsAssign(root, { conversationIds, assignedUserId }, { user }) {
     if (!user) throw new Error('Login required');
@@ -129,11 +133,7 @@ export default {
       throw new Error('User not found.');
     }
 
-    await Conversations.update(
-      { _id: { $in: conversationIds } },
-      { $set: { assignedUserId } },
-      { multi: true },
-    );
+    await Conversations.assignUserConversation(conversationIds, assignedUserId);
 
     // notify graphl subscription
     conversationsChanged(conversationIds, 'statusChanged');
@@ -141,41 +141,49 @@ export default {
     const updatedConversations = await Conversations.find(selector);
 
     // send notification
-    updatedConversations.forEach(function(conversation) {
+    updatedConversations.forEach(conversation => {
       const content = 'Assigned user has changed';
       // TODO: sendNotification
     });
+
+    return 'done';
   },
 
-  /*
-   * unassign employee from conversation
+  /**
+   * Unassign employee from conversation
+   * @param  {list} ids of conversation
+   * @return {Promise} String
    */
   async conversationsUnassign(root, { _ids }, { user }) {
     if (!user) throw new Error('Login required');
 
     await conversationsCheckExistance(_ids);
 
-    await Conversations.update(
-      { _id: { $in: _ids } },
-      { $unset: { assignedUserId: 1 } },
-      { multi: true },
-    );
+    await Conversations.unassignUserConversation(_ids);
 
     // notify graphl subscription
     conversationsChanged(_ids, 'statusChanged');
+
+    return 'done';
   },
 
+  /**
+   * Change conversation status
+   * @param  {list} _ids of conversation
+   * @param  {String} status
+   * @return {Promise} String
+   */
   async conversationsChangeStatus(root, { _ids, status }, { user }) {
     if (!user) throw new Error('Login required');
 
     const { conversations } = await conversationsCheckExistance(_ids);
 
-    Conversations.update({ _id: { $in: _ids } }, { $set: { status } }, { multi: true });
+    Conversations.changeStatusConversation(_ids, status);
 
     // notify graphl subscription
     conversationsChanged(_ids, 'statusChanged');
 
-    conversations.forEach(function(conversation) {
+    conversations.forEach(conversation => {
       if (status === CONVERSATION_STATUSES.CLOSED) {
         const customer = conversation.customer();
         const integration = conversation.integration();
@@ -192,8 +200,15 @@ export default {
     const content = 'Conversation status has changed.';
 
     // TODO: send notification
+
+    return 'done';
   },
 
+  /**
+   * Star conversation
+   * @param  {list} _ids of conversation
+   * @return {Promise} String
+   */
   async conversationsStar(root, { _ids }, { user }) {
     if (!user) throw new Error('Login required');
 
@@ -208,8 +223,15 @@ export default {
         },
       },
     );
+
+    return 'done';
   },
 
+  /**
+   * Unstar conversation
+   * @param  {list} _ids of conversation
+   * @return {Promise} String
+   */
   async conversationsUnstar(root, { _ids }, { user }) {
     if (!user) throw new Error('Login required');
 
@@ -224,8 +246,15 @@ export default {
         },
       },
     );
+
+    return 'done';
   },
 
+  /**
+   * Add or remove participed users in conversation
+   * @param  {list} _ids of conversation
+   * @return {Promise} String
+   */
   async conversationsToggleParticipate(root, { _ids }, { user }) {
     if (!user) throw new Error('Login required');
 
@@ -238,43 +267,42 @@ export default {
 
     // not previously added
     if ((await Conversations.find(extendSelector).count()) === 0) {
-      await Conversations.update(
-        selector,
-        { $addToSet: { participatedUserIds: user._id } },
-        { multi: true },
-      );
+      await Conversations.addParticipatedUserToConversation(_ids, user._id);
     } else {
       // remove
-      await Conversations.update(
-        selector,
-        { $pull: { participatedUserIds: { $in: [user._id] } } },
-        { multi: true },
-      );
+      await Conversations.removeParticipatedUserFromConversation(_ids, user._id);
     }
 
     // notify graphl subscription
     conversationsChanged(_ids, 'participatedStateChanged');
+
+    return 'done';
   },
 
+  /**
+   * Conversation mark as read
+   * @param  {list} _ids of conversation
+   * @return {Promise} String
+   */
   async conversationMarkAsRead(root, { _id }, { user }) {
     if (!user) throw new Error('Login required');
 
     const conversation = await Conversations.findOne({ _id });
 
-    if (conversation) {
-      const readUserIds = conversation.readUserIds;
+    if (!conversation) return 'not affected';
 
-      // if current user is first one
-      if (!readUserIds) {
-        return Conversations.update({ _id: _id }, { $set: { readUserIds: [user._id] } });
-      }
+    const readUserIds = conversation.readUserIds;
 
-      // if current user is not in read users list then add it
-      if (!readUserIds.includes(user._id)) {
-        return Conversations.update({ _id }, { $push: { readUserIds: user._id } });
-      }
+    // if current user is first one
+    if (!readUserIds) {
+      return Conversations.markAsReadConversation(_id, user._id);
     }
 
-    return 'not affected';
+    // if current user is not in read users list then add it
+    if (!readUserIds.includes(user._id)) {
+      return Conversations.markAsReadConversation(_id, user._id, false);
+    }
+
+    return 'done';
   },
 };

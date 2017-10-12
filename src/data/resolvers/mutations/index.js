@@ -1,11 +1,11 @@
 import conversations from './conversations';
 import brands from './brands';
-import emailTemplate from './emailTemplate';
-import responseTemplate from './responseTemplate';
+import emailTemplates from './emailTemplates';
+import responseTemplates from './responseTemplates';
 
 export default {
   ...conversations,
   ...brands,
-  ...emailTemplate,
-  ...responseTemplate,
+  ...emailTemplates,
+  ...responseTemplates,
 };

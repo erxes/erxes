@@ -1,7 +1,80 @@
 import mongoose from 'mongoose';
 import Random from 'meteor-random';
-import { CONVERSATION_STATUSES } from '../../data/constants';
+import { CONVERSATION_STATUSES, FACEBOOK_DATA_KINDS } from '../../data/constants';
 
+const TwitterDirectMessageSchema = mongoose.Schema({
+  _id: {
+    type: String,
+    unique: true,
+    default: () => Random.id(),
+  },
+  senderId: {
+    type: Number,
+  },
+  senderIdStr: {
+    type: String,
+  },
+  recipientId: {
+    type: Number,
+  },
+  recipientIdStr: {
+    type: String,
+  },
+});
+
+// Twitter schema
+const TwitterSchema = mongoose.Schema({
+  _id: {
+    type: String,
+    unique: true,
+    default: () => Random.id(),
+  },
+  idStr: {
+    type: String,
+  },
+  screenName: {
+    type: String,
+  },
+  isDirectMessage: {
+    type: Boolean,
+  },
+  directMessage: {
+    type: TwitterDirectMessageSchema,
+  },
+});
+
+// facebook schema
+const FacebookSchema = mongoose.Schema({
+  _id: {
+    type: String,
+    unique: true,
+    default: () => Random.id(),
+  },
+  kind: {
+    type: String,
+    enum: FACEBOOK_DATA_KINDS.ALL_LIST,
+  },
+  senderName: {
+    type: String,
+  },
+  senderId: {
+    type: String,
+  },
+  recipientId: {
+    type: String,
+  },
+
+  // when wall post
+  postId: {
+    type: String,
+  },
+
+  pageId: {
+    type: String,
+  },
+});
+
+// Conversation schema
 const ConversationSchema = mongoose.Schema({
   _id: { type: String, unique: true, default: () => Random.id() },
   content: String,
@@ -18,15 +91,15 @@ const ConversationSchema = mongoose.Schema({
   status: {
     type: String,
     required: true,
-    allowedValues: CONVERSATION_STATUSES.ALL_LIST,
+    enum: CONVERSATION_STATUSES.ALL_LIST,
   },
   messageCount: Number,
   tagIds: [String],
 
   // number of total conversations
   number: Number,
-  twitterData: Object,
-  facebookData: Object,
+  twitterData: TwitterSchema,
+  facebookData: FacebookSchema,
 });
 
 class Conversation {
@@ -40,9 +113,88 @@ class Conversation {
       ...doc,
       status: CONVERSATION_STATUSES.NEW,
       createdAt: new Date(),
-      number: Conversations.find().count() + 1,
+      number: this.find().count() + 1,
       messageCount: 0,
     });
+  }
+
+  /**
+   * Assign user to conversation
+   * @param  {list} conversationIds
+   * @param  {String} assignedUserId
+   * @return {Promise} Updated conversation id
+   */
+  static assignUserConversation(conversationIds, assignedUserId) {
+    return this.update(
+      { _id: { $in: conversationIds } },
+      { $set: { assignedUserId } },
+      { multi: true },
+    );
+  }
+
+  /**
+   * Unassign user from conversation
+   * @param  {list} conversationIds
+   * @return {Promise} Updated conversation id
+   */
+  static unassignUserConversation(conversationIds) {
+    return this.update(
+      { _id: { $in: conversationIds } },
+      { $unset: { assignedUserId: 1 } },
+      { multi: true },
+    );
+  }
+
+  /**
+   * Change conversation status
+   * @param  {list} conversationIds
+   * @param  {String} status
+   * @return {Promise} Updated conversation id
+   */
+  static changeStatusConversation(conversationIds, status) {
+    return this.update({ _id: { $in: conversationIds } }, { $set: { status } }, { multi: true });
+  }
+
+  /**
+   * Add participated user to conversation
+   * @param  {Object} selector
+   * @param  {String} userId
+   * @return {Promise} Updated conversation id
+   */
+  static addParticipatedUserToConversation(_ids, userId) {
+    return this.update(
+      { _id: { $in: _ids } },
+      { $addToSet: { participatedUserIds: userId } },
+      { multi: true },
+    );
+  }
+
+  /**
+   * Remove participated user from conversation
+   * @param  {list} _ids
+   * @param  {String} userId
+   * @return {Promise} Updated conversation id
+   */
+  static removeParticipatedUserFromConversation(_ids, userId) {
+    return this.update(
+      { _id: { $in: _ids } },
+      { $pull: { participatedUserIds: { $in: [userId] } } },
+      { multi: true },
+    );
+  }
+
+  /**
+   * Mark as read conversation
+   * @param  {String} _id of conversation
+   * @param  {String} userId
+   * @param  {Boolean} firstOne
+   * @return {Promise} Updated conversation id
+   */
+  static markAsReadConversation(_id, userId, firstOne) {
+    // if current user is first one
+    if (firstOne) return this.update({ _id }, { $set: { readUserIds: [userId] } });
+
+    return this.update({ _id }, { $push: { readUserIds: userId } });
   }
 }
 
@@ -62,7 +214,7 @@ const MessageSchema = mongoose.Schema({
   isCustomerRead: Boolean,
   engageData: Object,
   formWidgetData: Object,
-  facebookData: Object,
+  facebookData: FacebookSchema,
 });
 
 class Message {

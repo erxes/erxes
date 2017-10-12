@@ -44,85 +44,52 @@ describe('Conversation message mutations', () => {
   });
 
   test('Create conversation message', async () => {
-    const messageId = await conversationMutations.conversationMessageAdd({}, _doc, {
-      user: _user,
-    });
-
-    const messageObj = await ConversationMessages.findOne({ _id: messageId });
+    const messageObj = await ConversationMessages.createMessage({ ..._doc, userId: _user.id });
 
     expect(messageObj.content).toBe(_conversationMessage.content);
-    expect(messageObj.attachments).toBe(undefined);
+    expect(messageObj.attachments).toBe(_conversationMessage.attachments);
     expect(messageObj.status).toBe(_conversationMessage.status);
     expect(messageObj.mentionedUserIds[0]).toBe(_conversationMessage.mentionedUserIds[0]);
     expect(messageObj.conversationId).toBe(_conversation._id);
     expect(messageObj.internal).toBe(_conversationMessage.internal);
     expect(messageObj.customerId).toBe(_conversationMessage.customerId);
     expect(messageObj.isCustomerRead).toBe(_conversationMessage.isCustomerRead);
-    expect(messageObj.engageData).toBe(undefined);
-    expect(messageObj.formWidgetData).toBe(undefined);
+    expect(messageObj.engageData).toBe(_conversationMessage.engageData);
+    expect(messageObj.formWidgetData).toBe(_conversationMessage.formWidgetData);
     expect(messageObj.facebookData._id).toBe(_conversationMessage.facebookData._id);
     expect(messageObj.userId).toBe(_user._id);
   });
 
-  // check conversation if integration doesn't found
-  test('Create conversation message without integration', async () => {
-    expect.assertions(1);
-
-    _doc['internal'] = false;
-    try {
-      await conversationMutations.conversationMessageAdd({}, _doc, { user: _user });
-    } catch (e) {
-      expect(e.message).toEqual('Integration not found');
-    }
-  });
-
   // if user assigned to conversation
   test('Assign conversation to employee', async () => {
-    await conversationMutations.conversationsAssign(
-      {},
-      { conversationIds: [_conversation._id], assignedUserId: _user._id },
-      { user: _user },
-    );
+    await Conversations.assignUserConversation(_conversation._id, _user.id);
 
-    const conversation_list = await Conversations.find({ _id: { $in: [_conversation._id] } });
-    conversation_list.forEach(conversationObj => {
-      expect(conversationObj.assignedUserId).toBe(_user._id);
-    });
+    const conversationObj = await Conversations.findOne({ _id: _conversation._id });
+
+    expect(conversationObj.assignedUserId).toBe(_user._id);
   });
 
   test('Unassign employee from conversation', async () => {
     // assign employee before unassign
-    await conversationMutations.conversationsAssign(
-      {},
-      { conversationIds: [_conversation._id], assignedUserId: _user._id },
-      { user: _user },
-    );
+    await Conversations.assignUserConversation(_conversation._id, _user.id);
 
     // unassign
-    await conversationMutations.conversationsUnassign(
-      {},
-      { _ids: [_conversation._id] },
-      { user: _user },
-    );
+    await Conversations.unassignUserConversation([_conversation._id]);
 
     const conversationObj = await Conversations.findOne({ _id: _conversation._id });
+
     expect(conversationObj.assignedUserId).toBe(undefined);
   });
 
   test('Change conversation status', async () => {
-    // assign employee before unassign
-    await conversationMutations.conversationsChangeStatus(
-      {},
-      { _ids: [_conversation._id] },
-      { user: _user },
-    );
+    await Conversations.changeStatusConversation([_conversation._id], 'new');
 
     const conversationObj = await Conversations.findOne({ _id: _conversation._id });
+
     expect(conversationObj.status).toBe('new');
   });
 
   test('Conversation star', async () => {
-    // assign employee before unassign
     await conversationMutations.conversationsStar(
       {},
       { _ids: [_conversation._id] },
@@ -154,40 +121,37 @@ describe('Conversation message mutations', () => {
   });
 
   test('Toggle participated users in conversation ', async () => {
-    // make sure participated users are empty
+    // make sure participated users is empty
     expect(_conversation.participatedUserIds.length).toBe(0);
-    await conversationMutations.conversationsToggleParticipate(
-      {},
-      { _ids: [_conversation._id] },
-      { user: _user },
-    );
+
+    // add user to conversation
+    await Conversations.addParticipatedUserToConversation([_conversation._id], _user.id);
 
     const conversationObj = await Conversations.findOne({ _id: _conversation.id });
 
-    // check if participated user is added
     expect(conversationObj.participatedUserIds[0]).toBe(_user._id);
 
-    await conversationMutations.conversationsToggleParticipate(
-      {},
-      { _ids: [_conversation._id] },
-      { user: _user },
-    );
+    // remove user from conversation
+    await Conversations.removeParticipatedUserFromConversation([_conversation._id], _user.id);
 
     const conversationObjWithParticipatedUser = await Conversations.findOne({
       _id: _conversation.id,
     });
 
-    // check if participated user add
     expect(conversationObjWithParticipatedUser.participatedUserIds.length).toBe(0);
   });
 
   test('Conversation mark as read', async () => {
-    await conversationMutations.conversationMarkAsRead(
-      {},
-      { _id: _conversation._id },
-      { user: _user },
-    );
+    // first user read this conversation
+    await Conversations.markAsReadConversation(_conversation._id, _user._id);
+
     const conversationObj = await Conversations.findOne({ _id: _conversation._id });
+
     expect(conversationObj.readUserIds[0]).toBe(_user._id);
+
+    const second_user = await userFactory();
+
+    // multiple users read conversation
+    await Conversations.markAsReadConversation(_conversation._id, second_user._id, false);
   });
 });

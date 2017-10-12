@@ -4,7 +4,7 @@
 import { connect, disconnect } from '../db/connection';
 import { EmailTemplates, Users } from '../db/models';
 import { emailTemplateFactory, userFactory } from '../db/factories';
-import emailTemplateMutations from '../data/resolvers/mutations/emailTemplate';
+import emailTemplateMutations from '../data/resolvers/mutations/emailTemplates';
 
 beforeAll(() => connect());
 

@@ -4,7 +4,7 @@
 import { connect, disconnect } from '../db/connection';
 import { ResponseTemplates, Users } from '../db/models';
 import { responseTemplateFactory, userFactory } from '../db/factories';
-import responseTemplateMutations from '../data/resolvers/mutations/responseTemplate';
+import responseTemplateMutations from '../data/resolvers/mutations/responseTemplates';
 
 beforeAll(() => connect());
 

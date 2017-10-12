@@ -4,7 +4,7 @@ import Random from 'meteor-random';
 const BrandEmailConfigSchema = mongoose.Schema({
   type: {
     type: String,
-    allowedValues: ['simple', 'custom'],
+    enum: ['simple', 'custom'],
   },
   template: String,
 });
