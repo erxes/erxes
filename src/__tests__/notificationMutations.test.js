@@ -3,7 +3,7 @@
 
 import { connect, disconnect } from '../db/connection';
 import { Notifications, NotificationConfigurations } from '../db/models';
-import NotificationMutations from '../data/resolvers/mutations/notifications';
+import notificationMutations from '../data/resolvers/mutations/notifications';
 import { userFactory } from '../db/factories';
 import { Users } from '../db/models';
 
@@ -25,11 +25,11 @@ describe('testing mutations', () => {
     expect.assertions(2);
 
     // Login required ==================
-    expect(() => NotificationMutations.notificationsSaveConfig(null, {}, {})).toThrowError(
+    expect(() => notificationMutations.notificationsSaveConfig(null, {}, {})).toThrowError(
       'Login required',
     );
 
-    expect(() => NotificationMutations.notificationsMarkAsRead(null, {}, {})).toThrowError(
+    expect(() => notificationMutations.notificationsMarkAsRead(null, {}, {})).toThrowError(
       'Login required',
     );
   });
@@ -43,7 +43,7 @@ describe('testing mutations', () => {
       user: _user._id,
     };
 
-    await NotificationMutations.notificationsSaveConfig(null, doc, { user: _user });
+    await notificationMutations.notificationsSaveConfig(null, doc, { user: _user });
 
     expect(NotificationConfigurations.createOrUpdateConfiguration).toBeCalledWith(doc, _user);
     expect(NotificationConfigurations.createOrUpdateConfiguration.mock.calls.length).toBe(1);
@@ -54,7 +54,7 @@ describe('testing mutations', () => {
 
     const args = { ids: ['11111', '22222'] };
 
-    await NotificationMutations.notificationsMarkAsRead(null, args, { user: _user });
+    await notificationMutations.notificationsMarkAsRead(null, args, { user: _user });
 
     expect(Notifications.markAsRead).toBeCalledWith(args['ids']);
     expect(Notifications.markAsRead.mock.calls.length).toBe(1);

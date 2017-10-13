@@ -3,8 +3,7 @@
 import { connect, disconnect } from '../db/connection';
 import { userFactory, integrationFactory } from '../db/factories';
 import { Channels, Users, Integrations } from '../db/models';
-import mutations from '../data/resolvers/mutations';
-import { sendChannelNotifications } from '../data/utils';
+import channelMutations from '../data/resolvers/mutations/channels';
 
 beforeAll(() => connect());
 afterAll(() => disconnect());
@@ -173,7 +172,7 @@ describe('test mutations', () => {
     Channels.createChannel = jest.fn();
 
     try {
-      await mutations.channelsCreate(null, doc, { user: _user });
+      await channelMutations.channelsCreate(null, doc, { user: _user });
     } catch (e) {
       /* this error is caused by Channels.createChannel mock function;
        sendChannelNotifications method further in the workflow was using
@@ -198,7 +197,7 @@ describe('test mutations', () => {
 
     Channels.updateChannel = jest.fn();
 
-    await mutations.channelsEdit(null, { ...doc, _id: channelId }, { user: _user });
+    await channelMutations.channelsEdit(null, { ...doc, _id: channelId }, { user: _user });
 
     expect(Channels.updateChannel).toBeCalledWith(channelId, doc);
     expect(Channels.updateChannel.mock.calls.length).toBe(1);
@@ -206,7 +205,7 @@ describe('test mutations', () => {
     // test mutations.channelsRemove =============
     Channels.removeChannel = jest.fn();
 
-    await mutations.channelsRemove(null, { _id: channelId }, { user: _user });
+    await channelMutations.channelsRemove(null, { _id: channelId }, { user: _user });
 
     expect(Channels.removeChannel).toBeCalledWith(channelId);
     expect(Channels.removeChannel.mock.calls.length).toEqual(1);

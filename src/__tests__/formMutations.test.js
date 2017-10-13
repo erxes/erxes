@@ -22,6 +22,29 @@ describe('form and formField mutations', () => {
     await Users.remove({});
   });
 
+  test('test if `logging required` error is working as intended', () => {
+    expect.assertions(8);
+
+    // Login required ==================
+    expect(() => formMutations.formsCreate(null, {}, {})).toThrowError('Login required');
+
+    expect(() => formMutations.formsEdit(null, {}, {})).toThrowError('Login required');
+
+    expect(() => formMutations.formsRemove(null, {}, {})).toThrowError('Login required');
+
+    expect(() => formMutations.formsAddFormField(null, {}, {})).toThrowError('Login required');
+
+    expect(() => formMutations.formsEditFormField(null, {}, {})).toThrowError('Login required');
+
+    expect(() => formMutations.formsRemoveFormField(null, {}, {})).toThrowError('Login required');
+
+    expect(() => formMutations.formsUpdateFormFieldsOrder(null, {}, {})).toThrowError(
+      'Login required',
+    );
+
+    expect(() => formMutations.formsDuplicate(null, {}, {})).toThrowError('Login required');
+  });
+
   test(`test mutations.formsCreate`, async () => {
     Forms.createForm = jest.fn();
 

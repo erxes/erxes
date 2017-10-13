@@ -6,7 +6,7 @@ import { connect, disconnect } from '../db/connection';
 import { FORM_LOAD_TYPES, MESSENGER_DATA_AVAILABILITY } from '../data/constants';
 import { userFactory } from '../db/factories';
 import { Integrations, Users } from '../db/models';
-import IntegrationMutations from '../data/resolvers/mutations/integrations';
+import integrationMutations from '../data/resolvers/mutations/integrations';
 
 beforeAll(() => connect());
 afterAll(() => disconnect());
@@ -30,26 +30,26 @@ describe('mutations', () => {
 
     // Login required ==================
     expect(() =>
-      IntegrationMutations.integrationsCreateMessengerIntegration(null, {}, {}),
+      integrationMutations.integrationsCreateMessengerIntegration(null, {}, {}),
     ).toThrowError('Login required');
 
     expect(() =>
-      IntegrationMutations.integrationsEditMessengerIntegration(null, {}, {}),
+      integrationMutations.integrationsEditMessengerIntegration(null, {}, {}),
     ).toThrowError('Login required');
 
     expect(() =>
-      IntegrationMutations.integrationsSaveMessengerAppearanceData(null, {}, {}),
+      integrationMutations.integrationsSaveMessengerAppearanceData(null, {}, {}),
     ).toThrowError('Login required');
 
-    expect(() => IntegrationMutations.integrationsCreateFormIntegration(null, {}, {})).toThrowError(
+    expect(() => integrationMutations.integrationsCreateFormIntegration(null, {}, {})).toThrowError(
       'Login required',
     );
 
-    expect(() => IntegrationMutations.integrationsEditFormIntegration(null, {}, {})).toThrowError(
+    expect(() => integrationMutations.integrationsEditFormIntegration(null, {}, {})).toThrowError(
       'Login required',
     );
 
-    expect(() => IntegrationMutations.integrationsRemove(null, {}, {})).toThrowError(
+    expect(() => integrationMutations.integrationsRemove(null, {}, {})).toThrowError(
       'Login required',
     );
   });
@@ -62,7 +62,7 @@ describe('mutations', () => {
 
     Integrations.createMessengerIntegration = jest.fn();
 
-    await IntegrationMutations.integrationsCreateMessengerIntegration(null, doc, { user: _user });
+    await integrationMutations.integrationsCreateMessengerIntegration(null, doc, { user: _user });
 
     expect(Integrations.createMessengerIntegration).toBeCalledWith(doc);
     expect(Integrations.createMessengerIntegration.mock.calls.length).toBe(1);
@@ -77,7 +77,7 @@ describe('mutations', () => {
 
     Integrations.updateMessengerIntegration = jest.fn();
 
-    await IntegrationMutations.integrationsEditMessengerIntegration(null, doc, { user: _user });
+    await integrationMutations.integrationsEditMessengerIntegration(null, doc, { user: _user });
 
     delete doc._id;
 
@@ -94,7 +94,7 @@ describe('mutations', () => {
 
     Integrations.saveMessengerAppearanceData = jest.fn();
 
-    await IntegrationMutations.integrationsSaveMessengerAppearanceData(
+    await integrationMutations.integrationsSaveMessengerAppearanceData(
       null,
       {
         _id: _fakeIntegrationId,
@@ -132,7 +132,7 @@ describe('mutations', () => {
 
     Integrations.saveMessengerConfigs = jest.fn();
 
-    await IntegrationMutations.integrationsSaveMessengerConfigs(
+    await integrationMutations.integrationsSaveMessengerConfigs(
       null,
       {
         _id: _fakeIntegrationId,
@@ -163,7 +163,7 @@ describe('mutations', () => {
       formData,
     };
 
-    await IntegrationMutations.integrationsCreateFormIntegration(null, doc, { user: _user });
+    await integrationMutations.integrationsCreateFormIntegration(null, doc, { user: _user });
 
     expect(Integrations.createFormIntegration).toBeCalledWith(doc);
     expect(Integrations.createFormIntegration.mock.calls.length).toBe(1);
@@ -188,7 +188,7 @@ describe('mutations', () => {
 
     Integrations.updateFormIntegration = jest.fn();
 
-    await IntegrationMutations.integrationsEditFormIntegration(null, doc, { user: _user });
+    await integrationMutations.integrationsEditFormIntegration(null, doc, { user: _user });
 
     delete doc._id;
 
@@ -199,7 +199,7 @@ describe('mutations', () => {
   test('test Integrations.removeIntegration', async () => {
     Integrations.removeIntegration = jest.fn();
 
-    await IntegrationMutations.integrationsRemove(
+    await integrationMutations.integrationsRemove(
       null,
       { _id: _fakeIntegrationId },
       { user: _user },
