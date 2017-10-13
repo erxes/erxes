@@ -18,6 +18,8 @@ export const types = `
     tagIds: [String],
 
     customFieldsData: JSON
+
+    customers: [Customer]
   }
 `;
 

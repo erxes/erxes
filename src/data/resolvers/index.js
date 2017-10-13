@@ -8,6 +8,7 @@ import Form from './form';
 import EngageMessage from './engage';
 import InternalNote from './internalNote';
 import Customer from './customer';
+import Company from './company';
 import Segment from './segment';
 import Conversation from './conversation';
 import ConversationMessage from './conversationMessage';
@@ -22,6 +23,7 @@ export default {
   Form,
   InternalNote,
   Customer,
+  Company,
   Segment,
   EngageMessage,
   Conversation,
