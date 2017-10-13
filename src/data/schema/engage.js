@@ -31,12 +31,12 @@ export const queries = `
 `;
 
 export const mutations = `
-  messagesAdd(title: String!, kind: String!,
+  engageMessageAdd(title: String!, kind: String!,
     segmentId: String!, method: String!, fromUserId: String!): EngageMessage
-  messageEdit(_id: String!, title: String!, kind: String!,
+  engageMessageUpdate(_id: String!, title: String!, kind: String!,
     segmentId: String!, method: String!, fromUserId: String!): EngageMessage
-  messagesRemove(ids: [String!]!): EngageMessage
-  messagesSetLive(_id: String!): EngageMessage
-  messagesSetPause(_id: String!): EngageMessage
-  messagesSetLiveManual(_id: String!): EngageMessage
+  engageMessageRemove(ids: [String!]!): EngageMessage
+  engageMessageSetLive(_id: String!): EngageMessage
+  engageMessageSetPause(_id: String!): EngageMessage
+  engageMessageSetLiveManual(_id: String!): EngageMessage
 `;

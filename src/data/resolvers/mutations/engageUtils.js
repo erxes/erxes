@@ -27,9 +27,6 @@ const findCustomers = ({ customerIds, segmentId }) => {
   let customerQuery = { _id: { $in: customerIds || [] } };
 
   // TODO
-  // if (segmentId) {
-  //   customerQuery = customerQueryBuilder.segments(Segments.findOne(segmentId));
-  // }
 
   return Customers.find(customerQuery).fetch();
 };
@@ -108,31 +105,6 @@ const sendViaMessenger = message => {
   saveMatchedCustomerIds(message._id, customers);
 
   // TODO
-  // customers.forEach(customer => {
-  //   // replace keys in content
-  //   const replacedContent = replaceKeys({ content, customer, user });
-
-  //   // create conversation
-  //   const conversationId = createConversation({
-  //     userId: fromUserId,
-  //     customerId: customer._id,
-  //     integrationId: integration._id,
-  //     content: replacedContent,
-  //   });
-
-  //   // create message
-  //   createMessage({
-  //     engageData: {
-  //       messageId: message._id,
-  //       fromUserId,
-  //       ...message.messenger,
-  //     },
-  //     conversationId,
-  //     userId: fromUserId,
-  //     customerId: customer._id,
-  //     content: replacedContent,
-  //   });
-  // });
 };
 
 export const send = message => {

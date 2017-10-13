@@ -1,7 +1,15 @@
 import faker from 'faker';
 import Random from 'meteor-random';
 
-import { Users, Tags, Segments, Brands, EmailTemplates, ResponseTemplates } from './models';
+import {
+  Users,
+  Tags,
+  Segments,
+  Brands,
+  EmailTemplates,
+  ResponseTemplates,
+  EngageMessages,
+} from './models';
 
 export const userFactory = (params = {}) => {
   const user = new Users({
@@ -23,6 +31,19 @@ export const tagsFactory = (params = { type: 'engageMessage' }) => {
   });
 
   return tag.save();
+};
+
+export const engageMessageFactory = (params = {}) => {
+  const engageMessage = new EngageMessages({
+    kind: 'manual',
+    title: faker.random.word(),
+    fromUserId: params.userId || faker.random.word(),
+    segmentId: params.segmentId || faker.random.word(),
+    isLive: true,
+    isDraft: false,
+  });
+
+  return engageMessage.save();
 };
 
 export const segmentsFactory = () => {

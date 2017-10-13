@@ -97,7 +97,7 @@ describe('Tags mutations', () => {
       isDraft: false,
     };
 
-    const message = await EngageMessages.createMessage(doc);
+    const message = await EngageMessages.createEngageMessage(doc);
     await tagsMutations.tagsTag(
       {},
       { type: 'engageMessage', targetIds: [message._id], tagIds: [_tag._id] },

@@ -63,7 +63,7 @@ class Message {
    * @param  {Object} doc object
    * @return {Promise} Newly created message object
    */
-  static createMessage(doc) {
+  static createEngageMessage(doc) {
     return this.create({
       ...doc,
       deliveryReports: {},
@@ -72,12 +72,30 @@ class Message {
     });
   }
 
-  static updateMessage(_id, doc) {
-    return this.update({ _id }, { $set: doc });
+  static async updateEngageMessage(_id, doc) {
+    await this.update({ _id }, { $set: doc });
+
+    return this.findOne({ _id });
   }
 
-  static removeMessage(_id) {
-    return this.remove({ _id });
+  static async engageMessageSetLive(_id) {
+    await this.update({ _id }, { $set: { isLive: true, isDraft: false } });
+
+    return this.findOne({ _id });
+  }
+
+  static async engageMessageSetPause(_id) {
+    await this.update({ _id }, { $set: { isLive: false } });
+
+    return this.findOne({ _id });
+  }
+
+  static async removeEngageMessage(_id) {
+    const messageObj = await this.findOne({ _id });
+
+    if (!messageObj) throw new Error(`Engage message not found with id ${_id}`);
+
+    return messageObj.remove();
   }
 }
 
