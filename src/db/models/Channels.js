@@ -29,7 +29,7 @@ const ChannelSchema = mongoose.Schema({
 class Channel {
   /**
    * Pre save filter method that adds userId to memberIds if it does not contain it
-   * @param {Object} doc - Channel object
+   * @param {Channel} doc - Channel object
    * @return {Null}
    */
   static preSave(doc) {

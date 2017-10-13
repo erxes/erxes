@@ -11,7 +11,7 @@ export default {
    * @param {String[]} doc.memberIds - Members assigned to the channel being created
    * @param {String[]} doc.integrationIds - Integrations related to the channel
    * @param {Object|string} user - User making this action
-   * @return {Promise} returns channel object
+   * @return {Promise} return Promise resolving created Channel document
    * @throws {Error} throws Error('Login required') if user is not logged in
    */
   async channelsCreate(root, doc, { user }) {
@@ -19,9 +19,9 @@ export default {
       throw new Error('Login required');
     }
 
-    const channel = Channels.createChannel(doc, user);
+    const channel = await Channels.createChannel(doc, user);
 
-    sendChannelNotifications({
+    await sendChannelNotifications({
       userId: channel.userId,
       memberIds: channel.memberIds,
       channelId: channel._id,
@@ -41,21 +41,23 @@ export default {
    * @param {string[]} doc.integrationIds - Integration related to this channel
    * @param {Object} object3 - Graphql input data
    * @param {Object|string} object3.user - user making this action
-   * @return {Promise} returns null
+   * @return {Promise} return Promise resolving the updated Channel document
    * @throws {Error} throws Error('Login required') if user is not logged in
    */
-  channelsEdit(root, { _id, ...doc }, { user }) {
+  async channelsEdit(root, { _id, ...doc }, { user }) {
     if (!user) {
       throw new Error('Login required');
     }
 
-    sendChannelNotifications({
-      channelId: _id,
-      memberIds: doc.memberIds,
+    const channel = Channels.updateChannel(_id, doc);
+
+    await sendChannelNotifications({
+      channelId: channel._id,
+      memberIds: channel.memberIds,
       userId: user,
     });
 
-    return Channels.updateChannel(_id, doc);
+    return channel;
   },
 
   /**
@@ -65,7 +67,7 @@ export default {
    * @param {string} object2._id - Channel id
    * @param {string} object3 - Middleware data
    * @param {Object|String} object3.user - User making this action
-   * @return {Promise} null
+   * @return {Promise}
    * @throws {Error} throws Error('Login required') if user is not logged in
    */
   channelsRemove(root, { _id }, { user }) {

@@ -95,6 +95,7 @@ export const sendEmail = async ({ toEmails, fromEmail, title, templateArgs }) =>
  * @param {String} channelId
  * @param {Array} memberIds
  * @param {String} userId
+ * @return {Promise}
  */
 export const sendChannelNotifications = async ({ channelId, memberIds, userId }) => {
   memberIds = memberIds || [];
