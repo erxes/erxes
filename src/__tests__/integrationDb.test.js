@@ -62,9 +62,7 @@ describe('messenger integration model edit method', () => {
       kind: 'new kind',
     };
 
-    await Integrations.updateMessengerIntegration(_integration._id, doc);
-
-    const updatedIntegration = await Integrations.findOne({ _id: _integration._id });
+    const updatedIntegration = await Integrations.updateMessengerIntegration(_integration._id, doc);
 
     expect(updatedIntegration.name).toBe(doc.name);
     expect(updatedIntegration.brandId).toBe(doc.brandId);
@@ -189,12 +187,10 @@ describe('edit form integration', () => {
       loadType: FORM_LOAD_TYPES.SHOUTBOX,
     };
 
-    await Integrations.updateFormIntegration(_form_integration._id, {
+    const integration = await Integrations.updateFormIntegration(_form_integration._id, {
       ...mainDoc,
       formData,
     });
-
-    const integration = await Integrations.findOne({ _id: _form_integration._id });
 
     expect(integration.name).toEqual(mainDoc.name);
     expect(integration.formId).toEqual(_form2._id);
@@ -256,9 +252,7 @@ describe('save integration messenger appearance test', () => {
       logo: faker.random.word(),
     };
 
-    await Integrations.saveMessengerAppearanceData(_integration._id, uiOptions);
-
-    const integration = await Integrations.findOne({ _id: _integration._id });
+    const integration = await Integrations.saveMessengerAppearanceData(_integration._id, uiOptions);
 
     expect(integration.uiOptions.color).toEqual(uiOptions.color);
     expect(integration.uiOptions.wallpaper).toEqual(uiOptions.wallpaper);
@@ -308,9 +302,7 @@ describe('save integration messenger configurations test', () => {
       thankYouMessage: 'Thank you',
     };
 
-    await Integrations.saveMessengerConfigs(_integration._id, messengerData);
-
-    const integration = await Integrations.findOne({ _id: _integration._id });
+    const integration = await Integrations.saveMessengerConfigs(_integration._id, messengerData);
 
     expect(integration.messengerData.notifyCustomer).toEqual(messengerData.notifyCustomer);
     expect(integration.messengerData.availabilityMethod).toEqual(messengerData.availabilityMethod);
@@ -352,9 +344,10 @@ describe('save integration messenger configurations test', () => {
       thankYouMessage: 'Gracias',
     };
 
-    await Integrations.saveMessengerConfigs(_integration._id, newMessengerData);
-
-    const updatedIntegration = await Integrations.findOne({ _id: _integration._id });
+    const updatedIntegration = await Integrations.saveMessengerConfigs(
+      _integration._id,
+      newMessengerData,
+    );
 
     expect(updatedIntegration.messengerData.notifyCustomer).toEqual(
       newMessengerData.notifyCustomer,

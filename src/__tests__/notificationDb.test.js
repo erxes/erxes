@@ -80,9 +80,7 @@ describe('Notification model tests', () => {
       receiver: user3,
     };
 
-    await Notifications.updateNotification(notification._id, doc);
-
-    notification = await Notifications.findOne({ _id: notification._id });
+    notification = await Notifications.updateNotification(notification._id, doc);
 
     expect(notification.notifType).toEqual(doc.notifType);
     expect(notification.title).toEqual(doc.title);
