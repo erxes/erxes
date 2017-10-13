@@ -8,8 +8,8 @@ export default {
    * @param {string} doc.title - Form title
    * @param {string} doc.description - Form description
    * @param {Object} doc.user - The user who created this form
-   * @return {Promise} returns the form promise
-   * @throws {Error} throws error if user is not logged in
+   * @return {Promise} return Promise resolving Form document
+   * @throws {Error} throws Error('Login required') if user is not logged in
    */
   formsCreate(root, doc, { user }) {
     if (!user) {
@@ -28,8 +28,8 @@ export default {
    * @param {string} object2.description - Form description
    * @param {Object} object3 - The middleware data
    * @param {Object} object3.user - The user who is making this action
-   * @return {Promise} returns null
-   * @throws {Error} throws error if user is not logged in
+   * @return {Promise} return Promise resolving Form document
+   * @throws {Error} throws Error('Login required') if user is not logged in
    */
   formsEdit(root, { _id, ...doc }, { user }) {
     if (!user) {
@@ -46,8 +46,8 @@ export default {
    * @param {string} object2._id - Form id
    * @param {Object} object3 - The middleware data
    * @param {Object} object3.user - The user making this action
-   * @return {Promise} null
-   * @throws {Error} throws error if user is not logged in
+   * @return {Promise}
+   * @throws {Error} throws Error('Login required') if user is not logged in
    */
   formsRemove(root, { _id }, { user }) {
     if (!user) {
@@ -70,8 +70,8 @@ export default {
    * @param {Boolean} object2.isRequired - Shows whether the field is required or not
    * @param {Object} object3 - Middleware data
    * @param {Object} object3.user - The user making this action
-   * @return {Promise} return Promise(null)
-   * @throws {Error} throws error if user is not logged in
+   * @return {Promise} return Promise resolving new FormField document
+   * @throws {Error} throws Error('Login required') if user is not logged in
    */
   formsAddFormField(root, { formId, ...formFieldDoc }, { user }) {
     if (!user) {
@@ -93,8 +93,8 @@ export default {
   * @param {Boolean} object2.isRequired
   * @param {Object} object3 - Middleware data
   * @param {Object} object3.user - The user making this action
-  * @return {Promise} return Promise(null)
-  * @throws {Error} throws error if user is not logged in
+  * @return {Promise} return Promise resolving updated FormField
+  * @throws {Error} throws Error('Login required') if user is not logged in
   */
   formsEditFormField(root, { _id, ...formFieldDoc }, { user }) {
     if (!user) {
@@ -111,8 +111,8 @@ export default {
    * @param {string} object2._id - Form field id
    * @param {Object} object3 - Middleware data
    * @param {Object} object3.user - The user making this action
-   * @return {Promise} null
-   * @throws {Error} throws error if user is not logged in
+   * @return {Promise}
+   * @throws {Error} throws Error('Login required') if user is not logged in
    */
   formsRemoveFormField(root, { _id }, { user }) {
     if (!user) {
@@ -129,8 +129,8 @@ export default {
    * @param {Object} object2.orderDics - Dictionary containing order values for form fields
    * @param {Object} object3 - The middleware data
    * @param {Object} object3.user - The user making this action
-   * @return {Promise} null
-   * @throws {Error} throws error if user is not logged in
+   * @return {Promise}
+   * @throws {Error} throws Error('Login required') if user is not logged in
    */
   formsUpdateFormFieldsOrder(root, { orderDics }, { user }) {
     if (!user) {
@@ -147,8 +147,8 @@ export default {
    * @param {string} object2._id - Form id
    * @param {Object} object3 - Middleware data
    * @param {Object} object3.user - The user making this action
-   * @return {Promise} returns form object
-   * @throws {Error} throws error if user is not logged in
+   * @return {Promise} return Promise resolving the new duplication Form document
+   * @throws {Error} throws Error('Login required') if user is not logged in
    */
   formsDuplicate(root, { _id }, { user }) {
     if (!user) {

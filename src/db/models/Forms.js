@@ -78,7 +78,7 @@ class Form {
   /**
    * Remove a form
    * @param {string} _id - Form document id
-   * @return {Null} returns null
+   * @return {Promise}
    * @throws {Error} throws Error if this form has fields or if used in an integration
    */
   static async removeForm(_id) {
@@ -94,7 +94,7 @@ class Form {
       throw new Error('You cannot delete this form. This form used in integration.');
     }
 
-    return await this.remove({ _id });
+    return this.remove({ _id });
   }
 
   /**
@@ -102,7 +102,7 @@ class Form {
    * @param {Object[]} orderDics - dictionary containing order values with user ids
    * @param {string} orderDics[]._id - _id of FormField
    * @param {string} orderDics[].order - order of FormField
-   * @return {Promise} null
+   * @return {Null}
    */
   static async updateFormFieldsOrder(orderDics) {
     // update each field's order
@@ -119,7 +119,7 @@ class Form {
   static async duplicate(_id) {
     const form = await this.findOne({ _id });
 
-    // duplicate form
+    // duplicate form ===================
     const newForm = await this.createForm(
       {
         title: `${form.title} duplicated`,
@@ -128,7 +128,7 @@ class Form {
       form.createdUserId,
     );
 
-    // duplicate fields
+    // duplicate fields ===================
     const formFields = await FormFields.find({ formId: _id });
 
     for (let field of formFields) {
@@ -192,7 +192,7 @@ class FormField {
    * @param {string} doc.description - FormField description
    * @param {String[]} doc.options - FormField select options (checkbox, radion buttons, ...)
    * @param {Boolean} doc.isRequired - checks whether value is filled or not on validation
-   * @return {Promise} - returns form field document promise
+   * @return {Promise} - return Promise resolving created FormField document
    */
   static async createFormField(formId, doc) {
     const lastField = await FormFields.findOne({}, { order: 1 }, { sort: { order: -1 } });
@@ -216,10 +216,11 @@ class FormField {
    * @param {string} doc.description - FormField description
    * @param {String[]} doc.options - FormField select options (checkbox, radion buttons, ...)
    * @param {Boolean} doc.isRequired checks whether value is filled or not on validation
-   * @return {Promise}
+   * @return {Promise} return Promise resolving updated FormField document
    */
-  static updateFormField(_id, doc) {
-    return this.update({ _id }, { $set: doc }, { runValidators: true });
+  static async updateFormField(_id, doc) {
+    await this.update({ _id }, { $set: doc }, { runValidators: true });
+    return this.findOne({ _id });
   }
 
   /**
