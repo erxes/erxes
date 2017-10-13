@@ -58,8 +58,6 @@ describe('mutations', () => {
 
     expect(EngageMessages.updateEngageMessage).toBeCalledWith(_message._id, _doc);
     expect(EngageMessages.updateEngageMessage.mock.calls.length).toBe(1);
-
-    EngageMessages.updateEngageMessage.mockClear();
   });
 
   test('Update message login required', async () => {
@@ -72,10 +70,10 @@ describe('mutations', () => {
   });
 
   test('messages remove', async () => {
+    EngageMessages.removeEngageMessage = jest.fn();
     await mutations.engageMessageRemove(null, _message._id, { user: _user });
 
-    const messagesCounts = await EngageMessages.find({}).count();
-    expect(messagesCounts).toBe(0);
+    expect(EngageMessages.removeEngageMessage.mock.calls.length).toBe(1);
   });
 
   test('Remove message login required', async () => {

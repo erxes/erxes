@@ -3,7 +3,7 @@
 
 import { connect, disconnect } from '../db/connection';
 import { Tags, Users, EngageMessages } from '../db/models';
-import { tagsFactory, userFactory, segmentsFactory } from '../db/factories';
+import { tagsFactory, userFactory, engageMessageFactory } from '../db/factories';
 import tagsMutations from '../data/resolvers/mutations/tags';
 
 beforeAll(() => connect());
@@ -13,13 +13,20 @@ afterAll(() => disconnect());
 describe('Tags mutations', () => {
   let _tag;
   let _user;
-  let _segment;
+  let _message;
+  let doc;
 
   beforeEach(async () => {
     // Creating test data
     _tag = await tagsFactory();
     _user = await userFactory();
-    _segment = await segmentsFactory({});
+    _message = await engageMessageFactory({});
+
+    doc = {
+      name: `${_tag.name}1`,
+      type: _tag.type,
+      colorCode: _tag.colorCode,
+    };
   });
 
   afterEach(async () => {
@@ -30,16 +37,11 @@ describe('Tags mutations', () => {
   });
 
   test('Create tag', async () => {
-    const tagObj = await tagsMutations.tagsAdd(
-      {},
-      { name: `${_tag.name}1`, type: _tag.type, colorCode: _tag.colorCode },
-      { user: _user },
-    );
+    Tags.createTag = jest.fn();
+    await tagsMutations.tagsAdd({}, doc, { user: _user });
 
-    expect(tagObj).toBeDefined();
-    expect(tagObj.name).toEqual(`${_tag.name}1`);
-    expect(tagObj.type).toEqual(_tag.type);
-    expect(tagObj.colorCode).toEqual(_tag.colorCode);
+    expect(Tags.createTag).toBeCalledWith(doc);
+    expect(Tags.createTag.mock.calls.length).toBe(1);
   });
 
   test('Create tag login required', async () => {
@@ -52,30 +54,27 @@ describe('Tags mutations', () => {
   });
 
   test('Update tag', async () => {
-    const tagObj = await tagsMutations.tagsEdit(
-      {},
-      { _id: _tag.id, name: _tag.name, type: _tag.type, colorCode: _tag.colorCode },
-      { user: _user },
-    );
+    Tags.updateTag = jest.fn();
+    await tagsMutations.tagsUpdate(null, { _id: _tag._id, ...doc }, { user: _user });
 
-    expect(tagObj).toBeDefined();
-    expect(tagObj.name).toEqual(_tag.name);
-    expect(tagObj.type).toEqual(_tag.type);
-    expect(tagObj.colorCode).toEqual(_tag.colorCode);
+    expect(Tags.updateTag).toBeCalledWith(_tag._id, doc);
+    expect(Tags.updateTag.mock.calls.length).toBe(1);
   });
 
   test('Update tag login required', async () => {
     expect.assertions(1);
     try {
-      await tagsMutations.tagsEdit({}, { _id: _tag.id, name: _tag.name }, {});
+      await tagsMutations.tagsUpdate({}, { _id: _tag.id, name: _tag.name }, {});
     } catch (e) {
       expect(e.message).toEqual('Login required');
     }
   });
 
-  test('Delete tag', async () => {
-    const isDeleted = await tagsMutations.tagsRemove({}, { ids: [_tag.id] }, { user: _user });
-    expect(isDeleted).toBeTruthy();
+  test('Remove tag', async () => {
+    Tags.removeTag = jest.fn();
+    await tagsMutations.tagsRemove({}, { ids: [_tag.id] }, { user: _user });
+
+    expect(Tags.removeTag.mock.calls.length).toBe(1);
   });
 
   test('Remove tag login required', async () => {
@@ -88,26 +87,15 @@ describe('Tags mutations', () => {
   });
 
   test('Tags tag', async () => {
-    const doc = {
-      kind: 'manual',
-      title: 'Message test',
-      fromUserId: _user._id,
-      segmentId: _segment._id,
-      isLive: true,
-      isDraft: false,
+    const tagObj = {
+      type: 'engageMessage',
+      targetIds: [_message._id],
+      tagIds: [_tag._id],
     };
 
-    const message = await EngageMessages.createEngageMessage(doc);
-    await tagsMutations.tagsTag(
-      {},
-      { type: 'engageMessage', targetIds: [message._id], tagIds: [_tag._id] },
-      { user: _user },
-    );
+    Tags.tagsTag = jest.fn();
+    await tagsMutations.tagsTag({}, tagObj, { user: _user });
 
-    const messageObj = await EngageMessages.findOne({ _id: message._id });
-    const tagObj = await Tags.findOne({ _id: _tag._id });
-
-    expect(tagObj.objectCount).toBe(1);
-    expect(messageObj.tagIds[0]).toEqual(_tag.id);
+    expect(Tags.tagsTag.mock.calls.length).toBe(1);
   });
 });

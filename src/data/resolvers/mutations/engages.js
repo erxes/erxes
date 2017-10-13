@@ -37,7 +37,7 @@ export default {
    * @param {[String]} doc.tagIds
    * @return {Promise} message object
    */
-  async engageMessageUpdate(root, { _id, ...doc }, { user }) {
+  engageMessageUpdate(root, { _id, ...doc }, { user }) {
     if (!user) throw new Error('Login required');
 
     return EngageMessages.updateEngageMessage(_id, doc);
@@ -48,7 +48,7 @@ export default {
    * @param {String} id
    * @return {Promise} null
    */
-  async engageMessageRemove(root, _id, { user }) {
+  engageMessageRemove(root, _id, { user }) {
     if (!user) throw new Error('Login required');
 
     return EngageMessages.removeEngageMessage(_id);
@@ -59,7 +59,7 @@ export default {
    * @param {String} id
    * @return {Promise} message object
    */
-  async engageMessageSetLive(root, _id, { user }) {
+  engageMessageSetLive(root, _id, { user }) {
     if (!user) throw new Error('Login required');
 
     return EngageMessages.engageMessageSetLive(_id);
@@ -70,7 +70,7 @@ export default {
    * @param {String} id
    * @return {Promise} message object
    */
-  async engageMessageSetPause(root, _id, { user }) {
+  engageMessageSetPause(root, _id, { user }) {
     if (!user) throw new Error('Login required');
 
     return EngageMessages.engageMessageSetPause(_id);
@@ -81,7 +81,7 @@ export default {
    * @param {String} id
    * @return {Promise} message object
    */
-  async engageMessageSetLiveManual(root, _id, { user }) {
+  engageMessageSetLiveManual(root, _id, { user }) {
     if (!user) throw new Error('Login required');
 
     return EngageMessages.engageMessageSetLive(_id);

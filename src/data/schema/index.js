@@ -1,10 +1,18 @@
 import { types as UserTypes, queries as UserQueries } from './user';
 
-import { types as ChannelTypes, queries as ChannelQueries } from './channel';
+import {
+  types as ChannelTypes,
+  queries as ChannelQueries,
+  mutations as ChannelMutations,
+} from './channel';
 
 import { types as BrandTypes, queries as BrandQueries, mutations as BrandMutations } from './brand';
 
-import { types as IntegrationTypes, queries as IntegrationQueries } from './integration';
+import {
+  types as IntegrationTypes,
+  queries as IntegrationQueries,
+  mutations as IntegrationMutations,
+} from './integration';
 
 import {
   types as ResponseTemplate,
@@ -18,7 +26,7 @@ import {
   mutations as EmailTemplateMutations,
 } from './emailTemplate';
 
-import { types as FormTypes, queries as FormQueries } from './form';
+import { types as FormTypes, queries as FormQueries, mutations as FormMutatons } from './form';
 
 import {
   types as EngageTypes,
@@ -33,6 +41,12 @@ import { types as CustomerTypes, queries as CustomerQueries } from './customer';
 import { types as InsightTypes, queries as InsightQueries } from './insight';
 
 import { types as KnowledgeBaseTypes, queries as KnowledgeBaseQueries } from './knowledgeBase';
+
+import {
+  types as NotificationTypes,
+  queries as NotificationQueries,
+  mutations as NotificationMutations,
+} from './notification';
 
 import {
   types as ConversationTypes,
@@ -57,6 +71,7 @@ export const types = `
   ${ConversationTypes}
   ${InsightTypes}
   ${KnowledgeBaseTypes}
+  ${NotificationTypes}
 `;
 
 export const queries = `
@@ -74,6 +89,7 @@ export const queries = `
     ${ConversationQueries}
     ${InsightQueries}
     ${KnowledgeBaseQueries}
+    ${NotificationQueries}
   }
 `;
 
@@ -85,6 +101,10 @@ export const mutations = `
     ${BrandMutations}
     ${ResponseTemplateMutations}
     ${EmailTemplateMutations}
+    ${ChannelMutations}
+    ${FormMutatons}
+    ${IntegrationMutations}
+    ${NotificationMutations}
   }
 `;
 
