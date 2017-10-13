@@ -9,8 +9,8 @@ export default {
    * @param {string} doc.brandId - Integration brand id
    * @param {Object} object3 - The middleware data
    * @param {Object} object3.user - The user making this action
-   * @return {Promise} return integration promise
-   * @throws {Error} throws error if user is not logged in
+   * @return {Promise} return Promise resolving Integration document
+   * @throws {Error} throws Error('Login required') if user is not logged in
    */
   integrationsCreateMessengerIntegration(root, doc, { user }) {
     if (!user) {
@@ -29,8 +29,8 @@ export default {
    * @param {string} object2.brandId - Integration brand id
    * @param {Object} object3 - The middleware data
    * @param {Object} object3.user - The user making this action
-   * @return {Promise} returns null promise
-   * @throws {Error} throws error if user is not logged in
+   * @return {Promise} return Promise resolving Integration document
+   * @throws {Error} throws Error('Login required') if user is not logged in
    */
   integrationsEditMessengerIntegration(root, { _id, ...fields }, { user }) {
     if (!user) {
@@ -51,8 +51,8 @@ export default {
    * @param {string} object2.logo - MessengerUiOptions logo
    * @param {Object} object3 - The middleware data
    * @param {Object} object3.user - The user making this action
-   * @return {Promise} returns null promise
-   * @throws {Error} throws error if user is not logged in
+   * @return {Promise} return Promise resolving Integration document
+   * @throws {Error} throws Error('Login required') if user is not logged in
    */
   integrationsSaveMessengerAppearanceData(root, { _id, uiOptions }, { user }) {
     if (!user) {
@@ -71,8 +71,8 @@ export default {
    *     object related to this integration
    * @param {Object} object3 - The middleware data
    * @param {Object} object3.user - The user making this action
-   * @return {Promise} returns null promise
-   * @throws {Error} throws error if user is not logged in
+   * @return {Promise} return Promise resolving Integration document
+   * @throws {Error} throws Error('Login required') if user is not logged in
    */
   integrationsSaveMessengerConfigs(root, { _id, messengerData }, { user }) {
     if (!user) {
@@ -92,8 +92,8 @@ export default {
    * @param {FormData} doc.formData - Integration form data sumbdocument object
    * @param {Object} object3 - The middleware data
    * @param {Object} object3.user - The user making this action
-   * @return {Promise} returns the messenger integration
-   * @throws {Error} throws error if user is not logged in
+   * @return {Promise} return Promise resolving Integration document
+   * @throws {Error} throws Error('Login required') if user is not logged in
    */
   integrationsCreateFormIntegration(root, doc, { user }) {
     if (!user) {
@@ -114,8 +114,8 @@ export default {
    * @param {FormData} doc.formData - Integration form data subdocument object
    * @param {Object} object3 - The middleware data
    * @param {Object} object3.user - The user making this action
-   * @return {Promise} returns null promise
-   * @throws {Error} throws error if user is not logged in
+   * @return {Promise} return Promise resolving Integration document
+   * @throws {Error} throws Error('Login required') if user is not logged in
    */
   integrationsEditFormIntegration(root, { _id, ...doc }, { user }) {
     if (!user) {
@@ -132,9 +132,8 @@ export default {
    * @param {string} object2._id - Integration id
    * @param {Object} object3 - The middleware data
    * @param {Object} object3.user - The user making this action
-   * @return {Promise} returns null
-   * @throws {Error} apollo level error based on validation
-   * @throws {Error} throws error if user is not logged in
+   * @return {Promise}
+   * @throws {Error} throws Error('Login required') if user is not logged in
    */
   integrationsRemove(root, { _id }, { user }) {
     if (!user) {
