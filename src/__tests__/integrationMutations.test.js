@@ -234,8 +234,7 @@ describe('remove integration model method test', () => {
 describe('save integration messenger appearance test', () => {
   let _brand;
   let _integration;
-  /**
-   */
+
   beforeEach(async () => {
     _brand = await brandFactory({});
     _integration = await integrationFactory({
@@ -245,8 +244,6 @@ describe('save integration messenger appearance test', () => {
     });
   });
 
-  /**
-   */
   afterEach(async () => {
     await Brands.remove({});
     await Integrations.remove({});
@@ -278,7 +275,7 @@ describe('save integration messenger configurations test', () => {
     _integration = await integrationFactory({
       name: 'messenger integration test',
       brandId: _brand._id,
-      kind: 'messenger',
+      kind: KIND_CHOICES.MESSENGER,
     });
   });
 
@@ -287,7 +284,8 @@ describe('save integration messenger configurations test', () => {
     await Integrations.remove({});
   });
 
-  test('test if integration messenger save confiturations method is working correctly', async () => {
+  test(`test if messenger integration save confiturations
+    method is working correctly`, async () => {
     const messengerData = {
       notifyCustomer: true,
       availabilityMethod: MESSENGER_DATA_AVAILABILITY.MANUAL,

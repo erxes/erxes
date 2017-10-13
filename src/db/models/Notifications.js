@@ -82,10 +82,11 @@ class Notification {
    * @param {string} doc.content - Notification content
    * @param {string} doc.link - Notification link
    * @param {Object|string} doc.receiver - Id of the user that will receive this notification
-   * @return {Promise} The promise returns null
+   * @return {Promise} returns Promise resolving updated Notification document
    */
-  static updateNotification(_id, doc) {
-    return this.update({ _id }, doc);
+  static async updateNotification(_id, doc) {
+    await this.update({ _id }, doc);
+    return this.findOne({ _id });
   }
 
   /**
@@ -125,7 +126,7 @@ class Configuration {
    * @param {Boolean} object.isAllowed - Indicates whether notifications
    *   will be received or not on the given channel
    * @param {Object|string} user - The object or id of the user making this action
-   * @return {Promise} returns NotificationConfigurations object promise
+   * @return {Promise} returns Promise resolving NotificationConfigurations document
    */
   static async createOrUpdateConfiguration({ notifType, isAllowed }, user) {
     if (!user) {
@@ -140,7 +141,7 @@ class Configuration {
     if (oldOne) {
       await this.update({ _id: oldOne._id }, { $set: { isAllowed } });
 
-      return await this.findOne({ _id: oldOne._id });
+      return this.findOne({ _id: oldOne._id });
     }
 
     // If it is first time then insert

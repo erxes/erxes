@@ -177,10 +177,11 @@ class Integration {
    * @param {Object} object - Integration main doc object
    * @param {string} object.name - Integration name
    * @param {string} object.brandId - Integration brand id
-   * @return {Promise} return null promise
+   * @return {Promise} returns Promise resolving updated Integration documetn
    */
-  static updateMessengerIntegration(_id, { name, brandId }) {
-    return this.update({ _id }, { $set: { name, brandId } }, { runValidators: true });
+  static async updateMessengerIntegration(_id, { name, brandId }) {
+    await this.update({ _id }, { $set: { name, brandId } }, { runValidators: true });
+    return this.findOne({ _id });
   }
 
   /**
@@ -190,14 +191,16 @@ class Integration {
    * @param {string} object.color - MessengerUiOptions color TODO: need more elaborate documentation
    * @param {string} object.wallpaper - MessengerUiOptions wallpaper
    * @param {string} object.logo - Messenger logo TODO: need more elaborate documentation
-   * @return {Promise} returns null promise
+   * @return {Promise} returns Promise resolving updated Integration document
    */
-  static saveMessengerAppearanceData(_id, { color, wallpaper, logo }) {
-    return this.update(
+  static async saveMessengerAppearanceData(_id, { color, wallpaper, logo }) {
+    await this.update(
       { _id },
       { $set: { uiOptions: { color, wallpaper, logo } } },
       { runValdatiors: true },
     );
+
+    return this.findOne({ _id });
   }
 
   /**
@@ -222,10 +225,11 @@ class Integration {
   * @param {string} doc.messengerData.uiOptions.color - Color of messenger
   * @param {string} doc.messengerData.uiOptions.wallpaper - Wallpaper image for messenger
   * @param {string} doc.messengerData.uiOptions.logo - Logo used in the embedded messenger
-  * @return {Promise} returns null promise
+  * @return {Promise} returns Promise resolving updated Integration document
   */
-  static saveMessengerConfigs(_id, messengerData) {
-    return this.update({ _id }, { $set: { messengerData } }, { runValidators: true });
+  static async saveMessengerConfigs(_id, messengerData) {
+    await this.update({ _id }, { $set: { messengerData } }, { runValidators: true });
+    return this.findOne({ _id });
   }
 
   /**
@@ -276,18 +280,19 @@ class Integration {
    * @param {string} args.mainDoc.name - Integration name
    * @param {string} args.mainDoc.brandId - Integration brand id
    * @param {string} args.mainDoc.formId - Form id related to this integration
-   * @return {Promise} returns null promise
+   * @return {Promise} returns Promise resolving updated Integration document
    */
-  static updateFormIntegration(_id, { formData, ...mainDoc }) {
+  static async updateFormIntegration(_id, { formData, ...mainDoc }) {
     const doc = this.generateFormDoc(mainDoc, formData);
 
-    return this.update({ _id }, { $set: doc }, { runValidators: true });
+    await this.update({ _id }, { $set: doc }, { runValidators: true });
+    return this.findOne({ _id });
   }
 
   /**
    * Remove integration in addition with its messages, conversations, customers
    * @param {string} id - Integration id
-   * @return {Promise} returns null promise
+   * @return {Promise}
    */
   static async removeIntegration(_id) {
     const conversations = await Conversations.find({ integrationId: _id }, { _id: true });

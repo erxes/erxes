@@ -9,7 +9,7 @@ export default {
    * @param {Boolean} object2.isAllowed - Shows whether notifications will be received or not
    * @param {Object} object3 - Middleware data
    * @param {Object} object3.user - The user making this action
-   * @return {Promise} returns notification promise
+   * @return {Promise} returns Promise resolving a Notification document
    * @throws {Error} throws error if user is not logged in
    */
   notificationsSaveConfig(root, doc, { user }) {

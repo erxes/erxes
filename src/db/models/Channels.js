@@ -75,9 +75,9 @@ class Channel {
    * @param {string[]} doc.integrationIds - Integration ids related to the channel
    * @param {string} doc.userId - The user id or object that craeted this channel
    * @param {string[]} doc.memberIds - Member ids of the members assigned to this channel
-   * @return {Promise} returns null promise
+   * @return {Promise} returns Promise resolving updated channel document
    */
-  static updateChannel(_id, doc) {
+  static async updateChannel(_id, doc) {
     const { userId } = doc;
 
     if (userId && userId._id) {
@@ -86,7 +86,8 @@ class Channel {
 
     this.preSave(doc);
 
-    return this.update({ _id }, { $set: doc }, { runValidators: true });
+    await this.update({ _id }, { $set: doc }, { runValidators: true });
+    return this.findOne({});
   }
 
   /**

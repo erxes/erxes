@@ -50,14 +50,14 @@ class Form {
    * @return {Promise} returns Form document promise
    * @throws {Error} throws Error if createdUser is not supplied
    */
-  static async createForm(doc, createdUser) {
-    if (!createdUser) {
+  static async createForm(doc, createdUserId) {
+    if (!createdUserId) {
       throw new Error('createdUser must be supplied');
     }
 
     doc.code = await this.generateCode();
     doc.createdDate = new Date();
-    doc.createdUserId = createdUser;
+    doc.createdUserId = createdUserId;
 
     return this.create(doc);
   }
@@ -68,10 +68,11 @@ class Form {
    * @param {Object} object - Form object
    * @param {string} object.title - Form title
    * @param {string} object.description - Form description
-   * @return {Promise} returns null
+   * @return {Promise} returns Promise resolving updated Form document
    */
-  static updateForm(_id, { title, description }) {
-    return this.update({ _id }, { $set: { title, description } }, { runValidators: true });
+  static async updateForm(_id, { title, description }) {
+    await this.update({ _id }, { $set: { title, description } }, { runValidators: true });
+    return this.findOne({ _id });
   }
 
   /**
