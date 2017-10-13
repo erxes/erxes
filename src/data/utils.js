@@ -1,38 +1,6 @@
 import nodemailer from 'nodemailer';
-import Handlebars from 'handlebars';
-import fs from 'fs';
 import { MODULES } from './constants';
 import { Channels, Notifications, Users } from '../db/models';
-
-/**
- * Read template file with via utf-8
- * @param {String} assetPath
- * @return {String} file content
- */
-const getTemplateContent = assetPath => {
-  // TODO: test this method
-  fs.readFile(assetPath, 'utf8', (err, data) => {
-    if (err) {
-      throw err;
-    }
-
-    return data;
-  });
-};
-
-/**
- * SendEmail template helper
- * @param {Object} data data
- * @param {String} templateName
- * @return email with template as text
- */
-const applyTemplate = async (data, templateName) => {
-  let template = await getTemplateContent(`emailTemplates/${templateName}.html`);
-
-  template = Handlebars.compile(template);
-
-  return template(data);
-};
 
 /**
  * Send email
@@ -62,25 +30,14 @@ export const sendEmail = async ({ toEmails, fromEmail, title, templateArgs }) =>
     },
   });
 
-  const { isCustom, data, name } = templateArgs;
-
-  // generate email content by given template
-  const content = await applyTemplate(data, name);
-
-  let text = '';
-
-  if (isCustom) {
-    text = content;
-  } else {
-    text = await applyTemplate({ content }, 'base');
-  }
+  const { data } = templateArgs;
 
   return toEmails.map(toEmail => {
     const mailOptions = {
       from: fromEmail,
       to: toEmail,
       subject: title,
-      text,
+      text: data,
     };
 
     return transporter.sendMail(mailOptions, (error, info) => {
