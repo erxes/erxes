@@ -136,3 +136,19 @@ export const notificationFactory = params => {
     receiver: params.receiver || userFactory({}),
   });
 };
+
+export function messageFactory(params = {}) {
+  const obj = Object.assign(
+    {
+      userId: Random.id(),
+      conversationId: Random.id(),
+      customerId: Random.id(),
+      content: faker.lorem.sentence,
+      createdAt: faker.date.past(),
+    },
+    params,
+  );
+  const message = new Messages(obj);
+
+  return message.save();
+}
