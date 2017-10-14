@@ -40,7 +40,7 @@ describe('Fields mutations', () => {
   });
 
   test('Check login required', async () => {
-    expect.assertions(3);
+    expect.assertions(4);
 
     const check = async fn => {
       try {
@@ -58,6 +58,9 @@ describe('Fields mutations', () => {
 
     // add company
     check(fieldMutations.fieldsRemove);
+
+    // update order
+    check(fieldMutations.fieldsUpdateOrder);
   });
 
   test('Create field', async () => {
@@ -82,5 +85,15 @@ describe('Fields mutations', () => {
     await fieldMutations.fieldsRemove({}, { _id: _field.id }, { user: _user });
 
     expect(Fields.removeField).toBeCalledWith(_field._id);
+  });
+
+  test('Update order', async () => {
+    Fields.updateOrder = jest.fn();
+
+    const orders = [{ _id: 'DFADF', order: 1 }];
+
+    await fieldMutations.fieldsUpdateOrder({}, { _id: _field._id, orders }, { user: _user });
+
+    expect(Fields.updateOrder).toBeCalledWith(orders);
   });
 });
