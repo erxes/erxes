@@ -13,7 +13,7 @@ afterAll(() => disconnect());
 /*
  * Generate test data
  */
-const generateData = () => ({
+const doc = {
   name: 'New users',
   description: 'New users',
   subOf: 'DFSAFDSAFDFFFD',
@@ -28,23 +28,6 @@ const generateData = () => ({
       type: 'string',
     },
   ],
-});
-
-/*
- * Check values
- */
-const checkValues = (segmentObj, doc) => {
-  expect(segmentObj.name).toBe(doc.name);
-  expect(segmentObj.description).toBe(doc.description);
-  expect(segmentObj.subOf).toBe(doc.subOf);
-  expect(segmentObj.color).toBe(doc.color);
-  expect(segmentObj.connector).toBe(doc.connector);
-
-  expect(segmentObj.conditions.field).toEqual(doc.conditions.field);
-  expect(segmentObj.conditions.operator).toEqual(doc.conditions.operator);
-  expect(segmentObj.conditions.value).toEqual(doc.conditions.value);
-  expect(segmentObj.conditions.dateUnit).toEqual(doc.conditions.dateUnit);
-  expect(segmentObj.conditions.type).toEqual(doc.conditions.type);
 };
 
 describe('Segments mutations', () => {
@@ -63,59 +46,48 @@ describe('Segments mutations', () => {
     await Users.remove({});
   });
 
-  test('Create segment', async () => {
-    // Login required
-    expect(() => segmentMutations.segmentsAdd({}, {}, {})).toThrowError('Login required');
+  test('Check login required', async () => {
+    expect.assertions(3);
 
-    // valid
-    const data = generateData();
+    const check = async fn => {
+      try {
+        await fn({}, {}, {});
+      } catch (e) {
+        expect(e.message).toEqual('Login required');
+      }
+    };
 
-    const segmentObj = await segmentMutations.segmentsAdd({}, data, { user: _user });
+    // add
+    check(segmentMutations.segmentsAdd);
 
-    checkValues(segmentObj, data);
+    // edit
+    check(segmentMutations.segmentsEdit);
+
+    // add company
+    check(segmentMutations.segmentsRemove);
   });
 
-  test('Edit segment login required', async () => {
-    expect.assertions(1);
+  test('Create segment', async () => {
+    Segments.createSegment = jest.fn();
 
-    try {
-      await segmentMutations.segmentsEdit({}, { _id: _segment.id }, {});
-    } catch (e) {
-      expect(e.message).toEqual('Login required');
-    }
+    await segmentMutations.segmentsAdd({}, doc, { user: _user });
+
+    expect(Segments.createSegment).toBeCalledWith(doc);
   });
 
   test('Edit segment valid', async () => {
-    const data = generateData();
+    Segments.updateSegment = jest.fn();
 
-    const segmentObj = await segmentMutations.segmentsEdit(
-      {},
-      { _id: _segment._id, ...data },
-      { user: _user },
-    );
+    await segmentMutations.segmentsEdit({}, { _id: _segment._id, ...doc }, { user: _user });
 
-    checkValues(segmentObj, data);
-  });
-
-  test('Remove segment login required', async () => {
-    expect.assertions(1);
-
-    try {
-      await segmentMutations.segmentsRemove({}, { _id: _segment.id }, {});
-    } catch (e) {
-      expect(e.message).toEqual('Login required');
-    }
+    expect(Segments.updateSegment).toBeCalledWith(_segment._id, doc);
   });
 
   test('Remove segment valid', async () => {
-    const segmentDeletedObj = await segmentMutations.segmentsRemove(
-      {},
-      { _id: _segment.id },
-      { user: _user },
-    );
-    expect(segmentDeletedObj.id).toBe(_segment.id);
+    Segments.removeSegment = jest.fn();
 
-    const segmentObj = await Segments.findOne({ _id: _segment.id });
-    expect(segmentObj).toBeNull();
+    await segmentMutations.segmentsRemove({}, { _id: _segment.id }, { user: _user });
+
+    expect(Segments.removeSegment).toBeCalledWith(_segment.id);
   });
 });
