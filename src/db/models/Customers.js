@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
 import Random from 'meteor-random';
+import { Companies } from './';
 
 /*
  * messenger schema
@@ -121,12 +122,12 @@ class Customer {
 
   /**
    * Mark customer as inactive
-   * @param  {String} customerId
+   * @param  {String} _id
    * @return {Promise} Updated customer
    */
-  static markCustomerAsNotActive(customerId) {
-    return this.findByIdAndUpdate(
-      customerId,
+  static async markCustomerAsNotActive(_id) {
+    await this.findByIdAndUpdate(
+      _id,
       {
         $set: {
           'messengerData.isActive': false,
@@ -135,6 +136,22 @@ class Customer {
       },
       { new: true },
     );
+
+    return this.findOne({ _id });
+  }
+
+  /*
+   * Create new company and add to customer's company list
+   * @return {Promise} newly created company
+   */
+  static async addCompany({ _id, name, website }) {
+    // create company
+    const company = await Companies.createCompany({ name, website });
+
+    // add to companyIds list
+    await this.findByIdAndUpdate(_id, { $addToSet: { companyIds: company._id } });
+
+    return company;
   }
 }
 

@@ -11,7 +11,7 @@ const CompanySchema = mongoose.Schema({
   name: {
     type: String,
     label: 'Name',
-    optional: true,
+    unique: true,
   },
 
   size: {

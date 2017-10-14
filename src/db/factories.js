@@ -115,6 +115,7 @@ export const customerFactory = (params = {}) => {
     name: params.name || faker.random.word(),
     email: params.email || faker.internet.email(),
     phone: params.phone || faker.random.word(),
+    messengerData: params.messengerData || {},
   });
 
   return customer.save();

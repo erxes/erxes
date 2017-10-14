@@ -22,31 +22,39 @@ describe('Customers mutations', () => {
 
   afterEach(async () => {
     // Clearing test data
-    await Customers.remove({});
     await Users.remove({});
+    await Customers.remove({});
+  });
+
+  test('Check login required', async () => {
+    expect.assertions(3);
+
+    const check = async fn => {
+      try {
+        await fn({}, {}, {});
+      } catch (e) {
+        expect(e.message).toEqual('Login required');
+      }
+    };
+
+    // add
+    check(customerMutations.customersAdd);
+
+    // edit
+    check(customerMutations.customersEdit);
+
+    // add company
+    check(customerMutations.customersAddCompany);
   });
 
   test('Create customer', async () => {
-    // Login required
-    expect(() => customerMutations.customersAdd({}, {}, {})).toThrowError('Login required');
+    Customers.createCustomer = jest.fn();
 
-    // valid
     const doc = { name: 'name', email: 'dombo@yahoo.com' };
 
-    const customerObj = await customerMutations.customersAdd({}, doc, { user: _user });
+    await customerMutations.customersAdd({}, doc, { user: _user });
 
-    expect(customerObj.name).toBe(doc.name);
-    expect(customerObj.email).toBe(doc.email);
-  });
-
-  test('Edit customer login required', async () => {
-    expect.assertions(1);
-
-    try {
-      await customerMutations.customersEdit({}, { _id: _customer.id }, {});
-    } catch (e) {
-      expect(e.message).toEqual('Login required');
-    }
+    expect(Customers.createCustomer).toBeCalledWith(doc);
   });
 
   test('Edit customer valid', async () => {
@@ -56,14 +64,20 @@ describe('Customers mutations', () => {
       phone: '242442200',
     };
 
-    const customerObj = await customerMutations.customersEdit(
-      {},
-      { _id: _customer._id, ...doc },
-      { user: _user },
-    );
+    Customers.updateCustomer = jest.fn();
 
-    expect(customerObj.name).toBe(doc.name);
-    expect(customerObj.email).toBe(doc.email);
-    expect(customerObj.phone).toBe(doc.phone);
+    await customerMutations.customersEdit({}, { _id: _customer._id, ...doc }, { user: _user });
+
+    expect(Customers.updateCustomer).toBeCalledWith(_customer._id, doc);
+  });
+
+  test('Add company', async () => {
+    Customers.addCompany = jest.fn();
+
+    const doc = { name: 'name', website: 'http://company.com' };
+
+    await customerMutations.customersAddCompany({}, doc, { user: _user });
+
+    expect(Customers.addCompany).toBeCalledWith(doc);
   });
 });

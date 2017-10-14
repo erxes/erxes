@@ -20,4 +20,18 @@ export default {
 
     return Customers.updateCustomer(_id, doc);
   },
+
+  /**
+   * Add new companyId to customer's companyIds list
+   * @param {Object} args - Graphql input data
+   * @param {String} args._id - Customer id
+   * @param {String} args.name - Company name
+   * @param {String} args.website - Company website
+   * @return {Promise} newly created customer
+   */
+  async customersAddCompany(root, args, { user }) {
+    if (!user) throw new Error('Login required');
+
+    return Customers.addCompany(args);
+  },
 };
