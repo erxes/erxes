@@ -15,6 +15,7 @@ import segments from './segments';
 import conversations from './conversations';
 import insights from './insights';
 import knowledgeBase from './knowledgeBase';
+import notifications from './notifications';
 
 export default {
   ...users,
@@ -34,4 +35,5 @@ export default {
   ...conversations,
   ...insights,
   ...knowledgeBase,
+  ...notifications,
 };

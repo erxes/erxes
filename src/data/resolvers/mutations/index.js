@@ -7,6 +7,10 @@ import customers from './customers';
 import segments from './segments';
 import companies from './companies';
 import fields from './fields';
+import channels from './channels';
+import forms from './forms';
+import integrations from './integrations';
+import notifications from './notifications';
 
 export default {
   ...conversation,
@@ -18,4 +22,8 @@ export default {
   ...segments,
   ...companies,
   ...fields,
+  ...channels,
+  ...forms,
+  ...integrations,
+  ...notifications,
 };
