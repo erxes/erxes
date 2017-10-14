@@ -1,5 +1,6 @@
 import faker from 'faker';
 import Random from 'meteor-random';
+import { MODULES, CONVERSATION_STATUSES } from '../data/constants';
 
 import {
   Users,
@@ -8,8 +9,13 @@ import {
   ResponseTemplates,
   ConversationMessages,
   Conversations,
+  Integrations,
+  Tags,
+  Forms,
+  FormFields,
+  NotificationConfigurations,
+  Notifications,
 } from './models';
-import { CONVERSATION_STATUSES } from '../data/constants';
 
 export const userFactory = (params = {}) => {
   const user = new Users({
@@ -85,4 +91,80 @@ export const conversationMessageFactory = (params = {}) => {
   });
 
   return conversationMessage.save();
+};
+
+export const integrationFactory = params => {
+  const kind = params.kind || 'messenger';
+  return Integrations.create({
+    name: faker.random.word(),
+    kind: kind,
+    brandId: params.brandId || Random.id(),
+    formId: params.formId || Random.id(),
+    messengerData: params.messengerData || { welcomeMessage: 'welcome' },
+    formData:
+      params.formData === 'form'
+        ? params.formData
+        : kind === 'form' ? { thankContent: 'thankContent' } : null,
+  });
+};
+
+export const tagsFactory = (params = {}) => {
+  const tag = new Tags({
+    name: faker.random.word(),
+    type: params.type || faker.random.word(),
+    colorCode: params.colorCode || Random.id(),
+    userId: Random.id(),
+  });
+
+  return tag.save();
+};
+
+export const formFactory = async ({ title, code, description, createdUserId }) => {
+  return Forms.createForm(
+    {
+      title: title || faker.random.word(),
+      description: description || faker.random.word(),
+      code: code || Random.id(),
+    },
+    createdUserId || (await userFactory({})),
+  );
+};
+
+export const formFieldFactory = (formId, params) => {
+  return FormFields.createFormField(formId || Random.id(), {
+    type: params.type || 'input',
+    name: faker.random.word(),
+    validation: params.validation || 'number',
+    text: faker.random.word(),
+    description: faker.random.word(),
+    isRequired: params.isRequired || false,
+    number: faker.random.word(),
+  });
+};
+
+export const notificationConfigurationFactory = params => {
+  let { isAllowed } = params;
+  if (isAllowed == null) {
+    isAllowed = true;
+  }
+
+  return NotificationConfigurations.createOrUpdateConfiguration(
+    {
+      notifType: params.notifType || MODULES.CHANNEL_MEMBERS_CHANGE,
+      // which module's type it is. For example: indocuments
+      isAllowed,
+    },
+    params.user || userFactory({}),
+  );
+};
+
+export const notificationFactory = params => {
+  return Notifications.createNotification({
+    notifType: params.notifType || MODULES.CHANNEL_MEMBERS_CHANGE,
+    createdUser: params.createdUser || userFactory({}),
+    title: params.title || 'new Notification title',
+    content: params.content || 'new Notification content',
+    link: params.link || 'new Notification link',
+    receiver: params.receiver || userFactory({}),
+  });
 };
