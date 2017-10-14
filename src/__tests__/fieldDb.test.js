@@ -13,9 +13,11 @@ afterAll(() => disconnect());
  * Field related tests
  */
 describe('Fields', () => {
+  let _field;
+
   beforeEach(async () => {
     // creating field with contentType other than customer
-    await fieldFactory({ contentType: 'form', order: 1 });
+    _field = await fieldFactory({ contentType: 'form', order: 1 });
   });
 
   afterEach(() => {
@@ -86,5 +88,39 @@ describe('Fields', () => {
 
     expect(updatedField1.order).toBe(10);
     expect(updatedField2.order).toBe(11);
+  });
+
+  test('Update field valid', async () => {
+    const doc = await fieldFactory();
+
+    doc._id = undefined;
+
+    const fieldObj = await Fields.updateField(_field._id, doc);
+
+    // check updates
+    expect(fieldObj.contentType).toBe(doc.contentType);
+    expect(fieldObj.contentTypeId).toBe(doc.contentTypeId);
+    expect(fieldObj.type).toBe(doc.type);
+    expect(fieldObj.validation).toBe(doc.validation);
+    expect(fieldObj.text).toBe(doc.text);
+    expect(fieldObj.description).toBe(doc.description);
+    expect(fieldObj.options).toEqual(expect.arrayContaining(doc.options));
+    expect(fieldObj.isRequired).toBe(doc.isRequired);
+    expect(fieldObj.order).toBe(doc.order);
+  });
+
+  test('Remove field valid', async () => {
+    try {
+      await Fields.removeField('DFFFDSFD');
+    } catch (e) {
+      expect(e.message).toBe('Field not found with id DFFFDSFD');
+    }
+
+    const fieldDeletedObj = await Fields.removeField({ _id: _field.id });
+
+    expect(fieldDeletedObj.id).toBe(_field.id);
+
+    const fieldObj = await Fields.findOne({ _id: _field.id });
+    expect(fieldObj).toBeNull();
   });
 });
