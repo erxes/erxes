@@ -35,6 +35,16 @@ class Brand {
       createdAt: new Date(),
     });
   }
+
+  /**
+   * Update a brand
+   * @param  {_id} brandObj object
+   * @param  {fields}
+   * @return {Promise} Updated brand id
+   */
+  static updateBrand(_id, fields) {
+    return this.update({ _id }, { $set: { ...fields } });
+  }
 }
 
 BrandSchema.loadClass(Brand);

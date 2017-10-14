@@ -43,54 +43,104 @@ describe('Conversation message mutations', () => {
     await Users.remove({});
   });
 
-  test('Create conversation message', async () => {
-    const messageId = await conversationMutations.conversationMessageAdd({}, _doc, {
-      user: _user,
-    });
+  test('Conversation login required functions', async () => {
+    expect.assertions(8);
+    try {
+      await conversationMutations.conversationMessageAdd({}, _doc, {});
+    } catch (e) {
+      expect(e.message).toEqual('Login required');
+    }
 
-    const messageObj = await ConversationMessages.findOne({ _id: messageId });
+    // assign
+    try {
+      await conversationMutations.conversationsAssign(
+        {},
+        { conversationIds: [_conversation._id], assignedUserId: _user._id },
+        {},
+      );
+    } catch (e) {
+      expect(e.message).toEqual('Login required');
+    }
 
-    expect(messageObj.content).toBe(_conversationMessage.content);
-    expect(messageObj.attachments).toBe(undefined);
-    expect(messageObj.status).toBe(_conversationMessage.status);
-    expect(messageObj.mentionedUserIds[0]).toBe(_conversationMessage.mentionedUserIds[0]);
-    expect(messageObj.conversationId).toBe(_conversation._id);
-    expect(messageObj.internal).toBe(_conversationMessage.internal);
-    expect(messageObj.customerId).toBe(_conversationMessage.customerId);
-    expect(messageObj.isCustomerRead).toBe(_conversationMessage.isCustomerRead);
-    expect(messageObj.engageData).toBe(undefined);
-    expect(messageObj.formWidgetData).toBe(undefined);
-    expect(messageObj.facebookData._id).toBe(_conversationMessage.facebookData._id);
-    expect(messageObj.userId).toBe(_user._id);
+    // unassign
+    try {
+      await conversationMutations.conversationsUnassign(
+        {},
+        { conversationIds: [_conversation._id], assignedUserId: _user._id },
+        {},
+      );
+    } catch (e) {
+      expect(e.message).toEqual('Login required');
+    }
+
+    // change status
+    try {
+      await conversationMutations.conversationsChangeStatus({}, { _ids: [_conversation._id] }, {});
+    } catch (e) {
+      expect(e.message).toEqual('Login required');
+    }
+
+    // conversation star
+    try {
+      await conversationMutations.conversationsStar({}, { _ids: [_conversation._id] }, {});
+    } catch (e) {
+      expect(e.message).toEqual('Login required');
+    }
+
+    // conversation unstar
+    try {
+      await conversationMutations.conversationsUnstar({}, { _ids: [_conversation._id] }, {});
+    } catch (e) {
+      expect(e.message).toEqual('Login required');
+    }
+
+    // add or remove participated users
+    try {
+      await conversationMutations.conversationsToggleParticipate(
+        {},
+        { _ids: [_conversation._id] },
+        {},
+      );
+    } catch (e) {
+      expect(e.message).toEqual('Login required');
+    }
+
+    // mark conversation as read
+    try {
+      await conversationMutations.conversationMarkAsRead({}, { _ids: [_conversation._id] }, {});
+    } catch (e) {
+      expect(e.message).toEqual('Login required');
+    }
   });
 
-  // check conversation if integration doesn't found
-  test('Create conversation message without integration', async () => {
-    expect.assertions(1);
+  test('Create conversation message', async () => {
+    ConversationMessages.addMessage = jest.fn(() => ({
+      _id: 'messageObject',
+    }));
 
-    _doc['internal'] = false;
-    try {
-      await conversationMutations.conversationMessageAdd({}, _doc, { user: _user });
-    } catch (e) {
-      expect(e.message).toEqual('Integration not found');
-    }
+    await conversationMutations.conversationMessageAdd({}, _doc, { user: _user });
+
+    expect(ConversationMessages.addMessage.mock.calls.length).toBe(1);
+    expect(ConversationMessages.addMessage).toBeCalledWith(_doc, _user._id);
   });
 
   // if user assigned to conversation
   test('Assign conversation to employee', async () => {
+    Conversations.assignUserConversation = jest.fn();
+
     await conversationMutations.conversationsAssign(
       {},
       { conversationIds: [_conversation._id], assignedUserId: _user._id },
       { user: _user },
     );
 
-    const conversation_list = await Conversations.find({ _id: { $in: [_conversation._id] } });
-    conversation_list.forEach(conversationObj => {
-      expect(conversationObj.assignedUserId).toBe(_user._id);
-    });
+    expect(Conversations.assignUserConversation.mock.calls.length).toBe(1);
+    expect(Conversations.assignUserConversation).toBeCalledWith([_conversation._id], _user._id);
   });
 
   test('Unassign employee from conversation', async () => {
+    Conversations.unassignUserConversation = jest.fn();
+
     // assign employee before unassign
     await conversationMutations.conversationsAssign(
       {},
@@ -105,23 +155,27 @@ describe('Conversation message mutations', () => {
       { user: _user },
     );
 
-    const conversationObj = await Conversations.findOne({ _id: _conversation._id });
-    expect(conversationObj.assignedUserId).toBe(undefined);
+    expect(Conversations.unassignUserConversation.mock.calls.length).toBe(1);
+    expect(Conversations.unassignUserConversation).toBeCalledWith([_conversation._id]);
   });
 
   test('Change conversation status', async () => {
-    // assign employee before unassign
+    Conversations.changeStatusConversation = jest.fn();
+
+    const status = 'new';
     await conversationMutations.conversationsChangeStatus(
       {},
-      { _ids: [_conversation._id] },
+      { _ids: [_conversation._id], status: status },
       { user: _user },
     );
 
-    const conversationObj = await Conversations.findOne({ _id: _conversation._id });
-    expect(conversationObj.status).toBe('new');
+    expect(Conversations.changeStatusConversation.mock.calls.length).toBe(1);
+    expect(Conversations.changeStatusConversation).toBeCalledWith([_conversation._id], status);
   });
 
   test('Conversation star', async () => {
+    Conversations.starConversation = jest.fn();
+
     // assign employee before unassign
     await conversationMutations.conversationsStar(
       {},
@@ -129,31 +183,25 @@ describe('Conversation message mutations', () => {
       { user: _user },
     );
 
-    const user = await Users.findOne({ _id: _user._id });
-    expect(user.details.starredConversationIds[0]).toBe(_conversation._id);
+    expect(Conversations.starConversation.mock.calls.length).toBe(1);
+    expect(Conversations.starConversation).toBeCalledWith([_conversation._id], _user._id);
   });
 
   test('Conversation unstar', async () => {
-    const ids = [_conversation._id];
+    Conversations.unstarConversation = jest.fn();
 
-    // star first before unstar
-    await Users.update(
-      { _id: _user.id },
-      {
-        $addToSet: {
-          'details.starredConversationIds': { $each: ids },
-        },
-      },
-    );
+    const ids = [_conversation._id];
 
     // unstar
     await conversationMutations.conversationsUnstar({}, { _ids: ids }, { user: _user });
 
-    const user = await Users.findOne({ _id: _user._id });
-    expect(user.details.starredConversationIds.length).toBe(0);
+    expect(Conversations.unstarConversation.mock.calls.length).toBe(1);
+    expect(Conversations.unstarConversation).toBeCalledWith([_conversation._id], _user._id);
   });
 
   test('Toggle participated users in conversation ', async () => {
+    Conversations.toggleParticipatedUsers = jest.fn();
+
     // make sure participated users are empty
     expect(_conversation.participatedUserIds.length).toBe(0);
     await conversationMutations.conversationsToggleParticipate(
@@ -162,32 +210,20 @@ describe('Conversation message mutations', () => {
       { user: _user },
     );
 
-    const conversationObj = await Conversations.findOne({ _id: _conversation.id });
-
-    // check if participated user is added
-    expect(conversationObj.participatedUserIds[0]).toBe(_user._id);
-
-    await conversationMutations.conversationsToggleParticipate(
-      {},
-      { _ids: [_conversation._id] },
-      { user: _user },
-    );
-
-    const conversationObjWithParticipatedUser = await Conversations.findOne({
-      _id: _conversation.id,
-    });
-
-    // check if participated user add
-    expect(conversationObjWithParticipatedUser.participatedUserIds.length).toBe(0);
+    expect(Conversations.toggleParticipatedUsers.mock.calls.length).toBe(1);
+    expect(Conversations.toggleParticipatedUsers).toBeCalledWith([_conversation._id], _user._id);
   });
 
   test('Conversation mark as read', async () => {
+    Conversations.markAsReadConversation = jest.fn();
+
     await conversationMutations.conversationMarkAsRead(
       {},
       { _id: _conversation._id },
       { user: _user },
     );
-    const conversationObj = await Conversations.findOne({ _id: _conversation._id });
-    expect(conversationObj.readUserIds[0]).toBe(_user._id);
+
+    expect(Conversations.markAsReadConversation.mock.calls.length).toBe(1);
+    expect(Conversations.markAsReadConversation).toBeCalledWith(_conversation._id, _user._id);
   });
 });

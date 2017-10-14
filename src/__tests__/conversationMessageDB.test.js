@@ -10,7 +10,7 @@ beforeAll(() => connect());
 
 afterAll(() => disconnect());
 
-describe('Conversation message mutations', () => {
+describe('Conversation message db', () => {
   let _conversation;
   let _conversationMessage;
   let _user;
@@ -44,7 +44,7 @@ describe('Conversation message mutations', () => {
   });
 
   test('Create conversation message', async () => {
-    const messageObj = await ConversationMessages.createMessage({ ..._doc, userId: _user.id });
+    const messageObj = await ConversationMessages.addMessage(_doc, _user);
 
     expect(messageObj.content).toBe(_conversationMessage.content);
     expect(messageObj.attachments).toBe(_conversationMessage.attachments);
@@ -62,7 +62,7 @@ describe('Conversation message mutations', () => {
 
   // if user assigned to conversation
   test('Assign conversation to employee', async () => {
-    await Conversations.assignUserConversation(_conversation._id, _user.id);
+    await Conversations.assignUserConversation([_conversation._id], _user.id);
 
     const conversationObj = await Conversations.findOne({ _id: _conversation._id });
 
@@ -71,7 +71,7 @@ describe('Conversation message mutations', () => {
 
   test('Unassign employee from conversation', async () => {
     // assign employee before unassign
-    await Conversations.assignUserConversation(_conversation._id, _user.id);
+    await Conversations.assignUserConversation([_conversation._id], _user.id);
 
     // unassign
     await Conversations.unassignUserConversation([_conversation._id]);
@@ -125,14 +125,14 @@ describe('Conversation message mutations', () => {
     expect(_conversation.participatedUserIds.length).toBe(0);
 
     // add user to conversation
-    await Conversations.addParticipatedUserToConversation([_conversation._id], _user.id);
+    await Conversations.toggleParticipatedUsers([_conversation._id], _user.id);
 
     const conversationObj = await Conversations.findOne({ _id: _conversation.id });
 
     expect(conversationObj.participatedUserIds[0]).toBe(_user._id);
 
     // remove user from conversation
-    await Conversations.removeParticipatedUserFromConversation([_conversation._id], _user.id);
+    await Conversations.toggleParticipatedUsers([_conversation._id], _user.id);
 
     const conversationObjWithParticipatedUser = await Conversations.findOne({
       _id: _conversation.id,
