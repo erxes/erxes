@@ -22,12 +22,16 @@ export default {
   },
 
   /**
-   * Delete company
-   * @return {Promise}
+   * Add new companyId to company's companyIds list
+   * @param {Object} args - Graphql input data
+   * @param {String} args._id - Customer id
+   * @param {String} args.name - Customer name
+   * @param {String} args.email - Customer email
+   * @return {Promise} newly created customer
    */
-  async companiesRemove(root, { _id }, { user }) {
+  async companiesAddCustomer(root, args, { user }) {
     if (!user) throw new Error('Login required');
 
-    return Companies.removeCompany(_id);
+    return Companies.addCustomer(args);
   },
 };

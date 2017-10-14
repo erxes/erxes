@@ -67,7 +67,6 @@ describe('Customers model tests', () => {
 
     customer = await Customers.findOne({ _id: customer._id });
 
-    expect(customer.companyIds.length).toBe(1);
-    expect(customer.companyIds[0]).toEqual([company._id]);
+    expect(customer.companyIds).toEqual(expect.arrayContaining([company._id]));
   });
 });

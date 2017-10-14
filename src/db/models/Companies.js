@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
 import Random from 'meteor-random';
+import { Customers } from './';
 
 const CompanySchema = mongoose.Schema({
   _id: {
@@ -79,16 +80,16 @@ class Company {
   }
 
   /*
-   * Remove company
-   * @param {String} _id company id to remove
-   * @return {Promise}
+   * Create new customer and add to customer's customer list
+   * @return {Promise} newly created customer
    */
-  static async removeCompany(_id) {
-    const companyObj = await this.findOne({ _id });
-
-    if (!companyObj) throw new Error(`Company not found with id ${_id}`);
-
-    return companyObj.remove();
+  static async addCustomer({ _id, name, email }) {
+    // create customer
+    return await Customers.createCustomer({
+      name,
+      email,
+      companyIds: [_id],
+    });
   }
 }
 
