@@ -74,26 +74,6 @@ const facebookSchema = mongoose.Schema(
   { _id: false },
 );
 
-/*
- * internal note schema
- */
-const internalNoteSchema = mongoose.Schema({
-  _id: {
-    type: String,
-    unique: true,
-    default: () => Random.id(),
-  },
-  content: {
-    type: String,
-  },
-  createdBy: {
-    type: String,
-  },
-  createdDate: {
-    type: Date,
-  },
-});
-
 const CustomerSchema = mongoose.Schema({
   _id: {
     type: String,
@@ -112,13 +92,21 @@ const CustomerSchema = mongoose.Schema({
   companyIds: [String],
 
   customFieldsData: Object,
-  internalNotes: [internalNoteSchema],
   messengerData: messengerSchema,
   twitterData: twitterSchema,
   facebookData: facebookSchema,
 });
 
 class Customer {
+  /**
+   * Create a customer
+   * @param  {Object} customerObj object
+   * @return {Promise} Newly created customer object
+   */
+  static createCustomer(doc) {
+    return this.create(doc);
+  }
+
   /*
    * Update customer
    * @param {String} _id customer id to update

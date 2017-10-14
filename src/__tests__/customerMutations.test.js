@@ -26,6 +26,19 @@ describe('Customers mutations', () => {
     await Users.remove({});
   });
 
+  test('Create customer', async () => {
+    // Login required
+    expect(() => customerMutations.customersAdd({}, {}, {})).toThrowError('Login required');
+
+    // valid
+    const doc = { name: 'name', email: 'dombo@yahoo.com' };
+
+    const customerObj = await customerMutations.customersAdd({}, doc, { user: _user });
+
+    expect(customerObj.name).toBe(doc.name);
+    expect(customerObj.email).toBe(doc.email);
+  });
+
   test('Edit customer login required', async () => {
     expect.assertions(1);
 

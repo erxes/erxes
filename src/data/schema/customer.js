@@ -49,5 +49,6 @@ const fields = `
 `;
 
 export const mutations = `
+  customersAdd(${fields}): Customer
   customersEdit(_id: String!, ${fields}): Customer
 `;
