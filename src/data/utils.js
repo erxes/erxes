@@ -35,9 +35,9 @@ export const sendEmail = async ({ toEmails, fromEmail, title, template }) => {
   // do not send email it is running in test mode
   const isTest = NODE_ENV == 'test';
 
-  if (isTest) {
-    return;
-  }
+  // if (isTest) {
+  //   return;
+  // }
 
   const transporter = nodemailer.createTransport({
     service: MAIL_SERVICE,
@@ -53,7 +53,7 @@ export const sendEmail = async ({ toEmails, fromEmail, title, template }) => {
   let html = await applyTemplate(data, name);
 
   if (!isCustom) {
-    html = await applyTemplate({ html }, 'base');
+    html = await applyTemplate({ content: html }, 'base');
   }
 
   return toEmails.map(toEmail => {
@@ -62,14 +62,12 @@ export const sendEmail = async ({ toEmails, fromEmail, title, template }) => {
       to: toEmail,
       subject: title,
       html,
-      mail_settings: {
-        sandbox_mode: {
-          enable: true,
-        },
-      },
     };
 
-    return transporter.sendMail(mailOptions);
+    return transporter.sendMail(mailOptions, (error, info) => {
+      console.log(error); // eslint-disable-line
+      console.log(info); // eslint-disable-line
+    });
   });
 };
 

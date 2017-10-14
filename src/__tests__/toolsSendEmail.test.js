@@ -3,7 +3,6 @@
 
 import { connect, disconnect } from '../db/connection';
 import { sendEmail } from '../data/utils';
-import mailer from 'nodemailer/lib/mailer';
 
 beforeAll(() => connect());
 afterAll(() => disconnect());
@@ -21,8 +20,6 @@ describe('data/tools/sendEmail', () => {
       link: 'https://www.google.com',
     };
 
-    mailer.sendMail = jest.fn();
-
     await sendEmail({
       toEmails: ['javkhlan.sh@gmail.com'],
       fromEmail: 'test@erxes.io',
@@ -34,9 +31,5 @@ describe('data/tools/sendEmail', () => {
         },
       },
     });
-
-    expect(mailer.sendMail).toBeCalledWith(doc);
   });
 });
-
-jest.fn(() => ({ _id: 'fdfdf' }));
