@@ -14,25 +14,13 @@ afterAll(() => disconnect());
 /*
  * Generate test data
  */
-const generateData = () => ({
+const doc = {
   type: 'input',
   validation: 'number',
   text: faker.random.word(),
   description: faker.random.word(),
   isRequired: false,
   order: 0,
-});
-
-/*
- * Check values
- */
-const checkValues = (fieldObj, doc) => {
-  expect(fieldObj.type).toBe(doc.type);
-  expect(fieldObj.validation).toBe(doc.validation);
-  expect(fieldObj.text).toBe(doc.text);
-  expect(fieldObj.description).toBe(doc.description);
-  expect(fieldObj.isRequired).toBe(doc.isRequired);
-  expect(fieldObj.order).toBe(doc.order);
 };
 
 describe('Fields mutations', () => {
@@ -51,60 +39,48 @@ describe('Fields mutations', () => {
     await Users.remove({});
   });
 
+  test('Check login required', async () => {
+    expect.assertions(3);
+
+    const check = async fn => {
+      try {
+        await fn({}, {}, {});
+      } catch (e) {
+        expect(e.message).toEqual('Login required');
+      }
+    };
+
+    // add
+    check(fieldMutations.fieldsAdd);
+
+    // edit
+    check(fieldMutations.fieldsEdit);
+
+    // add company
+    check(fieldMutations.fieldsRemove);
+  });
+
   test('Create field', async () => {
-    // Login required
-    expect(() => fieldMutations.fieldsAdd({}, {}, {})).toThrowError('Login required');
+    Fields.createField = jest.fn();
 
-    // valid
-    const doc = generateData();
+    await fieldMutations.fieldsAdd({}, doc, { user: _user });
 
-    const fieldObj = await fieldMutations.fieldsAdd({}, doc, { user: _user });
-
-    checkValues(fieldObj, doc);
+    expect(Fields.createField).toBeCalledWith(doc);
   });
 
-  test('Edit field login required', async () => {
-    expect.assertions(1);
+  test('Update field valid', async () => {
+    Fields.updateField = jest.fn();
 
-    try {
-      await fieldMutations.fieldsEdit({}, { _id: _field.id }, {});
-    } catch (e) {
-      expect(e.message).toEqual('Login required');
-    }
-  });
+    await fieldMutations.fieldsEdit({}, { _id: _field._id, ...doc }, { user: _user });
 
-  test('Edit field valid', async () => {
-    const doc = generateData();
-
-    const fieldObj = await fieldMutations.fieldsEdit(
-      {},
-      { _id: _field._id, ...doc },
-      { user: _user },
-    );
-
-    checkValues(fieldObj, doc);
-  });
-
-  test('Remove field login required', async () => {
-    expect.assertions(1);
-
-    try {
-      await fieldMutations.fieldsRemove({}, { _id: _field.id }, {});
-    } catch (e) {
-      expect(e.message).toEqual('Login required');
-    }
+    expect(Fields.updateField).toBeCalledWith(_field._id, doc);
   });
 
   test('Remove field valid', async () => {
-    const fieldDeletedObj = await fieldMutations.fieldsRemove(
-      {},
-      { _id: _field.id },
-      { user: _user },
-    );
+    Fields.removeField = jest.fn();
 
-    expect(fieldDeletedObj.id).toBe(_field.id);
+    await fieldMutations.fieldsRemove({}, { _id: _field.id }, { user: _user });
 
-    const fieldObj = await Fields.findOne({ _id: _field.id });
-    expect(fieldObj).toBeNull();
+    expect(Fields.removeField).toBeCalledWith(_field._id);
   });
 });
