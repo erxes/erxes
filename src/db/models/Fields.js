@@ -4,6 +4,7 @@
 
 import mongoose from 'mongoose';
 import Random from 'meteor-random';
+import validator from 'validator';
 import { FIELD_CONTENT_TYPES } from '../../constants';
 import { Forms } from './';
 
@@ -123,6 +124,49 @@ class Field {
     }
 
     return this.find({ _id: { $in: ids } }).sort({ order: 1 });
+  }
+
+  /*
+   * Validate per field according to it's validation and type
+   *
+   * @param {String} _id - Field id
+   * @param {String|Date|Number} value - Submitted value
+   * @throw Validation error
+   * @return {String} - valid indicator
+   */
+  static async validate({ _id, value }) {
+    const field = await this.findOne({ _id });
+
+    const { type, validation } = field;
+
+    // throw error helper
+    const throwError = message => {
+      throw new Error(`${field.text}: ${message}`);
+    };
+
+    // required
+    if (field.isRequired && !value) {
+      throwError('required');
+    }
+
+    if (value) {
+      // email
+      if ((type === 'email' || validation === 'email') && !validator.isEmail(value)) {
+        throwError('Invalid email');
+      }
+
+      // number
+      if (validation === 'number' && !validator.isFloat(value)) {
+        throwError('Invalid number');
+      }
+
+      // date
+      if (validation === 'date' && !validator.isISO8601(value)) {
+        throwError('Invalid date');
+      }
+    }
+
+    return 'valid';
   }
 }
 

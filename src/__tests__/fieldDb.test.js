@@ -110,6 +110,8 @@ describe('Fields', () => {
   });
 
   test('Remove field valid', async () => {
+    expect.assertions(3);
+
     try {
       await Fields.removeField('DFFFDSFD');
     } catch (e) {
@@ -122,5 +124,69 @@ describe('Fields', () => {
 
     const fieldObj = await Fields.findOne({ _id: _field.id });
     expect(fieldObj).toBeNull();
+  });
+
+  test('Validate submission: invalid values', async () => {
+    expect.assertions(4);
+
+    const expectError = async (message, value) => {
+      try {
+        await Fields.validate({ _id: _field._id, value });
+      } catch (e) {
+        expect(e.message).toBe(`${_field.text}: ${message}`);
+      }
+    };
+
+    const changeValidation = validation => {
+      _field.validation = validation;
+      return _field.save();
+    };
+
+    // required =====
+    _field.isRequired = true;
+    await _field.save();
+    expectError('required', '');
+
+    // email =====
+    await changeValidation('email');
+    expectError('Invalid email', 'wrongValue');
+
+    // number =====
+    await changeValidation('number');
+    expectError('Invalid number', 'wrongValue');
+
+    // date =====
+    await changeValidation('date');
+    expectError('Invalid date', 'wrongValue');
+  });
+
+  test('Validate submission: valid values', async () => {
+    const expectValid = async value => {
+      const res = await Fields.validate({ _id: _field._id, value });
+      expect(res).toBe('valid');
+    };
+
+    const changeValidation = validation => {
+      _field.validation = validation;
+      return _field.save();
+    };
+
+    // required =====
+    _field.isRequired = true;
+    await changeValidation(null);
+    expectValid('value');
+
+    // email =====
+    await changeValidation('email');
+    expectValid('email@gmail.com');
+
+    // number =====
+    await changeValidation('number');
+    expectValid('2.333');
+    expectValid('2');
+
+    // date =====
+    await changeValidation('date');
+    expectValid('2017-01-01');
   });
 });

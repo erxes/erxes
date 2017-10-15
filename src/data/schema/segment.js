@@ -29,17 +29,16 @@ export const queries = `
 `;
 
 const commonFields = `
-  contentType: String!,
   name: String!,
   description: String,
   subOf: String,
   color: String,
   connector: String,
-  conditions: SegmentCondition
+  conditions: [SegmentCondition]
 `;
 
 export const mutations = `
-  segmentsAdd(${commonFields}): Segment
+  segmentsAdd(contentType: String!, ${commonFields}): Segment
   segmentsEdit(_id: String!, ${commonFields}): Segment
   segmentsRemove(_id: String!): Segment
 `;
