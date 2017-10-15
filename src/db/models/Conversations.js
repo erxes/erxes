@@ -2,10 +2,8 @@ import strip from 'strip';
 
 import mongoose from 'mongoose';
 import Random from 'meteor-random';
-import { CONVERSATION_STATUSES, FACEBOOK_DATA_KINDS, KIND_CHOICES } from '../../data/constants';
+import { CONVERSATION_STATUSES, FACEBOOK_DATA_KINDS } from '../../data/constants';
 
-import { Integrations, Customers } from './';
-import { sendEmail } from '../../data/utils';
 import { Users } from '../../db/models';
 
 const TwitterDirectMessageSchema = mongoose.Schema({
@@ -160,13 +158,7 @@ class Conversation {
       { multi: true },
     );
 
-    const updatedConversations = await Conversations.find({ _id: { $in: conversationIds } });
-
-    // send notification
-    updatedConversations.forEach(conversation => {
-      const content = 'Assigned user has changed';
-      // TODO: sendNotification
-    });
+    return Conversations.find({ _id: { $in: conversationIds } });
   }
 
   /**
@@ -343,46 +335,7 @@ class Message {
     // setting conversation's content to last message
     await this.update({ _id: doc.conversationId }, { $set: { content } });
 
-    // TODO: send notification
-
-    // do not send internal message to third service integrations
-    if (doc.internal) {
-      return this.createMessage({ ...doc, userId });
-    }
-
-    const integration = await Integrations.findOne({ _id: conversation.integrationId });
-
-    if (!integration) throw new Error('Integration not found');
-
-    const kind = integration.kind;
-
-    // send reply to twitter
-    if (kind === KIND_CHOICES.TWITTER) {
-      // TODO: return tweetReply(conversation, strip(content));
-    }
-
-    const message = await this.createMessage({ ...doc, userId });
-    const customer = await Customers.findOne({ _id: conversation.customerId });
-
-    // if conversation's integration kind is form then send reply to
-    // customer's email
-    const email = customer ? customer.email : '';
-
-    if (kind === KIND_CHOICES.FORM && email) {
-      sendEmail({
-        to: email,
-        title: 'Reply',
-        content,
-      });
-    }
-
-    // send reply to facebook
-    if (kind === KIND_CHOICES.FACEBOOK) {
-      // when facebook kind is feed, assign commentId in extraData
-      // TODO: facebookReply(conversation, strip(content), messageId);
-    }
-
-    return message;
+    return this.createMessage({ ...doc, userId });
   }
 }
 

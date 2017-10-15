@@ -3,7 +3,13 @@
 
 import { connect, disconnect } from '../db/connection';
 import { Conversations, ConversationMessages, Users } from '../db/models';
-import { conversationFactory, conversationMessageFactory, userFactory } from '../db/factories';
+import {
+  conversationFactory,
+  conversationMessageFactory,
+  userFactory,
+  integrationFactory,
+  customerFactory,
+} from '../db/factories';
 import conversationMutations from '../data/resolvers/mutations/conversations';
 
 beforeAll(() => connect());
@@ -15,12 +21,22 @@ describe('Conversation message mutations', () => {
   let _conversationMessage;
   let _user;
   let _doc;
+  let _integration;
+  let _customer;
 
   beforeEach(async () => {
     // Creating test data
     _conversation = await conversationFactory();
     _conversationMessage = await conversationMessageFactory();
     _user = await userFactory();
+    _customer = await customerFactory();
+    _integration = await integrationFactory({ kind: 'form' });
+
+    _conversation.integrationId = _integration._id;
+    _conversation.customerId = _customer._id;
+    _conversation.assignedUserId = _user._id;
+    await _conversation.save();
+
     _doc = {
       content: _conversationMessage.content,
       attachments: _conversationMessage.attachments,
@@ -113,7 +129,8 @@ describe('Conversation message mutations', () => {
     }
   });
 
-  test('Create conversation message', async () => {
+  test('Add conversation message', async () => {
+    expect.assertions(3);
     ConversationMessages.addMessage = jest.fn(() => ({
       _id: 'messageObject',
     }));
@@ -122,6 +139,19 @@ describe('Conversation message mutations', () => {
 
     expect(ConversationMessages.addMessage.mock.calls.length).toBe(1);
     expect(ConversationMessages.addMessage).toBeCalledWith(_doc, _user._id);
+
+    // integration kind form test
+    _doc['internal'] = false;
+    await conversationMutations.conversationMessageAdd({}, _doc, { user: _user });
+
+    try {
+      // integration not found test
+      _conversation.integrationId = 'test';
+      await _conversation.save();
+      await conversationMutations.conversationMessageAdd({}, _doc, { user: _user });
+    } catch (e) {
+      expect(e.message).toEqual('Integration not found');
+    }
   });
 
   // if user assigned to conversation
@@ -162,7 +192,7 @@ describe('Conversation message mutations', () => {
   test('Change conversation status', async () => {
     Conversations.changeStatusConversation = jest.fn();
 
-    const status = 'new';
+    const status = 'closed';
     await conversationMutations.conversationsChangeStatus(
       {},
       { _ids: [_conversation._id], status: status },

@@ -15,6 +15,7 @@ import {
   FormFields,
   NotificationConfigurations,
   Notifications,
+  Customers,
 } from './models';
 
 export const userFactory = (params = {}) => {
@@ -93,14 +94,14 @@ export const conversationMessageFactory = (params = {}) => {
   return conversationMessage.save();
 };
 
-export const integrationFactory = params => {
+export const integrationFactory = (params = {}) => {
   const kind = params.kind || 'messenger';
   return Integrations.create({
     name: faker.random.word(),
     kind: kind,
     brandId: params.brandId || Random.id(),
     formId: params.formId || Random.id(),
-    messengerData: params.messengerData || { welcomeMessage: 'welcome' },
+    messengerData: params.messengerData || { welcomeMessage: 'welcome', notifyCustomer: true },
     formData:
       params.formData === 'form'
         ? params.formData
@@ -167,4 +168,12 @@ export const notificationFactory = params => {
     link: params.link || 'new Notification link',
     receiver: params.receiver || userFactory({}),
   });
+};
+
+export const customerFactory = (params = {}) => {
+  const customer = new Customers({
+    name: params.name || faker.name.findName(),
+    email: params.email || faker.internet.email(),
+  });
+  return customer.save();
 };
