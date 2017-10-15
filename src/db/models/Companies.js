@@ -63,7 +63,14 @@ class Company {
    * @param  {Object} companyObj object
    * @return {Promise} Newly created company object
    */
-  static createCompany(doc) {
+  static async createCompany(doc) {
+    const previousEntry = await this.findOne({ name: doc.name });
+
+    // check duplication
+    if (previousEntry) {
+      throw new Error('Duplicated name');
+    }
+
     return this.create(doc);
   }
 
@@ -74,6 +81,16 @@ class Company {
    * @return {Promise} updated company object
    */
   static async updateCompany(_id, doc) {
+    const previousEntry = await this.findOne({
+      _id: { $ne: _id },
+      name: doc.name,
+    });
+
+    // check duplication
+    if (previousEntry) {
+      throw new Error('Duplicated name');
+    }
+
     await this.update({ _id }, { $set: doc });
 
     return this.findOne({ _id });

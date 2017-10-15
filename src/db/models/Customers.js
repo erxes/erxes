@@ -105,7 +105,7 @@ class Customer {
    * @return {Promise} Newly created customer object
    */
   static async createCustomer(doc) {
-    const previousEntry = await Customers.findOne({ email: doc.email });
+    const previousEntry = await this.findOne({ email: doc.email });
 
     // check duplication
     if (previousEntry) {
@@ -125,7 +125,7 @@ class Customer {
    * @return {Promise} updated customer object
    */
   static async updateCustomer(_id, doc) {
-    const previousEntry = await Customers.findOne({
+    const previousEntry = await this.findOne({
       _id: { $ne: _id },
       email: doc.email,
     });

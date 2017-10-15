@@ -39,6 +39,15 @@ describe('Companies model tests', () => {
   });
 
   test('Create company', async () => {
+    expect.assertions(7);
+
+    // check duplication
+    try {
+      await Companies.createCompany({ name: _company.name });
+    } catch (e) {
+      expect(e.message).toBe('Duplicated name');
+    }
+
     const doc = generateDoc();
 
     const companyObj = await Companies.createCompany(doc);
@@ -47,7 +56,21 @@ describe('Companies model tests', () => {
   });
 
   test('Update company', async () => {
+    expect.assertions(7);
+
     const doc = generateDoc();
+
+    const previousCompany = await companyFactory({ name: doc.name });
+
+    // test duplication
+    try {
+      await Companies.updateCompany(_company._id, doc);
+    } catch (e) {
+      expect(e.message).toBe('Duplicated name');
+    }
+
+    // remove previous duplicated entry
+    await Companies.remove({ _id: previousCompany._id });
 
     const companyObj = await Companies.updateCompany(_company._id, doc);
 

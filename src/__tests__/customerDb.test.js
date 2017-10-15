@@ -21,7 +21,16 @@ describe('Customers model tests', () => {
     await Customers.remove({});
   });
 
-  test('Create customer: successful', async () => {
+  test('Create customer', async () => {
+    expect.assertions(3);
+
+    // check duplication
+    try {
+      await Customers.createCustomer({ name: 'name', email: _customer.email });
+    } catch (e) {
+      expect(e.message).toBe('Duplicated email');
+    }
+
     const doc = { name: 'name', email: 'dombo@yahoo.com' };
 
     const customerObj = await Customers.createCustomer(doc);
@@ -30,17 +39,7 @@ describe('Customers model tests', () => {
     expect(customerObj.email).toBe(doc.email);
   });
 
-  test('Create customer: duplicated email', async () => {
-    expect.assertions(1);
-
-    try {
-      await Customers.createCustomer({ name: 'name', email: _customer.email });
-    } catch (e) {
-      expect(e.message).toBe('Duplicated email');
-    }
-  });
-
-  test('Update customer: successful', async () => {
+  test('Update customer', async () => {
     expect.assertions(4);
 
     const previousCustomer = await customerFactory({ email: 'dombo@yahoo.com' });
@@ -51,6 +50,7 @@ describe('Customers model tests', () => {
       phone: '242442200',
     };
 
+    // test duplication
     try {
       await Customers.updateCustomer(_customer._id, doc);
     } catch (e) {

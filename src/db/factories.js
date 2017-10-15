@@ -101,7 +101,7 @@ export const internalNoteFactory = (params = {}) => {
 
 export const companyFactory = (params = {}) => {
   const company = new Companies({
-    name: faker.random.word(),
+    name: params.name || faker.random.word(),
     size: params.size || faker.random.number(),
     industry: params.industry || Random.id(),
     website: params.website || Random.id(),
