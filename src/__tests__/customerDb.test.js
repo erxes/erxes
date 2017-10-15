@@ -3,7 +3,7 @@
 
 import { connect, disconnect } from '../db/connection';
 import { Customers } from '../db/models';
-import { customerFactory } from '../db/factories';
+import { fieldFactory, customerFactory } from '../db/factories';
 
 beforeAll(() => connect());
 
@@ -21,7 +21,7 @@ describe('Customers model tests', () => {
     await Customers.remove({});
   });
 
-  test('Create customer', async () => {
+  test('Create customer: successful', async () => {
     const doc = { name: 'name', email: 'dombo@yahoo.com' };
 
     const customerObj = await Customers.createCustomer(doc);
@@ -30,7 +30,7 @@ describe('Customers model tests', () => {
     expect(customerObj.email).toBe(doc.email);
   });
 
-  test('Update customer', async () => {
+  test('Update customer: successful', async () => {
     const doc = {
       name: 'Dombo',
       email: 'dombo@yahoo.com',
@@ -68,5 +68,37 @@ describe('Customers model tests', () => {
     customer = await Customers.findOne({ _id: customer._id });
 
     expect(customer.companyIds).toEqual(expect.arrayContaining([company._id]));
+  });
+
+  test('Create customer: with customer fields validation error', async () => {
+    expect.assertions(1);
+
+    const field = await fieldFactory({ validation: 'number' });
+
+    try {
+      await Customers.createCustomer({
+        name: 'name',
+        email: 'dombo@yahoo.com',
+        customFieldsData: { [field._id]: 'invalid number' },
+      });
+    } catch (e) {
+      expect(e.message).toBe(`${field.text}: Invalid number`);
+    }
+  });
+
+  test('Update customer: with customer fields validation error', async () => {
+    expect.assertions(1);
+
+    const field = await fieldFactory({ validation: 'number' });
+
+    try {
+      await Customers.updateCustomer(_customer._id, {
+        name: 'name',
+        email: 'dombo@yahoo.com',
+        customFieldsData: { [field._id]: 'invalid number' },
+      });
+    } catch (e) {
+      expect(e.message).toBe(`${field.text}: Invalid number`);
+    }
   });
 });

@@ -137,6 +137,10 @@ class Field {
   static async validate({ _id, value }) {
     const field = await this.findOne({ _id });
 
+    if (!field) {
+      throw new Error(`Field not found with the _id of ${_id}`);
+    }
+
     const { type, validation } = field;
 
     // throw error helper
@@ -164,6 +168,23 @@ class Field {
       if (validation === 'date' && !validator.isISO8601(value)) {
         throwError('Invalid date');
       }
+    }
+
+    return 'valid';
+  }
+
+  /*
+   * Validate multiple fields
+   *
+   * @param {Object} data - field._id, value mapping
+   * @return {String} - valid indicator
+   */
+  static async validateMulti(data) {
+    const ids = Object.keys(data);
+
+    // validate individual fields
+    for (let _id of ids) {
+      await this.validate({ _id, value: data[_id] });
     }
 
     return 'valid';

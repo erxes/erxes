@@ -126,6 +126,18 @@ describe('Fields', () => {
     expect(fieldObj).toBeNull();
   });
 
+  test('Validate submission: field not found', async () => {
+    expect.assertions(1);
+
+    const _id = 'INVALID_ID';
+
+    try {
+      await Fields.validate({ _id, value: '' });
+    } catch (e) {
+      expect(e.message).toBe(`Field not found with the _id of ${_id}`);
+    }
+  });
+
   test('Validate submission: invalid values', async () => {
     expect.assertions(4);
 
@@ -189,4 +201,18 @@ describe('Fields', () => {
     await changeValidation('date');
     expectValid('2017-01-01');
   });
+
+  // test('Validate fields: invalid values', async () => {
+  //   expect.assertions(1);
+  //
+  //   // required =====
+  //   _field.isRequired = true;
+  //   await _field.save();
+  //
+  //   try {
+  //     await Fields.validateMulti({ _id: _field._id, value: '' })
+  //   } catch (e) {
+  //     expect(e.message).toBe(`${_field.text}: required`);
+  //   }
+  // });
 });

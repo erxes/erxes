@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 import Random from 'meteor-random';
-import { Companies } from './';
+import { Fields, Companies } from './';
 
 /*
  * messenger schema
@@ -104,7 +104,10 @@ class Customer {
    * @param  {Object} customerObj object
    * @return {Promise} Newly created customer object
    */
-  static createCustomer(doc) {
+  static async createCustomer(doc) {
+    // validate custom field values
+    await Fields.validateMulti(doc.customFieldsData || {});
+
     return this.create(doc);
   }
 
@@ -115,6 +118,9 @@ class Customer {
    * @return {Promise} updated customer object
    */
   static async updateCustomer(_id, doc) {
+    // validate custom field values
+    await Fields.validateMulti(doc.customFieldsData || {});
+
     await this.update({ _id }, { $set: doc });
 
     return this.findOne({ _id });
@@ -142,6 +148,8 @@ class Customer {
 
   /*
    * Create new company and add to customer's company list
+   * @param {String} name - Company name
+   * @param {String} website - Company website
    * @return {Promise} newly created company
    */
   static async addCompany({ _id, name, website }) {
