@@ -41,11 +41,24 @@ describe('Customers model tests', () => {
   });
 
   test('Update customer: successful', async () => {
+    expect.assertions(4);
+
+    const previousCustomer = await customerFactory({ email: 'dombo@yahoo.com' });
+
     const doc = {
       name: 'Dombo',
       email: 'dombo@yahoo.com',
       phone: '242442200',
     };
+
+    try {
+      await Customers.updateCustomer(_customer._id, doc);
+    } catch (e) {
+      expect(e.message).toBe('Duplicated email');
+    }
+
+    // remove previous duplicated entry
+    await Customers.remove({ _id: previousCustomer._id });
 
     const customerObj = await Customers.updateCustomer(_customer._id, doc);
 

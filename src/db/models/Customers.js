@@ -125,6 +125,16 @@ class Customer {
    * @return {Promise} updated customer object
    */
   static async updateCustomer(_id, doc) {
+    const previousEntry = await Customers.findOne({
+      _id: { $ne: _id },
+      email: doc.email,
+    });
+
+    // check duplication
+    if (previousEntry) {
+      throw new Error('Duplicated email');
+    }
+
     // validate custom field values
     await Fields.validateMulti(doc.customFieldsData || {});
 
