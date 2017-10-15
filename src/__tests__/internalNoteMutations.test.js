@@ -14,19 +14,10 @@ afterAll(() => disconnect());
 /*
  * Generate test data
  */
-const generateData = () => ({
+const doc = {
   contentType: 'customer',
   contentTypeId: 'DFDFAFSFSDDSF',
   content: faker.random.word(),
-});
-
-/*
- * Check values
- */
-const checkValues = (internalNoteObj, doc) => {
-  expect(internalNoteObj.contentType).toBe(doc.contentType);
-  expect(internalNoteObj.contentTypeId).toBe(doc.contentTypeId);
-  expect(internalNoteObj.content).toBe(doc.content);
 };
 
 describe('InternalNotes mutations', () => {
@@ -45,61 +36,52 @@ describe('InternalNotes mutations', () => {
     await Users.remove({});
   });
 
-  test('Create internalNote', async () => {
-    // Login required
-    expect(() => internalNoteMutations.internalNotesAdd({}, {}, {})).toThrowError('Login required');
+  test('Check login required', async () => {
+    expect.assertions(3);
 
-    // valid
-    const doc = generateData();
+    const check = async fn => {
+      try {
+        await fn({}, {}, {});
+      } catch (e) {
+        expect(e.message).toEqual('Login required');
+      }
+    };
 
-    const internalNoteObj = await internalNoteMutations.internalNotesAdd({}, doc, { user: _user });
+    // add
+    check(internalNoteMutations.internalNotesAdd);
 
-    checkValues(internalNoteObj, doc);
-    expect(internalNoteObj.createdUserId).toBe(_user._id);
+    // edit
+    check(internalNoteMutations.internalNotesEdit);
+
+    // add company
+    check(internalNoteMutations.internalNotesRemove);
   });
 
-  test('Edit internalNote login required', async () => {
-    expect.assertions(1);
+  test('Create internalNote', async () => {
+    InternalNotes.createInternalNote = jest.fn();
 
-    try {
-      await internalNoteMutations.internalNotesEdit({}, { _id: _internalNote.id }, {});
-    } catch (e) {
-      expect(e.message).toEqual('Login required');
-    }
+    await internalNoteMutations.internalNotesAdd({}, doc, { user: _user });
+
+    expect(InternalNotes.createInternalNote).toBeCalledWith(doc, _user);
   });
 
   test('Edit internalNote valid', async () => {
-    const doc = generateData();
+    InternalNotes.updateInternalNote = jest.fn();
 
-    const internalNoteObj = await internalNoteMutations.internalNotesEdit(
+    await internalNoteMutations.internalNotesEdit(
       {},
       { _id: _internalNote._id, ...doc },
       { user: _user },
     );
 
-    checkValues(internalNoteObj, doc);
-  });
-
-  test('Remove internalNote login required', async () => {
-    expect.assertions(1);
-
-    try {
-      await internalNoteMutations.internalNotesRemove({}, { _id: _internalNote.id }, {});
-    } catch (e) {
-      expect(e.message).toEqual('Login required');
-    }
+    expect(InternalNotes.updateInternalNote).toBeCalledWith(_internalNote._id, doc);
   });
 
   test('Remove internalNote valid', async () => {
-    const internalNoteDeletedObj = await internalNoteMutations.internalNotesRemove(
-      {},
-      { _id: _internalNote.id },
-      { user: _user },
-    );
+    InternalNotes.removeInternalNote = jest.fn();
 
-    expect(internalNoteDeletedObj.id).toBe(_internalNote.id);
+    await internalNoteMutations.internalNotesRemove({}, { _id: _internalNote.id }, { user: _user });
 
-    const internalNoteObj = await InternalNotes.findOne({ _id: _internalNote.id });
-    expect(internalNoteObj).toBeNull();
+    expect(InternalNotes.removeInternalNote).toBeCalledWith(_internalNote.id);
   });
 });
