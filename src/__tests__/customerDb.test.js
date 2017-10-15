@@ -30,6 +30,16 @@ describe('Customers model tests', () => {
     expect(customerObj.email).toBe(doc.email);
   });
 
+  test('Create customer: duplicated email', async () => {
+    expect.assertions(1);
+
+    try {
+      await Customers.createCustomer({ name: 'name', email: _customer.email });
+    } catch (e) {
+      expect(e.message).toBe('Duplicated email');
+    }
+  });
+
   test('Update customer: successful', async () => {
     const doc = {
       name: 'Dombo',

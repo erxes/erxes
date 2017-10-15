@@ -105,6 +105,13 @@ class Customer {
    * @return {Promise} Newly created customer object
    */
   static async createCustomer(doc) {
+    const previousEntry = await Customers.findOne({ email: doc.email });
+
+    // check duplication
+    if (previousEntry) {
+      throw new Error('Duplicated email');
+    }
+
     // validate custom field values
     await Fields.validateMulti(doc.customFieldsData || {});
 
