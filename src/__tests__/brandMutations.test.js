@@ -26,89 +26,87 @@ describe('Brands mutations', () => {
     await Users.remove({});
   });
 
-  test('Create brand', async () => {
-    const brandObj = await brandMutations.brandsAdd(
-      {},
-      { code: _brand.code, name: _brand.name, description: _brand.description },
-      { user: _user },
-    );
-    expect(brandObj).toBeDefined();
-    expect(brandObj.code).toBe(_brand.code);
-    expect(brandObj.name).toBe(_brand.name);
-    expect(brandObj.userId).toBe(_user._id);
+  test('Check login required mutations', async () => {
+    expect.assertions(4);
 
-    // invalid data
-    expect(() =>
-      brandMutations.brandsAdd({}, { code: '', name: _brand.name }, { user: _user }),
-    ).toThrowError('Code is required field');
+    // brands add
+    try {
+      await brandMutations.brandsAdd({}, { code: _brand.code, name: _brand.name }, {});
+    } catch (e) {
+      expect(e.message).toEqual('Login required');
+    }
 
-    // Login required
-    expect(() =>
-      brandMutations.brandsAdd({}, { code: _brand.code, name: brandObj.name }, {}),
-    ).toThrowError('Login required');
-  });
-
-  test('Update brand', async () => {
-    // get new brand object
-    const _brandUpdate = await brandFactory();
-
-    // update brand object
-    const brandObj = await brandMutations.brandsEdit(
-      {},
-      {
-        _id: _brand.id,
-        code: _brandUpdate.code,
-        name: _brandUpdate.name,
-        description: _brandUpdate.description,
-      },
-      { user: _user },
-    );
-
-    // check changes
-    expect(brandObj.code).toBe(_brandUpdate.code);
-    expect(brandObj.name).toBe(_brandUpdate.name);
-    expect(brandObj.description).toBe(_brandUpdate.description);
-  });
-
-  test('Update brand login required', async () => {
-    expect.assertions(1);
+    // brands edit
     try {
       await brandMutations.brandsEdit({}, { _id: _brand.id }, {});
     } catch (e) {
       expect(e.message).toEqual('Login required');
     }
-  });
 
-  test('Delete brand', async () => {
-    const brandDeletedObj = await brandMutations.brandsRemove(
-      {},
-      { _id: _brand.id },
-      { user: _user },
-    );
-    expect(brandDeletedObj.id).toBe(_brand.id);
-
-    const brandObj = await Brands.findOne({ _id: _brand.id });
-    expect(brandObj).toBeNull();
-  });
-
-  test('Delete brand login required', async () => {
-    expect.assertions(1);
+    // brands remove
     try {
       await brandMutations.brandsRemove({}, { _id: _brand.id }, {});
     } catch (e) {
       expect(e.message).toEqual('Login required');
     }
+
+    // brands update email config
+    try {
+      await brandMutations.brandsConfigEmail({}, { _id: _brand.id }, {});
+    } catch (e) {
+      expect(e.message).toEqual('Login required');
+    }
+  });
+
+  test('Create brand', async () => {
+    const _doc = {
+      code: _brand.code,
+      name: _brand.name,
+      description: _brand.description,
+    };
+
+    Brands.createBrand = jest.fn();
+
+    await brandMutations.brandsAdd({}, _doc, { user: _user });
+
+    expect(Brands.createBrand.mock.calls.length).toBe(1);
+    expect(Brands.createBrand).toBeCalledWith({ userId: _user._id, ..._doc });
+  });
+
+  test('Update brand', async () => {
+    Brands.updateBrand = jest.fn();
+
+    const _doc = {
+      code: 'test',
+      name: 'test',
+      description: 'test',
+    };
+
+    // update brand object
+    await brandMutations.brandsEdit({}, { _id: _brand._id, ..._doc }, { user: _user });
+
+    expect(Brands.updateBrand.mock.calls.length).toBe(1);
+    expect(Brands.updateBrand).toBeCalledWith(_brand._id, _doc);
+  });
+
+  test('Delete brand', async () => {
+    Brands.removeBrand = jest.fn();
+
+    await brandMutations.brandsRemove({}, { _id: _brand.id }, { user: _user });
+    expect(Brands.removeBrand.mock.calls.length).toBe(1);
+    expect(Brands.removeBrand).toBeCalledWith(_brand._id);
   });
 
   test('Update brand email config', async () => {
-    const brandObj = await brandMutations.brandsConfigEmail(
+    Brands.updateEmailConfig = jest.fn();
+
+    await brandMutations.brandsConfigEmail(
       {},
       { _id: _brand.id, emailConfig: _brand.emailConfig },
-      { user: _brand.userId },
+      { user: _user._id },
     );
 
-    expect(brandObj).toBeDefined();
-    expect(brandObj.emailConfig.type).toBe(_brand.emailConfig.type);
-    expect(brandObj.emailConfig.template).toBe(_brand.emailConfig.template);
+    expect(Brands.updateEmailConfig.mock.calls.length).toBe(1);
+    expect(Brands.updateEmailConfig).toBeCalledWith(_brand._id, _brand.emailConfig);
   });
 });

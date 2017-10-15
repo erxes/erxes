@@ -3,6 +3,7 @@ import { ResponseTemplates } from '../../../db/models';
 export default {
   /**
    * Create new response template
+   * @param {Object} fields - response template fields
    * @return {Promise} response template object
    */
   responseTemplateAdd(root, doc, { user }) {
@@ -13,28 +14,24 @@ export default {
 
   /**
    * Update response template
+   * @param {String} _id - response template id
+   * @param {Object} fields - response template fields
    * @return {Promise} response template object
    */
-  async responseTemplateEdit(root, { _id, ...fields }, { user }) {
+  responseTemplateEdit(root, { _id, ...fields }, { user }) {
     if (!user) throw new Error('Login required');
 
-    await ResponseTemplates.update({ _id }, { $set: { ...fields } });
-    return ResponseTemplates.findOne({ _id });
+    return ResponseTemplates.updateResponseTemplate(_id, fields);
   },
 
   /**
    * Delete response template
+   * @param {String} _id - response template id
    * @return {Promise}
    */
-  async responseTemplateRemove(root, { _id }, { user }) {
+  responseTemplateRemove(root, { _id }, { user }) {
     if (!user) throw new Error('Login required');
 
-    const responseTemplateObj = await ResponseTemplates.findOne({ _id });
-
-    if (!responseTemplateObj) {
-      throw new Error(`Response template not found with id ${_id}`);
-    }
-
-    return responseTemplateObj.remove();
+    return ResponseTemplates.removeResponseTemplate(_id);
   },
 };

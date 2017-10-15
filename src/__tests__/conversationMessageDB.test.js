@@ -5,6 +5,7 @@ import { connect, disconnect } from '../db/connection';
 import { Conversations, ConversationMessages, Users } from '../db/models';
 import { conversationFactory, conversationMessageFactory, userFactory } from '../db/factories';
 import conversationMutations from '../data/resolvers/mutations/conversations';
+import { CONVERSATION_STATUSES } from '../data/constants';
 
 beforeAll(() => connect());
 
@@ -21,6 +22,7 @@ describe('Conversation message db', () => {
     _conversation = await conversationFactory();
     _conversationMessage = await conversationMessageFactory();
     _user = await userFactory();
+
     _doc = {
       content: _conversationMessage.content,
       attachments: _conversationMessage.attachments,
@@ -43,6 +45,37 @@ describe('Conversation message db', () => {
     await Users.remove({});
   });
 
+  test('Create conversation', async () => {
+    const _number = (await Conversations.find().count()) + 1;
+    const conversation = await Conversations.createConversation({
+      content: _conversation.content,
+      assignedUserId: _user._id,
+      integrationId: 'test',
+      participatedUserIds: [_user._id],
+      readUserIds: [_user._id],
+    });
+
+    expect(conversation).toBeDefined();
+    expect(conversation.content).toBe(_conversation.content);
+    expect(conversation.status).toBe(CONVERSATION_STATUSES.NEW);
+    expect(conversation.number).toBe(_number);
+    expect(conversation.messageCount).toBe(0);
+  });
+
+  test('Check conversation existance', async () => {
+    const { selector, conversations } = await Conversations.checkExistanceConversations([
+      _conversation._id,
+    ]);
+    expect(conversations[0]._id).toBe(_conversation._id);
+    expect(selector).toEqual({ _id: { $in: [_conversation._id] } });
+
+    // wrong conversation ids
+    try {
+      await Conversations.checkExistanceConversations(['test']);
+    } catch (e) {
+      expect(e.message).toEqual('Conversation not found.');
+    }
+  });
   test('Create conversation message', async () => {
     const messageObj = await ConversationMessages.addMessage(_doc, _user);
 
@@ -58,6 +91,23 @@ describe('Conversation message db', () => {
     expect(messageObj.formWidgetData).toBe(_conversationMessage.formWidgetData);
     expect(messageObj.facebookData._id).toBe(_conversationMessage.facebookData._id);
     expect(messageObj.userId).toBe(_user._id);
+
+    try {
+      // without content
+      _doc.attachments = [];
+      _doc.content = '';
+      await ConversationMessages.addMessage(_doc, _user);
+    } catch (e) {
+      expect(e.message).toEqual('Content is required');
+    }
+
+    try {
+      // without conversation
+      _doc.conversationId = 'test';
+      await ConversationMessages.addMessage(_doc, _user);
+    } catch (e) {
+      expect(e.message).toEqual('Conversation not found with id test');
+    }
   });
 
   // if user assigned to conversation
@@ -67,6 +117,13 @@ describe('Conversation message db', () => {
     const conversationObj = await Conversations.findOne({ _id: _conversation._id });
 
     expect(conversationObj.assignedUserId).toBe(_user._id);
+
+    // without assign user
+    try {
+      await Conversations.assignUserConversation([_conversation._id], undefined);
+    } catch (e) {
+      expect(e.message).toEqual('User not found with id undefined');
+    }
   });
 
   test('Unassign employee from conversation', async () => {
@@ -143,6 +200,9 @@ describe('Conversation message db', () => {
 
   test('Conversation mark as read', async () => {
     // first user read this conversation
+    _conversation.readUserIds = '';
+    _conversation.save();
+
     await Conversations.markAsReadConversation(_conversation._id, _user._id);
 
     const conversationObj = await Conversations.findOne({ _id: _conversation._id });
@@ -152,6 +212,13 @@ describe('Conversation message db', () => {
     const second_user = await userFactory();
 
     // multiple users read conversation
-    await Conversations.markAsReadConversation(_conversation._id, second_user._id, false);
+    await Conversations.markAsReadConversation(_conversation._id, second_user._id);
+
+    try {
+      // without conversation
+      await Conversations.markAsReadConversation('test', second_user._id);
+    } catch (e) {
+      expect(e.message).toEqual('Conversation not found with id test');
+    }
   });
 });

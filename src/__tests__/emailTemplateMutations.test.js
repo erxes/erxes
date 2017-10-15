@@ -26,63 +26,71 @@ describe('Email template mutations', () => {
     await Users.remove({});
   });
 
-  test('Create email template', async () => {
-    const emailTemplateObj = await emailTemplateMutations.emailTemplateAdd(
-      {},
-      { name: _emailTemplate.name, content: _emailTemplate.content },
-      { user: _user },
-    );
-    expect(emailTemplateObj).toBeDefined();
-    expect(emailTemplateObj.name).toBe(_emailTemplate.name);
-    expect(emailTemplateObj.content).toBe(_emailTemplate.content);
+  test('Email templates login required functions', async () => {
+    expect.assertions(3);
 
-    // Login required test
-    expect(() =>
+    // add email template
+    try {
       emailTemplateMutations.emailTemplateAdd(
         {},
         { name: _emailTemplate.name, content: _emailTemplate.content },
         {},
-      ),
-    ).toThrowError('Login required');
-  });
+      );
+    } catch (e) {
+      expect(e.message).toEqual('Login required');
+    }
 
-  test('Update email template', async () => {
-    const emailTemplateObj = await emailTemplateMutations.emailTemplateEdit(
-      {},
-      { _id: _emailTemplate.id, name: _emailTemplate.name, content: _emailTemplate.content },
-      { user: _user },
-    );
-    expect(emailTemplateObj).toBeDefined();
-    expect(emailTemplateObj.id).toBe(_emailTemplate.id);
-    expect(emailTemplateObj.name).toBe(_emailTemplate.name);
-    expect(emailTemplateObj.content).toBe(_emailTemplate.content);
-  });
-
-  test('Update email template login required', async () => {
-    expect.assertions(1);
+    // update email template
     try {
       await emailTemplateMutations.emailTemplateEdit({}, { _id: _emailTemplate.id }, {});
     } catch (e) {
       expect(e.message).toEqual('Login required');
     }
-  });
 
-  test('Delete email template', async () => {
-    await emailTemplateMutations.emailTemplateRemove(
-      {},
-      { _id: _emailTemplate.id },
-      { user: _user },
-    );
-    const count = await EmailTemplates.find({ _id: _emailTemplate.id }).count();
-    expect(count).toBe(0);
-  });
-
-  test('Delete email template login required', async () => {
-    expect.assertions(1);
+    // remove email template
     try {
       await emailTemplateMutations.emailTemplateRemove({}, { _id: _emailTemplate.id }, {});
     } catch (e) {
       expect(e.message).toEqual('Login required');
     }
+  });
+
+  test('Create email template', async () => {
+    EmailTemplates.create = jest.fn();
+
+    const _doc = { name: _emailTemplate.name, content: _emailTemplate.content };
+
+    await emailTemplateMutations.emailTemplateAdd({}, _doc, { user: _user });
+
+    expect(EmailTemplates.create.mock.calls.length).toBe(1);
+    expect(EmailTemplates.create).toBeCalledWith(_doc);
+  });
+
+  test('Update email template', async () => {
+    EmailTemplates.updateEmailTemplate = jest.fn();
+
+    const _doc = { name: _emailTemplate.name, content: _emailTemplate.content };
+
+    await emailTemplateMutations.emailTemplateEdit(
+      {},
+      { _id: _emailTemplate.id, ..._doc },
+      { user: _user },
+    );
+
+    expect(EmailTemplates.updateEmailTemplate.mock.calls.length).toBe(1);
+    expect(EmailTemplates.updateEmailTemplate).toBeCalledWith(_emailTemplate.id, _doc);
+  });
+
+  test('Delete email template', async () => {
+    EmailTemplates.removeEmailTemplate = jest.fn();
+
+    await emailTemplateMutations.emailTemplateRemove(
+      {},
+      { _id: _emailTemplate.id },
+      { user: _user },
+    );
+
+    expect(EmailTemplates.removeEmailTemplate.mock.calls.length).toBe(1);
+    expect(EmailTemplates.removeEmailTemplate).toBeCalledWith(_emailTemplate.id);
   });
 });

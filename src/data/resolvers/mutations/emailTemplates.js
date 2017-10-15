@@ -3,6 +3,7 @@ import { EmailTemplates } from '../../../db/models';
 export default {
   /**
    * Create new email template
+   * @param {Object} doc - email templates fields
    * @return {Promise} email template object
    */
   emailTemplateAdd(root, doc, { user }) {
@@ -13,28 +14,24 @@ export default {
 
   /**
    * Update email template
+   * @param {String} _id - email templates id
+   * @param {Object} fields - email templates fields
    * @return {Promise} email template object
    */
-  async emailTemplateEdit(root, { _id, ...fields }, { user }) {
+  emailTemplateEdit(root, { _id, ...fields }, { user }) {
     if (!user) throw new Error('Login required');
 
-    await EmailTemplates.update({ _id }, { $set: { ...fields } });
-    return EmailTemplates.findOne({ _id });
+    return EmailTemplates.updateEmailTemplate(_id, fields);
   },
 
   /**
    * Delete email template
+   * @param {String} doc - email templates fields
    * @return {Promise}
    */
-  async emailTemplateRemove(root, { _id }, { user }) {
+  emailTemplateRemove(root, { _id }, { user }) {
     if (!user) throw new Error('Login required');
 
-    const emailTemplateObj = await EmailTemplates.findOne({ _id });
-
-    if (!emailTemplateObj) {
-      throw new Error(`Email template not found with id ${_id}`);
-    }
-
-    return emailTemplateObj.remove();
+    return EmailTemplates.removeEmailTemplate(_id);
   },
 };

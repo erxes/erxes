@@ -129,12 +129,12 @@ class Conversation {
    * @param  {Object} conversationObj object
    * @return {Promise} Newly created conversation object
    */
-  static createConversation(doc) {
+  static async createConversation(doc) {
     return this.create({
       ...doc,
       status: CONVERSATION_STATUSES.NEW,
       createdAt: new Date(),
-      number: this.find().count() + 1,
+      number: (await this.find().count()) + 1,
       messageCount: 0,
     });
   }
@@ -149,7 +149,7 @@ class Conversation {
     await this.checkExistanceConversations(conversationIds);
 
     if (!await Users.findOne({ _id: assignedUserId })) {
-      throw new Error('User not found.');
+      throw new Error(`User not found with id ${assignedUserId}`);
     }
 
     await this.update(
@@ -263,12 +263,12 @@ class Conversation {
   static async markAsReadConversation(_id, userId) {
     const conversation = await Conversations.findOne({ _id });
 
-    if (!conversation) return 'Conversation not found';
+    if (!conversation) throw new Error(`Conversation not found with id ${_id}`);
 
     const readUserIds = conversation.readUserIds;
 
     // if current user is first one
-    if (!readUserIds) {
+    if (!readUserIds || readUserIds.length === 0) {
       return this.update({ _id }, { $set: { readUserIds: [userId] } });
     }
 
@@ -320,7 +320,7 @@ class Message {
   static async addMessage(doc, userId) {
     const conversation = await Conversations.findOne({ _id: doc.conversationId });
 
-    if (!conversation) throw new Error('Conversation not found');
+    if (!conversation) throw new Error(`Conversation not found with id ${doc.conversationId}`);
 
     // normalize content, attachments
     const content = doc.content || '';
