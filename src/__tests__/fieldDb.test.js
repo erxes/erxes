@@ -132,7 +132,7 @@ describe('Fields', () => {
     const _id = 'INVALID_ID';
 
     try {
-      await Fields.validate({ _id, value: '' });
+      await Fields.clean(_id, '');
     } catch (e) {
       expect(e.message).toBe(`Field not found with the _id of ${_id}`);
     }
@@ -143,7 +143,7 @@ describe('Fields', () => {
 
     const expectError = async (message, value) => {
       try {
-        await Fields.validate({ _id: _field._id, value });
+        await Fields.clean(_field._id, value);
       } catch (e) {
         expect(e.message).toBe(`${_field.text}: ${message}`);
       }
@@ -174,8 +174,8 @@ describe('Fields', () => {
 
   test('Validate submission: valid values', async () => {
     const expectValid = async value => {
-      const res = await Fields.validate({ _id: _field._id, value });
-      expect(res).toBe('valid');
+      const res = await Fields.clean(_field._id, value);
+      expect(res).toBe(value);
     };
 
     const changeValidation = validation => {
@@ -198,21 +198,23 @@ describe('Fields', () => {
     expectValid('2');
 
     // date =====
+    // date values must be convert to date object
     await changeValidation('date');
-    expectValid('2017-01-01');
+    const res = await Fields.clean(_field._id, '2017-01-01');
+    expect(res).toEqual(expect.any(Date));
   });
 
-  // test('Validate fields: invalid values', async () => {
-  //   expect.assertions(1);
-  //
-  //   // required =====
-  //   _field.isRequired = true;
-  //   await _field.save();
-  //
-  //   try {
-  //     await Fields.validateMulti({ _id: _field._id, value: '' })
-  //   } catch (e) {
-  //     expect(e.message).toBe(`${_field.text}: required`);
-  //   }
-  // });
+  test('Validate fields: invalid values', async () => {
+    expect.assertions(1);
+
+    // required =====
+    _field.isRequired = true;
+    await _field.save();
+
+    try {
+      await Fields.cleanMulti({ [_field._id]: '' });
+    } catch (e) {
+      expect(e.message).toBe(`${_field.text}: required`);
+    }
+  });
 });

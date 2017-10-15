@@ -128,14 +128,17 @@ class Field {
 
   /*
    * Validate per field according to it's validation and type
+   * fixes values if necessary
    *
    * @param {String} _id - Field id
    * @param {String|Date|Number} value - Submitted value
    * @throw Validation error
    * @return {String} - valid indicator
    */
-  static async validate({ _id, value }) {
+  static async clean(_id, _value) {
     const field = await this.findOne({ _id });
+
+    let value = _value;
 
     if (!field) {
       throw new Error(`Field not found with the _id of ${_id}`);
@@ -160,34 +163,40 @@ class Field {
       }
 
       // number
-      if (validation === 'number' && !validator.isFloat(value)) {
+      if (validation === 'number' && !validator.isFloat(value.toString())) {
         throwError('Invalid number');
       }
 
       // date
-      if (validation === 'date' && !validator.isISO8601(value)) {
-        throwError('Invalid date');
+      if (validation === 'date') {
+        if (!validator.isISO8601(value)) {
+          throwError('Invalid date');
+        }
+
+        value = new Date(value);
       }
     }
 
-    return 'valid';
+    return value;
   }
 
   /*
-   * Validate multiple fields
+   * Validates multiple fields, fixes values if necessary
    *
    * @param {Object} data - field._id, value mapping
    * @return {String} - valid indicator
    */
-  static async validateMulti(data) {
+  static async cleanMulti(data) {
     const ids = Object.keys(data);
+
+    const fixedValues = {};
 
     // validate individual fields
     for (let _id of ids) {
-      await this.validate({ _id, value: data[_id] });
+      fixedValues[_id] = await this.clean(_id, data[_id]);
     }
 
-    return 'valid';
+    return fixedValues;
   }
 }
 

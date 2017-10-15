@@ -112,8 +112,8 @@ class Customer {
       throw new Error('Duplicated email');
     }
 
-    // validate custom field values
-    await Fields.validateMulti(doc.customFieldsData || {});
+    // clean custom field values
+    doc.customFieldsData = await Fields.cleanMulti(doc.customFieldsData || {});
 
     return this.create(doc);
   }
@@ -135,8 +135,8 @@ class Customer {
       throw new Error('Duplicated email');
     }
 
-    // validate custom field values
-    await Fields.validateMulti(doc.customFieldsData || {});
+    // clean custom field values
+    doc.customFieldsData = await Fields.cleanMulti(doc.customFieldsData || {});
 
     await this.update({ _id }, { $set: doc });
 
