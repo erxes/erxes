@@ -9,7 +9,8 @@ export const types = `
 
   type Segment {
     _id: String!
-    name: String
+    contentType: String!
+    name: String!
     description: String
     subOf: String
     color: String
@@ -22,12 +23,13 @@ export const types = `
 `;
 
 export const queries = `
-  segments: [Segment]
+  segments(contentType: String!): [Segment]
   segmentDetail(_id: String): Segment
   segmentsGetHeads: [Segment]
 `;
 
 const commonFields = `
+  contentType: String!,
   name: String!,
   description: String,
   subOf: String,

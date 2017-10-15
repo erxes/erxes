@@ -5,8 +5,8 @@ export default {
    * Segments list
    * @return {Promise} segment objects
    */
-  segments() {
-    return Segments.find({});
+  segments(root, { contentType }) {
+    return Segments.find({ contentType });
   },
 
   /**

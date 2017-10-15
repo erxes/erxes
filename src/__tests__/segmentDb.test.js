@@ -13,6 +13,7 @@ afterAll(() => disconnect());
  * Generate test data
  */
 const generateData = () => ({
+  contentType: 'customer',
   name: 'New users',
   description: 'New users',
   subOf: 'DFSAFDSAFDFFFD',
@@ -33,6 +34,7 @@ const generateData = () => ({
  * Check values
  */
 const checkValues = (segmentObj, doc) => {
+  expect(segmentObj.contentType).toBe(doc.contentType);
   expect(segmentObj.name).toBe(doc.name);
   expect(segmentObj.description).toBe(doc.description);
   expect(segmentObj.subOf).toBe(doc.subOf);
