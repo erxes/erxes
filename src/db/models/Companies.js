@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 import Random from 'meteor-random';
-import { Customers } from './';
+import { Fields, Customers } from './';
 
 const CompanySchema = mongoose.Schema({
   _id: {
@@ -71,6 +71,9 @@ class Company {
       throw new Error('Duplicated name');
     }
 
+    // clean custom field values
+    doc.customFieldsData = await Fields.cleanMulti(doc.customFieldsData || {});
+
     return this.create(doc);
   }
 
@@ -90,6 +93,9 @@ class Company {
     if (previousEntry) {
       throw new Error('Duplicated name');
     }
+
+    // clean custom field values
+    doc.customFieldsData = await Fields.cleanMulti(doc.customFieldsData || {});
 
     await this.update({ _id }, { $set: doc });
 

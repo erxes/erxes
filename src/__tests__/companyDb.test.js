@@ -3,7 +3,7 @@
 
 import { connect, disconnect } from '../db/connection';
 import { Companies } from '../db/models';
-import { companyFactory } from '../db/factories';
+import { companyFactory, fieldFactory } from '../db/factories';
 
 beforeAll(() => connect());
 
@@ -90,5 +90,35 @@ describe('Companies model tests', () => {
     company = await Companies.findOne({ _id: company._id });
 
     expect(customer.companyIds).toEqual(expect.arrayContaining([company._id]));
+  });
+
+  test('Create company: with company fields validation error', async () => {
+    expect.assertions(1);
+
+    const field = await fieldFactory({ validation: 'number' });
+
+    try {
+      await Companies.createCompany({
+        name: 'name',
+        customFieldsData: { [field._id]: 'invalid number' },
+      });
+    } catch (e) {
+      expect(e.message).toBe(`${field.text}: Invalid number`);
+    }
+  });
+
+  test('Update company: with company fields validation error', async () => {
+    expect.assertions(1);
+
+    const field = await fieldFactory({ validation: 'number' });
+
+    try {
+      await Companies.updateCompany(_company._id, {
+        name: 'name',
+        customFieldsData: { [field._id]: 'invalid number' },
+      });
+    } catch (e) {
+      expect(e.message).toBe(`${field.text}: Invalid number`);
+    }
   });
 });
