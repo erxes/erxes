@@ -1,8 +1,7 @@
 import nodemailer from 'nodemailer';
 import Handlebars from 'handlebars';
 import readFile from 'fs-readfile-promise';
-import { MODULES } from './constants';
-import { Channels, Notifications, Users } from '../db/models';
+import { Notifications, Users } from '../../db/models';
 
 /**
  * SendEmail template helper
@@ -30,7 +29,7 @@ const applyTemplate = async (data, templateName) => {
  * @param {Boolean} args.isCustom
  * @return {Promise}
 */
-export const sendEmail = async ({ toEmails, fromEmail, title, template }) => {
+const sendEmail = async ({ toEmails, fromEmail, title, template }) => {
   const { MAIL_SERVICE, MAIL_USER, MAIL_PASS, NODE_ENV } = process.env;
   // do not send email it is running in test mode
   if (NODE_ENV == 'test') {
@@ -70,32 +69,6 @@ export const sendEmail = async ({ toEmails, fromEmail, title, template }) => {
 };
 
 /**
- * Send notification to all members of this channel except the sender
- * @param {String} channelId
- * @param {Array} memberIds
- * @param {String} userId
- * @return {Promise}
- */
-export const sendChannelNotifications = async ({ channelId, memberIds, userId }) => {
-  memberIds = memberIds || [];
-
-  const channel = await Channels.findOne({ _id: channelId });
-
-  const content = `You have invited to '${channel.name}' channel.`;
-
-  return sendNotification({
-    createdUser: userId,
-    notifType: MODULES.CHANNEL_MEMBERS_CHANGE,
-    title: content,
-    content,
-    link: `/inbox/${channel._id}`,
-
-    // exclude current user
-    receivers: memberIds.filter(id => id !== userId),
-  });
-};
-
-/**
  * Send a notification
  * @param {String} doc.notifType
  * @param {String} doc.createdUser
@@ -105,7 +78,7 @@ export const sendChannelNotifications = async ({ channelId, memberIds, userId })
  * @param {Array} doc.receivers Array of user ids
  * @return {Promise}
  */
-export const sendNotification = async ({ createdUser, receivers, ...doc }) => {
+const sendNotification = async ({ createdUser, receivers, ...doc }) => {
   // collecting emails
   const recipients = await Users.find({ _id: { $in: receivers } });
 
@@ -140,4 +113,8 @@ export const sendNotification = async ({ createdUser, receivers, ...doc }) => {
       },
     },
   });
+};
+
+export default {
+  sendNotification,
 };

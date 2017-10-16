@@ -4,6 +4,9 @@
 import { connect, disconnect } from '../db/connection';
 import { userFactory, integrationFactory } from '../db/factories';
 import { Channels, Users, Integrations } from '../db/models';
+import toBeType from 'jest-tobetype';
+
+expect.extend(toBeType);
 
 beforeAll(() => connect());
 afterAll(() => disconnect());
@@ -151,5 +154,33 @@ describe('channel remove', () => {
     const channelCount = await Channels.find({}).count();
 
     expect(channelCount).toBe(0);
+  });
+});
+
+describe('test createdAtModifier', () => {
+  let _channel;
+
+  beforeEach(async () => {
+    const user = await userFactory({});
+    _channel = await Channels.createChannel(
+      {
+        name: 'Channel test',
+      },
+      user._id,
+    );
+  });
+
+  afterEach(async () => {
+    await Channels.remove({});
+  });
+
+  test('test whether createdAtModifier is working properly', async () => {
+    expect(_channel.createdAt).toBeType('object');
+
+    const createdAt = _channel.createdAt;
+
+    const updatedChannel = await Channels.updateChannel(_channel._id, { name: 'Channel test 2' });
+
+    expect(updatedChannel.createdAt).toEqual(createdAt);
   });
 });

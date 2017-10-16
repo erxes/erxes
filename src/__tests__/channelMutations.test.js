@@ -5,6 +5,7 @@ import { connect, disconnect } from '../db/connection';
 import { userFactory } from '../db/factories';
 import { Channels, Users } from '../db/models';
 import channelMutations from '../data/resolvers/mutations/channels';
+import utils from '../data/utils';
 
 beforeAll(() => connect());
 afterAll(() => disconnect());
@@ -12,6 +13,7 @@ afterAll(() => disconnect());
 describe('mutations', () => {
   const _channelId = 'fakeChannelId';
   let _user;
+  let _user2Id = 'fakeuserId2';
 
   beforeEach(async () => {
     _user = await userFactory({});
@@ -44,8 +46,6 @@ describe('mutations', () => {
   });
 
   test('test mutations.channelsCreate', async () => {
-    expect.assertions(2);
-
     let doc = {
       name: 'Channel test',
       description: 'test channel descripion',
@@ -53,54 +53,63 @@ describe('mutations', () => {
       integrationIds: ['fakeIntegrationId'],
     };
 
-    Channels.createChannel = jest.fn();
+    let notifDoc = {
+      userId: _user._id,
+      memberIds: [_user._id, _user2Id],
+      _id: _channelId,
+    };
 
-    try {
-      await channelMutations.channelsCreate(null, doc, { user: _user });
-    } catch (e) {
-      /* this error is caused by Channels.createChannel mock function;
-       sendChannelNotifications method further in the workflow was using
-       the object returned by Channels.createChannel, since we mocked it,
-       returns null */
-      if (e.message === `Cannot read property 'userId' of undefined`) {
-        expect(Channels.createChannel).toBeCalledWith(doc, _user);
-        expect(Channels.createChannel.mock.calls.length).toBe(1);
-      }
-    }
+    Channels.createChannel = jest.fn(() => notifDoc);
+
+    jest.spyOn(utils, 'sendChannelNotifications').mockImplementation(() => ({}));
+
+    await channelMutations.channelsCreate(null, doc, { user: _user });
+
+    expect(Channels.createChannel).toBeCalledWith(doc, _user);
+    expect(Channels.createChannel.mock.calls.length).toBe(1);
+
+    expect(utils.sendChannelNotifications).toBeCalledWith({
+      userId: _user._id,
+      memberIds: [_user._id, _user2Id],
+      channelId: _channelId,
+    });
+    expect(utils.sendChannelNotifications.mock.calls.length).toBe(1);
   });
 
   test('test mutations.channelsUpdate', async () => {
     const doc = {
       name: 'Channel test 1',
       description: 'Channel test description 1',
-      userId: 'fakeUserId1',
       memberIds: ['fakeUserId2'],
       integrationIds: ['integrationIds1'],
     };
 
-    Channels.updateChannel = jest.fn();
+    let notifDoc = {
+      userId: _user._id,
+      memberIds: [_user._id, _user2Id],
+      _id: _channelId,
+    };
 
-    try {
-      await channelMutations.channelsEdit(
-        null,
-        {
-          ...doc,
-          _id: _channelId,
-        },
-        { user: _user },
-      );
-    } catch (e) {
-      /* this error is caused by Channels.updateChannel mock function;
-       sendChannelNotifications method further in the workflow was using
-       the object returned by Channels.updateChannel, since we mocked it,
-       returns null */
-      if (e.message === `Cannot read property '_id' of undefined`) {
-        expect(Channels.updateChannel).toBeCalledWith(_channelId, doc);
-        expect(Channels.updateChannel.mock.calls.length).toBe(1);
-      } else {
-        throw e;
-      }
-    }
+    Channels.updateChannel = jest.fn(() => notifDoc);
+
+    await channelMutations.channelsEdit(
+      null,
+      {
+        ...doc,
+        _id: _channelId,
+      },
+      { user: _user },
+    );
+
+    expect(Channels.updateChannel).toBeCalledWith(_channelId, doc);
+    expect(Channels.updateChannel.mock.calls.length).toBe(1);
+
+    expect(utils.sendChannelNotifications).toBeCalledWith({
+      userId: _user._id,
+      memberIds: [_user._id, _user2Id],
+      channelId: _channelId,
+    });
+    expect(utils.sendChannelNotifications.mock.calls.length).toBe(2);
   });
 
   test('test mutations.channelsRemove', async () => {

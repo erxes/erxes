@@ -1,5 +1,5 @@
 import { Channels } from '../../../db/models';
-import { sendChannelNotifications } from '../../utils';
+import utils from '../../utils';
 
 export default {
   /**
@@ -21,7 +21,7 @@ export default {
 
     const channel = await Channels.createChannel(doc, user);
 
-    await sendChannelNotifications({
+    await utils.sendChannelNotifications({
       userId: channel.userId,
       memberIds: channel.memberIds,
       channelId: channel._id,
@@ -51,10 +51,10 @@ export default {
 
     const channel = Channels.updateChannel(_id, doc);
 
-    await sendChannelNotifications({
+    await utils.sendChannelNotifications({
       channelId: channel._id,
       memberIds: channel.memberIds,
-      userId: user,
+      userId: channel.userId,
     });
 
     return channel;

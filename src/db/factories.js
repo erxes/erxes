@@ -13,6 +13,9 @@ import {
   FormFields,
   NotificationConfigurations,
   Notifications,
+  ConversationMessages,
+  Conversations,
+  Channels,
 } from './models';
 
 export const userFactory = (params = {}) => {
@@ -148,7 +151,42 @@ export function messageFactory(params = {}) {
     },
     params,
   );
-  const message = new Messages(obj);
+  return ConversationMessages.create(obj);
+}
 
-  return message.save();
+export function conversationFactory(params = {}) {
+  const obj = Object.assign(
+    {
+      createdAt: faker.date.past(),
+      content: faker.lorem.sentence,
+      customerId: Random.id(),
+      integrationId: Random.id(),
+      number: 1,
+      messageCount: 0,
+      status: faker.random.word,
+    },
+    params,
+  );
+
+  return Conversations.create(obj);
+}
+
+export async function channelFactory(params = {}) {
+  const user = await userFactory({});
+
+  const obj = Object.assign(
+    {
+      name: faker.random.word(),
+      description: faker.lorem.sentence,
+      integrationIds: [],
+      memberIds: [user._id],
+      userId: user._id,
+      conversationCount: 0,
+      openConversationCount: 0,
+      createdAt: new Date(),
+    },
+    params,
+  );
+
+  return Channels.create(obj);
 }
