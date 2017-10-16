@@ -33,11 +33,9 @@ const applyTemplate = async (data, templateName) => {
 export const sendEmail = async ({ toEmails, fromEmail, title, template }) => {
   const { MAIL_SERVICE, MAIL_USER, MAIL_PASS, NODE_ENV } = process.env;
   // do not send email it is running in test mode
-  const isTest = NODE_ENV == 'test';
-
-  // if (isTest) {
-  //   return;
-  // }
+  if (NODE_ENV == 'test') {
+    return;
+  }
 
   const transporter = nodemailer.createTransport({
     service: MAIL_SERVICE,
