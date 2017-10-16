@@ -15,20 +15,20 @@ export default {
   },
 
   /**
-  * Update tag
+  * Edit tag
   * @param {String} doc.name
   * @param {String} doc.type
   * @param {String} doc.colorCode
   * @return {Promise} tag object
   */
-  tagsUpdate(root, { _id, ...doc }, { user }) {
+  tagsEdit(root, { _id, ...doc }, { user }) {
     if (!user) throw new Error('Login required');
 
     return Tags.updateTag(_id, doc);
   },
 
   /**
-  * Delete tag
+  * Remove tag
   * @param {[String]} ids
   * @return {Promise}
   */

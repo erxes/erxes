@@ -60,7 +60,7 @@ const EngageMessageSchema = mongoose.Schema({
 class Message {
   /**
    * Create engage message
-   * @param  {Object} doc object
+   * @param {Object} doc object
    * @return {Promise} Newly created message object
    */
   static createEngageMessage(doc) {
@@ -72,24 +72,45 @@ class Message {
     });
   }
 
+  /**
+   * Update engage message
+   * @param {String} _id
+   * @param {Object} doc object
+   * @return {Promise} updated message object
+   */
   static async updateEngageMessage(_id, doc) {
     await this.update({ _id }, { $set: doc });
 
     return this.findOne({ _id });
   }
 
+  /**
+   * Engage message set live
+   * @param {String} _id
+   * @return {Promise} updated message object
+   */
   static async engageMessageSetLive(_id) {
     await this.update({ _id }, { $set: { isLive: true, isDraft: false } });
 
     return this.findOne({ _id });
   }
 
+  /**
+   * Engage message set pause
+   * @param {String} _id
+   * @return {Promise} updated message object
+   */
   static async engageMessageSetPause(_id) {
     await this.update({ _id }, { $set: { isLive: false } });
 
     return this.findOne({ _id });
   }
 
+  /**
+   * Remove engage message
+   * @param {String} _id
+   * @return {Promise} deleted message object
+   */
   static async removeEngageMessage(_id) {
     const messageObj = await this.findOne({ _id });
 

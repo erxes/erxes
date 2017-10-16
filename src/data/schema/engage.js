@@ -33,7 +33,7 @@ export const queries = `
 export const mutations = `
   engageMessageAdd(title: String!, kind: String!,
     segmentId: String!, method: String!, fromUserId: String!): EngageMessage
-  engageMessageUpdate(_id: String!, title: String!, kind: String!,
+  engageMessageEdit(_id: String!, title: String!, kind: String!,
     segmentId: String!, method: String!, fromUserId: String!): EngageMessage
   engageMessageRemove(ids: [String!]!): EngageMessage
   engageMessageSetLive(_id: String!): EngageMessage

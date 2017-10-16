@@ -4,7 +4,23 @@ import Random from 'meteor-random';
 import { TAG_TYPES } from '../../data/constants';
 import { Customers, Conversations, EngageMessages } from '.';
 
-const validateUniqueness = async (selector, data) => {
+const TagSchema = mongoose.Schema({
+  _id: {
+    type: String,
+    unique: true,
+    default: () => Random.id(),
+  },
+  name: String,
+  type: {
+    type: String,
+    enum: TAG_TYPES.ALL_LIST,
+  },
+  colorCode: String,
+  createdAt: Date,
+  objectCount: Number,
+});
+
+export const validateUniqueness = async (selector, data) => {
   const { name, type } = data;
   const filter = { name, type };
 
@@ -34,7 +50,7 @@ const validateUniqueness = async (selector, data) => {
   return true;
 };
 
-const tagObject = async ({ tagIds, objectIds, collection, tagType }) => {
+export const tagObject = async ({ tagIds, objectIds, collection, tagType }) => {
   if ((await Tags.find({ _id: { $in: tagIds }, type: tagType }).count()) !== tagIds.length) {
     throw new Error('Tag not found.');
   }
@@ -56,33 +72,13 @@ const tagObject = async ({ tagIds, objectIds, collection, tagType }) => {
   await Tags.update({ _id: { $in: tagIds } }, { $inc: { objectCount: 1 } }, { multi: true });
 };
 
-const TagSchema = mongoose.Schema({
-  _id: {
-    type: String,
-    unique: true,
-    default: () => Random.id(),
-  },
-  name: String,
-  type: {
-    type: String,
-    enum: TAG_TYPES.ALL_LIST,
-  },
-  colorCode: String,
-  createdAt: Date,
-  objectCount: Number,
-});
-
 class Tag {
   /**
    * Create a tag
-   * @param  {Object} tagObj object
+   * @param  {Object} doc
    * @return {Promise} Newly created tag object
    */
   static async createTag(doc) {
-    if (!doc.name) throw new Error('Name is required field');
-
-    if (!doc.type) throw new Error('Type is required field');
-
     const isUnique = await validateUniqueness(null, doc);
 
     if (!isUnique) throw new Error('Tag duplicated');
@@ -93,6 +89,11 @@ class Tag {
     });
   }
 
+  /**
+   * Update Tag
+   * @param  {Object} doc
+   * @return {Promise} updated tag object
+   */
   static async updateTag(_id, doc) {
     const isUnique = await validateUniqueness({ _id }, doc);
 
@@ -103,6 +104,11 @@ class Tag {
     return this.findOne({ _id });
   }
 
+  /**
+   * Remove Tag
+   * @param  {[String]} ids
+   * @return {Promise} removed tag object
+   */
   static async removeTag(ids) {
     const tagCount = await Tags.find({ _id: { $in: ids } }).count();
 
@@ -119,6 +125,13 @@ class Tag {
     return await Tags.remove({ _id: { $in: ids } });
   }
 
+  /**
+   * Attach a tag
+   * @param {String} type
+   * @param {[String]} targetIds
+   * @param {[String]} tagIds
+   * @return {Promise} removed tag object
+   */
   static async tagsTag(type, targetIds, tagIds) {
     let collection = Conversations;
 

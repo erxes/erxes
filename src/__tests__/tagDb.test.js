@@ -2,7 +2,8 @@
 /* eslint-disable no-underscore-dangle */
 
 import { connect, disconnect } from '../db/connection';
-import { Tags, Users, EngageMessages } from '../db/models';
+import { Tags, EngageMessages } from '../db/models';
+import { validateUniqueness, tagObject } from '../db/models/Tags';
 import { tagsFactory, engageMessageFactory } from '../db/factories';
 
 beforeAll(() => connect());
@@ -11,11 +12,13 @@ afterAll(() => disconnect());
 
 describe('Tags model', () => {
   let _tag;
+  let _tag2;
   let _message;
 
   beforeEach(async () => {
     // Creating test data
     _tag = await tagsFactory();
+    _tag2 = await tagsFactory();
     _message = await engageMessageFactory({});
   });
 
@@ -23,6 +26,37 @@ describe('Tags model', () => {
     // Clearing test data
     await Tags.remove({});
     await EngageMessages.remove({});
+  });
+
+  test('Validate unique tag', async () => {
+    const empty = await validateUniqueness({}, {});
+    const selectTag = await validateUniqueness(
+      { type: _tag2.type },
+      { name: 'new tag', type: _tag2.type },
+    );
+    const existing = await validateUniqueness({}, _tag);
+
+    expect(empty).toEqual(true);
+    expect(selectTag).toEqual(false);
+    expect(existing).toEqual(false);
+  });
+
+  test('Tag not found', async () => {
+    expect.assertions(1);
+    try {
+      await tagObject({
+        tagIds: [_tag._id],
+        objectIds: [],
+        EngageMessages,
+        tagType: 'customer',
+      });
+    } catch (e) {
+      expect(e.message).toEqual('Tag not found.');
+    }
+  });
+
+  test('Attach tag type', async () => {
+    Tags.tagsTag('customer', [], []);
   });
 
   test('Create tag', async () => {

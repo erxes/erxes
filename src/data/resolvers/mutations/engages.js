@@ -23,7 +23,7 @@ export default {
   },
 
   /**
-   * Update message
+   * Edit message
    * @param {String} doc.title
    * @param {String} doc.fromUserId
    * @param {String} doc.kind
@@ -37,7 +37,7 @@ export default {
    * @param {[String]} doc.tagIds
    * @return {Promise} message object
    */
-  engageMessageUpdate(root, { _id, ...doc }, { user }) {
+  engageMessageEdit(root, { _id, ...doc }, { user }) {
     if (!user) throw new Error('Login required');
 
     return EngageMessages.updateEngageMessage(_id, doc);
@@ -55,7 +55,7 @@ export default {
   },
 
   /**
-   * Update message
+   * Engage message set live
    * @param {String} id
    * @return {Promise} message object
    */
@@ -66,7 +66,7 @@ export default {
   },
 
   /**
-   * Update message
+   * Engage message set pause
    * @param {String} id
    * @return {Promise} message object
    */
@@ -77,7 +77,7 @@ export default {
   },
 
   /**
-   * Update message
+   * Engage message set live manual
    * @param {String} id
    * @return {Promise} message object
    */
