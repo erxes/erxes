@@ -12,6 +12,7 @@ import { Channels, Notifications, Users } from '../db/models';
  * @param {Boolean} args.isCustom
  * @return {Promise} null
 */
+
 export const sendEmail = async ({ toEmails, fromEmail, title, templateArgs }) => {
   // TODO: test this method
   const { MAIL_SERVICE, MAIL_USER, MAIL_PASS, NODE_ENV } = process.env;
@@ -118,4 +119,10 @@ export const sendNotification = async ({ createdUser, receivers, ...doc }) => {
       },
     },
   });
+};
+
+export default {
+  sendEmail,
+  sendNotification,
+  sendChannelNotifications,
 };

@@ -9,7 +9,7 @@ beforeAll(() => connect());
 
 afterAll(() => disconnect());
 
-describe('Email template mutations', () => {
+describe('Email template db', () => {
   let _emailTemplate;
 
   beforeEach(async () => {

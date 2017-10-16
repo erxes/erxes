@@ -11,6 +11,7 @@ import {
   customerFactory,
 } from '../db/factories';
 import conversationMutations from '../data/resolvers/mutations/conversations';
+import utils from '../data/utils';
 
 beforeAll(() => connect());
 
@@ -37,19 +38,8 @@ describe('Conversation message mutations', () => {
     _conversation.assignedUserId = _user._id;
     await _conversation.save();
 
-    _doc = {
-      content: _conversationMessage.content,
-      attachments: _conversationMessage.attachments,
-      status: _conversationMessage.status,
-      mentionedUserIds: _conversationMessage.mentionedUserIds,
-      conversationId: _conversation._id,
-      internal: _conversationMessage.internal,
-      customerId: _conversationMessage.customerId,
-      isCustomerRead: _conversationMessage.isCustomerRead,
-      engageData: _conversationMessage.engageData,
-      formWidgetData: _conversationMessage.formWidgetData,
-      facebookData: _conversationMessage.facebookData,
-    };
+    _doc = { ..._conversationMessage._doc, conversationId: _conversation._id };
+    delete _doc['_id'];
   });
 
   afterEach(async () => {
@@ -60,89 +50,91 @@ describe('Conversation message mutations', () => {
   });
 
   test('Conversation login required functions', async () => {
+    const checkLogin = async (fn, args) => {
+      expect.assertions(8);
+      try {
+        await fn({}, args, {});
+      } catch (e) {
+        expect(e.message).toEqual('Login required');
+      }
+    };
+
+    const _ids = { _ids: [_conversation._id] };
+
     expect.assertions(8);
-    try {
-      await conversationMutations.conversationMessageAdd({}, _doc, {});
-    } catch (e) {
-      expect(e.message).toEqual('Login required');
-    }
+
+    // add message
+    checkLogin(conversationMutations.conversationMessageAdd, _doc);
 
     // assign
-    try {
-      await conversationMutations.conversationsAssign(
-        {},
-        { conversationIds: [_conversation._id], assignedUserId: _user._id },
-        {},
-      );
-    } catch (e) {
-      expect(e.message).toEqual('Login required');
-    }
+    checkLogin(conversationMutations.conversationsAssign, {
+      conversationIds: [_conversation._id],
+      assignedUserId: _user._id,
+    });
 
-    // unassign
-    try {
-      await conversationMutations.conversationsUnassign(
-        {},
-        { conversationIds: [_conversation._id], assignedUserId: _user._id },
-        {},
-      );
-    } catch (e) {
-      expect(e.message).toEqual('Login required');
-    }
+    // assign
+    checkLogin(conversationMutations.conversationsUnassign, {
+      conversationIds: [_conversation._id],
+      assignedUserId: _user._id,
+    });
 
     // change status
-    try {
-      await conversationMutations.conversationsChangeStatus({}, { _ids: [_conversation._id] }, {});
-    } catch (e) {
-      expect(e.message).toEqual('Login required');
-    }
+    checkLogin(conversationMutations.conversationsChangeStatus, _ids);
 
     // conversation star
-    try {
-      await conversationMutations.conversationsStar({}, { _ids: [_conversation._id] }, {});
-    } catch (e) {
-      expect(e.message).toEqual('Login required');
-    }
+    checkLogin(conversationMutations.conversationsStar, _ids);
 
     // conversation unstar
-    try {
-      await conversationMutations.conversationsUnstar({}, { _ids: [_conversation._id] }, {});
-    } catch (e) {
-      expect(e.message).toEqual('Login required');
-    }
+    checkLogin(conversationMutations.conversationsUnstar, _ids);
 
     // add or remove participated users
-    try {
-      await conversationMutations.conversationsToggleParticipate(
-        {},
-        { _ids: [_conversation._id] },
-        {},
-      );
-    } catch (e) {
-      expect(e.message).toEqual('Login required');
-    }
+    checkLogin(conversationMutations.conversationsToggleParticipate, _ids);
 
     // mark conversation as read
-    try {
-      await conversationMutations.conversationMarkAsRead({}, { _ids: [_conversation._id] }, {});
-    } catch (e) {
-      expect(e.message).toEqual('Login required');
-    }
+    checkLogin(conversationMutations.conversationMarkAsRead, _ids);
   });
 
   test('Add conversation message', async () => {
-    expect.assertions(3);
+    expect.assertions(7);
+
     ConversationMessages.addMessage = jest.fn(() => ({
       _id: 'messageObject',
     }));
+
+    const spyNotification = jest.spyOn(utils, 'sendNotification');
+    const spyEmail = jest.spyOn(utils, 'sendEmail');
 
     await conversationMutations.conversationMessageAdd({}, _doc, { user: _user });
 
     expect(ConversationMessages.addMessage.mock.calls.length).toBe(1);
     expect(ConversationMessages.addMessage).toBeCalledWith(_doc, _user._id);
 
+    expect(spyNotification.mock.calls.length).toBe(1);
+
+    // send notifincation
+    expect(spyNotification).toBeCalledWith({
+      createdUser: _user._id,
+      notifType: 'conversationAddMessage',
+      title: 'You have a new message.',
+      content: _doc.content,
+      link: `/inbox/details/${_conversation._id}`,
+      receivers: [],
+    });
+
     // integration kind form test
     _doc['internal'] = false;
     await conversationMutations.conversationMessageAdd({}, _doc, { user: _user });
+
+    expect(spyEmail.mock.calls.length).toBe(1);
+
+    // send email
+    expect(spyEmail).toBeCalledWith({
+      to: _customer.email,
+      title: 'Reply',
+      template: {
+        data: _doc.content,
+      },
+    });
 
     try {
       // integration not found test
@@ -156,7 +148,9 @@ describe('Conversation message mutations', () => {
 
   // if user assigned to conversation
   test('Assign conversation to employee', async () => {
-    Conversations.assignUserConversation = jest.fn();
+    Conversations.assignUserConversation = jest.fn(() => [_conversation]);
+
+    const spyNotification = jest.spyOn(utils, 'sendNotification');
 
     await conversationMutations.conversationsAssign(
       {},
@@ -166,6 +160,18 @@ describe('Conversation message mutations', () => {
 
     expect(Conversations.assignUserConversation.mock.calls.length).toBe(1);
     expect(Conversations.assignUserConversation).toBeCalledWith([_conversation._id], _user._id);
+
+    const content = 'Assigned user has changed';
+
+    // send notifincation
+    expect(spyNotification).toBeCalledWith({
+      createdUser: _user._id,
+      notifType: 'conversationAssigneeChange',
+      title: content,
+      content,
+      link: `/inbox/details/${_conversation._id}`,
+      receivers: [],
+    });
   });
 
   test('Unassign employee from conversation', async () => {

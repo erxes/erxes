@@ -110,8 +110,7 @@ class Conversation {
   /**
    * Check conversations exists
    * @param  {list} ids of conversations
-   * @return {object} selector
-   * @return {list} conversations object list
+   * @return {object, list} selector, conversations
    */
   static async checkExistanceConversations(_ids) {
     const selector = { _id: { $in: _ids } };
@@ -158,7 +157,7 @@ class Conversation {
       { multi: true },
     );
 
-    return Conversations.find({ _id: { $in: conversationIds } });
+    return this.find({ _id: { $in: conversationIds } });
   }
 
   /**
@@ -169,11 +168,13 @@ class Conversation {
   static async unassignUserConversation(conversationIds) {
     await this.checkExistanceConversations(conversationIds);
 
-    return this.update(
+    await this.update(
       { _id: { $in: conversationIds } },
       { $unset: { assignedUserId: 1 } },
       { multi: true },
     );
+
+    return this.find({ _id: { $in: conversationIds } });
   }
 
   /**
@@ -189,7 +190,8 @@ class Conversation {
   /**
    * Star conversation
    * @param  {list} _ids of conversations
-   * @param  {string} userId
+   * @param  {String} userId
+   * @return {Promise} user object
    */
   static async starConversation(_ids, userId) {
     await this.checkExistanceConversations(_ids);
@@ -202,12 +204,15 @@ class Conversation {
         },
       },
     );
+
+    return Users.findOne({ _id: userId });
   }
 
   /**
    * Unstar conversation
    * @param  {list} _ids of conversations
    * @param  {string} userId
+   * @return {Promise} user object
    */
   static async unstarConversation(_ids, userId) {
     // check conversations existance
@@ -221,13 +226,15 @@ class Conversation {
         },
       },
     );
+
+    return Users.findOne({ _id: userId });
   }
 
   /**
    * Add participated user to conversation
-   * @param  {Object} selector
+   * @param  {list} _ids
    * @param  {String} userId
-   * @return {Promise} Updated conversation id
+   * @return {Promise} Updated conversation list
    */
   static async toggleParticipatedUsers(_ids, userId) {
     const { selector } = await this.checkExistanceConversations(_ids);
@@ -252,6 +259,7 @@ class Conversation {
         { multi: true },
       );
     }
+    return this.find({ _id: { $in: _ids } });
   }
 
   /**
@@ -261,7 +269,7 @@ class Conversation {
    * @return {Promise} Updated conversation id
    */
   static async markAsReadConversation(_id, userId) {
-    const conversation = await Conversations.findOne({ _id });
+    const conversation = await this.findOne({ _id });
 
     if (!conversation) throw new Error(`Conversation not found with id ${_id}`);
 
@@ -269,13 +277,15 @@ class Conversation {
 
     // if current user is first one
     if (!readUserIds || readUserIds.length === 0) {
-      return this.update({ _id }, { $set: { readUserIds: [userId] } });
+      await this.update({ _id }, { $set: { readUserIds: [userId] } });
     }
 
     // if current user is not in read users list then add it
     if (!readUserIds.includes(userId)) {
-      return this.update({ _id }, { $push: { readUserIds: userId } });
+      await this.update({ _id }, { $push: { readUserIds: userId } });
     }
+
+    return this.findOne({ _id });
   }
 }
 

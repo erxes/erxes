@@ -89,13 +89,12 @@ export const queries = `
 `;
 
 export const mutations = `
-  conversationMessageAdd(params: ConversationMessageParams): String
-  conversationsCheckExistance(_ids: [String]!): String
-  conversationsAssign(conversationIds: [String]!, assignedUserId: String): String
-  conversationsUnassign(_ids: [String]!): String
-  conversationsChangeStatus(_ids: [String]!): String
-  conversationsStar(_ids: [String]!): String
-  conversationsUnstar(_ids: [String]!): String
-  conversationsToggleParticipate(_ids: [String]!): String
-  conversationMarkAsRead(_id: String): String
+  conversationMessageAdd(params: ConversationMessageParams): ConversationMessage
+  conversationsAssign(conversationIds: [String]!, assignedUserId: String): [Conversation]
+  conversationsUnassign(_ids: [String]!): [Conversation]
+  conversationsChangeStatus(_ids: [String]!): [Conversation]
+  conversationsStar(_ids: [String]!): User
+  conversationsUnstar(_ids: [String]!): User
+  conversationsToggleParticipate(_ids: [String]!): Conversation
+  conversationMarkAsRead(_id: String): Conversation
 `;

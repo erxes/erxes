@@ -4,14 +4,13 @@
 import { connect, disconnect } from '../db/connection';
 import { Conversations, ConversationMessages, Users } from '../db/models';
 import { conversationFactory, conversationMessageFactory, userFactory } from '../db/factories';
-import conversationMutations from '../data/resolvers/mutations/conversations';
 import { CONVERSATION_STATUSES } from '../data/constants';
 
 beforeAll(() => connect());
 
 afterAll(() => disconnect());
 
-describe('Conversation message db', () => {
+describe('Conversation db', () => {
   let _conversation;
   let _conversationMessage;
   let _user;
@@ -23,19 +22,8 @@ describe('Conversation message db', () => {
     _conversationMessage = await conversationMessageFactory();
     _user = await userFactory();
 
-    _doc = {
-      content: _conversationMessage.content,
-      attachments: _conversationMessage.attachments,
-      status: _conversationMessage.status,
-      mentionedUserIds: _conversationMessage.mentionedUserIds,
-      conversationId: _conversation._id,
-      internal: _conversationMessage.internal,
-      customerId: _conversationMessage.customerId,
-      isCustomerRead: _conversationMessage.isCustomerRead,
-      engageData: _conversationMessage.engageData,
-      formWidgetData: _conversationMessage.formWidgetData,
-      facebookData: _conversationMessage.facebookData,
-    };
+    _doc = { ..._conversationMessage._doc, conversationId: _conversation._id };
+    delete _doc['_id'];
   });
 
   afterEach(async () => {
@@ -147,13 +135,8 @@ describe('Conversation message db', () => {
   });
 
   test('Conversation star', async () => {
-    await conversationMutations.conversationsStar(
-      {},
-      { _ids: [_conversation._id] },
-      { user: _user },
-    );
+    const user = await Conversations.starConversation([_conversation._id], _user._id);
 
-    const user = await Users.findOne({ _id: _user._id });
     expect(user.details.starredConversationIds[0]).toBe(_conversation._id);
   });
 
@@ -171,9 +154,8 @@ describe('Conversation message db', () => {
     );
 
     // unstar
-    await conversationMutations.conversationsUnstar({}, { _ids: ids }, { user: _user });
+    const user = await Conversations.unstarConversation(ids, _user._id);
 
-    const user = await Users.findOne({ _id: _user._id });
     expect(user.details.starredConversationIds.length).toBe(0);
   });
 
@@ -209,14 +191,14 @@ describe('Conversation message db', () => {
 
     expect(conversationObj.readUserIds[0]).toBe(_user._id);
 
-    const second_user = await userFactory();
+    const secondUser = await userFactory();
 
     // multiple users read conversation
-    await Conversations.markAsReadConversation(_conversation._id, second_user._id);
+    await Conversations.markAsReadConversation(_conversation._id, secondUser._id);
 
     try {
       // without conversation
-      await Conversations.markAsReadConversation('test', second_user._id);
+      await Conversations.markAsReadConversation('test', secondUser._id);
     } catch (e) {
       expect(e.message).toEqual('Conversation not found with id test');
     }

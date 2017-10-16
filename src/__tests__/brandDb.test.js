@@ -9,7 +9,7 @@ beforeAll(() => connect());
 
 afterAll(() => disconnect());
 
-describe('Brands mutations', () => {
+describe('Brands db', () => {
   let _brand;
   let _user;
 

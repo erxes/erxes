@@ -9,7 +9,7 @@ beforeAll(() => connect());
 
 afterAll(() => disconnect());
 
-describe('Response template mutations', () => {
+describe('Response template db', () => {
   let _responseTemplate;
 
   beforeEach(async () => {

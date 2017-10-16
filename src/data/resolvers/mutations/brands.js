@@ -32,8 +32,7 @@ export default {
   brandsRemove(root, { _id }, { user }) {
     if (!user) throw new Error('Login required');
 
-    Brands.removeBrand(_id);
-    return 'done';
+    return Brands.removeBrand(_id);
   },
 
   /**

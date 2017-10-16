@@ -1,7 +1,7 @@
 import { Conversations, ConversationMessages, Integrations, Customers } from '../../../db/models';
 import { pubsub } from '../subscriptions';
 import { CONVERSATION_STATUSES, KIND_CHOICES } from '../../constants';
-import { sendEmail, sendNotification } from '../../utils';
+import utils from '../../utils';
 import { _ } from 'underscore';
 
 /**
@@ -10,7 +10,7 @@ import { _ } from 'underscore';
  * @param  {String} currentUserId String
  * @return {list} userIds
  */
-const conversationNotifReceivers = (conversation, currentUserId) => {
+export const conversationNotifReceivers = (conversation, currentUserId) => {
   let userIds = [];
 
   // assigned user can get notifications
@@ -85,7 +85,7 @@ export default {
     const title = 'You have a new message.';
 
     // send notification
-    sendNotification({
+    utils.sendNotification({
       createdUser: user._id,
       notifType: 'conversationAddMessage',
       title,
@@ -119,7 +119,7 @@ export default {
     const email = customer ? customer.email : '';
 
     if (kind === KIND_CHOICES.FORM && email) {
-      sendEmail({
+      utils.sendEmail({
         to: email,
         title: 'Reply',
         template: {
@@ -148,28 +148,29 @@ export default {
   async conversationsAssign(root, { conversationIds, assignedUserId }, { user }) {
     if (!user) throw new Error('Login required');
 
-    await Conversations.assignUserConversation(conversationIds, assignedUserId);
+    const updatedConversations = await Conversations.assignUserConversation(
+      conversationIds,
+      assignedUserId,
+    );
 
     // notify graphl subscription
     await conversationsChanged(conversationIds, 'statusChanged');
-
-    const updatedConversations = await Conversations.find({ _id: { $in: conversationIds } });
 
     for (let conversation of updatedConversations) {
       const content = 'Assigned user has changed';
 
       // send notification
-      sendNotification({
+      utils.sendNotification({
         createdUser: user._id,
         notifType: 'conversationAssigneeChange',
         title: content,
         content,
         link: `/inbox/details/${conversation._id}`,
-        receivers: conversationNotifReceivers(conversation, this.userId),
+        receivers: conversationNotifReceivers(conversation, user._id),
       });
     }
 
-    return 'done';
+    return updatedConversations;
   },
 
   /**
@@ -180,12 +181,12 @@ export default {
   async conversationsUnassign(root, { _ids }, { user }) {
     if (!user) throw new Error('Login required');
 
-    await Conversations.unassignUserConversation(_ids);
+    const conversations = await Conversations.unassignUserConversation(_ids);
 
     // notify graphl subscription
     conversationsChanged(_ids, 'statusChanged');
 
-    return 'done';
+    return conversations;
   },
 
   /**
@@ -199,7 +200,7 @@ export default {
 
     const { conversations } = await Conversations.checkExistanceConversations(_ids);
 
-    await Conversations.changeStatusConversation(_ids, status);
+    const changesConversations = await Conversations.changeStatusConversation(_ids, status);
 
     // notify graphl subscription
     await conversationsChanged(_ids, 'statusChanged');
@@ -213,7 +214,7 @@ export default {
 
         if (notifyCustomer && customer.email) {
           // send email to customer
-          sendEmail({
+          utils.sendEmail({
             to: customer.email,
             subject: 'Conversation detail',
             templateArgs: {
@@ -232,7 +233,7 @@ export default {
 
       const content = 'Conversation status has changed.';
 
-      sendNotification({
+      utils.sendNotification({
         createdUser: user._id,
         notifType: 'conversationStateChange',
         title: content,
@@ -242,7 +243,7 @@ export default {
       });
     }
 
-    return 'done';
+    return changesConversations;
   },
 
   /**
@@ -253,9 +254,7 @@ export default {
   async conversationsStar(root, { _ids }, { user }) {
     if (!user) throw new Error('Login required');
 
-    await Conversations.starConversation(_ids, user._id);
-
-    return 'done';
+    return Conversations.starConversation(_ids, user._id);
   },
 
   /**
@@ -266,9 +265,7 @@ export default {
   async conversationsUnstar(root, { _ids }, { user }) {
     if (!user) throw new Error('Login required');
 
-    await Conversations.unstarConversation(_ids, user._id);
-
-    return 'done';
+    return Conversations.unstarConversation(_ids, user._id);
   },
 
   /**
@@ -279,24 +276,22 @@ export default {
   async conversationsToggleParticipate(root, { _ids }, { user }) {
     if (!user) throw new Error('Login required');
 
-    await Conversations.toggleParticipatedUsers(_ids, user._id);
+    const conversations = await Conversations.toggleParticipatedUsers(_ids, user._id);
 
     // notify graphl subscription
     conversationsChanged(_ids, 'participatedStateChanged');
 
-    return 'done';
+    return conversations;
   },
 
   /**
    * Conversation mark as read
-   * @param  {list} _ids of conversation
+   * @param  {String} _id of conversation
    * @return {Promise} String
    */
   async conversationMarkAsRead(root, { _id }, { user }) {
     if (!user) throw new Error('Login required');
 
-    await Conversations.markAsReadConversation(_id, user._id);
-
-    return 'done';
+    return Conversations.markAsReadConversation(_id, user._id);
   },
 };
