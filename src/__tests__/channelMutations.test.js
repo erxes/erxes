@@ -4,6 +4,7 @@
 import { connect, disconnect } from '../db/connection';
 import { userFactory } from '../db/factories';
 import { Channels, Users } from '../db/models';
+import { MODULES } from '../data/constants';
 import channelMutations from '../data/resolvers/mutations/channels';
 import utils from '../data/utils';
 
@@ -13,7 +14,6 @@ afterAll(() => disconnect());
 describe('mutations', () => {
   const _channelId = 'fakeChannelId';
   let _user;
-  let _user2Id = 'fakeuserId2';
 
   beforeEach(async () => {
     _user = await userFactory({});
@@ -53,27 +53,37 @@ describe('mutations', () => {
       integrationIds: ['fakeIntegrationId'],
     };
 
-    let notifDoc = {
-      userId: _user._id,
-      memberIds: [_user._id, _user2Id],
-      _id: _channelId,
+    const channel = {
+      _id: 'fakeChannelId',
+      name: 'Test channel',
+      userId: 'fakeUserId',
+      memberIds: ['memberId1', 'memberdId2'],
     };
 
-    Channels.createChannel = jest.fn(() => notifDoc);
+    const content = `You have invited to '${channel.name}' channel.`;
 
-    jest.spyOn(utils, 'sendChannelNotifications').mockImplementation(() => ({}));
+    const sendNotificationDoc = {
+      createdUser: channel.userId,
+      notifType: MODULES.CHANNEL_MEMBERS_CHANGE,
+      title: content,
+      content,
+      link: `/inbox/${channel._id}`,
+
+      // exclude current user
+      receivers: (channel.memberIds || []).filter(id => id !== channel.userId),
+    };
+
+    Channels.createChannel = jest.fn(() => channel);
+
+    jest.spyOn(utils, 'sendNotification').mockImplementation(() => ({}));
 
     await channelMutations.channelsCreate(null, doc, { user: _user });
 
     expect(Channels.createChannel).toBeCalledWith(doc, _user);
     expect(Channels.createChannel.mock.calls.length).toBe(1);
 
-    expect(utils.sendChannelNotifications).toBeCalledWith({
-      userId: _user._id,
-      memberIds: [_user._id, _user2Id],
-      channelId: _channelId,
-    });
-    expect(utils.sendChannelNotifications.mock.calls.length).toBe(1);
+    expect(utils.sendNotification).toBeCalledWith(sendNotificationDoc);
+    expect(utils.sendNotification.mock.calls.length).toBe(1);
   });
 
   test('test mutations.channelsUpdate', async () => {
@@ -84,13 +94,27 @@ describe('mutations', () => {
       integrationIds: ['integrationIds1'],
     };
 
-    let notifDoc = {
-      userId: _user._id,
-      memberIds: [_user._id, _user2Id],
-      _id: _channelId,
+    const channel = {
+      _id: 'fakeChannelId',
+      name: 'Test channel',
+      userId: 'fakeUserId',
+      memberIds: ['memberId1', 'memberdId2'],
     };
 
-    Channels.updateChannel = jest.fn(() => notifDoc);
+    const content = `You have invited to '${channel.name}' channel.`;
+
+    const sendNotificationDoc = {
+      createdUser: channel.userId,
+      notifType: MODULES.CHANNEL_MEMBERS_CHANGE,
+      title: content,
+      content,
+      link: `/inbox/${channel._id}`,
+
+      // exclude current user
+      receivers: (channel.memberIds || []).filter(id => id !== channel.userId),
+    };
+
+    Channels.updateChannel = jest.fn(() => channel);
 
     await channelMutations.channelsEdit(
       null,
@@ -104,12 +128,8 @@ describe('mutations', () => {
     expect(Channels.updateChannel).toBeCalledWith(_channelId, doc);
     expect(Channels.updateChannel.mock.calls.length).toBe(1);
 
-    expect(utils.sendChannelNotifications).toBeCalledWith({
-      userId: _user._id,
-      memberIds: [_user._id, _user2Id],
-      channelId: _channelId,
-    });
-    expect(utils.sendChannelNotifications.mock.calls.length).toBe(2);
+    expect(utils.sendNotification).toBeCalledWith(sendNotificationDoc);
+    expect(utils.sendNotification.mock.calls.length).toBe(2);
   });
 
   test('test mutations.channelsRemove', async () => {

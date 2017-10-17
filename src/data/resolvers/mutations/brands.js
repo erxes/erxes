@@ -3,49 +3,47 @@ import { Brands } from '../../../db/models';
 export default {
   /**
    * Create new brand
+   * @param {Object} doc - brand fields
    * @return {Promise} brand object
    */
   brandsAdd(root, doc, { user }) {
     if (!user) throw new Error('Login required');
-
-    if (!doc.code) throw new Error('Code is required field');
 
     return Brands.createBrand({ userId: user._id, ...doc });
   },
 
   /**
    * Update brand
+   * @param {String} _id - brand id
+   * @param {Object} fields - brand fields
    * @return {Promise} brand object
    */
-  async brandsEdit(root, { _id, ...fields }, { user }) {
+  brandsEdit(root, { _id, ...fields }, { user }) {
     if (!user) throw new Error('Login required');
 
-    await Brands.update({ _id }, { $set: { ...fields } });
-    return Brands.findOne({ _id });
+    return Brands.updateBrand(_id, fields);
   },
 
   /**
    * Delete brand
+   * @param {String} _id - brand id
    * @return {Promise}
    */
-  async brandsRemove(root, { _id }, { user }) {
+  brandsRemove(root, { _id }, { user }) {
     if (!user) throw new Error('Login required');
 
-    const brandObj = await Brands.findOne({ _id });
-
-    if (!brandObj) throw new Error(`Brand not found with id ${_id}`);
-
-    return brandObj.remove();
+    return Brands.removeBrand(_id);
   },
 
   /**
    * Update brands email config
-   * @return {Promise} brand object
+   * @param {String} _id - brand id
+   * @param {Object} emailConfig - brand email config fields
+   * @return {Promise} updated brand object
    */
   async brandsConfigEmail(root, { _id, emailConfig }, { user }) {
     if (!user) throw new Error('Login required');
 
-    await Brands.update({ _id }, { emailConfig });
-    return Brands.findOne({ _id });
+    return Brands.updateEmailConfig(_id, emailConfig);
   },
 };

@@ -28,9 +28,13 @@ import {
 
 import { types as FormTypes, queries as FormQueries, mutations as FormMutatons } from './form';
 
-import { types as EngageTypes, queries as EngageQueries } from './engage';
+import {
+  types as EngageTypes,
+  queries as EngageQueries,
+  mutations as EngageMutations,
+} from './engage';
 
-import { types as TagTypes, queries as TagQueries } from './tag';
+import { types as TagTypes, queries as TagQueries, mutations as TagMutations } from './tag';
 
 import { types as CustomerTypes, queries as CustomerQueries } from './customer';
 
@@ -92,6 +96,8 @@ export const queries = `
 export const mutations = `
   type Mutation {
     ${ConversationMutations}
+    ${EngageMutations}
+    ${TagMutations}
     ${BrandMutations}
     ${ResponseTemplateMutations}
     ${EmailTemplateMutations}

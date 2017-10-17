@@ -1,5 +1,29 @@
+import { MODULES } from '../../constants';
 import { Channels } from '../../../db/models';
 import utils from '../../utils';
+
+/**
+ * Send notification to all members of this channel except the sender
+ * @param {Object} object - Object
+ * @param {string} object.channelId -   Channel id
+ * @param {Array} object.memberIds - Members of the channel
+ * @param {string} object.userId - Sender of the notification
+ * @return {Promise}
+ */
+export const sendChannelNotifications = async channel => {
+  const content = `You have invited to '${channel.name}' channel.`;
+
+  return utils.sendNotification({
+    createdUser: channel.userId,
+    notifType: MODULES.CHANNEL_MEMBERS_CHANGE,
+    title: content,
+    content,
+    link: `/inbox/${channel._id}`,
+
+    // exclude current user
+    receivers: (channel.memberIds || []).filter(id => id !== channel.userId),
+  });
+};
 
 export default {
   /**
@@ -21,11 +45,7 @@ export default {
 
     const channel = await Channels.createChannel(doc, user);
 
-    await utils.sendChannelNotifications({
-      userId: channel.userId,
-      memberIds: channel.memberIds,
-      channelId: channel._id,
-    });
+    await sendChannelNotifications(channel);
 
     return channel;
   },
@@ -51,11 +71,7 @@ export default {
 
     const channel = Channels.updateChannel(_id, doc);
 
-    await utils.sendChannelNotifications({
-      channelId: channel._id,
-      memberIds: channel.memberIds,
-      userId: channel.userId,
-    });
+    await sendChannelNotifications(channel);
 
     return channel;
   },

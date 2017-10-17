@@ -19,6 +19,6 @@ export const queries = `
 export const mutations = `
   brandsAdd(code: String!, name: String, description: String): Brand
   brandsEdit(_id: String!, code: String, name: String, description: String): Brand
-  brandsRemove(_id: String!): Brand
+  brandsRemove(_id: String!): String
   brandsConfigEmail(_id: String!, emailConfig: JSON): Brand
 `;

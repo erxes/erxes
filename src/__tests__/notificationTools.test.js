@@ -5,7 +5,7 @@ import { connect, disconnect } from '../db/connection';
 import { userFactory, notificationConfigurationFactory, channelFactory } from '../db/factories';
 import { MODULES } from '../data/constants';
 import utils from '../data/utils';
-import utils2 from '../data/utils/utils';
+import { sendChannelNotifications } from '../data/resolvers/mutations/channels';
 import { Notifications, NotificationConfigurations, Users } from '../db/models';
 
 beforeAll(() => connect());
@@ -84,27 +84,21 @@ describe('testings helper methods', () => {
   test('test tools.sendChannelNotifications', async () => {
     const channel = await channelFactory({});
 
-    const doc = {
-      channelId: channel._id,
-      memberIds: [_user._id, _user2._id, _user3._id],
-      userId: _user._id,
-    };
-
     const content = `You have invited to '${channel.name}' channel.`;
 
-    jest.spyOn(utils2, 'sendNotification').mockImplementation(() => ({}));
+    jest.spyOn(utils, 'sendNotification').mockImplementation(() => ({}));
 
-    await utils.sendChannelNotifications(doc);
+    await sendChannelNotifications(channel);
 
-    expect(utils2.sendNotification).toBeCalledWith({
-      createdUser: doc.userId,
+    expect(utils.sendNotification).toBeCalledWith({
+      createdUser: channel.userId,
       notifType: MODULES.CHANNEL_MEMBERS_CHANGE,
       title: content,
       content,
       link: `/inbox/${channel._id}`,
-      receivers: doc.memberIds.filter(id => id !== doc.userId),
+      receivers: channel.memberIds.filter(id => id !== channel.userId),
     });
 
-    expect(utils2.sendNotification.mock.calls.length).toBe(1);
+    expect(utils.sendNotification.mock.calls.length).toBe(1);
   });
 });

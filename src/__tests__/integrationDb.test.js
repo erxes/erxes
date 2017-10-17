@@ -9,7 +9,7 @@ import {
   integrationFactory,
   formFactory,
   userFactory,
-  messageFactory,
+  conversationMessageFactory,
   conversationFactory,
 } from '../db/factories';
 import { Integrations, Brands, Users, Forms, ConversationMessages } from '../db/models';
@@ -222,8 +222,8 @@ describe('remove integration model method test', () => {
 
     _conversation = await conversationFactory({ integrationId: _integration._id });
 
-    await messageFactory({ conversationId: _conversation._id });
-    await messageFactory({ conversationId: _conversation._id });
+    await conversationMessageFactory({ conversationId: _conversation._id });
+    await conversationMessageFactory({ conversationId: _conversation._id });
   });
 
   afterEach(async () => {

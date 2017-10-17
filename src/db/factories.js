@@ -1,6 +1,6 @@
 import faker from 'faker';
 import Random from 'meteor-random';
-import { MODULES } from '../data/constants';
+import { MODULES, CONVERSATION_STATUSES } from '../data/constants';
 
 import {
   Users,
@@ -8,13 +8,16 @@ import {
   Brands,
   EmailTemplates,
   ResponseTemplates,
+  ConversationMessages,
+  Conversations,
   Tags,
+  Segments,
+  EngageMessages,
   Forms,
   FormFields,
   NotificationConfigurations,
   Notifications,
-  ConversationMessages,
-  Conversations,
+  Customers,
   Channels,
 } from './models';
 
@@ -27,6 +30,38 @@ export const userFactory = (params = {}) => {
   });
 
   return user.save();
+};
+
+export const tagsFactory = (params = { type: 'engageMessage' }) => {
+  const tag = new Tags({
+    name: faker.random.word(),
+    type: params.type || faker.random.word(),
+    colorCode: params.colorCode || Random.id(),
+    userId: Random.id(),
+  });
+
+  return tag.save();
+};
+
+export const engageMessageFactory = (params = {}) => {
+  const engageMessage = new EngageMessages({
+    kind: 'manual',
+    title: faker.random.word(),
+    fromUserId: params.userId || faker.random.word(),
+    segmentId: params.segmentId || faker.random.word(),
+    isLive: true,
+    isDraft: false,
+  });
+
+  return engageMessage.save();
+};
+
+export const segmentsFactory = () => {
+  const segment = new Segments({
+    name: faker.random.word(),
+  });
+
+  return segment.save();
 };
 
 export const brandFactory = (params = {}) => {
@@ -64,30 +99,49 @@ export const responseTemplateFactory = (params = {}) => {
   return responseTemplate.save();
 };
 
-export const integrationFactory = params => {
+export const conversationFactory = (params = {}) => {
+  const conversation = new Conversations({
+    content: params.content || faker.lorem.sentence(),
+    customerId: params.customerId || Random.id(),
+    integrationId: params.integrationId || Random.id(),
+    status: CONVERSATION_STATUSES.NEW,
+  });
+
+  return conversation.save();
+};
+
+export const conversationMessageFactory = (params = {}) => {
+  const conversationMessage = new ConversationMessages({
+    content: params.content || faker.random.word(),
+    attachments: {},
+    mentionedUserIds: params.mentionedUserIds || [Random.id()],
+    conversationId: params.conversationId || Random.id(),
+    internal: params.internal || true,
+    customerId: params.customerId || Random.id(),
+    userId: params.userId || Random.id(),
+    createdAt: new Date(),
+    isCustomerRead: params.isCustomerRead || true,
+    engageData: params.engageData || {},
+    formWidgetData: params.formWidgetData || {},
+    facebookData: params.facebookData || {},
+  });
+
+  return conversationMessage.save();
+};
+
+export const integrationFactory = (params = {}) => {
   const kind = params.kind || 'messenger';
   return Integrations.create({
     name: faker.random.word(),
     kind: kind,
     brandId: params.brandId || Random.id(),
     formId: params.formId || Random.id(),
-    messengerData: params.messengerData || { welcomeMessage: 'welcome' },
+    messengerData: params.messengerData || { welcomeMessage: 'welcome', notifyCustomer: true },
     formData:
       params.formData === 'form'
         ? params.formData
         : kind === 'form' ? { thankContent: 'thankContent' } : null,
   });
-};
-
-export const tagsFactory = (params = {}) => {
-  const tag = new Tags({
-    name: faker.random.word(),
-    type: params.type || faker.random.word(),
-    colorCode: params.colorCode || Random.id(),
-    userId: Random.id(),
-  });
-
-  return tag.save();
 };
 
 export const formFactory = async ({ title, code, description, createdUserId }) => {
@@ -140,37 +194,6 @@ export const notificationFactory = params => {
   });
 };
 
-export function messageFactory(params = {}) {
-  const obj = Object.assign(
-    {
-      userId: Random.id(),
-      conversationId: Random.id(),
-      customerId: Random.id(),
-      content: faker.lorem.sentence,
-      createdAt: faker.date.past(),
-    },
-    params,
-  );
-  return ConversationMessages.create(obj);
-}
-
-export function conversationFactory(params = {}) {
-  const obj = Object.assign(
-    {
-      createdAt: faker.date.past(),
-      content: faker.lorem.sentence,
-      customerId: Random.id(),
-      integrationId: Random.id(),
-      number: 1,
-      messageCount: 0,
-      status: faker.random.word,
-    },
-    params,
-  );
-
-  return Conversations.create(obj);
-}
-
 export async function channelFactory(params = {}) {
   const user = await userFactory({});
 
@@ -190,3 +213,11 @@ export async function channelFactory(params = {}) {
 
   return Channels.create(obj);
 }
+
+export const customerFactory = (params = {}) => {
+  const customer = new Customers({
+    name: params.name || faker.name.findName(),
+    email: params.email || faker.internet.email(),
+  });
+  return customer.save();
+};

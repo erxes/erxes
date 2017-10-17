@@ -4,7 +4,7 @@
 import { connect, disconnect } from '../db/connection';
 import { EmailTemplates, Users } from '../db/models';
 import { emailTemplateFactory, userFactory } from '../db/factories';
-import emailTemplateMutations from '../data/resolvers/mutations/emailTemplate';
+import emailTemplateMutations from '../data/resolvers/mutations/emailTemplates';
 
 beforeAll(() => connect());
 
@@ -26,63 +26,66 @@ describe('Email template mutations', () => {
     await Users.remove({});
   });
 
-  test('Create email template', async () => {
-    const emailTemplateObj = await emailTemplateMutations.emailTemplateAdd(
-      {},
-      { name: _emailTemplate.name, content: _emailTemplate.content },
-      { user: _user },
-    );
-    expect(emailTemplateObj).toBeDefined();
-    expect(emailTemplateObj.name).toBe(_emailTemplate.name);
-    expect(emailTemplateObj.content).toBe(_emailTemplate.content);
+  test('Email templates login required functions', async () => {
+    const checkLogin = async (fn, args) => {
+      try {
+        await fn({}, args, {});
+      } catch (e) {
+        expect(e.message).toEqual('Login required');
+      }
+    };
 
-    // Login required test
-    expect(() =>
-      emailTemplateMutations.emailTemplateAdd(
-        {},
-        { name: _emailTemplate.name, content: _emailTemplate.content },
-        {},
-      ),
-    ).toThrowError('Login required');
+    expect.assertions(3);
+
+    // add email template
+    checkLogin(emailTemplateMutations.emailTemplateAdd, {
+      name: _emailTemplate.name,
+      content: _emailTemplate.content,
+    });
+
+    // update email template
+    checkLogin(emailTemplateMutations.emailTemplateEdit, { _id: _emailTemplate.id });
+
+    // remove email template
+    checkLogin(emailTemplateMutations.emailTemplateRemove, { _id: _emailTemplate.id });
+  });
+
+  test('Create email template', async () => {
+    EmailTemplates.create = jest.fn();
+
+    const _doc = { name: _emailTemplate.name, content: _emailTemplate.content };
+
+    await emailTemplateMutations.emailTemplateAdd({}, _doc, { user: _user });
+
+    expect(EmailTemplates.create.mock.calls.length).toBe(1);
+    expect(EmailTemplates.create).toBeCalledWith(_doc);
   });
 
   test('Update email template', async () => {
-    const emailTemplateObj = await emailTemplateMutations.emailTemplateEdit(
+    EmailTemplates.updateEmailTemplate = jest.fn();
+
+    const _doc = { name: _emailTemplate.name, content: _emailTemplate.content };
+
+    await emailTemplateMutations.emailTemplateEdit(
       {},
-      { _id: _emailTemplate.id, name: _emailTemplate.name, content: _emailTemplate.content },
+      { _id: _emailTemplate.id, ..._doc },
       { user: _user },
     );
-    expect(emailTemplateObj).toBeDefined();
-    expect(emailTemplateObj.id).toBe(_emailTemplate.id);
-    expect(emailTemplateObj.name).toBe(_emailTemplate.name);
-    expect(emailTemplateObj.content).toBe(_emailTemplate.content);
-  });
 
-  test('Update email template login required', async () => {
-    expect.assertions(1);
-    try {
-      await emailTemplateMutations.emailTemplateEdit({}, { _id: _emailTemplate.id }, {});
-    } catch (e) {
-      expect(e.message).toEqual('Login required');
-    }
+    expect(EmailTemplates.updateEmailTemplate.mock.calls.length).toBe(1);
+    expect(EmailTemplates.updateEmailTemplate).toBeCalledWith(_emailTemplate.id, _doc);
   });
 
   test('Delete email template', async () => {
+    EmailTemplates.removeEmailTemplate = jest.fn();
+
     await emailTemplateMutations.emailTemplateRemove(
       {},
       { _id: _emailTemplate.id },
       { user: _user },
     );
-    const count = await EmailTemplates.find({ _id: _emailTemplate.id }).count();
-    expect(count).toBe(0);
-  });
 
-  test('Delete email template login required', async () => {
-    expect.assertions(1);
-    try {
-      await emailTemplateMutations.emailTemplateRemove({}, { _id: _emailTemplate.id }, {});
-    } catch (e) {
-      expect(e.message).toEqual('Login required');
-    }
+    expect(EmailTemplates.removeEmailTemplate.mock.calls.length).toBe(1);
+    expect(EmailTemplates.removeEmailTemplate).toBeCalledWith(_emailTemplate.id);
   });
 });
