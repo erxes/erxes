@@ -142,7 +142,7 @@ class Conversation {
    * Assign user to conversation
    * @param  {list} conversationIds
    * @param  {String} assignedUserId
-   * @return {Promise} Updated conversation id
+   * @return {Promise} Updated conversation objects
    */
   static async assignUserConversation(conversationIds, assignedUserId) {
     await this.checkExistanceConversations(conversationIds);
@@ -163,7 +163,7 @@ class Conversation {
   /**
    * Unassign user from conversation
    * @param  {list} conversationIds
-   * @return {Promise} Updated conversation id
+   * @return {Promise} Updated conversation objects
    */
   static async unassignUserConversation(conversationIds) {
     await this.checkExistanceConversations(conversationIds);
@@ -191,7 +191,7 @@ class Conversation {
    * Star conversation
    * @param  {list} _ids of conversations
    * @param  {String} userId
-   * @return {Promise} user object
+   * @return {Promise} updated user object
    */
   static async starConversation(_ids, userId) {
     await this.checkExistanceConversations(_ids);
@@ -212,7 +212,7 @@ class Conversation {
    * Unstar conversation
    * @param  {list} _ids of conversations
    * @param  {string} userId
-   * @return {Promise} user object
+   * @return {Promise} updated user object
    */
   static async unstarConversation(_ids, userId) {
     // check conversations existance
@@ -266,7 +266,7 @@ class Conversation {
    * Mark as read conversation
    * @param  {String} _id of conversation
    * @param  {String} userId
-   * @return {Promise} Updated conversation id
+   * @return {Promise} Updated conversation object
    */
   static async markAsReadConversation(_id, userId) {
     const conversation = await this.findOne({ _id });

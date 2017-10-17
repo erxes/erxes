@@ -4,7 +4,7 @@ export default {
   /**
    * Create new response template
    * @param {Object} fields - response template fields
-   * @return {Promise} response template object
+   * @return {Promise} newly created response template object
    */
   responseTemplateAdd(root, doc, { user }) {
     if (!user) throw new Error('Login required');
@@ -16,7 +16,7 @@ export default {
    * Update response template
    * @param {String} _id - response template id
    * @param {Object} fields - response template fields
-   * @return {Promise} response template object
+   * @return {Promise} updated response template object
    */
   responseTemplateEdit(root, { _id, ...fields }, { user }) {
     if (!user) throw new Error('Login required');

@@ -27,7 +27,7 @@ export default {
   /**
    * Delete brand
    * @param {String} _id - brand id
-   * @return {String}
+   * @return {Promise}
    */
   brandsRemove(root, { _id }, { user }) {
     if (!user) throw new Error('Login required');
@@ -39,7 +39,7 @@ export default {
    * Update brands email config
    * @param {String} _id - brand id
    * @param {Object} emailConfig - brand email config fields
-   * @return {Promise} brand object
+   * @return {Promise} updated brand object
    */
   async brandsConfigEmail(root, { _id, emailConfig }, { user }) {
     if (!user) throw new Error('Login required');

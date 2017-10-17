@@ -8,7 +8,7 @@ import { _ } from 'underscore';
  * conversation notrification receiver ids
  * @param  {object} conversation object
  * @param  {String} currentUserId String
- * @return {list} userIds
+ * @return {[String]} userIds
  */
 export const conversationNotifReceivers = (conversation, currentUserId) => {
   let userIds = [];
@@ -31,7 +31,7 @@ export const conversationNotifReceivers = (conversation, currentUserId) => {
 
 /**
  * Publish updated conversation
- * @param  {list} _ids of conversations
+ * @param  {[String]} _ids of conversations
  * @param  {String} type of status
  */
 const conversationsChanged = async (_ids, type) => {
@@ -134,16 +134,17 @@ export default {
       // TODO: facebookReply(conversation, strip(content), messageId);
     }
 
+    // notify subscription
     await conversationMessageCreated(message, doc.conversationId);
 
-    return message._id;
+    return message;
   },
 
   /**
    * Assign employee to conversation
-   * @param  {list} conversationIds
+   * @param  {[String]} conversationIds
    * @param  {String} assignedUserId
-   * @return {Promise} object list of assigned conversation
+   * @return {Promise} object list of assigned conversations
    */
   async conversationsAssign(root, { conversationIds, assignedUserId }, { user }) {
     if (!user) throw new Error('Login required');
@@ -175,8 +176,8 @@ export default {
 
   /**
    * Unassign employee from conversation
-   * @param  {list} _ids of conversation
-   * @return {Promise} unassigned conversation object list
+   * @param  {[String]} _ids of conversation
+   * @return {Promise} unassigned conversations
    */
   async conversationsUnassign(root, { _ids }, { user }) {
     if (!user) throw new Error('Login required');
@@ -191,7 +192,7 @@ export default {
 
   /**
    * Change conversation status
-   * @param  {list} _ids of conversation
+   * @param  {[String]} _ids of conversation
    * @param  {String} status
    * @return {Promise} object list of updated conversations
    */
@@ -271,7 +272,7 @@ export default {
   /**
    * Add or remove participed users in conversation
    * @param  {list} _ids of conversation
-   * @return {Promise} Conversation object
+   * @return {Promise} updated conversations
    */
   async conversationsToggleParticipate(root, { _ids }, { user }) {
     if (!user) throw new Error('Login required');

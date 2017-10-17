@@ -4,7 +4,7 @@ export default {
   /**
    * Create new email template
    * @param {Object} doc - email templates fields
-   * @return {Promise} email template object
+   * @return {Promise} newly created email template object
    */
   emailTemplateAdd(root, doc, { user }) {
     if (!user) throw new Error('Login required');
@@ -16,7 +16,7 @@ export default {
    * Update email template
    * @param {String} _id - email templates id
    * @param {Object} fields - email templates fields
-   * @return {Promise} email template object
+   * @return {Promise} updated email template object
    */
   emailTemplateEdit(root, { _id, ...fields }, { user }) {
     if (!user) throw new Error('Login required');

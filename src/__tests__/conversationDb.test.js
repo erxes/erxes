@@ -123,7 +123,7 @@ describe('Conversation db', () => {
 
     const conversationObj = await Conversations.findOne({ _id: _conversation._id });
 
-    expect(conversationObj.assignedUserId).toBe(undefined);
+    expect(conversationObj.assignedUserId).toBeUndefined();
   });
 
   test('Change conversation status', async () => {
