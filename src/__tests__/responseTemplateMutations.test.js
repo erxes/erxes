@@ -44,7 +44,7 @@ describe('Response template mutations', () => {
     });
 
     // update response template
-    checkLogin(responseTemplateMutations.responseTemplateAdd, { _id: _responseTemplate.id });
+    checkLogin(responseTemplateMutations.responseTemplateEdit, { _id: _responseTemplate.id });
 
     // remove response template
     checkLogin(responseTemplateMutations.responseTemplateRemove, { _id: _responseTemplate.id });
