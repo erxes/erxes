@@ -1,5 +1,6 @@
 import { Companies, Segments } from '../../../db/models';
 import QueryBuilder from './segmentQueryBuilder.js';
+import { SEGMENT_CONTENT_TYPES } from '../../constants';
 
 const listQuery = async params => {
   const selector = {};
@@ -50,7 +51,9 @@ export default {
     counts.all = await count(selector);
 
     // Count companies by segments
-    const segments = await Segments.find();
+    const segments = await Segments.find({
+      contentType: SEGMENT_CONTENT_TYPES.COMPANY,
+    });
 
     for (let s of segments) {
       counts.bySegment[s._id] = await count(QueryBuilder.segments(s));

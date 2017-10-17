@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 import Random from 'meteor-random';
-import { INTERNAL_NOTE_CONTENT_TYPES } from '../../constants';
+import { INTERNAL_NOTE_CONTENT_TYPES } from '../../data/constants';
 
 /*
  * internal note schema

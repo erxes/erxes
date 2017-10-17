@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 import Random from 'meteor-random';
-import { SEGMENT_CONTENT_TYPES } from '../../constants';
+import { SEGMENT_CONTENT_TYPES } from '../../data/constants';
 
 const ConditionSchema = mongoose.Schema(
   {
