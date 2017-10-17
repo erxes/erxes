@@ -1,7 +1,7 @@
 import _ from 'underscore';
 import { Brands, Tags, Integrations, Customers, Segments } from '../../../db/models';
-import { TAG_TYPES, INTEGRATION_KIND_CHOICES } from '../../constants';
-import QueryBuilder from './customerQueryBuilder.js';
+import { TAG_TYPES, INTEGRATION_KIND_CHOICES, SEGMENT_CONTENT_TYPES } from '../../constants';
+import QueryBuilder from './segmentQueryBuilder.js';
 
 const listQuery = async params => {
   const selector = {};
@@ -80,7 +80,9 @@ export default {
     counts.all = await count(selector);
 
     // Count customers by segments
-    const segments = await Segments.find();
+    const segments = await Segments.find({
+      contentType: SEGMENT_CONTENT_TYPES.CUSTOMER,
+    });
 
     for (let s of segments) {
       counts.bySegment[s._id] = await count(QueryBuilder.segments(s));
@@ -149,31 +151,5 @@ export default {
    */
   customersTotalCount() {
     return Customers.find({}).count();
-  },
-
-  /**
-   * Segments list
-   * @return {Promise} segment objects
-   */
-  segments() {
-    return Segments.find({});
-  },
-
-  /**
-   * Only segment that has no sub segments
-   * @return {Promise} segment objects
-   */
-  headSegments() {
-    return Segments.find({ subOf: { $exists: false } });
-  },
-
-  /**
-   * Get one segment
-   * @param {Object} args
-   * @param {String} args._id
-   * @return {Promise} found segment
-   */
-  segmentDetail(root, { _id }) {
-    return Segments.findOne({ _id });
   },
 };

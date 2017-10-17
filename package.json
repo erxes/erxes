@@ -50,7 +50,8 @@
     "passport-http-bearer": "^1.0.1",
     "strip": "^3.0.0",
     "subscriptions-transport-ws": "^0.7.3",
-    "underscore": "^1.8.3"
+    "underscore": "^1.8.3",
+    "validator": "^9.0.0"
   },
   "devDependencies": {
     "babel-cli": "^6.24.0",
