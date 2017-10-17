@@ -27,32 +27,27 @@ describe('Email template mutations', () => {
   });
 
   test('Email templates login required functions', async () => {
+    const checkLogin = async (fn, args) => {
+      try {
+        await fn({}, args, {});
+      } catch (e) {
+        expect(e.message).toEqual('Login required');
+      }
+    };
+
     expect.assertions(3);
 
     // add email template
-    try {
-      emailTemplateMutations.emailTemplateAdd(
-        {},
-        { name: _emailTemplate.name, content: _emailTemplate.content },
-        {},
-      );
-    } catch (e) {
-      expect(e.message).toEqual('Login required');
-    }
+    checkLogin(emailTemplateMutations.emailTemplateAdd, {
+      name: _emailTemplate.name,
+      content: _emailTemplate.content,
+    });
 
     // update email template
-    try {
-      await emailTemplateMutations.emailTemplateEdit({}, { _id: _emailTemplate.id }, {});
-    } catch (e) {
-      expect(e.message).toEqual('Login required');
-    }
+    checkLogin(emailTemplateMutations.emailTemplateEdit, { _id: _emailTemplate.id });
 
     // remove email template
-    try {
-      await emailTemplateMutations.emailTemplateRemove({}, { _id: _emailTemplate.id }, {});
-    } catch (e) {
-      expect(e.message).toEqual('Login required');
-    }
+    checkLogin(emailTemplateMutations.emailTemplateRemove, { _id: _emailTemplate.id });
   });
 
   test('Create email template', async () => {

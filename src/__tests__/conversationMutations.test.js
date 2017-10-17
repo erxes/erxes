@@ -51,7 +51,6 @@ describe('Conversation message mutations', () => {
 
   test('Conversation login required functions', async () => {
     const checkLogin = async (fn, args) => {
-      expect.assertions(8);
       try {
         await fn({}, args, {});
       } catch (e) {

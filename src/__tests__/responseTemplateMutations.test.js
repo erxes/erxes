@@ -27,32 +27,27 @@ describe('Response template mutations', () => {
   });
 
   test('Response templates login required functions', async () => {
+    const checkLogin = async (fn, args) => {
+      try {
+        await fn({}, args, {});
+      } catch (e) {
+        expect(e.message).toEqual('Login required');
+      }
+    };
+
     expect.assertions(3);
 
     // add response template
-    try {
-      responseTemplateMutations.responseTemplateAdd(
-        {},
-        { name: _responseTemplate.name, content: _responseTemplate.content },
-        {},
-      );
-    } catch (e) {
-      expect(e.message).toEqual('Login required');
-    }
+    checkLogin(responseTemplateMutations.responseTemplateAdd, {
+      name: _responseTemplate.name,
+      content: _responseTemplate.content,
+    });
 
     // update response template
-    try {
-      await responseTemplateMutations.responseTemplateEdit({}, { _id: _responseTemplate.id }, {});
-    } catch (e) {
-      expect(e.message).toEqual('Login required');
-    }
+    checkLogin(responseTemplateMutations.responseTemplateAdd, { _id: _responseTemplate.id });
 
     // remove response template
-    try {
-      await responseTemplateMutations.responseTemplateRemove({}, { _id: _responseTemplate.id }, {});
-    } catch (e) {
-      expect(e.message).toEqual('Login required');
-    }
+    checkLogin(responseTemplateMutations.responseTemplateRemove, { _id: _responseTemplate.id });
   });
 
   test('Create response template', async () => {

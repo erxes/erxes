@@ -74,7 +74,7 @@ export default {
   /**
    * Create new message in conversation
    * @param  {Object} doc contains conversation message inputs
-   * @return {Promise} messageId
+   * @return {Promise} newly created message object
    */
   async conversationMessageAdd(root, doc, { user }) {
     if (!user) throw new Error('Login required');
@@ -143,7 +143,7 @@ export default {
    * Assign employee to conversation
    * @param  {list} conversationIds
    * @param  {String} assignedUserId
-   * @return {Promise} String
+   * @return {Promise} object list of assigned conversation
    */
   async conversationsAssign(root, { conversationIds, assignedUserId }, { user }) {
     if (!user) throw new Error('Login required');
@@ -176,7 +176,7 @@ export default {
   /**
    * Unassign employee from conversation
    * @param  {list} _ids of conversation
-   * @return {Promise} String
+   * @return {Promise} unassigned conversation object list
    */
   async conversationsUnassign(root, { _ids }, { user }) {
     if (!user) throw new Error('Login required');
@@ -193,14 +193,14 @@ export default {
    * Change conversation status
    * @param  {list} _ids of conversation
    * @param  {String} status
-   * @return {Promise} String
+   * @return {Promise} object list of updated conversations
    */
   async conversationsChangeStatus(root, { _ids, status }, { user }) {
     if (!user) throw new Error('Login required');
 
     const { conversations } = await Conversations.checkExistanceConversations(_ids);
 
-    const changesConversations = await Conversations.changeStatusConversation(_ids, status);
+    const changedConversations = await Conversations.changeStatusConversation(_ids, status);
 
     // notify graphl subscription
     await conversationsChanged(_ids, 'statusChanged');
@@ -243,13 +243,13 @@ export default {
       });
     }
 
-    return changesConversations;
+    return changedConversations;
   },
 
   /**
    * Star conversation
    * @param  {list} _ids of conversation
-   * @return {Promise} String
+   * @return {Promise} user object of starred conversations
    */
   async conversationsStar(root, { _ids }, { user }) {
     if (!user) throw new Error('Login required');
@@ -260,7 +260,7 @@ export default {
   /**
    * Unstar conversation
    * @param  {list} _ids of conversation
-   * @return {Promise} String
+   * @return {Promise} user object from unstarred conversations
    */
   async conversationsUnstar(root, { _ids }, { user }) {
     if (!user) throw new Error('Login required');
@@ -271,7 +271,7 @@ export default {
   /**
    * Add or remove participed users in conversation
    * @param  {list} _ids of conversation
-   * @return {Promise} String
+   * @return {Promise} Conversation object
    */
   async conversationsToggleParticipate(root, { _ids }, { user }) {
     if (!user) throw new Error('Login required');
@@ -287,7 +287,7 @@ export default {
   /**
    * Conversation mark as read
    * @param  {String} _id of conversation
-   * @return {Promise} String
+   * @return {Promise} Conversation object with mark as read
    */
   async conversationMarkAsRead(root, { _id }, { user }) {
     if (!user) throw new Error('Login required');

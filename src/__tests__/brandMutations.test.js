@@ -27,35 +27,27 @@ describe('Brands mutations', () => {
   });
 
   test('Check login required mutations', async () => {
+    const checkLogin = async (fn, args) => {
+      try {
+        await fn({}, args, {});
+      } catch (e) {
+        expect(e.message).toEqual('Login required');
+      }
+    };
+
     expect.assertions(4);
 
     // brands add
-    try {
-      await brandMutations.brandsAdd({}, { code: _brand.code, name: _brand.name }, {});
-    } catch (e) {
-      expect(e.message).toEqual('Login required');
-    }
+    checkLogin(brandMutations.brandsAdd, { code: _brand.code, name: _brand.name });
 
     // brands edit
-    try {
-      await brandMutations.brandsEdit({}, { _id: _brand.id }, {});
-    } catch (e) {
-      expect(e.message).toEqual('Login required');
-    }
+    checkLogin(brandMutations.brandsEdit, { _id: _brand.id });
 
     // brands remove
-    try {
-      await brandMutations.brandsRemove({}, { _id: _brand.id }, {});
-    } catch (e) {
-      expect(e.message).toEqual('Login required');
-    }
+    checkLogin(brandMutations.brandsRemove, { _id: _brand.id });
 
     // brands update email config
-    try {
-      await brandMutations.brandsConfigEmail({}, { _id: _brand.id }, {});
-    } catch (e) {
-      expect(e.message).toEqual('Login required');
-    }
+    checkLogin(brandMutations.brandsConfigEmail, { _id: _brand.id });
   });
 
   test('Create brand', async () => {
