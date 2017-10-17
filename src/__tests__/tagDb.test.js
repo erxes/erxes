@@ -29,12 +29,11 @@ describe('Test tags model', () => {
   });
 
   test('Validate unique tag', async () => {
-    const empty = await validateUniqueness({}, {});
-    const selectTag = await validateUniqueness(
-      { type: _tag2.type },
-      { name: 'new tag', type: _tag2.type },
-    );
-    const existing = await validateUniqueness({}, _tag);
+    const empty = await validateUniqueness({});
+
+    const selectTag = await validateUniqueness({ type: _tag2.type }, 'new tag', _tag2.type);
+
+    const existing = await validateUniqueness({}, _tag.name, _tag.type);
 
     expect(empty).toEqual(true);
     expect(selectTag).toEqual(false);

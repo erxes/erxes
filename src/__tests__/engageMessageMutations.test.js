@@ -9,7 +9,7 @@ import mutations from '../data/resolvers/mutations';
 beforeAll(() => connect());
 afterAll(() => disconnect());
 
-describe('engage message mutations', () => {
+describe('engage message mutation tests', () => {
   let _user;
   let _segment;
   let _message;

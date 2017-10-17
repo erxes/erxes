@@ -20,10 +20,14 @@ const TagSchema = mongoose.Schema({
   objectCount: Number,
 });
 
-export const validateUniqueness = async (selector, data) => {
-  const { name, type } = data;
-  const filter = { name, type };
-
+/*
+ * Validates tag uniquness
+ * @param {Object} selector - mongoose selector object
+ * @param {String} data.name - tag name
+ * @param {String} data.type - tag type
+ */
+export const validateUniqueness = async (selector, name, type) => {
+  // required name and type
   if (!name || !type) {
     return true;
   }
@@ -36,6 +40,8 @@ export const validateUniqueness = async (selector, data) => {
   }
 
   const obj = selector && (await Tags.findOne(selector));
+
+  const filter = { name, type };
 
   if (obj) {
     filter._id = { $ne: obj._id };
@@ -50,8 +56,20 @@ export const validateUniqueness = async (selector, data) => {
   return true;
 };
 
+/*
+ * Common helper for taggable objects like conversation, engage, customer etc ...
+ * @param {[String]} tagIds - Tag ids
+ * @param {[String]} objectIds - conversation, engage or customer's ids
+ * @param {MongooseCollection} collection - conversation, engage or customer's collections
+ * @param {String} tagType - one of conversation, engageMessage, customer
+ */
 export const tagObject = async ({ tagIds, objectIds, collection, tagType }) => {
-  if ((await Tags.find({ _id: { $in: tagIds }, type: tagType }).count()) !== tagIds.length) {
+  const prevTagsCount = await Tags.find({
+    _id: { $in: tagIds },
+    type: tagType,
+  }).count();
+
+  if (prevTagsCount !== tagIds.length) {
     throw new Error('Tag not found.');
   }
 
@@ -79,7 +97,7 @@ class Tag {
    * @return {Promise} Newly created tag object
    */
   static async createTag(doc) {
-    const isUnique = await validateUniqueness(null, doc);
+    const isUnique = await validateUniqueness(null, doc.name, doc.type);
 
     if (!isUnique) throw new Error('Tag duplicated');
 
@@ -95,7 +113,7 @@ class Tag {
    * @return {Promise} updated tag object
    */
   static async updateTag(_id, doc) {
-    const isUnique = await validateUniqueness({ _id }, doc);
+    const isUnique = await validateUniqueness({ _id }, doc.name, doc.type);
 
     if (!isUnique) throw new Error('Tag duplicated');
 
