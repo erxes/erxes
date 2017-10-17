@@ -29,3 +29,14 @@ export const queries = `
   engageMessageCounts(name: String!, kind: String, status: String): JSON
   engageMessagesTotalCount: Int
 `;
+
+export const mutations = `
+  engageMessageAdd(title: String!, kind: String!,
+    segmentId: String!, method: String!, fromUserId: String!): EngageMessage
+  engageMessageEdit(_id: String!, title: String!, kind: String!,
+    segmentId: String!, method: String!, fromUserId: String!): EngageMessage
+  engageMessageRemove(ids: [String!]!): EngageMessage
+  engageMessageSetLive(_id: String!): EngageMessage
+  engageMessageSetPause(_id: String!): EngageMessage
+  engageMessageSetLiveManual(_id: String!): EngageMessage
+`;

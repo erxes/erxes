@@ -4,11 +4,13 @@ import { MODULES } from '../data/constants';
 
 import {
   Users,
-  Integrations,
+  Tags,
+  Segments,
   Brands,
   EmailTemplates,
   ResponseTemplates,
-  Tags,
+  EngageMessages,
+  Integrations,
   Forms,
   FormFields,
   NotificationConfigurations,
@@ -24,6 +26,38 @@ export const userFactory = (params = {}) => {
   });
 
   return user.save();
+};
+
+export const tagsFactory = (params = { type: 'engageMessage' }) => {
+  const tag = new Tags({
+    name: faker.random.word(),
+    type: params.type || faker.random.word(),
+    colorCode: params.colorCode || Random.id(),
+    userId: Random.id(),
+  });
+
+  return tag.save();
+};
+
+export const engageMessageFactory = (params = {}) => {
+  const engageMessage = new EngageMessages({
+    kind: 'manual',
+    title: faker.random.word(),
+    fromUserId: params.userId || faker.random.word(),
+    segmentId: params.segmentId || faker.random.word(),
+    isLive: true,
+    isDraft: false,
+  });
+
+  return engageMessage.save();
+};
+
+export const segmentsFactory = () => {
+  const segment = new Segments({
+    name: faker.random.word(),
+  });
+
+  return segment.save();
 };
 
 export const brandFactory = (params = {}) => {
@@ -74,17 +108,6 @@ export const integrationFactory = params => {
         ? params.formData
         : kind === 'form' ? { thankContent: 'thankContent' } : null,
   });
-};
-
-export const tagsFactory = (params = {}) => {
-  const tag = new Tags({
-    name: faker.random.word(),
-    type: params.type || faker.random.word(),
-    colorCode: params.colorCode || Random.id(),
-    userId: Random.id(),
-  });
-
-  return tag.save();
 };
 
 export const formFactory = async ({ title, code, description, createdUserId }) => {
