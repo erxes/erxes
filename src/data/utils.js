@@ -8,8 +8,8 @@ import { Notifications, Users } from '../db/models';
  * @param {string} filename - relative file path
  * @return {Promise} returns promise resolving file contents
  */
-const readFilePro = filename => {
-  const filePath = `${__dirname}/../../private/emailTemplates/${filename}.html`;
+export const readFile = filename => {
+  const filePath = `${__dirname}/../private/emailTemplates/${filename}.html`;
 
   return new Promise((resolve, reject) => {
     fs.readFile(filePath, 'utf8', (err, data) => {
@@ -28,7 +28,7 @@ const readFilePro = filename => {
  * @return email with template as text
  */
 const applyTemplate = async (data, templateName) => {
-  let template = await readFilePro(templateName);
+  let template = await readFile(templateName);
 
   template = Handlebars.compile(template.toString());
 
@@ -134,4 +134,5 @@ export const sendNotification = async ({ createdUser, receivers, ...doc }) => {
 export default {
   sendEmail,
   sendNotification,
+  readFile,
 };
