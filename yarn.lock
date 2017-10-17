@@ -4181,6 +4181,10 @@ strip-json-comments@~2.0.1:
   version "2.0.1"
   resolved "https://registry.yarnpkg.com/strip-json-comments/-/strip-json-comments-2.0.1.tgz#3c531942e908c2697c0ec344858c286c7ca0a60a"
 
+strip@^3.0.0:
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/strip/-/strip-3.0.0.tgz#750fc933152a7d35af0b7420e651789b914cc35e"
+
 subscriptions-transport-ws@^0.7.3:
   version "0.7.3"
   resolved "https://registry.yarnpkg.com/subscriptions-transport-ws/-/subscriptions-transport-ws-0.7.3.tgz#15858f03e013e1fc28f8c2d631014ec1548d38f0"

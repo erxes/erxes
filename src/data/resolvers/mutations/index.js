@@ -1,21 +1,21 @@
-import conversation from './conversation';
+import conversations from './conversations';
 import tags from './tags';
 import engages from './engages';
 import brands from './brands';
-import emailTemplate from './emailTemplate';
-import responseTemplate from './responseTemplate';
+import emailTemplates from './emailTemplates';
+import responseTemplates from './responseTemplates';
 import channels from './channels';
 import forms from './forms';
 import integrations from './integrations';
 import notifications from './notifications';
 
 export default {
-  ...conversation,
+  ...conversations,
   ...tags,
   ...engages,
   ...brands,
-  ...emailTemplate,
-  ...responseTemplate,
+  ...emailTemplates,
+  ...responseTemplates,
   ...channels,
   ...forms,
   ...integrations,

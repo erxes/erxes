@@ -23,6 +23,12 @@ export const TAG_TYPES = {
   ALL_LIST: ['conversation', 'customer', 'engageMessage'],
 };
 
+export const FACEBOOK_DATA_KINDS = {
+  FEED: 'feed',
+  MESSENGER: 'messenger',
+  ALL_LIST: ['feed', 'messenger'],
+};
+
 export const MESSENGER_KINDS = {
   CHAT: 'chat',
   NOTE: 'note',
@@ -69,6 +75,7 @@ export const KIND_CHOICES = {
   FORM: 'form',
   TWITTER: 'twitter',
   FACEBOOK: 'facebook',
+  ALL_LIST: ['messenger', 'form', 'twitter', 'facebook'],
   ALL: ['messenger', 'form', 'twitter', 'facebook'],
 };
 
