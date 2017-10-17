@@ -20,12 +20,24 @@
     "lint": "eslint src",
     "format": "prettier --write --print-width 100 --single-quote --trailing-comma all 'src/**/*.js'",
     "precommit": "lint-staged",
-    "test": "jest --runInBand"
+    "test": "jest --runInBand --coverage"
   },
   "lint-staged": {
     "*.js": [
       "prettier --write --print-width 100 --single-quote --trailing-comma all",
       "git add"
+    ]
+  },
+  "jest": {
+    "collectCoverageFrom": [
+      "src/**/*.{js}",
+      "!src/index.js",
+      "!src/db/factories.js",
+      "!src/db/connection.js",
+      "!src/data/schema/**",
+      "!src/data/resolvers/subscriptions/**",
+      "!src/data/index.js",
+      "!src/data/utils.js"
     ]
   },
   "dependencies": {
