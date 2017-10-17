@@ -36,10 +36,11 @@ const Nav = styled.nav`
     font-size: ${dimensions.coreSpacing}px;
     line-height: ${dimensions.headerSpacingWide}px;
     text-align: center;
-    color: ${colors.colorWhite};
+    color: ${rgba(colors.colorWhite, 0.8)};
 
     &:hover {
       background: ${rgba(colors.colorBlack, 0.2)};
+      color: ${colors.colorWhite};
     }
   }
 `;

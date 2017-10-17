@@ -17,13 +17,13 @@ function Navigation() {
           <i className="ion-person-stalker" />
         </Link>
         <Link to="/engage">
-          <i className="ion-paper-airplane" />
+          <i className="ion-speakerphone" />
         </Link>
         <Link to="/insights">
-          <i className="ion-arrow-graph-up-right" />
+          <i className="ion-pie-graph" />
         </Link>
         <Link to="/settings">
-          <i className="ion-gear-a" />
+          <i className="ion-gear-b" />
         </Link>
       </Nav>
     </LeftNavigation>
