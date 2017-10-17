@@ -26,23 +26,17 @@ describe('mutations', () => {
   test(`test if Error('Login required') error is working as intended`, async () => {
     expect.assertions(3);
 
-    try {
-      await channelMutations.channelsCreate(null, {}, {});
-    } catch (e) {
-      expect(e.message).toBe('Login required');
-    }
+    const expectError = async func => {
+      try {
+        await func(null, {}, {});
+      } catch (e) {
+        expect(e.message).toBe('Login required');
+      }
+    };
 
-    try {
-      await channelMutations.channelsEdit(null, {}, {});
-    } catch (e) {
-      expect(e.message).toBe('Login required');
-    }
-
-    try {
-      await channelMutations.channelsRemove(null, {}, {});
-    } catch (e) {
-      expect(e.message).toBe('Login required');
-    }
+    expectError(channelMutations.channelsCreate);
+    expectError(channelMutations.channelsEdit);
+    expectError(channelMutations.channelsRemove);
   });
 
   test('test mutations.channelsCreate', async () => {
