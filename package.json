@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "classnames": "^2.2.5",
     "color": "^2.0.0",
     "ionicons": "2.0.1",
     "moment": "2.18.0",

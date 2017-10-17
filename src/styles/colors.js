@@ -10,6 +10,7 @@ const colorCoreBlack = "#393C40";
 const colorCoreGray = "#888";
 const colorCoreLightGray = "#AAAEB3";
 const colorBlack = "#000";
+const colorShadowGray = "#DDD";
 
 const colorWhite = "#FFF";
 
@@ -31,7 +32,7 @@ const textSecondary = rgba(textPrimary, 0.7);
 const textOverlay = "#fff";
 
 // Shadow colors
-const shadowPrimary = "#000";
+const shadowPrimary = rgba(colorShadowGray, 0.5);
 
 // Social colors
 const socialFacebook = "#3a5999";
@@ -49,6 +50,7 @@ export default {
   colorCoreLightGray,
   colorWhite,
   colorBlack,
+  colorShadowGray,
 
   bgMain,
   bgDark,

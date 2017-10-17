@@ -1,19 +1,19 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-
+import { SideContent, SidebarBox } from '../styles';
 
 const propTypes = {
   children: PropTypes.node,
   fixedContent: PropTypes.node,
-  size: PropTypes.oneOf(['narrow', 'medium', 'wide']),
+  wide: PropTypes.bool,
 };
 
-function Sidebar({ children, size = 'medium', fixedContent }) {
+function Sidebar({ children, wide, fixedContent }) {
   return (
-    <div className={`sidebar ${size}`}>
+    <SideContent wide={wide}>
       {fixedContent}
       {children}
-    </div>
+    </SideContent>
   );
 }
 
@@ -50,7 +50,7 @@ class Section extends Component {
       maxHeight: collapsible ? this.state.maxHeight : 'none',
     };
     return (
-      <div className="sidebar-section" style={height}>
+      <SidebarBox style={height}>
         <div
           ref={node => {
             this.node = node;
@@ -59,7 +59,7 @@ class Section extends Component {
           {children}
         </div>
         {collapsible ? this.renderCollapseButton() : null}
-      </div>
+      </SidebarBox>
     );
   }
 }
