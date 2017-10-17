@@ -10,7 +10,7 @@ beforeAll(() => connect());
 
 afterAll(() => disconnect());
 
-describe('Tags model', () => {
+describe('Test tags model', () => {
   let _tag;
   let _tag2;
   let _message;
@@ -59,6 +59,24 @@ describe('Tags model', () => {
     Tags.tagsTag('customer', [], []);
   });
 
+  test('Create tag check duplicated', async () => {
+    expect.assertions(1);
+    try {
+      await Tags.createTag(_tag2);
+    } catch (e) {
+      expect(e.message).toEqual('Tag duplicated');
+    }
+  });
+
+  test('Update tag check duplicated', async () => {
+    expect.assertions(1);
+    try {
+      await Tags.updateTag(_tag2._id, { name: _tag.name, type: _tag.type });
+    } catch (e) {
+      expect(e.message).toEqual('Tag duplicated');
+    }
+  });
+
   test('Create tag', async () => {
     const tagObj = await Tags.createTag({
       name: `${_tag.name}1`,
@@ -102,5 +120,24 @@ describe('Tags model', () => {
 
     expect(tagObj.objectCount).toBe(1);
     expect(messageObj.tagIds[0]).toEqual(_tag.id);
+  });
+
+  test('Remove tag not found', async () => {
+    expect.assertions(1);
+    try {
+      await Tags.removeTag([_message._id]);
+    } catch (e) {
+      expect(e.message).toEqual('Tag not found');
+    }
+  });
+
+  test("Can't remove a tag", async () => {
+    expect.assertions(1);
+    try {
+      await EngageMessages.update({ _id: _message._id }, { $set: { tagIds: [_tag._id] } });
+      await Tags.removeTag([_tag._id]);
+    } catch (e) {
+      expect(e.message).toEqual("Can't remove a tag with tagged object(s)");
+    }
   });
 });

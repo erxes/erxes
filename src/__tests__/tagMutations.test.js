@@ -10,9 +10,8 @@ beforeAll(() => connect());
 
 afterAll(() => disconnect());
 
-describe('Tags mutations', () => {
+describe('Test tags mutations', () => {
   let _tag;
-  let _tag2;
   let _user;
   let _message;
   let doc;
@@ -20,7 +19,6 @@ describe('Tags mutations', () => {
   beforeEach(async () => {
     // Creating test data
     _tag = await tagsFactory();
-    _tag2 = await tagsFactory();
     _user = await userFactory();
     _message = await engageMessageFactory({});
 
@@ -62,23 +60,6 @@ describe('Tags mutations', () => {
     check(tagsMutations.tagsTag);
   });
 
-  test('Check tag duplicated', async () => {
-    expect.assertions(2);
-    const check = async (mutation, doc) => {
-      try {
-        await mutation({}, doc, { user: _user });
-      } catch (e) {
-        expect(e.message).toEqual('Tag duplicated');
-      }
-    };
-
-    // add
-    await check(tagsMutations.tagsAdd, _tag2);
-
-    // edit
-    await check(tagsMutations.tagsEdit, { _id: _tag2._id, name: _tag.name, type: _tag.type });
-  });
-
   test('Create tag', async () => {
     Tags.createTag = jest.fn();
     await tagsMutations.tagsAdd({}, doc, { user: _user });
@@ -93,25 +74,6 @@ describe('Tags mutations', () => {
 
     expect(Tags.updateTag).toBeCalledWith(_tag._id, doc);
     expect(Tags.updateTag.mock.calls.length).toBe(1);
-  });
-
-  test('Remove tag not found', async () => {
-    expect.assertions(1);
-    try {
-      await tagsMutations.tagsRemove({}, { ids: [_message._id] }, { user: _user });
-    } catch (e) {
-      expect(e.message).toEqual('Tag not found');
-    }
-  });
-
-  test("Can't remove a tag", async () => {
-    expect.assertions(1);
-    try {
-      await EngageMessages.update({ _id: _message._id }, { $set: { tagIds: [_tag._id] } });
-      await tagsMutations.tagsRemove({}, { ids: [_tag._id] }, { user: _user });
-    } catch (e) {
-      expect(e.message).toEqual("Can't remove a tag with tagged object(s)");
-    }
   });
 
   test('Remove tag', async () => {

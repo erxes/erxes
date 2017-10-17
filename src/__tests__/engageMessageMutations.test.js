@@ -9,7 +9,7 @@ import mutations from '../data/resolvers/mutations';
 beforeAll(() => connect());
 afterAll(() => disconnect());
 
-describe('mutations', () => {
+describe('engage message mutations', () => {
   let _user;
   let _segment;
   let _message;
@@ -63,15 +63,6 @@ describe('mutations', () => {
 
     // set live manual
     check(mutations.engageMessageSetLiveManual);
-  });
-
-  test('Engage message remove not found', async () => {
-    expect.assertions(1);
-    try {
-      await mutations.engageMessageRemove({}, `${_message._id}-`, { user: _user });
-    } catch (e) {
-      expect(e.message).toEqual(`Engage message not found with id ${_message._id}-`);
-    }
   });
 
   test('messages create', async () => {

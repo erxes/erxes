@@ -60,7 +60,7 @@ export const tagObject = async ({ tagIds, objectIds, collection, tagType }) => {
   let removeIds = [];
 
   objects.forEach(obj => {
-    removeIds.push(obj.tagIds || []);
+    removeIds.push(obj.tagIds);
   });
 
   removeIds = _.uniq(_.flatten(removeIds));
@@ -107,7 +107,7 @@ class Tag {
   /**
    * Remove Tag
    * @param  {[String]} ids
-   * @return {Promise} removed tag object
+   * @return {Promise}
    */
   static async removeTag(ids) {
     const tagCount = await Tags.find({ _id: { $in: ids } }).count();
@@ -122,7 +122,7 @@ class Tag {
 
     if (count > 0) throw new Error("Can't remove a tag with tagged object(s)");
 
-    return await Tags.remove({ _id: { $in: ids } });
+    return Tags.remove({ _id: { $in: ids } });
   }
 
   /**
@@ -130,7 +130,7 @@ class Tag {
    * @param {String} type
    * @param {[String]} targetIds
    * @param {[String]} tagIds
-   * @return {Promise} removed tag object
+   * @return {Promise} attach tag object
    */
   static async tagsTag(type, targetIds, tagIds) {
     let collection = Conversations;

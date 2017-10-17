@@ -76,4 +76,13 @@ describe('engage messages model', () => {
 
     expect(message.isLive).toEqual(false);
   });
+
+  test('Engage message remove not found', async () => {
+    expect.assertions(1);
+    try {
+      await EngageMessages.removeEngageMessage(_segment._id);
+    } catch (e) {
+      expect(e.message).toEqual(`Engage message not found with id ${_segment._id}`);
+    }
+  });
 });
