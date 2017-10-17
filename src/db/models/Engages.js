@@ -109,7 +109,7 @@ class Message {
   /**
    * Remove engage message
    * @param {String} _id
-   * @return {Promise} deleted message object
+   * @return {Promise}
    */
   static async removeEngageMessage(_id) {
     const messageObj = await this.findOne({ _id });

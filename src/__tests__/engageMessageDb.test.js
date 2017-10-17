@@ -8,7 +8,7 @@ import { EngageMessages, Users, Segments } from '../db/models';
 beforeAll(() => connect());
 afterAll(() => disconnect());
 
-describe('engage messages model', () => {
+describe('engage messages model tests', () => {
   let _user;
   let _segment;
   let _message;

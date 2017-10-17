@@ -6,7 +6,7 @@ export default {
   * @param {String} doc.name
   * @param {String} doc.type
   * @param {String} doc.colorCode
-  * @return {Promise} tag object
+  * @return {Promise} newly created tag object
   */
   tagsAdd(root, doc, { user }) {
     if (!user) throw new Error('Login required');
@@ -19,7 +19,7 @@ export default {
   * @param {String} doc.name
   * @param {String} doc.type
   * @param {String} doc.colorCode
-  * @return {Promise} tag object
+  * @return {Promise} updated tag object
   */
   tagsEdit(root, { _id, ...doc }, { user }) {
     if (!user) throw new Error('Login required');
@@ -43,7 +43,6 @@ export default {
   * @param {String} type
   * @param {[String]} targetIds
   * @param {[String]} tagIds
-  * @return {Promise}
   */
   tagsTag(root, { type, targetIds, tagIds }, { user }) {
     if (!user) throw new Error('Login required');

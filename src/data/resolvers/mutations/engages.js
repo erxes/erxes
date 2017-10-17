@@ -46,7 +46,7 @@ export default {
   /**
    * Remove message
    * @param {String} id
-   * @return {Promise} null
+   * @return {Promise}
    */
   engageMessageRemove(root, _id, { user }) {
     if (!user) throw new Error('Login required');
@@ -57,7 +57,7 @@ export default {
   /**
    * Engage message set live
    * @param {String} id
-   * @return {Promise} message object
+   * @return {Promise} updated message object
    */
   engageMessageSetLive(root, _id, { user }) {
     if (!user) throw new Error('Login required');
@@ -68,7 +68,7 @@ export default {
   /**
    * Engage message set pause
    * @param {String} id
-   * @return {Promise} message object
+   * @return {Promise} updated message object
    */
   engageMessageSetPause(root, _id, { user }) {
     if (!user) throw new Error('Login required');
@@ -79,7 +79,7 @@ export default {
   /**
    * Engage message set live manual
    * @param {String} id
-   * @return {Promise} message object
+   * @return {Promise} updated message object
    */
   engageMessageSetLiveManual(root, _id, { user }) {
     if (!user) throw new Error('Login required');
