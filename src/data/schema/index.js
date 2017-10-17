@@ -1,6 +1,12 @@
 import { types as UserTypes, queries as UserQueries } from './user';
 
 import {
+  types as CompanyTypes,
+  queries as CompanyQueries,
+  mutations as CompanyMutations,
+} from './company';
+
+import {
   types as ChannelTypes,
   queries as ChannelQueries,
   mutations as ChannelMutations,
@@ -26,6 +32,8 @@ import {
   mutations as EmailTemplateMutations,
 } from './emailTemplate';
 
+import { types as FieldTypes, queries as FieldQueries, mutations as FieldMutations } from './field';
+
 import { types as FormTypes, queries as FormQueries, mutations as FormMutatons } from './form';
 
 import {
@@ -36,7 +44,23 @@ import {
 
 import { types as TagTypes, queries as TagQueries, mutations as TagMutations } from './tag';
 
-import { types as CustomerTypes, queries as CustomerQueries } from './customer';
+import {
+  types as InternalNoteTypes,
+  queries as InternalNoteQueries,
+  mutations as InternalNoteMutations,
+} from './internalNote';
+
+import {
+  types as CustomerTypes,
+  queries as CustomerQueries,
+  mutations as CustomerMutations,
+} from './customer';
+
+import {
+  types as SegmentTypes,
+  queries as SegmentQueries,
+  mutations as SegmentMutations,
+} from './segment';
 
 import { types as InsightTypes, queries as InsightQueries } from './insight';
 
@@ -59,6 +83,8 @@ export const types = `
   scalar Date
 
   ${UserTypes}
+  ${InternalNoteTypes}
+  ${CompanyTypes}
   ${ChannelTypes}
   ${BrandTypes}
   ${IntegrationTypes}
@@ -66,8 +92,10 @@ export const types = `
   ${EmailTemplate}
   ${EngageTypes}
   ${TagTypes}
+  ${FieldTypes}
   ${FormTypes}
   ${CustomerTypes}
+  ${SegmentTypes}
   ${ConversationTypes}
   ${InsightTypes}
   ${KnowledgeBaseTypes}
@@ -82,10 +110,14 @@ export const queries = `
     ${IntegrationQueries}
     ${ResponseTemplateQueries}
     ${EmailTemplateQueries}
+    ${FieldQueries}
     ${FormQueries}
     ${EngageQueries}
     ${TagQueries}
+    ${InternalNoteQueries}
+    ${CompanyQueries}
     ${CustomerQueries}
+    ${SegmentQueries}
     ${ConversationQueries}
     ${InsightQueries}
     ${KnowledgeBaseQueries}
@@ -95,12 +127,17 @@ export const queries = `
 
 export const mutations = `
   type Mutation {
+    ${CompanyMutations}
     ${ConversationMutations}
     ${EngageMutations}
     ${TagMutations}
     ${BrandMutations}
     ${ResponseTemplateMutations}
     ${EmailTemplateMutations}
+    ${InternalNoteMutations}
+    ${CustomerMutations}
+    ${SegmentMutations}
+    ${FieldMutations}
     ${ChannelMutations}
     ${FormMutatons}
     ${IntegrationMutations}
