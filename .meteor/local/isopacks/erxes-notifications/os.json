@@ -1,0 +1,84 @@
+{
+  "format": "isopack-2-unibuild",
+  "declaredExports": [],
+  "uses": [
+    {
+      "package": "meteor"
+    },
+    {
+      "package": "ecmascript"
+    },
+    {
+      "package": "underscore"
+    },
+    {
+      "package": "aldeed:collection2",
+      "constraint": "2.3.1"
+    },
+    {
+      "package": "tmeasday:publish-counts"
+    }
+  ],
+  "resources": [
+    {
+      "type": "source",
+      "extension": "js",
+      "file": "os/server/main.js",
+      "length": 161,
+      "offset": 0,
+      "path": "server/main.js",
+      "hash": "b9caed607b84df1204c573ffef8f8f595a8d63ed",
+      "fileOptions": {
+        "mainModule": true
+      }
+    },
+    {
+      "type": "source",
+      "extension": "js",
+      "file": "os/notifications.js",
+      "length": 1101,
+      "offset": 0,
+      "path": "notifications.js",
+      "hash": "30509e84b9252aa02a3d19aaea76c86f7bc15e6c",
+      "fileOptions": {
+        "lazy": true
+      }
+    },
+    {
+      "type": "source",
+      "extension": "js",
+      "file": "os/server/api.js",
+      "length": 1910,
+      "offset": 0,
+      "path": "server/api.js",
+      "hash": "55ab2afebdd3ee067a4eed31a95ef32684ec112d",
+      "fileOptions": {
+        "lazy": true
+      }
+    },
+    {
+      "type": "source",
+      "extension": "js",
+      "file": "os/server/methods.js",
+      "length": 919,
+      "offset": 0,
+      "path": "server/methods.js",
+      "hash": "f43627fdbcadbe3e903a1b2b265086c36fadc0b8",
+      "fileOptions": {
+        "lazy": true
+      }
+    },
+    {
+      "type": "source",
+      "extension": "js",
+      "file": "os/server/publications.js",
+      "length": 1220,
+      "offset": 0,
+      "path": "server/publications.js",
+      "hash": "a8a8b831b0c7d496b507a51ab5ff8bc3e4b338c0",
+      "fileOptions": {
+        "lazy": true
+      }
+    }
+  ]
+}

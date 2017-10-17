@@ -1,0 +1,100 @@
+(function () {
+
+/* Imports */
+var Meteor = Package.meteor.Meteor;
+var global = Package.meteor.global;
+var meteorEnv = Package.meteor.meteorEnv;
+var _ = Package.underscore._;
+var Random = Package.random.Random;
+
+/* Package-scope variables */
+var Retry;
+
+(function(){
+
+/////////////////////////////////////////////////////////////////////////////
+//                                                                         //
+// packages/retry/retry.js                                                 //
+//                                                                         //
+/////////////////////////////////////////////////////////////////////////////
+                                                                           //
+// Retry logic with an exponential backoff.
+//
+// options:
+//  baseTimeout: time for initial reconnect attempt (ms).
+//  exponent: exponential factor to increase timeout each attempt.
+//  maxTimeout: maximum time between retries (ms).
+//  minCount: how many times to reconnect "instantly".
+//  minTimeout: time to wait for the first `minCount` retries (ms).
+//  fuzz: factor to randomize retry times by (to avoid retry storms).
+
+Retry = function (options) {
+  var self = this;
+  _.extend(self, _.defaults(_.clone(options || {}), {
+    baseTimeout: 1000, // 1 second
+    exponent: 2.2,
+    // The default is high-ish to ensure a server can recover from a
+    // failure caused by load.
+    maxTimeout: 5 * 60000, // 5 minutes
+    minTimeout: 10,
+    minCount: 2,
+    fuzz: 0.5 // +- 25%
+  }));
+  self.retryTimer = null;
+};
+
+_.extend(Retry.prototype, {
+
+  // Reset a pending retry, if any.
+  clear: function () {
+    var self = this;
+    if (self.retryTimer)
+      clearTimeout(self.retryTimer);
+    self.retryTimer = null;
+  },
+
+  // Calculate how long to wait in milliseconds to retry, based on the
+  // `count` of which retry this is.
+  _timeout: function (count) {
+    var self = this;
+
+    if (count < self.minCount)
+      return self.minTimeout;
+
+    var timeout = Math.min(
+      self.maxTimeout,
+      self.baseTimeout * Math.pow(self.exponent, count));
+    // fuzz the timeout randomly, to avoid reconnect storms when a
+    // server goes down.
+    timeout = timeout * ((Random.fraction() * self.fuzz) +
+                         (1 - self.fuzz/2));
+    return timeout;
+  },
+
+  // Call `fn` after a delay, based on the `count` of which retry this is.
+  retryLater: function (count, fn) {
+    var self = this;
+    var timeout = self._timeout(count);
+    if (self.retryTimer)
+      clearTimeout(self.retryTimer);
+    self.retryTimer = Meteor.setTimeout(fn, timeout);
+    return timeout;
+  }
+
+});
+
+/////////////////////////////////////////////////////////////////////////////
+
+}).call(this);
+
+
+/* Exports */
+if (typeof Package === 'undefined') Package = {};
+(function (pkg, symbols) {
+  for (var s in symbols)
+    (s in pkg) || (pkg[s] = symbols[s]);
+})(Package.retry = {}, {
+  Retry: Retry
+});
+
+})();

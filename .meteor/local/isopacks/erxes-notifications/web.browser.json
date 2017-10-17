@@ -1,0 +1,48 @@
+{
+  "format": "isopack-2-unibuild",
+  "declaredExports": [],
+  "uses": [
+    {
+      "package": "meteor"
+    },
+    {
+      "package": "ecmascript"
+    },
+    {
+      "package": "underscore"
+    },
+    {
+      "package": "aldeed:collection2",
+      "constraint": "2.3.1"
+    },
+    {
+      "package": "tmeasday:publish-counts"
+    }
+  ],
+  "resources": [
+    {
+      "type": "source",
+      "extension": "js",
+      "file": "web.browser/client/main.js",
+      "length": 100,
+      "offset": 0,
+      "path": "client/main.js",
+      "hash": "61777a391377c7ffb79d74fc2a8c936efc5eef6e",
+      "fileOptions": {
+        "mainModule": true
+      }
+    },
+    {
+      "type": "source",
+      "extension": "js",
+      "file": "web.browser/notifications.js",
+      "length": 1101,
+      "offset": 0,
+      "path": "notifications.js",
+      "hash": "30509e84b9252aa02a3d19aaea76c86f7bc15e6c",
+      "fileOptions": {
+        "lazy": true
+      }
+    }
+  ]
+}

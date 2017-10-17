@@ -1,0 +1,55 @@
+{
+  "public": {
+    "CDN_HOST": "http://localhost:3200/build",
+    "APOLLO_CLIENT_URL": "http://localhost:3400/graphql",
+    "APOLLO_CLIENT_SUBSCRIPTION_URL": "ws://localhost:3400/subscriptions"
+  },
+
+  "company": {
+    "name": "Erxes Inc.",
+    "email": "info@erxes.io",
+    "noReplyEmail": "no-reply@erxes.io"
+  },
+
+  "services": {
+    "aws": {
+      "accessKeyId": "",
+      "secretAccessKey": "",
+      "bucket": "",
+      "prefix": ""
+    },
+    "facebook": [
+      {
+        "id": "",
+        "name": "",
+        "verifyToken": "",
+        "accessToken": ""
+      }
+    ],
+    "twitter": {
+      "consumerKey": "",
+      "consumerSecret": "",
+      "redirectUrl": "https://localhost:3000/service/oauth/twitter_callback"
+    }
+  },
+
+  "initialData": {
+    "user": {
+      "username": "admin",
+      "email": "admin@erxes.io",
+      "password": "admin123",
+      "fullName": "Erxes Admin"
+    },
+    "brand": {
+      "name": "Local publisher",
+      "code": "YDEdKj"
+    },
+    "integration": {
+      "name": "In-app-messaging for Local publisher",
+      "kind": "messenger"
+    },
+    "channel": {
+      "name": "Sales"
+    }
+  }
+}

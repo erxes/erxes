@@ -1,0 +1,59 @@
+{
+  "format": "isopack-2-unibuild",
+  "declaredExports": [],
+  "uses": [
+    {
+      "package": "meteor"
+    },
+    {
+      "package": "ecmascript",
+      "constraint": "0.1.6"
+    },
+    {
+      "package": "aldeed:simple-schema",
+      "constraint": "1.5.3"
+    },
+    {
+      "package": "aldeed:collection2",
+      "constraint": "2.9.0"
+    }
+  ],
+  "resources": [
+    {
+      "type": "source",
+      "extension": "js",
+      "file": "web.browser/client/main.js",
+      "length": 681,
+      "offset": 0,
+      "path": "client/main.js",
+      "hash": "c2d6818320799a8f5fe3a1d5a403bcbe9848557f",
+      "fileOptions": {
+        "mainModule": true
+      }
+    },
+    {
+      "type": "source",
+      "extension": "js",
+      "file": "web.browser/client/collections.js",
+      "length": 215,
+      "offset": 0,
+      "path": "client/collections.js",
+      "hash": "5e91c5b8b266c86c429cbdbc3b4f0fc5128d6d99",
+      "fileOptions": {
+        "lazy": true
+      }
+    },
+    {
+      "type": "source",
+      "extension": "js",
+      "file": "web.browser/client/schemas.js",
+      "length": 408,
+      "offset": 0,
+      "path": "client/schemas.js",
+      "hash": "4838cf89ae9b5c3af934a0c3421a2139ae2eece8",
+      "fileOptions": {
+        "lazy": true
+      }
+    }
+  ]
+}

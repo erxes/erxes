@@ -1,0 +1,105 @@
+{
+  "name": "meteor-dev-bundle",
+  "version": "0.0.0",
+  "dependencies": {
+    "amdefine": {
+      "version": "1.0.1",
+      "from": "amdefine@>=0.0.4",
+      "resolved": "https://registry.npmjs.org/amdefine/-/amdefine-1.0.1.tgz"
+    },
+    "ansi-regex": {
+      "version": "0.2.1",
+      "from": "ansi-regex@>=0.2.0 <0.3.0",
+      "resolved": "https://registry.npmjs.org/ansi-regex/-/ansi-regex-0.2.1.tgz",
+      "dev": true
+    },
+    "ansi-styles": {
+      "version": "1.1.0",
+      "from": "ansi-styles@>=1.1.0 <2.0.0",
+      "resolved": "https://registry.npmjs.org/ansi-styles/-/ansi-styles-1.1.0.tgz",
+      "dev": true
+    },
+    "asap": {
+      "version": "2.0.5",
+      "from": "asap@>=2.0.3 <2.1.0",
+      "resolved": "https://registry.npmjs.org/asap/-/asap-2.0.5.tgz"
+    },
+    "chalk": {
+      "version": "0.5.1",
+      "from": "chalk@0.5.1",
+      "resolved": "https://registry.npmjs.org/chalk/-/chalk-0.5.1.tgz",
+      "dev": true
+    },
+    "eachline": {
+      "version": "2.3.3",
+      "from": "https://github.com/meteor/node-eachline/tarball/ff89722ff94e6b6a08652bf5f44c8fffea8a21da",
+      "resolved": "https://github.com/meteor/node-eachline/tarball/ff89722ff94e6b6a08652bf5f44c8fffea8a21da",
+      "dev": true
+    },
+    "escape-string-regexp": {
+      "version": "1.0.5",
+      "from": "escape-string-regexp@>=1.0.0 <2.0.0",
+      "resolved": "https://registry.npmjs.org/escape-string-regexp/-/escape-string-regexp-1.0.5.tgz",
+      "dev": true
+    },
+    "fibers": {
+      "version": "1.0.15",
+      "from": "fibers@1.0.15",
+      "resolved": "https://registry.npmjs.org/fibers/-/fibers-1.0.15.tgz"
+    },
+    "has-ansi": {
+      "version": "0.1.0",
+      "from": "has-ansi@>=0.1.0 <0.2.0",
+      "resolved": "https://registry.npmjs.org/has-ansi/-/has-ansi-0.1.0.tgz",
+      "dev": true
+    },
+    "meteor-promise": {
+      "version": "0.8.0",
+      "from": "meteor-promise@0.8.0",
+      "resolved": "https://registry.npmjs.org/meteor-promise/-/meteor-promise-0.8.0.tgz"
+    },
+    "promise": {
+      "version": "7.1.1",
+      "from": "promise@7.1.1",
+      "resolved": "https://registry.npmjs.org/promise/-/promise-7.1.1.tgz"
+    },
+    "semver": {
+      "version": "4.1.0",
+      "from": "semver@4.1.0",
+      "resolved": "https://registry.npmjs.org/semver/-/semver-4.1.0.tgz"
+    },
+    "source-map": {
+      "version": "0.1.32",
+      "from": "source-map@0.1.32",
+      "resolved": "https://registry.npmjs.org/source-map/-/source-map-0.1.32.tgz"
+    },
+    "source-map-support": {
+      "version": "0.3.2",
+      "from": "https://github.com/meteor/node-source-map-support/tarball/1912478769d76e5df4c365e147f25896aee6375e",
+      "resolved": "https://github.com/meteor/node-source-map-support/tarball/1912478769d76e5df4c365e147f25896aee6375e"
+    },
+    "strip-ansi": {
+      "version": "0.3.0",
+      "from": "strip-ansi@>=0.3.0 <0.4.0",
+      "resolved": "https://registry.npmjs.org/strip-ansi/-/strip-ansi-0.3.0.tgz",
+      "dev": true
+    },
+    "supports-color": {
+      "version": "0.2.0",
+      "from": "supports-color@>=0.2.0 <0.3.0",
+      "resolved": "https://registry.npmjs.org/supports-color/-/supports-color-0.2.0.tgz",
+      "dev": true
+    },
+    "type-of": {
+      "version": "2.0.1",
+      "from": "type-of@>=2.0.0 <3.0.0",
+      "resolved": "https://registry.npmjs.org/type-of/-/type-of-2.0.1.tgz",
+      "dev": true
+    },
+    "underscore": {
+      "version": "1.5.2",
+      "from": "underscore@1.5.2",
+      "resolved": "https://registry.npmjs.org/underscore/-/underscore-1.5.2.tgz"
+    }
+  }
+}
