@@ -1,3 +1,6 @@
+export const EMAIL_CONTENT_CLASS = 'erxes-email-content';
+export const EMAIL_CONTENT_PLACEHOLDER = `<div class="${EMAIL_CONTENT_CLASS}"></div>`;
+
 export const CONVERSATION_STATUSES = {
   NEW: 'new',
   OPEN: 'open',
@@ -20,6 +23,39 @@ export const TAG_TYPES = {
   ALL_LIST: ['conversation', 'customer', 'engageMessage'],
 };
 
+export const FACEBOOK_DATA_KINDS = {
+  FEED: 'feed',
+  MESSENGER: 'messenger',
+  ALL_LIST: ['feed', 'messenger'],
+};
+
+export const MESSENGER_KINDS = {
+  CHAT: 'chat',
+  NOTE: 'note',
+  POST: 'post',
+  ALL_LIST: ['chat', 'note', 'post'],
+};
+
+export const SENT_AS_CHOICES = {
+  BADGE: 'badge',
+  SNIPPET: 'snippet',
+  FULL_MESSAGE: 'fullMessage',
+  ALL_LIST: ['badge', 'snippet', 'fullMessage'],
+};
+
+export const MESSAGE_KINDS = {
+  AUTO: 'auto',
+  VISITOR_AUTO: 'visitorAuto',
+  MANUAL: 'manual',
+  ALL_LIST: ['auto', 'visitorAuto', 'manual'],
+};
+
+export const METHODS = {
+  MESSENGER: 'messenger',
+  EMAIL: 'email',
+  ALL_LIST: ['messenger', 'email'],
+};
+
 export const FORM_LOAD_TYPES = {
   SHOUTBOX: 'shoutbox',
   POPUP: 'popup',
@@ -39,6 +75,7 @@ export const KIND_CHOICES = {
   FORM: 'form',
   TWITTER: 'twitter',
   FACEBOOK: 'facebook',
+  ALL_LIST: ['messenger', 'form', 'twitter', 'facebook'],
   ALL: ['messenger', 'form', 'twitter', 'facebook'],
 };
 

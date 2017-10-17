@@ -36,9 +36,13 @@ import { types as FieldTypes, queries as FieldQueries, mutations as FieldMutatio
 
 import { types as FormTypes, queries as FormQueries, mutations as FormMutatons } from './form';
 
-import { types as EngageTypes, queries as EngageQueries } from './engage';
+import {
+  types as EngageTypes,
+  queries as EngageQueries,
+  mutations as EngageMutations,
+} from './engage';
 
-import { types as TagTypes, queries as TagQueries } from './tag';
+import { types as TagTypes, queries as TagQueries, mutations as TagMutations } from './tag';
 
 import {
   types as InternalNoteTypes,
@@ -125,6 +129,8 @@ export const mutations = `
   type Mutation {
     ${CompanyMutations}
     ${ConversationMutations}
+    ${EngageMutations}
+    ${TagMutations}
     ${BrandMutations}
     ${ResponseTemplateMutations}
     ${EmailTemplateMutations}
