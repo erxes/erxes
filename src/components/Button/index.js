@@ -96,7 +96,7 @@ Button.propTypes = {
   children: PropTypes.node.isRequired,
   icon: PropTypes.string.isRequired,
   onClick: PropTypes.func,
-  href: PropTypes.href,
+  href: PropTypes.func,
   styledType: PropTypes.oneOf([
     'default',
     'primary',
