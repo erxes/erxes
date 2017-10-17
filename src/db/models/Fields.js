@@ -5,7 +5,7 @@
 import mongoose from 'mongoose';
 import Random from 'meteor-random';
 import validator from 'validator';
-import { FIELD_CONTENT_TYPES } from '../../constants';
+import { FIELD_CONTENT_TYPES } from '../../data/constants';
 import { Forms } from './';
 
 const FieldSchema = mongoose.Schema({

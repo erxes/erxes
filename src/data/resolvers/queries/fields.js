@@ -1,5 +1,5 @@
 import { Companies, Customers, Fields } from '../../../db/models';
-import { FIELD_CONTENT_TYPES } from '../../../constants';
+import { FIELD_CONTENT_TYPES } from '../../../data/constants';
 
 export default {
   /**
