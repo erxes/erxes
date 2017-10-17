@@ -1,9 +1,10 @@
 import React from 'react';
 import { storiesOf, linkTo } from '@storybook/react';
 import { withKnobs, text, select, boolean } from '@storybook/addon-knobs';
-
+import 'ionicons/css/ionicons.min.css';
 import Button from '../src/components/Button';
 import Tag from '../src/components/Tag';
+import Icon from '../src/components/Icon';
 
 storiesOf('Button', module)
   .addDecorator(withKnobs)
@@ -14,13 +15,8 @@ storiesOf('Button', module)
       disabled={boolean('Disabled', false)}
       block={select('Block', ['default', 'block'], 'default')}
     >
+      <Icon icon="arrow-left-a icon" />
       {text('Text', 'Hello Button')}
-    </Button>
-  ))
-  .add('Icon Button', () => (
-    <Button
-    >
-      {text('Text', 'Click me')}
     </Button>
   ))
   .add('Link', () => (

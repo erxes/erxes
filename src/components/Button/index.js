@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import styled, { css } from 'styled-components'
 import { colors } from '../../styles';
 import { darken, lighten } from '../../utils/color';
-// import {Icon} from '../../utils/icon';
+// import { Icon } from '../Icon';
 
 const types = {
   default: {
@@ -82,17 +82,21 @@ const ButtonStyled = styled.button`${props => css`
   }
 `}`;
 
-function Button({ styledType, children, onClick, size, disabled, block }) {
+function Button({ styledType, children, onClick, size, disabled, block, href }) {
   return (
-    <ButtonStyled styledType={styledType} onClick={onClick} size={size} disabled={disabled} block={block}>
-      {children}
-    </ButtonStyled>
+    <a href={href}>
+      <ButtonStyled styledType={styledType} onClick={onClick} size={size} disabled={disabled} block={block}>
+        {children}
+      </ButtonStyled>
+    </a>
   );
 }
 
 Button.propTypes = {
   children: PropTypes.node.isRequired,
+  icon: PropTypes.string.isRequired,
   onClick: PropTypes.func,
+  href: PropTypes.href,
   styledType: PropTypes.oneOf([
     'default',
     'primary',
@@ -118,7 +122,8 @@ Button.defaultProps = {
   styledType: 'default',
   size: 'medium',
   children: 'Button',
-  block: 'default'
+  block: 'default',
+  href: '#',
 };
 
 export default Button;
