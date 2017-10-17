@@ -14,7 +14,7 @@ function Typography() {
 
       <div>
         <SmallText>Heading 1 ({fontSizeHeading1})</SmallText>
-        <Heading1>erxe is open source messaging platform</Heading1>
+        <Heading1>erxes is open source messaging platform </Heading1>
       </div>
 
       <br /><br />
