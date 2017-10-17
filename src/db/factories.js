@@ -4,6 +4,7 @@ import { MODULES, CONVERSATION_STATUSES } from '../data/constants';
 
 import {
   Users,
+  Integrations,
   Brands,
   EmailTemplates,
   ResponseTemplates,
@@ -11,7 +12,6 @@ import {
   Customers,
   ConversationMessages,
   Conversations,
-  Integrations,
   Tags,
   Segments,
   EngageMessages,
@@ -21,6 +21,7 @@ import {
   Companies,
   NotificationConfigurations,
   Notifications,
+  Channels,
 } from './models';
 
 export const userFactory = (params = {}) => {
@@ -265,3 +266,23 @@ export const notificationFactory = params => {
     receiver: params.receiver || userFactory({}),
   });
 };
+
+export async function channelFactory(params = {}) {
+  const user = await userFactory({});
+
+  const obj = Object.assign(
+    {
+      name: faker.random.word(),
+      description: faker.lorem.sentence,
+      integrationIds: [],
+      memberIds: [user._id],
+      userId: user._id,
+      conversationCount: 0,
+      openConversationCount: 0,
+      createdAt: new Date(),
+    },
+    params,
+  );
+
+  return Channels.create(obj);
+}

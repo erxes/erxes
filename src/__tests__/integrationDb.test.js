@@ -4,8 +4,15 @@
 import faker from 'faker';
 import { connect, disconnect } from '../db/connection';
 import { KIND_CHOICES, FORM_LOAD_TYPES, MESSENGER_DATA_AVAILABILITY } from '../data/constants';
-import { brandFactory, integrationFactory, formFactory, userFactory } from '../db/factories';
-import { Integrations, Brands, Users, Forms } from '../db/models';
+import {
+  brandFactory,
+  integrationFactory,
+  formFactory,
+  userFactory,
+  conversationMessageFactory,
+  conversationFactory,
+} from '../db/factories';
+import { Integrations, Brands, Users, Forms, ConversationMessages } from '../db/models';
 
 beforeAll(() => connect());
 afterAll(() => disconnect());
@@ -202,20 +209,28 @@ describe('edit form integration', () => {
 describe('remove integration model method test', () => {
   let _brand;
   let _integration;
+  let _conversation;
 
   beforeEach(async () => {
     _brand = await brandFactory({});
+
     _integration = await integrationFactory({
       name: 'form integration test',
       brandId: _brand._id,
       kind: 'form',
     });
+
+    _conversation = await conversationFactory({ integrationId: _integration._id });
+
+    await conversationMessageFactory({ conversationId: _conversation._id });
+    await conversationMessageFactory({ conversationId: _conversation._id });
   });
 
   afterEach(async () => {
     await Brands.remove({});
     await Integrations.remove({});
     await Users.remove({});
+    await ConversationMessages.remove({});
   });
 
   test('test if remove form integration model method is working successfully', async () => {
@@ -224,6 +239,7 @@ describe('remove integration model method test', () => {
     const integrationCount = await Integrations.find({}).count();
 
     expect(integrationCount).toEqual(0);
+    expect(await ConversationMessages.find({}).count()).toBe(0);
   });
 });
 

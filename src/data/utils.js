@@ -1,6 +1,39 @@
+import fs from 'fs';
 import nodemailer from 'nodemailer';
-import { MODULES } from './constants';
-import { Channels, Notifications, Users } from '../db/models';
+import Handlebars from 'handlebars';
+import { Notifications, Users } from '../db/models';
+
+/**
+ * Read contents of a file
+ * @param {string} filename - relative file path
+ * @return {Promise} returns promise resolving file contents
+ */
+export const readFile = filename => {
+  const filePath = `${__dirname}/../private/emailTemplates/${filename}.html`;
+
+  return new Promise((resolve, reject) => {
+    fs.readFile(filePath, 'utf8', (err, data) => {
+      if (err) {
+        reject(err);
+      }
+      resolve(data);
+    });
+  });
+};
+
+/**
+ * SendEmail template helper
+ * @param {Object} data data
+ * @param {String} templateName
+ * @return email with template as text
+ */
+const applyTemplate = async (data, templateName) => {
+  let template = await readFile(templateName);
+
+  template = Handlebars.compile(template.toString());
+
+  return template(data);
+};
 
 /**
  * Send email
@@ -10,16 +43,12 @@ import { Channels, Notifications, Users } from '../db/models';
  * @param {String} args.templateArgs.name
  * @param {Object} args.templateArgs.data
  * @param {Boolean} args.isCustom
- * @return {Promise} null
+ * @return {Promise}
 */
-
-export const sendEmail = async ({ toEmails, fromEmail, title, templateArgs }) => {
-  // TODO: test this method
+export const sendEmail = async ({ toEmails, fromEmail, title, template }) => {
   const { MAIL_SERVICE, MAIL_USER, MAIL_PASS, NODE_ENV } = process.env;
-  const isTest = NODE_ENV == 'test';
-
   // do not send email it is running in test mode
-  if (isTest) {
+  if (NODE_ENV == 'test') {
     return;
   }
 
@@ -31,46 +60,27 @@ export const sendEmail = async ({ toEmails, fromEmail, title, templateArgs }) =>
     },
   });
 
-  const { data } = templateArgs;
+  const { isCustom, data, name } = template;
+
+  // generate email content by given template
+  let html = await applyTemplate(data, name);
+
+  if (!isCustom) {
+    html = await applyTemplate({ content: html }, 'base');
+  }
 
   return toEmails.map(toEmail => {
     const mailOptions = {
       from: fromEmail,
       to: toEmail,
       subject: title,
-      text: data,
+      html,
     };
 
     return transporter.sendMail(mailOptions, (error, info) => {
       console.log(error); // eslint-disable-line
       console.log(info); // eslint-disable-line
     });
-  });
-};
-
-/**
- * Send notification to all members of this channel except the sender
- * @param {String} channelId
- * @param {Array} memberIds
- * @param {String} userId
- * @return {Promise}
- */
-export const sendChannelNotifications = async ({ channelId, memberIds, userId }) => {
-  memberIds = memberIds || [];
-
-  const channel = await Channels.findOne({ _id: channelId });
-
-  const content = `You have invited to '${channel.name}' channel.`;
-
-  return sendNotification({
-    createdUser: userId,
-    notifType: MODULES.CHANNEL_MEMBERS_CHANGE,
-    title: content,
-    content,
-    link: `/inbox/${channel._id}`,
-
-    // exclude current user
-    receivers: memberIds.filter(id => id !== userId),
   });
 };
 
@@ -124,5 +134,5 @@ export const sendNotification = async ({ createdUser, receivers, ...doc }) => {
 export default {
   sendEmail,
   sendNotification,
-  sendChannelNotifications,
+  readFile,
 };
