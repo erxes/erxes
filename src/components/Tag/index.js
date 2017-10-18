@@ -2,49 +2,43 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import styled, { css } from 'styled-components'
 import { colors } from '../../styles';
-import { darken } from '../../utils/color';
 
 const types = {
   default: {
-    background: colors.colorPrimary,
-    borderColor: darken(colors.colorPrimary, 10)
+    background: colors.colorPrimary
   },
   primary: {
-    background: colors.colorSecondary,
-    borderColor: darken(colors.colorSecondary, 10)
+    background: colors.colorSecondary
   },
   success: {
-    background: colors.colorCoreGreen,
-    borderColor: darken(colors.colorCoreGreen, 10)
+    background: colors.colorCoreGreen
   },
   danger: {
-    background: colors.colorCoreRed,
-    borderColor: darken(colors.colorCoreRed, 10)
+    background: colors.colorCoreRed
   },
   warning: {
-    background: colors.colorCoreYellow,
-    borderColor: darken(colors.colorCoreYellow, 10)
+    background: colors.colorCoreYellow
   }
 };
 
 const LabelStyled = styled.button`${props => css`
-  border-radius: 20px;
-  margin: 0 1em;
+  border-radius: 1.875em;
+  padding: 0.4em 0.8em;
   text-transform: uppercase;
   font-size: 0.6em;
   display: inline-block;
-  background: ${types[props.styledType].background};
+  background: ${types[props.nmStyle].background};
   color: ${colors.colorWhite};
-  border: 1px solid ${types[props.styledType].borderColor};
+  border: none;
 
   &:hover {
     cursor: default;
   }
 `}`;
 
-function Label({ styledType, children }) {
+function Label({ nmStyle, children }) {
   return (
-    <LabelStyled styledType={styledType}>
+    <LabelStyled nmStyle={nmStyle}>
       {children}
     </LabelStyled>
   );
@@ -52,7 +46,7 @@ function Label({ styledType, children }) {
 
 Label.propTypes = {
   children: PropTypes.node.isRequired,
-  styledType: PropTypes.oneOf([
+  nmStyle: PropTypes.oneOf([
     'default',
     'primary',
     'success',
@@ -62,7 +56,7 @@ Label.propTypes = {
 };
 
 Label.defaultProps = {
-  styledType: 'default',
+  nmStyle: 'default',
   children: 'Label',
 };
 

@@ -7,49 +7,50 @@ import { darken, lighten } from '../../utils/color';
 const types = {
   default: {
     background: colors.colorPrimary,
-    borderColor: darken(colors.colorPrimary, 10),
+    borderColor: colors.colorPrimary,
     color: colors.colorWhite,
     display: 'inline-block'
   },
   primary: {
     background: colors.colorSecondary,
-    borderColor: darken(colors.colorSecondary, 10),
+    borderColor: colors.colorSecondary,
     color: colors.colorWhite,
   },
   success: {
     background: colors.colorCoreGreen,
-    borderColor: darken(colors.colorCoreGreen, 10),
+    borderColor: colors.colorCoreGreen,
     color: colors.colorWhite,
   },
   danger: {
     background: colors.colorCoreRed,
-    borderColor: darken(colors.colorCoreRed, 10),
+    borderColor: colors.colorCoreRed,
     color: colors.colorWhite,
   },
   warning: {
     background: colors.colorCoreYellow,
-    borderColor: darken(colors.colorCoreYellow, 10),
+    borderColor: colors.colorCoreYellow,
     color: colors.colorWhite,
   },
   simple: {
     background: colors.colorWhite,
-    borderColor: darken(colors.bgLight, 10),
+    borderColor: colors.colorCoreLightGray,
     color: colors.colorCoreLightGray,
   },
+  link: {
+    background: 'transparent',
+    color: colors.colorCoreGray,
+    borderColor: colors.colorWhite,
+  },
   large: {
-    padding: '0.5em 1em',
-    fontSize: '1.125em'
+    padding: '0.5em 1.063em',
+    fontSize: '1em'
   },
   medium: {
-    padding: '0.375em 0.75em',
-    fontSize: '0.813em'
-  },
-  small: {
-    padding: '0.313em 0.625em',
+    padding: '0.438em 1em',
     fontSize: '0.75em'
   },
-  xsmall: {
-    padding: '0.188em 0.375em',
+  small: {
+    padding: '0.313em 0.75em',
     fontSize: '0.688em'
   },
   block: {
@@ -58,72 +59,95 @@ const types = {
   }
 };
 
-const ButtonStyled = styled.button`${props => css`
-  border-radius: 20px;
-  padding: ${types[props.size].padding};
+const ButtonLink = styled.a`
+  padding: '0.438em 1em';
   margin: 0 1em;
-  display: ${types[props.block].display};
-  width: ${types[props.block].width};
-  background: ${types[props.styledType].background};
-  color: ${types[props.styledType].color};
-  font-size: ${types[props.size].fontSize};
-  border: 1px solid ${types[props.styledType].borderColor};
+  color: ${colors.colorCoreGray};
+  font-size: '0.75em';
   
   &:disabled {
     cursor: not-allowed !important;
-    background: ${lighten(types[props.styledType].background, 40)} !important;
-    border: 1px solid ${lighten(types[props.styledType].borderColor, 40)} !important;
+    color:  ${lighten(colors.colorCoreLightGray, 20)} !important;
   }
 
   &:hover {
     cursor: pointer;
-    background: ${darken(types[props.styledType].background, 10)};
+    color: ${darken(colors.colorCoreGray, 20)};
+  }
+`;
+
+const ButtonStyled = styled.button`${props => css`
+  border-radius: 1.875em;
+  padding: ${types[props.size].padding};
+  margin: 0 1em;
+  display: ${types[props.label].display};
+  width: ${types[props.label].width};
+  border: 0.063em solid ${types[props.nmStyle].borderColor};
+  background: ${types[props.nmStyle].background};
+  color: ${types[props.nmStyle].color};
+  font-size: ${types[props.size].fontSize};
+  
+  &:disabled {
+    cursor: not-allowed !important;
+    background: ${lighten(types[props.nmStyle].background, 30)} !important;
+    border: 0.063em solid ${lighten(types[props.nmStyle].borderColor, 30)} !important;
+    color:  ${lighten(types[props.nmStyle].color, 20)} !important;
+  }
+
+  &:hover {
+    cursor: pointer;
+    background: ${darken(types[props.nmStyle].background, 10)};
   }
 `}`;
 
-function Button({ styledType, children, onClick, size, disabled, block, href }) {
-  return (
-    <a href={href}>
-      <ButtonStyled 
-        styledType={styledType} onClick={onClick} size={size} disabled={disabled} block={block}
+function Button({ nmStyle, children, size, disabled, label, href }) {
+  return ( 
+    <div>
+    { (href) ?
+      <ButtonLink disabled={disabled} href={href}
       >
         {children}
+      </ButtonLink>
+      :
+      <ButtonStyled 
+       nmStyle={nmStyle} size={size} disabled={disabled} label={label}
+      >
+      { children }
       </ButtonStyled>
-    </a>
+    }
+    </div>
   );
 }
 
 Button.propTypes = {
   children: PropTypes.node.isRequired,
-  onClick: PropTypes.func,
   href: PropTypes.string,
-  styledType: PropTypes.oneOf([
+  nmStyle: PropTypes.oneOf([
     'default',
     'primary',
     'success',
     'danger',
     'warning',
-    'simple'
+    'simple',
+    'link'
   ]),
   size: PropTypes.oneOf([
     'large',
     'medium',
-    'small',
-    'xsmall'
+    'small'
   ]),
   disabled: PropTypes.boolean,
-  block: PropTypes.oneOf([
+  label: PropTypes.oneOf([
     'default',
     'block'
   ])
 };
 
 Button.defaultProps = {
-  styledType: 'default',
+  nmStyle: 'default',
   size: 'medium',
   children: 'Button',
-  block: 'default',
-  href: '#'
+  label: 'default'
 };
 
 export default Button;
