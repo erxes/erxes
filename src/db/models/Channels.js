@@ -4,10 +4,7 @@ import { createdAtModifier } from '../plugins';
 
 // schema for Channels
 const ChannelSchema = mongoose.Schema({
-  _id: {
-    type: String,
-    default: () => Random.id(),
-  },
+  _id: { type: String, unique: true, default: () => Random.id() },
   name: String,
   description: {
     type: String,
@@ -78,12 +75,6 @@ class Channel {
    * @return {Promise} returns Promise resolving updated channel document
    */
   static async updateChannel(_id, doc) {
-    const { userId } = doc;
-
-    if (userId && userId._id) {
-      doc.userId = doc.userId._id;
-    }
-
     this.preSave(doc);
 
     await this.update({ _id }, { $set: doc }, { runValidators: true });
