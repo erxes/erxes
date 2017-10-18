@@ -30,6 +30,12 @@ export const userFactory = (params = {}) => {
     details: {
       fullName: params.fullName || faker.random.word(),
     },
+    emails: [
+      {
+        address: params.email || faker.internet.email(),
+        verified: true,
+      },
+    ],
   });
 
   return user.save();
@@ -49,11 +55,16 @@ export const tagsFactory = (params = { type: 'engageMessage' }) => {
 export const engageMessageFactory = (params = {}) => {
   const engageMessage = new EngageMessages({
     kind: 'manual',
+    method: 'messenger',
     title: faker.random.word(),
     fromUserId: params.userId || faker.random.word(),
     segmentId: params.segmentId || faker.random.word(),
     isLive: true,
     isDraft: false,
+    messenger: {
+      brandId: faker.random.word(),
+      content: faker.random.word(),
+    },
   });
 
   return engageMessage.save();

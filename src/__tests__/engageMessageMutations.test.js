@@ -2,29 +2,55 @@
 /* eslint-disable no-underscore-dangle */
 
 import { connect, disconnect } from '../db/connection';
-import { userFactory, segmentsFactory, engageMessageFactory } from '../db/factories';
-import { EngageMessages, Users, Segments } from '../db/models';
 import mutations from '../data/resolvers/mutations';
+import {
+  EngageMessages,
+  Users,
+  Segments,
+  Customers,
+  EmailTemplates,
+  Integrations,
+} from '../db/models';
+import {
+  engageMessageFactory,
+  userFactory,
+  segmentsFactory,
+  emailTemplateFactory,
+  customerFactory,
+  integrationFactory,
+} from '../db/factories';
 
 beforeAll(() => connect());
 afterAll(() => disconnect());
 
 describe('engage message mutation tests', () => {
+  let _message;
   let _user;
   let _segment;
-  let _message;
+  let _customer;
+  let _emailTemplate;
   let _doc = null;
 
   beforeEach(async () => {
     _user = await userFactory({});
     _segment = await segmentsFactory({});
     _message = await engageMessageFactory({});
+    _emailTemplate = await emailTemplateFactory({});
+    _customer = await customerFactory({});
+    await integrationFactory({ brandId: 'brandId' });
     _doc = {
       kind: 'manual',
       method: 'email',
       title: 'Message test',
       fromUserId: _user._id,
       segmentId: _segment._id,
+      isLive: true,
+      customerIds: [_customer._id],
+      email: {
+        templateId: _emailTemplate._id,
+        subject: 'String',
+        content: 'String asd',
+      },
     };
   });
 
@@ -33,6 +59,9 @@ describe('engage message mutation tests', () => {
     await Users.remove({});
     await Segments.remove({});
     await EngageMessages.remove({});
+    await EmailTemplates.remove({});
+    await Customers.remove({});
+    await Integrations.remove({});
   });
 
   test('Check login required', async () => {
@@ -66,7 +95,11 @@ describe('engage message mutation tests', () => {
   });
 
   test('messages create', async () => {
-    EngageMessages.createEngageMessage = jest.fn();
+    EngageMessages.createEngageMessage = jest.fn(() => ({
+      _id: 'ghghghgh',
+      ..._doc,
+    }));
+
     await mutations.engageMessageAdd(null, _doc, { user: _user });
 
     expect(EngageMessages.createEngageMessage).toBeCalledWith(_doc);
@@ -105,7 +138,20 @@ describe('engage message mutation tests', () => {
   });
 
   test('set live manual', async () => {
-    EngageMessages.engageMessageSetLive = jest.fn();
+    EngageMessages.engageMessageSetLive = jest.fn(() => ({
+      _id: _message._id,
+      method: 'messenger',
+      title: 'Send via messenger',
+      fromUserId: _user._id,
+      segmentId: _segment._id,
+      isLive: true,
+      customerIds: [_customer._id],
+      messenger: {
+        brandId: 'brandId',
+        content: 'content',
+      },
+    }));
+
     await mutations.engageMessageSetLiveManual(null, _message._id, { user: _user });
 
     expect(EngageMessages.engageMessageSetLive).toBeCalledWith(_message._id);
