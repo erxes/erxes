@@ -24,14 +24,10 @@ const types = {
   warning: {
     background: colors.colorCoreYellow,
     borderColor: darken(colors.colorCoreYellow, 10)
-  },
-  simple: {
-    background: colors.colorCoreLightGray,
-    borderColor: darken(colors.colorCoreLightGray, 10)
   }
 };
 
-const TagStyled = styled.button`${props => css`
+const LabelStyled = styled.button`${props => css`
   border-radius: 20px;
   margin: 0 1em;
   text-transform: uppercase;
@@ -46,29 +42,28 @@ const TagStyled = styled.button`${props => css`
   }
 `}`;
 
-function Tag({ styledType, children }) {
+function Label({ styledType, children }) {
   return (
-    <TagStyled styledType={styledType}>
+    <LabelStyled styledType={styledType}>
       {children}
-    </TagStyled>
+    </LabelStyled>
   );
 }
 
-Tag.propTypes = {
+Label.propTypes = {
   children: PropTypes.node.isRequired,
   styledType: PropTypes.oneOf([
     'default',
     'primary',
     'success',
     'danger',
-    'warning',
-    'simple'
+    'warning'
   ])
 };
 
-Tag.defaultProps = {
+Label.defaultProps = {
   styledType: 'default',
-  children: 'Tag',
+  children: 'Label',
 };
 
-export default Tag;
+export default Label;

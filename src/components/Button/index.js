@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import styled, { css } from 'styled-components'
 import { colors } from '../../styles';
 import { darken, lighten } from '../../utils/color';
-// import { Icon } from '../Icon';
 
 const types = {
   default: {
@@ -85,7 +84,9 @@ const ButtonStyled = styled.button`${props => css`
 function Button({ styledType, children, onClick, size, disabled, block, href }) {
   return (
     <a href={href}>
-      <ButtonStyled styledType={styledType} onClick={onClick} size={size} disabled={disabled} block={block}>
+      <ButtonStyled 
+        styledType={styledType} onClick={onClick} size={size} disabled={disabled} block={block}
+      >
         {children}
       </ButtonStyled>
     </a>
@@ -94,9 +95,8 @@ function Button({ styledType, children, onClick, size, disabled, block, href }) 
 
 Button.propTypes = {
   children: PropTypes.node.isRequired,
-  icon: PropTypes.string.isRequired,
   onClick: PropTypes.func,
-  href: PropTypes.func,
+  href: PropTypes.string,
   styledType: PropTypes.oneOf([
     'default',
     'primary',
@@ -111,7 +111,7 @@ Button.propTypes = {
     'small',
     'xsmall'
   ]),
-  disabled: PropTypes.func,
+  disabled: PropTypes.boolean,
   block: PropTypes.oneOf([
     'default',
     'block'
@@ -123,7 +123,7 @@ Button.defaultProps = {
   size: 'medium',
   children: 'Button',
   block: 'default',
-  href: '#',
+  href: '#'
 };
 
 export default Button;

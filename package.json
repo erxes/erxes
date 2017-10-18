@@ -7,7 +7,6 @@
     "moment": "2.18.0",
     "react": "^16.0.0",
     "react-dom": "^16.0.0",
-    "react-ionicons": "^1.5.9",
     "react-scripts": "1.0.14",
     "styled-components": "^2.2.1"
   },

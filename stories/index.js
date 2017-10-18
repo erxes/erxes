@@ -1,21 +1,23 @@
 import React from 'react';
 import { storiesOf, linkTo } from '@storybook/react';
 import { withKnobs, text, select, boolean } from '@storybook/addon-knobs';
-import 'ionicons/css/ionicons.min.css';
+// import 'ionicons/css/ionicons.min.css';
 import Button from '../src/components/Button';
-import Tag from '../src/components/Tag';
+import Label from '../src/components/Tag';
 import Icon from '../src/components/Icon';
 
 storiesOf('Button', module)
   .addDecorator(withKnobs)
   .add('Primary', () => (
     <Button
-      styledType={select('Color', ['primary', 'default', 'success', 'danger', 'warning', 'simple'], 'default')}
+      styledType={select('Color', 
+      ['primary', 'default', 'success', 'danger', 'warning', 'simple'], 
+      'default' )}
       size={select('Size', ['large', 'medium', 'small', 'xsmall'], 'medium')}
       disabled={boolean('Disabled', false)}
       block={select('Block', ['default', 'block'], 'default')}
     >
-      <Icon icon="arrow-left-a icon" />
+      <Icon icon="arrow-left-a" />
       {text('Text', 'Hello Button')}
     </Button>
   ))
@@ -27,12 +29,14 @@ storiesOf('Button', module)
     </Button>
   ));
 
-storiesOf('Tag', module)
+storiesOf('Label', module)
   .addDecorator(withKnobs)
   .add('Default', () => (
-    <Tag
-      styledType={select('Color', ['primary', 'default', 'success', 'danger', 'warning', 'simple'], 'default')}
+    <Label
+      styledType={select('Color', 
+      ['primary', 'default', 'success', 'danger', 'warning'], 
+      'default' )}
     >
       {text('Text', 'Hello Tag')}
-    </Tag>
+    </Label>
   ));
