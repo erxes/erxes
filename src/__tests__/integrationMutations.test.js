@@ -26,7 +26,7 @@ describe('mutations', () => {
   });
 
   test('test if `logging required` error is working as intended', () => {
-    expect.assertions(6);
+    expect.assertions(7);
 
     // Login required ==================
     expect(() =>
@@ -36,6 +36,10 @@ describe('mutations', () => {
     expect(() =>
       integrationMutations.integrationsEditMessengerIntegration(null, {}, {}),
     ).toThrowError('Login required');
+
+    expect(() => integrationMutations.integrationsSaveMessengerConfigs(null, {}, {})).toThrowError(
+      'Login required',
+    );
 
     expect(() =>
       integrationMutations.integrationsSaveMessengerAppearanceData(null, {}, {}),

@@ -4,7 +4,7 @@ export const createdAtModifier = schema => {
   });
 
   schema.pre('save', function(next) {
-    if (this._id == undefined) {
+    if (this.createdAt == undefined) {
       this.createdAt = new Date();
     }
     next();

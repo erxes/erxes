@@ -2,7 +2,7 @@ import mongoose from 'mongoose';
 import 'mongoose-type-email';
 import Random from 'meteor-random';
 import { Messages, Conversations } from './Conversations';
-import { Customers } from './Customers';
+import { Customers } from './';
 import {
   KIND_CHOICES,
   FORM_SUCCESS_ACTIONS,
@@ -317,4 +317,5 @@ class Integration {
 }
 
 IntegrationSchema.loadClass(Integration);
+
 export default mongoose.model('integrations', IntegrationSchema);

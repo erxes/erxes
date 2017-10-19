@@ -20,12 +20,24 @@
     "lint": "eslint src",
     "format": "prettier --write --print-width 100 --single-quote --trailing-comma all 'src/**/*.js'",
     "precommit": "lint-staged",
-    "test": "jest --runInBand"
+    "test": "jest --runInBand --coverage"
   },
   "lint-staged": {
     "*.js": [
       "prettier --write --print-width 100 --single-quote --trailing-comma all",
       "git add"
+    ]
+  },
+  "jest": {
+    "collectCoverageFrom": [
+      "src/**/*.{js}",
+      "!src/index.js",
+      "!src/db/factories.js",
+      "!src/db/connection.js",
+      "!src/data/schema/**",
+      "!src/data/resolvers/subscriptions/**",
+      "!src/data/index.js",
+      "!src/data/utils.js"
     ]
   },
   "dependencies": {
@@ -50,7 +62,8 @@
     "passport-http-bearer": "^1.0.1",
     "strip": "^3.0.0",
     "subscriptions-transport-ws": "^0.7.3",
-    "underscore": "^1.8.3"
+    "underscore": "^1.8.3",
+    "validator": "^9.0.0"
   },
   "devDependencies": {
     "babel-cli": "^6.24.0",

@@ -4,20 +4,24 @@ import { MODULES, CONVERSATION_STATUSES } from '../data/constants';
 
 import {
   Users,
+  Integrations,
   Brands,
   EmailTemplates,
   ResponseTemplates,
+  InternalNotes,
+  Customers,
   ConversationMessages,
   Conversations,
-  Integrations,
   Tags,
   Segments,
   EngageMessages,
   Forms,
   FormFields,
+  Fields,
+  Companies,
   NotificationConfigurations,
   Notifications,
-  Customers,
+  Channels,
 } from './models';
 
 export const userFactory = (params = {}) => {
@@ -98,6 +102,75 @@ export const responseTemplateFactory = (params = {}) => {
   return responseTemplate.save();
 };
 
+export const segmentFactory = (params = {}) => {
+  const defaultConditions = [
+    {
+      field: 'messengerData.sessionCount',
+      operator: 'e',
+      value: '10',
+      dateUnit: 'days',
+      type: 'string',
+    },
+  ];
+
+  const segment = new Segments({
+    name: faker.random.word(),
+    description: params.description || faker.random.word(),
+    subOf: params.subOf || 'DFSAFDFDSFDSF',
+    color: params.color || '#ffff',
+    connector: params.connector || 'any',
+    conditions: params.conditions || defaultConditions,
+  });
+
+  return segment.save();
+};
+
+export const internalNoteFactory = (params = {}) => {
+  const internalNote = new InternalNotes({
+    contentType: params.contentType || 'customer',
+    contentTypeId: params.contentTypeId || 'DFASFDFSDAFDF',
+    content: params.content || faker.random.word(),
+  });
+
+  return internalNote.save();
+};
+
+export const companyFactory = (params = {}) => {
+  const company = new Companies({
+    name: params.name || faker.random.word(),
+    size: params.size || faker.random.number(),
+    industry: params.industry || Random.id(),
+    website: params.website || Random.id(),
+  });
+
+  return company.save();
+};
+
+export const customerFactory = (params = {}) => {
+  const customer = new Customers({
+    name: params.name || faker.random.word(),
+    email: params.email || faker.internet.email(),
+    phone: params.phone || faker.random.word(),
+    messengerData: params.messengerData || {},
+    customFieldsData: params.customFieldsData || {},
+  });
+
+  return customer.save();
+};
+
+export const fieldFactory = (params = {}) => {
+  const field = new Fields({
+    type: params.type || 'input',
+    validation: params.validation || 'number',
+    text: params.text || faker.random.word(),
+    description: params.description || faker.random.word(),
+    isRequired: params.isRequired || false,
+    order: params.order || 0,
+  });
+
+  return field.save();
+};
+
 export const conversationFactory = (params = {}) => {
   const conversation = new Conversations({
     content: params.content || faker.lorem.sentence(),
@@ -130,9 +203,10 @@ export const conversationMessageFactory = (params = {}) => {
 
 export const integrationFactory = (params = {}) => {
   const kind = params.kind || 'messenger';
+
   return Integrations.create({
     name: faker.random.word(),
-    kind: kind,
+    kind,
     brandId: params.brandId || Random.id(),
     formId: params.formId || Random.id(),
     messengerData: params.messengerData || { welcomeMessage: 'welcome', notifyCustomer: true },
@@ -193,10 +267,22 @@ export const notificationFactory = params => {
   });
 };
 
-export const customerFactory = (params = {}) => {
-  const customer = new Customers({
-    name: params.name || faker.name.findName(),
-    email: params.email || faker.internet.email(),
-  });
-  return customer.save();
-};
+export async function channelFactory(params = {}) {
+  const user = await userFactory({});
+
+  const obj = Object.assign(
+    {
+      name: faker.random.word(),
+      description: faker.lorem.sentence,
+      integrationIds: [],
+      memberIds: [user._id],
+      userId: user._id,
+      conversationCount: 0,
+      openConversationCount: 0,
+      createdAt: new Date(),
+    },
+    params,
+  );
+
+  return Channels.create(obj);
+}
