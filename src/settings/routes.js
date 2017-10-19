@@ -1,10 +1,10 @@
 import { ChannelList } from './components';
 
-const routes = [
+const settingsRoutes = [
   {
     path: '/settings/channels',
-    main: ChannelList,
+    content: ChannelList,
   },
 ];
 
-export default routes;
+export default settingsRoutes;
