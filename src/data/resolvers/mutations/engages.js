@@ -54,7 +54,7 @@ export default {
 
   /**
    * Remove message
-   * @param {String} id
+   * @param {String} _id - Engage message id 
    * @return {Promise}
    */
   engageMessageRemove(root, _id, { user }) {
@@ -65,7 +65,7 @@ export default {
 
   /**
    * Engage message set live
-   * @param {String} id
+   * @param {String} _id - Engage message id
    * @return {Promise} updated message object
    */
   engageMessageSetLive(root, _id, { user }) {
@@ -76,7 +76,7 @@ export default {
 
   /**
    * Engage message set pause
-   * @param {String} id
+   * @param {String} _id - Engage message id
    * @return {Promise} updated message object
    */
   engageMessageSetPause(root, _id, { user }) {
@@ -87,13 +87,14 @@ export default {
 
   /**
    * Engage message set live manual
-   * @param {String} id
+   * @param {String} _id - Engage message id
    * @return {Promise} updated message object
    */
   async engageMessageSetLiveManual(root, _id, { user }) {
     if (!user) throw new Error('Login required');
 
     const engageMessage = EngageMessages.engageMessageSetLive(_id);
+
     await send(engageMessage);
 
     return engageMessage;

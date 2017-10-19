@@ -3,6 +3,7 @@
 
 import { connect, disconnect } from '../db/connection';
 import mutations from '../data/resolvers/mutations';
+import { send } from '../data/resolvers/mutations/engageUtils';
 import {
   EngageMessages,
   Users,
@@ -10,6 +11,8 @@ import {
   Customers,
   EmailTemplates,
   Integrations,
+  Conversations,
+  ConversationMessages,
 } from '../db/models';
 import {
   engageMessageFactory,
@@ -94,16 +97,39 @@ describe('engage message mutation tests', () => {
     check(mutations.engageMessageSetLiveManual);
   });
 
+  test('Engage utils send via messenger', async () => {
+    expect.assertions(1);
+
+    try {
+      await send({
+        _id: _message._id,
+        method: 'messenger',
+        title: 'Send via messenger',
+        fromUserId: _user._id,
+        segmentId: _segment._id,
+        isLive: true,
+        messenger: {
+          brandId: '',
+          content: 'content',
+        },
+      });
+    } catch (e) {
+      expect(e.message).toEqual('Integration not found');
+    }
+  });
+
   test('messages create', async () => {
     EngageMessages.createEngageMessage = jest.fn(() => ({
       _id: 'ghghghgh',
       ..._doc,
     }));
 
+    EngageMessages.addNewDeliveryReport = jest.fn();
     await mutations.engageMessageAdd(null, _doc, { user: _user });
 
     expect(EngageMessages.createEngageMessage).toBeCalledWith(_doc);
     expect(EngageMessages.createEngageMessage.mock.calls.length).toBe(1);
+    expect(EngageMessages.addNewDeliveryReport.mock.calls.length).toBe(1);
   });
 
   test('messages update', async () => {
@@ -148,13 +174,18 @@ describe('engage message mutation tests', () => {
       customerIds: [_customer._id],
       messenger: {
         brandId: 'brandId',
-        content: 'content',
+        content: 'messenger content {{ customer.name }}',
       },
     }));
+
+    Conversations.createConversation = jest.fn();
+    ConversationMessages.createMessage = jest.fn();
 
     await mutations.engageMessageSetLiveManual(null, _message._id, { user: _user });
 
     expect(EngageMessages.engageMessageSetLive).toBeCalledWith(_message._id);
     expect(EngageMessages.engageMessageSetLive.mock.calls.length).toBe(1);
+    expect(Conversations.createConversation.mock.calls.length).toBe(1);
+    expect(ConversationMessages.createMessage.mock.calls.length).toBe(1);
   });
 });

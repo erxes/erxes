@@ -4,7 +4,6 @@
 import Random from 'meteor-random';
 import { connect, disconnect } from '../db/connection';
 import { EngageMessages, Users, Segments, Customers } from '../db/models';
-import { send } from '../data/resolvers/mutations/engageUtils';
 import {
   userFactory,
   segmentsFactory,
@@ -98,31 +97,8 @@ describe('engage messages model tests', () => {
     }
   });
 
-  test('Engage utils send via messenger', async () => {
-    expect.assertions(1);
-    try {
-      await send({
-        _id: _message._id,
-        method: 'messenger',
-        title: 'Send via messenger',
-        fromUserId: _user._id,
-        segmentId: _segment._id,
-        isLive: true,
-        messenger: {
-          brandId: 'brandId',
-          content: 'content',
-        },
-      });
-    } catch (e) {
-      expect(e.message).toEqual('Integration not found');
-    }
-  });
-
   test('save matched customer ids', async () => {
-    const message = await EngageMessages.saveMatchedCustomerIds(_message._id, [
-      _customer,
-      _customer2,
-    ]);
+    const message = await EngageMessages.setCustomerIds(_message._id, [_customer, _customer2]);
 
     expect(message.customerIds).toContain(_customer._id);
     expect(message.customerIds).toContain(_customer2._id);

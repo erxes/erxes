@@ -18,6 +18,18 @@ import Random from 'meteor-random';
 import QueryBuilder from '../queries/segmentQueryBuilder';
 import { createTransporter } from '../../utils';
 
+/**
+ * Dynamic content tags
+ * @param {String} content
+ * @param {Object} customer
+ * @param {String} customer.name
+ * @param {String} customer.email
+ * @param {Object} user
+ * @param {String} user.fullName
+ * @param {String} user.position
+ * @param {String} user.email
+ * @return replaced content text
+ */
 export const replaceKeys = ({ content, customer, user }) => {
   let result = content;
 
@@ -33,6 +45,12 @@ export const replaceKeys = ({ content, customer, user }) => {
   return result;
 };
 
+/**
+ * Find customers
+ * @param {[String]} customerIds
+ * @param {String} segmentId
+ * @return {Promise} customers
+ */
 const findCustomers = async ({ customerIds, segmentId }) => {
   // find matched customers
   let customerQuery = { _id: { $in: customerIds || [] } };
@@ -45,6 +63,10 @@ const findCustomers = async ({ customerIds, segmentId }) => {
   return await Customers.find(customerQuery);
 };
 
+/**
+ * Send via email
+ * @param {Object} engage message object
+ */
 const sendViaEmail = async message => {
   const { fromUserId, segmentId, customerIds } = message;
   const { templateId, subject, content } = message.email;
@@ -57,7 +79,7 @@ const sendViaEmail = async message => {
   const customers = await findCustomers({ customerIds, segmentId });
 
   // save matched customer ids
-  EngageMessages.saveMatchedCustomerIds(message._id, customers);
+  EngageMessages.setCustomerIds(message._id, customers);
 
   for (let customer of customers) {
     // replace keys in subject
@@ -96,6 +118,10 @@ const sendViaEmail = async message => {
   }
 };
 
+/**
+ * Send via messenger
+ * @param {Object} engage message object
+ */
 const sendViaMessenger = async message => {
   const { fromUserId, segmentId, customerIds } = message;
   const { brandId, content } = message.messenger;
@@ -112,8 +138,9 @@ const sendViaMessenger = async message => {
 
   // find matched customers
   const customers = await findCustomers({ customerIds, segmentId });
+
   // save matched customer ids
-  EngageMessages.saveMatchedCustomerIds(message._id, customers);
+  EngageMessages.setCustomerIds(message._id, customers);
 
   for (let customer of customers) {
     // replace keys in content

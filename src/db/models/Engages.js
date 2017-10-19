@@ -77,7 +77,7 @@ class Message {
 
   /**
    * Update engage message
-   * @param {String} _id
+   * @param {String} _id - Engage message id
    * @param {Object} doc object
    * @return {Promise} updated message object
    */
@@ -89,7 +89,7 @@ class Message {
 
   /**
    * Engage message set live
-   * @param {String} _id
+   * @param {String} _id - Engage message id
    * @return {Promise} updated message object
    */
   static async engageMessageSetLive(_id) {
@@ -100,7 +100,7 @@ class Message {
 
   /**
    * Engage message set pause
-   * @param {String} _id
+   * @param {String} _id - Engage message id
    * @return {Promise} updated message object
    */
   static async engageMessageSetPause(_id) {
@@ -111,7 +111,7 @@ class Message {
 
   /**
    * Remove engage message
-   * @param {String} _id
+   * @param {String} _id - Engage message id
    * @return {Promise}
    */
   static async removeEngageMessage(_id) {
@@ -124,11 +124,11 @@ class Message {
 
   /**
    * Save matched customer ids
-   * @param {String} _id
-   * @param {[Object]} customers
+   * @param {String} _id - Engage message id
+   * @param {[Object]} customers - Customers object
    * @return {Promise} updated message object
    */
-  static async saveMatchedCustomerIds(_id, customers) {
+  static async setCustomerIds(_id, customers) {
     await this.update({ _id }, { $set: { customerIds: customers.map(customer => customer._id) } });
 
     return this.findOne({ _id });
@@ -136,9 +136,9 @@ class Message {
 
   /**
    * Add new delivery report
-   * @param {String} _id
-   * @param {String} mailMessageId
-   * @param {String} customerId
+   * @param {String} _id - Engage message id
+   * @param {String} mailMessageId - Random mail message id
+   * @param {String} customerId - Customer id
    * @return {Promise} updated message object
    */
   static async addNewDeliveryReport(_id, mailMessageId, customerId) {
@@ -159,9 +159,9 @@ class Message {
 
   /**
    * Change delivery report status
-   * @param {String} _id
-   * @param {String} mailMessageId
-   * @param {String} status
+   * @param {String} _id - Engage message id
+   * @param {String} mailMessageId - Random mail message id
+   * @param {String} status - pending, send, failed etc...
    * @return {Promise} updated message object
    */
   static async changeDeliveryReportStatus(_id, mailMessageId, status) {

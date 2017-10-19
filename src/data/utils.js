@@ -36,14 +36,8 @@ const applyTemplate = async (data, templateName) => {
 };
 
 /**
- * Send email
- * @param {Array} args.toEmails
- * @param {String} args.fromEmail
- * @param {String} args.title
- * @param {String} args.templateArgs.name
- * @param {Object} args.templateArgs.data
- * @param {Boolean} args.isCustom
- * @return {Promise}
+ * Create transporter
+ * @return nodemailer transporter
 */
 export const createTransporter = async () => {
   const { MAIL_SERVICE, MAIL_USER, MAIL_PASS } = process.env;
@@ -64,11 +58,12 @@ export const createTransporter = async () => {
  * @param {String} args.title
  * @param {String} args.templateArgs.name
  * @param {Object} args.templateArgs.data
- * @param {Boolean} args.isCustom
+ * @param {Boolean} args.templateArgs.isCustom
  * @return {Promise}
 */
 export const sendEmail = async ({ toEmails, fromEmail, title, template }) => {
   const { NODE_ENV } = process.env;
+
   // do not send email it is running in test mode
   if (NODE_ENV == 'test') {
     return;
