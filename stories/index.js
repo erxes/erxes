@@ -11,7 +11,7 @@ storiesOf('Button', module)
   .addDecorator(withKnobs)
   .add('Primary', () => (
     <Button
-      nmStyle={select('Color', 
+      btnStyle={select('Color', 
       ['primary', 'default', 'success', 'danger', 'warning', 'simple', 'link'], 
       'default' )}
       size={select('Size', ['large', 'medium', 'small'], 'medium')}
@@ -28,7 +28,7 @@ storiesOf('Label', module)
   .addDecorator(withKnobs)
   .add('Default', () => (
     <Label
-      nmStyle={select('Color', 
+      btnStyle={select('Color', 
       ['primary', 'default', 'success', 'danger', 'warning'], 
       'default' )}
     >
