@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { ContentHeader, HeaderItems } from '../styles';
 
 const propTypes = {
   left: PropTypes.node,
@@ -8,10 +9,10 @@ const propTypes = {
 
 function ActionBar({ left, right }) {
   return (
-    <div className="action-bar">
-      <div className="left">{left}</div>
-      <div className="right">{right}</div>
-    </div>
+    <ContentHeader>
+      {left && <HeaderItems>{left}</HeaderItems>}
+      {right && <HeaderItems rightAligned>{right}</HeaderItems>}
+    </ContentHeader>
   );
 }
 

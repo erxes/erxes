@@ -1,23 +1,21 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import classNames from 'classnames';
+import { MainContent, ContentBox, ContenFooter } from '../styles';
 
 const propTypes = {
   actionBar: PropTypes.node,
   footer: PropTypes.node,
   children: PropTypes.node,
-  relative: PropTypes.bool,
 };
 
-function PageContent({ actionBar, footer, children, relative }) {
-  const contentClassName = classNames('content', { 'relative-content': relative });
+function PageContent({ actionBar, footer, children }) {
 
   return (
-    <div className="main-content">
+    <MainContent>
       {actionBar}
-      <div className={contentClassName}>{children}</div>
-      {footer ? <div className="footer">{footer}</div> : false}
-    </div>
+      <ContentBox>{children}</ContentBox>
+      {footer && <ContenFooter>{footer}</ContenFooter>}
+    </MainContent>
   );
 }
 

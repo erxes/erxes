@@ -4,6 +4,7 @@ import { Wrapper } from '../../layout/components';
 
 class Inbox extends Component {
   render() {
+    const Sidebar = Wrapper.Sidebar;
     const content = (
       <div
         className="scroll-area"
@@ -11,9 +12,7 @@ class Inbox extends Component {
           this.node = node;
         }}
       >
-        <div className="margined">
-          Welcome {this.props.title}
-        </div>
+        Welcome {this.props.title}
       </div>
     );
 
@@ -23,6 +22,21 @@ class Inbox extends Component {
       <Wrapper
         header={<Wrapper.Header breadcrumb={breadcrumb} />}
         content={content}
+        footer={<div />}
+        leftSidebar={
+          <Sidebar wide>
+            <Sidebar.Section>
+              Section
+            </Sidebar.Section>
+          </Sidebar>
+        }
+        rightSidebar={
+          <Wrapper.Sidebar >
+            <Sidebar.Section>
+              Section
+            </Sidebar.Section>
+          </Wrapper.Sidebar>
+          }
       />
     );
   }

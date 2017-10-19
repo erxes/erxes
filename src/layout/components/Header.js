@@ -1,6 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { BreadCrumb } from '../../components';
 import { TopBar } from '../styles';
+import QuickNavigation from './QuickNavigation';
 
 const propTypes = {
   breadcrumb: PropTypes.array.isRequired,
@@ -9,13 +11,15 @@ const propTypes = {
 function Header({ breadcrumb = [] }) {
   return (
     <TopBar>
-      <div>
+      <BreadCrumb>
         {breadcrumb.map(b => (
-          <div href={b.link} key={b.title}>
+          <BreadCrumb.Item href={b.link} active={!b.link} key={b.title}>
             {b.title}
-          </div>
+          </BreadCrumb.Item>
         ))}
-      </div>
+      </BreadCrumb>
+
+      <QuickNavigation />
     </TopBar>
   );
 }

@@ -36,10 +36,9 @@ const Nav = styled.nav`
     font-size: ${dimensions.coreSpacing}px;
     line-height: ${dimensions.headerSpacingWide}px;
     text-align: center;
-    color: ${rgba(colors.colorWhite, 0.8)};
+    color: ${rgba(colors.colorWhite, 0.7)};
 
     &:hover {
-      background: ${rgba(colors.colorBlack, 0.2)};
       color: ${colors.colorWhite};
     }
   }
@@ -66,7 +65,87 @@ const Contents = styled.div`
   display: flex;
   flex: 1;
   margin: ${dimensions.coreSpacing}px;
-  overflow: hidden;
+  margin-right: 0;
+`;
+
+const MainContent = styled.section`
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 480px;
+`;
+
+const ContentBox = styled.div`
+  flex: 1;
+  background-color: ${colors.bgLight};
+  overflow: auto;
+  box-shadow: 0 0 4px ${colors.shadowPrimary};
+  margin-right: ${dimensions.coreSpacing}px;
+`;
+
+const ContenFooter = styled.div`
+  background: ${colors.colorWhite};
+`;
+
+const ContentHeader = styled.div`
+  background: ${colors.colorWhite};
+  height: ${dimensions.headerSpacing}px;
+  line-height: ${dimensions.headerSpacing}px;
+  padding: 0 ${dimensions.coreSpacing}px 0 ${dimensions.coreSpacing}px;
+  margin-right: ${dimensions.coreSpacing}px;
+  border-bottom: 1px solid ${colors.borderPrimary};
+`;
+
+const HeaderItems = styled.div`
+  float: ${props => props.rightAligned ? 'right' : 'left'};
+`;
+
+const SideContent = styled.section`
+  overflow-y: auto;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  width: ${props => props.wide ? '360px' : '300px'};
+  margin-right: ${dimensions.coreSpacing}px;
+`;
+
+const SidebarBox = styled.div`
+  background-color: ${colors.colorWhite};
+  margin-bottom: ${dimensions.coreSpacing}px;
+  box-shadow: 0 0 4px ${colors.shadowPrimary};
+  position: relative;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+`;
+
+const HelperButtons = styled.div`
+  position: absolute;
+  right: ${dimensions.coreSpacing}px;
+  top: 16px;
+`;
+
+const QuickButton = styled.div`
+  float: left;
+  color: ${colors.colorCoreLightGray};
+  text-transform: none;
+  cursor: pointer;
+  margin-left: ${dimensions.unitSpacing};
+  font-size: 12px;
+  font-weight: 300;
+  outline: 0;
+`;
+
+
+const SidebarTitle = styled.h3`
+  color: ${colors.colorCoreLightGray};
+  font-size: 12px;
+  font-weight: 300;
+  text-transform: uppercase;
+  padding: ${dimensions.coreSpacing}px;
+  margin: 0;
 `;
 
 
@@ -78,4 +157,14 @@ export {
   MainWrapper,
   TopBar,
   Contents,
+  MainContent,
+  ContentBox,
+  ContenFooter,
+  ContentHeader,
+  HeaderItems,
+  SideContent,
+  SidebarBox,
+  HelperButtons,
+  QuickButton,
+  SidebarTitle,
 }
