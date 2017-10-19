@@ -172,18 +172,16 @@ export const fieldFactory = (params = {}) => {
 };
 
 export const conversationFactory = (params = {}) => {
-  const conversation = new Conversations({
+  return Conversations.createConversation({
     content: params.content || faker.lorem.sentence(),
     customerId: params.customerId || Random.id(),
     integrationId: params.integrationId || Random.id(),
     status: CONVERSATION_STATUSES.NEW,
   });
-
-  return conversation.save();
 };
 
 export const conversationMessageFactory = (params = {}) => {
-  const conversationMessage = new ConversationMessages({
+  return ConversationMessages.createMessage({
     content: params.content || faker.random.word(),
     attachments: {},
     mentionedUserIds: params.mentionedUserIds || [Random.id()],
@@ -197,8 +195,6 @@ export const conversationMessageFactory = (params = {}) => {
     formWidgetData: params.formWidgetData || {},
     facebookData: params.facebookData || {},
   });
-
-  return conversationMessage.save();
 };
 
 export const integrationFactory = (params = {}) => {

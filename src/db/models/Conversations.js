@@ -314,11 +314,42 @@ class Message {
    * @param  {Object} messageObj object
    * @return {Promise} Newly created message object
    */
-  static createMessage(doc) {
-    return this.create({
+  static async createMessage(doc) {
+    // const message = Object.assign({ createdAt: new Date() }, doc);
+    const message = await this.create({
       ...doc,
       createdAt: new Date(),
     });
+
+    const messageCount = await this.find({
+      conversationId: message.conversationId,
+    }).count();
+
+    await Conversations.update({ _id: message.conversationId }, { $set: { messageCount } });
+
+    // add created user to participators
+    if (message.conversationId && message.userId) {
+      await Conversations.update(
+        { _id: message.conversationId },
+        {
+          $addToSet: { participatedUserIds: message.userId },
+        },
+      );
+    }
+
+    // add mentioned users to participators
+    for (let userId of message.mentionedUserIds) {
+      if (message.conversationId && userId) {
+        await Conversations.update(
+          { _id: message.conversationId },
+          {
+            $addToSet: { participatedUserIds: userId },
+          },
+        );
+      }
+    }
+
+    return message;
   }
 
   /**
@@ -346,6 +377,26 @@ class Message {
     await this.update({ _id: doc.conversationId }, { $set: { content } });
 
     return this.createMessage({ ...doc, userId });
+  }
+
+  /**
+   * Remove a message
+   * @param  {Object} selector
+   * @return {Promise} Deleted message object
+   */
+  static async removeMessage(selector) {
+    const messages = await this.find(selector);
+    const result = await this.remove(selector);
+
+    for (let message of messages) {
+      const messageCount = await Messages.find({
+        conversationId: message.conversationId,
+      }).count();
+
+      await Conversations.update({ _id: message.conversationId }, { $set: { messageCount } });
+    }
+
+    return result;
   }
 }
 
