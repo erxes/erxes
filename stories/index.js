@@ -1,6 +1,7 @@
 import React from 'react';
 import { storiesOf } from '@storybook/react';
 import { withKnobs, text, select, boolean } from '@storybook/addon-knobs';
+import { action } from '@storybook/addon-actions';
 
 import Button from '../src/components/Button';
 import Label from '../src/components/Tag';
@@ -24,11 +25,12 @@ storiesOf('Button', module)
       'default' )}
       size={select('Size', ['large', 'medium', 'small'], 'medium')}
       disabled={boolean('Disabled', false)}
-      label={select('Block', ['default', 'label'], 'default')}
-      href={select('Href', [null, 'href'], null)}
+      label={select('Block', ['default', 'block'], 'default')}
+      href={select('Href', [null, 'href'], '')}
+      onClick={ action('button-click') }
     >
       <Icon icon="ios-home" size="1.2"/>
-      {text('Text', 'Hello Button')}
+      {text('Text', 'Normal')}
     </Button>
   ));
 

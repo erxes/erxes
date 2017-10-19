@@ -1,7 +1,5 @@
 import React from "react";
-import {
-  fontSizeHeading1,
-} from "../src/styles/typography";
+import { typography } from "../src/styles";
 
 import { Heading1, SmallText } from "./style";
 
@@ -13,7 +11,7 @@ function Typography() {
       <br /><br />
 
       <div>
-        <SmallText>Heading 1 ({fontSizeHeading1})</SmallText>
+        <SmallText>Heading 1 ({typography.fontSizeHeading1})</SmallText>
         <Heading1>erxes is open source messaging platform </Heading1>
       </div>
 

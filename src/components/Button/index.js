@@ -8,7 +8,7 @@ const types = {
   default: {
     background: colors.colorPrimary,
     color: colors.colorWhite,
-    display: 'inline-block'
+    display: 'inline-block',
   },
   primary: {
     background: colors.colorSecondary,
@@ -33,27 +33,26 @@ const types = {
   },
   link: {
     background: 'transparent',
-    borderColor: 'transparent',
     color: colors.colorCoreGray,
+  },
+  block: {
+    width: '100%',
+    display: 'block',
   },
 };
 
 const sizes = {
   large: {
-    padding: '0.563em 1.125em',
-    fontSize: '1em'
+    padding: '0.688em 2.063em',
+    fontSize: '0.875em',
   },
   medium: {
-    padding: '0.5em 1.063em',
-    fontSize: '0.75em'
+    padding: '0.665em 2em',
+    fontSize: '0.688em',
   },
   small: {
-    padding: '0.375em 0.813em',
-    fontSize: '0.688em'
-  },
-  block: {
-    width: '100%',
-    display: 'block'
+    padding: '0.5em 1.375em',
+    fontSize: '0.625em',
   },
 };
 
@@ -63,12 +62,12 @@ const ButtonLink = styled.a`${props => css`
   margin: 0 1em;
   display: ${types[props.label].display};
   width: ${types[props.label].width};
-  color: ${colors.colorCoreGray};
-  border: 0.063em solid ${types[props.btnStyle].borderColor};
+  border: ${types[props.btnStyle].borderColor ? '0.063em solid': 'none'};
   background: ${types[props.btnStyle].background};
   color: ${types[props.btnStyle].color};
   font-size: ${sizes[props.size].fontSize};
   text-decoration: inherit;
+  text-transform: uppercase;
   
   &:disabled {
     cursor: not-allowed !important;
@@ -78,7 +77,10 @@ const ButtonLink = styled.a`${props => css`
 
   &:hover {
     cursor: pointer;
-    color: ${darken(colors.colorCoreGray, 20)};
+    box-shadow: 0 0 0.25em 0 ${colors.colorCoreGray};
+    color: ${types[props.btnStyle].color !== colors.colorWhite 
+      ? darken(colors.colorCoreGray, 24) 
+      : ''};
   }
 `}`;
 
@@ -88,10 +90,11 @@ const ButtonStyled = styled.button`${props => css`
   margin: 0 1em;
   display: ${types[props.label].display};
   width: ${types[props.label].width};
-  border: 0.063em solid ${types[props.btnStyle].borderColor};
+  border: ${types[props.btnStyle].borderColor ? '0.063em solid': 'none'};
   background: ${types[props.btnStyle].background};
   color: ${types[props.btnStyle].color};
   font-size: ${sizes[props.size].fontSize};
+  text-transform: uppercase;
   
   &:disabled {
     cursor: not-allowed !important;
@@ -101,22 +104,25 @@ const ButtonStyled = styled.button`${props => css`
 
   &:hover {
     cursor: pointer;
-    background: ${darken(types[props.btnStyle].background, 10)};
+    box-shadow: 0 0 0.25em 0 ${colors.colorCoreGray};
+    color: ${types[props.btnStyle].color !== colors.colorWhite 
+      ? darken(colors.colorCoreGray, 24) 
+      : ''};
   }
 `}`;
 
-function Button({ btnStyle, children, size, disabled, label, href }) {
+function Button({ btnStyle, children, size, disabled, label, href, onClick }) {
   return ( 
     <div>
     { href ?
         <ButtonLink 
-          href={href} btnStyle={btnStyle} size={size} label={label} disabled={disabled}
+          href={href} btnStyle={btnStyle} size={size} label={label} disabled={disabled} onClick={onClick}
         >
           {children}
         </ButtonLink>
         :
         <ButtonStyled 
-         btnStyle={btnStyle} size={size} label={label} disabled={disabled}
+         btnStyle={btnStyle} size={size} label={label} disabled={disabled} onClick={onClick}
         >
           { children }
         </ButtonStyled>
