@@ -1,15 +1,50 @@
-import React from 'react';
-import { storiesOf } from '@storybook/react';
-import { withKnobs, text, select } from "@storybook/addon-knobs";
+import React from "react";
+import { storiesOf } from "@storybook/react";
+import { withKnobs, boolean } from "@storybook/addon-knobs";
 
-import Button from "../src/components/Button";
+import Table, {
+  Tbody,
+  Row,
+  Cell,
+  Thead,
+  ThCell,
+  Tfoot,
+  TfCell
+} from "../src/components/Table";
 
-storiesOf('Button', module)
+storiesOf("Table", module)
   .addDecorator(withKnobs)
-  .add("Primary", () => (
-    <Button
-      color={select("Color", ["primary", "default", "success"], "default")}
-    >
-      {text("Text", "Hello Button")}
-    </Button>
+  .add("Table", () => (
+    <Table hover={boolean("hover", false)} striped={boolean("striped", false)}>
+      <Thead>
+        <Row>
+          <ThCell>THEAD1</ThCell>
+          <ThCell>THEAD2</ThCell>
+          <ThCell>THEAD2</ThCell>
+          <ThCell>THEAD2</ThCell>
+        </Row>
+      </Thead>
+      <Tbody>
+        <Row>
+          <Cell>d1</Cell>
+          <Cell>d1</Cell>
+          <Cell>d1</Cell>
+          <Cell>d1</Cell>
+        </Row>
+        <Row>
+          <Cell>d2</Cell>
+          <Cell>d2</Cell>
+          <Cell>d2</Cell>
+          <Cell>d2</Cell>
+        </Row>
+      </Tbody>
+      <Tfoot>
+        <Row>
+          <TfCell>TFOOT1</TfCell>
+          <TfCell>TFOOT1</TfCell>
+          <TfCell>TFOOT1</TfCell>
+          <TfCell>TFOOT1</TfCell>
+        </Row>
+      </Tfoot>
+    </Table>
   ));
