@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { SideContent, SidebarBox } from '../styles';
+import { SideContent, SidebarBox, HelperButtons, SidebarTitle } from '../styles';
 
 const propTypes = {
   children: PropTypes.node,
@@ -66,9 +66,9 @@ class Section extends Component {
 
 function Title({ children }) {
   return (
-    <h3>
+    <SidebarTitle>
       {children}
-    </h3>
+    </SidebarTitle>
   );
 }
 Title.propTypes = {
@@ -77,9 +77,9 @@ Title.propTypes = {
 
 function QuickButtons({ children }) {
   return (
-    <div className="section-quick-buttons">
+    <HelperButtons>
       {children}
-    </div>
+    </HelperButtons>
   );
 }
 QuickButtons.propTypes = {

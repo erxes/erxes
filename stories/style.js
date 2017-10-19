@@ -2,6 +2,7 @@ import styled from "styled-components"
 import { injectGlobal } from 'styled-components';
 
 injectGlobal`
+  @import url('https://fonts.googleapis.com/css?family=Montserrat:300,400,500');
   body {
     margin: 30px;
 		font-family: 'Montserrat', 'Helvetica Neue', 'Helvetica', 'Arial',   sans-serif;

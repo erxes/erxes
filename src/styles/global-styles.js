@@ -20,4 +20,17 @@ injectGlobal`
       height: 100%;
     }
   }
+
+  ::-webkit-scrollbar {
+    width: 5px;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: rgba(215, 215, 215, .5);
+    border-radius: 5px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, .2);
+  }
 `;

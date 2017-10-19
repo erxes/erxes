@@ -92,6 +92,8 @@ const ContentHeader = styled.div`
   height: ${dimensions.headerSpacing}px;
   line-height: ${dimensions.headerSpacing}px;
   padding: 0 ${dimensions.coreSpacing}px 0 ${dimensions.coreSpacing}px;
+  margin-right: ${dimensions.coreSpacing}px;
+  border-bottom: 1px solid ${colors.borderPrimary};
 `;
 
 const HeaderItems = styled.div`
@@ -113,6 +115,37 @@ const SidebarBox = styled.div`
   margin-bottom: ${dimensions.coreSpacing}px;
   box-shadow: 0 0 4px ${colors.shadowPrimary};
   position: relative;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+`;
+
+const HelperButtons = styled.div`
+  position: absolute;
+  right: ${dimensions.coreSpacing}px;
+  top: 16px;
+`;
+
+const QuickButton = styled.div`
+  float: left;
+  color: ${colors.colorCoreLightGray};
+  text-transform: none;
+  cursor: pointer;
+  margin-left: ${dimensions.unitSpacing};
+  font-size: 12px;
+  font-weight: 300;
+  outline: 0;
+`;
+
+
+const SidebarTitle = styled.h3`
+  color: ${colors.colorCoreLightGray};
+  font-size: 12px;
+  font-weight: 300;
+  text-transform: uppercase;
+  padding: ${dimensions.coreSpacing}px;
+  margin: 0;
 `;
 
 
@@ -131,4 +164,7 @@ export {
   HeaderItems,
   SideContent,
   SidebarBox,
+  HelperButtons,
+  QuickButton,
+  SidebarTitle,
 }

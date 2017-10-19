@@ -22,7 +22,7 @@ function Navigation() {
         <Link to="/insights">
           <i className="ion-pie-graph" />
         </Link>
-        <Link to="/settings">
+        <Link to="/settings/channels">
           <i className="ion-gear-b" />
         </Link>
       </Nav>
