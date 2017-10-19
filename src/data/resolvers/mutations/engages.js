@@ -1,4 +1,6 @@
 import { EngageMessages } from '../../../db/models';
+import { MESSAGE_KINDS } from '../../constants';
+import { send } from './engageUtils';
 
 export default {
   /**
@@ -16,10 +18,17 @@ export default {
    * @param {[String]} doc.tagIds
    * @return {Promise} message object
    */
-  engageMessageAdd(root, doc, { user }) {
+  async engageMessageAdd(root, doc, { user }) {
     if (!user) throw new Error('Login required');
 
-    return EngageMessages.createEngageMessage(doc);
+    const engageMessage = EngageMessages.createEngageMessage(doc);
+
+    // if manual and live then send immediately
+    if (doc.kind === MESSAGE_KINDS.MANUAL && doc.isLive) {
+      await send(engageMessage);
+    }
+
+    return engageMessage;
   },
 
   /**
@@ -45,7 +54,7 @@ export default {
 
   /**
    * Remove message
-   * @param {String} id
+   * @param {String} _id - Engage message id 
    * @return {Promise}
    */
   engageMessageRemove(root, _id, { user }) {
@@ -56,7 +65,7 @@ export default {
 
   /**
    * Engage message set live
-   * @param {String} id
+   * @param {String} _id - Engage message id
    * @return {Promise} updated message object
    */
   engageMessageSetLive(root, _id, { user }) {
@@ -67,7 +76,7 @@ export default {
 
   /**
    * Engage message set pause
-   * @param {String} id
+   * @param {String} _id - Engage message id
    * @return {Promise} updated message object
    */
   engageMessageSetPause(root, _id, { user }) {
@@ -78,12 +87,16 @@ export default {
 
   /**
    * Engage message set live manual
-   * @param {String} id
+   * @param {String} _id - Engage message id
    * @return {Promise} updated message object
    */
-  engageMessageSetLiveManual(root, _id, { user }) {
+  async engageMessageSetLiveManual(root, _id, { user }) {
     if (!user) throw new Error('Login required');
 
-    return EngageMessages.engageMessageSetLive(_id);
+    const engageMessage = EngageMessages.engageMessageSetLive(_id);
+
+    await send(engageMessage);
+
+    return engageMessage;
   },
 };

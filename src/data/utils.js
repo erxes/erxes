@@ -36,29 +36,40 @@ const applyTemplate = async (data, templateName) => {
 };
 
 /**
- * Send email
- * @param {Array} args.toEmails
- * @param {String} args.fromEmail
- * @param {String} args.title
- * @param {String} args.templateArgs.name
- * @param {Object} args.templateArgs.data
- * @param {Boolean} args.isCustom
- * @return {Promise}
+ * Create transporter
+ * @return nodemailer transporter
 */
-export const sendEmail = async ({ toEmails, fromEmail, title, template }) => {
-  const { MAIL_SERVICE, MAIL_USER, MAIL_PASS, NODE_ENV } = process.env;
-  // do not send email it is running in test mode
-  if (NODE_ENV == 'test') {
-    return;
-  }
+export const createTransporter = async () => {
+  const { MAIL_SERVICE, MAIL_USER, MAIL_PASS } = process.env;
 
-  const transporter = nodemailer.createTransport({
+  return nodemailer.createTransport({
     service: MAIL_SERVICE,
     auth: {
       user: MAIL_USER,
       pass: MAIL_PASS,
     },
   });
+};
+
+/**
+ * Send email
+ * @param {Array} args.toEmails
+ * @param {String} args.fromEmail
+ * @param {String} args.title
+ * @param {String} args.templateArgs.name
+ * @param {Object} args.templateArgs.data
+ * @param {Boolean} args.templateArgs.isCustom
+ * @return {Promise}
+*/
+export const sendEmail = async ({ toEmails, fromEmail, title, template }) => {
+  const { NODE_ENV } = process.env;
+
+  // do not send email it is running in test mode
+  if (NODE_ENV == 'test') {
+    return;
+  }
+
+  const transporter = createTransporter();
 
   const { isCustom, data, name } = template;
 
@@ -135,4 +146,5 @@ export default {
   sendEmail,
   sendNotification,
   readFile,
+  createTransporter,
 };

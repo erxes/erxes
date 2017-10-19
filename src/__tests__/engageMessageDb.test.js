@@ -1,9 +1,15 @@
 /* eslint-env jest */
 /* eslint-disable no-underscore-dangle */
 
+import Random from 'meteor-random';
 import { connect, disconnect } from '../db/connection';
-import { userFactory, segmentsFactory, engageMessageFactory } from '../db/factories';
-import { EngageMessages, Users, Segments } from '../db/models';
+import { EngageMessages, Users, Segments, Customers } from '../db/models';
+import {
+  userFactory,
+  segmentsFactory,
+  engageMessageFactory,
+  customerFactory,
+} from '../db/factories';
 
 beforeAll(() => connect());
 afterAll(() => disconnect());
@@ -12,17 +18,22 @@ describe('engage messages model tests', () => {
   let _user;
   let _segment;
   let _message;
+  let _customer;
+  let _customer2;
 
   beforeEach(async () => {
     _user = await userFactory({});
     _segment = await segmentsFactory({});
     _message = await engageMessageFactory({});
+    _customer = await customerFactory({});
+    _customer2 = await customerFactory({});
   });
 
   afterEach(async () => {
     await Users.remove({});
     await Segments.remove({});
     await EngageMessages.remove({});
+    await Customers.remove({});
   });
 
   test('create messages', async () => {
@@ -84,5 +95,36 @@ describe('engage messages model tests', () => {
     } catch (e) {
       expect(e.message).toEqual(`Engage message not found with id ${_segment._id}`);
     }
+  });
+
+  test('save matched customer ids', async () => {
+    const message = await EngageMessages.setCustomerIds(_message._id, [_customer, _customer2]);
+
+    expect(message.customerIds).toContain(_customer._id);
+    expect(message.customerIds).toContain(_customer2._id);
+    expect(message.customerIds.length).toEqual(2);
+  });
+
+  test('add new delivery report', async () => {
+    const mailMessageId = Random.id();
+    const message = await EngageMessages.addNewDeliveryReport(
+      _message._id,
+      mailMessageId,
+      _customer._id,
+    );
+
+    expect(message.deliveryReports[`${mailMessageId}`].status).toEqual('pending');
+    expect(message.deliveryReports[`${mailMessageId}`].customerId).toEqual(_customer._id);
+  });
+
+  test('change delivery report status', async () => {
+    const mailMessageId = Random.id();
+    const message = await EngageMessages.changeDeliveryReportStatus(
+      _message._id,
+      mailMessageId,
+      'sent',
+    );
+
+    expect(message.deliveryReports[`${mailMessageId}`].status).toEqual('sent');
   });
 });
