@@ -32,13 +32,17 @@ storiesOf('User', module).addDecorator(withKnobs).add('User', () => (
 ));
 
 storiesOf('Dropdown', module).addDecorator(withKnobs).add('Dropdown', () => (
-  <Dropdown item={(
+  <Dropdown  width="200" align={select("Align", [
+    "left", "right"
+  ], "left")} item={(
     <Dropdown.Menu>
-      <Dropdown.Item>123456123</Dropdown.Item>
-      <Dropdown.Item divider>123456123</Dropdown.Item>
+      <Dropdown.Item img={"http://www.imgworlds.com/wp-content/uploads/2015/12/18-CONTACTUS-HEADER.jpg"}>Joe Johnson</Dropdown.Item>
+      <Dropdown.Item img={"http://www.imgworlds.com/wp-content/uploads/2015/12/18-CONTACTUS-HEADER.jpg"}>Joe Johnson</Dropdown.Item>
+      <Dropdown.Item img={"http://www.imgworlds.com/wp-content/uploads/2015/12/18-CONTACTUS-HEADER.jpg"}>Joe Johnson</Dropdown.Item>
+      <Dropdown.Item divider>Manage members</Dropdown.Item>
     </Dropdown.Menu>
   )}>
-    <Button>12312313</Button>
+    <Button># Sales(13)</Button>
   </Dropdown>
 ));
 

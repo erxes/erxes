@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import styled from "styled-components"
+import styled, {css} from "styled-components"
 import {colors} from "../../styles";
 import {lighten} from "../../utils/color";
 import Icon from "../Icon";
