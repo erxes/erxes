@@ -22,12 +22,12 @@ import { createTransporter } from '../../utils';
  * Dynamic content tags
  * @param {String} content
  * @param {Object} customer
- * @param {String} customer.name
- * @param {String} customer.email
+ * @param {String} customer.name - Customer name
+ * @param {String} customer.email - Customer email
  * @param {Object} user
- * @param {String} user.fullName
- * @param {String} user.position
- * @param {String} user.email
+ * @param {String} user.fullName - User full name
+ * @param {String} user.position - User position
+ * @param {String} user.email - User email
  * @return replaced content text
  */
 export const replaceKeys = ({ content, customer, user }) => {
@@ -47,8 +47,8 @@ export const replaceKeys = ({ content, customer, user }) => {
 
 /**
  * Find customers
- * @param {[String]} customerIds
- * @param {String} segmentId
+ * @param {[String]} customerIds - Customer ids
+ * @param {String} segmentId - Segment id
  * @return {Promise} customers
  */
 const findCustomers = async ({ customerIds, segmentId }) => {
@@ -147,7 +147,7 @@ const sendViaMessenger = async message => {
     const replacedContent = replaceKeys({ content, customer, user });
 
     // create conversation
-    const conversationId = await Conversations.createConversation({
+    const conversation = await Conversations.createConversation({
       userId: fromUserId,
       customerId: customer._id,
       integrationId: integration._id,
@@ -161,7 +161,7 @@ const sendViaMessenger = async message => {
         fromUserId,
         ...message.messenger,
       },
-      conversationId,
+      conversationId: conversation._id,
       userId: fromUserId,
       customerId: customer._id,
       content: replacedContent,

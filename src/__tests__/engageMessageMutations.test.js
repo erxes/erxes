@@ -31,6 +31,7 @@ describe('engage message mutation tests', () => {
   let _user;
   let _segment;
   let _customer;
+  let _integration;
   let _emailTemplate;
   let _doc = null;
 
@@ -40,7 +41,7 @@ describe('engage message mutation tests', () => {
     _message = await engageMessageFactory({});
     _emailTemplate = await emailTemplateFactory({});
     _customer = await customerFactory({});
-    await integrationFactory({ brandId: 'brandId' });
+    _integration = await integrationFactory({ brandId: 'brandId' });
     _doc = {
       kind: 'manual',
       method: 'email',
@@ -174,18 +175,40 @@ describe('engage message mutation tests', () => {
       customerIds: [_customer._id],
       messenger: {
         brandId: 'brandId',
-        content: 'messenger content {{ customer.name }}',
+        content: 'messenger content',
       },
     }));
 
-    Conversations.createConversation = jest.fn();
+    const conversationObj = {
+      userId: _user._id,
+      customerId: _customer._id,
+      integrationId: _integration._id,
+      content: 'messenger content',
+    };
+
+    const conversationMessageObj = {
+      engageData: {
+        messageId: _message._id,
+        fromUserId: _user._id,
+        brandId: 'brandId',
+        content: 'messenger content',
+      },
+      conversationId: 'convId',
+      userId: _user._id,
+      customerId: _customer._id,
+      content: 'messenger content',
+    };
+
+    Conversations.createConversation = jest.fn(() => ({ _id: 'convId' }));
     ConversationMessages.createMessage = jest.fn();
 
     await mutations.engageMessageSetLiveManual(null, _message._id, { user: _user });
 
     expect(EngageMessages.engageMessageSetLive).toBeCalledWith(_message._id);
     expect(EngageMessages.engageMessageSetLive.mock.calls.length).toBe(1);
+    expect(Conversations.createConversation).toBeCalledWith(conversationObj);
     expect(Conversations.createConversation.mock.calls.length).toBe(1);
+    expect(ConversationMessages.createMessage).toBeCalledWith(conversationMessageObj);
     expect(ConversationMessages.createMessage.mock.calls.length).toBe(1);
   });
 });
