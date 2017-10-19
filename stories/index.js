@@ -7,6 +7,14 @@ import Label from '../src/components/Tag';
 import Icon from '../src/components/Icon';
 import 'ionicons/css/ionicons.min.css';
 
+import Typography from "./Typography";
+
+storiesOf('Typography', module)
+  .addDecorator(withKnobs)
+  .add("Primary", () => (
+    <Typography />
+  ));
+
 storiesOf('Button', module)
   .addDecorator(withKnobs)
   .add('Primary', () => (

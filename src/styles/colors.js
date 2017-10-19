@@ -9,10 +9,12 @@ const colorCoreGreen = "#67C682";
 const colorCoreBlack = "#393C40";
 const colorCoreGray = "#888";
 const colorCoreLightGray = "#AAAEB3";
+const colorBlack = "#000";
 
 const colorWhite = "#FFF";
 
 // backgrounds
+const bgMain = "#EDF1F5";
 const bgDark = rgba("#000", 0.95);
 const bgLight = "#FAFAFA";
 
@@ -46,7 +48,9 @@ export default {
   colorCoreGray,
   colorCoreLightGray,
   colorWhite,
+  colorBlack,
 
+  bgMain,
   bgDark,
   bgLight,
 
