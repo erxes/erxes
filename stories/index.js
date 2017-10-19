@@ -4,8 +4,7 @@ import {withKnobs, text, select} from "@storybook/addon-knobs";
 import Typography from "./Typography";
 import Button from "../src/components/Button";
 
-import Header from "../src/components/Header";
-import HeaderUser from "../src/components/Header/user";
+import User from "../src/components/User";
 
 import Dropdown from "../src/components/Dropdown";
 
@@ -22,10 +21,14 @@ storiesOf('Button', module).addDecorator(withKnobs).add("Primary", () => (
   </Button>
 ));
 
-storiesOf('Header', module).addDecorator(withKnobs).add('Header', () => (
-  <Header>{text("Text", 'Homepage')}
-    <HeaderUser>{text("lastName", 'lastName')}{text("firstName", 'firstName')}</HeaderUser>
-  </Header>
+storiesOf('User', module).addDecorator(withKnobs).add('User', () => (
+    <User
+    text={text("Text", "John Walt")}
+    img={text("Url", "http://www.imgworlds.com/wp-content/uploads/2015/12/18-CONTACTUS-HEADER.jpg")}
+    arrow={select("Arrow", [
+      "up", "down", "left", "right"
+    ], "down")}>
+    </User>
 ));
 
 storiesOf('Dropdown', module).addDecorator(withKnobs).add('Dropdown', () => (
