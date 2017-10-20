@@ -1,14 +1,14 @@
 import React from 'react';
 import { Route } from 'react-router-dom';
 import { MainLayout } from '../../layout/components';
-import { ChannelList } from './containers';
+import { List } from './containers';
 
 const routes = () => (
   <div>
     <Route
-      path='/settings/channels/'
+      path='/settings/response-templates/'
       component={() => {
-        return <MainLayout content={ <ChannelList queryParams={{}} /> } />
+        return <MainLayout content={ <List queryParams={{}} /> } />
       }}
     />
   </div>
