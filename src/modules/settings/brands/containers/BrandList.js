@@ -2,6 +2,16 @@ import { gql, graphql } from 'react-apollo';
 import { commonListComposer } from '../../utils';
 import { BrandList } from '../components';
 
+const commonParamsDef = `
+  $name: String!,
+  $description: String,
+`;
+
+const commonParams = `
+  name: $name,
+  description: $description,
+`;
+
 export default commonListComposer({
   name: 'brands',
 
@@ -36,6 +46,43 @@ export default commonListComposer({
     `,
     {
       name: 'totalCountQuery'
+    }
+  ),
+
+  gqlAddMutation: graphql(
+    gql`
+      mutation brandsAdd(${commonParamsDef}) {
+        brandsAdd(${commonParams}) {
+          _id
+        }
+      }
+    `,
+    {
+      name: 'addMutation'
+    }
+  ),
+
+  gqlEditMutation: graphql(
+    gql`
+      mutation brandsEdit($_id: String!, ${commonParamsDef}) {
+        brandsEdit(_id: $_id, ${commonParams}) {
+          _id
+        }
+      }
+    `,
+    {
+      name: 'editMutation'
+    }
+  ),
+
+  gqlRemoveMutation: graphql(
+    gql`
+      mutation brandsRemove($_id: String!) {
+        brandsRemove(_id: $_id)
+      }
+    `,
+    {
+      name: 'removeMutation'
     }
   ),
 
