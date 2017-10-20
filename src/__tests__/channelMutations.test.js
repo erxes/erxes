@@ -34,12 +34,12 @@ describe('mutations', () => {
       }
     };
 
-    expectError(channelMutations.channelsCreate);
+    expectError(channelMutations.channelsAdd);
     expectError(channelMutations.channelsEdit);
     expectError(channelMutations.channelsRemove);
   });
 
-  test('test mutations.channelsCreate', async () => {
+  test('test mutations.channelsAdd', async () => {
     let doc = {
       name: 'Channel test',
       description: 'test channel descripion',
@@ -71,7 +71,7 @@ describe('mutations', () => {
 
     jest.spyOn(utils, 'sendNotification').mockImplementation(() => ({}));
 
-    await channelMutations.channelsCreate(null, doc, { user: _user });
+    await channelMutations.channelsAdd(null, doc, { user: _user });
 
     expect(Channels.createChannel).toBeCalledWith(doc, _user);
     expect(Channels.createChannel.mock.calls.length).toBe(1);

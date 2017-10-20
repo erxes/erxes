@@ -18,7 +18,7 @@ export const queries = `
 `;
 
 export const mutations = `
-  channelsCreate(
+  channelsAdd(
     name: String!,
     description: String,
     memberIds: [String],
