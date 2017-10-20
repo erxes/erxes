@@ -108,7 +108,27 @@ const SideContent = styled.section`
   flex-shrink: 0;
   width: ${props => props.wide ? '360px' : '300px'};
   margin-right: ${dimensions.coreSpacing}px;
+  background: ${props => props.full ? colors.colorWhite : 'none'};
+  box-shadow: ${props => props.full ? `0 0 4px ${colors.shadowPrimary}` : 'none'};
 `;
+
+const SidebarHeader = styled.div`
+  background-color: ${colors.bgLight};
+  height: ${dimensions.headerSpacing}px;
+  line-height: ${dimensions.headerSpacing}px;
+  padding: 0 ${dimensions.coreSpacing}px 0 ${dimensions.coreSpacing}px;
+  border-bottom: 1px solid ${colors.borderPrimary};
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+`;
+
+const SidebarMainContent = styled.div`
+  overflow: auto;
+  flex: 1;
+`;
+
+const SidebarFooter = SidebarHeader.extend``;
 
 const SidebarBox = styled.div`
   background-color: ${colors.colorWhite};
@@ -163,6 +183,9 @@ export {
   ContentHeader,
   HeaderItems,
   SideContent,
+  SidebarHeader,
+  SidebarMainContent,
+  SidebarFooter,
   SidebarBox,
   HelperButtons,
   QuickButton,

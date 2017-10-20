@@ -1,10 +1,27 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import RightSidebar from './RightSidebar';
+import LeftSidebar from './LeftSidebar';
 import { Wrapper } from '../../layout/components';
 
 class Inbox extends Component {
   render() {
-    const Sidebar = Wrapper.Sidebar;
+    const { conversations, messages, user } = this.props;
+
+    const actionBarLeft = (
+      <div>
+        Alice Caldwell
+      </div>
+    );
+
+    const actionBarRight = (
+      <div>
+        Resolve
+      </div>
+    );
+
+    const actionBar = <Wrapper.ActionBar left={actionBarLeft} right={actionBarRight} />;
+
     const content = (
       <div
         className="scroll-area"
@@ -12,7 +29,7 @@ class Inbox extends Component {
           this.node = node;
         }}
       >
-        Welcome {this.props.title}
+        {messages} {this.props.title}
       </div>
     );
 
@@ -21,22 +38,11 @@ class Inbox extends Component {
     return (
       <Wrapper
         header={<Wrapper.Header breadcrumb={breadcrumb} />}
+        actionBar={actionBar}
         content={content}
         footer={<div />}
-        leftSidebar={
-          <Sidebar wide>
-            <Sidebar.Section>
-              Section
-            </Sidebar.Section>
-          </Sidebar>
-        }
-        rightSidebar={
-          <Wrapper.Sidebar >
-            <Sidebar.Section>
-              Section
-            </Sidebar.Section>
-          </Wrapper.Sidebar>
-          }
+        leftSidebar={<LeftSidebar conversations={conversations} />}
+        rightSidebar={<RightSidebar user={user} />}
       />
     );
   }
@@ -44,6 +50,9 @@ class Inbox extends Component {
 
 Inbox.propTypes = {
   title: PropTypes.string,
+  conversations: PropTypes.array.isRequired,
+  messages: PropTypes.array.isRequired,
+  user: PropTypes.object.isRequired,
 };
 
 export default Inbox;

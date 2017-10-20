@@ -2,7 +2,7 @@ import React from 'react';
 import { Route } from 'react-router-dom'
 import { Main } from './styles';
 import MainLayout from './components/MainLayout'
-import Inbox from '../inbox/components/Inbox'
+import Inbox from '../inbox/containers/Inbox'
 import settingsRoutes from '../settings/routes'
 
 const Routes = () => (

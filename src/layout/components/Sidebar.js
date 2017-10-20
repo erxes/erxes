@@ -1,18 +1,31 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { SideContent, SidebarBox, HelperButtons, SidebarTitle } from '../styles';
+import {
+  SideContent,
+  SidebarBox,
+  HelperButtons,
+  SidebarTitle,
+  SidebarHeader,
+  SidebarMainContent,
+  SidebarFooter,
+} from '../styles';
 
 const propTypes = {
   children: PropTypes.node,
-  fixedContent: PropTypes.node,
+  header: PropTypes.node,
+  footer: PropTypes.node,
   wide: PropTypes.bool,
+  full: PropTypes.bool,
 };
 
-function Sidebar({ children, wide, fixedContent }) {
+function Sidebar({ children, wide, header, footer, full }) {
   return (
-    <SideContent wide={wide}>
-      {fixedContent}
-      {children}
+    <SideContent wide={wide} full={full}>
+      {header}
+      <SidebarMainContent>
+        {children}
+      </SidebarMainContent>
+      {footer}
     </SideContent>
   );
 }
@@ -75,6 +88,30 @@ Title.propTypes = {
   children: PropTypes.node.isRequired,
 };
 
+function Header({ children }) {
+  return (
+    <SidebarHeader>
+      {children}
+    </SidebarHeader>
+  );
+}
+
+Header.propTypes = {
+  children: PropTypes.node.isRequired,
+};
+
+function Footer({ children }) {
+  return (
+    <SidebarFooter>
+      {children}
+    </SidebarFooter>
+  );
+}
+
+Footer.propTypes = {
+  children: PropTypes.node.isRequired,
+};
+
 function QuickButtons({ children }) {
   return (
     <HelperButtons>
@@ -96,6 +133,8 @@ Section.propTypes = {
 };
 
 Sidebar.propTypes = propTypes;
+Sidebar.Header = Header;
 Sidebar.Section = Section;
+Sidebar.Footer = Footer;
 
 export default Sidebar;

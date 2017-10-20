@@ -16,6 +16,7 @@ const Item = styled.li`
 `;
 
 const propTypes = {
+  children: PropTypes.node,
   active: PropTypes.bool,
   href: PropTypes.string,
   title: PropTypes.node,
@@ -26,14 +27,14 @@ const defaultProps = {
   active: false,
 };
 
-function BreadcrumbItem({ active, href, title, target , ...props }){
+function BreadcrumbItem({ active, href, title, target, children, ...props }){
   const linkProps = { href, title, target };
 
   return (
     <Item>
       {active ?
-        <span {...props} /> :
-        <a {...props} {...linkProps} />
+        <span {...props}>{children}</span> :
+        <a {...props} {...linkProps}>{children}</a>
       }
     </Item>
   );
