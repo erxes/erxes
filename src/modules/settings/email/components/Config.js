@@ -42,15 +42,9 @@ class Config extends Component {
     const { brand, configEmail } = this.props;
     const { type, template } = this.state;
 
-    // TODO
-    // configEmail({ id: brand._id, config: { type, template } }, error => {
-    //   if (error) {
-    //     return Alert.error('Error', error.reason);
-    //   }
-    //
-    //   Alert.success('Success', 'Email configuration is successfully saved.');
-    //   return this.context.closeModal();
-    // });
+    configEmail({ _id: brand._id, emailConfig: { type, template } }, () => {
+      return this.context.closeModal();
+    });
   }
 
   handleTypeChange(e) {

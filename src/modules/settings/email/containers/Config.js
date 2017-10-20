@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { compose, gql, graphql } from 'react-apollo';
+import { Alert } from 'modules/common/utils';
 import { Config } from '../components';
 
 const defaultTemplate = `<p>Dear {{fullName}},</p>
@@ -46,19 +47,24 @@ const defaultTemplate = `<p>Dear {{fullName}},</p>
 </style>`;
 
 const ConfigContainer = props => {
-  const { brandQuery, refetch } = props;
+  const { brandQuery, configEmailMutation, refetch } = props;
 
   if (brandQuery.loading) {
     return null;
   }
 
   const configEmail = (doc, callback) => {
-    // TODO
-    // Meteor.call('brands.configEmail', doc, (...params) => {
-    //   refetch();
-    //
-    //   callback(...params);
-    // });
+    configEmailMutation({
+      variables: doc
+    })
+      .then(() => {
+        Alert.success('Congrats');
+        refetch();
+        callback();
+      })
+      .catch(error => {
+        Alert.error(error.message);
+      });
   };
 
   const updatedProps = {
@@ -73,7 +79,8 @@ const ConfigContainer = props => {
 
 ConfigContainer.propTypes = {
   brandQuery: PropTypes.object,
-  refetch: PropTypes.func
+  refetch: PropTypes.func,
+  configEmailMutation: PropTypes.func
 };
 
 export default compose(
@@ -96,6 +103,19 @@ export default compose(
           }
         };
       }
+    }
+  ),
+
+  graphql(
+    gql`
+      mutation brandsConfigEmail($_id: String!, $emailConfig: JSON) {
+        brandsConfigEmail(_id: $_id, emailConfig: $emailConfig) {
+          _id
+        }
+      }
+    `,
+    {
+      name: 'configEmailMutation'
     }
   )
 )(ConfigContainer);
