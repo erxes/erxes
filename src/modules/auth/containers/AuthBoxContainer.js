@@ -13,7 +13,7 @@ function composer(props, onData) {
     user,
     loggingIn,
     loginWithPassword,
-    logout,
+    logout
   });
 }
 

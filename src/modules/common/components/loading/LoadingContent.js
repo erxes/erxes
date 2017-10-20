@@ -4,7 +4,7 @@ import _ from 'underscore';
 
 const propTypes = {
   items: PropTypes.number.isRequired,
-  isTable: PropTypes.bool,
+  isTable: PropTypes.bool
 };
 
 function LoadingContent({ items, isTable }) {
@@ -29,7 +29,8 @@ function Row({ items }) {
 }
 
 function TableRow({ items }) {
-  const getRandom = (min, max) => Math.floor(Math.random() * (max - min + 1) + min);
+  const getRandom = (min, max) =>
+    Math.floor(Math.random() * (max - min + 1) + min);
 
   return (
     <tbody>
@@ -39,22 +40,40 @@ function TableRow({ items }) {
             <div className="circle animate" />
           </td>
           <td>
-            <div style={{ width: `${getRandom(60, 100)}%` }} className="line animate" />
+            <div
+              style={{ width: `${getRandom(60, 100)}%` }}
+              className="line animate"
+            />
           </td>
           <td>
-            <div style={{ width: `${getRandom(60, 100)}%` }} className="line animate" />
+            <div
+              style={{ width: `${getRandom(60, 100)}%` }}
+              className="line animate"
+            />
           </td>
           <td>
-            <div style={{ width: `${getRandom(60, 100)}%` }} className="line animate" />
+            <div
+              style={{ width: `${getRandom(60, 100)}%` }}
+              className="line animate"
+            />
           </td>
           <td>
-            <div style={{ width: `${getRandom(60, 100)}%` }} className="line animate" />
+            <div
+              style={{ width: `${getRandom(60, 100)}%` }}
+              className="line animate"
+            />
           </td>
           <td>
-            <div style={{ width: `${getRandom(60, 100)}%` }} className="line animate" />
+            <div
+              style={{ width: `${getRandom(60, 100)}%` }}
+              className="line animate"
+            />
           </td>
           <td>
-            <div style={{ width: `${getRandom(60, 100)}%` }} className="line animate" />
+            <div
+              style={{ width: `${getRandom(60, 100)}%` }}
+              className="line animate"
+            />
           </td>
         </tr>
       ))}
@@ -63,10 +82,10 @@ function TableRow({ items }) {
 }
 
 TableRow.propTypes = {
-  items: PropTypes.number.isRequired,
+  items: PropTypes.number.isRequired
 };
 Row.propTypes = {
-  items: PropTypes.number.isRequired,
+  items: PropTypes.number.isRequired
 };
 
 LoadingContent.propTypes = propTypes;

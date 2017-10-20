@@ -6,6 +6,6 @@ const Alert = {
   error(error) {
     console.log(error);
   }
-}
+};
 
 export default Alert;

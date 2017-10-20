@@ -11,5 +11,5 @@ export {
   // SignUp,
   ForgotPassword,
   ResetPassword,
-  UserCommonInfos,
+  UserCommonInfos
 };

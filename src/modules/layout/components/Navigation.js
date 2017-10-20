@@ -1,7 +1,6 @@
 import React from 'react';
-import { Link } from 'react-router-dom'
+import { Link } from 'react-router-dom';
 import { LeftNavigation, Nav } from '../styles';
-
 
 function Navigation() {
   return (

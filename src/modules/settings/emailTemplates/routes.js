@@ -6,9 +6,9 @@ import { List } from './containers';
 const routes = () => (
   <div>
     <Route
-      path='/settings/email-templates/'
+      path="/settings/email-templates/"
       component={() => {
-        return <MainLayout content={ <List queryParams={{}} /> } />
+        return <MainLayout content={<List queryParams={{}} />} />;
       }}
     />
   </div>

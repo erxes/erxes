@@ -7,8 +7,8 @@ class Form extends CommonForm {
     return {
       doc: {
         title: document.getElementById('form-title').value,
-        description: document.getElementById('form-description').value,
-      },
+        description: document.getElementById('form-description').value
+      }
     };
   }
 
@@ -17,7 +17,12 @@ class Form extends CommonForm {
       <div>
         <FormGroup>
           <ControlLabel>Title</ControlLabel>
-          <FormControl id="form-title" type="text" defaultValue={form.title} required />
+          <FormControl
+            id="form-title"
+            type="text"
+            defaultValue={form.title}
+            required
+          />
         </FormGroup>
 
         <FormGroup>

@@ -5,7 +5,7 @@ const propTypes = {
   user: PropTypes.object,
   customer: PropTypes.object,
   size: PropTypes.number,
-  url: PropTypes.string,
+  url: PropTypes.string
 };
 
 class Avatar extends Component {
@@ -15,7 +15,7 @@ class Avatar extends Component {
       height: size,
       lineHeight: `${size}px`,
       borderRadius: `${size}px`,
-      fontSize: `${size / 3}px`,
+      fontSize: `${size / 3}px`
     };
   }
 
@@ -26,15 +26,17 @@ class Avatar extends Component {
 
   renderInitials(fullName) {
     const { size } = this.props;
-    const initials = fullName
-      ? fullName.split(' ').map(s => s.charAt(0)).join('.').toUpperCase()
-      : <div className="no-user" style={this.generateStyle(size)} />;
-
-    return (
-      <div style={this.generateStyle(size)}>
-        {initials}
-      </div>
+    const initials = fullName ? (
+      fullName
+        .split(' ')
+        .map(s => s.charAt(0))
+        .join('.')
+        .toUpperCase()
+    ) : (
+      <div className="no-user" style={this.generateStyle(size)} />
     );
+
+    return <div style={this.generateStyle(size)}>{initials}</div>;
   }
 
   render() {
@@ -53,11 +55,11 @@ class Avatar extends Component {
 
     return (
       // TODO: jump to user profile
-      (
-        <a href="#" className="avatar">
-          {avatar ? this.renderImage(avatar, fullName) : this.renderInitials(fullName)}
-        </a>
-      )
+      <a href="#" className="avatar">
+        {avatar
+          ? this.renderImage(avatar, fullName)
+          : this.renderInitials(fullName)}
+      </a>
     );
   }
 }

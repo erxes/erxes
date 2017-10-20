@@ -5,9 +5,9 @@ import { ChannelList } from './containers';
 
 const routes = () => (
   <Route
-    path='/settings/channels/'
+    path="/settings/channels/"
     component={() => {
-      return <MainLayout content={ <ChannelList queryParams={{}} /> } />
+      return <MainLayout content={<ChannelList queryParams={{}} />} />;
     }}
   />
 );

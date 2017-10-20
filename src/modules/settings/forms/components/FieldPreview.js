@@ -5,8 +5,11 @@ export default class FieldPreview extends Component {
   static renderSelect(options = [], attrs = {}) {
     return (
       <select {...attrs} className="form-control">
-
-        {options.map((option, index) => <option key={index} value={option}>{option}</option>)}
+        {options.map((option, index) => (
+          <option key={index} value={option}>
+            {option}
+          </option>
+        ))}
       </select>
     );
   }
@@ -69,7 +72,6 @@ export default class FieldPreview extends Component {
 
     return (
       <div className="form-group field-preview" onClick={this.onEdit}>
-
         <label className="control-label" htmlFor={`prew-${field._id}`}>
           {field.text}
           {field.isRequired ? <span className="required">*</span> : null}:
@@ -85,5 +87,5 @@ export default class FieldPreview extends Component {
 
 FieldPreview.propTypes = {
   field: PropTypes.object, // eslint-disable-line
-  onEdit: PropTypes.func,
+  onEdit: PropTypes.func
 };

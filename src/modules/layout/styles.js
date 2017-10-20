@@ -1,4 +1,4 @@
-import styled from "styled-components"
+import styled from 'styled-components';
 import { colors, dimensions } from '../common/styles';
 import { rgba } from '../common/styles/color';
 
@@ -103,7 +103,7 @@ const ContentHeader = styled.div`
 `;
 
 const HeaderItems = styled.div`
-  float: ${props => props.rightAligned ? 'right' : 'left'};
+  float: ${props => (props.rightAligned ? 'right' : 'left')};
 `;
 
 const SideContent = styled.section`
@@ -112,7 +112,7 @@ const SideContent = styled.section`
   display: flex;
   flex-direction: column;
   flex-shrink: 0;
-  width: ${props => props.wide ? '360px' : '300px'};
+  width: ${props => (props.wide ? '360px' : '300px')};
   margin-right: ${dimensions.coreSpacing}px;
 `;
 
@@ -144,7 +144,6 @@ const QuickButton = styled.div`
   outline: 0;
 `;
 
-
 const SidebarTitle = styled.h3`
   color: ${colors.colorCoreLightGray};
   font-size: 12px;
@@ -153,7 +152,6 @@ const SidebarTitle = styled.h3`
   padding: ${dimensions.coreSpacing}px;
   margin: 0;
 `;
-
 
 export {
   Main,
@@ -173,5 +171,5 @@ export {
   HelperButtons,
   QuickButton,
   SidebarTitle,
-  UserHelper,
-}
+  UserHelper
+};

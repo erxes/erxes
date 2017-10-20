@@ -29,7 +29,10 @@ class Row extends CommonRow {
       <td className="text-right">
         <ActionButtons>
           <Tip text="Manage Fields">
-            <Button bsStyle="link" href={`/settings/forms/manage-fields/${object._id}`}>
+            <Button
+              bsStyle="link"
+              href={`/settings/forms/manage-fields/${object._id}`}
+            >
               <i className="ion-navicon-round" />
             </Button>
           </Tip>

@@ -36,7 +36,10 @@ class ChannelList extends List {
   }
 
   breadcrumb() {
-    return [{ title: 'Settings', link: '/settings/channels' }, { title: 'Channels' }];
+    return [
+      { title: 'Settings', link: '/settings/channels' },
+      { title: 'Channels' }
+    ];
   }
 }
 

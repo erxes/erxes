@@ -25,11 +25,11 @@ export default commonListComposer({
       options: ({ queryParams }) => {
         return {
           variables: {
-            limit: queryParams.limit || 20,
-          },
+            limit: queryParams.limit || 20
+          }
         };
-      },
-    },
+      }
+    }
   ),
 
   gqlTotalCountQuery: graphql(
@@ -39,9 +39,9 @@ export default commonListComposer({
       }
     `,
     {
-      name: 'totalCountQuery',
-    },
+      name: 'totalCountQuery'
+    }
   ),
 
-  ListComponent: List,
+  ListComponent: List
 });

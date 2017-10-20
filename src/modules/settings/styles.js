@@ -1,4 +1,4 @@
-import styled from "styled-components"
+import styled from 'styled-components';
 import { colors } from '../common/styles';
 
 const SidebarList = styled.main`
@@ -28,6 +28,4 @@ const SidebarList = styled.main`
   }
 `;
 
-export {
-  SidebarList,
-}
+export { SidebarList };

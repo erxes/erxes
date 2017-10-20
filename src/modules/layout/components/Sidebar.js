@@ -1,11 +1,16 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { SideContent, SidebarBox, HelperButtons, SidebarTitle } from '../styles';
+import {
+  SideContent,
+  SidebarBox,
+  HelperButtons,
+  SidebarTitle
+} from '../styles';
 
 const propTypes = {
   children: PropTypes.node,
   fixedContent: PropTypes.node,
-  wide: PropTypes.bool,
+  wide: PropTypes.bool
 };
 
 function Sidebar({ children, wide, fixedContent }) {
@@ -30,7 +35,7 @@ class Section extends Component {
   toggleCollapse() {
     this.setState({
       collapse: !this.state.collapse,
-      maxHeight: this.state.collapse ? 220 : this.node.clientHeight + 20,
+      maxHeight: this.state.collapse ? 220 : this.node.clientHeight + 20
     });
   }
 
@@ -47,7 +52,7 @@ class Section extends Component {
     const { children, collapsible } = this.props;
 
     const height = {
-      maxHeight: collapsible ? this.state.maxHeight : 'none',
+      maxHeight: collapsible ? this.state.maxHeight : 'none'
     };
     return (
       <SidebarBox style={height}>
@@ -65,25 +70,17 @@ class Section extends Component {
 }
 
 function Title({ children }) {
-  return (
-    <SidebarTitle>
-      {children}
-    </SidebarTitle>
-  );
+  return <SidebarTitle>{children}</SidebarTitle>;
 }
 Title.propTypes = {
-  children: PropTypes.node.isRequired,
+  children: PropTypes.node.isRequired
 };
 
 function QuickButtons({ children }) {
-  return (
-    <HelperButtons>
-      {children}
-    </HelperButtons>
-  );
+  return <HelperButtons>{children}</HelperButtons>;
 }
 QuickButtons.propTypes = {
-  children: PropTypes.node,
+  children: PropTypes.node
 };
 
 Section.Title = Title;
@@ -92,7 +89,7 @@ Section.QuickButtons = QuickButtons;
 Section.propTypes = {
   children: PropTypes.node,
   collapsible: PropTypes.bool,
-  className: PropTypes.string,
+  className: PropTypes.string
 };
 
 Sidebar.propTypes = propTypes;

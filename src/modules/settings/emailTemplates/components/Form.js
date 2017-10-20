@@ -7,8 +7,8 @@ class Form extends CommonForm {
     return {
       doc: {
         name: document.getElementById('template-name').value,
-        content: document.getElementById('template-content').value,
-      },
+        content: document.getElementById('template-content').value
+      }
     };
   }
 
@@ -18,7 +18,12 @@ class Form extends CommonForm {
         <FormGroup>
           <ControlLabel>Name</ControlLabel>
 
-          <FormControl id="template-name" defaultValue={emailTemplate.name} type="text" required />
+          <FormControl
+            id="template-name"
+            defaultValue={emailTemplate.name}
+            type="text"
+            required
+          />
         </FormGroup>
 
         <FormGroup>

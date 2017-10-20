@@ -8,14 +8,18 @@ class ChannelForm extends CommonForm {
   constructor(props) {
     super(props);
 
-    this.generateIntegrationsParams = this.generateIntegrationsParams.bind(this);
+    this.generateIntegrationsParams = this.generateIntegrationsParams.bind(
+      this
+    );
     this.generateMembersParams = this.generateMembersParams.bind(this);
     this.generateDoc = this.generateDoc.bind(this);
     this.collectValues = this.collectValues.bind(this);
 
     this.state = {
-      selectedIntegrations: this.generateIntegrationsParams(props.selectedIntegrations),
-      selectedMembers: this.generateMembersParams(props.selectedMembers),
+      selectedIntegrations: this.generateIntegrationsParams(
+        props.selectedIntegrations
+      ),
+      selectedMembers: this.generateMembersParams(props.selectedMembers)
     };
   }
 
@@ -38,7 +42,7 @@ class ChannelForm extends CommonForm {
         channels: integration.channels,
         value: integration._id,
         label: integration.name,
-        kind: integration.kind,
+        kind: integration.kind
       });
     });
 
@@ -47,7 +51,7 @@ class ChannelForm extends CommonForm {
     Object.keys(brandsMap).forEach(brandName => {
       results.push({
         label: brandName,
-        options: brandsMap[brandName],
+        options: brandsMap[brandName]
       });
     });
 
@@ -60,14 +64,14 @@ class ChannelForm extends CommonForm {
       value: integration._id,
       label: integration.name,
       kind: integration.kind,
-      groupId: integration.channelId,
+      groupId: integration.channelId
     }));
   }
 
   generateMembersParams(members) {
     return members.map(member => ({
       value: member._id,
-      label: member.details.fullName || '',
+      label: member.details.fullName || ''
     }));
   }
 
@@ -77,8 +81,8 @@ class ChannelForm extends CommonForm {
         name: document.getElementById('channel-name').value,
         description: document.getElementById('channel-description').value,
         memberIds: this.collectValues(this.state.selectedMembers),
-        integrationIds: this.collectValues(this.state.selectedIntegrations),
-      },
+        integrationIds: this.collectValues(this.state.selectedIntegrations)
+      }
     };
   }
 
@@ -108,7 +112,12 @@ class ChannelForm extends CommonForm {
         <FormGroup>
           <ControlLabel>Name</ControlLabel>
 
-          <FormControl id="channel-name" defaultValue={channel.name} type="text" required />
+          <FormControl
+            id="channel-name"
+            defaultValue={channel.name}
+            type="text"
+            required
+          />
         </FormGroup>
 
         <FormGroup>

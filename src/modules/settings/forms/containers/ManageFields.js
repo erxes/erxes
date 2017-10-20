@@ -77,7 +77,7 @@ const ManageFieldsContainer = props => {
     deleteField,
     onSort,
     formTitle: form.title,
-    fields,
+    fields
   };
 
   return <ManageFields {...updatedProps} />;
@@ -85,7 +85,7 @@ const ManageFieldsContainer = props => {
 
 ManageFieldsContainer.propTypes = {
   formQuery: PropTypes.object,
-  formFieldsQuery: PropTypes.object,
+  formFieldsQuery: PropTypes.object
 };
 
 export default compose(
@@ -113,10 +113,10 @@ export default compose(
       options: ({ formId }) => {
         return {
           variables: {
-            formId,
-          },
+            formId
+          }
         };
-      },
-    },
-  ),
+      }
+    }
+  )
 )(ManageFieldsContainer);

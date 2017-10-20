@@ -10,14 +10,14 @@ import {
   FormControl,
   Checkbox,
   ButtonGroup,
-  Button,
+  Button
 } from 'react-bootstrap';
 import { Wrapper } from 'modules/layout/components';
 import Sidebar from '../../Sidebar';
 import FieldsPreview from './FieldsPreview';
 
 const editingFieldDefaultValue = {
-  isRequired: false,
+  isRequired: false
 };
 
 class ManageFields extends Component {
@@ -27,7 +27,7 @@ class ManageFields extends Component {
     this.state = {
       fields: props.fields,
       chosenFieldType: null,
-      editingField: editingFieldDefaultValue,
+      editingField: editingFieldDefaultValue
     };
 
     // attribute change events
@@ -53,7 +53,7 @@ class ManageFields extends Component {
       text: editingField.text,
       description: editingField.description,
       options: editingField.options,
-      isRequired: editingField.isRequired,
+      isRequired: editingField.isRequired
     };
 
     if (editingField._id) {
@@ -157,7 +157,11 @@ class ManageFields extends Component {
   renderOptionsTextArea() {
     const { editingField, chosenFieldType } = this.state;
 
-    if (!['select', 'check', 'radio'].includes(chosenFieldType || editingField.type)) {
+    if (
+      !['select', 'check', 'radio'].includes(
+        chosenFieldType || editingField.type
+      )
+    ) {
       return null;
     }
 
@@ -277,7 +281,7 @@ class ManageFields extends Component {
     const breadcrumb = [
       { title: 'Settings', link: '/settings/channels' },
       { title: 'Forms', link: '/settings/forms' },
-      { title: this.props.formTitle },
+      { title: this.props.formTitle }
     ];
 
     return (
@@ -296,7 +300,7 @@ ManageFields.propTypes = {
   deleteField: PropTypes.func.isRequired,
   onSort: PropTypes.func.isRequired,
   formTitle: PropTypes.string.isRequired,
-  fields: PropTypes.array.isRequired, // eslint-disable-line
+  fields: PropTypes.array.isRequired // eslint-disable-line
 };
 
 export default ManageFields;

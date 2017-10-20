@@ -6,9 +6,9 @@ import { BrandList } from './containers';
 const routes = () => (
   <div>
     <Route
-      path='/settings/brands/'
+      path="/settings/brands/"
       component={() => {
-        return <MainLayout content={ <BrandList queryParams={{}} /> } />
+        return <MainLayout content={<BrandList queryParams={{}} />} />;
       }}
     />
   </div>

@@ -8,7 +8,7 @@ import { Config } from '../containers';
 
 const propTypes = {
   brands: PropTypes.array.isRequired,
-  refetch: PropTypes.func.isRequired,
+  refetch: PropTypes.func.isRequired
 };
 
 class List extends React.Component {
@@ -64,7 +64,7 @@ class List extends React.Component {
 
     const breadcrumb = [
       { title: 'Settings', link: '/settings/channels' },
-      { title: 'Email appearance' },
+      { title: 'Email appearance' }
     ];
 
     return (

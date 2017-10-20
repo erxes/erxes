@@ -9,10 +9,18 @@ const propTypes = {
   firstLine: PropTypes.node,
   secondLine: PropTypes.node,
   avatarSize: PropTypes.number,
-  url: PropTypes.string,
+  url: PropTypes.string
 };
 
-function NameCard({ user, customer, firstLine, secondLine, singleLine, avatarSize, url }) {
+function NameCard({
+  user,
+  customer,
+  firstLine,
+  secondLine,
+  singleLine,
+  avatarSize,
+  url
+}) {
   let first;
   let second;
 
@@ -21,7 +29,9 @@ function NameCard({ user, customer, firstLine, secondLine, singleLine, avatarSiz
     second = !singleLine && (secondLine || `@${user.username}`);
   } else if (customer) {
     first =
-      firstLine || customer.name || (singleLine && (customer.name || customer.email || 'N/A'));
+      firstLine ||
+      customer.name ||
+      (singleLine && (customer.name || customer.email || 'N/A'));
     second = !singleLine && (secondLine || customer.email || 'N/A');
   }
 
@@ -32,9 +42,7 @@ function NameCard({ user, customer, firstLine, secondLine, singleLine, avatarSiz
         <a href={url ? url : '#'} className="first-line">
           {first}
         </a>
-        <div className="second-line">
-          {second}
-        </div>
+        <div className="second-line">{second}</div>
       </div>
     </div>
   );

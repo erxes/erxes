@@ -18,7 +18,9 @@ const ChannelFormContainer = props => {
   let selectedMembers = [];
 
   if (object) {
-    selectedIntegrations = integrations.filter(integ => object.integrationIds.includes(integ._id));
+    selectedIntegrations = integrations.filter(integ =>
+      object.integrationIds.includes(integ._id)
+    );
     selectedMembers = members.filter(u => object.memberIds.includes(u._id));
   }
 
@@ -27,7 +29,7 @@ const ChannelFormContainer = props => {
     integrations,
     members,
     selectedIntegrations,
-    selectedMembers,
+    selectedMembers
   };
 
   return <ChannelForm {...updatedProps} />;
@@ -37,7 +39,7 @@ ChannelFormContainer.propTypes = {
   object: PropTypes.object,
   integrationsQuery: PropTypes.object,
   brandsQuery: PropTypes.object,
-  usersQuery: PropTypes.object,
+  usersQuery: PropTypes.object
 };
 
 export default compose(
@@ -61,9 +63,9 @@ export default compose(
     {
       name: 'integrationsQuery',
       options: () => ({
-        fetchPolicy: 'network-only',
-      }),
-    },
+        fetchPolicy: 'network-only'
+      })
+    }
   ),
   graphql(
     gql`
@@ -77,9 +79,9 @@ export default compose(
     {
       name: 'brandsQuery',
       options: () => ({
-        fetchPolicy: 'network-only',
-      }),
-    },
+        fetchPolicy: 'network-only'
+      })
+    }
   ),
   graphql(
     gql`
@@ -93,8 +95,8 @@ export default compose(
     {
       name: 'usersQuery',
       options: () => ({
-        fetchPolicy: 'network-only',
-      }),
-    },
-  ),
+        fetchPolicy: 'network-only'
+      })
+    }
+  )
 )(ChannelFormContainer);

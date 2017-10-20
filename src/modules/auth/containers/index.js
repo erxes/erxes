@@ -9,5 +9,5 @@ export {
   // SignUpContainer,
   AuthBoxContainer,
   ForgotPasswordContainer,
-  ResetPasswordContainer,
+  ResetPasswordContainer
 };

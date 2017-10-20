@@ -1,12 +1,19 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { FormGroup, ControlLabel, FormControl, Button, ButtonToolbar, Well } from 'react-bootstrap';
+import {
+  FormGroup,
+  ControlLabel,
+  FormControl,
+  Button,
+  ButtonToolbar,
+  Well
+} from 'react-bootstrap';
 import { Wrapper } from 'modules/layout/components';
 import Sidebar from '../../Sidebar';
 
 const propTypes = {
   signatures: PropTypes.array.isRequired,
-  save: PropTypes.func.isRequired,
+  save: PropTypes.func.isRequired
 };
 
 class Signature extends Component {
@@ -19,7 +26,7 @@ class Signature extends Component {
 
     this.state = {
       signatures: props.signatures,
-      currentId: null,
+      currentId: null
     };
   }
 
@@ -31,7 +38,7 @@ class Signature extends Component {
     }
 
     return this.state.signatures.find(
-      signature => signature.brandId.toString() === currentId.toString(),
+      signature => signature.brandId.toString() === currentId.toString()
     );
   }
 
@@ -93,7 +100,9 @@ class Signature extends Component {
             />
           </FormGroup>
           <ButtonToolbar className="pull-right">
-            <Button type="submit" bsStyle="primary">Save</Button>
+            <Button type="submit" bsStyle="primary">
+              Save
+            </Button>
           </ButtonToolbar>
         </form>
       </div>
@@ -101,7 +110,7 @@ class Signature extends Component {
 
     const breadcrumb = [
       { title: 'Settings', link: '/settings/channels' },
-      { title: 'Signature template' },
+      { title: 'Signature template' }
     ];
 
     return (

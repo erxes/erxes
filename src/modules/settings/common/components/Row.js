@@ -6,7 +6,7 @@ import { ModalTrigger, Tip } from 'modules/common/components';
 const propTypes = {
   object: PropTypes.object.isRequired,
   remove: PropTypes.func.isRequired,
-  save: PropTypes.func.isRequired,
+  save: PropTypes.func.isRequired
 };
 
 class Row extends Component {

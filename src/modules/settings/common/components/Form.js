@@ -4,11 +4,11 @@ import { ButtonToolbar, Modal, Button } from 'react-bootstrap';
 
 const propTypes = {
   object: PropTypes.object,
-  save: PropTypes.func,
+  save: PropTypes.func
 };
 
 const contextTypes = {
-  closeModal: PropTypes.func.isRequired,
+  closeModal: PropTypes.func.isRequired
 };
 
 class Form extends Component {
@@ -26,7 +26,7 @@ class Form extends Component {
       () => {
         this.context.closeModal();
       },
-      this.props.object,
+      this.props.object
     );
   }
 

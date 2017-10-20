@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { FormGroup, ControlLabel, FormControl } from 'react-bootstrap';
 
 const propTypes = {
-  user: PropTypes.object.isRequired,
+  user: PropTypes.object.isRequired
 };
 
 class UserCommonInfos extends Component {
@@ -15,7 +15,7 @@ class UserCommonInfos extends Component {
     this.state = {
       avatar: this.props.user.details.avatar,
       avatarPreviewUrl: this.props.user.details.avatar || defaultAvatar,
-      avatarPreviewStyle: {},
+      avatarPreviewStyle: {}
     };
 
     this.handleImageChange = this.handleImageChange.bind(this);
@@ -34,7 +34,12 @@ class UserCommonInfos extends Component {
         <FormGroup>
           <ControlLabel>Photo</ControlLabel>
 
-          <img alt="avatar" className="avatar" style={avatarPreviewStyle} src={avatarPreviewUrl} />
+          <img
+            alt="avatar"
+            className="avatar"
+            style={avatarPreviewStyle}
+            src={avatarPreviewUrl}
+          />
 
           <FormControl type="file" onChange={this.handleImageChange} />
           <input type="hidden" id="avatar" value={avatar} />
@@ -42,12 +47,20 @@ class UserCommonInfos extends Component {
 
         <FormGroup>
           <ControlLabel>Name</ControlLabel>
-          <FormControl type="text" id="fullName" defaultValue={user.details.fullName} />
+          <FormControl
+            type="text"
+            id="fullName"
+            defaultValue={user.details.fullName}
+          />
         </FormGroup>
 
         <FormGroup>
           <ControlLabel>Position</ControlLabel>
-          <FormControl type="text" id="position" defaultValue={user.details.position} />
+          <FormControl
+            type="text"
+            id="position"
+            defaultValue={user.details.position}
+          />
         </FormGroup>
 
         <FormGroup>
@@ -57,7 +70,11 @@ class UserCommonInfos extends Component {
 
         <FormGroup>
           <ControlLabel>Email</ControlLabel>
-          <FormControl type="email" id="email" defaultValue={user.emails[0].address} />
+          <FormControl
+            type="email"
+            id="email"
+            defaultValue={user.emails[0].address}
+          />
         </FormGroup>
 
         <FormGroup>

@@ -22,7 +22,7 @@ const commonListComposer = options => {
       addMutation,
       editMutation,
       removeMutation,
-      queryParams,
+      queryParams
     } = props;
 
     if (totalCountQuery.loading || listQuery.loading) {
@@ -39,18 +39,16 @@ const commonListComposer = options => {
       removeMutation({
         variables: { _id }
       })
+        .then(() => {
+          // update queries
+          listQuery.refetch();
+          totalCountQuery.refetch();
 
-      .then(() => {
-        // update queries
-        listQuery.refetch();
-        totalCountQuery.refetch();
-
-        Alert.success('Congrats', 'Successfully deleted.');
-      })
-
-      .catch((error) => {
-        Alert.error(error.message);
-      });
+          Alert.success('Congrats', 'Successfully deleted.');
+        })
+        .catch(error => {
+          Alert.error(error.message);
+        });
     };
 
     // create or update action
@@ -64,22 +62,20 @@ const commonListComposer = options => {
       }
 
       mutation({
-        variables: doc,
+        variables: doc
       })
+        .then(() => {
+          // update queries
+          listQuery.refetch();
+          totalCountQuery.refetch();
 
-      .then(() => {
-        // update queries
-        listQuery.refetch();
-        totalCountQuery.refetch();
+          Alert.success('Congrats');
 
-        Alert.success('Congrats');
-
-        callback();
-      })
-
-      .catch((error) => {
-        Alert.error(error.message);
-      });
+          callback();
+        })
+        .catch(error => {
+          Alert.error(error.message);
+        });
     };
 
     const updatedProps = {
@@ -89,7 +85,7 @@ const commonListComposer = options => {
       loadMore,
       hasMore,
       save,
-      remove,
+      remove
     };
 
     return <ListComponent {...updatedProps} />;
@@ -101,7 +97,7 @@ const commonListComposer = options => {
     addMutation: PropTypes.func,
     editMutation: PropTypes.func,
     removeMutation: PropTypes.func,
-    queryParams: PropTypes.object,
+    queryParams: PropTypes.object
   };
 
   if (gqlAddMutation) {
@@ -111,14 +107,11 @@ const commonListComposer = options => {
       // mutations
       gqlAddMutation,
       gqlEditMutation,
-      gqlRemoveMutation,
+      gqlRemoveMutation
     )(ListContainer);
   }
 
-  return compose(
-    gqlListQuery,
-    gqlTotalCountQuery,
-  )(ListContainer);
+  return compose(gqlListQuery, gqlTotalCountQuery)(ListContainer);
 };
 
 export default commonListComposer;

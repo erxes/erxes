@@ -5,11 +5,15 @@ import { Wrapper } from 'modules/layout/components';
 
 const propTypes = {
   items: PropTypes.number,
-  size: PropTypes.string,
+  size: PropTypes.string
 };
 
 function LoadingSidebar({ items, size = 'medium' }) {
-  return <Wrapper.Sidebar size={size}>{_.times(items, n => <Section key={n} />)}</Wrapper.Sidebar>;
+  return (
+    <Wrapper.Sidebar size={size}>
+      {_.times(items, n => <Section key={n} />)}
+    </Wrapper.Sidebar>
+  );
 }
 
 function Section() {
@@ -38,7 +42,7 @@ function Lines({ title }) {
 }
 
 Lines.propTypes = {
-  title: PropTypes.bool,
+  title: PropTypes.bool
 };
 
 LoadingSidebar.Section = Section;

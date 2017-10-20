@@ -13,5 +13,5 @@ export {
   NotFound,
   PageContent,
   Sidebar,
-  Wrapper,
+  Wrapper
 };

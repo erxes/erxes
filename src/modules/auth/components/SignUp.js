@@ -1,11 +1,17 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { FlowRouter } from 'meteor/kadira:flow-router';
-import { FormGroup, ControlLabel, FormControl, Button, Well } from 'react-bootstrap';
+import {
+  FormGroup,
+  ControlLabel,
+  FormControl,
+  Button,
+  Well
+} from 'react-bootstrap';
 import Alert from 'meteor/erxes-notifier';
 
 const propTypes = {
-  createUser: PropTypes.func.isRequired,
+  createUser: PropTypes.func.isRequired
 };
 
 class SignUp extends Component {
@@ -16,7 +22,7 @@ class SignUp extends Component {
       username: '',
       email: '',
       password: '',
-      fullName: '',
+      fullName: ''
     };
 
     this.createUser = this.createUser.bind(this);
@@ -105,9 +111,7 @@ class SignUp extends Component {
               required
             />
           </FormGroup>
-          <Button type="submit">
-            Sign up
-          </Button>
+          <Button type="submit">Sign up</Button>
         </form>
         <p>
           <a href={FlowRouter.path('auth/signIn')}>Already have an account?</a>

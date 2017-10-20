@@ -13,7 +13,7 @@ const FormContainer = props => {
 
   const updatedProps = {
     ...props,
-    brands: brandsQuery.brands,
+    brands: brandsQuery.brands
   };
 
   return <Form {...updatedProps} />;
@@ -21,7 +21,7 @@ const FormContainer = props => {
 
 FormContainer.propTypes = {
   object: PropTypes.object,
-  brandsQuery: PropTypes.object,
+  brandsQuery: PropTypes.object
 };
 
 export default compose(
@@ -34,6 +34,6 @@ export default compose(
         }
       }
     `,
-    { name: 'brandsQuery' },
-  ),
+    { name: 'brandsQuery' }
+  )
 )(FormContainer);

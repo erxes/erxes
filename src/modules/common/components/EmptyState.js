@@ -7,7 +7,7 @@ const propTypes = {
   icon: PropTypes.object.isRequired,
   size: PropTypes.string,
   linkUrl: PropTypes.string,
-  linkText: PropTypes.string,
+  linkText: PropTypes.string
 };
 
 function EmptyState({ text, icon, size, linkUrl, linkText }) {
@@ -16,7 +16,11 @@ function EmptyState({ text, icon, size, linkUrl, linkText }) {
     <div className={classNames}>
       {icon}
       {text}
-      {linkUrl && linkText ? <Button bsSize="small" href={linkUrl}>{linkText}</Button> : null}
+      {linkUrl && linkText ? (
+        <Button bsSize="small" href={linkUrl}>
+          {linkText}
+        </Button>
+      ) : null}
     </div>
   );
 }

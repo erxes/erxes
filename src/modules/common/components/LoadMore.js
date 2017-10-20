@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 const propTypes = {
   perPage: PropTypes.number,
   all: PropTypes.number.isRequired,
-  paramName: PropTypes.string,
+  paramName: PropTypes.string
 };
 
 function LoadMore() {}

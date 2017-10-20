@@ -5,11 +5,11 @@ import { Modal } from 'react-bootstrap';
 const propTypes = {
   title: PropTypes.string.isRequired,
   trigger: PropTypes.element.isRequired,
-  children: PropTypes.node.isRequired,
+  children: PropTypes.node.isRequired
 };
 
 const childContextTypes = {
-  closeModal: PropTypes.func.isRequired,
+  closeModal: PropTypes.func.isRequired
 };
 
 class ModalTrigger extends Component {
@@ -39,7 +39,7 @@ class ModalTrigger extends Component {
 
     // add onclick event to the trigger component
     const triggerComponent = React.cloneElement(trigger, {
-      onClick: this.openModal,
+      onClick: this.openModal
     });
 
     return (
@@ -50,9 +50,7 @@ class ModalTrigger extends Component {
           <Modal.Header closeButton>
             <Modal.Title>{title}</Modal.Title>
           </Modal.Header>
-          <Modal.Body>
-            {children}
-          </Modal.Body>
+          <Modal.Body>{children}</Modal.Body>
         </Modal>
       </span>
     );

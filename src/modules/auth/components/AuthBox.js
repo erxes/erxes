@@ -5,7 +5,7 @@ const propTypes = {
   user: PropTypes.object,
   loggingIn: PropTypes.bool.isRequired,
   loginWithPassword: PropTypes.func.isRequired,
-  logout: PropTypes.func.isRequired,
+  logout: PropTypes.func.isRequired
 };
 
 class AuthBox extends Component {
@@ -14,7 +14,7 @@ class AuthBox extends Component {
 
     this.state = {
       email: '',
-      password: '',
+      password: ''
     };
 
     this.login = this.login.bind(this);
@@ -25,7 +25,6 @@ class AuthBox extends Component {
 
   login(e) {
     e.preventDefault();
-
   }
 
   logout(e) {
@@ -59,7 +58,9 @@ class AuthBox extends Component {
         <div>
           {user.emails[0].address} |&nbsp;
           <a href="#">Change password</a> |&nbsp;
-          <a href="#" onClick={this.logout}>Sign out</a>
+          <a href="#" onClick={this.logout}>
+            Sign out
+          </a>
         </div>
       );
     }

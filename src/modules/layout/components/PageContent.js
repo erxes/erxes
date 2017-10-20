@@ -5,11 +5,10 @@ import { MainContent, ContentBox, ContenFooter } from '../styles';
 const propTypes = {
   actionBar: PropTypes.node,
   footer: PropTypes.node,
-  children: PropTypes.node,
+  children: PropTypes.node
 };
 
 function PageContent({ actionBar, footer, children }) {
-
   return (
     <MainContent>
       {actionBar}

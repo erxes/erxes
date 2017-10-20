@@ -7,5 +7,5 @@ export default {
   unitSpacing,
   coreSpacing,
   headerSpacing,
-  headerSpacingWide,
-}
+  headerSpacingWide
+};

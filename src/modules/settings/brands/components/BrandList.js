@@ -37,7 +37,10 @@ class BrandList extends List {
   }
 
   breadcrumb() {
-    return [{ title: 'Settings', link: '/settings/brands' }, { title: 'Brands' }];
+    return [
+      { title: 'Settings', link: '/settings/brands' },
+      { title: 'Brands' }
+    ];
   }
 }
 

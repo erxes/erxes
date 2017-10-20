@@ -14,17 +14,17 @@ const fontSizeHeading8 = 11;
 const fontSizeBody = 13;
 const fontSizeUppercase = 11;
 
-const lineHeightHeading1 = (72 / fontSizeHeading1);
-const lineHeightHeading2 = (56 / fontSizeHeading2);
-const lineHeightHeading3 = (48 / fontSizeHeading3);
-const lineHeightHeading4 = (40 / fontSizeHeading4);
-const lineHeightHeading5 = (32 / fontSizeHeading5);
-const lineHeightHeading6 = (28 / fontSizeHeading6);
-const lineHeightHeading7 = (24 / fontSizeHeading7);
-const lineHeightHeading8 = (16 / fontSizeHeading8);
+const lineHeightHeading1 = 72 / fontSizeHeading1;
+const lineHeightHeading2 = 56 / fontSizeHeading2;
+const lineHeightHeading3 = 48 / fontSizeHeading3;
+const lineHeightHeading4 = 40 / fontSizeHeading4;
+const lineHeightHeading5 = 32 / fontSizeHeading5;
+const lineHeightHeading6 = 28 / fontSizeHeading6;
+const lineHeightHeading7 = 24 / fontSizeHeading7;
+const lineHeightHeading8 = 16 / fontSizeHeading8;
 
-const lineHeightBody = (20 / fontSizeBody);
-const lineHeightUppercase = (11 / fontSizeUppercase);
+const lineHeightBody = 20 / fontSizeBody;
+const lineHeightUppercase = 11 / fontSizeUppercase;
 
 export default {
   fontWeightLight,
@@ -49,5 +49,5 @@ export default {
   lineHeightHeading7,
   lineHeightHeading8,
   lineHeightBody,
-  lineHeightUppercase,
-}
+  lineHeightUppercase
+};

@@ -15,7 +15,6 @@ import ModalTrigger from './ModalTrigger';
 import ActionButtons from './ActionButtons';
 import EmptyState from './EmptyState';
 
-
 export {
   ActionButtons,
   NameCard,
@@ -32,5 +31,5 @@ export {
   Pagination,
   pagination,
   ModalTrigger,
-  EmptyState,
-}
+  EmptyState
+};

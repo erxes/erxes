@@ -37,7 +37,7 @@ class ResponseTemplateList extends List {
   breadcrumb() {
     return [
       { title: 'Settings', link: '/settings/response-templates' },
-      { title: 'Response templates' },
+      { title: 'Response templates' }
     ];
   }
 }

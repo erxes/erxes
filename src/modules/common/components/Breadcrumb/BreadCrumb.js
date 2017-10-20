@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import styled from "styled-components"
-import { dimensions } from "../../styles";
+import styled from 'styled-components';
+import { dimensions } from '../../styles';
 import BreadCrumbItem from './BreadCrumbItem';
 
 const Items = styled.ol`
@@ -12,17 +12,13 @@ const Items = styled.ol`
 `;
 
 const propTypes = {
-  children: PropTypes.node,
+  children: PropTypes.node
 };
-
 
 class BreadCrumb extends React.Component {
   render() {
     return (
-      <Items
-        role="navigation"
-        aria-label="breadcrumbs"
-      >
+      <Items role="navigation" aria-label="breadcrumbs">
         {this.props.children}
       </Items>
     );

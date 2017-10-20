@@ -9,10 +9,16 @@ const propTypes = {
   spin: PropTypes.bool,
   title: PropTypes.string.isRequired,
   hasRightSidebar: PropTypes.bool,
-  items: PropTypes.number,
+  items: PropTypes.number
 };
 
-function Loading({ sidebarSize, spin = false, title, hasRightSidebar = false, items = 4 }) {
+function Loading({
+  sidebarSize,
+  spin = false,
+  title,
+  hasRightSidebar = false,
+  items = 4
+}) {
   let content = (
     <Table className="no-wrap loading-table">
       <thead>

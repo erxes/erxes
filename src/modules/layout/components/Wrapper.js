@@ -12,10 +12,17 @@ const propTypes = {
   rightSidebar: PropTypes.element,
   actionBar: PropTypes.node,
   content: PropTypes.element.isRequired,
-  footer: PropTypes.node,
+  footer: PropTypes.node
 };
 
-function Wrapper({ header, leftSidebar, actionBar, content, footer, rightSidebar }) {
+function Wrapper({
+  header,
+  leftSidebar,
+  actionBar,
+  content,
+  footer,
+  rightSidebar
+}) {
   return (
     <MainWrapper>
       {header}

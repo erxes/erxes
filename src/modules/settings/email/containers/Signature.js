@@ -20,7 +20,7 @@ const SignatureContainer = props => {
     _.each(signatures, signature => {
       doc.push({
         brandId: signature.brandId,
-        signature: signature.content,
+        signature: signature.content
       });
     });
 
@@ -31,13 +31,15 @@ const SignatureContainer = props => {
   };
 
   // TODO
-  const currentUser = {} // Meteor.user();
+  const currentUser = {}; // Meteor.user();
   const emailSignatures = currentUser.emailSignatures || [];
   const signatures = [];
 
   brandsQuery.brands.forEach(brand => {
     // previously configured signature
-    const oldEntry = emailSignatures.find(signature => signature.brandId === brand._id);
+    const oldEntry = emailSignatures.find(
+      signature => signature.brandId === brand._id
+    );
 
     // default content
     let content = '';
@@ -49,21 +51,21 @@ const SignatureContainer = props => {
     signatures.push({
       brandId: brand._id,
       brandName: brand.name,
-      content,
+      content
     });
   });
 
   const updatedProps = {
     ...this.props,
     signatures,
-    save,
+    save
   };
 
   return <Signature {...updatedProps} />;
 };
 
 SignatureContainer.propTypes = {
-  brandsQuery: PropTypes.object,
+  brandsQuery: PropTypes.object
 };
 
 export default compose(
@@ -77,7 +79,7 @@ export default compose(
       }
     `,
     {
-      name: 'brandsQuery',
-    },
-  ),
+      name: 'brandsQuery'
+    }
+  )
 )(SignatureContainer);

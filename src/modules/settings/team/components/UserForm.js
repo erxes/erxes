@@ -12,14 +12,14 @@ class UserForm extends CommonForm {
     this.collectValues = this.collectValues.bind(this);
 
     this.state = {
-      selectedChannels: this.generateChannelsParams(props.selectedChannels),
+      selectedChannels: this.generateChannelsParams(props.selectedChannels)
     };
   }
 
   generateChannelsParams(channels) {
     return channels.map(channel => ({
       value: channel._id,
-      label: channel.name,
+      label: channel.name
     }));
   }
 
@@ -59,10 +59,11 @@ class UserForm extends CommonForm {
         twitterUsername: document.getElementById('twitterUsername').value,
         email: document.getElementById('email').value,
         password: document.getElementById('password').value,
-        passwordConfirmation: document.getElementById('password-confirmation').value,
+        passwordConfirmation: document.getElementById('password-confirmation')
+          .value,
         role: document.getElementById('role').value,
-        channelIds: this.collectValues(this.state.selectedChannels),
-      },
+        channelIds: this.collectValues(this.state.selectedChannels)
+      }
     };
   }
 

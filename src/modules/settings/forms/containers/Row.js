@@ -19,7 +19,7 @@ function composer({ refetch }, onData) {
   };
 
   onData(null, {
-    duplicateForm,
+    duplicateForm
   });
 }
 

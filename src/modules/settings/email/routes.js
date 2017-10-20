@@ -6,16 +6,16 @@ import { List, Signature } from './containers';
 const routes = () => (
   <div>
     <Route
-      path='/settings/emails/'
+      path="/settings/emails/"
       component={() => {
-        return <MainLayout content={ <List queryParams={{}} /> } />
+        return <MainLayout content={<List queryParams={{}} />} />;
       }}
     />
 
     <Route
-      path='/settings/emails/signatures'
+      path="/settings/emails/signatures"
       component={() => {
-        return <MainLayout content={ <Signature queryParams={{}} /> } />
+        return <MainLayout content={<Signature queryParams={{}} />} />;
       }}
     />
   </div>

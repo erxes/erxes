@@ -7,17 +7,17 @@ import {
   FormControl,
   ButtonToolbar,
   HelpBlock,
-  Modal,
+  Modal
 } from 'react-bootstrap';
 
 const propTypes = {
   brand: PropTypes.object.isRequired,
   configEmail: PropTypes.func.isRequired,
-  defaultTemplate: PropTypes.string.isRequired,
+  defaultTemplate: PropTypes.string.isRequired
 };
 
 const contextTypes = {
-  closeModal: PropTypes.func.isRequired,
+  closeModal: PropTypes.func.isRequired
 };
 
 class Config extends Component {
@@ -26,7 +26,7 @@ class Config extends Component {
 
     const { type, template } = props.brand.emailConfig || {
       type: 'simple',
-      template: '',
+      template: ''
     };
 
     this.state = { type, template: template || props.defaultTemplate };
@@ -101,8 +101,12 @@ class Config extends Component {
 
           <Modal.Footer>
             <ButtonToolbar className="pull-right">
-              <Button bsStyle="link" onClick={onClick}>Cancel</Button>
-              <Button type="submit" bsStyle="primary">Save</Button>
+              <Button bsStyle="link" onClick={onClick}>
+                Cancel
+              </Button>
+              <Button type="submit" bsStyle="primary">
+                Save
+              </Button>
             </ButtonToolbar>
           </Modal.Footer>
         </form>

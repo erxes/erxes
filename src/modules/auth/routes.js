@@ -7,7 +7,7 @@ import {
   // SignUpContainer,
   SignInContainer,
   ForgotPasswordContainer,
-  ResetPasswordContainer,
+  ResetPasswordContainer
 } from './containers';
 
 function checkAuth(context, redirect) {
@@ -31,7 +31,7 @@ FlowRouter.route('/sign-in', {
   triggersEnter: [checkAuth],
   action() {
     mount(AuthLayout, { content: <SignInContainer /> });
-  },
+  }
 });
 
 FlowRouter.route('/forgot-password', {
@@ -39,7 +39,7 @@ FlowRouter.route('/forgot-password', {
   triggersEnter: [checkAuth],
   action() {
     mount(AuthLayout, { content: <ForgotPasswordContainer /> });
-  },
+  }
 });
 
 FlowRouter.route('/reset-password/:token', {
@@ -47,9 +47,9 @@ FlowRouter.route('/reset-password/:token', {
   triggersEnter: [checkAuth],
   action(params) {
     mount(AuthLayout, {
-      content: <ResetPasswordContainer token={params.token} />,
+      content: <ResetPasswordContainer token={params.token} />
     });
-  },
+  }
 });
 
 FlowRouter.route('/logout', {
@@ -58,5 +58,5 @@ FlowRouter.route('/logout', {
     Meteor.logout(() => {
       FlowRouter.go('/');
     });
-  },
+  }
 });

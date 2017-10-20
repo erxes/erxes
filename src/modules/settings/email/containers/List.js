@@ -16,14 +16,14 @@ const ListContainer = props => {
   const updatedProps = {
     ...this.props,
     refetch: listQuery.refetch,
-    brands,
+    brands
   };
 
   return <List {...updatedProps} />;
 };
 
 ListContainer.propTypes = {
-  listQuery: PropTypes.object,
+  listQuery: PropTypes.object
 };
 
 export default compose(
@@ -43,10 +43,10 @@ export default compose(
       options: () => {
         return {
           variables: {
-            limit: 100,
-          },
+            limit: 100
+          }
         };
-      },
-    },
-  ),
+      }
+    }
+  )
 )(ListContainer);

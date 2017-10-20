@@ -65,7 +65,7 @@ const ConfigContainer = props => {
     ...props,
     brand: brandQuery.brandDetail,
     configEmail,
-    defaultTemplate,
+    defaultTemplate
   };
 
   return <Config {...updatedProps} />;
@@ -73,7 +73,7 @@ const ConfigContainer = props => {
 
 ConfigContainer.propTypes = {
   brandQuery: PropTypes.object,
-  refetch: PropTypes.func,
+  refetch: PropTypes.func
 };
 
 export default compose(
@@ -92,10 +92,10 @@ export default compose(
       options: ({ brandId }) => {
         return {
           variables: {
-            brandId,
-          },
+            brandId
+          }
         };
-      },
-    },
-  ),
+      }
+    }
+  )
 )(ConfigContainer);

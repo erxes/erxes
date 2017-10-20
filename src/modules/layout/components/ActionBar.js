@@ -4,7 +4,7 @@ import { ContentHeader, HeaderItems } from '../styles';
 
 const propTypes = {
   left: PropTypes.node,
-  right: PropTypes.node,
+  right: PropTypes.node
 };
 
 function ActionBar({ left, right }) {

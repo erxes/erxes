@@ -4,7 +4,7 @@ import { FormGroup, FormControl, Button } from 'react-bootstrap';
 
 const propTypes = {
   token: PropTypes.string.isRequired,
-  resetPassword: PropTypes.func.isRequired,
+  resetPassword: PropTypes.func.isRequired
 };
 
 class ResetPassword extends Component {
@@ -46,7 +46,8 @@ class ResetPassword extends Component {
               <img src="/images/logo.png" alt="erxes" />
               <h1>Customer engagement. Redefined.</h1>
               <p>
-                erxes is an AI meets open source messaging platform for sales and marketing teams.
+                erxes is an AI meets open source messaging platform for sales
+                and marketing teams.
               </p>
               <a href="http://erxes.io/">« Go to home page</a>
             </div>
@@ -63,7 +64,9 @@ class ResetPassword extends Component {
                     onChange={this.handlePasswordChange}
                   />
                 </FormGroup>
-                <Button type="submit" block>Change password</Button>
+                <Button type="submit" block>
+                  Change password
+                </Button>
               </form>
             </div>
           </div>

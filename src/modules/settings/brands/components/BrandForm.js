@@ -7,8 +7,8 @@ class BrandForm extends CommonForm {
     return {
       doc: {
         name: document.getElementById('brand-name').value,
-        description: document.getElementById('brand-description').value,
-      },
+        description: document.getElementById('brand-description').value
+      }
     };
   }
 
@@ -17,7 +17,12 @@ class BrandForm extends CommonForm {
       <div>
         <FormGroup>
           <ControlLabel>Name</ControlLabel>
-          <FormControl id="brand-name" type="text" defaultValue={brand.name} required />
+          <FormControl
+            id="brand-name"
+            type="text"
+            defaultValue={brand.name}
+            required
+          />
         </FormGroup>
 
         <FormGroup>

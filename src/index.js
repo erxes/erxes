@@ -1,6 +1,10 @@
 import React from 'react';
 import { render } from 'react-dom';
-import { ApolloProvider, ApolloClient, createNetworkInterface } from 'react-apollo';
+import {
+  ApolloProvider,
+  ApolloClient,
+  createNetworkInterface
+} from 'react-apollo';
 import { SubscriptionClient } from 'subscriptions-transport-ws';
 import { addGraphQLSubscriptions } from 'add-graphql-subscriptions';
 import Routes from './routes';
@@ -17,8 +21,8 @@ const loginUserId = '2nAuLeFT5qyfKrcD5';
 const wsClient = new SubscriptionClient(APOLLO_CLIENT_SUBSCRIPTION_URL, {
   reconnect: true,
   connectionParams: {
-    token: loginUserId,
-  },
+    token: loginUserId
+  }
 });
 
 // Create a normal network interface:
@@ -31,22 +35,24 @@ networkInterface.use([
       if (!req.options.headers) {
         req.options.headers = {};
       }
-      req.options.headers['authorization'] =`Bearer ${loginUserId}` ;
+      req.options.headers['authorization'] = `Bearer ${loginUserId}`;
       next();
-    },
-  },
+    }
+  }
 ]);
 
 // Extend the network interface with the WebSocket
-const networkInterfaceWithSubscriptions = addGraphQLSubscriptions(networkInterface, wsClient);
+const networkInterfaceWithSubscriptions = addGraphQLSubscriptions(
+  networkInterface,
+  wsClient
+);
 
 // Finally, create your ApolloClient instance with the modified network interface
 const client = new ApolloClient({
-  networkInterface: networkInterfaceWithSubscriptions,
+  networkInterface: networkInterfaceWithSubscriptions
 });
 
-
-const target = document.querySelector('#root')
+const target = document.querySelector('#root');
 
 render(
   <ApolloProvider store={store} client={client}>

@@ -11,7 +11,7 @@ const propTypes = {
   save: PropTypes.func.isRequired,
   refetch: PropTypes.func.isRequired,
   loadMore: PropTypes.func.isRequired,
-  hasMore: PropTypes.bool.isRequired,
+  hasMore: PropTypes.bool.isRequired
 };
 
 class List extends Component {
@@ -30,8 +30,8 @@ class List extends Component {
         object,
         remove,
         refetch,
-        save,
-      }),
+        save
+      })
     );
   }
 

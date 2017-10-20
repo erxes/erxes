@@ -36,11 +36,11 @@ export default commonListComposer({
       options: ({ queryParams }) => {
         return {
           variables: {
-            limit: queryParams.limit || 20,
-          },
+            limit: queryParams.limit || 20
+          }
         };
-      },
-    },
+      }
+    }
   ),
 
   gqlTotalCountQuery: graphql(
@@ -50,8 +50,8 @@ export default commonListComposer({
       }
     `,
     {
-      name: 'totalCountQuery',
-    },
+      name: 'totalCountQuery'
+    }
   ),
 
   gqlAddMutation: graphql(
@@ -63,8 +63,8 @@ export default commonListComposer({
       }
     `,
     {
-      name: 'addMutation',
-    },
+      name: 'addMutation'
+    }
   ),
 
   gqlEditMutation: graphql(
@@ -76,8 +76,8 @@ export default commonListComposer({
       }
     `,
     {
-      name: 'editMutation',
-    },
+      name: 'editMutation'
+    }
   ),
 
   gqlRemoveMutation: graphql(
@@ -87,9 +87,9 @@ export default commonListComposer({
       }
     `,
     {
-      name: 'removeMutation',
-    },
+      name: 'removeMutation'
+    }
   ),
 
-  ListComponent: ChannelList,
+  ListComponent: ChannelList
 });

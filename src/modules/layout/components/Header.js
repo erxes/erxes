@@ -5,7 +5,7 @@ import { TopBar } from '../styles';
 import QuickNavigation from './QuickNavigation';
 
 const propTypes = {
-  breadcrumb: PropTypes.array.isRequired,
+  breadcrumb: PropTypes.array.isRequired
 };
 
 function Header({ breadcrumb = [] }) {

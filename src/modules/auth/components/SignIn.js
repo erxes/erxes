@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { FormGroup, FormControl, Button } from 'react-bootstrap';
 
 const propTypes = {
-  loginWithPassword: PropTypes.func.isRequired,
+  loginWithPassword: PropTypes.func.isRequired
 };
 
 class SignIn extends Component {
@@ -12,7 +12,7 @@ class SignIn extends Component {
 
     this.state = {
       email: '',
-      password: '',
+      password: ''
     };
 
     this.loginWithPassword = this.loginWithPassword.bind(this);
@@ -54,7 +54,8 @@ class SignIn extends Component {
               <img src="/images/logo.png" alt="erxes" />
               <h1>Customer engagement. Redefined.</h1>
               <p>
-                erxes is an AI meets open source messaging platform for sales and marketing teams.
+                erxes is an AI meets open source messaging platform for sales
+                and marketing teams.
               </p>
               <a href="http://erxes.io/">« Go to home page</a>
             </div>
@@ -81,13 +82,13 @@ class SignIn extends Component {
                     onChange={this.handlePasswordChange}
                   />
                 </FormGroup>
-                <Button type="submit" block>Sign in</Button>
+                <Button type="submit" block>
+                  Sign in
+                </Button>
               </form>
 
               <div className="links">
-                <a href="/forgot-password">
-                  Forgot password?
-                </a>
+                <a href="/forgot-password">Forgot password?</a>
               </div>
             </div>
           </div>
