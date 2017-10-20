@@ -1,3 +1,4 @@
+import NameCard from './nameCard/NameCard';
 import Button from './Button';
 import BreadCrumb from './Breadcrumb/BreadCrumb';
 import BreadCrumbItem from './Breadcrumb/BreadCrumbItem';
@@ -14,6 +15,7 @@ import ModalTrigger from './ModalTrigger';
 
 
 export {
+  NameCard,
   Button,
   BreadCrumb,
   BreadCrumbItem,
