@@ -4,38 +4,25 @@ import {colors} from "../../styles";
 import PropTypes from "prop-types";
 
 const Styles = styled.div `
-  padding:10px 0;
+  padding:5px 0;
   border:1px solid ${colors.borderPrimary};
   background:#fff;
   box-shadow:0 2px 4px 0 ${colors.borderPrimary};
   position:absolute;
-  top:calc(100% + 10px);
-  `
+  top:100%;
+`
 
 export default class DropdownMenu extends Component {
-  parent() {
-    return this.context.component;
-  }
-
   render() {
-    const display = this.parent().state.visible
-      ? 'block'
-      : 'none';
-
-    const align = this.parent().props.align == "right"
+    const style = this.props.align == 'start'
       ? {
-        right: 0
+        left: 0,
+        minWidth: `${this.props.width}`
       }
       : {
-        left: 0
-      };
-
-    let style = {
-      display: display,
-      minWidth: `${this.parent().props.width}px`
-    }
-
-    style = Object.assign(align, style);
+        right: 0,
+        minWidth: `${this.props.width}`
+      }
 
     return (
       <Styles style={style}>
@@ -46,10 +33,13 @@ export default class DropdownMenu extends Component {
 
 }
 
-DropdownMenu.contextTypes = {
-  component: PropTypes.any
-};
-
 DropdownMenu.propTypes = {
   children: PropTypes.node.isRequired,
+  align: PropTypes.oneOf(['start', 'end']),
+  width: PropTypes.string
+};
+
+DropdownMenu.defaultProps = {
+  align: 'start',
+  width: "300px"
 };

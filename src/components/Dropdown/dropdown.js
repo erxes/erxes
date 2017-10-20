@@ -6,6 +6,7 @@ import ClickOutside from 'react-click-outside';
 const Styles = styled.span `
   position:relative;
   cursor:pointer;
+  padding-top:10px;
 `
 
 class Dropdown extends Component {
@@ -17,7 +18,19 @@ class Dropdown extends Component {
   }
 
   getChildContext() {
-    return {component: this}
+    return {
+      component:this
+    }
+  }
+
+  handleMenuItemClick(command, instance) {
+    if (this.props.hideOnClick) {
+      this.setState({visible: false});
+    }
+
+    if (this.props.command) {
+      this.props.command(command, instance);
+    }
   }
 
   componentDidMount() {
@@ -50,12 +63,18 @@ class Dropdown extends Component {
   }
 
   render() {
+    const display = this.state.visible
+      ? 'block'
+      : 'none';
+
     return (
-      <span ref={(el) => this.el = el}>
-        <Styles>
-          {this.props.children}
-          {this.props.item}
-        </Styles>
+      <span ref={(el) => this.el = el} style={{
+        display: 'inline-block'
+      }}>
+        {this.props.children}
+        <Styles style={{
+          display
+        }}>{this.props.item}</Styles>
       </span>
     );
   }
@@ -63,21 +82,20 @@ class Dropdown extends Component {
 }
 
 Dropdown.childContextTypes = {
-  component: PropTypes.any
+  component:PropTypes.any
 };
 
 Dropdown.propTypes = {
   item: PropTypes.node.isRequired,
   children: PropTypes.node.isRequired,
   trigger: PropTypes.oneOf(['hover', 'click']),
-  align: PropTypes.oneOf(['left', 'right']),
-  width: PropTypes.number,
+  hideOnClick: PropTypes.bool,
+  command: PropTypes.func
 };
 
 Dropdown.defaultProps = {
   trigger: 'click',
-  align: 'left',
-  width: 100,
+  hideOnClick: true
 };
 
 export default ClickOutside(Dropdown);

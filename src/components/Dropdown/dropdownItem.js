@@ -12,18 +12,14 @@ const Styles = styled.span `
   }
   font-size:0.875em;
   color:${colors.colorCoreLightGray};
-  `
-const StylesAvatar = styled.div `
-  border-radius:100%;
-  height:20px;
-  width:20px;
-  background-repeat:no-repeat;
-  background-size:cover;
-  background-position:center center;
-  margin-right:10px;
 `
 
 export default class DropdownItem extends Component {
+
+  handleClick() {
+    this.context.component.handleMenuItemClick(this.props.command, this);
+  }
+
   render() {
     const style = this.props.divider
       ? {
@@ -33,16 +29,10 @@ export default class DropdownItem extends Component {
       }
       : null;
 
-    const style2 = this.props.img ? {
-      backgroundImage: `url(${this.props.img})`,
-    }:{
-      display: 'none'
-    }
-
     return (
       <div style={style}>
-        <Styles>
-          <StylesAvatar style={style2}></StylesAvatar>{this.props.children}
+        <Styles onClick={this.handleClick.bind(this)}>
+          {this.props.children}
         </Styles>
       </div>
     );
@@ -51,15 +41,17 @@ export default class DropdownItem extends Component {
 }
 
 DropdownItem.contextTypes = {
-  component: PropTypes.any
+  component:PropTypes.any
 };
 
 DropdownItem.propTypes = {
   children: PropTypes.node.isRequired,
   divider: PropTypes.bool,
-  img: PropTypes.string
+  hover: PropTypes.bool,
+  command:PropTypes.string
 };
 
 DropdownItem.defaultProps = {
-  divider: false
+  divider: false,
+  hover: true
 };
