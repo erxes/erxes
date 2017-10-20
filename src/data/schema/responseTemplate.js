@@ -1,9 +1,10 @@
 export const types = `
   type ResponseTemplate {
     _id: String!
-    name: String
+    name: String!
+    brandId: String!
     content: String
-    brandId: String
+
     brand: Brand,
     files: JSON
   }
@@ -15,9 +16,20 @@ export const queries = `
 `;
 
 export const mutations = `
-  responseTemplateAdd(name: String, content: String, brandId: String, files: JSON):
-    ResponseTemplate
-  responseTemplateEdit(_id: String!, name: String, content: String, brandId: String, files: JSON):
-    ResponseTemplate
-  responseTemplateRemove(_id: String!): ResponseTemplate
+  responseTemplatesAdd(
+    brandId: String!,
+    name: String!,
+    content: String,
+    files: JSON
+  ): ResponseTemplate
+
+  responseTemplatesEdit(
+    _id: String!,
+    brandId: String!,
+    name: String!,
+    content: String,
+    files: JSON
+  ): ResponseTemplate
+
+  responseTemplatesRemove(_id: String!): String
 `;

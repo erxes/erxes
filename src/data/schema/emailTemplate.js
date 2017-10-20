@@ -1,7 +1,7 @@
 export const types = `
   type EmailTemplate {
     _id: String!
-    name: String
+    name: String!
     content: String
   }
 `;
@@ -12,7 +12,7 @@ export const queries = `
 `;
 
 export const mutations = `
-  emailTemplateAdd(name: String, content: String): EmailTemplate
-  emailTemplateEdit(_id: String!, name: String, content: String): EmailTemplate
-  emailTemplateRemove(_id: String!): EmailTemplate
+  emailTemplatesAdd(name: String!, content: String): EmailTemplate
+  emailTemplatesEdit(_id: String!, name: String!, content: String): EmailTemplate
+  emailTemplatesRemove(_id: String!): String
 `;

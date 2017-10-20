@@ -6,7 +6,7 @@ export default {
    * @param {Object} doc - email templates fields
    * @return {Promise} newly created email template object
    */
-  emailTemplateAdd(root, doc, { user }) {
+  emailTemplatesAdd(root, doc, { user }) {
     if (!user) throw new Error('Login required');
 
     return EmailTemplates.create(doc);
@@ -18,7 +18,7 @@ export default {
    * @param {Object} fields - email templates fields
    * @return {Promise} updated email template object
    */
-  emailTemplateEdit(root, { _id, ...fields }, { user }) {
+  emailTemplatesEdit(root, { _id, ...fields }, { user }) {
     if (!user) throw new Error('Login required');
 
     return EmailTemplates.updateEmailTemplate(_id, fields);
@@ -29,7 +29,7 @@ export default {
    * @param {String} doc - email templates fields
    * @return {Promise}
    */
-  emailTemplateRemove(root, { _id }, { user }) {
+  emailTemplatesRemove(root, { _id }, { user }) {
     if (!user) throw new Error('Login required');
 
     return EmailTemplates.removeEmailTemplate(_id);
