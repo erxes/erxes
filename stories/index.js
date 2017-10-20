@@ -25,7 +25,7 @@ storiesOf('Button', module)
       'default' )}
       size={select('Size', ['large', 'medium', 'small'], 'medium')}
       disabled={boolean('Disabled', false)}
-      label={select('Block', ['default', 'block'], 'default')}
+      block={boolean('Block', false)}
       href={select('Href', [null, 'href'], '')}
       onClick={ action('button-click') }
     >

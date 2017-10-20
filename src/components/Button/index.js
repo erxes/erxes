@@ -34,11 +34,7 @@ const types = {
   link: {
     background: 'transparent',
     color: colors.colorCoreGray,
-  },
-  block: {
-    width: '100%',
-    display: 'block',
-  },
+  }
 };
 
 const sizes = {
@@ -56,50 +52,23 @@ const sizes = {
   },
 };
 
-const ButtonLink = styled.a`${props => css`
-  border-radius: 1.875em;
-  padding: ${sizes[props.size].padding};
-  margin: 0 1em;
-  display: ${types[props.label].display};
-  width: ${types[props.label].width};
-  border: ${types[props.btnStyle].borderColor ? '0.063em solid': 'none'};
-  background: ${types[props.btnStyle].background};
-  color: ${types[props.btnStyle].color};
-  font-size: ${sizes[props.size].fontSize};
-  text-decoration: inherit;
-  text-transform: uppercase;
-  
-  &:disabled {
-    cursor: not-allowed !important;
-    background: ${lighten(types[props.btnStyle].background, 30)} !important;
-    color:  ${lighten(types[props.btnStyle].color, 20)} !important;
-  }
-
-  &:hover {
-    cursor: pointer;
-    box-shadow: 0 0 0.25em 0 ${colors.colorCoreGray};
-    color: ${types[props.btnStyle].color !== colors.colorWhite 
-      ? darken(colors.colorCoreGray, 24) 
-      : ''};
-  }
-`}`;
-
 const ButtonStyled = styled.button`${props => css`
   border-radius: 1.875em;
   padding: ${sizes[props.size].padding};
   margin: 0 1em;
-  display: ${types[props.label].display};
-  width: ${types[props.label].width};
+  display: ${props.block ? 'block' : 'inline-block'};
+  width: ${props.block && '100%'};
   border: ${types[props.btnStyle].borderColor ? '0.063em solid': 'none'};
   background: ${types[props.btnStyle].background};
   color: ${types[props.btnStyle].color};
   font-size: ${sizes[props.size].fontSize};
+  transition: all 0.5s ease;
   text-transform: uppercase;
-  
+
   &:disabled {
     cursor: not-allowed !important;
-    background: ${lighten(types[props.btnStyle].background, 30)} !important;
-    color:  ${lighten(types[props.btnStyle].color, 20)} !important;
+    background: ${lighten(types[props.btnStyle].background, 30)};
+    color:  ${lighten(types[props.btnStyle].color, 20)};
   }
 
   &:hover {
@@ -111,24 +80,43 @@ const ButtonStyled = styled.button`${props => css`
   }
 `}`;
 
-function Button({ btnStyle, children, size, disabled, label, href, onClick }) {
-  return ( 
-    <div>
-    { href ?
-        <ButtonLink 
-          href={href} btnStyle={btnStyle} size={size} label={label} disabled={disabled} onClick={onClick}
+const Link = ButtonStyled.withComponent('a');
+
+const ButtonLink = Link.extend`
+  text-decoration: inherit;
+  text-align: center;
+  background: ${props => props.disabled ? lighten(types[props.btnStyle].background, 30) : ''};
+  pointer-events: none;
+`;
+
+function Button({ btnStyle, children, size, disabled, block, href, onClick }) {
+
+  if (href) {
+    return (
+      <ButtonLink
+        href={href} 
+        btnStyle={btnStyle}
+        size={size} 
+        block={block} 
+        disabled={disabled} 
+        onClick={onClick}
         >
-          {children}
-        </ButtonLink>
-        :
-        <ButtonStyled 
-         btnStyle={btnStyle} size={size} label={label} disabled={disabled} onClick={onClick}
+        { children }
+      </ButtonLink>
+    )
+  }
+
+    return ( 
+      <ButtonStyled 
+        btnStyle={btnStyle} 
+        size={size} 
+        block={block} 
+        disabled={disabled} 
+        onClick={onClick}
         >
-          { children }
-        </ButtonStyled>
-    }
-    </div>
-  );
+        { children }
+      </ButtonStyled>
+    );
 }
 
 Button.propTypes = {
@@ -150,10 +138,7 @@ Button.propTypes = {
     'small',
   ]),
   disabled: PropTypes.bool,
-  label: PropTypes.oneOf([
-    'default',
-    'block',
-  ])
+  block: PropTypes.bool,
 };
 
 Button.defaultProps = {

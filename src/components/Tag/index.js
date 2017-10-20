@@ -21,13 +21,13 @@ const types = {
   }
 };
 
-const LabelStyled = styled.button`${props => css`
+const LabelStyled = styled.span`${props => css`
   border-radius: 1.875em;
   padding: 0.4em 0.8em;
   text-transform: uppercase;
   font-size: 0.6em;
   display: inline-block;
-  background: ${types[props.nmStyle].background};
+  background: ${types[props.btnStyle].background};
   color: ${colors.colorWhite};
   border: none;
 
@@ -36,9 +36,9 @@ const LabelStyled = styled.button`${props => css`
   }
 `}`;
 
-function Label({ nmStyle, children }) {
+function Label({ btnStyle, children }) {
   return (
-    <LabelStyled nmStyle={nmStyle}>
+    <LabelStyled btnStyle={btnStyle}>
       {children}
     </LabelStyled>
   );
@@ -46,7 +46,7 @@ function Label({ nmStyle, children }) {
 
 Label.propTypes = {
   children: PropTypes.node.isRequired,
-  nmStyle: PropTypes.oneOf([
+  btnStyle: PropTypes.oneOf([
     'default',
     'primary',
     'success',
@@ -56,7 +56,7 @@ Label.propTypes = {
 };
 
 Label.defaultProps = {
-  nmStyle: 'default',
+  btnStyle: 'default',
   children: 'Label',
 };
 
