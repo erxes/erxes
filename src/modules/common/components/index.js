@@ -12,9 +12,11 @@ import LoadMore from './LoadMore';
 import Pagination from './pagination/Pagination';
 import { pagination } from './pagination/paginationUtils';
 import ModalTrigger from './ModalTrigger';
+import ActionButtons from './ActionButtons';
 
 
 export {
+  ActionButtons,
   NameCard,
   Button,
   BreadCrumb,
