@@ -24,18 +24,44 @@ const BrandSchema = mongoose.Schema({
 });
 
 class Brand {
+  /*
+   * Generates new brand code
+   * @param {String} code - initial code
+   * @return {String} generatedCode - generated code
+   */
+  static async generateCode(code) {
+    let generatedCode = code || Random.id().substr(0, 6);
+
+    let prevBrand = await this.findOne({ code: generatedCode });
+
+    // search until not existing one found
+    while (prevBrand) {
+      generatedCode = Random.id().substr(0, 6);
+
+      if (code) {
+        // eslint-disable-next-line no-console
+        console.log('User defined brand code already exists. New code is generated.');
+      }
+
+      prevBrand = await this.findOne({ code: generatedCode });
+    }
+
+    return generatedCode;
+  }
+
   /**
    * Create a brand
    * @param  {Object} doc object
    * @return {Promise} Newly created brand object
    */
-  static createBrand(doc) {
-    if (!doc.code) throw new Error('Code is required field');
+  static async createBrand(doc) {
+    // generate code automatically
+    // if there is no brand code defined
+    doc.code = await this.generateCode(doc.code);
+    doc.createdAt = new Date();
+    doc.emailConfig = { type: 'simple' };
 
-    return this.create({
-      ...doc,
-      createdAt: new Date(),
-    });
+    return this.create(doc);
   }
 
   /**

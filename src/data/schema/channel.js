@@ -29,7 +29,7 @@ export const mutations = `
     name: String!,
     description: String,
     memberIds: [String],
-    integrationIds: [String]): Boolean
+    integrationIds: [String]): Channel
 
-  channelsRemove(_id: String!): Boolean
+  channelsRemove(_id: String!): String
 `;
