@@ -6,6 +6,7 @@ import EmailTemplatesRoutes from './emailTemplates/routes';
 import TeamMembersRoutes from './team/routes';
 import EmailRoutes from './email/routes';
 import FormsRoutes from './forms/routes';
+import IntegrationsRoutes from './integrations/routes';
 
 const routes = () => (
   <div>
@@ -16,6 +17,7 @@ const routes = () => (
     <TeamMembersRoutes />
     <EmailRoutes />
     <FormsRoutes />
+    <IntegrationsRoutes />
   </div>
 );
 
