@@ -1,4 +1,4 @@
-import { rgba } from "../utils/color";
+import { rgba } from './color';
 
 // Core colors
 const colorPrimary = "#A389D4";

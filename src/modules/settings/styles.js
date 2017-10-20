@@ -1,5 +1,5 @@
 import styled from "styled-components"
-import { colors } from '../styles';
+import { colors } from '../common/styles';
 
 const SidebarList = styled.main`
   margin: 0;

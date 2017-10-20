@@ -1,6 +1,12 @@
 import styled from "styled-components"
-import { colors, dimensions } from '../styles';
-import { rgba } from "../utils/color";
+import { colors, dimensions } from '../common/styles';
+import { rgba } from '../common/styles/color';
+
+const UserHelper = styled.div`
+  padding: 0 ${dimensions.coreSpacing}px;
+  float: right;
+  background: ${rgba(colors.colorWhite, 0.1)};
+`;
 
 const Main = styled.main`
   height: 100%;
@@ -167,4 +173,5 @@ export {
   HelperButtons,
   QuickButton,
   SidebarTitle,
+  UserHelper,
 }

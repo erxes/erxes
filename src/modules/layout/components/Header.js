@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { BreadCrumb } from '../../components';
+import { BreadCrumb } from '../../common/components';
 import { TopBar } from '../styles';
 import QuickNavigation from './QuickNavigation';
 
