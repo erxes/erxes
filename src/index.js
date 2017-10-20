@@ -9,7 +9,6 @@ import './modules/common/styles/global-styles.js';
 
 // TODO: remove
 import 'bootstrap/dist/css/bootstrap.min.css';
-import './assets/scss/main.scss';
 
 const APOLLO_CLIENT_URL = 'http://localhost:3300/graphql';
 const APOLLO_CLIENT_SUBSCRIPTION_URL = 'ws://localhost:3300/subscriptions';
