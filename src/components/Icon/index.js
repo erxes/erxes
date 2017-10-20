@@ -1,21 +1,25 @@
 import React from "react";
 import PropTypes from "prop-types";
-import styled, { css } from 'styled-components'
+import styled from 'styled-components'
 
-const IconStyle = styled.i`${props => css`
-	margin-right: 0.3em;
-	font-size: ${props.size}em;
-`}`;
+const IconStyle = styled.i`
+	margin-right: 4px;
+	font-size: ${props => props.size}px;
+`;
 
 function Icon({ icon, size }) {
   return (
-		<IconStyle className={`ion-${icon}`} size={`${size}`}></IconStyle>
+		<IconStyle className={`ion-${icon}`} size={size}></IconStyle>
   );
 }
 
 Icon.propTypes = {
   icon: PropTypes.node.isRequired,
-  size: PropTypes.string.isRequired,
+  size: PropTypes.number,
 };
+
+Icon.defaultProps = {
+	size: 12
+}
 
 export default Icon;

@@ -1,40 +1,40 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import styled, { css } from 'styled-components'
+import styled from 'styled-components'
 import { colors } from '../../styles';
 
 const types = {
   default: {
-    background: colors.colorPrimary
+    background: colors.colorPrimary,
   },
   primary: {
-    background: colors.colorSecondary
+    background: colors.colorSecondary,
   },
   success: {
-    background: colors.colorCoreGreen
+    background: colors.colorCoreGreen,
   },
   danger: {
-    background: colors.colorCoreRed
+    background: colors.colorCoreRed,
   },
   warning: {
-    background: colors.colorCoreYellow
+    background: colors.colorCoreYellow,
   }
 };
 
-const LabelStyled = styled.span`${props => css`
-  border-radius: 1.875em;
-  padding: 0.4em 0.8em;
+const LabelStyled = styled.span`
+  border-radius: 14px;
+  padding: 6px 12px;
   text-transform: uppercase;
-  font-size: 0.6em;
+  font-size: 9px;
   display: inline-block;
-  background: ${types[props.btnStyle].background};
+  background: ${props => types[props.btnStyle].background};
   color: ${colors.colorWhite};
   border: none;
 
   &:hover {
     cursor: default;
   }
-`}`;
+`;
 
 function Label({ btnStyle, children }) {
   return (
@@ -51,13 +51,12 @@ Label.propTypes = {
     'primary',
     'success',
     'danger',
-    'warning'
+    'warning',
   ])
 };
 
 Label.defaultProps = {
   btnStyle: 'default',
-  children: 'Label',
 };
 
 export default Label;

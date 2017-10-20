@@ -29,7 +29,7 @@ storiesOf('Button', module)
       href={select('Href', [null, 'href'], '')}
       onClick={ action('button-click') }
     >
-      <Icon icon="ios-home" size="1.2"/>
+      <Icon icon="checkmark" />
       {text('Text', 'Normal')}
     </Button>
   ));

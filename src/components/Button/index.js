@@ -39,30 +39,30 @@ const types = {
 
 const sizes = {
   large: {
-    padding: '0.688em 2.063em',
-    fontSize: '0.875em',
+    padding: '11px 32px',
+    fontSize: '14px',
   },
   medium: {
-    padding: '0.665em 2em',
-    fontSize: '0.688em',
+    padding: '8px 26px',
+    fontSize: '11px',
   },
   small: {
-    padding: '0.5em 1.375em',
-    fontSize: '0.625em',
+    padding: '6px 20px',
+    fontSize: '10px',
   },
 };
 
 const ButtonStyled = styled.button`${props => css`
-  border-radius: 1.875em;
+  border-radius: 30px;
   padding: ${sizes[props.size].padding};
-  margin: 0 1em;
+  margin: 0 16px;
   display: ${props.block ? 'block' : 'inline-block'};
   width: ${props.block && '100%'};
-  border: ${types[props.btnStyle].borderColor ? '0.063em solid': 'none'};
+  border: ${types[props.btnStyle].borderColor ? '1px solid': 'none'};
   background: ${types[props.btnStyle].background};
   color: ${types[props.btnStyle].color};
   font-size: ${sizes[props.size].fontSize};
-  transition: all 0.5s ease;
+  transition: all 0.3s ease;
   text-transform: uppercase;
 
   &:disabled {
@@ -73,7 +73,7 @@ const ButtonStyled = styled.button`${props => css`
 
   &:hover {
     cursor: pointer;
-    box-shadow: 0 0 0.25em 0 ${colors.colorCoreGray};
+    box-shadow: 0 0 4px 0 ${colors.colorCoreGray};
     color: ${types[props.btnStyle].color !== colors.colorWhite 
       ? darken(colors.colorCoreGray, 24) 
       : ''};
@@ -85,8 +85,8 @@ const Link = ButtonStyled.withComponent('a');
 const ButtonLink = Link.extend`
   text-decoration: inherit;
   text-align: center;
-  background: ${props => props.disabled ? lighten(types[props.btnStyle].background, 30) : ''};
-  pointer-events: none;
+  background: ${props => props.disabled && lighten(types[props.btnStyle].background, 30)};
+  pointer-events: ${props => props.disabled && 'none'};
 `;
 
 function Button({ btnStyle, children, size, disabled, block, href, onClick }) {
@@ -106,17 +106,17 @@ function Button({ btnStyle, children, size, disabled, block, href, onClick }) {
     )
   }
 
-    return ( 
-      <ButtonStyled 
-        btnStyle={btnStyle} 
-        size={size} 
-        block={block} 
-        disabled={disabled} 
-        onClick={onClick}
-        >
-        { children }
-      </ButtonStyled>
-    );
+  return ( 
+    <ButtonStyled 
+      btnStyle={btnStyle} 
+      size={size} 
+      block={block} 
+      disabled={disabled} 
+      onClick={onClick}
+      >
+      { children }
+    </ButtonStyled>
+  );
 }
 
 Button.propTypes = {
@@ -144,8 +144,8 @@ Button.propTypes = {
 Button.defaultProps = {
   btnStyle: 'default',
   size: 'medium',
-  children: 'Button',
-  label: 'default',
+  block: false,
+  disabled: false,
 };
 
 export default Button;
