@@ -1,0 +1,30 @@
+.main-header {
+  height: $header-height;
+  line-height: $header-height;
+  margin: 0;
+  border: 0;
+  flex-shrink: 0;
+
+  .breadcrumb {
+    display: inline-block;
+    margin: 0 0 0 $box-margin + 20px;
+  }
+}
+
+.breadcrumb {
+  background-color: transparent;
+  font-size: 15px;
+  font-weight: 500;
+  color: $main-color;
+  padding: 0;
+
+  > .active {
+    color: $text-color;
+  }
+
+  > li + li::before {
+    content: "\f363";
+    font-family: "Ionicons";
+    padding: 0 10px;
+  }
+}

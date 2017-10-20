@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Button } from 'react-bootstrap';
-import { ModalTrigger } from '../../../common';
+import { ModalTrigger } from 'modules/common/components';
 import { Wrapper } from '../../../layout/components';
 import Sidebar from '../../Sidebar';
 

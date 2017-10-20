@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Button } from 'react-bootstrap';
-import { ModalTrigger, Tip } from '../../../common';
+import { ModalTrigger, Tip } from 'modules/common/components';
 
 const propTypes = {
   object: PropTypes.object.isRequired,

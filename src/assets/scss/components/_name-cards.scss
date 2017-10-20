@@ -1,0 +1,64 @@
+.avatar {
+  display: block;
+  max-width: 80px;
+  border-radius: 40px;
+
+  .no-user {
+    background: url("/images/userDefaultIcon.png") center no-repeat;
+    background-size: 100%;
+  }
+
+  img {
+    width: 100%;
+    background: $light-gray-background;
+  }
+
+  div {
+    text-align: center;
+    background-color: $grey-light;
+    font-weight: bold;
+    font-size: 13px;
+    color: $text-color;
+    overflow: hidden;
+  }
+}
+
+.text-normal .name-card .first-line {
+  font-weight: normal;
+}
+
+.name-card {
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+
+  .avatar {
+    float: left;
+    padding: 0;
+  }
+
+  .text {
+    margin-left: 10px;
+  }
+
+  .first-line {
+    padding: 0;
+    font-weight: bold;
+    display: block;
+    color: $text-color;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+  }
+
+  .second-line {
+    font-size: 13px;
+    color: $text-color-light;
+  }
+}
+
+.dropdown-menu {
+  .name-card {
+    padding: 3px 20px;
+  }
+}

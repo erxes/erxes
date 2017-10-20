@@ -1,0 +1,226 @@
+.sidebar {
+  overflow-y: auto;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  border-radius: $border-radius;
+
+  &.narrow {
+    width: $sidebar-width-narrow;
+  }
+
+  &.medium {
+    width: $sidebar-width-medium;
+  }
+
+  &.wide {
+    width: $sidebar-width-wide;
+  }
+
+  .box {
+    padding: 0 20px;
+
+    .btn {
+      margin: 10px 0 0;
+    }
+
+    p {
+      margin-bottom: 0;
+      margin-top: 10px;
+    }
+
+    .form-group:last-child {
+      margin-bottom: 0;
+    }
+
+    .form-group:first-child {
+      margin-top: 20px;
+    }
+  }
+
+  .collapsible .toggle-collapse {
+    outline: 0;
+    width: 100%;
+    color: $grey-dark;
+    position: absolute;
+    bottom: 0;
+    text-align: center;
+    font-size: 12px;
+    @include prefix((background: linear-gradient(0deg, rgba($white, 1) 0%, rgba($white, 1) 51%, rgba($white, 0) 100%)), webkit moz o ms);
+
+    &:hover {
+      color: $gray-light;
+      cursor: pointer;
+    }
+  }
+
+  h3 {
+    color: $text-color-light;
+    font-size: 12px;
+    font-weight: 400;
+    text-transform: uppercase;
+    padding: 20px;
+    margin: 0;
+  }
+
+  .action-btn {
+    width: 100%;
+    margin-bottom: $box-margin;
+
+    .btn-group {
+      display: flex;
+    }
+
+    button:first-child {
+      flex: 1;
+    }
+  }
+}
+
+.sidebar-section {
+  background-color: $white;
+  border-radius: $border-radius;
+  margin-bottom: $box-margin;
+  padding-bottom: 20px;
+  position: relative;
+
+  &.collapsible {
+    overflow: hidden;
+    position: relative;
+    @include transition(max-height .4s);
+  }
+
+  &.full {
+    min-height: 100%;
+    padding-bottom: 0;
+    display: flex;
+
+    > div {
+      width: 100%;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+  }
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.section-quick-buttons {
+  position: absolute;
+  right: 20px;
+  top: 16px;
+
+  .quick-button {
+    float: left;
+    color: $text-color-light;
+    text-transform: none;
+    cursor: pointer;
+    margin-left: 8px;
+    font-size: 12px;
+    outline: 0;
+
+    &:hover {
+      color: $text-color;
+    }
+
+    i {
+      font-size: 14px;
+    }
+  }
+}
+
+.sidebar-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  li {
+    position: relative;
+    overflow: hidden;
+
+    > a {
+      display: block;
+      padding: 5px 20px;
+      color: $text-color;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      padding-right: 30px;
+      cursor: pointer;
+      text-decoration: none;
+      outline: 0;
+    }
+  }
+
+  > a:hover,
+  a.active,
+  a.chosen {
+    color: $text-color;
+    background-color: $grey-light;
+  }
+
+  a.chosen {
+    font-weight: bold;
+  }
+
+  .icon {
+    margin-right: 6px;
+    color: $text-color-light;
+  }
+
+  .counter {
+    font-size: 12px;
+    text-align: right;
+    color: $text-color-light;
+    margin-top: 2px;
+    position: absolute;
+    right: 20px;
+  }
+
+  .value {
+    font-size: 12px;
+    text-align: right;
+    color: $text-color-light;
+    float: right;
+
+    span {
+      display: block;
+      margin-top: 2px;
+    }
+  }
+
+  &.no-link li {
+    display: block;
+    padding: 5px 20px;
+    color: $text-color;
+    position: relative;
+
+    > img {
+      position: absolute;
+      top: 5px;
+      left: 20px;
+      width: 50px;
+      height: 50px;
+      border-radius: 25px;
+    }
+  }
+}
+
+.sidebar-accordion {
+  background: $grey-light;
+  border-top: 1px solid $grey;
+  border-bottom: 1px solid $grey;
+  margin-bottom: 10px;
+
+  .popover-header {
+    background: none;
+  }
+
+  .popover-list {
+    max-height: none;
+  }
+}

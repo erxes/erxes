@@ -1,0 +1,53 @@
+html,
+body {
+  height: 100%;
+}
+
+body {
+  font-family: 'Roboto', sans-serif;
+  font-weight: 400;
+  font-size: 14px;
+  color: $gray;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+
+  a {
+    color: $link-color;
+    text-decoration: none;
+
+    &:hover {
+      color: lighten($link-color, 10%);
+      text-decoration: none;
+    }
+  }
+
+  // scss-lint:disable IdSelector
+  > #react-root {
+    height: 100%;
+  }
+
+  .layout {
+    display: flex;
+    height: 100%;
+    max-width: 100%;
+
+    > div:not(.wrapper-loader) {
+      display: flex;
+      flex: 1;
+      max-width: 100%;
+      padding-left: 70px;
+      margin-left: -70px;
+    }
+  }
+}
+
+.divider {
+  height: 1px;
+  margin: 9px 0;
+  overflow: hidden;
+  background-color: $border-grey;
+}
+
+.text-bold {
+  font-weight: bold;
+}

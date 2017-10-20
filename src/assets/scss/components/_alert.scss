@@ -1,0 +1,58 @@
+.alerts-container {
+  position: fixed;
+  top: 9px;
+  left: 50%;
+  transform: translateX(-50%);
+
+  .alerts-item {
+    display: block;
+    margin-bottom: 10px;
+    color: $white;
+    padding: 10px 20px;
+    border-radius: $border-radius;
+
+    &.success {
+      background-color: $success-color;
+    }
+
+    &.info {
+      background-color: $info-color;
+    }
+
+    &.warning {
+      background-color: $warning-color;
+    }
+
+    &.error {
+      background-color: $error-color;
+    }
+
+    .icon {
+      margin-right: 8px;
+    }
+  }
+}
+
+// Animations
+
+.alerts-item-enter {
+  opacity: 0;
+  margin-top: -100px;
+
+  &.alerts-item-enter-active {
+    opacity: 1;
+    margin-top: 0;
+    transition: opacity .5s ease-in, margin-top .5s ease-in;
+  }
+}
+
+.alerts-item-leave {
+  opacity: 1;
+  margin-top: 0;
+
+  &.alerts-item-leave-active {
+    opacity: 0;
+    margin-top: -100px;
+    transition: opacity .5s ease-in, margin-top .5s ease-in;
+  }
+}

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Table } from 'react-bootstrap';
-import { List } from '../common/components';
-import { ChannelForm } from '../components';
+import { List } from '../../common/components';
+import { ChannelForm } from '../containers';
 import Row from './Row';
 
 class ChannelList extends List {

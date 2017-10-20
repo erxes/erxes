@@ -3,20 +3,26 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "add-graphql-subscriptions": "^1.0.1",
+    "bootstrap": "^3.3.7",
     "classnames": "^2.2.5",
     "color": "^2.0.0",
     "ionicons": "2.0.1",
     "moment": "2.18.0",
     "react": "^16.0.0",
+    "react-apollo": "^1.4.16",
     "react-bootstrap": "^0.31.3",
     "react-dom": "^16.0.0",
     "react-redux": "^5.0.6",
     "react-router": "^4.2.0",
     "react-router-dom": "^4.2.2",
     "react-scripts": "1.0.14",
+    "react-select-plus": "^1.0.0-rc.5",
     "redux": "^3.7.2",
     "redux-thunk": "^2.2.0",
-    "styled-components": "^2.2.1"
+    "styled-components": "^2.2.1",
+    "subscriptions-transport-ws": "^0.9.1",
+    "underscore": "^1.8.3"
   },
   "scripts": {
     "start": "react-scripts start",

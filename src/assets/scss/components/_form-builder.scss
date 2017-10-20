@@ -1,0 +1,118 @@
+.form-builder {
+  .field-preview {
+    opacity: 0.8;
+    margin: 0;
+
+    &:hover,
+    &:hover * {
+      cursor: pointer;
+    }
+  }
+
+  .required {
+    color: $error-color;
+    margin: 0 3px;
+  }
+
+  .fixed {
+    position: absolute;
+    top: 20px;
+    max-height: calc(100% - 40px);
+    overflow: auto;
+  }
+}
+
+.form-preview {
+  background: $message-background;
+  border: 1px solid $border-grey;
+  border-radius: $border-radius;
+  overflow: hidden;
+
+  .draggable-field {
+    box-shadow: none;
+  }
+
+  label {
+    margin-bottom: 0;
+  }
+
+  .description {
+    display: block;
+    font-size: 13px;
+  }
+
+  .form-control {
+    margin-top: 8px;
+  }
+
+  .check-control {
+    margin-top: 8px;
+  }
+}
+
+.draggable-field {
+  padding: 15px 20px 15px 50px;
+  position: relative;
+  background: $white;
+  box-shadow: $box-shadow;
+
+  .drag-handler {
+    cursor: move;
+    position: absolute;
+    top: 15px;
+    left: 20px;
+    z-index: 10;
+  }
+
+  &:first-child {
+    padding-top: 20px;
+
+    .drag-handler {
+      top: 20px;
+    }
+  }
+
+  &:last-child {
+    padding-bottom: 20px;
+  }
+}
+
+.flex-row {
+  display: flex;
+  align-items: center;
+
+  .flex-item {
+    flex: 1;
+    margin: 0;
+
+    input[type='checkbox'] {
+      display: inline-block;
+      height: auto;
+      width: auto;
+      margin-right: 5px;
+    }
+  }
+
+  > span {
+    margin: 0 5px;
+  }
+
+  ~ .flex-row {
+    margin-top: 10px;
+  }
+
+  > button {
+    margin-left: 10px;
+  }
+}
+
+.flex-inline {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin-bottom: 10px;
+
+  > div {
+    margin-right: 8px;
+  }
+}

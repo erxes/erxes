@@ -1,7 +1,7 @@
 import React from 'react';
 import { Label } from 'react-bootstrap';
-import { Row as CommonRow } from '../common/components';
-import { ChannelForm } from '../components';
+import { Row as CommonRow } from '../../common/components';
+import { ChannelForm } from '../containers';
 
 class Row extends CommonRow {
   renderForm(props) {

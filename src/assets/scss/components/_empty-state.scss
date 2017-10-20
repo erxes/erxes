@@ -1,0 +1,42 @@
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  justify-content: center;
+  text-align: center;
+  font-size: 16px;
+  padding: 20px;
+  color: $gray-light;
+  background: $white;
+
+  i {
+    font-size: 16vh;
+    line-height: 20vh;
+    color: $grey-dark;
+  }
+
+  &.full {
+    position: absolute;
+    bottom: 0;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 0;
+  }
+
+  &.small {
+    height: auto;
+    min-height: 80px;
+    font-size: 12px;
+    padding: 10px 20px;
+
+    i {
+      font-size: 28px;
+      line-height: 40px;
+    }
+  }
+
+  a {
+    margin-top: 10px;
+  }
+}

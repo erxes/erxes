@@ -1,0 +1,104 @@
+$unread-bg: #f3f1f7;
+
+@mixin hover-state {
+  background: $grey-light;
+  cursor: pointer;
+}
+
+.notification-popover {
+  right: 15px;
+  max-width: 360px;
+}
+
+.notif-list {
+  >li {
+    .column {
+      visibility: hidden;
+    }
+
+    &.unread .column {
+      visibility: visible;
+    }
+
+    .body:hover {
+      cursor: pointer;
+    }
+  }
+
+  .text {
+    .second-line {
+      margin-top: 3px;
+    }
+  }
+}
+
+.notifications-wrapper {
+  position: relative;
+  padding-bottom: 30px;
+
+  .notifications-area > div {
+    max-height: 300px !important;
+  }
+
+  .empty-state.small {
+    padding-top: 30px;
+  }
+
+  > a {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    padding: 5px 20px;
+    display: block;
+    text-align: center;
+    border-top: 1px solid $border-grey;
+  }
+}
+
+.notifications-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+
+  li {
+    padding: 0 !important;
+    border-bottom: 1px solid $grey;
+    @include transition(all .2s ease);
+
+    &:last-child {
+      border: 0;
+    }
+
+    > div {
+      display: block;
+      padding: 10px 20px;
+      color: $gray-dark;
+    }
+
+    &.unread {
+      background: $unread-bg;
+    }
+
+    &:hover {
+      @include hover-state;
+    }
+
+    &:focus {
+      @include hover-state;
+    }
+  }
+
+  .text {
+    a.first-line {
+      margin-top: 0;
+      white-space: normal;
+      font-weight: 500;
+      font-size: 13px;
+    }
+
+    .second-line {
+      font-size: 12px;
+      margin-top: 3px;
+    }
+  }
+}
