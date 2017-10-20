@@ -13,6 +13,7 @@ import Pagination from './pagination/Pagination';
 import { pagination } from './pagination/paginationUtils';
 import ModalTrigger from './ModalTrigger';
 import ActionButtons from './ActionButtons';
+import EmptyState from './EmptyState';
 
 
 export {
@@ -31,4 +32,5 @@ export {
   Pagination,
   pagination,
   ModalTrigger,
+  EmptyState,
 }

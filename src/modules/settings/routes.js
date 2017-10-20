@@ -1,19 +1,21 @@
 import React from 'react';
-import ChannelRoutes from './channels/routes';
-import BrandRoutes from './brands/routes';
-import ResponseTemplateRoutes from './responseTemplates/routes';
-import EmailTemplateRoutes from './emailTemplates/routes';
-import TeamMemberRoutes from './team/routes';
+import ChannelsRoutes from './channels/routes';
+import BrandsRoutes from './brands/routes';
+import ResponseTemplatesRoutes from './responseTemplates/routes';
+import EmailTemplatesRoutes from './emailTemplates/routes';
+import TeamMembersRoutes from './team/routes';
 import EmailRoutes from './email/routes';
+import FormsRoutes from './forms/routes';
 
 const routes = () => (
   <div>
-    <ChannelRoutes />
-    <BrandRoutes />
-    <ResponseTemplateRoutes />
-    <EmailTemplateRoutes />
-    <TeamMemberRoutes />
+    <ChannelsRoutes />
+    <BrandsRoutes />
+    <ResponseTemplatesRoutes />
+    <EmailTemplatesRoutes />
+    <TeamMembersRoutes />
     <EmailRoutes />
+    <FormsRoutes />
   </div>
 );
 
