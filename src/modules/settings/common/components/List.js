@@ -1,12 +1,17 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Button } from 'react-bootstrap';
-import { ModalTrigger } from 'modules/common/components';
-import { Wrapper } from '../../../layout/components';
+import { Pagination, ModalTrigger } from 'modules/common/components';
+import { Wrapper } from 'modules/layout/components';
 import Sidebar from '../../Sidebar';
 
 const propTypes = {
-  objects: PropTypes.array,
+  objects: PropTypes.array.isRequired,
+  remove: PropTypes.func.isRequired,
+  save: PropTypes.func.isRequired,
+  refetch: PropTypes.func.isRequired,
+  loadMore: PropTypes.func.isRequired,
+  hasMore: PropTypes.bool.isRequired,
 };
 
 class List extends Component {
@@ -17,18 +22,22 @@ class List extends Component {
   }
 
   renderObjects() {
-
-    const objects = this.props.objects || [];
+    const { objects, remove, save, refetch } = this.props;
 
     return objects.map(object =>
       this.renderRow({
         key: object._id,
         object,
+        remove,
+        refetch,
+        save,
       }),
     );
   }
 
   render() {
+    const { loadMore, hasMore, save } = this.props;
+
     const trigger = (
       <Button bsStyle="link">
         <i className="ion-plus-circled" /> {this.title}
@@ -37,23 +46,25 @@ class List extends Component {
 
     const actionBarLeft = (
       <ModalTrigger title={this.title} trigger={trigger}>
-        {this.renderForm()}
+        {this.renderForm({ save })}
       </ModalTrigger>
     );
 
     const content = (
-      <div>
+      <Pagination loadMore={loadMore} hasMore={hasMore}>
         {this.renderContent()}
-      </div>
+      </Pagination>
     );
 
     return (
-      <Wrapper
-        header={<Wrapper.Header breadcrumb={this.breadcrumb()} />}
-        leftSidebar={<Sidebar />}
-        actionBar={<Wrapper.ActionBar left={actionBarLeft} />}
-        content={content}
-      />
+      <div>
+        <Wrapper
+          header={<Wrapper.Header breadcrumb={this.breadcrumb()} />}
+          leftSidebar={<Sidebar />}
+          actionBar={<Wrapper.ActionBar left={actionBarLeft} />}
+          content={content}
+        />
+      </div>
     );
   }
 }
