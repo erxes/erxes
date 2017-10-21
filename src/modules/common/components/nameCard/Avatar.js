@@ -40,7 +40,8 @@ class Avatar extends Component {
   }
 
   render() {
-    const { user, customer, url } = this.props;
+    const { user, customer } = this.props;
+
     let avatar;
     let fullName;
 
@@ -55,7 +56,7 @@ class Avatar extends Component {
 
     return (
       // TODO: jump to user profile
-      <a href="#" className="avatar">
+      <a className="avatar">
         {avatar
           ? this.renderImage(avatar, fullName)
           : this.renderInitials(fullName)}

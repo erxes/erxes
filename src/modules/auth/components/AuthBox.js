@@ -57,10 +57,8 @@ class AuthBox extends Component {
       return (
         <div>
           {user.emails[0].address} |&nbsp;
-          <a href="#">Change password</a> |&nbsp;
-          <a href="#" onClick={this.logout}>
-            Sign out
-          </a>
+          <a>Change password</a> |&nbsp;
+          <a onClick={this.logout}>Sign out</a>
         </div>
       );
     }

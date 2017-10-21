@@ -31,7 +31,7 @@ class List extends React.Component {
       <tr key={brand.code}>
         <td>{name}</td>
         <td>
-          <Label bsStyle={emailConfig.type == 'simple' ? 'default' : 'info'}>
+          <Label bsStyle={emailConfig.type === 'simple' ? 'default' : 'info'}>
             {emailConfig.type}
           </Label>
         </td>

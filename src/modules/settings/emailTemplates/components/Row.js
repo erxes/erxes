@@ -14,7 +14,7 @@ class Row extends CommonRow {
       <tr>
         <td>
           <div className="iframe-preview">
-            <iframe srcDoc={object.content} />
+            <iframe title="content-iframe" srcDoc={object.content} />
           </div>
         </td>
         <td>{object.name}</td>
