@@ -1,26 +1,47 @@
-import { compose } from 'react-komposer';
-// import Alert from 'meteor/erxes-notifier';
+import React from 'react';
+import PropTypes from 'prop-types';
+import { compose, gql, graphql } from 'react-apollo';
+import { Alert } from 'modules/common/utils';
 import { Row } from '../components';
 
-// TODO
-function composer({ refetch }, onData) {
-  const duplicateForm = id => {
-    // if (!confirm('Are you sure ?')) return;
-    //
-    // Meteor.call('forms.duplicate', { id }, error => {
-    //   if (error) {
-    //     return Alert.error(error.reason || error.message);
-    //   }
-    //
-    //   refetch();
-    //
-    //   return Alert.success('Form has duplicated.');
-    // });
+const RowContainer = props => {
+  const { refetch, duplicateMutation } = props;
+
+  const duplicateForm = _id => {
+    duplicateMutation({ variables: { _id } })
+      .then(() => {
+        Alert.success('Congrats');
+        refetch();
+      })
+      .catch(error => {
+        Alert.success(error.message);
+      });
   };
 
-  onData(null, {
+  const updatedProps = {
+    ...props,
     duplicateForm
-  });
-}
+  };
 
-export default compose(composer)(Row);
+  return <Row {...updatedProps} />;
+};
+
+RowContainer.propTypes = {
+  duplicateMutation: PropTypes.func,
+  refetch: PropTypes.func
+};
+
+export default compose(
+  graphql(
+    gql`
+      mutation formsDuplicate($_id: String!) {
+        formsDuplicate(_id: $_id) {
+          _id
+        }
+      }
+    `,
+    {
+      name: 'duplicateMutation'
+    }
+  )
+)(RowContainer);
