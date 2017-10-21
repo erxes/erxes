@@ -3,7 +3,7 @@ import { Button } from 'react-bootstrap';
 import { Wrapper } from 'modules/layout/components';
 import { ModalTrigger } from 'modules/common/components';
 import Sidebar from '../../Sidebar';
-import { Messenger, Form } from '../containers';
+import { Messenger, Form, Facebook } from '../containers';
 
 function AddIntegration() {
   const triggerMessenger = (
@@ -15,6 +15,12 @@ function AddIntegration() {
   const triggerForm = (
     <Button>
       <i className="ion-formbubbles" /> Add form
+    </Button>
+  );
+
+  const triggerFb = (
+    <Button>
+      <i className="ion-social-facebook" /> Add facebook page
     </Button>
   );
 
@@ -41,6 +47,10 @@ function AddIntegration() {
         <Button href="/settings/integrations/twitter">
           <i className="ion-social-twitter" /> Add twitter
         </Button>
+
+        <ModalTrigger title="Add facebook page" trigger={triggerFb}>
+          <Facebook />
+        </ModalTrigger>
       </div>
     </div>
   );

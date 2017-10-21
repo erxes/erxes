@@ -3,5 +3,7 @@ import Common from './Common';
 import Form from './Form';
 import Messenger from './Messenger';
 import AddIntegration from './AddIntegration';
+import Twitter from './Twitter';
+import Facebook from './Facebook';
 
-export { List, Form, Messenger, AddIntegration, Common };
+export { List, Form, Messenger, AddIntegration, Common, Twitter, Facebook };
