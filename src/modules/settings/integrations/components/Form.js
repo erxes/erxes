@@ -82,13 +82,10 @@ class Form extends Common {
     };
 
     this.props.save({
-      mainDoc: {
-        name: document.getElementById('integration-name').value,
-        brandId: document.getElementById('selectBrand').value,
-        formId: document.getElementById('formId').value
-      },
-
-      formDoc: {
+      name: document.getElementById('integration-name').value,
+      brandId: document.getElementById('selectBrand').value,
+      formId: document.getElementById('formId').value,
+      formData: {
         loadType: getElementById('loadType'),
         successAction: getElementById('successAction'),
         fromEmail: getElementById('fromEmail'),

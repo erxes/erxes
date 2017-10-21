@@ -12,8 +12,8 @@ const FormContainer = props => {
     formsQuery,
     integration,
     refetch,
-    addFormMutation,
-    editFormMutation
+    addMutation,
+    editMutation
   } = props;
 
   if (brandsQuery.loading || formsQuery.loading) {
@@ -33,8 +33,7 @@ const FormContainer = props => {
     ...props,
     brands,
     forms,
-    save: doc =>
-      save(doc, addFormMutation, editFormMutation, integration, refetch),
+    save: doc => save(doc, addMutation, editMutation, integration, refetch),
     loadTypes,
     successActions
   };
@@ -46,10 +45,24 @@ FormContainer.propTypes = {
   integration: PropTypes.object,
   brandsQuery: PropTypes.object,
   formsQuery: PropTypes.object,
-  addFormMutation: PropTypes.func,
-  editFormMutation: PropTypes.func,
+  addMutation: PropTypes.func,
+  editMutation: PropTypes.func,
   refetch: PropTypes.func
 };
+
+const commonParamsDef = `
+  $name: String!,
+  $brandId: String!,
+  $formId: String!,
+  $formData: IntegrationFormData!
+`;
+
+const commonParams = `
+  name: $name,
+  brandId: $brandId,
+  formId: $formId,
+  formData: $formData
+`;
 
 export default compose(
   graphql(
@@ -84,6 +97,31 @@ export default compose(
       options: () => ({
         fetchPolicy: 'network-only'
       })
+    }
+  ),
+  graphql(
+    gql`
+      mutation add(${commonParamsDef}) {
+        integrationsCreateFormIntegration(${commonParams}) {
+          _id
+        }
+      }
+    `,
+    {
+      name: 'addMutation'
+    }
+  ),
+
+  graphql(
+    gql`
+      mutation edit($_id: String!, ${commonParamsDef}) {
+        integrationsEditFormIntegration(_id: $_id, ${commonParams}) {
+          _id
+        }
+      }
+    `,
+    {
+      name: 'editMutation'
     }
   )
 )(FormContainer);
