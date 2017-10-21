@@ -20,7 +20,7 @@ const MessengerContainer = props => {
 
   const updatedProps = {
     ...props,
-    save: doc => save({ doc }, addMutation, editMutation, integration, refetch),
+    save: doc => save(doc, addMutation, editMutation, integration, refetch),
     brands: brandsQuery.brands
   };
 
@@ -56,7 +56,7 @@ export default compose(
 
   graphql(
     gql`
-      mutation add($name: String, $brandId: String) {
+      mutation add($name: String!, $brandId: String!) {
         integrationsCreateMessengerIntegration(name: $name, brandId: $brandId) {
           _id
         }
@@ -69,7 +69,7 @@ export default compose(
 
   graphql(
     gql`
-      mutation edit($_id: String!, $name: String, $brandId: String) {
+      mutation edit($_id: String!, $name: String!, $brandId: String!) {
         integrationsEditMessengerIntegration(
           _id: $_id
           name: $name

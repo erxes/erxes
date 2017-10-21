@@ -24,8 +24,7 @@ export const save = (
 
       Alert.success('Congrats');
 
-      // TODO
-      // FlowRouter.go('/settings/integrations/list', {}, FlowRouter.current().queryParams);
+      window.location.href = `/settings/integrations/${window.location.search}`;
     })
     .catch(error => {
       Alert.error(error.message);

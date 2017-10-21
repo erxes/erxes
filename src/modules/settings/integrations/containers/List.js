@@ -105,7 +105,7 @@ export default compose(
   graphql(
     gql`
       mutation integrationsRemove($_id: String!) {
-        integrationsRemove(_id: $id)
+        integrationsRemove(_id: $_id)
       }
     `,
     {
