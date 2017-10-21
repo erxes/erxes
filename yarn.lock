@@ -6794,6 +6794,12 @@ react-textarea-autosize@^4.3.0:
   dependencies:
     prop-types "^15.5.8"
 
+react-toggle@^4.0.2:
+  version "4.0.2"
+  resolved "https://registry.yarnpkg.com/react-toggle/-/react-toggle-4.0.2.tgz#77f487860efb87fafd197672a2db8c885be1440f"
+  dependencies:
+    classnames "^2.2.5"
+
 react-transition-group@^1.1.2:
   version "1.2.1"
   resolved "https://registry.yarnpkg.com/react-transition-group/-/react-transition-group-1.2.1.tgz#e11f72b257f921b213229a774df46612346c7ca6"

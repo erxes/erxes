@@ -2,11 +2,19 @@ import React from 'react';
 import { Route } from 'react-router-dom';
 import queryString from 'query-string';
 import { MainLayout } from '../../layout/components';
-import { List, MessengerAppearance } from './containers';
+import { List, MessengerAppearance, MessengerConfigs } from './containers';
 import { AddIntegration } from './components';
 
 const routes = () => (
   <div>
+    <Route
+      path="/settings/integrations/messenger/configs/:integrationId"
+      component={({ match }) => {
+        const id = match.params.integrationId;
+        return <MainLayout content={<MessengerConfigs integrationId={id} />} />;
+      }}
+    />
+
     <Route
       path="/settings/integrations/messenger/appearance/:integrationId"
       component={({ match }) => {

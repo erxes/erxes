@@ -25,6 +25,7 @@
     "react-scripts": "1.0.14",
     "react-select-plus": "^1.0.0-rc.5",
     "react-sortable-hoc": "^0.6.8",
+    "react-toggle": "^4.0.2",
     "redux": "^3.7.2",
     "redux-thunk": "^2.2.0",
     "styled-components": "^2.2.1",

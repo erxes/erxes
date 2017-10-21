@@ -6,6 +6,7 @@ import AddIntegration from './AddIntegration';
 import Twitter from './Twitter';
 import Facebook from './Facebook';
 import MessengerAppearance from './MessengerAppearance';
+import MessengerConfigs from './MessengerConfigs';
 
 export {
   List,
@@ -15,5 +16,6 @@ export {
   Common,
   Twitter,
   Facebook,
-  MessengerAppearance
+  MessengerAppearance,
+  MessengerConfigs
 };

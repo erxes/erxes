@@ -4,5 +4,14 @@ import Messenger from './Messenger';
 import Twitter from './Twitter';
 import Facebook from './Facebook';
 import MessengerAppearance from './MessengerAppearance';
+import MessengerConfigs from './MessengerConfigs';
 
-export { List, Form, Messenger, Twitter, Facebook, MessengerAppearance };
+export {
+  List,
+  Form,
+  Messenger,
+  Twitter,
+  Facebook,
+  MessengerAppearance,
+  MessengerConfigs
+};
