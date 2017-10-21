@@ -7,7 +7,6 @@ import { Wrapper } from '../../layout/components';
 class Inbox extends Component {
   render() {
     const { conversations, messages, user } = this.props;
-
     const actionBarLeft = (
       <div>
         Alice Caldwell
