@@ -15,6 +15,9 @@ function Navigation() {
         <Link to="/customers">
           <i className="ion-person-stalker" />
         </Link>
+        <Link to="/companies">
+          <i className="ion-briefcase" />
+        </Link>
         <Link to="/engage">
           <i className="ion-speakerphone" />
         </Link>

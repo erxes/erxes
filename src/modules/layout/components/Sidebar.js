@@ -95,4 +95,10 @@ Section.propTypes = {
 Sidebar.propTypes = propTypes;
 Sidebar.Section = Section;
 
+// TODO
+Sidebar.filter = () => {};
+Sidebar.getActiveClass = () => {
+  return '';
+};
+
 export default Sidebar;

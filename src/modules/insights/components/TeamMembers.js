@@ -18,7 +18,7 @@ class TeamMembers extends React.Component {
       <Col sm={6} key={index}>
         <div className="insight-user-data">
           <div className="user-profile">
-            <a href="#">
+            <a>
               <img
                 src={data.avatar || '/images/userDefaultIcon.png'}
                 alt={data.fullName}

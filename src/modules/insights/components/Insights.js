@@ -8,10 +8,6 @@ const propTypes = {
 };
 
 class Insights extends React.Component {
-  constructor(props) {
-    super(props);
-  }
-
   render() {
     const { data, wrapperWidth } = this.props;
     const width = (wrapperWidth || 400) * 0.5;
