@@ -16,7 +16,6 @@ import {
   Segments,
   EngageMessages,
   Forms,
-  FormFields,
   Fields,
   Companies,
   NotificationConfigurations,
@@ -171,6 +170,8 @@ export const customerFactory = (params = {}) => {
 
 export const fieldFactory = (params = {}) => {
   const field = new Fields({
+    contentType: params.contentType || 'form',
+    contentTypeId: params.contentTypeId || 'DFAFDASFDASFDSFDASFASF',
     type: params.type || 'input',
     validation: params.validation || 'number',
     text: params.text || faker.random.word(),
@@ -237,18 +238,6 @@ export const formFactory = async ({ title, code, description, createdUserId }) =
     },
     createdUserId || (await userFactory({})),
   );
-};
-
-export const formFieldFactory = (formId, params) => {
-  return FormFields.createFormField(formId || Random.id(), {
-    type: params.type || 'input',
-    name: faker.random.word(),
-    validation: params.validation || 'number',
-    text: faker.random.word(),
-    description: faker.random.word(),
-    isRequired: params.isRequired || false,
-    number: faker.random.word(),
-  });
 };
 
 export const notificationConfigurationFactory = params => {

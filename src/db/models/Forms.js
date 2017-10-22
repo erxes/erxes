@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
 import Random from 'meteor-random';
-import Integrations from './Integrations';
-import { FORM_FIELDS } from '../../data/constants';
+import { Integrations, Fields } from './';
+import { FIELD_CONTENT_TYPES } from '../../data/constants';
 
 // schema for form document
 const FormSchema = mongoose.Schema({
@@ -82,7 +82,7 @@ class Form {
    * @throws {Error} throws Error if this form has fields or if used in an integration
    */
   static async removeForm(_id) {
-    const fieldCount = await FormFields.find({ formId: _id }).count();
+    const fieldCount = await Fields.find({ contentTypeId: _id }).count();
 
     if (fieldCount > 0) {
       throw new Error('You cannot delete this form. This form has some fields.');
@@ -98,23 +98,9 @@ class Form {
   }
 
   /**
-   * Update order fields of form fields
-   * @param {Object[]} orderDics - dictionary containing order values with user ids
-   * @param {string} orderDics[]._id - _id of FormField
-   * @param {string} orderDics[].order - order of FormField
-   * @return {Null}
-   */
-  static async updateFormFieldsOrder(orderDics) {
-    // update each field's order
-    for (let orderDic of orderDics) {
-      await FormFields.updateFormField(orderDic._id, { order: orderDic.order });
-    }
-  }
-
-  /**
    * Duplicates form and form fields of the form
    * @param {string} _id - form id
-   * @return {FormField} - returns the duplicated copy of the form
+   * @return {Field} - returns the duplicated copy of the form
    */
   static async duplicate(_id) {
     const form = await this.findOne({ _id });
@@ -129,10 +115,12 @@ class Form {
     );
 
     // duplicate fields ===================
-    const formFields = await FormFields.find({ formId: _id });
+    const fields = await Fields.find({ contentTypeId: _id });
 
-    for (let field of formFields) {
-      await FormFields.createFormField(newForm._id, {
+    for (let field of fields) {
+      await Fields.createField({
+        contentType: FIELD_CONTENT_TYPES.FORM,
+        contentTypeId: newForm._id,
         type: field.type,
         validation: field.validation,
         text: field.text,
@@ -148,90 +136,7 @@ class Form {
 }
 
 FormSchema.loadClass(Form);
-export const Forms = mongoose.model('forms', FormSchema);
 
-// schema for form fields
-const FormFieldSchema = mongoose.Schema({
-  _id: {
-    type: String,
-    default: () => Random.id(),
-  },
-  type: {
-    type: String,
-    enum: FORM_FIELDS.TYPES.ALL,
-  },
-  validation: {
-    type: String,
-    enum: FORM_FIELDS.VALIDATION.ALL,
-  },
-  text: String,
-  description: {
-    type: String,
-    required: false,
-  },
-  options: {
-    type: [String],
-    required: false,
-  },
-  isRequired: Boolean,
-  formId: String,
-  order: {
-    type: Number,
-    required: false,
-  },
-});
+const Forms = mongoose.model('forms', FormSchema);
 
-class FormField {
-  /**
-   * Creates a new form field document
-   * @param {string} formId - Form id
-   * @param {Object} doc - FormField document object
-   * @param {string} doc.type - The type of form field (input, textarea, ...)
-   * @param {string} doc.validation - The type of data to validate to (nummber, date, ...)
-   * @param {string} doc.text - FormField text
-   * @param {string} doc.description - FormField description
-   * @param {String[]} doc.options - FormField select options (checkbox, radion buttons, ...)
-   * @param {Boolean} doc.isRequired - checks whether value is filled or not on validation
-   * @return {Promise} - return Promise resolving created FormField document
-   */
-  static async createFormField(formId, doc) {
-    const lastField = await FormFields.findOne({}, { order: 1 }, { sort: { order: -1 } });
-
-    doc.formId = formId;
-
-    // If there is no field then start with 0
-    doc.order = lastField ? lastField.order + 1 : 0;
-
-    return this.create(doc);
-  }
-
-  /**
-   * Update a form field document
-   * @param {string} _id - id of the form document
-   * @param {Object} doc - FormField document or object
-   * @param {string} doc.type - The type of form field (input, textarea, etc...)
-   * @param {string} doc.validation - The type of data to validate to (nummber, date, ...)
-   * @param {Number} doc.order - FormField order value
-   * @param {string} doc.text - FormField text
-   * @param {string} doc.description - FormField description
-   * @param {String[]} doc.options - FormField select options (checkbox, radion buttons, ...)
-   * @param {Boolean} doc.isRequired checks whether value is filled or not on validation
-   * @return {Promise} return Promise resolving updated FormField document
-   */
-  static async updateFormField(_id, doc) {
-    await this.update({ _id }, { $set: doc }, { runValidators: true });
-    return this.findOne({ _id });
-  }
-
-  /**
-   * Remove form field
-   * @param {string} _id - FormField id
-   * @return {Promise}
-   */
-  static removeFormField(_id) {
-    return this.remove({ _id });
-  }
-}
-
-FormFieldSchema.loadClass(FormField);
-export const FormFields = mongoose.model('form_fields', FormFieldSchema);
+export default Forms;
