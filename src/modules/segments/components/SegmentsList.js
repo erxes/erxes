@@ -77,13 +77,11 @@ function SegmentsList({ contentType, segments, removeSegment }) {
   const actionBar = <Wrapper.ActionBar left={actionBarLeft} />;
 
   return (
-    <div>
-      <Wrapper
-        header={<Wrapper.Header breadcrumb={[{ title: 'Segments' }]} />}
-        actionBar={actionBar}
-        content={content}
-      />
-    </div>
+    <Wrapper
+      header={<Wrapper.Header breadcrumb={[{ title: 'Segments' }]} />}
+      actionBar={actionBar}
+      content={content}
+    />
   );
 }
 
