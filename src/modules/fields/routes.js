@@ -6,11 +6,17 @@ import { Manage } from '../fields/containers';
 const routes = () => (
   <div>
     <Route
-      path="/fields/manage/:contentType"
+      path="/fields/manage/:contentType/:contentTypeId?"
       component={({ match }) => {
-        const contentType = match.params.contentType;
+        const { contentType, contentTypeId } = match.params;
 
-        return <MainLayout content={<Manage contentType={contentType} />} />;
+        return (
+          <MainLayout
+            content={
+              <Manage contentType={contentType} contentTypeId={contentTypeId} />
+            }
+          />
+        );
       }}
     />
   </div>

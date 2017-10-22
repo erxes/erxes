@@ -9,6 +9,7 @@ import { queries, mutations } from '../graphql';
 const ManageContainer = props => {
   const {
     contentType,
+    contentTypeId,
     fieldsQuery,
     fieldsAdd,
     fieldsEdit,
@@ -33,6 +34,7 @@ const ManageContainer = props => {
     fieldsAdd({
       variables: {
         contentType,
+        contentTypeId,
         ...doc
       }
     }).then(() => {
@@ -89,6 +91,7 @@ const ManageContainer = props => {
 
 ManageContainer.propTypes = {
   contentType: PropTypes.string,
+  contentTypeId: PropTypes.string,
   fieldsQuery: PropTypes.object,
   fieldsAdd: PropTypes.func,
   fieldsEdit: PropTypes.func,
