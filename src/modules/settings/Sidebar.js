@@ -7,9 +7,11 @@ import { SidebarList } from './styles';
 function Sidebar() {
   const { Title, QuickButtons } = Wrapper.Sidebar.Section;
 
+  const Sidebar = Wrapper.Sidebar;
+
   return (
-    <Wrapper.Sidebar>
-      <Wrapper.Sidebar.Section>
+    <Sidebar>
+      <Sidebar.Section>
         <Title>Account settings</Title>
         <SidebarList>
           <li>
@@ -34,9 +36,9 @@ function Sidebar() {
             <Link to="/settings/forms">Forms</Link>
           </li>
         </SidebarList>
-      </Wrapper.Sidebar.Section>
+      </Sidebar.Section>
 
-      <Wrapper.Sidebar.Section>
+      <Sidebar.Section>
         <Title>Integrations</Title>
         <QuickButtons>
           <QuickButton href="/settings/integrations/list">All</QuickButton>
@@ -55,9 +57,9 @@ function Sidebar() {
             <Link to="/settings/integrations?kind=facebook">Facebook</Link>
           </li>
         </SidebarList>
-      </Wrapper.Sidebar.Section>
+      </Sidebar.Section>
 
-      <Wrapper.Sidebar.Section>
+      <Sidebar.Section>
         <Title>Knowledge base</Title>
         <QuickButtons>
           <QuickButton href="/settings/knowledgebase/listt">All</QuickButton>
@@ -73,9 +75,9 @@ function Sidebar() {
             <Link to="/settings/knowledgebase/articles">Articles</Link>
           </li>
         </SidebarList>
-      </Wrapper.Sidebar.Section>
+      </Sidebar.Section>
 
-      <Wrapper.Sidebar.Section>
+      <Sidebar.Section>
         <Title>Personal settings</Title>
         <SidebarList>
           <li>
@@ -93,8 +95,8 @@ function Sidebar() {
             </Link>
           </li>
         </SidebarList>
-      </Wrapper.Sidebar.Section>
-    </Wrapper.Sidebar>
+      </Sidebar.Section>
+    </Sidebar>
   );
 }
 

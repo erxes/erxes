@@ -1,5 +1,3 @@
 import Inbox from './Inbox';
 
-export {
-  Inbox,
-};
+export { Inbox };

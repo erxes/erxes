@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import {
   SideContent,
   SidebarBox,
+  SidebarToggle,
   HelperButtons,
   SidebarTitle,
   SidebarHeader,
@@ -48,9 +49,9 @@ class Section extends Component {
   renderCollapseButton() {
     const icon = this.state.collapse ? 'ion-chevron-up' : 'ion-chevron-down';
     return (
-      <a tabIndex={0} onClick={this.toggleCollapse} className="toggle-collapse">
+      <SidebarToggle tabIndex={0} onClick={this.toggleCollapse}>
         <i className={icon} />
-      </a>
+      </SidebarToggle>
     );
   }
 
@@ -58,10 +59,10 @@ class Section extends Component {
     const { children, collapsible } = this.props;
 
     const height = {
-      maxHeight: collapsible ? this.state.maxHeight : 'none'
+      maxHeight: collapsible && this.state.maxHeight
     };
     return (
-      <SidebarBox style={height}>
+      <SidebarBox collapsible style={height}>
         <div
           ref={node => {
             this.node = node;

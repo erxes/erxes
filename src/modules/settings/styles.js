@@ -8,6 +8,10 @@ const SidebarList = styled.main`
 
   li {
     border-bottom: 1px solid ${colors.borderPrimary};
+
+    &:last-child {
+      border: none;
+    }
   }
 
   a {

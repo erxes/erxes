@@ -57,14 +57,12 @@ class List extends Component {
     );
 
     return (
-      <div>
-        <Wrapper
-          header={<Wrapper.Header breadcrumb={this.breadcrumb()} />}
-          leftSidebar={<Sidebar />}
-          actionBar={<Wrapper.ActionBar left={actionBarLeft} />}
-          content={content}
-        />
-      </div>
+      <Wrapper
+        header={<Wrapper.Header breadcrumb={this.breadcrumb()} />}
+        leftSidebar={<Sidebar />}
+        actionBar={<Wrapper.ActionBar left={actionBarLeft} />}
+        content={content}
+      />
     );
   }
 }

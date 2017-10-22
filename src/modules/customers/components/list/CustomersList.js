@@ -83,21 +83,19 @@ class CustomersList extends React.Component {
     const breadcrumb = [{ title: `Customers (${counts.all})` }];
 
     return (
-      <div>
-        <Wrapper
-          header={<Wrapper.Header breadcrumb={breadcrumb} />}
-          actionBar={actionBar}
-          leftSidebar={
-            <Sidebar
-              counts={counts}
-              brands={brands}
-              integrations={integrations}
-              tags={tags}
-            />
-          }
-          content={this.renderContent()}
-        />
-      </div>
+      <Wrapper
+        header={<Wrapper.Header breadcrumb={breadcrumb} />}
+        actionBar={actionBar}
+        leftSidebar={
+          <Sidebar
+            counts={counts}
+            brands={brands}
+            integrations={integrations}
+            tags={tags}
+          />
+        }
+        content={this.renderContent()}
+      />
     );
   }
 }

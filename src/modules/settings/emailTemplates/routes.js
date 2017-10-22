@@ -4,14 +4,12 @@ import { MainLayout } from '../../layout/components';
 import { List } from './containers';
 
 const routes = () => (
-  <div>
-    <Route
-      path="/settings/email-templates/"
-      component={() => {
-        return <MainLayout content={<List queryParams={{}} />} />;
-      }}
-    />
-  </div>
+  <Route
+    path="/settings/email-templates/"
+    component={() => {
+      return <MainLayout content={<List queryParams={{}} />} />;
+    }}
+  />
 );
 
 export default routes;

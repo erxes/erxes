@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { Wrapper } from '../../layout/components';
 
 const propTypes = {
-  conversations: PropTypes.array.isRequired,
+  conversations: PropTypes.array.isRequired
 };
 
 class Sidebar extends Component {
@@ -26,7 +26,6 @@ class Sidebar extends Component {
     );
   }
 
-
   render() {
     const Sidebar = Wrapper.Sidebar;
 
@@ -35,10 +34,13 @@ class Sidebar extends Component {
     // const { brand = {}, channels = [] } = integration;
 
     return (
-      <Sidebar wide full
+      <Sidebar
+        wide
+        full
         header={this.renderSidebarHeader()}
-        footer={this.renderSidebarFooter()}>
-          Content
+        footer={this.renderSidebarFooter()}
+      >
+        Content
       </Sidebar>
     );
   }

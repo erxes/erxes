@@ -9,11 +9,13 @@ import { SubscriptionClient } from 'subscriptions-transport-ws';
 import { addGraphQLSubscriptions } from 'add-graphql-subscriptions';
 import Routes from './routes';
 import store from './store';
-import './modules/common/styles/global-styles.js';
 
 // TODO: remove
 import 'css/main.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
+
+// override old style
+import './modules/common/styles/global-styles.js';
 
 const APOLLO_CLIENT_URL = 'http://localhost:3300/graphql';
 const APOLLO_CLIENT_SUBSCRIPTION_URL = 'ws://localhost:3300/subscriptions';

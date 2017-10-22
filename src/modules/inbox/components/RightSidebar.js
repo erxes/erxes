@@ -2,10 +2,9 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Wrapper } from '../../layout/components';
 
-
 const propTypes = {
   user: PropTypes.object.isRequired,
-  companies: PropTypes.func,
+  companies: PropTypes.func
 };
 
 class RightSidebar extends Component {
@@ -15,23 +14,15 @@ class RightSidebar extends Component {
 
     return (
       <Sidebar>
-        <Sidebar.Section>
-          asd
-
-        </Sidebar.Section>
+        <Sidebar.Section>asd</Sidebar.Section>
 
         <Sidebar.Section>
           <Title>Companies</Title>
-
-
         </Sidebar.Section>
 
         <Sidebar.Section>
           <Title>History</Title>
-
         </Sidebar.Section>
-
-
       </Sidebar>
     );
   }

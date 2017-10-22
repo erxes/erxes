@@ -17,6 +17,8 @@ injectGlobal`
     background: ${colors.bgMain};
 
     > div {
+      display: flex;
+      flex: 1;
       height: 100%;
     }
   }

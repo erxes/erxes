@@ -7,19 +7,16 @@ import TeamMembersRoutes from './team/routes';
 import EmailRoutes from './email/routes';
 import FormsRoutes from './forms/routes';
 import IntegrationsRoutes from './integrations/routes';
-import { Main } from '../layout/styles';
 
-const routes = () => (
-  <Main>
-    <ChannelsRoutes />
-    <BrandsRoutes />
-    <ResponseTemplatesRoutes />
-    <EmailTemplatesRoutes />
-    <TeamMembersRoutes />
-    <EmailRoutes />
-    <FormsRoutes />
-    <IntegrationsRoutes />
-  </Main>
-);
+const routes = () => [
+  <ChannelsRoutes key="ChannelsRoutes" />,
+  <BrandsRoutes key="BrandsRoutes" />,
+  <ResponseTemplatesRoutes key="ResponseTemplatesRoutes" />,
+  <EmailTemplatesRoutes key="EmailTemplatesRoutes" />,
+  <TeamMembersRoutes key="TeamMembersRoutes" />,
+  <EmailRoutes key="EmailRoutes" />,
+  <FormsRoutes key="FormsRoutes" />,
+  <IntegrationsRoutes key="IntegrationsRoutes" />
+];
 
 export default routes;

@@ -7,19 +7,13 @@ import { Wrapper } from '../../layout/components';
 class Inbox extends Component {
   render() {
     const { conversations, messages, user } = this.props;
-    const actionBarLeft = (
-      <div>
-        Alice Caldwell
-      </div>
-    );
+    const actionBarLeft = <div>Alice Caldwell</div>;
 
-    const actionBarRight = (
-      <div>
-        Resolve
-      </div>
-    );
+    const actionBarRight = <div>Resolve</div>;
 
-    const actionBar = <Wrapper.ActionBar left={actionBarLeft} right={actionBarRight} />;
+    const actionBar = (
+      <Wrapper.ActionBar left={actionBarLeft} right={actionBarRight} />
+    );
 
     const content = (
       <div
@@ -32,7 +26,10 @@ class Inbox extends Component {
       </div>
     );
 
-    const breadcrumb = [{ title: 'Inbox', link: '/inbox' }, { title: 'Conversation' }];
+    const breadcrumb = [
+      { title: 'Inbox', link: '/inbox' },
+      { title: 'Conversation' }
+    ];
 
     return (
       <Wrapper
@@ -51,7 +48,7 @@ Inbox.propTypes = {
   title: PropTypes.string,
   conversations: PropTypes.array.isRequired,
   messages: PropTypes.array.isRequired,
-  user: PropTypes.object.isRequired,
+  user: PropTypes.object.isRequired
 };
 
 export default Inbox;

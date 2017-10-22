@@ -9,6 +9,7 @@ const UserHelper = styled.div`
 `;
 
 const Main = styled.main`
+  flex: 1;
   height: 100%;
 `;
 
@@ -20,6 +21,7 @@ const Layout = styled.div`
 const LeftNavigation = styled.aside`
   width: ${dimensions.headerSpacingWide}px;
   background: ${colors.colorCoreBlack};
+  flex-shrink: 0;
 
   > a {
     background-color: ${rgba(colors.colorPrimary, 0.7)};
@@ -87,6 +89,7 @@ const ContentBox = styled.div`
   overflow: auto;
   box-shadow: 0 0 4px ${colors.shadowPrimary};
   margin-right: ${dimensions.coreSpacing}px;
+  position: relative;
 `;
 
 const ContenFooter = styled.div`
@@ -141,11 +144,30 @@ const SidebarBox = styled.div`
   background-color: ${colors.colorWhite};
   margin-bottom: ${dimensions.coreSpacing}px;
   box-shadow: 0 0 4px ${colors.shadowPrimary};
+  padding-bottom: ${dimensions.unitSpacing}px;
   position: relative;
+  transition: max-height 0.4s;
+  overflow: ${props => (props.collapsible ? 'hidden' : 'auto')};
 
   &:last-child {
     margin-bottom: 0;
   }
+`;
+
+const SidebarToggle = styled.a`
+  outline: 0;
+  width: 100%;
+  color: #ddd;
+  position: absolute;
+  bottom: 0;
+  text-align: center;
+  font-size: 12px;
+  background: linear-gradient(
+    0deg,
+    white 0%,
+    white 51%,
+    rgba(255, 255, 255, 0) 100%
+  );
 `;
 
 const HelperButtons = styled.div`
@@ -192,6 +214,7 @@ export {
   SidebarMainContent,
   SidebarFooter,
   SidebarBox,
+  SidebarToggle,
   HelperButtons,
   QuickButton,
   SidebarTitle,

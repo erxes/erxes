@@ -108,7 +108,7 @@ class ChannelForm extends CommonForm {
     const self = this;
 
     return (
-      <div className="adss">
+      <div>
         <FormGroup>
           <ControlLabel>Name</ControlLabel>
 

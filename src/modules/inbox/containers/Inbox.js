@@ -4,23 +4,20 @@ import { Inbox as InboxComponent } from '../components';
 
 import { conversations } from '../datas';
 
-
 class Inbox extends Component {
   render() {
     const messages = [];
     const user = {};
 
     // =============== actions
-    const changeStatus = () => {
-
-    };
+    const changeStatus = () => {};
 
     const updatedProps = {
       ...this.props,
       conversations,
       messages,
       user,
-      changeStatus,
+      changeStatus
     };
 
     return <InboxComponent {...updatedProps} />;
@@ -33,7 +30,7 @@ Inbox.propTypes = {
   queryParams: PropTypes.object,
   conversationDetailQuery: PropTypes.object,
   subscribeToNewMessages: PropTypes.func,
-  data: PropTypes.object,
+  data: PropTypes.object
 };
 
 export default Inbox;

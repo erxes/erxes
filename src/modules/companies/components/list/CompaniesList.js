@@ -66,14 +66,12 @@ function CompaniesList({
   const breadcrumb = [{ title: `Companies (${counts.all})` }];
 
   return (
-    <div>
-      <Wrapper
-        header={<Wrapper.Header breadcrumb={breadcrumb} />}
-        actionBar={actionBar}
-        leftSidebar={<Sidebar counts={counts} />}
-        content={content}
-      />
-    </div>
+    <Wrapper
+      header={<Wrapper.Header breadcrumb={breadcrumb} />}
+      actionBar={actionBar}
+      leftSidebar={<Sidebar counts={counts} />}
+      content={content}
+    />
   );
 }
 
