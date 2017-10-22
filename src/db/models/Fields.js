@@ -22,10 +22,19 @@ const FieldSchema = mongoose.Schema({
   contentTypeId: String,
 
   type: String,
-  validation: String,
+  validation: {
+    type: String,
+    optional: true,
+  },
   text: String,
-  description: String,
-  options: [String],
+  description: {
+    type: String,
+    optional: true,
+  },
+  options: {
+    type: [String],
+    optional: true,
+  },
   isRequired: Boolean,
   order: Number,
 });
