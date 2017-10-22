@@ -1,0 +1,7414 @@
+@charset "UTF-8";
+html,
+body {
+  height: 100%;
+}
+
+body {
+  font-family: 'Roboto', sans-serif;
+  font-weight: 400;
+  font-size: 14px;
+  color: #555555;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+body a {
+  color: #8055ca;
+  text-decoration: none;
+}
+body a:hover {
+  color: #9d7cd6;
+  text-decoration: none;
+}
+body > #react-root {
+  height: 100%;
+}
+body .layout {
+  display: flex;
+  height: 100%;
+  max-width: 100%;
+}
+body .layout > div:not(.wrapper-loader) {
+  display: flex;
+  flex: 1;
+  max-width: 100%;
+  padding-left: 70px;
+  margin-left: -70px;
+}
+
+.divider {
+  height: 1px;
+  margin: 9px 0;
+  overflow: hidden;
+  background-color: #ddd;
+}
+
+.text-bold {
+  font-weight: bold;
+}
+
+@font-face {
+  font-family: 'Ionicons';
+  src: url('/fonts/ionicons.eot?v=2.0.1');
+  src: url('/fonts/ionicons.eot?v=2.0.1#iefix') format('embedded-opentype'),
+    url('/fonts/ionicons.ttf?v=2.0.1') format('truetype'),
+    url('/fonts/ionicons.woff?v=2.0.1') format('woff'),
+    url('/fonts/ionicons.svg?v=2.0.1#Ionicons') format('svg');
+  font-weight: normal;
+  font-style: normal;
+}
+.ion,
+.ionicons,
+.ion-alert:before,
+.ion-alert-circled:before,
+.ion-android-add:before,
+.ion-android-add-circle:before,
+.ion-android-alarm-clock:before,
+.ion-android-alert:before,
+.ion-android-apps:before,
+.ion-android-archive:before,
+.ion-android-arrow-back:before,
+.ion-android-arrow-down:before,
+.ion-android-arrow-dropdown:before,
+.ion-android-arrow-dropdown-circle:before,
+.ion-android-arrow-dropleft:before,
+.ion-android-arrow-dropleft-circle:before,
+.ion-android-arrow-dropright:before,
+.ion-android-arrow-dropright-circle:before,
+.ion-android-arrow-dropup:before,
+.ion-android-arrow-dropup-circle:before,
+.ion-android-arrow-forward:before,
+.ion-android-arrow-up:before,
+.ion-android-attach:before,
+.ion-android-bar:before,
+.ion-android-bicycle:before,
+.ion-android-boat:before,
+.ion-android-bookmark:before,
+.ion-android-bulb:before,
+.ion-android-bus:before,
+.ion-android-calendar:before,
+.ion-android-call:before,
+.ion-android-camera:before,
+.ion-android-cancel:before,
+.ion-android-car:before,
+.ion-android-cart:before,
+.ion-android-chat:before,
+.ion-android-checkbox:before,
+.ion-android-checkbox-blank:before,
+.ion-android-checkbox-outline:before,
+.ion-android-checkbox-outline-blank:before,
+.ion-android-checkmark-circle:before,
+.ion-android-clipboard:before,
+.ion-android-close:before,
+.ion-android-cloud:before,
+.ion-android-cloud-circle:before,
+.ion-android-cloud-done:before,
+.ion-android-cloud-outline:before,
+.ion-android-color-palette:before,
+.ion-android-compass:before,
+.ion-android-contact:before,
+.ion-android-contacts:before,
+.ion-android-contract:before,
+.ion-android-create:before,
+.ion-android-delete:before,
+.ion-android-desktop:before,
+.ion-android-document:before,
+.ion-android-done:before,
+.ion-android-done-all:before,
+.ion-android-download:before,
+.ion-android-drafts:before,
+.ion-android-exit:before,
+.ion-android-expand:before,
+.ion-android-favorite:before,
+.ion-android-favorite-outline:before,
+.ion-android-film:before,
+.ion-android-folder:before,
+.ion-android-folder-open:before,
+.ion-android-funnel:before,
+.ion-android-globe:before,
+.ion-android-hand:before,
+.ion-android-hangout:before,
+.ion-android-happy:before,
+.ion-android-home:before,
+.ion-android-image:before,
+.ion-android-laptop:before,
+.ion-android-list:before,
+.ion-android-locate:before,
+.ion-android-lock:before,
+.ion-android-mail:before,
+.ion-android-map:before,
+.ion-android-menu:before,
+.ion-android-microphone:before,
+.ion-android-microphone-off:before,
+.ion-android-more-horizontal:before,
+.ion-android-more-vertical:before,
+.ion-android-navigate:before,
+.ion-android-notifications:before,
+.ion-android-notifications-none:before,
+.ion-android-notifications-off:before,
+.ion-android-open:before,
+.ion-android-options:before,
+.ion-android-people:before,
+.ion-android-person:before,
+.ion-android-person-add:before,
+.ion-android-phone-landscape:before,
+.ion-android-phone-portrait:before,
+.ion-android-pin:before,
+.ion-android-plane:before,
+.ion-android-playstore:before,
+.ion-android-print:before,
+.ion-android-radio-button-off:before,
+.ion-android-radio-button-on:before,
+.ion-android-refresh:before,
+.ion-android-remove:before,
+.ion-android-remove-circle:before,
+.ion-android-restaurant:before,
+.ion-android-sad:before,
+.ion-android-search:before,
+.ion-android-send:before,
+.ion-android-settings:before,
+.ion-android-share:before,
+.ion-android-share-alt:before,
+.ion-android-star:before,
+.ion-android-star-half:before,
+.ion-android-star-outline:before,
+.ion-android-stopwatch:before,
+.ion-android-subway:before,
+.ion-android-sunny:before,
+.ion-android-sync:before,
+.ion-android-textsms:before,
+.ion-android-time:before,
+.ion-android-train:before,
+.ion-android-unlock:before,
+.ion-android-upload:before,
+.ion-android-volume-down:before,
+.ion-android-volume-mute:before,
+.ion-android-volume-off:before,
+.ion-android-volume-up:before,
+.ion-android-walk:before,
+.ion-android-warning:before,
+.ion-android-watch:before,
+.ion-android-wifi:before,
+.ion-aperture:before,
+.ion-archive:before,
+.ion-arrow-down-a:before,
+.ion-arrow-down-b:before,
+.ion-arrow-down-c:before,
+.ion-arrow-expand:before,
+.ion-arrow-graph-down-left:before,
+.ion-arrow-graph-down-right:before,
+.ion-arrow-graph-up-left:before,
+.ion-arrow-graph-up-right:before,
+.ion-arrow-left-a:before,
+.ion-arrow-left-b:before,
+.ion-arrow-left-c:before,
+.ion-arrow-move:before,
+.ion-arrow-resize:before,
+.ion-arrow-return-left:before,
+.ion-arrow-return-right:before,
+.ion-arrow-right-a:before,
+.ion-arrow-right-b:before,
+.ion-arrow-right-c:before,
+.ion-arrow-shrink:before,
+.ion-arrow-swap:before,
+.ion-arrow-up-a:before,
+.ion-arrow-up-b:before,
+.ion-arrow-up-c:before,
+.ion-asterisk:before,
+.ion-at:before,
+.ion-backspace:before,
+.ion-backspace-outline:before,
+.ion-bag:before,
+.ion-battery-charging:before,
+.ion-battery-empty:before,
+.ion-battery-full:before,
+.ion-battery-half:before,
+.ion-battery-low:before,
+.ion-beaker:before,
+.ion-beer:before,
+.ion-bluetooth:before,
+.ion-bonfire:before,
+.ion-bookmark:before,
+.ion-bowtie:before,
+.ion-briefcase:before,
+.ion-bug:before,
+.ion-calculator:before,
+.ion-calendar:before,
+.ion-camera:before,
+.ion-card:before,
+.ion-cash:before,
+.ion-chatbox:before,
+.ion-chatbox-working:before,
+.ion-chatboxes:before,
+.ion-chatbubble:before,
+.ion-chatbubble-working:before,
+.ion-chatbubbles:before,
+.ion-checkmark:before,
+.ion-checkmark-circled:before,
+.ion-checkmark-round:before,
+.ion-chevron-down:before,
+.ion-chevron-left:before,
+.ion-chevron-right:before,
+.ion-chevron-up:before,
+.ion-clipboard:before,
+.ion-clock:before,
+.ion-close:before,
+.ion-close-circled:before,
+.ion-close-round:before,
+.ion-closed-captioning:before,
+.ion-cloud:before,
+.ion-code:before,
+.ion-code-download:before,
+.ion-code-working:before,
+.ion-coffee:before,
+.ion-compass:before,
+.ion-compose:before,
+.ion-connection-bars:before,
+.ion-contrast:before,
+.ion-crop:before,
+.ion-cube:before,
+.ion-disc:before,
+.ion-document:before,
+.ion-document-text:before,
+.ion-drag:before,
+.ion-earth:before,
+.ion-easel:before,
+.ion-edit:before,
+.ion-egg:before,
+.ion-eject:before,
+.ion-email:before,
+.ion-email-unread:before,
+.ion-erlenmeyer-flask:before,
+.ion-erlenmeyer-flask-bubbles:before,
+.ion-eye:before,
+.ion-eye-disabled:before,
+.ion-female:before,
+.ion-filing:before,
+.ion-film-marker:before,
+.ion-fireball:before,
+.ion-flag:before,
+.ion-flame:before,
+.ion-flash:before,
+.ion-flash-off:before,
+.ion-folder:before,
+.ion-fork:before,
+.ion-fork-repo:before,
+.ion-forward:before,
+.ion-funnel:before,
+.ion-gear-a:before,
+.ion-gear-b:before,
+.ion-grid:before,
+.ion-hammer:before,
+.ion-happy:before,
+.ion-happy-outline:before,
+.ion-headphone:before,
+.ion-heart:before,
+.ion-heart-broken:before,
+.ion-help:before,
+.ion-help-buoy:before,
+.ion-help-circled:before,
+.ion-home:before,
+.ion-icecream:before,
+.ion-image:before,
+.ion-images:before,
+.ion-information:before,
+.ion-information-circled:before,
+.ion-ionic:before,
+.ion-ios-alarm:before,
+.ion-ios-alarm-outline:before,
+.ion-ios-albums:before,
+.ion-ios-albums-outline:before,
+.ion-ios-americanfootball:before,
+.ion-ios-americanfootball-outline:before,
+.ion-ios-analytics:before,
+.ion-ios-analytics-outline:before,
+.ion-ios-arrow-back:before,
+.ion-ios-arrow-down:before,
+.ion-ios-arrow-forward:before,
+.ion-ios-arrow-left:before,
+.ion-ios-arrow-right:before,
+.ion-ios-arrow-thin-down:before,
+.ion-ios-arrow-thin-left:before,
+.ion-ios-arrow-thin-right:before,
+.ion-ios-arrow-thin-up:before,
+.ion-ios-arrow-up:before,
+.ion-ios-at:before,
+.ion-ios-at-outline:before,
+.ion-ios-barcode:before,
+.ion-ios-barcode-outline:before,
+.ion-ios-baseball:before,
+.ion-ios-baseball-outline:before,
+.ion-ios-basketball:before,
+.ion-ios-basketball-outline:before,
+.ion-ios-bell:before,
+.ion-ios-bell-outline:before,
+.ion-ios-body:before,
+.ion-ios-body-outline:before,
+.ion-ios-bolt:before,
+.ion-ios-bolt-outline:before,
+.ion-ios-book:before,
+.ion-ios-book-outline:before,
+.ion-ios-bookmarks:before,
+.ion-ios-bookmarks-outline:before,
+.ion-ios-box:before,
+.ion-ios-box-outline:before,
+.ion-ios-briefcase:before,
+.ion-ios-briefcase-outline:before,
+.ion-ios-browsers:before,
+.ion-ios-browsers-outline:before,
+.ion-ios-calculator:before,
+.ion-ios-calculator-outline:before,
+.ion-ios-calendar:before,
+.ion-ios-calendar-outline:before,
+.ion-ios-camera:before,
+.ion-ios-camera-outline:before,
+.ion-ios-cart:before,
+.ion-ios-cart-outline:before,
+.ion-ios-chatboxes:before,
+.ion-ios-chatboxes-outline:before,
+.ion-ios-chatbubble:before,
+.ion-ios-chatbubble-outline:before,
+.ion-ios-checkmark:before,
+.ion-ios-checkmark-empty:before,
+.ion-ios-checkmark-outline:before,
+.ion-ios-circle-filled:before,
+.ion-ios-circle-outline:before,
+.ion-ios-clock:before,
+.ion-ios-clock-outline:before,
+.ion-ios-close:before,
+.ion-ios-close-empty:before,
+.ion-ios-close-outline:before,
+.ion-ios-cloud:before,
+.ion-ios-cloud-download:before,
+.ion-ios-cloud-download-outline:before,
+.ion-ios-cloud-outline:before,
+.ion-ios-cloud-upload:before,
+.ion-ios-cloud-upload-outline:before,
+.ion-ios-cloudy:before,
+.ion-ios-cloudy-night:before,
+.ion-ios-cloudy-night-outline:before,
+.ion-ios-cloudy-outline:before,
+.ion-ios-cog:before,
+.ion-ios-cog-outline:before,
+.ion-ios-color-filter:before,
+.ion-ios-color-filter-outline:before,
+.ion-ios-color-wand:before,
+.ion-ios-color-wand-outline:before,
+.ion-ios-compose:before,
+.ion-ios-compose-outline:before,
+.ion-ios-contact:before,
+.ion-ios-contact-outline:before,
+.ion-ios-copy:before,
+.ion-ios-copy-outline:before,
+.ion-ios-crop:before,
+.ion-ios-crop-strong:before,
+.ion-ios-download:before,
+.ion-ios-download-outline:before,
+.ion-ios-drag:before,
+.ion-ios-email:before,
+.ion-ios-email-outline:before,
+.ion-ios-eye:before,
+.ion-ios-eye-outline:before,
+.ion-ios-fastforward:before,
+.ion-ios-fastforward-outline:before,
+.ion-ios-filing:before,
+.ion-ios-filing-outline:before,
+.ion-ios-film:before,
+.ion-ios-film-outline:before,
+.ion-ios-flag:before,
+.ion-ios-flag-outline:before,
+.ion-ios-flame:before,
+.ion-ios-flame-outline:before,
+.ion-ios-flask:before,
+.ion-ios-flask-outline:before,
+.ion-ios-flower:before,
+.ion-ios-flower-outline:before,
+.ion-ios-folder:before,
+.ion-ios-folder-outline:before,
+.ion-ios-football:before,
+.ion-ios-football-outline:before,
+.ion-ios-game-controller-a:before,
+.ion-ios-game-controller-a-outline:before,
+.ion-ios-game-controller-b:before,
+.ion-ios-game-controller-b-outline:before,
+.ion-ios-gear:before,
+.ion-ios-gear-outline:before,
+.ion-ios-glasses:before,
+.ion-ios-glasses-outline:before,
+.ion-ios-grid-view:before,
+.ion-ios-grid-view-outline:before,
+.ion-ios-heart:before,
+.ion-ios-heart-outline:before,
+.ion-ios-help:before,
+.ion-ios-help-empty:before,
+.ion-ios-help-outline:before,
+.ion-ios-home:before,
+.ion-ios-home-outline:before,
+.ion-ios-infinite:before,
+.ion-ios-infinite-outline:before,
+.ion-ios-information:before,
+.ion-ios-information-empty:before,
+.ion-ios-information-outline:before,
+.ion-ios-ionic-outline:before,
+.ion-ios-keypad:before,
+.ion-ios-keypad-outline:before,
+.ion-ios-lightbulb:before,
+.ion-ios-lightbulb-outline:before,
+.ion-ios-list:before,
+.ion-ios-list-outline:before,
+.ion-ios-location:before,
+.ion-ios-location-outline:before,
+.ion-ios-locked:before,
+.ion-ios-locked-outline:before,
+.ion-ios-loop:before,
+.ion-ios-loop-strong:before,
+.ion-ios-medical:before,
+.ion-ios-medical-outline:before,
+.ion-ios-medkit:before,
+.ion-ios-medkit-outline:before,
+.ion-ios-mic:before,
+.ion-ios-mic-off:before,
+.ion-ios-mic-outline:before,
+.ion-ios-minus:before,
+.ion-ios-minus-empty:before,
+.ion-ios-minus-outline:before,
+.ion-ios-monitor:before,
+.ion-ios-monitor-outline:before,
+.ion-ios-moon:before,
+.ion-ios-moon-outline:before,
+.ion-ios-more:before,
+.ion-ios-more-outline:before,
+.ion-ios-musical-note:before,
+.ion-ios-musical-notes:before,
+.ion-ios-navigate:before,
+.ion-ios-navigate-outline:before,
+.ion-ios-nutrition:before,
+.ion-ios-nutrition-outline:before,
+.ion-ios-paper:before,
+.ion-ios-paper-outline:before,
+.ion-ios-paperplane:before,
+.ion-ios-paperplane-outline:before,
+.ion-ios-partlysunny:before,
+.ion-ios-partlysunny-outline:before,
+.ion-ios-pause:before,
+.ion-ios-pause-outline:before,
+.ion-ios-paw:before,
+.ion-ios-paw-outline:before,
+.ion-ios-people:before,
+.ion-ios-people-outline:before,
+.ion-ios-person:before,
+.ion-ios-person-outline:before,
+.ion-ios-personadd:before,
+.ion-ios-personadd-outline:before,
+.ion-ios-photos:before,
+.ion-ios-photos-outline:before,
+.ion-ios-pie:before,
+.ion-ios-pie-outline:before,
+.ion-ios-pint:before,
+.ion-ios-pint-outline:before,
+.ion-ios-play:before,
+.ion-ios-play-outline:before,
+.ion-ios-plus:before,
+.ion-ios-plus-empty:before,
+.ion-ios-plus-outline:before,
+.ion-ios-pricetag:before,
+.ion-ios-pricetag-outline:before,
+.ion-ios-pricetags:before,
+.ion-ios-pricetags-outline:before,
+.ion-ios-printer:before,
+.ion-ios-printer-outline:before,
+.ion-ios-pulse:before,
+.ion-ios-pulse-strong:before,
+.ion-ios-rainy:before,
+.ion-ios-rainy-outline:before,
+.ion-ios-recording:before,
+.ion-ios-recording-outline:before,
+.ion-ios-redo:before,
+.ion-ios-redo-outline:before,
+.ion-ios-refresh:before,
+.ion-ios-refresh-empty:before,
+.ion-ios-refresh-outline:before,
+.ion-ios-reload:before,
+.ion-ios-reverse-camera:before,
+.ion-ios-reverse-camera-outline:before,
+.ion-ios-rewind:before,
+.ion-ios-rewind-outline:before,
+.ion-ios-rose:before,
+.ion-ios-rose-outline:before,
+.ion-ios-search:before,
+.ion-ios-search-strong:before,
+.ion-ios-settings:before,
+.ion-ios-settings-strong:before,
+.ion-ios-shuffle:before,
+.ion-ios-shuffle-strong:before,
+.ion-ios-skipbackward:before,
+.ion-ios-skipbackward-outline:before,
+.ion-ios-skipforward:before,
+.ion-ios-skipforward-outline:before,
+.ion-ios-snowy:before,
+.ion-ios-speedometer:before,
+.ion-ios-speedometer-outline:before,
+.ion-ios-star:before,
+.ion-ios-star-half:before,
+.ion-ios-star-outline:before,
+.ion-ios-stopwatch:before,
+.ion-ios-stopwatch-outline:before,
+.ion-ios-sunny:before,
+.ion-ios-sunny-outline:before,
+.ion-ios-telephone:before,
+.ion-ios-telephone-outline:before,
+.ion-ios-tennisball:before,
+.ion-ios-tennisball-outline:before,
+.ion-ios-thunderstorm:before,
+.ion-ios-thunderstorm-outline:before,
+.ion-ios-time:before,
+.ion-ios-time-outline:before,
+.ion-ios-timer:before,
+.ion-ios-timer-outline:before,
+.ion-ios-toggle:before,
+.ion-ios-toggle-outline:before,
+.ion-ios-trash:before,
+.ion-ios-trash-outline:before,
+.ion-ios-undo:before,
+.ion-ios-undo-outline:before,
+.ion-ios-unlocked:before,
+.ion-ios-unlocked-outline:before,
+.ion-ios-upload:before,
+.ion-ios-upload-outline:before,
+.ion-ios-videocam:before,
+.ion-ios-videocam-outline:before,
+.ion-ios-volume-high:before,
+.ion-ios-volume-low:before,
+.ion-ios-wineglass:before,
+.ion-ios-wineglass-outline:before,
+.ion-ios-world:before,
+.ion-ios-world-outline:before,
+.ion-ipad:before,
+.ion-iphone:before,
+.ion-ipod:before,
+.ion-jet:before,
+.ion-key:before,
+.ion-knife:before,
+.ion-laptop:before,
+.ion-leaf:before,
+.ion-levels:before,
+.ion-lightbulb:before,
+.ion-link:before,
+.ion-load-a:before,
+.ion-load-b:before,
+.ion-load-c:before,
+.ion-load-d:before,
+.ion-location:before,
+.ion-lock-combination:before,
+.ion-locked:before,
+.ion-log-in:before,
+.ion-log-out:before,
+.ion-loop:before,
+.ion-magnet:before,
+.ion-male:before,
+.ion-man:before,
+.ion-map:before,
+.ion-medkit:before,
+.ion-merge:before,
+.ion-mic-a:before,
+.ion-mic-b:before,
+.ion-mic-c:before,
+.ion-minus:before,
+.ion-minus-circled:before,
+.ion-minus-round:before,
+.ion-model-s:before,
+.ion-monitor:before,
+.ion-more:before,
+.ion-mouse:before,
+.ion-music-note:before,
+.ion-navicon:before,
+.ion-navicon-round:before,
+.ion-navigate:before,
+.ion-network:before,
+.ion-no-smoking:before,
+.ion-nuclear:before,
+.ion-outlet:before,
+.ion-paintbrush:before,
+.ion-paintbucket:before,
+.ion-paper-airplane:before,
+.ion-paperclip:before,
+.ion-pause:before,
+.ion-person:before,
+.ion-person-add:before,
+.ion-person-stalker:before,
+.ion-pie-graph:before,
+.ion-pin:before,
+.ion-pinpoint:before,
+.ion-pizza:before,
+.ion-plane:before,
+.ion-planet:before,
+.ion-play:before,
+.ion-playstation:before,
+.ion-plus:before,
+.ion-plus-circled:before,
+.ion-plus-round:before,
+.ion-podium:before,
+.ion-pound:before,
+.ion-power:before,
+.ion-pricetag:before,
+.ion-pricetags:before,
+.ion-printer:before,
+.ion-pull-request:before,
+.ion-qr-scanner:before,
+.ion-quote:before,
+.ion-radio-waves:before,
+.ion-record:before,
+.ion-refresh:before,
+.ion-reply:before,
+.ion-reply-all:before,
+.ion-ribbon-a:before,
+.ion-ribbon-b:before,
+.ion-sad:before,
+.ion-sad-outline:before,
+.ion-scissors:before,
+.ion-search:before,
+.ion-settings:before,
+.ion-share:before,
+.ion-shuffle:before,
+.ion-skip-backward:before,
+.ion-skip-forward:before,
+.ion-social-android:before,
+.ion-social-android-outline:before,
+.ion-social-angular:before,
+.ion-social-angular-outline:before,
+.ion-social-apple:before,
+.ion-social-apple-outline:before,
+.ion-social-bitcoin:before,
+.ion-social-bitcoin-outline:before,
+.ion-social-buffer:before,
+.ion-social-buffer-outline:before,
+.ion-social-chrome:before,
+.ion-social-chrome-outline:before,
+.ion-social-codepen:before,
+.ion-social-codepen-outline:before,
+.ion-social-css3:before,
+.ion-social-css3-outline:before,
+.ion-social-designernews:before,
+.ion-social-designernews-outline:before,
+.ion-social-dribbble:before,
+.ion-social-dribbble-outline:before,
+.ion-social-dropbox:before,
+.ion-social-dropbox-outline:before,
+.ion-social-euro:before,
+.ion-social-euro-outline:before,
+.ion-social-facebook:before,
+.ion-social-facebook-outline:before,
+.ion-social-foursquare:before,
+.ion-social-foursquare-outline:before,
+.ion-social-freebsd-devil:before,
+.ion-social-github:before,
+.ion-social-github-outline:before,
+.ion-social-google:before,
+.ion-social-google-outline:before,
+.ion-social-googleplus:before,
+.ion-social-googleplus-outline:before,
+.ion-social-hackernews:before,
+.ion-social-hackernews-outline:before,
+.ion-social-html5:before,
+.ion-social-html5-outline:before,
+.ion-social-instagram:before,
+.ion-social-instagram-outline:before,
+.ion-social-javascript:before,
+.ion-social-javascript-outline:before,
+.ion-social-linkedin:before,
+.ion-social-linkedin-outline:before,
+.ion-social-markdown:before,
+.ion-social-nodejs:before,
+.ion-social-octocat:before,
+.ion-social-pinterest:before,
+.ion-social-pinterest-outline:before,
+.ion-social-python:before,
+.ion-social-reddit:before,
+.ion-social-reddit-outline:before,
+.ion-social-rss:before,
+.ion-social-rss-outline:before,
+.ion-social-sass:before,
+.ion-social-skype:before,
+.ion-social-skype-outline:before,
+.ion-social-snapchat:before,
+.ion-social-snapchat-outline:before,
+.ion-social-tumblr:before,
+.ion-social-tumblr-outline:before,
+.ion-social-tux:before,
+.ion-social-twitch:before,
+.ion-social-twitch-outline:before,
+.ion-social-twitter:before,
+.ion-social-twitter-outline:before,
+.ion-social-usd:before,
+.ion-social-usd-outline:before,
+.ion-social-vimeo:before,
+.ion-social-vimeo-outline:before,
+.ion-social-whatsapp:before,
+.ion-social-whatsapp-outline:before,
+.ion-social-windows:before,
+.ion-social-windows-outline:before,
+.ion-social-wordpress:before,
+.ion-social-wordpress-outline:before,
+.ion-social-yahoo:before,
+.ion-social-yahoo-outline:before,
+.ion-social-yen:before,
+.ion-social-yen-outline:before,
+.ion-social-youtube:before,
+.ion-social-youtube-outline:before,
+.ion-soup-can:before,
+.ion-soup-can-outline:before,
+.ion-speakerphone:before,
+.ion-speedometer:before,
+.ion-spoon:before,
+.ion-star:before,
+.ion-stats-bars:before,
+.ion-steam:before,
+.ion-stop:before,
+.ion-thermometer:before,
+.ion-thumbsdown:before,
+.ion-thumbsup:before,
+.ion-toggle:before,
+.ion-toggle-filled:before,
+.ion-transgender:before,
+.ion-trash-a:before,
+.ion-trash-b:before,
+.ion-trophy:before,
+.ion-tshirt:before,
+.ion-tshirt-outline:before,
+.ion-umbrella:before,
+.ion-university:before,
+.ion-unlocked:before,
+.ion-upload:before,
+.ion-usb:before,
+.ion-videocamera:before,
+.ion-volume-high:before,
+.ion-volume-low:before,
+.ion-volume-medium:before,
+.ion-volume-mute:before,
+.ion-wand:before,
+.ion-waterdrop:before,
+.ion-wifi:before,
+.ion-wineglass:before,
+.ion-woman:before,
+.ion-wrench:before,
+.ion-xbox:before {
+  display: inline-block;
+  font-family: 'Ionicons';
+  speak: none;
+  font-style: normal;
+  font-weight: normal;
+  font-variant: normal;
+  text-transform: none;
+  text-rendering: auto;
+  line-height: 1;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.ion-alert:before {
+  content: '';
+}
+
+.ion-alert-circled:before {
+  content: '';
+}
+
+.ion-android-add:before {
+  content: '';
+}
+
+.ion-android-add-circle:before {
+  content: '';
+}
+
+.ion-android-alarm-clock:before {
+  content: '';
+}
+
+.ion-android-alert:before {
+  content: '';
+}
+
+.ion-android-apps:before {
+  content: '';
+}
+
+.ion-android-archive:before {
+  content: '';
+}
+
+.ion-android-arrow-back:before {
+  content: '';
+}
+
+.ion-android-arrow-down:before {
+  content: '';
+}
+
+.ion-android-arrow-dropdown:before {
+  content: '';
+}
+
+.ion-android-arrow-dropdown-circle:before {
+  content: '';
+}
+
+.ion-android-arrow-dropleft:before {
+  content: '';
+}
+
+.ion-android-arrow-dropleft-circle:before {
+  content: '';
+}
+
+.ion-android-arrow-dropright:before {
+  content: '';
+}
+
+.ion-android-arrow-dropright-circle:before {
+  content: '';
+}
+
+.ion-android-arrow-dropup:before {
+  content: '';
+}
+
+.ion-android-arrow-dropup-circle:before {
+  content: '';
+}
+
+.ion-android-arrow-forward:before {
+  content: '';
+}
+
+.ion-android-arrow-up:before {
+  content: '';
+}
+
+.ion-android-attach:before {
+  content: '';
+}
+
+.ion-android-bar:before {
+  content: '';
+}
+
+.ion-android-bicycle:before {
+  content: '';
+}
+
+.ion-android-boat:before {
+  content: '';
+}
+
+.ion-android-bookmark:before {
+  content: '';
+}
+
+.ion-android-bulb:before {
+  content: '';
+}
+
+.ion-android-bus:before {
+  content: '';
+}
+
+.ion-android-calendar:before {
+  content: '';
+}
+
+.ion-android-call:before {
+  content: '';
+}
+
+.ion-android-camera:before {
+  content: '';
+}
+
+.ion-android-cancel:before {
+  content: '';
+}
+
+.ion-android-car:before {
+  content: '';
+}
+
+.ion-android-cart:before {
+  content: '';
+}
+
+.ion-android-chat:before {
+  content: '';
+}
+
+.ion-android-checkbox:before {
+  content: '';
+}
+
+.ion-android-checkbox-blank:before {
+  content: '';
+}
+
+.ion-android-checkbox-outline:before {
+  content: '';
+}
+
+.ion-android-checkbox-outline-blank:before {
+  content: '';
+}
+
+.ion-android-checkmark-circle:before {
+  content: '';
+}
+
+.ion-android-clipboard:before {
+  content: '';
+}
+
+.ion-android-close:before {
+  content: '';
+}
+
+.ion-android-cloud:before {
+  content: '';
+}
+
+.ion-android-cloud-circle:before {
+  content: '';
+}
+
+.ion-android-cloud-done:before {
+  content: '';
+}
+
+.ion-android-cloud-outline:before {
+  content: '';
+}
+
+.ion-android-color-palette:before {
+  content: '';
+}
+
+.ion-android-compass:before {
+  content: '';
+}
+
+.ion-android-contact:before {
+  content: '';
+}
+
+.ion-android-contacts:before {
+  content: '';
+}
+
+.ion-android-contract:before {
+  content: '';
+}
+
+.ion-android-create:before {
+  content: '';
+}
+
+.ion-android-delete:before {
+  content: '';
+}
+
+.ion-android-desktop:before {
+  content: '';
+}
+
+.ion-android-document:before {
+  content: '';
+}
+
+.ion-android-done:before {
+  content: '';
+}
+
+.ion-android-done-all:before {
+  content: '';
+}
+
+.ion-android-download:before {
+  content: '';
+}
+
+.ion-android-drafts:before {
+  content: '';
+}
+
+.ion-android-exit:before {
+  content: '';
+}
+
+.ion-android-expand:before {
+  content: '';
+}
+
+.ion-android-favorite:before {
+  content: '';
+}
+
+.ion-android-favorite-outline:before {
+  content: '';
+}
+
+.ion-android-film:before {
+  content: '';
+}
+
+.ion-android-folder:before {
+  content: '';
+}
+
+.ion-android-folder-open:before {
+  content: '';
+}
+
+.ion-android-funnel:before {
+  content: '';
+}
+
+.ion-android-globe:before {
+  content: '';
+}
+
+.ion-android-hand:before {
+  content: '';
+}
+
+.ion-android-hangout:before {
+  content: '';
+}
+
+.ion-android-happy:before {
+  content: '';
+}
+
+.ion-android-home:before {
+  content: '';
+}
+
+.ion-android-image:before {
+  content: '';
+}
+
+.ion-android-laptop:before {
+  content: '';
+}
+
+.ion-android-list:before {
+  content: '';
+}
+
+.ion-android-locate:before {
+  content: '';
+}
+
+.ion-android-lock:before {
+  content: '';
+}
+
+.ion-android-mail:before {
+  content: '';
+}
+
+.ion-android-map:before {
+  content: '';
+}
+
+.ion-android-menu:before {
+  content: '';
+}
+
+.ion-android-microphone:before {
+  content: '';
+}
+
+.ion-android-microphone-off:before {
+  content: '';
+}
+
+.ion-android-more-horizontal:before {
+  content: '';
+}
+
+.ion-android-more-vertical:before {
+  content: '';
+}
+
+.ion-android-navigate:before {
+  content: '';
+}
+
+.ion-android-notifications:before {
+  content: '';
+}
+
+.ion-android-notifications-none:before {
+  content: '';
+}
+
+.ion-android-notifications-off:before {
+  content: '';
+}
+
+.ion-android-open:before {
+  content: '';
+}
+
+.ion-android-options:before {
+  content: '';
+}
+
+.ion-android-people:before {
+  content: '';
+}
+
+.ion-android-person:before {
+  content: '';
+}
+
+.ion-android-person-add:before {
+  content: '';
+}
+
+.ion-android-phone-landscape:before {
+  content: '';
+}
+
+.ion-android-phone-portrait:before {
+  content: '';
+}
+
+.ion-android-pin:before {
+  content: '';
+}
+
+.ion-android-plane:before {
+  content: '';
+}
+
+.ion-android-playstore:before {
+  content: '';
+}
+
+.ion-android-print:before {
+  content: '';
+}
+
+.ion-android-radio-button-off:before {
+  content: '';
+}
+
+.ion-android-radio-button-on:before {
+  content: '';
+}
+
+.ion-android-refresh:before {
+  content: '';
+}
+
+.ion-android-remove:before {
+  content: '';
+}
+
+.ion-android-remove-circle:before {
+  content: '';
+}
+
+.ion-android-restaurant:before {
+  content: '';
+}
+
+.ion-android-sad:before {
+  content: '';
+}
+
+.ion-android-search:before {
+  content: '';
+}
+
+.ion-android-send:before {
+  content: '';
+}
+
+.ion-android-settings:before {
+  content: '';
+}
+
+.ion-android-share:before {
+  content: '';
+}
+
+.ion-android-share-alt:before {
+  content: '';
+}
+
+.ion-android-star:before {
+  content: '';
+}
+
+.ion-android-star-half:before {
+  content: '';
+}
+
+.ion-android-star-outline:before {
+  content: '';
+}
+
+.ion-android-stopwatch:before {
+  content: '';
+}
+
+.ion-android-subway:before {
+  content: '';
+}
+
+.ion-android-sunny:before {
+  content: '';
+}
+
+.ion-android-sync:before {
+  content: '';
+}
+
+.ion-android-textsms:before {
+  content: '';
+}
+
+.ion-android-time:before {
+  content: '';
+}
+
+.ion-android-train:before {
+  content: '';
+}
+
+.ion-android-unlock:before {
+  content: '';
+}
+
+.ion-android-upload:before {
+  content: '';
+}
+
+.ion-android-volume-down:before {
+  content: '';
+}
+
+.ion-android-volume-mute:before {
+  content: '';
+}
+
+.ion-android-volume-off:before {
+  content: '';
+}
+
+.ion-android-volume-up:before {
+  content: '';
+}
+
+.ion-android-walk:before {
+  content: '';
+}
+
+.ion-android-warning:before {
+  content: '';
+}
+
+.ion-android-watch:before {
+  content: '';
+}
+
+.ion-android-wifi:before {
+  content: '';
+}
+
+.ion-aperture:before {
+  content: '';
+}
+
+.ion-archive:before {
+  content: '';
+}
+
+.ion-arrow-down-a:before {
+  content: '';
+}
+
+.ion-arrow-down-b:before {
+  content: '';
+}
+
+.ion-arrow-down-c:before {
+  content: '';
+}
+
+.ion-arrow-expand:before {
+  content: '';
+}
+
+.ion-arrow-graph-down-left:before {
+  content: '';
+}
+
+.ion-arrow-graph-down-right:before {
+  content: '';
+}
+
+.ion-arrow-graph-up-left:before {
+  content: '';
+}
+
+.ion-arrow-graph-up-right:before {
+  content: '';
+}
+
+.ion-arrow-left-a:before {
+  content: '';
+}
+
+.ion-arrow-left-b:before {
+  content: '';
+}
+
+.ion-arrow-left-c:before {
+  content: '';
+}
+
+.ion-arrow-move:before {
+  content: '';
+}
+
+.ion-arrow-resize:before {
+  content: '';
+}
+
+.ion-arrow-return-left:before {
+  content: '';
+}
+
+.ion-arrow-return-right:before {
+  content: '';
+}
+
+.ion-arrow-right-a:before {
+  content: '';
+}
+
+.ion-arrow-right-b:before {
+  content: '';
+}
+
+.ion-arrow-right-c:before {
+  content: '';
+}
+
+.ion-arrow-shrink:before {
+  content: '';
+}
+
+.ion-arrow-swap:before {
+  content: '';
+}
+
+.ion-arrow-up-a:before {
+  content: '';
+}
+
+.ion-arrow-up-b:before {
+  content: '';
+}
+
+.ion-arrow-up-c:before {
+  content: '';
+}
+
+.ion-asterisk:before {
+  content: '';
+}
+
+.ion-at:before {
+  content: '';
+}
+
+.ion-backspace:before {
+  content: '';
+}
+
+.ion-backspace-outline:before {
+  content: '';
+}
+
+.ion-bag:before {
+  content: '';
+}
+
+.ion-battery-charging:before {
+  content: '';
+}
+
+.ion-battery-empty:before {
+  content: '';
+}
+
+.ion-battery-full:before {
+  content: '';
+}
+
+.ion-battery-half:before {
+  content: '';
+}
+
+.ion-battery-low:before {
+  content: '';
+}
+
+.ion-beaker:before {
+  content: '';
+}
+
+.ion-beer:before {
+  content: '';
+}
+
+.ion-bluetooth:before {
+  content: '';
+}
+
+.ion-bonfire:before {
+  content: '';
+}
+
+.ion-bookmark:before {
+  content: '';
+}
+
+.ion-bowtie:before {
+  content: '';
+}
+
+.ion-briefcase:before {
+  content: '';
+}
+
+.ion-bug:before {
+  content: '';
+}
+
+.ion-calculator:before {
+  content: '';
+}
+
+.ion-calendar:before {
+  content: '';
+}
+
+.ion-camera:before {
+  content: '';
+}
+
+.ion-card:before {
+  content: '';
+}
+
+.ion-cash:before {
+  content: '';
+}
+
+.ion-chatbox:before {
+  content: '';
+}
+
+.ion-chatbox-working:before {
+  content: '';
+}
+
+.ion-chatboxes:before {
+  content: '';
+}
+
+.ion-chatbubble:before {
+  content: '';
+}
+
+.ion-chatbubble-working:before {
+  content: '';
+}
+
+.ion-chatbubbles:before {
+  content: '';
+}
+
+.ion-checkmark:before {
+  content: '';
+}
+
+.ion-checkmark-circled:before {
+  content: '';
+}
+
+.ion-checkmark-round:before {
+  content: '';
+}
+
+.ion-chevron-down:before {
+  content: '';
+}
+
+.ion-chevron-left:before {
+  content: '';
+}
+
+.ion-chevron-right:before {
+  content: '';
+}
+
+.ion-chevron-up:before {
+  content: '';
+}
+
+.ion-clipboard:before {
+  content: '';
+}
+
+.ion-clock:before {
+  content: '';
+}
+
+.ion-close:before {
+  content: '';
+}
+
+.ion-close-circled:before {
+  content: '';
+}
+
+.ion-close-round:before {
+  content: '';
+}
+
+.ion-closed-captioning:before {
+  content: '';
+}
+
+.ion-cloud:before {
+  content: '';
+}
+
+.ion-code:before {
+  content: '';
+}
+
+.ion-code-download:before {
+  content: '';
+}
+
+.ion-code-working:before {
+  content: '';
+}
+
+.ion-coffee:before {
+  content: '';
+}
+
+.ion-compass:before {
+  content: '';
+}
+
+.ion-compose:before {
+  content: '';
+}
+
+.ion-connection-bars:before {
+  content: '';
+}
+
+.ion-contrast:before {
+  content: '';
+}
+
+.ion-crop:before {
+  content: '';
+}
+
+.ion-cube:before {
+  content: '';
+}
+
+.ion-disc:before {
+  content: '';
+}
+
+.ion-document:before {
+  content: '';
+}
+
+.ion-document-text:before {
+  content: '';
+}
+
+.ion-drag:before {
+  content: '';
+}
+
+.ion-earth:before {
+  content: '';
+}
+
+.ion-easel:before {
+  content: '';
+}
+
+.ion-edit:before {
+  content: '';
+}
+
+.ion-egg:before {
+  content: '';
+}
+
+.ion-eject:before {
+  content: '';
+}
+
+.ion-email:before {
+  content: '';
+}
+
+.ion-email-unread:before {
+  content: '';
+}
+
+.ion-erlenmeyer-flask:before {
+  content: '';
+}
+
+.ion-erlenmeyer-flask-bubbles:before {
+  content: '';
+}
+
+.ion-eye:before {
+  content: '';
+}
+
+.ion-eye-disabled:before {
+  content: '';
+}
+
+.ion-female:before {
+  content: '';
+}
+
+.ion-filing:before {
+  content: '';
+}
+
+.ion-film-marker:before {
+  content: '';
+}
+
+.ion-fireball:before {
+  content: '';
+}
+
+.ion-flag:before {
+  content: '';
+}
+
+.ion-flame:before {
+  content: '';
+}
+
+.ion-flash:before {
+  content: '';
+}
+
+.ion-flash-off:before {
+  content: '';
+}
+
+.ion-folder:before {
+  content: '';
+}
+
+.ion-fork:before {
+  content: '';
+}
+
+.ion-fork-repo:before {
+  content: '';
+}
+
+.ion-forward:before {
+  content: '';
+}
+
+.ion-funnel:before {
+  content: '';
+}
+
+.ion-gear-a:before {
+  content: '';
+}
+
+.ion-gear-b:before {
+  content: '';
+}
+
+.ion-grid:before {
+  content: '';
+}
+
+.ion-hammer:before {
+  content: '';
+}
+
+.ion-happy:before {
+  content: '';
+}
+
+.ion-happy-outline:before {
+  content: '';
+}
+
+.ion-headphone:before {
+  content: '';
+}
+
+.ion-heart:before {
+  content: '';
+}
+
+.ion-heart-broken:before {
+  content: '';
+}
+
+.ion-help:before {
+  content: '';
+}
+
+.ion-help-buoy:before {
+  content: '';
+}
+
+.ion-help-circled:before {
+  content: '';
+}
+
+.ion-home:before {
+  content: '';
+}
+
+.ion-icecream:before {
+  content: '';
+}
+
+.ion-image:before {
+  content: '';
+}
+
+.ion-images:before {
+  content: '';
+}
+
+.ion-information:before {
+  content: '';
+}
+
+.ion-information-circled:before {
+  content: '';
+}
+
+.ion-ionic:before {
+  content: '';
+}
+
+.ion-ios-alarm:before {
+  content: '';
+}
+
+.ion-ios-alarm-outline:before {
+  content: '';
+}
+
+.ion-ios-albums:before {
+  content: '';
+}
+
+.ion-ios-albums-outline:before {
+  content: '';
+}
+
+.ion-ios-americanfootball:before {
+  content: '';
+}
+
+.ion-ios-americanfootball-outline:before {
+  content: '';
+}
+
+.ion-ios-analytics:before {
+  content: '';
+}
+
+.ion-ios-analytics-outline:before {
+  content: '';
+}
+
+.ion-ios-arrow-back:before {
+  content: '';
+}
+
+.ion-ios-arrow-down:before {
+  content: '';
+}
+
+.ion-ios-arrow-forward:before {
+  content: '';
+}
+
+.ion-ios-arrow-left:before {
+  content: '';
+}
+
+.ion-ios-arrow-right:before {
+  content: '';
+}
+
+.ion-ios-arrow-thin-down:before {
+  content: '';
+}
+
+.ion-ios-arrow-thin-left:before {
+  content: '';
+}
+
+.ion-ios-arrow-thin-right:before {
+  content: '';
+}
+
+.ion-ios-arrow-thin-up:before {
+  content: '';
+}
+
+.ion-ios-arrow-up:before {
+  content: '';
+}
+
+.ion-ios-at:before {
+  content: '';
+}
+
+.ion-ios-at-outline:before {
+  content: '';
+}
+
+.ion-ios-barcode:before {
+  content: '';
+}
+
+.ion-ios-barcode-outline:before {
+  content: '';
+}
+
+.ion-ios-baseball:before {
+  content: '';
+}
+
+.ion-ios-baseball-outline:before {
+  content: '';
+}
+
+.ion-ios-basketball:before {
+  content: '';
+}
+
+.ion-ios-basketball-outline:before {
+  content: '';
+}
+
+.ion-ios-bell:before {
+  content: '';
+}
+
+.ion-ios-bell-outline:before {
+  content: '';
+}
+
+.ion-ios-body:before {
+  content: '';
+}
+
+.ion-ios-body-outline:before {
+  content: '';
+}
+
+.ion-ios-bolt:before {
+  content: '';
+}
+
+.ion-ios-bolt-outline:before {
+  content: '';
+}
+
+.ion-ios-book:before {
+  content: '';
+}
+
+.ion-ios-book-outline:before {
+  content: '';
+}
+
+.ion-ios-bookmarks:before {
+  content: '';
+}
+
+.ion-ios-bookmarks-outline:before {
+  content: '';
+}
+
+.ion-ios-box:before {
+  content: '';
+}
+
+.ion-ios-box-outline:before {
+  content: '';
+}
+
+.ion-ios-briefcase:before {
+  content: '';
+}
+
+.ion-ios-briefcase-outline:before {
+  content: '';
+}
+
+.ion-ios-browsers:before {
+  content: '';
+}
+
+.ion-ios-browsers-outline:before {
+  content: '';
+}
+
+.ion-ios-calculator:before {
+  content: '';
+}
+
+.ion-ios-calculator-outline:before {
+  content: '';
+}
+
+.ion-ios-calendar:before {
+  content: '';
+}
+
+.ion-ios-calendar-outline:before {
+  content: '';
+}
+
+.ion-ios-camera:before {
+  content: '';
+}
+
+.ion-ios-camera-outline:before {
+  content: '';
+}
+
+.ion-ios-cart:before {
+  content: '';
+}
+
+.ion-ios-cart-outline:before {
+  content: '';
+}
+
+.ion-ios-chatboxes:before {
+  content: '';
+}
+
+.ion-ios-chatboxes-outline:before {
+  content: '';
+}
+
+.ion-ios-chatbubble:before {
+  content: '';
+}
+
+.ion-ios-chatbubble-outline:before {
+  content: '';
+}
+
+.ion-ios-checkmark:before {
+  content: '';
+}
+
+.ion-ios-checkmark-empty:before {
+  content: '';
+}
+
+.ion-ios-checkmark-outline:before {
+  content: '';
+}
+
+.ion-ios-circle-filled:before {
+  content: '';
+}
+
+.ion-ios-circle-outline:before {
+  content: '';
+}
+
+.ion-ios-clock:before {
+  content: '';
+}
+
+.ion-ios-clock-outline:before {
+  content: '';
+}
+
+.ion-ios-close:before {
+  content: '';
+}
+
+.ion-ios-close-empty:before {
+  content: '';
+}
+
+.ion-ios-close-outline:before {
+  content: '';
+}
+
+.ion-ios-cloud:before {
+  content: '';
+}
+
+.ion-ios-cloud-download:before {
+  content: '';
+}
+
+.ion-ios-cloud-download-outline:before {
+  content: '';
+}
+
+.ion-ios-cloud-outline:before {
+  content: '';
+}
+
+.ion-ios-cloud-upload:before {
+  content: '';
+}
+
+.ion-ios-cloud-upload-outline:before {
+  content: '';
+}
+
+.ion-ios-cloudy:before {
+  content: '';
+}
+
+.ion-ios-cloudy-night:before {
+  content: '';
+}
+
+.ion-ios-cloudy-night-outline:before {
+  content: '';
+}
+
+.ion-ios-cloudy-outline:before {
+  content: '';
+}
+
+.ion-ios-cog:before {
+  content: '';
+}
+
+.ion-ios-cog-outline:before {
+  content: '';
+}
+
+.ion-ios-color-filter:before {
+  content: '';
+}
+
+.ion-ios-color-filter-outline:before {
+  content: '';
+}
+
+.ion-ios-color-wand:before {
+  content: '';
+}
+
+.ion-ios-color-wand-outline:before {
+  content: '';
+}
+
+.ion-ios-compose:before {
+  content: '';
+}
+
+.ion-ios-compose-outline:before {
+  content: '';
+}
+
+.ion-ios-contact:before {
+  content: '';
+}
+
+.ion-ios-contact-outline:before {
+  content: '';
+}
+
+.ion-ios-copy:before {
+  content: '';
+}
+
+.ion-ios-copy-outline:before {
+  content: '';
+}
+
+.ion-ios-crop:before {
+  content: '';
+}
+
+.ion-ios-crop-strong:before {
+  content: '';
+}
+
+.ion-ios-download:before {
+  content: '';
+}
+
+.ion-ios-download-outline:before {
+  content: '';
+}
+
+.ion-ios-drag:before {
+  content: '';
+}
+
+.ion-ios-email:before {
+  content: '';
+}
+
+.ion-ios-email-outline:before {
+  content: '';
+}
+
+.ion-ios-eye:before {
+  content: '';
+}
+
+.ion-ios-eye-outline:before {
+  content: '';
+}
+
+.ion-ios-fastforward:before {
+  content: '';
+}
+
+.ion-ios-fastforward-outline:before {
+  content: '';
+}
+
+.ion-ios-filing:before {
+  content: '';
+}
+
+.ion-ios-filing-outline:before {
+  content: '';
+}
+
+.ion-ios-film:before {
+  content: '';
+}
+
+.ion-ios-film-outline:before {
+  content: '';
+}
+
+.ion-ios-flag:before {
+  content: '';
+}
+
+.ion-ios-flag-outline:before {
+  content: '';
+}
+
+.ion-ios-flame:before {
+  content: '';
+}
+
+.ion-ios-flame-outline:before {
+  content: '';
+}
+
+.ion-ios-flask:before {
+  content: '';
+}
+
+.ion-ios-flask-outline:before {
+  content: '';
+}
+
+.ion-ios-flower:before {
+  content: '';
+}
+
+.ion-ios-flower-outline:before {
+  content: '';
+}
+
+.ion-ios-folder:before {
+  content: '';
+}
+
+.ion-ios-folder-outline:before {
+  content: '';
+}
+
+.ion-ios-football:before {
+  content: '';
+}
+
+.ion-ios-football-outline:before {
+  content: '';
+}
+
+.ion-ios-game-controller-a:before {
+  content: '';
+}
+
+.ion-ios-game-controller-a-outline:before {
+  content: '';
+}
+
+.ion-ios-game-controller-b:before {
+  content: '';
+}
+
+.ion-ios-game-controller-b-outline:before {
+  content: '';
+}
+
+.ion-ios-gear:before {
+  content: '';
+}
+
+.ion-ios-gear-outline:before {
+  content: '';
+}
+
+.ion-ios-glasses:before {
+  content: '';
+}
+
+.ion-ios-glasses-outline:before {
+  content: '';
+}
+
+.ion-ios-grid-view:before {
+  content: '';
+}
+
+.ion-ios-grid-view-outline:before {
+  content: '';
+}
+
+.ion-ios-heart:before {
+  content: '';
+}
+
+.ion-ios-heart-outline:before {
+  content: '';
+}
+
+.ion-ios-help:before {
+  content: '';
+}
+
+.ion-ios-help-empty:before {
+  content: '';
+}
+
+.ion-ios-help-outline:before {
+  content: '';
+}
+
+.ion-ios-home:before {
+  content: '';
+}
+
+.ion-ios-home-outline:before {
+  content: '';
+}
+
+.ion-ios-infinite:before {
+  content: '';
+}
+
+.ion-ios-infinite-outline:before {
+  content: '';
+}
+
+.ion-ios-information:before {
+  content: '';
+}
+
+.ion-ios-information-empty:before {
+  content: '';
+}
+
+.ion-ios-information-outline:before {
+  content: '';
+}
+
+.ion-ios-ionic-outline:before {
+  content: '';
+}
+
+.ion-ios-keypad:before {
+  content: '';
+}
+
+.ion-ios-keypad-outline:before {
+  content: '';
+}
+
+.ion-ios-lightbulb:before {
+  content: '';
+}
+
+.ion-ios-lightbulb-outline:before {
+  content: '';
+}
+
+.ion-ios-list:before {
+  content: '';
+}
+
+.ion-ios-list-outline:before {
+  content: '';
+}
+
+.ion-ios-location:before {
+  content: '';
+}
+
+.ion-ios-location-outline:before {
+  content: '';
+}
+
+.ion-ios-locked:before {
+  content: '';
+}
+
+.ion-ios-locked-outline:before {
+  content: '';
+}
+
+.ion-ios-loop:before {
+  content: '';
+}
+
+.ion-ios-loop-strong:before {
+  content: '';
+}
+
+.ion-ios-medical:before {
+  content: '';
+}
+
+.ion-ios-medical-outline:before {
+  content: '';
+}
+
+.ion-ios-medkit:before {
+  content: '';
+}
+
+.ion-ios-medkit-outline:before {
+  content: '';
+}
+
+.ion-ios-mic:before {
+  content: '';
+}
+
+.ion-ios-mic-off:before {
+  content: '';
+}
+
+.ion-ios-mic-outline:before {
+  content: '';
+}
+
+.ion-ios-minus:before {
+  content: '';
+}
+
+.ion-ios-minus-empty:before {
+  content: '';
+}
+
+.ion-ios-minus-outline:before {
+  content: '';
+}
+
+.ion-ios-monitor:before {
+  content: '';
+}
+
+.ion-ios-monitor-outline:before {
+  content: '';
+}
+
+.ion-ios-moon:before {
+  content: '';
+}
+
+.ion-ios-moon-outline:before {
+  content: '';
+}
+
+.ion-ios-more:before {
+  content: '';
+}
+
+.ion-ios-more-outline:before {
+  content: '';
+}
+
+.ion-ios-musical-note:before {
+  content: '';
+}
+
+.ion-ios-musical-notes:before {
+  content: '';
+}
+
+.ion-ios-navigate:before {
+  content: '';
+}
+
+.ion-ios-navigate-outline:before {
+  content: '';
+}
+
+.ion-ios-nutrition:before {
+  content: '';
+}
+
+.ion-ios-nutrition-outline:before {
+  content: '';
+}
+
+.ion-ios-paper:before {
+  content: '';
+}
+
+.ion-ios-paper-outline:before {
+  content: '';
+}
+
+.ion-ios-paperplane:before {
+  content: '';
+}
+
+.ion-ios-paperplane-outline:before {
+  content: '';
+}
+
+.ion-ios-partlysunny:before {
+  content: '';
+}
+
+.ion-ios-partlysunny-outline:before {
+  content: '';
+}
+
+.ion-ios-pause:before {
+  content: '';
+}
+
+.ion-ios-pause-outline:before {
+  content: '';
+}
+
+.ion-ios-paw:before {
+  content: '';
+}
+
+.ion-ios-paw-outline:before {
+  content: '';
+}
+
+.ion-ios-people:before {
+  content: '';
+}
+
+.ion-ios-people-outline:before {
+  content: '';
+}
+
+.ion-ios-person:before {
+  content: '';
+}
+
+.ion-ios-person-outline:before {
+  content: '';
+}
+
+.ion-ios-personadd:before {
+  content: '';
+}
+
+.ion-ios-personadd-outline:before {
+  content: '';
+}
+
+.ion-ios-photos:before {
+  content: '';
+}
+
+.ion-ios-photos-outline:before {
+  content: '';
+}
+
+.ion-ios-pie:before {
+  content: '';
+}
+
+.ion-ios-pie-outline:before {
+  content: '';
+}
+
+.ion-ios-pint:before {
+  content: '';
+}
+
+.ion-ios-pint-outline:before {
+  content: '';
+}
+
+.ion-ios-play:before {
+  content: '';
+}
+
+.ion-ios-play-outline:before {
+  content: '';
+}
+
+.ion-ios-plus:before {
+  content: '';
+}
+
+.ion-ios-plus-empty:before {
+  content: '';
+}
+
+.ion-ios-plus-outline:before {
+  content: '';
+}
+
+.ion-ios-pricetag:before {
+  content: '';
+}
+
+.ion-ios-pricetag-outline:before {
+  content: '';
+}
+
+.ion-ios-pricetags:before {
+  content: '';
+}
+
+.ion-ios-pricetags-outline:before {
+  content: '';
+}
+
+.ion-ios-printer:before {
+  content: '';
+}
+
+.ion-ios-printer-outline:before {
+  content: '';
+}
+
+.ion-ios-pulse:before {
+  content: '';
+}
+
+.ion-ios-pulse-strong:before {
+  content: '';
+}
+
+.ion-ios-rainy:before {
+  content: '';
+}
+
+.ion-ios-rainy-outline:before {
+  content: '';
+}
+
+.ion-ios-recording:before {
+  content: '';
+}
+
+.ion-ios-recording-outline:before {
+  content: '';
+}
+
+.ion-ios-redo:before {
+  content: '';
+}
+
+.ion-ios-redo-outline:before {
+  content: '';
+}
+
+.ion-ios-refresh:before {
+  content: '';
+}
+
+.ion-ios-refresh-empty:before {
+  content: '';
+}
+
+.ion-ios-refresh-outline:before {
+  content: '';
+}
+
+.ion-ios-reload:before {
+  content: '';
+}
+
+.ion-ios-reverse-camera:before {
+  content: '';
+}
+
+.ion-ios-reverse-camera-outline:before {
+  content: '';
+}
+
+.ion-ios-rewind:before {
+  content: '';
+}
+
+.ion-ios-rewind-outline:before {
+  content: '';
+}
+
+.ion-ios-rose:before {
+  content: '';
+}
+
+.ion-ios-rose-outline:before {
+  content: '';
+}
+
+.ion-ios-search:before {
+  content: '';
+}
+
+.ion-ios-search-strong:before {
+  content: '';
+}
+
+.ion-ios-settings:before {
+  content: '';
+}
+
+.ion-ios-settings-strong:before {
+  content: '';
+}
+
+.ion-ios-shuffle:before {
+  content: '';
+}
+
+.ion-ios-shuffle-strong:before {
+  content: '';
+}
+
+.ion-ios-skipbackward:before {
+  content: '';
+}
+
+.ion-ios-skipbackward-outline:before {
+  content: '';
+}
+
+.ion-ios-skipforward:before {
+  content: '';
+}
+
+.ion-ios-skipforward-outline:before {
+  content: '';
+}
+
+.ion-ios-snowy:before {
+  content: '';
+}
+
+.ion-ios-speedometer:before {
+  content: '';
+}
+
+.ion-ios-speedometer-outline:before {
+  content: '';
+}
+
+.ion-ios-star:before {
+  content: '';
+}
+
+.ion-ios-star-half:before {
+  content: '';
+}
+
+.ion-ios-star-outline:before {
+  content: '';
+}
+
+.ion-ios-stopwatch:before {
+  content: '';
+}
+
+.ion-ios-stopwatch-outline:before {
+  content: '';
+}
+
+.ion-ios-sunny:before {
+  content: '';
+}
+
+.ion-ios-sunny-outline:before {
+  content: '';
+}
+
+.ion-ios-telephone:before {
+  content: '';
+}
+
+.ion-ios-telephone-outline:before {
+  content: '';
+}
+
+.ion-ios-tennisball:before {
+  content: '';
+}
+
+.ion-ios-tennisball-outline:before {
+  content: '';
+}
+
+.ion-ios-thunderstorm:before {
+  content: '';
+}
+
+.ion-ios-thunderstorm-outline:before {
+  content: '';
+}
+
+.ion-ios-time:before {
+  content: '';
+}
+
+.ion-ios-time-outline:before {
+  content: '';
+}
+
+.ion-ios-timer:before {
+  content: '';
+}
+
+.ion-ios-timer-outline:before {
+  content: '';
+}
+
+.ion-ios-toggle:before {
+  content: '';
+}
+
+.ion-ios-toggle-outline:before {
+  content: '';
+}
+
+.ion-ios-trash:before {
+  content: '';
+}
+
+.ion-ios-trash-outline:before {
+  content: '';
+}
+
+.ion-ios-undo:before {
+  content: '';
+}
+
+.ion-ios-undo-outline:before {
+  content: '';
+}
+
+.ion-ios-unlocked:before {
+  content: '';
+}
+
+.ion-ios-unlocked-outline:before {
+  content: '';
+}
+
+.ion-ios-upload:before {
+  content: '';
+}
+
+.ion-ios-upload-outline:before {
+  content: '';
+}
+
+.ion-ios-videocam:before {
+  content: '';
+}
+
+.ion-ios-videocam-outline:before {
+  content: '';
+}
+
+.ion-ios-volume-high:before {
+  content: '';
+}
+
+.ion-ios-volume-low:before {
+  content: '';
+}
+
+.ion-ios-wineglass:before {
+  content: '';
+}
+
+.ion-ios-wineglass-outline:before {
+  content: '';
+}
+
+.ion-ios-world:before {
+  content: '';
+}
+
+.ion-ios-world-outline:before {
+  content: '';
+}
+
+.ion-ipad:before {
+  content: '';
+}
+
+.ion-iphone:before {
+  content: '';
+}
+
+.ion-ipod:before {
+  content: '';
+}
+
+.ion-jet:before {
+  content: '';
+}
+
+.ion-key:before {
+  content: '';
+}
+
+.ion-knife:before {
+  content: '';
+}
+
+.ion-laptop:before {
+  content: '';
+}
+
+.ion-leaf:before {
+  content: '';
+}
+
+.ion-levels:before {
+  content: '';
+}
+
+.ion-lightbulb:before {
+  content: '';
+}
+
+.ion-link:before {
+  content: '';
+}
+
+.ion-load-a:before {
+  content: '';
+}
+
+.ion-load-b:before {
+  content: '';
+}
+
+.ion-load-c:before {
+  content: '';
+}
+
+.ion-load-d:before {
+  content: '';
+}
+
+.ion-location:before {
+  content: '';
+}
+
+.ion-lock-combination:before {
+  content: '';
+}
+
+.ion-locked:before {
+  content: '';
+}
+
+.ion-log-in:before {
+  content: '';
+}
+
+.ion-log-out:before {
+  content: '';
+}
+
+.ion-loop:before {
+  content: '';
+}
+
+.ion-magnet:before {
+  content: '';
+}
+
+.ion-male:before {
+  content: '';
+}
+
+.ion-man:before {
+  content: '';
+}
+
+.ion-map:before {
+  content: '';
+}
+
+.ion-medkit:before {
+  content: '';
+}
+
+.ion-merge:before {
+  content: '';
+}
+
+.ion-mic-a:before {
+  content: '';
+}
+
+.ion-mic-b:before {
+  content: '';
+}
+
+.ion-mic-c:before {
+  content: '';
+}
+
+.ion-minus:before {
+  content: '';
+}
+
+.ion-minus-circled:before {
+  content: '';
+}
+
+.ion-minus-round:before {
+  content: '';
+}
+
+.ion-model-s:before {
+  content: '';
+}
+
+.ion-monitor:before {
+  content: '';
+}
+
+.ion-more:before {
+  content: '';
+}
+
+.ion-mouse:before {
+  content: '';
+}
+
+.ion-music-note:before {
+  content: '';
+}
+
+.ion-navicon:before {
+  content: '';
+}
+
+.ion-navicon-round:before {
+  content: '';
+}
+
+.ion-navigate:before {
+  content: '';
+}
+
+.ion-network:before {
+  content: '';
+}
+
+.ion-no-smoking:before {
+  content: '';
+}
+
+.ion-nuclear:before {
+  content: '';
+}
+
+.ion-outlet:before {
+  content: '';
+}
+
+.ion-paintbrush:before {
+  content: '';
+}
+
+.ion-paintbucket:before {
+  content: '';
+}
+
+.ion-paper-airplane:before {
+  content: '';
+}
+
+.ion-paperclip:before {
+  content: '';
+}
+
+.ion-pause:before {
+  content: '';
+}
+
+.ion-person:before {
+  content: '';
+}
+
+.ion-person-add:before {
+  content: '';
+}
+
+.ion-person-stalker:before {
+  content: '';
+}
+
+.ion-pie-graph:before {
+  content: '';
+}
+
+.ion-pin:before {
+  content: '';
+}
+
+.ion-pinpoint:before {
+  content: '';
+}
+
+.ion-pizza:before {
+  content: '';
+}
+
+.ion-plane:before {
+  content: '';
+}
+
+.ion-planet:before {
+  content: '';
+}
+
+.ion-play:before {
+  content: '';
+}
+
+.ion-playstation:before {
+  content: '';
+}
+
+.ion-plus:before {
+  content: '';
+}
+
+.ion-plus-circled:before {
+  content: '';
+}
+
+.ion-plus-round:before {
+  content: '';
+}
+
+.ion-podium:before {
+  content: '';
+}
+
+.ion-pound:before {
+  content: '';
+}
+
+.ion-power:before {
+  content: '';
+}
+
+.ion-pricetag:before {
+  content: '';
+}
+
+.ion-pricetags:before {
+  content: '';
+}
+
+.ion-printer:before {
+  content: '';
+}
+
+.ion-pull-request:before {
+  content: '';
+}
+
+.ion-qr-scanner:before {
+  content: '';
+}
+
+.ion-quote:before {
+  content: '';
+}
+
+.ion-radio-waves:before {
+  content: '';
+}
+
+.ion-record:before {
+  content: '';
+}
+
+.ion-refresh:before {
+  content: '';
+}
+
+.ion-reply:before {
+  content: '';
+}
+
+.ion-reply-all:before {
+  content: '';
+}
+
+.ion-ribbon-a:before {
+  content: '';
+}
+
+.ion-ribbon-b:before {
+  content: '';
+}
+
+.ion-sad:before {
+  content: '';
+}
+
+.ion-sad-outline:before {
+  content: '';
+}
+
+.ion-scissors:before {
+  content: '';
+}
+
+.ion-search:before {
+  content: '';
+}
+
+.ion-settings:before {
+  content: '';
+}
+
+.ion-share:before {
+  content: '';
+}
+
+.ion-shuffle:before {
+  content: '';
+}
+
+.ion-skip-backward:before {
+  content: '';
+}
+
+.ion-skip-forward:before {
+  content: '';
+}
+
+.ion-social-android:before {
+  content: '';
+}
+
+.ion-social-android-outline:before {
+  content: '';
+}
+
+.ion-social-angular:before {
+  content: '';
+}
+
+.ion-social-angular-outline:before {
+  content: '';
+}
+
+.ion-social-apple:before {
+  content: '';
+}
+
+.ion-social-apple-outline:before {
+  content: '';
+}
+
+.ion-social-bitcoin:before {
+  content: '';
+}
+
+.ion-social-bitcoin-outline:before {
+  content: '';
+}
+
+.ion-social-buffer:before {
+  content: '';
+}
+
+.ion-social-buffer-outline:before {
+  content: '';
+}
+
+.ion-social-chrome:before {
+  content: '';
+}
+
+.ion-social-chrome-outline:before {
+  content: '';
+}
+
+.ion-social-codepen:before {
+  content: '';
+}
+
+.ion-social-codepen-outline:before {
+  content: '';
+}
+
+.ion-social-css3:before {
+  content: '';
+}
+
+.ion-social-css3-outline:before {
+  content: '';
+}
+
+.ion-social-designernews:before {
+  content: '';
+}
+
+.ion-social-designernews-outline:before {
+  content: '';
+}
+
+.ion-social-dribbble:before {
+  content: '';
+}
+
+.ion-social-dribbble-outline:before {
+  content: '';
+}
+
+.ion-social-dropbox:before {
+  content: '';
+}
+
+.ion-social-dropbox-outline:before {
+  content: '';
+}
+
+.ion-social-euro:before {
+  content: '';
+}
+
+.ion-social-euro-outline:before {
+  content: '';
+}
+
+.ion-social-facebook:before {
+  content: '';
+}
+
+.ion-social-facebook-outline:before {
+  content: '';
+}
+
+.ion-social-foursquare:before {
+  content: '';
+}
+
+.ion-social-foursquare-outline:before {
+  content: '';
+}
+
+.ion-social-freebsd-devil:before {
+  content: '';
+}
+
+.ion-social-github:before {
+  content: '';
+}
+
+.ion-social-github-outline:before {
+  content: '';
+}
+
+.ion-social-google:before {
+  content: '';
+}
+
+.ion-social-google-outline:before {
+  content: '';
+}
+
+.ion-social-googleplus:before {
+  content: '';
+}
+
+.ion-social-googleplus-outline:before {
+  content: '';
+}
+
+.ion-social-hackernews:before {
+  content: '';
+}
+
+.ion-social-hackernews-outline:before {
+  content: '';
+}
+
+.ion-social-html5:before {
+  content: '';
+}
+
+.ion-social-html5-outline:before {
+  content: '';
+}
+
+.ion-social-instagram:before {
+  content: '';
+}
+
+.ion-social-instagram-outline:before {
+  content: '';
+}
+
+.ion-social-javascript:before {
+  content: '';
+}
+
+.ion-social-javascript-outline:before {
+  content: '';
+}
+
+.ion-social-linkedin:before {
+  content: '';
+}
+
+.ion-social-linkedin-outline:before {
+  content: '';
+}
+
+.ion-social-markdown:before {
+  content: '';
+}
+
+.ion-social-nodejs:before {
+  content: '';
+}
+
+.ion-social-octocat:before {
+  content: '';
+}
+
+.ion-social-pinterest:before {
+  content: '';
+}
+
+.ion-social-pinterest-outline:before {
+  content: '';
+}
+
+.ion-social-python:before {
+  content: '';
+}
+
+.ion-social-reddit:before {
+  content: '';
+}
+
+.ion-social-reddit-outline:before {
+  content: '';
+}
+
+.ion-social-rss:before {
+  content: '';
+}
+
+.ion-social-rss-outline:before {
+  content: '';
+}
+
+.ion-social-sass:before {
+  content: '';
+}
+
+.ion-social-skype:before {
+  content: '';
+}
+
+.ion-social-skype-outline:before {
+  content: '';
+}
+
+.ion-social-snapchat:before {
+  content: '';
+}
+
+.ion-social-snapchat-outline:before {
+  content: '';
+}
+
+.ion-social-tumblr:before {
+  content: '';
+}
+
+.ion-social-tumblr-outline:before {
+  content: '';
+}
+
+.ion-social-tux:before {
+  content: '';
+}
+
+.ion-social-twitch:before {
+  content: '';
+}
+
+.ion-social-twitch-outline:before {
+  content: '';
+}
+
+.ion-social-twitter:before {
+  content: '';
+}
+
+.ion-social-twitter-outline:before {
+  content: '';
+}
+
+.ion-social-usd:before {
+  content: '';
+}
+
+.ion-social-usd-outline:before {
+  content: '';
+}
+
+.ion-social-vimeo:before {
+  content: '';
+}
+
+.ion-social-vimeo-outline:before {
+  content: '';
+}
+
+.ion-social-whatsapp:before {
+  content: '';
+}
+
+.ion-social-whatsapp-outline:before {
+  content: '';
+}
+
+.ion-social-windows:before {
+  content: '';
+}
+
+.ion-social-windows-outline:before {
+  content: '';
+}
+
+.ion-social-wordpress:before {
+  content: '';
+}
+
+.ion-social-wordpress-outline:before {
+  content: '';
+}
+
+.ion-social-yahoo:before {
+  content: '';
+}
+
+.ion-social-yahoo-outline:before {
+  content: '';
+}
+
+.ion-social-yen:before {
+  content: '';
+}
+
+.ion-social-yen-outline:before {
+  content: '';
+}
+
+.ion-social-youtube:before {
+  content: '';
+}
+
+.ion-social-youtube-outline:before {
+  content: '';
+}
+
+.ion-soup-can:before {
+  content: '';
+}
+
+.ion-soup-can-outline:before {
+  content: '';
+}
+
+.ion-speakerphone:before {
+  content: '';
+}
+
+.ion-speedometer:before {
+  content: '';
+}
+
+.ion-spoon:before {
+  content: '';
+}
+
+.ion-star:before {
+  content: '';
+}
+
+.ion-stats-bars:before {
+  content: '';
+}
+
+.ion-steam:before {
+  content: '';
+}
+
+.ion-stop:before {
+  content: '';
+}
+
+.ion-thermometer:before {
+  content: '';
+}
+
+.ion-thumbsdown:before {
+  content: '';
+}
+
+.ion-thumbsup:before {
+  content: '';
+}
+
+.ion-toggle:before {
+  content: '';
+}
+
+.ion-toggle-filled:before {
+  content: '';
+}
+
+.ion-transgender:before {
+  content: '';
+}
+
+.ion-trash-a:before {
+  content: '';
+}
+
+.ion-trash-b:before {
+  content: '';
+}
+
+.ion-trophy:before {
+  content: '';
+}
+
+.ion-tshirt:before {
+  content: '';
+}
+
+.ion-tshirt-outline:before {
+  content: '';
+}
+
+.ion-umbrella:before {
+  content: '';
+}
+
+.ion-university:before {
+  content: '';
+}
+
+.ion-unlocked:before {
+  content: '';
+}
+
+.ion-upload:before {
+  content: '';
+}
+
+.ion-usb:before {
+  content: '';
+}
+
+.ion-videocamera:before {
+  content: '';
+}
+
+.ion-volume-high:before {
+  content: '';
+}
+
+.ion-volume-low:before {
+  content: '';
+}
+
+.ion-volume-medium:before {
+  content: '';
+}
+
+.ion-volume-mute:before {
+  content: '';
+}
+
+.ion-wand:before {
+  content: '';
+}
+
+.ion-waterdrop:before {
+  content: '';
+}
+
+.ion-wifi:before {
+  content: '';
+}
+
+.ion-wineglass:before {
+  content: '';
+}
+
+.ion-woman:before {
+  content: '';
+}
+
+.ion-wrench:before {
+  content: '';
+}
+
+.ion-xbox:before {
+  content: '';
+}
+
+.alerts-container {
+  position: fixed;
+  top: 9px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+.alerts-container .alerts-item {
+  display: block;
+  margin-bottom: 10px;
+  color: #fff;
+  padding: 10px 20px;
+  border-radius: 4px;
+}
+.alerts-container .alerts-item.success {
+  background-color: #67b04f;
+}
+.alerts-container .alerts-item.info {
+  background-color: #5eb8e6;
+}
+.alerts-container .alerts-item.warning {
+  background-color: #c9a34f;
+}
+.alerts-container .alerts-item.error {
+  background-color: #e85a5a;
+}
+.alerts-container .alerts-item .icon {
+  margin-right: 8px;
+}
+
+.alerts-item-enter {
+  opacity: 0;
+  margin-top: -100px;
+}
+.alerts-item-enter.alerts-item-enter-active {
+  opacity: 1;
+  margin-top: 0;
+  transition: opacity 0.5s ease-in, margin-top 0.5s ease-in;
+}
+
+.alerts-item-leave {
+  opacity: 1;
+  margin-top: 0;
+}
+.alerts-item-leave.alerts-item-leave-active {
+  opacity: 0;
+  margin-top: -100px;
+  transition: opacity 0.5s ease-in, margin-top 0.5s ease-in;
+}
+
+.text-success {
+  color: #67b04f;
+}
+.text-info {
+  color: #5eb8e6;
+}
+.text-warning {
+  color: #c9a34f;
+}
+.text-error {
+  color: #e85a5a;
+}
+.text-muted {
+  color: #777777;
+}
+
+.navigation {
+  width: 70px;
+  background-color: #452679;
+  flex-shrink: 0;
+  z-index: 100;
+}
+.navigation .logo {
+  background-color: #3a2066;
+  line-height: 60px;
+  display: block;
+  height: 60px;
+  text-align: center;
+  color: #fff;
+}
+.navigation .logo img {
+  width: 40px;
+}
+
+.nav-menu a {
+  font-size: 22px;
+  display: block;
+  height: 70px;
+  line-height: 70px;
+  text-align: center;
+  color: rgba(255, 255, 255, 0.4);
+}
+.nav-menu a:hover {
+  background-color: #502c8c;
+  color: #fff;
+}
+
+.wrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background-color: #eee;
+  max-width: 100%;
+}
+
+.wrapper-content {
+  display: flex;
+  flex: 1;
+  margin: 15px;
+  margin-top: 0;
+  overflow: hidden;
+}
+.wrapper-content > div {
+  margin-right: 15px;
+}
+.wrapper-content > div:last-child {
+  margin-right: 0;
+}
+
+.sidebar {
+  overflow-y: auto;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  border-radius: 4px;
+}
+.sidebar.narrow {
+  width: 200px;
+}
+.sidebar.medium {
+  width: 270px;
+}
+.sidebar.wide {
+  width: 340px;
+}
+.sidebar .box {
+  padding: 0 20px;
+}
+.sidebar .box .btn {
+  margin: 10px 0 0;
+}
+.sidebar .box p {
+  margin-bottom: 0;
+  margin-top: 10px;
+}
+.sidebar .box .form-group:last-child {
+  margin-bottom: 0;
+}
+.sidebar .box .form-group:first-child {
+  margin-top: 20px;
+}
+.sidebar .collapsible .toggle-collapse {
+  outline: 0;
+  width: 100%;
+  color: #ddd;
+  position: absolute;
+  bottom: 0;
+  text-align: center;
+  font-size: 12px;
+  -webkit-background: linear-gradient(
+    0deg,
+    white 0%,
+    white 51%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  -moz-background: linear-gradient(
+    0deg,
+    white 0%,
+    white 51%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  -o-background: linear-gradient(
+    0deg,
+    white 0%,
+    white 51%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  -ms-background: linear-gradient(
+    0deg,
+    white 0%,
+    white 51%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  background: linear-gradient(
+    0deg,
+    white 0%,
+    white 51%,
+    rgba(255, 255, 255, 0) 100%
+  );
+}
+.sidebar .collapsible .toggle-collapse:hover {
+  color: #777777;
+  cursor: pointer;
+}
+.sidebar h3 {
+  color: #888;
+  font-size: 12px;
+  font-weight: 400;
+  text-transform: uppercase;
+  padding: 20px;
+  margin: 0;
+}
+.sidebar .action-btn {
+  width: 100%;
+  margin-bottom: 15px;
+}
+.sidebar .action-btn .btn-group {
+  display: flex;
+}
+.sidebar .action-btn button:first-child {
+  flex: 1;
+}
+
+.sidebar-section {
+  background-color: #fff;
+  border-radius: 4px;
+  margin-bottom: 15px;
+  padding-bottom: 20px;
+  position: relative;
+}
+.sidebar-section.collapsible {
+  overflow: hidden;
+  position: relative;
+  -webkit-transition: max-height 0.4s;
+  -moz-transition: max-height 0.4s;
+  -ms-transition: max-height 0.4s;
+  -o-transition: max-height 0.4s;
+  transition: max-height 0.4s;
+}
+.sidebar-section.full {
+  min-height: 100%;
+  padding-bottom: 0;
+  display: flex;
+}
+.sidebar-section.full > div {
+  width: 100%;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+.sidebar-section:last-child {
+  margin-bottom: 0;
+}
+
+.section-quick-buttons {
+  position: absolute;
+  right: 20px;
+  top: 16px;
+}
+.section-quick-buttons .quick-button {
+  float: left;
+  color: #888;
+  text-transform: none;
+  cursor: pointer;
+  margin-left: 8px;
+  font-size: 12px;
+  outline: 0;
+}
+.section-quick-buttons .quick-button:hover {
+  color: #383838;
+}
+.section-quick-buttons .quick-button i {
+  font-size: 14px;
+}
+
+.sidebar-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.sidebar-list li {
+  position: relative;
+  overflow: hidden;
+}
+.sidebar-list li > a {
+  display: block;
+  padding: 5px 20px;
+  color: #383838;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding-right: 30px;
+  cursor: pointer;
+  text-decoration: none;
+  outline: 0;
+}
+.sidebar-list > a:hover,
+.sidebar-list a.active,
+.sidebar-list a.chosen {
+  color: #383838;
+  background-color: #f8f8f8;
+}
+.sidebar-list a.chosen {
+  font-weight: bold;
+}
+.sidebar-list .icon {
+  margin-right: 6px;
+  color: #888;
+}
+.sidebar-list .counter {
+  font-size: 12px;
+  text-align: right;
+  color: #888;
+  margin-top: 2px;
+  position: absolute;
+  right: 20px;
+}
+.sidebar-list .value {
+  font-size: 12px;
+  text-align: right;
+  color: #888;
+  float: right;
+}
+.sidebar-list .value span {
+  display: block;
+  margin-top: 2px;
+}
+.sidebar-list.no-link li {
+  display: block;
+  padding: 5px 20px;
+  color: #383838;
+  position: relative;
+}
+.sidebar-list.no-link li > img {
+  position: absolute;
+  top: 5px;
+  left: 20px;
+  width: 50px;
+  height: 50px;
+  border-radius: 25px;
+}
+
+.sidebar-accordion {
+  background: #f8f8f8;
+  border-top: 1px solid #eee;
+  border-bottom: 1px solid #eee;
+  margin-bottom: 10px;
+}
+.sidebar-accordion .popover-header {
+  background: none;
+}
+.sidebar-accordion .popover-list {
+  max-height: none;
+}
+
+.main-header {
+  height: 60px;
+  line-height: 60px;
+  margin: 0;
+  border: 0;
+  flex-shrink: 0;
+}
+.main-header .breadcrumb {
+  display: inline-block;
+  margin: 0 0 0 35px;
+}
+
+.breadcrumb {
+  background-color: transparent;
+  font-size: 15px;
+  font-weight: 500;
+  color: #452679;
+  padding: 0;
+}
+.breadcrumb > .active {
+  color: #383838;
+}
+.breadcrumb > li + li::before {
+  content: '\f363';
+  font-family: 'Ionicons';
+  padding: 0 10px;
+}
+
+.main-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 480px;
+  position: relative;
+}
+.main-content .action-bar {
+  background: #fff;
+  border-radius: 4px;
+  height: 50px;
+  line-height: 50px;
+  padding: 0 20px 0 16px;
+  margin-bottom: 15px;
+}
+.main-content .action-bar .left {
+  float: left;
+}
+.main-content .action-bar .right {
+  float: right;
+}
+.main-content .content {
+  flex: 1;
+  background-color: #fff;
+  border-radius: 4px;
+  overflow: auto;
+}
+.main-content .content.relative-content {
+  position: relative;
+}
+.main-content .content .scrollarea-content {
+  min-height: 100%;
+}
+.main-content .content .scroll-area {
+  height: 100%;
+  overflow: auto;
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  top: 0;
+}
+.main-content .content .margined {
+  margin: 20px;
+  overflow: hidden;
+}
+.main-content .margined.type-box {
+  overflow: visible;
+}
+.main-content .footer {
+  background: #fff;
+  border-radius: 4px;
+  margin-top: 15px;
+}
+
+.avatar {
+  display: block;
+  max-width: 80px;
+  border-radius: 40px;
+}
+.avatar .no-user {
+  background: url('/images/userDefaultIcon.png') center no-repeat;
+  background-size: 100%;
+}
+.avatar img {
+  width: 100%;
+  background: #f3f1f7;
+}
+.avatar div {
+  text-align: center;
+  background-color: #f8f8f8;
+  font-weight: bold;
+  font-size: 13px;
+  color: #383838;
+  overflow: hidden;
+}
+
+.text-normal .name-card .first-line {
+  font-weight: normal;
+}
+
+.name-card {
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+}
+.name-card .avatar {
+  float: left;
+  padding: 0;
+}
+.name-card .text {
+  margin-left: 10px;
+}
+.name-card .first-line {
+  padding: 0;
+  font-weight: bold;
+  display: block;
+  color: #383838;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+}
+.name-card .second-line {
+  font-size: 13px;
+  color: #888;
+}
+
+.dropdown-menu .name-card {
+  padding: 3px 20px;
+}
+
+.notification-popover {
+  right: 15px;
+  max-width: 360px;
+}
+
+.notif-list > li .column {
+  visibility: hidden;
+}
+.notif-list > li.unread .column {
+  visibility: visible;
+}
+.notif-list > li .body:hover {
+  cursor: pointer;
+}
+.notif-list .text .second-line {
+  margin-top: 3px;
+}
+
+.notifications-wrapper {
+  position: relative;
+  padding-bottom: 30px;
+}
+.notifications-wrapper .notifications-area > div {
+  max-height: 300px !important;
+}
+.notifications-wrapper .empty-state.small {
+  padding-top: 30px;
+}
+.notifications-wrapper > a {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  padding: 5px 20px;
+  display: block;
+  text-align: center;
+  border-top: 1px solid #ddd;
+}
+
+.notifications-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.notifications-list li {
+  padding: 0 !important;
+  border-bottom: 1px solid #eee;
+  -webkit-transition: all 0.2s ease;
+  -moz-transition: all 0.2s ease;
+  -ms-transition: all 0.2s ease;
+  -o-transition: all 0.2s ease;
+  transition: all 0.2s ease;
+}
+.notifications-list li:last-child {
+  border: 0;
+}
+.notifications-list li > div {
+  display: block;
+  padding: 10px 20px;
+  color: #333333;
+}
+.notifications-list li.unread {
+  background: #f3f1f7;
+}
+.notifications-list li:hover {
+  background: #f8f8f8;
+  cursor: pointer;
+}
+.notifications-list li:focus {
+  background: #f8f8f8;
+  cursor: pointer;
+}
+.notifications-list .text a.first-line {
+  margin-top: 0;
+  white-space: normal;
+  font-weight: 500;
+  font-size: 13px;
+}
+.notifications-list .text .second-line {
+  font-size: 12px;
+  margin-top: 3px;
+}
+
+.conversations-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.conversations-list .body {
+  flex: 1;
+}
+.conversations-list .body:hover {
+  color: #333333;
+}
+.conversations-list .body header {
+  position: relative;
+}
+.conversations-list .body .tags {
+  display: inline-block;
+  margin-left: 15px;
+}
+.conversations-list .body .customer-name {
+  font-weight: bold;
+}
+.conversations-list .body .customer-email {
+  font-size: 13px;
+  color: #888;
+}
+.conversations-list .body .content {
+  background: none;
+  margin: 10px 0;
+  cursor: pointer;
+  word-break: break-word;
+  overflow: hidden;
+  max-height: 20px;
+  -webkit-box-orient: vertical;
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  word-wrap: break-word;
+}
+.conversations-list .body footer {
+  font-size: 13px;
+  color: #777777;
+}
+.conversations-list .source,
+.conversations-list .assignee,
+.conversations-list .info {
+  display: inline-block;
+  margin-right: 30px;
+}
+.conversations-list .source .name {
+  display: inline-block;
+  margin-left: 6px;
+}
+.conversations-list .info {
+  color: #777777;
+}
+.conversations-list .info span {
+  margin-right: 15px;
+}
+.conversations-list > li {
+  padding: 20px;
+  border-bottom: 1px solid #eee;
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.conversations-list > li.unread {
+  background: #f3f1f7;
+  border-left: 1px solid #452679;
+}
+.conversations-list > li:hover .conversation-togglers a {
+  display: inline-block;
+}
+.conversations-list > li .column {
+  margin-right: 20px;
+}
+.conversations-list .column.markRead {
+  margin-right: 0;
+}
+.conversations-list .column.markRead > span:hover {
+  cursor: pointer;
+}
+.conversations-list .simple-row {
+  padding: 15px;
+}
+.conversations-list .simple-row time {
+  font-weight: normal;
+  font-style: italic;
+  font-size: 11px;
+  margin: 0 5px;
+}
+.conversations-list .simple-row .column {
+  margin-right: 15px;
+}
+.conversations-list .simple-row .content {
+  margin: 5px 0;
+  font-size: 12px;
+  max-height: 36px;
+  line-height: 18px;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  word-wrap: break-word;
+}
+.conversations-list .simple-row .content:hover {
+  cursor: pointer;
+}
+.conversations-list .simple-row .brandname {
+  font-weight: 600;
+}
+.conversations-list .simple-row .tags {
+  margin-left: 0;
+  display: block;
+}
+.conversations-list .simple-row .items-horizontal {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  width: 100%;
+}
+.conversations-list .baseline-row {
+  align-items: flex-start;
+}
+.conversations-list .baseline-row input[type='checkbox'] {
+  margin-top: 14px;
+}
+.conversations-list .baseline-row .content {
+  margin: 10px 0;
+}
+
+.conversation-message-container {
+  margin-bottom: 10px;
+  padding-right: 20%;
+  display: flex;
+  flex-direction: row;
+  position: relative;
+  clear: both;
+}
+.conversation-message-container .avatar {
+  position: absolute;
+}
+.conversation-message-container .body {
+  margin: 0 0 20px 50px;
+  padding: 12px 15px;
+  color: #333333;
+  border-radius: 5px;
+  background: #eee;
+  flex-grow: 0;
+  word-break: break-word;
+}
+.conversation-message-container .body img {
+  max-width: 100%;
+}
+.conversation-message-container .body p {
+  margin: 0;
+}
+.conversation-message-container .body ul {
+  padding-left: 25px;
+}
+.conversation-message-container .body ol {
+  padding-left: 25px;
+}
+.conversation-message-container .body h3 {
+  margin-top: 0;
+}
+.conversation-message-container .body blockquote {
+  margin-bottom: 0;
+  border-color: #ddd;
+}
+.conversation-message-container .body pre {
+  margin-bottom: 0;
+}
+.conversation-message-container footer {
+  position: absolute;
+  bottom: 0;
+  left: 50px;
+  color: #777777;
+  font-size: 11px;
+}
+
+.staff {
+  padding-right: 0;
+  padding-left: 20%;
+  text-align: right;
+  flex-direction: row-reverse;
+}
+.staff .body {
+  background-color: #ece6f8;
+  margin: 0 50px 20px 0;
+}
+.staff footer {
+  right: 50px;
+  left: auto;
+}
+
+.attachment .body {
+  padding: 0;
+  background-color: transparent;
+}
+.attachment .body > span {
+  display: block;
+  margin-bottom: 5px;
+}
+.attachment .body img {
+  border-radius: 3px;
+}
+
+.fbpost .body {
+  padding: 12px;
+  background: #f6f7f9;
+  border: 1px solid;
+  border-color: #e5e6e9 #dfe0e4 #d0d1d5;
+  border-radius: 4px;
+}
+
+.attach-preview .body {
+  padding: 0;
+  position: relative;
+  min-width: 80px;
+  min-height: 50px;
+}
+.attach-preview .body > div[data-loader='circle-side'] {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  margin-left: -12px;
+  margin-top: -12px;
+}
+.attach-preview .body img {
+  opacity: 0.5;
+  border-radius: 3px;
+}
+.attach-preview .body .attach-file {
+  width: 270px;
+  height: 54px;
+}
+
+.internal .body {
+  background-color: #fcf0ad;
+}
+
+.form-data {
+  padding: 12px;
+  background: #f6f7f9;
+  border: 1px solid;
+  border-color: #e5e6e9 #dfe0e4 #d0d1d5;
+  border-radius: 4px;
+  font-size: 12px;
+  padding: 0;
+  margin-bottom: 20px;
+  background: none;
+}
+.form-data td {
+  padding: 10px 20px;
+}
+.form-data th {
+  background: #eee;
+  border-bottom: 1px solid #ddd;
+}
+
+.reaction {
+  display: inline-block;
+  margin: 10px 0;
+}
+.reaction span[class^='reaction-'] {
+  margin-right: 3px;
+}
+.reaction > span {
+  width: 16px;
+  height: 16px;
+  display: block;
+  background-image: url('/images/reactions.png');
+  background-repeat: no-repeat;
+  background-size: auto;
+}
+.reaction > span.reaction-angry {
+  background-position: 0 0;
+}
+.reaction > span.reaction-haha {
+  background-position: -17px 0;
+}
+.reaction > span.reaction-like {
+  background-position: -34px 0;
+}
+.reaction > span.reaction-love {
+  background-position: -51px 0;
+}
+.reaction > span.reaction-sad {
+  background-position: -68px 0;
+}
+.reaction > span.reaction-wow {
+  background-position: -85px 0;
+}
+
+.conversation-togglers {
+  color: #452679;
+  font-size: 20px;
+  margin-right: 0;
+}
+.conversation-togglers > a {
+  cursor: pointer;
+  display: none;
+  margin-left: 15px;
+  outline: 0;
+}
+.conversation-togglers > a.visible {
+  display: inline-block;
+}
+
+.iframe-preview {
+  width: 140px;
+  height: 100px;
+  overflow: hidden;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+.iframe-preview iframe {
+  transform: scale(0.2);
+  transform-origin: 0 0;
+  pointer-events: none;
+  width: 510%;
+  height: 500%;
+  border: 0;
+}
+
+.integration-item .checkbox {
+  margin-top: 0;
+}
+
+.notification-settings h5 {
+  font-weight: 600;
+}
+
+.type-box .box {
+  margin-bottom: 20px;
+}
+.type-box .box .btn {
+  margin-right: 10px;
+}
+.type-box h2 {
+  text-transform: uppercase;
+  font-weight: 400;
+  border-bottom: 1px solid #eee;
+  padding: 10px 0;
+  font-size: 12px;
+  color: #888;
+  margin: 0 0 20px;
+}
+
+.markdown-wrapper {
+  margin-top: 5px;
+  position: relative;
+}
+.markdown-wrapper .btn {
+  position: absolute;
+  right: 20px;
+  top: 20px;
+}
+
+.widget-appearance {
+  display: flex;
+  flex-direction: row;
+}
+.widget-appearance > div {
+  padding: 10px 30px 10px 10px;
+}
+
+.color-pick {
+  border-radius: 4px;
+  display: inline-block;
+  padding: 5px;
+  border: 1px solid #ddd;
+  cursor: pointer;
+}
+.color-pick > div {
+  width: 80px;
+  height: 15px;
+}
+
+.chrome-picker {
+  box-shadow: none !important;
+}
+
+.widget-backgrounds {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+}
+
+.background-selector {
+  border: 3px solid transparent;
+  margin-right: 15px;
+  border-radius: 4px;
+  transition: border-color 0.3s;
+}
+.background-selector:last-child {
+  margin-right: 0;
+}
+.background-selector.selected {
+  border-color: #ddd;
+}
+.background-selector:hover {
+  cursor: pointer;
+}
+.background-selector > div {
+  width: 80px;
+  height: 40px;
+  margin: 5px;
+  border: 1px solid #ddd;
+  background-repeat: repeat;
+  background-position: 0 0;
+  background-size: 220%;
+}
+.background-selector > div.background-1 {
+  background-image: url('/images/patterns/bg-1.png');
+}
+.background-selector > div.background-2 {
+  background-image: url('/images/patterns/bg-2.png');
+  background-position: 80px 260px;
+}
+.background-selector > div.background-3 {
+  background-image: url('/images/patterns/bg-3.png');
+}
+.background-selector > div.background-4 {
+  background-image: url('/images/patterns/bg-4.png');
+}
+.background-selector > div.background-5 {
+  background: #faf9fb;
+}
+
+.logo-container {
+  color: #fff;
+  line-height: 56px;
+  text-align: center;
+  border-radius: 28px;
+  width: 56px;
+  height: 56px;
+  cursor: pointer;
+  box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.2);
+  background-color: #452679;
+  background-image: url('/images/widget-logo.png');
+  background-position: center;
+  background-size: 46px;
+  background-repeat: no-repeat;
+  margin-top: 10px;
+  position: relative;
+  float: right;
+}
+.logo-container span {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  background: #f74040;
+  display: block;
+  right: -2px;
+  top: -5px;
+  color: #fff;
+  border-radius: 10px;
+  text-align: center;
+  line-height: 20px;
+  font-size: 10px;
+}
+
+.icon-option {
+  display: flex;
+  align-items: center;
+}
+.icon-option svg {
+  margin-right: 10px;
+  fill: #6638b3;
+}
+
+.modal-backdrop {
+  background-color: #0e0818;
+}
+.modal-backdrop.in {
+  opacity: 0.6;
+}
+
+.modal-dialog {
+  margin: 50px auto;
+}
+
+.modal-content {
+  border-radius: 4px;
+  border: 0;
+  box-shadow: 0 2px 10px -3px rgba(0, 0, 0, 0.5);
+}
+
+.modal-header {
+  padding: 30px 40px 0;
+  border: 0;
+  border-radius: 4px 4px 0 0;
+}
+.modal-header .close {
+  margin-top: 0;
+}
+
+.modal-title {
+  font-size: 18px;
+  text-align: center;
+  font-weight: 500;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 30px;
+}
+
+.modal-body {
+  padding: 30px 40px;
+}
+
+.modal-footer {
+  padding: 20px 0 0;
+  margin-top: 40px;
+  border-color: #eee;
+}
+
+.close {
+  font-weight: 300;
+  text-shadow: none;
+  color: #383838;
+  opacity: 0.5;
+}
+.close:hover {
+  color: #383838;
+  opacity: 0.8;
+}
+
+.popover {
+  border: 0;
+  border-radius: 4px;
+  box-shadow: 0 2px 10px -3px rgba(0, 0, 0, 0.5);
+  padding: 0;
+}
+.popover.bottom > .arrow {
+  border-bottom-color: transparent;
+}
+.popover.bottom > .arrow::after {
+  top: 4px;
+}
+
+.popover-title {
+  font-weight: 400;
+  border-bottom: 1px solid #eee;
+  padding: 10px 14px;
+  background: none;
+  font-size: 11px;
+  text-transform: uppercase;
+  color: #888;
+}
+
+.popover-content {
+  padding: 0;
+}
+.popover-content [data-loader='circle-side'] {
+  margin: 60px auto;
+}
+
+.popover-header {
+  background-color: #eee;
+  padding: 5px;
+}
+.popover-header input[type='text'] {
+  padding: 4px 8px;
+  font-size: 13px;
+}
+.popover-header input[type='text']:focus {
+  border-color: #ddd;
+}
+
+.popover-body {
+  padding: 5px 0;
+}
+
+.popover-footer {
+  padding: 5px 0;
+  border-top: 1px solid #eee;
+}
+
+.popover-list {
+  max-height: 275px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  overflow: auto;
+}
+.popover-list li {
+  position: relative;
+  display: block;
+  overflow: hidden;
+  padding: 5px 20px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-size: 13px;
+}
+.popover-list li:hover {
+  background: #f8f8f8;
+}
+.popover-list li:focus {
+  background: #f8f8f8;
+}
+.popover-list li a {
+  color: #383838;
+}
+.popover-list.selectable li {
+  cursor: pointer;
+  padding-left: 30px;
+}
+.popover-list.selectable li::before {
+  font-family: Ionicons;
+  font-size: 10px;
+  width: 15px;
+  height: 15px;
+  z-index: 30;
+  text-align: center;
+  position: absolute;
+  color: #333333;
+  top: 50%;
+  left: 10px;
+  margin-top: -7px;
+}
+.popover-list.selectable li.all::before {
+  content: '\f121';
+}
+.popover-list.selectable li.some::before {
+  content: '\f208';
+}
+.popover-list.linked li {
+  padding: 0;
+}
+.popover-list.linked li a {
+  display: block;
+  padding: 5px 20px;
+}
+
+.tags {
+  display: inline-block;
+}
+.tags .label {
+  display: inline-block;
+  margin-right: 4px;
+}
+.tags .label.small {
+  font-size: 10px;
+}
+.tags .label.medium {
+  font-size: 13px;
+}
+.tags .label.large {
+  font-size: 16px;
+}
+
+.actions .tags {
+  display: flex;
+  align-items: center;
+  margin-left: 10px;
+}
+
+.tags-area {
+  max-height: 250px;
+}
+
+.wrapper-loader {
+  position: fixed;
+  top: 0;
+  left: 0;
+  background: #452679;
+  width: 70px;
+  height: 60px;
+  z-index: 101;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+[data-loader] {
+  margin: 18px auto;
+}
+
+[data-loader='circle-side'] {
+  position: relative;
+  width: 25px;
+  height: 25px;
+  -webkit-animation: circle infinite 0.75s linear;
+  -moz-animation: circle infinite 0.75s linear;
+  -o-animation: circle infinite 0.75s linear;
+  animation: circle infinite 0.75s linear;
+  border: 2px solid #fff;
+  border-top-color: rgba(0, 0, 0, 0.2);
+  border-right-color: rgba(0, 0, 0, 0.2);
+  border-bottom-color: rgba(0, 0, 0, 0.2);
+  border-radius: 100%;
+}
+
+.full-loader {
+  height: 100%;
+}
+.full-loader [data-loader='circle-side'] {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  margin-top: -12.5px;
+  margin-left: -12.5px;
+}
+
+@-webkit-keyframes circle {
+  0% {
+    -webkit-transform: rotate(0);
+    -moz-transform: rotate(0);
+    -o-transform: rotate(0);
+    transform: rotate(0);
+  }
+  100% {
+    -webkit-transform: rotate(360deg);
+    -moz-transform: rotate(360deg);
+    -o-transform: rotate(360deg);
+    transform: rotate(360deg);
+  }
+}
+@-moz-keyframes circle {
+  0% {
+    -webkit-transform: rotate(0);
+    -moz-transform: rotate(0);
+    -o-transform: rotate(0);
+    transform: rotate(0);
+  }
+  100% {
+    -webkit-transform: rotate(360deg);
+    -moz-transform: rotate(360deg);
+    -o-transform: rotate(360deg);
+    transform: rotate(360deg);
+  }
+}
+@-o-keyframes circle {
+  0% {
+    -webkit-transform: rotate(0);
+    -moz-transform: rotate(0);
+    -o-transform: rotate(0);
+    transform: rotate(0);
+  }
+  100% {
+    -webkit-transform: rotate(360deg);
+    -moz-transform: rotate(360deg);
+    -o-transform: rotate(360deg);
+    transform: rotate(360deg);
+  }
+}
+@keyframes circle {
+  0% {
+    -webkit-transform: rotate(0);
+    -moz-transform: rotate(0);
+    -o-transform: rotate(0);
+    transform: rotate(0);
+  }
+  100% {
+    -webkit-transform: rotate(360deg);
+    -moz-transform: rotate(360deg);
+    -o-transform: rotate(360deg);
+    transform: rotate(360deg);
+  }
+}
+.loading-content {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  top: 0;
+  border-radius: 4px;
+}
+
+.loading-wrapper {
+  padding: 20px 0;
+}
+.loading-wrapper.side {
+  padding-bottom: 0;
+}
+
+.loading-item {
+  padding: 0 20px;
+  margin: 0 auto;
+  max-width: 100%;
+  display: flex;
+  align-items: center;
+}
+.loading-item .animate {
+  animation: pulse 0.5s infinite alternate;
+}
+.loading-item.bordered {
+  border-bottom: 1px solid #eeeeee;
+  padding: 20px;
+}
+.loading-item .circle {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: #ddd;
+  margin-right: 20px;
+}
+.loading-item .line-wrapper {
+  flex: 1;
+}
+.loading-item .line-wrapper .line {
+  height: 8px;
+  margin: 13px 0;
+  background: #ddd;
+  border-radius: 4px;
+}
+.loading-item .line-wrapper .line:first-child {
+  margin-top: 0;
+}
+.loading-item .line-wrapper .line:last-child {
+  margin-bottom: 0;
+}
+.loading-item .line-wrapper .title {
+  margin-bottom: 20px;
+}
+.loading-item .line-wrapper .animate {
+  animation: pulse 0.5s infinite alternate;
+}
+.loading-item .width20 {
+  width: 20%;
+}
+.loading-item .width40 {
+  width: 40%;
+}
+.loading-item .width85 {
+  width: 85%;
+}
+.loading-item .width65 {
+  width: 65%;
+}
+.loading-item .width70 {
+  width: 70%;
+}
+
+.loading-table .line {
+  height: 8px;
+  margin: 13px 0;
+  background: #ddd;
+  border-radius: 4px;
+  margin: 5px 0;
+  -webkit-transition: width 0.3s ease;
+  -moz-transition: width 0.3s ease;
+  -ms-transition: width 0.3s ease;
+  -o-transition: width 0.3s ease;
+  transition: width 0.3s ease;
+}
+.loading-table .circle {
+  width: 16px;
+  height: 16px;
+  border-radius: 8px;
+  background: #ddd;
+  flex-shrink: 0;
+  margin: auto;
+}
+.loading-table .animate {
+  animation: pulse 0.5s infinite alternate;
+}
+
+@keyframes pulse {
+  0% {
+    opacity: 0.5;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+.action-buttons {
+  min-width: 70px;
+}
+.action-buttons .btn {
+  padding: 0;
+  margin-left: 16px;
+}
+
+.quick-nav {
+  position: absolute;
+  top: 0;
+  right: 15px;
+}
+.quick-nav .nav-item {
+  height: 60px;
+  padding-left: 15px;
+  display: table-cell;
+  vertical-align: middle;
+}
+.quick-nav .action-button {
+  color: #383838;
+  font-size: 22px;
+  cursor: pointer;
+  position: relative;
+}
+.quick-nav .action-button .badge {
+  position: absolute;
+  top: 0;
+  right: -9px;
+  font-size: 10px;
+  background-color: #f74040;
+  padding: 3px 5px;
+}
+
+.auth-layout {
+  background: url('/images/sign-in.jpg') no-repeat;
+  background-size: cover;
+  height: 100%;
+  overflow: hidden;
+  position: relative;
+}
+.auth-layout::before {
+  content: '';
+  background-color: rgba(69, 38, 121, 0.7);
+  position: absolute;
+  width: 100%;
+  height: 100%;
+}
+
+.auth-content {
+  position: relative;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.auth-description {
+  margin-top: 60px;
+}
+.auth-description img {
+  width: 100px;
+  margin-bottom: 50px;
+}
+.auth-description h1 {
+  font-weight: 700;
+  font-size: 32px;
+  margin-bottom: 30px;
+  color: #fff;
+}
+.auth-description p {
+  color: #c9b6e8;
+  margin-bottom: 50px;
+  font-size: 16px;
+  line-height: 1.8em;
+}
+.auth-description a {
+  color: #c9b6e8;
+}
+.auth-description.not-found {
+  margin-top: 0;
+}
+
+.auth-box {
+  background-color: #fff;
+  padding: 70px 60px;
+  border-radius: 4px;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+}
+.auth-box ::-webkit-input-placeholder {
+  color: #6b60a6;
+}
+.auth-box h2 {
+  color: #6b60a6;
+  font-size: 30px;
+  font-weight: 400;
+  margin: 0 0 50px;
+}
+.auth-box input {
+  border: 0;
+  border-bottom: 1px solid #ac8fdc;
+  padding: 0 0 6px;
+  color: #6b60a6;
+  border-radius: 0;
+  font-size: 16px;
+}
+.auth-box button {
+  -webkit-transition: background 0.2s ease;
+  -moz-transition: background 0.2s ease;
+  -ms-transition: background 0.2s ease;
+  -o-transition: background 0.2s ease;
+  transition: background 0.2s ease;
+  background-color: #6b60a6;
+  color: #fff;
+  text-transform: uppercase;
+  font-weight: 600;
+  margin-top: 50px;
+  border: 0;
+}
+.auth-box button:hover,
+.auth-box button.active.focus,
+.auth-box button.active:focus,
+.auth-box button.focus,
+.auth-box button:active.focus,
+.auth-box button:active:focus,
+.auth-box button:focus {
+  background-color: #8981b8;
+  color: #fff;
+}
+.auth-box .links {
+  margin-top: 70px;
+  text-align: center;
+}
+
+.respond-box {
+  position: relative;
+}
+.respond-box .checkbox {
+  position: absolute;
+  right: 20px;
+  bottom: 0;
+  color: #888;
+  line-height: 22px;
+}
+.respond-box .checkbox input {
+  margin: 5px 0 0 -20px;
+}
+.respond-box .form-group {
+  margin: 0;
+}
+.respond-box textarea {
+  border: 0;
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+  padding: 18px 20px;
+  resize: none;
+}
+.respond-box #reply-form .RichEditor-root {
+  background: #ece6f8;
+  border-top-left-radius: 4px;
+  border-top-right-radius: 4px;
+}
+.respond-box #internal-note-form .RichEditor-root {
+  background: #fcf0ad;
+}
+.respond-box .btn-attach input[type='file'] {
+  display: none;
+}
+.respond-box .response-template {
+  display: inline-block;
+}
+.respond-box .btn {
+  padding-right: 10px;
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  justify-content: center;
+  text-align: center;
+  font-size: 16px;
+  padding: 20px;
+  color: #777777;
+  background: #fff;
+}
+.empty-state i {
+  font-size: 16vh;
+  line-height: 20vh;
+  color: #ddd;
+}
+.empty-state.full {
+  position: absolute;
+  bottom: 0;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 0;
+}
+.empty-state.small {
+  height: auto;
+  min-height: 80px;
+  font-size: 12px;
+  padding: 10px 20px;
+}
+.empty-state.small i {
+  font-size: 28px;
+  line-height: 40px;
+}
+.empty-state a {
+  margin-top: 10px;
+}
+
+.popover-template {
+  max-width: 405px;
+  width: 405px;
+  height: 400px;
+}
+.popover-template .popover-content {
+  display: flex;
+  flex-direction: column;
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  top: 33px;
+}
+.popover-template .popover-content .popover-body {
+  flex: 1;
+  overflow: auto;
+  padding: 0;
+}
+.popover-template .popover-content .popover-footer {
+  align-self: flex-end;
+  width: 100%;
+}
+.popover-template .popover-list {
+  max-height: none;
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+}
+.popover-template .popover-list li {
+  white-space: normal;
+  font-size: 12px;
+  padding: 10px 20px;
+  border-bottom: 1px solid #eee;
+}
+.popover-template .popover-list li:hover {
+  cursor: pointer;
+}
+.popover-template .popover-list.linked li {
+  padding: 0;
+  border-bottom: 0;
+}
+.popover-template .template-title {
+  font-weight: 500;
+  margin-bottom: 2px;
+}
+.popover-template .template-content {
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+}
+.popover-template .empty-state {
+  flex: 1;
+}
+
+.inline-header {
+  display: flex;
+  flex: 2;
+  font-size: 12px;
+}
+.inline-header .column {
+  display: flex;
+  flex: 1;
+  flex-direction: row;
+  align-items: baseline;
+}
+.inline-header .column:first-child {
+  margin-right: 5px;
+}
+.inline-header span {
+  margin: 0 8px;
+}
+
+.file-wrapper {
+  position: relative;
+  padding: 16px 20px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding-left: 50px;
+  color: #555555;
+  min-width: 120px;
+  min-height: 55px;
+}
+.file-wrapper i {
+  font-size: 30px;
+  position: absolute;
+  left: 20px;
+  top: 12px;
+  line-height: 30px;
+  color: #8055ca;
+}
+.file-wrapper span {
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  direction: rtl;
+  text-align: left;
+  max-width: 200px;
+  display: block;
+}
+.file-wrapper:hover {
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.06);
+}
+
+.message.staff .download-attachment .file-size {
+  left: 0;
+  right: auto;
+}
+
+.download-attachment {
+  display: inline-block;
+  position: relative;
+  cursor: pointer;
+  min-width: 160px;
+  -webkit-transition: all 0.2s ease;
+  -moz-transition: all 0.2s ease;
+  -ms-transition: all 0.2s ease;
+  -o-transition: all 0.2s ease;
+  transition: all 0.2s ease;
+}
+.download-attachment .overlay {
+  opacity: 0;
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  background: rgba(0, 0, 0, 0.5);
+  border-radius: 4px;
+  left: 0;
+  top: 0;
+  -webkit-transition: all 0.2s ease;
+  -moz-transition: all 0.2s ease;
+  -ms-transition: all 0.2s ease;
+  -o-transition: all 0.2s ease;
+  transition: all 0.2s ease;
+}
+.download-attachment .icon {
+  position: absolute;
+  color: #fff;
+  width: 30px;
+  height: 30px;
+  text-align: center;
+  border-radius: 15px;
+  line-height: 28px;
+  left: 50%;
+  top: 50%;
+  border: 1px solid #fff;
+  margin-left: -15px;
+  margin-top: -15px;
+}
+.download-attachment:hover .icon,
+.download-attachment:hover .overlay {
+  opacity: 1;
+}
+.download-attachment .file-size {
+  position: absolute;
+  margin-top: 3px;
+  color: #888;
+  font-size: 12px;
+  right: 0;
+}
+
+.attachment-indicator {
+  background: #ece6f8;
+  display: flex;
+  flex-direction: row;
+}
+.attachment-indicator .attachment {
+  display: flex;
+  max-width: 220px;
+  padding: 4px;
+  margin: 5px 0 5px 5px;
+  font-size: 13px;
+  border-radius: 4px;
+  background-color: #fff;
+  align-items: center;
+}
+.attachment-indicator .attachment .preview {
+  margin-right: 5px;
+}
+.attachment-indicator .attachment .preview-img {
+  width: 26px;
+  height: 26px;
+  background-size: cover;
+  background-position: 50%;
+  border-radius: 2px;
+}
+.attachment-indicator .attachment .file-name {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  margin-right: 5px;
+}
+.attachment-indicator .attachment .file-size {
+  color: #888;
+}
+
+.paginate-wrapper {
+  display: table;
+  min-height: 100%;
+  width: 100%;
+}
+.paginate-wrapper .paginate-button {
+  text-align: center;
+  display: table-footer-group;
+}
+.paginate-wrapper .paginate-button > .btn {
+  width: 100%;
+  border: 0;
+  border-top: 1px solid #eeeeee;
+  text-transform: uppercase;
+  font-size: 12px;
+  font-weight: 400;
+  color: #888;
+  border-radius: 0;
+}
+
+.sidebar-section.full .paginate-wrapper {
+  display: flex;
+  min-height: auto;
+  flex-direction: column;
+  flex: 1;
+}
+.sidebar-section.full .paginate-wrapper .paginate-button {
+  margin-top: auto;
+}
+
+.Select {
+  position: relative;
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  -o-box-sizing: border-box;
+  box-sizing: border-box;
+}
+.Select div {
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  -o-box-sizing: border-box;
+  box-sizing: border-box;
+}
+.Select input {
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  -o-box-sizing: border-box;
+  box-sizing: border-box;
+}
+.Select span {
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  -o-box-sizing: border-box;
+  box-sizing: border-box;
+}
+.Select.is-disabled .Select-arrow-zone {
+  cursor: default;
+  pointer-events: none;
+  opacity: 0.35;
+}
+.Select.is-disabled > .Select-control {
+  background-color: #f9f9f9;
+}
+.Select.is-disabled > .Select-control:hover {
+  box-shadow: none;
+}
+.Select .Select-aria-only {
+  display: inline-block;
+  height: 1px;
+  width: 1px;
+  margin: -1px;
+  clip: rect(0, 0, 0, 0);
+  overflow: hidden;
+  float: left;
+}
+
+.Select-control {
+  background-color: #fff;
+  border-radius: 4px;
+  border: 1px solid #ddd;
+  color: #333333;
+  cursor: default;
+  display: table;
+  border-spacing: 0;
+  border-collapse: separate;
+  height: 36px;
+  outline: none;
+  overflow: hidden;
+  position: relative;
+  width: 100%;
+}
+.Select-control:hover {
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.06);
+}
+.Select-control .Select-input:focus {
+  outline: none;
+}
+.Select-control:not(.is-searchable) > .Select-input {
+  outline: none;
+}
+
+.is-searchable.is-open > .Select-control {
+  cursor: text;
+}
+.is-searchable.is-focused:not(.is-open) > .Select-control {
+  cursor: text;
+}
+
+.is-open .Select-arrow {
+  border-top-color: #777777;
+}
+.is-open > .Select-control {
+  border-bottom-right-radius: 0;
+  border-bottom-left-radius: 0;
+  background: #fff;
+  border-color: #ddd;
+}
+.is-open > .Select-control .Select-arrow {
+  top: -2px;
+  border-color: transparent transparent #888;
+  border-width: 0 5px 5px;
+}
+
+.is-focused:not(.is-open) > .Select-control {
+  border-color: #6638b3;
+  box-shadow: 0;
+}
+.is-focused .Select-input > input {
+  cursor: text;
+}
+
+.Select-placeholder {
+  bottom: 0;
+  color: #a2a2a2;
+  left: 0;
+  line-height: 34px;
+  padding-left: 10px;
+  padding-right: 10px;
+  position: absolute;
+  right: 0;
+  top: 0;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.has-value.is-pseudo-focused .Select-input {
+  opacity: 0;
+}
+.has-value.is-pseudo-focused.Select--single
+  > .Select-control
+  .Select-value
+  .Select-value-label {
+  color: #333333;
+}
+.has-value.is-pseudo-focused.Select--single
+  > .Select-control
+  .Select-value
+  a.Select-value-label {
+  cursor: pointer;
+  text-decoration: none;
+}
+.has-value.is-pseudo-focused.Select--single
+  > .Select-control
+  .Select-value
+  a.Select-value-label:hover {
+  color: #452679;
+  outline: none;
+  text-decoration: underline;
+}
+.has-value.is-pseudo-focused.Select--single
+  > .Select-control
+  .Select-value
+  a.Select-value-label:focus {
+  color: #452679;
+  outline: none;
+  text-decoration: underline;
+}
+.has-value.is-pseudo-focused.Select--single
+  > .Select-control
+  .Select-value
+  .Select-value-label {
+  color: #333333;
+}
+.has-value.is-pseudo-focused.Select--single
+  > .Select-control
+  .Select-value
+  a.Select-value-label {
+  cursor: pointer;
+  text-decoration: none;
+}
+.has-value.is-pseudo-focused.Select--single
+  > .Select-control
+  .Select-value
+  a.Select-value-label:hover {
+  color: #452679;
+  outline: none;
+  text-decoration: underline;
+}
+.has-value.is-pseudo-focused.Select--single
+  > .Select-control
+  .Select-value
+  a.Select-value-label:focus {
+  color: #452679;
+  outline: none;
+  text-decoration: underline;
+}
+
+.Select-input {
+  height: 34px;
+  padding-left: 10px;
+  padding-right: 10px;
+  vertical-align: middle;
+}
+.Select-input > input {
+  width: 100%;
+  background: none transparent;
+  border: 0 none;
+  box-shadow: none;
+  cursor: default;
+  display: inline-block;
+  font-family: inherit;
+  font-size: inherit;
+  margin: 0;
+  outline: none;
+  line-height: 14px;
+  padding: 8px 0 12px;
+  -webkit-appearance: none;
+}
+
+.Select-loading-zone {
+  cursor: pointer;
+  display: table-cell;
+  position: relative;
+  text-align: center;
+  vertical-align: middle;
+  width: 16px;
+}
+
+.Select-loading {
+  width: 16px;
+  height: 16px;
+  box-sizing: border-box;
+  border-radius: 50%;
+  border: 2px solid #ddd;
+  border-right-color: #333333;
+  display: inline-block;
+  position: relative;
+  vertical-align: middle;
+}
+
+.Select-clear-zone {
+  -webkit-animation: Select-animation-fadeIn 200msr;
+  -moz-animation: Select-animation-fadeIn 200msr;
+  -o-animation: Select-animation-fadeIn 200msr;
+  animation: Select-animation-fadeIn 200msr;
+  color: #888;
+  cursor: pointer;
+  display: table-cell;
+  position: relative;
+  text-align: center;
+  vertical-align: middle;
+  width: 17px;
+}
+.Select-clear-zone:hover {
+  color: #e85a5a;
+}
+
+.Select-clear {
+  display: inline-block;
+  font-size: 18px;
+  line-height: 1;
+}
+
+.Select--multi .Select-clear-zone {
+  width: 17px;
+}
+.Select--multi .Select-multi-value-wrapper {
+  display: inline-block;
+}
+.Select--multi .Select-input {
+  vertical-align: middle;
+  margin-left: 10px;
+  padding: 0;
+}
+.Select--multi .Select-value {
+  background-color: #f3f1f7;
+  border-radius: 2px;
+  border: 1px solid #dad8de;
+  color: #452679;
+  display: inline-block;
+  font-size: 0.9em;
+  line-height: 1.4;
+  margin-left: 5px;
+  margin-top: 5px;
+  vertical-align: top;
+}
+.Select--multi .Select-value-icon {
+  display: inline-block;
+  vertical-align: middle;
+  cursor: pointer;
+  border-bottom-left-radius: 2px;
+  border-top-left-radius: 2px;
+  border-right: 1px solid #dad8de;
+  padding: 1px 5px 3px;
+}
+.Select--multi .Select-value-icon:hover {
+  background-color: #e5e1ee;
+  color: #3a2066;
+}
+.Select--multi .Select-value-icon:focus {
+  background-color: #e5e1ee;
+  color: #3a2066;
+}
+.Select--multi .Select-value-icon:active {
+  background-color: #dad8de;
+}
+.Select--multi .Select-value-label {
+  display: inline-block;
+  vertical-align: middle;
+  border-bottom-right-radius: 2px;
+  border-top-right-radius: 2px;
+  cursor: default;
+  padding: 2px 5px;
+}
+.Select--multi.is-disabled .Select-value {
+  background-color: #f9f9f9;
+  border: 1px solid #e6e6e6;
+  color: #333333;
+}
+.Select--multi.is-disabled .Select-value-icon {
+  cursor: not-allowed;
+  border-right: 1px solid #e6e6e6;
+}
+.Select--multi.is-disabled .Select-value-icon:hover {
+  background-color: #f9f9f9;
+}
+.Select--multi.is-disabled .Select-value-icon:focus {
+  background-color: #f9f9f9;
+}
+.Select--multi.is-disabled .Select-value-icon:active {
+  background-color: #f9f9f9;
+}
+.Select--multi.has-value .Select-input {
+  margin-left: 5px;
+}
+.Select--multi a.Select-value-label {
+  color: #452679;
+  cursor: pointer;
+  text-decoration: none;
+}
+.Select--multi a.Select-value-label:hover {
+  text-decoration: underline;
+}
+
+.Select-arrow-zone {
+  cursor: pointer;
+  display: table-cell;
+  position: relative;
+  text-align: center;
+  vertical-align: middle;
+  width: 25px;
+  padding-right: 5px;
+}
+.Select-arrow-zone:hover > .Select-arrow {
+  border-top-color: #777777;
+}
+
+.Select-arrow {
+  border-color: #888 transparent transparent;
+  border-style: solid;
+  border-width: 5px 5px 2.5px;
+  display: inline-block;
+  height: 0;
+  width: 0;
+  position: relative;
+}
+
+.Select-menu-outer {
+  border-bottom-right-radius: 4px;
+  border-bottom-left-radius: 4px;
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-top-color: #e6e6e6;
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.06);
+  box-sizing: border-box;
+  margin-top: -1px;
+  max-height: 200px;
+  position: absolute;
+  top: 100%;
+  width: 100%;
+  z-index: 1;
+  -webkit-overflow-scrolling: touch;
+}
+
+.Select-menu {
+  max-height: 198px;
+  overflow-y: auto;
+}
+
+.Select-option-group-label {
+  box-sizing: border-box;
+  background-color: #f8f8f8;
+  color: #777777;
+  font-weight: bold;
+  cursor: default;
+  display: block;
+  padding: 8px 10px;
+}
+.Select-option-group-label ~ .Select-option {
+  padding-left: 20px;
+}
+.Select-option-group-label .Select-option-group {
+  padding-left: 20px;
+}
+
+.Select-option {
+  box-sizing: border-box;
+  background-color: #fff;
+  color: #777777;
+  cursor: pointer;
+  display: block;
+  padding: 8px 10px;
+}
+.Select-option:last-child {
+  border-bottom-right-radius: 4px;
+  border-bottom-left-radius: 4px;
+}
+.Select-option.is-selected {
+  background-color: #f3f1f7;
+  color: #333333;
+}
+.Select-option.is-focused {
+  background-color: #f3f1f7;
+  color: #333333;
+}
+.Select-option.is-disabled {
+  color: #ddd;
+  cursor: default;
+}
+
+.Select-noresults {
+  box-sizing: border-box;
+  color: #888;
+  cursor: default;
+  display: block;
+  padding: 8px 10px;
+}
+
+.simple-option .kind {
+  font-size: 12px;
+  font-style: italic;
+}
+.simple-option .channel-round {
+  color: #888;
+  font-weight: bold;
+  width: 20px;
+  height: 20px;
+  float: right;
+  border-radius: 10px;
+  background: #ece6f8;
+  text-align: center;
+  font-size: 10px;
+  line-height: 20px;
+}
+
+@-webkit-keyframes Select-animation-fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes Select-animation-fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes Select-animation-spin {
+  to {
+    transform: rotate(1turn);
+  }
+}
+@-webkit-keyframes Select-animation-spin {
+  to {
+    -webkit-transform: rotate(1turn);
+  }
+}
+.Select--single > .Select-control .Select-value {
+  bottom: 0;
+  color: #a2a2a2;
+  left: 0;
+  line-height: 34px;
+  padding-left: 10px;
+  padding-right: 10px;
+  position: absolute;
+  right: 0;
+  top: 0;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.react-toggle {
+  display: inline-block;
+  position: relative;
+  cursor: pointer;
+  background-color: transparent;
+  border: 0;
+  padding: 0;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -o-user-select: none;
+  -khtml-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+}
+.react-toggle:hover:not(.react-toggle--disabled) .react-toggle-track {
+  background-color: #000;
+}
+.react-toggle.wide .react-toggle-track {
+  width: 80px;
+}
+
+.react-toggle-screenreader-only {
+  border: 0;
+  clip: rect(0 0 0 0);
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  padding: 0;
+  position: absolute;
+  width: 1px;
+}
+
+.react-toggle--disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+  -webkit-transition: opacity 0.25s;
+  -moz-transition: opacity 0.25s;
+  -o-transition: opacity 0.25s;
+  transition: opacity 0.25s;
+}
+
+.react-toggle-track {
+  color: #fff;
+  width: 50px;
+  height: 24px;
+  padding: 0;
+  border-radius: 30px;
+  background-color: #4d4d4d;
+  -webkit-transition: all 0.2s ease;
+  -moz-transition: all 0.2s ease;
+  -o-transition: all 0.2s ease;
+  transition: all 0.2s ease;
+}
+
+.react-toggle--checked .react-toggle-track {
+  background-color: #67b04f;
+}
+.react-toggle--checked .react-toggle-track-check {
+  opacity: 1;
+  -webkit-transition: opacity 0.25s ease;
+  -moz-transition: opacity 0.25s ease;
+  -o-transition: opacity 0.25s ease;
+  transition: opacity 0.25s ease;
+}
+.react-toggle--checked .react-toggle-track-x {
+  opacity: 0;
+}
+.react-toggle--checked .react-toggle-thumb {
+  left: 27px;
+  border-color: #67b04f;
+}
+.react-toggle--checked:hover:not(.react-toggle--disabled) .react-toggle-track {
+  background-color: #67b04f;
+}
+.react-toggle--checked.wide .react-toggle-thumb {
+  left: 57px;
+}
+
+.react-toggle-track-check {
+  position: absolute;
+  width: 14px;
+  height: 10px;
+  top: 10px;
+  bottom: 0;
+  margin-top: auto;
+  margin-bottom: auto;
+  line-height: 0;
+  left: 10px;
+  opacity: 0;
+  -webkit-transition: opacity 0.25s ease;
+  -moz-transition: opacity 0.25s ease;
+  -o-transition: opacity 0.25s ease;
+  transition: opacity 0.25s ease;
+}
+
+.react-toggle-track-x {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  top: 10px;
+  bottom: 0;
+  left: 28px;
+  margin-top: auto;
+  margin-bottom: auto;
+  line-height: 0;
+  right: 10px;
+  opacity: 1;
+  -webkit-transition: opacity 0.25s ease;
+  -moz-transition: opacity 0.25s ease;
+  -o-transition: opacity 0.25s ease;
+  transition: opacity 0.25s ease;
+}
+
+.react-toggle-thumb {
+  transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1) 0ms;
+  position: absolute;
+  top: 1px;
+  left: 1px;
+  width: 22px;
+  height: 22px;
+  border: 1px solid #4d4d4d;
+  border-radius: 50%;
+  background-color: #fafafa;
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  -o-box-sizing: border-box;
+  box-sizing: border-box;
+  -webkit-transition: all 0.25s ease;
+  -moz-transition: all 0.25s ease;
+  -o-transition: all 0.25s ease;
+  transition: all 0.25s ease;
+}
+
+.widget-preview {
+  width: 280px;
+  height: 430px;
+  border-radius: 4px;
+  background: #fff;
+  color: #fff;
+  display: flex;
+  font-size: 12px;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 2px 15px 0 rgba(0, 0, 0, 0.14), 0 1px 6px 0 rgba(0, 0, 0, 0.06);
+}
+.widget-preview .erxes-topbar {
+  overflow: hidden;
+  width: 100%;
+  position: relative;
+  text-align: center;
+  flex-shrink: 0;
+}
+.widget-preview .erxes-topbar .topbar-button {
+  left: 10px;
+}
+.widget-preview .erxes-topbar .erxes-middle {
+  display: inline-block;
+}
+.widget-preview .topbar-button {
+  position: absolute;
+  top: 15px;
+  text-align: center;
+  cursor: pointer;
+  width: 40px;
+  height: 40px;
+  line-height: 40px;
+  border-radius: 4px;
+  display: block;
+}
+.widget-preview .erxes-staff-profile {
+  padding: 10px 0;
+  text-align: left;
+  line-height: 1.3em;
+}
+.widget-preview .erxes-staff-profile img {
+  float: left;
+  width: 30px;
+  height: 30px;
+  border-radius: 20px;
+  overflow: hidden;
+}
+.widget-preview .erxes-staff-profile > div {
+  margin-left: 40px;
+}
+.widget-preview .erxes-staff-profile .erxes-staff-name {
+  font-size: 13px;
+  font-weight: 500;
+  padding-top: 3px;
+}
+.widget-preview .erxes-staff-profile .erxes-state {
+  font-size: 11px;
+  font-weight: 300;
+}
+.widget-preview .erxes-staff-profile .online {
+  width: 6px;
+  height: 6px;
+  border-radius: 3px;
+  display: inline-block;
+  margin-bottom: 1px;
+  margin-right: 3px;
+  background-color: #67b04f;
+}
+.widget-preview .erxes-avatar {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  overflow: hidden;
+  position: absolute;
+  left: 0;
+  bottom: 20px;
+}
+.widget-preview .erxes-avatar img {
+  width: 100%;
+  height: 100%;
+}
+.widget-preview.engage-message {
+  height: 135px;
+  color: #555;
+  background: #faf9fb;
+}
+.widget-preview.engage-message.type-snippet,
+.widget-preview.engage-message.type-default {
+  height: 135px;
+}
+.widget-preview.engage-message.type-snippet .preview-content,
+.widget-preview.engage-message.type-default .preview-content {
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  word-wrap: break-word;
+}
+.widget-preview.engage-message.type-fullMessage {
+  height: 440px;
+  overflow: auto;
+}
+.widget-preview.engage-message .name-card {
+  flex-shrink: 0;
+  padding: 20px 20px 10px;
+}
+.widget-preview.engage-message .name-card .avatar div {
+  background: #ededed;
+}
+.widget-preview.engage-message .RichEditor-styleButton {
+  margin-right: 8px;
+}
+
+.erxes-messages-list {
+  display: flex;
+  flex-direction: column;
+  background-color: #faf9fb;
+  overflow: auto;
+  padding: 20px;
+  margin: 0;
+  flex: 1;
+  list-style: none;
+  background-repeat: repeat;
+  background-position: 0 0;
+}
+.erxes-messages-list.background-1 {
+  background-image: url('/images/patterns/bg-1.png');
+}
+.erxes-messages-list.background-2 {
+  background-image: url('/images/patterns/bg-2.png');
+}
+.erxes-messages-list.background-3 {
+  background-image: url('/images/patterns/bg-3.png');
+}
+.erxes-messages-list.background-4 {
+  background-image: url('/images/patterns/bg-4.png');
+}
+.erxes-messages-list li {
+  position: relative;
+  margin-bottom: 10px;
+}
+.erxes-messages-list li.from-customer {
+  text-align: right;
+}
+.erxes-messages-list li .date {
+  font-size: 10px;
+  color: #686868;
+  margin-left: 40px;
+}
+.erxes-messages-list li.erxes-spacial-message {
+  padding: 18px;
+  border-radius: 4px;
+  border: 1px solid #ddd;
+  background: #fff;
+  color: #686868;
+  margin-bottom: 20px;
+}
+
+.erxes-message {
+  padding: 10px 12px;
+  background-color: #eee;
+  border-radius: 4px;
+  position: relative;
+  margin: 0 20px 5px 40px;
+  display: inline-block;
+  word-break: break-word;
+  color: #686868;
+  text-align: left;
+}
+.erxes-message.from-customer {
+  margin: 0 0 5px 20px;
+  text-align: right;
+  color: #fff;
+}
+
+.erxes-message-sender {
+  overflow: hidden;
+  font-size: 12px;
+  padding: 17px 30px;
+  color: #555555;
+  border-top: 1px solid white;
+}
+
+.cc-detail-form .sidebar-content {
+  padding: 10px 20px;
+}
+.cc-detail-form .sidebar-content p {
+  padding-bottom: 5px;
+}
+.cc-detail-form .sidebar-content label {
+  display: block;
+  color: #7c98b6;
+}
+.cc-detail-form .sidebar-content input,
+.cc-detail-form .sidebar-content textarea,
+.cc-detail-form .sidebar-content select {
+  border: none;
+  width: 100%;
+  border-bottom: 1px dotted #ddd;
+  padding-bottom: 5px;
+}
+.cc-detail-form .sidebar-content .action-link {
+  float: right;
+  display: block;
+  margin-bottom: 10px;
+}
+
+.manage-columns {
+  padding: 20px 0px;
+  width: 50%;
+}
+.manage-columns ul {
+  padding: 0px;
+  margin-left: 20px;
+}
+.manage-columns ul li {
+  padding: 10px 20px;
+  border: 1px dotted #ddd;
+  margin-bottom: 2px;
+  cursor: pointer;
+}
+.manage-columns ul li input {
+  margin-left: 10px;
+  margin-right: 10px;
+}
+.manage-columns button {
+  margin-left: 20px;
+  margin-bottom: 10px;
+}
+
+.cc-detail-content .header {
+  padding: 10px 20px;
+  font-size: 15px;
+  margin-top: 10px;
+  margin-bottom: 20px;
+}
+.cc-detail-content .header li {
+  display: inline;
+  margin-right: 20px;
+  cursor: pointer;
+  padding: 10px 0px;
+}
+.cc-detail-content .header li a {
+  color: #383838;
+}
+.cc-detail-content .header li a i {
+  margin-right: 3px;
+}
+.cc-detail-content .header li.active {
+  border-bottom: 2px solid;
+}
+.cc-detail-content textarea {
+  min-height: 120px;
+  margin: 10px 20px;
+  width: 96%;
+}
+
+.internal-notes-list .item {
+  background-color: #f9f9f9;
+  margin: 10px 20px;
+  border: 1px solid #f9f9f9;
+  border-radius: 20px;
+  position: relative;
+}
+.internal-notes-list .item .topbar {
+  padding: 10px 20px;
+  border-bottom: 1px solid #e0e0e0;
+}
+.internal-notes-list .item .topbar .name-card {
+  float: left;
+}
+.internal-notes-list .item .topbar .date {
+  float: right;
+}
+.internal-notes-list .item .text {
+  padding: 10px 20px;
+}
+.internal-notes-list .item .delete {
+  position: absolute;
+  right: 10px;
+  bottom: 10px;
+  color: #de8282;
+}
+
+.engage-rule {
+  margin-top: 5px;
+  color: #777777;
+  font-size: 13px;
+}
+
+.row-section {
+  padding: 30px;
+  display: flex;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+.row-section .row-heading {
+  flex-basis: 160px;
+}
+.row-section .row-heading h4 {
+  margin: 0;
+  font-weight: bold;
+  font-size: 16px;
+}
+.row-section .row-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.form-header .header-row {
+  padding: 5px 20px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+.form-header .header-row span {
+  color: #aaa;
+  flex-basis: 130px;
+}
+.form-header .header-row .form-control {
+  border-color: rgba(0, 0, 0, 0.05);
+  padding: 8px 10px;
+}
+
+.form-content {
+  flex: 1;
+  min-height: 160px;
+}
+
+.flex-content {
+  display: flex;
+  flex-direction: row;
+  margin-top: 6px;
+}
+.flex-content h2 {
+  text-transform: uppercase;
+  font-weight: 400;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  padding: 12px 20px;
+  font-size: 12px;
+  color: #888;
+  margin: 0;
+  position: relative;
+  z-index: 10;
+}
+.flex-content .messenger-content {
+  flex-basis: 420px;
+  flex-shrink: 0;
+}
+.flex-content .preview-content {
+  padding: 0 20px;
+  line-height: 22px;
+  margin-bottom: 20px;
+  color: #686868;
+  font-size: 14px;
+}
+
+.web-preview {
+  border: 1px solid #ddd;
+  box-shadow: 0 1px 7px 0 rgba(202, 203, 204, 0.2);
+  background-color: #fff;
+  min-height: 400px;
+  flex: 1;
+  position: relative;
+  background-image: url('/images/row.png');
+  background-repeat: repeat-y;
+  background-position: center;
+  background-size: 475px 56px;
+  min-width: 300px;
+  margin-top: -1px;
+  margin-right: 20px;
+}
+.web-preview.type-fullMessage {
+  min-height: 565px;
+}
+.web-preview .messenger-preview {
+  width: 400px;
+  position: absolute;
+  right: 15px;
+  bottom: 15px;
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+.web-preview:after {
+  background: linear-gradient(
+    to bottom right,
+    white 0,
+    white 35%,
+    rgba(255, 255, 255, 0.14) 75%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  content: '';
+  position: absolute;
+  left: -3px;
+  top: -3px;
+  bottom: -3px;
+  width: calc(100% + 15px);
+}
+
+.button-box {
+  cursor: pointer;
+  display: block;
+  padding: 25px;
+  background: #fff;
+  min-width: 250px;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  border-radius: 2px;
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease-in-out;
+  position: relative;
+}
+.button-box span {
+  font-size: 16px;
+  margin-bottom: 5px;
+  font-weight: bold;
+}
+.button-box p {
+  margin-bottom: 0;
+  color: #777777;
+  text-align: center;
+}
+.button-box:first-child {
+  margin-bottom: 20px;
+}
+.button-box.selected {
+  border-color: #7242c3;
+  box-shadow: inset 0 0 0 1px #7242c3;
+}
+.button-box.selected::after {
+  content: '\f122';
+  font-family: 'Ionicons';
+  speak: none;
+  font-style: normal;
+  font-weight: normal;
+  font-variant: normal;
+  text-transform: none;
+  text-rendering: auto;
+  line-height: 1;
+  -webkit-font-smoothing: antialiased;
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  padding: 3px 5px;
+  color: #fff;
+  background: #7242c3;
+  border-top-left-radius: 2px;
+}
+.button-box:hover {
+  border-color: #5b32a0;
+}
+
+.recipients .recipient {
+  padding: 3px 5px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  display: inline-block;
+  margin-right: 5px;
+  margin-bottom: 5px;
+  background: #f8f8f8;
+  font-size: 13px;
+}
+
+.flex-form {
+  display: flex;
+  flex-direction: row;
+}
+.flex-form .flex-item {
+  flex: 1;
+}
+.flex-form .flex-item.btn {
+  margin-top: 0;
+  width: 32px;
+  flex-shrink: 1;
+  flex-grow: 0;
+}
+.flex-form .flex-item ~ .flex-item {
+  margin-left: 5px;
+}
+
+.insight-wrapper {
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+.insight-wrapper .insight-title {
+  text-transform: uppercase;
+  font-weight: 400;
+  padding: 10px 0;
+  color: #888;
+  margin: 20px 0 10px;
+}
+.insight-wrapper .insight-title span {
+  margin-left: 10px;
+}
+.insight-wrapper .insight-content {
+  padding: 0 30px 30px 30px;
+  overflow: auto;
+}
+.insight-wrapper .insight-filter {
+  padding: 20px 30px;
+  border-bottom: 1px solid #eeeeee;
+  background: #faf9fb;
+}
+.insight-wrapper .insight-filter h5 {
+  margin-top: 0;
+}
+.insight-wrapper .insight-row {
+  position: relative;
+  margin-bottom: 24px;
+}
+.insight-wrapper .chart-wrapper {
+  padding: 20px 20px 20px 0;
+  border: 1px solid #eeeeee;
+  border-radius: 4px;
+  background: #faf9fb;
+}
+.insight-wrapper .summary-item {
+  text-align: center;
+  border-radius: 5px;
+  margin-bottom: 30px;
+  padding: 12px;
+  background: #faf9fb;
+  box-shadow: 0 3px 1px -2px rgba(0, 0, 0, 0.12),
+    0 2px 2px 0 rgba(0, 0, 0, 0.12), 0 1px 5px 0 rgba(0, 0, 0, 0.12);
+}
+.insight-wrapper .summary-item .summary-title {
+  margin-bottom: 4px;
+  text-transform: uppercase;
+}
+.insight-wrapper .summary-item .summary-count {
+  font-weight: bold;
+  font-size: 24px;
+}
+
+.integration-kind {
+  position: absolute;
+  z-index: 2;
+  padding-left: 20px;
+  margin-top: 60px;
+}
+.integration-kind .kind-item {
+  margin-bottom: 12px;
+}
+.integration-kind .kind-item .label {
+  margin-right: 4px;
+  display: inline-block;
+  padding: 5px 10px;
+}
+.integration-kind .kind-item .kind-count {
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.insight-user-data {
+  margin-bottom: 30px;
+  border: 1px solid #eeeeee;
+  border-radius: 4px;
+}
+.insight-user-data .user-profile {
+  line-height: 40px;
+  padding: 15px 20px;
+  overflow: hidden;
+  max-height: 70px;
+  border-bottom: 1px solid #eeeeee;
+}
+.insight-user-data .user-profile img {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  margin-right: 20px;
+  float: left;
+}
+.insight-user-data .user-profile .full-name {
+  float: left;
+  font-size: 15px;
+  font-weight: bold;
+}
+.insight-user-data .chart-wrapper {
+  padding: 20px 0 10px;
+  border: 0;
+}
+
+.flex-row {
+  display: flex;
+  flex-direction: row;
+}
+.flex-row .flex-item {
+  flex: 1;
+}
+.flex-row .flex-item ~ .flex-item {
+  margin-left: 20px;
+}
+
+.punch-card .axis path,
+.punch-card .axis line {
+  fill: none;
+  stroke: #777777;
+  stroke-width: 1px;
+  shape-rendering: crispEdges;
+}
+.punch-card .axis text {
+  font-size: 0.875em;
+  fill: #777777;
+}
+
+.btn {
+  padding: 10px 18px;
+}
+.btn.active.focus,
+.btn.active:focus,
+.btn.focus,
+.btn:active.focus,
+.btn:active:focus,
+.btn:focus {
+  box-shadow: none;
+  outline: none;
+}
+.btn i {
+  margin-right: 3px;
+}
+
+.btn-link {
+  color: #888;
+}
+.btn-link:hover,
+.btn-link.active.focus,
+.btn-link.active:focus,
+.btn-link.focus,
+.btn-link:active.focus,
+.btn-link:active:focus,
+.btn-link:focus {
+  text-decoration: none;
+  color: #686868;
+}
+.btn-link.shrinked {
+  padding: 8px 0;
+}
+
+.btn-primary {
+  background-color: #452679;
+  border-color: #452679;
+}
+.btn-primary:hover,
+.btn-primary.active.focus,
+.btn-primary.active:focus,
+.btn-primary.focus,
+.btn-primary:active.focus,
+.btn-primary:active:focus,
+.btn-primary:focus {
+  background-color: #5b32a0;
+}
+
+.btn-sm {
+  padding: 5px 10px;
+}
+
+.btn-group.open .dropdown-toggle {
+  box-shadow: none;
+}
+
+.table {
+  margin-bottom: -1px;
+}
+.table thead > tr > th {
+  font-size: 12px;
+  text-transform: uppercase;
+  background: #f8f8f8;
+  border-bottom: 0;
+  padding: 12px 25px;
+}
+.table thead > tr > th.less-space {
+  padding: 12px;
+}
+.table tbody > tr > td {
+  border-color: #eee;
+  border-top: 0;
+  border-bottom: 1px solid #eee;
+  padding: 10px 25px;
+  vertical-align: middle;
+}
+.table tbody > tr > td.less-space {
+  padding-right: 0;
+}
+.table.no-wrap th {
+  white-space: nowrap;
+}
+.table.no-wrap td {
+  white-space: nowrap;
+}
+
+.label {
+  border-radius: 4px;
+}
+.label-default {
+  background-color: #7242c3;
+}
+.label-facebook {
+  background-color: #3b5998;
+}
+.label-twitter {
+  background-color: #1dcaff;
+}
+.label-form {
+  background-color: #f0ad4e;
+}
+.label-primary {
+  background-color: #888;
+}
+
+.form-control {
+  box-shadow: none;
+  border-radius: 4px;
+  border-color: #ddd;
+  padding: 8px 14px;
+}
+.form-control[type='checkbox'] {
+  width: auto;
+  height: auto;
+  display: inline-block;
+  margin-right: 5px;
+}
+.form-control[type='radio'] {
+  width: auto;
+  height: auto;
+  display: inline-block;
+  margin-right: 5px;
+}
+.form-control:focus {
+  box-shadow: none;
+  border-color: #452679;
+}
+.form-control[type='color'] {
+  padding: 0;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.radio-inline input[type='radio'] {
+  margin-left: -19px;
+  margin-top: 3px;
+}
+
+.dropdown-menu {
+  border: 0;
+  box-shadow: 0 2px 10px -3px rgba(0, 0, 0, 0.5);
+}
+.dropdown-menu > li > a {
+  padding: 5px 20px;
+  color: #686868;
+}
+.dropdown-menu > li > a:hover {
+  color: #686868;
+  background-color: #f8f8f8;
+}
+.dropdown-menu > .active > a {
+  background-color: #f8f8f8;
+  color: #686868;
+}
+.dropdown-menu > .active > a:focus {
+  background-color: #f8f8f8;
+  color: #686868;
+}
+.dropdown-menu > .active > a:hover {
+  background-color: #f8f8f8;
+  color: #686868;
+}
+
+.nav-tabs {
+  background-color: #eee;
+  border: 0;
+  position: relative;
+  z-index: 1;
+}
+.nav-tabs > li.active > a,
+.nav-tabs > li.active > a:focus,
+.nav-tabs > li.active > a:hover {
+  border: 0;
+}
+.nav-tabs > li > a {
+  border: 0;
+}
+
+.editor-bordered {
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.RichEditor-root {
+  font-size: 14px;
+}
+.RichEditor-root select {
+  border: 0;
+  outline: 0;
+  background: 0;
+  margin-top: 3px;
+  color: #888;
+  max-width: 82px;
+}
+
+.RichEditor-editor {
+  border-top: 1px solid #ddd;
+  cursor: text;
+}
+.RichEditor-editor .public-DraftEditorPlaceholder-root {
+  padding: 15px;
+  position: absolute;
+}
+.RichEditor-editor
+  .public-DraftEditorPlaceholder-root
+  .public-DraftEditorPlaceholder-inner {
+  color: #999;
+}
+.RichEditor-editor .public-DraftEditor-content {
+  padding: 15px;
+  min-height: 100px;
+}
+.RichEditor-editor .public-DraftEditor-content ul {
+  padding-left: 25px;
+}
+.RichEditor-editor .public-DraftEditor-content ol {
+  padding-left: 25px;
+}
+.RichEditor-editor .public-DraftEditor-content h3 {
+  margin-top: 0;
+}
+.RichEditor-editor .RichEditor-blockquote {
+  border-left: 5px solid #ddd;
+  color: #777777;
+  font-style: italic;
+  padding: 10px 20px;
+}
+.RichEditor-editor .public-DraftStyleDefault-pre {
+  margin-bottom: 0;
+}
+.RichEditor-editor .public-DraftStyleDefault-pre pre {
+  padding: 0;
+  margin: 0;
+  border: 0;
+}
+
+.RichEditor-hidePlaceholder .public-DraftEditorPlaceholder-root {
+  display: none;
+}
+
+.RichEditor-controls-root {
+  overflow: hidden;
+  padding: 5px 15px 0;
+}
+.RichEditor-controls-root .RichEditor-controls {
+  float: left;
+  font-size: 14px;
+  user-select: none;
+  margin-bottom: 5px;
+}
+
+.form-content .RichEditor-controls-root {
+  padding: 10px 20px 5px;
+}
+.form-content .public-DraftEditor-content {
+  padding: 20px;
+  min-height: 300px;
+}
+.form-content .RichEditor-editor {
+  border-color: rgba(0, 0, 0, 0.05);
+}
+
+.RichEditor-styleButton {
+  color: #999;
+  cursor: pointer;
+  margin-right: 16px;
+  padding: 2px 0;
+  display: inline-block;
+  min-width: 10px;
+  text-align: center;
+}
+.RichEditor-styleButton:hover {
+  color: #9d7cd6;
+}
+
+.RichEditor-activeButton {
+  color: #452679;
+}
+
+.draftJsMentionPlugin__mention__29BEd {
+  cursor: pointer;
+  display: inline-block;
+  font-weight: bold;
+  padding-left: 2px;
+  padding-right: 2px;
+  border-radius: 4px;
+  text-decoration: none;
+}
+.draftJsMentionPlugin__mention__29BEd:visited {
+  cursor: pointer;
+  display: inline-block;
+  font-weight: bold;
+  padding-left: 2px;
+  padding-right: 2px;
+  border-radius: 4px;
+  text-decoration: none;
+}
+.draftJsMentionPlugin__mention__29BEd:hover {
+  outline: 0;
+}
+.draftJsMentionPlugin__mention__29BEd:focus {
+  outline: 0;
+}
+.draftJsMentionPlugin__mention__29BEd:active {
+  color: #222222;
+}
+
+.draftJsMentionPlugin__mentionSuggestions__2DWjA {
+  position: absolute;
+  min-width: 220px;
+  width: 100%;
+  background: #fff;
+  border-radius: 4px;
+  box-shadow: 0 0 10px -3px rgba(0, 0, 0, 0.5);
+  cursor: pointer;
+  z-index: 2000;
+  box-sizing: border-box;
+  transform: scale(0);
+  bottom: 100%;
+  top: auto !important;
+  left: 0 !important;
+  max-height: 300px;
+  overflow: auto;
+}
+
+.draftJsMentionPlugin__mentionSuggestionsEntry__3mSwm {
+  padding: 5px 10px;
+  transition: background-color 0.4s cubic-bezier(0.27, 1.27, 0.48, 0.56);
+  font-size: 13px;
+}
+.draftJsMentionPlugin__mentionSuggestionsEntry__3mSwm:active {
+  background-color: #cebeed;
+}
+
+.draftJsMentionPlugin__mentionSuggestionsEntryFocused__3LcTd {
+  background-color: #ece6f8;
+}
+
+.mentioned-person {
+  cursor: pointer;
+  display: inline-block;
+  font-weight: bold;
+  padding-left: 2px;
+  padding-right: 2px;
+  border-radius: 4px;
+  text-decoration: none;
+}
+
+.mention {
+  text-decoration: none;
+}
+
+.mentionSuggestionsEntryContainer {
+  display: flex;
+}
+
+.mentionSuggestionsEntryContainerRight {
+  display: flex;
+  padding-left: 8px;
+  flex: 1;
+  flex-direction: row;
+  align-items: center;
+}
+
+.mentionSuggestionsEntryText,
+.mentionSuggestionsEntryTitle {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.mentionSuggestionsEntryText {
+  margin-right: 8px;
+  font-weight: bold;
+}
+
+.mentionSuggestionsEntryTitle {
+  font-size: 95%;
+  color: #888;
+  margin-top: -2px;
+}
+
+.mentionSuggestionsEntryAvatar {
+  display: block;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+}
+
+.form-builder {
+  position: relative;
+  min-height: 600px;
+}
+.form-builder .field-preview {
+  opacity: 0.8;
+  margin: 0;
+}
+.form-builder .field-preview:hover,
+.form-builder .field-preview:hover * {
+  cursor: pointer;
+}
+.form-builder .required {
+  color: #e85a5a;
+  margin: 0 3px;
+}
+.form-builder .fixed {
+  position: absolute;
+  top: 20px;
+  max-height: calc(100% - 40px);
+  overflow: auto;
+}
+
+.form-preview {
+  background: #ece6f8;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  overflow: hidden;
+}
+.form-preview .draggable-field {
+  box-shadow: none;
+}
+.form-preview label {
+  margin-bottom: 0;
+}
+.form-preview .description {
+  display: block;
+  font-size: 13px;
+}
+.form-preview .form-control {
+  margin-top: 8px;
+}
+.form-preview .check-control {
+  margin-top: 8px;
+}
+
+.draggable-field {
+  padding: 15px 20px 15px 50px;
+  position: relative;
+  background: #fff;
+  box-shadow: 0 2px 10px -3px rgba(0, 0, 0, 0.5);
+}
+.draggable-field .drag-handler {
+  cursor: move;
+  position: absolute;
+  top: 15px;
+  left: 20px;
+  z-index: 10;
+}
+.draggable-field:first-child {
+  padding-top: 20px;
+}
+.draggable-field:first-child .drag-handler {
+  top: 20px;
+}
+.draggable-field:last-child {
+  padding-bottom: 20px;
+}
+
+.flex-row {
+  display: flex;
+  align-items: center;
+}
+.flex-row .flex-item {
+  flex: 1;
+  margin: 0;
+}
+.flex-row .flex-item input[type='checkbox'] {
+  display: inline-block;
+  height: auto;
+  width: auto;
+  margin-right: 5px;
+}
+.flex-row > span {
+  margin: 0 5px;
+}
+.flex-row ~ .flex-row {
+  margin-top: 10px;
+}
+.flex-row > button {
+  margin-left: 10px;
+}
+
+.flex-inline {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin-bottom: 10px;
+}
+.flex-inline > div {
+  margin-right: 8px;
+}
+
+.react-datepicker {
+  font-family: 'Roboto', sans-serif;
+  font-size: 12px;
+}
+
+.react-datepicker-wrapper {
+  display: block;
+}
+
+.react-datepicker__input-container {
+  display: block;
+}
+
+.react-datepicker {
+  border-color: #ddd !important;
+  box-shadow: 0 5px 15px -3px rgba(0, 0, 0, 0.15);
+}
+.react-datepicker .react-datepicker__day--selected,
+.react-datepicker .react-datepicker__day--keyboard-selected {
+  background-color: #452679;
+  border-radius: 4px;
+  color: #fff;
+}
+.react-datepicker .react-datepicker__day--selected:hover,
+.react-datepicker .react-datepicker__day--keyboard-selected:hover {
+  background-color: #2f1a52;
+}
+.react-datepicker .react-datepicker__header {
+  background: #faf9fb;
+  border-color: #ddd;
+}
+.react-datepicker .react-datepicker__triangle {
+  border-bottom-color: #faf9fb !important;
+}
+.react-datepicker .react-datepicker__triangle::before {
+  border-bottom-color: #ddd !important;
+}
+
+.react-datepicker__day-name,
+.react-datepicker__day,
+.react-datepicker__time-name {
+  color: #333333;
+  width: 24px;
+  line-height: 24px;
+  margin: 3px;
+}
+
+.react-datepicker__current-month,
+.react-datepicker-time__header {
+  font-size: 12px;
+}
+
+@media only screen and (max-width: 1224px) {
+  .sidebar {
+    flex-shrink: 1;
+  }
+  .sidebar .filters .counter {
+    margin-top: 0;
+  }
+
+  .sidebar-section {
+    font-size: 12px;
+  }
+}
+@media only screen and (max-width: 1024px) {
+  .hidden-tb {
+    display: none;
+  }
+
+  .sidebar.medium {
+    width: 200px;
+  }
+  .sidebar.wide {
+    width: 270px;
+  }
+
+  .main-content {
+    min-width: 320px;
+  }
+}
+@media only screen and (max-width: 768px) {
+  .sidebar {
+    flex-shrink: 0;
+  }
+}
+
+/*# sourceMappingURL=main.css.map */

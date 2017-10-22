@@ -12,6 +12,7 @@ import store from './store';
 import './modules/common/styles/global-styles.js';
 
 // TODO: remove
+import 'css/main.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 const APOLLO_CLIENT_URL = 'http://localhost:3300/graphql';
