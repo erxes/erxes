@@ -14,6 +14,7 @@ import { Strategy as AnonymousStrategy } from 'passport-anonymous';
 import { Customers, Users } from './db/models';
 import { connect } from './db/connection';
 import schema from './data';
+import './cronJobs';
 
 // load environment variables
 dotenv.config();

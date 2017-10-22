@@ -287,6 +287,16 @@ class Conversation {
 
     return this.findOne({ _id });
   }
+
+  /**
+   * Get new or open conversation
+   * @return {Promise} conversations
+   */
+  static newOrOpenConversation() {
+    return this.find({
+      status: { $in: [CONVERSATION_STATUSES.NEW, CONVERSATION_STATUSES.OPEN] },
+    });
+  }
 }
 
 ConversationSchema.loadClass(Conversation);
@@ -397,6 +407,51 @@ class Message {
     }
 
     return result;
+  }
+
+  /**
+ * user's last non answered question
+ * @param  {String} conversationId
+ * @return {Promise} message object
+ */
+  static getNonAsnweredMessage(conversationId) {
+    return this.findOne({
+      conversationId: conversationId,
+      customerId: { $exists: true },
+    }).sort({ createdAt: -1 });
+  }
+
+  /**
+   * get admin messages
+   * @param  {String} conversationId
+   * @return {Promise} messages
+   */
+  static getAdminMessages(conversationId) {
+    return this.find({
+      conversationId: conversationId,
+      userId: { $exists: true },
+      isCustomerRead: false,
+
+      // exclude internal notes
+      internal: false,
+    }).sort({ createdAt: 1 });
+  }
+
+  /**
+   * mark sent messages as read
+   * @param  {String} conversationId
+   * @return {Promise} updated info message
+   */
+  static markSentAsReadMessages(conversationId) {
+    return this.update(
+      {
+        conversationId: conversationId,
+        userId: { $exists: true },
+        isCustomerRead: { $exists: false },
+      },
+      { $set: { isCustomerRead: true } },
+      { multi: true },
+    );
   }
 }
 

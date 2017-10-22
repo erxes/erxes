@@ -240,4 +240,27 @@ describe('Conversation db', () => {
     // Conversation message count subtracted
     expect(beforeConversation.messageCount).toBe(afterConversation.messageCount + 1);
   });
+
+  test('Conversation message', async () => {
+    expect(await ConversationMessages.getNonAsnweredMessage(_conversation._id).count()).toBe(1);
+    // expect(question)
+
+    await ConversationMessages.update(
+      { conversationId: _conversation._id },
+      { $set: { isCustomerRead: false, internal: false } },
+    );
+
+    expect(await ConversationMessages.getAdminMessages(_conversation._id).count()).toBe(1);
+
+    const msarm = await ConversationMessages.markSentAsReadMessages(_conversation._id);
+    console.log(msarm);
+
+    const messagesMarkAsRead = await ConversationMessages.find({ _id: _conversation._id });
+
+    for (let message in messagesMarkAsRead) {
+      expect(message.isCustomerRead).toBeTruthy();
+    }
+
+    expect(await Conversations.newOrOpenConversation().count()).toBe(1);
+  });
 });
