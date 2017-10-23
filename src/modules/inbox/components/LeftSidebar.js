@@ -1,6 +1,9 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Wrapper } from '../../layout/components';
+import { ConversationList } from '../../common/components';
+
+import { conversations } from '../datas';
 
 const propTypes = {
   conversations: PropTypes.array.isRequired
@@ -40,7 +43,10 @@ class Sidebar extends Component {
         header={this.renderSidebarHeader()}
         footer={this.renderSidebarFooter()}
       >
-        Content
+        <ConversationList
+          conversations={conversations}
+          user={conversations[0].user}
+        />
       </Sidebar>
     );
   }

@@ -1,5 +1,7 @@
 import NameCard from './nameCard/NameCard';
 import Button from './Button';
+import Label from './Label';
+import Icon from './Icon';
 import BreadCrumb from './Breadcrumb/BreadCrumb';
 import BreadCrumbItem from './Breadcrumb/BreadCrumbItem';
 import Spinner from './Spinner';
@@ -20,13 +22,14 @@ import Tagger from './tagger/containers/Tagger';
 import TaggerPopover from './tagger/components/TaggerPopover';
 import FilterableList from './filterableList/FilterableList';
 import DropdownToggle from './DropdownToggle';
-
-const ConversationsList = () => {};
+import ConversationList from './conversationList/ConversationList';
 
 export {
   ActionButtons,
   NameCard,
   Button,
+  Label,
+  Icon,
   BreadCrumb,
   BreadCrumbItem,
   Spinner,
@@ -41,7 +44,7 @@ export {
   ModalTrigger,
   EmptyState,
   Bulk,
-  ConversationsList,
+  ConversationList,
   CountsByTag,
   Tagger,
   TaggerPopover,

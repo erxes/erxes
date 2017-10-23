@@ -99,13 +99,15 @@ const ContenFooter = styled.div`
 const ContentHeader = styled.div`
   background: ${colors.colorWhite};
   height: ${dimensions.headerSpacing}px;
-  line-height: ${dimensions.headerSpacing}px;
   padding: 0 ${dimensions.coreSpacing}px 0 ${dimensions.coreSpacing}px;
   margin-right: ${dimensions.coreSpacing}px;
   border-bottom: 1px solid ${colors.borderPrimary};
+  display: flex;
+  justify-content: space-between;
 `;
 
 const HeaderItems = styled.div`
+  align-self: center;
   float: ${props => (props.rightAligned ? 'right' : 'left')};
 `;
 

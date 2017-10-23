@@ -1,9 +1,14 @@
 import React from 'react';
 import { storiesOf } from '@storybook/react';
-import { withKnobs, text, select } from "@storybook/addon-knobs";
+import { withKnobs, text, select, boolean } from '@storybook/addon-knobs';
+import { action } from '@storybook/addon-actions';
+
+import Button from '../src/modules/common/components/Button';
+import Label from '../src/modules/common/components/Label';
+import Icon from '../src/modules/common/components/Icon';
+import 'ionicons/css/ionicons.min.css';
 
 import Typography from "./Typography";
-import Button from "../src/components/Button";
 
 storiesOf('Typography', module)
   .addDecorator(withKnobs)
@@ -11,13 +16,32 @@ storiesOf('Typography', module)
     <Typography />
   ));
 
-
 storiesOf('Button', module)
   .addDecorator(withKnobs)
-  .add("Primary", () => (
+  .add('Primary', () => (
     <Button
-      color={select("Color", ["primary", "default", "success"], "default")}
+      btnStyle={select('Color',
+      ['primary', 'default', 'success', 'danger', 'warning', 'simple', 'link'],
+      'default' )}
+      size={select('Size', ['large', 'medium', 'small'], 'medium')}
+      disabled={boolean('Disabled', false)}
+      block={boolean('Block', false)}
+      href={select('Href', [null, 'href'], '')}
+      onClick={ action('button-click') }
     >
-      {text("Text", "Hello Button")}
+      <Icon icon="checkmark" />
+      {text('Text', 'Normal')}
     </Button>
+  ));
+
+storiesOf('Label', module)
+  .addDecorator(withKnobs)
+  .add('Default', () => (
+    <Label
+      lblStyle={select('Color',
+      ['primary', 'default', 'success', 'danger', 'warning'],
+      'default' )}
+    >
+      {text('Text', 'Hello Tag')}
+    </Label>
   ));

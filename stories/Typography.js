@@ -1,5 +1,5 @@
 import React from "react";
-import { typography } from "../src/styles";
+import { typography } from "../src/modules/common/styles";
 
 import { Heading1, SmallText } from "./style";
 

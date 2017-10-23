@@ -2,51 +2,149 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import styled, { css } from 'styled-components';
 import { colors } from '../../styles';
-import { darken } from '../../styles/color';
+import { darken, lighten } from '../../styles/color';
 
 const types = {
   default: {
     background: colors.colorPrimary,
-    borderColor: darken(colors.colorPrimary, 10)
+    color: colors.colorWhite,
+    display: 'inline-block'
   },
   primary: {
     background: colors.colorSecondary,
-    borderColor: darken(colors.colorSecondary, 10)
+    color: colors.colorWhite
   },
   success: {
     background: colors.colorCoreGreen,
-    borderColor: darken(colors.colorCoreGreen, 10)
+    color: colors.colorWhite
+  },
+  danger: {
+    background: colors.colorCoreRed,
+    color: colors.colorWhite
+  },
+  warning: {
+    background: colors.colorCoreYellow,
+    color: colors.colorWhite
+  },
+  simple: {
+    background: colors.colorWhite,
+    borderColor: colors.colorCoreLightGray,
+    color: colors.colorCoreLightGray
+  },
+  link: {
+    background: 'transparent',
+    color: colors.colorCoreGray
+  }
+};
+
+const sizes = {
+  large: {
+    padding: '11px 32px',
+    fontSize: '14px'
+  },
+  medium: {
+    padding: '8px 26px',
+    fontSize: '11px'
+  },
+  small: {
+    padding: '6px 20px',
+    fontSize: '10px'
   }
 };
 
 const ButtonStyled = styled.button`
   ${props => css`
-    border-radius: 20px;
-    padding: 0.25em 1em;
-    margin: 0 1em;
-    background: ${types[props.color].background};
-    color: ${colors.colorWhite};
-    border: 2px solid ${types[props.color].borderColor};
+    border-radius: 30px;
+    padding: ${sizes[props.size].padding};
+    display: ${props.block ? 'block' : 'inline-block'};
+    width: ${props.block && '100%'};
+    border: ${types[props.btnStyle].borderColor ? '1px solid' : 'none'};
+    background: ${types[props.btnStyle].background};
+    color: ${types[props.btnStyle].color};
+    font-size: ${sizes[props.size].fontSize};
+    outline: 0;
+    line-height: 1.32857143;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+
+    &:disabled {
+      cursor: not-allowed !important;
+      background: ${lighten(types[props.btnStyle].background, 30)};
+      color: ${lighten(types[props.btnStyle].color, 20)};
+    }
 
     &:hover {
       cursor: pointer;
-      background: ${darken(types[props.color].background, 10)};
+      box-shadow: 0 0 4px 0 ${colors.colorCoreGray};
+      color: ${types[props.btnStyle].color !== colors.colorWhite
+        ? darken(colors.colorCoreGray, 24)
+        : ''};
     }
   `};
 `;
 
-function Button({ color, children }) {
-  return <ButtonStyled color={color}>{children}</ButtonStyled>;
+const Link = ButtonStyled.withComponent('a');
+
+const ButtonLink = Link.extend`
+  text-decoration: inherit;
+  text-align: center;
+  background: ${props =>
+    props.disabled && lighten(types[props.btnStyle].background, 30)};
+  pointer-events: ${props => props.disabled && 'none'};
+`;
+
+function Button({ btnStyle, children, size, disabled, block, href, onClick }) {
+  if (href) {
+    return (
+      <ButtonLink
+        href={href}
+        btnStyle={btnStyle}
+        size={size}
+        block={block}
+        disabled={disabled}
+        onClick={onClick}
+      >
+        {children}
+      </ButtonLink>
+    );
+  }
+
+  return (
+    <ButtonStyled
+      btnStyle={btnStyle}
+      size={size}
+      block={block}
+      disabled={disabled}
+      onClick={onClick}
+    >
+      {children}
+    </ButtonStyled>
+  );
 }
 
 Button.propTypes = {
   children: PropTypes.node.isRequired,
-  color: PropTypes.oneOf(['default', 'primary', 'success'])
+  onClick: PropTypes.func,
+  href: PropTypes.string,
+  btnStyle: PropTypes.oneOf([
+    'default',
+    'primary',
+    'success',
+    'danger',
+    'warning',
+    'simple',
+    'link'
+  ]),
+  size: PropTypes.oneOf(['large', 'medium', 'small']),
+  disabled: PropTypes.bool,
+  block: PropTypes.bool
 };
 
 Button.defaultProps = {
-  color: 'default',
-  children: 'Button'
+  btnStyle: 'default',
+  size: 'medium',
+  block: false,
+  disabled: false
 };
 
 export default Button;

@@ -6,11 +6,13 @@ import CustomersRoutes from './modules/customers/routes';
 import CompaniesRoutes from './modules/companies/routes';
 import InsightsRoutes from './modules/insights/routes';
 import SettingsRoutes from './modules/settings/routes';
+import InboxRoutes from './modules/inbox/routes';
 import { Main } from './modules/layout/styles';
 
 const Routes = () => (
   <Router>
     <Main>
+      <InboxRoutes />
       <FieldsRoutes />
       <SegmentsRoutes />
       <CustomersRoutes />

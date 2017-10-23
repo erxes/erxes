@@ -3,13 +3,21 @@ import PropTypes from 'prop-types';
 import RightSidebar from './RightSidebar';
 import LeftSidebar from './LeftSidebar';
 import { Wrapper } from '../../layout/components';
+import { Button, Label, Icon } from '../../common/components';
 
 class Inbox extends Component {
   render() {
     const { conversations, messages, user } = this.props;
     const actionBarLeft = <div>Alice Caldwell</div>;
 
-    const actionBarRight = <div>Resolve</div>;
+    const actionBarRight = (
+      <div>
+        <Label lblStyle="danger">urgent</Label>
+        <Button btnStyle="success">
+          <Icon icon="checkmark" />Resolve
+        </Button>
+      </div>
+    );
 
     const actionBar = (
       <Wrapper.ActionBar left={actionBarLeft} right={actionBarRight} />
