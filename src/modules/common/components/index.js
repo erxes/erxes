@@ -20,8 +20,7 @@ import Tagger from './tagger/containers/Tagger';
 import TaggerPopover from './tagger/components/TaggerPopover';
 import FilterableList from './filterableList/FilterableList';
 import DropdownToggle from './DropdownToggle';
-
-const ConversationsList = () => {};
+import ConversationList from './conversationList/ConversationList';
 
 export {
   ActionButtons,
@@ -41,7 +40,7 @@ export {
   ModalTrigger,
   EmptyState,
   Bulk,
-  ConversationsList,
+  ConversationList,
   CountsByTag,
   Tagger,
   TaggerPopover,

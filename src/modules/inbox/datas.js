@@ -1,5 +1,17 @@
 const conversations = [
   {
+    _id: 'id1',
+    customer: {
+      name: 'Ganzorig',
+      email: 'ganzorig.b@nmma.co',
+      _id: 'id'
+    },
+    integration: {
+      kind: 'Messenger',
+      brand: {
+        name: 'Gerege'
+      }
+    },
     user: {
       username: 'ganzorig',
       details: {
@@ -19,7 +31,7 @@ const conversations = [
       ]
     },
     content: 'asdasd',
-    createdAt: '',
+    createdAt: 'October 23, 2017 10:42 AM',
     status: '',
     tags: [
       {
@@ -35,6 +47,18 @@ const conversations = [
     ]
   },
   {
+    _id: 'id2',
+    customer: {
+      name: 'Ganzorig',
+      email: 'ganzorig.b@nmma.co',
+      _id: 'id'
+    },
+    integration: {
+      kind: 'Messenger',
+      brand: {
+        name: 'Gerege'
+      }
+    },
     user: {
       username: 'ganzorig',
       details: {
@@ -54,7 +78,7 @@ const conversations = [
       ]
     },
     content: 'asdasd',
-    createdAt: '',
+    createdAt: 'October 23, 2017 10:42 AM',
     status: '',
     tags: [
       {
@@ -70,6 +94,18 @@ const conversations = [
     ]
   },
   {
+    _id: 'id3',
+    customer: {
+      name: 'Ganzorig',
+      email: 'ganzorig.b@nmma.co',
+      _id: 'id'
+    },
+    integration: {
+      kind: 'Messenger',
+      brand: {
+        name: 'Gerege'
+      }
+    },
     user: {
       username: 'ganzorig',
       details: {
@@ -89,7 +125,7 @@ const conversations = [
       ]
     },
     content: 'asdasd',
-    createdAt: '',
+    createdAt: 'October 23, 2017 10:42 AM',
     status: '',
     tags: [
       {
@@ -105,6 +141,18 @@ const conversations = [
     ]
   },
   {
+    _id: 'id4',
+    customer: {
+      name: 'Ganzorig',
+      email: 'ganzorig.b@nmma.co',
+      _id: 'id'
+    },
+    integration: {
+      kind: 'Messenger',
+      brand: {
+        name: 'Gerege'
+      }
+    },
     user: {
       username: 'ganzorig',
       details: {
@@ -124,7 +172,7 @@ const conversations = [
       ]
     },
     content: 'asdasd',
-    createdAt: '',
+    createdAt: 'October 23, 2017 10:42 AM',
     status: '',
     tags: [
       {

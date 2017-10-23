@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Wrapper } from 'modules/layout/components';
 import { List as InternalNotes } from 'modules/internalNotes/containers';
-import { ConversationsList, EmptyState } from 'modules/common/components';
+import { ConversationList, EmptyState } from 'modules/common/components';
 import RightSidebar from './sidebar/RightSidebar';
 import LeftSidebar from './sidebar/LeftSidebar';
 
@@ -50,7 +50,7 @@ class CustomerDetails extends React.Component {
     return (
       <div style={{ position: 'relative' }}>
         {conversations.length ? (
-          <ConversationsList conversations={conversations} user={user} />
+          <ConversationList conversations={conversations} user={user} />
         ) : (
           <EmptyState
             text="There aren’t any conversations at the moment."
