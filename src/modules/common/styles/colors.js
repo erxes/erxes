@@ -8,7 +8,7 @@ const colorCoreYellow = '#F5C22B';
 const colorCoreGreen = '#67C682';
 const colorCoreBlack = '#393C40';
 const colorCoreGray = '#888';
-const colorCoreLightGray = '#AAAEB3';
+const colorCoreLightGray = '#AAA';
 const colorBlack = '#000';
 const colorShadowGray = '#DDD';
 

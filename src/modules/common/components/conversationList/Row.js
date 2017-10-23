@@ -1,8 +1,17 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import moment from 'moment';
-import classNames from 'classnames';
-import { NameCard } from '../';
+import { NameCard, Label } from '../';
+import {
+  RowItem,
+  RowContent,
+  FlexContent,
+  CheckBox,
+  MainInfo,
+  CustomerName,
+  SmallText,
+  MessageContent
+} from './styles';
 
 const propTypes = {
   conversation: PropTypes.object.isRequired,
@@ -24,15 +33,35 @@ class Row extends Component {
     toggleBulk(conversation, e.target.checked);
   }
 
+  componentWillMount() {
+    moment.updateLocale('en', {
+      relativeTime: {
+        future: 'in %s',
+        past: '%s ',
+        s: 's',
+        m: 'm',
+        mm: '%d m',
+        h: 'h',
+        hh: '%d h',
+        d: 'd',
+        dd: '%d d',
+        M: 'a mth',
+        MM: '%d mths',
+        y: 'y',
+        yy: '%d y'
+      }
+    });
+  }
+
   renderCheckbox() {
     if (!this.props.toggleBulk) {
       return null;
     }
 
     return (
-      <div className="column">
+      <CheckBox>
         <input type="checkbox" onChange={this.toggleBulk} />
-      </div>
+      </CheckBox>
     );
   }
 
@@ -43,43 +72,42 @@ class Row extends Component {
     const integration = conversation.integration || {};
     const brand = integration.brand || {};
     const brandName = brand.name;
-    const rowClasses = classNames(
-      'simple-row',
-      { unread: isRead },
-      'baseline-row'
-    );
     const isExistingCustomer = customer && customer._id;
 
+    // for testing purpose
+    const user = conversation.user;
+
     return (
-      <li className={rowClasses}>
-        {this.renderCheckbox()}
-        <div className="body">
-          <div className="items-horizontal">
-            <div className="column">
+      <RowItem isRead={isRead}>
+        <RowContent>
+          {this.renderCheckbox()}
+          <FlexContent>
+            <MainInfo>
               {(isExistingCustomer && customer.name) ||
               (isExistingCustomer && customer.email) ||
               (isExistingCustomer && customer.phone) ? (
-                <NameCard.Avatar size={40} customer={customer} />
+                <NameCard.Avatar size={40} user={user} />
               ) : null}
-            </div>
 
-            <header>
-              <span className="customer-name">
-                {isExistingCustomer && customer.name}
-              </span>
-              <div className="customer-email">
-                to {brandName} via {integration && integration.kind}
-              </div>
-            </header>
-          </div>
-          <div className="content" onClick={this.goDetail}>
-            <span className="brandname hidden-tb">
-              <time>{moment(createdAt).fromNow()}</time>
-            </span>
-            {content}
-          </div>
-        </div>
-      </li>
+              <FlexContent>
+                <CustomerName>
+                  {isExistingCustomer && customer.name}
+                </CustomerName>
+                <SmallText>
+                  to {brandName} via {integration && integration.kind}
+                </SmallText>
+              </FlexContent>
+            </MainInfo>
+            <MessageContent>{content}</MessageContent>
+            <Label lblStyle="success">deal</Label>
+          </FlexContent>
+        </RowContent>
+        <SmallText>
+          {moment(createdAt)
+            .subtract(2, 'minutes')
+            .fromNow()}
+        </SmallText>
+      </RowItem>
     );
   }
 }

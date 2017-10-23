@@ -36,13 +36,14 @@ const LeftNavigation = styled.aside`
 
 const Nav = styled.nav`
   display: block;
+  background: ${colors.colorCoreBlack};
 
   > a {
     display: block;
     text-align: center;
-    height: ${dimensions.headerSpacingWide}px;
+    height: ${dimensions.headerSpacing + 10}px;
     font-size: ${dimensions.coreSpacing}px;
-    line-height: ${dimensions.headerSpacingWide}px;
+    line-height: ${dimensions.headerSpacing + 10}px;
     text-align: center;
     color: ${rgba(colors.colorWhite, 0.7)};
 

@@ -30,7 +30,8 @@ const conversations = [
         }
       ]
     },
-    content: 'asdasd',
+    content:
+      'Lorem Ipsum is simply dummy text of the printing and typesetting industry. ',
     createdAt: 1399919400000,
     status: '',
     tags: [
@@ -77,7 +78,8 @@ const conversations = [
         }
       ]
     },
-    content: 'asdasd',
+    content:
+      'Lorem Ipsum is simply dummy text of the printing and typesetting industry. ',
     createdAt: 1399919400000,
     status: '',
     tags: [
@@ -124,7 +126,8 @@ const conversations = [
         }
       ]
     },
-    content: 'asdasd',
+    content:
+      'Lorem Ipsum is simply dummy text of the printing and typesetting industry. ',
     createdAt: 1399919400000,
     status: '',
     tags: [
@@ -171,7 +174,8 @@ const conversations = [
         }
       ]
     },
-    content: 'asdasd',
+    content:
+      'Lorem Ipsum is simply dummy text of the printing and typesetting industry. ',
     createdAt: 1399919400000,
     status: '',
     tags: [

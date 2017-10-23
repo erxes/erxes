@@ -30,7 +30,7 @@ class Inbox extends Component {
           this.node = node;
         }}
       >
-        {messages} {this.props.title}
+        {messages}
       </div>
     );
 

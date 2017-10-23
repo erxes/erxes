@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import ListRow from './Row';
+import { ConversationItems } from './styles';
 
 const propTypes = {
   conversations: PropTypes.array.isRequired,
@@ -13,7 +14,7 @@ function ConversationList({ conversations, user, toggleBulk, channelId }) {
   const { starredConversationIds = [] } = user.details;
 
   return (
-    <ul className="conversations-list">
+    <ConversationItems>
       {conversations.map(c => (
         <ListRow
           key={c._id}
@@ -28,7 +29,7 @@ function ConversationList({ conversations, user, toggleBulk, channelId }) {
           channelId={channelId}
         />
       ))}
-    </ul>
+    </ConversationItems>
   );
 }
 

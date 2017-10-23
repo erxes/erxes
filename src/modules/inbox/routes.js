@@ -7,7 +7,7 @@ const routes = () => (
   <Route
     exact
     path="/inbox"
-    component={() => <MainLayout content={<Inbox title="There" />} />}
+    component={() => <MainLayout content={<Inbox />} />}
   />
 );
 
