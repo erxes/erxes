@@ -65,6 +65,8 @@ describe('Conversation db', () => {
     }
   });
   test('Create conversation message', async () => {
+    expect.assertions(17);
+
     // get messageCount before add message
     const prevConversationObj = await Conversations.findOne({ _id: _doc.conversationId });
 
@@ -194,7 +196,7 @@ describe('Conversation db', () => {
       _id: _conversation.id,
     });
 
-    expect(conversationObjWithParticipatedUser.participatedUserIds.indexOf(_user.id)).toBe(-1);
+    expect(conversationObjWithParticipatedUser.participatedUserIds.includes(_user.id)).toBeFalsy();
   });
 
   test('Conversation mark as read', async () => {
@@ -229,7 +231,7 @@ describe('Conversation db', () => {
       _id: _conversationMessage.conversationId,
     });
 
-    await ConversationMessages.removeMessage({ _id: _conversationMessage._id });
+    await ConversationMessages.removeMessages({ _id: { $in: [_conversationMessage._id] } });
 
     expect(await ConversationMessages.find({ _id: _conversationMessage._id }).count()).toBe(0);
 
@@ -252,8 +254,7 @@ describe('Conversation db', () => {
 
     expect(await ConversationMessages.getAdminMessages(_conversation._id).count()).toBe(1);
 
-    const msarm = await ConversationMessages.markSentAsReadMessages(_conversation._id);
-    console.log(msarm);
+    await ConversationMessages.markSentAsReadMessages(_conversation._id);
 
     const messagesMarkAsRead = await ConversationMessages.find({ _id: _conversation._id });
 

@@ -234,6 +234,7 @@ class Conversation {
    * Add participated user to conversation
    * @param  {list} _ids
    * @param  {String} userId
+   * @param  {Boolean} toggle - add only if true
    * @return {Promise} Updated conversation list
    */
   static async toggleParticipatedUsers(_ids, userId) {
@@ -297,6 +298,23 @@ class Conversation {
       status: { $in: [CONVERSATION_STATUSES.NEW, CONVERSATION_STATUSES.OPEN] },
     });
   }
+
+  /**
+   * Add participated user
+   * @param {String} conversationId
+   * @param {String} userId
+   * @return {Promise} updated conversation id
+   */
+  static addParticipatedUsers(conversationId, userId) {
+    if (conversationId && userId) {
+      return this.update(
+        { _id: conversationId },
+        {
+          $addToSet: { participatedUserIds: userId },
+        },
+      );
+    }
+  }
 }
 
 ConversationSchema.loadClass(Conversation);
@@ -325,7 +343,6 @@ class Message {
    * @return {Promise} Newly created message object
    */
   static async createMessage(doc) {
-    // const message = Object.assign({ createdAt: new Date() }, doc);
     const message = await this.create({
       ...doc,
       createdAt: new Date(),
@@ -338,25 +355,11 @@ class Message {
     await Conversations.update({ _id: message.conversationId }, { $set: { messageCount } });
 
     // add created user to participators
-    if (message.conversationId && message.userId) {
-      await Conversations.update(
-        { _id: message.conversationId },
-        {
-          $addToSet: { participatedUserIds: message.userId },
-        },
-      );
-    }
+    await Conversations.addParticipatedUsers(message.conversationId, message.userId);
 
     // add mentioned users to participators
     for (let userId of message.mentionedUserIds) {
-      if (message.conversationId && userId) {
-        await Conversations.update(
-          { _id: message.conversationId },
-          {
-            $addToSet: { participatedUserIds: userId },
-          },
-        );
-      }
+      await Conversations.addParticipatedUsers(message.conversationId, userId);
     }
 
     return message;
@@ -364,7 +367,7 @@ class Message {
 
   /**
    * Create a conversation
-   * @param  {Object} doc conversation messsage fields
+   * @param  {Object} doc - conversation message fields
    * @param  {Object} user object
    * @return {Promise} Newly created conversation object
    */
@@ -390,11 +393,11 @@ class Message {
   }
 
   /**
-   * Remove a message
+   * Remove a messages
    * @param  {Object} selector
-   * @return {Promise} Deleted message object
+   * @return {Promise} Deleted messages info
    */
-  static async removeMessage(selector) {
+  static async removeMessages(selector) {
     const messages = await this.find(selector);
     const result = await this.remove(selector);
 
@@ -410,10 +413,10 @@ class Message {
   }
 
   /**
- * user's last non answered question
- * @param  {String} conversationId
- * @return {Promise} message object
- */
+  * User's last non answered question
+  * @param  {String} conversationId
+  * @return {Promise} message object
+  */
   static getNonAsnweredMessage(conversationId) {
     return this.findOne({
       conversationId: conversationId,
@@ -422,7 +425,7 @@ class Message {
   }
 
   /**
-   * get admin messages
+   * Get admin messages
    * @param  {String} conversationId
    * @return {Promise} messages
    */
@@ -438,9 +441,9 @@ class Message {
   }
 
   /**
-   * mark sent messages as read
+   * Mark sent messages as read
    * @param  {String} conversationId
-   * @return {Promise} updated info message
+   * @return {Promise} updated messages info
    */
   static markSentAsReadMessages(conversationId) {
     return this.update(

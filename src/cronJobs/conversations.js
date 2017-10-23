@@ -1,9 +1,12 @@
 import schedule from 'node-schedule';
 import { _ } from 'underscore';
 import moment from 'moment';
-import { sendEmail } from './data/utils';
-import { Conversations, Brands, Customers, Users, Messages } from './db/models';
+import { sendEmail } from '../data/utils';
+import { Conversations, Brands, Customers, Users, Messages } from '../db/models';
 
+/**
+* Send conversation messages to customer
+*/
 export const sendMessageEmail = async () => {
   // new or open conversations
   const conversations = await Conversations.newOrOpenConversation();
@@ -84,6 +87,6 @@ export const sendMessageEmail = async () => {
 * └───────────────────────── second (0 - 59, OPTIONAL)
 */
 // every 10 minutes
-schedule.scheduleJob('*/10 * * * * *', function() {
+schedule.scheduleJob('*/10 * * * *', function() {
   sendMessageEmail();
 });
