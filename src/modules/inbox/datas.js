@@ -31,7 +31,7 @@ const conversations = [
       ]
     },
     content: 'asdasd',
-    createdAt: 'October 23, 2017 10:42 AM',
+    createdAt: 1399919400000,
     status: '',
     tags: [
       {
@@ -78,7 +78,7 @@ const conversations = [
       ]
     },
     content: 'asdasd',
-    createdAt: 'October 23, 2017 10:42 AM',
+    createdAt: 1399919400000,
     status: '',
     tags: [
       {
@@ -125,7 +125,7 @@ const conversations = [
       ]
     },
     content: 'asdasd',
-    createdAt: 'October 23, 2017 10:42 AM',
+    createdAt: 1399919400000,
     status: '',
     tags: [
       {
@@ -172,7 +172,7 @@ const conversations = [
       ]
     },
     content: 'asdasd',
-    createdAt: 'October 23, 2017 10:42 AM',
+    createdAt: 1399919400000,
     status: '',
     tags: [
       {

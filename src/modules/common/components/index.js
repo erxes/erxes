@@ -1,5 +1,7 @@
 import NameCard from './nameCard/NameCard';
 import Button from './Button';
+import Tag from './Tag';
+import Icon from './Icon';
 import BreadCrumb from './Breadcrumb/BreadCrumb';
 import BreadCrumbItem from './Breadcrumb/BreadCrumbItem';
 import Spinner from './Spinner';
@@ -26,6 +28,8 @@ export {
   ActionButtons,
   NameCard,
   Button,
+  Tag,
+  Icon,
   BreadCrumb,
   BreadCrumbItem,
   Spinner,
