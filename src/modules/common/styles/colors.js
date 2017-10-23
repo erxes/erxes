@@ -9,6 +9,8 @@ const colorCoreGreen = '#67C682';
 const colorCoreBlack = '#393C40';
 const colorCoreGray = '#888';
 const colorCoreLightGray = '#AAAEB3';
+const colorLightGray = '#AAA';
+const colorCoreDarkGray = '#333';
 const colorBlack = '#000';
 const colorShadowGray = '#DDD';
 
@@ -51,6 +53,8 @@ export default {
   colorWhite,
   colorBlack,
   colorShadowGray,
+  colorLightGray,
+  colorCoreDarkGray,
 
   bgMain,
   bgDark,

@@ -6,8 +6,8 @@ import { action } from '@storybook/addon-actions';
 import Button from '../src/modules/common/components/Button';
 import Label from '../src/modules/common/components/Label';
 import Icon from '../src/modules/common/components/Icon';
+import NameCard from '../src/modules/common/components/nameCard';
 import 'ionicons/css/ionicons.min.css';
-
 import Typography from "./Typography";
 
 storiesOf('Typography', module)
@@ -44,4 +44,15 @@ storiesOf('Label', module)
     >
       {text('Text', 'Hello Tag')}
     </Label>
+  ));
+
+storiesOf('NameCard', module)
+  .addDecorator(withKnobs)
+  .add('Default', () => (
+    <NameCard
+      firstLine={text('Text', 'Alice Caldwell')}
+      secondLine={text('Text', 'alice@gmail.com')}
+    >
+      {text('Text', 'Hello Tag')}
+    </NameCard>
   ));

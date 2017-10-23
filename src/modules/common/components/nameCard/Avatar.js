@@ -1,12 +1,14 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import styled from 'styled-components';
 
-const propTypes = {
-  user: PropTypes.object,
-  customer: PropTypes.object,
-  size: PropTypes.number,
-  url: PropTypes.string
-};
+const AvatarStyled = styled.a`
+  display: block;
+  max-width: 80px;
+  border-radius: 40px;
+  float: left;
+  padding: 0;
+`;
 
 class Avatar extends Component {
   generateStyle(size = 40) {
@@ -55,16 +57,20 @@ class Avatar extends Component {
     }
 
     return (
-      // TODO: jump to user profile
-      <a href={url} className="avatar">
+      <AvatarStyled href={url}>
         {avatar
           ? this.renderImage(avatar, fullName)
           : this.renderInitials(fullName)}
-      </a>
+      </AvatarStyled>
     );
   }
 }
 
-Avatar.propTypes = propTypes;
+Avatar.propTypes = {
+  user: PropTypes.object,
+  customer: PropTypes.object,
+  size: PropTypes.number,
+  url: PropTypes.string
+};
 
 export default Avatar;
