@@ -1,6 +1,6 @@
 import NameCard from './nameCard/NameCard';
 import Button from './Button';
-import Tag from './Tag';
+import Label from './Label';
 import Icon from './Icon';
 import BreadCrumb from './Breadcrumb/BreadCrumb';
 import BreadCrumbItem from './Breadcrumb/BreadCrumbItem';
@@ -28,7 +28,7 @@ export {
   ActionButtons,
   NameCard,
   Button,
-  Tag,
+  Label,
   Icon,
   BreadCrumb,
   BreadCrumbItem,

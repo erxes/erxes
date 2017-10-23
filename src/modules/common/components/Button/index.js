@@ -56,13 +56,14 @@ const ButtonStyled = styled.button`
   ${props => css`
     border-radius: 30px;
     padding: ${sizes[props.size].padding};
-    margin: 0 16px;
     display: ${props.block ? 'block' : 'inline-block'};
     width: ${props.block && '100%'};
     border: ${types[props.btnStyle].borderColor ? '1px solid' : 'none'};
     background: ${types[props.btnStyle].background};
     color: ${types[props.btnStyle].color};
     font-size: ${sizes[props.size].fontSize};
+    outline: 0;
+    line-height: 1.32857143;
     transition: all 0.3s ease;
     text-transform: uppercase;
 

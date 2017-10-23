@@ -23,10 +23,11 @@ const types = {
 
 const LabelStyled = styled.span`
   border-radius: 14px;
-  padding: 6px 12px;
+  padding: 3px 12px;
   text-transform: uppercase;
   font-size: 9px;
   display: inline-block;
+  line-height: 1.32857143;
   background: ${props => types[props.lblStyle].background};
   color: ${colors.colorWhite};
   border: none;

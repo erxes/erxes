@@ -4,7 +4,7 @@ import { withKnobs, text, select, boolean } from '@storybook/addon-knobs';
 import { action } from '@storybook/addon-actions';
 
 import Button from '../src/modules/common/components/Button';
-import Label from '../src/modules/common/components/Tag';
+import Label from '../src/modules/common/components/Label';
 import Icon from '../src/modules/common/components/Icon';
 import 'ionicons/css/ionicons.min.css';
 
