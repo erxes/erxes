@@ -27,7 +27,7 @@ const LabelStyled = styled.span`
   text-transform: uppercase;
   font-size: 9px;
   display: inline-block;
-  background: ${props => types[props.btnStyle].background};
+  background: ${props => types[props.lblStyle].background};
   color: ${colors.colorWhite};
   border: none;
 
@@ -36,9 +36,9 @@ const LabelStyled = styled.span`
   }
 `;
 
-function Label({ btnStyle, children }) {
+function Label({ lblStyle, children }) {
   return (
-    <LabelStyled btnStyle={btnStyle}>
+    <LabelStyled lblStyle={lblStyle}>
       {children}
     </LabelStyled>
   );
@@ -46,7 +46,7 @@ function Label({ btnStyle, children }) {
 
 Label.propTypes = {
   children: PropTypes.node.isRequired,
-  btnStyle: PropTypes.oneOf([
+  lblStyle: PropTypes.oneOf([
     'default',
     'primary',
     'success',
@@ -56,7 +56,7 @@ Label.propTypes = {
 };
 
 Label.defaultProps = {
-  btnStyle: 'default',
+  lblStyle: 'default',
 };
 
 export default Label;

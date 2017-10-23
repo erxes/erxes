@@ -21,7 +21,7 @@ storiesOf('Button', module)
   .add('Primary', () => (
     <Button
       btnStyle={select('Color', 
-      ['primary', 'default', 'success', 'danger', 'warning', 'simple', 'link'], 
+      ['primary', 'default', 'success', 'danger', 'warning', 'simple', 'link'],
       'default' )}
       size={select('Size', ['large', 'medium', 'small'], 'medium')}
       disabled={boolean('Disabled', false)}
@@ -38,8 +38,8 @@ storiesOf('Label', module)
   .addDecorator(withKnobs)
   .add('Default', () => (
     <Label
-      btnStyle={select('Color', 
-      ['primary', 'default', 'success', 'danger', 'warning'], 
+      lblStyle={select('Color',
+      ['primary', 'default', 'success', 'danger', 'warning'],
       'default' )}
     >
       {text('Text', 'Hello Tag')}
