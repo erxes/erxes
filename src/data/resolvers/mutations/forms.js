@@ -1,4 +1,4 @@
-import { Forms, FormFields } from '../../../db/models';
+import { Forms } from '../../../db/models';
 
 export default {
   /**
@@ -11,7 +11,7 @@ export default {
    * @return {Promise} return Promise resolving Form document
    * @throws {Error} throws Error('Login required') if user is not logged in
    */
-  formsCreate(root, doc, { user }) {
+  formsAdd(root, doc, { user }) {
     if (!user) {
       throw new Error('Login required');
     }
@@ -55,89 +55,6 @@ export default {
     }
 
     return Forms.removeForm(_id);
-  },
-
-  /**
-   * Adds a form field to the form
-   * @param {Object} root
-   * @param {Object} object2 - Form object
-   * @param {string} object2.formId - Form id
-   * @param {string} object2.type - Form field type
-   * @param {string} object2.validation - Form field data validation type
-   * @param {string} object2.text - Form field text
-   * @param {string} object2.description - Form field description
-   * @param {Array} object2.options - Form field options
-   * @param {Boolean} object2.isRequired - Shows whether the field is required or not
-   * @param {Object} object3 - Middleware data
-   * @param {Object} object3.user - The user making this action
-   * @return {Promise} return Promise resolving new FormField document
-   * @throws {Error} throws Error('Login required') if user is not logged in
-   */
-  formsAddFormField(root, { formId, ...formFieldDoc }, { user }) {
-    if (!user) {
-      throw new Error('Login required');
-    }
-
-    return FormFields.createFormField(formId, formFieldDoc);
-  },
-
-  /**
-  * @param {Object} root
-  * @param {string} object2 - Form field object
-  * @param {string} object2._id - Form field id
-  * @param {string} object2.type - Form field type
-  * @param {string} object2.validation - Form field data validation type
-  * @param {string} object2.text - Form field text
-  * @param {string} object2.description - Form field description
-  * @param {Array} object2.options - Form field options for select type
-  * @param {Boolean} object2.isRequired
-  * @param {Object} object3 - Middleware data
-  * @param {Object} object3.user - The user making this action
-  * @return {Promise} return Promise resolving updated FormField
-  * @throws {Error} throws Error('Login required') if user is not logged in
-  */
-  formsEditFormField(root, { _id, ...formFieldDoc }, { user }) {
-    if (!user) {
-      throw new Error('Login required');
-    }
-
-    return FormFields.updateFormField(_id, formFieldDoc);
-  },
-
-  /**
-   * Remove a form field
-   * @param {Object} root
-   * @param {Object} object2 - Graphql input data
-   * @param {string} object2._id - Form field id
-   * @param {Object} object3 - Middleware data
-   * @param {Object} object3.user - The user making this action
-   * @return {Promise}
-   * @throws {Error} throws Error('Login required') if user is not logged in
-   */
-  formsRemoveFormField(root, { _id }, { user }) {
-    if (!user) {
-      throw new Error('Login required');
-    }
-
-    return FormFields.removeFormField(_id);
-  },
-
-  /**
-   * Rearranges order based on given value
-   * @param {Object} root
-   * @param {Object} object2 - Graphql input data
-   * @param {Object} object2.orderDics - Dictionary containing order values for form fields
-   * @param {Object} object3 - The middleware data
-   * @param {Object} object3.user - The user making this action
-   * @return {Promise}
-   * @throws {Error} throws Error('Login required') if user is not logged in
-   */
-  formsUpdateFormFieldsOrder(root, { orderDics }, { user }) {
-    if (!user) {
-      throw new Error('Login required');
-    }
-
-    return Forms.updateFormFieldsOrder(orderDics);
   },
 
   /**

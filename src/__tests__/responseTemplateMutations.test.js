@@ -38,16 +38,16 @@ describe('Response template mutations', () => {
     expect.assertions(3);
 
     // add response template
-    checkLogin(responseTemplateMutations.responseTemplateAdd, {
+    checkLogin(responseTemplateMutations.responseTemplatesAdd, {
       name: _responseTemplate.name,
       content: _responseTemplate.content,
     });
 
     // update response template
-    checkLogin(responseTemplateMutations.responseTemplateEdit, { _id: _responseTemplate.id });
+    checkLogin(responseTemplateMutations.responseTemplatesEdit, { _id: _responseTemplate.id });
 
     // remove response template
-    checkLogin(responseTemplateMutations.responseTemplateRemove, { _id: _responseTemplate.id });
+    checkLogin(responseTemplateMutations.responseTemplatesRemove, { _id: _responseTemplate.id });
   });
 
   test('Create response template', async () => {
@@ -60,7 +60,7 @@ describe('Response template mutations', () => {
       files: _responseTemplate.files,
     };
 
-    await responseTemplateMutations.responseTemplateAdd({}, _doc, { user: _user });
+    await responseTemplateMutations.responseTemplatesAdd({}, _doc, { user: _user });
     expect(ResponseTemplates.create.mock.calls.length).toBe(1);
     expect(ResponseTemplates.create).toBeCalledWith(_doc);
   });
@@ -75,7 +75,7 @@ describe('Response template mutations', () => {
       files: _responseTemplate.files,
     };
 
-    await responseTemplateMutations.responseTemplateEdit(
+    await responseTemplateMutations.responseTemplatesEdit(
       {},
       { _id: _responseTemplate.id, ..._doc },
       { user: _user },
@@ -88,7 +88,7 @@ describe('Response template mutations', () => {
   test('Delete response template', async () => {
     ResponseTemplates.removeResponseTemplate = jest.fn();
 
-    await responseTemplateMutations.responseTemplateRemove(
+    await responseTemplateMutations.responseTemplatesRemove(
       {},
       { _id: _responseTemplate.id },
       { user: _user },

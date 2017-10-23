@@ -16,7 +16,6 @@ import {
   Segments,
   EngageMessages,
   Forms,
-  FormFields,
   Fields,
   Companies,
   NotificationConfigurations,
@@ -30,6 +29,12 @@ export const userFactory = (params = {}) => {
     details: {
       fullName: params.fullName || faker.random.word(),
     },
+    emails: [
+      {
+        address: params.email || faker.internet.email(),
+        verified: true,
+      },
+    ],
   });
 
   return user.save();
@@ -49,11 +54,16 @@ export const tagsFactory = (params = { type: 'engageMessage' }) => {
 export const engageMessageFactory = (params = {}) => {
   const engageMessage = new EngageMessages({
     kind: 'manual',
+    method: 'messenger',
     title: faker.random.word(),
     fromUserId: params.userId || faker.random.word(),
     segmentId: params.segmentId || faker.random.word(),
     isLive: true,
     isDraft: false,
+    messenger: {
+      brandId: faker.random.word(),
+      content: faker.random.word(),
+    },
   });
 
   return engageMessage.save();
@@ -160,6 +170,8 @@ export const customerFactory = (params = {}) => {
 
 export const fieldFactory = (params = {}) => {
   const field = new Fields({
+    contentType: params.contentType || 'form',
+    contentTypeId: params.contentTypeId || 'DFAFDASFDASFDSFDASFASF',
     type: params.type || 'input',
     validation: params.validation || 'number',
     text: params.text || faker.random.word(),
@@ -222,18 +234,6 @@ export const formFactory = async ({ title, code, description, createdUserId }) =
     },
     createdUserId || (await userFactory({})),
   );
-};
-
-export const formFieldFactory = (formId, params) => {
-  return FormFields.createFormField(formId || Random.id(), {
-    type: params.type || 'input',
-    name: faker.random.word(),
-    validation: params.validation || 'number',
-    text: faker.random.word(),
-    description: faker.random.word(),
-    isRequired: params.isRequired || false,
-    number: faker.random.word(),
-  });
 };
 
 export const notificationConfigurationFactory = params => {

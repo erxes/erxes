@@ -7,7 +7,7 @@ import Integrations from './Integrations';
 import EngageMessages from './Engages';
 import Tags from './Tags';
 import Fields from './Fields';
-import { Forms, FormFields } from './Forms';
+import Forms from './Forms';
 import InternalNotes from './InternalNotes';
 import Customers from './Customers';
 import Companies from './Companies';
@@ -28,7 +28,6 @@ export {
   Brands,
   Integrations,
   Forms,
-  FormFields,
   EngageMessages,
   Tags,
   Fields,

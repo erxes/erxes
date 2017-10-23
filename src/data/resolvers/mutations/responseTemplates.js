@@ -6,7 +6,7 @@ export default {
    * @param {Object} fields - response template fields
    * @return {Promise} newly created response template object
    */
-  responseTemplateAdd(root, doc, { user }) {
+  responseTemplatesAdd(root, doc, { user }) {
     if (!user) throw new Error('Login required');
 
     return ResponseTemplates.create(doc);
@@ -18,7 +18,7 @@ export default {
    * @param {Object} fields - response template fields
    * @return {Promise} updated response template object
    */
-  responseTemplateEdit(root, { _id, ...fields }, { user }) {
+  responseTemplatesEdit(root, { _id, ...fields }, { user }) {
     if (!user) throw new Error('Login required');
 
     return ResponseTemplates.updateResponseTemplate(_id, fields);
@@ -29,7 +29,7 @@ export default {
    * @param {String} _id - response template id
    * @return {Promise}
    */
-  responseTemplateRemove(root, { _id }, { user }) {
+  responseTemplatesRemove(root, { _id }, { user }) {
     if (!user) throw new Error('Login required');
 
     return ResponseTemplates.removeResponseTemplate(_id);

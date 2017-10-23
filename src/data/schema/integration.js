@@ -72,22 +72,26 @@ export const mutations = `
     name: String!,
     brandId: String!): Integration
 
-  integrationsSaveMessengerAppearanceData(_id: String!, uiOptions: MessengerUiOptions): Boolean
+  integrationsSaveMessengerAppearanceData(
+    _id: String!,
+    uiOptions: MessengerUiOptions): Integration
 
-  integrationsSaveMessengerConfigs(_id: String!, messengerData: IntegrationMessengerData): Boolean
+  integrationsSaveMessengerConfigs(
+    _id: String!,
+    messengerData: IntegrationMessengerData): Integration
 
   integrationsCreateFormIntegration(
     name: String!,
     brandId: String!,
-    formId: String,
+    formId: String!,
     formData: IntegrationFormData!): Integration
 
   integrationsEditFormIntegration(
     _id: String!
     name: String!,
     brandId: String!,
-    formId: String,
-    formData: IntegrationFormData!): Boolean
+    formId: String!,
+    formData: IntegrationFormData!): Integration
 
-  integrationsRemove(id: String!): Boolean
+  integrationsRemove(_id: String!): String
 `;

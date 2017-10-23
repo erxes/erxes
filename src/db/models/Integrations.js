@@ -51,14 +51,38 @@ const FormDataSchema = mongoose.Schema(
       type: String,
       enum: FORM_SUCCESS_ACTIONS.ALL_LIST,
     },
-    fromEmail: mongoose.SchemaTypes.Email,
-    userEmailTitle: String,
-    userEmailContent: String,
-    adminEmails: [mongoose.SchemaTypes.Email],
-    adminEmailTitle: String,
-    adminEmailContent: String,
-    thankContent: String,
-    redirectUrl: String,
+    fromEmail: {
+      type: String,
+      optional: true,
+    },
+    userEmailTitle: {
+      type: String,
+      optional: true,
+    },
+    userEmailContent: {
+      type: String,
+      optional: true,
+    },
+    adminEmails: {
+      type: [String],
+      optional: true,
+    },
+    adminEmailTitle: {
+      type: String,
+      optional: true,
+    },
+    adminEmailContent: {
+      type: String,
+      optional: true,
+    },
+    thankContent: {
+      type: String,
+      optional: true,
+    },
+    redirectUrl: {
+      type: String,
+      optional: true,
+    },
   },
   { _id: false },
 );

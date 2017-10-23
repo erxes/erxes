@@ -38,7 +38,7 @@ export default {
    * @return {Promise} return Promise resolving created Channel document
    * @throws {Error} throws Error('Login required') if user is not logged in
    */
-  async channelsCreate(root, doc, { user }) {
+  async channelsAdd(root, doc, { user }) {
     if (!user) {
       throw new Error('Login required');
     }
@@ -86,11 +86,13 @@ export default {
    * @return {Promise}
    * @throws {Error} throws Error('Login required') if user is not logged in
    */
-  channelsRemove(root, { _id }, { user }) {
+  async channelsRemove(root, { _id }, { user }) {
     if (!user) {
       throw new Error('Login required');
     }
 
-    return Channels.removeChannel(_id);
+    await Channels.removeChannel(_id);
+
+    return _id;
   },
 };

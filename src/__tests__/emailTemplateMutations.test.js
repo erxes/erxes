@@ -38,16 +38,16 @@ describe('Email template mutations', () => {
     expect.assertions(3);
 
     // add email template
-    checkLogin(emailTemplateMutations.emailTemplateAdd, {
+    checkLogin(emailTemplateMutations.emailTemplatesAdd, {
       name: _emailTemplate.name,
       content: _emailTemplate.content,
     });
 
     // update email template
-    checkLogin(emailTemplateMutations.emailTemplateEdit, { _id: _emailTemplate.id });
+    checkLogin(emailTemplateMutations.emailTemplatesEdit, { _id: _emailTemplate.id });
 
     // remove email template
-    checkLogin(emailTemplateMutations.emailTemplateRemove, { _id: _emailTemplate.id });
+    checkLogin(emailTemplateMutations.emailTemplatesRemove, { _id: _emailTemplate.id });
   });
 
   test('Create email template', async () => {
@@ -55,7 +55,7 @@ describe('Email template mutations', () => {
 
     const _doc = { name: _emailTemplate.name, content: _emailTemplate.content };
 
-    await emailTemplateMutations.emailTemplateAdd({}, _doc, { user: _user });
+    await emailTemplateMutations.emailTemplatesAdd({}, _doc, { user: _user });
 
     expect(EmailTemplates.create.mock.calls.length).toBe(1);
     expect(EmailTemplates.create).toBeCalledWith(_doc);
@@ -66,7 +66,7 @@ describe('Email template mutations', () => {
 
     const _doc = { name: _emailTemplate.name, content: _emailTemplate.content };
 
-    await emailTemplateMutations.emailTemplateEdit(
+    await emailTemplateMutations.emailTemplatesEdit(
       {},
       { _id: _emailTemplate.id, ..._doc },
       { user: _user },
@@ -79,7 +79,7 @@ describe('Email template mutations', () => {
   test('Delete email template', async () => {
     EmailTemplates.removeEmailTemplate = jest.fn();
 
-    await emailTemplateMutations.emailTemplateRemove(
+    await emailTemplateMutations.emailTemplatesRemove(
       {},
       { _id: _emailTemplate.id },
       { user: _user },

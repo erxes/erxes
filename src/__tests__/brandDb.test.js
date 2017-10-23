@@ -25,22 +25,27 @@ describe('Brands db', () => {
     await Users.remove({});
   });
 
+  test('Generate code', async () => {
+    // try using exisiting one
+    let code = await Brands.generateCode(_brand.code);
+    expect(code).not.toBe(_brand.code);
+    expect(code).toBeDefined();
+
+    // try using not existing one
+    code = await Brands.generateCode('DFAFFADFSF');
+    expect(code).toBeDefined();
+  });
+
   test('Create brand', async () => {
     const brandObj = await Brands.createBrand({
-      code: _brand.code,
       name: _brand.name,
       description: _brand.description,
       userId: _user.id,
     });
     expect(brandObj).toBeDefined();
-    expect(brandObj.code).toBe(_brand.code);
+    expect(brandObj.code).toBeDefined();
     expect(brandObj.name).toBe(_brand.name);
     expect(brandObj.userId).toBe(_user._id);
-
-    // invalid data
-    expect(() => {
-      Brands.createBrand({ code: '', name: _brand.name, userId: _user.id });
-    }).toThrowError('Code is required field');
   });
 
   test('Update brand', async () => {
