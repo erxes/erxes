@@ -2,11 +2,10 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Inbox as InboxComponent } from '../components';
 
-import { conversations } from '../datas';
+import { conversations, messages } from '../datas';
 
 class Inbox extends Component {
   render() {
-    const messages = [];
     const user = {};
 
     // =============== actions

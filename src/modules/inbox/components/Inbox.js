@@ -4,6 +4,7 @@ import RightSidebar from './RightSidebar';
 import LeftSidebar from './LeftSidebar';
 import { Wrapper } from '../../layout/components';
 import { Button, Label, Icon } from '../../common/components';
+import Conversation from './conversation/Conversation';
 
 class Inbox extends Component {
   render() {
@@ -30,7 +31,7 @@ class Inbox extends Component {
           this.node = node;
         }}
       >
-        {messages}
+        <Conversation messages={messages} />
       </div>
     );
 
