@@ -23,6 +23,7 @@ import TaggerPopover from './tagger/components/TaggerPopover';
 import FilterableList from './filterableList/FilterableList';
 import DropdownToggle from './DropdownToggle';
 import ConversationList from './conversationList/ConversationList';
+import { FormControl, ControlLabel } from './Form';
 
 export {
   ActionButtons,
@@ -49,5 +50,7 @@ export {
   Tagger,
   TaggerPopover,
   FilterableList,
-  DropdownToggle
+  DropdownToggle,
+  FormControl,
+  ControlLabel
 };

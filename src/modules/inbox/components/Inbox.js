@@ -3,7 +3,13 @@ import PropTypes from 'prop-types';
 import RightSidebar from './RightSidebar';
 import LeftSidebar from './LeftSidebar';
 import { Wrapper } from '../../layout/components';
-import { Button, Label, Icon } from '../../common/components';
+import {
+  Button,
+  Label,
+  Icon,
+  FormControl,
+  ControlLabel
+} from '../../common/components';
 
 class Inbox extends Component {
   render() {
@@ -30,6 +36,42 @@ class Inbox extends Component {
           this.node = node;
         }}
       >
+        <div style={{ padding: '20px', background: '#fff' }}>
+          <ControlLabel>First name</ControlLabel>
+          <FormControl defaultValue="Text input" type="email" required />
+
+          <ControlLabel>File</ControlLabel>
+          <FormControl type="file" />
+
+          <ControlLabel>Select</ControlLabel>
+          <FormControl defaultValue="2" componentClass="select">
+            <option value="1">Toyota</option>
+            <option value="2">Subaru</option>
+            <option value="3">Honda</option>
+            <option value="4">Suzuki</option>
+          </FormControl>
+
+          <ControlLabel>Textarea</ControlLabel>
+          <FormControl defaultValue="Textarea" componentClass="textarea" />
+
+          <FormControl defaultChecked={false} componentClass="checkbox" />
+          <FormControl defaultChecked={true} componentClass="checkbox">
+            checkbox
+          </FormControl>
+
+          <FormControl
+            defaultChecked={false}
+            name="radio"
+            componentClass="radio"
+          />
+          <FormControl
+            defaultChecked={true}
+            name="radio"
+            componentClass="radio"
+          >
+            radio
+          </FormControl>
+        </div>
         {messages}
       </div>
     );
