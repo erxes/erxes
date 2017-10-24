@@ -5,10 +5,19 @@ export const types = `
     details: JSON
     emails: JSON
   }
+
+  type AuthPayload {
+    token: String!
+    refreshToken: String!
+  }
 `;
 
 export const queries = `
   users(limit: Int): [User]
   userDetail(_id: String): User
   usersTotalCount: Int
+`;
+
+export const mutations = `
+  login(email: String!, password: String!): AuthPayload!
 `;

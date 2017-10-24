@@ -1,3 +1,4 @@
+import users from './users';
 import conversations from './conversations';
 import tags from './tags';
 import engages from './engages';
@@ -15,6 +16,7 @@ import integrations from './integrations';
 import notifications from './notifications';
 
 export default {
+  ...users,
   ...conversations,
   ...tags,
   ...engages,
