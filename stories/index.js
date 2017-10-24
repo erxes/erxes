@@ -9,6 +9,7 @@ import Icon from '../src/modules/common/components/Icon';
 import NameCard from '../src/modules/common/components/nameCard/NameCard';
 import EmptyState from '../src/modules/common/components/EmptyState';
 import Loader from '../src/modules/common/components/Loader';
+import Spinner from '../src/modules/common/components/Spinner';
 import 'ionicons/css/ionicons.min.css';
 import Typography from "./Typography";
 
@@ -59,15 +60,6 @@ storiesOf('NameCard', module)
     </NameCard>
   ));
 
-storiesOf('Loader', module)
-  .addDecorator(withKnobs)
-  .add('Primary', () => (
-    <Loader
-    >
-      {text('Text', 'Hello Tag')}
-    </Loader>
-  ));
-
 storiesOf('EmptyState', module)
   .addDecorator(withKnobs)
   .add('Primary', () => (
@@ -80,4 +72,22 @@ storiesOf('EmptyState', module)
     >
       {text('Text', 'Hello Tag')}
     </EmptyState>
+  ));
+
+storiesOf('Loader', module)
+  .addDecorator(withKnobs)
+  .add('Primary', () => (
+    <Loader
+    >
+      {text('Text', 'Hello Tag')}
+    </Loader>
+  ));
+
+storiesOf('Spinner', module)
+  .addDecorator(withKnobs)
+  .add('Primary', () => (
+    <Spinner
+    >
+      {text('Text', 'Hello Tag')}
+    </Spinner>
   ));
