@@ -74,6 +74,7 @@ function SegmentsList({ contentType, segments, removeSegment }) {
       <i className="ion-plus-circled" /> New segment
     </Button>
   );
+
   const actionBar = <Wrapper.ActionBar left={actionBarLeft} />;
 
   return (

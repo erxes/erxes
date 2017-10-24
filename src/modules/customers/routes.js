@@ -8,6 +8,7 @@ import { CustomersList, CustomerDetails } from './containers';
 const routes = () => [
   <Route
     key="/customers/details/:id"
+    exact
     path="/customers/details/:id"
     component={({ match, location }) => {
       const queryParams = queryString.parse(location.search);
@@ -23,6 +24,7 @@ const routes = () => [
 
   <Route
     key="/customers/manage-columns"
+    exact
     path="/customers/manage-columns"
     component={() => {
       return <MainLayout content={<ManageColumns contentType="customer" />} />;
@@ -31,6 +33,7 @@ const routes = () => [
 
   <Route
     key="/customers"
+    exact
     path="/customers"
     component={({ location }) => {
       const queryParams = queryString.parse(location.search);

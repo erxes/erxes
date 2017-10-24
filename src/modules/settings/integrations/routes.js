@@ -8,6 +8,7 @@ import { AddIntegration } from './components';
 const routes = () => [
   <Route
     key="/settings/integrations/messenger/configs/:integrationId"
+    exact
     path="/settings/integrations/messenger/configs/:integrationId"
     component={({ match }) => {
       const id = match.params.integrationId;
@@ -17,6 +18,7 @@ const routes = () => [
 
   <Route
     key="/settings/integrations/messenger/appearance/:integrationId"
+    exact
     path="/settings/integrations/messenger/appearance/:integrationId"
     component={({ match }) => {
       const id = match.params.integrationId;
@@ -28,6 +30,7 @@ const routes = () => [
 
   <Route
     key="/settings/integrations/add"
+    exact
     path="/settings/integrations/add"
     component={() => {
       return <MainLayout content={<AddIntegration />} />;
@@ -36,6 +39,7 @@ const routes = () => [
 
   <Route
     key="/settings/integrations"
+    exact
     path="/settings/integrations"
     component={({ location }) => {
       return (

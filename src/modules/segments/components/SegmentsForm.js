@@ -246,13 +246,11 @@ class SegmentsForm extends Component {
     );
 
     return (
-      <div>
-        <Wrapper
-          header={<Wrapper.Header breadcrumb={breadcrumb} />}
-          actionBar={actionBar}
-          content={content}
-        />
-      </div>
+      <Wrapper
+        header={<Wrapper.Header breadcrumb={breadcrumb} />}
+        actionBar={actionBar}
+        content={content}
+      />
     );
   }
 }
