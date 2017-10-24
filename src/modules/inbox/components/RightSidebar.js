@@ -14,8 +14,6 @@ class RightSidebar extends Component {
 
     return (
       <Sidebar>
-        <Sidebar.Section>asd</Sidebar.Section>
-
         <Sidebar.Section>
           <Title>Companies</Title>
         </Sidebar.Section>

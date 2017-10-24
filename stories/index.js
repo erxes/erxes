@@ -6,6 +6,7 @@ import { action } from '@storybook/addon-actions';
 import Button from '../src/modules/common/components/Button';
 import Label from '../src/modules/common/components/Label';
 import Icon from '../src/modules/common/components/Icon';
+import TextDivider from '../src/modules/common/components/TextDivider';
 import 'ionicons/css/ionicons.min.css';
 
 import Typography from "./Typography";
@@ -45,3 +46,9 @@ storiesOf('Label', module)
       {text('Text', 'Hello Tag')}
     </Label>
   ));
+
+  storiesOf('TextDivider', module)
+  .addDecorator(withKnobs)
+    .add('Default', () => (
+      <TextDivider text={text('Text', 'Information text is here')} />
+    ));

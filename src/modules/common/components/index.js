@@ -24,6 +24,7 @@ import FilterableList from './filterableList/FilterableList';
 import DropdownToggle from './DropdownToggle';
 import ConversationList from './conversationList/ConversationList';
 import { FormControl, ControlLabel } from './Form';
+import TextDivider from './TextDivider';
 
 export {
   ActionButtons,
@@ -52,5 +53,6 @@ export {
   FilterableList,
   DropdownToggle,
   FormControl,
-  ControlLabel
+  ControlLabel,
+  TextDivider
 };
