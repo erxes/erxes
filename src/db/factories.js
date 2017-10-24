@@ -81,7 +81,7 @@ export const brandFactory = (params = {}) => {
   const brand = new Brands({
     name: faker.random.word(),
     code: params.code || faker.random.word(),
-    userId: () => Random.id(),
+    userId: Random.id(),
     description: params.description || faker.random.word(),
     emailConfig: {
       type: 'simple',

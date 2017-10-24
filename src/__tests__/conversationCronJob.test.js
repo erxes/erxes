@@ -88,20 +88,22 @@ describe('Cronjob conversation send email', () => {
     expect(spyEmail.mock.calls.length).toBe(1);
 
     const question = _conversationMessage;
-    question.createdAt = moment(_conversationMessage.createdAt).format('DD MMM YY, HH:mm');
+    question.createdAt = moment(question.createdAt).format('DD MMM YY, HH:mm');
 
     const data = {
       customer: _customer,
       question,
       brand: _brand,
     };
+
     const answer = _conversationMessage;
+
     answer.user = _user;
     answer.createdAt = moment(_conversationMessage.createdAt).format('DD MMM YY, HH:mm');
     data.answers = [answer];
 
-    // send email
-    expect(spyEmail).toBeCalledWith({
+    // send email: check called parameters ================
+    const expectedArgs = {
       to: _customer.email,
       title: `Reply from "${_brand.name}"`,
       template: {
@@ -109,8 +111,27 @@ describe('Cronjob conversation send email', () => {
         isCustom: true,
         data,
       },
-    });
+    };
 
+    const calledArgs = spyEmail.mock.calls[0][0];
+
+    expect(expectedArgs.to).toBe(calledArgs.to);
+    expect(expectedArgs.title).toBe(calledArgs.title);
+    expect(expectedArgs.template.name).toBe(calledArgs.template.name);
+    expect(expectedArgs.template.isCustom).toBe(calledArgs.template.isCustom);
+
+    expect(expectedArgs.template.data.question.toJSON()).toEqual(
+      calledArgs.template.data.question.toJSON(),
+    );
+
+    expect(expectedArgs.template.data.brand.toJSON()).toEqual(
+      calledArgs.template.data.brand.toJSON(),
+    );
+    expect(expectedArgs.template.data.customer.toJSON()).toEqual(
+      calledArgs.template.data.customer.toJSON(),
+    );
+
+    // mark as read: check called parameters ===============
     expect(ConversationMessages.markSentAsReadMessages.mock.calls.length).toBe(1);
     expect(ConversationMessages.markSentAsReadMessages).toBeCalledWith(_conversation.id);
   });
