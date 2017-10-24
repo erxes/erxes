@@ -7,6 +7,14 @@ import { Button, Label, Icon } from '../../common/components';
 import Conversation from './conversation/Conversation';
 
 class Inbox extends Component {
+  componentDidMount() {
+    this.node.scrollTop = this.node.scrollHeight;
+  }
+
+  componentDidUpdate() {
+    this.node.scrollTop = this.node.scrollHeight;
+  }
+
   render() {
     const { conversations, messages, user } = this.props;
     const actionBarLeft = <div>Alice Caldwell</div>;
@@ -26,7 +34,7 @@ class Inbox extends Component {
 
     const content = (
       <div
-        className="scroll-area"
+        style={{ height: '100%', overflow: 'auto' }}
         ref={node => {
           this.node = node;
         }}
