@@ -35,4 +35,12 @@ export default {
   usersTotalCount() {
     return Users.find({}).count();
   },
+
+  /**
+   * Current user
+   * @return {Promise} total count
+   */
+  currentUser(root, args, { user }) {
+    return user;
+  },
 };

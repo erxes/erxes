@@ -120,3 +120,7 @@ export const userMiddleware = async (req, res, next) => {
 
   next();
 };
+
+export default {
+  login,
+};

@@ -72,7 +72,7 @@ const sendViaEmail = async message => {
   const { templateId, subject, content } = message.email;
 
   const user = await Users.findOne({ _id: fromUserId });
-  const userEmail = user.emails.pop();
+  const userEmail = user.email;
   const template = await EmailTemplates.findOne({ _id: templateId });
 
   // find matched customers
@@ -102,7 +102,7 @@ const sendViaEmail = async message => {
     const transporter = await createTransporter();
     transporter.sendMail(
       {
-        from: userEmail.address,
+        from: userEmail,
         to: customer.email,
         subject: replacedSubject,
         html: replacedContent,

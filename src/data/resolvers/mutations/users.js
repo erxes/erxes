@@ -1,7 +1,7 @@
-import { login } from '../../../auth';
+import auth from '../../../auth';
 
 export default {
   login(root, args) {
-    return login(args);
+    return auth.login(args);
   },
 };

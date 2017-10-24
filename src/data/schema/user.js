@@ -16,6 +16,7 @@ export const queries = `
   users(limit: Int): [User]
   userDetail(_id: String): User
   usersTotalCount: Int
+  currentUser: User
 `;
 
 export const mutations = `
