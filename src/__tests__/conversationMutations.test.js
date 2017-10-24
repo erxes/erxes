@@ -2,7 +2,7 @@
 /* eslint-disable no-underscore-dangle */
 
 import { connect, disconnect } from '../db/connection';
-import { Conversations, ConversationMessages, Users } from '../db/models';
+import { Conversations, ConversationMessages, Users, Customers, Integrations } from '../db/models';
 import {
   conversationFactory,
   conversationMessageFactory,
@@ -47,6 +47,8 @@ describe('Conversation message mutations', () => {
     await Conversations.remove({});
     await ConversationMessages.remove({});
     await Users.remove({});
+    await Integrations.remove({});
+    await Customers.remove({});
   });
 
   test('Conversation login required functions', async () => {

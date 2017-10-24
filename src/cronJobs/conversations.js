@@ -1,8 +1,15 @@
 import schedule from 'node-schedule';
 import { _ } from 'underscore';
 import moment from 'moment';
-import { sendEmail } from '../data/utils';
-import { Conversations, Brands, Customers, Users, Messages } from '../db/models';
+import utils from '../data/utils';
+import {
+  Conversations,
+  Brands,
+  Customers,
+  Users,
+  ConversationMessages,
+  Integrations,
+} from '../db/models';
 
 /**
 * Send conversation messages to customer
@@ -13,7 +20,8 @@ export const sendMessageEmail = async () => {
 
   for (let conversation of conversations) {
     const customer = await Customers.findOne({ _id: conversation.customerId });
-    const brand = await Brands.findOne({ _id: conversation.brandId });
+    const integration = await Integrations.findOne({ _id: conversation.integrationId });
+    const brand = await Brands.findOne({ _id: integration.brandId });
 
     if (!customer || !customer.email) {
       return;
@@ -23,14 +31,14 @@ export const sendMessageEmail = async () => {
     }
 
     // user's last non answered question
-    const question = (await Messages.getNonAsnweredMessage(conversation._id)) || {};
+    const question = (await ConversationMessages.getNonAsnweredMessage(conversation._id)) || {};
 
     question.createdAt = moment(question.createdAt).format('DD MMM YY, HH:mm');
 
     // generate admin unread answers
     const answers = [];
 
-    const adminMessages = await Messages.getAdminMessages(conversation._id);
+    const adminMessages = await ConversationMessages.getAdminMessages(conversation._id);
 
     for (let message of adminMessages) {
       const answer = message;
@@ -60,9 +68,9 @@ export const sendMessageEmail = async () => {
     }
 
     // send email
-    sendEmail({
+    utils.sendEmail({
       to: customer.email,
-      subject: `Reply from "${brand.name}"`,
+      title: `Reply from "${brand.name}"`,
       template: {
         name: 'conversationCron',
         isCustom: true,
@@ -71,7 +79,7 @@ export const sendMessageEmail = async () => {
     });
 
     // mark sent messages as read
-    Messages.markSentAsReadMessages(conversation._id);
+    ConversationMessages.markSentAsReadMessages(conversation._id);
   }
 };
 

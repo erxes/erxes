@@ -1,5 +1,5 @@
-import { sendMessageEmail } from './conversations';
+import conversations from './conversations';
 
 export default {
-  ...sendMessageEmail,
+  ...conversations,
 };
