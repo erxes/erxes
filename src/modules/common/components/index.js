@@ -20,6 +20,7 @@ import Bulk from './Bulk';
 import CountsByTag from './CountsByTag';
 import Tagger from './tagger/containers/Tagger';
 import TaggerPopover from './tagger/components/TaggerPopover';
+import Tags from './Tags';
 import FilterableList from './filterableList/FilterableList';
 import DropdownToggle from './DropdownToggle';
 import ConversationList from './conversationList/ConversationList';
@@ -48,6 +49,7 @@ export {
   CountsByTag,
   Tagger,
   TaggerPopover,
+  Tags,
   FilterableList,
   DropdownToggle
 };

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Route } from 'react-router-dom';
 import queryString from 'query-string';
-import { MainLayout } from '../layout/components';
+import { MainLayout } from '../layout/containers';
 import { ManageColumns } from '../fields/containers';
 import { CompaniesList, CompanyDetails } from './containers';
 

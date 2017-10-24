@@ -17,15 +17,12 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 // override old style
 import './modules/common/styles/global-styles.js';
 
+// TODO retrive from .env
 const APOLLO_CLIENT_URL = 'http://localhost:3300/graphql';
 const APOLLO_CLIENT_SUBSCRIPTION_URL = 'ws://localhost:3300/subscriptions';
-const loginUserId = '2nAuLeFT5qyfKrcD5';
 
 const wsClient = new SubscriptionClient(APOLLO_CLIENT_SUBSCRIPTION_URL, {
-  reconnect: true,
-  connectionParams: {
-    token: loginUserId
-  }
+  reconnect: true
 });
 
 // Create a normal network interface:
@@ -38,7 +35,13 @@ networkInterface.use([
       if (!req.options.headers) {
         req.options.headers = {};
       }
-      req.options.headers['authorization'] = `Bearer ${loginUserId}`;
+
+      const xToken = localStorage.getItem('erxesLoginToken');
+      const xRefreshToken = localStorage.getItem('erxesLoginRefreshToken');
+
+      req.options.headers['x-token'] = xToken;
+      req.options.headers['x-refresh-token'] = xRefreshToken;
+
       next();
     }
   }

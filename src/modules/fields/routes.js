@@ -1,6 +1,6 @@
 import React from 'react';
 import { Route } from 'react-router-dom';
-import { MainLayout } from '../layout/components';
+import { MainLayout } from '../layout/containers';
 import { Manage } from '../fields/containers';
 
 const routes = () => (

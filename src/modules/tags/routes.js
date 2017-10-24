@@ -1,16 +1,15 @@
 import React from 'react';
-import { mount } from 'react-mounter';
-import { FlowRouter } from 'meteor/kadira:flow-router';
+import { Route } from 'react-router-dom';
 import { MainLayout } from '../layout/containers';
 import { List } from './containers';
 
-const group = FlowRouter.group({
-  prefix: '/tags'
-});
+const routes = () => (
+  <Route
+    path="/tags/:type"
+    component={({ match }) => {
+      return <MainLayout content={<List type={match.params.type} />} />;
+    }}
+  />
+);
 
-group.route('/:type', {
-  name: 'tags/list',
-  action(params) {
-    mount(MainLayout, { content: <List type={params.type} /> });
-  }
-});
+export default routes;

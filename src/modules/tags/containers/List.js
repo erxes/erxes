@@ -1,8 +1,6 @@
-import { Meteor } from 'meteor/meteor';
 import React from 'react';
 import PropTypes from 'prop-types';
 import { compose, gql, graphql } from 'react-apollo';
-import Alert from 'meteor/erxes-notifier';
 import { List } from '../components';
 
 const ListContainer = props => {
@@ -12,35 +10,16 @@ const ListContainer = props => {
     return null;
   }
 
-  const remove = tag => {
-    if (!confirm('Are you sure you want to delete this tag?')) {
-      // eslint-disable-line no-alert
-      return;
-    }
-
-    Meteor.call('tags.remove', [tag._id], error => {
-      if (error) {
-        return Alert.error(error.reason);
-      }
-
-      tagsQuery.refetch();
-
-      return Alert.success('The tag has been deleted, forever!');
-    });
+  const remove = () => {
+    // TODO confirm
   };
 
-  const save = ({ tag, doc, callback }) => {
-    const cb = (...params) => {
-      callback(...params);
-
-      tagsQuery.refetch();
-    };
-
+  const save = ({ tag }) => {
     if (tag) {
-      return Meteor.call('tags.edit', { id: tag._id, doc }, cb);
+      // TODO edit
     }
 
-    return Meteor.call('tags.add', doc, cb);
+    // TODO add
   };
 
   const updatedProps = {

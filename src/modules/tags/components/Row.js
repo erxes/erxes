@@ -8,7 +8,7 @@ import {
   ModalTrigger,
   Tip,
   ActionButtons
-} from '/imports/react-ui/common';
+} from 'modules/common/components';
 import Form from './Form';
 
 const propTypes = {

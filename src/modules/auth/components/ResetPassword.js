@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { FormGroup, FormControl, Button } from 'react-bootstrap';
+import { Alert } from 'modules/common/utils';
 
 const propTypes = {
   token: PropTypes.string.isRequired,
@@ -16,20 +17,19 @@ class ResetPassword extends Component {
     this.handlePasswordChange = this.handlePasswordChange.bind(this);
   }
 
-  // TODO
-  // handleSubmit(e) {
-  //   e.preventDefault();
-  //
-  //   const { token, resetPassword } = this.props;
-  //
-  //   resetPassword(token, this.state.newPassword, err => {
-  //     if (err) {
-  //       return Alert.error("Couldn't reset your password");
-  //     }
-  //
-  //     return FlowRouter.go('/');
-  //   });
-  // }
+  handleSubmit(e) {
+    e.preventDefault();
+
+    const { token, resetPassword } = this.props;
+
+    resetPassword(token, this.state.newPassword, err => {
+      if (err) {
+        return Alert.error("Couldn't reset your password");
+      }
+
+      window.location.href = '/';
+    });
+  }
 
   handlePasswordChange(e) {
     e.preventDefault();
