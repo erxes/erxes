@@ -6,7 +6,8 @@ import { action } from '@storybook/addon-actions';
 import Button from '../src/modules/common/components/Button';
 import Label from '../src/modules/common/components/Label';
 import Icon from '../src/modules/common/components/Icon';
-import NameCard from '../src/modules/common/components/nameCard';
+import NameCard from '../src/modules/common/components/nameCard/NameCard';
+import EmptyState from '../src/modules/common/components/EmptyState';
 import 'ionicons/css/ionicons.min.css';
 import Typography from "./Typography";
 
@@ -48,11 +49,25 @@ storiesOf('Label', module)
 
 storiesOf('NameCard', module)
   .addDecorator(withKnobs)
-  .add('Default', () => (
+  .add('Primary', () => (
     <NameCard
       firstLine={text('Text', 'Alice Caldwell')}
       secondLine={text('Text', 'alice@gmail.com')}
     >
       {text('Text', 'Hello Tag')}
     </NameCard>
+  ));
+
+storiesOf('EmptyState', module)
+  .addDecorator(withKnobs)
+  .add('Primary', () => (
+    <EmptyState
+      text={text('Text', 'Hi required text')}
+      icon= {<i className="ion-pricetags"></i>}
+      linkUrl= {text('Text', 'Url')}
+      linkText= {text('Text', 'Text')}
+      esSize={select('Size', ['full', 'small'], 'small')}
+    >
+      {text('Text', 'Hello Tag')}
+    </EmptyState>
   ));
