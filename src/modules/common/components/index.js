@@ -24,6 +24,7 @@ import Tags from './Tags';
 import FilterableList from './filterableList/FilterableList';
 import DropdownToggle from './DropdownToggle';
 import ConversationList from './conversationList/ConversationList';
+import { FormControl, ControlLabel } from './Form';
 import TextDivider from './TextDivider';
 
 export {
@@ -53,5 +54,7 @@ export {
   Tags,
   FilterableList,
   DropdownToggle,
+  FormControl,
+  ControlLabel,
   TextDivider
 };
