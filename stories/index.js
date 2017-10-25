@@ -3,14 +3,16 @@ import { storiesOf } from '@storybook/react';
 import { withKnobs, text, select, boolean, array, object } from '@storybook/addon-knobs';
 import { action } from '@storybook/addon-actions';
 
-import Button from '../src/modules/common/components/Button';
-import Label from '../src/modules/common/components/Label';
-import Icon from '../src/modules/common/components/Icon';
-import NameCard from '../src/modules/common/components/nameCard/NameCard';
-import EmptyState from '../src/modules/common/components/EmptyState';
-import Loader from '../src/modules/common/components/Loader';
-import Spinner from '../src/modules/common/components/Spinner';
-import Tag from '../src/modules/common/components/CountsByTag';
+import {
+  Button,
+  Label,
+  Icon,
+  NameCard,
+  EmptyState,
+  Loader,
+  Spinner,
+  Tag
+} from '../src/modules/common/components';
 
 import 'ionicons/css/ionicons.min.css';
 import Typography from "./Typography";
@@ -97,7 +99,6 @@ storiesOf('Spinner', module)
 storiesOf('Tag', module)
   .addDecorator(withKnobs)
   .add('Primary', () => (
-
     <Tag
       tags={array('Tags', ['Tag1, Tag2, Tag3'])}
       counts={object('Obj', {})}
