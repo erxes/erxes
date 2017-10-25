@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { TAG_TYPES } from '../../../../tags/constants';
-import { Alert } from '../../../utils';
+import { TAG_TYPES } from 'modules/tags/constants';
+import { Alert } from 'modules/common/utils';
 import { FilterableList, Spinner } from '../..';
 
 const propTypes = {

@@ -5,13 +5,13 @@ import { Wrapper } from '../../layout/components';
 import { EmptyState } from './EmptyState';
 import Icon from './Icon';
 
-Tag.propTypes = {
+CountsByTag.propTypes = {
   tags: PropTypes.array.isRequired,
   counts: PropTypes.object.isRequired,
   manageUrl: PropTypes.string.isRequired
 };
 
-function Tag({ tags, counts, manageUrl }) {
+function CountsByTag({ tags, counts, manageUrl }) {
   const { Section, filter, getActiveClass } = Wrapper.Sidebar;
 
   return (
@@ -53,11 +53,11 @@ function Tag({ tags, counts, manageUrl }) {
             </li>
           ))
         ) : (
-          <EmptyState icon="pricetag" text="No tags" esSize="small" />
+          <EmptyState icon="pricetag" text="No tags" size="small" />
         )}
       </SidebarList>
     </Section>
   );
 }
 
-export default Tag;
+export default CountsByTag;

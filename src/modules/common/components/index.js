@@ -22,7 +22,7 @@ import TaggerPopover from './tagger/components/TaggerPopover';
 import FilterableList from './filterableList/FilterableList';
 import DropdownToggle from './DropdownToggle';
 import ConversationList from './conversationList/ConversationList';
-import Tag from './CountsByTag';
+import CountsByTag from './CountsByTag';
 
 export {
   ActionButtons,
@@ -49,6 +49,5 @@ export {
   Tagger,
   TaggerPopover,
   FilterableList,
-  DropdownToggle,
-  Tag
+  DropdownToggle
 };

@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Table } from 'react-bootstrap';
-import { Wrapper } from '../../../layout/components';
+import { Wrapper } from 'modules/layout/components';
 import { Loader, LoadingContent, LoadingSidebar, Spinner } from '../';
 
 const propTypes = {

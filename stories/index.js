@@ -1,18 +1,15 @@
 import React from 'react';
 import { storiesOf } from '@storybook/react';
-import { withKnobs, text, select, boolean, array, object } from '@storybook/addon-knobs';
+import { withKnobs, text, select, boolean } from '@storybook/addon-knobs';
 import { action } from '@storybook/addon-actions';
 
-import {
-  Button,
-  Label,
-  Icon,
-  NameCard,
-  EmptyState,
-  Loader,
-  Spinner,
-  Tag
-} from '../src/modules/common/components';
+import Button from '../src/modules/common/components/Button';
+import Label from '../src/modules/common/components/Label';
+import Icon from '../src/modules/common/components/Icon';
+import NameCard from '../src/modules/common/components/nameCard/NameCard';
+import Loader from '../src/modules/common/components/Loader';
+import Spinner from '../src/modules/common/components/Spinner';
+import EmptyState from '../src/modules/common/components/EmptyState';
 
 import 'ionicons/css/ionicons.min.css';
 import Typography from "./Typography";
@@ -64,20 +61,6 @@ storiesOf('NameCard', module)
     </NameCard>
   ));
 
-storiesOf('EmptyState', module)
-  .addDecorator(withKnobs)
-  .add('Primary', () => (
-    <EmptyState
-      text={text('Text', 'Hi required text')}
-      icon= "pricetags"
-      linkUrl= {text('Text', 'Url')}
-      linkText= {text('Text', 'Text')}
-      esSize={select('Size', ['full', 'small'], 'small')}
-    >
-      {text('Text', 'Hello Tag')}
-    </EmptyState>
-  ));
-
 storiesOf('Loader', module)
   .addDecorator(withKnobs)
   .add('Primary', () => (
@@ -87,6 +70,20 @@ storiesOf('Loader', module)
     </Loader>
   ));
 
+storiesOf('EmptyState', module)
+  .addDecorator(withKnobs)
+  .add('Primary', () => (
+    <EmptyState
+      text={text('Text', 'Hi required text')}
+      icon= "heart"
+      linkUrl= {text('Text', 'Url')}
+      linkText= {text('Text', 'Text')}
+      size={select('Size', ['full', 'small'], 'small')}
+    >
+      {text('Text', 'Hello Tag')}
+    </EmptyState>
+  ));
+
 storiesOf('Spinner', module)
   .addDecorator(withKnobs)
   .add('Primary', () => (
@@ -94,16 +91,4 @@ storiesOf('Spinner', module)
     >
       {text('Text', 'Hello Tag')}
     </Spinner>
-  ));
-
-storiesOf('Tag', module)
-  .addDecorator(withKnobs)
-  .add('Primary', () => (
-    <Tag
-      tags={array('Tags', ['Tag1, Tag2, Tag3'])}
-      counts={object('Obj', {})}
-      manageUrl={text('Text', 'URL')}
-    >
-      {text('Text', 'Hello Tag')}
-    </Tag>
   ));

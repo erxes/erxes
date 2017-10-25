@@ -1,17 +1,8 @@
 import React from 'react';
-import styled, { keyframes } from 'styled-components';
+import styled from 'styled-components';
 import { colors } from '../styles';
 import { rgba } from '../styles/color';
-
-const circle = keyframes`
-	from {
-		transform: rotate(0deg);
-	}
-
-	to {
-		transform: rotate(360deg);
-	}
-`;
+import Rotate from '../utils/animateRotate';
 
 const WrapperLoader = styled.div`
   position: fixed;
@@ -29,7 +20,7 @@ const MainLoader = styled.div`
   margin: 16px auto;
   width: 25px;
   height: 25px;
-  animation: ${circle} 0.75s linear infinite;
+  animation: ${Rotate} 0.75s linear infinite;
   border: 2px solid ${colors.colorWhite};
   border-top-color: ${rgba(colors.colorBlack, 0.2)};
   border-right-color: ${rgba(colors.colorBlack, 0.2)};

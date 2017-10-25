@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import _ from 'underscore';
-import { Wrapper } from '../../../layout/components';
+import { Wrapper } from 'modules/layout/components';
 
 const propTypes = {
   items: PropTypes.number,

@@ -1,36 +1,48 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import styled, { css } from 'styled-components';
-import { Button, Icon } from '../components';
+import Button from './Button';
+import Icon from './Icon';
 import { colors } from '../styles';
 
 const EmptyStateStyled = styled.div`
-  ${props => css`
-    display: flex;
-    flex-direction: column;
-    height: ${props.esSize === 'small' ? '80px' : '100%'};
-    min-height: ${props.esSize === 'small' && '80px'};
-    justify-content: center;
-    text-align: center;
-    font-size: ${props.esSize === 'small' ? '12px' : '16px'};
-    padding: ${props.esSize === 'small' ? '10px 20px' : '20px'};
-    color: ${colors.colorCoreGray};
-    background: ${colors.colorWhite};
-    position: ${props.esSize === 'full' && 'absolute'};
-    bottom: ${props.esSize === 'full' && 0};
-    top: ${props.esSize === 'full' && 0};
-    left: ${props.esSize === 'full' && 0};
-    right: ${props.esSize === 'full' && 0};
-    z-index: ${props.esSize === 'full' && 0};
-  `};
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  justify-content: center;
+  text-align: center;
+  font-size: 16px;
+  padding: 20px;
+  color: ${colors.colorCoreGray};
+  background: ${colors.colorWhite};
 
-  > i {
-    font-size: ${props => (props.esSize === 'small' ? '28px' : '62px')};
-    line-height: ${props => (props.esSize === 'small' ? '40px' : '78px')};
+  ${props => {
+    if (props.size === 'small') {
+      return `
+        height: 80px;
+        min-height: 80px;
+        font-size: 12px;
+        padding: 10px 20px;
+      `;
+    } else {
+      return `
+      position: absolute;
+      bottom: 0;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 0;
+      `;
+    }
+  }};
+
+  i {
+    font-size: ${props => (props.size === 'small' ? '28px' : '62px')};
+    line-height: ${props => (props.size === 'small' ? '40px' : '78px')};
     color: ${colors.colorShadowGray};
   }
 
-  > a {
+  a {
     margin-top: 10px;
   }
 `;
@@ -38,14 +50,14 @@ const EmptyStateStyled = styled.div`
 EmptyState.propTypes = {
   text: PropTypes.string.isRequired,
   icon: PropTypes.object.isRequired,
-  esSize: PropTypes.oneOf(['full', 'small']),
+  size: PropTypes.oneOf(['full', 'small']),
   linkUrl: PropTypes.string,
   linkText: PropTypes.string
 };
 
-function EmptyState({ text, icon, esSize, linkUrl, linkText }) {
+function EmptyState({ text, icon, size, linkUrl, linkText }) {
   return (
-    <EmptyStateStyled esSize={esSize}>
+    <EmptyStateStyled size={size}>
       <Icon icon={icon} />
       {text}
       {linkUrl && linkText ? (
@@ -58,7 +70,7 @@ function EmptyState({ text, icon, esSize, linkUrl, linkText }) {
 }
 
 EmptyState.defaultProps = {
-  esSize: 'small'
+  size: 'small'
 };
 
 export default EmptyState;
