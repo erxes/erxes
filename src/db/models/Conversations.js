@@ -6,77 +6,75 @@ import { CONVERSATION_STATUSES, FACEBOOK_DATA_KINDS } from '../../data/constants
 
 import { Users } from '../../db/models';
 
-const TwitterDirectMessageSchema = mongoose.Schema({
-  _id: {
-    type: String,
-    unique: true,
-    default: () => Random.id(),
+const TwitterDirectMessageSchema = mongoose.Schema(
+  {
+    senderId: {
+      type: Number,
+    },
+    senderIdStr: {
+      type: String,
+    },
+    recipientId: {
+      type: Number,
+    },
+    recipientIdStr: {
+      type: String,
+    },
   },
-  senderId: {
-    type: Number,
-  },
-  senderIdStr: {
-    type: String,
-  },
-  recipientId: {
-    type: Number,
-  },
-  recipientIdStr: {
-    type: String,
-  },
-});
+  { _id: false },
+);
 
 // Twitter schema
-const TwitterSchema = mongoose.Schema({
-  _id: {
-    type: String,
-    unique: true,
-    default: () => Random.id(),
+const TwitterSchema = mongoose.Schema(
+  {
+    id: {
+      type: Number,
+      required: false,
+    },
+    idStr: {
+      type: String,
+    },
+    screenName: {
+      type: String,
+    },
+    isDirectMessage: {
+      type: Boolean,
+    },
+    directMessage: {
+      type: TwitterDirectMessageSchema,
+    },
   },
-  idStr: {
-    type: String,
-  },
-  screenName: {
-    type: String,
-  },
-  isDirectMessage: {
-    type: Boolean,
-  },
-  directMessage: {
-    type: TwitterDirectMessageSchema,
-  },
-});
+  { _id: false },
+);
 
 // facebook schema
-const FacebookSchema = mongoose.Schema({
-  _id: {
-    type: String,
-    unique: true,
-    default: () => Random.id(),
-  },
-  kind: {
-    type: String,
-    enum: FACEBOOK_DATA_KINDS.ALL_LIST,
-  },
-  senderName: {
-    type: String,
-  },
-  senderId: {
-    type: String,
-  },
-  recipientId: {
-    type: String,
-  },
+const FacebookSchema = mongoose.Schema(
+  {
+    kind: {
+      type: String,
+      enum: FACEBOOK_DATA_KINDS.ALL_LIST,
+    },
+    senderName: {
+      type: String,
+    },
+    senderId: {
+      type: String,
+    },
+    recipientId: {
+      type: String,
+    },
 
-  // when wall post
-  postId: {
-    type: String,
-  },
+    // when wall post
+    postId: {
+      type: String,
+    },
 
-  pageId: {
-    type: String,
+    pageId: {
+      type: String,
+    },
   },
-});
+  { _id: false },
+);
 
 // Conversation schema
 const ConversationSchema = mongoose.Schema({
