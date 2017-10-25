@@ -1,13 +1,6 @@
-import React from "react";
-import PropTypes from "prop-types";
-import styled from "styled-components";
-import { createStore } from "redux";
-import { Provider } from "react-redux";
-import reducer from "./reducers/index";
-import Row from "./row";
-import Cell from "./cell";
-import Thead, { ThCell } from "./thead";
-import Tfoot, { TfCell } from "./tfoot";
+import React from 'react';
+import PropTypes from 'prop-types';
+import styled from 'styled-components';
 
 const TableStyled = styled.table`
   display: table;
@@ -16,45 +9,74 @@ const TableStyled = styled.table`
   width: 100%;
   text-size-adjust: 100%;
   text-align: left;
-`;
-const TbodyStyled = styled.tbody``;
-const store = createStore(reducer);
-
-export default class Table extends React.Component {
-  componentDidUpdate() {
-    if (this.props.striped) {
-      store.dispatch({ type: "striped-on" });
-    } else {
-      store.dispatch({ type: "striped-off" });
+  tr {
+    display: table-row;
+    vertical-align: middle;
+    &:hover td {
+      background-color: ${props =>
+        props.hover ? '#ffd' : 'transparent'}; !important
     }
-    if (this.props.hover) {
-      store.dispatch({ type: "hover-on" });
-    } else {
-      store.dispatch({ type: "hover-off" });
+    &:nth-child(even) {
+      background-color: ${props => (props.striped ? '#fafafa' : 'transparent')};
     }
   }
+  td {
+    padding: 16px 12px 12px 16px;
+    display: table-cell;
+    vertical-align: middle;
+    border-bottom: 1px solid rgb(229, 229, 229);
+    font-size: 15px;
+  }
+  thead {
+    th {
+      padding: 5px;
+      display: table-cell;
+      vertical-align: bottom;
+      border-bottom: 1px solid rgb(229, 229, 229);
+      font-weight: bold;
+      text-rendering: optimizeLegibility;
+      font-size: 12px;
+      padding: 16px 12px 12px 16px;
+      text-transform: uppercase;
+      color: rgb(153, 153, 153);
 
+      &:hover {
+        background-color: transparent;
+        cursor: pointer;
+      }
+      &:nth-child(even) {
+        background-color: transparent;
+      }
+  }
+  }
+  tfoot {
+       th {
+         padding: 5px;
+         display: table-cell;
+         vertical-align: bottom;
+         border-bottom: 1px solid rgb(229, 229, 229);
+         font-size: 12px;
+         padding: 16px 12px 12px 16px;
+         text-transform: uppercase;
+         font-style: italic;
+         font-weight: normal;
+         color: rgb(153, 153, 153);
+         &:nth-child(even) {
+           background-color: transparent;
+         }
+       }
+  }
+`;
+
+export default class Table extends React.Component {
   render() {
     return (
-      <Provider store={store}>
-        <TableStyled
-          striped={store.getState().striped}
-          hover={store.getState().hover}
-        >
-          {this.props.children}
-        </TableStyled>
-      </Provider>
+      <TableStyled striped={this.props.striped} hover={this.props.hover}>
+        {this.props.children}
+      </TableStyled>
     );
   }
 }
-
-const Tbody = ({ children }) => {
-  return <TbodyStyled>{children}</TbodyStyled>;
-};
-
-Tbody.propTypes = {
-  children: PropTypes.node
-};
 
 Table.propTypes = {
   children: PropTypes.node,
@@ -65,4 +87,3 @@ Table.defaultProps = {
   hover: false,
   striped: false
 };
-export { Thead, Tbody, Tfoot, Row, Cell, ThCell, TfCell };
