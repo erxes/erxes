@@ -1,4 +1,4 @@
-import { types as UserTypes, queries as UserQueries } from './user';
+import { types as UserTypes, queries as UserQueries, mutations as UserMutations } from './user';
 
 import {
   types as CompanyTypes,
@@ -127,6 +127,7 @@ export const queries = `
 
 export const mutations = `
   type Mutation {
+    ${UserMutations}
     ${CompanyMutations}
     ${ConversationMutations}
     ${EngageMutations}

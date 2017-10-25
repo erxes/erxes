@@ -1,11 +1,6 @@
 import mongoose from 'mongoose';
 import Random from 'meteor-random';
 
-const EmailSchema = mongoose.Schema({
-  address: String,
-  verified: Boolean,
-});
-
 const UserSchema = mongoose.Schema({
   _id: {
     type: String,
@@ -13,8 +8,9 @@ const UserSchema = mongoose.Schema({
     default: () => Random.id(),
   },
   username: String,
+  password: String,
   details: Object,
-  emails: [EmailSchema],
+  email: String,
 });
 
 const Users = mongoose.model('users', UserSchema);

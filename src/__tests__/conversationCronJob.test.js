@@ -81,22 +81,21 @@ describe('Cronjob conversation send email', () => {
 
     await sendMessageEmail();
 
+    // new or open conversation ===================
     expect(Conversations.newOrOpenConversation.mock.calls.length).toBe(1);
 
+    // get non answered message ===================
     expect(ConversationMessages.getNonAsnweredMessage.mock.calls.length).toBe(1);
     expect(ConversationMessages.getNonAsnweredMessage).toBeCalledWith(_conversation._id);
 
+    // get admin messages ===================
     expect(ConversationMessages.getAdminMessages.mock.calls.length).toBe(1);
     expect(ConversationMessages.getAdminMessages).toBeCalledWith(_conversation.id);
-
-    expect(ConversationMessages.getAdminMessages.mock.calls.length).toBe(1);
-    expect(ConversationMessages.getAdminMessages).toBeCalledWith(_conversation.id);
-
-    expect(spyEmail.mock.calls.length).toBe(1);
 
     const question = _conversationMessage;
     question.createdAt = moment(question.createdAt).format('DD MMM YY, HH:mm');
 
+    // send email: check called parameters ================
     const data = {
       customer: _customer,
       question,
@@ -109,7 +108,6 @@ describe('Cronjob conversation send email', () => {
     answer.createdAt = moment(_conversationMessage.createdAt).format('DD MMM YY, HH:mm');
     data.answers = [answer];
 
-    // send email: check called parameters ================
     const expectedArgs = {
       to: _customer.email,
       title: `Reply from "${_brand.name}"`,
@@ -122,6 +120,7 @@ describe('Cronjob conversation send email', () => {
 
     const calledArgs = spyEmail.mock.calls[0][0];
 
+    expect(spyEmail.mock.calls.length).toBe(1);
     expect(expectedArgs.to).toBe(calledArgs.to);
     expect(expectedArgs.title).toBe(calledArgs.title);
     expect(expectedArgs.template.name).toBe(calledArgs.template.name);
