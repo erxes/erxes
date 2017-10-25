@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { FormGroup, ControlLabel, FormControl, Button } from 'react-bootstrap';
-import Alert from 'meteor/erxes-notifier';
 
 const propTypes = {
   tag: PropTypes.object,
@@ -44,14 +43,7 @@ class Form extends Component {
     save({
       tag,
       doc: { name, type, colorCode },
-      callback: error => {
-        if (error) {
-          return Alert.error(error.reason);
-        }
-
-        Alert.success('The tag has been saved successfully.');
-        return this.context.closeModal();
-      }
+      callback: () => this.context.closeModal()
     });
   }
 

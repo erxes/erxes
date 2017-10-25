@@ -1,8 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Table, Button } from 'react-bootstrap';
-import { Wrapper } from '/imports/react-ui/layout/components';
-import { ModalTrigger } from '/imports/react-ui/common';
+import { Wrapper } from 'modules/layout/components';
+import { ModalTrigger } from 'modules/common/components';
 import Row from './Row';
 import Form from './Form';
 

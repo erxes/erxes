@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { FormGroup, FormControl, Button } from 'react-bootstrap';
+import { Alert } from 'modules/common/utils';
 
 const propTypes = {
   forgotPassword: PropTypes.func.isRequired
@@ -18,21 +19,21 @@ class ForgotPassword extends Component {
     this.handleEmailChange = this.handleEmailChange.bind(this);
   }
 
-  // TODO
-  // handleSubmit(e) {
-  //   e.preventDefault();
-  //
-  //   const { email } = this.state;
-  //
-  //   this.props.forgotPassword({ email }, err => {
-  //     if (err) {
-  //       return Alert.error('Email address is not registered');
-  //     }
-  //
-  //     Alert.success('Password reset instruction is sent to your email');
-  //     return FlowRouter.go('auth/signIn');
-  //   });
-  // }
+  handleSubmit(e) {
+    e.preventDefault();
+
+    const { email } = this.state;
+
+    this.props.forgotPassword({ email }, err => {
+      if (err) {
+        return Alert.error('Email address is not registered');
+      }
+
+      Alert.success('Password reset instruction is sent to your email');
+
+      window.location.href = '/sign-in';
+    });
+  }
 
   handleEmailChange(e) {
     e.preventDefault();

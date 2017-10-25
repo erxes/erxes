@@ -1,12 +1,39 @@
-import { Meteor } from 'meteor/meteor';
-import { compose } from 'react-komposer';
-import { getTrackerLoader } from '/imports/react-ui/utils';
+import React from 'react';
+import PropTypes from 'prop-types';
+import { compose, graphql, gql } from 'react-apollo';
 import { SignIn } from '../components';
+import { mutations } from '../graphql';
 
-function composer(props, onData) {
-  const loginWithPassword = Meteor.loginWithPassword;
+const SignInContainer = props => {
+  const { loginMutation } = props;
 
-  onData(null, { loginWithPassword });
-}
+  const login = variables => {
+    loginMutation({ variables })
+      .then(({ data }) => {
+        const { token, refreshToken } = data.login;
 
-export default compose(getTrackerLoader(composer))(SignIn);
+        localStorage.setItem('erxesLoginToken', token);
+        localStorage.setItem('erxesLoginRefreshToken', refreshToken);
+      })
+      .catch(error => {
+        console.log(error); // eslint-disable-line
+      });
+  };
+
+  const updatedProps = {
+    ...props,
+    login
+  };
+
+  return <SignIn {...updatedProps} />;
+};
+
+SignInContainer.propTypes = {
+  loginMutation: PropTypes.func
+};
+
+export default compose(
+  graphql(gql(mutations.login), {
+    name: 'loginMutation'
+  })
+)(SignInContainer);

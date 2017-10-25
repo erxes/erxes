@@ -1,13 +1,14 @@
 import React from 'react';
 import { Route } from 'react-router-dom';
 import queryString from 'query-string';
-import { MainLayout } from '../layout/components';
+import { MainLayout } from '../layout/containers';
 import { ManageColumns } from '../fields/containers';
 import { CompaniesList, CompanyDetails } from './containers';
 
 const routes = () => [
   <Route
     path="/companies/details/:id"
+    exact
     key="/companies/details/:id"
     component={({ match, location }) => {
       const queryParams = queryString.parse(location.search);
@@ -23,6 +24,7 @@ const routes = () => [
 
   <Route
     path="/companies/manage-columns"
+    exact
     key="/companies/manage-columns"
     component={() => {
       return <MainLayout content={<ManageColumns contentType="company" />} />;
@@ -31,6 +33,7 @@ const routes = () => [
 
   <Route
     path="/companies"
+    exact
     key="/companies"
     component={({ location }) => {
       const queryParams = queryString.parse(location.search);

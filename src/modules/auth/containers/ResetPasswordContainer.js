@@ -1,10 +1,17 @@
-import { Accounts } from 'meteor/accounts-base';
-import { compose } from 'react-komposer';
-import { getTrackerLoader } from '/imports/react-ui/utils';
+import React from 'react';
+import { compose } from 'react-apollo';
 import { ResetPassword } from '../components';
 
-function composer(props, onData) {
-  onData(null, { resetPassword: Accounts.resetPassword });
-}
+const ResetPasswordContainer = props => {
+  // TODO
+  const resetPassword = () => {};
 
-export default compose(getTrackerLoader(composer))(ResetPassword);
+  const updatedProps = {
+    ...props,
+    resetPassword
+  };
+
+  return <ResetPassword {...updatedProps} />;
+};
+
+export default compose()(ResetPasswordContainer);
