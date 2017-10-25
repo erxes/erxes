@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { OverlayTrigger, Popover } from 'react-bootstrap';
-import { Tagger } from 'modules/common/components';
+import { Tagger } from './Tagger';
 
 const propTypes = {
   type: PropTypes.string.isRequired,

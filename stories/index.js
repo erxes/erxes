@@ -1,6 +1,6 @@
 import React from 'react';
 import { storiesOf } from '@storybook/react';
-import { withKnobs, text, select, boolean } from '@storybook/addon-knobs';
+import { withKnobs, text, select, boolean, array, object } from '@storybook/addon-knobs';
 import { action } from '@storybook/addon-actions';
 
 import Button from '../src/modules/common/components/Button';
@@ -10,6 +10,8 @@ import NameCard from '../src/modules/common/components/nameCard/NameCard';
 import EmptyState from '../src/modules/common/components/EmptyState';
 import Loader from '../src/modules/common/components/Loader';
 import Spinner from '../src/modules/common/components/Spinner';
+import Tag from '../src/modules/common/components/CountsByTag';
+
 import 'ionicons/css/ionicons.min.css';
 import Typography from "./Typography";
 
@@ -65,7 +67,7 @@ storiesOf('EmptyState', module)
   .add('Primary', () => (
     <EmptyState
       text={text('Text', 'Hi required text')}
-      icon= {<i className="ion-pricetags"></i>}
+      icon= "pricetags"
       linkUrl= {text('Text', 'Url')}
       linkText= {text('Text', 'Text')}
       esSize={select('Size', ['full', 'small'], 'small')}
@@ -90,4 +92,17 @@ storiesOf('Spinner', module)
     >
       {text('Text', 'Hello Tag')}
     </Spinner>
+  ));
+
+storiesOf('Tag', module)
+  .addDecorator(withKnobs)
+  .add('Primary', () => (
+
+    <Tag
+      tags={array('Tags', ['Tag1, Tag2, Tag3'])}
+      counts={object('Obj', {})}
+      manageUrl={text('Text', 'URL')}
+    >
+      {text('Text', 'Hello Tag')}
+    </Tag>
   ));

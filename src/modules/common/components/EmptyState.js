@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import styled, { css } from 'styled-components';
-import Button from './Button';
+import { Button, Icon } from '../components';
 import { colors } from '../styles';
 
 const EmptyStateStyled = styled.div`
@@ -46,7 +46,7 @@ EmptyState.propTypes = {
 function EmptyState({ text, icon, esSize, linkUrl, linkText }) {
   return (
     <EmptyStateStyled esSize={esSize}>
-      {icon}
+      <Icon icon={icon} />
       {text}
       {linkUrl && linkText ? (
         <Button btnStyle="simple" size="small" href={linkUrl}>

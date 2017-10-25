@@ -1,9 +1,11 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Wrapper } from 'modules/layout/components';
-import { EmptyState } from 'modules/common/components';
+import { SidebarList, QuickButton, SideBarCounter } from '../../layout/styles';
+import { Wrapper } from '../../layout/components';
+import { EmptyState } from './EmptyState';
+import Icon from './Icon';
 
-const propTypes = {
+Tag.propTypes = {
   tags: PropTypes.array.isRequired,
   counts: PropTypes.object.isRequired,
   manageUrl: PropTypes.string.isRequired
@@ -17,24 +19,23 @@ function Tag({ tags, counts, manageUrl }) {
       <Section.Title>Filter by tags</Section.Title>
 
       <Section.QuickButtons>
-        <a href={manageUrl} className="quick-button">
-          <i className="ion-gear-a" />
-        </a>
+        <QuickButton href={manageUrl}>
+          <Icon icon="gear-a" />
+        </QuickButton>
 
         {window.location.search.includes('tag') ? (
-          <a
+          <QuickButton
             tabIndex={0}
-            className="quick-button"
             onClick={() => {
               filter('tag', null);
             }}
           >
-            <i className="ion-close-circled" />
-          </a>
+            <Icon icon="close-circled" />
+          </QuickButton>
         ) : null}
       </Section.QuickButtons>
 
-      <ul className="sidebar-list">
+      <SidebarList>
         {tags.length ? (
           tags.map(tag => (
             <li key={tag._id}>
@@ -45,27 +46,18 @@ function Tag({ tags, counts, manageUrl }) {
                   filter('tag', tag._id);
                 }}
               >
-                <i
-                  className="ion-pricetag icon"
-                  style={{ color: tag.colorCode }}
-                />
+                <Icon icon="pricetag icon" style={{ color: tag.colorCode }} />
                 {tag.name}
-                <span className="counter">{counts[tag._id]}</span>
+                <SideBarCounter>{counts[tag._id]}</SideBarCounter>
               </a>
             </li>
           ))
         ) : (
-          <EmptyState
-            icon={<i className="ion-pricetag" />}
-            text="No tags"
-            size="small"
-          />
+          <EmptyState icon="pricetag" text="No tags" esSize="small" />
         )}
-      </ul>
+      </SidebarList>
     </Section>
   );
 }
-
-Tag.propTypes = propTypes;
 
 export default Tag;
