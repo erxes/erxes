@@ -32,6 +32,7 @@ describe('Cronjob conversation send email', () => {
   let _customer;
   let _brand;
   let _user;
+  let _integration;
 
   beforeEach(async () => {
     // Creating test data
@@ -39,7 +40,8 @@ describe('Cronjob conversation send email', () => {
     _customer = await customerFactory();
     _brand = await brandFactory();
     _user = await userFactory();
-    const _integration = await integrationFactory({ brandId: _brand._id });
+
+    _integration = await integrationFactory({ brandId: _brand._id });
 
     _conversation = await conversationFactory({
       customerId: _customer._id,
@@ -71,6 +73,11 @@ describe('Cronjob conversation send email', () => {
     ConversationMessages.getNonAsnweredMessage = jest.fn(() => _conversationMessage);
     ConversationMessages.getAdminMessages = jest.fn(() => [_conversationMessage]);
     ConversationMessages.markSentAsReadMessages = jest.fn();
+
+    // create fake emailSignatures ===================
+    _user.emailSignatures = [{ brandId: _brand.id, signature: 'test' }];
+
+    Users.findOne = jest.fn(() => _user);
 
     await sendMessageEmail();
 
@@ -139,6 +146,19 @@ describe('Cronjob conversation send email', () => {
   test('Conversations utils without customer', async () => {
     _conversation.customerId = null;
     await _conversation.save();
+
+    await sendMessageEmail();
+  });
+
+  test('Conversations utils without brand', async () => {
+    _integration.brandId = null;
+    await _integration.save();
+
+    await sendMessageEmail();
+  });
+
+  test('Conversations utils without answer messages', async () => {
+    ConversationMessages.getAdminMessages = jest.fn(() => []);
 
     await sendMessageEmail();
   });
