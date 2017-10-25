@@ -1,10 +1,20 @@
 import styled from 'styled-components';
-import { colors, dimensions } from '../../styles';
+import { colors, dimensions, typography } from '../../styles';
 
-const inputPadding = '6px';
-const inputHeight = '24px';
-const inputScale = '14px';
+const inputPadding = '5px';
+const inputHeight = '20px';
+const inputScale = '12px';
 const inputBorderWidth = '1px';
+const formGreyColor = '#AAAEB3';
+
+const Label = styled.label`
+  text-transform: uppercase;
+  display: inline-block;
+  font-weight: ${typography.fontWeightRegular};
+  color: ${formGreyColor};
+  font-size: ${typography.fontSizeUppercase}px;
+  margin-bottom: 5px;
+`;
 
 const Input = styled.input`
   display: block;
@@ -13,7 +23,7 @@ const Input = styled.input`
   margin-bottom: ${dimensions.coreSpacing}px;
   padding: ${dimensions.unitSpacing}px;
   color: ${colors.textSecondary};
-  border-bottom: 1px solid ${colors.borderPrimary};
+  border-bottom: 1px solid ${formGreyColor};
   background: ${colors.colorWhite};
 
   &:focus {
@@ -81,20 +91,20 @@ const inputStyle = styled.input`
 
   + span {
     position: relative;
-    padding: 6px;
+    padding: ${inputPadding};
     user-select: none;
 
     &:before {
       background-color: ${colors.colorWhite};
-      border: ${inputBorderWidth} solid ${colors.borderPrimary};
+      border: ${inputBorderWidth} solid ${formGreyColor};
       box-sizing: content-box;
       content: '';
       color: ${colors.colorWhite};
       margin-right: calc(${inputHeight} * 0.25);
       top: 50%;
       left: 0;
-      width: 24px;
-      height: 24px;
+      width: ${inputHeight};
+      height: ${inputHeight};
       display: inline-block;
       vertical-align: middle;
     }
@@ -145,6 +155,7 @@ const Radio = inputStyle.extend`
       &:before {
         animation: none;
         background-color: ${colors.colorSecondary};
+        border-color: transparent;
       }
 
       &:after {
@@ -178,6 +189,7 @@ const Checkbox = inputStyle.extend`
     &:before {
       animation: none;
       background-color: ${colors.colorSecondary};
+      border-color: transparent;
     }
 
     &:after {
@@ -188,4 +200,4 @@ const Checkbox = inputStyle.extend`
   }
 `;
 
-export { Input, Select, Textarea, Radio, Checkbox, FormLabel };
+export { Input, Select, Textarea, Radio, Checkbox, FormLabel, Label };

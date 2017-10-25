@@ -47,7 +47,7 @@ storiesOf('Label', module)
     </Label>
   ));
 
-  storiesOf('TextDivider', module)
+storiesOf('TextDivider', module)
   .addDecorator(withKnobs)
     .add('Default', () => (
       <TextDivider text={text('Text', 'Information text is here')} />
