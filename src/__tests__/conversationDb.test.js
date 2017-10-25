@@ -19,7 +19,7 @@ describe('Conversation db', () => {
   beforeEach(async () => {
     // Creating test data
     _conversation = await conversationFactory();
-    _conversationMessage = await conversationMessageFactory();
+    _conversationMessage = await conversationMessageFactory({ conversationId: _conversation._id });
     _user = await userFactory();
 
     _doc = { ..._conversationMessage._doc, conversationId: _conversation._id };
@@ -65,6 +65,11 @@ describe('Conversation db', () => {
     }
   });
   test('Create conversation message', async () => {
+    expect.assertions(17);
+
+    // get messageCount before add message
+    const prevConversationObj = await Conversations.findOne({ _id: _doc.conversationId });
+
     const messageObj = await ConversationMessages.addMessage(_doc, _user);
 
     expect(messageObj.content).toBe(_conversationMessage.content);
@@ -96,6 +101,20 @@ describe('Conversation db', () => {
     } catch (e) {
       expect(e.message).toEqual('Conversation not found with id test');
     }
+
+    // get messageCount after add message
+    const afterConversationObj = await Conversations.findOne({ _id: messageObj.conversationId });
+
+    // check mendtioned users
+    for (let mentionedUser of messageObj.mentionedUserIds) {
+      expect(afterConversationObj.participatedUserIds).toContain(mentionedUser);
+    }
+
+    // check participated users
+    expect(afterConversationObj.participatedUserIds).toContain(messageObj.userId);
+
+    // check if message count increase
+    expect(afterConversationObj.messageCount).toBe(prevConversationObj.messageCount + 1);
   });
 
   // if user assigned to conversation
@@ -168,7 +187,7 @@ describe('Conversation db', () => {
 
     const conversationObj = await Conversations.findOne({ _id: _conversation.id });
 
-    expect(conversationObj.participatedUserIds[0]).toBe(_user._id);
+    expect(conversationObj.participatedUserIds).toContain(_user._id);
 
     // remove user from conversation
     await Conversations.toggleParticipatedUsers([_conversation._id], _user.id);
@@ -177,7 +196,7 @@ describe('Conversation db', () => {
       _id: _conversation.id,
     });
 
-    expect(conversationObjWithParticipatedUser.participatedUserIds.length).toBe(0);
+    expect(conversationObjWithParticipatedUser.participatedUserIds.includes(_user.id)).toBeFalsy();
   });
 
   test('Conversation mark as read', async () => {
@@ -202,5 +221,47 @@ describe('Conversation db', () => {
     } catch (e) {
       expect(e.message).toEqual('Conversation not found with id test');
     }
+  });
+
+  test('Conversation message remove', async () => {
+    // get conversation message count before message delete
+    await ConversationMessages.addMessage(_doc, _user);
+
+    const beforeConversation = await Conversations.findOne({
+      _id: _conversationMessage.conversationId,
+    });
+
+    await ConversationMessages.removeMessages({ _id: { $in: [_conversationMessage._id] } });
+
+    expect(await ConversationMessages.find({ _id: _conversationMessage._id }).count()).toBe(0);
+
+    const afterConversation = await Conversations.findOne({
+      _id: _conversationMessage.conversationId,
+    });
+
+    // Conversation message count subtracted
+    expect(beforeConversation.messageCount).toBe(afterConversation.messageCount + 1);
+  });
+
+  test('Conversation message', async () => {
+    expect(await ConversationMessages.getNonAsnweredMessage(_conversation._id).count()).toBe(1);
+    // expect(question)
+
+    await ConversationMessages.update(
+      { conversationId: _conversation._id },
+      { $set: { isCustomerRead: false, internal: false } },
+    );
+
+    expect(await ConversationMessages.getAdminMessages(_conversation._id).count()).toBe(1);
+
+    await ConversationMessages.markSentAsReadMessages(_conversation._id);
+
+    const messagesMarkAsRead = await ConversationMessages.find({ _id: _conversation._id });
+
+    for (let message in messagesMarkAsRead) {
+      expect(message.isCustomerRead).toBeTruthy();
+    }
+
+    expect(await Conversations.newOrOpenConversation().count()).toBe(1);
   });
 });

@@ -58,6 +58,7 @@
     "moment": "^2.18.1",
     "mongoose": "^4.9.2",
     "mongoose-type-email": "^1.0.5",
+    "node-schedule": "^1.2.5",
     "nodemailer": "^4.1.3",
     "strip": "^3.0.0",
     "subscriptions-transport-ws": "^0.7.3",

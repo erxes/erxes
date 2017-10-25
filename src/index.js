@@ -10,8 +10,9 @@ import { graphqlExpress, graphiqlExpress } from 'graphql-server-express';
 import { SubscriptionServer } from 'subscriptions-transport-ws';
 import { Customers } from './db/models';
 import { connect } from './db/connection';
-import schema from './data';
 import { userMiddleware } from './auth';
+import schema from './data';
+import './cronJobs';
 
 // load environment variables
 dotenv.config();

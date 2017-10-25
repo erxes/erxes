@@ -6,77 +6,75 @@ import { CONVERSATION_STATUSES, FACEBOOK_DATA_KINDS } from '../../data/constants
 
 import { Users } from '../../db/models';
 
-const TwitterDirectMessageSchema = mongoose.Schema({
-  _id: {
-    type: String,
-    unique: true,
-    default: () => Random.id(),
+const TwitterDirectMessageSchema = mongoose.Schema(
+  {
+    senderId: {
+      type: Number,
+    },
+    senderIdStr: {
+      type: String,
+    },
+    recipientId: {
+      type: Number,
+    },
+    recipientIdStr: {
+      type: String,
+    },
   },
-  senderId: {
-    type: Number,
-  },
-  senderIdStr: {
-    type: String,
-  },
-  recipientId: {
-    type: Number,
-  },
-  recipientIdStr: {
-    type: String,
-  },
-});
+  { _id: false },
+);
 
 // Twitter schema
-const TwitterSchema = mongoose.Schema({
-  _id: {
-    type: String,
-    unique: true,
-    default: () => Random.id(),
+const TwitterSchema = mongoose.Schema(
+  {
+    id: {
+      type: Number,
+      required: false,
+    },
+    idStr: {
+      type: String,
+    },
+    screenName: {
+      type: String,
+    },
+    isDirectMessage: {
+      type: Boolean,
+    },
+    directMessage: {
+      type: TwitterDirectMessageSchema,
+    },
   },
-  idStr: {
-    type: String,
-  },
-  screenName: {
-    type: String,
-  },
-  isDirectMessage: {
-    type: Boolean,
-  },
-  directMessage: {
-    type: TwitterDirectMessageSchema,
-  },
-});
+  { _id: false },
+);
 
 // facebook schema
-const FacebookSchema = mongoose.Schema({
-  _id: {
-    type: String,
-    unique: true,
-    default: () => Random.id(),
-  },
-  kind: {
-    type: String,
-    enum: FACEBOOK_DATA_KINDS.ALL_LIST,
-  },
-  senderName: {
-    type: String,
-  },
-  senderId: {
-    type: String,
-  },
-  recipientId: {
-    type: String,
-  },
+const FacebookSchema = mongoose.Schema(
+  {
+    kind: {
+      type: String,
+      enum: FACEBOOK_DATA_KINDS.ALL_LIST,
+    },
+    senderName: {
+      type: String,
+    },
+    senderId: {
+      type: String,
+    },
+    recipientId: {
+      type: String,
+    },
 
-  // when wall post
-  postId: {
-    type: String,
-  },
+    // when wall post
+    postId: {
+      type: String,
+    },
 
-  pageId: {
-    type: String,
+    pageId: {
+      type: String,
+    },
   },
-});
+  { _id: false },
+);
 
 // Conversation schema
 const ConversationSchema = mongoose.Schema({
@@ -234,6 +232,7 @@ class Conversation {
    * Add participated user to conversation
    * @param  {list} _ids
    * @param  {String} userId
+   * @param  {Boolean} toggle - add only if true
    * @return {Promise} Updated conversation list
    */
   static async toggleParticipatedUsers(_ids, userId) {
@@ -287,6 +286,33 @@ class Conversation {
 
     return this.findOne({ _id });
   }
+
+  /**
+   * Get new or open conversation
+   * @return {Promise} conversations
+   */
+  static newOrOpenConversation() {
+    return this.find({
+      status: { $in: [CONVERSATION_STATUSES.NEW, CONVERSATION_STATUSES.OPEN] },
+    });
+  }
+
+  /**
+   * Add participated user
+   * @param {String} conversationId
+   * @param {String} userId
+   * @return {Promise} updated conversation id
+   */
+  static addParticipatedUsers(conversationId, userId) {
+    if (conversationId && userId) {
+      return this.update(
+        { _id: conversationId },
+        {
+          $addToSet: { participatedUserIds: userId },
+        },
+      );
+    }
+  }
 }
 
 ConversationSchema.loadClass(Conversation);
@@ -314,16 +340,32 @@ class Message {
    * @param  {Object} messageObj object
    * @return {Promise} Newly created message object
    */
-  static createMessage(doc) {
-    return this.create({
+  static async createMessage(doc) {
+    const message = await this.create({
       ...doc,
       createdAt: new Date(),
     });
+
+    const messageCount = await this.find({
+      conversationId: message.conversationId,
+    }).count();
+
+    await Conversations.update({ _id: message.conversationId }, { $set: { messageCount } });
+
+    // add created user to participators
+    await Conversations.addParticipatedUsers(message.conversationId, message.userId);
+
+    // add mentioned users to participators
+    for (let userId of message.mentionedUserIds) {
+      await Conversations.addParticipatedUsers(message.conversationId, userId);
+    }
+
+    return message;
   }
 
   /**
    * Create a conversation
-   * @param  {Object} doc conversation messsage fields
+   * @param  {Object} doc - conversation message fields
    * @param  {Object} user object
    * @return {Promise} Newly created conversation object
    */
@@ -346,6 +388,71 @@ class Message {
     await this.update({ _id: doc.conversationId }, { $set: { content } });
 
     return this.createMessage({ ...doc, userId });
+  }
+
+  /**
+   * Remove a messages
+   * @param  {Object} selector
+   * @return {Promise} Deleted messages info
+   */
+  static async removeMessages(selector) {
+    const messages = await this.find(selector);
+    const result = await this.remove(selector);
+
+    for (let message of messages) {
+      const messageCount = await Messages.find({
+        conversationId: message.conversationId,
+      }).count();
+
+      await Conversations.update({ _id: message.conversationId }, { $set: { messageCount } });
+    }
+
+    return result;
+  }
+
+  /**
+  * User's last non answered question
+  * @param  {String} conversationId
+  * @return {Promise} message object
+  */
+  static getNonAsnweredMessage(conversationId) {
+    return this.findOne({
+      conversationId: conversationId,
+      customerId: { $exists: true },
+    }).sort({ createdAt: -1 });
+  }
+
+  /**
+   * Get admin messages
+   * @param  {String} conversationId
+   * @return {Promise} messages
+   */
+  static getAdminMessages(conversationId) {
+    return this.find({
+      conversationId: conversationId,
+      userId: { $exists: true },
+      isCustomerRead: false,
+
+      // exclude internal notes
+      internal: false,
+    }).sort({ createdAt: 1 });
+  }
+
+  /**
+   * Mark sent messages as read
+   * @param  {String} conversationId
+   * @return {Promise} updated messages info
+   */
+  static markSentAsReadMessages(conversationId) {
+    return this.update(
+      {
+        conversationId: conversationId,
+        userId: { $exists: true },
+        isCustomerRead: { $exists: false },
+      },
+      { $set: { isCustomerRead: true } },
+      { multi: true },
+    );
   }
 }
 
