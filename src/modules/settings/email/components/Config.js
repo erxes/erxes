@@ -98,7 +98,9 @@ class Config extends Component {
               <Button btnStyle="link" onClick={onClick}>
                 Cancel
               </Button>
-              <Button btnStyle="primary">Save</Button>
+              <Button type="submit" btnStyle="primary">
+                Save
+              </Button>
             </ButtonToolbar>
           </Modal.Footer>
         </form>
