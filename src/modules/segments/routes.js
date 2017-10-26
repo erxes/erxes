@@ -21,11 +21,13 @@ const routes = () => [
     key="/segments/new/:contentType"
     exact
     path="/segments/new/:contentType"
-    component={({ match }) => {
+    component={({ match, history }) => {
       const contentType = match.params.contentType;
 
       return (
-        <MainLayout content={<SegmentsForm contentType={contentType} />} />
+        <MainLayout
+          content={<SegmentsForm history={history} contentType={contentType} />}
+        />
       );
     }}
   />,
@@ -34,12 +36,14 @@ const routes = () => [
     key="/segments/edit/:contentType/:id"
     exact
     path="/segments/edit/:contentType/:id"
-    component={({ match }) => {
+    component={({ match, history }) => {
       const { id, contentType } = match.params;
 
       return (
         <MainLayout
-          content={<SegmentsForm id={id} contentType={contentType} />}
+          content={
+            <SegmentsForm id={id} history={history} contentType={contentType} />
+          }
         />
       );
     }}

@@ -12,7 +12,8 @@ const SegmentsFormContainer = props => {
     headSegmentsQuery,
     combinedFieldsQuery,
     segmentsAdd,
-    segmentsEdit
+    segmentsEdit,
+    history
   } = props;
 
   if (
@@ -37,14 +38,14 @@ const SegmentsFormContainer = props => {
   const create = ({ doc }) => {
     segmentsAdd({ variables: { contentType, ...doc } }).then(() => {
       Alert.success('Success');
-      window.location.href = `/segments/${contentType}`;
+      history.push(`/segments/${contentType}`);
     });
   };
 
   const edit = ({ id, doc }) => {
     segmentsEdit({ variables: { _id: id, ...doc } }).then(() => {
       Alert.success('Success');
-      window.location.href = `/segments/${contentType}`;
+      history.push(`/segments/${contentType}`);
     });
   };
 
@@ -62,6 +63,7 @@ const SegmentsFormContainer = props => {
 
 SegmentsFormContainer.propTypes = {
   contentType: PropTypes.string,
+  history: PropTypes.object,
   segmentDetailQuery: PropTypes.object,
   headSegmentsQuery: PropTypes.object,
   combinedFieldsQuery: PropTypes.object,

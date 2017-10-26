@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { Dropdown, MenuItem } from 'react-bootstrap';
 import styled from 'styled-components';
 import { NameCard, DropdownToggle, Icon } from 'modules/common/components';
@@ -19,7 +20,7 @@ const NameCardWrapper = styled.div`
   padding: 10px 20px;
 `;
 
-const QuickNavigation = () => {
+const QuickNavigation = ({ logout }) => {
   const user = {
     username: 'batamar',
     details: {
@@ -54,10 +55,14 @@ const QuickNavigation = () => {
         <MenuItem href="#">Edit Profile</MenuItem>
         <MenuItem href="#">Change password</MenuItem>
         <MenuItem divider />
-        <MenuItem href="/sign-out">Sign out</MenuItem>
+        <MenuItem onClick={logout}>Sign out</MenuItem>
       </Dropdown.Menu>
     </Dropdown>
   );
+};
+
+QuickNavigation.propTypes = {
+  logout: PropTypes.func
 };
 
 export default QuickNavigation;
