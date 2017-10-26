@@ -10,6 +10,11 @@ const AvatarStyled = styled.a`
   padding: 0;
 `;
 
+const DefaultAvatar = styled.div`
+  background: url('/images/userDefaultIcon.png') center no-repeat;
+  background-size: 100%;
+`;
+
 class Avatar extends Component {
   generateStyle(size = 40) {
     return {
@@ -35,7 +40,7 @@ class Avatar extends Component {
         .join('.')
         .toUpperCase()
     ) : (
-      <div className="no-user" style={this.generateStyle(size)} />
+      <DefaultAvatar style={this.generateStyle(size)} />
     );
 
     return <div style={this.generateStyle(size)}>{initials}</div>;

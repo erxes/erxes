@@ -4,6 +4,7 @@ import RightSidebar from './RightSidebar';
 import LeftSidebar from './LeftSidebar';
 import { Wrapper } from '../../layout/components';
 import { Button, Label, Icon } from '../../common/components';
+import { BarItems } from 'modules/layout/styles';
 import Conversation from './conversation/Conversation';
 
 class Inbox extends Component {
@@ -17,15 +18,15 @@ class Inbox extends Component {
 
   render() {
     const { conversations, messages, user } = this.props;
-    const actionBarLeft = <div>Alice Caldwell</div>;
+    const actionBarLeft = <BarItems>Alice Caldwell</BarItems>;
 
     const actionBarRight = (
-      <div>
+      <BarItems>
         <Label lblStyle="danger">urgent</Label>
         <Button btnStyle="success">
           <Icon icon="checkmark" />Resolve
         </Button>
-      </div>
+      </BarItems>
     );
 
     const actionBar = (

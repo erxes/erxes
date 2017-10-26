@@ -61,13 +61,11 @@ function AddIntegration() {
   ];
 
   return (
-    <div>
-      <Wrapper
-        header={<Wrapper.Header breadcrumb={breadcrumb} />}
-        leftSidebar={<Sidebar />}
-        content={content}
-      />
-    </div>
+    <Wrapper
+      header={<Wrapper.Header breadcrumb={breadcrumb} />}
+      leftSidebar={<Sidebar />}
+      content={content}
+    />
   );
 }
 

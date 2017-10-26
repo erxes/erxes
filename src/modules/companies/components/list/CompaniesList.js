@@ -1,12 +1,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Table } from 'react-bootstrap';
 import { Wrapper } from 'modules/layout/components';
 import {
   Pagination,
   ModalTrigger,
   Button,
-  Icon
+  Icon,
+  Table
 } from 'modules/common/components';
 import Sidebar from './Sidebar';
 import CompanyRow from './CompanyRow';
@@ -31,7 +31,7 @@ function CompaniesList({
 }) {
   const content = (
     <Pagination hasMore={hasMore} loadMore={loadMore}>
-      <Table className="no-wrap">
+      <Table whiteSpace="nowrap">
         <thead>
           <tr>
             <th>
@@ -55,19 +55,15 @@ function CompaniesList({
     </Pagination>
   );
 
-  const addTrigger = (
-    <Button btnStyle="simple">
-      <Icon icon="plus-circled" /> New company
-    </Button>
-  );
+  const addTrigger = <Button btnStyle="success">Add company</Button>;
 
-  const actionBarLeft = (
+  const actionBarRight = (
     <ModalTrigger title="New company" trigger={addTrigger}>
       <CompanyForm addCompany={addCompany} />
     </ModalTrigger>
   );
 
-  const actionBar = <Wrapper.ActionBar left={actionBarLeft} />;
+  const actionBar = <Wrapper.ActionBar right={actionBarRight} />;
   const breadcrumb = [{ title: `Companies (${counts.all})` }];
 
   return (

@@ -26,6 +26,7 @@ import ConversationList from './conversationList/ConversationList';
 import { FormControl, ControlLabel } from './Form';
 import TextDivider from './TextDivider';
 import CountsByTag from './CountsByTag';
+import Table from './Table';
 
 export {
   ActionButtons,
@@ -56,5 +57,6 @@ export {
   DropdownToggle,
   FormControl,
   ControlLabel,
-  TextDivider
+  TextDivider,
+  Table
 };
