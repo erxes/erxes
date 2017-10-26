@@ -1,8 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { SidebarList, QuickButton, SideBarCounter } from '../../layout/styles';
-import { Wrapper } from '../../layout/components';
-import { EmptyState } from './EmptyState';
+import { Wrapper } from 'modules/layout/components';
+import { EmptyState } from 'modules/common/components';
 import Icon from './Icon';
 
 CountsByTag.propTypes = {
