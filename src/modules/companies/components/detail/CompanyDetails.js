@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Wrapper } from 'modules/layout/components';
+import { Icon } from 'modules/common/components';
 import { List as InternalNotes } from 'modules/internalNotes/containers';
 import LeftSidebar from './LeftSidebar';
 
@@ -25,7 +26,7 @@ class CompanyDetails extends React.Component {
         <ul className="header">
           <li className="active">
             <a>
-              <i className="ion-email" />
+              <Icon icon="email" />
               New note
             </a>
           </li>

@@ -1,8 +1,13 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Button, Table } from 'react-bootstrap';
+import { Table } from 'react-bootstrap';
 import { Wrapper } from 'modules/layout/components';
-import { Pagination, ModalTrigger } from 'modules/common/components';
+import {
+  Pagination,
+  ModalTrigger,
+  Button,
+  Icon
+} from 'modules/common/components';
 import Sidebar from './Sidebar';
 import CompanyRow from './CompanyRow';
 import CompanyForm from './CompanyForm';
@@ -51,8 +56,8 @@ function CompaniesList({
   );
 
   const addTrigger = (
-    <Button bsStyle="link">
-      <i className="ion-plus-circled" /> New company
+    <Button btnStyle="simple">
+      <Icon icon="plus-circled" /> New company
     </Button>
   );
 
