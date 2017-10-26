@@ -49,7 +49,7 @@ const EmptyStateStyled = styled.div`
 
 EmptyState.propTypes = {
   text: PropTypes.string.isRequired,
-  icon: PropTypes.object.isRequired,
+  icon: PropTypes.string.isRequired,
   size: PropTypes.oneOf(['full', 'small']),
   linkUrl: PropTypes.string,
   linkText: PropTypes.string

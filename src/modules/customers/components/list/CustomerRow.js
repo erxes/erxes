@@ -2,6 +2,7 @@ import React from 'react';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 import moment from 'moment';
+import { Icon } from 'modules/common/components';
 
 const propTypes = {
   customer: PropTypes.object.isRequired,
@@ -48,7 +49,7 @@ function CustomerRow({ customer, columnsConfig, toggleBulk }) {
       </td>
       <td>
         <a href={`customers/details/${customer._id}`}>
-          <i className="ion-log-in" />
+          <Icon icon="log-in" />
         </a>
       </td>
       {columnsConfig.map(({ name }) => (

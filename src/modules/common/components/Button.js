@@ -28,7 +28,7 @@ const types = {
   },
   simple: {
     background: colors.colorWhite,
-    borderColor: colors.colorCoreLightGray,
+    borderColor: colors.colorShadowGray,
     color: colors.colorCoreLightGray
   },
   link: {
@@ -40,30 +40,34 @@ const types = {
 const sizes = {
   large: {
     padding: '11px 32px',
-    fontSize: '14px'
+    fontSize: '14px',
+    lineHeight: '1.333333'
   },
   medium: {
     padding: '8px 26px',
-    fontSize: '11px'
+    fontSize: '11px',
+    lineHeight: '1.32857143'
   },
   small: {
     padding: '6px 20px',
-    fontSize: '10px'
+    fontSize: '10px',
+    lineHeight: '1.5'
   }
 };
 
 const ButtonStyled = styled.button`
   ${props => css`
     border-radius: 30px;
+    margin-left: 5px;
     padding: ${sizes[props.size].padding};
     display: ${props.block ? 'block' : 'inline-block'};
     width: ${props.block && '100%'};
-    border: ${types[props.btnStyle].borderColor ? '1px solid' : 'none'};
+    border: ${types[props.btnStyle].borderColor ? '1px solid #DDD' : 'none'};
     background: ${types[props.btnStyle].background};
     color: ${types[props.btnStyle].color};
     font-size: ${sizes[props.size].fontSize};
     outline: 0;
-    line-height: 1.32857143;
+    line-height: ${sizes[props.size].lineHeight};
     transition: all 0.3s ease;
     text-transform: uppercase;
 

@@ -191,6 +191,10 @@ const QuickButton = styled.a`
   outline: 0;
   > i {
     font-size: 14px;
+
+    &:hover {
+      color: ${colors.colorCoreBlack};
+    }
   }
 `;
 
@@ -230,6 +234,8 @@ const SidebarList = styled.ul`
 
     &:hover {
       background: ${colors.borderPrimary};
+      text-decoration: none;
+      color: ${colors.colorCoreBlack};
     }
   }
 

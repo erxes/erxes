@@ -1,7 +1,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Wrapper } from 'modules/layout/components';
-import { EmptyState } from 'modules/common/components';
+import {
+  QuickButton,
+  SidebarList,
+  SideBarCounter
+} from 'modules/layout/styles';
+import { EmptyState, Icon } from 'modules/common/components';
 
 const propTypes = {
   counts: PropTypes.object.isRequired,
@@ -16,24 +21,23 @@ function Integrations({ counts, integrations }) {
       <Section.Title>Filter by integrations</Section.Title>
 
       <Section.QuickButtons>
-        <a href="/settings/integrations" className="quick-button">
-          <i className="ion-gear-a" />
-        </a>
+        <QuickButton href="/settings/integrations">
+          <Icon icon="gear-a" />
+        </QuickButton>
 
         {window.location.search.includes('integration') ? (
-          <a
+          <QuickButton
             tabIndex={0}
-            className="quick-button"
             onClick={() => {
               filter('integration', null);
             }}
           >
-            <i className="ion-close-circled" />
-          </a>
+            <Icon icon="close-circled" />
+          </QuickButton>
         ) : null}
       </Section.QuickButtons>
 
-      <ul className="sidebar-list">
+      <SidebarList>
         {integrations.length ? (
           integrations.map(integration => (
             <li key={integration}>
@@ -45,18 +49,14 @@ function Integrations({ counts, integrations }) {
                 }}
               >
                 {integration}
-                <span className="counter">{counts[integration]}</span>
+                <SideBarCounter>{counts[integration]}</SideBarCounter>
               </a>
             </li>
           ))
         ) : (
-          <EmptyState
-            icon={<i className="ion-arrow-swap" />}
-            text="No integrations"
-            size="small"
-          />
+          <EmptyState icon="arrow-swap" text="No integrations" size="small" />
         )}
-      </ul>
+      </SidebarList>
     </Section>
   );
 }

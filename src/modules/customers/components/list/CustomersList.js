@@ -1,8 +1,13 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Table, Button } from 'react-bootstrap';
+import { Table } from 'react-bootstrap';
 import { Wrapper } from 'modules/layout/components';
-import { Pagination, ModalTrigger } from 'modules/common/components';
+import {
+  Pagination,
+  ModalTrigger,
+  Button,
+  Icon
+} from 'modules/common/components';
 // TODO
 // import { Widget } from '/imports/react-ui/engage/containers';
 import Sidebar from './sidebar/Sidebar';
@@ -66,8 +71,8 @@ class CustomersList extends React.Component {
     const { counts, brands, integrations, tags, addCustomer } = this.props;
 
     const addTrigger = (
-      <Button bsStyle="link">
-        <i className="ion-plus-circled" /> New customer
+      <Button btnStyle="simple">
+        <Icon icon="plus-circled" /> New customer
       </Button>
     );
 

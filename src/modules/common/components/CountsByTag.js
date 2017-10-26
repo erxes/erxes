@@ -2,8 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { SidebarList, QuickButton, SideBarCounter } from '../../layout/styles';
 import { Wrapper } from 'modules/layout/components';
-import { EmptyState } from 'modules/common/components';
-import Icon from './Icon';
+import { EmptyState, Icon } from 'modules/common/components';
 
 CountsByTag.propTypes = {
   tags: PropTypes.array.isRequired,
