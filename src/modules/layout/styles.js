@@ -180,7 +180,7 @@ const HelperButtons = styled.div`
   top: 16px;
 `;
 
-const QuickButton = styled.div`
+const QuickButton = styled.a`
   float: left;
   color: ${colors.colorCoreLightGray};
   text-transform: none;
@@ -189,6 +189,9 @@ const QuickButton = styled.div`
   font-size: 12px;
   font-weight: 300;
   outline: 0;
+  > i {
+    font-size: 14px;
+  }
 `;
 
 const SidebarTitle = styled.h3`
@@ -198,6 +201,51 @@ const SidebarTitle = styled.h3`
   text-transform: uppercase;
   padding: ${dimensions.coreSpacing}px;
   margin: 0;
+`;
+
+const SidebarList = styled.ul`
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  li {
+    border-bottom: 1px solid ${colors.borderPrimary};
+
+    &:last-child {
+      border: none;
+    }
+  }
+
+  a {
+    display: block;
+    padding: 5px 20px;
+    color: ${colors.textPrimary};
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding-right: 30px;
+    cursor: pointer;
+    text-decoration: none;
+    outline: 0;
+
+    &:hover {
+      background: ${colors.borderPrimary};
+    }
+  }
+
+  .icon {
+    margin-right: 6px;
+    color: ${colors.colorCoreGray};
+  }
+`;
+
+const SideBarCounter = styled.span`
+  font-size: 12px;
+  text-align: right;
+  color: ${colors.colorCoreGray};
+  margin-top: 2px;
+  position: absolute;
+  right: 20px;
 `;
 
 export {
@@ -219,8 +267,10 @@ export {
   SidebarFooter,
   SidebarBox,
   SidebarToggle,
+  SideBarCounter,
   HelperButtons,
   QuickButton,
   SidebarTitle,
-  UserHelper
+  UserHelper,
+  SidebarList
 };

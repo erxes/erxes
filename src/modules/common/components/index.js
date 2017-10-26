@@ -17,7 +17,6 @@ import ModalTrigger from './ModalTrigger';
 import ActionButtons from './ActionButtons';
 import EmptyState from './EmptyState';
 import Bulk from './Bulk';
-import CountsByTag from './CountsByTag';
 import Tagger from './tagger/containers/Tagger';
 import TaggerPopover from './tagger/components/TaggerPopover';
 import Tags from './Tags';
@@ -26,6 +25,7 @@ import DropdownToggle from './DropdownToggle';
 import ConversationList from './conversationList/ConversationList';
 import { FormControl, ControlLabel } from './Form';
 import TextDivider from './TextDivider';
+import CountsByTag from './CountsByTag';
 
 export {
   ActionButtons,

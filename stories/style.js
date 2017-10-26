@@ -1,5 +1,6 @@
 import styled from "styled-components"
 import { injectGlobal } from 'styled-components';
+import 'ionicons/css/ionicons.min.css';
 
 injectGlobal`
   @import url('https://fonts.googleapis.com/css?family=Montserrat:300,400,500');

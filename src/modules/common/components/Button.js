@@ -1,8 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import styled, { css } from 'styled-components';
-import { colors } from '../../styles';
-import { darken, lighten } from '../../styles/color';
+import { colors } from '../styles';
+import { darken, lighten } from '../styles/color';
 
 const types = {
   default: {

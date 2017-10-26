@@ -1,16 +1,34 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import styled from 'styled-components';
+import { colors } from '../../styles';
 import Avatar from './Avatar';
 
-const propTypes = {
-  user: PropTypes.object,
-  customer: PropTypes.object,
-  singleLine: PropTypes.bool,
-  firstLine: PropTypes.node,
-  secondLine: PropTypes.node,
-  avatarSize: PropTypes.number,
-  url: PropTypes.string
-};
+const NameCardStyled = styled.div`
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+`;
+
+const NameCardText = styled.div`
+  margin-left: 10px;
+`;
+
+const FirstLine = styled.a`
+  padding: 0;
+  font-size: 15px;
+  display: block;
+  color: ${colors.colorCoreDarkGray};
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+  text-decoration: inherit;
+`;
+
+const SecondLine = styled.div`
+  font-size: 13px;
+  color: ${colors.colorLightGray};
+`;
 
 function NameCard({
   user,
@@ -36,19 +54,25 @@ function NameCard({
   }
 
   return (
-    <div className="name-card">
+    <NameCardStyled>
       <Avatar user={user} customer={customer} size={avatarSize} />
-      <div className="text">
-        <a href={url ? url : '#'} className="first-line">
-          {first}
-        </a>
-        <div className="second-line">{second}</div>
-      </div>
-    </div>
+      <NameCardText>
+        <FirstLine href={url ? url : '#'}>{first}</FirstLine>
+        <SecondLine>{second}</SecondLine>
+      </NameCardText>
+    </NameCardStyled>
   );
 }
 
-NameCard.propTypes = propTypes;
+NameCard.propTypes = {
+  user: PropTypes.object,
+  customer: PropTypes.object,
+  singleLine: PropTypes.bool,
+  firstLine: PropTypes.node,
+  secondLine: PropTypes.node,
+  avatarSize: PropTypes.number,
+  url: PropTypes.string
+};
 NameCard.Avatar = Avatar;
 
 export default NameCard;
