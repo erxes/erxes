@@ -1,8 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Table, Button } from 'react-bootstrap';
 import { Wrapper } from 'modules/layout/components';
 import { Pagination, ModalTrigger } from 'modules/common/components';
+import { Button, Table } from '../../../common/components';
 // TODO
 // import { Widget } from '/imports/react-ui/engage/containers';
 import Sidebar from './sidebar/Sidebar';
@@ -35,7 +35,7 @@ class CustomersList extends React.Component {
 
     return (
       <Pagination hasMore={hasMore} loadMore={loadMore}>
-        <Table className="no-wrap">
+        <Table whiteSpace="nowrap" hover>
           <thead>
             <tr>
               <th />
@@ -66,20 +66,42 @@ class CustomersList extends React.Component {
     const { counts, brands, integrations, tags, addCustomer } = this.props;
 
     const addTrigger = (
-      <Button bsStyle="link">
-        <i className="ion-plus-circled" /> New customer
+      <Button btnStyle="success" size="small">
+        Add customer
       </Button>
     );
 
-    const actionBarLeft = (
+    const actionBarRight = (
       <div>
+        <Button btnStyle="simple" size="small">
+          Tags <i className="ion-ios-arrow-down" />
+        </Button>
+        <Button btnStyle="simple" size="small">
+          Customize <i className="ion-ios-arrow-down" />
+        </Button>
         <ModalTrigger title="New customer" trigger={addTrigger}>
           <CustomerForm addCustomer={addCustomer} />
         </ModalTrigger>
       </div>
     );
 
-    const actionBar = <Wrapper.ActionBar left={actionBarLeft} />;
+    const actionBarLeft = (
+      <div>
+        <Button btnStyle="success" size="small">
+          <i className="ion-email" /> Message
+        </Button>
+        <Button btnStyle="simple" size="small">
+          <i className="ion-ios-pricetag" /> Tag
+        </Button>
+        <Button btnStyle="simple" size="small">
+          More <i className="ion-ios-arrow-down" />
+        </Button>
+      </div>
+    );
+
+    const actionBar = (
+      <Wrapper.ActionBar left={actionBarLeft} right={actionBarRight} />
+    );
     const breadcrumb = [{ title: `Customers (${counts.all})` }];
 
     return (
