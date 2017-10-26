@@ -5,7 +5,6 @@ import {
   Pagination,
   ModalTrigger,
   Button,
-  Icon,
   Table
 } from 'modules/common/components';
 import Sidebar from './Sidebar';
