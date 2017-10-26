@@ -14,7 +14,7 @@ function Icon({ icon, size }) {
 
 Icon.propTypes = {
   icon: PropTypes.node.isRequired,
-  size: PropTypes.number
+  size: PropTypes.string
 };
 
 Icon.defaultProps = {
