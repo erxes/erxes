@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Button, Table } from 'react-bootstrap';
+import { Button, Table } from '../../../common/components';
 import { Wrapper } from 'modules/layout/components';
 import { Pagination, ModalTrigger } from 'modules/common/components';
 import Sidebar from './Sidebar';
@@ -26,7 +26,7 @@ function CompaniesList({
 }) {
   const content = (
     <Pagination hasMore={hasMore} loadMore={loadMore}>
-      <Table className="no-wrap">
+      <Table whiteSpace="nowrap">
         <thead>
           <tr>
             <th>
@@ -50,19 +50,15 @@ function CompaniesList({
     </Pagination>
   );
 
-  const addTrigger = (
-    <Button bsStyle="link">
-      <i className="ion-plus-circled" /> New company
-    </Button>
-  );
+  const addTrigger = <Button btnStyle="success">Add company</Button>;
 
-  const actionBarLeft = (
+  const actionBarRight = (
     <ModalTrigger title="New company" trigger={addTrigger}>
       <CompanyForm addCompany={addCompany} />
     </ModalTrigger>
   );
 
-  const actionBar = <Wrapper.ActionBar left={actionBarLeft} />;
+  const actionBar = <Wrapper.ActionBar right={actionBarRight} />;
   const breadcrumb = [{ title: `Companies (${counts.all})` }];
 
   return (
