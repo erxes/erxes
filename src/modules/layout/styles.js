@@ -4,18 +4,27 @@ import { rgba } from '../common/styles/color';
 
 const UserHelper = styled.div`
   padding: 0 ${dimensions.coreSpacing}px;
-  float: right;
+  height: 50px;
+  display: flex;
+  align-items: center;
   background: ${rgba(colors.colorWhite, 0.1)};
+
+  &:hover {
+    cursor: pointer;
+    background: ${rgba(colors.colorWhite, 0.15)};
+  }
 `;
 
 const Main = styled.main`
   flex: 1;
   height: 100%;
+  max-width: 100%;
 `;
 
 const Layout = styled.div`
   height: 100%;
   display: flex;
+  max-width: 100%;
 `;
 
 const LeftNavigation = styled.aside`
@@ -58,11 +67,14 @@ const MainWrapper = styled.div`
   flex: 1;
   display: flex;
   flex-direction: column;
+  max-width: calc(100% - 70px);
 `;
 
 const TopBar = styled.div`
   height: ${dimensions.headerSpacing}px;
-  line-height: ${dimensions.headerSpacing}px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   margin: 0;
   border: 0;
   flex-shrink: 0;
@@ -100,12 +112,18 @@ const ContenFooter = styled.div`
 
 const ContentHeader = styled.div`
   background: ${colors.colorWhite};
-  height: ${dimensions.headerSpacing}px;
+  min-height: ${dimensions.headerSpacing}px;
   padding: 0 ${dimensions.coreSpacing}px 0 ${dimensions.coreSpacing}px;
   margin-right: ${dimensions.coreSpacing}px;
   border-bottom: 1px solid ${colors.borderPrimary};
   display: flex;
   justify-content: space-between;
+`;
+
+const BarItems = styled.div`
+  > * + * {
+    margin-left: ${dimensions.unitSpacing}px;
+  }
 `;
 
 const HeaderItems = styled.div`
@@ -147,7 +165,8 @@ const SidebarFooter = SidebarHeader.extend``;
 const SidebarBox = styled.div`
   background-color: ${colors.colorWhite};
   margin-bottom: ${dimensions.coreSpacing}px;
-  box-shadow: 0 0 4px ${colors.shadowPrimary};
+  box-shadow: ${props =>
+    props.noShadow ? 'none' : `0 0 4px ${colors.shadowPrimary}`};
   padding-bottom: ${dimensions.unitSpacing}px;
   position: relative;
   transition: max-height 0.4s;
@@ -261,6 +280,7 @@ export {
   ContenFooter,
   ContentHeader,
   HeaderItems,
+  BarItems,
   SideContent,
   SidebarHeader,
   SidebarMainContent,

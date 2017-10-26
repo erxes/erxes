@@ -2,10 +2,12 @@ import React from 'react';
 import { Wrapper } from 'modules/layout/components';
 
 function Sidebar() {
-  const { Title } = Wrapper.Sidebar.Section;
+  const Sidebar = Wrapper.Sidebar;
+  const { Title } = Sidebar.Section;
+
   return (
-    <Wrapper.Sidebar>
-      <Wrapper.Sidebar.Section>
+    <Sidebar full>
+      <Sidebar.Section noShadow>
         <Title>Insights</Title>
         <ul className="sidebar-list">
           <li>
@@ -24,8 +26,8 @@ function Sidebar() {
             </a>
           </li>
         </ul>
-      </Wrapper.Sidebar.Section>
-    </Wrapper.Sidebar>
+      </Sidebar.Section>
+    </Sidebar>
   );
 }
 

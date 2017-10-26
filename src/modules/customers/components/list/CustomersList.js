@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { Wrapper } from 'modules/layout/components';
 import { Pagination, ModalTrigger } from 'modules/common/components';
 import { Button, Table } from '../../../common/components';
+import { BarItems } from 'modules/layout/styles';
 // TODO
 // import { Widget } from '/imports/react-ui/engage/containers';
 import Sidebar from './sidebar/Sidebar';
@@ -72,7 +73,7 @@ class CustomersList extends React.Component {
     );
 
     const actionBarRight = (
-      <div>
+      <BarItems>
         <Button btnStyle="simple" size="small">
           Tags <i className="ion-ios-arrow-down" />
         </Button>
@@ -82,11 +83,11 @@ class CustomersList extends React.Component {
         <ModalTrigger title="New customer" trigger={addTrigger}>
           <CustomerForm addCustomer={addCustomer} />
         </ModalTrigger>
-      </div>
+      </BarItems>
     );
 
     const actionBarLeft = (
-      <div>
+      <BarItems>
         <Button btnStyle="success" size="small">
           <i className="ion-email" /> Message
         </Button>
@@ -96,7 +97,7 @@ class CustomersList extends React.Component {
         <Button btnStyle="simple" size="small">
           More <i className="ion-ios-arrow-down" />
         </Button>
-      </div>
+      </BarItems>
     );
 
     const actionBar = (

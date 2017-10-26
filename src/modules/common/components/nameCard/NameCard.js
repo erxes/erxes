@@ -71,7 +71,8 @@ NameCard.propTypes = {
   firstLine: PropTypes.node,
   secondLine: PropTypes.node,
   avatarSize: PropTypes.number,
-  url: PropTypes.string
+  url: PropTypes.string,
+  isUser: PropTypes.bool
 };
 NameCard.Avatar = Avatar;
 
