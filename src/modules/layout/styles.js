@@ -264,7 +264,7 @@ const SidebarList = styled.ul`
   }
 `;
 
-const SideBarCounter = styled.span`
+const SidebarCounter = styled.span`
   font-size: 12px;
   text-align: right;
   color: ${colors.colorCoreGray};
@@ -293,7 +293,7 @@ export {
   SidebarFooter,
   SidebarBox,
   SidebarToggle,
-  SideBarCounter,
+  SidebarCounter,
   HelperButtons,
   QuickButton,
   SidebarTitle,

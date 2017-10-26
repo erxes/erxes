@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { OverlayTrigger, Popover, Button } from 'react-bootstrap';
-import { FilterableList } from 'modules/common/components';
+import { OverlayTrigger, Popover } from 'react-bootstrap';
+import { FilterableList, Button } from 'modules/common/components';
 import { types, operators, dateUnits } from 'modules/customers/constants';
 
 const propTypes = {
@@ -51,7 +51,7 @@ class AddConditionButton extends Component {
         overlay={popover}
         rootClose
       >
-        <Button bsSize="sm">Add a condition</Button>
+        <Button size="small">Add a condition</Button>
       </OverlayTrigger>
     );
   }

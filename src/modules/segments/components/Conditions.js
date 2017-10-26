@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Label } from 'react-bootstrap';
+import { Label, Icon } from 'modules/common/components';
 import Condition from './Condition';
 
 const propTypes = {
@@ -22,7 +22,7 @@ function Conditions({
         <a href={`/segments/edit/${parentSegmentId}`} target="_blank">
           <h4>
             <Label>
-              Parent segment conditions <i className="ion-android-open" />
+              Parent segment conditions <Icon icon="android-open" />
             </Label>
           </h4>
           <br />

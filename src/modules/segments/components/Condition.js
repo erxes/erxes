@@ -1,8 +1,9 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Form, FormControl, Button } from 'react-bootstrap';
+import { Form, FormControl } from 'react-bootstrap';
 import debounce from 'lodash/debounce';
 import { types, operators, dateUnits } from 'modules/customers/constants';
+import { Button, Icon } from 'modules/common/components';
 
 const propTypes = {
   condition: PropTypes.object.isRequired,
@@ -136,8 +137,8 @@ class Condition extends Component {
               </option>
             ))}
           </FormControl>
-          <Button bsStyle="link" onClick={this.removeCondition}>
-            <i className="ion-close-circled" />
+          <Button btnStyle="link" onClick={this.removeCondition}>
+            <Icon icon="close-circled" />
           </Button>
         </div>
       </Form>

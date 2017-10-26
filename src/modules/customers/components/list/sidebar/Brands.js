@@ -4,7 +4,7 @@ import { Wrapper } from 'modules/layout/components';
 import {
   QuickButton,
   SidebarList,
-  SideBarCounter
+  SidebarCounter
 } from 'modules/layout/styles';
 import { EmptyState, Icon } from 'modules/common/components';
 
@@ -47,7 +47,7 @@ function Brands({ counts, brands }) {
               }}
             >
               {brand.name}
-              <SideBarCounter>{counts[brand._id]}</SideBarCounter>
+              <SidebarCounter>{counts[brand._id]}</SidebarCounter>
             </a>
           </li>
         ))}

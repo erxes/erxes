@@ -4,7 +4,7 @@ import { Wrapper } from 'modules/layout/components';
 import {
   QuickButton,
   SidebarList,
-  SideBarCounter
+  SidebarCounter
 } from 'modules/layout/styles';
 import { EmptyState, Icon } from 'modules/common/components';
 
@@ -49,7 +49,7 @@ function Integrations({ counts, integrations }) {
                 }}
               >
                 {integration}
-                <SideBarCounter>{counts[integration]}</SideBarCounter>
+                <SidebarCounter>{counts[integration]}</SidebarCounter>
               </a>
             </li>
           ))

@@ -2,7 +2,12 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Dropdown, MenuItem } from 'react-bootstrap';
 import { Wrapper } from 'modules/layout/components';
-import { DropdownToggle, EmptyState } from 'modules/common/components';
+import {
+  QuickButton,
+  SidebarList,
+  SidebarCounter
+} from 'modules/layout/styles';
+import { DropdownToggle, EmptyState, Icon } from 'modules/common/components';
 
 const propTypes = {
   contentType: PropTypes.string.isRequired,
@@ -28,7 +33,7 @@ function Segments({ contentType, counts, segments }) {
       <Section.QuickButtons>
         <Dropdown id="dropdown-user" className="quick-button" pullRight>
           <DropdownToggle bsRole="toggle">
-            <i className="ion-more" />
+            <Icon icon="more" />
           </DropdownToggle>
           <Dropdown.Menu>
             <MenuItem href={`/segments/new/${contentType}`}>
@@ -41,19 +46,18 @@ function Segments({ contentType, counts, segments }) {
         </Dropdown>
 
         {window.location.search.includes('segment') ? (
-          <a
+          <QuickButton
             tabIndex={0}
-            className="quick-button"
             onClick={() => {
               filter('segment', null);
             }}
           >
-            <i className="ion-close-circled" />
-          </a>
+            <Icon icon="close-circled" />
+          </QuickButton>
         ) : null}
       </Section.QuickButtons>
 
-      <ul className="sidebar-list">
+      <SidebarList>
         {orderedSegments.length ? (
           orderedSegments.map(segment => (
             <li key={segment._id}>
@@ -65,23 +69,16 @@ function Segments({ contentType, counts, segments }) {
                 }}
               >
                 {segment.subOf ? '\u00a0\u00a0\u00a0\u00a0\u00a0' : null}
-                <i
-                  className="ion-pie-graph icon"
-                  style={{ color: segment.color }}
-                />
+                <Icon icon="pie-graph icon" style={{ color: segment.color }} />
                 {segment.name}
-                <span className="counter">{counts[segment._id]}</span>
+                <SidebarCounter>{counts[segment._id]}</SidebarCounter>
               </a>
             </li>
           ))
         ) : (
-          <EmptyState
-            icon={<i className="ion-pie-graph" />}
-            text="No segments"
-            size="small"
-          />
+          <EmptyState icon="pie-graph" text="No segments" size="small" />
         )}
-      </ul>
+      </SidebarList>
     </Section>
   );
 }
