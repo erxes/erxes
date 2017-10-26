@@ -31,7 +31,7 @@ function Brands({ counts, brands }) {
               filter('brand', null);
             }}
           >
-            <Icon icon="ion-close-circled" />
+            <Icon icon="close-circled" />
           </QuickButton>
         ) : null}
       </Section.QuickButtons>

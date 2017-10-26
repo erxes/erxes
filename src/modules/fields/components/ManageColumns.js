@@ -9,6 +9,7 @@ import {
 } from 'react-sortable-hoc';
 import PropTypes from 'prop-types';
 import { Wrapper } from 'modules/layout/components';
+import { Button, Icon } from 'modules/common/components';
 
 const DragHandle = SortableHandle(() => (
   <span className="drag-handler">::::</span>
@@ -88,9 +89,9 @@ class ManageColumns extends Component {
 
     const content = (
       <form onSubmit={this.onSubmit} className="manage-columns">
-        <button type="submit" className="action-btn btn btn-success">
-          <i className="ion-checkmark-circled" /> Save changes
-        </button>
+        <Button type="submit" btnStyle="success">
+          <Icon icon="checkmark-circled" /> Save changes
+        </Button>
 
         <SortableList
           fields={this.state.fields}
