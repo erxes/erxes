@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 import { colors } from '../common/styles';
 
-const SidebarList = styled.main`
+const SidebarList = styled.ul`
   margin: 0;
   padding: 0;
   list-style: none;

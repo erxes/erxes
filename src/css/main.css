@@ -1,16 +1,6 @@
-body .layout {
-  display: flex;
-  height: 100%;
-  max-width: 100%;
+#tooltip {
+  position: fixed;
 }
-body .layout > div:not(.wrapper-loader) {
-  display: flex;
-  flex: 1;
-  max-width: 100%;
-  padding-left: 70px;
-  margin-left: -70px;
-}
-
 .divider {
   height: 1px;
   margin: 9px 0;

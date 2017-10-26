@@ -2,7 +2,7 @@ import styled from 'styled-components';
 import { colors, dimensions, typography } from '../../styles';
 
 const inputPadding = '5px';
-const inputHeight = '20px';
+const inputHeight = '18px';
 const inputScale = '12px';
 const inputBorderWidth = '1px';
 const formGreyColor = '#AAAEB3';
@@ -170,7 +170,7 @@ const Checkbox = inputStyle.extend`
     &:after {
       background-color: transparent;
       top: 50%;
-      left: calc(${inputPadding} + ${inputBorderWidth} + ${inputHeight}/5);
+      left: calc(${inputPadding} + ${inputHeight}/5);
       width: calc(${inputHeight}/2);
       height: calc(${inputHeight}/5);
       margin-top: calc(${inputHeight} / -2 / 2 * 0.8);

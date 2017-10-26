@@ -37,6 +37,7 @@ const LeftNavigation = styled.aside`
 const Nav = styled.nav`
   display: block;
   background: ${colors.colorCoreBlack};
+  margin-top: 10px;
 
   > a {
     display: block;
