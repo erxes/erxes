@@ -39,18 +39,18 @@ const types = {
 
 const sizes = {
   large: {
-    padding: '11px 32px',
+    padding: '11px 29px',
     fontSize: '14px',
     lineHeight: '1.333333'
   },
   medium: {
-    padding: '8px 26px',
+    padding: '8px 23px',
     fontSize: '11px',
     lineHeight: '1.32857143'
   },
   small: {
-    padding: '6px 20px',
-    fontSize: '10px',
+    padding: '5px 16px',
+    fontSize: '9px',
     lineHeight: '1.5'
   }
 };
@@ -79,10 +79,17 @@ const ButtonStyled = styled.button`
 
     &:hover {
       cursor: pointer;
-      box-shadow: 0 0 4px 0 ${colors.colorCoreGray};
+      box-shadow: ${types[props.btnStyle] === types.link
+        ? 'none'
+        : '0 0 4px 0 #888'};
       color: ${types[props.btnStyle].color !== colors.colorWhite
         ? darken(colors.colorCoreGray, 24)
         : ''};
+      text-decoration: none;
+    }
+
+    &.shrinked {
+      padding: 8px 0;
     }
   `};
 `;
@@ -97,10 +104,20 @@ const ButtonLink = Link.extend`
   pointer-events: ${props => props.disabled && 'none'};
 `;
 
-function Button({ btnStyle, children, size, disabled, block, href, onClick }) {
+function Button({
+  btnStyle,
+  children,
+  size,
+  disabled,
+  block,
+  href,
+  onClick,
+  className
+}) {
   if (href) {
     return (
       <ButtonLink
+        className={className}
         href={href}
         btnStyle={btnStyle}
         size={size}
@@ -115,6 +132,7 @@ function Button({ btnStyle, children, size, disabled, block, href, onClick }) {
 
   return (
     <ButtonStyled
+      className={className}
       btnStyle={btnStyle}
       size={size}
       block={block}
@@ -128,6 +146,7 @@ function Button({ btnStyle, children, size, disabled, block, href, onClick }) {
 
 Button.propTypes = {
   children: PropTypes.node.isRequired,
+  className: PropTypes.string,
   onClick: PropTypes.func,
   href: PropTypes.string,
   btnStyle: PropTypes.oneOf([

@@ -62,7 +62,9 @@ class CompanyForm extends React.Component {
               Cancel
             </Button>
 
-            <Button btnStyle="primary">Save</Button>
+            <Button type="submit" btnStyle="primary">
+              Save
+            </Button>
           </ButtonToolbar>
         </Modal.Footer>
       </form>

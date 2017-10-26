@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Modal, Button, ButtonToolbar } from 'react-bootstrap';
+import { Modal, ButtonToolbar } from 'react-bootstrap';
 import { Wrapper } from 'modules/layout/components';
+import { Button } from 'modules/common/components';
 import Sidebar from '../../Sidebar';
 import SelectBrand from './SelectBrand';
 
@@ -25,7 +26,7 @@ class Twitter extends Component {
 
         <Modal.Footer>
           <ButtonToolbar className="pull-right">
-            <Button type="submit" bsStyle="primary">
+            <Button type="submit" btnStyle="primary">
               Save
             </Button>
           </ButtonToolbar>

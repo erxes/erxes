@@ -1,12 +1,13 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Button, ButtonGroup, OverlayTrigger, Popover } from 'react-bootstrap';
+import { ButtonGroup, OverlayTrigger, Popover } from 'react-bootstrap';
 import classnames from 'classnames';
 import { ChromePicker } from 'react-color';
 import { uploadHandler } from 'modules/common/utils';
 import { Wrapper } from 'modules/layout/components';
 import Sidebar from '../../Sidebar';
 import WidgetPreview from './WidgetPreview';
+import { Button, Icon } from 'modules/common/components';
 
 class Appearance extends Component {
   constructor(props) {
@@ -162,12 +163,12 @@ class Appearance extends Component {
       <Wrapper.ActionBar
         left={
           <ButtonGroup>
-            <Button bsStyle="link" onClick={this.save}>
-              <i className="ion-checkmark-circled" /> Save
+            <Button btnStyle="link" onClick={this.save}>
+              <Icon icon="checkmark-circled" /> Save
             </Button>
 
-            <Button bsStyle="link" href="/settings/integrations">
-              <i className="ion-close-circled" /> Cancel
+            <Button btnStyle="link" href="/settings/integrations">
+              <Icon icon="close-circled" /> Cancel
             </Button>
           </ButtonGroup>
         }

@@ -1,7 +1,11 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Button } from 'react-bootstrap';
-import { Pagination, ModalTrigger } from 'modules/common/components';
+import {
+  Pagination,
+  ModalTrigger,
+  Button,
+  Icon
+} from 'modules/common/components';
 import { Wrapper } from 'modules/layout/components';
 import Sidebar from '../../Sidebar';
 
@@ -39,8 +43,8 @@ class List extends Component {
     const { loadMore, hasMore, save } = this.props;
 
     const trigger = (
-      <Button bsStyle="link">
-        <i className="ion-plus-circled" /> {this.title}
+      <Button btnStyle="simple">
+        <Icon icon="plus-circled" /> {this.title}
       </Button>
     );
 

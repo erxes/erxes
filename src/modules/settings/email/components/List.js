@@ -1,7 +1,14 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Table, Button, Label } from 'react-bootstrap';
-import { Tip, ActionButtons, ModalTrigger } from 'modules/common/components';
+import { Table } from 'react-bootstrap';
+import {
+  Tip,
+  ActionButtons,
+  ModalTrigger,
+  Button,
+  Label,
+  Icon
+} from 'modules/common/components';
 import { Wrapper } from 'modules/layout/components';
 import Sidebar from '../../Sidebar';
 import { Config } from '../containers';
@@ -18,9 +25,9 @@ class List extends React.Component {
     const emailConfig = brand.emailConfig || { type: 'simple' };
 
     const editTrigger = (
-      <Button bsStyle="link">
+      <Button btnStyle="link">
         <Tip text="Edit">
-          <i className="ion-edit" />
+          <Icon icon="edit" />
         </Tip>
       </Button>
     );
@@ -31,7 +38,9 @@ class List extends React.Component {
       <tr key={brand.code}>
         <td>{name}</td>
         <td>
-          <Label bsStyle={emailConfig.type === 'simple' ? 'default' : 'info'}>
+          <Label
+            lblStyle={emailConfig.type === 'simple' ? 'default' : 'primary'}
+          >
             {emailConfig.type}
           </Label>
         </td>
