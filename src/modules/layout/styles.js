@@ -97,6 +97,10 @@ const MainContent = styled.section`
   min-width: 480px;
 `;
 
+const ContentSpace = styled.div`
+  padding: ${dimensions.coreSpacing}px;
+`;
+
 const ContentBox = styled.div`
   flex: 1;
   background-color: ${colors.bgLight};
@@ -285,6 +289,7 @@ export {
   ContentBox,
   ContenFooter,
   ContentHeader,
+  ContentSpace,
   HeaderItems,
   BarItems,
   SideContent,

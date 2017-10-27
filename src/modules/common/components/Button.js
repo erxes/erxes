@@ -58,7 +58,7 @@ const sizes = {
 const ButtonStyled = styled.button`
   ${props => css`
     border-radius: 30px;
-    margin-left: 5px;
+    position: relative;
     padding: ${sizes[props.size].padding};
     display: ${props.block ? 'block' : 'inline-block'};
     width: ${props.block && '100%'};
@@ -66,10 +66,10 @@ const ButtonStyled = styled.button`
     background: ${types[props.btnStyle].background};
     color: ${types[props.btnStyle].color};
     font-size: ${sizes[props.size].fontSize};
-    outline: 0;
     line-height: ${sizes[props.size].lineHeight};
     transition: all 0.3s ease;
     text-transform: uppercase;
+    outline: 0;
 
     &:disabled {
       cursor: not-allowed !important;
@@ -90,6 +90,10 @@ const ButtonStyled = styled.button`
 
     &.shrinked {
       padding: 8px 0;
+    }
+
+    & + button {
+      margin-left: 10px;
     }
   `};
 `;

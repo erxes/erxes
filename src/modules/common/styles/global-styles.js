@@ -112,6 +112,54 @@ injectGlobal`
     color: #888;
   }
 
+  /* tooltip */
+
+  .tooltip-inner {
+    background-color: #393C40;
+    border-radius: 0;
+  }
+
+  .tooltip.bottom .tooltip-arrow {
+    border-bottom-color: #393C40;
+  }
+
+  .tooltip.top .tooltip-arrow {
+    border-top-color: #393C40;
+  }
+
+  .tooltip.left .tooltip-arrow {
+    border-left-color: #393C40;
+  }
+
+  .tooltip.right .tooltip-arrow {
+    border-right-color: #393C40;
+  }
+
+  /* popover */
+
+  .popover {
+    font-family: 'Montserrat','Helvetica Neue','Helvetica','Arial', sans-serif;
+    border: 1px solid #eee;
+    border-radius: 0;
+    padding: 0;
+  }
+  .popover.bottom > .arrow {
+    border-bottom-color: transparent;
+  }
+  .popover.bottom > .arrow::after {
+    top: 4px;
+  }
+
+  .popover-title {
+    font-weight: 400;
+    border-bottom: 1px solid #eee;
+    padding: 10px 20px;
+    background: #fafafa;
+    font-size: 11px;
+    text-transform: uppercase;
+    color: #888;
+  }
+
   ::-webkit-scrollbar {
     width: 5px;
     height: 7px;

@@ -49,6 +49,7 @@ class AddConditionButton extends Component {
         trigger="click"
         placement="bottom"
         overlay={popover}
+        container={this}
         rootClose
       >
         <Button size="small">Add a condition</Button>
