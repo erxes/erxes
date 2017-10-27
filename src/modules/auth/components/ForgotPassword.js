@@ -4,6 +4,7 @@ import { FormGroup, FormControl } from 'react-bootstrap';
 import { Alert } from 'modules/common/utils';
 import { Button } from 'modules/common/components';
 
+
 const propTypes = {
   forgotPassword: PropTypes.func.isRequired
 };
@@ -12,9 +13,7 @@ class ForgotPassword extends Component {
   constructor(props) {
     super(props);
 
-    this.state = {
-      email: ''
-    };
+    this.state = { email: '' };
 
     this.handleSubmit = this.handleSubmit.bind(this);
     this.handleEmailChange = this.handleEmailChange.bind(this);
@@ -26,13 +25,9 @@ class ForgotPassword extends Component {
     const { email } = this.state;
 
     this.props.forgotPassword({ email }, err => {
-      if (err) {
-        return Alert.error('Email address is not registered');
+      if (!err) {
+        window.location.href = '/sign-in';
       }
-
-      Alert.success('Password reset instruction is sent to your email');
-
-      window.location.href = '/sign-in';
     });
   }
 
@@ -43,42 +38,25 @@ class ForgotPassword extends Component {
 
   render() {
     return (
-      <div className="auth-content">
-        <div className="container">
-          <div className="col-md-7">
-            <div className="auth-description">
-              <img src="/images/logo.png" alt="erxes" />
-              <h1>Customer engagement. Redefined.</h1>
-              <p>
-                erxes is an AI meets open source messaging platform for sales
-                and marketing teams.
-              </p>
-              <a href="http://erxes.io/">« Go to home page</a>
-            </div>
-          </div>
-          <div className="col-md-5">
-            <div className="auth-box">
-              <h2>Reset your password</h2>
-              <form onSubmit={this.handleSubmit}>
-                <FormGroup>
-                  <FormControl
-                    type="email"
-                    placeholder="registered@email.com"
-                    value={this.state.email}
-                    required
-                    onChange={this.handleEmailChange}
-                  />
-                </FormGroup>
-                <Button type="submit" block>
-                  Email me the instruction
-                </Button>
-              </form>
+      <div className="auth-box">
+        <h2>Reset your password</h2>
+        <form onSubmit={this.handleSubmit}>
+          <FormGroup>
+            <FormControl
+              type="email"
+              placeholder="registered@email.com"
+              value={this.state.email}
+              required
+              onChange={this.handleEmailChange}
+            />
+          </FormGroup>
+          <Button type="submit" block>
+            Email me the instruction
+          </Button>
+        </form>
 
-              <div className="links">
-                <a href="/sign-in">Sign in</a>
-              </div>
-            </div>
-          </div>
+        <div className="links">
+          <a href="/sign-in">Sign in</a>
         </div>
       </div>
     );

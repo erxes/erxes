@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { BreadCrumb } from '../../common/components';
 import { TopBar } from '../styles';
-import QuickNavigation from './QuickNavigation';
+import QuickNavigation from '../containers/QuickNavigation';
 
 const propTypes = {
   breadcrumb: PropTypes.array.isRequired
