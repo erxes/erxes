@@ -1,14 +1,15 @@
 import React from 'react';
+import queryString from 'query-string';
 import { Route } from 'react-router-dom';
 import { AuthLayout } from '../layout/containers';
-import { SignInContainer, ForgotPasswordContainer } from './containers';
+import { SignIn, ForgotPassword, ResetPassword } from './containers';
 
 const routes = () => [
   <Route
     path="/sign-in"
     key="signIn"
     component={() => {
-      return <AuthLayout content={<SignInContainer />} />;
+      return <AuthLayout content={<SignIn />} />;
     }}
   />,
 
@@ -16,7 +17,16 @@ const routes = () => [
     path="/forgot-password"
     key="forgotPassword"
     component={() => {
-      return <AuthLayout content={<ForgotPasswordContainer />} />;
+      return <AuthLayout content={<ForgotPassword />} />;
+    }}
+  />,
+
+  <Route
+    path="/reset-password"
+    key="resetPassword"
+    component={({ location }) => {
+      const parsed = queryString.parse(location.search);
+      return <AuthLayout content={<ResetPassword token={parsed.token} />} />;
     }}
   />
 ];

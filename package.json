@@ -7,6 +7,7 @@
     "bootstrap": "^3.3.7",
     "classnames": "^2.2.5",
     "color": "^2.0.0",
+    "crypto": "^1.0.1",
     "d3-punchcard": "^1.0.1",
     "husky": "^0.14.3",
     "ionicons": "2.0.1",

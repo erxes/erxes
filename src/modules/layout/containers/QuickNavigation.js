@@ -11,12 +11,12 @@ const QuickNavigationContainer = props => {
   const { LOGIN_TOKEN_KEY, LOGIN_REFRESH_TOKEN_KEY } = consts;
 
   const logout = () => {
-    // reset apollo store
-    apolloClient.resetStore();
-
     // remove tokens
     localStorage.removeItem(LOGIN_TOKEN_KEY);
     localStorage.removeItem(LOGIN_REFRESH_TOKEN_KEY);
+
+    // reset apollo store
+    apolloClient.resetStore();
 
     // redirect
     history.push('/');
