@@ -50,13 +50,11 @@ function List({ tags, type, remove, save }) {
   );
 
   return (
-    <div>
-      <Wrapper
-        header={<Wrapper.Header breadcrumb={[{ title: 'Tags' }]} />}
-        actionBar={actionBar}
-        content={content}
-      />
-    </div>
+    <Wrapper
+      header={<Wrapper.Header breadcrumb={[{ title: 'Tags' }]} />}
+      actionBar={actionBar}
+      content={content}
+    />
   );
 }
 
