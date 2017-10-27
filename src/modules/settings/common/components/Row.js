@@ -57,7 +57,7 @@ class Row extends Component {
 
   renderActions() {
     return (
-      <td className="text-right">
+      <td>
         <ActionButtons>
           {this.renderEditAction()}
           {this.renderRemoveAction()}

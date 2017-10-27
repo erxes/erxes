@@ -31,7 +31,7 @@ class Row extends CommonRow {
     const { object } = this.props;
 
     return (
-      <td className="text-right">
+      <td>
         <ActionButtons>
           <Tip text="Manage Fields">
             <Button btnStyle="link" href={`/fields/manage/form/${object._id}`}>

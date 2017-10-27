@@ -97,6 +97,10 @@ const MainContent = styled.section`
   min-width: 480px;
 `;
 
+const ContentSpace = styled.div`
+  padding: ${dimensions.coreSpacing}px;
+`;
+
 const ContentBox = styled.div`
   flex: 1;
   background-color: ${colors.bgLight};
@@ -111,7 +115,7 @@ const ContenFooter = styled.div`
 `;
 
 const ContentHeader = styled.div`
-  background: ${colors.colorWhite};
+  background: ${props => (props.invert ? colors.bgLight : colors.colorWhite)};
   min-height: ${dimensions.headerSpacing}px;
   padding: 0 ${dimensions.coreSpacing}px 0 ${dimensions.coreSpacing}px;
   margin-right: ${dimensions.coreSpacing}px;
@@ -285,6 +289,7 @@ export {
   ContentBox,
   ContenFooter,
   ContentHeader,
+  ContentSpace,
   HeaderItems,
   BarItems,
   SideContent,

@@ -26,7 +26,9 @@ class Twitter extends Component {
 
         <Modal.Footer>
           <ButtonToolbar className="pull-right">
-            <Button type="submit">Save</Button>
+            <Button btnStyle="success" type="submit">
+              Save
+            </Button>
           </ButtonToolbar>
         </Modal.Footer>
       </form>

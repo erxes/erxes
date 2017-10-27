@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import RightSidebar from './RightSidebar';
 import LeftSidebar from './LeftSidebar';
 import { Wrapper } from '../../layout/components';
-import { Button, Label, Icon } from '../../common/components';
+import { Button, Label, Icon } from 'modules/common/components';
 import { BarItems } from 'modules/layout/styles';
 import Conversation from './conversation/Conversation';
 

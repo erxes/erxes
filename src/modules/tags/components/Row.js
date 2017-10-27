@@ -37,7 +37,7 @@ function Row({ tag, type, remove, save }) {
       <td>
         <Tags tags={[tag]} size="medium" />
       </td>
-      <td className="text-right">
+      <td>
         <ActionButtons>
           <ModalTrigger title="Edit response" trigger={editTrigger}>
             <Form type={type} tag={tag} save={save} />

@@ -1,13 +1,13 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Table } from 'react-bootstrap';
 import {
   Tip,
   ActionButtons,
   ModalTrigger,
   Button,
   Label,
-  Icon
+  Icon,
+  Table
 } from 'modules/common/components';
 import { Wrapper } from 'modules/layout/components';
 import Sidebar from '../../Sidebar';
@@ -44,7 +44,7 @@ class List extends React.Component {
             {emailConfig.type}
           </Label>
         </td>
-        <td className="text-right">
+        <td>
           <ActionButtons>
             <ModalTrigger title={title} trigger={editTrigger}>
               <Config brandId={_id} refetch={refetch} />
@@ -64,7 +64,7 @@ class List extends React.Component {
           <tr>
             <th>Brand Name</th>
             <th>Current template</th>
-            <th className="text-right">Actions</th>
+            <th>Actions</th>
           </tr>
         </thead>
         <tbody>{brands.map(brand => this.renderRow(brand))}</tbody>

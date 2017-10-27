@@ -43,7 +43,7 @@ class List extends Component {
     const { loadMore, hasMore, save } = this.props;
 
     const trigger = (
-      <Button btnStyle="simple">
+      <Button btnStyle="success">
         <Icon icon="plus-circled" /> {this.title}
       </Button>
     );

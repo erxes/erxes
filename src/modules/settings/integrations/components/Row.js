@@ -123,7 +123,7 @@ class Row extends Component {
         </td>
         <td>{integration.brand ? integration.brand.name : ''}</td>
 
-        <td className="text-right">
+        <td>
           <ActionButtons>
             {this.renderExtraLinks()}
             <Tip text="Delete">

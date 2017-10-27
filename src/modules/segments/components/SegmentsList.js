@@ -1,8 +1,13 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Table } from 'react-bootstrap';
 import { Wrapper } from 'modules/layout/components';
-import { Tip, ActionButtons, Button, Icon } from 'modules/common/components';
+import {
+  Tip,
+  ActionButtons,
+  Button,
+  Icon,
+  Table
+} from 'modules/common/components';
 
 const propTypes = {
   contentType: PropTypes.string.isRequired,
@@ -41,7 +46,7 @@ function SegmentsList({ contentType, segments, removeSegment }) {
             </td>
             <td>{segment.description}</td>
             <td>{segment.color}</td>
-            <td className="text-right">
+            <td>
               <ActionButtons>
                 <Tip text="Edit">
                   <Button
@@ -70,7 +75,7 @@ function SegmentsList({ contentType, segments, removeSegment }) {
   );
 
   const actionBarLeft = (
-    <Button btnStyle="simple" href={`/segments/new/${contentType}`}>
+    <Button btnStyle="success" href={`/segments/new/${contentType}`}>
       <Icon icon="plus-circled" /> New segment
     </Button>
   );

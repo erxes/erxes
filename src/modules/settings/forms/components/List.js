@@ -1,5 +1,5 @@
 import React from 'react';
-import { Table } from 'react-bootstrap';
+import { Table } from 'modules/common/components';
 import { List } from '../../common/components';
 import { Row } from '../containers';
 import Form from './Form';
@@ -28,9 +28,7 @@ class FormList extends List {
             <th>Code</th>
             <th>Description</th>
             <th width="135">Created At</th>
-            <th width="180" className="text-right">
-              Actions
-            </th>
+            <th width="180">Actions</th>
           </tr>
         </thead>
         <tbody>{this.renderObjects()}</tbody>

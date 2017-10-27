@@ -58,7 +58,7 @@ const sizes = {
 const ButtonStyled = styled.button`
   ${props => css`
     border-radius: 30px;
-    margin-left: 5px;
+    position: relative;
     padding: ${sizes[props.size].padding};
     display: ${props.block ? 'block' : 'inline-block'};
     width: ${props.block && '100%'};
@@ -66,10 +66,10 @@ const ButtonStyled = styled.button`
     background: ${types[props.btnStyle].background};
     color: ${types[props.btnStyle].color};
     font-size: ${sizes[props.size].fontSize};
-    outline: 0;
     line-height: ${sizes[props.size].lineHeight};
     transition: all 0.3s ease;
     text-transform: uppercase;
+    outline: 0;
 
     &:disabled {
       cursor: not-allowed !important;
@@ -91,6 +91,10 @@ const ButtonStyled = styled.button`
     &.shrinked {
       padding: 8px 0;
     }
+
+    & + button {
+      margin-left: 10px;
+    }
   `};
 `;
 
@@ -104,44 +108,12 @@ const ButtonLink = Link.extend`
   pointer-events: ${props => props.disabled && 'none'};
 `;
 
-function Button({
-  btnStyle,
-  children,
-  size,
-  disabled,
-  block,
-  href,
-  onClick,
-  className
-}) {
-  if (href) {
-    return (
-      <ButtonLink
-        className={className}
-        href={href}
-        btnStyle={btnStyle}
-        size={size}
-        block={block}
-        disabled={disabled}
-        onClick={onClick}
-      >
-        {children}
-      </ButtonLink>
-    );
+function Button({ ...props }) {
+  if (props.href) {
+    return <ButtonLink {...props}>{props.children}</ButtonLink>;
   }
 
-  return (
-    <ButtonStyled
-      className={className}
-      btnStyle={btnStyle}
-      size={size}
-      block={block}
-      disabled={disabled}
-      onClick={onClick}
-    >
-      {children}
-    </ButtonStyled>
-  );
+  return <ButtonStyled {...props}>{props.children}</ButtonStyled>;
 }
 
 Button.propTypes = {
