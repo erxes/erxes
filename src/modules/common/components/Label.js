@@ -38,12 +38,8 @@ const LabelStyled = styled.span`
   }
 `;
 
-function Label({ lblStyle, children, className }) {
-  return (
-    <LabelStyled className={className} lblStyle={lblStyle}>
-      {children}
-    </LabelStyled>
-  );
+function Label({ ...props }) {
+  return <LabelStyled {...props}>{props.children}</LabelStyled>;
 }
 
 Label.propTypes = {

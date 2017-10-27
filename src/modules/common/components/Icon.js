@@ -8,8 +8,8 @@ const IconStyle = styled.i`
   font-size: ${props => (props.size ? `${props.size}px` : 'inherit')};
 `;
 
-function Icon({ icon, size }) {
-  return <IconStyle className={`ion-${icon}`} size={size} />;
+function Icon({ ...props }) {
+  return <IconStyle {...props} className={`ion-${props.icon}`} />;
 }
 
 Icon.propTypes = {

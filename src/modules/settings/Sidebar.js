@@ -41,7 +41,7 @@ function Sidebar() {
       <Sidebar.Section>
         <Title>Integrations</Title>
         <QuickButtons>
-          <QuickButton href="/settings/integrations/list">All</QuickButton>
+          <QuickButton href="/settings/integrations">All</QuickButton>
         </QuickButtons>
         <SidebarList>
           <li>

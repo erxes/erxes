@@ -104,44 +104,12 @@ const ButtonLink = Link.extend`
   pointer-events: ${props => props.disabled && 'none'};
 `;
 
-function Button({
-  btnStyle,
-  children,
-  size,
-  disabled,
-  block,
-  href,
-  onClick,
-  className
-}) {
-  if (href) {
-    return (
-      <ButtonLink
-        className={className}
-        href={href}
-        btnStyle={btnStyle}
-        size={size}
-        block={block}
-        disabled={disabled}
-        onClick={onClick}
-      >
-        {children}
-      </ButtonLink>
-    );
+function Button({ ...props }) {
+  if (props.href) {
+    return <ButtonLink {...props}>{props.children}</ButtonLink>;
   }
 
-  return (
-    <ButtonStyled
-      className={className}
-      btnStyle={btnStyle}
-      size={size}
-      block={block}
-      disabled={disabled}
-      onClick={onClick}
-    >
-      {children}
-    </ButtonStyled>
-  );
+  return <ButtonStyled {...props}>{props.children}</ButtonStyled>;
 }
 
 Button.propTypes = {
