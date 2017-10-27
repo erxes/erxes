@@ -1,8 +1,13 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Wrapper } from 'modules/layout/components';
-import { Pagination, ModalTrigger } from 'modules/common/components';
-import { Button, Table } from '../../../common/components';
+import {
+  Pagination,
+  ModalTrigger,
+  Button,
+  Icon,
+  Table
+} from 'modules/common/components';
 import { BarItems } from 'modules/layout/styles';
 // TODO
 // import { Widget } from '/imports/react-ui/engage/containers';
@@ -75,10 +80,10 @@ class CustomersList extends React.Component {
     const actionBarRight = (
       <BarItems>
         <Button btnStyle="simple" size="small">
-          Tags <i className="ion-ios-arrow-down" />
+          Tags <Icon icon="ios-arrow-down" size="10" />
         </Button>
         <Button btnStyle="simple" size="small">
-          Customize <i className="ion-ios-arrow-down" />
+          Customize <Icon icon="ios-arrow-down" size="10" />
         </Button>
         <ModalTrigger title="New customer" trigger={addTrigger}>
           <CustomerForm addCustomer={addCustomer} />
@@ -89,13 +94,13 @@ class CustomersList extends React.Component {
     const actionBarLeft = (
       <BarItems>
         <Button btnStyle="success" size="small">
-          <i className="ion-email" /> Message
+          <Icon icon="email" size="10" /> Message
         </Button>
         <Button btnStyle="simple" size="small">
-          <i className="ion-ios-pricetag" /> Tag
+          <Icon icon="ios-pricetag" size="10" /> Tag
         </Button>
         <Button btnStyle="simple" size="small">
-          More <i className="ion-ios-arrow-down" />
+          More <Icon icon="ios-arrow-down" size="10" />
         </Button>
       </BarItems>
     );

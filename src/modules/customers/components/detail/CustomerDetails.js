@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Wrapper } from 'modules/layout/components';
 import { List as InternalNotes } from 'modules/internalNotes/containers';
-import { ConversationList, EmptyState } from 'modules/common/components';
+import { ConversationList, EmptyState, Icon } from 'modules/common/components';
 import RightSidebar from './sidebar/RightSidebar';
 import LeftSidebar from './sidebar/LeftSidebar';
 
@@ -54,7 +54,7 @@ class CustomerDetails extends React.Component {
         ) : (
           <EmptyState
             text="There aren’t any conversations at the moment."
-            icon={<i className="ion-email" />}
+            icon="email"
           />
         )}
       </div>
@@ -75,13 +75,13 @@ class CustomerDetails extends React.Component {
         <ul className="header">
           <li className={currentTab === 'internalNotes' ? 'active' : ''}>
             <a onClick={() => this.onTabClick('internalNotes')}>
-              <i className="ion-email" />
+              <Icon icon="email" />
               New note
             </a>
           </li>
           <li className={currentTab === 'conversations' ? 'active' : ''}>
             <a onClick={() => this.onTabClick('conversations')}>
-              <i className="ion-paper-airplane" />
+              <Icon icon="paper-airplane" />
               Conversations
             </a>
           </li>

@@ -2,12 +2,13 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Button } from 'react-bootstrap';
 import {
   Tags,
   ModalTrigger,
   Tip,
-  ActionButtons
+  ActionButtons,
+  Button,
+  Icon
 } from 'modules/common/components';
 import Form from './Form';
 
@@ -24,9 +25,9 @@ function Row({ tag, type, remove, save }) {
   }
 
   const editTrigger = (
-    <Button bsStyle="link">
+    <Button btnStyle="link">
       <Tip text="Edit">
-        <i className="ion-edit" />
+        <Icon icon="edit" />
       </Tip>
     </Button>
   );
@@ -43,8 +44,8 @@ function Row({ tag, type, remove, save }) {
           </ModalTrigger>
 
           <Tip text="Delete">
-            <Button bsStyle="link" onClick={removeTag}>
-              <i className="ion-close-circled" />
+            <Button btnStyle="link" onClick={removeTag}>
+              <Icon icon="close-circled" />
             </Button>
           </Tip>
         </ActionButtons>

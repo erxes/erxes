@@ -1,8 +1,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Button, Table } from '../../../common/components';
 import { Wrapper } from 'modules/layout/components';
-import { Pagination, ModalTrigger } from 'modules/common/components';
+import {
+  Pagination,
+  ModalTrigger,
+  Button,
+  Table
+} from 'modules/common/components';
 import Sidebar from './Sidebar';
 import CompanyRow from './CompanyRow';
 import CompanyForm from './CompanyForm';

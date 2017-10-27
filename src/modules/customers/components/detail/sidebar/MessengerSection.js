@@ -1,8 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import moment from 'moment';
-import { Label } from 'react-bootstrap';
 import { Wrapper } from 'modules/layout/components';
+import { Label } from 'modules/common/components';
 
 const propTypes = {
   customer: PropTypes.object.isRequired
@@ -25,7 +25,7 @@ function MessengerSection({ customer }) {
           Status
           <span className="counter">
             {messengerData.isActive ? (
-              <Label bsStyle="success">Online</Label>
+              <Label lblStyle="success">Online</Label>
             ) : (
               <Label>Offline</Label>
             )}

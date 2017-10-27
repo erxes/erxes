@@ -1,9 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { SidebarList, QuickButton, SideBarCounter } from '../../layout/styles';
+import { SidebarList, QuickButton, SidebarCounter } from '../../layout/styles';
 import { Wrapper } from 'modules/layout/components';
-import { EmptyState } from 'modules/common/components';
-import Icon from './Icon';
+import { EmptyState, Icon } from 'modules/common/components';
 
 CountsByTag.propTypes = {
   tags: PropTypes.array.isRequired,
@@ -48,7 +47,7 @@ function CountsByTag({ tags, counts, manageUrl }) {
               >
                 <Icon icon="pricetag icon" style={{ color: tag.colorCode }} />
                 {tag.name}
-                <SideBarCounter>{counts[tag._id]}</SideBarCounter>
+                <SidebarCounter>{counts[tag._id]}</SidebarCounter>
               </a>
             </li>
           ))

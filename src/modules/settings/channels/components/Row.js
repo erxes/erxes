@@ -1,6 +1,6 @@
 import React from 'react';
-import { Label } from 'react-bootstrap';
 import { Row as CommonRow } from '../../common/components';
+import { Label } from 'modules/common/components';
 import { ChannelForm } from '../containers';
 
 class Row extends CommonRow {
@@ -16,7 +16,7 @@ class Row extends CommonRow {
         <td>{object.name}</td>
         <td>{object.description}</td>
         <td>
-          <Label bsStyle="success">Active</Label>
+          <Label lblStyle="success">Active</Label>
         </td>
 
         {this.renderActions()}

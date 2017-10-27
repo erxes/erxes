@@ -1,8 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Button } from 'react-bootstrap';
 import { Wrapper } from 'modules/layout/components';
-import { ModalTrigger } from 'modules/common/components';
+import { ModalTrigger, Button, Icon } from 'modules/common/components';
 import { GenerateField } from 'modules/fields/components';
 import { CompanyForm } from 'modules/companies/components';
 
@@ -136,8 +135,8 @@ class LeftSidebar extends React.Component {
           {this.renderCompanies()}
           {this.renderCustomFields()}
 
-          <Button type="submit" bsStyle="success" className="action-btn">
-            <i className="ion-checkmark-circled" /> Save changes
+          <Button type="submit" btnStyle="success">
+            <Icon icon="checkmark-circled" /> Save changes
           </Button>
         </form>
       </Wrapper.Sidebar>

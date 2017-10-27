@@ -23,8 +23,9 @@ const types = {
 
 const LabelStyled = styled.span`
   border-radius: 14px;
-  padding: 3px 12px;
+  padding: 3px 9px;
   text-transform: uppercase;
+  white-space: nowrap;
   font-size: 9px;
   display: inline-block;
   line-height: 1.32857143;
@@ -37,12 +38,17 @@ const LabelStyled = styled.span`
   }
 `;
 
-function Label({ lblStyle, children }) {
-  return <LabelStyled lblStyle={lblStyle}>{children}</LabelStyled>;
+function Label({ lblStyle, children, className }) {
+  return (
+    <LabelStyled className={className} lblStyle={lblStyle}>
+      {children}
+    </LabelStyled>
+  );
 }
 
 Label.propTypes = {
   children: PropTypes.node.isRequired,
+  className: PropTypes.string,
   lblStyle: PropTypes.oneOf([
     'default',
     'primary',

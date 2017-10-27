@@ -1,7 +1,12 @@
 import React from 'react';
 import moment from 'moment';
-import { Button, Label } from 'react-bootstrap';
-import { Tip, ActionButtons } from 'modules/common/components';
+import {
+  Tip,
+  ActionButtons,
+  Button,
+  Label,
+  Icon
+} from 'modules/common/components';
 import { Row as CommonRow } from '../../common/components';
 import { Form } from './';
 
@@ -29,14 +34,14 @@ class Row extends CommonRow {
       <td className="text-right">
         <ActionButtons>
           <Tip text="Manage Fields">
-            <Button bsStyle="link" href={`/fields/manage/form/${object._id}`}>
-              <i className="ion-navicon-round" />
+            <Button btnStyle="link" href={`/fields/manage/form/${object._id}`}>
+              <Icon icon="navicon-round" />
             </Button>
           </Tip>
 
           <Tip text="Duplicate">
-            <Button bsStyle="link" onClick={this.duplicateForm}>
-              <i className="ion-ios-browsers" />
+            <Button btnStyle="link" onClick={this.duplicateForm}>
+              <Icon icon="ios-browsers" />
             </Button>
           </Tip>
 

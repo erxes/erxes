@@ -1,7 +1,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Wrapper } from 'modules/layout/components';
-import { EmptyState } from 'modules/common/components';
+import {
+  QuickButton,
+  SidebarList,
+  SidebarCounter
+} from 'modules/layout/styles';
+import { EmptyState, Icon } from 'modules/common/components';
 
 const propTypes = {
   counts: PropTypes.object.isRequired,
@@ -15,24 +20,23 @@ function Brands({ counts, brands }) {
     <Section collapsible={brands.length > 5}>
       <Section.Title>Filter by brands</Section.Title>
       <Section.QuickButtons>
-        <a href="/settings/brands" className="quick-button">
-          <i className="ion-gear-a" />
-        </a>
+        <QuickButton href="/settings/brands">
+          <Icon icon="gear-a" />
+        </QuickButton>
 
         {window.location.search.includes('brand') ? (
-          <a
+          <QuickButton
             tabIndex={0}
-            className="quick-button"
             onClick={() => {
               filter('brand', null);
             }}
           >
-            <i className="ion-close-circled" />
-          </a>
+            <Icon icon="close-circled" />
+          </QuickButton>
         ) : null}
       </Section.QuickButtons>
 
-      <ul className="sidebar-list">
+      <SidebarList>
         {brands.map(brand => (
           <li key={brand._id}>
             <a
@@ -43,18 +47,14 @@ function Brands({ counts, brands }) {
               }}
             >
               {brand.name}
-              <span className="counter">{counts[brand._id]}</span>
+              <SidebarCounter>{counts[brand._id]}</SidebarCounter>
             </a>
           </li>
         ))}
         {!brands.length ? (
-          <EmptyState
-            icon={<i className="ion-flag" />}
-            text="No brands"
-            size="small"
-          />
+          <EmptyState icon="flag" text="No brands" size="small" />
         ) : null}
-      </ul>
+      </SidebarList>
     </Section>
   );
 }

@@ -5,7 +5,6 @@ import {
   ControlLabel,
   FormControl,
   Radio,
-  Button,
   Col,
   Row,
   ButtonGroup
@@ -16,6 +15,7 @@ import { Wrapper } from 'modules/layout/components';
 import Sidebar from '../../Sidebar';
 import { timezones } from '../constants';
 import OnlineHours from './OnlineHours';
+import { Button, Icon } from 'modules/common/components';
 
 class Configs extends Component {
   constructor(props) {
@@ -225,12 +225,12 @@ class Configs extends Component {
       <Wrapper.ActionBar
         left={
           <ButtonGroup>
-            <Button bsStyle="link" onClick={this.save}>
-              <i className="ion-checkmark-circled" /> Save
+            <Button btnStyle="link" onClick={this.save}>
+              <Icon icon="checkmark-circled" /> Save
             </Button>
 
-            <Button bsStyle="link" href="/settings/integrations">
-              <i className="ion-close-circled" /> Cancel
+            <Button btnStyle="link" href="/settings/integrations">
+              <Icon icon="close-circled" /> Cancel
             </Button>
           </ButtonGroup>
         }

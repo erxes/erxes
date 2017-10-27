@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import moment from 'moment';
 import _ from 'lodash';
+import { Icon } from 'modules/common/components';
 
 const propTypes = {
   company: PropTypes.object.isRequired,
@@ -38,7 +39,7 @@ function CompanyRow({ company, columnsConfig }) {
     <tr>
       <td>
         <a href={`/companies/details/${company._id}`}>
-          <i className="ion-log-in" />
+          <Icon icon="log-in" />
         </a>
       </td>
       {columnsConfig.map(({ name }) => (

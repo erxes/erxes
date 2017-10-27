@@ -210,6 +210,10 @@ const QuickButton = styled.a`
   outline: 0;
   > i {
     font-size: 14px;
+
+    &:hover {
+      color: ${colors.colorCoreBlack};
+    }
   }
 `;
 
@@ -249,6 +253,8 @@ const SidebarList = styled.ul`
 
     &:hover {
       background: ${colors.borderPrimary};
+      text-decoration: none;
+      color: ${colors.colorCoreBlack};
     }
   }
 
@@ -258,7 +264,7 @@ const SidebarList = styled.ul`
   }
 `;
 
-const SideBarCounter = styled.span`
+const SidebarCounter = styled.span`
   font-size: 12px;
   text-align: right;
   color: ${colors.colorCoreGray};
@@ -287,7 +293,7 @@ export {
   SidebarFooter,
   SidebarBox,
   SidebarToggle,
-  SideBarCounter,
+  SidebarCounter,
   HelperButtons,
   QuickButton,
   SidebarTitle,

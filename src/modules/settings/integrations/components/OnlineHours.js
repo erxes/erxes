@@ -1,8 +1,9 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { FormGroup, ControlLabel, Button } from 'react-bootstrap';
+import { FormGroup, ControlLabel } from 'react-bootstrap';
 import Select from 'react-select-plus';
 import { days, hours } from '../constants';
+import { Button, Icon } from 'modules/common/components';
 
 class OnlineHours extends Component {
   constructor(props) {
@@ -100,8 +101,8 @@ class OnlineHours extends Component {
           clearable={false}
         />
 
-        <Button className="shrinked" bsStyle="link" onClick={remove}>
-          <i className="ion-close-circled" />
+        <Button className="shrinked" btnStyle="link" onClick={remove}>
+          <Icon icon="close-circled" />
         </Button>
       </div>
     );
@@ -116,8 +117,8 @@ class OnlineHours extends Component {
           this.renderOnlineHour(onlineHour)
         )}
         <div>
-          <Button className="shrinked" bsStyle="link" onClick={this.addTime}>
-            <i className="ion-plus-circled" /> Add another time
+          <Button className="shrinked" btnStyle="link" onClick={this.addTime}>
+            <Icon icon="plus-circled" /> Add another time
           </Button>
         </div>
       </FormGroup>

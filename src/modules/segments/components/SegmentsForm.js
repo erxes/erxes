@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import {
   Form,
   ButtonGroup,
-  Button,
   Row,
   Col,
   FormGroup,
@@ -11,6 +10,7 @@ import {
   FormControl,
   Panel
 } from 'react-bootstrap';
+import { Button, Icon } from 'modules/common/components';
 import { Wrapper } from 'modules/layout/components';
 import Conditions from './Conditions';
 import AddConditionButton from './AddConditionButton';
@@ -144,11 +144,11 @@ class SegmentsForm extends Component {
       <Wrapper.ActionBar
         left={
           <ButtonGroup>
-            <Button bsStyle="link" onClick={this.save}>
-              <i className="ion-checkmark-circled" /> Save
+            <Button btnStyle="link" onClick={this.save}>
+              <Icon icon="checkmark-circled" /> Save
             </Button>
-            <Button bsStyle="link" href={`/segments/${contentType}`}>
-              <i className="ion-close-circled" /> Cancel
+            <Button btnStyle="link" href={`/segments/${contentType}`}>
+              <Icon icon="close-circled" /> Cancel
             </Button>
           </ButtonGroup>
         }
