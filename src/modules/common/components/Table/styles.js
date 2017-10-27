@@ -20,6 +20,7 @@ const StyledTable = styled.table`
       padding: ${dimensions.unitSpacing}px;
       display: table-cell;
       background-color: ${colors.colorWhite};
+      font-weight: ${typography.fontWeightLight};
     }
 
     thead {
@@ -33,38 +34,42 @@ const StyledTable = styled.table`
     }
 
     ${props.hover
-      ? `tr:hover td{
-        background-color: ${tableHoverColor};
-      }`
+      ? `tr:hover td { background-color: ${tableHoverColor}; }`
       : null} ${props.bordered
-        ? `th, td{
-        border: 1px solid ${colors.borderPrimary};
-      }`
+        ? `th, td { border: 1px solid ${colors.borderPrimary}; }`
         : null} ${props.striped
-        ? `tr:nth-of-type(odd) td{
-        background-color: ${tableBgColor};
-      }`
-        : null};
-  `} th {
-    border-top: none;
-  }
-
-  th:first-child,
-  td:first-child {
-    border-left: none;
-  }
-
-  th:last-child,
-  td:last-child {
-    border-right: none;
-  }
-
-  @media (min-width: 1170px) {
-    th,
-    td {
-      padding: ${dimensions.unitSpacing}px ${dimensions.coreSpacing}px;
+        ? `tr:nth-of-type(odd) td { background-color: ${tableBgColor}; }`
+        : null} th {
+      border-top: none;
     }
-  }
+
+    th:first-child,
+    td:first-child {
+      border-left: none;
+    }
+
+    th:last-child,
+    td:last-child {
+      border-right: none;
+    }
+
+    td.table-field-name .button-icon {
+      margin-left: 12px;
+      opacity: 0;
+      transition: all 0.3s ease;
+    }
+
+    td.table-field-name:hover .button-icon {
+      opacity: 1;
+    }
+
+    @media (min-width: 1170px) {
+      th,
+      td {
+        padding: ${dimensions.unitSpacing}px ${dimensions.coreSpacing}px;
+      }
+    }
+  `};
 `;
 
 export default StyledTable;

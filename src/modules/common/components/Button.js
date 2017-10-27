@@ -108,7 +108,22 @@ const ButtonLink = Link.extend`
   pointer-events: ${props => props.disabled && 'none'};
 `;
 
+const ButtonIcon = Link.extend`
+  padding: 4px 6px;
+  fontsize: 12px;
+  lineheight: 1em;
+  border-radius: 5px;
+`;
+
 function Button({ ...props }) {
+  if (props.iconKey) {
+    return (
+      <ButtonIcon className="button-icon" {...props}>
+        {props.children}
+      </ButtonIcon>
+    );
+  }
+
   if (props.href) {
     return <ButtonLink {...props}>{props.children}</ButtonLink>;
   }
@@ -132,14 +147,15 @@ Button.propTypes = {
   ]),
   size: PropTypes.oneOf(['large', 'medium', 'small']),
   disabled: PropTypes.bool,
-  block: PropTypes.bool
+  block: PropTypes.bool,
+  iconKey: PropTypes.bool
 };
 
 Button.defaultProps = {
   btnStyle: 'default',
   size: 'medium',
   block: false,
-  disabled: false
+  iconKey: false
 };
 
 export default Button;

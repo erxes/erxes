@@ -44,7 +44,6 @@ class CustomersList extends React.Component {
         <Table whiteSpace="nowrap" hover bordered>
           <thead>
             <tr>
-              <th />
               <th>
                 <a href="/customers/manage-columns">...</a>
               </th>

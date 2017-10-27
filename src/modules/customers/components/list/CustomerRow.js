@@ -2,7 +2,7 @@ import React from 'react';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 import moment from 'moment';
-import { Icon, FormControl } from 'modules/common/components';
+import { Button, Icon, FormControl } from 'modules/common/components';
 
 const propTypes = {
   customer: PropTypes.object.isRequired,
@@ -47,13 +47,15 @@ function CustomerRow({ customer, columnsConfig, toggleBulk }) {
       <td>
         <FormControl componentClass="checkbox" onChange={onChange} />
       </td>
-      <td>
-        <a href={`customers/details/${customer._id}`}>
-          <Icon icon="log-in" />
-        </a>
-      </td>
       {columnsConfig.map(({ name }) => (
-        <td key={name}>{formatValue(_.get(customer, name))}</td>
+        <td key={name} className={`table-field-${name}`}>
+          {formatValue(_.get(customer, name))}
+          {name === 'name' ? (
+            <Button href={`customers/details/${customer._id}`} iconKey>
+              <Icon icon="eye" />
+            </Button>
+          ) : null}
+        </td>
       ))}
     </tr>
   );

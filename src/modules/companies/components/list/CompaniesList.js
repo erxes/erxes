@@ -30,7 +30,7 @@ function CompaniesList({
 }) {
   const content = (
     <Pagination hasMore={hasMore} loadMore={loadMore}>
-      <Table whiteSpace="nowrap">
+      <Table whiteSpace="nowrap" bordered>
         <thead>
           <tr>
             <th>
@@ -54,7 +54,11 @@ function CompaniesList({
     </Pagination>
   );
 
-  const addTrigger = <Button btnStyle="success">Add company</Button>;
+  const addTrigger = (
+    <Button btnStyle="success" size="small">
+      Add company
+    </Button>
+  );
 
   const actionBarRight = (
     <ModalTrigger title="New company" trigger={addTrigger}>
@@ -62,7 +66,7 @@ function CompaniesList({
     </ModalTrigger>
   );
 
-  const actionBar = <Wrapper.ActionBar right={actionBarRight} />;
+  const actionBar = <Wrapper.ActionBar right={actionBarRight} invert />;
   const breadcrumb = [{ title: `Companies (${counts.all})` }];
 
   return (
