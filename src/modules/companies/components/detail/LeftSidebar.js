@@ -148,7 +148,7 @@ class LeftSidebar extends React.Component {
           {this.renderCustomFields()}
 
           <Button type="submit" btnStyle="success">
-            <Icon icon="checkmark-circled" /> Save changes
+            <Icon icon="checkmark" /> Save changes
           </Button>
         </form>
       </Wrapper.Sidebar>

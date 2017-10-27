@@ -90,7 +90,7 @@ class ManageColumns extends Component {
     const content = (
       <form onSubmit={this.onSubmit} className="manage-columns">
         <Button type="submit" btnStyle="success">
-          <Icon icon="checkmark-circled" /> Save changes
+          <Icon icon="checkmark" /> Save changes
         </Button>
 
         <SortableList

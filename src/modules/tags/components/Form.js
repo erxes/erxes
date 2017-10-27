@@ -80,7 +80,9 @@ class Form extends Component {
           />
         </FormGroup>
 
-        <Button type="submit">Save</Button>
+        <Button btnStyle="success" type="submit">
+          Save
+        </Button>
       </form>
     );
   }

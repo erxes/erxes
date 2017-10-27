@@ -163,12 +163,12 @@ class Appearance extends Component {
       <Wrapper.ActionBar
         left={
           <ButtonGroup>
-            <Button btnStyle="link" onClick={this.save}>
-              <Icon icon="checkmark-circled" /> Save
+            <Button btnStyle="success" onClick={this.save}>
+              <Icon icon="checkmark" /> Save
             </Button>
 
-            <Button btnStyle="link" href="/settings/integrations">
-              <Icon icon="close-circled" /> Cancel
+            <Button btnStyle="simple" href="/settings/integrations">
+              <Icon icon="close" /> Cancel
             </Button>
           </ButtonGroup>
         }

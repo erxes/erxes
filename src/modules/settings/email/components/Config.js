@@ -8,7 +8,7 @@ import {
   HelpBlock,
   Modal
 } from 'react-bootstrap';
-import { Button } from 'modules/common/components';
+import { Button, Icon } from 'modules/common/components';
 
 const propTypes = {
   brand: PropTypes.object.isRequired,
@@ -95,10 +95,15 @@ class Config extends Component {
 
           <Modal.Footer>
             <ButtonToolbar className="pull-right">
-              <Button btnStyle="link" onClick={onClick}>
+              <Button btnStyle="simple" onClick={onClick}>
+                <Icon icon="close" />
                 Cancel
               </Button>
-              <Button type="submit">Save</Button>
+
+              <Button btnStyle="success" type="submit">
+                <Icon icon="checkmark" />
+                Save
+              </Button>
             </ButtonToolbar>
           </Modal.Footer>
         </form>

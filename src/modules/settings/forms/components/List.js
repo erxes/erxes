@@ -1,5 +1,5 @@
 import React from 'react';
-import { Table } from 'react-bootstrap';
+import { Table } from 'modules/common/components';
 import { List } from '../../common/components';
 import { Row } from '../containers';
 import Form from './Form';

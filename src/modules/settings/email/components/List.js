@@ -1,13 +1,13 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Table } from 'react-bootstrap';
 import {
   Tip,
   ActionButtons,
   ModalTrigger,
   Button,
   Label,
-  Icon
+  Icon,
+  Table
 } from 'modules/common/components';
 import { Wrapper } from 'modules/layout/components';
 import Sidebar from '../../Sidebar';
