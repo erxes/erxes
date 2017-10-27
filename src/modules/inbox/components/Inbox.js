@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import RightSidebar from './RightSidebar';
 import LeftSidebar from './LeftSidebar';
 import { Wrapper } from '../../layout/components';
-import { Button, Label, Icon } from '../../common/components';
+import { Button, Label, Icon, Tip } from 'modules/common/components';
 import { BarItems } from 'modules/layout/styles';
 import Conversation from './conversation/Conversation';
 
@@ -23,9 +23,11 @@ class Inbox extends Component {
     const actionBarRight = (
       <BarItems>
         <Label lblStyle="danger">urgent</Label>
-        <Button btnStyle="success">
-          <Icon icon="checkmark" />Resolve
-        </Button>
+        <Tip text="tesst">
+          <Button btnStyle="success">
+            <Icon icon="checkmark" />Resolve
+          </Button>
+        </Tip>
       </BarItems>
     );
 
