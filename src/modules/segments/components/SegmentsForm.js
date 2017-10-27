@@ -144,11 +144,11 @@ class SegmentsForm extends Component {
       <Wrapper.ActionBar
         left={
           <ButtonGroup>
-            <Button btnStyle="link" onClick={this.save}>
-              <Icon icon="checkmark-circled" /> Save
+            <Button btnStyle="success" onClick={this.save}>
+              <Icon icon="checkmark" /> Save
             </Button>
-            <Button btnStyle="link" href={`/segments/${contentType}`}>
-              <Icon icon="close-circled" /> Cancel
+            <Button btnStyle="simple" href={`/segments/${contentType}`}>
+              <Icon icon="close" /> Cancel
             </Button>
           </ButtonGroup>
         }

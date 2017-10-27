@@ -1,8 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Table } from 'react-bootstrap';
 import { Wrapper } from 'modules/layout/components';
-import { ModalTrigger, Button, Icon } from 'modules/common/components';
+import { ModalTrigger, Button, Icon, Table } from 'modules/common/components';
 import Row from './Row';
 import Form from './Form';
 
@@ -15,7 +14,7 @@ const propTypes = {
 
 function List({ tags, type, remove, save }) {
   const trigger = (
-    <Button btnStyle="simple">
+    <Button btnStyle="success">
       <Icon icon="plus-circled" /> Add tag
     </Button>
   );

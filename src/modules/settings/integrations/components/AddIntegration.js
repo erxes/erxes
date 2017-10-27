@@ -6,19 +6,19 @@ import { Messenger, Form, Facebook } from '../containers';
 
 function AddIntegration() {
   const triggerMessenger = (
-    <Button>
+    <Button btnStyle="simple">
       <Icon icon="chatbubbles" /> Add messenger
     </Button>
   );
 
   const triggerForm = (
-    <Button>
+    <Button btnStyle="simple">
       <Icon icon="formbubbles" /> Add form
     </Button>
   );
 
   const triggerFb = (
-    <Button>
+    <Button btnStyle="simple">
       <Icon icon="social-facebook" /> Add facebook page
     </Button>
   );
@@ -43,7 +43,7 @@ function AddIntegration() {
       <div className="box">
         <h2>Social integrations</h2>
 
-        <Button href="/settings/integrations/twitter">
+        <Button btnStyle="simple" href="/settings/integrations/twitter">
           <Icon icon="social-twitter" /> Add twitter
         </Button>
 

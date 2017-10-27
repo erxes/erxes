@@ -1,8 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Table } from 'react-bootstrap';
 import { Wrapper } from 'modules/layout/components';
-import { Pagination, Button, Icon } from 'modules/common/components';
+import { Pagination, Button, Icon, Table } from 'modules/common/components';
 import Sidebar from '../../Sidebar';
 import Row from './Row';
 
@@ -38,7 +37,7 @@ class List extends Component {
     const { loadMore, hasMore } = this.props;
 
     const actionBarLeft = (
-      <Button btnStyle="simple" href="/settings/integrations/add">
+      <Button btnStyle="success" href="/settings/integrations/add">
         <Icon icon="plus-circled" /> Add integrations
       </Button>
     );
