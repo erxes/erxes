@@ -2,7 +2,7 @@ import React from 'react';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 import moment from 'moment';
-import { Icon } from 'modules/common/components';
+import { Icon, FormControl } from 'modules/common/components';
 
 const propTypes = {
   customer: PropTypes.object.isRequired,
@@ -45,7 +45,7 @@ function CustomerRow({ customer, columnsConfig, toggleBulk }) {
   return (
     <tr>
       <td>
-        <input type="checkbox" onChange={onChange} />
+        <FormControl componentClass="checkbox" onChange={onChange} />
       </td>
       <td>
         <a href={`customers/details/${customer._id}`}>

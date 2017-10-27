@@ -41,7 +41,7 @@ class CustomersList extends React.Component {
 
     return (
       <Pagination hasMore={hasMore} loadMore={loadMore}>
-        <Table whiteSpace="nowrap" hover>
+        <Table whiteSpace="nowrap" hover bordered>
           <thead>
             <tr>
               <th />

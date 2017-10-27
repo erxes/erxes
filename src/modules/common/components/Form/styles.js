@@ -1,17 +1,16 @@
 import styled from 'styled-components';
 import { colors, dimensions, typography } from '../../styles';
 
-const inputPadding = '5px';
+const inputPadding = '0px';
 const inputHeight = '18px';
 const inputScale = '12px';
 const inputBorderWidth = '1px';
-const formGreyColor = '#AAAEB3';
 
 const Label = styled.label`
   text-transform: uppercase;
   display: inline-block;
   font-weight: ${typography.fontWeightRegular};
-  color: ${formGreyColor};
+  color: ${colors.colorCoreLightGray};
   font-size: ${typography.fontSizeUppercase}px;
   margin-bottom: 5px;
 `;
@@ -23,7 +22,7 @@ const Input = styled.input`
   margin-bottom: ${dimensions.coreSpacing}px;
   padding: ${dimensions.unitSpacing}px;
   color: ${colors.textSecondary};
-  border-bottom: 1px solid ${formGreyColor};
+  border-bottom: 1px solid ${colors.colorCoreLightGray};
   background: ${colors.colorWhite};
 
   &:focus {
@@ -96,7 +95,7 @@ const inputStyle = styled.input`
 
     &:before {
       background-color: ${colors.colorWhite};
-      border: ${inputBorderWidth} solid ${formGreyColor};
+      border: ${inputBorderWidth} solid ${colors.colorCoreLightGray};
       box-sizing: content-box;
       content: '';
       color: ${colors.colorWhite};
@@ -123,6 +122,10 @@ const inputStyle = styled.input`
       transform-origin: 50%;
       transition: transform 200ms ease-out;
     }
+  }
+
+  + span:last-child:before {
+    margin-right: 0px;
   }
 `;
 
