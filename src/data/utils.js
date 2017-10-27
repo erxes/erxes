@@ -69,7 +69,7 @@ export const sendEmail = async ({ toEmails, fromEmail, title, template }) => {
     return;
   }
 
-  const transporter = createTransporter();
+  const transporter = await createTransporter();
 
   const { isCustom, data, name } = template;
 

@@ -21,4 +21,6 @@ export const queries = `
 
 export const mutations = `
   login(email: String!, password: String!): AuthPayload!
+  forgotPassword(email: String!): String!
+  resetPassword(token: String!, newPassword: String!): String
 `;

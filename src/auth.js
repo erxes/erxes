@@ -1,6 +1,8 @@
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
+import crypto from 'crypto';
 import { Users } from './db/models';
+import { sendEmail } from './data/utils';
 
 const SECRET = 'dfjklsafjjekjtejifjidfjsfd';
 
@@ -84,6 +86,86 @@ export const login = async ({ email, password }) => {
 };
 
 /*
+ * Sends reset password link to found user's email
+ * @param {String} email - Registered user's email
+ * @return {String} link - Reset password link
+ */
+export const forgotPassword = async ({ email }) => {
+  // find user
+  const user = await Users.findOne({ email });
+
+  if (!user) {
+    throw new Error('Invalid email');
+  }
+
+  // create the random token
+  const buffer = await crypto.randomBytes(20);
+  const token = buffer.toString('hex');
+
+  // save token & expiration date
+  await Users.findByIdAndUpdate(
+    { _id: user._id },
+    {
+      resetPasswordToken: token,
+      resetPasswordExpires: Date.now() + 86400000,
+    },
+  );
+
+  // send email ==============
+  const { COMPANY_EMAIL_FROM, MAIN_APP_DOMAIN } = process.env;
+
+  const link = `${MAIN_APP_DOMAIN}/reset-password?token=${token}`;
+
+  sendEmail({
+    toEmails: [email],
+    fromEmail: COMPANY_EMAIL_FROM,
+    title: 'Reset password',
+    template: {
+      name: 'base',
+      data: {
+        content: link,
+      },
+    },
+  });
+
+  return link;
+};
+
+/*
+ * Resets user password by given token & password
+ * @param {String} token - User's temporary token for reset password
+ * @param {String} newPassword - New password
+ * @return {Promise} - Update user response
+ */
+export const resetPassword = async ({ token, newPassword }) => {
+  // find user by token
+  const user = await Users.findOne({
+    resetPasswordToken: token,
+    resetPasswordExpires: {
+      $gt: Date.now(),
+    },
+  });
+
+  if (!user) {
+    throw new Error('Password reset token is invalid or has expired.');
+  }
+
+  if (!newPassword) {
+    throw new Error('Password is required.');
+  }
+
+  // set new password
+  return Users.findByIdAndUpdate(
+    { _id: user._id },
+    {
+      password: bcrypt.hashSync(newPassword, 10),
+      resetPasswordToken: undefined,
+      resetPasswordExpires: undefined,
+    },
+  );
+};
+
+/*
  * Finds user object by passed tokens
  * @param {Object} req - Request object
  * @param {Object} res - Response object
@@ -123,4 +205,6 @@ export const userMiddleware = async (req, res, next) => {
 
 export default {
   login,
+  forgotPassword,
+  resetPassword,
 };
