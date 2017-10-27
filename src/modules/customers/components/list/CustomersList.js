@@ -80,10 +80,10 @@ class CustomersList extends React.Component {
     const actionBarRight = (
       <BarItems>
         <Button btnStyle="simple" size="small">
-          Tags <Icon icon="ios-arrow-down" size={10} />
+          Tags <Icon icon="ios-arrow-down" />
         </Button>
         <Button btnStyle="simple" size="small">
-          Customize <Icon icon="ios-arrow-down" size={10} />
+          Customize <Icon icon="ios-arrow-down" />
         </Button>
         <ModalTrigger title="New customer" trigger={addTrigger}>
           <CustomerForm addCustomer={addCustomer} />
@@ -94,13 +94,13 @@ class CustomersList extends React.Component {
     const actionBarLeft = (
       <BarItems>
         <Button btnStyle="success" size="small">
-          <Icon icon="email" size={10} /> Message
+          <Icon icon="email" /> Message
         </Button>
         <Button btnStyle="simple" size="small">
-          <Icon icon="ios-pricetag" size={10} /> Tag
+          <Icon icon="ios-pricetag" /> Tag
         </Button>
         <Button btnStyle="simple" size="small">
-          More <Icon icon="ios-arrow-down" size={10} />
+          More <Icon icon="ios-arrow-down" />
         </Button>
       </BarItems>
     );

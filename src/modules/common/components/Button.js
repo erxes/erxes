@@ -44,13 +44,13 @@ const sizes = {
     lineHeight: '1.333333'
   },
   medium: {
-    padding: '7px 23px',
-    fontSize: '11px',
+    padding: '8px 23px',
+    fontSize: '12px',
     lineHeight: '1.3'
   },
   small: {
     padding: '5px 16px',
-    fontSize: '9px',
+    fontSize: '10px',
     lineHeight: '1.5'
   }
 };
