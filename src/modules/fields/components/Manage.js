@@ -137,7 +137,7 @@ class Manage extends Component {
           <Button size="small" btnStyle="danger" onClick={onDelete}>
             Delete
           </Button>
-          <Button size="small" btnStyle="primary" onClick={reset}>
+          <Button size="small" onClick={reset}>
             New
           </Button>
           <Button size="small" type="submit" btnStyle="success">

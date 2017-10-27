@@ -13,8 +13,8 @@ function Icon({ icon, size }) {
 }
 
 Icon.propTypes = {
-  icon: PropTypes.node.isRequired,
-  size: PropTypes.string
+  icon: PropTypes.string.isRequired,
+  size: PropTypes.number
 };
 
 Icon.defaultProps = {

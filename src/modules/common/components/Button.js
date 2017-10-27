@@ -44,9 +44,9 @@ const sizes = {
     lineHeight: '1.333333'
   },
   medium: {
-    padding: '8px 23px',
+    padding: '7px 23px',
     fontSize: '11px',
-    lineHeight: '1.32857143'
+    lineHeight: '1.3'
   },
   small: {
     padding: '5px 16px',

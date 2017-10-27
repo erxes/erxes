@@ -44,7 +44,7 @@ class Form extends Component {
             <Button btnStyle="link" onClick={onClick}>
               Cancel
             </Button>
-            <Button btnStyle="primary">Save</Button>
+            <Button>Save</Button>
           </ButtonToolbar>
         </Modal.Footer>
       </form>

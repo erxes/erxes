@@ -99,7 +99,7 @@ class Common extends Component {
                 text={this.state.code}
                 onCopy={() => this.setState({ copied: true })}
               >
-                <Button size="small" btnStyle="primary">
+                <Button size="small">
                   {this.state.copied ? 'Copied' : 'Copy to clipboard'}
                 </Button>
               </CopyToClipboard>
@@ -109,9 +109,7 @@ class Common extends Component {
 
         <Modal.Footer>
           <ButtonToolbar className="pull-right">
-            <Button type="submit" btnStyle="primary">
-              Save
-            </Button>
+            <Button type="submit">Save</Button>
           </ButtonToolbar>
         </Modal.Footer>
       </form>

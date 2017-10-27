@@ -1,9 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { FormGroup, FormControl } from 'react-bootstrap';
-import { Alert } from 'modules/common/utils';
 import { Button } from 'modules/common/components';
-
 
 const propTypes = {
   forgotPassword: PropTypes.func.isRequired
