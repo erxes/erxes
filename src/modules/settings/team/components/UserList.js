@@ -27,7 +27,7 @@ class UserList extends List {
             <th>Full name</th>
             <th>Email</th>
             <th>Role</th>
-            <th className="text-right">Actions</th>
+            <th>Actions</th>
           </tr>
         </thead>
         <tbody>{this.renderObjects()}</tbody>

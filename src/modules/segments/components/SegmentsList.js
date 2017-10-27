@@ -46,7 +46,7 @@ function SegmentsList({ contentType, segments, removeSegment }) {
             </td>
             <td>{segment.description}</td>
             <td>{segment.color}</td>
-            <td className="text-right">
+            <td>
               <ActionButtons>
                 <Tip text="Edit">
                   <Button

@@ -27,7 +27,7 @@ class ChannelList extends List {
             <th>Name</th>
             <th>Description</th>
             <th>Status</th>
-            <th className="text-right">Actions</th>
+            <th>Actions</th>
           </tr>
         </thead>
         <tbody>{this.renderObjects()}</tbody>

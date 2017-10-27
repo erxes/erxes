@@ -142,6 +142,7 @@ injectGlobal`
     border: 1px solid #eee;
     border-radius: 0;
     padding: 0;
+    color: #333;
   }
   .popover.bottom > .arrow {
     border-bottom-color: transparent;

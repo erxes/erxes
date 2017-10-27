@@ -26,7 +26,7 @@ class ResponseTemplateList extends List {
           <tr>
             <th>Brand</th>
             <th>Name</th>
-            <th className="text-right">Actions</th>
+            <th>Actions</th>
           </tr>
         </thead>
         <tbody>{this.renderObjects()}</tbody>

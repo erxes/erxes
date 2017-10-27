@@ -31,7 +31,7 @@ function List({ tags, type, remove, save }) {
       <thead>
         <tr>
           <th>Name</th>
-          <th className="text-right">Actions</th>
+          <th>Actions</th>
         </tr>
       </thead>
       <tbody>

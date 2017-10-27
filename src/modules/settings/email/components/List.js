@@ -44,7 +44,7 @@ class List extends React.Component {
             {emailConfig.type}
           </Label>
         </td>
-        <td className="text-right">
+        <td>
           <ActionButtons>
             <ModalTrigger title={title} trigger={editTrigger}>
               <Config brandId={_id} refetch={refetch} />
@@ -64,7 +64,7 @@ class List extends React.Component {
           <tr>
             <th>Brand Name</th>
             <th>Current template</th>
-            <th className="text-right">Actions</th>
+            <th>Actions</th>
           </tr>
         </thead>
         <tbody>{brands.map(brand => this.renderRow(brand))}</tbody>
