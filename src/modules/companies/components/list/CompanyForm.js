@@ -7,7 +7,7 @@ import {
   ControlLabel,
   FormControl
 } from 'react-bootstrap';
-import { Button } from 'modules/common/components';
+import { Button, Icon } from 'modules/common/components';
 
 const propTypes = {
   addCompany: PropTypes.func.isRequired
@@ -58,11 +58,15 @@ class CompanyForm extends React.Component {
 
         <Modal.Footer>
           <ButtonToolbar className="pull-right">
-            <Button btnStyle="link" onClick={onClick}>
+            <Button btnStyle="simple" onClick={onClick}>
+              <Icon icon="close" />
               Cancel
             </Button>
 
-            <Button type="submit">Save</Button>
+            <Button btnStyle="success" type="submit">
+              <Icon icon="checkmark" />
+              Save
+            </Button>
           </ButtonToolbar>
         </Modal.Footer>
       </form>

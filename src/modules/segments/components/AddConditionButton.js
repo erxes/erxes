@@ -52,7 +52,9 @@ class AddConditionButton extends Component {
         container={this}
         rootClose
       >
-        <Button size="small">Add a condition</Button>
+        <Button btnStyle="success" size="small">
+          Add a condition
+        </Button>
       </OverlayTrigger>
     );
   }

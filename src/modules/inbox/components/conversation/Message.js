@@ -4,8 +4,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import moment from 'moment';
 import classNames from 'classnames';
-import { Table } from 'react-bootstrap';
-import { NameCard } from 'modules/common/components';
+import { NameCard, Table } from 'modules/common/components';
 import { MessageItem, MessageBody, FormTable } from './styles';
 
 const propTypes = {

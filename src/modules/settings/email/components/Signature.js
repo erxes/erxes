@@ -100,7 +100,9 @@ class Signature extends Component {
             />
           </FormGroup>
           <ButtonToolbar className="pull-right">
-            <Button type="submit">Save</Button>
+            <Button btnStyle="success" type="submit">
+              Save
+            </Button>
           </ButtonToolbar>
         </form>
       </div>
