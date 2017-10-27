@@ -106,7 +106,7 @@ class CustomersList extends React.Component {
     );
 
     const actionBar = (
-      <Wrapper.ActionBar left={actionBarLeft} right={actionBarRight} />
+      <Wrapper.ActionBar left={actionBarLeft} right={actionBarRight} invert />
     );
     const breadcrumb = [{ title: `Customers (${counts.all})` }];
 
