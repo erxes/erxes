@@ -11,7 +11,7 @@ import {
 import { BarItems } from 'modules/layout/styles';
 // TODO
 // import { Widget } from '/imports/react-ui/engage/containers';
-import Sidebar from './sidebar/Sidebar';
+import Sidebar from './Sidebar';
 import CustomerRow from './CustomerRow';
 import CustomerForm from './CustomerForm';
 
@@ -68,7 +68,7 @@ class CustomersList extends React.Component {
   }
 
   render() {
-    const { counts, brands, integrations, tags, addCustomer } = this.props;
+    const { counts, addCustomer } = this.props;
 
     const addTrigger = (
       <Button btnStyle="success" size="small">
@@ -113,14 +113,7 @@ class CustomersList extends React.Component {
       <Wrapper
         header={<Wrapper.Header breadcrumb={breadcrumb} />}
         actionBar={actionBar}
-        leftSidebar={
-          <Sidebar
-            counts={counts}
-            brands={brands}
-            integrations={integrations}
-            tags={tags}
-          />
-        }
+        leftSidebar={<Sidebar counts={counts} />}
         content={this.renderContent()}
       />
     );

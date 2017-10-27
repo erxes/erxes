@@ -171,7 +171,7 @@ const SidebarBox = styled.div`
   margin-bottom: ${dimensions.coreSpacing}px;
   box-shadow: ${props =>
     props.noShadow ? 'none' : `0 0 4px ${colors.shadowPrimary}`};
-  padding-bottom: ${dimensions.unitSpacing}px;
+  padding-bottom: ${props => (props.collapsible ? 0 : 0)}px;
   position: relative;
   transition: max-height 0.4s;
   overflow: ${props => (props.collapsible ? 'hidden' : 'auto')};
@@ -243,14 +243,18 @@ const SidebarList = styled.ul`
     }
   }
 
+  li.child-segment {
+    border-bottom: none;
+    background-color: ${colors.bgLight};
+  }
+
   a {
     display: block;
-    padding: 5px 20px;
+    padding: 8px 20px;
     color: ${colors.textPrimary};
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    padding-right: 30px;
     cursor: pointer;
     text-decoration: none;
     outline: 0;

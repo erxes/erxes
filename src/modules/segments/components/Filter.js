@@ -16,7 +16,7 @@ const propTypes = {
 };
 
 function Segments({ contentType, counts, segments }) {
-  const { Section, filter, getActiveClass } = Wrapper.Sidebar;
+  const { Section, filter, getActiveClass, Header } = Wrapper.Sidebar;
 
   const orderedSegments = [];
 
@@ -27,8 +27,8 @@ function Segments({ contentType, counts, segments }) {
   });
 
   return (
-    <Section collapsible={segments.length > 5}>
-      <Section.Title>Filter by segments</Section.Title>
+    <Section>
+      <Header>Filter by segments</Header>
 
       <Section.QuickButtons>
         <Dropdown id="dropdown-user" className="quick-button" pullRight>
@@ -60,7 +60,10 @@ function Segments({ contentType, counts, segments }) {
       <SidebarList>
         {orderedSegments.length ? (
           orderedSegments.map(segment => (
-            <li key={segment._id}>
+            <li
+              key={segment._id}
+              className={segment.subOf ? 'child-segment' : null}
+            >
               <a
                 tabIndex={0}
                 className={getActiveClass('segment', segment._id)}
@@ -68,8 +71,15 @@ function Segments({ contentType, counts, segments }) {
                   filter('segment', segment._id);
                 }}
               >
-                {segment.subOf ? '\u00a0\u00a0\u00a0\u00a0\u00a0' : null}
-                <Icon icon="pie-graph icon" style={{ color: segment.color }} />
+                {segment.subOf ? '\u00a0\u00a0' : null}
+                <Icon
+                  icon="ios-circle-filled"
+                  size={10}
+                  style={{
+                    color: segment.color,
+                    marginRight: '10px'
+                  }}
+                />
                 {segment.name}
                 <SidebarCounter>{counts[segment._id]}</SidebarCounter>
               </a>
