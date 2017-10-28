@@ -1,15 +1,48 @@
 import React from 'react';
+import { withRouter } from 'react-router';
 import PropTypes from 'prop-types';
 import { compose, gql, graphql } from 'react-apollo';
+import { Alert } from 'modules/common/utils';
 import { MessageListRow } from '../components';
 import { mutations } from '../graphql';
 
 const MessageRowContainer = props => {
-  const edit = () => {};
-  const remove = () => {};
-  const setLive = () => {};
-  const setLiveManual = () => {};
-  const setPause = () => {};
+  const {
+    history,
+    message,
+    refetch,
+    removeMutation,
+    setPauseMutation,
+    setLiveMutation,
+    setLiveManualMutation
+  } = props;
+
+  const doMutation = mutation => {
+    mutation({
+      variables: { _id: message._id }
+    })
+      .then(() => {
+        refetch();
+
+        Alert.success('Congrats');
+      })
+      .catch(error => {
+        Alert.error(error.message);
+      });
+  };
+
+  const edit = () => {
+    history.push(`/engage/messages/edit/${message._id}`);
+  };
+
+  const remove = () => {
+    // TODO confirm
+    doMutation(removeMutation);
+  };
+
+  const setLiveManual = () => doMutation(setLiveManualMutation);
+  const setLive = () => doMutation(setLiveMutation);
+  const setPause = () => doMutation(setPauseMutation);
 
   const updatedProps = {
     ...props,
@@ -24,12 +57,28 @@ const MessageRowContainer = props => {
 };
 
 MessageRowContainer.propTypes = {
+  history: PropTypes.object,
   message: PropTypes.object,
-  refetch: PropTypes.func
+  refetch: PropTypes.func,
+  removeMutation: PropTypes.func,
+  setPauseMutation: PropTypes.func,
+  setLiveMutation: PropTypes.func,
+  setLiveManualMutation: PropTypes.func
 };
 
-export default compose(
-  graphql(gql(mutations.messagesAdd), {
-    name: 'messagesAddMutation'
-  })
-)(MessageRowContainer);
+export default withRouter(
+  compose(
+    graphql(gql(mutations.messageRemove), {
+      name: 'removeMutation'
+    }),
+    graphql(gql(mutations.setPause), {
+      name: 'setPauseMutation'
+    }),
+    graphql(gql(mutations.setLive), {
+      name: 'setLiveMutation'
+    }),
+    graphql(gql(mutations.setLiveManual), {
+      name: 'setLiveManualMutation'
+    })
+  )(MessageRowContainer)
+);

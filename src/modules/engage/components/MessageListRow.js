@@ -58,7 +58,7 @@ class Row extends React.Component {
       return this.renderLink(
         'Set live',
         'ion-paper-airplane',
-        this.setLiveManual
+        this.props.setLiveManual
       );
     }
   }

@@ -7,6 +7,7 @@ const engageMessages = `
       isDraft
       isLive
       createdDate
+      kind
       segment {
         _id
         name
