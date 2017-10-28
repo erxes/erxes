@@ -18,7 +18,7 @@ const DragHandle = SortableHandle(() => (
 const SortableItem = SortableElement(({ field, isChecked }) => (
   <li>
     <DragHandle />
-    <input type="checkbox" id={field._id} checked={isChecked} />
+    <input type="checkbox" id={field._id} defaultChecked={isChecked} />
     <span>{field.label}</span>
   </li>
 ));
