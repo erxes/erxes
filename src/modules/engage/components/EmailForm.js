@@ -55,7 +55,12 @@ class EmailForm extends Component {
 
   findTemplate(id) {
     const template = this.props.templates.find(t => t._id === id);
-    return template.content;
+
+    if (template) {
+      return template.content;
+    }
+
+    return '';
   }
 
   renderBuilder() {
