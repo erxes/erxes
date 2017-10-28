@@ -22,9 +22,47 @@ const setLiveManual = `
   }
 `;
 
+const commonVariables = `
+  $title: String!,
+  $kind: String!,
+  $method: String!,
+  $fromUserId: String!,
+  $isDraft: Boolean,
+  $isLive: Boolean,
+  $stopDate: Date,
+  $segmentId: String,
+  $customerIds: [String],
+  $tagIds: [String],
+  $email: EngageMessageEmail,
+  $messenger: EngageMessageMessenger,
+`;
+
+const commonParams = `
+  title: $title,
+  kind: $kind,
+  method: $method,
+  fromUserId: $fromUserId,
+  isDraft: $isDraft,
+  isLive: $isLive,
+  stopDate: $stopDate,
+  segmentId: $segmentId,
+  customerIds: $customerIds,
+  tagIds: $tagIds,
+  email: $email,
+  messenger: $messenger,
+`;
+
 const messagesAdd = `
-  mutation setPause($_id: String!) {
-    engageMessageSetPause(_id: $_id) {
+  mutation engageMessageAdd(${commonVariables}) {
+    engageMessageAdd(${commonParams}) {
+      _id
+    }
+  }
+`;
+
+const messagesEdit = `
+  mutation engageMessageEdit($_id: String!, ${commonVariables}) {
+    engageMessageEdit(_id: $_id, ${commonParams}) {
       _id
     }
   }
@@ -43,5 +81,6 @@ export default {
   setLive,
   setLiveManual,
   messageRemove,
-  messagesAdd
+  messagesAdd,
+  messagesEdit
 };

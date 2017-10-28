@@ -96,7 +96,7 @@ const segmentFields = `
 
 export const segments = `
   query segments {
-    segments {
+    segments(contentType: "customer") {
       ${segmentFields}
 
       getSubSegments {

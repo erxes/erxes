@@ -95,7 +95,7 @@ class Row extends React.Component {
 
     const { message, remove } = this.props;
 
-    const deliveryReports = Object.values(message.deliveryReports);
+    const deliveryReports = Object.values(message.deliveryReports || {});
     const totalCount = deliveryReports.length;
 
     deliveryReports.forEach(report => {
