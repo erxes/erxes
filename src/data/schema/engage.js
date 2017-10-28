@@ -21,6 +21,28 @@ export const types = `
     segment: Segment
     fromUser: User
   }
+
+  input EngageMessageMessengerRule {
+    _id : String!,
+    kind: String!,
+    text: String!,
+    condition: String!,
+    value: String,
+  }
+
+  input EngageMessageEmail {
+    templateId: String,
+    subject: String!,
+    content: String!,
+  }
+
+  input EngageMessageMessenger {
+    brandId: String!,
+    kind: String,
+    sentAs: String,
+    content: String,
+    rules: [EngageMessageMessengerRule],
+  }
 `;
 
 export const queries = `
@@ -30,12 +52,25 @@ export const queries = `
   engageMessagesTotalCount: Int
 `;
 
+const commonParams = `
+  title: String!,
+  kind: String!,
+  method: String!,
+  fromUserId: String!,
+  isDraft: Boolean,
+  isLive: Boolean,
+  stopDate: Date,
+  segmentId: String,
+  customerIds: [String],
+  tagIds: [String],
+  email: EngageMessageEmail,
+  messenger: EngageMessageMessenger,
+`;
+
 export const mutations = `
-  engageMessageAdd(title: String!, kind: String!,
-    segmentId: String!, method: String!, fromUserId: String!): EngageMessage
-  engageMessageEdit(_id: String!, title: String!, kind: String!,
-    segmentId: String!, method: String!, fromUserId: String!): EngageMessage
-  engageMessageRemove(ids: [String!]!): EngageMessage
+  engageMessageAdd(${commonParams}): EngageMessage
+  engageMessageEdit(_id: String!, ${commonParams}): EngageMessage
+  engageMessageRemove(_id: String!): EngageMessage
   engageMessageSetLive(_id: String!): EngageMessage
   engageMessageSetPause(_id: String!): EngageMessage
   engageMessageSetLiveManual(_id: String!): EngageMessage

@@ -54,7 +54,7 @@ export default {
 
   /**
    * Remove message
-   * @param {String} _id - Engage message id 
+   * @param {String} _id - Engage message id
    * @return {Promise}
    */
   engageMessageRemove(root, _id, { user }) {
