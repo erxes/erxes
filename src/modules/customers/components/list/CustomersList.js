@@ -9,8 +9,7 @@ import {
   Table
 } from 'modules/common/components';
 import { BarItems } from 'modules/layout/styles';
-// TODO
-// import { Widget } from '/imports/react-ui/engage/containers';
+import { Widget } from 'modules/engage/containers';
 import Sidebar from './Sidebar';
 import CustomerRow from './CustomerRow';
 import CustomerForm from './CustomerForm';
@@ -68,7 +67,7 @@ class CustomersList extends React.Component {
   }
 
   render() {
-    const { counts, addCustomer } = this.props;
+    const { counts, bulk, addCustomer } = this.props;
 
     const addTrigger = (
       <Button btnStyle="success" size="small">
@@ -92,9 +91,8 @@ class CustomersList extends React.Component {
 
     const actionBarLeft = (
       <BarItems>
-        <Button btnStyle="success" size="small">
-          <Icon icon="email" /> Message
-        </Button>
+        {bulk.length > 0 ? <Widget customers={bulk} /> : null}
+
         <Button btnStyle="simple" size="small">
           <Icon icon="ios-pricetag" /> Tag
         </Button>
@@ -107,6 +105,7 @@ class CustomersList extends React.Component {
     const actionBar = (
       <Wrapper.ActionBar left={actionBarLeft} right={actionBarRight} invert />
     );
+
     const breadcrumb = [{ title: `Customers (${counts.all})` }];
 
     return (
