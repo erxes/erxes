@@ -1,13 +1,12 @@
 import React, { Component } from 'react';
-import { Button } from 'react-bootstrap';
-import { ModalTrigger } from 'modules/common/components';
+import { ModalTrigger, Icon, Button } from 'modules/common/components';
 import WidgetForm from './WidgetForm';
 
 class Widget extends Component {
   render() {
     const trigger = (
-      <Button bsStyle="link">
-        <i className="ion-plus-circled" /> Message
+      <Button btnStyle="success" size="small">
+        <Icon icon="email" /> Message
       </Button>
     );
 

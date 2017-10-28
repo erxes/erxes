@@ -79,6 +79,14 @@ const userDetail = `
   }
 `;
 
+const currentUser = `
+  query currentUser {
+    currentUser {
+      _id
+    }
+  }
+`;
+
 const emailTemplates = `
   query emailTemplates {
     emailTemplates {
@@ -131,6 +139,7 @@ export default {
   engageMessageDetail,
   users,
   userDetail,
+  currentUser,
   segments,
   brands,
   tags,
