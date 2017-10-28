@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { compose, gql, graphql } from 'react-apollo';
 import { MESSENGER_KINDS, SENT_AS_CHOICES, MESSAGE_KINDS } from '../constants';
 import { Widget } from '../components';
-import { mutations } from '../graphql';
+import { queries, mutations } from '../graphql';
 
 const WidgetContainer = props => {
   const { emailTemplatesQuery, brandsQuery, messagesAddMutation } = props;
@@ -46,29 +46,8 @@ WidgetContainer.propTypes = {
 };
 
 export default compose(
-  graphql(
-    gql`
-      query emailTemplates {
-        emailTemplates {
-          _id
-          name
-          content
-        }
-      }
-    `,
-    { name: 'emailTemplatesQuery' }
-  ),
-  graphql(
-    gql`
-      query brands {
-        brands {
-          _id
-          name
-        }
-      }
-    `,
-    { name: 'brandsQuery' }
-  ),
+  graphql(gql(queries.emailTemplates), { name: 'emailTemplatesQuery' }),
+  graphql(gql(queries.brands), { name: 'brandsQuery' }),
   graphql(gql(mutations.messagesAdd), {
     name: 'messagesAddMutation'
   })

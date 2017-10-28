@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { compose, gql, graphql } from 'react-apollo';
 import { MessengerPreview } from '../components';
+import { queries } from '../graphql';
 
 const MessengerPreviewContainer = props => {
   const { userDetailQuery } = props;
@@ -25,24 +26,12 @@ MessengerPreviewContainer.propTypes = {
 };
 
 export default compose(
-  graphql(
-    gql`
-      query userDetail($_id: String) {
-        userDetail(_id: $_id) {
-          _id
-          username
-          details
-          emails
-        }
+  graphql(gql(queries.userDetail), {
+    name: 'userDetailQuery',
+    options: ({ fromUser }) => ({
+      variables: {
+        _id: fromUser
       }
-    `,
-    {
-      name: 'userDetailQuery',
-      options: ({ fromUser }) => ({
-        variables: {
-          _id: fromUser
-        }
-      })
-    }
-  )
+    })
+  })
 )(MessengerPreviewContainer);

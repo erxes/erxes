@@ -50,7 +50,7 @@ const engageDetailFields = `
   messenger
 `;
 
-export const engageMessageDetail = `
+const engageMessageDetail = `
   query engageMessageDetail($_id: String) {
     engageMessageDetail(_id: $_id){
       ${engageDetailFields}
@@ -58,7 +58,7 @@ export const engageMessageDetail = `
   }
 `;
 
-export const users = `
+const users = `
   query users {
     users {
       _id
@@ -68,7 +68,18 @@ export const users = `
   }
 `;
 
-export const emailTemplates = `
+const userDetail = `
+  query userDetail($_id: String) {
+    userDetail(_id: $_id) {
+      _id
+      username
+      details
+      emails
+    }
+  }
+`;
+
+const emailTemplates = `
   query emailTemplates {
     emailTemplates {
       _id
@@ -78,7 +89,7 @@ export const emailTemplates = `
   }
 `;
 
-export const customerCounts = `
+const customerCounts = `
   query customerCounts($params: CustomerListParams) {
     customerCounts(params: $params)
   }
@@ -94,7 +105,7 @@ const segmentFields = `
   conditions
 `;
 
-export const segments = `
+const segments = `
   query segments {
     segments(contentType: "customer") {
       ${segmentFields}
@@ -106,11 +117,22 @@ export const segments = `
   }
 `;
 
+const brands = `
+  query brands {
+    brands {
+      _id
+      name
+    }
+  }
+`;
+
 export default {
   engageMessages,
   engageMessageDetail,
   users,
+  userDetail,
   segments,
+  brands,
   tags,
   emailTemplates,
   customerCounts

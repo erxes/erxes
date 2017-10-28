@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { compose, gql, graphql } from 'react-apollo';
 import { MessageForm } from '../components';
+import { queries } from '../graphql';
 
 const MessageFormContainer = props => {
   const { engageMessageDetailQuery, brandsQuery, kind } = props;
@@ -29,33 +30,13 @@ MessageFormContainer.propTypes = {
 };
 
 export default compose(
-  graphql(
-    gql`
-      query engageMessageDetail($_id: String) {
-        engageMessageDetail(_id: $_id) {
-          _id
-          kind
-        }
+  graphql(gql(queries.engageMessageDetail), {
+    name: 'engageMessageDetailQuery',
+    options: ({ messageId }) => ({
+      variables: {
+        _id: messageId
       }
-    `,
-    {
-      name: 'engageMessageDetailQuery',
-      options: ({ messageId }) => ({
-        variables: {
-          _id: messageId
-        }
-      })
-    }
-  ),
-  graphql(
-    gql`
-      query brands {
-        brands {
-          _id
-          name
-        }
-      }
-    `,
-    { name: 'brandsQuery' }
-  )
+    })
+  }),
+  graphql(gql(queries.brands), { name: 'brandsQuery' })
 )(MessageFormContainer);
