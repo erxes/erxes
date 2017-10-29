@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { Wrapper } from 'modules/layout/components';
 
 function Sidebar() {
@@ -11,19 +12,19 @@ function Sidebar() {
         <Title>Insights</Title>
         <ul className="sidebar-list">
           <li>
-            <a href="/insights">
+            <Link to="/insights">
               <i className="icon ion-arrow-right-b" />Volume Report
-            </a>
+            </Link>
           </li>
           <li>
-            <a href="/insights/response-report">
+            <Link to="/insights/response-report">
               <i className="icon ion-arrow-right-b" />Response Report
-            </a>
+            </Link>
           </li>
           <li>
-            <a href="/insights/first-response">
+            <Link to="/insights/first-response">
               <i className="icon ion-arrow-right-b" />First Response Report
-            </a>
+            </Link>
           </li>
         </ul>
       </Sidebar.Section>

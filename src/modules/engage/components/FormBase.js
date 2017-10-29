@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import { ButtonGroup, Button, FormControl } from 'react-bootstrap';
 import { Wrapper } from 'modules/layout/components';
@@ -159,9 +160,9 @@ class FormBase extends Component {
           <ButtonGroup>
             {this.renderButtons(message)}
 
-            <Button bsStyle="link" href="/engage">
+            <Link to="/engage">
               <i className="ion-close-circled" /> Cancel
-            </Button>
+            </Link>
           </ButtonGroup>
         }
       />

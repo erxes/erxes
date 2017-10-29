@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import { ButtonGroup, OverlayTrigger, Popover } from 'react-bootstrap';
 import classnames from 'classnames';
@@ -167,9 +168,9 @@ class Appearance extends Component {
               <Icon icon="checkmark" /> Save
             </Button>
 
-            <Button btnStyle="simple" href="/settings/integrations">
+            <Link to="/settings/integrations">
               <Icon icon="close" /> Cancel
-            </Button>
+            </Link>
           </ButtonGroup>
         }
       />

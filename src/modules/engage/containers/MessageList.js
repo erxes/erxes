@@ -10,14 +10,14 @@ class MessageListContainer extends Bulk {
   render() {
     const { queryParams, tagsQuery, engageMessagesQuery } = this.props;
 
-    if (tagsQuery.loading || engageMessagesQuery.loading) {
+    if (engageMessagesQuery.loading) {
       return <Loading title="Engage" />;
     }
 
     const updatedProps = {
       kind: queryParams.kind,
-      messages: engageMessagesQuery.engageMessages,
-      tags: tagsQuery.tags,
+      messages: engageMessagesQuery.engageMessages || [],
+      tags: tagsQuery.tags || [],
       bulk: this.state.bulk,
       toggleBulk: this.toggleBulk,
       emptyBulk: this.emptyBulk,
@@ -50,6 +50,7 @@ export default compose(
   graphql(gql(queries.tags), {
     name: 'tagsQuery',
     options: () => ({
+      fetchPolicy: 'network-only',
       variables: {
         type: TAG_TYPES.ENGAGE_MESSAGE
       }

@@ -1,4 +1,5 @@
 import React from 'react';
+import { withRouter } from 'react-router';
 import PropTypes from 'prop-types';
 import { Dropdown, MenuItem } from 'react-bootstrap';
 import { Wrapper } from 'modules/layout/components';
@@ -8,15 +9,17 @@ import {
   SidebarCounter
 } from 'modules/layout/styles';
 import { DropdownToggle, EmptyState, Icon } from 'modules/common/components';
+import { router } from 'modules/common/utils';
 
 const propTypes = {
+  history: PropTypes.object,
   contentType: PropTypes.string.isRequired,
   counts: PropTypes.object.isRequired,
   segments: PropTypes.array.isRequired
 };
 
-function Segments({ contentType, counts, segments }) {
-  const { Section, filter, getActiveClass, Header } = Wrapper.Sidebar;
+function Segments({ history, contentType, counts, segments }) {
+  const { Section, Header } = Wrapper.Sidebar;
 
   const orderedSegments = [];
 
@@ -36,20 +39,22 @@ function Segments({ contentType, counts, segments }) {
             <Icon icon="more" />
           </DropdownToggle>
           <Dropdown.Menu>
-            <MenuItem href={`/segments/new/${contentType}`}>
+            <MenuItem
+              onClick={() => history.push(`/segments/new/${contentType}`)}
+            >
               New segment
             </MenuItem>
-            <MenuItem href={`/segments/${contentType}`}>
+            <MenuItem onClick={() => history.push(`/segments/${contentType}`)}>
               Manage segments
             </MenuItem>
           </Dropdown.Menu>
         </Dropdown>
 
-        {window.location.search.includes('segment') ? (
+        {router.getParam(history, 'segment') ? (
           <QuickButton
             tabIndex={0}
             onClick={() => {
-              filter('segment', null);
+              router.setParams(history, { segment: null });
             }}
           >
             <Icon icon="close-circled" />
@@ -66,9 +71,13 @@ function Segments({ contentType, counts, segments }) {
             >
               <a
                 tabIndex={0}
-                className={getActiveClass('segment', segment._id)}
+                className={
+                  router.getParam(history, 'segment') === segment._id
+                    ? 'active'
+                    : ''
+                }
                 onClick={() => {
-                  filter('segment', segment._id);
+                  router.setParams(history, { segment: segment._id });
                 }}
               >
                 {segment.subOf ? '\u00a0\u00a0' : null}
@@ -95,4 +104,4 @@ function Segments({ contentType, counts, segments }) {
 
 Segments.propTypes = propTypes;
 
-export default Segments;
+export default withRouter(Segments);

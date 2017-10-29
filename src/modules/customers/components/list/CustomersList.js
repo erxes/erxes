@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import { Wrapper } from 'modules/layout/components';
 import {
@@ -44,7 +45,7 @@ class CustomersList extends React.Component {
           <thead>
             <tr>
               <th>
-                <a href="/customers/manage-columns">...</a>
+                <Link to="/customers/manage-columns">...</Link>
               </th>
               {columnsConfig.map(({ name, label }) => (
                 <th key={name}>{label}</th>

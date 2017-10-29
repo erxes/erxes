@@ -6,12 +6,12 @@ import Form from './Form';
 
 const propTypes = {
   notes: PropTypes.array.isRequired,
-  userId: PropTypes.string.isRequired,
+  currentUserId: PropTypes.string.isRequired,
   remove: PropTypes.func.isRequired,
   create: PropTypes.func.isRequired
 };
 
-function List({ notes, remove, create, userId }) {
+function List({ notes, remove, create, currentUserId }) {
   return (
     <div>
       <Form create={create} />
@@ -26,7 +26,7 @@ function List({ notes, remove, create, userId }) {
             </div>
             <div className="text">{note.content}</div>
 
-            {note.createdUserId === userId ? (
+            {note.createdUserId === currentUserId ? (
               <i
                 className="delete ion-trash-a"
                 role="button"

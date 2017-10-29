@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import {
   Form,
@@ -148,9 +149,9 @@ class SegmentsForm extends Component {
             <Button btnStyle="success" onClick={this.save}>
               <Icon icon="checkmark" /> Save
             </Button>
-            <Button btnStyle="simple" href={`/segments/${contentType}`}>
+            <Link to={`/segments/${contentType}`}>
               <Icon icon="close" /> Cancel
-            </Button>
+            </Link>
           </ButtonGroup>
         }
       />

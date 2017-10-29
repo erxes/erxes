@@ -1,5 +1,6 @@
 import SignIn from './SignIn';
 import ForgotPassword from './ForgotPassword';
 import ResetPassword from './ResetPassword';
+import withCurrentUser from './withCurrentUser';
 
-export { SignIn, ForgotPassword, ResetPassword };
+export { withCurrentUser, SignIn, ForgotPassword, ResetPassword };

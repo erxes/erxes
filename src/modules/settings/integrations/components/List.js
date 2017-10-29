@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
+import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import { Wrapper } from 'modules/layout/components';
-import { Pagination, Button, Icon, Table } from 'modules/common/components';
+import { Pagination, Icon, Table } from 'modules/common/components';
 import Sidebar from '../../Sidebar';
 import Row from './Row';
 
@@ -37,9 +38,9 @@ class List extends Component {
     const { loadMore, hasMore } = this.props;
 
     const actionBarLeft = (
-      <Button btnStyle="success" href="/settings/integrations/add">
+      <Link to="/settings/integrations/add">
         <Icon icon="plus-circled" /> Add integrations
-      </Button>
+      </Link>
     );
 
     const actionBar = <Wrapper.ActionBar left={actionBarLeft} />;

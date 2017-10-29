@@ -43,6 +43,7 @@ class FilterableList extends Component {
   componentWillUnmount() {
     // onExit hook
     const { onExit } = this.props;
+
     if (onExit) onExit(this.state.items);
   }
 

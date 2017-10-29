@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { compose, gql, graphql } from 'react-apollo';
 import { Alert } from 'modules/common/utils';
 import { Loading } from 'modules/common/components';
+import { withCurrentUser } from 'modules/auth/containers';
 import { queries, mutations } from '../graphql';
 import { CustomerDetails } from '../components';
 
@@ -69,23 +70,25 @@ CustomerDetailsContainer.propTypes = {
   customersAddCompany: PropTypes.func
 };
 
-export default compose(
-  graphql(gql(queries.customerDetail), {
-    name: 'customerDetailQuery',
-    options: ({ id }) => ({
-      variables: {
-        _id: id
-      }
+export default withCurrentUser(
+  compose(
+    graphql(gql(queries.customerDetail), {
+      name: 'customerDetailQuery',
+      options: ({ id }) => ({
+        variables: {
+          _id: id
+        }
+      })
+    }),
+    graphql(gql(queries.fields), {
+      name: 'fieldsQuery'
+    }),
+    // mutations
+    graphql(gql(mutations.customersEdit), {
+      name: 'customersEdit'
+    }),
+    graphql(gql(mutations.customersAddCompany), {
+      name: 'customersAddCompany'
     })
-  }),
-  graphql(gql(queries.fields), {
-    name: 'fieldsQuery'
-  }),
-  // mutations
-  graphql(gql(mutations.customersEdit), {
-    name: 'customersEdit'
-  }),
-  graphql(gql(mutations.customersAddCompany), {
-    name: 'customersAddCompany'
-  })
-)(CustomerDetailsContainer);
+  )(CustomerDetailsContainer)
+);

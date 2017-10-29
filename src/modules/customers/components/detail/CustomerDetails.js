@@ -8,7 +8,7 @@ import LeftSidebar from './sidebar/LeftSidebar';
 
 const propTypes = {
   customer: PropTypes.object.isRequired,
-  user: PropTypes.object.isRequired,
+  currentUser: PropTypes.object.isRequired,
   customFields: PropTypes.array.isRequired,
   save: PropTypes.func.isRequired,
   queryParams: PropTypes.object.isRequired,
@@ -30,11 +30,15 @@ class CustomerDetails extends React.Component {
 
   renderTabContent() {
     const { currentTab } = this.state;
-    const { customer } = this.props;
+    const { currentUser, customer } = this.props;
 
     if (currentTab === 'internalNotes') {
       return (
-        <InternalNotes contentType="customer" contentTypeId={customer._id} />
+        <InternalNotes
+          contentType="customer"
+          contentTypeId={customer._id}
+          currentUserId={currentUser._id}
+        />
       );
     }
 
@@ -44,13 +48,13 @@ class CustomerDetails extends React.Component {
   }
 
   renderConversations() {
-    const { customer, user } = this.props;
+    const { customer, currentUser } = this.props;
     const conversations = customer.conversations;
 
     return (
       <div style={{ position: 'relative' }}>
         {conversations.length ? (
-          <ConversationList conversations={conversations} user={user} />
+          <ConversationList conversations={conversations} user={currentUser} />
         ) : (
           <EmptyState
             text="There aren’t any conversations at the moment."

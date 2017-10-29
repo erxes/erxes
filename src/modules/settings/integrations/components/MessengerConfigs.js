@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import {
   FormGroup,
@@ -229,9 +230,9 @@ class Configs extends Component {
               <Icon icon="checkmark" /> Save
             </Button>
 
-            <Button btnStyle="simple" href="/settings/integrations">
+            <Link to="/settings/integrations">
               <Icon icon="close" /> Cancel
-            </Button>
+            </Link>
           </ButtonGroup>
         }
       />

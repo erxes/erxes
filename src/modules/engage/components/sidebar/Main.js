@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import { Wrapper } from 'modules/layout/components';
 
@@ -10,28 +11,28 @@ function Main({ counts }) {
       <Title>Kind</Title>
       <ul className="sidebar-list">
         <li>
-          <a href="/engage">
+          <Link to="/engage">
             <i className="icon ion-arrow-right-b" />All
             <span className="counter">{counts.all}</span>
-          </a>
+          </Link>
         </li>
         <li>
-          <a href={`/engage?kind=auto`}>
+          <Link to={`/engage?kind=auto`}>
             <i className="icon ion-arrow-right-b" />Auto
             <span className="counter">{counts.auto}</span>
-          </a>
+          </Link>
         </li>
         <li>
-          <a href={`/engage?kind=visitorAuto`}>
+          <Link to={`/engage?kind=visitorAuto`}>
             <i className="icon ion-arrow-right-b" />Visitor auto
             <span className="counter">{counts.visitorAuto}</span>
-          </a>
+          </Link>
         </li>
         <li>
-          <a href={`/engage?kind=manual`}>
+          <Link to={`/engage?kind=manual`}>
             <i className="icon ion-arrow-right-b" />Manual
             <span className="counter">{counts.manual}</span>
-          </a>
+          </Link>
         </li>
       </ul>
     </Wrapper.Sidebar.Section>
