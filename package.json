@@ -38,7 +38,7 @@
     "redux-thunk": "^2.2.0",
     "strip": "^3.0.0",
     "styled-components": "^2.2.1",
-    "subscriptions-transport-ws": "^0.9.1",
+    "subscriptions-transport-ws": "^0.8.2",
     "underscore": "^1.8.3"
   },
   "lint-staged": {

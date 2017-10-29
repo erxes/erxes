@@ -9,6 +9,7 @@ import {
   SidebarCounter
 } from 'modules/layout/styles';
 import { DropdownToggle, EmptyState, Icon } from 'modules/common/components';
+import { router } from 'modules/common/utils';
 
 const propTypes = {
   history: PropTypes.object,
@@ -18,7 +19,7 @@ const propTypes = {
 };
 
 function Segments({ history, contentType, counts, segments }) {
-  const { Section, filter, getActiveClass, Header } = Wrapper.Sidebar;
+  const { Section, Header } = Wrapper.Sidebar;
 
   const orderedSegments = [];
 
@@ -49,11 +50,11 @@ function Segments({ history, contentType, counts, segments }) {
           </Dropdown.Menu>
         </Dropdown>
 
-        {window.location.search.includes('segment') ? (
+        {router.getParam(history, 'segment') ? (
           <QuickButton
             tabIndex={0}
             onClick={() => {
-              filter('segment', null);
+              router.setParams(history, { segment: null });
             }}
           >
             <Icon icon="close-circled" />
@@ -70,9 +71,13 @@ function Segments({ history, contentType, counts, segments }) {
             >
               <a
                 tabIndex={0}
-                className={getActiveClass('segment', segment._id)}
+                className={
+                  router.getParam(history, 'segment') === segment._id
+                    ? 'active'
+                    : ''
+                }
                 onClick={() => {
-                  filter('segment', segment._id);
+                  router.setParams(history, { segment: segment._id });
                 }}
               >
                 {segment.subOf ? '\u00a0\u00a0' : null}

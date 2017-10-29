@@ -162,6 +162,10 @@
   version "0.10.2"
   resolved "https://registry.yarnpkg.com/@types/graphql/-/graphql-0.10.2.tgz#d7c79acbaa17453b6681c80c34b38fcb10c4c08c"
 
+"@types/graphql@^0.9.1":
+  version "0.9.4"
+  resolved "https://registry.yarnpkg.com/@types/graphql/-/graphql-0.9.4.tgz#cdeb6bcbef9b6c584374b81aa7f48ecf3da404fa"
+
 abab@^1.0.3:
   version "1.0.4"
   resolved "https://registry.yarnpkg.com/abab/-/abab-1.0.4.tgz#5faad9c2c07f60dd76770f71cf025b62a63cfd4e"
@@ -3845,6 +3849,14 @@ graceful-fs@^4.1.11, graceful-fs@^4.1.2, graceful-fs@^4.1.6, graceful-fs@^4.1.9:
 graphql-anywhere@^3.0.1:
   version "3.1.0"
   resolved "https://registry.yarnpkg.com/graphql-anywhere/-/graphql-anywhere-3.1.0.tgz#3ea0d8e8646b5cee68035016a9a7557c15c21e96"
+
+graphql-subscriptions@^0.4.4:
+  version "0.4.4"
+  resolved "https://registry.yarnpkg.com/graphql-subscriptions/-/graphql-subscriptions-0.4.4.tgz#39cff32d08dd3c990113864bab77154403727e9b"
+  dependencies:
+    "@types/graphql" "^0.9.1"
+    es6-promise "^4.0.5"
+    iterall "^1.1.1"
 
 graphql-tag@^2.0.0, graphql-tag@^2.4.2:
   version "2.5.0"
@@ -7904,12 +7916,14 @@ stylis@^3.2.1:
   version "3.3.1"
   resolved "https://registry.yarnpkg.com/stylis/-/stylis-3.3.1.tgz#61dd88335a9a8fdcd9b46cb2db0d909d5e14b226"
 
-subscriptions-transport-ws@^0.9.1:
-  version "0.9.1"
-  resolved "https://registry.yarnpkg.com/subscriptions-transport-ws/-/subscriptions-transport-ws-0.9.1.tgz#66488bd5997b6081277a25d6a3015a5aceffed63"
+subscriptions-transport-ws@^0.8.2:
+  version "0.8.3"
+  resolved "https://registry.yarnpkg.com/subscriptions-transport-ws/-/subscriptions-transport-ws-0.8.3.tgz#d4b22db7f5951bd30e7c6f4dc4774d34ed9f1751"
   dependencies:
     backo2 "^1.0.2"
     eventemitter3 "^2.0.3"
+    graphql-subscriptions "^0.4.4"
+    graphql-tag "^2.4.2"
     iterall "^1.1.1"
     lodash.assign "^4.2.0"
     lodash.isobject "^3.0.2"
