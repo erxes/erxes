@@ -1,10 +1,12 @@
 import React from 'react';
+import { withRouter } from 'react-router-dom';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 import moment from 'moment';
 import { Button, Icon, FormControl } from 'modules/common/components';
 
 const propTypes = {
+  history: PropTypes.object.isRequired,
   customer: PropTypes.object.isRequired,
   columnsConfig: PropTypes.array.isRequired,
   toggleBulk: PropTypes.func
@@ -35,7 +37,7 @@ function formatValue(value) {
   return value || 'N/A';
 }
 
-function CustomerRow({ customer, columnsConfig, toggleBulk }) {
+function CustomerRow({ history, customer, columnsConfig, toggleBulk }) {
   const onChange = e => {
     if (toggleBulk) {
       toggleBulk(customer, e.target.checked);
@@ -51,7 +53,12 @@ function CustomerRow({ customer, columnsConfig, toggleBulk }) {
         <td key={name} className={`table-field-${name}`}>
           {formatValue(_.get(customer, name))}
           {name === 'name' ? (
-            <Button href={`customers/details/${customer._id}`} iconKey>
+            <Button
+              onClick={() => {
+                history.push(`customers/details/${customer._id}`);
+              }}
+              iconKey
+            >
               <Icon icon="eye" />
             </Button>
           ) : null}
@@ -63,4 +70,4 @@ function CustomerRow({ customer, columnsConfig, toggleBulk }) {
 
 CustomerRow.propTypes = propTypes;
 
-export default CustomerRow;
+export default withRouter(CustomerRow);
