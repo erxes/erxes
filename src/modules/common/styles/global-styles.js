@@ -24,6 +24,7 @@ injectGlobal`
   }
 
   a {
+    color: #A389D4;
     transition: color 0.3s ease;
   }
 

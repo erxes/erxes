@@ -12,6 +12,7 @@ import {
 } from 'react-bootstrap';
 import { Button, Icon } from 'modules/common/components';
 import { Wrapper } from 'modules/layout/components';
+import { ContentSpace } from 'modules/layout/styles';
 import Conditions from './Conditions';
 import AddConditionButton from './AddConditionButton';
 
@@ -156,7 +157,7 @@ class SegmentsForm extends Component {
     );
 
     const content = (
-      <div className="margined">
+      <ContentSpace>
         <Row>
           <Col sm={5}>
             <Form onSubmit={this.save}>
@@ -242,7 +243,7 @@ class SegmentsForm extends Component {
             </Panel>
           </Col>
         </Row>
-      </div>
+      </ContentSpace>
     );
 
     return (
