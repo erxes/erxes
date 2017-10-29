@@ -11,13 +11,12 @@ const AuthLayoutContainer = props => {
     return null;
   }
 
-  const currentUser = currentUserQuery.currentUser;
+  const updatedProps = {
+    ...props,
+    currentUser: currentUserQuery.currentUser
+  };
 
-  if (currentUser) {
-    return (window.location.href = '/');
-  }
-
-  return <AuthLayout {...props} />;
+  return <AuthLayout {...updatedProps} />;
 };
 
 AuthLayoutContainer.propTypes = {

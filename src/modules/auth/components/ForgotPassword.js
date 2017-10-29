@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import { FormGroup, FormControl } from 'react-bootstrap';
 import { Button } from 'modules/common/components';
@@ -54,7 +55,7 @@ class ForgotPassword extends Component {
         </form>
 
         <div className="links">
-          <a href="/sign-in">Sign in</a>
+          <Link to="/sign-in">Sign in</Link>
         </div>
       </div>
     );

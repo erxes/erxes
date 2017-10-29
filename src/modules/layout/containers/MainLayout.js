@@ -11,13 +11,12 @@ const MainLayoutContainer = props => {
     return null;
   }
 
-  const currentUser = currentUserQuery.currentUser;
+  const updatedProps = {
+    ...props,
+    currentUser: currentUserQuery.currentUser
+  };
 
-  if (!currentUser) {
-    return (window.location.href = '/sign-in');
-  }
-
-  return <MainLayout {...props} />;
+  return <MainLayout {...updatedProps} />;
 };
 
 MainLayoutContainer.propTypes = {
