@@ -1,4 +1,5 @@
 import React from 'react';
+import { withRouter } from 'react-router';
 import PropTypes from 'prop-types';
 import { Dropdown, MenuItem } from 'react-bootstrap';
 import { Wrapper } from 'modules/layout/components';
@@ -10,12 +11,13 @@ import {
 import { DropdownToggle, EmptyState, Icon } from 'modules/common/components';
 
 const propTypes = {
+  history: PropTypes.object,
   contentType: PropTypes.string.isRequired,
   counts: PropTypes.object.isRequired,
   segments: PropTypes.array.isRequired
 };
 
-function Segments({ contentType, counts, segments }) {
+function Segments({ history, contentType, counts, segments }) {
   const { Section, filter, getActiveClass, Header } = Wrapper.Sidebar;
 
   const orderedSegments = [];
@@ -36,10 +38,12 @@ function Segments({ contentType, counts, segments }) {
             <Icon icon="more" />
           </DropdownToggle>
           <Dropdown.Menu>
-            <MenuItem href={`/segments/new/${contentType}`}>
+            <MenuItem
+              onClick={() => history.push(`/segments/new/${contentType}`)}
+            >
               New segment
             </MenuItem>
-            <MenuItem href={`/segments/${contentType}`}>
+            <MenuItem onClick={() => history.push(`/segments/${contentType}`)}>
               Manage segments
             </MenuItem>
           </Dropdown.Menu>
@@ -95,4 +99,4 @@ function Segments({ contentType, counts, segments }) {
 
 Segments.propTypes = propTypes;
 
-export default Segments;
+export default withRouter(Segments);

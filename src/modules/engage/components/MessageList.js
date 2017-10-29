@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import { Table, Button } from 'react-bootstrap';
 import { Wrapper } from 'modules/layout/components';
@@ -38,20 +39,17 @@ class List extends React.Component {
     const { messages, tags, toggleBulk, refetch } = this.props;
     const actionBarLeft = (
       <div>
-        <Button bsStyle="link" href={'/engage/messages/create?kind=auto'}>
+        <Link to={'/engage/messages/create?kind=auto'}>
           <i className="ion-plus-circled" /> New auto message
-        </Button>
+        </Link>
 
-        <Button
-          bsStyle="link"
-          href={'/engage/messages/create?kind=visitorAuto'}
-        >
+        <Link to={'/engage/messages/create?kind=visitorAuto'}>
           <i className="ion-plus-circled" /> New visitor auto message
-        </Button>
+        </Link>
 
-        <Button bsStyle="link" href={'/engage/messages/create?kind=manual'}>
+        <Link to={'/engage/messages/create?kind=manual'}>
           <i className="ion-plus-circled" /> New manual message
-        </Button>
+        </Link>
         {this.renderTagger()}
       </div>
     );
