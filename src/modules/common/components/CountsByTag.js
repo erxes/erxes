@@ -25,7 +25,7 @@ function CountsByTag({ history, tags, counts, manageUrl }) {
           <Icon icon="gear-a" />
         </QuickButton>
 
-        {window.location.search.includes('tag') ? (
+        {router.getParam(history, 'tag') ? (
           <QuickButton
             tabIndex={0}
             onClick={() => {

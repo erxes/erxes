@@ -1,10 +1,12 @@
 import React from 'react';
+import { withRouter } from 'react-router';
 import PropTypes from 'prop-types';
 import { Wrapper } from 'modules/layout/components';
+import { router } from 'modules/common/utils';
 import { statusFilters } from 'modules/engage/constants';
 
-function Status({ counts }) {
-  const { Section, filter, getActiveClass } = Wrapper.Sidebar;
+function Status({ history, counts }) {
+  const { Section } = Wrapper.Sidebar;
 
   return (
     <Section>
@@ -15,9 +17,13 @@ function Status({ counts }) {
           <li key={index}>
             <a
               tabIndex={0}
-              className={getActiveClass('status', status.key)}
+              className={
+                router.getParam(history, 'status') === status.key
+                  ? 'active'
+                  : ''
+              }
               onClick={() => {
-                filter('status', status.key);
+                router.setParams(history, { status: status.key });
               }}
             >
               {status.value}
@@ -31,7 +37,8 @@ function Status({ counts }) {
 }
 
 Status.propTypes = {
+  history: PropTypes.object,
   counts: PropTypes.object
 };
 
-export default Status;
+export default withRouter(Status);
