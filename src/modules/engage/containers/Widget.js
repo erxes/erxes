@@ -2,27 +2,23 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { compose, gql, graphql } from 'react-apollo';
 import { Alert } from 'modules/common/utils';
+import { withCurrentUser } from 'modules/auth/containers';
 import { MESSENGER_KINDS, SENT_AS_CHOICES, MESSAGE_KINDS } from '../constants';
 import { Widget } from '../components';
 import { queries, mutations } from '../graphql';
 
 const WidgetContainer = props => {
   const {
-    currentUserQuery,
+    currentUser,
     emailTemplatesQuery,
     brandsQuery,
     messagesAddMutation
   } = props;
 
-  if (
-    currentUserQuery.loading ||
-    emailTemplatesQuery.loading ||
-    brandsQuery.loading
-  ) {
+  if (emailTemplatesQuery.loading || brandsQuery.loading) {
     return null;
   }
 
-  const currentUser = currentUserQuery.currentUser;
   const emailTemplates = emailTemplatesQuery.emailTemplates;
   const brands = brandsQuery.brands;
 
@@ -58,17 +54,18 @@ const WidgetContainer = props => {
 };
 
 WidgetContainer.propTypes = {
+  currentUser: PropTypes.object,
   emailTemplatesQuery: PropTypes.object,
   brandsQuery: PropTypes.object,
-  currentUserQuery: PropTypes.object,
   messagesAddMutation: PropTypes.func
 };
 
-export default compose(
-  graphql(gql(queries.emailTemplates), { name: 'emailTemplatesQuery' }),
-  graphql(gql(queries.brands), { name: 'brandsQuery' }),
-  graphql(gql(queries.currentUser), { name: 'currentUserQuery' }),
-  graphql(gql(mutations.messagesAdd), {
-    name: 'messagesAddMutation'
-  })
-)(WidgetContainer);
+export default withCurrentUser(
+  compose(
+    graphql(gql(queries.emailTemplates), { name: 'emailTemplatesQuery' }),
+    graphql(gql(queries.brands), { name: 'brandsQuery' }),
+    graphql(gql(mutations.messagesAdd), {
+      name: 'messagesAddMutation'
+    })
+  )(WidgetContainer)
+);
