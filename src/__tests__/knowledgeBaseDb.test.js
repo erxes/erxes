@@ -16,6 +16,7 @@ import {
   Brands,
   Users,
 } from '../db/models';
+import { PUBLISH_STATUSES } from '../data/constants';
 
 expect.extend(toBeType);
 
@@ -118,7 +119,7 @@ describe('test knowledge base models', () => {
     });
   });
 
-  describe('categories', () => {
+  describe('KnowledgeBaseCategories', () => {
     afterEach(async () => {
       await KnowledgeBaseCategories.remove();
       await KnowledgeBaseArticles.remove({});
@@ -139,9 +140,9 @@ describe('test knowledge base models', () => {
 
       const doc = {
         title: 'Test category title',
-        description: 'Test topic description',
+        description: 'Test category description',
         articleIds: [article._id],
-        icon: 'test icon',
+        icon: 'test category icon',
       };
 
       const category = await KnowledgeBaseCategories.createDoc(doc, _user._id);
@@ -205,6 +206,84 @@ describe('test knowledge base models', () => {
       await KnowledgeBaseCategories.removeDoc(category._id);
 
       expect(await KnowledgeBaseCategories.find().count()).toBe(0);
+    });
+  });
+
+  describe('KnowledgeBaseArticles', () => {
+    afterEach(async () => {
+      await KnowledgeBaseArticles.remove({});
+    });
+
+    test(`expect Error('userId must be supplied') to be called as intended`, () => {
+      expect.assertions(1);
+
+      try {
+        KnowledgeBaseArticles.createDoc({}, null);
+      } catch (e) {
+        expect(e.message).toBe('userId must be supplied');
+      }
+    });
+
+    test('create', async () => {
+      const doc = {
+        title: 'Test article title',
+        summary: 'Test article description',
+        content: 'Test article content',
+        status: PUBLISH_STATUSES.DRAFT,
+      };
+
+      const article = await KnowledgeBaseArticles.createDoc(doc, _user._id);
+
+      expect(article.title).toBe(doc.title);
+      expect(article.summary).toBe(doc.summary);
+      expect(article.content).toBe(doc.content);
+      expect(article.icon).toBe(doc.icon);
+      expect(article.status).toBe(PUBLISH_STATUSES.DRAFT);
+    });
+
+    test('update', async () => {
+      const doc = {
+        title: 'Test article title',
+        summary: 'Test article description',
+        content: 'Test article content',
+        status: PUBLISH_STATUSES.DRAFT,
+      };
+
+      const article = await KnowledgeBaseArticles.createDoc(doc, _user._id);
+
+      article.title = 'Test article title 2';
+      article.summary = 'Test article description 2';
+      article.content = 'Test article content 2';
+      article.status = PUBLISH_STATUSES.PUBLISH;
+
+      const updatedArticle = await KnowledgeBaseArticles.updateDoc(
+        article._id,
+        article.toObject(),
+        _user._id,
+      );
+
+      expect(updatedArticle.title).toBe(article.title);
+      expect(updatedArticle.summary).toBe(article.summary);
+      expect(updatedArticle.content).toBe(article.content);
+      expect(updatedArticle.icon).toBe(article.icon);
+      expect(updatedArticle.status).toBe(article.status);
+    });
+
+    test('remove', async () => {
+      const doc = {
+        title: 'Test article title',
+        summary: 'Test article description',
+        content: 'Test article content',
+        status: PUBLISH_STATUSES.DRAFT,
+      };
+
+      const article = await KnowledgeBaseArticles.createDoc(doc, _user._id);
+
+      expect(await KnowledgeBaseArticles.find().count()).toBe(1);
+
+      await KnowledgeBaseArticles.removeDoc(article._id);
+
+      expect(await KnowledgeBaseArticles.find().count()).toBe(0);
     });
   });
 });

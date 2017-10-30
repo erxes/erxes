@@ -71,10 +71,6 @@ const ArticleSchema = mongoose.Schema({
     default: PUBLISH_STATUSES.DRAFT,
     required: true,
   },
-  authorDetails: {
-    avatar: String,
-    fullName: String,
-  },
   ...commonFields,
 });
 
