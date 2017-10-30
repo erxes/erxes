@@ -41,11 +41,11 @@ class Row extends Component {
     const { object, save } = this.props;
 
     const editTrigger = (
-      <Tip text="Edit">
-        <Button btnStyle="link">
+      <Button btnStyle="link">
+        <Tip text="Edit">
           <Icon icon="edit" />
-        </Button>
-      </Tip>
+        </Tip>
+      </Button>
     );
 
     return (
