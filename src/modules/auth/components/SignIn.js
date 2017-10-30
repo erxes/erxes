@@ -1,19 +1,23 @@
 import React, { Component } from 'react';
+import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
-import { FormGroup, FormControl, Button } from 'react-bootstrap';
+import { FormGroup, FormControl } from 'react-bootstrap';
 import styled from 'styled-components';
+import { Button } from 'modules/common/components';
 
 const AuthBox = styled.div`
   background-color: #fff;
   padding: 70px 60px;
   border-radius: 4px;
   box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+
   h2 {
     color: #6b60a6;
     font-size: 30px;
     font-weight: 400;
     margin: 0 0 50px;
   }
+
   input {
     border: 0;
     border-bottom: 1px solid #ac8fdc;
@@ -22,11 +26,8 @@ const AuthBox = styled.div`
     border-radius: 0;
     font-size: 16px;
   }
+
   button {
-    -webkit-transition: background 0.2s ease;
-    -moz-transition: background 0.2s ease;
-    -ms-transition: background 0.2s ease;
-    -o-transition: background 0.2s ease;
     transition: background 0.2s ease;
     background-color: #6b60a6;
     color: #fff;
@@ -34,6 +35,7 @@ const AuthBox = styled.div`
     font-weight: 600;
     margin-top: 50px;
     border: 0;
+
     &:hover,
     .active.focus,
     .active:focus,
@@ -46,10 +48,12 @@ const AuthBox = styled.div`
     }
   }
 `;
+
 const Links = styled.div`
   margin-top: 70px;
   text-align: center;
 `;
+
 const propTypes = {
   login: PropTypes.func.isRequired
 };

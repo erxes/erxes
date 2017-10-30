@@ -1,8 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Table, Button } from 'react-bootstrap';
 import { Wrapper } from 'modules/layout/components';
-import { ModalTrigger } from 'modules/common/components';
+import { ModalTrigger, Button, Icon, Table } from 'modules/common/components';
 import Row from './Row';
 import Form from './Form';
 
@@ -15,8 +14,8 @@ const propTypes = {
 
 function List({ tags, type, remove, save }) {
   const trigger = (
-    <Button bsStyle="link">
-      <i className="ion-plus-circled" /> Add tag
+    <Button btnStyle="success">
+      <Icon icon="plus-circled" /> Add tag
     </Button>
   );
 
@@ -32,7 +31,7 @@ function List({ tags, type, remove, save }) {
       <thead>
         <tr>
           <th>Name</th>
-          <th className="text-right">Actions</th>
+          <th>Actions</th>
         </tr>
       </thead>
       <tbody>
@@ -50,13 +49,11 @@ function List({ tags, type, remove, save }) {
   );
 
   return (
-    <div>
-      <Wrapper
-        header={<Wrapper.Header breadcrumb={[{ title: 'Tags' }]} />}
-        actionBar={actionBar}
-        content={content}
-      />
-    </div>
+    <Wrapper
+      header={<Wrapper.Header breadcrumb={[{ title: 'Tags' }]} />}
+      actionBar={actionBar}
+      content={content}
+    />
   );
 }
 

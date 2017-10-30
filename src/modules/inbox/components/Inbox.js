@@ -3,7 +3,8 @@ import PropTypes from 'prop-types';
 import RightSidebar from './RightSidebar';
 import LeftSidebar from './LeftSidebar';
 import { Wrapper } from '../../layout/components';
-import { Button, Label, Icon } from '../../common/components';
+import { Button, Label, Icon } from 'modules/common/components';
+import { BarItems } from 'modules/layout/styles';
 import Conversation from './conversation/Conversation';
 
 class Inbox extends Component {
@@ -17,24 +18,25 @@ class Inbox extends Component {
 
   render() {
     const { conversations, messages, user } = this.props;
-    const actionBarLeft = <div>Alice Caldwell</div>;
+    const actionBarLeft = <BarItems>Alice Caldwell</BarItems>;
 
     const actionBarRight = (
-      <div>
+      <BarItems>
         <Label lblStyle="danger">urgent</Label>
-        <Button btnStyle="success">
+        <Icon icon="ios-arrow-down" />
+        <Button btnStyle="success" size="small">
           <Icon icon="checkmark" />Resolve
         </Button>
-      </div>
+      </BarItems>
     );
 
     const actionBar = (
-      <Wrapper.ActionBar left={actionBarLeft} right={actionBarRight} />
+      <Wrapper.ActionBar left={actionBarLeft} right={actionBarRight} invert />
     );
 
     const content = (
       <div
-        style={{ height: '100%', overflow: 'auto' }}
+        style={{ height: '100%', overflow: 'auto', background: '#fafafa' }}
         ref={node => {
           this.node = node;
         }}

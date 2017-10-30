@@ -56,13 +56,13 @@ class Section extends Component {
   }
 
   render() {
-    const { children, collapsible } = this.props;
+    const { children, collapsible, noShadow } = this.props;
 
     const height = {
       maxHeight: collapsible && this.state.maxHeight
     };
     return (
-      <SidebarBox collapsible style={height}>
+      <SidebarBox collapsible style={height} noShadow={noShadow}>
         <div
           ref={node => {
             this.node = node;
@@ -79,6 +79,7 @@ class Section extends Component {
 function Title({ children }) {
   return <SidebarTitle>{children}</SidebarTitle>;
 }
+
 Title.propTypes = {
   children: PropTypes.node.isRequired
 };
@@ -102,6 +103,7 @@ Footer.propTypes = {
 function QuickButtons({ children }) {
   return <HelperButtons>{children}</HelperButtons>;
 }
+
 QuickButtons.propTypes = {
   children: PropTypes.node
 };
@@ -112,7 +114,8 @@ Section.QuickButtons = QuickButtons;
 Section.propTypes = {
   children: PropTypes.node,
   collapsible: PropTypes.bool,
-  className: PropTypes.string
+  className: PropTypes.string,
+  noShadow: PropTypes.bool
 };
 
 Sidebar.propTypes = propTypes;

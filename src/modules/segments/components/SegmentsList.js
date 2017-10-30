@@ -1,8 +1,14 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
-import { Button, Table } from 'react-bootstrap';
 import { Wrapper } from 'modules/layout/components';
-import { Tip, ActionButtons } from 'modules/common/components';
+import {
+  Tip,
+  ActionButtons,
+  Button,
+  Icon,
+  Table
+} from 'modules/common/components';
 
 const propTypes = {
   contentType: PropTypes.string.isRequired,
@@ -41,24 +47,21 @@ function SegmentsList({ contentType, segments, removeSegment }) {
             </td>
             <td>{segment.description}</td>
             <td>{segment.color}</td>
-            <td className="text-right">
+            <td>
               <ActionButtons>
                 <Tip text="Edit">
-                  <Button
-                    bsStyle="link"
-                    href={`/segments/edit/${contentType}/${segment._id}`}
-                  >
-                    <i className="ion-edit" />
-                  </Button>
+                  <Link to={`/segments/edit/${contentType}/${segment._id}`}>
+                    <Icon icon="edit" />
+                  </Link>
                 </Tip>
                 <Tip text="Delete">
                   <Button
-                    bsStyle="link"
+                    btnStyle="link"
                     onClick={() => {
                       remove(segment._id);
                     }}
                   >
-                    <i className="ion-close-circled" />
+                    <Icon icon="close-circled" />
                   </Button>
                 </Tip>
               </ActionButtons>
@@ -70,9 +73,9 @@ function SegmentsList({ contentType, segments, removeSegment }) {
   );
 
   const actionBarLeft = (
-    <Button bsStyle="link" href={`/segments/new/${contentType}`}>
-      <i className="ion-plus-circled" /> New segment
-    </Button>
+    <Link to={`/segments/new/${contentType}`}>
+      <Icon icon="plus-circled" /> New segment
+    </Link>
   );
 
   const actionBar = <Wrapper.ActionBar left={actionBarLeft} />;

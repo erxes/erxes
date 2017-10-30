@@ -27,6 +27,7 @@ import { FormControl, ControlLabel } from './Form';
 import TextDivider from './TextDivider';
 import CountsByTag from './CountsByTag';
 import Table from './Table';
+import Editor from './Editor';
 
 export {
   ActionButtons,
@@ -58,5 +59,6 @@ export {
   FormControl,
   ControlLabel,
   TextDivider,
-  Table
+  Table,
+  Editor
 };

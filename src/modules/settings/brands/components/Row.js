@@ -1,7 +1,7 @@
 import React from 'react';
 import moment from 'moment';
-import { Label } from 'react-bootstrap';
 import { Row as CommonRow } from '../../common/components';
+import { Label } from 'modules/common/components';
 import { BrandForm } from './';
 
 class Row extends CommonRow {

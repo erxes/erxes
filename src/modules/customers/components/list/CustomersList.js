@@ -1,11 +1,17 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import { Wrapper } from 'modules/layout/components';
-import { Pagination, ModalTrigger } from 'modules/common/components';
-import { Button, Table } from '../../../common/components';
-// TODO
-// import { Widget } from '/imports/react-ui/engage/containers';
-import Sidebar from './sidebar/Sidebar';
+import {
+  Pagination,
+  ModalTrigger,
+  Button,
+  Icon,
+  Table
+} from 'modules/common/components';
+import { BarItems } from 'modules/layout/styles';
+import { Widget } from 'modules/engage/containers';
+import Sidebar from './Sidebar';
 import CustomerRow from './CustomerRow';
 import CustomerForm from './CustomerForm';
 
@@ -35,12 +41,11 @@ class CustomersList extends React.Component {
 
     return (
       <Pagination hasMore={hasMore} loadMore={loadMore}>
-        <Table whiteSpace="nowrap" hover>
+        <Table whiteSpace="nowrap" hover bordered>
           <thead>
             <tr>
-              <th />
               <th>
-                <a href="/customers/manage-columns">...</a>
+                <Link to="/customers/manage-columns">...</Link>
               </th>
               {columnsConfig.map(({ name, label }) => (
                 <th key={name}>{label}</th>
@@ -63,7 +68,7 @@ class CustomersList extends React.Component {
   }
 
   render() {
-    const { counts, brands, integrations, tags, addCustomer } = this.props;
+    const { counts, bulk, addCustomer } = this.props;
 
     const addTrigger = (
       <Button btnStyle="success" size="small">
@@ -72,50 +77,43 @@ class CustomersList extends React.Component {
     );
 
     const actionBarRight = (
-      <div>
+      <BarItems>
         <Button btnStyle="simple" size="small">
-          Tags <i className="ion-ios-arrow-down" />
+          Tags <Icon icon="ios-arrow-down" />
         </Button>
         <Button btnStyle="simple" size="small">
-          Customize <i className="ion-ios-arrow-down" />
+          Customize <Icon icon="ios-arrow-down" />
         </Button>
         <ModalTrigger title="New customer" trigger={addTrigger}>
           <CustomerForm addCustomer={addCustomer} />
         </ModalTrigger>
-      </div>
+      </BarItems>
     );
 
     const actionBarLeft = (
-      <div>
-        <Button btnStyle="success" size="small">
-          <i className="ion-email" /> Message
+      <BarItems>
+        {bulk.length > 0 ? <Widget customers={bulk} /> : null}
+
+        <Button btnStyle="simple" size="small">
+          <Icon icon="ios-pricetag" /> Tag
         </Button>
         <Button btnStyle="simple" size="small">
-          <i className="ion-ios-pricetag" /> Tag
+          More <Icon icon="ios-arrow-down" />
         </Button>
-        <Button btnStyle="simple" size="small">
-          More <i className="ion-ios-arrow-down" />
-        </Button>
-      </div>
+      </BarItems>
     );
 
     const actionBar = (
       <Wrapper.ActionBar left={actionBarLeft} right={actionBarRight} />
     );
+
     const breadcrumb = [{ title: `Customers (${counts.all})` }];
 
     return (
       <Wrapper
         header={<Wrapper.Header breadcrumb={breadcrumb} />}
         actionBar={actionBar}
-        leftSidebar={
-          <Sidebar
-            counts={counts}
-            brands={brands}
-            integrations={integrations}
-            tags={tags}
-          />
-        }
+        leftSidebar={<Sidebar counts={counts} />}
         content={this.renderContent()}
       />
     );

@@ -2,13 +2,13 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Wrapper } from 'modules/layout/components';
 import { List as InternalNotes } from 'modules/internalNotes/containers';
-import { ConversationList, EmptyState } from 'modules/common/components';
+import { ConversationList, EmptyState, Icon } from 'modules/common/components';
 import RightSidebar from './sidebar/RightSidebar';
 import LeftSidebar from './sidebar/LeftSidebar';
 
 const propTypes = {
   customer: PropTypes.object.isRequired,
-  user: PropTypes.object.isRequired,
+  currentUser: PropTypes.object.isRequired,
   customFields: PropTypes.array.isRequired,
   save: PropTypes.func.isRequired,
   queryParams: PropTypes.object.isRequired,
@@ -30,11 +30,15 @@ class CustomerDetails extends React.Component {
 
   renderTabContent() {
     const { currentTab } = this.state;
-    const { customer } = this.props;
+    const { currentUser, customer } = this.props;
 
     if (currentTab === 'internalNotes') {
       return (
-        <InternalNotes contentType="customer" contentTypeId={customer._id} />
+        <InternalNotes
+          contentType="customer"
+          contentTypeId={customer._id}
+          currentUserId={currentUser._id}
+        />
       );
     }
 
@@ -44,17 +48,17 @@ class CustomerDetails extends React.Component {
   }
 
   renderConversations() {
-    const { customer, user } = this.props;
+    const { customer, currentUser } = this.props;
     const conversations = customer.conversations;
 
     return (
       <div style={{ position: 'relative' }}>
         {conversations.length ? (
-          <ConversationList conversations={conversations} user={user} />
+          <ConversationList conversations={conversations} user={currentUser} />
         ) : (
           <EmptyState
             text="There aren’t any conversations at the moment."
-            icon={<i className="ion-email" />}
+            icon="email"
           />
         )}
       </div>
@@ -75,13 +79,13 @@ class CustomerDetails extends React.Component {
         <ul className="header">
           <li className={currentTab === 'internalNotes' ? 'active' : ''}>
             <a onClick={() => this.onTabClick('internalNotes')}>
-              <i className="ion-email" />
+              <Icon icon="email" />
               New note
             </a>
           </li>
           <li className={currentTab === 'conversations' ? 'active' : ''}>
             <a onClick={() => this.onTabClick('conversations')}>
-              <i className="ion-paper-airplane" />
+              <Icon icon="paper-airplane" />
               Conversations
             </a>
           </li>

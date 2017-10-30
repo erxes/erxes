@@ -4,11 +4,11 @@ import {
   FormGroup,
   ControlLabel,
   FormControl,
-  Button,
   ButtonToolbar,
   Modal
 } from 'react-bootstrap';
 import ReactMarkdown from 'react-markdown';
+import { Button } from 'modules/common/components';
 import CopyToClipboard from 'react-copy-to-clipboard';
 import SelectBrand from './SelectBrand';
 
@@ -99,7 +99,7 @@ class Common extends Component {
                 text={this.state.code}
                 onCopy={() => this.setState({ copied: true })}
               >
-                <Button bsSize="small" bsStyle="primary">
+                <Button size="small">
                   {this.state.copied ? 'Copied' : 'Copy to clipboard'}
                 </Button>
               </CopyToClipboard>
@@ -109,7 +109,7 @@ class Common extends Component {
 
         <Modal.Footer>
           <ButtonToolbar className="pull-right">
-            <Button type="submit" bsStyle="primary">
+            <Button btnStyle="success" type="submit">
               Save
             </Button>
           </ButtonToolbar>

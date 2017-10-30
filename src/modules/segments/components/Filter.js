@@ -1,17 +1,25 @@
 import React from 'react';
+import { withRouter } from 'react-router';
 import PropTypes from 'prop-types';
 import { Dropdown, MenuItem } from 'react-bootstrap';
 import { Wrapper } from 'modules/layout/components';
-import { DropdownToggle, EmptyState } from 'modules/common/components';
+import {
+  QuickButton,
+  SidebarList,
+  SidebarCounter
+} from 'modules/layout/styles';
+import { DropdownToggle, EmptyState, Icon } from 'modules/common/components';
+import { router } from 'modules/common/utils';
 
 const propTypes = {
+  history: PropTypes.object,
   contentType: PropTypes.string.isRequired,
   counts: PropTypes.object.isRequired,
   segments: PropTypes.array.isRequired
 };
 
-function Segments({ contentType, counts, segments }) {
-  const { Section, filter, getActiveClass } = Wrapper.Sidebar;
+function Segments({ history, contentType, counts, segments }) {
+  const { Section, Header } = Wrapper.Sidebar;
 
   const orderedSegments = [];
 
@@ -22,70 +30,78 @@ function Segments({ contentType, counts, segments }) {
   });
 
   return (
-    <Section collapsible={segments.length > 5}>
-      <Section.Title>Filter by segments</Section.Title>
+    <Section>
+      <Header>Filter by segments</Header>
 
       <Section.QuickButtons>
         <Dropdown id="dropdown-user" className="quick-button" pullRight>
           <DropdownToggle bsRole="toggle">
-            <i className="ion-more" />
+            <Icon icon="more" />
           </DropdownToggle>
           <Dropdown.Menu>
-            <MenuItem href={`/segments/new/${contentType}`}>
+            <MenuItem
+              onClick={() => history.push(`/segments/new/${contentType}`)}
+            >
               New segment
             </MenuItem>
-            <MenuItem href={`/segments/${contentType}`}>
+            <MenuItem onClick={() => history.push(`/segments/${contentType}`)}>
               Manage segments
             </MenuItem>
           </Dropdown.Menu>
         </Dropdown>
 
-        {window.location.search.includes('segment') ? (
-          <a
+        {router.getParam(history, 'segment') ? (
+          <QuickButton
             tabIndex={0}
-            className="quick-button"
             onClick={() => {
-              filter('segment', null);
+              router.setParams(history, { segment: null });
             }}
           >
-            <i className="ion-close-circled" />
-          </a>
+            <Icon icon="close-circled" />
+          </QuickButton>
         ) : null}
       </Section.QuickButtons>
 
-      <ul className="sidebar-list">
+      <SidebarList>
         {orderedSegments.length ? (
           orderedSegments.map(segment => (
-            <li key={segment._id}>
+            <li
+              key={segment._id}
+              className={segment.subOf ? 'child-segment' : null}
+            >
               <a
                 tabIndex={0}
-                className={getActiveClass('segment', segment._id)}
+                className={
+                  router.getParam(history, 'segment') === segment._id
+                    ? 'active'
+                    : ''
+                }
                 onClick={() => {
-                  filter('segment', segment._id);
+                  router.setParams(history, { segment: segment._id });
                 }}
               >
-                {segment.subOf ? '\u00a0\u00a0\u00a0\u00a0\u00a0' : null}
-                <i
-                  className="ion-pie-graph icon"
-                  style={{ color: segment.color }}
+                {segment.subOf ? '\u00a0\u00a0' : null}
+                <Icon
+                  icon="ios-circle-filled"
+                  size={10}
+                  style={{
+                    color: segment.color,
+                    marginRight: '10px'
+                  }}
                 />
                 {segment.name}
-                <span className="counter">{counts[segment._id]}</span>
+                <SidebarCounter>{counts[segment._id]}</SidebarCounter>
               </a>
             </li>
           ))
         ) : (
-          <EmptyState
-            icon={<i className="ion-pie-graph" />}
-            text="No segments"
-            size="small"
-          />
+          <EmptyState icon="pie-graph" text="No segments" size="small" />
         )}
-      </ul>
+      </SidebarList>
     </Section>
   );
 }
 
 Segments.propTypes = propTypes;
 
-export default Segments;
+export default withRouter(Segments);

@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Wrapper } from '../../layout/components';
-import { ConversationList } from '../../common/components';
+import { Wrapper } from 'modules/layout/components';
+import { ConversationList, Icon } from 'modules/common/components';
 
 import { conversations } from '../datas';
 
@@ -13,8 +13,12 @@ class Sidebar extends Component {
   renderSidebarHeader() {
     return (
       <Wrapper.Sidebar.Header>
-        <div># Sales (13)</div>
-        <div>Open</div>
+        <div>
+          # Sales (13) <Icon icon="ios-arrow-down" />
+        </div>
+        <div>
+          Open <Icon icon="ios-arrow-down" />
+        </div>
       </Wrapper.Sidebar.Header>
     );
   }
@@ -22,9 +26,15 @@ class Sidebar extends Component {
   renderSidebarFooter() {
     return (
       <Wrapper.Sidebar.Footer>
-        <div>Brand</div>
-        <div>Integration</div>
-        <div>Tag</div>
+        <div>
+          Brand <Icon icon="ios-arrow-up" />
+        </div>
+        <div>
+          Integration <Icon icon="ios-arrow-up" />
+        </div>
+        <div>
+          Tag <Icon icon="ios-arrow-up" />
+        </div>
       </Wrapper.Sidebar.Footer>
     );
   }

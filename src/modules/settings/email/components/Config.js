@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import {
-  Button,
   FormGroup,
   ControlLabel,
   FormControl,
@@ -9,6 +8,7 @@ import {
   HelpBlock,
   Modal
 } from 'react-bootstrap';
+import { Button, Icon } from 'modules/common/components';
 
 const propTypes = {
   brand: PropTypes.object.isRequired,
@@ -95,10 +95,13 @@ class Config extends Component {
 
           <Modal.Footer>
             <ButtonToolbar className="pull-right">
-              <Button bsStyle="link" onClick={onClick}>
+              <Button btnStyle="simple" onClick={onClick}>
+                <Icon icon="close" />
                 Cancel
               </Button>
-              <Button type="submit" bsStyle="primary">
+
+              <Button btnStyle="success" type="submit">
+                <Icon icon="checkmark" />
                 Save
               </Button>
             </ButtonToolbar>

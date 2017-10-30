@@ -16,7 +16,6 @@ const NameCardText = styled.div`
 
 const FirstLine = styled.a`
   padding: 0;
-  font-size: 15px;
   display: block;
   color: ${colors.colorCoreDarkGray};
   text-overflow: ellipsis;
@@ -71,7 +70,8 @@ NameCard.propTypes = {
   firstLine: PropTypes.node,
   secondLine: PropTypes.node,
   avatarSize: PropTypes.number,
-  url: PropTypes.string
+  url: PropTypes.string,
+  isUser: PropTypes.bool
 };
 NameCard.Avatar = Avatar;
 

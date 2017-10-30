@@ -4,11 +4,11 @@ import {
   FormGroup,
   ControlLabel,
   FormControl,
-  Button,
   ButtonToolbar,
   Well
 } from 'react-bootstrap';
 import { Wrapper } from 'modules/layout/components';
+import { Button } from 'modules/common/components';
 import Sidebar from '../../Sidebar';
 
 const propTypes = {
@@ -100,7 +100,7 @@ class Signature extends Component {
             />
           </FormGroup>
           <ButtonToolbar className="pull-right">
-            <Button type="submit" bsStyle="primary">
+            <Button btnStyle="success" type="submit">
               Save
             </Button>
           </ButtonToolbar>

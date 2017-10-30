@@ -6,6 +6,7 @@ import SegmentsRoutes from './modules/segments/routes';
 import CustomersRoutes from './modules/customers/routes';
 import CompaniesRoutes from './modules/companies/routes';
 import InsightsRoutes from './modules/insights/routes';
+import EngageRoutes from './modules/engage/routes';
 import SettingsRoutes from './modules/settings/routes';
 import InboxRoutes from './modules/inbox/routes';
 import TagsRoutes from './modules/tags/routes';
@@ -21,6 +22,7 @@ const Routes = () => (
       <CustomersRoutes />
       <CompaniesRoutes />
       <InsightsRoutes />
+      <EngageRoutes />
       <SettingsRoutes />
       <TagsRoutes />
     </Main>

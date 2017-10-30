@@ -4,18 +4,27 @@ import { rgba } from '../common/styles/color';
 
 const UserHelper = styled.div`
   padding: 0 ${dimensions.coreSpacing}px;
-  float: right;
+  height: 50px;
+  display: flex;
+  align-items: center;
   background: ${rgba(colors.colorWhite, 0.1)};
+
+  &:hover {
+    cursor: pointer;
+    background: ${rgba(colors.colorWhite, 0.15)};
+  }
 `;
 
 const Main = styled.main`
   flex: 1;
   height: 100%;
+  max-width: 100%;
 `;
 
 const Layout = styled.div`
   height: 100%;
   display: flex;
+  max-width: 100%;
 `;
 
 const LeftNavigation = styled.aside`
@@ -58,11 +67,14 @@ const MainWrapper = styled.div`
   flex: 1;
   display: flex;
   flex-direction: column;
+  max-width: calc(100% - 70px);
 `;
 
 const TopBar = styled.div`
   height: ${dimensions.headerSpacing}px;
-  line-height: ${dimensions.headerSpacing}px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   margin: 0;
   border: 0;
   flex-shrink: 0;
@@ -85,9 +97,13 @@ const MainContent = styled.section`
   min-width: 480px;
 `;
 
+const ContentSpace = styled.div`
+  padding: ${dimensions.coreSpacing}px;
+`;
+
 const ContentBox = styled.div`
   flex: 1;
-  background-color: ${colors.bgLight};
+  background-color: ${colors.colorWhite};
   overflow: auto;
   box-shadow: 0 0 4px ${colors.shadowPrimary};
   margin-right: ${dimensions.coreSpacing}px;
@@ -99,8 +115,8 @@ const ContenFooter = styled.div`
 `;
 
 const ContentHeader = styled.div`
-  background: ${colors.colorWhite};
-  height: ${dimensions.headerSpacing}px;
+  background: ${props => (props.invert ? colors.colorWhite : colors.bgLight)};
+  min-height: ${dimensions.headerSpacing}px;
   padding: 0 ${dimensions.coreSpacing}px 0 ${dimensions.coreSpacing}px;
   margin-right: ${dimensions.coreSpacing}px;
   border-bottom: 1px solid ${colors.borderPrimary};
@@ -108,9 +124,15 @@ const ContentHeader = styled.div`
   justify-content: space-between;
 `;
 
+const BarItems = styled.div`
+  > * + * {
+    margin-left: ${dimensions.unitSpacing}px;
+  }
+`;
+
 const HeaderItems = styled.div`
   align-self: center;
-  float: ${props => (props.rightAligned ? 'right' : 'left')};
+  margin-left: ${props => props.rightAligned && 'auto'};
 `;
 
 const SideContent = styled.section`
@@ -147,8 +169,9 @@ const SidebarFooter = SidebarHeader.extend``;
 const SidebarBox = styled.div`
   background-color: ${colors.colorWhite};
   margin-bottom: ${dimensions.coreSpacing}px;
-  box-shadow: 0 0 4px ${colors.shadowPrimary};
-  padding-bottom: ${dimensions.unitSpacing}px;
+  box-shadow: ${props =>
+    props.noShadow ? 'none' : `0 0 4px ${colors.shadowPrimary}`};
+  padding-bottom: 10px;
   position: relative;
   transition: max-height 0.4s;
   overflow: ${props => (props.collapsible ? 'hidden' : 'auto')};
@@ -191,6 +214,10 @@ const QuickButton = styled.a`
   outline: 0;
   > i {
     font-size: 14px;
+
+    &:hover {
+      color: ${colors.colorCoreBlack};
+    }
   }
 `;
 
@@ -208,28 +235,35 @@ const SidebarList = styled.ul`
   padding: 0;
   list-style: none;
 
-  li {
-    border-bottom: 1px solid ${colors.borderPrimary};
-
-    &:last-child {
-      border: none;
-    }
+  li.child-segment {
+    border-bottom: none;
+    background-color: ${colors.bgLight};
   }
 
   a {
     display: block;
-    padding: 5px 20px;
+    padding: 6px 20px;
     color: ${colors.textPrimary};
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    padding-right: 30px;
     cursor: pointer;
     text-decoration: none;
     outline: 0;
 
+    > span {
+      font-size: 12px;
+      text-align: right;
+      color: #888;
+      margin-top: 2px;
+      position: absolute;
+      right: 20px;
+    }
+
     &:hover {
       background: ${colors.borderPrimary};
+      text-decoration: none;
+      color: ${colors.colorCoreBlack};
     }
   }
 
@@ -239,7 +273,7 @@ const SidebarList = styled.ul`
   }
 `;
 
-const SideBarCounter = styled.span`
+const SidebarCounter = styled.span`
   font-size: 12px;
   text-align: right;
   color: ${colors.colorCoreGray};
@@ -260,14 +294,16 @@ export {
   ContentBox,
   ContenFooter,
   ContentHeader,
+  ContentSpace,
   HeaderItems,
+  BarItems,
   SideContent,
   SidebarHeader,
   SidebarMainContent,
   SidebarFooter,
   SidebarBox,
   SidebarToggle,
-  SideBarCounter,
+  SidebarCounter,
   HelperButtons,
   QuickButton,
   SidebarTitle,

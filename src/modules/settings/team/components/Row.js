@@ -20,14 +20,14 @@ class Row extends CommonRow {
 
   render() {
     const { object } = this.props;
-    const { emails } = object;
+    const { email } = object;
 
     return (
       <tr>
         <td>
           <NameCard user={object} avatarSize={30} singleLine />
         </td>
-        <td>{emails[0].address}</td>
+        <td>{email}</td>
         <td>{this.renderRole()}</td>
 
         {this.renderActions()}

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Table } from 'react-bootstrap';
+import { Table } from 'modules/common/components';
 import { List } from '../../common/components';
 import { Form } from '../containers';
 import Row from './Row';
@@ -26,7 +26,7 @@ class ResponseTemplateList extends List {
           <tr>
             <th>Brand</th>
             <th>Name</th>
-            <th className="text-right">Actions</th>
+            <th>Actions</th>
           </tr>
         </thead>
         <tbody>{this.renderObjects()}</tbody>

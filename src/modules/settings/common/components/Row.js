@@ -1,7 +1,12 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Button } from 'react-bootstrap';
-import { ModalTrigger, Tip } from 'modules/common/components';
+import {
+  ModalTrigger,
+  Tip,
+  Button,
+  Icon,
+  ActionButtons
+} from 'modules/common/components';
 
 const propTypes = {
   object: PropTypes.object.isRequired,
@@ -25,8 +30,8 @@ class Row extends Component {
   renderRemoveAction() {
     return (
       <Tip text="Delete">
-        <Button bsStyle="link" onClick={this.remove}>
-          <i className="ion-close-circled" />
+        <Button btnStyle="link" onClick={this.remove}>
+          <Icon icon="close-circled" />
         </Button>
       </Tip>
     );
@@ -36,9 +41,9 @@ class Row extends Component {
     const { object, save } = this.props;
 
     const editTrigger = (
-      <Button bsStyle="link">
+      <Button btnStyle="link">
         <Tip text="Edit">
-          <i className="ion-edit" />
+          <Icon icon="edit" />
         </Tip>
       </Button>
     );
@@ -52,11 +57,11 @@ class Row extends Component {
 
   renderActions() {
     return (
-      <td className="text-right">
-        <div>
+      <td>
+        <ActionButtons>
           {this.renderEditAction()}
           {this.renderRemoveAction()}
-        </div>
+        </ActionButtons>
       </td>
     );
   }

@@ -1,11 +1,11 @@
 import React, { Component } from 'react';
+import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import {
   FormGroup,
   ControlLabel,
   FormControl,
   Radio,
-  Button,
   Col,
   Row,
   ButtonGroup
@@ -16,6 +16,7 @@ import { Wrapper } from 'modules/layout/components';
 import Sidebar from '../../Sidebar';
 import { timezones } from '../constants';
 import OnlineHours from './OnlineHours';
+import { Button, Icon } from 'modules/common/components';
 
 class Configs extends Component {
   constructor(props) {
@@ -225,27 +226,25 @@ class Configs extends Component {
       <Wrapper.ActionBar
         left={
           <ButtonGroup>
-            <Button bsStyle="link" onClick={this.save}>
-              <i className="ion-checkmark-circled" /> Save
+            <Button btnStyle="success" onClick={this.save}>
+              <Icon icon="checkmark" /> Save
             </Button>
 
-            <Button bsStyle="link" href="/settings/integrations">
-              <i className="ion-close-circled" /> Cancel
-            </Button>
+            <Link to="/settings/integrations">
+              <Icon icon="close" /> Cancel
+            </Link>
           </ButtonGroup>
         }
       />
     );
 
     return (
-      <div>
-        <Wrapper
-          header={<Wrapper.Header breadcrumb={breadcrumb} />}
-          leftSidebar={<Sidebar />}
-          actionBar={actionBar}
-          content={content}
-        />
-      </div>
+      <Wrapper
+        header={<Wrapper.Header breadcrumb={breadcrumb} />}
+        leftSidebar={<Sidebar />}
+        actionBar={actionBar}
+        content={content}
+      />
     );
   }
 }

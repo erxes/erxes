@@ -1,8 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Wrapper } from '../layout/components';
-import { QuickButton } from '../layout/styles';
-import { SidebarList } from './styles';
+import { QuickButton, SidebarList } from '../layout/styles';
 
 function Sidebar() {
   const { Title, QuickButtons } = Wrapper.Sidebar.Section;
@@ -41,7 +40,7 @@ function Sidebar() {
       <Sidebar.Section>
         <Title>Integrations</Title>
         <QuickButtons>
-          <QuickButton href="/settings/integrations/list">All</QuickButton>
+          <QuickButton href="/settings/integrations">All</QuickButton>
         </QuickButtons>
         <SidebarList>
           <li>

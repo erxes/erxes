@@ -2,7 +2,8 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Collapse } from 'react-bootstrap';
 import { Wrapper } from 'modules/layout/components';
-import { EmptyState, Tagger } from 'modules/common/components';
+import { QuickButton } from 'modules/layout/styles';
+import { EmptyState, Tagger, Icon } from 'modules/common/components';
 
 const propTypes = {
   customer: PropTypes.object.isRequired
@@ -27,18 +28,12 @@ class TaggerSection extends Component {
 
   renderTags(tags) {
     if (!tags.length) {
-      return (
-        <EmptyState
-          icon={<i className="ion-pricetags" />}
-          text="Not tagged yet"
-          size="small"
-        />
-      );
+      return <EmptyState icon="pricetags" text="Not tagged yet" size="small" />;
     }
 
     return tags.map(({ _id, colorCode, name }) => (
       <li key={_id}>
-        <i className="icon ion-pricetag" style={{ color: colorCode }} />
+        <Icon icon="icon pricetag" style={{ color: colorCode }} />
         {name}
       </li>
     ));
@@ -54,9 +49,9 @@ class TaggerSection extends Component {
         <Title>Tags</Title>
 
         <QuickButtons>
-          <a tabIndex={0} className="quick-button" onClick={this.toggleTagger}>
-            <i className="ion-gear-a" />
-          </a>
+          <QuickButton tabIndex={0} onClick={this.toggleTagger}>
+            <Icon icon="gear-a" />
+          </QuickButton>
         </QuickButtons>
 
         <Collapse in={this.state.isTaggerVisible}>

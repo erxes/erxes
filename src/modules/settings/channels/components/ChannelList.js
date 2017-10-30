@@ -1,5 +1,5 @@
 import React from 'react';
-import { Table } from 'react-bootstrap';
+import { Table } from 'modules/common/components';
 import { List } from '../../common/components';
 import { ChannelForm } from '../containers';
 import Row from './Row';
@@ -27,7 +27,7 @@ class ChannelList extends List {
             <th>Name</th>
             <th>Description</th>
             <th>Status</th>
-            <th className="text-right">Actions</th>
+            <th>Actions</th>
           </tr>
         </thead>
         <tbody>{this.renderObjects()}</tbody>

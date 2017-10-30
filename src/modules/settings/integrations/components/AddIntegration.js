@@ -1,74 +1,43 @@
 import React from 'react';
-import { Button } from 'react-bootstrap';
-import { Wrapper } from 'modules/layout/components';
-import { ModalTrigger } from 'modules/common/components';
-import Sidebar from '../../Sidebar';
+import { Dropdown, MenuItem } from 'react-bootstrap';
+import {
+  ModalTrigger,
+  Button,
+  Icon,
+  DropdownToggle
+} from 'modules/common/components';
 import { Messenger, Form, Facebook } from '../containers';
 
 function AddIntegration() {
-  const triggerMessenger = (
-    <Button>
-      <i className="ion-chatbubbles" /> Add messenger
-    </Button>
-  );
+  const triggerMessenger = <MenuItem>Messenger</MenuItem>;
 
-  const triggerForm = (
-    <Button>
-      <i className="ion-formbubbles" /> Add form
-    </Button>
-  );
+  const triggerForm = <MenuItem>Form</MenuItem>;
 
-  const triggerFb = (
-    <Button>
-      <i className="ion-social-facebook" /> Add facebook page
-    </Button>
-  );
+  const triggerFb = <MenuItem>Facebook page</MenuItem>;
 
-  const content = (
-    <div className="margined type-box">
-      <div className="box">
-        <h2>Messenger</h2>
-
+  return (
+    <Dropdown id="dropdown-integration" pullRight>
+      <DropdownToggle bsRole="toggle">
+        <Button btnStyle="success" size="small">
+          Add integrations <Icon icon="chevron-down" />
+        </Button>
+      </DropdownToggle>
+      <Dropdown.Menu>
         <ModalTrigger title="Add messenger" trigger={triggerMessenger}>
           <Messenger />
         </ModalTrigger>
-      </div>
 
-      <div className="box">
-        <h2>Form</h2>
         <ModalTrigger title="Add form" trigger={triggerForm}>
           <Form />
         </ModalTrigger>
-      </div>
-
-      <div className="box">
-        <h2>Social integrations</h2>
-
-        <Button href="/settings/integrations/twitter">
-          <i className="ion-social-twitter" /> Add twitter
-        </Button>
 
         <ModalTrigger title="Add facebook page" trigger={triggerFb}>
           <Facebook />
         </ModalTrigger>
-      </div>
-    </div>
-  );
 
-  const breadcrumb = [
-    { title: 'Settings', link: '/settings/channels' },
-    { title: 'Integrations', link: '/settings/integrations' },
-    { title: 'Add Integrations' }
-  ];
-
-  return (
-    <div>
-      <Wrapper
-        header={<Wrapper.Header breadcrumb={breadcrumb} />}
-        leftSidebar={<Sidebar />}
-        content={content}
-      />
-    </div>
+        <MenuItem href="/settings/integrations/twitter">Twitter</MenuItem>
+      </Dropdown.Menu>
+    </Dropdown>
   );
 }
 

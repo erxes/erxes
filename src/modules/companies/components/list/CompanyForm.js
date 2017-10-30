@@ -3,11 +3,11 @@ import PropTypes from 'prop-types';
 import {
   ButtonToolbar,
   Modal,
-  Button,
   FormGroup,
   ControlLabel,
   FormControl
 } from 'react-bootstrap';
+import { Button, Icon } from 'modules/common/components';
 
 const propTypes = {
   addCompany: PropTypes.func.isRequired
@@ -58,11 +58,13 @@ class CompanyForm extends React.Component {
 
         <Modal.Footer>
           <ButtonToolbar className="pull-right">
-            <Button bsStyle="link" onClick={onClick}>
+            <Button btnStyle="simple" onClick={onClick}>
+              <Icon icon="close" />
               Cancel
             </Button>
 
-            <Button type="submit" bsStyle="primary">
+            <Button btnStyle="success" type="submit">
+              <Icon icon="checkmark" />
               Save
             </Button>
           </ButtonToolbar>

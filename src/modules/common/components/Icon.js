@@ -4,20 +4,17 @@ import styled from 'styled-components';
 
 const IconStyle = styled.i`
   margin-right: 4px;
-  font-size: ${props => props.size}px;
+  margin-left: 1px;
+  font-size: ${props => (props.size ? `${props.size}px` : 'inherit')};
 `;
 
-function Icon({ icon, size }) {
-  return <IconStyle className={`ion-${icon}`} size={size} />;
+function Icon({ ...props }) {
+  return <IconStyle {...props} className={`ion-${props.icon}`} />;
 }
 
 Icon.propTypes = {
-  icon: PropTypes.node.isRequired,
+  icon: PropTypes.string.isRequired,
   size: PropTypes.number
-};
-
-Icon.defaultProps = {
-  size: 13
 };
 
 export default Icon;

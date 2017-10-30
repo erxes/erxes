@@ -1,21 +1,23 @@
 import React from 'react';
+import { withRouter } from 'react-router';
 import PropTypes from 'prop-types';
-import { SidebarList, QuickButton, SideBarCounter } from '../../layout/styles';
+import { SidebarList, QuickButton, SidebarCounter } from '../../layout/styles';
 import { Wrapper } from 'modules/layout/components';
-import { EmptyState } from 'modules/common/components';
-import Icon from './Icon';
+import { EmptyState, Icon } from 'modules/common/components';
+import { router } from 'modules/common/utils';
 
 CountsByTag.propTypes = {
+  history: PropTypes.object.isRequired,
   tags: PropTypes.array.isRequired,
   counts: PropTypes.object.isRequired,
   manageUrl: PropTypes.string.isRequired
 };
 
-function CountsByTag({ tags, counts, manageUrl }) {
-  const { Section, filter, getActiveClass } = Wrapper.Sidebar;
+function CountsByTag({ history, tags, counts, manageUrl }) {
+  const { Section } = Wrapper.Sidebar;
 
   return (
-    <Section collapsible={tags.length > 5}>
+    <Section>
       <Section.Title>Filter by tags</Section.Title>
 
       <Section.QuickButtons>
@@ -23,11 +25,11 @@ function CountsByTag({ tags, counts, manageUrl }) {
           <Icon icon="gear-a" />
         </QuickButton>
 
-        {window.location.search.includes('tag') ? (
+        {router.getParam(history, 'tag') ? (
           <QuickButton
             tabIndex={0}
             onClick={() => {
-              filter('tag', null);
+              router.setParams(history, { tag: null });
             }}
           >
             <Icon icon="close-circled" />
@@ -41,14 +43,16 @@ function CountsByTag({ tags, counts, manageUrl }) {
             <li key={tag._id}>
               <a
                 tabIndex={0}
-                className={getActiveClass('tag', tag._id)}
+                className={
+                  router.getParam(history, 'tag') === tag._id ? 'active' : ''
+                }
                 onClick={() => {
-                  filter('tag', tag._id);
+                  router.setParams(history, { tag: tag._id });
                 }}
               >
                 <Icon icon="pricetag icon" style={{ color: tag.colorCode }} />
                 {tag.name}
-                <SideBarCounter>{counts[tag._id]}</SideBarCounter>
+                <SidebarCounter>{counts[tag._id]}</SidebarCounter>
               </a>
             </li>
           ))
@@ -60,4 +64,4 @@ function CountsByTag({ tags, counts, manageUrl }) {
   );
 }
 
-export default CountsByTag;
+export default withRouter(CountsByTag);

@@ -1,7 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Button } from 'react-bootstrap';
-import { ModalTrigger } from 'modules/common/components';
+import { ModalTrigger, Button, Icon } from 'modules/common/components';
 import { Wrapper } from 'modules/layout/components';
 import { GenerateField } from 'modules/fields/components';
 import { CustomerForm } from 'modules/customers/components';
@@ -148,8 +147,8 @@ class LeftSidebar extends React.Component {
           {this.renderCustomers()}
           {this.renderCustomFields()}
 
-          <Button type="submit" bsStyle="success" className="action-btn">
-            <i className="ion-checkmark-circled" /> Save changes
+          <Button type="submit" btnStyle="success">
+            <Icon icon="checkmark" /> Save changes
           </Button>
         </form>
       </Wrapper.Sidebar>

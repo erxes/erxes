@@ -34,11 +34,7 @@ const SortableList = SortableContainer(({ fields, onEdit }) => (
     ))}
 
     {fields.length === 0 ? (
-      <EmptyState
-        icon={<i className="ion-clipboard" />}
-        text="No items"
-        size="small"
-      />
+      <EmptyState icon="clipboard" text="No items" size="small" />
     ) : null}
   </div>
 ));

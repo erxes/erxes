@@ -1,8 +1,15 @@
 import React, { Component } from 'react';
+import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
-import { Button, Label } from 'react-bootstrap';
 import { Alert } from 'modules/common/utils';
-import { ModalTrigger, Tip, ActionButtons } from 'modules/common/components';
+import {
+  ModalTrigger,
+  Tip,
+  ActionButtons,
+  Button,
+  Label,
+  Icon
+} from 'modules/common/components';
 import { KIND_CHOICES } from '../constants';
 import { Form, Messenger } from '../containers';
 
@@ -39,9 +46,9 @@ class Row extends Component {
     const kind = integration.kind;
 
     const editTrigger = (
-      <Button bsStyle="link">
+      <Button btnStyle="link">
         <Tip text="Edit">
-          <i className="ion-edit" />
+          <Icon icon="edit" />
         </Tip>
       </Button>
     );
@@ -50,21 +57,19 @@ class Row extends Component {
       return (
         <div style={{ display: 'inline-block' }}>
           <Tip text="Appearance">
-            <Button
-              bsStyle="link"
-              href={`/settings/integrations/messenger/appearance/${integration._id}`}
+            <Link
+              to={`/settings/integrations/messenger/appearance/${integration._id}`}
             >
-              <i className="ion-paintbucket" />
-            </Button>
+              <Icon icon="paintbucket" />
+            </Link>
           </Tip>
 
           <Tip text="Hours, Availability & Other configs">
-            <Button
-              bsStyle="link"
-              href={`/settings/integrations/messenger/configs/${integration._id}`}
+            <Link
+              to={`/settings/integrations/messenger/configs/${integration._id}`}
             >
-              <i className="ion-gear-a" />
-            </Button>
+              <Icon icon="gear-a" />
+            </Link>
           </Tip>
 
           <ModalTrigger title="Edit integration" trigger={editTrigger}>
@@ -117,13 +122,12 @@ class Row extends Component {
         </td>
         <td>{integration.brand ? integration.brand.name : ''}</td>
 
-        <td className="text-right">
+        <td>
           <ActionButtons>
             {this.renderExtraLinks()}
-
             <Tip text="Delete">
-              <Button bsStyle="link" onClick={this.removeIntegration}>
-                <i className="ion-close-circled" />
+              <Button btnStyle="link" onClick={this.removeIntegration}>
+                <Icon icon="close-circled" />
               </Button>
             </Tip>
           </ActionButtons>

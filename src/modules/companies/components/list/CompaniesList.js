@@ -1,8 +1,13 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
-import { Button, Table } from '../../../common/components';
 import { Wrapper } from 'modules/layout/components';
-import { Pagination, ModalTrigger } from 'modules/common/components';
+import {
+  Pagination,
+  ModalTrigger,
+  Button,
+  Table
+} from 'modules/common/components';
 import Sidebar from './Sidebar';
 import CompanyRow from './CompanyRow';
 import CompanyForm from './CompanyForm';
@@ -26,11 +31,11 @@ function CompaniesList({
 }) {
   const content = (
     <Pagination hasMore={hasMore} loadMore={loadMore}>
-      <Table whiteSpace="nowrap">
+      <Table whiteSpace="nowrap" bordered>
         <thead>
           <tr>
             <th>
-              <a href="/companies/manage-columns">...</a>
+              <Link to="/companies/manage-columns">...</Link>
             </th>
             {columnsConfig.map(({ name, label }) => (
               <th key={name}>{label}</th>
@@ -50,7 +55,11 @@ function CompaniesList({
     </Pagination>
   );
 
-  const addTrigger = <Button btnStyle="success">Add company</Button>;
+  const addTrigger = (
+    <Button btnStyle="success" size="small">
+      Add company
+    </Button>
+  );
 
   const actionBarRight = (
     <ModalTrigger title="New company" trigger={addTrigger}>

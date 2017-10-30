@@ -1,6 +1,3 @@
-#tooltip {
-  position: fixed;
-}
 .divider {
   height: 1px;
   margin: 9px 0;
@@ -1047,61 +1044,6 @@
 .icon-option svg {
   margin-right: 10px;
   fill: #6638b3;
-}
-
-.modal-backdrop {
-  background-color: #0e0818;
-}
-.modal-backdrop.in {
-  opacity: 0.6;
-}
-
-.modal-dialog {
-  margin: 50px auto;
-}
-
-.modal-content {
-  border-radius: 4px;
-  border: 0;
-  box-shadow: 0 2px 10px -3px rgba(0, 0, 0, 0.5);
-}
-
-.modal-header {
-  padding: 30px 40px 0;
-  border: 0;
-  border-radius: 4px 4px 0 0;
-}
-.modal-header .close {
-  margin-top: 0;
-}
-
-.modal-title {
-  font-size: 18px;
-  text-align: center;
-  font-weight: 500;
-  border-bottom: 1px solid #eee;
-  padding-bottom: 30px;
-}
-
-.modal-body {
-  padding: 30px 40px;
-}
-
-.modal-footer {
-  padding: 20px 0 0;
-  margin-top: 40px;
-  border-color: #eee;
-}
-
-.close {
-  font-weight: 300;
-  text-shadow: none;
-  color: #383838;
-  opacity: 0.5;
-}
-.close:hover {
-  color: #383838;
-  opacity: 0.8;
 }
 
 .popover {
@@ -3192,9 +3134,6 @@
   white-space: nowrap;
 }
 
-.label {
-  border-radius: 4px;
-}
 .label-default {
   background-color: #7242c3;
 }
@@ -3205,7 +3144,7 @@
   background-color: #1dcaff;
 }
 .label-form {
-  background-color: #f0ad4e;
+  background-color: #f5c22b;
 }
 .label-primary {
   background-color: #888;
@@ -3244,31 +3183,6 @@
 .radio-inline input[type='radio'] {
   margin-left: -19px;
   margin-top: 3px;
-}
-
-.dropdown-menu {
-  border: 0;
-  box-shadow: 0 2px 10px -3px rgba(0, 0, 0, 0.5);
-}
-.dropdown-menu > li > a {
-  padding: 5px 20px;
-  color: #686868;
-}
-.dropdown-menu > li > a:hover {
-  color: #686868;
-  background-color: #f8f8f8;
-}
-.dropdown-menu > .active > a {
-  background-color: #f8f8f8;
-  color: #686868;
-}
-.dropdown-menu > .active > a:focus {
-  background-color: #f8f8f8;
-  color: #686868;
-}
-.dropdown-menu > .active > a:hover {
-  background-color: #f8f8f8;
-  color: #686868;
 }
 
 .nav-tabs {

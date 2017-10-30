@@ -1,4 +1,5 @@
 import Header from './Header';
+import QuickNavigation from './QuickNavigation';
 import AuthLayout from './AuthLayout';
 import MainLayout from './MainLayout';
 import Navigation from './Navigation';
@@ -9,6 +10,7 @@ import Wrapper from './Wrapper';
 
 export {
   Header,
+  QuickNavigation,
   AuthLayout,
   MainLayout,
   Navigation,

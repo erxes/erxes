@@ -1,5 +1,6 @@
-import SignInContainer from './SignInContainer';
-import ForgotPasswordContainer from './ForgotPasswordContainer';
-import ResetPasswordContainer from './ResetPasswordContainer';
+import SignIn from './SignIn';
+import ForgotPassword from './ForgotPassword';
+import ResetPassword from './ResetPassword';
+import withCurrentUser from './withCurrentUser';
 
-export { SignInContainer, ForgotPasswordContainer, ResetPasswordContainer };
+export { withCurrentUser, SignIn, ForgotPassword, ResetPassword };

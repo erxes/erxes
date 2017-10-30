@@ -1,5 +1,5 @@
 import React from 'react';
-import { Table } from 'react-bootstrap';
+import { Table } from 'modules/common/components';
 import { List } from '../../common/components';
 import BrandForm from './BrandForm';
 import Row from './Row';
@@ -28,7 +28,7 @@ class BrandList extends List {
             <th>Code</th>
             <th>Description</th>
             <th width="135">Created At</th>
-            <th className="text-right">Actions</th>
+            <th>Actions</th>
           </tr>
         </thead>
         <tbody>{this.renderObjects()}</tbody>

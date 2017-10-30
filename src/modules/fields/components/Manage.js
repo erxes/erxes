@@ -8,9 +8,9 @@ import {
   ControlLabel,
   FormControl,
   Checkbox,
-  ButtonGroup,
-  Button
+  ButtonGroup
 } from 'react-bootstrap';
+import { Button } from 'modules/common/components';
 import { Wrapper } from 'modules/layout/components';
 import FieldsPreview from './FieldsPreview';
 
@@ -134,13 +134,13 @@ class Manage extends Component {
 
       return (
         <ButtonGroup>
-          <Button bsSize="small" bsStyle="danger" onClick={onDelete}>
+          <Button size="small" btnStyle="danger" onClick={onDelete}>
             Delete
           </Button>
-          <Button bsSize="small" bsStyle="primary" onClick={reset}>
+          <Button size="small" btnStyle="success" onClick={reset}>
             New
           </Button>
-          <Button bsSize="small" type="submit" bsStyle="success">
+          <Button size="small" type="submit" btnStyle="success">
             Save
           </Button>
         </ButtonGroup>
@@ -149,7 +149,7 @@ class Manage extends Component {
 
     return (
       <ButtonGroup>
-        <Button bsSize="small" type="submit" bsStyle="success">
+        <Button size="small" type="submit" btnStyle="success">
           Add
         </Button>
       </ButtonGroup>

@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Label } from 'react-bootstrap';
+import { Label } from 'modules/common/components';
 
 const SIZES = ['small', 'medium', 'large'];
 

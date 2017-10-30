@@ -3,7 +3,6 @@ import { Route } from 'react-router-dom';
 import queryString from 'query-string';
 import { MainLayout } from '../../layout/containers';
 import { List, MessengerAppearance, MessengerConfigs } from './containers';
-import { AddIntegration } from './components';
 
 const routes = () => [
   <Route
@@ -25,15 +24,6 @@ const routes = () => [
       return (
         <MainLayout content={<MessengerAppearance integrationId={id} />} />
       );
-    }}
-  />,
-
-  <Route
-    key="/settings/integrations/add"
-    exact
-    path="/settings/integrations/add"
-    component={() => {
-      return <MainLayout content={<AddIntegration />} />;
     }}
   />,
 

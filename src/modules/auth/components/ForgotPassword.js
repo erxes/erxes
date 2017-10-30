@@ -1,13 +1,17 @@
 import React, { Component } from 'react';
+import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
-import { FormGroup, FormControl, Button, Col, Grid } from 'react-bootstrap';
-import { Alert } from 'modules/common/utils';
 import styled from 'styled-components';
+import { FormGroup, FormControl, Col, Grid } from 'react-bootstrap';
+import { Alert } from 'modules/common/utils';
 import { AuthContent, AuthDescription, AuthBox } from '../styles';
+import { Button } from 'modules/common/components';
+
 const Links = styled.div`
   margin-top: 70px;
   text-align: center;
 `;
+
 const propTypes = {
   forgotPassword: PropTypes.func.isRequired
 };
@@ -16,9 +20,7 @@ class ForgotPassword extends Component {
   constructor(props) {
     super(props);
 
-    this.state = {
-      email: ''
-    };
+    this.state = { email: '' };
 
     this.handleSubmit = this.handleSubmit.bind(this);
     this.handleEmailChange = this.handleEmailChange.bind(this);
@@ -30,13 +32,9 @@ class ForgotPassword extends Component {
     const { email } = this.state;
 
     this.props.forgotPassword({ email }, err => {
-      if (err) {
-        return Alert.error('Email address is not registered');
+      if (!err) {
+        window.location.href = '/sign-in';
       }
-
-      Alert.success('Password reset instruction is sent to your email');
-
-      window.location.href = '/sign-in';
     });
   }
 

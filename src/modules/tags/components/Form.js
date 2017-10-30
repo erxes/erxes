@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { FormGroup, ControlLabel, FormControl, Button } from 'react-bootstrap';
+import { FormGroup, ControlLabel, FormControl } from 'react-bootstrap';
+import { Button } from 'modules/common/components';
 
 const propTypes = {
   tag: PropTypes.object,
@@ -79,7 +80,9 @@ class Form extends Component {
           />
         </FormGroup>
 
-        <Button type="submit">Save</Button>
+        <Button btnStyle="success" type="submit">
+          Save
+        </Button>
       </form>
     );
   }

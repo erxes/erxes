@@ -3,7 +3,6 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import {
   Modal,
-  Button,
   ButtonToolbar,
   FormGroup,
   FormControl,
@@ -11,6 +10,7 @@ import {
   Checkbox
 } from 'react-bootstrap';
 import SelectBrand from './SelectBrand';
+import { Button } from 'modules/common/components';
 
 class Facebook extends Component {
   constructor(props, context) {
@@ -115,7 +115,7 @@ class Facebook extends Component {
 
         <Modal.Footer>
           <ButtonToolbar className="pull-right">
-            <Button type="submit" bsStyle="primary">
+            <Button btnStyle="success" type="submit">
               Save
             </Button>
           </ButtonToolbar>

@@ -1,11 +1,12 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { FormGroup, FormControl, Button, Col, Grid } from 'react-bootstrap';
+import { FormGroup, FormControl, Col, Grid } from 'react-bootstrap';
+import { Button } from 'modules/common/components';
 import { Alert } from 'modules/common/utils';
 import { AuthContent, AuthDescription, AuthBox } from '../styles';
 
+
 const propTypes = {
-  token: PropTypes.string.isRequired,
   resetPassword: PropTypes.func.isRequired
 };
 
@@ -21,15 +22,7 @@ class ResetPassword extends Component {
   handleSubmit(e) {
     e.preventDefault();
 
-    const { token, resetPassword } = this.props;
-
-    resetPassword(token, this.state.newPassword, err => {
-      if (err) {
-        return Alert.error("Couldn't reset your password");
-      }
-
-      window.location.href = '/';
-    });
+    this.props.resetPassword(this.state.newPassword);
   }
 
   handlePasswordChange(e) {
