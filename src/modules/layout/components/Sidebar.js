@@ -10,6 +10,7 @@ import {
   SidebarMainContent,
   SidebarFooter
 } from '../styles';
+import { Icon } from 'modules/common/components';
 
 const propTypes = {
   children: PropTypes.node,
@@ -47,10 +48,10 @@ class Section extends Component {
   }
 
   renderCollapseButton() {
-    const icon = this.state.collapse ? 'ion-chevron-up' : 'ion-chevron-down';
+    const icon = this.state.collapse ? 'chevron-up' : 'chevron-down';
     return (
       <SidebarToggle tabIndex={0} onClick={this.toggleCollapse}>
-        <i className={icon} />
+        <Icon icon={icon} />
       </SidebarToggle>
     );
   }
