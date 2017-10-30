@@ -1,15 +1,8 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { FormGroup, FormControl, Button } from 'react-bootstrap';
+import { FormGroup, FormControl, Button, Col, Grid } from 'react-bootstrap';
 import { Alert } from 'modules/common/utils';
-import {
-  AuthContent,
-  Container,
-  Divcolmd7,
-  AuthDescription,
-  Divcolmd5,
-  AuthBox
-} from '../styles';
+import { AuthContent, AuthDescription, AuthBox } from '../styles';
 
 const propTypes = {
   token: PropTypes.string.isRequired,
@@ -48,8 +41,8 @@ class ResetPassword extends Component {
   render() {
     return (
       <AuthContent className="auth-content">
-        <Container>
-          <Divcolmd7>
+        <Grid>
+          <Col md={7}>
             <AuthDescription>
               <img src="/images/logo.png" alt="erxes" />
               <h1>Customer engagement. Redefined.</h1>
@@ -59,8 +52,8 @@ class ResetPassword extends Component {
               </p>
               <a href="http://erxes.io/">« Go to home page</a>
             </AuthDescription>
-          </Divcolmd7>
-          <Divcolmd5>
+          </Col>
+          <Col md={5}>
             <AuthBox>
               <h2>Set your new password</h2>
               <form onSubmit={this.handleSubmit}>
@@ -77,8 +70,8 @@ class ResetPassword extends Component {
                 </Button>
               </form>
             </AuthBox>
-          </Divcolmd5>
-        </Container>
+          </Col>
+        </Grid>
       </AuthContent>
     );
   }

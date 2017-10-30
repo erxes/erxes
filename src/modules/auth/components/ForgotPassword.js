@@ -1,16 +1,9 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { FormGroup, FormControl, Button } from 'react-bootstrap';
+import { FormGroup, FormControl, Button, Col, Grid } from 'react-bootstrap';
 import { Alert } from 'modules/common/utils';
 import styled from 'styled-components';
-import {
-  AuthContent,
-  Container,
-  Divcolmd7,
-  AuthDescription,
-  Divcolmd5,
-  AuthBox
-} from '../styles';
+import { AuthContent, AuthDescription, AuthBox } from '../styles';
 const Links = styled.div`
   margin-top: 70px;
   text-align: center;
@@ -55,8 +48,8 @@ class ForgotPassword extends Component {
   render() {
     return (
       <AuthContent>
-        <Container>
-          <Divcolmd7>
+        <Grid>
+          <Col md={7}>
             <AuthDescription>
               <img src="/images/logo.png" alt="erxes" />
               <h1>Customer engagement. Redefined.</h1>
@@ -66,8 +59,8 @@ class ForgotPassword extends Component {
               </p>
               <a href="http://erxes.io/">« Go to home page</a>
             </AuthDescription>
-          </Divcolmd7>
-          <Divcolmd5>
+          </Col>
+          <Col md={5}>
             <AuthBox>
               <h2>Reset your password</h2>
               <form onSubmit={this.handleSubmit}>
@@ -88,8 +81,8 @@ class ForgotPassword extends Component {
                 <a href="/sign-in">Sign in</a>
               </Links>
             </AuthBox>
-          </Divcolmd5>
-        </Container>
+          </Col>
+        </Grid>
       </AuthContent>
     );
   }

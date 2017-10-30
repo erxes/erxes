@@ -5,12 +5,7 @@ const AuthContent = styled.div`
   top: 50%;
   transform: translateY(-50%);
 `;
-const Container = styled.div.attrs({
-  className: 'container'
-})``;
-const Divcolmd7 = styled.div.attrs({
-  className: 'col-md-7'
-})``;
+
 const AuthDescription = styled.div`
   margin-top: 60px;
   img {
@@ -36,9 +31,6 @@ const AuthDescription = styled.div`
     margin-top: 0;
   }
 `;
-const Divcolmd5 = styled.div.attrs({
-  className: 'col-md-5'
-})``;
 const AuthBox = styled.div`
   background-color: #fff;
   padding: 70px 60px;
@@ -82,11 +74,4 @@ const AuthBox = styled.div`
     }
   }
 `;
-export {
-  AuthContent,
-  Container,
-  Divcolmd7,
-  AuthDescription,
-  Divcolmd5,
-  AuthBox
-};
+export { AuthContent, AuthDescription, AuthBox };
