@@ -92,7 +92,8 @@ const ButtonStyled = styled.button`
       padding: 8px 0;
     }
 
-    & + button {
+    & + button,
+    + a {
       margin-left: 10px;
     }
   `};

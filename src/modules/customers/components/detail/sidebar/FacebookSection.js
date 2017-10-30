@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Wrapper } from 'modules/layout/components';
+import { SidebarList, SidebarCounter } from 'modules/layout/styles';
 
 const propTypes = {
   customer: PropTypes.object.isRequired
@@ -18,12 +19,12 @@ function FacebookSection({ customer }) {
   return (
     <Wrapper.Sidebar.Section>
       <Title>Facebook</Title>
-      <ul className="sidebar-list no-link">
+      <SidebarList className="no-link">
         <li>
           ID
-          <span className="counter">{facebookData.id}</span>
+          <SidebarCounter>{facebookData.id}</SidebarCounter>
         </li>
-      </ul>
+      </SidebarList>
     </Wrapper.Sidebar.Section>
   );
 }

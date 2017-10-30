@@ -1,12 +1,14 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import moment from 'moment';
-import { Button, Label } from 'react-bootstrap';
 import {
   Tip,
   ActionButtons,
   NameCard,
-  FormControl
+  FormControl,
+  Button,
+  Label,
+  Icon
 } from 'modules/common/components';
 import { EngageTitle } from '../styles';
 import { MESSAGE_KINDS } from 'modules/engage/constants';
@@ -31,8 +33,8 @@ class Row extends React.Component {
   renderLink(text, className, onClick) {
     return (
       <Tip text={text} key={`${text}-${this.props.message._id}`}>
-        <Button bsStyle="link" onClick={onClick}>
-          <i className={className} />
+        <Button btnStyle="link" onClick={onClick}>
+          <Icon icon={className} />
         </Button>
       </Tip>
     );
@@ -40,11 +42,11 @@ class Row extends React.Component {
 
   renderLinks() {
     const msg = this.props.message;
-    const edit = this.renderLink('Edit', 'ion-edit', this.props.edit);
-    const pause = this.renderLink('Pause', 'ion-pause', this.props.setPause);
+    const edit = this.renderLink('Edit', 'edit', this.props.edit);
+    const pause = this.renderLink('Pause', 'pause', this.props.setPause);
     const live = this.renderLink(
       'Set live',
-      'ion-paper-airplane',
+      'paper-airplane',
       this.props.setLive
     );
 
@@ -63,7 +65,7 @@ class Row extends React.Component {
     if (msg.isDraft) {
       return this.renderLink(
         'Set live',
-        'ion-paper-airplane',
+        'paper-airplane',
         this.props.setLiveManual
       );
     }
@@ -79,7 +81,7 @@ class Row extends React.Component {
     if (message.segment) {
       return (
         <div>
-          <i className="ion-pie-graph" /> {message.segment.name}
+          <Icon icon="pie-graph" /> {message.segment.name}
         </div>
       );
     }
@@ -88,14 +90,13 @@ class Row extends React.Component {
 
     return rules.map(rule => (
       <div key={rule._id}>
-        <i className="ion-pie-graph" /> {rule.text} {rule.condition}{' '}
-        {rule.value}
+        <Icon icon="pie-graph" /> {rule.text} {rule.condition} {rule.value}
       </div>
     ));
   }
 
   render() {
-    let status = <Label bsStyle="info">Sending</Label>;
+    let status = <Label lblStyle="default">Sending</Label>;
     let successCount = 0;
     let failedCount = 0;
 
@@ -115,7 +116,7 @@ class Row extends React.Component {
     });
 
     if (totalCount === successCount + failedCount) {
-      status = <Label bsStyle="success">Sent</Label>;
+      status = <Label lblStyle="success">Sent</Label>;
     }
 
     return (
@@ -125,7 +126,7 @@ class Row extends React.Component {
         </td>
         <td>
           <EngageTitle>{message.title} </EngageTitle>
-          {message.isDraft ? <Label bsStyle="primary">Draft</Label> : null}
+          {message.isDraft ? <Label lblStyle="primary">Draft</Label> : null}
           {this.renderRules()}
         </td>
         <td className="text-normal">
@@ -133,31 +134,31 @@ class Row extends React.Component {
         </td>
         <td>{status}</td>
         <td className="cell-icon text-primary">
-          <i className="ion-cube" />
+          <Icon icon="cube" />
           <b> {totalCount}</b>
         </td>
         <td className="cell-icon text-success">
-          <i className="ion-checkmark-circled" />
+          <Icon icon="checkmark" />
           <b> {successCount}</b>
         </td>
         <td className="cell-icon text-warning">
-          <i className="ion-alert-circled" />
+          <Icon icon="alert" />
           <b> {failedCount}</b>
         </td>
 
         <td>
           {message.email ? (
             <div>
-              <i className="ion-email" /> Email
+              <Icon icon="email" /> Email
             </div>
           ) : (
             <div>
-              <i className="ion-chatbox" /> Messenger
+              <Icon icon="chatbox" /> Messenger
             </div>
           )}
         </td>
         <td>
-          <i className="ion-calendar" />{' '}
+          <Icon icon="calendar" />{' '}
           {moment(message.createdDate).format('DD MMM YYYY')}
         </td>
 
@@ -166,8 +167,8 @@ class Row extends React.Component {
             {this.renderLinks()}
 
             <Tip text="Delete">
-              <Button bsStyle="link" onClick={remove}>
-                <i className="ion-close-circled" />
+              <Button btnStyle="link" onClick={remove}>
+                <Icon icon="close" />
               </Button>
             </Tip>
           </ActionButtons>

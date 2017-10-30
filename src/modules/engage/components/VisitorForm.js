@@ -1,6 +1,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { FormControl, Button, ControlLabel, FormGroup } from 'react-bootstrap';
+import { ControlLabel } from 'react-bootstrap';
+import {
+  FormControl,
+  Button,
+  FormGroup,
+  Icon
+} from 'modules/common/components';
 
 import {
   VISITOR_AUDIENCE_RULES,
@@ -129,11 +135,11 @@ class VisitorForm extends FormBase {
 
           <Button
             className="flex-item"
-            bsSize="small"
+            size="small"
             onClick={remove}
-            bsStyle="danger"
+            btnStyle="danger"
           >
-            <i className="ion-close-round" />
+            <Icon icon="close" />
           </Button>
         </div>
       </FormGroup>

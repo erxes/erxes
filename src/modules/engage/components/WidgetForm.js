@@ -1,14 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import {
-  FormGroup,
-  ControlLabel,
-  FormControl,
-  ButtonToolbar,
-  Modal,
-  Button
-} from 'react-bootstrap';
-
+import { ControlLabel, ButtonToolbar, Modal } from 'react-bootstrap';
+import { FormGroup, FormControl, Button } from 'modules/common/components';
 import { METHODS } from 'modules/engage/constants';
 import Editor from './Editor';
 
@@ -184,7 +177,7 @@ class WidgetForm extends Component {
 
         <Modal.Footer>
           <ButtonToolbar className="pull-right">
-            <Button type="submit" bsStyle="primary">
+            <Button type="submit" btnStyle="success">
               Send
             </Button>
           </ButtonToolbar>
