@@ -13,6 +13,10 @@ const ActionButton = styled.div`
   a {
     padding: 0;
     margin-left: 16px;
+
+    &:first-child {
+      margin-left: 0;
+    }
   }
 `;
 

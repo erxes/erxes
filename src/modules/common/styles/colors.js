@@ -35,6 +35,7 @@ const textOverlay = '#fff';
 
 // Shadow colors
 const shadowPrimary = rgba(colorShadowGray, 0.5);
+const darkShadow = rgba(colorBlack, 0.2);
 
 // Social colors
 const socialFacebook = '#3a5999';
@@ -70,6 +71,7 @@ export default {
   textOverlay,
 
   shadowPrimary,
+  darkShadow,
 
   socialFacebook,
   socialFacebookMessenger,

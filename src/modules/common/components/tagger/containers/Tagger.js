@@ -6,9 +6,9 @@ import Tagger from '../components/Tagger';
 const TaggerContainer = props => {
   const { tagsQuery, tagMutation } = props;
 
-  const tag = ({ type, targetIds, tagIds }, callback) => {
+  const tag = (variables, callback) => {
     tagMutation({
-      variables: { type, targetIds, tagIds }
+      variables
     })
       .then(() => {
         callback();
@@ -19,6 +19,7 @@ const TaggerContainer = props => {
   };
 
   const updatedProps = {
+    ...props,
     loading: tagsQuery.loading,
     tags: tagsQuery.tags || [],
     tag
@@ -33,12 +34,22 @@ TaggerContainer.propTypes = {
 };
 
 const tagsQuery = gql`
-  query GetTags($type: String!) {
+  query($type: String!) {
     tags(type: $type) {
       _id
       name
       colorCode
     }
+  }
+`;
+
+const tagMutation = gql`
+  mutation tagsTag(
+    $type: String!
+    $targetIds: [String!]!
+    $tagIds: [String!]!
+  ) {
+    tagsTag(type: $type, targetIds: $targetIds, tagIds: $tagIds)
   }
 `;
 
@@ -48,5 +59,8 @@ export default compose(
     options: props => ({
       variables: { type: props.type }
     })
+  }),
+  graphql(tagMutation, {
+    name: 'tagMutation'
   })
 )(TaggerContainer);

@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
+import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import { Button, FormControl, FormGroup } from 'modules/common/components';
+import { AuthBox, Links } from '../styles';
 
 const propTypes = {
   forgotPassword: PropTypes.func.isRequired
@@ -35,7 +37,7 @@ class ForgotPassword extends Component {
 
   render() {
     return (
-      <div className="auth-box">
+      <AuthBox>
         <h2>Reset your password</h2>
         <form onSubmit={this.handleSubmit}>
           <FormGroup>
@@ -51,11 +53,10 @@ class ForgotPassword extends Component {
             Email me the instruction
           </Button>
         </form>
-
-        <div className="links">
-          <a href="/sign-in">Sign in</a>
-        </div>
-      </div>
+        <Links>
+          <Link to="/sign-in">Sign in</Link>
+        </Links>
+      </AuthBox>
     );
   }
 }

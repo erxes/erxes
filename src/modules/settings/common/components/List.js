@@ -43,8 +43,8 @@ class List extends Component {
     const { loadMore, hasMore, save } = this.props;
 
     const trigger = (
-      <Button btnStyle="success">
-        <Icon icon="plus-circled" /> {this.title}
+      <Button btnStyle="success" size="small">
+        <Icon icon="plus" /> {this.title}
       </Button>
     );
 
@@ -64,7 +64,7 @@ class List extends Component {
       <Wrapper
         header={<Wrapper.Header breadcrumb={this.breadcrumb()} />}
         leftSidebar={<Sidebar />}
-        actionBar={<Wrapper.ActionBar left={actionBarLeft} />}
+        actionBar={<Wrapper.ActionBar right={actionBarLeft} />}
         content={content}
       />
     );

@@ -79,6 +79,7 @@ class Section extends Component {
 function Title({ children }) {
   return <SidebarTitle>{children}</SidebarTitle>;
 }
+
 Title.propTypes = {
   children: PropTypes.node.isRequired
 };
@@ -102,6 +103,7 @@ Footer.propTypes = {
 function QuickButtons({ children }) {
   return <HelperButtons>{children}</HelperButtons>;
 }
+
 QuickButtons.propTypes = {
   children: PropTypes.node
 };

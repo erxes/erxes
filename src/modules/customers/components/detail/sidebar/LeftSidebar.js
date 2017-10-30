@@ -82,7 +82,7 @@ class LeftSidebar extends React.Component {
             <div key={index}>
               <p>
                 <label>Name:</label>
-                <input value={company.name} />
+                <input defaultValue={company.name} />
               </p>
             </div>
           ))}

@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import { Wrapper } from 'modules/layout/components';
 import {
@@ -9,9 +10,8 @@ import {
   Table
 } from 'modules/common/components';
 import { BarItems } from 'modules/layout/styles';
-// TODO
-// import { Widget } from '/imports/react-ui/engage/containers';
-import Sidebar from './sidebar/Sidebar';
+import { Widget } from 'modules/engage/containers';
+import Sidebar from './Sidebar';
 import CustomerRow from './CustomerRow';
 import CustomerForm from './CustomerForm';
 
@@ -45,7 +45,7 @@ class CustomersList extends React.Component {
           <thead>
             <tr>
               <th>
-                <a href="/customers/manage-columns">...</a>
+                <Link to="/customers/manage-columns">...</Link>
               </th>
               {columnsConfig.map(({ name, label }) => (
                 <th key={name}>{label}</th>
@@ -68,7 +68,7 @@ class CustomersList extends React.Component {
   }
 
   render() {
-    const { counts, brands, integrations, tags, addCustomer } = this.props;
+    const { counts, bulk, addCustomer } = this.props;
 
     const addTrigger = (
       <Button btnStyle="success" size="small">
@@ -92,9 +92,8 @@ class CustomersList extends React.Component {
 
     const actionBarLeft = (
       <BarItems>
-        <Button btnStyle="success" size="small">
-          <Icon icon="email" /> Message
-        </Button>
+        {bulk.length > 0 ? <Widget customers={bulk} /> : null}
+
         <Button btnStyle="simple" size="small">
           <Icon icon="ios-pricetag" /> Tag
         </Button>
@@ -105,22 +104,16 @@ class CustomersList extends React.Component {
     );
 
     const actionBar = (
-      <Wrapper.ActionBar left={actionBarLeft} right={actionBarRight} invert />
+      <Wrapper.ActionBar left={actionBarLeft} right={actionBarRight} />
     );
+
     const breadcrumb = [{ title: `Customers (${counts.all})` }];
 
     return (
       <Wrapper
         header={<Wrapper.Header breadcrumb={breadcrumb} />}
         actionBar={actionBar}
-        leftSidebar={
-          <Sidebar
-            counts={counts}
-            brands={brands}
-            integrations={integrations}
-            tags={tags}
-          />
-        }
+        leftSidebar={<Sidebar counts={counts} />}
         content={this.renderContent()}
       />
     );

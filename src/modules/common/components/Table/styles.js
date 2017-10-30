@@ -1,5 +1,6 @@
 import styled, { css } from 'styled-components';
 import { colors, dimensions, typography } from '../../styles';
+import { Input, FormLabel } from '../Form/styles';
 
 const tableBgColor = '#f9f9f9';
 const tableHoverColor = '#f5f5f5';
@@ -19,8 +20,11 @@ const StyledTable = styled.table`
       color: ${colors.textSecondary};
       padding: ${dimensions.unitSpacing}px;
       display: table-cell;
-      background-color: ${colors.colorWhite};
       font-weight: ${typography.fontWeightLight};
+
+      & ${FormLabel}, & ${Input} {
+        margin: 0px;
+      }
     }
 
     thead {
@@ -57,6 +61,10 @@ const StyledTable = styled.table`
       margin-left: 12px;
       opacity: 0;
       transition: all 0.3s ease;
+
+      i {
+        margin: 0px;
+      }
     }
 
     td.table-field-name:hover .button-icon {

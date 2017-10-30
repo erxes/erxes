@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import {
   Form,
@@ -12,6 +13,7 @@ import {
 } from 'react-bootstrap';
 import { Button, Icon } from 'modules/common/components';
 import { Wrapper } from 'modules/layout/components';
+import { ContentSpace } from 'modules/layout/styles';
 import Conditions from './Conditions';
 import AddConditionButton from './AddConditionButton';
 
@@ -147,16 +149,16 @@ class SegmentsForm extends Component {
             <Button btnStyle="success" onClick={this.save}>
               <Icon icon="checkmark" /> Save
             </Button>
-            <Button btnStyle="simple" href={`/segments/${contentType}`}>
+            <Link to={`/segments/${contentType}`}>
               <Icon icon="close" /> Cancel
-            </Button>
+            </Link>
           </ButtonGroup>
         }
       />
     );
 
     const content = (
-      <div className="margined">
+      <ContentSpace>
         <Row>
           <Col sm={5}>
             <Form onSubmit={this.save}>
@@ -242,7 +244,7 @@ class SegmentsForm extends Component {
             </Panel>
           </Col>
         </Row>
-      </div>
+      </ContentSpace>
     );
 
     return (

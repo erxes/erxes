@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import { Alert } from 'modules/common/utils';
 import {
@@ -56,21 +57,19 @@ class Row extends Component {
       return (
         <div style={{ display: 'inline-block' }}>
           <Tip text="Appearance">
-            <Button
-              btnStyle="link"
-              href={`/settings/integrations/messenger/appearance/${integration._id}`}
+            <Link
+              to={`/settings/integrations/messenger/appearance/${integration._id}`}
             >
               <Icon icon="paintbucket" />
-            </Button>
+            </Link>
           </Tip>
 
           <Tip text="Hours, Availability & Other configs">
-            <Button
-              btnStyle="link"
-              href={`/settings/integrations/messenger/configs/${integration._id}`}
+            <Link
+              to={`/settings/integrations/messenger/configs/${integration._id}`}
             >
               <Icon icon="gear-a" />
-            </Button>
+            </Link>
           </Tip>
 
           <ModalTrigger title="Edit integration" trigger={editTrigger}>

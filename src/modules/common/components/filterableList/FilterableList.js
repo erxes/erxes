@@ -1,5 +1,11 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import {
+  PopoverHeader,
+  PopoverBody,
+  PopoverList,
+  PopoverFooter
+} from './styles';
 import Filter from './Filter';
 
 const propTypes = {
@@ -20,6 +26,7 @@ const propTypes = {
     })
   ),
   showCheckmark: PropTypes.bool,
+  selectable: PropTypes.bool,
   className: PropTypes.string,
 
   // hooks
@@ -43,6 +50,7 @@ class FilterableList extends Component {
   componentWillUnmount() {
     // onExit hook
     const { onExit } = this.props;
+
     if (onExit) onExit(this.state.items);
   }
 
@@ -97,26 +105,28 @@ class FilterableList extends Component {
   render() {
     return (
       <div className={this.props.className}>
-        <div className="popover-header">
+        <PopoverHeader>
           <Filter onChange={this.filterItems} />
-        </div>
+        </PopoverHeader>
 
-        <div className="popover-body">
-          <ul className="popover-list selectable">{this.renderItems()}</ul>
-        </div>
-
-        <div className="popover-footer">
-          <ul className="popover-list linked">
-            {this.props.links &&
-              this.props.links.map(link => (
+        <PopoverBody>
+          <PopoverList selectable={this.props.selectable}>
+            {this.renderItems()}
+          </PopoverList>
+        </PopoverBody>
+        {this.props.links && (
+          <PopoverFooter>
+            <PopoverList>
+              {this.props.links.map(link => (
                 <li key={link.href}>
                   <a onClick={link.onClick} href={link.href}>
                     {link.title}
                   </a>
                 </li>
               ))}
-          </ul>
-        </div>
+            </PopoverList>
+          </PopoverFooter>
+        )}
       </div>
     );
   }

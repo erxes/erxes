@@ -12,6 +12,7 @@ const propTypes = {
   type: PropTypes.string,
   name: PropTypes.string,
   required: PropTypes.bool,
+  round: PropTypes.bool,
   componentClass: PropTypes.oneOf([
     'select',
     'radio',
@@ -50,6 +51,7 @@ class FormControl extends React.Component {
       placeholder: props.placeholder,
       type: props.type,
       name: props.name,
+      round: props.round,
       required: props.required
     };
 

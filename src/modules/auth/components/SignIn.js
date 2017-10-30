@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
+import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import { Button, FormControl, FormGroup } from 'modules/common/components';
+import { AuthBox, Links } from '../styles';
 
 const propTypes = {
   login: PropTypes.func.isRequired
@@ -40,7 +42,7 @@ class SignIn extends Component {
 
   render() {
     return (
-      <div className="auth-box">
+      <AuthBox>
         <h2>Sign In</h2>
         <form onSubmit={this.login}>
           <FormGroup>
@@ -65,11 +67,10 @@ class SignIn extends Component {
             Sign in
           </Button>
         </form>
-
-        <div className="links">
-          <a href="/forgot-password">Forgot password?</a>
-        </div>
-      </div>
+        <Links>
+          <Link to="/forgot-password">Forgot password?</Link>
+        </Links>
+      </AuthBox>
     );
   }
 }

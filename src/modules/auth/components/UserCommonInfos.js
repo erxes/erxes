@@ -70,11 +70,7 @@ class UserCommonInfos extends Component {
 
         <FormGroup>
           <ControlLabel>Email</ControlLabel>
-          <FormControl
-            type="email"
-            id="email"
-            defaultValue={user.emails[0].address}
-          />
+          <FormControl type="email" id="email" defaultValue={user.email} />
         </FormGroup>
 
         <FormGroup>

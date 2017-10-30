@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import { Wrapper } from 'modules/layout/components';
 import {
@@ -34,7 +35,7 @@ function CompaniesList({
         <thead>
           <tr>
             <th>
-              <a href="/companies/manage-columns">...</a>
+              <Link to="/companies/manage-columns">...</Link>
             </th>
             {columnsConfig.map(({ name, label }) => (
               <th key={name}>{label}</th>
@@ -66,7 +67,7 @@ function CompaniesList({
     </ModalTrigger>
   );
 
-  const actionBar = <Wrapper.ActionBar right={actionBarRight} invert />;
+  const actionBar = <Wrapper.ActionBar right={actionBarRight} />;
   const breadcrumb = [{ title: `Companies (${counts.all})` }];
 
   return (

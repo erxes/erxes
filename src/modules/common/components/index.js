@@ -28,6 +28,7 @@ import FormGroup from './FormGroup';
 import TextDivider from './TextDivider';
 import CountsByTag from './CountsByTag';
 import Table from './Table';
+import Editor from './Editor';
 
 export {
   ActionButtons,
@@ -60,5 +61,6 @@ export {
   FormGroup,
   ControlLabel,
   TextDivider,
-  Table
+  Table,
+  Editor
 };

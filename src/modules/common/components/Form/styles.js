@@ -25,6 +25,17 @@ const Input = styled.input`
   border-bottom: 1px solid ${colors.colorCoreLightGray};
   background: ${colors.colorWhite};
 
+  ${props => {
+    if (props.round) {
+      return `
+        font-size: 13px;
+        border: 1px solid #ddd;
+        border-radius: 20px;
+        padding: 5px 20px;
+      `;
+    }
+  }};
+
   &:focus {
     outline: none;
   }

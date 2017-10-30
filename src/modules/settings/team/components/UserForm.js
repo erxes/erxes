@@ -68,7 +68,7 @@ class UserForm extends CommonForm {
   }
 
   renderContent(object) {
-    const user = object._id ? object : { details: {}, emails: [{}] };
+    const user = object._id ? object : { details: {} };
 
     return (
       <div>

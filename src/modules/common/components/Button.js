@@ -81,7 +81,7 @@ const ButtonStyled = styled.button`
       cursor: pointer;
       box-shadow: ${types[props.btnStyle] === types.link
         ? 'none'
-        : '0 0 4px 0 #888'};
+        : '0 0 4px 0 #aaa'};
       color: ${types[props.btnStyle].color !== colors.colorWhite
         ? darken(colors.colorCoreGray, 24)
         : ''};
@@ -103,9 +103,9 @@ const Link = ButtonStyled.withComponent('a');
 const ButtonLink = Link.extend`
   text-decoration: inherit;
   text-align: center;
+  pointer-events: ${props => props.disabled && 'none'};
   background: ${props =>
     props.disabled && lighten(types[props.btnStyle].background, 30)};
-  pointer-events: ${props => props.disabled && 'none'};
 `;
 
 const ButtonIcon = Link.extend`

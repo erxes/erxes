@@ -5,6 +5,7 @@ import { compose, graphql, gql } from 'react-apollo';
 import { SignIn } from '../components';
 import { mutations } from '../graphql';
 import consts from 'consts';
+import apolloClient from 'apolloClient';
 
 const SignInContainer = props => {
   const { loginMutation, history } = props;
@@ -19,6 +20,8 @@ const SignInContainer = props => {
         // save tokens
         localStorage.setItem(LOGIN_TOKEN_KEY, token);
         localStorage.setItem(LOGIN_REFRESH_TOKEN_KEY, refreshToken);
+
+        apolloClient.resetStore();
 
         history.push('/');
       })

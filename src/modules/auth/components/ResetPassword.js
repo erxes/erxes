@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Button, FormControl, FormGroup } from 'modules/common/components';
+import { AuthBox } from '../styles';
 
 const propTypes = {
   resetPassword: PropTypes.func.isRequired
@@ -29,7 +30,7 @@ class ResetPassword extends Component {
 
   render() {
     return (
-      <div className="auth-box">
+      <AuthBox>
         <h2>Set your new password</h2>
         <form onSubmit={this.handleSubmit}>
           <FormGroup>
@@ -44,7 +45,7 @@ class ResetPassword extends Component {
             Change password
           </Button>
         </form>
-      </div>
+      </AuthBox>
     );
   }
 }
