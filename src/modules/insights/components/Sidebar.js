@@ -1,32 +1,27 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Wrapper } from 'modules/layout/components';
+import { SidebarList } from 'modules/layout/styles';
 
 function Sidebar() {
   const Sidebar = Wrapper.Sidebar;
   const { Title } = Sidebar.Section;
 
   return (
-    <Sidebar full>
+    <Sidebar>
       <Sidebar.Section noShadow>
         <Title>Insights</Title>
-        <ul className="sidebar-list">
+        <SidebarList>
           <li>
-            <Link to="/insights">
-              <i className="icon ion-arrow-right-b" />Volume Report
-            </Link>
+            <Link to="/insights">Volume Report</Link>
           </li>
           <li>
-            <Link to="/insights/response-report">
-              <i className="icon ion-arrow-right-b" />Response Report
-            </Link>
+            <Link to="/insights/response-report">Response Report</Link>
           </li>
           <li>
-            <Link to="/insights/first-response">
-              <i className="icon ion-arrow-right-b" />First Response Report
-            </Link>
+            <Link to="/insights/first-response">First Response Report</Link>
           </li>
-        </ul>
+        </SidebarList>
       </Sidebar.Section>
     </Sidebar>
   );

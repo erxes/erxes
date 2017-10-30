@@ -8,7 +8,7 @@ injectGlobal`
   }
 
   body {
-		font-family: 'Montserrat', 'Helvetica Neue', 'Helvetica', 'Arial',  sans-serif;
+		font-family: 'Montserrat', 'PT Sans Caption', 'Arial',  sans-serif;
     margin: 0;
     font-weight: 300;
     font-size: ${typography.fontSizeBody}px;
@@ -160,13 +160,18 @@ injectGlobal`
     border: 1px solid #eee;
     border-radius: 0;
     padding: 0;
-    color: #333;
+    color: #888;
+    font-weight: inherit;
+    box-shadow: 0 2px 4px 0 rgba(0, 0, 0, .2);
   }
+
   .popover.bottom > .arrow {
-    border-bottom-color: transparent;
+    border-bottom-color: #eee;
   }
+
   .popover.bottom > .arrow::after {
-    top: 4px;
+    top: 1px;
+    border-bottom-color: #fafafa;
   }
 
   .popover-title {
@@ -177,6 +182,10 @@ injectGlobal`
     font-size: 11px;
     text-transform: uppercase;
     color: #888;
+  }
+
+  .popover-content {
+    padding: 0;
   }
 
   ::-webkit-scrollbar {

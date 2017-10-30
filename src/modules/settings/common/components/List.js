@@ -64,7 +64,7 @@ class List extends Component {
       <Wrapper
         header={<Wrapper.Header breadcrumb={this.breadcrumb()} />}
         leftSidebar={<Sidebar />}
-        actionBar={<Wrapper.ActionBar right={actionBarLeft} invert />}
+        actionBar={<Wrapper.ActionBar right={actionBarLeft} />}
         content={content}
       />
     );

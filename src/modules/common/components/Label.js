@@ -5,10 +5,10 @@ import { colors } from '../styles';
 
 const types = {
   default: {
-    background: colors.colorPrimary
+    background: colors.colorSecondary
   },
   primary: {
-    background: colors.colorSecondary
+    background: colors.colorPrimary
   },
   success: {
     background: colors.colorCoreGreen

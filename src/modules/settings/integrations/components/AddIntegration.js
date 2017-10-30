@@ -9,11 +9,11 @@ import {
 import { Messenger, Form, Facebook } from '../containers';
 
 function AddIntegration() {
-  const triggerMessenger = <MenuItem>Add messenger</MenuItem>;
+  const triggerMessenger = <MenuItem>Messenger</MenuItem>;
 
-  const triggerForm = <MenuItem>Add form</MenuItem>;
+  const triggerForm = <MenuItem>Form</MenuItem>;
 
-  const triggerFb = <MenuItem>Add facebook page</MenuItem>;
+  const triggerFb = <MenuItem>Facebook page</MenuItem>;
 
   return (
     <Dropdown id="dropdown-integration" pullRight>
@@ -35,7 +35,7 @@ function AddIntegration() {
           <Facebook />
         </ModalTrigger>
 
-        <MenuItem href="/settings/integrations/twitter">Add twitter</MenuItem>
+        <MenuItem href="/settings/integrations/twitter">Twitter</MenuItem>
       </Dropdown.Menu>
     </Dropdown>
   );

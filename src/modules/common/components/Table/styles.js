@@ -20,7 +20,6 @@ const StyledTable = styled.table`
       color: ${colors.textSecondary};
       padding: ${dimensions.unitSpacing}px;
       display: table-cell;
-      background-color: ${colors.colorWhite};
       font-weight: ${typography.fontWeightLight};
 
       & ${FormLabel}, & ${Input} {

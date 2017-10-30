@@ -2,6 +2,7 @@ import React from 'react';
 import { withRouter } from 'react-router';
 import PropTypes from 'prop-types';
 import { Wrapper } from 'modules/layout/components';
+import { SidebarList } from 'modules/layout/styles';
 import { router } from 'modules/common/utils';
 import { statusFilters } from 'modules/engage/constants';
 
@@ -12,7 +13,7 @@ function Status({ history, counts }) {
     <Section>
       <Section.Title>Status</Section.Title>
 
-      <ul className="sidebar-list">
+      <SidebarList>
         {statusFilters.map((status, index) => (
           <li key={index}>
             <a
@@ -27,11 +28,11 @@ function Status({ history, counts }) {
               }}
             >
               {status.value}
-              <span className="counter">{counts[status.key]}</span>
+              <span>{counts[status.key]}</span>
             </a>
           </li>
         ))}
-      </ul>
+      </SidebarList>
     </Section>
   );
 }

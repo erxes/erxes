@@ -1,9 +1,15 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
-import { Table, Button } from 'react-bootstrap';
+import { Dropdown } from 'react-bootstrap';
 import { Wrapper } from 'modules/layout/components';
-import { TaggerPopover } from 'modules/common/components';
+import {
+  DropdownToggle,
+  TaggerPopover,
+  Table,
+  Button,
+  Icon
+} from 'modules/common/components';
 import { MessageListRow, Sidebar as SidebarContainers } from '../containers';
 
 const propTypes = {
@@ -19,16 +25,18 @@ class List extends React.Component {
   renderTagger() {
     const { bulk, emptyBulk } = this.props;
 
+    const tagButton = (
+      <Button btnStyle="simple" size="small">
+        Tag <Icon icon="ios-arrow-down" />
+      </Button>
+    );
+
     if (bulk.length) {
       return (
         <TaggerPopover
           type="engageMessage"
           targets={bulk}
-          trigger={
-            <Button bsStyle="link">
-              <i className="ion-pricetags" /> Tag <span className="caret" />
-            </Button>
-          }
+          trigger={tagButton}
           afterSave={emptyBulk}
         />
       );
@@ -37,27 +45,38 @@ class List extends React.Component {
 
   render() {
     const { messages, tags, toggleBulk, refetch } = this.props;
-    const actionBarLeft = (
-      <div>
-        <Link to={'/engage/messages/create?kind=auto'}>
-          <i className="ion-plus-circled" /> New auto message
-        </Link>
 
-        <Link to={'/engage/messages/create?kind=visitorAuto'}>
-          <i className="ion-plus-circled" /> New visitor auto message
-        </Link>
-
-        <Link to={'/engage/messages/create?kind=manual'}>
-          <i className="ion-plus-circled" /> New manual message
-        </Link>
-        {this.renderTagger()}
-      </div>
+    const actionBarRight = (
+      <Dropdown id="dropdown-engage" pullRight>
+        <DropdownToggle bsRole="toggle">
+          <Button btnStyle="success" size="small">
+            New message <Icon icon="chevron-down" />
+          </Button>
+        </DropdownToggle>
+        <Dropdown.Menu>
+          <li>
+            <Link to={'/engage/messages/create?kind=auto'}>Auto message</Link>
+          </li>
+          <li>
+            <Link to={'/engage/messages/create?kind=manual'}>
+              Manual message
+            </Link>
+          </li>
+          <li>
+            <Link to={'/engage/messages/create?kind=visitorAuto'}>
+              Visitor auto message
+            </Link>
+          </li>
+        </Dropdown.Menu>
+      </Dropdown>
     );
 
-    const actionBar = <Wrapper.ActionBar left={actionBarLeft} />;
+    const actionBar = (
+      <Wrapper.ActionBar left={this.renderTagger()} right={actionBarRight} />
+    );
 
     const content = (
-      <Table className="no-wrap">
+      <Table whiteSpace="nowrap" hover bordered>
         <thead>
           <tr>
             <th />
@@ -69,7 +88,7 @@ class List extends React.Component {
             <th>Failed</th>
             <th>Type</th>
             <th>Created date</th>
-            <th className="text-right">Actions</th>
+            <th>Actions</th>
           </tr>
         </thead>
         <tbody>

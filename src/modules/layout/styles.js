@@ -103,7 +103,7 @@ const ContentSpace = styled.div`
 
 const ContentBox = styled.div`
   flex: 1;
-  background-color: ${colors.bgLight};
+  background-color: ${colors.colorWhite};
   overflow: auto;
   box-shadow: 0 0 4px ${colors.shadowPrimary};
   margin-right: ${dimensions.coreSpacing}px;
@@ -115,7 +115,7 @@ const ContenFooter = styled.div`
 `;
 
 const ContentHeader = styled.div`
-  background: ${props => (props.invert ? colors.bgLight : colors.colorWhite)};
+  background: ${props => (props.invert ? colors.colorWhite : colors.bgLight)};
   min-height: ${dimensions.headerSpacing}px;
   padding: 0 ${dimensions.coreSpacing}px 0 ${dimensions.coreSpacing}px;
   margin-right: ${dimensions.coreSpacing}px;
@@ -171,7 +171,7 @@ const SidebarBox = styled.div`
   margin-bottom: ${dimensions.coreSpacing}px;
   box-shadow: ${props =>
     props.noShadow ? 'none' : `0 0 4px ${colors.shadowPrimary}`};
-  padding-bottom: ${props => (props.collapsible ? 0 : 0)}px;
+  padding-bottom: 10px;
   position: relative;
   transition: max-height 0.4s;
   overflow: ${props => (props.collapsible ? 'hidden' : 'auto')};
@@ -235,14 +235,6 @@ const SidebarList = styled.ul`
   padding: 0;
   list-style: none;
 
-  li {
-    border-bottom: 1px solid ${colors.borderPrimary};
-
-    &:last-child {
-      border: none;
-    }
-  }
-
   li.child-segment {
     border-bottom: none;
     background-color: ${colors.bgLight};
@@ -250,7 +242,7 @@ const SidebarList = styled.ul`
 
   a {
     display: block;
-    padding: 8px 20px;
+    padding: 6px 20px;
     color: ${colors.textPrimary};
     white-space: nowrap;
     overflow: hidden;
@@ -258,6 +250,15 @@ const SidebarList = styled.ul`
     cursor: pointer;
     text-decoration: none;
     outline: 0;
+
+    > span {
+      font-size: 12px;
+      text-align: right;
+      color: #888;
+      margin-top: 2px;
+      position: absolute;
+      right: 20px;
+    }
 
     &:hover {
       background: ${colors.borderPrimary};

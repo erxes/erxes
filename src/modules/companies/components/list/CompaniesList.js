@@ -67,7 +67,7 @@ function CompaniesList({
     </ModalTrigger>
   );
 
-  const actionBar = <Wrapper.ActionBar right={actionBarRight} invert />;
+  const actionBar = <Wrapper.ActionBar right={actionBarRight} />;
   const breadcrumb = [{ title: `Companies (${counts.all})` }];
 
   return (

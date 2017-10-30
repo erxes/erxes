@@ -23,19 +23,20 @@ class Inbox extends Component {
     const actionBarRight = (
       <BarItems>
         <Label lblStyle="danger">urgent</Label>
-        <Button btnStyle="success">
+        <Icon icon="ios-arrow-down" />
+        <Button btnStyle="success" size="small">
           <Icon icon="checkmark" />Resolve
         </Button>
       </BarItems>
     );
 
     const actionBar = (
-      <Wrapper.ActionBar left={actionBarLeft} right={actionBarRight} />
+      <Wrapper.ActionBar left={actionBarLeft} right={actionBarRight} invert />
     );
 
     const content = (
       <div
-        style={{ height: '100%', overflow: 'auto' }}
+        style={{ height: '100%', overflow: 'auto', background: '#fafafa' }}
         ref={node => {
           this.node = node;
         }}

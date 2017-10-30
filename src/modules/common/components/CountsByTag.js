@@ -17,7 +17,7 @@ function CountsByTag({ history, tags, counts, manageUrl }) {
   const { Section } = Wrapper.Sidebar;
 
   return (
-    <Section collapsible={tags.length > 5}>
+    <Section>
       <Section.Title>Filter by tags</Section.Title>
 
       <Section.QuickButtons>

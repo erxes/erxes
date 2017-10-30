@@ -3134,9 +3134,6 @@
   white-space: nowrap;
 }
 
-.label {
-  border-radius: 4px;
-}
 .label-default {
   background-color: #7242c3;
 }
@@ -3147,7 +3144,7 @@
   background-color: #1dcaff;
 }
 .label-form {
-  background-color: #f0ad4e;
+  background-color: #f5c22b;
 }
 .label-primary {
   background-color: #888;

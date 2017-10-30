@@ -33,7 +33,7 @@ const MessageBody = styled.div`
   background: ${colors.colorWhite};
   flex-grow: 0;
   word-break: break-word;
-  box-shadow: 0 0 4px 0 ${colors.shadowPrimary};
+  box-shadow: 0 1px 1px 0 ${colors.darkShadow};
 
   ${props => {
     if (props.staff) {

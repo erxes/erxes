@@ -2,7 +2,13 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import moment from 'moment';
 import { Button, Label } from 'react-bootstrap';
-import { Tip, ActionButtons, NameCard } from 'modules/common/components';
+import {
+  Tip,
+  ActionButtons,
+  NameCard,
+  FormControl
+} from 'modules/common/components';
+import { EngageTitle } from '../styles';
 import { MESSAGE_KINDS } from 'modules/engage/constants';
 
 const propTypes = {
@@ -72,7 +78,7 @@ class Row extends React.Component {
 
     if (message.segment) {
       return (
-        <div className="engage-rule">
+        <div>
           <i className="ion-pie-graph" /> {message.segment.name}
         </div>
       );
@@ -81,7 +87,7 @@ class Row extends React.Component {
     const rules = messenger.rules || [];
 
     return rules.map(rule => (
-      <div key={rule._id} className="engage-rule">
+      <div key={rule._id}>
         <i className="ion-pie-graph" /> {rule.text} {rule.condition}{' '}
         {rule.value}
       </div>
@@ -114,16 +120,16 @@ class Row extends React.Component {
 
     return (
       <tr key={message._id}>
-        <td className="less-space">
-          <input type="checkbox" onChange={this.toggleBulk} />
+        <td>
+          <FormControl componentClass="checkbox" onChange={this.toggleBulk} />
         </td>
         <td>
-          <b>{message.title}</b>{' '}
+          <EngageTitle>{message.title} </EngageTitle>
           {message.isDraft ? <Label bsStyle="primary">Draft</Label> : null}
           {this.renderRules()}
         </td>
         <td className="text-normal">
-          <NameCard user={message.fromUser} avatarSize={32} singleLine />
+          <NameCard user={message.fromUser} avatarSize={30} singleLine />
         </td>
         <td>{status}</td>
         <td className="cell-icon text-primary">
@@ -155,7 +161,7 @@ class Row extends React.Component {
           {moment(message.createdDate).format('DD MMM YYYY')}
         </td>
 
-        <td className="text-right">
+        <td>
           <ActionButtons>
             {this.renderLinks()}
 
