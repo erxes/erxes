@@ -2,6 +2,14 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { FormGroup, FormControl, Button } from 'react-bootstrap';
 import { Alert } from 'modules/common/utils';
+import {
+  AuthContent,
+  Container,
+  Divcolmd7,
+  AuthDescription,
+  Divcolmd5,
+  AuthBox
+} from '../styles';
 
 const propTypes = {
   token: PropTypes.string.isRequired,
@@ -39,10 +47,10 @@ class ResetPassword extends Component {
 
   render() {
     return (
-      <div className="auth-content">
-        <div className="container">
-          <div className="col-md-7">
-            <div className="auth-description">
+      <AuthContent className="auth-content">
+        <Container>
+          <Divcolmd7>
+            <AuthDescription>
               <img src="/images/logo.png" alt="erxes" />
               <h1>Customer engagement. Redefined.</h1>
               <p>
@@ -50,10 +58,10 @@ class ResetPassword extends Component {
                 and marketing teams.
               </p>
               <a href="http://erxes.io/">« Go to home page</a>
-            </div>
-          </div>
-          <div className="col-md-5">
-            <div className="auth-box">
+            </AuthDescription>
+          </Divcolmd7>
+          <Divcolmd5>
+            <AuthBox>
               <h2>Set your new password</h2>
               <form onSubmit={this.handleSubmit}>
                 <FormGroup>
@@ -68,10 +76,10 @@ class ResetPassword extends Component {
                   Change password
                 </Button>
               </form>
-            </div>
-          </div>
-        </div>
-      </div>
+            </AuthBox>
+          </Divcolmd5>
+        </Container>
+      </AuthContent>
     );
   }
 }
