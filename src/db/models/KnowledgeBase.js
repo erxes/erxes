@@ -1,68 +1,165 @@
 import mongoose from 'mongoose';
 import Random from 'meteor-random';
+import { PUBLISH_STATUSES } from '../../data/constants';
 
-const KbArticlesSchema = mongoose.Schema({
+const commonFields = {
+  createdBy: String,
+  createdDate: {
+    type: Date,
+    default: new Date(),
+  },
+  modifiedBy: String,
+  modifiedDate: Date,
+};
+
+class KnowledgeBaseCommonDocument {
+  static createDoc(doc, userId) {
+    return this.create({
+      ...doc,
+      createdBy: userId,
+    });
+  }
+
+  static async updateDoc(_id, doc, userId) {
+    await this.update(
+      { _id },
+      {
+        $set: {
+          ...doc,
+          modifiedBy: userId,
+          modifiedDate: new Date(),
+        },
+      },
+    );
+    return this.findOne({ _id });
+  }
+
+  static removeDoc(_id) {
+    return this.remove({ _id });
+  }
+}
+
+const ArticleSchema = mongoose.Schema({
   _id: {
     type: String,
     unique: true,
     default: () => Random.id(),
   },
-  title: String,
-  summary: String,
-  content: String,
-  createdBy: String,
-  createdDate: Date,
-  modifiedBy: String,
-  modifiedDate: Date,
-  status: String,
+  title: {
+    type: String,
+    required: true,
+  },
+  summary: {
+    type: String,
+    required: true,
+  },
+  content: {
+    type: String,
+    required: true,
+  },
+  status: {
+    type: String,
+    enum: PUBLISH_STATUSES.ALL,
+    default: PUBLISH_STATUSES.DRAFT,
+  },
   authorDetails: {
     avatar: String,
     fullName: String,
   },
+  ...commonFields,
 });
 
-const KbCategoriesSchema = mongoose.Schema({
+class Article extends KnowledgeBaseCommonDocument {
+  static createDoc(doc, userId) {
+    return super.createDoc(doc, userId);
+  }
+
+  static updateDoc(_id, doc, userId) {
+    return super.updateDoc({ _id }, doc, userId);
+  }
+}
+
+const CategorySchema = mongoose.Schema({
   _id: {
     type: String,
     unique: true,
     default: () => Random.id(),
   },
-  title: String,
+  title: {
+    type: String,
+    required: true,
+  },
   description: String,
   articleIds: {
     type: [String],
     required: false,
   },
-  icon: String,
-  createdBy: String,
-  createdDate: Date,
-  modifiedBy: String,
-  modifiedDate: Date,
+  icon: {
+    type: String,
+    required: true,
+  },
+  ...commonFields,
 });
 
-const KbTopicsSchema = mongoose.Schema({
+class Category extends KnowledgeBaseCommonDocument {
+  static createDoc(doc, userId) {
+    return super.createDoc(doc, userId);
+  }
+
+  static updateDoc(_id, doc, userId) {
+    return super.updateDoc(_id, doc, userId);
+  }
+}
+
+const TopicSchema = mongoose.Schema({
   _id: {
     type: String,
     unique: true,
     default: () => Random.id(),
   },
-  title: String,
-  brandId: String,
+  title: {
+    type: String,
+    required: true,
+  },
   description: String,
+  brandId: {
+    type: String,
+    required: true,
+  },
   categoryIds: {
     type: [String],
     required: false,
   },
-  loadType: String,
-  createdBy: String,
-  createdDate: Date,
-  modifiedBy: String,
-  modifiedDate: Date,
+  ...commonFields,
 });
 
-export const KnowledgeBaseArticles = mongoose.model('knowledgebase_articles', KbArticlesSchema);
-export const KnowledgeBaseCategories = mongoose.model(
-  'knowledgebase_categories',
-  KbCategoriesSchema,
-);
-export const KnowledgeBaseTopics = mongoose.model('knowledgebase_topics', KbTopicsSchema);
+class Topic extends KnowledgeBaseCommonDocument {
+  static createDoc({ createdBy, createdDate, modifiedBy, modifiedDate, ...docFields }, userId) {
+    if (!userId) {
+      throw new Error('userId must be supplied');
+    }
+
+    return super.createDoc(docFields, userId);
+  }
+
+  static updateDoc(
+    _id,
+    { createdBy, createdDate, modifiedBy, modifiedDate, ...docFields },
+    userId,
+  ) {
+    if (!userId) {
+      throw new Error('userId must be supplied');
+    }
+
+    return super.updateDoc(_id, docFields, userId);
+  }
+}
+
+ArticleSchema.loadClass(Article);
+export const KnowledgeBaseArticles = mongoose.model('knowledgebase_articles', ArticleSchema);
+
+CategorySchema.loadClass(Category);
+export const KnowledgeBaseCategories = mongoose.model('knowledgebase_categories', CategorySchema);
+
+TopicSchema.loadClass(Topic);
+export const KnowledgeBaseTopics = mongoose.model('knowledgebase_topics', TopicSchema);

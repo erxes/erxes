@@ -11,6 +11,13 @@ export const types = `
     modifiedDate: Date
   }
 
+  input KnowledgeBaseArticleDoc {
+    title: String!
+    summary: String
+    content: String
+    status: String
+  }
+
   type KnowledgeBaseCategory {
     _id: String
     title: String
@@ -23,6 +30,13 @@ export const types = `
     modifiedDate: Date
   }
 
+  input KnowledgeBaseCategoryDoc {
+    title: String!
+    description: String
+    articles: [KnowledgeBaseArticle]
+    icon: String
+  }
+
   type KnowledgeBaseTopic {
     _id: String
     title: String
@@ -33,6 +47,13 @@ export const types = `
     createdDate: Date
     modifiedBy: String
     modifiedDate: Date
+  }
+
+  input KnowledgeBaseTopicDoc {
+    title: String!
+    description: String
+    categoryIds: [String]
+    brandId: String!
   }
 `;
 
@@ -48,4 +69,18 @@ export const queries = `
   knowledgeBaseArticles(limit: Int): [KnowledgeBaseArticle]
   knowledgeBaseArticlesDetail(_id: String!): KnowledgeBaseArticle
   knowledgeBaseArticlesTotalCount: Int
+`;
+
+export const mutations = `
+  knowledgeBaseTopicsAdd(topicAdd: KnowledgeBaseTopicDoc): KnowledgeBaseTopic
+  knowledgeBaseTopicsEdit(_id: String!): Boolean
+  knowledgeBaseTopicsRemove(_id: String!): Boolean
+
+  knowledgeBaseCategoriesAdd(categoryDoc: KnowledgeBaseCategoryDoc): KnowledgeBaseTopic
+  knowledgeBaseCategoriesEdit(_id: String!): Boolean
+  knowledgeBaseCategoriesRemove(_id: String!): Boolean
+
+  knowledgeBaseArticlesAdd(articleDoc: KnowledgeBaseArticleDoc): KnowledgeBaseArticle
+  knowledgeBaseArticlesEdit(_id: String!): Boolean
+  knowledgeBaseArticlesRemove(_id: String!): Boolean
 `;

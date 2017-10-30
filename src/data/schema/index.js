@@ -64,7 +64,11 @@ import {
 
 import { types as InsightTypes, queries as InsightQueries } from './insight';
 
-import { types as KnowledgeBaseTypes, queries as KnowledgeBaseQueries } from './knowledgeBase';
+import {
+  types as KnowledgeBaseTypes,
+  queries as KnowledgeBaseQueries,
+  mutations as KnowledgeBaseMutations,
+} from './knowledgeBase';
 
 import {
   types as NotificationTypes,
@@ -142,6 +146,7 @@ export const mutations = `
     ${ChannelMutations}
     ${FormMutatons}
     ${IntegrationMutations}
+    ${KnowledgeBaseMutations}
     ${NotificationMutations}
   }
 `;
