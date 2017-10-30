@@ -93,7 +93,8 @@ const ButtonStyled = styled.button`
     }
 
     & + button,
-    + a {
+    + a,
+    + span {
       margin-left: 10px;
     }
   `};

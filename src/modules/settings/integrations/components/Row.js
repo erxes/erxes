@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import { Alert } from 'modules/common/utils';
 import {
@@ -57,19 +56,21 @@ class Row extends Component {
       return (
         <div style={{ display: 'inline-block' }}>
           <Tip text="Appearance">
-            <Link
-              to={`/settings/integrations/messenger/appearance/${integration._id}`}
+            <Button
+              btnStyle="link"
+              href={`/settings/integrations/messenger/appearance/${integration._id}`}
             >
               <Icon icon="paintbucket" />
-            </Link>
+            </Button>
           </Tip>
 
           <Tip text="Hours, Availability & Other configs">
-            <Link
-              to={`/settings/integrations/messenger/configs/${integration._id}`}
+            <Button
+              btnStyle="link"
+              href={`/settings/integrations/messenger/configs/${integration._id}`}
             >
               <Icon icon="gear-a" />
-            </Link>
+            </Button>
           </Tip>
 
           <ModalTrigger title="Edit integration" trigger={editTrigger}>
@@ -127,7 +128,7 @@ class Row extends Component {
             {this.renderExtraLinks()}
             <Tip text="Delete">
               <Button btnStyle="link" onClick={this.removeIntegration}>
-                <Icon icon="close-circled" />
+                <Icon icon="close" />
               </Button>
             </Tip>
           </ActionButtons>

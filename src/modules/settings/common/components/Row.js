@@ -31,7 +31,7 @@ class Row extends Component {
     return (
       <Tip text="Delete">
         <Button btnStyle="link" onClick={this.remove}>
-          <Icon icon="close-circled" />
+          <Icon icon="close" />
         </Button>
       </Tip>
     );
@@ -41,11 +41,11 @@ class Row extends Component {
     const { object, save } = this.props;
 
     const editTrigger = (
-      <Button btnStyle="link">
-        <Tip text="Edit">
+      <Tip text="Edit">
+        <Button btnStyle="link">
           <Icon icon="edit" />
-        </Tip>
-      </Button>
+        </Button>
+      </Tip>
     );
 
     return (

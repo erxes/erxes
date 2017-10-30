@@ -1,10 +1,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { ControlLabel } from 'react-bootstrap';
 import {
   FormControl,
   Button,
   FormGroup,
+  ControlLabel,
   Icon
 } from 'modules/common/components';
 

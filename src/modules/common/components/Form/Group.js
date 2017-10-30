@@ -1,10 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import styled from 'styled-components';
-
-const Formgroup = styled.div`
-  margin-bottom: 20px;
-`;
+import { Formgroup } from './styles';
 
 function FormGroup({ children }) {
   return <Formgroup>{children}</Formgroup>;

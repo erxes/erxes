@@ -1,11 +1,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { ButtonToolbar, Modal, ControlLabel } from 'react-bootstrap';
+import { ButtonToolbar, Modal } from 'react-bootstrap';
 import {
   Button,
   Icon,
   FormGroup,
-  FormControl
+  FormControl,
+  ControlLabel
 } from 'modules/common/components';
 
 const propTypes = {

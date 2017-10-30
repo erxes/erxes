@@ -1,6 +1,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { FormGroup, ControlLabel, FormControl } from 'react-bootstrap';
+import {
+  FormGroup,
+  ControlLabel,
+  FormControl
+} from 'modules/common/components';
 import Common from './Common';
 
 class Form extends Common {

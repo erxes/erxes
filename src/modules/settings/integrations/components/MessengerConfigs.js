@@ -1,22 +1,19 @@
 import React, { Component } from 'react';
-import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
-import {
-  FormGroup,
-  ControlLabel,
-  FormControl,
-  Radio,
-  Col,
-  Row,
-  ButtonGroup
-} from 'react-bootstrap';
+import { Radio, Col, Row, ButtonGroup } from 'react-bootstrap';
 import Select from 'react-select-plus';
 import Toggle from 'react-toggle';
 import { Wrapper } from 'modules/layout/components';
 import Sidebar from '../../Sidebar';
 import { timezones } from '../constants';
 import OnlineHours from './OnlineHours';
-import { Button, Icon } from 'modules/common/components';
+import {
+  Button,
+  Icon,
+  FormGroup,
+  FormControl,
+  ControlLabel
+} from 'modules/common/components';
 
 class Configs extends Component {
   constructor(props) {
@@ -230,9 +227,9 @@ class Configs extends Component {
               <Icon icon="checkmark" /> Save
             </Button>
 
-            <Link to="/settings/integrations">
+            <Button btnStyle="simple" href="/settings/integrations">
               <Icon icon="close" /> Cancel
-            </Link>
+            </Button>
           </ButtonGroup>
         }
       />

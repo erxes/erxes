@@ -1,7 +1,12 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { ControlLabel, ButtonToolbar, Modal } from 'react-bootstrap';
-import { FormGroup, FormControl, Button } from 'modules/common/components';
+import { ButtonToolbar, Modal } from 'react-bootstrap';
+import {
+  ControlLabel,
+  FormGroup,
+  FormControl,
+  Button
+} from 'modules/common/components';
 import { METHODS } from 'modules/engage/constants';
 import Editor from './Editor';
 

@@ -1,6 +1,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { FormGroup, ControlLabel, FormControl } from 'react-bootstrap';
+import {
+  FormGroup,
+  ControlLabel,
+  FormControl
+} from 'modules/common/components';
 
 const SelectBrand = ({ brands, onChange, defaultValue }) => (
   <FormGroup controlId="selectBrand">
