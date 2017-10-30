@@ -15,7 +15,7 @@ export const types = `
     title: String!
     summary: String
     content: String
-    status: String
+    status: String!
   }
 
   type KnowledgeBaseCategory {

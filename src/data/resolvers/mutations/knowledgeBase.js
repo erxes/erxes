@@ -5,7 +5,7 @@ import {
 } from '../../../db/models';
 
 export default {
-  knowledgeBaseTopicsAdd(root, doc, { user }) {
+  topicsAdd(root, doc, { user }) {
     if (!user) {
       throw new Error('Login required');
     }
@@ -13,7 +13,7 @@ export default {
     return KnowledgeBaseTopics.createDoc(doc, user._id);
   },
 
-  knowledgeBaseTopicsEdit(root, { _id, ...fields }, { user }) {
+  topicsEdit(root, { _id, ...fields }, { user }) {
     if (!user) {
       throw new Error('Login required');
     }
@@ -21,7 +21,7 @@ export default {
     return KnowledgeBaseTopics.updateDoc(_id, fields, user._id);
   },
 
-  knowledgeBaseTopicsRemove(root, { _id }, { user }) {
+  topicsRemove(root, { _id }, { user }) {
     if (!user) {
       throw new Error('Login required');
     }
@@ -29,7 +29,7 @@ export default {
     return KnowledgeBaseTopics.removeDoc(_id);
   },
 
-  knowledgeBaseCategoriesAdd(root, doc, { user }) {
+  categoriesAdd(root, doc, { user }) {
     if (!user) {
       throw new Error('Login required');
     }
@@ -37,7 +37,7 @@ export default {
     return KnowledgeBaseCategories.createDoc(doc, user._id);
   },
 
-  knowledgeBaseCategoriesEdit(root, { _id, ...fields }, { user }) {
+  categoriesEdit(root, { _id, ...fields }, { user }) {
     if (!user) {
       throw new Error('Login required');
     }
@@ -45,7 +45,7 @@ export default {
     return KnowledgeBaseCategories.updateDoc(_id, fields, user._id);
   },
 
-  knowledgeBaseCategoriesRemove(root, { _id }, { user }) {
+  categoriesRemove(root, { _id }, { user }) {
     if (!user) {
       throw new Error('Login required');
     }
@@ -53,7 +53,7 @@ export default {
     return KnowledgeBaseCategories.removeDoc(_id);
   },
 
-  knowledgeBaseArticlesAdd(root, doc, { user }) {
+  articlesAdd(root, doc, { user }) {
     if (!user) {
       throw new Error('Login required');
     }
@@ -61,7 +61,7 @@ export default {
     return KnowledgeBaseArticles.createDoc(doc, user._id);
   },
 
-  knowledgeBaseArticlesEdit(root, { _id, ...fields }, { user }) {
+  articlesEdit(root, { _id, ...fields }, { user }) {
     if (!user) {
       throw new Error('Login required');
     }
@@ -69,7 +69,7 @@ export default {
     return KnowledgeBaseArticles.updateDoc(_id, fields, user._id);
   },
 
-  knowledgeBaseArticlesRemove(root, { _id }, { user }) {
+  articlesRemove(root, { _id }, { user }) {
     if (!user) {
       throw new Error('Login required');
     }
