@@ -42,11 +42,23 @@ describe('test knowledge base models', () => {
       await KnowledgeBaseCategories.remove({});
     });
 
-    test(`expect Error('userId must be supplied') to be called as intended`, () => {
+    test(`check if Error('userId must be supplied')
+    is being called as intended on create method`, () => {
       expect.assertions(1);
 
       try {
         KnowledgeBaseTopics.createDoc({}, null);
+      } catch (e) {
+        expect(e.message).toBe('userId must be supplied');
+      }
+    });
+
+    test(`check if Error('userId must be supplied')
+     is being called as intended on update method`, async () => {
+      expect.assertions(1);
+
+      try {
+        await KnowledgeBaseTopics.updateDoc('fakeId', {}, null);
       } catch (e) {
         expect(e.message).toBe('userId must be supplied');
       }

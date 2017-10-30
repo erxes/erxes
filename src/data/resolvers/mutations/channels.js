@@ -34,6 +34,7 @@ export default {
    * @param {string} doc.description - Channel description
    * @param {String[]} doc.memberIds - Members assigned to the channel being created
    * @param {String[]} doc.integrationIds - Integrations related to the channel
+   * @param {Object} object3 - Graphql input data
    * @param {Object|string} user - User making this action
    * @return {Promise} return Promise resolving created Channel document
    * @throws {Error} throws Error('Login required') if user is not logged in
