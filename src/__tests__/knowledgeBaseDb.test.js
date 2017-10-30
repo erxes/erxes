@@ -4,6 +4,7 @@
 import { connect, disconnect } from '../db/connection';
 import toBeType from 'jest-tobetype';
 import {
+  knowledgeBaseTopicFactory,
   knowledgeBaseCategoryFactory,
   knowledgeBaseArticleFactory,
   brandFactory,
@@ -207,6 +208,35 @@ describe('test knowledge base models', () => {
 
       expect(await KnowledgeBaseCategories.find().count()).toBe(0);
     });
+
+    test(`check if Error('You can not delete this. This category is used in topic.')
+    is being called as intended`, async () => {
+      expect.assertions(2);
+
+      const doc = {
+        title: 'Test category title',
+        description: 'Test category description',
+        icon: 'test icon',
+      };
+
+      const category = await KnowledgeBaseCategories.createDoc(doc, _user._id);
+
+      const topic = await knowledgeBaseTopicFactory({
+        categoryIds: [category._id],
+      });
+
+      try {
+        await KnowledgeBaseCategories.removeDoc(category._id);
+      } catch (e) {
+        expect(e.message).toBe('You can not delete this. This category is used in topic.');
+      }
+
+      await KnowledgeBaseTopics.removeDoc(topic._id);
+
+      await KnowledgeBaseCategories.removeDoc(category._id);
+
+      expect(await KnowledgeBaseCategories.find().count()).toBe(0);
+    });
   });
 
   describe('KnowledgeBaseArticles', () => {
@@ -280,6 +310,41 @@ describe('test knowledge base models', () => {
       const article = await KnowledgeBaseArticles.createDoc(doc, _user._id);
 
       expect(await KnowledgeBaseArticles.find().count()).toBe(1);
+
+      await KnowledgeBaseArticles.removeDoc(article._id);
+
+      expect(await KnowledgeBaseArticles.find().count()).toBe(0);
+    });
+
+    test(`check if Error('You can not delete this. This article is used in category.')
+    is being called as intended`, async () => {
+      expect.assertions(2);
+
+      const doc = {
+        title: 'Test article title',
+        summary: 'Test article description',
+        content: 'Test article content',
+        status: PUBLISH_STATUSES.DRAFT,
+      };
+
+      const article = await KnowledgeBaseArticles.createDoc(doc, _user._id);
+
+      const categoryDoc = {
+        title: 'Test category title',
+        description: 'Test category description',
+        articleIds: [article._id],
+        icon: 'test icon',
+      };
+
+      const category = await KnowledgeBaseCategories.createDoc(categoryDoc, _user._id);
+
+      try {
+        await KnowledgeBaseArticles.removeDoc(article._id);
+      } catch (e) {
+        expect(e.message).toBe('You can not delete this. This article is used in category.');
+      }
+
+      await KnowledgeBaseCategories.removeDoc(category._id);
 
       await KnowledgeBaseArticles.removeDoc(article._id);
 

@@ -82,6 +82,14 @@ class Article extends KnowledgeBaseCommonDocument {
   static updateDoc(_id, doc, userId) {
     return super.updateDoc({ _id }, doc, userId);
   }
+
+  static async removeDoc(_id) {
+    if ((await KnowledgeBaseCategories.find({ articleIds: _id }).count()) > 0) {
+      throw new Error('You can not delete this. This article is used in category.');
+    }
+
+    return this.remove({ _id });
+  }
 }
 
 const CategorySchema = mongoose.Schema({
@@ -117,6 +125,14 @@ class Category extends KnowledgeBaseCommonDocument {
     userId,
   ) {
     return super.updateDoc(_id, docFields, userId);
+  }
+
+  static async removeDoc(_id) {
+    if ((await KnowledgeBaseTopics.find({ categoryIds: _id }).count()) > 0) {
+      throw new Error('You can not delete this. This category is used in topic.');
+    }
+
+    return this.remove({ _id });
   }
 }
 

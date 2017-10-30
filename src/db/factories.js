@@ -21,6 +21,7 @@ import {
   NotificationConfigurations,
   Notifications,
   Channels,
+  KnowledgeBaseTopics,
   KnowledgeBaseCategories,
   KnowledgeBaseArticles,
 } from './models';
@@ -283,6 +284,23 @@ export const channelFactory = async (params = {}) => {
   );
 
   return Channels.create(obj);
+};
+
+export const knowledgeBaseTopicFactory = params => {
+  const doc = {
+    title: faker.random.word(),
+    description: faker.lorem.sentence,
+    brandId: faker.random.word(),
+    catgoryIds: [faker.random.word()],
+  };
+
+  return KnowledgeBaseTopics.createDoc(
+    {
+      ...doc,
+      ...params,
+    },
+    faker.random.word(),
+  );
 };
 
 export const knowledgeBaseCategoryFactory = params => {
