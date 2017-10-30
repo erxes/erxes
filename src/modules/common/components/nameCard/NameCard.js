@@ -16,7 +16,6 @@ const NameCardText = styled.div`
 
 const FirstLine = styled.a`
   padding: 0;
-  font-size: 15px;
   display: block;
   color: ${colors.colorCoreDarkGray};
   text-overflow: ellipsis;

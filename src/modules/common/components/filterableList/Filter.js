@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { FormControl } from 'react-bootstrap';
+import { FormControl } from 'modules/common/components';
 
 const propTypes = {
   placeholder: PropTypes.string,
@@ -14,6 +14,7 @@ function Filter({ placeholder = 'Search ...', onChange }) {
       placeholder={placeholder}
       onChange={onChange}
       autoFocus
+      round
     />
   );
 }

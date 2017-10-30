@@ -2,6 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import { Wrapper } from 'modules/layout/components';
+import { SidebarList } from 'modules/layout/styles';
 
 function Main({ counts }) {
   const { Title } = Wrapper.Sidebar.Section;
@@ -9,32 +10,32 @@ function Main({ counts }) {
   return (
     <Wrapper.Sidebar.Section>
       <Title>Kind</Title>
-      <ul className="sidebar-list">
+      <SidebarList>
         <li>
           <Link to="/engage">
-            <i className="icon ion-arrow-right-b" />All
-            <span className="counter">{counts.all}</span>
+            All
+            <span>{counts.all}</span>
           </Link>
         </li>
         <li>
           <Link to={`/engage?kind=auto`}>
-            <i className="icon ion-arrow-right-b" />Auto
-            <span className="counter">{counts.auto}</span>
+            Auto
+            <span>{counts.auto}</span>
           </Link>
         </li>
         <li>
           <Link to={`/engage?kind=visitorAuto`}>
-            <i className="icon ion-arrow-right-b" />Visitor auto
-            <span className="counter">{counts.visitorAuto}</span>
+            Visitor auto
+            <span>{counts.visitorAuto}</span>
           </Link>
         </li>
         <li>
           <Link to={`/engage?kind=manual`}>
-            <i className="icon ion-arrow-right-b" />Manual
-            <span className="counter">{counts.manual}</span>
+            Manual
+            <span>{counts.manual}</span>
           </Link>
         </li>
-      </ul>
+      </SidebarList>
     </Wrapper.Sidebar.Section>
   );
 }

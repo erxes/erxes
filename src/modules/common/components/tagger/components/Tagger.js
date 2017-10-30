@@ -117,6 +117,7 @@ class Tagger extends Component {
     const props = {
       className,
       links,
+      selectable: true,
       items: JSON.parse(JSON.stringify(this.state.tagsForList)),
       [event]: this.tag
     };

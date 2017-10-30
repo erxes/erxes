@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Wrapper } from 'modules/layout/components';
+import { SidebarList } from 'modules/layout/styles';
 import { EmptyState } from 'modules/common/components';
 
 const propTypes = {
@@ -42,7 +43,7 @@ class Segments extends Component {
       <Section collapsible={segments.length > 5}>
         <Section.Title>Choose segment</Section.Title>
 
-        <ul className="sidebar-list">
+        <SidebarList>
           {orderedSegments.length ? (
             orderedSegments.map(segment => (
               <li key={segment._id}>
@@ -64,13 +65,9 @@ class Segments extends Component {
               </li>
             ))
           ) : (
-            <EmptyState
-              icon={<i className="ion-pie-graph" />}
-              text="No segments"
-              size="small"
-            />
+            <EmptyState icon="pie-graph" text="No segments" size="small" />
           )}
-        </ul>
+        </SidebarList>
       </Section>
     );
   }
