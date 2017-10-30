@@ -22,6 +22,7 @@ import {
   Notifications,
   Channels,
   KnowledgeBaseCategories,
+  KnowledgeBaseArticles,
 } from './models';
 
 export const userFactory = (params = {}) => {
@@ -293,4 +294,15 @@ export const knowledgeBaseCategoryFactory = params => {
   };
 
   return KnowledgeBaseCategories.createDoc({ ...doc, ...params }, faker.random.word());
+};
+
+export const knowledgeBaseArticleFactory = params => {
+  const doc = {
+    title: faker.random.word(),
+    summary: faker.lorem.sentence,
+    content: faker.lorem.sentence,
+    icon: faker.random.word(),
+  };
+
+  return KnowledgeBaseArticles.createDoc({ ...doc, ...params }, faker.random.word());
 };

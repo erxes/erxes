@@ -34,7 +34,7 @@ export const types = `
     title: String!
     description: String
     articles: [KnowledgeBaseArticle]
-    icon: String
+    icon: String!
   }
 
   type KnowledgeBaseTopic {

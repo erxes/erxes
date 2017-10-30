@@ -2,20 +2,38 @@
 /* eslint-disable no-underscore-dangle */
 
 import { connect, disconnect } from '../db/connection';
-import { knowledgeBaseCategoryFactory, brandFactory, userFactory } from '../db/factories';
-import { KnowledgeBaseTopics, KnowledgeBaseCategories, Brands } from '../db/models';
+import toBeType from 'jest-tobetype';
+import {
+  knowledgeBaseCategoryFactory,
+  knowledgeBaseArticleFactory,
+  brandFactory,
+  userFactory,
+} from '../db/factories';
+import {
+  KnowledgeBaseTopics,
+  KnowledgeBaseCategories,
+  KnowledgeBaseArticles,
+  Brands,
+  Users,
+} from '../db/models';
+
+expect.extend(toBeType);
 
 beforeAll(() => connect());
 afterAll(() => disconnect());
 
 describe('test knowledge base models', () => {
-  describe('topics', () => {
-    let _user;
+  let _user;
 
-    beforeAll(async () => {
-      _user = await userFactory();
-    });
+  beforeAll(async () => {
+    _user = await userFactory();
+  });
 
+  afterAll(async () => {
+    await Users.remove({});
+  });
+
+  describe('KnowledgeBaseTopics', () => {
     afterEach(async () => {
       await KnowledgeBaseTopics.remove({});
       await Brands.remove({});
@@ -32,7 +50,7 @@ describe('test knowledge base models', () => {
       }
     });
 
-    test('create topic', async () => {
+    test('create', async () => {
       let categoryA = await knowledgeBaseCategoryFactory({});
       let categoryB = await knowledgeBaseCategoryFactory({});
       let brand = await brandFactory({});
@@ -52,7 +70,7 @@ describe('test knowledge base models', () => {
       expect(topic.brandId).toBe(doc.brandId);
     });
 
-    test('update topic', async () => {
+    test('update', async () => {
       const categoryA = await knowledgeBaseCategoryFactory({});
       const categoryB = await knowledgeBaseCategoryFactory({});
 
@@ -82,7 +100,7 @@ describe('test knowledge base models', () => {
       expect(newTopic.brandId).toBe(brandB._id);
     });
 
-    test('remove topic', async () => {
+    test('remove', async () => {
       const brand = await brandFactory({});
       const doc = {
         title: 'Test topic title',
@@ -97,6 +115,96 @@ describe('test knowledge base models', () => {
       await KnowledgeBaseTopics.removeDoc(topic._id);
 
       expect(await KnowledgeBaseTopics.find().count()).toBe(0);
+    });
+  });
+
+  describe('categories', () => {
+    afterEach(async () => {
+      await KnowledgeBaseCategories.remove();
+      await KnowledgeBaseArticles.remove({});
+    });
+
+    test(`expect Error('userId must be supplied') to be called as intended`, () => {
+      expect.assertions(1);
+
+      try {
+        KnowledgeBaseCategories.createDoc({}, null);
+      } catch (e) {
+        expect(e.message).toBe('userId must be supplied');
+      }
+    });
+
+    test('create', async () => {
+      const article = knowledgeBaseArticleFactory({});
+
+      const doc = {
+        title: 'Test category title',
+        description: 'Test topic description',
+        articleIds: [article._id],
+        icon: 'test icon',
+      };
+
+      const category = await KnowledgeBaseCategories.createDoc(doc, _user._id);
+
+      expect(category.title).toBe(doc.title);
+      expect(category.description).toBe(doc.description);
+      expect(category.articleIds).toContain(article._id);
+      expect(category.icon).toBe(doc.icon);
+      // Values related to modification ======
+      expect(category.createdBy).toBe(_user._id);
+      expect(category.createdDate).toBeType('object');
+    });
+
+    test('update', async () => {
+      const article = await knowledgeBaseArticleFactory({});
+      const articleB = await knowledgeBaseArticleFactory({});
+
+      const doc = {
+        title: 'Test category title',
+        description: 'Test category description',
+        articleIds: [article._id],
+        icon: 'test icon',
+      };
+
+      const category = await KnowledgeBaseCategories.createDoc(doc, _user._id);
+
+      category.title = 'Test category title 2';
+      category.description = 'Test category description 2';
+      category.articleIds = [article._id, articleB._id];
+      category.icon = 'test icon 2';
+
+      const newCategory = await KnowledgeBaseCategories.updateDoc(
+        category._id,
+        category.toObject(),
+        _user._id,
+      );
+
+      expect(newCategory._id).toBe(category._id);
+      expect(newCategory.title).toBe(category.title);
+      expect(newCategory.description).toBe(category.description);
+      expect(newCategory.articleIds).toContain(article._id);
+      expect(newCategory.articleIds).toContain(articleB._id);
+      expect(newCategory.icon).toBe(category.icon);
+
+      // Values related to modification ======
+      expect(newCategory.modifiedBy).toBe(_user._id);
+      expect(newCategory.modifiedDate).toBeType('object');
+    });
+
+    test('remove', async () => {
+      const doc = {
+        title: 'Test category title',
+        description: 'Test category description',
+        icon: 'test icon',
+      };
+
+      const category = await KnowledgeBaseCategories.createDoc(doc, _user._id);
+
+      expect(await KnowledgeBaseCategories.find().count()).toBe(1);
+
+      await KnowledgeBaseCategories.removeDoc(category._id);
+
+      expect(await KnowledgeBaseCategories.find().count()).toBe(0);
     });
   });
 });

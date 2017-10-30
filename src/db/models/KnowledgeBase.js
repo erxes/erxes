@@ -14,6 +14,10 @@ const commonFields = {
 
 class KnowledgeBaseCommonDocument {
   static createDoc(doc, userId) {
+    if (!userId) {
+      throw new Error('userId must be supplied');
+    }
+
     return this.create({
       ...doc,
       createdBy: userId,
@@ -21,6 +25,10 @@ class KnowledgeBaseCommonDocument {
   }
 
   static async updateDoc(_id, doc, userId) {
+    if (!userId) {
+      throw new Error('userId must be supplied');
+    }
+
     await this.update(
       { _id },
       {
@@ -61,6 +69,7 @@ const ArticleSchema = mongoose.Schema({
     type: String,
     enum: PUBLISH_STATUSES.ALL,
     default: PUBLISH_STATUSES.DRAFT,
+    required: true,
   },
   authorDetails: {
     avatar: String,
@@ -102,12 +111,16 @@ const CategorySchema = mongoose.Schema({
 });
 
 class Category extends KnowledgeBaseCommonDocument {
-  static createDoc(doc, userId) {
-    return super.createDoc(doc, userId);
+  static createDoc({ createdBy, createdDate, modifiedBy, modifiedDate, ...docFields }, userId) {
+    return super.createDoc(docFields, userId);
   }
 
-  static updateDoc(_id, doc, userId) {
-    return super.updateDoc(_id, doc, userId);
+  static updateDoc(
+    _id,
+    { createdBy, createdDate, modifiedBy, modifiedDate, ...docFields },
+    userId,
+  ) {
+    return super.updateDoc(_id, docFields, userId);
   }
 }
 
@@ -135,10 +148,6 @@ const TopicSchema = mongoose.Schema({
 
 class Topic extends KnowledgeBaseCommonDocument {
   static createDoc({ createdBy, createdDate, modifiedBy, modifiedDate, ...docFields }, userId) {
-    if (!userId) {
-      throw new Error('userId must be supplied');
-    }
-
     return super.createDoc(docFields, userId);
   }
 
@@ -147,10 +156,6 @@ class Topic extends KnowledgeBaseCommonDocument {
     { createdBy, createdDate, modifiedBy, modifiedDate, ...docFields },
     userId,
   ) {
-    if (!userId) {
-      throw new Error('userId must be supplied');
-    }
-
     return super.updateDoc(_id, docFields, userId);
   }
 }
