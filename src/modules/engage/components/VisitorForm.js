@@ -138,6 +138,7 @@ class VisitorForm extends FormBase {
             size="small"
             onClick={remove}
             btnStyle="danger"
+            iconKey
           >
             <Icon icon="close" />
           </Button>
