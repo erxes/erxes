@@ -10,6 +10,7 @@ injectGlobal`
   body {
 		font-family: 'Montserrat', 'Helvetica Neue', 'Helvetica', 'Arial',  sans-serif;
     margin: 0;
+    font-weight: 300;
     font-size: ${typography.fontSizeBody}px;
     line-height: ${typography.lineHeightBody};
     color: ${colors.textPrimary};
@@ -105,12 +106,28 @@ injectGlobal`
     box-shadow: 0 2px 4px 0 #ddd;
   }
 
-  .dropdown-menu > li > a {
-    color: #aaa;
+  .dropdown-menu > span {
+    display: block;
   }
-  .dropdown-menu >li > a:focus,
-  .dropdown-menu > li > a:hover {
+
+  .dropdown-menu li a {
+    display: block;
+    padding: 3px 20px;
     color: #888;
+    white-space: nowrap;
+  }
+
+  .dropdown-menu > li > a {
+    color: #888;
+    font-weight: 300;
+  }
+
+  .dropdown-menu > li > a:focus,
+  .dropdown-menu > li > a:hover,
+  .dropdown-menu li a:focus,
+  .dropdown-menu li a:hover {
+    color: #666;
+    background: #f5f5f5;
   }
 
   /* tooltip */

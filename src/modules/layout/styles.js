@@ -132,7 +132,7 @@ const BarItems = styled.div`
 
 const HeaderItems = styled.div`
   align-self: center;
-  float: ${props => (props.rightAligned ? 'right' : 'left')};
+  margin-left: ${props => props.rightAligned && 'auto'};
 `;
 
 const SideContent = styled.section`
