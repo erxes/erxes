@@ -1,8 +1,9 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
-import { ButtonGroup, Button, FormControl } from 'react-bootstrap';
+import { ButtonGroup } from 'react-bootstrap';
 import { Wrapper } from 'modules/layout/components';
+import { Button, Icon, FormControl } from 'modules/common/components';
 
 const propTypes = {
   kind: PropTypes.string,
@@ -58,24 +59,28 @@ class FormBase extends Component {
 
   renderButtons(message) {
     const save = (
-      <Button bsStyle="link" onClick={this.save}>
-        <i className="ion-checkmark-circled" /> Save
+      <Button btnStyle="success" onClick={this.save}>
+        <Icon icon="checkmark" /> Save
       </Button>
     );
 
     const saveAndLive = (
-      <Button bsStyle="link" onClick={this.saveAndLive} key="action-save-live">
-        <i className="ion-checkmark-circled" /> Save & live
+      <Button
+        btnStyle="success"
+        onClick={this.saveAndLive}
+        key="action-save-live"
+      >
+        <Icon icon="checkmark" /> Save & live
       </Button>
     );
 
     const saveAndDraft = (
       <Button
-        bsStyle="link"
+        btnStyle="success"
         onClick={this.saveAndDraft}
         key="action-save-draft"
       >
-        <i className="ion-checkmark-circled" /> Save & draft
+        <Icon icon="checkmark" /> Save & draft
       </Button>
     );
 
@@ -161,7 +166,9 @@ class FormBase extends Component {
             {this.renderButtons(message)}
 
             <Link to="/engage">
-              <i className="ion-close-circled" /> Cancel
+              <Button btnStyle="simple">
+                <Icon icon="close" /> Cancel
+              </Button>
             </Link>
           </ButtonGroup>
         }

@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Wrapper } from 'modules/layout/components';
+import { SidebarList, SidebarCounter } from 'modules/layout/styles';
 
 const propTypes = {
   customer: PropTypes.object.isRequired
@@ -18,16 +19,16 @@ function TwitterSection({ customer }) {
   return (
     <Wrapper.Sidebar.Section>
       <Title>Twitter</Title>
-      <ul className="sidebar-list no-link">
+      <SidebarList className="no-link">
         <li>
           Name
-          <span className="counter">{twitterData.name}</span>
+          <SidebarCounter>{twitterData.name}</SidebarCounter>
         </li>
         <li>
           Screen name
-          <span className="counter">{twitterData.screenName}</span>
+          <SidebarCounter>{twitterData.screenName}</SidebarCounter>
         </li>
-      </ul>
+      </SidebarList>
     </Wrapper.Sidebar.Section>
   );
 }

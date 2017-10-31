@@ -15,6 +15,10 @@ const Label = styled.label`
   margin-bottom: 5px;
 `;
 
+const Formgroup = styled.div`
+  margin-bottom: 20px;
+`;
+
 const Input = styled.input`
   display: block;
   border: none;
@@ -218,4 +222,13 @@ const Checkbox = inputStyle.extend`
   }
 `;
 
-export { Input, Select, Textarea, Radio, Checkbox, FormLabel, Label };
+export {
+  Input,
+  Select,
+  Textarea,
+  Radio,
+  Checkbox,
+  FormLabel,
+  Label,
+  Formgroup
+};

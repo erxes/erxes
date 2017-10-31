@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Wrapper } from 'modules/layout/components';
-import { SidebarList } from 'modules/layout/styles';
-import { EmptyState } from 'modules/common/components';
+import { SidebarList, SidebarCounter } from 'modules/layout/styles';
+import { EmptyState, Icon } from 'modules/common/components';
 
 const propTypes = {
   segments: PropTypes.array.isRequired,
@@ -55,12 +55,12 @@ class Segments extends Component {
                   onClick={() => this.onClickSegment(segment._id)}
                 >
                   {segment.subOf ? '\u00a0\u00a0\u00a0\u00a0\u00a0' : null}
-                  <i
-                    className="ion-pie-graph icon"
+                  <Icon
+                    icon="pie-graph icon"
                     style={{ color: segment.color }}
                   />
                   {segment.name}
-                  <span className="counter">{counts[segment._id]}</span>
+                  <SidebarCounter>{counts[segment._id]}</SidebarCounter>
                 </a>
               </li>
             ))

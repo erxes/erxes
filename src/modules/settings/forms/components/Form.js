@@ -1,5 +1,9 @@
 import React from 'react';
-import { FormGroup, ControlLabel, FormControl } from 'react-bootstrap';
+import {
+  FormGroup,
+  ControlLabel,
+  FormControl
+} from 'modules/common/components';
 import { Form as CommonForm } from '../../common/components';
 
 class Form extends CommonForm {

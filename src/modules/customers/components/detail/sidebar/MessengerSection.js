@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import moment from 'moment';
 import { Wrapper } from 'modules/layout/components';
+import { SidebarList, SidebarCounter } from 'modules/layout/styles';
 import { Label } from 'modules/common/components';
 
 const propTypes = {
@@ -20,28 +21,28 @@ function MessengerSection({ customer }) {
   return (
     <Wrapper.Sidebar.Section>
       <Title>Messenger</Title>
-      <ul className="sidebar-list no-link">
+      <SidebarList className="no-link">
         <li>
           Status
-          <span className="counter">
+          <SidebarCounter>
             {messengerData.isActive ? (
               <Label lblStyle="success">Online</Label>
             ) : (
               <Label>Offline</Label>
             )}
-          </span>
+          </SidebarCounter>
         </li>
         <li>
           Last online
-          <span className="counter">
+          <SidebarCounter>
             {moment(messengerData.lastSeenAt).fromNow()}
-          </span>
+          </SidebarCounter>
         </li>
         <li>
           Session count
-          <span className="counter">{messengerData.sessionCount}</span>
+          <SidebarCounter>{messengerData.sessionCount}</SidebarCounter>
         </li>
-      </ul>
+      </SidebarList>
     </Wrapper.Sidebar.Section>
   );
 }

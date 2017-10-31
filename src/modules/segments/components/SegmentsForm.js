@@ -1,17 +1,14 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
+import { Form, ButtonGroup, Row, Col, Panel } from 'react-bootstrap';
 import {
-  Form,
-  ButtonGroup,
-  Row,
-  Col,
-  FormGroup,
+  Button,
+  Icon,
   ControlLabel,
-  FormControl,
-  Panel
-} from 'react-bootstrap';
-import { Button, Icon } from 'modules/common/components';
+  FormGroup,
+  FormControl
+} from 'modules/common/components';
 import { Wrapper } from 'modules/layout/components';
 import { ContentSpace } from 'modules/layout/styles';
 import Conditions from './Conditions';
@@ -150,7 +147,9 @@ class SegmentsForm extends Component {
               <Icon icon="checkmark" /> Save
             </Button>
             <Link to={`/segments/${contentType}`}>
-              <Icon icon="close" /> Cancel
+              <Button btnStyle="simple">
+                <Icon icon="close" /> Cancel
+              </Button>
             </Link>
           </ButtonGroup>
         }

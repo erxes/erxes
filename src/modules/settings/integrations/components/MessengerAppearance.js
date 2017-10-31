@@ -169,7 +169,9 @@ class Appearance extends Component {
             </Button>
 
             <Link to="/settings/integrations">
-              <Icon icon="close" /> Cancel
+              <Button btnStyle="simple">
+                <Icon icon="close" /> Cancel
+              </Button>
             </Link>
           </ButtonGroup>
         }

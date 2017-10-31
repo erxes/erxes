@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import ReactDom from 'react-dom';
-import { FormControl } from 'react-bootstrap';
+import { FormControl } from 'modules/common/components';
 
 import {
   EMAIL_CONTENT_PLACEHOLDER,

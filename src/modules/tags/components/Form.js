@@ -1,7 +1,11 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { FormGroup, ControlLabel, FormControl } from 'react-bootstrap';
-import { Button } from 'modules/common/components';
+import {
+  Button,
+  FormGroup,
+  ControlLabel,
+  FormControl
+} from 'modules/common/components';
 
 const propTypes = {
   tag: PropTypes.object,

@@ -36,7 +36,9 @@ class Row extends CommonRow {
         <ActionButtons>
           <Tip text="Manage Fields">
             <Link to={`/fields/manage/form/${object._id}`}>
-              <Icon icon="navicon-round" />
+              <Button btnStyle="link">
+                <Icon icon="navicon-round" />
+              </Button>
             </Link>
           </Tip>
 

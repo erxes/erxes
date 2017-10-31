@@ -37,7 +37,7 @@ class CustomerDetails extends React.Component {
     const { currentUser, customer } = this.props;
 
     if (currentTab === 'activity') {
-      return <div>asdasdas</div>;
+      return <div>Activity</div>;
     }
 
     if (currentTab === 'notes') {

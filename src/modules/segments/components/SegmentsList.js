@@ -51,7 +51,9 @@ function SegmentsList({ contentType, segments, removeSegment }) {
               <ActionButtons>
                 <Tip text="Edit">
                   <Link to={`/segments/edit/${contentType}/${segment._id}`}>
-                    <Icon icon="edit" />
+                    <Button btnStyle="link">
+                      <Icon icon="edit" />
+                    </Button>
                   </Link>
                 </Tip>
                 <Tip text="Delete">
@@ -61,7 +63,7 @@ function SegmentsList({ contentType, segments, removeSegment }) {
                       remove(segment._id);
                     }}
                   >
-                    <Icon icon="close-circled" />
+                    <Icon icon="close" />
                   </Button>
                 </Tip>
               </ActionButtons>
@@ -74,7 +76,9 @@ function SegmentsList({ contentType, segments, removeSegment }) {
 
   const actionBarLeft = (
     <Link to={`/segments/new/${contentType}`}>
-      <Icon icon="plus-circled" /> New segment
+      <Button btnStyle="success">
+        <Icon icon="plus" /> New segment
+      </Button>
     </Link>
   );
 

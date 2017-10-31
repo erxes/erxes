@@ -1,8 +1,7 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
-import { FormGroup, FormControl } from 'react-bootstrap';
-import { Button } from 'modules/common/components';
+import { Button, FormControl, FormGroup } from 'modules/common/components';
 import { AuthBox, Links } from '../styles';
 
 const propTypes = {

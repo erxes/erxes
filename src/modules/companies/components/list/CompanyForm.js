@@ -1,13 +1,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { ButtonToolbar, Modal, ControlLabel } from 'react-bootstrap';
 import {
-  ButtonToolbar,
-  Modal,
+  Button,
+  Icon,
   FormGroup,
-  ControlLabel,
   FormControl
-} from 'react-bootstrap';
-import { Button, Icon } from 'modules/common/components';
+} from 'modules/common/components';
 
 const propTypes = {
   addCompany: PropTypes.func.isRequired

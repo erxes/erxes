@@ -1,14 +1,13 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import {
-  FormGroup,
-  ControlLabel,
-  FormControl,
-  ButtonToolbar,
-  Well
-} from 'react-bootstrap';
+import { ButtonToolbar, Well } from 'react-bootstrap';
 import { Wrapper } from 'modules/layout/components';
-import { Button } from 'modules/common/components';
+import {
+  ControlLabel,
+  Button,
+  FormGroup,
+  FormControl
+} from 'modules/common/components';
 import Sidebar from '../../Sidebar';
 
 const propTypes = {

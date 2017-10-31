@@ -1,16 +1,14 @@
 import _ from 'underscore';
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import { Modal, ButtonToolbar, Checkbox } from 'react-bootstrap';
+import SelectBrand from './SelectBrand';
 import {
-  Modal,
-  ButtonToolbar,
+  Button,
   FormGroup,
   FormControl,
-  ControlLabel,
-  Checkbox
-} from 'react-bootstrap';
-import SelectBrand from './SelectBrand';
-import { Button } from 'modules/common/components';
+  ControlLabel
+} from 'modules/common/components';
 
 class Facebook extends Component {
   constructor(props, context) {

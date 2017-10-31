@@ -57,7 +57,7 @@ function Segments({ history, contentType, counts, segments }) {
               router.setParams(history, { segment: null });
             }}
           >
-            <Icon icon="close-circled" />
+            <Icon icon="close" />
           </QuickButton>
         ) : null}
       </Section.QuickButtons>

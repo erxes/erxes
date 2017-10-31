@@ -1,7 +1,11 @@
 import React from 'react';
 import Select from 'react-select-plus';
-import { FormGroup, ControlLabel, FormControl } from 'react-bootstrap';
-import { Tip } from 'modules/common/components';
+import {
+  Tip,
+  FormGroup,
+  FormControl,
+  ControlLabel
+} from 'modules/common/components';
 import { Form as CommonForm } from '../../common/components';
 
 class ChannelForm extends CommonForm {
