@@ -44,6 +44,10 @@ const Input = styled.input`
     color: ${colors.textPrimary};
     border-color: ${colors.colorCoreLightGray};
   }
+
+  &:last-child {
+    margin-bottom: 0px;
+  }
 `;
 
 const Select = Input.withComponent('select').extend`

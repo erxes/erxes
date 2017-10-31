@@ -5,14 +5,15 @@ import { MainContent, ContentBox, ContenFooter } from '../styles';
 const propTypes = {
   actionBar: PropTypes.node,
   footer: PropTypes.node,
-  children: PropTypes.node
+  children: PropTypes.node,
+  transparent: PropTypes.bool
 };
 
-function PageContent({ actionBar, footer, children }) {
+function PageContent({ actionBar, footer, children, transparent }) {
   return (
     <MainContent>
       {actionBar}
-      <ContentBox>{children}</ContentBox>
+      <ContentBox transparent={transparent}>{children}</ContentBox>
       {footer && <ContenFooter>{footer}</ContenFooter>}
     </MainContent>
   );

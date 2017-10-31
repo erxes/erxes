@@ -2,20 +2,16 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import moment from 'moment';
 import { NameCard } from 'modules/common/components';
-import Form from './Form';
 
 const propTypes = {
   notes: PropTypes.array.isRequired,
   currentUserId: PropTypes.string.isRequired,
-  remove: PropTypes.func.isRequired,
-  create: PropTypes.func.isRequired
+  remove: PropTypes.func.isRequired
 };
 
-function List({ notes, remove, create, currentUserId }) {
+function List({ notes, remove, currentUserId }) {
   return (
     <div>
-      <Form create={create} />
-
       <div className="internal-notes-list">
         {notes.map(note => (
           <div key={note._id} className="item">

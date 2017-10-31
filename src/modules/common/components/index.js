@@ -28,6 +28,7 @@ import TextDivider from './TextDivider';
 import CountsByTag from './CountsByTag';
 import Table from './Table';
 import Editor from './Editor';
+import { Tabs, TabList, TabTitle } from './Tabs';
 
 export {
   ActionButtons,
@@ -60,5 +61,8 @@ export {
   ControlLabel,
   TextDivider,
   Table,
-  Editor
+  Editor,
+  Tabs,
+  TabList,
+  TabTitle
 };

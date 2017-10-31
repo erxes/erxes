@@ -5,28 +5,11 @@ import { List } from '../components';
 import { queries, mutations } from '../graphql';
 
 const ListContainer = props => {
-  const {
-    contentType,
-    contentTypeId,
-    internalNotesQuery,
-    internalNotesAdd,
-    internalNotesRemove
-  } = props;
+  const { internalNotesQuery, internalNotesRemove } = props;
 
   if (internalNotesQuery.loading) {
     return false;
   }
-
-  // create internalNote
-  const create = content => {
-    internalNotesAdd({
-      variables: {
-        contentType,
-        contentTypeId,
-        content
-      }
-    }).then(() => internalNotesQuery.refetch());
-  };
 
   // delete internalNote
   const remove = _id => {
@@ -38,7 +21,6 @@ const ListContainer = props => {
 
   const updatedProps = {
     ...props,
-    create,
     remove,
     notes: internalNotesQuery.internalNotes
   };
@@ -65,9 +47,6 @@ export default compose(
         }
       };
     }
-  }),
-  graphql(gql(mutations.internalNotesAdd), {
-    name: 'internalNotesAdd'
   }),
   graphql(gql(mutations.internalNotesRemove), {
     name: 'internalNotesRemove'
