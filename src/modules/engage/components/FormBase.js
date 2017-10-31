@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import { ButtonGroup } from 'react-bootstrap';
 import { Wrapper } from 'modules/layout/components';
@@ -164,9 +165,11 @@ class FormBase extends Component {
           <ButtonGroup>
             {this.renderButtons(message)}
 
-            <Button href="/engage" btnStyle="simple">
-              <Icon icon="close" /> Cancel
-            </Button>
+            <Link to="/engage">
+              <Button btnStyle="simple">
+                <Icon icon="close" /> Cancel
+              </Button>
+            </Link>
           </ButtonGroup>
         }
       />

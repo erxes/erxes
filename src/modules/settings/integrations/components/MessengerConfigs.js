@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import { Radio, Col, Row, ButtonGroup } from 'react-bootstrap';
 import Select from 'react-select-plus';
@@ -227,9 +228,11 @@ class Configs extends Component {
               <Icon icon="checkmark" /> Save
             </Button>
 
-            <Button btnStyle="simple" href="/settings/integrations">
-              <Icon icon="close" /> Cancel
-            </Button>
+            <Link to="/settings/integrations">
+              <Button btnStyle="simple">
+                <Icon icon="close" /> Cancel
+              </Button>
+            </Link>
           </ButtonGroup>
         }
       />

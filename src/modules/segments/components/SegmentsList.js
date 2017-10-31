@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import { Wrapper } from 'modules/layout/components';
 import {
@@ -49,12 +50,11 @@ function SegmentsList({ contentType, segments, removeSegment }) {
             <td>
               <ActionButtons>
                 <Tip text="Edit">
-                  <Button
-                    btnStyle="link"
-                    href={`/segments/edit/${contentType}/${segment._id}`}
-                  >
-                    <Icon icon="edit" />
-                  </Button>
+                  <Link to={`/segments/edit/${contentType}/${segment._id}`}>
+                    <Button btnStyle="link">
+                      <Icon icon="edit" />
+                    </Button>
+                  </Link>
                 </Tip>
                 <Tip text="Delete">
                   <Button
@@ -75,9 +75,11 @@ function SegmentsList({ contentType, segments, removeSegment }) {
   );
 
   const actionBarLeft = (
-    <Button btnStyle="success" href={`/segments/new/${contentType}`}>
-      <Icon icon="plus" /> New segment
-    </Button>
+    <Link to={`/segments/new/${contentType}`}>
+      <Button btnStyle="success">
+        <Icon icon="plus" /> New segment
+      </Button>
+    </Link>
   );
 
   const actionBar = <Wrapper.ActionBar left={actionBarLeft} />;

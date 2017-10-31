@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import moment from 'moment';
 import {
   Tip,
@@ -34,9 +35,11 @@ class Row extends CommonRow {
       <td>
         <ActionButtons>
           <Tip text="Manage Fields">
-            <Button btnStyle="link" href={`/fields/manage/form/${object._id}`}>
-              <Icon icon="navicon-round" />
-            </Button>
+            <Link to={`/fields/manage/form/${object._id}`}>
+              <Button btnStyle="link">
+                <Icon icon="navicon-round" />
+              </Button>
+            </Link>
           </Tip>
 
           <Tip text="Duplicate">
