@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Collapse } from 'react-bootstrap';
 import { Wrapper } from 'modules/layout/components';
-import { QuickButton } from 'modules/layout/styles';
+import { QuickButton, SidebarList } from 'modules/layout/styles';
 import { EmptyState, Tagger, Icon } from 'modules/common/components';
 
 const propTypes = {
@@ -66,7 +66,7 @@ class TaggerSection extends Component {
           </div>
         </Collapse>
 
-        <ul className="sidebar-list no-link">{this.renderTags(tags)}</ul>
+        <SidebarList className="no-link">{this.renderTags(tags)}</SidebarList>
       </Wrapper.Sidebar.Section>
     );
   }

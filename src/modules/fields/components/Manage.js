@@ -2,15 +2,13 @@
 
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import { Col, Checkbox, ButtonGroup } from 'react-bootstrap';
 import {
-  Col,
-  FormGroup,
   ControlLabel,
-  FormControl,
-  Checkbox,
-  ButtonGroup
-} from 'react-bootstrap';
-import { Button } from 'modules/common/components';
+  Button,
+  FormGroup,
+  FormControl
+} from 'modules/common/components';
 import { Wrapper } from 'modules/layout/components';
 import FieldsPreview from './FieldsPreview';
 

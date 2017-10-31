@@ -31,7 +31,7 @@ class Row extends Component {
     return (
       <Tip text="Delete">
         <Button btnStyle="link" onClick={this.remove}>
-          <Icon icon="close-circled" />
+          <Icon icon="close" />
         </Button>
       </Tip>
     );

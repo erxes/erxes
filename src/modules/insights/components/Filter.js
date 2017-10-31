@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import Select from 'react-select-plus';
-import { ControlLabel } from 'react-bootstrap';
+import { ControlLabel } from 'modules/common/components';
 import DatePicker from 'react-datepicker';
 import moment from 'moment';
 import { integrationOptions, selectOptions } from '../utils';

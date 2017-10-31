@@ -4,6 +4,7 @@ import { Input, Select, Textarea, FormLabel, Radio, Checkbox } from './styles';
 
 const propTypes = {
   children: PropTypes.node,
+  id: PropTypes.string,
   onChange: PropTypes.func,
   onClick: PropTypes.func,
   defaultValue: PropTypes.string,
@@ -52,7 +53,8 @@ class FormControl extends React.Component {
       type: props.type,
       name: props.name,
       round: props.round,
-      required: props.required
+      required: props.required,
+      id: props.id
     };
 
     if (elementType === 'select') {

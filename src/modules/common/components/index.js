@@ -23,7 +23,7 @@ import Tags from './Tags';
 import FilterableList from './filterableList/FilterableList';
 import DropdownToggle from './DropdownToggle';
 import ConversationList from './conversationList/ConversationList';
-import { FormControl, ControlLabel } from './Form';
+import { FormControl, ControlLabel, FormGroup } from './Form';
 import TextDivider from './TextDivider';
 import CountsByTag from './CountsByTag';
 import Table from './Table';
@@ -58,6 +58,7 @@ export {
   DropdownToggle,
   FormControl,
   ControlLabel,
+  FormGroup,
   TextDivider,
   Table,
   Editor

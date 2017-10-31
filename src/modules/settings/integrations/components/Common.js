@@ -1,14 +1,13 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import { ButtonToolbar, Modal } from 'react-bootstrap';
+import ReactMarkdown from 'react-markdown';
 import {
+  Button,
   FormGroup,
   ControlLabel,
-  FormControl,
-  ButtonToolbar,
-  Modal
-} from 'react-bootstrap';
-import ReactMarkdown from 'react-markdown';
-import { Button } from 'modules/common/components';
+  FormControl
+} from 'modules/common/components';
 import CopyToClipboard from 'react-copy-to-clipboard';
 import SelectBrand from './SelectBrand';
 

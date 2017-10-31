@@ -1,6 +1,10 @@
 import React from 'react';
-import { FormGroup, ControlLabel, FormControl } from 'react-bootstrap';
 import { Form as CommonForm } from '../../common/components';
+import {
+  FormGroup,
+  ControlLabel,
+  FormControl
+} from 'modules/common/components';
 
 class BrandForm extends CommonForm {
   generateDoc() {

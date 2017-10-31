@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import moment from 'moment';
-import { NameCard } from 'modules/common/components';
+import { NameCard, Icon } from 'modules/common/components';
 import Form from './Form';
 
 const propTypes = {
@@ -27,8 +27,8 @@ function List({ notes, remove, create, currentUserId }) {
             <div className="text">{note.content}</div>
 
             {note.createdUserId === currentUserId ? (
-              <i
-                className="delete ion-trash-a"
+              <Icon
+                icon="delete trash-a"
                 role="button"
                 onClick={() => {
                   remove(note._id);

@@ -60,7 +60,9 @@ class Row extends Component {
             <Link
               to={`/settings/integrations/messenger/appearance/${integration._id}`}
             >
-              <Icon icon="paintbucket" />
+              <Button btnStyle="link">
+                <Icon icon="paintbucket" />
+              </Button>
             </Link>
           </Tip>
 
@@ -68,7 +70,9 @@ class Row extends Component {
             <Link
               to={`/settings/integrations/messenger/configs/${integration._id}`}
             >
-              <Icon icon="gear-a" />
+              <Button btnStyle="link">
+                <Icon icon="gear-a" />
+              </Button>
             </Link>
           </Tip>
 
@@ -127,7 +131,7 @@ class Row extends Component {
             {this.renderExtraLinks()}
             <Tip text="Delete">
               <Button btnStyle="link" onClick={this.removeIntegration}>
-                <Icon icon="close-circled" />
+                <Icon icon="close" />
               </Button>
             </Tip>
           </ActionButtons>
