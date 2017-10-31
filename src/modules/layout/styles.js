@@ -1,4 +1,4 @@
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 import { colors, dimensions } from '../common/styles';
 import { rgba } from '../common/styles/color';
 
@@ -103,11 +103,15 @@ const ContentSpace = styled.div`
 
 const ContentBox = styled.div`
   flex: 1;
-  background-color: ${colors.colorWhite};
   overflow: auto;
-  box-shadow: 0 0 4px ${colors.shadowPrimary};
   margin-right: ${dimensions.coreSpacing}px;
   position: relative;
+  ${props =>
+    !props.transparent &&
+    css`
+      background-color: ${colors.colorWhite};
+      box-shadow: 0 0 4px ${colors.shadowPrimary};
+    `};
 `;
 
 const ContenFooter = styled.div`
@@ -282,6 +286,15 @@ const SidebarCounter = styled.span`
   right: 20px;
 `;
 
+const WhiteBox = styled.div`
+  flex: 1;
+  overflow: auto;
+  position: relative;
+  margin-bottom: ${dimensions.coreSpacing}px;
+  background-color: ${colors.colorWhite};
+  box-shadow: 0 0 4px ${colors.shadowPrimary};
+`;
+
 export {
   Main,
   Layout,
@@ -308,5 +321,6 @@ export {
   QuickButton,
   SidebarTitle,
   UserHelper,
-  SidebarList
+  SidebarList,
+  WhiteBox
 };

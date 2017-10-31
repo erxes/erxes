@@ -12,7 +12,8 @@ const propTypes = {
   rightSidebar: PropTypes.element,
   actionBar: PropTypes.node,
   content: PropTypes.element.isRequired,
-  footer: PropTypes.node
+  footer: PropTypes.node,
+  transparent: PropTypes.bool
 };
 
 function Wrapper({
@@ -21,14 +22,19 @@ function Wrapper({
   actionBar,
   content,
   footer,
-  rightSidebar
+  rightSidebar,
+  transparent
 }) {
   return (
     <MainWrapper>
       {header}
       <Contents>
         {leftSidebar}
-        <PageContent actionBar={actionBar} footer={footer}>
+        <PageContent
+          actionBar={actionBar}
+          footer={footer}
+          transparent={transparent || false}
+        >
           {content}
         </PageContent>
         {rightSidebar}

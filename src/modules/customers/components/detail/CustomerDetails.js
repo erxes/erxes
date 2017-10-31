@@ -1,10 +1,14 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Wrapper } from 'modules/layout/components';
-import { List as InternalNotes } from 'modules/internalNotes/containers';
+import {
+  List as InternalNotes,
+  Form as NoteForm
+} from 'modules/internalNotes/containers';
 import { ConversationList, EmptyState, Icon } from 'modules/common/components';
-import RightSidebar from './sidebar/RightSidebar';
 import LeftSidebar from './sidebar/LeftSidebar';
+import { Tabs, TabTitle } from 'modules/common/components';
+import { WhiteBox } from 'modules/layout/styles';
 
 const propTypes = {
   customer: PropTypes.object.isRequired,
@@ -19,7 +23,7 @@ class CustomerDetails extends React.Component {
   constructor(props) {
     super(props);
 
-    this.state = { currentTab: 'internalNotes' };
+    this.state = { currentTab: 'activity' };
 
     this.onTabClick = this.onTabClick.bind(this);
   }
@@ -32,7 +36,11 @@ class CustomerDetails extends React.Component {
     const { currentTab } = this.state;
     const { currentUser, customer } = this.props;
 
-    if (currentTab === 'internalNotes') {
+    if (currentTab === 'activity') {
+      return <div>Activity</div>;
+    }
+
+    if (currentTab === 'notes') {
       return (
         <InternalNotes
           contentType="customer"
@@ -66,8 +74,8 @@ class CustomerDetails extends React.Component {
   }
 
   render() {
-    const { customer } = this.props;
     const { currentTab } = this.state;
+    const { customer } = this.props;
 
     const breadcrumb = [
       { title: 'Customers', link: '/customers' },
@@ -75,32 +83,49 @@ class CustomerDetails extends React.Component {
     ];
 
     const content = (
-      <div className="cc-detail-content">
-        <ul className="header">
-          <li className={currentTab === 'internalNotes' ? 'active' : ''}>
-            <a onClick={() => this.onTabClick('internalNotes')}>
-              <Icon icon="email" />
-              New note
-            </a>
-          </li>
-          <li className={currentTab === 'conversations' ? 'active' : ''}>
-            <a onClick={() => this.onTabClick('conversations')}>
-              <Icon icon="paper-airplane" />
-              Conversations
-            </a>
-          </li>
-        </ul>
+      <div>
+        <WhiteBox>
+          <Tabs>
+            <TabTitle className="active">
+              <Icon icon="compose" /> New note
+            </TabTitle>
+          </Tabs>
+
+          <NoteForm contentType="customer" contentTypeId={customer._id} />
+        </WhiteBox>
+
+        <Tabs>
+          <TabTitle
+            className={currentTab === 'activity' ? 'active' : ''}
+            onClick={() => this.onTabClick('activity')}
+          >
+            Activity
+          </TabTitle>
+          <TabTitle
+            className={currentTab === 'notes' ? 'active' : ''}
+            onClick={() => this.onTabClick('notes')}
+          >
+            Notes
+          </TabTitle>
+          <TabTitle
+            className={currentTab === 'conversations' ? 'active' : ''}
+            onClick={() => this.onTabClick('conversations')}
+          >
+            Conversation
+          </TabTitle>
+        </Tabs>
 
         {this.renderTabContent()}
       </div>
     );
+    // onClick={() => this.onTabClick('conversations')}
 
     return (
       <Wrapper
         header={<Wrapper.Header breadcrumb={breadcrumb} />}
         leftSidebar={<LeftSidebar {...this.props} />}
-        rightSidebar={<RightSidebar customer={customer} />}
         content={content}
+        transparent={true}
       />
     );
   }
