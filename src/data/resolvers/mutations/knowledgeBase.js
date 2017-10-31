@@ -14,7 +14,7 @@ export default {
    * @return {Promise} - returns Promise resolving created document
    * @throws {Error} - throws Error('Login required') if user object is not supplied
    */
-  topicsAdd(root, doc, { user }) {
+  knowledgeBaseTopicsAdd(root, doc, { user }) {
     if (!user) {
       throw new Error('Login required');
     }
@@ -32,7 +32,7 @@ export default {
    * @return {Promise} - returns Promise resolving modified document
    * @throws {Error} - throws Error('Login required') if user object is not supplied
    */
-  topicsEdit(root, { _id, ...fields }, { user }) {
+  knowledgeBaseTopicsEdit(root, { _id, ...fields }, { user }) {
     if (!user) {
       throw new Error('Login required');
     }
@@ -50,7 +50,7 @@ export default {
    * @return {Promise}
    * @throws {Error} - throws Error('Login required') if user object is not supplied
    */
-  topicsRemove(root, { _id }, { user }) {
+  knowledgeBaseTopicsRemove(root, { _id }, { user }) {
     if (!user) {
       throw new Error('Login required');
     }
@@ -67,7 +67,7 @@ export default {
    * @return {Promise} - returns Promise resolving created document
    * @throws {Error} - throws Error('Login required') if user object is not supplied
    */
-  categoriesAdd(root, doc, { user }) {
+  knowledgeBaseCategoriesAdd(root, doc, { user }) {
     if (!user) {
       throw new Error('Login required');
     }
@@ -85,7 +85,7 @@ export default {
    * @return {Promise} - returns Promise resolving modified document
    * @throws {Error} - throws Error('Login required') if user object is not supplied
    */
-  categoriesEdit(root, { _id, ...fields }, { user }) {
+  knowledgeBaseCategoriesEdit(root, { _id, ...fields }, { user }) {
     if (!user) {
       throw new Error('Login required');
     }
@@ -103,7 +103,7 @@ export default {
    * @return {Promise}
    * @throws {Error} - throws Error('Login required') if user object is not supplied
    */
-  categoriesRemove(root, { _id }, { user }) {
+  knowledgeBaseCategoriesRemove(root, { _id }, { user }) {
     if (!user) {
       throw new Error('Login required');
     }
@@ -120,7 +120,7 @@ export default {
    * @return {Promise} - returns Promise resolving created document
    * @throws {Error} - throws Error('Login required') if user object is not supplied
    */
-  articlesAdd(root, doc, { user }) {
+  knowledgeBaseArticlesAdd(root, doc, { user }) {
     if (!user) {
       throw new Error('Login required');
     }
@@ -138,7 +138,7 @@ export default {
    * @return {Promise} - returns Promise resolving modified document
    * @throws {Error} - throws Error('Login required') if user object is not supplied
    */
-  articlesEdit(root, { _id, ...fields }, { user }) {
+  knowledgeBaseArticlesEdit(root, { _id, ...fields }, { user }) {
     if (!user) {
       throw new Error('Login required');
     }
@@ -156,7 +156,7 @@ export default {
    * @return {Promise}
    * @throws {Error} - throws Error('Login required') if user object is not supplied
    */
-  articlesRemove(root, { _id }, { user }) {
+  knowledgeBaseArticlesRemove(root, { _id }, { user }) {
     if (!user) {
       throw new Error('Login required');
     }

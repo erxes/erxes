@@ -20,20 +20,20 @@ describe('mutations', () => {
       }
     };
 
-    expectError(knowledgeBaseMutations.topicsAdd);
-    expectError(knowledgeBaseMutations.topicsEdit);
-    expectError(knowledgeBaseMutations.topicsRemove);
+    expectError(knowledgeBaseMutations.knowledgeBaseTopicsAdd);
+    expectError(knowledgeBaseMutations.knowledgeBaseTopicsEdit);
+    expectError(knowledgeBaseMutations.knowledgeBaseTopicsRemove);
 
-    expectError(knowledgeBaseMutations.categoriesAdd);
-    expectError(knowledgeBaseMutations.categoriesEdit);
-    expectError(knowledgeBaseMutations.categoriesRemove);
+    expectError(knowledgeBaseMutations.knowledgeBaseCategoriesAdd);
+    expectError(knowledgeBaseMutations.knowledgeBaseCategoriesEdit);
+    expectError(knowledgeBaseMutations.knowledgeBaseCategoriesRemove);
 
-    expectError(knowledgeBaseMutations.articlesAdd);
-    expectError(knowledgeBaseMutations.articlesEdit);
-    expectError(knowledgeBaseMutations.articlesRemove);
+    expectError(knowledgeBaseMutations.knowledgeBaseArticlesAdd);
+    expectError(knowledgeBaseMutations.knowledgeBaseArticlesEdit);
+    expectError(knowledgeBaseMutations.knowledgeBaseArticlesRemove);
   });
 
-  describe('topic mutaions', () => {
+  describe('topic mutations', () => {
     test('topicsAdd', () => {
       KnowledgeBaseTopics.createDoc = jest.fn();
 
@@ -44,7 +44,7 @@ describe('mutations', () => {
         brandId: 'fakeBrandId',
       };
 
-      knowledgeBaseMutations.topicsAdd(null, doc, { user: _user });
+      knowledgeBaseMutations.knowledgeBaseTopicsAdd(null, doc, { user: _user });
 
       expect(KnowledgeBaseTopics.createDoc).toBeCalledWith(doc, _user._id);
       expect(KnowledgeBaseTopics.createDoc.mock.calls.length).toBe(1);
@@ -67,7 +67,7 @@ describe('mutations', () => {
         ...doc,
       };
 
-      knowledgeBaseMutations.topicsEdit(null, updateDoc, { user: _user });
+      knowledgeBaseMutations.knowledgeBaseTopicsEdit(null, updateDoc, { user: _user });
 
       expect(KnowledgeBaseTopics.updateDoc).toBeCalledWith(updateDoc._id, doc, _user._id);
       expect(KnowledgeBaseTopics.updateDoc.mock.calls.length).toBe(1);
@@ -80,7 +80,7 @@ describe('mutations', () => {
 
       const fakeTopicId = 'fakeTopicId';
 
-      knowledgeBaseMutations.topicsRemove(null, { _id: fakeTopicId }, { user: _user });
+      knowledgeBaseMutations.knowledgeBaseTopicsRemove(null, { _id: fakeTopicId }, { user: _user });
 
       expect(KnowledgeBaseTopics.removeDoc).toBeCalledWith(fakeTopicId);
       expect(KnowledgeBaseTopics.removeDoc.mock.calls.length).toBe(1);
@@ -100,7 +100,7 @@ describe('mutations', () => {
         brandId: 'fakeBrandId',
       };
 
-      knowledgeBaseMutations.categoriesAdd(null, doc, { user: _user });
+      knowledgeBaseMutations.knowledgeBaseCategoriesAdd(null, doc, { user: _user });
 
       expect(KnowledgeBaseCategories.createDoc).toBeCalledWith(doc, _user._id);
       expect(KnowledgeBaseCategories.createDoc.mock.calls.length).toBe(1);
@@ -123,7 +123,7 @@ describe('mutations', () => {
         ...doc,
       };
 
-      knowledgeBaseMutations.categoriesEdit(null, updateDoc, { user: _user });
+      knowledgeBaseMutations.knowledgeBaseCategoriesEdit(null, updateDoc, { user: _user });
 
       expect(KnowledgeBaseCategories.updateDoc).toBeCalledWith(updateDoc._id, doc, _user._id);
       expect(KnowledgeBaseCategories.updateDoc.mock.calls.length).toBe(1);
@@ -136,7 +136,11 @@ describe('mutations', () => {
 
       const fakeCategoryId = 'fakeCategoryId';
 
-      knowledgeBaseMutations.categoriesRemove(null, { _id: fakeCategoryId }, { user: _user });
+      knowledgeBaseMutations.knowledgeBaseCategoriesRemove(
+        null,
+        { _id: fakeCategoryId },
+        { user: _user },
+      );
 
       expect(KnowledgeBaseCategories.removeDoc).toBeCalledWith(fakeCategoryId);
       expect(KnowledgeBaseCategories.removeDoc.mock.calls.length).toBe(1);
@@ -156,7 +160,7 @@ describe('mutations', () => {
         status: 'Test article status',
       };
 
-      knowledgeBaseMutations.articlesAdd(null, doc, { user: _user });
+      knowledgeBaseMutations.knowledgeBaseArticlesAdd(null, doc, { user: _user });
 
       expect(KnowledgeBaseArticles.createDoc).toBeCalledWith(doc, _user._id);
       expect(KnowledgeBaseArticles.createDoc.mock.calls.length).toBe(1);
@@ -179,7 +183,7 @@ describe('mutations', () => {
         ...doc,
       };
 
-      knowledgeBaseMutations.articlesEdit(null, updateDoc, { user: _user });
+      knowledgeBaseMutations.knowledgeBaseArticlesEdit(null, updateDoc, { user: _user });
 
       expect(KnowledgeBaseArticles.updateDoc).toBeCalledWith(updateDoc._id, doc, _user._id);
       expect(KnowledgeBaseArticles.updateDoc.mock.calls.length).toBe(1);
@@ -192,7 +196,11 @@ describe('mutations', () => {
 
       const fakeArticleId = 'fakeArticleId';
 
-      knowledgeBaseMutations.articlesRemove(null, { _id: fakeArticleId }, { user: _user });
+      knowledgeBaseMutations.knowledgeBaseArticlesRemove(
+        null,
+        { _id: fakeArticleId },
+        { user: _user },
+      );
 
       expect(KnowledgeBaseArticles.removeDoc).toBeCalledWith(fakeArticleId);
       expect(KnowledgeBaseArticles.removeDoc.mock.calls.length).toBe(1);

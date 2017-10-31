@@ -33,7 +33,7 @@ export const types = `
   input KnowledgeBaseCategoryDoc {
     title: String!
     description: String
-    articles: [KnowledgeBaseArticle]
+    articleIds: [String]
     icon: String!
   }
 
@@ -72,15 +72,15 @@ export const queries = `
 `;
 
 export const mutations = `
-  knowledgeBaseTopicsAdd(topicAdd: KnowledgeBaseTopicDoc): KnowledgeBaseTopic
+  knowledgeBaseTopicsAdd(doc: KnowledgeBaseTopicDoc): KnowledgeBaseTopic
   knowledgeBaseTopicsEdit(_id: String!): Boolean
   knowledgeBaseTopicsRemove(_id: String!): Boolean
 
-  knowledgeBaseCategoriesAdd(categoryDoc: KnowledgeBaseCategoryDoc): KnowledgeBaseTopic
+  knowledgeBaseCategoriesAdd(doc: KnowledgeBaseCategoryDoc): KnowledgeBaseCategory
   knowledgeBaseCategoriesEdit(_id: String!): Boolean
   knowledgeBaseCategoriesRemove(_id: String!): Boolean
 
-  knowledgeBaseArticlesAdd(articleDoc: KnowledgeBaseArticleDoc): KnowledgeBaseArticle
+  knowledgeBaseArticlesAdd(doc: KnowledgeBaseArticleDoc): KnowledgeBaseArticle
   knowledgeBaseArticlesEdit(_id: String!): Boolean
   knowledgeBaseArticlesRemove(_id: String!): Boolean
 `;
