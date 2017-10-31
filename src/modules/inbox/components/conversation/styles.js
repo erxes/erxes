@@ -28,7 +28,6 @@ const MessageItem = styled.div`
 const MessageBody = styled.div`
   margin: 0 0 0 55px;
   padding: 15px ${dimensions.coreSpacing}px;
-  color: ${colors.colorCoreLightGray};
   border-radius: 7px;
   background: ${colors.colorWhite};
   flex-grow: 0;

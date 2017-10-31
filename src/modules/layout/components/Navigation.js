@@ -35,7 +35,7 @@ function Navigation() {
             <Icon icon="pie-graph" />
           </Link>
         </Tip>
-        <Tip placement="right" text="Channels">
+        <Tip placement="right" text="Settings">
           <Link to="/settings/channels">
             <Icon icon="gear-b" />
           </Link>

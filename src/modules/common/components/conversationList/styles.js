@@ -44,12 +44,11 @@ const CustomerName = styled.div`
 `;
 
 const SmallText = styled.div`
-  color: ${colors.colorCoreLightGray};
+  color: ${colors.colorCoreGray};
   font-size: 12px;
 `;
 
 const MessageContent = styled.div`
-  color: ${colors.colorCoreLightGray};
   margin: ${dimensions.unitSpacing}px 0;
   word-break: break-word;
   overflow: hidden;

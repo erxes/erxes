@@ -51,6 +51,7 @@ const Input = styled.input`
 `;
 
 const Select = Input.withComponent('select').extend`
+  border: none;
 `;
 
 const Textarea = Input.withComponent('textarea').extend`
