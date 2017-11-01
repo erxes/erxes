@@ -79,7 +79,7 @@ export class SaveWebhookResponse {
       for (let entry of data.entry) {
         // check receiving page is in integration's page list
         if (!integration.facebookData.pageIds.includes(entry.id)) {
-          return;
+          return null;
         }
 
         // set current page
@@ -182,12 +182,12 @@ export class SaveWebhookResponse {
 
     // collect only added actions
     if (value.verb !== 'add') {
-      return;
+      return null;
     }
 
     // ignore duplicated action when like
     if (value.verb === 'add' && value.item === 'like') {
-      return;
+      return null;
     }
 
     // if this is already saved then ignore it
@@ -195,7 +195,7 @@ export class SaveWebhookResponse {
       commentId &&
       (await ConversationMessages.findOne({ 'facebookData.commentId': commentId }))
     ) {
-      return;
+      return null;
     }
 
     const senderName = value.sender_name;
@@ -215,7 +215,7 @@ export class SaveWebhookResponse {
     // when situations like checkin, there will be no text and no link
     // if so ignore it
     if (!messageText) {
-      return;
+      return null;
     }
 
     // value.post_id is returning different value even though same post
@@ -231,7 +231,7 @@ export class SaveWebhookResponse {
 
     // acess token expired
     if (response === 'Error processing https request') {
-      return;
+      return null;
     }
 
     // get post object

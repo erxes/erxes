@@ -4,26 +4,13 @@ import sinon from 'sinon';
 import { connect, disconnect } from '../../db/connection';
 import { graphRequest, SaveWebhookResponse } from '../../social/facebook';
 import { Conversations, ConversationMessages } from '../../db/models';
-import { integrationFactory } from '../../db/factories';
+import { integrationFactory, conversationMessageFactory } from '../../db/factories';
 import { CONVERSATION_STATUSES } from '../../data/constants';
 
 beforeAll(() => connect());
 afterAll(() => disconnect());
 
 describe('facebook integration: get or create conversation by feed info', () => {
-  beforeEach(() => {
-    // mock all requests
-    sinon.stub(graphRequest, 'get').callsFake(path => {
-      if (path.includes('/?fields=access_token')) {
-        return {
-          access_token: '244242442442',
-        };
-      }
-
-      return {};
-    });
-  });
-
   afterEach(async () => {
     // clear
     await Conversations.remove({});
@@ -53,12 +40,52 @@ describe('facebook integration: get or create conversation by feed info', () => 
     // must be 0 conversations
     expect(await Conversations.find().count()).toBe(0);
 
-    await saveWebhookResponse.getOrCreateConversationByFeed({
-      verb: 'add',
-      sender_id: senderId,
-      post_id: postId,
-      message: 'hi all',
+    const value = { sender_id: senderId };
+
+    // check invalid verb
+    value.verb = 'edit';
+    expect(await saveWebhookResponse.getOrCreateConversationByFeed(value)).toBe(null);
+
+    // ignore likes
+    value.verb = 'add';
+    value.item = 'like';
+    expect(await saveWebhookResponse.getOrCreateConversationByFeed(value)).toBe(null);
+
+    // already saved comments ==========
+    await conversationMessageFactory({ facebookData: { commentId: 1 } });
+
+    value.item = null;
+    value.comment_id = 1;
+
+    expect(await saveWebhookResponse.getOrCreateConversationByFeed(value)).toBe(null);
+
+    // no message
+    await ConversationMessages.remove({});
+    value.message = '';
+    expect(await saveWebhookResponse.getOrCreateConversationByFeed(value)).toBe(null);
+
+    // access token expired
+    value.link = 'link';
+    sinon.stub(graphRequest, 'get').callsFake(() => 'Error processing https request');
+    expect(await saveWebhookResponse.getOrCreateConversationByFeed(value)).toBe(null);
+    graphRequest.get.restore();
+
+    // successful ==============
+    // mock external requests
+    sinon.stub(graphRequest, 'get').callsFake(path => {
+      if (path.includes('/?fields=access_token')) {
+        return {
+          access_token: '244242442442',
+        };
+      }
+
+      return {};
     });
+
+    value.post_id = postId;
+    value.message = 'hi';
+
+    await saveWebhookResponse.getOrCreateConversationByFeed(value);
 
     expect(await Conversations.find().count()).toBe(1); // 1 conversation
 

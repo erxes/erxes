@@ -33,9 +33,17 @@ describe('facebook integration: get or create conversation', () => {
     const integration = await integrationFactory();
 
     const saveWebhookResponse = new SaveWebhookResponse('access_token', integration, {});
+
     saveWebhookResponse.currentPageId = pageId;
 
-    // mock getOrCreateCustomer
+    // checking non exising page response =======
+    saveWebhookResponse.data = { object: 'page', entry: [{}] };
+
+    expect(await saveWebhookResponse.start()).toBe(null);
+
+    saveWebhookResponse.data = {};
+
+    // mock getOrCreateCustomer ==========
     sinon.stub(saveWebhookResponse, 'getOrCreateCustomer').callsFake(() => customerId);
 
     // check initial states
