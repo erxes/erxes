@@ -10,7 +10,7 @@ import {
   Label,
   Icon
 } from 'modules/common/components';
-import { EngageTitle } from '../styles';
+import { EngageTitle, HelperText } from '../styles';
 import { MESSAGE_KINDS } from 'modules/engage/constants';
 
 const propTypes = {
@@ -80,18 +80,18 @@ class Row extends React.Component {
 
     if (message.segment) {
       return (
-        <div>
+        <HelperText>
           <Icon icon="pie-graph" /> {message.segment.name}
-        </div>
+        </HelperText>
       );
     }
     const messenger = message.messenger || {};
     const rules = messenger.rules || [];
 
     return rules.map(rule => (
-      <div key={rule._id}>
+      <HelperText key={rule._id}>
         <Icon icon="pie-graph" /> {rule.text} {rule.condition} {rule.value}
-      </div>
+      </HelperText>
     ));
   }
 

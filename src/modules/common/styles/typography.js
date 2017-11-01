@@ -1,6 +1,6 @@
 const fontWeightLight = 300;
-const fontWeightRegular = 500;
-const fontWeightMedium = 600;
+const fontWeightRegular = 400;
+const fontWeightMedium = 500;
 
 const fontSizeHeading1 = 64;
 const fontSizeHeading2 = 48;

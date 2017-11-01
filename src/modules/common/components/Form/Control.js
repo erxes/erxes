@@ -1,6 +1,14 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Input, Select, Textarea, FormLabel, Radio, Checkbox } from './styles';
+import {
+  Input,
+  Select,
+  SelectWrapper,
+  Textarea,
+  FormLabel,
+  Radio,
+  Checkbox
+} from './styles';
 
 const propTypes = {
   children: PropTypes.node,
@@ -58,7 +66,11 @@ class FormControl extends React.Component {
     };
 
     if (elementType === 'select') {
-      return <Select {...attributes}>{childNode}</Select>;
+      return (
+        <SelectWrapper>
+          <Select {...attributes}>{childNode}</Select>
+        </SelectWrapper>
+      );
     }
 
     if (elementType === 'radio') {

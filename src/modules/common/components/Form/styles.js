@@ -1,16 +1,17 @@
 import styled from 'styled-components';
 import { colors, dimensions, typography } from '../../styles';
+import { lighten } from '../../styles/color';
 
 const inputPadding = '0px';
-const inputHeight = '18px';
+const inputHeight = '16px';
 const inputScale = '12px';
 const inputBorderWidth = '1px';
 
 const Label = styled.label`
   text-transform: uppercase;
   display: inline-block;
-  font-weight: ${typography.fontWeightRegular};
-  color: ${colors.colorCoreLightGray};
+  font-weight: ${typography.fontWeightMedium};
+  color: ${colors.textSecondary};
   font-size: ${typography.fontSizeUppercase}px;
   margin-bottom: 5px;
 `;
@@ -23,11 +24,11 @@ const Input = styled.input`
   display: block;
   border: none;
   width: 100%;
-  margin-bottom: ${dimensions.coreSpacing}px;
   padding: ${dimensions.unitSpacing}px;
-  color: ${colors.textSecondary};
-  border-bottom: 1px solid ${colors.colorCoreLightGray};
+  color: ${colors.textPrimary};
+  border-bottom: 1px solid ${lighten(colors.colorLightGray, 15)};
   background: ${colors.colorWhite};
+  transition: all 0.3s ease;
 
   ${props => {
     if (props.round) {
@@ -40,22 +41,45 @@ const Input = styled.input`
     }
   }};
 
+  &:hover {
+    border-color: ${colors.colorLightGray};
+  }
+
   &:focus {
     outline: none;
+    border-color: ${colors.colorSecondary};
   }
+`;
 
-  &:hover {
-    color: ${colors.textPrimary};
-    border-color: ${colors.colorCoreLightGray};
-  }
+const SelectWrapper = styled.div`
+  overflow: hidden;
+  border-bottom: 1px solid ${lighten(colors.colorLightGray, 15)};
+  width: 100%;
+  position: relative;
 
-  &:last-child {
-    margin-bottom: 0px;
+  &:after {
+    position: absolute;
+    right: 10px;
+    top: 12px;
+    content: '\f123';
+    font-size: 12px;
+    display: inline-block;
+    font-family: 'Ionicons';
+    speak: none;
+    font-style: normal;
+    font-weight: normal;
+    font-variant: normal;
+    text-transform: none;
+    text-rendering: auto;
+    line-height: 1;
+    -webkit-font-smoothing: antialiased;
   }
 `;
 
 const Select = Input.withComponent('select').extend`
   border: none;
+  height: 34px;
+  width: calc(100% + ${dimensions.coreSpacing}px);
 `;
 
 const Textarea = Input.withComponent('textarea').extend`
@@ -95,7 +119,7 @@ const inputStyle = styled.input`
   &:hover {
     + span {
       &::before {
-        border-color: ${colors.colorCoreLightGray};
+        border-color: ${colors.colorLightGray};
       }
     }
   }
@@ -115,12 +139,12 @@ const inputStyle = styled.input`
 
     &:before {
       background-color: ${colors.colorWhite};
-      border: ${inputBorderWidth} solid ${colors.colorCoreLightGray};
+      border: ${inputBorderWidth} solid ${colors.colorShadowGray};
       box-sizing: content-box;
       content: '';
       color: ${colors.colorWhite};
       margin-right: calc(${inputHeight} * 0.25);
-      top: 50%;
+      top: 51%;
       left: 0;
       width: ${inputHeight};
       height: ${inputHeight};
@@ -133,13 +157,13 @@ const inputStyle = styled.input`
       content: '';
       background-color: ${colors.colorWhite};
       position: absolute;
-      top: 50%;
+      top: 56%;
       left: calc(${inputPadding} + ${inputBorderWidth} + ${inputScale}/2);
       width: calc(${inputHeight} - ${inputScale});
       height: calc(${inputHeight} - ${inputScale});
       margin-top: calc((${inputHeight} - ${inputScale})/-2);
       transform: scale(0);
-      transform-origin: 50%;
+      transform-origin: 51%;
       transition: transform 200ms ease-out;
     }
   }
@@ -192,7 +216,7 @@ const Checkbox = inputStyle.extend`
   + span {
     &:after {
       background-color: transparent;
-      top: 50%;
+      top: 51%;
       left: calc(${inputPadding} + ${inputHeight}/5);
       width: calc(${inputHeight}/2);
       height: calc(${inputHeight}/5);
@@ -225,6 +249,7 @@ const Checkbox = inputStyle.extend`
 
 export {
   Input,
+  SelectWrapper,
   Select,
   Textarea,
   Radio,

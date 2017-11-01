@@ -17,7 +17,7 @@ const StyledTable = styled.table`
     th,
     td {
       border-top: 1px solid ${colors.borderPrimary};
-      color: ${colors.textSecondary};
+      color: ${colors.textPrimary};
       padding: ${dimensions.unitSpacing}px;
       display: table-cell;
       font-weight: ${typography.fontWeightLight};

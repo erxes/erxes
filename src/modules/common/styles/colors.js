@@ -8,7 +8,7 @@ const colorCoreYellow = '#F5C22B';
 const colorCoreGreen = '#67C682';
 const colorCoreBlack = '#393C40';
 const colorCoreGray = '#888';
-const colorCoreLightGray = '#AAAEB3';
+const colorCoreLightGray = '#888'; // '#AAAEB3'
 const colorLightGray = '#AAA';
 const colorCoreDarkGray = '#333';
 const colorBlack = '#000';
@@ -30,11 +30,11 @@ const borderPrimary = '#EEE';
 
 // Text colors
 const textPrimary = '#444';
-const textSecondary = rgba(textPrimary, 0.7);
+const textSecondary = rgba(textPrimary, 0.8);
 const textOverlay = '#fff';
 
 // Shadow colors
-const shadowPrimary = rgba(colorShadowGray, 0.5);
+const shadowPrimary = rgba(colorShadowGray, 0.7);
 const darkShadow = rgba(colorBlack, 0.2);
 
 // Social colors
