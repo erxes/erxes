@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
 import 'mongoose-type-email';
 import Random from 'meteor-random';
-import { Messages, Conversations } from './Conversations';
+import { ConversationMessages, Conversations } from './';
 import { Customers } from './';
 import {
   KIND_CHOICES,
@@ -330,7 +330,7 @@ class Integration {
     });
 
     // Remove messages
-    await Messages.remove({ conversationId: { $in: conversationIds } });
+    await ConversationMessages.remove({ conversationId: { $in: conversationIds } });
 
     // Remove conversations
     await Conversations.remove({ integrationId: _id });

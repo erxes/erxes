@@ -12,7 +12,8 @@ import InternalNotes from './InternalNotes';
 import Customers from './Customers';
 import Companies from './Companies';
 import Segments from './Segments';
-import { Conversations, Messages as ConversationMessages } from './Conversations';
+import Conversations from './Conversations';
+import ConversationMessages from './ConversationMessages';
 import {
   KnowledgeBaseArticles,
   KnowledgeBaseCategories,

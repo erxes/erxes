@@ -1,0 +1,196 @@
+import strip from 'strip';
+import mongoose from 'mongoose';
+import Random from 'meteor-random';
+import { Conversations } from './';
+
+const FacebookSchema = mongoose.Schema(
+  {
+    commentId: {
+      type: String,
+      optional: true,
+    },
+
+    // comment, reaction, etc ...
+    item: {
+      type: String,
+      optional: true,
+    },
+
+    // when share photo
+    photoId: {
+      type: String,
+      optional: true,
+    },
+
+    // when share video
+    videoId: {
+      type: String,
+      optional: true,
+    },
+
+    link: {
+      type: String,
+      optional: true,
+    },
+
+    reactionType: {
+      type: String,
+      optional: true,
+    },
+
+    senderId: {
+      type: String,
+      optional: true,
+    },
+
+    senderName: {
+      type: String,
+      optional: true,
+    },
+  },
+  { _id: false },
+);
+
+const MessageSchema = mongoose.Schema({
+  _id: { type: String, unique: true, default: () => Random.id() },
+  content: String,
+  attachments: Object,
+  mentionedUserIds: [String],
+  conversationId: String,
+  internal: Boolean,
+  customerId: String,
+  userId: String,
+  createdAt: Date,
+  isCustomerRead: Boolean,
+  engageData: Object,
+  formWidgetData: Object,
+  facebookData: FacebookSchema,
+});
+
+class Message {
+  /**
+   * Create a message
+   * @param  {Object} messageObj object
+   * @return {Promise} Newly created message object
+   */
+  static async createMessage(doc) {
+    const message = await this.create({
+      ...doc,
+      createdAt: new Date(),
+    });
+
+    const messageCount = await this.find({
+      conversationId: message.conversationId,
+    }).count();
+
+    await Conversations.update({ _id: message.conversationId }, { $set: { messageCount } });
+
+    // add created user to participators
+    await Conversations.addParticipatedUsers(message.conversationId, message.userId);
+
+    // add mentioned users to participators
+    for (let userId of message.mentionedUserIds) {
+      await Conversations.addParticipatedUsers(message.conversationId, userId);
+    }
+
+    return message;
+  }
+
+  /**
+   * Create a conversation
+   * @param  {Object} doc - conversation message fields
+   * @param  {Object} user object
+   * @return {Promise} Newly created conversation object
+   */
+  static async addMessage(doc, userId) {
+    const conversation = await Conversations.findOne({ _id: doc.conversationId });
+
+    if (!conversation) throw new Error(`Conversation not found with id ${doc.conversationId}`);
+
+    // normalize content, attachments
+    const content = doc.content || '';
+    const attachments = doc.attachments || [];
+
+    doc.content = content;
+    doc.attachments = attachments;
+
+    // if there is no attachments and no content then throw content required error
+    if (attachments.length === 0 && !strip(content)) throw new Error('Content is required');
+
+    // setting conversation's content to last message
+    await this.update({ _id: doc.conversationId }, { $set: { content } });
+
+    return this.createMessage({ ...doc, userId });
+  }
+
+  /**
+   * Remove a messages
+   * @param  {Object} selector
+   * @return {Promise} Deleted messages info
+   */
+  static async removeMessages(selector) {
+    const messages = await this.find(selector);
+    const result = await this.remove(selector);
+
+    for (let message of messages) {
+      const messageCount = await Messages.find({
+        conversationId: message.conversationId,
+      }).count();
+
+      await Conversations.update({ _id: message.conversationId }, { $set: { messageCount } });
+    }
+
+    return result;
+  }
+
+  /**
+  * User's last non answered question
+  * @param  {String} conversationId
+  * @return {Promise} message object
+  */
+  static getNonAsnweredMessage(conversationId) {
+    return this.findOne({
+      conversationId: conversationId,
+      customerId: { $exists: true },
+    }).sort({ createdAt: -1 });
+  }
+
+  /**
+   * Get admin messages
+   * @param  {String} conversationId
+   * @return {Promise} messages
+   */
+  static getAdminMessages(conversationId) {
+    return this.find({
+      conversationId: conversationId,
+      userId: { $exists: true },
+      isCustomerRead: false,
+
+      // exclude internal notes
+      internal: false,
+    }).sort({ createdAt: 1 });
+  }
+
+  /**
+   * Mark sent messages as read
+   * @param  {String} conversationId
+   * @return {Promise} updated messages info
+   */
+  static markSentAsReadMessages(conversationId) {
+    return this.update(
+      {
+        conversationId: conversationId,
+        userId: { $exists: true },
+        isCustomerRead: { $exists: false },
+      },
+      { $set: { isCustomerRead: true } },
+      { multi: true },
+    );
+  }
+}
+
+MessageSchema.loadClass(Message);
+
+const Messages = mongoose.model('conversation_messages', MessageSchema);
+
+export default Messages;
