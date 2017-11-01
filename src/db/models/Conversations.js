@@ -76,6 +76,54 @@ const FacebookSchema = mongoose.Schema(
   { _id: false },
 );
 
+const MessagesFacebookSchema = mongoose.Schema(
+  {
+    commentId: {
+      type: String,
+      optional: true,
+    },
+
+    // comment, reaction, etc ...
+    item: {
+      type: String,
+      optional: true,
+    },
+
+    // when share photo
+    photoId: {
+      type: String,
+      optional: true,
+    },
+
+    // when share video
+    videoId: {
+      type: String,
+      optional: true,
+    },
+
+    link: {
+      type: String,
+      optional: true,
+    },
+
+    reactionType: {
+      type: String,
+      optional: true,
+    },
+
+    senderId: {
+      type: String,
+      optional: true,
+    },
+
+    senderName: {
+      type: String,
+      optional: true,
+    },
+  },
+  { _id: false },
+);
+
 // Conversation schema
 const ConversationSchema = mongoose.Schema({
   _id: { type: String, unique: true, default: () => Random.id() },
@@ -353,7 +401,7 @@ const MessageSchema = mongoose.Schema({
   isCustomerRead: Boolean,
   engageData: Object,
   formWidgetData: Object,
-  facebookData: FacebookSchema,
+  facebookData: MessagesFacebookSchema,
 });
 
 class Message {
