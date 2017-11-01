@@ -213,7 +213,7 @@ export const conversationMessageFactory = (params = {}) => {
   });
 };
 
-export const integrationFactory = (params = {}) => {
+export const integrationFactory = async (params = {}) => {
   const kind = params.kind || 'messenger';
 
   const doc = {
@@ -222,13 +222,13 @@ export const integrationFactory = (params = {}) => {
     brandId: Random.id(),
     formId: Random.id(),
     messengerData: { welcomeMessage: 'welcome', notifyCustomer: true },
+    facebookData: params.facebookData || {},
     formData:
       params.formData === 'form'
         ? params.formData
         : kind === 'form' ? { thankContent: 'thankContent' } : null,
   };
 
-  Object.assign(doc, params);
   return Integrations.create(doc);
 };
 
