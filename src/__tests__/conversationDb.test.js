@@ -264,4 +264,16 @@ describe('Conversation db', () => {
 
     expect(await Conversations.newOrOpenConversation().count()).toBe(1);
   });
+
+  test('Reopen', async () => {
+    const conversation = await conversationFactory({
+      status: 'closed',
+      readUserIds: ['DFJAKSFJDKFJSDF'],
+    });
+
+    const updatedConversation = await Conversations.reopen(conversation._id);
+
+    expect(updatedConversation.status).toBe('open');
+    expect(updatedConversation.readUserIds.length).toBe(0);
+  });
 });

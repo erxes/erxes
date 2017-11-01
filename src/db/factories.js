@@ -1,6 +1,6 @@
 import faker from 'faker';
 import Random from 'meteor-random';
-import { MODULES, CONVERSATION_STATUSES } from '../data/constants';
+import { MODULES } from '../data/constants';
 
 import {
   Users,
@@ -184,11 +184,15 @@ export const fieldFactory = (params = {}) => {
 };
 
 export const conversationFactory = (params = {}) => {
+  const doc = {
+    content: faker.lorem.sentence(),
+    customerId: Random.id(),
+    integrationId: Random.id(),
+  };
+
   return Conversations.createConversation({
-    content: params.content || faker.lorem.sentence(),
-    customerId: params.customerId || Random.id(),
-    integrationId: params.integrationId || Random.id(),
-    status: CONVERSATION_STATUSES.NEW,
+    ...doc,
+    ...params,
   });
 };
 
@@ -212,17 +216,20 @@ export const conversationMessageFactory = (params = {}) => {
 export const integrationFactory = (params = {}) => {
   const kind = params.kind || 'messenger';
 
-  return Integrations.create({
+  const doc = {
     name: faker.random.word(),
     kind,
-    brandId: params.brandId || Random.id(),
-    formId: params.formId || Random.id(),
-    messengerData: params.messengerData || { welcomeMessage: 'welcome', notifyCustomer: true },
+    brandId: Random.id(),
+    formId: Random.id(),
+    messengerData: { welcomeMessage: 'welcome', notifyCustomer: true },
     formData:
       params.formData === 'form'
         ? params.formData
         : kind === 'form' ? { thankContent: 'thankContent' } : null,
-  });
+  };
+
+  Object.assign(doc, params);
+  return Integrations.create(doc);
 };
 
 export const formFactory = async ({ title, code, description, createdUserId }) => {

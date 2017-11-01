@@ -136,6 +136,28 @@ class Conversation {
     });
   }
 
+  /*
+   * Reopens conversation
+   * @param {String} _id - Conversation id
+   * @return {Object} updated conversation
+   */
+  static async reopen(_id) {
+    await this.update(
+      { _id },
+      {
+        $set: {
+          // reset read state
+          readUserIds: [],
+
+          // if closed, reopen
+          status: CONVERSATION_STATUSES.OPEN,
+        },
+      },
+    );
+
+    return this.findOne({ _id });
+  }
+
   /**
    * Assign user to conversation
    * @param  {list} conversationIds

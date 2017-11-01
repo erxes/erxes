@@ -10,6 +10,8 @@ import {
   MESSENGER_DATA_AVAILABILITY,
 } from '../../data/constants';
 
+import { TwitterSchema, FacebookSchema } from '../../social/schemas';
+
 // subdocument schema for MessengerOnlineHours
 const MessengerOnlineHoursSchema = mongoose.Schema(
   {
@@ -112,8 +114,8 @@ const IntegrationSchema = mongoose.Schema({
   formId: String,
   formData: FormDataSchema,
   messengerData: MessengerDataSchema,
-  twitterData: Object,
-  facebookData: Object,
+  twitterData: TwitterSchema,
+  facebookData: FacebookSchema,
   uiOptions: UiOptionsSchema,
 });
 

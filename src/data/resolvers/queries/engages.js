@@ -84,7 +84,7 @@ export default {
    * @param {String} args.status
    * @return {Object} counts map
    */
-  async engageMessageCounts(root, { name, kind, status }, { user }) {
+  engageMessageCounts(root, { name, kind, status }, { user }) {
     if (name === 'kind') {
       return countsByKind();
     }

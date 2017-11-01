@@ -26,6 +26,7 @@ export const sendMessageEmail = async () => {
     if (!customer || !customer.email) {
       return;
     }
+
     if (!brand) {
       return;
     }
