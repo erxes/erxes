@@ -97,7 +97,7 @@ class Message {
   }
 
   /**
-   * Create a conversation
+   * Create a conversation message
    * @param  {Object} doc - conversation message fields
    * @param  {Object} user object
    * @return {Promise} Newly created conversation object

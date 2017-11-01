@@ -37,7 +37,9 @@ export const graphRequest = {
 };
 
 /*
- * get list of pages that authorized user owns
+ * Get list of pages that authorized user owns
+ * @param {String} accessToken - App access token
+ * @return {[Object]} - page list
  */
 export const getPageList = accessToken => {
   const response = graphRequest.get('/me/accounts?limit=100', accessToken);
@@ -49,8 +51,12 @@ export const getPageList = accessToken => {
 };
 
 /*
- * save webhook response
+ * Save webhook response
  * create conversation, customer, message using transmitted data
+ *
+ * @param {String} userAccessToken - User access token
+ * @param {Object} integration - Integration object
+ * @param {Object} data - Facebook webhook response
  */
 
 export class SaveWebhookResponse {
@@ -93,7 +99,7 @@ export class SaveWebhookResponse {
   }
 
   /*
-  * via page messenger
+  * Via page messenger
   */
   async viaMessengerEvent(entry) {
     for (let messagingEvent of entry.messaging) {
@@ -105,7 +111,7 @@ export class SaveWebhookResponse {
   }
 
   /*
-   * wall post
+   * Wall post
    */
   async viaFeedEvent(entry) {
     for (let event of entry.changes) {
@@ -115,7 +121,9 @@ export class SaveWebhookResponse {
   }
 
   /*
-   * common get or create conversation helper using both in messenger and feed
+   * Common get or create conversation helper using both in messenger and feed
+   * @param {Object} params - Parameters doc
+   * @return newly create message object
    */
   async getOrCreateConversation(params) {
     // extract params
@@ -150,20 +158,9 @@ export class SaveWebhookResponse {
 
       conversation = await Conversations.findOne({ _id: conversationId });
 
-      // update conversation
+      // reopen conversation
     } else {
-      await Conversations.update(
-        { _id: conversation._id },
-        {
-          $set: {
-            // reset read history
-            readUserIds: [],
-
-            // if closed, reopen it
-            status: CONVERSATION_STATUSES.OPEN,
-          },
-        },
-      );
+      conversation = await Conversations.reopen(conversation._id);
     }
 
     // create new message
@@ -177,7 +174,8 @@ export class SaveWebhookResponse {
   }
 
   /*
-   * get or create new conversation by feed info
+   * Get or create new conversation by feed info
+   * @param {Object} value - Webhook response item
    */
   async getOrCreateConversationByFeed(value) {
     const commentId = value.comment_id;
@@ -277,7 +275,9 @@ export class SaveWebhookResponse {
   }
 
   /*
-   * get or create new conversation by page messenger
+   * Get or create new conversation by page messenger
+   * @param {Object} event - Webhook response item
+   * @return Newly created message object
    */
   async getOrCreateConversationByMessenger(event) {
     const senderId = event.sender.id;
@@ -323,7 +323,9 @@ export class SaveWebhookResponse {
   }
 
   /*
-   * get or create customer using facebook data
+   * Get or create customer using facebook data
+   * @param {String} fbUserId - Facebook user id
+   * @return Previous or newly created customer object
    */
   async getOrCreateCustomer(fbUserId) {
     const integrationId = this.integration._id;
@@ -358,6 +360,9 @@ export class SaveWebhookResponse {
     });
   }
 
+  /*
+   * Create new message
+   */
   async createMessage({ conversation, userId, content, attachments, facebookData }) {
     if (conversation) {
       // create new message
@@ -378,7 +383,9 @@ export class SaveWebhookResponse {
 }
 
 /*
- * receive per app webhook response
+ * Receive per app webhook response
+ * @param {Object} app - Apps configuration item from .env
+ * @param {Object} data - Webhook response
  */
 export const receiveWebhookResponse = async (app, data) => {
   const selector = {
@@ -397,7 +404,10 @@ export const receiveWebhookResponse = async (app, data) => {
 };
 
 /*
- * post reply to page conversation or comment to wall post
+ * Post reply to page conversation or comment to wall post
+ * @param {Object} conversation - Conversation object
+ * @param {Sting} text - Reply content
+ * @param {String} messageId - Conversation message id
  */
 export const facebookReply = async (conversation, text, messageId) => {
   const { FACEBOOK } = process.env;
