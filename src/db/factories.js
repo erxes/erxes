@@ -219,9 +219,10 @@ export const integrationFactory = async (params = {}) => {
   const doc = {
     name: faker.random.word(),
     kind,
-    brandId: Random.id(),
+    brandId: params.brandId || Random.id(),
     formId: Random.id(),
     messengerData: { welcomeMessage: 'welcome', notifyCustomer: true },
+    twitterData: params.twitterData || {},
     facebookData: params.facebookData || {},
     formData:
       params.formData === 'form'
