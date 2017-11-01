@@ -7,6 +7,7 @@ import moment from 'moment';
 import { integrationOptions, selectOptions } from '../utils';
 import { KIND_CHOICES as INTEGRATIONS_TYPES } from 'modules/settings/integrations/constants';
 import { Wrapper } from 'modules/layout/components';
+import { FlexRow, FlexItem, InsightFilter, InsightTitle } from '../styles';
 
 const propTypes = {
   brands: PropTypes.array.isRequired,
@@ -53,7 +54,7 @@ class Filter extends React.Component {
     const integrations = INTEGRATIONS_TYPES.ALL_LIST;
 
     return (
-      <div className="flex-item">
+      <FlexItem>
         <ControlLabel>Integrations</ControlLabel>
         <Select
           placeholder="Choose integrations"
@@ -66,14 +67,14 @@ class Filter extends React.Component {
           )}
           options={integrationOptions(integrations)}
         />
-      </div>
+      </FlexItem>
     );
   }
 
   renderBrands() {
     const { brands } = this.props;
     return (
-      <div className="flex-item">
+      <FlexItem>
         <ControlLabel>Brands</ControlLabel>
 
         <Select
@@ -87,18 +88,18 @@ class Filter extends React.Component {
           )}
           options={selectOptions(brands)}
         />
-      </div>
+      </FlexItem>
     );
   }
 
   render() {
     return (
-      <div className="insight-filter">
-        <h5 className="insight-title">Filter</h5>
-        <div className="flex-row">
+      <InsightFilter>
+        <InsightTitle>Filter</InsightTitle>
+        <FlexRow>
           {this.renderIntegrations()}
           {this.renderBrands()}
-          <div className="flex-item">
+          <FlexItem>
             <ControlLabel>Start date</ControlLabel>
             <DatePicker
               selected={this.state.startDate}
@@ -106,8 +107,8 @@ class Filter extends React.Component {
               placeholderText="Click to select a date"
               onChange={this.onDateInputChange.bind(this, 'startDate')}
             />
-          </div>
-          <div className="flex-item">
+          </FlexItem>
+          <FlexItem>
             <ControlLabel>End date</ControlLabel>
             <DatePicker
               selected={this.state.endDate}
@@ -115,9 +116,9 @@ class Filter extends React.Component {
               placeholderText="Click to select a date"
               onChange={this.onDateInputChange.bind(this, 'endDate')}
             />
-          </div>
-        </div>
-      </div>
+          </FlexItem>
+        </FlexRow>
+      </InsightFilter>
     );
   }
 }

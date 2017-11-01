@@ -8,6 +8,7 @@ import {
   CartesianGrid,
   Tooltip
 } from 'recharts';
+import { ChartWrapper } from '../styles';
 
 const propTypes = {
   data: PropTypes.array.isRequired,
@@ -20,7 +21,7 @@ class Chart extends React.Component {
     const { data, width, height } = this.props;
     const textStyle = { textTransform: 'capitalize' };
     return (
-      <div className="chart-wrapper">
+      <ChartWrapper>
         <AreaChart width={width} height={height} data={data}>
           <XAxis dataKey="name" />
           <YAxis />
@@ -38,7 +39,7 @@ class Chart extends React.Component {
             activeDot={{ r: 5 }}
           />
         </AreaChart>
-      </div>
+      </ChartWrapper>
     );
   }
 }
