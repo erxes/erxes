@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { compose } from 'react-apollo';
 import { pagination, Loading } from 'modules/common/components';
+import { confirm } from 'modules/common/utils';
 import { Alert } from 'modules/common/utils';
 
 const commonListComposer = options => {
@@ -36,19 +37,21 @@ const commonListComposer = options => {
 
     // remove action
     const remove = _id => {
-      removeMutation({
-        variables: { _id }
-      })
-        .then(() => {
-          // update queries
-          listQuery.refetch();
-          totalCountQuery.refetch();
-
-          Alert.success('Congrats', 'Successfully deleted.');
+      confirm().then(() => {
+        removeMutation({
+          variables: { _id }
         })
-        .catch(error => {
-          Alert.error(error.message);
-        });
+          .then(() => {
+            // update queries
+            listQuery.refetch();
+            totalCountQuery.refetch();
+
+            Alert.success('Congrats', 'Successfully deleted.');
+          })
+          .catch(error => {
+            Alert.error(error.message);
+          });
+      });
     };
 
     // create or update action

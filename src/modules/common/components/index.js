@@ -29,6 +29,7 @@ import CountsByTag from './CountsByTag';
 import Table from './Table';
 import Editor from './Editor';
 import { Tabs, TabList, TabTitle } from './Tabs';
+import ConfirmDialog from './ConfirmDialog';
 
 export {
   ActionButtons,
@@ -65,5 +66,6 @@ export {
   Editor,
   Tabs,
   TabList,
-  TabTitle
+  TabTitle,
+  ConfirmDialog
 };
