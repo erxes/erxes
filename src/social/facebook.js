@@ -433,6 +433,7 @@ export const facebookReply = async (conversation, text, messageId) => {
         recipient: { id: conversation.facebookData.senderId },
         message: { text },
       },
+      /* istanbul ignore next */
       () => {},
     );
   }
