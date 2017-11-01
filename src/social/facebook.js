@@ -402,9 +402,11 @@ export const receiveWebhookResponse = async (app, data) => {
 export const facebookReply = async (conversation, text, messageId) => {
   const { FACEBOOK } = process.env;
 
-  const app = JSON.parse(FACEBOOK).find(
-    a => a.id === conversation.integration().facebookData.appId,
-  );
+  const integration = await Integrations.findOne({
+    _id: conversation.integrationId,
+  });
+
+  const app = JSON.parse(FACEBOOK).find(a => a.id === integration.facebookData.appId);
 
   // page access token
   const response = graphRequest.get(
