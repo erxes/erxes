@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';
-import styled from 'styled-components';
+import styled, { keyframes } from 'styled-components';
 import Icon from '../components/Icon';
 import { colors, typography } from '../styles';
 
@@ -23,6 +23,26 @@ const types = {
     icon: 'checkmark-circled'
   }
 };
+const slidedown = keyframes`
+  0% {
+    transform: translateY(-100%);
+  }
+  50% {
+    transform: translateY(8%);
+  }
+  65% {
+    transform: translateY(-4%);
+  }
+  80% {
+    transform: translateY(4%);
+  }
+  95% {
+    transform: translateY(-2%);
+  }
+  100% {
+    transform: translateY(0%);
+  }
+`;
 const Alertwrapper = styled.div.attrs({
   id: 'alertwrapper'
 })`
@@ -45,6 +65,9 @@ const Alertstyled = styled.div`
   font-weight: bold;
   position: relative;
   text-align: left;
+  animation-name: ${slidedown};
+  animation-duration: 1s;
+  animation-timing-function: ease;
   span {
     margin-left: 5px;
     color: #fff;
@@ -54,12 +77,14 @@ const Alertstyled = styled.div`
     color: white;
   }
 `;
-
+let alertrunning = false;
 const createAlertWrapper = second => {
   this._popup = document.createElement('div');
+  alertrunning = true;
   document.body.appendChild(this._popup);
   ReactDOM.render(<Alertwrapper />, this._popup);
   setTimeout(() => {
+    alertrunning = false;
     ReactDOM.unmountComponentAtNode(this._popup);
     document.body.removeChild(this._popup);
   }, second * 1000);
@@ -82,8 +107,10 @@ renderAlert.defaultProps = {
   type: 'info'
 };
 const pop = (text, type) => {
-  createAlertWrapper(4);
-  renderAlert(text, type);
+  if (alertrunning === false) {
+    createAlertWrapper(4);
+    renderAlert(text, type);
+  }
 };
 export const notify = {
   pop
