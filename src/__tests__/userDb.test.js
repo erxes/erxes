@@ -15,7 +15,7 @@ describe('User db utils', () => {
 
   beforeEach(async () => {
     // Creating test data
-    _user = await userFactory({ email: 'info@erxes.io', isOwner: true });
+    _user = await userFactory({ email: 'info@erxes.io' });
   });
 
   afterEach(async () => {
@@ -43,18 +43,6 @@ describe('User db utils', () => {
     expect(userObj.details.avatar).toBe(_user.details.avatar);
   });
 
-  test('Update user: owner required', async () => {
-    const user = await userFactory();
-
-    expect.assertions(1);
-
-    try {
-      await Users.updateUser(user._id, {});
-    } catch (e) {
-      expect(e.message).toBe('Permission denied');
-    }
-  });
-
   test('Update user', async () => {
     const updateDoc = await userFactory();
 
@@ -78,5 +66,12 @@ describe('User db utils', () => {
     expect(userObj.details.twitterUsername).toBe(updateDoc.details.twitterUsername);
     expect(userObj.details.fullName).toBe(updateDoc.details.fullName);
     expect(userObj.details.avatar).toBe(updateDoc.details.avatar);
+  });
+
+  test('Remove user', async () => {
+    await Users.removeUser(_user._id);
+
+    // ensure removed
+    expect(await Users.find().count()).toBe(0);
   });
 });

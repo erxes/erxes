@@ -76,8 +76,6 @@ class User {
    * @return {Promise} updated user info
    */
   static async updateUser(_id, { username, email, password, role, details }) {
-    const user = await Users.findOne({ _id });
-
     const doc = { username, email, password, role, details };
 
     // change password
@@ -85,16 +83,25 @@ class User {
       doc.password = await this.generatePassword(password);
     }
 
-    // only owner allowed to edit
-    if (!user.isOwner) {
-      throw new Error('Permission denied');
-    }
-
     await this.update({ _id }, { $set: doc });
 
     return this.findOne({ _id });
   }
 
+  /*
+   * Remove user
+   * @param {String} _id - User id
+   * @return {Promise} - remove method response
+   */
+  static async removeUser(_id) {
+    return Users.remove({ _id });
+  }
+
+  /*
+   * Generates new password hash using plan text password
+   * @param {String} password - Plan text password
+   * @return hashed password
+   */
   static generatePassword(password) {
     return bcrypt.hash(password, SALT_WORK_FACTOR);
   }
