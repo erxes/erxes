@@ -2,7 +2,8 @@
 
 import sinon from 'sinon';
 import { connect, disconnect } from '../../db/connection';
-import { graphRequest, getPageList, receiveWebhookResponse } from '../../social/facebook';
+import { getPageList, receiveWebhookResponse } from '../../social/facebook';
+import { graphRequest } from '../../social/facebookTracker';
 import { Integrations } from '../../db/models';
 import { integrationFactory } from '../../db/factories';
 
@@ -12,15 +13,9 @@ afterAll(() => disconnect());
 describe('facebook integration common tests', () => {
   const pages = [{ id: '1', name: 'page1' }];
 
-  beforeEach(() => {
-    // mock all requests
-    sinon.stub(graphRequest, 'get').callsFake(() => ({ data: pages }));
-  });
-
   afterEach(async () => {
     // clear
     await Integrations.remove({});
-    graphRequest.get.restore(); // unwraps the spy
   });
 
   it('receive web hook response', async () => {
@@ -32,6 +27,19 @@ describe('facebook integration common tests', () => {
   });
 
   it('get page list', async () => {
+    sinon.stub(graphRequest, 'get').callsFake(() => ({ data: pages }));
+
     expect(getPageList()).toEqual(pages);
+
+    graphRequest.get.restore(); // unwraps the spy
+  });
+
+  it('graph request', async () => {
+    sinon.stub(graphRequest, 'base').callsFake(() => {});
+
+    graphRequest.get();
+    graphRequest.post();
+
+    graphRequest.base.restore(); // unwraps the spy
   });
 });
