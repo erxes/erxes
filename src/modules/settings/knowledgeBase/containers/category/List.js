@@ -1,5 +1,6 @@
 import { gql, graphql } from 'react-apollo';
 import { commonListComposer } from '../../../utils';
+import { CategoryList } from '../../components';
 import {
   knowledgeBaseCategories,
   knowledgeBaseCategoriesTotalCount
@@ -9,7 +10,6 @@ import {
   knowledgeBaseCategoriesEdit,
   knowledgeBaseCategoriesRemove
 } from '../../graphql/mutations';
-import { CategoryList } from '../../components';
 
 export default commonListComposer({
   name: 'knowledgeBaseCategories',
@@ -40,5 +40,6 @@ export default commonListComposer({
   gqlTotalCountQuery: graphql(gql(knowledgeBaseCategoriesTotalCount), {
     name: 'totalCountQuery'
   }),
+
   ListComponent: CategoryList
 });

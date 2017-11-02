@@ -1,5 +1,6 @@
 const topicCommonParamsDef = `$doc: KnowledgeBaseTopicDoc!`;
 const categoryCommonParamsDef = `$doc: KnowledgeBaseCategoryDoc!`;
+const articleCommonParamsDef = `$doc: KnowledgeBaseArticleDoc!`;
 
 const commonParams = `doc: $doc`;
 
@@ -44,5 +45,27 @@ export const knowledgeBaseCategoriesEdit = `
 export const knowledgeBaseCategoriesRemove = `
   mutation knowledgeBaseCategoriesRemove($_id: String!) {
     knowledgeBaseCategoriesRemove(_id: $_id)
+  }
+`;
+
+export const knowledgeBaseArticlesAdd = `
+  mutation knowledgeBaseArticlesAdd(${articleCommonParamsDef}) {
+    knowledgeBaseArticlesAdd(${commonParams}) {
+      _id
+    }
+  }
+`;
+
+export const knowledgeBaseArticlesEdit = `
+  mutation knowledgeBaseArticlesEdit($_id: String!, ${articleCommonParamsDef}) {
+    knowledgeBaseArticlesEdit(_id: $_id, ${commonParams}) {
+      _id
+    }
+  }
+`;
+
+export const knowledgeBaseArticlesRemove = `
+  mutation knowledgeBaseArticlesRemove($_id: String!) {
+    knowledgeBaseArticlesRemove(_id: $_id)
   }
 `;
