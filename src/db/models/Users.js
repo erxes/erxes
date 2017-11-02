@@ -19,9 +19,6 @@ const DetailSchema = mongoose.Schema(
     fullName: String,
     position: String,
     twitterUsername: String,
-    getNotificationByEmail: Boolean,
-    emailSignatures: [EmailSignatureSchema],
-    starredConversationIds: [String],
   },
   { _id: false },
 );
@@ -41,7 +38,6 @@ const UserSchema = mongoose.Schema({
     type: String,
     enum: [ROLES.ADMIN, ROLES.CONTRIBUTOR],
   },
-  details: DetailSchema,
   isOwner: Boolean,
   email: {
     type: String,
@@ -49,6 +45,10 @@ const UserSchema = mongoose.Schema({
     unique: true,
     match: [/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/, 'Please fill a valid email address'],
   },
+  getNotificationByEmail: Boolean,
+  emailSignatures: [EmailSignatureSchema],
+  starredConversationIds: [String],
+  details: DetailSchema,
 });
 
 class User {
@@ -114,7 +114,7 @@ class User {
    * @return {Promise} - Updated user
    */
   static async configEmailSignatures(_id, signatures) {
-    await this.update({ _id }, { $set: { 'details.emailSignatures': signatures } });
+    await this.update({ _id }, { $set: { emailSignatures: signatures } });
 
     return this.findOne({ _id });
   }
@@ -126,7 +126,7 @@ class User {
    * @return {Promise} - Updated user
    */
   static async configGetNotificationByEmail(_id, isAllowed) {
-    await this.update({ _id }, { $set: { 'details.getNotificationByEmail': isAllowed } });
+    await this.update({ _id }, { $set: { getNotificationByEmail: isAllowed } });
 
     return this.findOne({ _id });
   }

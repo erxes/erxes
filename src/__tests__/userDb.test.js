@@ -113,13 +113,13 @@ describe('User db utils', () => {
 
     const user = await Users.configEmailSignatures(_user._id, [signature]);
 
-    expect(user.details.emailSignatures[0].toJSON()).toEqual(signature);
+    expect(user.emailSignatures[0].toJSON()).toEqual(signature);
   });
 
   test('Config get notifications by email', async () => {
     const user = await Users.configGetNotificationByEmail(_user._id, true);
 
-    expect(user.details.getNotificationByEmail).toEqual(true);
+    expect(user.getNotificationByEmail).toEqual(true);
   });
 
   test('Reset password', async () => {

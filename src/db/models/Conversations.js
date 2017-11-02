@@ -214,14 +214,7 @@ class Conversation {
   static async starConversation(_ids, userId) {
     await this.checkExistanceConversations(_ids);
 
-    await Users.update(
-      { _id: userId },
-      {
-        $addToSet: {
-          'details.starredConversationIds': { $each: _ids },
-        },
-      },
-    );
+    await Users.update({ _id: userId }, { $addToSet: { starredConversationIds: { $each: _ids } } });
 
     return Users.findOne({ _id: userId });
   }
@@ -236,14 +229,7 @@ class Conversation {
     // check conversations existance
     await this.checkExistanceConversations(_ids);
 
-    await Users.update(
-      { _id: userId },
-      {
-        $pull: {
-          'details.starredConversationIds': { $in: _ids },
-        },
-      },
-    );
+    await Users.update({ _id: userId }, { $pull: { starredConversationIds: { $in: _ids } } });
 
     return Users.findOne({ _id: userId });
   }

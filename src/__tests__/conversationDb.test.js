@@ -156,7 +156,7 @@ describe('Conversation db', () => {
   test('Conversation star', async () => {
     const user = await Conversations.starConversation([_conversation._id], _user._id);
 
-    expect(user.details.starredConversationIds[0]).toBe(_conversation._id);
+    expect(user.starredConversationIds[0]).toBe(_conversation._id);
   });
 
   test('Conversation unstar', async () => {
@@ -165,17 +165,13 @@ describe('Conversation db', () => {
     // star first before unstar
     await Users.update(
       { _id: _user.id },
-      {
-        $addToSet: {
-          'details.starredConversationIds': { $each: ids },
-        },
-      },
+      { $addToSet: { starredConversationIds: { $each: ids } } },
     );
 
     // unstar
     const user = await Conversations.unstarConversation(ids, _user._id);
 
-    expect(user.details.starredConversationIds.length).toBe(0);
+    expect(user.starredConversationIds.length).toBe(0);
   });
 
   test('Toggle participated users in conversation ', async () => {
