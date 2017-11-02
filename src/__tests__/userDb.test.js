@@ -162,4 +162,21 @@ describe('User db utils', () => {
     expect(user.resetPasswordExpires).toBe(null);
     expect(bcrypt.compare('password', user.password)).toBeTruthy();
   });
+
+  test('Forgot password', async () => {
+    expect.assertions(3);
+
+    // invalid email ==============
+    try {
+      await Users.forgotPassword('test@yahoo.com');
+    } catch (e) {
+      expect(e.message).toBe('Invalid email');
+    }
+
+    // valid
+    const user = await Users.forgotPassword(_user.email);
+
+    expect(user.resetPasswordToken).toBeDefined();
+    expect(user.resetPasswordExpires).toBeDefined();
+  });
 });

@@ -1,6 +1,7 @@
 import mongoose from 'mongoose';
 import Random from 'meteor-random';
 import bcrypt from 'bcrypt';
+import crypto from 'crypto';
 import { ROLES } from '../../data/constants';
 
 const SALT_WORK_FACTOR = 10;
@@ -186,6 +187,35 @@ class User {
         password: bcrypt.hashSync(newPassword, 10),
         resetPasswordToken: undefined,
         resetPasswordExpires: undefined,
+      },
+    );
+
+    return this.findOne({ _id: user._id });
+  }
+
+  /*
+   * Sends reset password link to found user's email
+   * @param {String} email - Registered user's email
+   * @return {Promise} - Updated user object
+   */
+  static async forgotPassword(email) {
+    // find user
+    const user = await this.findOne({ email });
+
+    if (!user) {
+      throw new Error('Invalid email');
+    }
+
+    // create the random token
+    const buffer = await crypto.randomBytes(20);
+    const token = buffer.toString('hex');
+
+    // save token & expiration date
+    await this.findByIdAndUpdate(
+      { _id: user._id },
+      {
+        resetPasswordToken: token,
+        resetPasswordExpires: Date.now() + 86400000,
       },
     );
 
