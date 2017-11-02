@@ -81,6 +81,27 @@ class Channel {
     return this.findOne({});
   }
 
+  /*
+   * Update user's channels
+   * @param {[String]} channelIds - User's all involved channels
+   * @param {String} userId - User id
+   */
+  static async updateUserChannels(channelIds, userId) {
+    // remove from previous channels
+    await this.update(
+      { memberIds: { $in: [userId] } },
+      { $pull: { memberIds: userId } },
+      { multi: true },
+    );
+
+    // add to given channels
+    await this.update(
+      { _id: { $in: channelIds } },
+      { $push: { memberIds: userId } },
+      { multi: true },
+    );
+  }
+
   /**
    * Removes a channel document
    * @param {string} _id - Channel id

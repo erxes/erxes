@@ -32,4 +32,16 @@ export default {
   resetPassword(root, args) {
     return Users.resetPassword(args);
   },
+
+  usersAdd(root, args, { user }) {
+    const { username, password, passwordConfirmation, email, role, details } = args;
+
+    if (!user) throw new Error('Login required');
+
+    if (password !== passwordConfirmation) {
+      throw new Error('Incorrect password confirmation');
+    }
+
+    return Users.createUser({ username, password, email, role, details });
+  },
 };
