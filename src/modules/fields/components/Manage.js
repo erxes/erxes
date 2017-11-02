@@ -2,15 +2,16 @@
 
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Col, Checkbox, ButtonGroup } from 'react-bootstrap';
 import {
   ControlLabel,
   Button,
   FormGroup,
-  FormControl
+  FormControl,
+  Icon
 } from 'modules/common/components';
 import { Wrapper } from 'modules/layout/components';
 import FieldsPreview from './FieldsPreview';
+import { ContentBox, BuildFooter } from '../styles';
 
 const editingFieldDefaultValue = {
   isRequired: false
@@ -131,26 +132,24 @@ class Manage extends Component {
       };
 
       return (
-        <ButtonGroup>
+        <div>
           <Button size="small" btnStyle="danger" onClick={onDelete}>
-            Delete
+            <Icon icon="close" /> Delete
           </Button>
-          <Button size="small" btnStyle="success" onClick={reset}>
-            New
+          <Button size="small" btnStyle="primary" onClick={reset}>
+            <Icon icon="plus" /> New
           </Button>
-          <Button size="small" type="submit" btnStyle="success">
-            Save
+          <Button size="small" onClick={this.onSubmit} btnStyle="success">
+            <Icon icon="checkmark" /> Save
           </Button>
-        </ButtonGroup>
+        </div>
       );
     }
 
     return (
-      <ButtonGroup>
-        <Button size="small" type="submit" btnStyle="success">
-          Add
-        </Button>
-      </ButtonGroup>
+      <Button size="small" onClick={this.onSubmit} btnStyle="primary">
+        <Icon icon="plus" /> Add to form
+      </Button>
     );
   }
 
@@ -183,7 +182,7 @@ class Manage extends Component {
     const editingField = this.state.editingField;
 
     return (
-      <form onSubmit={this.onSubmit}>
+      <ContentBox>
         <FormGroup>
           <ControlLabel htmlFor="type">Type:</ControlLabel>
 
@@ -242,46 +241,48 @@ class Manage extends Component {
         </FormGroup>
 
         {this.renderOptionsTextArea()}
-        <div className="flex-row">
-          <FormGroup className="flex-item">
-            <Checkbox
-              id="isRequired"
-              onChange={this.onChangeIsRequired}
-              checked={editingField.isRequired || false}
-            >
-              Required:
-            </Checkbox>
-          </FormGroup>
-
-          {this.renderButtons()}
-        </div>
-      </form>
+      </ContentBox>
     );
   }
 
   render() {
     const breadcrumb = [{ title: 'Manage fields' }];
 
-    const content = (
-      <div className="form-builder margined">
-        <Col sm={5} className="fixed">
-          {this.renderForm()}
-        </Col>
+    const Sidebar = Wrapper.Sidebar;
 
-        <Col sm={7} xsOffset={5}>
-          <FieldsPreview
-            fields={this.state.fields}
-            onFieldEdit={this.onFieldEdit}
-            onSort={this.props.onSort}
-          />
-        </Col>
-      </div>
+    const footerActions = (
+      <BuildFooter>
+        <FormControl
+          checked={this.state.editingField.isRequired || false}
+          id="isRequired"
+          componentClass="checkbox"
+          onChange={this.onChangeIsRequired}
+        >
+          {' '}
+          This item is required
+        </FormControl>
+
+        {this.renderButtons()}
+      </BuildFooter>
+    );
+
+    const preview = (
+      <Sidebar half full header={<Sidebar.Header>Preview</Sidebar.Header>}>
+        <FieldsPreview
+          fields={this.state.fields}
+          onFieldEdit={this.onFieldEdit}
+          onSort={this.props.onSort}
+        />
+      </Sidebar>
     );
 
     return (
       <Wrapper
         header={<Wrapper.Header breadcrumb={breadcrumb} />}
-        content={content}
+        rightSidebar={preview}
+        actionBar={<Wrapper.ActionBar left="Build" />}
+        footer={footerActions}
+        content={this.renderForm()}
       />
     );
   }

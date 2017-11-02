@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Table } from 'react-bootstrap';
 import { Wrapper } from 'modules/layout/components';
-import { Loader, LoadingContent, LoadingSidebar, Spinner } from '../';
+import { LoadingContent, LoadingSidebar, Spinner } from '../';
 
 const propTypes = {
   sidebarSize: PropTypes.string,
@@ -57,16 +57,12 @@ function Loading({
   }
 
   return (
-    <div>
-      <Loader />
-      <Wrapper
-        header={<Wrapper.Header breadcrumb={[{ title: title }]} />}
-        leftSidebar={<LoadingSidebar size={sidebarSize} items={items} />}
-        content={content}
-        rightSidebar={hasRightSidebar ? <LoadingSidebar items={items} /> : null}
-        relative
-      />
-    </div>
+    <Wrapper
+      header={<Wrapper.Header breadcrumb={[{ title: title }]} />}
+      leftSidebar={<LoadingSidebar size={sidebarSize} items={items} />}
+      content={content}
+      rightSidebar={hasRightSidebar ? <LoadingSidebar items={items} /> : null}
+    />
   );
 }
 

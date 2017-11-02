@@ -79,7 +79,9 @@ const SelectWrapper = styled.div`
 const Select = Input.withComponent('select').extend`
   border: none;
   height: 34px;
+  padding: 0 ${dimensions.unitSpacing}px;
   width: calc(100% + ${dimensions.coreSpacing}px);
+  -webkit-appearance: none;
 `;
 
 const Textarea = Input.withComponent('textarea').extend`
@@ -149,7 +151,7 @@ const inputStyle = styled.input`
       width: ${inputHeight};
       height: ${inputHeight};
       display: inline-block;
-      vertical-align: middle;
+      vertical-align: text-top;
     }
 
     &:after {

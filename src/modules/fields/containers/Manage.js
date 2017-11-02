@@ -5,6 +5,7 @@ import { compose, gql, graphql } from 'react-apollo';
 import { Alert } from 'modules/common/utils';
 import { Manage } from '../components';
 import { queries, mutations } from '../graphql';
+import { confirm } from 'modules/common/utils';
 
 const ManageContainer = props => {
   const {
@@ -54,13 +55,11 @@ const ManageContainer = props => {
 
   // delete field
   const deleteField = _id => {
-    // TODO confirm
-
-    fieldsRemove({
-      variables: { _id }
-    }).then(() => {
-      fieldsQuery.refetch();
-      Alert.success('Success');
+    confirm().then(() => {
+      fieldsRemove({ variables: { _id } }).then(() => {
+        fieldsQuery.refetch();
+        Alert.success('Success');
+      });
     });
   };
 

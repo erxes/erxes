@@ -115,6 +115,7 @@ const ContentBox = styled.div`
 `;
 
 const ContenFooter = styled.div`
+  margin-right: ${dimensions.coreSpacing}px;
   background: ${colors.colorWhite};
 `;
 
@@ -146,6 +147,7 @@ const SideContent = styled.section`
   flex-direction: column;
   flex-shrink: 0;
   width: ${props => (props.wide ? '360px' : '300px')};
+  flex: ${props => (props.half ? '1' : 'none')};
   margin-right: ${dimensions.coreSpacing}px;
   background: ${props => (props.full ? colors.colorWhite : 'none')};
   box-shadow: ${props =>

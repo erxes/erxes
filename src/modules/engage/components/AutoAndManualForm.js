@@ -98,7 +98,7 @@ class AutoAndManualForm extends FormBase {
         >
           <span>Email</span>
           <p>
-            Delivered to a user's email inbox <br />Customize with your own
+            Delivered to a user s email inbox <br />Customize with your own
             templates
           </p>
         </div>

@@ -6,24 +6,27 @@ import {
   SortableHandle,
   arrayMove
 } from 'react-sortable-hoc';
-import { EmptyState } from 'modules/common/components';
+import { EmptyState, Icon } from 'modules/common/components';
 import FieldPreview from './FieldPreview';
+import { DragableItem, DragHandler, PreviewForm } from '../styles';
 
 const DragHandle = SortableHandle(() => (
-  <span className="drag-handler">::::</span>
+  <DragHandler>
+    <Icon icon="arrow-move" />
+  </DragHandler>
 ));
 
 const FieldPreviewWrapper = props => (
-  <div className="draggable-field">
+  <DragableItem>
     <DragHandle />
     <FieldPreview {...props} />
-  </div>
+  </DragableItem>
 );
 
 const SortableItem = SortableElement(FieldPreviewWrapper);
 
 const SortableList = SortableContainer(({ fields, onEdit }) => (
-  <div className="form-preview">
+  <PreviewForm>
     {fields.map((field, index) => (
       <SortableItem
         key={`item-${index}`}
@@ -36,7 +39,7 @@ const SortableList = SortableContainer(({ fields, onEdit }) => (
     {fields.length === 0 ? (
       <EmptyState icon="clipboard" text="No items" size="small" />
     ) : null}
-  </div>
+  </PreviewForm>
 ));
 
 class FieldsPreview extends Component {

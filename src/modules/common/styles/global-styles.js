@@ -102,8 +102,9 @@ injectGlobal`
     margin-top: 0;
     border-radius: 0;
     border-color: #eee;
-    color: #aaa;
-    box-shadow: 0 2px 4px 0 #ddd;
+    color: #444;
+    min-width: 100%;
+    box-shadow: 0 1px 2px 0 #ddd;
   }
 
   .dropdown-menu > span {
@@ -113,12 +114,12 @@ injectGlobal`
   .dropdown-menu li a {
     display: block;
     padding: 3px 20px;
-    color: #888;
+    color: #444;
     white-space: nowrap;
   }
 
   .dropdown-menu > li > a {
-    color: #888;
+    color: #444;
     font-weight: 300;
   }
 
@@ -126,8 +127,9 @@ injectGlobal`
   .dropdown-menu > li > a:hover,
   .dropdown-menu li a:focus,
   .dropdown-menu li a:hover {
-    color: #666;
+    color: #222;
     background: #f5f5f5;
+    outline: 0;
   }
 
   /* tooltip */
