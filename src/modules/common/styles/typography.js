@@ -9,7 +9,7 @@ const fontSizeHeading4 = 32;
 const fontSizeHeading5 = 24;
 const fontSizeHeading6 = 20;
 const fontSizeHeading7 = 16;
-const fontSizeHeading8 = 11;
+const fontSizeHeading8 = 12;
 
 const fontSizeBody = 13;
 const fontSizeUppercase = 11;

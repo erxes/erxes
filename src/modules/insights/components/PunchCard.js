@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import D3PunchCard from 'd3-punchcard';
+import { ChartWrapper } from '../styles';
 
 const propTypes = {
   data: PropTypes.array.isRequired,
@@ -32,7 +33,7 @@ class PunchCard extends React.Component {
   }
 
   render() {
-    return <div id="punch-card" className="chart-wrapper punch-card" />;
+    return <ChartWrapper id="punch-card" className="punch-card" />;
   }
 }
 

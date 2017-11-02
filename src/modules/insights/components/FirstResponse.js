@@ -7,6 +7,13 @@ import Filter from './Filter';
 import Chart from './Chart';
 import TeamMembers from './TeamMembers';
 import { convertTime } from '../utils';
+import {
+  InsightWrapper,
+  InsightRow,
+  InsightContent,
+  InsightTitle,
+  FullLoader
+} from '../styles';
 
 const propTypes = {
   trend: PropTypes.array.isRequired,
@@ -35,10 +42,10 @@ class FirstResponse extends React.Component {
 
   renderTitle(title, time) {
     return (
-      <h5 className="insight-title">
+      <InsightTitle>
         {title}
         <span>({time})</span>
-      </h5>
+      </InsightTitle>
     );
   }
 
@@ -55,19 +62,18 @@ class FirstResponse extends React.Component {
 
     if (isLoading) {
       return (
-        <div className="full-loader">
+        <FullLoader>
           <Spinner />
-        </div>
+        </FullLoader>
       );
     }
 
     return (
-      <div className="insight-wrapper">
+      <InsightWrapper>
         <Filter brands={brands} queryParams={queryParams} />
-        <div className="insight-content">
-          <div
-            className="insight-row"
-            ref={node => {
+        <InsightContent>
+          <InsightRow
+            innerRef={node => {
               this.wrapper = node;
             }}
           >
@@ -76,16 +82,16 @@ class FirstResponse extends React.Component {
               convertTime(time)
             )}
             <Chart width={width} height={300} data={trend} />
-          </div>
+          </InsightRow>
 
-          <div className="insight-row">
+          <InsightRow>
             {this.renderTitle(
               'Daily First Response Resolve Rate by Team Members'
             )}
             <TeamMembers datas={teamMembers} width={width} />
-          </div>
-        </div>
-      </div>
+          </InsightRow>
+        </InsightContent>
+      </InsightWrapper>
     );
   }
 

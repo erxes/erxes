@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { Col, Row } from 'react-bootstrap';
 import Chart from './Chart';
 import { convertTime } from '../utils';
+import { InsightUserData, UserProfile, FullName } from '../styles';
 
 const propTypes = {
   datas: PropTypes.array.isRequired,
@@ -16,22 +17,22 @@ class TeamMembers extends React.Component {
 
     return (
       <Col sm={6} key={index}>
-        <div className="insight-user-data">
-          <div className="user-profile">
+        <InsightUserData>
+          <UserProfile>
             <a>
               <img
                 src={data.avatar || '/images/userDefaultIcon.png'}
                 alt={data.fullName}
               />
             </a>
-            <span className="full-name">{data.fullName}</span>
+            <FullName>{data.fullName}</FullName>
 
             {userData.time ? (
               <span>&nbsp; ({convertTime(userData.time)})</span>
             ) : null}
-          </div>
+          </UserProfile>
           <Chart width={width * 0.45} height={200} data={data.graph} />
-        </div>
+        </InsightUserData>
       </Col>
     );
   }

@@ -8,6 +8,13 @@ import Chart from './Chart';
 import Summary from './Summary';
 import PunchCard from './PunchCard';
 import Insights from './Insights';
+import {
+  InsightWrapper,
+  InsightRow,
+  InsightContent,
+  InsightTitle,
+  FullLoader
+} from '../styles';
 
 const propTypes = {
   insights: PropTypes.array.isRequired,
@@ -36,7 +43,7 @@ class VolumeReport extends React.Component {
   }
 
   renderTitle(title) {
-    return <h5 className="insight-title">{title}</h5>;
+    return <InsightTitle>{title}</InsightTitle>;
   }
 
   mainContent() {
@@ -53,44 +60,43 @@ class VolumeReport extends React.Component {
 
     if (isLoading) {
       return (
-        <div className="full-loader">
+        <FullLoader>
           <Spinner />
-        </div>
+        </FullLoader>
       );
     }
 
     return (
-      <div className="insight-wrapper">
+      <InsightWrapper>
         <Filter brands={brands} queryParams={queryParams} />
-        <div className="insight-content">
-          <div className="insight-row">
+        <InsightContent>
+          <InsightRow>
             {this.renderTitle('Volume summary')}
             <Summary data={summary} />
-          </div>
+          </InsightRow>
 
-          <div
-            className="insight-row"
-            ref={node => {
+          <InsightRow
+            innerRef={node => {
               this.wrapper = node;
             }}
           >
             {this.renderTitle('Volume Trend')}
             <Chart width={width} height={320} data={trend} />
-          </div>
+          </InsightRow>
 
           {width !== 600 ? (
-            <div className="insight-row">
+            <InsightRow>
               {this.renderTitle('Punch card')}
               <PunchCard data={punch} width={width} />
-            </div>
+            </InsightRow>
           ) : null}
 
-          <div className="insight-row">
+          <InsightRow>
             {this.renderTitle('Insights')}
             <Insights data={insights} wrapperWidth={width} />
-          </div>
-        </div>
-      </div>
+          </InsightRow>
+        </InsightContent>
+      </InsightWrapper>
     );
   }
 

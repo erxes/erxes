@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { PieChart, Pie, Cell } from 'recharts';
+import { ChartWrapper, IntegrationKind, KindItem, KindCount } from '../styles';
 
 const propTypes = {
   data: PropTypes.array.isRequired,
@@ -43,17 +44,17 @@ class Insights extends React.Component {
     };
 
     return (
-      <div className="chart-wrapper">
-        <div className="integration-kind" style={{ marginLeft: width }}>
+      <ChartWrapper>
+        <IntegrationKind style={{ marginLeft: width }}>
           {data.map((detail, index) => (
-            <div key={index} className="kind-item">
+            <KindItem key={index}>
               <span className={`label label-${classNames[index]}`}>
                 {detail.name}
               </span>
-              <span className="kind-count">{detail.value}</span>
-            </div>
+              <KindCount>{detail.value}</KindCount>
+            </KindItem>
           ))}
-        </div>
+        </IntegrationKind>
 
         <PieChart width={width} height={height} onMouseEnter={this.onPieEnter}>
           <Pie
@@ -71,7 +72,7 @@ class Insights extends React.Component {
             ))}
           </Pie>
         </PieChart>
-      </div>
+      </ChartWrapper>
     );
   }
 }
