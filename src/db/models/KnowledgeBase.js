@@ -82,10 +82,7 @@ const ArticleSchema = mongoose.Schema({
     type: String,
     required: true,
   },
-  summary: {
-    type: String,
-    required: true,
-  },
+  summary: String,
   content: {
     type: String,
     required: true,

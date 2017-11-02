@@ -14,7 +14,7 @@ export const types = `
   input KnowledgeBaseArticleDoc {
     title: String!
     summary: String
-    content: String
+    content: String!
     status: String!
   }
 
