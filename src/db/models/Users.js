@@ -155,6 +155,42 @@ class User {
   static generatePassword(password) {
     return bcrypt.hash(password, SALT_WORK_FACTOR);
   }
+
+  /*
+   * Resets user password by given token & password
+   * @param {String} token - User's temporary token for reset password
+   * @param {String} newPassword - New password
+   * @return {Promise} - Updated user information
+   */
+  static async resetPassword({ token, newPassword }) {
+    // find user by token
+    const user = await this.findOne({
+      resetPasswordToken: token,
+      resetPasswordExpires: {
+        $gt: Date.now(),
+      },
+    });
+
+    if (!user) {
+      throw new Error('Password reset token is invalid or has expired.');
+    }
+
+    if (!newPassword) {
+      throw new Error('Password is required.');
+    }
+
+    // set new password
+    await this.findByIdAndUpdate(
+      { _id: user._id },
+      {
+        password: bcrypt.hashSync(newPassword, 10),
+        resetPasswordToken: undefined,
+        resetPasswordExpires: undefined,
+      },
+    );
+
+    return this.findOne({ _id: user._id });
+  }
 }
 
 UserSchema.loadClass(User);

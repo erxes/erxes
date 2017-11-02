@@ -120,4 +120,46 @@ describe('User db utils', () => {
 
     expect(user.details.getNotificationByEmail).toEqual(true);
   });
+
+  test('Reset password', async () => {
+    expect.assertions(5);
+
+    // token expired ==============
+    try {
+      await Users.resetPassword({ token: '', newPassword: '' });
+    } catch (e) {
+      expect(e.message).toBe('Password reset token is invalid or has expired.');
+    }
+
+    // invalid password =================
+    const today = new Date();
+    const tomorrow = new Date();
+    tomorrow.setDate(today.getDate() + 1);
+
+    await Users.update(
+      { _id: _user._id },
+      {
+        $set: {
+          resetPasswordToken: 'token',
+          resetPasswordExpires: tomorrow,
+        },
+      },
+    );
+
+    try {
+      await Users.resetPassword({ token: 'token', newPassword: '' });
+    } catch (e) {
+      expect(e.message).toBe('Password is required.');
+    }
+
+    // valid
+    const user = await Users.resetPassword({
+      token: 'token',
+      newPassword: 'password',
+    });
+
+    expect(user.resetPasswordToken).toBe(null);
+    expect(user.resetPasswordExpires).toBe(null);
+    expect(bcrypt.compare('password', user.password)).toBeTruthy();
+  });
 });

@@ -132,40 +132,6 @@ export const forgotPassword = async ({ email }) => {
 };
 
 /*
- * Resets user password by given token & password
- * @param {String} token - User's temporary token for reset password
- * @param {String} newPassword - New password
- * @return {Promise} - Update user response
- */
-export const resetPassword = async ({ token, newPassword }) => {
-  // find user by token
-  const user = await Users.findOne({
-    resetPasswordToken: token,
-    resetPasswordExpires: {
-      $gt: Date.now(),
-    },
-  });
-
-  if (!user) {
-    throw new Error('Password reset token is invalid or has expired.');
-  }
-
-  if (!newPassword) {
-    throw new Error('Password is required.');
-  }
-
-  // set new password
-  return Users.findByIdAndUpdate(
-    { _id: user._id },
-    {
-      password: bcrypt.hashSync(newPassword, 10),
-      resetPasswordToken: undefined,
-      resetPasswordExpires: undefined,
-    },
-  );
-};
-
-/*
  * Finds user object by passed tokens
  * @param {Object} req - Request object
  * @param {Object} res - Response object
@@ -206,5 +172,4 @@ export const userMiddleware = async (req, res, next) => {
 export default {
   login,
   forgotPassword,
-  resetPassword,
 };
