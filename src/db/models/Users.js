@@ -17,6 +17,7 @@ const DetailSchema = mongoose.Schema(
     fullName: String,
     position: String,
     twitterUsername: String,
+    getNotificationByEmail: Boolean,
     emailSignatures: [EmailSignatureSchema],
   },
   { _id: false },
@@ -101,11 +102,24 @@ class User {
 
   /*
    * Update email signatures
+   * @param {String} _id - User id
    * @param {[Object]} signatures - Email signatures
    * @return {Promise} - Updated user
    */
   static async configEmailSignatures(_id, signatures) {
     await this.update({ _id }, { $set: { 'details.emailSignatures': signatures } });
+
+    return this.findOne({ _id });
+  }
+
+  /*
+   * Config get notifications by emmail
+   * @param {String} _id - User id
+   * @param {[Object]} isAllowed - is allowed
+   * @return {Promise} - Updated user
+   */
+  static async configGetNotificationByEmail(_id, isAllowed) {
+    await this.update({ _id }, { $set: { 'details.getNotificationByEmail': isAllowed } });
 
     return this.findOne({ _id });
   }

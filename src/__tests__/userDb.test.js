@@ -114,4 +114,10 @@ describe('User db utils', () => {
 
     expect(user.details.emailSignatures[0].toJSON()).toEqual(signature);
   });
+
+  test('Config get notifications by email', async () => {
+    const user = await Users.configGetNotificationByEmail(_user._id, true);
+
+    expect(user.details.getNotificationByEmail).toEqual(true);
+  });
 });
