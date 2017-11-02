@@ -55,30 +55,17 @@ const Alertstyled = styled.div`
   }
 `;
 
-export default class Alert extends React.Component {
-  componentDidMount() {
-    this._popup = document.createElement('div');
-    document.body.appendChild(this._popup);
-    this._render();
-  }
-  componentWillUnmount() {
+const createAlertWrapper = second => {
+  this._popup = document.createElement('div');
+  document.body.appendChild(this._popup);
+  ReactDOM.render(<Alertwrapper />, this._popup);
+  setTimeout(() => {
     ReactDOM.unmountComponentAtNode(this._popup);
     document.body.removeChild(this._popup);
-  }
-  _render() {
-    ReactDOM.render(<Alertwrapper />, this._popup);
-  }
-
-  render() {
-    return null;
-  }
-}
-const removeAlert = () => {
-  let target = document.getElementById('alertwrapper');
-  ReactDOM.unmountComponentAtNode(target);
+  }, second * 1000);
 };
 const renderAlert = (text, type) => {
-  let target = document.getElementById('alertwrapper');
+  const target = document.getElementById('alertwrapper');
   ReactDOM.render(
     <Alertstyled type={type} visible={true}>
       <Icon icon={types[type].icon} />
@@ -95,14 +82,9 @@ renderAlert.defaultProps = {
   type: 'info'
 };
 const pop = (text, type) => {
-  if (!document.getElementById('alertwrapper').hasChildNodes()) {
-    renderAlert(text, type);
-    setTimeout(function() {
-      removeAlert();
-    }, 3000);
-  }
-  return false;
+  createAlertWrapper(4);
+  renderAlert(text, type);
 };
-export let notify = {
+export const notify = {
   pop
 };
