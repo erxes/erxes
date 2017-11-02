@@ -5,6 +5,11 @@ import { ROLES } from '../../data/constants';
 
 const SALT_WORK_FACTOR = 10;
 
+const EmailSignatureSchema = mongoose.Schema(
+  { brandId: String, signature: String },
+  { _id: false },
+);
+
 // Detail schema
 const DetailSchema = mongoose.Schema(
   {
@@ -12,11 +17,7 @@ const DetailSchema = mongoose.Schema(
     fullName: String,
     position: String,
     twitterUsername: String,
-
-    signatures: {
-      brandId: String,
-      signature: String,
-    },
+    emailSignatures: [EmailSignatureSchema],
   },
   { _id: false },
 );
@@ -94,6 +95,17 @@ class User {
    */
   static async editProfile(_id, { username, email, details }) {
     await this.update({ _id }, { $set: { username, email, details } });
+
+    return this.findOne({ _id });
+  }
+
+  /*
+   * Update email signatures
+   * @param {[Object]} signatures - Email signatures
+   * @return {Promise} - Updated user
+   */
+  static async configEmailSignatures(_id, signatures) {
+    await this.update({ _id }, { $set: { 'details.emailSignatures': signatures } });
 
     return this.findOne({ _id });
   }

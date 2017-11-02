@@ -106,4 +106,12 @@ describe('User db utils', () => {
     expect(userObj.details.fullName).toBe(updateDoc.details.fullName);
     expect(userObj.details.avatar).toBe(updateDoc.details.avatar);
   });
+
+  test('Config email signature', async () => {
+    const signature = { brandId: 'brandId', signature: 'signature' };
+
+    const user = await Users.configEmailSignatures(_user._id, [signature]);
+
+    expect(user.details.emailSignatures[0].toJSON()).toEqual(signature);
+  });
 });
