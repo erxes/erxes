@@ -38,15 +38,17 @@ describe('mutations', () => {
       KnowledgeBaseTopics.createDoc = jest.fn();
 
       const doc = {
-        title: 'Test topic title',
-        description: 'Test topic description',
-        categoryIds: ['fakeCategoryId'],
-        brandId: 'fakeBrandId',
+        doc: {
+          title: 'Test topic title',
+          description: 'Test topic description',
+          categoryIds: ['fakeCategoryId'],
+          brandId: 'fakeBrandId',
+        },
       };
 
       knowledgeBaseMutations.knowledgeBaseTopicsAdd(null, doc, { user: _user });
 
-      expect(KnowledgeBaseTopics.createDoc).toBeCalledWith(doc, _user._id);
+      expect(KnowledgeBaseTopics.createDoc).toBeCalledWith(doc.doc, _user._id);
       expect(KnowledgeBaseTopics.createDoc.mock.calls.length).toBe(1);
 
       KnowledgeBaseTopics.createDoc.mockRestore();
@@ -64,7 +66,7 @@ describe('mutations', () => {
 
       const updateDoc = {
         _id: 'fakeTopicId',
-        ...doc,
+        doc,
       };
 
       knowledgeBaseMutations.knowledgeBaseTopicsEdit(null, updateDoc, { user: _user });
@@ -100,7 +102,7 @@ describe('mutations', () => {
         brandId: 'fakeBrandId',
       };
 
-      knowledgeBaseMutations.knowledgeBaseCategoriesAdd(null, doc, { user: _user });
+      knowledgeBaseMutations.knowledgeBaseCategoriesAdd(null, { doc }, { user: _user });
 
       expect(KnowledgeBaseCategories.createDoc).toBeCalledWith(doc, _user._id);
       expect(KnowledgeBaseCategories.createDoc.mock.calls.length).toBe(1);
@@ -120,7 +122,7 @@ describe('mutations', () => {
 
       const updateDoc = {
         _id: 'fakeCategoryId',
-        ...doc,
+        doc,
       };
 
       knowledgeBaseMutations.knowledgeBaseCategoriesEdit(null, updateDoc, { user: _user });
@@ -160,7 +162,7 @@ describe('mutations', () => {
         status: 'Test article status',
       };
 
-      knowledgeBaseMutations.knowledgeBaseArticlesAdd(null, doc, { user: _user });
+      knowledgeBaseMutations.knowledgeBaseArticlesAdd(null, { doc }, { user: _user });
 
       expect(KnowledgeBaseArticles.createDoc).toBeCalledWith(doc, _user._id);
       expect(KnowledgeBaseArticles.createDoc.mock.calls.length).toBe(1);
@@ -180,7 +182,7 @@ describe('mutations', () => {
 
       const updateDoc = {
         _id: 'fakeArticleId',
-        ...doc,
+        doc,
       };
 
       knowledgeBaseMutations.knowledgeBaseArticlesEdit(null, updateDoc, { user: _user });
