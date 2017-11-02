@@ -175,7 +175,8 @@ describe('User db utils', () => {
     }
 
     // valid
-    const user = await Users.forgotPassword(_user.email);
+    await Users.forgotPassword(_user.email);
+    const user = await Users.findOne({ email: _user.email });
 
     expect(user.resetPasswordToken).toBeDefined();
     expect(user.resetPasswordExpires).toBeDefined();

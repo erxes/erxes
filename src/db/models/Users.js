@@ -201,7 +201,7 @@ class User {
   /*
    * Sends reset password link to found user's email
    * @param {String} email - Registered user's email
-   * @return {Promise} - Updated user object
+   * @return {String} - Generated token
    */
   static async forgotPassword(email) {
     // find user
@@ -224,7 +224,7 @@ class User {
       },
     );
 
-    return this.findOne({ _id: user._id });
+    return token;
   }
 
   /*

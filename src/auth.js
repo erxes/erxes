@@ -23,7 +23,7 @@ export const userMiddleware = async (req, res, next) => {
       const refreshToken = req.headers['x-refresh-token'];
 
       // create new tokens using refresh token & refresh token
-      const newTokens = await Users.refreshTokens(token, refreshToken);
+      const newTokens = await Users.refreshTokens(refreshToken);
 
       if (newTokens.token && newTokens.refreshToken) {
         res.set('Access-Control-Expose-Headers', 'x-token, x-refresh-token');
