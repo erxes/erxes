@@ -21,6 +21,7 @@ const DetailSchema = mongoose.Schema(
     twitterUsername: String,
     getNotificationByEmail: Boolean,
     emailSignatures: [EmailSignatureSchema],
+    starredConversationIds: [String],
   },
   { _id: false },
 );
