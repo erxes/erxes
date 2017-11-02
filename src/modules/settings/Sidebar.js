@@ -61,7 +61,7 @@ function Sidebar() {
       <Sidebar.Section>
         <Title>Knowledge base</Title>
         <QuickButtons>
-          <QuickButton href="/settings/knowledgebase/listt">All</QuickButton>
+          <QuickButton href="/settings/knowledgebase/list">All</QuickButton>
         </QuickButtons>
         <SidebarList>
           <li>
