@@ -21,6 +21,9 @@ import {
   NotificationConfigurations,
   Notifications,
   Channels,
+  KnowledgeBaseTopics,
+  KnowledgeBaseCategories,
+  KnowledgeBaseArticles,
 } from './models';
 
 export const userFactory = (params = {}) => {
@@ -272,7 +275,7 @@ export const notificationFactory = params => {
   });
 };
 
-export async function channelFactory(params = {}) {
+export const channelFactory = async (params = {}) => {
   const user = await userFactory({});
 
   const obj = Object.assign(
@@ -290,4 +293,43 @@ export async function channelFactory(params = {}) {
   );
 
   return Channels.create(obj);
-}
+};
+
+export const knowledgeBaseTopicFactory = params => {
+  const doc = {
+    title: faker.random.word(),
+    description: faker.lorem.sentence,
+    brandId: faker.random.word(),
+    catgoryIds: [faker.random.word()],
+  };
+
+  return KnowledgeBaseTopics.createDoc(
+    {
+      ...doc,
+      ...params,
+    },
+    faker.random.word(),
+  );
+};
+
+export const knowledgeBaseCategoryFactory = params => {
+  const doc = {
+    title: faker.random.word(),
+    description: faker.lorem.sentence,
+    articleIds: [faker.random.word(), faker.random.word()],
+    icon: faker.random.word(),
+  };
+
+  return KnowledgeBaseCategories.createDoc({ ...doc, ...params }, faker.random.word());
+};
+
+export const knowledgeBaseArticleFactory = params => {
+  const doc = {
+    title: faker.random.word(),
+    summary: faker.lorem.sentence,
+    content: faker.lorem.sentence,
+    icon: faker.random.word(),
+  };
+
+  return KnowledgeBaseArticles.createDoc({ ...doc, ...params }, faker.random.word());
+};

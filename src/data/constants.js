@@ -13,7 +13,7 @@ export const INTEGRATION_KIND_CHOICES = {
   FORM: 'form',
   TWITTER: 'twitter',
   FACEBOOK: 'facebook',
-  ALL_LIST: ['messenger', 'form', 'twitter', 'facebook'],
+  ALL: ['messenger', 'form', 'twitter', 'facebook'],
 };
 
 export const TAG_TYPES = {
@@ -26,7 +26,7 @@ export const TAG_TYPES = {
 export const FACEBOOK_DATA_KINDS = {
   FEED: 'feed',
   MESSENGER: 'messenger',
-  ALL_LIST: ['feed', 'messenger'],
+  ALL: ['feed', 'messenger'],
 };
 
 export const MESSENGER_KINDS = {
@@ -67,7 +67,7 @@ export const FORM_SUCCESS_ACTIONS = {
   EMAIL: 'email',
   REDIRECT: 'redirect',
   ONPAGE: 'onPage',
-  ALL_LIST: ['', 'email', 'redirect', 'onPage'],
+  ALL: ['', 'email', 'redirect', 'onPage'],
 };
 
 export const KIND_CHOICES = {
@@ -154,4 +154,10 @@ export const SEGMENT_CONTENT_TYPES = {
 export const ROLES = {
   ADMIN: 'admin',
   CONTRIBUTOR: 'contributor',
+};
+
+export const PUBLISH_STATUSES = {
+  DRAFT: 'draft',
+  PUBLISH: 'publish',
+  ALL: ['draft', 'publish'],
 };

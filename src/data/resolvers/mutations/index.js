@@ -14,6 +14,7 @@ import channels from './channels';
 import forms from './forms';
 import integrations from './integrations';
 import notifications from './notifications';
+import knowledgeBase from './knowledgeBase';
 
 export default {
   ...users,
@@ -32,4 +33,5 @@ export default {
   ...forms,
   ...integrations,
   ...notifications,
+  ...knowledgeBase,
 };
