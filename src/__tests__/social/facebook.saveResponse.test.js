@@ -61,7 +61,7 @@ describe('facebook integration: save webhook response', () => {
     await ConversationMessages.remove({});
   });
 
-  it('via messenger event', async () => {
+  test('via messenger event', async () => {
     // first time ========================
 
     expect(await Conversations.find().count()).toBe(0); // 0 conversations
@@ -178,7 +178,7 @@ describe('facebook integration: save webhook response', () => {
     expect(newMessage.content).toBe(messageText);
   });
 
-  it('via feed event', async () => {
+  test('via feed event', async () => {
     // first time ========================
 
     expect(await Conversations.find().count()).toBe(0); // 0 conversations

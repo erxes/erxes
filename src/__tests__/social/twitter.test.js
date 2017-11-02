@@ -40,7 +40,7 @@ describe('twitter integration', () => {
       await Customers.remove({});
     });
 
-    it('common', async () => {
+    test('common', async () => {
       const tweetId = 2424244244;
 
       // create conversation
@@ -71,7 +71,7 @@ describe('twitter integration', () => {
       expect(conversation.status).toEqual(CONVERSATION_STATUSES.OPEN);
     });
 
-    it('direct message', async () => {
+    test('direct message', async () => {
       const senderId = 2424424242;
       const recipientId = 92442424424242;
 
@@ -149,7 +149,7 @@ describe('twitter integration', () => {
       await Customers.remove({});
     });
 
-    it('direct message', async () => {
+    test('direct message', async () => {
       const text = 'reply';
       const senderId = 242424242;
 
@@ -178,7 +178,7 @@ describe('twitter integration', () => {
       ).toBe(true);
     });
 
-    it('tweet', async () => {
+    test('tweet', async () => {
       const text = 'reply';
       const tweetIdStr = '242424242';
       const screenName = 'test';
@@ -222,7 +222,7 @@ describe('twitter integration', () => {
       await Customers.remove({});
     });
 
-    it('mention', async () => {
+    test('mention', async () => {
       let tweetText = '@test hi';
       const tweetId = 242424242424;
       const tweetIdStr = '242424242424';
@@ -315,7 +315,7 @@ describe('twitter integration', () => {
       expect(newMessage.content).toBe(tweetText);
     });
 
-    it('direct message', async () => {
+    test('direct message', async () => {
       // try using non existing integration
       expect(await getOrCreateDirectMessageConversation({}, { _id: 'dffdfd' })).toBe(null);
 

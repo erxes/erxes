@@ -28,7 +28,7 @@ describe('facebook integration: get or create conversation', () => {
     await ConversationMessages.remove({});
   });
 
-  it('get or create conversation', async () => {
+  test('get or create conversation', async () => {
     const postId = '32242442442';
     const customerId = await customerFactory();
     const integration = await integrationFactory();

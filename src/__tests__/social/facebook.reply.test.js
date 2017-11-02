@@ -51,7 +51,7 @@ describe('facebook integration: reply', () => {
     await ConversationMessages.remove();
   });
 
-  it('messenger', async () => {
+  test('messenger', async () => {
     const conversation = await conversationFactory({
       integrationId: integration._id,
       facebookData: {
@@ -73,7 +73,7 @@ describe('facebook integration: reply', () => {
     expect(stub.calledWith('me/messages', 'page_access_token')).toBe(true);
   });
 
-  it('feed', async () => {
+  test('feed', async () => {
     const conversation = await conversationFactory({
       integrationId: integration._id,
       facebookData: {

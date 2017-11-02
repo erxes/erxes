@@ -18,7 +18,7 @@ describe('facebook integration common tests', () => {
     await Integrations.remove({});
   });
 
-  it('receive web hook response', async () => {
+  test('receive web hook response', async () => {
     const app = { id: 1 };
 
     await integrationFactory({ kind: 'facebook', facebookData: { appId: app.id } });
@@ -26,7 +26,7 @@ describe('facebook integration common tests', () => {
     await receiveWebhookResponse(app, {});
   });
 
-  it('get page list', async () => {
+  test('get page list', async () => {
     sinon.stub(graphRequest, 'get').callsFake(() => ({ data: pages }));
 
     expect(getPageList()).toEqual(pages);
@@ -34,7 +34,7 @@ describe('facebook integration common tests', () => {
     graphRequest.get.restore(); // unwraps the spy
   });
 
-  it('graph request', async () => {
+  test('graph request', async () => {
     sinon.stub(graphRequest, 'base').callsFake(() => {});
 
     graphRequest.get();

@@ -13,12 +13,6 @@ const DetailSchema = mongoose.Schema(
     position: String,
     twitterUsername: String,
 
-    // channels to invite
-    channelIds: {
-      type: [String],
-      optional: true,
-    },
-
     signatures: {
       brandId: String,
       signature: String,
@@ -59,6 +53,8 @@ class User {
    * @return {Promise} newly created user object
    */
   static async createUser({ username, email, password, role, details }) {
+    await this.checkDuplications({ twitterUsername: details.twitterUsername });
+
     return this.create({
       username,
       email,
@@ -76,6 +72,8 @@ class User {
    * @return {Promise} updated user info
    */
   static async updateUser(_id, { username, email, password, role, details }) {
+    await this.checkDuplications({ twitterUsername: details.twitterUsername });
+
     const doc = { username, email, password, role, details };
 
     // change password
@@ -89,12 +87,38 @@ class User {
   }
 
   /*
+   * Update user profile
+   * @param {String} _id - User id
+   * @param {Object} doc - User profile information
+   * @return {Promise} - Updated user
+   */
+  static async editProfile(_id, { username, email, details }) {
+    await this.update({ _id }, { $set: { username, email, details } });
+
+    return this.findOne({ _id });
+  }
+
+  /*
    * Remove user
    * @param {String} _id - User id
    * @return {Promise} - remove method response
    */
   static async removeUser(_id) {
     return Users.remove({ _id });
+  }
+
+  /*
+   * Check duplications
+   */
+  static async checkDuplications({ userId, twitterUsername }) {
+    const previousEntry = await Users.findOne({
+      _id: { $ne: userId },
+      'details.twitterUsername': twitterUsername,
+    });
+
+    if (previousEntry) {
+      throw new Error('Duplicated twitter username');
+    }
   }
 
   /*

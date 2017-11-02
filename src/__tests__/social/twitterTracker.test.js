@@ -37,7 +37,7 @@ describe('twitter integration tracker', () => {
       await ConversationMessages.remove({});
     });
 
-    it('check delete integration', async () => {
+    test('check delete integration', async () => {
       const response = await receiveTimeLineResponse({
         _id: 'DFAFDFSD',
         twitterData: {},
@@ -46,7 +46,7 @@ describe('twitter integration tracker', () => {
       expect(response).toBe(null);
     });
 
-    it('receive reply', async () => {
+    test('receive reply', async () => {
       // non existing conversation =========
       await receiveTimeLineResponse(_integration, data);
       expect(await ConversationMessages.count()).toBe(0);
@@ -59,7 +59,7 @@ describe('twitter integration tracker', () => {
       expect(await ConversationMessages.count()).toBe(1);
     });
 
-    it('user mentions', async () => {
+    test('user mentions', async () => {
       data.in_reply_to_status_id = null;
       data.entities.user_mentions = [{ id: 1 }];
 

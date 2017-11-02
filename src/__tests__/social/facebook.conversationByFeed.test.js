@@ -20,7 +20,7 @@ describe('facebook integration: get or create conversation by feed info', () => 
     graphRequest.get.restore(); // unwraps the spy
   });
 
-  it('admin posts', async () => {
+  test('admin posts', async () => {
     const senderId = 'DFDFDEREREEFFFD';
     const postId = 'DFJDFJDIF';
 
