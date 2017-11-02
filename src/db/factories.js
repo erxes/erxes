@@ -25,16 +25,16 @@ import {
 
 export const userFactory = (params = {}) => {
   const user = new Users({
-    username: params.username || faker.random.word(),
+    username: params.username || faker.internet.userName(),
     details: {
       fullName: params.fullName || faker.random.word(),
+      avatar: params.avatar || faker.image.imageUrl(),
+      twitterUsername: params.twitterUsername || faker.internet.userName(),
+      position: params.position || 'admin',
     },
-    emails: [
-      {
-        address: params.email || faker.internet.email(),
-        verified: true,
-      },
-    ],
+    email: params.email || faker.internet.email(),
+    role: params.role || 'contributor',
+    isOwner: params.isOwner || false,
   });
 
   return user.save();

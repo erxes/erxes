@@ -150,3 +150,8 @@ export const SEGMENT_CONTENT_TYPES = {
   COMPANY: 'company',
   ALL_LIST: ['customer', 'company'],
 };
+
+export const ROLES = {
+  ADMIN: 'admin',
+  CONTRIBUTOR: 'contributor',
+};
