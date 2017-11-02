@@ -179,4 +179,31 @@ describe('User db utils', () => {
     expect(user.resetPasswordToken).toBeDefined();
     expect(user.resetPasswordExpires).toBeDefined();
   });
+
+  test('Login', async () => {
+    expect.assertions(4);
+
+    // invalid email ==============
+    try {
+      await Users.login({ email: 'test@yahoo.com' });
+    } catch (e) {
+      expect(e.message).toBe('Invalid login');
+    }
+
+    // invalid password ==============
+    try {
+      await Users.login({ email: _user.email, password: 'pass' });
+    } catch (e) {
+      expect(e.message).toBe('Invalid login');
+    }
+
+    // valid
+    const { token, refreshToken } = await Users.login({
+      email: _user.email,
+      password: 'Dombo@123',
+    });
+
+    expect(token).toBeDefined();
+    expect(refreshToken).toBeDefined();
+  });
 });
