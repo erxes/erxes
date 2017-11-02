@@ -155,7 +155,10 @@ const CategorySchema = mongoose.Schema({
     type: String,
     required: true,
   },
-  description: String,
+  description: {
+    type: String,
+    required: false,
+  },
   articleIds: {
     type: [String],
     required: false,
