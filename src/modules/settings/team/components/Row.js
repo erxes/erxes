@@ -15,7 +15,7 @@ class Row extends CommonRow {
       return 'owner';
     }
 
-    return object.details.role;
+    return object.role;
   }
 
   render() {
