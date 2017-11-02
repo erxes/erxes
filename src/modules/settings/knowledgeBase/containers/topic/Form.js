@@ -31,7 +31,7 @@ const TopicAddFormContainer = ({
 TopicAddFormContainer.propTypes = addPropTypes;
 
 export default compose(
-  graphql(gql(queries.getCategoryList), {
+  graphql(gql(queries.knowledgeBaseCategories), {
     name: 'getCategoryListQuery',
     options: () => ({
       fetchPolicy: 'network-only'

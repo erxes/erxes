@@ -1,27 +1,5 @@
-const getTopicDetail = `
-  query knowledgeBaseTopicsDetail($_id: String!) {
-    knowledgeBaseTopicsDetail(_id: $_id) {
-      _id
-      title
-      description
-      createdBy
-      createdDate
-      modifiedBy
-      modifiedDate
-      brand {
-        _id
-        name
-      }
-      categories {
-        _id
-        title
-      }
-    }
-  }
-`;
-
-const getTopicList = `
-  query knowledgeBaseTopics($limit: Int) {
+export const knowledgeBaseTopics = `
+  query knowledgeBaseTopics($limit: Int!) {
     knowledgeBaseTopics(limit: $limit) {
       _id
       title
@@ -42,13 +20,13 @@ const getTopicList = `
   }
 `;
 
-const getTopicCount = `
-  query totalKnowledgeBaseTopicsCount {
+export const knowledgeBaseTopicsTotalCount = `
+  query knowledgeBaseTopicsTotalCount {
     knowledgeBaseTopicsTotalCount
   }
 `;
 
-const getBrandList = `
+export const getBrandList = `
   query brands {
     brands {
       _id
@@ -57,7 +35,7 @@ const getBrandList = `
   }
 `;
 
-const getCategoryList = `
+export const knowledgeBaseCategories = `
   query knowledgeBaseCategories {
     knowledgeBaseCategories {
       _id
@@ -76,47 +54,13 @@ const getCategoryList = `
   }
 `;
 
-const getCategoryDetail = `
-  query knowledgeBaseCategoriesDetail($_id: String!) {
-    knowledgeBaseCategoriesDetail(_id: $_id) {
-      _id
-      title
-      description
-      icon
-      createdBy
-      createdDate
-      modifiedBy
-      modifiedDate
-      articles {
-        _id
-        title
-      }
-    }
-  }
-`;
-
-const getCategoryCount = `
-  query totalKnowledgeBaseCategoriesCount {
+export const knowledgeBaseCategoriesTotalCount = `
+  query knowledgeBaseCategoriesTotalCount {
     knowledgeBaseCategoriesTotalCount
   }
 `;
 
-const getArticleDetail = `
-  query knowledgeBaseArticlesDetail($_id: String!) {
-    knowledgeBaseArticlesDetail(_id: $_id) {
-      _id
-      title
-      summary
-      content
-      createdBy
-      createdDate
-      modifiedBy
-      modifiedDate
-    }
-  }
-`;
-
-const getArticleList = `
+export const knowledgeBaseArticles = `
   query knowledgeBaseArticles {
     knowledgeBaseArticles {
       _id
@@ -132,21 +76,18 @@ const getArticleList = `
   }
 `;
 
-const getArticleCount = `
-  query totalKnowledgeBaseArticlesCount {
+export const knowledgeBaseArticlesTotalCount = `
+  query knowledgeBaseArticlesTotalCount {
     knowledgeBaseArticlesTotalCount
   }
 `;
 
 export default {
   getBrandList,
-  getTopicDetail,
-  getTopicList,
-  getTopicCount,
-  getCategoryDetail,
-  getCategoryList,
-  getCategoryCount,
-  getArticleDetail,
-  getArticleList,
-  getArticleCount
+  knowledgeBaseTopics,
+  knowledgeBaseTopicsTotalCount,
+  knowledgeBaseCategories,
+  knowledgeBaseCategoriesTotalCount,
+  knowledgeBaseArticles,
+  knowledgeBaseArticlesTotalCount
 };
