@@ -245,11 +245,10 @@ class User {
 
   /*
    * Renews tokens
-   * @param {String} token
    * @param {String} refreshToken
    * @return {Object} renewed tokens with user
    */
-  static async refreshTokens(token, refreshToken) {
+  static async refreshTokens(refreshToken) {
     let _id = null;
 
     try {

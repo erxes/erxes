@@ -4,6 +4,7 @@
 import { connect, disconnect } from '../db/connection';
 import { Users } from '../db/models';
 import { userFactory } from '../db/factories';
+import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
 
 beforeAll(() => connect());
@@ -202,6 +203,23 @@ describe('User db utils', () => {
       email: _user.email,
       password: 'Dombo@123',
     });
+
+    expect(token).toBeDefined();
+    expect(refreshToken).toBeDefined();
+  });
+
+  test('Refresh tokens', async () => {
+    expect.assertions(3);
+
+    // invalid refresh token
+    expect(await Users.refreshTokens('invalid')).toEqual({});
+
+    // valid ==============
+    const prevRefreshToken = await jwt.sign({ user: _user }, Users.getSecret(), {
+      expiresIn: '7d',
+    });
+
+    const { token, refreshToken } = await Users.refreshTokens(prevRefreshToken);
 
     expect(token).toBeDefined();
     expect(refreshToken).toBeDefined();
