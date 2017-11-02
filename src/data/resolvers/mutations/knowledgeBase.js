@@ -8,13 +8,14 @@ export default {
   /**
    * Create topic document
    * @param {Object} root
-   * @param {KnowledgeBaseTopic} doc - KnowledgeBaseTopic object
-   * @param {Object} object3 - Graphql input data
+   * @param {Object} object2 - Graphql input data
+   * @param {KnowledgeBaseTopic} object2.doc - KnowledgeBaseTopic object
+   * @param {Object} object3 - Graphql middleware data
    * @param {Object} object3.user - User object supplied by middleware
    * @return {Promise} - returns Promise resolving created document
    * @throws {Error} - throws Error('Login required') if user object is not supplied
    */
-  knowledgeBaseTopicsAdd(root, doc, { user }) {
+  knowledgeBaseTopicsAdd(root, { doc }, { user }) {
     if (!user) {
       throw new Error('Login required');
     }
@@ -25,19 +26,20 @@ export default {
   /**
    * Update topic document
    * @param {Object} root
-   * @param {KnowledgeBaseTopic} doc - KnowledgeBaseTopic object
+   * @param {Object} object2 - Graphql input data
+   * @param {KnowledgeBaseTopic} object2.doc - KnowledgeBaseTopic object
    * @param {string} doc._id - KnowledgeBaseTopic document id
-   * @param {Object} object3 - Graphql input data
+   * @param {Object} object3 - Graphql middleware data
    * @param {Object} object3.user - User object supplied by middleware
    * @return {Promise} - returns Promise resolving modified document
    * @throws {Error} - throws Error('Login required') if user object is not supplied
    */
-  knowledgeBaseTopicsEdit(root, { _id, ...fields }, { user }) {
+  knowledgeBaseTopicsEdit(root, { _id, doc }, { user }) {
     if (!user) {
       throw new Error('Login required');
     }
 
-    return KnowledgeBaseTopics.updateDoc(_id, fields, user._id);
+    return KnowledgeBaseTopics.updateDoc(_id, doc, user._id);
   },
 
   /**

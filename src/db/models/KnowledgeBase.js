@@ -231,6 +231,7 @@ const TopicSchema = mongoose.Schema({
   brandId: {
     type: String,
     required: true,
+    validate: /\S+/,
   },
   categoryIds: {
     type: [String],

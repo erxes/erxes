@@ -72,15 +72,15 @@ export const queries = `
 `;
 
 export const mutations = `
-  knowledgeBaseTopicsAdd(doc: KnowledgeBaseTopicDoc): KnowledgeBaseTopic
-  knowledgeBaseTopicsEdit(_id: String!): Boolean
+  knowledgeBaseTopicsAdd(doc: KnowledgeBaseTopicDoc!): KnowledgeBaseTopic
+  knowledgeBaseTopicsEdit(_id: String!, doc: KnowledgeBaseTopicDoc!): KnowledgeBaseTopic
   knowledgeBaseTopicsRemove(_id: String!): Boolean
 
-  knowledgeBaseCategoriesAdd(doc: KnowledgeBaseCategoryDoc): KnowledgeBaseCategory
-  knowledgeBaseCategoriesEdit(_id: String!): Boolean
+  knowledgeBaseCategoriesAdd(doc: KnowledgeBaseCategoryDoc!): KnowledgeBaseCategory
+  knowledgeBaseCategoriesEdit(_id: String!, doc: KnowledgeBaseCategoryDoc!): KnowledgeBaseCategory
   knowledgeBaseCategoriesRemove(_id: String!): Boolean
 
-  knowledgeBaseArticlesAdd(doc: KnowledgeBaseArticleDoc): KnowledgeBaseArticle
-  knowledgeBaseArticlesEdit(_id: String!): Boolean
+  knowledgeBaseArticlesAdd(doc: KnowledgeBaseArticleDoc!): KnowledgeBaseArticle
+  knowledgeBaseArticlesEdit(_id: String!, doc: KnowledgeBaseArticleDoc!): KnowledgeBaseArticle
   knowledgeBaseArticlesRemove(_id: String!): Boolean
 `;
