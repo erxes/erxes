@@ -59,13 +59,16 @@ describe('User mutations', () => {
       }
     };
 
-    expect.assertions(3);
+    expect.assertions(4);
 
     // users add
     checkLogin(userMutations.usersAdd, {});
 
     // users edit
     checkLogin(userMutations.usersEdit, {});
+
+    // users edit profile
+    checkLogin(userMutations.usersEditProfile, {});
 
     // users remove
     checkLogin(userMutations.usersRemove, {});
@@ -162,6 +165,38 @@ describe('User mutations', () => {
 
     // update user channels call
     expect(Channels.updateUserChannels).toBeCalledWith(channelIds, userId);
+  });
+
+  test('Users edit profile: invalid password', async () => {
+    expect.assertions(1);
+
+    const user = await userFactory({ password: 'p' });
+
+    try {
+      await userMutations.usersEditProfile({}, { password: 'password' }, { user });
+    } catch (e) {
+      expect(e.message).toBe('Invalid password');
+    }
+  });
+
+  test('Users edit profile: successfull', async () => {
+    const user = await userFactory({});
+
+    Users.editProfile = jest.fn();
+
+    const doc = {
+      username: 'username',
+      email: 'info@erxes.io',
+      details: {
+        fullName: 'fullName',
+        twitterUsername: 'twitterUsername',
+        position: 'position',
+      },
+    };
+
+    await userMutations.usersEditProfile({}, { ...doc, password: 'Dombo@123' }, { user });
+
+    expect(Users.editProfile).toBeCalledWith(user._id, doc);
   });
 
   test('Users remove: can not delete owner', async () => {

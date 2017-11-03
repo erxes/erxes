@@ -1,3 +1,4 @@
+import bcrypt from 'bcrypt';
 import { Users, Channels } from '../../../db/models';
 import utils from '../../../data/utils';
 
@@ -119,6 +120,25 @@ export default {
     await Channels.updateUserChannels(channelIds, _id);
 
     return updatedUser;
+  },
+
+  /*
+   * Edit user profile
+   * @param {Object} args - User profile doc
+   * @return {Promise} - Updated user
+   */
+  async usersEditProfile(root, { username, email, password, details }, { user }) {
+    if (!user) throw new Error('Login required');
+
+    const userOnDb = await Users.findOne({ _id: user._id });
+    const valid = await bcrypt.compare(password, userOnDb.password);
+
+    if (!password || !valid) {
+      // bad password
+      throw new Error('Invalid password');
+    }
+
+    return Users.editProfile(user._id, { username, email, details });
   },
 
   /*
