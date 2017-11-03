@@ -2,32 +2,18 @@
 /* eslint-disable no-underscore-dangle */
 
 import faker from 'faker';
-import { connect, disconnect } from '../db/connection';
 import { FORM_LOAD_TYPES, MESSENGER_DATA_AVAILABILITY } from '../data/constants';
-import { userFactory } from '../db/factories';
-import { Integrations, Users } from '../db/models';
+import { Integrations } from '../db/models';
 import { ROLES } from '../data/constants';
 import integrationMutations from '../data/resolvers/mutations/integrations';
-
-beforeAll(() => connect());
-afterAll(() => disconnect());
 
 describe('mutations', () => {
   const _fakeBrandId = 'fakeBrandId';
   const _fakeFormId = 'fakeFormId';
   const _fakeIntegrationId = '_fakeIntegrationId';
 
-  let _user;
-  let _adminUser;
-
-  beforeAll(async () => {
-    _user = await userFactory({});
-    _adminUser = await userFactory({ role: ROLES.ADMIN });
-  });
-
-  afterAll(async () => {
-    await Users.remove({});
-  });
+  const _user = { _id: 'fakeId', role: ROLES.CONTRIBUTOR };
+  const _adminUser = { _id: 'fakeId', role: ROLES.ADMIN };
 
   test(`test if Error('Login required') exception is working as intended`, () => {
     expect.assertions(7);
