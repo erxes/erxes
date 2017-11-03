@@ -4,9 +4,10 @@ import {
   KnowledgeBaseArticles,
 } from '../../../db/models';
 
-import { BasicPermissions } from './utils';
+import { moduleRequireLogin } from '../../permissions';
+console.log('moduleRequireLogin: ', moduleRequireLogin);
 
-const knowledgeBase = {
+const knowledgeBaseQueries = {
   /**
    * Article list
    * @param {Object} args
@@ -14,7 +15,8 @@ const knowledgeBase = {
    * @return {Promise} sorted article list
    */
   knowledgeBaseArticles(root, { limit }) {
-    console.log('aaaa');
+    console.log('aaa');
+
     const articles = KnowledgeBaseArticles.find({});
     const sort = { createdDate: -1 };
 
@@ -22,7 +24,6 @@ const knowledgeBase = {
       return articles.sort(sort).limit(limit);
     }
 
-    console.log('bbbb');
     return articles.sort(sort);
   },
 
@@ -117,7 +118,6 @@ const knowledgeBase = {
   },
 };
 
-BasicPermissions.setPermissionsForList(knowledgeBase, 'knowledgeBaseArticles');
-console.log('knowledgeBase.knowledgeBaseArticles: ', knowledgeBase.knowledgeBaseArticles);
+moduleRequireLogin(knowledgeBaseQueries);
 
-export default knowledgeBase;
+export default knowledgeBaseQueries;

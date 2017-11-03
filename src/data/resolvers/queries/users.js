@@ -1,7 +1,6 @@
 import { Users } from '../../../db/models';
-import { BasicPermissions } from './utils';
 
-const users = {
+export default {
   /**
    * Users list
    * @param {Object} args
@@ -10,7 +9,7 @@ const users = {
    * @param {Object} object3.user - User making this request
    * @return {Promise} sorted and filtered users objects
    */
-  users(root, { limit }, { user }) {
+  users(root, { limit }) {
     const users = Users.find({});
     const sort = { username: 1 };
 
@@ -29,11 +28,7 @@ const users = {
    * @param {Object} object3.user - User making this request
    * @return {Promise} found user
    */
-  userDetail(root, { _id }, { user }) {
-    if (!user) {
-      return {};
-    }
-
+  userDetail(root, { _id }) {
     return Users.findOne({ _id });
   },
 
@@ -43,11 +38,7 @@ const users = {
    * @param {Object} object3.user - User making this request
    * @return {Promise} total count
    */
-  usersTotalCount(root, object2, { user }) {
-    if (!user) {
-      return 0;
-    }
-
+  usersTotalCount() {
     return Users.find({}).count();
   },
 
@@ -59,8 +50,3 @@ const users = {
     return user;
   },
 };
-
-BasicPermissions.setPermissionsForList(users, 'users');
-console.log('users.users: ', users.users);
-
-export default users;
