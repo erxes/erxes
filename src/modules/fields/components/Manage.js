@@ -148,7 +148,7 @@ class Manage extends Component {
 
     return (
       <Button size="small" onClick={this.onSubmit} btnStyle="primary">
-        <Icon icon="plus" /> Add to form
+        <Icon icon="plus" /> Add
       </Button>
     );
   }
@@ -258,7 +258,6 @@ class Manage extends Component {
           componentClass="checkbox"
           onChange={this.onChangeIsRequired}
         >
-          {' '}
           This item is required
         </FormControl>
 

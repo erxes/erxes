@@ -16,6 +16,7 @@ const propTypes = {
   onChange: PropTypes.func,
   onClick: PropTypes.func,
   defaultValue: PropTypes.string,
+  defaultChecked: PropTypes.bool,
   checked: PropTypes.bool,
   placeholder: PropTypes.string,
   type: PropTypes.string,
@@ -34,14 +35,14 @@ const propTypes = {
 const defaultProps = {
   componentClass: 'input',
   required: false,
-  checked: false
+  defaultChecked: false
 };
 
 const renderElement = (Element, attributes, type, child) => {
   return (
     <FormLabel>
       <Element {...attributes} type={type} />
-      <span>{child}</span>
+      <span>&nbsp;{child}</span>
     </FormLabel>
   );
 };
@@ -56,7 +57,7 @@ class FormControl extends React.Component {
       onChange: props.onChange,
       onClick: props.onClick,
       defaultValue: props.defaultValue,
-      checked: props.checked,
+      checked: props.defaultChecked ? props.defaultChecked : props.checked,
       placeholder: props.placeholder,
       type: props.type,
       name: props.name,
