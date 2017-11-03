@@ -1,6 +1,14 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import _ from 'underscore';
+import {
+  LoadingItem,
+  LoadingItemCircle,
+  LineWrapper,
+  Line,
+  LoadingTableCircle,
+  TableLine
+} from './styles';
 
 const propTypes = {
   items: PropTypes.number.isRequired,
@@ -15,14 +23,14 @@ function Row({ items }) {
   return (
     <div>
       {_.times(items, n => (
-        <div key={n} className="loading-item bordered">
-          <div className="circle animate" />
-          <div className="line-wrapper">
-            <div className="line width20 animate" />
-            <div className="line width70 animate" />
-            <div className="line width40 animate" />
-          </div>
-        </div>
+        <LoadingItem key={n} className="bordered">
+          <LoadingItemCircle className="animate" />
+          <LineWrapper>
+            <Line className="width20 animate" />
+            <Line className="width70 animate" />
+            <Line className="width40 animate" />
+          </LineWrapper>
+        </LoadingItem>
       ))}
     </div>
   );
@@ -37,42 +45,42 @@ function TableRow({ items }) {
       {_.times(items, n => (
         <tr key={n}>
           <td className="less-space">
-            <div className="circle animate" />
+            <LoadingTableCircle className="animate" />
           </td>
           <td>
-            <div
+            <TableLine
               style={{ width: `${getRandom(60, 100)}%` }}
-              className="line animate"
+              className="animate"
             />
           </td>
           <td>
-            <div
+            <TableLine
               style={{ width: `${getRandom(60, 100)}%` }}
-              className="line animate"
+              className="animate"
             />
           </td>
           <td>
-            <div
+            <TableLine
               style={{ width: `${getRandom(60, 100)}%` }}
-              className="line animate"
+              className="animate"
             />
           </td>
           <td>
-            <div
+            <TableLine
               style={{ width: `${getRandom(60, 100)}%` }}
-              className="line animate"
+              className="animate"
             />
           </td>
           <td>
-            <div
+            <TableLine
               style={{ width: `${getRandom(60, 100)}%` }}
-              className="line animate"
+              className="animate"
             />
           </td>
           <td>
-            <div
+            <TableLine
               style={{ width: `${getRandom(60, 100)}%` }}
-              className="line animate"
+              className="animate"
             />
           </td>
         </tr>
