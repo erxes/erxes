@@ -7,6 +7,7 @@ import TeamMembersRoutes from './team/routes';
 import EmailRoutes from './email/routes';
 import FormsRoutes from './forms/routes';
 import IntegrationsRoutes from './integrations/routes';
+import KnowledgeBaseRoutes from './knowledgeBase/routes';
 
 const routes = () => [
   <ChannelsRoutes key="ChannelsRoutes" />,
@@ -16,7 +17,8 @@ const routes = () => [
   <TeamMembersRoutes key="TeamMembersRoutes" />,
   <EmailRoutes key="EmailRoutes" />,
   <FormsRoutes key="FormsRoutes" />,
-  <IntegrationsRoutes key="IntegrationsRoutes" />
+  <IntegrationsRoutes key="IntegrationsRoutes" />,
+  <KnowledgeBaseRoutes key="KnowledgeBaseRoutes" />
 ];
 
 export default routes;
