@@ -1,27 +1,55 @@
-import { compose } from 'react-komposer';
-import { getTrackerLoader } from '/imports/react-ui/utils';
-import { Meteor } from 'meteor/meteor';
-import { Accounts } from 'meteor/accounts-base';
-import Alert from 'meteor/erxes-notifier';
+import React from 'react';
+import PropTypes from 'prop-types';
+import { compose, gql, graphql } from 'react-apollo';
+import { Alert } from 'modules/common/utils';
 import { ChangePassword } from '../components';
 
-function composer(props, onData) {
-  // save function
+const ChangePasswordContainer = props => {
+  const { changePasswordMutation } = props;
+
   const save = ({ currentPassword, newPassword, confirmation }) => {
     if (newPassword !== confirmation) {
       return Alert.error("Password didn't match");
     }
 
-    return Accounts.changePassword(currentPassword, newPassword, error => {
-      if (error) {
-        return Alert.error(error.reason);
-      }
-
-      return Alert.success('Success');
-    });
+    changePasswordMutation({ variables: { currentPassword, newPassword } })
+      .then(() => {
+        Alert.success('Congrats');
+      })
+      .catch(error => {
+        Alert.success(error.message);
+      });
   };
 
-  onData(null, { user: Meteor.user(), save });
-}
+  const updatedProps = {
+    ...props,
+    save
+  };
 
-export default compose(getTrackerLoader(composer))(ChangePassword);
+  return <ChangePassword {...updatedProps} />;
+};
+
+ChangePasswordContainer.propTypes = {
+  changePasswordMutation: PropTypes.func
+};
+
+export default compose(
+  graphql(
+    gql`
+      mutation usersChangePassword(
+        $currentPassword: String!
+        $newPassword: String!
+      ) {
+        usersChangePassword(
+          currentPassword: $currentPassword
+          newPassword: $newPassword
+        ) {
+          _id
+        }
+      }
+    `,
+    {
+      name: 'changePasswordMutation'
+    }
+  )
+)(ChangePasswordContainer);
