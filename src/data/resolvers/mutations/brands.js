@@ -1,5 +1,5 @@
 import { Brands } from '../../../db/models';
-import { moduleRequireLogin } from '../../permissions';
+import { moduleRequireLogin, PERMISSIONS } from '../../permissions';
 
 const brandMutations = {
   /**
@@ -41,6 +41,6 @@ const brandMutations = {
   },
 };
 
-moduleRequireLogin(brandMutations);
+moduleRequireLogin(brandMutations, [PERMISSIONS.ADMIN]);
 
 export default brandMutations;

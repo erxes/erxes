@@ -35,8 +35,8 @@ const channelMutations = {
    * @param {string} doc.description - Channel description
    * @param {String[]} doc.memberIds - Members assigned to the channel being created
    * @param {String[]} doc.integrationIds - Integrations related to the channel
-   * @param {Object} object3 - Graphql input data
-   * @param {Object|string} user - User making this action
+   * @param {Object} object3 - Middleware data
+   * @param {Object} object.user - User making this action
    * @return {Promise} return Promise resolving created Channel document
    */
   async channelsAdd(root, doc, { user }) {
