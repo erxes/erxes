@@ -88,4 +88,36 @@ export default {
 
     return createdUser;
   },
+
+  /*
+   * Update user
+   * @param {Object} args - User doc
+   * @return {Promise} - Newly created user
+   */
+  async usersEdit(root, args, { user }) {
+    const {
+      _id,
+      username,
+      password,
+      passwordConfirmation,
+      email,
+      role,
+      channelIds,
+      details,
+    } = args;
+
+    if (!user) throw new Error('Login required');
+
+    if (password && password !== passwordConfirmation) {
+      throw new Error('Incorrect password confirmation');
+    }
+
+    // TODO check isOwner
+    const updatedUser = await Users.updateUser(_id, { username, password, email, role, details });
+
+    // add new user to channels
+    await Channels.updateUserChannels(channelIds, _id);
+
+    return updatedUser;
+  },
 };

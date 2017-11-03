@@ -27,18 +27,20 @@ export const queries = `
   currentUser: User
 `;
 
+const commonParams = `
+  username: String!,
+  email: String!,
+  role: String!
+  details: UserDetails,
+  channelIds: [String],
+  password: String!,
+  passwordConfirmation: String!
+`;
+
 export const mutations = `
   login(email: String!, password: String!): AuthPayload!
   forgotPassword(email: String!): String!
   resetPassword(token: String!, newPassword: String!): String
-
-  usersAdd(
-    username: String!,
-    email: String!,
-    role: String!
-    details: UserDetails,
-    channelIds: [String],
-    password: String!,
-    passwordConfirmation: String!
-  ): User
+  usersAdd(${commonParams}): User
+  usersEdit(_id: String!, ${commonParams}): User
 `;

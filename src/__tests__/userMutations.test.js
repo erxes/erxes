@@ -47,14 +47,17 @@ describe('User mutations', () => {
       }
     };
 
-    expect.assertions(1);
+    expect.assertions(2);
 
     // users add
     checkLogin(usersMutations.usersAdd, {});
+
+    // users edit
+    checkLogin(usersMutations.usersEdit, {});
   });
 
-  test('Users add: wrong password confirmation', async () => {
-    expect.assertions(1);
+  test('Users add & edit: wrong password confirmation', async () => {
+    expect.assertions(2);
 
     const doc = {
       password: 'password',
@@ -63,6 +66,12 @@ describe('User mutations', () => {
 
     try {
       await usersMutations.usersAdd({}, doc, { user });
+    } catch (e) {
+      expect(e.message).toBe('Incorrect password confirmation');
+    }
+
+    try {
+      await usersMutations.usersEdit({}, doc, { user });
     } catch (e) {
       expect(e.message).toBe('Incorrect password confirmation');
     }
@@ -109,5 +118,34 @@ describe('User mutations', () => {
         },
       },
     });
+  });
+
+  test('Users edit', async () => {
+    const creatingUser = { _id: 'DFAFDFDFD' };
+    const channelIds = ['DFAFSDFDSAF', 'DFFADSFDSFD'];
+
+    Users.updateUser = jest.fn();
+    Channels.updateUserChannels = jest.fn();
+
+    const userId = 'DFAFDSFSDFDSF';
+    const doc = {
+      username: 'username',
+      password: 'password',
+      email: 'info@erxes.io',
+      role: 'admin',
+      details: {},
+    };
+
+    await usersMutations.usersEdit(
+      {},
+      { ...doc, _id: userId, passwordConfirmation: 'password', channelIds },
+      { user: creatingUser },
+    );
+
+    // update user call
+    expect(Users.updateUser).toBeCalledWith(userId, doc);
+
+    // update user channels call
+    expect(Channels.updateUserChannels).toBeCalledWith(channelIds, userId);
   });
 });

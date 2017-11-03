@@ -81,7 +81,10 @@ class User {
    * @return {Promise} updated user info
    */
   static async updateUser(_id, { username, email, password, role, details }) {
-    await this.checkDuplications({ twitterUsername: details.twitterUsername });
+    await this.checkDuplications({
+      userId: _id,
+      twitterUsername: details.twitterUsername,
+    });
 
     const doc = { username, email, password, role, details };
 
