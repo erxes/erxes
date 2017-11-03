@@ -89,9 +89,7 @@ export default commonListComposer({
   gqlRemoveMutation: graphql(
     gql`
       mutation usersRemove($_id: String) {
-        usersRemove(_id: $_id) {
-          _id
-        }
+        usersRemove(_id: $_id)
       }
     `,
     {
