@@ -6,8 +6,6 @@ import {
 
 import { moduleRequireLogin } from '../../permissions';
 
-console.log('moduleRequireLogin: ', moduleRequireLogin);
-
 const knowledgeBaseMutations = {
   /**
    * Create topic document

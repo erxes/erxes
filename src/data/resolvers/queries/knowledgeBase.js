@@ -5,7 +5,6 @@ import {
 } from '../../../db/models';
 
 import { moduleRequireLogin } from '../../permissions';
-console.log('moduleRequireLogin: ', moduleRequireLogin);
 
 const knowledgeBaseQueries = {
   /**
@@ -15,8 +14,6 @@ const knowledgeBaseQueries = {
    * @return {Promise} sorted article list
    */
   knowledgeBaseArticles(root, { limit }) {
-    console.log('aaa');
-
     const articles = KnowledgeBaseArticles.find({});
     const sort = { createdDate: -1 };
 
