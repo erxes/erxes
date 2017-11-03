@@ -6,6 +6,7 @@ import { connect, disconnect } from '../db/connection';
 import { FORM_LOAD_TYPES, MESSENGER_DATA_AVAILABILITY } from '../data/constants';
 import { userFactory } from '../db/factories';
 import { Integrations, Users } from '../db/models';
+import { ROLES } from '../data/constants';
 import integrationMutations from '../data/resolvers/mutations/integrations';
 
 beforeAll(() => connect());
@@ -15,17 +16,20 @@ describe('mutations', () => {
   const _fakeBrandId = 'fakeBrandId';
   const _fakeFormId = 'fakeFormId';
   const _fakeIntegrationId = '_fakeIntegrationId';
-  let _user;
 
-  beforeEach(async () => {
+  let _user;
+  let _adminUser;
+
+  beforeAll(async () => {
     _user = await userFactory({});
+    _adminUser = await userFactory({ role: ROLES.ADMIN });
   });
 
-  afterEach(async () => {
+  afterAll(async () => {
     await Users.remove({});
   });
 
-  test('test if `logging required` error is working as intended', () => {
+  test(`test if Error('Login required') exception is working as intended`, () => {
     expect.assertions(7);
 
     // Login required ==================
@@ -56,6 +60,21 @@ describe('mutations', () => {
     expect(() => integrationMutations.integrationsRemove(null, {}, {})).toThrowError(
       'Login required',
     );
+  });
+
+  test(`test if Error('Permission required') exception is working as intended`, async () => {
+    expect.assertions(1);
+
+    const expectError = async func => {
+      try {
+        await func(null, {}, { user: _user });
+      } catch (e) {
+        expect(e.message).toBe('Permission required');
+      }
+    };
+
+    // Login required ==================
+    expectError(integrationMutations.integrationsRemove);
   });
 
   test('test Integrations.createMessengerIntegration', async () => {
@@ -206,7 +225,7 @@ describe('mutations', () => {
     await integrationMutations.integrationsRemove(
       null,
       { _id: _fakeIntegrationId },
-      { user: _user },
+      { user: _adminUser },
     );
 
     expect(Integrations.removeIntegration).toBeCalledWith(_fakeIntegrationId);

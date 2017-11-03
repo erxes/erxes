@@ -1,5 +1,5 @@
 import { Integrations } from '../../../db/models';
-import { moduleRequireLogin } from '../../permissions';
+import { requireLogin, PERMISSIONS } from '../../permissions';
 
 const integrationMutations = {
   /**
@@ -110,6 +110,12 @@ const integrationMutations = {
   },
 };
 
-moduleRequireLogin(integrationMutations);
+requireLogin(integrationMutations, 'integrationsCreateMessengerIntegration');
+requireLogin(integrationMutations, 'integrationsEditMessengerIntegration');
+requireLogin(integrationMutations, 'integrationsSaveMessengerAppearanceData');
+requireLogin(integrationMutations, 'integrationsSaveMessengerConfigs');
+requireLogin(integrationMutations, 'integrationsCreateFormIntegration');
+requireLogin(integrationMutations, 'integrationsEditFormIntegration');
+requireLogin(integrationMutations, 'integrationsRemove', [PERMISSIONS.ADMIN]);
 
 export default integrationMutations;
