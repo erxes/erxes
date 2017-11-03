@@ -53,6 +53,18 @@ export default {
   },
 
   /*
+   * Change user password
+   * @param {String} currentPassword - Current password
+   * @param {String} newPassword - New password to set
+   * @return {Promise} - Updated user object
+   */
+  usersChangePassword(root, args, { user }) {
+    if (!user) throw new Error('Login required');
+
+    return Users.changePassword({ _id: user._id, ...args });
+  },
+
+  /*
    * Create new user
    * @param {Object} args - User doc
    * @return {Promise} - Newly created user

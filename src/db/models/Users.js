@@ -203,6 +203,33 @@ class User {
   }
 
   /*
+   * Change user password
+   * @param {String} currentPassword - Current password
+   * @param {String} newPassword - New password
+   * @return {Promise} - Updated user information
+   */
+  static async changePassword({ _id, currentPassword, newPassword }) {
+    const user = await this.findOne({ _id });
+
+    // check current password ============
+    const valid = await bcrypt.compare(currentPassword, user.password);
+
+    if (!valid) {
+      throw new Error('Incorrect current password');
+    }
+
+    // set new password
+    await this.findByIdAndUpdate(
+      { _id: user._id },
+      {
+        password: bcrypt.hashSync(newPassword, 10),
+      },
+    );
+
+    return this.findOne({ _id: user._id });
+  }
+
+  /*
    * Sends reset password link to found user's email
    * @param {String} email - Registered user's email
    * @return {String} - Generated token

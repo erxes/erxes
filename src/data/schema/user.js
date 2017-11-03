@@ -51,5 +51,6 @@ export const mutations = `
     password: String!
   ): User
 
-  usersRemove(_id: String): String
+  usersChangePassword(currentPassword: String!, newPassword: String!): User
+  usersRemove(_id: String!): String
 `;

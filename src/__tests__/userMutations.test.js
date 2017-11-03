@@ -50,6 +50,21 @@ describe('User mutations', () => {
     expect(Users.resetPassword).toBeCalledWith(doc);
   });
 
+  test('Change password', async () => {
+    Users.changePassword = jest.fn();
+
+    const doc = {
+      currentPassword: 'currentPassword',
+      newPassword: 'newPassword',
+    };
+
+    const user = { _id: 'DFAFASD' };
+
+    await userMutations.usersChangePassword({}, doc, { user });
+
+    expect(Users.changePassword).toBeCalledWith({ _id: user._id, ...doc });
+  });
+
   test('Login required checks', async () => {
     const checkLogin = async (fn, args) => {
       try {
@@ -59,7 +74,10 @@ describe('User mutations', () => {
       }
     };
 
-    expect.assertions(4);
+    expect.assertions(5);
+
+    // users change password
+    checkLogin(userMutations.usersChangePassword, {});
 
     // users add
     checkLogin(userMutations.usersAdd, {});
