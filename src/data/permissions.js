@@ -26,9 +26,9 @@ export const requireLogin = (cls, methodName, permissions) => {
   };
 };
 
-export const moduleRequireLogin = mdl => {
+export const moduleRequireLogin = (mdl, permissions) => {
   for (let method in mdl) {
-    requireLogin(mdl, method);
+    requireLogin(mdl, method, permissions);
   }
 };
 

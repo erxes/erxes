@@ -1,7 +1,7 @@
 import { MODULES } from '../../constants';
 import { Channels } from '../../../db/models';
 import utils from '../../utils';
-import { moduleRequireLogin } from '../../permissions';
+import { moduleRequireLogin, PERMISSIONS } from '../../permissions';
 
 /**
  * Send notification to all members of this channel except the sender
@@ -84,6 +84,6 @@ const channelMutations = {
   },
 };
 
-moduleRequireLogin(channelMutations);
+moduleRequireLogin(channelMutations, [PERMISSIONS.ADMIN]);
 
 export default channelMutations;
