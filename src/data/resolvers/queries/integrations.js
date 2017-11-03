@@ -1,11 +1,13 @@
 import { Integrations } from '../../../db/models';
+import { moduleRequireLogin } from '../../permissions';
 
-export default {
+const integrationQueries = {
   /**
    * Integrations list
-   * @param {Object} args
-   * @param {Integer} args.limit
-   * @param {String} args.kind
+   * @param {Object} object
+   * @param {Object} object2 - Apollo input data
+   * @param {Integer} object2.limit
+   * @param {String} object2.kind
    * @return {Promise} filterd and sorted integrations list
    */
   integrations(root, { limit, kind }) {
@@ -27,8 +29,9 @@ export default {
 
   /**
    * Get one integration
-   * @param {Object} args
-   * @param {String} args._id
+   * @param {Object} object
+   * @param {Object} object2 - Apollo input data
+   * @param {String} object2._id - Integration id
    * @return {Promise} found integration
    */
   integrationDetail(root, { _id }) {
@@ -49,3 +52,7 @@ export default {
     return Integrations.find(query).count();
   },
 };
+
+moduleRequireLogin(integrationQueries);
+
+export default integrationQueries;
