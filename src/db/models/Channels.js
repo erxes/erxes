@@ -84,7 +84,7 @@ class Channel {
   /*
    * Update user's channels
    * @param {[String]} channelIds - User's all involved channels
-   * @param {String} userId - User id
+   * @param {Promise} - Updated channels
    */
   static async updateUserChannels(channelIds, userId) {
     // remove from previous channels
@@ -100,6 +100,8 @@ class Channel {
       { $push: { memberIds: userId } },
       { multi: true },
     );
+
+    return this.find({ _id: { $in: channelIds } });
   }
 
   /**

@@ -2,7 +2,7 @@
 /* eslint-disable no-underscore-dangle */
 
 import { connect, disconnect } from '../db/connection';
-import { userFactory, integrationFactory } from '../db/factories';
+import { userFactory, integrationFactory, channelFactory } from '../db/factories';
 import { Channels, Users, Integrations } from '../db/models';
 import toBeType from 'jest-tobetype';
 
@@ -182,5 +182,29 @@ describe('test createdAtModifier', () => {
     const updatedChannel = await Channels.updateChannel(_channel._id, { name: 'Channel test 2' });
 
     expect(updatedChannel.createdAt).toEqual(createdAt);
+  });
+});
+
+describe('db utils', () => {
+  let _user;
+  let _channel;
+
+  beforeEach(async () => {
+    _user = await userFactory({});
+    _channel = await channelFactory({ memberIds: ['DFAFDSFDDFAS'] });
+  });
+
+  afterEach(async () => {
+    await Users.remove({});
+    await Channels.remove({});
+  });
+
+  test('updateUserChannels', async () => {
+    const updatedChannels = await Channels.updateUserChannels([_channel._id], _user._id);
+
+    const updatedChannel = updatedChannels.pop();
+
+    expect(updatedChannel.memberIds).toContain('DFAFDSFDDFAS');
+    expect(updatedChannel.memberIds).toContain(_user._id);
   });
 });
