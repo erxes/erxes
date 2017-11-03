@@ -1,13 +1,12 @@
 import { Fields } from '../../../db/models';
+import { moduleRequireLogin } from '../../permissions';
 
-export default {
+const fieldMutations = {
   /**
    * Adds field object
    * @return {Promise}
    */
-  fieldsAdd(root, args, { user }) {
-    if (!user) throw new Error('Login required');
-
+  fieldsAdd(root, args) {
     return Fields.createField(args);
   },
 
@@ -15,9 +14,7 @@ export default {
    * Updates field object
   * @return {Promise} return Promise(null)
   */
-  fieldsEdit(root, { _id, ...doc }, { user }) {
-    if (!user) throw new Error('Login required');
-
+  fieldsEdit(root, { _id, ...doc }) {
     return Fields.updateField(_id, doc);
   },
 
@@ -25,9 +22,7 @@ export default {
    * Remove a channel
    * @return {Promise}
    */
-  fieldsRemove(root, { _id }, { user }) {
-    if (!user) throw new Error('Login required');
-
+  fieldsRemove(root, { _id }) {
     return Fields.removeField(_id);
   },
 
@@ -36,9 +31,11 @@ export default {
    * @param [OrderItem] [{ _id: [field id], order: [order value] }]
    * @return {Promise} updated fields
    */
-  fieldsUpdateOrder(root, { orders }, { user }) {
-    if (!user) throw new Error('Login required');
-
+  fieldsUpdateOrder(root, { orders }) {
     return Fields.updateOrder(orders);
   },
 };
+
+moduleRequireLogin(fieldMutations);
+
+export default fieldMutations;
