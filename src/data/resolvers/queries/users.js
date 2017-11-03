@@ -1,6 +1,8 @@
 import { Users } from '../../../db/models';
 
-export default {
+import { moduleRequireLogin } from '../../permissions';
+
+const userQueries = {
   /**
    * Users list
    * @param {Object} args
@@ -50,3 +52,7 @@ export default {
     return user;
   },
 };
+
+moduleRequireLogin(userQueries);
+
+export default userQueries;

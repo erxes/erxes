@@ -1,7 +1,8 @@
 import { Users } from '../../../db/models';
 import { sendEmail } from '../../../data/utils';
+import { requireLogin } from '../../permissions';
 
-export default {
+const userMutations = {
   login(root, args) {
     return Users.login(args);
   },
@@ -33,10 +34,8 @@ export default {
     return Users.resetPassword(args);
   },
 
-  usersAdd(root, args, { user }) {
+  usersAdd(root, args) {
     const { username, password, passwordConfirmation, email, role, details } = args;
-
-    if (!user) throw new Error('Login required');
 
     if (password !== passwordConfirmation) {
       throw new Error('Incorrect password confirmation');
@@ -45,3 +44,7 @@ export default {
     return Users.createUser({ username, password, email, role, details });
   },
 };
+
+requireLogin(userMutations, 'usersAdd');
+
+export default userMutations;
