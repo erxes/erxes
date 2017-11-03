@@ -14,8 +14,9 @@ import {
   getTime,
   formatTime,
 } from './insightUtils';
+import { moduleRequireLogin } from '../../permissions';
 
-export default {
+const insightQueries = {
   /**
    * Builds insights charting data contains
    * count of conversations in various integrations kinds.
@@ -297,3 +298,7 @@ export default {
     return insightData;
   },
 };
+
+moduleRequireLogin(insightQueries);
+
+export default insightQueries;
