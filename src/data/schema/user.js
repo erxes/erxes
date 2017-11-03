@@ -43,4 +43,5 @@ export const mutations = `
   resetPassword(token: String!, newPassword: String!): String
   usersAdd(${commonParams}): User
   usersEdit(_id: String!, ${commonParams}): User
+  usersRemove(_id: String): String
 `;

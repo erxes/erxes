@@ -3,7 +3,7 @@
 
 import { connect, disconnect } from '../db/connection';
 import { Users, Channels } from '../db/models';
-import { userFactory } from '../db/factories';
+import { userFactory, channelFactory } from '../db/factories';
 import userMutations from '../data/resolvers/mutations/users';
 import utils from '../data/utils';
 
@@ -17,6 +17,7 @@ describe('User mutations', () => {
   afterEach(async () => {
     // Clearing test data
     await Users.remove({});
+    await Channels.remove({});
   });
 
   test('Login', async () => {
@@ -173,5 +174,41 @@ describe('User mutations', () => {
     } catch (e) {
       expect(e.message).toBe('Can not remove owner');
     }
+  });
+
+  test('Users remove: can not remove user who created some channels', async () => {
+    expect.assertions(1);
+
+    const userToRemove = await userFactory({});
+    await channelFactory({ userId: userToRemove._id });
+
+    try {
+      await userMutations.usersRemove({}, { _id: userToRemove._id }, { user });
+    } catch (e) {
+      expect(e.message).toBe('You cannot delete this user. This user belongs other channel.');
+    }
+  });
+
+  test('Users remove: can not remove user who involved some channels', async () => {
+    expect.assertions(1);
+
+    const userToRemove = await userFactory({});
+    await channelFactory({ memberIds: ['DFAFSFDSFDS', userToRemove._id] });
+
+    try {
+      await userMutations.usersRemove({}, { _id: userToRemove._id }, { user });
+    } catch (e) {
+      expect(e.message).toBe('You cannot delete this user. This user belongs other channel.');
+    }
+  });
+
+  test('Users remove: successful', async () => {
+    const removeUser = await userFactory({});
+    const removeUserId = removeUser._id;
+
+    await userMutations.usersRemove({}, { _id: removeUserId }, { user });
+
+    // ensure removed
+    expect(await Users.findOne({ _id: removeUserId })).toBe(null);
   });
 });

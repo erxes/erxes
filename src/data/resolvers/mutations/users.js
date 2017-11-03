@@ -136,6 +136,15 @@ export default {
       throw new Error('Can not remove owner');
     }
 
+    // if the user involved in any channel then can not delete this user
+    if ((await Channels.find({ userId: userToRemove._id }).count()) > 0) {
+      throw new Error('You cannot delete this user. This user belongs other channel.');
+    }
+
+    if ((await Channels.find({ memberIds: { $in: [userToRemove._id] } }).count()) > 0) {
+      throw new Error('You cannot delete this user. This user belongs other channel.');
+    }
+
     return Users.removeUser(_id);
   },
 };
