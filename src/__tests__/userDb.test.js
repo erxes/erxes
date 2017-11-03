@@ -47,6 +47,7 @@ describe('User db utils', () => {
     });
 
     expect(userObj).toBeDefined();
+    expect(userObj._id).toBeDefined();
     expect(userObj.username).toBe(_user.username);
     expect(userObj.email).toBe(_user.email);
     expect(userObj.role).toBe(_user.role);
@@ -162,6 +163,30 @@ describe('User db utils', () => {
     expect(user.resetPasswordToken).toBe(null);
     expect(user.resetPasswordExpires).toBe(null);
     expect(bcrypt.compare('password', user.password)).toBeTruthy();
+  });
+
+  test('Change password: incorrect current password', async () => {
+    expect.assertions(1);
+
+    const user = await userFactory({});
+
+    try {
+      await Users.changePassword({ _id: user._id, currentPassword: 'p' });
+    } catch (e) {
+      expect(e.message).toBe('Incorrect current password');
+    }
+  });
+
+  test('Change password: successful', async () => {
+    const user = await userFactory({});
+
+    const updatedUser = await Users.changePassword({
+      _id: user._id,
+      currentPassword: 'Dombo@123',
+      newPassword: 'Lombo@123',
+    });
+
+    expect(bcrypt.compare(updatedUser.password, 'Lombo@123')).toBeTruthy();
   });
 
   test('Forgot password', async () => {

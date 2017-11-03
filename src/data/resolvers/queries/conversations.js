@@ -119,7 +119,7 @@ export default {
     );
 
     // by integration type
-    for (let intT of INTEGRATION_KIND_CHOICES.ALL_LIST) {
+    for (let intT of INTEGRATION_KIND_CHOICES.ALL) {
       response.byIntegrationTypes[intT] = await count(
         Object.assign({}, queries.default, await qb.integrationTypeFilter(intT)),
       );

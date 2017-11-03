@@ -49,7 +49,7 @@ const userQueries = {
    * @return {Promise} total count
    */
   currentUser(root, args, { user }) {
-    return user;
+    return Users.findOne({ _id: user._id });
   },
 };
 

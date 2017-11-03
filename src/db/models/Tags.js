@@ -13,7 +13,7 @@ const TagSchema = mongoose.Schema({
   name: String,
   type: {
     type: String,
-    enum: TAG_TYPES.ALL_LIST,
+    enum: TAG_TYPES.ALL,
   },
   colorCode: String,
   createdAt: Date,

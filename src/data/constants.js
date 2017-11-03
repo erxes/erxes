@@ -5,7 +5,7 @@ export const CONVERSATION_STATUSES = {
   NEW: 'new',
   OPEN: 'open',
   CLOSED: 'closed',
-  ALL_LIST: ['new', 'open', 'closed'],
+  ALL: ['new', 'open', 'closed'],
 };
 
 export const INTEGRATION_KIND_CHOICES = {
@@ -20,7 +20,7 @@ export const TAG_TYPES = {
   CONVERSATION: 'conversation',
   CUSTOMER: 'customer',
   ENGAGE_MESSAGE: 'engageMessage',
-  ALL_LIST: ['conversation', 'customer', 'engageMessage'],
+  ALL: ['conversation', 'customer', 'engageMessage'],
 };
 
 export const FACEBOOK_DATA_KINDS = {
@@ -33,27 +33,27 @@ export const MESSENGER_KINDS = {
   CHAT: 'chat',
   NOTE: 'note',
   POST: 'post',
-  ALL_LIST: ['chat', 'note', 'post'],
+  ALL: ['chat', 'note', 'post'],
 };
 
 export const SENT_AS_CHOICES = {
   BADGE: 'badge',
   SNIPPET: 'snippet',
   FULL_MESSAGE: 'fullMessage',
-  ALL_LIST: ['badge', 'snippet', 'fullMessage'],
+  ALL: ['badge', 'snippet', 'fullMessage'],
 };
 
 export const MESSAGE_KINDS = {
   AUTO: 'auto',
   VISITOR_AUTO: 'visitorAuto',
   MANUAL: 'manual',
-  ALL_LIST: ['auto', 'visitorAuto', 'manual'],
+  ALL: ['auto', 'visitorAuto', 'manual'],
 };
 
 export const METHODS = {
   MESSENGER: 'messenger',
   EMAIL: 'email',
-  ALL_LIST: ['messenger', 'email'],
+  ALL: ['messenger', 'email'],
 };
 
 export const FORM_LOAD_TYPES = {
@@ -75,7 +75,6 @@ export const KIND_CHOICES = {
   FORM: 'form',
   TWITTER: 'twitter',
   FACEBOOK: 'facebook',
-  ALL_LIST: ['messenger', 'form', 'twitter', 'facebook'],
   ALL: ['messenger', 'form', 'twitter', 'facebook'],
 };
 
@@ -136,19 +135,19 @@ export const FIELD_CONTENT_TYPES = {
   FORM: 'form',
   CUSTOMER: 'customer',
   COMPANY: 'company',
-  ALL_LIST: ['form', 'customer', 'company'],
+  ALL: ['form', 'customer', 'company'],
 };
 
 export const INTERNAL_NOTE_CONTENT_TYPES = {
   CUSTOMER: 'customer',
   COMPANY: 'company',
-  ALL_LIST: ['customer', 'company'],
+  ALL: ['customer', 'company'],
 };
 
 export const SEGMENT_CONTENT_TYPES = {
   CUSTOMER: 'customer',
   COMPANY: 'company',
-  ALL_LIST: ['customer', 'company'],
+  ALL: ['customer', 'company'],
 };
 
 export const ROLES = {

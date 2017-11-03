@@ -81,7 +81,10 @@ class User {
    * @return {Promise} updated user info
    */
   static async updateUser(_id, { username, email, password, role, details }) {
-    await this.checkDuplications({ twitterUsername: details.twitterUsername });
+    await this.checkDuplications({
+      userId: _id,
+      twitterUsername: details.twitterUsername,
+    });
 
     const doc = { username, email, password, role, details };
 
@@ -136,7 +139,7 @@ class User {
    * @param {String} _id - User id
    * @return {Promise} - remove method response
    */
-  static async removeUser(_id) {
+  static removeUser(_id) {
     return Users.remove({ _id });
   }
 
@@ -193,6 +196,33 @@ class User {
         password: bcrypt.hashSync(newPassword, 10),
         resetPasswordToken: undefined,
         resetPasswordExpires: undefined,
+      },
+    );
+
+    return this.findOne({ _id: user._id });
+  }
+
+  /*
+   * Change user password
+   * @param {String} currentPassword - Current password
+   * @param {String} newPassword - New password
+   * @return {Promise} - Updated user information
+   */
+  static async changePassword({ _id, currentPassword, newPassword }) {
+    const user = await this.findOne({ _id });
+
+    // check current password ============
+    const valid = await bcrypt.compare(currentPassword, user.password);
+
+    if (!valid) {
+      throw new Error('Incorrect current password');
+    }
+
+    // set new password
+    await this.findByIdAndUpdate(
+      { _id: user._id },
+      {
+        password: bcrypt.hashSync(newPassword, 10),
       },
     );
 
