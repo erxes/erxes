@@ -1,19 +1,30 @@
 /* eslint-env jest */
 /* eslint-disable no-underscore-dangle */
 
+import { connect, disconnect } from '../db/connection';
 import { Users, Channels } from '../db/models';
-import usersMutations from '../data/resolvers/mutations/users';
+import { userFactory } from '../db/factories';
+import userMutations from '../data/resolvers/mutations/users';
 import utils from '../data/utils';
+
+beforeAll(() => connect());
+
+afterAll(() => disconnect());
 
 describe('User mutations', () => {
   const user = { _id: 'DFAFDFDFD' };
+
+  afterEach(async () => {
+    // Clearing test data
+    await Users.remove({});
+  });
 
   test('Login', async () => {
     Users.login = jest.fn();
 
     const doc = { email: 'test@erxes.io', password: 'password' };
 
-    await usersMutations.login({}, doc);
+    await userMutations.login({}, doc);
 
     expect(Users.login).toBeCalledWith(doc);
   });
@@ -23,7 +34,7 @@ describe('User mutations', () => {
 
     const doc = { email: 'test@erxes.io' };
 
-    await usersMutations.forgotPassword({}, doc);
+    await userMutations.forgotPassword({}, doc);
 
     expect(Users.forgotPassword).toBeCalledWith(doc.email);
   });
@@ -33,7 +44,7 @@ describe('User mutations', () => {
 
     const doc = { token: '2424920429402', newPassword: 'newPassword' };
 
-    await usersMutations.resetPassword({}, doc);
+    await userMutations.resetPassword({}, doc);
 
     expect(Users.resetPassword).toBeCalledWith(doc);
   });
@@ -47,13 +58,16 @@ describe('User mutations', () => {
       }
     };
 
-    expect.assertions(2);
+    expect.assertions(3);
 
     // users add
-    checkLogin(usersMutations.usersAdd, {});
+    checkLogin(userMutations.usersAdd, {});
 
     // users edit
-    checkLogin(usersMutations.usersEdit, {});
+    checkLogin(userMutations.usersEdit, {});
+
+    // users remove
+    checkLogin(userMutations.usersRemove, {});
   });
 
   test('Users add & edit: wrong password confirmation', async () => {
@@ -65,13 +79,13 @@ describe('User mutations', () => {
     };
 
     try {
-      await usersMutations.usersAdd({}, doc, { user });
+      await userMutations.usersAdd({}, doc, { user });
     } catch (e) {
       expect(e.message).toBe('Incorrect password confirmation');
     }
 
     try {
-      await usersMutations.usersEdit({}, doc, { user });
+      await userMutations.usersEdit({}, doc, { user });
     } catch (e) {
       expect(e.message).toBe('Incorrect password confirmation');
     }
@@ -93,7 +107,7 @@ describe('User mutations', () => {
       details: {},
     };
 
-    await usersMutations.usersAdd(
+    await userMutations.usersAdd(
       {},
       { ...doc, passwordConfirmation: 'password', channelIds },
       { user },
@@ -136,7 +150,7 @@ describe('User mutations', () => {
       details: {},
     };
 
-    await usersMutations.usersEdit(
+    await userMutations.usersEdit(
       {},
       { ...doc, _id: userId, passwordConfirmation: 'password', channelIds },
       { user: creatingUser },
@@ -147,5 +161,17 @@ describe('User mutations', () => {
 
     // update user channels call
     expect(Channels.updateUserChannels).toBeCalledWith(channelIds, userId);
+  });
+
+  test('Users remove: can not delete owner', async () => {
+    expect.assertions(1);
+
+    const owner = await userFactory({ isOwner: true });
+
+    try {
+      await userMutations.usersRemove({}, { _id: owner._id }, { user });
+    } catch (e) {
+      expect(e.message).toBe('Can not remove owner');
+    }
   });
 });

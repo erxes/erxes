@@ -92,7 +92,7 @@ export default {
   /*
    * Update user
    * @param {Object} args - User doc
-   * @return {Promise} - Newly created user
+   * @return {Promise} - Updated user
    */
   async usersEdit(root, args, { user }) {
     const {
@@ -119,5 +119,23 @@ export default {
     await Channels.updateUserChannels(channelIds, _id);
 
     return updatedUser;
+  },
+
+  /*
+   * Remove user
+   * @param {String} _id - User _id
+   * @return {Promise} - Remove user response
+   */
+  async usersRemove(root, { _id }, { user }) {
+    if (!user) throw new Error('Login required');
+
+    const userToRemove = await Users.findOne({ _id });
+
+    // can not remove owner
+    if (userToRemove.isOwner) {
+      throw new Error('Can not remove owner');
+    }
+
+    return Users.removeUser(_id);
   },
 };

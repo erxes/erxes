@@ -139,7 +139,7 @@ class User {
    * @param {String} _id - User id
    * @return {Promise} - remove method response
    */
-  static async removeUser(_id) {
+  static removeUser(_id) {
     return Users.remove({ _id });
   }
 
