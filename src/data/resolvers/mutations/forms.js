@@ -1,6 +1,7 @@
 import { Forms } from '../../../db/models';
+import { moduleRequireLogin } from '../../permissions';
 
-export default {
+const formMutations = {
   /**
    * Create a new form
    * @param {Object} root
@@ -9,13 +10,8 @@ export default {
    * @param {string} doc.description - Form description
    * @param {Object} doc.user - The user who created this form
    * @return {Promise} return Promise resolving Form document
-   * @throws {Error} throws Error('Login required') if user is not logged in
    */
   formsAdd(root, doc, { user }) {
-    if (!user) {
-      throw new Error('Login required');
-    }
-
     return Forms.createForm(doc, user);
   },
 
@@ -29,13 +25,8 @@ export default {
    * @param {Object} object3 - The middleware data
    * @param {Object} object3.user - The user who is making this action
    * @return {Promise} return Promise resolving Form document
-   * @throws {Error} throws Error('Login required') if user is not logged in
    */
-  formsEdit(root, { _id, ...doc }, { user }) {
-    if (!user) {
-      throw new Error('Login required');
-    }
-
+  formsEdit(root, { _id, ...doc }) {
     return Forms.updateForm(_id, doc);
   },
 
@@ -47,13 +38,8 @@ export default {
    * @param {Object} object3 - The middleware data
    * @param {Object} object3.user - The user making this action
    * @return {Promise}
-   * @throws {Error} throws Error('Login required') if user is not logged in
    */
-  formsRemove(root, { _id }, { user }) {
-    if (!user) {
-      throw new Error('Login required');
-    }
-
+  formsRemove(root, { _id }) {
     return Forms.removeForm(_id);
   },
 
@@ -65,13 +51,12 @@ export default {
    * @param {Object} object3 - Middleware data
    * @param {Object} object3.user - The user making this action
    * @return {Promise} return Promise resolving the new duplication Form document
-   * @throws {Error} throws Error('Login required') if user is not logged in
    */
-  formsDuplicate(root, { _id }, { user }) {
-    if (!user) {
-      throw new Error('Login required');
-    }
-
+  formsDuplicate(root, { _id }) {
     return Forms.duplicate(_id);
   },
 };
+
+moduleRequireLogin(formMutations);
+
+export default formMutations;
