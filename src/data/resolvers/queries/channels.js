@@ -1,6 +1,7 @@
 import { Channels } from '../../../db/models';
+import { moduleRequireLogin } from '../../permissions';
 
-export default {
+const channelQueries = {
   /**
    * Channels list
    * @param {Object} args
@@ -33,3 +34,7 @@ export default {
     return Channels.find({}).count();
   },
 };
+
+moduleRequireLogin(channelQueries);
+
+export default channelQueries;

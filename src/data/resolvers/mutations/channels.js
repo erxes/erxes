@@ -1,6 +1,7 @@
 import { MODULES } from '../../constants';
 import { Channels } from '../../../db/models';
 import utils from '../../utils';
+import { moduleRequireLogin } from '../../permissions';
 
 /**
  * Send notification to all members of this channel except the sender
@@ -25,7 +26,7 @@ export const sendChannelNotifications = async channel => {
   });
 };
 
-export default {
+const channelMutations = {
   /**
    * Create a new channel and send notifications to its members bar the creator
    * @param {Object} root
@@ -76,9 +77,13 @@ export default {
    * @param {Object|String} object3.user - User making this action
    * @return {Promise}
    */
-  async channelsRemove(root, { _id }, { user }) {
+  async channelsRemove(root, { _id }) {
     await Channels.removeChannel(_id);
 
     return _id;
   },
 };
+
+moduleRequireLogin(channelMutations);
+
+export default channelMutations;
