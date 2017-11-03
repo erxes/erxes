@@ -53,9 +53,7 @@ const QuickNavigation = ({ logout }) => {
         </NameCardWrapper>
         <MenuItem divider />
         <MenuItem href="/settings/profile">Edit Profile</MenuItem>
-        <MenuItem href="/settings/profile/change-password">
-          Change password
-        </MenuItem>
+        <MenuItem href="/change-password">Change password</MenuItem>
         <MenuItem divider />
         <MenuItem onClick={logout}>Sign out</MenuItem>
       </Dropdown.Menu>

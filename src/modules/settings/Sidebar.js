@@ -83,7 +83,7 @@ function Sidebar() {
             <Link to="/settings/profile">Profile</Link>
           </li>
           <li>
-            <Link to="/settings/change-password">Change password</Link>
+            <Link to="/change-password">Change password</Link>
           </li>
           <li>
             <Link to="/settings/emails/signatures">Email signatures</Link>

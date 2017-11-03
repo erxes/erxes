@@ -14,9 +14,9 @@ const routes = () => [
   />,
 
   <Route
-    key="/settings/change-password"
+    key="/change-password"
     exact
-    path="/settings/change-password"
+    path="/change-password"
     component={() => {
       return <MainLayout content={<ChangePassword />} />;
     }}
