@@ -1,13 +1,13 @@
 import { Segments } from '../../../db/models';
 
-export default {
+import { moduleRequireLogin } from '../../permissions';
+
+const segmentQueries = {
   /**
    * Create new segment
    * @return {Promise} segment object
    */
-  segmentsAdd(root, doc, { user }) {
-    if (!user) throw new Error('Login required');
-
+  segmentsAdd(root, doc) {
     return Segments.createSegment(doc);
   },
 
@@ -15,9 +15,7 @@ export default {
    * Update segment
    * @return {Promise} segment object
    */
-  async segmentsEdit(root, { _id, ...doc }, { user }) {
-    if (!user) throw new Error('Login required');
-
+  async segmentsEdit(root, { _id, ...doc }) {
     return Segments.updateSegment(_id, doc);
   },
 
@@ -25,9 +23,11 @@ export default {
    * Delete segment
    * @return {Promise}
    */
-  async segmentsRemove(root, { _id }, { user }) {
-    if (!user) throw new Error('Login required');
-
+  async segmentsRemove(root, { _id }) {
     return Segments.removeSegment(_id);
   },
 };
+
+moduleRequireLogin(segmentQueries);
+
+export default segmentQueries;
