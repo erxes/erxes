@@ -37,7 +37,7 @@ export default {
     const insights = [];
 
     // count conversations by each integration kind
-    for (let kind of INTEGRATION_KIND_CHOICES.ALL_LIST) {
+    for (let kind of INTEGRATION_KIND_CHOICES.ALL) {
       const integrationIds = await Integrations.find({ ...integrationSelector, kind }).select(
         '_id',
       );

@@ -100,7 +100,7 @@ export default {
     }
 
     // Count customers by integration
-    for (let kind of INTEGRATION_KIND_CHOICES.ALL_LIST) {
+    for (let kind of INTEGRATION_KIND_CHOICES.ALL) {
       const integrations = await Integrations.find({ kind });
 
       counts.byIntegrationType[kind] = await count({

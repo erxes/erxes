@@ -29,7 +29,7 @@ const SegmentSchema = mongoose.Schema({
   },
   contentType: {
     type: String,
-    enum: SEGMENT_CONTENT_TYPES.ALL_LIST,
+    enum: SEGMENT_CONTENT_TYPES.ALL,
   },
   name: String,
   description: String,

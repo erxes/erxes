@@ -13,7 +13,7 @@ const InternalNoteSchema = mongoose.Schema({
   },
   contentType: {
     type: String,
-    enum: INTERNAL_NOTE_CONTENT_TYPES.ALL_LIST,
+    enum: INTERNAL_NOTE_CONTENT_TYPES.ALL,
   },
   contentTypeId: String,
   content: {

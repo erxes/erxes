@@ -47,11 +47,11 @@ const FormDataSchema = mongoose.Schema(
   {
     loadType: {
       type: String,
-      enum: FORM_LOAD_TYPES.ALL_LIST,
+      enum: FORM_LOAD_TYPES.ALL,
     },
     successAction: {
       type: String,
-      enum: FORM_SUCCESS_ACTIONS.ALL_LIST,
+      enum: FORM_SUCCESS_ACTIONS.ALL,
     },
     fromEmail: {
       type: String,

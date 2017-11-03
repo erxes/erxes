@@ -27,11 +27,11 @@ const MessengerSchema = mongoose.Schema({
   brandId: String,
   kind: {
     type: String,
-    enum: MESSENGER_KINDS.ALL_LIST,
+    enum: MESSENGER_KINDS.ALL,
   },
   sentAs: {
     type: String,
-    enum: SENT_AS_CHOICES.ALL_LIST,
+    enum: SENT_AS_CHOICES.ALL,
   },
   content: String,
   rules: [RuleSchema],
@@ -46,7 +46,7 @@ const EngageMessageSchema = mongoose.Schema({
   fromUserId: String,
   method: {
     type: String,
-    enum: METHODS.ALL_LIST,
+    enum: METHODS.ALL,
   },
   isDraft: Boolean,
   isLive: Boolean,

@@ -50,7 +50,7 @@ const FacebookSchema = mongoose.Schema(
   {
     kind: {
       type: String,
-      enum: FACEBOOK_DATA_KINDS.ALL_LIST,
+      enum: FACEBOOK_DATA_KINDS.ALL,
     },
     senderName: {
       type: String,
@@ -91,7 +91,7 @@ const ConversationSchema = mongoose.Schema({
   status: {
     type: String,
     required: true,
-    enum: CONVERSATION_STATUSES.ALL_LIST,
+    enum: CONVERSATION_STATUSES.ALL,
   },
   messageCount: Number,
   tagIds: [String],
