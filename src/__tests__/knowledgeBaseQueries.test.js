@@ -15,15 +15,15 @@ describe('knowledgeBaseQueries', () => {
     };
 
     expectError(knowledgeBaseQueries.knowledgeBaseArticles);
-    expectError(knowledgeBaseQueries.knowledgeBaseArticlesDetail);
+    expectError(knowledgeBaseQueries.knowledgeBaseArticleDetail);
     expectError(knowledgeBaseQueries.knowledgeBaseArticlesTotalCount);
 
     expectError(knowledgeBaseQueries.knowledgeBaseCategories);
-    expectError(knowledgeBaseQueries.knowledgeBaseCategoriesDetail);
+    expectError(knowledgeBaseQueries.knowledgeBaseCategoryDetail);
     expectError(knowledgeBaseQueries.knowledgeBaseCategoriesTotalCount);
 
     expectError(knowledgeBaseQueries.knowledgeBaseTopics);
-    expectError(knowledgeBaseQueries.knowledgeBaseTopicsDetail);
+    expectError(knowledgeBaseQueries.knowledgeBaseTopicDetail);
     expectError(knowledgeBaseQueries.knowledgeBaseTopicsTotalCount);
   });
 });

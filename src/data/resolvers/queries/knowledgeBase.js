@@ -30,7 +30,7 @@ const knowledgeBaseQueries = {
    * @param {String} args._id
    * @return {Promise} article detail
    */
-  knowledgeBaseArticlesDetail(root, { _id }) {
+  knowledgeBaseArticleDetail(root, { _id }) {
     return KnowledgeBaseArticles.findOne({ _id });
   },
 
@@ -65,7 +65,7 @@ const knowledgeBaseQueries = {
    * @param {String} args._id
    * @return {Promise} category detail
    */
-  knowledgeBaseCategoriesDetail(root, { _id }) {
+  knowledgeBaseCategoryDetail(root, { _id }) {
     return KnowledgeBaseCategories.findOne({ _id }).then(category => {
       return category;
     });
@@ -102,7 +102,7 @@ const knowledgeBaseQueries = {
    * @param {String} args._id
    * @return {Promise} topic detail
    */
-  knowledgeBaseTopicsDetail(root, { _id }) {
+  knowledgeBaseTopicDetail(root, { _id }) {
     return KnowledgeBaseTopics.findOne({ _id });
   },
 
