@@ -56,17 +56,19 @@ class UserForm extends CommonForm {
   generateDoc() {
     return {
       doc: {
-        avatar: document.getElementById('avatar').value,
-        position: document.getElementById('position').value,
-        fullName: document.getElementById('fullName').value,
         username: document.getElementById('username').value,
-        twitterUsername: document.getElementById('twitterUsername').value,
         email: document.getElementById('email').value,
+        role: document.getElementById('role').value,
+        details: {
+          avatar: document.getElementById('avatar').value,
+          position: document.getElementById('position').value,
+          fullName: document.getElementById('fullName').value,
+          twitterUsername: document.getElementById('twitterUsername').value
+        },
+        channelIds: this.collectValues(this.state.selectedChannels),
         password: document.getElementById('password').value,
         passwordConfirmation: document.getElementById('password-confirmation')
-          .value,
-        role: document.getElementById('role').value,
-        channelIds: this.collectValues(this.state.selectedChannels)
+          .value
       }
     };
   }
@@ -88,10 +90,14 @@ class UserForm extends CommonForm {
           <FormControl id="password-confirmation" type="password" />
         </FormGroup>
 
-        <FormGroup controlId="role">
+        <FormGroup>
           <ControlLabel>Role</ControlLabel>
 
-          <FormControl componentClass="select" defaultValue={user.details.role}>
+          <FormControl
+            componentClass="select"
+            defaultValue={user.details.role}
+            id="role"
+          >
             <option value="admin">Admin</option>
             <option value="contributor">Contributor</option>
           </FormControl>
