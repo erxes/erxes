@@ -28,7 +28,7 @@ const checkValues = (internalNoteObj, doc) => {
   expect(internalNoteObj.content).toBe(doc.content);
 };
 
-describe('InternalNotes mutations', () => {
+describe('InternalNotes model test', () => {
   let _user;
   let _internalNote;
 

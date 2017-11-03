@@ -1,6 +1,7 @@
 import { InternalNotes } from '../../../db/models';
+import { moduleRequireLogin } from '../../permissions';
 
-export default {
+const internalNoteQueries = {
   /**
    * InternalNotes list
    * @param {Object} args
@@ -10,3 +11,7 @@ export default {
     return InternalNotes.find({ contentType, contentTypeId }).sort({ createdDate: 1 });
   },
 };
+
+moduleRequireLogin(internalNoteQueries);
+
+export default internalNoteQueries;
