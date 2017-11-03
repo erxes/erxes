@@ -42,7 +42,7 @@ export default commonListComposer({
       options: ({ queryParams }) => {
         return {
           variables: {
-            limit: queryParams.limit ? parseInt(queryParams.limit) : 20
+            limit: queryParams.limit ? parseInt(queryParams.limit, 10) : 20
           }
         };
       }

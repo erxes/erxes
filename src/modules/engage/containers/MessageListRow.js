@@ -5,6 +5,7 @@ import { compose, gql, graphql } from 'react-apollo';
 import { Alert } from 'modules/common/utils';
 import { MessageListRow } from '../components';
 import { mutations } from '../graphql';
+import { confirm } from 'modules/common/utils';
 
 const MessageRowContainer = props => {
   const {
@@ -36,8 +37,9 @@ const MessageRowContainer = props => {
   };
 
   const remove = () => {
-    // TODO confirm
-    doMutation(removeMutation);
+    confirm().then(() => {
+      doMutation(removeMutation);
+    });
   };
 
   const setLiveManual = () => doMutation(setLiveManualMutation);

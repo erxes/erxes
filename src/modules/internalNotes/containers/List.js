@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { compose, gql, graphql } from 'react-apollo';
 import { List } from '../components';
 import { queries, mutations } from '../graphql';
+import { confirm } from 'modules/common/utils';
 
 const ListContainer = props => {
   const { internalNotesQuery, internalNotesRemove } = props;
@@ -13,10 +14,11 @@ const ListContainer = props => {
 
   // delete internalNote
   const remove = _id => {
-    // TODO confirm
-    internalNotesRemove({
-      variables: { _id }
-    }).then(() => internalNotesQuery.refetch());
+    confirm().then(() => {
+      internalNotesRemove({
+        variables: { _id }
+      }).then(() => internalNotesQuery.refetch());
+    });
   };
 
   const updatedProps = {

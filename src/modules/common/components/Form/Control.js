@@ -42,7 +42,7 @@ const renderElement = (Element, attributes, type, child) => {
   return (
     <FormLabel>
       <Element {...attributes} type={type} />
-      <span>&nbsp;{child}</span>
+      <span>&nbsp;&nbsp;{child}</span>
     </FormLabel>
   );
 };
