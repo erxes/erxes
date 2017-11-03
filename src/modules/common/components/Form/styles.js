@@ -1,11 +1,11 @@
 import styled from 'styled-components';
 import { colors, dimensions, typography } from '../../styles';
-import { lighten } from '../../styles/color';
 
 const inputPadding = '0px';
 const inputHeight = '16px';
 const inputScale = '12px';
 const inputBorderWidth = '1px';
+const textInputHeight = '34px';
 
 const Label = styled.label`
   text-transform: uppercase;
@@ -24,9 +24,10 @@ const Input = styled.input`
   display: block;
   border: none;
   width: 100%;
+  height: ${textInputHeight};
   padding: ${dimensions.unitSpacing}px;
   color: ${colors.textPrimary};
-  border-bottom: 1px solid ${lighten(colors.colorLightGray, 15)};
+  border-bottom: 1px solid ${colors.colorShadowGray};
   background: ${colors.colorWhite};
   transition: all 0.3s ease;
 
@@ -53,8 +54,9 @@ const Input = styled.input`
 
 const SelectWrapper = styled.div`
   overflow: hidden;
-  border-bottom: 1px solid ${lighten(colors.colorLightGray, 15)};
+  border-bottom: 1px solid ${colors.colorShadowGray};
   width: 100%;
+  height: ${textInputHeight};
   position: relative;
 
   &:after {
@@ -78,7 +80,7 @@ const SelectWrapper = styled.div`
 
 const Select = Input.withComponent('select').extend`
   border: none;
-  height: 34px;
+  height: ${textInputHeight};
   padding: 0 ${dimensions.unitSpacing}px;
   width: calc(100% + ${dimensions.coreSpacing}px);
   -webkit-appearance: none;

@@ -3,7 +3,14 @@ import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import { ButtonGroup } from 'react-bootstrap';
 import { Wrapper } from 'modules/layout/components';
-import { Button, Icon, FormControl } from 'modules/common/components';
+import {
+  Button,
+  Icon,
+  FormControl,
+  ControlLabel,
+  FormGroup
+} from 'modules/common/components';
+import { EngageBox } from '../styles';
 
 const propTypes = {
   kind: PropTypes.string,
@@ -59,14 +66,15 @@ class FormBase extends Component {
 
   renderButtons(message) {
     const save = (
-      <Button btnStyle="success" onClick={this.save}>
+      <Button size="small" btnStyle="success" onClick={this.save}>
         <Icon icon="checkmark" /> Save
       </Button>
     );
 
     const saveAndLive = (
       <Button
-        btnStyle="success"
+        size="small"
+        btnStyle="primary"
         onClick={this.saveAndLive}
         key="action-save-live"
       >
@@ -76,7 +84,8 @@ class FormBase extends Component {
 
     const saveAndDraft = (
       <Button
-        btnStyle="success"
+        size="small"
+        btnStyle="warning"
         onClick={this.saveAndDraft}
         key="action-save-draft"
       >
@@ -124,34 +133,33 @@ class FormBase extends Component {
     const message = this.getMessage();
 
     const { Section } = Wrapper.Sidebar;
-    const { Title } = Wrapper.Sidebar.Section;
 
     const sidebar = (
-      <Wrapper.Sidebar size="wide">
+      <Wrapper.Sidebar wide>
         <form onSubmit={this.save}>
           <Section>
-            <Title>Title</Title>
-            <div className="box">
-              <FormControl id="title" defaultValue={message.title} required />
-            </div>
-          </Section>
+            <EngageBox>
+              <FormGroup>
+                <ControlLabel>Title</ControlLabel>
+                <FormControl id="title" defaultValue={message.title} required />
+              </FormGroup>
 
-          <Section>
-            <Title>From</Title>
-            <div className="box">
-              <FormControl
-                id="fromUserId"
-                componentClass="select"
-                defaultValue={message.fromUserId}
-                onChange={this.onChangeUser}
-              >
-                {this.props.users.map(u => (
-                  <option key={u._id} value={u._id}>
-                    {u.fullName || u.username}
-                  </option>
-                ))}
-              </FormControl>
-            </div>
+              <FormGroup>
+                <ControlLabel>From</ControlLabel>
+                <FormControl
+                  id="fromUserId"
+                  componentClass="select"
+                  defaultValue={message.fromUserId}
+                  onChange={this.onChangeUser}
+                >
+                  {this.props.users.map(u => (
+                    <option key={u._id} value={u._id}>
+                      {u.fullName || u.username}
+                    </option>
+                  ))}
+                </FormControl>
+              </FormGroup>
+            </EngageBox>
           </Section>
 
           {this.renderSidebarExtra()}
@@ -159,14 +167,14 @@ class FormBase extends Component {
       </Wrapper.Sidebar>
     );
 
-    const actionBar = (
+    const actionFooter = (
       <Wrapper.ActionBar
-        left={
+        right={
           <ButtonGroup>
             {this.renderButtons(message)}
 
             <Link to="/engage">
-              <Button btnStyle="simple">
+              <Button btnStyle="simple" size="small">
                 <Icon icon="close" /> Cancel
               </Button>
             </Link>
@@ -178,7 +186,7 @@ class FormBase extends Component {
     return (
       <Wrapper
         header={<Wrapper.Header breadcrumb={breadcrumb} />}
-        actionBar={actionBar}
+        footer={actionFooter}
         content={this.renderContent()}
         leftSidebar={sidebar}
       />

@@ -6,12 +6,12 @@ import { LoadingWrapper, LoadingItem, LineWrapper, Line } from './styles';
 
 const propTypes = {
   items: PropTypes.number,
-  size: PropTypes.string
+  wide: PropTypes.bool
 };
 
-function LoadingSidebar({ items, size = 'medium' }) {
+function LoadingSidebar({ items, wide }) {
   return (
-    <Wrapper.Sidebar size={size}>
+    <Wrapper.Sidebar wide={wide}>
       {_.times(items, n => <Section key={n} />)}
     </Wrapper.Sidebar>
   );

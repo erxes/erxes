@@ -1,7 +1,12 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import ReactDom from 'react-dom';
-import { FormControl } from 'modules/common/components';
+import {
+  FormGroup,
+  ControlLabel,
+  FormControl
+} from 'modules/common/components';
+import { FormWrapper, EditorWrapper, FormHeader } from '../styles';
 
 import {
   EMAIL_CONTENT_PLACEHOLDER,
@@ -88,18 +93,18 @@ class EmailForm extends Component {
     const email = message.email || {};
 
     return (
-      <div className="form-header">
-        <div className="header-row">
-          <span>Email subject:</span>
+      <FormHeader>
+        <FormGroup>
+          <ControlLabel>Email subject:</ControlLabel>
           <FormControl
             id="emailSubject"
             defaultValue={email.subject}
             required
           />
-        </div>
+        </FormGroup>
 
-        <div className="header-row">
-          <span>Email template:</span>
+        <FormGroup>
+          <ControlLabel>Email template:</ControlLabel>
           <FormControl
             id="emailTemplateId"
             componentClass="select"
@@ -113,21 +118,23 @@ class EmailForm extends Component {
               </option>
             ))}
           </FormControl>
-        </div>
-      </div>
+        </FormGroup>
+      </FormHeader>
     );
   }
 
   render() {
     return (
-      <div>
+      <FormWrapper>
         {this.renderHeader()}
-        <div className="form-content">
+
+        <ControlLabel>Message:</ControlLabel>
+        <EditorWrapper>
           <div
             dangerouslySetInnerHTML={{ __html: this.state.currentTemplate }}
           />
-        </div>
-      </div>
+        </EditorWrapper>
+      </FormWrapper>
     );
   }
 }

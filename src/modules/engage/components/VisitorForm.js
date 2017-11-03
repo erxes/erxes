@@ -7,6 +7,7 @@ import {
   ControlLabel,
   Icon
 } from 'modules/common/components';
+import { EngageBox, InlineForm } from '../styles';
 
 import {
   VISITOR_AUDIENCE_RULES,
@@ -112,9 +113,8 @@ class VisitorForm extends FormBase {
     return (
       <FormGroup key={rule._id}>
         <ControlLabel>{rule.text}:</ControlLabel>
-        <div className="flex-form">
+        <InlineForm>
           <FormControl
-            className="flex-item"
             componentClass="select"
             defaultValue={rule.condition}
             onChange={onChangeCondition}
@@ -127,46 +127,40 @@ class VisitorForm extends FormBase {
           </FormControl>
 
           <FormControl
-            className="flex-item"
             type="text"
             value={rule.value}
             onChange={onChangeValue}
           />
 
-          <Button
-            className="flex-item"
-            size="small"
-            onClick={remove}
-            btnStyle="danger"
-            iconKey
-          >
+          <Button size="small" onClick={remove} btnStyle="danger">
             <Icon icon="close" />
           </Button>
-        </div>
+        </InlineForm>
       </FormGroup>
     );
   }
 
   renderSidebarExtra() {
     const { Section } = Wrapper.Sidebar;
-    const { Title } = Wrapper.Sidebar.Section;
 
     return (
       <Section>
-        <Title>Add rule</Title>
-        <div className="box">
-          <FormControl componentClass="select" onChange={this.addRule}>
-            {VISITOR_AUDIENCE_RULES.map((rule, index) => (
-              <option key={index} value={rule.value}>
-                {rule.text}
-              </option>
-            ))}
-          </FormControl>
-        </div>
+        <EngageBox>
+          <FormGroup>
+            <ControlLabel>Add rule</ControlLabel>
+            <FormControl componentClass="select" onChange={this.addRule}>
+              {VISITOR_AUDIENCE_RULES.map((rule, index) => (
+                <option key={index} value={rule.value}>
+                  {rule.text}
+                </option>
+              ))}
+            </FormControl>
+          </FormGroup>
 
-        <div className="box">
-          {this.state.rules.map(rule => this.renderRule(rule))}
-        </div>
+          <FormGroup>
+            {this.state.rules.map(rule => this.renderRule(rule))}
+          </FormGroup>
+        </EngageBox>
       </Section>
     );
   }

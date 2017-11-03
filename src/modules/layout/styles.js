@@ -114,11 +114,6 @@ const ContentBox = styled.div`
     `};
 `;
 
-const ContenFooter = styled.div`
-  margin-right: ${dimensions.coreSpacing}px;
-  background: ${colors.colorWhite};
-`;
-
 const ContentHeader = styled.div`
   background: ${props => (props.invert ? colors.colorWhite : colors.bgLight)};
   min-height: ${dimensions.headerSpacing}px;
@@ -127,6 +122,15 @@ const ContentHeader = styled.div`
   border-bottom: 1px solid ${colors.borderPrimary};
   display: flex;
   justify-content: space-between;
+`;
+
+const ContenFooter = styled.div`
+  margin-right: ${dimensions.coreSpacing}px;
+  background: ${colors.colorWhite};
+
+  ${ContentHeader} {
+    margin-right: 0;
+  }
 `;
 
 const BarItems = styled.div`

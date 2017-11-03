@@ -11,7 +11,7 @@ class MessageListContainer extends Bulk {
     const { queryParams, tagsQuery, engageMessagesQuery } = this.props;
 
     if (engageMessagesQuery.loading) {
-      return <Loading title="Engage" />;
+      return <Loading title="Engage" items={3} />;
     }
 
     const updatedProps = {

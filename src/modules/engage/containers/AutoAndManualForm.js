@@ -14,7 +14,7 @@ const AutoAndManualFormContainer = props => {
     emailTemplatesQuery.loading ||
     customerCountsQuery.loading
   ) {
-    return <Loading title="New message" spin sidebarSize="wide" />;
+    return <Loading title="New message" spin wide items={3} />;
   }
 
   const templates = emailTemplatesQuery.emailTemplates;

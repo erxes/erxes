@@ -6,7 +6,7 @@ import { LoadingContent, LoadingSidebar, Spinner } from '../';
 import { TableLine, FullLoader } from './styles';
 
 const propTypes = {
-  sidebarSize: PropTypes.string,
+  wide: PropTypes.bool,
   spin: PropTypes.bool,
   title: PropTypes.string.isRequired,
   hasRightSidebar: PropTypes.bool,
@@ -14,7 +14,7 @@ const propTypes = {
 };
 
 function Loading({
-  sidebarSize,
+  wide,
   spin = false,
   title,
   hasRightSidebar = false,
@@ -60,7 +60,7 @@ function Loading({
   return (
     <Wrapper
       header={<Wrapper.Header breadcrumb={[{ title: title }]} />}
-      leftSidebar={<LoadingSidebar size={sidebarSize} items={items} />}
+      leftSidebar={<LoadingSidebar wide={wide} items={items} />}
       content={content}
       rightSidebar={hasRightSidebar ? <LoadingSidebar items={items} /> : null}
     />

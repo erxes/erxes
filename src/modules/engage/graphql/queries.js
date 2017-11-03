@@ -74,7 +74,7 @@ const userDetail = `
       _id
       username
       details
-      emails
+      email
     }
   }
 `;
