@@ -1,8 +1,9 @@
 import { Channels, Brands, Conversations, Tags } from '../../../db/models';
 import { INTEGRATION_KIND_CHOICES } from '../../constants';
 import QueryBuilder from './conversationQueryBuilder';
+import { moduleRequireLogin } from '../../permissions';
 
-export default {
+const conversationQueries = {
   /**
    * Conversataions list
    * @param {Object} args
@@ -166,3 +167,7 @@ export default {
     return Conversations.find(qb.mainQuery()).count();
   },
 };
+
+moduleRequireLogin(conversationQueries);
+
+export default conversationQueries;
