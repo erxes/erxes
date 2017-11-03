@@ -11,7 +11,7 @@ const ContentBox = styled.div`
 const DragHandler = styled.span`
   cursor: move;
   position: absolute;
-  top: 12px;
+  top: 8px;
   right: 20px;
   z-index: 10;
   display: flex;
