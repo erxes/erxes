@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { Table } from 'react-bootstrap';
 import { Wrapper } from 'modules/layout/components';
 import { Loader, LoadingContent, LoadingSidebar, Spinner } from '../';
+import { TableLine, FullLoader } from './styles';
 
 const propTypes = {
   sidebarSize: PropTypes.string,
@@ -23,24 +24,24 @@ function Loading({
     <Table className="no-wrap loading-table">
       <thead>
         <tr>
-          <th width="30" className="less-space" />
+          <th className="less-space" width="30" />
           <th width="24%">
-            <div className="line animate" />
+            <TableLine className="animate" />
           </th>
           <th width="20%">
-            <div className="line animate" />
+            <TableLine className="animate" />
           </th>
           <th width="18%">
-            <div className="line animate" />
+            <TableLine className="animate" />
           </th>
           <th width="17%">
-            <div className="line animate" />
+            <TableLine className="animate" />
           </th>
           <th width="10%">
-            <div className="line animate" />
+            <TableLine className="animate" />
           </th>
           <th width="10%">
-            <div className="line animate" />
+            <TableLine className="animate" />
           </th>
         </tr>
       </thead>
@@ -50,9 +51,9 @@ function Loading({
 
   if (spin) {
     content = (
-      <div className="full-loader">
+      <FullLoader>
         <Spinner />
-      </div>
+      </FullLoader>
     );
   }
 
