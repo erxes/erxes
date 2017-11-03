@@ -95,7 +95,7 @@ class UserForm extends CommonForm {
 
           <FormControl
             componentClass="select"
-            defaultValue={user.details.role}
+            defaultValue={user.role}
             id="role"
           >
             <option value="admin">Admin</option>

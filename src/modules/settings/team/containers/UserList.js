@@ -75,8 +75,8 @@ export default commonListComposer({
 
   gqlEditMutation: graphql(
     gql`
-      mutation usersEdit(${commonParamsDef}) {
-        usersEdit(${commonParams}) {
+      mutation usersEdit($_id: String!, ${commonParamsDef}) {
+        usersEdit(_id: $_id, ${commonParams}) {
           _id
         }
       }
@@ -88,8 +88,8 @@ export default commonListComposer({
 
   gqlRemoveMutation: graphql(
     gql`
-      mutation usersRemove(${commonParamsDef}) {
-        usersRemove(${commonParams}) {
+      mutation usersRemove($_id: String) {
+        usersRemove(_id: $_id) {
           _id
         }
       }
