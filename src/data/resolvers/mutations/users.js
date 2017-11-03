@@ -1,11 +1,23 @@
-import { Users } from '../../../db/models';
-import { sendEmail } from '../../../data/utils';
+import { Users, Channels } from '../../../db/models';
+import utils from '../../../data/utils';
 
 export default {
+  /*
+   * Login
+   * @param {String} email - User email
+   * @param {String} password - User password
+   * @return tokens.token - Token to use authenticate against graphql endpoints
+   * @return tokens.refreshToken - Token to use refresh expired token
+   */
   login(root, args) {
     return Users.login(args);
   },
 
+  /*
+   * Send forgot password email
+   * @param {String} email - Email to send link
+   * @return {String} - Recover link
+   */
   async forgotPassword(root, { email }) {
     const token = await Users.forgotPassword(email);
 
@@ -14,7 +26,7 @@ export default {
 
     const link = `${MAIN_APP_DOMAIN}/reset-password?token=${token}`;
 
-    sendEmail({
+    utils.sendEmail({
       toEmails: [email],
       fromEmail: COMPANY_EMAIL_FROM,
       title: 'Reset password',
@@ -29,12 +41,23 @@ export default {
     return link;
   },
 
+  /*
+   * Reset password
+   * @param {String} token - Temporary token to find user
+   * @param {String} newPassword - New password to set
+   * @return {Promise} - Updated user object
+   */
   resetPassword(root, args) {
     return Users.resetPassword(args);
   },
 
-  usersAdd(root, args, { user }) {
-    const { username, password, passwordConfirmation, email, role, details } = args;
+  /*
+   * Create new user
+   * @param {Object} args - User doc
+   * @return {Promise} - Newly created user
+   */
+  async usersAdd(root, args, { user }) {
+    const { username, password, passwordConfirmation, email, role, channelIds, details } = args;
 
     if (!user) throw new Error('Login required');
 
@@ -42,6 +65,27 @@ export default {
       throw new Error('Incorrect password confirmation');
     }
 
-    return Users.createUser({ username, password, email, role, details });
+    const createdUser = await Users.createUser({ username, password, email, role, details });
+
+    // add new user to channels
+    await Channels.updateUserChannels(channelIds, createdUser._id);
+
+    // send email ================
+    const { COMPANY_EMAIL_FROM } = process.env;
+
+    utils.sendEmail({
+      toEmails: [email],
+      fromEmail: COMPANY_EMAIL_FROM,
+      subject: 'Invitation info',
+      template: {
+        name: 'invitation',
+        data: {
+          username,
+          password,
+        },
+      },
+    });
+
+    return createdUser;
   },
 };

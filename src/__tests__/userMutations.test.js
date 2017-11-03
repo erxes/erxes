@@ -1,8 +1,9 @@
 /* eslint-env jest */
 /* eslint-disable no-underscore-dangle */
 
-import { Users } from '../db/models';
+import { Users, Channels } from '../db/models';
 import usersMutations from '../data/resolvers/mutations/users';
+import utils from '../data/utils';
 
 describe('User mutations', () => {
   const user = { _id: 'DFAFDFDFD' };
@@ -69,8 +70,11 @@ describe('User mutations', () => {
 
   test('Users add', async () => {
     const user = { _id: 'DFAFDFDFD' };
+    const channelIds = ['DFAFSDFDSAF', 'DFFADSFDSFD'];
 
-    Users.createUser = jest.fn();
+    Users.createUser = jest.fn(() => ({ _id: '_id' }));
+    Channels.updateUserChannels = jest.fn();
+    const spyEmail = jest.spyOn(utils, 'sendEmail');
 
     const doc = {
       username: 'username',
@@ -80,8 +84,30 @@ describe('User mutations', () => {
       details: {},
     };
 
-    await usersMutations.usersAdd({}, { ...doc, passwordConfirmation: 'password' }, { user });
+    await usersMutations.usersAdd(
+      {},
+      { ...doc, passwordConfirmation: 'password', channelIds },
+      { user },
+    );
 
+    // create user call
     expect(Users.createUser).toBeCalledWith(doc);
+
+    // update user channels call
+    expect(Channels.updateUserChannels).toBeCalledWith(channelIds, '_id');
+
+    // send email call
+    expect(spyEmail).toBeCalledWith({
+      toEmails: [doc.email],
+      fromEmail: process.env.COMPANY_EMAIL_FROM,
+      subject: 'Invitation info',
+      template: {
+        name: 'invitation',
+        data: {
+          username: doc.username,
+          password: doc.password,
+        },
+      },
+    });
   });
 });

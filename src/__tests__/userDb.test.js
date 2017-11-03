@@ -47,6 +47,7 @@ describe('User db utils', () => {
     });
 
     expect(userObj).toBeDefined();
+    expect(userObj._id).toBeDefined();
     expect(userObj.username).toBe(_user.username);
     expect(userObj.email).toBe(_user.email);
     expect(userObj.role).toBe(_user.role);
