@@ -36,5 +36,6 @@ export const userMiddleware = async (req, res, next) => {
     }
   }
 
+  console.log('middleware req.user: ', req.user);
   next();
 };

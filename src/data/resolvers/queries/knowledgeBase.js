@@ -4,7 +4,9 @@ import {
   KnowledgeBaseArticles,
 } from '../../../db/models';
 
-export default {
+import { BasicPermissions } from './utils';
+
+const knowledgeBase = {
   /**
    * Article list
    * @param {Object} args
@@ -12,6 +14,7 @@ export default {
    * @return {Promise} sorted article list
    */
   knowledgeBaseArticles(root, { limit }) {
+    console.log('aaaa');
     const articles = KnowledgeBaseArticles.find({});
     const sort = { createdDate: -1 };
 
@@ -19,6 +22,7 @@ export default {
       return articles.sort(sort).limit(limit);
     }
 
+    console.log('bbbb');
     return articles.sort(sort);
   },
 
@@ -112,3 +116,8 @@ export default {
     return KnowledgeBaseTopics.find({}).count();
   },
 };
+
+BasicPermissions.setPermissionsForList(knowledgeBase, 'knowledgeBaseArticles');
+console.log('knowledgeBase.knowledgeBaseArticles: ', knowledgeBase.knowledgeBaseArticles);
+
+export default knowledgeBase;
