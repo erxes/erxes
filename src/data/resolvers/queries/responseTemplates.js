@@ -1,6 +1,7 @@
 import { ResponseTemplates } from '../../../db/models';
+import { moduleRequireLogin } from '../../permissions';
 
-export default {
+const responseTemplateQueries = {
   /**
    * Response templates list
    * @param {Object} args
@@ -25,3 +26,7 @@ export default {
     return ResponseTemplates.find({}).count();
   },
 };
+
+moduleRequireLogin(responseTemplateQueries);
+
+export default responseTemplateQueries;

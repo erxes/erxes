@@ -1,14 +1,13 @@
 import { ResponseTemplates } from '../../../db/models';
+import { moduleRequireLogin } from '../../permissions';
 
-export default {
+const responseTemplateMutations = {
   /**
    * Create new response template
    * @param {Object} fields - response template fields
    * @return {Promise} newly created response template object
    */
-  responseTemplatesAdd(root, doc, { user }) {
-    if (!user) throw new Error('Login required');
-
+  responseTemplatesAdd(root, doc) {
     return ResponseTemplates.create(doc);
   },
 
@@ -18,9 +17,7 @@ export default {
    * @param {Object} fields - response template fields
    * @return {Promise} updated response template object
    */
-  responseTemplatesEdit(root, { _id, ...fields }, { user }) {
-    if (!user) throw new Error('Login required');
-
+  responseTemplatesEdit(root, { _id, ...fields }) {
     return ResponseTemplates.updateResponseTemplate(_id, fields);
   },
 
@@ -29,9 +26,11 @@ export default {
    * @param {String} _id - response template id
    * @return {Promise}
    */
-  responseTemplatesRemove(root, { _id }, { user }) {
-    if (!user) throw new Error('Login required');
-
+  responseTemplatesRemove(root, { _id }) {
     return ResponseTemplates.removeResponseTemplate(_id);
   },
 };
+
+moduleRequireLogin(responseTemplateMutations);
+
+export default responseTemplateMutations;
