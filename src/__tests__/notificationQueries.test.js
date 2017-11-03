@@ -7,9 +7,25 @@ import notificationsQueries from '../data/resolvers/queries/notifications';
 beforeAll(() => connect());
 afterAll(() => disconnect());
 
-describe('notification query test', () => {
+describe('notificationsQueries', () => {
+  test(`test if Error('Login required') exception is working as intended`, async () => {
+    expect.assertions(1);
+
+    const expectError = async func => {
+      try {
+        await func(null, {}, {});
+      } catch (e) {
+        expect(e.message).toBe('Login required');
+      }
+    };
+
+    expectError(notificationsQueries.notificationsModules);
+  });
+
   test('test of getting notification list with success', () => {
-    const modules = notificationsQueries.notificationsModules();
+    const modules = notificationsQueries.notificationsModules(null, null, {
+      user: { _id: 'fakeUserId' },
+    });
     expect(modules).toBe(MODULES.ALL);
   });
 });

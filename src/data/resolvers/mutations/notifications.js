@@ -1,10 +1,12 @@
 import { NotificationConfigurations, Notifications } from '../../../db/models';
 
-export default {
+import { moduleRequireLogin } from '../../permissions';
+
+const notificationMutations = {
   /**
    * Save notification configuration
    * @param {Object} object
-   * @param {Object} object - NotificationConfiguration object
+   * @param {Object} object2 - NotificationConfiguration object
    * @param {string} object2.notifType - Notification configuration notification type (module)
    * @param {Boolean} object2.isAllowed - Shows whether notifications will be received or not
    * @param {Object} object3 - Middleware data
@@ -13,10 +15,6 @@ export default {
    * @throws {Error} throws Error('Login required') if user is not logged in
    */
   notificationsSaveConfig(root, doc, { user }) {
-    if (!user) {
-      throw new Error('Login required');
-    }
-
     return NotificationConfigurations.createOrUpdateConfiguration(doc, user);
   },
 
@@ -30,11 +28,11 @@ export default {
    * @return {Promise}
    * @throws {Error} throws Error('Login required') if user is not logged in
    */
-  notificationsMarkAsRead(root, { ids }, { user }) {
-    if (!user) {
-      throw new Error('Login required');
-    }
-
+  notificationsMarkAsRead(root, { ids }) {
     return Notifications.markAsRead(ids);
   },
 };
+
+moduleRequireLogin(notificationMutations);
+
+export default notificationMutations;
