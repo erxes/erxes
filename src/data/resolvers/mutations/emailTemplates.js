@@ -1,14 +1,13 @@
 import { EmailTemplates } from '../../../db/models';
+import { moduleRequireLogin } from '../../permissions';
 
-export default {
+const emailTemplateMutations = {
   /**
    * Create new email template
    * @param {Object} doc - email templates fields
    * @return {Promise} newly created email template object
    */
-  emailTemplatesAdd(root, doc, { user }) {
-    if (!user) throw new Error('Login required');
-
+  emailTemplatesAdd(root, doc) {
     return EmailTemplates.create(doc);
   },
 
@@ -18,9 +17,7 @@ export default {
    * @param {Object} fields - email templates fields
    * @return {Promise} updated email template object
    */
-  emailTemplatesEdit(root, { _id, ...fields }, { user }) {
-    if (!user) throw new Error('Login required');
-
+  emailTemplatesEdit(root, { _id, ...fields }) {
     return EmailTemplates.updateEmailTemplate(_id, fields);
   },
 
@@ -29,9 +26,11 @@ export default {
    * @param {String} doc - email templates fields
    * @return {Promise}
    */
-  emailTemplatesRemove(root, { _id }, { user }) {
-    if (!user) throw new Error('Login required');
-
+  emailTemplatesRemove(root, { _id }) {
     return EmailTemplates.removeEmailTemplate(_id);
   },
 };
+
+moduleRequireLogin(emailTemplateMutations);
+
+export default emailTemplateMutations;

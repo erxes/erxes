@@ -1,6 +1,7 @@
 import { EmailTemplates } from '../../../db/models';
+import { moduleRequireLogin } from '../../permissions';
 
-export default {
+const emailTemplateQueries = {
   /**
    * Email templates list
    * @param {Object} args
@@ -25,3 +26,7 @@ export default {
     return EmailTemplates.find({}).count();
   },
 };
+
+moduleRequireLogin(emailTemplateQueries);
+
+export default emailTemplateQueries;
