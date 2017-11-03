@@ -1,13 +1,12 @@
 import { Companies } from '../../../db/models';
+import { moduleRequireLogin } from '../../permissions';
 
-export default {
+const companyMutations = {
   /**
    * Create new company
    * @return {Promise} company object
    */
-  companiesAdd(root, doc, { user }) {
-    if (!user) throw new Error('Login required');
-
+  companiesAdd(root, doc) {
     return Companies.createCompany(doc);
   },
 
@@ -15,9 +14,7 @@ export default {
    * Update company
    * @return {Promise} company object
    */
-  async companiesEdit(root, { _id, ...doc }, { user }) {
-    if (!user) throw new Error('Login required');
-
+  async companiesEdit(root, { _id, ...doc }) {
     return Companies.updateCompany(_id, doc);
   },
 
@@ -29,9 +26,11 @@ export default {
    * @param {String} args.email - Customer email
    * @return {Promise} newly created customer
    */
-  async companiesAddCustomer(root, args, { user }) {
-    if (!user) throw new Error('Login required');
-
+  async companiesAddCustomer(root, args) {
     return Companies.addCustomer(args);
   },
 };
+
+moduleRequireLogin(companyMutations);
+
+export default companyMutations;

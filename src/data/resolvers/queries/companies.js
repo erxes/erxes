@@ -1,6 +1,7 @@
 import { Companies, Segments } from '../../../db/models';
 import QueryBuilder from './segmentQueryBuilder.js';
 import { SEGMENT_CONTENT_TYPES } from '../../constants';
+import { moduleRequireLogin } from '../../permissions';
 
 const listQuery = async params => {
   const selector = {};
@@ -15,7 +16,7 @@ const listQuery = async params => {
   return selector;
 };
 
-export default {
+const companyQueries = {
   /**
    * Companies list
    * @param {Object} args
@@ -80,3 +81,7 @@ export default {
     return Companies.find({}).count();
   },
 };
+
+moduleRequireLogin(companyQueries);
+
+export default companyQueries;
