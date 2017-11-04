@@ -1,5 +1,5 @@
 import { Forms } from '../../../db/models';
-import { requireLogin, PERMISSIONS } from '../../permissions';
+import { requireAdmin, requireLogin } from '../../permissions';
 
 const formMutations = {
   /**
@@ -57,9 +57,9 @@ const formMutations = {
   },
 };
 
-requireLogin(formMutations, 'formsAdd', [PERMISSIONS.ADMIN]);
-requireLogin(formMutations, 'formsEdit', [PERMISSIONS.ADMIN]);
-requireLogin(formMutations, 'formsRemove', [PERMISSIONS.ADMIN]);
+requireAdmin(formMutations, 'formsAdd');
+requireAdmin(formMutations, 'formsEdit');
+requireAdmin(formMutations, 'formsRemove');
 requireLogin(formMutations, 'formsDuplicate');
 
 export default formMutations;

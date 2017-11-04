@@ -1,39 +1,49 @@
 import { ROLES } from './constants';
 
-export const PERMISSIONS = {
-  ADMIN: 'admin',
+export const checkLogin = user => {
+  if (!user) {
+    throw new Error('Login required');
+  }
 };
 
-export const checkPermission = (permission, user) => {
-  if (permission === PERMISSIONS.ADMIN && user.role === ROLES.CONTRIBUTOR) {
+export const checkAdmin = user => {
+  if (user.role != ROLES.ADMIN) {
     throw new Error('Permission required');
   }
 };
 
-export const requireLogin = (cls, methodName, permissions) => {
+export const permissionWrapper = (cls, methodName, checkers) => {
   const oldMethod = cls[methodName];
 
   cls[methodName] = (root, object2, { user }) => {
-    if (!user) {
-      throw new Error('Login required');
-    }
-
-    for (let permission of permissions || []) {
-      checkPermission(permission, user);
+    for (let checker of checkers) {
+      checker(user);
     }
 
     return oldMethod(root, object2, { user });
   };
 };
 
-export const moduleRequireLogin = (mdl, permissions) => {
+export const requireLogin = (cls, methodName) => permissionWrapper(cls, methodName, [checkLogin]);
+
+export const requireAdmin = (cls, methodName) =>
+  permissionWrapper(cls, methodName, [checkLogin, checkAdmin]);
+
+export const moduleRequireLogin = mdl => {
   for (let method in mdl) {
-    requireLogin(mdl, method, permissions);
+    requireLogin(mdl, method);
+  }
+};
+
+export const moduleRequireAdmin = mdl => {
+  for (let method in mdl) {
+    requireAdmin(mdl, method);
   }
 };
 
 export default {
   requireLogin,
+  requireAdmin,
   moduleRequireLogin,
-  PERMISSIONS,
+  moduleRequireAdmin,
 };

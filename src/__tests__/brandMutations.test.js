@@ -107,7 +107,7 @@ describe('Brands mutations', () => {
     await brandMutations.brandsConfigEmail(
       {},
       { _id: _brand._id, emailConfig: _brand.emailConfig },
-      { user: _adminUser._id },
+      { user: _adminUser },
     );
 
     expect(Brands.updateEmailConfig.mock.calls.length).toBe(1);

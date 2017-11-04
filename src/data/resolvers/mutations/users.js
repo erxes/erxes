@@ -1,7 +1,7 @@
 import bcrypt from 'bcrypt';
 import { Users, Channels } from '../../../db/models';
 import utils from '../../../data/utils';
-import { requireLogin, PERMISSIONS } from '../../permissions';
+import { requireLogin, requireAdmin } from '../../permissions';
 
 const userMutations = {
   /*
@@ -176,6 +176,6 @@ requireLogin(userMutations, 'usersAdd');
 requireLogin(userMutations, 'usersEdit');
 requireLogin(userMutations, 'usersChangePassword');
 requireLogin(userMutations, 'usersEditProfile');
-requireLogin(userMutations, 'usersRemove', [PERMISSIONS.ADMIN]);
+requireAdmin(userMutations, 'usersRemove');
 
 export default userMutations;
