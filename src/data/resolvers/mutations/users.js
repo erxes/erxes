@@ -1,8 +1,9 @@
 import bcrypt from 'bcrypt';
 import { Users, Channels } from '../../../db/models';
 import utils from '../../../data/utils';
+import { requireLogin, requireAdmin } from '../../permissions';
 
-export default {
+const userMutations = {
   /*
    * Login
    * @param {String} email - User email
@@ -59,8 +60,6 @@ export default {
    * @return {Promise} - Updated user object
    */
   usersChangePassword(root, args, { user }) {
-    if (!user) throw new Error('Login required');
-
     return Users.changePassword({ _id: user._id, ...args });
   },
 
@@ -69,10 +68,8 @@ export default {
    * @param {Object} args - User doc
    * @return {Promise} - Newly created user
    */
-  async usersAdd(root, args, { user }) {
+  async usersAdd(root, args) {
     const { username, password, passwordConfirmation, email, role, channelIds, details } = args;
-
-    if (!user) throw new Error('Login required');
 
     if (password !== passwordConfirmation) {
       throw new Error('Incorrect password confirmation');
@@ -107,7 +104,7 @@ export default {
    * @param {Object} args - User doc
    * @return {Promise} - Updated user
    */
-  async usersEdit(root, args, { user }) {
+  async usersEdit(root, args) {
     const {
       _id,
       username,
@@ -118,8 +115,6 @@ export default {
       channelIds,
       details,
     } = args;
-
-    if (!user) throw new Error('Login required');
 
     if (password && password !== passwordConfirmation) {
       throw new Error('Incorrect password confirmation');
@@ -140,8 +135,6 @@ export default {
    * @return {Promise} - Updated user
    */
   async usersEditProfile(root, { username, email, password, details }, { user }) {
-    if (!user) throw new Error('Login required');
-
     const userOnDb = await Users.findOne({ _id: user._id });
     const valid = await bcrypt.compare(password, userOnDb.password);
 
@@ -158,9 +151,7 @@ export default {
    * @param {String} _id - User _id
    * @return {Promise} - Remove user response
    */
-  async usersRemove(root, { _id }, { user }) {
-    if (!user) throw new Error('Login required');
-
+  async usersRemove(root, { _id }) {
     const userToRemove = await Users.findOne({ _id });
 
     // can not remove owner
@@ -180,3 +171,11 @@ export default {
     return Users.removeUser(_id);
   },
 };
+
+requireLogin(userMutations, 'usersAdd');
+requireLogin(userMutations, 'usersEdit');
+requireLogin(userMutations, 'usersChangePassword');
+requireLogin(userMutations, 'usersEditProfile');
+requireAdmin(userMutations, 'usersRemove');
+
+export default userMutations;

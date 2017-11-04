@@ -3,6 +3,7 @@ import { pubsub } from '../subscriptions';
 import { CONVERSATION_STATUSES, KIND_CHOICES } from '../../constants';
 import utils from '../../utils';
 import { _ } from 'underscore';
+import { moduleRequireLogin } from '../../permissions';
 
 /**
  * conversation notrification receiver ids
@@ -70,15 +71,13 @@ const conversationMessageCreated = async (message, conversationId) => {
   });
 };
 
-export default {
+const conversationMutations = {
   /**
    * Create new message in conversation
    * @param  {Object} doc contains conversation message inputs
    * @return {Promise} newly created message object
    */
   async conversationMessageAdd(root, doc, { user }) {
-    if (!user) throw new Error('Login required');
-
     const message = await ConversationMessages.addMessage(doc, user._id);
 
     const conversation = await Conversations.findOne({ _id: doc.conversationId });
@@ -147,8 +146,6 @@ export default {
    * @return {Promise} object list of assigned conversations
    */
   async conversationsAssign(root, { conversationIds, assignedUserId }, { user }) {
-    if (!user) throw new Error('Login required');
-
     const updatedConversations = await Conversations.assignUserConversation(
       conversationIds,
       assignedUserId,
@@ -179,9 +176,7 @@ export default {
    * @param  {[String]} _ids of conversation
    * @return {Promise} unassigned conversations
    */
-  async conversationsUnassign(root, { _ids }, { user }) {
-    if (!user) throw new Error('Login required');
-
+  async conversationsUnassign(root, { _ids }) {
     const conversations = await Conversations.unassignUserConversation(_ids);
 
     // notify graphl subscription
@@ -197,8 +192,6 @@ export default {
    * @return {Promise} object list of updated conversations
    */
   async conversationsChangeStatus(root, { _ids, status }, { user }) {
-    if (!user) throw new Error('Login required');
-
     const { conversations } = await Conversations.checkExistanceConversations(_ids);
 
     const changedConversations = await Conversations.changeStatusConversation(_ids, status);
@@ -253,8 +246,6 @@ export default {
    * @return {Promise} user object of starred conversations
    */
   async conversationsStar(root, { _ids }, { user }) {
-    if (!user) throw new Error('Login required');
-
     return Conversations.starConversation(_ids, user._id);
   },
 
@@ -264,8 +255,6 @@ export default {
    * @return {Promise} user object from unstarred conversations
    */
   async conversationsUnstar(root, { _ids }, { user }) {
-    if (!user) throw new Error('Login required');
-
     return Conversations.unstarConversation(_ids, user._id);
   },
 
@@ -275,8 +264,6 @@ export default {
    * @return {Promise} updated conversations
    */
   async conversationsToggleParticipate(root, { _ids }, { user }) {
-    if (!user) throw new Error('Login required');
-
     const conversations = await Conversations.toggleParticipatedUsers(_ids, user._id);
 
     // notify graphl subscription
@@ -291,8 +278,10 @@ export default {
    * @return {Promise} Conversation object with mark as read
    */
   async conversationMarkAsRead(root, { _id }, { user }) {
-    if (!user) throw new Error('Login required');
-
     return Conversations.markAsReadConversation(_id, user._id);
   },
 };
+
+moduleRequireLogin(conversationMutations);
+
+export default conversationMutations;

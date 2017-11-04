@@ -2,7 +2,7 @@
 /* eslint-disable no-underscore-dangle */
 
 import { connect, disconnect } from '../db/connection';
-import { Fields } from '../db/models';
+import { Forms, Fields } from '../db/models';
 import { formFactory, fieldFactory } from '../db/factories';
 
 beforeAll(() => connect());
@@ -20,9 +20,10 @@ describe('Fields', () => {
     _field = await fieldFactory({ contentType: 'form', order: 1 });
   });
 
-  afterEach(() => {
-    // Clearing test fields
-    return Fields.remove({});
+  afterEach(async () => {
+    // Clearing test data
+    await Forms.remove();
+    await Fields.remove({});
   });
 
   test('createField() without contentTypeId', async () => {
@@ -157,19 +158,19 @@ describe('Fields', () => {
     // required =====
     _field.isRequired = true;
     await _field.save();
-    expectError('required', '');
+    await expectError('required', '');
 
     // email =====
     await changeValidation('email');
-    expectError('Invalid email', 'wrongValue');
+    await expectError('Invalid email', 'wrongValue');
 
     // number =====
     await changeValidation('number');
-    expectError('Invalid number', 'wrongValue');
+    await expectError('Invalid number', 'wrongValue');
 
     // date =====
     await changeValidation('date');
-    expectError('Invalid date', 'wrongValue');
+    await expectError('Invalid date', 'wrongValue');
   });
 
   test('Validate submission: valid values', async () => {

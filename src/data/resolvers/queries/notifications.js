@@ -1,6 +1,8 @@
 import { MODULES } from '../../constants';
 
-export default {
+import { moduleRequireLogin } from '../../permissions';
+
+const notificationQueries = {
   /**
    * Module list used in notifications
    * @param {Object} args
@@ -10,3 +12,7 @@ export default {
     return MODULES.ALL;
   },
 };
+
+moduleRequireLogin(notificationQueries);
+
+export default notificationQueries;

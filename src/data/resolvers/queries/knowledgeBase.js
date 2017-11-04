@@ -4,7 +4,9 @@ import {
   KnowledgeBaseArticles,
 } from '../../../db/models';
 
-export default {
+import { moduleRequireLogin } from '../../permissions';
+
+const knowledgeBaseQueries = {
   /**
    * Article list
    * @param {Object} args
@@ -28,7 +30,7 @@ export default {
    * @param {String} args._id
    * @return {Promise} article detail
    */
-  knowledgeBaseArticlesDetail(root, { _id }) {
+  knowledgeBaseArticleDetail(root, { _id }) {
     return KnowledgeBaseArticles.findOne({ _id });
   },
 
@@ -63,7 +65,7 @@ export default {
    * @param {String} args._id
    * @return {Promise} category detail
    */
-  knowledgeBaseCategoriesDetail(root, { _id }) {
+  knowledgeBaseCategoryDetail(root, { _id }) {
     return KnowledgeBaseCategories.findOne({ _id }).then(category => {
       return category;
     });
@@ -100,7 +102,7 @@ export default {
    * @param {String} args._id
    * @return {Promise} topic detail
    */
-  knowledgeBaseTopicsDetail(root, { _id }) {
+  knowledgeBaseTopicDetail(root, { _id }) {
     return KnowledgeBaseTopics.findOne({ _id });
   },
 
@@ -112,3 +114,7 @@ export default {
     return KnowledgeBaseTopics.find({}).count();
   },
 };
+
+moduleRequireLogin(knowledgeBaseQueries);
+
+export default knowledgeBaseQueries;

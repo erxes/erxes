@@ -1,4 +1,5 @@
 import { EngageMessages, Tags } from '../../../db/models';
+import { moduleRequireLogin } from '../../permissions';
 
 // basic count helper
 const count = selector => EngageMessages.find(selector).count();
@@ -74,7 +75,7 @@ const countsByTag = async ({ kind, status, user }) => {
   return response;
 };
 
-export default {
+const engageQueries = {
   /**
    * Group engage messages counts by kind, status, tag
    *
@@ -150,3 +151,7 @@ export default {
     return EngageMessages.find({}).count();
   },
 };
+
+moduleRequireLogin(engageQueries);
+
+export default engageQueries;

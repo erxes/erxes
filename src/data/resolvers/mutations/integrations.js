@@ -1,6 +1,7 @@
 import { Integrations } from '../../../db/models';
+import { requireLogin, requireAdmin } from '../../permissions';
 
-export default {
+const integrationMutations = {
   /**
    * Create a new messenger integration
    * @param {Object} root
@@ -10,13 +11,8 @@ export default {
    * @param {Object} object3 - The middleware data
    * @param {Object} object3.user - The user making this action
    * @return {Promise} return Promise resolving Integration document
-   * @throws {Error} throws Error('Login required') if user is not logged in
    */
-  integrationsCreateMessengerIntegration(root, doc, { user }) {
-    if (!user) {
-      throw new Error('Login required');
-    }
-
+  integrationsCreateMessengerIntegration(root, doc) {
     return Integrations.createMessengerIntegration(doc);
   },
 
@@ -30,13 +26,8 @@ export default {
    * @param {Object} object3 - The middleware data
    * @param {Object} object3.user - The user making this action
    * @return {Promise} return Promise resolving Integration document
-   * @throws {Error} throws Error('Login required') if user is not logged in
    */
-  integrationsEditMessengerIntegration(root, { _id, ...fields }, { user }) {
-    if (!user) {
-      throw new Error('Login required');
-    }
-
+  integrationsEditMessengerIntegration(root, { _id, ...fields }) {
     return Integrations.updateMessengerIntegration(_id, fields);
   },
 
@@ -52,13 +43,8 @@ export default {
    * @param {Object} object3 - The middleware data
    * @param {Object} object3.user - The user making this action
    * @return {Promise} return Promise resolving Integration document
-   * @throws {Error} throws Error('Login required') if user is not logged in
    */
-  integrationsSaveMessengerAppearanceData(root, { _id, uiOptions }, { user }) {
-    if (!user) {
-      throw new Error('Login required');
-    }
-
+  integrationsSaveMessengerAppearanceData(root, { _id, uiOptions }) {
     return Integrations.saveMessengerAppearanceData(_id, uiOptions);
   },
 
@@ -72,13 +58,8 @@ export default {
    * @param {Object} object3 - The middleware data
    * @param {Object} object3.user - The user making this action
    * @return {Promise} return Promise resolving Integration document
-   * @throws {Error} throws Error('Login required') if user is not logged in
    */
-  integrationsSaveMessengerConfigs(root, { _id, messengerData }, { user }) {
-    if (!user) {
-      throw new Error('Login required');
-    }
-
+  integrationsSaveMessengerConfigs(root, { _id, messengerData }) {
     return Integrations.saveMessengerConfigs(_id, messengerData);
   },
 
@@ -93,13 +74,8 @@ export default {
    * @param {Object} object3 - The middleware data
    * @param {Object} object3.user - The user making this action
    * @return {Promise} return Promise resolving Integration document
-   * @throws {Error} throws Error('Login required') if user is not logged in
    */
-  integrationsCreateFormIntegration(root, doc, { user }) {
-    if (!user) {
-      throw new Error('Login required');
-    }
-
+  integrationsCreateFormIntegration(root, doc) {
     return Integrations.createFormIntegration(doc);
   },
 
@@ -115,13 +91,8 @@ export default {
    * @param {Object} object3 - The middleware data
    * @param {Object} object3.user - The user making this action
    * @return {Promise} return Promise resolving Integration document
-   * @throws {Error} throws Error('Login required') if user is not logged in
    */
-  integrationsEditFormIntegration(root, { _id, ...doc }, { user }) {
-    if (!user) {
-      throw new Error('Login required');
-    }
-
+  integrationsEditFormIntegration(root, { _id, ...doc }) {
     return Integrations.updateFormIntegration(_id, doc);
   },
 
@@ -133,13 +104,18 @@ export default {
    * @param {Object} object3 - The middleware data
    * @param {Object} object3.user - The user making this action
    * @return {Promise}
-   * @throws {Error} throws Error('Login required') if user is not logged in
    */
-  integrationsRemove(root, { _id }, { user }) {
-    if (!user) {
-      throw new Error('Login required');
-    }
-
+  integrationsRemove(root, { _id }) {
     return Integrations.removeIntegration(_id);
   },
 };
+
+requireLogin(integrationMutations, 'integrationsCreateMessengerIntegration');
+requireLogin(integrationMutations, 'integrationsEditMessengerIntegration');
+requireLogin(integrationMutations, 'integrationsSaveMessengerAppearanceData');
+requireLogin(integrationMutations, 'integrationsSaveMessengerConfigs');
+requireLogin(integrationMutations, 'integrationsCreateFormIntegration');
+requireLogin(integrationMutations, 'integrationsEditFormIntegration');
+requireAdmin(integrationMutations, 'integrationsRemove');
+
+export default integrationMutations;

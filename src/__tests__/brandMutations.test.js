@@ -1,30 +1,18 @@
 /* eslint-env jest */
 /* eslint-disable no-underscore-dangle */
 
-import { connect, disconnect } from '../db/connection';
-import { Brands, Users } from '../db/models';
-import { brandFactory, userFactory } from '../db/factories';
+import { Brands } from '../db/models';
+import { ROLES } from '../data/constants';
 import brandMutations from '../data/resolvers/mutations/brands';
 
-beforeAll(() => connect());
-
-afterAll(() => disconnect());
-
 describe('Brands mutations', () => {
-  let _brand;
-  let _user;
-
-  beforeEach(async () => {
-    // Creating test data
-    _brand = await brandFactory();
-    _user = await userFactory();
-  });
-
-  afterEach(async () => {
-    // Clearing test data
-    await Brands.remove({});
-    await Users.remove({});
-  });
+  const _brand = {
+    _id: 'fakeBrandId',
+    code: 'fakeBrandCode',
+    name: 'fakeBrandName',
+  };
+  const _user = { _id: 'fakeId', role: ROLES.CONTRIBUTOR };
+  const _adminUser = { _id: 'fakeId', role: ROLES.ADMIN };
 
   test('Check login required mutations', async () => {
     const checkLogin = async (fn, args) => {
@@ -41,13 +29,37 @@ describe('Brands mutations', () => {
     checkLogin(brandMutations.brandsAdd, { code: _brand.code, name: _brand.name });
 
     // brands edit
-    checkLogin(brandMutations.brandsEdit, { _id: _brand.id });
+    checkLogin(brandMutations.brandsEdit, { _id: _brand._id });
 
     // brands remove
-    checkLogin(brandMutations.brandsRemove, { _id: _brand.id });
+    checkLogin(brandMutations.brandsRemove, { _id: _brand._id });
 
     // brands update email config
-    checkLogin(brandMutations.brandsConfigEmail, { _id: _brand.id });
+    checkLogin(brandMutations.brandsConfigEmail, { _id: _brand._id });
+  });
+
+  test(`test if Error('Permission required') error is working as intended`, async () => {
+    const checkLogin = async (fn, args) => {
+      try {
+        await fn({}, args, { user: _user });
+      } catch (e) {
+        expect(e.message).toEqual('Permission required');
+      }
+    };
+
+    expect.assertions(4);
+
+    // brands add
+    checkLogin(brandMutations.brandsAdd, { code: _brand.code, name: _brand.name });
+
+    // brands edit
+    checkLogin(brandMutations.brandsEdit, { _id: _brand._id });
+
+    // brands remove
+    checkLogin(brandMutations.brandsRemove, { _id: _brand._id });
+
+    // brands update email config
+    checkLogin(brandMutations.brandsConfigEmail, { _id: _brand._id });
   });
 
   test('Create brand', async () => {
@@ -59,10 +71,10 @@ describe('Brands mutations', () => {
 
     Brands.createBrand = jest.fn();
 
-    await brandMutations.brandsAdd({}, _doc, { user: _user });
+    await brandMutations.brandsAdd({}, _doc, { user: _adminUser });
 
     expect(Brands.createBrand.mock.calls.length).toBe(1);
-    expect(Brands.createBrand).toBeCalledWith({ userId: _user._id, ..._doc });
+    expect(Brands.createBrand).toBeCalledWith({ userId: _adminUser._id, ..._doc });
   });
 
   test('Update brand', async () => {
@@ -75,7 +87,7 @@ describe('Brands mutations', () => {
     };
 
     // update brand object
-    await brandMutations.brandsEdit({}, { _id: _brand._id, ..._doc }, { user: _user });
+    await brandMutations.brandsEdit({}, { _id: _brand._id, ..._doc }, { user: _adminUser });
 
     expect(Brands.updateBrand.mock.calls.length).toBe(1);
     expect(Brands.updateBrand).toBeCalledWith(_brand._id, _doc);
@@ -84,7 +96,7 @@ describe('Brands mutations', () => {
   test('Delete brand', async () => {
     Brands.removeBrand = jest.fn();
 
-    await brandMutations.brandsRemove({}, { _id: _brand.id }, { user: _user });
+    await brandMutations.brandsRemove({}, { _id: _brand._id }, { user: _adminUser });
     expect(Brands.removeBrand.mock.calls.length).toBe(1);
     expect(Brands.removeBrand).toBeCalledWith(_brand._id);
   });
@@ -94,8 +106,8 @@ describe('Brands mutations', () => {
 
     await brandMutations.brandsConfigEmail(
       {},
-      { _id: _brand.id, emailConfig: _brand.emailConfig },
-      { user: _user._id },
+      { _id: _brand._id, emailConfig: _brand.emailConfig },
+      { user: _adminUser },
     );
 
     expect(Brands.updateEmailConfig.mock.calls.length).toBe(1);

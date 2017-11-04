@@ -1,13 +1,12 @@
 import { InternalNotes } from '../../../db/models';
+import { moduleRequireLogin } from '../../permissions';
 
-export default {
+const internalNoteMutations = {
   /**
    * Adds internalNote object
    * @return {Promise}
    */
   internalNotesAdd(root, args, { user }) {
-    if (!user) throw new Error('Login required');
-
     return InternalNotes.createInternalNote(args, user);
   },
 
@@ -15,9 +14,7 @@ export default {
    * Updates internalNote object
   * @return {Promise} return Promise(null)
   */
-  internalNotesEdit(root, { _id, ...doc }, { user }) {
-    if (!user) throw new Error('Login required');
-
+  internalNotesEdit(root, { _id, ...doc }) {
     return InternalNotes.updateInternalNote(_id, doc);
   },
 
@@ -25,9 +22,11 @@ export default {
    * Remove a channel
    * @return {Promise}
    */
-  internalNotesRemove(root, { _id }, { user }) {
-    if (!user) throw new Error('Login required');
-
+  internalNotesRemove(root, { _id }) {
     return InternalNotes.removeInternalNote(_id);
   },
 };
+
+moduleRequireLogin(internalNoteMutations);
+
+export default internalNoteMutations;

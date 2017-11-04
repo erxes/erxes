@@ -2,6 +2,7 @@
 /* eslint-disable no-underscore-dangle */
 
 import { connect, disconnect } from '../db/connection';
+import { ROLES } from '../data/constants';
 import { Users, Channels } from '../db/models';
 import { userFactory, channelFactory } from '../db/factories';
 import userMutations from '../data/resolvers/mutations/users';
@@ -12,7 +13,8 @@ beforeAll(() => connect());
 afterAll(() => disconnect());
 
 describe('User mutations', () => {
-  const user = { _id: 'DFAFDFDFD' };
+  const user = { _id: 'DFAFDFDFD', role: ROLES.CONTRIBUTOR };
+  const _adminUser = { _id: 'fakeId', role: ROLES.ADMIN };
 
   afterEach(async () => {
     // Clearing test data
@@ -90,6 +92,21 @@ describe('User mutations', () => {
 
     // users remove
     checkLogin(userMutations.usersRemove, {});
+  });
+
+  test(`test if Error('Permission required') error is working as intended`, async () => {
+    const checkLogin = async fn => {
+      try {
+        await fn({}, {}, { user });
+      } catch (e) {
+        expect(e.message).toEqual('Permission required');
+      }
+    };
+
+    expect.assertions(1);
+
+    // users remove
+    checkLogin(userMutations.usersRemove);
   });
 
   test('Users add & edit: wrong password confirmation', async () => {
@@ -223,7 +240,7 @@ describe('User mutations', () => {
     const owner = await userFactory({ isOwner: true });
 
     try {
-      await userMutations.usersRemove({}, { _id: owner._id }, { user });
+      await userMutations.usersRemove({}, { _id: owner._id }, { user: _adminUser });
     } catch (e) {
       expect(e.message).toBe('Can not remove owner');
     }
@@ -236,7 +253,7 @@ describe('User mutations', () => {
     await channelFactory({ userId: userToRemove._id });
 
     try {
-      await userMutations.usersRemove({}, { _id: userToRemove._id }, { user });
+      await userMutations.usersRemove({}, { _id: userToRemove._id }, { user: _adminUser });
     } catch (e) {
       expect(e.message).toBe('You cannot delete this user. This user belongs other channel.');
     }
@@ -249,7 +266,7 @@ describe('User mutations', () => {
     await channelFactory({ memberIds: ['DFAFSFDSFDS', userToRemove._id] });
 
     try {
-      await userMutations.usersRemove({}, { _id: userToRemove._id }, { user });
+      await userMutations.usersRemove({}, { _id: userToRemove._id }, { user: _adminUser });
     } catch (e) {
       expect(e.message).toBe('You cannot delete this user. This user belongs other channel.');
     }
@@ -259,7 +276,7 @@ describe('User mutations', () => {
     const removeUser = await userFactory({});
     const removeUserId = removeUser._id;
 
-    await userMutations.usersRemove({}, { _id: removeUserId }, { user });
+    await userMutations.usersRemove({}, { _id: removeUserId }, { user: _adminUser });
 
     // ensure removed
     expect(await Users.findOne({ _id: removeUserId })).toBe(null);

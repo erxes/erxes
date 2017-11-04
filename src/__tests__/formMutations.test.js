@@ -1,27 +1,17 @@
 /* eslint-env jest */
 /* eslint-disable no-underscore-dangle */
 
-import { connect, disconnect } from '../db/connection';
 import formMutations from '../data/resolvers/mutations/forms';
-import { userFactory } from '../db/factories';
-import { Forms, Users } from '../db/models';
-
-beforeAll(() => connect());
-afterAll(() => disconnect());
+import { Forms } from '../db/models';
+import { ROLES } from '../data/constants';
 
 describe('form and formField mutations', () => {
   const _formId = 'formId';
-  let _user;
 
-  beforeEach(async () => {
-    _user = await userFactory({});
-  });
+  const _user = { _id: 'fakeId', role: ROLES.CONTRIBUTOR };
+  const _adminUser = { _id: 'fakeId', role: ROLES.ADMIN };
 
-  afterEach(async () => {
-    await Users.remove({});
-  });
-
-  test('test if `logging required` error is working as intended', () => {
+  test(`test if Error('Login required') exception is working as intended`, () => {
     expect.assertions(4);
 
     // Login required ==================
@@ -29,6 +19,23 @@ describe('form and formField mutations', () => {
     expect(() => formMutations.formsEdit(null, {}, {})).toThrowError('Login required');
     expect(() => formMutations.formsRemove(null, {}, {})).toThrowError('Login required');
     expect(() => formMutations.formsDuplicate(null, {}, {})).toThrowError('Login required');
+  });
+
+  test(`test if Error('Permission required') exception is working as intended`, () => {
+    expect.assertions(3);
+
+    const expectError = async func => {
+      try {
+        await func(null, {}, { user: _user });
+      } catch (e) {
+        expect(e.message).toBe('Permission required');
+      }
+    };
+
+    // Login required ==================
+    expectError(formMutations.formsAdd);
+    expectError(formMutations.formsEdit);
+    expectError(formMutations.formsRemove);
   });
 
   test(`test mutations.formsAdd`, async () => {
@@ -39,9 +46,9 @@ describe('form and formField mutations', () => {
       description: 'Test form description',
     };
 
-    await formMutations.formsAdd(null, doc, { user: _user });
+    await formMutations.formsAdd(null, doc, { user: _adminUser });
 
-    expect(Forms.createForm).toBeCalledWith(doc, _user);
+    expect(Forms.createForm).toBeCalledWith(doc, _adminUser);
     expect(Forms.createForm.mock.calls.length).toBe(1);
   });
 
@@ -54,7 +61,7 @@ describe('form and formField mutations', () => {
 
     Forms.updateForm = jest.fn();
 
-    await formMutations.formsEdit(null, doc, { user: _user });
+    await formMutations.formsEdit(null, doc, { user: _adminUser });
 
     const formId = _formId;
     delete doc._id;
@@ -66,7 +73,7 @@ describe('form and formField mutations', () => {
   test('test mutations.formsRemove', async () => {
     Forms.removeForm = jest.fn();
 
-    await formMutations.formsRemove(null, { _id: _formId }, { user: _user });
+    await formMutations.formsRemove(null, { _id: _formId }, { user: _adminUser });
 
     expect(Forms.removeForm).toBeCalledWith(_formId);
   });

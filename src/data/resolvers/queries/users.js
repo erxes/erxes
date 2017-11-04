@@ -1,10 +1,14 @@
 import { Users } from '../../../db/models';
 
-export default {
+import { moduleRequireLogin } from '../../permissions';
+
+const userQueries = {
   /**
    * Users list
    * @param {Object} args
    * @param {Integer} args.limit
+   * @param {Object} object3 - Graphql middleware data
+   * @param {Object} object3.user - User making this request
    * @return {Promise} sorted and filtered users objects
    */
   users(root, { limit }) {
@@ -22,6 +26,8 @@ export default {
    * Get one user
    * @param {Object} args
    * @param {String} args._id
+   * @param {Object} object3 - Graphql middleware data
+   * @param {Object} object3.user - User making this request
    * @return {Promise} found user
    */
   userDetail(root, { _id }) {
@@ -30,6 +36,8 @@ export default {
 
   /**
    * Get all users count. We will use it in pager
+   * @param {Object} object3 - Graphql middleware data
+   * @param {Object} object3.user - User making this request
    * @return {Promise} total count
    */
   usersTotalCount() {
@@ -44,3 +52,7 @@ export default {
     return Users.findOne({ _id: user._id });
   },
 };
+
+moduleRequireLogin(userQueries);
+
+export default userQueries;

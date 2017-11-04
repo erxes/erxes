@@ -1,8 +1,9 @@
 import { EngageMessages } from '../../../db/models';
 import { MESSAGE_KINDS } from '../../constants';
 import { send } from './engageUtils';
+import { moduleRequireLogin } from '../../permissions';
 
-export default {
+const engageMutations = {
   /**
    * Create new message
    * @param {String} doc.title
@@ -18,9 +19,7 @@ export default {
    * @param {[String]} doc.tagIds
    * @return {Promise} message object
    */
-  async engageMessageAdd(root, doc, { user }) {
-    if (!user) throw new Error('Login required');
-
+  async engageMessageAdd(root, doc) {
     const engageMessage = EngageMessages.createEngageMessage(doc);
 
     // if manual and live then send immediately
@@ -46,9 +45,7 @@ export default {
    * @param {[String]} doc.tagIds
    * @return {Promise} message object
    */
-  engageMessageEdit(root, { _id, ...doc }, { user }) {
-    if (!user) throw new Error('Login required');
-
+  engageMessageEdit(root, { _id, ...doc }) {
     return EngageMessages.updateEngageMessage(_id, doc);
   },
 
@@ -57,9 +54,7 @@ export default {
    * @param {String} _id - Engage message id
    * @return {Promise}
    */
-  engageMessageRemove(root, _id, { user }) {
-    if (!user) throw new Error('Login required');
-
+  engageMessageRemove(root, _id) {
     return EngageMessages.removeEngageMessage(_id);
   },
 
@@ -68,9 +63,7 @@ export default {
    * @param {String} _id - Engage message id
    * @return {Promise} updated message object
    */
-  engageMessageSetLive(root, _id, { user }) {
-    if (!user) throw new Error('Login required');
-
+  engageMessageSetLive(root, _id) {
     return EngageMessages.engageMessageSetLive(_id);
   },
 
@@ -79,9 +72,7 @@ export default {
    * @param {String} _id - Engage message id
    * @return {Promise} updated message object
    */
-  engageMessageSetPause(root, _id, { user }) {
-    if (!user) throw new Error('Login required');
-
+  engageMessageSetPause(root, _id) {
     return EngageMessages.engageMessageSetPause(_id);
   },
 
@@ -90,9 +81,7 @@ export default {
    * @param {String} _id - Engage message id
    * @return {Promise} updated message object
    */
-  async engageMessageSetLiveManual(root, _id, { user }) {
-    if (!user) throw new Error('Login required');
-
+  async engageMessageSetLiveManual(root, _id) {
     const engageMessage = EngageMessages.engageMessageSetLive(_id);
 
     await send(engageMessage);
@@ -100,3 +89,7 @@ export default {
     return engageMessage;
   },
 };
+
+moduleRequireLogin(engageMutations);
+
+export default engageMutations;

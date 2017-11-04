@@ -1,6 +1,7 @@
 import { Forms } from '../../../db/models';
+import { moduleRequireLogin } from '../../permissions';
 
-export default {
+const formQueries = {
   /**
    * Forms list
    * @param {Object} args
@@ -36,3 +37,7 @@ export default {
     return Forms.find({}).count();
   },
 };
+
+moduleRequireLogin(formQueries);
+
+export default formQueries;

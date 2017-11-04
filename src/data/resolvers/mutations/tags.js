@@ -1,6 +1,7 @@
 import { Tags } from '../../../db/models';
+import { moduleRequireLogin } from '../../permissions';
 
-export default {
+const tagMutations = {
   /**
   * Create new tag
   * @param {String} doc.name
@@ -8,9 +9,7 @@ export default {
   * @param {String} doc.colorCode
   * @return {Promise} newly created tag object
   */
-  tagsAdd(root, doc, { user }) {
-    if (!user) throw new Error('Login required');
-
+  tagsAdd(root, doc) {
     return Tags.createTag(doc);
   },
 
@@ -21,9 +20,7 @@ export default {
   * @param {String} doc.colorCode
   * @return {Promise} updated tag object
   */
-  tagsEdit(root, { _id, ...doc }, { user }) {
-    if (!user) throw new Error('Login required');
-
+  tagsEdit(root, { _id, ...doc }) {
     return Tags.updateTag(_id, doc);
   },
 
@@ -32,9 +29,7 @@ export default {
   * @param {[String]} ids
   * @return {Promise}
   */
-  tagsRemove(root, { ids }, { user }) {
-    if (!user) throw new Error('Login required');
-
+  tagsRemove(root, { ids }) {
     return Tags.removeTag(ids);
   },
 
@@ -44,9 +39,11 @@ export default {
   * @param {[String]} targetIds
   * @param {[String]} tagIds
   */
-  tagsTag(root, { type, targetIds, tagIds }, { user }) {
-    if (!user) throw new Error('Login required');
-
+  tagsTag(root, { type, targetIds, tagIds }) {
     Tags.tagsTag(type, targetIds, tagIds);
   },
 };
+
+moduleRequireLogin(tagMutations);
+
+export default tagMutations;

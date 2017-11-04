@@ -2,6 +2,7 @@ import _ from 'underscore';
 import { Brands, Tags, Integrations, Customers, Segments } from '../../../db/models';
 import { TAG_TYPES, INTEGRATION_KIND_CHOICES, SEGMENT_CONTENT_TYPES } from '../../constants';
 import QueryBuilder from './segmentQueryBuilder.js';
+import { moduleRequireLogin } from '../../permissions';
 
 const listQuery = async params => {
   const selector = {};
@@ -42,7 +43,7 @@ const listQuery = async params => {
   return selector;
 };
 
-export default {
+const customerQueries = {
   /**
    * Customers list
    * @param {Object} args
@@ -153,3 +154,7 @@ export default {
     return Customers.find({}).count();
   },
 };
+
+moduleRequireLogin(customerQueries);
+
+export default customerQueries;

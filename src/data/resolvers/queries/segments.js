@@ -1,6 +1,8 @@
 import { Segments } from '../../../db/models';
 
-export default {
+import { moduleRequireLogin } from '../../permissions';
+
+const segmentMutations = {
   /**
    * Segments list
    * @return {Promise} segment objects
@@ -27,3 +29,7 @@ export default {
     return Segments.findOne({ _id });
   },
 };
+
+moduleRequireLogin(segmentMutations);
+
+export default segmentMutations;

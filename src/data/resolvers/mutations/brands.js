@@ -1,14 +1,13 @@
 import { Brands } from '../../../db/models';
+import { moduleRequireAdmin } from '../../permissions';
 
-export default {
+const brandMutations = {
   /**
    * Create new brand
    * @param {Object} doc - brand fields
    * @return {Promise} brand object
    */
   brandsAdd(root, doc, { user }) {
-    if (!user) throw new Error('Login required');
-
     return Brands.createBrand({ userId: user._id, ...doc });
   },
 
@@ -18,9 +17,7 @@ export default {
    * @param {Object} fields - brand fields
    * @return {Promise} brand object
    */
-  brandsEdit(root, { _id, ...fields }, { user }) {
-    if (!user) throw new Error('Login required');
-
+  brandsEdit(root, { _id, ...fields }) {
     return Brands.updateBrand(_id, fields);
   },
 
@@ -29,9 +26,7 @@ export default {
    * @param {String} _id - brand id
    * @return {Promise}
    */
-  brandsRemove(root, { _id }, { user }) {
-    if (!user) throw new Error('Login required');
-
+  brandsRemove(root, { _id }) {
     return Brands.removeBrand(_id);
   },
 
@@ -41,9 +36,11 @@ export default {
    * @param {Object} emailConfig - brand email config fields
    * @return {Promise} updated brand object
    */
-  async brandsConfigEmail(root, { _id, emailConfig }, { user }) {
-    if (!user) throw new Error('Login required');
-
+  async brandsConfigEmail(root, { _id, emailConfig }) {
     return Brands.updateEmailConfig(_id, emailConfig);
   },
 };
+
+moduleRequireAdmin(brandMutations);
+
+export default brandMutations;

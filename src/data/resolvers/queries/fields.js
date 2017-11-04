@@ -1,7 +1,8 @@
 import { Companies, Customers, Fields } from '../../../db/models';
 import { FIELD_CONTENT_TYPES } from '../../../data/constants';
+import { moduleRequireLogin } from '../../permissions';
 
-export default {
+const fieldQueries = {
   /**
    * Fields list
    * @param {Object} args
@@ -115,3 +116,7 @@ export default {
     return [];
   },
 };
+
+moduleRequireLogin(fieldQueries);
+
+export default fieldQueries;

@@ -4,7 +4,9 @@ import {
   KnowledgeBaseArticles,
 } from '../../../db/models';
 
-export default {
+import { moduleRequireLogin } from '../../permissions';
+
+const knowledgeBaseMutations = {
   /**
    * Create topic document
    * @param {Object} root
@@ -13,13 +15,8 @@ export default {
    * @param {Object} object3 - Graphql middleware data
    * @param {Object} object3.user - User object supplied by middleware
    * @return {Promise} - returns Promise resolving created document
-   * @throws {Error} - throws Error('Login required') if user object is not supplied
    */
   knowledgeBaseTopicsAdd(root, { doc }, { user }) {
-    if (!user) {
-      throw new Error('Login required');
-    }
-
     return KnowledgeBaseTopics.createDoc(doc, user._id);
   },
 
@@ -32,13 +29,8 @@ export default {
    * @param {Object} object3 - Graphql middleware data
    * @param {Object} object3.user - User object supplied by middleware
    * @return {Promise} - returns Promise resolving modified document
-   * @throws {Error} - throws Error('Login required') if user object is not supplied
    */
   knowledgeBaseTopicsEdit(root, { _id, doc }, { user }) {
-    if (!user) {
-      throw new Error('Login required');
-    }
-
     return KnowledgeBaseTopics.updateDoc(_id, doc, user._id);
   },
 
@@ -50,13 +42,8 @@ export default {
    * @param {Object} object3 - Graphql middleware data
    * @param {Object} object3.user - User object supplied by middleware
    * @return {Promise}
-   * @throws {Error} - throws Error('Login required') if user object is not supplied
    */
-  knowledgeBaseTopicsRemove(root, { _id }, { user }) {
-    if (!user) {
-      throw new Error('Login required');
-    }
-
+  knowledgeBaseTopicsRemove(root, { _id }) {
     return KnowledgeBaseTopics.removeDoc(_id);
   },
 
@@ -68,13 +55,8 @@ export default {
    * @param {Object} object3 - Graphql middleware data
    * @param {Object} object3.user - User object supplied by middleware
    * @return {Promise} - returns Promise resolving created document
-   * @throws {Error} - throws Error('Login required') if user object is not supplied
    */
   knowledgeBaseCategoriesAdd(root, { doc }, { user }) {
-    if (!user) {
-      throw new Error('Login required');
-    }
-
     return KnowledgeBaseCategories.createDoc(doc, user._id);
   },
 
@@ -87,13 +69,8 @@ export default {
    * @param {Object} object3 - Graphql middleware data
    * @param {Object} object3.user - User object supplied by middleware
    * @return {Promise} - returns Promise resolving modified document
-   * @throws {Error} - throws Error('Login required') if user object is not supplied
    */
   knowledgeBaseCategoriesEdit(root, { _id, doc }, { user }) {
-    if (!user) {
-      throw new Error('Login required');
-    }
-
     return KnowledgeBaseCategories.updateDoc(_id, doc, user._id);
   },
 
@@ -105,13 +82,8 @@ export default {
    * @param {Object} object3 - Graphql input data
    * @param {Object} object3.user - User object supplied by middleware
    * @return {Promise}
-   * @throws {Error} - throws Error('Login required') if user object is not supplied
    */
-  knowledgeBaseCategoriesRemove(root, { _id }, { user }) {
-    if (!user) {
-      throw new Error('Login required');
-    }
-
+  knowledgeBaseCategoriesRemove(root, { _id }) {
     return KnowledgeBaseCategories.removeDoc(_id);
   },
 
@@ -123,13 +95,8 @@ export default {
    * @param {Object} object3 - Graphql middleware data
    * @param {Object} object3.user - User object supplied by middleware
    * @return {Promise} - returns Promise resolving created document
-   * @throws {Error} - throws Error('Login required') if user object is not supplied
    */
   knowledgeBaseArticlesAdd(root, { doc }, { user }) {
-    if (!user) {
-      throw new Error('Login required');
-    }
-
     return KnowledgeBaseArticles.createDoc(doc, user._id);
   },
 
@@ -142,13 +109,8 @@ export default {
    * @param {Object} object3 - Graphql middleware data
    * @param {Object} object3.user - User object supplied by middleware
    * @return {Promise} - returns Promise resolving modified document
-   * @throws {Error} - throws Error('Login required') if user object is not supplied
    */
   knowledgeBaseArticlesEdit(root, { _id, doc }, { user }) {
-    if (!user) {
-      throw new Error('Login required');
-    }
-
     return KnowledgeBaseArticles.updateDoc(_id, doc, user._id);
   },
 
@@ -160,13 +122,12 @@ export default {
    * @param {Object} object3 - Graphql input data
    * @param {Object} object3.user - User object supplied by middleware
    * @return {Promise}
-   * @throws {Error} - throws Error('Login required') if user object is not supplied
    */
-  knowledgeBaseArticlesRemove(root, { _id }, { user }) {
-    if (!user) {
-      throw new Error('Login required');
-    }
-
+  knowledgeBaseArticlesRemove(root, { _id }) {
     return KnowledgeBaseArticles.removeDoc(_id);
   },
 };
+
+moduleRequireLogin(knowledgeBaseMutations);
+
+export default knowledgeBaseMutations;

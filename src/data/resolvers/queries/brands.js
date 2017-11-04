@@ -1,6 +1,7 @@
 import { Brands } from '../../../db/models';
+import { moduleRequireLogin } from '../../permissions';
 
-export default {
+const brandQueries = {
   /**
    * Brands list
    * @param {Object} args
@@ -36,3 +37,7 @@ export default {
     return Brands.find({}).count();
   },
 };
+
+moduleRequireLogin(brandQueries);
+
+export default brandQueries;

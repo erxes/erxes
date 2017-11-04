@@ -59,15 +59,15 @@ export const types = `
 
 export const queries = `
   knowledgeBaseTopics(limit: Int): [KnowledgeBaseTopic]
-  knowledgeBaseTopicsDetail(_id: String!): KnowledgeBaseTopic
+  knowledgeBaseTopicDetail(_id: String!): KnowledgeBaseTopic
   knowledgeBaseTopicsTotalCount: Int
 
   knowledgeBaseCategories(limit: Int): [KnowledgeBaseCategory]
-  knowledgeBaseCategoriesDetail(_id: String!): KnowledgeBaseCategory
+  knowledgeBaseCategoryDetail(_id: String!): KnowledgeBaseCategory
   knowledgeBaseCategoriesTotalCount: Int
 
   knowledgeBaseArticles(limit: Int): [KnowledgeBaseArticle]
-  knowledgeBaseArticlesDetail(_id: String!): KnowledgeBaseArticle
+  knowledgeBaseArticleDetail(_id: String!): KnowledgeBaseArticle
   knowledgeBaseArticlesTotalCount: Int
 `;
 
