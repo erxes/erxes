@@ -1,9 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { _ } from 'meteor/underscore';
 import Toggle from 'react-toggle';
-import { Wrapper } from '/imports/react-ui/layout/components';
-import Alert from 'meteor/erxes-notifier';
+import { Wrapper } from 'modules/layout/components';
 import Sidebar from '../../Sidebar';
 
 class NotificationSettings extends Component {
@@ -16,28 +14,22 @@ class NotificationSettings extends Component {
     this.onEmailConfigChange = this.onEmailConfigChange.bind(this);
   }
 
-  onTypeChange(e) {
+  onTypeChange() {
+    // TODO
     // save config
-    this.props.save(e.target.value, e.target.checked, error => {
-      if (error) return Alert.error(error.reason);
-      return Alert.success('Congrats');
-    });
+    // this.props.save(e.target.value, e.target.checked, error => {
+    //   if (error) return Alert.error(error.reason);
+    //   return Alert.success('Congrats');
+    // });
   }
 
   onEmailConfigChange(e) {
     // save get notification by email config
-    this.props.configGetNotificationByEmail(
-      { isAllowed: e.target.checked },
-      error => {
-        if (error) return Alert.error(error.reason);
-        return Alert.success('Congrats');
-      }
-    );
+    this.props.configGetNotificationByEmail({ isAllowed: e.target.checked });
   }
 
   isChecked(notifType) {
-    const oldEntry = _.find(
-      this.props.configs,
+    const oldEntry = this.props.configs.find(
       config => config.notifType === notifType.name
     );
 

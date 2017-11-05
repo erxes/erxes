@@ -1,56 +1,63 @@
-import { Meteor } from 'meteor/meteor';
-import { ReactiveVar } from 'meteor/reactive-var';
-import { Configs } from 'meteor/erxes-notifications';
-import { compose } from 'react-komposer';
-import { getTrackerLoader, composerOptions } from '/imports/react-ui/utils';
+import React from 'react';
+import PropTypes from 'prop-types';
+import { compose, gql, graphql } from 'react-apollo';
+import { withCurrentUser } from 'modules/auth/containers';
+import { Alert } from 'modules/common/utils';
 import { NotificationSettings } from '../components';
 
-const modules = new ReactiveVar([]);
+const NotificationSettingsContainer = props => {
+  const { currentUser, configGetNotificationByEmailMutation } = props;
 
-// fetch modules
-Meteor.call('notifications.getModules', (error, result) => {
-  modules.set(result);
-});
-
-function composer(props, onData) {
-  const user = Meteor.user();
-
-  const save = (...params) => {
-    Meteor.call('notifications.saveConfig', ...params);
+  const configGetNotificationByEmail = variables => {
+    configGetNotificationByEmailMutation({ variables })
+      .then(() => {
+        Alert.success('Congrats');
+      })
+      .catch(error => {
+        Alert.success(error.message);
+      });
   };
 
-  const configGetNotificationByEmail = (...params) => {
-    Meteor.call('users.configGetNotificationByEmail', ...params);
-  };
+  // default value is checked
+  let getNotificationByEmail = currentUser.getNotificationByEmail;
 
-  // configs subscription
-  const configsHandler = Meteor.subscribe('notifications.configs');
-
-  if (user && configsHandler.ready()) {
-    // previously saved values
-    const configs = Configs.find().fetch();
-
-    // default value is checked
-    let getNotificationByEmail = user.details.getNotificationByEmail;
-
-    if (getNotificationByEmail === undefined) {
-      getNotificationByEmail = true;
-    }
-
-    onData(null, {
-      modules: modules.get(),
-      configs,
-      save,
-
-      // previously configured value
-      getNotificationByEmail,
-
-      // action
-      configGetNotificationByEmail
-    });
+  if (getNotificationByEmail === undefined) {
+    getNotificationByEmail = true;
   }
-}
 
-export default compose(getTrackerLoader(composer), composerOptions({}))(
-  NotificationSettings
+  const updatedProps = {
+    ...props,
+
+    // TODO
+    modules: [],
+    configs: [],
+    save: () => {},
+
+    getNotificationByEmail,
+    configGetNotificationByEmail
+  };
+
+  return <NotificationSettings {...updatedProps} />;
+};
+
+NotificationSettingsContainer.propTypes = {
+  currentUser: PropTypes.object,
+  configGetNotificationByEmailMutation: PropTypes.func
+};
+
+export default withCurrentUser(
+  compose(
+    graphql(
+      gql`
+        mutation usersConfigGetNotificationByEmail($isAllowed: Boolean) {
+          usersConfigGetNotificationByEmail(isAllowed: $isAllowed) {
+            _id
+          }
+        }
+      `,
+      {
+        name: 'configGetNotificationByEmailMutation'
+      }
+    )
+  )(NotificationSettingsContainer)
 );

@@ -6,6 +6,7 @@ const currentUser = `
       email
       details
       emailSignatures
+      getNotificationByEmail
     }
   }
 `;
