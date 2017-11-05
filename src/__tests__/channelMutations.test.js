@@ -3,7 +3,7 @@
 
 import { Channels } from '../db/models';
 import { ROLES } from '../data/constants';
-import { MODULES } from '../data/constants';
+import { NOTIFICATION_TYPES } from '../data/constants';
 import channelMutations from '../data/resolvers/mutations/channels';
 import utils from '../data/utils';
 
@@ -63,7 +63,7 @@ describe('mutations', () => {
 
     const sendNotificationDoc = {
       createdUser: channel.userId,
-      notifType: MODULES.CHANNEL_MEMBERS_CHANGE,
+      notifType: NOTIFICATION_TYPES.CHANNEL_MEMBERS_CHANGE,
       title: content,
       content,
       link: `/inbox/${channel._id}`,
@@ -104,7 +104,7 @@ describe('mutations', () => {
 
     const sendNotificationDoc = {
       createdUser: channel.userId,
-      notifType: MODULES.CHANNEL_MEMBERS_CHANGE,
+      notifType: NOTIFICATION_TYPES.CHANNEL_MEMBERS_CHANGE,
       title: content,
       content,
       link: `/inbox/${channel._id}`,

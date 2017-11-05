@@ -3,7 +3,7 @@
 
 import { connect, disconnect } from '../db/connection';
 import { userFactory, notificationConfigurationFactory, channelFactory } from '../db/factories';
-import { MODULES } from '../data/constants';
+import { NOTIFICATION_TYPES } from '../data/constants';
 import utils from '../data/utils';
 import { sendChannelNotifications } from '../data/resolvers/mutations/channels';
 import { Notifications, NotificationConfigurations, Users } from '../db/models';
@@ -29,25 +29,25 @@ describe('testings helper methods', () => {
   test('testing tools.sendNotification method', async () => {
     // Try to send notifications when there is config not allowing it =========
     await notificationConfigurationFactory({
-      notifType: MODULES.CHANNEL_MEMBERS_CHANGE,
+      notifType: NOTIFICATION_TYPES.CHANNEL_MEMBERS_CHANGE,
       isAllowed: false,
       user: _user._id,
     });
 
     await notificationConfigurationFactory({
-      notifType: MODULES.CHANNEL_MEMBERS_CHANGE,
+      notifType: NOTIFICATION_TYPES.CHANNEL_MEMBERS_CHANGE,
       isAllowed: false,
       user: _user2._id,
     });
 
     await notificationConfigurationFactory({
-      notifType: MODULES.CHANNEL_MEMBERS_CHANGE,
+      notifType: NOTIFICATION_TYPES.CHANNEL_MEMBERS_CHANGE,
       isAllowed: false,
       user: _user3._id,
     });
 
     const doc = {
-      notifType: MODULES.CHANNEL_MEMBERS_CHANGE,
+      notifType: NOTIFICATION_TYPES.CHANNEL_MEMBERS_CHANGE,
       createdUser: _user._id,
       title: 'new Notification title',
       content: 'new Notification content',
@@ -92,7 +92,7 @@ describe('testings helper methods', () => {
 
     expect(utils.sendNotification).toBeCalledWith({
       createdUser: channel.userId,
-      notifType: MODULES.CHANNEL_MEMBERS_CHANGE,
+      notifType: NOTIFICATION_TYPES.CHANNEL_MEMBERS_CHANGE,
       title: content,
       content,
       link: `/inbox/${channel._id}`,

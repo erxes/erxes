@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 import Random from 'meteor-random';
-import { MODULES } from '../../data/constants';
+import { NOTIFICATION_TYPES } from '../../data/constants';
 
 // Notification schema
 const NotificationSchema = new mongoose.Schema({
@@ -11,7 +11,7 @@ const NotificationSchema = new mongoose.Schema({
   },
   notifType: {
     type: String,
-    enum: MODULES.ALL,
+    enum: NOTIFICATION_TYPES.ALL,
   },
   title: String,
   link: String,
@@ -113,7 +113,7 @@ const ConfigSchema = new mongoose.Schema({
   user: String,
   notifType: {
     type: String,
-    enum: MODULES.ALL,
+    enum: NOTIFICATION_TYPES.ALL,
   },
   isAllowed: Boolean,
 });

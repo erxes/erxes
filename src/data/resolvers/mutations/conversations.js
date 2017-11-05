@@ -1,4 +1,5 @@
 import { Conversations, ConversationMessages, Integrations, Customers } from '../../../db/models';
+import { NOTIFICATION_TYPES } from '../../constants';
 import { pubsub } from '../subscriptions';
 import { CONVERSATION_STATUSES, KIND_CHOICES } from '../../constants';
 import utils from '../../utils';
@@ -86,7 +87,7 @@ const conversationMutations = {
     // send notification
     utils.sendNotification({
       createdUser: user._id,
-      notifType: 'conversationAddMessage',
+      notifType: NOTIFICATION_TYPES.CONVERSATION_ADD_MESSAGE,
       title,
       content: doc.content,
       link: `/inbox/details/${conversation._id}`,
@@ -160,7 +161,7 @@ const conversationMutations = {
       // send notification
       utils.sendNotification({
         createdUser: user._id,
-        notifType: 'conversationAssigneeChange',
+        notifType: NOTIFICATION_TYPES.CONVERSATION_ASSIGNEE_CHANGE,
         title: content,
         content,
         link: `/inbox/details/${conversation._id}`,
@@ -229,7 +230,7 @@ const conversationMutations = {
 
       utils.sendNotification({
         createdUser: user._id,
-        notifType: 'conversationStateChange',
+        notifType: NOTIFICATION_TYPES.CONVERSATION_STATE_CHANGE,
         title: content,
         content,
         link: `/inbox/details/${conversation._id}`,

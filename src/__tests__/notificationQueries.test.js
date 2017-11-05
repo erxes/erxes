@@ -1,7 +1,7 @@
 /* eslint-env jest */
 /* eslint-disable no-underscore-dangle */
 import { connect, disconnect } from '../db/connection';
-import { MODULES } from '../data/constants';
+import { NOTIFICATION_MODULES } from '../data/constants';
 import notificationsQueries from '../data/resolvers/queries/notifications';
 
 beforeAll(() => connect());
@@ -26,6 +26,6 @@ describe('notificationsQueries', () => {
     const modules = notificationsQueries.notificationsModules(null, null, {
       user: { _id: 'fakeUserId' },
     });
-    expect(modules).toBe(MODULES.ALL);
+    expect(modules).toBe(NOTIFICATION_MODULES);
   });
 });

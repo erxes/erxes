@@ -1,4 +1,4 @@
-import { MODULES } from '../../constants';
+import { NOTIFICATION_TYPES } from '../../constants';
 import { Channels } from '../../../db/models';
 import utils from '../../utils';
 import { moduleRequireAdmin } from '../../permissions';
@@ -16,7 +16,7 @@ export const sendChannelNotifications = async channel => {
 
   return utils.sendNotification({
     createdUser: channel.userId,
-    notifType: MODULES.CHANNEL_MEMBERS_CHANGE,
+    notifType: NOTIFICATION_TYPES.CHANNEL_MEMBERS_CHANGE,
     title: content,
     content,
     link: `/inbox/${channel._id}`,

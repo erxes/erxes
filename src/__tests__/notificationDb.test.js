@@ -4,7 +4,7 @@
 import { connect, disconnect } from '../db/connection';
 import { Notifications, NotificationConfigurations, Users } from '../db/models';
 import { userFactory, notificationConfigurationFactory } from '../db/factories';
-import { MODULES } from '../data/constants';
+import { NOTIFICATION_TYPES } from '../data/constants';
 
 beforeAll(() => connect());
 afterAll(() => disconnect());
@@ -39,13 +39,13 @@ describe('Notification model tests', () => {
 
     await notificationConfigurationFactory({
       user: _user2._id,
-      notifType: MODULES.CHANNEL_MEMBERS_CHANGE,
+      notifType: NOTIFICATION_TYPES.CHANNEL_MEMBERS_CHANGE,
       isAllowed: false,
     });
 
     // Create notification
     let doc = {
-      notifType: MODULES.CHANNEL_MEMBERS_CHANGE,
+      notifType: NOTIFICATION_TYPES.CHANNEL_MEMBERS_CHANGE,
       title: 'new Notification title',
       content: 'new Notification content',
       link: 'new Notification link',
@@ -63,7 +63,7 @@ describe('Notification model tests', () => {
     // Create notification ================
 
     let doc = {
-      notifType: MODULES.CHANNEL_MEMBERS_CHANGE,
+      notifType: NOTIFICATION_TYPES.CHANNEL_MEMBERS_CHANGE,
       title: 'new Notification title',
       content: 'new Notification content',
       link: 'new Notification link',
@@ -119,7 +119,7 @@ describe('NotificationConfiguration model tests', async () => {
     expect.assertions(1);
 
     const doc = {
-      notifType: MODULES.CONVERSATION_ADD_MESSAGE,
+      notifType: NOTIFICATION_TYPES.CONVERSATION_ADD_MESSAGE,
       isAllowed: true,
     };
 
@@ -135,7 +135,7 @@ describe('NotificationConfiguration model tests', async () => {
     const user = await userFactory({});
 
     const doc = {
-      notifType: MODULES.CONVERSATION_ADD_MESSAGE,
+      notifType: NOTIFICATION_TYPES.CONVERSATION_ADD_MESSAGE,
       isAllowed: true,
     };
 
@@ -149,7 +149,7 @@ describe('NotificationConfiguration model tests', async () => {
     expect(notificationConfigurations.user).toEqual(user._id);
 
     // creating another notification configuration ============
-    doc.notifType = MODULES.CONVERSATION_ASSIGNEE_CHANGE;
+    doc.notifType = NOTIFICATION_TYPES.CONVERSATION_ASSIGNEE_CHANGE;
 
     notificationConfigurations = await NotificationConfigurations.createOrUpdateConfiguration(
       doc,

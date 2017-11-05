@@ -79,7 +79,7 @@ export const KIND_CHOICES = {
 };
 
 // module constants
-export const MODULES = {
+export const NOTIFICATION_TYPES = {
   CHANNEL_MEMBERS_CHANGE: 'channelMembersChange',
   CONVERSATION_ADD_MESSAGE: 'conversationAddMessage',
   CONVERSATION_ASSIGNEE_CHANGE: 'conversationAssigneeChange',
@@ -91,6 +91,38 @@ export const MODULES = {
     'conversationStateChange',
   ],
 };
+
+export const NOTIFICATION_MODULES = [
+  {
+    name: 'conversations',
+    description: 'Conversations',
+    types: [
+      {
+        name: 'conversationStateChange',
+        text: 'State change',
+      },
+      {
+        name: 'conversationAssigneeChange',
+        text: 'Assignee change',
+      },
+      {
+        name: 'conversationAddMessage',
+        text: 'Add message',
+      },
+    ],
+  },
+
+  {
+    name: 'channels',
+    description: 'Channels',
+    types: [
+      {
+        name: 'channelMembersChange',
+        text: 'Members change',
+      },
+    ],
+  },
+];
 
 export const FORM_FIELDS = {
   TYPES: {
