@@ -14,13 +14,12 @@ class NotificationSettings extends Component {
     this.onEmailConfigChange = this.onEmailConfigChange.bind(this);
   }
 
-  onTypeChange() {
-    // TODO
+  onTypeChange(e) {
     // save config
-    // this.props.save(e.target.value, e.target.checked, error => {
-    //   if (error) return Alert.error(error.reason);
-    //   return Alert.success('Congrats');
-    // });
+    this.props.saveNotificationConfigurations({
+      notifType: e.target.value,
+      isAllowed: e.target.checked
+    });
   }
 
   onEmailConfigChange(e) {
@@ -109,7 +108,9 @@ class NotificationSettings extends Component {
 NotificationSettings.propTypes = {
   modules: PropTypes.array.isRequired,
   configs: PropTypes.array.isRequired,
-  save: PropTypes.func.isRequired,
+
+  // save notification configurations
+  saveNotificationConfigurations: PropTypes.func.isRequired,
 
   // save get notification by email action
   configGetNotificationByEmail: PropTypes.func.isRequired,

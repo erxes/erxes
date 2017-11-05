@@ -6,8 +6,22 @@ import { Alert } from 'modules/common/utils';
 import { NotificationSettings } from '../components';
 
 const NotificationSettingsContainer = props => {
-  const { currentUser, configGetNotificationByEmailMutation } = props;
+  const {
+    currentUser,
+    notificationModulesQuery,
+    notificationConfigurationsQuery,
+    configGetNotificationByEmailMutation,
+    saveNotificationConfigurationsMutation
+  } = props;
 
+  if (
+    notificationModulesQuery.loading ||
+    notificationConfigurationsQuery.loading
+  ) {
+    return null;
+  }
+
+  // save get notification by email
   const configGetNotificationByEmail = variables => {
     configGetNotificationByEmailMutation({ variables })
       .then(() => {
@@ -18,6 +32,21 @@ const NotificationSettingsContainer = props => {
       });
   };
 
+  // save notification configurations
+  const saveNotificationConfigurations = variables => {
+    saveNotificationConfigurationsMutation({ variables })
+      .then(() => {
+        Alert.success('Congrats');
+        notificationConfigurationsQuery.refetch();
+      })
+      .catch(error => {
+        Alert.success(error.message);
+      });
+  };
+
+  const configs =
+    notificationConfigurationsQuery.notificationsGetConfigurations;
+
   // default value is checked
   let getNotificationByEmail = currentUser.getNotificationByEmail;
 
@@ -27,11 +56,9 @@ const NotificationSettingsContainer = props => {
 
   const updatedProps = {
     ...props,
-
-    // TODO
-    modules: [],
-    configs: [],
-    save: () => {},
+    modules: notificationModulesQuery.notificationsModules,
+    configs,
+    saveNotificationConfigurations,
 
     getNotificationByEmail,
     configGetNotificationByEmail
@@ -42,11 +69,38 @@ const NotificationSettingsContainer = props => {
 
 NotificationSettingsContainer.propTypes = {
   currentUser: PropTypes.object,
-  configGetNotificationByEmailMutation: PropTypes.func
+  notificationModulesQuery: PropTypes.object,
+  notificationConfigurationsQuery: PropTypes.object,
+  configGetNotificationByEmailMutation: PropTypes.func,
+  saveNotificationConfigurationsMutation: PropTypes.func
 };
 
 export default withCurrentUser(
   compose(
+    graphql(
+      gql`
+        query notificationsModules {
+          notificationsModules
+        }
+      `,
+      {
+        name: 'notificationModulesQuery'
+      }
+    ),
+    graphql(
+      gql`
+        query notificationsGetConfigurations {
+          notificationsGetConfigurations {
+            _id
+            notifType
+            isAllowed
+          }
+        }
+      `,
+      {
+        name: 'notificationConfigurationsQuery'
+      }
+    ),
     graphql(
       gql`
         mutation usersConfigGetNotificationByEmail($isAllowed: Boolean) {
@@ -57,6 +111,24 @@ export default withCurrentUser(
       `,
       {
         name: 'configGetNotificationByEmailMutation'
+      }
+    ),
+    graphql(
+      gql`
+        mutation notificationsSaveConfig(
+          $notifType: String!
+          $isAllowed: Boolean
+        ) {
+          notificationsSaveConfig(
+            notifType: $notifType
+            isAllowed: $isAllowed
+          ) {
+            _id
+          }
+        }
+      `,
+      {
+        name: 'saveNotificationConfigurationsMutation'
       }
     )
   )(NotificationSettingsContainer)
