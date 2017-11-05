@@ -5,6 +5,7 @@ const currentUser = `
       username
       email
       details
+      emailSignatures
     }
   }
 `;

@@ -2,36 +2,41 @@ import _ from 'underscore';
 import React from 'react';
 import PropTypes from 'prop-types';
 import { compose, gql, graphql } from 'react-apollo';
+import { withCurrentUser } from 'modules/auth/containers';
+import { Alert } from 'modules/common/utils';
 import { Signature } from '../components';
 import { Loading } from 'modules/common/components';
 
 const SignatureContainer = props => {
-  const { brandsQuery } = props;
+  const { currentUser, brandsQuery, saveMutation } = props;
 
   if (brandsQuery.loading) {
     return <Loading title="Signature template" />;
   }
 
   // save email configs action
-  const save = (signatures, callback) => {
+  const save = signatures => {
     const doc = [];
 
     // remove brandName from list
     _.each(signatures, signature => {
-      doc.push({
-        brandId: signature.brandId,
-        signature: signature.content
-      });
+      if (signature.content) {
+        doc.push({
+          brandId: signature.brandId,
+          signature: signature.content
+        });
+      }
     });
 
-    // TODO
-    // Meteor.call('users.configEmailSignature', { signatures: doc }, (...params) => {
-    //   callback(...params);
-    // });
+    saveMutation({ variables: { signatures: doc } })
+      .then(() => {
+        Alert.success('Congrats');
+      })
+      .catch(error => {
+        Alert.success(error.message);
+      });
   };
 
-  // TODO
-  const currentUser = {}; // Meteor.user();
   const emailSignatures = currentUser.emailSignatures || [];
   const signatures = [];
 
@@ -65,21 +70,37 @@ const SignatureContainer = props => {
 };
 
 SignatureContainer.propTypes = {
-  brandsQuery: PropTypes.object
+  currentUser: PropTypes.object,
+  brandsQuery: PropTypes.object,
+  saveMutation: PropTypes.func
 };
 
-export default compose(
-  graphql(
-    gql`
-      query objects($limit: Int) {
-        brands(limit: $limit) {
-          _id
-          name
+export default withCurrentUser(
+  compose(
+    graphql(
+      gql`
+        query objects($limit: Int) {
+          brands(limit: $limit) {
+            _id
+            name
+          }
         }
+      `,
+      {
+        name: 'brandsQuery'
       }
-    `,
-    {
-      name: 'brandsQuery'
-    }
-  )
-)(SignatureContainer);
+    ),
+    graphql(
+      gql`
+        mutation usersConfigEmailSignatures($signatures: [EmailSignature]) {
+          usersConfigEmailSignatures(signatures: $signatures) {
+            _id
+          }
+        }
+      `,
+      {
+        name: 'saveMutation'
+      }
+    )
+  )(SignatureContainer)
+);

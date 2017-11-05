@@ -47,6 +47,7 @@ class Signature extends Component {
 
   changeContent(e) {
     const current = this.getCurrent();
+
     current.content = e.target.value;
 
     this.setState({ signatures: this.state.signatures });
@@ -55,11 +56,7 @@ class Signature extends Component {
   handleSubmit(e) {
     e.preventDefault();
 
-    // this.props.save(this.state.signatures, error => {
-    //   if (error) return Alert.error(error.reason);
-    //
-    //   return Alert.success('Congrats');
-    // });
+    this.props.save(this.state.signatures);
   }
 
   render() {
@@ -73,10 +70,14 @@ class Signature extends Component {
         </Well>
 
         <form id="signature-form" onSubmit={this.handleSubmit}>
-          <FormGroup onChange={this.changeCurrent} controlId="selectBrand">
+          <FormGroup>
             <ControlLabel>Brand</ControlLabel>
 
-            <FormControl componentClass="select">
+            <FormControl
+              componentClass="select"
+              onChange={this.changeCurrent}
+              controlId="selectBrand"
+            >
               <option>------------</option>
 
               {this.props.signatures.map(signature => (

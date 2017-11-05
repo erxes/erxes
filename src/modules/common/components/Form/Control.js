@@ -56,6 +56,7 @@ class FormControl extends React.Component {
     const attributes = {
       onChange: props.onChange,
       onClick: props.onClick,
+      value: props.value,
       defaultValue: props.defaultValue,
       checked: props.defaultChecked ? props.defaultChecked : props.checked,
       placeholder: props.placeholder,
