@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { GenerateField } from './';
+import { FieldItem } from '../styles';
 
 export default class FieldPreview extends Component {
   constructor(props) {
@@ -17,9 +18,9 @@ export default class FieldPreview extends Component {
     const { field } = this.props;
 
     return (
-      <div className="form-group field-preview" onClick={this.onEdit}>
+      <FieldItem onClick={this.onEdit}>
         <GenerateField field={field} />
-      </div>
+      </FieldItem>
     );
   }
 }

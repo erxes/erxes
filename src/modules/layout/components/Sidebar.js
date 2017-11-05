@@ -17,12 +17,13 @@ const propTypes = {
   header: PropTypes.node,
   footer: PropTypes.node,
   wide: PropTypes.bool,
-  full: PropTypes.bool
+  full: PropTypes.bool,
+  half: PropTypes.bool
 };
 
-function Sidebar({ children, wide, header, footer, full }) {
+function Sidebar({ children, wide, header, footer, full, half }) {
   return (
-    <SideContent wide={wide} full={full}>
+    <SideContent half={half} wide={wide} full={full}>
       {header}
       <SidebarMainContent>{children}</SidebarMainContent>
       {footer}

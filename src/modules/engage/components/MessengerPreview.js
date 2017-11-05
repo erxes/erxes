@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import strip from 'strip';
 
 import { NameCard } from 'modules/common/components';
+import { WebPreview, PreviewContent, Messenger } from '../styles';
 
 const propTypes = {
   content: PropTypes.string,
@@ -23,15 +24,15 @@ class MessengerPreview extends Component {
     const { content, sentAs } = this.props;
     const type = sentAs ? sentAs : 'default';
     const classNames = `widget-preview engage-message type-${type}`;
-
+    const isFullmessage = sentAs === 'fullMessage';
     if (sentAs !== 'badge') {
       return (
         <div className={classNames}>
           <NameCard user={this.props.user} singleLine />
-          <div
-            className="preview-content"
+          <PreviewContent
+            isFullmessage={isFullmessage}
             dangerouslySetInnerHTML={{
-              __html: sentAs === 'snippet' ? strip(content) : content
+              __html: isFullmessage ? content : strip(content)
             }}
           />
         </div>
@@ -44,15 +45,14 @@ class MessengerPreview extends Component {
   render() {
     const { sentAs } = this.props;
     return (
-      <div className={`web-preview type-${sentAs}`}>
-        <h2>Preview</h2>
-        <div className="messenger-preview">
+      <WebPreview className={`type-${sentAs}`}>
+        <Messenger>
           {this.renderNotificationBody()}
           <div className="logo-container">
             <span>1</span>
           </div>
-        </div>
-      </div>
+        </Messenger>
+      </WebPreview>
     );
   }
 }

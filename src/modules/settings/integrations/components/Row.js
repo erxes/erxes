@@ -12,6 +12,7 @@ import {
 } from 'modules/common/components';
 import { KIND_CHOICES } from '../constants';
 import { Form, Messenger } from '../containers';
+import { confirm } from 'modules/common/utils';
 
 const propTypes = {
   integration: PropTypes.object.isRequired,
@@ -28,16 +29,16 @@ class Row extends Component {
   }
 
   removeIntegration() {
-    if (!confirm('Are you sure?')) return; // eslint-disable-line
+    confirm().then(() => {
+      const { integration, removeIntegration } = this.props;
 
-    const { integration, removeIntegration } = this.props;
+      removeIntegration(integration._id, error => {
+        if (error) {
+          return Alert.error(error.reason);
+        }
 
-    removeIntegration(integration._id, error => {
-      if (error) {
-        return Alert.error(error.reason);
-      }
-
-      return Alert.success('Congrats');
+        return Alert.success('Congrats');
+      });
     });
   }
 

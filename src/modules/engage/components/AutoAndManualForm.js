@@ -6,6 +6,7 @@ import FormBase from './FormBase';
 import EmailForm from './EmailForm';
 import MessengerForm from './MessengerForm';
 import Segments from './Segments';
+import { EngageBox, ButtonBox } from '../styles';
 
 const propTypes = {
   segments: PropTypes.array.isRequired,
@@ -88,31 +89,30 @@ class AutoAndManualForm extends FormBase {
 
   renderChannelType() {
     const method = this.state.method;
-    const boxClass = 'button-box text-center';
 
     return (
-      <div className="box">
-        <div
-          className={`${boxClass} ${method === 'email' ? 'selected' : ''}`}
+      <EngageBox>
+        <ButtonBox
+          selected={method === 'email'}
           onClick={() => this.onClickBox('email')}
         >
           <span>Email</span>
           <p>
-            Delivered to a user's email inbox <br />Customize with your own
+            Delivered to a user s email inbox <br />Customize with your own
             templates
           </p>
-        </div>
+        </ButtonBox>
 
-        <div
-          className={`${boxClass} ${method === 'messenger' ? 'selected' : ''}`}
+        <ButtonBox
+          selected={method === 'messenger'}
           onClick={() => this.onClickBox('messenger')}
         >
           <span>Messenger</span>
           <p>
             Delivered inside your app<br />Reach active users
           </p>
-        </div>
-      </div>
+        </ButtonBox>
+      </EngageBox>
     );
   }
 

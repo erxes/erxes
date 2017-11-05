@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import moment from 'moment';
 import PropTypes from 'prop-types';
+import { Label, InputDescription } from '../styles';
 
 export default class GenerateField extends Component {
   constructor(props) {
@@ -31,7 +32,7 @@ export default class GenerateField extends Component {
 
   renderRadioOrCheckInputs(options, type) {
     return (
-      <div className="check-control">
+      <div>
         {options.map((option, index) => (
           <div key={index}>
             {this.renderInput({ type })}
@@ -97,16 +98,16 @@ export default class GenerateField extends Component {
     const { field } = this.props;
 
     return (
-      <p>
-        <label className="control-label" htmlFor={field._id}>
+      <div>
+        <Label htmlFor={field._id}>
           {field.text}
           {field.isRequired ? <span className="required">*</span> : null}:
-        </label>
+        </Label>
 
-        <span className="description">{field.description}</span>
+        <InputDescription>{field.description}</InputDescription>
 
         {this.renderControl()}
-      </p>
+      </div>
     );
   }
 }

@@ -2,10 +2,11 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Table } from 'react-bootstrap';
 import { Wrapper } from 'modules/layout/components';
-import { Loader, LoadingContent, LoadingSidebar, Spinner } from '../';
+import { LoadingContent, LoadingSidebar, Spinner } from '../';
+import { TableLine, FullLoader } from './styles';
 
 const propTypes = {
-  sidebarSize: PropTypes.string,
+  wide: PropTypes.bool,
   spin: PropTypes.bool,
   title: PropTypes.string.isRequired,
   hasRightSidebar: PropTypes.bool,
@@ -13,7 +14,7 @@ const propTypes = {
 };
 
 function Loading({
-  sidebarSize,
+  wide,
   spin = false,
   title,
   hasRightSidebar = false,
@@ -23,24 +24,24 @@ function Loading({
     <Table className="no-wrap loading-table">
       <thead>
         <tr>
-          <th width="30" className="less-space" />
+          <th className="less-space" width="30" />
           <th width="24%">
-            <div className="line animate" />
+            <TableLine className="animate" />
           </th>
           <th width="20%">
-            <div className="line animate" />
+            <TableLine className="animate" />
           </th>
           <th width="18%">
-            <div className="line animate" />
+            <TableLine className="animate" />
           </th>
           <th width="17%">
-            <div className="line animate" />
+            <TableLine className="animate" />
           </th>
           <th width="10%">
-            <div className="line animate" />
+            <TableLine className="animate" />
           </th>
           <th width="10%">
-            <div className="line animate" />
+            <TableLine className="animate" />
           </th>
         </tr>
       </thead>
@@ -50,23 +51,19 @@ function Loading({
 
   if (spin) {
     content = (
-      <div className="full-loader">
+      <FullLoader>
         <Spinner />
-      </div>
+      </FullLoader>
     );
   }
 
   return (
-    <div>
-      <Loader />
-      <Wrapper
-        header={<Wrapper.Header breadcrumb={[{ title: title }]} />}
-        leftSidebar={<LoadingSidebar size={sidebarSize} items={items} />}
-        content={content}
-        rightSidebar={hasRightSidebar ? <LoadingSidebar items={items} /> : null}
-        relative
-      />
-    </div>
+    <Wrapper
+      header={<Wrapper.Header breadcrumb={[{ title: title }]} />}
+      leftSidebar={<LoadingSidebar wide={wide} items={items} />}
+      content={content}
+      rightSidebar={hasRightSidebar ? <LoadingSidebar items={items} /> : null}
+    />
   );
 }
 

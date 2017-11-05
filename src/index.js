@@ -6,9 +6,9 @@ import store from './store';
 import apolloClient from './apolloClient';
 
 // TODO: remove
-import 'css/main.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
-
+import 'react-datepicker/dist/react-datepicker.css';
+import 'css/main.css';
 // override old style
 import './modules/common/styles/global-styles.js';
 

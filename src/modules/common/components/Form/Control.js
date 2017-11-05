@@ -17,6 +17,7 @@ const propTypes = {
   onClick: PropTypes.func,
   defaultValue: PropTypes.string,
   defaultChecked: PropTypes.bool,
+  checked: PropTypes.bool,
   placeholder: PropTypes.string,
   type: PropTypes.string,
   name: PropTypes.string,
@@ -41,7 +42,7 @@ const renderElement = (Element, attributes, type, child) => {
   return (
     <FormLabel>
       <Element {...attributes} type={type} />
-      <span>{child}</span>
+      <span>&nbsp;&nbsp;{child}</span>
     </FormLabel>
   );
 };
@@ -55,8 +56,9 @@ class FormControl extends React.Component {
     const attributes = {
       onChange: props.onChange,
       onClick: props.onClick,
+      value: props.value,
       defaultValue: props.defaultValue,
-      defaultChecked: props.defaultChecked,
+      checked: props.defaultChecked ? props.defaultChecked : props.checked,
       placeholder: props.placeholder,
       type: props.type,
       name: props.name,

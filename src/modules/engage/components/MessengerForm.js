@@ -1,9 +1,20 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { FormControl } from 'modules/common/components';
+import {
+  FormControl,
+  FormGroup,
+  ControlLabel
+} from 'modules/common/components';
 import Editor from './Editor';
 import { MESSENGER_KINDS, SENT_AS_CHOICES } from 'modules/engage/constants';
 import { MessengerPreview } from '../containers';
+import {
+  FormWrapper,
+  FormHeader,
+  FlexContent,
+  FlexItem,
+  EditorWrapper
+} from '../styles';
 
 const propTypes = {
   message: PropTypes.object.isRequired,
@@ -42,8 +53,8 @@ class MessengerForm extends Component {
   renderMessageType(messenger) {
     if (this.props.showMessengerType) {
       return (
-        <div className="header-row">
-          <span>Message type:</span>
+        <FormGroup>
+          <ControlLabel>Message type:</ControlLabel>
           <FormControl
             id="messengerKind"
             componentClass="select"
@@ -56,71 +67,84 @@ class MessengerForm extends Component {
               </option>
             ))}
           </FormControl>
-        </div>
+        </FormGroup>
       );
     }
   }
 
-  render() {
+  renderFormHeader() {
     const message = this.props.message || {};
     const messenger = message.messenger || {};
     const brands = this.props.brands;
 
     return (
-      <div>
-        <div className="form-header">
-          <div className="header-row">
-            <span>Brand:</span>
-            <FormControl
-              id="brandId"
-              componentClass="select"
-              defaultValue={messenger.brandId}
-            >
-              <option />
-              {brands.map(b => (
-                <option key={b._id} value={b._id}>
-                  {b.name}
-                </option>
-              ))}
-            </FormControl>
-          </div>
+      <FormHeader>
+        <FormGroup>
+          <ControlLabel>Brand:</ControlLabel>
+          <FormControl
+            id="brandId"
+            componentClass="select"
+            defaultValue={messenger.brandId}
+          >
+            <option />
+            {brands.map(b => (
+              <option key={b._id} value={b._id}>
+                {b.name}
+              </option>
+            ))}
+          </FormControl>
+        </FormGroup>
 
-          {this.renderMessageType(messenger)}
+        {this.renderMessageType(messenger)}
 
-          <div className="header-row">
-            <span>Sent as:</span>
-            <FormControl
-              id="messengerSentAs"
-              componentClass="select"
-              onChange={this.onChangeSentAs}
-              defaultValue={messenger.sentAs}
-            >
-              <option />
-              {SENT_AS_CHOICES.SELECT_OPTIONS.map(s => (
-                <option key={s.value} value={s.value}>
-                  {s.text}
-                </option>
-              ))}
-            </FormControl>
-          </div>
-        </div>
-        <div className="form-content">
-          <div className="flex-content">
-            <div className="messenger-content">
-              <h2>Content</h2>
+        <FormGroup>
+          <ControlLabel>Sent as:</ControlLabel>
+          <FormControl
+            id="messengerSentAs"
+            componentClass="select"
+            onChange={this.onChangeSentAs}
+            defaultValue={messenger.sentAs}
+          >
+            <option />
+            {SENT_AS_CHOICES.SELECT_OPTIONS.map(s => (
+              <option key={s.value} value={s.value}>
+                {s.text}
+              </option>
+            ))}
+          </FormControl>
+        </FormGroup>
+      </FormHeader>
+    );
+  }
+
+  render() {
+    const message = this.props.message || {};
+    const messenger = message.messenger || {};
+
+    return (
+      <FormWrapper>
+        <FlexContent>
+          <FlexItem>
+            {this.renderFormHeader()}
+
+            <ControlLabel>Message:</ControlLabel>
+            <EditorWrapper>
               <Editor
                 defaultValue={messenger.content}
                 onChange={this.onContentChange}
               />
-            </div>
+            </EditorWrapper>
+          </FlexItem>
+
+          <FlexItem>
             <MessengerPreview
               sentAs={this.state.sentAs}
               content={this.state.messengerContent}
               fromUser={this.props.fromUser}
             />
-          </div>
-        </div>
-      </div>
+          </FlexItem>
+        </FlexContent>
+      </FormWrapper>
     );
   }
 }

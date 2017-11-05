@@ -125,7 +125,7 @@ class Row extends React.Component {
           <FormControl componentClass="checkbox" onChange={this.toggleBulk} />
         </td>
         <td>
-          <EngageTitle>{message.title} </EngageTitle>
+          <EngageTitle onClick={this.props.edit}>{message.title}</EngageTitle>
           {message.isDraft ? <Label lblStyle="primary">Draft</Label> : null}
           {this.renderRules()}
         </td>

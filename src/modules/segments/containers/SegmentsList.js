@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { compose, gql, graphql } from 'react-apollo';
 import { Loader } from 'modules/common/components';
 import { Alert } from 'modules/common/utils';
+import { confirm } from 'modules/common/utils';
 import { SegmentsList } from '../components';
 import { queries, mutations } from '../graphql';
 
@@ -14,18 +15,19 @@ const SegmentListContainer = props => {
   }
 
   const removeSegment = _id => {
-    // TODO confirm
-    removeMutation({
-      variables: { _id }
-    })
-      .then(() => {
-        segmentsQuery.refetch();
-
-        Alert.success('Congrats');
+    confirm().then(() => {
+      removeMutation({
+        variables: { _id }
       })
-      .catch(error => {
-        Alert.error(error.message);
-      });
+        .then(() => {
+          segmentsQuery.refetch();
+
+          Alert.success('Congrats');
+        })
+        .catch(error => {
+          Alert.error(error.message);
+        });
+    });
   };
 
   const updatedProps = {

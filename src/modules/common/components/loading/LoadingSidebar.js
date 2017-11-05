@@ -2,15 +2,16 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import _ from 'underscore';
 import { Wrapper } from 'modules/layout/components';
+import { LoadingWrapper, LoadingItem, LineWrapper, Line } from './styles';
 
 const propTypes = {
   items: PropTypes.number,
-  size: PropTypes.string
+  wide: PropTypes.bool
 };
 
-function LoadingSidebar({ items, size = 'medium' }) {
+function LoadingSidebar({ items, wide }) {
   return (
-    <Wrapper.Sidebar size={size}>
+    <Wrapper.Sidebar wide={wide}>
       {_.times(items, n => <Section key={n} />)}
     </Wrapper.Sidebar>
   );
@@ -19,25 +20,25 @@ function LoadingSidebar({ items, size = 'medium' }) {
 function Section() {
   return (
     <Wrapper.Sidebar.Section>
-      <div className="loading-wrapper side">
+      <LoadingWrapper>
         <Lines title />
-      </div>
+      </LoadingWrapper>
     </Wrapper.Sidebar.Section>
   );
 }
 
 function Lines({ title }) {
   return (
-    <div className="loading-item">
-      <div className="line-wrapper">
-        {title ? <div className="line title width40 animate" /> : null}
-        <div className="line width85 animate" />
-        <div className="line width65 animate" />
-        <div className="line width85 animate" />
-        <div className="line width70 animate" />
-        <div className="line animate" />
-      </div>
-    </div>
+    <LoadingItem>
+      <LineWrapper>
+        {title ? <Line className="title width40 animate" /> : null}
+        <Line className="width85 animate" />
+        <Line className="width65 animate" />
+        <Line className="width85 animate" />
+        <Line className="width70 animate" />
+        <Line className="animate" />
+      </LineWrapper>
+    </LoadingItem>
   );
 }
 

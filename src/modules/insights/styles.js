@@ -61,7 +61,7 @@ const FlexItem = styled.div`
   }
 
   .Select-control {
-    border-radius: 30px;
+    border-radius: 17px;
   }
 
   .form-control {
