@@ -31,7 +31,7 @@ class VisitorForm extends FormBase {
 
     const message = props.message || {};
     const messenger = message.messenger ? message.messenger : {};
-    const rules = messenger.rules ? messenger.rules : [];
+    const rules = messenger.rules ? [...messenger.rules] : [];
 
     this.state = { messengerContent: '', rules };
 
