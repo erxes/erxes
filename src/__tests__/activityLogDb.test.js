@@ -11,13 +11,30 @@ beforeAll(() => connect());
 afterAll(() => disconnect());
 
 describe('ActivityLogs model methods', () => {
-  test(`test if exception is being thrown when calling
-    createInternalNoteLog without setting 'actionPerformedBy'`, async () => {
+  test(`check whether not setting 'performedBy'
+  is setting expected values in the collection or not`, async () => {
+    const doc = {
+      activityType: ACTIVITY_TYPES.INTERNAL_NOTE_CREATED,
+      contentType: CUSTOMER_CONTENT_TYPES.CUSTOMER,
+      contentTypeId: 'fakeCustomerId',
+      performedBy: null,
+    };
+
+    const aLog = await ActivityLogs.createDoc(doc);
+
+    expect(aLog.activityType).toBe(ACTIVITY_TYPES.INTERNAL_NOTE_CREATED);
+    expect(aLog.contentType).toBe(CUSTOMER_CONTENT_TYPES.CUSTOMER);
+    expect(aLog.contentTypeId).toBe(doc.contentTypeId);
+    expect(aLog.performedBy.type).toBe(ACTION_PERFORMER_TYPES.SYSTEM);
+  });
+
+  test(`check if exception is being thrown when calling
+  createInternalNoteLog without setting 'actionPerformedBy'`, async () => {
     const customer = await customerFactory();
 
     const internalNote = await internalNoteFactory({
       contentType: CUSTOMER_CONTENT_TYPES.CUSTOMER,
-      contentTypeId: customer,
+      contentTypeId: customer._id,
     });
 
     try {
