@@ -11,7 +11,8 @@ beforeAll(() => connect());
 afterAll(() => disconnect());
 
 describe('ActivityLogs model methods', () => {
-  test(`createInternalNoteLog without setting 'actionPerformedBy'`, async () => {
+  test(`test if exception is being thrown when calling
+    createInternalNoteLog without setting 'actionPerformedBy'`, async () => {
     const customer = await customerFactory();
 
     const internalNote = await internalNoteFactory({
@@ -19,12 +20,13 @@ describe('ActivityLogs model methods', () => {
       contentTypeId: customer,
     });
 
-    const aLog = await ActivityLogs.createInternalNoteLog(internalNote);
-
-    expect(aLog.performedBy.type).toBe(ACTION_PERFORMER_TYPES.SYSTEM);
-    expect(aLog.contentType).toBe(CUSTOMER_CONTENT_TYPES.CUSTOMER);
-    expect(aLog.contentTypeId).toBe(internalNote._id);
-    expect(aLog.activityType).toBe(ACTIVITY_TYPES.INTERNAL_NOTE_CREATED);
+    try {
+      await ActivityLogs.createInternalNoteLog(internalNote);
+    } catch (e) {
+      expect(e.message).toBe(
+        `'performedBy' must be supplied when adding activity log for internal note`,
+      );
+    }
   });
 
   test(`createInternalNoteLog with setting 'actionPerformedBy'`, async () => {
@@ -44,6 +46,5 @@ describe('ActivityLogs model methods', () => {
     expect(aLog.contentType).toBe(CUSTOMER_CONTENT_TYPES.CUSTOMER);
     expect(aLog.contentTypeId).toBe(internalNote._id);
     expect(aLog.activityType).toBe(ACTIVITY_TYPES.INTERNAL_NOTE_CREATED);
-    // expect(aLog.actionPerformedBy).toBe(user);
   });
 });

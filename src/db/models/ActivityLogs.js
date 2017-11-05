@@ -88,6 +88,9 @@ class ActivityLog {
    * @return {Promise} returns Promise resolving created ActivityLog document
    */
   static createInternalNoteLog(internalNote, performedBy) {
+    if (performedBy == null || (performedBy && !performedBy._id)) {
+      throw new Error(`'performedBy' must be supplied when adding activity log for internal note`);
+    }
     return this.createDoc({
       activityType: ACTIVITY_TYPES.INTERNAL_NOTE_CREATED,
       contentType: internalNote.contentType,
