@@ -170,13 +170,7 @@ export const FIELD_CONTENT_TYPES = {
   ALL: ['form', 'customer', 'company'],
 };
 
-export const INTERNAL_NOTE_CONTENT_TYPES = {
-  CUSTOMER: 'customer',
-  COMPANY: 'company',
-  ALL: ['customer', 'company'],
-};
-
-export const SEGMENT_CONTENT_TYPES = {
+export const CUSTOMER_CONTENT_TYPES = {
   CUSTOMER: 'customer',
   COMPANY: 'company',
   ALL: ['customer', 'company'],

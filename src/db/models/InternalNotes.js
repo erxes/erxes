@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 import Random from 'meteor-random';
-import { INTERNAL_NOTE_CONTENT_TYPES } from '../../data/constants';
+import { CUSTOMER_CONTENT_TYPES } from '../../data/constants';
 
 /*
  * internal note schema
@@ -13,7 +13,7 @@ const InternalNoteSchema = mongoose.Schema({
   },
   contentType: {
     type: String,
-    enum: INTERNAL_NOTE_CONTENT_TYPES.ALL,
+    enum: CUSTOMER_CONTENT_TYPES.ALL,
   },
   contentTypeId: String,
   content: {

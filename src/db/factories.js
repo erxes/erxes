@@ -1,6 +1,6 @@
 import faker from 'faker';
 import Random from 'meteor-random';
-import { MODULES } from '../data/constants';
+import { MODULES, CUSTOMER_CONTENT_TYPES } from '../data/constants';
 
 import {
   Users,
@@ -141,7 +141,7 @@ export const segmentFactory = (params = {}) => {
 
 export const internalNoteFactory = (params = {}) => {
   const internalNote = new InternalNotes({
-    contentType: params.contentType || 'customer',
+    contentType: params.contentType || CUSTOMER_CONTENT_TYPES.CUSTOMER,
     contentTypeId: params.contentTypeId || 'DFASFDFSDAFDF',
     content: params.content || faker.random.word(),
   });
