@@ -1,9 +1,8 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';
 import styled, { keyframes } from 'styled-components';
-import Icon from '../components/Icon';
-import { colors, typography } from '../styles';
+import Icon from '../../components/Icon';
+import { colors, typography } from '../../styles';
 
 const types = {
   info: {
@@ -16,7 +15,7 @@ const types = {
   },
   error: {
     background: colors.colorCoreRed,
-    icon: 'alert'
+    icon: 'close-circled'
   },
   success: {
     background: colors.colorCoreGreen,
@@ -43,20 +42,12 @@ const slidedown = keyframes`
     transform: translateY(0%);
   }
 `;
-const Alertwrapper = styled.div.attrs({
-  id: 'alertwrapper'
-})`
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  background: transparent;
-`;
+
 const Alertstyled = styled.div`
   display: table;
   margin: 0 auto;
+  margin-top: 10px;
   border-radius: 2px;
-  top: 20px;
   transition: top 2s;
   padding: 8px 48px 8px 38px;
   z-index: 1;
@@ -77,41 +68,37 @@ const Alertstyled = styled.div`
     color: white;
   }
 `;
-let alertrunning = false;
-const createAlertWrapper = second => {
-  this._popup = document.createElement('div');
-  alertrunning = true;
-  document.body.appendChild(this._popup);
-  ReactDOM.render(<Alertwrapper />, this._popup);
-  setTimeout(() => {
-    alertrunning = false;
-    ReactDOM.unmountComponentAtNode(this._popup);
-    document.body.removeChild(this._popup);
-  }, second * 1000);
-};
-const renderAlert = (text, type) => {
-  const target = document.getElementById('alertwrapper');
-  ReactDOM.render(
-    <Alertstyled type={type} visible={true}>
-      <Icon icon={types[type].icon} />
-      <span>{text}</span>
-    </Alertstyled>,
-    target
-  );
-};
-renderAlert.propTypes = {
-  type: PropTypes.oneOf(['info', 'success', 'error', 'warning']),
-  text: PropTypes.string
-};
-renderAlert.defaultProps = {
-  type: 'info'
-};
-const pop = (text, type) => {
-  if (alertrunning === false) {
-    createAlertWrapper(4);
-    renderAlert(text, type);
+export default class AlertStyled extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      visible: true
+    };
   }
+  componentDidMount() {
+    this.timeout = setTimeout(() => {
+      this.setState({ visible: false });
+    }, 3000);
+  }
+  componentWillUnmount() {
+    if (this.timeout) {
+      clearTimeout(this.timeout);
+    }
+  }
+  render() {
+    return this.state.visible ? (
+      <Alertstyled {...this.props}>
+        <Icon icon={types[this.props.type].icon} />
+        <span>{this.props.text}</span>
+      </Alertstyled>
+    ) : null;
+  }
+}
+
+AlertStyled.propTypes = {
+  type: PropTypes.string.isRequired,
+  text: PropTypes.string.isRequired
 };
-export const notify = {
-  pop
+AlertStyled.defaultProps = {
+  type: 'info'
 };
