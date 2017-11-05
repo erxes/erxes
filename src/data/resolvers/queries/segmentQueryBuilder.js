@@ -54,15 +54,16 @@ function convertConditionToQuery(condition) {
 
   switch (operator) {
     case 'e':
+      return { $regex: `^${escapeRegExp(transformedValue)}$`, $options: 'i' };
     case 'et':
     default:
       return transformedValue;
     case 'dne':
       return { $ne: transformedValue };
     case 'c':
-      return { $regex: new RegExp(`.*${escapeRegExp(transformedValue)}.*`, 'i') };
+      return { $regex: `.*${escapeRegExp(transformedValue)}.*`, $options: 'i' };
     case 'dnc':
-      return { $regex: new RegExp(`^((?!${escapeRegExp(transformedValue)}).)*$`, 'i') };
+      return { $regex: `^((?!${escapeRegExp(transformedValue)}).)*$`, $options: 'i' };
     case 'igt':
       return { $gt: transformedValue };
     case 'ilt':

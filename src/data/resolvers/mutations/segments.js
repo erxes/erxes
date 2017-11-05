@@ -2,7 +2,7 @@ import { Segments } from '../../../db/models';
 
 import { moduleRequireLogin } from '../../permissions';
 
-const segmentQueries = {
+const segmentMutations = {
   /**
    * Create new segment
    * @return {Promise} segment object
@@ -28,6 +28,6 @@ const segmentQueries = {
   },
 };
 
-moduleRequireLogin(segmentQueries);
+moduleRequireLogin(segmentMutations);
 
-export default segmentQueries;
+export default segmentMutations;
