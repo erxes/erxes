@@ -76,7 +76,7 @@ describe('User mutations', () => {
       }
     };
 
-    expect.assertions(5);
+    expect.assertions(6);
 
     // users change password
     checkLogin(userMutations.usersChangePassword, {});
@@ -92,6 +92,9 @@ describe('User mutations', () => {
 
     // users remove
     checkLogin(userMutations.usersRemove, {});
+
+    // users remove
+    checkLogin(userMutations.usersConfigEmailSignatures, {});
   });
 
   test(`test if Error('Permission required') error is working as intended`, async () => {
@@ -280,5 +283,16 @@ describe('User mutations', () => {
 
     // ensure removed
     expect(await Users.findOne({ _id: removeUserId })).toBe(null);
+  });
+
+  test('User config email signatures', async () => {
+    const user = await userFactory({});
+    const signatures = [{ brandId: 'DFADF', signature: 'signature' }];
+
+    Users.configEmailSignatures = jest.fn();
+
+    await userMutations.usersConfigEmailSignatures({}, { signatures }, { user });
+
+    expect(Users.configEmailSignatures).toBeCalledWith(user._id, signatures);
   });
 });

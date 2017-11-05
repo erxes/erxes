@@ -6,12 +6,18 @@ export const types = `
     twitterUsername: String
   }
 
+  input EmailSignature {
+    brandId: String
+    signature: String
+  }
+
   type User {
     _id: String!
     username: String
     email: String
     role: String
     details: JSON
+    emailSignatures: JSON
   }
 
   type AuthPayload {
@@ -53,4 +59,6 @@ export const mutations = `
 
   usersChangePassword(currentPassword: String!, newPassword: String!): User
   usersRemove(_id: String!): String
+
+  usersConfigEmailSignatures(signatures: [EmailSignature]): User
 `;

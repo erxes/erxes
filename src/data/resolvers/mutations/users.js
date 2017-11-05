@@ -170,6 +170,12 @@ const userMutations = {
 
     return Users.removeUser(_id);
   },
+
+  usersConfigEmailSignatures(root, { signatures }, { user }) {
+    if (!user) throw new Error('Login required');
+
+    return Users.configEmailSignatures(user._id, signatures);
+  },
 };
 
 requireLogin(userMutations, 'usersAdd');
