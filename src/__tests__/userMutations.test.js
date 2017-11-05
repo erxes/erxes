@@ -76,7 +76,7 @@ describe('User mutations', () => {
       }
     };
 
-    expect.assertions(6);
+    expect.assertions(7);
 
     // users change password
     checkLogin(userMutations.usersChangePassword, {});
@@ -93,8 +93,11 @@ describe('User mutations', () => {
     // users remove
     checkLogin(userMutations.usersRemove, {});
 
-    // users remove
+    // users config email signatures
     checkLogin(userMutations.usersConfigEmailSignatures, {});
+
+    // users config get notification by email
+    checkLogin(userMutations.usersConfigGetNotificationByEmail, {});
   });
 
   test(`test if Error('Permission required') error is working as intended`, async () => {
@@ -294,5 +297,15 @@ describe('User mutations', () => {
     await userMutations.usersConfigEmailSignatures({}, { signatures }, { user });
 
     expect(Users.configEmailSignatures).toBeCalledWith(user._id, signatures);
+  });
+
+  test('User config get notification by email', async () => {
+    const user = await userFactory({});
+
+    Users.configGetNotificationByEmail = jest.fn();
+
+    await userMutations.usersConfigGetNotificationByEmail({}, { isAllowed: true }, { user });
+
+    expect(Users.configGetNotificationByEmail).toBeCalledWith(user._id, true);
   });
 });

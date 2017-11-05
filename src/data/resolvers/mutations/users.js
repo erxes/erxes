@@ -172,9 +172,11 @@ const userMutations = {
   },
 
   usersConfigEmailSignatures(root, { signatures }, { user }) {
-    if (!user) throw new Error('Login required');
-
     return Users.configEmailSignatures(user._id, signatures);
+  },
+
+  usersConfigGetNotificationByEmail(root, { isAllowed }, { user }) {
+    return Users.configGetNotificationByEmail(user._id, isAllowed);
   },
 };
 
@@ -182,6 +184,8 @@ requireLogin(userMutations, 'usersAdd');
 requireLogin(userMutations, 'usersEdit');
 requireLogin(userMutations, 'usersChangePassword');
 requireLogin(userMutations, 'usersEditProfile');
+requireLogin(userMutations, 'usersConfigGetNotificationByEmail');
+requireLogin(userMutations, 'usersConfigEmailSignatures');
 requireAdmin(userMutations, 'usersRemove');
 
 export default userMutations;

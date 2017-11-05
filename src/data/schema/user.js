@@ -18,6 +18,7 @@ export const types = `
     role: String
     details: JSON
     emailSignatures: JSON
+    getNotificationByEmail: Boolean
   }
 
   type AuthPayload {
@@ -61,4 +62,5 @@ export const mutations = `
   usersRemove(_id: String!): String
 
   usersConfigEmailSignatures(signatures: [EmailSignature]): User
+  usersConfigGetNotificationByEmail(isAllowed: Boolean): User
 `;
