@@ -64,4 +64,9 @@ describe('ActivityLogs model methods', () => {
     expect(aLog.contentTypeId).toBe(internalNote._id);
     expect(aLog.activityType).toBe(ACTIVITY_TYPES.INTERNAL_NOTE_CREATED);
   });
+
+  test(`check if exception is being thrown when calling
+  createSegmentLog without setting 'actionPerformedBy'`, async () => {});
+
+  test(`createSegmentLog with setting 'actionPerformedBy'`, async () => {});
 });
