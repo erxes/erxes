@@ -3,6 +3,7 @@ import { Brands, Tags, Integrations, Customers, Segments } from '../../../db/mod
 import { TAG_TYPES, INTEGRATION_KIND_CHOICES, SEGMENT_CONTENT_TYPES } from '../../constants';
 import QueryBuilder from './segmentQueryBuilder.js';
 import { moduleRequireLogin } from '../../permissions';
+import { paginate } from './utils';
 
 const listQuery = async params => {
   const selector = {};
@@ -51,15 +52,16 @@ const customerQueries = {
    * @return {Promise} filtered customers list by given parameters
    */
   async customers(root, { params }) {
+    const sort = { 'messengerData.lastSeenAt': -1 };
+
     if (params.ids) {
-      return Customers.find({ _id: { $in: params.ids } }).sort({ 'messengerData.lastSeenAt': -1 });
+      const selector = { _id: { $in: params.ids } };
+      return paginate(Customers.find(selector), params).sort(sort);
     }
 
     const selector = await listQuery(params);
 
-    return Customers.find(selector)
-      .sort({ 'messengerData.lastSeenAt': -1 })
-      .limit(params.limit || 0);
+    return paginate(Customers.find(selector), params).sort(sort);
   },
 
   /**
