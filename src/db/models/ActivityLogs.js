@@ -186,6 +186,37 @@ class ActivityLog {
       customer,
     });
   }
+
+  static async createSegmentLog(segment, customer) {
+    if (!customer) {
+      throw new Error('customer must be supplied');
+    }
+
+    const foundSegment = await this.findOne({
+      'activity.type': ACTIVITY_TYPES.SEGMENT,
+      'activity.action': ACTIVITY_ACTIONS.CREATE,
+      'activity.id': segment._id,
+      'customer.type': segment.contentType,
+      'customer.id': customer._id,
+    });
+
+    if (foundSegment) {
+      // since this type of activity log already exists, new one won't be created
+      return foundSegment;
+    }
+
+    return this.createDoc({
+      activity: {
+        type: ACTIVITY_TYPES.SEGMENT,
+        action: ACTIVITY_ACTIONS.CREATE,
+        id: segment._id,
+      },
+      customer: {
+        type: segment.contentType,
+        id: customer._id,
+      },
+    });
+  }
 }
 
 ActivityLogSchema.loadClass(ActivityLog);

@@ -128,6 +128,7 @@ export const segmentFactory = (params = {}) => {
   ];
 
   const segment = new Segments({
+    contentType: CUSTOMER_CONTENT_TYPES.CUSTOMER || params.contentType,
     name: faker.random.word(),
     description: params.description || faker.random.word(),
     subOf: params.subOf || 'DFSAFDFDSFDSF',

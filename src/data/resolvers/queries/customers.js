@@ -1,7 +1,7 @@
 import _ from 'underscore';
 import { Brands, Tags, Integrations, Customers, Segments } from '../../../db/models';
 import { TAG_TYPES, INTEGRATION_KIND_CHOICES, CUSTOMER_CONTENT_TYPES } from '../../constants';
-import QueryBuilder from './segmentQueryBuilder.js';
+import QueryBuilder from '../../../segmentQueryBuilder.js';
 import { moduleRequireLogin } from '../../permissions';
 
 const listQuery = async params => {

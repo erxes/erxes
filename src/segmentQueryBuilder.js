@@ -1,38 +1,41 @@
 import moment from 'moment';
 
-export default {
-  segments(segment, headSegment) {
-    const query = { $and: [] };
+export const segments = (segment, headSegment) => {
+  const query = { $and: [] };
 
-    const childQuery = {
-      [segment.connector === 'any' ? '$or' : '$and']: segment.conditions.map(condition => ({
+  const childQuery = {
+    [segment.connector === 'any' ? '$or' : '$and']: segment.conditions.map(condition => ({
+      [condition.field]: convertConditionToQuery(condition),
+    })),
+  };
+
+  if (segment.conditions.length) {
+    query.$and.push(childQuery);
+  }
+
+  // Fetching parent segment
+  const embeddedParentSegment =
+    typeof segment.getParentSegment === 'function' ? segment.getParentSegment() : null;
+  const parentSegment = headSegment || embeddedParentSegment;
+
+  if (parentSegment) {
+    const parentQuery = {
+      [parentSegment.connector === 'any'
+        ? '$or'
+        : '$and']: parentSegment.conditions.map(condition => ({
         [condition.field]: convertConditionToQuery(condition),
       })),
     };
-    if (segment.conditions.length) {
-      query.$and.push(childQuery);
+    if (parentSegment.conditions.length) {
+      query.$and.push(parentQuery);
     }
+  }
 
-    // Fetching parent segment
-    const embeddedParentSegment =
-      typeof segment.getParentSegment === 'function' ? segment.getParentSegment() : null;
-    const parentSegment = headSegment || embeddedParentSegment;
+  return query.$and.length ? query : {};
+};
 
-    if (parentSegment) {
-      const parentQuery = {
-        [parentSegment.connector === 'any'
-          ? '$or'
-          : '$and']: parentSegment.conditions.map(condition => ({
-          [condition.field]: convertConditionToQuery(condition),
-        })),
-      };
-      if (parentSegment.conditions.length) {
-        query.$and.push(parentQuery);
-      }
-    }
-
-    return query.$and.length ? query : {};
-  },
+export default {
+  segments,
 };
 
 function convertConditionToQuery(condition) {
