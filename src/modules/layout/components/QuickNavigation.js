@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { Link } from 'react-router-dom';
 import { Dropdown, MenuItem } from 'react-bootstrap';
 import styled from 'styled-components';
 import { NameCard, DropdownToggle, Icon } from 'modules/common/components';
@@ -52,8 +53,12 @@ const QuickNavigation = ({ logout }) => {
           <NameCard user={user} />
         </NameCardWrapper>
         <MenuItem divider />
-        <MenuItem href="/settings/profile">Edit Profile</MenuItem>
-        <MenuItem href="/change-password">Change password</MenuItem>
+        <li>
+          <Link to="/settings/profile">Edit Profile</Link>
+        </li>
+        <li>
+          <Link to="/change-password">Change password</Link>
+        </li>
         <MenuItem divider />
         <MenuItem onClick={logout}>Sign out</MenuItem>
       </Dropdown.Menu>

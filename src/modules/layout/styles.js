@@ -232,9 +232,8 @@ const QuickButton = styled.a`
 `;
 
 const SidebarTitle = styled.h3`
-  color: ${colors.colorCoreLightGray};
   font-size: 12px;
-  font-weight: 300;
+  font-weight: 400;
   text-transform: uppercase;
   padding: ${dimensions.coreSpacing}px;
   margin: 0;

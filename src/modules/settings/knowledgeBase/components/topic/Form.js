@@ -1,16 +1,19 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import Select from 'react-select-plus';
+import ReactMarkdown from 'react-markdown';
+import CopyToClipboard from 'react-copy-to-clipboard';
 import {
   FormGroup,
   ControlLabel,
   FormControl,
-  Button
+  Button,
+  EmptyState,
+  Icon
 } from 'modules/common/components';
-import ReactMarkdown from 'react-markdown';
 import { Form as CommonForm } from '../../../common/components';
 import SelectBrand from '../SelectBrand';
-import CopyToClipboard from 'react-copy-to-clipboard';
+import { MarkdownWrapper } from 'modules/settings/styles';
 
 const propTypes = {
   object: PropTypes.object,
@@ -92,19 +95,22 @@ class TopicForm extends CommonForm {
       return (
         <FormGroup controlId="install-code">
           <ControlLabel>Install code</ControlLabel>
-          <div className="markdown-wrapper">
+          <MarkdownWrapper>
             <ReactMarkdown source={this.state.code} />
             {this.state.code ? (
               <CopyToClipboard
                 text={this.state.code}
                 onCopy={() => this.setState({ copied: true })}
               >
-                <Button bsSize="small" bsStyle="primary">
+                <Button size="small" btnStyle="primary">
+                  <Icon icon="ios-copy-outline" />
                   {this.state.copied ? 'Copied' : 'Copy to clipboard'}
                 </Button>
               </CopyToClipboard>
-            ) : null}
-          </div>
+            ) : (
+              <EmptyState icon="code" text="No copyable code" size="small" />
+            )}
+          </MarkdownWrapper>
         </FormGroup>
       );
     } else {

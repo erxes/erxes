@@ -49,7 +49,7 @@ class Row extends Component {
     );
 
     return (
-      <ModalTrigger title="Edit" trigger={editTrigger}>
+      <ModalTrigger size={this.size} title="Edit" trigger={editTrigger}>
         {this.renderForm({ object, save })}
       </ModalTrigger>
     );

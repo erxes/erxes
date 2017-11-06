@@ -5,6 +5,7 @@ import {
   ControlLabel,
   FormControl
 } from 'modules/common/components';
+import { ProfileWrapper, ProfileRow } from '../styles';
 
 const propTypes = {
   user: PropTypes.object.isRequired
@@ -34,10 +35,9 @@ class UserCommonInfos extends Component {
     const { avatar, avatarPreviewStyle, avatarPreviewUrl } = this.state;
 
     return (
-      <div>
+      <ProfileWrapper>
         <FormGroup>
           <ControlLabel>Photo</ControlLabel>
-
           <img
             alt="avatar"
             className="avatar"
@@ -49,43 +49,53 @@ class UserCommonInfos extends Component {
           <input type="hidden" id="avatar" value={avatar} />
         </FormGroup>
 
-        <FormGroup>
-          <ControlLabel>Name</ControlLabel>
-          <FormControl
-            type="text"
-            id="fullName"
-            defaultValue={user.details.fullName}
-          />
-        </FormGroup>
+        <ProfileRow>
+          <FormGroup>
+            <ControlLabel>Name</ControlLabel>
+            <FormControl
+              type="text"
+              id="fullName"
+              defaultValue={user.details.fullName}
+            />
+          </FormGroup>
 
-        <FormGroup>
-          <ControlLabel>Position</ControlLabel>
-          <FormControl
-            type="text"
-            id="position"
-            defaultValue={user.details.position}
-          />
-        </FormGroup>
+          <FormGroup>
+            <ControlLabel>Position</ControlLabel>
+            <FormControl
+              type="text"
+              id="position"
+              defaultValue={user.details.position}
+            />
+          </FormGroup>
+        </ProfileRow>
 
-        <FormGroup>
-          <ControlLabel>Username</ControlLabel>
-          <FormControl type="text" id="username" defaultValue={user.username} />
-        </FormGroup>
+        <ProfileRow>
+          <FormGroup>
+            <ControlLabel>Username</ControlLabel>
+            <FormControl
+              type="text"
+              id="username"
+              defaultValue={user.username}
+            />
+          </FormGroup>
 
-        <FormGroup>
-          <ControlLabel>Email</ControlLabel>
-          <FormControl type="email" id="email" defaultValue={user.email} />
-        </FormGroup>
+          <FormGroup>
+            <ControlLabel>Email</ControlLabel>
+            <FormControl type="email" id="email" defaultValue={user.email} />
+          </FormGroup>
+        </ProfileRow>
 
-        <FormGroup>
-          <ControlLabel>Twitter username</ControlLabel>
-          <FormControl
-            type="text"
-            id="twitterUsername"
-            defaultValue={user.details.twitterUsername}
-          />
-        </FormGroup>
-      </div>
+        <ProfileRow>
+          <FormGroup>
+            <ControlLabel>Twitter username</ControlLabel>
+            <FormControl
+              type="text"
+              id="twitterUsername"
+              defaultValue={user.details.twitterUsername}
+            />
+          </FormGroup>
+        </ProfileRow>
+      </ProfileWrapper>
     );
   }
 }

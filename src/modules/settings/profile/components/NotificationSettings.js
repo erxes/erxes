@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import Toggle from 'react-toggle';
 import { Wrapper } from 'modules/layout/components';
 import Sidebar from '../../Sidebar';
+import { ContentBox, SubHeading, InlineItems, SubItem } from '../../styles';
 
 class NotificationSettings extends Component {
   constructor(props) {
@@ -42,7 +43,7 @@ class NotificationSettings extends Component {
 
   renderNotifType(type, key) {
     return (
-      <div key={key} className="flex-inline">
+      <InlineItems key={key}>
         <Toggle
           value={type.name}
           checked={this.isChecked(type)}
@@ -53,25 +54,26 @@ class NotificationSettings extends Component {
           }}
         />
         {type.text}
-      </div>
+      </InlineItems>
     );
   }
 
   renderModule(module, mindex) {
     return (
-      <div key={mindex}>
-        <h5>{module.description}</h5>
+      <SubItem key={mindex}>
+        <SubHeading>{module.description}</SubHeading>
         {module.types.map((type, index) =>
           this.renderNotifType(type, `${mindex}${index}`)
         )}
-      </div>
+      </SubItem>
     );
   }
 
   render() {
     const content = (
-      <div className="margined notification-settings">
-        <div className="flex-inline">
+      <ContentBox>
+        <SubHeading>Notifications</SubHeading>
+        <InlineItems>
           <Toggle
             defaultChecked={this.props.getNotificationByEmail}
             onChange={this.onEmailConfigChange}
@@ -81,13 +83,13 @@ class NotificationSettings extends Component {
             }}
           />
           Get notification by email
-        </div>
-        <div className="margined">
+        </InlineItems>
+        <ContentBox>
           {this.props.modules.map((module, index) =>
             this.renderModule(module, index)
           )}
-        </div>
-      </div>
+        </ContentBox>
+      </ContentBox>
     );
 
     const breadcrumb = [
