@@ -1,6 +1,6 @@
 export const knowledgeBaseTopics = `
-  query knowledgeBaseTopics($limit: Int!) {
-    knowledgeBaseTopics(limit: $limit) {
+  query knowledgeBaseTopics($params: JSON) {
+    knowledgeBaseTopics(params: $params) {
       _id
       title
       description
@@ -36,8 +36,8 @@ export const getBrandList = `
 `;
 
 export const knowledgeBaseCategories = `
-  query knowledgeBaseCategories {
-    knowledgeBaseCategories {
+  query knowledgeBaseCategories($params: JSON) {
+    knowledgeBaseCategories(params: $params) {
       _id
       title
       description
@@ -61,8 +61,8 @@ export const knowledgeBaseCategoriesTotalCount = `
 `;
 
 export const knowledgeBaseArticles = `
-  query knowledgeBaseArticles {
-    knowledgeBaseArticles {
+  query knowledgeBaseArticles($params: JSON) {
+    knowledgeBaseArticles(params: $params) {
       _id
       title
       summary
