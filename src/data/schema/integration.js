@@ -57,7 +57,7 @@ export const types = `
 `;
 
 export const queries = `
-  integrations(limit: Int, kind: String): [Integration]
+  integrations(params: JSON): [Integration]
   integrationDetail(_id: String!): Integration
   integrationsTotalCount(kind: String): Int
 `;

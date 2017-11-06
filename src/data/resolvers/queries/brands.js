@@ -1,22 +1,16 @@
 import { Brands } from '../../../db/models';
 import { moduleRequireLogin } from '../../permissions';
+import { paginate } from './utils';
 
 const brandQueries = {
   /**
    * Brands list
-   * @param {Object} args
-   * @param {Integer} args.limit
+   * @param {Object} params - Query params
    * @return {Promise} sorted brands list
    */
-  brands(root, { limit }) {
-    const brands = Brands.find({});
-    const sort = { createdAt: -1 };
-
-    if (limit) {
-      return brands.sort(sort).limit(limit);
-    }
-
-    return brands.sort(sort);
+  brands(root, { params = {} }) {
+    const brands = paginate(Brands.find({}), params);
+    return brands.sort({ createdAt: -1 });
   },
 
   /**

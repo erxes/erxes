@@ -11,7 +11,7 @@ export const types = `
 `;
 
 export const queries = `
-  responseTemplates(limit: Int): [ResponseTemplate]
+  responseTemplates(params: JSON): [ResponseTemplate]
   responseTemplatesTotalCount: Int
 `;
 

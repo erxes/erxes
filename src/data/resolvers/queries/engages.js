@@ -1,5 +1,6 @@
 import { EngageMessages, Tags } from '../../../db/models';
 import { moduleRequireLogin } from '../../permissions';
+import { paginate } from './utils';
 
 // basic count helper
 const count = selector => EngageMessages.find(selector).count();
@@ -101,14 +102,12 @@ const engageQueries = {
 
   /**
    * Engage messages list
-   * @param {Object} args
-   * @param {String} args.kind
-   * @param {String} args.status
-   * @param {String} args.tag
-   * @param {[String]} args.ids
+   * @param {Object} params - Search params
    * @return {Promise} filtered messages list by given parameters
    */
-  engageMessages(root, { kind, status, tag, ids }, { user }) {
+  engageMessages(root, { params }, { user }) {
+    const { kind, status, tag, ids } = params;
+
     if (ids) {
       return EngageMessages.find({ _id: { $in: ids } });
     }
@@ -130,7 +129,7 @@ const engageQueries = {
       query = { ...query, ...tagQueryBuilder(tag) };
     }
 
-    return EngageMessages.find(query);
+    return paginate(EngageMessages.find(query), params);
   },
 
   /**

@@ -58,15 +58,15 @@ export const types = `
 `;
 
 export const queries = `
-  knowledgeBaseTopics(limit: Int): [KnowledgeBaseTopic]
+  knowledgeBaseTopics(params: JSON): [KnowledgeBaseTopic]
   knowledgeBaseTopicDetail(_id: String!): KnowledgeBaseTopic
   knowledgeBaseTopicsTotalCount: Int
 
-  knowledgeBaseCategories(limit: Int): [KnowledgeBaseCategory]
+  knowledgeBaseCategories(params: JSON): [KnowledgeBaseCategory]
   knowledgeBaseCategoryDetail(_id: String!): KnowledgeBaseCategory
   knowledgeBaseCategoriesTotalCount: Int
 
-  knowledgeBaseArticles(limit: Int): [KnowledgeBaseArticle]
+  knowledgeBaseArticles(params: JSON): [KnowledgeBaseArticle]
   knowledgeBaseArticleDetail(_id: String!): KnowledgeBaseArticle
   knowledgeBaseArticlesTotalCount: Int
 `;

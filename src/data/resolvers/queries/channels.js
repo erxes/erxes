@@ -1,27 +1,22 @@
 import { Channels } from '../../../db/models';
 import { moduleRequireLogin } from '../../permissions';
+import { paginate } from './utils';
 
 const channelQueries = {
   /**
    * Channels list
-   * @param {Object} args
-   * @param {Integer} args.limit
-   * @param {[String]} args.memberIds
+   * @param {Object} args - Search params
    * @return {Promise} filtered channels list by given parameters
    */
-  channels(root, { limit, memberIds }) {
+  channels(root, { params }) {
     const query = {};
     const sort = { createdAt: -1 };
 
-    if (memberIds) {
-      query.memberIds = { $in: memberIds };
+    if (params.memberIds) {
+      query.memberIds = { $in: params.memberIds };
     }
 
-    const channels = Channels.find(query);
-
-    if (limit) {
-      return channels.limit(limit).sort(sort);
-    }
+    const channels = paginate(Channels.find(query), params);
 
     return channels.sort(sort);
   },
