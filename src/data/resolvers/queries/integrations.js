@@ -8,7 +8,7 @@ const integrationQueries = {
    * @param {Object} params - Search params
    * @return {Promise} filterd and sorted integrations list
    */
-  integrations(root, { params }) {
+  integrations(root, { params = {} }) {
     const query = {};
 
     if (params.kind) {

@@ -8,7 +8,7 @@ const emailTemplateQueries = {
    * @param {Object} args - Search params
    * @return {Promise} email template objects
    */
-  emailTemplates(root, { params }) {
+  emailTemplates(root, { params = {} }) {
     return paginate(EmailTemplates.find({}), params);
   },
 

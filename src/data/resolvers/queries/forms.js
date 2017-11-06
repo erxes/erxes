@@ -8,7 +8,7 @@ const formQueries = {
    * @param {Object} params - Search params
    * @return {Promise} sorted forms list
    */
-  forms(root, { params }) {
+  forms(root, { params = {} }) {
     const forms = paginate(Forms.find({}), params);
     return forms.sort({ name: 1 });
   },

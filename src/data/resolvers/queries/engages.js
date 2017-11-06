@@ -105,7 +105,7 @@ const engageQueries = {
    * @param {Object} params - Search params
    * @return {Promise} filtered messages list by given parameters
    */
-  engageMessages(root, { params }, { user }) {
+  engageMessages(root, { params = {} }, { user }) {
     const { kind, status, tag, ids } = params;
 
     if (ids) {

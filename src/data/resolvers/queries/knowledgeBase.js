@@ -13,7 +13,7 @@ const knowledgeBaseQueries = {
    * @param {Object} params - Search params
    * @return {Promise} sorted article list
    */
-  knowledgeBaseArticles(root, { params }) {
+  knowledgeBaseArticles(root, { params = {} }) {
     const articles = paginate(KnowledgeBaseArticles.find({}), params);
     return articles.sort({ createdDate: -1 });
   },
@@ -41,7 +41,7 @@ const knowledgeBaseQueries = {
    * @param {Object} params - Search params
    * @return {Promise} sorted category list
    */
-  knowledgeBaseCategories(root, { params }) {
+  knowledgeBaseCategories(root, { params = {} }) {
     const categories = paginate(KnowledgeBaseCategories.find({}), params);
     return categories.sort({ createdDate: -1 });
   },
@@ -71,7 +71,7 @@ const knowledgeBaseQueries = {
    * @param {Object} params - Search params
    * @return {Promise} sorted topic list
    */
-  knowledgeBaseTopics(root, { params }) {
+  knowledgeBaseTopics(root, { params = {} }) {
     const topics = paginate(KnowledgeBaseTopics.find({}), params);
     return topics.sort({ createdDate: -1 });
   },

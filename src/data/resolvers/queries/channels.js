@@ -8,7 +8,7 @@ const channelQueries = {
    * @param {Object} args - Search params
    * @return {Promise} filtered channels list by given parameters
    */
-  channels(root, { params }) {
+  channels(root, { params = {} }) {
     const query = {};
     const sort = { createdAt: -1 };
 
