@@ -11,8 +11,7 @@ import LoadingSidebar from './loading/LoadingSidebar';
 import LoadingContent from './loading/LoadingContent';
 import Loading from './loading/Loading';
 import LoadMore from './LoadMore';
-import Pagination from './pagination/Pagination';
-import { pagination } from './pagination/paginationUtils';
+import Pagination from './Pagination';
 import ModalTrigger from './ModalTrigger';
 import ActionButtons from './ActionButtons';
 import EmptyState from './EmptyState';
@@ -30,6 +29,9 @@ import Table from './Table';
 import Editor from './Editor';
 import { Tabs, TabList, TabTitle } from './Tabs';
 import ConfirmDialog from './ConfirmDialog';
+
+// TODO remove
+const pagination = {};
 
 export {
   ActionButtons,
