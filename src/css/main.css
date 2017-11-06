@@ -12,7 +12,7 @@
   border-radius: 4px;
 }
 .alerts-container .alerts-item.success {
-  background-color: #67b04f;
+  background-color: #67c682;
 }
 .alerts-container .alerts-item.info {
   background-color: #5eb8e6;
@@ -48,7 +48,7 @@
 }
 
 .text-success {
-  color: #67b04f;
+  color: #67c682;
 }
 .text-info {
   color: #5eb8e6;
@@ -635,32 +635,6 @@
 
 .notification-settings h5 {
   font-weight: 600;
-}
-
-.type-box .box {
-  margin-bottom: 20px;
-}
-.type-box .box .btn {
-  margin-right: 10px;
-}
-.type-box h2 {
-  text-transform: uppercase;
-  font-weight: 400;
-  border-bottom: 1px solid #eee;
-  padding: 10px 0;
-  font-size: 12px;
-  color: #888;
-  margin: 0 0 20px;
-}
-
-.markdown-wrapper {
-  margin-top: 5px;
-  position: relative;
-}
-.markdown-wrapper .btn {
-  position: absolute;
-  right: 20px;
-  top: 20px;
 }
 
 .widget-appearance {
@@ -2048,7 +2022,7 @@
   background-color: #000;
 }
 .react-toggle.wide .react-toggle-track {
-  width: 80px;
+  width: 60px;
 }
 
 .react-toggle-screenreader-only {
@@ -2077,7 +2051,7 @@
   height: 24px;
   padding: 0;
   border-radius: 30px;
-  background-color: #4d4d4d;
+  background-color: #393c40;
   -webkit-transition: all 0.2s ease;
   -moz-transition: all 0.2s ease;
   -o-transition: all 0.2s ease;
@@ -2085,7 +2059,7 @@
 }
 
 .react-toggle--checked .react-toggle-track {
-  background-color: #67b04f;
+  background-color: #67c682;
 }
 .react-toggle--checked .react-toggle-track-check {
   opacity: 1;
@@ -2099,13 +2073,13 @@
 }
 .react-toggle--checked .react-toggle-thumb {
   left: 27px;
-  border-color: #67b04f;
+  border-color: #67c682;
 }
 .react-toggle--checked:hover:not(.react-toggle--disabled) .react-toggle-track {
-  background-color: #67b04f;
+  background-color: #67c682;
 }
 .react-toggle--checked.wide .react-toggle-thumb {
-  left: 57px;
+  left: 37px;
 }
 
 .react-toggle-track-check {
@@ -2150,7 +2124,7 @@
   left: 1px;
   width: 22px;
   height: 22px;
-  border: 1px solid #4d4d4d;
+  border: 1px solid #393c40;
   border-radius: 50%;
   background-color: #fafafa;
   -webkit-box-sizing: border-box;
@@ -2230,7 +2204,7 @@
   display: inline-block;
   margin-bottom: 1px;
   margin-right: 3px;
-  background-color: #67b04f;
+  background-color: #67c682;
 }
 .widget-preview .erxes-avatar {
   width: 30px;

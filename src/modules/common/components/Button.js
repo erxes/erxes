@@ -117,6 +117,17 @@ const ButtonIcon = Link.extend`
   border-radius: 5px;
 `;
 
+const ButtonGroup = styled.div`
+  position: relative;
+  display: inline-block;
+  vertical-align: middle;
+
+  button + a,
+  a + button {
+    margin-left: 10px;
+  }
+`;
+
 function Button({ ...props }) {
   if (props.iconKey) {
     return (
@@ -132,6 +143,16 @@ function Button({ ...props }) {
 
   return <ButtonStyled {...props}>{props.children}</ButtonStyled>;
 }
+
+function Group({ children }) {
+  return <ButtonGroup>{children}</ButtonGroup>;
+}
+
+Button.Group = Group;
+
+Group.propTypes = {
+  children: PropTypes.node
+};
 
 Button.propTypes = {
   children: PropTypes.node.isRequired,

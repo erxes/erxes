@@ -68,7 +68,7 @@ injectGlobal`
 
   .modal-title {
     font-size: 18px;
-    font-weight: 400;
+    font-weight: 300;
     color: #fff;
   }
 
@@ -77,7 +77,7 @@ injectGlobal`
   }
 
   .modal-footer {
-    padding: 20px 0 0;
+    padding: 0;
     margin-top: 20px;
     border: none;
   }

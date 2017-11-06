@@ -18,6 +18,10 @@ const Label = styled.label`
 
 const Formgroup = styled.div`
   margin-bottom: 20px;
+
+  label {
+    margin-right: ${dimensions.unitSpacing}px;
+  }
 `;
 
 const Input = styled.input`

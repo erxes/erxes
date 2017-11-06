@@ -19,6 +19,7 @@ function AddIntegration() {
     <Dropdown id="dropdown-integration" pullRight>
       <DropdownToggle bsRole="toggle">
         <Button btnStyle="success" size="small">
+          <Icon icon="plus" />
           Add integrations <Icon icon="chevron-down" />
         </Button>
       </DropdownToggle>
