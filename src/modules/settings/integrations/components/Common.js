@@ -2,13 +2,16 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { ButtonToolbar, Modal } from 'react-bootstrap';
 import ReactMarkdown from 'react-markdown';
+import CopyToClipboard from 'react-copy-to-clipboard';
 import {
   Button,
+  Icon,
   FormGroup,
   ControlLabel,
-  FormControl
+  FormControl,
+  EmptyState
 } from 'modules/common/components';
-import CopyToClipboard from 'react-copy-to-clipboard';
+import { MarkdownWrapper } from '../../styles';
 import SelectBrand from './SelectBrand';
 
 class Common extends Component {
@@ -91,25 +94,28 @@ class Common extends Component {
 
         <FormGroup controlId="install-code">
           <ControlLabel>Install code</ControlLabel>
-          <div className="markdown-wrapper">
+          <MarkdownWrapper>
             <ReactMarkdown source={this.state.code} />
             {this.state.code ? (
               <CopyToClipboard
                 text={this.state.code}
                 onCopy={() => this.setState({ copied: true })}
               >
-                <Button size="small">
+                <Button size="small" btnStyle="primary">
+                  <Icon icon="ios-copy-outline" />
                   {this.state.copied ? 'Copied' : 'Copy to clipboard'}
                 </Button>
               </CopyToClipboard>
-            ) : null}
-          </div>
+            ) : (
+              <EmptyState icon="code" text="No copyable code" size="small" />
+            )}
+          </MarkdownWrapper>
         </FormGroup>
 
         <Modal.Footer>
           <ButtonToolbar className="pull-right">
             <Button btnStyle="success" type="submit">
-              Save
+              <Icon icon="checkmark" /> Save
             </Button>
           </ButtonToolbar>
         </Modal.Footer>

@@ -5,11 +5,12 @@ import {
   ControlLabel,
   FormControl,
   Button,
-  ButtonToolbar
-} from 'react-bootstrap';
+  Icon
+} from 'modules/common/components';
 import { UserCommonInfos } from 'modules/auth/components';
 import { Wrapper } from 'modules/layout/components';
 import Sidebar from '../../Sidebar';
+import { ContentBox } from '../../styles';
 
 const propTypes = {
   currentUser: PropTypes.object.isRequired,
@@ -41,20 +42,16 @@ class Profile extends Component {
 
   render() {
     const content = (
-      <form className="margined" onSubmit={this.handleSubmit}>
-        <UserCommonInfos user={this.props.currentUser} />
+      <ContentBox>
+        <form onSubmit={this.handleSubmit}>
+          <UserCommonInfos user={this.props.currentUser} />
 
-        <FormGroup>
-          <ControlLabel>Current password</ControlLabel>
-          <FormControl id="password" type="password" />
-        </FormGroup>
-
-        <ButtonToolbar className="pull-right">
-          <Button type="submit" bsStyle="primary">
-            Save
-          </Button>
-        </ButtonToolbar>
-      </form>
+          <FormGroup>
+            <ControlLabel>Current password</ControlLabel>
+            <FormControl id="password" type="password" />
+          </FormGroup>
+        </form>
+      </ContentBox>
     );
 
     const breadcrumb = [
@@ -62,10 +59,21 @@ class Profile extends Component {
       { title: 'Profile settings' }
     ];
 
+    const actionFooter = (
+      <Wrapper.ActionBar
+        right={
+          <Button btnStyle="success" onClick={this.handleSubmit}>
+            <Icon icon="checkmark" /> Save
+          </Button>
+        }
+      />
+    );
+
     return (
       <Wrapper
         header={<Wrapper.Header breadcrumb={breadcrumb} />}
         leftSidebar={<Sidebar />}
+        footer={actionFooter}
         content={content}
       />
     );

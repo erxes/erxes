@@ -5,6 +5,7 @@ import { Modal, ButtonToolbar, Checkbox } from 'react-bootstrap';
 import SelectBrand from './SelectBrand';
 import {
   Button,
+  Icon,
   FormGroup,
   FormControl,
   ControlLabel
@@ -114,7 +115,7 @@ class Facebook extends Component {
         <Modal.Footer>
           <ButtonToolbar className="pull-right">
             <Button btnStyle="success" type="submit">
-              Save
+              <Icon icon="checkmark" /> Save
             </Button>
           </ButtonToolbar>
         </Modal.Footer>

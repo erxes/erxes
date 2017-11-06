@@ -62,7 +62,7 @@ class CustomersList extends React.Component {
 
     const addTrigger = (
       <Button btnStyle="success" size="small">
-        Add customer
+        <Icon icon="plus" /> Add customer
       </Button>
     );
 

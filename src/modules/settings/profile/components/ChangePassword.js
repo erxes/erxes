@@ -5,10 +5,11 @@ import {
   FormGroup,
   ControlLabel,
   FormControl,
-  ButtonToolbar
-} from 'react-bootstrap';
+  Icon
+} from 'modules/common/components';
 import { Wrapper } from 'modules/layout/components';
 import Sidebar from '../../Sidebar';
+import { ContentBox, SubHeading } from '../../styles';
 
 const propTypes = {
   save: PropTypes.func.isRequired
@@ -33,7 +34,8 @@ class ChangePassword extends Component {
 
   render() {
     const content = (
-      <div className="margined">
+      <ContentBox>
+        <SubHeading>Change Password</SubHeading>
         <form onSubmit={this.handleSubmit}>
           <FormGroup>
             <ControlLabel>Current Password</ControlLabel>
@@ -61,14 +63,8 @@ class ChangePassword extends Component {
               id="new-password-confirmation"
             />
           </FormGroup>
-
-          <ButtonToolbar className="pull-right">
-            <Button type="submit" bsStyle="primary">
-              Save
-            </Button>
-          </ButtonToolbar>
         </form>
-      </div>
+      </ContentBox>
     );
 
     const breadcrumb = [
@@ -76,10 +72,21 @@ class ChangePassword extends Component {
       { title: 'Change password' }
     ];
 
+    const actionFooter = (
+      <Wrapper.ActionBar
+        right={
+          <Button btnStyle="success" onClick={this.handleSubmit}>
+            <Icon icon="checkmark" /> Save
+          </Button>
+        }
+      />
+    );
+
     return (
       <Wrapper
         header={<Wrapper.Header breadcrumb={breadcrumb} />}
         leftSidebar={<Sidebar />}
+        footer={actionFooter}
         content={content}
       />
     );

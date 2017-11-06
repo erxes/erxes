@@ -132,7 +132,7 @@ class Manage extends Component {
       };
 
       return (
-        <div>
+        <Button.Group>
           <Button size="small" btnStyle="danger" onClick={onDelete}>
             <Icon icon="close" /> Delete
           </Button>
@@ -142,7 +142,7 @@ class Manage extends Component {
           <Button size="small" onClick={this.onSubmit} btnStyle="success">
             <Icon icon="checkmark" /> Save
           </Button>
-        </div>
+        </Button.Group>
       );
     }
 
