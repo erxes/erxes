@@ -1,6 +1,8 @@
 /* eslint-disable no-underscore-dangle */
 
-export const paginate = (collection, { page, perPage }) => {
+export const paginate = (collection, params) => {
+  const { page, perPage } = params || {};
+
   const _page = Number(page || '1');
   const _limit = Number(perPage || '20');
 
