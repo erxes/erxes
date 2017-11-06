@@ -17,8 +17,8 @@ export default commonListComposer({
 
   gqlListQuery: graphql(
     gql`
-      query objects($limit: Int!) {
-        emailTemplates(limit: $limit) {
+      query objects($params: JSON) {
+        emailTemplates(params: $params) {
           _id
           name
           content
@@ -30,7 +30,7 @@ export default commonListComposer({
       options: ({ queryParams }) => {
         return {
           variables: {
-            limit: queryParams.limit || 20
+            params: queryParams
           }
         };
       }

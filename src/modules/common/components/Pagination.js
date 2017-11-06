@@ -220,7 +220,7 @@ const PaginationContainer = props => {
   const { history, count = 100 } = props;
 
   const currentPage = Number(router.getParam(history, 'page')) || 1;
-  const perPage = Number(router.getParam(history, 'perPage')) || 20;
+  const perPage = Number(router.getParam(history, 'perPage')) || 2;
 
   let totalPagesCount = parseInt(count / perPage) + 1;
 
