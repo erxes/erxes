@@ -111,7 +111,7 @@ class Tagger extends Component {
     const links = [
       {
         title: 'Manage tags',
-        href: `/tags/list/${type}`
+        href: `/tags/${type}`
       }
     ];
     const props = {

@@ -240,6 +240,10 @@ const SidebarTitle = styled.h3`
   margin: 0;
 `;
 
+const SidebarContent = styled.div`
+  padding: 0px ${dimensions.coreSpacing}px;
+`;
+
 const SidebarList = styled.ul`
   margin: 0;
   padding: 0;
@@ -250,6 +254,7 @@ const SidebarList = styled.ul`
     background-color: ${colors.bgLight};
   }
 
+  &.no-link li,
   a {
     display: block;
     padding: 6px 20px;
@@ -257,7 +262,6 @@ const SidebarList = styled.ul`
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    cursor: pointer;
     text-decoration: none;
     outline: 0;
 
@@ -269,12 +273,13 @@ const SidebarList = styled.ul`
       position: absolute;
       right: 20px;
     }
+  }
 
-    &:hover {
-      background: ${colors.borderPrimary};
-      text-decoration: none;
-      color: ${colors.colorCoreBlack};
-    }
+  a:hover {
+    cursor: pointer;
+    background: ${colors.borderPrimary};
+    text-decoration: none;
+    color: ${colors.colorCoreBlack};
   }
 
   .icon {
@@ -328,5 +333,6 @@ export {
   SidebarTitle,
   UserHelper,
   SidebarList,
+  SidebarContent,
   WhiteBox
 };

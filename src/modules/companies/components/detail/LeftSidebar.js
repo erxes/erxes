@@ -1,9 +1,18 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { ModalTrigger, Button, Icon } from 'modules/common/components';
 import { Wrapper } from 'modules/layout/components';
 import { GenerateField } from 'modules/fields/components';
 import { CustomerForm } from 'modules/customers/components';
+import { Link } from 'react-router-dom';
+import { SidebarContent } from 'modules/layout/styles';
+import {
+  ModalTrigger,
+  Button,
+  Icon,
+  FormGroup,
+  FormControl,
+  ControlLabel
+} from 'modules/common/components';
 
 const propTypes = {
   company: PropTypes.object.isRequired,
@@ -49,32 +58,32 @@ class LeftSidebar extends React.Component {
       <Section className="full">
         <Title>Basic info</Title>
 
-        <div className="sidebar-content">
-          <p>
-            <label>Name</label>
-            <input id="name" defaultValue={company.name} />
-          </p>
+        <SidebarContent>
+          <FormGroup>
+            <ControlLabel>Name</ControlLabel>
+            <FormControl id="name" defaultValue={company.name} />
+          </FormGroup>
 
-          <p>
-            <label>Size</label>
-            <input id="size" defaultValue={company.size} />
-          </p>
+          <FormGroup>
+            <ControlLabel>Size</ControlLabel>
+            <FormControl id="size" defaultValue={company.size} />
+          </FormGroup>
 
-          <p>
-            <label>Industry</label>
-            <input id="industry" defaultValue={company.industry} />
-          </p>
+          <FormGroup>
+            <ControlLabel>Industry</ControlLabel>
+            <FormControl id="industry" defaultValue={company.industry} />
+          </FormGroup>
 
-          <p>
-            <label>Website</label>
-            <input id="website" defaultValue={company.website} />
-          </p>
+          <FormGroup>
+            <ControlLabel>Website</ControlLabel>
+            <FormControl id="website" defaultValue={company.website} />
+          </FormGroup>
 
-          <p>
-            <label>Plan</label>
-            <input id="plan" defaultValue={company.plan} />
-          </p>
-        </div>
+          <FormGroup>
+            <ControlLabel>Plan</ControlLabel>
+            <FormControl id="plan" defaultValue={company.plan} />
+          </FormGroup>
+        </SidebarContent>
       </Section>
     );
   }
@@ -90,7 +99,7 @@ class LeftSidebar extends React.Component {
       <Section className="full">
         <Title>About</Title>
 
-        <div className="sidebar-content">
+        <SidebarContent>
           {customFields.map((field, index) => (
             <GenerateField
               field={field}
@@ -100,10 +109,12 @@ class LeftSidebar extends React.Component {
             />
           ))}
 
-          <a className="action-link" href="/fields/manage/company">
-            Customize
-          </a>
-        </div>
+          <Link to="/fields/manage/company">
+            <Button btnStyle="simple" size="small">
+              <Icon icon="gear-a" /> Customize
+            </Button>
+          </Link>
+        </SidebarContent>
       </Section>
     );
   }
@@ -118,23 +129,27 @@ class LeftSidebar extends React.Component {
       <Section className="full">
         <Title>Customers</Title>
 
-        <div className="sidebar-content">
+        <SidebarContent>
           {company.customers.map((customer, index) => (
             <div key={index}>
-              <p>
-                <label>Name:</label>
-                <input value={customer.name || 'N/A'} />
-              </p>
+              <FormGroup>
+                <ControlLabel>Name:</ControlLabel>
+                <FormControl value={customer.name || 'N/A'} />
+              </FormGroup>
             </div>
           ))}
 
           <ModalTrigger
             title="New customer"
-            trigger={<a className="action-link">Add customer</a>}
+            trigger={
+              <Button btnStyle="success" size="small">
+                <Icon icon="plus" /> Add customer
+              </Button>
+            }
           >
             <CustomerForm addCustomer={addCustomer} />
           </ModalTrigger>
-        </div>
+        </SidebarContent>
       </Section>
     );
   }

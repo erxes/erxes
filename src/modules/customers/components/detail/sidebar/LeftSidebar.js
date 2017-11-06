@@ -1,10 +1,26 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Wrapper } from 'modules/layout/components';
-import { ModalTrigger, Button, Icon } from 'modules/common/components';
+import { SidebarContent } from 'modules/layout/styles';
+import {
+  AvatarWrapper,
+  ActivityRow,
+  ActivityWrapper,
+  ActivityCaption,
+  IconWrapper
+} from '../../styles';
+import {
+  Tip,
+  ModalTrigger,
+  Button,
+  Icon,
+  FormGroup,
+  FormControl,
+  ControlLabel
+} from 'modules/common/components';
 import { GenerateField } from 'modules/fields/components';
 import { CompanyForm } from 'modules/companies/components';
-import moment from 'moment';
+import { Link } from 'react-router-dom';
 import { NameCard } from 'modules/common/components';
 import TaggerSection from './TaggerSection';
 import MessengerSection from './MessengerSection';
@@ -43,33 +59,36 @@ class LeftSidebar extends React.Component {
     this.customFieldsData[_id] = value;
   }
 
-  renderBasicInfo() {
-    const { customer } = this.props;
-    const { Sidebar } = Wrapper;
-    const { Section } = Sidebar;
-    const { Title } = Section;
+  renderIcon(text, className) {
+    if (!text) {
+      return null;
+    }
 
     return (
-      <Section className="full">
-        <Title>Basic info</Title>
+      <Tip text={text}>
+        <Icon icon={className} size={15} />
+      </Tip>
+    );
+  }
 
-        <div className="sidebar-content">
-          <p>
-            <label>Name</label>
-            <input id="name" defaultValue={customer.name} />
-          </p>
+  renderBasicInfo() {
+    const { customer } = this.props;
 
-          <p>
-            <label>Email</label>
-            <input id="email" defaultValue={customer.email} />
-          </p>
+    return (
+      <ActivityRow>
+        <ActivityWrapper>
+          <AvatarWrapper>
+            <NameCard.Avatar customer={customer} size={60} />
+          </AvatarWrapper>
 
-          <p>
-            <label>Phone</label>
-            <input id="phone" defaultValue={customer.phone} />
-          </p>
-        </div>
-      </Section>
+          <ActivityCaption>{customer.name || 'N/A'}</ActivityCaption>
+
+          <IconWrapper>
+            {this.renderIcon(customer.email, 'email')}
+            {this.renderIcon(customer.phone, 'ios-telephone')}
+          </IconWrapper>
+        </ActivityWrapper>
+      </ActivityRow>
     );
   }
 
@@ -83,23 +102,27 @@ class LeftSidebar extends React.Component {
       <Section className="full">
         <Title>Companies</Title>
 
-        <div className="sidebar-content">
+        <SidebarContent>
           {customer.companies.map((company, index) => (
             <div key={index}>
-              <p>
-                <label>Name:</label>
-                <input defaultValue={company.name} />
-              </p>
+              <FormGroup>
+                <ControlLabel>Name:</ControlLabel>
+                <FormControl defaultValue={company.name} />
+              </FormGroup>
             </div>
           ))}
 
           <ModalTrigger
             title="New company"
-            trigger={<a className="action-link">Add company</a>}
+            trigger={
+              <Button btnStyle="success" size="small">
+                <Icon icon="plus" /> Add company
+              </Button>
+            }
           >
             <CompanyForm addCompany={addCompany} />
           </ModalTrigger>
-        </div>
+        </SidebarContent>
       </Section>
     );
   }
@@ -115,7 +138,7 @@ class LeftSidebar extends React.Component {
       <Section className="full">
         <Title>About</Title>
 
-        <div className="sidebar-content">
+        <SidebarContent>
           {customFields.map((field, index) => (
             <GenerateField
               field={field}
@@ -125,10 +148,12 @@ class LeftSidebar extends React.Component {
             />
           ))}
 
-          <a className="action-link" href="/fields/manage/customer">
-            Customize
-          </a>
-        </div>
+          <Link to="/fields/manage/customer">
+            <Button btnStyle="simple" size="small">
+              <Icon icon="gear-a" /> Customize
+            </Button>
+          </Link>
+        </SidebarContent>
       </Section>
     );
   }
@@ -138,25 +163,11 @@ class LeftSidebar extends React.Component {
 
     return (
       <Wrapper.Sidebar size="wide">
-        <form onSubmit={this.onSubmit} className="cc-detail-form">
+        <form onSubmit={this.onSubmit}>
           {this.renderBasicInfo()}
-          {this.renderCompanies()}
           {this.renderCustomFields()}
+          {this.renderCompanies()}
 
-          <Wrapper.Sidebar.Section>
-            <h3>Customer details</h3>
-            <ul className="sidebar-list no-link">
-              <li>
-                <NameCard customer={customer} avatarSize={40} />
-              </li>
-              <li>
-                Created
-                <span className="counter">
-                  {moment(customer.createdAt).fromNow()}
-                </span>
-              </li>
-            </ul>
-          </Wrapper.Sidebar.Section>
           <MessengerSection customer={customer} />
           <TwitterSection customer={customer} />
           <FacebookSection customer={customer} />

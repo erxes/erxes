@@ -2347,30 +2347,6 @@
   border-top: 1px solid white;
 }
 
-.cc-detail-form .sidebar-content {
-  padding: 10px 20px;
-}
-.cc-detail-form .sidebar-content p {
-  padding-bottom: 5px;
-}
-.cc-detail-form .sidebar-content label {
-  display: block;
-  color: #7c98b6;
-}
-.cc-detail-form .sidebar-content input,
-.cc-detail-form .sidebar-content textarea,
-.cc-detail-form .sidebar-content select {
-  border: none;
-  width: 100%;
-  border-bottom: 1px dotted #ddd;
-  padding-bottom: 5px;
-}
-.cc-detail-form .sidebar-content .action-link {
-  float: right;
-  display: block;
-  margin-bottom: 10px;
-}
-
 .manage-columns {
   padding: 20px 0px;
   width: 50%;
@@ -2419,33 +2395,6 @@
   min-height: 120px;
   margin: 10px 20px;
   width: 96%;
-}
-
-.internal-notes-list .item {
-  background-color: #f9f9f9;
-  margin: 10px 20px;
-  border: 1px solid #f9f9f9;
-  border-radius: 20px;
-  position: relative;
-}
-.internal-notes-list .item .topbar {
-  padding: 10px 20px;
-  border-bottom: 1px solid #e0e0e0;
-}
-.internal-notes-list .item .topbar .name-card {
-  float: left;
-}
-.internal-notes-list .item .topbar .date {
-  float: right;
-}
-.internal-notes-list .item .text {
-  padding: 10px 20px;
-}
-.internal-notes-list .item .delete {
-  position: absolute;
-  right: 10px;
-  bottom: 10px;
-  color: #de8282;
 }
 
 .engage-rule {
