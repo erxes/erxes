@@ -7,12 +7,11 @@ const propTypes = {
 };
 
 const ActionButton = styled.div`
-  min-width: 70px;
+  display: inline-block;
 
-  button,
-  a {
+  * {
     padding: 0;
-    margin-left: 16px;
+    margin-left: 10px;
 
     &:first-child {
       margin-left: 0;

@@ -34,9 +34,14 @@ function Segments({ history, contentType, counts, segments }) {
       <Header>Filter by segments</Header>
 
       <Section.QuickButtons>
-        <Dropdown id="dropdown-user" className="quick-button" pullRight>
+        <Dropdown
+          id="dropdown-user"
+          className="quick-button"
+          pullRight
+          style={{ verticalAlign: 'top' }}
+        >
           <DropdownToggle bsRole="toggle">
-            <Icon icon="more" />
+            <Icon icon="gear-a" />
           </DropdownToggle>
           <Dropdown.Menu>
             <MenuItem
@@ -57,7 +62,7 @@ function Segments({ history, contentType, counts, segments }) {
               router.setParams(history, { segment: null });
             }}
           >
-            <Icon icon="close" />
+            <Icon icon="close-circled" />
           </QuickButton>
         ) : null}
       </Section.QuickButtons>

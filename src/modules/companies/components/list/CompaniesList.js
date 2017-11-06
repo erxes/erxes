@@ -2,12 +2,8 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import { Wrapper } from 'modules/layout/components';
-import {
-  Pagination,
-  ModalTrigger,
-  Button,
-  Table
-} from 'modules/common/components';
+import { ModalTrigger, Button, Table } from 'modules/common/components';
+import { BarItems } from 'modules/layout/styles';
 import Sidebar from './Sidebar';
 import CompanyRow from './CompanyRow';
 import CompanyForm from './CompanyForm';
@@ -16,43 +12,27 @@ const propTypes = {
   companies: PropTypes.array.isRequired,
   counts: PropTypes.object.isRequired,
   columnsConfig: PropTypes.array.isRequired,
-  loadMore: PropTypes.func.isRequired,
-  hasMore: PropTypes.bool.isRequired,
   addCompany: PropTypes.func.isRequired
 };
 
-function CompaniesList({
-  companies,
-  counts,
-  columnsConfig,
-  loadMore,
-  hasMore,
-  addCompany
-}) {
+function CompaniesList({ companies, counts, columnsConfig, addCompany }) {
   const content = (
-    <Pagination hasMore={hasMore} loadMore={loadMore}>
-      <Table whiteSpace="nowrap" bordered>
-        <thead>
-          <tr>
-            <th>
-              <Link to="/companies/manage-columns">...</Link>
-            </th>
-            {columnsConfig.map(({ name, label }) => (
-              <th key={name}>{label}</th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {companies.map(company => (
-            <CompanyRow
-              company={company}
-              columnsConfig={columnsConfig}
-              key={company._id}
-            />
-          ))}
-        </tbody>
-      </Table>
-    </Pagination>
+    <Table whiteSpace="nowrap" bordered>
+      <thead>
+        <tr>
+          {columnsConfig.map(({ name, label }) => <th key={name}>{label}</th>)}
+        </tr>
+      </thead>
+      <tbody>
+        {companies.map(company => (
+          <CompanyRow
+            company={company}
+            columnsConfig={columnsConfig}
+            key={company._id}
+          />
+        ))}
+      </tbody>
+    </Table>
   );
 
   const addTrigger = (
@@ -62,9 +42,16 @@ function CompaniesList({
   );
 
   const actionBarRight = (
-    <ModalTrigger title="New company" trigger={addTrigger}>
-      <CompanyForm addCompany={addCompany} />
-    </ModalTrigger>
+    <BarItems>
+      <Link to="/companies/manage-columns">
+        <Button btnStyle="simple" size="small">
+          Edit columns
+        </Button>
+      </Link>
+      <ModalTrigger title="New company" trigger={addTrigger}>
+        <CompanyForm addCompany={addCompany} />
+      </ModalTrigger>
+    </BarItems>
   );
 
   const actionBar = <Wrapper.ActionBar right={actionBarRight} />;

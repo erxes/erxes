@@ -2,14 +2,13 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { compose, gql, graphql } from 'react-apollo';
 import { Alert } from 'modules/common/utils';
-import { pagination, Loading } from 'modules/common/components';
+import { Loading } from 'modules/common/components';
 import { mutations, queries } from '../graphql';
 import { CompaniesList } from '../components';
 
 class CompanyListContainer extends React.Component {
   render() {
     const {
-      queryParams,
       companiesQuery,
       totalCountQuery,
       companiesListConfigQuery,
@@ -25,9 +24,6 @@ class CompanyListContainer extends React.Component {
     ) {
       return <Loading title="Companies" />;
     }
-
-    const { companiesTotalCount } = totalCountQuery;
-    const { loadMore, hasMore } = pagination(queryParams, companiesTotalCount);
 
     let columnsConfig = companiesListConfigQuery.fieldsDefaultColumnsConfig;
 
@@ -59,8 +55,6 @@ class CompanyListContainer extends React.Component {
 
       counts: companyCountsQuery.companyCounts,
       companies: companiesQuery.companies,
-      loadMore,
-      hasMore,
       addCompany
     };
 

@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
-import { ButtonGroup } from 'react-bootstrap';
 import { Wrapper } from 'modules/layout/components';
 import {
   Button,
@@ -170,7 +169,7 @@ class FormBase extends Component {
     const actionFooter = (
       <Wrapper.ActionBar
         right={
-          <ButtonGroup>
+          <Button.Group>
             {this.renderButtons(message)}
 
             <Link to="/engage">
@@ -178,7 +177,7 @@ class FormBase extends Component {
                 <Icon icon="close" /> Cancel
               </Button>
             </Link>
-          </ButtonGroup>
+          </Button.Group>
         }
       />
     );

@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { compose, gql, graphql } from 'react-apollo';
-import { Bulk, pagination, Loading } from 'modules/common/components';
+import { Bulk, Loading } from 'modules/common/components';
 import { Alert } from 'modules/common/utils';
 import { KIND_CHOICES } from 'modules/settings/integrations/constants';
 import { TAG_TYPES } from 'modules/tags/constants';
@@ -11,7 +11,6 @@ import { CustomersList } from '../components';
 class CustomerListContainer extends Bulk {
   render() {
     const {
-      queryParams,
       customersQuery,
       totalCountQuery,
       brandsQuery,
@@ -31,9 +30,6 @@ class CustomerListContainer extends Bulk {
     ) {
       return <Loading title="Customers" />;
     }
-
-    const { customersTotalCount } = totalCountQuery;
-    const { loadMore, hasMore } = pagination(queryParams, customersTotalCount);
 
     let columnsConfig = customersListConfigQuery.fieldsDefaultColumnsConfig;
 
@@ -68,8 +64,6 @@ class CustomerListContainer extends Bulk {
       brands: brandsQuery.brands,
       integrations: KIND_CHOICES.ALL_LIST,
       tags: tagsQuery.tags,
-      loadMore,
-      hasMore,
       bulk: this.state.bulk,
       toggleBulk: this.toggleBulk,
       addCustomer
