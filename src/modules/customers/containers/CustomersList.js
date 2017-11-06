@@ -22,7 +22,6 @@ class CustomerListContainer extends Bulk {
 
     if (
       customersQuery.loading ||
-      totalCountQuery.loading ||
       brandsQuery.loading ||
       customerCountsQuery.loading ||
       customersListConfigQuery.loading ||
@@ -60,6 +59,7 @@ class CustomerListContainer extends Bulk {
       columnsConfig,
 
       customers: customersQuery.customers,
+      totalCount: totalCountQuery.customersTotalCount,
       counts: customerCountsQuery.customerCounts,
       brands: brandsQuery.brands,
       integrations: KIND_CHOICES.ALL_LIST,
@@ -84,14 +84,13 @@ CustomerListContainer.propTypes = {
 export default compose(
   graphql(gql(queries.customers), {
     name: 'customersQuery',
-    options: ({ queryParams }) => ({
-      variables: {
-        params: {
-          ...queryParams,
-          limit: queryParams.limit || 20
+    options: ({ queryParams }) => {
+      return {
+        variables: {
+          params: queryParams
         }
-      }
-    })
+      };
+    }
   }),
   graphql(gql(queries.customerCounts), {
     name: 'customerCountsQuery',

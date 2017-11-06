@@ -7,6 +7,7 @@ import {
   DropdownToggle,
   TaggerPopover,
   ModalTrigger,
+  Pagination,
   Button,
   Icon,
   Table
@@ -19,6 +20,7 @@ import CustomerForm from './CustomerForm';
 
 const propTypes = {
   customers: PropTypes.array.isRequired,
+  totalCount: PropTypes.number.isRequired,
   counts: PropTypes.object.isRequired,
   columnsConfig: PropTypes.array.isRequired,
   brands: PropTypes.array.isRequired,
@@ -31,29 +33,33 @@ const propTypes = {
 
 class CustomersList extends React.Component {
   renderContent() {
-    const { customers, columnsConfig, toggleBulk } = this.props;
+    const { customers, totalCount, columnsConfig, toggleBulk } = this.props;
 
     return (
-      <Table whiteSpace="nowrap" hover bordered>
-        <thead>
-          <tr>
-            <th />
-            {columnsConfig.map(({ name, label }) => (
-              <th key={name}>{label}</th>
+      <div>
+        <Table whiteSpace="nowrap" hover bordered>
+          <thead>
+            <tr>
+              <th />
+              {columnsConfig.map(({ name, label }) => (
+                <th key={name}>{label}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {customers.map(customer => (
+              <CustomerRow
+                customer={customer}
+                columnsConfig={columnsConfig}
+                key={customer._id}
+                toggleBulk={toggleBulk}
+              />
             ))}
-          </tr>
-        </thead>
-        <tbody>
-          {customers.map(customer => (
-            <CustomerRow
-              customer={customer}
-              columnsConfig={columnsConfig}
-              key={customer._id}
-              toggleBulk={toggleBulk}
-            />
-          ))}
-        </tbody>
-      </Table>
+          </tbody>
+        </Table>
+
+        <Pagination count={totalCount} />
+      </div>
     );
   }
 
