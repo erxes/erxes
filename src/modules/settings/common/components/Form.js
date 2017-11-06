@@ -41,7 +41,7 @@ class Form extends Component {
         {this.renderContent(this.props.object || {})}
         <Modal.Footer>
           <div className="pull-right">
-            <Button btnStyle="simple" onClick={onClick}>
+            <Button btnStyle="simple" type="button" onClick={onClick}>
               <Icon icon="close" />
               Cancel
             </Button>

@@ -61,7 +61,7 @@ class Signature extends Component {
   }
 
   render() {
-    const current = this.getCurrent();
+    const current = this.getCurrent() || {};
 
     const content = (
       <ContentBox>
