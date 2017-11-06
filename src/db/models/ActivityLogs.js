@@ -21,13 +21,11 @@ export const ACTIVITY_ACTIONS = {
 };
 
 export const ACTION_PERFORMER_TYPES = {
-  SYSTEM: 'ACTION_PERFORMER_SYSTEM',
-  USER: 'ACTION_PERFORMER_USER',
+  SYSTEM: 'SYSTEM',
+  USER: 'USER',
 
-  ALL: ['ACTION_PERFORMER_SYSTEM', 'ACTION_PERFORMER_USER'],
+  ALL: ['SYSTEM', 'USER'],
 };
-
-export const ACTION_PERFORMER_SYSTEM = 'ACTION_PERFORMER_SYSTEM';
 
 // Performer of the action:
 // *system* cron job, user
@@ -141,9 +139,9 @@ class ActivityLog {
    * @param {Customer|Company} customer - Customer or Company document
    * @return {Promise} returns Promise resolving created ActivityLog document
    */
-  static createInternalNoteLog(internalNote, performedBy) {
-    if (performedBy == null || (performedBy && !performedBy._id)) {
-      throw new Error(`'performedBy' must be supplied when adding activity log for internal note`);
+  static createInternalNoteLog(internalNote, user) {
+    if (user == null || (user && !user._id)) {
+      throw new Error(`'user' must be supplied when adding activity log for internal note`);
     }
 
     return this.createDoc({
@@ -152,11 +150,40 @@ class ActivityLog {
         action: ACTIVITY_ACTIONS.CREATE,
         id: internalNote._id,
       },
-      performedBy,
+      performedBy: user,
       customer: {
         id: internalNote.contentTypeId,
         type: internalNote.contentType,
       },
+    });
+  }
+
+  /**
+   * @param {Object} conversation - Conversation object
+   * @param {string} conversation._id - Conversation document id
+   * @param {Object} user - User object
+   * @param {Object} user._id - User document id
+   * @param {Object} customer - Customer object
+   * @param {string} customer.type - One of CUSTOMER_CONTENT_TYPES choices
+   * @param {string} customer.id - Customer document id
+   */
+  static createConversationLog(conversation, user, customer) {
+    if (user == null || (user && !user._id)) {
+      throw new Error(`'user' must be supplied when adding activity log for internal note`);
+    }
+
+    if (customer == null || (customer && !user._id)) {
+      throw new Error(`'customer' must be supplied when adding activity log for conversations`);
+    }
+
+    return this.createDoc({
+      activity: {
+        type: ACTIVITY_TYPES.CONVERSATION,
+        action: ACTIVITY_ACTIONS.CREATE,
+        id: conversation._id,
+      },
+      performedBy: user,
+      customer,
     });
   }
 }
