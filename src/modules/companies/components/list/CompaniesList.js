@@ -2,7 +2,12 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import { Wrapper } from 'modules/layout/components';
-import { ModalTrigger, Button, Table } from 'modules/common/components';
+import {
+  Pagination,
+  ModalTrigger,
+  Button,
+  Table
+} from 'modules/common/components';
 import { BarItems } from 'modules/layout/styles';
 import Sidebar from './Sidebar';
 import CompanyRow from './CompanyRow';
@@ -17,22 +22,28 @@ const propTypes = {
 
 function CompaniesList({ companies, counts, columnsConfig, addCompany }) {
   const content = (
-    <Table whiteSpace="nowrap" bordered>
-      <thead>
-        <tr>
-          {columnsConfig.map(({ name, label }) => <th key={name}>{label}</th>)}
-        </tr>
-      </thead>
-      <tbody>
-        {companies.map(company => (
-          <CompanyRow
-            company={company}
-            columnsConfig={columnsConfig}
-            key={company._id}
-          />
-        ))}
-      </tbody>
-    </Table>
+    <div>
+      <Table whiteSpace="nowrap" bordered>
+        <thead>
+          <tr>
+            {columnsConfig.map(({ name, label }) => (
+              <th key={name}>{label}</th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {companies.map(company => (
+            <CompanyRow
+              company={company}
+              columnsConfig={columnsConfig}
+              key={company._id}
+            />
+          ))}
+        </tbody>
+      </Table>
+
+      <Pagination count={counts.all} />
+    </div>
   );
 
   const addTrigger = (

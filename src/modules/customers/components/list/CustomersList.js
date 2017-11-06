@@ -20,7 +20,6 @@ import CustomerForm from './CustomerForm';
 
 const propTypes = {
   customers: PropTypes.array.isRequired,
-  totalCount: PropTypes.number.isRequired,
   counts: PropTypes.object.isRequired,
   columnsConfig: PropTypes.array.isRequired,
   brands: PropTypes.array.isRequired,
@@ -33,7 +32,7 @@ const propTypes = {
 
 class CustomersList extends React.Component {
   renderContent() {
-    const { customers, totalCount, columnsConfig, toggleBulk } = this.props;
+    const { customers, counts, columnsConfig, toggleBulk } = this.props;
 
     return (
       <div>
@@ -58,7 +57,7 @@ class CustomersList extends React.Component {
           </tbody>
         </Table>
 
-        <Pagination count={totalCount} />
+        <Pagination count={counts.all} />
       </div>
     );
   }

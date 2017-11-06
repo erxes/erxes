@@ -36,12 +36,6 @@ export const companyDetail = `
   }
 `;
 
-export const totalCompaniesCount = `
-  query totalCompaniesCount {
-    companiesTotalCount
-  }
-`;
-
 export const fields = `
   query {
     fields(contentType: "company") {
@@ -71,7 +65,6 @@ export default {
   companies,
   companyCounts,
   companyDetail,
-  totalCompaniesCount,
   fields,
   companiesListConfig
 };

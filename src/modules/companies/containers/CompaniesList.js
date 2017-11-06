@@ -10,7 +10,6 @@ class CompanyListContainer extends React.Component {
   render() {
     const {
       companiesQuery,
-      totalCountQuery,
       companiesListConfigQuery,
       companyCountsQuery,
       companiesAdd
@@ -18,7 +17,6 @@ class CompanyListContainer extends React.Component {
 
     if (
       companiesQuery.loading ||
-      totalCountQuery.loading ||
       companyCountsQuery.loading ||
       companiesListConfigQuery.loading
     ) {
@@ -65,7 +63,6 @@ class CompanyListContainer extends React.Component {
 CompanyListContainer.propTypes = {
   queryParams: PropTypes.object,
   companiesQuery: PropTypes.object,
-  totalCountQuery: PropTypes.object,
   companyCountsQuery: PropTypes.object,
   companiesListConfigQuery: PropTypes.object,
   companiesAdd: PropTypes.func
@@ -75,12 +72,7 @@ export default compose(
   graphql(gql(queries.companies), {
     name: 'companiesQuery',
     options: ({ queryParams }) => ({
-      variables: {
-        params: {
-          ...queryParams,
-          limit: queryParams.limit || 20
-        }
-      }
+      variables: { params: queryParams }
     })
   }),
   graphql(gql(queries.companyCounts), {
@@ -97,7 +89,6 @@ export default compose(
   graphql(gql(queries.companiesListConfig), {
     name: 'companiesListConfigQuery'
   }),
-  graphql(gql(queries.totalCompaniesCount), { name: 'totalCountQuery' }),
   // mutations
   graphql(gql(mutations.companiesAdd), {
     name: 'companiesAdd'

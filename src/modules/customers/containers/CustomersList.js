@@ -12,7 +12,6 @@ class CustomerListContainer extends Bulk {
   render() {
     const {
       customersQuery,
-      totalCountQuery,
       brandsQuery,
       tagsQuery,
       customerCountsQuery,
@@ -59,7 +58,6 @@ class CustomerListContainer extends Bulk {
       columnsConfig,
 
       customers: customersQuery.customers,
-      totalCount: totalCountQuery.customersTotalCount,
       counts: customerCountsQuery.customerCounts,
       brands: brandsQuery.brands,
       integrations: KIND_CHOICES.ALL_LIST,
@@ -77,7 +75,6 @@ CustomerListContainer.propTypes = {
   customersQuery: PropTypes.object,
   tagsQuery: PropTypes.object,
   brandsQuery: PropTypes.object,
-  totalCountQuery: PropTypes.object,
   customerCountsQuery: PropTypes.object
 };
 
@@ -115,7 +112,6 @@ export default compose(
     name: 'customersListConfigQuery'
   }),
   graphql(gql(queries.brands), { name: 'brandsQuery' }),
-  graphql(gql(queries.totalCustomersCount), { name: 'totalCountQuery' }),
   // mutations
   graphql(gql(mutations.customersAdd), {
     name: 'customersAdd'
