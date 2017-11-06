@@ -2,6 +2,7 @@ import { Companies, Segments } from '../../../db/models';
 import QueryBuilder from './segmentQueryBuilder.js';
 import { SEGMENT_CONTENT_TYPES } from '../../constants';
 import { moduleRequireLogin } from '../../permissions';
+import { paginate } from './utils';
 
 const listQuery = async params => {
   const selector = {};
@@ -25,12 +26,12 @@ const companyQueries = {
    */
   async companies(root, { params }) {
     if (params.ids) {
-      return Companies.find({ _id: { $in: params.ids } });
+      return paginate(Companies.find({ _id: { $in: params.ids } }), params);
     }
 
     const selector = await listQuery(params);
 
-    return Companies.find(selector).limit(params.limit || 0);
+    return paginate(Companies.find(selector), params);
   },
 
   /**
@@ -71,14 +72,6 @@ const companyQueries = {
    */
   companyDetail(root, { _id }) {
     return Companies.findOne({ _id });
-  },
-
-  /**
-   * Get all companies count. We will use it in pager
-   * @return {Promise} total count
-   */
-  companiesTotalCount() {
-    return Companies.find({}).count();
   },
 };
 

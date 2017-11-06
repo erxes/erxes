@@ -38,7 +38,6 @@ export const queries = `
   customerCounts(params: CustomerListParams): JSON
   customerDetail(_id: String!): Customer
   customerListForSegmentPreview(segment: JSON, limit: Int): [Customer]
-  customersTotalCount: Int
 `;
 
 const fields = `

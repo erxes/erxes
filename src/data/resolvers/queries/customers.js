@@ -147,14 +147,6 @@ const customerQueries = {
   customerDetail(root, { _id }) {
     return Customers.findOne({ _id });
   },
-
-  /**
-   * Get all customers count. We will use it in pager
-   * @return {Promise} total count
-   */
-  customersTotalCount() {
-    return Customers.find({}).count();
-  },
 };
 
 moduleRequireLogin(customerQueries);
