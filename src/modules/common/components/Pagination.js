@@ -1,6 +1,5 @@
 import React from 'react';
 import { withRouter } from 'react-router';
-import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import _ from 'underscore';
 import { router } from 'modules/common/utils';
@@ -76,7 +75,9 @@ class Page extends React.Component {
     router.setParams(this.props.history, { page });
   }
 
-  onClick() {
+  onClick(e) {
+    e.preventDefault();
+
     this.goto(this.props.page);
   }
 
@@ -92,7 +93,7 @@ class Page extends React.Component {
 
       return (
         <li className={className} onClick={this.onClick}>
-          <Link to={`?page=${page}`}>{page}</Link>
+          <a href="">{page}</a>
         </li>
       );
     }
@@ -220,7 +221,7 @@ const PaginationContainer = props => {
   const { history, count = 100 } = props;
 
   const currentPage = Number(router.getParam(history, 'page')) || 1;
-  const perPage = Number(router.getParam(history, 'perPage')) || 2;
+  const perPage = Number(router.getParam(history, 'perPage')) || 20;
 
   let totalPagesCount = parseInt(count / perPage) + 1;
 
