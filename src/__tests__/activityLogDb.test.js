@@ -4,7 +4,11 @@
 import { connect, disconnect } from '../db/connection';
 import { CUSTOMER_CONTENT_TYPES } from '../data/constants';
 import { ActivityLogs } from '../db/models';
-import { ACTION_PERFORMER_TYPES, ACTIVITY_TYPES } from '../db/models/ActivityLogs';
+import {
+  ACTION_PERFORMER_TYPES,
+  ACTIVITY_TYPES,
+  ACTIVITY_ACTIONS,
+} from '../db/models/ActivityLogs';
 import { userFactory, internalNoteFactory, customerFactory } from '../db/factories';
 
 beforeAll(() => connect());
@@ -13,18 +17,27 @@ afterAll(() => disconnect());
 describe('ActivityLogs model methods', () => {
   test(`check whether not setting 'performedBy'
   is setting expected values in the collection or not`, async () => {
+    const activityDoc = {
+      type: ACTIVITY_TYPES.INTERNAL_NOTE,
+      action: ACTIVITY_ACTIONS.CREATE,
+      id: 'testInternalNoteId',
+    };
+
+    const customerDoc = {
+      type: CUSTOMER_CONTENT_TYPES.CUSTOMER,
+      id: 'testCustomerId',
+    };
+
     const doc = {
-      activityType: ACTIVITY_TYPES.INTERNAL_NOTE_CREATED,
-      contentType: CUSTOMER_CONTENT_TYPES.CUSTOMER,
-      contentTypeId: 'fakeCustomerId',
+      activity: activityDoc,
+      customer: customerDoc,
       performedBy: null,
     };
 
     const aLog = await ActivityLogs.createDoc(doc);
 
-    expect(aLog.activityType).toBe(ACTIVITY_TYPES.INTERNAL_NOTE_CREATED);
-    expect(aLog.contentType).toBe(CUSTOMER_CONTENT_TYPES.CUSTOMER);
-    expect(aLog.contentTypeId).toBe(doc.contentTypeId);
+    expect(aLog.activity.toObject()).toEqual(activityDoc);
+    expect(aLog.customer.toObject()).toEqual(customerDoc);
     expect(aLog.performedBy.type).toBe(ACTION_PERFORMER_TYPES.SYSTEM);
   });
 
@@ -60,9 +73,13 @@ describe('ActivityLogs model methods', () => {
 
     expect(aLog.performedBy.type).toBe(ACTION_PERFORMER_TYPES.USER);
     expect(aLog.performedBy.id).toBe(user._id);
-    expect(aLog.contentType).toBe(CUSTOMER_CONTENT_TYPES.CUSTOMER);
-    expect(aLog.contentTypeId).toBe(internalNote._id);
-    expect(aLog.activityType).toBe(ACTIVITY_TYPES.INTERNAL_NOTE_CREATED);
+    expect(aLog.customer.type).toBe(CUSTOMER_CONTENT_TYPES.CUSTOMER);
+    expect(aLog.customer.id).toBe(internalNote.contentTypeId);
+    expect(aLog.activity.toObject()).toEqual({
+      type: ACTIVITY_TYPES.INTERNAL_NOTE,
+      action: ACTIVITY_ACTIONS.CREATE,
+      id: internalNote._id,
+    });
   });
 
   test(`check if exception is being thrown when calling
