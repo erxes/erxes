@@ -14,11 +14,13 @@ const Alertwrapper = styled.div.attrs({
 `;
 
 this.alertcount = 0;
+
 const createAlert = (type, text) => {
   this.alertcount++;
   if (this.timeout) {
     clearTimeout(this.timeout);
   }
+
   this.timeout = setTimeout(() => {
     this.alertcount = 0;
     if (document.getElementById('replaceralertwrapper')) {
@@ -27,8 +29,10 @@ const createAlert = (type, text) => {
       );
     }
   }, 3500);
+
   if (document.getElementById('replaceralertwrapper')) {
     const wrapper = document.getElementById('alertwrapper');
+
     ReactDOM.render(
       <AlertStyled key={this.alertcount} type={type} text={text} />,
       wrapper
@@ -37,8 +41,10 @@ const createAlert = (type, text) => {
     const _popup = document.createElement('div');
     _popup.setAttribute('id', 'replaceralertwrapper');
     document.body.appendChild(_popup);
+
     ReactDOM.render(<Alertwrapper />, _popup);
     const wrapper = document.getElementById('alertwrapper');
+
     ReactDOM.render(
       <AlertStyled key={this.alertcount} type={type} text={text} />,
       wrapper
@@ -49,19 +55,24 @@ const createAlert = (type, text) => {
 const success = text => {
   createAlert('success', text);
 };
+
 const error = text => {
   createAlert('error', text);
 };
+
 const warning = text => {
   createAlert('warning', text);
 };
+
 const info = text => {
   createAlert('info', text);
 };
+
 const Alert = {
   success,
   error,
   warning,
   info
 };
+
 export default Alert;
