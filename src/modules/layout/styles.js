@@ -55,9 +55,13 @@ const Nav = styled.nav`
     font-size: ${dimensions.coreSpacing}px;
     line-height: ${dimensions.headerSpacing + 10}px;
     text-align: center;
-    color: ${rgba(colors.colorWhite, 0.7)};
+    color: ${rgba(colors.colorWhite, 0.6)};
 
     &:hover {
+      color: ${rgba(colors.colorWhite, 0.8)};
+    }
+
+    &.active {
       color: ${colors.colorWhite};
     }
   }

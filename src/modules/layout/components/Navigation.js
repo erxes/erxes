@@ -1,44 +1,44 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { NavLink } from 'react-router-dom';
 import { Tip, Icon } from 'modules/common/components';
 import { LeftNavigation, Nav } from '../styles';
 
 function Navigation() {
   return (
     <LeftNavigation>
-      <Link to="/">
+      <NavLink to="/" activeClassName="active">
         <img src="/images/logo-image.png" alt="erxes" />
-      </Link>
+      </NavLink>
       <Nav>
         <Tip placement="right" text="Inbox">
-          <Link to="/inbox">
+          <NavLink to="/inbox" activeClassName="active">
             <Icon icon="ios-chatboxes" />
-          </Link>
+          </NavLink>
         </Tip>
         <Tip placement="right" text="Customers">
-          <Link to="/customers">
+          <NavLink to="/customers" activeClassName="active">
             <Icon icon="person-stalker" />
-          </Link>
+          </NavLink>
         </Tip>
         <Tip placement="right" text="Companies">
-          <Link to="/companies">
+          <NavLink to="/companies" activeClassName="active">
             <Icon icon="briefcase" />
-          </Link>
+          </NavLink>
         </Tip>
         <Tip placement="right" text="Engage">
-          <Link to="/engage">
+          <NavLink to="/engage" activeClassName="active">
             <Icon icon="speakerphone" />
-          </Link>
+          </NavLink>
         </Tip>
         <Tip placement="right" text="Insights">
-          <Link to="/insights">
+          <NavLink to="/insights" activeClassName="active">
             <Icon icon="pie-graph" />
-          </Link>
+          </NavLink>
         </Tip>
         <Tip placement="right" text="Settings">
-          <Link to="/settings/channels">
+          <NavLink to="/settings/channels" activeClassName="active">
             <Icon icon="gear-b" />
-          </Link>
+          </NavLink>
         </Tip>
       </Nav>
     </LeftNavigation>
