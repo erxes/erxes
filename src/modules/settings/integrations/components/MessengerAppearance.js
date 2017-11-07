@@ -15,6 +15,7 @@ import {
   Margined,
   WidgetApperance,
   WidgetSettings,
+  WidgetBackgrounds,
   WidgetBox,
   ColorPick,
   ColorPicker,
@@ -30,7 +31,7 @@ class Appearance extends Component {
       wallpaper: props.prevOptions.wallpaper || '1',
       logo: props.prevOptions.logo,
       logoPreviewStyle: {},
-      logoPreviewUrl: props.prevOptions.logo || '/images/widget-logo.png'
+      logoPreviewUrl: props.prevOptions.logo || '/images/logo-image.png'
     };
 
     this.save = this.save.bind(this);
@@ -128,13 +129,13 @@ class Appearance extends Component {
             <WidgetBox>
               <SubHeading>Choose a wallpaper</SubHeading>
 
-              <div className="widget-backgrounds">
+              <WidgetBackgrounds>
                 {this.renderWallpaperSelect('1')}
                 {this.renderWallpaperSelect('2')}
                 {this.renderWallpaperSelect('3')}
                 {this.renderWallpaperSelect('4')}
                 {this.renderWallpaperSelect('5')}
-              </div>
+              </WidgetBackgrounds>
             </WidgetBox>
 
             <WidgetBox>
@@ -161,7 +162,11 @@ class Appearance extends Component {
                   logoPreviewStyle
                 )}
               >
-                <Icon icon="ios-upload-outline icon" size={30} />
+                <Icon
+                  icon="ios-upload-outline icon"
+                  size={30}
+                  style={{ backgroundColor: this.state.color }}
+                />
               </LogoContainer>
             </Messenger>
           </MessengerPreview>

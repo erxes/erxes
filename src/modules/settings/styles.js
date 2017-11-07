@@ -86,6 +86,12 @@ const WidgetSettings = styled.div`
   padding: 10px 30px 10px 10px;
 `;
 
+const WidgetBackgrounds = styled.div`
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+`;
+
 const WidgetBox = styled.div`
   margin-bottom: ${coreSpace};
 `;
@@ -280,6 +286,7 @@ export {
   WidgetApperance,
   WidgetPreviewStyled,
   WidgetSettings,
+  WidgetBackgrounds,
   ErxesMiddle,
   ErxesTopbar,
   ErxesState,

@@ -639,12 +639,6 @@
   box-shadow: none !important;
 }
 
-.widget-backgrounds {
-  display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
-}
-
 .background-selector {
   border: 3px solid transparent;
   margin-right: 15px;
