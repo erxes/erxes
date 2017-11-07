@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { ButtonToolbar, Modal } from 'react-bootstrap';
+import { Modal } from 'react-bootstrap';
 import {
   ControlLabel,
   FormGroup,
@@ -9,6 +9,7 @@ import {
 } from 'modules/common/components';
 import { METHODS } from 'modules/engage/constants';
 import Editor from './Editor';
+import { EditorWrapper } from '../styles';
 
 class WidgetForm extends Component {
   constructor(props) {
@@ -175,17 +176,15 @@ class WidgetForm extends Component {
 
         <FormGroup>
           <ControlLabel>Content:</ControlLabel>
-          <div className="editor-bordered">
+          <EditorWrapper>
             <Editor onChange={this.onContentChange} />
-          </div>
+          </EditorWrapper>
         </FormGroup>
 
         <Modal.Footer>
-          <ButtonToolbar className="pull-right">
-            <Button type="submit" btnStyle="success">
-              Send
-            </Button>
-          </ButtonToolbar>
+          <Button type="submit" btnStyle="success">
+            Send
+          </Button>
         </Modal.Footer>
       </form>
     );

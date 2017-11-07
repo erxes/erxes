@@ -6,7 +6,8 @@ import {
   Pagination,
   ModalTrigger,
   Button,
-  Table
+  Table,
+  Icon
 } from 'modules/common/components';
 import { BarItems } from 'modules/layout/styles';
 import Sidebar from './Sidebar';
@@ -42,7 +43,7 @@ function CompaniesList({ companies, counts, columnsConfig, addCompany }) {
 
   const addTrigger = (
     <Button btnStyle="success" size="small">
-      Add company
+      <Icon icon="plus" /> Add company
     </Button>
   );
 

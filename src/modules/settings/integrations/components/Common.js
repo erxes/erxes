@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { ButtonToolbar, Modal } from 'react-bootstrap';
+import { Modal } from 'react-bootstrap';
 import ReactMarkdown from 'react-markdown';
 import CopyToClipboard from 'react-copy-to-clipboard';
 import {
@@ -118,11 +118,9 @@ class Common extends Component {
         </FormGroup>
 
         <Modal.Footer>
-          <ButtonToolbar className="pull-right">
-            <Button btnStyle="success" type="submit">
-              <Icon icon="checkmark" /> Save
-            </Button>
-          </ButtonToolbar>
+          <Button btnStyle="success" type="submit">
+            <Icon icon="checkmark" /> Save
+          </Button>
         </Modal.Footer>
       </form>
     );

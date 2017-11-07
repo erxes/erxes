@@ -40,17 +40,15 @@ class Form extends Component {
       <form onSubmit={this.save}>
         {this.renderContent(this.props.object || {})}
         <Modal.Footer>
-          <div className="pull-right">
-            <Button btnStyle="simple" type="button" onClick={onClick}>
-              <Icon icon="close" />
-              Cancel
-            </Button>
+          <Button btnStyle="simple" type="button" onClick={onClick}>
+            <Icon icon="close" />
+            Cancel
+          </Button>
 
-            <Button btnStyle="success" type="submit">
-              <Icon icon="checkmark" />
-              Save
-            </Button>
-          </div>
+          <Button btnStyle="success" type="submit">
+            <Icon icon="checkmark" />
+            Save
+          </Button>
         </Modal.Footer>
       </form>
     );

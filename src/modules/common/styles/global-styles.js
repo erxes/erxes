@@ -74,6 +74,7 @@ injectGlobal`
 
   .modal-header .close {
     margin-top: 0;
+    outline: 0;
   }
 
   .modal-title {

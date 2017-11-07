@@ -1,7 +1,7 @@
 import _ from 'underscore';
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Modal, ButtonToolbar, Checkbox } from 'react-bootstrap';
+import { Modal, Checkbox } from 'react-bootstrap';
 import SelectBrand from './SelectBrand';
 import {
   Button,
@@ -113,11 +113,9 @@ class Facebook extends Component {
         </FormGroup>
 
         <Modal.Footer>
-          <ButtonToolbar className="pull-right">
-            <Button btnStyle="success" type="submit">
-              <Icon icon="checkmark" /> Save
-            </Button>
-          </ButtonToolbar>
+          <Button btnStyle="success" type="submit">
+            <Icon icon="checkmark" /> Save
+          </Button>
         </Modal.Footer>
       </form>
     );
