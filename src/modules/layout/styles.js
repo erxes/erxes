@@ -316,6 +316,21 @@ const SidebarCounter = styled.span`
   right: 20px;
 `;
 
+const FlexContent = styled.div`
+  display: flex;
+  flex: 1;
+  min-height: 100%;
+`;
+
+const FlexItem = styled.div`
+  flex: ${props => (props.count ? props.count : 1)};
+  position: relative;
+`;
+
+const FlexRightItem = styled.div`
+  margin-left: auto;
+`;
+
 const WhiteBox = styled.div`
   flex: 1;
   overflow: auto;
@@ -400,6 +415,9 @@ export {
   UserHelper,
   SidebarList,
   SidebarContent,
+  FlexContent,
+  FlexItem,
+  FlexRightItem,
   WhiteBox,
   Authlayout,
   AuthContent,

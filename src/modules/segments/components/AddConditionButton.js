@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { OverlayTrigger, Popover } from 'react-bootstrap';
-import { FilterableList, Button } from 'modules/common/components';
+import { FilterableList, Button, Icon } from 'modules/common/components';
 import { types, operators, dateUnits } from 'modules/customers/constants';
 
 const propTypes = {
@@ -53,6 +53,7 @@ class AddConditionButton extends Component {
         rootClose
       >
         <Button btnStyle="success" size="small">
+          <Icon icon="plus" />
           Add a condition
         </Button>
       </OverlayTrigger>

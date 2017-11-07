@@ -66,7 +66,7 @@ class LeftSidebar extends React.Component {
 
           <FormGroup>
             <ControlLabel>Size</ControlLabel>
-            <FormControl id="size" defaultValue={company.size} />
+            <FormControl id="size" defaultValue={company.size} type="number" />
           </FormGroup>
 
           <FormGroup>

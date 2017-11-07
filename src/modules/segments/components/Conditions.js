@@ -7,19 +7,24 @@ const propTypes = {
   conditions: PropTypes.array.isRequired,
   changeCondition: PropTypes.func.isRequired,
   removeCondition: PropTypes.func.isRequired,
-  parentSegmentId: PropTypes.string
+  parentSegmentId: PropTypes.string,
+  contentType: PropTypes.string
 };
 
 function Conditions({
   conditions,
   changeCondition,
   removeCondition,
+  contentType,
   parentSegmentId
 }) {
   return (
     <div>
       {parentSegmentId ? (
-        <a href={`/segments/edit/${parentSegmentId}`} target="_blank">
+        <a
+          href={`/segments/edit/${contentType}/${parentSegmentId}`}
+          target="_blank"
+        >
           <h4>
             <Label>
               Parent segment conditions <Icon icon="android-open" />
