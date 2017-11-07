@@ -1,6 +1,8 @@
 import React from 'react';
 import { withRouter } from 'react-router';
 import PropTypes from 'prop-types';
+import { Authlayout, AuthContent, AuthDescription } from '../styles';
+import { Grid, Col } from 'react-bootstrap';
 
 const propTypes = {
   history: PropTypes.object,
@@ -21,11 +23,11 @@ class AuthLayout extends React.Component {
     const { content } = this.props;
 
     return (
-      <div className="auth-layout">
-        <div className="auth-content">
-          <div className="container">
-            <div className="col-md-7">
-              <div className="auth-description">
+      <Authlayout>
+        <AuthContent>
+          <Grid>
+            <Col md={7}>
+              <AuthDescription>
                 <img src="/images/logo.png" alt="erxes" />
                 <h1>Customer engagement. Redefined.</h1>
                 <p>
@@ -33,12 +35,12 @@ class AuthLayout extends React.Component {
                   and marketing teams.
                 </p>
                 <a href="http://erxes.io/">« Go to home page</a>
-              </div>
-            </div>
-            <div className="col-md-5">{content}</div>
-          </div>
-        </div>
-      </div>
+              </AuthDescription>
+            </Col>
+            <Col md={5}>{content}</Col>
+          </Grid>
+        </AuthContent>
+      </Authlayout>
     );
   }
 }

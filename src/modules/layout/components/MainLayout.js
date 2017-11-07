@@ -11,6 +11,10 @@ const propTypes = {
 };
 
 class MainLayout extends React.Component {
+  getChildContext() {
+    return { currentUser: this.props.currentUser };
+  }
+
   componentDidMount() {
     const { history, currentUser } = this.props;
 
@@ -32,5 +36,9 @@ class MainLayout extends React.Component {
 }
 
 MainLayout.propTypes = propTypes;
+
+MainLayout.childContextTypes = {
+  currentUser: PropTypes.object
+};
 
 export default withRouter(MainLayout);

@@ -139,7 +139,7 @@ class SegmentsForm extends Component {
   }
 
   renderConditions() {
-    const { fields } = this.props;
+    const { contentType, fields } = this.props;
     const selectedFieldIds = this.state.conditions.map(c => c.field);
 
     // Exclude fields that are already selected
@@ -162,6 +162,7 @@ class SegmentsForm extends Component {
           of the below conditions
         </FormGroup>
         <Conditions
+          contentType={contentType}
           parentSegmentId={this.state.subOf}
           conditions={this.state.conditions}
           changeCondition={this.changeCondition}

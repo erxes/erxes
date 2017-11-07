@@ -60,6 +60,16 @@ const Nav = styled.nav`
     &:hover {
       color: ${colors.colorWhite};
     }
+
+    &.active {
+      position: relative;
+      color: ${colors.colorWhite};
+      background: rgba(0, 0, 0, 0.2);
+    }
+
+    > i {
+      margin: 0;
+    }
   }
 `;
 
@@ -319,6 +329,53 @@ const WhiteBox = styled.div`
   box-shadow: 0 0 4px ${colors.shadowPrimary};
 `;
 
+const Authlayout = styled.div`
+  background: url('/images/sign-in.jpg') no-repeat;
+  background-size: cover;
+  height: 100%;
+  overflow: hidden;
+  position: relative;
+  &:before {
+    content: '';
+    background-color: rgba(69, 38, 121, 0.7);
+    position: absolute;
+    width: 100%;
+    height: 100%;
+  }
+`;
+
+const AuthContent = styled.div`
+  position: relative;
+  top: 50%;
+  transform: translateY(-50%);
+`;
+
+const AuthDescription = styled.div`
+  margin-top: 60px;
+  img {
+    width: 100px;
+    margin-bottom: 50px;
+  }
+  h1 {
+    font-weight: 700;
+    font-size: 32px;
+    margin-bottom: 30px;
+    color: #fff;
+  }
+  p {
+    color: #c9b6e8;
+    margin-bottom: 50px;
+    font-size: 16px;
+    line-height: 1.8em;
+  }
+  a {
+    color: #c9b6e8;
+  }
+  .not-found {
+    margin-top: 0;
+  }
+`;
+
 export {
   Main,
   Layout,
@@ -350,5 +407,8 @@ export {
   FlexContent,
   FlexItem,
   FlexRightItem,
-  WhiteBox
+  WhiteBox,
+  Authlayout,
+  AuthContent,
+  AuthDescription
 };
