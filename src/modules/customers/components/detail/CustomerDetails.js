@@ -9,6 +9,7 @@ import { ConversationList, EmptyState, Icon } from 'modules/common/components';
 import LeftSidebar from './sidebar/LeftSidebar';
 import { Tabs, TabTitle } from 'modules/common/components';
 import { WhiteBox } from 'modules/layout/styles';
+import ActivityList from './ActivityList';
 
 const propTypes = {
   customer: PropTypes.object.isRequired,
@@ -37,7 +38,7 @@ class CustomerDetails extends React.Component {
     const { currentUser, customer } = this.props;
 
     if (currentTab === 'activity') {
-      return <div>Activity</div>;
+      return <ActivityList user={currentUser} />;
     }
 
     if (currentTab === 'notes') {
@@ -94,7 +95,7 @@ class CustomerDetails extends React.Component {
           <NoteForm contentType="customer" contentTypeId={customer._id} />
         </WhiteBox>
 
-        <Tabs>
+        <Tabs grayBorder>
           <TabTitle
             className={currentTab === 'activity' ? 'active' : ''}
             onClick={() => this.onTabClick('activity')}

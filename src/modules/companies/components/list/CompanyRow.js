@@ -37,7 +37,6 @@ function formatValue(value) {
 function CompanyRow({ company, columnsConfig }) {
   return (
     <tr>
-      <td />
       {columnsConfig.map(({ name }) => (
         <td key={name} className={`table-field-${name}`}>
           {formatValue(_.get(company, name))}

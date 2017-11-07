@@ -7,7 +7,7 @@ import {
 } from 'modules/common/components';
 
 const SelectBrand = ({ brands, onChange, defaultValue }) => (
-  <FormGroup controlId="selectBrand">
+  <FormGroup>
     <ControlLabel>Brand</ControlLabel>
 
     <FormControl
@@ -15,6 +15,7 @@ const SelectBrand = ({ brands, onChange, defaultValue }) => (
       placeholder="Select Brand"
       defaultValue={defaultValue}
       onChange={onChange}
+      id="selectBrand"
     >
       <option />
       {brands.map(brand => (

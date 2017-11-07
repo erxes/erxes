@@ -30,9 +30,7 @@ export default commonListComposer({
     name: 'listQuery',
     options: ({ queryParams }) => {
       return {
-        variables: {
-          limit: queryParams.limit || 20
-        }
+        variables: { params: queryParams }
       };
     }
   }),

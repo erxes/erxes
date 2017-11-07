@@ -2,6 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import { Dropdown } from 'react-bootstrap';
+import { Pagination } from 'modules/common/components';
 import { Wrapper } from 'modules/layout/components';
 import {
   DropdownToggle,
@@ -14,6 +15,7 @@ import { MessageListRow, Sidebar as SidebarContainers } from '../containers';
 
 const propTypes = {
   messages: PropTypes.array.isRequired,
+  totalCount: PropTypes.number.isRequired,
   tags: PropTypes.array.isRequired,
   bulk: PropTypes.array.isRequired,
   refetch: PropTypes.func.isRequired,
@@ -44,7 +46,7 @@ class List extends React.Component {
   }
 
   render() {
-    const { messages, tags, toggleBulk, refetch } = this.props;
+    const { messages, totalCount, tags, toggleBulk, refetch } = this.props;
 
     const actionBarRight = (
       <Dropdown id="dropdown-engage" pullRight>
@@ -76,32 +78,36 @@ class List extends React.Component {
     );
 
     const content = (
-      <Table whiteSpace="nowrap" hover bordered>
-        <thead>
-          <tr>
-            <th />
-            <th>Title</th>
-            <th>From</th>
-            <th>Status</th>
-            <th>Total</th>
-            <th>Sent</th>
-            <th>Failed</th>
-            <th>Type</th>
-            <th>Created date</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {messages.map(message => (
-            <MessageListRow
-              toggleBulk={toggleBulk}
-              refetch={refetch}
-              key={message._id}
-              message={message}
-            />
-          ))}
-        </tbody>
-      </Table>
+      <div>
+        <Table whiteSpace="nowrap" hover bordered>
+          <thead>
+            <tr>
+              <th />
+              <th>Title</th>
+              <th>From</th>
+              <th>Status</th>
+              <th>Total</th>
+              <th>Sent</th>
+              <th>Failed</th>
+              <th>Type</th>
+              <th>Created date</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {messages.map(message => (
+              <MessageListRow
+                toggleBulk={toggleBulk}
+                refetch={refetch}
+                key={message._id}
+                message={message}
+              />
+            ))}
+          </tbody>
+        </Table>
+
+        <Pagination count={totalCount} />
+      </div>
     );
 
     const sidebar = (

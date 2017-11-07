@@ -1,14 +1,15 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { ButtonToolbar, Well } from 'react-bootstrap';
 import { Wrapper } from 'modules/layout/components';
 import {
   ControlLabel,
   Button,
   FormGroup,
-  FormControl
+  FormControl,
+  Icon
 } from 'modules/common/components';
 import Sidebar from '../../Sidebar';
+import { ContentBox, SubHeading, Well } from '../../styles';
 
 const propTypes = {
   signatures: PropTypes.array.isRequired,
@@ -60,10 +61,11 @@ class Signature extends Component {
   }
 
   render() {
-    const current = this.getCurrent();
+    const current = this.getCurrent() || {};
 
     const content = (
-      <div className="margined">
+      <ContentBox>
+        <SubHeading>Email signatures</SubHeading>
         <Well>
           Signatures are only included in response emails. <br />
           You can use Markdown to format your signature.
@@ -73,11 +75,7 @@ class Signature extends Component {
           <FormGroup>
             <ControlLabel>Brand</ControlLabel>
 
-            <FormControl
-              componentClass="select"
-              onChange={this.changeCurrent}
-              controlId="selectBrand"
-            >
+            <FormControl componentClass="select" onChange={this.changeCurrent}>
               <option>------------</option>
 
               {this.props.signatures.map(signature => (
@@ -99,13 +97,8 @@ class Signature extends Component {
               value={current.content}
             />
           </FormGroup>
-          <ButtonToolbar className="pull-right">
-            <Button btnStyle="success" type="submit">
-              Save
-            </Button>
-          </ButtonToolbar>
         </form>
-      </div>
+      </ContentBox>
     );
 
     const breadcrumb = [
@@ -113,10 +106,21 @@ class Signature extends Component {
       { title: 'Signature template' }
     ];
 
+    const actionFooter = (
+      <Wrapper.ActionBar
+        right={
+          <Button btnStyle="success" onClick={this.handleSubmit}>
+            <Icon icon="checkmark" /> Save
+          </Button>
+        }
+      />
+    );
+
     return (
       <Wrapper
         header={<Wrapper.Header breadcrumb={breadcrumb} />}
         leftSidebar={<Sidebar />}
+        footer={actionFooter}
         content={content}
       />
     );

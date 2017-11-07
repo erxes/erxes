@@ -133,16 +133,16 @@ class Row extends React.Component {
           <NameCard user={message.fromUser} avatarSize={30} singleLine />
         </td>
         <td>{status}</td>
-        <td className="cell-icon text-primary">
+        <td className="text-primary">
           <Icon icon="cube" />
           <b> {totalCount}</b>
         </td>
-        <td className="cell-icon text-success">
-          <Icon icon="checkmark" />
+        <td className="text-success">
+          <Icon icon="paper-airplane" />
           <b> {successCount}</b>
         </td>
-        <td className="cell-icon text-warning">
-          <Icon icon="alert" />
+        <td className="text-warning">
+          <Icon icon="alert-circled" />
           <b> {failedCount}</b>
         </td>
 

@@ -108,41 +108,59 @@ class Form extends Common {
     if (this.state.successAction === 'email') {
       return (
         <div>
-          <FormGroup controlId="fromEmail">
+          <FormGroup>
             <ControlLabel>From email</ControlLabel>
-            <FormControl type="text" defaultValue={formData.fromEmail} />
+            <FormControl
+              type="text"
+              id="fromEmail"
+              defaultValue={formData.fromEmail}
+            />
           </FormGroup>
 
-          <FormGroup controlId="userEmailTitle">
+          <FormGroup>
             <ControlLabel>User email title</ControlLabel>
-            <FormControl type="text" defaultValue={formData.userEmailTitle} />
+            <FormControl
+              type="text"
+              id="userEmailTitle"
+              defaultValue={formData.userEmailTitle}
+            />
           </FormGroup>
 
-          <FormGroup controlId="userEmailContent">
+          <FormGroup>
             <ControlLabel>User email content</ControlLabel>
             <FormControl
               componentClass="textarea"
               type="text"
               defaultValue={formData.userEmailContent}
+              id="userEmailContent"
             />
           </FormGroup>
 
-          <FormGroup controlId="adminEmails">
+          <FormGroup>
             <ControlLabel>Admin emails</ControlLabel>
-            <FormControl type="text" defaultValue={formData.adminEmails} />
+            <FormControl
+              type="text"
+              defaultValue={formData.adminEmails}
+              id="adminEmails"
+            />
           </FormGroup>
 
-          <FormGroup controlId="adminEmailTitle">
+          <FormGroup>
             <ControlLabel>Admin email title</ControlLabel>
-            <FormControl type="text" defaultValue={formData.adminEmailTitle} />
+            <FormControl
+              type="text"
+              defaultValue={formData.adminEmailTitle}
+              id="adminEmailTitle"
+            />
           </FormGroup>
 
-          <FormGroup controlId="adminEmailContent">
+          <FormGroup>
             <ControlLabel>Admin email content</ControlLabel>
             <FormControl
               componentClass="textarea"
               type="text"
               defaultValue={formData.adminEmailContent}
+              id="adminEmailContent"
             />
           </FormGroup>
         </div>
@@ -154,9 +172,13 @@ class Form extends Common {
     if (this.state.successAction === 'redirect') {
       return (
         <div>
-          <FormGroup controlId="redirectUrl">
+          <FormGroup>
             <ControlLabel>Redirect url</ControlLabel>
-            <FormControl type="text" defaultValue={formData.redirectUrl} />
+            <FormControl
+              type="text"
+              defaultValue={formData.redirectUrl}
+              id="redirectUrl"
+            />
           </FormGroup>
         </div>
       );
@@ -169,7 +191,7 @@ class Form extends Common {
 
     return (
       <div>
-        <FormGroup controlId="formId">
+        <FormGroup>
           <ControlLabel>Form</ControlLabel>
 
           <FormControl
@@ -177,6 +199,7 @@ class Form extends Common {
             placeholder="Select Form"
             onChange={this.handleFormChange}
             defaultValue={integration.formId}
+            id="formId"
           >
             <option />
             {this.props.forms.map(form => (
@@ -187,10 +210,14 @@ class Form extends Common {
           </FormControl>
         </FormGroup>
 
-        <FormGroup controlId="loadType">
+        <FormGroup>
           <ControlLabel>Load</ControlLabel>
 
-          <FormControl componentClass="select" defaultValue={formData.loadType}>
+          <FormControl
+            componentClass="select"
+            defaultValue={formData.loadType}
+            id="loadType"
+          >
             <option />
             {this.props.loadTypes.map((type, index) => (
               <option key={index} value={type}>
@@ -200,13 +227,14 @@ class Form extends Common {
           </FormControl>
         </FormGroup>
 
-        <FormGroup controlId="successAction">
+        <FormGroup>
           <ControlLabel>On success</ControlLabel>
 
           <FormControl
             onChange={this.handleSuccessActionChange}
             componentClass="select"
             defaultValue={formData.successAction}
+            id="successAction"
           >
             <option />
             {this.props.successActions.map((action, index) => (
@@ -220,12 +248,13 @@ class Form extends Common {
         {this.renderEmailFields(formData)}
         {this.renderRedirectUrl(formData)}
 
-        <FormGroup controlId="thankContent">
+        <FormGroup>
           <ControlLabel>Thank content</ControlLabel>
           <FormControl
             componentClass="textarea"
             type="text"
             defaultValue={formData.thankContent}
+            id="thankContent"
           />
         </FormGroup>
       </div>

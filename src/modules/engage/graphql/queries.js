@@ -1,6 +1,6 @@
 const engageMessages = `
-  query engageMessages($kind: String, $status: String, $tag: String) {
-    engageMessages(kind: $kind, status: $status, tag: $tag) {
+  query engageMessages($params: JSON) {
+    engageMessages(params: $params) {
       _id
       title
       deliveryReports
@@ -89,6 +89,12 @@ const emailTemplates = `
   }
 `;
 
+const engageMessagesTotalCount = `
+  query engageMessagesTotalCount {
+    engageMessagesTotalCount
+  }
+`;
+
 const customerCounts = `
   query customerCounts($params: CustomerListParams) {
     customerCounts(params: $params)
@@ -128,6 +134,7 @@ const brands = `
 
 export default {
   engageMessages,
+  engageMessagesTotalCount,
   engageMessageDetail,
   users,
   userDetail,

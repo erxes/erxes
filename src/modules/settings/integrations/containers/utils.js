@@ -1,12 +1,13 @@
 import { Alert } from 'modules/common/utils';
 
-export const save = (
+export const save = ({
+  history,
   variables,
   addMutation,
   editMutation,
   integration,
   refetch
-) => {
+}) => {
   let mutation = addMutation;
 
   if (integration && integration._id) {
@@ -24,7 +25,7 @@ export const save = (
 
       Alert.success('Congrats');
 
-      window.location.href = `/settings/integrations/${window.location.search}`;
+      history.push(`/settings/integrations/${window.location.search}`);
     })
     .catch(error => {
       Alert.error(error.message);

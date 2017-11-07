@@ -61,4 +61,21 @@ const Links = styled.div`
   text-align: center;
 `;
 
-export { AuthBox, Links };
+const ProfileWrapper = styled.div`
+  position: relative;
+`;
+
+const ProfileRow = styled.div`
+  display: flex;
+  flex: 2;
+
+  > div {
+    flex: 1;
+
+    &:not(:last-child) {
+      margin-right: 20px;
+    }
+  }
+`;
+
+export { AuthBox, Links, ProfileWrapper, ProfileRow };

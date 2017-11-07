@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Modal, ButtonToolbar } from 'react-bootstrap';
 import { Wrapper } from 'modules/layout/components';
-import { Button } from 'modules/common/components';
+import { Button, Icon } from 'modules/common/components';
 import Sidebar from '../../Sidebar';
 import SelectBrand from './SelectBrand';
 
@@ -27,7 +27,7 @@ class Twitter extends Component {
         <Modal.Footer>
           <ButtonToolbar className="pull-right">
             <Button btnStyle="success" type="submit">
-              Save
+              <Icon icon="checkmark" /> Save
             </Button>
           </ButtonToolbar>
         </Modal.Footer>

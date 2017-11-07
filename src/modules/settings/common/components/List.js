@@ -14,8 +14,7 @@ const propTypes = {
   remove: PropTypes.func.isRequired,
   save: PropTypes.func.isRequired,
   refetch: PropTypes.func.isRequired,
-  loadMore: PropTypes.func.isRequired,
-  hasMore: PropTypes.bool.isRequired
+  totalCount: PropTypes.number.isRequired
 };
 
 class List extends Component {
@@ -40,7 +39,7 @@ class List extends Component {
   }
 
   render() {
-    const { loadMore, hasMore, save } = this.props;
+    const { totalCount, save } = this.props;
 
     const trigger = (
       <Button btnStyle="success" size="small">
@@ -49,15 +48,16 @@ class List extends Component {
     );
 
     const actionBarLeft = (
-      <ModalTrigger title={this.title} trigger={trigger}>
+      <ModalTrigger title={this.title} size={this.size} trigger={trigger}>
         {this.renderForm({ save })}
       </ModalTrigger>
     );
 
     const content = (
-      <Pagination loadMore={loadMore} hasMore={hasMore}>
+      <div>
         {this.renderContent()}
-      </Pagination>
+        <Pagination count={totalCount} />
+      </div>
     );
 
     return (

@@ -21,8 +21,8 @@ export default commonListComposer({
 
   gqlListQuery: graphql(
     gql`
-      query channels($limit: Int!) {
-        channels(limit: $limit) {
+      query channels($params: JSON) {
+        channels(params: $params) {
           _id
           name
           description
@@ -35,9 +35,7 @@ export default commonListComposer({
       name: 'listQuery',
       options: ({ queryParams }) => {
         return {
-          variables: {
-            limit: queryParams.limit || 20
-          }
+          variables: { params: queryParams }
         };
       }
     }

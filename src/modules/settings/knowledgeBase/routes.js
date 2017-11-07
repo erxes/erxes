@@ -1,5 +1,6 @@
 import React from 'react';
 import { Route } from 'react-router-dom';
+import queryString from 'query-string';
 import { MainLayout } from '../../layout/containers';
 import { TopicList, CategoryList, ArticleList } from './containers';
 
@@ -8,21 +9,37 @@ const routes = () => [
     key="/settings/knowledgebase/list"
     exact={true}
     path="/settings/knowledgebase/list"
-    component={() => <MainLayout content={<TopicList queryParams={{}} />} />}
+    component={({ location }) => (
+      <MainLayout
+        content={<TopicList queryParams={queryString.parse(location.search)} />}
+      />
+    )}
   />,
 
   <Route
     key="/settings/knowledgebase/categories"
     exact={true}
     path="/settings/knowledgebase/categories"
-    component={() => <MainLayout content={<CategoryList queryParams={{}} />} />}
+    component={({ location }) => (
+      <MainLayout
+        content={
+          <CategoryList queryParams={queryString.parse(location.search)} />
+        }
+      />
+    )}
   />,
 
   <Route
     key="/settings/knowledgebase/articles"
     exact={true}
     path="/settings/knowledgebase/articles"
-    component={() => <MainLayout content={<ArticleList queryParams={{}} />} />}
+    component={({ location }) => (
+      <MainLayout
+        content={
+          <ArticleList queryParams={queryString.parse(location.search)} />
+        }
+      />
+    )}
   />
 ];
 

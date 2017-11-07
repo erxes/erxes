@@ -27,8 +27,8 @@ export default commonListComposer({
 
   gqlListQuery: graphql(
     gql`
-      query objects($limit: Int!) {
-        users(limit: $limit) {
+      query objects($params: JSON) {
+        users(params: $params) {
           _id
           username
           email
@@ -42,7 +42,7 @@ export default commonListComposer({
       options: ({ queryParams }) => {
         return {
           variables: {
-            limit: queryParams.limit ? parseInt(queryParams.limit, 10) : 20
+            params: queryParams
           }
         };
       }
@@ -88,7 +88,7 @@ export default commonListComposer({
 
   gqlRemoveMutation: graphql(
     gql`
-      mutation usersRemove($_id: String) {
+      mutation usersRemove($_id: String!) {
         usersRemove(_id: $_id)
       }
     `,

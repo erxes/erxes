@@ -2,7 +2,9 @@ import styled from 'styled-components';
 import { colors, typography, dimensions } from '../../styles';
 
 const TabContainer = styled.div`
-  border-bottom: 1px solid ${colors.borderPrimary};
+  border-bottom: 1px solid
+    ${props =>
+      props.grayBorder ? colors.colorLightGray : colors.borderPrimary};
   margin-bottom: ${dimensions.coreSpacing}px;
 `;
 
@@ -10,7 +12,7 @@ const TabCaption = styled.span`
   cursor: pointer;
   display: inline-block;
   color: ${colors.textSecondary};
-  font-weight: ${typography.fontWeightLight};
+  font-weight: ${typography.fontWeightRegular};
   padding: calc(${dimensions.coreSpacing}px * 0.6) ${dimensions.coreSpacing}px;
   position: relative;
   transition: color 0.3s ease;
@@ -24,7 +26,6 @@ const TabCaption = styled.span`
 
     &:before {
       border-bottom: 3px solid ${colors.colorSecondary};
-      content: '';
       content: '';
       width: 100%;
       position: absolute;

@@ -33,7 +33,7 @@ class TaggerSection extends Component {
 
     return tags.map(({ _id, colorCode, name }) => (
       <li key={_id}>
-        <Icon icon="icon pricetag" style={{ color: colorCode }} />
+        <Icon icon="pricetag icon" style={{ color: colorCode }} />
         {name}
       </li>
     ));

@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { compose, gql, graphql } from 'react-apollo';
-import { Bulk, pagination, Loading } from 'modules/common/components';
+import { Bulk, Loading } from 'modules/common/components';
 import { Alert } from 'modules/common/utils';
 import { KIND_CHOICES } from 'modules/settings/integrations/constants';
 import { TAG_TYPES } from 'modules/tags/constants';
@@ -11,9 +11,7 @@ import { CustomersList } from '../components';
 class CustomerListContainer extends Bulk {
   render() {
     const {
-      queryParams,
       customersQuery,
-      totalCountQuery,
       brandsQuery,
       tagsQuery,
       customerCountsQuery,
@@ -23,7 +21,6 @@ class CustomerListContainer extends Bulk {
 
     if (
       customersQuery.loading ||
-      totalCountQuery.loading ||
       brandsQuery.loading ||
       customerCountsQuery.loading ||
       customersListConfigQuery.loading ||
@@ -31,9 +28,6 @@ class CustomerListContainer extends Bulk {
     ) {
       return <Loading title="Customers" />;
     }
-
-    const { customersTotalCount } = totalCountQuery;
-    const { loadMore, hasMore } = pagination(queryParams, customersTotalCount);
 
     let columnsConfig = customersListConfigQuery.fieldsDefaultColumnsConfig;
 
@@ -68,8 +62,6 @@ class CustomerListContainer extends Bulk {
       brands: brandsQuery.brands,
       integrations: KIND_CHOICES.ALL_LIST,
       tags: tagsQuery.tags,
-      loadMore,
-      hasMore,
       bulk: this.state.bulk,
       toggleBulk: this.toggleBulk,
       addCustomer
@@ -83,21 +75,19 @@ CustomerListContainer.propTypes = {
   customersQuery: PropTypes.object,
   tagsQuery: PropTypes.object,
   brandsQuery: PropTypes.object,
-  totalCountQuery: PropTypes.object,
   customerCountsQuery: PropTypes.object
 };
 
 export default compose(
   graphql(gql(queries.customers), {
     name: 'customersQuery',
-    options: ({ queryParams }) => ({
-      variables: {
-        params: {
-          ...queryParams,
-          limit: queryParams.limit || 20
+    options: ({ queryParams }) => {
+      return {
+        variables: {
+          params: queryParams
         }
-      }
-    })
+      };
+    }
   }),
   graphql(gql(queries.customerCounts), {
     name: 'customerCountsQuery',
@@ -122,7 +112,6 @@ export default compose(
     name: 'customersListConfigQuery'
   }),
   graphql(gql(queries.brands), { name: 'brandsQuery' }),
-  graphql(gql(queries.totalCustomersCount), { name: 'totalCountQuery' }),
   // mutations
   graphql(gql(mutations.customersAdd), {
     name: 'customersAdd'

@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { compose } from 'react-apollo';
-import { pagination, Loading } from 'modules/common/components';
+import { Loading } from 'modules/common/components';
 import { confirm } from 'modules/common/utils';
 import { Alert } from 'modules/common/utils';
 
@@ -22,8 +22,7 @@ const commonListComposer = options => {
       totalCountQuery,
       addMutation,
       editMutation,
-      removeMutation,
-      queryParams
+      removeMutation
     } = props;
 
     if (totalCountQuery.loading || listQuery.loading) {
@@ -31,9 +30,8 @@ const commonListComposer = options => {
     }
 
     const totalCount = totalCountQuery[`${name}TotalCount`];
-    const objects = listQuery[name];
 
-    const { loadMore, hasMore } = pagination(queryParams, totalCount);
+    const objects = listQuery[name];
 
     // remove action
     const remove = _id => {
@@ -85,8 +83,7 @@ const commonListComposer = options => {
       ...this.props,
       refetch: listQuery.refetch,
       objects,
-      loadMore,
-      hasMore,
+      totalCount,
       save,
       remove
     };
@@ -99,8 +96,7 @@ const commonListComposer = options => {
     listQuery: PropTypes.object,
     addMutation: PropTypes.func,
     editMutation: PropTypes.func,
-    removeMutation: PropTypes.func,
-    queryParams: PropTypes.object
+    removeMutation: PropTypes.func
   };
 
   if (gqlAddMutation) {

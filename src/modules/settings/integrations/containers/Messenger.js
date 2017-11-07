@@ -1,4 +1,5 @@
 import React from 'react';
+import { withRouter } from 'react-router';
 import PropTypes from 'prop-types';
 import { compose, gql, graphql } from 'react-apollo';
 import { Spinner } from 'modules/common/components';
@@ -7,6 +8,7 @@ import { save } from './utils';
 
 const MessengerContainer = props => {
   const {
+    history,
     brandsQuery,
     integration,
     addMutation,
@@ -20,7 +22,17 @@ const MessengerContainer = props => {
 
   const updatedProps = {
     ...props,
-    save: doc => save(doc, addMutation, editMutation, integration, refetch),
+
+    save: variables =>
+      save({
+        history,
+        variables,
+        addMutation,
+        editMutation,
+        integration,
+        refetch
+      }),
+
     brands: brandsQuery.brands
   };
 
@@ -28,6 +40,7 @@ const MessengerContainer = props => {
 };
 
 MessengerContainer.propTypes = {
+  history: PropTypes.object,
   integration: PropTypes.object,
   brandsQuery: PropTypes.object,
   addMutation: PropTypes.func,
@@ -35,52 +48,57 @@ MessengerContainer.propTypes = {
   refetch: PropTypes.func
 };
 
-export default compose(
-  graphql(
-    gql`
-      query brands {
-        brands {
-          _id
-          name
-          code
+export default withRouter(
+  compose(
+    graphql(
+      gql`
+        query brands {
+          brands {
+            _id
+            name
+            code
+          }
         }
+      `,
+      {
+        name: 'brandsQuery',
+        options: () => ({
+          fetchPolicy: 'network-only'
+        })
       }
-    `,
-    {
-      name: 'brandsQuery',
-      options: () => ({
-        fetchPolicy: 'network-only'
-      })
-    }
-  ),
+    ),
 
-  graphql(
-    gql`
-      mutation add($name: String!, $brandId: String!) {
-        integrationsCreateMessengerIntegration(name: $name, brandId: $brandId) {
-          _id
+    graphql(
+      gql`
+        mutation add($name: String!, $brandId: String!) {
+          integrationsCreateMessengerIntegration(
+            name: $name
+            brandId: $brandId
+          ) {
+            _id
+          }
         }
+      `,
+      {
+        name: 'addMutation'
       }
-    `,
-    {
-      name: 'addMutation'
-    }
-  ),
+    ),
 
-  graphql(
-    gql`
-      mutation edit($_id: String!, $name: String!, $brandId: String!) {
-        integrationsEditMessengerIntegration(
-          _id: $_id
-          name: $name
-          brandId: $brandId
-        ) {
-          _id
+    graphql(
+      gql`
+        mutation edit($_id: String!, $name: String!, $brandId: String!) {
+          integrationsEditMessengerIntegration(
+            _id: $_id
+            name: $name
+            brandId: $brandId
+          ) {
+            _id
+          }
         }
+      `,
+      {
+        name: 'editMutation'
       }
-    `,
-    {
-      name: 'editMutation'
-    }
-  )
-)(MessengerContainer);
+    )
+  )(MessengerContainer)
+);

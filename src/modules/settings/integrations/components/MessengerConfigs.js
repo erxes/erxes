@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
-import { Radio, Col, Row, ButtonGroup } from 'react-bootstrap';
+import { Col, Row } from 'react-bootstrap';
 import Select from 'react-select-plus';
 import Toggle from 'react-toggle';
 import { Wrapper } from 'modules/layout/components';
@@ -15,6 +15,7 @@ import {
   FormControl,
   ControlLabel
 } from 'modules/common/components';
+import { ContentBox, SubHeading } from '../../styles';
 
 class Configs extends Component {
   constructor(props) {
@@ -99,46 +100,50 @@ class Configs extends Component {
     }
 
     return (
-      <div className="flex-inline">
-        <Toggle
-          className="wide"
-          checked={this.state.isOnline}
-          onChange={this.onIsOnlineChange}
-          icons={{
-            checked: <span>Yes</span>,
-            unchecked: <span>No</span>
-          }}
-        />
-        <span>Is online</span>
-      </div>
+      <FormGroup>
+        <ControlLabel>Visible online to visitor or customer</ControlLabel>
+        <div>
+          <Toggle
+            className="wide"
+            checked={this.state.isOnline}
+            onChange={this.onIsOnlineChange}
+            icons={{
+              checked: <span>Yes</span>,
+              unchecked: <span>No</span>
+            }}
+          />
+        </div>
+      </FormGroup>
     );
   }
 
   render() {
     const content = (
-      <div className="margined type-box">
+      <ContentBox>
         <Row>
           <Col md={5}>
-            <h2>Online messaging</h2>
+            <SubHeading>Online messaging</SubHeading>
 
             <FormGroup>
               <ControlLabel>Welcome message</ControlLabel>
 
               <FormControl
                 componentClass="textarea"
+                placeholder="Write here Welcome message."
                 rows={3}
                 value={this.state.welcomeMessage}
                 onChange={this.onWelcomeMessageChange}
               />
             </FormGroup>
 
-            <h2>Offline messaging</h2>
+            <SubHeading>Offline messaging</SubHeading>
 
             <FormGroup>
               <ControlLabel>Away message</ControlLabel>
 
               <FormControl
                 componentClass="textarea"
+                placeholder="Write here Away message."
                 rows={3}
                 value={this.state.awayMessage}
                 onChange={this.onAwayMessageChange}
@@ -150,6 +155,7 @@ class Configs extends Component {
 
               <FormControl
                 componentClass="textarea"
+                placeholder="Write here Thank you message."
                 rows={3}
                 value={this.state.thankYouMessage}
                 onChange={this.onThankYouMessageChange}
@@ -157,27 +163,29 @@ class Configs extends Component {
             </FormGroup>
           </Col>
           <Col md={7}>
-            <h2>Hours & Availability</h2>
+            <SubHeading>Hours & Availability</SubHeading>
             <FormGroup>
-              <Radio
+              <FormControl
                 name="method"
                 value="manual"
+                componentClass="radio"
                 checked={this.state.availabilityMethod === 'manual'}
                 onChange={this.onMethodChange}
                 inline
               >
                 Turn online/offline manually
-              </Radio>
+              </FormControl>
 
-              <Radio
+              <FormControl
                 name="method"
                 value="auto"
+                componentClass="radio"
                 checked={this.state.availabilityMethod === 'auto'}
                 onChange={this.onMethodChange}
                 inline
               >
                 Set to follow your schedule
-              </Radio>
+              </FormControl>
             </FormGroup>
 
             {this.renderIsOnline()}
@@ -193,26 +201,26 @@ class Configs extends Component {
                 clearable={false}
               />
             </FormGroup>
-          </Col>
 
-          <Col md={7}>
-            <h2>Other configs</h2>
+            <SubHeading>Other configs</SubHeading>
 
-            <div className="flex-inline">
-              <Toggle
-                className="wide"
-                checked={this.state.notifyCustomer}
-                onChange={this.onNotifyCustomerChange}
-                icons={{
-                  checked: <span>Yes</span>,
-                  unchecked: <span>No</span>
-                }}
-              />
-              <span>Notify customer</span>
-            </div>
+            <FormGroup>
+              <ControlLabel>Notify customer</ControlLabel>
+              <div>
+                <Toggle
+                  className="wide"
+                  checked={this.state.notifyCustomer}
+                  onChange={this.onNotifyCustomerChange}
+                  icons={{
+                    checked: <span>Yes</span>,
+                    unchecked: <span>No</span>
+                  }}
+                />
+              </div>
+            </FormGroup>
           </Col>
         </Row>
-      </div>
+      </ContentBox>
     );
 
     const breadcrumb = [
@@ -220,20 +228,20 @@ class Configs extends Component {
       { title: 'Integrations' }
     ];
 
-    const actionBar = (
+    const actionFooter = (
       <Wrapper.ActionBar
-        left={
-          <ButtonGroup>
-            <Button btnStyle="success" onClick={this.save}>
-              <Icon icon="checkmark" /> Save
-            </Button>
-
+        right={
+          <Button.Group>
             <Link to="/settings/integrations">
-              <Button btnStyle="simple">
+              <Button size="small" btnStyle="simple">
                 <Icon icon="close" /> Cancel
               </Button>
             </Link>
-          </ButtonGroup>
+
+            <Button size="small" btnStyle="success" onClick={this.save}>
+              <Icon icon="checkmark" /> Save
+            </Button>
+          </Button.Group>
         }
       />
     );
@@ -242,7 +250,7 @@ class Configs extends Component {
       <Wrapper
         header={<Wrapper.Header breadcrumb={breadcrumb} />}
         leftSidebar={<Sidebar />}
-        actionBar={actionBar}
+        footer={actionFooter}
         content={content}
       />
     );
