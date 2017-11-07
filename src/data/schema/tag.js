@@ -16,6 +16,6 @@ export const queries = `
 export const mutations = `
 	tagsAdd(name: String!, type: String!, colorCode: String): Tag
 	tagsEdit(_id: String!, name: String!, type: String!, colorCode: String): Tag
-  tagsRemove(ids: [String!]!): Tag
+  tagsRemove(ids: [String!]!): String
 	tagsTag(type: String!, targetIds: [String!]!, tagIds: [String!]!): String
 `;
