@@ -8,15 +8,21 @@ import { queries } from '../graphql';
 
 class MessageListContainer extends Bulk {
   render() {
-    const { queryParams, tagsQuery, engageMessagesQuery } = this.props;
+    const {
+      queryParams,
+      tagsQuery,
+      engageMessagesQuery,
+      engageMessagesTotalCountQuery
+    } = this.props;
 
-    if (engageMessagesQuery.loading) {
+    if (engageMessagesQuery.loading || engageMessagesTotalCountQuery.loading) {
       return <Loading title="Engage" items={3} />;
     }
 
     const updatedProps = {
       kind: queryParams.kind,
       messages: engageMessagesQuery.engageMessages || [],
+      totalCount: engageMessagesTotalCountQuery.engageMessagesTotalCount,
       tags: tagsQuery.tags || [],
       bulk: this.state.bulk,
       toggleBulk: this.toggleBulk,
@@ -32,6 +38,7 @@ MessageListContainer.propTypes = {
   type: PropTypes.string,
   queryParams: PropTypes.object,
   engageMessagesQuery: PropTypes.object,
+  engageMessagesTotalCountQuery: PropTypes.object,
   tagsQuery: PropTypes.object
 };
 
@@ -40,12 +47,11 @@ export default compose(
     name: 'engageMessagesQuery',
     options: ({ queryParams }) => ({
       fetchPolicy: 'network-only',
-      variables: {
-        kind: queryParams.kind,
-        status: queryParams.status,
-        tag: queryParams.tag
-      }
+      variables: { params: queryParams }
     })
+  }),
+  graphql(gql(queries.engageMessagesTotalCount), {
+    name: 'engageMessagesTotalCountQuery'
   }),
   graphql(gql(queries.tags), {
     name: 'tagsQuery',

@@ -68,6 +68,53 @@ const WidgetBox = styled.div`
   margin-bottom: 20px;
 `;
 
+const WidgetPreview = styled.div`
+  width: 280px;
+  height: 430px;
+  border-radius: 4px;
+  background: #fff;
+  color: #fff;
+  display: flex;
+  font-size: 12px;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 2px 15px 0 rgba(0, 0, 0, 0.14), 0 1px 6px 0 rgba(0, 0, 0, 0.06);
+`;
+
+const ErxesTopbar = styled.div`
+  overflow: hidden;
+  width: 100%;
+  position: relative;
+  text-align: center;
+  flex-shrink: 0;
+`;
+
+const TopbarButton = styled.div`
+  left: 10px;
+`;
+
+const ErxesMiddle = styled.div`
+  display: inline-block;
+`;
+
+const ErxesStaffProfile = styled.div`
+  padding: 10px 0;
+  text-align: left;
+  line-height: 1.3em;
+
+  img {
+    float: left;
+    width: 30px;
+    height: 30px;
+    border-radius: 20px;
+    overflow: hidden;
+  }
+`;
+
+const ErxesStaffName = styled.div`
+  display: inline-block;
+`;
+
 const WidgetSettings = styled.div`
   padding: 10px 30px 10px 10px;
 `;
@@ -134,6 +181,12 @@ export {
   Margined,
   WidgetApperance,
   WidgetSettings,
+  WidgetPreview,
+  ErxesMiddle,
+  ErxesTopbar,
+  TopbarButton,
+  ErxesStaffName,
+  ErxesStaffProfile,
   WidgetBox,
   ColorPick,
   ColorPicker,

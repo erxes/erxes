@@ -2,9 +2,12 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import { Wrapper } from 'modules/layout/components';
+import { Dropdown } from 'react-bootstrap';
 import {
-  Pagination,
+  DropdownToggle,
+  TaggerPopover,
   ModalTrigger,
+  Pagination,
   Button,
   Icon,
   Table
@@ -22,8 +25,6 @@ const propTypes = {
   brands: PropTypes.array.isRequired,
   integrations: PropTypes.array.isRequired,
   tags: PropTypes.array.isRequired,
-  loadMore: PropTypes.func.isRequired,
-  hasMore: PropTypes.bool.isRequired,
   bulk: PropTypes.array.isRequired,
   toggleBulk: PropTypes.func.isRequired,
   addCustomer: PropTypes.func.isRequired
@@ -31,22 +32,14 @@ const propTypes = {
 
 class CustomersList extends React.Component {
   renderContent() {
-    const {
-      customers,
-      columnsConfig,
-      loadMore,
-      hasMore,
-      toggleBulk
-    } = this.props;
+    const { customers, counts, columnsConfig, toggleBulk } = this.props;
 
     return (
-      <Pagination hasMore={hasMore} loadMore={loadMore}>
+      <div>
         <Table whiteSpace="nowrap" hover bordered>
           <thead>
             <tr>
-              <th>
-                <Link to="/customers/manage-columns">...</Link>
-              </th>
+              <th />
               {columnsConfig.map(({ name, label }) => (
                 <th key={name}>{label}</th>
               ))}
@@ -63,7 +56,9 @@ class CustomersList extends React.Component {
             ))}
           </tbody>
         </Table>
-      </Pagination>
+
+        <Pagination count={counts.all} />
+      </div>
     );
   }
 
@@ -78,30 +73,43 @@ class CustomersList extends React.Component {
 
     const actionBarRight = (
       <BarItems>
-        <Button btnStyle="simple" size="small">
-          Tags <Icon icon="ios-arrow-down" />
-        </Button>
-        <Button btnStyle="simple" size="small">
-          Customize <Icon icon="ios-arrow-down" />
-        </Button>
+        <Dropdown id="dropdown-engage" pullRight>
+          <DropdownToggle bsRole="toggle">
+            <Button btnStyle="simple" size="small">
+              Customize <Icon icon="ios-arrow-down" />
+            </Button>
+          </DropdownToggle>
+          <Dropdown.Menu>
+            <li>
+              <Link to="/customers/manage-columns">Edit columns</Link>
+            </li>
+            <li>
+              <Link to="/fields/manage/customer">Properties</Link>
+            </li>
+          </Dropdown.Menu>
+        </Dropdown>
         <ModalTrigger title="New customer" trigger={addTrigger}>
           <CustomerForm addCustomer={addCustomer} />
         </ModalTrigger>
       </BarItems>
     );
 
-    const actionBarLeft = (
-      <BarItems>
-        {bulk.length > 0 ? <Widget customers={bulk} /> : null}
+    let actionBarLeft = null;
 
+    if (bulk.length > 0) {
+      const tagButton = (
         <Button btnStyle="simple" size="small">
-          <Icon icon="ios-pricetag" /> Tag
+          Tag <Icon icon="ios-arrow-down" />
         </Button>
-        <Button btnStyle="simple" size="small">
-          More <Icon icon="ios-arrow-down" />
-        </Button>
-      </BarItems>
-    );
+      );
+
+      actionBarLeft = (
+        <BarItems>
+          <Widget customers={bulk} />
+          <TaggerPopover type="customer" targets={bulk} trigger={tagButton} />
+        </BarItems>
+      );
+    }
 
     const actionBar = (
       <Wrapper.ActionBar left={actionBarLeft} right={actionBarRight} />

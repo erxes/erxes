@@ -10,8 +10,7 @@ const propTypes = {
   integrations: PropTypes.array.isRequired,
   removeIntegration: PropTypes.func.isRequired,
   refetch: PropTypes.func.isRequired,
-  loadMore: PropTypes.func.isRequired,
-  hasMore: PropTypes.bool.isRequired
+  totalCount: PropTypes.number.isRequired
 };
 
 class List extends Component {
@@ -35,12 +34,12 @@ class List extends Component {
   }
 
   render() {
-    const { loadMore, hasMore } = this.props;
+    const { totalCount } = this.props;
 
     const actionBar = <Wrapper.ActionBar right={<AddIntegration />} />;
 
     const content = (
-      <Pagination loadMore={loadMore} hasMore={hasMore}>
+      <div>
         <Table>
           <thead>
             <tr>
@@ -52,7 +51,9 @@ class List extends Component {
           </thead>
           <tbody>{this.renderIntegrations()}</tbody>
         </Table>
-      </Pagination>
+
+        <Pagination count={totalCount} />
+      </div>
     );
 
     const breadcrumb = [

@@ -1,7 +1,12 @@
 import React, { Component } from 'react';
 import moment from 'moment';
 import PropTypes from 'prop-types';
-import { Label, InputDescription } from '../styles';
+import { InputDescription } from '../styles';
+import {
+  ControlLabel,
+  FormGroup,
+  FormControl
+} from 'modules/common/components';
 
 export default class GenerateField extends Component {
   constructor(props) {
@@ -12,22 +17,22 @@ export default class GenerateField extends Component {
 
   renderSelect(options = [], attrs = {}) {
     return (
-      <select {...attrs}>
+      <FormControl componentClass="select" {...attrs}>
         {options.map((option, index) => (
           <option key={index} value={option}>
             {option}
           </option>
         ))}
-      </select>
+      </FormControl>
     );
   }
 
   renderInput(attrs) {
-    return <input {...attrs} />;
+    return <FormControl {...attrs} />;
   }
 
   renderTextarea(attrs) {
-    return <textarea {...attrs} />;
+    return <FormControl componentClass="textarea" {...attrs} />;
   }
 
   renderRadioOrCheckInputs(options, type) {
@@ -35,7 +40,7 @@ export default class GenerateField extends Component {
       <div>
         {options.map((option, index) => (
           <div key={index}>
-            {this.renderInput({ type })}
+            {this.renderInput({ componentClass: type })}
             <span>{option}</span>
           </div>
         ))}
@@ -98,16 +103,18 @@ export default class GenerateField extends Component {
     const { field } = this.props;
 
     return (
-      <div>
-        <Label htmlFor={field._id}>
+      <FormGroup>
+        <ControlLabel htmlFor={field._id}>
           {field.text}
           {field.isRequired ? <span className="required">*</span> : null}:
-        </Label>
+        </ControlLabel>
 
-        <InputDescription>{field.description}</InputDescription>
+        {field.description ? (
+          <InputDescription>{field.description}</InputDescription>
+        ) : null}
 
         {this.renderControl()}
-      </div>
+      </FormGroup>
     );
   }
 }

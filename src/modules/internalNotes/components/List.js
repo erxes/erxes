@@ -1,7 +1,15 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import moment from 'moment';
-import { NameCard, Icon } from 'modules/common/components';
+import { NameCard, Button, Icon } from 'modules/common/components';
+import {
+  ActivityRow,
+  AvatarWrapper,
+  ActivityWrapper,
+  ActivityCaption,
+  ActivityContent,
+  DeleteNote
+} from 'modules/customers/components/styles';
 
 const propTypes = {
   notes: PropTypes.array.isRequired,
@@ -12,28 +20,35 @@ const propTypes = {
 function List({ notes, remove, currentUserId }) {
   return (
     <div>
-      <div className="internal-notes-list">
-        {notes.map(note => (
-          <div key={note._id} className="item">
-            <div className="topbar">
-              <NameCard user={note.createdUser} avatarSize={50} />
-              <div className="date">{moment(note.createdDate).fromNow()}</div>
-              <div className="clearfix" />
-            </div>
-            <div className="text">{note.content}</div>
-
+      {notes.map(note => (
+        <ActivityRow key={note._id}>
+          <ActivityWrapper>
             {note.createdUserId === currentUserId ? (
-              <Icon
-                icon="delete trash-a"
-                role="button"
-                onClick={() => {
-                  remove(note._id);
-                }}
-              />
+              <DeleteNote>
+                <Button
+                  btnStyle="danger"
+                  size="small"
+                  onClick={() => {
+                    remove(note._id);
+                  }}
+                >
+                  <Icon icon="trash-a" />
+                </Button>
+              </DeleteNote>
             ) : null}
-          </div>
-        ))}
-      </div>
+
+            <AvatarWrapper>
+              <NameCard.Avatar user={note.createdUser} size={50} />
+            </AvatarWrapper>
+            <ActivityCaption>
+              {note.createdUser.details.fullName}
+            </ActivityCaption>
+            <div>{moment(note.createdDate).fromNow()}</div>
+          </ActivityWrapper>
+
+          <ActivityContent>{note.content}</ActivityContent>
+        </ActivityRow>
+      ))}
     </div>
   );
 }

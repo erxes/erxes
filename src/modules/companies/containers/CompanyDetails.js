@@ -5,6 +5,7 @@ import { Alert } from 'modules/common/utils';
 import { Loading } from 'modules/common/components';
 import { queries, mutations } from '../graphql';
 import { CompanyDetails } from '../components';
+import { withCurrentUser } from 'modules/auth/containers';
 
 const CompanyDetailsContainer = props => {
   const {
@@ -61,22 +62,24 @@ CompanyDetailsContainer.propTypes = {
   companiesAddCustomer: PropTypes.func
 };
 
-export default compose(
-  graphql(gql(queries.companyDetail), {
-    name: 'companyDetailQuery',
-    options: ({ id }) => ({
-      variables: {
-        _id: id
-      }
+export default withCurrentUser(
+  compose(
+    graphql(gql(queries.companyDetail), {
+      name: 'companyDetailQuery',
+      options: ({ id }) => ({
+        variables: {
+          _id: id
+        }
+      })
+    }),
+    graphql(gql(mutations.companiesEdit), {
+      name: 'companiesEdit'
+    }),
+    graphql(gql(queries.fields), {
+      name: 'fieldsQuery'
+    }),
+    graphql(gql(mutations.companiesAddCustomer), {
+      name: 'companiesAddCustomer'
     })
-  }),
-  graphql(gql(mutations.companiesEdit), {
-    name: 'companiesEdit'
-  }),
-  graphql(gql(queries.fields), {
-    name: 'fieldsQuery'
-  }),
-  graphql(gql(mutations.companiesAddCustomer), {
-    name: 'companiesAddCustomer'
-  })
-)(CompanyDetailsContainer);
+  )(CompanyDetailsContainer)
+);

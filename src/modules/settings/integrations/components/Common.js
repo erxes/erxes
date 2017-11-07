@@ -79,9 +79,14 @@ class Common extends Component {
 
     return (
       <form className="margined" onSubmit={this.handleSubmit}>
-        <FormGroup controlId="integration-name">
+        <FormGroup>
           <ControlLabel>Name</ControlLabel>
-          <FormControl type="text" defaultValue={integration.name} required />
+          <FormControl
+            id="integration-name"
+            type="text"
+            defaultValue={integration.name}
+            required
+          />
         </FormGroup>
 
         <SelectBrand
@@ -92,7 +97,7 @@ class Common extends Component {
 
         {this.extraContent && this.extraContent()}
 
-        <FormGroup controlId="install-code">
+        <FormGroup>
           <ControlLabel>Install code</ControlLabel>
           <MarkdownWrapper>
             <ReactMarkdown source={this.state.code} />

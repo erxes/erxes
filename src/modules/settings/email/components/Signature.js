@@ -61,7 +61,7 @@ class Signature extends Component {
   }
 
   render() {
-    const current = this.getCurrent();
+    const current = this.getCurrent() || {};
 
     const content = (
       <ContentBox>
@@ -75,11 +75,7 @@ class Signature extends Component {
           <FormGroup>
             <ControlLabel>Brand</ControlLabel>
 
-            <FormControl
-              componentClass="select"
-              onChange={this.changeCurrent}
-              controlId="selectBrand"
-            >
+            <FormControl componentClass="select" onChange={this.changeCurrent}>
               <option>------------</option>
 
               {this.props.signatures.map(signature => (

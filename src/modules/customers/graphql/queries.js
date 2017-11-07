@@ -73,12 +73,6 @@ const tags = `
   }
 `;
 
-const totalCustomersCount = `
-  query totalCustomersCount {
-    customersTotalCount
-  }
-`;
-
 const fields = `
   query {
     fields(contentType: "customer") {
@@ -110,7 +104,6 @@ export default {
   customerDetail,
   brands,
   tags,
-  totalCustomersCount,
   fields,
   customersListConfig
 };

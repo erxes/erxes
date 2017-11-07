@@ -231,7 +231,7 @@ const Checkbox = inputStyle.extend`
       margin-top: calc(${inputHeight} / -2 / 2 * 0.8);
       border-style: solid;
       border-color: ${colors.colorWhite};
-      border-width: 0 0 3px 3px;
+      border-width: 0 0 2px 2px;
       border-radius: 0;
       border-image: none;
       transform: rotate(-45deg) scale(0);

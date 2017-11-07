@@ -79,8 +79,8 @@ export default withCurrentUser(
   compose(
     graphql(
       gql`
-        query objects($limit: Int) {
-          brands(limit: $limit) {
+        query brands($params: JSON) {
+          brands(params: $params) {
             _id
             name
           }

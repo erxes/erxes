@@ -22,13 +22,14 @@ class Form extends CommonForm {
 
     return (
       <div>
-        <FormGroup controlId="template-brand-id">
+        <FormGroup>
           <ControlLabel>Brand</ControlLabel>
 
           <FormControl
             componentClass="select"
             placeholder="Select Brand"
             defaultValue={resTemplate.brandId}
+            id="template-brand-id"
           >
             {brands.map(brand => (
               <option key={brand._id} value={brand._id}>

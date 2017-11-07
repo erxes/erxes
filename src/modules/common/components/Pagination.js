@@ -1,6 +1,5 @@
 import React from 'react';
 import { withRouter } from 'react-router';
-import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import _ from 'underscore';
 import { router } from 'modules/common/utils';
@@ -76,7 +75,9 @@ class Page extends React.Component {
     router.setParams(this.props.history, { page });
   }
 
-  onClick() {
+  onClick(e) {
+    e.preventDefault();
+
     this.goto(this.props.page);
   }
 
@@ -92,7 +93,7 @@ class Page extends React.Component {
 
       return (
         <li className={className} onClick={this.onClick}>
-          <Link to={`?page=${page}`}>{page}</Link>
+          <a href="">{page}</a>
         </li>
       );
     }

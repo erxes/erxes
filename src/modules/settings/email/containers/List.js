@@ -29,8 +29,8 @@ ListContainer.propTypes = {
 export default compose(
   graphql(
     gql`
-      query objects($limit: Int!) {
-        brands(limit: $limit) {
+      query brands($params: JSON) {
+        brands(params: $params) {
           _id
           name
           code
@@ -40,10 +40,10 @@ export default compose(
     `,
     {
       name: 'listQuery',
-      options: () => {
+      options: ({ queryParams }) => {
         return {
           variables: {
-            limit: 100
+            params: queryParams
           }
         };
       }

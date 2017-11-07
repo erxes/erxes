@@ -4,9 +4,7 @@ import { TabContainer, TabCaption } from './styles';
 
 class Tabs extends React.Component {
   render() {
-    const { children } = this.props;
-
-    return <TabContainer>{children}</TabContainer>;
+    return <TabContainer {...this.props} />;
   }
 }
 
@@ -16,7 +14,10 @@ class TabTitle extends React.Component {
   }
 }
 
-Tabs.propTypes = { children: PropTypes.node };
+Tabs.propTypes = {
+  children: PropTypes.node,
+  grayBorder: PropTypes.bool
+};
 
 TabTitle.propTypes = {
   children: PropTypes.node,

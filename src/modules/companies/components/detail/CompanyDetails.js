@@ -2,19 +2,25 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Wrapper } from 'modules/layout/components';
 import { Icon } from 'modules/common/components';
-import { List as InternalNotes } from 'modules/internalNotes/containers';
+import {
+  List as InternalNotes,
+  Form as NoteForm
+} from 'modules/internalNotes/containers';
+import { Tabs, TabTitle } from 'modules/common/components';
+import { WhiteBox } from 'modules/layout/styles';
 import LeftSidebar from './LeftSidebar';
 
 const propTypes = {
   company: PropTypes.object.isRequired,
   customFields: PropTypes.array.isRequired,
   save: PropTypes.func.isRequired,
-  queryParams: PropTypes.object.isRequired
+  queryParams: PropTypes.object.isRequired,
+  currentUser: PropTypes.object.isRequired
 };
 
 class CompanyDetails extends React.Component {
   render() {
-    const { company } = this.props;
+    const { currentUser, company } = this.props;
 
     const breadcrumb = [
       { title: 'Companies', link: '/companies' },
@@ -22,17 +28,24 @@ class CompanyDetails extends React.Component {
     ];
 
     const content = (
-      <div className="cc-detail-content">
-        <ul className="header">
-          <li className="active">
-            <a>
-              <Icon icon="email" />
-              New note
-            </a>
-          </li>
-        </ul>
+      <div>
+        <WhiteBox>
+          <Tabs>
+            <TabTitle className="active">
+              <Icon icon="compose" /> New note
+            </TabTitle>
+          </Tabs>
 
-        {<InternalNotes contentType="company" contentTypeId={company._id} />}
+          <NoteForm contentType="company" contentTypeId={company._id} />
+        </WhiteBox>
+
+        {
+          <InternalNotes
+            contentType="company"
+            contentTypeId={company._id}
+            currentUserId={currentUser._id}
+          />
+        }
       </div>
     );
 
@@ -41,6 +54,7 @@ class CompanyDetails extends React.Component {
         header={<Wrapper.Header breadcrumb={breadcrumb} />}
         leftSidebar={<LeftSidebar {...this.props} />}
         content={content}
+        transparent={true}
       />
     );
   }

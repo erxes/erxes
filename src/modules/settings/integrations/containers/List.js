@@ -1,11 +1,11 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { compose, gql, graphql } from 'react-apollo';
-import { pagination, Loading } from 'modules/common/components';
+import { Loading } from 'modules/common/components';
 import { List } from '../components';
 
 const ListContainer = props => {
-  const { listQuery, totalCountQuery, removeMutation, queryParams } = props;
+  const { listQuery, totalCountQuery, removeMutation } = props;
 
   if (totalCountQuery.loading || listQuery.loading) {
     return <Loading title="Integrations" />;
@@ -13,8 +13,6 @@ const ListContainer = props => {
 
   const totalCount = totalCountQuery.integrationsTotalCount;
   const integrations = listQuery.integrations;
-
-  const { loadMore, hasMore } = pagination(queryParams, totalCount);
 
   const removeIntegration = (_id, callback) => {
     removeMutation({
@@ -32,8 +30,7 @@ const ListContainer = props => {
     ...this.props,
     integrations,
     refetch: listQuery.refetch,
-    loadMore,
-    hasMore,
+    totalCount,
     removeIntegration
   };
 
@@ -43,15 +40,14 @@ const ListContainer = props => {
 ListContainer.propTypes = {
   totalCountQuery: PropTypes.object,
   listQuery: PropTypes.object,
-  removeMutation: PropTypes.func,
-  queryParams: PropTypes.object
+  removeMutation: PropTypes.func
 };
 
 export default compose(
   graphql(
     gql`
-      query objects($limit: Int!, $kind: String) {
-        integrations(limit: $limit, kind: $kind) {
+      query objects($params: JSON) {
+        integrations(params: $params) {
           _id
           brandId
           name
@@ -75,10 +71,7 @@ export default compose(
       name: 'listQuery',
       options: ({ queryParams }) => {
         return {
-          variables: {
-            limit: queryParams.limit || 20,
-            kind: queryParams.kind
-          },
+          variables: { params: queryParams },
           fetchPolicy: 'network-only'
         };
       }
