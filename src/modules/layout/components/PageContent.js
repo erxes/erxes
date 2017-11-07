@@ -12,8 +12,8 @@ const propTypes = {
 function PageContent({ actionBar, footer, children, transparent }) {
   return (
     <MainContent>
-      {actionBar}
       <ContentBox transparent={transparent}>{children}</ContentBox>
+      {actionBar}
       {footer && <ContenFooter>{footer}</ContenFooter>}
     </MainContent>
   );

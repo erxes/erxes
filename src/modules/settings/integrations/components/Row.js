@@ -56,7 +56,7 @@ class Row extends Component {
 
     if (kind === KIND_CHOICES.MESSENGER) {
       return (
-        <div style={{ display: 'inline-block' }}>
+        <ActionButtons>
           <Tip text="Appearance">
             <Link
               to={`/settings/integrations/messenger/appearance/${integration._id}`}
@@ -80,7 +80,7 @@ class Row extends Component {
           <ModalTrigger title="Edit integration" trigger={editTrigger}>
             <Messenger integration={integration} refetch={refetch} />
           </ModalTrigger>
-        </div>
+        </ActionButtons>
       );
     }
 

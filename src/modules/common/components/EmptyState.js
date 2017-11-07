@@ -11,7 +11,7 @@ const EmptyStateStyled = styled.div`
   height: 100%;
   justify-content: center;
   text-align: center;
-  font-size: 16px;
+  font-size: 14px;
   padding: 20px;
   color: ${colors.colorCoreGray};
   background: ${colors.colorWhite};
@@ -36,7 +36,7 @@ const EmptyStateStyled = styled.div`
   }};
 
   i {
-    font-size: ${props => (props.size === 'small' ? '28px' : '62px')};
+    font-size: ${props => (props.size === 'small' ? '28px' : '170px')};
     line-height: ${props => (props.size === 'small' ? '40px' : '78px')};
     color: ${colors.colorShadowGray};
   }

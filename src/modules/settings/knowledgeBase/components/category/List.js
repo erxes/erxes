@@ -42,9 +42,7 @@ class CategoryList extends CommonList {
           <tr>
             <th>Title</th>
             <th>Description</th>
-            <th width="183" className="text-right">
-              Actions
-            </th>
+            <th width="83">Actions</th>
           </tr>
         </thead>
         <tbody>{this.renderObjects()}</tbody>

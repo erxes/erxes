@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
-import { ButtonGroup, OverlayTrigger, Popover } from 'react-bootstrap';
+import { OverlayTrigger, Popover } from 'react-bootstrap';
 import classnames from 'classnames';
 import { ChromePicker } from 'react-color';
 import { uploadHandler } from 'modules/common/utils';
@@ -9,6 +9,16 @@ import { Wrapper } from 'modules/layout/components';
 import Sidebar from '../../Sidebar';
 import WidgetPreview from './WidgetPreview';
 import { Button, Icon } from 'modules/common/components';
+import {
+  SubHeading,
+  Margined,
+  WidgetApperance,
+  WidgetSettings,
+  WidgetBox,
+  ColorPick,
+  ColorPicker,
+  LogoContainer
+} from '../../styles';
 
 class Appearance extends Component {
   constructor(props) {
@@ -97,43 +107,25 @@ class Appearance extends Component {
     const { logo, logoPreviewStyle, logoPreviewUrl } = this.state;
 
     const content = (
-      <div className="margined">
-        <div className="widget-appearance type-box">
-          <div>
-            <WidgetPreview
-              color={this.state.color}
-              wallpaper={this.state.wallpaper}
-              user={this.props.user}
-            />
-            <div
-              className="logo-container"
-              style={Object.assign(
-                {
-                  backgroundColor: this.state.color,
-                  backgroundImage: `url(${logoPreviewUrl})`
-                },
-                logoPreviewStyle
-              )}
-            />
-          </div>
-
-          <div className="widget-settings">
-            <div className="box">
-              <h2>Choose a custom color</h2>
+      <Margined>
+        <WidgetApperance className="type-box">
+          <WidgetSettings>
+            <WidgetBox>
+              <SubHeading>Choose a custom color</SubHeading>
               <OverlayTrigger
                 trigger="click"
                 rootClose
                 placement="bottom"
                 overlay={popoverTop}
               >
-                <div className="color-pick">
-                  <div style={{ backgroundColor: this.state.color }} />
-                </div>
+                <ColorPick>
+                  <ColorPicker style={{ backgroundColor: this.state.color }} />
+                </ColorPick>
               </OverlayTrigger>
-            </div>
+            </WidgetBox>
 
-            <div className="box">
-              <h2>Choose a wallpaper</h2>
+            <WidgetBox>
+              <SubHeading>Choose a wallpaper</SubHeading>
 
               <div className="widget-backgrounds">
                 {this.renderWallpaperSelect('1')}
@@ -142,17 +134,34 @@ class Appearance extends Component {
                 {this.renderWallpaperSelect('4')}
                 {this.renderWallpaperSelect('5')}
               </div>
-            </div>
+            </WidgetBox>
 
-            <div className="box">
-              <h2>Choose a logo</h2>
+            <WidgetBox>
+              <SubHeading>Choose a logo</SubHeading>
 
               <input type="file" onChange={this.handleLogoChange} />
               <input type="hidden" id="logo" value={logo} />
-            </div>
-          </div>
-        </div>
-      </div>
+            </WidgetBox>
+          </WidgetSettings>
+
+          <WidgetSettings>
+            <WidgetPreview
+              color={this.state.color}
+              wallpaper={this.state.wallpaper}
+              user={this.props.user}
+            />
+            <LogoContainer
+              style={Object.assign(
+                {
+                  backgroundColor: this.state.color,
+                  backgroundImage: `url(${logoPreviewUrl})`
+                },
+                logoPreviewStyle
+              )}
+            />
+          </WidgetSettings>
+        </WidgetApperance>
+      </Margined>
     );
 
     const breadcrumb = [
@@ -162,18 +171,18 @@ class Appearance extends Component {
 
     const actionBar = (
       <Wrapper.ActionBar
-        left={
-          <ButtonGroup>
-            <Button btnStyle="success" onClick={this.save}>
-              <Icon icon="checkmark" /> Save
-            </Button>
-
+        right={
+          <Button.Group>
             <Link to="/settings/integrations">
-              <Button btnStyle="simple">
+              <Button size="small" btnStyle="simple">
                 <Icon icon="close" /> Cancel
               </Button>
             </Link>
-          </ButtonGroup>
+
+            <Button size="small" btnStyle="success" onClick={this.save}>
+              <Icon icon="checkmark" /> Save
+            </Button>
+          </Button.Group>
         }
       />
     );

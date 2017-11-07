@@ -34,11 +34,21 @@ injectGlobal`
     text-decoration: none;
   }
 
+  .text-primary {
+    color: #04A9F5 !important;
+  }
 
+  .text-success {
+    color: #67C682 !important;
+  }
+
+  .text-warning {
+    color: #F5C22B !important;
+  }
   /* override */
   .modal-backdrop {
     background-color: #30435C;
-  }
+  } !important
 
   .modal-backdrop.in {
     opacity: 0.8;
@@ -68,7 +78,7 @@ injectGlobal`
 
   .modal-title {
     font-size: 18px;
-    font-weight: 400;
+    font-weight: 300;
     color: #fff;
   }
 
@@ -77,7 +87,7 @@ injectGlobal`
   }
 
   .modal-footer {
-    padding: 20px 0 0;
+    padding: 0;
     margin-top: 20px;
     border: none;
   }

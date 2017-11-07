@@ -8,7 +8,8 @@ import {
   TaggerPopover,
   Table,
   Button,
-  Icon
+  Icon,
+  EmptyState
 } from 'modules/common/components';
 import { MessageListRow, Sidebar as SidebarContainers } from '../containers';
 
@@ -75,7 +76,11 @@ class List extends React.Component {
       <Wrapper.ActionBar left={this.renderTagger()} right={actionBarRight} />
     );
 
-    const content = (
+    const emptyContent = (
+      <EmptyState text="There is no engage message" size="full" icon="email" />
+    );
+
+    const mainContent = (
       <Table whiteSpace="nowrap" hover bordered>
         <thead>
           <tr>
@@ -104,6 +109,13 @@ class List extends React.Component {
       </Table>
     );
 
+    const content = () => {
+      if (messages.length === 0) {
+        return emptyContent;
+      }
+      return mainContent;
+    };
+
     const sidebar = (
       <Wrapper.Sidebar>
         <SidebarContainers.Main />
@@ -117,7 +129,7 @@ class List extends React.Component {
         header={<Wrapper.Header breadcrumb={[{ title: 'Engage' }]} />}
         leftSidebar={sidebar}
         actionBar={actionBar}
-        content={content}
+        content={content()}
       />
     );
   }
