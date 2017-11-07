@@ -9,6 +9,7 @@ const Items = styled.ol`
   padding: 0;
   margin: 0 ${dimensions.coreSpacing}px 0 0;
   list-style: none;
+  font-size: 14px;
 `;
 
 const propTypes = {

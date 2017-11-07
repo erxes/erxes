@@ -7,11 +7,18 @@ import { rgba } from '../../styles/color';
 const Item = styled.li`
   display: inline-block;
   color: ${rgba(colors.colorWhite, 0.7)};
-  margin-right: ${dimensions.coreSpacing}px;
 
   > a {
     text-decoration: none;
     color: ${colors.colorWhite};
+  }
+
+  & + li::before {
+    content: '\f3d3';
+    font-family: 'Ionicons';
+    padding: 0 ${dimensions.unitSpacing}px;
+    color: ${rgba(colors.colorWhite, 0.5)};
+    font-size: 11px;
   }
 `;
 
