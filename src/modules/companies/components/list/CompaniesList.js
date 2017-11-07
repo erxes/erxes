@@ -6,7 +6,8 @@ import {
   Pagination,
   ModalTrigger,
   Button,
-  Table
+  Table,
+  EmptyState
 } from 'modules/common/components';
 import { BarItems } from 'modules/layout/styles';
 import Sidebar from './Sidebar';
@@ -21,7 +22,7 @@ const propTypes = {
 };
 
 function CompaniesList({ companies, counts, columnsConfig, addCompany }) {
-  const content = (
+  const mainContent = (
     <div>
       <Table whiteSpace="nowrap" bordered>
         <thead>
@@ -45,6 +46,17 @@ function CompaniesList({ companies, counts, columnsConfig, addCompany }) {
       <Pagination count={counts.all} />
     </div>
   );
+
+  const emptyContent = (
+    <EmptyState text="No companies added yet!" size="full" icon="ios-list" />
+  );
+
+  const content = () => {
+    if (companies.length === 0) {
+      return emptyContent;
+    }
+    return mainContent;
+  };
 
   const addTrigger = (
     <Button btnStyle="success" size="small">
@@ -73,7 +85,7 @@ function CompaniesList({ companies, counts, columnsConfig, addCompany }) {
       header={<Wrapper.Header breadcrumb={breadcrumb} />}
       actionBar={actionBar}
       leftSidebar={<Sidebar counts={counts} />}
-      content={content}
+      content={content()}
     />
   );
 }

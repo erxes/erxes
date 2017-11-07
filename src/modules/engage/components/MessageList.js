@@ -79,7 +79,7 @@ class List extends React.Component {
     );
 
     const emptyContent = (
-      <EmptyState text="There is no engage message" size="full" icon="email" />
+      <EmptyState text="There is no engage message." size="full" icon="email" />
     );
 
     const mainContent = (
