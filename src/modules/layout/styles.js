@@ -60,6 +60,16 @@ const Nav = styled.nav`
     &:hover {
       color: ${colors.colorWhite};
     }
+
+    &.active {
+      position: relative;
+      color: ${colors.colorWhite};
+      background: rgba(0, 0, 0, 0.2);
+    }
+
+    > i {
+      margin: 0;
+    }
   }
 `;
 
@@ -126,7 +136,6 @@ const ContentHeader = styled.div`
 
 const ContenFooter = styled.div`
   margin-right: ${dimensions.coreSpacing}px;
-  background: ${colors.colorWhite};
 
   ${ContentHeader} {
     margin-right: 0;

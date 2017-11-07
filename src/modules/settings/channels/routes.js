@@ -1,12 +1,20 @@
 import React from 'react';
-import { Route } from 'react-router-dom';
+import { Route, Redirect } from 'react-router-dom';
 import queryString from 'query-string';
 import { MainLayout } from '../../layout/containers';
 import { ChannelList } from './containers';
 
-const routes = () => (
+const routes = () => [
   <Route
-    path="/settings/channels/"
+    exact
+    key="/settings"
+    path="/settings"
+    render={() => <Redirect to="/settings/channels/" />}
+  />,
+
+  <Route
+    key="/settings/channels"
+    path="/settings/channels"
     component={({ location }) => {
       return (
         <MainLayout
@@ -17,6 +25,6 @@ const routes = () => (
       );
     }}
   />
-);
+];
 
 export default routes;

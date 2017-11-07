@@ -53,19 +53,13 @@ class List extends Component {
       </ModalTrigger>
     );
 
-    const content = (
-      <div>
-        {this.renderContent()}
-        <Pagination count={totalCount} />
-      </div>
-    );
-
     return (
       <Wrapper
         header={<Wrapper.Header breadcrumb={this.breadcrumb()} />}
         leftSidebar={<Sidebar />}
         actionBar={<Wrapper.ActionBar right={actionBarLeft} />}
-        content={content}
+        footer={<Pagination count={totalCount} />}
+        content={this.renderContent()}
       />
     );
   }

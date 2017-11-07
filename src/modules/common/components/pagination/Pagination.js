@@ -3,6 +3,8 @@ import { withRouter } from 'react-router';
 import PropTypes from 'prop-types';
 import _ from 'underscore';
 import { router } from 'modules/common/utils';
+import { Icon } from 'modules/common/components';
+import { PaginationWrapper, PaginationList } from './styles';
 
 // pages calculation
 const generatePages = (pageCount, currentPage) => {
@@ -170,42 +172,34 @@ class Pagination extends React.Component {
       }
 
       return (
-        <nav>
-          <ul className="pagination">
-            <li>
-              <a href="" className={prevClass} onClick={this.onPrev}>
-                <i className="glyphicon glyphicon-chevron-left" />
-              </a>
-            </li>
+        <PaginationList>
+          <li className={prevClass}>
+            <a href="" onClick={this.onPrev}>
+              <Icon icon="chevron-left" />
+            </a>
+          </li>
 
-            {pages.map((page, index) => (
-              <Page
-                key={index}
-                history={history}
-                currentPage={currentPage}
-                page={page}
-              />
-            ))}
+          {pages.map((page, index) => (
+            <Page
+              key={index}
+              history={history}
+              currentPage={currentPage}
+              page={page}
+            />
+          ))}
 
-            <li>
-              <a href="" className={nextClass} onClick={this.onNext}>
-                <i className="glyphicon glyphicon-chevron-right" />
-              </a>
-            </li>
-          </ul>
-        </nav>
+          <li className={nextClass}>
+            <a href="" onClick={this.onNext}>
+              <Icon icon="chevron-right" />
+            </a>
+          </li>
+        </PaginationList>
       );
     }
   }
 
   render() {
-    return (
-      <div className="pagination-container">
-        <div className="pull-right">{this.renderBar()}</div>
-
-        <div className="clearfix" />
-      </div>
-    );
+    return <PaginationWrapper>{this.renderBar()}</PaginationWrapper>;
   }
 }
 

@@ -6,7 +6,8 @@ import {
   Pagination,
   ModalTrigger,
   Button,
-  Table
+  Table,
+  Icon
 } from 'modules/common/components';
 import { BarItems } from 'modules/layout/styles';
 import Sidebar from './Sidebar';
@@ -22,33 +23,27 @@ const propTypes = {
 
 function CompaniesList({ companies, counts, columnsConfig, addCompany }) {
   const content = (
-    <div>
-      <Table whiteSpace="nowrap" bordered>
-        <thead>
-          <tr>
-            {columnsConfig.map(({ name, label }) => (
-              <th key={name}>{label}</th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {companies.map(company => (
-            <CompanyRow
-              company={company}
-              columnsConfig={columnsConfig}
-              key={company._id}
-            />
-          ))}
-        </tbody>
-      </Table>
-
-      <Pagination count={counts.all} />
-    </div>
+    <Table whiteSpace="nowrap" bordered>
+      <thead>
+        <tr>
+          {columnsConfig.map(({ name, label }) => <th key={name}>{label}</th>)}
+        </tr>
+      </thead>
+      <tbody>
+        {companies.map(company => (
+          <CompanyRow
+            company={company}
+            columnsConfig={columnsConfig}
+            key={company._id}
+          />
+        ))}
+      </tbody>
+    </Table>
   );
 
   const addTrigger = (
     <Button btnStyle="success" size="small">
-      Add company
+      <Icon icon="plus" /> Add company
     </Button>
   );
 
@@ -72,6 +67,7 @@ function CompaniesList({ companies, counts, columnsConfig, addCompany }) {
     <Wrapper
       header={<Wrapper.Header breadcrumb={breadcrumb} />}
       actionBar={actionBar}
+      footer={<Pagination count={counts.all} />}
       leftSidebar={<Sidebar counts={counts} />}
       content={content}
     />

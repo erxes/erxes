@@ -32,33 +32,29 @@ const propTypes = {
 
 class CustomersList extends React.Component {
   renderContent() {
-    const { customers, counts, columnsConfig, toggleBulk } = this.props;
+    const { customers, columnsConfig, toggleBulk } = this.props;
 
     return (
-      <div>
-        <Table whiteSpace="nowrap" hover bordered>
-          <thead>
-            <tr>
-              <th />
-              {columnsConfig.map(({ name, label }) => (
-                <th key={name}>{label}</th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {customers.map(customer => (
-              <CustomerRow
-                customer={customer}
-                columnsConfig={columnsConfig}
-                key={customer._id}
-                toggleBulk={toggleBulk}
-              />
+      <Table whiteSpace="nowrap" hover bordered>
+        <thead>
+          <tr>
+            <th />
+            {columnsConfig.map(({ name, label }) => (
+              <th key={name}>{label}</th>
             ))}
-          </tbody>
-        </Table>
-
-        <Pagination count={counts.all} />
-      </div>
+          </tr>
+        </thead>
+        <tbody>
+          {customers.map(customer => (
+            <CustomerRow
+              customer={customer}
+              columnsConfig={columnsConfig}
+              key={customer._id}
+              toggleBulk={toggleBulk}
+            />
+          ))}
+        </tbody>
+      </Table>
     );
   }
 
@@ -121,6 +117,7 @@ class CustomersList extends React.Component {
       <Wrapper
         header={<Wrapper.Header breadcrumb={breadcrumb} />}
         actionBar={actionBar}
+        footer={<Pagination count={counts.all} />}
         leftSidebar={<Sidebar counts={counts} />}
         content={this.renderContent()}
       />

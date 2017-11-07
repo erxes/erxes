@@ -52,7 +52,7 @@ class List extends React.Component {
       <Dropdown id="dropdown-engage" pullRight>
         <DropdownToggle bsRole="toggle">
           <Button btnStyle="success" size="small">
-            New message <Icon icon="chevron-down" />
+            <Icon icon="plus" /> New message <Icon icon="chevron-down" />
           </Button>
         </DropdownToggle>
         <Dropdown.Menu>
@@ -78,36 +78,32 @@ class List extends React.Component {
     );
 
     const content = (
-      <div>
-        <Table whiteSpace="nowrap" hover bordered>
-          <thead>
-            <tr>
-              <th />
-              <th>Title</th>
-              <th>From</th>
-              <th>Status</th>
-              <th>Total</th>
-              <th>Sent</th>
-              <th>Failed</th>
-              <th>Type</th>
-              <th>Created date</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {messages.map(message => (
-              <MessageListRow
-                toggleBulk={toggleBulk}
-                refetch={refetch}
-                key={message._id}
-                message={message}
-              />
-            ))}
-          </tbody>
-        </Table>
-
-        <Pagination count={totalCount} />
-      </div>
+      <Table whiteSpace="nowrap" hover bordered>
+        <thead>
+          <tr>
+            <th />
+            <th>Title</th>
+            <th>From</th>
+            <th>Status</th>
+            <th>Total</th>
+            <th>Sent</th>
+            <th>Failed</th>
+            <th>Type</th>
+            <th>Created date</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {messages.map(message => (
+            <MessageListRow
+              toggleBulk={toggleBulk}
+              refetch={refetch}
+              key={message._id}
+              message={message}
+            />
+          ))}
+        </tbody>
+      </Table>
     );
 
     const sidebar = (
@@ -123,6 +119,7 @@ class List extends React.Component {
         header={<Wrapper.Header breadcrumb={[{ title: 'Engage' }]} />}
         leftSidebar={sidebar}
         actionBar={actionBar}
+        footer={<Pagination count={totalCount} />}
         content={content}
       />
     );

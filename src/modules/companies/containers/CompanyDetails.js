@@ -5,9 +5,8 @@ import { Alert } from 'modules/common/utils';
 import { Loading } from 'modules/common/components';
 import { queries, mutations } from '../graphql';
 import { CompanyDetails } from '../components';
-import { withCurrentUser } from 'modules/auth/containers';
 
-const CompanyDetailsContainer = props => {
+const CompanyDetailsContainer = (props, context) => {
   const {
     id,
     companyDetailQuery,
@@ -48,6 +47,7 @@ const CompanyDetailsContainer = props => {
     },
     save,
     addCustomer,
+    currentUser: context.currentUser,
     customFields: fieldsQuery.fields
   };
 
@@ -62,24 +62,26 @@ CompanyDetailsContainer.propTypes = {
   companiesAddCustomer: PropTypes.func
 };
 
-export default withCurrentUser(
-  compose(
-    graphql(gql(queries.companyDetail), {
-      name: 'companyDetailQuery',
-      options: ({ id }) => ({
-        variables: {
-          _id: id
-        }
-      })
-    }),
-    graphql(gql(mutations.companiesEdit), {
-      name: 'companiesEdit'
-    }),
-    graphql(gql(queries.fields), {
-      name: 'fieldsQuery'
-    }),
-    graphql(gql(mutations.companiesAddCustomer), {
-      name: 'companiesAddCustomer'
+CompanyDetailsContainer.contextTypes = {
+  currentUser: PropTypes.object
+};
+
+export default compose(
+  graphql(gql(queries.companyDetail), {
+    name: 'companyDetailQuery',
+    options: ({ id }) => ({
+      variables: {
+        _id: id
+      }
     })
-  )(CompanyDetailsContainer)
-);
+  }),
+  graphql(gql(mutations.companiesEdit), {
+    name: 'companiesEdit'
+  }),
+  graphql(gql(queries.fields), {
+    name: 'fieldsQuery'
+  }),
+  graphql(gql(mutations.companiesAddCustomer), {
+    name: 'companiesAddCustomer'
+  })
+)(CompanyDetailsContainer);
