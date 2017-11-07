@@ -1,11 +1,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { compose, gql, graphql } from 'react-apollo';
-import { withCurrentUser } from 'modules/auth/containers';
 import { Alert } from 'modules/common/utils';
 import { Profile } from '../components';
 
-const ProfileContainer = props => {
+const ProfileContainer = (props, { currentUser }) => {
   const { editProfileMutation } = props;
 
   const save = variables => {
@@ -20,6 +19,7 @@ const ProfileContainer = props => {
 
   const updatedProps = {
     ...props,
+    currentUser,
     save
   };
 
@@ -30,29 +30,31 @@ ProfileContainer.propTypes = {
   editProfileMutation: PropTypes.func
 };
 
-export default withCurrentUser(
-  compose(
-    graphql(
-      gql`
-        mutation usersEditProfile(
-          $username: String!
-          $email: String!
-          $details: UserDetails
-          $password: String!
+ProfileContainer.contextTypes = {
+  currentUser: PropTypes.object
+};
+
+export default compose(
+  graphql(
+    gql`
+      mutation usersEditProfile(
+        $username: String!
+        $email: String!
+        $details: UserDetails
+        $password: String!
+      ) {
+        usersEditProfile(
+          username: $username
+          email: $email
+          details: $details
+          password: $password
         ) {
-          usersEditProfile(
-            username: $username
-            email: $email
-            details: $details
-            password: $password
-          ) {
-            _id
-          }
+          _id
         }
-      `,
-      {
-        name: 'editProfileMutation'
       }
-    )
-  )(ProfileContainer)
-);
+    `,
+    {
+      name: 'editProfileMutation'
+    }
+  )
+)(ProfileContainer);

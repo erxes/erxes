@@ -2,13 +2,12 @@ import _ from 'underscore';
 import React from 'react';
 import PropTypes from 'prop-types';
 import { compose, gql, graphql } from 'react-apollo';
-import { withCurrentUser } from 'modules/auth/containers';
 import { Alert } from 'modules/common/utils';
 import { Signature } from '../components';
 import { Loading } from 'modules/common/components';
 
-const SignatureContainer = props => {
-  const { currentUser, brandsQuery, saveMutation } = props;
+const SignatureContainer = (props, { currentUser }) => {
+  const { brandsQuery, saveMutation } = props;
 
   if (brandsQuery.loading) {
     return <Loading title="Signature template" />;
@@ -70,37 +69,38 @@ const SignatureContainer = props => {
 };
 
 SignatureContainer.propTypes = {
-  currentUser: PropTypes.object,
   brandsQuery: PropTypes.object,
   saveMutation: PropTypes.func
 };
 
-export default withCurrentUser(
-  compose(
-    graphql(
-      gql`
-        query brands($params: JSON) {
-          brands(params: $params) {
-            _id
-            name
-          }
+SignatureContainer.contextTypes = {
+  currentUser: PropTypes.object
+};
+
+export default compose(
+  graphql(
+    gql`
+      query brands($params: JSON) {
+        brands(params: $params) {
+          _id
+          name
         }
-      `,
-      {
-        name: 'brandsQuery'
       }
-    ),
-    graphql(
-      gql`
-        mutation usersConfigEmailSignatures($signatures: [EmailSignature]) {
-          usersConfigEmailSignatures(signatures: $signatures) {
-            _id
-          }
+    `,
+    {
+      name: 'brandsQuery'
+    }
+  ),
+  graphql(
+    gql`
+      mutation usersConfigEmailSignatures($signatures: [EmailSignature]) {
+        usersConfigEmailSignatures(signatures: $signatures) {
+          _id
         }
-      `,
-      {
-        name: 'saveMutation'
       }
-    )
-  )(SignatureContainer)
-);
+    `,
+    {
+      name: 'saveMutation'
+    }
+  )
+)(SignatureContainer);

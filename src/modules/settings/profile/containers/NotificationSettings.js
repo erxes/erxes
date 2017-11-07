@@ -1,13 +1,11 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { compose, gql, graphql } from 'react-apollo';
-import { withCurrentUser } from 'modules/auth/containers';
 import { Alert } from 'modules/common/utils';
 import { NotificationSettings } from '../components';
 
-const NotificationSettingsContainer = props => {
+const NotificationSettingsContainer = (props, { currentUser }) => {
   const {
-    currentUser,
     notificationModulesQuery,
     notificationConfigurationsQuery,
     configGetNotificationByEmailMutation,
@@ -68,68 +66,66 @@ const NotificationSettingsContainer = props => {
 };
 
 NotificationSettingsContainer.propTypes = {
-  currentUser: PropTypes.object,
   notificationModulesQuery: PropTypes.object,
   notificationConfigurationsQuery: PropTypes.object,
   configGetNotificationByEmailMutation: PropTypes.func,
   saveNotificationConfigurationsMutation: PropTypes.func
 };
 
-export default withCurrentUser(
-  compose(
-    graphql(
-      gql`
-        query notificationsModules {
-          notificationsModules
-        }
-      `,
-      {
-        name: 'notificationModulesQuery'
+NotificationSettingsContainer.contextTypes = {
+  currentUser: PropTypes.object
+};
+
+export default compose(
+  graphql(
+    gql`
+      query notificationsModules {
+        notificationsModules
       }
-    ),
-    graphql(
-      gql`
-        query notificationsGetConfigurations {
-          notificationsGetConfigurations {
-            _id
-            notifType
-            isAllowed
-          }
+    `,
+    {
+      name: 'notificationModulesQuery'
+    }
+  ),
+  graphql(
+    gql`
+      query notificationsGetConfigurations {
+        notificationsGetConfigurations {
+          _id
+          notifType
+          isAllowed
         }
-      `,
-      {
-        name: 'notificationConfigurationsQuery'
       }
-    ),
-    graphql(
-      gql`
-        mutation usersConfigGetNotificationByEmail($isAllowed: Boolean) {
-          usersConfigGetNotificationByEmail(isAllowed: $isAllowed) {
-            _id
-          }
+    `,
+    {
+      name: 'notificationConfigurationsQuery'
+    }
+  ),
+  graphql(
+    gql`
+      mutation usersConfigGetNotificationByEmail($isAllowed: Boolean) {
+        usersConfigGetNotificationByEmail(isAllowed: $isAllowed) {
+          _id
         }
-      `,
-      {
-        name: 'configGetNotificationByEmailMutation'
       }
-    ),
-    graphql(
-      gql`
-        mutation notificationsSaveConfig(
-          $notifType: String!
-          $isAllowed: Boolean
-        ) {
-          notificationsSaveConfig(
-            notifType: $notifType
-            isAllowed: $isAllowed
-          ) {
-            _id
-          }
+    `,
+    {
+      name: 'configGetNotificationByEmailMutation'
+    }
+  ),
+  graphql(
+    gql`
+      mutation notificationsSaveConfig(
+        $notifType: String!
+        $isAllowed: Boolean
+      ) {
+        notificationsSaveConfig(notifType: $notifType, isAllowed: $isAllowed) {
+          _id
         }
-      `,
-      {
-        name: 'saveNotificationConfigurationsMutation'
       }
-    )
-  )(NotificationSettingsContainer)
-);
+    `,
+    {
+      name: 'saveNotificationConfigurationsMutation'
+    }
+  )
+)(NotificationSettingsContainer);
