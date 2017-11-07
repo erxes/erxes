@@ -1,4 +1,5 @@
 import React from 'react';
+import { withRouter } from 'react-router';
 import PropTypes from 'prop-types';
 import { compose, gql, graphql } from 'react-apollo';
 import { Spinner } from 'modules/common/components';
@@ -8,6 +9,7 @@ import { save } from './utils';
 
 const FormContainer = props => {
   const {
+    history,
     brandsQuery,
     formsQuery,
     integration,
@@ -33,7 +35,17 @@ const FormContainer = props => {
     ...props,
     brands,
     forms,
-    save: doc => save(doc, addMutation, editMutation, integration, refetch),
+
+    save: variables =>
+      save({
+        history,
+        variables,
+        addMutation,
+        editMutation,
+        integration,
+        refetch
+      }),
+
     loadTypes,
     successActions
   };
@@ -42,6 +54,7 @@ const FormContainer = props => {
 };
 
 FormContainer.propTypes = {
+  history: PropTypes.object,
   integration: PropTypes.object,
   brandsQuery: PropTypes.object,
   formsQuery: PropTypes.object,
@@ -64,64 +77,66 @@ const commonParams = `
   formData: $formData
 `;
 
-export default compose(
-  graphql(
-    gql`
-      query brands {
-        brands {
-          _id
-          name
-          code
+export default withRouter(
+  compose(
+    graphql(
+      gql`
+        query brands {
+          brands {
+            _id
+            name
+            code
+          }
         }
+      `,
+      {
+        name: 'brandsQuery',
+        options: () => ({
+          fetchPolicy: 'network-only'
+        })
       }
-    `,
-    {
-      name: 'brandsQuery',
-      options: () => ({
-        fetchPolicy: 'network-only'
-      })
-    }
-  ),
-  graphql(
-    gql`
-      query forms {
-        forms {
-          _id
-          title
-          code
+    ),
+    graphql(
+      gql`
+        query forms {
+          forms {
+            _id
+            title
+            code
+          }
         }
+      `,
+      {
+        name: 'formsQuery',
+        options: () => ({
+          fetchPolicy: 'network-only'
+        })
       }
-    `,
-    {
-      name: 'formsQuery',
-      options: () => ({
-        fetchPolicy: 'network-only'
-      })
-    }
-  ),
-  graphql(
-    gql`
+    ),
+    graphql(
+      gql`
       mutation add(${commonParamsDef}) {
         integrationsCreateFormIntegration(${commonParams}) {
           _id
         }
       }
     `,
-    {
-      name: 'addMutation'
-    }
-  ),
+      {
+        name: 'addMutation'
+      }
+    ),
 
-  graphql(
-    gql`
+    graphql(
+      gql`
       mutation edit($_id: String!, ${commonParamsDef}) {
         integrationsEditFormIntegration(_id: $_id, ${commonParams}) {
           _id
         }
       }
     `,
-    {
-      name: 'editMutation'
-    }
-  )
-)(FormContainer);
+      {
+        name: 'editMutation'
+      }
+    )
+  )(FormContainer)
+);
