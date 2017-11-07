@@ -126,7 +126,6 @@ const ContentHeader = styled.div`
 
 const ContenFooter = styled.div`
   margin-right: ${dimensions.coreSpacing}px;
-  background: ${colors.colorWhite};
 
   ${ContentHeader} {
     margin-right: 0;

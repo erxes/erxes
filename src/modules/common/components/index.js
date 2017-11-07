@@ -11,7 +11,7 @@ import LoadingSidebar from './loading/LoadingSidebar';
 import LoadingContent from './loading/LoadingContent';
 import Loading from './loading/Loading';
 import LoadMore from './LoadMore';
-import Pagination from './Pagination';
+import Pagination from './pagination/Pagination';
 import ModalTrigger from './ModalTrigger';
 import ActionButtons from './ActionButtons';
 import EmptyState from './EmptyState';
