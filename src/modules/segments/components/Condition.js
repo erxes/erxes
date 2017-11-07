@@ -1,9 +1,15 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Form } from 'react-bootstrap';
 import debounce from 'lodash/debounce';
 import { types, operators, dateUnits } from 'modules/customers/constants';
-import { Button, Icon, FormControl } from 'modules/common/components';
+import {
+  Button,
+  Icon,
+  FormControl,
+  ControlLabel
+} from 'modules/common/components';
+import { FlexContent, FlexItem, FlexRightItem } from 'modules/layout/styles';
+import { ConditionItem } from './styles';
 
 const propTypes = {
   condition: PropTypes.object.isRequired,
@@ -105,43 +111,51 @@ class Condition extends Component {
     const { condition } = this.props;
 
     return (
-      <Form inline className="clearfix">
-        <div className="pull-left">
-          <span>{condition.field}</span>{' '}
-          <FormControl
-            name="operator"
-            componentClass="select"
-            placeholder="select"
-            value={this.state.operator}
-            onChange={this.handleInputValue}
-          >
-            {operators[this.state.type].map(c => (
-              <option value={c.value} key={c.value}>
-                {c.name}
-              </option>
-            ))}
-          </FormControl>{' '}
-          {this.renderValueInput()}
-        </div>
-        <div className="pull-right">
-          <FormControl
-            name="type"
-            componentClass="select"
-            placeholder="select"
-            value={this.state.type}
-            onChange={this.handleInputValue}
-          >
-            {Object.keys(types).map(key => (
-              <option value={key} key={key}>
-                {types[key]}
-              </option>
-            ))}
-          </FormControl>
-          <Button btnStyle="link" onClick={this.removeCondition}>
-            <Icon icon="close" />
-          </Button>
-        </div>
-      </Form>
+      <ConditionItem>
+        <ControlLabel>{condition.field}</ControlLabel>
+        <br />
+        <FlexContent>
+          <FlexItem>
+            <FormControl
+              name="operator"
+              componentClass="select"
+              placeholder="select"
+              value={this.state.operator}
+              onChange={this.handleInputValue}
+            >
+              {operators[this.state.type].map(c => (
+                <option value={c.value} key={c.value}>
+                  {c.name}
+                </option>
+              ))}
+            </FormControl>{' '}
+            {this.renderValueInput()}
+          </FlexItem>
+          <FlexRightItem>
+            <FormControl
+              name="type"
+              componentClass="select"
+              placeholder="select"
+              value={this.state.type}
+              onChange={this.handleInputValue}
+            >
+              {Object.keys(types).map(key => (
+                <option value={key} key={key}>
+                  {types[key]}
+                </option>
+              ))}
+            </FormControl>
+            <Button
+              iconKey
+              btnStyle="danger"
+              size="small"
+              onClick={this.removeCondition}
+            >
+              <Icon icon="close" />
+            </Button>
+          </FlexRightItem>
+        </FlexContent>
+      </ConditionItem>
     );
   }
 }
