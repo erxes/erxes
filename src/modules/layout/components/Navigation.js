@@ -36,7 +36,7 @@ function Navigation() {
           </NavLink>
         </Tip>
         <Tip placement="right" text="Settings">
-          <NavLink to="/settings/channels" activeClassName="active">
+          <NavLink to="/settings" activeClassName="active">
             <Icon icon="gear-b" />
           </NavLink>
         </Tip>

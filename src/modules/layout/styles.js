@@ -55,14 +55,20 @@ const Nav = styled.nav`
     font-size: ${dimensions.coreSpacing}px;
     line-height: ${dimensions.headerSpacing + 10}px;
     text-align: center;
-    color: ${rgba(colors.colorWhite, 0.6)};
+    color: ${rgba(colors.colorWhite, 0.7)};
 
     &:hover {
-      color: ${rgba(colors.colorWhite, 0.8)};
+      color: ${colors.colorWhite};
     }
 
     &.active {
+      position: relative;
       color: ${colors.colorWhite};
+      background: rgba(0, 0, 0, 0.2);
+    }
+
+    > i {
+      margin: 0;
     }
   }
 `;
