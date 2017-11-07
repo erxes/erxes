@@ -93,7 +93,7 @@ class TopicForm extends CommonForm {
   renderInstallCode() {
     if (this.props.object && this.props.object._id) {
       return (
-        <FormGroup controlId="install-code">
+        <FormGroup>
           <ControlLabel>Install code</ControlLabel>
           <MarkdownWrapper>
             <ReactMarkdown source={this.state.code} />

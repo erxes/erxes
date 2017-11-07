@@ -65,22 +65,24 @@ class Form extends Component {
 
     return (
       <form onSubmit={this.submit}>
-        <FormGroup controlId="name">
+        <FormGroup>
           <ControlLabel>Name</ControlLabel>
           <FormControl
             type="text"
             value={name}
             onChange={this.handleName}
             required
+            id="name"
           />
         </FormGroup>
 
-        <FormGroup controlId="colorCode">
+        <FormGroup>
           <ControlLabel>Color code</ControlLabel>
           <FormControl
             type="color"
             value={colorCode}
             onChange={this.handleColorCode}
+            id="colorCode"
           />
         </FormGroup>
 

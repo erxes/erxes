@@ -75,11 +75,7 @@ class Signature extends Component {
           <FormGroup>
             <ControlLabel>Brand</ControlLabel>
 
-            <FormControl
-              componentClass="select"
-              onChange={this.changeCurrent}
-              controlId="selectBrand"
-            >
+            <FormControl componentClass="select" onChange={this.changeCurrent}>
               <option>------------</option>
 
               {this.props.signatures.map(signature => (
