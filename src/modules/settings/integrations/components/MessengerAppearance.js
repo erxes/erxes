@@ -8,6 +8,7 @@ import { uploadHandler } from 'modules/common/utils';
 import { Wrapper } from 'modules/layout/components';
 import Sidebar from '../../Sidebar';
 import WidgetPreview from './WidgetPreview';
+import { MessengerPreview, Messenger } from 'modules/engage/styles';
 import { Button, Icon } from 'modules/common/components';
 import {
   SubHeading,
@@ -25,7 +26,7 @@ class Appearance extends Component {
     super(props);
 
     this.state = {
-      color: props.prevOptions.color || '#452679',
+      color: props.prevOptions.color || '#04A9F5',
       wallpaper: props.prevOptions.wallpaper || '1',
       logo: props.prevOptions.logo,
       logoPreviewStyle: {},
@@ -144,22 +145,26 @@ class Appearance extends Component {
             </WidgetBox>
           </WidgetSettings>
 
-          <WidgetSettings>
-            <WidgetPreview
-              color={this.state.color}
-              wallpaper={this.state.wallpaper}
-              user={this.props.user}
-            />
-            <LogoContainer
-              style={Object.assign(
-                {
-                  backgroundColor: this.state.color,
-                  backgroundImage: `url(${logoPreviewUrl})`
-                },
-                logoPreviewStyle
-              )}
-            />
-          </WidgetSettings>
+          <MessengerPreview>
+            <Messenger>
+              <WidgetPreview
+                color={this.state.color}
+                wallpaper={this.state.wallpaper}
+                user={this.props.user}
+              />
+              <LogoContainer
+                style={Object.assign(
+                  {
+                    backgroundColor: this.state.color,
+                    backgroundImage: `url(${logoPreviewUrl})`
+                  },
+                  logoPreviewStyle
+                )}
+              >
+                <Icon icon="ios-upload-outline icon" size={30} />
+              </LogoContainer>
+            </Messenger>
+          </MessengerPreview>
         </WidgetApperance>
       </Margined>
     );
@@ -191,7 +196,7 @@ class Appearance extends Component {
       <Wrapper
         header={<Wrapper.Header breadcrumb={breadcrumb} />}
         leftSidebar={<Sidebar />}
-        actionBar={actionBar}
+        footer={actionBar}
         content={content}
       />
     );
