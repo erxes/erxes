@@ -22,7 +22,7 @@ const QuickNavigationContainer = (props, { currentUser }) => {
     history.push('/');
   };
 
-  const updatedProps = { ...props, logout };
+  const updatedProps = { ...props, logout, currentUser };
 
   return <QuickNavigation {...updatedProps} />;
 };

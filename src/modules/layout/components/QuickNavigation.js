@@ -21,36 +21,21 @@ const NameCardWrapper = styled.div`
   padding: 10px 20px;
 `;
 
-const QuickNavigation = ({ logout }) => {
-  const user = {
-    username: 'batamar',
-    details: {
-      avatar:
-        'https://s3.amazonaws.com/erxes/0.05832306598313153black-avatar.jpg',
-      fullName: 'Bat-Amar Battulga ',
-      role: 'admin',
-      starredConversationIds: ['HjfaTNDFt8cDHGmYx'],
-      twitterUsername: 'b_batamar',
-      position: 'Web Developer at The New Media Group',
-      getNotificationByEmail: true
-    },
-    emails: null
-  };
-
+const QuickNavigation = ({ logout, currentUser }) => {
   return (
     <Dropdown id="dropdown-user" pullRight>
       <DropdownToggle bsRole="toggle">
         <UserHelper>
           <UserInfo>
-            <span>{user.details.fullName}</span>
-            <NameCard.Avatar user={user} size={30} />
+            <span>{currentUser.details.fullName}</span>
+            <NameCard.Avatar user={currentUser} size={30} />
             <Icon icon="chevron-down" />
           </UserInfo>
         </UserHelper>
       </DropdownToggle>
       <Dropdown.Menu>
         <NameCardWrapper>
-          <NameCard user={user} />
+          <NameCard user={currentUser} />
         </NameCardWrapper>
         <MenuItem divider />
         <li>
@@ -67,7 +52,8 @@ const QuickNavigation = ({ logout }) => {
 };
 
 QuickNavigation.propTypes = {
-  logout: PropTypes.func
+  logout: PropTypes.func,
+  currentUser: PropTypes.object.isRequired
 };
 
 export default QuickNavigation;
