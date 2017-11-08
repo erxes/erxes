@@ -174,6 +174,20 @@ class Integration {
   }
 
   /**
+   * Create facebook integration
+   * @param {Object} doc - Integration doc
+   * @return {Promise} returns integration document promise
+   */
+  static createFacebookIntegration({ name, brandId, facebookData }) {
+    return this.createIntegration({
+      name,
+      brandId,
+      kind: KIND_CHOICES.FACEBOOK,
+      facebookData,
+    });
+  }
+
+  /**
    * Update messenger integration document
    * @param {Object} object - Integration main doc object
    * @param {string} object.name - Integration name

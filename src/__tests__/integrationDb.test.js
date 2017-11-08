@@ -431,4 +431,22 @@ describe('social integration test', () => {
     expect(integration.kind).toBe(KIND_CHOICES.TWITTER);
     expect(integration.twitterData.toJSON()).toEqual(doc.twitterData);
   });
+
+  test('create facebook integration', async () => {
+    const doc = {
+      name: 'name',
+      brandId: _brand._id,
+      facebookData: {
+        appId: '1',
+        pageIds: ['1'],
+      },
+    };
+
+    const integration = await Integrations.createFacebookIntegration(doc);
+
+    expect(integration.name).toBe(doc.name);
+    expect(integration.brandId).toBe(doc.brandId);
+    expect(integration.kind).toBe(KIND_CHOICES.FACEBOOK);
+    expect(integration.facebookData.toJSON()).toEqual(doc.facebookData);
+  });
 });
