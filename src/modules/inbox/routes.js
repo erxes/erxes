@@ -1,5 +1,6 @@
 import React from 'react';
 import { Route } from 'react-router-dom';
+import queryString from 'query-string';
 import { MainLayout } from '../layout/containers';
 import Inbox from '../inbox/containers/Inbox';
 
@@ -8,14 +9,20 @@ const routes = () => [
     exact
     key="index"
     path="/"
-    component={() => <MainLayout content={<Inbox />} />}
+    component={({ location }) => {
+      const queryParams = queryString.parse(location.search);
+      return <MainLayout content={<Inbox queryParams={queryParams} />} />;
+    }}
   />,
 
   <Route
     exact
     key="inbox"
     path="/inbox"
-    component={() => <MainLayout content={<Inbox />} />}
+    component={({ location }) => {
+      const queryParams = queryString.parse(location.search);
+      return <MainLayout content={<Inbox queryParams={queryParams} />} />;
+    }}
   />
 ];
 

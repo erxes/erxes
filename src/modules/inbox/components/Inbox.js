@@ -17,7 +17,7 @@ class Inbox extends Component {
   }
 
   render() {
-    const { conversations, messages, user } = this.props;
+    const { conversations, currentConversation, user } = this.props;
     const actionBarLeft = <BarItems>Alice Caldwell</BarItems>;
 
     const actionBarRight = (
@@ -41,7 +41,7 @@ class Inbox extends Component {
           this.node = node;
         }}
       >
-        <Conversation messages={messages} />
+        <Conversation conversation={currentConversation} />
       </div>
     );
 
@@ -66,7 +66,7 @@ class Inbox extends Component {
 Inbox.propTypes = {
   title: PropTypes.string,
   conversations: PropTypes.array.isRequired,
-  messages: PropTypes.array.isRequired,
+  currentConversation: PropTypes.object.isRequired,
   user: PropTypes.object.isRequired
 };
 

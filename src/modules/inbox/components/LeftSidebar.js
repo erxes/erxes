@@ -3,8 +3,6 @@ import PropTypes from 'prop-types';
 import { Wrapper } from 'modules/layout/components';
 import { ConversationList, Icon } from 'modules/common/components';
 
-import { conversations } from '../datas';
-
 const propTypes = {
   conversations: PropTypes.array.isRequired
 };
@@ -41,6 +39,7 @@ class Sidebar extends Component {
 
   render() {
     const Sidebar = Wrapper.Sidebar;
+    const { conversations } = this.props;
 
     // const { conversation } = this.props;
     // const { integration = {} } = conversation;
