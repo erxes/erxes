@@ -13,7 +13,7 @@ const MONTHS = [
   'December'
 ];
 
-const ICON_COLOR_TABLE = {
+const ICON_AND_COLOR_TABLE = {
   'customer-create': {
     icon: 'android-bar',
     color: '#A389D4'
@@ -35,15 +35,28 @@ const ICON_COLOR_TABLE = {
   // color: '#67C682'
 };
 
+/**
+ * This class is used to process the data received from the query
+ * and convert it into a data used on the front side.
+ */
 export default class {
+  /**
+   * A constructor method
+   * @param {Ojbect} queryData - The query received from the back end
+   */
   constructor(queryData) {
     this.queryData = queryData;
   }
 
+  /**
+   * Process a row of query and return a row for use on the front side
+   * @param {Object} date - Object containing year and month (interval)
+   * @param {Object[]} list - List containing activity logs belonging to the current interval
+   * @param {string} action - Activity log action
+   * @param {Object} content - Object with a type of data related to its content type (action)
+   * @return {Object} - Return processed data of a given interval
+   */
   _processItem({ date, list }) {
-    // console.log('date: ', date);
-    // console.log('item: ', item);
-
     const { year, month } = date;
 
     let result = {
@@ -62,17 +75,26 @@ export default class {
       result.data.push({
         ...iconAndColor,
         caption,
-        date: item.createdAt
+        date: item.createdAt,
+        createdAt: item.createdAt
       });
     }
 
     return result;
   }
 
+  /**
+   * Get a related icon and color from the ICON_AND_COLOR_TABLE
+   * @return {Object} return Object containing icon name and color
+   */
   _getIconAndColor(action) {
-    return ICON_COLOR_TABLE[action];
+    return ICON_AND_COLOR_TABLE[action];
   }
 
+  /**
+   * Make caption depending on the action and content value of the given activity log
+   * @return {string} return the formed caption
+   */
   _getCaption({ action, content }) {
     let caption;
 
@@ -90,14 +112,16 @@ export default class {
     return caption;
   }
 
+  /**
+   * Process the data received from the query and return the proccessed list of logs
+   * @return {Object[]} - Returns list of proccessed list of logs
+   */
   process() {
     let result = [];
 
     for (let item of this.queryData) {
       result.push(this._processItem(item));
     }
-
-    console.log('result: ', result);
     return result;
   }
 }
