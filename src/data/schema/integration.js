@@ -66,6 +66,8 @@ export const queries = `
   integrationDetail(_id: String!): Integration
   integrationsTotalCount(kind: String): Int
   integrationGetTwitterAuthUrl: String
+  integrationFacebookAppsList: [JSON]
+  integrationFacebookPagesList(appId: Float): [JSON]
 `;
 
 export const mutations = `
@@ -95,6 +97,13 @@ export const mutations = `
   integrationsCreateTwitterIntegration(
     brandId: String!,
     queryParams: TwitterIntegrationAuthParams!
+  ): Integration
+
+  integrationsCreateFacebookIntegration(
+    brandId: String!,
+    name: String!,
+    appId: String!,
+    pageIds: [String!]!,
   ): Integration
 
   integrationsEditFormIntegration(

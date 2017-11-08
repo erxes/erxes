@@ -1,5 +1,6 @@
 import { Integrations } from '../../../db/models';
 import { socUtils } from '../../../social/twitterTracker';
+import { getConfig, getPageList } from '../../../social/facebook';
 import { moduleRequireLogin } from '../../permissions';
 import { paginate } from './utils';
 
@@ -52,6 +53,31 @@ const integrationQueries = {
    */
   integrationGetTwitterAuthUrl() {
     return socUtils.getTwitterAuthorizeUrl();
+  },
+
+  /**
+   * Get facebook app list .env
+   * @return {Promise} - Apps list
+   */
+  integrationFacebookAppsList() {
+    return getConfig().map(app => ({
+      id: app.id,
+      name: app.name,
+    }));
+  },
+
+  /**
+   * Get facebook pages by appId
+   * @return {Promise} - Page list
+   */
+  async integrationFacebookPagesList(root, { appId }) {
+    const app = getConfig().find(app => app.id === appId);
+
+    if (!app) {
+      return [];
+    }
+
+    return getPageList(app.accessToken);
   },
 };
 

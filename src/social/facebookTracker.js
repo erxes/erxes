@@ -10,8 +10,15 @@ export const graphRequest = {
     graph.setAccessToken(accessToken);
 
     try {
-      // TODO
-      return graph[method](otherParams);
+      return new Promise((resolve, reject) => {
+        graph[method](path, ...otherParams, (error, response) => {
+          if (error) {
+            return reject(error);
+          }
+
+          return resolve(response);
+        });
+      });
 
       // catch session expired or some other error
     } catch (e) {
