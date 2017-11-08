@@ -1,4 +1,4 @@
-import { Customers } from '../../../db/models';
+import { Customers, ActivityLogs } from '../../../db/models';
 
 import { moduleRequireLogin } from '../../permissions';
 
@@ -28,7 +28,9 @@ const customerMutations = {
    * @return {Promise} newly created customer
    */
   async customersAddCompany(root, args) {
-    return Customers.addCompany(args);
+    const customer = Customers.addCompany(args);
+    await ActivityLogs.createCustomerLog(customer);
+    return customer;
   },
 };
 

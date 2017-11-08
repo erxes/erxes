@@ -82,12 +82,19 @@ import {
   mutations as ConversationMutations,
 } from './conversation';
 
+import { inputs as ActivityLogInputs, types as ActivityLogTypes } from './activityLog';
+
+export const inputs = `
+  ${ActivityLogInputs}
+`;
+
 export const types = `
   scalar JSON
   scalar Date
 
   ${UserTypes}
   ${InternalNoteTypes}
+  ${ActivityLogTypes}
   ${CompanyTypes}
   ${ChannelTypes}
   ${BrandTypes}

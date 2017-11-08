@@ -1,4 +1,4 @@
-import mongoose from 'mongoose';
+import mongoose, { SchemaTypes } from 'mongoose';
 import Random from 'meteor-random';
 import { CUSTOMER_CONTENT_TYPES } from '../../data/constants';
 
@@ -76,6 +76,7 @@ const Activity = mongoose.Schema(
       required: true,
       enum: ACTIVITY_ACTIONS.ALL,
     },
+    content: SchemaTypes.Mixed,
     id: {
       type: String,
     },
@@ -209,12 +210,29 @@ class ActivityLog {
       activity: {
         type: ACTIVITY_TYPES.SEGMENT,
         action: ACTIVITY_ACTIONS.CREATE,
+        content: {
+          name: segment.name,
+        },
         id: segment._id,
       },
       customer: {
         type: segment.contentType,
         id: customer._id,
       },
+    });
+  }
+
+  /**
+   * Creates a customer or company registration log
+   */
+  static createCustomerLog(customer) {
+    return this.createDoc({
+      activity: {
+        type: ACTIVITY_TYPES.CUSTOMER,
+        action: ACTIVITY_ACTIONS.CREATE,
+        id: customer._id,
+      },
+      customer,
     });
   }
 }
