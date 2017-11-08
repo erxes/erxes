@@ -46,9 +46,13 @@ export const socUtils = {
   getTwitterAuthorizeUrl: () => socTwitter.getAuthorizeUrl(),
 };
 
-// track all twitter integrations for the first time
-Integrations.find({ kind: INTEGRATION_KIND_CHOICES.TWITTER }).then(integrations => {
-  for (let integration of integrations) {
-    trackIntegration(integration);
-  }
-});
+/*
+ * Track all twitter integrations for the first time
+ */
+export const trackIntegrations = () => {
+  Integrations.find({ kind: INTEGRATION_KIND_CHOICES.TWITTER }).then(integrations => {
+    for (let integration of integrations) {
+      trackIntegration(integration);
+    }
+  });
+};

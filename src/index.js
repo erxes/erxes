@@ -12,7 +12,7 @@ import { Customers } from './db/models';
 import { connect } from './db/connection';
 import { userMiddleware } from './auth';
 import schema from './data';
-import './startup';
+import { init } from './startup';
 
 // load environment variables
 dotenv.config();
@@ -41,6 +41,9 @@ const { PORT } = process.env;
 
 server.listen(PORT, () => {
   console.log(`GraphQL Server is now running on ${PORT}`);
+
+  // execute startup actions
+  init(app);
 
   // Set up the WebSocket for handling GraphQL subscriptions
   new SubscriptionServer(
