@@ -8,14 +8,24 @@ import QueryBuilder from '../segmentQueryBuilder';
 export const createActivityLogsFromSegments = async () => {
   const segments = await Segments.find({});
 
+  console.log('started running');
   for (let segment of segments) {
+    console.log('segment._id : ', segment._id);
+    console.log('segment.name: ', segment.name);
     const selector = await QueryBuilder.segments(segment);
+    // console.log('segment: ', segment);
+    // console.log('selector: ', selector['$and'] && selector['$and'][0]['$or']);
     const customers = await Customers.find(selector);
 
-    for (let customer of customers) {
-      await ActivityLogs.createSegmentLog(segment, customer);
+    if (segment.contentType) {
+      for (let customer of customers) {
+        // console.log('customer: ', customer);
+
+        await ActivityLogs.createSegmentLog(segment, customer);
+      }
     }
   }
+  console.log('stopped running (successful)');
 };
 
 /**
@@ -30,9 +40,9 @@ export const createActivityLogsFromSegments = async () => {
 * └───────────────────────── second (0 - 59, OPTIONAL)
 */
 // every 10 minutes
-schedule.scheduleJob('*/10 * * * *', function() {
-  createActivityLogsFromSegments();
-});
+// schedule.scheduleJob('*/5 * * * *', function() {
+//   createActivityLogsFromSegments();
+// });
 
 export default {
   createActivityLogsFromSegments,

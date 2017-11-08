@@ -114,7 +114,7 @@ const ActivityLogSchema = mongoose.Schema({
   createdAt: {
     type: Date,
     required: true,
-    default: Date.now(),
+    default: Date.now,
   },
 });
 
@@ -169,7 +169,7 @@ class ActivityLog {
    */
   static createConversationLog(conversation, user, customer) {
     if (user == null || (user && !user._id)) {
-      throw new Error(`'user' must be supplied when adding activity log for internal note`);
+      throw new Error(`'user' must be supplied when adding activity log for conversations`);
     }
 
     if (customer == null || (customer && !user._id)) {
