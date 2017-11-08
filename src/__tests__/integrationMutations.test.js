@@ -17,7 +17,7 @@ describe('mutations', () => {
   const _adminUser = { _id: 'fakeId', role: ROLES.ADMIN };
 
   test(`test if Error('Login required') exception is working as intended`, () => {
-    expect.assertions(9);
+    expect.assertions(10);
 
     // Login required ==================
     const check = mutation => {
@@ -37,6 +37,7 @@ describe('mutations', () => {
     check(integrationMutations.integrationsEditFormIntegration);
     check(integrationMutations.integrationsRemove);
     check(integrationMutations.integrationsCreateTwitterIntegration);
+    check(integrationMutations.integrationsCreateFacebookIntegration);
   });
 
   test(`test if Error('Permission required') exception is working as intended`, async () => {
@@ -246,5 +247,29 @@ describe('mutations', () => {
 
     expect(Integrations.createTwitterIntegration).toBeCalledWith(doc);
     expect(socUtils.trackIntegration).toBeCalledWith(integrationDoc);
+  });
+
+  test('create facebook integration', async () => {
+    Integrations.createFacebookIntegration = jest.fn();
+
+    const doc = {
+      name: 'name',
+      brandId: 'brandId',
+      appId: '1',
+      pageIds: ['1'],
+    };
+
+    await integrationMutations.integrationsCreateFacebookIntegration(null, doc, {
+      user: _adminUser,
+    });
+
+    expect(Integrations.createFacebookIntegration).toBeCalledWith({
+      name: 'name',
+      brandId: 'brandId',
+      facebookData: {
+        appId: '1',
+        pageIds: ['1'],
+      },
+    });
   });
 });

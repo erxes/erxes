@@ -97,6 +97,26 @@ const integrationMutations = {
   },
 
   /**
+   * Create a new facebook integration
+   * @param {Object} root
+   * @param {String} brandId - Integration brand id
+   * @param {String} name - Integration name
+   * @param {String} appId - Facebook app id in .env
+   * @param {String} pageIds - Selected facebook page ids
+   * @return {Promise} return Promise resolving Integration document
+   */
+  async integrationsCreateFacebookIntegration(root, { name, brandId, appId, pageIds }) {
+    return await Integrations.createFacebookIntegration({
+      name,
+      brandId,
+      facebookData: {
+        appId,
+        pageIds,
+      },
+    });
+  },
+
+  /**
    * Edit a form integration
    * @param {Object}
    * @param {Object} doc - Integration object
@@ -134,6 +154,7 @@ requireLogin(integrationMutations, 'integrationsSaveMessengerConfigs');
 requireLogin(integrationMutations, 'integrationsCreateFormIntegration');
 requireLogin(integrationMutations, 'integrationsEditFormIntegration');
 requireLogin(integrationMutations, 'integrationsCreateTwitterIntegration');
+requireLogin(integrationMutations, 'integrationsCreateFacebookIntegration');
 requireAdmin(integrationMutations, 'integrationsRemove');
 
 export default integrationMutations;
