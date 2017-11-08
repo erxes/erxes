@@ -1,9 +1,3 @@
-export const inputs = `
-  input ActivityLogSortDoc {
-    createdAt: String!
-  }
-`;
-
 export const types = `
   type YearMonthDoc {
     year: Int
@@ -16,7 +10,7 @@ export const types = `
 
   type ActivityLogForMonth {
     date: YearMonthDoc!
-    list: [ActivityLog]
+    list: [ActivityLog]!
   }
 
   type ActivityLog {

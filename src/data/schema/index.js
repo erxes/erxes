@@ -82,11 +82,7 @@ import {
   mutations as ConversationMutations,
 } from './conversation';
 
-import { inputs as ActivityLogInputs, types as ActivityLogTypes } from './activityLog';
-
-export const inputs = `
-  ${ActivityLogInputs}
-`;
+import { types as ActivityLogTypes } from './activityLog';
 
 export const types = `
   scalar JSON

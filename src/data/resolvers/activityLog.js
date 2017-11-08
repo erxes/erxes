@@ -1,6 +1,6 @@
 export default {
   action(obj) {
-    return `${obj.type}-${obj.action}`;
+    return `${obj.activity.type}-${obj.activity.action}`;
   },
 
   content(obj) {

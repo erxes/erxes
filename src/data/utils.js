@@ -195,7 +195,7 @@ class BaseMonthActivityBuilder {
     const list = [];
 
     for (let date of dates) {
-      list.push({
+      list.unshift({
         customer: this.customer,
         customerType: this.customerType,
         date,
