@@ -17,7 +17,8 @@ const propTypes = {
   customFields: PropTypes.array.isRequired,
   save: PropTypes.func.isRequired,
   queryParams: PropTypes.object.isRequired,
-  addCompany: PropTypes.func.isRequired
+  addCompany: PropTypes.func.isRequired,
+  customerActivityLog: PropTypes.array.isRequired
 };
 
 class CustomerDetails extends React.Component {
@@ -36,9 +37,12 @@ class CustomerDetails extends React.Component {
   renderTabContent() {
     const { currentTab } = this.state;
     const { currentUser, customer } = this.props;
+    const { customerActivityLog } = this.props;
 
     if (currentTab === 'activity') {
-      return <ActivityList user={currentUser} />;
+      return (
+        <ActivityList user={currentUser} activities={customerActivityLog} />
+      );
     }
 
     if (currentTab === 'notes') {

@@ -11,6 +11,7 @@ import {
   ActivityWrapper,
   ActivityCaption
 } from '../styles';
+import ActivityLogProcessor from '../../ActivityLogProcessor';
 
 const propTypes = {
   activities: PropTypes.array,
@@ -41,64 +42,88 @@ class ActivityList extends React.Component {
     return (
       <div key={Math.random()}>
         <ActivityTitle>{activity.title}</ActivityTitle>
-        {activity.datas.map(data => this.activityRow(data))}
+        {activity.data.map(data => this.activityRow(data))}
       </div>
     );
   }
 
   render() {
-    const sampleData = [
+    const sampleData2 = [
       {
-        title: 'October 2017',
-        datas: [
+        date: {
+          year: 2017,
+          month: 10
+        },
+        list: [
           {
-            caption: 'Registered to Erxes',
-            date: new Date('2017-01-30'),
-            icon: 'android-bar',
-            color: '#A389D4'
+            type: 'customer',
+            action: 'create',
+            id: 'customerId',
+            createdAt: new Date('2017-11-30'),
+            content: {}
           },
           {
-            caption: 'Moved to segment',
-            date: new Date('2017-04-21'),
-            icon: 'android-bicycle',
-            color: '#04A9F5'
-          },
-          {
-            caption: 'Hello Alice! We have a solution for you.',
-            date: new Date(),
-            icon: 'android-boat',
-            color: '#F44236'
-          },
-          {
-            caption: 'Buteegdehuun uilchilgee heseg deer',
-            date: new Date(),
-            icon: 'android-bus',
-            color: '#F5C22B'
-          },
-          {
-            caption: 'Jijig uutniih bol oilgomjtoi2 unguur',
-            date: new Date(),
-            icon: 'android-calendar',
-            color: '#67C682'
+            type: 'segment',
+            action: 'create',
+            id: 'segmentId',
+            createdAt: new Date('2017-11-21'),
+            content: {
+              name: 'valuable customer'
+            }
           }
         ]
       },
       {
-        title: 'Upcoming',
-        datas: [
+        date: {
+          year: 2017,
+          month: 9
+        },
+        list: [
           {
-            caption: 'Registered to Erxes',
-            date: new Date('2017-09-16'),
-            icon: 'android-calendar',
-            color: '#393C40',
-            content: 'Merge branch redesign-ui of into redesign-ui'
+            type: 'customer',
+            action: 'create',
+            id: 'customerId',
+            createdAt: new Date('2017-10-30'),
+            content: {}
+          },
+          {
+            type: 'segment',
+            action: 'create',
+            id: 'segmentId',
+            createdAt: new Date('2017-10-21'),
+            content: {
+              name: 'valuable customer'
+            }
+          },
+          {
+            type: 'conversation',
+            action: 'create',
+            id: 'conversationId',
+            createdAt: new Date('2017-10-15'),
+            content: 'Hello Alice! We have a solution for you.'
+          },
+          {
+            type: 'conversation',
+            action: 'create',
+            id: 'conversationId2',
+            createdAt: new Date('2017-10-10'),
+            content: 'Buteegdehuun uilchilgee heseg deer'
+          },
+          {
+            type: 'conversation',
+            action: 'create',
+            id: 'conversationId',
+            createdAt: new Date('2017-10-05'),
+            content: 'Jijig uutniih bol oilgomjtoi2 unguur'
           }
         ]
       }
     ];
-
     let activities = this.props.activities;
-    activities = sampleData;
+    // const activityLogProcessor = new ActivityLogProcessor(sampleData2);
+    const activityLogProcessor = new ActivityLogProcessor(activities);
+    activities = activityLogProcessor.process();
+    console.log('activities: ', activities);
 
     if (!activities || activities.length < 1) {
       return (
