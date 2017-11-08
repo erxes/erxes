@@ -1,7 +1,16 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import { Wrapper } from 'modules/layout/components';
-import { ModalTrigger, Button, Icon, Table } from 'modules/common/components';
+import { Dropdown } from 'react-bootstrap';
+import {
+  ModalTrigger,
+  Button,
+  Icon,
+  Table,
+  DropdownToggle
+} from 'modules/common/components';
+import { BarItems } from 'modules/layout/styles';
 import Row from './Row';
 import Form from './Form';
 
@@ -14,18 +23,38 @@ const propTypes = {
 
 function List({ tags, type, remove, save }) {
   const trigger = (
-    <Button btnStyle="success">
+    <Button btnStyle="success" size="small">
       <Icon icon="plus" /> Add tag
     </Button>
   );
 
-  const actionBarLeft = (
-    <ModalTrigger title="Add tag" trigger={trigger}>
-      <Form type={type} save={save} />
-    </ModalTrigger>
+  const actionBarRight = (
+    <BarItems>
+      <Dropdown id="dropdown-engage" pullRight>
+        <DropdownToggle bsRole="toggle">
+          <Button btnStyle="simple" size="small">
+            Customize<Icon icon="ios-arrow-down" />
+          </Button>
+        </DropdownToggle>
+        <Dropdown.Menu>
+          <li>
+            <Link to="/tags/engageMessage">Engage Message</Link>
+          </li>
+          <li>
+            <Link to="/tags/conversation">Conversation</Link>
+          </li>
+          <li>
+            <Link to="/tags/customer">Customer</Link>
+          </li>
+        </Dropdown.Menu>
+      </Dropdown>
+      <ModalTrigger title="Add tag" trigger={trigger}>
+        <Form type={type} save={save} />
+      </ModalTrigger>
+    </BarItems>
   );
 
-  const actionBar = <Wrapper.ActionBar left={actionBarLeft} />;
+  const actionBar = <Wrapper.ActionBar right={actionBarRight} />;
   const content = (
     <Table>
       <thead>
