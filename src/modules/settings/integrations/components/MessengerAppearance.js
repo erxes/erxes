@@ -88,14 +88,13 @@ class Appearance extends Component {
     });
 
     return (
-      <a
-        href=""
+      <div
         className={selectorClass}
         onClick={() => this.onWallpaperChange(value)}
         style={{ borderColor: isSelected ? this.state.color : 'transparent' }}
       >
         <div className={`background-${value}`} />
-      </a>
+      </div>
     );
   }
 

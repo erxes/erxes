@@ -26,6 +26,7 @@ const LogoContainer = styled.div`
   cursor: pointer;
   box-shadow: 0 0 ${unitSpace} 0 ${rgba(colors.colorBlack, 0.2)};
   background-color: ${colors.colorPrimary};
+  background-image: url('/images/logo-image.png');
   background-position: center;
   background-size: 46px;
   background-repeat: no-repeat;
