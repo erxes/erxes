@@ -3,14 +3,16 @@ import ReactDOM from 'react-dom';
 import styled from 'styled-components';
 import AlertStyled from './Alert';
 
-const Alertwrapper = styled.div.attrs({
-  id: 'alertwrapper'
+const AlertWrapper = styled.div.attrs({
+  id: 'alert-wrapper'
 })`
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   background: transparent;
+  z-index: 2000;
+  font-size: 14px;
 `;
 
 this.alertcount = 0;
@@ -23,15 +25,13 @@ const createAlert = (type, text) => {
 
   this.timeout = setTimeout(() => {
     this.alertcount = 0;
-    if (document.getElementById('replaceralertwrapper')) {
-      document.body.removeChild(
-        document.getElementById('replaceralertwrapper')
-      );
+    if (document.getElementById('alert-container')) {
+      document.body.removeChild(document.getElementById('alert-container'));
     }
   }, 3500);
 
-  if (document.getElementById('replaceralertwrapper')) {
-    const wrapper = document.getElementById('alertwrapper');
+  if (document.getElementById('alert-container')) {
+    const wrapper = document.getElementById('alert-wrapper');
 
     ReactDOM.render(
       <AlertStyled key={this.alertcount} type={type} text={text} />,
@@ -39,11 +39,11 @@ const createAlert = (type, text) => {
     );
   } else {
     const _popup = document.createElement('div');
-    _popup.setAttribute('id', 'replaceralertwrapper');
+    _popup.setAttribute('id', 'alert-container');
     document.body.appendChild(_popup);
 
-    ReactDOM.render(<Alertwrapper />, _popup);
-    const wrapper = document.getElementById('alertwrapper');
+    ReactDOM.render(<AlertWrapper />, _popup);
+    const wrapper = document.getElementById('alert-wrapper');
 
     ReactDOM.render(
       <AlertStyled key={this.alertcount} type={type} text={text} />,
