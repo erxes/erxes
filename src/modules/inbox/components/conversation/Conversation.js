@@ -20,6 +20,11 @@ const Wrapper = styled.div`
 class Conversation extends Component {
   render() {
     const { conversation } = this.props;
+
+    if (!conversation) {
+      return null;
+    }
+
     const messages = conversation.messages || [];
     const rows = [];
 

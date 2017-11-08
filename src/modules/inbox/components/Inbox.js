@@ -76,9 +76,9 @@ class Inbox extends Component {
 
 Inbox.propTypes = {
   title: PropTypes.string,
-  conversations: PropTypes.array.isRequired,
-  currentConversation: PropTypes.object.isRequired,
-  user: PropTypes.object.isRequired
+  conversations: PropTypes.array,
+  currentConversation: PropTypes.object,
+  user: PropTypes.object
 };
 
 export default Inbox;
