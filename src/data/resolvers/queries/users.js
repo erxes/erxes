@@ -1,5 +1,5 @@
 import { Users } from '../../../db/models';
-import { moduleRequireLogin } from '../../permissions';
+import { requireLogin } from '../../permissions';
 import { paginate } from './utils';
 
 const userQueries = {
@@ -42,10 +42,16 @@ const userQueries = {
    * @return {Promise} total count
    */
   currentUser(root, args, { user }) {
-    return Users.findOne({ _id: user._id });
+    if (user) {
+      return Users.findOne({ _id: user._id });
+    }
+
+    return null;
   },
 };
 
-moduleRequireLogin(userQueries);
+requireLogin(userQueries.users);
+requireLogin(userQueries.userDetail);
+requireLogin(userQueries.usersTotalCount);
 
 export default userQueries;
