@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { ButtonToolbar, Modal } from 'react-bootstrap';
+import { Modal } from 'react-bootstrap';
 import {
   Button,
   Icon,
@@ -57,17 +57,15 @@ class CustomerForm extends React.Component {
         </FormGroup>
 
         <Modal.Footer>
-          <ButtonToolbar className="pull-right">
-            <Button btnStyle="simple" onClick={onClick}>
-              <Icon icon="close" />
-              Cancel
-            </Button>
+          <Button btnStyle="simple" onClick={onClick}>
+            <Icon icon="close" />
+            Cancel
+          </Button>
 
-            <Button btnStyle="success" type="submit">
-              <Icon icon="checkmark" />
-              Save
-            </Button>
-          </ButtonToolbar>
+          <Button btnStyle="success" type="submit">
+            <Icon icon="checkmark" />
+            Save
+          </Button>
         </Modal.Footer>
       </form>
     );

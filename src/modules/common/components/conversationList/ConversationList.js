@@ -5,13 +5,15 @@ import { ConversationItems } from './styles';
 
 const propTypes = {
   conversations: PropTypes.array.isRequired,
-  user: PropTypes.object.isRequired,
+  user: PropTypes.object,
   toggleBulk: PropTypes.func,
   channelId: PropTypes.string
 };
 
 function ConversationList({ conversations, user, toggleBulk, channelId }) {
-  const { starredConversationIds = [] } = user.details;
+  const starredConversationIds = user
+    ? user.details.starredConversationIds || []
+    : [];
 
   return (
     <ConversationItems>

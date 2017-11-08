@@ -2,12 +2,9 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { withRouter } from 'react-router';
 import { QuickNavigation } from '../components';
-import apolloClient from 'apolloClient';
 import consts from 'consts';
 
-const QuickNavigationContainer = props => {
-  const { history } = props;
-
+const QuickNavigationContainer = (props, { currentUser }) => {
   const { LOGIN_TOKEN_KEY, LOGIN_REFRESH_TOKEN_KEY } = consts;
 
   const logout = () => {
@@ -15,20 +12,20 @@ const QuickNavigationContainer = props => {
     localStorage.removeItem(LOGIN_TOKEN_KEY);
     localStorage.removeItem(LOGIN_REFRESH_TOKEN_KEY);
 
-    // reset apollo store
-    apolloClient.resetStore();
-
-    // redirect
-    history.push('/');
+    window.location.href = '/';
   };
 
-  const updatedProps = { ...props, logout };
+  const updatedProps = { ...props, logout, currentUser };
 
   return <QuickNavigation {...updatedProps} />;
 };
 
 QuickNavigationContainer.propTypes = {
   history: PropTypes.object
+};
+
+QuickNavigationContainer.contextTypes = {
+  currentUser: PropTypes.object
 };
 
 export default withRouter(QuickNavigationContainer);

@@ -3,9 +3,10 @@ import PropTypes from 'prop-types';
 import RightSidebar from './RightSidebar';
 import LeftSidebar from './LeftSidebar';
 import { Wrapper } from '../../layout/components';
-import { Button, Label, Icon } from 'modules/common/components';
+import { Button, Label, Icon, TaggerPopover } from 'modules/common/components';
 import { BarItems } from 'modules/layout/styles';
 import Conversation from './conversation/Conversation';
+import { PopoverButton } from '../styles';
 
 class Inbox extends Component {
   componentDidMount() {
@@ -17,15 +18,25 @@ class Inbox extends Component {
   }
 
   render() {
-    const { conversations, messages, user } = this.props;
+    const { conversations, currentConversation, user } = this.props;
     const actionBarLeft = <BarItems>Alice Caldwell</BarItems>;
+
+    const tagTrigger = (
+      <PopoverButton>
+        <Label lblStyle="danger">urgent</Label>
+        <Icon icon="ios-arrow-down" />
+      </PopoverButton>
+    );
 
     const actionBarRight = (
       <BarItems>
-        <Label lblStyle="danger">urgent</Label>
-        <Icon icon="ios-arrow-down" />
+        <TaggerPopover
+          targets={[currentConversation]}
+          type="conversation"
+          trigger={tagTrigger}
+        />
         <Button btnStyle="success" size="small">
-          <Icon icon="checkmark" />Resolve
+          <Icon icon="checkmark" /> Resolve
         </Button>
       </BarItems>
     );
@@ -41,7 +52,7 @@ class Inbox extends Component {
           this.node = node;
         }}
       >
-        <Conversation messages={messages} />
+        <Conversation conversation={currentConversation} />
       </div>
     );
 
@@ -66,7 +77,7 @@ class Inbox extends Component {
 Inbox.propTypes = {
   title: PropTypes.string,
   conversations: PropTypes.array.isRequired,
-  messages: PropTypes.array.isRequired,
+  currentConversation: PropTypes.object.isRequired,
   user: PropTypes.object.isRequired
 };
 

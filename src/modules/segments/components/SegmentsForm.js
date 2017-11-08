@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
-import { Form, ButtonGroup, Row, Col, Panel } from 'react-bootstrap';
+import { Form } from 'react-bootstrap';
 import {
   Button,
   Icon,
@@ -10,9 +10,22 @@ import {
   FormControl
 } from 'modules/common/components';
 import { Wrapper } from 'modules/layout/components';
-import { ContentSpace } from 'modules/layout/styles';
+import {
+  FlexContent,
+  FlexItem,
+  FlexRightItem,
+  ContentSpace
+} from 'modules/layout/styles';
 import Conditions from './Conditions';
 import AddConditionButton from './AddConditionButton';
+import {
+  SegmentWrapper,
+  ConditionWrapper,
+  SegmentTitle,
+  SegmentContainer,
+  SegmentResult,
+  ResultCount
+} from './styles';
 
 const propTypes = {
   contentType: PropTypes.string.isRequired,
@@ -125,8 +138,8 @@ class SegmentsForm extends Component {
     submit(params);
   }
 
-  render() {
-    const { contentType, fields, segment } = this.props;
+  renderConditions() {
+    const { contentType, fields } = this.props;
     const selectedFieldIds = this.state.conditions.map(c => c.field);
 
     // Exclude fields that are already selected
@@ -134,122 +147,140 @@ class SegmentsForm extends Component {
       field => selectedFieldIds.indexOf(field._id) < 0
     );
 
+    return (
+      <ConditionWrapper>
+        <FormGroup>
+          Users who match{' '}
+          <FormControl
+            componentClass="select"
+            value={this.state.connector}
+            onChange={this.handleConnectorChange}
+          >
+            <option value="any">any</option>
+            <option value="all">all</option>
+          </FormControl>{' '}
+          of the below conditions
+        </FormGroup>
+        <Conditions
+          contentType={contentType}
+          parentSegmentId={this.state.subOf}
+          conditions={this.state.conditions}
+          changeCondition={this.changeCondition}
+          removeCondition={this.removeCondition}
+        />
+        <AddConditionButton
+          fields={changedFields}
+          addCondition={this.addCondition}
+        />
+      </ConditionWrapper>
+    );
+  }
+
+  renderForm() {
+    return (
+      <FlexContent>
+        <FlexItem count={3}>
+          <Form onSubmit={this.save}>
+            <FormGroup>
+              <ControlLabel>Name</ControlLabel>
+              <FormControl
+                name="name"
+                type="text"
+                required
+                value={this.state.name}
+                onChange={this.handleNameChange}
+              />
+            </FormGroup>
+            <FormGroup>
+              <ControlLabel>Description</ControlLabel>
+              <FormControl
+                name="description"
+                type="text"
+                value={this.state.description || ''}
+                onChange={this.handleDescriptionChange}
+              />
+            </FormGroup>
+            <FormGroup>
+              <ControlLabel>Sub segment of</ControlLabel>
+              <FormControl
+                name="subOf"
+                componentClass="select"
+                value={this.state.subOf || ''}
+                onChange={this.handleChange}
+              >
+                <option value="">[not selected]</option>
+                {this.props.headSegments.map(segment => (
+                  <option value={segment._id} key={segment._id}>
+                    {segment.name}
+                  </option>
+                ))}
+              </FormControl>
+            </FormGroup>
+            <FormGroup>
+              <ControlLabel>Color</ControlLabel>
+              <FormControl
+                name="color"
+                type="color"
+                value={this.state.color}
+                onChange={this.handleColorChange}
+              />
+            </FormGroup>
+          </Form>
+        </FlexItem>
+        <FlexItem count={2} />
+      </FlexContent>
+    );
+  }
+
+  render() {
+    const { contentType, segment } = this.props;
+
     const breadcrumb = [
       { title: 'Segments', link: `/segments/${contentType}` },
       { title: segment ? 'Edit segment' : 'New segment' }
     ];
 
-    const actionBar = (
-      <Wrapper.ActionBar
-        left={
-          <ButtonGroup>
-            <Button btnStyle="success" onClick={this.save}>
-              <Icon icon="checkmark" /> Save
-            </Button>
-            <Link to={`/segments/${contentType}`}>
-              <Button btnStyle="simple">
-                <Icon icon="close" /> Cancel
-              </Button>
-            </Link>
-          </ButtonGroup>
-        }
-      />
-    );
-
     const content = (
-      <ContentSpace>
-        <Row>
-          <Col sm={5}>
-            <Form onSubmit={this.save}>
-              <FormGroup>
-                <ControlLabel>Name</ControlLabel>
-                <FormControl
-                  name="name"
-                  type="text"
-                  required
-                  value={this.state.name}
-                  onChange={this.handleNameChange}
-                />
-              </FormGroup>
-              <FormGroup>
-                <ControlLabel>Description</ControlLabel>
-                <FormControl
-                  name="description"
-                  type="text"
-                  value={this.state.description || ''}
-                  onChange={this.handleDescriptionChange}
-                />
-              </FormGroup>
-              <FormGroup>
-                <ControlLabel>Sub segment of</ControlLabel>
-                <FormControl
-                  name="subOf"
-                  componentClass="select"
-                  value={this.state.subOf || ''}
-                  onChange={this.handleChange}
-                >
-                  <option value="">[not selected]</option>
-                  {this.props.headSegments.map(segment => (
-                    <option value={segment._id} key={segment._id}>
-                      {segment.name}
-                    </option>
-                  ))}
-                </FormControl>
-              </FormGroup>
-              <FormGroup>
-                <ControlLabel>Color</ControlLabel>
-                <FormControl
-                  name="color"
-                  type="color"
-                  value={this.state.color}
-                  onChange={this.handleColorChange}
-                />
-              </FormGroup>
-            </Form>
-          </Col>
-          <Col sm={7}>
-            <Panel
-              header={
-                <div className="clearfix">
-                  <div className="pull-left">Conditions</div>
-                  <div className="pull-right">
-                    <Form inline>
-                      <FormControl
-                        componentClass="select"
-                        value={this.state.connector}
-                        onChange={this.handleConnectorChange}
-                      >
-                        <option value="any">any</option>
-                        <option value="all">all</option>
-                      </FormControl>{' '}
-                      of the following conditions
-                    </Form>
-                  </div>
-                </div>
-              }
-              footer={
-                <AddConditionButton
-                  fields={changedFields}
-                  addCondition={this.addCondition}
-                />
-              }
-            >
-              <Conditions
-                parentSegmentId={this.state.subOf}
-                conditions={this.state.conditions}
-                changeCondition={this.changeCondition}
-                removeCondition={this.removeCondition}
-              />
-            </Panel>
-          </Col>
-        </Row>
-      </ContentSpace>
+      <SegmentWrapper>
+        <FlexContent>
+          <FlexItem count={3}>
+            <SegmentContainer>
+              <SegmentTitle>Filters</SegmentTitle>
+
+              {this.renderConditions()}
+              <ContentSpace />
+              {this.renderForm()}
+
+              <FlexContent>
+                <FlexRightItem>
+                  <Button.Group>
+                    <Link to={`/segments/${contentType}`}>
+                      <Button btnStyle="simple">
+                        <Icon icon="close" /> Cancel
+                      </Button>
+                    </Link>
+                    <Button btnStyle="success" onClick={this.save}>
+                      <Icon icon="checkmark" /> Save
+                    </Button>
+                  </Button.Group>
+                </FlexRightItem>
+              </FlexContent>
+            </SegmentContainer>
+          </FlexItem>
+
+          <SegmentResult count={2}>
+            <ResultCount>
+              <Icon icon="person-stalker" /> 999
+            </ResultCount>
+            User(s) will recieve this message
+          </SegmentResult>
+        </FlexContent>
+      </SegmentWrapper>
     );
 
     return (
       <Wrapper
         header={<Wrapper.Header breadcrumb={breadcrumb} />}
-        actionBar={actionBar}
         content={content}
       />
     );

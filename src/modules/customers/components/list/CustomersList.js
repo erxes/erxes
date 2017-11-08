@@ -32,38 +32,35 @@ const propTypes = {
 
 class CustomersList extends React.Component {
   renderContent() {
-    const { customers, counts, columnsConfig, toggleBulk } = this.props;
+    const { customers, columnsConfig, toggleBulk } = this.props;
 
     return (
-      <div>
-        <Table whiteSpace="nowrap" hover bordered>
-          <thead>
-            <tr>
-              <th />
-              {columnsConfig.map(({ name, label }) => (
-                <th key={name}>{label}</th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {customers.map(customer => (
-              <CustomerRow
-                customer={customer}
-                columnsConfig={columnsConfig}
-                key={customer._id}
-                toggleBulk={toggleBulk}
-              />
+      <Table whiteSpace="nowrap" hover bordered>
+        <thead>
+          <tr>
+            <th />
+            {columnsConfig.map(({ name, label }) => (
+              <th key={name}>{label}</th>
             ))}
-          </tbody>
-        </Table>
-
-        <Pagination count={counts.all} />
-      </div>
+            <th>Tags</th>
+          </tr>
+        </thead>
+        <tbody>
+          {customers.map(customer => (
+            <CustomerRow
+              customer={customer}
+              columnsConfig={columnsConfig}
+              key={customer._id}
+              toggleBulk={toggleBulk}
+            />
+          ))}
+        </tbody>
+      </Table>
     );
   }
 
   render() {
-    const { counts, bulk, addCustomer } = this.props;
+    const { counts, bulk, addCustomer, tags } = this.props;
 
     const addTrigger = (
       <Button btnStyle="success" size="small">
@@ -121,7 +118,8 @@ class CustomersList extends React.Component {
       <Wrapper
         header={<Wrapper.Header breadcrumb={breadcrumb} />}
         actionBar={actionBar}
-        leftSidebar={<Sidebar counts={counts} />}
+        footer={<Pagination count={counts.all} />}
+        leftSidebar={<Sidebar counts={counts} tags={tags} />}
         content={this.renderContent()}
       />
     );

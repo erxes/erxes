@@ -53,7 +53,7 @@ class List extends React.Component {
       <Dropdown id="dropdown-engage" pullRight>
         <DropdownToggle bsRole="toggle">
           <Button btnStyle="success" size="small">
-            New message <Icon icon="chevron-down" />
+            <Icon icon="plus" /> New message <Icon icon="chevron-down" />
           </Button>
         </DropdownToggle>
         <Dropdown.Menu>
@@ -135,6 +135,7 @@ class List extends React.Component {
         header={<Wrapper.Header breadcrumb={[{ title: 'Engage' }]} />}
         leftSidebar={sidebar}
         actionBar={actionBar}
+        footer={<Pagination count={totalCount} />}
         content={content()}
       />
     );

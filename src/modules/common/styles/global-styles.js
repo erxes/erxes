@@ -74,6 +74,7 @@ injectGlobal`
 
   .modal-header .close {
     margin-top: 0;
+    outline: 0;
   }
 
   .modal-title {
@@ -188,6 +189,7 @@ injectGlobal`
 
   .popover-title {
     font-weight: 400;
+    display: block;
     border-bottom: 1px solid #eee;
     padding: 10px 20px;
     background: #fafafa;
@@ -211,6 +213,6 @@ injectGlobal`
   }
 
   ::-webkit-scrollbar-track {
-    background: rgba(255, 255, 255, .2);
+    background: rgba(255, 255, 255, .3);
   }
 `;

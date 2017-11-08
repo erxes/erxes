@@ -2350,11 +2350,6 @@ ss .full-loader [data-loader='circle-side'] {
   border: 0;
 }
 
-.editor-bordered {
-  border: 1px solid #ddd;
-  border-radius: 4px;
-}
-
 .RichEditor-root {
   font-size: 14px;
 }

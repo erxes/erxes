@@ -5,7 +5,7 @@ import { TextDivider } from 'modules/common/components';
 import Message from './Message';
 
 const propTypes = {
-  messages: PropTypes.array.isRequired,
+  conversation: PropTypes.object,
   attachmentPreview: PropTypes.object
 };
 
@@ -19,10 +19,11 @@ const Wrapper = styled.div`
 
 class Conversation extends Component {
   render() {
-    const { messages } = this.props;
-    let tempId;
-
+    const { conversation } = this.props;
+    const messages = conversation.messages || [];
     const rows = [];
+
+    let tempId;
 
     messages.forEach(message => {
       if (message.info) {

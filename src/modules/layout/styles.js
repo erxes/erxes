@@ -60,6 +60,16 @@ const Nav = styled.nav`
     &:hover {
       color: ${colors.colorWhite};
     }
+
+    &.active {
+      position: relative;
+      color: ${colors.colorWhite};
+      background: rgba(0, 0, 0, 0.2);
+    }
+
+    > i {
+      margin: 0;
+    }
   }
 `;
 
@@ -126,7 +136,6 @@ const ContentHeader = styled.div`
 
 const ContenFooter = styled.div`
   margin-right: ${dimensions.coreSpacing}px;
-  background: ${colors.colorWhite};
 
   ${ContentHeader} {
     margin-right: 0;
@@ -145,7 +154,6 @@ const HeaderItems = styled.div`
 `;
 
 const SideContent = styled.section`
-  overflow-y: auto;
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
@@ -161,7 +169,7 @@ const SideContent = styled.section`
 const SidebarHeader = styled.div`
   background-color: ${colors.bgLight};
   height: ${dimensions.headerSpacing}px;
-  line-height: ${dimensions.headerSpacing}px;
+  align-items: center;
   padding: 0 ${dimensions.coreSpacing}px 0 ${dimensions.coreSpacing}px;
   border-bottom: 1px solid ${colors.borderPrimary};
   display: flex;
@@ -172,6 +180,17 @@ const SidebarHeader = styled.div`
 const SidebarMainContent = styled.div`
   overflow: auto;
   flex: 1;
+  position: relative;
+
+  &::-webkit-scrollbar-thumb,
+  &::-webkit-scrollbar-track {
+    display: none;
+  }
+
+  &:hover::-webkit-scrollbar-thumb,
+  &:hover::-webkit-scrollbar-track {
+    display: block;
+  }
 `;
 
 const SidebarFooter = SidebarHeader.extend``;
@@ -296,6 +315,21 @@ const SidebarCounter = styled.span`
   right: 20px;
 `;
 
+const FlexContent = styled.div`
+  display: flex;
+  flex: 1;
+  min-height: 100%;
+`;
+
+const FlexItem = styled.div`
+  flex: ${props => (props.count ? props.count : 1)};
+  position: relative;
+`;
+
+const FlexRightItem = styled.div`
+  margin-left: auto;
+`;
+
 const WhiteBox = styled.div`
   flex: 1;
   overflow: auto;
@@ -303,6 +337,53 @@ const WhiteBox = styled.div`
   margin-bottom: ${dimensions.coreSpacing}px;
   background-color: ${colors.colorWhite};
   box-shadow: 0 0 4px ${colors.shadowPrimary};
+`;
+
+const Authlayout = styled.div`
+  background: url('/images/sign-in.jpg') no-repeat;
+  background-size: cover;
+  height: 100%;
+  overflow: hidden;
+  position: relative;
+  &:before {
+    content: '';
+    background-color: rgba(69, 38, 121, 0.7);
+    position: absolute;
+    width: 100%;
+    height: 100%;
+  }
+`;
+
+const AuthContent = styled.div`
+  position: relative;
+  top: 50%;
+  transform: translateY(-50%);
+`;
+
+const AuthDescription = styled.div`
+  margin-top: 60px;
+  img {
+    width: 100px;
+    margin-bottom: 50px;
+  }
+  h1 {
+    font-weight: 700;
+    font-size: 32px;
+    margin-bottom: 30px;
+    color: #fff;
+  }
+  p {
+    color: #c9b6e8;
+    margin-bottom: 50px;
+    font-size: 16px;
+    line-height: 1.8em;
+  }
+  a {
+    color: #c9b6e8;
+  }
+  .not-found {
+    margin-top: 0;
+  }
 `;
 
 export {
@@ -333,5 +414,11 @@ export {
   UserHelper,
   SidebarList,
   SidebarContent,
-  WhiteBox
+  FlexContent,
+  FlexItem,
+  FlexRightItem,
+  WhiteBox,
+  Authlayout,
+  AuthContent,
+  AuthDescription
 };

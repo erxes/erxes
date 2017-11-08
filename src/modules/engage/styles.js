@@ -90,17 +90,6 @@ const ButtonBox = styled.div`
   }
 `;
 
-const FlexContent = styled.div`
-  display: flex;
-  flex: 1;
-  min-height: 100%;
-`;
-
-const FlexItem = styled.div`
-  flex: 1;
-  position: relative;
-`;
-
 const PreviewContent = styled.div`
   padding: 0 ${coreSpace};
   line-height: 22px;
@@ -175,8 +164,6 @@ export {
   FormWrapper,
   EditorWrapper,
   FormHeader,
-  FlexContent,
-  FlexItem,
   WebPreview,
   PreviewContent,
   Messenger,

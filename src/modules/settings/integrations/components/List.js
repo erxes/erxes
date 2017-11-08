@@ -39,21 +39,17 @@ class List extends Component {
     const actionBar = <Wrapper.ActionBar right={<AddIntegration />} />;
 
     const content = (
-      <div>
-        <Table>
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>Kind</th>
-              <th>Brand</th>
-              <th width="183">Actions</th>
-            </tr>
-          </thead>
-          <tbody>{this.renderIntegrations()}</tbody>
-        </Table>
-
-        <Pagination count={totalCount} />
-      </div>
+      <Table>
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Kind</th>
+            <th>Brand</th>
+            <th width="183">Actions</th>
+          </tr>
+        </thead>
+        <tbody>{this.renderIntegrations()}</tbody>
+      </Table>
     );
 
     const breadcrumb = [
@@ -66,6 +62,7 @@ class List extends Component {
         header={<Wrapper.Header breadcrumb={breadcrumb} />}
         leftSidebar={<Sidebar />}
         actionBar={actionBar}
+        footer={<Pagination count={totalCount} />}
         content={content}
       />
     );

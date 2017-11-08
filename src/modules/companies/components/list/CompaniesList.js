@@ -7,7 +7,8 @@ import {
   ModalTrigger,
   Button,
   Table,
-  EmptyState
+  EmptyState,
+  Icon
 } from 'modules/common/components';
 import { BarItems } from 'modules/layout/styles';
 import Sidebar from './Sidebar';
@@ -60,7 +61,7 @@ function CompaniesList({ companies, counts, columnsConfig, addCompany }) {
 
   const addTrigger = (
     <Button btnStyle="success" size="small">
-      Add company
+      <Icon icon="plus" /> Add company
     </Button>
   );
 
@@ -84,6 +85,7 @@ function CompaniesList({ companies, counts, columnsConfig, addCompany }) {
     <Wrapper
       header={<Wrapper.Header breadcrumb={breadcrumb} />}
       actionBar={actionBar}
+      footer={<Pagination count={counts.all} />}
       leftSidebar={<Sidebar counts={counts} />}
       content={content()}
     />

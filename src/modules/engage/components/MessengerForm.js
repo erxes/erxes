@@ -8,13 +8,8 @@ import {
 import Editor from './Editor';
 import { MESSENGER_KINDS, SENT_AS_CHOICES } from 'modules/engage/constants';
 import { MessengerPreview } from '../containers';
-import {
-  FormWrapper,
-  FormHeader,
-  FlexContent,
-  FlexItem,
-  EditorWrapper
-} from '../styles';
+import { FlexContent, FlexItem } from 'modules/layout/styles';
+import { FormWrapper, FormHeader, EditorWrapper } from '../styles';
 
 const propTypes = {
   message: PropTypes.object.isRequired,

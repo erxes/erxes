@@ -1,37 +1,5 @@
 import styled from 'styled-components';
 
-const AuthContent = styled.div`
-  position: relative;
-  top: 50%;
-  transform: translateY(-50%);
-`;
-
-const AuthDescription = styled.div`
-  margin-top: 60px;
-  img {
-    width: 100px;
-    margin-bottom: 50px;
-  }
-  h1 {
-    font-weight: 700;
-    font-size: 32px;
-    margin-bottom: 30px;
-    color: #fff;
-  }
-  p {
-    color: #c9b6e8;
-    margin-bottom: 50px;
-    font-size: 16px;
-    line-height: 1.8em;
-  }
-  a {
-    color: #c9b6e8;
-  }
-  .not-found {
-    margin-top: 0;
-  }
-`;
-
 const AuthBox = styled.div`
   background-color: #fff;
   padding: 70px 60px;
@@ -110,11 +78,4 @@ const ProfileRow = styled.div`
   }
 `;
 
-export {
-  AuthContent,
-  AuthDescription,
-  AuthBox,
-  Links,
-  ProfileWrapper,
-  ProfileRow
-};
+export { AuthBox, Links, ProfileWrapper, ProfileRow };
