@@ -1,4 +1,5 @@
 import { Integrations } from '../../../db/models';
+import { socUtils } from '../../../social/twitterTracker';
 import { requireLogin, requireAdmin } from '../../permissions';
 
 const integrationMutations = {
@@ -8,8 +9,6 @@ const integrationMutations = {
    * @param {Object} doc - Integration main doc object
    * @param {string} doc.name - Integration name
    * @param {string} doc.brandId - Integration brand id
-   * @param {Object} object3 - The middleware data
-   * @param {Object} object3.user - The user making this action
    * @return {Promise} return Promise resolving Integration document
    */
   integrationsCreateMessengerIntegration(root, doc) {
@@ -23,8 +22,6 @@ const integrationMutations = {
    * @param {string} object2._id - Integration id
    * @param {string} object2.name - Integration name
    * @param {string} object2.brandId - Integration brand id
-   * @param {Object} object3 - The middleware data
-   * @param {Object} object3.user - The user making this action
    * @return {Promise} return Promise resolving Integration document
    */
   integrationsEditMessengerIntegration(root, { _id, ...fields }) {
@@ -40,8 +37,6 @@ const integrationMutations = {
    * @param {string} object2.color - MessengerUiOptions color
    * @param {string} object2.wallpaper - MessengerUiOptions wallpaper
    * @param {string} object2.logo - MessengerUiOptions logo
-   * @param {Object} object3 - The middleware data
-   * @param {Object} object3.user - The user making this action
    * @return {Promise} return Promise resolving Integration document
    */
   integrationsSaveMessengerAppearanceData(root, { _id, uiOptions }) {
@@ -55,8 +50,6 @@ const integrationMutations = {
    * @param {string} object2._id - Integration id
    * @param {MessengerData} object2.messengerData - MessengerData subdocument
    *     object related to this integration
-   * @param {Object} object3 - The middleware data
-   * @param {Object} object3.user - The user making this action
    * @return {Promise} return Promise resolving Integration document
    */
   integrationsSaveMessengerConfigs(root, { _id, messengerData }) {
@@ -71,12 +64,31 @@ const integrationMutations = {
    * @param {string} doc.brandId - Integration brand id
    * @param {string} doc.formId - Integration form id
    * @param {FormData} doc.formData - Integration form data sumbdocument object
-   * @param {Object} object3 - The middleware data
-   * @param {Object} object3.user - The user making this action
    * @return {Promise} return Promise resolving Integration document
    */
   integrationsCreateFormIntegration(root, doc) {
     return Integrations.createFormIntegration(doc);
+  },
+
+  /**
+   * Create a new twitter integration
+   * @param {Object} root
+   * @param {Object} queryParams - Url params
+   * @param {String} brandId - Integration brand id
+   * @return {Promise} return Promise resolving Integration document
+   */
+  async integrationsCreateTwitterIntegration(root, { queryParams, brandId }) {
+    const data = await socUtils.authenticate(queryParams);
+
+    return Integrations.createTwitterIntegration({
+      name: data.info.name,
+      brandId,
+      twitterData: {
+        id: data.info.id,
+        token: data.tokens.auth.token,
+        tokenSecret: data.tokens.auth.token_secret,
+      },
+    });
   },
 
   /**
@@ -116,6 +128,7 @@ requireLogin(integrationMutations, 'integrationsSaveMessengerAppearanceData');
 requireLogin(integrationMutations, 'integrationsSaveMessengerConfigs');
 requireLogin(integrationMutations, 'integrationsCreateFormIntegration');
 requireLogin(integrationMutations, 'integrationsEditFormIntegration');
+requireLogin(integrationMutations, 'integrationsCreateTwitterIntegration');
 requireAdmin(integrationMutations, 'integrationsRemove');
 
 export default integrationMutations;

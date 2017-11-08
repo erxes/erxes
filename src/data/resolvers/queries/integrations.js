@@ -1,4 +1,5 @@
 import { Integrations } from '../../../db/models';
+import { socUtils } from '../../../social/twitterTracker';
 import { moduleRequireLogin } from '../../permissions';
 import { paginate } from './utils';
 
@@ -43,6 +44,14 @@ const integrationQueries = {
     }
 
     return Integrations.find(query).count();
+  },
+
+  /**
+   * Generate twitter integration auth url using credentials in .env
+   * @return {Promise} - Generated url
+   */
+  integrationGetTwitterAuthUrl() {
+    return socUtils.getTwitterAuthorizeUrl();
   },
 };
 

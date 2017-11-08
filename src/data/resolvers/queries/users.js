@@ -50,8 +50,8 @@ const userQueries = {
   },
 };
 
-requireLogin(userQueries.users);
-requireLogin(userQueries.userDetail);
-requireLogin(userQueries.usersTotalCount);
+requireLogin(userQueries, 'users');
+requireLogin(userQueries, 'userDetail');
+requireLogin(userQueries, 'usersTotalCount');
 
 export default userQueries;

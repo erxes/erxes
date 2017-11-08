@@ -36,17 +36,10 @@ export const socTwitter = new soc.Twitter({
   REDIRECT_URL: TWITTER_REDIRECT_URL,
 });
 
-export const authenticate = (queryParams, callback) => {
-  // after user clicked authenticate button
-  socTwitter.callback({ query: queryParams }).then(data => {
-    // return integration info
-    callback({
-      name: data.info.name,
-      twitterData: {
-        id: data.info.id,
-        token: data.tokens.auth.token,
-        tokenSecret: data.tokens.auth.token_secret,
-      },
-    });
-  });
+export const authenticate = queryParams => socTwitter.callback({ query: queryParams });
+
+// doing this to mock authenticate function in test
+export const socUtils = {
+  authenticate,
+  getTwitterAuthorizeUrl: () => socTwitter.getAuthorizeUrl(),
 };

@@ -6,6 +6,7 @@ import { FORM_LOAD_TYPES, MESSENGER_DATA_AVAILABILITY } from '../data/constants'
 import { Integrations } from '../db/models';
 import { ROLES } from '../data/constants';
 import integrationMutations from '../data/resolvers/mutations/integrations';
+import { socUtils } from '../social/twitterTracker';
 
 describe('mutations', () => {
   const _fakeBrandId = 'fakeBrandId';
@@ -16,36 +17,26 @@ describe('mutations', () => {
   const _adminUser = { _id: 'fakeId', role: ROLES.ADMIN };
 
   test(`test if Error('Login required') exception is working as intended`, () => {
-    expect.assertions(7);
+    expect.assertions(9);
 
     // Login required ==================
-    expect(() =>
-      integrationMutations.integrationsCreateMessengerIntegration(null, {}, {}),
-    ).toThrowError('Login required');
+    const check = mutation => {
+      try {
+        mutation(null, {}, {});
+      } catch (e) {
+        expect(e.message).toBe('Login required');
+      }
+    };
 
-    expect(() =>
-      integrationMutations.integrationsEditMessengerIntegration(null, {}, {}),
-    ).toThrowError('Login required');
-
-    expect(() => integrationMutations.integrationsSaveMessengerConfigs(null, {}, {})).toThrowError(
-      'Login required',
-    );
-
-    expect(() =>
-      integrationMutations.integrationsSaveMessengerAppearanceData(null, {}, {}),
-    ).toThrowError('Login required');
-
-    expect(() => integrationMutations.integrationsCreateFormIntegration(null, {}, {})).toThrowError(
-      'Login required',
-    );
-
-    expect(() => integrationMutations.integrationsEditFormIntegration(null, {}, {})).toThrowError(
-      'Login required',
-    );
-
-    expect(() => integrationMutations.integrationsRemove(null, {}, {})).toThrowError(
-      'Login required',
-    );
+    check(integrationMutations.integrationsCreateMessengerIntegration);
+    check(integrationMutations.integrationsEditMessengerIntegration);
+    check(integrationMutations.integrationsSaveMessengerConfigs);
+    check(integrationMutations.integrationsSaveMessengerAppearanceData);
+    check(integrationMutations.integrationsCreateFormIntegration);
+    check(integrationMutations.integrationsEditFormIntegration);
+    check(integrationMutations.integrationsEditFormIntegration);
+    check(integrationMutations.integrationsRemove);
+    check(integrationMutations.integrationsCreateTwitterIntegration);
   });
 
   test(`test if Error('Permission required') exception is working as intended`, async () => {
@@ -216,5 +207,41 @@ describe('mutations', () => {
 
     expect(Integrations.removeIntegration).toBeCalledWith(_fakeIntegrationId);
     expect(Integrations.removeIntegration.mock.calls.length).toBe(1);
+  });
+
+  test('create twitter integration', async () => {
+    Integrations.createTwitterIntegration = jest.fn();
+
+    const authenticateDoc = {
+      info: {
+        name: 'name',
+        id: 1,
+      },
+
+      tokens: {
+        auth: {
+          token: 'token',
+          tokenSecret: 'secret',
+        },
+      },
+    };
+
+    socUtils.authenticate = jest.fn(() => authenticateDoc);
+
+    const doc = {
+      name: authenticateDoc.info.name,
+      brandId: 'brandId',
+      twitterData: {
+        id: authenticateDoc.info.id,
+        token: authenticateDoc.tokens.auth.token,
+        tokenSecret: authenticateDoc.tokens.auth.token_secret,
+      },
+    };
+
+    await integrationMutations.integrationsCreateTwitterIntegration(null, doc, {
+      user: _adminUser,
+    });
+
+    expect(Integrations.createTwitterIntegration).toBeCalledWith(doc);
   });
 });

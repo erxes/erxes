@@ -400,3 +400,35 @@ describe('save integration messenger configurations test', () => {
     );
   });
 });
+
+describe('social integration test', () => {
+  let _brand;
+
+  beforeEach(async () => {
+    _brand = await brandFactory({});
+  });
+
+  afterEach(async () => {
+    await Brands.remove({});
+    await Integrations.remove({});
+  });
+
+  test('create twitter integration', async () => {
+    const doc = {
+      name: 'name',
+      brandId: _brand._id,
+      twitterData: {
+        id: 1,
+        token: 'token',
+        tokenSecret: 'tokenSecret',
+      },
+    };
+
+    const integration = await Integrations.createTwitterIntegration(doc);
+
+    expect(integration.name).toBe(doc.name);
+    expect(integration.brandId).toBe(doc.brandId);
+    expect(integration.kind).toBe(KIND_CHOICES.TWITTER);
+    expect(integration.twitterData.toJSON()).toEqual(doc.twitterData);
+  });
+});
