@@ -210,7 +210,8 @@ describe('mutations', () => {
   });
 
   test('create twitter integration', async () => {
-    Integrations.createTwitterIntegration = jest.fn();
+    const integrationDoc = { _id: 'id', name: 'name' };
+    Integrations.createTwitterIntegration = jest.fn(() => integrationDoc);
 
     const authenticateDoc = {
       info: {
@@ -227,6 +228,7 @@ describe('mutations', () => {
     };
 
     socUtils.authenticate = jest.fn(() => authenticateDoc);
+    socUtils.trackIntegration = jest.fn();
 
     const doc = {
       name: authenticateDoc.info.name,
@@ -243,5 +245,6 @@ describe('mutations', () => {
     });
 
     expect(Integrations.createTwitterIntegration).toBeCalledWith(doc);
+    expect(socUtils.trackIntegration).toBeCalledWith(integrationDoc);
   });
 });

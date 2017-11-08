@@ -1,5 +1,5 @@
 import { Integrations } from '../../../db/models';
-import { trackIntegration, socUtils } from '../../../social/twitterTracker';
+import { socUtils } from '../../../social/twitterTracker';
 import { requireLogin, requireAdmin } from '../../permissions';
 
 const integrationMutations = {
@@ -91,7 +91,7 @@ const integrationMutations = {
     });
 
     // start tracking new twitter entries
-    trackIntegration(integration);
+    socUtils.trackIntegration(integration);
 
     return integration;
   },

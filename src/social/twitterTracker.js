@@ -6,7 +6,7 @@ import { INTEGRATION_KIND_CHOICES } from '../data/constants';
 
 const { TWITTER_CONSUMER_KEY, TWITTER_CONSUMER_SECRET, TWITTER_REDIRECT_URL } = process.env;
 
-export const trackIntegration = integration => {
+const trackIntegration = integration => {
   // Twit instance
   const twit = new Twit({
     consumer_key: TWITTER_CONSUMER_KEY,
@@ -31,17 +31,18 @@ export const trackIntegration = integration => {
 };
 
 // twitter oauth ===============
-export const socTwitter = new soc.Twitter({
+const socTwitter = new soc.Twitter({
   CONSUMER_KEY: TWITTER_CONSUMER_KEY,
   CONSUMER_SECRET: TWITTER_CONSUMER_SECRET,
   REDIRECT_URL: TWITTER_REDIRECT_URL,
 });
 
-export const authenticate = queryParams => socTwitter.callback({ query: queryParams });
+const authenticate = queryParams => socTwitter.callback({ query: queryParams });
 
 // doing this to mock authenticate function in test
 export const socUtils = {
   authenticate,
+  trackIntegration,
   getTwitterAuthorizeUrl: () => socTwitter.getAuthorizeUrl(),
 };
 
