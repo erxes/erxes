@@ -4,6 +4,7 @@ import { TAG_TYPES, INTEGRATION_KIND_CHOICES, CUSTOMER_CONTENT_TYPES } from '../
 import QueryBuilder from '../../../segmentQueryBuilder.js';
 import { moduleRequireLogin } from '../../permissions';
 import { paginate } from './utils';
+import { CustomerMonthActivityLogBuilder } from '../../utils';
 
 const listQuery = async params => {
   const selector = {};
@@ -146,6 +147,31 @@ const customerQueries = {
    */
   customerDetail(root, { _id }) {
     return Customers.findOne({ _id });
+  },
+
+  /**
+   * Get activity log for customer
+   * @param {Object} root
+   * @param {Object} object2 - Graphql input data
+   * @param {string} object._id - Customer id
+   * @param {string} object.sortDoc - Graphql ActivityLogSort doc object
+   * @return {Promise} found customer
+   */
+  async customerActivityLog(root, { _id }) {
+    const customer = await Customers.findOne({ _id });
+
+    const m = new CustomerMonthActivityLogBuilder(customer);
+    return m.build();
+    // const cursor = ActivityLogs.find({
+    //   'customer.type': CUSTOMER_CONTENT_TYPES.customer,
+    //   'customer.id': _id,
+    // });
+    //
+    // if (sortDoc) {
+    //   cursor.sort(sortDoc);
+    // }
+
+    // return customerActivityLog;
   },
 };
 

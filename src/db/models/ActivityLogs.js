@@ -76,7 +76,10 @@ const Activity = mongoose.Schema(
       required: true,
       enum: ACTIVITY_ACTIONS.ALL,
     },
-    content: SchemaTypes.Mixed,
+    content: {
+      type: SchemaTypes.Mixed,
+      default: {},
+    },
     id: {
       type: String,
     },

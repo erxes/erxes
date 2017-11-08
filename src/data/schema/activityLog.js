@@ -6,7 +6,7 @@ export const inputs = `
 
 export const types = `
   type YearMonthDoc {
-    type: String
+    year: Int
     month: Int
   }
 
@@ -20,7 +20,6 @@ export const types = `
   }
 
   type ActivityLog {
-    type: String!
     action: String!
     id: String!
     createdAt: Date!

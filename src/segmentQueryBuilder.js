@@ -109,6 +109,5 @@ function convertConditionToQuery(condition) {
 
 function escapeRegExp(string) {
   // $& means the whole matched string
-  console.log('string: ', string);
   return new String(string).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }

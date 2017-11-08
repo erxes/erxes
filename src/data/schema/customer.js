@@ -37,7 +37,7 @@ export const queries = `
   customers(params: CustomerListParams): [Customer]
   customerCounts(params: CustomerListParams): JSON
   customerDetail(_id: String!): Customer
-  customerActivityLog(_id: String!, sortDoc: ActivityLogSortDoc): [ActivityLog]
+  customerActivityLog(_id: String!, sortDoc: ActivityLogSortDoc): [ActivityLogForMonth]
   customerListForSegmentPreview(segment: JSON, limit: Int): [Customer]
 `;
 
