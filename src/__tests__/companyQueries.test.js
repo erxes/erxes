@@ -4,7 +4,7 @@ import companyQueries from '../data/resolvers/queries/companies';
 
 describe('companyQueries', () => {
   test(`test if Error('Login required') exception is working as intended`, async () => {
-    expect.assertions(4);
+    expect.assertions(3);
 
     const expectError = async func => {
       try {
@@ -17,6 +17,5 @@ describe('companyQueries', () => {
     expectError(companyQueries.companies);
     expectError(companyQueries.companyCounts);
     expectError(companyQueries.companyDetail);
-    expectError(companyQueries.companiesTotalCount);
   });
 });

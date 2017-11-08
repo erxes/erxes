@@ -28,7 +28,7 @@ export const types = `
 `;
 
 export const queries = `
-  users(limit: Int): [User]
+  users(params: JSON): [User]
   userDetail(_id: String): User
   usersTotalCount: Int
   currentUser: User

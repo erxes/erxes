@@ -400,3 +400,53 @@ describe('save integration messenger configurations test', () => {
     );
   });
 });
+
+describe('social integration test', () => {
+  let _brand;
+
+  beforeEach(async () => {
+    _brand = await brandFactory({});
+  });
+
+  afterEach(async () => {
+    await Brands.remove({});
+    await Integrations.remove({});
+  });
+
+  test('create twitter integration', async () => {
+    const doc = {
+      name: 'name',
+      brandId: _brand._id,
+      twitterData: {
+        id: 1,
+        token: 'token',
+        tokenSecret: 'tokenSecret',
+      },
+    };
+
+    const integration = await Integrations.createTwitterIntegration(doc);
+
+    expect(integration.name).toBe(doc.name);
+    expect(integration.brandId).toBe(doc.brandId);
+    expect(integration.kind).toBe(KIND_CHOICES.TWITTER);
+    expect(integration.twitterData.toJSON()).toEqual(doc.twitterData);
+  });
+
+  test('create facebook integration', async () => {
+    const doc = {
+      name: 'name',
+      brandId: _brand._id,
+      facebookData: {
+        appId: '1',
+        pageIds: ['1'],
+      },
+    };
+
+    const integration = await Integrations.createFacebookIntegration(doc);
+
+    expect(integration.name).toBe(doc.name);
+    expect(integration.brandId).toBe(doc.brandId);
+    expect(integration.kind).toBe(KIND_CHOICES.FACEBOOK);
+    expect(integration.facebookData.toJSON()).toEqual(doc.facebookData);
+  });
+});

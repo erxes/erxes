@@ -1,11 +1,12 @@
 import Twit from 'twit';
 import soc from 'social-oauth-client';
-
 import { TwitMap, receiveTimeLineResponse, getOrCreateDirectMessageConversation } from './twitter';
+import { Integrations } from '../db/models';
+import { INTEGRATION_KIND_CHOICES } from '../data/constants';
 
 const { TWITTER_CONSUMER_KEY, TWITTER_CONSUMER_SECRET, TWITTER_REDIRECT_URL } = process.env;
 
-export const trackIntegration = integration => {
+const trackIntegration = integration => {
   // Twit instance
   const twit = new Twit({
     consumer_key: TWITTER_CONSUMER_KEY,
@@ -30,23 +31,28 @@ export const trackIntegration = integration => {
 };
 
 // twitter oauth ===============
-export const socTwitter = new soc.Twitter({
+const socTwitter = new soc.Twitter({
   CONSUMER_KEY: TWITTER_CONSUMER_KEY,
   CONSUMER_SECRET: TWITTER_CONSUMER_SECRET,
   REDIRECT_URL: TWITTER_REDIRECT_URL,
 });
 
-export const authenticate = (queryParams, callback) => {
-  // after user clicked authenticate button
-  socTwitter.callback({ query: queryParams }).then(data => {
-    // return integration info
-    callback({
-      name: data.info.name,
-      twitterData: {
-        id: data.info.id,
-        token: data.tokens.auth.token,
-        tokenSecret: data.tokens.auth.token_secret,
-      },
-    });
+const authenticate = queryParams => socTwitter.callback({ query: queryParams });
+
+// doing this to mock authenticate function in test
+export const socUtils = {
+  authenticate,
+  trackIntegration,
+  getTwitterAuthorizeUrl: () => socTwitter.getAuthorizeUrl(),
+};
+
+/*
+ * Track all twitter integrations for the first time
+ */
+export const trackIntegrations = () => {
+  Integrations.find({ kind: INTEGRATION_KIND_CHOICES.TWITTER }).then(integrations => {
+    for (let integration of integrations) {
+      trackIntegration(integration);
+    }
   });
 };

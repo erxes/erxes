@@ -1,21 +1,15 @@
 import { EmailTemplates } from '../../../db/models';
 import { moduleRequireLogin } from '../../permissions';
+import { paginate } from './utils';
 
 const emailTemplateQueries = {
   /**
    * Email templates list
-   * @param {Object} args
-   * @param {Integer} args.limit
+   * @param {Object} args - Search params
    * @return {Promise} email template objects
    */
-  emailTemplates(root, { limit }) {
-    const emailTemplates = EmailTemplates.find({});
-
-    if (limit) {
-      return emailTemplates.limit(limit);
-    }
-
-    return emailTemplates;
+  emailTemplates(root, { params = {} }) {
+    return paginate(EmailTemplates.find({}), params);
   },
 
   /**

@@ -30,6 +30,11 @@ export const types = `
     redirectUrl: String
   }
 
+  input TwitterIntegrationAuthParams {
+    oauth_token: String!
+    oauth_verifier: String!
+  }
+
   input MessengerOnlineHoursSchema {
     _id: String
     day: String
@@ -57,9 +62,12 @@ export const types = `
 `;
 
 export const queries = `
-  integrations(limit: Int, kind: String): [Integration]
+  integrations(params: JSON): [Integration]
   integrationDetail(_id: String!): Integration
   integrationsTotalCount(kind: String): Int
+  integrationGetTwitterAuthUrl: String
+  integrationFacebookAppsList: [JSON]
+  integrationFacebookPagesList(appId: Float): [JSON]
 `;
 
 export const mutations = `
@@ -85,6 +93,18 @@ export const mutations = `
     brandId: String!,
     formId: String!,
     formData: IntegrationFormData!): Integration
+
+  integrationsCreateTwitterIntegration(
+    brandId: String!,
+    queryParams: TwitterIntegrationAuthParams!
+  ): Integration
+
+  integrationsCreateFacebookIntegration(
+    brandId: String!,
+    name: String!,
+    appId: String!,
+    pageIds: [String!]!,
+  ): Integration
 
   integrationsEditFormIntegration(
     _id: String!

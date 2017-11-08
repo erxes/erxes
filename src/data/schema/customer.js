@@ -39,7 +39,6 @@ export const queries = `
   customerDetail(_id: String!): Customer
   customerActivityLog(_id: String!, sortDoc: ActivityLogSortDoc): [ActivityLog]
   customerListForSegmentPreview(segment: JSON, limit: Int): [Customer]
-  customersTotalCount: Int
 `;
 
 const fields = `

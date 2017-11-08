@@ -166,6 +166,20 @@ const conversationQueries = {
 
     return Conversations.find(qb.mainQuery()).count();
   },
+
+  /**
+   * Get conversation by given id or return last conversation
+   * @return {Promise} - Conversation object
+   */
+  async conversationsGetCurrent(root, { _id }) {
+    let conversation = await Conversations.findOne({ _id });
+
+    if (!conversation) {
+      conversation = Conversations.findOne({}).sort({ createdAt: -1 });
+    }
+
+    return conversation;
+  },
 };
 
 moduleRequireLogin(conversationQueries);

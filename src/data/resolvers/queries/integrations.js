@@ -1,30 +1,25 @@
 import { Integrations } from '../../../db/models';
+import { socUtils } from '../../../social/twitterTracker';
+import { getConfig, getPageList } from '../../../social/facebook';
 import { moduleRequireLogin } from '../../permissions';
+import { paginate } from './utils';
 
 const integrationQueries = {
   /**
    * Integrations list
-   * @param {Object} object
-   * @param {Object} object2 - Apollo input data
-   * @param {Integer} object2.limit
-   * @param {String} object2.kind
+   * @param {Object} params - Search params
    * @return {Promise} filterd and sorted integrations list
    */
-  integrations(root, { limit, kind }) {
+  integrations(root, { params = {} }) {
     const query = {};
-    const sort = { createdAt: -1 };
 
-    if (kind) {
-      query.kind = kind;
+    if (params.kind) {
+      query.kind = params.kind;
     }
 
-    const integrations = Integrations.find(query);
+    const integrations = paginate(Integrations.find(query), params);
 
-    if (limit) {
-      return integrations.sort(sort).limit(limit);
-    }
-
-    return integrations.sort(sort);
+    return integrations.sort({ createdAt: -1 });
   },
 
   /**
@@ -50,6 +45,39 @@ const integrationQueries = {
     }
 
     return Integrations.find(query).count();
+  },
+
+  /**
+   * Generate twitter integration auth url using credentials in .env
+   * @return {Promise} - Generated url
+   */
+  integrationGetTwitterAuthUrl() {
+    return socUtils.getTwitterAuthorizeUrl();
+  },
+
+  /**
+   * Get facebook app list .env
+   * @return {Promise} - Apps list
+   */
+  integrationFacebookAppsList() {
+    return getConfig().map(app => ({
+      id: app.id,
+      name: app.name,
+    }));
+  },
+
+  /**
+   * Get facebook pages by appId
+   * @return {Promise} - Page list
+   */
+  async integrationFacebookPagesList(root, { appId }) {
+    const app = getConfig().find(app => app.id === appId);
+
+    if (!app) {
+      return [];
+    }
+
+    return getPageList(app.accessToken);
   },
 };
 

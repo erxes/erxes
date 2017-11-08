@@ -13,8 +13,8 @@ import { graphRequest } from './facebookTracker';
  * @param {String} accessToken - App access token
  * @return {[Object]} - page list
  */
-export const getPageList = accessToken => {
-  const response = graphRequest.get('/me/accounts?limit=100', accessToken);
+export const getPageList = async accessToken => {
+  const response = await graphRequest.get('/me/accounts?limit=100', accessToken);
 
   return response.data.map(page => ({
     id: page.id,
@@ -382,13 +382,13 @@ export const receiveWebhookResponse = async (app, data) => {
  * @param {String} messageId - Conversation message id
  */
 export const facebookReply = async (conversation, text, messageId) => {
-  const { FACEBOOK } = process.env;
+  const FACEBOOK_APPS = getConfig();
 
   const integration = await Integrations.findOne({
     _id: conversation.integrationId,
   });
 
-  const app = JSON.parse(FACEBOOK).find(a => a.id === integration.facebookData.appId);
+  const app = FACEBOOK_APPS.find(a => a.id === integration.facebookData.appId);
 
   // page access token
   const response = graphRequest.get(
@@ -427,4 +427,10 @@ export const facebookReply = async (conversation, text, messageId) => {
   }
 
   return null;
+};
+
+export const getConfig = () => {
+  const { FACEBOOK } = process.env;
+
+  return JSON.parse(FACEBOOK);
 };

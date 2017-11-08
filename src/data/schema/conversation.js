@@ -82,10 +82,11 @@ export const types = `
 `;
 
 export const queries = `
-  conversations(params: ConversationListParams): [Conversation]
+  conversations(params: ConversationListParams!): [Conversation]
   conversationCounts(params: ConversationListParams): JSON
   conversationDetail(_id: String!): Conversation
   conversationsTotalCount(params: ConversationListParams): Int
+  conversationsGetCurrent(_id: String): Conversation
 `;
 
 export const mutations = `

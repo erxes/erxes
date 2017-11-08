@@ -4,7 +4,7 @@ import userQueries from '../data/resolvers/queries/users';
 
 describe('userQueries', () => {
   test(`test if Error('Login required') exception is working as intended`, async () => {
-    expect.assertions(4);
+    expect.assertions(3);
 
     const expectError = async func => {
       try {
@@ -17,6 +17,5 @@ describe('userQueries', () => {
     expectError(userQueries.users);
     expectError(userQueries.userDetail);
     expectError(userQueries.usersTotalCount);
-    expectError(userQueries.currentUser);
   });
 });

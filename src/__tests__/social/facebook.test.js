@@ -29,7 +29,7 @@ describe('facebook integration common tests', () => {
   test('get page list', async () => {
     sinon.stub(graphRequest, 'get').callsFake(() => ({ data: pages }));
 
-    expect(getPageList()).toEqual(pages);
+    expect(await getPageList()).toEqual(pages);
 
     graphRequest.get.restore(); // unwraps the spy
   });
@@ -37,8 +37,8 @@ describe('facebook integration common tests', () => {
   test('graph request', async () => {
     sinon.stub(graphRequest, 'base').callsFake(() => {});
 
-    graphRequest.get();
-    graphRequest.post();
+    await graphRequest.get();
+    await graphRequest.post();
 
     graphRequest.base.restore(); // unwraps the spy
   });

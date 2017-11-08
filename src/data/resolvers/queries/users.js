@@ -1,25 +1,18 @@
 import { Users } from '../../../db/models';
-
-import { moduleRequireLogin } from '../../permissions';
+import { requireLogin } from '../../permissions';
+import { paginate } from './utils';
 
 const userQueries = {
   /**
    * Users list
-   * @param {Object} args
-   * @param {Integer} args.limit
+   * @param {Object} args - Search params
    * @param {Object} object3 - Graphql middleware data
    * @param {Object} object3.user - User making this request
    * @return {Promise} sorted and filtered users objects
    */
-  users(root, { limit }) {
-    const users = Users.find({});
-    const sort = { username: 1 };
-
-    if (limit) {
-      return users.limit(limit).sort(sort);
-    }
-
-    return users.sort(sort);
+  users(root, { params = {} }) {
+    const users = paginate(Users.find({}), params);
+    return users.sort({ username: 1 });
   },
 
   /**
@@ -49,10 +42,16 @@ const userQueries = {
    * @return {Promise} total count
    */
   currentUser(root, args, { user }) {
-    return Users.findOne({ _id: user._id });
+    if (user) {
+      return Users.findOne({ _id: user._id });
+    }
+
+    return null;
   },
 };
 
-moduleRequireLogin(userQueries);
+requireLogin(userQueries, 'users');
+requireLogin(userQueries, 'userDetail');
+requireLogin(userQueries, 'usersTotalCount');
 
 export default userQueries;

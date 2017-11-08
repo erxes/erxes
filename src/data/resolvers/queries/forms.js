@@ -1,22 +1,16 @@
 import { Forms } from '../../../db/models';
 import { moduleRequireLogin } from '../../permissions';
+import { paginate } from './utils';
 
 const formQueries = {
   /**
    * Forms list
-   * @param {Object} args
-   * @param {Integer} args.limit
+   * @param {Object} params - Search params
    * @return {Promise} sorted forms list
    */
-  forms(root, { limit }) {
-    const forms = Forms.find({});
-    const sort = { name: 1 };
-
-    if (limit) {
-      return forms.sort(sort).limit(limit);
-    }
-
-    return forms.sort(sort);
+  forms(root, { params = {} }) {
+    const forms = paginate(Forms.find({}), params);
+    return forms.sort({ name: 1 });
   },
 
   /**

@@ -11,7 +11,7 @@ export const types = `
 `;
 
 export const queries = `
-  brands(limit: Int): [Brand]
+  brands(params: JSON): [Brand]
   brandDetail(_id: String!): Brand
   brandsTotalCount: Int
 `;
