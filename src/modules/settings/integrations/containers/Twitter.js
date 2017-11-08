@@ -1,42 +1,43 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { compose, gql, graphql } from 'react-apollo';
-import { Spinner } from 'modules/common/components';
+import { Alert } from 'modules/common/utils';
 import { Twitter } from '../components';
 
 const TwitterContainer = props => {
-  const { brandsQuery, type } = props;
+  const {
+    brandsQuery,
+    twitterAuthUrlQuery,
+    history,
+    type,
+    queryParams,
+    saveMutation
+  } = props;
 
-  if (brandsQuery.loading) {
-    return <Spinner />;
+  if (brandsQuery.loading || twitterAuthUrlQuery.loading) {
+    return null;
   }
 
   if (type === 'link') {
-    // TODO
-    // return Meteor.call('integrations.getTwitterAuthorizeUrl', (err, url) => {
-    //   location.href = url;
-    // });
+    window.location.href = twitterAuthUrlQuery.integrationGetTwitterAuthUrl;
   }
 
   const brands = brandsQuery.brands;
 
-  const save = () => {
-    // TODO
-    // Meteor.call(
-    //   'integrations.addTwitter',
-    //   {
-    //     brandId,
-    //     queryParams: FlowRouter.current().queryParams,
-    //   },
-    //   error => {
-    //     if (error) {
-    //       return Alert.success(error.error);
-    //     }
-    //
-    //     Alert.success('Congrats');
-    //     return FlowRouter.go('/settings/integrations/list');
-    //   },
-    // );
+  const save = brandId => {
+    saveMutation({
+      variables: {
+        brandId,
+        queryParams
+      }
+    })
+      .then(() => {
+        Alert.success('Congrats');
+        history.push('/settings/integrations');
+      })
+      .catch(e => {
+        Alert.error(e.message);
+      });
   };
 
   const updatedProps = {
@@ -50,7 +51,11 @@ const TwitterContainer = props => {
 
 TwitterContainer.propTypes = {
   type: PropTypes.string,
-  brandsQuery: PropTypes.object
+  history: PropTypes.object,
+  queryParams: PropTypes.object,
+  brandsQuery: PropTypes.object,
+  twitterAuthUrlQuery: PropTypes.object,
+  saveMutation: PropTypes.func
 };
 
 export default compose(
@@ -68,6 +73,32 @@ export default compose(
       options: () => ({
         fetchPolicy: 'network-only'
       })
+    }
+  ),
+  graphql(
+    gql`
+      query integrationGetTwitterAuthUrl {
+        integrationGetTwitterAuthUrl
+      }
+    `,
+    { name: 'twitterAuthUrlQuery' }
+  ),
+  graphql(
+    gql`
+      mutation save(
+        $brandId: String!
+        $queryParams: TwitterIntegrationAuthParams!
+      ) {
+        integrationsCreateTwitterIntegration(
+          brandId: $brandId
+          queryParams: $queryParams
+        ) {
+          _id
+        }
+      }
+    `,
+    {
+      name: 'saveMutation'
     }
   )
 )(TwitterContainer);

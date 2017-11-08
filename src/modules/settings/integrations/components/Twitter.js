@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { Modal } from 'react-bootstrap';
 import { Wrapper } from 'modules/layout/components';
 import { Button, Icon } from 'modules/common/components';
+import { ContentBox } from '../../styles';
 import Sidebar from '../../Sidebar';
 import SelectBrand from './SelectBrand';
 
@@ -21,15 +22,17 @@ class Twitter extends Component {
 
   render() {
     const content = (
-      <form className="margined" onSubmit={this.handleSubmit}>
-        <SelectBrand brands={this.props.brands} />
+      <ContentBox>
+        <form onSubmit={this.handleSubmit}>
+          <SelectBrand brands={this.props.brands} />
 
-        <Modal.Footer>
-          <Button btnStyle="success" type="submit">
-            <Icon icon="checkmark" /> Save
-          </Button>
-        </Modal.Footer>
-      </form>
+          <Modal.Footer>
+            <Button btnStyle="success" type="submit">
+              <Icon icon="checkmark" /> Save
+            </Button>
+          </Modal.Footer>
+        </form>
+      </ContentBox>
     );
 
     const breadcrumb = [
@@ -38,13 +41,11 @@ class Twitter extends Component {
     ];
 
     return (
-      <div>
-        <Wrapper
-          header={<Wrapper.Header breadcrumb={breadcrumb} />}
-          leftSidebar={<Sidebar />}
-          content={content}
-        />
-      </div>
+      <Wrapper
+        header={<Wrapper.Header breadcrumb={breadcrumb} />}
+        leftSidebar={<Sidebar />}
+        content={content}
+      />
     );
   }
 }
