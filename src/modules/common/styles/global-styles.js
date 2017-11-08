@@ -189,6 +189,7 @@ injectGlobal`
 
   .popover-title {
     font-weight: 400;
+    display: block;
     border-bottom: 1px solid #eee;
     padding: 10px 20px;
     background: #fafafa;

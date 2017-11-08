@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Wrapper } from 'modules/layout/components';
-import { ConversationList, Icon } from 'modules/common/components';
+import { ConversationList } from 'modules/common/components';
+import FilterButton from './FilterButton';
 
 const propTypes = {
   conversations: PropTypes.array.isRequired
@@ -11,12 +12,18 @@ class Sidebar extends Component {
   renderSidebarHeader() {
     return (
       <Wrapper.Sidebar.Header>
-        <div>
-          # Sales (13) <Icon icon="ios-arrow-down" />
-        </div>
-        <div>
-          Open <Icon icon="ios-arrow-down" />
-        </div>
+        <FilterButton
+          buttonText="# Sales (13)"
+          fields={[]}
+          filter={() => {}}
+          popoverTitle="Filter by channel"
+        />
+        <FilterButton
+          buttonText="Open"
+          fields={[]}
+          filter={() => {}}
+          popoverTitle="Filter by status"
+        />
       </Wrapper.Sidebar.Header>
     );
   }
@@ -24,15 +31,27 @@ class Sidebar extends Component {
   renderSidebarFooter() {
     return (
       <Wrapper.Sidebar.Footer>
-        <div>
-          Brand <Icon icon="ios-arrow-up" />
-        </div>
-        <div>
-          Integration <Icon icon="ios-arrow-up" />
-        </div>
-        <div>
-          Tag <Icon icon="ios-arrow-up" />
-        </div>
+        <FilterButton
+          buttonText="Brand"
+          fields={[]}
+          filter={() => {}}
+          popoverTitle="Filter by brand"
+          placement="top"
+        />
+        <FilterButton
+          buttonText="Integration"
+          fields={[]}
+          filter={() => {}}
+          popoverTitle="Filter by integration"
+          placement="top"
+        />
+        <FilterButton
+          buttonText="Tag"
+          fields={[]}
+          filter={() => {}}
+          popoverTitle="Filter by tag"
+          placement="top"
+        />
       </Wrapper.Sidebar.Footer>
     );
   }

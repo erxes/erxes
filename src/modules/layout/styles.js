@@ -154,7 +154,6 @@ const HeaderItems = styled.div`
 `;
 
 const SideContent = styled.section`
-  overflow-y: auto;
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
@@ -170,7 +169,7 @@ const SideContent = styled.section`
 const SidebarHeader = styled.div`
   background-color: ${colors.bgLight};
   height: ${dimensions.headerSpacing}px;
-  line-height: ${dimensions.headerSpacing}px;
+  align-items: center;
   padding: 0 ${dimensions.coreSpacing}px 0 ${dimensions.coreSpacing}px;
   border-bottom: 1px solid ${colors.borderPrimary};
   display: flex;

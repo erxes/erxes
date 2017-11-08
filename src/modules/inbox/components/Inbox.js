@@ -3,9 +3,10 @@ import PropTypes from 'prop-types';
 import RightSidebar from './RightSidebar';
 import LeftSidebar from './LeftSidebar';
 import { Wrapper } from '../../layout/components';
-import { Button, Label, Icon } from 'modules/common/components';
+import { Button, Label, Icon, TaggerPopover } from 'modules/common/components';
 import { BarItems } from 'modules/layout/styles';
 import Conversation from './conversation/Conversation';
+import { PopoverButton } from '../styles';
 
 class Inbox extends Component {
   componentDidMount() {
@@ -20,12 +21,22 @@ class Inbox extends Component {
     const { conversations, currentConversation, user } = this.props;
     const actionBarLeft = <BarItems>Alice Caldwell</BarItems>;
 
-    const actionBarRight = (
-      <BarItems>
+    const tagTrigger = (
+      <PopoverButton>
         <Label lblStyle="danger">urgent</Label>
         <Icon icon="ios-arrow-down" />
+      </PopoverButton>
+    );
+
+    const actionBarRight = (
+      <BarItems>
+        <TaggerPopover
+          targets={[currentConversation]}
+          type="conversation"
+          trigger={tagTrigger}
+        />
         <Button btnStyle="success" size="small">
-          <Icon icon="checkmark" />Resolve
+          <Icon icon="checkmark" /> Resolve
         </Button>
       </BarItems>
     );
