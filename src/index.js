@@ -12,7 +12,7 @@ import { Customers } from './db/models';
 import { connect } from './db/connection';
 import { userMiddleware } from './auth';
 import schema from './data';
-import './cronJobs';
+import './startup';
 
 // load environment variables
 dotenv.config();

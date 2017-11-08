@@ -1,7 +1,8 @@
 import Twit from 'twit';
 import soc from 'social-oauth-client';
-
 import { TwitMap, receiveTimeLineResponse, getOrCreateDirectMessageConversation } from './twitter';
+import { Integrations } from '../db/models';
+import { INTEGRATION_KIND_CHOICES } from '../data/constants';
 
 const { TWITTER_CONSUMER_KEY, TWITTER_CONSUMER_SECRET, TWITTER_REDIRECT_URL } = process.env;
 
@@ -43,3 +44,10 @@ export const socUtils = {
   authenticate,
   getTwitterAuthorizeUrl: () => socTwitter.getAuthorizeUrl(),
 };
+
+// track all twitter integrations for the first time
+Integrations.find({ kind: INTEGRATION_KIND_CHOICES.TWITTER }).then(integrations => {
+  for (let integration of integrations) {
+    trackIntegration(integration);
+  }
+});

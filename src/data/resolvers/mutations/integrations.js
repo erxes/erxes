@@ -1,5 +1,5 @@
 import { Integrations } from '../../../db/models';
-import { socUtils } from '../../../social/twitterTracker';
+import { trackIntegration, socUtils } from '../../../social/twitterTracker';
 import { requireLogin, requireAdmin } from '../../permissions';
 
 const integrationMutations = {
@@ -80,7 +80,7 @@ const integrationMutations = {
   async integrationsCreateTwitterIntegration(root, { queryParams, brandId }) {
     const data = await socUtils.authenticate(queryParams);
 
-    return Integrations.createTwitterIntegration({
+    const integration = await Integrations.createTwitterIntegration({
       name: data.info.name,
       brandId,
       twitterData: {
@@ -89,6 +89,11 @@ const integrationMutations = {
         tokenSecret: data.tokens.auth.token_secret,
       },
     });
+
+    // start tracking new twitter entries
+    trackIntegration(integration);
+
+    return integration;
   },
 
   /**
