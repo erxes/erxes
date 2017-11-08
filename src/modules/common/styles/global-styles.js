@@ -187,6 +187,15 @@ injectGlobal`
     border-bottom-color: #fafafa;
   }
 
+  .popover.top > .arrow {
+    border-top-color: #eee;
+  }
+
+  .popover.top > .arrow::after {
+    bottom: 1px;
+    border-top-color: #fff;
+  }
+
   .popover-title {
     font-weight: 400;
     display: block;
