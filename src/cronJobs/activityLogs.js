@@ -1,6 +1,6 @@
 import schedule from 'node-schedule';
 import { Segments, Customers, ActivityLogs } from '../db/models';
-import QueryBuilder from '../segmentQueryBuilder';
+import QueryBuilder from '../data/segmentQueryBuilder';
 
 /**
 * Send conversation messages to customer
@@ -35,7 +35,7 @@ export const createActivityLogsFromSegments = async () => {
 * │    └──────────────────── minute (0 - 59)
 * └───────────────────────── second (0 - 59, OPTIONAL)
 */
-schedule.scheduleJob('* * * * *', function() {
+schedule.scheduleJob('* 45 23 * *', function() {
   createActivityLogsFromSegments();
 });
 

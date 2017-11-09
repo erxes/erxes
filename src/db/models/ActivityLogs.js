@@ -27,10 +27,10 @@ export const ACTION_PERFORMER_TYPES = {
   ALL: ['SYSTEM', 'USER'],
 };
 
-// Performer of the action:
-// *system* cron job, user
-// ex: Sales manager that has registered a new customer
-// Sales manager is the action performer
+/* Performer of the action:
+   *system* cron job, user
+   ex: Sales manager that has registered a new customer
+   Sales manager is the action performer */
 const ActionPerformer = mongoose.Schema(
   {
     type: {
@@ -47,24 +47,24 @@ const ActionPerformer = mongoose.Schema(
 );
 
 /*
- * The action that is being performed
- * ex1: A user writes an internal note
- * in this case: type is InternalNote
- *               action is create (write)
- *               id is the InternalNote id
- * ex2: Sales manager registers a new customer
- * in this case: type is customer
- *               action is create (register)
- *               id is Customer id
- * customer and activity contentTypes are the same in this case
- * ex3: Cronjob runs and a customer is found to be suitable for a particular segment
- *               action is create: a new segment user
- *               type is segment
- *               id is Segment id
- * ex4: An internalNote concerning a customer was updated
- *               action is update
- *               type is InternalNote
- *               id is InternalNote id
+   The action that is being performed
+   ex1: A user writes an internal note
+   in this case: type is InternalNote
+                 action is create (write)
+                 id is the InternalNote id
+   ex2: Sales manager registers a new customer
+   in this case: type is customer
+                 action is create (register)
+                 id is Customer id
+   customer and activity contentTypes are the same in this case
+   ex3: Cronjob runs and a customer is found to be suitable for a particular segment
+                 action is create: a new segment user
+                 type is segment
+                 id is Segment id
+   ex4: An internalNote concerning a customer was updated
+                 action is update
+                 type is InternalNote
+                 id is InternalNote id
  */
 const Activity = mongoose.Schema(
   {
@@ -89,8 +89,8 @@ const Activity = mongoose.Schema(
   { _id: false },
 );
 
-// the customer that is related to a given ActivityLog
-// can be both Company or Customer documents
+/* the customer that is related to a given ActivityLog
+ can be both Company or Customer documents */
 const Customer = mongoose.Schema(
   {
     id: {
@@ -125,6 +125,12 @@ const ActivityLogSchema = mongoose.Schema({
 });
 
 class ActivityLog {
+  /**
+   * Create an ActivityLog document
+   * @param {Object|null} object1.performedBy - The performer of the action
+   * @param {Object} object1 - Data to insert according to schema
+   * @return {Promise} returns Promise resolving created ActivityLog document
+   */
   static createDoc({ performedBy, ...doc }) {
     if (performedBy && performedBy._id) {
       performedBy = {
@@ -146,10 +152,6 @@ class ActivityLog {
    * @return {Promise} returns Promise resolving created ActivityLog document
    */
   static createInternalNoteLog(internalNote, user) {
-    if (user == null || (user && !user._id)) {
-      throw new Error(`'user' must be supplied when adding activity log for internal note`);
-    }
-
     return this.createDoc({
       activity: {
         type: ACTIVITY_TYPES.INTERNAL_NOTE,

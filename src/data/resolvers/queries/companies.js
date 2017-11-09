@@ -1,5 +1,5 @@
 import { Companies, Segments } from '../../../db/models';
-import QueryBuilder from '../../../segmentQueryBuilder';
+import QueryBuilder from '../../segmentQueryBuilder';
 import { CUSTOMER_CONTENT_TYPES } from '../../constants';
 import { moduleRequireLogin } from '../../permissions';
 import { paginate } from './utils';
