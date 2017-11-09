@@ -99,7 +99,7 @@ describe('ActivityLogs model methods', () => {
     try {
       await ActivityLogs.createConversationLog(conversation, null, customer);
     } catch (e) {
-      expect(e.message).toBe(`'user' must be supplied when adding activity log for internal note`);
+      expect(e.message).toBe(`'user' must be supplied when adding activity log for conversations`);
     }
 
     try {

@@ -10,12 +10,13 @@ import ActivityLogs, {
   ACTIVITY_ACTIONS,
   ACTION_PERFORMER_TYPES,
 } from '../db/models/ActivityLogs';
+import { Customers } from '../db/models';
 
 beforeAll(() => connect());
 afterAll(() => disconnect());
 
 describe('test activityLogsCronJob', () => {
-  test('1', async () => {
+  test('test if it is working as intended', async () => {
     const nameEqualsConditions = [
       {
         type: 'string',
@@ -26,7 +27,7 @@ describe('test activityLogsCronJob', () => {
       },
     ];
 
-    const customer = await customerFactory({ name: 'John Smith' });
+    const customer = await customerFactory({ name: 'john smith' });
     const segment = await segmentFactory({
       contentType: CUSTOMER_CONTENT_TYPES.CUSTOMER,
       conditions: nameEqualsConditions,
@@ -34,10 +35,16 @@ describe('test activityLogsCronJob', () => {
 
     await cronJobs.createActivityLogsFromSegments();
 
+    expect(await ActivityLogs.find().count()).toBe(1);
+
     const aLog = await ActivityLogs.findOne();
+
     expect(aLog.activity.toObject()).toEqual({
       type: ACTIVITY_TYPES.SEGMENT,
       action: ACTIVITY_ACTIONS.CREATE,
+      content: {
+        name: segment.name,
+      },
       id: segment._id,
     });
     expect(aLog.customer.toObject()).toEqual({
@@ -47,5 +54,11 @@ describe('test activityLogsCronJob', () => {
     expect(aLog.performedBy.toObject()).toEqual({
       type: ACTION_PERFORMER_TYPES.SYSTEM,
     });
+
+    await Customers.updateCustomer(customer._id, { name: 'jane smith' });
+
+    await cronJobs.createActivityLogsFromSegments();
+
+    expect(await ActivityLogs.find().count()).toBe(1);
   });
 });

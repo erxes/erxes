@@ -1,7 +1,7 @@
 /* eslint-env jest */
 /* eslint-disable no-underscore-dangle */
 
-import { MonthActivityLogBuilder } from '../data/utils';
+import { CustomerMonthActivityLogBuilder } from '../data/utils';
 
 describe('activityLogUtils', () => {
   test('MonthActivityLogBuilder', () => {
@@ -10,7 +10,6 @@ describe('activityLogUtils', () => {
       name: 'test customer name',
     };
 
-    const monthActivityLogBuilder = new MonthActivityLogBuilder(customer);
-    console.log('aa: ', monthActivityLogBuilder.build());
+    new CustomerMonthActivityLogBuilder(customer);
   });
 });

@@ -13,7 +13,7 @@ import { connect } from './db/connection';
 import { userMiddleware } from './auth';
 import schema from './data';
 import { init } from './startup';
-import cronJobs from './cronJobs';
+import './cronJobs';
 
 // load environment variables
 dotenv.config();
@@ -89,5 +89,3 @@ if (process.env.NODE_ENV === 'development') {
     }),
   );
 }
-
-cronJobs.createActivityLogsFromSegments();

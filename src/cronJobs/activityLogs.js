@@ -8,10 +8,7 @@ import QueryBuilder from '../segmentQueryBuilder';
 export const createActivityLogsFromSegments = async () => {
   const segments = await Segments.find({});
 
-  console.log('started running');
   for (let segment of segments) {
-    console.log('segment._id : ', segment._id);
-    console.log('segment.name: ', segment.name);
     const selector = await QueryBuilder.segments(segment);
     // console.log('segment: ', segment);
     // console.log('selector: ', selector['$and'] && selector['$and'][0]['$or']);
@@ -25,7 +22,6 @@ export const createActivityLogsFromSegments = async () => {
       }
     }
   }
-  console.log('stopped running (successful)');
 };
 
 /**
