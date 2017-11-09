@@ -176,7 +176,7 @@ class ActivityLog {
       throw new Error(`'user' must be supplied when adding activity log for conversations`);
     }
 
-    if (customer == null || (customer && !user._id)) {
+    if (customer == null || (customer && !customer._id)) {
       throw new Error(`'customer' must be supplied when adding activity log for conversations`);
     }
 
@@ -187,10 +187,19 @@ class ActivityLog {
         id: conversation._id,
       },
       performedBy: user,
-      customer,
+      customer: {
+        type: conversation.contentType,
+        id: customer._id,
+      },
     });
   }
 
+  /**
+   * Create a customer or company segment log
+   * @param {Segment} segment - Segment document
+   * @param {Customer} customer - Related customer or company
+   * @return {Promise} return Promise resolving created Segment
+   */
   static async createSegmentLog(segment, customer) {
     if (!customer) {
       throw new Error('customer must be supplied');
@@ -226,16 +235,26 @@ class ActivityLog {
   }
 
   /**
-   * Creates a customer or company registration log
+   * Creates a customer registration log
+   * @param {Customer} customer - Customer document
+   * @param {user} user - user document
+   * @return {Promise} return Promise resolving created ActivityLog
    */
-  static createCustomerLog(customer) {
+  static createCustomerLog(customer, user) {
     return this.createDoc({
       activity: {
         type: ACTIVITY_TYPES.CUSTOMER,
         action: ACTIVITY_ACTIONS.CREATE,
+        content: {
+          name: customer.name,
+        },
         id: customer._id,
       },
-      customer,
+      customer: {
+        type: CUSTOMER_CONTENT_TYPES.CUSTOMER,
+        id: customer._id,
+      },
+      performedBy: user,
     });
   }
 }

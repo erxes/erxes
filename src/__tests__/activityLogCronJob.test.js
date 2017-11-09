@@ -10,13 +10,13 @@ import ActivityLogs, {
   ACTIVITY_ACTIONS,
   ACTION_PERFORMER_TYPES,
 } from '../db/models/ActivityLogs';
-import { Customers } from '../db/models';
 
 beforeAll(() => connect());
 afterAll(() => disconnect());
 
 describe('test activityLogsCronJob', () => {
   test('test if it is working as intended', async () => {
+    // check if the activity log is being created ==================
     const nameEqualsConditions = [
       {
         type: 'string',
@@ -55,10 +55,27 @@ describe('test activityLogsCronJob', () => {
       type: ACTION_PERFORMER_TYPES.SYSTEM,
     });
 
-    await Customers.updateCustomer(customer._id, { name: 'jane smith' });
+    // check if the second activity log is being created
+    // also check if the duplicate activity log is
+    // not being created for the former customer ================
+    const nameEqualsConditions2 = [
+      {
+        type: 'string',
+        dateUnit: 'days',
+        value: 'jane smith',
+        operator: 'e',
+        field: 'name',
+      },
+    ];
+
+    await customerFactory({ name: 'jane smith' });
+    await segmentFactory({
+      contentType: CUSTOMER_CONTENT_TYPES.CUSTOMER,
+      conditions: nameEqualsConditions2,
+    });
 
     await cronJobs.createActivityLogsFromSegments();
 
-    expect(await ActivityLogs.find().count()).toBe(1);
+    expect(await ActivityLogs.find().count()).toBe(2);
   });
 });

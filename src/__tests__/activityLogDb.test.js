@@ -14,6 +14,7 @@ import {
   internalNoteFactory,
   customerFactory,
   conversationFactory,
+  segmentFactory,
 } from '../db/factories';
 
 beforeAll(() => connect());
@@ -47,7 +48,7 @@ describe('ActivityLogs model methods', () => {
   });
 
   test(`check if exception is being thrown when calling
-  createInternalNoteLog without setting 'actionPerformedBy'`, async () => {
+  createInternalNoteLog without setting 'user'`, async () => {
     const customer = await customerFactory();
 
     const internalNote = await internalNoteFactory({
@@ -62,7 +63,7 @@ describe('ActivityLogs model methods', () => {
     }
   });
 
-  test(`createInternalNoteLog with setting 'actionPerformedBy'`, async () => {
+  test(`createInternalNoteLog with setting 'user'`, async () => {
     const user = await userFactory({});
 
     const customer = await customerFactory();
@@ -85,14 +86,57 @@ describe('ActivityLogs model methods', () => {
     });
   });
 
-  // TODO: write this test
   test(`check if exception is being thrown when calling
-  createSegmentLog without setting 'actionPerformedBy'`, async () => {});
+  createSegmentLog without setting 'customer'`, async () => {
+    expect.assertions(1);
 
-  // TODO: write this test
-  test(`createSegmentLog with setting 'actionPerformedBy'`, async () => {});
+    const segment = segmentFactory({});
+    try {
+      await ActivityLogs.createSegmentLog(segment, null);
+    } catch (e) {
+      expect(e.message).toBe('customer must be supplied');
+    }
+  });
+
+  test(`createSegmentLog with setting 'customer'`, async () => {
+    // check if the activity log is being created ==================
+    const nameEqualsConditions = [
+      {
+        type: 'string',
+        dateUnit: 'days',
+        value: 'John Smith',
+        operator: 'e',
+        field: 'name',
+      },
+    ];
+
+    const customer = await customerFactory({ name: 'john smith' });
+    const segment = await segmentFactory({
+      contentType: CUSTOMER_CONTENT_TYPES.CUSTOMER,
+      conditions: nameEqualsConditions,
+    });
+
+    const segmentLog = await ActivityLogs.createSegmentLog(segment, customer);
+
+    expect(segmentLog.activity.toObject()).toEqual({
+      type: ACTIVITY_TYPES.SEGMENT,
+      action: ACTIVITY_ACTIONS.CREATE,
+      content: {
+        name: segment.name,
+      },
+      id: segment._id,
+    });
+    expect(segmentLog.customer.toObject()).toEqual({
+      type: segment.contentType,
+      id: customer._id,
+    });
+    expect(segmentLog.performedBy.toObject()).toEqual({
+      type: ACTION_PERFORMER_TYPES.SYSTEM,
+    });
+  });
 
   test(`check if exceptions are being thrown as intended when calling createConversationLog`, async () => {
+    expect.assertions(3);
     const conversation = await conversationFactory({});
     const customer = await customerFactory({});
 
@@ -109,6 +153,14 @@ describe('ActivityLogs model methods', () => {
         `'customer' must be supplied when adding activity log for conversations`,
       );
     }
+
+    try {
+      await ActivityLogs.createConversationLog(conversation, conversation, {});
+    } catch (e) {
+      expect(e.message).toBe(
+        `'customer' must be supplied when adding activity log for conversations`,
+      );
+    }
   });
 
   test(`check if createConversationLog is working as intended`, async () => {
@@ -116,7 +168,7 @@ describe('ActivityLogs model methods', () => {
     const customer = await customerFactory({});
     const customerDoc = {
       type: CUSTOMER_CONTENT_TYPES.CUSTOMER,
-      id: customer._id,
+      _id: customer._id,
     };
     const user = await userFactory({});
 
@@ -129,6 +181,30 @@ describe('ActivityLogs model methods', () => {
       type: ACTIVITY_TYPES.CONVERSATION,
       action: ACTIVITY_ACTIONS.CREATE,
       id: conversation._id,
+    });
+  });
+
+  test(`createCustomerLog`, async () => {
+    const customer = await customerFactory({});
+    const user = await userFactory({});
+
+    const aLog = await ActivityLogs.createCustomerLog(customer, user);
+
+    expect(aLog.performedBy.toObject()).toEqual({
+      type: ACTION_PERFORMER_TYPES.USER,
+      id: user._id,
+    });
+    expect(aLog.activity.toObject()).toEqual({
+      type: ACTIVITY_TYPES.CUSTOMER,
+      action: ACTIVITY_ACTIONS.CREATE,
+      content: {
+        name: customer.name,
+      },
+      id: customer._id,
+    });
+    expect(aLog.customer.toObject()).toEqual({
+      type: CUSTOMER_CONTENT_TYPES.CUSTOMER,
+      id: customer._id,
     });
   });
 });
