@@ -3,6 +3,7 @@ import { colors } from '../../styles';
 
 const PopoverHeader = styled.div`
   padding: 10px;
+  display: block !important;
 
   input {
     margin-bottom: 0;

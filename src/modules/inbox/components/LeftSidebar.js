@@ -14,7 +14,7 @@ class Sidebar extends Component {
       <Wrapper.Sidebar.Header>
         <FilterButton
           buttonText="# Sales (13)"
-          fields={[]}
+          fields={this.props.channels}
           filter={() => {}}
           popoverTitle="Filter by channel"
         />

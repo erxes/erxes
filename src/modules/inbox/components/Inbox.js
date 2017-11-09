@@ -18,7 +18,7 @@ class Inbox extends Component {
   }
 
   render() {
-    const { conversations, currentConversation, user } = this.props;
+    const { conversations, currentConversation, user, channels } = this.props;
     const actionBarLeft = <BarItems>Alice Caldwell</BarItems>;
 
     const tagTrigger = (
@@ -67,7 +67,9 @@ class Inbox extends Component {
         actionBar={actionBar}
         content={content}
         footer={<div />}
-        leftSidebar={<LeftSidebar conversations={conversations} />}
+        leftSidebar={
+          <LeftSidebar channels={channels} conversations={conversations} />
+        }
         rightSidebar={<RightSidebar user={user} />}
       />
     );

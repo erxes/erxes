@@ -13,6 +13,19 @@ const conversationFields = `
   }
 `;
 
+const channelFields = `
+  _id
+  name
+`;
+
+const channels = `
+  query channels($params: JSON) {
+    channels(params: $params) {
+      ${channelFields}
+    }
+  }
+`;
+
 const conversations = `
   query conversations($params: ConversationListParams!) {
     conversations(params: $params) {
@@ -37,5 +50,6 @@ const currentConversation = `
 
 export default {
   conversations,
-  currentConversation
+  currentConversation,
+  channels
 };

@@ -5,7 +5,7 @@ const PopoverButton = styled.div`
   display: inline-block;
   position: relative;
 
-  * {
+  > * {
     display: inline-block;
   }
 
@@ -16,6 +16,10 @@ const PopoverButton = styled.div`
 
   &[aria-describedby] {
     color: ${colors.colorSecondary};
+  }
+
+  &:hover {
+    cursor: pointer;
   }
 `;
 
