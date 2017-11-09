@@ -163,6 +163,8 @@ class ActivityLog {
   }
 
   /**
+   * Create conversation log for a given customer, if the customer is related to companies,
+   * then create conversation log with all related companies
    * @param {Object} conversation - Conversation object
    * @param {string} conversation._id - Conversation document id
    * @param {Object} user - User object
@@ -171,13 +173,30 @@ class ActivityLog {
    * @param {string} customer.type - One of CUSTOMER_CONTENT_TYPES choices
    * @param {string} customer.id - Customer document id
    */
-  static createConversationLog(conversation, user, customer) {
+  static async createConversationLog(conversation, user, customer) {
     if (user == null || (user && !user._id)) {
       throw new Error(`'user' must be supplied when adding activity log for conversations`);
     }
 
     if (customer == null || (customer && !customer._id)) {
       throw new Error(`'customer' must be supplied when adding activity log for conversations`);
+    }
+
+    if (customer.companyIds && customer.companyIds.length > 0) {
+      for (let companyId of customer.companyIds) {
+        await this.createDoc({
+          activity: {
+            type: ACTIVITY_TYPES.CONVERSATION,
+            action: ACTIVITY_ACTIONS.CREATE,
+            id: conversation._id,
+          },
+          performedBy: user,
+          customer: {
+            type: CUSTOMER_CONTENT_TYPES.COMPANY,
+            id: companyId,
+          },
+        });
+      }
     }
 
     return this.createDoc({
@@ -188,7 +207,7 @@ class ActivityLog {
       },
       performedBy: user,
       customer: {
-        type: conversation.contentType,
+        type: CUSTOMER_CONTENT_TYPES.CUSTOMER,
         id: customer._id,
       },
     });
@@ -240,7 +259,7 @@ class ActivityLog {
    * @param {user} user - user document
    * @return {Promise} return Promise resolving created ActivityLog
    */
-  static createCustomerLog(customer, user) {
+  static createCustomerRegistrationLog(customer, user) {
     return this.createDoc({
       activity: {
         type: ACTIVITY_TYPES.CUSTOMER,
@@ -253,6 +272,30 @@ class ActivityLog {
       customer: {
         type: CUSTOMER_CONTENT_TYPES.CUSTOMER,
         id: customer._id,
+      },
+      performedBy: user,
+    });
+  }
+
+  /**
+   * Creates a customer company registration log
+   * @param {Company} company - Company document
+   * @param {user} user - user document
+   * @return {Promise} return Promise resolving created ActivityLog
+   */
+  static createCompanyRegistrationLog(company, user) {
+    return this.createDoc({
+      activity: {
+        type: ACTIVITY_TYPES.COMPANY,
+        action: ACTIVITY_ACTIONS.CREATE,
+        content: {
+          name: company.name,
+        },
+        id: company._id,
+      },
+      customer: {
+        type: CUSTOMER_CONTENT_TYPES.COMPANY,
+        id: company._id,
       },
       performedBy: user,
     });

@@ -35,10 +35,9 @@ export const createActivityLogsFromSegments = async () => {
 * │    └──────────────────── minute (0 - 59)
 * └───────────────────────── second (0 - 59, OPTIONAL)
 */
-// every 10 minutes
-// schedule.scheduleJob('*/5 * * * *', function() {
-//   createActivityLogsFromSegments();
-// });
+schedule.scheduleJob('* * * * *', function() {
+  createActivityLogsFromSegments();
+});
 
 export default {
   createActivityLogsFromSegments,

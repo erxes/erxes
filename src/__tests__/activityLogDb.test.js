@@ -13,6 +13,7 @@ import {
   userFactory,
   internalNoteFactory,
   customerFactory,
+  companyFactory,
   conversationFactory,
   segmentFactory,
 } from '../db/factories';
@@ -21,6 +22,10 @@ beforeAll(() => connect());
 afterAll(() => disconnect());
 
 describe('ActivityLogs model methods', () => {
+  afterEach(async () => {
+    await ActivityLogs.remove({});
+  });
+
   test(`check whether not setting 'user'
   is setting expected values in the collection or not`, async () => {
     const activityDoc = {
@@ -91,6 +96,7 @@ describe('ActivityLogs model methods', () => {
     expect.assertions(1);
 
     const segment = segmentFactory({});
+
     try {
       await ActivityLogs.createSegmentLog(segment, null);
     } catch (e) {
@@ -165,30 +171,64 @@ describe('ActivityLogs model methods', () => {
 
   test(`check if createConversationLog is working as intended`, async () => {
     const conversation = await conversationFactory({});
-    const customer = await customerFactory({});
-    const customerDoc = {
-      type: CUSTOMER_CONTENT_TYPES.CUSTOMER,
-      _id: customer._id,
-    };
+    const companyA = await companyFactory({});
+    const companyB = await companyFactory({});
+    const customer = await customerFactory({ companyIds: [companyA._id, companyB._id] });
+
+    console.log('customer: ', customer);
     const user = await userFactory({});
 
-    const aLog = await ActivityLogs.createConversationLog(conversation, user, customerDoc);
+    let aLog = await ActivityLogs.createConversationLog(conversation, user, customer);
 
-    expect(aLog.performedBy.type).toBe(ACTION_PERFORMER_TYPES.USER);
-    expect(aLog.performedBy.id).toBe(user._id);
-    expect(aLog.customer.toObject()).toEqual(customerDoc);
+    // check customer conversation log
+    expect(aLog.performedBy.toObject()).toEqual({
+      type: ACTION_PERFORMER_TYPES.USER,
+      id: user._id,
+    });
+    expect(aLog.customer.toObject()).toEqual({
+      type: CUSTOMER_CONTENT_TYPES.CUSTOMER,
+      id: customer._id,
+    });
     expect(aLog.activity.toObject()).toEqual({
       type: ACTIVITY_TYPES.CONVERSATION,
       action: ACTIVITY_ACTIONS.CREATE,
       id: conversation._id,
     });
+
+    console.log('ActivityLogs: ', await ActivityLogs.find({}));
+    // check company conversation logs =====================================
+    aLog = await ActivityLogs.findOne({
+      'activity.type': ACTIVITY_TYPES.CONVERSATION,
+      'activity.action': ACTIVITY_ACTIONS.CREATE,
+      'activity.id': conversation._id,
+      'performedBy.type': ACTION_PERFORMER_TYPES.USER,
+      'performedBy.id': user._id,
+      'customer.type': CUSTOMER_CONTENT_TYPES.COMPANY,
+      'customer.id': companyA._id,
+    });
+
+    expect(aLog).toBeDefined();
+    expect(aLog.customer.id).toBe(companyA._id);
+
+    aLog = await ActivityLogs.findOne({
+      'activity.type': ACTIVITY_TYPES.CONVERSATION,
+      'activity.action': ACTIVITY_ACTIONS.CREATE,
+      'activity.id': conversation._id,
+      'performedBy.type': ACTION_PERFORMER_TYPES.USER,
+      'performedBy.id': user._id,
+      'customer.type': CUSTOMER_CONTENT_TYPES.COMPANY,
+      'customer.id': companyB._id,
+    });
+
+    expect(aLog).toBeDefined();
+    expect(aLog.customer.id).toBe(companyB._id);
   });
 
-  test(`createCustomerLog`, async () => {
+  test(`createCustomerRegistrationLog`, async () => {
     const customer = await customerFactory({});
     const user = await userFactory({});
 
-    const aLog = await ActivityLogs.createCustomerLog(customer, user);
+    const aLog = await ActivityLogs.createCustomerRegistrationLog(customer, user);
 
     expect(aLog.performedBy.toObject()).toEqual({
       type: ACTION_PERFORMER_TYPES.USER,
@@ -205,6 +245,30 @@ describe('ActivityLogs model methods', () => {
     expect(aLog.customer.toObject()).toEqual({
       type: CUSTOMER_CONTENT_TYPES.CUSTOMER,
       id: customer._id,
+    });
+  });
+
+  test(`createCompanyRegistrationLog`, async () => {
+    const company = await companyFactory({});
+    const user = await userFactory({});
+
+    const aLog = await ActivityLogs.createCompanyRegistrationLog(company, user);
+
+    expect(aLog.performedBy.toObject()).toEqual({
+      type: ACTION_PERFORMER_TYPES.USER,
+      id: user._id,
+    });
+    expect(aLog.activity.toObject()).toEqual({
+      type: ACTIVITY_TYPES.COMPANY,
+      action: ACTIVITY_ACTIONS.CREATE,
+      content: {
+        name: company.name,
+      },
+      id: company._id,
+    });
+    expect(aLog.customer.toObject()).toEqual({
+      type: CUSTOMER_CONTENT_TYPES.COMPANY,
+      id: company._id,
     });
   });
 });

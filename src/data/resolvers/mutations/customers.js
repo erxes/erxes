@@ -7,8 +7,10 @@ const customerMutations = {
    * Create new customer
    * @return {Promise} customer object
    */
-  customersAdd(root, doc) {
-    return Customers.createCustomer(doc);
+  async customersAdd(root, doc, { user }) {
+    const customer = await Customers.createCustomer(doc);
+    await ActivityLogs.createCustomerRegistrationLog(customer, user);
+    return customer;
   },
 
   /**
@@ -27,10 +29,10 @@ const customerMutations = {
    * @param {String} args.website - Company website
    * @return {Promise} newly created customer
    */
-  async customersAddCompany(root, args) {
-    const customer = Customers.addCompany(args);
-    await ActivityLogs.createCustomerLog(customer);
-    return customer;
+  async customersAddCompany(root, args, { user }) {
+    const company = await Customers.addCompany(args);
+    await ActivityLogs.createCompanyRegistrationLog(company, { user });
+    return company;
   },
 };
 
