@@ -2,15 +2,20 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { compose, gql, graphql } from 'react-apollo';
 import { fromJS } from 'immutable';
-import { queries } from '../graphql';
+import { queries, mutations } from '../graphql';
 import { RespondBox } from '../components';
 
 const RespondBoxContainer = props => {
-  const { usersQuery } = props;
+  const { usersQuery, addMessageMutation } = props;
 
-  const sendMessage = () => {
-    // TODO
-    // Meteor.call('conversations.addMessage', message, callback);
+  const sendMessage = (variables, callback) => {
+    addMessageMutation({ variables })
+      .then(() => {
+        callback();
+      })
+      .catch(e => {
+        callback(e);
+      });
   };
 
   const teamMembers = [];
@@ -35,9 +40,11 @@ const RespondBoxContainer = props => {
 
 RespondBoxContainer.propTypes = {
   object: PropTypes.object,
+  addMessageMutation: PropTypes.func,
   usersQuery: PropTypes.object
 };
 
-export default compose(graphql(gql(queries.userList), { name: 'usersQuery' }))(
-  RespondBoxContainer
-);
+export default compose(
+  graphql(gql(queries.userList), { name: 'usersQuery' }),
+  graphql(gql(mutations.conversationMessageAdd), { name: 'addMessageMutation' })
+)(RespondBoxContainer);

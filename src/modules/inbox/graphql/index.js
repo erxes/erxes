@@ -1,4 +1,5 @@
-import queries from './queries.js';
-import subscriptions from './subscriptions.js';
+import queries from './queries';
+import mutations from './mutations';
+import subscriptions from './subscriptions';
 
-export { queries, subscriptions };
+export { queries, mutations, subscriptions };
