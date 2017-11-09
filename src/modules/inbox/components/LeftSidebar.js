@@ -5,7 +5,8 @@ import { ConversationList } from 'modules/common/components';
 import FilterButton from './FilterButton';
 
 const propTypes = {
-  conversations: PropTypes.array.isRequired
+  conversations: PropTypes.array.isRequired,
+  channels: PropTypes.array.isRequired
 };
 
 class Sidebar extends Component {

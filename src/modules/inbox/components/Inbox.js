@@ -80,7 +80,8 @@ Inbox.propTypes = {
   title: PropTypes.string,
   conversations: PropTypes.array,
   currentConversation: PropTypes.object,
-  user: PropTypes.object
+  user: PropTypes.object,
+  channels: PropTypes.array.isRequired
 };
 
 export default Inbox;
