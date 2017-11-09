@@ -72,10 +72,7 @@ class Sidebar extends Component {
         header={this.renderSidebarHeader()}
         footer={this.renderSidebarFooter()}
       >
-        <ConversationList
-          conversations={conversations}
-          user={conversations.length > 0 ? conversations[0].user : null}
-        />
+        <ConversationList conversations={conversations} />
       </Sidebar>
     );
   }

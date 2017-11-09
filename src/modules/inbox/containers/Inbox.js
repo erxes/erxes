@@ -11,8 +11,6 @@ const Inbox = props => {
     return false;
   }
 
-  const user = {};
-
   // =============== actions
   const changeStatus = () => {};
 
@@ -29,7 +27,6 @@ const Inbox = props => {
     ...this.props,
     conversations,
     currentConversation,
-    user,
     channels: fields,
     changeStatus
   };
