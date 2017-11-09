@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Button, Checkbox, ControlLabel } from 'react-bootstrap';
 import { Alert, uploadHandler } from 'modules/common/utils';
+import { ResponseTemplate } from '../containers';
 import Editor from './Editor';
 
 const propTypes = {
@@ -135,6 +136,7 @@ class RespondBox extends Component {
 
   render() {
     const { isInternal, responseTemplate } = this.state;
+    const integration = this.props.conversation.integration || {};
 
     const Buttons = (
       <div>
@@ -146,6 +148,13 @@ class RespondBox extends Component {
           <i className="ion-android-attach" /> Attach
           <input type="file" onChange={this.handleFileInput} />
         </ControlLabel>
+
+        <ResponseTemplate
+          brandId={integration.brandId}
+          attachments={this.state.attachments}
+          content={this.state.content}
+          onSelect={this.onSelectTemplate}
+        />
       </div>
     );
 
