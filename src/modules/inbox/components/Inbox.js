@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import RightSidebar from './RightSidebar';
-import LeftSidebar from './LeftSidebar';
+import { LeftSidebar } from '../containers';
 import { Wrapper } from '../../layout/components';
 import { Button, Label, Icon, TaggerPopover } from 'modules/common/components';
 import { BarItems } from 'modules/layout/styles';
@@ -18,7 +18,7 @@ class Inbox extends Component {
   }
 
   render() {
-    const { conversations, currentConversation, user, channels } = this.props;
+    const { conversations, currentConversation, user } = this.props;
     const actionBarLeft = <BarItems>Alice Caldwell</BarItems>;
 
     const tagTrigger = (
@@ -67,9 +67,7 @@ class Inbox extends Component {
         actionBar={actionBar}
         content={content}
         footer={<div />}
-        leftSidebar={
-          <LeftSidebar channels={channels} conversations={conversations} />
-        }
+        leftSidebar={<LeftSidebar conversations={conversations} />}
         rightSidebar={<RightSidebar user={user} />}
       />
     );
@@ -80,8 +78,7 @@ Inbox.propTypes = {
   title: PropTypes.string,
   conversations: PropTypes.array,
   currentConversation: PropTypes.object,
-  user: PropTypes.object,
-  channels: PropTypes.array.isRequired
+  user: PropTypes.object
 };
 
 export default Inbox;

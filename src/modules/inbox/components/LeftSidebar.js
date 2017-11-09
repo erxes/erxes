@@ -6,16 +6,19 @@ import FilterButton from './FilterButton';
 
 const propTypes = {
   conversations: PropTypes.array.isRequired,
-  channels: PropTypes.array.isRequired
+  generatedChannels: PropTypes.array.isRequired,
+  generatedBrands: PropTypes.array.isRequired,
+  generatedTags: PropTypes.array.isRequired
 };
 
 class Sidebar extends Component {
   renderSidebarHeader() {
+    const { generatedChannels } = this.props;
     return (
       <Wrapper.Sidebar.Header>
         <FilterButton
           buttonText="# Sales (13)"
-          fields={this.props.channels}
+          fields={generatedChannels}
           filter={() => {}}
           popoverTitle="Filter by channel"
         />
@@ -30,11 +33,12 @@ class Sidebar extends Component {
   }
 
   renderSidebarFooter() {
+    const { generatedBrands, generatedTags } = this.props;
     return (
       <Wrapper.Sidebar.Footer>
         <FilterButton
           buttonText="Brand"
-          fields={[]}
+          fields={generatedBrands}
           filter={() => {}}
           popoverTitle="Filter by brand"
           placement="top"
@@ -48,7 +52,7 @@ class Sidebar extends Component {
         />
         <FilterButton
           buttonText="Tag"
-          fields={[]}
+          fields={generatedTags}
           filter={() => {}}
           popoverTitle="Filter by tag"
           placement="top"

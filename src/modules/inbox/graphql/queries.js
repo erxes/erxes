@@ -26,6 +26,25 @@ const channels = `
   }
 `;
 
+export const brandList = `
+  query brands {
+    brands {
+      _id
+      name
+    }
+  }
+`;
+
+export const tagList = `
+  query tags($type: String) {
+    tags(type: $type) {
+      _id
+      name
+      colorCode
+    }
+  }
+`;
+
 const conversations = `
   query conversations($params: ConversationListParams!) {
     conversations(params: $params) {
@@ -51,5 +70,7 @@ const currentConversation = `
 export default {
   conversations,
   currentConversation,
-  channels
+  channels,
+  brandList,
+  tagList
 };

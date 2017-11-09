@@ -24,7 +24,7 @@ class FilterButton extends Component {
   }
 
   filter() {
-    this.props.filter({});
+    this.props.filter();
     this.overlayTrigger.hide();
   }
 
@@ -34,7 +34,7 @@ class FilterButton extends Component {
       <Popover id="filter-popover" title={popoverTitle}>
         <FilterableList
           items={this.props.fields}
-          onClick={this.filterByChannel}
+          onClick={this.filter}
           showCheckmark={false}
         />
       </Popover>
