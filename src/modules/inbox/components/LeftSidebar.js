@@ -73,7 +73,7 @@ class Sidebar extends Component {
       >
         <ConversationList
           conversations={conversations}
-          user={conversations[0].user}
+          user={conversations.length > 0 ? conversations[0].user : null}
         />
       </Sidebar>
     );

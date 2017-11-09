@@ -61,7 +61,7 @@ class CustomerDetails extends React.Component {
     const conversations = customer.conversations;
 
     return (
-      <div style={{ position: 'relative' }}>
+      <WhiteBox>
         {conversations.length ? (
           <ConversationList conversations={conversations} user={currentUser} />
         ) : (
@@ -70,7 +70,7 @@ class CustomerDetails extends React.Component {
             icon="email"
           />
         )}
-      </div>
+      </WhiteBox>
     );
   }
 
