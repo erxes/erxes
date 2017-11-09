@@ -1,25 +1,37 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
-import { ButtonGroup, OverlayTrigger, Popover } from 'react-bootstrap';
+import { OverlayTrigger, Popover } from 'react-bootstrap';
 import classnames from 'classnames';
 import { ChromePicker } from 'react-color';
 import { uploadHandler } from 'modules/common/utils';
 import { Wrapper } from 'modules/layout/components';
 import Sidebar from '../../Sidebar';
 import WidgetPreview from './WidgetPreview';
+import { MessengerPreview, Messenger } from 'modules/engage/styles';
 import { Button, Icon } from 'modules/common/components';
+import {
+  SubHeading,
+  Margined,
+  WidgetApperance,
+  WidgetSettings,
+  WidgetBackgrounds,
+  WidgetBox,
+  ColorPick,
+  ColorPicker,
+  LogoContainer
+} from '../../styles';
 
 class Appearance extends Component {
   constructor(props) {
     super(props);
 
     this.state = {
-      color: props.prevOptions.color || '#452679',
+      color: props.prevOptions.color || '#04A9F5',
       wallpaper: props.prevOptions.wallpaper || '1',
       logo: props.prevOptions.logo,
       logoPreviewStyle: {},
-      logoPreviewUrl: props.prevOptions.logo || '/images/widget-logo.png'
+      logoPreviewUrl: props.prevOptions.logo || '/images/logo-image.png'
     };
 
     this.save = this.save.bind(this);
@@ -76,14 +88,13 @@ class Appearance extends Component {
     });
 
     return (
-      <a
-        href=""
+      <div
         className={selectorClass}
         onClick={() => this.onWallpaperChange(value)}
         style={{ borderColor: isSelected ? this.state.color : 'transparent' }}
       >
         <div className={`background-${value}`} />
-      </a>
+      </div>
     );
   }
 
@@ -97,62 +108,69 @@ class Appearance extends Component {
     const { logo, logoPreviewStyle, logoPreviewUrl } = this.state;
 
     const content = (
-      <div className="margined">
-        <div className="widget-appearance type-box">
-          <div>
-            <WidgetPreview
-              color={this.state.color}
-              wallpaper={this.state.wallpaper}
-              user={this.props.user}
-            />
-            <div
-              className="logo-container"
-              style={Object.assign(
-                {
-                  backgroundColor: this.state.color,
-                  backgroundImage: `url(${logoPreviewUrl})`
-                },
-                logoPreviewStyle
-              )}
-            />
-          </div>
-
-          <div className="widget-settings">
-            <div className="box">
-              <h2>Choose a custom color</h2>
+      <Margined>
+        <WidgetApperance className="type-box">
+          <WidgetSettings>
+            <WidgetBox>
+              <SubHeading>Choose a custom color</SubHeading>
               <OverlayTrigger
                 trigger="click"
                 rootClose
                 placement="bottom"
                 overlay={popoverTop}
               >
-                <div className="color-pick">
-                  <div style={{ backgroundColor: this.state.color }} />
-                </div>
+                <ColorPick>
+                  <ColorPicker style={{ backgroundColor: this.state.color }} />
+                </ColorPick>
               </OverlayTrigger>
-            </div>
+            </WidgetBox>
 
-            <div className="box">
-              <h2>Choose a wallpaper</h2>
+            <WidgetBox>
+              <SubHeading>Choose a wallpaper</SubHeading>
 
-              <div className="widget-backgrounds">
+              <WidgetBackgrounds>
                 {this.renderWallpaperSelect('1')}
                 {this.renderWallpaperSelect('2')}
                 {this.renderWallpaperSelect('3')}
                 {this.renderWallpaperSelect('4')}
                 {this.renderWallpaperSelect('5')}
-              </div>
-            </div>
+              </WidgetBackgrounds>
+            </WidgetBox>
 
-            <div className="box">
-              <h2>Choose a logo</h2>
+            <WidgetBox>
+              <SubHeading>Choose a logo</SubHeading>
 
               <input type="file" onChange={this.handleLogoChange} />
               <input type="hidden" id="logo" value={logo} />
-            </div>
-          </div>
-        </div>
-      </div>
+            </WidgetBox>
+          </WidgetSettings>
+
+          <MessengerPreview>
+            <Messenger>
+              <WidgetPreview
+                color={this.state.color}
+                wallpaper={this.state.wallpaper}
+                user={this.props.user}
+              />
+              <LogoContainer
+                style={Object.assign(
+                  {
+                    backgroundColor: this.state.color,
+                    backgroundImage: `url(${logoPreviewUrl})`
+                  },
+                  logoPreviewStyle
+                )}
+              >
+                <Icon
+                  icon="ios-upload-outline icon"
+                  size={30}
+                  style={{ backgroundColor: this.state.color }}
+                />
+              </LogoContainer>
+            </Messenger>
+          </MessengerPreview>
+        </WidgetApperance>
+      </Margined>
     );
 
     const breadcrumb = [
@@ -162,18 +180,18 @@ class Appearance extends Component {
 
     const actionBar = (
       <Wrapper.ActionBar
-        left={
-          <ButtonGroup>
-            <Button btnStyle="success" onClick={this.save}>
-              <Icon icon="checkmark" /> Save
-            </Button>
-
+        right={
+          <Button.Group>
             <Link to="/settings/integrations">
-              <Button btnStyle="simple">
+              <Button size="small" btnStyle="simple">
                 <Icon icon="close" /> Cancel
               </Button>
             </Link>
-          </ButtonGroup>
+
+            <Button size="small" btnStyle="success" onClick={this.save}>
+              <Icon icon="checkmark" /> Save
+            </Button>
+          </Button.Group>
         }
       />
     );
@@ -182,7 +200,7 @@ class Appearance extends Component {
       <Wrapper
         header={<Wrapper.Header breadcrumb={breadcrumb} />}
         leftSidebar={<Sidebar />}
-        actionBar={actionBar}
+        footer={actionBar}
         content={content}
       />
     );
