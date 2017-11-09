@@ -144,6 +144,9 @@ const WebPreview = styled.div`
   }
 `;
 
+const MessengerPreview = WebPreview.extend`
+  min-height: 500px;
+`;
 const InlineForm = styled.div`
   display: flex;
   flex-direction: row;
@@ -164,5 +167,6 @@ export {
   WebPreview,
   PreviewContent,
   Messenger,
+  MessengerPreview,
   InlineForm
 };

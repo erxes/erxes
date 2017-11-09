@@ -55,6 +55,7 @@ const StyledTable = styled.table`
     th:last-child,
     td:last-child {
       border-right: none;
+      text-align: right;
     }
 
     td.table-field-name .button-icon {

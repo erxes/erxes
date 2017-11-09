@@ -1,5 +1,22 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import {
+  WidgetPreviewStyled,
+  ErxesTopbar,
+  TopbarButton,
+  ErxesMiddle,
+  ErxesStaffProfile,
+  ErxesStaffName,
+  ErxesMessage,
+  ErxesWelcomeMessage,
+  ErxesAvatar,
+  ErxesDate,
+  ErxesMessageSender,
+  ErxesFromCustomer,
+  ErxesState,
+  FromCustomer,
+  StateSpan
+} from '../../styles';
 
 function WidgetPreview({ color, wallpaper, user }) {
   const avatar =
@@ -7,46 +24,43 @@ function WidgetPreview({ color, wallpaper, user }) {
   const fullName = (user.details && user.details.fullName) || 'Support staff';
   const backgroundClasses = `erxes-messages-list background-${wallpaper}`;
   return (
-    <div className="widget-preview">
-      <div className="erxes-topbar" style={{ backgroundColor: color }}>
-        <div className="topbar-button" />
-        <div className="erxes-middle">
-          <div className="erxes-staff-profile">
+    <WidgetPreviewStyled>
+      <ErxesTopbar style={{ backgroundColor: color }}>
+        <TopbarButton />
+        <ErxesMiddle>
+          <ErxesStaffProfile>
             <img src={avatar} alt={fullName} />
-            <div className="erxes-staff-name">{fullName}</div>
-            <div className="erxes-state">
-              <span className="online" />
+            <ErxesStaffName>{fullName}</ErxesStaffName>
+            <ErxesState>
+              <StateSpan />
               Online
-            </div>
-          </div>
-        </div>
-      </div>
+            </ErxesState>
+          </ErxesStaffProfile>
+        </ErxesMiddle>
+      </ErxesTopbar>
       <ul className={backgroundClasses}>
-        <li className="erxes-spacial-message">
+        <ErxesWelcomeMessage>
           We welcome you warmly to erxes and look forward to a long term healthy
           working association with us.
-        </li>
+        </ErxesWelcomeMessage>
         <li>
-          <div className="erxes-avatar">
+          <ErxesAvatar>
             <img src={avatar} alt="avatar" />
-          </div>
-          <div className="erxes-message">Hi, any questions?</div>
-          <div className="date">1 hour ago</div>
+          </ErxesAvatar>
+          <ErxesMessage>Hi, any questions?</ErxesMessage>
+          <ErxesDate>1 hour ago</ErxesDate>
         </li>
-        <li className="from-customer">
-          <div
-            className="erxes-message from-customer"
-            style={{ backgroundColor: color }}
-          >
+        <ErxesFromCustomer>
+          <FromCustomer style={{ backgroundColor: color }}>
             We need your help!
-          </div>
-          <div className="date">6 minutes ago</div>
-        </li>
+          </FromCustomer>
+          <ErxesDate>6 minutes ago</ErxesDate>
+        </ErxesFromCustomer>
       </ul>
-      <div className="erxes-message-sender">
+      <ErxesMessageSender>
         <span>Write a reply ...</span>
-      </div>
-    </div>
+      </ErxesMessageSender>
+    </WidgetPreviewStyled>
   );
 }
 
