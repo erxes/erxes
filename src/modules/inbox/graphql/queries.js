@@ -86,6 +86,17 @@ const currentConversation = `
   }
 `;
 
+const responseTemplateList = `
+  query responseTemplates {
+    responseTemplates {
+      _id
+      name
+      brandId
+      content
+    }
+  }
+`;
+
 export default {
   conversationList,
   conversationDetail,
@@ -93,6 +104,7 @@ export default {
   channelList,
   brandList,
   tagList,
+  responseTemplateList,
   conversationCounts,
   totalConversationsCount,
   currentConversation

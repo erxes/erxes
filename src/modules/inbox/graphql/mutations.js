@@ -19,6 +19,26 @@ const conversationMessageAdd = `
   }
 `;
 
+const saveResponseTemplate = `
+  mutation responseTemplatesAdd(
+    $brandId: String!,
+    $name: String!,
+    $content: String,
+    $files: JSON
+  ) {
+    responseTemplatesAdd(
+      brandId: $brandId,
+      name: $name,
+      content: $content,
+      files: $files
+    ) {
+      _id
+      name
+    }
+  }
+`;
+
 export default {
-  conversationMessageAdd
+  conversationMessageAdd,
+  saveResponseTemplate
 };
