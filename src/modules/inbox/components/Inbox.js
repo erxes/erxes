@@ -6,6 +6,7 @@ import { Wrapper } from '../../layout/components';
 import { Button, Label, Icon, TaggerPopover } from 'modules/common/components';
 import { BarItems } from 'modules/layout/styles';
 import Conversation from './conversation/Conversation';
+import { RespondBox } from '../containers';
 import { PopoverButton } from '../styles';
 
 class Inbox extends Component {
@@ -66,7 +67,12 @@ class Inbox extends Component {
         header={<Wrapper.Header breadcrumb={breadcrumb} />}
         actionBar={actionBar}
         content={content}
-        footer={<div />}
+        footer={
+          <RespondBox
+            conversation={currentConversation}
+            setAttachmentPreview={() => {}}
+          />
+        }
         leftSidebar={
           <LeftSidebar channels={channels} conversations={conversations} />
         }

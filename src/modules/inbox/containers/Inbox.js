@@ -41,7 +41,7 @@ Inbox.propTypes = {
 };
 
 export default compose(
-  graphql(gql(queries.channels), {
+  graphql(gql(queries.channelList), {
     name: 'channelsQuery',
     options: ({ queryParams }) => {
       return {
@@ -49,7 +49,7 @@ export default compose(
       };
     }
   }),
-  graphql(gql(queries.conversations), {
+  graphql(gql(queries.conversationList), {
     name: 'conversationsQuery',
     options: ({ queryParams }) => {
       const params = { ...queryParams };
