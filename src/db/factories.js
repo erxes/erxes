@@ -168,7 +168,7 @@ export const customerFactory = (params = {}) => {
     phone: params.phone || faker.random.word(),
     messengerData: params.messengerData || {},
     customFieldsData: params.customFieldsData || {},
-    companyIds: params.companyIds || null,
+    companyIds: params.companyIds || [],
   });
 
   return customer.save();

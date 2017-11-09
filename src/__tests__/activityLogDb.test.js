@@ -3,7 +3,7 @@
 
 import { connect, disconnect } from '../db/connection';
 import { CUSTOMER_CONTENT_TYPES } from '../data/constants';
-import { ActivityLogs } from '../db/models';
+import { ActivityLogs, Conversations } from '../db/models';
 import {
   ACTION_PERFORMER_TYPES,
   ACTIVITY_TYPES,
@@ -24,6 +24,7 @@ afterAll(() => disconnect());
 describe('ActivityLogs model methods', () => {
   afterEach(async () => {
     await ActivityLogs.remove({});
+    await Conversations.remove({});
   });
 
   test(`check whether not setting 'user'
@@ -175,7 +176,6 @@ describe('ActivityLogs model methods', () => {
     const companyB = await companyFactory({});
     const customer = await customerFactory({ companyIds: [companyA._id, companyB._id] });
 
-    console.log('customer: ', customer);
     const user = await userFactory({});
 
     let aLog = await ActivityLogs.createConversationLog(conversation, user, customer);
@@ -195,7 +195,6 @@ describe('ActivityLogs model methods', () => {
       id: conversation._id,
     });
 
-    console.log('ActivityLogs: ', await ActivityLogs.find({}));
     // check company conversation logs =====================================
     aLog = await ActivityLogs.findOne({
       'activity.type': ACTIVITY_TYPES.CONVERSATION,
@@ -222,6 +221,13 @@ describe('ActivityLogs model methods', () => {
 
     expect(aLog).toBeDefined();
     expect(aLog.customer.id).toBe(companyB._id);
+
+    expect(await ActivityLogs.find({}).count()).toBe(3);
+
+    // test whether activity logs for this conversation is being duplicated or not ========
+    await ActivityLogs.createConversationLog(conversation, user, customer);
+
+    expect(await ActivityLogs.find({}).count()).toBe(3);
   });
 
   test(`createCustomerRegistrationLog`, async () => {

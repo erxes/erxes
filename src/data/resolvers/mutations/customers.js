@@ -31,7 +31,7 @@ const customerMutations = {
    */
   async customersAddCompany(root, args, { user }) {
     const company = await Customers.addCompany(args);
-    await ActivityLogs.createCompanyRegistrationLog(company, { user });
+    await ActivityLogs.createCompanyRegistrationLog(company, user);
     return company;
   },
 };

@@ -46,24 +46,26 @@ const ActionPerformer = mongoose.Schema(
   { _id: false },
 );
 
-// The action that is being performed
-// ex1: A user writes an internal note
-// in this case: type is InternalNote
-//               action is create (write)
-//               id is the InternalNote id
-// ex2: Sales manager registers a new customer
-// in this case: type is customer
-//               action is create (register)
-//               id is Customer id
-// customer and activity contentTypes are the same in this case
-// ex3: Cronjob runs and a customer is found to be suitable for a particular segment
-//               action is create: a new segment user
-//               type is segment
-//               id is Segment id
-// ex4: An internalNote concerning a customer was updated
-//               action is update
-//               type is InternalNote
-//               id is InternalNote id
+/*
+ * The action that is being performed
+ * ex1: A user writes an internal note
+ * in this case: type is InternalNote
+ *               action is create (write)
+ *               id is the InternalNote id
+ * ex2: Sales manager registers a new customer
+ * in this case: type is customer
+ *               action is create (register)
+ *               id is Customer id
+ * customer and activity contentTypes are the same in this case
+ * ex3: Cronjob runs and a customer is found to be suitable for a particular segment
+ *               action is create: a new segment user
+ *               type is segment
+ *               id is Segment id
+ * ex4: An internalNote concerning a customer was updated
+ *               action is update
+ *               type is InternalNote
+ *               id is InternalNote id
+ */
 const Activity = mongoose.Schema(
   {
     type: {
@@ -184,33 +186,59 @@ class ActivityLog {
 
     if (customer.companyIds && customer.companyIds.length > 0) {
       for (let companyId of customer.companyIds) {
-        await this.createDoc({
-          activity: {
-            type: ACTIVITY_TYPES.CONVERSATION,
-            action: ACTIVITY_ACTIONS.CREATE,
-            id: conversation._id,
-          },
-          performedBy: user,
-          customer: {
-            type: CUSTOMER_CONTENT_TYPES.COMPANY,
-            id: companyId,
-          },
+        // check against duplication
+        const foundLog = await this.findOne({
+          'activity.type': ACTIVITY_TYPES.CONVERSATION,
+          'activity.action': ACTIVITY_ACTIONS.CREATE,
+          'activity.id': conversation._id,
+          'performedBy.type': ACTION_PERFORMER_TYPES.USER,
+          'performedBy.id': user._id,
+          'customer.type': CUSTOMER_CONTENT_TYPES.COMPANY,
+          'customer.id': companyId,
         });
+
+        if (!foundLog) {
+          await this.createDoc({
+            activity: {
+              type: ACTIVITY_TYPES.CONVERSATION,
+              action: ACTIVITY_ACTIONS.CREATE,
+              id: conversation._id,
+            },
+            performedBy: user,
+            customer: {
+              type: CUSTOMER_CONTENT_TYPES.COMPANY,
+              id: companyId,
+            },
+          });
+        }
       }
     }
 
-    return this.createDoc({
-      activity: {
-        type: ACTIVITY_TYPES.CONVERSATION,
-        action: ACTIVITY_ACTIONS.CREATE,
-        id: conversation._id,
-      },
-      performedBy: user,
-      customer: {
-        type: CUSTOMER_CONTENT_TYPES.CUSTOMER,
-        id: customer._id,
-      },
+    // check against duplication ======
+    const foundLog = await this.findOne({
+      'activity.type': ACTIVITY_TYPES.CONVERSATION,
+      'activity.action': ACTIVITY_ACTIONS.CREATE,
+      'activity.id': conversation._id,
+      'performedBy.type': ACTION_PERFORMER_TYPES.USER,
+      'performedBy.id': user._id,
+      'customer.type': CUSTOMER_CONTENT_TYPES.CUSTOMER,
+      'customer.id': customer._id,
     });
+
+    if (!foundLog) {
+      return this.createDoc({
+        activity: {
+          type: ACTIVITY_TYPES.CONVERSATION,
+          action: ACTIVITY_ACTIONS.CREATE,
+          id: conversation._id,
+        },
+        performedBy: user,
+        customer: {
+          type: CUSTOMER_CONTENT_TYPES.CUSTOMER,
+          id: customer._id,
+        },
+      });
+    }
   }
 
   /**
