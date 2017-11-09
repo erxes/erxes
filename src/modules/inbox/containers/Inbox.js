@@ -11,8 +11,6 @@ const Inbox = props => {
     return false;
   }
 
-  const user = {};
-
   // =============== actions
   const changeStatus = () => {};
 
@@ -23,7 +21,6 @@ const Inbox = props => {
     ...this.props,
     conversations,
     currentConversation,
-    user,
     changeStatus
   };
 
@@ -32,16 +29,18 @@ const Inbox = props => {
 
 Inbox.propTypes = {
   conversationsQuery: PropTypes.object,
-  channelsQuery: PropTypes.object,
   currentConversationQuery: PropTypes.object
 };
 
 export default compose(
-  graphql(gql(queries.conversations), {
+  graphql(gql(queries.conversationList), {
     name: 'conversationsQuery',
     options: ({ queryParams }) => {
+      const params = { ...queryParams };
+      delete params._id;
+
       return {
-        variables: { params: queryParams }
+        variables: { params }
       };
     }
   }),

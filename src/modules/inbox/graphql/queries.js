@@ -1,32 +1,47 @@
-const conversationFields = `
-  _id
-  content
-  user {
-    _id
-    username
-    email
-    details
-  }
-  customer {
-    _id
-    name
-  }
-`;
+import conversationFields from './conversationFields';
+import messageFields from './messageFields';
 
-const channelFields = `
-  _id
-  name
-`;
-
-const channels = `
-  query channels($params: JSON) {
-    channels(params: $params) {
-      ${channelFields}
+const conversationList = `
+  query objects($params: ConversationListParams!) {
+    conversations(params: $params) {
+      ${conversationFields}
     }
   }
 `;
 
-export const brandList = `
+const conversationDetail = `
+  query conversationDetail($_id: String!) {
+    conversationDetail(_id: $_id) {
+      ${conversationFields}
+
+      messages {
+        ${messageFields}
+      }
+    }
+  }
+`;
+
+const userList = `
+  query objects {
+    users {
+      _id
+      username
+      email
+      details
+    }
+  }
+`;
+
+const channelList = `
+  query channels($params: JSON) {
+    channels(params: $params) {
+      _id
+      name
+    }
+  }
+`;
+
+const brandList = `
   query brands {
     brands {
       _id
@@ -35,7 +50,7 @@ export const brandList = `
   }
 `;
 
-export const tagList = `
+const tagList = `
   query tags($type: String) {
     tags(type: $type) {
       _id
@@ -45,11 +60,15 @@ export const tagList = `
   }
 `;
 
-const conversations = `
-  query conversations($params: ConversationListParams!) {
-    conversations(params: $params) {
-      ${conversationFields}
-    }
+const conversationCounts = `
+  query conversationCounts($params: ConversationListParams) {
+    conversationCounts(params: $params)
+  }
+`;
+
+const totalConversationsCount = `
+  query totalConversationsCount($params: ConversationListParams) {
+    conversationsTotalCount(params: $params)
   }
 `;
 
@@ -68,9 +87,13 @@ const currentConversation = `
 `;
 
 export default {
-  conversations,
-  currentConversation,
-  channels,
+  conversationList,
+  conversationDetail,
+  userList,
+  channelList,
   brandList,
-  tagList
+  tagList,
+  conversationCounts,
+  totalConversationsCount,
+  currentConversation
 };

@@ -1,11 +1,11 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import RightSidebar from './RightSidebar';
-import { LeftSidebar } from '../containers';
 import { Wrapper } from '../../layout/components';
 import { Button, Label, Icon, TaggerPopover } from 'modules/common/components';
 import { BarItems } from 'modules/layout/styles';
 import Conversation from './conversation/Conversation';
+import { LeftSidebar, RespondBox } from '../containers';
 import { PopoverButton } from '../styles';
 
 class Inbox extends Component {
@@ -18,7 +18,7 @@ class Inbox extends Component {
   }
 
   render() {
-    const { conversations, currentConversation, user } = this.props;
+    const { conversations, currentConversation } = this.props;
     const actionBarLeft = <BarItems>Alice Caldwell</BarItems>;
 
     const tagTrigger = (
@@ -66,9 +66,14 @@ class Inbox extends Component {
         header={<Wrapper.Header breadcrumb={breadcrumb} />}
         actionBar={actionBar}
         content={content}
-        footer={<div />}
+        footer={
+          <RespondBox
+            conversation={currentConversation}
+            setAttachmentPreview={() => {}}
+          />
+        }
         leftSidebar={<LeftSidebar conversations={conversations} />}
-        rightSidebar={<RightSidebar user={user} />}
+        rightSidebar={<RightSidebar />}
       />
     );
   }
@@ -77,8 +82,7 @@ class Inbox extends Component {
 Inbox.propTypes = {
   title: PropTypes.string,
   conversations: PropTypes.array,
-  currentConversation: PropTypes.object,
-  user: PropTypes.object
+  currentConversation: PropTypes.object
 };
 
 export default Inbox;

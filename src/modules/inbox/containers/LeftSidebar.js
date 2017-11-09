@@ -54,7 +54,7 @@ LeftSidebar.propTypes = {
 };
 
 export default compose(
-  graphql(gql(queries.channels), {
+  graphql(gql(queries.channelList), {
     name: 'channelsQuery',
     options: ({ queryParams }) => {
       return {
