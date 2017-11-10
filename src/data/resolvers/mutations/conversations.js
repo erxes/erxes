@@ -96,6 +96,9 @@ const conversationMutations = {
 
     // do not send internal message to third service integrations
     if (doc.internal) {
+      // notify subscription
+      await conversationMessageCreated(message, doc.conversationId);
+
       return message;
     }
 
