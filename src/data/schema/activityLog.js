@@ -20,3 +20,7 @@ export const types = `
     content: ActivityContent!
   }
 `;
+
+export const mutations = `
+  activitivyLogsAddConversationMessageLog(customerId: String!, messageId: String!): ActivityLog
+`;

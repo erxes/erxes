@@ -14,7 +14,7 @@ import {
   internalNoteFactory,
   customerFactory,
   companyFactory,
-  conversationFactory,
+  conversationMessageFactory,
   segmentFactory,
 } from '../db/factories';
 
@@ -142,19 +142,12 @@ describe('ActivityLogs model methods', () => {
     });
   });
 
-  test(`check if exceptions are being thrown as intended when calling createConversationLog`, async () => {
-    expect.assertions(3);
-    const conversation = await conversationFactory({});
-    const customer = await customerFactory({});
+  test(`check if exceptions are being thrown as intended when calling createConversationMessageLog`, async () => {
+    expect.assertions(2);
+    const message = await conversationMessageFactory({});
 
     try {
-      await ActivityLogs.createConversationLog(conversation, null, customer);
-    } catch (e) {
-      expect(e.message).toBe(`'user' must be supplied when adding activity log for conversations`);
-    }
-
-    try {
-      await ActivityLogs.createConversationLog(conversation, conversation, null);
+      await ActivityLogs.createConversationMessageLog(message, null);
     } catch (e) {
       expect(e.message).toBe(
         `'customer' must be supplied when adding activity log for conversations`,
@@ -162,7 +155,7 @@ describe('ActivityLogs model methods', () => {
     }
 
     try {
-      await ActivityLogs.createConversationLog(conversation, conversation, {});
+      await ActivityLogs.createConversationMessageLog(message, {});
     } catch (e) {
       expect(e.message).toBe(
         `'customer' must be supplied when adding activity log for conversations`,
@@ -170,38 +163,33 @@ describe('ActivityLogs model methods', () => {
     }
   });
 
-  test(`check if createConversationLog is working as intended`, async () => {
-    const conversation = await conversationFactory({});
+  test(`check if createConversationMessageLog is working as intended`, async () => {
+    const message = await conversationMessageFactory({});
     const companyA = await companyFactory({});
     const companyB = await companyFactory({});
     const customer = await customerFactory({ companyIds: [companyA._id, companyB._id] });
 
-    const user = await userFactory({});
-
-    let aLog = await ActivityLogs.createConversationLog(conversation, user, customer);
+    let aLog = await ActivityLogs.createConversationMessageLog(message, customer);
 
     // check customer conversation log
     expect(aLog.performedBy.toObject()).toEqual({
-      type: ACTION_PERFORMER_TYPES.USER,
-      id: user._id,
+      type: ACTION_PERFORMER_TYPES.CUSTOMER,
     });
     expect(aLog.coc.toObject()).toEqual({
       type: COC_CONTENT_TYPES.CUSTOMER,
       id: customer._id,
     });
     expect(aLog.activity.toObject()).toEqual({
-      type: ACTIVITY_TYPES.CONVERSATION,
+      type: ACTIVITY_TYPES.CONVERSATION_MESSAGE,
       action: ACTIVITY_ACTIONS.CREATE,
-      id: conversation._id,
+      id: message._id,
     });
 
     // check company conversation logs =====================================
     aLog = await ActivityLogs.findOne({
-      'activity.type': ACTIVITY_TYPES.CONVERSATION,
+      'activity.type': ACTIVITY_TYPES.CONVERSATION_MESSAGE,
       'activity.action': ACTIVITY_ACTIONS.CREATE,
-      'activity.id': conversation._id,
-      'performedBy.type': ACTION_PERFORMER_TYPES.USER,
-      'performedBy.id': user._id,
+      'activity.id': message._id,
       'coc.type': COC_CONTENT_TYPES.COMPANY,
       'coc.id': companyA._id,
     });
@@ -210,11 +198,9 @@ describe('ActivityLogs model methods', () => {
     expect(aLog.coc.id).toBe(companyA._id);
 
     aLog = await ActivityLogs.findOne({
-      'activity.type': ACTIVITY_TYPES.CONVERSATION,
+      'activity.type': ACTIVITY_TYPES.CONVERSATION_MESSAGE,
       'activity.action': ACTIVITY_ACTIONS.CREATE,
-      'activity.id': conversation._id,
-      'performedBy.type': ACTION_PERFORMER_TYPES.USER,
-      'performedBy.id': user._id,
+      'activity.id': message._id,
       'coc.type': COC_CONTENT_TYPES.COMPANY,
       'coc.id': companyB._id,
     });
@@ -225,7 +211,7 @@ describe('ActivityLogs model methods', () => {
     expect(await ActivityLogs.find({}).count()).toBe(3);
 
     // test whether activity logs for this conversation is being duplicated or not ========
-    await ActivityLogs.createConversationLog(conversation, user, customer);
+    await ActivityLogs.createConversationMessageLog(message, customer);
 
     expect(await ActivityLogs.find({}).count()).toBe(3);
   });

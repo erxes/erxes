@@ -7,11 +7,11 @@ export default {
 
   list(obj) {
     return ActivityLogs.find({
-      'customer.type': obj.customerType,
-      'customer.id': obj.customer._id,
+      'coc.type': obj.customerType,
+      'coc.id': obj.customer._id,
       createdAt: {
         $gte: obj.date.interval.start,
-        $lte: obj.date.interval.end,
+        $lt: obj.date.interval.end,
       },
     });
   },

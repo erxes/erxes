@@ -15,6 +15,7 @@ import forms from './forms';
 import integrations from './integrations';
 import notifications from './notifications';
 import knowledgeBase from './knowledgeBase';
+import activityLogs from './activityLogs';
 
 export default {
   ...users,
@@ -34,4 +35,5 @@ export default {
   ...integrations,
   ...notifications,
   ...knowledgeBase,
+  ...activityLogs,
 };

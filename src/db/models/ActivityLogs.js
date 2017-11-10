@@ -6,10 +6,10 @@ export const ACTIVITY_TYPES = {
   CUSTOMER: 'customer',
   COMPANY: 'company',
   INTERNAL_NOTE: 'internal_note',
-  CONVERSATION: 'conversation',
+  CONVERSATION_MESSAGE: 'conversation_message',
   SEGMENT: 'segment',
 
-  ALL: ['customer', 'company', 'internal_note', 'conversation', 'segment'],
+  ALL: ['customer', 'company', 'internal_note', 'conversation_message', 'segment'],
 };
 
 export const ACTIVITY_ACTIONS = {
@@ -23,8 +23,9 @@ export const ACTIVITY_ACTIONS = {
 export const ACTION_PERFORMER_TYPES = {
   SYSTEM: 'SYSTEM',
   USER: 'USER',
+  CUSTOMER: 'CUSTOMER',
 
-  ALL: ['SYSTEM', 'USER'],
+  ALL: ['SYSTEM', 'USER', 'CUSTOMER'],
 };
 
 /* Performer of the action:
@@ -137,7 +138,7 @@ class ActivityLog {
         type: ACTION_PERFORMER_TYPES.USER,
         id: performedBy._id,
       };
-    } else {
+    } else if (!performedBy) {
       performedBy = {};
     }
 
@@ -167,21 +168,16 @@ class ActivityLog {
   }
 
   /**
-   * Create conversation log for a given customer, if the customer is related to companies,
+   * Create a conversation message log for a given customer,
+   * if the customer is related to companies,
    * then create conversation log with all related companies
-   * @param {Object} conversation - Conversation object
-   * @param {string} conversation._id - Conversation document id
-   * @param {Object} user - User object
-   * @param {Object} user._id - User document id
+   * @param {Object} message - Conversation object
+   * @param {string} message._id - Conversation document id
    * @param {Object} customer - Customer object
    * @param {string} customer.type - One of COC_CONTENT_TYPES choices
    * @param {string} customer.id - Customer document id
    */
-  static async createConversationLog(conversation, user, customer) {
-    if (user == null || (user && !user._id)) {
-      throw new Error(`'user' must be supplied when adding activity log for conversations`);
-    }
-
+  static async createConversationMessageLog(message, customer) {
     if (customer == null || (customer && !customer._id)) {
       throw new Error(`'customer' must be supplied when adding activity log for conversations`);
     }
@@ -190,23 +186,24 @@ class ActivityLog {
       for (let companyId of customer.companyIds) {
         // check against duplication
         const foundLog = await this.findOne({
-          'activity.type': ACTIVITY_TYPES.CONVERSATION,
+          'activity.type': ACTIVITY_TYPES.CONVERSATION_MESSAGE,
           'activity.action': ACTIVITY_ACTIONS.CREATE,
-          'activity.id': conversation._id,
-          'performedBy.type': ACTION_PERFORMER_TYPES.USER,
-          'performedBy.id': user._id,
+          'activity.id': message._id,
           'coc.type': COC_CONTENT_TYPES.COMPANY,
+          'performedBy.type': ACTION_PERFORMER_TYPES.CUSTOMER,
           'coc.id': companyId,
         });
 
         if (!foundLog) {
           await this.createDoc({
             activity: {
-              type: ACTIVITY_TYPES.CONVERSATION,
+              type: ACTIVITY_TYPES.CONVERSATION_MESSAGE,
               action: ACTIVITY_ACTIONS.CREATE,
-              id: conversation._id,
+              id: message._id,
             },
-            performedBy: user,
+            performedBy: {
+              type: ACTION_PERFORMER_TYPES.CUSTOMER,
+            },
             coc: {
               type: COC_CONTENT_TYPES.COMPANY,
               id: companyId,
@@ -218,11 +215,10 @@ class ActivityLog {
 
     // check against duplication ======
     const foundLog = await this.findOne({
-      'activity.type': ACTIVITY_TYPES.CONVERSATION,
+      'activity.type': ACTIVITY_TYPES.CONVERSATION_MESSAGE,
       'activity.action': ACTIVITY_ACTIONS.CREATE,
-      'activity.id': conversation._id,
-      'performedBy.type': ACTION_PERFORMER_TYPES.USER,
-      'performedBy.id': user._id,
+      'activity.id': message._id,
+      'performedBy.type': ACTION_PERFORMER_TYPES.CUSTOMER,
       'coc.type': COC_CONTENT_TYPES.CUSTOMER,
       'coc.id': customer._id,
     });
@@ -230,11 +226,13 @@ class ActivityLog {
     if (!foundLog) {
       return this.createDoc({
         activity: {
-          type: ACTIVITY_TYPES.CONVERSATION,
+          type: ACTIVITY_TYPES.CONVERSATION_MESSAGE,
           action: ACTIVITY_ACTIONS.CREATE,
-          id: conversation._id,
+          id: message._id,
         },
-        performedBy: user,
+        performedBy: {
+          type: ACTION_PERFORMER_TYPES.CUSTOMER,
+        },
         coc: {
           type: COC_CONTENT_TYPES.CUSTOMER,
           id: customer._id,
