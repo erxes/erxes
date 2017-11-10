@@ -10,7 +10,7 @@ import {
   AvatarWrapper,
   ActivityWrapper,
   ActivityCaption
-} from '../styles';
+} from './styles';
 
 const propTypes = {
   activities: PropTypes.array,

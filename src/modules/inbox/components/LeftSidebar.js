@@ -10,6 +10,7 @@ const propTypes = {
   channels: PropTypes.array.isRequired,
   brands: PropTypes.array.isRequired,
   tags: PropTypes.array.isRequired,
+  onChangeConversation: PropTypes.func.isRequired,
   counts: PropTypes.object.isRequired
 };
 
@@ -86,7 +87,7 @@ class Sidebar extends Component {
 
   render() {
     const Sidebar = Wrapper.Sidebar;
-    const { conversations } = this.props;
+    const { conversations, onChangeConversation } = this.props;
 
     // const { conversation } = this.props;
     // const { integration = {} } = conversation;
@@ -99,7 +100,10 @@ class Sidebar extends Component {
         header={this.renderSidebarHeader()}
         footer={this.renderSidebarFooter()}
       >
-        <ConversationList conversations={conversations} />
+        <ConversationList
+          conversations={conversations}
+          onRowClick={onChangeConversation}
+        />
       </Sidebar>
     );
   }

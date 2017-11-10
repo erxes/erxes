@@ -1,5 +1,5 @@
 import styled, { css } from 'styled-components';
-import { colors, dimensions } from '../common/styles';
+import { colors, dimensions, typography } from '../common/styles';
 import { rgba } from '../common/styles/color';
 
 const UserHelper = styled.div`
@@ -392,6 +392,21 @@ const AuthDescription = styled.div`
   }
 `;
 
+const TagItem = styled.div`
+  display: inline-block;
+  border-radius: 8px;
+  text-transform: uppercase;
+  font-weight: ${typography.fontWeightRegular};
+  font-size: ${dimensions.unitSpacing}px;
+  color: ${colors.colorWhite};
+  padding: 0 ${dimensions.unitSpacing}px;
+  margin-right: ${dimensions.unitSpacing}px;
+
+  &:last-child {
+    margin-right: 0px;
+  }
+`;
+
 export {
   Main,
   Layout,
@@ -426,5 +441,6 @@ export {
   WhiteBox,
   Authlayout,
   AuthContent,
-  AuthDescription
+  AuthDescription,
+  TagItem
 };

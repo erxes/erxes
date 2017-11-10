@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import moment from 'moment';
 import _ from 'lodash';
-import { Button, Icon } from 'modules/common/components';
+import { Link } from 'react-router-dom';
 
 const propTypes = {
   company: PropTypes.object.isRequired,
@@ -38,13 +38,15 @@ function CompanyRow({ company, columnsConfig }) {
   return (
     <tr>
       {columnsConfig.map(({ name }) => (
-        <td key={name} className={`table-field-${name}`}>
-          {formatValue(_.get(company, name))}
+        <td key={name}>
+          {}
           {name === 'name' ? (
-            <Button href={`/companies/details/${company._id}`} iconKey>
-              <Icon icon="eye" />
-            </Button>
-          ) : null}
+            <Link to={`companies/details/${company._id}`}>
+              {formatValue(_.get(company, name))}
+            </Link>
+          ) : (
+            formatValue(_.get(company, name))
+          )}
         </td>
       ))}
     </tr>
