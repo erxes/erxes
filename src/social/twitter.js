@@ -1,5 +1,6 @@
 import { Customers, ConversationMessages, Conversations, Integrations } from '../db/models';
 import { CONVERSATION_STATUSES } from '../data/constants';
+import { conversationMessageCreated } from '../data/resolvers/mutations/conversations';
 
 /*
  * Get or create customer using twitter data
@@ -49,7 +50,10 @@ const createMessage = async (conversation, content, user) => {
     internal: false,
   });
 
-  // TODO notify subscription server new message
+  // notify subscription =========
+  const message = await ConversationMessages.findOne({ _id: messageId });
+
+  await conversationMessageCreated(message, message.conversationId);
 
   return messageId;
 };

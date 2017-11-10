@@ -59,7 +59,7 @@ const conversationsChanged = async (_ids, type) => {
  * @param  {Object} message object
  * @param  {String} conversationId
  */
-const conversationMessageCreated = async (message, conversationId) => {
+export const conversationMessageCreated = async (message, conversationId) => {
   // subscribe
   pubsub.publish('conversationMessageInserted', {
     conversationMessageInserted: message,
