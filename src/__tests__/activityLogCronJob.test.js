@@ -3,7 +3,7 @@
 
 import { connect, disconnect } from '../db/connection';
 import cronJobs from '../cronJobs';
-import { CUSTOMER_CONTENT_TYPES } from '../data/constants';
+import { COC_CONTENT_TYPES } from '../data/constants';
 import { customerFactory, segmentFactory } from '../db/factories';
 import ActivityLogs, {
   ACTIVITY_TYPES,
@@ -29,7 +29,7 @@ describe('test activityLogsCronJob', () => {
 
     const customer = await customerFactory({ name: 'john smith' });
     const segment = await segmentFactory({
-      contentType: CUSTOMER_CONTENT_TYPES.CUSTOMER,
+      contentType: COC_CONTENT_TYPES.CUSTOMER,
       conditions: nameEqualsConditions,
     });
 
@@ -47,8 +47,8 @@ describe('test activityLogsCronJob', () => {
       },
       id: segment._id,
     });
-    expect(aLog.customer.toObject()).toEqual({
-      type: CUSTOMER_CONTENT_TYPES.CUSTOMER,
+    expect(aLog.coc.toObject()).toEqual({
+      type: COC_CONTENT_TYPES.CUSTOMER,
       id: customer._id,
     });
     expect(aLog.performedBy.toObject()).toEqual({
@@ -70,7 +70,7 @@ describe('test activityLogsCronJob', () => {
 
     await customerFactory({ name: 'jane smith' });
     await segmentFactory({
-      contentType: CUSTOMER_CONTENT_TYPES.CUSTOMER,
+      contentType: COC_CONTENT_TYPES.CUSTOMER,
       conditions: nameEqualsConditions2,
     });
 

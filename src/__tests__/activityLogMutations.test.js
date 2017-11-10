@@ -6,7 +6,7 @@ import mutations from '../data/resolvers/mutations';
 import { ROLES } from '../data/constants';
 import ActivityLogs, { ACTIVITY_TYPES } from '../db/models/ActivityLogs';
 import { userFactory, customerFactory } from '../db/factories';
-import { CUSTOMER_CONTENT_TYPES } from '../data/constants';
+import { COC_CONTENT_TYPES } from '../data/constants';
 
 beforeAll(() => connect());
 afterAll(() => disconnect());
@@ -29,10 +29,10 @@ describe('ActivityLog creation on Customer creation', () => {
     const aLog = await ActivityLogs.findOne({});
     expect(aLog).toBeDefined();
 
-    expect(aLog.activity.type).toBe(CUSTOMER_CONTENT_TYPES.CUSTOMER);
+    expect(aLog.activity.type).toBe(COC_CONTENT_TYPES.CUSTOMER);
     expect(aLog.activity.id).toBe(customer._id);
-    expect(aLog.customer.type).toBe(CUSTOMER_CONTENT_TYPES.CUSTOMER);
-    expect(aLog.customer.id).toBe(customer._id);
+    expect(aLog.coc.type).toBe(COC_CONTENT_TYPES.CUSTOMER);
+    expect(aLog.coc.id).toBe(customer._id);
   });
 
   test(`createCompanyRegistrationLog`, async () => {
@@ -52,10 +52,10 @@ describe('ActivityLog creation on Customer creation', () => {
     const aLog = await ActivityLogs.findOne({});
     expect(aLog).toBeDefined();
 
-    expect(aLog.activity.type).toBe(CUSTOMER_CONTENT_TYPES.COMPANY);
+    expect(aLog.activity.type).toBe(COC_CONTENT_TYPES.COMPANY);
     expect(aLog.activity.id).toBe(company._id);
-    expect(aLog.customer.type).toBe(CUSTOMER_CONTENT_TYPES.COMPANY);
-    expect(aLog.customer.id).toBe(company._id);
+    expect(aLog.coc.type).toBe(COC_CONTENT_TYPES.COMPANY);
+    expect(aLog.coc.id).toBe(company._id);
   });
 
   test(`createInternalNote`, async () => {
@@ -65,7 +65,7 @@ describe('ActivityLog creation on Customer creation', () => {
     const internalNote = await mutations.internalNotesAdd(
       null,
       {
-        contentType: CUSTOMER_CONTENT_TYPES.CUSTOMER,
+        contentType: COC_CONTENT_TYPES.CUSTOMER,
         contentTypeId: customer._id,
         content: 'test string',
       },
@@ -78,7 +78,7 @@ describe('ActivityLog creation on Customer creation', () => {
 
     expect(aLog.activity.type).toBe(ACTIVITY_TYPES.INTERNAL_NOTE);
     expect(aLog.activity.id).toBe(internalNote._id);
-    expect(aLog.customer.type).toBe(CUSTOMER_CONTENT_TYPES.CUSTOMER);
-    expect(aLog.customer.id).toBe(customer._id);
+    expect(aLog.coc.type).toBe(COC_CONTENT_TYPES.CUSTOMER);
+    expect(aLog.coc.id).toBe(customer._id);
   });
 });

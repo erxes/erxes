@@ -1,6 +1,6 @@
 import { Companies, Segments } from '../../../db/models';
 import QueryBuilder from '../../segmentQueryBuilder';
-import { CUSTOMER_CONTENT_TYPES } from '../../constants';
+import { COC_CONTENT_TYPES } from '../../constants';
 import { moduleRequireLogin } from '../../permissions';
 import { paginate } from './utils';
 
@@ -54,7 +54,7 @@ const companyQueries = {
 
     // Count companies by segments
     const segments = await Segments.find({
-      contentType: CUSTOMER_CONTENT_TYPES.COMPANY,
+      contentType: COC_CONTENT_TYPES.COMPANY,
     });
 
     for (let s of segments) {

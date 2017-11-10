@@ -2,7 +2,7 @@ import fs from 'fs';
 import nodemailer from 'nodemailer';
 import Handlebars from 'handlebars';
 import { Notifications, Users } from '../db/models';
-import { CUSTOMER_CONTENT_TYPES } from './constants';
+import { COC_CONTENT_TYPES } from './constants';
 
 /**
  * Read contents of a file
@@ -209,14 +209,14 @@ class BaseMonthActivityBuilder {
 export class CustomerMonthActivityLogBuilder extends BaseMonthActivityBuilder {
   constructor(customer) {
     super(customer);
-    this.customerType = CUSTOMER_CONTENT_TYPES.CUSTOMER;
+    this.customerType = COC_CONTENT_TYPES.CUSTOMER;
   }
 }
 
 export class CompanyMonthActivityLogBuilder extends BaseMonthActivityBuilder {
   constructor(customer) {
     super(customer);
-    this.customerType = CUSTOMER_CONTENT_TYPES.COMPANY;
+    this.customerType = COC_CONTENT_TYPES.COMPANY;
   }
 }
 

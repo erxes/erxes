@@ -1,6 +1,6 @@
 import _ from 'underscore';
 import { Brands, Tags, Integrations, Customers, Segments } from '../../../db/models';
-import { TAG_TYPES, INTEGRATION_KIND_CHOICES, CUSTOMER_CONTENT_TYPES } from '../../constants';
+import { TAG_TYPES, INTEGRATION_KIND_CHOICES, COC_CONTENT_TYPES } from '../../constants';
 import QueryBuilder from '../../segmentQueryBuilder';
 import { moduleRequireLogin } from '../../permissions';
 import { paginate } from './utils';
@@ -85,7 +85,7 @@ const customerQueries = {
 
     // Count customers by segments
     const segments = await Segments.find({
-      contentType: CUSTOMER_CONTENT_TYPES.CUSTOMER,
+      contentType: COC_CONTENT_TYPES.CUSTOMER,
     });
 
     for (let s of segments) {
@@ -162,16 +162,6 @@ const customerQueries = {
 
     const m = new CustomerMonthActivityLogBuilder(customer);
     return m.build();
-    // const cursor = ActivityLogs.find({
-    //   'customer.type': CUSTOMER_CONTENT_TYPES.customer,
-    //   'customer.id': _id,
-    // });
-    //
-    // if (sortDoc) {
-    //   cursor.sort(sortDoc);
-    // }
-
-    // return customerActivityLog;
   },
 };
 

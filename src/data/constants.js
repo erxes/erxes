@@ -170,7 +170,7 @@ export const FIELD_CONTENT_TYPES = {
   ALL: ['form', 'customer', 'company'],
 };
 
-export const CUSTOMER_CONTENT_TYPES = {
+export const COC_CONTENT_TYPES = {
   CUSTOMER: 'customer',
   COMPANY: 'company',
   ALL: ['customer', 'company'],

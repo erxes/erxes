@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 import Random from 'meteor-random';
-import { CUSTOMER_CONTENT_TYPES } from '../../data/constants';
+import { COC_CONTENT_TYPES } from '../../data/constants';
 
 const ConditionSchema = mongoose.Schema(
   {
@@ -29,7 +29,7 @@ const SegmentSchema = mongoose.Schema({
   },
   contentType: {
     type: String,
-    enum: CUSTOMER_CONTENT_TYPES.ALL,
+    enum: COC_CONTENT_TYPES.ALL,
   },
   name: String,
   description: String,

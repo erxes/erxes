@@ -10,14 +10,10 @@ export const createActivityLogsFromSegments = async () => {
 
   for (let segment of segments) {
     const selector = await QueryBuilder.segments(segment);
-    // console.log('segment: ', segment);
-    // console.log('selector: ', selector['$and'] && selector['$and'][0]['$or']);
     const customers = await Customers.find(selector);
 
     if (segment.contentType) {
       for (let customer of customers) {
-        // console.log('customer: ', customer);
-
         await ActivityLogs.createSegmentLog(segment, customer);
       }
     }

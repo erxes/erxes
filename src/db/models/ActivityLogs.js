@@ -1,6 +1,6 @@
 import mongoose, { SchemaTypes } from 'mongoose';
 import Random from 'meteor-random';
-import { CUSTOMER_CONTENT_TYPES } from '../../data/constants';
+import { COC_CONTENT_TYPES } from '../../data/constants';
 
 export const ACTIVITY_TYPES = {
   CUSTOMER: 'customer',
@@ -99,7 +99,7 @@ const Customer = mongoose.Schema(
     },
     type: {
       type: String,
-      enum: CUSTOMER_CONTENT_TYPES.ALL,
+      enum: COC_CONTENT_TYPES.ALL,
       required: true,
     },
   },
@@ -115,7 +115,7 @@ const ActivityLogSchema = mongoose.Schema({
 
   activity: Activity,
   performedBy: ActionPerformer,
-  customer: Customer,
+  coc: Customer,
 
   createdAt: {
     type: Date,
@@ -159,7 +159,7 @@ class ActivityLog {
         id: internalNote._id,
       },
       performedBy: user,
-      customer: {
+      coc: {
         id: internalNote.contentTypeId,
         type: internalNote.contentType,
       },
@@ -174,7 +174,7 @@ class ActivityLog {
    * @param {Object} user - User object
    * @param {Object} user._id - User document id
    * @param {Object} customer - Customer object
-   * @param {string} customer.type - One of CUSTOMER_CONTENT_TYPES choices
+   * @param {string} customer.type - One of COC_CONTENT_TYPES choices
    * @param {string} customer.id - Customer document id
    */
   static async createConversationLog(conversation, user, customer) {
@@ -195,8 +195,8 @@ class ActivityLog {
           'activity.id': conversation._id,
           'performedBy.type': ACTION_PERFORMER_TYPES.USER,
           'performedBy.id': user._id,
-          'customer.type': CUSTOMER_CONTENT_TYPES.COMPANY,
-          'customer.id': companyId,
+          'coc.type': COC_CONTENT_TYPES.COMPANY,
+          'coc.id': companyId,
         });
 
         if (!foundLog) {
@@ -207,8 +207,8 @@ class ActivityLog {
               id: conversation._id,
             },
             performedBy: user,
-            customer: {
-              type: CUSTOMER_CONTENT_TYPES.COMPANY,
+            coc: {
+              type: COC_CONTENT_TYPES.COMPANY,
               id: companyId,
             },
           });
@@ -223,8 +223,8 @@ class ActivityLog {
       'activity.id': conversation._id,
       'performedBy.type': ACTION_PERFORMER_TYPES.USER,
       'performedBy.id': user._id,
-      'customer.type': CUSTOMER_CONTENT_TYPES.CUSTOMER,
-      'customer.id': customer._id,
+      'coc.type': COC_CONTENT_TYPES.CUSTOMER,
+      'coc.id': customer._id,
     });
 
     if (!foundLog) {
@@ -235,8 +235,8 @@ class ActivityLog {
           id: conversation._id,
         },
         performedBy: user,
-        customer: {
-          type: CUSTOMER_CONTENT_TYPES.CUSTOMER,
+        coc: {
+          type: COC_CONTENT_TYPES.CUSTOMER,
           id: customer._id,
         },
       });
@@ -258,8 +258,8 @@ class ActivityLog {
       'activity.type': ACTIVITY_TYPES.SEGMENT,
       'activity.action': ACTIVITY_ACTIONS.CREATE,
       'activity.id': segment._id,
-      'customer.type': segment.contentType,
-      'customer.id': customer._id,
+      'coc.type': segment.contentType,
+      'coc.id': customer._id,
     });
 
     if (foundSegment) {
@@ -276,7 +276,7 @@ class ActivityLog {
         },
         id: segment._id,
       },
-      customer: {
+      coc: {
         type: segment.contentType,
         id: customer._id,
       },
@@ -299,8 +299,8 @@ class ActivityLog {
         },
         id: customer._id,
       },
-      customer: {
-        type: CUSTOMER_CONTENT_TYPES.CUSTOMER,
+      coc: {
+        type: COC_CONTENT_TYPES.CUSTOMER,
         id: customer._id,
       },
       performedBy: user,
@@ -323,8 +323,8 @@ class ActivityLog {
         },
         id: company._id,
       },
-      customer: {
-        type: CUSTOMER_CONTENT_TYPES.COMPANY,
+      coc: {
+        type: COC_CONTENT_TYPES.COMPANY,
         id: company._id,
       },
       performedBy: user,
