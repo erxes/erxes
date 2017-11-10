@@ -1,52 +1,65 @@
-import React from 'react';
+import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { compose, gql, graphql } from 'react-apollo';
 import { TAG_TYPES } from 'modules/tags/constants';
 import { LeftSidebar as LeftSidebarComponent } from '../components';
 import { Wrapper } from 'modules/layout/components';
 import { Spinner } from 'modules/common/components';
-import { queries } from '../graphql';
+import { queries, subscriptions } from '../graphql';
 
-const LeftSidebar = props => {
-  const {
-    conversationsQuery,
-    channelsQuery,
-    brandsQuery,
-    tagsQuery,
-    conversationCountsQuery
-  } = props;
+class LeftSidebar extends Component {
+  componentWillMount() {
+    this.props.conversationsQuery.subscribeToMore({
+      // listen for all conversation changes
+      document: gql(subscriptions.conversationsChanged),
 
-  if (
-    conversationsQuery.loading ||
-    channelsQuery.loading ||
-    brandsQuery.loading ||
-    tagsQuery.loading ||
-    conversationCountsQuery.loading
-  ) {
-    return (
-      <Wrapper.Sidebar wide full>
-        <Spinner />
-      </Wrapper.Sidebar>
-    );
+      updateQuery: () => {
+        this.props.conversationsQuery.refetch();
+      }
+    });
   }
 
-  const conversations = conversationsQuery.conversations;
-  const channels = channelsQuery.channels || [];
-  const brands = brandsQuery.brands || [];
-  const tags = tagsQuery.tags || [];
-  const counts = conversationCountsQuery.conversationCounts || {};
+  render() {
+    const {
+      conversationsQuery,
+      channelsQuery,
+      brandsQuery,
+      tagsQuery,
+      conversationCountsQuery
+    } = this.props;
 
-  const updatedProps = {
-    ...props,
-    conversations,
-    channels,
-    brands,
-    tags,
-    counts
-  };
+    if (
+      conversationsQuery.loading ||
+      channelsQuery.loading ||
+      brandsQuery.loading ||
+      tagsQuery.loading ||
+      conversationCountsQuery.loading
+    ) {
+      return (
+        <Wrapper.Sidebar wide full>
+          <Spinner />
+        </Wrapper.Sidebar>
+      );
+    }
 
-  return <LeftSidebarComponent {...updatedProps} />;
-};
+    const conversations = conversationsQuery.conversations;
+    const channels = channelsQuery.channels || [];
+    const brands = brandsQuery.brands || [];
+    const tags = tagsQuery.tags || [];
+    const counts = conversationCountsQuery.conversationCounts || {};
+
+    const updatedProps = {
+      ...this.props,
+      conversations,
+      channels,
+      brands,
+      tags,
+      counts
+    };
+
+    return <LeftSidebarComponent {...updatedProps} />;
+  }
+}
 
 LeftSidebar.propTypes = {
   conversationsQuery: PropTypes.object,
