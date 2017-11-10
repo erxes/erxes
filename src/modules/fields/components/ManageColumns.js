@@ -8,20 +8,60 @@ import {
   arrayMove
 } from 'react-sortable-hoc';
 import PropTypes from 'prop-types';
-import { Wrapper } from 'modules/layout/components';
 import { Button, Icon } from 'modules/common/components';
+import styled from 'styled-components';
 
-const DragHandle = SortableHandle(() => (
-  <span className="drag-handler">::::</span>
-));
+const DragHandle = SortableHandle(() => <Icon icon="grid" />);
+
+const StyledLi = styled.li`
+  background-color: #eee8f3;
+  border-radius: 5px;
+  margin-top: 5px;
+  width: 100%;
+  padding: 10px 20px;
+  border: 1px dotted #ddd;
+  margin-bottom: 2px;
+  cursor: pointer;
+`;
+
+const StyledUl = styled.ul`
+  padding: 0px;
+  margin-left: 20px;
+  margin-right: 20px;
+  list-style-type: none;
+`;
+
+const Wrapper = styled.div`
+  display: block;
+  width: 100%;
+  max-height: 70vh;
+`;
+
+const Footer = styled.div`
+  width: 100%;
+  text-align: right;
+  padding-top: 20px;
+  padding-bottom: 10px;
+`;
+
+const ColumnsWrapper = styled.div`
+  overflow-y: scroll;
+  max-height: 57vh;
+  width: 100%;
+  height: 80%;
+`;
 
 const SortableItem = SortableElement(({ field, isChecked }) => (
-  <li>
+  <StyledLi>
     <DragHandle />
     <input type="checkbox" id={field._id} defaultChecked={isChecked} />
     <span>{field.label}</span>
-  </li>
+  </StyledLi>
 ));
+
+const contextTypes = {
+  closeModal: PropTypes.func.isRequired
+};
 
 const SortableList = SortableContainer(({ fields, config }) => {
   const configMap = {};
@@ -31,7 +71,7 @@ const SortableList = SortableContainer(({ fields, config }) => {
   });
 
   return (
-    <ul style={{ listStyleType: 'none' }}>
+    <StyledUl>
       {fields.map((field, index) => (
         <SortableItem
           key={index}
@@ -40,7 +80,7 @@ const SortableList = SortableContainer(({ fields, config }) => {
           isChecked={configMap[field.name]}
         />
       ))}
-    </ul>
+    </StyledUl>
   );
 });
 
@@ -87,28 +127,35 @@ class ManageColumns extends Component {
   render() {
     const { config } = this.props;
 
-    const content = (
-      <form onSubmit={this.onSubmit} className="manage-columns">
-        <Button type="submit" btnStyle="success">
-          <Icon icon="checkmark" /> Save changes
-        </Button>
-
-        <SortableList
-          fields={this.state.fields}
-          config={config}
-          onSortEnd={this.onSortEnd}
-          useDragHandle
-        />
-      </form>
-    );
-
-    const breadcrumb = [{ title: 'Manage columns' }];
+    const closeModal = () => {
+      this.context.closeModal();
+    };
 
     return (
-      <Wrapper
-        header={<Wrapper.Header breadcrumb={breadcrumb} />}
-        content={content}
-      />
+      <Wrapper>
+        <h4>Manage Columns</h4>
+
+        <form onSubmit={this.onSubmit}>
+          <ColumnsWrapper>
+            <SortableList
+              fields={this.state.fields}
+              config={config}
+              onSortEnd={this.onSortEnd}
+              useDragHandle
+            />
+          </ColumnsWrapper>
+
+          <Footer>
+            <Button type="button" btnStyle="simple" onClick={closeModal}>
+              <Icon icon="close" />CANCEL
+            </Button>
+
+            <Button type="submit" onClick={closeModal} btnStyle="success">
+              <Icon icon="checkmark" />SUBMIT
+            </Button>
+          </Footer>
+        </form>
+      </Wrapper>
     );
   }
 }
@@ -118,5 +165,7 @@ ManageColumns.propTypes = {
   config: PropTypes.array,
   save: PropTypes.func.isRequired
 };
+
+ManageColumns.contextTypes = contextTypes;
 
 export default ManageColumns;
