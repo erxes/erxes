@@ -89,21 +89,6 @@ const DeleteNote = styled.div`
   float: right;
 `;
 
-const TagItem = styled.div`
-  display: inline-block;
-  border-radius: 8px;
-  text-transform: uppercase;
-  font-weight: ${typography.fontWeightRegular};
-  font-size: ${dimensions.unitSpacing}px;
-  color: ${colors.colorWhite};
-  padding: 0 ${dimensions.unitSpacing}px;
-  margin-right: ${dimensions.unitSpacing}px;
-
-  &:last-child {
-    margin-right: 0px;
-  }
-`;
-
 export {
   Timeline,
   ActivityTitle,
@@ -114,6 +99,5 @@ export {
   ActivityCaption,
   ActivityContent,
   IconWrapper,
-  DeleteNote,
-  TagItem
+  DeleteNote
 };

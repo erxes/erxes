@@ -8,7 +8,7 @@ import {
   ActivityWrapper,
   ActivityCaption,
   IconWrapper
-} from '../../styles';
+} from 'modules/common/components/ActivityList/styles';
 import {
   Tip,
   ModalTrigger,
