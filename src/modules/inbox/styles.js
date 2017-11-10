@@ -41,10 +41,15 @@ const RichEditorRoot = styled.div`
       padding: 15px;
       position: absolute;
       color: ${colors.colorCoreGray};
+      font-size: 13px;
     }
 
     .public-DraftEditorPlaceholder-inner {
       color: ${colors.colorCoreGray};
+    }
+
+    .public-DraftEditor-content {
+      font-size: 13px;
     }
   }
 
