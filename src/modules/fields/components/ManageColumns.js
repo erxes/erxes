@@ -13,50 +13,39 @@ import styled from 'styled-components';
 
 const DragHandle = SortableHandle(() => <Icon icon="grid" />);
 
-const StyledLi = styled.li`
+const SortItem = styled.li`
   background-color: #eee8f3;
   border-radius: 5px;
-  margin-top: 5px;
   width: 100%;
   padding: 10px 20px;
-  border: 1px dotted #ddd;
-  margin-bottom: 2px;
+  margin-bottom: 10px;
   cursor: pointer;
+  z-index: 2000;
+  list-style: none;
+
+  > i,
+  > input {
+    margin-right: 10px !important;
+  }
 `;
 
-const StyledUl = styled.ul`
+const SortableWrapper = styled.ul`
   padding: 0px;
-  margin-left: 20px;
-  margin-right: 20px;
+  margin: 0;
   list-style-type: none;
 `;
 
-const Wrapper = styled.div`
-  display: block;
-  width: 100%;
-  max-height: 70vh;
-`;
-
 const Footer = styled.div`
-  width: 100%;
   text-align: right;
-  padding-top: 20px;
-  padding-bottom: 10px;
-`;
-
-const ColumnsWrapper = styled.div`
-  overflow-y: scroll;
-  max-height: 57vh;
-  width: 100%;
-  height: 80%;
+  margin-top: 20px;
 `;
 
 const SortableItem = SortableElement(({ field, isChecked }) => (
-  <StyledLi>
+  <SortItem>
     <DragHandle />
     <input type="checkbox" id={field._id} defaultChecked={isChecked} />
     <span>{field.label}</span>
-  </StyledLi>
+  </SortItem>
 ));
 
 const contextTypes = {
@@ -71,7 +60,7 @@ const SortableList = SortableContainer(({ fields, config }) => {
   });
 
   return (
-    <StyledUl>
+    <SortableWrapper>
       {fields.map((field, index) => (
         <SortableItem
           key={index}
@@ -80,7 +69,7 @@ const SortableList = SortableContainer(({ fields, config }) => {
           isChecked={configMap[field.name]}
         />
       ))}
-    </StyledUl>
+    </SortableWrapper>
   );
 });
 
@@ -132,30 +121,24 @@ class ManageColumns extends Component {
     };
 
     return (
-      <Wrapper>
-        <h4>Manage Columns</h4>
+      <form onSubmit={this.onSubmit}>
+        <SortableList
+          fields={this.state.fields}
+          config={config}
+          onSortEnd={this.onSortEnd}
+          useDragHandle
+        />
 
-        <form onSubmit={this.onSubmit}>
-          <ColumnsWrapper>
-            <SortableList
-              fields={this.state.fields}
-              config={config}
-              onSortEnd={this.onSortEnd}
-              useDragHandle
-            />
-          </ColumnsWrapper>
+        <Footer>
+          <Button type="button" btnStyle="simple" onClick={closeModal}>
+            <Icon icon="close" /> Cancel
+          </Button>
 
-          <Footer>
-            <Button type="button" btnStyle="simple" onClick={closeModal}>
-              <Icon icon="close" />CANCEL
-            </Button>
-
-            <Button type="submit" onClick={closeModal} btnStyle="success">
-              <Icon icon="checkmark" />SUBMIT
-            </Button>
-          </Footer>
-        </form>
-      </Wrapper>
+          <Button type="submit" onClick={closeModal} btnStyle="success">
+            <Icon icon="checkmark" /> Submit
+          </Button>
+        </Footer>
+      </form>
     );
   }
 }

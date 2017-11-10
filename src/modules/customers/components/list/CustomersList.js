@@ -17,7 +17,7 @@ import { Widget } from 'modules/engage/containers';
 import Sidebar from './Sidebar';
 import CustomerRow from './CustomerRow';
 import CustomerForm from './CustomerForm';
-import { ManageColumns } from '../../../fields/containers';
+import { ManageColumns } from 'modules/fields/containers';
 
 const propTypes = {
   customers: PropTypes.array.isRequired,
@@ -74,15 +74,12 @@ class CustomersList extends React.Component {
         <Dropdown id="dropdown-engage" pullRight>
           <DropdownToggle bsRole="toggle">
             <Button btnStyle="simple" size="small">
-              Customize <Icon Customizeicon="ios-arrow-down" />
+              Customize <Icon icon="ios-arrow-down" />
             </Button>
           </DropdownToggle>
           <Dropdown.Menu>
             <li>
-              <ModalTrigger
-                title="Choose which column you see"
-                trigger={editColumns}
-              >
+              <ModalTrigger title="Manage Columns" trigger={editColumns}>
                 <ManageColumns contentType="customer" />
               </ModalTrigger>
             </li>
