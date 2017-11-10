@@ -9,6 +9,7 @@ import { queries } from '../graphql';
 
 const LeftSidebar = props => {
   const {
+    conversationsQuery,
     channelsQuery,
     brandsQuery,
     tagsQuery,
@@ -16,6 +17,7 @@ const LeftSidebar = props => {
   } = props;
 
   if (
+    conversationsQuery.loading ||
     channelsQuery.loading ||
     brandsQuery.loading ||
     tagsQuery.loading ||
@@ -28,6 +30,7 @@ const LeftSidebar = props => {
     );
   }
 
+  const conversations = conversationsQuery.conversations;
   const channels = channelsQuery.channels || [];
   const brands = brandsQuery.brands || [];
   const tags = tagsQuery.tags || [];
@@ -35,6 +38,7 @@ const LeftSidebar = props => {
 
   const updatedProps = {
     ...props,
+    conversations,
     channels,
     brands,
     tags,
@@ -45,6 +49,7 @@ const LeftSidebar = props => {
 };
 
 LeftSidebar.propTypes = {
+  conversationsQuery: PropTypes.object,
   channelsQuery: PropTypes.object,
   brandsQuery: PropTypes.object,
   tagsQuery: PropTypes.object,
@@ -52,6 +57,17 @@ LeftSidebar.propTypes = {
 };
 
 export default compose(
+  graphql(gql(queries.conversationList), {
+    name: 'conversationsQuery',
+    options: ({ queryParams }) => {
+      const params = { ...queryParams };
+      delete params._id;
+
+      return {
+        variables: { params }
+      };
+    }
+  }),
   graphql(gql(queries.channelList), {
     name: 'channelsQuery',
     options: ({ queryParams }) => {

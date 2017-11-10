@@ -18,7 +18,7 @@ class Inbox extends Component {
   }
 
   render() {
-    const { conversations, currentConversation } = this.props;
+    const { currentConversation } = this.props;
     const actionBarLeft = <BarItems>Alice Caldwell</BarItems>;
 
     const tagTrigger = (
@@ -72,7 +72,7 @@ class Inbox extends Component {
             setAttachmentPreview={() => {}}
           />
         }
-        leftSidebar={<LeftSidebar conversations={conversations} />}
+        leftSidebar={<LeftSidebar />}
         rightSidebar={<RightSidebar />}
       />
     );
@@ -81,7 +81,6 @@ class Inbox extends Component {
 
 Inbox.propTypes = {
   title: PropTypes.string,
-  conversations: PropTypes.array,
   currentConversation: PropTypes.object
 };
 

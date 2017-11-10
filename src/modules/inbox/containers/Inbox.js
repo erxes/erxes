@@ -5,21 +5,19 @@ import { Inbox as InboxComponent } from '../components';
 import { queries } from '../graphql';
 
 const Inbox = props => {
-  const { conversationsQuery, currentConversationQuery } = props;
+  const { currentConversationQuery } = props;
 
-  if (conversationsQuery.loading || currentConversationQuery.loading) {
+  if (currentConversationQuery.loading) {
     return false;
   }
 
   // =============== actions
   const changeStatus = () => {};
 
-  const conversations = conversationsQuery.conversations;
   const currentConversation = currentConversationQuery.conversationsGetCurrent;
 
   const updatedProps = {
     ...this.props,
-    conversations,
     currentConversation,
     changeStatus
   };
@@ -28,22 +26,10 @@ const Inbox = props => {
 };
 
 Inbox.propTypes = {
-  conversationsQuery: PropTypes.object,
   currentConversationQuery: PropTypes.object
 };
 
 export default compose(
-  graphql(gql(queries.conversationList), {
-    name: 'conversationsQuery',
-    options: ({ queryParams }) => {
-      const params = { ...queryParams };
-      delete params._id;
-
-      return {
-        variables: { params }
-      };
-    }
-  }),
   graphql(gql(queries.currentConversation), {
     name: 'currentConversationQuery',
     options: ({ queryParams }) => {
