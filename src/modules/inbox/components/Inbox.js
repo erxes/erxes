@@ -6,7 +6,7 @@ import { Button, Label, Icon, TaggerPopover } from 'modules/common/components';
 import { BarItems } from 'modules/layout/styles';
 import Conversation from './conversation/Conversation';
 import { LeftSidebar, RespondBox } from '../containers';
-import { PopoverButton } from '../styles';
+import { PopoverButton, ConversationWrapper } from '../styles';
 
 class Inbox extends Component {
   componentDidMount() {
@@ -46,14 +46,13 @@ class Inbox extends Component {
     );
 
     const content = (
-      <div
-        style={{ height: '100%', overflow: 'auto', background: '#fafafa' }}
+      <ConversationWrapper
         ref={node => {
           this.node = node;
         }}
       >
         <Conversation conversation={currentConversation} />
-      </div>
+      </ConversationWrapper>
     );
 
     const breadcrumb = [
