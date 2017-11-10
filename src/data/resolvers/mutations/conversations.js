@@ -1,10 +1,12 @@
-import { Conversations, ConversationMessages, Integrations, Customers } from '../../../db/models';
-import { NOTIFICATION_TYPES } from '../../constants';
-import { pubsub } from '../subscriptions';
-import { CONVERSATION_STATUSES, KIND_CHOICES } from '../../constants';
-import utils from '../../utils';
 import { _ } from 'underscore';
+import strip from 'strip';
+import { Conversations, ConversationMessages, Integrations, Customers } from '../../../db/models';
+import { tweetReply } from '../../../social/twitter';
+import { NOTIFICATION_TYPES } from '../../constants';
+import { CONVERSATION_STATUSES, KIND_CHOICES } from '../../constants';
 import { moduleRequireLogin } from '../../permissions';
+import utils from '../../utils';
+import { pubsub } from '../subscriptions';
 
 /**
  * conversation notrification receiver ids
@@ -112,7 +114,8 @@ const conversationMutations = {
 
     // send reply to twitter
     if (kind === KIND_CHOICES.TWITTER) {
-      // TODO: return tweetReply(conversation, strip(content));
+      tweetReply(conversation, strip(doc.content));
+      return message;
     }
 
     const customer = await Customers.findOne({ _id: conversation.customerId });
