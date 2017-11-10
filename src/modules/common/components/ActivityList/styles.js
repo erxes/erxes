@@ -39,9 +39,26 @@ const ActivityWrapper = styled.div`
 const AvatarWrapper = styled.div`
   margin-right: ${dimensions.coreSpacing}px;
   float: left;
+  position: relative;
 
   a {
     float: none;
+  }
+
+  > i {
+    position: absolute;
+    right: -3px;
+    bottom: 1px;
+    background: ${props =>
+      props.isUser ? colors.colorCoreGreen : colors.colorCoreRed};
+    width: 18px;
+    height: 18px;
+    text-align: center;
+    border-radius: ${dimensions.unitSpacing}px;
+    color: ${colors.colorWhite};
+    line-height: 15px;
+    font-size: ${dimensions.unitSpacing}px;
+    border: 2px solid ${colors.colorWhite};
   }
 `;
 

@@ -130,7 +130,7 @@ class Inbox extends Component {
             onChangeConversation={onChangeConversation}
           />
         }
-        rightSidebar={<RightSidebar />}
+        rightSidebar={<RightSidebar conversation={currentConversation} />}
       />
     );
   }

@@ -22,10 +22,12 @@ import { GenerateField } from 'modules/fields/components';
 import { CompanyForm } from 'modules/companies/components';
 import { Link } from 'react-router-dom';
 import { NameCard } from 'modules/common/components';
-import TaggerSection from './TaggerSection';
-import MessengerSection from './MessengerSection';
-import TwitterSection from './TwitterSection';
-import FacebookSection from './FacebookSection';
+import {
+  TaggerSection,
+  MessengerSection,
+  TwitterSection,
+  FacebookSection
+} from './';
 
 const propTypes = {
   customer: PropTypes.object.isRequired,
@@ -73,12 +75,14 @@ class LeftSidebar extends React.Component {
 
   renderBasicInfo() {
     const { customer } = this.props;
+    const isUser = customer.isUser;
 
     return (
       <ActivityRow>
         <ActivityWrapper>
-          <AvatarWrapper>
+          <AvatarWrapper isUser={isUser}>
             <NameCard.Avatar customer={customer} size={60} />
+            {isUser ? <Icon icon="checkmark" /> : <Icon icon="minus" />}
           </AvatarWrapper>
 
           <ActivityCaption>{customer.name || 'N/A'}</ActivityCaption>

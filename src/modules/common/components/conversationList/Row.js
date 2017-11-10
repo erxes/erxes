@@ -65,12 +65,10 @@ class Row extends Component {
     const brandName = brand.name;
     const tags = conversation.tags || [];
     const isExistingCustomer = customer && customer._id;
-
-    // for testing purpose
     const user = conversation.user;
 
     return (
-      <RowItem isRead={isRead} onClick={this.onClick}>
+      <RowItem onClick={this.onClick}>
         <RowContent>
           {this.renderCheckbox()}
           <FlexContent>
@@ -90,7 +88,7 @@ class Row extends Component {
                 </SmallText>
               </FlexContent>
             </MainInfo>
-            <MessageContent>{strip(content)}</MessageContent>
+            <MessageContent isRead={isRead}>{strip(content)}</MessageContent>
             {tags.map(t => (
               <Label key={t._id} style={{ background: t.colorCode }}>
                 {t.name}
