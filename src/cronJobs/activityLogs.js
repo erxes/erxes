@@ -12,10 +12,8 @@ export const createActivityLogsFromSegments = async () => {
     const selector = await QueryBuilder.segments(segment);
     const customers = await Customers.find(selector);
 
-    if (segment.contentType) {
-      for (let customer of customers) {
-        await ActivityLogs.createSegmentLog(segment, customer);
-      }
+    for (let customer of customers) {
+      await ActivityLogs.createSegmentLog(segment, customer);
     }
   }
 };

@@ -27,6 +27,7 @@ export const queries = `
   companies(params: CompanyListParams): [Company]
   companyCounts(params: CompanyListParams): JSON
   companyDetail(_id: String!): Company
+  companyActivityLog(_id: String!): [ActivityLogForMonth]
 `;
 
 const commonFields = `

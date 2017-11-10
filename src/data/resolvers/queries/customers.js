@@ -154,7 +154,6 @@ const customerQueries = {
    * @param {Object} root
    * @param {Object} object2 - Graphql input data
    * @param {string} object._id - Customer id
-   * @param {string} object.sortDoc - Graphql ActivityLogSort doc object
    * @return {Promise} found customer
    */
   async customerActivityLog(root, { _id }) {

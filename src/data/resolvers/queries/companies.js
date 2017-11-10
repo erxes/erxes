@@ -3,6 +3,7 @@ import QueryBuilder from '../../segmentQueryBuilder';
 import { COC_CONTENT_TYPES } from '../../constants';
 import { moduleRequireLogin } from '../../permissions';
 import { paginate } from './utils';
+import { CompanyMonthActivityLogBuilder } from '../../utils';
 
 const listQuery = async params => {
   const selector = {};
@@ -72,6 +73,20 @@ const companyQueries = {
    */
   companyDetail(root, { _id }) {
     return Companies.findOne({ _id });
+  },
+
+  /**
+   * Get activity log for company
+   * @param {Object} root
+   * @param {Object} object2 - Graphql input data
+   * @param {string} object._id - Company id
+   * @return {Promise} Promise resolving array of ActivityLogForMonth
+   */
+  async companyActivityLog(root, { _id }) {
+    const company = await Companies.findOne({ _id });
+
+    const m = new CompanyMonthActivityLogBuilder(company);
+    return m.build();
   },
 };
 
