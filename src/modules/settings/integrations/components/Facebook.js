@@ -17,32 +17,11 @@ class Facebook extends Component {
 
     this.handleSubmit = this.handleSubmit.bind(this);
     this.onAppChange = this.onAppChange.bind(this);
-
-    this.state = { apps: [], pages: [] };
-  }
-
-  componentDidMount() {
-    // TODO
-    // const { apps } = this.state;
-    //
-    // if (apps.length === 0) {
-    //   Meteor.call('integrations.getFacebookAppList', (err, res) => {
-    //     this.setState({ apps: res });
-    //   });
-    // }
   }
 
   onAppChange() {
-    // TODO
-    // const appId = document.getElementById('app').value;
-    //
-    // Meteor.call('integrations.getFacebookPageList', { appId }, (err, res) => {
-    //   if (err) {
-    //     return Alert.error(err.reason);
-    //   }
-    //
-    //   this.setState({ pages: res });
-    // });
+    const appId = document.getElementById('app').value;
+    this.props.onAppSelect(appId);
   }
 
   collectCheckboxValues(name) {
@@ -69,8 +48,7 @@ class Facebook extends Component {
   }
 
   render() {
-    const { brands } = this.props;
-    const { apps, pages } = this.state;
+    const { apps, pages, brands } = this.props;
 
     return (
       <form className="margined" onSubmit={this.handleSubmit}>
@@ -82,15 +60,16 @@ class Facebook extends Component {
 
         <SelectBrand brands={brands} />
 
-        <FormGroup controlId="app">
+        <FormGroup>
           <ControlLabel>App</ControlLabel>
 
           <FormControl
             componentClass="select"
             placeholder="Select app"
             onChange={this.onAppChange}
+            id="app"
           >
-            <option>Select app ...</option>
+            <option value="">Select app ...</option>
 
             {apps.map((app, index) => (
               <option key={`app${index}`} value={app.id}>
@@ -124,7 +103,10 @@ class Facebook extends Component {
 
 Facebook.propTypes = {
   save: PropTypes.func.isRequired,
-  brands: PropTypes.array.isRequired
+  onAppSelect: PropTypes.func.isRequired,
+  brands: PropTypes.array.isRequired,
+  apps: PropTypes.array.isRequired,
+  pages: PropTypes.array.isRequired
 };
 
 export default Facebook;

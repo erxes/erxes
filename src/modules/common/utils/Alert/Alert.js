@@ -1,77 +1,62 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import styled, { keyframes } from 'styled-components';
-import Icon from '../../components/Icon';
-import { colors, typography } from '../../styles';
+import Icon from 'modules/common/components/Icon';
+import { colors, typography, dimensions } from 'modules/common/styles';
 
 const types = {
   info: {
     background: colors.colorSecondary,
-    icon: 'information-circled'
+    icon: 'information'
   },
 
   warning: {
     background: colors.colorCoreYellow,
-    icon: 'alert-circled'
+    icon: 'alert'
   },
 
   error: {
     background: colors.colorCoreRed,
-    icon: 'close-circled'
+    icon: 'close'
   },
 
   success: {
     background: colors.colorCoreGreen,
-    icon: 'checkmark-circled'
+    icon: 'checkmark'
   }
 };
 
 const slidedown = keyframes`
   0% {
     transform: translateY(-100%);
-  }
-  50% {
-    transform: translateY(8%);
-  }
-  65% {
-    transform: translateY(-4%);
-  }
-  80% {
-    transform: translateY(4%);
-  }
-  95% {
-    transform: translateY(-2%);
+    opacity: 0;
   }
   100% {
     transform: translateY(0%);
+    opacity: 1;
   }
 `;
 
-const Alertstyled = styled.div`
+const AlertItem = styled.div`
   display: table;
-  margin: 0 auto;
-  margin-top: 10px;
-  border-radius: 2px;
-  transition: top 2s;
-  padding: 8px 48px 8px 38px;
-  z-index: 1;
-  font-weight: ${typography.fontWeightMedium};
+  margin: 29px auto;
+  transition: all 0.5s;
+  color: ${colors.colorWhite};
+  padding: ${dimensions.unitSpacing}px ${dimensions.coreSpacing}px;
+  z-index: 10;
+  font-weight: ${typography.fontWeightLight};
   background-color: ${props => types[props.type].background};
-  font-weight: bold;
-  position: relative;
-  text-align: left;
   animation-name: ${slidedown};
-  animation-duration: 1s;
+  animation-duration: 0.5s;
   animation-timing-function: ease;
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.2);
 
   span {
-    margin-left: 5px;
-    color: #fff;
-    line-height: 1.5;
+    margin-left: ${dimensions.unitSpacing}px;
   }
 
   i {
-    color: white;
+    margin: 0;
   }
 `;
 
@@ -97,10 +82,10 @@ export default class AlertStyled extends React.Component {
 
   render() {
     return this.state.visible ? (
-      <Alertstyled {...this.props}>
+      <AlertItem {...this.props}>
         <Icon icon={types[this.props.type].icon} />
         <span>{this.props.text}</span>
-      </Alertstyled>
+      </AlertItem>
     ) : null;
   }
 }

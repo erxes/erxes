@@ -2,20 +2,29 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Wrapper } from 'modules/layout/components';
 import { ConversationList, Icon } from 'modules/common/components';
-
-import { conversations } from '../datas';
+import FilterPopover from './FilterPopover';
 
 const propTypes = {
-  conversations: PropTypes.array.isRequired
+  conversations: PropTypes.array.isRequired,
+  channels: PropTypes.array.isRequired,
+  brands: PropTypes.array.isRequired,
+  tags: PropTypes.array.isRequired,
+  counts: PropTypes.object.isRequired
 };
 
 class Sidebar extends Component {
   renderSidebarHeader() {
+    const { channels, counts } = this.props;
     return (
       <Wrapper.Sidebar.Header>
-        <div>
-          # Sales (13) <Icon icon="ios-arrow-down" />
-        </div>
+        <FilterPopover
+          buttonText="# Channel"
+          popoverTitle="Filter by channel"
+          fields={channels}
+          counts={counts.byChannels}
+          paramKey="channelId"
+        />
+
         <div>
           Open <Icon icon="ios-arrow-down" />
         </div>
@@ -24,23 +33,38 @@ class Sidebar extends Component {
   }
 
   renderSidebarFooter() {
+    const { brands, tags, counts } = this.props;
     return (
       <Wrapper.Sidebar.Footer>
+        <FilterPopover
+          buttonText="Brand"
+          fields={brands}
+          counts={counts.byBrands}
+          popoverTitle="Filter by brand"
+          placement="top"
+          paramKey="brandId"
+        />
+
         <div>
-          Brand <Icon icon="ios-arrow-up" />
+          Integration <Icon icon="ios-arrow-down" />
         </div>
-        <div>
-          Integration <Icon icon="ios-arrow-up" />
-        </div>
-        <div>
-          Tag <Icon icon="ios-arrow-up" />
-        </div>
+
+        <FilterPopover
+          buttonText="Tag"
+          fields={tags}
+          counts={counts.byTags}
+          paramKey="tag"
+          popoverTitle="Filter by tag"
+          placement="top"
+          icon="pricetag"
+        />
       </Wrapper.Sidebar.Footer>
     );
   }
 
   render() {
     const Sidebar = Wrapper.Sidebar;
+    const { conversations } = this.props;
 
     // const { conversation } = this.props;
     // const { integration = {} } = conversation;
@@ -53,10 +77,7 @@ class Sidebar extends Component {
         header={this.renderSidebarHeader()}
         footer={this.renderSidebarFooter()}
       >
-        <ConversationList
-          conversations={conversations}
-          user={conversations[0].user}
-        />
+        <ConversationList conversations={conversations} />
       </Sidebar>
     );
   }

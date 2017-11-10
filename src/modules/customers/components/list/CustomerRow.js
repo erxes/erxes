@@ -1,9 +1,10 @@
 import React from 'react';
-import { withRouter } from 'react-router-dom';
+import { Link, withRouter } from 'react-router-dom';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 import moment from 'moment';
 import { Button, Icon, FormControl } from 'modules/common/components';
+import { TagItem } from 'modules/layout/styles';
 
 const propTypes = {
   history: PropTypes.object.isRequired,
@@ -37,7 +38,20 @@ function formatValue(value) {
   return value || 'N/A';
 }
 
+function renderTags(tags) {
+  if (!tags.length) {
+    return null;
+  }
+
+  return tags.map(({ _id, colorCode, name }) => (
+    <TagItem key={_id} style={{ backgroundColor: colorCode }}>
+      {name}
+    </TagItem>
+  ));
+}
+
 function CustomerRow({ history, customer, columnsConfig, toggleBulk }) {
+  const tags = customer.getTags;
   const onChange = e => {
     if (toggleBulk) {
       toggleBulk(customer, e.target.checked);
@@ -51,19 +65,26 @@ function CustomerRow({ history, customer, columnsConfig, toggleBulk }) {
       </td>
       {columnsConfig.map(({ name }) => (
         <td key={name} className={`table-field-${name}`}>
-          {formatValue(_.get(customer, name))}
           {name === 'name' ? (
-            <Button
-              onClick={() => {
-                history.push(`customers/details/${customer._id}`);
-              }}
-              iconKey
-            >
-              <Icon icon="eye" />
-            </Button>
-          ) : null}
+            <div>
+              <Link to={`customers/details/${customer._id}`}>
+                {formatValue(_.get(customer, name))}
+              </Link>
+              <Button
+                onClick={() => {
+                  history.push(`customers/details/${customer._id}`);
+                }}
+                iconKey
+              >
+                <Icon icon="eye" />
+              </Button>
+            </div>
+          ) : (
+            formatValue(_.get(customer, name))
+          )}
         </td>
       ))}
+      <td>{renderTags(tags)}</td>
     </tr>
   );
 }

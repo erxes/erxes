@@ -43,6 +43,7 @@ class CustomersList extends React.Component {
             {columnsConfig.map(({ name, label }) => (
               <th key={name}>{label}</th>
             ))}
+            <th>Tags</th>
           </tr>
         </thead>
         <tbody>
@@ -60,7 +61,7 @@ class CustomersList extends React.Component {
   }
 
   render() {
-    const { counts, bulk, addCustomer } = this.props;
+    const { counts, bulk, addCustomer, tags } = this.props;
 
     const addTrigger = (
       <Button btnStyle="success" size="small">
@@ -124,7 +125,7 @@ class CustomersList extends React.Component {
         header={<Wrapper.Header breadcrumb={breadcrumb} />}
         actionBar={actionBar}
         footer={<Pagination count={counts.all} />}
-        leftSidebar={<Sidebar counts={counts} />}
+        leftSidebar={<Sidebar counts={counts} tags={tags} />}
         content={this.renderContent()}
       />
     );

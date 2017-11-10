@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
+import { withRouter } from 'react-router';
 import PropTypes from 'prop-types';
 import moment from 'moment';
+import strip from 'strip';
 import { NameCard, Label } from '../';
 import {
   RowItem,
@@ -14,6 +16,7 @@ import {
 } from './styles';
 
 const propTypes = {
+  history: PropTypes.object.isRequired,
   conversation: PropTypes.object.isRequired,
   channelId: PropTypes.string,
   isRead: PropTypes.bool,
@@ -25,12 +28,19 @@ class Row extends Component {
     super(props);
 
     this.toggleBulk = this.toggleBulk.bind(this);
+    this.onRowClick = this.onRowClick.bind(this);
     this.renderCheckbox = this.renderCheckbox.bind(this);
   }
 
   toggleBulk(e) {
     const { toggleBulk, conversation } = this.props;
     toggleBulk(conversation, e.target.checked);
+  }
+
+  onRowClick() {
+    const { history, conversation } = this.props;
+
+    history.push(`/inbox?_id=${conversation._id}`);
   }
 
   componentWillMount() {
@@ -78,7 +88,7 @@ class Row extends Component {
     const user = conversation.user;
 
     return (
-      <RowItem isRead={isRead}>
+      <RowItem isRead={isRead} onClick={this.onRowClick}>
         <RowContent>
           {this.renderCheckbox()}
           <FlexContent>
@@ -98,7 +108,7 @@ class Row extends Component {
                 </SmallText>
               </FlexContent>
             </MainInfo>
-            <MessageContent>{content}</MessageContent>
+            <MessageContent>{strip(content)}</MessageContent>
             <Label lblStyle="success">deal</Label>
           </FlexContent>
         </RowContent>
@@ -114,4 +124,4 @@ class Row extends Component {
 
 Row.propTypes = propTypes;
 
-export default Row;
+export default withRouter(Row);

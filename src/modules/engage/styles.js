@@ -90,17 +90,6 @@ const ButtonBox = styled.div`
   }
 `;
 
-const FlexContent = styled.div`
-  display: flex;
-  flex: 1;
-  min-height: 100%;
-`;
-
-const FlexItem = styled.div`
-  flex: 1;
-  position: relative;
-`;
-
 const PreviewContent = styled.div`
   padding: 0 ${coreSpace};
   line-height: 22px;
@@ -155,6 +144,9 @@ const WebPreview = styled.div`
   }
 `;
 
+const MessengerPreview = WebPreview.extend`
+  min-height: 500px;
+`;
 const InlineForm = styled.div`
   display: flex;
   flex-direction: row;
@@ -172,10 +164,9 @@ export {
   FormWrapper,
   EditorWrapper,
   FormHeader,
-  FlexContent,
-  FlexItem,
   WebPreview,
   PreviewContent,
   Messenger,
+  MessengerPreview,
   InlineForm
 };

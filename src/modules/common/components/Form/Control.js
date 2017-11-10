@@ -15,7 +15,7 @@ const propTypes = {
   id: PropTypes.string,
   onChange: PropTypes.func,
   onClick: PropTypes.func,
-  defaultValue: PropTypes.string,
+  defaultValue: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
   defaultChecked: PropTypes.bool,
   checked: PropTypes.bool,
   placeholder: PropTypes.string,

@@ -1,7 +1,9 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import { Modal } from 'react-bootstrap';
 import {
   Button,
+  Icon,
   FormGroup,
   ControlLabel,
   FormControl
@@ -63,6 +65,10 @@ class Form extends Component {
   render() {
     const { name, colorCode } = this.state;
 
+    const onClick = () => {
+      this.context.closeModal();
+    };
+
     return (
       <form onSubmit={this.submit}>
         <FormGroup>
@@ -86,9 +92,17 @@ class Form extends Component {
           />
         </FormGroup>
 
-        <Button btnStyle="success" type="submit">
-          Save
-        </Button>
+        <Modal.Footer>
+          <Button btnStyle="simple" onClick={onClick}>
+            <Icon icon="close" />
+            Cancel
+          </Button>
+
+          <Button btnStyle="success" type="submit">
+            <Icon icon="checkmark" />
+            Save
+          </Button>
+        </Modal.Footer>
       </form>
     );
   }

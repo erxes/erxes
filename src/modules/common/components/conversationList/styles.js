@@ -13,6 +13,12 @@ const RowItem = styled.div`
   flex-direction: row;
   background: ${props => props.isRead && colors.bgLight};
   border-bottom: 1px solid ${colors.borderPrimary};
+  transition: all ease 0.3s;
+
+  &:hover {
+    background: ${colors.bgLight};
+    cursor: pointer;
+  }
 `;
 
 const RowContent = styled.div`
