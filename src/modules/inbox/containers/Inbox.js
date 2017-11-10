@@ -7,8 +7,18 @@ import { queries, subscriptions } from '../graphql';
 class Inbox extends Component {
   componentWillMount() {
     const { currentConversationId, conversationDetailQuery } = this.props;
+    this.subscribe(conversationDetailQuery, currentConversationId);
+  }
 
-    // lister for new message insertion
+  componentWillReceiveProps(nextProps) {
+    const { currentConversationId, conversationDetailQuery } = this.props;
+
+    if (nextProps.currentConversationId != currentConversationId) {
+      this.subscribe(conversationDetailQuery, nextProps.currentConversationId);
+    }
+  }
+
+  subscribe(conversationDetailQuery, currentConversationId) {
     conversationDetailQuery.subscribeToMore({
       document: gql(subscriptions.conversationMessageInserted),
       variables: { _id: currentConversationId },
@@ -16,6 +26,13 @@ class Inbox extends Component {
         const message = subscriptionData.data.conversationMessageInserted;
         const conversationDetail = prev.conversationDetail;
         const messages = conversationDetail.messages;
+
+        // check whether or not already inserted
+        const prevEntry = messages.find(m => m._id === message._id);
+
+        if (prevEntry) {
+          return next;
+        }
 
         // add new message to messages list
         const next = Object.assign({}, prev, {
