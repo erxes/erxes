@@ -119,8 +119,6 @@ const RespondBoxStyled = styled.div`
 
   ${RichEditorRoot} {
     background: ${colors.colorWhite};
-    border-top-left-radius: 4px;
-    border-top-right-radius: 4px;
     border-top: 1px solid ${colors.borderPrimary};
   }
 
@@ -183,6 +181,7 @@ const InlineHeader = styled.div`
   flex: 2;
   font-size: 12px;
 `;
+
 const InlineColumn = styled.div`
   display: flex;
   flex: 1;
@@ -193,9 +192,11 @@ const InlineColumn = styled.div`
     margin-right: 5px;
   }
 `;
+
 const InlineHeaderSpan = styled.span`
   margin: 0 8px;
 `;
+
 const PopoverHeader = styled.div`
   background-color: #eee;
   padding: 5px;
@@ -210,12 +211,14 @@ const PopoverHeader = styled.div`
     }
   }
 `;
+
 const PopoverFooter = styled.div`
   padding: 5px 0;
   border-top: 1px solid #eee;
   align-self: flex-end;
   width: 100%;
 `;
+
 const PopoverList = styled.ul`
   max-height: 275px;
   margin: 0;
@@ -254,6 +257,7 @@ const PopoverList = styled.ul`
     }
   }
 `;
+
 const PopoverBody = styled.div`
   flex: 1;
   overflow: auto;
@@ -284,6 +288,7 @@ const PopoverBody = styled.div`
     }
   }
 `;
+
 const TemplateTitle = styled.div`
   font-weight: 500;
   margin-bottom: 2px;
