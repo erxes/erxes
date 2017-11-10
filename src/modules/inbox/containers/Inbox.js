@@ -2,9 +2,43 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { compose, gql, graphql } from 'react-apollo';
 import { Inbox as InboxComponent } from '../components';
-import { queries } from '../graphql';
+import { queries, subscriptions } from '../graphql';
 
 class Inbox extends Component {
+  componentWillMount() {
+    const { currentConversationId, conversationDetailQuery } = this.props;
+
+    // lister for new message insertion
+    conversationDetailQuery.subscribeToMore({
+      document: gql(subscriptions.conversationMessageInserted),
+      variables: { _id: currentConversationId },
+      updateQuery: (prev, { subscriptionData }) => {
+        const message = subscriptionData.data.conversationMessageInserted;
+        const conversationDetail = prev.conversationDetail;
+        const messages = conversationDetail.messages;
+
+        // add new message to messages list
+        const next = Object.assign({}, prev, {
+          conversationDetail: Object.assign({
+            ...conversationDetail,
+            messages: [...messages, message]
+          })
+        });
+
+        return next;
+      }
+    });
+
+    // lister for conversation changes like status, assignee
+    conversationDetailQuery.subscribeToMore({
+      document: gql(subscriptions.conversationChanged),
+      variables: { _id: currentConversationId },
+      updateQuery: () => {
+        this.props.conversationDetailQuery.refetch();
+      }
+    });
+  }
+
   render() {
     const { conversationDetailQuery } = this.props;
 
@@ -22,7 +56,8 @@ class Inbox extends Component {
 }
 
 Inbox.propTypes = {
-  conversationDetailQuery: PropTypes.object
+  conversationDetailQuery: PropTypes.object,
+  currentConversationId: PropTypes.string.isRequired
 };
 
 const ConversationDetail = compose(

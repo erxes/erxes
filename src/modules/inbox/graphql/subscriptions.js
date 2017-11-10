@@ -1,6 +1,6 @@
 import messageFields from './messageFields.js';
 
-export const conversationChanged = `
+const conversationChanged = `
   subscription conversationChanged($_id: String!) {
     conversationChanged(_id: $_id) {
       type
@@ -8,7 +8,7 @@ export const conversationChanged = `
   }
 `;
 
-export const conversationMessageInserted = `
+const conversationMessageInserted = `
   subscription conversationMessageInserted($_id: String!) {
     conversationMessageInserted(_id: $_id) {
       ${messageFields}
@@ -16,8 +16,14 @@ export const conversationMessageInserted = `
   }
 `;
 
-export const conversationsChanged = `
+const conversationsChanged = `
   subscription conversationsChanged {
     conversationsChanged
   }
 `;
+
+export default {
+  conversationChanged,
+  conversationMessageInserted,
+  conversationsChanged
+};
