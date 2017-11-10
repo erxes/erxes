@@ -5,6 +5,7 @@ import { TAG_TYPES } from 'modules/tags/constants';
 import { LeftSidebar as LeftSidebarComponent } from '../components';
 import { Wrapper } from 'modules/layout/components';
 import { Spinner } from 'modules/common/components';
+import { KIND_CHOICES as INTEGRATIONS_TYPES } from 'modules/settings/integrations/constants';
 import { queries } from '../graphql';
 
 const LeftSidebar = props => {
@@ -36,12 +37,18 @@ const LeftSidebar = props => {
   const tags = tagsQuery.tags || [];
   const counts = conversationCountsQuery.conversationCounts || {};
 
+  const integrations = INTEGRATIONS_TYPES.ALL_LIST.map(item => ({
+    _id: item,
+    name: item
+  }));
+
   const updatedProps = {
     ...props,
     conversations,
     channels,
     brands,
     tags,
+    integrations,
     counts
   };
 

@@ -80,7 +80,7 @@ class Inbox extends Component {
 
     const updatedProps = {
       ...this.props,
-      currentConversation: conversationDetailQuery.conversationDetail,
+      currentConversation: conversationDetailQuery.conversationDetail || {},
       changeStatus
     };
 
