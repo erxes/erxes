@@ -1,18 +1,41 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import moment from 'moment';
 import { Wrapper } from 'modules/layout/components';
-import { ConversationList, Icon } from 'modules/common/components';
-import FilterPopover from './FilterPopover';
+import { ConversationList } from 'modules/common/components';
+import { FilterPopover, StatusFilterPopover } from './';
 
 const propTypes = {
   conversations: PropTypes.array.isRequired,
   channels: PropTypes.array.isRequired,
   brands: PropTypes.array.isRequired,
   tags: PropTypes.array.isRequired,
+  integrations: PropTypes.array.isRequired,
+  onChangeConversation: PropTypes.func.isRequired,
   counts: PropTypes.object.isRequired
 };
 
 class Sidebar extends Component {
+  componentWillMount() {
+    moment.updateLocale('en', {
+      relativeTime: {
+        future: 'in %s',
+        past: '%s ',
+        s: 's',
+        m: 'm',
+        mm: '%d m',
+        h: 'h',
+        hh: '%d h',
+        d: 'd',
+        dd: '%d d',
+        M: 'a mth',
+        MM: '%d mths',
+        y: 'y',
+        yy: '%d y'
+      }
+    });
+  }
+
   renderSidebarHeader() {
     const { channels, counts } = this.props;
     return (
@@ -25,15 +48,13 @@ class Sidebar extends Component {
           paramKey="channelId"
         />
 
-        <div>
-          Open <Icon icon="ios-arrow-down" />
-        </div>
+        <StatusFilterPopover counts={counts} />
       </Wrapper.Sidebar.Header>
     );
   }
 
   renderSidebarFooter() {
-    const { brands, tags, counts } = this.props;
+    const { brands, tags, counts, integrations } = this.props;
     return (
       <Wrapper.Sidebar.Footer>
         <FilterPopover
@@ -45,9 +66,14 @@ class Sidebar extends Component {
           paramKey="brandId"
         />
 
-        <div>
-          Integration <Icon icon="ios-arrow-down" />
-        </div>
+        <FilterPopover
+          buttonText="Integration"
+          fields={integrations}
+          counts={counts.byIntegrationTypes}
+          paramKey="integrationType"
+          popoverTitle="Filter by integrations"
+          placement="top"
+        />
 
         <FilterPopover
           buttonText="Tag"
@@ -64,7 +90,7 @@ class Sidebar extends Component {
 
   render() {
     const Sidebar = Wrapper.Sidebar;
-    const { conversations } = this.props;
+    const { conversations, onChangeConversation } = this.props;
 
     // const { conversation } = this.props;
     // const { integration = {} } = conversation;
@@ -77,7 +103,10 @@ class Sidebar extends Component {
         header={this.renderSidebarHeader()}
         footer={this.renderSidebarFooter()}
       >
-        <ConversationList conversations={conversations} />
+        <ConversationList
+          conversations={conversations}
+          onRowClick={onChangeConversation}
+        />
       </Sidebar>
     );
   }

@@ -8,20 +8,49 @@ import {
   arrayMove
 } from 'react-sortable-hoc';
 import PropTypes from 'prop-types';
-import { Wrapper } from 'modules/layout/components';
 import { Button, Icon } from 'modules/common/components';
+import styled from 'styled-components';
 
-const DragHandle = SortableHandle(() => (
-  <span className="drag-handler">::::</span>
-));
+const DragHandle = SortableHandle(() => <Icon icon="grid" />);
+
+const SortItem = styled.li`
+  background-color: #eee8f3;
+  border-radius: 5px;
+  width: 100%;
+  padding: 10px 20px;
+  margin-bottom: 10px;
+  cursor: pointer;
+  z-index: 2000;
+  list-style: none;
+
+  > i,
+  > input {
+    margin-right: 10px !important;
+  }
+`;
+
+const SortableWrapper = styled.ul`
+  padding: 0px;
+  margin: 0;
+  list-style-type: none;
+`;
+
+const Footer = styled.div`
+  text-align: right;
+  margin-top: 20px;
+`;
 
 const SortableItem = SortableElement(({ field, isChecked }) => (
-  <li>
+  <SortItem>
     <DragHandle />
     <input type="checkbox" id={field._id} defaultChecked={isChecked} />
     <span>{field.label}</span>
-  </li>
+  </SortItem>
 ));
+
+const contextTypes = {
+  closeModal: PropTypes.func.isRequired
+};
 
 const SortableList = SortableContainer(({ fields, config }) => {
   const configMap = {};
@@ -31,7 +60,7 @@ const SortableList = SortableContainer(({ fields, config }) => {
   });
 
   return (
-    <ul style={{ listStyleType: 'none' }}>
+    <SortableWrapper>
       {fields.map((field, index) => (
         <SortableItem
           key={index}
@@ -40,7 +69,7 @@ const SortableList = SortableContainer(({ fields, config }) => {
           isChecked={configMap[field.name]}
         />
       ))}
-    </ul>
+    </SortableWrapper>
   );
 });
 
@@ -87,28 +116,29 @@ class ManageColumns extends Component {
   render() {
     const { config } = this.props;
 
-    const content = (
-      <form onSubmit={this.onSubmit} className="manage-columns">
-        <Button type="submit" btnStyle="success">
-          <Icon icon="checkmark" /> Save changes
-        </Button>
+    const closeModal = () => {
+      this.context.closeModal();
+    };
 
+    return (
+      <form onSubmit={this.onSubmit}>
         <SortableList
           fields={this.state.fields}
           config={config}
           onSortEnd={this.onSortEnd}
           useDragHandle
         />
+
+        <Footer>
+          <Button type="button" btnStyle="simple" onClick={closeModal}>
+            <Icon icon="close" /> Cancel
+          </Button>
+
+          <Button type="submit" onClick={closeModal} btnStyle="success">
+            <Icon icon="checkmark" /> Submit
+          </Button>
+        </Footer>
       </form>
-    );
-
-    const breadcrumb = [{ title: 'Manage columns' }];
-
-    return (
-      <Wrapper
-        header={<Wrapper.Header breadcrumb={breadcrumb} />}
-        content={content}
-      />
     );
   }
 }
@@ -118,5 +148,7 @@ ManageColumns.propTypes = {
   config: PropTypes.array,
   save: PropTypes.func.isRequired
 };
+
+ManageColumns.contextTypes = contextTypes;
 
 export default ManageColumns;

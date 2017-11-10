@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import { withRouter } from 'react-router';
 import PropTypes from 'prop-types';
 import moment from 'moment';
 import strip from 'strip';
@@ -16,10 +15,10 @@ import {
 } from './styles';
 
 const propTypes = {
-  history: PropTypes.object.isRequired,
   conversation: PropTypes.object.isRequired,
   channelId: PropTypes.string,
   isRead: PropTypes.bool,
+  onClick: PropTypes.func,
   toggleBulk: PropTypes.func
 };
 
@@ -28,7 +27,7 @@ class Row extends Component {
     super(props);
 
     this.toggleBulk = this.toggleBulk.bind(this);
-    this.onRowClick = this.onRowClick.bind(this);
+    this.onClick = this.onClick.bind(this);
     this.renderCheckbox = this.renderCheckbox.bind(this);
   }
 
@@ -37,30 +36,12 @@ class Row extends Component {
     toggleBulk(conversation, e.target.checked);
   }
 
-  onRowClick() {
-    const { history, conversation } = this.props;
+  onClick(e) {
+    e.preventDefault();
 
-    history.push(`/inbox?_id=${conversation._id}`);
-  }
+    const { onClick, conversation } = this.props;
 
-  componentWillMount() {
-    moment.updateLocale('en', {
-      relativeTime: {
-        future: 'in %s',
-        past: '%s ',
-        s: 's',
-        m: 'm',
-        mm: '%d m',
-        h: 'h',
-        hh: '%d h',
-        d: 'd',
-        dd: '%d d',
-        M: 'a mth',
-        MM: '%d mths',
-        y: 'y',
-        yy: '%d y'
-      }
-    });
+    onClick(conversation);
   }
 
   renderCheckbox() {
@@ -82,13 +63,12 @@ class Row extends Component {
     const integration = conversation.integration || {};
     const brand = integration.brand || {};
     const brandName = brand.name;
+    const tags = conversation.tags || [];
     const isExistingCustomer = customer && customer._id;
-
-    // for testing purpose
     const user = conversation.user;
 
     return (
-      <RowItem isRead={isRead} onClick={this.onRowClick}>
+      <RowItem onClick={this.onClick}>
         <RowContent>
           {this.renderCheckbox()}
           <FlexContent>
@@ -108,8 +88,12 @@ class Row extends Component {
                 </SmallText>
               </FlexContent>
             </MainInfo>
-            <MessageContent>{strip(content)}</MessageContent>
-            <Label lblStyle="success">deal</Label>
+            <MessageContent isRead={isRead}>{strip(content)}</MessageContent>
+            {tags.map(t => (
+              <Label key={t._id} style={{ background: t.colorCode }}>
+                {t.name}
+              </Label>
+            ))}
           </FlexContent>
         </RowContent>
         <SmallText>
@@ -124,4 +108,4 @@ class Row extends Component {
 
 Row.propTypes = propTypes;
 
-export default withRouter(Row);
+export default Row;

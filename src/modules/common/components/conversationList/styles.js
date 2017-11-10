@@ -11,7 +11,6 @@ const RowItem = styled.div`
   padding: ${dimensions.coreSpacing}px;
   display: flex;
   flex-direction: row;
-  background: ${props => props.isRead && colors.bgLight};
   border-bottom: 1px solid ${colors.borderPrimary};
   transition: all ease 0.3s;
 
@@ -29,6 +28,14 @@ const RowContent = styled.div`
 
 const FlexContent = styled.div`
   flex: 1;
+
+  span {
+    margin-top: ${dimensions.unitSpacing}px;
+  }
+
+  > span + span {
+    margin-left: 5px;
+  }
 `;
 
 const CheckBox = styled.div`
@@ -55,7 +62,8 @@ const SmallText = styled.div`
 `;
 
 const MessageContent = styled.div`
-  margin: ${dimensions.unitSpacing}px 0;
+  margin-top: ${dimensions.unitSpacing}px;
+  font-weight: ${props => !props.isRead && '400'};
   word-break: break-word;
   overflow: hidden;
   word-wrap: break-word;

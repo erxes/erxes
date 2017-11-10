@@ -25,11 +25,17 @@ export default `
   customer {
     _id
     name
-    twitterData
-    getMessengerCustomData
-    isUser
     email
     phone
+    isUser
+    integrationId
+    createdAt
+
+    getMessengerCustomData
+    customFieldsData
+    messengerData
+    twitterData
+    facebookData
   }
   messageCount
   participatorCount

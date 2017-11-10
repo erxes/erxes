@@ -1,50 +1,75 @@
-import React from 'react';
+import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { compose, gql, graphql } from 'react-apollo';
 import { TAG_TYPES } from 'modules/tags/constants';
 import { LeftSidebar as LeftSidebarComponent } from '../components';
 import { Wrapper } from 'modules/layout/components';
 import { Spinner } from 'modules/common/components';
-import { queries } from '../graphql';
+import { queries, subscriptions } from '../graphql';
+import { KIND_CHOICES as INTEGRATIONS_TYPES } from 'modules/settings/integrations/constants';
 
-const LeftSidebar = props => {
-  const {
-    channelsQuery,
-    brandsQuery,
-    tagsQuery,
-    conversationCountsQuery
-  } = props;
+class LeftSidebar extends Component {
+  componentWillMount() {
+    this.props.conversationsQuery.subscribeToMore({
+      // listen for all conversation changes
+      document: gql(subscriptions.conversationsChanged),
 
-  if (
-    channelsQuery.loading ||
-    brandsQuery.loading ||
-    tagsQuery.loading ||
-    conversationCountsQuery.loading
-  ) {
-    return (
-      <Wrapper.Sidebar wide full>
-        <Spinner />
-      </Wrapper.Sidebar>
-    );
+      updateQuery: () => {
+        this.props.conversationsQuery.refetch();
+      }
+    });
   }
 
-  const channels = channelsQuery.channels || [];
-  const brands = brandsQuery.brands || [];
-  const tags = tagsQuery.tags || [];
-  const counts = conversationCountsQuery.conversationCounts || {};
+  render() {
+    const {
+      conversationsQuery,
+      channelsQuery,
+      brandsQuery,
+      tagsQuery,
+      conversationCountsQuery
+    } = this.props;
 
-  const updatedProps = {
-    ...props,
-    channels,
-    brands,
-    tags,
-    counts
-  };
+    if (
+      conversationsQuery.loading ||
+      channelsQuery.loading ||
+      brandsQuery.loading ||
+      tagsQuery.loading ||
+      conversationCountsQuery.loading
+    ) {
+      return (
+        <Wrapper.Sidebar wide full>
+          <Spinner />
+        </Wrapper.Sidebar>
+      );
+    }
 
-  return <LeftSidebarComponent {...updatedProps} />;
-};
+    const integrations = INTEGRATIONS_TYPES.ALL_LIST.map(item => ({
+      _id: item,
+      name: item
+    }));
+
+    const conversations = conversationsQuery.conversations;
+    const channels = channelsQuery.channels || [];
+    const brands = brandsQuery.brands || [];
+    const tags = tagsQuery.tags || [];
+    const counts = conversationCountsQuery.conversationCounts || {};
+
+    const updatedProps = {
+      ...this.props,
+      conversations,
+      channels,
+      integrations,
+      brands,
+      tags,
+      counts
+    };
+
+    return <LeftSidebarComponent {...updatedProps} />;
+  }
+}
 
 LeftSidebar.propTypes = {
+  conversationsQuery: PropTypes.object,
   channelsQuery: PropTypes.object,
   brandsQuery: PropTypes.object,
   tagsQuery: PropTypes.object,
@@ -52,6 +77,17 @@ LeftSidebar.propTypes = {
 };
 
 export default compose(
+  graphql(gql(queries.conversationList), {
+    name: 'conversationsQuery',
+    options: ({ queryParams }) => {
+      const params = { ...queryParams };
+      delete params._id;
+
+      return {
+        variables: { params }
+      };
+    }
+  }),
   graphql(gql(queries.channelList), {
     name: 'channelsQuery',
     options: ({ queryParams }) => {

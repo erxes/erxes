@@ -58,20 +58,6 @@ const StyledTable = styled.table`
       text-align: right;
     }
 
-    td.table-field-name .button-icon {
-      margin-left: 12px;
-      opacity: 0;
-      transition: all 0.3s ease;
-
-      i {
-        margin: 0px;
-      }
-    }
-
-    td.table-field-name:hover .button-icon {
-      opacity: 1;
-    }
-
     @media (min-width: 1170px) {
       th,
       td {

@@ -38,7 +38,16 @@ const saveResponseTemplate = `
   }
 `;
 
+const conversationsChangeStatus = `
+  mutation conversationsChangeStatus($_ids: [String]!, $status: String!) {
+    conversationsChangeStatus(_ids: $_ids, status: $status) {
+      _id
+    }
+  }
+`;
+
 export default {
   conversationMessageAdd,
+  conversationsChangeStatus,
   saveResponseTemplate
 };

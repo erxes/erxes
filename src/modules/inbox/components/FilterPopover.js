@@ -10,7 +10,7 @@ const propTypes = {
   fields: PropTypes.array.isRequired,
   popoverTitle: PropTypes.string.isRequired,
   buttonText: PropTypes.string.isRequired,
-  counts: PropTypes.object.isRequired,
+  counts: PropTypes.object,
   history: PropTypes.object.isRequired,
   paramKey: PropTypes.string.isRequired,
   placement: PropTypes.string,

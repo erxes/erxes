@@ -1,9 +1,20 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Button, Checkbox, ControlLabel } from 'react-bootstrap';
+import { Checkbox, ControlLabel } from 'react-bootstrap';
+import { Button, Icon } from 'modules/common/components';
 import { Alert, uploadHandler } from 'modules/common/utils';
 import { ResponseTemplate } from '../containers';
 import Editor from './Editor';
+import {
+  RespondBoxStyled,
+  ReplyFormFooter,
+  Attachment,
+  AttachmentPreview,
+  AttachmentIndicator,
+  PreviewImg,
+  FileName,
+  FileSize
+} from '../styles';
 
 const propTypes = {
   conversation: PropTypes.object.isRequired,
@@ -139,13 +150,18 @@ class RespondBox extends Component {
     const integration = this.props.conversation.integration || {};
 
     const Buttons = (
-      <div>
-        <Button type="submit" bsStyle="link">
-          <i className="ion-reply" /> Send
+      <ReplyFormFooter>
+        <Button
+          className="replyBtn"
+          type="submit"
+          btnStyle="success"
+          size="small"
+        >
+          <Icon icon="android-send" /> Send
         </Button>
 
-        <ControlLabel className="btn btn-link btn-attach">
-          <i className="ion-android-attach" /> Attach
+        <ControlLabel className="replyBtn btnLink">
+          <Icon icon="android-attach" size={17} />
           <input type="file" onChange={this.handleFileInput} />
         </ControlLabel>
 
@@ -155,7 +171,7 @@ class RespondBox extends Component {
           content={this.state.content}
           onSelect={this.onSelectTemplate}
         />
-      </div>
+      </ReplyFormFooter>
     );
 
     // after file upload show indicator
@@ -166,22 +182,19 @@ class RespondBox extends Component {
 
     if (attachmentsCount > 0) {
       attachmentsIndicator = (
-        <div className="attachment-indicator">
+        <AttachmentIndicator>
           {attachments.map(attachment => (
-            <div className="attachment" key={attachment.name}>
-              <div className="preview">
-                <div
-                  className="preview-img"
+            <Attachment key={attachment.name}>
+              <AttachmentPreview>
+                <PreviewImg
                   style={{ backgroundImage: `url('${attachment.url}')` }}
                 />
-              </div>
-              <div className="file-name">{attachment.name}</div>
-              <div className="file-size">
-                ({Math.round(attachment.size / 1000)}kB)
-              </div>
-            </div>
+              </AttachmentPreview>
+              <FileName>{attachment.name}</FileName>
+              <FileSize>({Math.round(attachment.size / 1000)}kB)</FileSize>
+            </Attachment>
           ))}
-        </div>
+        </AttachmentIndicator>
       );
     }
 
@@ -194,7 +207,9 @@ class RespondBox extends Component {
     }
 
     return (
-      <div className="respond-box">
+      <RespondBoxStyled>
+        <Checkbox onChange={this.toggleForm}>Internal note</Checkbox>
+
         <form id={formId} onSubmit={this.onSubmit}>
           <Editor
             key={this.state.editorKey}
@@ -210,9 +225,7 @@ class RespondBox extends Component {
           {attachmentsIndicator}
           {Buttons}
         </form>
-
-        <Checkbox onChange={this.toggleForm}>Internal note</Checkbox>
-      </div>
+      </RespondBoxStyled>
     );
   }
 }

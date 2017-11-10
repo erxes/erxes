@@ -17,6 +17,7 @@ import { Widget } from 'modules/engage/containers';
 import Sidebar from './Sidebar';
 import CustomerRow from './CustomerRow';
 import CustomerForm from './CustomerForm';
+import { ManageColumns } from 'modules/fields/containers';
 
 const propTypes = {
   customers: PropTypes.array.isRequired,
@@ -67,7 +68,7 @@ class CustomersList extends React.Component {
         <Icon icon="plus" /> Add customer
       </Button>
     );
-
+    const editColumns = <a>Edit columns</a>;
     const actionBarRight = (
       <BarItems>
         <Dropdown id="dropdown-engage" pullRight>
@@ -78,7 +79,9 @@ class CustomersList extends React.Component {
           </DropdownToggle>
           <Dropdown.Menu>
             <li>
-              <Link to="/customers/manage-columns">Edit columns</Link>
+              <ModalTrigger title="Manage Columns" trigger={editColumns}>
+                <ManageColumns contentType="customer" />
+              </ModalTrigger>
             </li>
             <li>
               <Link to="/fields/manage/customer">Properties</Link>

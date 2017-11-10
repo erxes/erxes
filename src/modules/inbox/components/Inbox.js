@@ -6,9 +6,15 @@ import { Button, Label, Icon, TaggerPopover } from 'modules/common/components';
 import { BarItems } from 'modules/layout/styles';
 import Conversation from './conversation/Conversation';
 import { LeftSidebar, RespondBox } from '../containers';
-import { PopoverButton } from '../styles';
+import { PopoverButton, ConversationWrapper } from '../styles';
 
 class Inbox extends Component {
+  constructor(props) {
+    super(props);
+
+    this.changeStatus = this.changeStatus.bind(this);
+  }
+
   componentDidMount() {
     this.node.scrollTop = this.node.scrollHeight;
   }
@@ -17,13 +23,59 @@ class Inbox extends Component {
     this.node.scrollTop = this.node.scrollHeight;
   }
 
+  // change resolved status
+  changeStatus() {
+    const { currentConversation, changeStatus } = this.props;
+
+    let status = currentConversation.status;
+
+    if (status === 'closed') {
+      status = 'open';
+    } else {
+      status = 'closed';
+    }
+
+    // call change status method
+    changeStatus(currentConversation._id, status);
+  }
+
+  renderStatusButton(status) {
+    let btnStyle = 'success';
+    let text = 'Resolve';
+    let icon = <i className="ion-checkmark" />;
+
+    if (status === 'closed') {
+      text = 'Open';
+      btnStyle = 'warning';
+      icon = <i className="ion-refresh" />;
+    }
+
+    return (
+      <Button btnStyle={btnStyle} onClick={this.changeStatus} size="small">
+        {icon} {text}
+      </Button>
+    );
+  }
+
   render() {
-    const { conversations, currentConversation } = this.props;
-    const actionBarLeft = <BarItems>Alice Caldwell</BarItems>;
+    const {
+      queryParams,
+      currentConversation,
+      onChangeConversation
+    } = this.props;
+    const tags = currentConversation.tags || [];
 
     const tagTrigger = (
       <PopoverButton>
-        <Label lblStyle="danger">urgent</Label>
+        {tags.length ? (
+          tags.slice(0, 1).map(t => (
+            <Label key={t._id} style={{ background: t.colorCode }}>
+              {t.name}
+            </Label>
+          ))
+        ) : (
+          <Label lblStyle="default">tags</Label>
+        )}
         <Icon icon="ios-arrow-down" />
       </PopoverButton>
     );
@@ -35,25 +87,23 @@ class Inbox extends Component {
           type="conversation"
           trigger={tagTrigger}
         />
-        <Button btnStyle="success" size="small">
-          <Icon icon="checkmark" /> Resolve
-        </Button>
+
+        {this.renderStatusButton(
+          currentConversation && currentConversation.status
+        )}
       </BarItems>
     );
 
-    const actionBar = (
-      <Wrapper.ActionBar left={actionBarLeft} right={actionBarRight} invert />
-    );
+    const actionBar = <Wrapper.ActionBar right={actionBarRight} invert />;
 
     const content = (
-      <div
-        style={{ height: '100%', overflow: 'auto', background: '#fafafa' }}
+      <ConversationWrapper
         ref={node => {
           this.node = node;
         }}
       >
         <Conversation conversation={currentConversation} />
-      </div>
+      </ConversationWrapper>
     );
 
     const breadcrumb = [
@@ -67,21 +117,30 @@ class Inbox extends Component {
         actionBar={actionBar}
         content={content}
         footer={
-          <RespondBox
-            conversation={currentConversation}
-            setAttachmentPreview={() => {}}
+          currentConversation._id ? (
+            <RespondBox
+              conversation={currentConversation}
+              setAttachmentPreview={() => {}}
+            />
+          ) : null
+        }
+        leftSidebar={
+          <LeftSidebar
+            queryParams={queryParams}
+            onChangeConversation={onChangeConversation}
           />
         }
-        leftSidebar={<LeftSidebar conversations={conversations} />}
-        rightSidebar={<RightSidebar />}
+        rightSidebar={<RightSidebar conversation={currentConversation} />}
       />
     );
   }
 }
 
 Inbox.propTypes = {
+  queryParams: PropTypes.object,
   title: PropTypes.string,
-  conversations: PropTypes.array,
+  onChangeConversation: PropTypes.func,
+  changeStatus: PropTypes.func,
   currentConversation: PropTypes.object
 };
 

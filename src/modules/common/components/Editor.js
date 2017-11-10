@@ -7,6 +7,11 @@ import PropTypes from 'prop-types';
 import Draft, { EditorState, ContentState, RichUtils } from 'draft-js';
 import Editor from 'draft-js-plugins-editor';
 import { stateToHTML } from 'draft-js-export-html';
+import {
+  RichEditorRoot,
+  RichEditorControlsRoot,
+  RichEditorControls
+} from 'modules/inbox/styles';
 
 function getBlockStyle(block) {
   switch (block.getType()) {
@@ -98,7 +103,7 @@ const BlockStyleControls = props => {
     .getType();
 
   return (
-    <div className="RichEditor-controls">
+    <RichEditorControls>
       {BLOCK_TYPES.map(type => (
         <StyleButton
           key={type.title}
@@ -109,7 +114,7 @@ const BlockStyleControls = props => {
           title={type.title}
         />
       ))}
-    </div>
+    </RichEditorControls>
   );
 };
 
@@ -128,7 +133,7 @@ const InlineStyleControls = ({ onToggle, editorState }) => {
   const currentStyle = editorState.getCurrentInlineStyle();
 
   return (
-    <div className="RichEditor-controls">
+    <RichEditorControls>
       {INLINE_STYLES.map(type => (
         <StyleButton
           key={type.title}
@@ -139,7 +144,7 @@ const InlineStyleControls = ({ onToggle, editorState }) => {
           title={type.title}
         />
       ))}
-    </div>
+    </RichEditorControls>
   );
 };
 
@@ -212,8 +217,8 @@ export class ErxesEditor extends Component {
     }
 
     return (
-      <div className="RichEditor-root">
-        <div className="RichEditor-controls-root">
+      <RichEditorRoot>
+        <RichEditorControlsRoot>
           <BlockStyleControls
             editorState={editorState}
             onToggle={this.toggleBlockType}
@@ -225,7 +230,7 @@ export class ErxesEditor extends Component {
           />
 
           {controls ? controls : null}
-        </div>
+        </RichEditorControlsRoot>
 
         <div className={className} onClick={this.focus}>
           <Editor
@@ -243,7 +248,7 @@ export class ErxesEditor extends Component {
           />
         </div>
         {this.props.pluginContent}
-      </div>
+      </RichEditorRoot>
     );
   }
 }

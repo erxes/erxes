@@ -1,13 +1,12 @@
 import React from 'react';
-import { Link, withRouter } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 import moment from 'moment';
-import { Button, Icon, FormControl } from 'modules/common/components';
+import { FormControl } from 'modules/common/components';
 import { TagItem } from 'modules/layout/styles';
 
 const propTypes = {
-  history: PropTypes.object.isRequired,
   customer: PropTypes.object.isRequired,
   columnsConfig: PropTypes.array.isRequired,
   toggleBulk: PropTypes.func
@@ -50,7 +49,7 @@ function renderTags(tags) {
   ));
 }
 
-function CustomerRow({ history, customer, columnsConfig, toggleBulk }) {
+function CustomerRow({ customer, columnsConfig, toggleBulk }) {
   const tags = customer.getTags;
   const onChange = e => {
     if (toggleBulk) {
@@ -64,21 +63,11 @@ function CustomerRow({ history, customer, columnsConfig, toggleBulk }) {
         <FormControl componentClass="checkbox" onChange={onChange} />
       </td>
       {columnsConfig.map(({ name }) => (
-        <td key={name} className={`table-field-${name}`}>
+        <td key={name}>
           {name === 'name' ? (
-            <div>
-              <Link to={`customers/details/${customer._id}`}>
-                {formatValue(_.get(customer, name))}
-              </Link>
-              <Button
-                onClick={() => {
-                  history.push(`customers/details/${customer._id}`);
-                }}
-                iconKey
-              >
-                <Icon icon="eye" />
-              </Button>
-            </div>
+            <Link to={`customers/details/${customer._id}`}>
+              {formatValue(_.get(customer, name))}
+            </Link>
           ) : (
             formatValue(_.get(customer, name))
           )}
@@ -91,4 +80,4 @@ function CustomerRow({ history, customer, columnsConfig, toggleBulk }) {
 
 CustomerRow.propTypes = propTypes;
 
-export default withRouter(CustomerRow);
+export default CustomerRow;

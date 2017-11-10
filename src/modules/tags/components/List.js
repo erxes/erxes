@@ -77,9 +77,14 @@ function List({ tags, type, remove, save }) {
     </Table>
   );
 
+  const breadcrumb = [
+    { title: 'Tags', link: '/tags' },
+    { title: 'conversation' }
+  ];
+
   return (
     <Wrapper
-      header={<Wrapper.Header breadcrumb={[{ title: 'Tags' }]} />}
+      header={<Wrapper.Header breadcrumb={breadcrumb} />}
       actionBar={actionBar}
       content={content}
     />
