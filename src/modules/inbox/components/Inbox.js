@@ -58,7 +58,11 @@ class Inbox extends Component {
   }
 
   render() {
-    const { currentConversation, onChangeConversation } = this.props;
+    const {
+      queryParams,
+      currentConversation,
+      onChangeConversation
+    } = this.props;
     const tags = currentConversation.tags || [];
 
     const tagTrigger = (
@@ -121,7 +125,10 @@ class Inbox extends Component {
           ) : null
         }
         leftSidebar={
-          <LeftSidebar onChangeConversation={onChangeConversation} />
+          <LeftSidebar
+            queryParams={queryParams}
+            onChangeConversation={onChangeConversation}
+          />
         }
         rightSidebar={<RightSidebar />}
       />
@@ -130,6 +137,7 @@ class Inbox extends Component {
 }
 
 Inbox.propTypes = {
+  queryParams: PropTypes.object,
   title: PropTypes.string,
   onChangeConversation: PropTypes.func,
   changeStatus: PropTypes.func,

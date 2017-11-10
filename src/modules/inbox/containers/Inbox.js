@@ -160,7 +160,7 @@ const LastConversation = props => {
     : lastConversation._id;
 
   const updatedProps = {
-    ...this.props,
+    ...props,
     currentConversationId
   };
 
