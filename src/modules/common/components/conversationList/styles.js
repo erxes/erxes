@@ -29,6 +29,10 @@ const RowContent = styled.div`
 
 const FlexContent = styled.div`
   flex: 1;
+
+  > span + span {
+    margin-left: 5px;
+  }
 `;
 
 const CheckBox = styled.div`

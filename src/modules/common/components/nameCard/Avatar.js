@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
+import { colors } from 'modules/common/styles';
 
 const AvatarStyled = styled.a`
   display: block;
@@ -8,6 +9,9 @@ const AvatarStyled = styled.a`
   border-radius: 40px;
   float: left;
   padding: 0;
+  text-align: center;
+  background: ${colors.colorCoreYellow};
+  color: ${colors.colorWhite};
 `;
 
 const DefaultAvatar = styled.div`
