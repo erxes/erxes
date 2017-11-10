@@ -25,6 +25,7 @@ import ConversationList from './conversationList/ConversationList';
 import { FormControl, ControlLabel, FormGroup } from './Form';
 import TextDivider from './TextDivider';
 import CountsByTag from './CountsByTag';
+import FilterByParams from './FilterByParams';
 import Table from './Table';
 import Editor from './Editor';
 import { Tabs, TabList, TabTitle } from './Tabs';
@@ -55,6 +56,7 @@ export {
   Bulk,
   ConversationList,
   CountsByTag,
+  FilterByParams,
   Tagger,
   TaggerPopover,
   Tags,

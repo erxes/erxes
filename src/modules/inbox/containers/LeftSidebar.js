@@ -3,45 +3,42 @@ import PropTypes from 'prop-types';
 import { compose, gql, graphql } from 'react-apollo';
 import { TAG_TYPES } from 'modules/tags/constants';
 import { LeftSidebar as LeftSidebarComponent } from '../components';
+import { Wrapper } from 'modules/layout/components';
+import { Spinner } from 'modules/common/components';
 import { queries } from '../graphql';
 
 const LeftSidebar = props => {
-  const { channelsQuery, brandsQuery, tagsQuery } = props;
+  const {
+    channelsQuery,
+    brandsQuery,
+    tagsQuery,
+    conversationCountsQuery
+  } = props;
 
-  if (channelsQuery.loading) {
-    return false;
+  if (
+    channelsQuery.loading ||
+    brandsQuery.loading ||
+    tagsQuery.loading ||
+    conversationCountsQuery.loading
+  ) {
+    return (
+      <Wrapper.Sidebar wide full>
+        <Spinner />
+      </Wrapper.Sidebar>
+    );
   }
-
-  // =============== actions
-  const filter = () => {};
 
   const channels = channelsQuery.channels || [];
   const brands = brandsQuery.brands || [];
   const tags = tagsQuery.tags || [];
-
-  const generatedChannels = channels.map(({ name, _id }) => ({
-    _id: _id,
-    title: name
-  }));
-
-  const generatedBrands = brands.map(({ name, _id }) => ({
-    _id: _id,
-    title: name
-  }));
-
-  const generatedTags = tags.map(({ name, _id, colorCode }) => ({
-    _id: _id,
-    title: name,
-    iconColor: colorCode,
-    iconClass: 'ion-pricetag'
-  }));
+  const counts = conversationCountsQuery.conversationCounts || {};
 
   const updatedProps = {
     ...props,
-    generatedChannels,
-    generatedBrands,
-    generatedTags,
-    filter
+    channels,
+    brands,
+    tags,
+    counts
   };
 
   return <LeftSidebarComponent {...updatedProps} />;
@@ -50,7 +47,8 @@ const LeftSidebar = props => {
 LeftSidebar.propTypes = {
   channelsQuery: PropTypes.object,
   brandsQuery: PropTypes.object,
-  tagsQuery: PropTypes.object
+  tagsQuery: PropTypes.object,
+  conversationCountsQuery: PropTypes.object
 };
 
 export default compose(
@@ -78,5 +76,15 @@ export default compose(
         fetchPolicy: 'network-only'
       };
     }
+  }),
+  graphql(gql(queries.conversationCounts), {
+    name: 'conversationCountsQuery',
+    options: ({ queryParams }) => ({
+      variables: {
+        params: {
+          ...queryParams
+        }
+      }
+    })
   })
 )(LeftSidebar);

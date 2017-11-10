@@ -211,6 +211,16 @@ injectGlobal`
     padding: 0;
   }
 
+  .popover-content ul {
+    max-height: 280px;
+    overflow: auto;
+    min-width: 260px;
+  }
+
+  .popover-content li a i {
+    margin-left: 0;
+  }
+
   ::-webkit-scrollbar {
     width: 5px;
     height: 7px;
@@ -222,6 +232,6 @@ injectGlobal`
   }
 
   ::-webkit-scrollbar-track {
-    background: rgba(255, 255, 255, .3);
+    background: rgba(215, 215, 215, .25);
   }
 `;

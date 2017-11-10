@@ -9,6 +9,10 @@ const PopoverButton = styled.div`
     display: inline-block;
   }
 
+  button {
+    padding: 8px 0;
+  }
+
   i {
     margin-left: 5px;
     margin-right: 0;

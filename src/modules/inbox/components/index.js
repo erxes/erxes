@@ -1,7 +1,7 @@
 import Inbox from './Inbox';
-import FilterButton from './FilterButton';
+import FilterPopover from './FilterPopover';
 import LeftSidebar from './LeftSidebar';
 import RespondBox from './RespondBox';
 import ResponseTemplate from './ResponseTemplate';
 
-export { Inbox, FilterButton, LeftSidebar, RespondBox, ResponseTemplate };
+export { Inbox, FilterPopover, LeftSidebar, RespondBox, ResponseTemplate };

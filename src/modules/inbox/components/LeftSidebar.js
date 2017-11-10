@@ -1,61 +1,62 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Wrapper } from 'modules/layout/components';
-import { ConversationList } from 'modules/common/components';
-import FilterButton from './FilterButton';
+import { ConversationList, Icon } from 'modules/common/components';
+import FilterPopover from './FilterPopover';
 
 const propTypes = {
   conversations: PropTypes.array.isRequired,
-  generatedChannels: PropTypes.array.isRequired,
-  generatedBrands: PropTypes.array.isRequired,
-  generatedTags: PropTypes.array.isRequired
+  channels: PropTypes.array.isRequired,
+  brands: PropTypes.array.isRequired,
+  tags: PropTypes.array.isRequired,
+  counts: PropTypes.object.isRequired
 };
 
 class Sidebar extends Component {
   renderSidebarHeader() {
-    const { generatedChannels } = this.props;
+    const { channels, counts } = this.props;
     return (
       <Wrapper.Sidebar.Header>
-        <FilterButton
-          buttonText="# Sales (13)"
-          fields={generatedChannels}
-          filter={() => {}}
+        <FilterPopover
+          buttonText="# Channel"
           popoverTitle="Filter by channel"
+          fields={channels}
+          counts={counts.byChannels}
+          paramKey="channelId"
         />
-        <FilterButton
-          buttonText="Open"
-          fields={[]}
-          filter={() => {}}
-          popoverTitle="Filter by status"
-        />
+
+        <div>
+          Open <Icon icon="ios-arrow-down" />
+        </div>
       </Wrapper.Sidebar.Header>
     );
   }
 
   renderSidebarFooter() {
-    const { generatedBrands, generatedTags } = this.props;
+    const { brands, tags, counts } = this.props;
     return (
       <Wrapper.Sidebar.Footer>
-        <FilterButton
+        <FilterPopover
           buttonText="Brand"
-          fields={generatedBrands}
-          filter={() => {}}
+          fields={brands}
+          counts={counts.byBrands}
           popoverTitle="Filter by brand"
           placement="top"
+          paramKey="brandId"
         />
-        <FilterButton
-          buttonText="Integration"
-          fields={[]}
-          filter={() => {}}
-          popoverTitle="Filter by integration"
-          placement="top"
-        />
-        <FilterButton
+
+        <div>
+          Integration <Icon icon="ios-arrow-down" />
+        </div>
+
+        <FilterPopover
           buttonText="Tag"
-          fields={generatedTags}
-          filter={() => {}}
+          fields={tags}
+          counts={counts.byTags}
+          paramKey="tag"
           popoverTitle="Filter by tag"
           placement="top"
+          icon="pricetag"
         />
       </Wrapper.Sidebar.Footer>
     );

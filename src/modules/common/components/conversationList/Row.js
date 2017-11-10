@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { withRouter } from 'react-router';
 import PropTypes from 'prop-types';
 import moment from 'moment';
+import strip from 'strip';
 import { NameCard, Label } from '../';
 import {
   RowItem,
@@ -107,7 +108,7 @@ class Row extends Component {
                 </SmallText>
               </FlexContent>
             </MainInfo>
-            <MessageContent>{content}</MessageContent>
+            <MessageContent>{strip(content)}</MessageContent>
             <Label lblStyle="success">deal</Label>
           </FlexContent>
         </RowContent>

@@ -282,6 +282,7 @@ const SidebarList = styled.ul`
     text-overflow: ellipsis;
     text-decoration: none;
     outline: 0;
+    position: relative;
 
     > span {
       font-size: 12px;
@@ -291,13 +292,14 @@ const SidebarList = styled.ul`
       position: absolute;
       right: 20px;
     }
-  }
 
-  a:hover {
-    cursor: pointer;
-    background: ${colors.borderPrimary};
-    text-decoration: none;
-    color: ${colors.colorCoreBlack};
+    &:hover,
+    &.active {
+      cursor: pointer;
+      background: ${colors.borderPrimary};
+      text-decoration: none;
+      color: ${colors.colorCoreBlack};
+    }
   }
 
   .icon {
