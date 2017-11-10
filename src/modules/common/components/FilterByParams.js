@@ -1,7 +1,7 @@
 import React from 'react';
 import { withRouter } from 'react-router';
 import PropTypes from 'prop-types';
-import { SidebarList, SidebarCounter } from '../../layout/styles';
+import { SidebarList, SidebarCounter } from 'modules/layout/styles';
 import { EmptyState, Icon } from 'modules/common/components';
 import { router } from 'modules/common/utils';
 

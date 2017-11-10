@@ -59,12 +59,19 @@ class Inbox extends Component {
 
   render() {
     const { currentConversation, onChangeConversation } = this.props;
-
-    const actionBarLeft = <BarItems>Alice Caldwell</BarItems>;
+    const tags = currentConversation.tags || [];
 
     const tagTrigger = (
       <PopoverButton>
-        <Label lblStyle="danger">urgent</Label>
+        {tags.length ? (
+          tags.slice(0, 1).map(t => (
+            <Label key={t._id} style={{ background: t.colorCode }}>
+              {t.name}
+            </Label>
+          ))
+        ) : (
+          <Label lblStyle="default">tags</Label>
+        )}
         <Icon icon="ios-arrow-down" />
       </PopoverButton>
     );
@@ -83,9 +90,7 @@ class Inbox extends Component {
       </BarItems>
     );
 
-    const actionBar = (
-      <Wrapper.ActionBar left={actionBarLeft} right={actionBarRight} invert />
-    );
+    const actionBar = <Wrapper.ActionBar right={actionBarRight} invert />;
 
     const content = (
       <ConversationWrapper
@@ -108,7 +113,7 @@ class Inbox extends Component {
         actionBar={actionBar}
         content={content}
         footer={
-          currentConversation ? (
+          currentConversation._id ? (
             <RespondBox
               conversation={currentConversation}
               setAttachmentPreview={() => {}}

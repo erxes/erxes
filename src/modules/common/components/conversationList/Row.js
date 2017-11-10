@@ -63,6 +63,7 @@ class Row extends Component {
     const integration = conversation.integration || {};
     const brand = integration.brand || {};
     const brandName = brand.name;
+    const tags = conversation.tags || [];
     const isExistingCustomer = customer && customer._id;
 
     // for testing purpose
@@ -90,7 +91,11 @@ class Row extends Component {
               </FlexContent>
             </MainInfo>
             <MessageContent>{strip(content)}</MessageContent>
-            <Label lblStyle="success">deal</Label>
+            {tags.map(t => (
+              <Label key={t._id} style={{ background: t.colorCode }}>
+                {t.name}
+              </Label>
+            ))}
           </FlexContent>
         </RowContent>
         <SmallText>

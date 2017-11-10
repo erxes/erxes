@@ -6,6 +6,7 @@ import { LeftSidebar as LeftSidebarComponent } from '../components';
 import { Wrapper } from 'modules/layout/components';
 import { Spinner } from 'modules/common/components';
 import { queries, subscriptions } from '../graphql';
+import { KIND_CHOICES as INTEGRATIONS_TYPES } from 'modules/settings/integrations/constants';
 
 class LeftSidebar extends Component {
   componentWillMount() {
@@ -42,6 +43,11 @@ class LeftSidebar extends Component {
       );
     }
 
+    const integrations = INTEGRATIONS_TYPES.ALL_LIST.map(item => ({
+      _id: item,
+      name: item
+    }));
+
     const conversations = conversationsQuery.conversations;
     const channels = channelsQuery.channels || [];
     const brands = brandsQuery.brands || [];
@@ -52,6 +58,7 @@ class LeftSidebar extends Component {
       ...this.props,
       conversations,
       channels,
+      integrations,
       brands,
       tags,
       counts

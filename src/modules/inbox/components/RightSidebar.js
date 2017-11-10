@@ -16,10 +16,6 @@ class RightSidebar extends Component {
         <Sidebar.Section>
           <Title>Companies</Title>
         </Sidebar.Section>
-
-        <Sidebar.Section>
-          <Title>History</Title>
-        </Sidebar.Section>
       </Sidebar>
     );
   }
