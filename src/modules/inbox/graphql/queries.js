@@ -72,9 +72,9 @@ const totalConversationsCount = `
   }
 `;
 
-const currentConversation = `
-  query conversationsGetCurrent($_id: String) {
-    conversationsGetCurrent(_id: $_id) {
+const lastConversation = `
+  query conversationsGetLast {
+    conversationsGetLast {
       ${conversationFields}
       messages {
         _id
@@ -107,5 +107,5 @@ export default {
   responseTemplateList,
   conversationCounts,
   totalConversationsCount,
-  currentConversation
+  lastConversation
 };

@@ -18,7 +18,7 @@ class Inbox extends Component {
   }
 
   render() {
-    const { currentConversation } = this.props;
+    const { currentConversation, onChangeConversation } = this.props;
     const actionBarLeft = <BarItems>Alice Caldwell</BarItems>;
 
     const tagTrigger = (
@@ -72,7 +72,9 @@ class Inbox extends Component {
             setAttachmentPreview={() => {}}
           />
         }
-        leftSidebar={<LeftSidebar />}
+        leftSidebar={
+          <LeftSidebar onChangeConversation={onChangeConversation} />
+        }
         rightSidebar={<RightSidebar />}
       />
     );
@@ -81,6 +83,7 @@ class Inbox extends Component {
 
 Inbox.propTypes = {
   title: PropTypes.string,
+  onChangeConversation: PropTypes.func,
   currentConversation: PropTypes.object
 };
 

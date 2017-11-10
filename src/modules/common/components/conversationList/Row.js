@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import { withRouter } from 'react-router';
 import PropTypes from 'prop-types';
 import moment from 'moment';
 import strip from 'strip';
@@ -16,10 +15,10 @@ import {
 } from './styles';
 
 const propTypes = {
-  history: PropTypes.object.isRequired,
   conversation: PropTypes.object.isRequired,
   channelId: PropTypes.string,
   isRead: PropTypes.bool,
+  onClick: PropTypes.func,
   toggleBulk: PropTypes.func
 };
 
@@ -28,7 +27,7 @@ class Row extends Component {
     super(props);
 
     this.toggleBulk = this.toggleBulk.bind(this);
-    this.onRowClick = this.onRowClick.bind(this);
+    this.onClick = this.onClick.bind(this);
     this.renderCheckbox = this.renderCheckbox.bind(this);
   }
 
@@ -37,10 +36,10 @@ class Row extends Component {
     toggleBulk(conversation, e.target.checked);
   }
 
-  onRowClick() {
-    const { history, conversation } = this.props;
+  onClick() {
+    const { onClick, conversation } = this.props;
 
-    history.push(`/inbox?_id=${conversation._id}`);
+    onClick(conversation);
   }
 
   componentWillMount() {
@@ -88,7 +87,7 @@ class Row extends Component {
     const user = conversation.user;
 
     return (
-      <RowItem isRead={isRead} onClick={this.onRowClick}>
+      <RowItem isRead={isRead} onClick={this.onClick}>
         <RowContent>
           {this.renderCheckbox()}
           <FlexContent>
@@ -124,4 +123,4 @@ class Row extends Component {
 
 Row.propTypes = propTypes;
 
-export default withRouter(Row);
+export default Row;
