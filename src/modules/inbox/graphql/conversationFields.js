@@ -3,6 +3,7 @@ export default `
   content
   status
   assignedUserId
+  createdAt
   assignedUser {
     _id
     username
