@@ -198,7 +198,7 @@ const conversationMutations = {
   async conversationsChangeStatus(root, { _ids, status }, { user }) {
     const { conversations } = await Conversations.checkExistanceConversations(_ids);
 
-    const changedConversations = await Conversations.changeStatusConversation(_ids, status);
+    await Conversations.changeStatusConversation(_ids, status);
 
     // notify graphl subscription
     await conversationsChanged(_ids, 'statusChanged');
@@ -241,7 +241,7 @@ const conversationMutations = {
       });
     }
 
-    return changedConversations;
+    return Conversations.find({ _id: { $in: _ids } });
   },
 
   /**

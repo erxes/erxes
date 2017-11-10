@@ -100,7 +100,7 @@ export const mutations = `
 
   conversationsAssign(conversationIds: [String]!, assignedUserId: String): [Conversation]
   conversationsUnassign(_ids: [String]!): [Conversation]
-  conversationsChangeStatus(_ids: [String]!): [Conversation]
+  conversationsChangeStatus(_ids: [String]!, status: String!): [Conversation]
   conversationsStar(_ids: [String]!): User
   conversationsUnstar(_ids: [String]!): User
   conversationsToggleParticipate(_ids: [String]!): Conversation
