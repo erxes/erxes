@@ -2,6 +2,7 @@ import { _ } from 'underscore';
 import strip from 'strip';
 import { Conversations, ConversationMessages, Integrations, Customers } from '../../../db/models';
 import { tweetReply } from '../../../social/twitter';
+import { facebookReply } from '../../../social/facebook';
 import { NOTIFICATION_TYPES } from '../../constants';
 import { CONVERSATION_STATUSES, KIND_CHOICES } from '../../constants';
 import { moduleRequireLogin } from '../../permissions';
@@ -137,7 +138,7 @@ const conversationMutations = {
     // send reply to facebook
     if (kind === KIND_CHOICES.FACEBOOK) {
       // when facebook kind is feed, assign commentId in extraData
-      // TODO: facebookReply(conversation, strip(content), messageId);
+      facebookReply(conversation, strip(doc.content), message._id);
     }
 
     // notify subscription

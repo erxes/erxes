@@ -42,7 +42,7 @@ const createMessage = async (conversation, content, user) => {
   const customerId = await getOrCreateCustomer(conversation.integrationId, user);
 
   // create new message
-  const messageId = await ConversationMessages.create({
+  const messageId = await ConversationMessages.createMessage({
     conversationId: conversation._id,
     customerId,
     content,

@@ -222,6 +222,7 @@ describe('facebook integration: save webhook response', () => {
     const message = await ConversationMessages.findOne();
 
     // check conversation field values
+    expect(conversation.createdAt).toBeDefined();
     expect(conversation.integrationId).toBe(integration._id);
     expect(conversation.customerId).toBe(customer._id);
     expect(conversation.status).toBe(CONVERSATION_STATUSES.NEW);
@@ -236,6 +237,7 @@ describe('facebook integration: save webhook response', () => {
     expect(customer.facebookData.id).toBe(senderId);
 
     // check message field values
+    expect(message.createdAt).toBeDefined();
     expect(message.conversationId).toBe(conversation._id);
     expect(message.customerId).toBe(customer._id);
     expect(message.internal).toBe(false);
@@ -286,6 +288,7 @@ describe('facebook integration: save webhook response', () => {
     const newMessage = await ConversationMessages.findOne({ _id: { $ne: message._id } });
 
     // check message fields
+    expect(newMessage.createdAt).toBeDefined();
     expect(newMessage.conversationId).toBe(conversation._id);
     expect(newMessage.customerId).toBe(customer._id);
     expect(newMessage.internal).toBe(false);

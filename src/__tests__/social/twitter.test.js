@@ -261,6 +261,7 @@ describe('twitter integration', () => {
       const message = await ConversationMessages.findOne();
 
       // check conversation field values
+      expect(conversation.createdAt).toBeDefined();
       expect(conversation.integrationId).toBe(_integration._id);
       expect(conversation.customerId).toBe(customer._id);
       expect(conversation.status).toBe(CONVERSATION_STATUSES.NEW);
@@ -279,6 +280,7 @@ describe('twitter integration', () => {
       expect(customer.twitterData.profileImageUrl).toBe(profileImageUrl);
 
       // check message field values
+      expect(message.createdAt).toBeDefined();
       expect(message.conversationId).toBe(conversation._id);
       expect(message.customerId).toBe(customer._id);
       expect(message.internal).toBe(false);
@@ -349,6 +351,7 @@ describe('twitter integration', () => {
       const message = await ConversationMessages.findOne();
 
       // check conv field values
+      expect(conv.createdAt).toBeDefined();
       expect(conv.integrationId).toBe(_integration._id);
       expect(conv.customerId).toBe(customer._id);
       expect(conv.status).toBe(CONVERSATION_STATUSES.NEW);
@@ -371,6 +374,7 @@ describe('twitter integration', () => {
       expect(customer.twitterData.profileImageUrl).toBe(data.sender.profile_image_url);
 
       // check message field values
+      expect(message.createdAt).toBeDefined();
       expect(message.conversationId).toBe(conv._id);
       expect(message.customerId).toBe(customer._id);
       expect(message.internal).toBe(false);
