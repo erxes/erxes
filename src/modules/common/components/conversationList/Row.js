@@ -36,7 +36,9 @@ class Row extends Component {
     toggleBulk(conversation, e.target.checked);
   }
 
-  onClick() {
+  onClick(e) {
+    e.preventDefault();
+
     const { onClick, conversation } = this.props;
 
     onClick(conversation);

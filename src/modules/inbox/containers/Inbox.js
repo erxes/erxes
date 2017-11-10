@@ -8,10 +8,6 @@ class Inbox extends Component {
   render() {
     const { conversationDetailQuery } = this.props;
 
-    if (conversationDetailQuery.loading) {
-      return null;
-    }
-
     // =============== actions
     const changeStatus = () => {};
 

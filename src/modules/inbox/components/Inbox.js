@@ -67,10 +67,12 @@ class Inbox extends Component {
         actionBar={actionBar}
         content={content}
         footer={
-          <RespondBox
-            conversation={currentConversation}
-            setAttachmentPreview={() => {}}
-          />
+          currentConversation ? (
+            <RespondBox
+              conversation={currentConversation}
+              setAttachmentPreview={() => {}}
+            />
+          ) : null
         }
         leftSidebar={
           <LeftSidebar onChangeConversation={onChangeConversation} />
