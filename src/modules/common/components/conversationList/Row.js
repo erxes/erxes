@@ -43,26 +43,6 @@ class Row extends Component {
     history.push(`/inbox?_id=${conversation._id}`);
   }
 
-  componentWillMount() {
-    moment.updateLocale('en', {
-      relativeTime: {
-        future: 'in %s',
-        past: '%s ',
-        s: 's',
-        m: 'm',
-        mm: '%d m',
-        h: 'h',
-        hh: '%d h',
-        d: 'd',
-        dd: '%d d',
-        M: 'a mth',
-        MM: '%d mths',
-        y: 'y',
-        yy: '%d y'
-      }
-    });
-  }
-
   renderCheckbox() {
     if (!this.props.toggleBulk) {
       return null;

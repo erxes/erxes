@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import moment from 'moment';
 import { Wrapper } from 'modules/layout/components';
 import { ConversationList, Icon } from 'modules/common/components';
 import FilterPopover from './FilterPopover';
@@ -13,6 +14,26 @@ const propTypes = {
 };
 
 class Sidebar extends Component {
+  componentWillMount() {
+    moment.updateLocale('en', {
+      relativeTime: {
+        future: 'in %s',
+        past: '%s ',
+        s: 's',
+        m: 'm',
+        mm: '%d m',
+        h: 'h',
+        hh: '%d h',
+        d: 'd',
+        dd: '%d d',
+        M: 'a mth',
+        MM: '%d mths',
+        y: 'y',
+        yy: '%d y'
+      }
+    });
+  }
+
   renderSidebarHeader() {
     const { channels, counts } = this.props;
     return (
@@ -34,6 +55,7 @@ class Sidebar extends Component {
 
   renderSidebarFooter() {
     const { brands, tags, counts } = this.props;
+
     return (
       <Wrapper.Sidebar.Footer>
         <FilterPopover
