@@ -16,10 +16,15 @@ const PopoverButton = styled.div`
   i {
     margin-left: 5px;
     margin-right: 0;
+    transition: all ease 0.3s;
   }
 
   &[aria-describedby] {
     color: ${colors.colorSecondary};
+
+    i {
+      transform: rotate(180deg);
+    }
   }
 
   &:hover {

@@ -193,7 +193,11 @@ const SidebarMainContent = styled.div`
   }
 `;
 
-const SidebarFooter = SidebarHeader.extend``;
+const SidebarFooter = SidebarHeader.extend`
+  border-top: 1px solid ${colors.borderPrimary};
+  border-bottom: none;
+  margin-top: -1px;
+`;
 
 const SidebarBox = styled.div`
   background-color: ${colors.colorWhite};
