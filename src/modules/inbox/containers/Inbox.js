@@ -1,8 +1,9 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { compose, gql, graphql } from 'react-apollo';
+import { Alert } from 'modules/common/utils';
 import { Inbox as InboxComponent } from '../components';
-import { queries, subscriptions } from '../graphql';
+import { queries, mutations, subscriptions } from '../graphql';
 
 class Inbox extends Component {
   componentWillMount() {
@@ -57,10 +58,25 @@ class Inbox extends Component {
   }
 
   render() {
-    const { conversationDetailQuery } = this.props;
+    const { conversationDetailQuery, changeStatusMutation } = this.props;
 
     // =============== actions
-    const changeStatus = () => {};
+    const changeStatus = (conversationId, status) => {
+      changeStatusMutation({ variables: { _ids: [conversationId], status } })
+        .then(() => {
+          if (status === 'closed') {
+            Alert.success('The conversation has been resolved!');
+          } else {
+            Alert.info(
+              'The conversation has been reopened and restored to Inbox.'
+            );
+          }
+        })
+
+        .catch(e => {
+          Alert.error(e.message);
+        });
+    };
 
     const updatedProps = {
       ...this.props,
@@ -74,6 +90,7 @@ class Inbox extends Component {
 
 Inbox.propTypes = {
   conversationDetailQuery: PropTypes.object,
+  changeStatusMutation: PropTypes.func.isRequired,
   currentConversationId: PropTypes.string.isRequired
 };
 
@@ -85,6 +102,9 @@ const ConversationDetail = compose(
         variables: { _id: currentConversationId }
       };
     }
+  }),
+  graphql(gql(mutations.conversationsChangeStatus), {
+    name: 'changeStatusMutation'
   })
 )(Inbox);
 
