@@ -14,7 +14,7 @@ class Inbox extends Component {
   componentWillReceiveProps(nextProps) {
     const { currentConversationId, conversationDetailQuery } = this.props;
 
-    if (nextProps.currentConversationId != currentConversationId) {
+    if (nextProps.currentConversationId !== currentConversationId) {
       this.subscribe(conversationDetailQuery, nextProps.currentConversationId);
     }
   }
@@ -31,10 +31,6 @@ class Inbox extends Component {
         // check whether or not already inserted
         const prevEntry = messages.find(m => m._id === message._id);
 
-        if (prevEntry) {
-          return next;
-        }
-
         // add new message to messages list
         const next = Object.assign({}, prev, {
           conversationDetail: Object.assign({
@@ -42,6 +38,10 @@ class Inbox extends Component {
             messages: [...messages, message]
           })
         });
+
+        if (prevEntry) {
+          return next;
+        }
 
         return next;
       }
