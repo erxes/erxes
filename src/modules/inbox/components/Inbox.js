@@ -40,18 +40,18 @@ class Inbox extends Component {
   }
 
   renderStatusButton(status) {
-    let bsStyle = 'success';
+    let btnStyle = 'success';
     let text = 'Resolve';
-    let icon = <i className="ion-checkmark-circled" />;
+    let icon = <i className="ion-checkmark" />;
 
     if (status === 'closed') {
       text = 'Open';
-      bsStyle = 'warning';
+      btnStyle = 'warning';
       icon = <i className="ion-refresh" />;
     }
 
     return (
-      <Button bsStyle={bsStyle} onClick={this.changeStatus} size="small">
+      <Button btnStyle={btnStyle} onClick={this.changeStatus} size="small">
         {icon} {text}
       </Button>
     );
