@@ -1,12 +1,32 @@
+/* eslint-disable no-underscore-dangle, react/no-string-refs,
+  jsx-a11y/no-static-element-interactions, react/no-multi-comp,
+  react/forbid-prop-types */
+
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 import _ from 'underscore';
 import strip from 'strip';
 import PropTypes from 'prop-types';
-import { Button, FormControl, Popover, OverlayTrigger } from 'react-bootstrap';
-import { EmptyState } from 'modules/common/components';
+import { Popover, OverlayTrigger } from 'react-bootstrap';
+import {
+  FormControl,
+  EmptyState,
+  Button,
+  Icon
+} from 'modules/common/components';
 import { Alert } from 'modules/common/utils';
 import ResponseTemplateModal from './ResponseTemplateModal';
+import {
+  ResponseTemplateStyled,
+  PopoverHeader,
+  InlineHeader,
+  InlineColumn,
+  PopoverFooter,
+  PopoverBody,
+  PopoverList,
+  TemplateTitle,
+  TemplateContent
+} from '../styles';
 
 const propTypes = {
   brandId: PropTypes.string.isRequired,
@@ -99,8 +119,8 @@ class ResponseTemplate extends Component {
 
       return (
         <li key={item._id} onClick={() => this.onSelect(item._id)}>
-          <div className="template-title">{item.name}</div>
-          <div className="template-content">{strip(item.content)}</div>
+          <TemplateTitle>{item.name}</TemplateTitle>
+          <TemplateContent>{strip(item.content)}</TemplateContent>
         </li>
       );
     });
@@ -110,8 +130,8 @@ class ResponseTemplate extends Component {
     const { brands, content, brandId } = this.props;
 
     const saveTrigger = (
-      <Button id="response-template-handler" bsStyle="link">
-        <i className="ion-archive" /> Save as template
+      <Button id="response-template-handler" btnStyle="link">
+        <Icon icon="archive" /> Save as template
       </Button>
     );
 
@@ -121,17 +141,17 @@ class ResponseTemplate extends Component {
         id="templates-popover"
         title="Response Templates"
       >
-        <div className="popover-header">
-          <div className="inline-header">
-            <div className="column">
+        <PopoverHeader>
+          <InlineHeader>
+            <InlineColumn>
               <FormControl
                 type="text"
                 placeholder="Search..."
                 onChange={this.filterItems}
                 autoFocus
               />
-            </div>
-            <div className="column">
+            </InlineColumn>
+            <InlineColumn>
               <FormControl
                 componentClass="select"
                 placeholder="Select Brand"
@@ -144,25 +164,25 @@ class ResponseTemplate extends Component {
                   </option>
                 ))}
               </FormControl>
-            </div>
-          </div>
-        </div>
+            </InlineColumn>
+          </InlineHeader>
+        </PopoverHeader>
 
-        <div className="popover-body">
-          <ul className="popover-list">{this.renderItems()}</ul>
-        </div>
-        <div className="popover-footer">
-          <ul className="popover-list linked text-center">
+        <PopoverBody>
+          <PopoverList>{this.renderItems()}</PopoverList>
+        </PopoverBody>
+        <PopoverFooter>
+          <PopoverList className="linked text-center">
             <li>
               <Link to="/settings/response-templates">Manage templates</Link>
             </li>
-          </ul>
-        </div>
+          </PopoverList>
+        </PopoverFooter>
       </Popover>
     );
 
     return (
-      <div className="response-template">
+      <ResponseTemplateStyled className="replyBtn">
         <OverlayTrigger
           trigger="click"
           placement="top"
@@ -170,8 +190,8 @@ class ResponseTemplate extends Component {
           rootClose
           ref="overlay"
         >
-          <Button bsStyle="link" className="dropup">
-            <i className="ion-clipboard" /> Templates <span className="caret" />
+          <Button btnStyle="link" className="dropup">
+            <Icon icon="clipboard" size={17} />
           </Button>
         </OverlayTrigger>
 
@@ -181,7 +201,7 @@ class ResponseTemplate extends Component {
           brandId={brandId}
           onSave={this.onSave}
         />
-      </div>
+      </ResponseTemplateStyled>
     );
   }
 }
