@@ -11,7 +11,6 @@ const propTypes = {
   brands: PropTypes.array.isRequired,
   tags: PropTypes.array.isRequired,
   integrations: PropTypes.array.isRequired,
-  status: PropTypes.array.isRequired,
   onChangeConversation: PropTypes.func.isRequired,
   counts: PropTypes.object.isRequired
 };

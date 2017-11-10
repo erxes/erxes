@@ -30,6 +30,10 @@ const RowContent = styled.div`
 const FlexContent = styled.div`
   flex: 1;
 
+  span {
+    margin-top: ${dimensions.unitSpacing}px;
+  }
+
   > span + span {
     margin-left: 5px;
   }
@@ -59,7 +63,7 @@ const SmallText = styled.div`
 `;
 
 const MessageContent = styled.div`
-  margin: ${dimensions.unitSpacing}px 0;
+  margin-top: ${dimensions.unitSpacing}px;
   word-break: break-word;
   overflow: hidden;
   word-wrap: break-word;
