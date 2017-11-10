@@ -1,5 +1,4 @@
 import { Customers, ConversationMessages, Conversations, Integrations } from '../db/models';
-import { CONVERSATION_STATUSES } from '../data/constants';
 import { conversationMessageCreated } from '../data/resolvers/mutations/conversations';
 
 /*
@@ -85,11 +84,10 @@ export const getOrCreateCommonConversation = async (data, integration) => {
   } else {
     const customerId = await getOrCreateCustomer(integration._id, data.user);
 
-    const conversationId = await Conversations.create({
+    const conversationId = await Conversations.createConversation({
       content: data.text,
       integrationId: integration._id,
       customerId,
-      status: CONVERSATION_STATUSES.NEW,
 
       // save tweet id
       twitterData: {
@@ -148,11 +146,10 @@ export const getOrCreateDirectMessageConversation = async (data, integration) =>
   } else {
     const customerId = await getOrCreateCustomer(integration._id, data.sender);
 
-    const conversationId = await Conversations.create({
+    const conversationId = await Conversations.createConversation({
       content: data.text,
       integrationId: integration._id,
       customerId,
-      status: CONVERSATION_STATUSES.NEW,
 
       // save tweet id
       twitterData: {
