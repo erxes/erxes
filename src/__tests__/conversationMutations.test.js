@@ -263,4 +263,16 @@ describe('Conversation message mutations', () => {
     expect(Conversations.markAsReadConversation.mock.calls.length).toBe(1);
     expect(Conversations.markAsReadConversation).toBeCalledWith(_conversation._id, _user._id);
   });
+
+  test('subscription call for widget api', async () => {
+    await conversationMutations.conversationSubscribeMessageCreated(
+      {},
+      { _id: _conversationMessage._id },
+    );
+
+    await conversationMutations.conversationSubscribeChanged(
+      {},
+      { _ids: ['_id'], type: 'readState' },
+    );
+  });
 });

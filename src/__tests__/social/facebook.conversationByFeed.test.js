@@ -53,7 +53,10 @@ describe('facebook integration: get or create conversation by feed info', () => 
     expect(await saveWebhookResponse.getOrCreateConversationByFeed(value)).toBe(null);
 
     // already saved comments ==========
-    await conversationMessageFactory({ facebookData: { commentId: 1 } });
+    await conversationMessageFactory({
+      facebookData: { commentId: 1 },
+      conversationId: 'DFASFDFAD',
+    });
 
     value.item = null;
     value.comment_id = 1;

@@ -200,12 +200,19 @@ export const conversationFactory = (params = {}) => {
   });
 };
 
-export const conversationMessageFactory = (params = {}) => {
+export const conversationMessageFactory = async (params = {}) => {
+  let conversationId = params.conversationId;
+
+  if (!conversationId) {
+    const conversation = await conversationFactory({});
+    conversationId = conversation._id;
+  }
+
   return ConversationMessages.createMessage({
     content: params.content || faker.random.word(),
     attachments: {},
     mentionedUserIds: params.mentionedUserIds || [Random.id()],
-    conversationId: params.conversationId || Random.id(),
+    conversationId,
     internal: params.internal || true,
     customerId: params.customerId || Random.id(),
     userId: params.userId || Random.id(),

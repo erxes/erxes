@@ -5,7 +5,7 @@ import { tweetReply } from '../../../social/twitter';
 import { facebookReply } from '../../../social/facebook';
 import { NOTIFICATION_TYPES } from '../../constants';
 import { CONVERSATION_STATUSES, KIND_CHOICES } from '../../constants';
-import { moduleRequireLogin } from '../../permissions';
+import { requireLogin } from '../../permissions';
 import utils from '../../utils';
 import { pubsub } from '../subscriptions';
 
@@ -76,6 +76,22 @@ export const conversationMessageCreated = async (message, conversationId) => {
 };
 
 const conversationMutations = {
+  /*
+   * Calling this mutation from widget api run new message subscription
+   */
+  async conversationSubscribeMessageCreated(root, { _id }) {
+    const message = await ConversationMessages.findOne({ _id });
+
+    conversationMessageCreated(message, message.conversationId);
+  },
+
+  /*
+   * Calling this mutation from widget api run read state subscription
+   */
+  async conversationSubscribeChanged(root, { _ids, type }) {
+    conversationsChanged(_ids, type);
+  },
+
   /**
    * Create new message in conversation
    * @param  {Object} doc contains conversation message inputs
@@ -290,6 +306,13 @@ const conversationMutations = {
   },
 };
 
-moduleRequireLogin(conversationMutations);
+requireLogin(conversationMutations, 'conversationMessageAdd');
+requireLogin(conversationMutations, 'conversationsAssign');
+requireLogin(conversationMutations, 'conversationsUnassign');
+requireLogin(conversationMutations, 'conversationsChangeStatus');
+requireLogin(conversationMutations, 'conversationsStar');
+requireLogin(conversationMutations, 'conversationsUnstar');
+requireLogin(conversationMutations, 'conversationsToggleParticipate');
+requireLogin(conversationMutations, 'conversationMarkAsRead');
 
 export default conversationMutations;
