@@ -171,7 +171,7 @@ describe('User db utils', () => {
     const user = await userFactory({});
 
     try {
-      await Users.changePassword({ _id: user._id, currentPassword: 'p' });
+      await Users.changePassword({ _id: user._id, currentPassword: 'admin' });
     } catch (e) {
       expect(e.message).toBe('Incorrect current password');
     }
@@ -182,11 +182,11 @@ describe('User db utils', () => {
 
     const updatedUser = await Users.changePassword({
       _id: user._id,
-      currentPassword: 'Dombo@123',
+      currentPassword: 'pass',
       newPassword: 'Lombo@123',
     });
 
-    expect(bcrypt.compare(updatedUser.password, 'Lombo@123')).toBeTruthy();
+    expect(await Users.comparePassword('Lombo@123', updatedUser.password)).toBeTruthy();
   });
 
   test('Forgot password', async () => {
@@ -219,7 +219,7 @@ describe('User db utils', () => {
 
     // invalid password ==============
     try {
-      await Users.login({ email: _user.email, password: 'pass' });
+      await Users.login({ email: _user.email, password: 'admin' });
     } catch (e) {
       expect(e.message).toBe('Invalid login');
     }
@@ -227,7 +227,7 @@ describe('User db utils', () => {
     // valid
     const { token, refreshToken } = await Users.login({
       email: _user.email,
-      password: 'Dombo@123',
+      password: 'pass',
     });
 
     expect(token).toBeDefined();

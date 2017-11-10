@@ -2,6 +2,7 @@ import mongoose from 'mongoose';
 import Random from 'meteor-random';
 import bcrypt from 'bcrypt';
 import crypto from 'crypto';
+import sha256 from 'sha256';
 import jwt from 'jsonwebtoken';
 import { ROLES } from '../../data/constants';
 
@@ -163,7 +164,21 @@ class User {
    * @return hashed password
    */
   static generatePassword(password) {
-    return bcrypt.hash(password, SALT_WORK_FACTOR);
+    const hashPassword = sha256(password);
+
+    return bcrypt.hash(hashPassword, SALT_WORK_FACTOR);
+  }
+
+  /*
+    Compare password
+    @param {String} password
+    @param {String} userPassword - Current password
+    return {Boolean} is valid
+  */
+  static comparePassword(password, userPassword) {
+    const hashPassword = sha256(password);
+
+    return bcrypt.compare(hashPassword, userPassword);
   }
 
   /*
@@ -193,7 +208,7 @@ class User {
     await this.findByIdAndUpdate(
       { _id: user._id },
       {
-        password: bcrypt.hashSync(newPassword, 10),
+        password: await this.generatePassword(newPassword),
         resetPasswordToken: undefined,
         resetPasswordExpires: undefined,
       },
@@ -212,7 +227,7 @@ class User {
     const user = await this.findOne({ _id });
 
     // check current password ============
-    const valid = await bcrypt.compare(currentPassword, user.password);
+    const valid = await this.comparePassword(currentPassword, user.password);
 
     if (!valid) {
       throw new Error('Incorrect current password');
@@ -222,7 +237,7 @@ class User {
     await this.findByIdAndUpdate(
       { _id: user._id },
       {
-        password: bcrypt.hashSync(newPassword, 10),
+        password: await this.generatePassword(newPassword),
       },
     );
 
@@ -320,7 +335,7 @@ class User {
       throw new Error('Invalid login');
     }
 
-    const valid = await bcrypt.compare(password, user.password);
+    const valid = await this.comparePassword(password, user.password);
 
     if (!valid) {
       // bad password

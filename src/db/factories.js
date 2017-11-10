@@ -37,7 +37,7 @@ export const userFactory = (params = {}) => {
     },
     email: params.email || faker.internet.email(),
     role: params.role || 'contributor',
-    password: params.password || '$2a$12$eStwXbJ03luTm2826cbkWu57PnUA4Whk.KVOClc1P2kqcZTtsMK/i',
+    password: params.password || '$2a$10$qfBFBmWmUjeRcR.nBBfgDO/BEbxgoai5qQhyjsrDUMiZC6dG7sg1q',
     isOwner: params.isOwner || false,
   });
 
