@@ -235,7 +235,7 @@ describe('User mutations', () => {
       },
     };
 
-    await userMutations.usersEditProfile({}, { ...doc, password: 'Dombo@123' }, { user });
+    await userMutations.usersEditProfile({}, { ...doc, password: 'pass' }, { user });
 
     expect(Users.editProfile).toBeCalledWith(user._id, doc);
   });

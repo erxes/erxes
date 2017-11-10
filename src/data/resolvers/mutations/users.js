@@ -1,4 +1,3 @@
-import bcrypt from 'bcrypt';
 import { Users, Channels } from '../../../db/models';
 import utils from '../../../data/utils';
 import { requireLogin, requireAdmin } from '../../permissions';
@@ -136,7 +135,7 @@ const userMutations = {
    */
   async usersEditProfile(root, { username, email, password, details }, { user }) {
     const userOnDb = await Users.findOne({ _id: user._id });
-    const valid = await bcrypt.compare(password, userOnDb.password);
+    const valid = await Users.comparePassword(password, userOnDb.password);
 
     if (!password || !valid) {
       // bad password
