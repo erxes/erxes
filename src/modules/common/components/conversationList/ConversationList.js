@@ -6,11 +6,12 @@ import { ConversationItems } from './styles';
 const propTypes = {
   conversations: PropTypes.array.isRequired,
   toggleBulk: PropTypes.func,
+  onRowClick: PropTypes.func,
   channelId: PropTypes.string
 };
 
 function ConversationList(
-  { conversations, toggleBulk, channelId },
+  { conversations, toggleBulk, onRowClick, channelId },
   { currentUser }
 ) {
   const starredConversationIds = currentUser
@@ -30,6 +31,7 @@ function ConversationList(
             c.participatedUserIds.indexOf(currentUser._id) > -1
           }
           toggleBulk={toggleBulk}
+          onClick={onRowClick}
           channelId={channelId}
         />
       ))}

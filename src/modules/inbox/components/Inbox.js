@@ -9,6 +9,12 @@ import { LeftSidebar, RespondBox } from '../containers';
 import { PopoverButton } from '../styles';
 
 class Inbox extends Component {
+  constructor(props) {
+    super(props);
+
+    this.changeStatus = this.changeStatus.bind(this);
+  }
+
   componentDidMount() {
     this.node.scrollTop = this.node.scrollHeight;
   }
@@ -17,8 +23,43 @@ class Inbox extends Component {
     this.node.scrollTop = this.node.scrollHeight;
   }
 
+  // change resolved status
+  changeStatus() {
+    const { currentConversation, changeStatus } = this.props;
+
+    let status = currentConversation.status;
+
+    if (status === 'closed') {
+      status = 'open';
+    } else {
+      status = 'closed';
+    }
+
+    // call change status method
+    changeStatus(currentConversation._id, status);
+  }
+
+  renderStatusButton(status) {
+    let bsStyle = 'success';
+    let text = 'Resolve';
+    let icon = <i className="ion-checkmark-circled" />;
+
+    if (status === 'closed') {
+      text = 'Open';
+      bsStyle = 'warning';
+      icon = <i className="ion-refresh" />;
+    }
+
+    return (
+      <Button bsStyle={bsStyle} onClick={this.changeStatus} size="small">
+        {icon} {text}
+      </Button>
+    );
+  }
+
   render() {
-    const { conversations, currentConversation } = this.props;
+    const { currentConversation, onChangeConversation } = this.props;
+
     const actionBarLeft = <BarItems>Alice Caldwell</BarItems>;
 
     const tagTrigger = (
@@ -35,9 +76,10 @@ class Inbox extends Component {
           type="conversation"
           trigger={tagTrigger}
         />
-        <Button btnStyle="success" size="small">
-          <Icon icon="checkmark" /> Resolve
-        </Button>
+
+        {this.renderStatusButton(
+          currentConversation && currentConversation.status
+        )}
       </BarItems>
     );
 
@@ -67,12 +109,16 @@ class Inbox extends Component {
         actionBar={actionBar}
         content={content}
         footer={
-          <RespondBox
-            conversation={currentConversation}
-            setAttachmentPreview={() => {}}
-          />
+          currentConversation ? (
+            <RespondBox
+              conversation={currentConversation}
+              setAttachmentPreview={() => {}}
+            />
+          ) : null
         }
-        leftSidebar={<LeftSidebar conversations={conversations} />}
+        leftSidebar={
+          <LeftSidebar onChangeConversation={onChangeConversation} />
+        }
         rightSidebar={<RightSidebar />}
       />
     );
@@ -81,7 +127,8 @@ class Inbox extends Component {
 
 Inbox.propTypes = {
   title: PropTypes.string,
-  conversations: PropTypes.array,
+  onChangeConversation: PropTypes.func,
+  changeStatus: PropTypes.func,
   currentConversation: PropTypes.object
 };
 
