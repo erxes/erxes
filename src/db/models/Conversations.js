@@ -126,8 +126,8 @@ class Conversation {
    */
   static async createConversation(doc) {
     return this.create({
-      ...doc,
       status: CONVERSATION_STATUSES.NEW,
+      ...doc,
       createdAt: new Date(),
       number: (await this.find().count()) + 1,
       messageCount: 0,

@@ -86,16 +86,25 @@ export const queries = `
   conversationCounts(params: ConversationListParams): JSON
   conversationDetail(_id: String!): Conversation
   conversationsTotalCount(params: ConversationListParams): Int
-  conversationsGetCurrent(_id: String): Conversation
+  conversationsGetLast: Conversation
 `;
 
 export const mutations = `
-  conversationMessageAdd(params: ConversationMessageParams): ConversationMessage
+  conversationMessageAdd(
+    conversationId: String,
+    content: String,
+    mentionedUserIds: [String],
+    internal: Boolean,
+    attachments: [String],
+  ): ConversationMessage
+
   conversationsAssign(conversationIds: [String]!, assignedUserId: String): [Conversation]
   conversationsUnassign(_ids: [String]!): [Conversation]
-  conversationsChangeStatus(_ids: [String]!): [Conversation]
+  conversationsChangeStatus(_ids: [String]!, status: String!): [Conversation]
   conversationsStar(_ids: [String]!): User
   conversationsUnstar(_ids: [String]!): User
   conversationsToggleParticipate(_ids: [String]!): Conversation
   conversationMarkAsRead(_id: String): Conversation
+  conversationSubscribeMessageCreated(_id: String!): String
+  conversationSubscribeChanged(_ids: [String], type: String!): String
 `;

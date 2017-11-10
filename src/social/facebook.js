@@ -1,4 +1,5 @@
 import { Integrations, Conversations, ConversationMessages, Customers } from '../db/models';
+import { conversationMessageCreated } from '../data/resolvers/mutations/conversations';
 
 import {
   INTEGRATION_KIND_CHOICES,
@@ -115,7 +116,7 @@ export class SaveWebhookResponse {
 
     // create new conversation
     if (!conversation) {
-      const conversationId = await Conversations.create({
+      const conversationId = await Conversations.createConversation({
         integrationId: this.integration._id,
         customerId: await this.getOrCreateCustomer(senderId),
         status,
@@ -338,7 +339,7 @@ export class SaveWebhookResponse {
   async createMessage({ conversation, userId, content, attachments, facebookData }) {
     if (conversation) {
       // create new message
-      const messageId = await ConversationMessages.create({
+      const messageId = await ConversationMessages.createMessage({
         conversationId: conversation._id,
         customerId: await this.getOrCreateCustomer(userId),
         content,
@@ -347,7 +348,10 @@ export class SaveWebhookResponse {
         internal: false,
       });
 
-      // TODO notify subscription server new message
+      // notify subscription server new message
+      const message = await ConversationMessages.findOne({ _id: messageId });
+
+      conversationMessageCreated(message, message.conversationId);
 
       return messageId;
     }

@@ -1,5 +1,5 @@
 import { Customers, ConversationMessages, Conversations, Integrations } from '../db/models';
-import { CONVERSATION_STATUSES } from '../data/constants';
+import { conversationMessageCreated } from '../data/resolvers/mutations/conversations';
 
 /*
  * Get or create customer using twitter data
@@ -42,14 +42,17 @@ const createMessage = async (conversation, content, user) => {
   const customerId = await getOrCreateCustomer(conversation.integrationId, user);
 
   // create new message
-  const messageId = await ConversationMessages.create({
+  const messageId = await ConversationMessages.createMessage({
     conversationId: conversation._id,
     customerId,
     content,
     internal: false,
   });
 
-  // TODO notify subscription server new message
+  // notify subscription =========
+  const message = await ConversationMessages.findOne({ _id: messageId });
+
+  await conversationMessageCreated(message, message.conversationId);
 
   return messageId;
 };
@@ -81,11 +84,10 @@ export const getOrCreateCommonConversation = async (data, integration) => {
   } else {
     const customerId = await getOrCreateCustomer(integration._id, data.user);
 
-    const conversationId = await Conversations.create({
+    const conversationId = await Conversations.createConversation({
       content: data.text,
       integrationId: integration._id,
       customerId,
-      status: CONVERSATION_STATUSES.NEW,
 
       // save tweet id
       twitterData: {
@@ -144,11 +146,10 @@ export const getOrCreateDirectMessageConversation = async (data, integration) =>
   } else {
     const customerId = await getOrCreateCustomer(integration._id, data.sender);
 
-    const conversationId = await Conversations.create({
+    const conversationId = await Conversations.createConversation({
       content: data.text,
       integrationId: integration._id,
       customerId,
-      status: CONVERSATION_STATUSES.NEW,
 
       // save tweet id
       twitterData: {

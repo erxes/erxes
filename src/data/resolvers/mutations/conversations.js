@@ -1,10 +1,13 @@
-import { Conversations, ConversationMessages, Integrations, Customers } from '../../../db/models';
-import { NOTIFICATION_TYPES } from '../../constants';
-import { pubsub } from '../subscriptions';
-import { CONVERSATION_STATUSES, KIND_CHOICES } from '../../constants';
-import utils from '../../utils';
 import { _ } from 'underscore';
-import { moduleRequireLogin } from '../../permissions';
+import strip from 'strip';
+import { Conversations, ConversationMessages, Integrations, Customers } from '../../../db/models';
+import { tweetReply } from '../../../social/twitter';
+import { facebookReply } from '../../../social/facebook';
+import { NOTIFICATION_TYPES } from '../../constants';
+import { CONVERSATION_STATUSES, KIND_CHOICES } from '../../constants';
+import { requireLogin } from '../../permissions';
+import utils from '../../utils';
+import { pubsub } from '../subscriptions';
 
 /**
  * conversation notrification receiver ids
@@ -59,7 +62,7 @@ const conversationsChanged = async (_ids, type) => {
  * @param  {Object} message object
  * @param  {String} conversationId
  */
-const conversationMessageCreated = async (message, conversationId) => {
+export const conversationMessageCreated = async (message, conversationId) => {
   // subscribe
   pubsub.publish('conversationMessageInserted', {
     conversationMessageInserted: message,
@@ -73,6 +76,22 @@ const conversationMessageCreated = async (message, conversationId) => {
 };
 
 const conversationMutations = {
+  /*
+   * Calling this mutation from widget api run new message subscription
+   */
+  async conversationSubscribeMessageCreated(root, { _id }) {
+    const message = await ConversationMessages.findOne({ _id });
+
+    conversationMessageCreated(message, message.conversationId);
+  },
+
+  /*
+   * Calling this mutation from widget api run read state subscription
+   */
+  async conversationSubscribeChanged(root, { _ids, type }) {
+    conversationsChanged(_ids, type);
+  },
+
   /**
    * Create new message in conversation
    * @param  {Object} doc contains conversation message inputs
@@ -96,6 +115,9 @@ const conversationMutations = {
 
     // do not send internal message to third service integrations
     if (doc.internal) {
+      // notify subscription
+      await conversationMessageCreated(message, doc.conversationId);
+
       return message;
     }
 
@@ -109,7 +131,8 @@ const conversationMutations = {
 
     // send reply to twitter
     if (kind === KIND_CHOICES.TWITTER) {
-      // TODO: return tweetReply(conversation, strip(content));
+      tweetReply(conversation, strip(doc.content));
+      return message;
     }
 
     const customer = await Customers.findOne({ _id: conversation.customerId });
@@ -131,7 +154,7 @@ const conversationMutations = {
     // send reply to facebook
     if (kind === KIND_CHOICES.FACEBOOK) {
       // when facebook kind is feed, assign commentId in extraData
-      // TODO: facebookReply(conversation, strip(content), messageId);
+      facebookReply(conversation, strip(doc.content), message._id);
     }
 
     // notify subscription
@@ -195,7 +218,7 @@ const conversationMutations = {
   async conversationsChangeStatus(root, { _ids, status }, { user }) {
     const { conversations } = await Conversations.checkExistanceConversations(_ids);
 
-    const changedConversations = await Conversations.changeStatusConversation(_ids, status);
+    await Conversations.changeStatusConversation(_ids, status);
 
     // notify graphl subscription
     await conversationsChanged(_ids, 'statusChanged');
@@ -238,7 +261,7 @@ const conversationMutations = {
       });
     }
 
-    return changedConversations;
+    return Conversations.find({ _id: { $in: _ids } });
   },
 
   /**
@@ -283,6 +306,13 @@ const conversationMutations = {
   },
 };
 
-moduleRequireLogin(conversationMutations);
+requireLogin(conversationMutations, 'conversationMessageAdd');
+requireLogin(conversationMutations, 'conversationsAssign');
+requireLogin(conversationMutations, 'conversationsUnassign');
+requireLogin(conversationMutations, 'conversationsChangeStatus');
+requireLogin(conversationMutations, 'conversationsStar');
+requireLogin(conversationMutations, 'conversationsUnstar');
+requireLogin(conversationMutations, 'conversationsToggleParticipate');
+requireLogin(conversationMutations, 'conversationMarkAsRead');
 
 export default conversationMutations;

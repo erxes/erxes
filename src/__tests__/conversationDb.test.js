@@ -241,7 +241,6 @@ describe('Conversation db', () => {
 
   test('Conversation message', async () => {
     expect(await ConversationMessages.getNonAsnweredMessage(_conversation._id).count()).toBe(1);
-    // expect(question)
 
     await ConversationMessages.update(
       { conversationId: _conversation._id },

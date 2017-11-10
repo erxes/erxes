@@ -37,7 +37,7 @@ export const userFactory = (params = {}) => {
     },
     email: params.email || faker.internet.email(),
     role: params.role || 'contributor',
-    password: params.password || '$2a$12$eStwXbJ03luTm2826cbkWu57PnUA4Whk.KVOClc1P2kqcZTtsMK/i',
+    password: params.password || '$2a$10$qfBFBmWmUjeRcR.nBBfgDO/BEbxgoai5qQhyjsrDUMiZC6dG7sg1q',
     isOwner: params.isOwner || false,
   });
 
@@ -202,12 +202,19 @@ export const conversationFactory = (params = {}) => {
   });
 };
 
-export const conversationMessageFactory = (params = {}) => {
+export const conversationMessageFactory = async (params = {}) => {
+  let conversationId = params.conversationId;
+
+  if (!conversationId) {
+    const conversation = await conversationFactory({});
+    conversationId = conversation._id;
+  }
+
   return ConversationMessages.createMessage({
     content: params.content || faker.random.word(),
     attachments: {},
     mentionedUserIds: params.mentionedUserIds || [Random.id()],
-    conversationId: params.conversationId || Random.id(),
+    conversationId,
     internal: params.internal || true,
     customerId: params.customerId || Random.id(),
     userId: params.userId || Random.id(),
