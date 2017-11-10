@@ -1,22 +1,70 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Wrapper } from '../../layout/components';
+import {
+  AvatarWrapper,
+  ActivityRow,
+  ActivityWrapper,
+  ActivityCaption,
+  IconWrapper
+} from 'modules/common/components/ActivityList/styles';
+import { Tip, Icon, NameCard } from 'modules/common/components';
+import {
+  MessengerSection,
+  TwitterSection,
+  FacebookSection
+} from 'modules/customers/components/detail/sidebar';
+import ConversationDetails from './ConversationDetails';
 
 const propTypes = {
-  companies: PropTypes.func
+  conversation: PropTypes.object.isRequired
 };
 
 class RightSidebar extends Component {
-  render() {
-    const Sidebar = Wrapper.Sidebar;
-    const { Title } = Sidebar.Section;
+  renderIcon(text, className) {
+    if (!text) {
+      return null;
+    }
 
     return (
-      <Sidebar>
-        <Sidebar.Section>
-          <Title>Companies</Title>
-        </Sidebar.Section>
-      </Sidebar>
+      <Tip text={text}>
+        <Icon icon={className} size={15} />
+      </Tip>
+    );
+  }
+
+  renderBasicInfo() {
+    const { customer = {} } = this.props.conversation;
+    const isUser = customer.isUser;
+
+    return (
+      <ActivityRow>
+        <ActivityWrapper>
+          <AvatarWrapper isUser={isUser}>
+            <NameCard.Avatar customer={customer} size={60} />
+            {isUser ? <Icon icon="checkmark" /> : <Icon icon="minus" />}
+          </AvatarWrapper>
+
+          <ActivityCaption>{customer.name || 'N/A'}</ActivityCaption>
+
+          <IconWrapper>
+            {this.renderIcon(customer.email, 'email')}
+            {this.renderIcon(customer.phone, 'ios-telephone')}
+          </IconWrapper>
+        </ActivityWrapper>
+      </ActivityRow>
+    );
+  }
+  render() {
+    const { customer = {} } = this.props.conversation;
+    return (
+      <Wrapper.Sidebar>
+        {this.renderBasicInfo()}
+        <MessengerSection customer={customer} />
+        <TwitterSection customer={customer} />
+        <FacebookSection customer={customer} />
+        <ConversationDetails conversation={this.props.conversation} />
+      </Wrapper.Sidebar>
     );
   }
 }
