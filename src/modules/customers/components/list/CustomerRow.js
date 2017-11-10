@@ -4,7 +4,7 @@ import _ from 'lodash';
 import PropTypes from 'prop-types';
 import moment from 'moment';
 import { Button, Icon, FormControl } from 'modules/common/components';
-import { TagItem } from '../styles';
+import { TagItem } from 'modules/layout/styles';
 
 const propTypes = {
   history: PropTypes.object.isRequired,
