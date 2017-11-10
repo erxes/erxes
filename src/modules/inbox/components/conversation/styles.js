@@ -34,6 +34,10 @@ const MessageBody = styled.div`
   word-break: break-word;
   box-shadow: 0 1px 1px 0 ${colors.darkShadow};
 
+  p {
+    margin: 0;
+  }
+
   ${props => {
     if (props.staff) {
       return `

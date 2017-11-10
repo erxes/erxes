@@ -5,11 +5,15 @@ import {
   List as InternalNotes,
   Form as NoteForm
 } from 'modules/internalNotes/containers';
-import { ConversationList, EmptyState, Icon } from 'modules/common/components';
 import LeftSidebar from './sidebar/LeftSidebar';
 import { Tabs, TabTitle } from 'modules/common/components';
 import { WhiteBox } from 'modules/layout/styles';
-import ActivityList from './ActivityList';
+import {
+  ActivityList,
+  ConversationList,
+  EmptyState,
+  Icon
+} from 'modules/common/components';
 
 const propTypes = {
   customer: PropTypes.object.isRequired,
@@ -36,8 +40,7 @@ class CustomerDetails extends React.Component {
 
   renderTabContent() {
     const { currentTab } = this.state;
-    const { currentUser, customer } = this.props;
-    const { customerActivityLog } = this.props;
+    const { currentUser, customer, customerActivityLog } = this.props;
 
     if (currentTab === 'activity') {
       return (

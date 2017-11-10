@@ -639,12 +639,6 @@
   box-shadow: none !important;
 }
 
-.widget-backgrounds {
-  display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
-}
-
 .background-selector {
   border: 3px solid transparent;
   margin-right: 15px;
@@ -684,38 +678,6 @@
 }
 .background-selector > div.background-5 {
   background: #faf9fb;
-}
-
-.logo-container {
-  color: #fff;
-  line-height: 56px;
-  text-align: center;
-  border-radius: 28px;
-  width: 56px;
-  height: 56px;
-  cursor: pointer;
-  box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.2);
-  background-color: #452679;
-  background-position: center;
-  background-size: 46px;
-  background-repeat: no-repeat;
-  margin-top: 10px;
-  position: relative;
-  float: right;
-}
-.logo-container span {
-  position: absolute;
-  width: 20px;
-  height: 20px;
-  background: #f74040;
-  display: block;
-  right: -2px;
-  top: -5px;
-  color: #fff;
-  border-radius: 10px;
-  text-align: center;
-  line-height: 20px;
-  font-size: 10px;
 }
 
 .icon-option {
@@ -2127,88 +2089,6 @@ ss .full-loader [data-loader='circle-side'] {
   transition: all 0.25s ease;
 }
 
-.widget-preview {
-  width: 280px;
-  height: 430px;
-  border-radius: 4px;
-  background: #fff;
-  color: #fff;
-  display: flex;
-  font-size: 12px;
-  flex-direction: column;
-  overflow: hidden;
-  box-shadow: 0 2px 15px 0 rgba(0, 0, 0, 0.14), 0 1px 6px 0 rgba(0, 0, 0, 0.06);
-}
-.widget-preview .erxes-topbar {
-  overflow: hidden;
-  width: 100%;
-  position: relative;
-  text-align: center;
-  flex-shrink: 0;
-}
-.widget-preview .erxes-topbar .topbar-button {
-  left: 10px;
-}
-.widget-preview .erxes-topbar .erxes-middle {
-  display: inline-block;
-}
-.widget-preview .topbar-button {
-  position: absolute;
-  top: 15px;
-  text-align: center;
-  cursor: pointer;
-  width: 40px;
-  height: 40px;
-  line-height: 40px;
-  border-radius: 4px;
-  display: block;
-}
-.widget-preview .erxes-staff-profile {
-  padding: 10px 0;
-  text-align: left;
-  line-height: 1.3em;
-}
-.widget-preview .erxes-staff-profile img {
-  float: left;
-  width: 30px;
-  height: 30px;
-  border-radius: 20px;
-  overflow: hidden;
-}
-.widget-preview .erxes-staff-profile > div {
-  margin-left: 40px;
-}
-.widget-preview .erxes-staff-profile .erxes-staff-name {
-  font-size: 13px;
-  font-weight: 500;
-  padding-top: 3px;
-}
-.widget-preview .erxes-staff-profile .erxes-state {
-  font-size: 11px;
-  font-weight: 300;
-}
-.widget-preview .erxes-staff-profile .online {
-  width: 6px;
-  height: 6px;
-  border-radius: 3px;
-  display: inline-block;
-  margin-bottom: 1px;
-  margin-right: 3px;
-  background-color: #67c682;
-}
-.widget-preview .erxes-avatar {
-  width: 30px;
-  height: 30px;
-  border-radius: 50%;
-  overflow: hidden;
-  position: absolute;
-  left: 0;
-  bottom: 20px;
-}
-.widget-preview .erxes-avatar img {
-  width: 100%;
-  height: 100%;
-}
 .widget-preview.engage-message {
   height: 135px;
   color: #555;
@@ -2269,48 +2149,6 @@ ss .full-loader [data-loader='circle-side'] {
   position: relative;
   margin-bottom: 10px;
 }
-.erxes-messages-list li.from-customer {
-  text-align: right;
-}
-.erxes-messages-list li .date {
-  font-size: 10px;
-  color: #686868;
-  margin-left: 40px;
-}
-.erxes-messages-list li.erxes-spacial-message {
-  padding: 18px;
-  border-radius: 4px;
-  border: 1px solid #ddd;
-  background: #fff;
-  color: #686868;
-  margin-bottom: 20px;
-}
-
-.erxes-message {
-  padding: 10px 12px;
-  background-color: #eee;
-  border-radius: 4px;
-  position: relative;
-  margin: 0 20px 5px 40px;
-  display: inline-block;
-  word-break: break-word;
-  color: #686868;
-  text-align: left;
-}
-.erxes-message.from-customer {
-  margin: 0 0 5px 20px;
-  text-align: right;
-  color: #fff;
-}
-
-.erxes-message-sender {
-  overflow: hidden;
-  font-size: 12px;
-  padding: 17px 30px;
-  color: #555555;
-  border-top: 1px solid white;
-}
-
 .manage-columns {
   padding: 20px 0px;
   width: 50%;
@@ -2361,6 +2199,32 @@ ss .full-loader [data-loader='circle-side'] {
   width: 96%;
 }
 
+.internal-notes-list .item {
+  background-color: #f9f9f9;
+  margin: 10px 20px;
+  border: 1px solid #f9f9f9;
+  border-radius: 20px;
+  position: relative;
+}
+.internal-notes-list .item .topbar {
+  padding: 10px 20px;
+  border-bottom: 1px solid #e0e0e0;
+}
+.internal-notes-list .item .topbar .name-card {
+  float: left;
+}
+.internal-notes-list .item .topbar .date {
+  float: right;
+}
+.internal-notes-list .item .text {
+  padding: 10px 20px;
+}
+.internal-notes-list .item .delete {
+  position: absolute;
+  right: 10px;
+  bottom: 10px;
+  color: #de8282;
+}
 .engage-rule {
   margin-top: 5px;
   color: #777777;

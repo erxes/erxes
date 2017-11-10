@@ -25,14 +25,11 @@ const ICON_AND_COLOR_TABLE = {
   'conversation-create': {
     icon: 'android-boat',
     color: '#F44236'
+  },
+  'internal_note-create': {
+    icon: 'android-bus',
+    color: '#F5C22B'
   }
-
-  // reserved
-  // icon: 'android-bus',
-  // color: '#F5C22B'
-
-  // icon: 'android-calendar',
-  // color: '#67C682'
 };
 
 /**

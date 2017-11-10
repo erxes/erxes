@@ -125,10 +125,4 @@ Sidebar.Header = Header;
 Sidebar.Section = Section;
 Sidebar.Footer = Footer;
 
-// TODO
-Sidebar.filter = () => {};
-Sidebar.getActiveClass = () => {
-  return '';
-};
-
 export default Sidebar;

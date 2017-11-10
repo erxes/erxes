@@ -1,5 +1,5 @@
 import styled, { css } from 'styled-components';
-import { colors, dimensions } from '../common/styles';
+import { colors, dimensions, typography } from '../common/styles';
 import { rgba } from '../common/styles/color';
 
 const UserHelper = styled.div`
@@ -193,7 +193,11 @@ const SidebarMainContent = styled.div`
   }
 `;
 
-const SidebarFooter = SidebarHeader.extend``;
+const SidebarFooter = SidebarHeader.extend`
+  border-top: 1px solid ${colors.borderPrimary};
+  border-bottom: none;
+  margin-top: -1px;
+`;
 
 const SidebarBox = styled.div`
   background-color: ${colors.colorWhite};
@@ -282,6 +286,7 @@ const SidebarList = styled.ul`
     text-overflow: ellipsis;
     text-decoration: none;
     outline: 0;
+    position: relative;
 
     > span {
       font-size: 12px;
@@ -291,13 +296,14 @@ const SidebarList = styled.ul`
       position: absolute;
       right: 20px;
     }
-  }
 
-  a:hover {
-    cursor: pointer;
-    background: ${colors.borderPrimary};
-    text-decoration: none;
-    color: ${colors.colorCoreBlack};
+    &:hover,
+    &.active {
+      cursor: pointer;
+      background: ${colors.borderPrimary};
+      text-decoration: none;
+      color: ${colors.colorCoreBlack};
+    }
   }
 
   .icon {
@@ -386,6 +392,21 @@ const AuthDescription = styled.div`
   }
 `;
 
+const TagItem = styled.div`
+  display: inline-block;
+  border-radius: 8px;
+  text-transform: uppercase;
+  font-weight: ${typography.fontWeightRegular};
+  font-size: ${dimensions.unitSpacing}px;
+  color: ${colors.colorWhite};
+  padding: 0 ${dimensions.unitSpacing}px;
+  margin-right: ${dimensions.unitSpacing}px;
+
+  &:last-child {
+    margin-right: 0px;
+  }
+`;
+
 export {
   Main,
   Layout,
@@ -420,5 +441,6 @@ export {
   WhiteBox,
   Authlayout,
   AuthContent,
-  AuthDescription
+  AuthDescription,
+  TagItem
 };

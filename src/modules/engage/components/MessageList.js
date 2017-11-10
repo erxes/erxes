@@ -9,7 +9,8 @@ import {
   TaggerPopover,
   Table,
   Button,
-  Icon
+  Icon,
+  EmptyState
 } from 'modules/common/components';
 import { MessageListRow, Sidebar as SidebarContainers } from '../containers';
 
@@ -77,34 +78,49 @@ class List extends React.Component {
       <Wrapper.ActionBar left={this.renderTagger()} right={actionBarRight} />
     );
 
-    const content = (
-      <Table whiteSpace="nowrap" hover bordered>
-        <thead>
-          <tr>
-            <th />
-            <th>Title</th>
-            <th>From</th>
-            <th>Status</th>
-            <th>Total</th>
-            <th>Sent</th>
-            <th>Failed</th>
-            <th>Type</th>
-            <th>Created date</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {messages.map(message => (
-            <MessageListRow
-              toggleBulk={toggleBulk}
-              refetch={refetch}
-              key={message._id}
-              message={message}
-            />
-          ))}
-        </tbody>
-      </Table>
+    const emptyContent = (
+      <EmptyState text="There is no engage message." size="full" icon="email" />
     );
+
+    const mainContent = (
+      <div>
+        <Table whiteSpace="nowrap" hover bordered>
+          <thead>
+            <tr>
+              <th />
+              <th>Title</th>
+              <th>From</th>
+              <th>Status</th>
+              <th>Total</th>
+              <th>Sent</th>
+              <th>Failed</th>
+              <th>Type</th>
+              <th>Created date</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {messages.map(message => (
+              <MessageListRow
+                toggleBulk={toggleBulk}
+                refetch={refetch}
+                key={message._id}
+                message={message}
+              />
+            ))}
+          </tbody>
+        </Table>
+
+        <Pagination count={totalCount} />
+      </div>
+    );
+
+    const content = () => {
+      if (messages.length === 0) {
+        return emptyContent;
+      }
+      return mainContent;
+    };
 
     const sidebar = (
       <Wrapper.Sidebar>
@@ -120,7 +136,7 @@ class List extends React.Component {
         leftSidebar={sidebar}
         actionBar={actionBar}
         footer={<Pagination count={totalCount} />}
-        content={content}
+        content={content()}
       />
     );
   }

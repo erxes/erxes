@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import { Wrapper } from '../../layout/components';
 
 const propTypes = {
-  user: PropTypes.object.isRequired,
   companies: PropTypes.func
 };
 

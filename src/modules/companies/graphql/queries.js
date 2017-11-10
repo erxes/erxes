@@ -61,10 +61,30 @@ export const companiesListConfig = `
   }
 `;
 
+const companyActivityLog = `
+  query companyActivityLog($_id: String!) {
+    companyActivityLog(_id: $_id) {
+      date {
+        year
+        month
+      }
+      list {
+        id
+        action
+        content {
+          name
+        }
+        createdAt
+      }
+    }
+  }
+`;
+
 export default {
   companies,
   companyCounts,
   companyDetail,
   fields,
-  companiesListConfig
+  companiesListConfig,
+  companyActivityLog
 };

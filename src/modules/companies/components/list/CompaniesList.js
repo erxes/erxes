@@ -7,6 +7,7 @@ import {
   ModalTrigger,
   Button,
   Table,
+  EmptyState,
   Icon
 } from 'modules/common/components';
 import { BarItems } from 'modules/layout/styles';
@@ -22,24 +23,41 @@ const propTypes = {
 };
 
 function CompaniesList({ companies, counts, columnsConfig, addCompany }) {
-  const content = (
-    <Table whiteSpace="nowrap" bordered>
-      <thead>
-        <tr>
-          {columnsConfig.map(({ name, label }) => <th key={name}>{label}</th>)}
-        </tr>
-      </thead>
-      <tbody>
-        {companies.map(company => (
-          <CompanyRow
-            company={company}
-            columnsConfig={columnsConfig}
-            key={company._id}
-          />
-        ))}
-      </tbody>
-    </Table>
+  const mainContent = (
+    <div>
+      <Table whiteSpace="nowrap" bordered>
+        <thead>
+          <tr>
+            {columnsConfig.map(({ name, label }) => (
+              <th key={name}>{label}</th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {companies.map(company => (
+            <CompanyRow
+              company={company}
+              columnsConfig={columnsConfig}
+              key={company._id}
+            />
+          ))}
+        </tbody>
+      </Table>
+
+      <Pagination count={counts.all} />
+    </div>
   );
+
+  const emptyContent = (
+    <EmptyState text="No companies added yet!" size="full" icon="ios-list" />
+  );
+
+  const content = () => {
+    if (companies.length === 0) {
+      return emptyContent;
+    }
+    return mainContent;
+  };
 
   const addTrigger = (
     <Button btnStyle="success" size="small">
@@ -69,7 +87,7 @@ function CompaniesList({ companies, counts, columnsConfig, addCompany }) {
       actionBar={actionBar}
       footer={<Pagination count={counts.all} />}
       leftSidebar={<Sidebar counts={counts} />}
-      content={content}
+      content={content()}
     />
   );
 }

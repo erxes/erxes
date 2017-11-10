@@ -15,7 +15,7 @@ const propTypes = {
       title: PropTypes.string,
       iconClass: PropTypes.string,
       iconColor: PropTypes.string,
-      selectedBy: PropTypes.string.isRequired
+      selectedBy: PropTypes.string
     })
   ).isRequired,
   links: PropTypes.arrayOf(
