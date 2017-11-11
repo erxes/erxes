@@ -42,9 +42,7 @@ describe('test activityLogsCronJob', () => {
     expect(aLog.activity.toObject()).toEqual({
       type: ACTIVITY_TYPES.SEGMENT,
       action: ACTIVITY_ACTIONS.CREATE,
-      content: {
-        name: segment.name,
-      },
+      content: segment.name,
       id: segment._id,
     });
     expect(aLog.coc.toObject()).toEqual({

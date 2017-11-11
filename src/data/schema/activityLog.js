@@ -4,10 +4,6 @@ export const types = `
     month: Int
   }
 
-  type ActivityContent {
-    name: String
-  }
-
   type ActivityLogForMonth {
     date: YearMonthDoc!
     list: [ActivityLog]!
@@ -17,7 +13,7 @@ export const types = `
     action: String!
     id: String!
     createdAt: Date!
-    content: ActivityContent!
+    content: String
   }
 `;
 

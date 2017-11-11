@@ -89,6 +89,7 @@ describe('ActivityLogs model methods', () => {
       type: ACTIVITY_TYPES.INTERNAL_NOTE,
       action: ACTIVITY_ACTIONS.CREATE,
       id: internalNote._id,
+      content: internalNote.content,
     });
   });
 
@@ -128,9 +129,7 @@ describe('ActivityLogs model methods', () => {
     expect(segmentLog.activity.toObject()).toEqual({
       type: ACTIVITY_TYPES.SEGMENT,
       action: ACTIVITY_ACTIONS.CREATE,
-      content: {
-        name: segment.name,
-      },
+      content: segment.name,
       id: segment._id,
     });
     expect(segmentLog.coc.toObject()).toEqual({
@@ -182,6 +181,7 @@ describe('ActivityLogs model methods', () => {
     expect(aLog.activity.toObject()).toEqual({
       type: ACTIVITY_TYPES.CONVERSATION_MESSAGE,
       action: ACTIVITY_ACTIONS.CREATE,
+      content: message.content,
       id: message._id,
     });
 
@@ -229,9 +229,7 @@ describe('ActivityLogs model methods', () => {
     expect(aLog.activity.toObject()).toEqual({
       type: ACTIVITY_TYPES.CUSTOMER,
       action: ACTIVITY_ACTIONS.CREATE,
-      content: {
-        name: customer.name,
-      },
+      content: customer.name,
       id: customer._id,
     });
     expect(aLog.coc.toObject()).toEqual({
@@ -253,9 +251,7 @@ describe('ActivityLogs model methods', () => {
     expect(aLog.activity.toObject()).toEqual({
       type: ACTIVITY_TYPES.COMPANY,
       action: ACTIVITY_ACTIONS.CREATE,
-      content: {
-        name: company.name,
-      },
+      content: company.name,
       id: company._id,
     });
     expect(aLog.coc.toObject()).toEqual({

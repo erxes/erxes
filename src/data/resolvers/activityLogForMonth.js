@@ -13,6 +13,6 @@ export default {
         $gte: obj.date.interval.start,
         $lt: obj.date.interval.end,
       },
-    });
+    }).sort({ createdAt: -1 });
   },
 };
