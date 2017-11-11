@@ -1,32 +1,11 @@
 import mongoose, { SchemaTypes } from 'mongoose';
 import Random from 'meteor-random';
-import { COC_CONTENT_TYPES } from '../../data/constants';
-
-export const ACTIVITY_TYPES = {
-  CUSTOMER: 'customer',
-  COMPANY: 'company',
-  INTERNAL_NOTE: 'internal_note',
-  CONVERSATION_MESSAGE: 'conversation_message',
-  SEGMENT: 'segment',
-
-  ALL: ['customer', 'company', 'internal_note', 'conversation_message', 'segment'],
-};
-
-export const ACTIVITY_ACTIONS = {
-  CREATE: 'create',
-  UPDATE: 'update',
-  DELETE: 'delete',
-
-  ALL: ['create', 'update', 'delete'],
-};
-
-export const ACTION_PERFORMER_TYPES = {
-  SYSTEM: 'SYSTEM',
-  USER: 'USER',
-  CUSTOMER: 'CUSTOMER',
-
-  ALL: ['SYSTEM', 'USER', 'CUSTOMER'],
-};
+import {
+  COC_CONTENT_TYPES,
+  ACTION_PERFORMER_TYPES,
+  ACTIVITY_TYPES,
+  ACTIVITY_ACTIONS,
+} from '../../data/constants';
 
 /* Performer of the action:
    *system* cron job, user

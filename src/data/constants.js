@@ -186,3 +186,29 @@ export const PUBLISH_STATUSES = {
   PUBLISH: 'publish',
   ALL: ['draft', 'publish'],
 };
+
+export const ACTIVITY_TYPES = {
+  CUSTOMER: 'customer',
+  COMPANY: 'company',
+  INTERNAL_NOTE: 'internal_note',
+  CONVERSATION_MESSAGE: 'conversation_message',
+  SEGMENT: 'segment',
+
+  ALL: ['customer', 'company', 'internal_note', 'conversation_message', 'segment'],
+};
+
+export const ACTIVITY_ACTIONS = {
+  CREATE: 'create',
+  UPDATE: 'update',
+  DELETE: 'delete',
+
+  ALL: ['create', 'update', 'delete'],
+};
+
+export const ACTION_PERFORMER_TYPES = {
+  SYSTEM: 'SYSTEM',
+  USER: 'USER',
+  CUSTOMER: 'CUSTOMER',
+
+  ALL: ['SYSTEM', 'USER', 'CUSTOMER'],
+};

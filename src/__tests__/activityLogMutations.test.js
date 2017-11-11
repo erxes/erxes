@@ -3,10 +3,9 @@
 
 import { connect, disconnect } from '../db/connection';
 import mutations from '../data/resolvers/mutations';
-import { ROLES } from '../data/constants';
-import ActivityLogs, { ACTIVITY_TYPES } from '../db/models/ActivityLogs';
+import { ROLES, ACTIVITY_TYPES, COC_CONTENT_TYPES } from '../data/constants';
+import { ActivityLogs } from '../db/models';
 import { userFactory, customerFactory } from '../db/factories';
-import { COC_CONTENT_TYPES } from '../data/constants';
 
 beforeAll(() => connect());
 afterAll(() => disconnect());

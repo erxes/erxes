@@ -9,11 +9,25 @@ export const types = `
     list: [ActivityLog]!
   }
 
+  type ActivityLogPerformerDetails {
+    avatar: String
+    fullName: String
+    position: String
+    twitterUsername: String
+  }
+
+  type ActivityLogActionPerformer {
+    _id: String
+    type: String!
+    details: ActivityLogPerformerDetails
+  }
+
   type ActivityLog {
     action: String!
     id: String!
     createdAt: Date!
     content: String
+    by: ActivityLogActionPerformer
   }
 `;
 

@@ -3,13 +3,14 @@
 
 import { connect, disconnect } from '../db/connection';
 import cronJobs from '../cronJobs';
-import { COC_CONTENT_TYPES } from '../data/constants';
-import { customerFactory, segmentFactory } from '../db/factories';
-import ActivityLogs, {
+import {
+  COC_CONTENT_TYPES,
   ACTIVITY_TYPES,
   ACTIVITY_ACTIONS,
   ACTION_PERFORMER_TYPES,
-} from '../db/models/ActivityLogs';
+} from '../data/constants';
+import { ActivityLogs } from '../db/models';
+import { customerFactory, segmentFactory } from '../db/factories';
 
 beforeAll(() => connect());
 afterAll(() => disconnect());

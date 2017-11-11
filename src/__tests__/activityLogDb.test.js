@@ -2,13 +2,13 @@
 /* eslint-disable no-underscore-dangle */
 
 import { connect, disconnect } from '../db/connection';
-import { COC_CONTENT_TYPES } from '../data/constants';
-import { ActivityLogs, Conversations } from '../db/models';
 import {
+  COC_CONTENT_TYPES,
   ACTION_PERFORMER_TYPES,
   ACTIVITY_TYPES,
   ACTIVITY_ACTIONS,
-} from '../db/models/ActivityLogs';
+} from '../data/constants';
+import { ActivityLogs, Conversations } from '../db/models';
 import {
   userFactory,
   internalNoteFactory,

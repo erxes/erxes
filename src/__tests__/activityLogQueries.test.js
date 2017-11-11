@@ -91,6 +91,14 @@ describe('activityLogs', () => {
             action
             content
             createdAt
+            by {
+              _id
+              type
+              details {
+                avatar
+                fullName
+              }
+            }
           }
         }
       }
@@ -228,6 +236,14 @@ describe('activityLogs', () => {
             action
             content
             createdAt
+            by {
+              _id
+              type
+              details {
+                avatar
+                fullName
+              }
+            }
           }
         }
       }
