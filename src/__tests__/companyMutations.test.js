@@ -48,7 +48,10 @@ describe('Companies mutations', () => {
   });
 
   test('Create company', async () => {
-    Companies.createCompany = jest.fn();
+    Companies.createCompany = jest.fn(() => ({
+      name: 'test company name',
+      _id: 'test company id',
+    }));
 
     const doc = { name: 'name', email: 'dombo@yahoo.com' };
 

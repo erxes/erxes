@@ -149,8 +149,8 @@ const START_DATE = {
 };
 
 class BaseMonthActivityBuilder {
-  constructor(customer) {
-    this.customer = customer;
+  constructor(coc) {
+    this.coc = coc;
   }
 
   getDaysInMonth(year, month) {
@@ -196,8 +196,8 @@ class BaseMonthActivityBuilder {
 
     for (let date of dates) {
       list.unshift({
-        customer: this.customer,
-        customerType: this.customerType,
+        coc: this.coc,
+        cocContentType: this.cocContentType,
         date,
       });
     }
@@ -207,16 +207,16 @@ class BaseMonthActivityBuilder {
 }
 
 export class CustomerMonthActivityLogBuilder extends BaseMonthActivityBuilder {
-  constructor(customer) {
-    super(customer);
-    this.customerType = COC_CONTENT_TYPES.CUSTOMER;
+  constructor(coc) {
+    super(coc);
+    this.cocContentType = COC_CONTENT_TYPES.CUSTOMER;
   }
 }
 
 export class CompanyMonthActivityLogBuilder extends BaseMonthActivityBuilder {
-  constructor(customer) {
-    super(customer);
-    this.customerType = COC_CONTENT_TYPES.COMPANY;
+  constructor(coc) {
+    super(coc);
+    this.cocContentType = COC_CONTENT_TYPES.COMPANY;
   }
 }
 

@@ -73,9 +73,10 @@ describe('ActivityLog creation on Customer creation', () => {
     );
 
     expect(await ActivityLogs.find().count()).toBe(1);
-    const aLog = await ActivityLogs.findOne({});
-    expect(aLog).toBeDefined();
 
+    const aLog = await ActivityLogs.findOne({});
+
+    expect(aLog).toBeDefined();
     expect(aLog.activity.type).toBe(ACTIVITY_TYPES.INTERNAL_NOTE);
     expect(aLog.activity.id).toBe(internalNote._id);
     expect(aLog.coc.type).toBe(COC_CONTENT_TYPES.CUSTOMER);

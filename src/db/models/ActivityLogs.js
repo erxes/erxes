@@ -149,7 +149,6 @@ class ActivityLog {
    * Create activity log for internal note
    * @param {InternalNote} internalNote - Internal note document
    * @param {User} performedBy - User collection document
-   * @param {Customer|Company} customer - Customer or Company document
    * @return {Promise} returns Promise resolving created ActivityLog document
    */
   static createInternalNoteLog(internalNote, user) {
