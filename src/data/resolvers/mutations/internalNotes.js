@@ -3,7 +3,7 @@ import { moduleRequireLogin } from '../../permissions';
 
 const internalNoteMutations = {
   /**
-   * Adds internalNote object
+   * Adds internalNote object and also adds an activity log
    * @return {Promise}
    */
   async internalNotesAdd(root, args, { user }) {
