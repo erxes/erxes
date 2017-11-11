@@ -1,10 +1,9 @@
 import _ from 'underscore';
 import { Brands, Tags, Integrations, Customers, Segments } from '../../../db/models';
 import { TAG_TYPES, INTEGRATION_KIND_CHOICES, COC_CONTENT_TYPES } from '../../constants';
-import QueryBuilder from '../../segmentQueryBuilder';
+import QueryBuilder from './segmentQueryBuilder';
 import { moduleRequireLogin } from '../../permissions';
 import { paginate } from './utils';
-import { CustomerMonthActivityLogBuilder } from '../../utils';
 
 const listQuery = async params => {
   const selector = {};
@@ -147,20 +146,6 @@ const customerQueries = {
    */
   customerDetail(root, { _id }) {
     return Customers.findOne({ _id });
-  },
-
-  /**
-   * Get activity log for customer
-   * @param {Object} root
-   * @param {Object} object2 - Graphql input data
-   * @param {string} object._id - Customer id
-   * @return {Promise} found customer
-   */
-  async customerActivityLog(root, { _id }) {
-    const customer = await Customers.findOne({ _id });
-
-    const m = new CustomerMonthActivityLogBuilder(customer);
-    return m.build();
   },
 };
 

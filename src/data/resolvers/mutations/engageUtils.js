@@ -15,7 +15,7 @@ import {
   INTEGRATION_KIND_CHOICES,
 } from '../../constants';
 import Random from 'meteor-random';
-import QueryBuilder from '../../segmentQueryBuilder';
+import QueryBuilder from '../queries/segmentQueryBuilder';
 import { createTransporter } from '../../utils';
 
 /**

@@ -1,41 +1,38 @@
 import moment from 'moment';
 
-export const segments = (segment, headSegment) => {
-  const query = { $and: [] };
+export default {
+  segments(segment, headSegment) {
+    const query = { $and: [] };
 
-  const childQuery = {
-    [segment.connector === 'any' ? '$or' : '$and']: segment.conditions.map(condition => ({
-      [condition.field]: convertConditionToQuery(condition),
-    })),
-  };
-
-  if (segment.conditions.length) {
-    query.$and.push(childQuery);
-  }
-
-  // Fetching parent segment
-  const embeddedParentSegment =
-    typeof segment.getParentSegment === 'function' ? segment.getParentSegment() : null;
-  const parentSegment = headSegment || embeddedParentSegment;
-
-  if (parentSegment) {
-    const parentQuery = {
-      [parentSegment.connector === 'any'
-        ? '$or'
-        : '$and']: parentSegment.conditions.map(condition => ({
+    const childQuery = {
+      [segment.connector === 'any' ? '$or' : '$and']: segment.conditions.map(condition => ({
         [condition.field]: convertConditionToQuery(condition),
       })),
     };
-    if (parentSegment.conditions.length) {
-      query.$and.push(parentQuery);
+    if (segment.conditions.length) {
+      query.$and.push(childQuery);
     }
-  }
 
-  return query.$and.length ? query : {};
-};
+    // Fetching parent segment
+    const embeddedParentSegment =
+      typeof segment.getParentSegment === 'function' ? segment.getParentSegment() : null;
+    const parentSegment = headSegment || embeddedParentSegment;
 
-export default {
-  segments,
+    if (parentSegment) {
+      const parentQuery = {
+        [parentSegment.connector === 'any'
+          ? '$or'
+          : '$and']: parentSegment.conditions.map(condition => ({
+          [condition.field]: convertConditionToQuery(condition),
+        })),
+      };
+      if (parentSegment.conditions.length) {
+        query.$and.push(parentQuery);
+      }
+    }
+
+    return query.$and.length ? query : {};
+  },
 };
 
 function convertConditionToQuery(condition) {
@@ -63,9 +60,9 @@ function convertConditionToQuery(condition) {
     case 'dne':
       return { $ne: transformedValue };
     case 'c':
-      return { $regex: `.*${escapeRegExp(transformedValue)}.*`, $options: 'i' };
+      return { $regex: new RegExp(`.*${escapeRegExp(transformedValue)}.*`, 'i') };
     case 'dnc':
-      return { $regex: `^((?!${escapeRegExp(transformedValue)}).)*$`, $options: 'i' };
+      return { $regex: new RegExp(`^((?!${escapeRegExp(transformedValue)}).)*$`, 'i') };
     case 'igt':
       return { $gt: transformedValue };
     case 'ilt':
@@ -108,6 +105,5 @@ function convertConditionToQuery(condition) {
 }
 
 function escapeRegExp(string) {
-  // $& means the whole matched string
-  return new String(string).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
 }

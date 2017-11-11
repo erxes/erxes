@@ -1,11 +1,11 @@
 export const types = `
-  type YearMonthDoc {
+  type ActivityLogYearMonthDoc {
     year: Int
     month: Int
   }
 
   type ActivityLogForMonth {
-    date: YearMonthDoc!
+    date: ActivityLogYearMonthDoc!
     list: [ActivityLog]!
   }
 
@@ -15,6 +15,11 @@ export const types = `
     createdAt: Date!
     content: String
   }
+`;
+
+export const queries = `
+  activityLogsCustomer(_id: String!): [ActivityLogForMonth]
+  activityLogsCompany(_id: String!): [ActivityLogForMonth]
 `;
 
 export const mutations = `

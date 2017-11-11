@@ -4,7 +4,12 @@
 import { connect, disconnect } from '../db/connection';
 import { COC_CONTENT_TYPES } from '../data/constants';
 import mutations from '../data/resolvers/mutations';
-import { userFactory, segmentFactory, conversationMessageFactory } from '../db/factories';
+import {
+  userFactory,
+  segmentFactory,
+  conversationMessageFactory,
+  customerFactory,
+} from '../db/factories';
 import { ActivityLogs } from '../db/models';
 import schema from '../data';
 import cronJobs from '../cronJobs';
@@ -14,7 +19,7 @@ import { graphql } from 'graphql';
 beforeAll(() => connect());
 afterAll(() => disconnect());
 
-describe('customerActivityLog', () => {
+describe('activityLogs', () => {
   let _user;
   let _message;
 
@@ -23,7 +28,12 @@ describe('customerActivityLog', () => {
     _message = await conversationMessageFactory({});
   });
 
+  afterEach(() => {
+    return ActivityLogs.remove({});
+  });
+
   test('customerActivityLog', async () => {
+    // create customer
     const customer = await mutations.customersAdd(
       null,
       {
@@ -34,6 +44,7 @@ describe('customerActivityLog', () => {
       { user: _user },
     );
 
+    // create conversation message
     await mutations.activitivyLogsAddConversationMessageLog(null, {
       customerId: customer._id,
       messageId: _message._id,
@@ -69,8 +80,8 @@ describe('customerActivityLog', () => {
     await cronJobs.createActivityLogsFromSegments();
 
     const query = `
-      query customerActivityLog($_id: String!) {
-        customerActivityLog(_id: $_id) {
+      query activityLogsCustomer($_id: String!) {
+        activityLogsCustomer(_id: $_id) {
           date {
             year
             month
@@ -91,9 +102,9 @@ describe('customerActivityLog', () => {
     // call graphql query
     let result = await graphql(schema, query, rootValue, context, { _id: customer._id });
 
-    let logs = result.data.customerActivityLog;
+    let logs = result.data.activityLogsCustomer;
 
-    // test values
+    // test values ==============
     expect(logs[0].list[0].id).toBe(segment._id);
     expect(logs[0].list[0].action).toBe('segment-create');
     expect(logs[0].list[0].content).toBe(segment.name);
@@ -110,7 +121,7 @@ describe('customerActivityLog', () => {
     expect(logs[0].list[3].action).toBe('customer-create');
     expect(logs[0].list[3].content).toBe(customer.name);
 
-    // change activity log 'createdAt' values
+    // change activity log 'createdAt' values ===================
     await ActivityLogs.update(
       {
         'activity.type': 'segment',
@@ -163,9 +174,9 @@ describe('customerActivityLog', () => {
     result = await graphql(schema, query, rootValue, context, { _id: customer._id });
 
     // get new log
-    logs = result.data.customerActivityLog;
+    logs = result.data.activityLogsCustomer;
 
-    // test freshly list
+    // test the fetched data =============================
     const yearMonthLength = logs.length - 1;
 
     expect(logs[yearMonthLength].list[0].id).toBe(segment._id);
@@ -187,5 +198,56 @@ describe('customerActivityLog', () => {
     expect(logs[yearMonthLength - 1].list[februaryLogLength - 2].id).toBe(customer._id);
     expect(logs[yearMonthLength - 1].list[februaryLogLength - 2].action).toBe('customer-create');
     expect(logs[yearMonthLength - 1].list[februaryLogLength - 2].content).toBe(customer.name);
+  });
+
+  test('companyActivityLog', async () => {
+    const company = await mutations.companiesAdd(
+      null,
+      {
+        name: 'test company',
+        website: 'test.test.test',
+      },
+      { user: _user },
+    );
+    const customer = await customerFactory({ companyIds: [company._id] });
+
+    await mutations.activitivyLogsAddConversationMessageLog(null, {
+      customerId: customer._id,
+      messageId: _message._id,
+    });
+
+    const query = `
+      query activityLogsCompany($_id: String!) {
+        activityLogsCompany(_id: $_id) {
+          date {
+            year
+            month
+          }
+          list {
+            id
+            action
+            content
+            createdAt
+          }
+        }
+      }
+    `;
+
+    const rootValue = {};
+    const context = { user: _user };
+
+    // call graphql query
+    let result = await graphql(schema, query, rootValue, context, { _id: company._id });
+
+    const logs = result.data.activityLogsCompany;
+
+    // test values ===========================
+    expect(logs[0].list[0].id).toBe(_message._id);
+    expect(logs[0].list[0].action).toBe('conversation_message-create');
+    expect(logs[0].list[0].content).toBe(_message.content);
+
+    expect(logs[0].list[1].id).toBe(company._id);
+    expect(logs[0].list[1].action).toBe('company-create');
+    expect(logs[0].list[1].content).toBe(company.name);
   });
 });

@@ -77,7 +77,7 @@ class Company {
     return this.create(doc);
   }
 
-  /*
+  /**
    * Update company
    * @param {String} _id company id to update
    * @param {Object} doc field values to update
@@ -102,7 +102,7 @@ class Company {
     return this.findOne({ _id });
   }
 
-  /*
+  /**
    * Create new customer and add to customer's customer list
    * @return {Promise} newly created customer
    */

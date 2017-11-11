@@ -1,4 +1,4 @@
-import { Companies } from '../../../db/models';
+import { Companies, ActivityLogs } from '../../../db/models';
 import { moduleRequireLogin } from '../../permissions';
 
 const companyMutations = {
@@ -6,8 +6,10 @@ const companyMutations = {
    * Create new company
    * @return {Promise} company object
    */
-  companiesAdd(root, doc) {
-    return Companies.createCompany(doc);
+  async companiesAdd(root, doc, { user }) {
+    const company = await Companies.createCompany(doc);
+    await ActivityLogs.createCompanyRegistrationLog(company, user);
+    return company;
   },
 
   /**
