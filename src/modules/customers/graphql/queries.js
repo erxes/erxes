@@ -98,9 +98,9 @@ const customersListConfig = `
   }
 `;
 
-const customerActivityLog = `
-  query customerActivityLog($_id: String!) {
-    customerActivityLog(_id: $_id) {
+const activityLogsCustomer = `
+  query activityLogsCustomer($_id: String!) {
+    activityLogsCustomer(_id: $_id) {
       date {
         year
         month
@@ -108,10 +108,16 @@ const customerActivityLog = `
       list {
         id
         action
-        content {
-          name
-        }
+        content
         createdAt
+        by {
+          _id
+          type
+          details {
+            avatar
+            fullName
+          }
+        }
       }
     }
   }
@@ -125,5 +131,5 @@ export default {
   tags,
   fields,
   customersListConfig,
-  customerActivityLog
+  activityLogsCustomer
 };

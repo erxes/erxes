@@ -20,8 +20,6 @@ const propTypes = {
 
 class ActivityList extends React.Component {
   activityRow(data) {
-    const currentUser = this.props.user;
-
     return (
       <ActivityRow key={Math.random()}>
         <ActivityIcon color={data.color}>
@@ -29,7 +27,7 @@ class ActivityList extends React.Component {
         </ActivityIcon>
         <ActivityWrapper>
           <AvatarWrapper>
-            <NameCard.Avatar user={currentUser} size={50} />
+            <NameCard.Avatar user={data.by} size={50} />
           </AvatarWrapper>
           <ActivityCaption>{data.caption}</ActivityCaption>
           <div>{moment(data.date).fromNow()}</div>
@@ -42,15 +40,14 @@ class ActivityList extends React.Component {
     return (
       <div key={Math.random()}>
         <ActivityTitle>{activity.title}</ActivityTitle>
-        {activity.data.map(data => this.activityRow(data))}
+        {activity.data.map(rowData => this.activityRow(rowData))}
       </div>
     );
   }
 
   render() {
-    let activities = this.props.activities;
-
-    const activityLogProcessor = new ActivityLogProcessor(activities);
+    let { activities, user } = this.props;
+    const activityLogProcessor = new ActivityLogProcessor(activities, user);
     activities = activityLogProcessor.process();
 
     if (!activities || activities.length < 1) {

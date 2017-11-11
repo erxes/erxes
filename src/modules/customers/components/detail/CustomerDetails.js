@@ -22,7 +22,7 @@ const propTypes = {
   save: PropTypes.func.isRequired,
   queryParams: PropTypes.object.isRequired,
   addCompany: PropTypes.func.isRequired,
-  customerActivityLog: PropTypes.array.isRequired
+  activityLogsCustomer: PropTypes.array.isRequired
 };
 
 class CustomerDetails extends React.Component {
@@ -40,11 +40,11 @@ class CustomerDetails extends React.Component {
 
   renderTabContent() {
     const { currentTab } = this.state;
-    const { currentUser, customer, customerActivityLog } = this.props;
+    const { currentUser, customer, activityLogsCustomer } = this.props;
 
     if (currentTab === 'activity') {
       return (
-        <ActivityList user={currentUser} activities={customerActivityLog} />
+        <ActivityList user={currentUser} activities={activityLogsCustomer} />
       );
     }
 

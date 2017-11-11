@@ -61,9 +61,9 @@ export const companiesListConfig = `
   }
 `;
 
-const companyActivityLog = `
-  query companyActivityLog($_id: String!) {
-    companyActivityLog(_id: $_id) {
+const activityLogsCompany = `
+  query activityLogsCompany($_id: String!) {
+    activityLogsCompany(_id: $_id) {
       date {
         year
         month
@@ -71,10 +71,16 @@ const companyActivityLog = `
       list {
         id
         action
-        content {
-          name
-        }
+        content
         createdAt
+        by {
+          _id
+          type
+          details {
+            avatar
+            fullName
+          }
+        }
       }
     }
   }
@@ -86,5 +92,5 @@ export default {
   companyDetail,
   fields,
   companiesListConfig,
-  companyActivityLog
+  activityLogsCompany
 };

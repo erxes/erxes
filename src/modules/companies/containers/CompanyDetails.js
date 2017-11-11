@@ -50,7 +50,7 @@ const CompanyDetailsContainer = (props, context) => {
       ...companyDetailQuery.companyDetail,
       refetch: companyDetailQuery.refetch
     },
-    companyActivityLog: companyActivityLogQuery.companyActivityLog,
+    companyActivityLog: companyActivityLogQuery.activityLogsCompany,
     save,
     addCustomer,
     currentUser: context.currentUser,
@@ -82,7 +82,7 @@ export default compose(
       }
     })
   }),
-  graphql(gql(queries.companyActivityLog), {
+  graphql(gql(queries.activityLogsCompany), {
     name: 'companyActivityLogQuery',
     options: ({ id }) => ({
       variables: {

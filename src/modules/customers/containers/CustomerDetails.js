@@ -58,7 +58,7 @@ const CustomerDetailsContainer = (props, context) => {
       ...customerDetailQuery.customerDetail,
       refetch: customerDetailQuery.refetch
     },
-    customerActivityLog: customerActivityLogQuery.customerActivityLog,
+    activityLogsCustomer: customerActivityLogQuery.activityLogsCustomer,
     save,
     addCompany,
     currentUser: context.currentUser,
@@ -90,7 +90,7 @@ export default compose(
       }
     })
   }),
-  graphql(gql(queries.customerActivityLog), {
+  graphql(gql(queries.activityLogsCustomer), {
     name: 'customerActivityLogQuery',
     options: ({ id }) => ({
       variables: {

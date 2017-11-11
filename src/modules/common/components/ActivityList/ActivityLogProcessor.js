@@ -22,7 +22,7 @@ const ICON_AND_COLOR_TABLE = {
     icon: 'android-bicycle',
     color: '#04A9F5'
   },
-  'conversation-create': {
+  'conversation_message-create': {
     icon: 'android-boat',
     color: '#F44236'
   },
@@ -41,8 +41,9 @@ export default class {
    * A constructor method
    * @param {Ojbect} queryData - The query received from the back end
    */
-  constructor(queryData) {
+  constructor(queryData, currentUser) {
     this.queryData = queryData;
+    this.currentUser = currentUser;
   }
 
   /**
@@ -66,14 +67,16 @@ export default class {
 
       const caption = this._getCaption({
         action: item.action,
-        content: item.content
+        content: item.content,
+        by: item.by
       });
 
       result.data.push({
         ...iconAndColor,
         caption,
         date: item.createdAt,
-        createdAt: item.createdAt
+        createdAt: item.createdAt,
+        by: item.by
       });
     }
 
@@ -92,7 +95,7 @@ export default class {
    * Make caption depending on the action and content value of the given activity log
    * @return {string} return the formed caption
    */
-  _getCaption({ action, content }) {
+  _getCaption({ action, content, by }) {
     let caption;
 
     switch (action) {
@@ -100,10 +103,24 @@ export default class {
         caption = 'Registered to Erxes';
         break;
       case 'segment-create':
-        caption = `Moved to  ${content.name} segment`;
+        caption = `Moved to  ${content} segment`;
+        break;
+      case 'internal_note-create':
+        caption = `Internal note was added '${content}'`;
+        break;
+      case 'conversation_message-create':
+        caption = `Conversation message was added '${content}'`;
         break;
       default:
         caption = action;
+    }
+
+    if (by.type === 'USER') {
+      if (by._id === this.currentUser._id) {
+        caption += ' by you';
+      } else {
+        caption += ` by ${by.details.fullName}`;
+      }
     }
 
     return caption;
