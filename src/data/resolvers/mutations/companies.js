@@ -3,7 +3,7 @@ import { moduleRequireLogin } from '../../permissions';
 
 const companyMutations = {
   /**
-   * Create new company
+   * Create new company also adds Company registration log
    * @return {Promise} company object
    */
   async companiesAdd(root, doc, { user }) {
@@ -21,15 +21,17 @@ const companyMutations = {
   },
 
   /**
-   * Add new companyId to company's companyIds list
+   * Add new companyId to company's companyIds list also adds Customer registration log
    * @param {Object} args - Graphql input data
-   * @param {String} args._id - Customer id
+   * @param {String} args._id - Company id
    * @param {String} args.name - Customer name
    * @param {String} args.email - Customer email
    * @return {Promise} newly created customer
    */
-  async companiesAddCustomer(root, args) {
-    return Companies.addCustomer(args);
+  async companiesAddCustomer(root, args, { user }) {
+    const customer = Companies.addCustomer(args);
+    await ActivityLogs.createCustomerRegistrationLog(customer, user);
+    return customer;
   },
 };
 

@@ -6,7 +6,6 @@ export default {
    * @param {Object} root
    * @param {Object} object2 - arguments
    * @param {string} customerId - id of customer
-   * @param {string} conversationId - id of conversation
    * @param {string} messageId - id of message
    */
   async activitivyLogsAddConversationMessageLog(root, { customerId, messageId }) {

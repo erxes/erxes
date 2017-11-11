@@ -4,7 +4,7 @@ import { moduleRequireLogin } from '../../permissions';
 
 const customerMutations = {
   /**
-   * Create new customer
+   * Create new customer also adds Customer registration log
    * @return {Promise} customer object
    */
   async customersAdd(root, doc, { user }) {
@@ -23,6 +23,7 @@ const customerMutations = {
 
   /**
    * Add new companyId to customer's companyIds list
+   * also adds a Company registration activity log
    * @param {Object} args - Graphql input data
    * @param {String} args._id - Customer id
    * @param {String} args.name - Company name
