@@ -10,8 +10,8 @@ const userQueries = {
    * @param {Object} object3.user - User making this request
    * @return {Promise} sorted and filtered users objects
    */
-  users(root, { params = {} }) {
-    const users = paginate(Users.find({}), params);
+  users(root, args) {
+    const users = paginate(Users.find({}), args);
     return users.sort({ username: 1 });
   },
 

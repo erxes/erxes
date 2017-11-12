@@ -28,7 +28,7 @@ export const types = `
 `;
 
 export const queries = `
-  users(params: JSON): [User]
+  users(page: Int, perPage: Int): [User]
   userDetail(_id: String): User
   usersTotalCount: Int
   currentUser: User
