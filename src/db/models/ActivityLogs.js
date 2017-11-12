@@ -164,6 +164,7 @@ class ActivityLog {
       },
       performer: {
         type: ACTIVITY_PERFORMER_TYPES.CUSTOMER,
+        id: cocId,
       },
       coc: {
         type: cocType,

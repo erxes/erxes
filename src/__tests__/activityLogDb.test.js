@@ -157,6 +157,7 @@ describe('ActivityLogs model methods', () => {
     // check customer conversation log
     expect(aLog.performedBy.toObject()).toEqual({
       type: ACTIVITY_PERFORMER_TYPES.CUSTOMER,
+      id: customer._id,
     });
     expect(aLog.coc.toObject()).toEqual({
       type: COC_CONTENT_TYPES.CUSTOMER,

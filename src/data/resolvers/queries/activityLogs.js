@@ -3,7 +3,7 @@ import { moduleRequireLogin } from '../../permissions';
 import {
   CustomerMonthActivityLogBuilder,
   CompanyMonthActivityLogBuilder,
-} from './activityLogForMonthQueryBuilder';
+} from './activityLogUtils';
 
 const activityLogQueries = {
   /**
