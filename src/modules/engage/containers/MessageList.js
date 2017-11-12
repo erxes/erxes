@@ -47,7 +47,12 @@ export default compose(
     name: 'engageMessagesQuery',
     options: ({ queryParams }) => ({
       fetchPolicy: 'network-only',
-      variables: { params: queryParams }
+      variables: {
+        kind: queryParams.kind,
+        status: queryParams.status,
+        tag: queryParams.tag,
+        ids: queryParams.ids
+      }
     })
   }),
   graphql(gql(queries.engageMessagesTotalCount), {

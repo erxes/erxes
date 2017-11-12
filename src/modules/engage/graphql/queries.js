@@ -1,6 +1,6 @@
 const engageMessages = `
-  query engageMessages($params: JSON) {
-    engageMessages(params: $params) {
+  query engageMessages($kind: String, $status: String, $tag: String, $ids: [String]) {
+    engageMessages(kind: $kind, status: $status, tag: $tag, ids: $ids) {
       _id
       title
       deliveryReports
@@ -96,8 +96,22 @@ const engageMessagesTotalCount = `
 `;
 
 const customerCounts = `
-  query customerCounts($params: CustomerListParams) {
-    customerCounts(params: $params)
+  query customerCounts(
+    $limit: Int,
+    $page: Int,
+    $perPage: Int,
+    $segment: String,
+    $tag: String,
+    $ids: [String]
+  ) {
+    customerCounts(
+      limit: $limit,
+      page: $page,
+      perPage: $perPage,
+      segment: $segment,
+      tag: $tag,
+      ids: $ids,
+    )
   }
 `;
 
