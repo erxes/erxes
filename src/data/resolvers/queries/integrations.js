@@ -7,14 +7,14 @@ import { paginate } from './utils';
 const integrationQueries = {
   /**
    * Integrations list
-   * @param {Object} params - Search params
+   * @param {Object} args - Search params
    * @return {Promise} filterd and sorted integrations list
    */
-  integrations(root, { params = {} }) {
+  integrations(root, { kind, ...params }) {
     const query = {};
 
-    if (params.kind) {
-      query.kind = params.kind;
+    if (kind) {
+      query.kind = kind;
     }
 
     const integrations = paginate(Integrations.find(query), params);

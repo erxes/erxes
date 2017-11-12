@@ -62,7 +62,7 @@ export const types = `
 `;
 
 export const queries = `
-  integrations(params: JSON): [Integration]
+  integrations(page: Int, perPage: Int, kind: String): [Integration]
   integrationDetail(_id: String!): Integration
   integrationsTotalCount(kind: String): Int
   integrationGetTwitterAuthUrl: String
