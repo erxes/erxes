@@ -21,7 +21,6 @@ const customerFields = `
 `;
 
 const listParamsDef = `
-  $limit: Int,
   $page: Int,
   $perPage: Int,
   $segment: String,
@@ -30,7 +29,6 @@ const listParamsDef = `
 `;
 
 const listParamsValue = `
-  limit: $limit,
   page: $page,
   perPage: $perPage,
   segment: $segment,

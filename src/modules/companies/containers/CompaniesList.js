@@ -73,9 +73,8 @@ export default compose(
     name: 'companiesQuery',
     options: ({ queryParams }) => ({
       variables: {
-        limit: queryParams.limit || 20,
         page: queryParams.page,
-        perPage: queryParams.perPage,
+        perPage: queryParams.perPage || 20,
         segment: queryParams.segment,
         tag: queryParams.tag,
         ids: queryParams.ids
@@ -86,9 +85,8 @@ export default compose(
     name: 'companyCountsQuery',
     options: ({ queryParams }) => ({
       variables: {
-        limit: queryParams.limit || 20,
         page: queryParams.page,
-        perPage: queryParams.perPage,
+        perPage: queryParams.perPage || 20,
         segment: queryParams.segment,
         tag: queryParams.tag,
         ids: queryParams.ids
