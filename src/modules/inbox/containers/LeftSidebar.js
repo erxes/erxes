@@ -76,25 +76,27 @@ LeftSidebar.propTypes = {
   conversationCountsQuery: PropTypes.object
 };
 
+const generateParams = queryParams => ({
+  limit: queryParams.limit,
+  channelId: queryParams.channelId,
+  status: queryParams.status,
+  unassigned: queryParams.unassigned,
+  brandId: queryParams.brandId,
+  tag: queryParams.tag,
+  integrationType: queryParams.integrationType,
+  participating: queryParams.participating,
+  starred: queryParams.starred
+});
+
 export default compose(
   graphql(gql(queries.conversationList), {
     name: 'conversationsQuery',
-    options: ({ queryParams }) => {
-      const params = { ...queryParams };
-      delete params._id;
-
-      return {
-        variables: { params }
-      };
-    }
+    options: ({ queryParams }) => ({
+      variables: generateParams(queryParams)
+    })
   }),
   graphql(gql(queries.channelList), {
-    name: 'channelsQuery',
-    options: ({ queryParams }) => {
-      return {
-        variables: { params: queryParams }
-      };
-    }
+    name: 'channelsQuery'
   }),
   graphql(gql(queries.brandList), {
     name: 'brandsQuery',
@@ -116,11 +118,7 @@ export default compose(
   graphql(gql(queries.conversationCounts), {
     name: 'conversationCountsQuery',
     options: ({ queryParams }) => ({
-      variables: {
-        params: {
-          ...queryParams
-        }
-      }
+      variables: generateParams(queryParams)
     })
   })
 )(LeftSidebar);

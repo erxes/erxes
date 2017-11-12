@@ -44,12 +44,7 @@ export default withFormMutations(
     graphql(gql(queries.emailTemplates), { name: 'emailTemplatesQuery' }),
     graphql(gql(queries.segments), { name: 'segmentsQuery' }),
     graphql(gql(queries.customerCounts), {
-      name: 'customerCountsQuery',
-      options: () => ({
-        variables: {
-          params: {}
-        }
-      })
+      name: 'customerCountsQuery'
     })
   )(AutoAndManualFormContainer)
 );

@@ -1,9 +1,35 @@
 import conversationFields from './conversationFields';
 import messageFields from './messageFields';
 
+const listParamsDef = `
+  $limit: Int
+  $channelId: String
+  $status: String
+  $unassigned: String
+  $brandId: String
+  $tag: String
+  $integrationType: String
+  $participating: String
+  $starred: String
+  $ids: [String]
+`;
+
+const listParamsValue = `
+  limit: $limit
+  channelId: $channelId
+  status: $status
+  unassigned: $unassigned
+  brandId: $brandId
+  tag: $tag
+  integrationType: $integrationType
+  participating: $participating
+  starred: $starred
+  ids: $ids
+`;
+
 const conversationList = `
-  query objects($params: ConversationListParams!) {
-    conversations(params: $params) {
+  query objects(${listParamsDef}) {
+    conversations(${listParamsValue}) {
       ${conversationFields}
     }
   }
@@ -33,8 +59,8 @@ const userList = `
 `;
 
 const channelList = `
-  query channels($params: JSON) {
-    channels(params: $params) {
+  query channels {
+    channels {
       _id
       name
     }
@@ -61,14 +87,14 @@ const tagList = `
 `;
 
 const conversationCounts = `
-  query conversationCounts($params: ConversationListParams) {
-    conversationCounts(params: $params)
+  query conversationCounts(${listParamsDef}) {
+    conversationCounts(${listParamsValue})
   }
 `;
 
 const totalConversationsCount = `
-  query totalConversationsCount($params: ConversationListParams) {
-    conversationsTotalCount(params: $params)
+  query totalConversationsCount(${listParamsDef}) {
+    conversationsTotalCount(${listParamsValue})
   }
 `;
 

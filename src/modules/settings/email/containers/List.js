@@ -38,15 +38,6 @@ export default compose(
         }
       }
     `,
-    {
-      name: 'listQuery',
-      options: ({ queryParams }) => {
-        return {
-          variables: {
-            params: queryParams
-          }
-        };
-      }
-    }
+    { name: 'listQuery' }
   )
 )(ListContainer);
