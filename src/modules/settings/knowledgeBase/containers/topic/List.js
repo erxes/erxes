@@ -28,7 +28,10 @@ export default commonListComposer({
     name: 'listQuery',
     options: ({ queryParams }) => {
       return {
-        variables: { params: queryParams }
+        variables: {
+          page: queryParams.page,
+          perPage: queryParams.perPage || 20
+        }
       };
     }
   }),
