@@ -22,8 +22,8 @@ export default {
    * @param {string} doc._id - Customer id
    * @return {Promise} return Promise resolving created ActivityLog document
    */
-  async activityLogsAddCustomerLog(root, doc) {
-    const customer = await Customers.findOne(doc);
+  async activityLogsAddCustomerLog(root, { _id }) {
+    const customer = await Customers.findOne({ _id });
     return ActivityLogs.createCustomerRegistrationLog(customer);
   },
 
@@ -34,8 +34,8 @@ export default {
    * @param {string} doc._id - Company id
    * @return {Promise} return Promise resolving created ActivityLog document
    */
-  async activityLogsAddCompanyLog(root, doc) {
-    const company = await Companies.findOne(doc);
+  async activityLogsAddCompanyLog(root, { _id }) {
+    const company = await Companies.findOne({ _id });
     return ActivityLogs.createCompanyRegistrationLog(company);
   },
 };
