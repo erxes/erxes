@@ -92,28 +92,23 @@ describe('ActivityLog creation on Customer creation', () => {
 
   test(`activityLogsAddCustomerLog`, async () => {
     const customerDoc = {
-      name: 'test user',
-      email: 'test email',
-      phone: 'test phone',
+      name: 'test customer',
+      _id: 'testCustomerId',
     };
 
-    const aLog = await mutations.activityLogsAddCustomerLog(null, customerDoc);
+    Customers.findOne = jest.fn(() => customerDoc);
 
-    const customer = await Customers.findOne({});
-
-    expect(customer.name).toBe(customerDoc.name);
-    expect(customer.email).toBe(customerDoc.email);
-    expect(customer.phone).toBe(customerDoc.phone);
+    const aLog = await mutations.activityLogsAddCustomerLog(null, { _id: customerDoc._id });
 
     expect(aLog.activity.toObject()).toEqual({
       type: ACTIVITY_TYPES.CUSTOMER,
       action: ACTIVITY_ACTIONS.CREATE,
-      id: customer._id,
-      content: customer.name,
+      id: customerDoc._id,
+      content: customerDoc.name,
     });
     expect(aLog.coc.toObject()).toEqual({
       type: COC_CONTENT_TYPES.CUSTOMER,
-      id: customer._id,
+      id: customerDoc._id,
     });
     expect(aLog.performedBy.toObject()).toEqual({
       type: ACTIVITY_PERFORMER_TYPES.SYSTEM,
@@ -121,39 +116,21 @@ describe('ActivityLog creation on Customer creation', () => {
   });
 
   test(`activityLogsAddCompanyLog`, async () => {
-    const companyDoc = {
-      name: 'test company name',
-      size: 10,
-      website: 'test company website',
-      industry: 'test company industry',
-      plan: 'test company plan',
-      lastSeenAt: new Date(),
-      sessionCount: 25,
-      tagIds: ['111', '222'],
-    };
+    const companyDoc = { _id: 'testCompanyId', name: 'test company' };
 
-    const aLog = await mutations.activityLogsAddCompanyLog(null, companyDoc);
+    Companies.findOne = jest.fn(() => companyDoc);
 
-    const company = await Companies.findOne({});
-
-    expect(company.name).toBe(companyDoc.name);
-    expect(company.size).toBe(companyDoc.size);
-    expect(company.website).toBe(companyDoc.website);
-    expect(company.industry).toBe(companyDoc.industry);
-    expect(company.plan).toBe(companyDoc.plan);
-    expect(company.lastSeenAt).toEqual(companyDoc.lastSeenAt);
-    expect(company.sessionCount).toBe(companyDoc.sessionCount);
-    expect(company.tagIds.toObject()).toEqual(companyDoc.tagIds);
+    const aLog = await mutations.activityLogsAddCompanyLog(null, { _id: companyDoc._id });
 
     expect(aLog.activity.toObject()).toEqual({
       type: ACTIVITY_TYPES.COMPANY,
       action: ACTIVITY_ACTIONS.CREATE,
-      content: company.name,
-      id: company._id,
+      content: companyDoc.name,
+      id: companyDoc._id,
     });
     expect(aLog.coc.toObject()).toEqual({
       type: COC_CONTENT_TYPES.COMPANY,
-      id: company._id,
+      id: companyDoc._id,
     });
     expect(aLog.performedBy.toObject()).toEqual({
       type: ACTIVITY_PERFORMER_TYPES.SYSTEM,

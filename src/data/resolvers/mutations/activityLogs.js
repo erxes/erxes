@@ -16,37 +16,26 @@ export default {
   },
 
   /**
-   * Create new customer also adds Customer registration log
+   * Create customer registration log for the given customer
    * @param {Object} root
-   * @param {Object} doc - Customer object
-   * @param {string} doc.name - Name of customer
-   * @param {string} doc.email - Email of customer
-   * @param {string} doc.phone - Phone of customer
-   * @param {JSON} doc.customFieldsData - customFieldsData of customer JSON
+   * @param {Object} doc - Input data
+   * @param {string} doc._id - Customer id
    * @return {Promise} return Promise resolving created ActivityLog document
    */
   async activityLogsAddCustomerLog(root, doc) {
-    const customer = await Customers.createCustomer(doc);
+    const customer = await Customers.findOne(doc);
     return ActivityLogs.createCustomerRegistrationLog(customer);
   },
 
   /**
-   * Create new company also adds Company registration log
+   * Creates company registration log for the given company
    * @param {Object} root
-   * @param {Object} doc - Customer object
-   * @param {string} doc.name - Name of company
-   * @param {int} doc.size - Size of company
-   * @param {string} doc.website - Website of company
-   * @param {string} doc.industry - Industry of company
-   * @param {string} doc.plan - Plan of company
-   * @param {Date} lastSeenAt
-   * @param {Int} sessionCount
-   * @param {string[]} tagIds - Related tag ids of company
-   * @param {JSON} doc.customFieldsData - customFieldsData of customer JSON
+   * @param {Object} doc - input data
+   * @param {string} doc._id - Company id
    * @return {Promise} return Promise resolving created ActivityLog document
    */
   async activityLogsAddCompanyLog(root, doc) {
-    const company = await Companies.createCompany(doc);
+    const company = await Companies.findOne(doc);
     return ActivityLogs.createCompanyRegistrationLog(company);
   },
 };

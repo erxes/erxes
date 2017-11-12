@@ -38,16 +38,6 @@ export const queries = `
 
 export const mutations = `
   activityLogsAddConversationMessageLog(customerId: String!, messageId: String!): ActivityLog
-  activityLogsAddCustomerLog(
-    name: String!, email: String, phone: String, customFieldsData: JSON): ActivityLog
-  activityLogsAddCompanyLog(
-    name: String!,
-    size: Int,
-    website: String,
-    industry: String,
-    plan: String,
-    lastSeenAt: Date,
-    sessionCount: Int,
-    tagIds: [String]
-    customFieldsData: JSON): ActivityLog
+  activityLogsAddCustomerLog(_id: String!): ActivityLog
+  activityLogsAddCompanyLog(_id: String!): ActivityLog
 `;
