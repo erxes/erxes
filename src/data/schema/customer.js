@@ -24,7 +24,6 @@ export const types = `
 `;
 
 const queryParams = `
-  limit: Int,
   page: Int,
   perPage: Int,
   segment: String,
