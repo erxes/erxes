@@ -48,7 +48,12 @@ describe('Customers mutations', () => {
   });
 
   test('Create customer', async () => {
-    Customers.createCustomer = jest.fn();
+    Customers.createCustomer = jest.fn(() => {
+      return {
+        name: 'name',
+        _id: 'fakeCustomerId',
+      };
+    });
 
     const doc = { name: 'name', email: 'dombo@yahoo.com' };
 
@@ -72,7 +77,12 @@ describe('Customers mutations', () => {
   });
 
   test('Add company', async () => {
-    Customers.addCompany = jest.fn();
+    Customers.addCompany = jest.fn(() => {
+      return {
+        name: 'name',
+        _id: 'fakeCustomerId',
+      };
+    });
 
     const doc = { name: 'name', website: 'http://company.com' };
 

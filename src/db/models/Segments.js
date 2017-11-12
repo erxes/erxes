@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import { SEGMENT_CONTENT_TYPES } from '../../data/constants';
+import { COC_CONTENT_TYPES } from '../../data/constants';
 import { field } from './utils';
 
 const ConditionSchema = mongoose.Schema(
@@ -25,7 +25,7 @@ const SegmentSchema = mongoose.Schema({
   _id: field({ pkey: true }),
   contentType: field({
     type: String,
-    enum: SEGMENT_CONTENT_TYPES.ALL,
+    enum: COC_CONTENT_TYPES.ALL,
   }),
   name: field({ type: String }),
   description: field({ type: String }),

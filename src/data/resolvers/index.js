@@ -14,6 +14,8 @@ import Conversation from './conversation';
 import ConversationMessage from './conversationMessage';
 import KnowledgeBaseCategory from './knowledgeBaseCategory';
 import KnowledgeBaseTopic from './knowledgeBaseTopic';
+import ActivityLog from './activityLog';
+import ActivityLogForMonth from './activityLogForMonth';
 
 export default {
   ...customScalars,
@@ -35,4 +37,7 @@ export default {
 
   KnowledgeBaseCategory,
   KnowledgeBaseTopic,
+
+  ActivityLog,
+  ActivityLogForMonth,
 };

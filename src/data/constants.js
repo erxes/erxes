@@ -170,13 +170,7 @@ export const FIELD_CONTENT_TYPES = {
   ALL: ['form', 'customer', 'company'],
 };
 
-export const INTERNAL_NOTE_CONTENT_TYPES = {
-  CUSTOMER: 'customer',
-  COMPANY: 'company',
-  ALL: ['customer', 'company'],
-};
-
-export const SEGMENT_CONTENT_TYPES = {
+export const COC_CONTENT_TYPES = {
   CUSTOMER: 'customer',
   COMPANY: 'company',
   ALL: ['customer', 'company'],
@@ -191,4 +185,30 @@ export const PUBLISH_STATUSES = {
   DRAFT: 'draft',
   PUBLISH: 'publish',
   ALL: ['draft', 'publish'],
+};
+
+export const ACTIVITY_TYPES = {
+  CUSTOMER: 'customer',
+  COMPANY: 'company',
+  INTERNAL_NOTE: 'internal_note',
+  CONVERSATION_MESSAGE: 'conversation_message',
+  SEGMENT: 'segment',
+
+  ALL: ['customer', 'company', 'internal_note', 'conversation_message', 'segment'],
+};
+
+export const ACTIVITY_ACTIONS = {
+  CREATE: 'create',
+  UPDATE: 'update',
+  DELETE: 'delete',
+
+  ALL: ['create', 'update', 'delete'],
+};
+
+export const ACTIVITY_PERFORMER_TYPES = {
+  SYSTEM: 'SYSTEM',
+  USER: 'USER',
+  CUSTOMER: 'CUSTOMER',
+
+  ALL: ['SYSTEM', 'USER', 'CUSTOMER'],
 };

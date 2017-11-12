@@ -1,7 +1,6 @@
 import mongoose from 'mongoose';
-import { INTERNAL_NOTE_CONTENT_TYPES } from '../../data/constants';
 import { field } from './utils';
-
+import { COC_CONTENT_TYPES } from '../../data/constants';
 /*
  * internal note schema
  */
@@ -9,7 +8,7 @@ const InternalNoteSchema = mongoose.Schema({
   _id: field({ pkey: true }),
   contentType: field({
     type: String,
-    enum: INTERNAL_NOTE_CONTENT_TYPES.ALL,
+    enum: COC_CONTENT_TYPES.ALL,
   }),
   contentTypeId: field({ type: String }),
   content: field({

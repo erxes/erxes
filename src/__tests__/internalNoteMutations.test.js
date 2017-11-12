@@ -58,7 +58,11 @@ describe('InternalNotes mutations', () => {
   });
 
   test('Create internalNote', async () => {
-    InternalNotes.createInternalNote = jest.fn();
+    InternalNotes.createInternalNote = jest.fn(() => ({
+      _id: 'testInternalNoteId',
+      contentType: 'customer',
+      contentTypeId: 'customer',
+    }));
 
     await internalNoteMutations.internalNotesAdd({}, doc, { user: _user });
 

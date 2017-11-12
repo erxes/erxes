@@ -20,6 +20,7 @@ import {
   KnowledgeBaseTopics,
 } from './KnowledgeBase';
 import { Notifications, NotificationConfigurations } from './Notifications';
+import ActivityLogs from './ActivityLogs';
 
 export {
   Users,
@@ -43,4 +44,5 @@ export {
   KnowledgeBaseTopics,
   Notifications,
   NotificationConfigurations,
+  ActivityLogs,
 };

@@ -82,12 +82,19 @@ import {
   mutations as ConversationMutations,
 } from './conversation';
 
+import {
+  types as ActivityLogTypes,
+  queries as ActivityLogQueries,
+  mutations as ActivityLogMutations,
+} from './activityLog';
+
 export const types = `
   scalar JSON
   scalar Date
 
   ${UserTypes}
   ${InternalNoteTypes}
+  ${ActivityLogTypes}
   ${CompanyTypes}
   ${ChannelTypes}
   ${BrandTypes}
@@ -126,6 +133,7 @@ export const queries = `
     ${InsightQueries}
     ${KnowledgeBaseQueries}
     ${NotificationQueries}
+    ${ActivityLogQueries}
   }
 `;
 
@@ -148,6 +156,7 @@ export const mutations = `
     ${IntegrationMutations}
     ${KnowledgeBaseMutations}
     ${NotificationMutations}
+    ${ActivityLogMutations}
   }
 `;
 

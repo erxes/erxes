@@ -1,7 +1,7 @@
 import _ from 'underscore';
 import { Brands, Tags, Integrations, Customers, Segments } from '../../../db/models';
-import { TAG_TYPES, INTEGRATION_KIND_CHOICES, SEGMENT_CONTENT_TYPES } from '../../constants';
-import QueryBuilder from './segmentQueryBuilder.js';
+import { TAG_TYPES, INTEGRATION_KIND_CHOICES, COC_CONTENT_TYPES } from '../../constants';
+import QueryBuilder from './segmentQueryBuilder';
 import { moduleRequireLogin } from '../../permissions';
 import { paginate } from './utils';
 
@@ -84,7 +84,7 @@ const customerQueries = {
 
     // Count customers by segments
     const segments = await Segments.find({
-      contentType: SEGMENT_CONTENT_TYPES.CUSTOMER,
+      contentType: COC_CONTENT_TYPES.CUSTOMER,
     });
 
     for (let s of segments) {

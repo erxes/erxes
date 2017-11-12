@@ -1,13 +1,15 @@
-import { InternalNotes } from '../../../db/models';
+import { InternalNotes, ActivityLogs } from '../../../db/models';
 import { moduleRequireLogin } from '../../permissions';
 
 const internalNoteMutations = {
   /**
-   * Adds internalNote object
+   * Adds internalNote object and also adds an activity log
    * @return {Promise}
    */
-  internalNotesAdd(root, args, { user }) {
-    return InternalNotes.createInternalNote(args, user);
+  async internalNotesAdd(root, args, { user }) {
+    const internalNote = await InternalNotes.createInternalNote(args, user);
+    await ActivityLogs.createInternalNoteLog(internalNote, user);
+    return internalNote;
   },
 
   /**

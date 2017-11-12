@@ -1,6 +1,6 @@
 import faker from 'faker';
 import Random from 'meteor-random';
-import { MODULES } from '../data/constants';
+import { MODULES, COC_CONTENT_TYPES } from '../data/constants';
 
 import {
   Users,
@@ -128,6 +128,7 @@ export const segmentFactory = (params = {}) => {
   ];
 
   const segment = new Segments({
+    contentType: COC_CONTENT_TYPES.CUSTOMER || params.contentType,
     name: faker.random.word(),
     description: params.description || faker.random.word(),
     subOf: params.subOf || 'DFSAFDFDSFDSF',
@@ -141,7 +142,7 @@ export const segmentFactory = (params = {}) => {
 
 export const internalNoteFactory = (params = {}) => {
   const internalNote = new InternalNotes({
-    contentType: params.contentType || 'customer',
+    contentType: params.contentType || COC_CONTENT_TYPES.CUSTOMER,
     contentTypeId: params.contentTypeId || 'DFASFDFSDAFDF',
     content: params.content || faker.random.word(),
   });
@@ -167,6 +168,7 @@ export const customerFactory = (params = {}) => {
     phone: params.phone || faker.random.word(),
     messengerData: params.messengerData || {},
     customFieldsData: params.customFieldsData || {},
+    companyIds: params.companyIds || [],
   });
 
   return customer.save();

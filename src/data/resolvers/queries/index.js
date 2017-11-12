@@ -16,6 +16,7 @@ import conversations from './conversations';
 import insights from './insights';
 import knowledgeBase from './knowledgeBase';
 import notifications from './notifications';
+import activityLogs from './activityLogs';
 
 export default {
   ...users,
@@ -36,4 +37,5 @@ export default {
   ...insights,
   ...knowledgeBase,
   ...notifications,
+  ...activityLogs,
 };
