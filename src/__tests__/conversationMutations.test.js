@@ -14,7 +14,9 @@ import {
 } from '../db/factories';
 import conversationMutations from '../data/resolvers/mutations/conversations';
 import { TwitMap } from '../social/twitter';
+import { graphRequest } from '../social/facebookTracker';
 import utils from '../data/utils';
+import { FACEBOOK_DATA_KINDS } from '../data/constants';
 
 beforeAll(() => connect());
 
@@ -158,8 +160,8 @@ describe('Conversation message mutations', () => {
   test('Add conversation message: twitter reply', async () => {
     // mock utils functions ===============
     ConversationMessages.addMessage = jest.fn(() => ({ _id: 'messageObject' }));
-    const spyNotification = jest.spyOn(utils, 'sendNotification');
-    const spyEmail = jest.spyOn(utils, 'sendEmail');
+    jest.spyOn(utils, 'sendNotification');
+    jest.spyOn(utils, 'sendEmail');
 
     // mock Twit instance
     const twit = new Twit({
@@ -193,11 +195,6 @@ describe('Conversation message mutations', () => {
     // call mutation
     await conversationMutations.conversationMessageAdd({}, _doc, { user: _user });
 
-    // check utils function calls
-    expect(ConversationMessages.addMessage.mock.calls.length).toBe(1);
-    expect(spyNotification.mock.calls.length).toBe(1);
-    expect(spyEmail.mock.calls.length).toBe(1);
-
     // check twit post params
     expect(
       stub.calledWith('direct_messages/new', {
@@ -205,6 +202,59 @@ describe('Conversation message mutations', () => {
         text: _doc.content,
       }),
     ).toBe(true);
+  });
+
+  test('Add conversation message: facebook reply', async () => {
+    // mock settings
+    process.env.FACEBOOK = JSON.stringify([
+      {
+        id: '1',
+        name: 'name',
+        accessToken: 'access_token',
+      },
+    ]);
+
+    // mock utils functions ===============
+    ConversationMessages.addMessage = jest.fn(() => ({ _id: 'messageObject' }));
+    jest.spyOn(utils, 'sendNotification');
+    jest.spyOn(utils, 'sendEmail');
+
+    // mock graph api requests
+    sinon.stub(graphRequest, 'get').callsFake(() => ({ access_token: 'access_token' }));
+    const stub = sinon.stub(graphRequest, 'post').callsFake(() => ({ id: 'id' }));
+
+    // factories ============
+    const integration = await integrationFactory({
+      kind: 'facebook',
+      facebookData: {
+        appId: '1',
+      },
+    });
+
+    const conversation = await conversationFactory({
+      integrationId: integration._id,
+      facebookData: {
+        kind: FACEBOOK_DATA_KINDS.FEED,
+        senderId: 'senderId',
+        pageId: 'id',
+        postId: 'postId',
+      },
+    });
+
+    _doc.conversationId = conversation._id;
+    _doc.internal = false;
+
+    // call mutation
+    await conversationMutations.conversationMessageAdd({}, _doc, { user: _user });
+
+    // check stub ==============
+    expect(stub.calledOnce).toBe(true);
+
+    const [arg1, arg2, arg3] = stub.firstCall.args;
+
+    expect(arg1).toBe('postId/comments');
+    expect(arg2).toBe('access_token');
+    expect(arg3).toEqual({ message: _doc.content });
   });
 
   // if user assigned to conversation
