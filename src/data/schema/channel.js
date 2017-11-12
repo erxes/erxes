@@ -13,7 +13,7 @@ export const types = `
 `;
 
 export const queries = `
-  channels(params: JSON): [Channel]
+  channels(page: Int, perPage: Int, memberIds: [String]): [Channel]
   channelsTotalCount: Int
 `;
 
