@@ -5,11 +5,11 @@ import { paginate } from './utils';
 const formQueries = {
   /**
    * Forms list
-   * @param {Object} params - Search params
+   * @param {Object} args - Search params
    * @return {Promise} sorted forms list
    */
-  forms(root, { params = {} }) {
-    const forms = paginate(Forms.find({}), params);
+  forms(root, args) {
+    const forms = paginate(Forms.find({}), args);
     return forms.sort({ name: 1 });
   },
 
