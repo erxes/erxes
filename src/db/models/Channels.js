@@ -1,26 +1,26 @@
 import mongoose from 'mongoose';
-import Random from 'meteor-random';
 import { createdAtModifier } from '../plugins';
+import { field } from './utils';
 
 // schema for Channels
 const ChannelSchema = mongoose.Schema({
-  _id: { type: String, unique: true, default: () => Random.id() },
-  name: String,
-  description: {
+  _id: field({ pkey: true }),
+  name: field({ type: String }),
+  description: field({
     type: String,
-    required: false,
-  },
-  integrationIds: [String],
-  memberIds: [String],
-  userId: String,
-  conversationCount: {
+    optional: true,
+  }),
+  integrationIds: field({ type: [String] }),
+  memberIds: field({ type: [String] }),
+  userId: field({ type: String }),
+  conversationCount: field({
     type: Number,
     default: 0,
-  },
-  openConversationCount: {
+  }),
+  openConversationCount: field({
     type: Number,
     default: 0,
-  },
+  }),
 });
 
 class Channel {

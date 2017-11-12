@@ -1,6 +1,5 @@
 import mongoose from 'mongoose';
 import 'mongoose-type-email';
-import Random from 'meteor-random';
 import { ConversationMessages, Conversations } from './';
 import { Customers } from './';
 import {
@@ -11,13 +10,14 @@ import {
 } from '../../data/constants';
 
 import { TwitterSchema, FacebookSchema } from '../../social/schemas';
+import { field } from './utils';
 
 // subdocument schema for MessengerOnlineHours
 const MessengerOnlineHoursSchema = mongoose.Schema(
   {
-    day: String,
-    from: String,
-    to: String,
+    day: field({ type: String }),
+    from: field({ type: String }),
+    to: field({ type: String }),
   },
   { _id: false },
 );
@@ -25,19 +25,19 @@ const MessengerOnlineHoursSchema = mongoose.Schema(
 // subdocument schema for MessengerData
 const MessengerDataSchema = mongoose.Schema(
   {
-    notifyCustomer: Boolean,
-    availabilityMethod: {
+    notifyCustomer: field({ type: Boolean }),
+    availabilityMethod: field({
       type: String,
       enum: MESSENGER_DATA_AVAILABILITY.ALL,
-    },
-    isOnline: {
+    }),
+    isOnline: field({
       type: Boolean,
-    },
-    onlineHours: [MessengerOnlineHoursSchema],
-    timezone: String,
-    welcomeMessage: String,
-    awayMessage: String,
-    thankYouMessage: String,
+    }),
+    onlineHours: field({ type: [MessengerOnlineHoursSchema] }),
+    timezone: field({ type: String }),
+    welcomeMessage: field({ type: String }),
+    awayMessage: field({ type: String }),
+    thankYouMessage: field({ type: String }),
   },
   { _id: false },
 );
@@ -45,46 +45,46 @@ const MessengerDataSchema = mongoose.Schema(
 // subdocument schema for FormData
 const FormDataSchema = mongoose.Schema(
   {
-    loadType: {
+    loadType: field({
       type: String,
       enum: FORM_LOAD_TYPES.ALL,
-    },
-    successAction: {
+    }),
+    successAction: field({
       type: String,
       enum: FORM_SUCCESS_ACTIONS.ALL,
-    },
-    fromEmail: {
+    }),
+    fromEmail: field({
       type: String,
       optional: true,
-    },
-    userEmailTitle: {
+    }),
+    userEmailTitle: field({
       type: String,
       optional: true,
-    },
-    userEmailContent: {
+    }),
+    userEmailContent: field({
       type: String,
       optional: true,
-    },
-    adminEmails: {
+    }),
+    adminEmails: field({
       type: [String],
       optional: true,
-    },
-    adminEmailTitle: {
+    }),
+    adminEmailTitle: field({
       type: String,
       optional: true,
-    },
-    adminEmailContent: {
+    }),
+    adminEmailContent: field({
       type: String,
       optional: true,
-    },
-    thankContent: {
+    }),
+    thankContent: field({
       type: String,
       optional: true,
-    },
-    redirectUrl: {
+    }),
+    redirectUrl: field({
       type: String,
       optional: true,
-    },
+    }),
   },
   { _id: false },
 );
@@ -92,31 +92,28 @@ const FormDataSchema = mongoose.Schema(
 // subdocument schema for messenger UiOptions
 const UiOptionsSchema = mongoose.Schema(
   {
-    color: String,
-    wallpaper: String,
-    logo: String,
+    color: field({ type: String }),
+    wallpaper: field({ type: String }),
+    logo: field({ type: String }),
   },
   { _id: false },
 );
 
 // schema for integration document
 const IntegrationSchema = mongoose.Schema({
-  _id: {
-    type: String,
-    default: () => Random.id(),
-  },
-  kind: {
+  _id: field({ pkey: true }),
+  kind: field({
     type: String,
     enum: KIND_CHOICES.ALL,
-  },
-  name: String,
-  brandId: String,
-  formId: String,
-  formData: FormDataSchema,
-  messengerData: MessengerDataSchema,
-  twitterData: TwitterSchema,
-  facebookData: FacebookSchema,
-  uiOptions: UiOptionsSchema,
+  }),
+  name: field({ type: String }),
+  brandId: field({ type: String }),
+  formId: field({ type: String }),
+  formData: field({ type: FormDataSchema }),
+  messengerData: field({ type: MessengerDataSchema }),
+  twitterData: field({ type: TwitterSchema }),
+  facebookData: field({ type: FacebookSchema }),
+  uiOptions: field({ type: UiOptionsSchema }),
 });
 
 class Integration {

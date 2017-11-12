@@ -1,42 +1,38 @@
 import mongoose from 'mongoose';
-import Random from 'meteor-random';
 import { SEGMENT_CONTENT_TYPES } from '../../data/constants';
+import { field } from './utils';
 
 const ConditionSchema = mongoose.Schema(
   {
-    field: String,
-    operator: String,
-    type: String,
+    field: field({ type: String }),
+    operator: field({ type: String }),
+    type: field({ type: String }),
 
-    value: {
+    value: field({
       type: String,
       optional: true,
-    },
+    }),
 
-    dateUnit: {
+    dateUnit: field({
       type: String,
       optional: true,
-    },
+    }),
   },
   { _id: false },
 );
 
 const SegmentSchema = mongoose.Schema({
-  _id: {
-    type: String,
-    unique: true,
-    default: () => Random.id(),
-  },
-  contentType: {
+  _id: field({ pkey: true }),
+  contentType: field({
     type: String,
     enum: SEGMENT_CONTENT_TYPES.ALL,
-  },
-  name: String,
-  description: String,
-  subOf: String,
-  color: String,
-  connector: String,
-  conditions: [ConditionSchema],
+  }),
+  name: field({ type: String }),
+  description: field({ type: String }),
+  subOf: field({ type: String }),
+  color: field({ type: String }),
+  connector: field({ type: String }),
+  conditions: field({ type: [ConditionSchema] }),
 });
 
 class Segment {

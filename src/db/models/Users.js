@@ -1,55 +1,54 @@
 import mongoose from 'mongoose';
-import Random from 'meteor-random';
 import bcrypt from 'bcrypt';
 import crypto from 'crypto';
 import sha256 from 'sha256';
 import jwt from 'jsonwebtoken';
 import { ROLES } from '../../data/constants';
+import { field } from './utils';
 
 const SALT_WORK_FACTOR = 10;
 
 const EmailSignatureSchema = mongoose.Schema(
-  { brandId: String, signature: String },
+  {
+    brandId: field({ type: String }),
+    signature: field({ type: String }),
+  },
   { _id: false },
 );
 
 // Detail schema
 const DetailSchema = mongoose.Schema(
   {
-    avatar: String,
-    fullName: String,
-    position: String,
-    twitterUsername: String,
+    avatar: field({ type: String }),
+    fullName: field({ type: String }),
+    position: field({ type: String }),
+    twitterUsername: field({ type: String }),
   },
   { _id: false },
 );
 
 // User schema
 const UserSchema = mongoose.Schema({
-  _id: {
-    type: String,
-    unique: true,
-    default: () => Random.id(),
-  },
-  username: String,
-  password: String,
-  resetPasswordToken: String,
-  resetPasswordExpires: Date,
-  role: {
+  _id: field({ pkey: true }),
+  username: field({ type: String }),
+  password: field({ type: String }),
+  resetPasswordToken: field({ type: String }),
+  resetPasswordExpires: field({ type: Date }),
+  role: field({
     type: String,
     enum: [ROLES.ADMIN, ROLES.CONTRIBUTOR],
-  },
-  isOwner: Boolean,
-  email: {
+  }),
+  isOwner: field({ type: Boolean }),
+  email: field({
     type: String,
     lowercase: true,
     unique: true,
     match: [/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/, 'Please fill a valid email address'],
-  },
-  getNotificationByEmail: Boolean,
-  emailSignatures: [EmailSignatureSchema],
-  starredConversationIds: [String],
-  details: DetailSchema,
+  }),
+  getNotificationByEmail: field({ type: Boolean }),
+  emailSignatures: field({ type: [EmailSignatureSchema] }),
+  starredConversationIds: field({ type: [String] }),
+  details: field({ type: DetailSchema }),
 });
 
 class User {

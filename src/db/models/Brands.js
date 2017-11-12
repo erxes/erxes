@@ -1,26 +1,23 @@
 import mongoose from 'mongoose';
 import Random from 'meteor-random';
+import { field } from './utils';
 
 const BrandEmailConfigSchema = mongoose.Schema({
-  type: {
+  type: field({
     type: String,
     enum: ['simple', 'custom'],
-  },
-  template: String,
+  }),
+  template: field({ type: String }),
 });
 
 const BrandSchema = mongoose.Schema({
-  _id: {
-    type: String,
-    unique: true,
-    default: () => Random.id(),
-  },
-  code: String,
-  name: String,
-  description: String,
-  userId: String,
-  createdAt: Date,
-  emailConfig: BrandEmailConfigSchema,
+  _id: field({ pkey: true }),
+  code: field({ type: String }),
+  name: field({ type: String }),
+  description: field({ type: String }),
+  userId: field({ type: String }),
+  createdAt: field({ type: Date }),
+  emailConfig: field({ type: BrandEmailConfigSchema }),
 });
 
 class Brand {

@@ -1,31 +1,27 @@
 import mongoose from 'mongoose';
-import Random from 'meteor-random';
 import { NOTIFICATION_TYPES } from '../../data/constants';
+import { field } from './utils';
 
 // Notification schema
 const NotificationSchema = new mongoose.Schema({
-  _id: {
-    type: String,
-    unique: true,
-    default: () => Random.id(),
-  },
-  notifType: {
+  _id: field({ pkey: true }),
+  notifType: field({
     type: String,
     enum: NOTIFICATION_TYPES.ALL,
-  },
-  title: String,
-  link: String,
-  content: String,
-  createdUser: String,
-  receiver: String,
-  date: {
+  }),
+  title: field({ type: String }),
+  link: field({ type: String }),
+  content: field({ type: String }),
+  createdUser: field({ type: String }),
+  receiver: field({ type: String }),
+  date: field({
     type: Date,
     default: Date.now,
-  },
-  isRead: {
+  }),
+  isRead: field({
     type: Boolean,
     default: false,
-  },
+  }),
 });
 
 class Notification {
@@ -104,18 +100,14 @@ export const Notifications = mongoose.model('notifications', NotificationSchema)
 
 // schema for NotificationConfigurations
 const ConfigSchema = new mongoose.Schema({
-  _id: {
-    type: String,
-    unique: true,
-    default: () => Random.id(),
-  },
+  _id: field({ pkey: true }),
   // to whom this config is related
-  user: String,
-  notifType: {
+  user: field({ type: String }),
+  notifType: field({
     type: String,
     enum: NOTIFICATION_TYPES.ALL,
-  },
-  isAllowed: Boolean,
+  }),
+  isAllowed: field({ type: Boolean }),
 });
 
 class Configuration {

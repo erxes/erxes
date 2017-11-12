@@ -1,14 +1,10 @@
 import mongoose from 'mongoose';
-import Random from 'meteor-random';
+import { field } from './utils';
 
 const EmailTemplateSchema = mongoose.Schema({
-  _id: {
-    type: String,
-    unique: true,
-    default: () => Random.id(),
-  },
-  name: String,
-  content: String,
+  _id: field({ pkey: true }),
+  name: field({ type: String }),
+  content: field({ type: String }),
 });
 
 class EmailTemplate {

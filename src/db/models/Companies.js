@@ -1,60 +1,57 @@
 import mongoose from 'mongoose';
-import Random from 'meteor-random';
 import { Fields, Customers } from './';
+import { field } from './utils';
 
 const CompanySchema = mongoose.Schema({
-  _id: {
-    type: String,
-    unique: true,
-    default: () => Random.id(),
-  },
-
-  name: {
+  _id: field({ pkey: true }),
+  name: field({
     type: String,
     label: 'Name',
     unique: true,
-  },
+  }),
 
-  size: {
+  size: field({
     type: Number,
     label: 'Size',
     optional: true,
-  },
+  }),
 
-  industry: {
+  industry: field({
     type: String,
     label: 'Industry',
     optional: true,
-  },
+  }),
 
-  website: {
+  website: field({
     type: String,
     label: 'Website',
     optional: true,
-  },
+  }),
 
-  plan: {
+  plan: field({
     type: String,
     label: 'Plan',
     optional: true,
-  },
+  }),
 
-  lastSeenAt: {
+  lastSeenAt: field({
     type: Date,
     label: 'Last seen at',
-  },
+  }),
 
-  sessionCount: {
+  sessionCount: field({
     type: Number,
     label: 'Session count',
-  },
+  }),
 
-  tagIds: {
+  tagIds: field({
     type: [String],
     optional: true,
-  },
+  }),
 
-  customFieldsData: Object,
+  customFieldsData: field({
+    type: Object,
+  }),
 });
 
 class Company {

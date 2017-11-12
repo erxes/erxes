@@ -1,16 +1,16 @@
 import mongoose from 'mongoose';
-import Random from 'meteor-random';
 import { PUBLISH_STATUSES } from '../../data/constants';
+import { field } from './utils';
 
 // Schema for common fields
 const commonFields = {
-  createdBy: String,
-  createdDate: {
+  createdBy: field({ type: String }),
+  createdDate: field({
     type: Date,
     default: new Date(),
-  },
-  modifiedBy: String,
-  modifiedDate: Date,
+  }),
+  modifiedBy: field({ type: String }),
+  modifiedDate: field({ type: Date }),
 };
 
 /**
@@ -73,26 +73,15 @@ class KnowledgeBaseCommonDocument {
 }
 
 const ArticleSchema = mongoose.Schema({
-  _id: {
-    type: String,
-    unique: true,
-    default: () => Random.id(),
-  },
-  title: {
-    type: String,
-    required: true,
-  },
-  summary: String,
-  content: {
-    type: String,
-    required: true,
-  },
-  status: {
+  _id: field({ pkey: true }),
+  title: field({ type: String }),
+  summary: field({ type: String }),
+  content: field({ type: String }),
+  status: field({
     type: String,
     enum: PUBLISH_STATUSES.ALL,
     default: PUBLISH_STATUSES.DRAFT,
-    required: true,
-  },
+  }),
   ...commonFields,
 });
 
@@ -143,27 +132,11 @@ class Article extends KnowledgeBaseCommonDocument {
 }
 
 const CategorySchema = mongoose.Schema({
-  _id: {
-    type: String,
-    unique: true,
-    default: () => Random.id(),
-  },
-  title: {
-    type: String,
-    required: true,
-  },
-  description: {
-    type: String,
-    required: false,
-  },
-  articleIds: {
-    type: [String],
-    required: false,
-  },
-  icon: {
-    type: String,
-    required: true,
-  },
+  _id: field({ pkey: true }),
+  title: field({ type: String }),
+  description: field({ type: String }),
+  articleIds: field({ type: [String] }),
+  icon: field({ type: String }),
   ...commonFields,
 });
 
@@ -218,25 +191,14 @@ class Category extends KnowledgeBaseCommonDocument {
 }
 
 const TopicSchema = mongoose.Schema({
-  _id: {
-    type: String,
-    unique: true,
-    default: () => Random.id(),
-  },
-  title: {
-    type: String,
-    required: true,
-  },
-  description: String,
-  brandId: {
-    type: String,
-    required: true,
-    validate: /\S+/,
-  },
-  categoryIds: {
+  _id: field({ pkey: true }),
+  title: field({ type: String }),
+  description: field({ type: String }),
+  brandId: field({ type: String }),
+  categoryIds: field({
     type: [String],
     required: false,
-  },
+  }),
   ...commonFields,
 });
 
