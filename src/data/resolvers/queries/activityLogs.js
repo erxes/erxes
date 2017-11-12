@@ -1,6 +1,9 @@
 import { Customers, Companies } from '../../../db/models';
 import { moduleRequireLogin } from '../../permissions';
-import { CustomerMonthActivityLogBuilder, CompanyMonthActivityLogBuilder } from '../../utils';
+import {
+  CustomerMonthActivityLogBuilder,
+  CompanyMonthActivityLogBuilder,
+} from './activityLogForMonthQueryBuilder';
 
 const activityLogQueries = {
   /**
@@ -13,8 +16,8 @@ const activityLogQueries = {
   async activityLogsCustomer(root, { _id }) {
     const customer = await Customers.findOne({ _id });
 
-    const m = new CustomerMonthActivityLogBuilder(customer);
-    return m.build();
+    const companyMonthActivityLogBuilder = new CustomerMonthActivityLogBuilder(customer);
+    return companyMonthActivityLogBuilder.build();
   },
 
   /**
@@ -27,8 +30,8 @@ const activityLogQueries = {
   async activityLogsCompany(root, { _id }) {
     const company = await Companies.findOne({ _id });
 
-    const m = new CompanyMonthActivityLogBuilder(company);
-    return m.build();
+    const companyMonthActivityLogBuilder = new CompanyMonthActivityLogBuilder(company);
+    return companyMonthActivityLogBuilder.build();
   },
 };
 

@@ -71,7 +71,7 @@ const Activity = mongoose.Schema(
 
 /* the customer that is related to a given ActivityLog
  can be both Company or Customer documents */
-const Customer = mongoose.Schema(
+const COC = mongoose.Schema(
   {
     id: field({
       type: String,
@@ -90,7 +90,7 @@ const ActivityLogSchema = mongoose.Schema({
   _id: field({ pkey: true }),
   activity: Activity,
   performedBy: ActionPerformer,
-  coc: Customer,
+  coc: COC,
 
   createdAt: field({
     type: Date,
@@ -141,6 +141,35 @@ class ActivityLog {
     });
   }
 
+  static cocFindOne(messageId, cocId, cocType) {
+    return this.findOne({
+      'activity.type': ACTIVITY_TYPES.CONVERSATION_MESSAGE,
+      'activity.action': ACTIVITY_ACTIONS.CREATE,
+      'activity.id': messageId,
+      'coc.type': cocType,
+      'performedBy.type': ACTION_PERFORMER_TYPES.CUSTOMER,
+      'coc.id': cocId,
+    });
+  }
+
+  static cocCreate(messageId, content, cocId, cocType) {
+    return this.createDoc({
+      activity: {
+        type: ACTIVITY_TYPES.CONVERSATION_MESSAGE,
+        action: ACTIVITY_ACTIONS.CREATE,
+        content: content,
+        id: messageId,
+      },
+      performedBy: {
+        type: ACTION_PERFORMER_TYPES.CUSTOMER,
+      },
+      coc: {
+        type: cocType,
+        id: cocId,
+      },
+    });
+  }
+
   /**
    * Create a conversation message log for a given customer,
    * if the customer is related to companies,
@@ -159,68 +188,26 @@ class ActivityLog {
     if (customer.companyIds && customer.companyIds.length > 0) {
       for (let companyId of customer.companyIds) {
         // check against duplication
-        const foundLog = await this.findOne({
-          'activity.type': ACTIVITY_TYPES.CONVERSATION_MESSAGE,
-          'activity.action': ACTIVITY_ACTIONS.CREATE,
-          'activity.id': message._id,
-          'coc.type': COC_CONTENT_TYPES.COMPANY,
-          'performedBy.type': ACTION_PERFORMER_TYPES.CUSTOMER,
-          'coc.id': companyId,
-        });
+        const foundLog = await this.cocFindOne(message._id, companyId, COC_CONTENT_TYPES.COMPANY);
 
         if (!foundLog) {
-          await this.createDoc({
-            activity: {
-              type: ACTIVITY_TYPES.CONVERSATION_MESSAGE,
-              action: ACTIVITY_ACTIONS.CREATE,
-              content: message.content,
-              id: message._id,
-            },
-            performedBy: {
-              type: ACTION_PERFORMER_TYPES.CUSTOMER,
-            },
-            coc: {
-              type: COC_CONTENT_TYPES.COMPANY,
-              id: companyId,
-            },
-          });
+          await this.cocCreate(message._id, message.content, companyId, COC_CONTENT_TYPES.COMPANY);
         }
       }
     }
 
     // check against duplication ======
-    const foundLog = await this.findOne({
-      'activity.type': ACTIVITY_TYPES.CONVERSATION_MESSAGE,
-      'activity.action': ACTIVITY_ACTIONS.CREATE,
-      'activity.id': message._id,
-      'performedBy.type': ACTION_PERFORMER_TYPES.CUSTOMER,
-      'coc.type': COC_CONTENT_TYPES.CUSTOMER,
-      'coc.id': customer._id,
-    });
+    const foundLog = await this.cocFindOne(message._id, customer._id, COC_CONTENT_TYPES.CUSTOMER);
 
     if (!foundLog) {
-      return this.createDoc({
-        activity: {
-          type: ACTIVITY_TYPES.CONVERSATION_MESSAGE,
-          action: ACTIVITY_ACTIONS.CREATE,
-          content: message.content,
-          id: message._id,
-        },
-        performedBy: {
-          type: ACTION_PERFORMER_TYPES.CUSTOMER,
-        },
-        coc: {
-          type: COC_CONTENT_TYPES.CUSTOMER,
-          id: customer._id,
-        },
-      });
+      return this.cocCreate(message._id, message.content, customer._id, COC_CONTENT_TYPES.CUSTOMER);
     }
   }
 
   /**
    * Create a customer or company segment log
    * @param {Segment} segment - Segment document
-   * @param {Customer} customer - Related customer or company
+   * @param {COC} customer - Related customer or company
    * @return {Promise} return Promise resolving created Segment
    */
   static async createSegmentLog(segment, customer) {

@@ -2,7 +2,6 @@ import fs from 'fs';
 import nodemailer from 'nodemailer';
 import Handlebars from 'handlebars';
 import { Notifications, Users } from '../db/models';
-import { COC_CONTENT_TYPES } from './constants';
 
 /**
  * Read contents of a file
@@ -143,88 +142,9 @@ export const sendNotification = async ({ createdUser, receivers, ...doc }) => {
   });
 };
 
-const START_DATE = {
-  year: 2017,
-  month: 0,
-};
-
-class BaseMonthActivityBuilder {
-  constructor(coc) {
-    this.coc = coc;
-  }
-
-  getDaysInMonth(year, month) {
-    return new Date(year, month, 0).getDate();
-  }
-
-  generateDates() {
-    const now = new Date();
-
-    const endYear = now.getFullYear();
-    const endMonth = now.getMonth();
-
-    const monthIntervals = [];
-
-    for (
-      let year = START_DATE.year, month = START_DATE.month;
-      year < endYear || (year === endYear && month <= endMonth);
-      month++
-    ) {
-      monthIntervals.push({
-        yearMonth: {
-          year,
-          month,
-        },
-        interval: {
-          start: new Date(year, month, 1),
-          end: new Date(year, month, this.getDaysInMonth(year, month)),
-        },
-      });
-
-      if ((month + 1) % 12 == 0) {
-        month = 0;
-        year++;
-      }
-    }
-
-    return monthIntervals;
-  }
-
-  build() {
-    const dates = this.generateDates();
-    const list = [];
-
-    for (let date of dates) {
-      list.unshift({
-        coc: this.coc,
-        cocContentType: this.cocContentType,
-        date,
-      });
-    }
-
-    return list;
-  }
-}
-
-export class CustomerMonthActivityLogBuilder extends BaseMonthActivityBuilder {
-  constructor(coc) {
-    super(coc);
-    this.cocContentType = COC_CONTENT_TYPES.CUSTOMER;
-  }
-}
-
-export class CompanyMonthActivityLogBuilder extends BaseMonthActivityBuilder {
-  constructor(coc) {
-    super(coc);
-    this.cocContentType = COC_CONTENT_TYPES.COMPANY;
-  }
-}
-
 export default {
   sendEmail,
   sendNotification,
   readFile,
   createTransporter,
-  CustomerMonthActivityLogBuilder,
-  CompanyMonthActivityLogBuilder,
 };
