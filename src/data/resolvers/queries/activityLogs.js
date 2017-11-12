@@ -16,8 +16,8 @@ const activityLogQueries = {
   async activityLogsCustomer(root, { _id }) {
     const customer = await Customers.findOne({ _id });
 
-    const companyMonthActivityLogBuilder = new CustomerMonthActivityLogBuilder(customer);
-    return companyMonthActivityLogBuilder.build();
+    const customerMonthActivityLogBuilder = new CustomerMonthActivityLogBuilder(customer);
+    return customerMonthActivityLogBuilder.build();
   },
 
   /**
