@@ -52,6 +52,7 @@ const FormDataSchema = mongoose.Schema(
     successAction: field({
       type: String,
       enum: FORM_SUCCESS_ACTIONS.ALL,
+      optional: true,
     }),
     fromEmail: field({
       type: String,

@@ -1,6 +1,8 @@
 /* eslint-env jest */
 /* eslint-disable no-underscore-dangle */
 
+import Twit from 'twit';
+import sinon from 'sinon';
 import { connect, disconnect } from '../db/connection';
 import { Conversations, ConversationMessages, Users, Customers, Integrations } from '../db/models';
 import {
@@ -11,6 +13,7 @@ import {
   customerFactory,
 } from '../db/factories';
 import conversationMutations from '../data/resolvers/mutations/conversations';
+import { TwitMap } from '../social/twitter';
 import utils from '../data/utils';
 
 beforeAll(() => connect());
@@ -49,6 +52,11 @@ describe('Conversation message mutations', () => {
     await Users.remove({});
     await Integrations.remove({});
     await Customers.remove({});
+
+    // restore mocks
+    if (utils.sendNotification.mock) {
+      utils.sendNotification.mockRestore();
+    }
   });
 
   test('Conversation login required functions', async () => {
@@ -145,6 +153,58 @@ describe('Conversation message mutations', () => {
     } catch (e) {
       expect(e.message).toEqual('Integration not found');
     }
+  });
+
+  test('Add conversation message: twitter reply', async () => {
+    // mock utils functions ===============
+    ConversationMessages.addMessage = jest.fn(() => ({ _id: 'messageObject' }));
+    const spyNotification = jest.spyOn(utils, 'sendNotification');
+    const spyEmail = jest.spyOn(utils, 'sendEmail');
+
+    // mock Twit instance
+    const twit = new Twit({
+      consumer_key: 'consumer_key',
+      consumer_secret: 'consumer_secret',
+      access_token: 'access_token',
+      access_token_secret: 'token_secret',
+    });
+
+    // mock twitter request
+    const sandbox = sinon.sandbox.create();
+    const stub = sandbox.stub(twit, 'post').callsFake(() => {});
+
+    // creating doc ===================
+    const integration = await integrationFactory({ kind: 'twitter' });
+    const conversation = await conversationFactory({
+      integrationId: integration._id,
+      twitterData: {
+        isDirectMessage: true,
+        directMessage: {
+          senderIdStr: 'sender_id',
+        },
+      },
+    });
+
+    TwitMap[integration._id] = twit;
+
+    _doc.conversationId = conversation._id;
+    _doc.internal = false;
+
+    // call mutation
+    await conversationMutations.conversationMessageAdd({}, _doc, { user: _user });
+
+    // check utils function calls
+    expect(ConversationMessages.addMessage.mock.calls.length).toBe(1);
+    expect(spyNotification.mock.calls.length).toBe(1);
+    expect(spyEmail.mock.calls.length).toBe(1);
+
+    // check twit post params
+    expect(
+      stub.calledWith('direct_messages/new', {
+        user_id: 'sender_id',
+        text: _doc.content,
+      }),
+    ).toBe(true);
   });
 
   // if user assigned to conversation
