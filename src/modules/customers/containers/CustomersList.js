@@ -84,7 +84,12 @@ export default compose(
     options: ({ queryParams }) => {
       return {
         variables: {
-          params: queryParams
+          limit: queryParams.limit || 20,
+          page: queryParams.page,
+          perPage: queryParams.perPage,
+          segment: queryParams.segment,
+          tag: queryParams.tag,
+          ids: queryParams.ids
         }
       };
     }
@@ -93,10 +98,12 @@ export default compose(
     name: 'customerCountsQuery',
     options: ({ queryParams }) => ({
       variables: {
-        params: {
-          ...queryParams,
-          limit: queryParams.limit || 20
-        }
+        limit: queryParams.limit || 20,
+        page: queryParams.page,
+        perPage: queryParams.perPage,
+        tag: queryParams.tag,
+        segment: queryParams.segment,
+        ids: queryParams.ids
       }
     })
   }),

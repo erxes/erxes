@@ -77,6 +77,7 @@ export default compose(
         page: queryParams.page,
         perPage: queryParams.perPage,
         segment: queryParams.segment,
+        tag: queryParams.tag,
         ids: queryParams.ids
       }
     })
@@ -89,6 +90,7 @@ export default compose(
         page: queryParams.page,
         perPage: queryParams.perPage,
         segment: queryParams.segment,
+        tag: queryParams.tag,
         ids: queryParams.ids
       }
     })

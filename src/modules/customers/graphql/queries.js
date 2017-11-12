@@ -20,17 +20,35 @@ const customerFields = `
     }
 `;
 
+const listParamsDef = `
+  $limit: Int,
+  $page: Int,
+  $perPage: Int,
+  $segment: String,
+  $tag: String,
+  $ids: [String]
+`;
+
+const listParamsValue = `
+  limit: $limit,
+  page: $page,
+  perPage: $perPage,
+  segment: $segment,
+  tag: $tag,
+  ids: $ids,
+`;
+
 const customers = `
-  query customers($params: CustomerListParams) {
-    customers(params: $params) {
+  query customers(${listParamsDef}) {
+    customers(${listParamsValue}) {
       ${customerFields}
     }
   }
 `;
 
 const customerCounts = `
-  query customerCounts($params: CustomerListParams) {
-    customerCounts(params: $params)
+  query customerCounts(${listParamsDef}) {
+    customerCounts(${listParamsValue})
   }
 `;
 

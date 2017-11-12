@@ -13,6 +13,7 @@ const listParamsDef = `
   $page: Int,
   $perPage: Int,
   $segment: String,
+  $tag: String,
   $ids: [String]
 `;
 
@@ -21,6 +22,7 @@ const listParamsValue = `
   page: $page,
   perPage: $perPage,
   segment: $segment,
+  tag: $tag,
   ids: $ids,
 `;
 
