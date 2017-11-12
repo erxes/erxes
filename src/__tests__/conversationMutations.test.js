@@ -220,8 +220,11 @@ describe('Conversation message mutations', () => {
     jest.spyOn(utils, 'sendEmail');
 
     // mock graph api requests
-    sinon.stub(graphRequest, 'get').callsFake(() => ({ access_token: 'access_token' }));
-    const stub = sinon.stub(graphRequest, 'post').callsFake(() => ({ id: 'id' }));
+    const getStub = sinon
+      .stub(graphRequest, 'get')
+      .callsFake(() => ({ access_token: 'access_token' }));
+
+    const postStub = sinon.stub(graphRequest, 'post').callsFake(() => ({ id: 'id' }));
 
     // factories ============
     const integration = await integrationFactory({
@@ -248,13 +251,16 @@ describe('Conversation message mutations', () => {
     await conversationMutations.conversationMessageAdd({}, _doc, { user: _user });
 
     // check stub ==============
-    expect(stub.calledOnce).toBe(true);
+    expect(postStub.called).toBe(true);
 
-    const [arg1, arg2, arg3] = stub.firstCall.args;
+    const [arg1, arg2, arg3] = postStub.firstCall.args;
 
     expect(arg1).toBe('postId/comments');
     expect(arg2).toBe('access_token');
     expect(arg3).toEqual({ message: _doc.content });
+
+    getStub.restore();
+    postStub.restore();
   });
 
   // if user assigned to conversation

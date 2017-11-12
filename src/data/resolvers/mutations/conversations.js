@@ -131,7 +131,7 @@ const conversationMutations = {
 
     // send reply to twitter
     if (kind === KIND_CHOICES.TWITTER) {
-      tweetReply(conversation, strip(doc.content));
+      await tweetReply(conversation, strip(doc.content));
       return message;
     }
 
@@ -154,7 +154,7 @@ const conversationMutations = {
     // send reply to facebook
     if (kind === KIND_CHOICES.FACEBOOK) {
       // when facebook kind is feed, assign commentId in extraData
-      facebookReply(conversation, strip(doc.content), message._id);
+      await facebookReply(conversation, strip(doc.content), message._id);
     }
 
     // notify subscription
