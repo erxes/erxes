@@ -17,8 +17,8 @@ export default commonListComposer({
 
   gqlListQuery: graphql(
     gql`
-      query objects($params: JSON) {
-        emailTemplates(params: $params) {
+      query emailTemplates($page: Int, $perPage: Int) {
+        emailTemplates(page: $page, perPage: $perPage) {
           _id
           name
           content
@@ -30,7 +30,8 @@ export default commonListComposer({
       options: ({ queryParams }) => {
         return {
           variables: {
-            params: queryParams
+            page: queryParams.page,
+            perPage: queryParams.perPage || 20
           }
         };
       }

@@ -19,8 +19,8 @@ export default commonListComposer({
 
   gqlListQuery: graphql(
     gql`
-      query objects($params: JSON) {
-        responseTemplates(params: $params) {
+      query responseTemplates($page: Int, $perPage: Int) {
+        responseTemplates(page: $page, perPage: $perPage) {
           _id
           name
           brandId
@@ -37,7 +37,8 @@ export default commonListComposer({
       options: ({ queryParams }) => {
         return {
           variables: {
-            params: queryParams
+            page: queryParams.page,
+            perPage: queryParams.perPage || 20
           }
         };
       }

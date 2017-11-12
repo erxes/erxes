@@ -27,8 +27,8 @@ export default commonListComposer({
 
   gqlListQuery: graphql(
     gql`
-      query objects($params: JSON) {
-        users(params: $params) {
+      query users($page: Int, $perPage: Int) {
+        users(page: $page, perPage: $perPage) {
           _id
           username
           email
@@ -42,7 +42,8 @@ export default commonListComposer({
       options: ({ queryParams }) => {
         return {
           variables: {
-            params: queryParams
+            page: queryParams.page,
+            perPage: queryParams.perPage || 20
           }
         };
       }
