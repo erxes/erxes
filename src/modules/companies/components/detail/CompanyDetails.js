@@ -9,19 +9,20 @@ import {
 import { WhiteBox } from 'modules/layout/styles';
 import LeftSidebar from './LeftSidebar';
 import {
-  ActivityList,
   ConversationList,
   EmptyState,
   Tabs,
   TabTitle
 } from 'modules/common/components';
+import ActivityList from 'modules/activityLogs/components/ActivityList';
 
 const propTypes = {
   company: PropTypes.object.isRequired,
   customFields: PropTypes.array.isRequired,
   save: PropTypes.func.isRequired,
   queryParams: PropTypes.object.isRequired,
-  currentUser: PropTypes.object.isRequired
+  currentUser: PropTypes.object.isRequired,
+  companyActivityLog: PropTypes.array.isRequired
 };
 
 class CompanyDetails extends React.Component {
@@ -39,10 +40,12 @@ class CompanyDetails extends React.Component {
 
   renderTabContent() {
     const { currentTab } = this.state;
-    const { currentUser, company } = this.props;
+    const { currentUser, company, companyActivityLog } = this.props;
 
     if (currentTab === 'activity') {
-      return <ActivityList user={currentUser} />;
+      return (
+        <ActivityList user={currentUser} activities={companyActivityLog} />
+      );
     }
 
     if (currentTab === 'notes') {

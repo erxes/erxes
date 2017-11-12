@@ -9,7 +9,7 @@ import {
   ActivityCaption,
   ActivityContent,
   DeleteNote
-} from 'modules/common/components/ActivityList/styles';
+} from 'modules/activityLogs/styles';
 
 const propTypes = {
   notes: PropTypes.array.isRequired,

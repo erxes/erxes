@@ -72,7 +72,6 @@ class Inbox extends Component {
             );
           }
         })
-
         .catch(e => {
           Alert.error(e.message);
         });

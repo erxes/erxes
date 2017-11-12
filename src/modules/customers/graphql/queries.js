@@ -98,6 +98,31 @@ const customersListConfig = `
   }
 `;
 
+const activityLogsCustomer = `
+  query activityLogsCustomer($_id: String!) {
+    activityLogsCustomer(_id: $_id) {
+      date {
+        year
+        month
+      }
+      list {
+        id
+        action
+        content
+        createdAt
+        by {
+          _id
+          type
+          details {
+            avatar
+            fullName
+          }
+        }
+      }
+    }
+  }
+`;
+
 export default {
   customers,
   customerCounts,
@@ -105,5 +130,6 @@ export default {
   brands,
   tags,
   fields,
-  customersListConfig
+  customersListConfig,
+  activityLogsCustomer
 };

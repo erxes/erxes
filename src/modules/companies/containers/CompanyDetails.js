@@ -10,12 +10,17 @@ const CompanyDetailsContainer = (props, context) => {
   const {
     id,
     companyDetailQuery,
+    companyActivityLogQuery,
     companiesEdit,
     fieldsQuery,
     companiesAddCustomer
   } = props;
 
-  if (companyDetailQuery.loading || fieldsQuery.loading) {
+  if (
+    companyDetailQuery.loading ||
+    fieldsQuery.loading ||
+    companyActivityLogQuery.loading
+  ) {
     return (
       <Loading title="Companies" sidebarSize="wide" spin hasRightSidebar />
     );
@@ -45,6 +50,7 @@ const CompanyDetailsContainer = (props, context) => {
       ...companyDetailQuery.companyDetail,
       refetch: companyDetailQuery.refetch
     },
+    companyActivityLog: companyActivityLogQuery.activityLogsCompany,
     save,
     addCustomer,
     currentUser: context.currentUser,
@@ -59,7 +65,8 @@ CompanyDetailsContainer.propTypes = {
   companyDetailQuery: PropTypes.object,
   fieldsQuery: PropTypes.object,
   companiesEdit: PropTypes.func,
-  companiesAddCustomer: PropTypes.func
+  companiesAddCustomer: PropTypes.func,
+  companyActivityLogQuery: PropTypes.object
 };
 
 CompanyDetailsContainer.contextTypes = {
@@ -69,6 +76,14 @@ CompanyDetailsContainer.contextTypes = {
 export default compose(
   graphql(gql(queries.companyDetail), {
     name: 'companyDetailQuery',
+    options: ({ id }) => ({
+      variables: {
+        _id: id
+      }
+    })
+  }),
+  graphql(gql(queries.activityLogsCompany), {
+    name: 'companyActivityLogQuery',
     options: ({ id }) => ({
       variables: {
         _id: id

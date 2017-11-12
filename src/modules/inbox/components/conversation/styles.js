@@ -41,9 +41,9 @@ const MessageBody = styled.div`
   ${props => {
     if (props.staff) {
       return `
-        background-color: ${
-          props.internal ? colors.colorCoreYellow : colors.colorSecondary
-        };
+        background-color: ${props.internal
+          ? colors.colorCoreYellow
+          : colors.colorSecondary};
         margin: 0 55px 0 0;
         color: ${colors.colorWhite};
       `;
