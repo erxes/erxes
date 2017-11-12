@@ -8,8 +8,8 @@ const responseTemplateQueries = {
    * @param {Object} args - Search params
    * @return {Promise} response template objects
    */
-  responseTemplates(root, { params = {} }) {
-    return paginate(ResponseTemplates.find({}), params);
+  responseTemplates(root, args) {
+    return paginate(ResponseTemplates.find({}), args);
   },
 
   /**
