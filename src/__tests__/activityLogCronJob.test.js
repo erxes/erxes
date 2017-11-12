@@ -7,7 +7,7 @@ import {
   COC_CONTENT_TYPES,
   ACTIVITY_TYPES,
   ACTIVITY_ACTIONS,
-  ACTION_PERFORMER_TYPES,
+  ACTIVITY_PERFORMER_TYPES,
 } from '../data/constants';
 import { ActivityLogs } from '../db/models';
 import { customerFactory, segmentFactory } from '../db/factories';
@@ -51,7 +51,7 @@ describe('test activityLogsCronJob', () => {
       id: customer._id,
     });
     expect(aLog.performedBy.toObject()).toEqual({
-      type: ACTION_PERFORMER_TYPES.SYSTEM,
+      type: ACTIVITY_PERFORMER_TYPES.SYSTEM,
     });
 
     // check if the second activity log is being created

@@ -205,7 +205,7 @@ export const ACTIVITY_ACTIONS = {
   ALL: ['create', 'update', 'delete'],
 };
 
-export const ACTION_PERFORMER_TYPES = {
+export const ACTIVITY_PERFORMER_TYPES = {
   SYSTEM: 'SYSTEM',
   USER: 'USER',
   CUSTOMER: 'CUSTOMER',

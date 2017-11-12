@@ -45,7 +45,7 @@ describe('activityLogs', () => {
     );
 
     // create conversation message
-    await mutations.activitivyLogsAddConversationMessageLog(null, {
+    await mutations.activityLogsAddConversationMessageLog(null, {
       customerId: customer._id,
       messageId: _message._id,
     });
@@ -219,7 +219,7 @@ describe('activityLogs', () => {
     );
     const customer = await customerFactory({ companyIds: [company._id] });
 
-    await mutations.activitivyLogsAddConversationMessageLog(null, {
+    await mutations.activityLogsAddConversationMessageLog(null, {
       customerId: customer._id,
       messageId: _message._id,
     });

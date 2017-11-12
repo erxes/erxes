@@ -1,4 +1,4 @@
-import { ACTION_PERFORMER_TYPES } from '../../data/constants';
+import { ACTIVITY_PERFORMER_TYPES } from '../../data/constants';
 import { Users } from '../../db/models';
 
 /*
@@ -39,7 +39,7 @@ export default {
    */
   async by(obj) {
     const performedBy = obj.performedBy;
-    if (performedBy.type === ACTION_PERFORMER_TYPES.USER) {
+    if (performedBy.type === ACTIVITY_PERFORMER_TYPES.USER) {
       const user = await Users.findOne({ _id: performedBy.id });
       return {
         _id: user._id,

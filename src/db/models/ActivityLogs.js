@@ -2,7 +2,7 @@ import mongoose, { SchemaTypes } from 'mongoose';
 import { field } from './utils';
 import {
   COC_CONTENT_TYPES,
-  ACTION_PERFORMER_TYPES,
+  ACTIVITY_PERFORMER_TYPES,
   ACTIVITY_TYPES,
   ACTIVITY_ACTIONS,
 } from '../../data/constants';
@@ -15,8 +15,8 @@ const ActionPerformer = mongoose.Schema(
   {
     type: field({
       type: String,
-      enum: ACTION_PERFORMER_TYPES.ALL,
-      default: ACTION_PERFORMER_TYPES.SYSTEM,
+      enum: ACTIVITY_PERFORMER_TYPES.ALL,
+      default: ACTIVITY_PERFORMER_TYPES.SYSTEM,
       required: true,
     }),
     id: field({
@@ -102,18 +102,23 @@ const ActivityLogSchema = mongoose.Schema({
 class ActivityLog {
   /**
    * Create an ActivityLog document
-   * @param {Object|null} object1.performedBy - The performer of the action
+   * @param {Object|null} object1.performer - The performer of the action
    * @param {Object} object1 - Data to insert according to schema
    * @return {Promise} returns Promise resolving created ActivityLog document
    */
-  static createDoc({ performedBy, ...doc }) {
-    if (performedBy && performedBy._id) {
-      performedBy = {
-        type: ACTION_PERFORMER_TYPES.USER,
-        id: performedBy._id,
-      };
-    } else if (!performedBy) {
-      performedBy = {};
+  static createDoc({ performer, ...doc }) {
+    let performedBy = {
+      type: ACTIVITY_PERFORMER_TYPES.SYSTEM,
+    };
+
+    if (performer) {
+      if (performer.type) {
+        performedBy.type = performer.type;
+      }
+
+      if (performer.id) {
+        performedBy.id = performer.id;
+      }
     }
 
     return this.create({ performedBy, ...doc });
@@ -122,7 +127,7 @@ class ActivityLog {
   /**
    * Create activity log for internal note
    * @param {InternalNote} internalNote - Internal note document
-   * @param {User} performedBy - User collection document
+   * @param {User} user - User collection document
    * @return {Promise} returns Promise resolving created ActivityLog document
    */
   static createInternalNoteLog(internalNote, user) {
@@ -133,7 +138,10 @@ class ActivityLog {
         id: internalNote._id,
         content: internalNote.content,
       },
-      performedBy: user,
+      performer: {
+        type: ACTIVITY_PERFORMER_TYPES.USER,
+        id: user._id,
+      },
       coc: {
         id: internalNote.contentTypeId,
         type: internalNote.contentType,
@@ -147,7 +155,7 @@ class ActivityLog {
       'activity.action': ACTIVITY_ACTIONS.CREATE,
       'activity.id': messageId,
       'coc.type': cocType,
-      'performedBy.type': ACTION_PERFORMER_TYPES.CUSTOMER,
+      'performedBy.type': ACTIVITY_PERFORMER_TYPES.CUSTOMER,
       'coc.id': cocId,
     });
   }
@@ -160,8 +168,8 @@ class ActivityLog {
         content: content,
         id: messageId,
       },
-      performedBy: {
-        type: ACTION_PERFORMER_TYPES.CUSTOMER,
+      performer: {
+        type: ACTIVITY_PERFORMER_TYPES.CUSTOMER,
       },
       coc: {
         type: cocType,
@@ -249,6 +257,14 @@ class ActivityLog {
    * @return {Promise} return Promise resolving created ActivityLog
    */
   static createCustomerRegistrationLog(customer, user) {
+    const performer =
+      (user &&
+        user._id && {
+          type: ACTIVITY_PERFORMER_TYPES.USER,
+          id: user._id,
+        }) ||
+      null;
+
     return this.createDoc({
       activity: {
         type: ACTIVITY_TYPES.CUSTOMER,
@@ -260,7 +276,7 @@ class ActivityLog {
         type: COC_CONTENT_TYPES.CUSTOMER,
         id: customer._id,
       },
-      performedBy: user,
+      performer,
     });
   }
 
@@ -271,6 +287,14 @@ class ActivityLog {
    * @return {Promise} return Promise resolving created ActivityLog
    */
   static createCompanyRegistrationLog(company, user) {
+    const performer =
+      (user &&
+        user._id && {
+          type: ACTIVITY_PERFORMER_TYPES.USER,
+          id: user._id,
+        }) ||
+      null;
+
     return this.createDoc({
       activity: {
         type: ACTIVITY_TYPES.COMPANY,
@@ -282,7 +306,7 @@ class ActivityLog {
         type: COC_CONTENT_TYPES.COMPANY,
         id: company._id,
       },
-      performedBy: user,
+      performer,
     });
   }
 }

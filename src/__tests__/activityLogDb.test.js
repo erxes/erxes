@@ -4,7 +4,7 @@
 import { connect, disconnect } from '../db/connection';
 import {
   COC_CONTENT_TYPES,
-  ACTION_PERFORMER_TYPES,
+  ACTIVITY_PERFORMER_TYPES,
   ACTIVITY_TYPES,
   ACTIVITY_ACTIONS,
 } from '../data/constants';
@@ -43,30 +43,14 @@ describe('ActivityLogs model methods', () => {
     const doc = {
       activity: activityDoc,
       coc: customerDoc,
-      performedBy: null,
+      performer: null,
     };
 
     const aLog = await ActivityLogs.createDoc(doc);
 
     expect(aLog.activity.toObject()).toEqual(activityDoc);
     expect(aLog.coc.toObject()).toEqual(customerDoc);
-    expect(aLog.performedBy.type).toBe(ACTION_PERFORMER_TYPES.SYSTEM);
-  });
-
-  test(`check if exception is being thrown when calling
-  createInternalNoteLog without setting 'user'`, async () => {
-    const customer = await customerFactory();
-
-    const internalNote = await internalNoteFactory({
-      contentType: COC_CONTENT_TYPES.CUSTOMER,
-      contentTypeId: customer._id,
-    });
-
-    try {
-      await ActivityLogs.createInternalNoteLog(internalNote);
-    } catch (e) {
-      expect(e.message).toBe(`'user' must be supplied when adding activity log for internal note`);
-    }
+    expect(aLog.performedBy.toObject().type).toBe(ACTIVITY_PERFORMER_TYPES.SYSTEM);
   });
 
   test(`createInternalNoteLog with setting 'user'`, async () => {
@@ -81,7 +65,7 @@ describe('ActivityLogs model methods', () => {
 
     const aLog = await ActivityLogs.createInternalNoteLog(internalNote, user);
 
-    expect(aLog.performedBy.type).toBe(ACTION_PERFORMER_TYPES.USER);
+    expect(aLog.performedBy.type).toBe(ACTIVITY_PERFORMER_TYPES.USER);
     expect(aLog.performedBy.id).toBe(user._id);
     expect(aLog.coc.type).toBe(COC_CONTENT_TYPES.CUSTOMER);
     expect(aLog.coc.id).toBe(internalNote.contentTypeId);
@@ -137,7 +121,7 @@ describe('ActivityLogs model methods', () => {
       id: customer._id,
     });
     expect(segmentLog.performedBy.toObject()).toEqual({
-      type: ACTION_PERFORMER_TYPES.SYSTEM,
+      type: ACTIVITY_PERFORMER_TYPES.SYSTEM,
     });
   });
 
@@ -172,7 +156,7 @@ describe('ActivityLogs model methods', () => {
 
     // check customer conversation log
     expect(aLog.performedBy.toObject()).toEqual({
-      type: ACTION_PERFORMER_TYPES.CUSTOMER,
+      type: ACTIVITY_PERFORMER_TYPES.CUSTOMER,
     });
     expect(aLog.coc.toObject()).toEqual({
       type: COC_CONTENT_TYPES.CUSTOMER,
@@ -223,7 +207,7 @@ describe('ActivityLogs model methods', () => {
     const aLog = await ActivityLogs.createCustomerRegistrationLog(customer, user);
 
     expect(aLog.performedBy.toObject()).toEqual({
-      type: ACTION_PERFORMER_TYPES.USER,
+      type: ACTIVITY_PERFORMER_TYPES.USER,
       id: user._id,
     });
     expect(aLog.activity.toObject()).toEqual({
@@ -245,7 +229,7 @@ describe('ActivityLogs model methods', () => {
     const aLog = await ActivityLogs.createCompanyRegistrationLog(company, user);
 
     expect(aLog.performedBy.toObject()).toEqual({
-      type: ACTION_PERFORMER_TYPES.USER,
+      type: ACTIVITY_PERFORMER_TYPES.USER,
       id: user._id,
     });
     expect(aLog.activity.toObject()).toEqual({
