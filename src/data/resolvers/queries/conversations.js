@@ -6,11 +6,10 @@ import { moduleRequireLogin } from '../../permissions';
 const conversationQueries = {
   /**
    * Conversataions list
-   * @param {Object} args
-   * @param {ConversationListParams} args.params
+   * @param {Object} params - Query params
    * @return {Promise} filtered conversations list by given parameters
    */
-  async conversations(root, { params }, { user }) {
+  async conversations(root, params, { user }) {
     // filter by ids of conversations
     if (params && params.ids) {
       return Conversations.find({ _id: { $in: params.ids } }).sort({ createdAt: -1 });
@@ -30,13 +29,13 @@ const conversationQueries = {
    * Group conversation counts by brands, channels, integrations, status
    *
    * @param {Object} args
+   * @param {Object} params - Query params
    * @param {Object} context
-   * @param {ConversationListParams} args.params
    * @param {Object} context.user
    *
    * @return {Object} counts map
    */
-  async conversationCounts(root, { params }, { user }) {
+  async conversationCounts(root, params, { user }) {
     const response = {
       byChannels: {},
       byIntegrationTypes: {},
@@ -158,7 +157,7 @@ const conversationQueries = {
    * Get all conversations count. We will use it in pager
    * @return {Promise} total count
    */
-  async conversationsTotalCount(root, { params }, { user }) {
+  async conversationsTotalCount(root, params, { user }) {
     // initiate query builder
     const qb = new QueryBuilder(params, { _id: user._id });
 

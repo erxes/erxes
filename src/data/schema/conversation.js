@@ -1,18 +1,4 @@
 export const types = `
-  input ConversationListParams {
-    limit: Int,
-    channelId: String
-    status: String
-    unassigned: String
-    brandId: String
-    tag: String
-    integrationType: String
-    participating: String
-    starred: String
-    ids: [String]
-  }
-
-
   type Conversation {
     _id: String!
     content: String
@@ -81,11 +67,24 @@ export const types = `
   }
 `;
 
+const listParams = `
+  limit: Int,
+  channelId: String
+  status: String
+  unassigned: String
+  brandId: String
+  tag: String
+  integrationType: String
+  participating: String
+  starred: String
+  ids: [String]
+`;
+
 export const queries = `
-  conversations(params: ConversationListParams!): [Conversation]
-  conversationCounts(params: ConversationListParams): JSON
+  conversations(${listParams}): [Conversation]
+  conversationCounts(${listParams}): JSON
+  conversationsTotalCount(${listParams}): Int
   conversationDetail(_id: String!): Conversation
-  conversationsTotalCount(params: ConversationListParams): Int
   conversationsGetLast: Conversation
 `;
 
