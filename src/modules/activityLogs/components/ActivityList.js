@@ -10,8 +10,8 @@ import {
   AvatarWrapper,
   ActivityWrapper,
   ActivityCaption
-} from './styles';
-import ActivityLogProcessor from './ActivityLogProcessor';
+} from '../styles';
+import ActivityLogProcessor from '../utils';
 
 const propTypes = {
   activities: PropTypes.array,

@@ -9,12 +9,12 @@ import {
 import { WhiteBox } from 'modules/layout/styles';
 import LeftSidebar from './LeftSidebar';
 import {
-  ActivityList,
   ConversationList,
   EmptyState,
   Tabs,
   TabTitle
 } from 'modules/common/components';
+import ActivityList from 'modules/activityLogs/components/ActivityList';
 
 const propTypes = {
   company: PropTypes.object.isRequired,

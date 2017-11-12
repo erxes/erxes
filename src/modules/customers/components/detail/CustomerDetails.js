@@ -8,12 +8,8 @@ import {
 import LeftSidebar from './sidebar/LeftSidebar';
 import { Tabs, TabTitle } from 'modules/common/components';
 import { WhiteBox } from 'modules/layout/styles';
-import {
-  ActivityList,
-  ConversationList,
-  EmptyState,
-  Icon
-} from 'modules/common/components';
+import { ConversationList, EmptyState, Icon } from 'modules/common/components';
+import ActivityList from 'modules/activityLogs/components/ActivityList';
 
 const propTypes = {
   customer: PropTypes.object.isRequired,

@@ -7,7 +7,7 @@ import {
   ActivityWrapper,
   ActivityCaption,
   IconWrapper
-} from 'modules/common/components/ActivityList/styles';
+} from 'modules/activityLogs/styles';
 import { Tip, Icon, NameCard } from 'modules/common/components';
 import {
   MessengerSection,
