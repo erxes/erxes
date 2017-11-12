@@ -112,13 +112,7 @@ class ActivityLog {
     };
 
     if (performer) {
-      if (performer.type) {
-        performedBy.type = performer.type;
-      }
-
-      if (performer.id) {
-        performedBy.id = performer.id;
-      }
+      performedBy = performer;
     }
 
     return this.create({ performedBy, ...doc });
