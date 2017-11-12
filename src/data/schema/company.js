@@ -21,6 +21,7 @@ const queryParams = `
   page: Int,
   perPage: Int,
   segment: String,
+  tag: String,
   ids: [String]
 `;
 

@@ -48,14 +48,13 @@ const customerQueries = {
   /**
    * Customers list
    * @param {Object} args
-   * @param {CustomerListParams} args.params
    * @return {Promise} filtered customers list by given parameters
    */
-  async customers(root, { params }) {
+  async customers(root, { ids, ...params }) {
     const sort = { 'messengerData.lastSeenAt': -1 };
 
-    if (params.ids) {
-      const selector = { _id: { $in: params.ids } };
+    if (ids) {
+      const selector = { _id: { $in: ids } };
       return paginate(Customers.find(selector), params).sort(sort);
     }
 
@@ -70,7 +69,7 @@ const customerQueries = {
    * @param {CustomerListParams} args.params
    * @return {Object} counts map
    */
-  async customerCounts(root, { params }) {
+  async customerCounts(root, params) {
     const counts = { bySegment: {}, byBrand: {}, byIntegrationType: {}, byTag: {} };
     const selector = await listQuery(params);
 
