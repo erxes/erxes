@@ -5,11 +5,11 @@ import { paginate } from './utils';
 const brandQueries = {
   /**
    * Brands list
-   * @param {Object} params - Query params
+   * @param {Object} args - Query params
    * @return {Promise} sorted brands list
    */
-  brands(root, { params = {} }) {
-    const brands = paginate(Brands.find({}), params);
+  brands(root, args) {
+    const brands = paginate(Brands.find({}), args);
     return brands.sort({ createdAt: -1 });
   },
 
