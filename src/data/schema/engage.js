@@ -46,7 +46,7 @@ export const types = `
 `;
 
 export const queries = `
-  engageMessages(params: JSON): [EngageMessage]
+  engageMessages(kind: String, status: String, tag: String, ids: [String]): [EngageMessage]
   engageMessageDetail(_id: String): EngageMessage
   engageMessageCounts(name: String!, kind: String, status: String): JSON
   engageMessagesTotalCount: Int
