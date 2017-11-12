@@ -72,17 +72,24 @@ export default compose(
   graphql(gql(queries.companies), {
     name: 'companiesQuery',
     options: ({ queryParams }) => ({
-      variables: { params: queryParams }
+      variables: {
+        limit: queryParams.limit || 20,
+        page: queryParams.page,
+        perPage: queryParams.perPage,
+        segment: queryParams.segment,
+        ids: queryParams.ids
+      }
     })
   }),
   graphql(gql(queries.companyCounts), {
     name: 'companyCountsQuery',
     options: ({ queryParams }) => ({
       variables: {
-        params: {
-          ...queryParams,
-          limit: queryParams.limit || 20
-        }
+        limit: queryParams.limit || 20,
+        page: queryParams.page,
+        perPage: queryParams.perPage,
+        segment: queryParams.segment,
+        ids: queryParams.ids
       }
     })
   }),

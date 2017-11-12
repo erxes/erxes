@@ -8,17 +8,33 @@ const companyFields = `
   customFieldsData
 `;
 
+const listParamsDef = `
+  $limit: Int,
+  $page: Int,
+  $perPage: Int,
+  $segment: String,
+  $ids: [String]
+`;
+
+const listParamsValue = `
+  limit: $limit,
+  page: $page,
+  perPage: $perPage,
+  segment: $segment,
+  ids: $ids,
+`;
+
 export const companies = `
-  query companies($params: CompanyListParams) {
-    companies(params: $params) {
+  query companies(${listParamsDef}) {
+    companies(${listParamsValue}) {
       ${companyFields}
     }
   }
 `;
 
 export const companyCounts = `
-  query companyCounts($params: CompanyListParams) {
-    companyCounts(params: $params)
+  query companyCounts(${listParamsDef}) {
+    companyCounts(${listParamsValue})
   }
 `;
 
