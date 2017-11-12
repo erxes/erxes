@@ -20,13 +20,12 @@ const listQuery = async params => {
 const companyQueries = {
   /**
    * Companies list
-   * @param {Object} args
-   * @param {CompanyListParams} args.params
+   * @param {Object} args - Query params
    * @return {Promise} filtered companies list by given parameters
    */
-  async companies(root, { params }) {
+  async companies(root, { ids, ...params }) {
     if (params.ids) {
-      return paginate(Companies.find({ _id: { $in: params.ids } }), params);
+      return paginate(Companies.find({ _id: { $in: ids } }), params);
     }
 
     const selector = await listQuery(params);
@@ -36,13 +35,12 @@ const companyQueries = {
 
   /**
    * Group company counts by segments
-   * @param {Object} args
-   * @param {CompanyListParams} args.params
+   * @param {Object} args - Query params
    * @return {Object} counts map
    */
-  async companyCounts(root, { params }) {
+  async companyCounts(root, args) {
     const counts = { bySegment: {}, byBrand: {}, byIntegrationType: {}, byTag: {} };
-    const selector = await listQuery(params);
+    const selector = await listQuery(args);
 
     const count = query => {
       const findQuery = Object.assign({}, selector, query);

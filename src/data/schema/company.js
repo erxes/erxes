@@ -1,11 +1,4 @@
 export const types = `
-  input CompanyListParams {
-    limit: Int,
-    page: String,
-    segment: String,
-    ids: [String]
-  }
-
   type Company {
     _id: String!
     name: String
@@ -23,9 +16,17 @@ export const types = `
   }
 `;
 
+const queryParams = `
+  limit: Int,
+  page: Int,
+  perPage: Int,
+  segment: String,
+  ids: [String]
+`;
+
 export const queries = `
-  companies(params: CompanyListParams): [Company]
-  companyCounts(params: CompanyListParams): JSON
+  companies(${queryParams}): [Company]
+  companyCounts(${queryParams}): JSON
   companyDetail(_id: String!): Company
 `;
 
