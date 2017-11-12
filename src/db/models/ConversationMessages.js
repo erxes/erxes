@@ -1,70 +1,70 @@
 import strip from 'strip';
 import mongoose from 'mongoose';
-import Random from 'meteor-random';
 import { Conversations } from './';
+import { field } from './utils';
 
 const FacebookSchema = mongoose.Schema(
   {
-    commentId: {
+    commentId: field({
       type: String,
       optional: true,
-    },
+    }),
 
     // comment, reaction, etc ...
-    item: {
+    item: field({
       type: String,
       optional: true,
-    },
+    }),
 
     // when share photo
-    photoId: {
+    photoId: field({
       type: String,
       optional: true,
-    },
+    }),
 
     // when share video
-    videoId: {
+    videoId: field({
       type: String,
       optional: true,
-    },
+    }),
 
-    link: {
+    link: field({
       type: String,
       optional: true,
-    },
+    }),
 
-    reactionType: {
+    reactionType: field({
       type: String,
       optional: true,
-    },
+    }),
 
-    senderId: {
+    senderId: field({
       type: String,
       optional: true,
-    },
+    }),
 
-    senderName: {
+    senderName: field({
       type: String,
       optional: true,
-    },
+    }),
   },
   { _id: false },
 );
 
 const MessageSchema = mongoose.Schema({
-  _id: { type: String, unique: true, default: () => Random.id() },
-  content: String,
-  attachments: Object,
-  mentionedUserIds: [String],
-  conversationId: String,
-  internal: Boolean,
-  customerId: String,
-  userId: String,
-  createdAt: Date,
-  isCustomerRead: Boolean,
-  engageData: Object,
-  formWidgetData: Object,
-  facebookData: FacebookSchema,
+  _id: field({ pkey: true }),
+  content: field({ type: String }),
+  attachments: field({ type: Object }),
+  mentionedUserIds: field({ type: [String] }),
+  conversationId: field({ type: String }),
+  internal: field({ type: Boolean }),
+  customerId: field({ type: String }),
+  userId: field({ type: String }),
+  createdAt: field({ type: Date }),
+  isCustomerRead: field({ type: Boolean }),
+  engageData: field({ type: Object }),
+  formWidgetData: field({ type: Object }),
+  facebookData: field({ type: FacebookSchema }),
 });
 
 class Message {

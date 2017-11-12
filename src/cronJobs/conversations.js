@@ -21,6 +21,7 @@ export const sendMessageEmail = async () => {
   for (let conversation of conversations) {
     const customer = await Customers.findOne({ _id: conversation.customerId });
     const integration = await Integrations.findOne({ _id: conversation.integrationId });
+
     const brand = await Brands.findOne({ _id: integration.brandId });
 
     if (!customer || !customer.email) {
@@ -99,3 +100,5 @@ export const sendMessageEmail = async () => {
 schedule.scheduleJob('*/10 * * * *', function() {
   sendMessageEmail();
 });
+
+sendMessageEmail();

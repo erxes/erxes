@@ -3,40 +3,36 @@
  */
 
 import mongoose from 'mongoose';
-import Random from 'meteor-random';
 import validator from 'validator';
 import { FIELD_CONTENT_TYPES } from '../../data/constants';
 import { Forms } from './';
+import { field } from './utils';
 
 const FieldSchema = mongoose.Schema({
-  _id: {
-    type: String,
-    unique: true,
-    default: () => Random.id(),
-  },
+  _id: field({ pkey: true }),
 
   // form, customer, company
-  contentType: String,
+  contentType: field({ type: String }),
 
   // formId when contentType is form
-  contentTypeId: String,
+  contentTypeId: field({ type: String }),
 
-  type: String,
-  validation: {
+  type: field({ type: String }),
+  validation: field({
     type: String,
     optional: true,
-  },
-  text: String,
-  description: {
+  }),
+  text: field({ type: String }),
+  description: field({
     type: String,
     optional: true,
-  },
-  options: {
+  }),
+  options: field({
     type: [String],
     optional: true,
-  },
-  isRequired: Boolean,
-  order: Number,
+  }),
+  isRequired: field({ type: Boolean }),
+  order: field({ type: Number }),
 });
 
 class Field {

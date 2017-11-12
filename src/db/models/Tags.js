@@ -1,23 +1,19 @@
 import _ from 'underscore';
 import mongoose from 'mongoose';
-import Random from 'meteor-random';
 import { TAG_TYPES } from '../../data/constants';
 import { Customers, Conversations, EngageMessages } from '.';
+import { field } from './utils';
 
 const TagSchema = mongoose.Schema({
-  _id: {
-    type: String,
-    unique: true,
-    default: () => Random.id(),
-  },
-  name: String,
-  type: {
+  _id: field({ pkey: true }),
+  name: field({ type: String }),
+  type: field({
     type: String,
     enum: TAG_TYPES.ALL,
-  },
-  colorCode: String,
-  createdAt: Date,
-  objectCount: Number,
+  }),
+  colorCode: field({ type: String }),
+  createdAt: field({ type: Date }),
+  objectCount: field({ type: Number }),
 });
 
 /*

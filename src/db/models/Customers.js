@@ -1,29 +1,28 @@
 import mongoose from 'mongoose';
-import Random from 'meteor-random';
 import { Fields, Companies } from './';
+import { field } from './utils';
 
 /*
  * messenger schema
  */
 const messengerSchema = mongoose.Schema(
   {
-    lastSeenAt: {
+    lastSeenAt: field({
       type: Date,
       label: 'Messenger: Last online',
-    },
-    sessionCount: {
+    }),
+    sessionCount: field({
       type: Number,
       label: 'Messenger: Session count',
-    },
-    isActive: {
+    }),
+    isActive: field({
       type: Boolean,
       label: 'Messenger: Is online',
-    },
-    customData: {
+    }),
+    customData: field({
       type: Object,
-      blackbox: true,
       optional: true,
-    },
+    }),
   },
   { _id: false },
 );
@@ -33,26 +32,26 @@ const messengerSchema = mongoose.Schema(
  */
 const twitterSchema = mongoose.Schema(
   {
-    id: {
+    id: field({
       type: Number,
       label: 'Twitter: ID (Number)',
-    },
-    idStr: {
+    }),
+    idStr: field({
       type: String,
       label: 'Twitter: ID (String)',
-    },
-    name: {
+    }),
+    name: field({
       type: String,
       label: 'Twitter: Name',
-    },
-    screenName: {
+    }),
+    screenName: field({
       type: String,
       label: 'Twitter: Screen name',
-    },
-    profileImageUrl: {
+    }),
+    profileImageUrl: field({
       type: String,
       label: 'Twitter: Profile photo',
-    },
+    }),
   },
   { _id: false },
 );
@@ -62,40 +61,36 @@ const twitterSchema = mongoose.Schema(
  */
 const facebookSchema = mongoose.Schema(
   {
-    id: {
+    id: field({
       type: String,
       label: 'Facebook: ID',
-    },
-    profilePic: {
+    }),
+    profilePic: field({
       type: String,
       optional: true,
       label: 'Facebook: Profile photo',
-    },
+    }),
   },
   { _id: false },
 );
 
 const CustomerSchema = mongoose.Schema({
-  _id: {
-    type: String,
-    unique: true,
-    default: () => Random.id(),
-  },
+  _id: field({ pkey: true }),
 
-  name: { type: String, label: 'Name' },
-  email: { type: String, label: 'Email' },
-  phone: { type: String, label: 'Phone' },
-  isUser: { type: Boolean, label: 'Is user' },
-  createdAt: { type: Date, label: 'Created at' },
+  name: field({ type: String, label: 'Name' }),
+  email: field({ type: String, label: 'Email' }),
+  phone: field({ type: String, label: 'Phone' }),
+  isUser: field({ type: Boolean, label: 'Is user' }),
+  createdAt: field({ type: Date, label: 'Created at' }),
 
-  integrationId: String,
-  tagIds: [String],
-  companyIds: [String],
+  integrationId: field({ type: String }),
+  tagIds: field({ type: [String] }),
+  companyIds: field({ type: [String] }),
 
-  customFieldsData: Object,
-  messengerData: messengerSchema,
-  twitterData: twitterSchema,
-  facebookData: facebookSchema,
+  customFieldsData: field({ type: Object }),
+  messengerData: field({ type: messengerSchema }),
+  twitterData: field({ type: twitterSchema }),
+  facebookData: field({ type: facebookSchema }),
 });
 
 class Customer {

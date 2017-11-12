@@ -1,6 +1,8 @@
 /* eslint-env jest */
 /* eslint-disable no-underscore-dangle */
 
+import Twit from 'twit';
+import sinon from 'sinon';
 import { connect, disconnect } from '../db/connection';
 import { Conversations, ConversationMessages, Users, Customers, Integrations } from '../db/models';
 import {
@@ -11,7 +13,10 @@ import {
   customerFactory,
 } from '../db/factories';
 import conversationMutations from '../data/resolvers/mutations/conversations';
+import { TwitMap } from '../social/twitter';
+import { graphRequest } from '../social/facebookTracker';
 import utils from '../data/utils';
+import { FACEBOOK_DATA_KINDS } from '../data/constants';
 
 beforeAll(() => connect());
 
@@ -49,6 +54,11 @@ describe('Conversation message mutations', () => {
     await Users.remove({});
     await Integrations.remove({});
     await Customers.remove({});
+
+    // restore mocks
+    if (utils.sendNotification.mock) {
+      utils.sendNotification.mockRestore();
+    }
   });
 
   test('Conversation login required functions', async () => {
@@ -145,6 +155,106 @@ describe('Conversation message mutations', () => {
     } catch (e) {
       expect(e.message).toEqual('Integration not found');
     }
+  });
+
+  test('Add conversation message: twitter reply', async () => {
+    // mock utils functions ===============
+    ConversationMessages.addMessage = jest.fn(() => ({ _id: 'messageObject' }));
+    jest.spyOn(utils, 'sendNotification');
+    jest.spyOn(utils, 'sendEmail');
+
+    // mock Twit instance
+    const twit = new Twit({
+      consumer_key: 'consumer_key',
+      consumer_secret: 'consumer_secret',
+      access_token: 'access_token',
+      access_token_secret: 'token_secret',
+    });
+
+    // mock twitter request
+    const sandbox = sinon.sandbox.create();
+    const stub = sandbox.stub(twit, 'post').callsFake(() => {});
+
+    // creating doc ===================
+    const integration = await integrationFactory({ kind: 'twitter' });
+    const conversation = await conversationFactory({
+      integrationId: integration._id,
+      twitterData: {
+        isDirectMessage: true,
+        directMessage: {
+          senderIdStr: 'sender_id',
+        },
+      },
+    });
+
+    TwitMap[integration._id] = twit;
+
+    _doc.conversationId = conversation._id;
+    _doc.internal = false;
+
+    // call mutation
+    await conversationMutations.conversationMessageAdd({}, _doc, { user: _user });
+
+    // check twit post params
+    expect(
+      stub.calledWith('direct_messages/new', {
+        user_id: 'sender_id',
+        text: _doc.content,
+      }),
+    ).toBe(true);
+  });
+
+  test('Add conversation message: facebook reply', async () => {
+    // mock settings
+    process.env.FACEBOOK = JSON.stringify([
+      {
+        id: '1',
+        name: 'name',
+        accessToken: 'access_token',
+      },
+    ]);
+
+    // mock utils functions ===============
+    ConversationMessages.addMessage = jest.fn(() => ({ _id: 'messageObject' }));
+    jest.spyOn(utils, 'sendNotification');
+    jest.spyOn(utils, 'sendEmail');
+
+    // mock graph api requests
+    sinon.stub(graphRequest, 'get').callsFake(() => ({ access_token: 'access_token' }));
+    const stub = sinon.stub(graphRequest, 'post').callsFake(() => ({ id: 'id' }));
+
+    // factories ============
+    const integration = await integrationFactory({
+      kind: 'facebook',
+      facebookData: {
+        appId: '1',
+      },
+    });
+
+    const conversation = await conversationFactory({
+      integrationId: integration._id,
+      facebookData: {
+        kind: FACEBOOK_DATA_KINDS.FEED,
+        senderId: 'senderId',
+        pageId: 'id',
+        postId: 'postId',
+      },
+    });
+
+    _doc.conversationId = conversation._id;
+    _doc.internal = false;
+
+    // call mutation
+    await conversationMutations.conversationMessageAdd({}, _doc, { user: _user });
+
+    // check stub ==============
+    expect(stub.calledOnce).toBe(true);
+
+    const [arg1, arg2, arg3] = stub.firstCall.args;
+
+    expect(arg1).toBe('postId/comments');
+    expect(arg2).toBe('access_token');
+    expect(arg3).toEqual({ message: _doc.content });
   });
 
   // if user assigned to conversation

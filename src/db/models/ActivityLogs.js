@@ -1,5 +1,5 @@
 import mongoose, { SchemaTypes } from 'mongoose';
-import Random from 'meteor-random';
+import { field } from './utils';
 import {
   COC_CONTENT_TYPES,
   ACTION_PERFORMER_TYPES,
@@ -13,15 +13,15 @@ import {
    Sales manager is the action performer */
 const ActionPerformer = mongoose.Schema(
   {
-    type: {
+    type: field({
       type: String,
       enum: ACTION_PERFORMER_TYPES.ALL,
       default: ACTION_PERFORMER_TYPES.SYSTEM,
       required: true,
-    },
-    id: {
+    }),
+    id: field({
       type: String,
-    },
+    }),
   },
   { _id: false },
 );
@@ -48,23 +48,23 @@ const ActionPerformer = mongoose.Schema(
  */
 const Activity = mongoose.Schema(
   {
-    type: {
+    type: field({
       type: String,
       required: true,
       enum: ACTIVITY_TYPES.ALL,
-    },
-    action: {
+    }),
+    action: field({
       type: String,
       required: true,
       enum: ACTIVITY_ACTIONS.ALL,
-    },
-    content: {
+    }),
+    content: field({
       type: SchemaTypes.Mixed,
       default: {},
-    },
-    id: {
+    }),
+    id: field({
       type: String,
-    },
+    }),
   },
   { _id: false },
 );
@@ -73,35 +73,30 @@ const Activity = mongoose.Schema(
  can be both Company or Customer documents */
 const Customer = mongoose.Schema(
   {
-    id: {
+    id: field({
       type: String,
       required: true,
-    },
-    type: {
+    }),
+    type: field({
       type: String,
       enum: COC_CONTENT_TYPES.ALL,
       required: true,
-    },
+    }),
   },
   { _id: false },
 );
 
 const ActivityLogSchema = mongoose.Schema({
-  _id: {
-    type: String,
-    unique: true,
-    default: () => Random.id(),
-  },
-
+  _id: field({ pkey: true }),
   activity: Activity,
   performedBy: ActionPerformer,
   coc: Customer,
 
-  createdAt: {
+  createdAt: field({
     type: Date,
     required: true,
     default: Date.now,
-  },
+  }),
 });
 
 class ActivityLog {

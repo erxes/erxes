@@ -1,63 +1,63 @@
 import mongoose from 'mongoose';
-import Random from 'meteor-random';
 import { MESSENGER_KINDS, SENT_AS_CHOICES, METHODS } from '../../data/constants';
+import { field } from './utils';
 
 const EmailSchema = mongoose.Schema({
-  templateId: String,
-  subject: String,
-  content: String,
+  templateId: field({ type: String }),
+  subject: field({ type: String }),
+  content: field({ type: String }),
 });
 
 const RuleSchema = mongoose.Schema({
-  _id: String,
+  _id: field({ type: String }),
 
   // browserLanguage, currentUrl, etc ...
-  kind: String,
+  kind: field({ type: String }),
 
   // Browser language, Current url etc ...
-  text: String,
+  text: field({ type: String }),
 
   // is, isNot, startsWith
-  condition: String,
+  condition: field({ type: String }),
 
-  value: String,
+  value: field({ type: String }),
 });
 
 const MessengerSchema = mongoose.Schema({
-  brandId: String,
-  kind: {
+  brandId: field({ type: String }),
+  kind: field({
     type: String,
     enum: MESSENGER_KINDS.ALL,
-  },
-  sentAs: {
+  }),
+  sentAs: field({
     type: String,
     enum: SENT_AS_CHOICES.ALL,
-  },
-  content: String,
-  rules: [RuleSchema],
+  }),
+  content: field({ type: String }),
+  rules: field({ type: [RuleSchema] }),
 });
 
 const EngageMessageSchema = mongoose.Schema({
-  _id: { type: String, unique: true, default: () => Random.id() },
-  kind: String,
-  segmentId: String,
-  customerIds: [String],
-  title: String,
-  fromUserId: String,
-  method: {
+  _id: field({ pkey: true }),
+  kind: field({ type: String }),
+  segmentId: field({ type: String }),
+  customerIds: field({ type: [String] }),
+  title: field({ type: String }),
+  fromUserId: field({ type: String }),
+  method: field({
     type: String,
     enum: METHODS.ALL,
-  },
-  isDraft: Boolean,
-  isLive: Boolean,
-  stopDate: Date,
-  createdDate: Date,
-  tagIds: [String],
-  messengerReceivedCustomerIds: [String],
+  }),
+  isDraft: field({ type: Boolean }),
+  isLive: field({ type: Boolean }),
+  stopDate: field({ type: Date }),
+  createdDate: field({ type: Date }),
+  tagIds: field({ type: [String] }),
+  messengerReceivedCustomerIds: field({ type: [String] }),
 
-  email: EmailSchema,
-  messenger: MessengerSchema,
-  deliveryReports: Object,
+  email: field({ type: EmailSchema }),
+  messenger: field({ type: MessengerSchema }),
+  deliveryReports: field({ type: Object }),
 });
 
 class Message {

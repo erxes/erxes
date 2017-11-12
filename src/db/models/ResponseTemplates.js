@@ -1,18 +1,12 @@
 import mongoose from 'mongoose';
-import Random from 'meteor-random';
+import { field } from './utils';
 
 const ResponseTemplateSchema = mongoose.Schema({
-  _id: {
-    type: String,
-    unique: true,
-    default: () => Random.id(),
-  },
-  name: String,
-  content: String,
-  brandId: String,
-  files: {
-    type: Array,
-  },
+  _id: field({ pkey: true }),
+  name: field({ type: String }),
+  content: field({ type: String }),
+  brandId: field({ type: String }),
+  files: field({ type: Array }),
 });
 
 class ResponseTemplate {

@@ -2,24 +2,22 @@ import mongoose from 'mongoose';
 import Random from 'meteor-random';
 import { Integrations, Fields } from './';
 import { FIELD_CONTENT_TYPES } from '../../data/constants';
+import { field } from './utils';
 
 // schema for form document
 const FormSchema = mongoose.Schema({
-  _id: {
+  _id: field({ pkey: true }),
+  title: field({ type: String }),
+  description: field({
     type: String,
-    default: () => Random.id(),
-  },
-  title: String,
-  description: {
-    type: String,
-    required: false,
-  },
-  code: String,
-  createdUserId: String,
-  createdDate: {
+    optional: true,
+  }),
+  code: field({ type: String }),
+  createdUserId: field({ type: String }),
+  createdDate: field({
     type: Date,
     default: Date.now,
-  },
+  }),
 });
 
 class Form {

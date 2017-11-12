@@ -1,23 +1,22 @@
 import mongoose from 'mongoose';
-import Random from 'meteor-random';
 import { CONVERSATION_STATUSES, FACEBOOK_DATA_KINDS } from '../../data/constants';
-
 import { Users } from '../../db/models';
+import { field } from './utils';
 
 const TwitterDirectMessageSchema = mongoose.Schema(
   {
-    senderId: {
+    senderId: field({
       type: Number,
-    },
-    senderIdStr: {
+    }),
+    senderIdStr: field({
       type: String,
-    },
-    recipientId: {
+    }),
+    recipientId: field({
       type: Number,
-    },
-    recipientIdStr: {
+    }),
+    recipientIdStr: field({
       type: String,
-    },
+    }),
   },
   { _id: false },
 );
@@ -25,22 +24,22 @@ const TwitterDirectMessageSchema = mongoose.Schema(
 // Twitter schema
 const TwitterSchema = mongoose.Schema(
   {
-    id: {
+    id: field({
       type: Number,
-      required: false,
-    },
-    idStr: {
+      optional: true,
+    }),
+    idStr: field({
       type: String,
-    },
-    screenName: {
+    }),
+    screenName: field({
       type: String,
-    },
-    isDirectMessage: {
+    }),
+    isDirectMessage: field({
       type: Boolean,
-    },
-    directMessage: {
+    }),
+    directMessage: field({
       type: TwitterDirectMessageSchema,
-    },
+    }),
   },
   { _id: false },
 );
@@ -48,58 +47,54 @@ const TwitterSchema = mongoose.Schema(
 // facebook schema
 const FacebookSchema = mongoose.Schema(
   {
-    kind: {
+    kind: field({
       type: String,
       enum: FACEBOOK_DATA_KINDS.ALL,
-    },
-    senderName: {
+    }),
+    senderName: field({
       type: String,
-    },
-    senderId: {
+    }),
+    senderId: field({
       type: String,
-    },
-    recipientId: {
+    }),
+    recipientId: field({
       type: String,
-    },
+    }),
 
     // when wall post
-    postId: {
+    postId: field({
       type: String,
-    },
+    }),
 
-    pageId: {
+    pageId: field({
       type: String,
-    },
+    }),
   },
   { _id: false },
 );
 
 // Conversation schema
 const ConversationSchema = mongoose.Schema({
-  _id: { type: String, unique: true, default: () => Random.id() },
-  content: String,
-  integrationId: {
+  _id: field({ pkey: true }),
+  content: field({ type: String }),
+  integrationId: field({ type: String }),
+  customerId: field({ type: String }),
+  userId: field({ type: String }),
+  assignedUserId: field({ type: String }),
+  participatedUserIds: field({ type: [String] }),
+  readUserIds: field({ type: [String] }),
+  createdAt: field({ type: Date }),
+  status: field({
     type: String,
-    required: true,
-  },
-  customerId: String,
-  userId: String,
-  assignedUserId: String,
-  participatedUserIds: [String],
-  readUserIds: [String],
-  createdAt: Date,
-  status: {
-    type: String,
-    required: true,
     enum: CONVERSATION_STATUSES.ALL,
-  },
-  messageCount: Number,
-  tagIds: [String],
+  }),
+  messageCount: field({ type: Number }),
+  tagIds: field({ type: [String] }),
 
   // number of total conversations
-  number: Number,
-  twitterData: TwitterSchema,
-  facebookData: FacebookSchema,
+  number: field({ type: Number }),
+  twitterData: field({ type: TwitterSchema }),
+  facebookData: field({ type: FacebookSchema }),
 });
 
 class Conversation {

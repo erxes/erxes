@@ -1,30 +1,25 @@
 import mongoose from 'mongoose';
-import Random from 'meteor-random';
+import { field } from './utils';
 import { COC_CONTENT_TYPES } from '../../data/constants';
-
 /*
  * internal note schema
  */
 const InternalNoteSchema = mongoose.Schema({
-  _id: {
-    type: String,
-    unique: true,
-    default: () => Random.id(),
-  },
-  contentType: {
+  _id: field({ pkey: true }),
+  contentType: field({
     type: String,
     enum: COC_CONTENT_TYPES.ALL,
-  },
-  contentTypeId: String,
-  content: {
+  }),
+  contentTypeId: field({ type: String }),
+  content: field({
     type: String,
-  },
-  createdUserId: {
+  }),
+  createdUserId: field({
     type: String,
-  },
-  createdDate: {
+  }),
+  createdDate: field({
     type: Date,
-  },
+  }),
 });
 
 class InternalNote {
