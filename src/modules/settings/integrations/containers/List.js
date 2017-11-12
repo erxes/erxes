@@ -46,8 +46,8 @@ ListContainer.propTypes = {
 export default compose(
   graphql(
     gql`
-      query objects($params: JSON) {
-        integrations(params: $params) {
+      query objects($page: Int, $perPage: Int, $kind: String) {
+        integrations(page: $page, perPage: $perPage, kind: $kind) {
           _id
           brandId
           name
@@ -71,7 +71,11 @@ export default compose(
       name: 'listQuery',
       options: ({ queryParams }) => {
         return {
-          variables: { params: queryParams },
+          variables: {
+            page: queryParams.page,
+            perPage: queryParams.perPage || 20,
+            kind: queryParams.kind
+          },
           fetchPolicy: 'network-only'
         };
       }

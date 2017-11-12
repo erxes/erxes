@@ -29,8 +29,8 @@ ListContainer.propTypes = {
 export default compose(
   graphql(
     gql`
-      query brands($params: JSON) {
-        brands(params: $params) {
+      query brands {
+        brands {
           _id
           name
           code
