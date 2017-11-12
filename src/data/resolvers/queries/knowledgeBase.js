@@ -10,11 +10,11 @@ import { paginate } from './utils';
 const knowledgeBaseQueries = {
   /**
    * Article list
-   * @param {Object} params - Search params
+   * @param {Object} args - Search params
    * @return {Promise} sorted article list
    */
-  knowledgeBaseArticles(root, { params = {} }) {
-    const articles = paginate(KnowledgeBaseArticles.find({}), params);
+  knowledgeBaseArticles(root, args) {
+    const articles = paginate(KnowledgeBaseArticles.find({}), args);
     return articles.sort({ createdDate: -1 });
   },
 
@@ -38,11 +38,11 @@ const knowledgeBaseQueries = {
 
   /**
    * Category list
-   * @param {Object} params - Search params
+   * @param {Object} args - Search params
    * @return {Promise} sorted category list
    */
-  knowledgeBaseCategories(root, { params = {} }) {
-    const categories = paginate(KnowledgeBaseCategories.find({}), params);
+  knowledgeBaseCategories(root, args) {
+    const categories = paginate(KnowledgeBaseCategories.find({}), args);
     return categories.sort({ createdDate: -1 });
   },
 
@@ -68,11 +68,11 @@ const knowledgeBaseQueries = {
 
   /**
    * Topic list
-   * @param {Object} params - Search params
+   * @param {Object} args - Search params
    * @return {Promise} sorted topic list
    */
-  knowledgeBaseTopics(root, { params = {} }) {
-    const topics = paginate(KnowledgeBaseTopics.find({}), params);
+  knowledgeBaseTopics(root, args) {
+    const topics = paginate(KnowledgeBaseTopics.find({}), args);
     return topics.sort({ createdDate: -1 });
   },
 
