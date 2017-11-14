@@ -3,6 +3,16 @@ import PropTypes from 'prop-types';
 import { Wrapper } from 'modules/layout/components';
 import { SidebarList, SidebarCounter } from 'modules/layout/styles';
 import { EmptyState, Icon } from 'modules/common/components';
+import styled from 'styled-components';
+import { colors } from 'modules/common/styles';
+
+const Li = styled.li`
+  list-style-type: none;
+  text-align: left;
+  display: list-item;
+  background-color: ${props =>
+    props.chosen ? colors.borderPrimary : 'transparent'};
+`;
 
 const propTypes = {
   segments: PropTypes.array.isRequired,
@@ -23,8 +33,12 @@ class Segments extends Component {
   }
 
   onClickSegment(segmentId) {
-    this.props.onChangeSegments(segmentId);
-    this.setState({ chosenSegment: segmentId });
+    if (segmentId === this.state.chosenSegment) {
+      this.setState({ chosenSegment: '' });
+    } else {
+      this.props.onChangeSegments(segmentId);
+      this.setState({ chosenSegment: segmentId });
+    }
   }
 
   render() {
@@ -42,11 +56,13 @@ class Segments extends Component {
     return (
       <Section collapsible={segments.length > 5}>
         <Section.Title>Choose segment</Section.Title>
-
         <SidebarList>
           {orderedSegments.length ? (
             orderedSegments.map(segment => (
-              <li key={segment._id}>
+              <Li
+                key={segment._id}
+                chosen={this.state.chosenSegment === segment._id ? true : false}
+              >
                 <a
                   tabIndex={0}
                   className={
@@ -62,7 +78,7 @@ class Segments extends Component {
                   {segment.name}
                   <SidebarCounter>{counts[segment._id]}</SidebarCounter>
                 </a>
-              </li>
+              </Li>
             ))
           ) : (
             <EmptyState icon="pie-graph" text="No segments" size="small" />
