@@ -1,18 +1,18 @@
-import { ActivityLogs, Customers, Companies, ConversationMessages } from '../../../db/models';
+import { ActivityLogs, Customers, Companies, Conversations } from '../../../db/models';
 
 export default {
   /**
-   * Add conversation message log
+   * Add conversation log
    * @param {Object} root
    * @param {Object} object2 - arguments
    * @param {string} customerId - id of customer
-   * @param {string} messageId - id of message
+   * @param {string} conversationId - id of conversation
    */
-  async activityLogsAddConversationMessageLog(root, { customerId, messageId }) {
+  async activityLogsAddConversationLog(root, { customerId, conversationId }) {
     const customer = await Customers.findOne({ _id: customerId });
-    const message = await ConversationMessages.findOne({ _id: messageId });
+    const conversation = await Conversations.findOne({ _id: conversationId });
 
-    return ActivityLogs.createConversationMessageLog(message, customer);
+    return ActivityLogs.createConversationLog(conversation, customer);
   },
 
   /**

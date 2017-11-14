@@ -143,24 +143,24 @@ class ActivityLog {
     });
   }
 
-  static cocFindOne(messageId, cocId, cocType) {
+  static cocFindOne(conversationId, cocId, cocType) {
     return this.findOne({
-      'activity.type': ACTIVITY_TYPES.CONVERSATION_MESSAGE,
+      'activity.type': ACTIVITY_TYPES.CONVERSATION,
       'activity.action': ACTIVITY_ACTIONS.CREATE,
-      'activity.id': messageId,
+      'activity.id': conversationId,
       'coc.type': cocType,
       'performedBy.type': ACTIVITY_PERFORMER_TYPES.CUSTOMER,
       'coc.id': cocId,
     });
   }
 
-  static cocCreate(messageId, content, cocId, cocType) {
+  static cocCreate(conversationId, content, cocId, cocType) {
     return this.createDoc({
       activity: {
-        type: ACTIVITY_TYPES.CONVERSATION_MESSAGE,
+        type: ACTIVITY_TYPES.CONVERSATION,
         action: ACTIVITY_ACTIONS.CREATE,
         content: content,
-        id: messageId,
+        id: conversationId,
       },
       performer: {
         type: ACTIVITY_PERFORMER_TYPES.CUSTOMER,
@@ -174,16 +174,16 @@ class ActivityLog {
   }
 
   /**
-   * Create a conversation message log for a given customer,
+   * Create a conversation log for a given customer,
    * if the customer is related to companies,
    * then create conversation log with all related companies
-   * @param {Object} message - Conversation object
-   * @param {string} message._id - Conversation document id
+   * @param {Object} conversation - Conversation object
+   * @param {string} conversation._id - Conversation document id
    * @param {Object} customer - Customer object
    * @param {string} customer.type - One of COC_CONTENT_TYPES choices
    * @param {string} customer.id - Customer document id
    */
-  static async createConversationMessageLog(message, customer) {
+  static async createConversationLog(conversation, customer) {
     if (customer == null || (customer && !customer._id)) {
       throw new Error(`'customer' must be supplied when adding activity log for conversations`);
     }
@@ -191,19 +191,37 @@ class ActivityLog {
     if (customer.companyIds && customer.companyIds.length > 0) {
       for (let companyId of customer.companyIds) {
         // check against duplication
-        const foundLog = await this.cocFindOne(message._id, companyId, COC_CONTENT_TYPES.COMPANY);
+        const foundLog = await this.cocFindOne(
+          conversation._id,
+          companyId,
+          COC_CONTENT_TYPES.COMPANY,
+        );
 
         if (!foundLog) {
-          await this.cocCreate(message._id, message.content, companyId, COC_CONTENT_TYPES.COMPANY);
+          await this.cocCreate(
+            conversation._id,
+            conversation.content,
+            companyId,
+            COC_CONTENT_TYPES.COMPANY,
+          );
         }
       }
     }
 
     // check against duplication ======
-    const foundLog = await this.cocFindOne(message._id, customer._id, COC_CONTENT_TYPES.CUSTOMER);
+    const foundLog = await this.cocFindOne(
+      conversation._id,
+      customer._id,
+      COC_CONTENT_TYPES.CUSTOMER,
+    );
 
     if (!foundLog) {
-      return this.cocCreate(message._id, message.content, customer._id, COC_CONTENT_TYPES.CUSTOMER);
+      return this.cocCreate(
+        conversation._id,
+        conversation.content,
+        customer._id,
+        COC_CONTENT_TYPES.CUSTOMER,
+      );
     }
   }
 

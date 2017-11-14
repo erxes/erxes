@@ -191,10 +191,10 @@ export const ACTIVITY_TYPES = {
   CUSTOMER: 'customer',
   COMPANY: 'company',
   INTERNAL_NOTE: 'internal_note',
-  CONVERSATION_MESSAGE: 'conversation_message',
+  CONVERSATION: 'conversation',
   SEGMENT: 'segment',
 
-  ALL: ['customer', 'company', 'internal_note', 'conversation_message', 'segment'],
+  ALL: ['customer', 'company', 'internal_note', 'conversation', 'segment'],
 };
 
 export const ACTIVITY_ACTIONS = {

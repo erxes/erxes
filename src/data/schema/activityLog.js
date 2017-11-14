@@ -37,7 +37,7 @@ export const queries = `
 `;
 
 export const mutations = `
-  activityLogsAddConversationMessageLog(customerId: String!, messageId: String!): ActivityLog
+  activityLogsAddConversationLog(customerId: String!, conversationId: String!): ActivityLog
   activityLogsAddCustomerLog(_id: String!): ActivityLog
   activityLogsAddCompanyLog(_id: String!): ActivityLog
 `;
