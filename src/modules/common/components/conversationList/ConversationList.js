@@ -7,11 +7,11 @@ const propTypes = {
   conversations: PropTypes.array.isRequired,
   toggleBulk: PropTypes.func,
   onRowClick: PropTypes.func,
-  channelId: PropTypes.string
+  currentConversationId: PropTypes.string
 };
 
 function ConversationList(
-  { conversations, toggleBulk, onRowClick, channelId },
+  { conversations, toggleBulk, onRowClick, currentConversationId },
   { currentUser }
 ) {
   const starredConversationIds = currentUser
@@ -26,13 +26,14 @@ function ConversationList(
           conversation={c}
           isRead={c.readUserIds && c.readUserIds.indexOf(currentUser._id) > -1}
           starred={starredConversationIds.indexOf(c._id) !== -1}
+          isActive={currentConversationId === c._id}
           isParticipated={
             !!c.participatedUserIds &&
             c.participatedUserIds.indexOf(currentUser._id) > -1
           }
           toggleBulk={toggleBulk}
           onClick={onRowClick}
-          channelId={channelId}
+          currentConversationId={currentConversationId}
         />
       ))}
     </ConversationItems>

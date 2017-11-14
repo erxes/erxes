@@ -19,6 +19,18 @@ const conversationMessageAdd = `
   }
 `;
 
+const markAsRead = `
+  mutation conversationMarkAsRead(
+    $_id: String
+  ) {
+    conversationMarkAsRead(
+      _id: $_id,
+    ) {
+      _id
+    }
+  }
+`;
+
 const saveResponseTemplate = `
   mutation responseTemplatesAdd(
     $brandId: String!,
@@ -49,5 +61,6 @@ const conversationsChangeStatus = `
 export default {
   conversationMessageAdd,
   conversationsChangeStatus,
-  saveResponseTemplate
+  saveResponseTemplate,
+  markAsRead
 };

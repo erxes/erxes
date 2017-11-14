@@ -2,7 +2,6 @@ import React from 'react';
 import { Route } from 'react-router-dom';
 import queryString from 'query-string';
 import { MainLayout } from '../layout/containers';
-import { ManageColumns } from '../fields/containers';
 import { CompaniesList, CompanyDetails } from './containers';
 
 const routes = () => [
@@ -19,15 +18,6 @@ const routes = () => [
           content={<CompanyDetails id={id} queryParams={queryParams} />}
         />
       );
-    }}
-  />,
-
-  <Route
-    path="/companies/manage-columns"
-    exact
-    key="/companies/manage-columns"
-    component={() => {
-      return <MainLayout content={<ManageColumns contentType="company" />} />;
     }}
   />,
 

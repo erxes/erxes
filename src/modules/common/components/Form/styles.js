@@ -225,7 +225,7 @@ const Checkbox = inputStyle.extend`
     &:after {
       background-color: transparent;
       top: 51%;
-      left: calc(${inputPadding} + ${inputHeight}/5);
+      left: calc(1px + ${inputHeight}/5);
       width: calc(${inputHeight}/2);
       height: calc(${inputHeight}/5);
       margin-top: calc(${inputHeight} / -2 / 2 * 0.8);

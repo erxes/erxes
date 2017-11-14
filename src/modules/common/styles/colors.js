@@ -20,6 +20,9 @@ const colorWhite = '#FFF';
 const bgMain = '#EDF1F5';
 const bgDark = rgba('#000', 0.95);
 const bgLight = '#FAFAFA';
+const bgActive = '#EEE';
+const bgUnread = '#F6F8FB';
+const bgInternal = '#FFFCCC';
 
 // Link colors
 const linkPrimary = '#297cbb';
@@ -60,6 +63,9 @@ export default {
   bgMain,
   bgDark,
   bgLight,
+  bgActive,
+  bgUnread,
+  bgInternal,
 
   linkPrimary,
   linkPrimaryHover,

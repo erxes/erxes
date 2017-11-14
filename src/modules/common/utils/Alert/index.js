@@ -8,8 +8,10 @@ const AlertWrapper = styled.div.attrs({
 })`
   position: fixed;
   top: 0;
-  left: 0;
-  width: 100%;
+  left: 50%;
+  height: 0;
+  transform: translateX(-50%);
+  width: auto;
   background: transparent;
   z-index: 2000;
   font-size: 14px;

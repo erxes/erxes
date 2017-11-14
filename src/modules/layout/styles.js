@@ -181,22 +181,11 @@ const SidebarMainContent = styled.div`
   overflow: auto;
   flex: 1;
   position: relative;
-
-  &::-webkit-scrollbar-thumb,
-  &::-webkit-scrollbar-track {
-    display: none;
-  }
-
-  &:hover::-webkit-scrollbar-thumb,
-  &:hover::-webkit-scrollbar-track {
-    display: block;
-  }
 `;
 
 const SidebarFooter = SidebarHeader.extend`
   border-top: 1px solid ${colors.borderPrimary};
   border-bottom: none;
-  margin-top: -1px;
 `;
 
 const SidebarBox = styled.div`
