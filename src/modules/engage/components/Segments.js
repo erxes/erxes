@@ -3,16 +3,7 @@ import PropTypes from 'prop-types';
 import { Wrapper } from 'modules/layout/components';
 import { SidebarList, SidebarCounter } from 'modules/layout/styles';
 import { EmptyState, Icon } from 'modules/common/components';
-import styled from 'styled-components';
-import { colors } from 'modules/common/styles';
-
-const Li = styled.li`
-  list-style-type: none;
-  text-align: left;
-  display: list-item;
-  background-color: ${props =>
-    props.chosen ? colors.borderPrimary : 'transparent'};
-`;
+import { Segmentli } from '../styles';
 
 const propTypes = {
   segments: PropTypes.array.isRequired,
@@ -59,15 +50,12 @@ class Segments extends Component {
         <SidebarList>
           {orderedSegments.length ? (
             orderedSegments.map(segment => (
-              <Li
+              <Segmentli
                 key={segment._id}
-                chosen={this.state.chosenSegment === segment._id ? true : false}
+                chosen={this.state.chosenSegment === segment._id}
               >
                 <a
                   tabIndex={0}
-                  className={
-                    this.state.chosenSegment === segment._id ? 'chosen' : ''
-                  }
                   onClick={() => this.onClickSegment(segment._id)}
                 >
                   {segment.subOf ? '\u00a0\u00a0\u00a0\u00a0\u00a0' : null}
@@ -78,7 +66,7 @@ class Segments extends Component {
                   {segment.name}
                   <SidebarCounter>{counts[segment._id]}</SidebarCounter>
                 </a>
-              </Li>
+              </Segmentli>
             ))
           ) : (
             <EmptyState icon="pie-graph" text="No segments" size="small" />

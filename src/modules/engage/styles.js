@@ -156,6 +156,23 @@ const InlineForm = styled.div`
   }
 `;
 
+const Segmentli = styled.li`
+  list-style-type: none;
+  text-align: left;
+  display: list-item;
+  background-color: ${props =>
+    props.chosen ? colors.borderPrimary : 'transparent'};
+
+  a {
+    &:focus {
+      outline: none;
+      text-decoration: none;
+    }
+    outline: none;
+    text-decoration: none;
+  }
+`;
+
 export {
   EngageTitle,
   HelperText,
@@ -168,5 +185,6 @@ export {
   PreviewContent,
   Messenger,
   MessengerPreview,
-  InlineForm
+  InlineForm,
+  Segmentli
 };
