@@ -63,6 +63,17 @@ const findCustomers = async ({ customerIds, segmentId }) => {
   return await Customers.find(customerQuery);
 };
 
+/*
+ * Send email callback
+ */
+export const sendEmailCb = (messageId, mailMessageId, error) => {
+  // set new status
+  const status = error ? 'failed' : 'sent';
+
+  // update status
+  EngageMessages.changeDeliveryReportStatus(messageId, mailMessageId, status);
+};
+
 /**
  * Send via email
  * @param {Object} engage message object
@@ -108,13 +119,8 @@ const sendViaEmail = async message => {
         subject: replacedSubject,
         html: replacedContent,
       },
-      error => {
-        // set new status
-        const status = error ? 'failed' : 'sent';
-
-        // update status
-        EngageMessages.changeDeliveryReportStatus(message._id, mailMessageId, status);
-      },
+      /* istanbul ignore next */
+      error => sendEmailCb(message._id, mailMessageId, error),
     );
   }
 };

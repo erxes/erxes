@@ -3,7 +3,7 @@
 
 import { connect, disconnect } from '../db/connection';
 import mutations from '../data/resolvers/mutations';
-import { send } from '../data/resolvers/mutations/engageUtils';
+import { send, sendEmailCb } from '../data/resolvers/mutations/engageUtils';
 import {
   EngageMessages,
   Users,
@@ -207,5 +207,21 @@ describe('engage message mutation tests', () => {
 
     expect(ConversationMessages.createMessage.mock.calls.length).toBe(1);
     expect(ConversationMessages.createMessage.mock.calls[0][0]).toEqual(conversationMessageObj);
+  });
+
+  test('set pause', async () => {
+    EngageMessages.changeDeliveryReportStatus = jest.fn();
+
+    const mailMessageId = 'DFDAFDFDF';
+
+    await sendEmailCb(_message._id, mailMessageId);
+
+    expect(EngageMessages.changeDeliveryReportStatus.mock.calls.length).toBe(1);
+
+    expect(EngageMessages.changeDeliveryReportStatus).toBeCalledWith(
+      _message._id,
+      mailMessageId,
+      'sent',
+    );
   });
 });
