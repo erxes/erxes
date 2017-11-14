@@ -18,6 +18,7 @@ const propTypes = {
   conversation: PropTypes.object.isRequired,
   channelId: PropTypes.string,
   isRead: PropTypes.bool,
+  isActive: PropTypes.bool,
   onClick: PropTypes.func,
   toggleBulk: PropTypes.func
 };
@@ -57,7 +58,7 @@ class Row extends Component {
   }
 
   render() {
-    const { conversation, isRead } = this.props;
+    const { conversation, isRead, isActive } = this.props;
     const { createdAt, content } = conversation;
     const customer = conversation.customer || {};
     const integration = conversation.integration || {};
@@ -68,7 +69,7 @@ class Row extends Component {
     const user = conversation.user;
 
     return (
-      <RowItem onClick={this.onClick}>
+      <RowItem onClick={this.onClick} isActive={isActive} isRead={isRead}>
         <RowContent>
           {this.renderCheckbox()}
           <FlexContent>
@@ -88,7 +89,7 @@ class Row extends Component {
                 </SmallText>
               </FlexContent>
             </MainInfo>
-            <MessageContent isRead={isRead}>{strip(content)}</MessageContent>
+            <MessageContent>{strip(content)}</MessageContent>
             {tags.map(t => (
               <Label key={t._id} style={{ background: t.colorCode }}>
                 {t.name}

@@ -47,7 +47,7 @@ class Inbox extends Component {
       }
     });
 
-    // lister for conversation changes like status, assignee
+    // listen for conversation changes like status, assignee
     conversationDetailQuery.subscribeToMore({
       document: gql(subscriptions.conversationChanged),
       variables: { _id: currentConversationId },
@@ -58,7 +58,15 @@ class Inbox extends Component {
   }
 
   render() {
-    const { conversationDetailQuery, changeStatusMutation } = this.props;
+    const {
+      conversationDetailQuery,
+      changeStatusMutation,
+      markAsReadMutation
+    } = this.props;
+    const { currentUser } = this.context;
+    const loading = conversationDetailQuery.loading;
+    const currentConversation =
+      conversationDetailQuery.conversationDetail || {};
 
     // =============== actions
     const changeStatus = (conversationId, status) => {
@@ -77,10 +85,32 @@ class Inbox extends Component {
         });
     };
 
+    // after tags
+    const afterTag = () => {
+      conversationDetailQuery.refetch();
+    };
+
+    // mark as read
+    const readUserIds = currentConversation.readUserIds || [];
+
+    if (!loading && !readUserIds.includes(currentUser._id)) {
+      markAsReadMutation({
+        variables: { _id: currentConversation._id }
+      })
+        .then(() => {
+          conversationDetailQuery.refetch();
+        })
+
+        .catch(e => {
+          Alert.error(e.message);
+        });
+    }
+
     const updatedProps = {
       ...this.props,
-      currentConversation: conversationDetailQuery.conversationDetail || {},
-      changeStatus
+      currentConversation,
+      changeStatus,
+      afterTag
     };
 
     return <InboxComponent {...updatedProps} />;
@@ -90,7 +120,12 @@ class Inbox extends Component {
 Inbox.propTypes = {
   conversationDetailQuery: PropTypes.object,
   changeStatusMutation: PropTypes.func.isRequired,
-  currentConversationId: PropTypes.string.isRequired
+  currentConversationId: PropTypes.string.isRequired,
+  markAsReadMutation: PropTypes.func.isRequired
+};
+
+Inbox.contextTypes = {
+  currentUser: PropTypes.object
 };
 
 const ConversationDetail = compose(
@@ -104,6 +139,9 @@ const ConversationDetail = compose(
   }),
   graphql(gql(mutations.conversationsChangeStatus), {
     name: 'changeStatusMutation'
+  }),
+  graphql(gql(mutations.markAsRead), {
+    name: 'markAsReadMutation'
   })
 )(Inbox);
 
@@ -142,7 +180,7 @@ CurrentConversation.propTypes = {
  * Container with last conversation query ====================
  */
 const LastConversation = props => {
-  const { queryParams, lastConversationQuery } = props;
+  const { lastConversationQuery } = props;
 
   if (lastConversationQuery.loading) {
     return null;
@@ -154,9 +192,7 @@ const LastConversation = props => {
     return null;
   }
 
-  const currentConversationId = queryParams._id
-    ? queryParams._id
-    : lastConversation._id;
+  const currentConversationId = lastConversation._id;
 
   const updatedProps = {
     ...props,
@@ -167,7 +203,6 @@ const LastConversation = props => {
 };
 
 LastConversation.propTypes = {
-  queryParams: PropTypes.object,
   lastConversationQuery: PropTypes.object
 };
 

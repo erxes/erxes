@@ -61,7 +61,8 @@ class Inbox extends Component {
     const {
       queryParams,
       currentConversation,
-      onChangeConversation
+      onChangeConversation,
+      afterTag
     } = this.props;
     const tags = currentConversation.tags || [];
 
@@ -74,7 +75,7 @@ class Inbox extends Component {
             </Label>
           ))
         ) : (
-          <Label lblStyle="default">tags</Label>
+          <Label lblStyle="default">no tags</Label>
         )}
         <Icon icon="ios-arrow-down" />
       </PopoverButton>
@@ -86,6 +87,7 @@ class Inbox extends Component {
           targets={[currentConversation]}
           type="conversation"
           trigger={tagTrigger}
+          afterSave={afterTag}
         />
 
         {this.renderStatusButton(
@@ -127,6 +129,7 @@ class Inbox extends Component {
         leftSidebar={
           <LeftSidebar
             queryParams={queryParams}
+            currentConversationId={currentConversation._id}
             onChangeConversation={onChangeConversation}
           />
         }
@@ -141,6 +144,7 @@ Inbox.propTypes = {
   title: PropTypes.string,
   onChangeConversation: PropTypes.func,
   changeStatus: PropTypes.func,
+  afterTag: PropTypes.func,
   currentConversation: PropTypes.object
 };
 

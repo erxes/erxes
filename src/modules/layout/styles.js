@@ -181,16 +181,6 @@ const SidebarMainContent = styled.div`
   overflow: auto;
   flex: 1;
   position: relative;
-
-  &::-webkit-scrollbar-thumb,
-  &::-webkit-scrollbar-track {
-    display: none;
-  }
-
-  &:hover::-webkit-scrollbar-thumb,
-  &:hover::-webkit-scrollbar-track {
-    display: block;
-  }
 `;
 
 const SidebarFooter = SidebarHeader.extend`

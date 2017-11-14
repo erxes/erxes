@@ -7,6 +7,7 @@ import { FilterPopover, StatusFilterPopover } from './';
 
 const propTypes = {
   conversations: PropTypes.array.isRequired,
+  currentConversationId: PropTypes.string.isRequired,
   channels: PropTypes.array.isRequired,
   brands: PropTypes.array.isRequired,
   tags: PropTypes.array.isRequired,
@@ -90,11 +91,11 @@ class Sidebar extends Component {
 
   render() {
     const Sidebar = Wrapper.Sidebar;
-    const { conversations, onChangeConversation } = this.props;
-
-    // const { conversation } = this.props;
-    // const { integration = {} } = conversation;
-    // const { brand = {}, channels = [] } = integration;
+    const {
+      conversations,
+      onChangeConversation,
+      currentConversationId
+    } = this.props;
 
     return (
       <Sidebar
@@ -106,6 +107,7 @@ class Sidebar extends Component {
         <ConversationList
           conversations={conversations}
           onRowClick={onChangeConversation}
+          currentConversationId={currentConversationId}
         />
       </Sidebar>
     );
