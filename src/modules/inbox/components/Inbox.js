@@ -100,7 +100,7 @@ class Inbox extends Component {
 
     const content = (
       <ConversationWrapper
-        ref={node => {
+        innerRef={node => {
           this.node = node;
         }}
       >

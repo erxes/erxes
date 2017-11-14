@@ -1,13 +1,12 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Checkbox, ControlLabel } from 'react-bootstrap';
-import { Button, Icon } from 'modules/common/components';
+import { Button, Icon, Tip, FormControl } from 'modules/common/components';
 import { Alert, uploadHandler } from 'modules/common/utils';
 import { ResponseTemplate } from '../containers';
 import Editor from './Editor';
 import {
   RespondBoxStyled,
-  ReplyFormFooter,
+  EditorActions,
   Attachment,
   AttachmentPreview,
   AttachmentIndicator,
@@ -150,20 +149,20 @@ class RespondBox extends Component {
     const integration = this.props.conversation.integration || {};
 
     const Buttons = (
-      <ReplyFormFooter>
-        <Button
-          className="replyBtn"
-          type="submit"
-          btnStyle="success"
-          size="small"
+      <EditorActions>
+        <FormControl
+          className="toggle-message"
+          componentClass="checkbox"
+          onChange={this.toggleForm}
         >
-          <Icon icon="android-send" /> Send
-        </Button>
-
-        <ControlLabel className="replyBtn btnLink">
-          <Icon icon="android-attach" size={17} />
-          <input type="file" onChange={this.handleFileInput} />
-        </ControlLabel>
+          Internal note
+        </FormControl>
+        <Tip text="Attach file">
+          <label>
+            <Icon icon="android-attach" size={17} />
+            <input type="file" onChange={this.handleFileInput} />
+          </label>
+        </Tip>
 
         <ResponseTemplate
           brandId={integration.brandId}
@@ -171,7 +170,11 @@ class RespondBox extends Component {
           content={this.state.content}
           onSelect={this.onSelectTemplate}
         />
-      </ReplyFormFooter>
+
+        <Button type="submit" btnStyle="success" size="small">
+          <Icon icon="android-send" /> Send
+        </Button>
+      </EditorActions>
     );
 
     // after file upload show indicator
@@ -198,19 +201,19 @@ class RespondBox extends Component {
       );
     }
 
-    let formId = 'reply-form';
-    let placeholder = 'Type your message here...';
+    let type = 'message';
 
     if (isInternal) {
-      formId = 'internal-note-form';
-      placeholder = 'Type your note here...';
+      type = 'note';
     }
 
-    return (
-      <RespondBoxStyled>
-        <Checkbox onChange={this.toggleForm}>Internal note</Checkbox>
+    let placeholder = `To send your ${
+      type
+    } press [Enter] and [Shift + Enter] to add a new line …`;
 
-        <form id={formId} onSubmit={this.onSubmit}>
+    return (
+      <RespondBoxStyled isInternal={isInternal}>
+        <form onSubmit={this.onSubmit}>
           <Editor
             key={this.state.editorKey}
             onChange={this.onEditorContentChange}

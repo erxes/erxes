@@ -12,7 +12,8 @@ import {
   FormControl,
   EmptyState,
   Button,
-  Icon
+  Icon,
+  Tip
 } from 'modules/common/components';
 import { Alert } from 'modules/common/utils';
 import ResponseTemplateModal from './ResponseTemplateModal';
@@ -130,9 +131,11 @@ class ResponseTemplate extends Component {
     const { brands, content, brandId } = this.props;
 
     const saveTrigger = (
-      <Button id="response-template-handler" btnStyle="link">
-        <Icon icon="archive" /> Save as template
-      </Button>
+      <Tip text="Save as template">
+        <Button id="response-template-handler" btnStyle="link">
+          <Icon icon="android-clipboard" size={17} />
+        </Button>
+      </Tip>
     );
 
     const popover = (
@@ -182,7 +185,7 @@ class ResponseTemplate extends Component {
     );
 
     return (
-      <ResponseTemplateStyled className="replyBtn">
+      <ResponseTemplateStyled>
         <OverlayTrigger
           trigger="click"
           placement="top"
@@ -190,8 +193,10 @@ class ResponseTemplate extends Component {
           rootClose
           ref="overlay"
         >
-          <Button btnStyle="link" className="dropup">
-            <Icon icon="clipboard" size={17} />
+          <Button btnStyle="link">
+            <Tip text="Response template">
+              <Icon icon="clipboard" size={17} />
+            </Tip>
           </Button>
         </OverlayTrigger>
 
