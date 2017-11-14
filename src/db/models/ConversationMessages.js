@@ -75,6 +75,7 @@ class Message {
    */
   static async createMessage(doc) {
     const message = await this.create({
+      internal: false,
       ...doc,
       createdAt: new Date(),
     });

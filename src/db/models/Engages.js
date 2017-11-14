@@ -2,45 +2,57 @@ import mongoose from 'mongoose';
 import { MESSENGER_KINDS, SENT_AS_CHOICES, METHODS } from '../../data/constants';
 import { field } from './utils';
 
-const EmailSchema = mongoose.Schema({
-  templateId: field({ type: String }),
-  subject: field({ type: String }),
-  content: field({ type: String }),
-});
+const EmailSchema = mongoose.Schema(
+  {
+    templateId: field({ type: String }),
+    subject: field({ type: String }),
+    content: field({ type: String }),
+  },
+  { _id: false },
+);
 
-const RuleSchema = mongoose.Schema({
-  _id: field({ type: String }),
+const RuleSchema = mongoose.Schema(
+  {
+    _id: field({ type: String }),
 
-  // browserLanguage, currentUrl, etc ...
-  kind: field({ type: String }),
+    // browserLanguage, currentUrl, etc ...
+    kind: field({ type: String }),
 
-  // Browser language, Current url etc ...
-  text: field({ type: String }),
+    // Browser language, Current url etc ...
+    text: field({ type: String }),
 
-  // is, isNot, startsWith
-  condition: field({ type: String }),
+    // is, isNot, startsWith
+    condition: field({ type: String }),
 
-  value: field({ type: String }),
-});
+    value: field({ type: String }),
+  },
+  { _id: false },
+);
 
-const MessengerSchema = mongoose.Schema({
-  brandId: field({ type: String }),
-  kind: field({
-    type: String,
-    enum: MESSENGER_KINDS.ALL,
-  }),
-  sentAs: field({
-    type: String,
-    enum: SENT_AS_CHOICES.ALL,
-  }),
-  content: field({ type: String }),
-  rules: field({ type: [RuleSchema] }),
-});
+const MessengerSchema = mongoose.Schema(
+  {
+    brandId: field({ type: String }),
+    kind: field({
+      type: String,
+      enum: MESSENGER_KINDS.ALL,
+    }),
+    sentAs: field({
+      type: String,
+      enum: SENT_AS_CHOICES.ALL,
+    }),
+    content: field({ type: String }),
+    rules: field({ type: [RuleSchema] }),
+  },
+  { _id: false },
+);
 
 const EngageMessageSchema = mongoose.Schema({
   _id: field({ pkey: true }),
   kind: field({ type: String }),
-  segmentId: field({ type: String }),
+  segmentId: field({
+    type: String,
+    optional: true,
+  }),
   customerIds: field({ type: [String] }),
   title: field({ type: String }),
   fromUserId: field({ type: String }),

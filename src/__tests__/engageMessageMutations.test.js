@@ -38,7 +38,7 @@ describe('engage message mutation tests', () => {
   beforeEach(async () => {
     _user = await userFactory({});
     _segment = await segmentsFactory({});
-    _message = await engageMessageFactory({});
+    _message = await engageMessageFactory({ userId: _user._id });
     _emailTemplate = await emailTemplateFactory({});
     _customer = await customerFactory({});
     _integration = await integrationFactory({ brandId: 'brandId' });
@@ -165,25 +165,15 @@ describe('engage message mutation tests', () => {
   });
 
   test('set live manual', async () => {
-    EngageMessages.engageMessageSetLive = jest.fn(() => ({
-      _id: _message._id,
-      method: 'messenger',
-      title: 'Send via messenger',
-      fromUserId: _user._id,
-      segmentId: _segment._id,
-      isLive: true,
-      customerIds: [_customer._id],
-      messenger: {
-        brandId: 'brandId',
-        content: 'messenger content',
-      },
-    }));
+    EngageMessages.engageMessageSetLive = jest.fn(() => {
+      return _message;
+    });
 
     const conversationObj = {
       userId: _user._id,
       customerId: _customer._id,
       integrationId: _integration._id,
-      content: 'messenger content',
+      content: _message.messenger.content,
     };
 
     const conversationMessageObj = {
@@ -191,24 +181,31 @@ describe('engage message mutation tests', () => {
         messageId: _message._id,
         fromUserId: _user._id,
         brandId: 'brandId',
-        content: 'messenger content',
+        rules: [],
+        content: _message.messenger.content,
       },
       conversationId: 'convId',
       userId: _user._id,
       customerId: _customer._id,
-      content: 'messenger content',
+      content: _message.messenger.content,
     };
+
+    _message.segmentId = _segment._id;
+    _message.messenger.brandId = _integration.brandId;
+    await _message.save();
 
     Conversations.createConversation = jest.fn(() => ({ _id: 'convId' }));
     ConversationMessages.createMessage = jest.fn();
 
     await mutations.engageMessageSetLiveManual(null, _message._id, { user: _user });
 
-    expect(EngageMessages.engageMessageSetLive).toBeCalledWith(_message._id);
     expect(EngageMessages.engageMessageSetLive.mock.calls.length).toBe(1);
-    expect(Conversations.createConversation).toBeCalledWith(conversationObj);
+    expect(EngageMessages.engageMessageSetLive).toBeCalledWith(_message._id);
+
     expect(Conversations.createConversation.mock.calls.length).toBe(1);
-    expect(ConversationMessages.createMessage).toBeCalledWith(conversationMessageObj);
+    expect(Conversations.createConversation.mock.calls[0][0]).toEqual(conversationObj);
+
     expect(ConversationMessages.createMessage.mock.calls.length).toBe(1);
+    expect(ConversationMessages.createMessage.mock.calls[0][0]).toEqual(conversationMessageObj);
   });
 });

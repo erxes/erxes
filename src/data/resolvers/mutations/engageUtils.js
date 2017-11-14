@@ -159,7 +159,7 @@ const sendViaMessenger = async message => {
       engageData: {
         messageId: message._id,
         fromUserId,
-        ...message.messenger,
+        ...message.messenger.toJSON(),
       },
       conversationId: conversation._id,
       userId: fromUserId,

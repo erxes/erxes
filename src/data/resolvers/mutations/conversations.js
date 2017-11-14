@@ -302,12 +302,7 @@ const conversationMutations = {
    * @return {Promise} Conversation object with mark as read
    */
   async conversationMarkAsRead(root, { _id }, { user }) {
-    const conversation = await Conversations.markAsReadConversation(_id, user._id);
-
-    // notify graphl subscription
-    conversationsChanged([_id], 'readState');
-
-    return conversation;
+    return Conversations.markAsReadConversation(_id, user._id);
   },
 };
 
