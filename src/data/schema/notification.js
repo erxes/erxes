@@ -19,7 +19,17 @@ export const types = `
   }
 `;
 
+const params = `
+  limit: Int,
+  page: Int,
+  perPage: Int,
+  requireRead: Boolean,
+  title: String
+`;
+
 export const queries = `
+  notifications(${params}): [Notification]
+  notificationsCount(requireRead: Boolean): Int
   notificationsModules : [JSON]
   notificationsGetConfigurations : [NotificationConfiguration]
 `;

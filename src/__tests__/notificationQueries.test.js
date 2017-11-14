@@ -9,7 +9,7 @@ afterAll(() => disconnect());
 
 describe('notificationsQueries', () => {
   test(`test if Error('Login required') exception is working as intended`, async () => {
-    expect.assertions(1);
+    expect.assertions(4);
 
     const expectError = async func => {
       try {
@@ -19,7 +19,10 @@ describe('notificationsQueries', () => {
       }
     };
 
+    expectError(notificationsQueries.notifications);
+    expectError(notificationsQueries.notificationsCount);
     expectError(notificationsQueries.notificationsModules);
+    expectError(notificationsQueries.notificationsGetConfigurations);
   });
 
   test('test of getting notification list with success', () => {
