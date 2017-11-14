@@ -1,5 +1,4 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import { Wrapper } from 'modules/layout/components';
 import {
@@ -14,6 +13,7 @@ import { BarItems } from 'modules/layout/styles';
 import Sidebar from './Sidebar';
 import CompanyRow from './CompanyRow';
 import CompanyForm from './CompanyForm';
+import { ManageColumns } from '../../../fields/containers';
 
 const propTypes = {
   companies: PropTypes.array.isRequired,
@@ -65,13 +65,17 @@ function CompaniesList({ companies, counts, columnsConfig, addCompany }) {
     </Button>
   );
 
+  const editColumns = (
+    <Button btnStyle="simple" size="small">
+      Edit columns
+    </Button>
+  );
+
   const actionBarRight = (
     <BarItems>
-      <Link to="/companies/manage-columns">
-        <Button btnStyle="simple" size="small">
-          Edit columns
-        </Button>
-      </Link>
+      <ModalTrigger title="Choose which column you see" trigger={editColumns}>
+        <ManageColumns contentType="company" />
+      </ModalTrigger>
       <ModalTrigger title="New company" trigger={addTrigger}>
         <CompanyForm addCompany={addCompany} />
       </ModalTrigger>
