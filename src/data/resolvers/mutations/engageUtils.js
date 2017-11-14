@@ -98,8 +98,9 @@ const sendViaEmail = async message => {
     // add new delivery report
     EngageMessages.addNewDeliveryReport(message._id, mailMessageId, customer._id);
 
-    // send email
+    // send email =========
     const transporter = await createTransporter();
+
     transporter.sendMail(
       {
         from: userEmail,

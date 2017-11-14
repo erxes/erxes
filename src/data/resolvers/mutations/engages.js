@@ -20,7 +20,7 @@ const engageMutations = {
    * @return {Promise} message object
    */
   async engageMessageAdd(root, doc) {
-    const engageMessage = EngageMessages.createEngageMessage(doc);
+    const engageMessage = await EngageMessages.createEngageMessage(doc);
 
     // if manual and live then send immediately
     if (doc.kind === MESSAGE_KINDS.MANUAL && doc.isLive) {
@@ -82,7 +82,7 @@ const engageMutations = {
    * @return {Promise} updated message object
    */
   async engageMessageSetLiveManual(root, _id) {
-    const engageMessage = EngageMessages.engageMessageSetLive(_id);
+    const engageMessage = await EngageMessages.engageMessageSetLive(_id);
 
     await send(engageMessage);
 

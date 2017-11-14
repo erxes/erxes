@@ -4,7 +4,10 @@ import { field } from './utils';
 
 const EmailSchema = mongoose.Schema(
   {
-    templateId: field({ type: String }),
+    templateId: field({
+      type: String,
+      optional: true,
+    }),
     subject: field({ type: String }),
     content: field({ type: String }),
   },
