@@ -1,14 +1,13 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import { Modal } from 'react-bootstrap';
 import {
-  Modal,
-  ButtonToolbar,
+  ModalTrigger,
   Button,
-  FormGroup,
   FormControl,
+  FormGroup,
   ControlLabel
-} from 'react-bootstrap';
-import { ModalTrigger } from 'modules/common/components';
+} from 'modules/common/components';
 
 const propTypes = {
   onSave: PropTypes.func.isRequired,
@@ -38,10 +37,11 @@ class ResponseTemplateModal extends Component {
 
     return (
       <ModalTrigger title="Create response template" trigger={trigger}>
-        <FormGroup controlId="template-brand-id">
+        <FormGroup>
           <ControlLabel>Brand</ControlLabel>
 
           <FormControl
+            id="template-brand-id"
             componentClass="select"
             placeholder="Select Brand"
             defaultValue={brandId}
@@ -60,11 +60,9 @@ class ResponseTemplateModal extends Component {
         </FormGroup>
 
         <Modal.Footer>
-          <ButtonToolbar className="pull-right">
-            <Button onClick={this.onSave} type="button" bsStyle="primary">
-              Save
-            </Button>
-          </ButtonToolbar>
+          <Button onClick={this.onSave} type="button" btnStyle="success">
+            Save
+          </Button>
         </Modal.Footer>
       </ModalTrigger>
     );

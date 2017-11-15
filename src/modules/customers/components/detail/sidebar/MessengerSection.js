@@ -35,7 +35,7 @@ function MessengerSection({ customer }) {
         <li>
           Last online
           <SidebarCounter>
-            {moment(messengerData.lastSeenAt).fromNow()}
+            {moment(messengerData.lastSeenAt).format('lll')}
           </SidebarCounter>
         </li>
         <li>

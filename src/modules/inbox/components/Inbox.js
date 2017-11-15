@@ -1,11 +1,11 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import RightSidebar from './RightSidebar';
-import { Wrapper } from '../../layout/components';
+import { Wrapper } from 'modules/layout/components';
 import { Button, Label, Icon, TaggerPopover } from 'modules/common/components';
 import { BarItems } from 'modules/layout/styles';
 import Conversation from './conversation/Conversation';
 import { LeftSidebar, RespondBox } from '../containers';
+import RightSidebar from './sidebar/RightSidebar';
 import { PopoverButton, ConversationWrapper } from '../styles';
 
 class Inbox extends Component {

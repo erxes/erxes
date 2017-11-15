@@ -1,12 +1,12 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { compose, gql, graphql } from 'react-apollo';
-import { TAG_TYPES } from 'modules/tags/constants';
-import { LeftSidebar as LeftSidebarComponent } from '../components';
-import { Wrapper } from 'modules/layout/components';
+import { Sidebar } from 'modules/layout/components';
 import { Spinner } from 'modules/common/components';
-import { queries, subscriptions } from '../graphql';
+import { TAG_TYPES } from 'modules/tags/constants';
 import { KIND_CHOICES as INTEGRATIONS_TYPES } from 'modules/settings/integrations/constants';
+import { LeftSidebar as LeftSidebarComponent } from '../components';
+import { queries, subscriptions } from '../graphql';
 
 class LeftSidebar extends Component {
   componentWillMount() {
@@ -37,9 +37,9 @@ class LeftSidebar extends Component {
       conversationCountsQuery.loading
     ) {
       return (
-        <Wrapper.Sidebar wide full>
+        <Sidebar wide full>
           <Spinner />
-        </Wrapper.Sidebar>
+        </Sidebar>
       );
     }
 
