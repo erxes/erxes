@@ -22,13 +22,17 @@ const ICON_AND_COLOR_TABLE = {
     icon: 'android-bicycle',
     color: '#04A9F5'
   },
-  'conversation_message-create': {
+  'conversation-create': {
     icon: 'android-boat',
     color: '#F44236'
   },
   'internal_note-create': {
     icon: 'android-bus',
     color: '#F5C22B'
+  },
+  'company-create': {
+    icon: 'android-bicycle',
+    color: '#04A9F5'
   }
 };
 
@@ -108,8 +112,11 @@ export default class {
       case 'internal_note-create':
         caption = `Internal note was added '${content}'`;
         break;
-      case 'conversation_message-create':
+      case 'conversation-create':
         caption = `Conversation message was added '${content}'`;
+        break;
+      case 'company-create':
+        caption = `Registered to Erxes'`;
         break;
       default:
         caption = action;
