@@ -23,6 +23,7 @@ export const types = `
   }
 
   type ActivityLog {
+    _id: String!
     action: String!
     id: String!
     createdAt: Date!
