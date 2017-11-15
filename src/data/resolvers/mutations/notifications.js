@@ -1,6 +1,6 @@
 import { NotificationConfigurations, Notifications } from '../../../db/models';
-
 import { moduleRequireLogin } from '../../permissions';
+import { pubsub } from '../subscriptions';
 
 const notificationMutations = {
   /**
@@ -28,8 +28,13 @@ const notificationMutations = {
    * @return {Promise}
    * @throws {Error} throws Error('Login required') if user is not logged in
    */
-  notificationsMarkAsRead(root, { ids }) {
-    return Notifications.markAsRead(ids);
+  notificationsMarkAsRead(root, { _ids }) {
+    // subscribe
+    pubsub.publish('notificationsChanged', {
+      notificationsChanged: { notificationIds: _ids },
+    });
+
+    return Notifications.markAsRead(_ids);
   },
 };
 
