@@ -1,8 +1,49 @@
 import { NOTIFICATION_MODULES } from '../../constants';
 import { moduleRequireLogin } from '../../permissions';
-import { NotificationConfigurations } from '../../../db/models';
+import { Notifications, NotificationConfigurations } from '../../../db/models';
+import { paginate } from './utils';
 
 const notificationQueries = {
+  /**
+   * Notifications list
+   * @param {Object} args
+   * @return {Promise} filtered notifications list by given parameters
+   */
+  notifications(root, { requireRead, title, limit, ...params }, { user }) {
+    const sort = { date: -1 };
+    const selector = { receiver: user._id };
+
+    if (requireRead) {
+      selector.isRead = false;
+    }
+
+    if (title) {
+      selector.title = title;
+    }
+
+    if (limit) {
+      return Notifications.find(selector)
+        .sort(sort)
+        .limit(limit);
+    }
+
+    return paginate(Notifications.find(selector), params).sort(sort);
+  },
+
+  /**
+   * Notification counts
+   * @return {Int} notification counts
+   */
+  notificationCounts(root, { requireRead }, { user }) {
+    const selector = { receiver: user._id };
+
+    if (requireRead) {
+      selector.isRead = false;
+    }
+
+    return Notifications.find(selector).count();
+  },
+
   /**
    * Module list used in notifications
    * @param {Object} args
