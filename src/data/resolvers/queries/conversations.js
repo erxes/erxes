@@ -168,10 +168,16 @@ const conversationQueries = {
 
   /**
    * Get last conversation
-   * @return {Promise} - Conversation object
+   * @param {Object} params - Query params
+   * @return {Promise} filtered conversations list by given parameters
    */
-  async conversationsGetLast() {
-    return Conversations.findOne({}).sort({ createdAt: -1 });
+  async conversationsGetLast(root, params, { user }) {
+    // initiate query builder
+    const qb = new QueryBuilder(params, { _id: user._id });
+
+    await qb.buildAllQueries();
+
+    return Conversations.findOne(qb.mainQuery()).sort({ createdAt: -1 });
   },
 };
 

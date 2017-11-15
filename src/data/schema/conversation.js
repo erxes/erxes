@@ -67,7 +67,7 @@ export const types = `
   }
 `;
 
-const listParams = `
+const filterParams = `
   limit: Int,
   channelId: String
   status: String
@@ -81,11 +81,11 @@ const listParams = `
 `;
 
 export const queries = `
-  conversations(${listParams}): [Conversation]
-  conversationCounts(${listParams}): JSON
-  conversationsTotalCount(${listParams}): Int
+  conversations(${filterParams}): [Conversation]
+  conversationCounts(${filterParams}): JSON
+  conversationsTotalCount(${filterParams}): Int
   conversationDetail(_id: String!): Conversation
-  conversationsGetLast: Conversation
+  conversationsGetLast(${filterParams}): Conversation
 `;
 
 export const mutations = `
