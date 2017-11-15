@@ -78,7 +78,7 @@ class Common extends Component {
     const integration = this.props.integration || {};
 
     return (
-      <form className="margined" onSubmit={this.handleSubmit}>
+      <form onSubmit={this.handleSubmit}>
         <FormGroup>
           <ControlLabel>Name</ControlLabel>
           <FormControl
