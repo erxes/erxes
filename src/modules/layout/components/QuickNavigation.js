@@ -50,8 +50,7 @@ const ActionButton = styled.div`
   }
 `;
 
-const QuickNavigation = ({ logout, currentUser }) => {
-  const unreadCount = 0;
+const QuickNavigation = ({ unreadCount, logout, currentUser }) => {
   const popoverNotification = (
     <Popover
       id="npopover"
@@ -111,6 +110,7 @@ const QuickNavigation = ({ logout, currentUser }) => {
 
 QuickNavigation.propTypes = {
   logout: PropTypes.func,
+  unreadCount: PropTypes.number,
   currentUser: PropTypes.object.isRequired
 };
 
