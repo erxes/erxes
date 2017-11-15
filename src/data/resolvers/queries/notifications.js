@@ -30,7 +30,11 @@ const notificationQueries = {
     return paginate(Notifications.find(selector), params).sort(sort);
   },
 
-  notificationsCount(root, { requireRead }, { user }) {
+  /**
+   * Notification counts
+   * @return {Int} notification counts
+   */
+  notificationCounts(root, { requireRead }, { user }) {
     const selector = { receiver: user._id };
 
     if (requireRead) {
