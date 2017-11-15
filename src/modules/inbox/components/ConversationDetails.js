@@ -46,7 +46,7 @@ class ConversationDetails extends Component {
           <li>
             Opened
             <SidebarCounter>
-              {moment(conversation.createdAt).fromNow()}
+              {moment(conversation.createdAt).format('lll')}
             </SidebarCounter>
           </li>
           <li>

@@ -54,7 +54,7 @@ const RichEditorRoot = styled.div`
     }
 
     .public-DraftEditorPlaceholder-inner {
-      color: ${colors.colorCoreGray};
+      color: ${colors.colorCoreLightGray};
     }
 
     .public-DraftEditor-content {
@@ -116,30 +116,20 @@ const MentionedPerson = styled.span`
 
 const RespondBoxStyled = styled.div`
   position: relative;
+  background: ${props =>
+    props.isInternal ? colors.bgInternal : colors.colorWhite};
 
   ${RichEditorRoot} {
-    background: ${colors.colorWhite};
     border-top: 1px solid ${colors.borderPrimary};
-  }
-
-  .checkbox {
-    position: absolute;
-    left: 20px;
-    bottom: 0;
-    color: #888;
-    line-height: 22px;
-
-    input {
-      margin: 5px 0 0 -20px;
-    }
   }
 `;
 
 const ResponseTemplateStyled = styled.div`
   display: inline-block;
 
-  .dropup {
-    padding: 2px 0;
+  button {
+    margin-right: 10px;
+    padding: 0;
   }
 
   span {
@@ -147,28 +137,31 @@ const ResponseTemplateStyled = styled.div`
   }
 `;
 
-const ReplyFormFooter = styled.div`
-  background-color: ${colors.colorWhite};
-  display: flow-root;
+const EditorActions = styled.div`
+  padding: 0 20px 10px 20px;
+  text-align: right;
+  position: relative;
+  color: ${colors.colorCoreGray};
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
 
-  .replyBtn {
-    margin-right: 10px;
-    float: right;
+  label {
+    margin: 0 10px 0 0;
 
     &:hover {
-      text-decoration: none;
+      cursor: pointer;
+      color: ${darken(colors.colorCoreGray, 30)};
+    }
+
+    &:first-of-type {
+      position: absolute;
+      left: 20px;
     }
   }
 
-  .btnLink {
-    box-shadow: none;
-    font-weight: 400;
-    color: ${colors.colorCoreGray};
-    border-radius: 0;
-
-    &:hover {
-      color: ${darken(colors.colorCoreGray, 30)};
-    }
+  i {
+    margin: 0;
   }
 
   input[type='file'] {
@@ -348,7 +341,7 @@ export {
   RichEditorControlsRoot,
   RichEditorControls,
   MentionedPerson,
-  ReplyFormFooter,
+  EditorActions,
   RichEditorRight,
   ResponseTemplateStyled,
   PopoverHeader,
