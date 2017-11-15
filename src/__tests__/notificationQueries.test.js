@@ -20,7 +20,7 @@ describe('notificationsQueries', () => {
     };
 
     expectError(notificationsQueries.notifications);
-    expectError(notificationsQueries.notificationsCount);
+    expectError(notificationsQueries.notificationCounts);
     expectError(notificationsQueries.notificationsModules);
     expectError(notificationsQueries.notificationsGetConfigurations);
   });
