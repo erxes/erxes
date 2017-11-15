@@ -75,7 +75,6 @@ class FilterableList extends Component {
   renderItems() {
     const { showCheckmark = true } = this.props;
     const { items, key } = this.state;
-
     return items.map(item => {
       // filter items by key
       if (key && item.title.toLowerCase().indexOf(key) < 0) {

@@ -5,6 +5,7 @@ import { Wrapper } from '../../layout/components';
 import { Button, Label, Icon, TaggerPopover } from 'modules/common/components';
 import { BarItems } from 'modules/layout/styles';
 import Conversation from './conversation/Conversation';
+import AssignBoxPopover from './assignBox/AssignBoxPopover';
 import { LeftSidebar, RespondBox } from '../containers';
 import { PopoverButton, ConversationWrapper } from '../styles';
 
@@ -42,12 +43,12 @@ class Inbox extends Component {
   renderStatusButton(status) {
     let btnStyle = 'success';
     let text = 'Resolve';
-    let icon = <i className="ion-checkmark" />;
+    let icon = <Icon icon="checkmark" />;
 
     if (status === 'closed') {
       text = 'Open';
       btnStyle = 'warning';
-      icon = <i className="ion-refresh" />;
+      icon = <Icon icon="refresh" />;
     }
 
     return (
@@ -96,7 +97,21 @@ class Inbox extends Component {
       </BarItems>
     );
 
-    const actionBar = <Wrapper.ActionBar right={actionBarRight} invert />;
+    const actionBarLeft = (
+      <AssignBoxPopover
+        // targets={targets}
+        trigger={
+          <PopoverButton>
+            Assign
+            <Icon icon="ios-arrow-down" size="13" />
+          </PopoverButton>
+        }
+      />
+    );
+
+    const actionBar = (
+      <Wrapper.ActionBar right={actionBarRight} left={actionBarLeft} invert />
+    );
 
     const content = (
       <ConversationWrapper
