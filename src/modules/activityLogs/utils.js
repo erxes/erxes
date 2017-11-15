@@ -116,7 +116,7 @@ export default class {
         caption = `Conversation message was added '${content}'`;
         break;
       case 'company-create':
-        caption = `Registered to Erxes'`;
+        caption = `Registered to Erxes`;
         break;
       default:
         caption = action;
