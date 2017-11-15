@@ -52,11 +52,11 @@ describe('testing mutations', () => {
   test('testing if notifications are being marked as read successfully', async () => {
     Notifications.markAsRead = jest.fn();
 
-    const args = { ids: ['11111', '22222'] };
+    const args = { _ids: ['11111', '22222'] };
 
     await notificationMutations.notificationsMarkAsRead(null, args, { user: _user });
 
-    expect(Notifications.markAsRead).toBeCalledWith(args['ids']);
+    expect(Notifications.markAsRead).toBeCalledWith(args['_ids']);
     expect(Notifications.markAsRead.mock.calls.length).toBe(1);
   });
 });
