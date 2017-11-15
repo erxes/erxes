@@ -12,6 +12,7 @@ import Company from './company';
 import Segment from './segment';
 import Conversation from './conversation';
 import ConversationMessage from './conversationMessage';
+import Notification from './notification';
 import KnowledgeBaseCategory from './knowledgeBaseCategory';
 import KnowledgeBaseTopic from './knowledgeBaseTopic';
 import ActivityLog from './activityLog';
@@ -37,6 +38,8 @@ export default {
 
   KnowledgeBaseCategory,
   KnowledgeBaseTopic,
+
+  Notification,
 
   ActivityLog,
   ActivityLogForMonth,

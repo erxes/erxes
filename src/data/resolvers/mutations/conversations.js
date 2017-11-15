@@ -73,6 +73,20 @@ export const conversationMessageCreated = async (message, conversationId) => {
   pubsub.publish('conversationsChanged', {
     conversationsChanged: { customerId: conversation.customerId, type: 'newMessage' },
   });
+
+  // notify notification subscription
+  pubsub.publish('notificationsChanged');
+};
+
+/*
+ * Send notificatio helper
+ */
+const sendNotification = doc => {
+  // send notification
+  utils.sendNotification(doc);
+
+  // notify notification subscription
+  pubsub.publish('notificationsChanged');
 };
 
 const conversationMutations = {
@@ -104,7 +118,7 @@ const conversationMutations = {
     const title = 'You have a new message.';
 
     // send notification
-    utils.sendNotification({
+    sendNotification({
       createdUser: user._id,
       notifType: NOTIFICATION_TYPES.CONVERSATION_ADD_MESSAGE,
       title,
@@ -182,7 +196,7 @@ const conversationMutations = {
       const content = 'Assigned user has changed';
 
       // send notification
-      utils.sendNotification({
+      sendNotification({
         createdUser: user._id,
         notifType: NOTIFICATION_TYPES.CONVERSATION_ASSIGNEE_CHANGE,
         title: content,
@@ -251,7 +265,7 @@ const conversationMutations = {
 
       const content = 'Conversation status has changed.';
 
-      utils.sendNotification({
+      sendNotification({
         createdUser: user._id,
         notifType: NOTIFICATION_TYPES.CONVERSATION_STATE_CHANGE,
         title: content,

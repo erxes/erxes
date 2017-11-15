@@ -5,7 +5,7 @@ export const types = `
     title: String
     link: String
     content: String
-    createdUser: String
+    createdUser: User
     receiver: String
     date: Date
     isRead: Boolean

@@ -29,10 +29,8 @@ const notificationMutations = {
    * @throws {Error} throws Error('Login required') if user is not logged in
    */
   notificationsMarkAsRead(root, { _ids }) {
-    // subscribe
-    pubsub.publish('notificationsChanged', {
-      notificationsChanged: { notificationIds: _ids },
-    });
+    // notify subscription
+    pubsub.publish('notificationsChanged');
 
     return Notifications.markAsRead(_ids);
   },
