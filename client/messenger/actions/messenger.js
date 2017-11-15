@@ -116,8 +116,8 @@ export const endConversation = () => (dispatch) => {
 
   client.mutate({
     mutation: gql`
-      mutation endConversation($brandCode: String!, $data: JSON) {
-        endConversation(brandCode: $brandCode, data: $data) {
+      mutation endConversation($brandCode: String!, $data: JSON, $companyData: JSON) {
+        endConversation(brandCode: $brandCode, data: $data, companyData: $companyData) {
           customerId
         }
       }`,
