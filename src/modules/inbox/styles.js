@@ -47,7 +47,7 @@ const RichEditorRoot = styled.div`
     cursor: text;
 
     .public-DraftEditorPlaceholder-root {
-      padding: 15px;
+      padding: 15px 20px;
       position: absolute;
       color: ${colors.colorCoreGray};
       font-size: 13px;
@@ -59,6 +59,7 @@ const RichEditorRoot = styled.div`
 
     .public-DraftEditor-content {
       font-size: 13px;
+      padding: 15px 20px;
     }
   }
 
@@ -72,7 +73,7 @@ const RichEditorRoot = styled.div`
 
 const RichEditorControlsRoot = styled.div`
   overflow: hidden;
-  padding: 5px 15px 0;
+  padding: 7px 20px 0;
 `;
 
 const RichEditorRight = styled.div`
@@ -218,6 +219,7 @@ const PopoverList = styled.ul`
   padding: 0;
   list-style: none;
   overflow: auto;
+  position: relative;
 
   li {
     position: relative;
@@ -227,26 +229,15 @@ const PopoverList = styled.ul`
     white-space: nowrap;
     text-overflow: ellipsis;
     font-size: 13px;
+    text-align: ${props => props.center && 'center'};
 
     &:hover,
     &:focus {
-      background: #f8f8f8;
+      background: ${colors.bgLight};
     }
 
     a {
       color: #383838;
-    }
-  }
-
-  .linked {
-    li {
-      padding: 0;
-      border-bottom: 0;
-
-      a {
-        display: block;
-        padding: 5px 20px;
-      }
     }
   }
 `;
@@ -291,6 +282,7 @@ const TemplateContent = styled.div`
   text-overflow: ellipsis;
   overflow: hidden;
   white-space: nowrap;
+  font-weight: normal;
 `;
 
 const AttachmentIndicator = styled.div`

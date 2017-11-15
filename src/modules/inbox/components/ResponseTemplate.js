@@ -131,11 +131,11 @@ class ResponseTemplate extends Component {
     const { brands, content, brandId } = this.props;
 
     const saveTrigger = (
-      <Tip text="Save as template">
-        <Button id="response-template-handler" btnStyle="link">
-          <Icon icon="android-clipboard" size={17} />
-        </Button>
-      </Tip>
+      <Button id="response-template-handler" btnStyle="link">
+        <Tip text="Save as template">
+          <Icon icon="log-in" size={17} />
+        </Tip>
+      </Button>
     );
 
     const popover = (
@@ -175,7 +175,7 @@ class ResponseTemplate extends Component {
           <PopoverList>{this.renderItems()}</PopoverList>
         </PopoverBody>
         <PopoverFooter>
-          <PopoverList className="linked text-center">
+          <PopoverList center>
             <li>
               <Link to="/settings/response-templates">Manage templates</Link>
             </li>

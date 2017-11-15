@@ -44,7 +44,7 @@ class RespondBox extends Component {
     // on shift + enter press in editor
     this.onShifEnter = this.onShifEnter.bind(this);
 
-    this.onSubmit = this.onSubmit.bind(this);
+    this.onSend = this.onSend.bind(this);
     this.toggleForm = this.toggleForm.bind(this);
     this.handleFileInput = this.handleFileInput.bind(this);
     this.onSelectTemplate = this.onSelectTemplate.bind(this);
@@ -60,7 +60,7 @@ class RespondBox extends Component {
     this.setState({ mentionedUserIds });
   }
 
-  onSubmit(e) {
+  onSend(e) {
     e.preventDefault();
 
     this.addMessage();
@@ -125,7 +125,7 @@ class RespondBox extends Component {
 
     sendMessage(message, error => {
       if (error) {
-        return Alert.error(error.reason);
+        return Alert.error(error.message);
       }
 
       // clear attachments
@@ -171,7 +171,7 @@ class RespondBox extends Component {
           onSelect={this.onSelectTemplate}
         />
 
-        <Button type="submit" btnStyle="success" size="small">
+        <Button onClick={this.onSend} btnStyle="success" size="small">
           <Icon icon="android-send" /> Send
         </Button>
       </EditorActions>
@@ -213,21 +213,19 @@ class RespondBox extends Component {
 
     return (
       <RespondBoxStyled isInternal={isInternal}>
-        <form onSubmit={this.onSubmit}>
-          <Editor
-            key={this.state.editorKey}
-            onChange={this.onEditorContentChange}
-            onAddMention={this.onAddMention}
-            onShifEnter={this.onShifEnter}
-            placeholder={placeholder}
-            mentions={this.props.teamMembers}
-            showMentions={isInternal}
-            responseTemplate={responseTemplate}
-          />
+        <Editor
+          key={this.state.editorKey}
+          onChange={this.onEditorContentChange}
+          onAddMention={this.onAddMention}
+          onShifEnter={this.onShifEnter}
+          placeholder={placeholder}
+          mentions={this.props.teamMembers}
+          showMentions={isInternal}
+          responseTemplate={responseTemplate}
+        />
 
-          {attachmentsIndicator}
-          {Buttons}
-        </form>
+        {attachmentsIndicator}
+        {Buttons}
       </RespondBoxStyled>
     );
   }
