@@ -10,6 +10,7 @@ import EngageRoutes from './modules/engage/routes';
 import SettingsRoutes from './modules/settings/routes';
 import InboxRoutes from './modules/inbox/routes';
 import TagsRoutes from './modules/tags/routes';
+import NotificationRoutes from './modules/notifications/routes';
 import { Main } from './modules/layout/styles';
 
 const Routes = () => (
@@ -25,6 +26,7 @@ const Routes = () => (
       <EngageRoutes />
       <SettingsRoutes />
       <TagsRoutes />
+      <NotificationRoutes />
     </Main>
   </Router>
 );
