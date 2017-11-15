@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { EmptyState } from 'modules/common/components';
-import { NotificationRow } from '../containers';
 import { Link } from 'react-router-dom';
 import {
   NotificationSeeAll,
@@ -9,6 +8,7 @@ import {
   NotificationList,
   NotificationWrapper
 } from './styles';
+import { NotificationRow } from './';
 
 class NotificationsLatest extends Component {
   render() {

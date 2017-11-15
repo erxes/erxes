@@ -7,12 +7,10 @@ import { Loading } from 'modules/common/components';
 import { NotificationsLatest } from '../components';
 
 class NotificationsLatestContainer extends React.Component {
-  subscribe(ids) {
+  componentWillMount() {
     this.props.notificationsQuery.subscribeToMore({
       // listen for all notifications changes
       document: gql(subscriptions.notificationsChanged),
-      variables: { ids },
-
       updateQuery: () => {
         this.props.notificationsQuery.refetch();
       }
@@ -27,8 +25,6 @@ class NotificationsLatestContainer extends React.Component {
     }
 
     const markAsRead = _ids => {
-      this.subscribe(_ids);
-
       notificationsMarkAsReadMutation({ variables: { _ids } })
         .then(() => {
           notificationsQuery.refetch();

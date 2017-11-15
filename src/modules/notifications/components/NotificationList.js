@@ -9,7 +9,7 @@ import {
   Pagination
 } from 'modules/common/components';
 import { Wrapper } from 'modules/layout/components';
-import { NotificationListRow } from '../containers';
+import { NotificationListRow } from './';
 import { NotifList } from './styles';
 
 class NotificationList extends Component {

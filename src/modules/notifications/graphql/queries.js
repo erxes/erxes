@@ -4,7 +4,13 @@ const notificationFields = `
   title
   link
   content
-  createdUser
+  createdUser {
+    _id
+    username
+    details
+    email
+  }
+
   receiver
   date
   isRead
@@ -40,19 +46,7 @@ const notificationCounts = `
   }
 `;
 
-const userDetail = `
-  query userDetail($_id: String) {
-    userDetail(_id: $_id) {
-      _id
-      username
-      details
-      email
-    }
-  }
-`;
-
 export default {
   notifications,
-  notificationCounts,
-  userDetail
+  notificationCounts
 };

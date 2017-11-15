@@ -1,17 +1,11 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
-import {
-  OverlayTrigger,
-  Dropdown,
-  MenuItem,
-  Popover,
-  Badge
-} from 'react-bootstrap';
+import { Dropdown, MenuItem } from 'react-bootstrap';
 import styled from 'styled-components';
 import { NameCard, DropdownToggle, Icon } from 'modules/common/components';
 import { UserHelper } from '../styles';
-import { NotificationsLatest } from 'modules/notifications/containers';
+import { Widget } from 'modules/notifications/containers';
 
 const UserInfo = styled.div`
   display: flex;
@@ -34,48 +28,11 @@ const NavItem = styled.div`
   vertical-align: middle;
 `;
 
-const ActionButton = styled.div`
-  color: #383838;
-  font-size: 22px;
-  cursor: pointer;
-  position: relative;
-
-  & .badge {
-    position: absolute;
-    top: 0;
-    right: -9px;
-    font-size: 10px;
-    background-color: #f74040;
-    padding: 3px 5px;
-  }
-`;
-
-const QuickNavigation = ({ unreadCount, logout, currentUser }) => {
-  const popoverNotification = (
-    <Popover
-      id="npopover"
-      className="notification-popover"
-      title="Notifications"
-    >
-      <NotificationsLatest />
-    </Popover>
-  );
-
+const QuickNavigation = ({ logout, currentUser }) => {
   return (
     <nav>
       <NavItem>
-        <OverlayTrigger
-          trigger="click"
-          rootClose
-          placement="bottom"
-          containerPadding={15}
-          overlay={popoverNotification}
-        >
-          <ActionButton>
-            <Icon icon="android-notifications" />
-            <Badge>{unreadCount !== 0 ? unreadCount : null}</Badge>
-          </ActionButton>
-        </OverlayTrigger>
+        <Widget />
       </NavItem>
       <NavItem>
         <Dropdown id="dropdown-user" pullRight>
@@ -110,7 +67,6 @@ const QuickNavigation = ({ unreadCount, logout, currentUser }) => {
 
 QuickNavigation.propTypes = {
   logout: PropTypes.func,
-  unreadCount: PropTypes.number,
   currentUser: PropTypes.object.isRequired
 };
 

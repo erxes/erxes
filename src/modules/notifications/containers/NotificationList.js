@@ -2,23 +2,11 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { compose, gql, graphql } from 'react-apollo';
 import { Loading } from 'modules/common/components';
-import { queries, mutations, subscriptions } from '../graphql';
+import { queries, mutations } from '../graphql';
 import { Alert } from 'modules/common/utils';
 import { NotificationList } from '../components';
 
 class NotificationListContainer extends React.Component {
-  subscribe(ids) {
-    this.props.notificationsQuery.subscribeToMore({
-      // listen for all notifications changes
-      document: gql(subscriptions.notificationsChanged),
-      variables: { ids },
-
-      updateQuery: () => {
-        this.props.notificationsQuery.refetch();
-      }
-    });
-  }
-
   render() {
     const {
       notificationsQuery,
@@ -31,8 +19,6 @@ class NotificationListContainer extends React.Component {
     }
 
     const markAsRead = _ids => {
-      this.subscribe(_ids);
-
       notificationsMarkAsReadMutation({ variables: { _ids } })
         .then(() => {
           notificationsQuery.refetch();
