@@ -159,6 +159,7 @@ Button.propTypes = {
   className: PropTypes.string,
   onClick: PropTypes.func,
   href: PropTypes.string,
+  type: PropTypes.string,
   btnStyle: PropTypes.oneOf([
     'default',
     'primary',
@@ -178,7 +179,8 @@ Button.defaultProps = {
   btnStyle: 'default',
   size: 'medium',
   block: false,
-  iconKey: false
+  iconKey: false,
+  type: 'button'
 };
 
 export default Button;

@@ -18,6 +18,7 @@ const ResponseTemplateContainer = props => {
   const saveResponseTemplate = (variables, callback) => {
     saveResponseTemplateMutation({ variables })
       .then(() => {
+        responseTemplatesQuery.refetch();
         callback();
       })
       .catch(e => {

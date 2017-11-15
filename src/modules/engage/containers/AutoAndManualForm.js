@@ -21,7 +21,8 @@ const AutoAndManualFormContainer = props => {
   const segments = segmentsQuery.segments;
 
   // TODO change query to get only customerCounts
-  const counts = customerCountsQuery.customerCounts.bySegment;
+  const customerCounts = customerCountsQuery.customerCounts || {};
+  const counts = customerCounts.bySegment || {};
 
   const updatedProps = {
     ...props,
