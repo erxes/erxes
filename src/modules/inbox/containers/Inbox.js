@@ -4,6 +4,7 @@ import { compose, gql, graphql } from 'react-apollo';
 import { Alert } from 'modules/common/utils';
 import { Inbox as InboxComponent } from '../components';
 import { queries, mutations, subscriptions } from '../graphql';
+import { generateParams } from '../utils';
 
 class Inbox extends Component {
   componentWillMount() {
@@ -208,6 +209,9 @@ LastConversation.propTypes = {
 
 export default compose(
   graphql(gql(queries.lastConversation), {
-    name: 'lastConversationQuery'
+    name: 'lastConversationQuery',
+    options: ({ queryParams }) => ({
+      variables: generateParams(queryParams)
+    })
   })
 )(LastConversation);

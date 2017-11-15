@@ -99,8 +99,8 @@ const totalConversationsCount = `
 `;
 
 const lastConversation = `
-  query conversationsGetLast {
-    conversationsGetLast {
+  query conversationsGetLast(${listParamsDef}) {
+    conversationsGetLast(${listParamsValue}) {
       ${conversationFields}
       messages {
         _id

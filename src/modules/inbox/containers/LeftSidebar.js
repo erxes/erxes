@@ -7,6 +7,7 @@ import { TAG_TYPES } from 'modules/tags/constants';
 import { KIND_CHOICES as INTEGRATIONS_TYPES } from 'modules/settings/integrations/constants';
 import { LeftSidebar as LeftSidebarComponent } from '../components';
 import { queries, subscriptions } from '../graphql';
+import { generateParams } from '../utils';
 
 class LeftSidebar extends Component {
   componentWillMount() {
@@ -75,18 +76,6 @@ LeftSidebar.propTypes = {
   tagsQuery: PropTypes.object,
   conversationCountsQuery: PropTypes.object
 };
-
-const generateParams = queryParams => ({
-  limit: queryParams.limit,
-  channelId: queryParams.channelId,
-  status: queryParams.status,
-  unassigned: queryParams.unassigned,
-  brandId: queryParams.brandId,
-  tag: queryParams.tag,
-  integrationType: queryParams.integrationType,
-  participating: queryParams.participating,
-  starred: queryParams.starred
-});
 
 export default compose(
   graphql(gql(queries.conversationList), {
