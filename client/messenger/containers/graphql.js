@@ -22,12 +22,7 @@ const messageFields = `
       }
     }
   }
-  attachments{
-    url
-    name
-    size
-    type
-  }
+  attachments
 `;
 
 

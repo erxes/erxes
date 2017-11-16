@@ -3,7 +3,7 @@ import { SENDING_ATTACHMENT, ATTACHMENT_SENT, ASK_GET_NOTIFIED, MESSAGE_SENT } f
 import { connection, getLocalStorageItem } from '../connection';
 import { changeConversation } from './messenger';
 import client from '../../apollo-client';
-import uploadHandler, { uploadFile } from '../../uploadHandler';
+import uploadHandler from '../../uploadHandler';
 
 export const readMessages = conversationId => () => {
   client.mutate({
@@ -39,7 +39,7 @@ export const sendMessage = (message, attachments) =>
     return client.mutate({
       mutation: gql`
         mutation insertMessage(${connection.queryVariables}, $message: String,
-            $conversationId: String!, $attachments: [AttachmentInput]) {
+            $conversationId: String!, $attachments: [JSON]) {
 
           insertMessage(${connection.queryParams}, message: $message,
             conversationId: $conversationId, attachments: $attachments) {
@@ -79,19 +79,19 @@ export const sendFile = file =>
 
     return uploadHandler({
       file,
-      uploadAction: ({ data, fileInfo }) => {
+
+      beforeUpload() {
         dispatch({ type: SENDING_ATTACHMENT });
-
-        // upload to server
-        uploadFile({ name: file.name, data }, (response) => {
-          dispatch({ type: ATTACHMENT_SENT });
-
-          const attachment = Object.assign({ url: response.url }, fileInfo);
-
-          // send message with attachment
-          // QUESTION: Do we need to make 2 calls to send a message with attachment?
-          sendMessage('This message has an attachment', [attachment])(dispatch, getState);
-        });
       },
+
+      // upload to server
+      afterUpload({ response, fileInfo }) {
+        dispatch({ type: ATTACHMENT_SENT });
+
+        const attachment = Object.assign({ url: response }, fileInfo);
+
+        // send message with attachment
+        sendMessage('This message has an attachment', [attachment])(dispatch, getState);
+      }
     });
   };
