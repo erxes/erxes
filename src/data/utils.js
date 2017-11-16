@@ -10,7 +10,7 @@ import { Notifications, Users } from '../db/models';
  * @param {Object} data - File binary data
  * @return {String} - Uploaded file url
  */
-export const uploadFile = async ({ name = 'test.jpeg', data }) => {
+export const uploadFile = async file => {
   const { AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_BUCKET, AWS_PREFIX = '' } = process.env;
 
   // check credentials
@@ -25,12 +25,12 @@ export const uploadFile = async ({ name = 'test.jpeg', data }) => {
   });
 
   // generate unique name
-  const fileName = `${AWS_PREFIX}${Math.random()}${name}`;
+  const fileName = `${AWS_PREFIX}${Math.random()}${file.name}`;
 
-  // create buffer from file data
-  const buffer = new Buffer(data);
+  // read file
+  const buffer = await fs.readFileSync(file.path);
 
-  // call putObject
+  // upload to s3
   await new Promise((resolve, reject) => {
     s3.putObject(
       {
@@ -60,14 +60,7 @@ export const uploadFile = async ({ name = 'test.jpeg', data }) => {
 export const readFile = filename => {
   const filePath = `${__dirname}/../private/emailTemplates/${filename}.html`;
 
-  return new Promise((resolve, reject) => {
-    fs.readFile(filePath, 'utf8', (err, data) => {
-      if (err) {
-        reject(err);
-      }
-      resolve(data);
-    });
-  });
+  return fs.readFileSync(filePath, 'utf8');
 };
 
 /**

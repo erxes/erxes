@@ -8,6 +8,7 @@ import { createServer } from 'http';
 import { execute, subscribe } from 'graphql';
 import { graphqlExpress, graphiqlExpress } from 'graphql-server-express';
 import { SubscriptionServer } from 'subscriptions-transport-ws';
+import formidable from 'formidable';
 import { Customers } from './db/models';
 import { connect } from './db/connection';
 import { userMiddleware } from './auth';
@@ -29,16 +30,13 @@ app.use(bodyParser.json());
 app.use(cors());
 
 // file upload
-app.use('/upload-file', async (req, res) => {
-  let data = '';
+app.post('/upload-file', async (req, res) => {
+  const form = new formidable.IncomingForm();
 
-  req.on('data', chunk => {
-    data += chunk;
-  });
+  form.parse(req, async (err, fields, response) => {
+    const url = await uploadFile(response.file);
 
-  req.on('end', async () => {
-    const url = await uploadFile({ data });
-    res.end(url);
+    return res.end(url);
   });
 });
 
