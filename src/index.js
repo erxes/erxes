@@ -12,6 +12,7 @@ import { Customers } from './db/models';
 import { connect } from './db/connection';
 import { userMiddleware } from './auth';
 import schema from './data';
+import { uploadFile } from './data/utils';
 import { init } from './startup';
 
 // load environment variables
@@ -26,6 +27,20 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
 app.use(cors());
+
+// file upload
+app.use('/upload-file', async (req, res) => {
+  let data = '';
+
+  req.on('data', chunk => {
+    data += chunk;
+  });
+
+  req.on('end', async () => {
+    const url = await uploadFile({ data });
+    res.end(url);
+  });
+});
 
 app.use(
   '/graphql',
