@@ -19,7 +19,7 @@ export const checkLogin = user => {
  * @return {null}
  */
 export const checkAdmin = user => {
-  if (user.role != ROLES.ADMIN) {
+  if (!user.isOwner && user.role !== ROLES.ADMIN) {
     throw new Error('Permission required');
   }
 };

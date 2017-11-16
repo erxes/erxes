@@ -279,7 +279,13 @@ class User {
    * @return [String] - list of tokens
    */
   static async createTokens(_user, secret) {
-    const user = { _id: _user._id, email: _user.email, details: _user.details };
+    const user = {
+      _id: _user._id,
+      email: _user.email,
+      details: _user.details,
+      role: _user.role,
+      isOwner: _user.isOwner,
+    };
 
     const createToken = await jwt.sign({ user }, secret, { expiresIn: '20m' });
 
