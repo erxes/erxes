@@ -45,6 +45,8 @@ describe('Conversation db', () => {
 
     expect(conversation).toBeDefined();
     expect(conversation.content).toBe(_conversation.content);
+    expect(conversation.createdAt).toEqual(expect.any(Date));
+    expect(conversation.updatedAt).toEqual(expect.any(Date));
     expect(conversation.status).toBe(CONVERSATION_STATUSES.NEW);
     expect(conversation.number).toBe(_number);
     expect(conversation.messageCount).toBe(0);
@@ -64,13 +66,23 @@ describe('Conversation db', () => {
       expect(e.message).toEqual('Conversation not found.');
     }
   });
+
   test('Create conversation message', async () => {
-    expect.assertions(17);
+    expect.assertions(18);
+
+    // setting updatedAt to null to check when new message updatedAt field
+    // must be setted
+    _conversation.updatedAt = null;
+    await _conversation.save();
 
     // get messageCount before add message
     const prevConversationObj = await Conversations.findOne({ _id: _doc.conversationId });
 
     const messageObj = await ConversationMessages.addMessage(_doc, _user);
+
+    // checking updated conversation
+    const updatedConversation = await Conversations.findOne({ _id: _doc.conversationId });
+    expect(updatedConversation.updatedAt).toEqual(expect.any(Date));
 
     expect(messageObj.content).toBe(_conversationMessage.content);
     expect(messageObj.attachments).toBe(_conversationMessage.attachments);
@@ -146,11 +158,22 @@ describe('Conversation db', () => {
   });
 
   test('Change conversation status', async () => {
-    await Conversations.changeStatusConversation([_conversation._id], 'new');
+    // try closing ========================
+    await Conversations.changeStatusConversation([_conversation._id], 'closed');
 
-    const conversationObj = await Conversations.findOne({ _id: _conversation._id });
+    let conversationObj = await Conversations.findOne({ _id: _conversation._id });
 
-    expect(conversationObj.status).toBe('new');
+    expect(conversationObj.closedAt).toEqual(expect.any(Date));
+    expect(conversationObj.status).toBe('closed');
+
+    // try reopening ========================
+    await Conversations.changeStatusConversation([_conversation._id], 'open');
+
+    conversationObj = await Conversations.findOne({ _id: _conversation._id });
+
+    expect(conversationObj.closedAt).toBeNull();
+    expect(conversationObj.closedUserId).toBeNull();
+    expect(conversationObj.status).toBe('open');
   });
 
   test('Conversation star', async () => {
@@ -263,6 +286,8 @@ describe('Conversation db', () => {
   test('Reopen', async () => {
     const conversation = await conversationFactory({
       status: 'closed',
+      closedAt: new Date(),
+      closedUserId: 'DFAFSAFDSFSFSAFD',
       readUserIds: ['DFJAKSFJDKFJSDF'],
     });
 
@@ -270,5 +295,7 @@ describe('Conversation db', () => {
 
     expect(updatedConversation.status).toBe('open');
     expect(updatedConversation.readUserIds.length).toBe(0);
+    expect(updatedConversation.closedAt).toBeNull();
+    expect(updatedConversation.closedUserId).toBeNull();
   });
 });

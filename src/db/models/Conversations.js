@@ -84,6 +84,18 @@ const ConversationSchema = mongoose.Schema({
   participatedUserIds: field({ type: [String] }),
   readUserIds: field({ type: [String] }),
   createdAt: field({ type: Date }),
+  updatedAt: field({ type: Date }),
+
+  closedAt: field({
+    type: Date,
+    optional: true,
+  }),
+
+  closedUserId: field({
+    type: String,
+    optional: true,
+  }),
+
   status: field({
     type: String,
     enum: CONVERSATION_STATUSES.ALL,
@@ -120,10 +132,13 @@ class Conversation {
    * @return {Promise} Newly created conversation object
    */
   static async createConversation(doc) {
+    const now = new Date();
+
     return this.create({
       status: CONVERSATION_STATUSES.NEW,
       ...doc,
-      createdAt: new Date(),
+      createdAt: now,
+      updatedAt: now,
       number: (await this.find().count()) + 1,
       messageCount: 0,
     });
@@ -144,6 +159,9 @@ class Conversation {
 
           // if closed, reopen
           status: CONVERSATION_STATUSES.OPEN,
+
+          closedAt: null,
+          closedUserId: null,
         },
       },
     );
@@ -196,8 +214,18 @@ class Conversation {
    * @param  {String} status
    * @return {Promise} Updated conversation id
    */
-  static changeStatusConversation(conversationIds, status) {
-    return this.update({ _id: { $in: conversationIds } }, { $set: { status } }, { multi: true });
+  static changeStatusConversation(conversationIds, status, userId) {
+    const query = { status };
+
+    if (status === CONVERSATION_STATUSES.CLOSED) {
+      query.closedAt = new Date();
+      query.closedUserId = userId;
+    } else {
+      query.closedAt = null;
+      query.closedUserId = null;
+    }
+
+    return this.update({ _id: { $in: conversationIds } }, { $set: query }, { multi: true });
   }
 
   /**

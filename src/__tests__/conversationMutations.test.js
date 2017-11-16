@@ -323,7 +323,11 @@ describe('Conversation message mutations', () => {
     );
 
     expect(Conversations.changeStatusConversation.mock.calls.length).toBe(1);
-    expect(Conversations.changeStatusConversation).toBeCalledWith([_conversation._id], status);
+    expect(Conversations.changeStatusConversation).toBeCalledWith(
+      [_conversation._id],
+      status,
+      _user._id,
+    );
   });
 
   test('Conversation star', async () => {
