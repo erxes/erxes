@@ -108,10 +108,7 @@ class Inbox extends Component {
       </ConversationWrapper>
     );
 
-    const breadcrumb = [
-      { title: 'Inbox', link: '/inbox' },
-      { title: 'Conversation' }
-    ];
+    const breadcrumb = [{ title: 'Inbox' }];
 
     return (
       <Wrapper
