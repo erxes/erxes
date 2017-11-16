@@ -232,7 +232,7 @@ const conversationMutations = {
   async conversationsChangeStatus(root, { _ids, status }, { user }) {
     const { conversations } = await Conversations.checkExistanceConversations(_ids);
 
-    await Conversations.changeStatusConversation(_ids, status);
+    await Conversations.changeStatusConversation(_ids, status, user._id);
 
     // notify graphl subscription
     await conversationsChanged(_ids, 'statusChanged');

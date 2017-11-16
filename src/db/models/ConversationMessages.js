@@ -118,8 +118,18 @@ class Message {
     // if there is no attachments and no content then throw content required error
     if (attachments.length === 0 && !strip(content)) throw new Error('Content is required');
 
-    // setting conversation's content to last message
-    await this.update({ _id: doc.conversationId }, { $set: { content } });
+    await Conversations.update(
+      { _id: doc.conversationId },
+      {
+        $set: {
+          // setting conversation's content to last message
+          content,
+
+          // updating updatedAt
+          updatedAt: new Date(),
+        },
+      },
+    );
 
     return this.createMessage({ ...doc, userId });
   }

@@ -77,7 +77,9 @@ const facebookSchema = mongoose.Schema(
 const CustomerSchema = mongoose.Schema({
   _id: field({ pkey: true }),
 
-  name: field({ type: String, label: 'Name' }),
+  name: field({ type: String }),
+  firstName: field({ type: String, label: 'First name' }),
+  lastName: field({ type: String, label: 'Last name' }),
   email: field({ type: String, label: 'Email' }),
   phone: field({ type: String, label: 'Phone' }),
   isUser: field({ type: Boolean, label: 'Is user' }),

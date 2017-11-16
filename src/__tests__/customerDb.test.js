@@ -31,11 +31,18 @@ describe('Customers model tests', () => {
       expect(e.message).toBe('Duplicated email');
     }
 
-    const doc = { name: 'name', email: 'dombo@yahoo.com' };
+    const doc = {
+      name: 'name',
+      email: 'dombo@yahoo.com',
+      firstName: 'firstName',
+      lastName: 'lastName',
+    };
 
     const customerObj = await Customers.createCustomer(doc);
 
     expect(customerObj.name).toBe(doc.name);
+    expect(customerObj.firstName).toBe(doc.fistName);
+    expect(customerObj.lastName).toBe(doc.lastName);
     expect(customerObj.email).toBe(doc.email);
   });
 
