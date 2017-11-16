@@ -21,7 +21,7 @@ const conversationQueries = {
     await qb.buildAllQueries();
 
     return Conversations.find(qb.mainQuery())
-      .sort({ createdAt: -1 })
+      .sort({ updatedAt: -1 })
       .limit(params.limit);
   },
 
@@ -177,7 +177,7 @@ const conversationQueries = {
 
     await qb.buildAllQueries();
 
-    return Conversations.findOne(qb.mainQuery()).sort({ createdAt: -1 });
+    return Conversations.findOne(qb.mainQuery()).sort({ updatedAt: -1 });
   },
 };
 
