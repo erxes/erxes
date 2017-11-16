@@ -1547,6 +1547,12 @@ base64-js@^1.0.2:
   version "1.2.1"
   resolved "https://registry.yarnpkg.com/base64-js/-/base64-js-1.2.1.tgz#a91947da1f4a516ea38e5b4ec0ec3773675e0886"
 
+bat-d3-punchcard@^1.0.1:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/bat-d3-punchcard/-/bat-d3-punchcard-1.0.1.tgz#988c89410b60de8d6ee2296b96122761b4149812"
+  dependencies:
+    d3 "^3.5.17"
+
 batch@0.6.1:
   version "0.6.1"
   resolved "https://registry.yarnpkg.com/batch/-/batch-0.6.1.tgz#dc34314f4e679318093fc760272525f94bf25c16"
@@ -2491,12 +2497,6 @@ d3-interpolate@1, d3-interpolate@^1.1.5:
 d3-path@1:
   version "1.0.5"
   resolved "https://registry.yarnpkg.com/d3-path/-/d3-path-1.0.5.tgz#241eb1849bd9e9e8021c0d0a799f8a0e8e441764"
-
-d3-punchcard@^1.0.1:
-  version "1.0.1"
-  resolved "https://registry.yarnpkg.com/d3-punchcard/-/d3-punchcard-1.0.1.tgz#612a5914a4f9d1ce4b7c8f0c9a29d1c6a4ecb400"
-  dependencies:
-    d3 "^3.5.17"
 
 d3-scale@1.0.6:
   version "1.0.6"
@@ -3597,7 +3597,7 @@ fs.realpath@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/fs.realpath/-/fs.realpath-1.0.0.tgz#1504ad2523158caa40db4a2787cb01411994ea4f"
 
-fsevents@^1.0.0:
+fsevents@1.1.2, fsevents@^1.0.0:
   version "1.1.2"
   resolved "https://registry.yarnpkg.com/fsevents/-/fsevents-1.1.2.tgz#3282b713fb3ad80ede0e9fcf4611b5aa6fc033f4"
   dependencies:
@@ -6824,6 +6824,48 @@ react-router@^4.2.0:
     path-to-regexp "^1.7.0"
     prop-types "^15.5.4"
     warning "^3.0.0"
+
+react-scripts@1.0.14:
+  version "1.0.14"
+  resolved "https://registry.yarnpkg.com/react-scripts/-/react-scripts-1.0.14.tgz#70fe76c9beb67b136b953e875bdfe4ad78d410d1"
+  dependencies:
+    autoprefixer "7.1.2"
+    babel-core "6.25.0"
+    babel-eslint "7.2.3"
+    babel-jest "20.0.3"
+    babel-loader "7.1.1"
+    babel-preset-react-app "^3.0.3"
+    babel-runtime "6.26.0"
+    case-sensitive-paths-webpack-plugin "2.1.1"
+    chalk "1.1.3"
+    css-loader "0.28.4"
+    dotenv "4.0.0"
+    eslint "4.4.1"
+    eslint-config-react-app "^2.0.1"
+    eslint-loader "1.9.0"
+    eslint-plugin-flowtype "2.35.0"
+    eslint-plugin-import "2.7.0"
+    eslint-plugin-jsx-a11y "5.1.1"
+    eslint-plugin-react "7.1.0"
+    extract-text-webpack-plugin "3.0.0"
+    file-loader "0.11.2"
+    fs-extra "3.0.1"
+    html-webpack-plugin "2.29.0"
+    jest "20.0.4"
+    object-assign "4.1.1"
+    postcss-flexbugs-fixes "3.2.0"
+    postcss-loader "2.0.6"
+    promise "8.0.1"
+    react-dev-utils "^4.1.0"
+    style-loader "0.18.2"
+    sw-precache-webpack-plugin "0.11.4"
+    url-loader "0.5.9"
+    webpack "3.5.1"
+    webpack-dev-server "2.8.2"
+    webpack-manifest-plugin "1.2.1"
+    whatwg-fetch "2.0.3"
+  optionalDependencies:
+    fsevents "1.1.2"
 
 react-select-plus@^1.0.0-rc.5:
   version "1.0.0-rc.10.patch1"
