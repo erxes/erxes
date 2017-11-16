@@ -58,8 +58,6 @@ class LeftSidebar extends Component {
     const counts = conversationCountsQuery.conversationCounts || {};
     const totalCount = totalCountQuery.conversationsTotalCount;
 
-    console.log(totalCount);
-
     const updatedProps = {
       ...this.props,
       conversations,
