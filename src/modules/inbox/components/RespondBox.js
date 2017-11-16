@@ -95,9 +95,7 @@ class RespondBox extends Component {
 
       afterUpload: ({ response, fileInfo }) => {
         // set attachments
-        this.state.attachments.push(
-          Object.assign({ url: response.url }, fileInfo)
-        );
+        this.state.attachments.push(Object.assign({ url: response }, fileInfo));
 
         // remove preview
         this.props.setAttachmentPreview(null);
