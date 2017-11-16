@@ -1,5 +1,5 @@
 export const generateParams = queryParams => ({
-  limit: queryParams.limit,
+  limit: queryParams.limit || 20,
   channelId: queryParams.channelId,
   status: queryParams.status,
   unassigned: queryParams.unassigned,

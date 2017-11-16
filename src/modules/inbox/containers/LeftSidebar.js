@@ -27,7 +27,8 @@ class LeftSidebar extends Component {
       channelsQuery,
       brandsQuery,
       tagsQuery,
-      conversationCountsQuery
+      conversationCountsQuery,
+      totalCountQuery
     } = this.props;
 
     if (
@@ -35,7 +36,8 @@ class LeftSidebar extends Component {
       channelsQuery.loading ||
       brandsQuery.loading ||
       tagsQuery.loading ||
-      conversationCountsQuery.loading
+      conversationCountsQuery.loading ||
+      totalCountQuery.loading
     ) {
       return (
         <Sidebar wide full>
@@ -54,6 +56,9 @@ class LeftSidebar extends Component {
     const brands = brandsQuery.brands || [];
     const tags = tagsQuery.tags || [];
     const counts = conversationCountsQuery.conversationCounts || {};
+    const totalCount = totalCountQuery.conversationsTotalCount;
+
+    console.log(totalCount);
 
     const updatedProps = {
       ...this.props,
@@ -62,7 +67,8 @@ class LeftSidebar extends Component {
       integrations,
       brands,
       tags,
-      counts
+      counts,
+      totalCount
     };
 
     return <LeftSidebarComponent {...updatedProps} />;
@@ -74,8 +80,14 @@ LeftSidebar.propTypes = {
   channelsQuery: PropTypes.object,
   brandsQuery: PropTypes.object,
   tagsQuery: PropTypes.object,
+  totalCountQuery: PropTypes.object,
   conversationCountsQuery: PropTypes.object
 };
+
+const generateOptions = queryParams => ({
+  ...queryParams,
+  limit: queryParams.limit || 20
+});
 
 export default compose(
   graphql(gql(queries.conversationList), {
@@ -103,6 +115,12 @@ export default compose(
         fetchPolicy: 'network-only'
       };
     }
+  }),
+  graphql(gql(queries.totalConversationsCount), {
+    name: 'totalCountQuery',
+    options: ({ queryParams }) => ({
+      variables: generateOptions(queryParams)
+    })
   }),
   graphql(gql(queries.conversationCounts), {
     name: 'conversationCountsQuery',

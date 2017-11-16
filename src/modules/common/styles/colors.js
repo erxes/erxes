@@ -14,14 +14,6 @@ const colorCoreDarkGray = '#333';
 const colorBlack = '#000';
 const colorShadowGray = '#DDD';
 
-const colorArray = [
-  colorPrimary,
-  colorSecondary,
-  colorCoreRed,
-  colorCoreYellow,
-  colorCoreGreen
-];
-
 const colorWhite = '#FFF';
 
 // backgrounds
@@ -67,8 +59,6 @@ export default {
   colorShadowGray,
   colorLightGray,
   colorCoreDarkGray,
-
-  colorArray,
 
   bgMain,
   bgDark,
