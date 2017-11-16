@@ -22,7 +22,7 @@ describe('Customers model tests', () => {
   });
 
   test('Create customer', async () => {
-    expect.assertions(3);
+    expect.assertions(5);
 
     // check duplication
     try {
@@ -41,7 +41,7 @@ describe('Customers model tests', () => {
     const customerObj = await Customers.createCustomer(doc);
 
     expect(customerObj.name).toBe(doc.name);
-    expect(customerObj.firstName).toBe(doc.fistName);
+    expect(customerObj.firstName).toBe(doc.firstName);
     expect(customerObj.lastName).toBe(doc.lastName);
     expect(customerObj.email).toBe(doc.email);
   });
