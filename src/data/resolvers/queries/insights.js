@@ -11,6 +11,7 @@ import {
   generateDuration,
   generateChartData,
   generateUserSelector,
+  generateResponseData,
   getTime,
   formatTime,
 } from './insightUtils';
@@ -189,7 +190,7 @@ const insightQueries = {
    * @param {String} args.brandId
    * @param {String} args.startDate
    * @param {String} args.endDate
-   * @return {Promise} Object data { trend: [Object], teamMembers: [Object], summary: [] }
+   * @return {Promise} Object data { trend: [Object], teamMembers: [Object], time: Integer }
   */
   async insightsFirstResponse(root, { integrationType, brandId, startDate, endDate }) {
     const { start, end } = fixDates(startDate, endDate);
@@ -270,32 +271,98 @@ const insightQueries = {
       }
     }
 
-    // preparing trend chart data
-    insightData.trend = generateChartData(firstResponseData, 10, duration, startTime);
+    return generateResponseData(
+      firstResponseData,
+      responseUserData,
+      allResponseTime,
+      duration,
+      startTime,
+    );
+  },
 
-    // Average response time for all messages
-    insightData.time = parseInt(allResponseTime / firstResponseData.length);
+  /**
+   * Calculates average response close time for each team members.
+   * @param {Object} args
+   * @param {String} args.brandId
+   * @param {String} args.startDate
+   * @param {String} args.endDate
+   * @return {Promise} Object data { trend: [Object], teamMembers: [Object], time: Integer }
+  */
+  async insightsResponseClose(root, { integrationType, brandId, startDate, endDate }) {
+    const { start, end } = fixDates(startDate, endDate);
+    const { duration, startTime } = generateDuration({ start, end });
 
-    const userIds = _.uniq(_.pluck(firstResponseData, 'userId'));
+    const conversationSelector = {
+      createdAt: { $gte: start, $lte: end },
+      closedAt: { $ne: null },
+      closedUserId: { $ne: null },
+    };
 
-    for (let userId of userIds) {
-      // Average response time for users.
-      let time = responseUserData[userId].responseTime / responseUserData[userId].count;
+    const integrationSelector = {};
 
-      // preparing each team member's chart data
-      insightData.teamMembers.push({
-        data: await generateUserChartData({
-          userId,
-          userMessages: firstResponseData.filter(message => userId === message.userId),
-          duration,
-          startTime,
-        }),
-
-        time: parseInt(time),
-      });
+    if (brandId) {
+      integrationSelector.brandId = brandId;
     }
 
-    return insightData;
+    if (integrationType) {
+      integrationSelector.kind = integrationType;
+    }
+
+    const integrationIds = await Integrations.find(integrationSelector).select('_id');
+    const conversations = await Conversations.find({
+      ...conversationSelector,
+      integrationId: { $in: integrationIds },
+    });
+
+    const insightData = { teamMembers: [], trend: [] };
+
+    // If conversation not found.
+    if (conversations.length < 1) {
+      return insightData;
+    }
+
+    // Variable that holds all responded conversation messages
+    const ResponseCloseData = [];
+
+    // Variables holds every user's response time.
+    const responseUserData = {};
+
+    let allResponseTime = 0;
+
+    // Processes total first response time for each users.
+    for (let conversation of conversations) {
+      let responseTime = getTime(conversation.closedAt) - getTime(conversation.createdAt);
+      responseTime = parseInt(responseTime / 1000);
+
+      const userId = conversation.closedUserId;
+
+      // collecting each user's respond information
+      ResponseCloseData.push({
+        createdAt: conversation.createdAt,
+        userId,
+        responseTime,
+      });
+
+      allResponseTime += responseTime;
+
+      let count = 1;
+
+      // Builds every users's response time and conversation message count.
+      if (responseUserData[userId]) {
+        responseTime = responseTime + responseUserData[userId].responseTime;
+        count = responseUserData[userId].count + 1;
+      }
+
+      responseUserData[userId] = { responseTime, count };
+    }
+
+    return generateResponseData(
+      ResponseCloseData,
+      responseUserData,
+      allResponseTime,
+      duration,
+      startTime,
+    );
   },
 };
 

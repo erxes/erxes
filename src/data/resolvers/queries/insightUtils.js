@@ -1,5 +1,6 @@
 import { Users, Integrations, Conversations } from '../../../db/models';
 import moment from 'moment';
+import _ from 'underscore';
 
 /**
  * Builds messages find query selector.
@@ -215,4 +216,51 @@ export const generateUserSelector = type => {
   }
 
   return volumeOrResponse;
+};
+
+/**
+ * Generate response chart data.
+ * @param {Object} args
+ * @param {[Object]} args.responsData
+ * @param {[Object]} args.responseUserData
+ * @param {Integer} args.allResponseTime
+ * @param {Integer} args.duration
+ * @param {Integer} args.starTime
+ * @return {Object} Data { trend: [Object], teamMembers: [Object], time: Integer }
+ */
+export const generateResponseData = async (
+  responsData,
+  responseUserData,
+  allResponseTime,
+  duration,
+  startTime,
+) => {
+  // preparing trend chart data
+  const trend = generateChartData(responsData, 10, duration, startTime);
+
+  // Average response time for all messages
+  const time = parseInt(allResponseTime / responsData.length);
+
+  const teamMembers = [];
+
+  const userIds = _.uniq(_.pluck(responsData, 'userId'));
+
+  for (let userId of userIds) {
+    // Average response time for users.
+    let time = responseUserData[userId].responseTime / responseUserData[userId].count;
+
+    // preparing each team member's chart data
+    teamMembers.push({
+      data: await generateUserChartData({
+        userId,
+        userMessages: responsData.filter(message => userId === message.userId),
+        duration,
+        startTime,
+      }),
+
+      time: parseInt(time),
+    });
+  }
+
+  return { trend, time, teamMembers };
 };
