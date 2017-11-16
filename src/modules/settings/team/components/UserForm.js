@@ -12,12 +12,20 @@ class UserForm extends CommonForm {
   constructor(props, context) {
     super(props, context);
 
+    this.onAvatarUpload = this.onAvatarUpload.bind(this);
     this.generateChannelsParams = this.generateChannelsParams.bind(this);
     this.collectValues = this.collectValues.bind(this);
 
+    const user = props.object || { details: {} };
+
     this.state = {
+      avatar: user.details.avatar,
       selectedChannels: this.generateChannelsParams(props.selectedChannels)
     };
+  }
+
+  onAvatarUpload(url) {
+    this.setState({ avatar: url });
   }
 
   generateChannelsParams(channels) {
@@ -60,7 +68,7 @@ class UserForm extends CommonForm {
         email: document.getElementById('email').value,
         role: document.getElementById('role').value,
         details: {
-          avatar: document.getElementById('avatar').value,
+          avatar: this.state.avatar,
           position: document.getElementById('position').value,
           fullName: document.getElementById('fullName').value,
           twitterUsername: document.getElementById('twitterUsername').value
@@ -78,7 +86,7 @@ class UserForm extends CommonForm {
 
     return (
       <div>
-        <UserCommonInfos user={user} />
+        <UserCommonInfos user={user} onAvatarUpload={this.onAvatarUpload} />
 
         <FormGroup>
           <ControlLabel>Password</ControlLabel>
