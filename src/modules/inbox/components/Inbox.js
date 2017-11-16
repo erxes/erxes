@@ -99,11 +99,11 @@ class Inbox extends Component {
 
     const actionBarLeft = (
       <AssignBoxPopover
-        // targets={targets}
+        targets={[currentConversation]}
         trigger={
           <PopoverButton>
             Assign
-            <Icon icon="ios-arrow-down" size="13" />
+            <Icon icon="ios-arrow-down" size={13} />
           </PopoverButton>
         }
       />

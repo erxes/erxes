@@ -50,7 +50,7 @@ class AssignBox extends Component {
         if (error) {
           Alert.error(error.reason);
         }
-        return Alert.success('The conversation Assignee has been renewed.');
+        return Alert.success('The conversation');
       }
     );
   }
@@ -105,6 +105,7 @@ class AssignBox extends Component {
     const props = {
       className,
       links,
+      selectable: true,
       items: this.state.assingeesForList,
       [event]: this.assign
     };

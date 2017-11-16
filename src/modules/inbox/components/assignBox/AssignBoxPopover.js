@@ -4,7 +4,7 @@ import { OverlayTrigger, Popover } from 'react-bootstrap';
 import AssignBox from '../../containers/AssignBox';
 
 const propTypes = {
-  targets: PropTypes.arrayOf(PropTypes.string).isRequired,
+  targets: PropTypes.arrayOf(Object).isRequired,
   trigger: PropTypes.element.isRequired,
   container: PropTypes.element
 };
@@ -12,7 +12,7 @@ const propTypes = {
 function AssignBoxPopover({ targets, trigger, container }) {
   const popover = (
     <Popover id="assign-popover" title="Choose person">
-      <AssignBox targets={targets} event="onClick" />
+      <AssignBox targets={targets} event="onExit" />
     </Popover>
   );
 

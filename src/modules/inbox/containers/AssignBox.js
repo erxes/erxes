@@ -2,7 +2,8 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { compose, gql, graphql } from 'react-apollo';
 import AssignBox from '../components/assignBox/AssignBox';
-import { queries } from '../graphql';
+import Alert from 'modules/common/utils/Alert';
+import { queries, mutations } from '../graphql';
 
 const AssignBoxContainer = props => {
   const {
@@ -16,25 +17,25 @@ const AssignBoxContainer = props => {
     return null;
   }
 
-  const assign = ({ targetIds, assignedUserId }, callback) => {
-    const params = { conversationIds: targetIds, assignedUserId };
-
-    conversationsAssign({ params })
+  const assign = (targetIds, assignedUserId) => {
+    conversationsAssign({
+      variables: { conversationIds: [targetIds], assignedUserId }
+    })
       .then(() => {
-        callback();
+        Alert.success('The conversation Assignee has been renewed.');
       })
       .catch(e => {
-        callback(e);
+        Alert.error(e.message);
       });
   };
 
-  const clear = (conversationIds, callback) => {
-    conversationsUnassign({ conversationIds })
+  const clear = conversationIds => {
+    conversationsUnassign({ variables: { _ids: [conversationIds] } })
       .then(() => {
-        callback();
+        Alert.success('The conversation');
       })
       .catch(e => {
-        callback(e);
+        Alert.error(e.message);
       });
   };
 
@@ -59,6 +60,10 @@ AssignBoxContainer.propTypes = {
 
 export default compose(
   graphql(gql(queries.userList), { name: 'usersQuery' }),
+  graphql(gql(mutations.conversationsAssign), { name: 'conversationsAssign' }),
+  graphql(gql(mutations.conversationsUnassign), {
+    name: 'conversationsUnassign'
+  }),
   graphql(gql(queries.conversationList), {
     name: 'conversationsQuery',
     options: ({ targets }) => ({
