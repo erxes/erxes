@@ -41,12 +41,14 @@
     ]
   },
   "dependencies": {
+    "aws-sdk": "^2.151.0",
     "bcrypt": "^1.0.3",
     "body-parser": "^1.17.1",
     "cors": "^2.8.1",
     "dotenv": "^4.0.0",
     "express": "^4.15.2",
     "fbgraph": "^1.4.1",
+    "formidable": "^1.1.1",
     "graphql": "^0.10.1",
     "graphql-server-core": "^0.8.2",
     "graphql-server-express": "^0.8.2",

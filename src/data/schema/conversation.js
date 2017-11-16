@@ -29,7 +29,7 @@ export const types = `
   type ConversationMessage {
     _id: String!
     content: String
-    attachments: JSON
+    attachments: [JSON]
     mentionedUserIds: [String]
     conversationId: String
     internal: Boolean
@@ -94,7 +94,7 @@ export const mutations = `
     content: String,
     mentionedUserIds: [String],
     internal: Boolean,
-    attachments: [String],
+    attachments: [JSON],
   ): ConversationMessage
 
   conversationsAssign(conversationIds: [String]!, assignedUserId: String): [Conversation]
