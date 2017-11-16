@@ -2,6 +2,7 @@ import React from 'react';
 import { withRouter } from 'react-router';
 import PropTypes from 'prop-types';
 import { compose, graphql, gql } from 'react-apollo';
+import { Alert } from 'modules/common/utils';
 import { ResetPassword } from '../components';
 import { mutations } from '../graphql';
 
@@ -19,7 +20,7 @@ const ResetPasswordContainer = props => {
         history.push('/');
       })
       .catch(error => {
-        console.log(error); // eslint-disable-line
+        Alert.error(error.message);
       });
   };
 

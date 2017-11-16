@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { compose, graphql, gql } from 'react-apollo';
+import { Alert } from 'modules/common/utils';
 import { ForgotPassword } from '../components';
 import { mutations } from '../graphql';
 
@@ -13,7 +14,7 @@ const ForgotPasswordContainer = props => {
         console.log(forgotPassword); // eslint-disable-line
       })
       .catch(error => {
-        console.log(error); // eslint-disable-line
+        Alert.error(error.message);
       });
   };
 
