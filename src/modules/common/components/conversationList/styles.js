@@ -32,6 +32,9 @@ const CheckBox = styled.div`
 
 const MainInfo = styled.div`
   overflow: hidden;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
 
   a {
     float: left;

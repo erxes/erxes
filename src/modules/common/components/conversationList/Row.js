@@ -66,7 +66,6 @@ class Row extends Component {
     const brandName = brand.name;
     const tags = conversation.tags || [];
     const isExistingCustomer = customer && customer._id;
-    const user = conversation.user;
 
     return (
       <RowItem onClick={this.onClick} isActive={isActive} isRead={isRead}>
@@ -74,15 +73,13 @@ class Row extends Component {
           {this.renderCheckbox()}
           <FlexContent>
             <MainInfo>
-              {(isExistingCustomer && customer.name) ||
-              (isExistingCustomer && customer.email) ||
-              (isExistingCustomer && customer.phone) ? (
-                <NameCard.Avatar size={40} user={user} />
-              ) : null}
-
+              {isExistingCustomer && (
+                <NameCard.Avatar size={40} customer={customer} />
+              )}
               <FlexContent>
                 <CustomerName>
-                  {isExistingCustomer && customer.name}
+                  {isExistingCustomer &&
+                    (customer.name || customer.email || customer.phone)}
                 </CustomerName>
                 <SmallText>
                   to {brandName} via {integration && integration.kind}

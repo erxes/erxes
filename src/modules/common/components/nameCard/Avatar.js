@@ -10,13 +10,13 @@ const AvatarStyled = styled.a`
   float: left;
   padding: 0;
   text-align: center;
-  background: ${colors.colorCoreYellow};
+  background: ${props => colors.colorArray[props.number]};
   color: ${colors.colorWhite};
 `;
 
 const DefaultAvatar = styled.div`
   background: url('/images/userDefaultIcon.png') center no-repeat;
-  background-size: 100%;
+  background-size: cover;
 `;
 
 class Avatar extends Component {
@@ -40,6 +40,7 @@ class Avatar extends Component {
     const initials = fullName ? (
       fullName
         .split(' ')
+        .slice(0, 2)
         .map(s => s.charAt(0))
         .join('.')
         .toUpperCase()
@@ -52,9 +53,11 @@ class Avatar extends Component {
 
   render() {
     const { user, customer, url = '#' } = this.props;
-
     let avatar;
     let fullName;
+
+    // for random avatar color
+    const randomNumber = Math.floor(Math.random() * 5);
 
     if (user) {
       const { details } = user;
@@ -66,7 +69,7 @@ class Avatar extends Component {
     }
 
     return (
-      <AvatarStyled href={url}>
+      <AvatarStyled number={randomNumber} href={url}>
         {avatar
           ? this.renderImage(avatar, fullName)
           : this.renderInitials(fullName)}
