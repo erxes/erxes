@@ -3,6 +3,8 @@ export const types = `
     _id: String!
     integrationId: String
     name: String
+    firstName: String
+    lastName: String
     email: String
     phone: String
     isUser: Boolean
@@ -39,7 +41,8 @@ export const queries = `
 `;
 
 const fields = `
-  name: String
+  firstName: String
+  lastName: String
   email: String
   phone: String
   customFieldsData: JSON
