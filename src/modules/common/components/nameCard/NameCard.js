@@ -25,7 +25,7 @@ const FirstLine = styled.a`
 `;
 
 const SecondLine = styled.div`
-  font-size: 13px;
+  font-size: 12px;
   color: ${colors.colorLightGray};
 `;
 

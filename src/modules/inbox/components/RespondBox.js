@@ -73,7 +73,7 @@ class RespondBox extends Component {
       responseTemplate: responseTemplate.content,
 
       // set attachment from response template files
-      attachments: responseTemplate.files
+      attachments: responseTemplate.files || []
     });
   }
 
