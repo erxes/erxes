@@ -142,8 +142,12 @@ export default class Editor extends Component {
   }
 
   keyBindingFn(e) {
+    if (e.key === 'Enter' && e.shiftKey) {
+      return getDefaultKeyBinding(e);
+    }
+
     // handle shift + enter in editor
-    if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
+    if (e.key === 'Enter') {
       // call parent's method to save content
       this.props.onShifEnter();
 

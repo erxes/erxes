@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import moment from 'moment';
-import { Wrapper } from 'modules/layout/components';
+import { Sidebar } from 'modules/layout/components';
 import { SidebarList, SidebarCounter } from 'modules/layout/styles';
 
 const propTypes = {
@@ -33,20 +33,20 @@ class ConversationDetails extends Component {
     return null;
   }
   render() {
-    const { Title } = Wrapper.Sidebar.Section;
+    const { Title } = Sidebar.Section;
 
     const { conversation = {} } = this.props;
     const { integration = {} } = conversation;
     const { brand = {}, channels = [] } = integration;
 
     return (
-      <Wrapper.Sidebar.Section>
+      <Sidebar.Section>
         <Title>Conversation Details</Title>
         <SidebarList className="no-link">
           <li>
             Opened
             <SidebarCounter>
-              {moment(conversation.createdAt).fromNow()}
+              {moment(conversation.createdAt).format('lll')}
             </SidebarCounter>
           </li>
           <li>
@@ -68,7 +68,7 @@ class ConversationDetails extends Component {
             <SidebarCounter>{conversation.messageCount}</SidebarCounter>
           </li>
         </SidebarList>
-      </Wrapper.Sidebar.Section>
+      </Sidebar.Section>
     );
   }
 }

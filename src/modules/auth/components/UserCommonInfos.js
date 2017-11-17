@@ -5,10 +5,12 @@ import {
   ControlLabel,
   FormControl
 } from 'modules/common/components';
+import { Alert, uploadHandler } from 'modules/common/utils';
 import { ProfileWrapper, ProfileRow } from '../styles';
 
 const propTypes = {
-  user: PropTypes.object.isRequired
+  user: PropTypes.object.isRequired,
+  onAvatarUpload: PropTypes.func.isRequired
 };
 
 class UserCommonInfos extends Component {
@@ -18,7 +20,6 @@ class UserCommonInfos extends Component {
     const defaultAvatar = '/images/userDefaultIcon.png';
 
     this.state = {
-      avatar: this.props.user.details.avatar,
       avatarPreviewUrl: this.props.user.details.avatar || defaultAvatar,
       avatarPreviewStyle: {}
     };
@@ -27,12 +28,35 @@ class UserCommonInfos extends Component {
   }
 
   handleImageChange(e) {
-    e.preventDefault();
+    const imageFile = e.target.files[0];
+
+    uploadHandler({
+      file: imageFile,
+
+      beforeUpload: () => {
+        this.setState({ avatarPreviewStyle: { opacity: '0.2' } });
+      },
+
+      afterUpload: ({ response }) => {
+        this.setState({
+          avatarPreviewStyle: { opacity: '1' }
+        });
+
+        // call success event
+        this.props.onAvatarUpload(response);
+
+        Alert.info('Looking good!');
+      },
+
+      afterRead: ({ result }) => {
+        this.setState({ avatarPreviewUrl: result });
+      }
+    });
   }
 
   render() {
     const user = this.props.user;
-    const { avatar, avatarPreviewStyle, avatarPreviewUrl } = this.state;
+    const { avatarPreviewStyle, avatarPreviewUrl } = this.state;
 
     return (
       <ProfileWrapper>
@@ -46,7 +70,6 @@ class UserCommonInfos extends Component {
           />
 
           <FormControl type="file" onChange={this.handleImageChange} />
-          <input type="hidden" id="avatar" value={avatar} />
         </FormGroup>
 
         <ProfileRow>

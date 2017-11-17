@@ -22,6 +22,9 @@ class Profile extends Component {
     super(props);
 
     this.handleSubmit = this.handleSubmit.bind(this);
+    this.onAvatarUpload = this.onAvatarUpload.bind(this);
+
+    this.state = { avatar: props.currentUser.details.avatar };
   }
 
   handleSubmit(e) {
@@ -31,7 +34,7 @@ class Profile extends Component {
       username: document.getElementById('username').value,
       email: document.getElementById('email').value,
       details: {
-        avatar: document.getElementById('avatar').value,
+        avatar: this.state.avatar,
         fullName: document.getElementById('fullName').value,
         position: document.getElementById('position').value,
         twitterUsername: document.getElementById('twitterUsername').value
@@ -40,11 +43,18 @@ class Profile extends Component {
     });
   }
 
+  onAvatarUpload(url) {
+    this.setState({ avatar: url });
+  }
+
   render() {
     const content = (
       <ContentBox>
         <form onSubmit={this.handleSubmit}>
-          <UserCommonInfos user={this.props.currentUser} />
+          <UserCommonInfos
+            user={this.props.currentUser}
+            onAvatarUpload={this.onAvatarUpload}
+          />
 
           <FormGroup>
             <ControlLabel>Current password</ControlLabel>

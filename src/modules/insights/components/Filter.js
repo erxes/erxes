@@ -6,12 +6,13 @@ import DatePicker from 'react-datepicker';
 import moment from 'moment';
 import { integrationOptions, selectOptions } from '../utils';
 import { KIND_CHOICES as INTEGRATIONS_TYPES } from 'modules/settings/integrations/constants';
-import { Wrapper } from 'modules/layout/components';
 import { FlexRow, FlexItem, InsightFilter, InsightTitle } from '../styles';
+import { router } from 'modules/common/utils';
 
 const propTypes = {
   brands: PropTypes.array.isRequired,
-  queryParams: PropTypes.object
+  queryParams: PropTypes.object,
+  history: PropTypes.object
 };
 
 class Filter extends React.Component {
@@ -33,21 +34,19 @@ class Filter extends React.Component {
   onTypeChange(value) {
     const integrationType = value ? value.value : '';
     this.setState({ integrationType });
-    Wrapper.Sidebar.filter('integrationType', integrationType);
+    router.setParams(this.props.history, { integrationType });
   }
 
   onBrandChange(value) {
     const brandId = value ? value.value : '';
     this.setState({ brandId });
-    Wrapper.Sidebar.filter('brandId', brandId);
+    router.setParams(this.props.history, { brandId });
   }
 
   onDateInputChange(type, date) {
     this.setState({ [type]: date });
-    Wrapper.Sidebar.filter(
-      type,
-      date ? moment(date).format('YYYY-MM-DD') : null
-    );
+    const formatDate = date ? moment(date).format('YYYY-MM-DD') : null;
+    router.setParams(this.props.history, { [type]: formatDate });
   }
 
   renderIntegrations() {

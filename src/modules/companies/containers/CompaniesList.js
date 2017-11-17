@@ -78,7 +78,8 @@ export default compose(
         segment: queryParams.segment,
         tag: queryParams.tag,
         ids: queryParams.ids
-      }
+      },
+      notifyOnNetworkStatusChange: true
     })
   }),
   graphql(gql(queries.companyCounts), {
@@ -90,11 +91,15 @@ export default compose(
         segment: queryParams.segment,
         tag: queryParams.tag,
         ids: queryParams.ids
-      }
+      },
+      notifyOnNetworkStatusChange: true
     })
   }),
   graphql(gql(queries.companiesListConfig), {
-    name: 'companiesListConfigQuery'
+    name: 'companiesListConfigQuery',
+    options: () => ({
+      notifyOnNetworkStatusChange: true
+    })
   }),
   // mutations
   graphql(gql(mutations.companiesAdd), {

@@ -47,18 +47,19 @@ const RichEditorRoot = styled.div`
     cursor: text;
 
     .public-DraftEditorPlaceholder-root {
-      padding: 15px;
+      padding: 15px 20px;
       position: absolute;
       color: ${colors.colorCoreGray};
       font-size: 13px;
     }
 
     .public-DraftEditorPlaceholder-inner {
-      color: ${colors.colorCoreGray};
+      color: ${colors.colorCoreLightGray};
     }
 
     .public-DraftEditor-content {
       font-size: 13px;
+      padding: 15px 20px;
     }
   }
 
@@ -72,7 +73,7 @@ const RichEditorRoot = styled.div`
 
 const RichEditorControlsRoot = styled.div`
   overflow: hidden;
-  padding: 5px 15px 0;
+  padding: 7px 20px 0;
 `;
 
 const RichEditorRight = styled.div`
@@ -116,30 +117,20 @@ const MentionedPerson = styled.span`
 
 const RespondBoxStyled = styled.div`
   position: relative;
+  background: ${props =>
+    props.isInternal ? colors.bgInternal : colors.colorWhite};
 
   ${RichEditorRoot} {
-    background: ${colors.colorWhite};
     border-top: 1px solid ${colors.borderPrimary};
-  }
-
-  .checkbox {
-    position: absolute;
-    left: 20px;
-    bottom: 0;
-    color: #888;
-    line-height: 22px;
-
-    input {
-      margin: 5px 0 0 -20px;
-    }
   }
 `;
 
 const ResponseTemplateStyled = styled.div`
   display: inline-block;
 
-  .dropup {
-    padding: 2px 0;
+  button {
+    margin-right: 10px;
+    padding: 0;
   }
 
   span {
@@ -147,28 +138,31 @@ const ResponseTemplateStyled = styled.div`
   }
 `;
 
-const ReplyFormFooter = styled.div`
-  background-color: ${colors.colorWhite};
-  display: flow-root;
+const EditorActions = styled.div`
+  padding: 0 20px 10px 20px;
+  text-align: right;
+  position: relative;
+  color: ${colors.colorCoreGray};
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
 
-  .replyBtn {
-    margin-right: 10px;
-    float: right;
+  label {
+    margin: 0 10px 0 0;
 
     &:hover {
-      text-decoration: none;
+      cursor: pointer;
+      color: ${darken(colors.colorCoreGray, 30)};
+    }
+
+    &:first-of-type {
+      position: absolute;
+      left: 20px;
     }
   }
 
-  .btnLink {
-    box-shadow: none;
-    font-weight: 400;
-    color: ${colors.colorCoreGray};
-    border-radius: 0;
-
-    &:hover {
-      color: ${darken(colors.colorCoreGray, 30)};
-    }
+  i {
+    margin: 0;
   }
 
   input[type='file'] {
@@ -225,6 +219,7 @@ const PopoverList = styled.ul`
   padding: 0;
   list-style: none;
   overflow: auto;
+  position: relative;
 
   li {
     position: relative;
@@ -234,26 +229,15 @@ const PopoverList = styled.ul`
     white-space: nowrap;
     text-overflow: ellipsis;
     font-size: 13px;
+    text-align: ${props => props.center && 'center'};
 
     &:hover,
     &:focus {
-      background: #f8f8f8;
+      background: ${colors.bgLight};
     }
 
     a {
       color: #383838;
-    }
-  }
-
-  .linked {
-    li {
-      padding: 0;
-      border-bottom: 0;
-
-      a {
-        display: block;
-        padding: 5px 20px;
-      }
     }
   }
 `;
@@ -298,23 +282,28 @@ const TemplateContent = styled.div`
   text-overflow: ellipsis;
   overflow: hidden;
   white-space: nowrap;
+  font-weight: normal;
 `;
 
 const AttachmentIndicator = styled.div`
-  background: #ece6f8;
   display: flex;
   flex-direction: row;
+  margin: 0 15px;
+  color: ${rgba(colors.colorWhite, 0.7)};
 `;
 
 const Attachment = styled.div`
   display: flex;
   max-width: 220px;
-  padding: 4px;
+  padding: 5px;
   margin: 5px 0 5px 5px;
-  font-size: 13px;
-  border-radius: 4px;
+  font-size: 12px;
   background-color: ${colors.colorSecondary};
   align-items: center;
+
+  > div {
+    margin-right: 5px;
+  }
 `;
 
 const AttachmentPreview = styled.div`
@@ -326,7 +315,6 @@ const PreviewImg = styled.div`
   height: 26px;
   background-size: cover;
   background-position: 50%;
-  border-radius: 2px;
 `;
 
 const FileName = styled.div`
@@ -334,9 +322,6 @@ const FileName = styled.div`
   white-space: nowrap;
   text-overflow: ellipsis;
   margin-right: 5px;
-`;
-
-const FileSize = styled.div`
   color: ${colors.colorWhite};
 `;
 
@@ -348,7 +333,7 @@ export {
   RichEditorControlsRoot,
   RichEditorControls,
   MentionedPerson,
-  ReplyFormFooter,
+  EditorActions,
   RichEditorRight,
   ResponseTemplateStyled,
   PopoverHeader,
@@ -364,6 +349,5 @@ export {
   AttachmentPreview,
   AttachmentIndicator,
   PreviewImg,
-  FileName,
-  FileSize
+  FileName
 };

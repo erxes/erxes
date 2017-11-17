@@ -17,6 +17,7 @@ import {
 } from '../styles';
 
 const propTypes = {
+  history: PropTypes.object,
   trend: PropTypes.array.isRequired,
   teamMembers: PropTypes.array.isRequired,
   brands: PropTypes.array.isRequired,
@@ -53,6 +54,7 @@ class ResponseReport extends React.Component {
       punch,
       summary,
       brands,
+      history,
       isLoading,
       queryParams
     } = this.props;
@@ -68,7 +70,7 @@ class ResponseReport extends React.Component {
 
     return (
       <InsightWrapper>
-        <Filter brands={brands} queryParams={queryParams} />
+        <Filter history={history} brands={brands} queryParams={queryParams} />
         <InsightContent>
           <InsightRow>
             {this.renderTitle('Response Times summary')}

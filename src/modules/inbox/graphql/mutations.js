@@ -4,7 +4,7 @@ const conversationMessageAdd = `
     $content: String!,
     $mentionedUserIds: [String],
     $internal: Boolean,
-    $attachments: [String]
+    $attachments: [JSON]
   ) {
     conversationMessageAdd(
       conversationId: $conversationId,
@@ -15,6 +15,18 @@ const conversationMessageAdd = `
     ) {
       _id
       content
+    }
+  }
+`;
+
+const markAsRead = `
+  mutation conversationMarkAsRead(
+    $_id: String
+  ) {
+    conversationMarkAsRead(
+      _id: $_id,
+    ) {
+      _id
     }
   }
 `;
@@ -49,5 +61,6 @@ const conversationsChangeStatus = `
 export default {
   conversationMessageAdd,
   conversationsChangeStatus,
-  saveResponseTemplate
+  saveResponseTemplate,
+  markAsRead
 };

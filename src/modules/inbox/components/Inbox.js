@@ -1,18 +1,29 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import RightSidebar from './RightSidebar';
-import { Wrapper } from '../../layout/components';
-import { Button, Label, Icon, TaggerPopover } from 'modules/common/components';
+import { Wrapper } from 'modules/layout/components';
+import {
+  Button,
+  Label,
+  Icon,
+  TaggerPopover,
+  Tags
+} from 'modules/common/components';
 import { BarItems } from 'modules/layout/styles';
 import Conversation from './conversation/Conversation';
 import { LeftSidebar, RespondBox } from '../containers';
+import RightSidebar from './sidebar/RightSidebar';
 import { PopoverButton, ConversationWrapper } from '../styles';
 
 class Inbox extends Component {
   constructor(props) {
     super(props);
 
+    this.state = {
+      attachmentPreview: {}
+    };
+
     this.changeStatus = this.changeStatus.bind(this);
+    this.setAttachmentPreview = this.setAttachmentPreview.bind(this);
   }
 
   componentDidMount() {
@@ -21,6 +32,10 @@ class Inbox extends Component {
 
   componentDidUpdate() {
     this.node.scrollTop = this.node.scrollHeight;
+  }
+
+  setAttachmentPreview(attachmentPreview) {
+    this.setState({ attachmentPreview });
   }
 
   // change resolved status
@@ -61,20 +76,17 @@ class Inbox extends Component {
     const {
       queryParams,
       currentConversation,
-      onChangeConversation
+      onChangeConversation,
+      afterTag
     } = this.props;
     const tags = currentConversation.tags || [];
 
     const tagTrigger = (
       <PopoverButton>
         {tags.length ? (
-          tags.slice(0, 1).map(t => (
-            <Label key={t._id} style={{ background: t.colorCode }}>
-              {t.name}
-            </Label>
-          ))
+          <Tags tags={tags} limit={1} />
         ) : (
-          <Label lblStyle="default">tags</Label>
+          <Label lblStyle="default">no tags</Label>
         )}
         <Icon icon="ios-arrow-down" />
       </PopoverButton>
@@ -86,6 +98,7 @@ class Inbox extends Component {
           targets={[currentConversation]}
           type="conversation"
           trigger={tagTrigger}
+          afterSave={afterTag}
         />
 
         {this.renderStatusButton(
@@ -98,18 +111,18 @@ class Inbox extends Component {
 
     const content = (
       <ConversationWrapper
-        ref={node => {
+        innerRef={node => {
           this.node = node;
         }}
       >
-        <Conversation conversation={currentConversation} />
+        <Conversation
+          conversation={currentConversation}
+          attachmentPreview={this.state.attachmentPreview}
+        />
       </ConversationWrapper>
     );
 
-    const breadcrumb = [
-      { title: 'Inbox', link: '/inbox' },
-      { title: 'Conversation' }
-    ];
+    const breadcrumb = [{ title: 'Inbox' }];
 
     return (
       <Wrapper
@@ -120,13 +133,14 @@ class Inbox extends Component {
           currentConversation._id ? (
             <RespondBox
               conversation={currentConversation}
-              setAttachmentPreview={() => {}}
+              setAttachmentPreview={this.setAttachmentPreview}
             />
           ) : null
         }
         leftSidebar={
           <LeftSidebar
             queryParams={queryParams}
+            currentConversationId={currentConversation._id}
             onChangeConversation={onChangeConversation}
           />
         }
@@ -141,6 +155,7 @@ Inbox.propTypes = {
   title: PropTypes.string,
   onChangeConversation: PropTypes.func,
   changeStatus: PropTypes.func,
+  afterTag: PropTypes.func,
   currentConversation: PropTypes.object
 };
 

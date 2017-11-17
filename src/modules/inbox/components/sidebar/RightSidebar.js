@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Wrapper } from '../../layout/components';
+import { Sidebar } from 'modules/layout/components';
 import {
   AvatarWrapper,
   ActivityRow,
@@ -58,13 +58,13 @@ class RightSidebar extends Component {
   render() {
     const { customer = {} } = this.props.conversation;
     return (
-      <Wrapper.Sidebar>
+      <Sidebar>
         {this.renderBasicInfo()}
         <MessengerSection customer={customer} />
         <TwitterSection customer={customer} />
         <FacebookSection customer={customer} />
         <ConversationDetails conversation={this.props.conversation} />
-      </Wrapper.Sidebar>
+      </Sidebar>
     );
   }
 }

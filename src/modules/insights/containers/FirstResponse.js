@@ -5,10 +5,11 @@ import { FirstResponse } from '../components';
 import { queries } from '../graphql';
 
 const FirstResponseReportContainer = props => {
-  const { brandsQuery, firstResponseQuery, queryParams } = props;
+  const { brandsQuery, history, firstResponseQuery, queryParams } = props;
 
   const data = firstResponseQuery.insightsFirstResponse || {};
   const updatedProps = {
+    history,
     queryParams,
     trend: data.trend || [],
     time: data.time,
@@ -23,6 +24,7 @@ const FirstResponseReportContainer = props => {
 FirstResponseReportContainer.propTypes = {
   queryParams: PropTypes.object,
   brandsQuery: PropTypes.object,
+  history: PropTypes.object,
   firstResponseQuery: PropTypes.object
 };
 
@@ -31,6 +33,7 @@ export default compose(
     name: 'firstResponseQuery',
     options: ({ queryParams }) => ({
       fetchPolicy: 'network-only',
+      notifyOnNetworkStatusChange: true,
       variables: {
         brandId: queryParams.brandId,
         integrationType: queryParams.integrationType,

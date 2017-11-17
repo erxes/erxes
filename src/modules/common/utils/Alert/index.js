@@ -59,7 +59,7 @@ const success = text => {
 };
 
 const error = text => {
-  createAlert('error', text);
+  createAlert('error', text.replace('GraphQL error:', ''));
 };
 
 const warning = text => {

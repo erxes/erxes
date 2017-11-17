@@ -1,9 +1,15 @@
-const main = `
-  query insightsMain($type: String, $integrationType: String,
-    $brandId: String, $startDate: String, $endDate: String) {
-    insightsMain(type: $type, integrationType: $integrationType,
-      brandId: $brandId, startDate: $startDate, endDate: $endDate)
-  }
+const listParamsDef = `
+  $integrationType: String,
+  $brandId: String,
+  $startDate: String,
+  $endDate: String
+`;
+
+const listParamsValue = `
+  integrationType: $integrationType,
+  brandId: $brandId,
+  startDate: $startDate,
+  endDate: $endDate
 `;
 
 const pieChart = `
@@ -23,11 +29,21 @@ const punchCard = `
   }
 `;
 
+const main = `
+  query insightsMain($type: String, ${listParamsDef}) {
+    insightsMain(type: $type, ${listParamsValue})
+  }
+`;
+
 const firstResponse = `
-  query insightsFirstResponse($integrationType: String, $brandId: String,
-    $startDate: String, $endDate: String) {
-    insightsFirstResponse(integrationType: $integrationType, brandId: $brandId, 
-      startDate: $startDate, endDate: $endDate)
+  query insightsFirstResponse(${listParamsDef}) {
+    insightsFirstResponse(${listParamsValue})
+  }
+`;
+
+const responseClose = `
+  query insightsResponseClose(${listParamsDef}) {
+    insightsResponseClose(${listParamsValue})
   }
 `;
 
@@ -45,5 +61,6 @@ export default {
   pieChart,
   punchCard,
   firstResponse,
+  responseClose,
   brands
 };

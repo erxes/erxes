@@ -13,7 +13,7 @@ const ProfileContainer = (props, { currentUser }) => {
         Alert.success('Congrats');
       })
       .catch(error => {
-        Alert.success(error.message);
+        Alert.error(error.message);
       });
   };
 

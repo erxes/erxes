@@ -2,8 +2,10 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { compose, gql, graphql } from 'react-apollo';
 import { Alert } from 'modules/common/utils';
+import { Spinner } from 'modules/common/components';
 import { Inbox as InboxComponent } from '../components';
 import { queries, mutations, subscriptions } from '../graphql';
+import { generateParams } from '../utils';
 
 class Inbox extends Component {
   componentWillMount() {
@@ -47,7 +49,7 @@ class Inbox extends Component {
       }
     });
 
-    // lister for conversation changes like status, assignee
+    // listen for conversation changes like status, assignee
     conversationDetailQuery.subscribeToMore({
       document: gql(subscriptions.conversationChanged),
       variables: { _id: currentConversationId },
@@ -58,7 +60,15 @@ class Inbox extends Component {
   }
 
   render() {
-    const { conversationDetailQuery, changeStatusMutation } = this.props;
+    const {
+      conversationDetailQuery,
+      changeStatusMutation,
+      markAsReadMutation
+    } = this.props;
+    const { currentUser } = this.context;
+    const loading = conversationDetailQuery.loading;
+    const currentConversation =
+      conversationDetailQuery.conversationDetail || {};
 
     // =============== actions
     const changeStatus = (conversationId, status) => {
@@ -77,10 +87,32 @@ class Inbox extends Component {
         });
     };
 
+    // after tags
+    const afterTag = () => {
+      conversationDetailQuery.refetch();
+    };
+
+    // mark as read
+    const readUserIds = currentConversation.readUserIds || [];
+
+    if (!loading && !readUserIds.includes(currentUser._id)) {
+      markAsReadMutation({
+        variables: { _id: currentConversation._id }
+      })
+        .then(() => {
+          conversationDetailQuery.refetch();
+        })
+
+        .catch(e => {
+          Alert.error(e.message);
+        });
+    }
+
     const updatedProps = {
       ...this.props,
-      currentConversation: conversationDetailQuery.conversationDetail || {},
-      changeStatus
+      currentConversation,
+      changeStatus,
+      afterTag
     };
 
     return <InboxComponent {...updatedProps} />;
@@ -90,7 +122,12 @@ class Inbox extends Component {
 Inbox.propTypes = {
   conversationDetailQuery: PropTypes.object,
   changeStatusMutation: PropTypes.func.isRequired,
-  currentConversationId: PropTypes.string.isRequired
+  currentConversationId: PropTypes.string.isRequired,
+  markAsReadMutation: PropTypes.func.isRequired
+};
+
+Inbox.contextTypes = {
+  currentUser: PropTypes.object
 };
 
 const ConversationDetail = compose(
@@ -98,12 +135,16 @@ const ConversationDetail = compose(
     name: 'conversationDetailQuery',
     options: ({ currentConversationId }) => {
       return {
+        notifyOnNetworkStatusChange: true,
         variables: { _id: currentConversationId }
       };
     }
   }),
   graphql(gql(mutations.conversationsChangeStatus), {
     name: 'changeStatusMutation'
+  }),
+  graphql(gql(mutations.markAsRead), {
+    name: 'markAsReadMutation'
   })
 )(Inbox);
 
@@ -142,10 +183,10 @@ CurrentConversation.propTypes = {
  * Container with last conversation query ====================
  */
 const LastConversation = props => {
-  const { queryParams, lastConversationQuery } = props;
+  const { lastConversationQuery } = props;
 
   if (lastConversationQuery.loading) {
-    return null;
+    return <Spinner />;
   }
 
   const lastConversation = lastConversationQuery.conversationsGetLast;
@@ -154,9 +195,7 @@ const LastConversation = props => {
     return null;
   }
 
-  const currentConversationId = queryParams._id
-    ? queryParams._id
-    : lastConversation._id;
+  const currentConversationId = lastConversation._id;
 
   const updatedProps = {
     ...props,
@@ -167,12 +206,15 @@ const LastConversation = props => {
 };
 
 LastConversation.propTypes = {
-  queryParams: PropTypes.object,
   lastConversationQuery: PropTypes.object
 };
 
 export default compose(
   graphql(gql(queries.lastConversation), {
-    name: 'lastConversationQuery'
+    name: 'lastConversationQuery',
+    options: ({ queryParams }) => ({
+      notifyOnNetworkStatusChange: true,
+      variables: generateParams(queryParams)
+    })
   })
 )(LastConversation);

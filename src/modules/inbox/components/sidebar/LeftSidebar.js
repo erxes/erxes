@@ -1,21 +1,23 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import moment from 'moment';
-import { Wrapper } from 'modules/layout/components';
-import { ConversationList } from 'modules/common/components';
-import { FilterPopover, StatusFilterPopover } from './';
+import { Sidebar } from 'modules/layout/components';
+import { ConversationList, LoadMore } from 'modules/common/components';
+import { FilterPopover, StatusFilterPopover } from '../';
 
 const propTypes = {
   conversations: PropTypes.array.isRequired,
+  currentConversationId: PropTypes.string.isRequired,
   channels: PropTypes.array.isRequired,
   brands: PropTypes.array.isRequired,
   tags: PropTypes.array.isRequired,
   integrations: PropTypes.array.isRequired,
   onChangeConversation: PropTypes.func.isRequired,
-  counts: PropTypes.object.isRequired
+  counts: PropTypes.object.isRequired,
+  totalCount: PropTypes.number.isRequired
 };
 
-class Sidebar extends Component {
+class LeftSidebar extends Component {
   componentWillMount() {
     moment.updateLocale('en', {
       relativeTime: {
@@ -39,7 +41,7 @@ class Sidebar extends Component {
   renderSidebarHeader() {
     const { channels, counts } = this.props;
     return (
-      <Wrapper.Sidebar.Header>
+      <Sidebar.Header>
         <FilterPopover
           buttonText="# Channel"
           popoverTitle="Filter by channel"
@@ -49,14 +51,14 @@ class Sidebar extends Component {
         />
 
         <StatusFilterPopover counts={counts} />
-      </Wrapper.Sidebar.Header>
+      </Sidebar.Header>
     );
   }
 
   renderSidebarFooter() {
     const { brands, tags, counts, integrations } = this.props;
     return (
-      <Wrapper.Sidebar.Footer>
+      <Sidebar.Footer>
         <FilterPopover
           buttonText="Brand"
           fields={brands}
@@ -84,17 +86,17 @@ class Sidebar extends Component {
           placement="top"
           icon="pricetag"
         />
-      </Wrapper.Sidebar.Footer>
+      </Sidebar.Footer>
     );
   }
 
   render() {
-    const Sidebar = Wrapper.Sidebar;
-    const { conversations, onChangeConversation } = this.props;
-
-    // const { conversation } = this.props;
-    // const { integration = {} } = conversation;
-    // const { brand = {}, channels = [] } = integration;
+    const {
+      conversations,
+      onChangeConversation,
+      currentConversationId,
+      totalCount
+    } = this.props;
 
     return (
       <Sidebar
@@ -106,12 +108,15 @@ class Sidebar extends Component {
         <ConversationList
           conversations={conversations}
           onRowClick={onChangeConversation}
+          currentConversationId={currentConversationId}
         />
+
+        <LoadMore all={totalCount} />
       </Sidebar>
     );
   }
 }
 
-Sidebar.propTypes = propTypes;
+LeftSidebar.propTypes = propTypes;
 
-export default Sidebar;
+export default LeftSidebar;

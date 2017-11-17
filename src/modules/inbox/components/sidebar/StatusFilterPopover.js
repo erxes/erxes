@@ -4,7 +4,7 @@ import { withRouter } from 'react-router';
 import { OverlayTrigger, Popover } from 'react-bootstrap';
 import { Icon, Button } from 'modules/common/components';
 import { SidebarList, SidebarCounter } from 'modules/layout/styles';
-import { PopoverButton } from '../styles';
+import { PopoverButton } from '../../styles';
 import { router } from 'modules/common/utils';
 
 const propTypes = {

@@ -4,8 +4,8 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import moment from 'moment';
 import classNames from 'classnames';
-import { NameCard, Table } from 'modules/common/components';
-import { MessageItem, MessageBody, FormTable } from './styles';
+import { NameCard, Table, Tip, Attachment } from 'modules/common/components';
+import { MessageItem, MessageBody, MessageContent, FormTable } from './styles';
 
 const propTypes = {
   message: PropTypes.object.isRequired,
@@ -67,7 +67,7 @@ function Message({ message, staff, isSameUser }) {
   const renderAttachment = () => {
     if (hasAttachment) {
       // TODO: render Attachment
-      return null;
+      return <Attachment attachment={message.attachments[0]} />;
     }
 
     if (isPhotoPost) {
@@ -113,14 +113,21 @@ function Message({ message, staff, isSameUser }) {
       );
     }
 
+    const messageDate = message.createdAt;
+
     return (
       <MessageItem staff={staff} className={classes}>
         {renderAvatar()}
-        <MessageBody staff={staff} internal={message.internal}>
-          <span dangerouslySetInnerHTML={{ __html: message.content }} />
+        <MessageBody staff={staff}>
+          <MessageContent staff={staff} internal={message.internal}>
+            <span dangerouslySetInnerHTML={{ __html: message.content }} />
 
-          {renderVideoIframe()}
-          {renderAttachment()}
+            {renderVideoIframe()}
+            {renderAttachment()}
+          </MessageContent>
+          <Tip text={moment(messageDate).format('lll')}>
+            <footer>{moment(messageDate).format('LT')}</footer>
+          </Tip>
         </MessageBody>
       </MessageItem>
     );

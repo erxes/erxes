@@ -17,6 +17,7 @@ import {
 } from '../styles';
 
 const propTypes = {
+  history: PropTypes.object,
   insights: PropTypes.array.isRequired,
   trend: PropTypes.array.isRequired,
   brands: PropTypes.array.isRequired,
@@ -53,6 +54,7 @@ class VolumeReport extends React.Component {
       insights,
       summary,
       brands,
+      history,
       isLoading,
       queryParams
     } = this.props;
@@ -68,7 +70,7 @@ class VolumeReport extends React.Component {
 
     return (
       <InsightWrapper>
-        <Filter brands={brands} queryParams={queryParams} />
+        <Filter history={history} brands={brands} queryParams={queryParams} />
         <InsightContent>
           <InsightRow>
             {this.renderTitle('Volume summary')}

@@ -1,4 +1,4 @@
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 import { colors, dimensions } from '../../styles';
 
 const ConversationItems = styled.ul`
@@ -7,34 +7,27 @@ const ConversationItems = styled.ul`
   list-style: none;
 `;
 
-const RowItem = styled.div`
-  padding: ${dimensions.coreSpacing}px;
-  display: flex;
-  flex-direction: row;
-  border-bottom: 1px solid ${colors.borderPrimary};
-  transition: all ease 0.3s;
-
-  &:hover {
-    background: ${colors.bgLight};
-    cursor: pointer;
-  }
-`;
-
 const RowContent = styled.div`
   flex: 1;
   display: flex;
   flex-direction: row;
+
+  > div {
+    margin: 0;
+    align-self: center;
+
+    &:first-of-type {
+      display: none;
+    }
+  }
 `;
 
 const FlexContent = styled.div`
   flex: 1;
+  transition: all ease 0.3s;
 
-  span {
-    margin-top: ${dimensions.unitSpacing}px;
-  }
-
-  > span + span {
-    margin-left: 5px;
+  .tags {
+    margin-top: 10px;
   }
 `;
 
@@ -45,9 +38,11 @@ const CheckBox = styled.div`
 
 const MainInfo = styled.div`
   overflow: hidden;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
 
-  a {
-    float: left;
+  > span {
     margin-right: ${dimensions.unitSpacing}px;
   }
 `;
@@ -63,13 +58,37 @@ const SmallText = styled.div`
 
 const MessageContent = styled.div`
   margin-top: ${dimensions.unitSpacing}px;
-  font-weight: ${props => !props.isRead && '400'};
   word-break: break-word;
   overflow: hidden;
   word-wrap: break-word;
   display: -webkit-box;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 1;
+`;
+
+const RowItem = styled.li`
+  padding: ${dimensions.coreSpacing}px;
+  display: flex;
+  flex-direction: row;
+  border-bottom: 1px solid ${colors.borderPrimary};
+  transition: all ease 0.3s;
+
+  background: ${props => props.isActive && colors.bgActive};
+
+  ${props =>
+    !props.isRead &&
+    css`
+      background: ${colors.bgUnread};
+
+      ${MessageContent} {
+        font-weight: 600;
+      }
+    `};
+  &:hover {
+    background: ${props =>
+      !props.isRead || props.isActive ? '' : colors.bgLight};
+    cursor: pointer;
+  }
 `;
 
 export {

@@ -1,12 +1,13 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { compose, gql, graphql } from 'react-apollo';
-import { TAG_TYPES } from 'modules/tags/constants';
-import { LeftSidebar as LeftSidebarComponent } from '../components';
-import { Wrapper } from 'modules/layout/components';
+import { Sidebar } from 'modules/layout/components';
 import { Spinner } from 'modules/common/components';
-import { queries, subscriptions } from '../graphql';
+import { TAG_TYPES } from 'modules/tags/constants';
 import { KIND_CHOICES as INTEGRATIONS_TYPES } from 'modules/settings/integrations/constants';
+import { LeftSidebar as LeftSidebarComponent } from '../components';
+import { queries, subscriptions } from '../graphql';
+import { generateParams } from '../utils';
 
 class LeftSidebar extends Component {
   componentWillMount() {
@@ -26,7 +27,8 @@ class LeftSidebar extends Component {
       channelsQuery,
       brandsQuery,
       tagsQuery,
-      conversationCountsQuery
+      conversationCountsQuery,
+      totalCountQuery
     } = this.props;
 
     if (
@@ -34,12 +36,13 @@ class LeftSidebar extends Component {
       channelsQuery.loading ||
       brandsQuery.loading ||
       tagsQuery.loading ||
-      conversationCountsQuery.loading
+      conversationCountsQuery.loading ||
+      totalCountQuery.loading
     ) {
       return (
-        <Wrapper.Sidebar wide full>
+        <Sidebar wide full>
           <Spinner />
-        </Wrapper.Sidebar>
+        </Sidebar>
       );
     }
 
@@ -53,6 +56,7 @@ class LeftSidebar extends Component {
     const brands = brandsQuery.brands || [];
     const tags = tagsQuery.tags || [];
     const counts = conversationCountsQuery.conversationCounts || {};
+    const totalCount = totalCountQuery.conversationsTotalCount;
 
     const updatedProps = {
       ...this.props,
@@ -61,7 +65,8 @@ class LeftSidebar extends Component {
       integrations,
       brands,
       tags,
-      counts
+      counts,
+      totalCount
     };
 
     return <LeftSidebarComponent {...updatedProps} />;
@@ -73,34 +78,34 @@ LeftSidebar.propTypes = {
   channelsQuery: PropTypes.object,
   brandsQuery: PropTypes.object,
   tagsQuery: PropTypes.object,
+  totalCountQuery: PropTypes.object,
   conversationCountsQuery: PropTypes.object
 };
 
-const generateParams = queryParams => ({
-  limit: queryParams.limit,
-  channelId: queryParams.channelId,
-  status: queryParams.status,
-  unassigned: queryParams.unassigned,
-  brandId: queryParams.brandId,
-  tag: queryParams.tag,
-  integrationType: queryParams.integrationType,
-  participating: queryParams.participating,
-  starred: queryParams.starred
+const generateOptions = queryParams => ({
+  ...queryParams,
+  limit: queryParams.limit || 20
 });
 
 export default compose(
   graphql(gql(queries.conversationList), {
     name: 'conversationsQuery',
     options: ({ queryParams }) => ({
+      notifyOnNetworkStatusChange: true,
       variables: generateParams(queryParams)
     })
   }),
   graphql(gql(queries.channelList), {
-    name: 'channelsQuery'
+    name: 'channelsQuery',
+    options: () => ({
+      notifyOnNetworkStatusChange: true,
+      fetchPolicy: 'network-only'
+    })
   }),
   graphql(gql(queries.brandList), {
     name: 'brandsQuery',
     options: () => ({
+      notifyOnNetworkStatusChange: true,
       fetchPolicy: 'network-only'
     })
   }),
@@ -111,13 +116,22 @@ export default compose(
         variables: {
           type: TAG_TYPES.CONVERSATION
         },
+        notifyOnNetworkStatusChange: true,
         fetchPolicy: 'network-only'
       };
     }
   }),
+  graphql(gql(queries.totalConversationsCount), {
+    name: 'totalCountQuery',
+    options: ({ queryParams }) => ({
+      notifyOnNetworkStatusChange: true,
+      variables: generateOptions(queryParams)
+    })
+  }),
   graphql(gql(queries.conversationCounts), {
     name: 'conversationCountsQuery',
     options: ({ queryParams }) => ({
+      notifyOnNetworkStatusChange: true,
       variables: generateParams(queryParams)
     })
   })

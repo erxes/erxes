@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import moment from 'moment';
 import strip from 'strip';
-import { NameCard, Label } from '../';
+import { NameCard, FormControl, Tags } from '../';
 import {
   RowItem,
   RowContent,
@@ -18,6 +18,7 @@ const propTypes = {
   conversation: PropTypes.object.isRequired,
   channelId: PropTypes.string,
   isRead: PropTypes.bool,
+  isActive: PropTypes.bool,
   onClick: PropTypes.func,
   toggleBulk: PropTypes.func
 };
@@ -45,19 +46,19 @@ class Row extends Component {
   }
 
   renderCheckbox() {
-    if (!this.props.toggleBulk) {
+    if (this.props.toggleBulk) {
       return null;
     }
 
     return (
       <CheckBox>
-        <input type="checkbox" onChange={this.toggleBulk} />
+        <FormControl componentClass="checkbox" onChange={this.toggleBulk} />
       </CheckBox>
     );
   }
 
   render() {
-    const { conversation, isRead } = this.props;
+    const { conversation, isRead, isActive } = this.props;
     const { createdAt, content } = conversation;
     const customer = conversation.customer || {};
     const integration = conversation.integration || {};
@@ -65,35 +66,28 @@ class Row extends Component {
     const brandName = brand.name;
     const tags = conversation.tags || [];
     const isExistingCustomer = customer && customer._id;
-    const user = conversation.user;
 
     return (
-      <RowItem onClick={this.onClick}>
+      <RowItem onClick={this.onClick} isActive={isActive} isRead={isRead}>
         <RowContent>
           {this.renderCheckbox()}
           <FlexContent>
             <MainInfo>
-              {(isExistingCustomer && customer.name) ||
-              (isExistingCustomer && customer.email) ||
-              (isExistingCustomer && customer.phone) ? (
-                <NameCard.Avatar size={40} user={user} />
-              ) : null}
-
+              {isExistingCustomer && (
+                <NameCard.Avatar size={40} customer={customer} />
+              )}
               <FlexContent>
                 <CustomerName>
-                  {isExistingCustomer && customer.name}
+                  {isExistingCustomer &&
+                    (customer.name || customer.email || customer.phone)}
                 </CustomerName>
                 <SmallText>
                   to {brandName} via {integration && integration.kind}
                 </SmallText>
               </FlexContent>
             </MainInfo>
-            <MessageContent isRead={isRead}>{strip(content)}</MessageContent>
-            {tags.map(t => (
-              <Label key={t._id} style={{ background: t.colorCode }}>
-                {t.name}
-              </Label>
-            ))}
+            <MessageContent>{strip(content)}</MessageContent>
+            <Tags tags={tags} limit={3} />
           </FlexContent>
         </RowContent>
         <SmallText>

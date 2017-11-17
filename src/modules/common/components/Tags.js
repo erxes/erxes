@@ -1,30 +1,44 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import styled from 'styled-components';
+import { colors, dimensions } from 'modules/common/styles';
 import { Label } from 'modules/common/components';
 
-const SIZES = ['small', 'medium', 'large'];
+const TagList = styled.div.attrs({
+  className: props => props.length > 0 && 'tags'
+})`
+  > span {
+    margin-right: ${dimensions.unitSpacing / 2}px;
 
-const propTypes = {
-  tags: PropTypes.array.isRequired,
-  size: PropTypes.oneOf(SIZES)
-};
+    &:last-child {
+      margin: 0;
+    }
+  }
+`;
 
-function Tags({ tags, size }) {
+function Tags({ tags, limit }) {
+  const length = tags.length;
+
   return (
-    <div className="tags">
-      {tags.map(tag => (
-        <Label
-          key={tag.name}
-          style={{ backgroundColor: tag.colorCode }}
-          className={size}
-        >
+    <TagList length={length}>
+      {tags.slice(0, limit ? limit : length).map(tag => (
+        <Label key={tag.name} style={{ backgroundColor: tag.colorCode }}>
           {tag.name}
         </Label>
       ))}
-    </div>
+      {limit &&
+        length - limit > 0 && (
+          <Label style={{ backgroundColor: colors.colorCoreLightGray }}>
+            {`+${length - limit}`}
+          </Label>
+        )}
+    </TagList>
   );
 }
 
-Tags.propTypes = propTypes;
+Tags.propTypes = {
+  tags: PropTypes.array.isRequired,
+  limit: PropTypes.number
+};
 
 export default Tags;

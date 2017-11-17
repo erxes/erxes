@@ -25,7 +25,7 @@ const FirstLine = styled.a`
 `;
 
 const SecondLine = styled.div`
-  font-size: 13px;
+  font-size: 12px;
   color: ${colors.colorLightGray};
 `;
 
@@ -35,8 +35,7 @@ function NameCard({
   firstLine,
   secondLine,
   singleLine,
-  avatarSize,
-  url
+  avatarSize
 }) {
   let first;
   let second;
@@ -56,7 +55,7 @@ function NameCard({
     <NameCardStyled>
       <Avatar user={user} customer={customer} size={avatarSize} />
       <NameCardText>
-        <FirstLine href={url ? url : '#'}>{first}</FirstLine>
+        <FirstLine>{first}</FirstLine>
         <SecondLine>{second}</SecondLine>
       </NameCardText>
     </NameCardStyled>

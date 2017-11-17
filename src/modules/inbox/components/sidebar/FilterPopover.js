@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { withRouter } from 'react-router';
 import { OverlayTrigger, Popover } from 'react-bootstrap';
 import { FilterByParams, Icon, Button } from 'modules/common/components';
-import { PopoverButton } from '../styles';
+import { PopoverButton } from '../../styles';
 import { router } from 'modules/common/utils';
 
 const propTypes = {

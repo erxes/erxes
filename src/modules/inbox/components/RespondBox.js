@@ -1,19 +1,17 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Checkbox, ControlLabel } from 'react-bootstrap';
-import { Button, Icon } from 'modules/common/components';
+import { Button, Icon, Tip, FormControl } from 'modules/common/components';
 import { Alert, uploadHandler } from 'modules/common/utils';
 import { ResponseTemplate } from '../containers';
 import Editor from './Editor';
 import {
   RespondBoxStyled,
-  ReplyFormFooter,
+  EditorActions,
   Attachment,
   AttachmentPreview,
   AttachmentIndicator,
   PreviewImg,
-  FileName,
-  FileSize
+  FileName
 } from '../styles';
 
 const propTypes = {
@@ -45,7 +43,7 @@ class RespondBox extends Component {
     // on shift + enter press in editor
     this.onShifEnter = this.onShifEnter.bind(this);
 
-    this.onSubmit = this.onSubmit.bind(this);
+    this.onSend = this.onSend.bind(this);
     this.toggleForm = this.toggleForm.bind(this);
     this.handleFileInput = this.handleFileInput.bind(this);
     this.onSelectTemplate = this.onSelectTemplate.bind(this);
@@ -61,7 +59,7 @@ class RespondBox extends Component {
     this.setState({ mentionedUserIds });
   }
 
-  onSubmit(e) {
+  onSend(e) {
     e.preventDefault();
 
     this.addMessage();
@@ -75,7 +73,7 @@ class RespondBox extends Component {
       responseTemplate: responseTemplate.content,
 
       // set attachment from response template files
-      attachments: responseTemplate.files
+      attachments: responseTemplate.files || []
     });
   }
 
@@ -96,10 +94,12 @@ class RespondBox extends Component {
 
       afterUpload: ({ response, fileInfo }) => {
         // set attachments
-        this.state.attachments.push(
-          Object.assign({ url: response.url }, fileInfo)
-        );
-
+        this.setState({
+          attachments: [
+            ...this.state.attachments,
+            Object.assign({ url: response }, fileInfo)
+          ]
+        });
         // remove preview
         this.props.setAttachmentPreview(null);
       },
@@ -126,7 +126,7 @@ class RespondBox extends Component {
 
     sendMessage(message, error => {
       if (error) {
-        return Alert.error(error.reason);
+        return Alert.error(error.message);
       }
 
       // clear attachments
@@ -145,25 +145,50 @@ class RespondBox extends Component {
     });
   }
 
+  renderIncicator() {
+    const attachments = this.state.attachments;
+    if (attachments.length > 0) {
+      return (
+        <AttachmentIndicator>
+          {attachments.map(attachment => (
+            <Attachment key={attachment.name}>
+              <AttachmentPreview>
+                {attachment.type.startsWith('image') && (
+                  <PreviewImg
+                    style={{ backgroundImage: `url('${attachment.url}')` }}
+                  />
+                )}
+              </AttachmentPreview>
+              <FileName>{attachment.name}</FileName>
+              <div>({Math.round(attachment.size / 1000)}kB)</div>
+            </Attachment>
+          ))}
+        </AttachmentIndicator>
+      );
+    }
+
+    return null;
+  }
+
   render() {
     const { isInternal, responseTemplate } = this.state;
     const integration = this.props.conversation.integration || {};
 
     const Buttons = (
-      <ReplyFormFooter>
-        <Button
-          className="replyBtn"
-          type="submit"
-          btnStyle="success"
-          size="small"
+      <EditorActions>
+        <FormControl
+          className="toggle-message"
+          componentClass="checkbox"
+          onChange={this.toggleForm}
         >
-          <Icon icon="android-send" /> Send
-        </Button>
-
-        <ControlLabel className="replyBtn btnLink">
-          <Icon icon="android-attach" size={17} />
-          <input type="file" onChange={this.handleFileInput} />
-        </ControlLabel>
+          Internal note
+        </FormControl>
+        <Tip text="Attach file">
+          <label>
+            <Icon icon="android-attach" size={17} />
+            <input type="file" onChange={this.handleFileInput} />
+          </label>
+        </Tip>
 
         <ResponseTemplate
           brandId={integration.brandId}
@@ -171,60 +196,38 @@ class RespondBox extends Component {
           content={this.state.content}
           onSelect={this.onSelectTemplate}
         />
-      </ReplyFormFooter>
+
+        <Button onClick={this.onSend} btnStyle="success" size="small">
+          <Icon icon="android-send" /> Send
+        </Button>
+      </EditorActions>
     );
 
-    // after file upload show indicator
-    let attachmentsIndicator = null;
-
-    const attachments = this.state.attachments || [];
-    const attachmentsCount = attachments.length;
-
-    if (attachmentsCount > 0) {
-      attachmentsIndicator = (
-        <AttachmentIndicator>
-          {attachments.map(attachment => (
-            <Attachment key={attachment.name}>
-              <AttachmentPreview>
-                <PreviewImg
-                  style={{ backgroundImage: `url('${attachment.url}')` }}
-                />
-              </AttachmentPreview>
-              <FileName>{attachment.name}</FileName>
-              <FileSize>({Math.round(attachment.size / 1000)}kB)</FileSize>
-            </Attachment>
-          ))}
-        </AttachmentIndicator>
-      );
-    }
-
-    let formId = 'reply-form';
-    let placeholder = 'Type your message here...';
+    let type = 'message';
 
     if (isInternal) {
-      formId = 'internal-note-form';
-      placeholder = 'Type your note here...';
+      type = 'note';
     }
 
+    let placeholder = `To send your ${
+      type
+    } press [Enter] and [Shift + Enter] to add a new line …`;
+
     return (
-      <RespondBoxStyled>
-        <Checkbox onChange={this.toggleForm}>Internal note</Checkbox>
+      <RespondBoxStyled isInternal={isInternal}>
+        <Editor
+          key={this.state.editorKey}
+          onChange={this.onEditorContentChange}
+          onAddMention={this.onAddMention}
+          onShifEnter={this.onShifEnter}
+          placeholder={placeholder}
+          mentions={this.props.teamMembers}
+          showMentions={isInternal}
+          responseTemplate={responseTemplate}
+        />
 
-        <form id={formId} onSubmit={this.onSubmit}>
-          <Editor
-            key={this.state.editorKey}
-            onChange={this.onEditorContentChange}
-            onAddMention={this.onAddMention}
-            onShifEnter={this.onShifEnter}
-            placeholder={placeholder}
-            mentions={this.props.teamMembers}
-            showMentions={isInternal}
-            responseTemplate={responseTemplate}
-          />
-
-          {attachmentsIndicator}
-          {Buttons}
-        </form>
+        {this.renderIncicator()}
+        {Buttons}
       </RespondBoxStyled>
     );
   }

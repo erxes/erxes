@@ -97,7 +97,6 @@ const engageMessagesTotalCount = `
 
 const customerCounts = `
   query customerCounts(
-    $limit: Int,
     $page: Int,
     $perPage: Int,
     $segment: String,
@@ -105,7 +104,6 @@ const customerCounts = `
     $ids: [String]
   ) {
     customerCounts(
-      limit: $limit,
       page: $page,
       perPage: $perPage,
       segment: $segment,

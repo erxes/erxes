@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import D3PunchCard from 'd3-punchcard';
+import D3PunchCard from 'bat-d3-punchcard';
 import { ChartWrapper } from '../styles';
 
 const propTypes = {

@@ -1,6 +1,5 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { withRouter } from 'react-router';
 import { QuickNavigation } from '../components';
 import consts from 'consts';
 
@@ -15,7 +14,12 @@ const QuickNavigationContainer = (props, { currentUser }) => {
     window.location.href = '/';
   };
 
-  const updatedProps = { ...props, logout, currentUser };
+  const updatedProps = {
+    ...props,
+
+    logout,
+    currentUser
+  };
 
   return <QuickNavigation {...updatedProps} />;
 };
@@ -28,4 +32,4 @@ QuickNavigationContainer.contextTypes = {
   currentUser: PropTypes.object
 };
 
-export default withRouter(QuickNavigationContainer);
+export default QuickNavigationContainer;

@@ -19,6 +19,11 @@ function Sidebar() {
             <Link to="/insights/response-report">Response Report</Link>
           </li>
           <li>
+            <Link to="/insights/response-close-report">
+              Response Close Report
+            </Link>
+          </li>
+          <li>
             <Link to="/insights/first-response">First Response Report</Link>
           </li>
         </SidebarList>

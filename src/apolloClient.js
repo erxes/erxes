@@ -2,14 +2,16 @@ import { ApolloClient, createNetworkInterface } from 'react-apollo';
 import { SubscriptionClient } from 'subscriptions-transport-ws';
 import { addGraphQLSubscriptions } from 'add-graphql-subscriptions';
 
-const { REACT_APP_SERVER_URL, REACT_APP_SUBSCRIPTION_SERVER_URL } = process.env;
+const { REACT_APP_API_URL, REACT_APP_API_SUBSCRIPTION_URL } = process.env;
 
-const wsClient = new SubscriptionClient(REACT_APP_SUBSCRIPTION_SERVER_URL, {
+const wsClient = new SubscriptionClient(REACT_APP_API_SUBSCRIPTION_URL, {
   reconnect: true
 });
 
 // Create a normal network interface:
-const networkInterface = createNetworkInterface({ uri: REACT_APP_SERVER_URL });
+const networkInterface = createNetworkInterface({
+  uri: `${REACT_APP_API_URL}/graphql`
+});
 
 // Attach user credentials
 networkInterface.use([
