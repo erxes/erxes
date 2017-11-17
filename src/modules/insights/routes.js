@@ -2,17 +2,42 @@ import React from 'react';
 import { Route } from 'react-router-dom';
 import queryString from 'query-string';
 import { MainLayout } from '../layout/containers';
-import { VolumeReport, ResponseReport, FirstResponse } from './containers';
+import {
+  VolumeReport,
+  ResponseReport,
+  FirstResponse,
+  ResponseCloseReport
+} from './containers';
 
 const routes = () => [
   <Route
     key="/insights/response-report"
     exact
     path="/insights/response-report"
-    component={({ location }) => {
+    component={({ history, location }) => {
       const queryParams = queryString.parse(location.search);
       return (
-        <MainLayout content={<ResponseReport queryParams={queryParams} />} />
+        <MainLayout
+          content={
+            <ResponseReport history={history} queryParams={queryParams} />
+          }
+        />
+      );
+    }}
+  />,
+
+  <Route
+    key="/insights/response-close-report"
+    exact
+    path="/insights/response-close-report"
+    component={({ history, location }) => {
+      const queryParams = queryString.parse(location.search);
+      return (
+        <MainLayout
+          content={
+            <ResponseCloseReport history={history} queryParams={queryParams} />
+          }
+        />
       );
     }}
   />,
@@ -21,10 +46,14 @@ const routes = () => [
     key="/insights/first-response"
     exact
     path="/insights/first-response"
-    component={({ location }) => {
+    component={({ history, location }) => {
       const queryParams = queryString.parse(location.search);
       return (
-        <MainLayout content={<FirstResponse queryParams={queryParams} />} />
+        <MainLayout
+          content={
+            <FirstResponse history={history} queryParams={queryParams} />
+          }
+        />
       );
     }}
   />,
@@ -33,10 +62,12 @@ const routes = () => [
     key="/insights"
     exact
     path="/insights"
-    component={({ location }) => {
+    component={({ history, location }) => {
       const queryParams = queryString.parse(location.search);
       return (
-        <MainLayout content={<VolumeReport queryParams={queryParams} />} />
+        <MainLayout
+          content={<VolumeReport history={history} queryParams={queryParams} />}
+        />
       );
     }}
   />

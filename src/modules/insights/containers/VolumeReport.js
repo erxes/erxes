@@ -6,6 +6,7 @@ import { queries } from '../graphql';
 
 const VolumeReportContainer = props => {
   const {
+    history,
     volumePieChartQuery,
     brandsQuery,
     punchCardQuery,
@@ -15,6 +16,7 @@ const VolumeReportContainer = props => {
 
   const data = mainQuery.insightsMain || {};
   const updatedProps = {
+    history,
     queryParams,
     insights: volumePieChartQuery.insights || [],
     trend: data.trend || [],
@@ -32,6 +34,7 @@ const VolumeReportContainer = props => {
 };
 
 VolumeReportContainer.propTypes = {
+  history: PropTypes.object,
   queryParams: PropTypes.object,
   volumePieChartQuery: PropTypes.object,
   brandsQuery: PropTypes.object,

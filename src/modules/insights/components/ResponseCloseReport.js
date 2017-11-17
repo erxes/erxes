@@ -5,15 +5,14 @@ import { Spinner } from 'modules/common/components';
 import Sidebar from './Sidebar';
 import Filter from './Filter';
 import Chart from './Chart';
-import Summary from './Summary';
 import TeamMembers from './TeamMembers';
-import PunchCard from './PunchCard';
+import { convertTime } from '../utils';
 import {
-  InsightTitle,
   InsightWrapper,
+  InsightRow,
   InsightContent,
-  FullLoader,
-  InsightRow
+  InsightTitle,
+  FullLoader
 } from '../styles';
 
 const propTypes = {
@@ -21,13 +20,12 @@ const propTypes = {
   trend: PropTypes.array.isRequired,
   teamMembers: PropTypes.array.isRequired,
   brands: PropTypes.array.isRequired,
-  punch: PropTypes.array.isRequired,
-  summary: PropTypes.array.isRequired,
+  time: PropTypes.number,
   queryParams: PropTypes.object,
-  isLoading: PropTypes.bool.isRequired
+  isLoading: PropTypes.bool
 };
 
-class ResponseReport extends React.Component {
+class ResponseCloseReport extends React.Component {
   constructor(props) {
     super(props);
 
@@ -43,17 +41,21 @@ class ResponseReport extends React.Component {
     }
   }
 
-  renderTitle(title) {
-    return <InsightTitle>{title}</InsightTitle>;
+  renderTitle(title, time) {
+    return (
+      <InsightTitle>
+        {title}
+        <span>({time})</span>
+      </InsightTitle>
+    );
   }
 
   mainContent() {
     const {
       trend,
       teamMembers,
-      punch,
-      summary,
       brands,
+      time,
       history,
       isLoading,
       queryParams
@@ -72,29 +74,23 @@ class ResponseReport extends React.Component {
       <InsightWrapper>
         <Filter history={history} brands={brands} queryParams={queryParams} />
         <InsightContent>
-          <InsightRow>
-            {this.renderTitle('Response Times summary')}
-            <Summary data={summary} />
-          </InsightRow>
-
           <InsightRow
             innerRef={node => {
               this.wrapper = node;
             }}
           >
-            {this.renderTitle('Response Trend')}
+            {this.renderTitle(
+              'Daily Response Close Resolve Rate',
+              convertTime(time)
+            )}
             <Chart width={width} height={300} data={trend} />
           </InsightRow>
 
-          {width !== 600 ? (
-            <InsightRow>
-              {this.renderTitle('Punch card')}
-              <PunchCard data={punch} width={width} />
-            </InsightRow>
-          ) : null}
-
           <InsightRow>
-            {this.renderTitle('Response by team members')}
+            {this.renderTitle(
+              'Daily Response Close Resolve Rate by Team Members',
+              convertTime(time)
+            )}
             <TeamMembers datas={teamMembers} width={width} />
           </InsightRow>
         </InsightContent>
@@ -105,7 +101,7 @@ class ResponseReport extends React.Component {
   render() {
     const breadcrumb = [
       { title: 'Insights', link: '/insight' },
-      { title: 'Response Report' }
+      { title: 'Response Close Report' }
     ];
 
     return (
@@ -119,6 +115,6 @@ class ResponseReport extends React.Component {
   }
 }
 
-ResponseReport.propTypes = propTypes;
+ResponseCloseReport.propTypes = propTypes;
 
-export default ResponseReport;
+export default ResponseCloseReport;

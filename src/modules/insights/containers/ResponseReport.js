@@ -5,10 +5,17 @@ import { ResponseReport } from '../components';
 import { queries } from '../graphql';
 
 const ResponseReportContainer = props => {
-  const { brandsQuery, punchCardQuery, mainQuery, queryParams } = props;
+  const {
+    brandsQuery,
+    history,
+    punchCardQuery,
+    mainQuery,
+    queryParams
+  } = props;
 
   const data = mainQuery.insightsMain || {};
   const updatedProps = {
+    history,
     queryParams,
     trend: data.trend || [],
     teamMembers: data.teamMembers || [],
@@ -23,6 +30,7 @@ const ResponseReportContainer = props => {
 };
 
 ResponseReportContainer.propTypes = {
+  history: PropTypes.object,
   queryParams: PropTypes.object,
   brandsQuery: PropTypes.object,
   punchCardQuery: PropTypes.object,

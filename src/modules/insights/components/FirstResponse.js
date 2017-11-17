@@ -16,6 +16,7 @@ import {
 } from '../styles';
 
 const propTypes = {
+  history: PropTypes.object,
   trend: PropTypes.array.isRequired,
   teamMembers: PropTypes.array.isRequired,
   brands: PropTypes.array.isRequired,
@@ -55,6 +56,7 @@ class FirstResponse extends React.Component {
       teamMembers,
       brands,
       time,
+      history,
       isLoading,
       queryParams
     } = this.props;
@@ -70,7 +72,7 @@ class FirstResponse extends React.Component {
 
     return (
       <InsightWrapper>
-        <Filter brands={brands} queryParams={queryParams} />
+        <Filter history={history} brands={brands} queryParams={queryParams} />
         <InsightContent>
           <InsightRow
             innerRef={node => {
@@ -86,7 +88,8 @@ class FirstResponse extends React.Component {
 
           <InsightRow>
             {this.renderTitle(
-              'Daily First Response Resolve Rate by Team Members'
+              'Daily First Response Resolve Rate by Team Members',
+              convertTime(time)
             )}
             <TeamMembers datas={teamMembers} width={width} />
           </InsightRow>
