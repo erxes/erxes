@@ -1,17 +1,33 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import { colors } from 'modules/common/styles';
 
-const AvatarStyled = styled.a`
+const AvatarStyled = styled.span`
   display: block;
   max-width: 80px;
   border-radius: 40px;
   float: left;
   padding: 0;
   text-align: center;
-  background: ${props => colors.colorArray[props.number]};
-  color: ${colors.colorWhite};
+  background: ${props =>
+    (props.isUser && colors.colorCoreGreen) ||
+    (props.messenger && colors.colorPrimary) ||
+    (props.twitter && colors.colorCoreYellow) ||
+    (props.facebook && colors.colorSecondary) ||
+    colors.colorCoreRed};
+
+  a {
+    color: ${colors.colorWhite};
+    display: block;
+    transition: all ease 0.3s;
+
+    &:hover {
+      color: ${colors.colorWhite};
+      opacity: 0.8;
+    }
+  }
 `;
 
 const DefaultAvatar = styled.div`
@@ -35,6 +51,23 @@ class Avatar extends Component {
     return <img src={src} alt={alt} style={this.generateStyle(size)} />;
   }
 
+  generateTypes() {
+    const { customer } = this.props;
+
+    if (customer) {
+      return {
+        isUser: customer.isUser,
+        messenger: customer.messengerData && true,
+        twitter: customer.twitterData && true,
+        facebook: customer.facebookData && true
+      };
+    }
+
+    return {
+      isUser: true
+    };
+  }
+
   renderInitials(fullName) {
     const { size } = this.props;
     const initials = fullName ? (
@@ -52,12 +85,9 @@ class Avatar extends Component {
   }
 
   render() {
-    const { user, customer, url = '#' } = this.props;
+    const { user, customer } = this.props;
     let avatar;
     let fullName;
-
-    // for random avatar color
-    const randomNumber = Math.floor(Math.random() * 5);
 
     if (user) {
       const { details } = user;
@@ -68,11 +98,15 @@ class Avatar extends Component {
       fullName = customer.name;
     }
 
+    const Element = customer ? Link : 'div';
+
     return (
-      <AvatarStyled number={randomNumber} href={url}>
-        {avatar
-          ? this.renderImage(avatar, fullName)
-          : this.renderInitials(fullName)}
+      <AvatarStyled {...this.generateTypes()}>
+        <Element to={customer && `/customers/details/${customer._id}`}>
+          {avatar
+            ? this.renderImage(avatar, fullName)
+            : this.renderInitials(fullName)}
+        </Element>
       </AvatarStyled>
     );
   }
@@ -81,8 +115,7 @@ class Avatar extends Component {
 Avatar.propTypes = {
   user: PropTypes.object,
   customer: PropTypes.object,
-  size: PropTypes.number,
-  url: PropTypes.string
+  size: PropTypes.number
 };
 
 export default Avatar;

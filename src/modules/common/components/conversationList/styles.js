@@ -16,7 +16,7 @@ const RowContent = styled.div`
 const FlexContent = styled.div`
   flex: 1;
 
-  span {
+  > span {
     margin-top: ${dimensions.unitSpacing}px;
   }
 
@@ -36,8 +36,7 @@ const MainInfo = styled.div`
   flex-direction: row;
   align-items: center;
 
-  a {
-    float: left;
+  > span {
     margin-right: ${dimensions.unitSpacing}px;
   }
 `;

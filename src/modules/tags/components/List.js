@@ -33,7 +33,7 @@ function List({ tags, type, remove, save }) {
       <Dropdown id="dropdown-engage" pullRight>
         <DropdownToggle bsRole="toggle">
           <Button btnStyle="simple" size="small">
-            Customize<Icon icon="ios-arrow-down" />
+            Customize <Icon icon="ios-arrow-down" />
           </Button>
         </DropdownToggle>
         <Dropdown.Menu>
@@ -60,6 +60,7 @@ function List({ tags, type, remove, save }) {
       <thead>
         <tr>
           <th>Name</th>
+          <th>Item counts</th>
           <th>Actions</th>
         </tr>
       </thead>
@@ -68,6 +69,7 @@ function List({ tags, type, remove, save }) {
           <Row
             key={tag._id}
             tag={tag}
+            count={tag.objectCount}
             type={type}
             save={save}
             remove={remove}
@@ -77,10 +79,7 @@ function List({ tags, type, remove, save }) {
     </Table>
   );
 
-  const breadcrumb = [
-    { title: 'Tags', link: '/tags' },
-    { title: 'conversation' }
-  ];
+  const breadcrumb = [{ title: 'Tags', link: '/tags' }, { title: type }];
 
   return (
     <Wrapper

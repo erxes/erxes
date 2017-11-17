@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { compose, gql, graphql } from 'react-apollo';
 import { Alert } from 'modules/common/utils';
+import { Spinner } from 'modules/common/components';
 import { Inbox as InboxComponent } from '../components';
 import { queries, mutations, subscriptions } from '../graphql';
 import { generateParams } from '../utils';
@@ -184,13 +185,13 @@ const LastConversation = props => {
   const { lastConversationQuery } = props;
 
   if (lastConversationQuery.loading) {
-    return null;
+    return <Spinner />;
   }
 
   const lastConversation = lastConversationQuery.conversationsGetLast;
 
   if (!lastConversation) {
-    return null;
+    return <Spinner />;
   }
 
   const currentConversationId = lastConversation._id;

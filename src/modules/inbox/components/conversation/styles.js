@@ -9,7 +9,7 @@ const MessageItem = styled.div`
   position: relative;
   clear: both;
 
-  > a {
+  > span {
     position: absolute;
   }
 

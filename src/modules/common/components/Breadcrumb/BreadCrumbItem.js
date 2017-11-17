@@ -7,6 +7,7 @@ import { rgba } from '../../styles/color';
 const Item = styled.li`
   display: inline-block;
   color: ${rgba(colors.colorWhite, 0.7)};
+  text-transform: capitalize;
 
   > a {
     text-decoration: none;
