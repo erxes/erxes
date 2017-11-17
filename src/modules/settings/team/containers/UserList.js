@@ -41,6 +41,7 @@ export default commonListComposer({
       name: 'listQuery',
       options: ({ queryParams }) => {
         return {
+          notifyOnNetworkStatusChange: true,
           variables: {
             page: queryParams.page,
             perPage: queryParams.perPage || 20
