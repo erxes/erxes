@@ -44,7 +44,9 @@ export const companyDetail = `
       ${companyFields}
 
       customers {
-        name
+        _id
+        firstName
+        lastName
         email
         phone
       }

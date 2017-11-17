@@ -5,6 +5,7 @@ import { GenerateField } from 'modules/fields/components';
 import { CustomerForm } from 'modules/customers/components';
 import { Link } from 'react-router-dom';
 import { SidebarContent } from 'modules/layout/styles';
+import { Alert } from 'modules/common/utils';
 import {
   ModalTrigger,
   Button,
@@ -13,6 +14,7 @@ import {
   FormControl,
   ControlLabel
 } from 'modules/common/components';
+import { CustomersWrapper, CustomerWrapper } from '../../styles';
 
 const propTypes = {
   company: PropTypes.object.isRequired,
@@ -25,31 +27,81 @@ class LeftSidebar extends React.Component {
   constructor(props) {
     super(props);
 
-    this.customFieldsData = { ...(props.company.customFieldsData || {}) };
+    this.defaultBasicinfos = {
+      ...(props.company || {})
+    };
 
-    this.onSubmit = this.onSubmit.bind(this);
-    this.onCustomFieldValueChange = this.onCustomFieldValueChange.bind(this);
+    this.defaultCustomFieldsData = {
+      ...(props.company.customFieldsData || {})
+    };
+
+    this.state = {
+      editing: false,
+      basicinfo: this.defaultBasicinfos,
+      fieldsdata: this.defaultCustomFieldsData
+    };
+
+    this.toggleEditing = this.toggleEditing.bind(this);
+    this.cancelEditing = this.cancelEditing.bind(this);
+    this.save = this.save.bind(this);
+    this.handleChange = this.handleChange.bind(this);
+    this.handleFieldsChange = this.handleFieldsChange.bind(this);
   }
 
-  onCustomFieldValueChange({ _id, value }) {
-    this.customFieldsData[_id] = value;
+  toggleEditing() {
+    this.cancelEditing();
+    this.setState({ editing: true });
   }
 
-  onSubmit(e) {
-    e.preventDefault();
-
-    this.props.save({
-      name: document.getElementById('name').value,
-      size: document.getElementById('size').value,
-      industry: document.getElementById('industry').value,
-      website: document.getElementById('website').value,
-      plan: document.getElementById('plan').value,
-      customFieldsData: this.customFieldsData
+  cancelEditing() {
+    this.setState({
+      editing: false,
+      basicinfo: this.defaultBasicinfos,
+      fieldsdata: this.defaultCustomFieldsData
     });
   }
 
+  save() {
+    const doc = {
+      name: this.state.basicinfo.name,
+      size: this.state.basicinfo.size,
+      industry: this.state.basicinfo.industry,
+      website: this.state.basicinfo.website,
+      plan: this.state.basicinfo.plan,
+      customFieldsData: this.state.fieldsdata
+    };
+
+    this.props.save(doc, error => {
+      if (error) return Alert.error(error.message);
+
+      this.defaultBasicinfos = this.state.basicinfo;
+      this.defaultCustomFieldsData = this.state.fieldsdata;
+      this.cancelEditing();
+      return Alert.success('Success');
+    });
+  }
+
+  handleChange(e, inputname) {
+    this.toggleEditing();
+    const { basicinfo } = this.state;
+    const newinfo = {
+      ...basicinfo,
+      [inputname]: e.target.value
+    };
+    this.setState({ basicinfo: newinfo });
+  }
+
+  handleFieldsChange({ _id, value }) {
+    this.toggleEditing();
+    const { fieldsdata } = this.state;
+    const newfields = {
+      ...fieldsdata,
+      [_id]: value
+    };
+    this.setState({ fieldsdata: newfields });
+  }
+
   renderBasicInfo() {
-    const { company } = this.props;
     const { Sidebar } = Wrapper;
     const { Section } = Sidebar;
     const { Title } = Section;
@@ -61,27 +113,48 @@ class LeftSidebar extends React.Component {
         <SidebarContent>
           <FormGroup>
             <ControlLabel>Name</ControlLabel>
-            <FormControl id="name" defaultValue={company.name} />
+            <FormControl
+              id="name"
+              onChange={e => this.handleChange(e, 'name')}
+              value={this.state.basicinfo.name}
+            />
           </FormGroup>
 
           <FormGroup>
             <ControlLabel>Size</ControlLabel>
-            <FormControl id="size" defaultValue={company.size} type="number" />
+            <FormControl
+              id="size"
+              type="number"
+              onChange={e => this.handleChange(e, 'size')}
+              value={this.state.basicinfo.size || ''}
+            />
           </FormGroup>
 
           <FormGroup>
             <ControlLabel>Industry</ControlLabel>
-            <FormControl id="industry" defaultValue={company.industry} />
+            <FormControl
+              id="industry"
+              onChange={e => this.handleChange(e, 'industry')}
+              value={this.state.basicinfo.industry || ''}
+            />
           </FormGroup>
 
           <FormGroup>
             <ControlLabel>Website</ControlLabel>
-            <FormControl id="website" defaultValue={company.website} />
+            <FormControl
+              id="website"
+              onChange={e => this.handleChange(e, 'website')}
+              value={this.state.basicinfo.website || ''}
+            />
           </FormGroup>
 
           <FormGroup>
             <ControlLabel>Plan</ControlLabel>
-            <FormControl id="plan" defaultValue={company.plan} />
+            <FormControl
+              id="plan"
+              onChange={e => this.handleChange(e, 'plan')}
+              value={this.state.basicinfo.plan || ''}
+            />
           </FormGroup>
         </SidebarContent>
       </Section>
@@ -89,31 +162,28 @@ class LeftSidebar extends React.Component {
   }
 
   renderCustomFields() {
-    const { company, customFields } = this.props;
-    const customFieldsData = company.customFieldsData || {};
+    const { customFields } = this.props;
     const { Sidebar } = Wrapper;
     const { Section } = Sidebar;
-    const { Title } = Section;
+    const { Title, QuickButtons } = Section;
 
     return (
       <Section className="full">
         <Title>About</Title>
-
+        <QuickButtons>
+          <Link to="/fields/manage/company">
+            <Icon icon="gear-a" />
+          </Link>
+        </QuickButtons>
         <SidebarContent>
           {customFields.map((field, index) => (
             <GenerateField
               field={field}
               key={index}
-              defaultValue={customFieldsData[field._id]}
-              onValueChange={this.onCustomFieldValueChange}
+              onValueChange={this.handleFieldsChange}
+              value={this.state.fieldsdata[field._id] || ''}
             />
           ))}
-
-          <Link to="/fields/manage/company">
-            <Button btnStyle="simple" size="small">
-              <Icon icon="gear-a" /> Customize
-            </Button>
-          </Link>
         </SidebarContent>
       </Section>
     );
@@ -123,49 +193,53 @@ class LeftSidebar extends React.Component {
     const { company, addCustomer } = this.props;
     const { Sidebar } = Wrapper;
     const { Section } = Sidebar;
-    const { Title } = Section;
+    const { Title, QuickButtons } = Section;
 
     return (
       <Section className="full">
         <Title>Customers</Title>
 
-        <SidebarContent>
-          {company.customers.map((customer, index) => (
-            <div key={index}>
-              <FormGroup>
-                <ControlLabel>Name:</ControlLabel>
-                <FormControl value={customer.name || 'N/A'} />
-              </FormGroup>
-            </div>
-          ))}
-
-          <ModalTrigger
-            title="New customer"
-            trigger={
-              <Button btnStyle="success" size="small">
-                <Icon icon="plus" /> Add customer
-              </Button>
-            }
-          >
+        <QuickButtons>
+          <ModalTrigger title="New Customer" trigger={<Icon icon="plus" />}>
             <CustomerForm addCustomer={addCustomer} />
           </ModalTrigger>
-        </SidebarContent>
+        </QuickButtons>
+        <CustomersWrapper>
+          {company.customers.map((customer, index) => (
+            <CustomerWrapper key={index}>
+              <Link to={'/customers/details/' + customer._id}>
+                <Icon icon="android-arrow-forward" />
+              </Link>
+              <span>Name: </span>
+              <span>
+                {customer.firstName + ' ' + customer.lastName || 'N/A'}
+              </span>
+            </CustomerWrapper>
+          ))}
+        </CustomersWrapper>
       </Section>
     );
   }
 
+  renderSidebarFooter() {
+    return this.state.editing ? (
+      <Wrapper.Sidebar.Footer>
+        <Button btnStyle="simple" size="small" onClick={this.cancelEditing}>
+          <Icon icon="close" />Discard
+        </Button>
+        <Button btnStyle="success" size="small" onClick={this.save}>
+          <Icon icon="checkmark" />Save
+        </Button>
+      </Wrapper.Sidebar.Footer>
+    ) : null;
+  }
+
   render() {
     return (
-      <Wrapper.Sidebar size="wide">
-        <form onSubmit={this.onSubmit} className="cc-detail-form">
-          {this.renderBasicInfo()}
-          {this.renderCustomers()}
-          {this.renderCustomFields()}
-
-          <Button type="submit" btnStyle="success">
-            <Icon icon="checkmark" /> Save changes
-          </Button>
-        </form>
+      <Wrapper.Sidebar size="wide" footer={this.renderSidebarFooter()}>
+        {this.renderBasicInfo()}
+        {this.renderCustomers()}
+        {this.renderCustomFields()}
       </Wrapper.Sidebar>
     );
   }

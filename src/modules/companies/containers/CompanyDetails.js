@@ -26,10 +26,14 @@ const CompanyDetailsContainer = (props, context) => {
     );
   }
 
-  const save = variables => {
-    companiesEdit({ variables: { _id: id, ...variables } }).then(() => {
-      Alert.success('Success');
-    });
+  const save = (variables, callback) => {
+    companiesEdit({ variables: { _id: id, ...variables } })
+      .then(() => {
+        callback();
+      })
+      .catch(e => {
+        callback(e);
+      });
   };
 
   const addCustomer = ({ doc, callback }) => {

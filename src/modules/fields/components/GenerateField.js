@@ -64,10 +64,15 @@ export default class GenerateField extends Component {
   }
 
   renderControl() {
-    const { field, defaultValue } = this.props; // eslint-disable-line
+    const { field, defaultValue, value } = this.props; // eslint-disable-line
     const { type, validation } = field;
     const options = field.options || [];
-    const attrs = { id: field._id, defaultValue, onChange: this.onChange };
+    const attrs = {
+      id: field._id,
+      defaultValue,
+      value,
+      onChange: this.onChange
+    };
 
     switch (type) {
       case 'select':
