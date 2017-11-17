@@ -689,12 +689,6 @@
   fill: #6638b3;
 }
 
-.popover {
-  border: 0;
-  border-radius: 4px;
-  box-shadow: 0 2px 10px -3px rgba(0, 0, 0, 0.5);
-  padding: 0;
-}
 .popover.bottom > .arrow {
   border-bottom-color: transparent;
 }
@@ -1183,62 +1177,6 @@ ss .full-loader [data-loader='circle-side'] {
 }
 .inline-header span {
   margin: 0 8px;
-}
-
-.file-wrapper {
-  position: relative;
-  padding: 16px 20px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  padding-left: 50px;
-  color: #555555;
-  min-width: 120px;
-  min-height: 55px;
-}
-.file-wrapper i {
-  font-size: 30px;
-  position: absolute;
-  left: 20px;
-  top: 12px;
-  line-height: 30px;
-  color: #8055ca;
-}
-.file-wrapper span {
-  white-space: nowrap;
-  text-overflow: ellipsis;
-  overflow: hidden;
-  direction: rtl;
-  text-align: left;
-  max-width: 200px;
-  display: block;
-}
-.file-wrapper:hover {
-  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.06);
-}
-
-.message.staff .download-attachment .file-size {
-  left: 0;
-  right: auto;
-}
-
-.paginate-wrapper {
-  display: table;
-  min-height: 100%;
-  width: 100%;
-}
-.paginate-wrapper .paginate-button {
-  text-align: center;
-  display: table-footer-group;
-}
-.paginate-wrapper .paginate-button > .btn {
-  width: 100%;
-  border: 0;
-  border-top: 1px solid #eeeeee;
-  text-transform: uppercase;
-  font-size: 12px;
-  font-weight: 400;
-  color: #888;
-  border-radius: 0;
 }
 
 .sidebar-section.full .paginate-wrapper {
