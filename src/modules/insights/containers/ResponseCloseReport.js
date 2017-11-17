@@ -1,13 +1,13 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { compose, gql, graphql } from 'react-apollo';
-import { FirstResponse } from '../components';
+import { ResponseCloseReport } from '../components';
 import { queries } from '../graphql';
 
-const FirstResponseReportContainer = props => {
-  const { brandsQuery, history, firstResponseQuery, queryParams } = props;
+const ResponseCloseReportContainer = props => {
+  const { brandsQuery, history, responseCloseQuery, queryParams } = props;
 
-  const data = firstResponseQuery.insightsFirstResponse || {};
+  const data = responseCloseQuery.insightsResponseClose || {};
   const updatedProps = {
     history,
     queryParams,
@@ -15,22 +15,22 @@ const FirstResponseReportContainer = props => {
     time: data.time,
     teamMembers: data.teamMembers || [],
     brands: brandsQuery.brands || [],
-    isLoading: brandsQuery.loading || firstResponseQuery.loading
+    isLoading: brandsQuery.loading || responseCloseQuery.loading
   };
 
-  return <FirstResponse {...updatedProps} />;
+  return <ResponseCloseReport {...updatedProps} />;
 };
 
-FirstResponseReportContainer.propTypes = {
+ResponseCloseReportContainer.propTypes = {
   queryParams: PropTypes.object,
   brandsQuery: PropTypes.object,
   history: PropTypes.object,
-  firstResponseQuery: PropTypes.object
+  responseCloseQuery: PropTypes.object
 };
 
 export default compose(
-  graphql(gql(queries.firstResponse), {
-    name: 'firstResponseQuery',
+  graphql(gql(queries.responseClose), {
+    name: 'responseCloseQuery',
     options: ({ queryParams }) => ({
       fetchPolicy: 'network-only',
       variables: {
@@ -42,4 +42,4 @@ export default compose(
     })
   }),
   graphql(gql(queries.brands), { name: 'brandsQuery' })
-)(FirstResponseReportContainer);
+)(ResponseCloseReportContainer);

@@ -8,6 +8,7 @@ import Summary from './Summary';
 import VolumeReport from './VolumeReport';
 import ResponseReport from './ResponseReport';
 import FirstResponse from './FirstResponse';
+import ResponseCloseReport from './ResponseCloseReport';
 
 export {
   Insights,
@@ -19,5 +20,6 @@ export {
   Summary,
   VolumeReport,
   ResponseReport,
-  FirstResponse
+  FirstResponse,
+  ResponseCloseReport
 };
