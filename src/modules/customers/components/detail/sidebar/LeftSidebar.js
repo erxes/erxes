@@ -179,7 +179,7 @@ class LeftSidebar extends React.Component {
               {isUser ? <Icon icon="checkmark" /> : <Icon icon="minus" />}
             </AvatarWrapper>
             <NameWrapper>
-              {this.state.basicinfo.firstName &&
+              {this.state.basicinfo.firstName ||
               this.state.basicinfo.lastName ? (
                 this.state.basicinfo.firstName +
                 ' ' +
