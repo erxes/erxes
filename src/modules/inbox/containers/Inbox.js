@@ -135,6 +135,7 @@ const ConversationDetail = compose(
     name: 'conversationDetailQuery',
     options: ({ currentConversationId }) => {
       return {
+        notifyOnNetworkStatusChange: true,
         variables: { _id: currentConversationId }
       };
     }
@@ -191,7 +192,7 @@ const LastConversation = props => {
   const lastConversation = lastConversationQuery.conversationsGetLast;
 
   if (!lastConversation) {
-    return <Spinner />;
+    return null;
   }
 
   const currentConversationId = lastConversation._id;
@@ -212,6 +213,7 @@ export default compose(
   graphql(gql(queries.lastConversation), {
     name: 'lastConversationQuery',
     options: ({ queryParams }) => ({
+      notifyOnNetworkStatusChange: true,
       variables: generateParams(queryParams)
     })
   })

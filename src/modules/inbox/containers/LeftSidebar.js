@@ -91,15 +91,21 @@ export default compose(
   graphql(gql(queries.conversationList), {
     name: 'conversationsQuery',
     options: ({ queryParams }) => ({
+      notifyOnNetworkStatusChange: true,
       variables: generateParams(queryParams)
     })
   }),
   graphql(gql(queries.channelList), {
-    name: 'channelsQuery'
+    name: 'channelsQuery',
+    options: () => ({
+      notifyOnNetworkStatusChange: true,
+      fetchPolicy: 'network-only'
+    })
   }),
   graphql(gql(queries.brandList), {
     name: 'brandsQuery',
     options: () => ({
+      notifyOnNetworkStatusChange: true,
       fetchPolicy: 'network-only'
     })
   }),
@@ -110,6 +116,7 @@ export default compose(
         variables: {
           type: TAG_TYPES.CONVERSATION
         },
+        notifyOnNetworkStatusChange: true,
         fetchPolicy: 'network-only'
       };
     }
@@ -117,12 +124,14 @@ export default compose(
   graphql(gql(queries.totalConversationsCount), {
     name: 'totalCountQuery',
     options: ({ queryParams }) => ({
+      notifyOnNetworkStatusChange: true,
       variables: generateOptions(queryParams)
     })
   }),
   graphql(gql(queries.conversationCounts), {
     name: 'conversationCountsQuery',
     options: ({ queryParams }) => ({
+      notifyOnNetworkStatusChange: true,
       variables: generateParams(queryParams)
     })
   })
