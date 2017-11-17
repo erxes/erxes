@@ -70,6 +70,7 @@ export default compose(
     name: 'mainQuery',
     options: ({ queryParams }) => ({
       fetchPolicy: 'network-only',
+      notifyOnNetworkStatusChange: true,
       variables: {
         type: 'volume',
         brandId: queryParams.brandId,

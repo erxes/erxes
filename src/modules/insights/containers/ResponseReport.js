@@ -54,6 +54,7 @@ export default compose(
     name: 'mainQuery',
     options: ({ queryParams }) => ({
       fetchPolicy: 'network-only',
+      notifyOnNetworkStatusChange: true,
       variables: {
         type: 'response',
         brandId: queryParams.brandId,

@@ -33,6 +33,7 @@ export default compose(
     name: 'firstResponseQuery',
     options: ({ queryParams }) => ({
       fetchPolicy: 'network-only',
+      notifyOnNetworkStatusChange: true,
       variables: {
         brandId: queryParams.brandId,
         integrationType: queryParams.integrationType,
