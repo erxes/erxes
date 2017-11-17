@@ -4,7 +4,7 @@ import insightQueries from '../data/resolvers/queries/insights';
 
 describe('insightQueries', () => {
   test(`test if Error('Login required') exception is working as intended`, async () => {
-    expect.assertions(4);
+    expect.assertions(5);
 
     const expectError = async func => {
       try {
@@ -18,5 +18,6 @@ describe('insightQueries', () => {
     expectError(insightQueries.insightsPunchCard);
     expectError(insightQueries.insightsMain);
     expectError(insightQueries.insightsFirstResponse);
+    expectError(insightQueries.insightsResponseClose);
   });
 });
