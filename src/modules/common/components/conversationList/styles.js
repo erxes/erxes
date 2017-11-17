@@ -11,17 +11,23 @@ const RowContent = styled.div`
   flex: 1;
   display: flex;
   flex-direction: row;
+
+  > div {
+    margin: 0;
+    align-self: center;
+
+    &:first-of-type {
+      display: none;
+    }
+  }
 `;
 
 const FlexContent = styled.div`
   flex: 1;
+  transition: all ease 0.3s;
 
-  > span {
-    margin-top: ${dimensions.unitSpacing}px;
-  }
-
-  > span + span {
-    margin-left: 5px;
+  .tags {
+    margin-top: 10px;
   }
 `;
 

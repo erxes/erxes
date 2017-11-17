@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { compose, gql, graphql } from 'react-apollo';
 import { Alert } from 'modules/common/utils';
 import { queries, mutations, subscriptions } from '../graphql';
-import { Loading } from 'modules/common/components';
+import { Spinner } from 'modules/common/components';
 import { NotificationsLatest } from '../components';
 
 class NotificationsLatestContainer extends React.Component {
@@ -21,7 +21,7 @@ class NotificationsLatestContainer extends React.Component {
     const { notificationsQuery, notificationsMarkAsReadMutation } = this.props;
 
     if (notificationsQuery.loading) {
-      return <Loading title="Notifications" />;
+      return <Spinner />;
     }
 
     const markAsRead = _ids => {

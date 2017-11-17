@@ -1,7 +1,13 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Wrapper } from 'modules/layout/components';
-import { Button, Label, Icon, TaggerPopover } from 'modules/common/components';
+import {
+  Button,
+  Label,
+  Icon,
+  TaggerPopover,
+  Tags
+} from 'modules/common/components';
 import { BarItems } from 'modules/layout/styles';
 import Conversation from './conversation/Conversation';
 import { LeftSidebar, RespondBox } from '../containers';
@@ -69,11 +75,7 @@ class Inbox extends Component {
     const tagTrigger = (
       <PopoverButton>
         {tags.length ? (
-          tags.slice(0, 1).map(t => (
-            <Label key={t._id} style={{ background: t.colorCode }}>
-              {t.name}
-            </Label>
-          ))
+          <Tags tags={tags} limit={1} />
         ) : (
           <Label lblStyle="default">no tags</Label>
         )}

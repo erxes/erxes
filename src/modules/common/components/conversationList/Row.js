@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import moment from 'moment';
 import strip from 'strip';
-import { NameCard, Label } from '../';
+import { NameCard, FormControl, Tags } from '../';
 import {
   RowItem,
   RowContent,
@@ -46,13 +46,13 @@ class Row extends Component {
   }
 
   renderCheckbox() {
-    if (!this.props.toggleBulk) {
+    if (this.props.toggleBulk) {
       return null;
     }
 
     return (
       <CheckBox>
-        <input type="checkbox" onChange={this.toggleBulk} />
+        <FormControl componentClass="checkbox" onChange={this.toggleBulk} />
       </CheckBox>
     );
   }
@@ -87,11 +87,7 @@ class Row extends Component {
               </FlexContent>
             </MainInfo>
             <MessageContent>{strip(content)}</MessageContent>
-            {tags.map(t => (
-              <Label key={t._id} style={{ background: t.colorCode }}>
-                {t.name}
-              </Label>
-            ))}
+            <Tags tags={tags} />
           </FlexContent>
         </RowContent>
         <SmallText>

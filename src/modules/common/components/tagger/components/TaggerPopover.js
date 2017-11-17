@@ -8,7 +8,7 @@ const propTypes = {
   targets: PropTypes.arrayOf(Object).isRequired,
   trigger: PropTypes.element.isRequired,
   afterSave: PropTypes.func,
-  container: PropTypes.element
+  container: PropTypes.node
 };
 
 function TaggerPopover({ targets, type, trigger, afterSave, container }) {
