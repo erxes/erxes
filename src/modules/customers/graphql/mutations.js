@@ -9,7 +9,8 @@ const customersAdd = `
 const customersEdit = `
   mutation customersEdit(
     $_id: String!,
-    $name: String,
+    $firstName: String,
+    $lastName: String,
     $email: String,
     $phone: String,
     $customFieldsData: JSON
@@ -17,13 +18,15 @@ const customersEdit = `
 
     customersEdit(
       _id: $_id,
-      name: $name,
+      firstName: $firstName,
+      lastName: $lastName,
       email: $email,
       phone: $phone,
       customFieldsData: $customFieldsData
     ) {
 
-      name
+      firstName
+      lastName
       email
       phone
     }
