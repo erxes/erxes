@@ -286,20 +286,24 @@ const TemplateContent = styled.div`
 `;
 
 const AttachmentIndicator = styled.div`
-  background: #ece6f8;
   display: flex;
   flex-direction: row;
+  margin: 0 15px;
+  color: ${rgba(colors.colorWhite, 0.7)};
 `;
 
 const Attachment = styled.div`
   display: flex;
   max-width: 220px;
-  padding: 4px;
+  padding: 5px;
   margin: 5px 0 5px 5px;
-  font-size: 13px;
-  border-radius: 4px;
+  font-size: 12px;
   background-color: ${colors.colorSecondary};
   align-items: center;
+
+  > div {
+    margin-right: 5px;
+  }
 `;
 
 const AttachmentPreview = styled.div`
@@ -311,7 +315,6 @@ const PreviewImg = styled.div`
   height: 26px;
   background-size: cover;
   background-position: 50%;
-  border-radius: 2px;
 `;
 
 const FileName = styled.div`
@@ -319,9 +322,6 @@ const FileName = styled.div`
   white-space: nowrap;
   text-overflow: ellipsis;
   margin-right: 5px;
-`;
-
-const FileSize = styled.div`
   color: ${colors.colorWhite};
 `;
 
@@ -349,6 +349,5 @@ export {
   AttachmentPreview,
   AttachmentIndicator,
   PreviewImg,
-  FileName,
-  FileSize
+  FileName
 };

@@ -4,7 +4,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import moment from 'moment';
 import classNames from 'classnames';
-import { NameCard, Table, Tip } from 'modules/common/components';
+import { NameCard, Table, Tip, Attachment } from 'modules/common/components';
 import { MessageItem, MessageBody, MessageContent, FormTable } from './styles';
 
 const propTypes = {
@@ -67,7 +67,7 @@ function Message({ message, staff, isSameUser }) {
   const renderAttachment = () => {
     if (hasAttachment) {
       // TODO: render Attachment
-      return null;
+      return <Attachment attachment={message.attachments[0]} />;
     }
 
     if (isPhotoPost) {

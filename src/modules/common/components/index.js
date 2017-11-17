@@ -1,3 +1,4 @@
+import Attachment from './Attachment';
 import NameCard from './nameCard/NameCard';
 import Button from './Button';
 import Label from './Label';
@@ -35,6 +36,7 @@ import ConfirmDialog from './ConfirmDialog';
 const pagination = {};
 
 export {
+  Attachment,
   ActionButtons,
   NameCard,
   Button,

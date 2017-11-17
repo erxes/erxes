@@ -1221,58 +1221,6 @@ ss .full-loader [data-loader='circle-side'] {
   right: auto;
 }
 
-.download-attachment {
-  display: inline-block;
-  position: relative;
-  cursor: pointer;
-  min-width: 160px;
-  -webkit-transition: all 0.2s ease;
-  -moz-transition: all 0.2s ease;
-  -ms-transition: all 0.2s ease;
-  -o-transition: all 0.2s ease;
-  transition: all 0.2s ease;
-}
-.download-attachment .overlay {
-  opacity: 0;
-  width: 100%;
-  height: 100%;
-  position: absolute;
-  background: rgba(0, 0, 0, 0.5);
-  border-radius: 4px;
-  left: 0;
-  top: 0;
-  -webkit-transition: all 0.2s ease;
-  -moz-transition: all 0.2s ease;
-  -ms-transition: all 0.2s ease;
-  -o-transition: all 0.2s ease;
-  transition: all 0.2s ease;
-}
-.download-attachment .icon {
-  position: absolute;
-  color: #fff;
-  width: 30px;
-  height: 30px;
-  text-align: center;
-  border-radius: 15px;
-  line-height: 28px;
-  left: 50%;
-  top: 50%;
-  border: 1px solid #fff;
-  margin-left: -15px;
-  margin-top: -15px;
-}
-.download-attachment:hover .icon,
-.download-attachment:hover .overlay {
-  opacity: 1;
-}
-.download-attachment .file-size {
-  position: absolute;
-  margin-top: 3px;
-  color: #888;
-  font-size: 12px;
-  right: 0;
-}
-
 .paginate-wrapper {
   display: table;
   min-height: 100%;

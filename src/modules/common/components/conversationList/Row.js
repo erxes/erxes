@@ -87,7 +87,7 @@ class Row extends Component {
               </FlexContent>
             </MainInfo>
             <MessageContent>{strip(content)}</MessageContent>
-            <Tags tags={tags} />
+            <Tags tags={tags} limit={3} />
           </FlexContent>
         </RowContent>
         <SmallText>

@@ -18,7 +18,12 @@ class Inbox extends Component {
   constructor(props) {
     super(props);
 
+    this.state = {
+      attachmentPreview: {}
+    };
+
     this.changeStatus = this.changeStatus.bind(this);
+    this.setAttachmentPreview = this.setAttachmentPreview.bind(this);
   }
 
   componentDidMount() {
@@ -27,6 +32,10 @@ class Inbox extends Component {
 
   componentDidUpdate() {
     this.node.scrollTop = this.node.scrollHeight;
+  }
+
+  setAttachmentPreview(attachmentPreview) {
+    this.setState({ attachmentPreview });
   }
 
   // change resolved status
@@ -106,7 +115,10 @@ class Inbox extends Component {
           this.node = node;
         }}
       >
-        <Conversation conversation={currentConversation} />
+        <Conversation
+          conversation={currentConversation}
+          attachmentPreview={this.state.attachmentPreview}
+        />
       </ConversationWrapper>
     );
 
@@ -121,7 +133,7 @@ class Inbox extends Component {
           currentConversation._id ? (
             <RespondBox
               conversation={currentConversation}
-              setAttachmentPreview={() => {}}
+              setAttachmentPreview={this.setAttachmentPreview}
             />
           ) : null
         }
