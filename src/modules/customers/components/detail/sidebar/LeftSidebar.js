@@ -181,9 +181,9 @@ class LeftSidebar extends React.Component {
             <NameWrapper>
               {this.state.basicinfo.firstName ||
               this.state.basicinfo.lastName ? (
-                this.state.basicinfo.firstName +
+                (this.state.basicinfo.firstName || '') +
                 ' ' +
-                this.state.basicinfo.lastName
+                (this.state.basicinfo.lastName || '')
               ) : (
                 <a onClick={this.toggleBasicInfoEdit}>Edit name</a>
               )}

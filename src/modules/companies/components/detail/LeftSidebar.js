@@ -212,7 +212,7 @@ class LeftSidebar extends React.Component {
               </Link>
               <span>Name: </span>
               <span>
-                {customer.firstName + ' ' + customer.lastName || 'N/A'}
+                {(customer.firstName || '') + ' ' + (customer.lastName || '')}
               </span>
             </CustomerWrapper>
           ))}
