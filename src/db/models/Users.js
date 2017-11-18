@@ -147,13 +147,15 @@ class User {
    * Check duplications
    */
   static async checkDuplications({ userId, twitterUsername }) {
-    const previousEntry = await Users.findOne({
-      _id: { $ne: userId },
-      'details.twitterUsername': twitterUsername,
-    });
+    if (twitterUsername) {
+      const previousEntry = await Users.findOne({
+        _id: { $ne: userId },
+        'details.twitterUsername': twitterUsername,
+      });
 
-    if (previousEntry) {
-      throw new Error('Duplicated twitter username');
+      if (previousEntry) {
+        throw new Error('Duplicated twitter username');
+      }
     }
   }
 

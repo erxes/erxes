@@ -25,16 +25,35 @@ describe('User db utils', () => {
   });
 
   test('Create user: twitter handler duplication', async () => {
-    expect.assertions(1);
+    expect.assertions(3);
+
+    _user.details.twitterUsername = undefined;
+    await _user.save();
+
+    // don not check duplication when there is not twitter username specified
+    let createdUser = await Users.createUser({ password: 'password', details: {} });
+    expect(createdUser.details.twitterUsername).toBe(undefined);
+
+    // duplicated ==================
+    _user.details.twitterUsername = 'twitter';
+    await _user.save();
 
     try {
       await Users.createUser({
         password: 'password',
-        details: { twitterUsername: _user.details.twitterUsername },
+        details: { twitterUsername: 'twitter' },
       });
     } catch (e) {
       expect(e.message).toBe('Duplicated twitter username');
     }
+
+    // not duplicated ==========
+    createdUser = await Users.createUser({
+      password: 'password',
+      details: { twitterUsername: 'other twitter' },
+    });
+
+    expect(createdUser.details.twitterUsername).toBe('other twitter');
   });
 
   test('Create user', async () => {
