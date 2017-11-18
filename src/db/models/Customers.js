@@ -102,11 +102,13 @@ class Customer {
    * @return {Promise} Newly created customer object
    */
   static async createCustomer(doc) {
-    const previousEntry = await this.findOne({ email: doc.email });
+    if (doc.email) {
+      const previousEntry = await this.findOne({ email: doc.email });
 
-    // check duplication
-    if (previousEntry) {
-      throw new Error('Duplicated email');
+      // check duplication
+      if (previousEntry) {
+        throw new Error('Duplicated email');
+      }
     }
 
     // clean custom field values
@@ -122,14 +124,16 @@ class Customer {
    * @return {Promise} updated customer object
    */
   static async updateCustomer(_id, doc) {
-    const previousEntry = await this.findOne({
-      _id: { $ne: _id },
-      email: doc.email,
-    });
+    if (doc.email) {
+      const previousEntry = await this.findOne({
+        _id: { $ne: _id },
+        email: doc.email,
+      });
 
-    // check duplication
-    if (previousEntry) {
-      throw new Error('Duplicated email');
+      // check duplication
+      if (previousEntry) {
+        throw new Error('Duplicated email');
+      }
     }
 
     // clean custom field values
