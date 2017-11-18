@@ -187,6 +187,7 @@ const LastConversationContainer = compose(
   graphql(gql(queries.lastConversation), {
     name: 'lastConversationQuery',
     options: ({ queryParams }) => ({
+      notifyOnNetworkStatusChange: true,
       variables: generateParams(queryParams)
     })
   })
