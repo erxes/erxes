@@ -7,7 +7,7 @@ import { FilterPopover, StatusFilterPopover } from '../';
 
 const propTypes = {
   conversations: PropTypes.array.isRequired,
-  currentConversationId: PropTypes.string.isRequired,
+  currentConversationId: PropTypes.string,
   channels: PropTypes.array.isRequired,
   brands: PropTypes.array.isRequired,
   tags: PropTypes.array.isRequired,

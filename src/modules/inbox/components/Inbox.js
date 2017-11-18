@@ -75,6 +75,7 @@ class Inbox extends Component {
   render() {
     const {
       queryParams,
+      currentConversationId,
       currentConversation,
       onChangeConversation,
       afterTag
@@ -140,7 +141,7 @@ class Inbox extends Component {
         leftSidebar={
           <LeftSidebar
             queryParams={queryParams}
-            currentConversationId={currentConversation._id}
+            currentConversationId={currentConversationId}
             onChangeConversation={onChangeConversation}
           />
         }
@@ -156,6 +157,7 @@ Inbox.propTypes = {
   onChangeConversation: PropTypes.func,
   changeStatus: PropTypes.func,
   afterTag: PropTypes.func,
+  currentConversationId: PropTypes.string,
   currentConversation: PropTypes.object
 };
 

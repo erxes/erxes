@@ -1,13 +1,14 @@
 import React, { Component } from 'react';
+import { withRouter } from 'react-router';
 import PropTypes from 'prop-types';
 import { compose, gql, graphql } from 'react-apollo';
-import { Alert } from 'modules/common/utils';
+import { Alert, router as routerUtils } from 'modules/common/utils';
 import { Spinner } from 'modules/common/components';
 import { Inbox as InboxComponent } from '../components';
 import { queries, mutations, subscriptions } from '../graphql';
 import { generateParams } from '../utils';
 
-class Inbox extends Component {
+class ConversationDetail extends Component {
   componentWillMount() {
     const { currentConversationId, conversationDetailQuery } = this.props;
     this.subscribe(conversationDetailQuery, currentConversationId);
@@ -61,10 +62,12 @@ class Inbox extends Component {
 
   render() {
     const {
+      currentConversationId,
       conversationDetailQuery,
       changeStatusMutation,
       markAsReadMutation
     } = this.props;
+
     const { currentUser } = this.context;
     const loading = conversationDetailQuery.loading;
     const currentConversation =
@@ -110,6 +113,7 @@ class Inbox extends Component {
 
     const updatedProps = {
       ...this.props,
+      currentConversationId,
       currentConversation,
       changeStatus,
       afterTag
@@ -119,18 +123,14 @@ class Inbox extends Component {
   }
 }
 
-Inbox.propTypes = {
+ConversationDetail.propTypes = {
   conversationDetailQuery: PropTypes.object,
   changeStatusMutation: PropTypes.func.isRequired,
   currentConversationId: PropTypes.string.isRequired,
   markAsReadMutation: PropTypes.func.isRequired
 };
 
-Inbox.contextTypes = {
-  currentUser: PropTypes.object
-};
-
-const ConversationDetail = compose(
+const ConversationDetailContainer = compose(
   graphql(gql(queries.conversationDetail), {
     name: 'conversationDetailQuery',
     options: ({ currentConversationId }) => {
@@ -146,41 +146,15 @@ const ConversationDetail = compose(
   graphql(gql(mutations.markAsRead), {
     name: 'markAsReadMutation'
   })
-)(Inbox);
+)(ConversationDetail);
 
-/*
- * Container with currentConversationId state
- */
-class CurrentConversation extends Component {
-  constructor(props) {
-    super(props);
-
-    this.state = { currentConversationId: props.currentConversationId };
-
-    this.onChangeConversation = this.onChangeConversation.bind(this);
-  }
-
-  onChangeConversation(conversation) {
-    this.setState({ currentConversationId: conversation._id });
-  }
-
-  render() {
-    const updatedProps = {
-      ...this.props,
-      onChangeConversation: this.onChangeConversation,
-      currentConversationId: this.state.currentConversationId
-    };
-
-    return <ConversationDetail {...updatedProps} />;
-  }
-}
-
-CurrentConversation.propTypes = {
-  currentConversationId: PropTypes.string.isRequired
+ConversationDetail.contextTypes = {
+  currentUser: PropTypes.object
 };
 
 /*
- * Container with last conversation query ====================
+ * We will use this component when there is not current conversation id
+ * in query string
  */
 const LastConversation = props => {
   const { lastConversationQuery } = props;
@@ -202,19 +176,49 @@ const LastConversation = props => {
     currentConversationId
   };
 
-  return <CurrentConversation {...updatedProps} />;
+  return <ConversationDetailContainer {...updatedProps} />;
 };
 
 LastConversation.propTypes = {
   lastConversationQuery: PropTypes.object
 };
 
-export default compose(
+const LastConversationContainer = compose(
   graphql(gql(queries.lastConversation), {
     name: 'lastConversationQuery',
     options: ({ queryParams }) => ({
-      notifyOnNetworkStatusChange: true,
       variables: generateParams(queryParams)
     })
   })
 )(LastConversation);
+
+/*
+ * Main inbox component
+ */
+const Inbox = props => {
+  const { _id } = props;
+
+  const onChangeConversation = conversation => {
+    routerUtils.setParams(props.history, { _id: conversation._id });
+  };
+
+  const updatedProps = {
+    ...props,
+    onChangeConversation
+  };
+
+  if (_id) {
+    updatedProps.currentConversationId = _id;
+
+    return <ConversationDetailContainer {...updatedProps} />;
+  }
+
+  return <LastConversationContainer {...updatedProps} />;
+};
+
+Inbox.propTypes = {
+  history: PropTypes.object,
+  _id: PropTypes.string
+};
+
+export default withRouter(Inbox);
