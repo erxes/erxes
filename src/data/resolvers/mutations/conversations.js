@@ -123,7 +123,7 @@ const conversationMutations = {
       notifType: NOTIFICATION_TYPES.CONVERSATION_ADD_MESSAGE,
       title,
       content: doc.content,
-      link: `/inbox/details/${conversation._id}`,
+      link: `/inbox?_id=${conversation._id}`,
       receivers: conversationNotifReceivers(conversation, user._id),
     });
 
@@ -201,7 +201,7 @@ const conversationMutations = {
         notifType: NOTIFICATION_TYPES.CONVERSATION_ASSIGNEE_CHANGE,
         title: content,
         content,
-        link: `/inbox/details/${conversation._id}`,
+        link: `/inbox?_id=${conversation._id}`,
         receivers: conversationNotifReceivers(conversation, user._id),
       });
     }
@@ -270,7 +270,7 @@ const conversationMutations = {
         notifType: NOTIFICATION_TYPES.CONVERSATION_STATE_CHANGE,
         title: content,
         content,
-        link: `/inbox/details/${conversation._id}`,
+        link: `/inbox?_id=${conversation._id}`,
         receivers: conversationNotifReceivers(conversation, user._id),
       });
     }

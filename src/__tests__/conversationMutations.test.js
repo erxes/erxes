@@ -128,7 +128,7 @@ describe('Conversation message mutations', () => {
       notifType: 'conversationAddMessage',
       title: 'You have a new message.',
       content: _doc.content,
-      link: `/inbox/details/${_conversation._id}`,
+      link: `/inbox?_id=${_conversation._id}`,
       receivers: [],
     });
 
@@ -286,7 +286,7 @@ describe('Conversation message mutations', () => {
       notifType: 'conversationAssigneeChange',
       title: content,
       content,
-      link: `/inbox/details/${_conversation._id}`,
+      link: `/inbox?_id=${_conversation._id}`,
       receivers: [],
     });
   });
