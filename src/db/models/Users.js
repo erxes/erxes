@@ -335,7 +335,7 @@ class User {
    * @return {Object} - generated tokens
    */
   static async login({ email, password }) {
-    const user = await Users.findOne({ email });
+    const user = await Users.findOne({ email: { $regex: new RegExp(email, 'i') } });
 
     if (!user) {
       // user with provided email not found

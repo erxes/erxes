@@ -16,7 +16,7 @@ describe('User db utils', () => {
 
   beforeEach(async () => {
     // Creating test data
-    _user = await userFactory({ email: 'info@erxes.io' });
+    _user = await userFactory({ email: 'Info@erxes.io' });
   });
 
   afterEach(async () => {
@@ -245,7 +245,7 @@ describe('User db utils', () => {
 
     // valid
     const { token, refreshToken } = await Users.login({
-      email: _user.email,
+      email: _user.email.toUpperCase(),
       password: 'pass',
     });
 
