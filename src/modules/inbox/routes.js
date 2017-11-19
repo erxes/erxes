@@ -11,7 +11,11 @@ const routes = () => [
     path="/"
     component={({ location }) => {
       const queryParams = queryString.parse(location.search);
-      return <MainLayout content={<Inbox queryParams={queryParams} />} />;
+      const _id = queryParams._id;
+
+      return (
+        <MainLayout content={<Inbox _id={_id} queryParams={queryParams} />} />
+      );
     }}
   />,
 
