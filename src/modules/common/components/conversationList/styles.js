@@ -91,22 +91,8 @@ const RowItem = styled.li`
   }
 `;
 
-const AssigneeImg = styled.img`
-  height: 25px;
-  line-height: 25px;
-  border-radius: 25px;
-`;
-
-const AssigneeWrapper = styled.div`
-  margin-top: 60px;
-  display: flex;
-  justify-content: flex-end;
-`;
-
 export {
   ConversationItems,
-  AssigneeImg,
-  AssigneeWrapper,
   RowItem,
   RowContent,
   FlexContent,

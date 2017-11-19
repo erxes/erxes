@@ -72,8 +72,8 @@ class ConversationDetail extends Component {
     const loading = conversationDetailQuery.loading;
     const currentConversation =
       conversationDetailQuery.conversationDetail || {};
-    // =============== actions
 
+    // =============== actions
     const changeStatus = (conversationId, status) => {
       changeStatusMutation({ variables: { _ids: [conversationId], status } })
         .then(() => {
@@ -93,11 +93,6 @@ class ConversationDetail extends Component {
     // after tags
     const afterTag = () => {
       conversationDetailQuery.refetch();
-    };
-    // after assign
-    const afterAssign = () => {
-      conversationDetailQuery.refetch();
-      this.overlayTrigger.hide();
     };
 
     // mark as read
@@ -121,8 +116,7 @@ class ConversationDetail extends Component {
       currentConversationId,
       currentConversation,
       changeStatus,
-      afterTag,
-      afterAssign
+      afterTag
     };
 
     return <InboxComponent {...updatedProps} />;

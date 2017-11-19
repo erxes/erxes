@@ -4,8 +4,7 @@ import {
   PopoverHeader,
   PopoverBody,
   PopoverList,
-  PopoverFooter,
-  AvatarImg
+  PopoverFooter
 } from './styles';
 import Filter from './Filter';
 
@@ -14,7 +13,6 @@ const propTypes = {
     PropTypes.shape({
       _id: PropTypes.string.isRequired,
       title: PropTypes.string,
-      avatar: PropTypes.string,
       iconClass: PropTypes.string,
       iconColor: PropTypes.string,
       selectedBy: PropTypes.string
@@ -28,7 +26,6 @@ const propTypes = {
     })
   ),
   showCheckmark: PropTypes.bool,
-  singleSelect: PropTypes.bool,
   selectable: PropTypes.bool,
   className: PropTypes.string,
 
@@ -45,6 +42,7 @@ class FilterableList extends Component {
       key: '',
       items: props.items
     };
+
     this.filterItems = this.filterItems.bind(this);
     this.toggleItem = this.toggleItem.bind(this);
   }
@@ -52,6 +50,7 @@ class FilterableList extends Component {
   componentWillUnmount() {
     // onExit hook
     const { onExit } = this.props;
+
     if (onExit) onExit(this.state.items);
   }
 
@@ -67,6 +66,7 @@ class FilterableList extends Component {
       item.selectedBy === 'all' ? 'none' : 'all';
 
     this.setState({ items });
+    console.log(id);
     // onClick hook
     const { onClick } = this.props;
     if (onClick) onClick(items, id);
@@ -75,6 +75,7 @@ class FilterableList extends Component {
   renderItems() {
     const { showCheckmark = true } = this.props;
     const { items, key } = this.state;
+
     return items.map(item => {
       // filter items by key
       if (key && item.title.toLowerCase().indexOf(key) < 0) {
@@ -95,7 +96,6 @@ class FilterableList extends Component {
               style={{ color: item.iconColor }}
             />
           ) : null}{' '}
-          {item.avatar ? <AvatarImg src={item.avatar} /> : null}{' '}
           {item.title || '[undefined]'}
         </li>
       );

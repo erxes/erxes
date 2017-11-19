@@ -76,14 +76,4 @@ const PopoverFooter = styled.div`
   }
 `;
 
-const AvatarImg = styled.img`
-  width: 30px;
-  height: 30px;
-  line-height: 30px;
-  border-radius: 30px;
-  font-size: 10px;
-  vertical-align: middle;
-  margin-right: 5px;
-`;
-
-export { PopoverHeader, PopoverBody, PopoverList, PopoverFooter, AvatarImg };
+export { PopoverHeader, PopoverBody, PopoverList, PopoverFooter };
