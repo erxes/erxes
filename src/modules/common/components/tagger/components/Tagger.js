@@ -24,7 +24,6 @@ class Tagger extends Component {
     this.state = {
       tagsForList: this.generateTagsParams(props.tags, props.targets)
     };
-
     this.tag = this.tag.bind(this);
   }
 
@@ -67,7 +66,6 @@ class Tagger extends Component {
 
   tag(tags) {
     const { tag, targets, type, afterSave } = this.props;
-
     // detect changes
     const { tagsForList } = this.state;
     const unchanged = tagsForList.reduce(

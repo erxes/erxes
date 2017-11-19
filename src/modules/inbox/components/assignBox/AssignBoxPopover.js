@@ -6,13 +6,14 @@ import AssignBox from '../../containers/AssignBox';
 const propTypes = {
   targets: PropTypes.arrayOf(Object).isRequired,
   trigger: PropTypes.element.isRequired,
+  afterSave: PropTypes.func,
   container: PropTypes.element
 };
 
-function AssignBoxPopover({ targets, trigger, container }) {
+function AssignBoxPopover({ targets, trigger, container, afterSave }) {
   const popover = (
     <Popover id="assign-popover" title="Choose person">
-      <AssignBox targets={targets} event="onExit" />
+      <AssignBox targets={targets} event="onClick" afterSave={afterSave} />
     </Popover>
   );
 

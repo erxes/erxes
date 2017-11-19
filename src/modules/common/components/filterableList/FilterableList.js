@@ -4,7 +4,8 @@ import {
   PopoverHeader,
   PopoverBody,
   PopoverList,
-  PopoverFooter
+  PopoverFooter,
+  AvatarImg
 } from './styles';
 import Filter from './Filter';
 
@@ -13,6 +14,7 @@ const propTypes = {
     PropTypes.shape({
       _id: PropTypes.string.isRequired,
       title: PropTypes.string,
+      avatar: PropTypes.string,
       iconClass: PropTypes.string,
       iconColor: PropTypes.string,
       selectedBy: PropTypes.string
@@ -26,6 +28,7 @@ const propTypes = {
     })
   ),
   showCheckmark: PropTypes.bool,
+  singleSelect: PropTypes.bool,
   selectable: PropTypes.bool,
   className: PropTypes.string,
 
@@ -42,7 +45,6 @@ class FilterableList extends Component {
       key: '',
       items: props.items
     };
-
     this.filterItems = this.filterItems.bind(this);
     this.toggleItem = this.toggleItem.bind(this);
   }
@@ -50,7 +52,6 @@ class FilterableList extends Component {
   componentWillUnmount() {
     // onExit hook
     const { onExit } = this.props;
-
     if (onExit) onExit(this.state.items);
   }
 
@@ -95,6 +96,7 @@ class FilterableList extends Component {
               style={{ color: item.iconColor }}
             />
           ) : null}{' '}
+          {item.avatar ? <AvatarImg src={item.avatar} /> : null}{' '}
           {item.title || '[undefined]'}
         </li>
       );

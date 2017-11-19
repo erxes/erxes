@@ -6,12 +6,15 @@ import Alert from 'modules/common/utils/Alert';
 import { FilterableList } from 'modules/common/components';
 
 const propTypes = {
-  targets: PropTypes.array.isRequired,
-  assignees: PropTypes.array.isRequired,
-  assign: PropTypes.func.isRequired,
-  clear: PropTypes.func.isRequired,
+  targets: PropTypes.array,
+  afterSave: PropTypes.func,
   event: PropTypes.oneOf(['onClick', 'onExit']),
-  className: PropTypes.string
+  className: PropTypes.string,
+
+  //from containers
+  assignees: PropTypes.array,
+  assign: PropTypes.func.isRequired,
+  clear: PropTypes.func.isRequired
 };
 
 class AssignBox extends Component {
@@ -19,7 +22,7 @@ class AssignBox extends Component {
     super(props);
 
     this.state = {
-      assingeesForList: this.generateAssignParams(
+      assigneesForList: this.generateAssignParams(
         props.assignees,
         props.targets
       )
@@ -31,31 +34,14 @@ class AssignBox extends Component {
 
   componentWillReceiveProps(nextProps) {
     this.setState({
-      assingeesForList: this.generateAssignParams(
+      assigneesForList: this.generateAssignParams(
         nextProps.assignees,
         nextProps.targets
       )
     });
   }
 
-  assign(items, id) {
-    const { assign, targets } = this.props;
-
-    assign(
-      {
-        targetIds: targets.map(t => t._id),
-        assignedUserId: id
-      },
-      error => {
-        if (error) {
-          Alert.error(error.reason);
-        }
-        return Alert.success('The conversation');
-      }
-    );
-  }
-
-  generateAssignParams(assignees, targets) {
+  generateAssignParams(assignees = [], targets = []) {
     return assignees.map(assignee => {
       // Current tag's selection state (all, some or none)
       const count = targets.reduce(
@@ -67,19 +53,51 @@ class AssignBox extends Component {
       );
 
       let state = 'none';
-
-      if (count === targets.length) {
-        state = 'all';
-      } else if (count < targets.length && count > 0) {
-        state = 'some';
+      if (count > 0) {
+        if (count === targets.length) {
+          state = 'all';
+        } else if (count < targets.length) {
+          state = 'some';
+        }
       }
 
       return {
         _id: assignee._id,
         title: assignee.details.fullName || assignee.emails[0].address,
+        avatar: assignee.details.avatar,
         selectedBy: state
       };
     });
+  }
+
+  assign(assignees, id) {
+    const { assign, targets, afterSave } = this.props;
+
+    const { assigneesForList } = this.state;
+    const unchanged = assigneesForList.reduce(
+      (prev, current, index) =>
+        prev && current.selectedBy === assignees[index].selectedBy,
+      true
+    );
+    if (unchanged) {
+      return;
+    }
+
+    assign(
+      {
+        conversationIds: targets.map(t => t._id),
+        assignedUserId: id
+      },
+      error => {
+        if (error) {
+          Alert.error(error.reason);
+        }
+
+        if (afterSave) {
+          afterSave();
+        }
+      }
+    );
   }
 
   removeAssignee() {
@@ -105,8 +123,8 @@ class AssignBox extends Component {
     const props = {
       className,
       links,
-      selectable: true,
-      items: this.state.assingeesForList,
+      showCheckmark: false,
+      items: this.state.assigneesForList,
       [event]: this.assign
     };
 

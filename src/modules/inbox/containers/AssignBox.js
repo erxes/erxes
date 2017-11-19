@@ -6,20 +6,15 @@ import Alert from 'modules/common/utils/Alert';
 import { queries, mutations } from '../graphql';
 
 const AssignBoxContainer = props => {
-  const {
-    usersQuery,
-    conversationsQuery,
-    conversationsAssign,
-    conversationsUnassign
-  } = props;
+  const { usersQuery, assignMutation, conversationsUnassign } = props;
 
-  if (usersQuery.loading || conversationsQuery.loading) {
+  if (usersQuery.loading) {
     return null;
   }
 
-  const assign = (targetIds, assignedUserId) => {
-    conversationsAssign({
-      variables: { conversationIds: [targetIds], assignedUserId }
+  const assign = ({ conversationIds, assignedUserId }) => {
+    assignMutation({
+      variables: { conversationIds: [conversationIds], assignedUserId }
     })
       .then(() => {
         Alert.success('The conversation Assignee has been renewed.');
@@ -32,7 +27,7 @@ const AssignBoxContainer = props => {
   const clear = conversationIds => {
     conversationsUnassign({ variables: { _ids: [conversationIds] } })
       .then(() => {
-        Alert.success('The conversation');
+        Alert.success('The conversation Assignee removed');
       })
       .catch(e => {
         Alert.error(e.message);
@@ -41,8 +36,7 @@ const AssignBoxContainer = props => {
 
   const updatedProps = {
     ...props,
-    targets: conversationsQuery.conversations,
-    assignees: usersQuery.users,
+    assignees: usersQuery.users || [],
     assign,
     clear
   };
@@ -53,25 +47,16 @@ const AssignBoxContainer = props => {
 AssignBoxContainer.propTypes = {
   targets: PropTypes.array,
   usersQuery: PropTypes.object,
-  conversationsQuery: PropTypes.object,
-  conversationsAssign: PropTypes.func,
+  assignMutation: PropTypes.func,
   conversationsUnassign: PropTypes.func
 };
 
 export default compose(
-  graphql(gql(queries.userList), { name: 'usersQuery' }),
-  graphql(gql(mutations.conversationsAssign), { name: 'conversationsAssign' }),
+  graphql(gql(queries.userList), {
+    name: 'usersQuery'
+  }),
+  graphql(gql(mutations.conversationsAssign), { name: 'assignMutation' }),
   graphql(gql(mutations.conversationsUnassign), {
     name: 'conversationsUnassign'
-  }),
-  graphql(gql(queries.conversationList), {
-    name: 'conversationsQuery',
-    options: ({ targets }) => ({
-      variables: {
-        params: {
-          ids: targets
-        }
-      }
-    })
   })
 )(AssignBoxContainer);
