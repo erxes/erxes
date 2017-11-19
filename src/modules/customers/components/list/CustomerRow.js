@@ -64,7 +64,7 @@ function CustomerRow({ customer, columnsConfig, toggleBulk }) {
       </td>
       {columnsConfig.map(({ name }) => (
         <td key={name}>
-          {name === 'name' ? (
+          {name === 'firstName' ? (
             <Link to={`customers/details/${customer._id}`}>
               {formatValue(_.get(customer, name))}
             </Link>

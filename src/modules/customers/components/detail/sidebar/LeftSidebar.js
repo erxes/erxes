@@ -270,7 +270,7 @@ class LeftSidebar extends React.Component {
                 field={field}
                 key={index}
                 onValueChange={this.handleFieldsChange}
-                value={this.state.fieldsdata[field._id] || ''}
+                defaultValue={this.state.fieldsdata[field._id] || ''}
               />
             ))}
           </AboutList>

@@ -12,7 +12,14 @@ export default class GenerateField extends Component {
   constructor(props) {
     super(props);
 
+    const defaultValue = props.defaultValue; // eslint-disable-line
+
     this.onChange = this.onChange.bind(this);
+
+    this.state = {
+      value: defaultValue,
+      checkBoxValues: defaultValue ? [...defaultValue] : []
+    };
   }
 
   renderSelect(options = [], attrs = {}) {
@@ -28,6 +35,39 @@ export default class GenerateField extends Component {
   }
 
   renderInput(attrs) {
+    const { value, checkBoxValues } = this.state;
+    const { validation, type } = this.props.field;
+
+    attrs.type = 'text';
+
+    attrs.onChange = e => {
+      this.onChange(e, attrs.option);
+    };
+
+    if (type === 'radio') {
+      attrs.type = 'radio';
+      attrs.componentClass = 'radio';
+      attrs.checked = value === attrs.option;
+    }
+
+    if (type === 'check') {
+      attrs.type = 'checkbox';
+      attrs.componentClass = 'checkbox';
+      attrs.checked = checkBoxValues.includes(attrs.option);
+    }
+
+    if (validation === 'date') {
+      attrs.type = 'date';
+
+      if (value) {
+        attrs.value = moment(value).format('YYYY-MM-DD');
+      }
+    }
+
+    if (validation === 'number') {
+      attrs.type = 'number';
+    }
+
     return <FormControl {...attrs} />;
   }
 
@@ -35,12 +75,12 @@ export default class GenerateField extends Component {
     return <FormControl componentClass="textarea" {...attrs} />;
   }
 
-  renderRadioOrCheckInputs(options, type) {
+  renderRadioOrCheckInputs(options, attrs) {
     return (
       <div>
         {options.map((option, index) => (
           <div key={index}>
-            {this.renderInput({ componentClass: type })}
+            {this.renderInput({ ...attrs, option })}
             <span>{option}</span>
           </div>
         ))}
@@ -48,29 +88,55 @@ export default class GenerateField extends Component {
     );
   }
 
-  onChange(e) {
+  /*
+   * Handle all types of fields changes
+   * @param {Object} e - Event object
+   * @param {String} optionValue - per radio button or checkbox value
+   */
+  onChange(e, optionValue) {
     const { field, onValueChange } = this.props;
-    const { validation } = field;
+    const { validation, type } = field;
 
-    let value = e.target.value;
+    let value = optionValue || e.target.value;
 
     if (validation === 'number') {
       value = Number(value);
     }
 
+    if (type === 'check') {
+      let checkBoxValues = this.state.checkBoxValues;
+      const isChecked = e.target.checked;
+
+      // if selected value is not already in list then add it
+      if (isChecked && !checkBoxValues.includes(optionValue)) {
+        checkBoxValues.push(optionValue);
+      }
+
+      // remove option from checked list
+      if (!isChecked) {
+        checkBoxValues = checkBoxValues.filter(v => v !== optionValue);
+      }
+
+      this.setState({ checkBoxValues });
+
+      value = checkBoxValues;
+    }
+
     if (onValueChange) {
+      this.setState({ value });
+
       onValueChange({ _id: field._id, value });
     }
   }
 
   renderControl() {
-    const { field, defaultValue, value } = this.props; // eslint-disable-line
-    const { type, validation } = field;
+    const { field } = this.props;
+    const { type } = field;
     const options = field.options || [];
+
     const attrs = {
       id: field._id,
-      defaultValue,
-      value,
+      value: this.state.value,
       onChange: this.onChange
     };
 
@@ -79,28 +145,17 @@ export default class GenerateField extends Component {
         return this.renderSelect(options, attrs);
 
       case 'check':
-        return this.renderRadioOrCheckInputs(options, 'checkbox', attrs);
+        return this.renderRadioOrCheckInputs(options, attrs);
 
       case 'radio':
-        return this.renderRadioOrCheckInputs(options, 'radio', attrs);
+        attrs.name = Math.random().toString();
+        return this.renderRadioOrCheckInputs(options, attrs);
 
       case 'textarea':
         return this.renderTextarea(attrs);
 
       default:
-        if (validation === 'number') {
-          return this.renderInput({ type: 'number', ...attrs });
-        }
-
-        if (validation === 'date') {
-          if (defaultValue) {
-            attrs.defaultValue = moment(defaultValue).format('YYYY-MM-DD');
-          }
-
-          return this.renderInput({ type: 'date', ...attrs });
-        }
-
-        return this.renderInput({ type: 'text', ...attrs });
+        return this.renderInput(attrs);
     }
   }
 
