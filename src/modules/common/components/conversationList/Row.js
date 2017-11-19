@@ -11,7 +11,9 @@ import {
   MainInfo,
   CustomerName,
   SmallText,
-  MessageContent
+  MessageContent,
+  AssigneeImg,
+  AssigneeWrapper
 } from './styles';
 
 const propTypes = {
@@ -65,8 +67,9 @@ class Row extends Component {
     const brand = integration.brand || {};
     const brandName = brand.name;
     const tags = conversation.tags || [];
+    const assignees = conversation.assignedUser || [];
+    const details = assignees.details || [];
     const isExistingCustomer = customer && customer._id;
-
     return (
       <RowItem onClick={this.onClick} isActive={isActive} isRead={isRead}>
         <RowContent>
@@ -94,6 +97,9 @@ class Row extends Component {
           {moment(createdAt)
             .subtract(2, 'minutes')
             .fromNow()}
+          <AssigneeWrapper>
+            <AssigneeImg src={details.avatar} />
+          </AssigneeWrapper>
         </SmallText>
       </RowItem>
     );

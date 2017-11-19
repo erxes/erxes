@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Wrapper } from 'modules/layout/components';
+import { AvatarImg } from 'modules/common/components/filterableList/styles';
 import {
   Button,
   Label,
@@ -10,9 +11,15 @@ import {
 } from 'modules/common/components';
 import { BarItems } from 'modules/layout/styles';
 import Conversation from './conversation/Conversation';
+import AssignBoxPopover from './assignBox/AssignBoxPopover';
 import { LeftSidebar, RespondBox } from '../containers';
 import RightSidebar from './sidebar/RightSidebar';
-import { PopoverButton, ConversationWrapper } from '../styles';
+import {
+  PopoverButton,
+  ConversationWrapper,
+  AssignText,
+  AssignWrapper
+} from '../styles';
 
 class Inbox extends Component {
   constructor(props) {
@@ -57,12 +64,12 @@ class Inbox extends Component {
   renderStatusButton(status) {
     let btnStyle = 'success';
     let text = 'Resolve';
-    let icon = <i className="ion-checkmark" />;
+    let icon = <Icon icon="checkmark" />;
 
     if (status === 'closed') {
       text = 'Open';
       btnStyle = 'warning';
-      icon = <i className="ion-refresh" />;
+      icon = <Icon icon="refresh" />;
     }
 
     return (
@@ -78,9 +85,11 @@ class Inbox extends Component {
       currentConversationId,
       currentConversation,
       onChangeConversation,
-      afterTag
+      afterTag,
+      afterAssign
     } = this.props;
     const tags = currentConversation.tags || [];
+    const assignees = currentConversation.assignedUser || [];
 
     const tagTrigger = (
       <PopoverButton>
@@ -91,6 +100,22 @@ class Inbox extends Component {
         )}
         <Icon icon="ios-arrow-down" />
       </PopoverButton>
+    );
+
+    const assignTrigger = (
+      <AssignWrapper>
+        <AssignText>Assign to:</AssignText>
+        <PopoverButton>
+          {assignees.length !== 0 ? (
+            <AvatarImg src={assignees.details.avatar} />
+          ) : (
+            <Button btnStyle="simple" size="small">
+              Team members
+            </Button>
+          )}
+          <Icon icon="ios-arrow-down" size={13} />
+        </PopoverButton>
+      </AssignWrapper>
     );
 
     const actionBarRight = (
@@ -108,7 +133,17 @@ class Inbox extends Component {
       </BarItems>
     );
 
-    const actionBar = <Wrapper.ActionBar right={actionBarRight} invert />;
+    const actionBarLeft = (
+      <AssignBoxPopover
+        targets={[currentConversation]}
+        trigger={assignTrigger}
+        afterSave={afterAssign}
+      />
+    );
+
+    const actionBar = (
+      <Wrapper.ActionBar right={actionBarRight} left={actionBarLeft} invert />
+    );
 
     const content = (
       <ConversationWrapper
@@ -157,6 +192,7 @@ Inbox.propTypes = {
   onChangeConversation: PropTypes.func,
   changeStatus: PropTypes.func,
   afterTag: PropTypes.func,
+  afterAssign: PropTypes.func,
   currentConversationId: PropTypes.string,
   currentConversation: PropTypes.object
 };
