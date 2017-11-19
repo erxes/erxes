@@ -1547,9 +1547,9 @@ base64-js@^1.0.2:
   version "1.2.1"
   resolved "https://registry.yarnpkg.com/base64-js/-/base64-js-1.2.1.tgz#a91947da1f4a516ea38e5b4ec0ec3773675e0886"
 
-bat-d3-punchcard@^1.0.1:
-  version "1.0.1"
-  resolved "https://registry.yarnpkg.com/bat-d3-punchcard/-/bat-d3-punchcard-1.0.1.tgz#988c89410b60de8d6ee2296b96122761b4149812"
+bat-d3-punchcard@^1.0.2:
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/bat-d3-punchcard/-/bat-d3-punchcard-1.0.2.tgz#e8d562ab95407f77d55ac8ce74f6caca47527c7e"
   dependencies:
     d3 "^3.5.17"
 

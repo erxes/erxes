@@ -13,7 +13,7 @@ const NotificationSeeAll = styled.div`
     padding: 5px 20px;
     display: block;
     text-align: center;
-    border-top: 1px solid $border-grey;
+    border-top: 1px solid ${colors.borderPrimary};
   }
 `;
 
@@ -43,12 +43,6 @@ const NotifList = styled.ul`
 
     & .body:hover {
       cursor: pointer;
-    }
-  }
-
-  .text {
-    .second-line {
-      margin-top: 3px;
     }
   }
 `;
@@ -84,20 +78,6 @@ const NotificationList = styled.ul`
     &:focus {
       background: ${colors.bgLight};
       cursor: pointer;
-    }
-  }
-
-  .text {
-    a.first-line {
-      margin-top: 0;
-      white-space: normal;
-      font-weight: 500;
-      font-size: 13px;
-    }
-
-    .second-line {
-      font-size: 12px;
-      margin-top: 3px;
     }
   }
 `;

@@ -1,8 +1,14 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Wrapper } from 'modules/layout/components';
-import { Button, Label, Icon, TaggerPopover } from 'modules/common/components';
 import { AvatarImg } from 'modules/common/components/filterableList/styles';
+import {
+  Button,
+  Label,
+  Icon,
+  TaggerPopover,
+  Tags
+} from 'modules/common/components';
 import { BarItems } from 'modules/layout/styles';
 import Conversation from './conversation/Conversation';
 import AssignBoxPopover from './assignBox/AssignBoxPopover';
@@ -19,7 +25,12 @@ class Inbox extends Component {
   constructor(props) {
     super(props);
 
+    this.state = {
+      attachmentPreview: {}
+    };
+
     this.changeStatus = this.changeStatus.bind(this);
+    this.setAttachmentPreview = this.setAttachmentPreview.bind(this);
   }
 
   componentDidMount() {
@@ -28,6 +39,10 @@ class Inbox extends Component {
 
   componentDidUpdate() {
     this.node.scrollTop = this.node.scrollHeight;
+  }
+
+  setAttachmentPreview(attachmentPreview) {
+    this.setState({ attachmentPreview });
   }
 
   // change resolved status
@@ -67,6 +82,7 @@ class Inbox extends Component {
   render() {
     const {
       queryParams,
+      currentConversationId,
       currentConversation,
       onChangeConversation,
       afterTag,
@@ -78,11 +94,7 @@ class Inbox extends Component {
     const tagTrigger = (
       <PopoverButton>
         {tags.length ? (
-          tags.slice(0, 1).map(t => (
-            <Label key={t._id} style={{ background: t.colorCode }}>
-              {t.name}
-            </Label>
-          ))
+          <Tags tags={tags} limit={1} />
         ) : (
           <Label lblStyle="default">no tags</Label>
         )}
@@ -139,7 +151,10 @@ class Inbox extends Component {
           this.node = node;
         }}
       >
-        <Conversation conversation={currentConversation} />
+        <Conversation
+          conversation={currentConversation}
+          attachmentPreview={this.state.attachmentPreview}
+        />
       </ConversationWrapper>
     );
 
@@ -154,14 +169,14 @@ class Inbox extends Component {
           currentConversation._id ? (
             <RespondBox
               conversation={currentConversation}
-              setAttachmentPreview={() => {}}
+              setAttachmentPreview={this.setAttachmentPreview}
             />
           ) : null
         }
         leftSidebar={
           <LeftSidebar
             queryParams={queryParams}
-            currentConversationId={currentConversation._id}
+            currentConversationId={currentConversationId}
             onChangeConversation={onChangeConversation}
           />
         }
@@ -178,6 +193,7 @@ Inbox.propTypes = {
   changeStatus: PropTypes.func,
   afterTag: PropTypes.func,
   afterAssign: PropTypes.func,
+  currentConversationId: PropTypes.string,
   currentConversation: PropTypes.object
 };
 

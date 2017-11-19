@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { withRouter } from 'react-router';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import moment from 'moment';
@@ -12,10 +13,13 @@ class NotificationListRow extends Component {
   }
 
   markAsRead() {
-    const { notification, markAsRead } = this.props;
+    const { history, notification, markAsRead } = this.props;
+
     if (!notification.isRead) {
       markAsRead(notification._id);
     }
+
+    history.push(notification.link);
   }
 
   render() {
@@ -49,9 +53,10 @@ class NotificationListRow extends Component {
 }
 
 NotificationListRow.propTypes = {
+  history: PropTypes.object.isRequired,
   notification: PropTypes.object.isRequired,
   markAsRead: PropTypes.func.isRequired,
   createdUser: PropTypes.object
 };
 
-export default NotificationListRow;
+export default withRouter(NotificationListRow);

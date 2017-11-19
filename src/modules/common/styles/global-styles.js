@@ -172,6 +172,7 @@ injectGlobal`
     font-family: 'Montserrat','Helvetica Neue','Helvetica','Arial', sans-serif;
     border: 1px solid #eee;
     border-radius: 0;
+    font-size: inherit;
     padding: 0;
     color: #888;
     font-weight: inherit;

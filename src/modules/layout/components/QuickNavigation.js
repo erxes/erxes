@@ -12,7 +12,7 @@ const UserInfo = styled.div`
   flex-direction: row;
   align-items: center;
 
-  a {
+  span {
     float: none;
     margin: 0 10px;
   }
@@ -39,7 +39,7 @@ const QuickNavigation = ({ logout, currentUser }) => {
           <DropdownToggle bsRole="toggle">
             <UserHelper>
               <UserInfo>
-                <span>{currentUser.details.fullName}</span>
+                {currentUser.details.fullName}
                 <NameCard.Avatar user={currentUser} size={30} />
                 <Icon icon="chevron-down" />
               </UserInfo>

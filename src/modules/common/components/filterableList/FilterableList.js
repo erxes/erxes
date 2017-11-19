@@ -67,7 +67,7 @@ class FilterableList extends Component {
       item.selectedBy === 'all' ? 'none' : 'all';
 
     this.setState({ items });
-
+    console.log(id);
     // onClick hook
     const { onClick } = this.props;
     if (onClick) onClick(items, id);

@@ -55,14 +55,14 @@ class NotificationList extends Component {
         <EmptyState
           text="No notifications"
           size="full"
-          icon={<Icon icon="android-notifications" />}
+          icon="android-notifications"
         />
       );
     }
 
     const actionBarLeft = (
-      <Button bsStyle="link" onClick={this.markAllRead}>
-        <Icon icon="checkmark-circled" /> Mark all Read
+      <Button btnStyle="success" size="small" onClick={this.markAllRead}>
+        <Icon icon="checkmark" /> Mark all Read
       </Button>
     );
 

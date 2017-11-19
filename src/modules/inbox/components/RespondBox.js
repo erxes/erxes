@@ -11,8 +11,7 @@ import {
   AttachmentPreview,
   AttachmentIndicator,
   PreviewImg,
-  FileName,
-  FileSize
+  FileName
 } from '../styles';
 
 const propTypes = {
@@ -74,7 +73,7 @@ class RespondBox extends Component {
       responseTemplate: responseTemplate.content,
 
       // set attachment from response template files
-      attachments: responseTemplate.files
+      attachments: responseTemplate.files || []
     });
   }
 
@@ -95,10 +94,12 @@ class RespondBox extends Component {
 
       afterUpload: ({ response, fileInfo }) => {
         // set attachments
-        this.state.attachments.push(
-          Object.assign({ url: response.url }, fileInfo)
-        );
-
+        this.setState({
+          attachments: [
+            ...this.state.attachments,
+            Object.assign({ url: response }, fileInfo)
+          ]
+        });
         // remove preview
         this.props.setAttachmentPreview(null);
       },
@@ -144,6 +145,31 @@ class RespondBox extends Component {
     });
   }
 
+  renderIncicator() {
+    const attachments = this.state.attachments;
+    if (attachments.length > 0) {
+      return (
+        <AttachmentIndicator>
+          {attachments.map(attachment => (
+            <Attachment key={attachment.name}>
+              <AttachmentPreview>
+                {attachment.type.startsWith('image') && (
+                  <PreviewImg
+                    style={{ backgroundImage: `url('${attachment.url}')` }}
+                  />
+                )}
+              </AttachmentPreview>
+              <FileName>{attachment.name}</FileName>
+              <div>({Math.round(attachment.size / 1000)}kB)</div>
+            </Attachment>
+          ))}
+        </AttachmentIndicator>
+      );
+    }
+
+    return null;
+  }
+
   render() {
     const { isInternal, responseTemplate } = this.state;
     const integration = this.props.conversation.integration || {};
@@ -177,30 +203,6 @@ class RespondBox extends Component {
       </EditorActions>
     );
 
-    // after file upload show indicator
-    let attachmentsIndicator = null;
-
-    const attachments = this.state.attachments || [];
-    const attachmentsCount = attachments.length;
-
-    if (attachmentsCount > 0) {
-      attachmentsIndicator = (
-        <AttachmentIndicator>
-          {attachments.map(attachment => (
-            <Attachment key={attachment.name}>
-              <AttachmentPreview>
-                <PreviewImg
-                  style={{ backgroundImage: `url('${attachment.url}')` }}
-                />
-              </AttachmentPreview>
-              <FileName>{attachment.name}</FileName>
-              <FileSize>({Math.round(attachment.size / 1000)}kB)</FileSize>
-            </Attachment>
-          ))}
-        </AttachmentIndicator>
-      );
-    }
-
     let type = 'message';
 
     if (isInternal) {
@@ -224,7 +226,7 @@ class RespondBox extends Component {
           responseTemplate={responseTemplate}
         />
 
-        {attachmentsIndicator}
+        {this.renderIncicator()}
         {Buttons}
       </RespondBoxStyled>
     );

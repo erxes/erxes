@@ -46,6 +46,7 @@ export default compose(
   graphql(gql(queries.engageMessages), {
     name: 'engageMessagesQuery',
     options: ({ queryParams }) => ({
+      notifyOnNetworkStatusChange: true,
       fetchPolicy: 'network-only',
       variables: {
         kind: queryParams.kind,
@@ -56,11 +57,15 @@ export default compose(
     })
   }),
   graphql(gql(queries.engageMessagesTotalCount), {
-    name: 'engageMessagesTotalCountQuery'
+    name: 'engageMessagesTotalCountQuery',
+    options: () => ({
+      notifyOnNetworkStatusChange: true
+    })
   }),
   graphql(gql(queries.tags), {
     name: 'tagsQuery',
     options: () => ({
+      notifyOnNetworkStatusChange: true,
       fetchPolicy: 'network-only',
       variables: {
         type: TAG_TYPES.ENGAGE_MESSAGE

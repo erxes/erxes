@@ -89,7 +89,8 @@ export default compose(
           segment: queryParams.segment,
           tag: queryParams.tag,
           ids: queryParams.ids
-        }
+        },
+        notifyOnNetworkStatusChange: true
       };
     }
   }),
@@ -102,7 +103,8 @@ export default compose(
         tag: queryParams.tag,
         segment: queryParams.segment,
         ids: queryParams.ids
-      }
+      },
+      notifyOnNetworkStatusChange: true
     })
   }),
   graphql(gql(queries.tags), {
@@ -110,13 +112,22 @@ export default compose(
     options: () => ({
       variables: {
         type: TAG_TYPES.CUSTOMER
-      }
+      },
+      notifyOnNetworkStatusChange: true
     })
   }),
   graphql(gql(queries.customersListConfig), {
-    name: 'customersListConfigQuery'
+    name: 'customersListConfigQuery',
+    options: () => ({
+      notifyOnNetworkStatusChange: true
+    })
   }),
-  graphql(gql(queries.brands), { name: 'brandsQuery' }),
+  graphql(gql(queries.brands), {
+    name: 'brandsQuery',
+    options: () => ({
+      notifyOnNetworkStatusChange: true
+    })
+  }),
   // mutations
   graphql(gql(mutations.customersAdd), {
     name: 'customersAdd'

@@ -4,7 +4,7 @@
   "private": true,
   "dependencies": {
     "add-graphql-subscriptions": "^1.0.1",
-    "bat-d3-punchcard": "^1.0.1",
+    "bat-d3-punchcard": "^1.0.2",
     "bootstrap": "^3.3.7",
     "classnames": "^2.2.5",
     "color": "^2.0.0",

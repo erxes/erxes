@@ -23,7 +23,7 @@ class ActivityList extends React.Component {
     return (
       <ActivityRow key={Math.random()}>
         <ActivityIcon color={data.color}>
-          <Icon icon={data.icon} />
+          <Icon icon={data.icon || ''} />
         </ActivityIcon>
         <ActivityWrapper>
           <AvatarWrapper>

@@ -26,15 +26,15 @@ const CustomerDetailsContainer = (props, context) => {
     );
   }
 
-  const save = variables => {
+  const save = (variables, callback) => {
     customersEdit({
       variables: { _id: id, ...variables }
     })
       .then(() => {
-        Alert.success('Success');
+        callback();
       })
       .catch(e => {
-        Alert.error(e.message);
+        callback(e);
       });
   };
 

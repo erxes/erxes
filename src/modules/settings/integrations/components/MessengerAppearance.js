@@ -60,7 +60,7 @@ class Appearance extends Component {
 
       afterUpload: ({ response }) => {
         this.setState({
-          logo: response.url,
+          logo: response,
           logoPreviewStyle: { opacity: '1' }
         });
       },
@@ -105,7 +105,7 @@ class Appearance extends Component {
       </Popover>
     );
 
-    const { logo, logoPreviewStyle, logoPreviewUrl } = this.state;
+    const { logoPreviewStyle, logoPreviewUrl } = this.state;
 
     const content = (
       <Margined>
@@ -141,7 +141,6 @@ class Appearance extends Component {
               <SubHeading>Choose a logo</SubHeading>
 
               <input type="file" onChange={this.handleLogoChange} />
-              <input type="hidden" id="logo" value={logo} />
             </WidgetBox>
           </WidgetSettings>
 

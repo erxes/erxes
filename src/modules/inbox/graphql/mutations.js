@@ -4,7 +4,7 @@ const conversationMessageAdd = `
     $content: String!,
     $mentionedUserIds: [String],
     $internal: Boolean,
-    $attachments: [String]
+    $attachments: [JSON]
   ) {
     conversationMessageAdd(
       conversationId: $conversationId,
