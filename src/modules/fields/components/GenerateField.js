@@ -13,6 +13,7 @@ export default class GenerateField extends Component {
     super(props);
 
     this.onChange = this.onChange.bind(this);
+    this.state = { value: props.defaultValue }; // eslint-disable-line
   }
 
   renderSelect(options = [], attrs = {}) {
@@ -28,6 +29,20 @@ export default class GenerateField extends Component {
   }
 
   renderInput(attrs) {
+    const value = this.state.value;
+
+    if (attrs.componentClass === 'radio') {
+      attrs.checked = value === attrs.option;
+
+      attrs.onChange = e => {
+        this.onChange(e, attrs.option);
+      };
+    }
+
+    if (this.props.field.validation === 'date' && value) {
+      attrs.value = moment(value).format('YYYY-MM-DD');
+    }
+
     return <FormControl {...attrs} />;
   }
 
@@ -35,12 +50,12 @@ export default class GenerateField extends Component {
     return <FormControl componentClass="textarea" {...attrs} />;
   }
 
-  renderRadioOrCheckInputs(options, type) {
+  renderRadioOrCheckInputs(options, type, attrs) {
     return (
       <div>
         {options.map((option, index) => (
           <div key={index}>
-            {this.renderInput({ componentClass: type })}
+            {this.renderInput({ ...attrs, option, componentClass: type })}
             <span>{option}</span>
           </div>
         ))}
@@ -48,29 +63,35 @@ export default class GenerateField extends Component {
     );
   }
 
-  onChange(e) {
+  /*
+   * Handle all types of fields changes
+   * @param {Object} e - Event object
+   * @param {String} optionValue - per radio button value
+   */
+  onChange(e, optionValue) {
     const { field, onValueChange } = this.props;
     const { validation } = field;
 
-    let value = e.target.value;
+    let value = optionValue || e.target.value;
 
     if (validation === 'number') {
       value = Number(value);
     }
 
     if (onValueChange) {
+      this.setState({ value });
+
       onValueChange({ _id: field._id, value });
     }
   }
 
   renderControl() {
-    const { field, defaultValue, value } = this.props; // eslint-disable-line
+    const { field } = this.props;
     const { type, validation } = field;
     const options = field.options || [];
+
     const attrs = {
       id: field._id,
-      defaultValue,
-      value,
       onChange: this.onChange
     };
 
@@ -82,21 +103,20 @@ export default class GenerateField extends Component {
         return this.renderRadioOrCheckInputs(options, 'checkbox', attrs);
 
       case 'radio':
+        attrs.name = Math.random().toString();
         return this.renderRadioOrCheckInputs(options, 'radio', attrs);
 
       case 'textarea':
         return this.renderTextarea(attrs);
 
       default:
+        attrs.value = this.state.value;
+
         if (validation === 'number') {
           return this.renderInput({ type: 'number', ...attrs });
         }
 
         if (validation === 'date') {
-          if (defaultValue) {
-            attrs.defaultValue = moment(defaultValue).format('YYYY-MM-DD');
-          }
-
           return this.renderInput({ type: 'date', ...attrs });
         }
 
