@@ -92,6 +92,7 @@ export default class GenerateField extends Component {
 
     const attrs = {
       id: field._id,
+      value: this.state.value,
       onChange: this.onChange
     };
 
@@ -110,8 +111,6 @@ export default class GenerateField extends Component {
         return this.renderTextarea(attrs);
 
       default:
-        attrs.value = this.state.value;
-
         if (validation === 'number') {
           return this.renderInput({ type: 'number', ...attrs });
         }
