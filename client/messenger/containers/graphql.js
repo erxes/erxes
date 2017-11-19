@@ -21,6 +21,8 @@ const messageFields = `
         avatar
       }
     }
+    messageId
+    brandId
   }
   attachments
 `;
