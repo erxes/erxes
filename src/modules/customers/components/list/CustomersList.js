@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import { Wrapper } from 'modules/layout/components';
 import { Dropdown } from 'react-bootstrap';
+import { withRouter } from 'react-router';
 import {
   DropdownToggle,
   TaggerPopover,
@@ -28,12 +29,13 @@ const propTypes = {
   tags: PropTypes.array.isRequired,
   bulk: PropTypes.array.isRequired,
   toggleBulk: PropTypes.func.isRequired,
-  addCustomer: PropTypes.func.isRequired
+  addCustomer: PropTypes.func.isRequired,
+  history: PropTypes.object
 };
 
 class CustomersList extends React.Component {
   renderContent() {
-    const { customers, columnsConfig, toggleBulk } = this.props;
+    const { customers, columnsConfig, toggleBulk, history } = this.props;
 
     return (
       <Table whiteSpace="nowrap" hover bordered>
@@ -53,6 +55,7 @@ class CustomersList extends React.Component {
               columnsConfig={columnsConfig}
               key={customer._id}
               toggleBulk={toggleBulk}
+              history={history}
             />
           ))}
         </tbody>
@@ -131,4 +134,4 @@ class CustomersList extends React.Component {
 
 CustomersList.propTypes = propTypes;
 
-export default CustomersList;
+export default withRouter(CustomersList);

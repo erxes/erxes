@@ -38,7 +38,7 @@ const StyledTable = styled.table`
     }
 
     ${props.hover
-      ? `tr:hover td { background-color: ${tableHoverColor}; }`
+      ? `tr:hover td { background-color: ${tableHoverColor}; cursor: pointer; }`
       : null} ${props.bordered
         ? `th, td { border: 1px solid ${colors.borderPrimary}; }`
         : null} ${props.striped
