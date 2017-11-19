@@ -9,6 +9,7 @@ import {
   EmptyState,
   Icon
 } from 'modules/common/components';
+import { withRouter } from 'react-router';
 import { BarItems } from 'modules/layout/styles';
 import Sidebar from './Sidebar';
 import CompanyRow from './CompanyRow';
@@ -19,13 +20,20 @@ const propTypes = {
   companies: PropTypes.array.isRequired,
   counts: PropTypes.object.isRequired,
   columnsConfig: PropTypes.array.isRequired,
-  addCompany: PropTypes.func.isRequired
+  addCompany: PropTypes.func.isRequired,
+  history: PropTypes.object
 };
 
-function CompaniesList({ companies, counts, columnsConfig, addCompany }) {
+function CompaniesList({
+  companies,
+  counts,
+  columnsConfig,
+  addCompany,
+  history
+}) {
   const mainContent = (
     <div>
-      <Table whiteSpace="nowrap" bordered>
+      <Table whiteSpace="nowrap" bordered hover>
         <thead>
           <tr>
             {columnsConfig.map(({ name, label }) => (
@@ -39,6 +47,7 @@ function CompaniesList({ companies, counts, columnsConfig, addCompany }) {
               company={company}
               columnsConfig={columnsConfig}
               key={company._id}
+              history={history}
             />
           ))}
         </tbody>
@@ -98,4 +107,4 @@ function CompaniesList({ companies, counts, columnsConfig, addCompany }) {
 
 CompaniesList.propTypes = propTypes;
 
-export default CompaniesList;
+export default withRouter(CompaniesList);

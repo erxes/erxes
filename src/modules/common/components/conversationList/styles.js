@@ -48,7 +48,7 @@ const MainInfo = styled.div`
 `;
 
 const CustomerName = styled.div`
-  font-weight: 500;
+  font-weight: 400;
 `;
 
 const SmallText = styled.div`

@@ -1,5 +1,4 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 import moment from 'moment';
@@ -9,6 +8,7 @@ import { TagItem } from 'modules/layout/styles';
 const propTypes = {
   customer: PropTypes.object.isRequired,
   columnsConfig: PropTypes.array.isRequired,
+  history: PropTypes.object.isRequired,
   toggleBulk: PropTypes.func
 };
 
@@ -49,7 +49,7 @@ function renderTags(tags) {
   ));
 }
 
-function CustomerRow({ customer, columnsConfig, toggleBulk }) {
+function CustomerRow({ customer, columnsConfig, toggleBulk, history }) {
   const tags = customer.getTags;
   const onChange = e => {
     if (toggleBulk) {
@@ -57,21 +57,21 @@ function CustomerRow({ customer, columnsConfig, toggleBulk }) {
     }
   };
 
+  const onClick = e => {
+    e.stopPropagation();
+  };
+
   return (
-    <tr>
-      <td>
+    <tr
+      onClick={() => {
+        history.push(`customers/details/${customer._id}`);
+      }}
+    >
+      <td onClick={onClick}>
         <FormControl componentClass="checkbox" onChange={onChange} />
       </td>
       {columnsConfig.map(({ name }) => (
-        <td key={name}>
-          {name === 'firstName' ? (
-            <Link to={`customers/details/${customer._id}`}>
-              {formatValue(_.get(customer, name))}
-            </Link>
-          ) : (
-            formatValue(_.get(customer, name))
-          )}
-        </td>
+        <td key={name}>{formatValue(_.get(customer, name))}</td>
       ))}
       <td>{renderTags(tags)}</td>
     </tr>

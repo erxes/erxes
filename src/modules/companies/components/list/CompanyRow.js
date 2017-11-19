@@ -2,11 +2,11 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import moment from 'moment';
 import _ from 'lodash';
-import { Link } from 'react-router-dom';
 
 const propTypes = {
   company: PropTypes.object.isRequired,
-  columnsConfig: PropTypes.array.isRequired
+  columnsConfig: PropTypes.array.isRequired,
+  history: PropTypes.object.isRequired
 };
 
 function isTimeStamp(value) {
@@ -34,20 +34,15 @@ function formatValue(value) {
   return value || 'N/A';
 }
 
-function CompanyRow({ company, columnsConfig }) {
+function CompanyRow({ company, columnsConfig, history }) {
   return (
-    <tr>
+    <tr
+      onClick={() => {
+        history.push(`companies/details/${company._id}`);
+      }}
+    >
       {columnsConfig.map(({ name }) => (
-        <td key={name}>
-          {}
-          {name === 'name' ? (
-            <Link to={`companies/details/${company._id}`}>
-              {formatValue(_.get(company, name))}
-            </Link>
-          ) : (
-            formatValue(_.get(company, name))
-          )}
-        </td>
+        <td key={name}>{formatValue(_.get(company, name))}</td>
       ))}
     </tr>
   );
