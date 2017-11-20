@@ -7,7 +7,12 @@ export default `
   assignedUser {
     _id
     username
-    details
+    details {
+      avatar
+      fullName
+      position
+      twitterUsername
+    }
   }
   integration {
     _id
@@ -56,7 +61,12 @@ export default `
   participatedUsers {
     _id
     username
-    details
+    details {
+      avatar
+      fullName
+      position
+      twitterUsername
+    }
   }
   tagIds
   tags {

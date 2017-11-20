@@ -11,7 +11,7 @@ const PopoverButton = styled.div`
   }
 
   button {
-    padding: 8px 0;
+    padding: 0;
   }
 
   i {
@@ -325,6 +325,44 @@ const FileName = styled.div`
   color: ${colors.colorWhite};
 `;
 
+const AssignText = styled.div`
+  display: inline-block;
+`;
+
+const AssignWrapper = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+`;
+
+const AssignTrigger = styled.div`
+  padding-left: 10px;
+
+  i {
+    margin-left: 5px;
+    margin-right: 0;
+    transition: all ease 0.3s;
+    line-height: 30px;
+    display: inline-block;
+  }
+
+  &:hover {
+    cursor: pointer;
+  }
+
+  &[aria-describedby] {
+    color: ${colors.colorSecondary};
+
+    i {
+      transform: rotate(180deg);
+    }
+  }
+
+  img {
+    margin: 0;
+  }
+`;
+
 export {
   PopoverButton,
   ConversationWrapper,
@@ -349,5 +387,8 @@ export {
   AttachmentPreview,
   AttachmentIndicator,
   PreviewImg,
-  FileName
+  FileName,
+  AssignText,
+  AssignWrapper,
+  AssignTrigger
 };

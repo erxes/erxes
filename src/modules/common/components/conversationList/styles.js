@@ -54,6 +54,9 @@ const CustomerName = styled.div`
 const SmallText = styled.div`
   color: ${colors.colorCoreGray};
   font-size: 12px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 `;
 
 const MessageContent = styled.div`
@@ -91,6 +94,17 @@ const RowItem = styled.li`
   }
 `;
 
+const AssigneeImg = styled.img`
+  height: ${dimensions.coreSpacing}px;
+  line-height: ${dimensions.coreSpacing}px;
+  border-radius: ${dimensions.coreSpacing / 2}px;
+`;
+
+const AssigneeWrapper = styled.div`
+  display: flex;
+  justify-content: flex-end;
+`;
+
 export {
   ConversationItems,
   RowItem,
@@ -100,5 +114,7 @@ export {
   MainInfo,
   CustomerName,
   SmallText,
-  MessageContent
+  MessageContent,
+  AssigneeImg,
+  AssigneeWrapper
 };

@@ -7,7 +7,8 @@ import Message from './Message';
 
 const propTypes = {
   conversation: PropTypes.object,
-  attachmentPreview: PropTypes.object
+  attachmentPreview: PropTypes.object,
+  scrollBottom: PropTypes.func.isRequired
 };
 
 const Wrapper = styled.div`
@@ -78,7 +79,7 @@ class Conversation extends Component {
   }
 
   render() {
-    const { conversation } = this.props;
+    const { conversation, scrollBottom } = this.props;
 
     if (!conversation) {
       return null;
@@ -103,6 +104,7 @@ class Conversation extends Component {
             message={message}
             staff={!message.customerId}
             key={message._id}
+            scrollBottom={scrollBottom}
           />
         );
 

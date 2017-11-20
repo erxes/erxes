@@ -32,6 +32,7 @@ const CustomerDetailsContainer = (props, context) => {
     })
       .then(() => {
         callback();
+        customerDetailQuery.refetch();
       })
       .catch(e => {
         callback(e);

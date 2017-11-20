@@ -10,10 +10,11 @@ import { MessageItem, MessageBody, MessageContent, FormTable } from './styles';
 const propTypes = {
   message: PropTypes.object.isRequired,
   staff: PropTypes.bool,
+  scrollBottom: PropTypes.func,
   isSameUser: PropTypes.bool
 };
 
-function Message({ message, staff, isSameUser }) {
+function Message({ message, staff, isSameUser, scrollBottom }) {
   const user = message.user || {};
   const customer = message.customer || {};
   const faceboodData = message.facebookData;
@@ -67,7 +68,12 @@ function Message({ message, staff, isSameUser }) {
   const renderAttachment = () => {
     if (hasAttachment) {
       // TODO: render Attachment
-      return <Attachment attachment={message.attachments[0]} />;
+      return (
+        <Attachment
+          scrollBottom={scrollBottom}
+          attachment={message.attachments[0]}
+        />
+      );
     }
 
     if (isPhotoPost) {

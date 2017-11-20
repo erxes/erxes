@@ -78,6 +78,7 @@ class Attachment extends Component {
 
     this.renderAtachment = this.renderAtachment.bind(this);
     this.renderOtherFile = this.renderOtherFile.bind(this);
+    this.onLoadImage = this.onLoadImage.bind(this);
   }
 
   renderOtherFile(name, icon) {
@@ -88,11 +89,21 @@ class Attachment extends Component {
     );
   }
 
+  onLoadImage() {
+    this.props.scrollBottom();
+  }
+
   renderAtachment({ attachment }) {
     // when facebook attachments, it is not possible to determine file type
     // from extension, so determine it by type property
     if (attachment.type === 'image/jpeg' || attachment.type === 'image/png') {
-      return <img alt={attachment.url} src={attachment.url} />;
+      return (
+        <img
+          onLoad={this.onLoadImage}
+          alt={attachment.url}
+          src={attachment.url}
+        />
+      );
     }
 
     const url = attachment.url || attachment.name || '';
@@ -148,7 +159,8 @@ class Attachment extends Component {
 }
 
 Attachment.propTypes = {
-  attachment: PropTypes.object.isRequired
+  attachment: PropTypes.object.isRequired,
+  scrollBottom: PropTypes.func
 };
 
 export default Attachment;

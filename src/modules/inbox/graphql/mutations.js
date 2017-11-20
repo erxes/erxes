@@ -85,9 +85,24 @@ const customersEdit = `
   }
 `;
 
+const conversationsAssign = `
+  mutation conversationsAssign($conversationIds: [String]!, $assignedUserId: String) {
+    conversationsAssign(conversationIds: $conversationIds, assignedUserId: $assignedUserId) {
+      _id
+    }
+  }
+`;
+
 const customersAddCompany = `
   mutation customersAddCompany($_id: String!, $name: String!, $website: String) {
     customersAddCompany(_id: $_id, name: $name, website: $website) {
+      _id
+    }
+  }
+`;
+const conversationsUnassign = `
+  mutation conversationsUnassign($_ids: [String]!) {
+    conversationsUnassign(_ids: $_ids) {
       _id
     }
   }
@@ -96,6 +111,8 @@ const customersAddCompany = `
 export default {
   conversationMessageAdd,
   conversationsChangeStatus,
+  conversationsAssign,
+  conversationsUnassign,
   saveResponseTemplate,
   markAsRead,
   customersEdit,
