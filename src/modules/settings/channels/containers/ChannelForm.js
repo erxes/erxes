@@ -88,7 +88,12 @@ export default compose(
       query users {
         users {
           _id
-          details
+          details {
+            avatar
+            fullName
+            position
+            twitterUsername
+          }
         }
       }
     `,
