@@ -6,7 +6,12 @@ const internalNotes = `
       createdUserId
       createdUser {
         username
-        details
+        details {
+          avatar
+          fullName
+          position
+          twitterUsername
+        }
       }
     }
   }

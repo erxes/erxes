@@ -33,7 +33,12 @@ export default commonListComposer({
           username
           email
           role
-          details
+          details {
+            avatar
+            fullName
+            position
+            twitterUsername
+          }
         }
       }
     `,

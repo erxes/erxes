@@ -15,7 +15,12 @@ export default `
   user {
     _id
     username
-    details
+    details {
+      avatar
+      fullName
+      position
+      twitterUsername
+    }
   }
   customer {
     _id
