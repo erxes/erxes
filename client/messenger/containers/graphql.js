@@ -29,8 +29,8 @@ const messageFields = `
 
 
 const conversationDetailQuery = `
-  query ($conversationId: String!) {
-    conversationDetail(_id: $conversationId) {
+  query ($_id: String!) {
+    conversationDetail(_id: $_id) {
       _id
       content
       messages {
@@ -41,8 +41,8 @@ const conversationDetailQuery = `
 `;
 
 const conversationLastStaffQuery = `
-  query ($conversationId: String!) {
-    conversationLastStaff(_id: $conversationId) {
+  query ($_id: String) {
+    conversationLastStaff(_id: $_id) {
       _id,
       details {
         avatar

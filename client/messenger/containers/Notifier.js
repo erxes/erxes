@@ -42,11 +42,11 @@ const mapDisptachToProps = dispatch => ({
     // show messenger
     dispatch(toggle());
 
-    // change route
-    dispatch(changeRoute('conversation'));
-
     // set current conversation
     dispatch(changeConversation(conversationId));
+
+    // change route
+    dispatch(changeRoute('conversationDetail'));
 
     // mark as read
     dispatch(readMessages(conversationId));

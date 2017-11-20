@@ -39,7 +39,7 @@ export const sendMessage = (message, attachments) =>
     return client.mutate({
       mutation: gql`
         mutation insertMessage(${connection.queryVariables}, $message: String,
-            $conversationId: String!, $attachments: [JSON]) {
+            $conversationId: String, $attachments: [JSON]) {
 
           insertMessage(${connection.queryParams}, message: $message,
             conversationId: $conversationId, attachments: $attachments) {

@@ -57,23 +57,19 @@ export const changeRoute = route => ({
   route,
 });
 
-export const changeConversation = (conversationId) => {
+export const changeConversation = (_id) => (dispatch) => {
   // save last conversationId
-  setLocalStorageItem('lastConversationId', conversationId);
+  setLocalStorageItem('lastConversationId', _id);
 
-  return {
-    type: CHANGE_CONVERSATION,
-    conversationId,
-  };
+  dispatch({ type: CHANGE_CONVERSATION, conversationId: _id });
+  dispatch({ type: CHANGE_ROUTE, route: _id ? 'conversationDetail' : 'conversationCreate' });
 };
 
-export const openLastConversation = () => {
-  const conversationId = getLocalStorageItem('lastConversationId');
+export const openLastConversation = () => (dispatch) => {
+  const _id = getLocalStorageItem('lastConversationId');
 
-  return {
-    type: CHANGE_CONVERSATION,
-    conversationId,
-  };
+  dispatch({ type: CHANGE_CONVERSATION, conversationId: _id });
+  dispatch({ type: CHANGE_ROUTE, route: _id ? 'conversationDetail' : 'conversationCreate' });
 };
 
 export const saveGetNotified = ({ type, value }) => (dispatch) => {
@@ -101,7 +97,7 @@ export const saveGetNotified = ({ type, value }) => (dispatch) => {
     setLocalStorageItem('getNotifiedValue', value);
 
     // redirect to conversation
-    dispatch({ type: CHANGE_ROUTE, route: 'conversation' });
+    dispatch(openLastConversation());
   });
 };
 

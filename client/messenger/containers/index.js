@@ -4,7 +4,8 @@ import Messenger from './Messenger';
 import Message from './Message';
 import ConversationList from './ConversationList';
 import ConversationItem from './ConversationItem';
-import Conversation from './Conversation';
+import ConversationCreate from './ConversationCreate';
+import ConversationDetail from './ConversationDetail';
 import Launcher from './Launcher';
 import Notifier from './Notifier';
 import MessageSender from './MessageSender';
@@ -18,7 +19,8 @@ export {
   Message,
   ConversationList,
   ConversationItem,
-  Conversation,
+  ConversationCreate,
+  ConversationDetail,
   Launcher,
   Notifier,
   MessageSender,

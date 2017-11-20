@@ -1,7 +1,7 @@
 import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
 import { gql, graphql } from 'react-apollo';
-import { changeRoute, toggle, openLastConversation } from '../actions/messenger';
+import { toggle, openLastConversation } from '../actions/messenger';
 import { Launcher as DumbLauncher } from '../components';
 import { connection } from '../connection';
 import NotificationSubscriber from './NotificationSubscriber';
@@ -32,7 +32,6 @@ const mapStateToProps = state => ({
 const mapDisptachToProps = dispatch => ({
   onClick(isVisible) {
     dispatch(openLastConversation());
-    dispatch(changeRoute('conversation'));
     dispatch(toggle(isVisible));
   },
 });

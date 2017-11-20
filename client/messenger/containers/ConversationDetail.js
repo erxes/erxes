@@ -5,19 +5,14 @@ import { connection } from '../connection';
 import { changeRoute, changeConversation } from '../actions/messenger';
 import { Conversation as DumbConversation } from '../components';
 import graphqlTypes from './graphql';
+import conversationCommonQueries from './conversationCommonQueries';
 
-class Conversation extends React.Component {
+class ConversationDetail extends React.Component {
   componentWillMount() {
     const { conversationDetailQuery, conversationId } = this.props;
 
-    if (conversationId) {
-      this.subscribe(conversationDetailQuery, conversationId);
-    }
-  }
-
-  subscribe(conversationDetailQuery, conversationId) {
     // lister for new message
-    return conversationDetailQuery.subscribeToMore({
+    conversationDetailQuery.subscribeToMore({
       document: gql(graphqlTypes.conversationMessageInserted),
       variables: { _id: conversationId },
       updateQuery: (prev, { subscriptionData }) => {
@@ -28,12 +23,6 @@ class Conversation extends React.Component {
         // do not show internal messages
         if (message.internal) {
           return prev;
-        }
-
-        // TODO: Doing this because of Missing field avatar in {}
-        // error. Will learn about this bug later
-        if (messages.length <= 1) {
-          return conversationDetailQuery.refetch();
         }
 
         // add new message to messages list
@@ -71,14 +60,7 @@ class Conversation extends React.Component {
 }
 
 
-const mapStateToProps = (state) => {
-  const isNewConversation = !state.activeConversation;
-
-  return {
-    conversationId: state.activeConversation,
-    isNewConversation,
-  };
-};
+const mapStateToProps = (state) => ({ conversationId: state.activeConversation });
 
 const mapDisptachToProps = dispatch => ({
   goToConversationList(e) {
@@ -98,52 +80,20 @@ const query = compose(
       name: 'conversationDetailQuery',
       options: ownProps => ({
         variables: {
-          conversationId: ownProps.conversationId,
+          _id: ownProps.conversationId,
         },
         fetchPolicy: 'network-only',
       }),
     },
   ),
-
-  graphql(
-    gql(graphqlTypes.conversationLastStaffQuery),
-    {
-      name: 'conversationLastStaffQuery',
-      options: ownProps => ({
-        variables: {
-          conversationId: ownProps.conversationId,
-        },
-        fetchPolicy: 'network-only',
-      }),
-    },
-  ),
-
-  graphql(
-    gql(graphqlTypes.isMessengerOnlineQuery),
-    {
-      name: 'isMessengerOnlineQuery',
-      options: () => ({
-        variables: {
-          integrationId: connection.data.integrationId,
-        },
-        fetchPolicy: 'network-only',
-      }),
-    },
-  )
+  ...conversationCommonQueries(),
 );
 
-const Container = (props) =>
-  <Conversation key={`widget-${props.conversationId || 0}`} {...props} />
-
-Container.propTypes = {
-  conversationId: PropTypes.string,
-}
-
-Conversation.propTypes = {
+ConversationDetail.propTypes = {
   conversationId: PropTypes.string,
   conversationDetailQuery: PropTypes.object,
   conversationLastStaffQuery: PropTypes.object,
   isMessengerOnlineQuery: PropTypes.object,
 }
 
-export default connect(mapStateToProps, mapDisptachToProps)(query(Container));
+export default connect(mapStateToProps, mapDisptachToProps)(query(ConversationDetail));
