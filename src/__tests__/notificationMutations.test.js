@@ -56,7 +56,7 @@ describe('testing mutations', () => {
 
     await notificationMutations.notificationsMarkAsRead(null, args, { user: _user });
 
-    expect(Notifications.markAsRead).toBeCalledWith(args['_ids']);
+    expect(Notifications.markAsRead).toBeCalledWith(args['_ids'], _user._id);
     expect(Notifications.markAsRead.mock.calls.length).toBe(1);
   });
 });
