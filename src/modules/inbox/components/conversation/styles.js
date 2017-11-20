@@ -18,6 +18,10 @@ const MessageContent = styled.div`
   ul {
     margin: 0;
   }
+
+  > span {
+    display: block;
+  }
 `;
 
 const MessageItem = styled.div`
