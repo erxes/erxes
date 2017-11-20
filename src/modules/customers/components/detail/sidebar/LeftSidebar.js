@@ -50,10 +50,10 @@ class LeftSidebar extends React.Component {
     };
 
     this.state = {
-      fieldsediting: false,
-      basicinfoediting: false,
-      basicinfo: this.defaultBasicinfos,
-      fieldsdata: this.defaultCustomFieldsData
+      fieldsEditing: false,
+      basicInfoEditing: false,
+      basicInfo: this.defaultBasicinfos,
+      fieldsData: this.defaultCustomFieldsData
     };
 
     this.toggleEditing = this.toggleEditing.bind(this);
@@ -66,175 +66,166 @@ class LeftSidebar extends React.Component {
 
   toggleEditing() {
     this.cancelEditing();
-    this.setState({ fieldsediting: true });
+    this.setState({ fieldsEditing: true });
   }
 
   toggleBasicInfoEdit() {
     this.cancelEditing();
-    this.setState({ basicinfoediting: true });
+    this.setState({ basicInfoEditing: true });
   }
 
   cancelEditing() {
     this.setState({
-      fieldsediting: false,
-      basicinfoediting: false,
-      basicinfo: this.defaultBasicinfos,
-      fieldsdata: this.defaultCustomFieldsData
+      fieldsEditing: false,
+      basicInfoEditing: false,
+      basicInfo: this.defaultBasicinfos,
+      fieldsData: this.defaultCustomFieldsData
     });
   }
 
   save() {
     const doc = {
-      firstName: this.state.basicinfo.firstName,
-      lastName: this.state.basicinfo.lastName,
-      email: this.state.basicinfo.email,
-      phone: this.state.basicinfo.phone,
-      customFieldsData: this.state.fieldsdata
+      firstName: this.state.basicInfo.firstName,
+      lastName: this.state.basicInfo.lastName,
+      email: this.state.basicInfo.email,
+      phone: this.state.basicInfo.phone,
+      customFieldsData: this.state.fieldsData
     };
 
     this.props.save(doc, error => {
       if (error) return Alert.error(error.message);
 
-      this.defaultBasicinfos = this.state.basicinfo;
-      this.defaultCustomFieldsData = this.state.fieldsdata;
+      this.defaultBasicinfos = this.state.basicInfo;
+      this.defaultCustomFieldsData = this.state.fieldsData;
       this.cancelEditing();
       return Alert.success('Success');
     });
   }
 
   handleChange(e, inputname) {
-    const { basicinfo } = this.state;
+    const { basicInfo } = this.state;
     const newinfo = {
-      ...basicinfo,
+      ...basicInfo,
       [inputname]: e.target.value
     };
-    this.setState({ basicinfo: newinfo });
+    this.setState({ basicInfo: newinfo });
   }
 
   handleFieldsChange({ _id, value }) {
     this.toggleEditing();
-    const { fieldsdata } = this.state;
+    const { fieldsData } = this.state;
     const newfields = {
-      ...fieldsdata,
+      ...fieldsData,
       [_id]: value
     };
-    this.setState({ fieldsdata: newfields });
+    this.setState({ fieldsData: newfields });
   }
 
-  renderBasicInfo() {
+  renderInfo() {
+    return (
+      <SidebarContent>
+        <FormGroup>
+          First name:
+          <FormControl
+            defaultValue={this.state.basicInfo.firstName}
+            onChange={e => this.handleChange(e, 'firstName')}
+          />
+        </FormGroup>
+        <FormGroup>
+          Last name:
+          <FormControl
+            defaultValue={this.state.basicInfo.lastName}
+            onChange={e => this.handleChange(e, 'lastName')}
+          />
+        </FormGroup>
+        <FormGroup>
+          Primary Email:
+          <FormControl
+            defaultValue={this.state.basicInfo.email}
+            onChange={e => this.handleChange(e, 'email')}
+          />
+        </FormGroup>
+        <FormGroup>
+          Phone:
+          <FormControl
+            defaultValue={this.state.basicInfo.phone}
+            onChange={e => this.handleChange(e, 'phone')}
+          />
+        </FormGroup>
+        <ButtonWrapper>
+          <Button btnStyle="success" size="small" onClick={this.save}>
+            <Icon icon="checkmark" />
+          </Button>
+          <Button btnStyle="simple" size="small" onClick={this.cancelEditing}>
+            <Icon icon="close" />
+          </Button>
+        </ButtonWrapper>
+      </SidebarContent>
+    );
+  }
+
+  renderInfoEdit() {
     const { customer } = this.props;
     const isUser = customer.isUser;
-    const { Sidebar } = Wrapper;
-    const { Section } = Sidebar;
-    const { QuickButtons } = Section;
-
-    return this.state.basicinfoediting ? (
-      <Section className="full">
-        <SidebarContent>
-          <br />
-          <FormGroup>
-            First name:
-            <FormControl
-              defaultValue={this.state.basicinfo.firstName}
-              onChange={e => this.handleChange(e, 'firstName')}
-            />
-          </FormGroup>
-          <FormGroup>
-            Last name:
-            <FormControl
-              defaultValue={this.state.basicinfo.lastName}
-              onChange={e => this.handleChange(e, 'lastName')}
-            />
-          </FormGroup>
-          <FormGroup>
-            Primary Email:
-            <FormControl
-              defaultValue={this.state.basicinfo.email}
-              onChange={e => this.handleChange(e, 'email')}
-            />
-          </FormGroup>
-          <FormGroup>
-            Phone:
-            <FormControl
-              defaultValue={this.state.basicinfo.phone}
-              onChange={e => this.handleChange(e, 'phone')}
-            />
-          </FormGroup>
-          <ButtonWrapper>
-            <Button btnStyle="success" size="small" onClick={this.save}>
-              <Icon icon="checkmark" />
-            </Button>
-            <Button btnStyle="simple" size="small" onClick={this.cancelEditing}>
-              <Icon icon="close" />
-            </Button>
-          </ButtonWrapper>
-        </SidebarContent>
-      </Section>
-    ) : (
-      <Section className="full">
-        <SidebarContent>
+    return (
+      <SidebarContent>
+        <NameWrapper>
+          <AvatarWrapper isUser={isUser}>
+            <NameCard.Avatar customer={customer} size={50} />
+            {isUser ? <Icon icon="checkmark" /> : <Icon icon="minus" />}
+          </AvatarWrapper>
           <NameWrapper>
-            <AvatarWrapper isUser={isUser}>
-              <NameCard.Avatar customer={customer} size={50} />
-              {isUser ? <Icon icon="checkmark" /> : <Icon icon="minus" />}
-            </AvatarWrapper>
-            <NameWrapper>
-              {this.state.basicinfo.firstName ||
-              this.state.basicinfo.lastName ? (
-                (this.state.basicinfo.firstName || '') +
-                ' ' +
-                (this.state.basicinfo.lastName || '')
-              ) : (
-                <a onClick={this.toggleBasicInfoEdit}>Edit name</a>
-              )}
-            </NameWrapper>
-            <QuickButtons>
-              <QuickButton>
-                <Icon icon="edit" onClick={this.toggleBasicInfoEdit} />
-              </QuickButton>
-            </QuickButtons>
+            {this.state.basicInfo.firstName || this.state.basicInfo.lastName ? (
+              (this.state.basicInfo.firstName || '') +
+              ' ' +
+              (this.state.basicInfo.lastName || '')
+            ) : (
+              <a onClick={this.toggleBasicInfoEdit}>Edit name</a>
+            )}
           </NameWrapper>
-          <AboutWrapper>
-            <AboutList>
-              <li>
-                Email:
-                <Aboutvalues>
-                  {this.state.basicinfo.email || (
-                    <a onClick={this.toggleBasicInfoEdit}>Add Email</a>
-                  )}
-                </Aboutvalues>
-              </li>
-              <li>
-                Phone:
-                <Aboutvalues>
-                  {this.state.basicinfo.phone || (
-                    <a onClick={this.toggleBasicInfoEdit}>Add Phone</a>
-                  )}
-                </Aboutvalues>
-              </li>
-            </AboutList>
-          </AboutWrapper>
-        </SidebarContent>
-      </Section>
+          <Wrapper.Sidebar.Section.QuickButtons>
+            <QuickButton>
+              <Icon icon="edit" onClick={this.toggleBasicInfoEdit} />
+            </QuickButton>
+          </Wrapper.Sidebar.Section.QuickButtons>
+        </NameWrapper>
+        <AboutWrapper>
+          <AboutList>
+            <li>
+              Email:
+              <Aboutvalues>
+                {this.state.basicInfo.email || (
+                  <a onClick={this.toggleBasicInfoEdit}>Add Email</a>
+                )}
+              </Aboutvalues>
+            </li>
+            <li>
+              Phone:
+              <Aboutvalues>
+                {this.state.basicInfo.phone || (
+                  <a onClick={this.toggleBasicInfoEdit}>Add Phone</a>
+                )}
+              </Aboutvalues>
+            </li>
+          </AboutList>
+        </AboutWrapper>
+      </SidebarContent>
     );
   }
 
   renderCompanies() {
     const { addCompany, customer } = this.props;
-    const { Sidebar } = Wrapper;
-    const { Section } = Sidebar;
-    const { Title, QuickButtons } = Section;
 
     return (
-      <Section className="full">
-        <Title>Companies</Title>
+      <Wrapper.Sidebar.Section className="full">
+        <Wrapper.Sidebar.Section.Title>Companies</Wrapper.Sidebar.Section.Title>
 
         <CompaniesWrapper>
-          <QuickButtons>
+          <Wrapper.Sidebar.Section.QuickButtons>
             <ModalTrigger title="New company" trigger={<Icon icon="plus" />}>
               <CompanyForm addCompany={addCompany} />
             </ModalTrigger>
-          </QuickButtons>
+          </Wrapper.Sidebar.Section.QuickButtons>
           {customer.companies.map((company, index) => (
             <CompanyWrapper key={index}>
               <Link to={'/companies/details/' + company._id}>
@@ -245,24 +236,21 @@ class LeftSidebar extends React.Component {
             </CompanyWrapper>
           ))}
         </CompaniesWrapper>
-      </Section>
+      </Wrapper.Sidebar.Section>
     );
   }
 
   renderCustomFields() {
     const { customFields } = this.props;
-    const { Sidebar } = Wrapper;
-    const { Section } = Sidebar;
-    const { Title, QuickButtons } = Section;
 
     return (
-      <Section className="full">
-        <Title>About</Title>
-        <QuickButtons>
+      <Wrapper.Sidebar.Section className="full">
+        <Wrapper.Sidebar.Section.Title>About</Wrapper.Sidebar.Section.Title>
+        <Wrapper.Sidebar.Section.QuickButtons>
           <Link to="/fields/manage/customer">
             <Icon icon="gear-a" />
           </Link>
-        </QuickButtons>
+        </Wrapper.Sidebar.Section.QuickButtons>
         <SidebarContent>
           <AboutList>
             {customFields.map((field, index) => (
@@ -270,17 +258,17 @@ class LeftSidebar extends React.Component {
                 field={field}
                 key={index}
                 onValueChange={this.handleFieldsChange}
-                defaultValue={this.state.fieldsdata[field._id] || ''}
+                defaultValue={this.state.fieldsData[field._id] || ''}
               />
             ))}
           </AboutList>
         </SidebarContent>
-      </Section>
+      </Wrapper.Sidebar.Section>
     );
   }
 
   renderSidebarFooter() {
-    return this.state.fieldsediting ? (
+    return this.state.fieldsEditing ? (
       <Wrapper.Sidebar.Footer>
         <Button btnStyle="simple" size="small" onClick={this.cancelEditing}>
           <Icon icon="close" />Discard
@@ -297,7 +285,11 @@ class LeftSidebar extends React.Component {
 
     return (
       <Wrapper.Sidebar size="wide" footer={this.renderSidebarFooter()}>
-        {this.renderBasicInfo()}
+        <Wrapper.Sidebar.Section className="full">
+          {this.state.basicInfoEditing
+            ? this.renderInfo()
+            : this.renderInfoEdit()}
+        </Wrapper.Sidebar.Section>
         {this.renderCustomFields()}
         {this.renderCompanies()}
 
