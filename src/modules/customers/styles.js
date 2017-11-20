@@ -1,5 +1,6 @@
 import styled from 'styled-components';
 import { colors } from '../common/styles';
+import { typography } from '../common/styles';
 
 const AboutList = styled.ul`
   margin: 0;
@@ -87,6 +88,11 @@ const CompanyWrapper = styled.div`
   span {
     display: inline-block;
     width: 100%;
+
+    &:last-child {
+      color: ${colors.colorCoreGray};
+      font-weight: ${typography.fontWeightLight};
+    }
   }
 
   i {
