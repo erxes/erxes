@@ -95,9 +95,9 @@ const RowItem = styled.li`
 `;
 
 const AssigneeImg = styled.img`
-  height: 25px;
-  line-height: 25px;
-  border-radius: 25px;
+  height: ${dimensions.coreSpacing}px;
+  line-height: ${dimensions.coreSpacing}px;
+  border-radius: ${dimensions.coreSpacing / 2}px;
 `;
 
 const AssigneeWrapper = styled.div`

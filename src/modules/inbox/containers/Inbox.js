@@ -94,11 +94,6 @@ class ConversationDetail extends Component {
     const afterTag = () => {
       conversationDetailQuery.refetch();
     };
-    // after assign
-    const afterAssign = () => {
-      conversationDetailQuery.refetch();
-      this.overlayTrigger.hide();
-    };
 
     // mark as read
     const readUserIds = currentConversation.readUserIds || [];
@@ -121,8 +116,7 @@ class ConversationDetail extends Component {
       currentConversationId,
       currentConversation,
       changeStatus,
-      afterTag,
-      afterAssign
+      afterTag
     };
 
     return <InboxComponent {...updatedProps} />;

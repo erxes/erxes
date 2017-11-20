@@ -85,8 +85,7 @@ class Inbox extends Component {
       currentConversationId,
       currentConversation,
       onChangeConversation,
-      afterTag,
-      afterAssign
+      afterTag
     } = this.props;
     const tags = currentConversation.tags || [];
     const assignees = currentConversation.assignedUser || [];
@@ -137,7 +136,6 @@ class Inbox extends Component {
       <AssignBoxPopover
         targets={[currentConversation]}
         trigger={assignTrigger}
-        afterSave={afterAssign}
       />
     );
 
@@ -192,7 +190,6 @@ Inbox.propTypes = {
   onChangeConversation: PropTypes.func,
   changeStatus: PropTypes.func,
   afterTag: PropTypes.func,
-  afterAssign: PropTypes.func,
   currentConversationId: PropTypes.string,
   currentConversation: PropTypes.object
 };

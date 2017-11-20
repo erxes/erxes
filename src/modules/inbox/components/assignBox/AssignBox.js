@@ -7,10 +7,9 @@ import { FilterableList } from 'modules/common/components';
 
 const propTypes = {
   targets: PropTypes.array,
-  afterSave: PropTypes.func,
   event: PropTypes.oneOf(['onClick', 'onExit']),
   className: PropTypes.string,
-
+  hidePopover: PropTypes.func,
   //from containers
   assignees: PropTypes.array,
   assign: PropTypes.func.isRequired,
@@ -71,8 +70,7 @@ class AssignBox extends Component {
   }
 
   assign(assignees, id) {
-    const { assign, targets, afterSave } = this.props;
-
+    const { assign, targets, hidePopover } = this.props;
     const { assigneesForList } = this.state;
     const unchanged = assigneesForList.reduce(
       (prev, current, index) =>
@@ -92,12 +90,9 @@ class AssignBox extends Component {
         if (error) {
           Alert.error(error.reason);
         }
-
-        if (afterSave) {
-          afterSave();
-        }
       }
     );
+    hidePopover();
   }
 
   removeAssignee() {
