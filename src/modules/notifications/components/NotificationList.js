@@ -17,10 +17,13 @@ class NotificationList extends Component {
     super(props);
 
     this.state = { bulk: [] };
-    this.markAllRead = this.markAllRead.bind(this);
   }
 
-  markAllRead() {
+  markAllRead(isPageRead) {
+    if (!isPageRead) {
+      return this.props.markAsRead();
+    }
+
     const { bulk } = this.state;
 
     _.each(this.props.notifications, notification => {
@@ -61,9 +64,22 @@ class NotificationList extends Component {
     }
 
     const actionBarLeft = (
-      <Button btnStyle="success" size="small" onClick={this.markAllRead}>
-        <Icon icon="checkmark" /> Mark all Read
-      </Button>
+      <div>
+        <Button
+          btnStyle="primary"
+          size="small"
+          onClick={this.markAllRead.bind(this, true)}
+        >
+          <Icon icon="checkmark" /> Mark Page Read
+        </Button>
+        <Button
+          btnStyle="success"
+          size="small"
+          onClick={this.markAllRead.bind(this, false)}
+        >
+          <Icon icon="checkmark" /> Mark All Read
+        </Button>
+      </div>
     );
 
     const actionBar = <Wrapper.ActionBar left={actionBarLeft} />;

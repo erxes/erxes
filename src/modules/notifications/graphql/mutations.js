@@ -1,5 +1,5 @@
 const markAsRead = `
-  mutation notificationsMarkAsRead( $_ids: [String]!) {
+  mutation notificationsMarkAsRead( $_ids: [String]) {
     notificationsMarkAsRead(_ids: $_ids)
   }
 `;
