@@ -24,13 +24,18 @@ class Inbox extends Component {
 
     this.changeStatus = this.changeStatus.bind(this);
     this.setAttachmentPreview = this.setAttachmentPreview.bind(this);
+    this.scrollBottom = this.scrollBottom.bind(this);
   }
 
   componentDidMount() {
-    this.node.scrollTop = this.node.scrollHeight;
+    this.scrollBottom();
   }
 
   componentDidUpdate() {
+    this.scrollBottom();
+  }
+
+  scrollBottom() {
     this.node.scrollTop = this.node.scrollHeight;
   }
 
@@ -119,6 +124,7 @@ class Inbox extends Component {
         <Conversation
           conversation={currentConversation}
           attachmentPreview={this.state.attachmentPreview}
+          scrollBottom={this.scrollBottom}
         />
       </ConversationWrapper>
     );
