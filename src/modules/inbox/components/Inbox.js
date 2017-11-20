@@ -145,7 +145,16 @@ class Inbox extends Component {
             onChangeConversation={onChangeConversation}
           />
         }
-        rightSidebar={<RightSidebar conversation={currentConversation} />}
+        rightSidebar={
+          currentConversation._id ? (
+            <RightSidebar
+              conversation={currentConversation}
+              save={this.props.saveCustomer}
+              customFields={this.props.customFields}
+              addCompany={this.props.addCompany}
+            />
+          ) : null
+        }
       />
     );
   }
@@ -158,7 +167,10 @@ Inbox.propTypes = {
   changeStatus: PropTypes.func,
   afterTag: PropTypes.func,
   currentConversationId: PropTypes.string,
-  currentConversation: PropTypes.object
+  currentConversation: PropTypes.object,
+  saveCustomer: PropTypes.func,
+  customFields: PropTypes.array,
+  addCompany: PropTypes.func
 };
 
 export default Inbox;

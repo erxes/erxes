@@ -24,18 +24,31 @@ export default `
   }
   customer {
     _id
-    name
+    firstName
+    lastName
     email
     phone
     isUser
     integrationId
     createdAt
+    companies {
+      _id
+      name
+      website
+    }
 
     getMessengerCustomData
     customFieldsData
     messengerData
     twitterData
     facebookData
+
+    tagIds
+    getTags {
+      _id
+      name
+      colorCode
+    }
   }
   messageCount
   participatorCount

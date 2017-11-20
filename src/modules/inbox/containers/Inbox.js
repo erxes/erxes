@@ -65,13 +65,45 @@ class ConversationDetail extends Component {
       currentConversationId,
       conversationDetailQuery,
       changeStatusMutation,
-      markAsReadMutation
+      markAsReadMutation,
+      fieldsQuery,
+      customersEdit,
+      customersAddCompany
     } = this.props;
 
     const { currentUser } = this.context;
     const loading = conversationDetailQuery.loading;
     const currentConversation =
       conversationDetailQuery.conversationDetail || {};
+    const { customer } = currentConversation || {};
+
+    const saveCustomer = (variables, callback) => {
+      customersEdit({
+        variables: { _id: customer._id, ...variables }
+      })
+        .then(() => {
+          callback();
+        })
+        .catch(e => {
+          callback(e);
+        });
+    };
+
+    // const { company } = customer.companies;
+
+    const addCompany = ({ doc, callback }) => {
+      customersAddCompany({
+        variables: { _id: customer._id, ...doc }
+      })
+        .then(() => {
+          conversationDetailQuery.refetch();
+          Alert.success('Success');
+          callback();
+        })
+        .catch(e => {
+          Alert.error(e.message);
+        });
+    };
 
     // =============== actions
     const changeStatus = (conversationId, status) => {
@@ -116,7 +148,10 @@ class ConversationDetail extends Component {
       currentConversationId,
       currentConversation,
       changeStatus,
-      afterTag
+      afterTag,
+      customFields: fieldsQuery.fields,
+      saveCustomer,
+      addCompany
     };
 
     return <InboxComponent {...updatedProps} />;
@@ -127,7 +162,10 @@ ConversationDetail.propTypes = {
   conversationDetailQuery: PropTypes.object,
   changeStatusMutation: PropTypes.func.isRequired,
   currentConversationId: PropTypes.string.isRequired,
-  markAsReadMutation: PropTypes.func.isRequired
+  markAsReadMutation: PropTypes.func.isRequired,
+  customersEdit: PropTypes.func.isRequired,
+  fieldsQuery: PropTypes.object,
+  customersAddCompany: PropTypes.func
 };
 
 const ConversationDetailContainer = compose(
@@ -140,11 +178,20 @@ const ConversationDetailContainer = compose(
       };
     }
   }),
+  graphql(gql(queries.fields), {
+    name: 'fieldsQuery'
+  }),
   graphql(gql(mutations.conversationsChangeStatus), {
     name: 'changeStatusMutation'
   }),
   graphql(gql(mutations.markAsRead), {
     name: 'markAsReadMutation'
+  }),
+  graphql(gql(mutations.customersEdit), {
+    name: 'customersEdit'
+  }),
+  graphql(gql(mutations.customersAddCompany), {
+    name: 'customersAddCompany'
   })
 )(ConversationDetail);
 
