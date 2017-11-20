@@ -29,7 +29,8 @@ class CustomerForm extends React.Component {
 
     this.props.addCustomer({
       doc: {
-        name: document.getElementById('customer-name').value,
+        firstName: document.getElementById('customer-firstname').value,
+        lastName: document.getElementById('customer-lastname').value,
         email: document.getElementById('customer-email').value
       },
 
@@ -47,8 +48,13 @@ class CustomerForm extends React.Component {
     return (
       <form onSubmit={this.addCustomer}>
         <FormGroup>
-          <ControlLabel>Name</ControlLabel>
-          <FormControl id="customer-name" type="text" required />
+          <ControlLabel>First Name</ControlLabel>
+          <FormControl id="customer-firstname" type="text" required />
+        </FormGroup>
+
+        <FormGroup>
+          <ControlLabel>Last Name</ControlLabel>
+          <FormControl id="customer-lastname" type="text" required />
         </FormGroup>
 
         <FormGroup>
