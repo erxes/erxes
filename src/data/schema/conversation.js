@@ -26,6 +26,16 @@ export const types = `
     participatorCount: Int
   }
 
+  type EngageData {
+    messageId: String
+    brandId: String
+    content: String
+    fromUserId: String
+    fromUser: User
+    kind: String
+    sentAs: String
+  }
+
   type ConversationMessage {
     _id: String!
     content: String
@@ -37,7 +47,7 @@ export const types = `
     userId: String
     createdAt: Date
     isCustomerRead: Boolean
-    engageData: JSON
+    engageData: EngageData
     formWidgetData: JSON
     facebookData: JSON
 

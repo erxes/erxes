@@ -34,12 +34,6 @@
     "@types/express-serve-static-core" "*"
     "@types/mime" "*"
 
-"@types/ws@^3.0.0":
-  version "3.0.2"
-  resolved "https://registry.yarnpkg.com/@types/ws/-/ws-3.0.2.tgz#b538b6a16daee454ac04054991271f3da38772de"
-  dependencies:
-    "@types/node" "*"
-
 abab@^1.0.3:
   version "1.0.4"
   resolved "https://registry.yarnpkg.com/abab/-/abab-1.0.4.tgz#5faad9c2c07f60dd76770f71cf025b62a63cfd4e"
@@ -2152,7 +2146,7 @@ graphql-server-module-graphiql@^0.8.2, graphql-server-module-graphiql@^0.8.5:
   version "0.8.5"
   resolved "https://registry.yarnpkg.com/graphql-server-module-graphiql/-/graphql-server-module-graphiql-0.8.5.tgz#bf43caa20e7e7f912003a67bb31710c6ebc7ab18"
 
-graphql-subscriptions@^0.4.3:
+graphql-subscriptions@^0.4.3, graphql-subscriptions@^0.4.4:
   version "0.4.4"
   resolved "https://registry.yarnpkg.com/graphql-subscriptions/-/graphql-subscriptions-0.4.4.tgz#39cff32d08dd3c990113864bab77154403727e9b"
   dependencies:
@@ -2160,9 +2154,9 @@ graphql-subscriptions@^0.4.3:
     es6-promise "^4.0.5"
     iterall "^1.1.1"
 
-graphql-tag@^2.0.0:
-  version "2.4.2"
-  resolved "https://registry.yarnpkg.com/graphql-tag/-/graphql-tag-2.4.2.tgz#6a63297d8522d03a2b72d26f1b239aab343840cd"
+graphql-tag@^2.4.2:
+  version "2.5.0"
+  resolved "https://registry.yarnpkg.com/graphql-tag/-/graphql-tag-2.5.0.tgz#b43bfd8b5babcd2c205ad680c03e98b238934e0f"
 
 graphql-tools@^1.0.0:
   version "1.2.2"
@@ -4796,19 +4790,19 @@ strip@^3.0.0:
   version "3.0.0"
   resolved "https://registry.yarnpkg.com/strip/-/strip-3.0.0.tgz#750fc933152a7d35af0b7420e651789b914cc35e"
 
-subscriptions-transport-ws@^0.7.3:
-  version "0.7.3"
-  resolved "https://registry.yarnpkg.com/subscriptions-transport-ws/-/subscriptions-transport-ws-0.7.3.tgz#15858f03e013e1fc28f8c2d631014ec1548d38f0"
+subscriptions-transport-ws@0.8.3:
+  version "0.8.3"
+  resolved "https://registry.yarnpkg.com/subscriptions-transport-ws/-/subscriptions-transport-ws-0.8.3.tgz#d4b22db7f5951bd30e7c6f4dc4774d34ed9f1751"
   dependencies:
-    "@types/ws" "^3.0.0"
     backo2 "^1.0.2"
     eventemitter3 "^2.0.3"
-    graphql-subscriptions "^0.4.3"
-    graphql-tag "^2.0.0"
+    graphql-subscriptions "^0.4.4"
+    graphql-tag "^2.4.2"
     iterall "^1.1.1"
     lodash.assign "^4.2.0"
     lodash.isobject "^3.0.2"
     lodash.isstring "^4.0.1"
+    symbol-observable "^1.0.4"
     ws "^3.0.0"
 
 supports-color@^2.0.0:
@@ -4833,7 +4827,7 @@ supports-color@^4.4.0:
   dependencies:
     has-flag "^2.0.0"
 
-symbol-observable@^1.0.1:
+symbol-observable@^1.0.1, symbol-observable@^1.0.4:
   version "1.0.4"
   resolved "https://registry.yarnpkg.com/symbol-observable/-/symbol-observable-1.0.4.tgz#29bf615d4aa7121bdd898b22d4b3f9bc4e2aa03d"
 
@@ -5231,8 +5225,8 @@ write@^0.2.1:
     mkdirp "^0.5.1"
 
 ws@^3.0.0:
-  version "3.2.0"
-  resolved "https://registry.yarnpkg.com/ws/-/ws-3.2.0.tgz#d5d3d6b11aff71e73f808f40cc69d52bb6d4a185"
+  version "3.3.1"
+  resolved "https://registry.yarnpkg.com/ws/-/ws-3.3.1.tgz#d97e34dee06a1190c61ac1e95f43cb60b78cf939"
   dependencies:
     async-limiter "~1.0.0"
     safe-buffer "~5.1.0"

@@ -6,6 +6,13 @@ export const types = `
     twitterUsername: String
   }
 
+  type UserDetailsType {
+    avatar: String
+    fullName: String
+    position: String
+    twitterUsername: String
+  }
+
   input EmailSignature {
     brandId: String
     signature: String
@@ -16,7 +23,7 @@ export const types = `
     username: String
     email: String
     role: String
-    details: JSON
+    details: UserDetailsType
     emailSignatures: JSON
     getNotificationByEmail: Boolean
   }

@@ -34,7 +34,10 @@ const MessengerDataSchema = mongoose.Schema(
       type: Boolean,
     }),
     onlineHours: field({ type: [MessengerOnlineHoursSchema] }),
-    timezone: field({ type: String }),
+    timezone: field({
+      type: String,
+      optional: true,
+    }),
     welcomeMessage: field({ type: String }),
     awayMessage: field({ type: String }),
     thankYouMessage: field({ type: String }),
