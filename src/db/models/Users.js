@@ -91,6 +91,10 @@ class User {
     // change password
     if (password) {
       doc.password = await this.generatePassword(password);
+
+      // if there is no password specified then leave password field alone
+    } else {
+      delete doc.password;
     }
 
     await this.update({ _id }, { $set: doc });

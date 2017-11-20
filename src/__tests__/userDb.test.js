@@ -82,7 +82,7 @@ describe('User db utils', () => {
 
     const testPassword = 'updatedPass';
 
-    // try using exisiting one
+    // try with password ============
     await Users.updateUser(_user._id, {
       email: updateDoc.email,
       username: updateDoc.username,
@@ -90,7 +90,7 @@ describe('User db utils', () => {
       details: { ...updateDoc._doc.details.toJSON(), twitterUsername: 'tw' },
     });
 
-    const userObj = await Users.findOne({ _id: _user._id });
+    let userObj = await Users.findOne({ _id: _user._id });
 
     expect(userObj.username).toBe(updateDoc.username);
     expect(userObj.email).toBe(updateDoc.email);
@@ -100,6 +100,18 @@ describe('User db utils', () => {
     expect(userObj.details.twitterUsername).toBe('tw');
     expect(userObj.details.fullName).toBe(updateDoc.details.fullName);
     expect(userObj.details.avatar).toBe(updateDoc.details.avatar);
+
+    // try without password ============
+    await Users.updateUser(_user._id, {
+      email: updateDoc.email,
+      username: updateDoc.username,
+      details: { ...updateDoc._doc.details.toJSON(), twitterUsername: 'tw' },
+    });
+
+    userObj = await Users.findOne({ _id: _user._id });
+
+    // password must stay untouched
+    expect(bcrypt.compare(testPassword, userObj.password)).toBeTruthy();
   });
 
   test('Remove user', async () => {
