@@ -28,7 +28,6 @@ const propTypes = {
     })
   ),
   showCheckmark: PropTypes.bool,
-  singleSelect: PropTypes.bool,
   selectable: PropTypes.bool,
   className: PropTypes.string,
 

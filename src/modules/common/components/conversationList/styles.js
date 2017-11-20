@@ -54,6 +54,9 @@ const CustomerName = styled.div`
 const SmallText = styled.div`
   color: ${colors.colorCoreGray};
   font-size: 12px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 `;
 
 const MessageContent = styled.div`
@@ -98,7 +101,6 @@ const AssigneeImg = styled.img`
 `;
 
 const AssigneeWrapper = styled.div`
-  margin-top: 60px;
   display: flex;
   justify-content: flex-end;
 `;
