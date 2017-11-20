@@ -9,7 +9,14 @@ export default `
   userId
   createdAt
   isCustomerRead
-  engageData
+  engageData {
+    messageId
+    brandId
+    content
+    fromUserId
+    kind
+    sentAs
+  }
   formWidgetData
   facebookData
   user {

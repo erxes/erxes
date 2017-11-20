@@ -18,7 +18,10 @@ const conversationMessageInserted = `
 
 const conversationsChanged = `
   subscription conversationsChanged {
-    conversationsChanged
+    conversationsChanged {
+      type
+      customerId
+    }
   }
 `;
 
