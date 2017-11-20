@@ -11,7 +11,9 @@ import {
   MainInfo,
   CustomerName,
   SmallText,
-  MessageContent
+  MessageContent,
+  AssigneeImg,
+  AssigneeWrapper
 } from './styles';
 
 const propTypes = {
@@ -65,6 +67,7 @@ class Row extends Component {
     const brand = integration.brand || {};
     const brandName = brand.name;
     const tags = conversation.tags || [];
+    const assignedUser = conversation.assignedUser;
     const isExistingCustomer = customer && customer._id;
 
     return (
@@ -94,6 +97,15 @@ class Row extends Component {
           {moment(createdAt)
             .subtract(2, 'minutes')
             .fromNow()}
+          {assignedUser && (
+            <AssigneeWrapper>
+              <AssigneeImg
+                src={
+                  assignedUser.details.avatar || '/images/userDefaultIcon.png'
+                }
+              />
+            </AssigneeWrapper>
+          )}
         </SmallText>
       </RowItem>
     );

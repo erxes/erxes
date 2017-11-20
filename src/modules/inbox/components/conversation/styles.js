@@ -14,6 +14,10 @@ const MessageContent = styled.div`
   p {
     margin: 0;
   }
+
+  ul {
+    margin: 0;
+  }
 `;
 
 const MessageItem = styled.div`

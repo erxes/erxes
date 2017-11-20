@@ -4,6 +4,7 @@ import StatusFilterPopover from './sidebar/StatusFilterPopover';
 import LeftSidebar from './sidebar/LeftSidebar';
 import RespondBox from './RespondBox';
 import ResponseTemplate from './ResponseTemplate';
+import AssignBox from './assignBox/AssignBox';
 
 export {
   Inbox,
@@ -11,5 +12,6 @@ export {
   LeftSidebar,
   RespondBox,
   ResponseTemplate,
-  StatusFilterPopover
+  StatusFilterPopover,
+  AssignBox
 };

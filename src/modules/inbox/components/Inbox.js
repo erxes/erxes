@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Wrapper } from 'modules/layout/components';
+import { AvatarImg } from 'modules/common/components/filterableList/styles';
 import {
   Button,
   Label,
@@ -10,9 +11,16 @@ import {
 } from 'modules/common/components';
 import { BarItems } from 'modules/layout/styles';
 import Conversation from './conversation/Conversation';
+import AssignBoxPopover from './assignBox/AssignBoxPopover';
 import { LeftSidebar, RespondBox } from '../containers';
 import RightSidebar from './sidebar/RightSidebar';
-import { PopoverButton, ConversationWrapper } from '../styles';
+import {
+  PopoverButton,
+  ConversationWrapper,
+  AssignText,
+  AssignWrapper,
+  AssignTrigger
+} from '../styles';
 
 class Inbox extends Component {
   constructor(props) {
@@ -24,13 +32,18 @@ class Inbox extends Component {
 
     this.changeStatus = this.changeStatus.bind(this);
     this.setAttachmentPreview = this.setAttachmentPreview.bind(this);
+    this.scrollBottom = this.scrollBottom.bind(this);
   }
 
   componentDidMount() {
-    this.node.scrollTop = this.node.scrollHeight;
+    this.scrollBottom();
   }
 
   componentDidUpdate() {
+    this.scrollBottom();
+  }
+
+  scrollBottom() {
     this.node.scrollTop = this.node.scrollHeight;
   }
 
@@ -57,12 +70,12 @@ class Inbox extends Component {
   renderStatusButton(status) {
     let btnStyle = 'success';
     let text = 'Resolve';
-    let icon = <i className="ion-checkmark" />;
+    let icon = <Icon icon="checkmark" />;
 
     if (status === 'closed') {
       text = 'Open';
       btnStyle = 'warning';
-      icon = <i className="ion-refresh" />;
+      icon = <Icon icon="refresh" />;
     }
 
     return (
@@ -81,6 +94,7 @@ class Inbox extends Component {
       afterTag
     } = this.props;
     const tags = currentConversation.tags || [];
+    const assignedUser = currentConversation.assignedUser;
 
     const tagTrigger = (
       <PopoverButton>
@@ -91,6 +105,21 @@ class Inbox extends Component {
         )}
         <Icon icon="ios-arrow-down" />
       </PopoverButton>
+    );
+
+    const assignTrigger = (
+      <AssignTrigger>
+        {assignedUser && assignedUser._id ? (
+          <AvatarImg
+            src={assignedUser.details.avatar || '/images/userDefaultIcon.png'}
+          />
+        ) : (
+          <Button btnStyle="simple" size="small">
+            Team members
+          </Button>
+        )}
+        <Icon icon="ios-arrow-down" size={13} />
+      </AssignTrigger>
     );
 
     const actionBarRight = (
@@ -108,7 +137,19 @@ class Inbox extends Component {
       </BarItems>
     );
 
-    const actionBar = <Wrapper.ActionBar right={actionBarRight} invert />;
+    const actionBarLeft = (
+      <AssignWrapper>
+        <AssignText>Assign to:</AssignText>
+        <AssignBoxPopover
+          targets={[currentConversation]}
+          trigger={assignTrigger}
+        />
+      </AssignWrapper>
+    );
+
+    const actionBar = (
+      <Wrapper.ActionBar right={actionBarRight} left={actionBarLeft} invert />
+    );
 
     const content = (
       <ConversationWrapper
@@ -119,6 +160,7 @@ class Inbox extends Component {
         <Conversation
           conversation={currentConversation}
           attachmentPreview={this.state.attachmentPreview}
+          scrollBottom={this.scrollBottom}
         />
       </ConversationWrapper>
     );
