@@ -42,7 +42,7 @@
     "redux": "^3.6.0",
     "redux-thunk": "^2.1.0",
     "striptags": "^3.0.1",
-    "subscriptions-transport-ws": "^0.8.2"
+    "subscriptions-transport-ws": "0.8.3"
   },
   "devDependencies": {
     "babel-cli": "^6.18.0",

@@ -1,8 +1,7 @@
 /* global window, API_SUBSCRIPTIONS_URL, API_GRAPHQL_URL */
 
 import { ApolloClient, createNetworkInterface } from 'react-apollo';
-import { SubscriptionClient } from 'subscriptions-transport-ws';
-import { addGraphQLSubscriptions } from 'add-graphql-subscriptions';
+import { SubscriptionClient, addGraphQLSubscriptions } from 'subscriptions-transport-ws';
 import thunkMiddleware from 'redux-thunk';
 
 import {
