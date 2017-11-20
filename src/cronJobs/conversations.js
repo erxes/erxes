@@ -22,6 +22,10 @@ export const sendMessageEmail = async () => {
     const customer = await Customers.findOne({ _id: conversation.customerId });
     const integration = await Integrations.findOne({ _id: conversation.integrationId });
 
+    if (!integration) {
+      return;
+    }
+
     const brand = await Brands.findOne({ _id: integration.brandId });
 
     if (!customer || !customer.email) {
