@@ -8,7 +8,7 @@ import Message from './Message';
 const propTypes = {
   conversation: PropTypes.object,
   attachmentPreview: PropTypes.object,
-  scrollBottom: PropTypes.func
+  scrollBottom: PropTypes.func.isRequired
 };
 
 const Wrapper = styled.div`

@@ -1,8 +1,8 @@
 import styled from 'styled-components';
-import { colors } from '../../styles';
+import { colors, dimensions } from '../../styles';
 
 const PopoverHeader = styled.div`
-  padding: 10px;
+  padding: ${dimensions.unitSpacing}px;
   display: block !important;
 
   input {
@@ -34,25 +34,25 @@ const PopoverList = styled.ul`
     padding-left: ${props => props.selectable && '30px'};
 
     i {
-      margin-right: 5px;
+      margin-right: ${dimensions.unitSpacing / 2}px;
     }
 
     &:hover {
-      background: #f8f8f8;
+      background: ${colors.bgLight};
       cursor: pointer;
     }
 
     &:before {
       font-family: Ionicons;
-      font-size: 10px;
+      font-size: ${dimensions.unitSpacing}px;
       width: 15px;
       height: 15px;
       z-index: 30;
       text-align: center;
       position: absolute;
       color: ${colors.colorCoreDarkGray};
-      top: 50%;
-      left: 10px;
+      top: ${dimensions.headerSpacing}%;
+      left: ${dimensions.unitSpacing}px;
       margin-top: -7px;
     }
 
@@ -76,4 +76,14 @@ const PopoverFooter = styled.div`
   }
 `;
 
-export { PopoverHeader, PopoverBody, PopoverList, PopoverFooter };
+const AvatarImg = styled.img`
+  width: ${dimensions.coreSpacing + 10}px;
+  height: ${dimensions.coreSpacing + 10}px;
+  line-height: ${dimensions.coreSpacing + 10}px;
+  border-radius: ${(dimensions.coreSpacing + 10) / 2}px;
+  font-size: ${dimensions.unitSpacing}px;
+  vertical-align: middle;
+  margin-right: ${dimensions.unitSpacing}px;
+`;
+
+export { PopoverHeader, PopoverBody, PopoverList, PopoverFooter, AvatarImg };

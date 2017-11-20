@@ -4,7 +4,8 @@ import {
   PopoverHeader,
   PopoverBody,
   PopoverList,
-  PopoverFooter
+  PopoverFooter,
+  AvatarImg
 } from './styles';
 import Filter from './Filter';
 
@@ -96,6 +97,7 @@ class FilterableList extends Component {
               style={{ color: item.iconColor }}
             />
           ) : null}{' '}
+          {item.avatar ? <AvatarImg src={item.avatar} /> : null}
           {item.title || '[undefined]'}
         </li>
       );
