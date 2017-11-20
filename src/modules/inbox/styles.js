@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import { colors } from '../common/styles';
+import { colors, dimensions } from '../common/styles';
 import { rgba, darken } from '../common/styles/color';
 
 const PopoverButton = styled.div`
@@ -273,6 +273,20 @@ const PopoverBody = styled.div`
   }
 `;
 
+const ParticipatorWrapper = styled.div`
+  display: inline-block;
+  margin-left: ${dimensions.coreSpacing + 10}px;
+`;
+
+const ParticipatorImg = styled.img`
+  width: ${dimensions.coreSpacing + 10}px;
+  height: ${dimensions.coreSpacing + 10}px;
+  line-height: ${dimensions.coreSpacing + 10}px;
+  border-radius: ${(dimensions.coreSpacing + 10) / 2}px;
+  border: 1px solid ${colors.colorWhite};
+  margin-left: -${dimensions.unitSpacing}px;
+`;
+
 const TemplateTitle = styled.div`
   font-weight: 500;
   margin-bottom: 2px;
@@ -329,7 +343,7 @@ const AssignText = styled.div`
   display: inline-block;
 `;
 
-const AssignWrapper = styled.div`
+const ActionBarLeftWrapper = styled.div`
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -386,9 +400,11 @@ export {
   Attachment,
   AttachmentPreview,
   AttachmentIndicator,
+  ParticipatorWrapper,
   PreviewImg,
+  ParticipatorImg,
   FileName,
   AssignText,
-  AssignWrapper,
+  ActionBarLeftWrapper,
   AssignTrigger
 };

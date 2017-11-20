@@ -7,6 +7,7 @@ import {
   Label,
   Icon,
   TaggerPopover,
+  Participators,
   Tags
 } from 'modules/common/components';
 import { BarItems } from 'modules/layout/styles';
@@ -18,7 +19,7 @@ import {
   PopoverButton,
   ConversationWrapper,
   AssignText,
-  AssignWrapper,
+  ActionBarLeftWrapper,
   AssignTrigger
 } from '../styles';
 
@@ -33,6 +34,7 @@ class Inbox extends Component {
     this.changeStatus = this.changeStatus.bind(this);
     this.setAttachmentPreview = this.setAttachmentPreview.bind(this);
     this.scrollBottom = this.scrollBottom.bind(this);
+    this.stretchRight = stretchRight.bind(this);
   }
 
   componentDidMount() {
@@ -49,6 +51,10 @@ class Inbox extends Component {
 
   setAttachmentPreview(attachmentPreview) {
     this.setState({ attachmentPreview });
+  }
+
+  stretchRight() {
+    console.log('testii');
   }
 
   // change resolved status
@@ -95,6 +101,7 @@ class Inbox extends Component {
     } = this.props;
     const tags = currentConversation.tags || [];
     const assignedUser = currentConversation.assignedUser;
+    const participatedUsers = currentConversation.participatedUsers || [];
 
     const tagTrigger = (
       <PopoverButton>
@@ -138,13 +145,20 @@ class Inbox extends Component {
     );
 
     const actionBarLeft = (
-      <AssignWrapper>
+      <ActionBarLeftWrapper>
         <AssignText>Assign to:</AssignText>
         <AssignBoxPopover
           targets={[currentConversation]}
           trigger={assignTrigger}
         />
-      </AssignWrapper>
+        {participatedUsers.length ? (
+          <Participators
+            participatedUsers={participatedUsers}
+            stretchRight={this.stretchRight}
+            limit={3}
+          />
+        ) : null}
+      </ActionBarLeftWrapper>
     );
 
     const actionBar = (
