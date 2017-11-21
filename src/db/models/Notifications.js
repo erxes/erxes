@@ -28,10 +28,17 @@ class Notification {
   /**
    * Marks notifications as read
    * @param {String[]} ids - Notification ids
+   * @param {String} userId - Reciever user id
    * @return {Promise}
    */
-  static markAsRead(ids) {
-    return this.update({ _id: { $in: ids } }, { $set: { isRead: true } }, { multi: true });
+  static markAsRead(ids, userId) {
+    let selector = { receiver: userId };
+
+    if (ids) {
+      selector = { _id: { $in: ids } };
+    }
+
+    return this.update(selector, { $set: { isRead: true } }, { multi: true });
   }
 
   /**
