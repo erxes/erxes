@@ -33,24 +33,24 @@ class BasicInfo extends React.Component {
     };
 
     this.state = {
-      basicInfoEditing: false,
+      Editing: false,
       basicInfo: this.defaultBasicinfos
     };
 
-    this.toggleBasicInfoEdit = this.toggleBasicInfoEdit.bind(this);
+    this.toggleEditing = this.toggleEditing.bind(this);
     this.cancelEditing = this.cancelEditing.bind(this);
     this.save = this.save.bind(this);
     this.handleChange = this.handleChange.bind(this);
   }
 
-  toggleBasicInfoEdit() {
+  toggleEditing() {
     this.cancelEditing();
-    this.setState({ basicInfoEditing: true });
+    this.setState({ Editing: true });
   }
 
   cancelEditing() {
     this.setState({
-      basicInfoEditing: false,
+      Editing: false,
       basicInfo: this.defaultBasicinfos
     });
   }
@@ -140,12 +140,12 @@ class BasicInfo extends React.Component {
               ' ' +
               (this.state.basicInfo.lastName || '')
             ) : (
-              <a onClick={this.toggleBasicInfoEdit}>Edit name</a>
+              <a onClick={this.toggleEditing}>Edit name</a>
             )}
           </NameWrapper>
           <Sidebar.Section.QuickButtons>
             <QuickButton>
-              <Icon icon="edit" onClick={this.toggleBasicInfoEdit} />
+              <Icon icon="edit" onClick={this.toggleEditing} />
             </QuickButton>
           </Sidebar.Section.QuickButtons>
         </NameWrapper>
@@ -155,7 +155,7 @@ class BasicInfo extends React.Component {
               Email:
               <Aboutvalues>
                 {this.state.basicInfo.email || (
-                  <a onClick={this.toggleBasicInfoEdit}>Add Email</a>
+                  <a onClick={this.toggleEditing}>Add Email</a>
                 )}
               </Aboutvalues>
             </li>
@@ -163,7 +163,7 @@ class BasicInfo extends React.Component {
               Phone:
               <Aboutvalues>
                 {this.state.basicInfo.phone || (
-                  <a onClick={this.toggleBasicInfoEdit}>Add Phone</a>
+                  <a onClick={this.toggleEditing}>Add Phone</a>
                 )}
               </Aboutvalues>
             </li>
@@ -176,9 +176,7 @@ class BasicInfo extends React.Component {
   render() {
     return (
       <Sidebar.Section className="full">
-        {this.state.basicInfoEditing
-          ? this.renderInfo()
-          : this.renderInfoEdit()}
+        {this.state.Editing ? this.renderInfo() : this.renderInfoEdit()}
       </Sidebar.Section>
     );
   }
