@@ -7,7 +7,12 @@ const notificationFields = `
   createdUser {
     _id
     username
-    details
+    details {
+      avatar
+      fullName
+      position
+      twitterUsername
+    }
     email
   }
 
