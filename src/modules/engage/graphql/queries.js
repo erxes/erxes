@@ -14,7 +14,12 @@ const engageMessages = `
       }
       fromUser {
         _id
-        details
+        details {
+          avatar
+          fullName
+          position
+          twitterUsername
+        }
       }
       tagIds
       messenger
@@ -63,7 +68,12 @@ const users = `
     users {
       _id
       username
-      details
+      details {
+        avatar
+        fullName
+        position
+        twitterUsername
+      }
     }
   }
 `;
@@ -73,7 +83,12 @@ const userDetail = `
     userDetail(_id: $_id) {
       _id
       username
-      details
+      details {
+        avatar
+        fullName
+        position
+        twitterUsername
+      }
       email
     }
   }

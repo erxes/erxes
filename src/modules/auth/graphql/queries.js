@@ -4,7 +4,13 @@ const currentUser = `
       _id
       username
       email
-      details
+      details {
+        avatar
+        fullName
+        position
+        twitterUsername
+      }
+
       emailSignatures
       getNotificationByEmail
     }

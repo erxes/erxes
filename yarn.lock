@@ -7861,7 +7861,7 @@ stylis@3.x:
   version "3.4.0"
   resolved "https://registry.yarnpkg.com/stylis/-/stylis-3.4.0.tgz#55c6530ebceeca5976d54fb4adc67578afee828d"
 
-subscriptions-transport-ws@^0.8.2:
+subscriptions-transport-ws@0.8.3:
   version "0.8.3"
   resolved "https://registry.yarnpkg.com/subscriptions-transport-ws/-/subscriptions-transport-ws-0.8.3.tgz#d4b22db7f5951bd30e7c6f4dc4774d34ed9f1751"
   dependencies:
@@ -8599,8 +8599,8 @@ write@^0.2.1:
     mkdirp "^0.5.1"
 
 ws@^3.0.0:
-  version "3.3.0"
-  resolved "https://registry.yarnpkg.com/ws/-/ws-3.3.0.tgz#f8b948a1378af7efa702f5513da08dd516897c31"
+  version "3.3.1"
+  resolved "https://registry.yarnpkg.com/ws/-/ws-3.3.1.tgz#d97e34dee06a1190c61ac1e95f43cb60b78cf939"
   dependencies:
     async-limiter "~1.0.0"
     safe-buffer "~5.1.0"
