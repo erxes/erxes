@@ -7,12 +7,12 @@ import { ModalTrigger, Button, Icon } from 'modules/common/components';
 import { CompanyForm } from 'modules/companies/components';
 import { Link } from 'react-router-dom';
 import {
-  BasicInfo,
   TaggerSection,
   MessengerSection,
   TwitterSection,
   FacebookSection
 } from './';
+import { BasicInfo } from 'modules/customers/components/detail/sidebar';
 import { Alert } from 'modules/common/utils';
 import { AboutList, CompaniesWrapper, CompanyWrapper } from '../../../styles';
 
@@ -20,7 +20,8 @@ const propTypes = {
   customer: PropTypes.object.isRequired,
   customFields: PropTypes.array.isRequired,
   save: PropTypes.func.isRequired,
-  addCompany: PropTypes.func.isRequired
+  addCompany: PropTypes.func.isRequired,
+  sections: PropTypes.node
 };
 
 class LeftSidebar extends React.Component {
@@ -30,7 +31,6 @@ class LeftSidebar extends React.Component {
     this.defaultCustomFieldsData = {
       ...(props.customer.customFieldsData || {})
     };
-
     this.state = {
       fieldsEditing: false,
       fieldsData: this.defaultCustomFieldsData
@@ -153,7 +153,7 @@ class LeftSidebar extends React.Component {
         <BasicInfo customer={customer} save={this.props.save} />
         {this.renderCustomFields()}
         {this.renderCompanies()}
-
+        {this.props.sections ? this.props.sections : null}
         <MessengerSection customer={customer} />
         <TwitterSection customer={customer} />
         <FacebookSection customer={customer} />
