@@ -13,7 +13,9 @@ import { BarItems } from 'modules/layout/styles';
 import Conversation from './conversation/Conversation';
 import AssignBoxPopover from './assignBox/AssignBoxPopover';
 import { LeftSidebar, RespondBox } from '../containers';
-import RightSidebar from './sidebar/RightSidebar';
+import ConversationDetails from './sidebar/ConversationDetails';
+import { LeftSidebar as RightSidebar } from 'modules/customers/containers';
+
 import {
   PopoverButton,
   ConversationWrapper,
@@ -191,9 +193,10 @@ class Inbox extends Component {
           currentConversation._id ? (
             <RightSidebar
               conversation={currentConversation}
-              save={this.props.saveCustomer}
-              customFields={this.props.customFields}
-              addCompany={this.props.addCompany}
+              sections={
+                <ConversationDetails conversation={currentConversation} />
+              }
+              id={currentConversation.customer._id}
             />
           ) : null
         }
