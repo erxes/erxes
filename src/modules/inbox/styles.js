@@ -285,6 +285,10 @@ const ParticipatorImg = styled.img`
   border-radius: ${(dimensions.coreSpacing + 10) / 2}px;
   border: 1px solid ${colors.colorWhite};
   margin-left: -${dimensions.unitSpacing}px;
+
+  &:not(:last-child) {
+    margin-right: ${dimensions.unitSpacing - 5}px;
+  }
 `;
 
 const TemplateTitle = styled.div`
@@ -349,6 +353,15 @@ const ActionBarLeftWrapper = styled.div`
   align-items: center;
 `;
 
+const More = styled.span`
+  margin-left: -${dimensions.unitSpacing}px;
+  border: 1px solid ${colors.colorWhite};
+  padding: 8px 9px;
+  color: ${colors.colorWhite};
+  font-size: 9px;
+  border-radius: ${(dimensions.coreSpacing + 10) / 2}px;
+`;
+
 const AssignTrigger = styled.div`
   padding-left: 10px;
 
@@ -406,5 +419,6 @@ export {
   FileName,
   AssignText,
   ActionBarLeftWrapper,
-  AssignTrigger
+  AssignTrigger,
+  More
 };

@@ -34,7 +34,6 @@ class Inbox extends Component {
     this.changeStatus = this.changeStatus.bind(this);
     this.setAttachmentPreview = this.setAttachmentPreview.bind(this);
     this.scrollBottom = this.scrollBottom.bind(this);
-    this.stretchRight = stretchRight.bind(this);
   }
 
   componentDidMount() {
@@ -51,10 +50,6 @@ class Inbox extends Component {
 
   setAttachmentPreview(attachmentPreview) {
     this.setState({ attachmentPreview });
-  }
-
-  stretchRight() {
-    console.log('testii');
   }
 
   // change resolved status
@@ -152,11 +147,7 @@ class Inbox extends Component {
           trigger={assignTrigger}
         />
         {participatedUsers.length ? (
-          <Participators
-            participatedUsers={participatedUsers}
-            stretchRight={this.stretchRight}
-            limit={3}
-          />
+          <Participators participatedUsers={participatedUsers} limit={3} />
         ) : null}
       </ActionBarLeftWrapper>
     );
