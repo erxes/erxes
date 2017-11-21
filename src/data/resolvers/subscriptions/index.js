@@ -1,9 +1,8 @@
-import { PubSub } from 'graphql-subscriptions';
-
+import pubsub from './pubsub';
 import conversations from './conversations';
 import notifications from './notifications';
 
-export const pubsub = new PubSub();
+export { pubsub };
 
 export default {
   ...conversations,
