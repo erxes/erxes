@@ -19,7 +19,7 @@ const EditInformationContainer = (props, context) => {
       variables: { _id: _id, ...variables }
     })
       .then(() => {
-        customer.refetch();
+        if (customer.refetch) customer.refetch();
         callback();
       })
       .catch(e => {
@@ -32,7 +32,7 @@ const EditInformationContainer = (props, context) => {
       variables: { _id: _id, ...doc }
     })
       .then(() => {
-        customer.refetch();
+        if (customer.refetch) customer.refetch();
         Alert.success('Success');
         callback();
       })
