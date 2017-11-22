@@ -14,10 +14,7 @@ import ActivityList from 'modules/activityLogs/components/ActivityList';
 const propTypes = {
   customer: PropTypes.object.isRequired,
   currentUser: PropTypes.object.isRequired,
-  customFields: PropTypes.array.isRequired,
-  save: PropTypes.func.isRequired,
   queryParams: PropTypes.object.isRequired,
-  addCompany: PropTypes.func.isRequired,
   activityLogsCustomer: PropTypes.array.isRequired
 };
 
