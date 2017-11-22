@@ -8,7 +8,6 @@ import { Spinner } from 'modules/common/components';
 
 const EditInformationContainer = (props, context) => {
   const { customer, customersEdit, customersAddCompany, fieldsQuery } = props;
-
   if (fieldsQuery.loading) {
     return <Spinner />;
   }
@@ -20,6 +19,7 @@ const EditInformationContainer = (props, context) => {
       variables: { _id: _id, ...variables }
     })
       .then(() => {
+        customer.refetch();
         callback();
       })
       .catch(e => {
@@ -32,6 +32,7 @@ const EditInformationContainer = (props, context) => {
       variables: { _id: _id, ...doc }
     })
       .then(() => {
+        customer.refetch();
         Alert.success('Success');
         callback();
       })
