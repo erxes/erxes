@@ -1,5 +1,3 @@
-$break-small: 415px;
-
 .erxes-launcher {
   color: $white;
   line-height: 56px;
@@ -48,15 +46,15 @@ $break-small: 415px;
 
   @media screen and (max-width: $break-small) {
     &.close {
-      top: 15px;
-      right: 60px;
-      width: 40px;
+      border-radius: 4px;
+      box-shadow: none;
+      display: block;
       height: 40px;
       line-height: 40px;
-      border-radius: 4px;
-      display: block;
+      right: 60px;
+      top: 15px;
+      width: 40px;
       z-index: 1000000000;
-      box-shadow: none;
 
       &:hover {
         background-color: rgba($black, .2);
