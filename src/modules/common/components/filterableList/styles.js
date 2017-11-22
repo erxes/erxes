@@ -81,7 +81,6 @@ const AvatarImg = styled.img`
   height: ${dimensions.coreSpacing + 10}px;
   line-height: ${dimensions.coreSpacing + 10}px;
   border-radius: ${(dimensions.coreSpacing + 10) / 2}px;
-  font-size: ${dimensions.unitSpacing}px;
   vertical-align: middle;
   margin-right: ${dimensions.unitSpacing}px;
 `;
