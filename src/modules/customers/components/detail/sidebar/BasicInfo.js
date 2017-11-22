@@ -124,7 +124,7 @@ class BasicInfo extends React.Component {
     );
   }
 
-  renderInfoEdit() {
+  renderForm() {
     const { customer } = this.props;
     const isUser = customer.isUser;
     return (
@@ -176,7 +176,7 @@ class BasicInfo extends React.Component {
   render() {
     return (
       <Sidebar.Section>
-        {this.state.editing ? this.renderInfo() : this.renderInfoEdit()}
+        {this.state.editing ? this.renderInfo() : this.renderForm()}
       </Sidebar.Section>
     );
   }

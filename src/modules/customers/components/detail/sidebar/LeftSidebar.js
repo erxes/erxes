@@ -4,7 +4,7 @@ import { Sidebar } from 'modules/layout/components';
 import { SidebarContent } from 'modules/layout/styles';
 import { GenerateField } from 'modules/fields/components';
 import { ModalTrigger, Button, Icon } from 'modules/common/components';
-import { CompanyForm } from 'modules/companies/components';
+import { CompanyAssociate } from 'modules/companies/containers';
 import { Link } from 'react-router-dom';
 import {
   TaggerSection,
@@ -32,8 +32,8 @@ class LeftSidebar extends React.Component {
       ...(props.customer.customFieldsData || {})
     };
     this.state = {
-      fieldsEditing: false,
-      fieldsData: this.defaultCustomFieldsData
+      editing: false,
+      customData: this.defaultCustomFieldsData
     };
 
     this.toggleEditing = this.toggleEditing.bind(this);
@@ -44,25 +44,25 @@ class LeftSidebar extends React.Component {
 
   toggleEditing() {
     this.cancelEditing();
-    this.setState({ fieldsEditing: true });
+    this.setState({ editing: true });
   }
 
   cancelEditing() {
     this.setState({
-      fieldsEditing: false,
-      fieldsData: this.defaultCustomFieldsData
+      editing: false,
+      customData: this.defaultCustomFieldsData
     });
   }
 
   save() {
     const doc = {
-      customFieldsData: this.state.fieldsData
+      customFieldsData: this.state.customData
     };
 
     this.props.save(doc, error => {
       if (error) return Alert.error(error.message);
 
-      this.defaultCustomFieldsData = this.state.fieldsData;
+      this.defaultCustomFieldsData = this.state.customData;
       this.cancelEditing();
       return Alert.success('Success');
     });
@@ -70,16 +70,16 @@ class LeftSidebar extends React.Component {
 
   handleFieldsChange({ _id, value }) {
     this.toggleEditing();
-    const { fieldsData } = this.state;
+    const { customData } = this.state;
     const newfields = {
-      ...fieldsData,
+      ...customData,
       [_id]: value
     };
-    this.setState({ fieldsData: newfields });
+    this.setState({ customData: newfields });
   }
 
   renderCompanies() {
-    const { addCompany, customer } = this.props;
+    const { customer } = this.props;
 
     return (
       <Sidebar.Section>
@@ -88,7 +88,7 @@ class LeftSidebar extends React.Component {
         <CompaniesWrapper>
           <Sidebar.Section.QuickButtons>
             <ModalTrigger title="New company" trigger={<Icon icon="plus" />}>
-              <CompanyForm addCompany={addCompany} />
+              <CompanyAssociate customer={customer} />
             </ModalTrigger>
           </Sidebar.Section.QuickButtons>
           {customer.companies.map((company, index) => (
@@ -123,7 +123,7 @@ class LeftSidebar extends React.Component {
                 field={field}
                 key={index}
                 onValueChange={this.handleFieldsChange}
-                defaultValue={this.state.fieldsData[field._id] || ''}
+                defaultValue={this.state.customData[field._id] || ''}
               />
             ))}
           </AboutList>
@@ -133,7 +133,11 @@ class LeftSidebar extends React.Component {
   }
 
   renderSidebarFooter() {
-    return this.state.fieldsEditing ? (
+    if (!this.state.editing) {
+      return null;
+    }
+
+    return (
       <Sidebar.Footer>
         <Button btnStyle="simple" size="small" onClick={this.cancelEditing}>
           <Icon icon="close" />Discard
@@ -142,7 +146,7 @@ class LeftSidebar extends React.Component {
           <Icon icon="checkmark" />Save
         </Button>
       </Sidebar.Footer>
-    ) : null;
+    );
   }
 
   render() {
