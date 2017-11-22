@@ -329,7 +329,7 @@ const AssignText = styled.div`
   display: inline-block;
 `;
 
-const AssignWrapper = styled.div`
+const ActionBarLeft = styled.div`
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -389,6 +389,6 @@ export {
   PreviewImg,
   FileName,
   AssignText,
-  AssignWrapper,
+  ActionBarLeft,
   AssignTrigger
 };
