@@ -2,9 +2,9 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { compose, gql, graphql } from 'react-apollo';
 import { Alert } from 'modules/common/utils';
-import { Loading } from 'modules/common/components';
 import { queries, mutations } from '../graphql';
 import { LeftSidebar } from '../components/detail/sidebar';
+import { Spinner } from 'modules/common/components';
 
 const LeftSidebarContainer = (props, context) => {
   const {
@@ -16,9 +16,7 @@ const LeftSidebarContainer = (props, context) => {
   } = props;
 
   if (customerDetailQuery.loading || fieldsQuery.loading) {
-    return (
-      <Loading title="Customers" sidebarSize="wide" spin hasRightSidebar />
-    );
+    return <Spinner />;
   }
 
   const save = (variables, callback) => {
