@@ -1,20 +1,20 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { Link } from 'react-router-dom';
 import { Sidebar } from 'modules/layout/components';
 import { SidebarContent } from 'modules/layout/styles';
-import { GenerateField } from 'modules/fields/components';
 import { ModalTrigger, Button, Icon } from 'modules/common/components';
+import { Alert } from 'modules/common/utils';
+import { GenerateField } from 'modules/fields/components';
 import { CompanyForm } from 'modules/companies/components';
-import { Link } from 'react-router-dom';
+import { BasicInfo } from 'modules/customers/components/detail/sidebar';
+import { AboutList, CompaniesWrapper, CompanyWrapper } from './styles';
 import {
   TaggerSection,
   MessengerSection,
   TwitterSection,
   FacebookSection
 } from './';
-import { BasicInfo } from 'modules/customers/components/detail/sidebar';
-import { Alert } from 'modules/common/utils';
-import { AboutList, CompaniesWrapper, CompanyWrapper } from './styles';
 
 const propTypes = {
   customer: PropTypes.object.isRequired,
@@ -93,7 +93,7 @@ class LeftSidebar extends React.Component {
           </Sidebar.Section.QuickButtons>
           {customer.companies.map((company, index) => (
             <CompanyWrapper key={index}>
-              <Link to={'/companies/details/' + company._id}>
+              <Link to={`/companies/details/${company._id}`}>
                 <Icon icon="android-arrow-forward" />
               </Link>
               <span>{company.name || 'N/A'}</span>

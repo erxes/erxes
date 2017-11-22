@@ -83,6 +83,7 @@ class BasicInfo extends React.Component {
 
     return (
       <SidebarContent>
+        <br />
         <FormGroup>
           First name:
           <FormControl
@@ -123,6 +124,14 @@ class BasicInfo extends React.Component {
     );
   }
 
+  renderName() {
+    const { basicInfo } = this.state;
+    if (basicInfo.firstName || basicInfo.lastName) {
+      return (basicInfo.firstName || '') + ' ' + (basicInfo.lastName || '');
+    }
+    return <a onClick={this.toggleEditing}>Edit name</a>;
+  }
+
   renderInfo() {
     const { customer } = this.props;
     const isUser = customer.isUser;
@@ -134,13 +143,7 @@ class BasicInfo extends React.Component {
             <NameCard.Avatar customer={customer} size={50} />
             {isUser ? <Icon icon="checkmark" /> : <Icon icon="minus" />}
           </AvatarWrapper>
-          <NameWrapper>
-            {basicInfo.firstName || basicInfo.lastName ? (
-              (basicInfo.firstName || '') + ' ' + (basicInfo.lastName || '')
-            ) : (
-              <a onClick={this.toggleEditing}>Edit name</a>
-            )}
-          </NameWrapper>
+          <NameWrapper>{this.renderName()}</NameWrapper>
           <Sidebar.Section.QuickButtons>
             <QuickButton>
               <Icon icon="edit" onClick={this.toggleEditing} />

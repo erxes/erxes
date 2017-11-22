@@ -1,9 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Sidebar } from 'modules/layout/components';
-import { GenerateField } from 'modules/fields/components';
-import { CustomerForm } from 'modules/customers/components';
 import { Link } from 'react-router-dom';
+import { Sidebar } from 'modules/layout/components';
 import { SidebarContent } from 'modules/layout/styles';
 import { Alert } from 'modules/common/utils';
 import {
@@ -14,6 +12,8 @@ import {
   FormControl,
   ControlLabel
 } from 'modules/common/components';
+import { GenerateField } from 'modules/fields/components';
+import { CustomerForm } from 'modules/customers/components';
 import { CustomersWrapper, CustomerWrapper } from '../../styles';
 
 const propTypes = {
@@ -201,7 +201,7 @@ class LeftSidebar extends React.Component {
         <CustomersWrapper>
           {company.customers.map((customer, index) => (
             <CustomerWrapper key={index}>
-              <Link to={'/customers/details/' + customer._id}>
+              <Link to={`/customers/details/${customer._id}`}>
                 <Icon icon="android-arrow-forward" />
               </Link>
               <span>Name: </span>

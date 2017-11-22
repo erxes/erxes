@@ -69,6 +69,20 @@ class Inbox extends Component {
     changeStatus(currentConversation._id, status);
   }
 
+  renderRightSidebar(currentConversation) {
+    if (currentConversation._id) {
+      return (
+        <EditInformation
+          conversation={currentConversation}
+          sections={<ConversationDetails conversation={currentConversation} />}
+          customer={currentConversation.customer}
+        />
+      );
+    }
+
+    return null;
+  }
+
   renderStatusButton(status) {
     let btnStyle = 'success';
     let text = 'Resolve';
@@ -189,17 +203,7 @@ class Inbox extends Component {
             onChangeConversation={onChangeConversation}
           />
         }
-        rightSidebar={
-          currentConversation._id ? (
-            <EditInformation
-              conversation={currentConversation}
-              sections={
-                <ConversationDetails conversation={currentConversation} />
-              }
-              customer={currentConversation.customer}
-            />
-          ) : null
-        }
+        rightSidebar={this.renderRightSidebar(currentConversation)}
       />
     );
   }
