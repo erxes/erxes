@@ -34,7 +34,7 @@ class BasicInfo extends React.Component {
 
     this.state = {
       editing: false,
-      basicInfo: this.defaultBasicinfos
+      ...this.defaultBasicinfos
     };
 
     this.toggleEditing = this.toggleEditing.bind(this);
@@ -51,13 +51,16 @@ class BasicInfo extends React.Component {
   cancelEditing() {
     this.setState({
       editing: false,
-      basicInfo: this.defaultBasicinfos
+      ...this.defaultBasicinfos
     });
   }
 
   save() {
     const doc = {
-      ...this.state.basicInfo
+      firstName: this.state.firstName,
+      lastName: this.state.lastName,
+      email: this.state.email,
+      phone: this.state.phone
     };
 
     this.props.save(doc, error => {
@@ -70,45 +73,38 @@ class BasicInfo extends React.Component {
   }
 
   handleChange(e, inputname) {
-    const { basicInfo } = this.state;
-    const newinfo = {
-      ...basicInfo,
-      [inputname]: e.target.value
-    };
-    this.setState({ basicInfo: newinfo });
+    this.setState({ [inputname]: e.target.value });
   }
 
   renderForm() {
-    const { basicInfo } = this.state;
-
     return (
       <SidebarContent>
         <br />
         <FormGroup>
           First name:
           <FormControl
-            defaultValue={basicInfo.firstName}
+            defaultValue={this.state.firstName}
             onChange={e => this.handleChange(e, 'firstName')}
           />
         </FormGroup>
         <FormGroup>
           Last name:
           <FormControl
-            defaultValue={basicInfo.lastName}
+            defaultValue={this.state.lastName}
             onChange={e => this.handleChange(e, 'lastName')}
           />
         </FormGroup>
         <FormGroup>
           Primary Email:
           <FormControl
-            defaultValue={basicInfo.email}
+            defaultValue={this.state.email}
             onChange={e => this.handleChange(e, 'email')}
           />
         </FormGroup>
         <FormGroup>
           Phone:
           <FormControl
-            defaultValue={basicInfo.phone}
+            defaultValue={this.state.phone}
             onChange={e => this.handleChange(e, 'phone')}
           />
         </FormGroup>
@@ -125,9 +121,8 @@ class BasicInfo extends React.Component {
   }
 
   renderName() {
-    const { basicInfo } = this.state;
-    if (basicInfo.firstName || basicInfo.lastName) {
-      return (basicInfo.firstName || '') + ' ' + (basicInfo.lastName || '');
+    if (this.state.firstName || this.state.lastName) {
+      return (this.state.firstName || '') + ' ' + (this.state.lastName || '');
     }
     return <a onClick={this.toggleEditing}>Edit name</a>;
   }
@@ -135,7 +130,6 @@ class BasicInfo extends React.Component {
   renderInfo() {
     const { customer } = this.props;
     const isUser = customer.isUser;
-    const { basicInfo } = this.state;
     return (
       <SidebarContent>
         <NameWrapper>
@@ -155,7 +149,7 @@ class BasicInfo extends React.Component {
             <li>
               Email:
               <Aboutvalues>
-                {basicInfo.email || (
+                {this.state.email || (
                   <a onClick={this.toggleEditing}>Add Email</a>
                 )}
               </Aboutvalues>
@@ -163,7 +157,7 @@ class BasicInfo extends React.Component {
             <li>
               Phone:
               <Aboutvalues>
-                {basicInfo.phone || (
+                {this.state.phone || (
                   <a onClick={this.toggleEditing}>Add Phone</a>
                 )}
               </Aboutvalues>
