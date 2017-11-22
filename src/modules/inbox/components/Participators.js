@@ -28,7 +28,7 @@ const More = ParticipatorImg.withComponent('span').extend`
   color: ${colors.colorWhite};
   text-align: center;
   vertical-align: middle;
-  font-size: 9px;
+  font-size: 10px;
   background: ${colors.colorCoreLightGray};
   line-height: ${Spacing - 2}px;
 `;
