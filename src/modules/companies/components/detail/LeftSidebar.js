@@ -100,6 +100,7 @@ class LeftSidebar extends React.Component {
   renderBasicInfo() {
     const { Section } = Sidebar;
     const { Title } = Section;
+    const { basicinfo } = this.state;
 
     return (
       <Section>
@@ -111,7 +112,7 @@ class LeftSidebar extends React.Component {
             <FormControl
               id="name"
               onChange={e => this.handleChange(e, 'name')}
-              value={this.state.basicinfo.name}
+              value={basicinfo.name}
             />
           </FormGroup>
 
@@ -121,7 +122,7 @@ class LeftSidebar extends React.Component {
               id="size"
               type="number"
               onChange={e => this.handleChange(e, 'size')}
-              value={this.state.basicinfo.size || ''}
+              value={basicinfo.size || ''}
             />
           </FormGroup>
 
@@ -130,7 +131,7 @@ class LeftSidebar extends React.Component {
             <FormControl
               id="industry"
               onChange={e => this.handleChange(e, 'industry')}
-              value={this.state.basicinfo.industry || ''}
+              value={basicinfo.industry || ''}
             />
           </FormGroup>
 
@@ -139,7 +140,7 @@ class LeftSidebar extends React.Component {
             <FormControl
               id="website"
               onChange={e => this.handleChange(e, 'website')}
-              value={this.state.basicinfo.website || ''}
+              value={basicinfo.website || ''}
             />
           </FormGroup>
 
@@ -148,7 +149,7 @@ class LeftSidebar extends React.Component {
             <FormControl
               id="plan"
               onChange={e => this.handleChange(e, 'plan')}
-              value={this.state.basicinfo.plan || ''}
+              value={basicinfo.plan || ''}
             />
           </FormGroup>
         </SidebarContent>

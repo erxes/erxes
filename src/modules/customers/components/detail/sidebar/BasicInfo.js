@@ -78,34 +78,36 @@ class BasicInfo extends React.Component {
     this.setState({ basicInfo: newinfo });
   }
 
-  renderInfo() {
+  renderForm() {
+    const { basicInfo } = this.state;
+
     return (
       <SidebarContent>
         <FormGroup>
           First name:
           <FormControl
-            defaultValue={this.state.basicInfo.firstName}
+            defaultValue={basicInfo.firstName}
             onChange={e => this.handleChange(e, 'firstName')}
           />
         </FormGroup>
         <FormGroup>
           Last name:
           <FormControl
-            defaultValue={this.state.basicInfo.lastName}
+            defaultValue={basicInfo.lastName}
             onChange={e => this.handleChange(e, 'lastName')}
           />
         </FormGroup>
         <FormGroup>
           Primary Email:
           <FormControl
-            defaultValue={this.state.basicInfo.email}
+            defaultValue={basicInfo.email}
             onChange={e => this.handleChange(e, 'email')}
           />
         </FormGroup>
         <FormGroup>
           Phone:
           <FormControl
-            defaultValue={this.state.basicInfo.phone}
+            defaultValue={basicInfo.phone}
             onChange={e => this.handleChange(e, 'phone')}
           />
         </FormGroup>
@@ -121,9 +123,10 @@ class BasicInfo extends React.Component {
     );
   }
 
-  renderForm() {
+  renderInfo() {
     const { customer } = this.props;
     const isUser = customer.isUser;
+    const { basicInfo } = this.state;
     return (
       <SidebarContent>
         <NameWrapper>
@@ -132,10 +135,8 @@ class BasicInfo extends React.Component {
             {isUser ? <Icon icon="checkmark" /> : <Icon icon="minus" />}
           </AvatarWrapper>
           <NameWrapper>
-            {this.state.basicInfo.firstName || this.state.basicInfo.lastName ? (
-              (this.state.basicInfo.firstName || '') +
-              ' ' +
-              (this.state.basicInfo.lastName || '')
+            {basicInfo.firstName || basicInfo.lastName ? (
+              (basicInfo.firstName || '') + ' ' + (basicInfo.lastName || '')
             ) : (
               <a onClick={this.toggleEditing}>Edit name</a>
             )}
@@ -151,7 +152,7 @@ class BasicInfo extends React.Component {
             <li>
               Email:
               <Aboutvalues>
-                {this.state.basicInfo.email || (
+                {basicInfo.email || (
                   <a onClick={this.toggleEditing}>Add Email</a>
                 )}
               </Aboutvalues>
@@ -159,7 +160,7 @@ class BasicInfo extends React.Component {
             <li>
               Phone:
               <Aboutvalues>
-                {this.state.basicInfo.phone || (
+                {basicInfo.phone || (
                   <a onClick={this.toggleEditing}>Add Phone</a>
                 )}
               </Aboutvalues>
@@ -173,7 +174,7 @@ class BasicInfo extends React.Component {
   render() {
     return (
       <Sidebar.Section>
-        {this.state.editing ? this.renderInfo() : this.renderForm()}
+        {this.state.editing ? this.renderForm() : this.renderInfo()}
       </Sidebar.Section>
     );
   }
