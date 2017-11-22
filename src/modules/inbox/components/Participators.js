@@ -30,7 +30,7 @@ const More = ParticipatorImg.withComponent('span').extend`
   vertical-align: middle;
   font-size: 10px;
   background: ${colors.colorCoreLightGray};
-  line-height: ${Spacing - 2}px;
+  line-height: ${Spacing - 4}px;
 `;
 
 class Participators extends Component {
@@ -59,18 +59,18 @@ class Participators extends Component {
       </Tip>
     );
 
+    const Tooltip = (
+      <Tip placement="top" text="View more">
+        <More>{`+${length - limit}`}</More>
+      </Tip>
+    );
+
     return (
       <ParticipatorWrapper onClick={this.toggleParticipator}>
         {participatedUsers
           .slice(0, limit && toggle ? limit : length)
           .map(user => Trigger(user))}
-        {limit &&
-          toggle &&
-          length - limit > 0 && (
-            <Tip placement="top" text="View more">
-              <More>{`+${length - limit}`}</More>
-            </Tip>
-          )}
+        {limit && toggle && length - limit > 0 && Tooltip}
       </ParticipatorWrapper>
     );
   }

@@ -1,5 +1,3 @@
-/* eslint-disable react/jsx-no-bind */
-
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import Alert from 'modules/common/utils/Alert';
@@ -42,7 +40,6 @@ class AssignBox extends Component {
 
   generateAssignParams(assignees = [], targets = []) {
     return assignees.map(assignee => {
-      // Current tag's selection state (all, some or none)
       const count = targets.reduce(
         (memo, target) =>
           memo +
@@ -52,12 +49,10 @@ class AssignBox extends Component {
       );
 
       let state = 'none';
-      if (count > 0) {
-        if (count === targets.length) {
-          state = 'all';
-        } else if (count < targets.length) {
-          state = 'some';
-        }
+      if (count === targets.length) {
+        state = 'all';
+      } else if (count < targets.length) {
+        state = 'some';
       }
 
       return {
@@ -71,15 +66,6 @@ class AssignBox extends Component {
 
   assign(assignees, id) {
     const { assign, targets, hidePopover } = this.props;
-    const { assigneesForList } = this.state;
-    const unchanged = assigneesForList.reduce(
-      (prev, current, index) =>
-        prev && current.selectedBy === assignees[index].selectedBy,
-      true
-    );
-    if (unchanged) {
-      return;
-    }
 
     assign(
       {
