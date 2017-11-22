@@ -106,7 +106,7 @@ class LeftSidebar extends React.Component {
     const { Title } = Section;
 
     return (
-      <Section className="full">
+      <Section>
         <Title>Basic info</Title>
 
         <SidebarContent>
@@ -166,7 +166,7 @@ class LeftSidebar extends React.Component {
     const { Title, QuickButtons } = Section;
 
     return (
-      <Section className="full">
+      <Section>
         <Title>About</Title>
         <QuickButtons>
           <Link to="/fields/manage/company">
@@ -193,7 +193,7 @@ class LeftSidebar extends React.Component {
     const { Title, QuickButtons } = Section;
 
     return (
-      <Section className="full">
+      <Section>
         <Title>Customers</Title>
 
         <QuickButtons>
