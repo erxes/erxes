@@ -127,10 +127,7 @@ ConversationDetail.propTypes = {
   conversationDetailQuery: PropTypes.object,
   changeStatusMutation: PropTypes.func.isRequired,
   currentConversationId: PropTypes.string.isRequired,
-  markAsReadMutation: PropTypes.func.isRequired,
-  customersEdit: PropTypes.func.isRequired,
-  fieldsQuery: PropTypes.object,
-  customersAddCompany: PropTypes.func
+  markAsReadMutation: PropTypes.func.isRequired
 };
 
 const ConversationDetailContainer = compose(
