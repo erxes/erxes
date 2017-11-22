@@ -57,10 +57,7 @@ class BasicInfo extends React.Component {
 
   save() {
     const doc = {
-      firstName: this.state.basicInfo.firstName,
-      lastName: this.state.basicInfo.lastName,
-      email: this.state.basicInfo.email,
-      phone: this.state.basicInfo.phone
+      ...this.state.basicInfo
     };
 
     this.props.save(doc, error => {

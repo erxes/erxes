@@ -63,11 +63,7 @@ class LeftSidebar extends React.Component {
 
   save() {
     const doc = {
-      name: this.state.basicinfo.name,
-      size: this.state.basicinfo.size,
-      industry: this.state.basicinfo.industry,
-      website: this.state.basicinfo.website,
-      plan: this.state.basicinfo.plan,
+      ...this.state.basicinfo,
       customFieldsData: this.state.customData
     };
 
