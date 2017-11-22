@@ -7,7 +7,6 @@ import {
   Label,
   Icon,
   TaggerPopover,
-  Participators,
   Tags
 } from 'modules/common/components';
 import { BarItems } from 'modules/layout/styles';
@@ -15,11 +14,12 @@ import Conversation from './conversation/Conversation';
 import AssignBoxPopover from './assignBox/AssignBoxPopover';
 import { LeftSidebar, RespondBox } from '../containers';
 import RightSidebar from './sidebar/RightSidebar';
+import Participators from './Participators';
 import {
   PopoverButton,
   ConversationWrapper,
   AssignText,
-  ActionBarLeftWrapper,
+  ActionBarLeft,
   AssignTrigger
 } from '../styles';
 
@@ -140,7 +140,7 @@ class Inbox extends Component {
     );
 
     const actionBarLeft = (
-      <ActionBarLeftWrapper>
+      <ActionBarLeft>
         <AssignText>Assign to:</AssignText>
         <AssignBoxPopover
           targets={[currentConversation]}
@@ -149,7 +149,7 @@ class Inbox extends Component {
         {participatedUsers.length ? (
           <Participators participatedUsers={participatedUsers} limit={3} />
         ) : null}
-      </ActionBarLeftWrapper>
+      </ActionBarLeft>
     );
 
     const actionBar = (

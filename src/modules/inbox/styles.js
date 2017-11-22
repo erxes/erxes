@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import { colors, dimensions } from '../common/styles';
+import { colors } from '../common/styles';
 import { rgba, darken } from '../common/styles/color';
 
 const PopoverButton = styled.div`
@@ -273,24 +273,6 @@ const PopoverBody = styled.div`
   }
 `;
 
-const ParticipatorWrapper = styled.div`
-  display: inline-block;
-  margin-left: ${dimensions.coreSpacing + 10}px;
-`;
-
-const ParticipatorImg = styled.img`
-  width: ${dimensions.coreSpacing + 10}px;
-  height: ${dimensions.coreSpacing + 10}px;
-  line-height: ${dimensions.coreSpacing + 10}px;
-  border-radius: ${(dimensions.coreSpacing + 10) / 2}px;
-  border: 1px solid ${colors.colorWhite};
-  margin-left: -${dimensions.unitSpacing}px;
-
-  &:not(:last-child) {
-    margin-right: ${dimensions.unitSpacing - 5}px;
-  }
-`;
-
 const TemplateTitle = styled.div`
   font-weight: 500;
   margin-bottom: 2px;
@@ -347,19 +329,10 @@ const AssignText = styled.div`
   display: inline-block;
 `;
 
-const ActionBarLeftWrapper = styled.div`
+const ActionBarLeft = styled.div`
   display: flex;
   flex-direction: row;
   align-items: center;
-`;
-
-const More = styled.span`
-  margin-left: -${dimensions.unitSpacing}px;
-  border: 1px solid ${colors.colorWhite};
-  padding: 8px 9px;
-  color: ${colors.colorWhite};
-  font-size: 9px;
-  border-radius: ${(dimensions.coreSpacing + 10) / 2}px;
 `;
 
 const AssignTrigger = styled.div`
@@ -413,12 +386,9 @@ export {
   Attachment,
   AttachmentPreview,
   AttachmentIndicator,
-  ParticipatorWrapper,
   PreviewImg,
-  ParticipatorImg,
   FileName,
   AssignText,
-  ActionBarLeftWrapper,
-  AssignTrigger,
-  More
+  ActionBarLeft,
+  AssignTrigger
 };
