@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Wrapper } from 'modules/layout/components';
-import { AvatarImg } from 'modules/common/components/filterableList/styles';
 import {
   Button,
   Label,
@@ -9,12 +8,11 @@ import {
   TaggerPopover,
   Tags
 } from 'modules/common/components';
-import { BarItems } from 'modules/layout/styles';
-import Conversation from './conversation/Conversation';
-import AssignBoxPopover from './assignBox/AssignBoxPopover';
 import { LeftSidebar, RespondBox } from '../containers';
+import { AssignBoxPopover, Participators, Conversation } from './';
 import RightSidebar from './sidebar/RightSidebar';
-import Participators from './Participators';
+import { AvatarImg } from 'modules/common/components/filterableList/styles';
+import { BarItems } from 'modules/layout/styles';
 import {
   PopoverButton,
   ConversationWrapper,
