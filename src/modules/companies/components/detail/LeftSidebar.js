@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Wrapper } from 'modules/layout/components';
+import { Sidebar } from 'modules/layout/components';
 import { GenerateField } from 'modules/fields/components';
 import { CustomerForm } from 'modules/customers/components';
 import { Link } from 'react-router-dom';
@@ -38,7 +38,7 @@ class LeftSidebar extends React.Component {
     this.state = {
       editing: false,
       basicinfo: this.defaultBasicinfos,
-      fieldsdata: this.defaultCustomFieldsData
+      customData: this.defaultCustomFieldsData
     };
 
     this.toggleEditing = this.toggleEditing.bind(this);
@@ -57,7 +57,7 @@ class LeftSidebar extends React.Component {
     this.setState({
       editing: false,
       basicinfo: this.defaultBasicinfos,
-      fieldsdata: this.defaultCustomFieldsData
+      customData: this.defaultCustomFieldsData
     });
   }
 
@@ -68,14 +68,14 @@ class LeftSidebar extends React.Component {
       industry: this.state.basicinfo.industry,
       website: this.state.basicinfo.website,
       plan: this.state.basicinfo.plan,
-      customFieldsData: this.state.fieldsdata
+      customFieldsData: this.state.customData
     };
 
     this.props.save(doc, error => {
       if (error) return Alert.error(error.message);
 
       this.defaultBasicinfos = this.state.basicinfo;
-      this.defaultCustomFieldsData = this.state.fieldsdata;
+      this.defaultCustomFieldsData = this.state.customData;
       this.cancelEditing();
       return Alert.success('Success');
     });
@@ -93,16 +93,15 @@ class LeftSidebar extends React.Component {
 
   handleFieldsChange({ _id, value }) {
     this.toggleEditing();
-    const { fieldsdata } = this.state;
+    const { customData } = this.state;
     const newfields = {
-      ...fieldsdata,
+      ...customData,
       [_id]: value
     };
-    this.setState({ fieldsdata: newfields });
+    this.setState({ customData: newfields });
   }
 
   renderBasicInfo() {
-    const { Sidebar } = Wrapper;
     const { Section } = Sidebar;
     const { Title } = Section;
 
@@ -163,7 +162,6 @@ class LeftSidebar extends React.Component {
 
   renderCustomFields() {
     const { customFields } = this.props;
-    const { Sidebar } = Wrapper;
     const { Section } = Sidebar;
     const { Title, QuickButtons } = Section;
 
@@ -181,7 +179,7 @@ class LeftSidebar extends React.Component {
               field={field}
               key={index}
               onValueChange={this.handleFieldsChange}
-              value={this.state.fieldsdata[field._id] || ''}
+              defaultValue={this.state.customData[field._id] || ''}
             />
           ))}
         </SidebarContent>
@@ -191,7 +189,6 @@ class LeftSidebar extends React.Component {
 
   renderCustomers() {
     const { company, addCustomer } = this.props;
-    const { Sidebar } = Wrapper;
     const { Section } = Sidebar;
     const { Title, QuickButtons } = Section;
 
@@ -222,25 +219,29 @@ class LeftSidebar extends React.Component {
   }
 
   renderSidebarFooter() {
-    return this.state.editing ? (
-      <Wrapper.Sidebar.Footer>
+    if (!this.state.editing) {
+      return null;
+    }
+
+    return (
+      <Sidebar.Footer>
         <Button btnStyle="simple" size="small" onClick={this.cancelEditing}>
           <Icon icon="close" />Discard
         </Button>
         <Button btnStyle="success" size="small" onClick={this.save}>
           <Icon icon="checkmark" />Save
         </Button>
-      </Wrapper.Sidebar.Footer>
-    ) : null;
+      </Sidebar.Footer>
+    );
   }
 
   render() {
     return (
-      <Wrapper.Sidebar size="wide" footer={this.renderSidebarFooter()}>
+      <Sidebar size="wide" footer={this.renderSidebarFooter()}>
         {this.renderBasicInfo()}
         {this.renderCustomers()}
         {this.renderCustomFields()}
-      </Wrapper.Sidebar>
+      </Sidebar>
     );
   }
 }
