@@ -28,8 +28,12 @@ class BasicInfo extends React.Component {
   constructor(props) {
     super(props);
 
+    const { customer } = this.props;
     this.defaultBasicinfos = {
-      ...(props.customer || {})
+      firstName: customer.firstName,
+      lastName: customer.lastName,
+      email: customer.email,
+      phone: customer.phone
     };
 
     this.state = {
