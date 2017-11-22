@@ -196,7 +196,7 @@ class Inbox extends Component {
               sections={
                 <ConversationDetails conversation={currentConversation} />
               }
-              id={currentConversation.customer._id}
+              customer={currentConversation.customer}
             />
           ) : null
         }

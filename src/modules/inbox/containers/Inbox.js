@@ -65,45 +65,13 @@ class ConversationDetail extends Component {
       currentConversationId,
       conversationDetailQuery,
       changeStatusMutation,
-      markAsReadMutation,
-      fieldsQuery,
-      customersEdit,
-      customersAddCompany
+      markAsReadMutation
     } = this.props;
 
     const { currentUser } = this.context;
     const loading = conversationDetailQuery.loading;
     const currentConversation =
       conversationDetailQuery.conversationDetail || {};
-    const { customer } = currentConversation || {};
-
-    const saveCustomer = (variables, callback) => {
-      customersEdit({
-        variables: { _id: customer._id, ...variables }
-      })
-        .then(() => {
-          callback();
-        })
-        .catch(e => {
-          callback(e);
-        });
-    };
-
-    // const { company } = customer.companies;
-
-    const addCompany = ({ doc, callback }) => {
-      customersAddCompany({
-        variables: { _id: customer._id, ...doc }
-      })
-        .then(() => {
-          conversationDetailQuery.refetch();
-          Alert.success('Success');
-          callback();
-        })
-        .catch(e => {
-          Alert.error(e.message);
-        });
-    };
 
     // =============== actions
     const changeStatus = (conversationId, status) => {
@@ -148,10 +116,7 @@ class ConversationDetail extends Component {
       currentConversationId,
       currentConversation,
       changeStatus,
-      afterTag,
-      customFields: fieldsQuery.fields,
-      saveCustomer,
-      addCompany
+      afterTag
     };
 
     return <InboxComponent {...updatedProps} />;
