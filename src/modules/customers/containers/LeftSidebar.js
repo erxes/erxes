@@ -7,25 +7,20 @@ import { LeftSidebar } from '../components/detail/sidebar';
 import { Spinner } from 'modules/common/components';
 
 const LeftSidebarContainer = (props, context) => {
-  const {
-    id,
-    customerDetailQuery,
-    customersEdit,
-    customersAddCompany,
-    fieldsQuery
-  } = props;
+  const { customer, customersEdit, customersAddCompany, fieldsQuery } = props;
 
-  if (customerDetailQuery.loading || fieldsQuery.loading) {
+  if (fieldsQuery.loading) {
     return <Spinner />;
   }
 
+  const { _id } = customer;
+
   const save = (variables, callback) => {
     customersEdit({
-      variables: { _id: id, ...variables }
+      variables: { _id: _id, ...variables }
     })
       .then(() => {
         callback();
-        customerDetailQuery.refetch();
       })
       .catch(e => {
         callback(e);
@@ -34,10 +29,9 @@ const LeftSidebarContainer = (props, context) => {
 
   const addCompany = ({ doc, callback }) => {
     customersAddCompany({
-      variables: { _id: id, ...doc }
+      variables: { _id: _id, ...doc }
     })
       .then(() => {
-        customerDetailQuery.refetch();
         Alert.success('Success');
         callback();
       })
@@ -48,10 +42,6 @@ const LeftSidebarContainer = (props, context) => {
 
   const updatedProps = {
     ...props,
-    customer: {
-      ...customerDetailQuery.customerDetail,
-      refetch: customerDetailQuery.refetch
-    },
     save,
     addCompany,
     currentUser: context.currentUser,
@@ -62,9 +52,8 @@ const LeftSidebarContainer = (props, context) => {
 };
 
 LeftSidebarContainer.propTypes = {
-  id: PropTypes.string.isRequired,
+  customer: PropTypes.object.isRequired,
   sections: PropTypes.node,
-  customerDetailQuery: PropTypes.object.isRequired,
   fieldsQuery: PropTypes.object.isRequired,
   customersEdit: PropTypes.func.isRequired,
   customersAddCompany: PropTypes.func.isRequired
@@ -75,14 +64,6 @@ LeftSidebarContainer.contextTypes = {
 };
 
 export default compose(
-  graphql(gql(queries.customerDetail), {
-    name: 'customerDetailQuery',
-    options: ({ id }) => ({
-      variables: {
-        _id: id
-      }
-    })
-  }),
   graphql(gql(queries.fields), {
     name: 'fieldsQuery'
   }),

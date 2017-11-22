@@ -124,7 +124,7 @@ class CustomerDetails extends React.Component {
     return (
       <Wrapper
         header={<Wrapper.Header breadcrumb={breadcrumb} />}
-        leftSidebar={<LeftSidebar id={customer._id} />}
+        leftSidebar={<LeftSidebar customer={customer} />}
         content={content}
         transparent={true}
       />
