@@ -3,10 +3,10 @@ import PropTypes from 'prop-types';
 import { compose, gql, graphql } from 'react-apollo';
 import { Alert } from 'modules/common/utils';
 import { queries, mutations } from '../graphql';
-import { LeftSidebar } from '../components/detail/sidebar';
+import { EditInformation } from '../components/detail/sidebar';
 import { Spinner } from 'modules/common/components';
 
-const LeftSidebarContainer = (props, context) => {
+const EditInformationContainer = (props, context) => {
   const { customer, customersEdit, customersAddCompany, fieldsQuery } = props;
 
   if (fieldsQuery.loading) {
@@ -48,10 +48,10 @@ const LeftSidebarContainer = (props, context) => {
     customFields: fieldsQuery.fields
   };
 
-  return <LeftSidebar {...updatedProps} />;
+  return <EditInformation {...updatedProps} />;
 };
 
-LeftSidebarContainer.propTypes = {
+EditInformationContainer.propTypes = {
   customer: PropTypes.object.isRequired,
   sections: PropTypes.node,
   fieldsQuery: PropTypes.object.isRequired,
@@ -59,7 +59,7 @@ LeftSidebarContainer.propTypes = {
   customersAddCompany: PropTypes.func.isRequired
 };
 
-LeftSidebarContainer.contextTypes = {
+EditInformationContainer.contextTypes = {
   currentUser: PropTypes.object
 };
 
@@ -74,4 +74,4 @@ export default compose(
   graphql(gql(mutations.customersEdit), {
     name: 'customersEdit'
   })
-)(LeftSidebarContainer);
+)(EditInformationContainer);

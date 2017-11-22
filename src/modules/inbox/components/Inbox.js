@@ -14,7 +14,7 @@ import Conversation from './conversation/Conversation';
 import AssignBoxPopover from './assignBox/AssignBoxPopover';
 import { LeftSidebar, RespondBox } from '../containers';
 import ConversationDetails from './sidebar/ConversationDetails';
-import { LeftSidebar as RightSidebar } from 'modules/customers/containers';
+import { EditInformation } from 'modules/customers/containers';
 
 import {
   PopoverButton,
@@ -191,7 +191,7 @@ class Inbox extends Component {
         }
         rightSidebar={
           currentConversation._id ? (
-            <RightSidebar
+            <EditInformation
               conversation={currentConversation}
               sections={
                 <ConversationDetails conversation={currentConversation} />

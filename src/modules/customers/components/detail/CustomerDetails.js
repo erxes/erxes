@@ -5,7 +5,7 @@ import {
   List as InternalNotes,
   Form as NoteForm
 } from 'modules/internalNotes/containers';
-import { LeftSidebar } from 'modules/customers/containers';
+import { EditInformation } from 'modules/customers/containers';
 import { Tabs, TabTitle } from 'modules/common/components';
 import { WhiteBox } from 'modules/layout/styles';
 import { ConversationList, EmptyState, Icon } from 'modules/common/components';
@@ -124,7 +124,7 @@ class CustomerDetails extends React.Component {
     return (
       <Wrapper
         header={<Wrapper.Header breadcrumb={breadcrumb} />}
-        leftSidebar={<LeftSidebar customer={customer} />}
+        leftSidebar={<EditInformation customer={customer} />}
         content={content}
         transparent={true}
       />

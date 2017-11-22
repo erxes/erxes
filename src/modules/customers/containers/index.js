@@ -1,5 +1,5 @@
 import CustomersList from './CustomersList';
 import CustomerDetails from './CustomerDetails';
-import LeftSidebar from './LeftSidebar';
+import EditInformation from './EditInformation';
 
-export { CustomersList, CustomerDetails, LeftSidebar };
+export { CustomersList, CustomerDetails, EditInformation };
