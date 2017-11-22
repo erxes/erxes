@@ -1,6 +1,6 @@
 const customersAdd = `
-  mutation customersAdd($name: String, $email: String) {
-    customersAdd(name: $name, email: $email) {
+  mutation customersAdd($firstName: String, $lastName: String, $email: String) {
+    customersAdd(firstName: $firstName, lastName: $lastName, email: $email) {
       _id
     }
   }

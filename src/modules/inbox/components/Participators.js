@@ -30,7 +30,7 @@ const More = ParticipatorImg.withComponent('span').extend`
   vertical-align: middle;
   font-size: 10px;
   background: ${colors.colorCoreLightGray};
-  line-height: ${Spacing - 4}px;
+  line-height: ${Spacing - 2}px;
 `;
 
 class Participators extends Component {

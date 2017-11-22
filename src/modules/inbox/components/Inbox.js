@@ -10,9 +10,11 @@ import {
 } from 'modules/common/components';
 import { LeftSidebar, RespondBox } from '../containers';
 import { AssignBoxPopover, Participators, Conversation } from './';
-import RightSidebar from './sidebar/RightSidebar';
 import { AvatarImg } from 'modules/common/components/filterableList/styles';
 import { BarItems } from 'modules/layout/styles';
+import ConversationDetails from './sidebar/ConversationDetails';
+import { EditInformation } from 'modules/customers/containers';
+
 import {
   PopoverButton,
   ConversationWrapper,
@@ -64,6 +66,20 @@ class Inbox extends Component {
 
     // call change status method
     changeStatus(currentConversation._id, status);
+  }
+
+  renderRightSidebar(currentConversation) {
+    if (currentConversation._id) {
+      return (
+        <EditInformation
+          conversation={currentConversation}
+          sections={<ConversationDetails conversation={currentConversation} />}
+          customer={currentConversation.customer}
+        />
+      );
+    }
+
+    return null;
   }
 
   renderStatusButton(status) {
@@ -144,9 +160,9 @@ class Inbox extends Component {
           targets={[currentConversation]}
           trigger={assignTrigger}
         />
-        {participatedUsers.length ? (
+        {participatedUsers && (
           <Participators participatedUsers={participatedUsers} limit={3} />
-        ) : null}
+        )}
       </ActionBarLeft>
     );
 
@@ -190,7 +206,7 @@ class Inbox extends Component {
             onChangeConversation={onChangeConversation}
           />
         }
-        rightSidebar={<RightSidebar conversation={currentConversation} />}
+        rightSidebar={this.renderRightSidebar(currentConversation)}
       />
     );
   }
@@ -203,7 +219,10 @@ Inbox.propTypes = {
   changeStatus: PropTypes.func,
   afterTag: PropTypes.func,
   currentConversationId: PropTypes.string,
-  currentConversation: PropTypes.object
+  currentConversation: PropTypes.object,
+  saveCustomer: PropTypes.func,
+  customFields: PropTypes.array,
+  addCompany: PropTypes.func
 };
 
 export default Inbox;

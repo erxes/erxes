@@ -58,6 +58,7 @@ const customerDetail = `
       companies {
         _id
         name
+        website
       }
       conversations {
         _id
