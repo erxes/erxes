@@ -4,7 +4,7 @@ import { Sidebar } from 'modules/layout/components';
 import { SidebarContent } from 'modules/layout/styles';
 import { GenerateField } from 'modules/fields/components';
 import { ModalTrigger, Button, Icon } from 'modules/common/components';
-import { CompanyAssociate } from 'modules/companies/containers';
+import { CompanyForm } from 'modules/companies/components';
 import { Link } from 'react-router-dom';
 import {
   TaggerSection,
@@ -79,7 +79,7 @@ class LeftSidebar extends React.Component {
   }
 
   renderCompanies() {
-    const { customer } = this.props;
+    const { addCompany, customer } = this.props;
 
     return (
       <Sidebar.Section>
@@ -88,7 +88,7 @@ class LeftSidebar extends React.Component {
         <CompaniesWrapper>
           <Sidebar.Section.QuickButtons>
             <ModalTrigger title="New company" trigger={<Icon icon="plus" />}>
-              <CompanyAssociate customer={customer} />
+              <CompanyForm addCompany={addCompany} />
             </ModalTrigger>
           </Sidebar.Section.QuickButtons>
           {customer.companies.map((company, index) => (
