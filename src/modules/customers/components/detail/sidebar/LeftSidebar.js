@@ -14,7 +14,7 @@ import {
 } from './';
 import { BasicInfo } from 'modules/customers/components/detail/sidebar';
 import { Alert } from 'modules/common/utils';
-import { AboutList, CompaniesWrapper, CompanyWrapper } from '../../../styles';
+import { AboutList, CompaniesWrapper, CompanyWrapper } from './styles';
 
 const propTypes = {
   customer: PropTypes.object.isRequired,
@@ -82,7 +82,7 @@ class LeftSidebar extends React.Component {
     const { addCompany, customer } = this.props;
 
     return (
-      <Sidebar.Section className="full">
+      <Sidebar.Section>
         <Sidebar.Section.Title>Companies</Sidebar.Section.Title>
 
         <CompaniesWrapper>
@@ -109,7 +109,7 @@ class LeftSidebar extends React.Component {
     const { customFields } = this.props;
 
     return (
-      <Sidebar.Section className="full">
+      <Sidebar.Section>
         <Sidebar.Section.Title>About</Sidebar.Section.Title>
         <Sidebar.Section.QuickButtons>
           <Link to="/fields/manage/customer">

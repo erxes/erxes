@@ -1,6 +1,6 @@
 import styled from 'styled-components';
-import { colors } from '../common/styles';
-import { typography } from '../common/styles';
+import { colors } from 'modules/common/styles';
+import { typography } from 'modules/common/styles';
 
 const AboutList = styled.ul`
   margin: 0;

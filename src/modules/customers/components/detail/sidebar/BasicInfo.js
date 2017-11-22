@@ -17,7 +17,7 @@ import {
   NameWrapper,
   ButtonWrapper,
   AboutWrapper
-} from '../../../styles';
+} from './styles';
 
 const propTypes = {
   customer: PropTypes.object.isRequired,
@@ -33,7 +33,7 @@ class BasicInfo extends React.Component {
     };
 
     this.state = {
-      Editing: false,
+      editing: false,
       basicInfo: this.defaultBasicinfos
     };
 
@@ -45,12 +45,12 @@ class BasicInfo extends React.Component {
 
   toggleEditing() {
     this.cancelEditing();
-    this.setState({ Editing: true });
+    this.setState({ editing: true });
   }
 
   cancelEditing() {
     this.setState({
-      Editing: false,
+      editing: false,
       basicInfo: this.defaultBasicinfos
     });
   }
@@ -175,8 +175,8 @@ class BasicInfo extends React.Component {
 
   render() {
     return (
-      <Sidebar.Section className="full">
-        {this.state.Editing ? this.renderInfo() : this.renderInfoEdit()}
+      <Sidebar.Section>
+        {this.state.editing ? this.renderInfo() : this.renderInfoEdit()}
       </Sidebar.Section>
     );
   }
