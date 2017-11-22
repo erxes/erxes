@@ -14,7 +14,10 @@ const AssignBoxContainer = props => {
 
   const assign = ({ conversationIds, assignedUserId }) => {
     assignMutation({
-      variables: { conversationIds: [conversationIds], assignedUserId }
+      variables: {
+        conversationIds: [conversationIds],
+        assignedUserId
+      }
     })
       .then(() => {
         Alert.success('The conversation Assignee has been renewed.');
@@ -25,7 +28,11 @@ const AssignBoxContainer = props => {
   };
 
   const clear = conversationIds => {
-    conversationsUnassign({ variables: { _ids: [conversationIds] } })
+    conversationsUnassign({
+      variables: {
+        _ids: [conversationIds]
+      }
+    })
       .then(() => {
         Alert.success('The conversation Assignee removed');
       })
@@ -52,9 +59,7 @@ AssignBoxContainer.propTypes = {
 };
 
 export default compose(
-  graphql(gql(queries.userList), {
-    name: 'usersQuery'
-  }),
+  graphql(gql(queries.userList), { name: 'usersQuery' }),
   graphql(gql(mutations.conversationsAssign), { name: 'assignMutation' }),
   graphql(gql(mutations.conversationsUnassign), {
     name: 'conversationsUnassign'
