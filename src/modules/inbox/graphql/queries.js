@@ -128,21 +128,6 @@ const responseTemplateList = `
   }
 `;
 
-const fields = `
-  query {
-    fields(contentType: "customer") {
-      _id
-      type
-      validation
-      text
-      description
-      options
-      isRequired
-      order
-    }
-  }
-`;
-
 export default {
   conversationList,
   conversationDetail,
@@ -153,6 +138,5 @@ export default {
   responseTemplateList,
   conversationCounts,
   totalConversationsCount,
-  lastConversation,
-  fields
+  lastConversation
 };

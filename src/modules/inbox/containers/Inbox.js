@@ -178,20 +178,11 @@ const ConversationDetailContainer = compose(
       };
     }
   }),
-  graphql(gql(queries.fields), {
-    name: 'fieldsQuery'
-  }),
   graphql(gql(mutations.conversationsChangeStatus), {
     name: 'changeStatusMutation'
   }),
   graphql(gql(mutations.markAsRead), {
     name: 'markAsReadMutation'
-  }),
-  graphql(gql(mutations.customersEdit), {
-    name: 'customersEdit'
-  }),
-  graphql(gql(mutations.customersAddCompany), {
-    name: 'customersAddCompany'
   })
 )(ConversationDetail);
 
