@@ -15,9 +15,7 @@ const AboutList = styled.ul`
     text-overflow: ellipsis;
     text-decoration: none;
     outline: 0;
-<<<<<<< HEAD
     width: 100%;
-=======
 
     &:first-child {
       padding-top: 0;
@@ -26,7 +24,6 @@ const AboutList = styled.ul`
     &:last-child {
       padding-bottom: ${dimensions.unitSpacing}px;
     }
->>>>>>> e8e284ce062d2b244bd173182f203dfab9b704e7
   }
 
   > span {
