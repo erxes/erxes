@@ -89,6 +89,9 @@ const CustomerSchema = mongoose.Schema({
   tagIds: field({ type: [String] }),
   companyIds: field({ type: [String] }),
 
+  remoteAddress: field({ type: String }),
+  location: field({ type: Object }),
+
   customFieldsData: field({ type: Object }),
   messengerData: field({ type: messengerSchema }),
   twitterData: field({ type: twitterSchema }),

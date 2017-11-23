@@ -10,8 +10,9 @@ export const types = `
     isUser: Boolean
     createdAt: Date
     tagIds: [String]
+    remoteAddress: String
     internalNotes: JSON
-
+    location: JSON
     customFieldsData: JSON
     messengerData: JSON
     twitterData: JSON
