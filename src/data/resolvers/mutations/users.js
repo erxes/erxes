@@ -32,7 +32,7 @@ const userMutations = {
       fromEmail: COMPANY_EMAIL_FROM,
       title: 'Reset password',
       template: {
-        name: 'base',
+        name: 'resetPassword',
         data: {
           content: link,
         },
