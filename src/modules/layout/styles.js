@@ -219,18 +219,12 @@ const SidebarToggle = styled.a`
   );
 `;
 
-const HelperButtons = styled.div`
-  position: absolute;
-  right: ${dimensions.coreSpacing}px;
-  top: 16px;
-`;
-
 const QuickButton = styled.a`
   float: left;
   color: ${colors.colorCoreLightGray};
   text-transform: none;
   cursor: pointer;
-  margin-left: ${dimensions.unitSpacing};
+  margin-left: ${dimensions.unitSpacing}px;
   font-size: 12px;
   font-weight: 300;
   outline: 0;
@@ -241,6 +235,25 @@ const QuickButton = styled.a`
 
     &:hover {
       color: ${colors.colorCoreBlack};
+    }
+  }
+`;
+
+const HelperButtons = styled.div`
+  position: absolute;
+  right: ${dimensions.coreSpacing}px;
+  top: 16px;
+
+  a {
+    color: ${colors.colorCoreLightGray};
+
+    > i {
+      font-size: 14px;
+      margin-right: 0;
+
+      &:hover {
+        color: ${colors.colorCoreBlack};
+      }
     }
   }
 `;

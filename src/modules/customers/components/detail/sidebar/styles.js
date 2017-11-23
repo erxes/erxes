@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import { colors } from 'modules/common/styles';
+import { colors, dimensions } from 'modules/common/styles';
 import { typography } from 'modules/common/styles';
 
 const AboutList = styled.ul`
@@ -22,7 +22,7 @@ const AboutList = styled.ul`
     color: #888;
     margin-top: 2px;
     position: absolute;
-    right: 20px;
+    right: ${dimensions.coreSpacing}px;
   }
 `;
 
@@ -32,7 +32,7 @@ const Aboutvalues = styled.span`
   color: ${colors.colorCoreGray};
   margin-top: 2px;
   position: absolute;
-  right: 20px;
+  right: ${dimensions.coreSpacing}px;
 
   &:hover {
     i {
@@ -59,31 +59,35 @@ const Aboutvalues = styled.span`
 `;
 
 const NameWrapper = styled.div`
-  padding-top: 15px;
+  padding-top: ${dimensions.coreSpacing}px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+
+  .cutomer-name {
+    flex: 1;
+  }
 
   a {
-    &:hover {
-      cursor: pointer;
-    }
-    i {
-      &:hover {
-        cursor: pointer;
-      }
-    }
+    cursor: pointer;
   }
 `;
 
 const AboutWrapper = styled.div`
-  margin-top: 25px;
+  margin-top: ${dimensions.coreSpacing}px;
 `;
 
 const CompanyWrapper = styled.div`
   border-top: 1px solid ${colors.borderPrimary};
   padding-top: 10px;
   padding-bottom: 10px;
-  padding-left: 20px;
-  padding-right: 20px;
+  padding-left: ${dimensions.coreSpacing}px;
+  padding-right: ${dimensions.coreSpacing}px;
   width: 100%;
+
+  &:first-of-type {
+    border-top: none;
+  }
 
   span {
     display: inline-block;
@@ -98,7 +102,7 @@ const CompanyWrapper = styled.div`
   i {
     color: #aaaeb3;
     position: absolute;
-    right: 20px;
+    right: ${dimensions.coreSpacing}px;
 
     &:hover {
       cursor: pointer;
@@ -106,17 +110,7 @@ const CompanyWrapper = styled.div`
   }
   ul {
     li {
-      margin-left: 20px;
-    }
-  }
-`;
-
-const CompaniesWrapper = styled.div`
-  i {
-    color: #aaaeb3;
-
-    &:hover {
-      cursor: pointer;
+      margin-left: ${dimensions.coreSpacing}px;
     }
   }
 `;
@@ -133,7 +127,6 @@ export {
   Aboutvalues,
   NameWrapper,
   AboutWrapper,
-  CompaniesWrapper,
   CompanyWrapper,
   ButtonWrapper
 };

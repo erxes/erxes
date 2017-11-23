@@ -7,6 +7,8 @@ const customerFields = `
     isUser
     integrationId
     createdAt
+    remoteAddress
+    location
 
     customFieldsData
     messengerData

@@ -21,7 +21,6 @@ const StyledTable = styled.table`
       padding: ${dimensions.unitSpacing}px;
       display: table-cell;
       font-weight: ${typography.fontWeightLight};
-      word-break: break-word;
 
       & ${FormLabel}, & ${Input} {
         margin: 0px;
