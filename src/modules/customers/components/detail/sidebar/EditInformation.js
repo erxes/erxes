@@ -25,6 +25,7 @@ import {
 const propTypes = {
   customer: PropTypes.object.isRequired,
   customFields: PropTypes.array.isRequired,
+  refetch: PropTypes.func.isRequired,
   save: PropTypes.func.isRequired,
   addCompany: PropTypes.func.isRequired,
   sections: PropTypes.node
@@ -198,7 +199,7 @@ class LeftSidebar extends React.Component {
   }
 
   render() {
-    const { customer } = this.props;
+    const { customer, refetch } = this.props;
 
     return (
       <Sidebar footer={this.renderSidebarFooter()}>
@@ -209,7 +210,7 @@ class LeftSidebar extends React.Component {
         <MessengerSection customer={customer} />
         <TwitterSection customer={customer} />
         <FacebookSection customer={customer} />
-        <TaggerSection customer={customer} />
+        <TaggerSection customer={customer} refetch={refetch} />
       </Sidebar>
     );
   }

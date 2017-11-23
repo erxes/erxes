@@ -8,7 +8,13 @@ import { Spinner } from 'modules/common/components';
 import { Sidebar } from 'modules/layout/components';
 
 const EditInformationContainer = (props, context) => {
-  const { customer, customersEdit, customersAddCompany, fieldsQuery } = props;
+  const {
+    customer,
+    customersEdit,
+    refetch,
+    customersAddCompany,
+    fieldsQuery
+  } = props;
   if (fieldsQuery.loading) {
     return (
       <Sidebar full>
@@ -24,7 +30,7 @@ const EditInformationContainer = (props, context) => {
       variables: { _id: _id, ...variables }
     })
       .then(() => {
-        if (customer.refetch) customer.refetch();
+        refetch();
         callback();
       })
       .catch(e => {
@@ -37,7 +43,7 @@ const EditInformationContainer = (props, context) => {
       variables: { _id: _id, ...doc }
     })
       .then(() => {
-        if (customer.refetch) customer.refetch();
+        refetch();
         Alert.success('Success');
         callback();
       })
@@ -59,6 +65,7 @@ const EditInformationContainer = (props, context) => {
 
 EditInformationContainer.propTypes = {
   customer: PropTypes.object.isRequired,
+  refetch: PropTypes.func.isRequired,
   sections: PropTypes.node,
   fieldsQuery: PropTypes.object.isRequired,
   customersEdit: PropTypes.func.isRequired,
