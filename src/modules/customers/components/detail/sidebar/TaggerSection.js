@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Collapse } from 'react-bootstrap';
-import { Wrapper } from 'modules/layout/components';
+import { Sidebar } from 'modules/layout/components';
 import { QuickButton, SidebarList } from 'modules/layout/styles';
 import { EmptyState, Tagger, Icon } from 'modules/common/components';
 
@@ -43,9 +43,9 @@ class TaggerSection extends Component {
   render() {
     const { customer, refetch } = this.props;
     const tags = customer.getTags;
-    const { Title, QuickButtons } = Wrapper.Sidebar.Section;
+    const { Title, QuickButtons } = Sidebar.Section;
     return (
-      <Wrapper.Sidebar.Section>
+      <Sidebar.Section>
         <Title>Tags</Title>
 
         <QuickButtons>
@@ -67,7 +67,7 @@ class TaggerSection extends Component {
         </Collapse>
 
         <SidebarList className="no-link">{this.renderTags(tags)}</SidebarList>
-      </Wrapper.Sidebar.Section>
+      </Sidebar.Section>
     );
   }
 }
