@@ -2,12 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import _ from 'underscore';
 import Sidebar from 'modules/settings/Sidebar';
-import {
-  Button,
-  Icon,
-  EmptyState,
-  Pagination
-} from 'modules/common/components';
+import { Button, Icon, Pagination } from 'modules/common/components';
 import { Wrapper } from 'modules/layout/components';
 import { NotificationListRow } from './';
 import { NotifList } from './styles';
@@ -41,7 +36,7 @@ class NotificationList extends Component {
     const { notifications, count, markAsRead } = this.props;
     const notifCount = notifications.length;
 
-    const mainContent = (
+    const content = (
       <NotifList>
         {notifications.map((notif, key) => (
           <NotificationListRow
@@ -52,21 +47,6 @@ class NotificationList extends Component {
         ))}
       </NotifList>
     );
-
-    const emptyContent = (
-      <EmptyState
-        text="No notifications"
-        size="full"
-        icon="android-notifications"
-      />
-    );
-
-    const content = () => {
-      if (notifCount === 0) {
-        return emptyContent;
-      }
-      return mainContent;
-    };
 
     const actionBarLeft = (
       <div>
@@ -94,7 +74,7 @@ class NotificationList extends Component {
         header={<Wrapper.Header breadcrumb={[{ title: 'Notifications' }]} />}
         leftSidebar={<Sidebar />}
         actionBar={actionBar}
-        content={content()}
+        content={content}
         footer={<Pagination count={count} />}
       />
     );
