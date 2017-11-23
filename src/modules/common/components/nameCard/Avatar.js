@@ -84,6 +84,13 @@ class Avatar extends Component {
     return <div style={this.generateStyle(size)}>{initials}</div>;
   }
 
+  renderName(customer) {
+    if (customer.firstName && customer.lastName) {
+      return `${customer.firstName} ${customer.lastName}`;
+    }
+    return customer.firstName || customer.lastName || null;
+  }
+
   render() {
     const { user, customer } = this.props;
     let avatar;
@@ -95,7 +102,7 @@ class Avatar extends Component {
       fullName = details && details.fullName;
     } else if (customer) {
       avatar = customer.avatar;
-      fullName = customer.name;
+      fullName = this.renderName(customer);
     }
 
     const Element = customer ? Link : 'div';
