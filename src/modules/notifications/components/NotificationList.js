@@ -41,8 +41,8 @@ class NotificationList extends Component {
     const { notifications, count, markAsRead } = this.props;
     const notifCount = notifications.length;
 
-    let content = (
-      <NotifList className="conversations-list">
+    const mainContent = (
+      <NotifList>
         {notifications.map((notif, key) => (
           <NotificationListRow
             notification={notif}
@@ -53,15 +53,20 @@ class NotificationList extends Component {
       </NotifList>
     );
 
-    if (notifCount === 0) {
-      content = (
-        <EmptyState
-          text="No notifications"
-          size="full"
-          icon="android-notifications"
-        />
-      );
-    }
+    const emptyContent = (
+      <EmptyState
+        text="No notifications"
+        size="full"
+        icon="android-notifications"
+      />
+    );
+
+    const content = () => {
+      if (notifCount === 0) {
+        return emptyContent;
+      }
+      return mainContent;
+    };
 
     const actionBarLeft = (
       <div>
@@ -89,7 +94,7 @@ class NotificationList extends Component {
         header={<Wrapper.Header breadcrumb={[{ title: 'Notifications' }]} />}
         leftSidebar={<Sidebar />}
         actionBar={actionBar}
-        content={content}
+        content={content()}
         footer={<Pagination count={count} />}
       />
     );

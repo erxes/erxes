@@ -1,6 +1,11 @@
 import styled from 'styled-components';
 import { colors, dimensions } from 'modules/common/styles';
 
+const NotificationWrapper = styled.div`
+  position: relative;
+  padding-bottom: 30px;
+`;
+
 const NotificationArea = styled.div`
   max-height: 300px !important;
 `;
@@ -17,32 +22,49 @@ const NotificationSeeAll = styled.div`
   }
 `;
 
-const NotificationWrapper = styled.div`
-  position: relative;
-  padding-bottom: 30px;
-
-  & .empty-state.small {
-    padding-top: 30px;
-  }
-`;
-
 const NotificationPopover = styled.div`
   right: 15px;
   max-width: 360px;
 `;
 
+const MarkRead = styled.div`
+  visibility: hidden;
+
+  span:hover {
+    cursor: pointer;
+  }
+`;
+
+const NotifBody = styled.div`
+  flex: 1;
+
+  &:hover {
+    cursor: pointer;
+  }
+`;
+
 const NotifList = styled.ul`
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
   li {
-    .column {
-      visibility: hidden;
-    }
+    padding: ${dimensions.coreSpacing}px;
+    border-bottom: 1px solid ${colors.bgActive};
+    position: relative;
+    display: flex;
+    align-items: center;
 
-    &.unread .column {
-      visibility: visible;
-    }
+    &.unread {
+      background: ${colors.bgUnread};
 
-    & .body:hover {
-      cursor: pointer;
+      a {
+        font-weight: 400;
+      }
+
+      ${MarkRead} {
+        visibility: visible;
+      }
     }
   }
 `;
@@ -82,11 +104,30 @@ const NotificationList = styled.ul`
   }
 `;
 
+const NotifButton = styled.div`
+  color: ${colors.colorWhite};
+  font-size: 22px;
+  cursor: pointer;
+  position: relative;
+
+  & .badge {
+    position: absolute;
+    top: 0;
+    right: -9px;
+    font-size: ${dimensions.unitSpacing}px;
+    background-color: ${colors.colorCoreRed};
+    padding: 3px 5px;
+  }
+`;
+
 export {
   NotificationPopover,
   NotifList,
   NotificationArea,
   NotificationList,
   NotificationWrapper,
-  NotificationSeeAll
+  NotificationSeeAll,
+  NotifButton,
+  MarkRead,
+  NotifBody
 };

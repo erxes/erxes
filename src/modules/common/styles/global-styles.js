@@ -222,6 +222,11 @@ injectGlobal`
     margin-left: 0;
   }
 
+  .notification-popover {
+    right: 15px;
+    max-width: 360px;
+  }
+  
   ::-webkit-scrollbar {
     width: 5px;
     height: 7px;
