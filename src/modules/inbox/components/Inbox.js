@@ -70,7 +70,6 @@ class Inbox extends Component {
   }
 
   renderRightSidebar(currentConversation) {
-    console.log(currentConversation);
     if (currentConversation._id) {
       return (
         <EditInformation
