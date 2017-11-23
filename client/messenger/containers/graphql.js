@@ -80,6 +80,14 @@ const conversationsChangedSubscription = `
   }
 `;
 
+const conversationChanged = `
+  subscription conversationChanged($_id: String!) {
+    conversationChanged(_id: $_id) {
+      type
+    }
+  }
+`;
+
 export default {
   messageFields,
   conversationDetailQuery,
@@ -87,5 +95,6 @@ export default {
   isMessengerOnlineQuery,
   unreadCountQuery,
   conversationMessageInserted,
+  conversationChanged,
   conversationsChangedSubscription,
 }

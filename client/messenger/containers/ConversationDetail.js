@@ -2,14 +2,14 @@ import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
 import { compose, gql, graphql } from 'react-apollo';
 import { connection } from '../connection';
-import { changeRoute, changeConversation } from '../actions/messenger';
+import { changeRoute, changeConversation, endConversation } from '../actions/messenger';
 import { Conversation as DumbConversation } from '../components';
 import graphqlTypes from './graphql';
 import conversationCommonQueries from './conversationCommonQueries';
 
 class ConversationDetail extends React.Component {
   componentWillMount() {
-    const { conversationDetailQuery, conversationId } = this.props;
+    const { conversationDetailQuery, endConversation, conversationId } = this.props;
 
     // lister for new message
     conversationDetailQuery.subscribeToMore({
@@ -34,6 +34,21 @@ class ConversationDetail extends React.Component {
         });
 
         return next;
+      },
+    });
+
+    // lister for conversation status change
+    conversationDetailQuery.subscribeToMore({
+      document: gql(graphqlTypes.conversationChanged),
+      variables: { _id: conversationId },
+      updateQuery: (prev, { subscriptionData }) => {
+        const data = subscriptionData.data || {};
+        const conversationChanged = data.conversationChanged || {};
+        const type = conversationChanged.type;
+
+        if (type === 'closed') {
+          endConversation(conversationId);
+        }
       },
     });
   }
@@ -71,6 +86,10 @@ const mapDisptachToProps = dispatch => ({
 
     dispatch(changeRoute('conversationList'));
   },
+
+  endConversation(conversationId) {
+    dispatch(endConversation(conversationId));
+  },
 });
 
 const query = compose(
@@ -94,6 +113,7 @@ ConversationDetail.propTypes = {
   conversationDetailQuery: PropTypes.object,
   conversationLastStaffQuery: PropTypes.object,
   isMessengerOnlineQuery: PropTypes.object,
+  endConversation: PropTypes.func,
 }
 
 export default connect(mapStateToProps, mapDisptachToProps)(query(ConversationDetail));
