@@ -28,7 +28,7 @@ const SegmentSchema = mongoose.Schema({
     enum: COC_CONTENT_TYPES.ALL,
   }),
   name: field({ type: String }),
-  description: field({ type: String }),
+  description: field({ type: String, optional: true }),
   subOf: field({ type: String }),
   color: field({ type: String }),
   connector: field({ type: String }),
