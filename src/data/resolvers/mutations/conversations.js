@@ -190,7 +190,7 @@ const conversationMutations = {
     );
 
     // notify graphl subscription
-    await conversationsChanged(conversationIds, 'statusChanged');
+    await conversationsChanged(conversationIds, 'assigneeChanged');
 
     for (let conversation of updatedConversations) {
       const content = 'Assigned user has changed';
@@ -218,7 +218,7 @@ const conversationMutations = {
     const conversations = await Conversations.unassignUserConversation(_ids);
 
     // notify graphl subscription
-    conversationsChanged(_ids, 'statusChanged');
+    conversationsChanged(_ids, 'assigneeChanged');
 
     return conversations;
   },
@@ -235,7 +235,7 @@ const conversationMutations = {
     await Conversations.changeStatusConversation(_ids, status, user._id);
 
     // notify graphl subscription
-    await conversationsChanged(_ids, 'statusChanged');
+    await conversationsChanged(_ids, status);
 
     for (let conversation of conversations) {
       if (status === CONVERSATION_STATUSES.CLOSED) {
