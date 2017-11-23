@@ -234,8 +234,10 @@ const QuickButton = styled.a`
   font-size: 12px;
   font-weight: 300;
   outline: 0;
+
   > i {
     font-size: 14px;
+    margin-right: 0;
 
     &:hover {
       color: ${colors.colorCoreBlack};

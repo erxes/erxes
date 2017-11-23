@@ -2,7 +2,7 @@ import React from 'react';
 import { withRouter } from 'react-router';
 import PropTypes from 'prop-types';
 import { compose, gql, graphql } from 'react-apollo';
-import { Loading } from 'modules/common/components';
+import { Spinner } from 'modules/common/components';
 import { Alert } from 'modules/common/utils';
 import { queries, mutations } from '../graphql';
 
@@ -19,7 +19,7 @@ const withSaveAndEdit = Component => {
     } = props;
 
     if (usersQuery.loading || engageMessageDetailQuery.loading) {
-      return <Loading title="New message" spin wide items={3} />;
+      return <Spinner />;
     }
 
     const message = engageMessageDetailQuery.engageMessageDetail;

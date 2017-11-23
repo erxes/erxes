@@ -10,8 +10,10 @@ const ForgotPasswordContainer = props => {
 
   const forgotPassword = variables => {
     forgotPasswordMutation({ variables })
-      .then(({ data: { forgotPassword } }) => {
-        console.log(forgotPassword); // eslint-disable-line
+      .then(() => {
+        Alert.success(
+          'Further instructions have been sent to your e-mail address.'
+        );
       })
       .catch(error => {
         Alert.error(error.message);

@@ -3,7 +3,12 @@ import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 import { Sidebar } from 'modules/layout/components';
 import { SidebarContent } from 'modules/layout/styles';
-import { ModalTrigger, Button, Icon } from 'modules/common/components';
+import {
+  ModalTrigger,
+  Button,
+  Icon,
+  EmptyState
+} from 'modules/common/components';
 import { Alert } from 'modules/common/utils';
 import { GenerateField } from 'modules/fields/components';
 import { CompanyForm } from 'modules/companies/components';
@@ -100,6 +105,10 @@ class LeftSidebar extends React.Component {
               <span>{company.website}</span>
             </CompanyWrapper>
           ))}
+
+          {customer.companies.length === 0 && (
+            <EmptyState icon="briefcase" text="No company" />
+          )}
         </CompaniesWrapper>
       </Sidebar.Section>
     );
@@ -153,11 +162,11 @@ class LeftSidebar extends React.Component {
     const { customer } = this.props;
 
     return (
-      <Sidebar size="wide" footer={this.renderSidebarFooter()}>
+      <Sidebar footer={this.renderSidebarFooter()}>
         <BasicInfo customer={customer} save={this.props.save} />
         {this.renderCustomFields()}
         {this.renderCompanies()}
-        {this.props.sections ? this.props.sections : null}
+        {this.props.sections && this.props.sections}
         <MessengerSection customer={customer} />
         <TwitterSection customer={customer} />
         <FacebookSection customer={customer} />

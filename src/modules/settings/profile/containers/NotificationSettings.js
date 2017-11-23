@@ -12,13 +12,6 @@ const NotificationSettingsContainer = (props, { currentUser }) => {
     saveNotificationConfigurationsMutation
   } = props;
 
-  if (
-    notificationModulesQuery.loading ||
-    notificationConfigurationsQuery.loading
-  ) {
-    return null;
-  }
-
   // save get notification by email
   const configGetNotificationByEmail = variables => {
     configGetNotificationByEmailMutation({ variables })
@@ -43,18 +36,18 @@ const NotificationSettingsContainer = (props, { currentUser }) => {
   };
 
   const configs =
-    notificationConfigurationsQuery.notificationsGetConfigurations;
+    notificationConfigurationsQuery.notificationsGetConfigurations || [];
 
   // default value is checked
   let getNotificationByEmail = currentUser.getNotificationByEmail;
 
-  if (getNotificationByEmail === undefined) {
+  if (getNotificationByEmail === undefined || getNotificationByEmail === null) {
     getNotificationByEmail = true;
   }
 
   const updatedProps = {
     ...props,
-    modules: notificationModulesQuery.notificationsModules,
+    modules: notificationModulesQuery.notificationsModules || [],
     configs,
     saveNotificationConfigurations,
 

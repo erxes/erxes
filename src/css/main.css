@@ -732,104 +732,6 @@
   margin-left: 16px;
 }
 
-.auth-layout {
-  background: url('/images/sign-in.jpg') no-repeat;
-  background-size: cover;
-  height: 100%;
-  overflow: hidden;
-  position: relative;
-}
-.auth-layout::before {
-  content: '';
-  background-color: rgba(69, 38, 121, 0.7);
-  position: absolute;
-  width: 100%;
-  height: 100%;
-}
-
-.auth-content {
-  position: relative;
-  top: 50%;
-  transform: translateY(-50%);
-}
-
-.auth-description {
-  margin-top: 60px;
-}
-.auth-description img {
-  width: 100px;
-  margin-bottom: 50px;
-}
-.auth-description h1 {
-  font-weight: 700;
-  font-size: 32px;
-  margin-bottom: 30px;
-  color: #fff;
-}
-.auth-description p {
-  color: #c9b6e8;
-  margin-bottom: 50px;
-  font-size: 16px;
-  line-height: 1.8em;
-}
-.auth-description a {
-  color: #c9b6e8;
-}
-.auth-description.not-found {
-  margin-top: 0;
-}
-
-.auth-box {
-  background-color: #fff;
-  padding: 70px 60px;
-  border-radius: 4px;
-  box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
-}
-.auth-box ::-webkit-input-placeholder {
-  color: #6b60a6;
-}
-.auth-box h2 {
-  color: #6b60a6;
-  font-size: 30px;
-  font-weight: 400;
-  margin: 0 0 50px;
-}
-.auth-box input {
-  border: 0;
-  border-bottom: 1px solid #ac8fdc;
-  padding: 0 0 6px;
-  color: #6b60a6;
-  border-radius: 0;
-  font-size: 16px;
-}
-.auth-box button {
-  -webkit-transition: background 0.2s ease;
-  -moz-transition: background 0.2s ease;
-  -ms-transition: background 0.2s ease;
-  -o-transition: background 0.2s ease;
-  transition: background 0.2s ease;
-  background-color: #6b60a6;
-  color: #fff;
-  text-transform: uppercase;
-  font-weight: 600;
-  margin-top: 50px;
-  border: 0;
-}
-.auth-box button:hover,
-.auth-box button.active.focus,
-.auth-box button.active:focus,
-.auth-box button.focus,
-.auth-box button:active.focus,
-.auth-box button:active:focus,
-.auth-box button:focus {
-  background-color: #8981b8;
-  color: #fff;
-}
-.auth-box .links {
-  margin-top: 70px;
-  text-align: center;
-}
-
 .respond-box .form-group {
   margin: 0;
 }
@@ -1796,22 +1698,6 @@
 .punch-card .axis text {
   font-size: 0.875em;
   fill: #777777;
-}
-
-.label-default {
-  background-color: #7242c3;
-}
-.label-facebook {
-  background-color: #3b5998;
-}
-.label-twitter {
-  background-color: #1dcaff;
-}
-.label-form {
-  background-color: #f5c22b;
-}
-.label-primary {
-  background-color: #888;
 }
 
 .nav-tabs {

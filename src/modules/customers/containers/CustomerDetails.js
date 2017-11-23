@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { compose, gql, graphql } from 'react-apollo';
-import { Loading } from 'modules/common/components';
+import { Spinner } from 'modules/common/components';
 import { queries } from '../graphql';
 import { CustomerDetails } from '../components';
 
@@ -9,9 +9,7 @@ const CustomerDetailsContainer = (props, context) => {
   const { customerDetailQuery, customerActivityLogQuery } = props;
 
   if (customerDetailQuery.loading || customerActivityLogQuery.loading) {
-    return (
-      <Loading title="Customers" sidebarSize="wide" spin hasRightSidebar />
-    );
+    return <Spinner />;
   }
 
   const updatedProps = {

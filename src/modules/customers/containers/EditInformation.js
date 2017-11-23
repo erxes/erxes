@@ -5,11 +5,16 @@ import { Alert } from 'modules/common/utils';
 import { queries, mutations } from '../graphql';
 import { EditInformation } from '../components/detail/sidebar';
 import { Spinner } from 'modules/common/components';
+import { Sidebar } from 'modules/layout/components';
 
 const EditInformationContainer = (props, context) => {
   const { customer, customersEdit, customersAddCompany, fieldsQuery } = props;
   if (fieldsQuery.loading) {
-    return <Spinner />;
+    return (
+      <Sidebar full>
+        <Spinner />
+      </Sidebar>
+    );
   }
 
   const { _id } = customer;
@@ -66,7 +71,10 @@ EditInformationContainer.contextTypes = {
 
 export default compose(
   graphql(gql(queries.fields), {
-    name: 'fieldsQuery'
+    name: 'fieldsQuery',
+    options: () => ({
+      notifyOnNetworkStatusChange: true
+    })
   }),
   // mutations
   graphql(gql(mutations.customersAddCompany), {

@@ -5,9 +5,9 @@ import { Spinner } from 'modules/common/components';
 import { ChannelForm } from '../components';
 
 const ChannelFormContainer = props => {
-  const { object, integrationsQuery, usersQuery, brandsQuery } = props;
+  const { object, integrationsQuery, usersQuery } = props;
 
-  if (usersQuery.loading || brandsQuery.loading || integrationsQuery.loading) {
+  if (usersQuery.loading || integrationsQuery.loading) {
     return <Spinner />;
   }
 
@@ -38,7 +38,6 @@ const ChannelFormContainer = props => {
 ChannelFormContainer.propTypes = {
   object: PropTypes.object,
   integrationsQuery: PropTypes.object,
-  brandsQuery: PropTypes.object,
   usersQuery: PropTypes.object
 };
 
@@ -62,22 +61,6 @@ export default compose(
     `,
     {
       name: 'integrationsQuery',
-      options: () => ({
-        fetchPolicy: 'network-only'
-      })
-    }
-  ),
-  graphql(
-    gql`
-      query brands {
-        brands {
-          _id
-          name
-        }
-      }
-    `,
-    {
-      name: 'brandsQuery',
       options: () => ({
         fetchPolicy: 'network-only'
       })

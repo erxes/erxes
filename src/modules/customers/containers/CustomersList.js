@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { compose, gql, graphql } from 'react-apollo';
-import { Bulk, Loading } from 'modules/common/components';
+import { Bulk, Spinner } from 'modules/common/components';
 import { Alert } from 'modules/common/utils';
 import { KIND_CHOICES } from 'modules/settings/integrations/constants';
 import { TAG_TYPES } from 'modules/tags/constants';
@@ -26,7 +26,7 @@ class CustomerListContainer extends Bulk {
       customersListConfigQuery.loading ||
       tagsQuery.loading
     ) {
-      return <Loading title="Customers" />;
+      return <Spinner />;
     }
 
     let columnsConfig = customersListConfigQuery.fieldsDefaultColumnsConfig;

@@ -43,7 +43,7 @@ class TopicList extends CommonList {
             <th>Title</th>
             <th>Description</th>
             <th>Brand</th>
-            <th width="83">Actions</th>
+            <th width="90">Actions</th>
           </tr>
         </thead>
         <tbody>{this.renderObjects()}</tbody>

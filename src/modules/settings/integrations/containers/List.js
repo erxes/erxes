@@ -1,18 +1,13 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { compose, gql, graphql } from 'react-apollo';
-import { Loading } from 'modules/common/components';
 import { List } from '../components';
 
 const ListContainer = props => {
   const { listQuery, totalCountQuery, removeMutation } = props;
 
-  if (totalCountQuery.loading || listQuery.loading) {
-    return <Loading title="Integrations" />;
-  }
-
-  const totalCount = totalCountQuery.integrationsTotalCount;
-  const integrations = listQuery.integrations;
+  const totalCount = totalCountQuery.integrationsTotalCount || 0;
+  const integrations = listQuery.integrations || [];
 
   const removeIntegration = (_id, callback) => {
     removeMutation({

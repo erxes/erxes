@@ -6,7 +6,8 @@ import {
   Label,
   Icon,
   TaggerPopover,
-  Tags
+  Tags,
+  Spinner
 } from 'modules/common/components';
 import { LeftSidebar, RespondBox } from '../containers';
 import { AssignBoxPopover, Participators, Conversation } from './';
@@ -79,7 +80,11 @@ class Inbox extends Component {
       );
     }
 
-    return null;
+    return (
+      <Wrapper.Sidebar full>
+        <Spinner />
+      </Wrapper.Sidebar>
+    );
   }
 
   renderStatusButton(status) {
