@@ -47,7 +47,8 @@ export default `
     messengerData
     twitterData
     facebookData
-
+    remoteAddress
+    location
     tagIds
     getTags {
       _id

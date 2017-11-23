@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 import { Sidebar } from 'modules/layout/components';
-import { SidebarContent } from 'modules/layout/styles';
+import { SidebarContent, QuickButton } from 'modules/layout/styles';
 import {
   ModalTrigger,
   Button,
@@ -14,7 +14,7 @@ import { Alert } from 'modules/common/utils';
 import { GenerateField } from 'modules/fields/components';
 import { CompanyForm } from 'modules/companies/components';
 import { BasicInfo } from 'modules/customers/components/detail/sidebar';
-import { AboutList, CompaniesWrapper, CompanyWrapper } from './styles';
+import { AboutList, CompanyWrapper, Aboutvalues } from './styles';
 import {
   TaggerSection,
   MessengerSection,
@@ -86,61 +86,97 @@ class LeftSidebar extends React.Component {
 
   renderCompanies() {
     const { addCompany, customer } = this.props;
+    const { Section } = Sidebar;
+
+    const companyTrigger = (
+      <QuickButton>
+        <Icon icon="plus" />
+      </QuickButton>
+    );
 
     return (
-      <Sidebar.Section>
-        <Sidebar.Section.Title>Companies</Sidebar.Section.Title>
+      <Section>
+        <Section.Title>Companies</Section.Title>
+        <Section.QuickButtons>
+          <ModalTrigger title="New company" trigger={companyTrigger}>
+            <CompanyForm addCompany={addCompany} />
+          </ModalTrigger>
+        </Section.QuickButtons>
+        {customer.companies.map((company, index) => (
+          <CompanyWrapper key={index}>
+            <Link to={`/companies/details/${company._id}`}>
+              <Icon icon="android-arrow-forward" />
+            </Link>
+            <span>{company.name || 'N/A'}</span>
+            <Tip text={company.website || ''}>
+              <span>{company.website}</span>
+            </Tip>
+          </CompanyWrapper>
+        ))}
 
-        <CompaniesWrapper>
-          <Sidebar.Section.QuickButtons>
-            <ModalTrigger title="New company" trigger={<Icon icon="plus" />}>
-              <CompanyForm addCompany={addCompany} />
-            </ModalTrigger>
-          </Sidebar.Section.QuickButtons>
-          {customer.companies.map((company, index) => (
-            <CompanyWrapper key={index}>
-              <Link to={`/companies/details/${company._id}`}>
-                <Icon icon="android-arrow-forward" />
-              </Link>
-              <span>{company.name || 'N/A'}</span>
-              <Tip text={company.website || ''}>
-                <span>{company.website}</span>
-              </Tip>
-            </CompanyWrapper>
-          ))}
-
-          {customer.companies.length === 0 && (
-            <EmptyState icon="briefcase" text="No company" />
-          )}
-        </CompaniesWrapper>
-      </Sidebar.Section>
+        {customer.companies.length === 0 && (
+          <EmptyState icon="briefcase" text="No company" />
+        )}
+      </Section>
     );
   }
 
+  renderLocation(customer) {
+    if (customer.location) {
+      return (
+        <li>
+          Location:
+          <Aboutvalues>
+            {customer.location.city || ''} {customer.location.country || ''}
+          </Aboutvalues>
+        </li>
+      );
+    }
+
+    return null;
+  }
+
+  renderIpAddress(customer) {
+    if (customer.remoteAddress) {
+      return (
+        <li>
+          IP Address:
+          <Aboutvalues>{customer.remoteAddress}</Aboutvalues>
+        </li>
+      );
+    }
+
+    return null;
+  }
+
   renderCustomFields() {
-    const { customFields } = this.props;
+    const { customFields, customer } = this.props;
+    const { Section } = Sidebar;
 
     return (
-      <Sidebar.Section>
-        <Sidebar.Section.Title>About</Sidebar.Section.Title>
-        <Sidebar.Section.QuickButtons>
+      <Section>
+        <Section.Title>About</Section.Title>
+        <Section.QuickButtons>
           <Link to="/fields/manage/customer">
             <Icon icon="gear-a" />
           </Link>
-        </Sidebar.Section.QuickButtons>
+        </Section.QuickButtons>
         <SidebarContent>
           <AboutList>
-            {customFields.map((field, index) => (
-              <GenerateField
-                field={field}
-                key={index}
-                onValueChange={this.handleFieldsChange}
-                defaultValue={this.state.customData[field._id] || ''}
-              />
-            ))}
+            {this.renderLocation(customer)}
+            {this.renderIpAddress(customer)}
           </AboutList>
+
+          {customFields.map((field, index) => (
+            <GenerateField
+              field={field}
+              key={index}
+              onValueChange={this.handleFieldsChange}
+              defaultValue={this.state.customData[field._id] || ''}
+            />
+          ))}
         </SidebarContent>
-      </Sidebar.Section>
+      </Section>
     );
   }
 
