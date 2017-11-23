@@ -22,7 +22,7 @@ const DetailSchema = mongoose.Schema(
     avatar: field({ type: String }),
     fullName: field({ type: String }),
     position: field({ type: String }),
-    twitterUsername: field({ type: String }),
+    twitterUsername: field({ type: String, optional: true }),
   },
   { _id: false },
 );
