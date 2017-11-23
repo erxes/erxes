@@ -34,7 +34,6 @@ class NotificationList extends Component {
 
   render() {
     const { notifications, count, markAsRead } = this.props;
-    const notifCount = notifications.length;
 
     const content = (
       <NotifList>
