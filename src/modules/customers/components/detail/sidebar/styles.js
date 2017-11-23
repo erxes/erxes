@@ -75,6 +75,7 @@ const NameWrapper = styled.div`
 
   .cutomer-name {
     flex: 1;
+    word-break: break-word;
   }
 
   a {
