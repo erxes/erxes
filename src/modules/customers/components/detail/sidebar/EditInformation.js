@@ -101,22 +101,19 @@ class LeftSidebar extends React.Component {
             <CompanyForm addCompany={addCompany} />
           </ModalTrigger>
         </Section.QuickButtons>
+        {customer.companies.map((company, index) => (
+          <CompanyWrapper key={index}>
+            <Link to={`/companies/details/${company._id}`}>
+              <Icon icon="android-arrow-forward" />
+            </Link>
+            <span>{company.name || 'N/A'}</span>
+            <span>{company.website}</span>
+          </CompanyWrapper>
+        ))}
 
-        <div>
-          {customer.companies.map((company, index) => (
-            <CompanyWrapper key={index}>
-              <Link to={`/companies/details/${company._id}`}>
-                <Icon icon="android-arrow-forward" />
-              </Link>
-              <span>{company.name || 'N/A'}</span>
-              <span>{company.website}</span>
-            </CompanyWrapper>
-          ))}
-
-          {customer.companies.length === 0 && (
-            <EmptyState icon="briefcase" text="No company" />
-          )}
-        </div>
+        {customer.companies.length === 0 && (
+          <EmptyState icon="briefcase" text="No company" />
+        )}
       </Section>
     );
   }
@@ -165,15 +162,16 @@ class LeftSidebar extends React.Component {
           <AboutList>
             {this.renderLocation(customer)}
             {this.renderIpAddress(customer)}
-            {customFields.map((field, index) => (
-              <GenerateField
-                field={field}
-                key={index}
-                onValueChange={this.handleFieldsChange}
-                defaultValue={this.state.customData[field._id] || ''}
-              />
-            ))}
           </AboutList>
+
+          {customFields.map((field, index) => (
+            <GenerateField
+              field={field}
+              key={index}
+              onValueChange={this.handleFieldsChange}
+              defaultValue={this.state.customData[field._id] || ''}
+            />
+          ))}
         </SidebarContent>
       </Section>
     );

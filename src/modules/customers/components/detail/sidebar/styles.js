@@ -15,7 +15,16 @@ const AboutList = styled.ul`
     text-overflow: ellipsis;
     text-decoration: none;
     outline: 0;
+
+    &:first-child {
+      padding-top: 0;
+    }
+
+    &:last-child {
+      padding-bottom: ${dimensions.unitSpacing}px;
+    }
   }
+
   > span {
     font-size: 12px;
     text-align: right;
