@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 import { Sidebar } from 'modules/layout/components';
 import { SidebarContent } from 'modules/layout/styles';
-import { ModalTrigger, Button, Icon } from 'modules/common/components';
+import { ModalTrigger, Button, Icon, Tip } from 'modules/common/components';
 import { Alert } from 'modules/common/utils';
 import { GenerateField } from 'modules/fields/components';
 import { CompanyForm } from 'modules/companies/components';
@@ -97,7 +97,9 @@ class LeftSidebar extends React.Component {
                 <Icon icon="android-arrow-forward" />
               </Link>
               <span>{company.name || 'N/A'}</span>
-              <span>{company.website}</span>
+              <Tip text={company.website || ''}>
+                <span>{company.website}</span>
+              </Tip>
             </CompanyWrapper>
           ))}
         </CompaniesWrapper>
