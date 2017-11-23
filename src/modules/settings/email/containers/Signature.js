@@ -4,14 +4,9 @@ import PropTypes from 'prop-types';
 import { compose, gql, graphql } from 'react-apollo';
 import { Alert } from 'modules/common/utils';
 import { Signature } from '../components';
-import { Loading } from 'modules/common/components';
 
 const SignatureContainer = (props, { currentUser }) => {
   const { brandsQuery, saveMutation } = props;
-
-  if (brandsQuery.loading) {
-    return <Loading title="Signature template" />;
-  }
 
   // save email configs action
   const save = signatures => {
@@ -38,8 +33,9 @@ const SignatureContainer = (props, { currentUser }) => {
 
   const emailSignatures = currentUser.emailSignatures || [];
   const signatures = [];
+  const brands = brandsQuery.brands || [];
 
-  brandsQuery.brands.forEach(brand => {
+  brands.forEach(brand => {
     // previously configured signature
     const oldEntry = emailSignatures.find(
       signature => signature.brandId === brand._id

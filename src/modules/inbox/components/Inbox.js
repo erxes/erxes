@@ -1,18 +1,18 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Wrapper } from 'modules/layout/components';
-import { AvatarImg } from 'modules/common/components/filterableList/styles';
 import {
   Button,
   Label,
   Icon,
   TaggerPopover,
-  Tags
+  Tags,
+  Spinner
 } from 'modules/common/components';
-import { BarItems } from 'modules/layout/styles';
-import Conversation from './conversation/Conversation';
-import AssignBoxPopover from './assignBox/AssignBoxPopover';
 import { LeftSidebar, RespondBox } from '../containers';
+import { AssignBoxPopover, Participators, Conversation } from './';
+import { AvatarImg } from 'modules/common/components/filterableList/styles';
+import { BarItems } from 'modules/layout/styles';
 import ConversationDetails from './sidebar/ConversationDetails';
 import { EditInformation } from 'modules/customers/containers';
 
@@ -20,7 +20,7 @@ import {
   PopoverButton,
   ConversationWrapper,
   AssignText,
-  AssignWrapper,
+  ActionBarLeft,
   AssignTrigger
 } from '../styles';
 
@@ -80,7 +80,11 @@ class Inbox extends Component {
       );
     }
 
-    return null;
+    return (
+      <Wrapper.Sidebar full>
+        <Spinner />
+      </Wrapper.Sidebar>
+    );
   }
 
   renderStatusButton(status) {
@@ -111,6 +115,7 @@ class Inbox extends Component {
     } = this.props;
     const tags = currentConversation.tags || [];
     const assignedUser = currentConversation.assignedUser;
+    const participatedUsers = currentConversation.participatedUsers || [];
 
     const tagTrigger = (
       <PopoverButton>
@@ -154,13 +159,16 @@ class Inbox extends Component {
     );
 
     const actionBarLeft = (
-      <AssignWrapper>
+      <ActionBarLeft>
         <AssignText>Assign to:</AssignText>
         <AssignBoxPopover
           targets={[currentConversation]}
           trigger={assignTrigger}
         />
-      </AssignWrapper>
+        {participatedUsers && (
+          <Participators participatedUsers={participatedUsers} limit={3} />
+        )}
+      </ActionBarLeft>
     );
 
     const actionBar = (

@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { compose, gql, graphql } from 'react-apollo';
 import { TAG_TYPES } from 'modules/tags/constants';
-import { Bulk, Loading } from 'modules/common/components';
+import { Bulk, Spinner } from 'modules/common/components';
 import { MessageList } from '../components';
 import { queries } from '../graphql';
 
@@ -16,7 +16,7 @@ class MessageListContainer extends Bulk {
     } = this.props;
 
     if (engageMessagesQuery.loading || engageMessagesTotalCountQuery.loading) {
-      return <Loading title="Engage" items={3} />;
+      return <Spinner />;
     }
 
     const updatedProps = {

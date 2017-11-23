@@ -63,6 +63,13 @@ const Links = styled.div`
 
 const ProfileWrapper = styled.div`
   position: relative;
+
+  img {
+    display: block;
+    width: 100px;
+    height: 100px;
+    border-radius: 50px;
+  }
 `;
 
 const ProfileRow = styled.div`

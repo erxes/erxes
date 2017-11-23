@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { compose, gql, graphql } from 'react-apollo';
 import { Alert } from 'modules/common/utils';
-import { Loading } from 'modules/common/components';
+import { Spinner } from 'modules/common/components';
 import { queries, mutations } from '../graphql';
 import { CompanyDetails } from '../components';
 
@@ -21,9 +21,7 @@ const CompanyDetailsContainer = (props, context) => {
     fieldsQuery.loading ||
     companyActivityLogQuery.loading
   ) {
-    return (
-      <Loading title="Companies" sidebarSize="wide" spin hasRightSidebar />
-    );
+    return <Spinner />;
   }
 
   const save = (variables, callback) => {

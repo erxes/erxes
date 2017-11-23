@@ -62,12 +62,7 @@ class UserCommonInfos extends Component {
       <ProfileWrapper>
         <FormGroup>
           <ControlLabel>Photo</ControlLabel>
-          <img
-            alt="avatar"
-            className="avatar"
-            style={avatarPreviewStyle}
-            src={avatarPreviewUrl}
-          />
+          <img alt="avatar" style={avatarPreviewStyle} src={avatarPreviewUrl} />
 
           <FormControl type="file" onChange={this.handleImageChange} />
         </FormGroup>
