@@ -15,6 +15,7 @@ const AboutList = styled.ul`
     text-overflow: ellipsis;
     text-decoration: none;
     outline: 0;
+    width: 100%;
 
     &:first-child {
       padding-top: 0;
@@ -42,6 +43,9 @@ const Aboutvalues = styled.span`
   margin-top: 2px;
   position: absolute;
   right: ${dimensions.coreSpacing}px;
+  width: 60%;
+  overflow: hidden;
+  text-overflow: ellipsis;
 
   &:hover {
     i {
@@ -102,8 +106,11 @@ const CompanyWrapper = styled.div`
   span {
     display: inline-block;
     width: 100%;
-
     &:last-child {
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      width: 100%;
       color: ${colors.colorCoreGray};
       font-weight: ${typography.fontWeightLight};
     }
