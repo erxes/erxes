@@ -9,7 +9,7 @@ import { Wrapper } from 'modules/layout/components';
 import Sidebar from '../../Sidebar';
 import { WidgetPreview } from './';
 import { MessengerPreview, Messenger } from 'modules/engage/styles';
-import { Button, Icon } from 'modules/common/components';
+import { Button, Icon, Tip } from 'modules/common/components';
 import {
   SubHeading,
   Margined,
@@ -56,7 +56,7 @@ class Appearance extends Component {
       file: imageFile,
 
       beforeUpload: () => {
-        this.setState({ logoPreviewStyle: { opacity: '0.2' } });
+        this.setState({ logoPreviewStyle: { opacity: '0.9' } });
       },
 
       afterUpload: ({ response }) => {
@@ -150,21 +150,26 @@ class Appearance extends Component {
                 wallpaper={this.state.wallpaper}
                 user={this.props.user}
               />
-              <LogoContainer
-                style={Object.assign(
-                  {
-                    backgroundColor: this.state.color,
-                    backgroundImage: `url(${logoPreviewUrl})`
-                  },
-                  logoPreviewStyle
-                )}
-              >
-                <Icon
-                  icon="ios-upload-outline icon"
-                  size={30}
-                  style={{ backgroundColor: this.state.color }}
-                />
-              </LogoContainer>
+              <Tip text="Choose a logo">
+                <LogoContainer
+                  style={Object.assign(
+                    {
+                      backgroundColor: this.state.color,
+                      backgroundImage: `url(${logoPreviewUrl})`
+                    },
+                    logoPreviewStyle
+                  )}
+                >
+                  <label>
+                    <Icon
+                      icon="ios-upload-outline icon"
+                      size={30}
+                      style={{ backgroundColor: this.state.color }}
+                    />
+                    <input type="file" onChange={this.handleLogoChange} />
+                  </label>
+                </LogoContainer>
+              </Tip>
             </Messenger>
           </MessengerPreview>
         </WidgetApperance>

@@ -26,7 +26,6 @@ const LogoContainer = styled.div`
   cursor: pointer;
   box-shadow: 0 0 ${unitSpace} 0 ${rgba(colors.colorBlack, 0.2)};
   background-color: ${colors.colorPrimary};
-  background-image: url('/images/logo-image.png');
   background-position: center;
   background-size: 46px;
   background-repeat: no-repeat;
@@ -34,16 +33,23 @@ const LogoContainer = styled.div`
   position: relative;
   float: right;
 
+  input[type='file'] {
+    display: none;
+  }
+
   .icon {
     margin: 0;
     visibility: hidden;
     transition: all 0.3s ease-in;
     transition-timing-function: linear;
+    padding: 10px 19px;
+    border-radius: 50%;
   }
 
   &:hover {
     .icon {
       visibility: visible;
+      cursor: pointer;
     }
   }
 `;

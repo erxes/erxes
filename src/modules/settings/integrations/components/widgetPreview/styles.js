@@ -1,6 +1,5 @@
 import styled from 'styled-components';
 import { dimensions, colors, typography } from 'modules/common/styles';
-import { rgba } from 'modules/common/styles/color';
 
 const coreSpace = `${dimensions.coreSpacing}px`;
 const unitSpace = `${dimensions.unitSpacing}px`;
