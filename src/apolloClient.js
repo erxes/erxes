@@ -32,6 +32,25 @@ networkInterface.use([
   }
 ]);
 
+networkInterface.useAfter([
+  {
+    applyAfterware({ response: { headers } }, next) {
+      const token = headers.get('x-token');
+      const refreshToken = headers.get('x-refresh-token');
+
+      if (token) {
+        localStorage.setItem('erxesLoginToken', token);
+      }
+
+      if (refreshToken) {
+        localStorage.setItem('erxesLoginRefreshToken', refreshToken);
+      }
+
+      next();
+    }
+  }
+]);
+
 // Extend the network interface with the WebSocket
 const networkInterfaceWithSubscriptions = addGraphQLSubscriptions(
   networkInterface,
