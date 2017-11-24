@@ -50,7 +50,6 @@ class Appearance extends Component {
   }
 
   handleLogoChange(e) {
-    console.log(e.target.files[0]);
     const imageFile = e.target.files[0];
 
     uploadHandler({
