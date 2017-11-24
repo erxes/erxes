@@ -7,7 +7,7 @@ import { ChromePicker } from 'react-color';
 import { uploadHandler } from 'modules/common/utils';
 import { Wrapper } from 'modules/layout/components';
 import Sidebar from '../../Sidebar';
-import WidgetPreview from './WidgetPreview';
+import { WidgetPreview } from './';
 import { MessengerPreview, Messenger } from 'modules/engage/styles';
 import { Button, Icon } from 'modules/common/components';
 import {
@@ -50,6 +50,7 @@ class Appearance extends Component {
   }
 
   handleLogoChange(e) {
+    console.log(e.target.files[0]);
     const imageFile = e.target.files[0];
 
     uploadHandler({
