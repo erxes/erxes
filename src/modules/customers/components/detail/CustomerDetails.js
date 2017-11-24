@@ -13,6 +13,7 @@ import ActivityList from 'modules/activityLogs/components/ActivityList';
 
 const propTypes = {
   customer: PropTypes.object.isRequired,
+  refetch: PropTypes.func.isRequired,
   currentUser: PropTypes.object.isRequired,
   queryParams: PropTypes.object.isRequired,
   activityLogsCustomer: PropTypes.array.isRequired
@@ -124,7 +125,9 @@ class CustomerDetails extends React.Component {
     return (
       <Wrapper
         header={<Wrapper.Header breadcrumb={breadcrumb} />}
-        leftSidebar={<EditInformation customer={customer} />}
+        leftSidebar={
+          <EditInformation customer={customer} refetch={this.props.refetch} />
+        }
         content={content}
         transparent={true}
       />

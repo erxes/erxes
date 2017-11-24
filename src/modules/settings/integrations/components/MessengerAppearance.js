@@ -196,7 +196,7 @@ class Appearance extends Component {
 
     return (
       <Wrapper
-        breadcrumb={breadcrumb}
+        header={<Wrapper.Header breadcrumb={breadcrumb} />}
         leftSidebar={<Sidebar />}
         footer={actionBar}
         content={content}

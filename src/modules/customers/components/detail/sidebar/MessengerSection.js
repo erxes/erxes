@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import moment from 'moment';
-import { Wrapper } from 'modules/layout/components';
+import { Sidebar } from 'modules/layout/components';
 import { SidebarList, SidebarCounter } from 'modules/layout/styles';
 import { Label } from 'modules/common/components';
 
@@ -16,10 +16,10 @@ function MessengerSection({ customer }) {
     return null;
   }
 
-  const { Title } = Wrapper.Sidebar.Section;
+  const { Title } = Sidebar.Section;
 
   return (
-    <Wrapper.Sidebar.Section>
+    <Sidebar.Section>
       <Title>Messenger</Title>
       <SidebarList className="no-link">
         <li>
@@ -43,7 +43,7 @@ function MessengerSection({ customer }) {
           <SidebarCounter>{messengerData.sessionCount}</SidebarCounter>
         </li>
       </SidebarList>
-    </Wrapper.Sidebar.Section>
+    </Sidebar.Section>
   );
 }
 

@@ -32,6 +32,7 @@ class Row extends Component {
     this.toggleBulk = this.toggleBulk.bind(this);
     this.onClick = this.onClick.bind(this);
     this.renderCheckbox = this.renderCheckbox.bind(this);
+    this.renderFullName = this.renderFullName.bind(this);
   }
 
   toggleBulk(e) {
@@ -59,6 +60,13 @@ class Row extends Component {
     );
   }
 
+  renderFullName(customer) {
+    if (customer.firstName || customer.lastName) {
+      return (customer.firstName || '') + ' ' + (customer.lastName || '');
+    }
+    return null;
+  }
+
   render() {
     const { conversation, isRead, isActive } = this.props;
     const { createdAt, content } = conversation;
@@ -82,7 +90,9 @@ class Row extends Component {
               <FlexContent>
                 <CustomerName>
                   {isExistingCustomer &&
-                    (customer.name || customer.email || customer.phone)}
+                    (this.renderFullName(customer) ||
+                      customer.email ||
+                      customer.phone)}
                 </CustomerName>
                 <SmallText>
                   to {brandName} via {integration && integration.kind}
