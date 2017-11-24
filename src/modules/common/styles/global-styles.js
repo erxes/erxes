@@ -1,5 +1,4 @@
 import { injectGlobal } from 'styled-components';
-import 'ionicons/css/ionicons.min.css';
 import { typography, colors } from './';
 
 injectGlobal`
@@ -268,9 +267,11 @@ injectGlobal`
   .is-focused:not(.is-open) > .Select-control {
     box-shadow: none;
   }
+
   .is-focused .Select-input > input {
     padding: 10px 0 12px;
   }
+
   .Select-placeholder {
     padding-left: 20px;
     padding-right: 20px;
@@ -280,19 +281,24 @@ injectGlobal`
     padding-left: 20px;
     padding-right: 20px;
   }
+
   .Select-clear {
     font-size: 20px;
     line-height: 1.4;
   }
+
   .Select-clear-zone:hover {
     color: #e85a5a;
   }
+
   .Select--multi .Select-multi-value-wrapper {
     padding: 0 5px;
   }
+
   .Select--multi .Select-input {
     margin-left: 15px;
   }
+
   .Select--multi .Select-value {
     background-color: #04a9f5;
     border-radius: 11px;
@@ -302,6 +308,7 @@ injectGlobal`
     position: relative;
     padding-right: 20px;
   }
+
   .Select--multi .Select-value-icon {
     display: inline-block;
     vertical-align: middle;
@@ -317,12 +324,14 @@ injectGlobal`
     background: rgba(0, 0, 0, 0.1);
     padding: 0;
   }
+
   .Select--multi .Select-value-icon:hover,
   .Select--multi .Select-value-icon:focus,
   .Select--multi .Select-value-icon:active {
     background-color: #0876a9;
     color: #fff;
   }
+
   .Select--multi .Select-value-label {
     padding: 2px 10px;
   }
@@ -330,12 +339,15 @@ injectGlobal`
   .Select--multi.has-value .Select-input {
     margin-left: 5px;
   }
+
   .Select--multi a.Select-value-label {
     color: #452679;
   }
+
   .Select-arrow-zone {
     padding-right: 10px;
   }
+
   .Select-arrow-zone:hover > .Select-arrow {
     border-top-color: #777777;
   }
@@ -354,9 +366,11 @@ injectGlobal`
     text-transform: uppercase;
     padding: 8px 20px;
   }
+
   .Select-option-group-label ~ .Select-option {
     padding-left: 20px;
   }
+
   .Select-option-group-label .Select-option-group {
     padding-left: 20px;
   }
@@ -430,23 +444,28 @@ injectGlobal`
     border-color: #ddd !important;
     box-shadow: 0 5px 15px -3px rgba(0, 0, 0, 0.15);
   }
+
   .react-datepicker .react-datepicker__day--selected,
   .react-datepicker .react-datepicker__day--keyboard-selected {
     background-color: #04A9F5;
     border-radius: 4px;
     color: #fff;
   }
+
   .react-datepicker .react-datepicker__day--selected:hover,
   .react-datepicker .react-datepicker__day--keyboard-selected:hover {
     background-color: #67C682;
   }
+
   .react-datepicker .react-datepicker__header {
     background: #fafafa;
     border-color: #ddd;
   }
+
   .react-datepicker .react-datepicker__triangle {
     border-bottom-color: #fafafa !important;
   }
+
   .react-datepicker .react-datepicker__triangle::before {
     border-bottom-color: #ddd !important;
   }
@@ -464,18 +483,22 @@ injectGlobal`
   .RichEditor-editor .public-DraftEditor-content ul {
     padding-left: 25px;
   }
+
   .RichEditor-editor .public-DraftEditor-content ol {
     padding-left: 25px;
   }
+
   .RichEditor-editor .public-DraftEditor-content h3 {
     margin-top: 0;
   }
+
   .RichEditor-editor .RichEditor-blockquote {
     border-left: 5px solid #ddd;
     color: #777777;
     font-style: italic;
     padding: 10px 20px;
   }
+
   .RichEditor-editor .public-DraftStyleDefault-pre {
     margin-bottom: 0;
   }
@@ -499,6 +522,7 @@ injectGlobal`
     border-radius: 4px;
     text-decoration: none;
   }
+
   .draftJsMentionPlugin__mention__29BEd:visited {
     cursor: pointer;
     display: inline-block;
@@ -507,12 +531,15 @@ injectGlobal`
     padding-right: 2px;
     text-decoration: none;
   }
+
   .draftJsMentionPlugin__mention__29BEd:hover {
     outline: 0;
   }
+
   .draftJsMentionPlugin__mention__29BEd:focus {
     outline: 0;
   }
+
   .draftJsMentionPlugin__mention__29BEd:active {
     color: #333;
   }
@@ -539,6 +566,7 @@ injectGlobal`
     transition: background-color 0.4s cubic-bezier(0.27, 1.27, 0.48, 0.56);
     font-size: 13px;
   }
+
   .draftJsMentionPlugin__mentionSuggestionsEntry__3mSwm:active {
     background-color: #eee;
   }
@@ -604,14 +632,17 @@ injectGlobal`
     border-bottom: 1px solid #eee;
     margin-bottom: 10px;
   }
+
   .sidebar-accordion .popover-header {
     background: none;
   }
+
   .sidebar-accordion .popover-list {
     max-height: none;
   }
 
   /* icon select */
+
   .icon-option {
     display: flex;
     align-items: center;
@@ -624,27 +655,28 @@ injectGlobal`
   /* TODO convert */
 
   .iframe-preview {
-   width: 140px;
-   height: 100px;
-   overflow: hidden;
-   border: 1px solid #ddd;
-   border-radius: 4px;
+     width: 140px;
+     height: 100px;
+     overflow: hidden;
+     border: 1px solid #ddd;
+     border-radius: 4px;
   }
+
   .iframe-preview iframe {
-   transform: scale(0.2);
-   transform-origin: 0 0;
-   pointer-events: none;
-   width: 510%;
-   height: 500%;
-   border: 0;
+     transform: scale(0.2);
+     transform-origin: 0 0;
+     pointer-events: none;
+     width: 510%;
+     height: 500%;
+     border: 0;
   }
 
   .fbpost .body {
-   padding: 12px;
-   background: #f6f7f9;
-   border: 1px solid;
-   border-color: #e5e6e9 #dfe0e4 #d0d1d5;
-   border-radius: 4px;
+     padding: 12px;
+     background: #f6f7f9;
+     border: 1px solid;
+     border-color: #e5e6e9 #dfe0e4 #d0d1d5;
+     border-radius: 4px;
   }
 
   .flex-row {
@@ -691,6 +723,8 @@ injectGlobal`
     background: #f8f8f8;
     font-size: 13px;
   }
+
+  /* scrollbar */
 
   ::-webkit-scrollbar {
     width: 5px;
