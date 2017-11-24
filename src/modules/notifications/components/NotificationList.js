@@ -2,12 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import _ from 'underscore';
 import Sidebar from 'modules/settings/Sidebar';
-import {
-  Button,
-  Icon,
-  EmptyState,
-  Pagination
-} from 'modules/common/components';
+import { Button, Icon, Pagination } from 'modules/common/components';
 import { Wrapper } from 'modules/layout/components';
 import { NotificationListRow } from './';
 import { NotifList } from './styles';
@@ -39,10 +34,9 @@ class NotificationList extends Component {
 
   render() {
     const { notifications, count, markAsRead } = this.props;
-    const notifCount = notifications.length;
 
-    let content = (
-      <NotifList className="conversations-list">
+    const content = (
+      <NotifList>
         {notifications.map((notif, key) => (
           <NotificationListRow
             notification={notif}
@@ -52,16 +46,6 @@ class NotificationList extends Component {
         ))}
       </NotifList>
     );
-
-    if (notifCount === 0) {
-      content = (
-        <EmptyState
-          text="No notifications"
-          size="full"
-          icon="android-notifications"
-        />
-      );
-    }
 
     const actionBarLeft = (
       <div>

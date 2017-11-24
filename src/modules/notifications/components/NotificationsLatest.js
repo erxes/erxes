@@ -15,43 +15,41 @@ class NotificationsLatest extends Component {
     const { notifications, markAsRead } = this.props;
     const notifCount = notifications.length;
 
-    let seeAll = (
-      <NotificationSeeAll>
-        <Link to="/notifications">See all</Link>
-      </NotificationSeeAll>
+    const mainContent = (
+      <div>
+        <NotificationArea>
+          <NotificationList>
+            {notifications.map((notif, key) => (
+              <NotificationRow
+                notification={notif}
+                key={key}
+                markAsRead={markAsRead}
+              />
+            ))}
+          </NotificationList>
+        </NotificationArea>
+        <NotificationSeeAll>
+          <Link to="/notifications">See all</Link>
+        </NotificationSeeAll>
+      </div>
     );
 
-    let content = (
-      <NotificationArea>
-        <NotificationList>
-          {notifications.map((notif, key) => (
-            <NotificationRow
-              notification={notif}
-              key={key}
-              markAsRead={markAsRead}
-            />
-          ))}
-        </NotificationList>
-      </NotificationArea>
+    const emptyContent = (
+      <EmptyState
+        icon="android-notifications"
+        text="Coming soon.."
+        size="small"
+      />
     );
 
-    if (notifCount === 0) {
-      content = (
-        <EmptyState
-          icon={<i className="ion-android-notifications" />}
-          text="Coming soon.."
-          size="small"
-        />
-      );
-      seeAll = null;
-    }
+    const content = () => {
+      if (notifCount === 0) {
+        return emptyContent;
+      }
+      return mainContent;
+    };
 
-    return (
-      <NotificationWrapper>
-        {content}
-        {seeAll}
-      </NotificationWrapper>
-    );
+    return <NotificationWrapper>{content()}</NotificationWrapper>;
   }
 }
 

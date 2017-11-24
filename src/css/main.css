@@ -11,99 +11,6 @@
   max-height: none;
 }
 
-.notification-popover {
-  right: 15px;
-  max-width: 360px;
-}
-
-.notif-list > li .column {
-  visibility: hidden;
-}
-.notif-list > li.unread .column {
-  visibility: visible;
-}
-.notif-list > li .body:hover {
-  cursor: pointer;
-}
-.notif-list .text .second-line {
-  margin-top: 3px;
-}
-
-.notifications-wrapper {
-  position: relative;
-  padding-bottom: 30px;
-}
-.notifications-wrapper .notifications-area > div {
-  max-height: 300px !important;
-}
-.notifications-wrapper .empty-state.small {
-  padding-top: 30px;
-}
-.notifications-wrapper > a {
-  position: absolute;
-  bottom: 0;
-  width: 100%;
-  padding: 5px 20px;
-  display: block;
-  text-align: center;
-  border-top: 1px solid #ddd;
-}
-
-.notifications-list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-.notifications-list li {
-  padding: 0 !important;
-  border-bottom: 1px solid #eee;
-  -webkit-transition: all 0.2s ease;
-  -moz-transition: all 0.2s ease;
-  -ms-transition: all 0.2s ease;
-  -o-transition: all 0.2s ease;
-  transition: all 0.2s ease;
-}
-.notifications-list li:last-child {
-  border: 0;
-}
-.notifications-list li > div {
-  display: block;
-  padding: 10px 20px;
-  color: #333333;
-}
-.notifications-list li.unread {
-  background: #f3f1f7;
-}
-.notifications-list li:hover {
-  background: #f8f8f8;
-  cursor: pointer;
-}
-.notifications-list li:focus {
-  background: #f8f8f8;
-  cursor: pointer;
-}
-.notifications-list .text a.first-line {
-  margin-top: 0;
-  white-space: normal;
-  font-weight: 500;
-  font-size: 13px;
-}
-.notifications-list .text .second-line {
-  font-size: 12px;
-  margin-top: 3px;
-}
-
-.conversations-list {
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-.conversations-list .body {
-  flex: 1;
-}
-.conversations-list .body:hover {
-  color: #333333;
-}
 .conversations-list .body header {
   position: relative;
 }
@@ -150,28 +57,8 @@
 .conversations-list .info span {
   margin-right: 15px;
 }
-.conversations-list > li {
-  padding: 20px;
-  border-bottom: 1px solid #eee;
-  position: relative;
-  display: flex;
-  align-items: center;
-}
-.conversations-list > li.unread {
-  background: #f3f1f7;
-  border-left: 1px solid #452679;
-}
 .conversations-list > li:hover .conversation-togglers a {
   display: inline-block;
-}
-.conversations-list > li .column {
-  margin-right: 20px;
-}
-.conversations-list .column.markRead {
-  margin-right: 0;
-}
-.conversations-list .column.markRead > span:hover {
-  cursor: pointer;
 }
 .conversations-list .simple-row {
   padding: 15px;
@@ -358,10 +245,6 @@
 
 .integration-item .checkbox {
   margin-top: 0;
-}
-
-.notification-settings h5 {
-  font-weight: 600;
 }
 
 .widget-appearance {
