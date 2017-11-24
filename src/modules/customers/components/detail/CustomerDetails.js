@@ -5,7 +5,7 @@ import {
   List as InternalNotes,
   Form as NoteForm
 } from 'modules/internalNotes/containers';
-import LeftSidebar from './sidebar/LeftSidebar';
+import { EditInformation } from 'modules/customers/containers';
 import { Tabs, TabTitle } from 'modules/common/components';
 import { WhiteBox } from 'modules/layout/styles';
 import { ConversationList, EmptyState, Icon } from 'modules/common/components';
@@ -14,10 +14,7 @@ import ActivityList from 'modules/activityLogs/components/ActivityList';
 const propTypes = {
   customer: PropTypes.object.isRequired,
   currentUser: PropTypes.object.isRequired,
-  customFields: PropTypes.array.isRequired,
-  save: PropTypes.func.isRequired,
   queryParams: PropTypes.object.isRequired,
-  addCompany: PropTypes.func.isRequired,
   activityLogsCustomer: PropTypes.array.isRequired
 };
 
@@ -127,7 +124,7 @@ class CustomerDetails extends React.Component {
     return (
       <Wrapper
         header={<Wrapper.Header breadcrumb={breadcrumb} />}
-        leftSidebar={<LeftSidebar {...this.props} />}
+        leftSidebar={<EditInformation customer={customer} />}
         content={content}
         transparent={true}
       />

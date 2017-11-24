@@ -43,7 +43,7 @@ class ArticleList extends CommonList {
           <tr>
             <th>Title</th>
             <th>Summary</th>
-            <th width="83">Actions</th>
+            <th width="90">Actions</th>
           </tr>
         </thead>
         <tbody>{this.renderObjects()}</tbody>

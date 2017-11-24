@@ -1,25 +1,26 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Wrapper } from 'modules/layout/components';
-import { AvatarImg } from 'modules/common/components/filterableList/styles';
 import {
   Button,
   Label,
   Icon,
   TaggerPopover,
-  Participators,
-  Tags
+  Tags,
+  Spinner
 } from 'modules/common/components';
-import { BarItems } from 'modules/layout/styles';
-import Conversation from './conversation/Conversation';
-import AssignBoxPopover from './assignBox/AssignBoxPopover';
 import { LeftSidebar, RespondBox } from '../containers';
-import RightSidebar from './sidebar/RightSidebar';
+import { AssignBoxPopover, Participators, Conversation } from './';
+import { AvatarImg } from 'modules/common/components/filterableList/styles';
+import { BarItems } from 'modules/layout/styles';
+import ConversationDetails from './sidebar/ConversationDetails';
+import { EditInformation } from 'modules/customers/containers';
+
 import {
   PopoverButton,
   ConversationWrapper,
   AssignText,
-  ActionBarLeftWrapper,
+  ActionBarLeft,
   AssignTrigger
 } from '../styles';
 
@@ -66,6 +67,24 @@ class Inbox extends Component {
 
     // call change status method
     changeStatus(currentConversation._id, status);
+  }
+
+  renderRightSidebar(currentConversation) {
+    if (currentConversation._id) {
+      return (
+        <EditInformation
+          conversation={currentConversation}
+          sections={<ConversationDetails conversation={currentConversation} />}
+          customer={currentConversation.customer}
+        />
+      );
+    }
+
+    return (
+      <Wrapper.Sidebar full>
+        <Spinner />
+      </Wrapper.Sidebar>
+    );
   }
 
   renderStatusButton(status) {
@@ -140,16 +159,16 @@ class Inbox extends Component {
     );
 
     const actionBarLeft = (
-      <ActionBarLeftWrapper>
+      <ActionBarLeft>
         <AssignText>Assign to:</AssignText>
         <AssignBoxPopover
           targets={[currentConversation]}
           trigger={assignTrigger}
         />
-        {participatedUsers.length ? (
+        {participatedUsers && (
           <Participators participatedUsers={participatedUsers} limit={3} />
-        ) : null}
-      </ActionBarLeftWrapper>
+        )}
+      </ActionBarLeft>
     );
 
     const actionBar = (
@@ -192,7 +211,7 @@ class Inbox extends Component {
             onChangeConversation={onChangeConversation}
           />
         }
-        rightSidebar={<RightSidebar conversation={currentConversation} />}
+        rightSidebar={this.renderRightSidebar(currentConversation)}
       />
     );
   }
@@ -205,7 +224,10 @@ Inbox.propTypes = {
   changeStatus: PropTypes.func,
   afterTag: PropTypes.func,
   currentConversationId: PropTypes.string,
-  currentConversation: PropTypes.object
+  currentConversation: PropTypes.object,
+  saveCustomer: PropTypes.func,
+  customFields: PropTypes.array,
+  addCompany: PropTypes.func
 };
 
 export default Inbox;

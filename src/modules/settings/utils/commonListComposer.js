@@ -1,7 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { compose } from 'react-apollo';
-import { Loading } from 'modules/common/components';
 import { confirm } from 'modules/common/utils';
 import { Alert } from 'modules/common/utils';
 
@@ -25,13 +24,9 @@ const commonListComposer = options => {
       removeMutation
     } = props;
 
-    if (totalCountQuery.loading || listQuery.loading) {
-      return <Loading title="Settings" />;
-    }
+    const totalCount = totalCountQuery[`${name}TotalCount`] || 0;
 
-    const totalCount = totalCountQuery[`${name}TotalCount`];
-
-    const objects = listQuery[name];
+    const objects = listQuery[name] || [];
 
     // remove action
     const remove = _id => {

@@ -1,9 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Wrapper } from 'modules/layout/components';
-import { GenerateField } from 'modules/fields/components';
-import { CustomerForm } from 'modules/customers/components';
 import { Link } from 'react-router-dom';
+import { Sidebar } from 'modules/layout/components';
 import { SidebarContent } from 'modules/layout/styles';
 import { Alert } from 'modules/common/utils';
 import {
@@ -14,6 +12,8 @@ import {
   FormControl,
   ControlLabel
 } from 'modules/common/components';
+import { GenerateField } from 'modules/fields/components';
+import { CustomerForm } from 'modules/customers/components';
 import { CustomersWrapper, CustomerWrapper } from '../../styles';
 
 const propTypes = {
@@ -38,7 +38,7 @@ class LeftSidebar extends React.Component {
     this.state = {
       editing: false,
       basicinfo: this.defaultBasicinfos,
-      fieldsdata: this.defaultCustomFieldsData
+      customData: this.defaultCustomFieldsData
     };
 
     this.toggleEditing = this.toggleEditing.bind(this);
@@ -57,25 +57,21 @@ class LeftSidebar extends React.Component {
     this.setState({
       editing: false,
       basicinfo: this.defaultBasicinfos,
-      fieldsdata: this.defaultCustomFieldsData
+      customData: this.defaultCustomFieldsData
     });
   }
 
   save() {
     const doc = {
-      name: this.state.basicinfo.name,
-      size: this.state.basicinfo.size,
-      industry: this.state.basicinfo.industry,
-      website: this.state.basicinfo.website,
-      plan: this.state.basicinfo.plan,
-      customFieldsData: this.state.fieldsdata
+      ...this.state.basicinfo,
+      customFieldsData: this.state.customData
     };
 
     this.props.save(doc, error => {
       if (error) return Alert.error(error.message);
 
       this.defaultBasicinfos = this.state.basicinfo;
-      this.defaultCustomFieldsData = this.state.fieldsdata;
+      this.defaultCustomFieldsData = this.state.customData;
       this.cancelEditing();
       return Alert.success('Success');
     });
@@ -93,21 +89,21 @@ class LeftSidebar extends React.Component {
 
   handleFieldsChange({ _id, value }) {
     this.toggleEditing();
-    const { fieldsdata } = this.state;
+    const { customData } = this.state;
     const newfields = {
-      ...fieldsdata,
+      ...customData,
       [_id]: value
     };
-    this.setState({ fieldsdata: newfields });
+    this.setState({ customData: newfields });
   }
 
   renderBasicInfo() {
-    const { Sidebar } = Wrapper;
     const { Section } = Sidebar;
     const { Title } = Section;
+    const { basicinfo } = this.state;
 
     return (
-      <Section className="full">
+      <Section>
         <Title>Basic info</Title>
 
         <SidebarContent>
@@ -116,7 +112,7 @@ class LeftSidebar extends React.Component {
             <FormControl
               id="name"
               onChange={e => this.handleChange(e, 'name')}
-              value={this.state.basicinfo.name}
+              value={basicinfo.name}
             />
           </FormGroup>
 
@@ -126,7 +122,7 @@ class LeftSidebar extends React.Component {
               id="size"
               type="number"
               onChange={e => this.handleChange(e, 'size')}
-              value={this.state.basicinfo.size || ''}
+              value={basicinfo.size || ''}
             />
           </FormGroup>
 
@@ -135,7 +131,7 @@ class LeftSidebar extends React.Component {
             <FormControl
               id="industry"
               onChange={e => this.handleChange(e, 'industry')}
-              value={this.state.basicinfo.industry || ''}
+              value={basicinfo.industry || ''}
             />
           </FormGroup>
 
@@ -144,7 +140,7 @@ class LeftSidebar extends React.Component {
             <FormControl
               id="website"
               onChange={e => this.handleChange(e, 'website')}
-              value={this.state.basicinfo.website || ''}
+              value={basicinfo.website || ''}
             />
           </FormGroup>
 
@@ -153,7 +149,7 @@ class LeftSidebar extends React.Component {
             <FormControl
               id="plan"
               onChange={e => this.handleChange(e, 'plan')}
-              value={this.state.basicinfo.plan || ''}
+              value={basicinfo.plan || ''}
             />
           </FormGroup>
         </SidebarContent>
@@ -163,12 +159,11 @@ class LeftSidebar extends React.Component {
 
   renderCustomFields() {
     const { customFields } = this.props;
-    const { Sidebar } = Wrapper;
     const { Section } = Sidebar;
     const { Title, QuickButtons } = Section;
 
     return (
-      <Section className="full">
+      <Section>
         <Title>About</Title>
         <QuickButtons>
           <Link to="/fields/manage/company">
@@ -181,7 +176,7 @@ class LeftSidebar extends React.Component {
               field={field}
               key={index}
               onValueChange={this.handleFieldsChange}
-              value={this.state.fieldsdata[field._id] || ''}
+              defaultValue={this.state.customData[field._id] || ''}
             />
           ))}
         </SidebarContent>
@@ -191,12 +186,11 @@ class LeftSidebar extends React.Component {
 
   renderCustomers() {
     const { company, addCustomer } = this.props;
-    const { Sidebar } = Wrapper;
     const { Section } = Sidebar;
     const { Title, QuickButtons } = Section;
 
     return (
-      <Section className="full">
+      <Section>
         <Title>Customers</Title>
 
         <QuickButtons>
@@ -207,7 +201,7 @@ class LeftSidebar extends React.Component {
         <CustomersWrapper>
           {company.customers.map((customer, index) => (
             <CustomerWrapper key={index}>
-              <Link to={'/customers/details/' + customer._id}>
+              <Link to={`/customers/details/${customer._id}`}>
                 <Icon icon="android-arrow-forward" />
               </Link>
               <span>Name: </span>
@@ -222,25 +216,29 @@ class LeftSidebar extends React.Component {
   }
 
   renderSidebarFooter() {
-    return this.state.editing ? (
-      <Wrapper.Sidebar.Footer>
+    if (!this.state.editing) {
+      return null;
+    }
+
+    return (
+      <Sidebar.Footer>
         <Button btnStyle="simple" size="small" onClick={this.cancelEditing}>
           <Icon icon="close" />Discard
         </Button>
         <Button btnStyle="success" size="small" onClick={this.save}>
           <Icon icon="checkmark" />Save
         </Button>
-      </Wrapper.Sidebar.Footer>
-    ) : null;
+      </Sidebar.Footer>
+    );
   }
 
   render() {
     return (
-      <Wrapper.Sidebar size="wide" footer={this.renderSidebarFooter()}>
+      <Sidebar size="wide" footer={this.renderSidebarFooter()}>
         {this.renderBasicInfo()}
         {this.renderCustomers()}
         {this.renderCustomFields()}
-      </Wrapper.Sidebar>
+      </Sidebar>
     );
   }
 }

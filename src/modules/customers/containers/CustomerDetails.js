@@ -1,57 +1,16 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { compose, gql, graphql } from 'react-apollo';
-import { Alert } from 'modules/common/utils';
-import { Loading } from 'modules/common/components';
-import { queries, mutations } from '../graphql';
+import { Spinner } from 'modules/common/components';
+import { queries } from '../graphql';
 import { CustomerDetails } from '../components';
 
 const CustomerDetailsContainer = (props, context) => {
-  const {
-    id,
-    customerDetailQuery,
-    customerActivityLogQuery,
-    customersEdit,
-    customersAddCompany,
-    fieldsQuery
-  } = props;
+  const { customerDetailQuery, customerActivityLogQuery } = props;
 
-  if (
-    customerDetailQuery.loading ||
-    fieldsQuery.loading ||
-    customerActivityLogQuery.loading
-  ) {
-    return (
-      <Loading title="Customers" sidebarSize="wide" spin hasRightSidebar />
-    );
+  if (customerDetailQuery.loading || customerActivityLogQuery.loading) {
+    return <Spinner />;
   }
-
-  const save = (variables, callback) => {
-    customersEdit({
-      variables: { _id: id, ...variables }
-    })
-      .then(() => {
-        callback();
-        customerDetailQuery.refetch();
-      })
-      .catch(e => {
-        callback(e);
-      });
-  };
-
-  const addCompany = ({ doc, callback }) => {
-    customersAddCompany({
-      variables: { _id: id, ...doc }
-    })
-      .then(() => {
-        customerDetailQuery.refetch();
-        Alert.success('Success');
-        callback();
-      })
-      .catch(e => {
-        Alert.error(e.message);
-      });
-  };
 
   const updatedProps = {
     ...props,
@@ -60,10 +19,7 @@ const CustomerDetailsContainer = (props, context) => {
       refetch: customerDetailQuery.refetch
     },
     activityLogsCustomer: customerActivityLogQuery.activityLogsCustomer,
-    save,
-    addCompany,
-    currentUser: context.currentUser,
-    customFields: fieldsQuery.fields
+    currentUser: context.currentUser
   };
 
   return <CustomerDetails {...updatedProps} />;
@@ -72,9 +28,6 @@ const CustomerDetailsContainer = (props, context) => {
 CustomerDetailsContainer.propTypes = {
   id: PropTypes.string,
   customerDetailQuery: PropTypes.object,
-  fieldsQuery: PropTypes.object,
-  customersEdit: PropTypes.func,
-  customersAddCompany: PropTypes.func,
   customerActivityLogQuery: PropTypes.object
 };
 
@@ -98,15 +51,5 @@ export default compose(
         _id: id
       }
     })
-  }),
-  graphql(gql(queries.fields), {
-    name: 'fieldsQuery'
-  }),
-  // mutations
-  graphql(gql(mutations.customersEdit), {
-    name: 'customersEdit'
-  }),
-  graphql(gql(mutations.customersAddCompany), {
-    name: 'customersAddCompany'
   })
 )(CustomerDetailsContainer);

@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { compose, gql, graphql } from 'react-apollo';
-import { Loading } from 'modules/common/components';
+import { Spinner } from 'modules/common/components';
 import { AutoAndManualForm } from '../components';
 import { queries } from '../graphql';
 import withFormMutations from './withFormMutations';
@@ -14,7 +14,7 @@ const AutoAndManualFormContainer = props => {
     emailTemplatesQuery.loading ||
     customerCountsQuery.loading
   ) {
-    return <Loading title="New message" spin wide items={3} />;
+    return <Spinner />;
   }
 
   const templates = emailTemplatesQuery.emailTemplates;

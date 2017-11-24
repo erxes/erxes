@@ -7,6 +7,8 @@ const customerFields = `
     isUser
     integrationId
     createdAt
+    remoteAddress
+    location
 
     customFieldsData
     messengerData
@@ -58,6 +60,7 @@ const customerDetail = `
       companies {
         _id
         name
+        website
       }
       conversations {
         _id
