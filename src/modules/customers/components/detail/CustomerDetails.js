@@ -1,15 +1,28 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import moment from 'moment';
 import { Wrapper } from 'modules/layout/components';
-import {
-  List as InternalNotes,
-  Form as NoteForm
-} from 'modules/internalNotes/containers';
-import { EditInformation } from 'modules/customers/containers';
-import { Tabs, TabTitle } from 'modules/common/components';
 import { WhiteBox } from 'modules/layout/styles';
-import { ConversationList, EmptyState, Icon } from 'modules/common/components';
+import {
+  ConversationList,
+  EmptyState,
+  Icon,
+  NameCard,
+  Button,
+  Tabs,
+  TabTitle
+} from 'modules/common/components';
+import { Form as NoteForm } from 'modules/internalNotes/containers';
+import { EditInformation } from 'modules/customers/containers';
 import ActivityList from 'modules/activityLogs/components/ActivityList';
+import {
+  ActivityRow,
+  AvatarWrapper,
+  ActivityWrapper,
+  ActivityCaption,
+  ActivityContent,
+  DeleteNote
+} from 'modules/activityLogs/styles';
 
 const propTypes = {
   customer: PropTypes.object.isRequired,
@@ -34,7 +47,7 @@ class CustomerDetails extends React.Component {
 
   renderTabContent() {
     const { currentTab } = this.state;
-    const { currentUser, customer, activityLogsCustomer } = this.props;
+    const { currentUser, activityLogsCustomer } = this.props;
 
     if (currentTab === 'activity') {
       return (
@@ -43,18 +56,49 @@ class CustomerDetails extends React.Component {
     }
 
     if (currentTab === 'notes') {
-      return (
-        <InternalNotes
-          contentType="customer"
-          contentTypeId={customer._id}
-          currentUserId={currentUser._id}
-        />
-      );
+      return this.renderInternalNotes();
     }
 
     if (currentTab === 'conversations') {
       return this.renderConversations();
     }
+  }
+
+  internalNoteRow(data, currentUser) {
+    const { list } = data;
+
+    return list.map(item => {
+      if (item.action !== 'internal_note-create') return null;
+      return (
+        <ActivityRow key={item.id}>
+          <ActivityWrapper>
+            {item.by._id === currentUser._id ? (
+              <DeleteNote>
+                <Button btnStyle="danger" size="small">
+                  <Icon icon="trash-a" />
+                </Button>
+              </DeleteNote>
+            ) : null}
+
+            <AvatarWrapper>
+              <NameCard.Avatar user={item.createdUser} size={50} />
+            </AvatarWrapper>
+            <ActivityCaption>{item.by.details.fullName}</ActivityCaption>
+            <div>{moment(item.createdAt).fromNow()}</div>
+          </ActivityWrapper>
+
+          <ActivityContent>{item.content}</ActivityContent>
+        </ActivityRow>
+      );
+    });
+  }
+
+  renderInternalNotes() {
+    const { activityLogsCustomer, currentUser } = this.props;
+
+    return activityLogsCustomer.map(item =>
+      this.internalNoteRow(item, currentUser)
+    );
   }
 
   renderConversations() {
