@@ -7,6 +7,7 @@ import Twitter from './Twitter';
 import Facebook from './Facebook';
 import MessengerAppearance from './MessengerAppearance';
 import MessengerConfigs from './MessengerConfigs';
+import WidgetPreview from './widgetPreview/WidgetPreview';
 
 export {
   List,
@@ -17,5 +18,6 @@ export {
   Twitter,
   Facebook,
   MessengerAppearance,
-  MessengerConfigs
+  MessengerConfigs,
+  WidgetPreview
 };
