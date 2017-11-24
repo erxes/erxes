@@ -276,6 +276,55 @@ const Well = styled.div`
   border: 1px solid ${colors.colorShadowGray};
 `;
 
+const BackgroundSelector = styled.div`
+  border: 3px solid transparent;
+  margin-right: 15px;
+  border-radius: 4px;
+  transition: border-color 0.3s;
+
+  > div {
+    width: 80px;
+    height: 40px;
+    margin: 5px;
+    border: 1px solid #ddd;
+    background-repeat: repeat;
+    background-position: 0 0;
+    background-size: 220%;
+
+    &.background-1 {
+      background-image: url('/images/patterns/bg-1.png');
+    }
+
+    &.background-2 {
+      background-image: url('/images/patterns/bg-2.png');
+    }
+
+    &.background-3 {
+      background-image: url('/images/patterns/bg-3.png');
+    }
+
+    &.background-4 {
+      background-image: url('/images/patterns/bg-4.png');
+    }
+
+    &.background-5 {
+      background: #faf9fb;
+    }
+  }
+
+  &.selected {
+    border-color: #ddd;
+  }
+
+  &:last-child {
+    margin-right: 0;
+  }
+
+  &:hover {
+    cursor: pointer;
+  }
+`;
+
 export {
   ContentBox,
   SubHeading,
@@ -302,6 +351,7 @@ export {
   TopbarButton,
   ErxesStaffName,
   ErxesStaffProfile,
+  BackgroundSelector,
   WidgetBox,
   ColorPick,
   ColorPicker,

@@ -18,6 +18,7 @@ import {
   WidgetBackgrounds,
   WidgetBox,
   ColorPick,
+  BackgroundSelector,
   ColorPicker,
   LogoContainer
 } from '../../styles';
@@ -83,18 +84,16 @@ class Appearance extends Component {
 
   renderWallpaperSelect(value) {
     const isSelected = this.state.wallpaper === value;
-    const selectorClass = classnames('background-selector', {
-      selected: isSelected
-    });
+    const selectorClass = classnames({ selected: isSelected });
 
     return (
-      <div
+      <BackgroundSelector
         className={selectorClass}
         onClick={() => this.onWallpaperChange(value)}
         style={{ borderColor: isSelected ? this.state.color : 'transparent' }}
       >
         <div className={`background-${value}`} />
-      </div>
+      </BackgroundSelector>
     );
   }
 

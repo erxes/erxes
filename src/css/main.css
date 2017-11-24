@@ -247,69 +247,8 @@
   margin-top: 0;
 }
 
-.widget-appearance {
-  display: flex;
-  flex-direction: row;
-}
-.widget-appearance > div {
-  padding: 10px 30px 10px 10px;
-}
-
-.color-pick {
-  border-radius: 4px;
-  display: inline-block;
-  padding: 5px;
-  border: 1px solid #ddd;
-  cursor: pointer;
-}
-.color-pick > div {
-  width: 80px;
-  height: 15px;
-}
-
 .chrome-picker {
   box-shadow: none !important;
-}
-
-.background-selector {
-  border: 3px solid transparent;
-  margin-right: 15px;
-  border-radius: 4px;
-  transition: border-color 0.3s;
-}
-.background-selector:last-child {
-  margin-right: 0;
-}
-.background-selector.selected {
-  border-color: #ddd;
-}
-.background-selector:hover {
-  cursor: pointer;
-}
-.background-selector > div {
-  width: 80px;
-  height: 40px;
-  margin: 5px;
-  border: 1px solid #ddd;
-  background-repeat: repeat;
-  background-position: 0 0;
-  background-size: 220%;
-}
-.background-selector > div.background-1 {
-  background-image: url('/images/patterns/bg-1.png');
-}
-.background-selector > div.background-2 {
-  background-image: url('/images/patterns/bg-2.png');
-  background-position: 80px 260px;
-}
-.background-selector > div.background-3 {
-  background-image: url('/images/patterns/bg-3.png');
-}
-.background-selector > div.background-4 {
-  background-image: url('/images/patterns/bg-4.png');
-}
-.background-selector > div.background-5 {
-  background: #faf9fb;
 }
 
 .icon-option {
@@ -634,45 +573,6 @@
 .respond-box .btn {
   padding-right: 10px;
 }
-
-.empty-state {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  justify-content: center;
-  text-align: center;
-  font-size: 16px;
-  padding: 20px;
-  color: #777777;
-  background: #fff;
-}
-.empty-state i {
-  font-size: 16vh;
-  line-height: 20vh;
-  color: #ddd;
-}
-.empty-state.full {
-  position: absolute;
-  bottom: 0;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 0;
-}
-.empty-state.small {
-  height: auto;
-  min-height: 80px;
-  font-size: 12px;
-  padding: 10px 20px;
-}
-.empty-state.small i {
-  font-size: 28px;
-  line-height: 40px;
-}
-.empty-state a {
-  margin-top: 10px;
-}
-
 .popover-template {
   max-width: 405px;
   width: 405px;

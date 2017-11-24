@@ -21,7 +21,7 @@ const EmptyStateStyled = styled.div`
       return `
         min-height: 80px;
         font-size: 12px;
-        padding: 20px;
+        padding: 10px 20px;
       `;
     } else {
       return `
