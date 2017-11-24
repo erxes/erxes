@@ -27,6 +27,7 @@ import {
 const propTypes = {
   customer: PropTypes.object.isRequired,
   refetch: PropTypes.func.isRequired,
+  activityLogRefetch: PropTypes.func.isRequired,
   currentUser: PropTypes.object.isRequired,
   queryParams: PropTypes.object.isRequired,
   activityLogsCustomer: PropTypes.array.isRequired
@@ -121,7 +122,7 @@ class CustomerDetails extends React.Component {
 
   render() {
     const { currentTab } = this.state;
-    const { customer } = this.props;
+    const { customer, activityLogRefetch } = this.props;
 
     const breadcrumb = [
       { title: 'Customers', link: '/customers' },
@@ -137,7 +138,11 @@ class CustomerDetails extends React.Component {
             </TabTitle>
           </Tabs>
 
-          <NoteForm contentType="customer" contentTypeId={customer._id} />
+          <NoteForm
+            contentType="customer"
+            contentTypeId={customer._id}
+            refetch={activityLogRefetch}
+          />
         </WhiteBox>
 
         <Tabs grayBorder>

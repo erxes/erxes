@@ -5,7 +5,7 @@ import { Form } from '../components';
 import { mutations } from '../graphql';
 
 const FormContainer = props => {
-  const { contentType, contentTypeId, internalNotesAdd } = props;
+  const { contentType, contentTypeId, internalNotesAdd, refetch } = props;
 
   // create internalNote
   const create = content => {
@@ -15,6 +15,8 @@ const FormContainer = props => {
         contentTypeId,
         content
       }
+    }).then(() => {
+      refetch();
     });
   };
 
@@ -24,7 +26,8 @@ const FormContainer = props => {
 FormContainer.propTypes = {
   contentType: PropTypes.string,
   contentTypeId: PropTypes.string,
-  internalNotesAdd: PropTypes.func
+  internalNotesAdd: PropTypes.func,
+  refetch: PropTypes.func
 };
 
 export default compose(
