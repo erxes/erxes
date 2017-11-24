@@ -38,6 +38,7 @@ class LeftSidebar extends React.Component {
     this.defaultCustomFieldsData = {
       ...(props.customer.customFieldsData || {})
     };
+
     this.state = {
       editing: false,
       customData: this.defaultCustomFieldsData

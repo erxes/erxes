@@ -29,6 +29,7 @@ class BasicInfo extends React.Component {
     super(props);
 
     const { customer } = this.props;
+
     this.defaultBasicinfos = {
       firstName: customer.firstName,
       lastName: customer.lastName,
@@ -134,6 +135,7 @@ class BasicInfo extends React.Component {
   renderInfo() {
     const { customer } = this.props;
     const isUser = customer.isUser;
+
     return (
       <SidebarContent>
         <NameWrapper>
