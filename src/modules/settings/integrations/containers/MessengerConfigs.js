@@ -2,14 +2,14 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { compose, gql, graphql } from 'react-apollo';
 import { Alert } from 'modules/common/utils';
-import { Loading } from 'modules/common/components';
+import { Spinner } from 'modules/common/components';
 import { MessengerConfigs } from '../components';
 
 const MessengerConfigsContainer = props => {
   const { integrationDetailQuery, saveMutation } = props;
 
   if (integrationDetailQuery.loading) {
-    return <Loading title="Integrations" spin />;
+    return <Spinner />;
   }
 
   const integration = integrationDetailQuery.integrationDetail;
