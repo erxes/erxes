@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { compose, gql, graphql } from 'react-apollo';
-import { Loading } from 'modules/common/components';
+import { Loader } from 'modules/common/components';
 import { queries, mutations } from '../graphql';
 import { Alert } from 'modules/common/utils';
 import { NotificationList } from '../components';
@@ -15,7 +15,7 @@ class NotificationListContainer extends React.Component {
     } = this.props;
 
     if (notificationsQuery.loading || notificationCountQuery.loading) {
-      return <Loading title="Notifications" />;
+      return <Loader />;
     }
 
     const markAsRead = _ids => {

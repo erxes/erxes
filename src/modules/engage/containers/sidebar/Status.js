@@ -4,13 +4,18 @@ import PropTypes from 'prop-types';
 import queryString from 'query-string';
 import { compose, gql, graphql } from 'react-apollo';
 import { Sidebar } from '../../components';
-import { LoadingSidebar } from 'modules/common/components';
+import { Sidebar as SidebarLoader } from 'modules/layout/components';
+import { Spinner } from 'modules/common/components';
 
 const StatusContainer = props => {
   const { countsQuery } = props;
 
   if (countsQuery.loading) {
-    return <LoadingSidebar.Section />;
+    return (
+      <SidebarLoader.Section>
+        <Spinner />
+      </SidebarLoader.Section>
+    );
   }
 
   const updatedProps = {

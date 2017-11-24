@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import createMentionPlugin, {
   defaultSuggestionsFilter
-} from 'draft-js-mention-plugin';
+} from 'bat-draft-js-mention-plugin';
 import { EditorState, ContentState, getDefaultKeyBinding } from 'draft-js';
 import _ from 'underscore';
 import { fromJS } from 'immutable';

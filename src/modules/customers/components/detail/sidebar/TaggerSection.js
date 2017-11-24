@@ -1,12 +1,13 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Collapse } from 'react-bootstrap';
-import { Wrapper } from 'modules/layout/components';
+import { Sidebar } from 'modules/layout/components';
 import { QuickButton, SidebarList } from 'modules/layout/styles';
 import { EmptyState, Tagger, Icon } from 'modules/common/components';
 
 const propTypes = {
-  customer: PropTypes.object.isRequired
+  customer: PropTypes.object.isRequired,
+  refetch: PropTypes.func.isRequired
 };
 
 class TaggerSection extends Component {
@@ -40,12 +41,11 @@ class TaggerSection extends Component {
   }
 
   render() {
-    const { customer } = this.props;
+    const { customer, refetch } = this.props;
     const tags = customer.getTags;
-    const { Title, QuickButtons } = Wrapper.Sidebar.Section;
-
+    const { Title, QuickButtons } = Sidebar.Section;
     return (
-      <Wrapper.Sidebar.Section>
+      <Sidebar.Section>
         <Title>Tags</Title>
 
         <QuickButtons>
@@ -61,13 +61,13 @@ class TaggerSection extends Component {
               targets={[customer]}
               className="sidebar-accordion"
               event="onClick"
-              afterSave={this.props.customer.refetch}
+              afterSave={refetch}
             />
           </div>
         </Collapse>
 
         <SidebarList className="no-link">{this.renderTags(tags)}</SidebarList>
-      </Wrapper.Sidebar.Section>
+      </Sidebar.Section>
     );
   }
 }

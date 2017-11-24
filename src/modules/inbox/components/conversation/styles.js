@@ -15,12 +15,31 @@ const MessageContent = styled.div`
     margin: 0;
   }
 
-  ul {
+  > span {
+    display: block;
+  }
+
+  img {
+    max-width: 100%;
+  }
+
+  ul,
+  ol {
+    padding-left: 25px;
     margin: 0;
   }
 
-  > span {
-    display: block;
+  h3 {
+    margin-top: 0;
+  }
+
+  blockquote {
+    margin-bottom: 0;
+    border-color: #ddd;
+  }
+
+  pre {
+    margin-bottom: 0;
   }
 `;
 

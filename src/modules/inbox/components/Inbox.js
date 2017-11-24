@@ -76,6 +76,7 @@ class Inbox extends Component {
           conversation={currentConversation}
           sections={<ConversationDetails conversation={currentConversation} />}
           customer={currentConversation.customer}
+          refetch={this.props.refetch}
         />
       );
     }
@@ -111,7 +112,7 @@ class Inbox extends Component {
       currentConversationId,
       currentConversation,
       onChangeConversation,
-      afterTag
+      refetch
     } = this.props;
     const tags = currentConversation.tags || [];
     const assignedUser = currentConversation.assignedUser;
@@ -149,7 +150,7 @@ class Inbox extends Component {
           targets={[currentConversation]}
           type="conversation"
           trigger={tagTrigger}
-          afterSave={afterTag}
+          afterSave={refetch}
         />
 
         {this.renderStatusButton(
@@ -219,15 +220,12 @@ class Inbox extends Component {
 
 Inbox.propTypes = {
   queryParams: PropTypes.object,
+  refetch: PropTypes.func,
   title: PropTypes.string,
   onChangeConversation: PropTypes.func,
   changeStatus: PropTypes.func,
-  afterTag: PropTypes.func,
   currentConversationId: PropTypes.string,
-  currentConversation: PropTypes.object,
-  saveCustomer: PropTypes.func,
-  customFields: PropTypes.array,
-  addCompany: PropTypes.func
+  currentConversation: PropTypes.object
 };
 
 export default Inbox;

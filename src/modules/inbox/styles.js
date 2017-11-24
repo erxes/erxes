@@ -59,6 +59,7 @@ const RichEditorRoot = styled.div`
 
     .public-DraftEditor-content {
       font-size: 13px;
+      min-height: 100px;
       padding: 15px 20px;
     }
   }

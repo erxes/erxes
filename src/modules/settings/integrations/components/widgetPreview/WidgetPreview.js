@@ -1,7 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import {
-  WidgetPreviewStyled,
   ErxesTopbar,
   TopbarButton,
   ErxesMiddle,
@@ -13,16 +12,18 @@ import {
   ErxesDate,
   ErxesMessageSender,
   ErxesFromCustomer,
+  ErxesMessagesList,
   ErxesState,
   FromCustomer,
   StateSpan
-} from '../../styles';
+} from './styles';
+import { WidgetPreviewStyled } from 'modules/settings/styles';
 
 function WidgetPreview({ color, wallpaper, user }) {
   const avatar =
     (user.details && user.details.avatar) || '/images/userDefaultIcon.png';
   const fullName = (user.details && user.details.fullName) || 'Support staff';
-  const backgroundClasses = `erxes-messages-list background-${wallpaper}`;
+  const backgroundClasses = `background-${wallpaper}`;
   return (
     <WidgetPreviewStyled>
       <ErxesTopbar style={{ backgroundColor: color }}>
@@ -38,7 +39,7 @@ function WidgetPreview({ color, wallpaper, user }) {
           </ErxesStaffProfile>
         </ErxesMiddle>
       </ErxesTopbar>
-      <ul className={backgroundClasses}>
+      <ErxesMessagesList className={backgroundClasses}>
         <ErxesWelcomeMessage>
           We welcome you warmly to erxes and look forward to a long term healthy
           working association with us.
@@ -56,7 +57,7 @@ function WidgetPreview({ color, wallpaper, user }) {
           </FromCustomer>
           <ErxesDate>6 minutes ago</ErxesDate>
         </ErxesFromCustomer>
-      </ul>
+      </ErxesMessagesList>
       <ErxesMessageSender>
         <span>Write a reply ...</span>
       </ErxesMessageSender>
