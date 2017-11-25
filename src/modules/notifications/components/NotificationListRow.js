@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import moment from 'moment';
 import { NameCard, Tip, Icon } from 'modules/common/components';
+import { MarkRead, NotifBody } from './styles';
 
 class NotificationListRow extends Component {
   constructor(props) {
@@ -24,29 +25,26 @@ class NotificationListRow extends Component {
 
   render() {
     const { notification } = this.props;
-    const { notifType, isRead, createdUser } = notification;
+    const { isRead, createdUser } = notification;
 
-    const classes = classNames({
-      [notifType]: !isRead,
-      unread: !isRead
-    });
+    const classes = classNames({ unread: !isRead });
 
     return (
       <li className={classes}>
-        <div className="body" onClick={this.markAsRead}>
+        <NotifBody onClick={this.markAsRead}>
           <NameCard
             user={createdUser}
             firstLine={notification.title}
             secondLine={moment(notification.date).format('DD MMM YYYY, HH:mm')}
           />
-        </div>
-        <div className="column markRead">
+        </NotifBody>
+        <MarkRead>
           <Tip text="Mark as Read">
             <span onClick={this.markAsRead}>
               <Icon icon="android-radio-button-off" />
             </span>
           </Tip>
-        </div>
+        </MarkRead>
       </li>
     );
   }

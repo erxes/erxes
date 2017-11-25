@@ -24,11 +24,8 @@ class NotificationRow extends Component {
 
   render() {
     const { notification } = this.props;
-    const { notifType, isRead, createdUser } = notification;
-    const classes = classNames({
-      [notifType]: !isRead,
-      unread: !isRead
-    });
+    const { isRead, createdUser } = notification;
+    const classes = classNames({ unread: !isRead });
 
     return (
       <li className={classes}>

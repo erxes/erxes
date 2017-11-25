@@ -6741,10 +6741,9 @@ react-icons@^2.2.7:
     react-icon-base "2.1.0"
 
 react-input-autosize@^2.0.1:
-  version "2.0.1"
-  resolved "https://registry.yarnpkg.com/react-input-autosize/-/react-input-autosize-2.0.1.tgz#e92190497b4026c2780ad0f2fd703c835ba03e33"
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/react-input-autosize/-/react-input-autosize-2.1.0.tgz#90631c093d66d392ddc995903430ee238bb1f01f"
   dependencies:
-    create-react-class "^15.5.2"
     prop-types "^15.5.8"
 
 react-inspector@^2.2.1:
@@ -7078,9 +7077,9 @@ recharts-scale@0.3.2:
   version "0.3.2"
   resolved "https://registry.yarnpkg.com/recharts-scale/-/recharts-scale-0.3.2.tgz#dac7621714a4765d152cb2adbc30c73b831208c9"
 
-recharts@^1.0.0-alpha.6:
-  version "1.0.0-beta.3"
-  resolved "https://registry.yarnpkg.com/recharts/-/recharts-1.0.0-beta.3.tgz#daf08bdd76d4e81e264c42f1f85d7582d132f352"
+recharts@1.0.0-beta.2:
+  version "1.0.0-beta.2"
+  resolved "https://registry.yarnpkg.com/recharts/-/recharts-1.0.0-beta.2.tgz#f27ab0ddf7750f38e77ec9495df7cd5a6edcca40"
   dependencies:
     classnames "2.2.5"
     core-js "2.5.1"

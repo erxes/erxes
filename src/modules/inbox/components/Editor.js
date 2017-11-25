@@ -5,7 +5,6 @@ import createMentionPlugin, {
 } from 'bat-draft-js-mention-plugin';
 import { EditorState, ContentState, getDefaultKeyBinding } from 'draft-js';
 import _ from 'underscore';
-import { fromJS } from 'immutable';
 import {
   ErxesEditor,
   toHTML,
@@ -63,7 +62,7 @@ export default class Editor extends Component {
     this.state = {
       editorState: EditorState.createEmpty(),
       collectedMentions: [],
-      suggestions: this.props.mentions
+      suggestions: this.props.mentions.toArray()
     };
 
     this.onChange = this.onChange.bind(this);
@@ -97,7 +96,10 @@ export default class Editor extends Component {
 
   onSearchChange({ value }) {
     this.setState({
-      suggestions: defaultSuggestionsFilter(value, this.props.mentions)
+      suggestions: defaultSuggestionsFilter(
+        value,
+        this.props.mentions.toArray()
+      )
     });
   }
 
@@ -169,9 +171,7 @@ export default class Editor extends Component {
     const pluginContent = (
       <MentionSuggestions
         onSearchChange={this.onSearchChange}
-        suggestions={
-          this.props.showMentions ? this.state.suggestions : fromJS([])
-        }
+        suggestions={this.props.showMentions ? this.state.suggestions : []}
         entryComponent={MentionEntry}
         onAddMention={this.onAddMention}
         onChange={this.onChange}

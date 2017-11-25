@@ -22,6 +22,10 @@ const FirstLine = styled.a`
   white-space: nowrap;
   overflow: hidden;
   text-decoration: inherit;
+
+  &:hover {
+    color: initial;
+  }
 `;
 
 const SecondLine = styled.div`

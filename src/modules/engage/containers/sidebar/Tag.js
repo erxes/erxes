@@ -3,13 +3,18 @@ import { withRouter } from 'react-router';
 import queryString from 'query-string';
 import PropTypes from 'prop-types';
 import { compose, gql, graphql } from 'react-apollo';
-import { CountsByTag, LoadingSidebar } from 'modules/common/components';
+import { Sidebar as SidebarLoader } from 'modules/layout/components';
+import { CountsByTag, Spinner } from 'modules/common/components';
 
 const TagContainer = props => {
   const { countsQuery } = props;
 
   if (countsQuery.loading) {
-    return <LoadingSidebar.Section />;
+    return (
+      <SidebarLoader.Section>
+        <Spinner />
+      </SidebarLoader.Section>
+    );
   }
 
   const updatedProps = {
