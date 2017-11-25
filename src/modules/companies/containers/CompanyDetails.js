@@ -48,11 +48,9 @@ const CompanyDetailsContainer = (props, context) => {
 
   const updatedProps = {
     ...props,
-    company: {
-      ...companyDetailQuery.companyDetail,
-      refetch: companyDetailQuery.refetch
-    },
+    company: companyDetailQuery.companyDetail,
     companyActivityLog: companyActivityLogQuery.activityLogsCompany,
+    activityLogRefetch: companyActivityLogQuery.refetch,
     save,
     addCustomer,
     currentUser: context.currentUser,

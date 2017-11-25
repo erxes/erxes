@@ -1,20 +1,28 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import moment from 'moment';
 import { Wrapper } from 'modules/layout/components';
-import { Icon } from 'modules/common/components';
-import {
-  List as InternalNotes,
-  Form as NoteForm
-} from 'modules/internalNotes/containers';
 import { WhiteBox } from 'modules/layout/styles';
-import LeftSidebar from './LeftSidebar';
 import {
   ConversationList,
   EmptyState,
   Tabs,
-  TabTitle
+  TabTitle,
+  Icon,
+  Button,
+  NameCard
 } from 'modules/common/components';
+import { Form as NoteForm } from 'modules/internalNotes/containers';
 import ActivityList from 'modules/activityLogs/components/ActivityList';
+import {
+  ActivityRow,
+  AvatarWrapper,
+  ActivityWrapper,
+  ActivityCaption,
+  ActivityContent,
+  DeleteNote
+} from 'modules/activityLogs/styles';
+import LeftSidebar from './LeftSidebar';
 
 const propTypes = {
   company: PropTypes.object.isRequired,
@@ -22,7 +30,8 @@ const propTypes = {
   save: PropTypes.func.isRequired,
   queryParams: PropTypes.object.isRequired,
   currentUser: PropTypes.object.isRequired,
-  companyActivityLog: PropTypes.array.isRequired
+  companyActivityLog: PropTypes.array.isRequired,
+  activityLogRefetch: PropTypes.func.isRequired
 };
 
 class CompanyDetails extends React.Component {
@@ -40,7 +49,7 @@ class CompanyDetails extends React.Component {
 
   renderTabContent() {
     const { currentTab } = this.state;
-    const { currentUser, company, companyActivityLog } = this.props;
+    const { currentUser, companyActivityLog } = this.props;
 
     if (currentTab === 'activity') {
       return (
@@ -49,18 +58,49 @@ class CompanyDetails extends React.Component {
     }
 
     if (currentTab === 'notes') {
-      return (
-        <InternalNotes
-          contentType="company"
-          contentTypeId={company._id}
-          currentUserId={currentUser._id}
-        />
-      );
+      return this.renderInternalNotes();
     }
 
     if (currentTab === 'conversations') {
       return this.renderConversations();
     }
+  }
+
+  internalNoteRow(data, currentUser) {
+    const { list } = data;
+
+    return list.map(item => {
+      if (item.action !== 'internal_note-create') return null;
+      return (
+        <ActivityRow key={item.id}>
+          <ActivityWrapper>
+            {item.by._id === currentUser._id ? (
+              <DeleteNote>
+                <Button btnStyle="danger" size="small">
+                  <Icon icon="trash-a" />
+                </Button>
+              </DeleteNote>
+            ) : null}
+
+            <AvatarWrapper>
+              <NameCard.Avatar user={item.createdUser} size={50} />
+            </AvatarWrapper>
+            <ActivityCaption>{item.by.details.fullName}</ActivityCaption>
+            <div>{moment(item.createdAt).fromNow()}</div>
+          </ActivityWrapper>
+
+          <ActivityContent>{item.content}</ActivityContent>
+        </ActivityRow>
+      );
+    });
+  }
+
+  renderInternalNotes() {
+    const { companyActivityLog, currentUser } = this.props;
+
+    return companyActivityLog.map(item =>
+      this.internalNoteRow(item, currentUser)
+    );
   }
 
   renderConversations() {
@@ -99,7 +139,11 @@ class CompanyDetails extends React.Component {
             </TabTitle>
           </Tabs>
 
-          <NoteForm contentType="company" contentTypeId={company._id} />
+          <NoteForm
+            contentType="company"
+            contentTypeId={company._id}
+            refetch={this.props.activityLogRefetch}
+          />
         </WhiteBox>
 
         <Tabs grayBorder>
