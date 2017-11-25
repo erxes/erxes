@@ -107,11 +107,15 @@ class LeftSidebar extends React.Component {
         {customer.companies.map((company, index) => (
           <CompanyWrapper key={index}>
             <Link to={`/companies/details/${company._id}`}>
-              <Icon icon="android-arrow-forward" />
+              <Icon icon="android-open" />
             </Link>
             <span>{company.name || 'N/A'}</span>
             <Tip text={company.website || ''}>
-              <span>{company.website}</span>
+              <span>
+                <a target="_blank" href={`//${company.website}`}>
+                  {company.website}
+                </a>
+              </span>
             </Tip>
           </CompanyWrapper>
         ))}

@@ -1,6 +1,5 @@
 import styled from 'styled-components';
 import { colors, dimensions } from 'modules/common/styles';
-import { typography } from 'modules/common/styles';
 
 const AboutList = styled.ul`
   margin: 0;
@@ -106,13 +105,16 @@ const CompanyWrapper = styled.div`
   span {
     display: inline-block;
     width: 100%;
+
     &:last-child {
       overflow: hidden;
       white-space: nowrap;
       text-overflow: ellipsis;
       width: 100%;
-      color: ${colors.colorCoreGray};
-      font-weight: ${typography.fontWeightLight};
+
+      &:hover {
+        cursor: pointer;
+      }
     }
   }
 
