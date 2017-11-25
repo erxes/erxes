@@ -16,7 +16,7 @@ const FormContainer = props => {
         content
       }
     }).then(() => {
-      refetch();
+      if (refetch) refetch();
     });
   };
 
