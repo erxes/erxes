@@ -1,28 +1,18 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import moment from 'moment';
 import { Wrapper } from 'modules/layout/components';
 import { WhiteBox } from 'modules/layout/styles';
 import {
   ConversationList,
   EmptyState,
   Icon,
-  NameCard,
-  Button,
   Tabs,
   TabTitle
 } from 'modules/common/components';
 import { Form as NoteForm } from 'modules/internalNotes/containers';
 import { EditInformation } from 'modules/customers/containers';
 import ActivityList from 'modules/activityLogs/components/ActivityList';
-import {
-  ActivityRow,
-  AvatarWrapper,
-  ActivityWrapper,
-  ActivityCaption,
-  ActivityContent,
-  DeleteNote
-} from 'modules/activityLogs/styles';
+import InternalNoteRow from 'modules/internalNotes/components/InternalNoteRow';
 
 const propTypes = {
   customer: PropTypes.object.isRequired,
@@ -64,41 +54,12 @@ class CustomerDetails extends React.Component {
     }
   }
 
-  internalNoteRow(data, currentUser) {
-    const { list } = data;
-
-    return list.map(item => {
-      if (item.action !== 'internal_note-create') return null;
-      return (
-        <ActivityRow key={item.id}>
-          <ActivityWrapper>
-            {item.by._id === currentUser._id ? (
-              <DeleteNote>
-                <Button btnStyle="danger" size="small">
-                  <Icon icon="trash-a" />
-                </Button>
-              </DeleteNote>
-            ) : null}
-
-            <AvatarWrapper>
-              <NameCard.Avatar user={item.createdUser} size={50} />
-            </AvatarWrapper>
-            <ActivityCaption>{item.by.details.fullName}</ActivityCaption>
-            <div>{moment(item.createdAt).fromNow()}</div>
-          </ActivityWrapper>
-
-          <ActivityContent>{item.content}</ActivityContent>
-        </ActivityRow>
-      );
-    });
-  }
-
   renderInternalNotes() {
-    const { activityLogsCustomer, currentUser } = this.props;
+    const { activityLogsCustomer } = this.props;
 
-    return activityLogsCustomer.map(item =>
-      this.internalNoteRow(item, currentUser)
-    );
+    return activityLogsCustomer.map((item, index) => (
+      <InternalNoteRow key={index} data={item} />
+    ));
   }
 
   renderConversations() {
