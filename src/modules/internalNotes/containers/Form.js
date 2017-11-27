@@ -32,14 +32,20 @@ export default compose(
   graphql(gql(mutations.internalNotesAdd), {
     name: 'internalNotesAdd',
     options: props => ({
-      refetchQueries: [
-        {
-          query: gql`${queries.customerActivitylogquery}`,
-          variables: {
-            _id: props.contentTypeId
-          }
-        }
-      ]
+      refetchQueries:
+        props.contentType === 'customer'
+          ? [
+              {
+                query: gql`${queries.customerActivityLogQuery}`,
+                variables: { _id: props.contentTypeId }
+              }
+            ]
+          : [
+              {
+                query: gql`${queries.companyActivityLogQuery}`,
+                variables: { _id: props.contentTypeId }
+              }
+            ]
     })
   })
 )(FormContainer);
