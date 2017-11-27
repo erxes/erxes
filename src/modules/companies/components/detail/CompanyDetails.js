@@ -1,6 +1,5 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import moment from 'moment';
 import { Wrapper } from 'modules/layout/components';
 import { WhiteBox } from 'modules/layout/styles';
 import {
@@ -8,20 +7,11 @@ import {
   EmptyState,
   Tabs,
   TabTitle,
-  Icon,
-  Button,
-  NameCard
+  Icon
 } from 'modules/common/components';
 import { Form as NoteForm } from 'modules/internalNotes/containers';
 import ActivityList from 'modules/activityLogs/components/ActivityList';
-import {
-  ActivityRow,
-  AvatarWrapper,
-  ActivityWrapper,
-  ActivityCaption,
-  ActivityContent,
-  DeleteNote
-} from 'modules/activityLogs/styles';
+import InternalNoteRow from 'modules/internalNotes/components/InternalNoteRow';
 import LeftSidebar from './LeftSidebar';
 
 const propTypes = {
@@ -30,8 +20,7 @@ const propTypes = {
   save: PropTypes.func.isRequired,
   queryParams: PropTypes.object.isRequired,
   currentUser: PropTypes.object.isRequired,
-  companyActivityLog: PropTypes.array.isRequired,
-  activityLogRefetch: PropTypes.func.isRequired
+  companyActivityLog: PropTypes.array.isRequired
 };
 
 class CompanyDetails extends React.Component {
@@ -66,41 +55,12 @@ class CompanyDetails extends React.Component {
     }
   }
 
-  internalNoteRow(data, currentUser) {
-    const { list } = data;
-
-    return list.map(item => {
-      if (item.action !== 'internal_note-create') return null;
-      return (
-        <ActivityRow key={item.id}>
-          <ActivityWrapper>
-            {item.by._id === currentUser._id ? (
-              <DeleteNote>
-                <Button btnStyle="danger" size="small">
-                  <Icon icon="trash-a" />
-                </Button>
-              </DeleteNote>
-            ) : null}
-
-            <AvatarWrapper>
-              <NameCard.Avatar user={item.createdUser} size={50} />
-            </AvatarWrapper>
-            <ActivityCaption>{item.by.details.fullName}</ActivityCaption>
-            <div>{moment(item.createdAt).fromNow()}</div>
-          </ActivityWrapper>
-
-          <ActivityContent>{item.content}</ActivityContent>
-        </ActivityRow>
-      );
-    });
-  }
-
   renderInternalNotes() {
-    const { companyActivityLog, currentUser } = this.props;
+    const { companyActivityLog } = this.props;
 
-    return companyActivityLog.map(item =>
-      this.internalNoteRow(item, currentUser)
-    );
+    return companyActivityLog.map((item, index) => (
+      <InternalNoteRow key={index} data={item} />
+    ));
   }
 
   renderConversations() {
@@ -139,11 +99,7 @@ class CompanyDetails extends React.Component {
             </TabTitle>
           </Tabs>
 
-          <NoteForm
-            contentType="company"
-            contentTypeId={company._id}
-            refetch={this.props.activityLogRefetch}
-          />
+          <NoteForm contentType="company" contentTypeId={company._id} />
         </WhiteBox>
 
         <Tabs grayBorder>

@@ -50,7 +50,6 @@ const CompanyDetailsContainer = (props, context) => {
     ...props,
     company: companyDetailQuery.companyDetail,
     companyActivityLog: companyActivityLogQuery.activityLogsCompany,
-    activityLogRefetch: companyActivityLogQuery.refetch,
     save,
     addCustomer,
     currentUser: context.currentUser,
