@@ -1,22 +1,3 @@
-const internalNotes = `
-  query internalNotes($contentType: String!, $contentTypeId: String) {
-    internalNotes(contentType: $contentType, contentTypeId: $contentTypeId) {
-      _id
-      content
-      createdUserId
-      createdUser {
-        username
-        details {
-          avatar
-          fullName
-          position
-          twitterUsername
-        }
-      }
-    }
-  }
-`;
-
 const customerActivityLogQuery = `
   query activityLogsCustomer($_id: String!) {
     activityLogsCustomer(_id: $_id) {
@@ -68,7 +49,6 @@ const companyActivityLogQuery = `
 `;
 
 export default {
-  internalNotes,
   customerActivityLogQuery,
   companyActivityLogQuery
 };

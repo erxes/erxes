@@ -10,7 +10,9 @@ import {
   ActivityContent
 } from 'modules/activityLogs/styles';
 
-const InternalNoteRow = data => {
+const InternalNoteRow = props => {
+  const { data } = props;
+
   return data.list.map(item => {
     if (item.action !== 'internal_note-create') return null;
     return (
@@ -38,7 +40,7 @@ const InternalNotes = props => {
 };
 
 InternalNotes.propTypes = {
-  activityLog: PropTypes.object.isRequired
+  activityLog: PropTypes.array.isRequired
 };
 
 export default InternalNotes;
