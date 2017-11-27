@@ -11,8 +11,7 @@ import {
 } from 'modules/common/components';
 import { Form as NoteForm } from 'modules/internalNotes/containers';
 import { EditInformation } from 'modules/customers/containers';
-import ActivityList from 'modules/activityLogs/components/ActivityList';
-import InternalNotes from 'modules/activityLogs/components';
+import { ActivityList, InternalNotes } from 'modules/activityLogs/components';
 
 const propTypes = {
   customer: PropTypes.object.isRequired,

@@ -10,8 +10,7 @@ import {
   Icon
 } from 'modules/common/components';
 import { Form as NoteForm } from 'modules/internalNotes/containers';
-import ActivityList from 'modules/activityLogs/components/ActivityList';
-import InternalNotes from 'modules/activityLogs/components';
+import { ActivityList, InternalNotes } from 'modules/activityLogs/components';
 import LeftSidebar from './LeftSidebar';
 
 const propTypes = {
