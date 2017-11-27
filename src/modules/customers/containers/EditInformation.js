@@ -67,6 +67,12 @@ EditInformationContainer.contextTypes = {
   currentUser: PropTypes.object
 };
 
+const options = ({ customer }) => ({
+  refetchQueries: [
+    { query: gql`${queries.customerDetail}`, variables: { _id: customer._id } }
+  ]
+});
+
 export default compose(
   graphql(gql(queries.fields), {
     name: 'fieldsQuery',
@@ -77,28 +83,10 @@ export default compose(
   // mutations
   graphql(gql(mutations.customersAddCompany), {
     name: 'customersAddCompany',
-    options: props => ({
-      refetchQueries: [
-        {
-          query: gql`${queries.customerDetail}`,
-          variables: {
-            _id: props.customer._id
-          }
-        }
-      ]
-    })
+    options
   }),
   graphql(gql(mutations.customersEdit), {
     name: 'customersEdit',
-    options: props => ({
-      refetchQueries: [
-        {
-          query: gql`${queries.customerDetail}`,
-          variables: {
-            _id: props.customer._id
-          }
-        }
-      ]
-    })
+    options
   })
 )(EditInformationContainer);
