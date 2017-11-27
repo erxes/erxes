@@ -98,11 +98,7 @@ class CustomerDetails extends React.Component {
             </TabTitle>
           </Tabs>
 
-          <NoteForm
-            contentType="customer"
-            contentTypeId={customer._id}
-            refetch={activityLogRefetch}
-          />
+          <NoteForm contentType="customer" contentTypeId={customer._id} />
         </WhiteBox>
 
         <Tabs grayBorder>
