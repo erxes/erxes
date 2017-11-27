@@ -12,21 +12,28 @@ import InboxRoutes from './modules/inbox/routes';
 import TagsRoutes from './modules/tags/routes';
 import NotificationRoutes from './modules/notifications/routes';
 import { MainLayout } from 'modules/layout/containers';
+import { MainBar } from 'modules/layout/components';
+import { MainWrapper } from 'modules/layout/styles';
 
 const Routes = () => (
   <Router>
     <MainLayout>
-      <AuthRoutes />
-      <InboxRoutes />
-      <FieldsRoutes />
-      <SegmentsRoutes />
-      <CustomersRoutes />
-      <CompaniesRoutes />
-      <InsightsRoutes />
-      <EngageRoutes />
-      <SettingsRoutes />
-      <TagsRoutes />
-      <NotificationRoutes />
+      <MainWrapper>
+        <MainBar />
+
+        {/* routes */}
+        <AuthRoutes />
+        <InboxRoutes />
+        <FieldsRoutes />
+        <SegmentsRoutes />
+        <CustomersRoutes />
+        <CompaniesRoutes />
+        <InsightsRoutes />
+        <EngageRoutes />
+        <SettingsRoutes />
+        <TagsRoutes />
+        <NotificationRoutes />
+      </MainWrapper>
     </MainLayout>
   </Router>
 );

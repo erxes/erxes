@@ -75,19 +75,6 @@ const MainWrapper = styled.div`
   max-width: calc(100% - ${dimensions.headerSpacingWide}px);
 `;
 
-const TopBar = styled.div`
-  height: ${dimensions.headerSpacing}px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin: 0;
-  border: 0;
-  flex-shrink: 0;
-  padding: 0 ${dimensions.coreSpacing}px;
-  background: ${colors.colorPrimary};
-  color: ${colors.colorWhite};
-`;
-
 const Contents = styled.div`
   display: flex;
   flex: 1;
@@ -411,7 +398,6 @@ export {
   LeftNavigation,
   Nav,
   MainWrapper,
-  TopBar,
   Contents,
   MainContent,
   ContentBox,

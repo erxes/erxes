@@ -4,7 +4,7 @@ import Header from './Header';
 import Sidebar from './Sidebar';
 import PageContent from './PageContent';
 import ActionBar from './ActionBar';
-import { MainWrapper, Contents } from '../styles';
+import { Contents } from '../styles';
 
 const propTypes = {
   header: PropTypes.element.isRequired,
@@ -26,20 +26,18 @@ function Wrapper({
   transparent
 }) {
   return (
-    <MainWrapper>
+    <Contents>
       {header}
-      <Contents>
-        {leftSidebar}
-        <PageContent
-          actionBar={actionBar}
-          footer={footer}
-          transparent={transparent || false}
-        >
-          {content}
-        </PageContent>
-        {rightSidebar}
-      </Contents>
-    </MainWrapper>
+      {leftSidebar}
+      <PageContent
+        actionBar={actionBar}
+        footer={footer}
+        transparent={transparent || false}
+      >
+        {content}
+      </PageContent>
+      {rightSidebar}
+    </Contents>
   );
 }
 
