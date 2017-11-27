@@ -15,15 +15,10 @@ const UserHelper = styled.div`
   }
 `;
 
-const Main = styled.main`
-  flex: 1;
-  height: 100%;
-  max-width: 100%;
-`;
-
-const Layout = styled.div`
+const Layout = styled.main`
   height: 100%;
   display: flex;
+  flex: 1;
   max-width: 100%;
 `;
 
@@ -77,20 +72,7 @@ const MainWrapper = styled.div`
   flex: 1;
   display: flex;
   flex-direction: column;
-  max-width: calc(100% - 70px);
-`;
-
-const TopBar = styled.div`
-  height: ${dimensions.headerSpacing}px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin: 0;
-  border: 0;
-  flex-shrink: 0;
-  padding: 0 ${dimensions.coreSpacing}px;
-  background: ${colors.colorPrimary};
-  color: ${colors.colorWhite};
+  max-width: calc(100% - ${dimensions.headerSpacingWide}px);
 `;
 
 const Contents = styled.div`
@@ -412,12 +394,10 @@ const TagItem = styled.div`
 `;
 
 export {
-  Main,
   Layout,
   LeftNavigation,
   Nav,
   MainWrapper,
-  TopBar,
   Contents,
   MainContent,
   ContentBox,

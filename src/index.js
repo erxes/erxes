@@ -6,6 +6,7 @@ import store from './store';
 import apolloClient from './apolloClient';
 
 import 'bootstrap/dist/css/bootstrap.min.css';
+import 'ionicons/css/ionicons.min.css';
 import 'react-datepicker/dist/react-datepicker.css';
 import 'react-select-plus/dist/react-select-plus.css';
 import 'react-toggle/style.css';

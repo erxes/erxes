@@ -1,7 +1,6 @@
 import React from 'react';
 import { Route } from 'react-router-dom';
 import queryString from 'query-string';
-import { MainLayout } from '../../layout/containers';
 import { UserList } from './containers';
 
 const routes = () => (
@@ -9,7 +8,7 @@ const routes = () => (
     path="/settings/team/"
     component={({ location }) => {
       const queryParams = queryString.parse(location.search);
-      return <MainLayout content={<UserList queryParams={queryParams} />} />;
+      return <UserList queryParams={queryParams} />;
     }}
   />
 );

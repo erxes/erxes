@@ -36,6 +36,22 @@ const LabelStyled = styled.span`
   &:hover {
     cursor: default;
   }
+
+  &.label-default {
+    background: ${colors.colorPrimary};
+  }
+
+  &.label-form {
+    background: ${colors.colorCoreYellow};
+  }
+
+  &.label-twitter {
+    background: ${colors.socialTwitter};
+  }
+
+  &.label-facebook {
+    background: ${colors.socialFacebook};
+  }
 `;
 
 function Label({ ...props }) {

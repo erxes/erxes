@@ -1,7 +1,6 @@
 import React from 'react';
 import { Route, Redirect } from 'react-router-dom';
 import queryString from 'query-string';
-import { MainLayout } from '../../layout/containers';
 import { ChannelList } from './containers';
 
 const routes = () => [
@@ -16,13 +15,7 @@ const routes = () => [
     key="/settings/channels"
     path="/settings/channels"
     component={({ location }) => {
-      return (
-        <MainLayout
-          content={
-            <ChannelList queryParams={queryString.parse(location.search)} />
-          }
-        />
-      );
+      return <ChannelList queryParams={queryString.parse(location.search)} />;
     }}
   />
 ];

@@ -1,6 +1,5 @@
 import React from 'react';
 import { Route } from 'react-router-dom';
-import { MainLayout } from '../layout/containers';
 import { Manage } from '../fields/containers';
 
 const routes = () => (
@@ -9,13 +8,7 @@ const routes = () => (
     component={({ match }) => {
       const { contentType, contentTypeId } = match.params;
 
-      return (
-        <MainLayout
-          content={
-            <Manage contentType={contentType} contentTypeId={contentTypeId} />
-          }
-        />
-      );
+      return <Manage contentType={contentType} contentTypeId={contentTypeId} />;
     }}
   />
 );
