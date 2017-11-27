@@ -5,7 +5,7 @@ import { Form } from '../components';
 import { mutations } from '../graphql';
 
 const FormContainer = props => {
-  const { contentType, contentTypeId, internalNotesAdd, refetch } = props;
+  const { contentType, contentTypeId, internalNotesAdd } = props;
 
   // create internalNote
   const create = content => {
@@ -16,7 +16,7 @@ const FormContainer = props => {
         content
       }
     }).then(() => {
-      if (refetch) refetch();
+      // if (refetch) refetch();
     });
   };
 
@@ -30,8 +30,43 @@ FormContainer.propTypes = {
   refetch: PropTypes.func
 };
 
+const customerAcitivtylogquery = gql`
+  query activityLogsCustomer($_id: String!) {
+    activityLogsCustomer(_id: $_id) {
+      date {
+        year
+        month
+      }
+      list {
+        id
+        action
+        content
+        createdAt
+        by {
+          _id
+          type
+          details {
+            avatar
+            fullName
+          }
+        }
+      }
+    }
+  }
+`;
+
 export default compose(
   graphql(gql(mutations.internalNotesAdd), {
-    name: 'internalNotesAdd'
+    name: 'internalNotesAdd',
+    options: props => ({
+      refetchQueries: [
+        {
+          query: customerAcitivtylogquery,
+          variables: {
+            _id: props.contentTypeId
+          }
+        }
+      ]
+    })
   })
 )(FormContainer);
