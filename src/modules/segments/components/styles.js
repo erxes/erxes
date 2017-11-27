@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 import { colors, dimensions, typography } from 'modules/common/styles';
-import { SelectWrapper, Input } from 'modules/common/components/Form/styles';
+import { SelectWrapper, Input } from 'modules/common/components/form/styles';
 import { FlexItem } from 'modules/layout/styles';
 
 const SegmentTitle = styled.h3`

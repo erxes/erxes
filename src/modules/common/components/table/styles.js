@@ -1,6 +1,6 @@
 import styled, { css } from 'styled-components';
 import { colors, dimensions, typography } from '../../styles';
-import { Input, FormLabel } from '../Form/styles';
+import { Input, FormLabel } from '../form/styles';
 
 const tableBgColor = '#f9f9f9';
 const tableHoverColor = '#f5f5f5';
