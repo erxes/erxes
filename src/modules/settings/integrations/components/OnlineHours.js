@@ -8,6 +8,7 @@ import {
   FormGroup,
   ControlLabel
 } from 'modules/common/components';
+import { FlexRow } from '../../styles';
 
 class OnlineHours extends Component {
   constructor(props) {
@@ -80,7 +81,7 @@ class OnlineHours extends Component {
 
     const { _id, day, from, to } = onlineHour;
     return (
-      <div className="flex-row" key={_id}>
+      <FlexRow key={_id}>
         <Select
           className="flex-item"
           value={day}
@@ -108,7 +109,7 @@ class OnlineHours extends Component {
         <Button className="shrinked" btnStyle="link" onClick={remove}>
           <Icon icon="close" />
         </Button>
-      </div>
+      </FlexRow>
     );
   }
 
@@ -120,11 +121,9 @@ class OnlineHours extends Component {
         {this.state.onlineHours.map(onlineHour =>
           this.renderOnlineHour(onlineHour)
         )}
-        <div>
-          <Button className="shrinked" btnStyle="link" onClick={this.addTime}>
-            <Icon icon="plus" /> Add another time
-          </Button>
-        </div>
+        <Button className="shrinked" btnStyle="link" onClick={this.addTime}>
+          <Icon icon="plus" /> Add another time
+        </Button>
       </FormGroup>
     );
   }

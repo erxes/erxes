@@ -9,7 +9,7 @@ import {
 } from 'modules/common/components';
 import { METHODS } from 'modules/engage/constants';
 import Editor from './Editor';
-import { EditorWrapper } from '../styles';
+import { EditorWrapper, Recipients, Recipient } from '../styles';
 
 class WidgetForm extends Component {
   constructor(props) {
@@ -68,13 +68,13 @@ class WidgetForm extends Component {
     return (
       <FormGroup>
         <ControlLabel>To:</ControlLabel>
-        <div className="recipients">
+        <Recipients>
           {this.props.customers.map(customer => (
-            <div className="recipient" key={customer._id.toString()}>
+            <Recipient key={customer._id.toString()}>
               <strong>{customer.name}</strong> {customer.email}
-            </div>
+            </Recipient>
           ))}
-        </div>
+        </Recipients>
       </FormGroup>
     );
   }

@@ -88,7 +88,7 @@ const ButtonStyled = styled.button`
       text-decoration: none;
     }
 
-    .shrinked {
+    &.shrinked {
       padding: 8px 0;
     }
 
