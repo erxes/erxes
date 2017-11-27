@@ -82,7 +82,7 @@ class CustomerDetails extends React.Component {
 
   render() {
     const { currentTab } = this.state;
-    const { customer, activityLogRefetch } = this.props;
+    const { customer } = this.props;
 
     const breadcrumb = [
       { title: 'Customers', link: '/customers' },
