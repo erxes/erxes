@@ -29,7 +29,7 @@ const InternalNoteRow = data => {
   });
 };
 
-const InternalNoteList = props => {
+const InternalNotes = props => {
   const { activityLog } = props;
 
   return activityLog.map((item, index) => (
@@ -37,8 +37,8 @@ const InternalNoteList = props => {
   ));
 };
 
-InternalNoteList.propTypes = {
+InternalNotes.propTypes = {
   activityLog: PropTypes.object.isRequired
 };
 
-export default InternalNoteRow;
+export default InternalNotes;

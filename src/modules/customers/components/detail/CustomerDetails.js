@@ -12,7 +12,7 @@ import {
 import { Form as NoteForm } from 'modules/internalNotes/containers';
 import { EditInformation } from 'modules/customers/containers';
 import ActivityList from 'modules/activityLogs/components/ActivityList';
-import InternalNoteList from 'modules/activityLogs/components';
+import InternalNotes from 'modules/activityLogs/components';
 
 const propTypes = {
   customer: PropTypes.object.isRequired,
@@ -46,7 +46,7 @@ class CustomerDetails extends React.Component {
     }
 
     if (currentTab === 'notes') {
-      return <InternalNoteList activityLog={activityLogsCustomer} />;
+      return <InternalNotes activityLog={activityLogsCustomer} />;
     }
 
     if (currentTab === 'conversations') {

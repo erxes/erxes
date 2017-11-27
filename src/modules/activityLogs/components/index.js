@@ -1,7 +1,7 @@
 import ActivityList from './ActivityList.js';
-import InternalNoteList from './InternalNoteList.js';
+import InternalNotes from './InternalNotes.js';
 
 export default {
   ActivityList,
-  InternalNoteList
+  InternalNotes
 };
