@@ -11,7 +11,7 @@ import {
 } from 'modules/common/components';
 import { Form as NoteForm } from 'modules/internalNotes/containers';
 import ActivityList from 'modules/activityLogs/components/ActivityList';
-import InternalNoteRow from 'modules/internalNotes/components/InternalNoteRow';
+import InternalNoteList from 'modules/activityLogs/components';
 import LeftSidebar from './LeftSidebar';
 
 const propTypes = {
@@ -47,20 +47,12 @@ class CompanyDetails extends React.Component {
     }
 
     if (currentTab === 'notes') {
-      return this.renderInternalNotes();
+      return <InternalNoteList activityLog={companyActivityLog} />;
     }
 
     if (currentTab === 'conversations') {
       return this.renderConversations();
     }
-  }
-
-  renderInternalNotes() {
-    const { companyActivityLog } = this.props;
-
-    return companyActivityLog.map((item, index) => (
-      <InternalNoteRow key={index} data={item} />
-    ));
   }
 
   renderConversations() {

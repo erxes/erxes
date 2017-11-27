@@ -12,7 +12,7 @@ import {
 import { Form as NoteForm } from 'modules/internalNotes/containers';
 import { EditInformation } from 'modules/customers/containers';
 import ActivityList from 'modules/activityLogs/components/ActivityList';
-import InternalNoteRow from 'modules/internalNotes/components/InternalNoteRow';
+import InternalNoteList from 'modules/activityLogs/components';
 
 const propTypes = {
   customer: PropTypes.object.isRequired,
@@ -46,20 +46,12 @@ class CustomerDetails extends React.Component {
     }
 
     if (currentTab === 'notes') {
-      return this.renderInternalNotes();
+      return <InternalNoteList activityLog={activityLogsCustomer} />;
     }
 
     if (currentTab === 'conversations') {
       return this.renderConversations();
     }
-  }
-
-  renderInternalNotes() {
-    const { activityLogsCustomer } = this.props;
-
-    return activityLogsCustomer.map((item, index) => (
-      <InternalNoteRow key={index} data={item} />
-    ));
   }
 
   renderConversations() {
