@@ -1,7 +1,6 @@
 import React from 'react';
 import { Route } from 'react-router-dom';
 import queryString from 'query-string';
-import { MainLayout } from '../layout/containers';
 import { CustomersList, CustomerDetails } from './containers';
 
 const routes = () => [
@@ -13,11 +12,7 @@ const routes = () => [
       const queryParams = queryString.parse(location.search);
       const id = match.params.id;
 
-      return (
-        <MainLayout
-          content={<CustomerDetails id={id} queryParams={queryParams} />}
-        />
-      );
+      return <CustomerDetails id={id} queryParams={queryParams} />;
     }}
   />,
 
@@ -27,9 +22,7 @@ const routes = () => [
     path="/customers"
     component={({ location }) => {
       const queryParams = queryString.parse(location.search);
-      return (
-        <MainLayout content={<CustomersList queryParams={queryParams} />} />
-      );
+      return <CustomersList queryParams={queryParams} />;
     }}
   />
 ];

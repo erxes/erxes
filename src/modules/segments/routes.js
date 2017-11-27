@@ -1,6 +1,5 @@
 import React from 'react';
 import { Route } from 'react-router-dom';
-import { MainLayout } from '../layout/containers';
 import { SegmentsList, SegmentsForm } from './containers';
 
 const routes = () => [
@@ -11,9 +10,7 @@ const routes = () => [
     component={({ match }) => {
       const contentType = match.params.contentType;
 
-      return (
-        <MainLayout content={<SegmentsList contentType={contentType} />} />
-      );
+      return <SegmentsList contentType={contentType} />;
     }}
   />,
 
@@ -24,11 +21,7 @@ const routes = () => [
     component={({ match, history }) => {
       const contentType = match.params.contentType;
 
-      return (
-        <MainLayout
-          content={<SegmentsForm history={history} contentType={contentType} />}
-        />
-      );
+      return <SegmentsForm history={history} contentType={contentType} />;
     }}
   />,
 
@@ -40,11 +33,7 @@ const routes = () => [
       const { id, contentType } = match.params;
 
       return (
-        <MainLayout
-          content={
-            <SegmentsForm id={id} history={history} contentType={contentType} />
-          }
-        />
+        <SegmentsForm id={id} history={history} contentType={contentType} />
       );
     }}
   />

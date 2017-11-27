@@ -1,7 +1,6 @@
 import React from 'react';
 import { Route } from 'react-router-dom';
 import queryString from 'query-string';
-import { MainLayout } from '../layout/containers';
 import {
   VolumeReport,
   ResponseReport,
@@ -16,13 +15,7 @@ const routes = () => [
     path="/insights/response-report"
     component={({ history, location }) => {
       const queryParams = queryString.parse(location.search);
-      return (
-        <MainLayout
-          content={
-            <ResponseReport history={history} queryParams={queryParams} />
-          }
-        />
-      );
+      return <ResponseReport history={history} queryParams={queryParams} />;
     }}
   />,
 
@@ -33,11 +26,7 @@ const routes = () => [
     component={({ history, location }) => {
       const queryParams = queryString.parse(location.search);
       return (
-        <MainLayout
-          content={
-            <ResponseCloseReport history={history} queryParams={queryParams} />
-          }
-        />
+        <ResponseCloseReport history={history} queryParams={queryParams} />
       );
     }}
   />,
@@ -48,13 +37,7 @@ const routes = () => [
     path="/insights/first-response"
     component={({ history, location }) => {
       const queryParams = queryString.parse(location.search);
-      return (
-        <MainLayout
-          content={
-            <FirstResponse history={history} queryParams={queryParams} />
-          }
-        />
-      );
+      return <FirstResponse history={history} queryParams={queryParams} />;
     }}
   />,
 
@@ -64,11 +47,7 @@ const routes = () => [
     path="/insights"
     component={({ history, location }) => {
       const queryParams = queryString.parse(location.search);
-      return (
-        <MainLayout
-          content={<VolumeReport history={history} queryParams={queryParams} />}
-        />
-      );
+      return <VolumeReport history={history} queryParams={queryParams} />;
     }}
   />
 ];

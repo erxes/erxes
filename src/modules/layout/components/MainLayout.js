@@ -7,7 +7,7 @@ import Navigation from './Navigation';
 const propTypes = {
   history: PropTypes.object,
   currentUser: PropTypes.object,
-  content: PropTypes.element
+  children: PropTypes.node
 };
 
 class MainLayout extends React.Component {
@@ -24,12 +24,12 @@ class MainLayout extends React.Component {
   }
 
   render() {
-    const { content } = this.props;
+    const { children } = this.props;
 
     return (
       <Layout>
         <Navigation />
-        {content}
+        {children}
       </Layout>
     );
   }

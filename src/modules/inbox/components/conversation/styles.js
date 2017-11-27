@@ -73,6 +73,16 @@ const MessageItem = styled.div`
       display: none;
     }
   }
+
+  &.fbpost {
+    .body {
+      padding: 12px;
+      background: #f6f7f9;
+      border: 1px solid;
+      border-color: #e5e6e9 #dfe0e4 #d0d1d5;
+      border-radius: 4px;
+    }
+  }
 `;
 
 const MessageBody = styled.div`

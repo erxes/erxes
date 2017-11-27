@@ -1,18 +1,13 @@
 import React from 'react';
 import { Route } from 'react-router-dom';
 import queryString from 'query-string';
-import { MainLayout } from '../../layout/containers';
 import { List } from './containers';
 
 const routes = () => (
   <Route
     path="/settings/response-templates/"
     component={({ location }) => {
-      return (
-        <MainLayout
-          content={<List queryParams={queryString.parse(location.search)} />}
-        />
-      );
+      return <List queryParams={queryString.parse(location.search)} />;
     }}
   />
 );

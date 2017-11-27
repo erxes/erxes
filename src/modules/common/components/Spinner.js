@@ -4,9 +4,9 @@ import { colors } from '../styles';
 import { rgba } from '../styles/color';
 import Rotate from '../utils/animateRotate';
 
-const WrapperSpinner = styled.div`
+const SpinnerElement = styled.div`
   position: relative;
-  margin: 16px auto;
+  margin: 20px auto;
   width: 25px;
   height: 25px;
   animation: ${Rotate} 0.75s linear infinite;
@@ -16,10 +16,11 @@ const WrapperSpinner = styled.div`
   border-bottom-color: ${rgba(colors.colorBlack, 0.2)};
   border-radius: 100%;
   top: 50%;
+  margin-top: -12px;
 `;
 
 function Spinner() {
-  return <WrapperSpinner />;
+  return <SpinnerElement />;
 }
 
 export default Spinner;

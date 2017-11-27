@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { PieChart, Pie, Cell } from 'recharts';
+import { Label } from 'modules/common/components';
 import { ChartWrapper, IntegrationKind, KindItem, KindCount } from '../styles';
 
 const propTypes = {
@@ -14,8 +15,8 @@ class Insights extends React.Component {
     const width = (wrapperWidth || 400) * 0.5;
     const height = width * 0.5;
 
-    const COLORS = ['#7242c3', '#1dcaff', '#3B5998', '#f0ad4e', '#ccc'];
-    const classNames = ['default', 'twitter', 'facebook', 'form', 'primary'];
+    const COLORS = ['#A389D4', '#F5C22B', '#1dcaff', '#3B5998', '#ccc'];
+    const classNames = ['default', 'form', 'twitter', 'facebook', 'primary'];
 
     const RADIAN = Math.PI / 180;
     const renderCustomizedLabel = ({
@@ -48,9 +49,9 @@ class Insights extends React.Component {
         <IntegrationKind style={{ marginLeft: width }}>
           {data.map((detail, index) => (
             <KindItem key={index}>
-              <span className={`label label-${classNames[index]}`}>
+              <Label className={`label-${classNames[index]}`}>
                 {detail.name}
-              </span>
+              </Label>
               <KindCount>{detail.value}</KindCount>
             </KindItem>
           ))}

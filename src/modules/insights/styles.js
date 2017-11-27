@@ -120,6 +120,7 @@ const IntegrationKind = styled.div`
 const KindCount = styled.span`
   font-size: ${typography.fontSizeHeading8}px;
   font-weight: bold;
+  margin-left: ${dimensions.unitSpacing}px;
 `;
 
 const KindItem = styled.div`

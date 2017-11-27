@@ -173,6 +173,21 @@ const Segmentli = styled.li`
   }
 `;
 
+const Recipients = styled.div`
+  flex: 1;
+`;
+
+const Recipient = styled.div`
+  padding: 3px 5px;
+  border: 1px solid ${colors.colorShadowGray};
+  border-radius: 4px;
+  display: inline-block;
+  margin-right: 5px;
+  margin-bottom: 5px;
+  background: ${colors.bgLight};
+  font-size: 13px;
+`;
+
 export {
   EngageTitle,
   HelperText,
@@ -186,5 +201,7 @@ export {
   Messenger,
   MessengerPreview,
   InlineForm,
-  Segmentli
+  Segmentli,
+  Recipients,
+  Recipient
 };

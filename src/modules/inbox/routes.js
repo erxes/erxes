@@ -1,23 +1,10 @@
 import React from 'react';
-import { Route } from 'react-router-dom';
+import { Route, Redirect } from 'react-router-dom';
 import queryString from 'query-string';
-import { MainLayout } from '../layout/containers';
 import Inbox from '../inbox/containers/Inbox';
 
 const routes = () => [
-  <Route
-    exact
-    key="index"
-    path="/"
-    component={({ location }) => {
-      const queryParams = queryString.parse(location.search);
-      const _id = queryParams._id;
-
-      return (
-        <MainLayout content={<Inbox _id={_id} queryParams={queryParams} />} />
-      );
-    }}
-  />,
+  <Route exact key="index" path="/" render={() => <Redirect to="/inbox" />} />,
 
   <Route
     exact
@@ -27,9 +14,7 @@ const routes = () => [
       const queryParams = queryString.parse(location.search);
       const _id = queryParams._id;
 
-      return (
-        <MainLayout content={<Inbox _id={_id} queryParams={queryParams} />} />
-      );
+      return <Inbox _id={_id} queryParams={queryParams} />;
     }}
   />
 ];

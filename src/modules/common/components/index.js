@@ -3,8 +3,8 @@ import NameCard from './nameCard/NameCard';
 import Button from './Button';
 import Label from './Label';
 import Icon from './Icon';
-import BreadCrumb from './Breadcrumb/BreadCrumb';
-import BreadCrumbItem from './Breadcrumb/BreadCrumbItem';
+import BreadCrumb from './breadcrumb/BreadCrumb';
+import BreadCrumbItem from './breadcrumb/BreadCrumbItem';
 import Spinner from './Spinner';
 import Tip from './Tip';
 import Loader from './Loader';
@@ -20,13 +20,13 @@ import Tags from './Tags';
 import FilterableList from './filterableList/FilterableList';
 import DropdownToggle from './DropdownToggle';
 import ConversationList from './conversationList/ConversationList';
-import { FormControl, ControlLabel, FormGroup } from './Form';
+import { FormControl, ControlLabel, FormGroup } from './form';
 import TextDivider from './TextDivider';
 import CountsByTag from './CountsByTag';
 import FilterByParams from './FilterByParams';
-import Table from './Table';
+import Table from './table';
 import Editor from './Editor';
-import { Tabs, TabList, TabTitle } from './Tabs';
+import { Tabs, TabList, TabTitle } from './tabs';
 import ConfirmDialog from './ConfirmDialog';
 
 // TODO remove

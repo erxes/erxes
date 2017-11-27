@@ -1,3 +1,4 @@
+import MainBar from './MainBar';
 import Header from './Header';
 import QuickNavigation from './QuickNavigation';
 import AuthLayout from './AuthLayout';
@@ -9,6 +10,7 @@ import Sidebar from './Sidebar';
 import Wrapper from './Wrapper';
 
 export {
+  MainBar,
   Header,
   QuickNavigation,
   AuthLayout,

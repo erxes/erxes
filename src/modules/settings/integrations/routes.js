@@ -1,7 +1,6 @@
 import React from 'react';
 import { Route } from 'react-router-dom';
 import queryString from 'query-string';
-import { MainLayout } from '../../layout/containers';
 import {
   List,
   Twitter,
@@ -16,7 +15,7 @@ const routes = () => [
     path="/settings/integrations/messenger/configs/:integrationId"
     component={({ match }) => {
       const id = match.params.integrationId;
-      return <MainLayout content={<MessengerConfigs integrationId={id} />} />;
+      return <MessengerConfigs integrationId={id} />;
     }}
   />,
 
@@ -26,9 +25,7 @@ const routes = () => [
     path="/settings/integrations/messenger/appearance/:integrationId"
     component={({ match }) => {
       const id = match.params.integrationId;
-      return (
-        <MainLayout content={<MessengerAppearance integrationId={id} />} />
-      );
+      return <MessengerAppearance integrationId={id} />;
     }}
   />,
 
@@ -36,7 +33,7 @@ const routes = () => [
     key="/settings/integrations/twitter"
     exact
     path="/settings/integrations/twitter"
-    component={() => <MainLayout content={<Twitter type="link" />} />}
+    component={() => <Twitter type="link" />}
   />,
 
   <Route
@@ -47,11 +44,7 @@ const routes = () => [
       const queryParams = queryString.parse(location.search);
 
       return (
-        <MainLayout
-          content={
-            <Twitter type="form" history={history} queryParams={queryParams} />
-          }
-        />
+        <Twitter type="form" history={history} queryParams={queryParams} />
       );
     }}
   />,
@@ -61,11 +54,7 @@ const routes = () => [
     exact
     path="/settings/integrations"
     component={({ location }) => {
-      return (
-        <MainLayout
-          content={<List queryParams={queryString.parse(location.search)} />}
-        />
-      );
+      return <List queryParams={queryString.parse(location.search)} />;
     }}
   />
 ];

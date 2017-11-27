@@ -1,16 +1,24 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import styled from 'styled-components';
+import { dimensions } from 'modules/common/styles';
 import { BreadCrumb } from 'modules/common/components';
-import { TopBar } from '../styles';
-import QuickNavigation from '../containers/QuickNavigation';
 
 const propTypes = {
   breadcrumb: PropTypes.array.isRequired
 };
 
+const PageHeader = styled.div`
+  height: ${dimensions.headerSpacing}px;
+  position: fixed;
+  top: 0;
+  display: flex;
+  align-items: center;
+`;
+
 function Header({ breadcrumb = [] }) {
   return (
-    <TopBar>
+    <PageHeader>
       <BreadCrumb>
         {breadcrumb.map(b => (
           <BreadCrumb.Item href={b.link} active={!b.link} key={b.title}>
@@ -18,9 +26,7 @@ function Header({ breadcrumb = [] }) {
           </BreadCrumb.Item>
         ))}
       </BreadCrumb>
-
-      <QuickNavigation />
-    </TopBar>
+    </PageHeader>
   );
 }
 

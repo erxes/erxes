@@ -118,6 +118,7 @@ const MentionedPerson = styled.span`
 
 const RespondBoxStyled = styled.div`
   position: relative;
+  transition: background 0.3s ease;
   background: ${props =>
     props.isInternal ? colors.bgInternal : colors.colorWhite};
 
