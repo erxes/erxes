@@ -11,11 +11,11 @@ import SettingsRoutes from './modules/settings/routes';
 import InboxRoutes from './modules/inbox/routes';
 import TagsRoutes from './modules/tags/routes';
 import NotificationRoutes from './modules/notifications/routes';
-import { Main } from './modules/layout/styles';
+import { MainLayout } from 'modules/layout/containers';
 
 const Routes = () => (
   <Router>
-    <Main>
+    <MainLayout>
       <AuthRoutes />
       <InboxRoutes />
       <FieldsRoutes />
@@ -27,7 +27,7 @@ const Routes = () => (
       <SettingsRoutes />
       <TagsRoutes />
       <NotificationRoutes />
-    </Main>
+    </MainLayout>
   </Router>
 );
 

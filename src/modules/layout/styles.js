@@ -15,15 +15,10 @@ const UserHelper = styled.div`
   }
 `;
 
-const Main = styled.main`
-  flex: 1;
-  height: 100%;
-  max-width: 100%;
-`;
-
-const Layout = styled.div`
+const Layout = styled.main`
   height: 100%;
   display: flex;
+  flex: 1;
   max-width: 100%;
 `;
 
@@ -77,7 +72,7 @@ const MainWrapper = styled.div`
   flex: 1;
   display: flex;
   flex-direction: column;
-  max-width: calc(100% - 70px);
+  max-width: calc(100% - ${dimensions.headerSpacingWide}px);
 `;
 
 const TopBar = styled.div`
@@ -412,7 +407,6 @@ const TagItem = styled.div`
 `;
 
 export {
-  Main,
   Layout,
   LeftNavigation,
   Nav,

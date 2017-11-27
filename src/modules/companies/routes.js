@@ -1,7 +1,6 @@
 import React from 'react';
 import { Route } from 'react-router-dom';
 import queryString from 'query-string';
-import { MainLayout } from '../layout/containers';
 import { CompaniesList, CompanyDetails } from './containers';
 
 const routes = () => [
@@ -13,11 +12,7 @@ const routes = () => [
       const queryParams = queryString.parse(location.search);
       const id = match.params.id;
 
-      return (
-        <MainLayout
-          content={<CompanyDetails id={id} queryParams={queryParams} />}
-        />
-      );
+      return <CompanyDetails id={id} queryParams={queryParams} />;
     }}
   />,
 
@@ -27,9 +22,7 @@ const routes = () => [
     key="/companies"
     component={({ location }) => {
       const queryParams = queryString.parse(location.search);
-      return (
-        <MainLayout content={<CompaniesList queryParams={queryParams} />} />
-      );
+      return <CompaniesList queryParams={queryParams} />;
     }}
   />
 ];

@@ -1,7 +1,6 @@
 import React from 'react';
 import { Route } from 'react-router-dom';
 import queryString from 'query-string';
-import { MainLayout } from '../../layout/containers';
 import { TopicList, CategoryList, ArticleList } from './containers';
 
 const routes = () => [
@@ -10,9 +9,7 @@ const routes = () => [
     exact={true}
     path="/settings/knowledgebase/list"
     component={({ location }) => (
-      <MainLayout
-        content={<TopicList queryParams={queryString.parse(location.search)} />}
-      />
+      <TopicList queryParams={queryString.parse(location.search)} />
     )}
   />,
 
@@ -21,11 +18,7 @@ const routes = () => [
     exact={true}
     path="/settings/knowledgebase/categories"
     component={({ location }) => (
-      <MainLayout
-        content={
-          <CategoryList queryParams={queryString.parse(location.search)} />
-        }
-      />
+      <CategoryList queryParams={queryString.parse(location.search)} />
     )}
   />,
 
@@ -34,11 +27,7 @@ const routes = () => [
     exact={true}
     path="/settings/knowledgebase/articles"
     component={({ location }) => (
-      <MainLayout
-        content={
-          <ArticleList queryParams={queryString.parse(location.search)} />
-        }
-      />
+      <ArticleList queryParams={queryString.parse(location.search)} />
     )}
   />
 ];

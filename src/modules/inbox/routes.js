@@ -1,7 +1,6 @@
 import React from 'react';
 import { Route } from 'react-router-dom';
 import queryString from 'query-string';
-import { MainLayout } from '../layout/containers';
 import Inbox from '../inbox/containers/Inbox';
 
 const routes = () => [
@@ -13,9 +12,7 @@ const routes = () => [
       const queryParams = queryString.parse(location.search);
       const _id = queryParams._id;
 
-      return (
-        <MainLayout content={<Inbox _id={_id} queryParams={queryParams} />} />
-      );
+      return <Inbox _id={_id} queryParams={queryParams} />;
     }}
   />,
 
@@ -27,9 +24,7 @@ const routes = () => [
       const queryParams = queryString.parse(location.search);
       const _id = queryParams._id;
 
-      return (
-        <MainLayout content={<Inbox _id={_id} queryParams={queryParams} />} />
-      );
+      return <Inbox _id={_id} queryParams={queryParams} />;
     }}
   />
 ];
