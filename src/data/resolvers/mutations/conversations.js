@@ -112,29 +112,7 @@ const conversationMutations = {
    * @return {Promise} newly created message object
    */
   async conversationMessageAdd(root, doc, { user }) {
-    const message = await ConversationMessages.addMessage(doc, user._id);
-
     const conversation = await Conversations.findOne({ _id: doc.conversationId });
-    const title = 'You have a new message.';
-
-    // send notification
-    sendNotification({
-      createdUser: user._id,
-      notifType: NOTIFICATION_TYPES.CONVERSATION_ADD_MESSAGE,
-      title,
-      content: doc.content,
-      link: `/inbox?_id=${conversation._id}`,
-      receivers: conversationNotifReceivers(conversation, user._id),
-    });
-
-    // do not send internal message to third service integrations
-    if (doc.internal) {
-      // notify subscription
-      await conversationMessageCreated(message, doc.conversationId);
-
-      return message;
-    }
-
     const integration = await Integrations.findOne({ _id: conversation.integrationId });
 
     if (!integration) {
@@ -146,6 +124,28 @@ const conversationMutations = {
     // send reply to twitter
     if (kind === KIND_CHOICES.TWITTER) {
       await tweetReply(conversation, strip(doc.content));
+      return null;
+    }
+
+    // send notification =======
+    const title = 'You have a new message.';
+
+    sendNotification({
+      createdUser: user._id,
+      notifType: NOTIFICATION_TYPES.CONVERSATION_ADD_MESSAGE,
+      title,
+      content: doc.content,
+      link: `/inbox?_id=${conversation._id}`,
+      receivers: conversationNotifReceivers(conversation, user._id),
+    });
+
+    const message = await ConversationMessages.addMessage(doc, user._id);
+
+    // do not send internal message to third service integrations
+    if (doc.internal) {
+      // notify subscription
+      await conversationMessageCreated(message, doc.conversationId);
+
       return message;
     }
 
