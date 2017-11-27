@@ -25,6 +25,7 @@ const LogoContainer = styled.div`
   height: 56px;
   cursor: pointer;
   box-shadow: 0 0 ${unitSpace} 0 ${rgba(colors.colorBlack, 0.2)};
+  background-image: url('/images/logo-image.png');
   background-color: ${colors.colorPrimary};
   background-position: center;
   background-size: 46px;
@@ -218,6 +219,44 @@ const BackgroundSelector = styled.div`
   }
 `;
 
+const FlexRow = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+
+  .flex-item {
+    flex: 1;
+    margin-left: 20px;
+
+    &:first-child {
+      margin: 0;
+    }
+
+    input[type='checkbox'] {
+      display: inline-block;
+      height: auto;
+      width: auto;
+      margin-right: 5px;
+    }
+  }
+
+  span {
+    margin: 0 5px;
+
+    .Select-value-label {
+      color: ${colors.colorLightGray} !important;
+    }
+  }
+
+  button {
+    margin-left: 10px;
+  }
+
+  & + div {
+    margin-top: 10px;
+  }
+`;
+
 export {
   ContentBox,
   SubHeading,
@@ -235,5 +274,6 @@ export {
   ColorPick,
   ColorPicker,
   LogoContainer,
-  LogoSpan
+  LogoSpan,
+  FlexRow
 };
