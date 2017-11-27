@@ -15,7 +15,6 @@ const CustomerDetailsContainer = (props, context) => {
   const updatedProps = {
     ...props,
     customer: customerDetailQuery.customerDetail,
-    refetch: customerDetailQuery.refetch,
     activityLogRefetch: customerActivityLogQuery.refetch,
     activityLogsCustomer: customerActivityLogQuery.activityLogsCustomer,
     currentUser: context.currentUser

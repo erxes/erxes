@@ -7,7 +7,7 @@ import { EmptyState, Tagger, Icon } from 'modules/common/components';
 
 const propTypes = {
   customer: PropTypes.object.isRequired,
-  refetch: PropTypes.func.isRequired
+  refetch: PropTypes.func
 };
 
 class TaggerSection extends Component {

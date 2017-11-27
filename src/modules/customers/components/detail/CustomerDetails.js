@@ -26,7 +26,6 @@ import {
 
 const propTypes = {
   customer: PropTypes.object.isRequired,
-  refetch: PropTypes.func.isRequired,
   activityLogRefetch: PropTypes.func.isRequired,
   currentUser: PropTypes.object.isRequired,
   queryParams: PropTypes.object.isRequired,
@@ -174,9 +173,7 @@ class CustomerDetails extends React.Component {
     return (
       <Wrapper
         header={<Wrapper.Header breadcrumb={breadcrumb} />}
-        leftSidebar={
-          <EditInformation customer={customer} refetch={this.props.refetch} />
-        }
+        leftSidebar={<EditInformation customer={customer} />}
         content={content}
         transparent={true}
       />

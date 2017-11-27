@@ -8,13 +8,7 @@ import { Spinner } from 'modules/common/components';
 import { Sidebar } from 'modules/layout/components';
 
 const EditInformationContainer = (props, context) => {
-  const {
-    customer,
-    customersEdit,
-    refetch,
-    customersAddCompany,
-    fieldsQuery
-  } = props;
+  const { customer, customersEdit, customersAddCompany, fieldsQuery } = props;
   if (fieldsQuery.loading) {
     return (
       <Sidebar full>
@@ -30,7 +24,6 @@ const EditInformationContainer = (props, context) => {
       variables: { _id: _id, ...variables }
     })
       .then(() => {
-        refetch();
         callback();
       })
       .catch(e => {
@@ -43,7 +36,6 @@ const EditInformationContainer = (props, context) => {
       variables: { _id: _id, ...doc }
     })
       .then(() => {
-        refetch();
         Alert.success('Success');
         callback();
       })
@@ -65,7 +57,6 @@ const EditInformationContainer = (props, context) => {
 
 EditInformationContainer.propTypes = {
   customer: PropTypes.object.isRequired,
-  refetch: PropTypes.func.isRequired,
   sections: PropTypes.node,
   fieldsQuery: PropTypes.object.isRequired,
   customersEdit: PropTypes.func.isRequired,
@@ -85,9 +76,29 @@ export default compose(
   }),
   // mutations
   graphql(gql(mutations.customersAddCompany), {
-    name: 'customersAddCompany'
+    name: 'customersAddCompany',
+    options: props => ({
+      refetchQueries: [
+        {
+          query: gql`${queries.customerDetail}`,
+          variables: {
+            _id: props.customer._id
+          }
+        }
+      ]
+    })
   }),
   graphql(gql(mutations.customersEdit), {
-    name: 'customersEdit'
+    name: 'customersEdit',
+    options: props => ({
+      refetchQueries: [
+        {
+          query: gql`${queries.customerDetail}`,
+          variables: {
+            _id: props.customer._id
+          }
+        }
+      ]
+    })
   })
 )(EditInformationContainer);
