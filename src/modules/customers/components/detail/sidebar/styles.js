@@ -104,13 +104,11 @@ const CompanyWrapper = styled.div`
 
   span {
     display: inline-block;
-    width: 100%;
 
     &:last-child {
       overflow: hidden;
       white-space: nowrap;
       text-overflow: ellipsis;
-      width: 100%;
 
       &:hover {
         cursor: pointer;

@@ -108,7 +108,7 @@ class LeftSidebar extends React.Component {
             <Link to={`/companies/details/${company._id}`}>
               <Icon icon="android-open" />
             </Link>
-            <span>{company.name || 'N/A'}</span>
+            <div>{company.name || 'N/A'}</div>
             <Tip text={company.website || ''}>
               <span>
                 <a target="_blank" href={`//${company.website}`}>
