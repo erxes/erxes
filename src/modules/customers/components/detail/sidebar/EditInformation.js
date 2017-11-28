@@ -34,13 +34,9 @@ class LeftSidebar extends React.Component {
   constructor(props) {
     super(props);
 
-    this.defaultCustomFieldsData = {
-      ...(props.customer.customFieldsData || {})
-    };
-
     this.state = {
       editing: false,
-      customData: this.defaultCustomFieldsData
+      customData: {}
     };
 
     this.toggleEditing = this.toggleEditing.bind(this);
@@ -57,7 +53,7 @@ class LeftSidebar extends React.Component {
   cancelEditing() {
     this.setState({
       editing: false,
-      customData: this.defaultCustomFieldsData
+      customData: this.props.customer.customFieldsData || {}
     });
   }
 
@@ -177,7 +173,7 @@ class LeftSidebar extends React.Component {
               field={field}
               key={index}
               onValueChange={this.handleFieldsChange}
-              defaultValue={this.state.customData[field._id] || ''}
+              defaultValue={customer.customFieldsData[field._id]}
             />
           ))}
         </SidebarContent>
