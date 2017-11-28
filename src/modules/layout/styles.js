@@ -337,6 +337,8 @@ const Authlayout = styled.div`
   height: 100%;
   overflow: hidden;
   position: relative;
+  flex: 1;
+
   &:before {
     content: '';
     background-color: rgba(69, 38, 121, 0.7);

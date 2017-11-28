@@ -170,13 +170,12 @@ class FormBase extends Component {
       <Wrapper.ActionBar
         right={
           <Button.Group>
-            {this.renderButtons(message)}
-
             <Link to="/engage">
               <Button btnStyle="simple" size="small">
                 <Icon icon="close" /> Cancel
               </Button>
             </Link>
+            {this.renderButtons(message)}
           </Button.Group>
         }
       />

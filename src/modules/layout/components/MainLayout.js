@@ -24,11 +24,11 @@ class MainLayout extends React.Component {
   }
 
   render() {
-    const { children } = this.props;
+    const { children, currentUser } = this.props;
 
     return (
       <Layout>
-        <Navigation />
+        {currentUser && <Navigation />}
         {children}
       </Layout>
     );
