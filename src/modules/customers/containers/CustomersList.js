@@ -19,13 +19,7 @@ class CustomerListContainer extends Bulk {
       customersAdd
     } = this.props;
 
-    if (
-      customersQuery.loading ||
-      brandsQuery.loading ||
-      customerCountsQuery.loading ||
-      customersListConfigQuery.loading ||
-      tagsQuery.loading
-    ) {
+    if (customerCountsQuery.loading) {
       return <Spinner />;
     }
 
@@ -57,12 +51,12 @@ class CustomerListContainer extends Bulk {
       ...this.props,
       columnsConfig,
 
-      customers: customersQuery.customers,
+      customers: customersQuery.customers || [],
       counts: customerCountsQuery.customerCounts,
-      brands: brandsQuery.brands,
+      brands: brandsQuery.brands || [],
       integrations: KIND_CHOICES.ALL_LIST,
-      tags: tagsQuery.tags,
-      bulk: this.state.bulk,
+      tags: tagsQuery.tags || [],
+      bulk: this.state.bulk || [],
       toggleBulk: this.toggleBulk,
       addCustomer
     };
