@@ -11,7 +11,7 @@ import {
 } from 'modules/activityLogs/styles';
 
 class InternalNotes extends React.Component {
-  internalNoteRow(data) {
+  renderRow(data) {
     const { list } = data;
 
     return list.map(item => {
@@ -34,7 +34,7 @@ class InternalNotes extends React.Component {
   render() {
     const { activityLog } = this.props;
 
-    return activityLog.map(item => this.internalNoteRow(item));
+    return activityLog.map(item => this.renderRow(item));
   }
 }
 
