@@ -174,7 +174,7 @@ class LeftSidebar extends React.Component {
               key={index}
               onValueChange={this.handleFieldsChange}
               defaultValue={
-                company.customFieldsData !== null
+                company.customFieldsData
                   ? company.customFieldsData[field._id]
                   : ''
               }
