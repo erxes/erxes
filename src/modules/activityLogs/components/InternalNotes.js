@@ -10,12 +10,13 @@ import {
   ActivityContent
 } from 'modules/activityLogs/styles';
 
-const InternalNotes = props => {
-  const { activityLog } = props;
+class InternalNotes extends React.Component {
+  internalNoteRow(data) {
+    const { list } = data;
 
-  return activityLog.map(item =>
-    item.list.map(item => {
+    return list.map(item => {
       if (item.action !== 'internal_note-create') return null;
+
       return (
         <ActivityRow key={item.id}>
           <ActivityWrapper>
@@ -25,13 +26,17 @@ const InternalNotes = props => {
             <ActivityCaption>{item.by.details.fullName}</ActivityCaption>
             <div>{moment(item.createdAt).fromNow()}</div>
           </ActivityWrapper>
-
           <ActivityContent>{item.content}</ActivityContent>
         </ActivityRow>
       );
-    })
-  );
-};
+    });
+  }
+  render() {
+    const { activityLog } = this.props;
+
+    return activityLog.map(item => this.internalNoteRow(item));
+  }
+}
 
 InternalNotes.propTypes = {
   activityLog: PropTypes.array.isRequired
