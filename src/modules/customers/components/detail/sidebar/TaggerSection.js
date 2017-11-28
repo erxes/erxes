@@ -6,8 +6,7 @@ import { QuickButton, SidebarList } from 'modules/layout/styles';
 import { EmptyState, Tagger, Icon } from 'modules/common/components';
 
 const propTypes = {
-  customer: PropTypes.object.isRequired,
-  refetch: PropTypes.func
+  customer: PropTypes.object.isRequired
 };
 
 class TaggerSection extends Component {
@@ -41,7 +40,7 @@ class TaggerSection extends Component {
   }
 
   render() {
-    const { customer, refetch } = this.props;
+    const { customer } = this.props;
     const tags = customer.getTags;
     const { Title, QuickButtons } = Sidebar.Section;
     return (
@@ -61,7 +60,6 @@ class TaggerSection extends Component {
               targets={[customer]}
               className="sidebar-accordion"
               event="onClick"
-              afterSave={refetch}
             />
           </div>
         </Collapse>
