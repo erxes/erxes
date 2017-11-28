@@ -44,8 +44,14 @@ class BasicInfo extends React.Component {
   }
 
   cancelEditing() {
+    const { customer } = this.props;
+
     this.setState({
-      editing: false
+      editing: false,
+      firstName: customer.firstName,
+      lastName: customer.lastName,
+      email: customer.email,
+      phone: customer.phone
     });
   }
 
