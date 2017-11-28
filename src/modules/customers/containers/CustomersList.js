@@ -57,6 +57,7 @@ class CustomerListContainer extends Bulk {
       integrations: KIND_CHOICES.ALL_LIST,
       tags: tagsQuery.tags || [],
       bulk: this.state.bulk || [],
+      emptyBulk: this.emptyBulk,
       toggleBulk: this.toggleBulk,
       addCustomer
     };

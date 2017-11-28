@@ -15,7 +15,6 @@ import { ActivityList, InternalNotes } from 'modules/activityLogs/components';
 
 const propTypes = {
   customer: PropTypes.object.isRequired,
-  activityLogRefetch: PropTypes.func.isRequired,
   currentUser: PropTypes.object.isRequired,
   queryParams: PropTypes.object.isRequired,
   activityLogsCustomer: PropTypes.array.isRequired
