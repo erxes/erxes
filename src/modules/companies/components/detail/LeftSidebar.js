@@ -70,8 +70,6 @@ class LeftSidebar extends React.Component {
       customFieldsData: this.state.customData || company.customFieldsData
     };
 
-    console.log(doc);
-
     this.props.save(doc, error => {
       if (error) return Alert.error(error.message);
 
