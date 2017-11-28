@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { BrowserRouter as Router } from 'react-router-dom';
 import AuthRoutes from './modules/auth/routes';
 import FieldsRoutes from './modules/fields/routes';
@@ -14,15 +15,14 @@ import NotificationRoutes from './modules/notifications/routes';
 import { MainLayout } from 'modules/layout/containers';
 import { MainBar } from 'modules/layout/components';
 import { MainWrapper } from 'modules/layout/styles';
+import { withCurrentUser } from 'modules/auth/containers';
 
-const Routes = () => (
-  <Router>
-    <MainLayout>
+const renderRoutes = currentUser => {
+  if (currentUser) {
+    return (
       <MainWrapper>
         <MainBar />
 
-        {/* routes */}
-        <AuthRoutes />
         <InboxRoutes />
         <FieldsRoutes />
         <SegmentsRoutes />
@@ -34,8 +34,20 @@ const Routes = () => (
         <TagsRoutes />
         <NotificationRoutes />
       </MainWrapper>
-    </MainLayout>
+    );
+  }
+
+  return <AuthRoutes />;
+};
+
+const Routes = ({ currentUser }) => (
+  <Router>
+    <MainLayout>{renderRoutes(currentUser)}</MainLayout>
   </Router>
 );
 
-export default Routes;
+Routes.propTypes = {
+  currentUser: PropTypes.object
+};
+
+export default withCurrentUser(Routes);
