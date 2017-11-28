@@ -14,16 +14,6 @@ const EditorActions = styled.div`
   color: ${colors.colorCoreGray};
   bottom: 0;
   right: 0;
-
-  i {
-    margin: 0;
-  }
-
-  button {
-    float: right;
-    display: block;
-    margin-right: 10px;
-  }
 `;
 
 const EditorWrapper = styled.div`
@@ -67,11 +57,11 @@ class Form extends Component {
     if (!this.state.Editing) return null;
     return (
       <EditorActions>
-        <Button onClick={this.onSend} btnStyle="success" size="small">
-          <Icon icon="android-send" /> Save note
-        </Button>
         <Button onClick={this.cancelEditing} btnStyle="simple" size="small">
           <Icon icon="close" /> Discard
+        </Button>
+        <Button onClick={this.onSend} btnStyle="success" size="small">
+          <Icon icon="android-send" /> Save note
         </Button>
       </EditorActions>
     );
