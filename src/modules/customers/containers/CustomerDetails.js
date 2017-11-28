@@ -1,21 +1,20 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { compose, gql, graphql } from 'react-apollo';
-import { Spinner } from 'modules/common/components';
 import { queries } from '../graphql';
 import { CustomerDetails } from '../components';
 
 const CustomerDetailsContainer = (props, context) => {
   const { customerDetailQuery, customerActivityLogQuery } = props;
 
-  if (customerDetailQuery.loading || customerActivityLogQuery.loading) {
-    return <Spinner />;
-  }
-
   const updatedProps = {
     ...props,
-    customer: customerDetailQuery.customerDetail,
-    activityLogsCustomer: customerActivityLogQuery.activityLogsCustomer,
+    customer: customerDetailQuery.customerDetail || {
+      customFieldsData: [],
+      companies: [],
+      getTags: []
+    },
+    activityLogsCustomer: customerActivityLogQuery.activityLogsCustomer || [],
     currentUser: context.currentUser
   };
 
