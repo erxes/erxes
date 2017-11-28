@@ -89,9 +89,6 @@ const ActivityCaption = styled.div`
 
 const ActivityContent = styled.div`
   margin-top: ${dimensions.coreSpacing}px;
-  padding: ${dimensions.coreSpacing}px 0;
-  border-top: 1px solid ${colors.borderPrimary};
-  border-bottom: 1px solid ${colors.borderPrimary};
 `;
 
 const IconWrapper = styled.div`
