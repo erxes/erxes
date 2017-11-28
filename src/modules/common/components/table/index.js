@@ -21,12 +21,8 @@ const defaultProps = {
   responsive: false
 };
 
-class Table extends React.Component {
-  render() {
-    const props = this.props;
-
-    return <StyledTable {...props} />;
-  }
+function Table(props) {
+  return <StyledTable {...props} />;
 }
 
 Table.propTypes = propTypes;

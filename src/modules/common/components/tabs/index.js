@@ -2,16 +2,12 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { TabContainer, TabCaption } from './styles';
 
-class Tabs extends React.Component {
-  render() {
-    return <TabContainer {...this.props} />;
-  }
+function Tabs(props) {
+  return <TabContainer {...props} />;
 }
 
-class TabTitle extends React.Component {
-  render() {
-    return <TabCaption {...this.props} />;
-  }
+function TabTitle(props) {
+  return <TabCaption {...props} />;
 }
 
 Tabs.propTypes = {
