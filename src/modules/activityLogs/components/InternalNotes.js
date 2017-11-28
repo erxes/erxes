@@ -21,7 +21,7 @@ class InternalNotes extends React.Component {
         <ActivityRow key={item.id}>
           <ActivityWrapper>
             <AvatarWrapper>
-              <NameCard.Avatar user={item.createdUser} size={50} />
+              <NameCard.Avatar user={item.by} size={50} />
             </AvatarWrapper>
             <ActivityCaption>{item.by.details.fullName}</ActivityCaption>
             <div>{moment(item.createdAt).fromNow()}</div>

@@ -83,7 +83,7 @@ const ActivityIcon = styled.span`
 
 const ActivityCaption = styled.div`
   padding-top: ${dimensions.unitSpacing}px;
-  font-weight: ${typography.fontWeightMedium};
+  font-weight: ${typography.fontWeightRegular};
   line-height: 1;
 `;
 
