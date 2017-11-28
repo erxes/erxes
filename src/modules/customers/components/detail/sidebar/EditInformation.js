@@ -25,7 +25,6 @@ import {
 const propTypes = {
   customer: PropTypes.object.isRequired,
   customFields: PropTypes.array.isRequired,
-  refetch: PropTypes.func.isRequired,
   save: PropTypes.func.isRequired,
   addCompany: PropTypes.func.isRequired,
   sections: PropTypes.node
@@ -35,12 +34,9 @@ class LeftSidebar extends React.Component {
   constructor(props) {
     super(props);
 
-    this.defaultCustomFieldsData = {
-      ...(props.customer.customFieldsData || {})
-    };
     this.state = {
       editing: false,
-      customData: this.defaultCustomFieldsData
+      customData: {}
     };
 
     this.toggleEditing = this.toggleEditing.bind(this);
@@ -57,7 +53,7 @@ class LeftSidebar extends React.Component {
   cancelEditing() {
     this.setState({
       editing: false,
-      customData: this.defaultCustomFieldsData
+      customData: this.props.customer.customFieldsData || {}
     });
   }
 
@@ -106,11 +102,15 @@ class LeftSidebar extends React.Component {
         {customer.companies.map((company, index) => (
           <CompanyWrapper key={index}>
             <Link to={`/companies/details/${company._id}`}>
-              <Icon icon="android-arrow-forward" />
+              <Icon icon="android-open" />
             </Link>
-            <span>{company.name || 'N/A'}</span>
+            <div>{company.name || 'N/A'}</div>
             <Tip text={company.website || ''}>
-              <span>{company.website}</span>
+              <span>
+                <a target="_blank" href={`//${company.website}`}>
+                  {company.website}
+                </a>
+              </span>
             </Tip>
           </CompanyWrapper>
         ))}
@@ -173,7 +173,11 @@ class LeftSidebar extends React.Component {
               field={field}
               key={index}
               onValueChange={this.handleFieldsChange}
-              defaultValue={this.state.customData[field._id] || ''}
+              defaultValue={
+                customer.customFieldsData
+                  ? customer.customFieldsData[field._id]
+                  : ''
+              }
             />
           ))}
         </SidebarContent>
@@ -199,7 +203,7 @@ class LeftSidebar extends React.Component {
   }
 
   render() {
-    const { customer, refetch } = this.props;
+    const { customer } = this.props;
 
     return (
       <Sidebar footer={this.renderSidebarFooter()}>
@@ -210,7 +214,7 @@ class LeftSidebar extends React.Component {
         <MessengerSection customer={customer} />
         <TwitterSection customer={customer} />
         <FacebookSection customer={customer} />
-        <TaggerSection customer={customer} refetch={refetch} />
+        <TaggerSection customer={customer} />
       </Sidebar>
     );
   }

@@ -27,18 +27,9 @@ class LeftSidebar extends React.Component {
   constructor(props) {
     super(props);
 
-    this.defaultBasicinfos = {
-      ...(props.company || {})
-    };
-
-    this.defaultCustomFieldsData = {
-      ...(props.company.customFieldsData || {})
-    };
-
     this.state = {
       editing: false,
-      basicinfo: this.defaultBasicinfos,
-      customData: this.defaultCustomFieldsData
+      customData: this.props.company.customFieldsData || {}
     };
 
     this.toggleEditing = this.toggleEditing.bind(this);
@@ -54,18 +45,32 @@ class LeftSidebar extends React.Component {
   }
 
   cancelEditing() {
+    const { company } = this.props;
+
     this.setState({
       editing: false,
-      basicinfo: this.defaultBasicinfos,
-      customData: this.defaultCustomFieldsData
+      name: company.name,
+      size: company.size,
+      website: company.website,
+      industry: company.industry,
+      plan: company.plan,
+      customFieldsData: company.customFieldsData
     });
   }
 
   save() {
+    const { company } = this.props;
+
     const doc = {
-      ...this.state.basicinfo,
-      customFieldsData: this.state.customData
+      name: this.state.name || company.name,
+      size: this.state.size || company.size,
+      website: this.state.website || company.website,
+      industry: this.state.industry || company.industry,
+      plan: this.state.plan || company.plan,
+      customFieldsData: this.state.customData || company.customFieldsData
     };
+
+    console.log(doc);
 
     this.props.save(doc, error => {
       if (error) return Alert.error(error.message);
@@ -79,12 +84,7 @@ class LeftSidebar extends React.Component {
 
   handleChange(e, inputname) {
     this.toggleEditing();
-    const { basicinfo } = this.state;
-    const newinfo = {
-      ...basicinfo,
-      [inputname]: e.target.value
-    };
-    this.setState({ basicinfo: newinfo });
+    this.setState({ [inputname]: e.target.value });
   }
 
   handleFieldsChange({ _id, value }) {
@@ -100,7 +100,7 @@ class LeftSidebar extends React.Component {
   renderBasicInfo() {
     const { Section } = Sidebar;
     const { Title } = Section;
-    const { basicinfo } = this.state;
+    const { company } = this.props;
 
     return (
       <Section>
@@ -110,9 +110,8 @@ class LeftSidebar extends React.Component {
           <FormGroup>
             <ControlLabel>Name</ControlLabel>
             <FormControl
-              id="name"
               onChange={e => this.handleChange(e, 'name')}
-              value={basicinfo.name}
+              value={this.state.name || company.name}
             />
           </FormGroup>
 
@@ -120,18 +119,16 @@ class LeftSidebar extends React.Component {
             <ControlLabel>Size</ControlLabel>
             <FormControl
               id="size"
-              type="number"
               onChange={e => this.handleChange(e, 'size')}
-              value={basicinfo.size || ''}
+              value={this.state.size || company.size}
             />
           </FormGroup>
 
           <FormGroup>
             <ControlLabel>Industry</ControlLabel>
             <FormControl
-              id="industry"
               onChange={e => this.handleChange(e, 'industry')}
-              value={basicinfo.industry || ''}
+              value={this.state.industry || company.industry}
             />
           </FormGroup>
 
@@ -140,7 +137,7 @@ class LeftSidebar extends React.Component {
             <FormControl
               id="website"
               onChange={e => this.handleChange(e, 'website')}
-              value={basicinfo.website || ''}
+              value={this.state.website || company.website}
             />
           </FormGroup>
 
@@ -149,7 +146,7 @@ class LeftSidebar extends React.Component {
             <FormControl
               id="plan"
               onChange={e => this.handleChange(e, 'plan')}
-              value={basicinfo.plan || ''}
+              value={this.state.plan || company.plan}
             />
           </FormGroup>
         </SidebarContent>
@@ -158,7 +155,7 @@ class LeftSidebar extends React.Component {
   }
 
   renderCustomFields() {
-    const { customFields } = this.props;
+    const { customFields, company } = this.props;
     const { Section } = Sidebar;
     const { Title, QuickButtons } = Section;
 
@@ -176,7 +173,11 @@ class LeftSidebar extends React.Component {
               field={field}
               key={index}
               onValueChange={this.handleFieldsChange}
-              defaultValue={this.state.customData[field._id] || ''}
+              defaultValue={
+                company.customFieldsData
+                  ? company.customFieldsData[field._id]
+                  : ''
+              }
             />
           ))}
         </SidebarContent>
