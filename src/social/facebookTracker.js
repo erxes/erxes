@@ -10,22 +10,15 @@ export const graphRequest = {
     // set access token
     graph.setAccessToken(accessToken);
 
-    try {
-      return new Promise((resolve, reject) => {
-        graph[method](path, ...otherParams, (error, response) => {
-          if (error) {
-            return reject(error);
-          }
+    return new Promise((resolve, reject) => {
+      graph[method](path, ...otherParams, (error, response) => {
+        if (error) {
+          return reject(error);
+        }
 
-          return resolve(response);
-        });
+        return resolve(response);
       });
-
-      // catch session expired or some other error
-    } catch (e) {
-      console.log(e.message); // eslint-disable-line no-console
-      return e.message;
-    }
+    });
   },
 
   get(...args) {

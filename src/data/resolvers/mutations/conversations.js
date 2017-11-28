@@ -54,6 +54,7 @@ const conversationsChanged = async (_ids, type) => {
       });
     }
   }
+
   return _ids;
 };
 

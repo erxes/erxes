@@ -197,7 +197,7 @@ export class SaveWebhookResponse {
     let postId = value.post_id;
 
     // get page access token
-    let response = graphRequest.get(
+    let response = await graphRequest.get(
       `${this.currentPageId}/?fields=access_token`,
       this.userAccessToken,
     );
@@ -208,7 +208,7 @@ export class SaveWebhookResponse {
     }
 
     // get post object
-    response = graphRequest.get(postId, response.access_token);
+    response = await graphRequest.get(postId, response.access_token);
 
     postId = response.id;
 
@@ -313,10 +313,13 @@ export class SaveWebhookResponse {
     }
 
     // get page access token
-    let res = graphRequest.get(`${this.currentPageId}/?fields=access_token`, this.userAccessToken);
+    let res = await graphRequest.get(
+      `${this.currentPageId}/?fields=access_token`,
+      this.userAccessToken,
+    );
 
     // get user info
-    res = graphRequest.get(`/${fbUserId}`, res.access_token);
+    res = await graphRequest.get(`/${fbUserId}`, res.access_token);
 
     // when feed response will contain name field
     // when messeger response will not contain name field
@@ -395,7 +398,7 @@ export const facebookReply = async (conversation, text, messageId) => {
   const app = FACEBOOK_APPS.find(a => a.id === integration.facebookData.appId);
 
   // page access token
-  const response = graphRequest.get(
+  const response = await graphRequest.get(
     `${conversation.facebookData.pageId}/?fields=access_token`,
     app.accessToken,
   );
@@ -419,7 +422,7 @@ export const facebookReply = async (conversation, text, messageId) => {
     const postId = conversation.facebookData.postId;
 
     // post reply
-    const commentResponse = graphRequest.post(`${postId}/comments`, response.access_token, {
+    const commentResponse = await graphRequest.post(`${postId}/comments`, response.access_token, {
       message: text,
     });
 
