@@ -68,7 +68,6 @@ class BasicInfo extends React.Component {
     this.props.save(doc, error => {
       if (error) return Alert.error(error.message);
 
-      this.defaultBasicinfos = this.state.basicInfo;
       this.cancelEditing();
       return Alert.success('Success');
     });

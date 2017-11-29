@@ -19,7 +19,8 @@ class CustomerListContainer extends Bulk {
       customersAdd
     } = this.props;
 
-    let columnsConfig = customersListConfigQuery.fieldsDefaultColumnsConfig;
+    let columnsConfig =
+      customersListConfigQuery.fieldsDefaultColumnsConfig || [];
 
     // load config from local storage
     const localConfig = localStorage.getItem('erxes_customer_columns_config');

@@ -17,9 +17,21 @@ export default class GenerateField extends Component {
     this.onChange = this.onChange.bind(this);
 
     this.state = {
-      value: defaultValue,
+      value: defaultValue || '',
       checkBoxValues: defaultValue ? [...defaultValue] : []
     };
+  }
+
+  componentWillReceiveProps(nextProps) {
+    // eslint-disable-next-line
+    if (nextProps.defaultValue !== this.props.defaultValue) {
+      const defaultValue = nextProps.defaultValue || ''; // eslint-disable-line
+
+      this.setState({
+        value: defaultValue,
+        checkBoxValues: defaultValue ? [...defaultValue] : []
+      });
+    }
   }
 
   renderSelect(options = [], attrs = {}) {
@@ -41,6 +53,7 @@ export default class GenerateField extends Component {
     attrs.type = 'text';
 
     attrs.onChange = e => {
+      this.setState({ value: e.target.value });
       this.onChange(e, attrs.option);
     };
 
