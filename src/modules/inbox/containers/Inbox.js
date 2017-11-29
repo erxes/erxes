@@ -3,7 +3,6 @@ import { withRouter } from 'react-router';
 import PropTypes from 'prop-types';
 import { compose, gql, graphql } from 'react-apollo';
 import { Alert, router as routerUtils } from 'modules/common/utils';
-import { Spinner } from 'modules/common/components';
 import { Inbox as InboxComponent } from '../components';
 import { queries, mutations, subscriptions } from '../graphql';
 import { generateParams } from '../utils';
@@ -93,7 +92,11 @@ class ConversationDetail extends Component {
     // mark as read
     const readUserIds = currentConversation.readUserIds || [];
 
-    if (!loading && !readUserIds.includes(currentUser._id)) {
+    if (
+      !loading &&
+      !readUserIds.includes(currentUser._id) &&
+      currentConversationId
+    ) {
       markAsReadMutation({
         variables: { _id: currentConversation._id }
       })
@@ -111,6 +114,7 @@ class ConversationDetail extends Component {
       currentConversationId,
       currentConversation,
       changeStatus,
+      loading,
       refetch: conversationDetailQuery.refetch
     };
 
@@ -154,17 +158,9 @@ ConversationDetail.contextTypes = {
 const LastConversation = props => {
   const { lastConversationQuery } = props;
 
-  if (lastConversationQuery.loading) {
-    return <Spinner />;
-  }
+  const lastConversation = lastConversationQuery.conversationsGetLast || {};
 
-  const lastConversation = lastConversationQuery.conversationsGetLast;
-
-  if (!lastConversation) {
-    return null;
-  }
-
-  const currentConversationId = lastConversation._id;
+  const currentConversationId = lastConversation._id || '';
 
   const updatedProps = {
     ...props,

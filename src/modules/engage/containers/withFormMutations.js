@@ -2,7 +2,6 @@ import React from 'react';
 import { withRouter } from 'react-router';
 import PropTypes from 'prop-types';
 import { compose, gql, graphql } from 'react-apollo';
-import { Spinner } from 'modules/common/components';
 import { Alert } from 'modules/common/utils';
 import { queries, mutations } from '../graphql';
 
@@ -18,12 +17,8 @@ const withSaveAndEdit = Component => {
       editMutation
     } = props;
 
-    if (usersQuery.loading || engageMessageDetailQuery.loading) {
-      return <Spinner />;
-    }
-
-    const message = engageMessageDetailQuery.engageMessageDetail;
-    const users = usersQuery.users;
+    const message = engageMessageDetailQuery.engageMessageDetail || {};
+    const users = usersQuery.users || [];
 
     const doMutation = (mutation, variables) => {
       mutation({

@@ -6,7 +6,7 @@ import Rotate from '../utils/animateRotate';
 
 const SpinnerElement = styled.div`
   position: relative;
-  margin: 20px auto;
+  margin: 40px auto;
   width: 25px;
   height: 25px;
   animation: ${Rotate} 0.75s linear infinite;
@@ -15,8 +15,7 @@ const SpinnerElement = styled.div`
   border-right-color: ${rgba(colors.colorBlack, 0.2)};
   border-bottom-color: ${rgba(colors.colorBlack, 0.2)};
   border-radius: 100%;
-  top: 50%;
-  margin-top: -12px;
+  top: 40%;
 `;
 
 function Spinner() {

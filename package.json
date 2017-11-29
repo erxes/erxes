@@ -13,11 +13,9 @@
     "draft-js": "^0.10.4",
     "draft-js-export-html": "^1.2.0",
     "draft-js-plugins-editor": "^2.0.3",
-    "husky": "^0.14.3",
     "ionicons": "2.0.1",
     "lint-staged": "^4.3.0",
     "moment": "2.18.0",
-    "prettier": "^1.7.4",
     "query-string": "^5.0.0",
     "react": "^16.0.0",
     "react-apollo": "^1.4.15",
@@ -61,6 +59,8 @@
     "@storybook/addon-actions": "^3.2.12",
     "@storybook/addon-knobs": "^3.2.12",
     "@storybook/addon-links": "^3.2.12",
-    "@storybook/react": "^3.2.12"
+    "@storybook/react": "^3.2.12",
+    "husky": "^0.14.3",
+    "prettier": "^1.8.2"
   }
 }
