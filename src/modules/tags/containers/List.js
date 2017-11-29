@@ -7,10 +7,6 @@ import { List } from '../components';
 const ListContainer = props => {
   const { tagsQuery, addMutation, editMutation, removeMutation, type } = props;
 
-  if (tagsQuery.loading) {
-    return null;
-  }
-
   const remove = tag => {
     confirm().then(() => {
       removeMutation({ variables: { ids: [tag._id] } })
@@ -45,7 +41,7 @@ const ListContainer = props => {
 
   const updatedProps = {
     ...props,
-    tags: tagsQuery.tags,
+    tags: tagsQuery.tags || [],
     type,
     remove,
     save

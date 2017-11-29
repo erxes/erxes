@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { compose, gql, graphql } from 'react-apollo';
-import { Bulk, Spinner } from 'modules/common/components';
+import { Bulk } from 'modules/common/components';
 import { Alert } from 'modules/common/utils';
 import { KIND_CHOICES } from 'modules/settings/integrations/constants';
 import { TAG_TYPES } from 'modules/tags/constants';
@@ -18,10 +18,6 @@ class CustomerListContainer extends Bulk {
       customersListConfigQuery,
       customersAdd
     } = this.props;
-
-    if (customerCountsQuery.loading) {
-      return <Spinner />;
-    }
 
     let columnsConfig = customersListConfigQuery.fieldsDefaultColumnsConfig;
 
@@ -52,7 +48,13 @@ class CustomerListContainer extends Bulk {
       columnsConfig,
 
       customers: customersQuery.customers || [],
-      counts: customerCountsQuery.customerCounts,
+      counts: customerCountsQuery.customerCounts || {
+        all: 0,
+        byBrand: {},
+        byIntegrationType: {},
+        bySegment: {},
+        byTag: {}
+      },
       brands: brandsQuery.brands || [],
       integrations: KIND_CHOICES.ALL_LIST,
       tags: tagsQuery.tags || [],

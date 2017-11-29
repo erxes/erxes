@@ -6,12 +6,8 @@ const propTypes = {
   children: PropTypes.node.isRequired
 };
 
-class ControlLabel extends React.Component {
-  render() {
-    const { children } = this.props;
-
-    return <Label>{children}</Label>;
-  }
+function ControlLabel(props) {
+  return <Label>{props.children}</Label>;
 }
 
 ControlLabel.propTypes = propTypes;
