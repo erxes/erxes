@@ -112,7 +112,8 @@ class Inbox extends Component {
       currentConversationId,
       currentConversation,
       onChangeConversation,
-      refetch
+      refetch,
+      loading
     } = this.props;
     const tags = currentConversation.tags || [];
     const assignedUser = currentConversation.assignedUser;
@@ -187,6 +188,7 @@ class Inbox extends Component {
           attachmentPreview={this.state.attachmentPreview}
           scrollBottom={this.scrollBottom}
         />
+        {loading && <Spinner />}
       </ConversationWrapper>
     );
 
@@ -225,7 +227,8 @@ Inbox.propTypes = {
   onChangeConversation: PropTypes.func,
   changeStatus: PropTypes.func,
   currentConversationId: PropTypes.string,
-  currentConversation: PropTypes.object
+  currentConversation: PropTypes.object,
+  loading: PropTypes.bool
 };
 
 export default Inbox;

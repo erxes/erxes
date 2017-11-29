@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { compose, gql, graphql } from 'react-apollo';
 import { TAG_TYPES } from 'modules/tags/constants';
-import { Bulk, Spinner } from 'modules/common/components';
+import { Bulk } from 'modules/common/components';
 import { MessageList } from '../components';
 import { queries } from '../graphql';
 
@@ -15,14 +15,10 @@ class MessageListContainer extends Bulk {
       engageMessagesTotalCountQuery
     } = this.props;
 
-    if (engageMessagesQuery.loading || engageMessagesTotalCountQuery.loading) {
-      return <Spinner />;
-    }
-
     const updatedProps = {
       kind: queryParams.kind,
       messages: engageMessagesQuery.engageMessages || [],
-      totalCount: engageMessagesTotalCountQuery.engageMessagesTotalCount,
+      totalCount: engageMessagesTotalCountQuery.engageMessagesTotalCount || 0,
       tags: tagsQuery.tags || [],
       bulk: this.state.bulk,
       toggleBulk: this.toggleBulk,
