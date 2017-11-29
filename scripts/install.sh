@@ -29,8 +29,8 @@ echo 'Create `.env.sample` from default settings file and configure it on your o
 cp .env.sample .env
 
 CURRENT_FOLDER=${PWD##*/}
-if ['$CURRENT_FOLDER' = 'erxes-app-api']; then
+if [ '$CURRENT_FOLDER' = 'erxes-app-api' ]; then
   cd ..
 fi
 
-curl https://raw.githubusercontent.com/erxes/erxes-widgets/feature-company/install.sh | sh
+curl https://raw.githubusercontent.com/erxes/erxes-widgets/feature-company/scripts/install.sh | sh
