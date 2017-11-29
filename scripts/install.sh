@@ -20,7 +20,7 @@ if [ ! -d .git ]; then
 fi
 
 echo 'Create `.env.sample` from default settings file and configure it on your own:'
-cp .env.sample .env
+cp .env.sample .env.developement
 
 CURRENT_FOLDER=${PWD##*/}
 if [ $CURRENT_FOLDER = 'erxes' ]; then
@@ -29,4 +29,4 @@ fi
 
 echo 'Install erxes-app-api'
 
-curl https://raw.githubusercontent.com/erxes/erxes-app-api/feature-graphql-mutations-mu/install.sh | sh
+curl https://raw.githubusercontent.com/erxes/erxes-app-api/feature-graphql-mutations-mu/scripts/install.sh | sh
