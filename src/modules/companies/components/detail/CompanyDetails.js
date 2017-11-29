@@ -1,20 +1,17 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Wrapper } from 'modules/layout/components';
-import { Icon } from 'modules/common/components';
-import {
-  List as InternalNotes,
-  Form as NoteForm
-} from 'modules/internalNotes/containers';
 import { WhiteBox } from 'modules/layout/styles';
-import LeftSidebar from './LeftSidebar';
 import {
   ConversationList,
   EmptyState,
   Tabs,
-  TabTitle
+  TabTitle,
+  Icon
 } from 'modules/common/components';
-import ActivityList from 'modules/activityLogs/components/ActivityList';
+import { Form as NoteForm } from 'modules/internalNotes/containers';
+import { ActivityList, InternalNotes } from 'modules/activityLogs/components';
+import LeftSidebar from './LeftSidebar';
 
 const propTypes = {
   company: PropTypes.object.isRequired,
@@ -40,7 +37,7 @@ class CompanyDetails extends React.Component {
 
   renderTabContent() {
     const { currentTab } = this.state;
-    const { currentUser, company, companyActivityLog } = this.props;
+    const { currentUser, companyActivityLog } = this.props;
 
     if (currentTab === 'activity') {
       return (
@@ -49,13 +46,7 @@ class CompanyDetails extends React.Component {
     }
 
     if (currentTab === 'notes') {
-      return (
-        <InternalNotes
-          contentType="company"
-          contentTypeId={company._id}
-          currentUserId={currentUser._id}
-        />
-      );
+      return <InternalNotes activityLog={companyActivityLog} />;
     }
 
     if (currentTab === 'conversations') {

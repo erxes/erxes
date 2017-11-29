@@ -28,6 +28,7 @@ const propTypes = {
   integrations: PropTypes.array.isRequired,
   tags: PropTypes.array.isRequired,
   bulk: PropTypes.array.isRequired,
+  emptyBulk: PropTypes.func.isRequired,
   toggleBulk: PropTypes.func.isRequired,
   addCustomer: PropTypes.func.isRequired,
   history: PropTypes.object
@@ -64,7 +65,7 @@ class CustomersList extends React.Component {
   }
 
   render() {
-    const { counts, bulk, addCustomer, tags } = this.props;
+    const { counts, bulk, addCustomer, tags, emptyBulk } = this.props;
 
     const addTrigger = (
       <Button btnStyle="success" size="small">
@@ -109,7 +110,12 @@ class CustomersList extends React.Component {
       actionBarLeft = (
         <BarItems>
           <Widget customers={bulk} />
-          <TaggerPopover type="customer" targets={bulk} trigger={tagButton} />
+          <TaggerPopover
+            type="customer"
+            afterSave={emptyBulk}
+            targets={bulk}
+            trigger={tagButton}
+          />
         </BarItems>
       );
     }

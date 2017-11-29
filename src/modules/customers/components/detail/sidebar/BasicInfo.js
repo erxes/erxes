@@ -28,17 +28,8 @@ class BasicInfo extends React.Component {
   constructor(props) {
     super(props);
 
-    const { customer } = this.props;
-    this.defaultBasicinfos = {
-      firstName: customer.firstName,
-      lastName: customer.lastName,
-      email: customer.email,
-      phone: customer.phone
-    };
-
     this.state = {
-      editing: false,
-      ...this.defaultBasicinfos
+      editing: false
     };
 
     this.toggleEditing = this.toggleEditing.bind(this);
@@ -53,18 +44,25 @@ class BasicInfo extends React.Component {
   }
 
   cancelEditing() {
+    const { customer } = this.props;
+
     this.setState({
       editing: false,
-      ...this.defaultBasicinfos
+      firstName: customer.firstName,
+      lastName: customer.lastName,
+      email: customer.email,
+      phone: customer.phone
     });
   }
 
   save() {
+    const { customer } = this.props;
+
     const doc = {
-      firstName: this.state.firstName,
-      lastName: this.state.lastName,
-      email: this.state.email,
-      phone: this.state.phone
+      firstName: this.state.firstName || customer.firstName,
+      lastName: this.state.lastName || customer.lastName,
+      email: this.state.email || customer.email,
+      phone: this.state.phone || customer.phone
     };
 
     this.props.save(doc, error => {
@@ -81,34 +79,36 @@ class BasicInfo extends React.Component {
   }
 
   renderForm() {
+    const { customer } = this.props;
+
     return (
       <SidebarContent>
         <br />
         <FormGroup>
           First name:
           <FormControl
-            defaultValue={this.state.firstName}
+            defaultValue={customer.firstName}
             onChange={e => this.handleChange(e, 'firstName')}
           />
         </FormGroup>
         <FormGroup>
           Last name:
           <FormControl
-            defaultValue={this.state.lastName}
+            defaultValue={customer.lastName}
             onChange={e => this.handleChange(e, 'lastName')}
           />
         </FormGroup>
         <FormGroup>
           Primary Email:
           <FormControl
-            defaultValue={this.state.email}
+            defaultValue={customer.email}
             onChange={e => this.handleChange(e, 'email')}
           />
         </FormGroup>
         <FormGroup>
           Phone:
           <FormControl
-            defaultValue={this.state.phone}
+            defaultValue={customer.phone}
             onChange={e => this.handleChange(e, 'phone')}
           />
         </FormGroup>
@@ -124,9 +124,9 @@ class BasicInfo extends React.Component {
     );
   }
 
-  renderName() {
-    if (this.state.firstName || this.state.lastName) {
-      return (this.state.firstName || '') + ' ' + (this.state.lastName || '');
+  renderName(customer) {
+    if (customer.firstName || customer.lastName) {
+      return (customer.firstName || '') + ' ' + (customer.lastName || '');
     }
     return <a onClick={this.toggleEditing}>Edit name</a>;
   }
@@ -134,6 +134,7 @@ class BasicInfo extends React.Component {
   renderInfo() {
     const { customer } = this.props;
     const isUser = customer.isUser;
+
     return (
       <SidebarContent>
         <NameWrapper>
@@ -141,7 +142,7 @@ class BasicInfo extends React.Component {
             <NameCard.Avatar customer={customer} size={50} />
             {isUser ? <Icon icon="checkmark" /> : <Icon icon="minus" />}
           </AvatarWrapper>
-          <div className="cutomer-name">{this.renderName()}</div>
+          <div className="cutomer-name">{this.renderName(customer)}</div>
           <QuickButton>
             <Icon icon="edit" onClick={this.toggleEditing} />
           </QuickButton>
@@ -151,7 +152,7 @@ class BasicInfo extends React.Component {
             <li>
               Email:
               <Aboutvalues>
-                {this.state.email || (
+                {customer.email || (
                   <a onClick={this.toggleEditing}>Add Email</a>
                 )}
               </Aboutvalues>
@@ -159,7 +160,7 @@ class BasicInfo extends React.Component {
             <li>
               Phone:
               <Aboutvalues>
-                {this.state.phone || (
+                {customer.phone || (
                   <a onClick={this.toggleEditing}>Add Phone</a>
                 )}
               </Aboutvalues>
