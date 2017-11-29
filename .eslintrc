@@ -6,8 +6,7 @@
   "env": {
     "browser": true,
     "node": true,
-    "es6": true,
-    "meteor": true
+    "es6": true
   },
   "parserOptions": {
     "ecmaVersion": 2017,
@@ -22,6 +21,7 @@
     "react"
   ],
   "rules": {
-    "max-len": ["error", 100]
+    "max-len": ["error", 100],
+    "no-console":0
   }
 }
