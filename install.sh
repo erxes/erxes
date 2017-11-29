@@ -6,9 +6,9 @@ if [ ! -d .git ]; then
   echo 'Clone erxes repository and install its dependencies:'
   git clone https://github.com/erxes/erxes-app-api
   cd erxes-app-api
+  git checkout feature-graphql-mutations
   yarn install
 fi
-
 
 if [ "$UNAME" = "Linux" ] ; then
   ### Linux ###
