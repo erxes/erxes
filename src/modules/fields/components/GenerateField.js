@@ -17,20 +17,18 @@ export default class GenerateField extends Component {
     this.onChange = this.onChange.bind(this);
 
     this.state = {
-      value: defaultValue,
+      value: defaultValue || '',
       checkBoxValues: defaultValue ? [...defaultValue] : []
     };
   }
 
-  componentDidUpdate(prevProps) {
-    const { defaultValue } = this.props; // eslint-disable-line
+  componentWillReceiveProps(nextProps) {
+    const defaultValue = nextProps.defaultValue || ''; // eslint-disable-line
 
-    if (prevProps.defaultValue !== defaultValue) {
-      this.setState({
-        value: defaultValue,
-        checkBoxValues: defaultValue ? [...defaultValue] : []
-      });
-    }
+    this.setState({
+      value: defaultValue || '',
+      checkBoxValues: defaultValue ? [...defaultValue] : []
+    });
   }
 
   renderSelect(options = [], attrs = {}) {

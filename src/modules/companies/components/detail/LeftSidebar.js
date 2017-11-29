@@ -93,19 +93,17 @@ class LeftSidebar extends React.Component {
     this.setState({ customFieldsData: newfields });
   }
 
-  componentDidUpdate(prevProps) {
-    const { company } = this.props;
+  componentWillReceiveProps(nextProps) {
+    const company = nextProps.company || {};
 
-    if (prevProps.company !== company) {
-      this.setState({
-        name: company.name || '',
-        size: company.size || '',
-        website: company.website || '',
-        industry: company.industry || '',
-        plan: company.plan || '',
-        customFieldsData: company.customFieldsData || []
-      });
-    }
+    this.setState({
+      name: company.name || '',
+      size: company.size || '',
+      website: company.website || '',
+      industry: company.industry || '',
+      plan: company.plan || '',
+      customFieldsData: company.customFieldsData || []
+    });
   }
 
   renderBasicInfo() {
