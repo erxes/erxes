@@ -309,6 +309,11 @@ injectGlobal`
     padding-right: 20px;
   }
 
+  .Select--single > .Select-control .Select-value {
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+
   .Select--multi .Select-value-icon {
     display: inline-block;
     vertical-align: middle;
@@ -405,6 +410,10 @@ injectGlobal`
 
   .react-toggle-track {
     background-color: #393C40;
+  }
+
+  .react-toggle-track span {
+    display: none;
   }
 
   .react-toggle--checked .react-toggle-thumb,
