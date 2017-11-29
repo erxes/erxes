@@ -26,8 +26,8 @@ echo "This configuration matches with the default configurations of other erxes 
 echo 'Widgets server is running on [http://localhost:3200](http://localhost:3200).'
 
 CURRENT_FOLDER=${PWD##*/}
-if ["$CURRENT_FOLDER" = "erxes-widgets"]; then
+if [ $CURRENT_FOLDER = 'erxes-widgets' ]; then
   cd ..
 fi
 
-curl https://raw.githubusercontent.com/erxes/erxes-api/feature-company/install.sh | sh
+curl https://raw.githubusercontent.com/erxes/erxes-api/feature-company/scripts/install.sh | sh
