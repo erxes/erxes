@@ -15,7 +15,7 @@ The project is maintained by erxes Inc, along with an amazing group of independe
 ## Installation
 
 ```Shell
-  curl https://github.com/erxes/erxes/blob/redesign-ui/install.sh | sh
+  curl https://raw.githubusercontent.com/erxes/erxes/redesign-ui/scripts/install.sh | sh
 ```
 
 ## Custom installation
@@ -40,7 +40,7 @@ yarn install
 
 Create `.env.sample` from default settings file and configure it on your own:
 ```Shell
-cp .env.sample .env
+cp .env.sample .env.developement
 ```
 
 To start the app:
