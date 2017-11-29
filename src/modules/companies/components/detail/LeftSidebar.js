@@ -29,7 +29,7 @@ class LeftSidebar extends React.Component {
 
     this.state = {
       editing: false,
-      customData: this.props.company.customFieldsData || {}
+      customFieldsData: this.props.company.customFieldsData || {}
     };
 
     this.toggleEditing = this.toggleEditing.bind(this);
@@ -67,14 +67,12 @@ class LeftSidebar extends React.Component {
       website: this.state.website || company.website,
       industry: this.state.industry || company.industry,
       plan: this.state.plan || company.plan,
-      customFieldsData: this.state.customData || company.customFieldsData
+      customFieldsData: this.state.customFieldsData || company.customFieldsData
     };
 
     this.props.save(doc, error => {
       if (error) return Alert.error(error.message);
 
-      this.defaultBasicinfos = this.state.basicinfo;
-      this.defaultCustomFieldsData = this.state.customData;
       this.cancelEditing();
       return Alert.success('Success');
     });
@@ -87,12 +85,12 @@ class LeftSidebar extends React.Component {
 
   handleFieldsChange({ _id, value }) {
     this.toggleEditing();
-    const { customData } = this.state;
+    const { customFieldsData } = this.state;
     const newfields = {
-      ...customData,
+      ...customFieldsData,
       [_id]: value
     };
-    this.setState({ customData: newfields });
+    this.setState({ customFieldsData: newfields });
   }
 
   componentDidUpdate(prevProps) {
