@@ -65,10 +65,39 @@ const customerDetail = `
       conversations {
         _id
         content
+        createdAt
+        assignedUser {
+          _id
+          details {
+            avatar
+          }
+        }
+        integration {
+          _id
+          kind
+          brandId,
+          brand {
+            _id
+            name
+          }
+          channels {
+            _id
+            name
+          }
+        }
+        customer {
+          _id
+          firstName
+          lastName
+          email
+          phone
+        }
         tags {
           _id
           name
+          colorCode
         }
+        readUserIds
       }
     }
   }

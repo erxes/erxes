@@ -1,19 +1,20 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Wrapper } from 'modules/layout/components';
-import {
-  List as InternalNotes,
-  Form as NoteForm
-} from 'modules/internalNotes/containers';
-import { EditInformation } from 'modules/customers/containers';
-import { Tabs, TabTitle } from 'modules/common/components';
 import { WhiteBox } from 'modules/layout/styles';
-import { ConversationList, EmptyState, Icon } from 'modules/common/components';
-import ActivityList from 'modules/activityLogs/components/ActivityList';
+import {
+  ConversationList,
+  EmptyState,
+  Icon,
+  Tabs,
+  TabTitle
+} from 'modules/common/components';
+import { Form as NoteForm } from 'modules/internalNotes/containers';
+import { EditInformation } from 'modules/customers/containers';
+import { ActivityList, InternalNotes } from 'modules/activityLogs/components';
 
 const propTypes = {
   customer: PropTypes.object.isRequired,
-  refetch: PropTypes.func.isRequired,
   currentUser: PropTypes.object.isRequired,
   queryParams: PropTypes.object.isRequired,
   activityLogsCustomer: PropTypes.array.isRequired
@@ -34,7 +35,7 @@ class CustomerDetails extends React.Component {
 
   renderTabContent() {
     const { currentTab } = this.state;
-    const { currentUser, customer, activityLogsCustomer } = this.props;
+    const { currentUser, activityLogsCustomer } = this.props;
 
     if (currentTab === 'activity') {
       return (
@@ -43,13 +44,7 @@ class CustomerDetails extends React.Component {
     }
 
     if (currentTab === 'notes') {
-      return (
-        <InternalNotes
-          contentType="customer"
-          contentTypeId={customer._id}
-          currentUserId={currentUser._id}
-        />
-      );
+      return <InternalNotes activityLog={activityLogsCustomer} />;
     }
 
     if (currentTab === 'conversations') {
@@ -125,9 +120,7 @@ class CustomerDetails extends React.Component {
     return (
       <Wrapper
         header={<Wrapper.Header breadcrumb={breadcrumb} />}
-        leftSidebar={
-          <EditInformation customer={customer} refetch={this.props.refetch} />
-        }
+        leftSidebar={<EditInformation customer={customer} />}
         content={content}
         transparent={true}
       />

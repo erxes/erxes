@@ -2,7 +2,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { compose, gql, graphql } from 'react-apollo';
 import { Alert } from 'modules/common/utils';
-import { Spinner } from 'modules/common/components';
 import { queries, mutations } from '../graphql';
 import { CompanyDetails } from '../components';
 
@@ -15,14 +14,6 @@ const CompanyDetailsContainer = (props, context) => {
     fieldsQuery,
     companiesAddCustomer
   } = props;
-
-  if (
-    companyDetailQuery.loading ||
-    fieldsQuery.loading ||
-    companyActivityLogQuery.loading
-  ) {
-    return <Spinner />;
-  }
 
   const save = (variables, callback) => {
     companiesEdit({ variables: { _id: id, ...variables } })
@@ -48,15 +39,15 @@ const CompanyDetailsContainer = (props, context) => {
 
   const updatedProps = {
     ...props,
-    company: {
-      ...companyDetailQuery.companyDetail,
-      refetch: companyDetailQuery.refetch
+    company: companyDetailQuery.companyDetail || {
+      customers: [],
+      customFieldsData: {}
     },
-    companyActivityLog: companyActivityLogQuery.activityLogsCompany,
+    companyActivityLog: companyActivityLogQuery.activityLogsCompany || [],
     save,
     addCustomer,
     currentUser: context.currentUser,
-    customFields: fieldsQuery.fields
+    customFields: fieldsQuery.fields || []
   };
 
   return <CompanyDetails {...updatedProps} />;
