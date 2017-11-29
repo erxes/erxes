@@ -28,4 +28,5 @@ if [ $CURRENT_FOLDER = 'erxes' ]; then
 fi
 
 echo 'Install erxes-app-api'
-curl https://github.com/erxes/erxes-app-api/blob/feature-graphql-mutations-mu/install.sh | sh
+
+curl https://raw.githubusercontent.com/erxes/erxes-app-api/feature-graphql-mutations-mu/install.sh | sh

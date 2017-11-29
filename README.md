@@ -15,7 +15,7 @@ The project is maintained by erxes Inc, along with an amazing group of independe
 ## Installation
 
 ```Shell
-  curl https://github.com/erxes/erxes/blob/redesign-ui/install.sh | sh
+  curl https://raw.githubusercontent.com/erxes/erxes/blob/redesign-ui/install.sh | sh
 ```
 
 ## Custom installation
