@@ -14,31 +14,38 @@ The project is maintained by erxes Inc, along with an amazing group of independe
 
 ## Installation
 
+```Shell
+  curl https://raw.githubusercontent.com/erxes/erxes/redesign-ui/scripts/install.sh | sh
+```
+
+## Custom installation
 This repository is the main web app of the erxes platform that consists of 2 other repositories:
 
 - [API](https://github.com/erxes/erxes-api)
 - [Widgets](https://github.com/erxes/erxes-widgets)
 
-If you haven't installed **Meteor** yet on your machine:
+If you haven't installed **Node** yet [install nodejs](https://github.com/nodejs/node/wiki/Installation)
+
+If you haven't installed **Yarn** yet on your machine:
 ```Shell
-curl https://install.meteor.com/ | sh
+curl -o- -L https://yarnpkg.com/install.sh | sh
 ```
 
 Clone erxes repository and install its dependencies:
 ```Shell
 git clone https://github.com/erxes/erxes.git
 cd erxes
-meteor npm install
+yarn install
 ```
 
-Create `settings.json` from default settings file and configure it on your own:
+Create `.env.sample` from default settings file and configure it on your own:
 ```Shell
-cp settings-example.json settings.json
+cp .env.sample .env.developement
 ```
 
 To start the app:
 ```Shell
-npm start
+yarn start
 ```
 
 App is running at [http://localhost:3000](http://localhost:3000). You can **login** using the credential in the `settings.json`.

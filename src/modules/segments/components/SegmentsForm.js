@@ -10,12 +10,7 @@ import {
   FormControl
 } from 'modules/common/components';
 import { Wrapper } from 'modules/layout/components';
-import {
-  FlexContent,
-  FlexItem,
-  FlexRightItem,
-  ContentSpace
-} from 'modules/layout/styles';
+import { FlexContent, FlexItem, ContentSpace } from 'modules/layout/styles';
 import Conditions from './Conditions';
 import AddConditionButton from './AddConditionButton';
 import {
@@ -250,21 +245,6 @@ class SegmentsForm extends Component {
               {this.renderConditions()}
               <ContentSpace />
               {this.renderForm()}
-
-              <FlexContent>
-                <FlexRightItem>
-                  <Button.Group>
-                    <Link to={`/segments/${contentType}`}>
-                      <Button btnStyle="simple">
-                        <Icon icon="close" /> Cancel
-                      </Button>
-                    </Link>
-                    <Button btnStyle="success" onClick={this.save}>
-                      <Icon icon="checkmark" /> Save
-                    </Button>
-                  </Button.Group>
-                </FlexRightItem>
-              </FlexContent>
             </SegmentContainer>
           </FlexItem>
 
@@ -278,10 +258,28 @@ class SegmentsForm extends Component {
       </SegmentWrapper>
     );
 
+    const actionFooter = (
+      <Wrapper.ActionBar
+        right={
+          <Button.Group>
+            <Link to={`/segments/${contentType}`}>
+              <Button size="small" btnStyle="simple">
+                <Icon icon="close" /> Cancel
+              </Button>
+            </Link>
+            <Button size="small" btnStyle="success" onClick={this.save}>
+              <Icon icon="checkmark" /> Save
+            </Button>
+          </Button.Group>
+        }
+      />
+    );
+
     return (
       <Wrapper
         header={<Wrapper.Header breadcrumb={breadcrumb} />}
         content={content}
+        footer={actionFooter}
       />
     );
   }

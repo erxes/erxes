@@ -1,7 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { compose, gql, graphql } from 'react-apollo';
-import { Loader } from 'modules/common/components';
 import { queries, mutations } from '../graphql';
 import { Alert } from 'modules/common/utils';
 import { NotificationList } from '../components';
@@ -13,10 +12,6 @@ class NotificationListContainer extends React.Component {
       notificationCountQuery,
       notificationsMarkAsReadMutation
     } = this.props;
-
-    if (notificationsQuery.loading || notificationCountQuery.loading) {
-      return <Loader />;
-    }
 
     const markAsRead = _ids => {
       notificationsMarkAsReadMutation({ variables: { _ids } })
@@ -33,8 +28,8 @@ class NotificationListContainer extends React.Component {
       ...this.props,
 
       markAsRead,
-      notifications: notificationsQuery.notifications,
-      count: notificationCountQuery.notificationCounts
+      notifications: notificationsQuery.notifications || [],
+      count: notificationCountQuery.notificationCounts || 0
     };
 
     return <NotificationList {...updatedProps} />;
