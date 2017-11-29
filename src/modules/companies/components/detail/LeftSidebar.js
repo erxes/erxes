@@ -95,10 +95,24 @@ class LeftSidebar extends React.Component {
     this.setState({ customData: newfields });
   }
 
+  componentDidUpdate(prevProps) {
+    const { company } = this.props;
+
+    if (prevProps.company !== company) {
+      this.setState({
+        name: company.name || '',
+        size: company.size || '',
+        website: company.website || '',
+        industry: company.industry || '',
+        plan: company.plan || '',
+        customFieldsData: company.customFieldsData || []
+      });
+    }
+  }
+
   renderBasicInfo() {
     const { Section } = Sidebar;
     const { Title } = Section;
-    const { company } = this.props;
 
     return (
       <Section>
@@ -109,7 +123,7 @@ class LeftSidebar extends React.Component {
             <ControlLabel>Name</ControlLabel>
             <FormControl
               onChange={e => this.handleChange(e, 'name')}
-              value={this.state.name || company.name}
+              value={this.state.name || ''}
             />
           </FormGroup>
 
@@ -118,7 +132,7 @@ class LeftSidebar extends React.Component {
             <FormControl
               id="size"
               onChange={e => this.handleChange(e, 'size')}
-              value={this.state.size || company.size}
+              value={this.state.size || ''}
             />
           </FormGroup>
 
@@ -126,25 +140,23 @@ class LeftSidebar extends React.Component {
             <ControlLabel>Industry</ControlLabel>
             <FormControl
               onChange={e => this.handleChange(e, 'industry')}
-              value={this.state.industry || company.industry}
+              value={this.state.industry || ''}
             />
           </FormGroup>
 
           <FormGroup>
             <ControlLabel>Website</ControlLabel>
             <FormControl
-              id="website"
               onChange={e => this.handleChange(e, 'website')}
-              value={this.state.website || company.website}
+              value={this.state.website || ''}
             />
           </FormGroup>
 
           <FormGroup>
             <ControlLabel>Plan</ControlLabel>
             <FormControl
-              id="plan"
               onChange={e => this.handleChange(e, 'plan')}
-              value={this.state.plan || company.plan}
+              value={this.state.plan || ''}
             />
           </FormGroup>
         </SidebarContent>
