@@ -65,7 +65,6 @@ class LeftSidebar extends React.Component {
     this.props.save(doc, error => {
       if (error) return Alert.error(error.message);
 
-      this.defaultCustomFieldsData = this.state.customData;
       this.cancelEditing();
       return Alert.success('Success');
     });

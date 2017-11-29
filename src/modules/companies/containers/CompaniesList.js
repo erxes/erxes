@@ -15,7 +15,7 @@ class CompanyListContainer extends React.Component {
     } = this.props;
 
     let columnsConfig =
-      companiesListConfigQuery.fieldsDefaultColumnsConfig || {};
+      companiesListConfigQuery.fieldsDefaultColumnsConfig || [];
 
     // load config from local storage
     const localConfig = localStorage.getItem('erxes_company_columns_config');
