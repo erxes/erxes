@@ -56,13 +56,13 @@ const LogoContainer = styled.div`
 `;
 
 const WidgetPreviewStyled = styled.div`
-  max-height: 430px;
-  width: 280px;
+  font-family: 'Roboto', sans-serif;
+  max-height: 460px;
+  width: 340px;
   border-radius: 4px;
   background: ${colors.colorWhite};
   color: ${colors.colorWhite};
   display: flex;
-  font-size: ${typography.fontSizeHeading8}px;
   flex-direction: column;
   overflow: hidden;
   box-shadow: 0 2px 15px 0 ${rgba(colors.colorBlack, 0.14)},
