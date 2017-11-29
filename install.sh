@@ -6,7 +6,7 @@ if [ ! -d .git ]; then
   echo 'Clone erxes repository and install its dependencies:'
   git clone https://github.com/erxes/erxes-app-api
   cd erxes-app-api
-  git checkout feature-graphql-mutations
+  git checkout feature-graphql-mutations-mu
   yarn install
 fi
 
@@ -20,7 +20,7 @@ if [ "$UNAME" = "Darwin" ] ; then
 fi
 
 echo 'Load initial data';
-yarn loadInitData
+yarn loadInitialData
 
 echo 'Run redis server';
 redis-server &
