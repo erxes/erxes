@@ -15,6 +15,7 @@ if [ ! -d .git ]; then
   echo 'Clone erxes repository and install its dependencies:'
   git clone https://github.com/erxes/erxes.git
   cd erxes
+  git checkout redesign-ui
   yarn install
 fi
 
