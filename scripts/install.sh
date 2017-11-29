@@ -22,14 +22,12 @@ fi
 echo 'Load initial data';
 yarn loadInitialData
 
-echo 'Run redis server';
-redis-server &
 
 echo 'Create `.env.sample` from default settings file and configure it on your own:'
 cp .env.sample .env
 
 CURRENT_FOLDER=${PWD##*/}
-if [ '$CURRENT_FOLDER' = 'erxes-app-api' ]; then
+if [ $CURRENT_FOLDER = 'erxes-app-api' ]; then
   cd ..
 fi
 
