@@ -51,6 +51,7 @@ export default class GenerateField extends Component {
 
     attrs.onChange = e => {
       this.onChange(e, attrs.option);
+      this.setState({ value: e.target.value });
     };
 
     if (type === 'radio') {
