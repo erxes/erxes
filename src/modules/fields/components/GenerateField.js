@@ -23,12 +23,15 @@ export default class GenerateField extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    const defaultValue = nextProps.defaultValue || ''; // eslint-disable-line
+    if (nextProps.defaultValue !== this.props.defaultValue) {
+      // eslint-disable-line
+      const defaultValue = nextProps.defaultValue || ''; // eslint-disable-line
 
-    this.setState({
-      value: defaultValue || '',
-      checkBoxValues: defaultValue ? [...defaultValue] : []
-    });
+      this.setState({
+        value: defaultValue,
+        checkBoxValues: defaultValue ? [...defaultValue] : []
+      });
+    }
   }
 
   renderSelect(options = [], attrs = {}) {
@@ -50,8 +53,8 @@ export default class GenerateField extends Component {
     attrs.type = 'text';
 
     attrs.onChange = e => {
-      this.onChange(e, attrs.option);
       this.setState({ value: e.target.value });
+      this.onChange(e, attrs.option);
     };
 
     if (type === 'radio') {
