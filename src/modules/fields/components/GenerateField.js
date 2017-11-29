@@ -22,6 +22,17 @@ export default class GenerateField extends Component {
     };
   }
 
+  componentDidUpdate(prevProps) {
+    const { defaultValue } = this.props; // eslint-disable-line
+
+    if (prevProps.defaultValue !== defaultValue) {
+      this.setState({
+        value: defaultValue,
+        checkBoxValues: defaultValue ? [...defaultValue] : []
+      });
+    }
+  }
+
   renderSelect(options = [], attrs = {}) {
     return (
       <FormControl componentClass="select" {...attrs}>
