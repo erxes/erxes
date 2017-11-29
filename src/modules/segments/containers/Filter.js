@@ -7,13 +7,9 @@ import { queries } from '../graphql';
 const FilterContainer = props => {
   const { segmentsQuery } = props;
 
-  if (segmentsQuery.loading) {
-    return null;
-  }
-
   const updatedProps = {
     ...props,
-    segments: segmentsQuery.segments
+    segments: segmentsQuery.segments || []
   };
 
   return <Filter {...updatedProps} />;

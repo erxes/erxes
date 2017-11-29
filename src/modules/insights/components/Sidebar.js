@@ -9,7 +9,7 @@ function Sidebar() {
 
   return (
     <Sidebar>
-      <Sidebar.Section noShadow>
+      <Sidebar.Section>
         <Title>Insights</Title>
         <SidebarList>
           <li>

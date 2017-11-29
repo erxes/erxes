@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import moment from 'moment';
 import { Sidebar } from 'modules/layout/components';
-import { ConversationList, LoadMore } from 'modules/common/components';
+import { ConversationList, LoadMore, Spinner } from 'modules/common/components';
 import { FilterPopover, StatusFilterPopover } from '../';
 
 const propTypes = {
@@ -14,7 +14,8 @@ const propTypes = {
   integrations: PropTypes.array.isRequired,
   onChangeConversation: PropTypes.func.isRequired,
   counts: PropTypes.object.isRequired,
-  totalCount: PropTypes.number.isRequired
+  totalCount: PropTypes.number.isRequired,
+  loading: PropTypes.bool
 };
 
 class LeftSidebar extends Component {
@@ -95,7 +96,8 @@ class LeftSidebar extends Component {
       conversations,
       onChangeConversation,
       currentConversationId,
-      totalCount
+      totalCount,
+      loading
     } = this.props;
 
     return (
@@ -105,6 +107,7 @@ class LeftSidebar extends Component {
         header={this.renderSidebarHeader()}
         footer={this.renderSidebarFooter()}
       >
+        {loading && <Spinner />}
         <ConversationList
           conversations={conversations}
           onRowClick={onChangeConversation}

@@ -16,14 +16,12 @@ const propTypes = {
   children: PropTypes.node
 };
 
-class BreadCrumb extends React.Component {
-  render() {
-    return (
-      <Items role="navigation" aria-label="breadcrumbs">
-        {this.props.children}
-      </Items>
-    );
-  }
+function BreadCrumb(props) {
+  return (
+    <Items role="navigation" aria-label="breadcrumbs">
+      {props.children}
+    </Items>
+  );
 }
 
 BreadCrumb.propTypes = propTypes;

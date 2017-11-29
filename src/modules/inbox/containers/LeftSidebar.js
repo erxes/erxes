@@ -58,7 +58,8 @@ class LeftSidebar extends Component {
       brands,
       tags,
       counts,
-      totalCount
+      totalCount,
+      loading: conversationsQuery.loading
     };
 
     return <LeftSidebarComponent {...updatedProps} />;

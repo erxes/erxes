@@ -2,7 +2,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { compose, gql, graphql } from 'react-apollo';
 import { Alert } from 'modules/common/utils';
-import { Spinner } from 'modules/common/components';
 import { mutations, queries } from '../graphql';
 import { CompaniesList } from '../components';
 
@@ -15,15 +14,8 @@ class CompanyListContainer extends React.Component {
       companiesAdd
     } = this.props;
 
-    if (
-      companiesQuery.loading ||
-      companyCountsQuery.loading ||
-      companiesListConfigQuery.loading
-    ) {
-      return <Spinner />;
-    }
-
-    let columnsConfig = companiesListConfigQuery.fieldsDefaultColumnsConfig;
+    let columnsConfig =
+      companiesListConfigQuery.fieldsDefaultColumnsConfig || {};
 
     // load config from local storage
     const localConfig = localStorage.getItem('erxes_company_columns_config');
@@ -51,8 +43,14 @@ class CompanyListContainer extends React.Component {
       ...this.props,
       columnsConfig,
 
-      counts: companyCountsQuery.companyCounts,
-      companies: companiesQuery.companies,
+      counts: companyCountsQuery.companyCounts || {
+        all: 0,
+        byBrand: {},
+        byIntegrationType: {},
+        bySegment: {},
+        byTag: {}
+      },
+      companies: companiesQuery.companies || [],
       addCompany
     };
 

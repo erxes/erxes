@@ -1,7 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { compose, gql, graphql } from 'react-apollo';
-import { Loader } from 'modules/common/components';
 import { Alert } from 'modules/common/utils';
 import { confirm } from 'modules/common/utils';
 import { SegmentsList } from '../components';
@@ -9,10 +8,6 @@ import { queries, mutations } from '../graphql';
 
 const SegmentListContainer = props => {
   const { segmentsQuery, removeMutation } = props;
-
-  if (segmentsQuery.loading) {
-    return <Loader />;
-  }
 
   const removeSegment = _id => {
     confirm().then(() => {
@@ -32,7 +27,7 @@ const SegmentListContainer = props => {
 
   const updatedProps = {
     ...props,
-    segments: segmentsQuery.segments,
+    segments: segmentsQuery.segments || [],
     removeSegment
   };
 

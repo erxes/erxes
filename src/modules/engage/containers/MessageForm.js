@@ -12,7 +12,7 @@ const MessageFormContainer = props => {
   }
 
   const message = engageMessageDetailQuery.engageMessageDetail;
-  const brands = brandsQuery.brands;
+  const brands = brandsQuery.brands || [];
 
   const updatedProps = {
     ...props,

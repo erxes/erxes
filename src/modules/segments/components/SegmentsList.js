@@ -74,15 +74,15 @@ function SegmentsList({ contentType, segments, removeSegment }) {
     </Table>
   );
 
-  const actionBarLeft = (
+  const actionBarRight = (
     <Link to={`/segments/new/${contentType}`}>
-      <Button btnStyle="success">
+      <Button btnStyle="success" size="small">
         <Icon icon="plus" /> New segment
       </Button>
     </Link>
   );
 
-  const actionBar = <Wrapper.ActionBar left={actionBarLeft} />;
+  const actionBar = <Wrapper.ActionBar right={actionBarRight} />;
 
   return (
     <Wrapper
