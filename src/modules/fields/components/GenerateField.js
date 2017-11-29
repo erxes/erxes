@@ -23,8 +23,8 @@ export default class GenerateField extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
+    // eslint-disable-next-line
     if (nextProps.defaultValue !== this.props.defaultValue) {
-      // eslint-disable-line
       const defaultValue = nextProps.defaultValue || ''; // eslint-disable-line
 
       this.setState({
