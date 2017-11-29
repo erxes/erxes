@@ -22,11 +22,10 @@ fi
 echo 'Create `.env.sample` from default settings file and configure it on your own:'
 cp .env.sample .env
 
-
 CURRENT_FOLDER=${PWD##*/}
 if [ $CURRENT_FOLDER = 'erxes' ]; then
   cd ..
 fi
 
 echo 'Install erxes-app-api'
-curl https://github.com/erxes/erxes-app-api/blob/feature-graphql-mutations/install.sh | sh
+curl https://github.com/erxes/erxes-app-api/blob/feature-graphql-mutations-mu/install.sh | sh
