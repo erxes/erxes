@@ -10,13 +10,19 @@ if [ ! -d .git ]; then
   yarn install
 fi
 
-if [ "$UNAME" = "Linux" ] ; then
+UNAME=$(uname)
+
+if [ $UNAME = "Linux" ] ; then
   ### Linux ###
-  sudo apt-get install redis-server
+  if ! type redis-server > /dev/null ; then
+    sudo apt-get install redis-server
+  fi
 fi
-if [ "$UNAME" = "Darwin" ] ; then
+if [ $UNAME = "Darwin" ] ; then
   ### Mac OS ###
-  brew install redis
+  if ! type redis-server > /dev/null ; then
+    brew install redis
+  fi
 fi
 
 echo 'Load initial data';
