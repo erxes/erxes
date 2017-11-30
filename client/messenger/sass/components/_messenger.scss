@@ -54,7 +54,9 @@
       margin-top: 5px;
 
       input {
+        -webkit-appearance: none;
         border: 1px solid $main-color;
+        border-radius:0;
         border-bottom-left-radius: $border-radius;
         border-top-left-radius: $border-radius;
         box-sizing: border-box;
@@ -63,6 +65,7 @@
         height: 34px;
         outline: 0;
         padding: 10px;
+        margin-right: 0;
       }
 
       button {
@@ -74,6 +77,7 @@
         outline: 0;
         width: 31px;
         padding: 4px;
+        margin: 0;
 
         svg {
           margin-top: 3px;
