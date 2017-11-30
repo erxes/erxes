@@ -41,8 +41,8 @@ yarn start
 Widgets server is running on [http://localhost:3200](http://localhost:3200).
 
 
-#### Usage exammple:
-
+#### Usage:
+Script to show the window that communicates with customers
 ```javascript
   window.erxesSettings = {
       messenger: {
