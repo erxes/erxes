@@ -17,7 +17,7 @@ yarn install
 
 Linux
 ```Shell
-sudo apt-get install redis-server
+sudo apt install redis-server
 ```
 
 Mac OS
