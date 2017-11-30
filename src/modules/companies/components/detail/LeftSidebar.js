@@ -73,7 +73,10 @@ class LeftSidebar extends React.Component {
     this.props.save(doc, error => {
       if (error) return Alert.error(error.message);
 
-      this.cancelEditing();
+      this.setState({
+        ...doc,
+        editing: false
+      });
       return Alert.success('Success');
     });
   }
