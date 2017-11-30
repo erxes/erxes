@@ -29,7 +29,7 @@ class LeftSidebar extends React.Component {
 
     this.state = {
       editing: false,
-      customData: this.props.company.customFieldsData || {}
+      customFieldsData: this.props.company.customFieldsData || {}
     };
 
     this.toggleEditing = this.toggleEditing.bind(this);
@@ -67,15 +67,16 @@ class LeftSidebar extends React.Component {
       website: this.state.website || company.website,
       industry: this.state.industry || company.industry,
       plan: this.state.plan || company.plan,
-      customFieldsData: this.state.customData || company.customFieldsData
+      customFieldsData: this.state.customFieldsData || company.customFieldsData
     };
 
     this.props.save(doc, error => {
       if (error) return Alert.error(error.message);
 
-      this.defaultBasicinfos = this.state.basicinfo;
-      this.defaultCustomFieldsData = this.state.customData;
-      this.cancelEditing();
+      this.setState({
+        ...doc,
+        editing: false
+      });
       return Alert.success('Success');
     });
   }
@@ -87,18 +88,30 @@ class LeftSidebar extends React.Component {
 
   handleFieldsChange({ _id, value }) {
     this.toggleEditing();
-    const { customData } = this.state;
+    const { customFieldsData } = this.state;
     const newfields = {
-      ...customData,
+      ...customFieldsData,
       [_id]: value
     };
-    this.setState({ customData: newfields });
+    this.setState({ customFieldsData: newfields });
+  }
+
+  componentWillReceiveProps(nextProps) {
+    const company = nextProps.company || {};
+
+    this.setState({
+      name: company.name || '',
+      size: company.size || '',
+      website: company.website || '',
+      industry: company.industry || '',
+      plan: company.plan || '',
+      customFieldsData: company.customFieldsData || []
+    });
   }
 
   renderBasicInfo() {
     const { Section } = Sidebar;
     const { Title } = Section;
-    const { company } = this.props;
 
     return (
       <Section>
@@ -109,7 +122,7 @@ class LeftSidebar extends React.Component {
             <ControlLabel>Name</ControlLabel>
             <FormControl
               onChange={e => this.handleChange(e, 'name')}
-              value={this.state.name || company.name}
+              value={this.state.name || ''}
             />
           </FormGroup>
 
@@ -118,7 +131,7 @@ class LeftSidebar extends React.Component {
             <FormControl
               id="size"
               onChange={e => this.handleChange(e, 'size')}
-              value={this.state.size || company.size}
+              value={this.state.size || ''}
             />
           </FormGroup>
 
@@ -126,25 +139,23 @@ class LeftSidebar extends React.Component {
             <ControlLabel>Industry</ControlLabel>
             <FormControl
               onChange={e => this.handleChange(e, 'industry')}
-              value={this.state.industry || company.industry}
+              value={this.state.industry || ''}
             />
           </FormGroup>
 
           <FormGroup>
             <ControlLabel>Website</ControlLabel>
             <FormControl
-              id="website"
               onChange={e => this.handleChange(e, 'website')}
-              value={this.state.website || company.website}
+              value={this.state.website || ''}
             />
           </FormGroup>
 
           <FormGroup>
             <ControlLabel>Plan</ControlLabel>
             <FormControl
-              id="plan"
               onChange={e => this.handleChange(e, 'plan')}
-              value={this.state.plan || company.plan}
+              value={this.state.plan || ''}
             />
           </FormGroup>
         </SidebarContent>
