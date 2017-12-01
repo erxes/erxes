@@ -6,7 +6,6 @@ if [ ! -d .git ]; then
   echo 'Clone erxes repository and install its dependencies:'
   git clone https://github.com/erxes/erxes-app-api
   cd erxes-app-api
-  git checkout feature-graphql-mutations-mu
   yarn install
 fi
 
@@ -37,4 +36,4 @@ if [ $CURRENT_FOLDER = 'erxes-app-api' ]; then
   cd ..
 fi
 
-curl https://raw.githubusercontent.com/erxes/erxes-widgets/feature-company/scripts/install.sh | sh
+curl https://raw.githubusercontent.com/erxes/erxes-widgets/master/scripts/install.sh | sh
