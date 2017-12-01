@@ -50,7 +50,6 @@ const widgetConnect = (params) => {
 
     .catch((error) => {
       console.log(error); // eslint-disable-line
-      console.log('Integration not found'); // eslint-disable-line
     });
   });
 };

@@ -1,5 +1,10 @@
 import React, { PropTypes } from 'react';
-import { ConversationList, Conversation, AccquireInformation } from '../containers';
+import {
+  ConversationList,
+  ConversationCreate,
+  ConversationDetail,
+  AccquireInformation,
+} from '../containers';
 
 const propTypes = {
   activeRoute: PropTypes.string.isRequired,
@@ -8,8 +13,11 @@ const propTypes = {
 
 function Messenger({ activeRoute, color }) {
   switch (activeRoute) {
-    case 'conversation':
-      return <Conversation color={color} />;
+    case 'conversationDetail':
+      return <ConversationDetail color={color} />;
+
+    case 'conversationCreate':
+      return <ConversationCreate isNew color={color} />;
 
     case 'conversationList':
       return <ConversationList color={color} />;

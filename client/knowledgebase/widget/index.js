@@ -30,21 +30,25 @@ iframe.style.display = 'none';
 erxesContainer.appendChild(iframe);
 
 const embedContainer = document.querySelector('[data-erxes-kbase]');
-if (!embedContainer) {
-  console.log('Please create a "div" element with an attribute named "data-erxes-kbase"');
-} else {
-  embedContainer.appendChild(erxesContainer);
+
+const trackIframe = () => {
+  // send erxes setting to iframe
+  iframe = document.querySelector(`#${iframeId}`);
+
+  // after iframe load send connection info
+  iframe.onload = () => {
+    iframe.style.display = 'block';
+
+    iframe.contentWindow.postMessage({
+      fromPublisher: true,
+      setting: window.erxesSettings.knowledgeBase,
+    }, '*');
+  };
 }
 
-// send erxes setting to iframe
-iframe = document.querySelector(`#${iframeId}`);
-
-// after iframe load send connection info
-iframe.onload = () => {
-  iframe.style.display = 'block';
-
-  iframe.contentWindow.postMessage({
-    fromPublisher: true,
-    setting: window.erxesSettings.knowledgeBase,
-  }, '*');
-};
+if (!embedContainer) {
+  console.log('Please create a "div" element with an attribute named "data-erxes-kbase"'); // eslint-disable-line
+} else {
+  embedContainer.appendChild(erxesContainer);
+  trackIframe();
+}

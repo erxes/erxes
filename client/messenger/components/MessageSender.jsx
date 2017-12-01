@@ -79,6 +79,7 @@ class MessageSender extends Component {
             value={this.state.message}
             onChange={this.handleMessageChange}
             onBlur={this.handleOnBlur}
+            autoFocus
             onKeyDown={this.handleKeyPress}
           />
           {
