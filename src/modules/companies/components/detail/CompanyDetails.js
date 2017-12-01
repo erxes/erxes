@@ -1,16 +1,15 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { withRouter } from 'react-router';
 import { Wrapper } from 'modules/layout/components';
 import { WhiteBox } from 'modules/layout/styles';
-import {
-  ConversationList,
-  EmptyState,
-  Tabs,
-  TabTitle,
-  Icon
-} from 'modules/common/components';
+import { Tabs, TabTitle, Icon } from 'modules/common/components';
 import { Form as NoteForm } from 'modules/internalNotes/containers';
-import { ActivityList, InternalNotes } from 'modules/activityLogs/components';
+import {
+  ActivityList,
+  InternalNotes,
+  ConversationList
+} from 'modules/activityLogs/components';
 import LeftSidebar from './LeftSidebar';
 
 const propTypes = {
@@ -19,7 +18,8 @@ const propTypes = {
   save: PropTypes.func.isRequired,
   queryParams: PropTypes.object.isRequired,
   currentUser: PropTypes.object.isRequired,
-  companyActivityLog: PropTypes.array.isRequired
+  companyActivityLog: PropTypes.array.isRequired,
+  history: PropTypes.object
 };
 
 class CompanyDetails extends React.Component {
@@ -55,19 +55,15 @@ class CompanyDetails extends React.Component {
   }
 
   renderConversations() {
-    const { currentUser } = this.props;
-    const conversations = [];
+    const { companyActivityLog, company, history } = this.props;
 
     return (
       <WhiteBox>
-        {conversations.length ? (
-          <ConversationList conversations={conversations} user={currentUser} />
-        ) : (
-          <EmptyState
-            text="There aren’t any conversations at the moment."
-            icon="email"
-          />
-        )}
+        <ConversationList
+          activityLog={companyActivityLog}
+          detail={company}
+          history={history}
+        />
       </WhiteBox>
     );
   }
@@ -131,4 +127,4 @@ class CompanyDetails extends React.Component {
 
 CompanyDetails.propTypes = propTypes;
 
-export default CompanyDetails;
+export default withRouter(CompanyDetails);
