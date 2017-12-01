@@ -405,16 +405,10 @@ export const facebookReply = async (conversation, text, messageId) => {
 
   // messenger reply
   if (conversation.facebookData.kind === FACEBOOK_DATA_KINDS.MESSENGER) {
-    return graphRequest.post(
-      'me/messages',
-      response.access_token,
-      {
-        recipient: { id: conversation.facebookData.senderId },
-        message: { text },
-      },
-      /* istanbul ignore next */
-      () => {},
-    );
+    return graphRequest.post('me/messages', response.access_token, {
+      recipient: { id: conversation.facebookData.senderId },
+      message: { text },
+    });
   }
 
   // feed reply
