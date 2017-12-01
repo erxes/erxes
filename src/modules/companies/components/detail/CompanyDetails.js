@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { withRouter } from 'react-router';
 import { Wrapper } from 'modules/layout/components';
 import { WhiteBox } from 'modules/layout/styles';
-import { EmptyState, Tabs, TabTitle, Icon } from 'modules/common/components';
+import { Tabs, TabTitle, Icon } from 'modules/common/components';
 import { Form as NoteForm } from 'modules/internalNotes/containers';
 import {
   ActivityList,
@@ -56,22 +56,14 @@ class CompanyDetails extends React.Component {
 
   renderConversations() {
     const { companyActivityLog, company, history } = this.props;
-    const conversations = [];
 
     return (
       <WhiteBox>
-        {conversations.length ? (
-          <ConversationList
-            activityLog={companyActivityLog}
-            detail={company}
-            history={history}
-          />
-        ) : (
-          <EmptyState
-            text="There aren’t any conversations at the moment."
-            icon="email"
-          />
-        )}
+        <ConversationList
+          activityLog={companyActivityLog}
+          detail={company}
+          history={history}
+        />
       </WhiteBox>
     );
   }
