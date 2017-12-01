@@ -14,6 +14,8 @@ import {
   getOrCreateDirectMessageConversation,
 } from '../../social/twitter';
 
+import { socUtils } from '../../social/twitterTracker';
+
 beforeAll(() => connect());
 afterAll(() => disconnect());
 
@@ -137,12 +139,17 @@ describe('twitter integration', () => {
       TwitMap[_integration._id] = twit;
 
       // twit.post
-      stub = sandbox.stub(twit, 'post').callsFake(() => {});
+      stub = sandbox.stub(socUtils, 'twitPost').callsFake(() => {
+        return new Promise(resolve => {
+          return resolve({});
+        });
+      });
     });
 
     afterEach(async () => {
       // unwrap the spy
-      twit.post.restore();
+      socUtils.twitPost.restore();
+
       await Conversations.remove({});
       await Integrations.remove({});
       await ConversationMessages.remove({});
@@ -171,7 +178,7 @@ describe('twitter integration', () => {
 
       // check twit post params
       expect(
-        stub.calledWith('direct_messages/new', {
+        stub.calledWith(twit, 'direct_messages/new', {
           user_id: senderId.toString(),
           text,
         }),
@@ -197,7 +204,7 @@ describe('twitter integration', () => {
 
       // check twit post params
       expect(
-        stub.calledWith('statuses/update', {
+        stub.calledWith(twit, 'statuses/update', {
           status: `@${screenName} ${text}`,
 
           // replying tweet id

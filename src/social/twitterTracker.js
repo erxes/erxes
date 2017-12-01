@@ -39,13 +39,6 @@ const socTwitter = new soc.Twitter({
 
 const authenticate = queryParams => socTwitter.callback({ query: queryParams });
 
-// doing this to mock authenticate function in test
-export const socUtils = {
-  authenticate,
-  trackIntegration,
-  getTwitterAuthorizeUrl: () => socTwitter.getAuthorizeUrl(),
-};
-
 /*
  * Track all twitter integrations for the first time
  */
@@ -55,4 +48,24 @@ export const trackIntegrations = () => {
       trackIntegration(integration);
     }
   });
+};
+
+export const twitPost = (twit, path, data) => {
+  return new Promise((resolve, reject) => {
+    twit.post(path, data, (e, response) => {
+      if (e) {
+        return reject(e);
+      }
+
+      return resolve(response);
+    });
+  });
+};
+
+// doing this to mock authenticate function in test
+export const socUtils = {
+  authenticate,
+  trackIntegration,
+  twitPost,
+  getTwitterAuthorizeUrl: () => socTwitter.getAuthorizeUrl(),
 };
