@@ -11,7 +11,14 @@ export const types = `
 `;
 
 export const queries = `
-  brands(limit: Int): [Brand]
+  brands(page: Int, perPage: Int): [Brand]
   brandDetail(_id: String!): Brand
   brandsTotalCount: Int
+`;
+
+export const mutations = `
+  brandsAdd(name: String, description: String): Brand
+  brandsEdit(_id: String!, name: String, description: String): Brand
+  brandsRemove(_id: String!): String
+  brandsConfigEmail(_id: String!, emailConfig: JSON): Brand
 `;

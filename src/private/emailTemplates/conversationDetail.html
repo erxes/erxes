@@ -1,0 +1,20 @@
+<table role="presentation" cellpadding="0" cellspacing="0" style="font-size:0px;width:100%;background:#fafafa;" align="center" border="0">
+  <tbody>
+    <tr>
+      <td style="text-align:center;vertical-align:top;font-size:0px;padding:30px;">
+        <div style="cursor:auto;color:grey;font-family:Helvetica Neue;font-size:13px;font-weight:300;line-height:22px;">
+          <p style="font-size: 16px; color: #666; line-height:32px;">
+            <strong>{{ conversationDetail.title }}</strong>
+            <br>
+          </p>
+          <p style="font-size: 16px; color: #666; line-height:32px;">
+            {{#each conversationDetail.messages}}
+              <p>{{{ content }}}</p>
+            {{/each}}
+          </p>
+          <p style="border-collapse:collapse; font-size:12px; color:#888;">{{conversationDetail.date}}</p>
+        </div>
+      </td>
+    </tr>
+  </tbody>
+</table>

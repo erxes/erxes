@@ -4,22 +4,18 @@ import {
   KnowledgeBaseArticles,
 } from '../../../db/models';
 
-export default {
+import { moduleRequireLogin } from '../../permissions';
+import { paginate } from './utils';
+
+const knowledgeBaseQueries = {
   /**
    * Article list
-   * @param {Object} args
-   * @param {Integer} args.limit
+   * @param {Object} args - Search params
    * @return {Promise} sorted article list
    */
-  knowledgeBaseArticles(root, { limit }) {
-    const articles = KnowledgeBaseArticles.find({});
-    const sort = { createdDate: -1 };
-
-    if (limit) {
-      return articles.sort(sort).limit(limit);
-    }
-
-    return articles.sort(sort);
+  knowledgeBaseArticles(root, args) {
+    const articles = paginate(KnowledgeBaseArticles.find({}), args);
+    return articles.sort({ createdDate: -1 });
   },
 
   /**
@@ -28,7 +24,7 @@ export default {
    * @param {String} args._id
    * @return {Promise} article detail
    */
-  knowledgeBaseArticlesDetail(root, { _id }) {
+  knowledgeBaseArticleDetail(root, { _id }) {
     return KnowledgeBaseArticles.findOne({ _id });
   },
 
@@ -42,19 +38,12 @@ export default {
 
   /**
    * Category list
-   * @param {Object} args
-   * @param {Integer} args.limit
+   * @param {Object} args - Search params
    * @return {Promise} sorted category list
    */
-  knowledgeBaseCategories(root, { limit }) {
-    const categories = KnowledgeBaseCategories.find({});
-    const sort = { createdDate: -1 };
-
-    if (limit) {
-      return categories.sort(sort).limit(limit);
-    }
-
-    return categories.sort(sort);
+  knowledgeBaseCategories(root, args) {
+    const categories = paginate(KnowledgeBaseCategories.find({}), args);
+    return categories.sort({ createdDate: -1 });
   },
 
   /**
@@ -63,7 +52,7 @@ export default {
    * @param {String} args._id
    * @return {Promise} category detail
    */
-  knowledgeBaseCategoriesDetail(root, { _id }) {
+  knowledgeBaseCategoryDetail(root, { _id }) {
     return KnowledgeBaseCategories.findOne({ _id }).then(category => {
       return category;
     });
@@ -79,19 +68,12 @@ export default {
 
   /**
    * Topic list
-   * @param {Object} args
-   * @param {Integer} args.limit
+   * @param {Object} args - Search params
    * @return {Promise} sorted topic list
    */
-  knowledgeBaseTopics(root, { limit }) {
-    const topics = KnowledgeBaseTopics.find({});
-    const sort = { createdDate: -1 };
-
-    if (limit) {
-      return topics.sort(sort).limit(limit);
-    }
-
-    return topics.sort(sort);
+  knowledgeBaseTopics(root, args) {
+    const topics = paginate(KnowledgeBaseTopics.find({}), args);
+    return topics.sort({ createdDate: -1 });
   },
 
   /**
@@ -100,7 +82,7 @@ export default {
    * @param {String} args._id
    * @return {Promise} topic detail
    */
-  knowledgeBaseTopicsDetail(root, { _id }) {
+  knowledgeBaseTopicDetail(root, { _id }) {
     return KnowledgeBaseTopics.findOne({ _id });
   },
 
@@ -112,3 +94,7 @@ export default {
     return KnowledgeBaseTopics.find({}).count();
   },
 };
+
+moduleRequireLogin(knowledgeBaseQueries);
+
+export default knowledgeBaseQueries;

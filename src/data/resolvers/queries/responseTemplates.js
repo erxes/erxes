@@ -1,20 +1,15 @@
 import { ResponseTemplates } from '../../../db/models';
+import { moduleRequireLogin } from '../../permissions';
+import { paginate } from './utils';
 
-export default {
+const responseTemplateQueries = {
   /**
    * Response templates list
-   * @param {Object} args
-   * @param {Integer} args.limit
+   * @param {Object} args - Search params
    * @return {Promise} response template objects
    */
-  responseTemplates(root, { limit }) {
-    const responseTemplate = ResponseTemplates.find({});
-
-    if (limit) {
-      return responseTemplate.limit(limit);
-    }
-
-    return responseTemplate;
+  responseTemplates(root, args) {
+    return paginate(ResponseTemplates.find({}), args);
   },
 
   /**
@@ -25,3 +20,7 @@ export default {
     return ResponseTemplates.find({}).count();
   },
 };
+
+moduleRequireLogin(responseTemplateQueries);
+
+export default responseTemplateQueries;

@@ -1,4 +1,6 @@
 import { EngageMessages, Tags } from '../../../db/models';
+import { moduleRequireLogin } from '../../permissions';
+import { paginate } from './utils';
 
 // basic count helper
 const count = selector => EngageMessages.find(selector).count();
@@ -7,7 +9,7 @@ const count = selector => EngageMessages.find(selector).count();
 const tagQueryBuilder = tagId => ({ tagIds: tagId });
 
 // status query builder
-const statusQueryBuilder = status => {
+const statusQueryBuilder = (status, user) => {
   if (status === 'live') {
     return { isLive: true };
   }
@@ -21,7 +23,7 @@ const statusQueryBuilder = status => {
   }
 
   if (status === 'yours') {
-    return { fromUserId: '' };
+    return { fromUserId: user._id };
   }
 
   return {};
@@ -36,7 +38,7 @@ const countsByKind = async () => ({
 });
 
 // count for each status type
-const countsByStatus = async ({ kind }) => {
+const countsByStatus = async ({ kind, user }) => {
   const query = {};
 
   if (kind) {
@@ -47,12 +49,12 @@ const countsByStatus = async ({ kind }) => {
     live: await count({ ...query, ...statusQueryBuilder('live') }),
     draft: await count({ ...query, ...statusQueryBuilder('draft') }),
     paused: await count({ ...query, ...statusQueryBuilder('paused') }),
-    yours: await count({ ...query, ...statusQueryBuilder('yours') }),
+    yours: await count({ ...query, ...statusQueryBuilder('yours', user) }),
   };
 };
 
 // cout for each tag
-const countsByTag = async ({ kind, status }) => {
+const countsByTag = async ({ kind, status, user }) => {
   let query = {};
 
   if (kind) {
@@ -60,7 +62,7 @@ const countsByTag = async ({ kind, status }) => {
   }
 
   if (status) {
-    query = { ...query, ...statusQueryBuilder(status) };
+    query = { ...query, ...statusQueryBuilder(status, user) };
   }
 
   const tags = await Tags.find({ type: 'engageMessage' });
@@ -74,7 +76,7 @@ const countsByTag = async ({ kind, status }) => {
   return response;
 };
 
-export default {
+const engageQueries = {
   /**
    * Group engage messages counts by kind, status, tag
    *
@@ -84,30 +86,28 @@ export default {
    * @param {String} args.status
    * @return {Object} counts map
    */
-  async engageMessageCounts(root, { name, kind, status }) {
+  engageMessageCounts(root, { name, kind, status }, { user }) {
     if (name === 'kind') {
       return countsByKind();
     }
 
     if (name === 'status') {
-      return countsByStatus({ kind });
+      return countsByStatus({ kind, user });
     }
 
     if (name === 'tag') {
-      return countsByTag({ kind, status });
+      return countsByTag({ kind, status, user });
     }
   },
 
   /**
    * Engage messages list
-   * @param {Object} args
-   * @param {String} args.kind
-   * @param {String} args.status
-   * @param {String} args.tag
-   * @param {[String]} args.ids
+   * @param {Object} params - Search params
    * @return {Promise} filtered messages list by given parameters
    */
-  engageMessages(root, { kind, status, tag, ids }) {
+  engageMessages(root, params, { user }) {
+    const { kind, status, tag, ids } = params;
+
     if (ids) {
       return EngageMessages.find({ _id: { $in: ids } });
     }
@@ -121,7 +121,7 @@ export default {
 
     // filter by status
     if (status) {
-      query = { ...query, ...statusQueryBuilder(status) };
+      query = { ...query, ...statusQueryBuilder(status, user) };
     }
 
     // filter by tag
@@ -129,7 +129,7 @@ export default {
       query = { ...query, ...tagQueryBuilder(tag) };
     }
 
-    return EngageMessages.find(query);
+    return paginate(EngageMessages.find(query), params);
   },
 
   /**
@@ -150,3 +150,7 @@ export default {
     return EngageMessages.find({}).count();
   },
 };
+
+moduleRequireLogin(engageQueries);
+
+export default engageQueries;

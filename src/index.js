@@ -8,12 +8,13 @@ import { createServer } from 'http';
 import { execute, subscribe } from 'graphql';
 import { graphqlExpress, graphiqlExpress } from 'graphql-server-express';
 import { SubscriptionServer } from 'subscriptions-transport-ws';
-import passport from 'passport';
-import { Strategy as BearerStrategy } from 'passport-http-bearer';
-import { Strategy as AnonymousStrategy } from 'passport-anonymous';
-import { Customers, Users } from './db/models';
+import formidable from 'formidable';
+import { Customers } from './db/models';
 import { connect } from './db/connection';
+import { userMiddleware } from './auth';
 import schema from './data';
+import { uploadFile } from './data/utils';
+import { init } from './startup';
 
 // load environment variables
 dotenv.config();
@@ -28,27 +29,20 @@ app.use(bodyParser.json());
 
 app.use(cors());
 
-passport.use(
-  new BearerStrategy(function(token, cb) {
-    Users.findById(token, function(err, user) {
-      if (err) {
-        return cb(err);
-      }
-      if (!user) {
-        return cb(null, false);
-      }
-      return cb(null, user);
-    });
-  }),
-);
+// file upload
+app.post('/upload-file', async (req, res) => {
+  const form = new formidable.IncomingForm();
 
-// All queries, mutations and subscriptions must be available
-// for unauthenticated requests.
-passport.use(new AnonymousStrategy());
+  form.parse(req, async (err, fields, response) => {
+    const url = await uploadFile(response.file);
+
+    return res.end(url);
+  });
+});
 
 app.use(
   '/graphql',
-  passport.authenticate(['bearer', 'anonymous'], { session: false }),
+  userMiddleware,
   graphqlExpress(req => ({ schema, context: { user: req.user } })),
 );
 
@@ -60,6 +54,9 @@ const { PORT } = process.env;
 
 server.listen(PORT, () => {
   console.log(`GraphQL Server is now running on ${PORT}`);
+
+  // execute startup actions
+  init(app);
 
   // Set up the WebSocket for handling GraphQL subscriptions
   new SubscriptionServer(

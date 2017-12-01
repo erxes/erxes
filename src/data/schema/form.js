@@ -6,25 +6,18 @@ export const types = `
     description: String
     createdUserId: String
     createdDate: Date
-
-    fields: [FormField]
-  }
-
-  type FormField {
-    _id: String!
-    formId: String
-    type: String
-    validation: String
-    text: String
-    description: String
-    options: [String]
-    isRequired: Boolean
-    order: Int
   }
 `;
 
+export const mutations = `
+  formsAdd(title: String!, description: String): Form
+  formsEdit(_id: String!, title: String!, description: String): Form
+  formsRemove(_id: String!): String
+  formsDuplicate(_id: String!): Form
+`;
+
 export const queries = `
-  forms(limit: Int): [Form]
+  forms(page: Int, perPage: Int): [Form]
   formDetail(_id: String!): Form
   formsTotalCount: Int
 `;

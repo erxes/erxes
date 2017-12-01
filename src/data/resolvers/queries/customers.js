@@ -1,7 +1,9 @@
 import _ from 'underscore';
 import { Brands, Tags, Integrations, Customers, Segments } from '../../../db/models';
-import { TAG_TYPES, INTEGRATION_KIND_CHOICES } from '../../constants';
-import QueryBuilder from './customerQueryBuilder.js';
+import { TAG_TYPES, INTEGRATION_KIND_CHOICES, COC_CONTENT_TYPES } from '../../constants';
+import QueryBuilder from './segmentQueryBuilder';
+import { moduleRequireLogin } from '../../permissions';
+import { paginate } from './utils';
 
 const listQuery = async params => {
   const selector = {};
@@ -42,23 +44,23 @@ const listQuery = async params => {
   return selector;
 };
 
-export default {
+const customerQueries = {
   /**
    * Customers list
    * @param {Object} args
-   * @param {CustomerListParams} args.params
    * @return {Promise} filtered customers list by given parameters
    */
-  async customers(root, { params }) {
-    if (params.ids) {
-      return Customers.find({ _id: { $in: params.ids } }).sort({ 'messengerData.lastSeenAt': -1 });
+  async customers(root, { ids, ...params }) {
+    const sort = { 'messengerData.lastSeenAt': -1 };
+
+    if (ids) {
+      const selector = { _id: { $in: ids } };
+      return paginate(Customers.find(selector), params).sort(sort);
     }
 
     const selector = await listQuery(params);
 
-    return Customers.find(selector)
-      .sort({ 'messengerData.lastSeenAt': -1 })
-      .limit(params.limit || 0);
+    return paginate(Customers.find(selector), params).sort(sort);
   },
 
   /**
@@ -67,7 +69,7 @@ export default {
    * @param {CustomerListParams} args.params
    * @return {Object} counts map
    */
-  async customerCounts(root, { params }) {
+  async customerCounts(root, params) {
     const counts = { bySegment: {}, byBrand: {}, byIntegrationType: {}, byTag: {} };
     const selector = await listQuery(params);
 
@@ -80,7 +82,9 @@ export default {
     counts.all = await count(selector);
 
     // Count customers by segments
-    const segments = await Segments.find();
+    const segments = await Segments.find({
+      contentType: COC_CONTENT_TYPES.CUSTOMER,
+    });
 
     for (let s of segments) {
       counts.bySegment[s._id] = await count(QueryBuilder.segments(s));
@@ -98,7 +102,7 @@ export default {
     }
 
     // Count customers by integration
-    for (let kind of INTEGRATION_KIND_CHOICES.ALL_LIST) {
+    for (let kind of INTEGRATION_KIND_CHOICES.ALL) {
       const integrations = await Integrations.find({ kind });
 
       counts.byIntegrationType[kind] = await count({
@@ -142,38 +146,8 @@ export default {
   customerDetail(root, { _id }) {
     return Customers.findOne({ _id });
   },
-
-  /**
-   * Get all customers count. We will use it in pager
-   * @return {Promise} total count
-   */
-  customersTotalCount() {
-    return Customers.find({}).count();
-  },
-
-  /**
-   * Segments list
-   * @return {Promise} segment objects
-   */
-  segments() {
-    return Segments.find({});
-  },
-
-  /**
-   * Only segment that has no sub segments
-   * @return {Promise} segment objects
-   */
-  headSegments() {
-    return Segments.find({ subOf: { $exists: false } });
-  },
-
-  /**
-   * Get one segment
-   * @param {Object} args
-   * @param {String} args._id
-   * @return {Promise} found segment
-   */
-  segmentDetail(root, { _id }) {
-    return Segments.findOne({ _id });
-  },
 };
+
+moduleRequireLogin(customerQueries);
+
+export default customerQueries;

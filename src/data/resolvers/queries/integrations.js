@@ -1,34 +1,32 @@
 import { Integrations } from '../../../db/models';
+import { socUtils } from '../../../social/twitterTracker';
+import { getConfig, getPageList } from '../../../social/facebook';
+import { moduleRequireLogin } from '../../permissions';
+import { paginate } from './utils';
 
-export default {
+const integrationQueries = {
   /**
    * Integrations list
-   * @param {Object} args
-   * @param {Integer} args.limit
-   * @param {String} args.kind
+   * @param {Object} args - Search params
    * @return {Promise} filterd and sorted integrations list
    */
-  integrations(root, { limit, kind }) {
+  integrations(root, { kind, ...params }) {
     const query = {};
-    const sort = { createdAt: -1 };
 
     if (kind) {
       query.kind = kind;
     }
 
-    const integrations = Integrations.find(query);
+    const integrations = paginate(Integrations.find(query), params);
 
-    if (limit) {
-      return integrations.sort(sort).limit(limit);
-    }
-
-    return integrations.sort(sort);
+    return integrations.sort({ createdAt: -1 });
   },
 
   /**
    * Get one integration
-   * @param {Object} args
-   * @param {String} args._id
+   * @param {Object} object
+   * @param {Object} object2 - Apollo input data
+   * @param {String} object2._id - Integration id
    * @return {Promise} found integration
    */
   integrationDetail(root, { _id }) {
@@ -48,4 +46,41 @@ export default {
 
     return Integrations.find(query).count();
   },
+
+  /**
+   * Generate twitter integration auth url using credentials in .env
+   * @return {Promise} - Generated url
+   */
+  integrationGetTwitterAuthUrl() {
+    return socUtils.getTwitterAuthorizeUrl();
+  },
+
+  /**
+   * Get facebook app list .env
+   * @return {Promise} - Apps list
+   */
+  integrationFacebookAppsList() {
+    return getConfig().map(app => ({
+      id: app.id,
+      name: app.name,
+    }));
+  },
+
+  /**
+   * Get facebook pages by appId
+   * @return {Promise} - Page list
+   */
+  async integrationFacebookPagesList(root, { appId }) {
+    const app = getConfig().find(app => app.id === appId);
+
+    if (!app) {
+      return [];
+    }
+
+    return getPageList(app.accessToken);
+  },
 };
+
+moduleRequireLogin(integrationQueries);
+
+export default integrationQueries;
