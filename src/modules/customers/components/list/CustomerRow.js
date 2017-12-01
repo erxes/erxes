@@ -2,8 +2,7 @@ import React from 'react';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 import moment from 'moment';
-import { FormControl } from 'modules/common/components';
-import { TagItem } from 'modules/layout/styles';
+import { FormControl, Tags } from 'modules/common/components';
 
 const propTypes = {
   customer: PropTypes.object.isRequired,
@@ -37,18 +36,6 @@ function formatValue(value) {
   return value || 'N/A';
 }
 
-function renderTags(tags) {
-  if (!tags.length) {
-    return null;
-  }
-
-  return tags.map(({ _id, colorCode, name }) => (
-    <TagItem key={_id} style={{ backgroundColor: colorCode }}>
-      {name}
-    </TagItem>
-  ));
-}
-
 function CustomerRow({ customer, columnsConfig, toggleBulk, history }) {
   const tags = customer.getTags;
   const onChange = e => {
@@ -73,7 +60,9 @@ function CustomerRow({ customer, columnsConfig, toggleBulk, history }) {
       {columnsConfig.map(({ name }) => (
         <td key={name}>{formatValue(_.get(customer, name))}</td>
       ))}
-      <td>{renderTags(tags)}</td>
+      <td>
+        <Tags tags={tags} />
+      </td>
     </tr>
   );
 }

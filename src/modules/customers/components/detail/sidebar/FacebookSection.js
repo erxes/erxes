@@ -21,8 +21,16 @@ function FacebookSection({ customer }) {
       <Title>Facebook</Title>
       <SidebarList className="no-link">
         <li>
-          ID
-          <SidebarCounter>{facebookData.id}</SidebarCounter>
+          Facebook profile
+          <SidebarCounter>
+            <a
+              target="_blank"
+              href={`http://facebook.com/${facebookData.id}`}
+              rel="noopener noreferrer"
+            >
+              [view]
+            </a>
+          </SidebarCounter>
         </li>
       </SidebarList>
     </Sidebar.Section>

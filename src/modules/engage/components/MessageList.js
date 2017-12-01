@@ -96,6 +96,7 @@ class List extends React.Component {
               <th>Failed</th>
               <th>Type</th>
               <th>Created date</th>
+              <th>Tags</th>
               <th>Actions</th>
             </tr>
           </thead>

@@ -24,7 +24,7 @@ injectGlobal`
   }
 
   a {
-    color: #A389D4;
+    color: #297cbb;
     transition: color 0.3s ease;
   }
 
@@ -209,6 +209,7 @@ injectGlobal`
 
   .popover-content {
     padding: 0;
+    position: relative;
   }
 
   .popover-content ul {
