@@ -1,23 +1,23 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { withRouter } from 'react-router';
 import { Wrapper } from 'modules/layout/components';
 import { WhiteBox } from 'modules/layout/styles';
-import {
-  ConversationList,
-  EmptyState,
-  Icon,
-  Tabs,
-  TabTitle
-} from 'modules/common/components';
+import { EmptyState, Icon, Tabs, TabTitle } from 'modules/common/components';
 import { Form as NoteForm } from 'modules/internalNotes/containers';
 import { EditInformation } from 'modules/customers/containers';
-import { ActivityList, InternalNotes } from 'modules/activityLogs/components';
+import {
+  ActivityList,
+  InternalNotes,
+  ConversationList
+} from 'modules/activityLogs/components';
 
 const propTypes = {
   customer: PropTypes.object.isRequired,
   currentUser: PropTypes.object.isRequired,
   queryParams: PropTypes.object.isRequired,
-  activityLogsCustomer: PropTypes.array.isRequired
+  activityLogsCustomer: PropTypes.array.isRequired,
+  history: PropTypes.object
 };
 
 class CustomerDetails extends React.Component {
@@ -53,13 +53,17 @@ class CustomerDetails extends React.Component {
   }
 
   renderConversations() {
-    const { customer, currentUser } = this.props;
+    const { customer, activityLogsCustomer, history } = this.props;
     const conversations = customer.conversations;
 
     return (
       <WhiteBox>
         {conversations.length ? (
-          <ConversationList conversations={conversations} user={currentUser} />
+          <ConversationList
+            activityLog={activityLogsCustomer}
+            customer={customer}
+            history={history}
+          />
         ) : (
           <EmptyState
             text="There aren’t any conversations at the moment."
@@ -130,4 +134,4 @@ class CustomerDetails extends React.Component {
 
 CustomerDetails.propTypes = propTypes;
 
-export default CustomerDetails;
+export default withRouter(CustomerDetails);
