@@ -49,11 +49,22 @@ describe('facebook integration: save webhook response', () => {
       };
     });
 
+    sinon.stub(graphRequest, 'post').callsFake(() => {
+      return new Promise(resolve => {
+        resolve({
+          id: 'commentId',
+          message_id: 'message_id',
+        });
+      });
+    });
+
     saveWebhookResponse = new SaveWebhookResponse('access_token', integration, {});
   });
 
   afterEach(async () => {
-    graphRequest.get.restore(); // unwraps the spy
+    // unwraps the spy
+    graphRequest.get.restore();
+    graphRequest.post.restore();
 
     // clear previous datas
     await Conversations.remove({});
@@ -91,6 +102,7 @@ describe('facebook integration: save webhook response', () => {
               sender: { id: senderId },
               recipient: { id: recipientId },
               message: {
+                mid: 'mid0',
                 text: messageText,
                 attachments,
               },
@@ -147,6 +159,7 @@ describe('facebook integration: save webhook response', () => {
               recipient: { id: recipientId },
 
               message: {
+                mid: 'mid',
                 text: messageText,
               },
             },
@@ -176,6 +189,28 @@ describe('facebook integration: save webhook response', () => {
     expect(newMessage.customerId).toBe(customer._id);
     expect(newMessage.internal).toBe(false);
     expect(newMessage.content).toBe(messageText);
+
+    // receiving already saved info ========================
+    saveWebhookResponse.data = {
+      object: 'page',
+      entry: [
+        {
+          id: pageId,
+          messaging: [
+            {
+              sender: { id: senderId },
+              recipient: { id: recipientId },
+              message: { mid: 'mid' },
+            },
+          ],
+        },
+      ],
+    };
+
+    await saveWebhookResponse.start();
+
+    // must not be created new message
+    expect(await ConversationMessages.find().count()).toBe(2);
   });
 
   test('via feed event', async () => {

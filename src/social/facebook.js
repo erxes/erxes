@@ -256,6 +256,7 @@ export class SaveWebhookResponse {
     const senderId = event.sender.id;
     const senderName = event.sender.name;
     const recipientId = event.recipient.id;
+    const messageId = event.message.mid;
     const messageText = event.message.text || 'attachment';
 
     // collect attachment's url, type fields
@@ -263,6 +264,11 @@ export class SaveWebhookResponse {
       type: attachment.type,
       url: attachment.payload ? attachment.payload.url : '',
     }));
+
+    // if this is already saved then ignore it
+    if (await ConversationMessages.findOne({ 'facebookData.messageId': messageId })) {
+      return null;
+    }
 
     await this.getOrCreateConversation({
       // try to find conversation by senderId, recipientId keys
@@ -291,7 +297,9 @@ export class SaveWebhookResponse {
       // message data
       content: messageText,
       attachments,
-      msgFacebookData: {},
+      msgFacebookData: {
+        messageId,
+      },
     });
   }
 
@@ -405,10 +413,16 @@ export const facebookReply = async (conversation, text, messageId) => {
 
   // messenger reply
   if (conversation.facebookData.kind === FACEBOOK_DATA_KINDS.MESSENGER) {
-    return graphRequest.post('me/messages', response.access_token, {
+    const messageResponse = await graphRequest.post('me/messages', response.access_token, {
       recipient: { id: conversation.facebookData.senderId },
       message: { text },
     });
+
+    // save commentId in message object
+    await ConversationMessages.update(
+      { _id: messageId },
+      { $set: { 'facebookData.messageId': messageResponse.message_id } },
+    );
   }
 
   // feed reply

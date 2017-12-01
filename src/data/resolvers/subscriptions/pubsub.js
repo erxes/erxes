@@ -4,8 +4,6 @@ const redisConnectionListener = error => {
   if (error) {
     console.error(error); // eslint-disable-line no-console
   }
-
-  console.info('Successfuly connected to redis'); // eslint-disable-line no-console
 };
 
 // Docs on the different redis options

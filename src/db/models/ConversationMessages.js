@@ -10,6 +10,12 @@ const FacebookSchema = mongoose.Schema(
       optional: true,
     }),
 
+    // messenger message id
+    messageId: field({
+      type: String,
+      optional: true,
+    }),
+
     // comment, reaction, etc ...
     item: field({
       type: String,

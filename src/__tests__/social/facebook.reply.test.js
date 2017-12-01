@@ -64,7 +64,13 @@ describe('facebook integration: reply', () => {
     const text = 'to messenger';
 
     // mock post messenger reply
-    const stub = sinon.stub(graphRequest, 'post').callsFake(() => {});
+    const stub = sinon.stub(graphRequest, 'post').callsFake(() => {
+      return new Promise(resolve => {
+        resolve({
+          message_id: 'message_id',
+        });
+      });
+    });
 
     // reply
     await facebookReply(conversation, text);
