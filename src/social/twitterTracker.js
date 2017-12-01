@@ -50,22 +50,26 @@ export const trackIntegrations = () => {
   });
 };
 
-export const twitPost = (twit, path, data) => {
-  return new Promise((resolve, reject) => {
-    twit.post(path, data, (e, response) => {
-      if (e) {
-        return reject(e);
-      }
+/*
+ * Promisify twit post util
+ */
+export const twitRequest = {
+  post(twit, path, data) {
+    return new Promise((resolve, reject) => {
+      twit.post(path, data, (e, response) => {
+        if (e) {
+          return reject(e);
+        }
 
-      return resolve(response);
+        return resolve(response);
+      });
     });
-  });
+  },
 };
 
 // doing this to mock authenticate function in test
 export const socUtils = {
   authenticate,
   trackIntegration,
-  twitPost,
   getTwitterAuthorizeUrl: () => socTwitter.getAuthorizeUrl(),
 };

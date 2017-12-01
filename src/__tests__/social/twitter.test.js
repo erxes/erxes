@@ -14,7 +14,7 @@ import {
   getOrCreateDirectMessageConversation,
 } from '../../social/twitter';
 
-import { socUtils } from '../../social/twitterTracker';
+import { twitRequest } from '../../social/twitterTracker';
 
 beforeAll(() => connect());
 afterAll(() => disconnect());
@@ -139,7 +139,7 @@ describe('twitter integration', () => {
       TwitMap[_integration._id] = twit;
 
       // twit.post
-      stub = sandbox.stub(socUtils, 'twitPost').callsFake(() => {
+      stub = sandbox.stub(twitRequest, 'post').callsFake(() => {
         return new Promise(resolve => {
           return resolve({});
         });
@@ -148,7 +148,7 @@ describe('twitter integration', () => {
 
     afterEach(async () => {
       // unwrap the spy
-      socUtils.twitPost.restore();
+      twitRequest.post.restore();
 
       await Conversations.remove({});
       await Integrations.remove({});

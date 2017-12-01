@@ -1,6 +1,6 @@
 import { Customers, ConversationMessages, Conversations, Integrations } from '../db/models';
 import { conversationMessageCreated } from '../data/resolvers/mutations/conversations';
-import { socUtils } from './twitterTracker';
+import { twitRequest } from './twitterTracker';
 
 /*
  * Get or create customer using twitter data
@@ -221,14 +221,14 @@ export const tweetReply = (conversation, text) => {
 
   // send direct message
   if (conversation.twitterData.isDirectMessage) {
-    return socUtils.twitPost(twit, 'direct_messages/new', {
+    return twitRequest.post(twit, 'direct_messages/new', {
       user_id: twitterData.directMessage.senderIdStr,
       text,
     });
   }
 
   // send reply
-  return socUtils.twitPost(twit, 'statuses/update', {
+  return twitRequest.post(twit, 'statuses/update', {
     status: `@${twitterData.screenName} ${text}`,
 
     // replying tweet id
