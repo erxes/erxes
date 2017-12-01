@@ -103,6 +103,78 @@ const DeleteNote = styled.div`
   float: right;
 `;
 
+const ConversationItems = styled.ul`
+  margin: 0;
+  padding: 0;
+  list-style: none;
+`;
+
+const RowContent = styled.div`
+  flex: 1;
+  display: flex;
+  flex-direction: row;
+
+  > div {
+    margin: 0;
+    align-self: center;
+  }
+`;
+
+const FlexContent = styled.div`
+  flex: 1;
+  transition: all ease 0.3s;
+
+  .tags {
+    margin-top: 10px;
+  }
+`;
+
+const MainInfo = styled.div`
+  display: flex;
+  padding-left: ${dimensions.coreSpacing}px;
+  flex-direction: column;
+  align-items: center;
+`;
+
+const CustomerName = styled.div`
+  font-weight: 400;
+  word-break: break-all;
+`;
+
+const SmallText = styled.div`
+  color: ${colors.colorCoreGray};
+  font-size: 12px;
+  padding: 2px 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  flex-shrink: 0;
+`;
+
+const MessageContent = styled.div`
+  word-break: break-word;
+  overflow: hidden;
+  word-wrap: break-word;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 1;
+`;
+
+const RowItem = styled.li`
+  padding: ${dimensions.coreSpacing}px;
+  display: flex;
+  flex-direction: row;
+  border-bottom: 1px solid ${colors.borderPrimary};
+  transition: all ease 0.3s;
+
+  background: ${colors.bgLight};
+
+  &:hover {
+    cursor: pointer;
+    background: ${colors.bgUnread};
+  }
+`;
+
 export {
   Timeline,
   ActivityTitle,
@@ -113,5 +185,13 @@ export {
   ActivityCaption,
   ActivityContent,
   IconWrapper,
-  DeleteNote
+  DeleteNote,
+  ConversationItems,
+  RowItem,
+  RowContent,
+  FlexContent,
+  MainInfo,
+  CustomerName,
+  SmallText,
+  MessageContent
 };

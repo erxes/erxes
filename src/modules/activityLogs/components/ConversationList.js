@@ -6,8 +6,12 @@ import {
   RowItem,
   SmallText,
   MessageContent,
-  ConversationItems
-} from './styles';
+  ConversationItems,
+  CustomerName,
+  FlexContent,
+  RowContent,
+  MainInfo
+} from '../styles';
 
 class ConversationList extends React.Component {
   renderFullName(customer) {
@@ -30,15 +34,25 @@ class ConversationList extends React.Component {
         <RowItem
           key={item.id}
           onClick={() => {
-            history.push(`/inbox?_id${item.id}`);
+            history.push(`/inbox?_id=${item.id}`);
           }}
         >
-          {isExistingCustomer && (
-            <NameCard.Avatar size={40} customer={customer} />
-          )}
-          {isExistingCustomer &&
-            (this.renderFullName(customer) || customer.email || customer.phone)}
-          <MessageContent>{item.content}</MessageContent>
+          <RowContent>
+            {isExistingCustomer && (
+              <NameCard.Avatar size={40} customer={customer} />
+            )}
+            <MainInfo>
+              <FlexContent>
+                <CustomerName>
+                  {isExistingCustomer &&
+                    (this.renderFullName(customer) ||
+                      customer.email ||
+                      customer.phone)}
+                </CustomerName>
+                <MessageContent>{item.content}</MessageContent>
+              </FlexContent>
+            </MainInfo>
+          </RowContent>
           <SmallText>
             {moment(item.createdAt)
               .subtract(2, 'minutes')
