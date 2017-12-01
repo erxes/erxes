@@ -18,13 +18,13 @@ class ConversationList extends React.Component {
     if (customer.firstName || customer.lastName) {
       return (customer.firstName || '') + ' ' + (customer.lastName || '');
     }
-    return 'N/A';
+    return customer.email || customer.phone;
   }
 
   renderRow(data) {
     const { list } = data;
 
-    const { customer, history } = this.props;
+    const { detail, history } = this.props;
 
     return list.map(item => {
       if (item.action !== 'conversation-create') return null;
@@ -37,13 +37,15 @@ class ConversationList extends React.Component {
           }}
         >
           <RowContent>
-            <NameCard.Avatar size={40} customer={customer} />
+            {detail.__typename === 'Customer' ? (
+              <NameCard.Avatar size={40} customer={detail} />
+            ) : null}
             <MainInfo>
               <FlexContent>
                 <CustomerName>
-                  {this.renderFullName(customer) ||
-                    customer.email ||
-                    customer.phone}
+                  {detail.__typename === 'Customer'
+                    ? this.renderFullName(detail)
+                    : detail.name || 'N/A'}
                 </CustomerName>
                 <MessageContent>{item.content}</MessageContent>
               </FlexContent>
@@ -71,7 +73,7 @@ class ConversationList extends React.Component {
 
 ConversationList.propTypes = {
   activityLog: PropTypes.array.isRequired,
-  customer: PropTypes.object.isRequired,
+  detail: PropTypes.object.isRequired,
   history: PropTypes.object.isRequired
 };
 

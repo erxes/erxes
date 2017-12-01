@@ -61,7 +61,7 @@ class CustomerDetails extends React.Component {
         {conversations.length ? (
           <ConversationList
             activityLog={activityLogsCustomer}
-            customer={customer}
+            detail={customer}
             history={history}
           />
         ) : (
