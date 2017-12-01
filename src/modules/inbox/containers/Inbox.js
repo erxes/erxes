@@ -33,6 +33,10 @@ class ConversationDetail extends Component {
         // check whether or not already inserted
         const prevEntry = messages.find(m => m._id === message._id);
 
+        if (prevEntry) {
+          return next;
+        }
+
         // add new message to messages list
         const next = Object.assign({}, prev, {
           conversationDetail: Object.assign({
@@ -40,10 +44,6 @@ class ConversationDetail extends Component {
             messages: [...messages, message]
           })
         });
-
-        if (prevEntry) {
-          return next;
-        }
 
         return next;
       }

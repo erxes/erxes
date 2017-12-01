@@ -59,6 +59,10 @@ const PopoverList = styled.ul`
     &.all:before {
       content: '\f121';
     }
+
+    &.some:before {
+      content: '\f209';
+    }
   }
 `;
 
