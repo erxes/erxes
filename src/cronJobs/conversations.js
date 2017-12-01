@@ -104,5 +104,3 @@ export const sendMessageEmail = async () => {
 schedule.scheduleJob('*/10 * * * *', function() {
   sendMessageEmail();
 });
-
-sendMessageEmail();
