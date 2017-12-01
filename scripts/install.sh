@@ -11,7 +11,6 @@ echo 'Embedable widget scripts server for erxes.'
 if [ ! -d .git ]; then
   git clone https://github.com/erxes/erxes-widgets
   cd erxes-widgets
-  git checkout feature-company
   yarn install
 fi
 
@@ -30,4 +29,4 @@ if [ $CURRENT_FOLDER = 'erxes-widgets' ]; then
   cd ..
 fi
 
-curl https://raw.githubusercontent.com/erxes/erxes-api/feature-company/scripts/install.sh | sh
+curl https://raw.githubusercontent.com/erxes/erxes-api/master/scripts/install.sh | sh
