@@ -20,6 +20,7 @@ export const types = `
 
     segment: Segment
     fromUser: User
+    getTags: [Tag]
   }
 
   input EngageMessageMessengerRule {
