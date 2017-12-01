@@ -8,7 +8,7 @@ const UserFormContainer = props => {
   const { object = {}, channelsQuery } = props;
 
   if (channelsQuery.loading) {
-    return <Spinner />;
+    return <Spinner objective />;
   }
 
   const channels = channelsQuery.channels;

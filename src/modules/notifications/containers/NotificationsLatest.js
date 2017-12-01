@@ -21,7 +21,7 @@ class NotificationsLatestContainer extends React.Component {
     const { notificationsQuery, notificationsMarkAsReadMutation } = this.props;
 
     if (notificationsQuery.loading) {
-      return <Spinner />;
+      return <Spinner objective />;
     }
 
     const markAsRead = _ids => {

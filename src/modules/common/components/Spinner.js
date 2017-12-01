@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import Rotate from '../utils/animateRotate';
 import { colors } from '../styles';
@@ -6,12 +7,8 @@ import { colors } from '../styles';
 const size = 26;
 
 const Spin = styled.div`
-  box-sizing: border-box;
-  display: inline-block;
-  vertical-align: middle;
-  text-align: left;
-  font-size: 0;
-  margin: 40px auto;
+  height: ${props => props.objective && '100px'};
+  position: ${props => props.objective && 'relative'};
 `;
 
 const Line = styled.div`
@@ -66,9 +63,9 @@ const LineMask = styled.div`
   }
 `;
 
-function Spinner() {
+function Spinner({ objective }) {
   return (
-    <Spin>
+    <Spin objective={objective}>
       <LineMask className="one">
         <Line />
       </LineMask>
@@ -84,5 +81,13 @@ function Spinner() {
     </Spin>
   );
 }
+
+Spinner.propTypes = {
+  objective: PropTypes.bool
+};
+
+Spinner.defaultProps = {
+  objective: false
+};
 
 export default Spinner;
