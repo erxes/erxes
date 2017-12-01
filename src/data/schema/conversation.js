@@ -1,18 +1,4 @@
 export const types = `
-  input ConversationListParams {
-    limit: Int,
-    channelId: String
-    status: String
-    unassigned: String
-    brandId: String
-    tag: String
-    integrationType: String
-    participating: String
-    starred: String
-    ids: [String]
-  }
-
-
   type Conversation {
     _id: String!
     content: String
@@ -40,10 +26,20 @@ export const types = `
     participatorCount: Int
   }
 
+  type EngageData {
+    messageId: String
+    brandId: String
+    content: String
+    fromUserId: String
+    fromUser: User
+    kind: String
+    sentAs: String
+  }
+
   type ConversationMessage {
     _id: String!
     content: String
-    attachments: JSON
+    attachments: [JSON]
     mentionedUserIds: [String]
     conversationId: String
     internal: Boolean
@@ -51,7 +47,7 @@ export const types = `
     userId: String
     createdAt: Date
     isCustomerRead: Boolean
-    engageData: JSON
+    engageData: EngageData
     formWidgetData: JSON
     facebookData: JSON
 
@@ -68,16 +64,56 @@ export const types = `
     type: String!
     customerId: String!
   }
+
+  input ConversationMessageParams {
+    content: String,
+    mentionedUserIds: [String],
+    conversationId: String,
+    internal: Boolean,
+    customerId: String,
+    userId: String,
+    createdAt: Date,
+    isCustomerRead: Boolean,
+  }
+`;
+
+const filterParams = `
+  limit: Int,
+  channelId: String
+  status: String
+  unassigned: String
+  brandId: String
+  tag: String
+  integrationType: String
+  participating: String
+  starred: String
+  ids: [String]
 `;
 
 export const queries = `
-  conversations(params: ConversationListParams): [Conversation]
-  conversationCounts(params: ConversationListParams): JSON
+  conversations(${filterParams}): [Conversation]
+  conversationCounts(${filterParams}): JSON
+  conversationsTotalCount(${filterParams}): Int
   conversationDetail(_id: String!): Conversation
-  conversationsTotalCount(params: ConversationListParams): Int
+  conversationsGetLast(${filterParams}): Conversation
 `;
 
 export const mutations = `
-  conversationsChanged(_ids: [String]!, type: String): String
-  conversationMessageInserted(_id: String!): String
+  conversationMessageAdd(
+    conversationId: String,
+    content: String,
+    mentionedUserIds: [String],
+    internal: Boolean,
+    attachments: [JSON],
+  ): ConversationMessage
+
+  conversationsAssign(conversationIds: [String]!, assignedUserId: String): [Conversation]
+  conversationsUnassign(_ids: [String]!): [Conversation]
+  conversationsChangeStatus(_ids: [String]!, status: String!): [Conversation]
+  conversationsStar(_ids: [String]!): User
+  conversationsUnstar(_ids: [String]!): User
+  conversationsToggleParticipate(_ids: [String]!): Conversation
+  conversationMarkAsRead(_id: String): Conversation
+  conversationSubscribeMessageCreated(_id: String!): String
+  conversationSubscribeChanged(_ids: [String], type: String!): String
 `;

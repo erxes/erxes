@@ -6,12 +6,17 @@ import ResponseTemplate from './responseTemplate';
 import Integration from './integration';
 import Form from './form';
 import EngageMessage from './engage';
+import InternalNote from './internalNote';
 import Customer from './customer';
+import Company from './company';
 import Segment from './segment';
 import Conversation from './conversation';
 import ConversationMessage from './conversationMessage';
+import Notification from './notification';
 import KnowledgeBaseCategory from './knowledgeBaseCategory';
 import KnowledgeBaseTopic from './knowledgeBaseTopic';
+import ActivityLog from './activityLog';
+import ActivityLogForMonth from './activityLogForMonth';
 
 export default {
   ...customScalars,
@@ -19,7 +24,9 @@ export default {
   ResponseTemplate,
   Integration,
   Form,
+  InternalNote,
   Customer,
+  Company,
   Segment,
   EngageMessage,
   Conversation,
@@ -31,4 +38,9 @@ export default {
 
   KnowledgeBaseCategory,
   KnowledgeBaseTopic,
+
+  Notification,
+
+  ActivityLog,
+  ActivityLogForMonth,
 };

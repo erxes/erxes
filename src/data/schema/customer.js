@@ -1,55 +1,56 @@
 export const types = `
-  input CustomerListParams {
-    brand: String,
-    integration: String,
-    tag: String,
-    limit: Int,
-    page: String,
-    segment: String,
-    ids: [String]
-  }
-
   type Customer {
     _id: String!
     integrationId: String
     name: String
+    firstName: String
+    lastName: String
     email: String
     phone: String
     isUser: Boolean
     createdAt: Date
     tagIds: [String]
+    remoteAddress: String
     internalNotes: JSON
+    location: JSON
+    customFieldsData: JSON
     messengerData: JSON
     twitterData: JSON
     facebookData: JSON
 
+    companies: [Company]
     conversations: [Conversation]
     getIntegrationData: JSON
     getMessengerCustomData: JSON
     getTags: [Tag]
   }
+`;
 
-  type Segment {
-    _id: String!
-    name: String
-    description: String
-    subOf: String
-    color: String
-    connector: String
-    conditions: JSON
-
-    getParentSegment: Segment
-    getSubSegments: [Segment]
-  }
+const queryParams = `
+  page: Int,
+  perPage: Int,
+  segment: String,
+  tag: String,
+  ids: [String]
 `;
 
 export const queries = `
-  customers(params: CustomerListParams): [Customer]
-  customerCounts(params: CustomerListParams): JSON
+  customers(${queryParams}): [Customer]
+  customerCounts(${queryParams}): JSON
   customerDetail(_id: String!): Customer
   customerListForSegmentPreview(segment: JSON, limit: Int): [Customer]
-  customersTotalCount: Int
-  segments: [Segment]
-  headSegments: [Segment]
-  segmentDetail(_id: String): Segment
+`;
+
+const fields = `
+  firstName: String
+  lastName: String
+  email: String
+  phone: String
+  customFieldsData: JSON
+`;
+
+export const mutations = `
+  customersAdd(${fields}): Customer
+  customersEdit(_id: String!, ${fields}): Customer
+  customersAddCompany(_id: String!, name: String!, website: String): Company
 `;

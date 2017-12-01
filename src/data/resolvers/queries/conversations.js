@@ -1,15 +1,15 @@
 import { Channels, Brands, Conversations, Tags } from '../../../db/models';
 import { INTEGRATION_KIND_CHOICES } from '../../constants';
 import QueryBuilder from './conversationQueryBuilder';
+import { moduleRequireLogin } from '../../permissions';
 
-export default {
+const conversationQueries = {
   /**
    * Conversataions list
-   * @param {Object} args
-   * @param {ConversationListParams} args.params
+   * @param {Object} params - Query params
    * @return {Promise} filtered conversations list by given parameters
    */
-  async conversations(root, { params }, { user }) {
+  async conversations(root, params, { user }) {
     // filter by ids of conversations
     if (params && params.ids) {
       return Conversations.find({ _id: { $in: params.ids } }).sort({ createdAt: -1 });
@@ -21,7 +21,7 @@ export default {
     await qb.buildAllQueries();
 
     return Conversations.find(qb.mainQuery())
-      .sort({ createdAt: -1 })
+      .sort({ updatedAt: -1 })
       .limit(params.limit);
   },
 
@@ -29,13 +29,13 @@ export default {
    * Group conversation counts by brands, channels, integrations, status
    *
    * @param {Object} args
+   * @param {Object} params - Query params
    * @param {Object} context
-   * @param {ConversationListParams} args.params
    * @param {Object} context.user
    *
    * @return {Object} counts map
    */
-  async conversationCounts(root, { params }, { user }) {
+  async conversationCounts(root, params, { user }) {
     const response = {
       byChannels: {},
       byIntegrationTypes: {},
@@ -119,7 +119,7 @@ export default {
     );
 
     // by integration type
-    for (let intT of INTEGRATION_KIND_CHOICES.ALL_LIST) {
+    for (let intT of INTEGRATION_KIND_CHOICES.ALL) {
       response.byIntegrationTypes[intT] = await count(
         Object.assign({}, queries.default, await qb.integrationTypeFilter(intT)),
       );
@@ -157,7 +157,7 @@ export default {
    * Get all conversations count. We will use it in pager
    * @return {Promise} total count
    */
-  async conversationsTotalCount(root, { params }, { user }) {
+  async conversationsTotalCount(root, params, { user }) {
     // initiate query builder
     const qb = new QueryBuilder(params, { _id: user._id });
 
@@ -165,4 +165,22 @@ export default {
 
     return Conversations.find(qb.mainQuery()).count();
   },
+
+  /**
+   * Get last conversation
+   * @param {Object} params - Query params
+   * @return {Promise} filtered conversations list by given parameters
+   */
+  async conversationsGetLast(root, params, { user }) {
+    // initiate query builder
+    const qb = new QueryBuilder(params, { _id: user._id });
+
+    await qb.buildAllQueries();
+
+    return Conversations.findOne(qb.mainQuery()).sort({ updatedAt: -1 });
+  },
 };
+
+moduleRequireLogin(conversationQueries);
+
+export default conversationQueries;

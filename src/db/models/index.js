@@ -6,14 +6,21 @@ import Brands from './Brands';
 import Integrations from './Integrations';
 import EngageMessages from './Engages';
 import Tags from './Tags';
-import { Forms, FormFields } from './Forms';
-import { Customers, Segments } from './Customers';
-import { Conversations, Messages as ConversationMessages } from './Conversations';
+import Fields from './Fields';
+import Forms from './Forms';
+import InternalNotes from './InternalNotes';
+import Customers from './Customers';
+import Companies from './Companies';
+import Segments from './Segments';
+import Conversations from './Conversations';
+import ConversationMessages from './ConversationMessages';
 import {
   KnowledgeBaseArticles,
   KnowledgeBaseCategories,
   KnowledgeBaseTopics,
 } from './KnowledgeBase';
+import { Notifications, NotificationConfigurations } from './Notifications';
+import ActivityLogs from './ActivityLogs';
 
 export {
   Users,
@@ -23,14 +30,19 @@ export {
   Brands,
   Integrations,
   Forms,
-  FormFields,
   EngageMessages,
   Tags,
+  Fields,
   Segments,
+  InternalNotes,
   Customers,
+  Companies,
   Conversations,
   ConversationMessages,
   KnowledgeBaseArticles,
   KnowledgeBaseCategories,
   KnowledgeBaseTopics,
+  Notifications,
+  NotificationConfigurations,
+  ActivityLogs,
 };

@@ -1,4 +1,4 @@
-import { Segments, Users } from '../../db/models';
+import { Segments, Users, Tags } from '../../db/models';
 
 export default {
   segment(engageMessage) {
@@ -7,5 +7,9 @@ export default {
 
   fromUser(engageMessage) {
     return Users.findOne({ _id: engageMessage.fromUserId });
+  },
+
+  getTags(engageMessage) {
+    return Tags.find({ _id: { $in: engageMessage.tagIds || [] } });
   },
 };

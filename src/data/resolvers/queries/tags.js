@@ -1,6 +1,7 @@
 import { Tags } from '../../../db/models';
+import { moduleRequireLogin } from '../../permissions';
 
-export default {
+const tagQueries = {
   /**
    * Tags list
    * @param {Object} args
@@ -11,3 +12,7 @@ export default {
     return Tags.find({ type });
   },
 };
+
+moduleRequireLogin(tagQueries);
+
+export default tagQueries;

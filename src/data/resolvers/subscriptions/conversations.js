@@ -1,5 +1,5 @@
 import { withFilter } from 'graphql-subscriptions';
-import { pubsub } from './';
+import pubsub from './pubsub';
 
 export default {
   /*
