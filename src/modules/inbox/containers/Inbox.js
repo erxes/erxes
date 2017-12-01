@@ -34,7 +34,7 @@ class ConversationDetail extends Component {
         const prevEntry = messages.find(m => m._id === message._id);
 
         if (prevEntry) {
-          return next;
+          return prev;
         }
 
         // add new message to messages list
