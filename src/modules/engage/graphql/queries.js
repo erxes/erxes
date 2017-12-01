@@ -21,6 +21,7 @@ const engageMessages = `
           twitterUsername
         }
       }
+      tagIds
       getTags {
         _id
         name
