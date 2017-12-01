@@ -8,7 +8,7 @@ const FormContainer = props => {
   const { brandsQuery } = props;
 
   if (brandsQuery.loading) {
-    return <Spinner />;
+    return <Spinner objective />;
   }
 
   const updatedProps = {

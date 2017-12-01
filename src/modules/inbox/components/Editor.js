@@ -21,7 +21,7 @@ const MentionEntry = props => {
           <img
             alt={mention.get('name')}
             role="presentation"
-            src={mention.get('avatar')}
+            src={mention.get('avatar') || '/images/userDefaultIcon.png'}
             className="mentionSuggestionsEntryAvatar"
           />
         </div>

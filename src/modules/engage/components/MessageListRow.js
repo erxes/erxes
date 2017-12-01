@@ -8,7 +8,8 @@ import {
   FormControl,
   Button,
   Label,
-  Icon
+  Icon,
+  Tags
 } from 'modules/common/components';
 import { EngageTitle, HelperText } from '../styles';
 import { MESSAGE_KINDS } from 'modules/engage/constants';
@@ -160,6 +161,10 @@ class Row extends React.Component {
         <td>
           <Icon icon="calendar" />{' '}
           {moment(message.createdDate).format('DD MMM YYYY')}
+        </td>
+
+        <td>
+          <Tags tags={message.getTags} limit={3} />
         </td>
 
         <td>

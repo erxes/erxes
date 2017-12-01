@@ -8,7 +8,7 @@ const ChannelFormContainer = props => {
   const { object, integrationsQuery, usersQuery } = props;
 
   if (usersQuery.loading || integrationsQuery.loading) {
-    return <Spinner />;
+    return <Spinner objective />;
   }
 
   const integrations = integrationsQuery.integrations || [];

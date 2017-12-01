@@ -1,5 +1,5 @@
 import styled, { css } from 'styled-components';
-import { colors, dimensions, typography } from '../common/styles';
+import { colors, dimensions } from '../common/styles';
 import { rgba } from '../common/styles/color';
 
 const UserHelper = styled.div`
@@ -305,6 +305,11 @@ const SidebarCounter = styled.span`
   margin-top: 2px;
   position: absolute;
   right: 20px;
+
+  a {
+    padding: 0;
+    color: ${colors.linkPrimary};
+  }
 `;
 
 const FlexContent = styled.div`
@@ -380,21 +385,6 @@ const AuthDescription = styled.div`
   }
 `;
 
-const TagItem = styled.div`
-  display: inline-block;
-  border-radius: 8px;
-  text-transform: uppercase;
-  font-weight: ${typography.fontWeightRegular};
-  font-size: ${dimensions.unitSpacing}px;
-  color: ${colors.colorWhite};
-  padding: 0 ${dimensions.unitSpacing}px;
-  margin-right: ${dimensions.unitSpacing}px;
-
-  &:last-child {
-    margin-right: 0px;
-  }
-`;
-
 export {
   Layout,
   LeftNavigation,
@@ -427,6 +417,5 @@ export {
   WhiteBox,
   Authlayout,
   AuthContent,
-  AuthDescription,
-  TagItem
+  AuthDescription
 };

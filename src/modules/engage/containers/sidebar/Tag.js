@@ -12,7 +12,7 @@ const TagContainer = props => {
   if (countsQuery.loading) {
     return (
       <SidebarLoader.Section>
-        <Spinner />
+        <Spinner objective />
       </SidebarLoader.Section>
     );
   }

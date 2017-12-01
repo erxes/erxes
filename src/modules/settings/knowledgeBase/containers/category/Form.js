@@ -14,7 +14,7 @@ const CategoryAddFormContainer = props => {
   const { getArticleListQuery } = props;
 
   if (getArticleListQuery.loading) {
-    return <Spinner />;
+    return <Spinner objective />;
   }
 
   const updatedProps = {

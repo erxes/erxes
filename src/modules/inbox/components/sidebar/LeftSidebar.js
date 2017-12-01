@@ -107,13 +107,12 @@ class LeftSidebar extends Component {
         header={this.renderSidebarHeader()}
         footer={this.renderSidebarFooter()}
       >
-        {loading && <Spinner />}
         <ConversationList
           conversations={conversations}
           onRowClick={onChangeConversation}
           currentConversationId={currentConversationId}
         />
-
+        {loading && <Spinner />}
         <LoadMore all={totalCount} />
       </Sidebar>
     );

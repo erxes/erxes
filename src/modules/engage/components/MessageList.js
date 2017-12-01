@@ -25,8 +25,19 @@ const propTypes = {
 };
 
 class List extends React.Component {
+  constructor(props) {
+    super(props);
+
+    this.afterTag = this.afterTag.bind(this);
+  }
+
+  afterTag() {
+    this.props.emptyBulk();
+    this.props.refetch();
+  }
+
   renderTagger() {
-    const { bulk, emptyBulk } = this.props;
+    const { bulk } = this.props;
 
     const tagButton = (
       <Button btnStyle="simple" size="small">
@@ -40,7 +51,7 @@ class List extends React.Component {
           type="engageMessage"
           targets={bulk}
           trigger={tagButton}
-          afterSave={emptyBulk}
+          afterSave={this.afterTag}
         />
       );
     }
@@ -96,6 +107,7 @@ class List extends React.Component {
               <th>Failed</th>
               <th>Type</th>
               <th>Created date</th>
+              <th>Tags</th>
               <th>Actions</th>
             </tr>
           </thead>

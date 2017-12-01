@@ -43,7 +43,7 @@ class FacebookContainer extends Component {
     } = this.props;
 
     if (brandsQuery.loading || integrationFacebookAppsListQuery.loading) {
-      return <Spinner />;
+      return <Spinner objective />;
     }
 
     const brands = brandsQuery.brands;

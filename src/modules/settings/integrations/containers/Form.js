@@ -19,7 +19,7 @@ const FormContainer = props => {
   } = props;
 
   if (brandsQuery.loading || formsQuery.loading) {
-    return <Spinner />;
+    return <Spinner objective />;
   }
 
   const brands = brandsQuery.brands;

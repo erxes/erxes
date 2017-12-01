@@ -22,6 +22,11 @@ const engageMessages = `
         }
       }
       tagIds
+      getTags {
+        _id
+        name
+        colorCode
+      }
       messenger
       email
     }
