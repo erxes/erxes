@@ -24,8 +24,7 @@ class ConversationList extends React.Component {
   renderRow(data) {
     const { list } = data;
 
-    const { customer, history } = this.props || {};
-    const isExistingCustomer = customer && customer._id;
+    const { customer, history } = this.props;
 
     return list.map(item => {
       if (item.action !== 'conversation-create') return null;
@@ -38,16 +37,13 @@ class ConversationList extends React.Component {
           }}
         >
           <RowContent>
-            {isExistingCustomer && (
-              <NameCard.Avatar size={40} customer={customer} />
-            )}
+            <NameCard.Avatar size={40} customer={customer} />
             <MainInfo>
               <FlexContent>
                 <CustomerName>
-                  {isExistingCustomer &&
-                    (this.renderFullName(customer) ||
-                      customer.email ||
-                      customer.phone)}
+                  {this.renderFullName(customer) ||
+                    customer.email ||
+                    customer.phone}
                 </CustomerName>
                 <MessageContent>{item.content}</MessageContent>
               </FlexContent>
