@@ -12,13 +12,13 @@ The project is maintained by erxes Inc, along with an amazing group of independe
 - [Blog](https://blog.erxes.io/)
 - [Developer Blog](https://dev.erxes.io/)
 
-## Installation
+## Installation script
 
 ```Shell
   curl https://raw.githubusercontent.com/erxes/erxes/redesign-ui/scripts/install.sh | sh
 ```
 
-## Custom installation
+## Manual install
 This repository is the main web app of the erxes platform that consists of 2 other repositories:
 
 - [API](https://github.com/erxes/erxes-api)
