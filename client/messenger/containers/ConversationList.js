@@ -33,14 +33,7 @@ class ConversationList extends Component {
 }
 
 ConversationList.propTypes = {
-  data: PropTypes.shape({
-    conversations: PropTypes.arrayOf(PropTypes.shape({
-      _id: PropTypes.string.isRequired,
-      content: PropTypes.string.isRequired,
-      date: PropTypes.instanceOf(Date),
-    })),
-    refetch: PropTypes.func,
-  }),
+  data: PropTypes.object,
   isConversationEnded: PropTypes.bool,
 };
 
@@ -48,7 +41,7 @@ ConversationList.propTypes = {
 const mapDisptachToProps = dispatch => ({
   createConversation(e) {
     e.preventDefault();
-    dispatch(changeRoute('conversation'));
+    dispatch(changeRoute('conversationCreate'));
   },
 
   goToConversation(conversationId) {
@@ -56,7 +49,7 @@ const mapDisptachToProps = dispatch => ({
     dispatch(changeConversation(conversationId));
 
     // change route
-    dispatch(changeRoute('conversation'));
+    dispatch(changeRoute('conversationDetail'));
 
     // mark as read
     dispatch(readMessages(conversationId));

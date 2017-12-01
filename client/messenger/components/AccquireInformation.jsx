@@ -64,7 +64,7 @@ class AccquireInformation extends Component {
             </span>
           </p>
 
-          <div className="form">
+          <form className="form" onSubmit={this.save}>
             <input
               onChange={this.onValueChange}
               placeholder={type === 'email' ? 'email@domain.com' : 'phone number ...'}
@@ -73,11 +73,12 @@ class AccquireInformation extends Component {
 
             <button
               onClick={this.save}
+              type="submit"
               style={{ backgroundColor: color }}
             >
               {iconRight}
             </button>
-          </div>
+          </form>
         </div>
       </div>
     );

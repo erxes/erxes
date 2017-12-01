@@ -21,6 +21,10 @@
 
   .erxes-middle {
     display: inline-block;
+
+    @media screen and (max-width: $break-small) {
+      padding-right: 30px;
+    }
   }
 }
 

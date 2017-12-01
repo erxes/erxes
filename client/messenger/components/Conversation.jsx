@@ -4,13 +4,12 @@ import React, { Component, PropTypes } from 'react';
 import { iconLeft } from '../../icons/Icons';
 import { MessagesList, MessageSender, TopBar } from '../containers';
 
-
 const propTypes = {
   messages: PropTypes.array.isRequired,
   goToConversationList: PropTypes.func.isRequired,
   user: PropTypes.object,
   data: PropTypes.object,
-  isNewConversation: PropTypes.bool,
+  isNew: PropTypes.bool,
   isOnline: PropTypes.bool,
   color: PropTypes.string,
 };
@@ -70,14 +69,14 @@ class Conversation extends Component {
   render() {
     const {
       messages,
-      isNewConversation,
+      isNew,
       goToConversationList,
       data,
       isOnline,
       color,
     } = this.props;
 
-    const placeholder = isNewConversation ? 'Send a message ...' : 'Write a reply ...';
+    const placeholder = isNew ? 'Send a message ...' : 'Write a reply ...';
     const style = { border: `1px solid ${color}` };
 
     return (
@@ -104,7 +103,7 @@ Conversation.propTypes = propTypes;
 Conversation.defaultProps = {
   user: {},
   data: {},
-  isNewConversation: false,
+  isNew: false,
   isOnline: false,
 };
 

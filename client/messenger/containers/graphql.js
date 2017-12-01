@@ -21,19 +21,16 @@ const messageFields = `
         avatar
       }
     }
+    messageId
+    brandId
   }
-  attachments{
-    url
-    name
-    size
-    type
-  }
+  attachments
 `;
 
 
 const conversationDetailQuery = `
-  query ($conversationId: String!) {
-    conversationDetail(_id: $conversationId) {
+  query ($_id: String!) {
+    conversationDetail(_id: $_id) {
       _id
       content
       messages {
@@ -44,8 +41,8 @@ const conversationDetailQuery = `
 `;
 
 const conversationLastStaffQuery = `
-  query ($conversationId: String!) {
-    conversationLastStaff(_id: $conversationId) {
+  query ($_id: String) {
+    conversationLastStaff(_id: $_id) {
       _id,
       details {
         avatar
@@ -83,6 +80,14 @@ const conversationsChangedSubscription = `
   }
 `;
 
+const conversationChanged = `
+  subscription conversationChanged($_id: String!) {
+    conversationChanged(_id: $_id) {
+      type
+    }
+  }
+`;
+
 export default {
   messageFields,
   conversationDetailQuery,
@@ -90,5 +95,6 @@ export default {
   isMessengerOnlineQuery,
   unreadCountQuery,
   conversationMessageInserted,
+  conversationChanged,
   conversationsChangedSubscription,
 }

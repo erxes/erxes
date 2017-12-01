@@ -10,7 +10,7 @@ Embedable widget scripts server for erxes.
 ```Shell
 git clone https://github.com/erxes/erxes-widgets
 cd erxes-widgets
-npm install
+yarn install
 ```
 
 #### 3. Create configuration. We use [dotenv](https://github.com/motdotla/dotenv) for this.
@@ -26,16 +26,38 @@ This configuration matches with the default configurations of other erxes platfo
 For development:
 
 ```Shell
-npm run dev
+yarn dev
 ```
 
 For production:
 
 ```Shell
-npm run build
-npm start
+yarn build
+yarn start
 ```
 
 #### 5. Running servers:
 
 Widgets server is running on [http://localhost:3200](http://localhost:3200).
+
+
+#### Usage:
+Script to show the window that communicates with customers
+```javascript
+  window.erxesSettings = {
+      messenger: {
+          brand_id: "YDEdKj",
+          email: "email",
+          name: "username",
+          domain: "domain",
+          created_at: 1369642043,
+      },
+  };
+
+  var script = document.createElement('script');
+  script.src = "http://localhost:3200/build/messengerWidget.bundle.js";
+  script.async = true;
+
+  var entry = document.getElementsByTagName('script')[0];
+  entry.parentNode.insertBefore(script, entry);
+```
