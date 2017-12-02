@@ -59,53 +59,55 @@ const createMessage = async (conversation, content, user) => {
 };
 
 /*
- * Create new conversation by regular tweet
- * @param {Object} data - Twitter stream data
+ * Create new message by tweet reply information
  * @param {Object} integration
- * @return previous or newly conversation object
+ * @param {Object} data - Twitter stream data
+ * @return newly created message
  */
-export const getOrCreateCommonConversation = async (data, integration) => {
-  let conversation;
+export const receiveMentionReply = async (integration, data) => {
+  // find conversation by tweet id
+  const conversation = await Conversations.findOne({
+    'twitterData.id': data.in_reply_to_status_id,
+  });
 
-  if (data.in_reply_to_status_id) {
-    // find conversation by tweet id
-    conversation = await Conversations.findOne({
-      'twitterData.id': data.in_reply_to_status_id,
-    });
-
-    if (conversation) {
-      // if closed, reopen it
-      await Conversations.reopen(conversation._id);
-
-      // create new message
-      await createMessage(conversation, data.text, data.user);
-    }
-
-    // create new conversation
-  } else {
-    const customerId = await getOrCreateCustomer(integration._id, data.user);
-
-    const conversationId = await Conversations.createConversation({
-      content: data.text,
-      integrationId: integration._id,
-      customerId,
-
-      // save tweet id
-      twitterData: {
-        id: data.id,
-        idStr: data.id_str,
-        screenName: data.user.screen_name,
-        isDirectMessage: false,
-      },
-    });
-
-    conversation = await Conversations.findOne({ _id: conversationId });
+  if (conversation) {
+    // if closed, reopen it
+    await Conversations.reopen(conversation._id);
 
     // create new message
-    await createMessage(conversation, data.text, data.user);
+    return createMessage(conversation, data.text, data.user);
   }
 
-  return conversation;
+  return null;
+};
+
+/*
+ * Create conversation by mentioned information
+ * @param {Object} integration - Integration
+ * @param {Object} data - Tweet data
+ * @return newly created message
+ */
+export const createConversationByMention = async (integration, data) => {
+  const customerId = await getOrCreateCustomer(integration._id, data.user);
+
+  const conversationId = await Conversations.createConversation({
+    content: data.text,
+    integrationId: integration._id,
+    customerId,
+
+    // save tweet information
+    twitterData: {
+      id: data.id,
+      idStr: data.id_str,
+      screenName: data.user.screen_name,
+      isDirectMessage: false,
+    },
+  });
+
+  const conversation = await Conversations.findOne({ _id: conversationId });
+
+  // create new message
+  return createMessage(conversation, data.text, data.user);
 };
 
 /*
@@ -176,6 +178,9 @@ export const getOrCreateDirectMessageConversation = async (data, integration) =>
   return conversation;
 };
 
+/*
+ * Receive timeline response
+ */
 export const receiveTimeLineResponse = async (integration, data) => {
   const integrationUserId = integration.twitterData.id;
   const integrationOnDb = await Integrations.findOne({ _id: integration._id });
@@ -189,20 +194,13 @@ export const receiveTimeLineResponse = async (integration, data) => {
 
   // if user is replying to some tweet
   if (data.in_reply_to_status_id) {
-    const conversation = await Conversations.findOne({
-      'twitterData.id': data.in_reply_to_status_id,
-    });
-
-    // and that tweet must exists
-    if (conversation) {
-      return getOrCreateCommonConversation(data, integration);
-    }
+    return receiveMentionReply(integration, data);
   }
 
   for (let mention of data.entities.user_mentions) {
     // listen for only mentioned tweets
     if (mention.id === integrationUserId) {
-      await getOrCreateCommonConversation(data, integration);
+      await createConversationByMention(integration, data);
     }
   }
 
