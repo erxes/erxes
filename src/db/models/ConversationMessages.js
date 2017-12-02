@@ -57,6 +57,16 @@ const FacebookSchema = mongoose.Schema(
   { _id: false },
 );
 
+const TwitterSchema = mongoose.Schema(
+  {
+    id: field({
+      type: String,
+      optional: true,
+    }),
+  },
+  { _id: false },
+);
+
 const MessageSchema = mongoose.Schema({
   _id: field({ pkey: true }),
   content: field({ type: String }),
@@ -71,6 +81,7 @@ const MessageSchema = mongoose.Schema({
   engageData: field({ type: Object }),
   formWidgetData: field({ type: Object }),
   facebookData: field({ type: FacebookSchema }),
+  twitterData: field({ type: TwitterSchema }),
 });
 
 class Message {
