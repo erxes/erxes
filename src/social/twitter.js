@@ -193,7 +193,7 @@ export const receiveTimeLineResponse = async (integration, data) => {
   }
 
   // if user is replying to some tweet
-  if (data.in_reply_to_status_id) {
+  if (data.in_reply_to_status_id && data.user.id === integrationUserId) {
     return receiveMentionReply(integration, data);
   }
 
