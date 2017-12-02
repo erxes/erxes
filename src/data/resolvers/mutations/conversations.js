@@ -120,14 +120,6 @@ const conversationMutations = {
       throw new Error('Integration not found');
     }
 
-    const kind = integration.kind;
-
-    // send reply to twitter
-    if (kind === KIND_CHOICES.TWITTER) {
-      await tweetReply(conversation, strip(doc.content));
-      return null;
-    }
-
     // send notification =======
     const title = 'You have a new message.';
 
@@ -140,14 +132,22 @@ const conversationMutations = {
       receivers: conversationNotifReceivers(conversation, user._id),
     });
 
-    const message = await ConversationMessages.addMessage(doc, user._id);
-
     // do not send internal message to third service integrations
     if (doc.internal) {
+      const message = await ConversationMessages.addMessage(doc, user._id);
+
       // notify subscription
       await conversationMessageCreated(message, doc.conversationId);
 
       return message;
+    }
+
+    const kind = integration.kind;
+
+    // send reply to twitter
+    if (kind === KIND_CHOICES.TWITTER) {
+      await tweetReply(conversation, strip(doc.content));
+      return null;
     }
 
     const customer = await Customers.findOne({ _id: conversation.customerId });
@@ -165,6 +165,8 @@ const conversationMutations = {
         },
       });
     }
+
+    const message = await ConversationMessages.addMessage(doc, user._id);
 
     // send reply to facebook
     if (kind === KIND_CHOICES.FACEBOOK) {

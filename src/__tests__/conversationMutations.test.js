@@ -14,7 +14,7 @@ import {
 } from '../db/factories';
 import conversationMutations from '../data/resolvers/mutations/conversations';
 import { TwitMap } from '../social/twitter';
-import { socUtils } from '../social/twitterTracker';
+import { twitRequest } from '../social/twitterTracker';
 import { graphRequest } from '../social/facebookTracker';
 import utils from '../data/utils';
 import { FACEBOOK_DATA_KINDS } from '../data/constants';
@@ -174,7 +174,7 @@ describe('Conversation message mutations', () => {
 
     // mock twitter request
     const sandbox = sinon.sandbox.create();
-    const stub = sandbox.stub(socUtils, 'twitPost').callsFake(() => {
+    const stub = sandbox.stub(twitRequest, 'post').callsFake(() => {
       return new Promise(resolve => {
         resolve({});
       });
