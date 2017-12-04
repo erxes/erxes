@@ -5,10 +5,12 @@ const buttonSize = 28;
 
 const PaginationWrapper = styled.div`
   background: ${colors.bgLight};
-  box-shadow: 0 0 4px ${colors.shadowPrimary};
   display: flex;
   align-items: center;
   justify-content: center;
+  border-top: 1px solid ${colors.borderPrimary};
+  margin-top: -1px;
+  position: relative;
 `;
 
 const PaginationList = styled.ul`
