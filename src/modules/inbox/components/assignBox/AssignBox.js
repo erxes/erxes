@@ -51,7 +51,7 @@ class AssignBox extends Component {
       let state = 'none';
       if (count === targets.length) {
         state = 'all';
-      } else if (count < targets.length) {
+      } else if (count < targets.length && count > 0) {
         state = 'some';
       }
 
