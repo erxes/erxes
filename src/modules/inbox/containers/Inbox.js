@@ -3,6 +3,7 @@ import { withRouter } from 'react-router';
 import PropTypes from 'prop-types';
 import { compose, gql, graphql } from 'react-apollo';
 import { Alert, router as routerUtils } from 'modules/common/utils';
+import queryString from 'query-string';
 import { Inbox as InboxComponent } from '../components';
 import { queries, mutations, subscriptions } from '../graphql';
 import { generateParams } from '../utils';
@@ -14,7 +15,15 @@ class ConversationDetail extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    const { currentConversationId, conversationDetailQuery } = this.props;
+    const {
+      history,
+      currentConversationId,
+      conversationDetailQuery
+    } = this.props;
+
+    if (!routerUtils.getParam(history, '_id') && currentConversationId) {
+      routerUtils.setParams(history, { _id: currentConversationId });
+    }
 
     if (nextProps.currentConversationId !== currentConversationId) {
       this.subscribe(conversationDetailQuery, nextProps.currentConversationId);
@@ -126,7 +135,8 @@ ConversationDetail.propTypes = {
   conversationDetailQuery: PropTypes.object,
   changeStatusMutation: PropTypes.func.isRequired,
   currentConversationId: PropTypes.string.isRequired,
-  markAsReadMutation: PropTypes.func.isRequired
+  markAsReadMutation: PropTypes.func.isRequired,
+  history: PropTypes.object
 };
 
 const ConversationDetailContainer = compose(
@@ -188,7 +198,8 @@ const LastConversationContainer = compose(
  * Main inbox component
  */
 const Inbox = props => {
-  const { _id } = props;
+  const queryParams = queryString.parse(props.location.search);
+  const _id = queryParams._id;
 
   const onChangeConversation = conversation => {
     routerUtils.setParams(props.history, { _id: conversation._id });
@@ -196,6 +207,7 @@ const Inbox = props => {
 
   const updatedProps = {
     ...props,
+    queryParams,
     onChangeConversation
   };
 
@@ -210,7 +222,7 @@ const Inbox = props => {
 
 Inbox.propTypes = {
   history: PropTypes.object,
-  _id: PropTypes.string
+  location: PropTypes.object
 };
 
 export default withRouter(Inbox);
