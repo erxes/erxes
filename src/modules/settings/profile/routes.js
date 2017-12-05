@@ -7,27 +7,21 @@ const routes = () => [
     key="/settings/profile"
     exact
     path="/settings/profile"
-    component={() => {
-      return <Profile />;
-    }}
+    component={Profile}
   />,
 
   <Route
-    key="/change-password"
+    key="/settings/change-password"
     exact
-    path="/change-password"
-    component={() => {
-      return <ChangePassword />;
-    }}
+    path="/settings/change-password"
+    component={ChangePassword}
   />,
 
   <Route
     key="/settings/notification-settings"
     exact
     path="/settings/notification-settings"
-    component={() => {
-      return <NotificationSettings />;
-    }}
+    component={NotificationSettings}
   />
 ];
 

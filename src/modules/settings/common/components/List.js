@@ -6,8 +6,7 @@ import {
   Button,
   Icon
 } from 'modules/common/components';
-import { Wrapper } from 'modules/layout/components';
-import Sidebar from '../../Sidebar';
+import { Header, PageContent, ActionBar } from 'modules/layout/components';
 
 const propTypes = {
   objects: PropTypes.array.isRequired,
@@ -53,15 +52,17 @@ class List extends Component {
       </ModalTrigger>
     );
 
-    return (
-      <Wrapper
-        header={<Wrapper.Header breadcrumb={this.breadcrumb()} />}
-        leftSidebar={<Sidebar />}
-        actionBar={<Wrapper.ActionBar right={actionBarLeft} />}
+    return [
+      <Header key="breadcrumb" breadcrumb={this.breadcrumb()} />,
+      <PageContent
+        key="settings-content"
+        actionBar={<ActionBar right={actionBarLeft} />}
         footer={<Pagination count={totalCount} />}
-        content={this.renderContent()}
-      />
-    );
+        transparent={false}
+      >
+        {this.renderContent()}
+      </PageContent>
+    ];
   }
 }
 

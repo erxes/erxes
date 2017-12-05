@@ -1,10 +1,9 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Modal } from 'react-bootstrap';
-import { Wrapper } from 'modules/layout/components';
+import { Header, PageContent } from 'modules/layout/components';
 import { Button, Icon } from 'modules/common/components';
 import { ContentBox } from '../../styles';
-import Sidebar from '../../Sidebar';
 import SelectBrand from './SelectBrand';
 
 class Twitter extends Component {
@@ -40,13 +39,10 @@ class Twitter extends Component {
       { title: 'Integrations' }
     ];
 
-    return (
-      <Wrapper
-        header={<Wrapper.Header breadcrumb={breadcrumb} />}
-        leftSidebar={<Sidebar />}
-        content={content}
-      />
-    );
+    return [
+      <Header key="breadcrumb" breadcrumb={breadcrumb} />,
+      <PageContent key="settings-content">{content}</PageContent>
+    ];
   }
 }
 

@@ -7,8 +7,7 @@ import {
   FormControl,
   Icon
 } from 'modules/common/components';
-import { Wrapper } from 'modules/layout/components';
-import Sidebar from '../../Sidebar';
+import { ActionBar, Header, PageContent } from 'modules/layout/components';
 import { ContentBox, SubHeading } from '../../styles';
 
 const propTypes = {
@@ -73,7 +72,7 @@ class ChangePassword extends Component {
     ];
 
     const actionFooter = (
-      <Wrapper.ActionBar
+      <ActionBar
         right={
           <Button btnStyle="success" onClick={this.handleSubmit}>
             <Icon icon="checkmark" /> Save
@@ -82,14 +81,12 @@ class ChangePassword extends Component {
       />
     );
 
-    return (
-      <Wrapper
-        header={<Wrapper.Header breadcrumb={breadcrumb} />}
-        leftSidebar={<Sidebar />}
-        footer={actionFooter}
-        content={content}
-      />
-    );
+    return [
+      <Header key="breadcrumb" breadcrumb={breadcrumb} />,
+      <PageContent key="settings-content" footer={actionFooter}>
+        {content}
+      </PageContent>
+    ];
   }
 }
 

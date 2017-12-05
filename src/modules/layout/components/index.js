@@ -1,5 +1,6 @@
 import MainBar from './MainBar';
 import Header from './Header';
+import ActionBar from './ActionBar';
 import QuickNavigation from './QuickNavigation';
 import AuthLayout from './AuthLayout';
 import MainLayout from './MainLayout';
@@ -12,6 +13,7 @@ import Wrapper from './Wrapper';
 export {
   MainBar,
   Header,
+  ActionBar,
   QuickNavigation,
   AuthLayout,
   MainLayout,

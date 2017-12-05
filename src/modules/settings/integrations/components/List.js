@@ -1,8 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Wrapper } from 'modules/layout/components';
+import { Header, ActionBar, PageContent } from 'modules/layout/components';
 import { Pagination, Table } from 'modules/common/components';
-import Sidebar from '../../Sidebar';
 import { AddIntegration } from '../components';
 import Row from './Row';
 
@@ -36,7 +35,7 @@ class List extends Component {
   render() {
     const { totalCount } = this.props;
 
-    const actionBar = <Wrapper.ActionBar right={<AddIntegration />} />;
+    const actionBar = <ActionBar right={<AddIntegration />} />;
 
     const content = (
       <Table>
@@ -57,15 +56,16 @@ class List extends Component {
       { title: 'Integrations' }
     ];
 
-    return (
-      <Wrapper
-        header={<Wrapper.Header breadcrumb={breadcrumb} />}
-        leftSidebar={<Sidebar />}
+    return [
+      <Header key="breadcrumb" breadcrumb={breadcrumb} />,
+      <PageContent
+        key="settings-content"
         actionBar={actionBar}
         footer={<Pagination count={totalCount} />}
-        content={content}
-      />
-    );
+      >
+        {content}
+      </PageContent>
+    ];
   }
 }
 
