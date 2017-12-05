@@ -9,8 +9,7 @@ import {
   Icon,
   Table
 } from 'modules/common/components';
-import { Wrapper } from 'modules/layout/components';
-import Sidebar from '../../Sidebar';
+import { PageContent, Header } from 'modules/layout/components';
 import { Config } from '../containers';
 
 const propTypes = {
@@ -76,13 +75,10 @@ class List extends React.Component {
       { title: 'Email appearance' }
     ];
 
-    return (
-      <Wrapper
-        header={<Wrapper.Header breadcrumb={breadcrumb} />}
-        leftSidebar={<Sidebar />}
-        content={content}
-      />
-    );
+    return [
+      <Header key="breadcrumb" breadcrumb={breadcrumb} />,
+      <PageContent key="settings-content">{content}</PageContent>
+    ];
   }
 }
 

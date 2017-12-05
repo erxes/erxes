@@ -1,4 +1,5 @@
 import React from 'react';
+import { Route } from 'react-router-dom';
 import ChannelsRoutes from './channels/routes';
 import BrandsRoutes from './brands/routes';
 import ResponseTemplatesRoutes from './responseTemplates/routes';
@@ -9,18 +10,27 @@ import FormsRoutes from './forms/routes';
 import IntegrationsRoutes from './integrations/routes';
 import KnowledgeBaseRoutes from './knowledgeBase/routes';
 import ProfileRoutes from './profile/routes';
+import Sidebar from './Sidebar';
+import { Contents } from 'modules/layout/styles';
 
-const routes = () => [
-  <ChannelsRoutes key="ChannelsRoutes" />,
-  <BrandsRoutes key="BrandsRoutes" />,
-  <ResponseTemplatesRoutes key="ResponseTemplatesRoutes" />,
-  <EmailTemplatesRoutes key="EmailTemplatesRoutes" />,
-  <TeamMembersRoutes key="TeamMembersRoutes" />,
-  <EmailRoutes key="EmailRoutes" />,
-  <FormsRoutes key="FormsRoutes" />,
-  <IntegrationsRoutes key="IntegrationsRoutes" />,
-  <KnowledgeBaseRoutes key="KnowledgeBaseRoutes" />,
-  <ProfileRoutes key="ProfileRoutes" />
-];
+const routes = () => {
+  return (
+    <Contents>
+      <Sidebar />
+      <ChannelsRoutes key="ChannelsRoutes" />
+      <BrandsRoutes key="BrandsRoutes" />
+      <ResponseTemplatesRoutes key="ResponseTemplatesRoutes" />
+      <EmailTemplatesRoutes key="EmailTemplatesRoutes" />
+      <TeamMembersRoutes key="TeamMembersRoutes" />
+      <EmailRoutes key="EmailRoutes" />
+      <FormsRoutes key="FormsRoutes" />
+      <IntegrationsRoutes key="IntegrationsRoutes" />
+      <KnowledgeBaseRoutes key="KnowledgeBaseRoutes" />
+      <ProfileRoutes key="ProfileRoutes" />
+    </Contents>
+  );
+};
 
-export default routes;
+const settingsRoute = () => <Route path="/settings" component={routes} />;
+
+export default settingsRoute;

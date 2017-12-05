@@ -4,8 +4,7 @@ import PropTypes from 'prop-types';
 import { Col, Row } from 'react-bootstrap';
 import Select from 'react-select-plus';
 import Toggle from 'react-toggle';
-import { Wrapper } from 'modules/layout/components';
-import Sidebar from '../../Sidebar';
+import { ActionBar, Header, PageContent } from 'modules/layout/components';
 import { timezones } from '../constants';
 import OnlineHours from './OnlineHours';
 import {
@@ -229,7 +228,7 @@ class Configs extends Component {
     ];
 
     const actionFooter = (
-      <Wrapper.ActionBar
+      <ActionBar
         right={
           <Button.Group>
             <Link to="/settings/integrations">
@@ -246,14 +245,12 @@ class Configs extends Component {
       />
     );
 
-    return (
-      <Wrapper
-        header={<Wrapper.Header breadcrumb={breadcrumb} />}
-        leftSidebar={<Sidebar />}
-        footer={actionFooter}
-        content={content}
-      />
-    );
+    return [
+      <Header key="breadcrumb" breadcrumb={breadcrumb} />,
+      <PageContent key="settings-content" footer={actionFooter}>
+        {content}
+      </PageContent>
+    ];
   }
 }
 

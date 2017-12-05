@@ -1,12 +1,10 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Wrapper } from '../layout/components';
+import { Sidebar } from '../layout/components';
 import { QuickButton, SidebarList } from '../layout/styles';
 
-function Sidebar() {
-  const { Title, QuickButtons } = Wrapper.Sidebar.Section;
-
-  const Sidebar = Wrapper.Sidebar;
+function SettingsSidebar() {
+  const { Title, QuickButtons } = Sidebar.Section;
 
   return (
     <Sidebar>
@@ -83,7 +81,7 @@ function Sidebar() {
             <Link to="/settings/profile">Profile</Link>
           </li>
           <li>
-            <Link to="/change-password">Change password</Link>
+            <Link to="/settings/change-password">Change password</Link>
           </li>
           <li>
             <Link to="/settings/emails/signatures">Email signatures</Link>
@@ -99,4 +97,4 @@ function Sidebar() {
   );
 }
 
-export default Sidebar;
+export default SettingsSidebar;

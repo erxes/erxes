@@ -8,8 +8,7 @@ import {
   Icon
 } from 'modules/common/components';
 import { UserCommonInfos } from 'modules/auth/components';
-import { Wrapper } from 'modules/layout/components';
-import Sidebar from '../../Sidebar';
+import { ActionBar, Header, PageContent } from 'modules/layout/components';
 import { ContentBox } from '../../styles';
 
 const propTypes = {
@@ -70,7 +69,7 @@ class Profile extends Component {
     ];
 
     const actionFooter = (
-      <Wrapper.ActionBar
+      <ActionBar
         right={
           <Button btnStyle="success" onClick={this.handleSubmit}>
             <Icon icon="checkmark" /> Save
@@ -79,14 +78,12 @@ class Profile extends Component {
       />
     );
 
-    return (
-      <Wrapper
-        header={<Wrapper.Header breadcrumb={breadcrumb} />}
-        leftSidebar={<Sidebar />}
-        footer={actionFooter}
-        content={content}
-      />
-    );
+    return [
+      <Header key="breadcrumb" breadcrumb={breadcrumb} />,
+      <PageContent key="settings-content" footer={actionFooter}>
+        {content}
+      </PageContent>
+    ];
   }
 }
 

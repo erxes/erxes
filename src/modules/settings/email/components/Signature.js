@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Wrapper } from 'modules/layout/components';
+import { ActionBar, Header, PageContent } from 'modules/layout/components';
 import {
   ControlLabel,
   Button,
@@ -8,7 +8,6 @@ import {
   FormControl,
   Icon
 } from 'modules/common/components';
-import Sidebar from '../../Sidebar';
 import { ContentBox, SubHeading, Well } from '../../styles';
 
 const propTypes = {
@@ -107,7 +106,7 @@ class Signature extends Component {
     ];
 
     const actionFooter = (
-      <Wrapper.ActionBar
+      <ActionBar
         right={
           <Button btnStyle="success" onClick={this.handleSubmit}>
             <Icon icon="checkmark" /> Save
@@ -116,14 +115,12 @@ class Signature extends Component {
       />
     );
 
-    return (
-      <Wrapper
-        header={<Wrapper.Header breadcrumb={breadcrumb} />}
-        leftSidebar={<Sidebar />}
-        footer={actionFooter}
-        content={content}
-      />
-    );
+    return [
+      <Header key="breadcrumb" breadcrumb={breadcrumb} />,
+      <PageContent key="settings-content" footer={actionFooter}>
+        {content}
+      </PageContent>
+    ];
   }
 }
 

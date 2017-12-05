@@ -5,8 +5,7 @@ import { OverlayTrigger, Popover } from 'react-bootstrap';
 import classnames from 'classnames';
 import { ChromePicker } from 'react-color';
 import { uploadHandler } from 'modules/common/utils';
-import { Wrapper } from 'modules/layout/components';
-import Sidebar from '../../Sidebar';
+import { ActionBar, Header, PageContent } from 'modules/layout/components';
 import { WidgetPreview } from './';
 import { MessengerPreview, Messenger } from 'modules/engage/styles';
 import { Button, Icon, Tip } from 'modules/common/components';
@@ -182,7 +181,7 @@ class Appearance extends Component {
     ];
 
     const actionBar = (
-      <Wrapper.ActionBar
+      <ActionBar
         right={
           <Button.Group>
             <Link to="/settings/integrations">
@@ -199,14 +198,12 @@ class Appearance extends Component {
       />
     );
 
-    return (
-      <Wrapper
-        header={<Wrapper.Header breadcrumb={breadcrumb} />}
-        leftSidebar={<Sidebar />}
-        footer={actionBar}
-        content={content}
-      />
-    );
+    return [
+      <Header key="breadcrumb" breadcrumb={breadcrumb} />,
+      <PageContent key="settings-content" footer={actionBar}>
+        {content}
+      </PageContent>
+    ];
   }
 }
 
