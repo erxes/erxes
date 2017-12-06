@@ -4,8 +4,6 @@ import { colors, dimensions } from 'modules/common/styles';
 const coreSpace = `${dimensions.coreSpacing}px`;
 
 const EngageTitle = styled.div`
-  font-weight: 400;
-
   &:hover {
     text-decoration: underline;
     color: ${colors.colorBlack};
