@@ -103,6 +103,12 @@ const totalConversationsCount = `
   }
 `;
 
+const unreadConversationsCount = `
+  query conversationsTotalUnreadCount {
+    conversationsTotalUnreadCount
+  }
+`;
+
 const lastConversation = `
   query conversationsGetLast(${listParamsDef}) {
     conversationsGetLast(${listParamsValue}) {
@@ -138,5 +144,6 @@ export default {
   responseTemplateList,
   conversationCounts,
   totalConversationsCount,
+  unreadConversationsCount,
   lastConversation
 };

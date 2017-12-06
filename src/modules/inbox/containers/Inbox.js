@@ -108,14 +108,9 @@ class ConversationDetail extends Component {
     ) {
       markAsReadMutation({
         variables: { _id: currentConversation._id }
-      })
-        .then(() => {
-          conversationDetailQuery.refetch();
-        })
-
-        .catch(e => {
-          Alert.error(e.message);
-        });
+      }).catch(e => {
+        Alert.error(e.message);
+      });
     }
 
     const updatedProps = {
@@ -153,7 +148,18 @@ const ConversationDetailContainer = compose(
     name: 'changeStatusMutation'
   }),
   graphql(gql(mutations.markAsRead), {
-    name: 'markAsReadMutation'
+    name: 'markAsReadMutation',
+    options: ({ currentConversationId }) => {
+      return {
+        refetchQueries: [
+          {
+            query: gql(queries.conversationDetail),
+            variables: { _id: currentConversationId }
+          },
+          { query: gql(queries.unreadConversationsCount) }
+        ]
+      };
+    }
   })
 )(ConversationDetail);
 

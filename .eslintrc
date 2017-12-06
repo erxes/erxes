@@ -21,7 +21,7 @@
     "react"
   ],
   "rules": {
-    "max-len": ["error", 100],
+    "max-len": ["error", 120],
     "no-console":0
   }
 }

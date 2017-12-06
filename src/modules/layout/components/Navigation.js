@@ -1,9 +1,10 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { NavLink } from 'react-router-dom';
 import { Tip, Icon } from 'modules/common/components';
 import { LeftNavigation, Nav } from '../styles';
 
-function Navigation() {
+function Navigation({ unreadConversationsCount }) {
   return (
     <LeftNavigation>
       <NavLink to="/" activeClassName="active">
@@ -12,7 +13,7 @@ function Navigation() {
       <Nav>
         <Tip placement="right" text="Inbox">
           <NavLink to="/inbox" activeClassName="active">
-            <Icon icon="ios-chatboxes" />
+            <Icon icon="ios-chatboxes" /> {unreadConversationsCount}
           </NavLink>
         </Tip>
         <Tip placement="right" text="Customers">
@@ -44,5 +45,9 @@ function Navigation() {
     </LeftNavigation>
   );
 }
+
+Navigation.propTypes = {
+  unreadConversationsCount: PropTypes.number
+};
 
 export default Navigation;
