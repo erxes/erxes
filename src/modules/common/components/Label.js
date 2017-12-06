@@ -4,11 +4,11 @@ import styled, { keyframes } from 'styled-components';
 import { colors } from '../styles';
 
 const shake = keyframes`
-  0%{transform:rotate(-7deg)}
-  28%{transform:rotate(7deg)}
-  10%{transform:rotate(15deg)}
-  18%{transform:rotate(-15deg)}
-  28%{transform:rotate(15deg)}
+  0%{transform:rotate(-10deg)}
+  28%{transform:rotate(10deg)}
+  10%{transform:rotate(20deg)}
+  18%{transform:rotate(-20deg)}
+  28%{transform:rotate(20deg)}
   30%,100%{transform:rotate(0deg)}
 `;
 
