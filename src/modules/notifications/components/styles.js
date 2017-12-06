@@ -58,10 +58,6 @@ const NotifList = styled.ul`
     &.unread {
       background: ${colors.bgUnread};
 
-      a {
-        font-weight: 400;
-      }
-
       ${MarkRead} {
         visibility: visible;
       }

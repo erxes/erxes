@@ -177,6 +177,9 @@ const HelperButtons = styled.div`
 
   a {
     color: ${colors.colorCoreLightGray};
+    cursor: pointer;
+    margin-left: ${dimensions.unitSpacing}px;
+    font-size: 12px;
 
     > i {
       font-size: 14px;
@@ -191,7 +194,7 @@ const HelperButtons = styled.div`
 
 const SidebarTitle = styled.h3`
   font-size: 12px;
-  font-weight: 400;
+  font-weight: normal;
   text-transform: uppercase;
   padding: ${dimensions.coreSpacing}px;
   margin: 0;
@@ -315,7 +318,7 @@ const AuthDescription = styled.div`
     margin-bottom: 50px;
   }
   h1 {
-    font-weight: 700;
+    font-weight: bold;
     font-size: 32px;
     margin-bottom: 30px;
     color: #fff;
