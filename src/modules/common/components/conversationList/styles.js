@@ -48,7 +48,6 @@ const MainInfo = styled.div`
 `;
 
 const CustomerName = styled.div`
-  font-weight: 400;
   word-break: break-all;
 `;
 

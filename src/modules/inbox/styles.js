@@ -276,7 +276,7 @@ const PopoverBody = styled.div`
 `;
 
 const TemplateTitle = styled.div`
-  font-weight: 500;
+  font-weight: bold;
   margin-bottom: 2px;
 `;
 

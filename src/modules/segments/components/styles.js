@@ -5,7 +5,6 @@ import { FlexItem } from 'modules/layout/styles';
 
 const SegmentTitle = styled.h3`
   font-size: 12px;
-  font-weight: 400;
   text-transform: uppercase;
   margin: 0 0 ${dimensions.coreSpacing}px;
 `;

@@ -131,7 +131,7 @@ injectGlobal`
 
   .dropdown-menu > li > a {
     color: #444;
-    font-weight: 300;
+    font-weight: normal;
   }
 
   .dropdown-menu > li > a:focus,
@@ -174,7 +174,7 @@ injectGlobal`
     border-radius: 0;
     font-size: inherit;
     padding: 0;
-    color: #888;
+    color: #444;
     font-weight: inherit;
     box-shadow: 0 2px 4px 0 rgba(0, 0, 0, .2);
   }
