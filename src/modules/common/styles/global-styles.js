@@ -9,12 +9,13 @@ injectGlobal`
   body {
 		font-family: 'Montserrat', 'PT Sans Caption', 'Arial',  sans-serif;
     margin: 0;
-    font-weight: 300;
     font-size: ${typography.fontSizeBody}px;
     line-height: ${typography.lineHeightBody};
     color: ${colors.textPrimary};
     height: 100%;
     background: ${colors.bgMain};
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
 
     > #root {
       display: flex;
@@ -78,7 +79,7 @@ injectGlobal`
 
   .modal-title {
     font-size: 18px;
-    font-weight: 300;
+    font-weight: normal;
     color: #fff;
   }
 
@@ -197,7 +198,6 @@ injectGlobal`
   }
 
   .popover-title {
-    font-weight: 400;
     display: block;
     border-bottom: 1px solid #eee;
     padding: 10px 20px;

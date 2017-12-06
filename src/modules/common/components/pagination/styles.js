@@ -36,7 +36,6 @@ const PaginationList = styled.ul`
       line-height: ${buttonSize}px;
       color: ${colors.colorCoreGray};
       text-align: center;
-      font-weight: 400;
       text-decoration: none;
       outline: 0;
       transition: all ease 0.3s;
