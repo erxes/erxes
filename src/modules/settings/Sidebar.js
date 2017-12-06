@@ -1,7 +1,7 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, NavLink } from 'react-router-dom';
 import { Sidebar } from '../layout/components';
-import { QuickButton, SidebarList } from '../layout/styles';
+import { SidebarList } from '../layout/styles';
 
 function SettingsSidebar() {
   const { Title, QuickButtons } = Sidebar.Section;
@@ -12,25 +12,39 @@ function SettingsSidebar() {
         <Title>Account settings</Title>
         <SidebarList>
           <li>
-            <Link to="/settings/channels">Channels</Link>
+            <NavLink activeClassName="active" to="/settings/channels">
+              Channels
+            </NavLink>
           </li>
           <li>
-            <Link to="/settings/brands">Brands</Link>
+            <NavLink activeClassName="active" to="/settings/brands">
+              Brands
+            </NavLink>
           </li>
           <li>
-            <Link to="/settings/team">Team members</Link>
+            <NavLink activeClassName="active" to="/settings/team">
+              Team members
+            </NavLink>
           </li>
           <li>
-            <Link to="/settings/response-templates">Response templates</Link>
+            <NavLink activeClassName="active" to="/settings/response-templates">
+              Response templates
+            </NavLink>
           </li>
           <li>
-            <Link to="/settings/email-templates">Email templates</Link>
+            <NavLink activeClassName="active" to="/settings/email-templates">
+              Email templates
+            </NavLink>
           </li>
           <li>
-            <Link to="/settings/emails">Email appearance</Link>
+            <NavLink activeClassName="active" to="/settings/emails">
+              Email appearance
+            </NavLink>
           </li>
           <li>
-            <Link to="/settings/forms">Forms</Link>
+            <NavLink activeClassName="active" to="/settings/forms">
+              Forms
+            </NavLink>
           </li>
         </SidebarList>
       </Sidebar.Section>
@@ -38,7 +52,7 @@ function SettingsSidebar() {
       <Sidebar.Section>
         <Title>Integrations</Title>
         <QuickButtons>
-          <QuickButton href="/settings/integrations">All</QuickButton>
+          <Link to="/settings/integrations">All</Link>
         </QuickButtons>
         <SidebarList>
           <li>
@@ -59,17 +73,29 @@ function SettingsSidebar() {
       <Sidebar.Section>
         <Title>Knowledge base</Title>
         <QuickButtons>
-          <QuickButton href="/settings/knowledgebase/list">All</QuickButton>
+          <Link to="/settings/knowledgebase/list">All</Link>
         </QuickButtons>
         <SidebarList>
           <li>
-            <Link to="/settings/knowledgebase/list">Topics</Link>
+            <NavLink activeClassName="active" to="/settings/knowledgebase/list">
+              Topics
+            </NavLink>
           </li>
           <li>
-            <Link to="/settings/knowledgebase/categories">Categories</Link>
+            <NavLink
+              activeClassName="active"
+              to="/settings/knowledgebase/categories"
+            >
+              Categories
+            </NavLink>
           </li>
           <li>
-            <Link to="/settings/knowledgebase/articles">Articles</Link>
+            <NavLink
+              activeClassName="active"
+              to="/settings/knowledgebase/articles"
+            >
+              Articles
+            </NavLink>
           </li>
         </SidebarList>
       </Sidebar.Section>
@@ -78,18 +104,27 @@ function SettingsSidebar() {
         <Title>Personal settings</Title>
         <SidebarList>
           <li>
-            <Link to="/settings/profile">Profile</Link>
+            <NavLink activeClassName="active" to="/settings/profile">
+              Profile
+            </NavLink>
           </li>
           <li>
-            <Link to="/settings/change-password">Change password</Link>
+            <NavLink activeClassName="active" to="/settings/change-password">
+              Change password
+            </NavLink>
           </li>
           <li>
-            <Link to="/settings/emails/signatures">Email signatures</Link>
+            <NavLink activeClassName="active" to="/settings/emails/signatures">
+              Email signatures
+            </NavLink>
           </li>
           <li>
-            <Link to="/settings/notification-settings">
+            <NavLink
+              activeClassName="active"
+              to="/settings/notification-settings"
+            >
               Notification settings
-            </Link>
+            </NavLink>
           </li>
         </SidebarList>
       </Sidebar.Section>

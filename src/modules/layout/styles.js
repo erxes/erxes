@@ -223,6 +223,9 @@ const HelperButtons = styled.div`
 
   a {
     color: ${colors.colorCoreLightGray};
+    cursor: pointer;
+    margin-left: ${dimensions.unitSpacing}px;
+    font-size: 12px;
 
     > i {
       font-size: 14px;
