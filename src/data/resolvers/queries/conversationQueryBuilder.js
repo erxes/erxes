@@ -18,8 +18,8 @@ export default class Builder {
     return {
       ...statusFilter,
 
+      // exclude engage messages if customer did not reply
       $or: [
-        // exclude engage messages if customer did not reply
         {
           userId: { $exists: true },
           messageCount: { $gt: 1 },
