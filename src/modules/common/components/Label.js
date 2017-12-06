@@ -1,7 +1,16 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import styled from 'styled-components';
+import styled, { keyframes } from 'styled-components';
 import { colors } from '../styles';
+
+const shake = keyframes`
+  0%{transform:rotate(-10deg)}
+  28%{transform:rotate(10deg)}
+  10%{transform:rotate(20deg)}
+  18%{transform:rotate(-20deg)}
+  28%{transform:rotate(20deg)}
+  30%,100%{transform:rotate(0deg)}
+`;
 
 const types = {
   default: {
@@ -32,6 +41,7 @@ const LabelStyled = styled.span`
   background: ${props => types[props.lblStyle].background};
   color: ${colors.colorWhite};
   border: none;
+  animation: ${props => (props.shake ? `${shake} 3.5s ease infinite` : 'none')};
 
   &:hover {
     cursor: default;
@@ -61,6 +71,7 @@ function Label({ ...props }) {
 Label.propTypes = {
   children: PropTypes.node.isRequired,
   className: PropTypes.string,
+  shake: PropTypes.bool,
   lblStyle: PropTypes.oneOf([
     'default',
     'primary',
@@ -71,7 +82,8 @@ Label.propTypes = {
 };
 
 Label.defaultProps = {
-  lblStyle: 'default'
+  lblStyle: 'default',
+  shake: false
 };
 
 export default Label;
