@@ -195,6 +195,17 @@ const conversationQueries = {
       ...integrationsFilter,
       status: { $in: [CONVERSATION_STATUSES.NEW, CONVERSATION_STATUSES.OPEN] },
       readUserIds: { $ne: user._id },
+
+      // exclude engage messages if customer did not reply
+      $or: [
+        {
+          userId: { $exists: true },
+          messageCount: { $gt: 1 },
+        },
+        {
+          userId: { $exists: false },
+        },
+      ],
     }).count();
   },
 };
