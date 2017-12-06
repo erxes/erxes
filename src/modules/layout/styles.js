@@ -22,52 +22,6 @@ const Layout = styled.main`
   max-width: 100%;
 `;
 
-const LeftNavigation = styled.aside`
-  width: ${dimensions.headerSpacingWide}px;
-  background: ${colors.colorCoreBlack};
-  flex-shrink: 0;
-
-  > a {
-    background-color: ${rgba(colors.colorPrimary, 0.7)};
-    line-height: ${dimensions.headerSpacing}px;
-    display: flex;
-    height: ${dimensions.headerSpacing}px;
-    justify-content: center;
-    align-items: center;
-    color: #fff;
-  }
-`;
-
-const Nav = styled.nav`
-  display: block;
-  background: ${colors.colorCoreBlack};
-  margin-top: 10px;
-
-  > a {
-    display: block;
-    text-align: center;
-    height: ${dimensions.headerSpacing + 10}px;
-    font-size: ${dimensions.coreSpacing}px;
-    line-height: ${dimensions.headerSpacing + 10}px;
-    text-align: center;
-    color: ${rgba(colors.colorWhite, 0.7)};
-
-    &:hover {
-      color: ${colors.colorWhite};
-    }
-
-    &.active {
-      position: relative;
-      color: ${colors.colorWhite};
-      background: rgba(0, 0, 0, 0.2);
-    }
-
-    > i {
-      margin: 0;
-    }
-  }
-`;
-
 const MainWrapper = styled.div`
   flex: 1;
   display: flex;
@@ -382,8 +336,6 @@ const AuthDescription = styled.div`
 
 export {
   Layout,
-  LeftNavigation,
-  Nav,
   MainWrapper,
   Contents,
   MainContent,
