@@ -4,7 +4,13 @@
 import { connect, disconnect } from '../../db/connection';
 import { integrationFactory, conversationFactory } from '../../db/factories';
 import { CONVERSATION_STATUSES } from '../../data/constants';
-import { Conversations, ConversationMessages, Customers, Integrations } from '../../db/models';
+import {
+  ActivityLogs,
+  Conversations,
+  ConversationMessages,
+  Customers,
+  Integrations,
+} from '../../db/models';
 import { getOrCreateDirectMessageConversation } from '../../social/twitter';
 
 beforeAll(() => connect());
@@ -30,6 +36,7 @@ describe('receive direct message response', () => {
     await Conversations.remove({});
     await ConversationMessages.remove({});
     await Customers.remove({});
+    await ActivityLogs.remove({});
   });
 
   test('get or create conversation', async () => {
@@ -129,6 +136,9 @@ describe('receive direct message response', () => {
     expect(customer.twitterData.name).toBe(data.sender.name);
     expect(customer.twitterData.screenName).toBe(data.sender.screen_name);
     expect(customer.twitterData.profileImageUrl).toBe(data.sender.profile_image_url);
+
+    // 1 log
+    expect(await ActivityLogs.find().count()).toBe(1);
 
     // check message field values
     expect(message.createdAt).toBeDefined();
