@@ -134,7 +134,7 @@ class Inbox extends Component {
       <AssignTrigger>
         {assignedUser && assignedUser._id ? (
           <AvatarImg
-            src={assignedUser.details.avatar || '/images/userDefaultIcon.png'}
+            src={assignedUser.details.avatar || '/images/avatar-colored.png'}
           />
         ) : (
           <Button btnStyle="simple" size="small">

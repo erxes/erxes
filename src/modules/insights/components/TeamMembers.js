@@ -21,7 +21,7 @@ class TeamMembers extends React.Component {
           <UserProfile>
             <a>
               <img
-                src={data.avatar || '/images/userDefaultIcon.png'}
+                src={data.avatar || '/images/avatar-colored.png'}
                 alt={data.fullName}
               />
             </a>

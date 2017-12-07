@@ -17,7 +17,7 @@ class UserCommonInfos extends Component {
   constructor(props) {
     super(props);
 
-    const defaultAvatar = '/images/userDefaultIcon.png';
+    const defaultAvatar = '/images/avatar-colored.png';
 
     this.state = {
       avatarPreviewUrl: this.props.user.details.avatar || defaultAvatar,
