@@ -2,6 +2,20 @@ import mongoose from 'mongoose';
 import { Fields, Companies } from './';
 import { field } from './utils';
 
+/* location schema */
+const locationSchema = mongoose.Schema(
+  {
+    remoteAddress: String,
+    country: String,
+    city: String,
+    region: String,
+    hostname: String,
+    language: String,
+    userAgent: String,
+  },
+  { _id: false },
+);
+
 /*
  * messenger schema
  */
@@ -89,8 +103,7 @@ const CustomerSchema = mongoose.Schema({
   tagIds: field({ type: [String] }),
   companyIds: field({ type: [String] }),
 
-  remoteAddress: field({ type: String }),
-  location: field({ type: Object }),
+  location: field({ type: locationSchema }),
 
   customFieldsData: field({ type: Object }),
   messengerData: field({ type: messengerSchema }),
