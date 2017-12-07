@@ -144,18 +144,19 @@ describe('receive direct message response', () => {
     // call action
     await getOrCreateDirectMessageConversation(data, _integration);
 
-    // must not be created new conversation
+    // must not be created new conversation ==============
     expect(await Conversations.find().count()).toBe(1);
-
-    // must not be created new customer
-    expect(await Customers.find().count()).toBe(1);
-
-    // must be created new message
-    expect(await ConversationMessages.find().count()).toBe(2);
 
     // check conversation field updates
     conv = await Conversations.findOne();
     expect(conv.readUserIds.length).toBe(0);
+    expect(conv.createdAt).not.toEqual(conv.updatedAt);
+
+    // must not be created new customer ================
+    expect(await Customers.find().count()).toBe(1);
+
+    // must be created new message ================
+    expect(await ConversationMessages.find().count()).toBe(2);
 
     const newMessage = await ConversationMessages.findOne({ _id: { $ne: message._id } });
 
