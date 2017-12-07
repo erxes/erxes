@@ -12,7 +12,7 @@ import {
 import { LeftSidebar, RespondBox } from '../containers';
 import { AssignBoxPopover, Participators, Conversation } from './';
 import { AvatarImg } from 'modules/common/components/filterableList/styles';
-import { BarItems } from 'modules/layout/styles';
+import { BarItems, SidebarCounter } from 'modules/layout/styles';
 import ConversationDetails from './sidebar/ConversationDetails';
 import { EditInformation } from 'modules/customers/containers';
 
@@ -69,6 +69,24 @@ class Inbox extends Component {
     changeStatus(currentConversation._id, status);
   }
 
+  renderMessengerData() {
+    const conversation = this.props.currentConversation;
+    const customer = conversation.customer || {};
+    const integration = conversation.integration || {};
+    const customData = customer.getMessengerCustomData;
+
+    if (integration.kind === 'messenger' && customData.length) {
+      return customData.map(data => (
+        <li key={data.value}>
+          {data.name}
+          <SidebarCounter>{data.value}</SidebarCounter>
+        </li>
+      ));
+    }
+
+    return null;
+  }
+
   renderRightSidebar(currentConversation) {
     if (currentConversation._id) {
       return (
@@ -77,6 +95,7 @@ class Inbox extends Component {
           sections={<ConversationDetails conversation={currentConversation} />}
           customer={currentConversation.customer}
           refetch={this.props.refetch}
+          otherProperties={this.renderMessengerData()}
         />
       );
     }

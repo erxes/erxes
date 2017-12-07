@@ -20,7 +20,7 @@ function MessengerSection({ customer }) {
 
   return (
     <Sidebar.Section>
-      <Title>Messenger</Title>
+      <Title>Messenger usage</Title>
       <SidebarList className="no-link">
         <li>
           Status

@@ -14,7 +14,9 @@ import { Alert } from 'modules/common/utils';
 import { GenerateField } from 'modules/fields/components';
 import { CompanyForm } from 'modules/companies/components';
 import { BasicInfo } from 'modules/customers/components/detail/sidebar';
-import { AboutList, CompanyWrapper, Aboutvalues } from './styles';
+import { CompanyWrapper, BlockValue } from './styles';
+import { SidebarList, SidebarCounter } from 'modules/layout/styles';
+
 import {
   TaggerSection,
   MessengerSection,
@@ -27,7 +29,8 @@ const propTypes = {
   customFields: PropTypes.array.isRequired,
   save: PropTypes.func.isRequired,
   addCompany: PropTypes.func.isRequired,
-  sections: PropTypes.node
+  sections: PropTypes.node,
+  otherProperties: PropTypes.node
 };
 
 class LeftSidebar extends React.Component {
@@ -121,27 +124,16 @@ class LeftSidebar extends React.Component {
     );
   }
 
-  renderLocation(customer) {
-    if (customer.location) {
+  renderDeviceProperty(text, value, nowrap) {
+    if (value) {
       return (
         <li>
-          Location:
-          <Aboutvalues>
-            {customer.location.city || ''} {customer.location.country || ''}
-          </Aboutvalues>
-        </li>
-      );
-    }
-
-    return null;
-  }
-
-  renderIpAddress(customer) {
-    if (customer.remoteAddress) {
-      return (
-        <li>
-          IP Address:
-          <Aboutvalues>{customer.remoteAddress}</Aboutvalues>
+          {text}:
+          {nowrap ? (
+            <BlockValue>{value}</BlockValue>
+          ) : (
+            <SidebarCounter>{value}</SidebarCounter>
+          )}
         </li>
       );
     }
@@ -155,18 +147,13 @@ class LeftSidebar extends React.Component {
 
     return (
       <Section>
-        <Section.Title>About</Section.Title>
+        <Section.Title>Customer properties</Section.Title>
         <Section.QuickButtons>
           <Link to="/fields/manage/customer">
             <Icon icon="gear-a" />
           </Link>
         </Section.QuickButtons>
         <SidebarContent>
-          <AboutList>
-            {this.renderLocation(customer)}
-            {this.renderIpAddress(customer)}
-          </AboutList>
-
           {customFields.map((field, index) => (
             <GenerateField
               field={field}
@@ -182,6 +169,47 @@ class LeftSidebar extends React.Component {
         </SidebarContent>
       </Section>
     );
+  }
+
+  renderDeviceProperties() {
+    const { customer } = this.props;
+    const { Section } = Sidebar;
+    const location = customer.location;
+
+    if (location) {
+      const country = `${location.city} ${location.country}`;
+      return (
+        <Section>
+          <Section.Title>Device properties</Section.Title>
+          <SidebarList className="no-link">
+            {this.renderDeviceProperty('Region', location.region)}
+            {this.renderDeviceProperty('Location', country)}
+            {this.renderDeviceProperty('IP Address', location.remoteAddress)}
+            {this.renderDeviceProperty('Hostname', location.hostname)}
+            {this.renderDeviceProperty('Language', location.language)}
+            {this.renderDeviceProperty('User Agent', location.userAgent, true)}
+          </SidebarList>
+        </Section>
+      );
+    }
+
+    return null;
+  }
+
+  renderOtherProperties() {
+    const { otherProperties } = this.props;
+    const { Section } = Sidebar;
+
+    if (otherProperties) {
+      return (
+        <Section>
+          <Section.Title>Other properties</Section.Title>
+          <SidebarList className="no-link">{otherProperties}</SidebarList>
+        </Section>
+      );
+    }
+
+    return null;
   }
 
   renderSidebarFooter() {
@@ -207,9 +235,11 @@ class LeftSidebar extends React.Component {
     return (
       <Sidebar footer={this.renderSidebarFooter()}>
         <BasicInfo customer={customer} save={this.props.save} />
-        {this.renderCustomFields()}
-        {this.renderCompanies()}
         {this.props.sections && this.props.sections}
+        {this.renderCustomFields()}
+        {this.renderDeviceProperties()}
+        {this.renderOtherProperties()}
+        {this.renderCompanies()}
         <MessengerSection customer={customer} />
         <TwitterSection customer={customer} />
         <FacebookSection customer={customer} />
