@@ -76,8 +76,14 @@ class CompanyAssociate extends React.Component {
   }
 
   search(e) {
-    this.props.search(e.target.value);
-    this.setState({ searchValue: e.target.value });
+    if (this.timer) clearTimeout(this.timer);
+    const { search } = this.props;
+    const value = e.target.value;
+
+    this.timer = setTimeout(() => {
+      search(value);
+      this.setState({ searchValue: value });
+    }, 1000);
   }
 
   loadMore() {
