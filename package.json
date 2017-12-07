@@ -54,6 +54,7 @@
     "strip": "^3.0.0",
     "styled-components": "^2.2.1",
     "subscriptions-transport-ws": "0.8.3",
+    "ua-parser-js": "^0.7.17",
     "underscore": "^1.8.3"
   },
   "lint-staged": {
