@@ -31,7 +31,7 @@ const AvatarStyled = styled.span`
 `;
 
 const DefaultAvatar = styled.div`
-  background: url('/images/userDefaultIcon.png') center no-repeat;
+  background: url('/images/avatar.png') center no-repeat;
   background-size: cover;
 `;
 

@@ -58,7 +58,7 @@ class AssignBox extends Component {
       return {
         _id: assignee._id,
         title: assignee.details.fullName || assignee.emails[0].address,
-        avatar: assignee.details.avatar || '/images/userDefaultIcon.png',
+        avatar: assignee.details.avatar || '/images/avatar-colored.png',
         selectedBy: state
       };
     });

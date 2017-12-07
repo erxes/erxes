@@ -111,7 +111,7 @@ class Row extends Component {
             <AssigneeWrapper>
               <AssigneeImg
                 src={
-                  assignedUser.details.avatar || '/images/userDefaultIcon.png'
+                  assignedUser.details.avatar || '/images/avatar-colored.png'
                 }
               />
             </AssigneeWrapper>

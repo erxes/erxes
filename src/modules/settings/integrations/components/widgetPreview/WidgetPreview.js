@@ -21,7 +21,7 @@ import { WidgetPreviewStyled } from 'modules/settings/styles';
 
 function WidgetPreview({ color, wallpaper, user }) {
   const avatar =
-    (user.details && user.details.avatar) || '/images/userDefaultIcon.png';
+    (user.details && user.details.avatar) || '/images/avatar-colored.png';
   const fullName = (user.details && user.details.fullName) || 'Support staff';
   const backgroundClasses = `background-${wallpaper}`;
   return (
