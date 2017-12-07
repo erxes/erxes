@@ -1,14 +1,13 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { compose, gql, graphql } from 'react-apollo';
-import { Alert } from 'modules/common/utils';
 import { queries, mutations } from '../graphql';
 import { EditInformation } from '../components/detail/sidebar';
 import { Spinner } from 'modules/common/components';
 import { Sidebar } from 'modules/layout/components';
 
 const EditInformationContainer = (props, context) => {
-  const { customer, customersEdit, customersAddCompany, fieldsQuery } = props;
+  const { customer, customersEdit, fieldsQuery } = props;
   if (fieldsQuery.loading) {
     return (
       <Sidebar full>
@@ -31,23 +30,9 @@ const EditInformationContainer = (props, context) => {
       });
   };
 
-  const addCompany = ({ doc, callback }) => {
-    customersAddCompany({
-      variables: { _id: _id, ...doc }
-    })
-      .then(() => {
-        Alert.success('Success');
-        callback();
-      })
-      .catch(e => {
-        Alert.error(e.message);
-      });
-  };
-
   const updatedProps = {
     ...props,
     save,
-    addCompany,
     currentUser: context.currentUser,
     customFields: fieldsQuery.fields
   };
@@ -59,8 +44,7 @@ EditInformationContainer.propTypes = {
   customer: PropTypes.object.isRequired,
   sections: PropTypes.node,
   fieldsQuery: PropTypes.object.isRequired,
-  customersEdit: PropTypes.func.isRequired,
-  customersAddCompany: PropTypes.func.isRequired
+  customersEdit: PropTypes.func.isRequired
 };
 
 EditInformationContainer.contextTypes = {
@@ -81,10 +65,6 @@ export default compose(
     })
   }),
   // mutations
-  graphql(gql(mutations.customersAddCompany), {
-    name: 'customersAddCompany',
-    options
-  }),
   graphql(gql(mutations.customersEdit), {
     name: 'customersEdit',
     options
