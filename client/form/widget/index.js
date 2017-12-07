@@ -7,6 +7,7 @@
 
 // css
 import './index.css';
+import { getBrowserInfo } from '../../utils';
 
 // add meta to head
 const meta = document.createElement('meta');
@@ -96,6 +97,7 @@ const formSettings = window.erxesSettings.forms || [];
 const iframesMapping = {};
 
 formSettings.forEach((formSetting) => {
+  formSetting.browserInfo = getBrowserInfo();
   iframesMapping[JSON.stringify(formSetting)] = createIframe(formSetting);
 });
 
