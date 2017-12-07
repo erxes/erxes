@@ -5,3 +5,4 @@ static
 npm-debug.log*
 .env
 coverage
+dump.rdb
