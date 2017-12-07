@@ -4,7 +4,7 @@ import sinon from 'sinon';
 import { connect, disconnect } from '../../db/connection';
 import { SaveWebhookResponse } from '../../social/facebook';
 import { graphRequest } from '../../social/facebookTracker';
-import { Conversations, Customers, ConversationMessages } from '../../db/models';
+import { ActivityLogs, Conversations, Customers, ConversationMessages } from '../../db/models';
 import { integrationFactory } from '../../db/factories';
 import { CONVERSATION_STATUSES, FACEBOOK_DATA_KINDS } from '../../data/constants';
 
@@ -70,6 +70,7 @@ describe('facebook integration: save webhook response', () => {
     await Conversations.remove({});
     await Customers.remove({});
     await ConversationMessages.remove({});
+    await ActivityLogs.remove({});
   });
 
   test('via messenger event', async () => {
@@ -270,6 +271,9 @@ describe('facebook integration: save webhook response', () => {
     expect(customer.integrationId).toBe(integration._id);
     expect(customer.name).toBe('Dombo Gombo'); // from mocked get info above
     expect(customer.facebookData.id).toBe(senderId);
+
+    // 1 logs
+    expect(await ActivityLogs.find({ 'activity.type': 'customer' }).count()).toBe(1);
 
     // check message field values
     expect(message.createdAt).toBeDefined();
