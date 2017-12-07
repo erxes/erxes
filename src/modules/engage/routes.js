@@ -4,16 +4,7 @@ import queryString from 'query-string';
 import { MessageList, MessageForm } from './containers';
 
 const routes = () => [
-  <Route
-    key="/engage/home"
-    exact
-    path="/engage"
-    component={({ location }) => {
-      const queryParams = queryString.parse(location.search);
-
-      return <MessageList queryParams={queryParams} />;
-    }}
-  />,
+  <Route key="/engage/home" exact path="/engage" component={MessageList} />,
 
   <Route
     key="/engage/messages/create"

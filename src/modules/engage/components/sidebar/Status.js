@@ -1,6 +1,7 @@
 import React from 'react';
-import { withRouter } from 'react-router';
 import PropTypes from 'prop-types';
+import { withRouter } from 'react-router';
+import { Link } from 'react-router-dom';
 import { Wrapper } from 'modules/layout/components';
 import { SidebarList } from 'modules/layout/styles';
 import { router } from 'modules/common/utils';
@@ -16,20 +17,18 @@ function Status({ history, counts }) {
       <SidebarList>
         {statusFilters.map((status, index) => (
           <li key={index}>
-            <a
+            <Link
               tabIndex={0}
               className={
                 router.getParam(history, 'status') === status.key
                   ? 'active'
                   : ''
               }
-              onClick={() => {
-                router.setParams(history, { status: status.key });
-              }}
+              to={`/engage?status=${status.key}`}
             >
               {status.value}
               <span>{counts[status.key]}</span>
-            </a>
+            </Link>
           </li>
         ))}
       </SidebarList>

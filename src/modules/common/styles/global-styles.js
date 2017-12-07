@@ -113,6 +113,7 @@ injectGlobal`
     margin-top: 0;
     border-radius: 0;
     border-color: #eee;
+    font-size: 13px;
     color: #444;
     min-width: 100%;
     box-shadow: 0 1px 2px 0 #ddd;

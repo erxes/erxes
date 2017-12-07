@@ -35,7 +35,7 @@ const InsightFilter = styled.div`
 
 const InsightTitle = styled.h5`
   text-transform: uppercase;
-  font-weight: ${typography.fontWeightRegular - 100};
+  font-weight: ${typography.fontWeightRegular};
   padding: ${dimensions.unitSpacing}px 0;
   color: ${colors.colorCoreGray};
   margin: ${dimensions.coreSpacing}px 0 ${dimensions.unitSpacing}px;

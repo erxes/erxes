@@ -54,7 +54,7 @@ const QuickNavigation = ({ logout, currentUser }) => {
               <Link to="/settings/profile">Edit Profile</Link>
             </li>
             <li>
-              <Link to="/change-password">Change password</Link>
+              <Link to="/settings/change-password">Change password</Link>
             </li>
             <MenuItem divider />
             <MenuItem onClick={logout}>Sign out</MenuItem>
