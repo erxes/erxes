@@ -194,7 +194,7 @@ const HelperButtons = styled.div`
 
 const SidebarTitle = styled.h3`
   font-size: 12px;
-  font-weight: normal;
+  font-weight: 500;
   text-transform: uppercase;
   padding: ${dimensions.coreSpacing}px;
   margin: 0;
@@ -257,6 +257,9 @@ const SidebarCounter = styled.span`
   margin-top: 2px;
   position: absolute;
   right: 20px;
+  max-width: 60%;
+  overflow: hidden;
+  text-overflow: ellipsis;
 
   a {
     padding: 0;

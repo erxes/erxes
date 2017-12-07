@@ -52,7 +52,7 @@ class ConversationDetails extends Component {
           <li>
             Channels
             <SidebarCounter>
-              {channels.map(c => <span key={c._id}>{c.name}</span>)}
+              {channels.map(c => <span key={c._id}>{c.name} </span>)}
             </SidebarCounter>
           </li>
           <li>

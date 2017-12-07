@@ -70,6 +70,13 @@ const Aboutvalues = styled.span`
   }
 `;
 
+const BlockValue = styled.div`
+  font-size: 12px;
+  color: ${colors.colorCoreGray};
+  margin-top: 5px;
+  white-space: normal;
+`;
+
 const NameWrapper = styled.div`
   padding-top: ${dimensions.coreSpacing}px;
   display: flex;
@@ -142,6 +149,7 @@ const ButtonWrapper = styled.div`
 export {
   AboutList,
   Aboutvalues,
+  BlockValue,
   NameWrapper,
   AboutWrapper,
   CompanyWrapper,
