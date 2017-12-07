@@ -4,12 +4,12 @@ import { wsClient } from '../apollo-client';
 import widgetConnect from '../widgetConnect';
 import {
   connection,
-  connect,
   getLocalStorageItem,
   setLocalStorageItem,
 } from './connection';
 import reducers from './reducers';
 import { App } from './containers';
+import { connect } from './actions/messenger';
 import './sass/style.scss';
 
 widgetConnect({

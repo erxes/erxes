@@ -6,6 +6,7 @@
 
 // css
 import './index.css';
+import { getBrowserInfo } from '../../utils';
 
 // check is mobile
 const isMobile = navigator.userAgent.match(/iPhone/i) ||
@@ -87,11 +88,8 @@ iframe.onload = () => {
     fromPublisher: true,
     setting: {
       ...window.erxesSettings.messenger,
-      browserInfo: {
-        url: location.pathname, // eslint-disable-line
-        language: parent.navigator.language, // eslint-disable-line
-      },
-    },
+      browserInfo: getBrowserInfo(),
+    }
   }, '*');
 };
 

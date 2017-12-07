@@ -17,6 +17,28 @@ import {
 
 import client from '../../apollo-client';
 
+export const connect = variables =>
+  // call connect mutation
+  client.mutate({
+    mutation: gql`
+      mutation connect($brandCode: String!, $email: String, $phone: String,
+        $name: String, $isUser: Boolean, $browserInfo: JSON!, $data: JSON,
+        $companyData: JSON, $cachedCustomerId: String) {
+
+        messengerConnect(brandCode: $brandCode, email: $email, phone: $phone,
+          name: $name, isUser: $isUser, data: $data, companyData: $companyData,
+          browserInfo: $browserInfo, cachedCustomerId: $cachedCustomerId) {
+
+          integrationId,
+          messengerData,
+          uiOptions,
+          customerId,
+        }
+      }`,
+
+    variables,
+  });
+
 export const toggle = (isVisible) => {
   // notify parent window launcher state
   window.parent.postMessage({
