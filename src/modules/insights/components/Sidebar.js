@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { NavLink } from 'react-router-dom';
 import { Wrapper } from 'modules/layout/components';
 import { SidebarList } from 'modules/layout/styles';
 
@@ -13,18 +13,27 @@ function Sidebar() {
         <Title>Insights</Title>
         <SidebarList>
           <li>
-            <Link to="/insights">Volume Report</Link>
+            <NavLink activeClassName="active" exact to="/insights">
+              Volume Report
+            </NavLink>
           </li>
           <li>
-            <Link to="/insights/response-report">Response Report</Link>
+            <NavLink activeClassName="active" to="/insights/response-report">
+              Response Report
+            </NavLink>
           </li>
           <li>
-            <Link to="/insights/response-close-report">
+            <NavLink
+              activeClassName="active"
+              to="/insights/response-close-report"
+            >
               Response Close Report
-            </Link>
+            </NavLink>
           </li>
           <li>
-            <Link to="/insights/first-response">First Response Report</Link>
+            <NavLink activeClassName="active" to="/insights/first-response">
+              First Response Report
+            </NavLink>
           </li>
         </SidebarList>
       </Sidebar.Section>

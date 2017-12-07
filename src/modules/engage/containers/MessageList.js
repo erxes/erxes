@@ -1,6 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { compose, gql, graphql } from 'react-apollo';
+import { withRouter } from 'react-router';
+import queryString from 'query-string';
 import { TAG_TYPES } from 'modules/tags/constants';
 import { Bulk } from 'modules/common/components';
 import { MessageList } from '../components';
@@ -38,7 +40,7 @@ MessageListContainer.propTypes = {
   tagsQuery: PropTypes.object
 };
 
-export default compose(
+const MessageListContainerWithData = compose(
   graphql(gql(queries.engageMessages), {
     name: 'engageMessagesQuery',
     options: ({ queryParams }) => ({
@@ -69,3 +71,18 @@ export default compose(
     })
   })
 )(MessageListContainer);
+
+const EngageListContainer = props => {
+  const queryParams = queryString.parse(props.location.search);
+
+  const extendedProps = { ...props, queryParams };
+
+  return <MessageListContainerWithData {...extendedProps} />;
+};
+
+EngageListContainer.propTypes = {
+  location: PropTypes.object,
+  history: PropTypes.object
+};
+
+export default withRouter(EngageListContainer);
