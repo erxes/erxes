@@ -29,6 +29,7 @@ const propTypes = {
   customer: PropTypes.object.isRequired,
   customFields: PropTypes.array.isRequired,
   save: PropTypes.func.isRequired,
+  editCompanies: PropTypes.func.isRequired,
   sections: PropTypes.node,
   otherProperties: PropTypes.node
 };
@@ -84,7 +85,7 @@ class LeftSidebar extends React.Component {
   }
 
   renderCompanies() {
-    const { customer } = this.props;
+    const { customer, editCompanies } = this.props;
     const { Section } = Sidebar;
 
     const companyTrigger = (
@@ -98,7 +99,7 @@ class LeftSidebar extends React.Component {
         <Section.Title>Companies</Section.Title>
         <Section.QuickButtons>
           <ModalTrigger title="New company" trigger={companyTrigger} size="lg">
-            <CompanyAssociate customer={customer} />
+            <CompanyAssociate customer={customer} save={editCompanies} />
           </ModalTrigger>
         </Section.QuickButtons>
         {customer.companies.map((company, index) => (

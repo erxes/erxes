@@ -73,6 +73,7 @@ CompanyAssociateContainer.propTypes = {
   customer: PropTypes.object.isRequired,
   companiesQuery: PropTypes.object.isRequired,
   customersAddCompany: PropTypes.func,
+  save: PropTypes.func.isRequired,
   companiesAdd: PropTypes.func.isRequired
 };
 

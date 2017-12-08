@@ -23,6 +23,7 @@ const propTypes = {
   customer: PropTypes.object.isRequired,
   companies: PropTypes.array.isRequired,
   addCompany: PropTypes.func.isRequired,
+  save: PropTypes.func.isRequired,
   search: PropTypes.func.isRequired
 };
 
@@ -47,16 +48,17 @@ class CompanyAssociate extends React.Component {
   }
 
   save() {
-    // this.props.saveCustomerCompanies();
-    this.context.closeModal();
-  }
-
-  filterCompany(companies, customerCompanies) {
-    return companies.filter(obj => {
-      return !customerCompanies.some(obj2 => {
-        return obj._id === obj2._id;
-      });
+    const { customerCompanies } = this.state;
+    const companyIds = [];
+    customerCompanies.forEach(company => {
+      companyIds.push(company._id.toString());
     });
+    const doc = {
+      companyIds
+    };
+
+    this.props.save(doc);
+    this.context.closeModal();
   }
 
   handleChange(company, type) {
@@ -149,8 +151,8 @@ class CompanyAssociate extends React.Component {
             <Button btnStyle="simple" onClick={onClick.bind(this)}>
               <Icon icon="close" />CANCEL
             </Button>
-            <Button btnStyle="success">
-              <Icon icon="checkmark" onClick={this.save} />SAVE
+            <Button btnStyle="success" onClick={this.save}>
+              <Icon icon="checkmark" />SAVE
             </Button>
           </Footer>
         </Modal.Footer>
