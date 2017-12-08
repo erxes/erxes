@@ -50,8 +50,27 @@ const customerQueries = {
    * @param {Object} args
    * @return {Promise} filtered customers list by given parameters
    */
-  async customers(root, { ids, ...params }) {
+  async customers(root, { ids, searchValue, ...params }) {
     const sort = { 'messengerData.lastSeenAt': -1 };
+
+    if (searchValue) {
+      const fields = [
+        { firstName: new RegExp(`.*${searchValue}.*`, 'i') },
+        { lastName: new RegExp(`.*${searchValue}.*`, 'i') },
+        { email: new RegExp(`.*${searchValue}.*`, 'i') },
+      ];
+
+      if (!isNaN(searchValue)) {
+        fields.push = { phone: new RegExp(`.*${searchValue}.*`, 'i') };
+      }
+
+      return paginate(
+        Customers.find({
+          $or: fields,
+        }),
+        params,
+      );
+    }
 
     if (ids) {
       const selector = { _id: { $in: ids } };

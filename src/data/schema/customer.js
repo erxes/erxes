@@ -31,7 +31,8 @@ const queryParams = `
   perPage: Int,
   segment: String,
   tag: String,
-  ids: [String]
+  ids: [String],
+  searchValue: String
 `;
 
 export const queries = `
