@@ -23,9 +23,29 @@ const companyQueries = {
    * @param {Object} args - Query params
    * @return {Promise} filtered companies list by given parameters
    */
-  async companies(root, { ids, ...params }) {
+  async companies(root, { ids, searchValue, ...params }) {
     if (params.ids) {
       return paginate(Companies.find({ _id: { $in: ids } }), params);
+    }
+
+    if (searchValue) {
+      const fields = [
+        { name: new RegExp(`.*${searchValue}.*`, 'i') },
+        { website: new RegExp(`.*${searchValue}.*`, 'i') },
+        { industry: new RegExp(`.*${searchValue}.*`, 'i') },
+        { plan: new RegExp(`.*${searchValue}.*`, 'i') },
+      ];
+
+      if (!isNaN(searchValue)) {
+        fields.push = { size: new RegExp(`.*${searchValue}.*`, 'i') };
+      }
+
+      return paginate(
+        Companies.find({
+          $or: fields,
+        }),
+        params,
+      );
     }
 
     const selector = await listQuery(params);
@@ -39,7 +59,12 @@ const companyQueries = {
    * @return {Object} counts map
    */
   async companyCounts(root, args) {
-    const counts = { bySegment: {}, byBrand: {}, byIntegrationType: {}, byTag: {} };
+    const counts = {
+      bySegment: {},
+      byBrand: {},
+      byIntegrationType: {},
+      byTag: {},
+    };
     const selector = await listQuery(args);
 
     const count = query => {
