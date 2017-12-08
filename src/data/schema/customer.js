@@ -1,4 +1,9 @@
 export const types = `
+  type CustomerConnectionChangedResponse {
+    _id: String!
+    status: String!
+  }
+
   type Customer {
     _id: String!
     integrationId: String
