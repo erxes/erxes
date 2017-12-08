@@ -37,7 +37,6 @@ const EditInformationContainer = (props, context) => {
   };
 
   const editCompanies = variables => {
-    console.log('Variables on container', variables);
     customersEditCompanies({
       variables: { _id: _id, ...variables }
     })
@@ -45,7 +44,6 @@ const EditInformationContainer = (props, context) => {
         Alert.success('Successfully saved');
       })
       .catch(e => {
-        console.log(e.message);
         Alert.error(e.message);
       });
   };
