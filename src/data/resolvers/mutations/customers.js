@@ -35,6 +35,15 @@ const customerMutations = {
     await ActivityLogs.createCompanyRegistrationLog(company, user);
     return company;
   },
+
+  /**
+   * Update customer Companies
+   * @return {Promise} customer object
+   */
+  async customersEditCompanies(root, { _id, ...doc }) {
+    console.log('Doc from resolver mutations', doc);
+    return Customers.updateCompanies(_id, doc);
+  },
 };
 
 moduleRequireLogin(customerMutations);

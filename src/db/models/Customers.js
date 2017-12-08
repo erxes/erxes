@@ -195,6 +195,18 @@ class Customer {
 
     return company;
   }
+
+  /**
+     * Update customer companies
+     * @param {String} _id customer id to update
+     * @param {string[]} doc.companyIds company ids to update
+     * @return {Promise} updated customer object
+     */
+  static async updateCompanies(_id, doc) {
+    await this.update({ _id }, { $set: doc });
+
+    return this.findOne({ _id });
+  }
 }
 
 CustomerSchema.loadClass(Customer);
