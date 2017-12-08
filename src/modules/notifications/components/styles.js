@@ -113,6 +113,7 @@ const NotifButton = styled.div`
     font-size: ${dimensions.unitSpacing}px;
     background-color: ${colors.colorCoreRed};
     padding: 3px 5px;
+    min-width: 16px;
   }
 `;
 

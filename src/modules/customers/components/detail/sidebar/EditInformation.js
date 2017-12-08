@@ -257,9 +257,9 @@ class LeftSidebar extends React.Component {
         <BasicInfo customer={customer} save={this.props.save} />
         {this.props.sections && this.props.sections}
         {this.renderCustomFields()}
+        {this.renderCompanies()}
         {this.renderDeviceProperties()}
         {this.renderOtherProperties()}
-        {this.renderCompanies()}
         <MessengerSection customer={customer} />
         <TwitterSection customer={customer} />
         <FacebookSection customer={customer} />
