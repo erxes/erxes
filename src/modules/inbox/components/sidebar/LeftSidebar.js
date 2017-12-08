@@ -112,7 +112,7 @@ class LeftSidebar extends Component {
           onRowClick={onChangeConversation}
           currentConversationId={currentConversationId}
         />
-        {loading && <Spinner />}
+        {loading && conversations.length === 0 && <Spinner />}
         <LoadMore all={totalCount} />
       </Sidebar>
     );
