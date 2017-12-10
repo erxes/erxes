@@ -47,5 +47,5 @@ export const mutations = `
   companiesAdd(${commonFields}): Company
   companiesEdit(_id: String!, ${commonFields}): Company
   companiesAddCustomer(_id: String!, name: String!, email: String): Customer
-  companiesEditCustomers(_id: String!, customerIds: [String]): Company
+  companiesEditCustomers(_id: String!, customerIds: [String], removedCustomerIds: [String]): Company
 `;

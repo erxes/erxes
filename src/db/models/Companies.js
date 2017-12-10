@@ -116,14 +116,21 @@ class Company {
      * Update company customers
      * @param {String} _id company id to update
      * @param {string[]} doc.customerIds customer ids to update
+     * @param {string[]} doc.removedCustomerIds customer ids to remove
      * @return {Promise} updated company object
      */
   static async updateCustomers(_id, doc) {
-    const { customerIds } = doc;
+    const { customerIds, removedCustomerIds } = doc;
 
     await customerIds.forEach(customerId => {
       Customers.appendCompany({ _id: customerId, companyId: _id });
     });
+
+    if (removedCustomerIds.length > 0) {
+      await removedCustomerIds.forEach(customerId => {
+        Customers.removeCompany({ _id: customerId, companyId: _id });
+      });
+    }
 
     return this.findOne({ _id });
   }
