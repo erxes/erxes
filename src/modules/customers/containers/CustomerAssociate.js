@@ -60,7 +60,6 @@ class CustomerAssociateContainer extends React.Component {
 CustomerAssociateContainer.propTypes = {
   company: PropTypes.object.isRequired,
   customersQuery: PropTypes.object.isRequired,
-  companiesAddCustomer: PropTypes.func,
   save: PropTypes.func.isRequired,
   customersAdd: PropTypes.func.isRequired
 };
