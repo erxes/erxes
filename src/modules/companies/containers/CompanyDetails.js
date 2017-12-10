@@ -31,6 +31,7 @@ const CompanyDetailsContainer = (props, context) => {
     })
       .then(() => {
         Alert.success('Successfully saved');
+        companyDetailQuery.refetch();
       })
       .catch(e => {
         Alert.error(e.message);

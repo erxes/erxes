@@ -42,8 +42,8 @@ const companiesAddCustomer = `
 `;
 
 const companiesEditCustomers = `
-  mutation companiesEditCustomers($_id: String!, $customerIds: [String]) {
-    companiesEditCustomers(_id: $_id, customerIds: $customerIds) {
+  mutation companiesEditCustomers($_id: String!, $customerIds: [String], $removedCustomerIds: [String]) {
+    companiesEditCustomers(_id: $_id, customerIds: $customerIds, removedCustomerIds: $removedCustomerIds) {
       _id
     }
   }
