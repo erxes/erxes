@@ -76,10 +76,10 @@ class ConversationDetail extends Component {
         variables: { _id: customerId },
         updateQuery: (prev, { subscriptionData }) => {
           const prevConversation = prev.conversationDetail;
-          const cusomerConnection =
+          const customerConnection =
             subscriptionData.data.customerConnectionChanged;
 
-          if (prevConversation.customer._id === cusomerConnection._id) {
+          if (prevConversation.customer._id === customerConnection._id) {
             this.props.conversationDetailQuery.refetch();
           }
         }

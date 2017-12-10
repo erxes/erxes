@@ -48,7 +48,7 @@ class RespondBox extends Component {
 
     this.onSend = this.onSend.bind(this);
     this.toggleForm = this.toggleForm.bind(this);
-    this.toggleCustomerConnection = this.toggleCustomerConnection.bind(this);
+    this.hideMask = this.hideMask.bind(this);
     this.handleFileInput = this.handleFileInput.bind(this);
     this.onSelectTemplate = this.onSelectTemplate.bind(this);
   }
@@ -77,8 +77,8 @@ class RespondBox extends Component {
     );
   }
 
-  toggleCustomerConnection() {
-    this.setState({ isInactive: !this.state.isInactive });
+  hideMask() {
+    this.setState({ isInactive: false });
     document.querySelector('.DraftEditor-root').click();
   }
 
@@ -196,7 +196,7 @@ class RespondBox extends Component {
   renderMask() {
     if (this.state.isInactive) {
       return (
-        <Mask onClick={this.toggleCustomerConnection}>
+        <Mask onClick={this.hideMask}>
           Customer is offline. Click to hide and send messages and they will
           receive them the next time they are online.
         </Mask>
