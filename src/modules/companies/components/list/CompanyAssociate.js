@@ -61,6 +61,10 @@ class CompanyAssociate extends React.Component {
     this.context.closeModal();
   }
 
+  componentWillUnmount() {
+    this.props.search('');
+  }
+
   handleChange(company, type) {
     const { customerCompanies } = this.state;
 

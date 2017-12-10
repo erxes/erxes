@@ -67,6 +67,10 @@ class CustomeAssociate extends React.Component {
     this.context.closeModal();
   }
 
+  componentWillUnmount() {
+    this.props.search('');
+  }
+
   handleChange(customer, type) {
     const { companyCustomers } = this.state;
 
