@@ -191,7 +191,9 @@ class Customer {
     const company = await Companies.createCompany({ name, website });
 
     // add to companyIds list
-    await this.findByIdAndUpdate(_id, { $addToSet: { companyIds: company._id } });
+    await this.findByIdAndUpdate(_id, {
+      $addToSet: { companyIds: company._id },
+    });
 
     return company;
   }
@@ -203,7 +205,19 @@ class Customer {
      * @return {Promise} updated customer object
      */
   static async updateCompanies(_id, doc) {
-    await this.update({ _id }, { $set: doc });
+    await this.findByIdAndUpdate(_id, { $set: doc });
+
+    return this.findOne({ _id });
+  }
+
+  /**
+   * Append existing company to customer's company list
+   * @param {String} companyId - Company id
+   * @return {Promise} updated customer
+   */
+  static async appendCompany({ _id, companyId }) {
+    // add to companyIds list
+    await this.findByIdAndUpdate(_id, { $addToSet: { companyIds: companyId } }, { upsert: true });
 
     return this.findOne({ _id });
   }

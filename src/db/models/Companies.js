@@ -111,6 +111,22 @@ class Company {
       companyIds: [_id],
     });
   }
+
+  /**
+     * Update company customers
+     * @param {String} _id company id to update
+     * @param {string[]} doc.customerIds customer ids to update
+     * @return {Promise} updated company object
+     */
+  static async updateCustomers(_id, doc) {
+    const { customerIds } = doc;
+
+    await customerIds.forEach(customerId => {
+      Customers.appendCompany({ _id: customerId, companyId: _id });
+    });
+
+    return this.findOne({ _id });
+  }
 }
 
 CompanySchema.loadClass(Company);
