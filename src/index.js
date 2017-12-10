@@ -73,7 +73,7 @@ server.listen(PORT, () => {
           if (parsedMessage.type === 'messengerConnected') {
             webSocket.messengerData = parsedMessage.value;
 
-            const customerId = webSocket.messengerData;
+            const customerId = webSocket.messengerData.customerId;
 
             // notify as connected
             pubsub.publish('customerConnectionChanged', {
