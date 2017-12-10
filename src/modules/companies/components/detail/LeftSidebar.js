@@ -13,14 +13,14 @@ import {
   ControlLabel
 } from 'modules/common/components';
 import { GenerateField } from 'modules/fields/components';
-import { CustomerForm } from 'modules/customers/components';
+import { CustomerAssociate } from 'modules/customers/containers';
 import { CustomersWrapper, CustomerWrapper } from '../../styles';
 
 const propTypes = {
   company: PropTypes.object.isRequired,
   customFields: PropTypes.array.isRequired,
   save: PropTypes.func.isRequired,
-  addCustomer: PropTypes.func.isRequired
+  editCustomers: PropTypes.func.isRequired
 };
 
 class LeftSidebar extends React.Component {
@@ -195,7 +195,7 @@ class LeftSidebar extends React.Component {
   }
 
   renderCustomers() {
-    const { company, addCustomer } = this.props;
+    const { company, editCustomers } = this.props;
     const { Section } = Sidebar;
     const { Title, QuickButtons } = Section;
 
@@ -205,7 +205,7 @@ class LeftSidebar extends React.Component {
 
         <QuickButtons>
           <ModalTrigger title="New Customer" trigger={<Icon icon="plus" />}>
-            <CustomerForm addCustomer={addCustomer} />
+            <CustomerAssociate company={company} save={editCustomers} />
           </ModalTrigger>
         </QuickButtons>
         <CustomersWrapper>

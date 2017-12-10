@@ -11,8 +11,8 @@ const CompanyDetailsContainer = (props, context) => {
     companyDetailQuery,
     companyActivityLogQuery,
     companiesEdit,
-    fieldsQuery,
-    companiesAddCustomer
+    companiesEditCustomers,
+    fieldsQuery
   } = props;
 
   const save = (variables, callback) => {
@@ -25,12 +25,12 @@ const CompanyDetailsContainer = (props, context) => {
       });
   };
 
-  const addCustomer = ({ doc, callback }) => {
-    companiesAddCustomer({ variables: { _id: id, ...doc } })
+  const editCustomers = variables => {
+    companiesEditCustomers({
+      variables: { _id: id, ...variables }
+    })
       .then(() => {
-        companyDetailQuery.refetch();
-        Alert.success('Success');
-        callback();
+        Alert.success('Successfully saved');
       })
       .catch(e => {
         Alert.error(e.message);
@@ -45,7 +45,7 @@ const CompanyDetailsContainer = (props, context) => {
     },
     companyActivityLog: companyActivityLogQuery.activityLogsCompany || [],
     save,
-    addCustomer,
+    editCustomers,
     currentUser: context.currentUser,
     customFields: fieldsQuery.fields || []
   };
@@ -58,7 +58,7 @@ CompanyDetailsContainer.propTypes = {
   companyDetailQuery: PropTypes.object,
   fieldsQuery: PropTypes.object,
   companiesEdit: PropTypes.func,
-  companiesAddCustomer: PropTypes.func,
+  companiesEditCustomers: PropTypes.func,
   companyActivityLogQuery: PropTypes.object
 };
 
@@ -83,13 +83,13 @@ export default compose(
       }
     })
   }),
-  graphql(gql(mutations.companiesEdit), {
-    name: 'companiesEdit'
-  }),
   graphql(gql(queries.fields), {
     name: 'fieldsQuery'
   }),
-  graphql(gql(mutations.companiesAddCustomer), {
-    name: 'companiesAddCustomer'
+  graphql(gql(mutations.companiesEdit), {
+    name: 'companiesEdit'
+  }),
+  graphql(gql(mutations.companiesEditCustomers), {
+    name: 'companiesEditCustomers'
   })
 )(CompanyDetailsContainer);

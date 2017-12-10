@@ -41,8 +41,17 @@ const companiesAddCustomer = `
   }
 `;
 
+const companiesEditCustomers = `
+  mutation companiesEditCustomers($_id: String!, $customerIds: [String]) {
+    companiesEditCustomers(_id: $_id, customerIds: $customerIds) {
+      _id
+    }
+  }
+`;
+
 export default {
   companiesAdd,
   companiesEdit,
-  companiesAddCustomer
+  companiesAddCustomer,
+  companiesEditCustomers
 };
