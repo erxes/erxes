@@ -64,6 +64,27 @@ class ConversationDetail extends Component {
         this.props.conversationDetailQuery.refetch();
       }
     });
+
+    // listen for customer connection
+    const conversation = conversationDetailQuery.conversationDetail;
+
+    if (conversation && conversation.integration.kind === 'messenger') {
+      const customerId = conversation.customer._id;
+
+      conversationDetailQuery.subscribeToMore({
+        document: gql(subscriptions.customerConnectionChanged),
+        variables: { _id: customerId },
+        updateQuery: (prev, { subscriptionData }) => {
+          const prevConversation = prev.conversationDetail;
+          const cusomerConnection =
+            subscriptionData.data.customerConnectionChanged;
+
+          if (prevConversation.customer._id === cusomerConnection._id) {
+            this.props.conversationDetailQuery.refetch();
+          }
+        }
+      });
+    }
   }
 
   render() {
