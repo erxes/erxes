@@ -20,7 +20,6 @@ import {
 } from 'modules/companies/styles';
 
 const propTypes = {
-  saveCompanyCustomers: PropTypes.func,
   company: PropTypes.object.isRequired,
   customers: PropTypes.array.isRequired,
   addCustomer: PropTypes.func.isRequired,
