@@ -4,7 +4,7 @@ import sinon from 'sinon';
 import { connect, disconnect } from '../../db/connection';
 import { SaveWebhookResponse } from '../../social/facebook';
 import { graphRequest } from '../../social/facebookTracker';
-import { Conversations, ConversationMessages } from '../../db/models';
+import { Customers, Conversations, ConversationMessages, ActivityLogs } from '../../db/models';
 import { integrationFactory, conversationMessageFactory } from '../../db/factories';
 import { CONVERSATION_STATUSES } from '../../data/constants';
 
@@ -16,6 +16,8 @@ describe('facebook integration: get or create conversation by feed info', () => 
     // clear
     await Conversations.remove({});
     await ConversationMessages.remove({});
+    await Customers.remove({});
+    await ActivityLogs({});
 
     graphRequest.get.restore(); // unwraps the spy
   });
@@ -92,6 +94,11 @@ describe('facebook integration: get or create conversation by feed info', () => 
     await saveWebhookResponse.getOrCreateConversationByFeed(value);
 
     expect(await Conversations.find().count()).toBe(1); // 1 conversation
+    expect(await ConversationMessages.find().count()).toBe(1); // 1 message
+    expect(await Customers.find().count()).toBe(1); // 1 customer
+
+    // 1 logs
+    expect(await ActivityLogs.find({ 'activity.type': 'customer' }).count()).toBe(1);
 
     const conversation = await Conversations.findOne();
 

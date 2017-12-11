@@ -109,6 +109,10 @@ describe('facebook integration: get or create conversation', () => {
     // must be opened
     conversation = await Conversations.findOne({ _id: conversation._id });
     expect(conversation.status).toBe(CONVERSATION_STATUSES.OPEN);
+
+    // checking updatedAt field
+    expect(conversation.createdAt).not.toEqual(conversation.updatedAt);
+
     expect(await ConversationMessages.find().count()).toBe(3);
 
     // new post ===========

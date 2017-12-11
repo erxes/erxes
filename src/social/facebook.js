@@ -1,4 +1,11 @@
-import { Integrations, Conversations, ConversationMessages, Customers } from '../db/models';
+import {
+  ActivityLogs,
+  Integrations,
+  Conversations,
+  ConversationMessages,
+  Customers,
+} from '../db/models';
+
 import { conversationMessageCreated } from '../data/resolvers/mutations/conversations';
 
 import {
@@ -334,7 +341,7 @@ export class SaveWebhookResponse {
     const name = res.name || `${res.first_name} ${res.last_name}`;
 
     // create customer
-    return Customers.create({
+    const createdCustomer = await Customers.create({
       name,
       integrationId,
       facebookData: {
@@ -342,6 +349,11 @@ export class SaveWebhookResponse {
         profilePic: res.profile_pic,
       },
     });
+
+    // create log
+    await ActivityLogs.createCustomerRegistrationLog(createdCustomer);
+
+    return createdCustomer;
   }
 
   /*

@@ -1,4 +1,10 @@
-import { Customers, ConversationMessages, Conversations, Integrations } from '../db/models';
+import {
+  ActivityLogs,
+  Customers,
+  ConversationMessages,
+  Conversations,
+  Integrations,
+} from '../db/models';
 import { conversationMessageCreated } from '../data/resolvers/mutations/conversations';
 import { twitRequest } from './twitterTracker';
 
@@ -19,7 +25,7 @@ const getOrCreateCustomer = async (integrationId, user) => {
   }
 
   // create customer
-  return await Customers.create({
+  const createdCustomer = await Customers.create({
     name: user.name,
     integrationId,
     twitterData: {
@@ -30,6 +36,11 @@ const getOrCreateCustomer = async (integrationId, user) => {
       profileImageUrl: user.profile_image_url,
     },
   });
+
+  // create log
+  await ActivityLogs.createCustomerRegistrationLog(createdCustomer);
+
+  return createdCustomer;
 };
 
 /*

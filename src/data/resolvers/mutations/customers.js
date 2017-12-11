@@ -9,7 +9,9 @@ const customerMutations = {
    */
   async customersAdd(root, doc, { user }) {
     const customer = await Customers.createCustomer(doc);
+
     await ActivityLogs.createCustomerRegistrationLog(customer, user);
+
     return customer;
   },
 
@@ -32,7 +34,9 @@ const customerMutations = {
    */
   async customersAddCompany(root, args, { user }) {
     const company = await Customers.addCompany(args);
+
     await ActivityLogs.createCompanyRegistrationLog(company, user);
+
     return company;
   },
 

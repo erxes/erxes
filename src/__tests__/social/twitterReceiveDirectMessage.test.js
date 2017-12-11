@@ -4,7 +4,13 @@
 import { connect, disconnect } from '../../db/connection';
 import { integrationFactory, conversationFactory } from '../../db/factories';
 import { CONVERSATION_STATUSES } from '../../data/constants';
-import { Conversations, ConversationMessages, Customers, Integrations } from '../../db/models';
+import {
+  ActivityLogs,
+  Conversations,
+  ConversationMessages,
+  Customers,
+  Integrations,
+} from '../../db/models';
 import { getOrCreateDirectMessageConversation } from '../../social/twitter';
 
 beforeAll(() => connect());
@@ -30,6 +36,7 @@ describe('receive direct message response', () => {
     await Conversations.remove({});
     await ConversationMessages.remove({});
     await Customers.remove({});
+    await ActivityLogs.remove({});
   });
 
   test('get or create conversation', async () => {
@@ -130,6 +137,9 @@ describe('receive direct message response', () => {
     expect(customer.twitterData.screenName).toBe(data.sender.screen_name);
     expect(customer.twitterData.profileImageUrl).toBe(data.sender.profile_image_url);
 
+    // 1 log
+    expect(await ActivityLogs.find().count()).toBe(1);
+
     // check message field values
     expect(message.createdAt).toBeDefined();
     expect(message.conversationId).toBe(conv._id);
@@ -144,18 +154,19 @@ describe('receive direct message response', () => {
     // call action
     await getOrCreateDirectMessageConversation(data, _integration);
 
-    // must not be created new conversation
+    // must not be created new conversation ==============
     expect(await Conversations.find().count()).toBe(1);
-
-    // must not be created new customer
-    expect(await Customers.find().count()).toBe(1);
-
-    // must be created new message
-    expect(await ConversationMessages.find().count()).toBe(2);
 
     // check conversation field updates
     conv = await Conversations.findOne();
     expect(conv.readUserIds.length).toBe(0);
+    expect(conv.createdAt).not.toEqual(conv.updatedAt);
+
+    // must not be created new customer ================
+    expect(await Customers.find().count()).toBe(1);
+
+    // must be created new message ================
+    expect(await ConversationMessages.find().count()).toBe(2);
 
     const newMessage = await ConversationMessages.findOne({ _id: { $ne: message._id } });
 
