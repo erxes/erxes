@@ -209,30 +209,6 @@ class Customer {
 
     return this.findOne({ _id });
   }
-
-  /**
-   * Append existing company to customer's company list
-   * @param {String} companyId - Company id
-   * @return {Promise} updated customer
-   */
-  static async appendCompany({ _id, companyId }) {
-    // add to companyIds list
-    await this.findByIdAndUpdate(_id, { $addToSet: { companyIds: companyId } }, { upsert: true });
-
-    return this.findOne({ _id });
-  }
-
-  /**
-   * Remove existing company from customer's company list
-   * @param {String} companyId - Company id
-   * @return {Promise} updated customer
-   */
-  static async removeCompany({ _id, companyId }) {
-    // add to companyIds list
-    await this.findByIdAndUpdate(_id, { $pull: { companyIds: companyId } });
-
-    return this.findOne({ _id });
-  }
 }
 
 CustomerSchema.loadClass(Customer);

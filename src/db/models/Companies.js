@@ -120,16 +120,16 @@ class Company {
      * @return {Promise} updated company object
      */
   static async updateCustomers(_id, doc) {
-    const { customerIds, removedCustomerIds } = doc;
+    const { customerIds } = doc;
 
-    await customerIds.forEach(customerId => {
-      Customers.appendCompany({ _id: customerId, companyId: _id });
-    });
+    await Customers.updateMany({ companyIds: { $in: [_id] } }, { $pull: { companyIds: _id } });
 
-    if (removedCustomerIds.length > 0) {
-      await removedCustomerIds.forEach(customerId => {
-        Customers.removeCompany({ _id: customerId, companyId: _id });
-      });
+    for (let customerId of customerIds) {
+      await Customers.findByIdAndUpdate(
+        { _id: customerId },
+        { $addToSet: { companyIds: _id } },
+        { upsert: true },
+      );
     }
 
     return this.findOne({ _id });
