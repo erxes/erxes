@@ -69,6 +69,7 @@ const MessageContent = styled.div`
   display: -webkit-box;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 1;
+  max-height: 18px;
 `;
 
 const RowItem = styled.li`
