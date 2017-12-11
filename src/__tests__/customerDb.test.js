@@ -141,24 +141,4 @@ describe('Customers model tests', () => {
 
     expect(customerObj.companyIds).toEqual(expect.arrayContaining(doc.companyIds));
   });
-
-  test('Append to customer companies', async () => {
-    expect.assertions(1);
-
-    const companyId = 'asd12313';
-
-    const customerObj = await Customers.appendCompany({ _id: _customer._id, companyId });
-
-    expect(customerObj.companyIds).toContain(companyId);
-  });
-
-  test('Remove company from customer companies', async () => {
-    expect.assertions(1);
-
-    const companyId = 'asd12313';
-
-    const customerObj = await Customers.removeCompany({ _id: _customer._id, companyId });
-
-    expect(customerObj.companyIds).not.toContain(companyId);
-  });
 });
