@@ -1,6 +1,5 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import _ from 'underscore';
 import { Modal } from 'react-bootstrap';
 import {
   Button,
@@ -49,17 +48,14 @@ class CustomeAssociate extends React.Component {
 
   save() {
     const { companyCustomers } = this.state;
-    const oldCompanyCustomers = this.props.company.customers || [];
-    const oldCompanyCustomerIds = _.pluck(oldCompanyCustomers, '_id');
-    const customerIds = _.pluck(companyCustomers, '_id');
+    const customerIds = [];
 
-    const removedCustomerIds = oldCompanyCustomerIds.filter(item => {
-      return !customerIds.includes(item);
+    companyCustomers.forEach(company => {
+      customerIds.push(company._id.toString());
     });
 
     const doc = {
-      customerIds,
-      removedCustomerIds
+      customerIds
     };
 
     this.props.save(doc);
