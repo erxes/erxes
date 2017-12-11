@@ -9,28 +9,22 @@ import { queries, mutations, subscriptions } from '../graphql';
 import { generateParams } from '../utils';
 
 class ConversationDetail extends Component {
-  componentWillMount() {
-    const { currentConversationId, conversationDetailQuery } = this.props;
-    this.subscribe(conversationDetailQuery, currentConversationId);
-  }
-
   componentWillReceiveProps(nextProps) {
-    const {
-      history,
-      currentConversationId,
-      conversationDetailQuery
-    } = this.props;
+    const { history } = this.props;
 
-    if (!routerUtils.getParam(history, '_id') && currentConversationId) {
-      routerUtils.setParams(history, { _id: currentConversationId });
+    if (
+      !routerUtils.getParam(history, '_id') &&
+      this.props.currentConversationId
+    ) {
+      routerUtils.setParams(history, { _id: this.props.currentConversationId });
     }
 
-    if (nextProps.currentConversationId !== currentConversationId) {
-      this.subscribe(conversationDetailQuery, nextProps.currentConversationId);
-    }
-  }
+    const { currentConversationId, conversationDetailQuery } = nextProps;
 
-  subscribe(conversationDetailQuery, currentConversationId) {
+    if (conversationDetailQuery.loading) {
+      return;
+    }
+
     conversationDetailQuery.subscribeToMore({
       document: gql(subscriptions.conversationMessageInserted),
       variables: { _id: currentConversationId },
@@ -38,6 +32,10 @@ class ConversationDetail extends Component {
         const message = subscriptionData.data.conversationMessageInserted;
         const conversationDetail = prev.conversationDetail;
         const messages = conversationDetail.messages;
+
+        if (currentConversationId !== this.props.currentConversationId) {
+          return prev;
+        }
 
         // check whether or not already inserted
         const prevEntry = messages.find(m => m._id === message._id);
@@ -140,6 +138,7 @@ const ConversationDetailContainer = compose(
     options: ({ currentConversationId }) => {
       return {
         notifyOnNetworkStatusChange: true,
+        fetchPolicy: 'cache-and-network',
         variables: { _id: currentConversationId }
       };
     }
@@ -153,7 +152,14 @@ const ConversationDetailContainer = compose(
       return {
         refetchQueries: [
           {
-            query: gql(queries.conversationDetail),
+            query: gql`
+              query conversationDetail($_id: String!) {
+                conversationDetail(_id: $_id) {
+                  _id
+                  readUserIds
+                }
+              }
+            `,
             variables: { _id: currentConversationId }
           },
           { query: gql(queries.unreadConversationsCount) }
