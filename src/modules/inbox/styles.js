@@ -162,6 +162,7 @@ const EditorActions = styled.div`
     &:first-of-type {
       position: absolute;
       left: 20px;
+      bottom: 20px;
     }
   }
 
