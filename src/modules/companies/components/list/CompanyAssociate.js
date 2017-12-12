@@ -65,19 +65,23 @@ class CompanyAssociate extends React.Component {
     this.props.search('');
   }
 
-  handleChange(company, type) {
+  handleChange(e, company) {
     const { customerCompanies } = this.state;
+    const type = e.target.getAttribute('icon');
 
-    if (type === 'addToCustomer') {
-      if (customerCompanies.some(item => item._id === company._id))
-        return Alert.warning('Already added');
-      this.setState({
-        customerCompanies: [...customerCompanies, company]
-      });
-    } else {
-      this.setState({
-        customerCompanies: customerCompanies.filter(item => item !== company)
-      });
+    switch (type) {
+      case 'plus':
+        if (customerCompanies.some(item => item._id === company._id))
+          return Alert.warning('Already added');
+        this.setState({
+          customerCompanies: [...customerCompanies, company]
+        });
+        break;
+      default:
+        this.setState({
+          customerCompanies: customerCompanies.filter(item => item !== company)
+        });
+        break;
     }
   }
 
@@ -94,6 +98,15 @@ class CompanyAssociate extends React.Component {
 
   loadMore() {
     this.props.search(this.state.searchValue, true);
+  }
+
+  renderRow(company, icon) {
+    return (
+      <li key={company._id}>
+        <Icon icon={icon} onClick={e => this.handleChange(e, company)} />
+        {company.name}
+      </li>
+    );
   }
 
   render() {
@@ -119,32 +132,16 @@ class CompanyAssociate extends React.Component {
           />
           <TitleSpan>Companies</TitleSpan>
           <ul>
-            {companies.map(company => (
-              <li key={company._id}>
-                <Icon
-                  icon="plus"
-                  onClick={() => this.handleChange(company, 'addToCustomer')}
-                />
-                {company.name}
-              </li>
-            ))}
+            {companies.map(company => this.renderRow(company, 'plus'))}
             <LoadMore onClick={this.loadMore}>Load More</LoadMore>
           </ul>
         </InputsWrapper>
         <ListWrapper>
           <TitleSpan>{customer.fullName}&apos;s Companies</TitleSpan>
           <ul>
-            {this.state.customerCompanies.map(company => (
-              <li key={company._id}>
-                {company.name}
-                <Icon
-                  icon="close"
-                  onClick={() =>
-                    this.handleChange(company, 'removeFromCustomer')
-                  }
-                />
-              </li>
-            ))}
+            {this.state.customerCompanies.map(company =>
+              this.renderRow(company, 'close')
+            )}
           </ul>
         </ListWrapper>
         <Modal.Footer>
