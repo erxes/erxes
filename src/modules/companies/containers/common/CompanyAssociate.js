@@ -1,9 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { compose, gql, graphql } from 'react-apollo';
-import { queries, mutations } from '../graphql';
+import { queries, mutations } from '../../graphql';
 import { Alert } from 'modules/common/utils';
-import { CompanyAssociate } from '../components';
+import { CompanyAssociate } from '../../components';
 
 class CompanyAssociateContainer extends React.Component {
   constructor(props) {
