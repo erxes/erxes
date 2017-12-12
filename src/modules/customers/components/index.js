@@ -1,8 +1,8 @@
 import CustomerRow from './list/CustomerRow';
-import CustomerForm from './list/CustomerForm';
+import CustomerForm from './common/CustomerForm';
 import CustomersList from './list/CustomersList';
 import CustomerDetails from './detail/CustomerDetails';
-import CustomerAssociate from './list/CustomerAssociate';
+import CustomerAssociate from './common/CustomerAssociate';
 
 export {
   CustomerRow,
