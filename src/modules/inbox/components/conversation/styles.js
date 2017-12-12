@@ -53,6 +53,7 @@ const MessageItem = styled.div`
 
   > span {
     position: absolute;
+    right: ${props => props.staff && '0'};
   }
 
   ${props => {

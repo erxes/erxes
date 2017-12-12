@@ -15,6 +15,7 @@ injectGlobal`
     height: 100%;
     background: ${colors.bgMain};
     -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
 
     > #root {
