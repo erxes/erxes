@@ -42,10 +42,11 @@ const customerMutations = {
 
   /**
    * Update customer Companies
-   * @return {Promise} customer object
+   * @param {string[]} companyIds - Company ids to update
+   * @return {Promise} Customer object
    */
-  async customersEditCompanies(root, { _id, ...doc }) {
-    return Customers.updateCompanies(_id, doc);
+  async customersEditCompanies(root, { _id, companyIds }) {
+    return Customers.updateCompanies(_id, companyIds);
   },
 };
 

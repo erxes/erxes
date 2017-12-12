@@ -199,13 +199,14 @@ class Customer {
   }
 
   /**
-     * Update customer companies
-     * @param {String} _id customer id to update
-     * @param {string[]} doc.companyIds company ids to update
-     * @return {Promise} updated customer object
-     */
-  static async updateCompanies(_id, doc) {
-    await this.findByIdAndUpdate(_id, { $set: doc });
+   * Update customer companies
+   * @param {String} _id customer id to update
+   * @param {string[]} companyIds company ids to update
+   * @return {Promise} updated customer object
+   */
+  static async updateCompanies(_id, companyIds) {
+    // updating companyIds field
+    await this.findByIdAndUpdate(_id, { $set: { companyIds } });
 
     return this.findOne({ _id });
   }
