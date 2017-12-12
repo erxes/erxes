@@ -30,7 +30,7 @@ const contextTypes = {
   closeModal: PropTypes.func.isRequired
 };
 
-class CustomeAssociate extends React.Component {
+class CustomerAssociate extends React.Component {
   constructor(props) {
     super(props);
     const companyCustomers = this.props.company.customers || [];
@@ -66,19 +66,24 @@ class CustomeAssociate extends React.Component {
     this.props.search('');
   }
 
-  handleChange(customer, type) {
+  handleChange(e, customer) {
     const { companyCustomers } = this.state;
+    const type = e.target.getAttribute('icon');
 
-    if (type === 'addToCompany') {
-      if (companyCustomers.some(item => item._id === customer._id))
-        return Alert.warning('Already added');
-      this.setState({
-        companyCustomers: [...companyCustomers, customer]
-      });
-    } else {
-      this.setState({
-        companyCustomers: companyCustomers.filter(item => item !== customer)
-      });
+    switch (type) {
+      case 'plus':
+        if (companyCustomers.some(item => item._id === customer._id))
+          return Alert.warning('Already added');
+
+        this.setState({
+          companyCustomers: [...companyCustomers, customer]
+        });
+        break;
+      default:
+        this.setState({
+          companyCustomers: companyCustomers.filter(item => item !== customer)
+        });
+        break;
     }
   }
 
@@ -104,6 +109,15 @@ class CustomeAssociate extends React.Component {
     return customer.email || customer.phone || 'N/A';
   }
 
+  renderRow(customer, icon) {
+    return (
+      <li key={customer._id}>
+        <Icon icon={icon} onClick={e => this.handleChange(e, customer)} />
+        {this.renderFullName(customer)}
+      </li>
+    );
+  }
+
   render() {
     const onClick = () => {
       this.context.closeModal();
@@ -127,32 +141,16 @@ class CustomeAssociate extends React.Component {
           />
           <TitleSpan>Customers</TitleSpan>
           <ul>
-            {customers.map(customer => (
-              <li key={customer._id}>
-                <Icon
-                  icon="plus"
-                  onClick={() => this.handleChange(customer, 'addToCompany')}
-                />
-                {this.renderFullName(customer)}
-              </li>
-            ))}
+            {customers.map(customer => this.renderRow(customer, 'plus'))}
             <LoadMore onClick={this.loadMore}>Load More</LoadMore>
           </ul>
         </InputsWrapper>
         <ListWrapper>
           <TitleSpan>{company.name}&apos;s Customers</TitleSpan>
           <ul>
-            {this.state.companyCustomers.map(customer => (
-              <li key={customer._id}>
-                {this.renderFullName(customer)}
-                <Icon
-                  icon="close"
-                  onClick={() =>
-                    this.handleChange(customer, 'removeFromCompany')
-                  }
-                />
-              </li>
-            ))}
+            {this.state.companyCustomers.map(customer =>
+              this.renderRow(customer, 'close')
+            )}
           </ul>
         </ListWrapper>
         <Modal.Footer>
@@ -173,7 +171,7 @@ class CustomeAssociate extends React.Component {
   }
 }
 
-CustomeAssociate.propTypes = propTypes;
-CustomeAssociate.contextTypes = contextTypes;
+CustomerAssociate.propTypes = propTypes;
+CustomerAssociate.contextTypes = contextTypes;
 
-export default CustomeAssociate;
+export default CustomerAssociate;
