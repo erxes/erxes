@@ -113,17 +113,16 @@ class Company {
   }
 
   /**
-     * Update company customers
-     * @param {String} _id company id to update
-     * @param {string[]} doc.customerIds customer ids to update
-     * @param {string[]} doc.removedCustomerIds customer ids to remove
-     * @return {Promise} updated company object
-     */
-  static async updateCustomers(_id, doc) {
-    const { customerIds } = doc;
-
+   * Update company customers
+   * @param {String} _id company id to update
+   * @param {string[]} customerIds customer ids to update
+   * @return {Promise} updated company object
+   */
+  static async updateCustomers(_id, customerIds) {
+    // Removing companyIds from users
     await Customers.updateMany({ companyIds: { $in: [_id] } }, { $pull: { companyIds: _id } });
 
+    // Adding companyId to the each customers
     for (let customerId of customerIds) {
       await Customers.findByIdAndUpdate(
         { _id: customerId },
