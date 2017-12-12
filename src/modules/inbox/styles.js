@@ -122,6 +122,8 @@ const RespondBoxStyled = styled.div`
   background: ${props =>
     props.isInternal ? colors.bgInternal : colors.colorWhite};
 
+  filter: ${props => props.isInactive && 'blur(2px)'};
+
   ${RichEditorRoot} {
     border-top: 1px solid ${colors.borderPrimary};
   }
@@ -365,6 +367,28 @@ const AssignTrigger = styled.div`
   }
 `;
 
+const MaskWrapper = styled.div`
+  position: relative;
+`;
+
+const Mask = styled.div`
+  position: absolute;
+  padding: 20px;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+
+  &:hover {
+    cursor: pointer;
+  }
+`;
+
 export {
   PopoverButton,
   ConversationWrapper,
@@ -392,5 +416,7 @@ export {
   FileName,
   AssignText,
   ActionBarLeft,
-  AssignTrigger
+  AssignTrigger,
+  Mask,
+  MaskWrapper
 };
