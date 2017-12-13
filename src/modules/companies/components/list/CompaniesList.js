@@ -13,7 +13,7 @@ import { withRouter } from 'react-router';
 import { BarItems } from 'modules/layout/styles';
 import Sidebar from './Sidebar';
 import CompanyRow from './CompanyRow';
-import CompanyForm from './CompanyForm';
+import { CompanyForm } from '../';
 import { ManageColumns } from '../../../fields/containers';
 
 const propTypes = {

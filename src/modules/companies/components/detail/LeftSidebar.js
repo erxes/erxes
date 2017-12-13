@@ -13,14 +13,13 @@ import {
   ControlLabel
 } from 'modules/common/components';
 import { GenerateField } from 'modules/fields/components';
-import { CustomerForm } from 'modules/customers/components';
+import { CustomerAssociate } from 'modules/customers/containers';
 import { CustomersWrapper, CustomerWrapper } from '../../styles';
 
 const propTypes = {
   company: PropTypes.object.isRequired,
   customFields: PropTypes.array.isRequired,
-  save: PropTypes.func.isRequired,
-  addCustomer: PropTypes.func.isRequired
+  save: PropTypes.func.isRequired
 };
 
 class LeftSidebar extends React.Component {
@@ -194,8 +193,15 @@ class LeftSidebar extends React.Component {
     );
   }
 
+  renderFullName(customer) {
+    if (customer.firstName || customer.lastName) {
+      return (customer.firstName || '') + ' ' + (customer.lastName || '');
+    }
+    return customer.email || customer.phone || 'N/A';
+  }
+
   renderCustomers() {
-    const { company, addCustomer } = this.props;
+    const { company } = this.props;
     const { Section } = Sidebar;
     const { Title, QuickButtons } = Section;
 
@@ -204,8 +210,12 @@ class LeftSidebar extends React.Component {
         <Title>Customers</Title>
 
         <QuickButtons>
-          <ModalTrigger title="New Customer" trigger={<Icon icon="plus" />}>
-            <CustomerForm addCustomer={addCustomer} />
+          <ModalTrigger
+            title="Associate"
+            size="lg"
+            trigger={<Icon icon="plus" />}
+          >
+            <CustomerAssociate data={company} />
           </ModalTrigger>
         </QuickButtons>
         <CustomersWrapper>
@@ -215,9 +225,7 @@ class LeftSidebar extends React.Component {
                 <Icon icon="android-arrow-forward" />
               </Link>
               <span>Name: </span>
-              <span>
-                {(customer.firstName || '') + ' ' + (customer.lastName || '')}
-              </span>
+              <span>{this.renderFullName(customer)}</span>
             </CustomerWrapper>
           ))}
         </CustomersWrapper>

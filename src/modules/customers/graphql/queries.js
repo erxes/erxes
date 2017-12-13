@@ -28,7 +28,8 @@ const listParamsDef = `
   $perPage: Int,
   $segment: String,
   $tag: String,
-  $ids: [String]
+  $ids: [String],
+  $searchValue: String
 `;
 
 const listParamsValue = `
@@ -37,6 +38,7 @@ const listParamsValue = `
   segment: $segment,
   tag: $tag,
   ids: $ids,
+  searchValue: $searchValue
 `;
 
 const customers = `
