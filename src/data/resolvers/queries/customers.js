@@ -52,6 +52,7 @@ const customerQueries = {
    */
   async customers(root, { ids, searchValue, ...params }) {
     const sort = { 'messengerData.lastSeenAt': -1 };
+
     let selector = await listQuery(params);
 
     if (searchValue) {
@@ -66,8 +67,7 @@ const customerQueries = {
     }
 
     if (ids) {
-      const selector = { _id: { $in: ids } };
-      return paginate(Customers.find(selector), params).sort(sort);
+      selector = { _id: { $in: ids } };
     }
 
     return paginate(Customers.find(selector), params).sort(sort);
