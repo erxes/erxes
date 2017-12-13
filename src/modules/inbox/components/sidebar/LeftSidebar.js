@@ -1,9 +1,19 @@
-import React, { Component } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
-import moment from 'moment';
+import { toggleCheckBoxes } from 'modules/common/utils';
 import { Sidebar } from 'modules/layout/components';
-import { ConversationList, LoadMore, Spinner } from 'modules/common/components';
-import { FilterPopover, StatusFilterPopover } from '../';
+import {
+  Bulk,
+  FormControl,
+  Icon,
+  ConversationList,
+  LoadMore,
+  Spinner,
+  TaggerPopover
+} from 'modules/common/components';
+import { FilterPopover, StatusFilterPopover, AssignBoxPopover } from '../';
+import { PopoverButton } from '../../styles';
+import { LeftItem, RightItems } from './styles';
 
 const propTypes = {
   conversations: PropTypes.array.isRequired,
@@ -15,32 +25,70 @@ const propTypes = {
   onChangeConversation: PropTypes.func.isRequired,
   counts: PropTypes.object.isRequired,
   totalCount: PropTypes.number.isRequired,
+  refetch: PropTypes.func,
   loading: PropTypes.bool
 };
 
-class LeftSidebar extends Component {
-  componentWillMount() {
-    moment.updateLocale('en', {
-      relativeTime: {
-        future: 'in %s',
-        past: '%s ',
-        s: 's',
-        m: 'm',
-        mm: '%d m',
-        h: 'h',
-        hh: '%d h',
-        d: 'd',
-        dd: '%d d',
-        M: 'a mth',
-        MM: '%d mths',
-        y: 'y',
-        yy: '%d y'
-      }
-    });
+class LeftSidebar extends Bulk {
+  constructor(props) {
+    super(props);
+
+    this.resetBulk = this.resetBulk.bind(this);
+    this.renderTrigger = this.renderTrigger.bind(this);
+  }
+
+  refetch() {
+    this.props.refetch();
+  }
+
+  resetBulk() {
+    this.emptyBulk();
+    toggleCheckBoxes('conversations', false);
+  }
+
+  renderTrigger(text) {
+    return (
+      <PopoverButton>
+        {text} <Icon icon="ios-arrow-down" />
+      </PopoverButton>
+    );
   }
 
   renderSidebarHeader() {
-    const { channels, counts } = this.props;
+    const { channels, counts, conversations } = this.props;
+    const { bulk } = this.state;
+
+    if (bulk.length > 0) {
+      return (
+        <Sidebar.Header>
+          <LeftItem>
+            <FormControl
+              componentClass="checkbox"
+              onChange={() => {
+                this.toggleAll(conversations, 'conversations');
+              }}
+            />
+            Check all
+          </LeftItem>
+
+          <RightItems>
+            <AssignBoxPopover
+              targets={bulk}
+              trigger={this.renderTrigger('Assign')}
+              afterSave={this.resetBulk}
+            />
+
+            <TaggerPopover
+              targets={bulk}
+              type="conversation"
+              trigger={this.renderTrigger('Tag')}
+              afterSave={this.resetBulk}
+            />
+          </RightItems>
+        </Sidebar.Header>
+      );
+    }
+
     return (
       <Sidebar.Header>
         <FilterPopover
@@ -50,7 +98,6 @@ class LeftSidebar extends Component {
           counts={counts.byChannels}
           paramKey="channelId"
         />
-
         <StatusFilterPopover counts={counts} />
       </Sidebar.Header>
     );
@@ -110,6 +157,8 @@ class LeftSidebar extends Component {
         <ConversationList
           conversations={conversations}
           onRowClick={onChangeConversation}
+          toggleBulk={this.toggleBulk}
+          bulk={this.state.bulk}
           currentConversationId={currentConversationId}
         />
         {loading && conversations.length === 0 && <Spinner />}
