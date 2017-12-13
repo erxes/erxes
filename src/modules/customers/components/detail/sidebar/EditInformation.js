@@ -13,7 +13,7 @@ import {
 } from 'modules/common/components';
 import { Alert } from 'modules/common/utils';
 import { GenerateField } from 'modules/fields/components';
-import { CommonAssociate } from 'modules/customers/containers';
+import { CompanyAssociate } from 'modules/companies/containers';
 import { BasicInfo } from 'modules/customers/components/detail/sidebar';
 import { CompanyWrapper, BlockValue } from './styles';
 import { SidebarList, SidebarCounter } from 'modules/layout/styles';
@@ -29,7 +29,6 @@ const propTypes = {
   customer: PropTypes.object.isRequired,
   customFields: PropTypes.array.isRequired,
   save: PropTypes.func.isRequired,
-  editCompanies: PropTypes.func.isRequired,
   sections: PropTypes.node,
   otherProperties: PropTypes.node
 };
@@ -85,7 +84,7 @@ class LeftSidebar extends React.Component {
   }
 
   renderCompanies() {
-    const { customer, editCompanies } = this.props;
+    const { customer } = this.props;
     const { Section } = Sidebar;
 
     const companyTrigger = (
@@ -99,7 +98,7 @@ class LeftSidebar extends React.Component {
         <Section.Title>Companies</Section.Title>
         <Section.QuickButtons>
           <ModalTrigger title="Associate" trigger={companyTrigger} size="lg">
-            <CommonAssociate data={customer} save={editCompanies} />
+            <CompanyAssociate data={customer} />
           </ModalTrigger>
         </Section.QuickButtons>
         {customer.companies.map((company, index) => (

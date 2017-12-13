@@ -8,8 +8,6 @@ import {
   ModalTrigger
 } from 'modules/common/components';
 import { Alert } from 'modules/common/utils';
-import { CompanyForm } from 'modules/companies/components';
-import { CustomerForm } from '../';
 import {
   FormWrapper,
   InputsWrapper,
@@ -22,9 +20,9 @@ const propTypes = {
   data: PropTypes.object.isRequired,
   save: PropTypes.func,
   search: PropTypes.func.isRequired,
-  type: PropTypes.string.isRequired,
   datas: PropTypes.array.isRequired,
-  add: PropTypes.func.isRequired
+  form: PropTypes.node.isRequired,
+  title: PropTypes.string.isRequired
 };
 
 const contextTypes = {
@@ -34,9 +32,7 @@ const contextTypes = {
 class CommonAssociate extends React.Component {
   constructor(props) {
     super(props);
-    const { type } = this.props;
-
-    const datas = this.props.data[type] || [];
+    const datas = this.props.data.datas || [];
 
     this.state = {
       datas,
@@ -52,27 +48,13 @@ class CommonAssociate extends React.Component {
 
   save() {
     const { datas } = this.state;
-    const { type } = this.props;
+    const Ids = [];
 
-    const doc = {};
+    datas.forEach(data => {
+      Ids.push(data._id.toString());
+    });
 
-    if (type !== 'customers') {
-      const companyIds = [];
-
-      datas.forEach(data => {
-        companyIds.push(data._id.toString());
-      });
-      doc.companyIds = companyIds;
-    } else {
-      const customerIds = [];
-
-      datas.forEach(data => {
-        customerIds.push(data._id.toString());
-      });
-      doc.customerIds = customerIds;
-    }
-
-    this.props.save(doc);
+    this.props.save(Ids);
     this.context.closeModal();
   }
 
@@ -92,19 +74,16 @@ class CommonAssociate extends React.Component {
     const { datas } = this.state;
     const type = e.target.getAttribute('icon');
 
-    switch (type) {
-      case 'plus':
-        if (datas.some(item => item._id === data._id))
-          return Alert.warning('Already added');
-        this.setState({
-          datas: [...datas, data]
-        });
-        break;
-      default:
-        this.setState({
-          datas: datas.filter(item => item !== data)
-        });
-        break;
+    if (type === 'plus') {
+      if (datas.some(item => item._id === data._id))
+        return Alert.warning('Already added');
+      this.setState({
+        datas: [...datas, data]
+      });
+    } else {
+      this.setState({
+        datas: datas.filter(item => item !== data)
+      });
     }
   }
 
@@ -124,20 +103,19 @@ class CommonAssociate extends React.Component {
     this.props.search(this.state.searchValue, true);
   }
 
-  renderFullName(customer) {
-    if (customer.firstName || customer.lastName) {
-      return (customer.firstName || '') + ' ' + (customer.lastName || '');
+  renderFullName(data) {
+    if (data.name) return data.name;
+    if (data.firstName || data.lastName) {
+      return (data.firstName || '') + ' ' + (data.lastName || '');
     }
-    return customer.email || customer.phone || 'N/A';
+    return data.email || data.phone || 'N/A';
   }
 
   renderRow(data, icon) {
-    const { type } = this.props;
-
     return (
       <li key={data._id}>
         <Icon icon={icon} onClick={e => this.handleChange(e, data)} />
-        {type === 'customers' ? this.renderFullName(data) : data.name}
+        {this.renderFullName(data)}
       </li>
     );
   }
@@ -147,12 +125,12 @@ class CommonAssociate extends React.Component {
       this.context.closeModal();
     };
 
-    const { type, datas, add } = this.props;
+    const { datas, form, title } = this.props;
 
     const addTrigger = (
       <span>
         Don&apos;t see the result you&apos;re looking for? &ensp;
-        <a>Create a new</a>
+        <a>Create a new {title}</a>
       </span>
     );
 
@@ -175,12 +153,8 @@ class CommonAssociate extends React.Component {
         </ListWrapper>
         <Modal.Footer>
           <Footer>
-            <ModalTrigger title="New company" trigger={addTrigger}>
-              {type === 'customers' ? (
-                <CustomerForm addCustomer={add} />
-              ) : (
-                <CompanyForm addCompany={add} />
-              )}
+            <ModalTrigger title={`New ${title}`} trigger={addTrigger}>
+              {form}
             </ModalTrigger>
             <Button btnStyle="simple" onClick={onClick.bind(this)}>
               <Icon icon="close" />CANCEL

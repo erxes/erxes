@@ -4,16 +4,10 @@ import { compose, gql, graphql } from 'react-apollo';
 import { queries, mutations } from '../graphql';
 import { EditInformation } from '../components/detail/sidebar';
 import { Spinner } from 'modules/common/components';
-import { Alert } from 'modules/common/utils';
 import { Sidebar } from 'modules/layout/components';
 
 const EditInformationContainer = (props, context) => {
-  const {
-    customer,
-    customersEdit,
-    fieldsQuery,
-    customersEditCompanies
-  } = props;
+  const { customer, customersEdit, fieldsQuery } = props;
   if (fieldsQuery.loading) {
     return (
       <Sidebar full>
@@ -36,22 +30,9 @@ const EditInformationContainer = (props, context) => {
       });
   };
 
-  const editCompanies = variables => {
-    customersEditCompanies({
-      variables: { _id: _id, ...variables }
-    })
-      .then(() => {
-        Alert.success('Successfully saved');
-      })
-      .catch(e => {
-        Alert.error(e.message);
-      });
-  };
-
   const updatedProps = {
     ...props,
     save,
-    editCompanies,
     currentUser: context.currentUser,
     customFields: fieldsQuery.fields
   };
@@ -63,8 +44,7 @@ EditInformationContainer.propTypes = {
   customer: PropTypes.object.isRequired,
   sections: PropTypes.node,
   fieldsQuery: PropTypes.object.isRequired,
-  customersEdit: PropTypes.func.isRequired,
-  customersEditCompanies: PropTypes.func.isRequired
+  customersEdit: PropTypes.func.isRequired
 };
 
 EditInformationContainer.contextTypes = {
@@ -87,10 +67,6 @@ export default compose(
   // mutations
   graphql(gql(mutations.customersEdit), {
     name: 'customersEdit',
-    options
-  }),
-  graphql(gql(mutations.customersEditCompanies), {
-    name: 'customersEditCompanies',
     options
   })
 )(EditInformationContainer);

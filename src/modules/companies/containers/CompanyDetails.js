@@ -1,7 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { compose, gql, graphql } from 'react-apollo';
-import { Alert } from 'modules/common/utils';
 import { queries, mutations } from '../graphql';
 import { CompanyDetails } from '../components';
 
@@ -11,7 +10,6 @@ const CompanyDetailsContainer = (props, context) => {
     companyDetailQuery,
     companyActivityLogQuery,
     companiesEdit,
-    companiesEditCustomers,
     fieldsQuery
   } = props;
 
@@ -25,19 +23,6 @@ const CompanyDetailsContainer = (props, context) => {
       });
   };
 
-  const editCustomers = variables => {
-    companiesEditCustomers({
-      variables: { _id: id, ...variables }
-    })
-      .then(() => {
-        Alert.success('Successfully saved');
-        companyDetailQuery.refetch();
-      })
-      .catch(e => {
-        Alert.error(e.message);
-      });
-  };
-
   const updatedProps = {
     ...props,
     company: companyDetailQuery.companyDetail || {
@@ -46,7 +31,6 @@ const CompanyDetailsContainer = (props, context) => {
     },
     companyActivityLog: companyActivityLogQuery.activityLogsCompany || [],
     save,
-    editCustomers,
     currentUser: context.currentUser,
     customFields: fieldsQuery.fields || []
   };
@@ -59,7 +43,6 @@ CompanyDetailsContainer.propTypes = {
   companyDetailQuery: PropTypes.object,
   fieldsQuery: PropTypes.object,
   companiesEdit: PropTypes.func,
-  companiesEditCustomers: PropTypes.func,
   companyActivityLogQuery: PropTypes.object
 };
 
@@ -89,8 +72,5 @@ export default compose(
   }),
   graphql(gql(mutations.companiesEdit), {
     name: 'companiesEdit'
-  }),
-  graphql(gql(mutations.companiesEditCustomers), {
-    name: 'companiesEditCustomers'
   })
 )(CompanyDetailsContainer);
