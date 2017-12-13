@@ -193,6 +193,13 @@ class LeftSidebar extends React.Component {
     );
   }
 
+  renderFullName(customer) {
+    if (customer.firstName || customer.lastName) {
+      return (customer.firstName || '') + ' ' + (customer.lastName || '');
+    }
+    return customer.email || customer.phone || 'N/A';
+  }
+
   renderCustomers() {
     const { company } = this.props;
     const { Section } = Sidebar;
@@ -214,9 +221,7 @@ class LeftSidebar extends React.Component {
                 <Icon icon="android-arrow-forward" />
               </Link>
               <span>Name: </span>
-              <span>
-                {(customer.firstName || '') + ' ' + (customer.lastName || '')}
-              </span>
+              <span>{this.renderFullName(customer)}</span>
             </CustomerWrapper>
           ))}
         </CustomersWrapper>
