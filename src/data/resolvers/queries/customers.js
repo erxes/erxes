@@ -52,32 +52,23 @@ const customerQueries = {
    */
   async customers(root, { ids, searchValue, ...params }) {
     const sort = { 'messengerData.lastSeenAt': -1 };
+    let selector = await listQuery(params);
 
     if (searchValue) {
       const fields = [
         { firstName: new RegExp(`.*${searchValue}.*`, 'i') },
         { lastName: new RegExp(`.*${searchValue}.*`, 'i') },
         { email: new RegExp(`.*${searchValue}.*`, 'i') },
+        { phone: new RegExp(`.*${searchValue}.*`, 'i') },
       ];
 
-      if (!isNaN(searchValue)) {
-        fields.push = { phone: new RegExp(`.*${searchValue}.*`, 'i') };
-      }
-
-      return paginate(
-        Customers.find({
-          $or: fields,
-        }),
-        params,
-      );
+      selector = { $or: fields };
     }
 
     if (ids) {
       const selector = { _id: { $in: ids } };
       return paginate(Customers.find(selector), params).sort(sort);
     }
-
-    const selector = await listQuery(params);
 
     return paginate(Customers.find(selector), params).sort(sort);
   },

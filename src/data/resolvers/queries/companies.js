@@ -28,6 +28,8 @@ const companyQueries = {
       return paginate(Companies.find({ _id: { $in: ids } }), params);
     }
 
+    let selector = await listQuery(params);
+
     if (searchValue) {
       const fields = [
         { name: new RegExp(`.*${searchValue}.*`, 'i') },
@@ -36,19 +38,8 @@ const companyQueries = {
         { plan: new RegExp(`.*${searchValue}.*`, 'i') },
       ];
 
-      if (!isNaN(searchValue)) {
-        fields.push = { size: new RegExp(`.*${searchValue}.*`, 'i') };
-      }
-
-      return paginate(
-        Companies.find({
-          $or: fields,
-        }),
-        params,
-      );
+      selector = { $or: fields };
     }
-
-    const selector = await listQuery(params);
 
     return paginate(Companies.find(selector), params);
   },
