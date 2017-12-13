@@ -18,11 +18,13 @@ import {
 
 const propTypes = {
   data: PropTypes.object.isRequired,
-  save: PropTypes.func,
+  save: PropTypes.func.isRequired,
   search: PropTypes.func.isRequired,
   datas: PropTypes.array.isRequired,
   form: PropTypes.node.isRequired,
-  title: PropTypes.string.isRequired
+  title: PropTypes.string.isRequired,
+  renderFullName: PropTypes.func,
+  perPage: PropTypes.number.isRequired
 };
 
 const contextTypes = {
@@ -63,11 +65,13 @@ class CommonAssociate extends React.Component {
   }
 
   componentWillReceiveProps(newProps) {
-    if (newProps.datas.length < 20) {
-      this.setState({ loadmore: false });
-    } else {
-      this.setState({ loadmore: true });
-    }
+    const { datas, perPage } = newProps;
+
+    this.setState(() => {
+      return datas.length !== perPage
+        ? { loadmore: false }
+        : { loadmore: true };
+    });
   }
 
   handleChange(e, data) {
@@ -103,19 +107,13 @@ class CommonAssociate extends React.Component {
     this.props.search(this.state.searchValue, true);
   }
 
-  renderFullName(data) {
-    if (data.name) return data.name;
-    if (data.firstName || data.lastName) {
-      return (data.firstName || '') + ' ' + (data.lastName || '');
-    }
-    return data.email || data.phone || 'N/A';
-  }
-
   renderRow(data, icon) {
     return (
       <li key={data._id}>
         <Icon icon={icon} onClick={e => this.handleChange(e, data)} />
-        {this.renderFullName(data)}
+        {this.props.renderFullName
+          ? this.props.renderFullName(data)
+          : data.name}
       </li>
     );
   }

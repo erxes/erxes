@@ -27,11 +27,14 @@ class CustomerAssociateContainer extends React.Component {
     } = this.props;
 
     const search = (value, loadmore) => {
-      if (!loadmore) this.setState({ perPage: 20 });
-
-      customersQuery.refetch({
-        searchValue: value,
-        perPage: loadmore ? this.state.perPage + 20 : this.state.perPage
+      if (!loadmore) {
+        this.setState({ perPage: 0 });
+      }
+      this.setState({ perPage: this.state.perPage + 20 }, () => {
+        customersQuery.refetch({
+          searchValue: value,
+          perPage: this.state.perPage
+        });
       });
     };
 
@@ -64,6 +67,13 @@ class CustomerAssociateContainer extends React.Component {
         });
     };
 
+    const renderFullName = data => {
+      if (data.firstName || data.lastName) {
+        return (data.firstName || '') + ' ' + (data.lastName || '');
+      }
+      return data.email || data.phone || 'N/A';
+    };
+
     const updatedProps = {
       ...this.props,
       data: {
@@ -74,6 +84,8 @@ class CustomerAssociateContainer extends React.Component {
       title: 'Customer',
       save,
       form,
+      renderFullName,
+      perPage: this.state.perPage,
       add: addCustomer,
       datas: customersQuery.customers || []
     };

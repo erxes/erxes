@@ -27,11 +27,14 @@ class CustomerAssociateContainer extends React.Component {
     } = this.props;
 
     const search = (value, loadmore) => {
-      if (!loadmore) this.setState({ perPage: 20 });
-
-      companiesQuery.refetch({
-        searchValue: value,
-        perPage: loadmore ? this.state.perPage + 20 : this.state.perPage
+      if (!loadmore) {
+        this.setState({ perPage: 0 });
+      }
+      this.setState({ perPage: this.state.perPage + 20 }, () => {
+        companiesQuery.refetch({
+          searchValue: value,
+          perPage: this.state.perPage
+        });
       });
     };
 
@@ -73,6 +76,7 @@ class CustomerAssociateContainer extends React.Component {
       search,
       title: 'Company',
       save,
+      perPage: this.state.perPage,
       form,
       add: addCompany,
       datas: companiesQuery.companies || []
