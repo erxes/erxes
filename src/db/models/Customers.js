@@ -191,9 +191,24 @@ class Customer {
     const company = await Companies.createCompany({ name, website });
 
     // add to companyIds list
-    await this.findByIdAndUpdate(_id, { $addToSet: { companyIds: company._id } });
+    await this.findByIdAndUpdate(_id, {
+      $addToSet: { companyIds: company._id },
+    });
 
     return company;
+  }
+
+  /**
+   * Update customer companies
+   * @param {String} _id customer id to update
+   * @param {string[]} companyIds company ids to update
+   * @return {Promise} updated customer object
+   */
+  static async updateCompanies(_id, companyIds) {
+    // updating companyIds field
+    await this.findByIdAndUpdate(_id, { $set: { companyIds } });
+
+    return this.findOne({ _id });
   }
 }
 

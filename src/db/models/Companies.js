@@ -111,6 +111,28 @@ class Company {
       companyIds: [_id],
     });
   }
+
+  /**
+   * Update company customers
+   * @param {String} _id company id to update
+   * @param {string[]} customerIds customer ids to update
+   * @return {Promise} updated company object
+   */
+  static async updateCustomers(_id, customerIds) {
+    // Removing companyIds from users
+    await Customers.updateMany({ companyIds: { $in: [_id] } }, { $pull: { companyIds: _id } });
+
+    // Adding companyId to the each customers
+    for (let customerId of customerIds) {
+      await Customers.findByIdAndUpdate(
+        { _id: customerId },
+        { $addToSet: { companyIds: _id } },
+        { upsert: true },
+      );
+    }
+
+    return this.findOne({ _id });
+  }
 }
 
 CompanySchema.loadClass(Company);

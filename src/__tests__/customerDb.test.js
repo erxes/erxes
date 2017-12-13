@@ -131,4 +131,12 @@ describe('Customers model tests', () => {
       expect(e.message).toBe(`${field.text}: Invalid number`);
     }
   });
+
+  test('Update customer companies', async () => {
+    const companyIds = ['12313qwrqwe', '123', '11234'];
+
+    const customerObj = await Customers.updateCompanies(_customer._id, companyIds);
+
+    expect(customerObj.companyIds).toEqual(expect.arrayContaining(companyIds));
+  });
 });

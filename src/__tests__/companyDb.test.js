@@ -2,7 +2,7 @@
 /* eslint-disable no-underscore-dangle */
 
 import { connect, disconnect } from '../db/connection';
-import { Companies } from '../db/models';
+import { Companies, Customers } from '../db/models';
 import { companyFactory, fieldFactory } from '../db/factories';
 
 beforeAll(() => connect());
@@ -119,6 +119,18 @@ describe('Companies model tests', () => {
       });
     } catch (e) {
       expect(e.message).toBe(`${field.text}: Invalid number`);
+    }
+  });
+
+  test('Update company customers', async () => {
+    const customerIds = ['12313qwrqwe', '123', '11234'];
+
+    await Companies.updateCustomers(_company._id, customerIds);
+
+    for (let customerId of customerIds) {
+      const customerObj = await Customers.findOne({ _id: customerId });
+
+      expect(customerObj.companyIds).toContain(_company._id);
     }
   });
 });

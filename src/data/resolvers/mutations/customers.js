@@ -39,6 +39,15 @@ const customerMutations = {
 
     return company;
   },
+
+  /**
+   * Update customer Companies
+   * @param {string[]} companyIds - Company ids to update
+   * @return {Promise} Customer object
+   */
+  async customersEditCompanies(root, { _id, companyIds }) {
+    return Customers.updateCompanies(_id, companyIds);
+  },
 };
 
 moduleRequireLogin(customerMutations);

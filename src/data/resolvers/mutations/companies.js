@@ -33,6 +33,15 @@ const companyMutations = {
     await ActivityLogs.createCustomerRegistrationLog(customer, user);
     return customer;
   },
+
+  /**
+   * Update company Customers
+   * @param {string[]} customerIds - Customer ids to update
+   * @return {Promise} Company object
+   */
+  async companiesEditCustomers(root, { _id, customerIds }) {
+    return Companies.updateCustomers(_id, customerIds);
+  },
 };
 
 moduleRequireLogin(companyMutations);
