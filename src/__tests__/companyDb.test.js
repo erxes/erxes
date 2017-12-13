@@ -123,13 +123,11 @@ describe('Companies model tests', () => {
   });
 
   test('Update company customers', async () => {
-    const doc = {
-      customerIds: ['12313qwrqwe', '123', '11234'],
-    };
+    const customerIds = ['12313qwrqwe', '123', '11234'];
 
-    await Companies.updateCustomers(_company._id, doc);
+    await Companies.updateCustomers(_company._id, customerIds);
 
-    for (let customerId of doc.customerIds) {
+    for (let customerId of customerIds) {
       const customerObj = await Customers.findOne({ _id: customerId });
 
       expect(customerObj.companyIds).toContain(_company._id);

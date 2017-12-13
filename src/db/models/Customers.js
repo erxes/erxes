@@ -206,7 +206,7 @@ class Customer {
    */
   static async updateCompanies(_id, companyIds) {
     // updating companyIds field
-    await this.findByIdAndUpdate(_id, { $set: companyIds });
+    await this.findByIdAndUpdate(_id, { $set: { companyIds } });
 
     return this.findOne({ _id });
   }

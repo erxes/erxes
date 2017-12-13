@@ -133,12 +133,10 @@ describe('Customers model tests', () => {
   });
 
   test('Update customer companies', async () => {
-    const doc = {
-      companyIds: ['12313qwrqwe', '123', '11234'],
-    };
+    const companyIds = ['12313qwrqwe', '123', '11234'];
 
-    const customerObj = await Customers.updateCompanies(_customer._id, doc);
+    const customerObj = await Customers.updateCompanies(_customer._id, companyIds);
 
-    expect(customerObj.companyIds).toEqual(expect.arrayContaining(doc.companyIds));
+    expect(customerObj.companyIds).toEqual(expect.arrayContaining(companyIds));
   });
 });
