@@ -99,7 +99,7 @@ class CommonAssociate extends React.Component {
     this.timer = setTimeout(() => {
       search(value);
       this.setState({ searchValue: value });
-    }, 1000);
+    }, 500);
   }
 
   loadMore() {
