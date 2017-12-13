@@ -15,7 +15,6 @@ import {
   InputsWrapper,
   ListWrapper,
   Footer,
-  TitleSpan,
   LoadMore
 } from '../../styles';
 
@@ -148,7 +147,7 @@ class CommonAssociate extends React.Component {
       this.context.closeModal();
     };
 
-    const { data, type, datas, add } = this.props;
+    const { type, datas, add } = this.props;
 
     const addTrigger = (
       <span>
@@ -164,7 +163,6 @@ class CommonAssociate extends React.Component {
             placeholder="Type to search"
             onChange={e => this.search(e)}
           />
-          <TitleSpan>{type}</TitleSpan>
           <ul>
             {datas.map(data => this.renderRow(data, 'plus'))}
             {this.state.loadmore ? (
@@ -173,9 +171,6 @@ class CommonAssociate extends React.Component {
           </ul>
         </InputsWrapper>
         <ListWrapper>
-          <TitleSpan>
-            {data.name}&apos;s {type}
-          </TitleSpan>
           <ul>{this.state.datas.map(data => this.renderRow(data, 'close'))}</ul>
         </ListWrapper>
         <Modal.Footer>

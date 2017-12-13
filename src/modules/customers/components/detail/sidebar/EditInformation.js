@@ -98,11 +98,7 @@ class LeftSidebar extends React.Component {
       <Section>
         <Section.Title>Companies</Section.Title>
         <Section.QuickButtons>
-          <ModalTrigger
-            title="Associate with company"
-            trigger={companyTrigger}
-            size="lg"
-          >
+          <ModalTrigger title="Associate" trigger={companyTrigger} size="lg">
             <CommonAssociate data={customer} save={editCompanies} />
           </ModalTrigger>
         </Section.QuickButtons>

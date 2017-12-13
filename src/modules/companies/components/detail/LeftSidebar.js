@@ -204,7 +204,7 @@ class LeftSidebar extends React.Component {
         <Title>Customers</Title>
 
         <QuickButtons>
-          <ModalTrigger title="New Customer" trigger={<Icon icon="plus" />}>
+          <ModalTrigger title="Associate" trigger={<Icon icon="plus" />}>
             <CommonAssociate data={company} save={editCustomers} />
           </ModalTrigger>
         </QuickButtons>
