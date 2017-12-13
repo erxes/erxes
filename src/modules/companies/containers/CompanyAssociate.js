@@ -55,6 +55,10 @@ class CustomerAssociateContainer extends React.Component {
 
     const form = <CompanyForm addCompany={addCompany} />;
 
+    const renderName = data => {
+      return data.name || data.website || 'N/A';
+    };
+
     const save = companyIds => {
       customersEditCompanies({
         variables: { _id: data._id, companyIds }
@@ -74,6 +78,7 @@ class CustomerAssociateContainer extends React.Component {
         datas: data.companies
       },
       search,
+      renderName,
       title: 'Company',
       save,
       perPage: this.state.perPage,

@@ -23,7 +23,7 @@ const propTypes = {
   datas: PropTypes.array.isRequired,
   form: PropTypes.node.isRequired,
   title: PropTypes.string.isRequired,
-  renderFullName: PropTypes.func,
+  renderName: PropTypes.func.isRequired,
   perPage: PropTypes.number.isRequired
 };
 
@@ -111,9 +111,7 @@ class CommonAssociate extends React.Component {
     return (
       <li key={data._id}>
         <Icon icon={icon} onClick={e => this.handleChange(e, data)} />
-        {this.props.renderFullName
-          ? this.props.renderFullName(data)
-          : data.name}
+        {this.props.renderName(data)}
       </li>
     );
   }

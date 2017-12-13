@@ -67,7 +67,7 @@ class CustomerAssociateContainer extends React.Component {
         });
     };
 
-    const renderFullName = data => {
+    const renderName = data => {
       if (data.firstName || data.lastName) {
         return (data.firstName || '') + ' ' + (data.lastName || '');
       }
@@ -84,7 +84,7 @@ class CustomerAssociateContainer extends React.Component {
       title: 'Customer',
       save,
       form,
-      renderFullName,
+      renderName,
       perPage: this.state.perPage,
       add: addCustomer,
       datas: customersQuery.customers || []
