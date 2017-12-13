@@ -13,7 +13,7 @@ import {
 } from 'modules/common/components';
 import { Alert } from 'modules/common/utils';
 import { GenerateField } from 'modules/fields/components';
-import { CompanyAssociate } from 'modules/companies/containers';
+import { CommonAssociate } from 'modules/customers/containers';
 import { BasicInfo } from 'modules/customers/components/detail/sidebar';
 import { CompanyWrapper, BlockValue } from './styles';
 import { SidebarList, SidebarCounter } from 'modules/layout/styles';
@@ -98,8 +98,12 @@ class LeftSidebar extends React.Component {
       <Section>
         <Section.Title>Companies</Section.Title>
         <Section.QuickButtons>
-          <ModalTrigger title="New company" trigger={companyTrigger} size="lg">
-            <CompanyAssociate customer={customer} save={editCompanies} />
+          <ModalTrigger
+            title="Associate with company"
+            trigger={companyTrigger}
+            size="lg"
+          >
+            <CommonAssociate data={customer} save={editCompanies} />
           </ModalTrigger>
         </Section.QuickButtons>
         {customer.companies.map((company, index) => (

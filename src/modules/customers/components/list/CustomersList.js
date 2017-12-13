@@ -17,7 +17,7 @@ import { BarItems } from 'modules/layout/styles';
 import { Widget } from 'modules/engage/containers';
 import Sidebar from './Sidebar';
 import CustomerRow from './CustomerRow';
-import CustomerForm from '../common/CustomerForm';
+import { CustomerForm } from '../';
 import { ManageColumns } from 'modules/fields/containers';
 
 const propTypes = {

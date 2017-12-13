@@ -13,7 +13,7 @@ import {
   ControlLabel
 } from 'modules/common/components';
 import { GenerateField } from 'modules/fields/components';
-import { CustomerAssociate } from 'modules/customers/containers';
+import { CommonAssociate } from 'modules/customers/containers';
 import { CustomersWrapper, CustomerWrapper } from '../../styles';
 
 const propTypes = {
@@ -205,7 +205,7 @@ class LeftSidebar extends React.Component {
 
         <QuickButtons>
           <ModalTrigger title="New Customer" trigger={<Icon icon="plus" />}>
-            <CustomerAssociate company={company} save={editCustomers} />
+            <CommonAssociate data={company} save={editCustomers} />
           </ModalTrigger>
         </QuickButtons>
         <CustomersWrapper>
