@@ -52,12 +52,9 @@ class CustomerAssociateContainer extends React.Component {
 
     const form = <CustomerForm addCustomer={addCustomer} />;
 
-    const save = variables => {
-      const doc = {
-        customerIds: variables
-      };
+    const save = customerIds => {
       companiesEditCustomers({
-        variables: { _id: data._id, ...doc }
+        variables: { _id: data._id, customerIds }
       })
         .then(() => {
           Alert.success('Successfully saved');

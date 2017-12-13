@@ -52,12 +52,9 @@ class CustomerAssociateContainer extends React.Component {
 
     const form = <CompanyForm addCompany={addCompany} />;
 
-    const save = variables => {
-      const doc = {
-        companyIds: variables
-      };
+    const save = companyIds => {
       customersEditCompanies({
-        variables: { _id: data._id, ...doc }
+        variables: { _id: data._id, companyIds }
       })
         .then(() => {
           Alert.success('Successfully saved');
