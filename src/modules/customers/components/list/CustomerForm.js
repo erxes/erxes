@@ -49,7 +49,7 @@ class CustomerForm extends React.Component {
       <form onSubmit={this.addCustomer}>
         <FormGroup>
           <ControlLabel>First Name</ControlLabel>
-          <FormControl id="customer-firstname" type="text" required />
+          <FormControl id="customer-firstname" type="text" autoFocus required />
         </FormGroup>
 
         <FormGroup>

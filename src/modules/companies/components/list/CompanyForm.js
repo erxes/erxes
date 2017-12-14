@@ -48,7 +48,7 @@ class CompanyForm extends React.Component {
       <form onSubmit={this.addCompany}>
         <FormGroup>
           <ControlLabel>Name</ControlLabel>
-          <FormControl id="company-name" type="text" required />
+          <FormControl id="company-name" type="text" autoFocus required />
         </FormGroup>
 
         <FormGroup>
