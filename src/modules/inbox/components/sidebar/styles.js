@@ -1,8 +1,15 @@
 import styled from 'styled-components';
 
 const RightItems = styled.div`
+  display: flex;
+  align-items: center;
+
   > div {
-    margin-left: 15px;
+    margin-right: 10px;
+  }
+
+  button {
+    padding: 5px 12px;
   }
 `;
 

@@ -73,7 +73,6 @@ class LeftSidebar extends Bulk {
           </LeftItem>
 
           <RightItems>
-            <Resolver conversations={bulk} afterResolve={this.resetBulk} />
             <AssignBoxPopover
               targets={bulk}
               trigger={this.renderTrigger('Assign')}
@@ -86,6 +85,7 @@ class LeftSidebar extends Bulk {
               trigger={this.renderTrigger('Tag')}
               afterSave={this.resetBulk}
             />
+            <Resolver conversations={bulk} afterResolve={this.resetBulk} />
           </RightItems>
         </Sidebar.Header>
       );

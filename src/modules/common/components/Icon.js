@@ -4,7 +4,6 @@ import styled from 'styled-components';
 
 const IconStyle = styled.i`
   margin-right: 4px;
-  margin-left: 1px;
   font-size: ${props => (props.size ? `${props.size}px` : 'inherit')};
 `;
 
