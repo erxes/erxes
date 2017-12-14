@@ -61,7 +61,7 @@ function CustomerRow({ customer, columnsConfig, toggleBulk, history }) {
         <td key={name}>{formatValue(_.get(customer, name))}</td>
       ))}
       <td>
-        <Tags tags={tags} />
+        <Tags tags={tags} limit={2} />
       </td>
     </tr>
   );
