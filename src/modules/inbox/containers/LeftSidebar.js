@@ -59,6 +59,7 @@ class LeftSidebar extends Component {
       tags,
       counts,
       totalCount,
+      refetch: conversationsQuery.refetch,
       loading: conversationsQuery.loading
     };
 

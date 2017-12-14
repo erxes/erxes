@@ -6,12 +6,13 @@ import { ConversationItems } from './styles';
 const propTypes = {
   conversations: PropTypes.array.isRequired,
   toggleBulk: PropTypes.func,
+  bulk: PropTypes.array,
   onRowClick: PropTypes.func,
   currentConversationId: PropTypes.string
 };
 
 function ConversationList(
-  { conversations, toggleBulk, onRowClick, currentConversationId },
+  { conversations, toggleBulk, onRowClick, currentConversationId, bulk },
   { currentUser }
 ) {
   const starredConversationIds = currentUser
@@ -19,7 +20,7 @@ function ConversationList(
     : [];
 
   return (
-    <ConversationItems>
+    <ConversationItems id="conversations">
       {conversations.map(c => (
         <ListRow
           key={c._id}
@@ -32,6 +33,7 @@ function ConversationList(
             c.participatedUserIds.indexOf(currentUser._id) > -1
           }
           toggleBulk={toggleBulk}
+          bulk={bulk}
           onClick={onRowClick}
           currentConversationId={currentConversationId}
         />

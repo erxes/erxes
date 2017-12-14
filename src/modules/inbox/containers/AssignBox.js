@@ -15,7 +15,7 @@ const AssignBoxContainer = props => {
   const assign = ({ conversationIds, assignedUserId }) => {
     assignMutation({
       variables: {
-        conversationIds: [conversationIds],
+        conversationIds,
         assignedUserId
       }
     })
