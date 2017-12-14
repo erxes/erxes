@@ -19,6 +19,7 @@ class AssignBoxPopover extends Component {
 
   hidePopover() {
     const { afterSave } = this.props;
+
     if (afterSave) {
       afterSave();
     }

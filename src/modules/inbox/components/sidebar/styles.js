@@ -1,9 +1,8 @@
 import styled from 'styled-components';
-import { dimensions } from 'modules/common/styles';
 
 const RightItems = styled.div`
   > div {
-    margin-left: ${dimensions.unitSpacing}px;
+    margin-left: 15px;
   }
 `;
 

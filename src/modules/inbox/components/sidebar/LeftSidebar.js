@@ -12,6 +12,7 @@ import {
   TaggerPopover
 } from 'modules/common/components';
 import { FilterPopover, StatusFilterPopover, AssignBoxPopover } from '../';
+import { Resolver } from 'modules/inbox/containers';
 import { PopoverButton } from '../../styles';
 import { LeftItem, RightItems } from './styles';
 
@@ -68,10 +69,11 @@ class LeftSidebar extends Bulk {
                 this.toggleAll(conversations, 'conversations');
               }}
             />
-            Check all
+            Select all
           </LeftItem>
 
           <RightItems>
+            <Resolver conversations={bulk} afterResolve={this.resetBulk} />
             <AssignBoxPopover
               targets={bulk}
               trigger={this.renderTrigger('Assign')}
