@@ -138,7 +138,7 @@ class Inbox extends Component {
           afterSave={refetch}
         />
 
-        <Resolver iconed conversations={[currentConversation]} />
+        <Resolver conversations={[currentConversation]} />
       </BarItems>
     );
 

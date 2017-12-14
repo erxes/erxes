@@ -114,7 +114,7 @@ const RowItem = styled.li`
       background: ${colors.bgUnread};
 
       ${MessageContent} {
-        font-weight: 500;
+        font-weight: bold;
       }
     `};
   &:hover {

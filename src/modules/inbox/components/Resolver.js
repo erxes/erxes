@@ -3,12 +3,10 @@ import PropTypes from 'prop-types';
 import _ from 'lodash';
 import { Button, Icon } from 'modules/common/components';
 import { CONVERSATION_STATUSES } from 'modules/inbox/constants';
-import { PopoverButton } from 'modules/inbox/styles';
 
 const propTypes = {
   conversations: PropTypes.array.isRequired,
-  changeStatus: PropTypes.func.isRequired,
-  iconed: PropTypes.bool
+  changeStatus: PropTypes.func.isRequired
 };
 
 class Resolver extends Component {
@@ -31,15 +29,19 @@ class Resolver extends Component {
   }
 
   render() {
-    const { conversations, iconed } = this.props;
     const allNotClosed = _.reduce(
-      conversations,
+      this.props.conversations,
       (memo, conversation) =>
         conversation.status !== CONVERSATION_STATUSES.CLOSED,
       true
     );
 
-    const attrs = {
+    const buttonText = allNotClosed ? 'Resolve' : 'Open';
+    const icon = allNotClosed ? 'checkmark' : 'refresh';
+
+    const btnAttrs = {
+      size: 'small',
+      btnStyle: allNotClosed ? 'success' : 'warning',
       onClick: allNotClosed
         ? () => {
             this.changeStatus(CONVERSATION_STATUSES.CLOSED);
@@ -47,20 +49,6 @@ class Resolver extends Component {
         : () => {
             this.changeStatus(CONVERSATION_STATUSES.OPEN);
           }
-    };
-
-    const buttonText = allNotClosed ? 'Resolve' : 'Open';
-
-    if (!iconed) {
-      return <PopoverButton {...attrs}>{buttonText}</PopoverButton>;
-    }
-
-    const icon = allNotClosed ? 'checkmark' : 'refresh';
-
-    const btnAttrs = {
-      ...attrs,
-      size: 'small',
-      btnStyle: allNotClosed ? 'success' : 'warning'
     };
 
     return (
