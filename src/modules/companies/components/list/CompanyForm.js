@@ -34,13 +34,15 @@ class CompanyForm extends React.Component {
       },
 
       callback: () => {
-        this.context.closeModal();
+        document.getElementById('company-name').value = '';
+        document.getElementById('company-website').value = '';
       }
     });
   }
 
   render() {
-    const onClick = () => {
+    const onClick = e => {
+      this.addCompany(e);
       this.context.closeModal();
     };
 
@@ -57,14 +59,14 @@ class CompanyForm extends React.Component {
         </FormGroup>
 
         <Modal.Footer>
-          <Button btnStyle="simple" onClick={onClick}>
+          <Button btnStyle="simple" onClick={e => onClick(e)}>
             <Icon icon="close" />
-            Cancel
+            Save&Close
           </Button>
 
-          <Button btnStyle="success" type="submit">
+          <Button btnStyle="success" onClick={e => this.addCompany(e)}>
             <Icon icon="checkmark" />
-            Save
+            Save&New
           </Button>
         </Modal.Footer>
       </form>
