@@ -57,10 +57,20 @@ const plugins = [mentionPlugin];
 
 // response templates
 class TemplateList extends React.Component {
+  normalizeIndex(selectedIndex, max) {
+    let index = selectedIndex % max;
+
+    if (index < 0) {
+      index += max;
+    }
+
+    return index;
+  }
+
   render() {
     const { suggestionsState } = this.props;
 
-    const { templates } = suggestionsState;
+    const { selectedIndex, templates } = suggestionsState;
 
     if (!templates) {
       return null;
@@ -74,14 +84,23 @@ class TemplateList extends React.Component {
       listStyleType: 'none'
     };
 
+    const normalizedIndex = this.normalizeIndex(
+      selectedIndex,
+      templates.length
+    );
+
     return (
       <ul style={style} className="response-template-suggestions">
-        {templates.map(template => {
+        {templates.map((template, index) => {
           const liStyle = {
             backgroundColor: '#dcd9d9',
             padding: '0px 5px',
             margin: '0px 5px'
           };
+
+          if (normalizedIndex === index) {
+            liStyle.fontWeight = 'bold';
+          }
 
           return (
             <li key={template._id} style={liStyle}>
@@ -114,6 +133,13 @@ export default class Editor extends Component {
     this.onSearchChange = this.onSearchChange.bind(this);
     this.onAddMention = this.onAddMention.bind(this);
     this.getContent = this.getContent.bind(this);
+
+    this.getTemplatesState = this.getTemplatesState.bind(this);
+    this.onTemplatesStateChange = this.onTemplatesStateChange.bind(this);
+    this.onSelectTemplate = this.onSelectTemplate.bind(this);
+    this.onArrow = this.onArrow.bind(this);
+    this.onUpArrow = this.onUpArrow.bind(this);
+    this.onDownArrow = this.onDownArrow.bind(this);
   }
 
   componentWillReceiveProps(nextProps) {
@@ -135,16 +161,20 @@ export default class Editor extends Component {
   onChange(editorState) {
     this.setState({ editorState });
 
-    window.requestAnimationFrame(() => {
-      this.setState({ templatesState: this.getTemplatesState() });
-    });
-
     this.props.onChange(this.getContent(editorState));
+
+    window.requestAnimationFrame(() => {
+      this.onTemplatesStateChange(this.getTemplatesState());
+    });
+  }
+
+  onTemplatesStateChange(templatesState) {
+    this.setState({ templatesState });
   }
 
   getTemplatesState(invalidate = true) {
     if (!invalidate) {
-      return this.templatesState;
+      return this.state.templatesState;
     }
 
     const { editorState } = this.state;
@@ -169,11 +199,60 @@ export default class Editor extends Component {
 
     if (foundTemplates.length > 0) {
       return {
-        templates: foundTemplates
+        templates: foundTemplates,
+        selectedIndex: 0
       };
     }
 
-    return this.templatesState;
+    return null;
+  }
+
+  onSelectTemplate() {
+    const { templatesState } = this.state;
+    const { templates, selectedIndex } = templatesState;
+    const selectedTemplate = templates[selectedIndex];
+
+    const editorState = createStateFromHTML(
+      EditorState.createEmpty(),
+      selectedTemplate.content
+    );
+
+    this.setState({ editorState, templatesState: null });
+  }
+
+  onArrow(e, nudgeAmount) {
+    let templatesState = this.getTemplatesState(false);
+
+    if (!templatesState) {
+      return;
+    }
+
+    e.preventDefault();
+
+    templatesState.selectedIndex += nudgeAmount;
+
+    this.templatesState = templatesState;
+    this.onTemplatesStateChange(templatesState);
+  }
+
+  onUpArrow(e) {
+    this.onArrow(e, -1);
+  }
+
+  onDownArrow(e) {
+    this.onArrow(e, 1);
+  }
+
+  // Render response templates suggestions
+  renderTemplates() {
+    const { templatesState } = this.state;
+
+    if (!templatesState) {
+      return null;
+    }
+
+    // Set suggestionState to SuggestionList.
+    return <TemplateList suggestionsState={templatesState} />;
   }
 
   onSearchChange({ value }) {
@@ -226,41 +305,33 @@ export default class Editor extends Component {
   }
 
   keyBindingFn(e) {
-    if (e.key === 'Enter' && e.shiftKey) {
-      return getDefaultKeyBinding(e);
-    }
-
-    // handle shift + enter in editor
     if (e.key === 'Enter') {
-      // call parent's method to save content
-      this.props.onShifEnter();
+      if (this.state.templatesState) {
+        this.onSelectTemplate();
 
-      // clear content
-      const state = this.state.editorState;
+        return null;
+      }
 
-      const editorState = EditorState.push(
-        state,
-        ContentState.createFromText('')
-      );
+      // handle shift + enter in editor
+      if (e.shiftKey) {
+        // call parent's method to save content
+        this.props.onShifEnter();
 
-      this.setState({ editorState });
+        // clear content
+        const state = this.state.editorState;
 
-      return null;
+        const editorState = EditorState.push(
+          state,
+          ContentState.createFromText('')
+        );
+
+        this.setState({ editorState });
+
+        return null;
+      }
     }
 
     return getDefaultKeyBinding(e);
-  }
-
-  // Render response templates list
-  renderTemplates() {
-    const { templatesState } = this.state;
-
-    if (!templatesState) {
-      return null;
-    }
-
-    // Set suggestionState to SuggestionList.
-    return <TemplateList suggestionsState={templatesState} />;
   }
 
   render() {
@@ -279,6 +350,8 @@ export default class Editor extends Component {
       editorState: this.state.editorState,
       onChange: this.onChange,
       keyBindingFn: this.keyBindingFn,
+      onUpArrow: this.onUpArrow,
+      onDownArrow: this.onDownArrow,
       plugins,
       pluginContent
     };

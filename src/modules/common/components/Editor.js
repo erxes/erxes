@@ -198,7 +198,7 @@ export class ErxesEditor extends Component {
   }
 
   render() {
-    const { editorState, controls } = this.props;
+    const { editorState, controls, onUpArrow, onDownArrow } = this.props;
 
     // If the user changes block type before entering any text, we can
     // either style the placeholder or hide it. Let's just hide it now.
@@ -242,6 +242,8 @@ export class ErxesEditor extends Component {
             onChange={this.props.onChange}
             placeholder={this.props.placeholder}
             keyBindingFn={this.props.keyBindingFn}
+            onUpArrow={onUpArrow}
+            onDownArrow={onDownArrow}
             ref="editor"
             plugins={this.props.plugins}
             spellCheck
@@ -261,6 +263,8 @@ ErxesEditor.propTypes = {
   pluginContent: PropTypes.object,
   plugins: PropTypes.array,
   keyBindingFn: PropTypes.func,
+  onUpArrow: PropTypes.func,
+  onDownArrow: PropTypes.func,
   placeholder: PropTypes.string
 };
 
