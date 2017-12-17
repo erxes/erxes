@@ -4,12 +4,15 @@ import createMentionPlugin, {
   defaultSuggestionsFilter
 } from 'bat-draft-js-mention-plugin';
 import { EditorState, ContentState, getDefaultKeyBinding } from 'draft-js';
+import strip from 'strip';
 import _ from 'underscore';
 import {
   ErxesEditor,
   toHTML,
   createStateFromHTML
 } from 'modules/common/components/Editor';
+
+import { ResponseSuggestions, ResponseSuggestionItem } from '../styles';
 
 const MentionEntry = props => {
   const { mention, theme, searchValue, ...parentProps } = props; // eslint-disable-line
@@ -76,46 +79,32 @@ class TemplateList extends React.Component {
       return null;
     }
 
-    const style = {
-      position: 'absolute',
-      left: 0,
-      top: 70,
-      paddingLeft: 15,
-      zIndex: 1,
-      width: '100%',
-      listStyleType: 'none'
-    };
-
     const normalizedIndex = this.normalizeIndex(
       selectedIndex,
       templates.length
     );
 
     return (
-      <ul style={style} className="response-template-suggestions">
+      <ResponseSuggestions>
         {templates.map((template, index) => {
-          const liStyle = {
-            backgroundColor: '#dcd9d9',
-            padding: '0px 5px',
-            margin: '0px 5px',
-            cursor: 'pointer'
-          };
+          const style = {};
 
           if (normalizedIndex === index) {
-            liStyle.fontWeight = 'bold';
+            style.backgroundColor = '#d0d0d0';
           }
 
           return (
-            <li
+            <ResponseSuggestionItem
               key={template._id}
               onClick={() => onSelect(index)}
-              style={liStyle}
+              style={style}
             >
-              {template.name}
-            </li>
+              <span style={{ fontWeight: 'bold' }}>{template.name}</span>
+              <span> {strip(template.content)}</span>
+            </ResponseSuggestionItem>
           );
         }, this)}
-      </ul>
+      </ResponseSuggestions>
     );
   }
 }

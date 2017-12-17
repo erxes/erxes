@@ -116,6 +116,30 @@ const MentionedPerson = styled.span`
   text-decoration: none;
 `;
 
+const ResponseSuggestions = styled.ul`
+  position: absolute;
+  left: 0px;
+  top: 70px;
+  padding-left: 15px;
+  z-index: 1;
+  width: 100%;
+  list-style-type: none;
+  font-size: 12px;
+`;
+
+const ResponseSuggestionItem = styled.li`
+  background-color: #efefef;
+  padding: 1px 5px;
+  margin: 1px 5px;
+  cursor: pointer;
+  overflow-y: hidden;
+  white-space: nowrap;
+
+  :hover {
+    background-color: #d0d0d0;
+  }
+`;
+
 const RespondBoxStyled = styled.div`
   position: relative;
   transition: background 0.3s ease;
@@ -398,6 +422,8 @@ export {
   RichEditorControlsRoot,
   RichEditorControls,
   MentionedPerson,
+  ResponseSuggestions,
+  ResponseSuggestionItem,
   EditorActions,
   RichEditorRight,
   ResponseTemplateStyled,
