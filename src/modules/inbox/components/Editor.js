@@ -68,7 +68,7 @@ class TemplateList extends React.Component {
   }
 
   render() {
-    const { suggestionsState } = this.props;
+    const { suggestionsState, onSelect } = this.props;
 
     const { selectedIndex, templates } = suggestionsState;
 
@@ -81,6 +81,8 @@ class TemplateList extends React.Component {
       left: 0,
       top: 70,
       paddingLeft: 15,
+      zIndex: 1,
+      width: '100%',
       listStyleType: 'none'
     };
 
@@ -95,7 +97,8 @@ class TemplateList extends React.Component {
           const liStyle = {
             backgroundColor: '#dcd9d9',
             padding: '0px 5px',
-            margin: '0px 5px'
+            margin: '0px 5px',
+            cursor: 'pointer'
           };
 
           if (normalizedIndex === index) {
@@ -103,7 +106,11 @@ class TemplateList extends React.Component {
           }
 
           return (
-            <li key={template._id} style={liStyle}>
+            <li
+              key={template._id}
+              onClick={() => onSelect(index)}
+              style={liStyle}
+            >
               {template.name}
             </li>
           );
@@ -114,7 +121,8 @@ class TemplateList extends React.Component {
 }
 
 TemplateList.propTypes = {
-  suggestionsState: PropTypes.object
+  suggestionsState: PropTypes.object,
+  onSelect: PropTypes.func
 };
 
 export default class Editor extends Component {
@@ -190,10 +198,11 @@ export default class Editor extends Component {
     }
 
     // search from response templates
-    const foundTemplates = responseTemplates.filter(template => {
+    const foundTemplates = responseTemplates.filter((template, index) => {
       return (
-        template.name.includes(textContent) ||
-        template.content.includes(textContent)
+        index <= 4 &&
+        (template.name.includes(textContent) ||
+          template.content.includes(textContent))
       );
     });
 
@@ -207,10 +216,14 @@ export default class Editor extends Component {
     return null;
   }
 
-  onSelectTemplate() {
+  onSelectTemplate(index) {
     const { templatesState } = this.state;
     const { templates, selectedIndex } = templatesState;
-    const selectedTemplate = templates[selectedIndex];
+    const selectedTemplate = templates[index || selectedIndex];
+
+    if (!selectedTemplate) {
+      return null;
+    }
 
     const editorState = createStateFromHTML(
       EditorState.createEmpty(),
@@ -252,7 +265,12 @@ export default class Editor extends Component {
     }
 
     // Set suggestionState to SuggestionList.
-    return <TemplateList suggestionsState={templatesState} />;
+    return (
+      <TemplateList
+        onSelect={this.onSelectTemplate}
+        suggestionsState={templatesState}
+      />
+    );
   }
 
   onSearchChange({ value }) {
