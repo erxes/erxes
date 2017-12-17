@@ -6,6 +6,7 @@ import createMentionPlugin, {
 import { EditorState, ContentState, getDefaultKeyBinding } from 'draft-js';
 import strip from 'strip';
 import _ from 'underscore';
+import highlighter from 'fuzzysearch-highlight';
 import {
   ErxesEditor,
   toHTML,
@@ -73,7 +74,7 @@ class TemplateList extends React.Component {
   render() {
     const { suggestionsState, onSelect } = this.props;
 
-    const { selectedIndex, templates } = suggestionsState;
+    const { selectedIndex, searchText, templates } = suggestionsState;
 
     if (!templates) {
       return null;
@@ -99,8 +100,17 @@ class TemplateList extends React.Component {
               onClick={() => onSelect(index)}
               style={style}
             >
-              <span style={{ fontWeight: 'bold' }}>{template.name}</span>
-              <span> {strip(template.content)}</span>
+              <span
+                style={{ fontWeight: 'bold' }}
+                dangerouslySetInnerHTML={{
+                  __html: highlighter(searchText, template.name)
+                }}
+              />
+              <span
+                dangerouslySetInnerHTML={{
+                  __html: highlighter(searchText, strip(template.content))
+                }}
+              />
             </ResponseSuggestionItem>
           );
         }, this)}
@@ -180,7 +190,7 @@ export default class Editor extends Component {
     const contentState = editorState.getCurrentContent();
 
     // get content as text
-    const textContent = contentState.getPlainText();
+    const textContent = contentState.getPlainText().toLowerCase();
 
     if (!textContent) {
       return null;
@@ -190,14 +200,15 @@ export default class Editor extends Component {
     const foundTemplates = responseTemplates.filter((template, index) => {
       return (
         index <= 4 &&
-        (template.name.includes(textContent) ||
-          template.content.includes(textContent))
+        (template.name.toLowerCase().includes(textContent) ||
+          template.content.toLowerCase().includes(textContent))
       );
     });
 
     if (foundTemplates.length > 0) {
       return {
         templates: foundTemplates,
+        searchText: textContent,
         selectedIndex: 0
       };
     }
@@ -366,7 +377,7 @@ export default class Editor extends Component {
     return (
       <div>
         {this.renderTemplates()}
-        <ErxesEditor {...props} />;
+        <ErxesEditor {...props} />
       </div>
     );
   }

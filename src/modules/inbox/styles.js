@@ -138,6 +138,10 @@ const ResponseSuggestionItem = styled.li`
   :hover {
     background-color: #d0d0d0;
   }
+
+  strong {
+    color: #ec8d17;
+  }
 `;
 
 const RespondBoxStyled = styled.div`
