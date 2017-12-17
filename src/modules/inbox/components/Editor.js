@@ -55,6 +55,49 @@ const mentionPlugin = createMentionPlugin({
 const { MentionSuggestions } = mentionPlugin;
 const plugins = [mentionPlugin];
 
+// response templates
+class TemplateList extends React.Component {
+  render() {
+    const { suggestionsState } = this.props;
+
+    const { templates } = suggestionsState;
+
+    if (!templates) {
+      return null;
+    }
+
+    const style = {
+      position: 'absolute',
+      left: 0,
+      top: 70,
+      paddingLeft: 15,
+      listStyleType: 'none'
+    };
+
+    return (
+      <ul style={style} className="response-template-suggestions">
+        {templates.map(template => {
+          const liStyle = {
+            backgroundColor: '#dcd9d9',
+            padding: '0px 5px',
+            margin: '0px 5px'
+          };
+
+          return (
+            <li key={template._id} style={liStyle}>
+              {template.name}
+            </li>
+          );
+        }, this)}
+      </ul>
+    );
+  }
+}
+
+TemplateList.propTypes = {
+  suggestionsState: PropTypes.object
+};
+
 export default class Editor extends Component {
   constructor(props) {
     super(props);
@@ -62,7 +105,8 @@ export default class Editor extends Component {
     this.state = {
       editorState: EditorState.createEmpty(),
       collectedMentions: [],
-      suggestions: this.props.mentions.toArray()
+      suggestions: this.props.mentions.toArray(),
+      templatesState: null
     };
 
     this.onChange = this.onChange.bind(this);
@@ -91,7 +135,45 @@ export default class Editor extends Component {
   onChange(editorState) {
     this.setState({ editorState });
 
+    window.requestAnimationFrame(() => {
+      this.setState({ templatesState: this.getTemplatesState() });
+    });
+
     this.props.onChange(this.getContent(editorState));
+  }
+
+  getTemplatesState(invalidate = true) {
+    if (!invalidate) {
+      return this.templatesState;
+    }
+
+    const { editorState } = this.state;
+    const { responseTemplates } = this.props;
+
+    const contentState = editorState.getCurrentContent();
+
+    // get content as text
+    const textContent = contentState.getPlainText();
+
+    if (!textContent) {
+      return null;
+    }
+
+    // search from response templates
+    const foundTemplates = responseTemplates.filter(template => {
+      return (
+        template.name.includes(textContent) ||
+        template.content.includes(textContent)
+      );
+    });
+
+    if (foundTemplates.length > 0) {
+      return {
+        templates: foundTemplates
+      };
+    }
+
+    return this.templatesState;
   }
 
   onSearchChange({ value }) {
@@ -155,16 +237,30 @@ export default class Editor extends Component {
 
       // clear content
       const state = this.state.editorState;
+
       const editorState = EditorState.push(
         state,
         ContentState.createFromText('')
       );
+
       this.setState({ editorState });
 
       return null;
     }
 
     return getDefaultKeyBinding(e);
+  }
+
+  // Render response templates list
+  renderTemplates() {
+    const { templatesState } = this.state;
+
+    if (!templatesState) {
+      return null;
+    }
+
+    // Set suggestionState to SuggestionList.
+    return <TemplateList suggestionsState={templatesState} />;
   }
 
   render() {
@@ -187,7 +283,12 @@ export default class Editor extends Component {
       pluginContent
     };
 
-    return <ErxesEditor {...props} />;
+    return (
+      <div>
+        {this.renderTemplates()}
+        <ErxesEditor {...props} />;
+      </div>
+    );
   }
 }
 
@@ -197,5 +298,6 @@ Editor.propTypes = {
   onShifEnter: PropTypes.func,
   showMentions: PropTypes.bool,
   responseTemplate: PropTypes.string,
+  responseTemplates: PropTypes.array,
   mentions: PropTypes.object // eslint-disable-line
 };
