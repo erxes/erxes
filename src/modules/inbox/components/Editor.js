@@ -91,7 +91,7 @@ class TemplateList extends React.Component {
           const style = {};
 
           if (normalizedIndex === index) {
-            style.backgroundColor = '#d0d0d0';
+            style.backgroundColor = '#F6F8FB';
           }
 
           return (

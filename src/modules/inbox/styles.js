@@ -119,24 +119,26 @@ const MentionedPerson = styled.span`
 const ResponseSuggestions = styled.ul`
   position: absolute;
   left: 0px;
-  top: 70px;
-  padding-left: 15px;
+  bottom: 100%;
+  margin: 0;
+  padding: 0;
   z-index: 1;
   width: 100%;
   list-style-type: none;
-  font-size: 12px;
+  background: ${colors.colorWhite};
+  box-shadow: 0 0 10px -3px rgba(0, 0, 0, 0.5);
 `;
 
 const ResponseSuggestionItem = styled.li`
-  background-color: #efefef;
-  padding: 1px 5px;
-  margin: 1px 5px;
+  margin: 0;
   cursor: pointer;
-  overflow-y: hidden;
   white-space: nowrap;
+  overflow: hidden;
+  padding: 5px 20px;
+  text-overflow: ellipsis;
 
   :hover {
-    background-color: #d0d0d0;
+    background-color: #f6f8fb;
   }
 
   strong {
