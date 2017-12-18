@@ -22,6 +22,16 @@ const channelQueries = {
   },
 
   /**
+   * Get one channel
+   * @param {Object} args
+   * @param {String} args._id
+   * @return {Promise} found channel
+   */
+  channelDetail(root, { _id }) {
+    return Channels.findOne({ _id });
+  },
+
+  /**
    * Get all channels count. We will use it in pager
    * @return {Promise} total count
    */
