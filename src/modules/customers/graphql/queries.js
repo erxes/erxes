@@ -50,8 +50,8 @@ const customers = `
 `;
 
 const customerCounts = `
-  query customerCounts(${listParamsDef}) {
-    customerCounts(${listParamsValue})
+  query customerCounts(${listParamsDef}, $byFakeSegment: JSON) {
+    customerCounts(${listParamsValue}, byFakeSegment: $byFakeSegment)
   }
 `;
 

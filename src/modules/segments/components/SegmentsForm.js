@@ -28,7 +28,9 @@ const propTypes = {
   create: PropTypes.func.isRequired,
   edit: PropTypes.func.isRequired,
   segment: PropTypes.object,
-  headSegments: PropTypes.array.isRequired
+  headSegments: PropTypes.array.isRequired,
+  count: PropTypes.func.isRequired,
+  total: PropTypes.object
 };
 
 class SegmentsForm extends Component {
@@ -75,6 +77,16 @@ class SegmentsForm extends Component {
         c => (c.field === condition.field ? condition : c)
       )
     });
+
+    const segment = {
+      name: this.state.name,
+      description: this.state.description,
+      subOf: this.state.subOf,
+      color: this.state.color,
+      conditions: this.state.conditions,
+      connector: this.state.connector
+    };
+    this.props.count(segment);
   }
 
   removeCondition(conditionField) {
@@ -145,7 +157,7 @@ class SegmentsForm extends Component {
     return (
       <ConditionWrapper>
         <FormGroup>
-          Users who match{' '}
+          Users who match
           <FormControl
             componentClass="select"
             value={this.state.connector}
@@ -153,7 +165,7 @@ class SegmentsForm extends Component {
           >
             <option value="any">any</option>
             <option value="all">all</option>
-          </FormControl>{' '}
+          </FormControl>
           of the below conditions
         </FormGroup>
         <Conditions
@@ -228,7 +240,7 @@ class SegmentsForm extends Component {
   }
 
   render() {
-    const { contentType, segment } = this.props;
+    const { contentType, segment, total } = this.props;
 
     const breadcrumb = [
       { title: 'Segments', link: `/segments/${contentType}` },
@@ -248,9 +260,9 @@ class SegmentsForm extends Component {
             </SegmentContainer>
           </FlexItem>
 
-          <SegmentResult count={2}>
+          <SegmentResult>
             <ResultCount>
-              <Icon icon="person-stalker" /> 999
+              <Icon icon="person-stalker" /> {total.byFakeSegment}
             </ResultCount>
             User(s) will recieve this message
           </SegmentResult>
