@@ -11,13 +11,16 @@ import {
   AttachmentPreview,
   AttachmentIndicator,
   PreviewImg,
-  FileName
+  FileName,
+  Mask,
+  MaskWrapper
 } from '../styles';
 
 const propTypes = {
   conversation: PropTypes.object.isRequired,
   sendMessage: PropTypes.func.isRequired,
   setAttachmentPreview: PropTypes.func.isRequired,
+  responseTemplates: PropTypes.array,
   teamMembers: PropTypes.object
 };
 
@@ -26,6 +29,7 @@ class RespondBox extends Component {
     super(props);
 
     this.state = {
+      isInactive: !this.checkIsActie(props.conversation),
       editorKey: 'editor',
       isInternal: false,
       attachments: [],
@@ -45,8 +49,15 @@ class RespondBox extends Component {
 
     this.onSend = this.onSend.bind(this);
     this.toggleForm = this.toggleForm.bind(this);
+    this.hideMask = this.hideMask.bind(this);
     this.handleFileInput = this.handleFileInput.bind(this);
     this.onSelectTemplate = this.onSelectTemplate.bind(this);
+  }
+
+  componentWillReceiveProps(nextProps) {
+    if (this.props.conversation.customer !== nextProps.conversation.customer) {
+      this.setState({ isInactive: !this.checkIsActie(nextProps.conversation) });
+    }
   }
 
   // save editor current content to state
@@ -57,6 +68,19 @@ class RespondBox extends Component {
   // save mentioned user to state
   onAddMention(mentionedUserIds) {
     this.setState({ mentionedUserIds });
+  }
+
+  checkIsActie(conversation) {
+    return (
+      conversation.integration.kind !== 'messenger' ||
+      (conversation.customer.messengerData &&
+        conversation.customer.messengerData.isActive)
+    );
+  }
+
+  hideMask() {
+    this.setState({ isInactive: false });
+    document.querySelector('.DraftEditor-root').click();
   }
 
   onSend(e) {
@@ -170,9 +194,24 @@ class RespondBox extends Component {
     return null;
   }
 
+  renderMask() {
+    if (this.state.isInactive) {
+      return (
+        <Mask onClick={this.hideMask}>
+          Customer is offline. Click to hide and send messages and they will
+          receive them the next time they are online.
+        </Mask>
+      );
+    }
+
+    return null;
+  }
+
   render() {
     const { isInternal, responseTemplate } = this.state;
-    const integration = this.props.conversation.integration || {};
+    const { responseTemplates, conversation } = this.props;
+
+    const integration = conversation.integration || {};
 
     const Buttons = (
       <EditorActions>
@@ -214,21 +253,28 @@ class RespondBox extends Component {
     } press [Enter] and [Shift + Enter] to add a new line …`;
 
     return (
-      <RespondBoxStyled isInternal={isInternal}>
-        <Editor
-          key={this.state.editorKey}
-          onChange={this.onEditorContentChange}
-          onAddMention={this.onAddMention}
-          onShifEnter={this.onShifEnter}
-          placeholder={placeholder}
-          mentions={this.props.teamMembers}
-          showMentions={isInternal}
-          responseTemplate={responseTemplate}
-        />
+      <MaskWrapper>
+        {this.renderMask()}
+        <RespondBoxStyled
+          isInternal={isInternal}
+          isInactive={this.state.isInactive}
+        >
+          <Editor
+            key={this.state.editorKey}
+            onChange={this.onEditorContentChange}
+            onAddMention={this.onAddMention}
+            onShifEnter={this.onShifEnter}
+            placeholder={placeholder}
+            mentions={this.props.teamMembers}
+            showMentions={isInternal}
+            responseTemplate={responseTemplate}
+            responseTemplates={responseTemplates}
+          />
 
-        {this.renderIncicator()}
-        {Buttons}
-      </RespondBoxStyled>
+          {this.renderIncicator()}
+          {Buttons}
+        </RespondBoxStyled>
+      </MaskWrapper>
     );
   }
 }

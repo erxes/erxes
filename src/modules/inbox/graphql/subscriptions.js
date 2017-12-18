@@ -25,8 +25,18 @@ const conversationsChanged = `
   }
 `;
 
+const customerConnectionChanged = `
+  subscription customerConnectionChanged ($_id: String!) {
+    customerConnectionChanged (_id: $_id) {
+      _id
+      status
+    }
+  }
+`;
+
 export default {
   conversationChanged,
   conversationMessageInserted,
-  conversationsChanged
+  conversationsChanged,
+  customerConnectionChanged
 };

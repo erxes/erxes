@@ -8,6 +8,7 @@ import RespondBox from './RespondBox';
 import Participators from './Participators';
 import ResponseTemplate from './ResponseTemplate';
 import AssignBox from './assignBox/AssignBox';
+import Resolver from './Resolver';
 
 export {
   Inbox,
@@ -19,5 +20,6 @@ export {
   StatusFilterPopover,
   Conversation,
   AssignBoxPopover,
-  AssignBox
+  AssignBox,
+  Resolver
 };

@@ -9,7 +9,7 @@ import {
   Tags,
   Spinner
 } from 'modules/common/components';
-import { LeftSidebar, RespondBox } from '../containers';
+import { LeftSidebar, RespondBox, Resolver } from '../containers';
 import { AssignBoxPopover, Participators, Conversation } from './';
 import { AvatarImg } from 'modules/common/components/filterableList/styles';
 import { BarItems, SidebarCounter } from 'modules/layout/styles';
@@ -32,7 +32,6 @@ class Inbox extends Component {
       attachmentPreview: {}
     };
 
-    this.changeStatus = this.changeStatus.bind(this);
     this.setAttachmentPreview = this.setAttachmentPreview.bind(this);
     this.scrollBottom = this.scrollBottom.bind(this);
   }
@@ -51,22 +50,6 @@ class Inbox extends Component {
 
   setAttachmentPreview(attachmentPreview) {
     this.setState({ attachmentPreview });
-  }
-
-  // change resolved status
-  changeStatus() {
-    const { currentConversation, changeStatus } = this.props;
-
-    let status = currentConversation.status;
-
-    if (status === 'closed') {
-      status = 'open';
-    } else {
-      status = 'closed';
-    }
-
-    // call change status method
-    changeStatus(currentConversation._id, status);
   }
 
   renderMessengerData() {
@@ -104,24 +87,6 @@ class Inbox extends Component {
       <Wrapper.Sidebar full>
         <Spinner />
       </Wrapper.Sidebar>
-    );
-  }
-
-  renderStatusButton(status) {
-    let btnStyle = 'success';
-    let text = 'Resolve';
-    let icon = <Icon icon="checkmark" />;
-
-    if (status === 'closed') {
-      text = 'Open';
-      btnStyle = 'warning';
-      icon = <Icon icon="refresh" />;
-    }
-
-    return (
-      <Button btnStyle={btnStyle} onClick={this.changeStatus} size="small">
-        {icon} {text}
-      </Button>
     );
   }
 
@@ -173,9 +138,7 @@ class Inbox extends Component {
           afterSave={refetch}
         />
 
-        {this.renderStatusButton(
-          currentConversation && currentConversation.status
-        )}
+        <Resolver conversations={[currentConversation]} />
       </BarItems>
     );
 
@@ -244,7 +207,6 @@ Inbox.propTypes = {
   refetch: PropTypes.func,
   title: PropTypes.string,
   onChangeConversation: PropTypes.func,
-  changeStatus: PropTypes.func,
   currentConversationId: PropTypes.string,
   currentConversation: PropTypes.object,
   loading: PropTypes.bool

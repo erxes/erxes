@@ -64,13 +64,33 @@ class ConversationDetail extends Component {
         this.props.conversationDetailQuery.refetch();
       }
     });
+
+    // listen for customer connection
+    const conversation = conversationDetailQuery.conversationDetail;
+
+    if (conversation && conversation.integration.kind === 'messenger') {
+      const customerId = conversation.customer._id;
+
+      conversationDetailQuery.subscribeToMore({
+        document: gql(subscriptions.customerConnectionChanged),
+        variables: { _id: customerId },
+        updateQuery: (prev, { subscriptionData }) => {
+          const prevConversation = prev.conversationDetail;
+          const customerConnection =
+            subscriptionData.data.customerConnectionChanged;
+
+          if (prevConversation.customer._id === customerConnection._id) {
+            this.props.conversationDetailQuery.refetch();
+          }
+        }
+      });
+    }
   }
 
   render() {
     const {
       currentConversationId,
       conversationDetailQuery,
-      changeStatusMutation,
       markAsReadMutation
     } = this.props;
 
@@ -78,23 +98,6 @@ class ConversationDetail extends Component {
     const loading = conversationDetailQuery.loading;
     const currentConversation =
       conversationDetailQuery.conversationDetail || {};
-
-    // =============== actions
-    const changeStatus = (conversationId, status) => {
-      changeStatusMutation({ variables: { _ids: [conversationId], status } })
-        .then(() => {
-          if (status === 'closed') {
-            Alert.success('The conversation has been resolved!');
-          } else {
-            Alert.info(
-              'The conversation has been reopened and restored to Inbox.'
-            );
-          }
-        })
-        .catch(e => {
-          Alert.error(e.message);
-        });
-    };
 
     // mark as read
     const readUserIds = currentConversation.readUserIds || [];
@@ -115,7 +118,6 @@ class ConversationDetail extends Component {
       ...this.props,
       currentConversationId,
       currentConversation,
-      changeStatus,
       loading,
       refetch: conversationDetailQuery.refetch
     };
@@ -126,7 +128,6 @@ class ConversationDetail extends Component {
 
 ConversationDetail.propTypes = {
   conversationDetailQuery: PropTypes.object,
-  changeStatusMutation: PropTypes.func.isRequired,
   currentConversationId: PropTypes.string.isRequired,
   markAsReadMutation: PropTypes.func.isRequired,
   history: PropTypes.object
@@ -142,9 +143,6 @@ const ConversationDetailContainer = compose(
         variables: { _id: currentConversationId }
       };
     }
-  }),
-  graphql(gql(mutations.conversationsChangeStatus), {
-    name: 'changeStatusMutation'
   }),
   graphql(gql(mutations.markAsRead), {
     name: 'markAsReadMutation',

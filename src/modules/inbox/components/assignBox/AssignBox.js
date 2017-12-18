@@ -7,7 +7,7 @@ const propTypes = {
   targets: PropTypes.array,
   event: PropTypes.oneOf(['onClick', 'onExit']),
   className: PropTypes.string,
-  hidePopover: PropTypes.func,
+  afterSave: PropTypes.func,
   //from containers
   assignees: PropTypes.array,
   assign: PropTypes.func.isRequired,
@@ -65,7 +65,7 @@ class AssignBox extends Component {
   }
 
   assign(assignees, id) {
-    const { assign, targets, hidePopover } = this.props;
+    const { assign, targets, afterSave } = this.props;
 
     assign(
       {
@@ -78,7 +78,10 @@ class AssignBox extends Component {
         }
       }
     );
-    hidePopover();
+
+    if (afterSave) {
+      afterSave();
+    }
   }
 
   removeAssignee() {
