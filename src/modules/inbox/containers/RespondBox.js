@@ -6,7 +6,7 @@ import { queries, mutations } from '../graphql';
 import { RespondBox } from '../components';
 
 const RespondBoxContainer = props => {
-  const { usersQuery, addMessageMutation } = props;
+  const { usersQuery, addMessageMutation, responseTemplatesQuery } = props;
 
   const sendMessage = (variables, callback) => {
     addMessageMutation({ variables })
@@ -32,6 +32,7 @@ const RespondBoxContainer = props => {
   const updatedProps = {
     ...props,
     sendMessage,
+    responseTemplates: responseTemplatesQuery.responseTemplates,
     teamMembers: fromJS(teamMembers)
   };
 
@@ -41,10 +42,14 @@ const RespondBoxContainer = props => {
 RespondBoxContainer.propTypes = {
   object: PropTypes.object,
   addMessageMutation: PropTypes.func,
+  responseTemplatesQuery: PropTypes.object,
   usersQuery: PropTypes.object
 };
 
 export default compose(
   graphql(gql(queries.userList), { name: 'usersQuery' }),
+  graphql(gql(queries.responseTemplateList), {
+    name: 'responseTemplatesQuery'
+  }),
   graphql(gql(mutations.conversationMessageAdd), { name: 'addMessageMutation' })
 )(RespondBoxContainer);
