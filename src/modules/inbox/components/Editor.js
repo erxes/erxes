@@ -225,10 +225,12 @@ export default class Editor extends Component {
       return null;
     }
 
-    const editorState = createStateFromHTML(
+    let editorState = createStateFromHTML(
       EditorState.createEmpty(),
       selectedTemplate.content
     );
+
+    editorState = EditorState.moveFocusToEnd(editorState);
 
     this.setState({ editorState, templatesState: null });
   }
