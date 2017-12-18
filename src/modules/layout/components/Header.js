@@ -3,9 +3,11 @@ import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { dimensions } from 'modules/common/styles';
 import { BreadCrumb } from 'modules/common/components';
+import Filter from './Filter';
 
 const propTypes = {
-  breadcrumb: PropTypes.array.isRequired
+  breadcrumb: PropTypes.array.isRequired,
+  queryParams: PropTypes.object
 };
 
 const PageHeader = styled.div`
@@ -16,7 +18,7 @@ const PageHeader = styled.div`
   align-items: center;
 `;
 
-function Header({ breadcrumb = [] }) {
+function Header({ breadcrumb = [], queryParams }) {
   return (
     <PageHeader>
       <BreadCrumb>
@@ -26,6 +28,7 @@ function Header({ breadcrumb = [] }) {
           </BreadCrumb.Item>
         ))}
       </BreadCrumb>
+      {queryParams && <Filter queryParams={queryParams} />}
     </PageHeader>
   );
 }

@@ -8,6 +8,7 @@ import BreadCrumbItem from './breadcrumb/BreadCrumbItem';
 import Spinner from './Spinner';
 import Tip from './Tip';
 import Loader from './Loader';
+import Chip from './Chip';
 import LoadMore from './LoadMore';
 import Pagination from './pagination/Pagination';
 import ModalTrigger from './ModalTrigger';
@@ -45,6 +46,7 @@ export {
   Tip,
   LoadMore,
   Loader,
+  Chip,
   Pagination,
   pagination,
   ModalTrigger,
