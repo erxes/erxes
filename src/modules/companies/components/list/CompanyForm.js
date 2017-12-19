@@ -26,28 +26,26 @@ class CompanyForm extends React.Component {
 
   addCompany(e) {
     e.preventDefault();
+    const name = document.getElementById('company-name');
+    const website = document.getElementById('company-website');
 
     this.props.addCompany({
       doc: {
-        name: document.getElementById('company-name').value,
-        website: document.getElementById('company-website').value
+        name: name.value,
+        website: website.value
       },
 
       callback: () => {
-        document.getElementById('company-name').value = '';
-        document.getElementById('company-website').value = '';
+        name.value = '';
+        website.value = '';
+        if (document.activeElement.name === 'close') this.context.closeModal();
       }
     });
   }
 
   render() {
-    const onClick = e => {
-      this.addCompany(e);
-      this.context.closeModal();
-    };
-
     return (
-      <form onSubmit={this.addCompany}>
+      <form onSubmit={e => this.addCompany(e)}>
         <FormGroup>
           <ControlLabel>Name</ControlLabel>
           <FormControl id="company-name" type="text" autoFocus required />
@@ -59,14 +57,24 @@ class CompanyForm extends React.Component {
         </FormGroup>
 
         <Modal.Footer>
-          <Button btnStyle="simple" onClick={e => onClick(e)}>
-            <Icon icon="close" />
-            Save&Close
+          <Button btnStyle="success" type="submit">
+            <Icon icon="checkmark" />
+            Save & New
           </Button>
 
-          <Button btnStyle="success" onClick={e => this.addCompany(e)}>
+          <Button btnStyle="primary" type="submit" name="close">
+            <Icon icon="close" />
+            Save & Close
+          </Button>
+
+          <Button
+            btnStyle="simple"
+            onClick={() => {
+              this.context.closeModal();
+            }}
+          >
             <Icon icon="checkmark" />
-            Save&New
+            Close
           </Button>
         </Modal.Footer>
       </form>
