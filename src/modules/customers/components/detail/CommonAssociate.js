@@ -13,7 +13,8 @@ import {
   InputsWrapper,
   ListWrapper,
   Footer,
-  LoadMore
+  LoadMore,
+  TitleSpan
 } from '../../styles';
 
 const propTypes = {
@@ -117,7 +118,7 @@ class CommonAssociate extends React.Component {
       this.context.closeModal();
     };
 
-    const { datas, form, title } = this.props;
+    const { datas, form, title, data } = this.props;
 
     const addTrigger = (
       <span>
@@ -141,6 +142,9 @@ class CommonAssociate extends React.Component {
           </ul>
         </InputsWrapper>
         <ListWrapper>
+          <TitleSpan>
+            {data.name}&apos;s {title}
+          </TitleSpan>
           <ul>{this.state.datas.map(data => this.renderRow(data, 'close'))}</ul>
         </ListWrapper>
         <Modal.Footer>

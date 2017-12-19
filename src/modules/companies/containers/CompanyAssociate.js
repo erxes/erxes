@@ -6,7 +6,7 @@ import {
   mutations as customerMutations,
   queries as customerQueries
 } from 'modules/customers/graphql';
-import { Alert } from 'modules/common/utils';
+import { Alert, renderFullName } from 'modules/common/utils';
 import { CommonAssociate } from 'modules/customers/components';
 import { CompanyForm } from '../components';
 
@@ -75,6 +75,7 @@ class CustomerAssociateContainer extends React.Component {
       ...this.props,
       data: {
         _id: data._id,
+        name: renderFullName(data),
         datas: data.companies
       },
       search,
