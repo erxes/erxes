@@ -20,6 +20,7 @@ const propTypes = {
   conversation: PropTypes.object.isRequired,
   sendMessage: PropTypes.func.isRequired,
   setAttachmentPreview: PropTypes.func.isRequired,
+  responseTemplates: PropTypes.array,
   teamMembers: PropTypes.object
 };
 
@@ -208,7 +209,9 @@ class RespondBox extends Component {
 
   render() {
     const { isInternal, responseTemplate } = this.state;
-    const integration = this.props.conversation.integration || {};
+    const { responseTemplates, conversation } = this.props;
+
+    const integration = conversation.integration || {};
 
     const Buttons = (
       <EditorActions>
@@ -265,6 +268,7 @@ class RespondBox extends Component {
             mentions={this.props.teamMembers}
             showMentions={isInternal}
             responseTemplate={responseTemplate}
+            responseTemplates={responseTemplates}
           />
 
           {this.renderIncicator()}

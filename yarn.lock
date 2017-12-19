@@ -3691,6 +3691,10 @@ fuse.js@^3.0.1:
   version "3.2.0"
   resolved "https://registry.yarnpkg.com/fuse.js/-/fuse.js-3.2.0.tgz#f0448e8069855bf2a3e683cdc1d320e7e2a07ef4"
 
+fuzzysearch-highlight@^1.0.3:
+  version "1.0.3"
+  resolved "https://registry.yarnpkg.com/fuzzysearch-highlight/-/fuzzysearch-highlight-1.0.3.tgz#d4012f9f8e0778914b6b292b2c074301faa70b55"
+
 gauge@~2.7.3:
   version "2.7.4"
   resolved "https://registry.yarnpkg.com/gauge/-/gauge-2.7.4.tgz#2c03405c7538c39d7eb37b317022e325fb018bf7"
