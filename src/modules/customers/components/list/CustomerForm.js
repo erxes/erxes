@@ -26,30 +26,29 @@ class CustomerForm extends React.Component {
 
   addCustomer(e) {
     e.preventDefault();
+    const firstName = document.getElementById('customer-firstname');
+    const lastName = document.getElementById('customer-lastname');
+    const email = document.getElementById('customer-email');
 
     this.props.addCustomer({
       doc: {
-        firstName: document.getElementById('customer-firstname').value,
-        lastName: document.getElementById('customer-lastname').value,
-        email: document.getElementById('customer-email').value
+        firstName: firstName.value,
+        lastName: lastName.value,
+        email: email.value
       },
 
       callback: () => {
-        document.getElementById('customer-firstname').value = '';
-        document.getElementById('customer-lastname').value = '';
-        document.getElementById('customer-email').value = '';
+        firstName.value = '';
+        lastName.value = '';
+        email.value = '';
+        if (document.activeElement.name === 'close') this.context.closeModal();
       }
     });
   }
 
   render() {
-    const onClick = e => {
-      this.addCustomer(e);
-      this.context.closeModal();
-    };
-
     return (
-      <form onSubmit={this.addCustomer}>
+      <form onSubmit={e => this.addCustomer(e)}>
         <FormGroup>
           <ControlLabel>First Name</ControlLabel>
           <FormControl id="customer-firstname" type="text" autoFocus required />
@@ -62,18 +61,23 @@ class CustomerForm extends React.Component {
 
         <FormGroup>
           <ControlLabel>Email</ControlLabel>
-          <FormControl id="customer-email" type="text" required />
+          <FormControl id="customer-email" type="email" required />
         </FormGroup>
 
         <Modal.Footer>
-          <Button btnStyle="simple" onClick={e => onClick(e)}>
-            <Icon icon="close" />
-            Save&Close
+          <Button btnStyle="success" type="submit">
+            <Icon icon="checkmark" />
+            Save & New
           </Button>
 
-          <Button btnStyle="success" onClick={e => this.addCustomer(e)}>
-            <Icon icon="checkmark" />
-            Save&New
+          <Button btnStyle="primary" type="submit" name="close">
+            <Icon icon="close" />
+            Save & Close
+          </Button>
+
+          <Button btnStyle="simple" onClick={() => this.context.closeModal()}>
+            <Icon icon="close" />
+            Close
           </Button>
         </Modal.Footer>
       </form>
