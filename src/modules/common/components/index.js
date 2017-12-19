@@ -8,6 +8,7 @@ import BreadCrumbItem from './breadcrumb/BreadCrumbItem';
 import Spinner from './Spinner';
 import Tip from './Tip';
 import Loader from './Loader';
+import Chip from './Chip';
 import LoadMore from './LoadMore';
 import Pagination from './pagination/Pagination';
 import ModalTrigger from './ModalTrigger';
@@ -15,6 +16,7 @@ import ActionButtons from './ActionButtons';
 import EmptyState from './EmptyState';
 import Bulk from './Bulk';
 import Tagger from './tagger/containers/Tagger';
+import Filter from './filter/Filter';
 import TaggerPopover from './tagger/components/TaggerPopover';
 import Tags from './Tags';
 import FilterableList from './filterableList/FilterableList';
@@ -45,6 +47,7 @@ export {
   Tip,
   LoadMore,
   Loader,
+  Chip,
   Pagination,
   pagination,
   ModalTrigger,
@@ -52,6 +55,7 @@ export {
   Bulk,
   ConversationList,
   CountsByTag,
+  Filter,
   FilterByParams,
   Tagger,
   TaggerPopover,

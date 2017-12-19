@@ -243,6 +243,7 @@ const SidebarList = styled.ul`
       cursor: pointer;
       background: ${colors.borderPrimary};
       text-decoration: none;
+      outline: 0;
       color: ${colors.colorCoreBlack};
     }
   }

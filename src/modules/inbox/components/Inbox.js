@@ -122,7 +122,7 @@ class Inbox extends Component {
           />
         ) : (
           <Button btnStyle="simple" size="small">
-            Team members
+            Member
           </Button>
         )}
         <Icon icon="ios-arrow-down" size={13} />
@@ -178,7 +178,9 @@ class Inbox extends Component {
 
     return (
       <Wrapper
-        header={<Wrapper.Header breadcrumb={breadcrumb} />}
+        header={
+          <Wrapper.Header queryParams={queryParams} breadcrumb={breadcrumb} />
+        }
         actionBar={actionBar}
         content={content}
         footer={

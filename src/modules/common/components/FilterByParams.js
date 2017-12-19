@@ -30,9 +30,7 @@ function FilterByParams({ history, fields, counts, paramKey, icon }) {
                 router.setParams(history, { [paramKey]: field._id });
               }}
             >
-              {icon ? (
-                <Icon icon={icon} style={{ color: field.colorCode }} />
-              ) : null}{' '}
+              {icon && <Icon icon={icon} style={{ color: field.colorCode }} />}{' '}
               {field.name}
               <SidebarCounter>{counts[field._id]}</SidebarCounter>
             </a>

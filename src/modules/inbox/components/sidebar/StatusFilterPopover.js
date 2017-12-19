@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { withRouter } from 'react-router';
 import { OverlayTrigger, Popover } from 'react-bootstrap';
-import { Icon, Button } from 'modules/common/components';
+import { Icon } from 'modules/common/components';
 import { SidebarList, SidebarCounter } from 'modules/layout/styles';
 import { PopoverButton } from '../../styles';
 import { router } from 'modules/common/utils';
@@ -54,7 +54,7 @@ class StatusFilterPopover extends Component {
   }
 
   render() {
-    const { history, counts } = this.props;
+    const { counts } = this.props;
 
     const popover = (
       <Popover id="filter-popover" title="Filter by status">
@@ -81,14 +81,6 @@ class StatusFilterPopover extends Component {
             'Resolved',
             counts.resolved
           )}
-
-          {this.renderSingleFilter(
-            'starred',
-            'true',
-            'starred',
-            'Starred',
-            counts.starred
-          )}
         </SidebarList>
       </Popover>
     );
@@ -107,18 +99,6 @@ class StatusFilterPopover extends Component {
         <PopoverButton>
           Status
           <Icon icon="ios-arrow-down" />
-          {router.getParam(history, 'participating') ||
-          router.getParam(history, 'unassigned') ||
-          router.getParam(history, 'status') ||
-          router.getParam(history, 'starred') ? (
-            <Button
-              btnStyle="link"
-              tabIndex={0}
-              onClick={this.clearStatusFilter}
-            >
-              <Icon icon="close-circled" />
-            </Button>
-          ) : null}
         </PopoverButton>
       </OverlayTrigger>
     );
