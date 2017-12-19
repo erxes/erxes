@@ -12,11 +12,13 @@ const ChipItem = styled.span`
   background: ${colors.colorSecondary};
   padding: 2px ${horizontalSpace};
   margin-right: 5px;
-  text-transform: capitalize;
+  margin-bottom: 1px;
+  text-transform: ${props => (props.normal ? 'none' : 'capitalize')};
   display: inline-block;
   border-radius: ${horizontalSpace};
   padding-right: 30px;
   position: relative;
+  line-height: 18px;
 `;
 
 const Remove = styled.span`
@@ -45,7 +47,7 @@ const Remove = styled.span`
 
 function Chip({ ...props }) {
   return (
-    <ChipItem>
+    <ChipItem normal={props.normal}>
       {props.children}
       <Remove onClick={props.onClickClose}>
         <Icon icon="android-close" />
@@ -56,7 +58,8 @@ function Chip({ ...props }) {
 
 Chip.propTypes = {
   children: PropTypes.node.isRequired,
-  onClickClose: PropTypes.func
+  onClickClose: PropTypes.func,
+  normal: PropTypes.bool
 };
 
 export default Chip;

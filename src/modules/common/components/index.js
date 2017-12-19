@@ -16,6 +16,7 @@ import ActionButtons from './ActionButtons';
 import EmptyState from './EmptyState';
 import Bulk from './Bulk';
 import Tagger from './tagger/containers/Tagger';
+import Filter from './filter/Filter';
 import TaggerPopover from './tagger/components/TaggerPopover';
 import Tags from './Tags';
 import FilterableList from './filterableList/FilterableList';
@@ -54,6 +55,7 @@ export {
   Bulk,
   ConversationList,
   CountsByTag,
+  Filter,
   FilterByParams,
   Tagger,
   TaggerPopover,

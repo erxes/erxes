@@ -2,8 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { dimensions } from 'modules/common/styles';
-import { BreadCrumb } from 'modules/common/components';
-import Filter from './Filter';
+import { BreadCrumb, Filter } from 'modules/common/components';
 
 const propTypes = {
   breadcrumb: PropTypes.array.isRequired,

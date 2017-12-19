@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { colors } from 'modules/common/styles';
-import { TextDivider, Spinner } from 'modules/common/components';
+import { Spinner } from 'modules/common/components';
 import Message from './Message';
 
 const propTypes = {
@@ -91,25 +91,21 @@ class Conversation extends Component {
     let tempId;
 
     messages.forEach(message => {
-      if (message.info) {
-        rows.push(<TextDivider key={message._id} text={message.content} />);
-      } else {
-        rows.push(
-          <Message
-            isSameUser={
-              message.userId
-                ? message.userId === tempId
-                : message.customerId === tempId
-            }
-            message={message}
-            staff={!message.customerId}
-            key={message._id}
-            scrollBottom={scrollBottom}
-          />
-        );
+      rows.push(
+        <Message
+          isSameUser={
+            message.userId
+              ? message.userId === tempId
+              : message.customerId === tempId
+          }
+          message={message}
+          staff={!message.customerId}
+          key={message._id}
+          scrollBottom={scrollBottom}
+        />
+      );
 
-        tempId = message.userId ? message.userId : message.customerId;
-      }
+      tempId = message.userId ? message.userId : message.customerId;
     });
 
     return (

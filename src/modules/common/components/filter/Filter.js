@@ -2,8 +2,10 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { withRouter } from 'react-router';
+import { gql } from 'react-apollo';
 import { router } from 'modules/common/utils';
 import { Chip } from 'modules/common/components';
+import createChipText from './createChipText';
 
 const propTypes = {
   history: PropTypes.object.isRequired,
@@ -29,15 +31,37 @@ function Filter({ queryParams = {}, history }) {
     }
   };
 
+  const renderFilterWithData = (paramKey, type) => {
+    if (queryParams[paramKey]) {
+      const id = queryParams[paramKey];
+      const graphqlQuery = gql`
+          query ${type}Detail($id: String!) {
+            ${type}Detail(_id: $id) {
+              _id
+              name
+            }
+          }
+        `;
+
+      const ChipText = createChipText(graphqlQuery, id);
+
+      return (
+        <Chip normal onClickClose={() => onClickClose(paramKey)}>
+          <ChipText />
+        </Chip>
+      );
+    }
+  };
+
   return (
     <Filters>
-      {renderFilterParam('channelId')}
+      {renderFilterWithData('channelId', 'channel')}
       {renderFilterParam('status')}
       {renderFilterParam('participating', true)}
       {renderFilterParam('unassigned', true)}
-      {renderFilterParam('brandId')}
+      {renderFilterWithData('brandId', 'brand')}
       {renderFilterParam('integrationType')}
-      {renderFilterParam('tag')}
+      {renderFilterWithData('tag', 'tag')}
     </Filters>
   );
 }

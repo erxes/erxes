@@ -2,16 +2,14 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { withRouter } from 'react-router';
 import { OverlayTrigger, Popover } from 'react-bootstrap';
-import { FilterByParams, Icon, Button } from 'modules/common/components';
+import { FilterByParams, Icon } from 'modules/common/components';
 import { PopoverButton } from '../../styles';
-import { router } from 'modules/common/utils';
 
 const propTypes = {
   fields: PropTypes.array.isRequired,
   popoverTitle: PropTypes.string.isRequired,
   buttonText: PropTypes.string.isRequired,
   counts: PropTypes.object,
-  history: PropTypes.object.isRequired,
   paramKey: PropTypes.string.isRequired,
   placement: PropTypes.string,
   icon: PropTypes.string
@@ -24,7 +22,6 @@ const defaultProps = {
 class FilterPopover extends Component {
   render() {
     const {
-      history,
       buttonText,
       popoverTitle,
       placement,
@@ -61,17 +58,6 @@ class FilterPopover extends Component {
           <Icon
             icon={placement === 'top' ? 'ios-arrow-up' : 'ios-arrow-down'}
           />
-          {router.getParam(history, [paramKey]) ? (
-            <Button
-              btnStyle="link"
-              tabIndex={0}
-              onClick={() => {
-                router.setParams(history, { [paramKey]: null });
-              }}
-            >
-              <Icon icon="close-circled" />
-            </Button>
-          ) : null}
         </PopoverButton>
       </OverlayTrigger>
     );
