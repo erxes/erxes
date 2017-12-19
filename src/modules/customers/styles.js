@@ -17,6 +17,7 @@ const InputsWrapper = styled.div`
 
   input {
     position: fixed;
+    width: 55%;
   }
 
   ul {
