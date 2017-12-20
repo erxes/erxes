@@ -333,7 +333,7 @@ export default class Editor extends Component {
       }
 
       // handle shift + enter in editor
-      if (e.shiftKey) {
+      if (e.metaKey || e.ctrlKey) {
         // call parent's method to save content
         this.props.onShifEnter();
 
