@@ -56,6 +56,16 @@ class CompanyForm extends React.Component {
           <FormControl id="company-website" type="text" required />
         </FormGroup>
 
+        <Button
+          btnStyle="simple"
+          onClick={() => {
+            this.context.closeModal();
+          }}
+        >
+          <Icon icon="close" />
+          Close
+        </Button>
+
         <Modal.Footer>
           <Button btnStyle="success" type="submit">
             <Icon icon="checkmark" />
@@ -65,16 +75,6 @@ class CompanyForm extends React.Component {
           <Button btnStyle="primary" type="submit" name="close">
             <Icon icon="close" />
             Save & Close
-          </Button>
-
-          <Button
-            btnStyle="simple"
-            onClick={() => {
-              this.context.closeModal();
-            }}
-          >
-            <Icon icon="checkmark" />
-            Close
           </Button>
         </Modal.Footer>
       </form>

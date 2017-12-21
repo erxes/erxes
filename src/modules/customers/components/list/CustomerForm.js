@@ -65,6 +65,11 @@ class CustomerForm extends React.Component {
         </FormGroup>
 
         <Modal.Footer>
+          <Button btnStyle="simple" onClick={() => this.context.closeModal()}>
+            <Icon icon="close" />
+            Close
+          </Button>
+
           <Button btnStyle="success" type="submit">
             <Icon icon="checkmark" />
             Save & New
@@ -73,11 +78,6 @@ class CustomerForm extends React.Component {
           <Button btnStyle="primary" type="submit" name="close">
             <Icon icon="close" />
             Save & Close
-          </Button>
-
-          <Button btnStyle="simple" onClick={() => this.context.closeModal()}>
-            <Icon icon="close" />
-            Close
           </Button>
         </Modal.Footer>
       </form>
