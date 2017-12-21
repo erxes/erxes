@@ -114,10 +114,6 @@ class CommonAssociate extends React.Component {
   }
 
   render() {
-    const onClick = () => {
-      this.context.closeModal();
-    };
-
     const { datas, form, title, data } = this.props;
 
     const addTrigger = (
@@ -152,7 +148,7 @@ class CommonAssociate extends React.Component {
             <ModalTrigger title={`New ${title}`} trigger={addTrigger}>
               {form}
             </ModalTrigger>
-            <Button btnStyle="simple" onClick={onClick.bind(this)}>
+            <Button btnStyle="simple" onClick={this.context.closeModal()}>
               <Icon icon="close" />CANCEL
             </Button>
             <Button btnStyle="success" onClick={this.save}>
