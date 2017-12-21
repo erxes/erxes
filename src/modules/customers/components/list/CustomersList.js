@@ -50,11 +50,10 @@ class CustomersList extends React.Component {
         <thead>
           <tr>
             <th>
-              {' '}
               <FormControl
                 componentClass="checkbox"
                 onChange={() => this.onChange()}
-              />{' '}
+              />
             </th>
             {columnsConfig.map(({ name, label }) => (
               <th key={name}>{label}</th>
