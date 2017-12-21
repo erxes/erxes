@@ -11,7 +11,8 @@ import {
   Pagination,
   Button,
   Icon,
-  Table
+  Table,
+  FormControl
 } from 'modules/common/components';
 import { BarItems } from 'modules/layout/styles';
 import { Widget } from 'modules/engage/containers';
@@ -30,11 +31,17 @@ const propTypes = {
   bulk: PropTypes.array.isRequired,
   emptyBulk: PropTypes.func.isRequired,
   toggleBulk: PropTypes.func.isRequired,
+  toggleAll: PropTypes.func.isRequired,
   addCustomer: PropTypes.func.isRequired,
   history: PropTypes.object
 };
 
 class CustomersList extends React.Component {
+  onChange() {
+    const { toggleAll, customers } = this.props;
+    toggleAll(customers, 'customers');
+  }
+
   renderContent() {
     const { customers, columnsConfig, toggleBulk, history } = this.props;
 
@@ -42,14 +49,20 @@ class CustomersList extends React.Component {
       <Table whiteSpace="nowrap" hover bordered>
         <thead>
           <tr>
-            <th />
+            <th>
+              {' '}
+              <FormControl
+                componentClass="checkbox"
+                onChange={() => this.onChange()}
+              />{' '}
+            </th>
             {columnsConfig.map(({ name, label }) => (
               <th key={name}>{label}</th>
             ))}
             <th>Tags</th>
           </tr>
         </thead>
-        <tbody>
+        <tbody id="customers">
           {customers.map(customer => (
             <CustomerRow
               customer={customer}
