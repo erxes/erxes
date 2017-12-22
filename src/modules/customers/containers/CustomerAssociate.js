@@ -6,7 +6,7 @@ import {
   mutations as companyMutations,
   queries as companyQueries
 } from 'modules/companies/graphql';
-import { Alert } from 'modules/common/utils';
+import { Alert, renderFullName } from 'modules/common/utils';
 import { CommonAssociate } from '../components';
 import { CustomerForm } from '../components';
 
@@ -67,24 +67,18 @@ class CustomerAssociateContainer extends React.Component {
         });
     };
 
-    const renderName = data => {
-      if (data.firstName || data.lastName) {
-        return (data.firstName || '') + ' ' + (data.lastName || '');
-      }
-      return data.email || data.phone || 'N/A';
-    };
-
     const updatedProps = {
       ...this.props,
       data: {
         _id: data._id,
+        name: data.name,
         datas: data.customers
       },
       search,
       title: 'Customer',
       save,
       form,
-      renderName,
+      renderName: renderFullName,
       perPage: this.state.perPage,
       add: addCustomer,
       datas: customersQuery.customers || []

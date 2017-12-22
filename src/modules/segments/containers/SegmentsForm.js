@@ -4,6 +4,7 @@ import { Alert } from 'modules/common/utils';
 import { compose, gql, graphql } from 'react-apollo';
 import { SegmentsForm } from '../components';
 import { mutations, queries } from '../graphql';
+import { queries as customerQueries } from 'modules/customers/graphql';
 
 const SegmentsFormContainer = props => {
   const {
@@ -13,7 +14,8 @@ const SegmentsFormContainer = props => {
     combinedFieldsQuery,
     segmentsAdd,
     segmentsEdit,
-    history
+    history,
+    customerCounts
   } = props;
 
   if (
@@ -49,12 +51,20 @@ const SegmentsFormContainer = props => {
     });
   };
 
+  const count = segment => {
+    customerCounts.refetch({
+      byFakeSegment: segment
+    });
+  };
+
   const updatedProps = {
     ...props,
     fields,
     segment,
     headSegments,
     create,
+    count,
+    total: customerCounts.customerCounts || {},
     edit
   };
 
@@ -68,7 +78,8 @@ SegmentsFormContainer.propTypes = {
   headSegmentsQuery: PropTypes.object,
   combinedFieldsQuery: PropTypes.object,
   segmentsAdd: PropTypes.func,
-  segmentsEdit: PropTypes.func
+  segmentsEdit: PropTypes.func,
+  customerCounts: PropTypes.object
 };
 
 export default compose(
@@ -77,6 +88,9 @@ export default compose(
     options: ({ id }) => ({
       variables: { _id: id }
     })
+  }),
+  graphql(gql(customerQueries.customerCounts), {
+    name: 'customerCounts'
   }),
   graphql(gql(queries.headSegments), { name: 'headSegmentsQuery' }),
   graphql(gql(queries.combinedFields), {

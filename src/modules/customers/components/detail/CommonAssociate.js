@@ -13,7 +13,8 @@ import {
   InputsWrapper,
   ListWrapper,
   Footer,
-  LoadMore
+  LoadMore,
+  TitleSpan
 } from '../../styles';
 
 const propTypes = {
@@ -50,13 +51,13 @@ class CommonAssociate extends React.Component {
 
   save() {
     const { datas } = this.state;
-    const Ids = [];
+    const ids = [];
 
     datas.forEach(data => {
-      Ids.push(data._id.toString());
+      ids.push(data._id.toString());
     });
 
-    this.props.save(Ids);
+    this.props.save(ids);
     this.context.closeModal();
   }
 
@@ -67,11 +68,7 @@ class CommonAssociate extends React.Component {
   componentWillReceiveProps(newProps) {
     const { datas, perPage } = newProps;
 
-    this.setState(() => {
-      return datas.length !== perPage
-        ? { loadmore: false }
-        : { loadmore: true };
-    });
+    this.setState({ loadmore: datas.length === perPage });
   }
 
   handleChange(e, data) {
@@ -117,11 +114,7 @@ class CommonAssociate extends React.Component {
   }
 
   render() {
-    const onClick = () => {
-      this.context.closeModal();
-    };
-
-    const { datas, form, title } = this.props;
+    const { datas, form, title, data } = this.props;
 
     const addTrigger = (
       <span>
@@ -139,12 +132,15 @@ class CommonAssociate extends React.Component {
           />
           <ul>
             {datas.map(data => this.renderRow(data, 'plus'))}
-            {this.state.loadmore ? (
+            {this.state.loadmore && (
               <LoadMore onClick={this.loadMore}>Load More</LoadMore>
-            ) : null}
+            )}
           </ul>
         </InputsWrapper>
         <ListWrapper>
+          <TitleSpan>
+            {data.name}&apos;s {title}
+          </TitleSpan>
           <ul>{this.state.datas.map(data => this.renderRow(data, 'close'))}</ul>
         </ListWrapper>
         <Modal.Footer>
@@ -152,7 +148,7 @@ class CommonAssociate extends React.Component {
             <ModalTrigger title={`New ${title}`} trigger={addTrigger}>
               {form}
             </ModalTrigger>
-            <Button btnStyle="simple" onClick={onClick.bind(this)}>
+            <Button btnStyle="simple" onClick={this.context.closeModal()}>
               <Icon icon="close" />CANCEL
             </Button>
             <Button btnStyle="success" onClick={this.save}>

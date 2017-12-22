@@ -52,8 +52,6 @@ function CompaniesList({
           ))}
         </tbody>
       </Table>
-
-      <Pagination count={counts.all} />
     </div>
   );
 

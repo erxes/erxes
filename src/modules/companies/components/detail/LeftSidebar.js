@@ -39,7 +39,6 @@ class LeftSidebar extends React.Component {
   }
 
   toggleEditing() {
-    this.cancelEditing();
     this.setState({ editing: true });
   }
 

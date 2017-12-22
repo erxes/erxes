@@ -62,6 +62,7 @@ class CustomerListContainer extends Bulk {
       bulk: this.state.bulk || [],
       emptyBulk: this.emptyBulk,
       toggleBulk: this.toggleBulk,
+      toggleAll: this.toggleAll,
       addCustomer
     };
 
