@@ -4,7 +4,8 @@ import {
   Pagination,
   ModalTrigger,
   Button,
-  Icon
+  Icon,
+  ShowData
 } from 'modules/common/components';
 import { Wrapper } from 'modules/layout/components';
 import Sidebar from '../../Sidebar';
@@ -14,7 +15,8 @@ const propTypes = {
   remove: PropTypes.func.isRequired,
   save: PropTypes.func.isRequired,
   refetch: PropTypes.func.isRequired,
-  totalCount: PropTypes.number.isRequired
+  totalCount: PropTypes.number.isRequired,
+  loading: PropTypes.bool.isRequired
 };
 
 class List extends Component {
@@ -39,7 +41,7 @@ class List extends Component {
   }
 
   render() {
-    const { totalCount, save } = this.props;
+    const { totalCount, save, loading } = this.props;
 
     const trigger = (
       <Button btnStyle="success" size="small">
@@ -59,7 +61,15 @@ class List extends Component {
         leftSidebar={<Sidebar />}
         actionBar={<Wrapper.ActionBar right={actionBarLeft} />}
         footer={<Pagination count={totalCount} />}
-        content={this.renderContent()}
+        content={
+          <ShowData
+            data={this.renderContent()}
+            loading={loading}
+            count={totalCount}
+            emptyText="There is no data."
+            emptyIcon="ios-copy"
+          />
+        }
       />
     );
   }

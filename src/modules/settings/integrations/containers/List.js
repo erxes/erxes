@@ -26,7 +26,8 @@ const ListContainer = props => {
     integrations,
     refetch: listQuery.refetch,
     totalCount,
-    removeIntegration
+    removeIntegration,
+    loading: listQuery.loading
   };
 
   return <List {...updatedProps} />;
@@ -35,7 +36,8 @@ const ListContainer = props => {
 ListContainer.propTypes = {
   totalCountQuery: PropTypes.object,
   listQuery: PropTypes.object,
-  removeMutation: PropTypes.func
+  removeMutation: PropTypes.func,
+  loading: PropTypes.bool
 };
 
 export default compose(

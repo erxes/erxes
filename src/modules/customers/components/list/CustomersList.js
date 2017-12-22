@@ -11,7 +11,8 @@ import {
   Pagination,
   Button,
   Icon,
-  Table
+  Table,
+  ShowData
 } from 'modules/common/components';
 import { BarItems } from 'modules/layout/styles';
 import { Widget } from 'modules/engage/containers';
@@ -31,7 +32,9 @@ const propTypes = {
   emptyBulk: PropTypes.func.isRequired,
   toggleBulk: PropTypes.func.isRequired,
   addCustomer: PropTypes.func.isRequired,
-  history: PropTypes.object
+  history: PropTypes.object,
+  loading: PropTypes.bool.isRequired,
+  loadingTags: PropTypes.bool.isRequired
 };
 
 class CustomersList extends React.Component {
@@ -65,7 +68,16 @@ class CustomersList extends React.Component {
   }
 
   render() {
-    const { counts, bulk, addCustomer, tags, emptyBulk } = this.props;
+    const {
+      counts,
+      bulk,
+      addCustomer,
+      tags,
+      emptyBulk,
+      loading,
+      customers,
+      loadingTags
+    } = this.props;
 
     const addTrigger = (
       <Button btnStyle="success" size="small">
@@ -131,8 +143,18 @@ class CustomersList extends React.Component {
         header={<Wrapper.Header breadcrumb={breadcrumb} />}
         actionBar={actionBar}
         footer={<Pagination count={counts.all} />}
-        leftSidebar={<Sidebar counts={counts} tags={tags} />}
-        content={this.renderContent()}
+        leftSidebar={
+          <Sidebar counts={counts} tags={tags} loading={loadingTags} />
+        }
+        content={
+          <ShowData
+            data={this.renderContent()}
+            loading={loading}
+            count={customers.length}
+            emptyText="There is no customer."
+            emptyIcon="person-stalker"
+          />
+        }
       />
     );
   }

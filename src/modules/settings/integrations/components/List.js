@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Wrapper } from 'modules/layout/components';
-import { Pagination, Table } from 'modules/common/components';
+import { Pagination, Table, ShowData } from 'modules/common/components';
 import Sidebar from '../../Sidebar';
 import { AddIntegration } from '../components';
 import Row from './Row';
@@ -10,7 +10,8 @@ const propTypes = {
   integrations: PropTypes.array.isRequired,
   removeIntegration: PropTypes.func.isRequired,
   refetch: PropTypes.func.isRequired,
-  totalCount: PropTypes.number.isRequired
+  totalCount: PropTypes.number.isRequired,
+  loading: PropTypes.bool.isRequired
 };
 
 class List extends Component {
@@ -34,7 +35,7 @@ class List extends Component {
   }
 
   render() {
-    const { totalCount } = this.props;
+    const { totalCount, loading } = this.props;
 
     const actionBar = <Wrapper.ActionBar right={<AddIntegration />} />;
 
@@ -63,7 +64,15 @@ class List extends Component {
         leftSidebar={<Sidebar />}
         actionBar={actionBar}
         footer={<Pagination count={totalCount} />}
-        content={content}
+        content={
+          <ShowData
+            data={content}
+            loading={loading}
+            count={totalCount}
+            emptyText="There is no data."
+            emptyIcon="ios-copy"
+          />
+        }
       />
     );
   }

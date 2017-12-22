@@ -28,7 +28,7 @@ import Table from './table';
 import Editor from './Editor';
 import { Tabs, TabList, TabTitle } from './tabs';
 import ConfirmDialog from './ConfirmDialog';
-
+import ShowData from './ShowData';
 // TODO remove
 const pagination = {};
 
@@ -67,5 +67,6 @@ export {
   Tabs,
   TabList,
   TabTitle,
-  ConfirmDialog
+  ConfirmDialog,
+  ShowData
 };

@@ -80,7 +80,8 @@ const commonListComposer = options => {
       objects,
       totalCount,
       save,
-      remove
+      remove,
+      loading: listQuery.loading
     };
 
     return <ListComponent {...updatedProps} />;

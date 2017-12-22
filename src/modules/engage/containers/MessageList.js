@@ -23,7 +23,8 @@ class MessageListContainer extends Bulk {
       bulk: this.state.bulk,
       toggleBulk: this.toggleBulk,
       emptyBulk: this.emptyBulk,
-      refetch: engageMessagesQuery.refetch
+      refetch: engageMessagesQuery.refetch,
+      loading: engageMessagesQuery.loading
     };
 
     return <MessageList {...updatedProps} />;
@@ -35,7 +36,8 @@ MessageListContainer.propTypes = {
   queryParams: PropTypes.object,
   engageMessagesQuery: PropTypes.object,
   engageMessagesTotalCountQuery: PropTypes.object,
-  tagsQuery: PropTypes.object
+  tagsQuery: PropTypes.object,
+  loading: PropTypes.bool
 };
 
 export default compose(
