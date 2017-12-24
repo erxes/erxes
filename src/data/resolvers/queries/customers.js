@@ -80,7 +80,13 @@ const customerQueries = {
    * @return {Object} counts map
    */
   async customerCounts(root, params) {
-    const counts = { bySegment: {}, byBrand: {}, byIntegrationType: {}, byTag: {} };
+    const counts = {
+      bySegment: {},
+      byBrand: {},
+      byIntegrationType: {},
+      byTag: {},
+      byFakeSegment: 0,
+    };
     const selector = await listQuery(params);
 
     const count = query => {
@@ -98,6 +104,11 @@ const customerQueries = {
 
     for (let s of segments) {
       counts.bySegment[s._id] = await count(QueryBuilder.segments(s));
+    }
+
+    // Count customers by fake segment
+    if (params.byFakeSegment) {
+      counts.byFakeSegment = await count(QueryBuilder.segments(params.byFakeSegment));
     }
 
     // Count customers by brand
