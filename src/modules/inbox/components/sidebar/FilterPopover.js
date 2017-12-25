@@ -38,6 +38,7 @@ class FilterPopover extends Component {
           paramKey={paramKey}
           counts={counts}
           icon={icon}
+          loading={false}
         />
       </Popover>
     );
