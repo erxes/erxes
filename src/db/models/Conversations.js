@@ -342,6 +342,19 @@ class Conversation {
       );
     }
   }
+
+  /**
+   * Change customer conversations to another customer
+   * @param {String} newCustomerId customer id to set
+   * @param {String} oldCustomerId old customer id to change
+   * @return {Promise} updated conversations
+   */
+  static async changeCustomer(newCustomerId, oldCustomerId) {
+    return await this.updateMany(
+      { customerId: oldCustomerId },
+      { $set: { customerId: newCustomerId } },
+    );
+  }
 }
 
 ConversationSchema.loadClass(Conversation);
