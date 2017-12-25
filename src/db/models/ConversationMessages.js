@@ -215,6 +215,19 @@ class Message {
       { multi: true },
     );
   }
+
+  /**
+   * Change customer conversation messages to another customer
+   * @param  {String} newCustomerId customer id to set
+   * @param  {String} oldCustomerId old customer id to change
+   * @return {Promise} updated conversation messages
+   */
+  static async changeCustomer(newCustomerId, oldCustomerId) {
+    return await this.updateMany(
+      { customerId: oldCustomerId },
+      { $set: { customerId: newCustomerId } },
+    );
+  }
 }
 
 MessageSchema.loadClass(Message);
