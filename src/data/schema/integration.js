@@ -62,7 +62,7 @@ export const types = `
 `;
 
 export const queries = `
-  integrations(page: Int, perPage: Int, kind: String): [Integration]
+  integrations(page: Int, perPage: Int, kind: String, channelId: String): [Integration]
   integrationDetail(_id: String!): Integration
   integrationsTotalCount(kind: String): Int
   integrationGetTwitterAuthUrl: String

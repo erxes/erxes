@@ -1,4 +1,4 @@
-import { Integrations } from '../../../db/models';
+import { Channels, Integrations } from '../../../db/models';
 import { socUtils } from '../../../social/twitterTracker';
 import { getConfig, getPageList } from '../../../social/facebook';
 import { moduleRequireLogin } from '../../permissions';
@@ -10,11 +10,17 @@ const integrationQueries = {
    * @param {Object} args - Search params
    * @return {Promise} filterd and sorted integrations list
    */
-  integrations(root, { kind, ...params }) {
+  async integrations(root, { kind, channelId, ...params }) {
     const query = {};
 
     if (kind) {
       query.kind = kind;
+    }
+
+    // filter integrations by channel
+    if (channelId) {
+      const channel = await Channels.findOne({ _id: channelId });
+      query._id = { $in: channel.integrationIds };
     }
 
     const integrations = paginate(Integrations.find(query), params);
