@@ -48,8 +48,8 @@ export default commonListComposer({
 
   gqlIntegrationsQuery: graphql(
     gql`
-      query integrations {
-        integrations {
+      query integrations($channelId: String) {
+        integrations(channelId: $channelId) {
           _id
           name
           brand {
@@ -65,7 +65,8 @@ export default commonListComposer({
     `,
     {
       name: 'integrationsQuery',
-      options: () => ({
+      options: ({ queryParams }) => ({
+        variables: { channelId: queryParams.id },
         fetchPolicy: 'network-only'
       })
     }

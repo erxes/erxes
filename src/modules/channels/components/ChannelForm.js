@@ -76,7 +76,7 @@ class ChannelForm extends CommonForm {
   generateMembersParams(members) {
     return members.map(member => ({
       value: member._id,
-      label: member.details.fullName || ''
+      label: (member.details && member.details.fullName) || ''
     }));
   }
 

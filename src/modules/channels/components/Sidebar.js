@@ -38,19 +38,16 @@ class Sidebar extends Component {
   }
 
   renderMembers(member) {
-    return <MemberImg key={member._id} src={member.details.avatar || []} />;
+    return (
+      <MemberImg
+        key={member._id}
+        src={(member.details && member.details.avatar) || []}
+      />
+    );
   }
 
-  renderChannelNames(object) {
-    // console.log(object)
-    const channelNames = <a>{object.name}</a>;
-
-    return (
-      <ModalTrigger size={this.size} title="Edit" trigger={channelNames}>
-        {this.renderForm({ object })}
-      </ModalTrigger>
-      // <a href={`channels?id=${object.integrationIds}`}>{object.name}</a>
-    );
+  renderChannelName(object) {
+    return <a href={`?id=${object._id}`}>{object.name}</a>;
   }
 
   render() {
@@ -64,7 +61,7 @@ class Sidebar extends Component {
           <SidebarList>
             {objects.map(object => (
               <SidebarListli key={object._id}>
-                {this.renderChannelNames(object)}
+                {this.renderChannelName(object)}
                 <Members>
                   {members.map(member => this.renderMembers(member))}
                 </Members>
