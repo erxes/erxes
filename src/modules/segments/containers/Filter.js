@@ -10,7 +10,7 @@ const FilterContainer = props => {
   const updatedProps = {
     ...props,
     segments: segmentsQuery.segments || [],
-    loading: segmentsQuery.loading || false
+    loading: segmentsQuery.loading
   };
 
   return <Filter {...updatedProps} />;

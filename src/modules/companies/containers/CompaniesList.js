@@ -52,7 +52,7 @@ class CompanyListContainer extends React.Component {
       },
       companies: companiesQuery.companies || [],
       addCompany,
-      loading: companiesQuery.loading || false
+      loading: companiesQuery.loading
     };
 
     return <CompaniesList {...updatedProps} />;

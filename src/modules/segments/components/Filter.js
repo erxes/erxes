@@ -110,6 +110,7 @@ function Segments({ history, contentType, counts, segments, loading }) {
         emptyText="no segments"
         emptyIcon="pie-graph"
         size="small"
+        objective={true}
       />
     </Section>
   );

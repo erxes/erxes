@@ -63,8 +63,8 @@ class CustomerListContainer extends Bulk {
       emptyBulk: this.emptyBulk,
       toggleBulk: this.toggleBulk,
       addCustomer,
-      loading: customersQuery.loading || false,
-      loadingTags: tagsQuery.loading || false
+      loading: customersQuery.loading,
+      loadingTags: tagsQuery.loading
     };
 
     return <CustomersList {...updatedProps} />;

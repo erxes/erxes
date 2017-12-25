@@ -47,6 +47,7 @@ function FilterByParams({ history, fields, counts, paramKey, icon, loading }) {
       emptyText="no tags"
       emptyIcon="pricetag"
       size="small"
+      objective={true}
     />
   );
 }
