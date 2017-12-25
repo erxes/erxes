@@ -322,6 +322,19 @@ class ActivityLog {
       performer,
     });
   }
+
+  /**
+   * Change customers activity log to another customer
+   * @param {String} newCustomerId - customer id to set
+   * @param {String} oldCustomerId - old customer to change
+   * @return {Promise} updated activity logs
+   */
+  static async changeCustomer(newCustomerId, oldCustomerId) {
+    return await this.updateMany(
+      { coc: { id: oldCustomerId, type: COC_CONTENT_TYPES.CUSTOMER } },
+      { $set: { coc: { id: newCustomerId, type: COC_CONTENT_TYPES.CUSTOMER } } },
+    );
+  }
 }
 
 ActivityLogSchema.loadClass(ActivityLog);
