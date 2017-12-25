@@ -166,6 +166,11 @@
     border: 1px solid #ccc;
     border-radius: 4px;
   }
+
+  a {
+    color: $main-color;
+    outline: 0;
+  }
 }
 
 .file-wrapper {
