@@ -65,6 +65,22 @@ class InternalNote {
 
     return internalNoteObj.remove();
   }
+
+  /**
+   * Change internal note to a new customer
+   * @param {String} newCustomerId customer id to set
+   * @param {String} oldCustomerId old customer id to chnge
+   * @return {Promise} updated internal notes
+   */
+  static async changeCustomer(newCustomerId, oldCustomerId) {
+    return await this.updateMany(
+      {
+        contentType: COC_CONTENT_TYPES.CUSTOMER,
+        contentTypeId: oldCustomerId,
+      },
+      { contentTypeId: newCustomerId },
+    );
+  }
 }
 
 InternalNoteSchema.loadClass(InternalNote);
