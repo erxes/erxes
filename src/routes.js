@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { BrowserRouter as Router } from 'react-router-dom';
 import AuthRoutes from './modules/auth/routes';
+import ChannelRoutes from './modules/channels/routes';
 import FieldsRoutes from './modules/fields/routes';
 import SegmentsRoutes from './modules/segments/routes';
 import CustomersRoutes from './modules/customers/routes';
@@ -24,6 +25,7 @@ const renderRoutes = currentUser => {
         <MainBar />
 
         <InboxRoutes />
+        <ChannelRoutes />
         <FieldsRoutes />
         <SegmentsRoutes />
         <CustomersRoutes />
