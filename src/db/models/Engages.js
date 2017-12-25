@@ -191,6 +191,24 @@ class Message {
 
     return this.findOne({ _id });
   }
+
+  /**
+   * Change engage messages customer to another customer
+   * @param {String} newCustomerId - customer id to change
+   * @param {String} oldCustomerId - customer id to set
+   * @return {Promise} updated engage messages
+   */
+  static async changeCustomer(newCustomerId, oldCustomerId) {
+    await this.updateMany(
+      { messengerReceivedCustomerIds: oldCustomerId },
+      { $set: { 'messengerReceivedCustomerIds.$': newCustomerId } },
+    );
+
+    return await this.updateMany(
+      { customerIds: oldCustomerId },
+      { $set: { 'customerIds.$': newCustomerId } },
+    );
+  }
 }
 
 EngageMessageSchema.loadClass(Message);
