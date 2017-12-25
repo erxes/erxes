@@ -6,7 +6,7 @@ import { ChannelForm } from '../components';
 
 const ChannelFormContainer = props => {
   const { object, integrationsQuery, usersQuery } = props;
-  console.log(object);
+
   if (usersQuery.loading || integrationsQuery.loading) {
     return <Spinner objective />;
   }

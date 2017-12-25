@@ -10,7 +10,6 @@ import {
 
 const propTypes = {
   integration: PropTypes.object.isRequired,
-  objects: PropTypes.PropTypes.array.isRequired,
   remove: PropTypes.func.isRequired,
   save: PropTypes.func.isRequired
 };

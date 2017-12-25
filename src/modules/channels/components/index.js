@@ -2,6 +2,6 @@ import ChannelForm from './ChannelForm';
 import ChannelList from './ChannelList';
 import Sidebar from './Sidebar';
 import Row from './Row';
-import AddIntegration from './AddIntegration';
+import RightActionBar from './RightActionBar';
 
-export { ChannelForm, ChannelList, Sidebar, Row, AddIntegration };
+export { ChannelForm, ChannelList, Sidebar, Row, RightActionBar };

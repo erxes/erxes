@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Table, Pagination } from 'modules/common/components';
+import { Table, Pagination, Button, Icon } from 'modules/common/components';
 import { Wrapper } from 'modules/layout/components';
-import { Sidebar, Row, AddIntegration } from '/';
+import { Sidebar, Row, RightActionBar } from '/';
 
 const propTypes = {
   objects: PropTypes.array.isRequired,
@@ -17,13 +17,12 @@ const propTypes = {
 
 class ChannelList extends Component {
   renderObjects() {
-    const { integrations, objects, remove, save, refetch } = this.props;
-    // console.log(save)
+    const { integrations, remove, save, refetch } = this.props;
+
     return integrations.map(integration =>
       this.renderRow({
         key: integration._id,
         integration,
-        objects,
         remove,
         refetch,
         save
@@ -39,6 +38,12 @@ class ChannelList extends Component {
     const { totalCount } = this.props;
     const breadcrumb = [{ title: `Channel` }];
 
+    const leftActionBar = (
+      <Button btnStyle="danger" size="small">
+        <Icon icon="close" /> Delete
+      </Button>
+    );
+
     const content = (
       <Table>
         <thead>
@@ -52,12 +57,14 @@ class ChannelList extends Component {
         <tbody>{this.renderObjects()}</tbody>
       </Table>
     );
-    // console.log(this.props)
+
     return (
       <Wrapper
         header={<Wrapper.Header breadcrumb={breadcrumb} />}
         leftSidebar={<Sidebar {...this.props} />}
-        actionBar={<Wrapper.ActionBar right={<AddIntegration />} />}
+        actionBar={
+          <Wrapper.ActionBar right={<RightActionBar />} left={leftActionBar} />
+        }
         footer={<Pagination count={totalCount} />}
         content={content}
       />

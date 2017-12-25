@@ -52,6 +52,7 @@ export default commonListComposer({
         integrations(channelId: $channelId) {
           _id
           name
+          kind
           brand {
             _id
             name

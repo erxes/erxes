@@ -1,11 +1,10 @@
 import React, { Component } from 'react';
-// import { Link } from 'react-router-dom';
-import { ModalTrigger } from 'modules/common/components';
+import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import { Wrapper } from 'modules/layout/components';
+import { Tip } from 'modules/common/components';
 import { SidebarList } from 'modules/layout/styles';
-import { ChannelForm } from '../containers';
-import { SidebarListli, Members, MemberImg } from '../styles';
+import { SidebarListli, Members, MemberImg, More } from '../styles';
 
 const propTypes = {
   objects: PropTypes.array.isRequired,
@@ -16,44 +15,47 @@ class Sidebar extends Component {
   constructor(props) {
     super(props);
 
-    this.renderMembers = this.renderMembers.bind(this);
-    this.generateMembersParams = this.generateMembersParams.bind(this);
-
     this.state = {
-      // selectedMembers: this.generateMembersParams(props.selectedMembers)
+      isMembervisible: true
     };
+
+    this.renderMember = this.renderMember.bind(this);
+    this.renderChannelName = this.renderChannelName.bind(this);
+    this.toggleMember = this.toggleMember.bind(this);
   }
 
-  renderForm(props) {
-    return <ChannelForm {...props} />;
-  }
-
-  generateMembersParams() {
-    const { members } = this.props;
-
-    return members.map(member => ({
-      value: member._id,
-      label: member.details.fullName || ''
-    }));
-  }
-
-  renderMembers(member) {
-    return (
-      <MemberImg
-        key={member._id}
-        src={(member.details && member.details.avatar) || []}
-      />
-    );
+  toggleMember() {
+    this.setState({ isMembervisible: !this.state.oisMembervisible });
   }
 
   renderChannelName(object) {
-    return <a href={`?id=${object._id}`}>{object.name}</a>;
+    return <Link to={`?id=${object._id}`}>{object.name}</Link>;
+  }
+
+  renderMember(member) {
+    return (
+      <Tip key={member._id} text={member.details.fullName} placement="top">
+        <MemberImg
+          key={member._id}
+          src={(member.details && member.details.avatar) || []}
+        />
+      </Tip>
+    );
   }
 
   render() {
     const { objects, members } = this.props;
     const { Title } = Wrapper.Sidebar.Section;
-    // console.log(this.state.selectedMembers);
+    const limit = 10;
+    const { isMembervisible } = this.state;
+    const length = members.length;
+
+    const Tooltip = (
+      <Tip placement="top" text="View more">
+        <More>{`+${length - limit}`}</More>
+      </Tip>
+    );
+
     return (
       <Wrapper.Sidebar>
         <Wrapper.Sidebar.Section>
@@ -62,8 +64,11 @@ class Sidebar extends Component {
             {objects.map(object => (
               <SidebarListli key={object._id}>
                 {this.renderChannelName(object)}
-                <Members>
-                  {members.map(member => this.renderMembers(member))}
+                <Members onClick={this.toggleMember}>
+                  {members
+                    .slice(0, limit && isMembervisible ? limit : length)
+                    .map(member => this.renderMember(member))}
+                  {limit && isMembervisible && length - limit > 0 && Tooltip}
                 </Members>
               </SidebarListli>
             ))}
