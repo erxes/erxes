@@ -25,7 +25,7 @@ class Sidebar extends Component {
   }
 
   toggleMember() {
-    this.setState({ isMembervisible: !this.state.oisMembervisible });
+    this.setState({ isMembervisible: !this.state.isMembervisible });
   }
 
   renderChannelName(object) {
