@@ -10,6 +10,7 @@ import {
   FormGroup
 } from 'modules/common/components';
 import { EngageBox } from '../styles';
+import Step1 from './step/Step1';
 
 const propTypes = {
   kind: PropTypes.string,
@@ -35,7 +36,7 @@ class FormBase extends Component {
   }
 
   componentDidMount() {
-    this.setState({ fromUser: document.getElementById('fromUserId').value });
+    //  this.setState({ fromUser: document.getElementById('fromUserId').value });
   }
 
   getMessage() {
@@ -185,8 +186,7 @@ class FormBase extends Component {
       <Wrapper
         header={<Wrapper.Header breadcrumb={breadcrumb} />}
         footer={actionFooter}
-        content={this.renderContent()}
-        leftSidebar={sidebar}
+        content={<Step1 />}
       />
     );
   }
