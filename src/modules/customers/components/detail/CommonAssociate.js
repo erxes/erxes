@@ -148,7 +148,7 @@ class CommonAssociate extends React.Component {
             <ModalTrigger title={`New ${title}`} trigger={addTrigger}>
               {form}
             </ModalTrigger>
-            <Button btnStyle="simple" onClick={this.context.closeModal()}>
+            <Button btnStyle="simple" onClick={() => this.context.closeModal()}>
               <Icon icon="close" />CANCEL
             </Button>
             <Button btnStyle="success" onClick={this.save}>
