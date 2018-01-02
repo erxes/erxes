@@ -38,6 +38,7 @@ class CompanyListContainer extends React.Component {
           Alert.error(e.message);
         });
     };
+    const searchValue = this.props.queryParams.searchValue || '';
 
     const updatedProps = {
       ...this.props,
@@ -50,6 +51,7 @@ class CompanyListContainer extends React.Component {
         bySegment: {},
         byTag: {}
       },
+      searchValue,
       companies: companiesQuery.companies || [],
       addCompany,
       loading: companiesQuery.loading
@@ -77,7 +79,8 @@ export default compose(
         perPage: queryParams.perPage || 20,
         segment: queryParams.segment,
         tag: queryParams.tag,
-        ids: queryParams.ids
+        ids: queryParams.ids,
+        searchValue: queryParams.searchValue
       },
       notifyOnNetworkStatusChange: true
     })
@@ -90,7 +93,8 @@ export default compose(
         perPage: queryParams.perPage || 20,
         segment: queryParams.segment,
         tag: queryParams.tag,
-        ids: queryParams.ids
+        ids: queryParams.ids,
+        searchValue: queryParams.searchValue
       },
       notifyOnNetworkStatusChange: true
     })
