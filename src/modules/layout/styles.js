@@ -80,6 +80,17 @@ const BarItems = styled.div`
   > * + * {
     margin-left: ${dimensions.unitSpacing}px;
   }
+
+  input[type='text'] {
+    width: 200px;
+    display: inline-block;
+    padding: 5px 16px;
+    border-radius: 30px;
+    font-size: 10px;
+    line-height: 1.5;
+    border: 1px solid #ddd;
+    height: unset;
+  }
 `;
 
 const HeaderItems = styled.div`

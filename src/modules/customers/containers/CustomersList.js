@@ -43,6 +43,7 @@ class CustomerListContainer extends Bulk {
           Alert.error(e.message);
         });
     };
+    const searchValue = this.props.queryParams.searchValue || '';
 
     const updatedProps = {
       ...this.props,
@@ -63,6 +64,7 @@ class CustomerListContainer extends Bulk {
       emptyBulk: this.emptyBulk,
       toggleBulk: this.toggleBulk,
       toggleAll: this.toggleAll,
+      searchValue,
       loading: customersQuery.loading,
       loadingTags: tagsQuery.loading,
       addCustomer
@@ -89,7 +91,8 @@ export default compose(
           perPage: queryParams.perPage || 20,
           segment: queryParams.segment,
           tag: queryParams.tag,
-          ids: queryParams.ids
+          ids: queryParams.ids,
+          searchValue: queryParams.searchValue
         },
         notifyOnNetworkStatusChange: true
       };
@@ -103,7 +106,8 @@ export default compose(
         perPage: queryParams.perPage || 20,
         tag: queryParams.tag,
         segment: queryParams.segment,
-        ids: queryParams.ids
+        ids: queryParams.ids,
+        searchValue: queryParams.searchValue
       },
       notifyOnNetworkStatusChange: true
     })

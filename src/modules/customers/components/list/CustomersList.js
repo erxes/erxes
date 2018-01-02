@@ -15,6 +15,7 @@ import {
   FormControl,
   ShowData
 } from 'modules/common/components';
+import { router } from 'modules/common/utils';
 import { BarItems } from 'modules/layout/styles';
 import { Widget } from 'modules/engage/containers';
 import Sidebar from './Sidebar';
@@ -36,6 +37,7 @@ const propTypes = {
   addCustomer: PropTypes.func.isRequired,
   history: PropTypes.object,
   loading: PropTypes.bool.isRequired,
+  searchValue: PropTypes.string.isRequired,
   loadingTags: PropTypes.bool.isRequired
 };
 
@@ -43,7 +45,12 @@ class CustomersList extends React.Component {
   constructor(props) {
     super(props);
 
+    this.state = {
+      searchValue: this.props.searchValue
+    };
+
     this.onChange = this.onChange.bind(this);
+    this.search = this.search.bind(this);
   }
 
   onChange() {
@@ -82,6 +89,17 @@ class CustomersList extends React.Component {
     );
   }
 
+  search(e) {
+    if (this.timer) clearTimeout(this.timer);
+    const { history } = this.props;
+    const searchValue = e.target.value;
+    this.setState({ searchValue });
+
+    this.timer = setTimeout(() => {
+      router.setParams(history, { searchValue });
+    }, 500);
+  }
+
   render() {
     const {
       counts,
@@ -102,6 +120,12 @@ class CustomersList extends React.Component {
     const editColumns = <a>Edit columns</a>;
     const actionBarRight = (
       <BarItems>
+        <FormControl
+          type="text"
+          placeholder="Type to search.."
+          onChange={e => this.search(e)}
+          value={this.state.searchValue}
+        />
         <Dropdown id="dropdown-engage" pullRight>
           <DropdownToggle bsRole="toggle">
             <Button btnStyle="simple" size="small">
