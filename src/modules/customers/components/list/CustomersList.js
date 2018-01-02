@@ -40,6 +40,12 @@ const propTypes = {
 };
 
 class CustomersList extends React.Component {
+  constructor(props) {
+    super(props);
+
+    this.onChange = this.onChange.bind(this);
+  }
+
   onChange() {
     const { toggleAll, customers } = this.props;
     toggleAll(customers, 'customers');
@@ -53,10 +59,7 @@ class CustomersList extends React.Component {
         <thead>
           <tr>
             <th>
-              <FormControl
-                componentClass="checkbox"
-                onChange={() => this.onChange()}
-              />
+              <FormControl componentClass="checkbox" onChange={this.onChange} />
             </th>
             {columnsConfig.map(({ name, label }) => (
               <th key={name}>{label}</th>
