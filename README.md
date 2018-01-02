@@ -15,7 +15,7 @@ The project is maintained by erxes Inc, along with an amazing group of independe
 ## Installation script
 
 ```Shell
-  curl https://raw.githubusercontent.com/erxes/erxes/redesign-ui/scripts/install.sh | sh
+  curl https://raw.githubusercontent.com/erxes/erxes/master/scripts/install.sh | sh
 ```
 
 ## Manual install
@@ -48,7 +48,7 @@ To start the app:
 yarn start
 ```
 
-App is running at [http://localhost:3000](http://localhost:3000). You can **login** using the credential in the `settings.json`.
+App is running at [http://localhost:3000](http://localhost:3000). You can **login** using the credential in the `.env.development`.
 
 **We haven't done yet:** We need to run [API](https://github.com/erxes/erxes-api) and  [Widgets](https://github.com/erxes/erxes-widgets) to make our erxes app fully functional. Please jump to their repositories.
 

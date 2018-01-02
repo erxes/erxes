@@ -10,7 +10,7 @@ import {
   Table,
   Button,
   Icon,
-  EmptyState
+  ShowData
 } from 'modules/common/components';
 import { MessageListRow, Sidebar as SidebarContainers } from '../containers';
 
@@ -21,7 +21,8 @@ const propTypes = {
   bulk: PropTypes.array.isRequired,
   refetch: PropTypes.func.isRequired,
   emptyBulk: PropTypes.func.isRequired,
-  toggleBulk: PropTypes.func.isRequired
+  toggleBulk: PropTypes.func.isRequired,
+  loading: PropTypes.bool.isRequired
 };
 
 class List extends React.Component {
@@ -58,7 +59,14 @@ class List extends React.Component {
   }
 
   render() {
-    const { messages, totalCount, tags, toggleBulk, refetch } = this.props;
+    const {
+      messages,
+      totalCount,
+      tags,
+      toggleBulk,
+      refetch,
+      loading
+    } = this.props;
 
     const actionBarRight = (
       <Dropdown id="dropdown-engage" pullRight>
@@ -87,10 +95,6 @@ class List extends React.Component {
 
     const actionBar = (
       <Wrapper.ActionBar left={this.renderTagger()} right={actionBarRight} />
-    );
-
-    const emptyContent = (
-      <EmptyState text="There is no engage message." size="full" icon="email" />
     );
 
     const mainContent = (
@@ -127,13 +131,6 @@ class List extends React.Component {
       </div>
     );
 
-    const content = () => {
-      if (messages.length === 0) {
-        return emptyContent;
-      }
-      return mainContent;
-    };
-
     const sidebar = (
       <Wrapper.Sidebar>
         <SidebarContainers.Main />
@@ -148,7 +145,15 @@ class List extends React.Component {
         leftSidebar={sidebar}
         actionBar={actionBar}
         footer={<Pagination count={totalCount} />}
-        content={content()}
+        content={
+          <ShowData
+            data={mainContent}
+            loading={loading}
+            count={messages.length}
+            emptyText="There is no engage message."
+            emptyIcon="email"
+          />
+        }
       />
     );
   }
