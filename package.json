@@ -54,13 +54,19 @@
     "strip": "^3.0.0",
     "styled-components": "^2.2.1",
     "subscriptions-transport-ws": "0.8.3",
-    "underscore": "^1.8.3"
+    "underscore": "^1.8.3",
+    "opencollective": "^1.0.3"
   },
   "lint-staged": {
     "src/**/*.{js,jsx,json,css}": [
       "prettier --single-quote --write",
       "git add"
     ]
+  },
+  "collective": {
+     "type": "opencollective",
+     "url": "https://opencollective.com/erxes",
+     "logo": "https://opencollective.com/opencollective/logo.txt"
   },
   "scripts": {
     "precommit": "lint-staged",
@@ -69,7 +75,8 @@
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject",
     "storybook": "start-storybook -p 9009 -s public",
-    "build-storybook": "build-storybook -s public"
+    "build-storybook": "build-storybook -s public",
+    "postinstall": "opencollective postinstall"
   },
   "devDependencies": {
     "@storybook/addon-actions": "^3.2.12",
