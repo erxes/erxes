@@ -81,6 +81,19 @@ class InternalNote {
       { contentTypeId: newCustomerId },
     );
   }
+
+  /**
+   * Removing customer internal notes
+   * @param {String} customerId - customer id to remove
+   * @return {Promise} updated internal notes
+   */
+  static async removeCustomerInternalNotes(customerId) {
+    // Removing customer internal notes
+    return await this.remove({
+      contentType: COC_CONTENT_TYPES.CUSTOMER,
+      contentTypeId: customerId,
+    });
+  }
 }
 
 InternalNoteSchema.loadClass(InternalNote);
