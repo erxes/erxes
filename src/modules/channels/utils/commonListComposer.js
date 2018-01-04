@@ -92,6 +92,7 @@ const commonListComposer = options => {
       integrations,
       selectedMembers,
       members,
+      loading: listQuery.loading,
       totalCount,
       save,
       remove

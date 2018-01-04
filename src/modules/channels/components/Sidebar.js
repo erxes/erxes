@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import { Wrapper } from 'modules/layout/components';
-import { Tip, Icon, ModalTrigger } from 'modules/common/components';
+import { Tip, Icon, ModalTrigger, Spinner } from 'modules/common/components';
 import { SidebarList } from 'modules/layout/styles';
 import {
   SidebarListli,
@@ -16,7 +16,8 @@ import { ChannelForm } from '../containers';
 const propTypes = {
   objects: PropTypes.array.isRequired,
   members: PropTypes.array.isRequired,
-  save: PropTypes.func.isRequired
+  save: PropTypes.func.isRequired,
+  loading: PropTypes.bool
 };
 
 class Sidebar extends Component {
@@ -57,7 +58,7 @@ class Sidebar extends Component {
   }
 
   render() {
-    const { objects, members, save } = this.props;
+    const { objects, members, save, loading } = this.props;
     const { Title } = Wrapper.Sidebar.Section;
     const limit = 10;
     const { isMembervisible } = this.state;
@@ -76,7 +77,7 @@ class Sidebar extends Component {
     );
 
     return (
-      <Wrapper.Sidebar>
+      <Wrapper.Sidebar full>
         <Wrapper.Sidebar.Section>
           <Title>Channels</Title>
           <ModalTrigger title="New Channel" trigger={AddChannel}>
@@ -96,6 +97,7 @@ class Sidebar extends Component {
             ))}
           </SidebarList>
         </Wrapper.Sidebar.Section>
+        {loading && <Spinner />}
       </Wrapper.Sidebar>
     );
   }

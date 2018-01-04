@@ -1,8 +1,14 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Table, Pagination, Button, Icon } from 'modules/common/components';
 import { Wrapper } from 'modules/layout/components';
 import { Sidebar, Row } from '/';
+import {
+  Table,
+  Pagination,
+  Button,
+  Icon,
+  ShowData
+} from 'modules/common/components';
 
 const propTypes = {
   objects: PropTypes.array.isRequired,
@@ -12,7 +18,8 @@ const propTypes = {
   remove: PropTypes.func.isRequired,
   save: PropTypes.func.isRequired,
   refetch: PropTypes.func.isRequired,
-  totalCount: PropTypes.number.isRequired
+  totalCount: PropTypes.number.isRequired,
+  loading: PropTypes.bool
 };
 
 class ChannelList extends Component {
@@ -35,7 +42,7 @@ class ChannelList extends Component {
   }
 
   render() {
-    const { totalCount } = this.props;
+    const { totalCount, loading } = this.props;
     const breadcrumb = [{ title: `Channels` }];
 
     const leftActionBar = (
@@ -72,7 +79,15 @@ class ChannelList extends Component {
           <Wrapper.ActionBar right={rightActionBar} left={leftActionBar} />
         }
         footer={<Pagination count={totalCount} />}
-        content={content}
+        content={
+          <ShowData
+            data={content}
+            loading={loading}
+            count={totalCount}
+            emptyText="There is no integration in this channel"
+            emptyIcon="email"
+          />
+        }
       />
     );
   }
