@@ -1,4 +1,11 @@
-import { Customers, ActivityLogs } from '../../../db/models';
+import {
+  Customers,
+  ActivityLogs,
+  ConversationMessages,
+  Conversations,
+  Engages,
+  InternalNotes,
+} from '../../../db/models';
 
 import { moduleRequireLogin } from '../../permissions';
 
@@ -47,6 +54,44 @@ const customerMutations = {
    */
   async customersEditCompanies(root, { _id, companyIds }) {
     return Customers.updateCompanies(_id, companyIds);
+  },
+
+  /**
+   * Merge customers
+   * @param {String} customerOneId - First customer to merge
+   * @param {String} customerTwoId - Second customer to merge
+   * @param {Object} newCustomer - Newly created customer infos
+   * @return {Promise} Customer object
+   */
+  async customersMerge(root, { customerOneId, customerTwoId, newCustomer }) {
+    const customer = await Customers.createCustomer(newCustomer);
+
+    await ActivityLogs.changeCustomer(customerOneId, customerTwoId);
+    await ConversationMessages.changeCustomer(customerOneId, customerTwoId);
+    await Conversations.changeCustomer(customerOneId, customerTwoId);
+    await Engages.changeCustomer(customerOneId, customerTwoId);
+    await InternalNotes.changeCustomer(customerOneId, customerTwoId);
+    await this.customersRemove([customerOneId, customerTwoId]);
+
+    return customer;
+  },
+
+  /**
+   * Remove customers
+   * @param {String[]} customerIds - First customer to merge
+   * @return {Promise} Customer object
+   */
+  async customersRemove(root, customerIds) {
+    for (let customerId of customerIds) {
+      await Customers.removeCustomer(customerId);
+      await ActivityLogs.removeCustomerActivityLog(customerId);
+      await ConversationMessages.removeCustomerConversationMessages(customerId);
+      await Conversations.removeCustomerConversations(customerId);
+      await Engages.removeCustomerEngages(customerId);
+      await InternalNotes.removeCustomerInternalNotes(customerId);
+    }
+
+    return customerIds;
   },
 };
 

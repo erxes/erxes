@@ -60,4 +60,6 @@ export const mutations = `
   customersEdit(_id: String!, ${fields}): Customer
   customersAddCompany(_id: String!, name: String!, website: String): Company
   customersEditCompanies(_id: String!, companyIds: [String]): Customer
+  customersMerge(customerOneId: String!, customerTwoId: String!, newCustomer: JSON): Customer
+  customersRemove(customerIds: [String]!): [String]
 `;
