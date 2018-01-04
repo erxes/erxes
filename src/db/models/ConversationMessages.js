@@ -228,6 +228,18 @@ class Message {
       { $set: { customerId: newCustomerId } },
     );
   }
+
+  /**
+   * Removing customer conversation messages
+   * @param {String} customerId - customer id to remove
+   * @return {Promise} updated conversation message
+   */
+  static async removeCustomerConversationMessages(customerId) {
+    // Removing customer conversation messages
+    return await this.remove({
+      customerId,
+    });
+  }
 }
 
 MessageSchema.loadClass(Message);
