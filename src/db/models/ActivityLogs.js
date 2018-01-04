@@ -335,6 +335,18 @@ class ActivityLog {
       { $set: { coc: { id: newCustomerId, type: COC_CONTENT_TYPES.CUSTOMER } } },
     );
   }
+
+  /**
+   * Removing customer activity logs
+   * @param {String} customerId - customer id to remove
+   * @return {Promise} updated activity logs
+   */
+  static async removeCustomerActivityLog(customerId) {
+    // Removing customer activity log
+    return await this.remove({
+      coc: { id: customerId, type: COC_CONTENT_TYPES.CUSTOMER },
+    });
+  }
 }
 
 ActivityLogSchema.loadClass(ActivityLog);
