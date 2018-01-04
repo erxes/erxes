@@ -210,6 +210,15 @@ class Customer {
 
     return this.findOne({ _id });
   }
+
+  /**
+   * Remove customer
+   * @param {String} customerId customer id to remove
+   * @return {Promise} updated customer object
+   */
+  static async removeCustomer(customerId) {
+    return await this.remove({ _id: customerId });
+  }
 }
 
 CustomerSchema.loadClass(Customer);
