@@ -32,7 +32,7 @@ const RespondBoxContainer = props => {
   const updatedProps = {
     ...props,
     sendMessage,
-    responseTemplates: responseTemplatesQuery.responseTemplates,
+    responseTemplates: responseTemplatesQuery.responseTemplates || [],
     teamMembers: fromJS(teamMembers)
   };
 

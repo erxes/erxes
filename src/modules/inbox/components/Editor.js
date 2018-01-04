@@ -52,13 +52,6 @@ const extractEntries = mention => {
   return _.object(keys, values);
 };
 
-const mentionPlugin = createMentionPlugin({
-  mentionPrefix: '@'
-});
-
-const { MentionSuggestions } = mentionPlugin;
-const plugins = [mentionPlugin];
-
 // response templates
 class TemplateList extends React.Component {
   normalizeIndex(selectedIndex, max) {
@@ -134,6 +127,10 @@ export default class Editor extends Component {
       suggestions: this.props.mentions.toArray(),
       templatesState: null
     };
+
+    this.mentionPlugin = createMentionPlugin({
+      mentionPrefix: '@'
+    });
 
     this.onChange = this.onChange.bind(this);
     this.keyBindingFn = this.keyBindingFn.bind(this);
@@ -355,6 +352,9 @@ export default class Editor extends Component {
   }
 
   render() {
+    const { MentionSuggestions } = this.mentionPlugin;
+    const plugins = [this.mentionPlugin];
+
     const pluginContent = (
       <MentionSuggestions
         onSearchChange={this.onSearchChange}
