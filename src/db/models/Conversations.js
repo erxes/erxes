@@ -355,6 +355,18 @@ class Conversation {
       { $set: { customerId: newCustomerId } },
     );
   }
+
+  /**
+   * Removing customer conversations
+   * @param {String} customerId - customer id to remove
+   * @return {Promise} updated conversations
+   */
+  static async removeCustomerConversations(customerId) {
+    // Removing customer conversations
+    return await this.remove({
+      customerId,
+    });
+  }
 }
 
 ConversationSchema.loadClass(Conversation);
