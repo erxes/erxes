@@ -21,6 +21,7 @@ import { Widget } from 'modules/engage/containers';
 import Sidebar from './Sidebar';
 import CustomerRow from './CustomerRow';
 import { CustomerForm } from '../';
+import { CustomerMerge } from '../../containers';
 import { ManageColumns } from 'modules/fields/containers';
 
 const propTypes = {
@@ -167,6 +168,23 @@ class CustomersList extends React.Component {
             targets={bulk}
             trigger={tagButton}
           />
+          <Dropdown id="dropdown-options" pullRight>
+            <DropdownToggle bsRole="toggle">
+              <Button btnStyle="simple" size="small">
+                More <Icon icon="ios-arrow-down" />
+              </Button>
+            </DropdownToggle>
+            <Dropdown.Menu>
+              <li>
+                <ModalTrigger title="Merge Customers" trigger={<a>Merge</a>}>
+                  <CustomerMerge datas={bulk} />
+                </ModalTrigger>
+              </li>
+              <li>
+                <a>Remove</a>
+              </li>
+            </Dropdown.Menu>
+          </Dropdown>
         </BarItems>
       );
     }
