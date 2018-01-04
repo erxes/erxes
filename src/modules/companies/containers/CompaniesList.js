@@ -51,7 +51,8 @@ class CompanyListContainer extends React.Component {
         byTag: {}
       },
       companies: companiesQuery.companies || [],
-      addCompany
+      addCompany,
+      loading: companiesQuery.loading
     };
 
     return <CompaniesList {...updatedProps} />;
@@ -63,7 +64,8 @@ CompanyListContainer.propTypes = {
   companiesQuery: PropTypes.object,
   companyCountsQuery: PropTypes.object,
   companiesListConfigQuery: PropTypes.object,
-  companiesAdd: PropTypes.func
+  companiesAdd: PropTypes.func,
+  loading: PropTypes.bool
 };
 
 export default compose(

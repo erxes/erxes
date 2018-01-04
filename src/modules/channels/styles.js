@@ -27,6 +27,12 @@ const More = MemberImg.withComponent('span').extend`
   cursor: pointer;
 `;
 
+const RightButton = styled.div`
+  position: absolute;
+  right: 20px;
+  top: 16px;
+`;
+
 const SearchField = styled.div`
   display: inline-block;
   margin-right: 10px;
@@ -38,4 +44,4 @@ const SearchField = styled.div`
   }
 `;
 
-export { SidebarListli, MemberImg, Members, More, SearchField };
+export { SidebarListli, MemberImg, Members, More, SearchField, RightButton };

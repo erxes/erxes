@@ -6,8 +6,8 @@ import {
   ModalTrigger,
   Button,
   Table,
-  EmptyState,
-  Icon
+  Icon,
+  ShowData
 } from 'modules/common/components';
 import { withRouter } from 'react-router';
 import { BarItems } from 'modules/layout/styles';
@@ -21,7 +21,8 @@ const propTypes = {
   counts: PropTypes.object.isRequired,
   columnsConfig: PropTypes.array.isRequired,
   addCompany: PropTypes.func.isRequired,
-  history: PropTypes.object
+  history: PropTypes.object,
+  loading: PropTypes.bool.isRequired
 };
 
 function CompaniesList({
@@ -29,7 +30,8 @@ function CompaniesList({
   counts,
   columnsConfig,
   addCompany,
-  history
+  history,
+  loading
 }) {
   const mainContent = (
     <div>
@@ -54,17 +56,6 @@ function CompaniesList({
       </Table>
     </div>
   );
-
-  const emptyContent = (
-    <EmptyState text="No companies added yet!" size="full" icon="ios-list" />
-  );
-
-  const content = () => {
-    if (companies.length === 0) {
-      return emptyContent;
-    }
-    return mainContent;
-  };
 
   const addTrigger = (
     <Button btnStyle="success" size="small">
@@ -98,7 +89,15 @@ function CompaniesList({
       actionBar={actionBar}
       footer={<Pagination count={counts.all} />}
       leftSidebar={<Sidebar counts={counts} />}
-      content={content()}
+      content={
+        <ShowData
+          data={mainContent}
+          loading={loading}
+          count={companies.length}
+          emptyText="No companies added yet!"
+          emptyIcon="ios-list"
+        />
+      }
     />
   );
 }

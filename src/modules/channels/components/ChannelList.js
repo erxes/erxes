@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Table, Pagination, Button, Icon } from 'modules/common/components';
 import { Wrapper } from 'modules/layout/components';
-import { Sidebar, Row, RightActionBar } from '/';
+import { Sidebar, Row } from '/';
 
 const propTypes = {
   objects: PropTypes.array.isRequired,
@@ -36,11 +36,17 @@ class ChannelList extends Component {
 
   render() {
     const { totalCount } = this.props;
-    const breadcrumb = [{ title: `Channel` }];
+    const breadcrumb = [{ title: `Channels` }];
 
     const leftActionBar = (
       <Button btnStyle="danger" size="small">
         <Icon icon="close" /> Delete
+      </Button>
+    );
+
+    const rightActionBar = (
+      <Button btnStyle="success" size="small">
+        <Icon icon="plus" /> Add integration
       </Button>
     );
 
@@ -63,7 +69,7 @@ class ChannelList extends Component {
         header={<Wrapper.Header breadcrumb={breadcrumb} />}
         leftSidebar={<Sidebar {...this.props} />}
         actionBar={
-          <Wrapper.ActionBar right={<RightActionBar />} left={leftActionBar} />
+          <Wrapper.ActionBar right={rightActionBar} left={leftActionBar} />
         }
         footer={<Pagination count={totalCount} />}
         content={content}

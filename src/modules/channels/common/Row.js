@@ -1,5 +1,7 @@
 import React, { Component } from 'react';
+import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
+import { Alert, confirm } from 'modules/common/utils';
 import {
   ModalTrigger,
   Tip,
@@ -7,11 +9,14 @@ import {
   Icon,
   ActionButtons
 } from 'modules/common/components';
+import { KIND_CHOICES } from 'modules/settings/integrations/constants';
+import { Form, Messenger } from '../integrations/containers';
 
 const propTypes = {
   integration: PropTypes.object.isRequired,
   remove: PropTypes.func.isRequired,
-  save: PropTypes.func.isRequired
+  save: PropTypes.func.isRequired,
+  refetch: PropTypes.func.isRequired
 };
 
 class Row extends Component {
@@ -19,26 +24,25 @@ class Row extends Component {
     super(props);
 
     this.remove = this.remove.bind(this);
-    this.renderRemoveAction = this.renderRemoveAction.bind(this);
-    this.renderEditAction = this.renderEditAction.bind(this);
   }
 
   remove() {
-    this.props.remove(this.props.integration._id);
+    confirm().then(() => {
+      const { integration, remove } = this.props;
+
+      remove(integration._id, error => {
+        if (error) {
+          return Alert.error(error.reason);
+        }
+
+        return Alert.success('Congrats');
+      });
+    });
   }
 
-  renderRemoveAction() {
-    return (
-      <Tip text="Delete">
-        <Button btnStyle="link" onClick={this.remove}>
-          <Icon icon="close" />
-        </Button>
-      </Tip>
-    );
-  }
-
-  renderEditAction() {
-    const { integration, save } = this.props;
+  renderExtraLinks() {
+    const { integration, refetch } = this.props;
+    const kind = integration.kind;
 
     const editTrigger = (
       <Button btnStyle="link">
@@ -48,19 +52,53 @@ class Row extends Component {
       </Button>
     );
 
-    return (
-      <ModalTrigger size={this.size} title="Edit" trigger={editTrigger}>
-        {this.renderForm({ integration, save })}
-      </ModalTrigger>
-    );
+    if (kind === KIND_CHOICES.MESSENGER) {
+      return (
+        <ActionButtons>
+          <Tip text="Appearance">
+            <Link to={`/channels/messenger/appearance/${integration._id}`}>
+              <Button btnStyle="link">
+                <Icon icon="paintbucket" />
+              </Button>
+            </Link>
+          </Tip>
+
+          <Tip text="Hours, Availability & Other configs">
+            <Link to={`/channels/messenger/configs/${integration._id}`}>
+              <Button btnStyle="link">
+                <Icon icon="gear-a" />
+              </Button>
+            </Link>
+          </Tip>
+
+          <ModalTrigger title="Edit integration" trigger={editTrigger}>
+            <Messenger integration={integration} refetch={refetch} />
+          </ModalTrigger>
+        </ActionButtons>
+      );
+    }
+
+    if (kind === KIND_CHOICES.FORM) {
+      return (
+        <ModalTrigger title="Edit integration" trigger={editTrigger}>
+          <Form integration={integration} refetch={refetch} />
+        </ModalTrigger>
+      );
+    }
+
+    return null;
   }
 
   renderActions() {
     return (
       <td>
         <ActionButtons>
-          {this.renderEditAction()}
-          {this.renderRemoveAction()}
+          {this.renderExtraLinks()}
+          <Tip text="Delete">
+            <Button btnStyle="link" onClick={this.remove}>
+              <Icon icon="close" />
+            </Button>
+          </Tip>
         </ActionButtons>
       </td>
     );

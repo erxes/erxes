@@ -25,7 +25,6 @@ class ChannelForm extends CommonForm {
       ),
       selectedMembers: this.generateMembersParams(props.selectedMembers)
     };
-    console.log(props.selectedMembers);
   }
 
   collectValues(items) {

@@ -56,17 +56,17 @@ class CompanyForm extends React.Component {
           <FormControl id="company-website" type="text" required />
         </FormGroup>
 
-        <Button
-          btnStyle="simple"
-          onClick={() => {
-            this.context.closeModal();
-          }}
-        >
-          <Icon icon="close" />
-          Close
-        </Button>
-
         <Modal.Footer>
+          <Button
+            btnStyle="simple"
+            onClick={() => {
+              this.context.closeModal();
+            }}
+          >
+            <Icon icon="close" />
+            Close
+          </Button>
+
           <Button btnStyle="success" type="submit">
             <Icon icon="checkmark" />
             Save & New
