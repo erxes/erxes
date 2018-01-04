@@ -209,6 +209,20 @@ class Message {
       { $set: { 'customerIds.$': newCustomerId } },
     );
   }
+
+  /**
+   * Removing customer Engages
+   * @param {String} customerId - customer id to remove
+   * @return {Promise} updated internal notes
+   */
+  static async removeCustomerEngages(customerId) {
+    // Removing customer engages
+    await this.remove({ messengerReceivedCustomerIds: customerId });
+
+    return await this.remove({
+      customerIds: customerId,
+    });
+  }
 }
 
 EngageMessageSchema.loadClass(Message);
