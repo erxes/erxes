@@ -194,17 +194,15 @@ export default class Editor extends Component {
     }
 
     // search from response templates
-    const foundTemplates = responseTemplates.filter((template, index) => {
-      return (
-        index <= 4 &&
-        (template.name.toLowerCase().includes(textContent) ||
-          template.content.toLowerCase().includes(textContent))
-      );
-    });
+    const foundTemplates = responseTemplates.filter(
+      template =>
+        template.name.toLowerCase().includes(textContent) ||
+        template.content.toLowerCase().includes(textContent)
+    );
 
     if (foundTemplates.length > 0) {
       return {
-        templates: foundTemplates,
+        templates: foundTemplates.slice(0, 5),
         searchText: textContent,
         selectedIndex: 0
       };
