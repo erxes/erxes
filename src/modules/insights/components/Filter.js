@@ -45,7 +45,7 @@ class Filter extends React.Component {
 
   onDateInputChange(type, date) {
     this.setState({ [type]: date });
-    const formatDate = date ? moment(date).format('YYYY-MM-DD') : null;
+    const formatDate = date ? moment(date).format('YYYY-MM-DD HH:mm') : null;
     router.setParams(this.props.history, { [type]: formatDate });
   }
 
@@ -104,6 +104,10 @@ class Filter extends React.Component {
               selected={this.state.startDate}
               className="form-control"
               placeholderText="Click to select a date"
+              showTimeSelect
+              timeFormat="HH:mm"
+              dateFormat="YYYY/MM/DD HH:mm"
+              timeIntervals={15}
               onChange={this.onDateInputChange.bind(this, 'startDate')}
             />
           </FlexItem>
@@ -113,6 +117,10 @@ class Filter extends React.Component {
               selected={this.state.endDate}
               className="form-control"
               placeholderText="Click to select a date"
+              showTimeSelect
+              timeFormat="HH:mm"
+              dateFormat="YYYY/MM/DD HH:mm"
+              timeIntervals={15}
               onChange={this.onDateInputChange.bind(this, 'endDate')}
             />
           </FlexItem>

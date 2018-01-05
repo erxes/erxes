@@ -491,6 +491,10 @@ injectGlobal`
     margin: 3px;
   }
 
+  .react-datepicker ul.react-datepicker__time-list {
+    padding: 0px!important;
+  }
+
   /* editor */
   .RichEditor-editor .public-DraftEditor-content ul {
     padding-left: 25px;
