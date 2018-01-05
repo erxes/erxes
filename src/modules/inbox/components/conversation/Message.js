@@ -121,6 +121,8 @@ function Message({ message, staff, isSameUser, scrollBottom }) {
 
     const messageDate = message.createdAt;
 
+    console.log(message);
+
     return (
       <MessageItem staff={staff} className={classes}>
         {renderAvatar()}

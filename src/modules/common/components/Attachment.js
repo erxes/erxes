@@ -26,6 +26,10 @@ const Overlay = styled.div`
     border: 1px solid #fff;
     margin-left: -15px;
     margin-top: -15px;
+
+    i {
+      margin: 0;
+    }
   }
 `;
 
@@ -94,9 +98,7 @@ class Attachment extends Component {
   }
 
   renderAtachment({ attachment }) {
-    // when facebook attachments, it is not possible to determine file type
-    // from extension, so determine it by type property
-    if (attachment.type === 'image/jpeg' || attachment.type === 'image/png') {
+    if (attachment.type.startsWith('image')) {
       return (
         <img
           onLoad={this.onLoadImage}
