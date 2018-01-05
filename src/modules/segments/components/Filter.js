@@ -67,7 +67,7 @@ function Segments({ history, contentType, counts, segments, loading }) {
 
   return (
     <Section>
-      <Header>Filter by segments</Header>
+      <Header spaceBottom>Filter by segments</Header>
 
       <Section.QuickButtons>
         <Dropdown
