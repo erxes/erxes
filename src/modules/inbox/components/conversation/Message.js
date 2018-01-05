@@ -32,7 +32,6 @@ function Message({ message, staff, isSameUser, scrollBottom }) {
   const prop = staff ? { user } : { customer };
 
   const renderAvatar = () => {
-    console.log(customer);
     if (!isSameUser) {
       return <NameCard.Avatar {...prop} />;
     }
