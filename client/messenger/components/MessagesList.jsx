@@ -12,6 +12,7 @@ const propTypes = {
 class MessagesList extends Component {
   componentDidMount() {
     this.node.scrollTop = this.node.scrollHeight;
+    this.makeClickableLink();
   }
 
   componentWillUpdate() {
@@ -22,6 +23,14 @@ class MessagesList extends Component {
   componentDidUpdate() {
     if (this.shouldScrollBottom) {
       this.node.scrollTop = this.node.scrollHeight;
+    }
+    this.makeClickableLink();
+  }
+
+  makeClickableLink() {
+    const links = document.querySelectorAll('#erxes-messages a');
+    for(const node of links) {
+      node.target = '_blank';
     }
   }
 
@@ -60,6 +69,7 @@ class MessagesList extends Component {
 
     return (
       <ul
+        id="erxes-messages"
         className={messagesClasses}
         ref={(node) => { this.node = node; }}
       >
