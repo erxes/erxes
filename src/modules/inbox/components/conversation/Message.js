@@ -32,6 +32,7 @@ function Message({ message, staff, isSameUser, scrollBottom }) {
   const prop = staff ? { user } : { customer };
 
   const renderAvatar = () => {
+    console.log(customer);
     if (!isSameUser) {
       return <NameCard.Avatar {...prop} />;
     }
@@ -120,8 +121,6 @@ function Message({ message, staff, isSameUser, scrollBottom }) {
     }
 
     const messageDate = message.createdAt;
-
-    console.log(message);
 
     return (
       <MessageItem staff={staff} className={classes}>
