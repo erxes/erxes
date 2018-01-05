@@ -103,6 +103,7 @@ const SideContent = styled.section`
 const SidebarHeader = styled.div`
   background-color: ${colors.bgLight};
   height: ${dimensions.headerSpacing}px;
+  margin-bottom: ${props => props.spaceBottom && '10px'};
   align-items: center;
   padding: 0 ${dimensions.coreSpacing}px 0 ${dimensions.coreSpacing}px;
   border-bottom: 1px solid ${colors.borderPrimary};
