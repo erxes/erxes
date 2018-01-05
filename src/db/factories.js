@@ -154,8 +154,8 @@ export const companyFactory = (params = {}) => {
   const company = new Companies({
     name: params.name || faker.random.word(),
     size: params.size || faker.random.number(),
-    industry: params.industry || Random.id(),
-    website: params.website || Random.id(),
+    industry: params.industry || faker.company.bs(),
+    website: params.website || faker.internet.domainName(),
   });
 
   return company.save();
@@ -165,7 +165,7 @@ export const customerFactory = (params = {}) => {
   const customer = new Customers({
     name: params.name || faker.random.word(),
     email: params.email || faker.internet.email(),
-    phone: params.phone || faker.random.word(),
+    phone: params.phone || faker.phone.phoneNumber(),
     messengerData: params.messengerData || {},
     customFieldsData: params.customFieldsData || {},
     companyIds: params.companyIds || [],

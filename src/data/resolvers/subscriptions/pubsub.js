@@ -9,7 +9,7 @@ const redisConnectionListener = error => {
 // Docs on the different redis options
 // https://github.com/NodeRedis/node_redis#options-object-properties
 const redisOptions = {
-  host: 'localhost',
+  host: process.env.REDIS_HOST || 'localhost',
   port: 6379,
   connect_timeout: 15000,
   enable_offline_queue: true,
