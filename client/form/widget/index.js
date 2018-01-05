@@ -96,9 +96,11 @@ const formSettings = window.erxesSettings.forms || [];
 // create iframes and save with index
 const iframesMapping = {};
 
-formSettings.forEach((formSetting) => {
-  formSetting.browserInfo = getBrowserInfo();
-  iframesMapping[JSON.stringify(formSetting)] = createIframe(formSetting);
+getBrowserInfo().then((browserInfo) => {
+  formSettings.forEach((formSetting) => {
+    formSetting.browserInfo = browserInfo;
+    iframesMapping[JSON.stringify(formSetting)] = createIframe(formSetting);
+  });
 });
 
 // listen for messages from widget

@@ -81,14 +81,16 @@ document.body.appendChild(erxesContainer);
 iframe = document.querySelector(`#${iframeId}`);
 
 // after iframe load send connection info
-iframe.onload = () => {
+iframe.onload = async () => {
   iframe.style.display = 'block';
+
+  const browserInfo = await getBrowserInfo();
 
   iframe.contentWindow.postMessage({
     fromPublisher: true,
     setting: {
       ...window.erxesSettings.messenger,
-      browserInfo: getBrowserInfo(),
+      browserInfo,
     }
   }, '*');
 };
