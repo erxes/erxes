@@ -1,10 +1,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import Select from 'react-select-plus';
-import { ControlLabel } from 'modules/common/components';
-import DatePicker from 'react-datepicker';
+import Datetime from 'react-datetime';
 import moment from 'moment';
 import { integrationOptions, selectOptions } from '../utils';
+import { ControlLabel } from 'modules/common/components';
 import { KIND_CHOICES as INTEGRATIONS_TYPES } from 'modules/settings/integrations/constants';
 import { FlexRow, FlexItem, InsightFilter, InsightTitle } from '../styles';
 import { router } from 'modules/common/utils';
@@ -27,7 +27,8 @@ class Filter extends React.Component {
         : '',
       endDate: props.queryParams.endDate
         ? moment(props.queryParams.endDate)
-        : ''
+        : '',
+      isChange: false
     };
   }
 
@@ -44,9 +45,14 @@ class Filter extends React.Component {
   }
 
   onDateInputChange(type, date) {
-    this.setState({ [type]: date });
-    const formatDate = date ? moment(date).format('YYYY-MM-DD HH:mm') : null;
-    router.setParams(this.props.history, { [type]: formatDate });
+    this.setState({ [type]: date, isChange: true });
+  }
+
+  onFilterByDate(type, date) {
+    if (this.state.isChange) {
+      const formatDate = date ? moment(date).format('YYYY-MM-DD HH:mm') : null;
+      router.setParams(this.props.history, { [type]: formatDate });
+    }
   }
 
   renderIntegrations() {
@@ -92,6 +98,12 @@ class Filter extends React.Component {
   }
 
   render() {
+    const props = {
+      inputProps: { placeholder: 'Click to select a date' },
+      timeFormat: 'HH:mm',
+      dateFormat: 'YYYY/MM/DD'
+    };
+
     return (
       <InsightFilter>
         <InsightTitle>Filter</InsightTitle>
@@ -100,27 +112,19 @@ class Filter extends React.Component {
           {this.renderBrands()}
           <FlexItem>
             <ControlLabel>Start date</ControlLabel>
-            <DatePicker
-              selected={this.state.startDate}
-              className="form-control"
-              placeholderText="Click to select a date"
-              showTimeSelect
-              timeFormat="HH:mm"
-              dateFormat="YYYY/MM/DD HH:mm"
-              timeIntervals={15}
+            <Datetime
+              {...props}
+              value={this.state.startDate}
+              onBlur={this.onFilterByDate.bind(this, 'startDate')}
               onChange={this.onDateInputChange.bind(this, 'startDate')}
             />
           </FlexItem>
           <FlexItem>
             <ControlLabel>End date</ControlLabel>
-            <DatePicker
-              selected={this.state.endDate}
-              className="form-control"
-              placeholderText="Click to select a date"
-              showTimeSelect
-              timeFormat="HH:mm"
-              dateFormat="YYYY/MM/DD HH:mm"
-              timeIntervals={15}
+            <Datetime
+              {...props}
+              value={this.state.endDate}
+              onBlur={this.onFilterByDate.bind(this, 'endDate')}
               onChange={this.onDateInputChange.bind(this, 'endDate')}
             />
           </FlexItem>
