@@ -184,12 +184,12 @@ class Inbox extends Component {
         actionBar={actionBar}
         content={content}
         footer={
-          currentConversation._id ? (
+          currentConversation._id && (
             <RespondBox
               conversation={currentConversation}
               setAttachmentPreview={this.setAttachmentPreview}
             />
-          ) : null
+          )
         }
         leftSidebar={
           <LeftSidebar
