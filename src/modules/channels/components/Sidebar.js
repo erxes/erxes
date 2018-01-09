@@ -1,24 +1,55 @@
-import React from 'react';
-import { List } from '../common';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import { Wrapper } from 'modules/layout/components';
-import { Icon, ModalTrigger, Spinner } from 'modules/common/components';
-import { NameList } from './';
+import { ChannelList } from './';
 import { SidebarList } from 'modules/layout/styles';
 import { RightButton } from '../styles';
 import { ChannelForm } from '../containers';
+import { Icon, ModalTrigger, Spinner } from 'modules/common/components';
 
-class Sidebar extends List {
+const propTypes = {
+  channels: PropTypes.array.isRequired,
+  members: PropTypes.array.isRequired,
+  remove: PropTypes.func.isRequired,
+  save: PropTypes.func.isRequired,
+  refetch: PropTypes.func.isRequired,
+  loading: PropTypes.bool.isRequired
+};
+
+class Sidebar extends Component {
+  constructor(props) {
+    super(props);
+
+    this.renderObjects = this.renderObjects.bind(this);
+  }
+
   renderChannelName(props) {
-    return <NameList {...props} />;
+    return <ChannelList {...props} />;
+  }
+
+  renderObjects() {
+    const { channels, members, remove, save, refetch } = this.props;
+
+    return channels.map(channel =>
+      this.renderChannelName({
+        key: channel._id,
+        channel,
+        members,
+        remove,
+        refetch,
+        save
+      })
+    );
   }
 
   renderForm(props) {
     return <ChannelForm {...props} />;
   }
 
-  renderContent() {
-    const { save, loading } = this.props;
+  render() {
+    const { loading, save } = this.props;
     const { Title } = Wrapper.Sidebar.Section;
+
     const AddChannel = (
       <RightButton>
         <Icon icon="plus" />
@@ -43,5 +74,7 @@ class Sidebar extends List {
     return [{ title: 'Channels' }];
   }
 }
+
+Sidebar.propTypes = propTypes;
 
 export default Sidebar;

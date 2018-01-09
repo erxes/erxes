@@ -5,30 +5,24 @@ import { Spinner } from 'modules/common/components';
 import { ChannelForm } from '../components';
 
 const ChannelFormContainer = props => {
-  const { object, integrationsQuery, usersQuery } = props;
+  const { channel, save, usersQuery } = props;
 
-  if (usersQuery.loading || integrationsQuery.loading) {
+  if (usersQuery.loading) {
     return <Spinner objective />;
   }
 
-  const integrations = integrationsQuery.integrations || [];
   const members = usersQuery.users || [];
-
-  let selectedIntegrations = [];
   let selectedMembers = [];
 
-  if (object) {
-    selectedIntegrations = integrations.filter(integ =>
-      object.integrationIds.includes(integ._id)
-    );
-    selectedMembers = members.filter(u => object.memberIds.includes(u._id));
+  if (channel) {
+    selectedMembers = members.filter(u => channel.memberIds.includes(u._id));
   }
 
   const updatedProps = {
     ...props,
-    integrations,
+    channel,
     members,
-    selectedIntegrations,
+    save,
     selectedMembers
   };
 
@@ -36,36 +30,12 @@ const ChannelFormContainer = props => {
 };
 
 ChannelFormContainer.propTypes = {
-  object: PropTypes.object,
-  integrationsQuery: PropTypes.object,
+  channel: PropTypes.object,
+  save: PropTypes.func,
   usersQuery: PropTypes.object
 };
 
 export default compose(
-  graphql(
-    gql`
-      query integrations {
-        integrations {
-          _id
-          name
-          brand {
-            _id
-            name
-          }
-          channels {
-            _id
-            name
-          }
-        }
-      }
-    `,
-    {
-      name: 'integrationsQuery',
-      options: () => ({
-        fetchPolicy: 'network-only'
-      })
-    }
-  ),
   graphql(
     gql`
       query users {

@@ -1,12 +1,25 @@
 import styled from 'styled-components';
-import { colors } from '../common/styles';
+import { colors, dimensions } from '../common/styles';
 
 const SidebarListli = styled.li`
   border-top: 1px solid ${colors.borderPrimary};
+  padding: ${dimensions.unitSpacing}px;
+  transition: all ease 0.3s;
+
+  a {
+    &:hover {
+      background: none;
+    }
+  }
+
+  &:hover {
+    background: ${colors.bgLight};
+    cursor: pointer;
+  }
 `;
 
 const Members = styled.div`
-  padding: 0 20px 6px;
+  padding: 5px 0 0 17px;
 `;
 
 const MemberImg = styled.img`
@@ -20,7 +33,7 @@ const More = MemberImg.withComponent('span').extend`
   color: ${colors.colorWhite};
   text-align: center;
   vertical-align: middle;
-  font-size: 10px;
+  font-size: ${dimensions.unitSpacing}px;
   background: ${colors.colorCoreLightGray};
   display: inline-block;
   line-height: 28px;
@@ -33,15 +46,73 @@ const RightButton = styled.div`
   top: 16px;
 `;
 
-const SearchField = styled.div`
-  display: inline-block;
-  margin-right: 10px;
+const ManageActions = styled.div`
+  margin-top: ${dimensions.unitSpacing}px;
+  margin-right: ${dimensions.unitSpacing}px;
+`;
 
-  input {
-    padding: 5px 16px;
-    height: auto;
-    font-size: 10px;
+const ActionButtons = styled.div`
+  display: flex;
+  align-items: center;
+
+  * {
+    padding: 0;
+    margin-left: 10px;
+
+    &:first-child {
+      margin-left: 0;
+    }
   }
 `;
 
-export { SidebarListli, MemberImg, Members, More, SearchField, RightButton };
+const Row = styled.div`
+  flex: 1;
+  display: flex;
+  flex-direction: row;
+  transition: all ease 0.3s;
+
+  &:hover {
+    ${ManageActions} {
+      width: 43px;
+      padding-left: ${dimensions.unitSpacing - 5}px;
+      align-items: center;
+      display: flex;
+    }
+  }
+
+  ${ManageActions} {
+    width: 0;
+    padding-left: ${dimensions.unitSpacing - 5}px;
+    overflow: hidden;
+    display: flex;
+    transition: all ease 0.3s;
+
+    > label {
+      margin-top: ${dimensions.unitSpacing}px;
+    }
+  }
+
+  > div {
+    margin: 0;
+  }
+`;
+
+const RowContent = styled.div`
+  flex: 1;
+
+  > a {
+    padding: 0 ${dimensions.unitSpacing}px;
+  }
+`;
+
+export {
+  SidebarListli,
+  MemberImg,
+  Members,
+  More,
+  RightButton,
+  ActionButtons,
+  ManageActions,
+  Row,
+  RowContent
+};

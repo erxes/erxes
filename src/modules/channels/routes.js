@@ -1,12 +1,12 @@
 import React from 'react';
 import { Route } from 'react-router-dom';
 import queryString from 'query-string';
-import { ChannelList } from './containers';
+import { IntegrationList } from './containers';
 import {
   Twitter,
   MessengerAppearance,
   MessengerConfigs
-} from './integrations/containers';
+} from 'modules/settings/integrations/containers';
 
 const routes = () => [
   <Route
@@ -54,7 +54,9 @@ const routes = () => [
     exact
     path="/channels"
     component={({ location }) => {
-      return <ChannelList queryParams={queryString.parse(location.search)} />;
+      return (
+        <IntegrationList queryParams={queryString.parse(location.search)} />
+      );
     }}
   />
 ];

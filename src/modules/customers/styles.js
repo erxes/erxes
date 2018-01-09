@@ -15,11 +15,6 @@ const InputsWrapper = styled.div`
   padding-right: 10px;
   border-right: 1px solid #ddd;
 
-  input {
-    position: fixed;
-    width: 55%;
-  }
-
   ul {
     margin-top: 10px;
     padding-left: 10px !important;

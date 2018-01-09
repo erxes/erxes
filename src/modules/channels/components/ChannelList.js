@@ -1,94 +1,129 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Wrapper } from 'modules/layout/components';
-import { Sidebar, Row } from '/';
+import { Link } from 'react-router-dom';
+import { ChannelForm } from '../containers';
+import { ModalTrigger, Tip, Button, Icon } from 'modules/common/components';
 import {
-  Table,
-  Pagination,
-  Button,
-  Icon,
-  ShowData
-} from 'modules/common/components';
+  SidebarListli,
+  ManageActions,
+  Members,
+  MemberImg,
+  More,
+  Row,
+  RowContent,
+  ActionButtons
+} from '../styles';
 
 const propTypes = {
-  objects: PropTypes.array.isRequired,
-  integrations: PropTypes.array.isRequired,
+  channel: PropTypes.object.isRequired,
   members: PropTypes.array.isRequired,
-  selectedMembers: PropTypes.array.isRequired,
   remove: PropTypes.func.isRequired,
-  save: PropTypes.func.isRequired,
-  refetch: PropTypes.func.isRequired,
-  totalCount: PropTypes.number.isRequired,
-  loading: PropTypes.bool
+  save: PropTypes.func.isRequired
 };
 
 class ChannelList extends Component {
-  renderObjects() {
-    const { integrations, remove, save, refetch } = this.props;
+  constructor(props) {
+    super(props);
 
-    return integrations.map(integration =>
-      this.renderRow({
-        key: integration._id,
-        integration,
-        remove,
-        refetch,
-        save
-      })
+    this.state = {
+      isMembervisible: true
+    };
+    this.renderEditForm = this.renderEditForm.bind(this);
+    this.renderMember = this.renderMember.bind(this);
+    this.toggleMember = this.toggleMember.bind(this);
+    this.remove = this.remove.bind(this);
+    this.renderRemoveAction = this.renderRemoveAction.bind(this);
+    this.renderEditAction = this.renderEditAction.bind(this);
+  }
+
+  remove() {
+    this.props.remove(this.props.channel._id);
+  }
+
+  renderRemoveAction() {
+    return (
+      <Tip text="Delete">
+        <Button btnStyle="link" onClick={this.remove}>
+          <Icon icon="close" />
+        </Button>
+      </Tip>
     );
   }
 
-  renderRow(props) {
-    return <Row {...props} />;
-  }
+  renderEditAction() {
+    const { channel, save } = this.props;
 
-  render() {
-    const { totalCount, loading } = this.props;
-    const breadcrumb = [{ title: `Channels` }];
-
-    const leftActionBar = (
-      <Button btnStyle="danger" size="small">
-        <Icon icon="close" /> Delete
+    const editTrigger = (
+      <Button btnStyle="link">
+        <Tip text="Edit">
+          <Icon icon="edit" />
+        </Tip>
       </Button>
-    );
-
-    const rightActionBar = (
-      <Button btnStyle="success" size="small">
-        <Icon icon="plus" /> Add integration
-      </Button>
-    );
-
-    const content = (
-      <Table>
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th>Kind</th>
-            <th>Brand</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>{this.renderObjects()}</tbody>
-      </Table>
     );
 
     return (
-      <Wrapper
-        header={<Wrapper.Header breadcrumb={breadcrumb} />}
-        leftSidebar={<Sidebar {...this.props} />}
-        actionBar={
-          <Wrapper.ActionBar right={rightActionBar} left={leftActionBar} />
-        }
-        footer={<Pagination count={totalCount} />}
-        content={
-          <ShowData
-            data={content}
-            loading={loading}
-            count={totalCount}
-            emptyText="There is no integration in this channel"
-            emptyIcon="email"
-          />
-        }
-      />
+      <ModalTrigger size={this.size} title="Edit" trigger={editTrigger}>
+        {this.renderEditForm({ channel, save })}
+      </ModalTrigger>
+    );
+  }
+
+  renderEditForm(props) {
+    return <ChannelForm {...props} />;
+  }
+
+  toggleMember() {
+    this.setState({ isMembervisible: !this.state.isMembervisible });
+  }
+
+  renderMember(member) {
+    return (
+      <Tip key={member._id} text={member.details.fullName} placement="top">
+        <MemberImg
+          key={member._id}
+          src={(member.details && member.details.avatar) || []}
+        />
+      </Tip>
+    );
+  }
+
+  render() {
+    const { channel, members } = this.props;
+    const limit = 8;
+    const { isMembervisible } = this.state;
+    let selectedMembers = [];
+
+    if (channel) {
+      selectedMembers = members.filter(u => channel.memberIds.includes(u._id));
+    }
+    const length = selectedMembers.length;
+
+    const Tooltip = (
+      <Tip placement="top" text="View more">
+        <More>{`+${length - limit}`}</More>
+      </Tip>
+    );
+
+    return (
+      <SidebarListli key={channel._id}>
+        <Row>
+          <RowContent>
+            <Link to={`?id=${channel._id}`}>{channel.name}</Link>
+            <Members onClick={this.toggleMember}>
+              {selectedMembers
+                .slice(0, limit && isMembervisible ? limit : length)
+                .map(member => this.renderMember(member))}
+              {limit && isMembervisible && length - limit > 0 && Tooltip}
+            </Members>
+          </RowContent>
+          <ManageActions>
+            <ActionButtons>
+              {this.renderEditAction()}
+              {this.renderRemoveAction()}
+            </ActionButtons>
+          </ManageActions>
+        </Row>
+      </SidebarListli>
     );
   }
 }

@@ -1,75 +1,55 @@
-import React from 'react';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
+import { Modal } from 'react-bootstrap';
 import Select from 'react-select-plus';
 import {
   Tip,
   FormGroup,
   FormControl,
-  ControlLabel
+  ControlLabel,
+  Button,
+  Icon
 } from 'modules/common/components';
-import { Form as CommonForm } from '../common';
 
-class ChannelForm extends CommonForm {
+const propTypes = {
+  channel: PropTypes.object,
+  members: PropTypes.array,
+  selectedMembers: PropTypes.array,
+  save: PropTypes.func
+};
+
+const contextTypes = {
+  closeModal: PropTypes.func.isRequired
+};
+
+class ChannelForm extends Component {
   constructor(props) {
     super(props);
 
-    this.generateIntegrationsParams = this.generateIntegrationsParams.bind(
-      this
-    );
     this.generateMembersParams = this.generateMembersParams.bind(this);
     this.generateDoc = this.generateDoc.bind(this);
     this.collectValues = this.collectValues.bind(this);
+    this.save = this.save.bind(this);
 
     this.state = {
-      selectedIntegrations: this.generateIntegrationsParams(
-        props.selectedIntegrations
-      ),
       selectedMembers: this.generateMembersParams(props.selectedMembers)
     };
   }
 
+  save(e) {
+    e.preventDefault();
+
+    this.props.save(
+      this.generateDoc(),
+      () => {
+        this.context.closeModal();
+      },
+      this.props.channel
+    );
+  }
+
   collectValues(items) {
     return items.map(item => item.value);
-  }
-
-  generateGroupedIntegrations(integrations) {
-    const brandsMap = {};
-
-    integrations.forEach(integration => {
-      const brand = integration.brand || {};
-      const brandName = brand.name;
-
-      if (!brandsMap[brandName]) {
-        brandsMap[brandName] = [];
-      }
-
-      brandsMap[brandName].push({
-        channels: integration.channels,
-        value: integration._id,
-        label: integration.name,
-        kind: integration.kind
-      });
-    });
-
-    const results = [];
-
-    Object.keys(brandsMap).forEach(brandName => {
-      results.push({
-        label: brandName,
-        options: brandsMap[brandName]
-      });
-    });
-
-    return results;
-  }
-
-  generateIntegrationsParams(integrations) {
-    return integrations.map(integration => ({
-      channels: integration.channels,
-      value: integration._id,
-      label: integration.name,
-      kind: integration.kind,
-      groupId: integration.channelId
-    }));
   }
 
   generateMembersParams(members) {
@@ -84,8 +64,7 @@ class ChannelForm extends CommonForm {
       doc: {
         name: document.getElementById('channel-name').value,
         description: document.getElementById('channel-description').value,
-        memberIds: this.collectValues(this.state.selectedMembers),
-        integrationIds: this.collectValues(this.state.selectedIntegrations)
+        memberIds: this.collectValues(this.state.selectedMembers)
       }
     };
   }
@@ -107,9 +86,9 @@ class ChannelForm extends CommonForm {
   }
 
   renderContent() {
-    const { integrations, members, object } = this.props;
+    const { members, channel } = this.props;
 
-    const channel = object || { memberIds: [], integrationIds: [] };
+    const object = channel || { memberIds: [] };
     const self = this;
 
     return (
@@ -119,7 +98,7 @@ class ChannelForm extends CommonForm {
 
           <FormControl
             id="channel-name"
-            defaultValue={channel.name}
+            defaultValue={object.name}
             type="text"
             required
           />
@@ -132,28 +111,7 @@ class ChannelForm extends CommonForm {
             id="channel-description"
             componentClass="textarea"
             rows={5}
-            defaultValue={channel.description}
-          />
-        </FormGroup>
-
-        <FormGroup>
-          <ControlLabel>Integrations</ControlLabel>
-
-          <Select
-            placeholder="Choose integrations"
-            onChange={items => {
-              self.setState({ selectedIntegrations: items });
-            }}
-            optionRenderer={option => (
-              <div className="simple-option">
-                <span>{option.label}</span>
-                <span className="kind"> {option.kind}</span>
-                {self.renderChannelTip(option.channels)}
-              </div>
-            )}
-            value={self.state.selectedIntegrations}
-            options={self.generateGroupedIntegrations(integrations)}
-            multi
+            defaultValue={object.description}
           />
         </FormGroup>
 
@@ -173,6 +131,32 @@ class ChannelForm extends CommonForm {
       </div>
     );
   }
+
+  render() {
+    const onClick = () => {
+      this.context.closeModal();
+    };
+
+    return (
+      <form onSubmit={this.save}>
+        {this.renderContent(this.props.channel || {})}
+        <Modal.Footer>
+          <Button btnStyle="simple" type="button" onClick={onClick}>
+            <Icon icon="close" />
+            Cancel
+          </Button>
+
+          <Button btnStyle="success" type="submit">
+            <Icon icon="checkmark" />
+            Save
+          </Button>
+        </Modal.Footer>
+      </form>
+    );
+  }
 }
+
+ChannelForm.propTypes = propTypes;
+ChannelForm.contextTypes = contextTypes;
 
 export default ChannelForm;
