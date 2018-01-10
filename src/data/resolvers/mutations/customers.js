@@ -3,7 +3,7 @@ import {
   ActivityLogs,
   ConversationMessages,
   Conversations,
-  Engages,
+  EngageMessages,
   InternalNotes,
 } from '../../../db/models';
 
@@ -69,7 +69,7 @@ const customerMutations = {
     await ActivityLogs.changeCustomer(customerOneId, customerTwoId);
     await ConversationMessages.changeCustomer(customerOneId, customerTwoId);
     await Conversations.changeCustomer(customerOneId, customerTwoId);
-    await Engages.changeCustomer(customerOneId, customerTwoId);
+    await EngageMessages.changeCustomer(customerOneId, customerTwoId);
     await InternalNotes.changeCustomer(customerOneId, customerTwoId);
     await this.customersRemove([customerOneId, customerTwoId]);
 
@@ -78,17 +78,17 @@ const customerMutations = {
 
   /**
    * Remove customers
-   * @param {String[]} customerIds - First customer to merge
+   * @param {string[]} customerIds - Customer Ids to remove
    * @return {Promise} Customer object
    */
-  async customersRemove(root, customerIds) {
+  async customersRemove(root, { customerIds }) {
     for (let customerId of customerIds) {
-      await Customers.removeCustomer(customerId);
       await ActivityLogs.removeCustomerActivityLog(customerId);
       await ConversationMessages.removeCustomerConversationMessages(customerId);
       await Conversations.removeCustomerConversations(customerId);
-      await Engages.removeCustomerEngages(customerId);
+      await EngageMessages.removeCustomerEngages(customerId);
       await InternalNotes.removeCustomerInternalNotes(customerId);
+      await Customers.removeCustomer(customerId);
     }
 
     return customerIds;
