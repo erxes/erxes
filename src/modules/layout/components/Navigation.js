@@ -8,11 +8,11 @@ import { Tip, Icon, Label } from 'modules/common/components';
 
 const LeftNavigation = styled.aside`
   width: ${dimensions.headerSpacingWide}px;
-  background: ${colors.colorCoreBlack};
+  background: ${colors.colorPrimaryDark};
+  z-index: 10;
   flex-shrink: 0;
 
   > a {
-    background-color: ${rgba(colors.colorPrimary, 0.7)};
     line-height: ${dimensions.headerSpacing}px;
     display: flex;
     height: ${dimensions.headerSpacing}px;
@@ -24,8 +24,7 @@ const LeftNavigation = styled.aside`
 
 const Nav = styled.nav`
   display: block;
-  background: ${colors.colorCoreBlack};
-  margin-top: 10px;
+  margin-top: ${dimensions.coreSpacing}px;
 
   > a {
     display: block;

@@ -2,13 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import { Wrapper } from 'modules/layout/components';
-import {
-  Tip,
-  ActionButtons,
-  Button,
-  Icon,
-  Table
-} from 'modules/common/components';
+import { Tip, ActionButtons, Button, Table } from 'modules/common/components';
 
 const propTypes = {
   contentType: PropTypes.string.isRequired,
@@ -51,9 +45,7 @@ function SegmentsList({ contentType, segments, removeSegment }) {
               <ActionButtons>
                 <Tip text="Edit">
                   <Link to={`/segments/edit/${contentType}/${segment._id}`}>
-                    <Button btnStyle="link">
-                      <Icon icon="edit" />
-                    </Button>
+                    <Button btnStyle="link" icon="edit" />
                   </Link>
                 </Tip>
                 <Tip text="Delete">
@@ -62,9 +54,8 @@ function SegmentsList({ contentType, segments, removeSegment }) {
                     onClick={() => {
                       remove(segment._id);
                     }}
-                  >
-                    <Icon icon="close" />
-                  </Button>
+                    icon="close"
+                  />
                 </Tip>
               </ActionButtons>
             </td>
@@ -76,8 +67,8 @@ function SegmentsList({ contentType, segments, removeSegment }) {
 
   const actionBarRight = (
     <Link to={`/segments/new/${contentType}`}>
-      <Button btnStyle="success" size="small">
-        <Icon icon="plus" /> New segment
+      <Button btnStyle="success" size="small" icon="plus">
+        New segment
       </Button>
     </Link>
   );
