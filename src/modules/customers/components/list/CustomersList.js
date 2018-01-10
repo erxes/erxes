@@ -39,7 +39,8 @@ const propTypes = {
   history: PropTypes.object,
   loading: PropTypes.bool.isRequired,
   searchValue: PropTypes.string.isRequired,
-  loadingTags: PropTypes.bool.isRequired
+  loadingTags: PropTypes.bool.isRequired,
+  removeCustomers: PropTypes.func.isRequired
 };
 
 class CustomersList extends React.Component {
@@ -51,12 +52,22 @@ class CustomersList extends React.Component {
     };
 
     this.onChange = this.onChange.bind(this);
+    this.removeCustomers = this.removeCustomers.bind(this);
     this.search = this.search.bind(this);
   }
 
   onChange() {
     const { toggleAll, customers } = this.props;
     toggleAll(customers, 'customers');
+  }
+
+  removeCustomers(customers) {
+    const customerIds = [];
+
+    customers.forEach(customer => {
+      customerIds.push(customer._id);
+    });
+    this.props.removeCustomers({ customerIds });
   }
 
   renderContent() {
@@ -181,7 +192,7 @@ class CustomersList extends React.Component {
                 </ModalTrigger>
               </li>
               <li>
-                <a>Remove</a>
+                <a onClick={() => this.removeCustomers(bulk)}>Remove</a>
               </li>
             </Dropdown.Menu>
           </Dropdown>

@@ -16,7 +16,8 @@ class CustomerListContainer extends Bulk {
       tagsQuery,
       customerCountsQuery,
       customersListConfigQuery,
-      customersAdd
+      customersAdd,
+      customersRemove
     } = this.props;
 
     let columnsConfig =
@@ -43,6 +44,21 @@ class CustomerListContainer extends Bulk {
           Alert.error(e.message);
         });
     };
+
+    const removeCustomers = ({ customerIds }) => {
+      customersRemove({
+        variables: { customerIds }
+      })
+        .then(() => {
+          customersQuery.refetch();
+          Alert.success('Success');
+          // callback();
+        })
+        .catch(e => {
+          Alert.error(e.message);
+        });
+    };
+
     const searchValue = this.props.queryParams.searchValue || '';
 
     const updatedProps = {
@@ -67,7 +83,8 @@ class CustomerListContainer extends Bulk {
       searchValue,
       loading: customersQuery.loading,
       loadingTags: tagsQuery.loading,
-      addCustomer
+      addCustomer,
+      removeCustomers
     };
 
     return <CustomersList {...updatedProps} />;
@@ -136,5 +153,8 @@ export default compose(
   // mutations
   graphql(gql(mutations.customersAdd), {
     name: 'customersAdd'
+  }),
+  graphql(gql(mutations.customersRemove), {
+    name: 'customersRemove'
   })
 )(CustomerListContainer);
