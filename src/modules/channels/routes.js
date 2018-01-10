@@ -1,7 +1,7 @@
 import React from 'react';
 import { Route } from 'react-router-dom';
 import queryString from 'query-string';
-import { IntegrationList } from './containers';
+import { Channels } from './containers';
 import {
   Twitter,
   MessengerAppearance,
@@ -54,9 +54,7 @@ const routes = () => [
     exact
     path="/channels"
     component={({ location }) => {
-      return (
-        <IntegrationList queryParams={queryString.parse(location.search)} />
-      );
+      return <Channels queryParams={queryString.parse(location.search)} />;
     }}
   />
 ];

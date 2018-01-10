@@ -6,14 +6,13 @@ import { Sidebar } from '../components';
 
 const SidebarContainer = props => {
   const {
-    channelsQuery,
     usersQuery,
     addMutation,
     editMutation,
-    removeMutation
+    removeMutation,
+    channelsQuery
   } = props;
 
-  const channels = channelsQuery.channels || [];
   const members = usersQuery.users || [];
 
   // remove action
@@ -23,7 +22,6 @@ const SidebarContainer = props => {
         variables: { _id }
       })
         .then(() => {
-          // update queries
           channelsQuery.refetch();
           usersQuery.refetch();
 
@@ -62,12 +60,11 @@ const SidebarContainer = props => {
   };
 
   const updatedProps = {
-    ...this.props,
-    refetch: channelsQuery.refetch,
-    channels,
+    ...props,
     members,
     save,
     remove,
+    refetch: channelsQuery.refetch,
     loading: channelsQuery.loading
   };
 
@@ -76,10 +73,10 @@ const SidebarContainer = props => {
 
 SidebarContainer.propTypes = {
   usersQuery: PropTypes.object,
-  channelsQuery: PropTypes.object,
   addMutation: PropTypes.func,
   editMutation: PropTypes.func,
-  removeMutation: PropTypes.func
+  removeMutation: PropTypes.func,
+  channelsQuery: PropTypes.object
 };
 
 const commonParamsDef = `

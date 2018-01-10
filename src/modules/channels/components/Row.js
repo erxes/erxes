@@ -98,9 +98,7 @@ class Row extends Component {
           </Label>
         </td>
         <td>{integration.brand ? integration.brand.name : ''}</td>
-        <td>
-          <ActionButtons>{this.renderExtraLinks()}</ActionButtons>
-        </td>
+        <td>{this.renderExtraLinks()}</td>
       </tr>
     );
   }

@@ -15,6 +15,7 @@ import {
 const propTypes = {
   allIntegrationsQuery: PropTypes.object.isRequired,
   integrations: PropTypes.array.isRequired,
+  channels: PropTypes.array.isRequired,
   channelDetail: PropTypes.object.isRequired,
   save: PropTypes.func.isRequired,
   refetch: PropTypes.func.isRequired,
@@ -49,6 +50,7 @@ class IntegrationList extends Component {
       totalCount,
       integrations,
       channelDetail,
+      channels,
       refetch,
       allIntegrationsQuery,
       save
@@ -90,7 +92,7 @@ class IntegrationList extends Component {
     return (
       <Wrapper
         header={<Wrapper.Header breadcrumb={breadcrumb} />}
-        leftSidebar={<Sidebar />}
+        leftSidebar={<Sidebar channels={channels} />}
         actionBar={<Wrapper.ActionBar right={rightActionBar} />}
         footer={<Pagination count={totalCount} />}
         content={
