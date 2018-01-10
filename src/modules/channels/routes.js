@@ -53,9 +53,10 @@ const routes = () => [
     key="/channels"
     exact
     path="/channels"
-    component={({ location }) => {
-      return <Channels queryParams={queryString.parse(location.search)} />;
-    }}
+    // component={({ location }) => {
+    //   return <Channels queryParams={queryString.parse(location.search)} />;
+    // }}
+    component={Channels}
   />
 ];
 

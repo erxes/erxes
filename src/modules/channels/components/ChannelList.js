@@ -11,7 +11,8 @@ import {
   More,
   Row,
   RowContent,
-  ActionButtons
+  ActionButtons,
+  RowTitle
 } from '../styles';
 
 const propTypes = {
@@ -107,15 +108,17 @@ class ChannelList extends Component {
     return (
       <SidebarListli key={channel._id}>
         <Row>
-          <RowContent>
-            <Link to={`?id=${channel._id}`}>{channel.name}</Link>
-            <Members onClick={this.toggleMember}>
-              {selectedMembers
-                .slice(0, limit && isMembervisible ? limit : length)
-                .map(member => this.renderMember(member))}
-              {limit && isMembervisible && length - limit > 0 && Tooltip}
-            </Members>
-          </RowContent>
+          <Link to={`?id=${channel._id}`}>
+            <RowContent>
+              <RowTitle>{channel.name}</RowTitle>
+              <Members onClick={this.toggleMember}>
+                {selectedMembers
+                  .slice(0, limit && isMembervisible ? limit : length)
+                  .map(member => this.renderMember(member))}
+                {limit && isMembervisible && length - limit > 0 && Tooltip}
+              </Members>
+            </RowContent>
+          </Link>
           <ManageActions>
             <ActionButtons>
               {this.renderEditAction()}

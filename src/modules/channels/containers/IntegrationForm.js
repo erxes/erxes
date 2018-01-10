@@ -44,7 +44,6 @@ class FormContainer extends Component {
       })
         .then(() => {
           refetch();
-          console.log(channelDetail, integrationIds);
           Alert.success('Successfully saved');
         })
         .catch(e => {

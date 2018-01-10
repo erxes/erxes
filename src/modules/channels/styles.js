@@ -19,7 +19,7 @@ const SidebarListli = styled.li`
 `;
 
 const Members = styled.div`
-  padding: 5px 0 0 17px;
+  padding: 5px 0 0 16px;
 `;
 
 const MemberImg = styled.img`
@@ -42,7 +42,7 @@ const More = MemberImg.withComponent('span').extend`
 
 const RightButton = styled.div`
   position: absolute;
-  right: 20px;
+  right: ${dimensions.coreSpacing}px;
   top: 16px;
 `;
 
@@ -57,7 +57,7 @@ const ActionButtons = styled.div`
 
   * {
     padding: 0;
-    margin-left: 10px;
+    margin-left: ${dimensions.unitSpacing}px;
 
     &:first-child {
       margin-left: 0;
@@ -82,6 +82,7 @@ const Row = styled.div`
 
   ${ManageActions} {
     width: 0;
+    margin-left: auto;
     padding-left: ${dimensions.unitSpacing - 5}px;
     overflow: hidden;
     display: flex;
@@ -95,6 +96,15 @@ const Row = styled.div`
   > div {
     margin: 0;
   }
+
+  > a {
+    padding: 0;
+
+    &:focus {
+      color: inherit;
+      text-decoration: none;
+    }
+  }
 `;
 
 const RowContent = styled.div`
@@ -103,6 +113,10 @@ const RowContent = styled.div`
   > a {
     padding: 0 ${dimensions.unitSpacing}px;
   }
+`;
+
+const RowTitle = styled.div`
+  padding-left: ${dimensions.unitSpacing + 1}px;
 `;
 
 export {
@@ -114,5 +128,6 @@ export {
   ActionButtons,
   ManageActions,
   Row,
-  RowContent
+  RowContent,
+  RowTitle
 };

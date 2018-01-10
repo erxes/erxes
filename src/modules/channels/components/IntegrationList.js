@@ -55,7 +55,10 @@ class IntegrationList extends Component {
       allIntegrationsQuery,
       save
     } = this.props;
-    const breadcrumb = [{ title: `Channels` }];
+    const breadcrumb = [
+      { title: 'Channels', link: '/channels' },
+      { title: `${channelDetail.name}` }
+    ];
 
     const trigger = (
       <Button btnStyle="success" size="small">
