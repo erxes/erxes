@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
-import { Button, Icon } from 'modules/common/components';
+import { Button } from 'modules/common/components';
 import { CONVERSATION_STATUSES } from 'modules/inbox/constants';
 
 const propTypes = {
@@ -52,8 +52,8 @@ class Resolver extends Component {
     };
 
     return (
-      <Button {...btnAttrs}>
-        <Icon icon={icon} /> {buttonText}
+      <Button {...btnAttrs} icon={icon}>
+        {buttonText}
       </Button>
     );
   }

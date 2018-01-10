@@ -414,6 +414,7 @@ const Mask = styled.div`
   align-items: center;
   justify-content: center;
   overflow: hidden;
+  text-align: center;
 
   &:hover {
     cursor: pointer;

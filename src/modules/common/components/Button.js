@@ -1,30 +1,25 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import styled, { css } from 'styled-components';
+import Icon from './Icon';
 import { colors } from '../styles';
 import { darken, lighten } from '../styles/color';
 
 const types = {
   default: {
-    background: colors.colorPrimary,
-    color: colors.colorWhite,
-    display: 'inline-block'
+    background: colors.colorPrimary
   },
   primary: {
-    background: colors.colorSecondary,
-    color: colors.colorWhite
+    background: colors.colorSecondary
   },
   success: {
-    background: colors.colorCoreGreen,
-    color: colors.colorWhite
+    background: colors.colorCoreGreen
   },
   danger: {
-    background: colors.colorCoreRed,
-    color: colors.colorWhite
+    background: colors.colorCoreRed
   },
   warning: {
-    background: colors.colorCoreYellow,
-    color: colors.colorWhite
+    background: colors.colorCoreYellow
   },
   simple: {
     background: colors.colorWhite,
@@ -39,37 +34,40 @@ const types = {
 
 const sizes = {
   large: {
-    padding: '11px 29px',
+    padding: '10px 30px',
     fontSize: '14px',
     lineHeight: '1.333333'
   },
   medium: {
-    padding: '8px 23px',
+    padding: '7px 20px',
     fontSize: '12px',
     lineHeight: '1.3'
   },
   small: {
-    padding: '5px 16px',
+    padding: '5px 15px',
     fontSize: '10px',
     lineHeight: '1.5'
   }
 };
 
 const ButtonStyled = styled.button`
+  border-radius: 30px;
+  position: relative;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  outline: 0;
+  display: inline-block;
+  color: ${colors.colorWhite};
+
   ${props => css`
-    border-radius: 30px;
-    position: relative;
     padding: ${sizes[props.size].padding};
-    display: ${props.block ? 'block' : 'inline-block'};
+    display: ${props.block && 'block'};
     width: ${props.block && '100%'};
     border: ${types[props.btnStyle].borderColor ? '1px solid #DDD' : 'none'};
     background: ${types[props.btnStyle].background};
     color: ${types[props.btnStyle].color};
     font-size: ${sizes[props.size].fontSize};
     line-height: ${sizes[props.size].lineHeight};
-    transition: all 0.3s ease;
-    text-transform: uppercase;
-    outline: 0;
 
     &:disabled {
       cursor: not-allowed !important;
@@ -81,23 +79,27 @@ const ButtonStyled = styled.button`
       cursor: pointer;
       box-shadow: ${types[props.btnStyle] === types.link
         ? 'none'
-        : '0 0 4px 0 #aaa'};
-      color: ${types[props.btnStyle].color !== colors.colorWhite
-        ? darken(colors.colorCoreGray, 24)
-        : ''};
+        : '0 0 4px 0 #ddd'};
+      color: ${types[props.btnStyle].color && darken(colors.colorCoreGray, 24)};
       text-decoration: none;
     }
-
-    &.shrinked {
-      padding: 8px 0;
-    }
-
-    & + button,
-    + a,
-    + span {
-      margin-left: 10px;
-    }
   `};
+
+  &.shrinked {
+    padding: 8px 0;
+  }
+
+  & + button,
+  + a,
+  + span {
+    margin-left: 10px;
+  }
+
+  > i + span,
+  > span + i,
+  > span i {
+    margin-left: 5px;
+  }
 `;
 
 const Link = ButtonStyled.withComponent('a');
@@ -108,13 +110,6 @@ const ButtonLink = Link.extend`
   pointer-events: ${props => props.disabled && 'none'};
   background: ${props =>
     props.disabled && lighten(types[props.btnStyle].background, 30)};
-`;
-
-const ButtonIcon = Link.extend`
-  padding: 4px 6px;
-  fontsize: 12px;
-  lineheight: 1em;
-  border-radius: 5px;
 `;
 
 const ButtonGroup = styled.div`
@@ -129,19 +124,18 @@ const ButtonGroup = styled.div`
 `;
 
 function Button({ ...props }) {
-  if (props.iconKey) {
+  const Element = props.href ? ButtonLink : ButtonStyled;
+
+  if (props.icon) {
     return (
-      <ButtonIcon className="button-icon" {...props}>
-        {props.children}
-      </ButtonIcon>
+      <Element {...props}>
+        <Icon icon={props.icon} />
+        {props.children && <span>{props.children}</span>}
+      </Element>
     );
   }
 
-  if (props.href) {
-    return <ButtonLink {...props}>{props.children}</ButtonLink>;
-  }
-
-  return <ButtonStyled {...props}>{props.children}</ButtonStyled>;
+  return <Element {...props}>{props.children}</Element>;
 }
 
 function Group({ children }) {
@@ -155,7 +149,7 @@ Group.propTypes = {
 };
 
 Button.propTypes = {
-  children: PropTypes.node.isRequired,
+  children: PropTypes.node,
   className: PropTypes.string,
   onClick: PropTypes.func,
   href: PropTypes.string,
@@ -172,14 +166,13 @@ Button.propTypes = {
   size: PropTypes.oneOf(['large', 'medium', 'small']),
   disabled: PropTypes.bool,
   block: PropTypes.bool,
-  iconKey: PropTypes.bool
+  icon: PropTypes.string
 };
 
 Button.defaultProps = {
   btnStyle: 'default',
   size: 'medium',
   block: false,
-  iconKey: false,
   type: 'button'
 };
 

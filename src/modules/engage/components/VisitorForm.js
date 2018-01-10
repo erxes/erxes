@@ -4,8 +4,7 @@ import {
   FormControl,
   Button,
   FormGroup,
-  ControlLabel,
-  Icon
+  ControlLabel
 } from 'modules/common/components';
 import { EngageBox, InlineForm } from '../styles';
 
@@ -134,9 +133,12 @@ class VisitorForm extends FormBase {
             onChange={onChangeValue}
           />
 
-          <Button size="small" onClick={remove} btnStyle="danger">
-            <Icon icon="close" />
-          </Button>
+          <Button
+            size="small"
+            onClick={remove}
+            btnStyle="danger"
+            icon="close"
+          />
         </InlineForm>
       </FormGroup>
     );
