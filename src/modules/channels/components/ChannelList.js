@@ -31,7 +31,6 @@ class ChannelList extends Component {
     };
     this.renderEditForm = this.renderEditForm.bind(this);
     this.renderMember = this.renderMember.bind(this);
-    this.toggleMember = this.toggleMember.bind(this);
     this.remove = this.remove.bind(this);
     this.renderRemoveAction = this.renderRemoveAction.bind(this);
     this.renderEditAction = this.renderEditAction.bind(this);
@@ -73,10 +72,6 @@ class ChannelList extends Component {
     return <ChannelForm {...props} />;
   }
 
-  toggleMember() {
-    this.setState({ isMembervisible: !this.state.isMembervisible });
-  }
-
   renderMember(member) {
     return (
       <Tip key={member._id} text={member.details.fullName} placement="top">
@@ -99,11 +94,7 @@ class ChannelList extends Component {
     }
     const length = selectedMembers.length;
 
-    const Tooltip = (
-      <Tip placement="top" text="View more">
-        <More>{`+${length - limit}`}</More>
-      </Tip>
-    );
+    const Tooltip = <More>{`+${length - limit}`}</More>;
 
     return (
       <SidebarListli key={channel._id}>
@@ -111,7 +102,7 @@ class ChannelList extends Component {
           <Link to={`?id=${channel._id}`}>
             <RowContent>
               <RowTitle>{channel.name}</RowTitle>
-              <Members onClick={this.toggleMember}>
+              <Members>
                 {selectedMembers
                   .slice(0, limit && isMembervisible ? limit : length)
                   .map(member => this.renderMember(member))}
