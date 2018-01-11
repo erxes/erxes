@@ -1,6 +1,6 @@
 import React from 'react';
 import { Route } from 'react-router-dom';
-import ChannelsRoutes from './channels/routes';
+import ChannelsRoutes from 'modules/channels/routes';
 import BrandsRoutes from './brands/routes';
 import ResponseTemplatesRoutes from './responseTemplates/routes';
 import EmailTemplatesRoutes from './emailTemplates/routes';
@@ -10,14 +10,13 @@ import FormsRoutes from './forms/routes';
 import IntegrationsRoutes from './integrations/routes';
 import KnowledgeBaseRoutes from './knowledgeBase/routes';
 import ProfileRoutes from './profile/routes';
-import Main from './main/routes';
-import Sidebar from './Sidebar';
+import MainRoutes from './main/routes';
 import { Contents } from 'modules/layout/styles';
 
 const routes = () => {
   return (
     <Contents>
-      <Sidebar />
+      <MainRoutes key="MainRoutes" />
       <ChannelsRoutes key="ChannelsRoutes" />
       <BrandsRoutes key="BrandsRoutes" />
       <ResponseTemplatesRoutes key="ResponseTemplatesRoutes" />
@@ -32,15 +31,6 @@ const routes = () => {
   );
 };
 
-const main = () => {
-  return (
-    <Contents>
-      <Sidebar />
-      <Main />
-    </Contents>
-  );
-};
-
-const settingsRoute = () => <Route path="/settings" component={main} />;
+const settingsRoute = () => <Route path="/settings" component={routes} />;
 
 export default settingsRoute;

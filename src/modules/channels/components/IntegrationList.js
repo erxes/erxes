@@ -56,6 +56,7 @@ class IntegrationList extends Component {
       save
     } = this.props;
     const breadcrumb = [
+      { title: 'Settings', link: '/settings' },
       { title: 'Channels', link: '/channels' },
       { title: `${channelDetail.name}` }
     ];

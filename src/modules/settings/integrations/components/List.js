@@ -4,6 +4,7 @@ import { Header, ActionBar, PageContent } from 'modules/layout/components';
 import { Pagination, Table, ShowData } from 'modules/common/components';
 import { AddIntegration } from '../components';
 import Row from './Row';
+import Sidebar from 'modules/settings/Sidebar';
 
 const propTypes = {
   integrations: PropTypes.array.isRequired,
@@ -53,12 +54,13 @@ class List extends Component {
     );
 
     const breadcrumb = [
-      { title: 'Settings', link: '/settings/integrations' },
+      { title: 'Settings', link: '/settings' },
       { title: 'Integrations' }
     ];
 
     return [
       <Header key="breadcrumb" breadcrumb={breadcrumb} />,
+      <Sidebar key="sidebar" />,
       <PageContent
         key="settings-content"
         actionBar={actionBar}

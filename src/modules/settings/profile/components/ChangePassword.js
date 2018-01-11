@@ -8,6 +8,7 @@ import {
 } from 'modules/common/components';
 import { ActionBar, Header, PageContent } from 'modules/layout/components';
 import { ContentBox, SubHeading } from '../../styles';
+import Sidebar from 'modules/settings/Sidebar';
 
 const propTypes = {
   save: PropTypes.func.isRequired
@@ -66,7 +67,7 @@ class ChangePassword extends Component {
     );
 
     const breadcrumb = [
-      { title: 'Settings', link: '/settings/channels' },
+      { title: 'Settings', link: '/settings' },
       { title: 'Change password' }
     ];
 
@@ -86,6 +87,7 @@ class ChangePassword extends Component {
 
     return [
       <Header key="breadcrumb" breadcrumb={breadcrumb} />,
+      <Sidebar key="sidebar" />,
       <PageContent key="settings-content" footer={actionFooter}>
         {content}
       </PageContent>

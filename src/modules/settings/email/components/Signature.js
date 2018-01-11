@@ -8,6 +8,7 @@ import {
   FormControl
 } from 'modules/common/components';
 import { ContentBox, SubHeading, Well } from '../../styles';
+import Sidebar from 'modules/settings/Sidebar';
 
 const propTypes = {
   signatures: PropTypes.array.isRequired,
@@ -100,7 +101,7 @@ class Signature extends Component {
     );
 
     const breadcrumb = [
-      { title: 'Settings', link: '/settings/channels' },
+      { title: 'Settings', link: '/settings' },
       { title: 'Signature template' }
     ];
 
@@ -120,6 +121,7 @@ class Signature extends Component {
 
     return [
       <Header key="breadcrumb" breadcrumb={breadcrumb} />,
+      <Sidebar key="sidebar" />,
       <PageContent key="settings-content" footer={actionFooter}>
         {content}
       </PageContent>

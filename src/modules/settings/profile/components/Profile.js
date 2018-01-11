@@ -8,6 +8,7 @@ import {
 } from 'modules/common/components';
 import { UserCommonInfos } from 'modules/auth/components';
 import { ActionBar, Header, PageContent } from 'modules/layout/components';
+import Sidebar from 'modules/settings/Sidebar';
 import { ContentBox } from '../../styles';
 
 const propTypes = {
@@ -63,7 +64,7 @@ class Profile extends Component {
     );
 
     const breadcrumb = [
-      { title: 'Settings', link: '/settings/channels' },
+      { title: 'Settings', link: '/settings' },
       { title: 'Profile settings' }
     ];
 
@@ -83,6 +84,7 @@ class Profile extends Component {
 
     return [
       <Header key="breadcrumb" breadcrumb={breadcrumb} />,
+      <Sidebar key="sidebar" />,
       <PageContent key="settings-content" footer={actionFooter}>
         {content}
       </PageContent>

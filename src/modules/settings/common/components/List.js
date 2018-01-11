@@ -7,6 +7,7 @@ import {
   ShowData
 } from 'modules/common/components';
 import { Header, PageContent, ActionBar } from 'modules/layout/components';
+import Sidebar from 'modules/settings/Sidebar';
 
 const propTypes = {
   objects: PropTypes.array.isRequired,
@@ -55,6 +56,7 @@ class List extends Component {
 
     return [
       <Header key="breadcrumb" breadcrumb={this.breadcrumb()} />,
+      <Sidebar key="sidebar" />,
       <PageContent
         key="settings-content"
         actionBar={<ActionBar right={actionBarLeft} />}
