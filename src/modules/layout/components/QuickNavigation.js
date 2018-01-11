@@ -41,7 +41,7 @@ const QuickNavigation = ({ logout, currentUser }) => {
               <UserInfo>
                 {currentUser.details.fullName}
                 <NameCard.Avatar user={currentUser} size={30} />
-                <Icon icon="chevron-down" />
+                <Icon icon="chevron-down" size={10} />
               </UserInfo>
             </UserHelper>
           </DropdownToggle>

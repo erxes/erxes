@@ -6,7 +6,6 @@ import {
   ModalTrigger,
   Button,
   Table,
-  Icon,
   ShowData
 } from 'modules/common/components';
 import { withRouter } from 'react-router';
@@ -58,8 +57,8 @@ function CompaniesList({
   );
 
   const addTrigger = (
-    <Button btnStyle="success" size="small">
-      <Icon icon="plus" /> Add company
+    <Button btnStyle="success" size="small" icon="plus">
+      Add company
     </Button>
   );
 

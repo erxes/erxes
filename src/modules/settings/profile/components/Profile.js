@@ -4,8 +4,7 @@ import {
   FormGroup,
   ControlLabel,
   FormControl,
-  Button,
-  Icon
+  Button
 } from 'modules/common/components';
 import { UserCommonInfos } from 'modules/auth/components';
 import { ActionBar, Header, PageContent } from 'modules/layout/components';
@@ -71,8 +70,12 @@ class Profile extends Component {
     const actionFooter = (
       <ActionBar
         right={
-          <Button btnStyle="success" onClick={this.handleSubmit}>
-            <Icon icon="checkmark" /> Save
+          <Button
+            btnStyle="success"
+            onClick={this.handleSubmit}
+            icon="checkmark"
+          >
+            Save
           </Button>
         }
       />

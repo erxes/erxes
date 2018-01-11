@@ -101,7 +101,6 @@ const NotificationList = styled.ul`
 `;
 
 const NotifButton = styled.div`
-  color: ${colors.colorWhite};
   font-size: 22px;
   cursor: pointer;
   position: relative;

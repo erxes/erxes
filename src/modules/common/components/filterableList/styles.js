@@ -2,7 +2,7 @@ import styled from 'styled-components';
 import { colors, dimensions } from '../../styles';
 
 const PopoverHeader = styled.div`
-  padding: ${dimensions.unitSpacing}px;
+  padding: ${dimensions.unitSpacing}px ${dimensions.coreSpacing}px;
   display: block !important;
 
   input {

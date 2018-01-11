@@ -247,9 +247,11 @@ injectGlobal`
   /* select  */
 
   .Select-control {
-    border-radius: 18px;
-    border: 1px solid #ddd;
+    border-radius: 0;
+    border: none;
+    border-bottom: 1px solid #ddd;
     box-shadow: none;
+    background: none;
   }
 
   .Select-control:hover {
@@ -264,7 +266,8 @@ injectGlobal`
   .is-open > .Select-control {
     border-bottom-right-radius: 0;
     border-bottom-left-radius: 0;
-    border-color: #ddd;
+    border-color: ${colors.colorSecondary};
+    background: none;
   }
 
   .is-focused:not(.is-open) > .Select-control {
@@ -275,14 +278,11 @@ injectGlobal`
     padding: 10px 0 12px;
   }
 
-  .Select-placeholder {
-    padding-left: 20px;
-    padding-right: 20px;
-  }
-
-  .Select-input {
-    padding-left: 20px;
-    padding-right: 20px;
+  .Select-placeholder,
+  .Select-input,
+  .Select--single > .Select-control .Select-value {
+    padding-left: 10px;
+    padding-right: 10px;
   }
 
   .Select-clear {
@@ -299,7 +299,7 @@ injectGlobal`
   }
 
   .Select--multi .Select-input {
-    margin-left: 15px;
+    margin-left: 5px;
   }
 
   .Select--multi .Select-value {
@@ -309,11 +309,6 @@ injectGlobal`
     color: #fff;
     margin-top: 6px;
     position: relative;
-    padding-right: 20px;
-  }
-
-  .Select--single > .Select-control .Select-value {
-    padding-left: 20px;
     padding-right: 20px;
   }
 
@@ -358,6 +353,12 @@ injectGlobal`
 
   .Select-arrow-zone:hover > .Select-arrow {
     border-top-color: #777777;
+  }
+
+  .Select-menu-outer {
+    border-color: ${colors.colorShadowGray};
+    margin-top: 1px;
+    box-shadow: 0 0 4px ${colors.shadowPrimary};
   }
 
   .Select-menu-outer, .Select-option:last-child {
@@ -443,6 +444,7 @@ injectGlobal`
   .rdtPicker {
     box-shadow: 0 5px 15px -3px rgba(0, 0, 0, 0.15);
     width: 100%;
+    border-color: ${colors.colorShadowGray};
     min-width: 200px;
     max-width: 260px;
   }

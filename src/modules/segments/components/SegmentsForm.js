@@ -275,12 +275,17 @@ class SegmentsForm extends Component {
         right={
           <Button.Group>
             <Link to={`/segments/${contentType}`}>
-              <Button size="small" btnStyle="simple">
-                <Icon icon="close" /> Cancel
+              <Button size="small" btnStyle="simple" icon="close">
+                Cancel
               </Button>
             </Link>
-            <Button size="small" btnStyle="success" onClick={this.save}>
-              <Icon icon="checkmark" /> Save
+            <Button
+              size="small"
+              btnStyle="success"
+              onClick={this.save}
+              icon="checkmark"
+            >
+              Save
             </Button>
           </Button.Group>
         }

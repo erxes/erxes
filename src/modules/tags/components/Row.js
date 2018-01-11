@@ -46,9 +46,7 @@ function Row({ tag, type, count, remove, save }) {
           </ModalTrigger>
 
           <Tip text="Delete">
-            <Button btnStyle="link" onClick={removeTag}>
-              <Icon icon="close-circled" />
-            </Button>
+            <Button btnStyle="link" onClick={removeTag} icon="close-circled" />
           </Tip>
         </ActionButtons>
       </td>
