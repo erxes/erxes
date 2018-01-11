@@ -19,6 +19,15 @@ const LeftNavigation = styled.aside`
     justify-content: center;
     align-items: center;
     color: #fff;
+
+    img {
+      max-height: 32px;
+      transition: all 0.3s ease;
+
+      &:hover {
+        transform: scale(1.1);
+      }
+    }
   }
 `;
 
@@ -76,7 +85,7 @@ class Navigation extends Component {
     return (
       <LeftNavigation>
         <NavLink to="/" activeClassName="active">
-          <img src="/images/logo-image.png" alt="erxes" />
+          <img src="/images/erxes.png" alt="erxes" />
         </NavLink>
         <Nav>
           <Tip placement="right" text="Inbox">
