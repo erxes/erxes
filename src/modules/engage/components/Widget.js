@@ -1,12 +1,12 @@
 import React, { Component } from 'react';
-import { ModalTrigger, Icon, Button } from 'modules/common/components';
+import { ModalTrigger, Button } from 'modules/common/components';
 import WidgetForm from './WidgetForm';
 
 class Widget extends Component {
   render() {
     const trigger = (
-      <Button btnStyle="success" size="small">
-        <Icon icon="email" /> Message
+      <Button btnStyle="success" size="small" icon="email">
+        Message
       </Button>
     );
 

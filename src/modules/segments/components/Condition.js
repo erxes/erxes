@@ -2,12 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import debounce from 'lodash/debounce';
 import { types, operators, dateUnits } from 'modules/customers/constants';
-import {
-  Button,
-  Icon,
-  FormControl,
-  ControlLabel
-} from 'modules/common/components';
+import { Button, FormControl, ControlLabel } from 'modules/common/components';
 import { FlexContent, FlexItem, FlexRightItem } from 'modules/layout/styles';
 import { ConditionItem } from './styles';
 
@@ -146,13 +141,11 @@ class Condition extends Component {
               ))}
             </FormControl>
             <Button
-              iconKey
               btnStyle="danger"
               size="small"
+              icon="close"
               onClick={this.removeCondition}
-            >
-              <Icon icon="close" />
-            </Button>
+            />
           </FlexRightItem>
         </FlexContent>
       </ConditionItem>

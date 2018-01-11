@@ -239,11 +239,21 @@ class LeftSidebar extends React.Component {
 
     return (
       <Sidebar.Footer>
-        <Button btnStyle="simple" size="small" onClick={this.cancelEditing}>
-          <Icon icon="close" />Discard
+        <Button
+          btnStyle="simple"
+          size="small"
+          onClick={this.cancelEditing}
+          icon="close"
+        >
+          Discard
         </Button>
-        <Button btnStyle="success" size="small" onClick={this.save}>
-          <Icon icon="checkmark" />Save
+        <Button
+          btnStyle="success"
+          size="small"
+          onClick={this.save}
+          icon="checkmark"
+        >
+          Save
         </Button>
       </Sidebar.Footer>
     );

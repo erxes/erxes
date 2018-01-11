@@ -8,24 +8,32 @@ import { Tip, Icon, Label } from 'modules/common/components';
 
 const LeftNavigation = styled.aside`
   width: ${dimensions.headerSpacingWide}px;
-  background: ${colors.colorCoreBlack};
+  background: ${colors.colorPrimaryDark};
+  z-index: 10;
   flex-shrink: 0;
 
   > a {
-    background-color: ${rgba(colors.colorPrimary, 0.7)};
     line-height: ${dimensions.headerSpacing}px;
     display: flex;
     height: ${dimensions.headerSpacing}px;
     justify-content: center;
     align-items: center;
     color: #fff;
+
+    img {
+      max-height: 30px;
+      transition: all 0.3s ease;
+
+      &:hover {
+        transform: scale(1.1);
+      }
+    }
   }
 `;
 
 const Nav = styled.nav`
   display: block;
-  background: ${colors.colorCoreBlack};
-  margin-top: 10px;
+  margin-top: ${dimensions.coreSpacing}px;
 
   > a {
     display: block;
@@ -77,7 +85,7 @@ class Navigation extends Component {
     return (
       <LeftNavigation>
         <NavLink to="/" activeClassName="active">
-          <img src="/images/logo-image.png" alt="erxes" />
+          <img src="/images/erxes.png" alt="erxes" />
         </NavLink>
         <Nav>
           <Tip placement="right" text="Inbox">

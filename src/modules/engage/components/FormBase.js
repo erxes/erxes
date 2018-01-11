@@ -4,7 +4,6 @@ import PropTypes from 'prop-types';
 import { Wrapper } from 'modules/layout/components';
 import {
   Button,
-  Icon,
   FormControl,
   ControlLabel,
   FormGroup
@@ -65,8 +64,13 @@ class FormBase extends Component {
 
   renderButtons(message) {
     const save = (
-      <Button size="small" btnStyle="success" onClick={this.save}>
-        <Icon icon="checkmark" /> Save
+      <Button
+        size="small"
+        btnStyle="success"
+        onClick={this.save}
+        icon="checkmark"
+      >
+        Save
       </Button>
     );
 
@@ -76,8 +80,9 @@ class FormBase extends Component {
         btnStyle="primary"
         onClick={this.saveAndLive}
         key="action-save-live"
+        icon="checkmark"
       >
-        <Icon icon="checkmark" /> Save & live
+        Save & live
       </Button>
     );
 
@@ -87,8 +92,9 @@ class FormBase extends Component {
         btnStyle="warning"
         onClick={this.saveAndDraft}
         key="action-save-draft"
+        icon="checkmark"
       >
-        <Icon icon="checkmark" /> Save & draft
+        Save & draft
       </Button>
     );
 
@@ -171,8 +177,8 @@ class FormBase extends Component {
         right={
           <Button.Group>
             <Link to="/engage">
-              <Button btnStyle="simple" size="small">
-                <Icon icon="close" /> Cancel
+              <Button btnStyle="simple" size="small" icon="close">
+                Cancel
               </Button>
             </Link>
             {this.renderButtons(message)}

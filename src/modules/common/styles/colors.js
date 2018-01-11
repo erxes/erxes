@@ -2,6 +2,7 @@ import { rgba } from './color';
 
 // Core colors
 const colorPrimary = '#A389D4';
+const colorPrimaryDark = '#392a6f';
 const colorSecondary = '#04A9F5';
 const colorCoreRed = '#F44236';
 const colorCoreYellow = '#F5C22B';
@@ -11,7 +12,7 @@ const colorCoreGray = '#888';
 const colorCoreLightGray = '#AAAEB3';
 
 const colorLightGray = '#AAA';
-const colorCoreDarkGray = '#333';
+const colorCoreDarkGray = '#373737';
 const colorShadowGray = '#DDD';
 const colorBlack = '#000';
 const colorWhite = '#FFF';
@@ -47,6 +48,7 @@ const socialTwitter = '#1da1f2';
 
 export default {
   colorPrimary,
+  colorPrimaryDark,
   colorSecondary,
   colorCoreRed,
   colorCoreYellow,

@@ -9,7 +9,6 @@ import { timezones } from '../constants';
 import OnlineHours from './OnlineHours';
 import {
   Button,
-  Icon,
   FormGroup,
   FormControl,
   ControlLabel
@@ -232,13 +231,18 @@ class Configs extends Component {
         right={
           <Button.Group>
             <Link to="/settings/integrations">
-              <Button size="small" btnStyle="simple">
-                <Icon icon="close" /> Cancel
+              <Button size="small" btnStyle="simple" icon="close">
+                Cancel
               </Button>
             </Link>
 
-            <Button size="small" btnStyle="success" onClick={this.save}>
-              <Icon icon="checkmark" /> Save
+            <Button
+              size="small"
+              btnStyle="success"
+              onClick={this.save}
+              icon="checkmark"
+            >
+              Save
             </Button>
           </Button.Group>
         }

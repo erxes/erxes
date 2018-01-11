@@ -4,7 +4,6 @@ import {
   Pagination,
   ModalTrigger,
   Button,
-  Icon,
   ShowData
 } from 'modules/common/components';
 import { Header, PageContent, ActionBar } from 'modules/layout/components';
@@ -43,8 +42,8 @@ class List extends Component {
     const { totalCount, save, loading } = this.props;
 
     const trigger = (
-      <Button btnStyle="success" size="small">
-        <Icon icon="plus" /> {this.title}
+      <Button btnStyle="success" size="small" icon="plus">
+        {this.title}
       </Button>
     );
 

@@ -59,11 +59,11 @@ class Row extends Component {
         <ActionButtons>
           <Tip text="Appearance">
             <Link
-              to={`/settings/integrations/messenger/appearance/${integration._id}`}
+              to={`/settings/integrations/messenger/appearance/${
+                integration._id
+              }`}
             >
-              <Button btnStyle="link">
-                <Icon icon="paintbucket" />
-              </Button>
+              <Button btnStyle="link" icon="paintbucket" />
             </Link>
           </Tip>
 
@@ -71,9 +71,7 @@ class Row extends Component {
             <Link
               to={`/settings/integrations/messenger/configs/${integration._id}`}
             >
-              <Button btnStyle="link">
-                <Icon icon="gear-a" />
-              </Button>
+              <Button btnStyle="link" icon="gear-a" />
             </Link>
           </Tip>
 
@@ -131,9 +129,11 @@ class Row extends Component {
           <ActionButtons>
             {this.renderExtraLinks()}
             <Tip text="Delete">
-              <Button btnStyle="link" onClick={this.removeIntegration}>
-                <Icon icon="close" />
-              </Button>
+              <Button
+                btnStyle="link"
+                onClick={this.removeIntegration}
+                icon="close"
+              />
             </Tip>
           </ActionButtons>
         </td>
