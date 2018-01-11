@@ -236,8 +236,13 @@ class RespondBox extends Component {
           onSelect={this.onSelectTemplate}
         />
 
-        <Button onClick={this.onSend} btnStyle="success" size="small">
-          <Icon icon="android-send" /> Send
+        <Button
+          onClick={this.onSend}
+          btnStyle="success"
+          size="small"
+          icon="android-send"
+        >
+          Send
         </Button>
       </EditorActions>
     );

@@ -1,17 +1,16 @@
 import styled from 'styled-components';
 import { colors, dimensions } from '../common/styles';
-import { rgba } from '../common/styles/color';
 
 const UserHelper = styled.div`
   padding: 0 ${dimensions.coreSpacing}px;
   height: 50px;
   display: flex;
   align-items: center;
-  background: ${rgba(colors.colorWhite, 0.1)};
+  background: ${colors.bgLight};
 
   &:hover {
     cursor: pointer;
-    background: ${rgba(colors.colorWhite, 0.15)};
+    background: ${colors.bgMain};
   }
 `;
 
@@ -103,6 +102,7 @@ const SideContent = styled.section`
 const SidebarHeader = styled.div`
   background-color: ${colors.bgLight};
   height: ${dimensions.headerSpacing}px;
+  margin-bottom: ${props => props.spaceBottom && '10px'};
   align-items: center;
   padding: 0 ${dimensions.coreSpacing}px 0 ${dimensions.coreSpacing}px;
   border-bottom: 1px solid ${colors.borderPrimary};
@@ -181,7 +181,6 @@ const HelperButtons = styled.div`
   a {
     color: ${colors.colorCoreLightGray};
     cursor: pointer;
-    margin-left: ${dimensions.unitSpacing}px;
     font-size: 12px;
 
     > i {

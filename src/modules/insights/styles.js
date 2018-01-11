@@ -60,20 +60,18 @@ const FlexItem = styled.div`
     margin-left: 0;
   }
 
-  .Select-control {
-    border-radius: 17px;
-  }
-
   .form-control {
     box-shadow: none;
-    border-radius: 30px;
-    border-color: ${colors.colorShadowGray};
+    border-radius: 0;
+    border: none;
+    background: none;
+    border-bottom: 1px solid ${colors.colorShadowGray};
     padding: 17px 14px;
     font-size: ${typography.fontSizeBody}px;
 
     &:focus {
       box-shadow: none;
-      border-color: ${colors.colorPrimary};
+      border-color: ${colors.colorSecondary};
     }
   }
 `;

@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import styled from 'styled-components';
 
 const IconStyle = styled.i`
-  margin-right: 4px;
   font-size: ${props => (props.size ? `${props.size}px` : 'inherit')};
 `;
 

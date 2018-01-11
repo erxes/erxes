@@ -130,12 +130,22 @@ class ManageColumns extends Component {
         />
 
         <Footer>
-          <Button type="button" btnStyle="simple" onClick={closeModal}>
-            <Icon icon="close" /> Cancel
+          <Button
+            type="button"
+            btnStyle="simple"
+            onClick={closeModal}
+            icon="close"
+          >
+            Cancel
           </Button>
 
-          <Button type="submit" onClick={closeModal} btnStyle="success">
-            <Icon icon="checkmark" /> Submit
+          <Button
+            type="submit"
+            onClick={closeModal}
+            btnStyle="success"
+            icon="checkmark"
+          >
+            Submit
           </Button>
         </Footer>
       </form>

@@ -49,15 +49,7 @@ const routes = () => [
     }}
   />,
 
-  <Route
-    key="/channels"
-    exact
-    path="/channels"
-    // component={({ location }) => {
-    //   return <Channels queryParams={queryString.parse(location.search)} />;
-    // }}
-    component={Channels}
-  />
+  <Route key="/channels" exact path="/channels" component={Channels} />
 ];
 
 export default routes;

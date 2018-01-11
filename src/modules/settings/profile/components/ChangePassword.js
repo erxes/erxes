@@ -4,8 +4,7 @@ import {
   Button,
   FormGroup,
   ControlLabel,
-  FormControl,
-  Icon
+  FormControl
 } from 'modules/common/components';
 import { ActionBar, Header, PageContent } from 'modules/layout/components';
 import { ContentBox, SubHeading } from '../../styles';
@@ -74,8 +73,12 @@ class ChangePassword extends Component {
     const actionFooter = (
       <ActionBar
         right={
-          <Button btnStyle="success" onClick={this.handleSubmit}>
-            <Icon icon="checkmark" /> Save
+          <Button
+            btnStyle="success"
+            onClick={this.handleSubmit}
+            icon="checkmark"
+          >
+            Save
           </Button>
         }
       />

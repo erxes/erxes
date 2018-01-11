@@ -52,13 +52,6 @@ const extractEntries = mention => {
   return _.object(keys, values);
 };
 
-const mentionPlugin = createMentionPlugin({
-  mentionPrefix: '@'
-});
-
-const { MentionSuggestions } = mentionPlugin;
-const plugins = [mentionPlugin];
-
 // response templates
 class TemplateList extends React.Component {
   normalizeIndex(selectedIndex, max) {
@@ -135,6 +128,10 @@ export default class Editor extends Component {
       templatesState: null
     };
 
+    this.mentionPlugin = createMentionPlugin({
+      mentionPrefix: '@'
+    });
+
     this.onChange = this.onChange.bind(this);
     this.keyBindingFn = this.keyBindingFn.bind(this);
     this.onSearchChange = this.onSearchChange.bind(this);
@@ -197,17 +194,15 @@ export default class Editor extends Component {
     }
 
     // search from response templates
-    const foundTemplates = responseTemplates.filter((template, index) => {
-      return (
-        index <= 4 &&
-        (template.name.toLowerCase().includes(textContent) ||
-          template.content.toLowerCase().includes(textContent))
-      );
-    });
+    const foundTemplates = responseTemplates.filter(
+      template =>
+        template.name.toLowerCase().includes(textContent) ||
+        template.content.toLowerCase().includes(textContent)
+    );
 
     if (foundTemplates.length > 0) {
       return {
-        templates: foundTemplates,
+        templates: foundTemplates.slice(0, 5),
         searchText: textContent,
         selectedIndex: 0
       };
@@ -355,6 +350,9 @@ export default class Editor extends Component {
   }
 
   render() {
+    const { MentionSuggestions } = this.mentionPlugin;
+    const plugins = [this.mentionPlugin];
+
     const pluginContent = (
       <MentionSuggestions
         onSearchChange={this.onSearchChange}

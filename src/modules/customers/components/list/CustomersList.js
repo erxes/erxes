@@ -95,8 +95,8 @@ class CustomersList extends React.Component {
     } = this.props;
 
     const addTrigger = (
-      <Button btnStyle="success" size="small">
-        <Icon icon="plus" /> Add customer
+      <Button btnStyle="success" size="small" icon="plus">
+        Add customer
       </Button>
     );
     const editColumns = <a>Edit columns</a>;

@@ -101,7 +101,9 @@ class Avatar extends Component {
       avatar = details && details.avatar;
       fullName = details && details.fullName;
     } else if (customer) {
-      avatar = customer.avatar;
+      avatar =
+        customer.avatar ||
+        (customer.facebookData && customer.facebookData.profilePic);
       fullName = this.renderName(customer);
     }
 

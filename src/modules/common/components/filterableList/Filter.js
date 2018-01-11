@@ -14,7 +14,6 @@ function Filter({ placeholder = 'Search ...', onChange }) {
       placeholder={placeholder}
       onChange={onChange}
       autoFocus
-      round
     />
   );
 }

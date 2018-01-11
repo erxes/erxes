@@ -112,12 +112,18 @@ class BasicInfo extends React.Component {
           />
         </FormGroup>
         <ButtonWrapper>
-          <Button btnStyle="success" size="small" onClick={this.save}>
-            <Icon icon="checkmark" />
-          </Button>
-          <Button btnStyle="simple" size="small" onClick={this.cancelEditing}>
-            <Icon icon="close" />
-          </Button>
+          <Button
+            btnStyle="success"
+            size="small"
+            onClick={this.save}
+            icon="checkmark"
+          />
+          <Button
+            btnStyle="simple"
+            size="small"
+            onClick={this.cancelEditing}
+            icon="close"
+          />
         </ButtonWrapper>
       </SidebarContent>
     );
