@@ -18,6 +18,12 @@ const propTypes = {
 };
 
 class Row extends Component {
+  constructor(props) {
+    super(props);
+
+    this.getTypeName = this.getTypeName.bind(this);
+  }
+
   renderExtraLinks() {
     const { integration, refetch } = this.props;
     const kind = integration.kind;
@@ -34,7 +40,11 @@ class Row extends Component {
       return (
         <ActionButtons>
           <Tip text="Appearance">
-            <Link to={`/channels/messenger/appearance/${integration._id}`}>
+            <Link
+              to={`/settings/integrations/messenger/appearance/${
+                integration._id
+              }`}
+            >
               <Button btnStyle="link">
                 <Icon icon="paintbucket" />
               </Button>
@@ -42,7 +52,9 @@ class Row extends Component {
           </Tip>
 
           <Tip text="Hours, Availability & Other configs">
-            <Link to={`/channels/messenger/configs/${integration._id}`}>
+            <Link
+              to={`settings/integrations/messenger/configs/${integration._id}`}
+            >
               <Button btnStyle="link">
                 <Icon icon="gear-a" />
               </Button>
@@ -98,7 +110,9 @@ class Row extends Component {
           </Label>
         </td>
         <td>{integration.brand ? integration.brand.name : ''}</td>
-        <td>{this.renderExtraLinks()}</td>
+        <td>
+          <ActionButtons>{this.renderExtraLinks()}</ActionButtons>
+        </td>
       </tr>
     );
   }

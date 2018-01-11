@@ -8,7 +8,7 @@ const Maincontent = styled.section`
 const Row = styled.div`
   display: flex;
   flex-direction: row;
-  padding-top: 25px;
+  padding-top: ${dimensions.coreSpacing + 5}px;
 `;
 
 const RowTitle = styled.h3`
@@ -17,7 +17,7 @@ const RowTitle = styled.h3`
   padding: ${dimensions.coreSpacing + 15}px;
   text-transform: uppercase;
   align-self: center;
-  margin-bottom: 40px;
+  margin-bottom: ${dimensions.headerSpacing - 50}px;
   color: ${colors.colorCoreDarkGray};
   flex-shrink: 0;
   min-width: 202px;
@@ -30,7 +30,7 @@ const RowTitle = styled.h3`
 const Box = styled.div`
   text-align: center;
   float: left;
-  margin: 12px;
+  margin: ${dimensions.unitSpacing + 2}px;
   background: ${colors.colorLightBlue};
   border-radius: 6px;
   width: 150px;
@@ -58,12 +58,12 @@ const Box = styled.div`
 `;
 
 const BoxContent = styled.div`
-  border-bottom: 1px dotted #ccc;
-  padding-bottom: 25px;
+  border-bottom: 1px dotted ${colors.colorBorderGray};
+  padding-bottom: ${dimensions.coreSpacing + 5}px;
 `;
 
 const BoxName = styled.div`
-  font-size: 11px;
+  font-size: ${typography.fontSizeUppercase}px;
   color: ${colors.colorCoreGray};
 `;
 

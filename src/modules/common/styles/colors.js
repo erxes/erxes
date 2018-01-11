@@ -15,6 +15,7 @@ const colorLightGray = '#AAA';
 const colorLightBlue = '#f8fbff';
 const colorCoreDarkGray = '#373737';
 const colorShadowGray = '#DDD';
+const colorBorderGray = '#CCC';
 const colorBlack = '#000';
 const colorWhite = '#FFF';
 
@@ -63,6 +64,7 @@ export default {
   colorLightGray,
   colorLightBlue,
   colorCoreDarkGray,
+  colorBorderGray,
 
   bgMain,
   bgDark,
