@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { compose, gql, graphql } from 'react-apollo';
 import { AutoAndManualForm } from '../components';
-import Step1 from '../components/step/Step1';
+import { Step } from '../components';
 import { queries } from '../graphql';
 import withFormMutations from './withFormMutations';
 
@@ -26,7 +26,7 @@ const AutoAndManualFormContainer = props => {
     counts
   };
 
-  return <Step1 {...updatedProps} />;
+  return <Step {...updatedProps} />;
 };
 
 AutoAndManualFormContainer.propTypes = {

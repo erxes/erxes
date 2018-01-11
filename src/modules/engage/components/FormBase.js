@@ -10,7 +10,6 @@ import {
   FormGroup
 } from 'modules/common/components';
 import { EngageBox } from '../styles';
-import Step1 from './step/Step1';
 
 const propTypes = {
   kind: PropTypes.string,
@@ -185,8 +184,9 @@ class FormBase extends Component {
     return (
       <Wrapper
         header={<Wrapper.Header breadcrumb={breadcrumb} />}
-        footer={actionFooter}
-        content={<Step1 />}
+        //footer={actionFooter}
+        content={this.renderContent()}
+        //leftSidebar={sidebar}
       />
     );
   }

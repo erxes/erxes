@@ -25,7 +25,7 @@ const EmptyStateStyled = styled.div`
       `;
     } else {
       return `
-        position: absolute;
+        position: ${props.position};
         bottom: 0;
         top: 0;
         left: 0;
@@ -51,7 +51,8 @@ EmptyState.propTypes = {
   icon: PropTypes.string.isRequired,
   size: PropTypes.oneOf(['full', 'small']),
   linkUrl: PropTypes.string,
-  linkText: PropTypes.string
+  linkText: PropTypes.string,
+  position: PropTypes.oneOf(['absolute', 'static'])
 };
 
 function EmptyState({ text, icon, size, linkUrl, linkText }) {
@@ -69,7 +70,8 @@ function EmptyState({ text, icon, size, linkUrl, linkText }) {
 }
 
 EmptyState.defaultProps = {
-  size: 'small'
+  size: 'small',
+  position: 'absolute'
 };
 
 export default EmptyState;
