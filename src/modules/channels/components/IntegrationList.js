@@ -8,7 +8,6 @@ import {
   Pagination,
   ModalTrigger,
   Button,
-  Icon,
   ShowData
 } from 'modules/common/components';
 
@@ -62,8 +61,8 @@ class IntegrationList extends Component {
     ];
 
     const trigger = (
-      <Button btnStyle="success" size="small">
-        <Icon icon="wrench" /> Manage integration
+      <Button btnStyle="success" size="small" icon="wrench">
+        Manage integration
       </Button>
     );
 

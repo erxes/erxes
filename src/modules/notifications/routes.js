@@ -3,7 +3,7 @@ import { Route } from 'react-router-dom';
 import queryString from 'query-string';
 import { NotificationList } from './containers';
 
-const routes = () => [
+const routes = () => (
   <Route
     path="/notifications"
     exact
@@ -13,6 +13,6 @@ const routes = () => [
       return <NotificationList queryParams={queryParams} />;
     }}
   />
-];
+);
 
 export default routes;
