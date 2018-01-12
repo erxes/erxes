@@ -15,7 +15,7 @@ import {
   FormControl,
   ShowData
 } from 'modules/common/components';
-import { router } from 'modules/common/utils';
+import { router, confirm } from 'modules/common/utils';
 import { BarItems } from 'modules/layout/styles';
 import { Widget } from 'modules/engage/containers';
 import Sidebar from './Sidebar';
@@ -192,7 +192,15 @@ class CustomersList extends React.Component {
                 </ModalTrigger>
               </li>
               <li>
-                <a onClick={() => this.removeCustomers(bulk)}>Remove</a>
+                <a
+                  onClick={() =>
+                    confirm().then(() => {
+                      this.removeCustomers(bulk);
+                    })
+                  }
+                >
+                  Remove
+                </a>
               </li>
             </Dropdown.Menu>
           </Dropdown>
