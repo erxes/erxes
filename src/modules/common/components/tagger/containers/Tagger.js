@@ -64,7 +64,7 @@ export default compose(
     name: 'tagMutation',
     options: props => ({
       refetchQueries: [
-        props.type !== 'customer' ? `${props.type}` : `${props.type}s`
+        props.type === 'company' ? `companies` : `${props.type}s`
       ]
     })
   })
