@@ -14,7 +14,8 @@ class CompanyListContainer extends Bulk {
       companiesListConfigQuery,
       companyCountsQuery,
       companiesAdd,
-      tagsQuery
+      tagsQuery,
+      companiesRemove
     } = this.props;
 
     let columnsConfig =
@@ -41,6 +42,21 @@ class CompanyListContainer extends Bulk {
           Alert.error(e.message);
         });
     };
+
+    const removeCompanies = ({ companyIds }) => {
+      companiesRemove({
+        variables: { companyIds }
+      })
+        .then(() => {
+          companiesQuery.refetch();
+          Alert.success('Success');
+          // callback();
+        })
+        .catch(e => {
+          Alert.error(e.message);
+        });
+    };
+
     const searchValue = this.props.queryParams.searchValue || '';
 
     const updatedProps = {
@@ -63,6 +79,7 @@ class CompanyListContainer extends Bulk {
       emptyBulk: this.emptyBulk,
       toggleBulk: this.toggleBulk,
       toggleAll: this.toggleAll,
+      removeCompanies,
       loadingTags: tagsQuery.loading
     };
 
@@ -127,5 +144,8 @@ export default compose(
   // mutations
   graphql(gql(mutations.companiesAdd), {
     name: 'companiesAdd'
+  }),
+  graphql(gql(mutations.companiesRemove), {
+    name: 'companiesRemove'
   })
 )(CompanyListContainer);

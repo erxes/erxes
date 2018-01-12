@@ -14,7 +14,7 @@ import {
   DropdownToggle,
   TaggerPopover
 } from 'modules/common/components';
-import { router } from 'modules/common/utils';
+import { router, confirm } from 'modules/common/utils';
 import { BarItems } from 'modules/layout/styles';
 import Sidebar from './Sidebar';
 import CompanyRow from './CompanyRow';
@@ -34,6 +34,7 @@ const propTypes = {
   bulk: PropTypes.array.isRequired,
   emptyBulk: PropTypes.func.isRequired,
   tags: PropTypes.array.isRequired,
+  removeCompanies: PropTypes.func.isRequired,
   loadingTags: PropTypes.bool.isRequired
 };
 
@@ -47,6 +48,7 @@ class CompaniesList extends React.Component {
 
     this.onChange = this.onChange.bind(this);
     this.search = this.search.bind(this);
+    this.removeCompanies = this.removeCompanies.bind(this);
   }
 
   onChange() {
@@ -63,6 +65,15 @@ class CompaniesList extends React.Component {
     this.timer = setTimeout(() => {
       router.setParams(history, { searchValue });
     }, 500);
+  }
+
+  removeCompanies(companies) {
+    const companyIds = [];
+
+    companies.forEach(company => {
+      companyIds.push(company._id);
+    });
+    this.props.removeCompanies({ companyIds });
   }
 
   render() {
@@ -149,7 +160,15 @@ class CompaniesList extends React.Component {
             </DropdownToggle>
             <Dropdown.Menu>
               <li>
-                <a>Remove</a>
+                <a
+                  onClick={() =>
+                    confirm().then(() => {
+                      this.removeCompanies(bulk);
+                    })
+                  }
+                >
+                  Remove
+                </a>
               </li>
             </Dropdown.Menu>
           </Dropdown>

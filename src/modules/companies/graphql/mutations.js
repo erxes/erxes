@@ -49,9 +49,16 @@ const companiesEditCustomers = `
   }
 `;
 
+const companiesRemove = `
+  mutation companiesRemove($companyIds: [String]) {
+    companiesRemove(companyIds: $companyIds)
+  }
+`;
+
 export default {
   companiesAdd,
   companiesEdit,
   companiesAddCustomer,
-  companiesEditCustomers
+  companiesEditCustomers,
+  companiesRemove
 };
