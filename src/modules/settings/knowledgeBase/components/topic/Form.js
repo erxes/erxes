@@ -67,7 +67,9 @@ class TopicForm extends CommonForm {
     return `
       (function() {
         var script = document.createElement('script');
-        script.src = "${process.env.CDN_HOST}/knowledgeBaseWidget.bundle.js";
+        script.src = "${
+          process.env.REACT_APP_CDN_HOST
+        }/knowledgeBaseWidget.bundle.js";
         script.async = true;
 
         var entry = document.getElementsByTagName('script')[0];
