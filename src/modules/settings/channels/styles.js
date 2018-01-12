@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import { colors, dimensions } from '../common/styles';
+import { colors, dimensions } from 'modules/common/styles';
 
 const SidebarListli = styled.li`
   border-top: 1px solid ${colors.borderPrimary};

@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { compose, gql, graphql } from 'react-apollo';
 import { Alert, confirm } from 'modules/common/utils';
+import { queries, mutations } from '../graphql';
 import { Sidebar } from '../components';
 
 const SidebarContainer = props => {
@@ -79,92 +80,29 @@ SidebarContainer.propTypes = {
   channelsQuery: PropTypes.object
 };
 
-const commonParamsDef = `
-  $name: String!,
-  $description: String,
-  $memberIds: [String],
-  $integrationIds: [String]
-`;
-
-const commonParams = `
-  name: $name,
-  description: $description,
-  memberIds: $memberIds,
-  integrationIds: $integrationIds
-`;
-
 export default compose(
-  graphql(
-    gql`
-      query channels($page: Int, $perPage: Int, $memberIds: [String]) {
-        channels(page: $page, perPage: $perPage, memberIds: $memberIds) {
-          _id
-          name
-          description
-          integrationIds
-          memberIds
-        }
-      }
-    `,
-    {
-      name: 'channelsQuery',
-      options: () => {
-        return {
-          notifyOnNetworkStatusChange: true,
-          perPage: 20
-        };
-      }
+  graphql(gql(queries.channels), {
+    name: 'channelsQuery',
+    options: () => {
+      return {
+        notifyOnNetworkStatusChange: true,
+        perPage: 20
+      };
     }
-  ),
-  graphql(
-    gql`
-      query users {
-        users {
-          _id
-          details {
-            avatar
-            fullName
-            position
-            twitterUsername
-          }
-        }
-      }
-    `,
-    {
-      name: 'usersQuery',
-      options: () => ({
-        fetchPolicy: 'network-only'
-      })
-    }
-  ),
-  graphql(
-    gql`
-      mutation channelsAdd(${commonParamsDef}) {
-        channelsAdd(${commonParams}) {
-          _id
-        }
-      }
-    `,
-    { name: 'addMutation' }
-  ),
-
-  graphql(
-    gql`
-      mutation channelsEdit($_id: String!, ${commonParamsDef}) {
-        channelsEdit(_id: $_id, ${commonParams}) {
-          _id
-        }
-      }
-    `,
-    { name: 'editMutation' }
-  ),
-
-  graphql(
-    gql`
-      mutation channelsRemove($_id: String!) {
-        channelsRemove(_id: $_id)
-      }
-    `,
-    { name: 'removeMutation' }
-  )
+  }),
+  graphql(gql(queries.users), {
+    name: 'usersQuery',
+    options: () => ({
+      fetchPolicy: 'network-only'
+    })
+  }),
+  graphql(gql(mutations.channelAdd), {
+    name: 'addMutation'
+  }),
+  graphql(gql(mutations.channelEdit), {
+    name: 'editMutation'
+  }),
+  graphql(gql(mutations.channelRemove), {
+    name: 'removeMutation'
+  })
 )(SidebarContainer);

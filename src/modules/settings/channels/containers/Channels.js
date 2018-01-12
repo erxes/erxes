@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { withRouter } from 'react-router';
 import queryString from 'query-string';
+import { queries } from '../graphql';
 import { compose, gql, graphql } from 'react-apollo';
 import { router as routerUtils } from 'modules/common/utils';
 import { IntegrationList } from './';
@@ -38,27 +39,14 @@ Channels.propTypes = {
 
 export default withRouter(
   compose(
-    graphql(
-      gql`
-        query channels($page: Int, $perPage: Int, $memberIds: [String]) {
-          channels(page: $page, perPage: $perPage, memberIds: $memberIds) {
-            _id
-            name
-            description
-            integrationIds
-            memberIds
-          }
-        }
-      `,
-      {
-        name: 'channelsQuery',
-        options: () => {
-          return {
-            notifyOnNetworkStatusChange: true,
-            perPage: 20
-          };
-        }
+    graphql(gql(queries.channels), {
+      name: 'channelsQuery',
+      options: () => {
+        return {
+          notifyOnNetworkStatusChange: true,
+          perPage: 20
+        };
       }
-    )
+    })
   )(Channels)
 );

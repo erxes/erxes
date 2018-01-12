@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { compose, gql, graphql } from 'react-apollo';
+import { queries } from '../graphql';
 import { Spinner } from 'modules/common/components';
 import { ChannelForm } from '../components';
 
@@ -36,25 +37,10 @@ ChannelFormContainer.propTypes = {
 };
 
 export default compose(
-  graphql(
-    gql`
-      query users {
-        users {
-          _id
-          details {
-            avatar
-            fullName
-            position
-            twitterUsername
-          }
-        }
-      }
-    `,
-    {
-      name: 'usersQuery',
-      options: () => ({
-        fetchPolicy: 'network-only'
-      })
-    }
-  )
+  graphql(gql(queries.users), {
+    name: 'usersQuery',
+    options: () => ({
+      fetchPolicy: 'network-only'
+    })
+  })
 )(ChannelFormContainer);

@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { compose, gql, graphql } from 'react-apollo';
+import { mutations } from '../graphql';
 import { IntegrationForm } from '../components';
 import { Alert } from 'modules/common/utils';
 
@@ -73,29 +74,8 @@ FormContainer.propTypes = {
   editMutation: PropTypes.func
 };
 
-const commonParamsDef = `
-  $name: String!,
-  $description: String,
-  $memberIds: [String],
-  $integrationIds: [String]
-`;
-
-const commonParams = `
-  name: $name,
-  description: $description,
-  memberIds: $memberIds,
-  integrationIds: $integrationIds
-`;
-
 export default compose(
-  graphql(
-    gql`
-      mutation channelsEdit($_id: String!, ${commonParamsDef}) {
-        channelsEdit(_id: $_id, ${commonParams}) {
-          _id
-        }
-      }
-    `,
-    { name: 'editMutation' }
-  )
+  graphql(gql(mutations.channelEdit), {
+    name: 'editMutation'
+  })
 )(FormContainer);

@@ -20,7 +20,7 @@ class Settings extends Component {
           <Row>
             <RowTitle>Account Settings</RowTitle>
             <BoxContent>
-              <Link to="/channels">
+              <Link to="/settings/channels">
                 <Box>
                   <img src="/images/channels.png" alt="channels" />
                   <BoxName>Channels</BoxName>
