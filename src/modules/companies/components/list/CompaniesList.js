@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { withRouter } from 'react-router';
+import { Dropdown } from 'react-bootstrap';
 import { Wrapper } from 'modules/layout/components';
 import {
   Pagination,
@@ -9,7 +10,9 @@ import {
   Table,
   Icon,
   ShowData,
-  FormControl
+  FormControl,
+  DropdownToggle,
+  TaggerPopover
 } from 'modules/common/components';
 import { router } from 'modules/common/utils';
 import { BarItems } from 'modules/layout/styles';
@@ -25,7 +28,13 @@ const propTypes = {
   addCompany: PropTypes.func.isRequired,
   history: PropTypes.object,
   loading: PropTypes.bool.isRequired,
-  searchValue: PropTypes.string.isRequired
+  searchValue: PropTypes.string.isRequired,
+  toggleBulk: PropTypes.func.isRequired,
+  toggleAll: PropTypes.func.isRequired,
+  bulk: PropTypes.array.isRequired,
+  emptyBulk: PropTypes.func.isRequired,
+  tags: PropTypes.array.isRequired,
+  loadingTags: PropTypes.bool.isRequired
 };
 
 class CompaniesList extends React.Component {
@@ -36,7 +45,13 @@ class CompaniesList extends React.Component {
       searchValue: this.props.searchValue
     };
 
+    this.onChange = this.onChange.bind(this);
     this.search = this.search.bind(this);
+  }
+
+  onChange() {
+    const { toggleAll, companies } = this.props;
+    toggleAll(companies, 'companies');
   }
 
   search(e) {
@@ -57,7 +72,12 @@ class CompaniesList extends React.Component {
       history,
       loading,
       addCompany,
-      counts
+      counts,
+      toggleBulk,
+      bulk,
+      emptyBulk,
+      tags,
+      loadingTags
     } = this.props;
 
     const mainContent = (
@@ -65,18 +85,26 @@ class CompaniesList extends React.Component {
         <Table whiteSpace="nowrap" bordered hover>
           <thead>
             <tr>
+              <th>
+                <FormControl
+                  componentClass="checkbox"
+                  onChange={this.onChange}
+                />
+              </th>
               {columnsConfig.map(({ name, label }) => (
                 <th key={name}>{label}</th>
               ))}
+              <th>Tags</th>
             </tr>
           </thead>
-          <tbody>
+          <tbody id="companies">
             {companies.map(company => (
               <CompanyRow
                 company={company}
                 columnsConfig={columnsConfig}
                 key={company._id}
                 history={history}
+                toggleBulk={toggleBulk}
               />
             ))}
           </tbody>
@@ -96,6 +124,39 @@ class CompaniesList extends React.Component {
       </Button>
     );
 
+    let actionBarLeft = null;
+
+    if (bulk.length > 0) {
+      const tagButton = (
+        <Button btnStyle="simple" size="small">
+          Tag <Icon icon="ios-arrow-down" />
+        </Button>
+      );
+
+      actionBarLeft = (
+        <BarItems>
+          <TaggerPopover
+            type="company"
+            afterSave={emptyBulk}
+            targets={bulk}
+            trigger={tagButton}
+          />
+          <Dropdown id="dropdown-options" pullRight>
+            <DropdownToggle bsRole="toggle">
+              <Button btnStyle="simple" size="small">
+                More <Icon icon="ios-arrow-down" />
+              </Button>
+            </DropdownToggle>
+            <Dropdown.Menu>
+              <li>
+                <a>Remove</a>
+              </li>
+            </Dropdown.Menu>
+          </Dropdown>
+        </BarItems>
+      );
+    }
+
     const actionBarRight = (
       <BarItems>
         <FormControl
@@ -113,14 +174,18 @@ class CompaniesList extends React.Component {
       </BarItems>
     );
 
-    const actionBar = <Wrapper.ActionBar right={actionBarRight} />;
+    const actionBar = (
+      <Wrapper.ActionBar right={actionBarRight} left={actionBarLeft} />
+    );
     const breadcrumb = [{ title: `Companies (${counts.all})` }];
     return (
       <Wrapper
         header={<Wrapper.Header breadcrumb={breadcrumb} />}
         actionBar={actionBar}
         footer={<Pagination count={counts.all} />}
-        leftSidebar={<Sidebar counts={counts} />}
+        leftSidebar={
+          <Sidebar counts={counts} tags={tags} loading={loadingTags} />
+        }
         content={
           <ShowData
             data={mainContent}

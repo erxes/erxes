@@ -2,16 +2,19 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { compose, gql, graphql } from 'react-apollo';
 import { Alert } from 'modules/common/utils';
+import { Bulk } from 'modules/common/components';
 import { mutations, queries } from '../graphql';
+import { TAG_TYPES } from 'modules/tags/constants';
 import { CompaniesList } from '../components';
 
-class CompanyListContainer extends React.Component {
+class CompanyListContainer extends Bulk {
   render() {
     const {
       companiesQuery,
       companiesListConfigQuery,
       companyCountsQuery,
-      companiesAdd
+      companiesAdd,
+      tagsQuery
     } = this.props;
 
     let columnsConfig =
@@ -51,10 +54,16 @@ class CompanyListContainer extends React.Component {
         bySegment: {},
         byTag: {}
       },
+      tags: tagsQuery.tags || [],
       searchValue,
       companies: companiesQuery.companies || [],
       addCompany,
-      loading: companiesQuery.loading
+      loading: companiesQuery.loading,
+      bulk: this.state.bulk || [],
+      emptyBulk: this.emptyBulk,
+      toggleBulk: this.toggleBulk,
+      toggleAll: this.toggleAll,
+      loadingTags: tagsQuery.loading
     };
 
     return <CompaniesList {...updatedProps} />;
@@ -66,6 +75,7 @@ CompanyListContainer.propTypes = {
   companiesQuery: PropTypes.object,
   companyCountsQuery: PropTypes.object,
   companiesListConfigQuery: PropTypes.object,
+  tagsQuery: PropTypes.object,
   companiesAdd: PropTypes.func,
   loading: PropTypes.bool
 };
@@ -102,6 +112,15 @@ export default compose(
   graphql(gql(queries.companiesListConfig), {
     name: 'companiesListConfigQuery',
     options: () => ({
+      notifyOnNetworkStatusChange: true
+    })
+  }),
+  graphql(gql(queries.tags), {
+    name: 'tagsQuery',
+    options: () => ({
+      variables: {
+        type: TAG_TYPES.COMPANY
+      },
       notifyOnNetworkStatusChange: true
     })
   }),
