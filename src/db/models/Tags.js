@@ -1,7 +1,7 @@
 import _ from 'underscore';
 import mongoose from 'mongoose';
 import { TAG_TYPES } from '../../data/constants';
-import { Customers, Conversations, EngageMessages } from '.';
+import { Customers, Conversations, EngageMessages, Companies } from '.';
 import { field } from './utils';
 
 const TagSchema = mongoose.Schema({
@@ -149,12 +149,15 @@ class Tag {
   static async tagsTag(type, targetIds, tagIds) {
     let collection = Conversations;
 
-    if (type === 'customer') {
-      collection = Customers;
-    }
-
-    if (type === 'engageMessage') {
-      collection = EngageMessages;
+    switch (type) {
+      case 'customer':
+        collection = Customers;
+        break;
+      case 'engageMessage':
+        collection = EngageMessages;
+        break;
+      case 'company':
+        collection = Companies;
     }
 
     await tagObject({
