@@ -25,6 +25,11 @@ const listQuery = async params => {
     selector = { $or: fields };
   }
 
+  // Filter by tag
+  if (params.tag) {
+    selector.tagIds = params.tag;
+  }
+
   return selector;
 };
 

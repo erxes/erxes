@@ -8,11 +8,12 @@ export const types = `
     plan: String
     lastSeenAt: Date
     sessionCount: Int
-    tagIds: [String],
+    tagIds: [String]
 
     customFieldsData: JSON
 
     customers: [Customer]
+    getTags: [Tag]
   }
 `;
 
