@@ -64,33 +64,34 @@ class Step extends FormBase {
   }
 
   renderContent() {
-    console.log(this.state.step);
     return (
       <StepWrapper>
-        <Step1
-          changeStep={this.changeStep}
-          changeMethod={this.changeMethod}
-          finished={this.state.step === 1}
-        />
-        <Step2
-          changeStep={this.changeStep}
-          onChangeSegments={this.onChangeSegments}
-          segments={this.props.segments}
-          message={this.props.message}
-          counts={this.props.counts}
-          finished={this.state.step == 2}
-        />
-        <Step3
-          changeStep={this.changeStep}
-          changeMethod={this.changeMethod}
-          templates={this.props.templates}
-          message={this.props.message}
-          brands={this.props.brands}
-          onEmailContentChange={this.onEmailContentChange}
-          onMessengerContentChange={this.onMessengerContentChange}
-          finished={this.state.step == 3}
-          fromUser={this.state.fromUser}
-        />
+        <Step>
+          <Step1
+            changeStep={this.changeStep}
+            changeMethod={this.changeMethod}
+            finished={this.state.step === 1}
+          />
+          <Step2
+            changeStep={this.changeStep}
+            onChangeSegments={this.onChangeSegments}
+            segments={this.props.segments}
+            message={this.props.message}
+            counts={this.props.counts}
+            finished={this.state.step == 2}
+          />
+          <Step3
+            changeStep={this.changeStep}
+            changeMethod={this.changeMethod}
+            templates={this.props.templates}
+            message={this.props.message}
+            brands={this.props.brands}
+            onEmailContentChange={this.onEmailContentChange}
+            onMessengerContentChange={this.onMessengerContentChange}
+            finished={this.state.step == 3}
+            fromUser={this.state.fromUser}
+          />
+        </Step>
       </StepWrapper>
     );
   }
