@@ -8,10 +8,11 @@ import {
   FormGroup,
   ControlLabel
 } from 'modules/common/components';
-import { Alert } from 'modules/common/utils';
 
 const propTypes = {
-  datas: PropTypes.array.isRequired
+  datas: PropTypes.array.isRequired,
+  save: PropTypes.func.isRequired,
+  type: PropTypes.string
 };
 
 const contextTypes = {
@@ -21,43 +22,81 @@ const contextTypes = {
 class CommonMerge extends React.Component {
   constructor(props) {
     super(props);
+    const { type } = this.props;
+
+    if (type === 'company') {
+      this.basicInfos = {
+        name: 'Company Name',
+        size: 'Company Size',
+        website: 'Company Website',
+        industry: 'Company Industry',
+        plant: 'Company Plan'
+      };
+    }
+    this.basicInfos = {
+      firstName: 'First Name',
+      lastName: 'Last Name',
+      email: 'E-mail',
+      phone: 'Phone'
+    };
+    this.state = {};
+
+    this.onChange = this.onChange.bind(this);
+    this.save = this.save.bind(this);
   }
 
-  renderOptions(field) {
+  renderOptions(fieldName) {
     const { datas } = this.props;
 
     return datas.map(data => {
-      return <option key={data._id}>{data[field] || ''}</option>;
+      return <option key={data._id}>{data[fieldName] || ''}</option>;
     });
+  }
+
+  renderField(field) {
+    const wrapper = [];
+
+    for (var key in field) {
+      if (field.hasOwnProperty(key)) {
+        wrapper.push(
+          <FormGroup key={key}>
+            <ControlLabel>{field[key]}</ControlLabel>
+            <FormControl
+              componentClass="select"
+              name={key}
+              onChange={e => this.onChange(e)}
+            >
+              {this.renderOptions(key)}
+            </FormControl>
+          </FormGroup>
+        );
+      }
+    }
+
+    return wrapper;
+  }
+
+  onChange(e) {
+    const value = e.target.value;
+    const name = e.target.name;
+
+    this.setState({
+      [name]: value
+    });
+    console.log(this.state);
+  }
+
+  save() {
+    const customer = this.state;
+    const { datas } = this.props;
+
+    this.props.save(datas, customer);
   }
 
   render() {
     return (
       <div>
-        <FormGroup>
-          <ControlLabel>First Name</ControlLabel>
-          <FormControl componentClass="select">
-            {this.renderOptions('firstName')}
-          </FormControl>
-        </FormGroup>
-        <FormGroup>
-          <ControlLabel>Last Name</ControlLabel>
-          <FormControl componentClass="select">
-            {this.renderOptions('lastName')}
-          </FormControl>
-        </FormGroup>
-        <FormGroup>
-          <ControlLabel>Email</ControlLabel>
-          <FormControl componentClass="select">
-            {this.renderOptions('email')}
-          </FormControl>
-        </FormGroup>
-        <FormGroup>
-          <ControlLabel>Phone</ControlLabel>
-          <FormControl componentClass="select">
-            {this.renderOptions('phone')}
-          </FormControl>
-        </FormGroup>
+        {this.renderField(this.basicInfos)}
         <Modal.Footer>
           <Button btnStyle="simple" onClick={() => this.context.closeModal()}>
             <Icon icon="close" />CANCEL
