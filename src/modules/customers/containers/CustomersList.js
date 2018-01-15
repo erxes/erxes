@@ -17,7 +17,8 @@ class CustomerListContainer extends Bulk {
       customerCountsQuery,
       customersListConfigQuery,
       customersAdd,
-      customersRemove
+      customersRemove,
+      customersMerge
     } = this.props;
 
     let columnsConfig =
@@ -59,6 +60,20 @@ class CustomerListContainer extends Bulk {
         });
     };
 
+    const mergeCustomers = ({ doc, callback }) => {
+      customersMerge({
+        variables: doc
+      })
+        .then(() => {
+          customersQuery.refetch();
+          Alert.success('Success');
+          callback();
+        })
+        .catch(e => {
+          Alert.error(e.message);
+        });
+    };
+
     const searchValue = this.props.queryParams.searchValue || '';
 
     const updatedProps = {
@@ -84,6 +99,7 @@ class CustomerListContainer extends Bulk {
       loading: customersQuery.loading,
       loadingTags: tagsQuery.loading,
       addCustomer,
+      mergeCustomers,
       removeCustomers
     };
 
@@ -156,5 +172,8 @@ export default compose(
   }),
   graphql(gql(mutations.customersRemove), {
     name: 'customersRemove'
+  }),
+  graphql(gql(mutations.customersMerge), {
+    name: 'customersMerge'
   })
 )(CustomerListContainer);

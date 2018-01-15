@@ -20,8 +20,7 @@ import { BarItems } from 'modules/layout/styles';
 import { Widget } from 'modules/engage/containers';
 import Sidebar from './Sidebar';
 import CustomerRow from './CustomerRow';
-import { CustomerForm } from '../';
-import { CustomerMerge } from '../../containers';
+import { CustomerForm, CommonMerge } from '../';
 import { ManageColumns } from 'modules/fields/containers';
 
 const propTypes = {
@@ -40,7 +39,8 @@ const propTypes = {
   loading: PropTypes.bool.isRequired,
   searchValue: PropTypes.string.isRequired,
   loadingTags: PropTypes.bool.isRequired,
-  removeCustomers: PropTypes.func.isRequired
+  removeCustomers: PropTypes.func.isRequired,
+  mergeCustomers: PropTypes.func.isRequired
 };
 
 class CustomersList extends React.Component {
@@ -121,7 +121,8 @@ class CustomersList extends React.Component {
       emptyBulk,
       loading,
       customers,
-      loadingTags
+      loadingTags,
+      mergeCustomers
     } = this.props;
 
     const addTrigger = (
@@ -188,7 +189,7 @@ class CustomersList extends React.Component {
             <Dropdown.Menu>
               <li>
                 <ModalTrigger title="Merge Customers" trigger={<a>Merge</a>}>
-                  <CustomerMerge datas={bulk} />
+                  <CommonMerge datas={bulk} save={mergeCustomers} />
                 </ModalTrigger>
               </li>
               <li>

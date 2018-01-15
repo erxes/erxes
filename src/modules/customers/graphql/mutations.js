@@ -59,10 +59,19 @@ const customersRemove = `
   }
 `;
 
+const customersMerge = `
+  mutation customersMerge($customerOneId: String, $customerTwoId: String, $newCustomer: JSON) {
+    customersMerge(customerOneId: $customerOneId, customerTwoId: $customerTwoId, newCustomer: $newCustomer) {
+      _id
+    }
+  }
+`;
+
 export default {
   customersAdd,
   customersEdit,
   customersAddCompany,
   customersEditCompanies,
-  customersRemove
+  customersRemove,
+  customersMerge
 };
