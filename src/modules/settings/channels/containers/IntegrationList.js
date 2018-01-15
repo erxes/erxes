@@ -75,7 +75,7 @@ export default compose(
     name: 'integrationsQuery',
     options: ({ queryParams }) => ({
       variables: {
-        channelId: queryParams.id,
+        channelId: queryParams.id || '',
         perPage: 20
       },
       fetchPolicy: 'network-only'
@@ -84,7 +84,7 @@ export default compose(
   graphql(gql(queries.channelDetail), {
     name: 'channelDetailQuery',
     options: ({ queryParams }) => ({
-      variables: { _id: queryParams.id },
+      variables: { _id: queryParams.id || '' },
       fetchPolicy: 'network-only'
     })
   }),

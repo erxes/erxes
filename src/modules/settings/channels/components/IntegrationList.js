@@ -54,10 +54,11 @@ class IntegrationList extends Component {
       allIntegrationsQuery,
       save
     } = this.props;
+
     const breadcrumb = [
       { title: 'Settings', link: '/settings' },
-      { title: 'Channels', link: '/channels' },
-      { title: `${channelDetail.name}` }
+      { title: 'Channels', link: '/settings/channels' },
+      { title: `${channelDetail.name || ''}` }
     ];
 
     const trigger = (

@@ -15,7 +15,7 @@ const colorLightGray = '#AAA';
 const colorLightBlue = '#f8fbff';
 const colorCoreDarkGray = '#373737';
 const colorShadowGray = '#DDD';
-const colorBorderGray = '#CCC';
+
 const colorBlack = '#000';
 const colorWhite = '#FFF';
 
@@ -33,6 +33,7 @@ const linkPrimaryHover = rgba(linkPrimary, 0.7);
 
 // Border colors
 const borderPrimary = '#EEE';
+const borderGray = '#DDD';
 
 // Text colors
 const textPrimary = '#444';
@@ -64,7 +65,6 @@ export default {
   colorLightGray,
   colorLightBlue,
   colorCoreDarkGray,
-  colorBorderGray,
 
   bgMain,
   bgDark,
@@ -77,6 +77,7 @@ export default {
   linkPrimaryHover,
 
   borderPrimary,
+  borderGray,
 
   textPrimary,
   textSecondary,

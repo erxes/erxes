@@ -7,7 +7,6 @@ import {
   FormWrapper,
   InputsWrapper,
   ListWrapper,
-  Footer,
   LoadMore,
   TitleSpan
 } from 'modules/customers/styles';
@@ -134,14 +133,16 @@ class IntegrationForm extends Component {
           </ul>
         </ListWrapper>
         <Modal.Footer>
-          <Footer>
-            <Button btnStyle="simple" onClick={() => this.context.closeModal()}>
-              <Icon icon="close" />CANCEL
-            </Button>
-            <Button btnStyle="success" onClick={this.save}>
-              <Icon icon="checkmark" />SAVE
-            </Button>
-          </Footer>
+          <Button
+            btnStyle="simple"
+            icon="close"
+            onClick={() => this.context.closeModal()}
+          >
+            CANCEL
+          </Button>
+          <Button btnStyle="success" icon="checkmark" onClick={this.save}>
+            SAVE
+          </Button>
         </Modal.Footer>
       </FormWrapper>
     );

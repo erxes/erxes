@@ -2,7 +2,7 @@ import styled from 'styled-components';
 import { colors, dimensions, typography } from 'modules/common/styles';
 
 const SidebarListli = styled.li`
-  border-top: 1px solid ${colors.borderPrimary};
+  border-bottom: 1px solid ${colors.borderPrimary};
   padding: ${dimensions.unitSpacing}px;
   transition: all ease 0.3s;
 
@@ -23,8 +23,8 @@ const Members = styled.div`
 `;
 
 const MemberImg = styled.img`
-  width: 30px;
-  border-radius: 15px;
+  width: ${dimensions.coreSpacing + 10}px;
+  border-radius: ${dimensions.unitSpacing + 5}px;
   border: 2px solid ${colors.colorWhite};
   margin-left: -8px;
 `;
@@ -36,7 +36,7 @@ const More = MemberImg.withComponent('span').extend`
   font-size: ${dimensions.unitSpacing}px;
   background: ${colors.colorCoreLightGray};
   display: inline-block;
-  line-height: 28px;
+  line-height: ${dimensions.coreSpacing + 6}px;
   cursor: pointer;
 `;
 
@@ -54,6 +54,7 @@ const ManageActions = styled.div`
 const ActionButtons = styled.div`
   display: flex;
   align-items: center;
+  justify-content: flex-end;
 
   * {
     padding: 0;
@@ -73,6 +74,7 @@ const Title = styled.h3`
   margin: 0;
   height: ${dimensions.headerSpacing - 1}px;
   background-color: ${colors.bgLight};
+  border-bottom: 1px solid ${colors.borderPrimary};
 `;
 
 const Row = styled.div`

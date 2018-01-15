@@ -5,7 +5,12 @@ import { ChannelList } from './';
 import { SidebarList } from 'modules/layout/styles';
 import { RightButton, Title } from '../styles';
 import { ChannelForm } from '../containers';
-import { Icon, ModalTrigger, Spinner } from 'modules/common/components';
+import {
+  Icon,
+  ModalTrigger,
+  Spinner,
+  EmptyState
+} from 'modules/common/components';
 
 const propTypes = {
   channels: PropTypes.array.isRequired,
@@ -47,7 +52,7 @@ class Sidebar extends Component {
   }
 
   render() {
-    const { loading, save } = this.props;
+    const { loading, save, channels } = this.props;
 
     const AddChannel = (
       <RightButton>
@@ -57,20 +62,23 @@ class Sidebar extends Component {
 
     return (
       <Wrapper.Sidebar full>
-        <Wrapper.Sidebar.Section>
+        <Wrapper.Sidebar.Section full>
           <Title>Channels</Title>
           <ModalTrigger title="New Channel" trigger={AddChannel}>
             {this.renderForm({ save })}
           </ModalTrigger>
-          <SidebarList>{this.renderObjects()}</SidebarList>
+          {channels.length ? (
+            <SidebarList>{this.renderObjects()}</SidebarList>
+          ) : (
+            <EmptyState
+              text="There aren’t any channel at the moment."
+              icon="network"
+            />
+          )}
         </Wrapper.Sidebar.Section>
         {loading && <Spinner />}
       </Wrapper.Sidebar>
     );
-  }
-
-  breadcrumb() {
-    return [{ title: 'Channels' }];
   }
 }
 

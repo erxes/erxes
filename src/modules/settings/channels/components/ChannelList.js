@@ -91,7 +91,6 @@ class ChannelList extends Component {
       selectedMembers = members.filter(u => channel.memberIds.includes(u._id));
     }
     const length = selectedMembers.length;
-
     const Tooltip = <More>{`+${length - limit}`}</More>;
 
     return (

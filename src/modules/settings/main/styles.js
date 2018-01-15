@@ -65,7 +65,7 @@ const Box = styled.div`
 `;
 
 const BoxContent = styled.div`
-  border-bottom: 1px dotted ${colors.colorBorderGray};
+  border-bottom: 1px dotted ${colors.borderGray};
   padding-bottom: ${dimensions.headerSpacing - 10}px;
   margin-right: ${dimensions.coreSpacing}px;
 `;
@@ -80,6 +80,7 @@ const BoxName = styled.span`
 const Container = styled.div`
   overflow: auto;
   position: relative;
+  flex: 1;
 `;
 
 const Contents = styled.div`

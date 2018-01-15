@@ -7,8 +7,7 @@ import {
   FormGroup,
   FormControl,
   ControlLabel,
-  Button,
-  Icon
+  Button
 } from 'modules/common/components';
 
 const propTypes = {
@@ -141,13 +140,16 @@ class ChannelForm extends Component {
       <form onSubmit={this.save}>
         {this.renderContent(this.props.channel || {})}
         <Modal.Footer>
-          <Button btnStyle="simple" type="button" onClick={onClick}>
-            <Icon icon="close" />
+          <Button
+            btnStyle="simple"
+            type="button"
+            icon="close"
+            onClick={onClick}
+          >
             Cancel
           </Button>
 
-          <Button btnStyle="success" type="submit">
-            <Icon icon="checkmark" />
+          <Button btnStyle="success" icon="checkmark" type="submit">
             Save
           </Button>
         </Modal.Footer>
