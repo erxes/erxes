@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import { Modal } from 'react-bootstrap';
 import {
   Button,
-  Icon,
   FormGroup,
   FormControl,
   ControlLabel
@@ -65,18 +64,19 @@ class CustomerForm extends React.Component {
         </FormGroup>
 
         <Modal.Footer>
-          <Button btnStyle="simple" onClick={() => this.context.closeModal()}>
-            <Icon icon="close" />
+          <Button
+            btnStyle="simple"
+            onClick={() => this.context.closeModal()}
+            icon="close"
+          >
             Close
           </Button>
 
-          <Button btnStyle="success" type="submit">
-            <Icon icon="checkmark" />
+          <Button btnStyle="success" type="submit" icon="checkmark">
             Save & New
           </Button>
 
-          <Button btnStyle="primary" type="submit" name="close">
-            <Icon icon="close" />
+          <Button btnStyle="primary" type="submit" name="close" icon="close">
             Save & Close
           </Button>
         </Modal.Footer>

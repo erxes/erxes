@@ -121,8 +121,13 @@ class OnlineHours extends Component {
         {this.state.onlineHours.map(onlineHour =>
           this.renderOnlineHour(onlineHour)
         )}
-        <Button className="shrinked" btnStyle="link" onClick={this.addTime}>
-          <Icon icon="plus" /> Add another time
+        <Button
+          className="shrinked"
+          btnStyle="link"
+          onClick={this.addTime}
+          icon="plus"
+        >
+          Add another time
         </Button>
       </FormGroup>
     );

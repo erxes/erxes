@@ -80,10 +80,11 @@ const TitleSpan = styled.span`
 `;
 
 const Footer = styled.div`
-  span {
+  > span {
     margin-bottom: 10px;
     display: block;
     text-align: left;
+
     a {
       color: ${colors.colorPrimary};
 

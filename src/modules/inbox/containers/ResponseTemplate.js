@@ -46,9 +46,19 @@ ResponseTemplateContainer.propTypes = {
 export default compose(
   graphql(gql(queries.brandList), { name: 'brandsQuery' }),
   graphql(gql(queries.responseTemplateList), {
-    name: 'responseTemplatesQuery'
+    name: 'responseTemplatesQuery',
+    options: () => ({
+      fetchPolicy: 'network-only'
+    })
   }),
   graphql(gql(mutations.saveResponseTemplate), {
-    name: 'saveResponseTemplateMutation'
+    name: 'saveResponseTemplateMutation',
+    options: {
+      refetchQueries: [
+        {
+          query: gql`${queries.responseTemplateList}`
+        }
+      ]
+    }
   })
 )(ResponseTemplateContainer);

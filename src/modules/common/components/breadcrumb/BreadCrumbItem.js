@@ -6,19 +6,19 @@ import { rgba } from '../../styles/color';
 
 const Item = styled.li`
   display: inline-block;
-  color: ${rgba(colors.colorWhite, 0.7)};
+  color: ${rgba(colors.colorCoreDarkGray, 0.9)};
   text-transform: capitalize;
 
   > a {
     text-decoration: none;
-    color: ${colors.colorWhite};
+    color: ${colors.colorCoreDarkGray};
   }
 
   & + li::before {
     content: '\f3d3';
     font-family: 'Ionicons';
     padding: 0 ${dimensions.unitSpacing}px;
-    color: ${rgba(colors.colorWhite, 0.5)};
+    color: ${rgba(colors.colorCoreDarkGray, 0.7)};
     font-size: 11px;
   }
 `;

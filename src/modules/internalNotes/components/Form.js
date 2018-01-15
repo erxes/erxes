@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { FormControl, Button, Icon } from 'modules/common/components';
+import { FormControl, Button } from 'modules/common/components';
 import styled from 'styled-components';
 import { colors, dimensions } from 'modules/common/styles';
 
@@ -57,11 +57,21 @@ class Form extends Component {
     if (!this.state.Editing) return null;
     return (
       <EditorActions>
-        <Button onClick={this.cancelEditing} btnStyle="simple" size="small">
-          <Icon icon="close" /> Discard
+        <Button
+          onClick={this.cancelEditing}
+          btnStyle="simple"
+          size="small"
+          icon="close"
+        >
+          Discard
         </Button>
-        <Button onClick={this.onSend} btnStyle="success" size="small">
-          <Icon icon="android-send" /> Save note
+        <Button
+          onClick={this.onSend}
+          btnStyle="success"
+          size="small"
+          icon="android-send"
+        >
+          Save note
         </Button>
       </EditorActions>
     );

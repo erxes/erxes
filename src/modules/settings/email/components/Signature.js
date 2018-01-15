@@ -5,8 +5,7 @@ import {
   ControlLabel,
   Button,
   FormGroup,
-  FormControl,
-  Icon
+  FormControl
 } from 'modules/common/components';
 import { ContentBox, SubHeading, Well } from '../../styles';
 
@@ -108,8 +107,12 @@ class Signature extends Component {
     const actionFooter = (
       <ActionBar
         right={
-          <Button btnStyle="success" onClick={this.handleSubmit}>
-            <Icon icon="checkmark" /> Save
+          <Button
+            btnStyle="success"
+            onClick={this.handleSubmit}
+            icon="checkmark"
+          >
+            Save
           </Button>
         }
       />

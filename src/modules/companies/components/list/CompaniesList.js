@@ -8,7 +8,6 @@ import {
   ModalTrigger,
   Button,
   Table,
-  Icon,
   ShowData,
   FormControl,
   DropdownToggle,
@@ -124,8 +123,8 @@ class CompaniesList extends React.Component {
     );
 
     const addTrigger = (
-      <Button btnStyle="success" size="small">
-        <Icon icon="plus" /> Add company
+      <Button btnStyle="success" size="small" icon="plus">
+        Add company
       </Button>
     );
 
@@ -139,8 +138,8 @@ class CompaniesList extends React.Component {
 
     if (bulk.length > 0) {
       const tagButton = (
-        <Button btnStyle="simple" size="small">
-          Tag <Icon icon="ios-arrow-down" />
+        <Button btnStyle="simple" size="small" icon="ios-arrow-down">
+          Tag
         </Button>
       );
 
@@ -154,8 +153,8 @@ class CompaniesList extends React.Component {
           />
           <Dropdown id="dropdown-options" pullRight>
             <DropdownToggle bsRole="toggle">
-              <Button btnStyle="simple" size="small">
-                More <Icon icon="ios-arrow-down" />
+              <Button btnStyle="simple" size="small" icon="ios-arrow-down">
+                More
               </Button>
             </DropdownToggle>
             <Dropdown.Menu>
@@ -197,6 +196,7 @@ class CompaniesList extends React.Component {
       <Wrapper.ActionBar right={actionBarRight} left={actionBarLeft} />
     );
     const breadcrumb = [{ title: `Companies (${counts.all})` }];
+
     return (
       <Wrapper
         header={<Wrapper.Header breadcrumb={breadcrumb} />}

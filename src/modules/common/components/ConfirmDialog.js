@@ -72,11 +72,21 @@ class ConfirmDialog extends React.Component {
           {confirmation}
         </ModalBody>
         <ModalFooter>
-          <Button size="small" btnStyle="simple" onClick={this.dismiss}>
-            <Icon icon="close" /> {cancelLabel}
+          <Button
+            size="small"
+            btnStyle="simple"
+            onClick={this.dismiss}
+            icon="close"
+          >
+            {cancelLabel}
           </Button>
-          <Button size="small" btnStyle="success" onClick={this.proceed}>
-            <Icon icon="checkmark" /> {okLabel}
+          <Button
+            size="small"
+            btnStyle="success"
+            onClick={this.proceed}
+            icon="checkmark"
+          >
+            {okLabel}
           </Button>
         </ModalFooter>
       </Modal>

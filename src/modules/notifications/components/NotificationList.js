@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import _ from 'underscore';
 import Sidebar from 'modules/settings/Sidebar';
-import { Button, Icon, Pagination } from 'modules/common/components';
+import { Button, Pagination } from 'modules/common/components';
 import { Wrapper } from 'modules/layout/components';
 import { NotificationListRow } from './';
 import { NotifList } from './styles';
@@ -53,15 +53,17 @@ class NotificationList extends Component {
           btnStyle="primary"
           size="small"
           onClick={this.markAllRead.bind(this, true)}
+          icon="checkmark"
         >
-          <Icon icon="checkmark" /> Mark Page Read
+          Mark Page Read
         </Button>
         <Button
           btnStyle="success"
           size="small"
           onClick={this.markAllRead.bind(this, false)}
+          icon="checkmark"
         >
-          <Icon icon="checkmark" /> Mark All Read
+          Mark All Read
         </Button>
       </div>
     );
