@@ -347,6 +347,18 @@ class ActivityLog {
       coc: { id: customerId, type: COC_CONTENT_TYPES.CUSTOMER },
     });
   }
+
+  /**
+   * Removing company activity logs
+   * @param {String} companyId - company id to remove
+   * @return {Promise} updated activity logs
+   */
+  static async removeCompanyActivityLog(companyId) {
+    // Removing company activity log
+    return await this.remove({
+      coc: { id: companyId, type: COC_CONTENT_TYPES.COMPANY },
+    });
+  }
 }
 
 ActivityLogSchema.loadClass(ActivityLog);

@@ -133,6 +133,15 @@ class Company {
 
     return this.findOne({ _id });
   }
+
+  /**
+   * Remove company
+   * @param {String} companyId company id to remove
+   * @return {Promise} updated company customer object
+   */
+  static async removeCompany(companyId) {
+    return await this.remove({ _id: companyId });
+  }
 }
 
 CompanySchema.loadClass(Company);
