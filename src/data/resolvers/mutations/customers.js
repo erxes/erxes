@@ -64,14 +64,15 @@ const customerMutations = {
    * @return {Promise} Customer object
    */
   async customersMerge(root, { customerOneId, customerTwoId, newCustomer }) {
-    const customer = await Customers.createCustomer(newCustomer);
-
     await ActivityLogs.changeCustomer(customerOneId, customerTwoId);
     await ConversationMessages.changeCustomer(customerOneId, customerTwoId);
     await Conversations.changeCustomer(customerOneId, customerTwoId);
     await EngageMessages.changeCustomer(customerOneId, customerTwoId);
     await InternalNotes.changeCustomer(customerOneId, customerTwoId);
-    await this.customersRemove([customerOneId, customerTwoId]);
+    await Customers.removeCustomer(customerOneId);
+    await Customers.removeCustomer(customerTwoId);
+
+    const customer = await Customers.createCustomer(newCustomer);
 
     return customer;
   },
