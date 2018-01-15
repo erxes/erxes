@@ -1,4 +1,4 @@
-import { Companies, ActivityLogs } from '../../../db/models';
+import { Companies, ActivityLogs, InternalNotes } from '../../../db/models';
 import { moduleRequireLogin } from '../../permissions';
 
 const companyMutations = {
@@ -41,6 +41,21 @@ const companyMutations = {
    */
   async companiesEditCustomers(root, { _id, customerIds }) {
     return Companies.updateCustomers(_id, customerIds);
+  },
+
+  /**
+   * Remove companies
+   * @param {string[]} companyIds - Company Ids to remove
+   * @return {Promise} Removed company ids
+   */
+  async companiesRemove(root, { companyIds }) {
+    for (let companyId of companyIds) {
+      await ActivityLogs.removeCompanyActivityLog(companyId);
+      await InternalNotes.removeCompanyInternalNotes(companyId);
+      await Companies.removeCompany(companyId);
+    }
+
+    return companyIds;
   },
 };
 
