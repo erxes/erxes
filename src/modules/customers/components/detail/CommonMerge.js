@@ -140,9 +140,7 @@ class CommonMerge extends React.Component {
     this.props.save({
       datas,
       data,
-      callback: () => {
-        this.context.closeModal();
-      }
+      callback: this.context.closeModal()
     });
   }
 
