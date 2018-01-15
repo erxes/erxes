@@ -81,7 +81,7 @@ function CompaniesList({
 
   const actionBar = <Wrapper.ActionBar right={actionBarRight} />;
   const breadcrumb = [{ title: `Companies (${counts.all})` }];
-
+  console.log(counts);
   return (
     <Wrapper
       header={<Wrapper.Header breadcrumb={breadcrumb} />}

@@ -65,6 +65,21 @@ class Settings extends Component {
                   <BoxName>Email Appearance</BoxName>
                 </Box>
               </Link>
+              <Link to="/settings/forms">
+                <Box>
+                  <img src="/images/icons/forms.png" alt="forms" />
+                  <BoxName>Forms</BoxName>
+                </Box>
+              </Link>
+              <Link to="/settings/knowledgebase/list">
+                <Box>
+                  <img
+                    src="/images/icons/knowledgeBase.png"
+                    alt="knowledgebase"
+                  />
+                  <BoxName>Knowledge base</BoxName>
+                </Box>
+              </Link>
               <Link to="/settings/team">
                 <Box className="last">
                   <img src="/images/icons/teamM.png" alt="teamMembers" />

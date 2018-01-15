@@ -15,8 +15,7 @@ const IntegrationListContainer = props => {
     editMutation
   } = props;
 
-  const name = 'channels';
-  const totalCount = totalCountQuery[`${name}TotalCount`] || 0;
+  const totalCount = totalCountQuery.integrationsTotalCount || 0;
   const channelDetail = channelDetailQuery.channelDetail || {};
   const integrations = integrationsQuery.integrations || [];
 
@@ -96,7 +95,7 @@ export default compose(
       }
     }
   }),
-  graphql(gql(queries.count), {
+  graphql(gql(queries.integrationsCount), {
     name: 'totalCountQuery'
   }),
   graphql(gql(mutations.channelAdd), {

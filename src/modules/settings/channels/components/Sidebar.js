@@ -70,10 +70,12 @@ class Sidebar extends Component {
           {channels.length ? (
             <SidebarList>{this.renderObjects()}</SidebarList>
           ) : (
-            <EmptyState
-              text="There aren’t any channel at the moment."
-              icon="network"
-            />
+            <div>
+              <EmptyState
+                text="There aren’t any channel at the moment."
+                icon="network"
+              />
+            </div>
           )}
         </Wrapper.Sidebar.Section>
         {loading && <Spinner />}

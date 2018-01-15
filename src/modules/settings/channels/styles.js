@@ -44,6 +44,10 @@ const RightButton = styled.div`
   position: absolute;
   right: ${dimensions.coreSpacing}px;
   top: ${dimensions.coreSpacing - 5}px;
+
+  &:hover {
+    cursor: pointer;
+  }
 `;
 
 const ManageActions = styled.div`
@@ -72,7 +76,7 @@ const Title = styled.h3`
   text-transform: uppercase;
   padding: ${dimensions.coreSpacing}px;
   margin: 0;
-  height: ${dimensions.headerSpacing - 1}px;
+  height: ${dimensions.headerSpacing}px;
   background-color: ${colors.bgLight};
   border-bottom: 1px solid ${colors.borderPrimary};
 `;
@@ -121,6 +125,7 @@ const Row = styled.div`
 
 const RowContent = styled.div`
   flex: 1;
+  min-width: 230px;
 
   > a {
     padding: 0 ${dimensions.unitSpacing}px;

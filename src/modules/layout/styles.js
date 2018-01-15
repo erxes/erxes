@@ -131,7 +131,6 @@ const SidebarBox = styled.div`
   position: relative;
   justify-content: center;
   transition: max-height 0.4s;
-  height: ${props => props.full && '100%'};
   overflow: ${props => (props.collapsible ? 'hidden' : 'auto')};
   display: ${props => props.full && 'flex'};
 

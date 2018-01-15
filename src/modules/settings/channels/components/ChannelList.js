@@ -19,16 +19,14 @@ const propTypes = {
   channel: PropTypes.object.isRequired,
   members: PropTypes.array.isRequired,
   remove: PropTypes.func.isRequired,
-  save: PropTypes.func.isRequired
+  save: PropTypes.func.isRequired,
+  isActive: PropTypes.bool
 };
 
 class ChannelList extends Component {
   constructor(props) {
     super(props);
 
-    this.state = {
-      isMembervisible: true
-    };
     this.renderEditForm = this.renderEditForm.bind(this);
     this.renderMember = this.renderMember.bind(this);
     this.remove = this.remove.bind(this);
@@ -75,16 +73,18 @@ class ChannelList extends Component {
       <Tip key={member._id} text={member.details.fullName} placement="top">
         <MemberImg
           key={member._id}
-          src={(member.details && member.details.avatar) || []}
+          src={
+            (member.details && member.details.avatar) ||
+            '/images/avatar-colored.png'
+          }
         />
       </Tip>
     );
   }
 
   render() {
-    const { channel, members } = this.props;
+    const { channel, members, isActive } = this.props;
     const limit = 8;
-    const { isMembervisible } = this.state;
     let selectedMembers = [];
 
     if (channel) {
@@ -92,18 +92,18 @@ class ChannelList extends Component {
     }
     const length = selectedMembers.length;
     const Tooltip = <More>{`+${length - limit}`}</More>;
-
+    console.log(channel);
     return (
-      <SidebarListli key={channel._id}>
+      <SidebarListli key={channel._id} isActive={isActive}>
         <Row>
           <Link to={`?id=${channel._id}`}>
             <RowContent>
               <RowTitle>{channel.name}</RowTitle>
               <Members>
                 {selectedMembers
-                  .slice(0, limit && isMembervisible ? limit : length)
+                  .slice(0, limit ? limit : length)
                   .map(member => this.renderMember(member))}
-                {limit && isMembervisible && length - limit > 0 && Tooltip}
+                {limit && length - limit > 0 && Tooltip}
               </Members>
             </RowContent>
           </Link>

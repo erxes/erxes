@@ -53,9 +53,15 @@ const users = `
   }
 `;
 
-const count = `
+const channelsCount = `
   query totalChannelsCount {
     channelsTotalCount
+  }
+`;
+
+const integrationsCount = `
+  query totalIntegrationsCount($kind: String) {
+    integrationsTotalCount(kind: $kind)
   }
 `;
 
@@ -64,5 +70,6 @@ export default {
   channels,
   integrations,
   channelDetail,
-  count
+  channelsCount,
+  integrationsCount
 };
