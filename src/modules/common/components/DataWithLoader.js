@@ -13,7 +13,7 @@ const propTypes = {
   objective: PropTypes.bool
 };
 
-class ShowData extends Component {
+class DataWithLoader extends Component {
   showData() {
     const {
       loading,
@@ -46,13 +46,14 @@ class ShowData extends Component {
   }
 }
 
-ShowData.propTypes = propTypes;
+DataWithLoader.propTypes = propTypes;
 
-ShowData.defaultProps = {
+DataWithLoader.defaultProps = {
   emptyText: 'There is no data',
   emptyIcon: null,
+  emptyImage: null,
   size: 'full',
   objective: false
 };
 
-export default ShowData;
+export default DataWithLoader;

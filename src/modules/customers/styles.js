@@ -2,7 +2,7 @@ import styled from 'styled-components';
 import { colors } from '../common/styles';
 
 const FormWrapper = styled.div`
-  margin: 0 auto;
+  overflow: hidden;
   max-height: 65vh;
 `;
 
@@ -14,11 +14,6 @@ const InputsWrapper = styled.div`
   overflow-y: auto;
   padding-right: 10px;
   border-right: 1px solid #ddd;
-
-  input {
-    position: fixed;
-    width: 55%;
-  }
 
   ul {
     margin-top: 10px;

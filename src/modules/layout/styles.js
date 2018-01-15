@@ -10,7 +10,7 @@ const UserHelper = styled.div`
 
   &:hover {
     cursor: pointer;
-    background: ${colors.bgMain};
+    background: ${colors.bgUnread};
   }
 `;
 

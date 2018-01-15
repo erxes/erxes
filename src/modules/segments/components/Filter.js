@@ -111,7 +111,7 @@ function Segments({ history, contentType, counts, segments, loading }) {
         data={data}
         loading={loading}
         count={segments.length}
-        emptyText="no segments"
+        emptyText="No segments"
         emptyIcon="pie-graph"
         size="small"
         objective={true}
