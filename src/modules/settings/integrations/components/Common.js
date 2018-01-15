@@ -19,7 +19,9 @@ class Common extends Component {
     return `
       (function() {
         var script = document.createElement('script');
-        script.src = "${process.env.CDN_HOST}/${type}Widget.bundle.js";
+        script.src = "${process.env.REACT_APP_CDN_HOST}/${
+      type
+    }Widget.bundle.js";
         script.async = true;
 
         var entry = document.getElementsByTagName('script')[0];
