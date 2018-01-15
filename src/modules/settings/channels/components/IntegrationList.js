@@ -8,7 +8,7 @@ import {
   Pagination,
   ModalTrigger,
   Button,
-  ShowData
+  DataWithLoader
 } from 'modules/common/components';
 
 const propTypes = {
@@ -100,7 +100,7 @@ class IntegrationList extends Component {
         actionBar={<Wrapper.ActionBar right={rightActionBar} />}
         footer={<Pagination count={totalCount} />}
         content={
-          <ShowData
+          <DataWithLoader
             data={content}
             loading={loading}
             count={totalCount}

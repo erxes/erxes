@@ -16,6 +16,10 @@ const EmptyStateStyled = styled.div`
   color: ${colors.colorCoreGray};
   background: ${colors.colorWhite};
 
+  img {
+    max-height: 260px;
+  }
+
   ${props => {
     if (props.size === 'small') {
       return `
@@ -48,16 +52,17 @@ const EmptyStateStyled = styled.div`
 
 EmptyState.propTypes = {
   text: PropTypes.string.isRequired,
-  icon: PropTypes.string.isRequired,
+  icon: PropTypes.string,
+  image: PropTypes.string,
   size: PropTypes.oneOf(['full', 'small']),
   linkUrl: PropTypes.string,
   linkText: PropTypes.string
 };
 
-function EmptyState({ text, icon, size, linkUrl, linkText }) {
+function EmptyState({ text, icon, image, size, linkUrl, linkText }) {
   return (
     <EmptyStateStyled size={size}>
-      <Icon icon={icon} />
+      {icon ? <Icon icon={icon} /> : <img src={image} alt={text} />}
       {text}
       {linkUrl && linkText ? (
         <Button btnStyle="simple" size="small" href={linkUrl}>

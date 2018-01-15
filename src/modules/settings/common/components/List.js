@@ -4,7 +4,7 @@ import {
   Pagination,
   ModalTrigger,
   Button,
-  ShowData
+  DataWithLoader
 } from 'modules/common/components';
 import { Wrapper } from 'modules/layout/components';
 import Sidebar from 'modules/settings/Sidebar';
@@ -60,13 +60,14 @@ class List extends Component {
         leftSidebar={<Sidebar />}
         actionBar={<Wrapper.ActionBar right={actionBarLeft} />}
         footer={<Pagination count={totalCount} />}
+        transparent={false}
         content={
-          <ShowData
+          <DataWithLoader
             data={this.renderContent()}
             loading={loading}
             count={totalCount}
             emptyText="There is no data."
-            emptyIcon="ios-copy"
+            emptyImage="/images/robots/robot-05.svg"
           />
         }
       />

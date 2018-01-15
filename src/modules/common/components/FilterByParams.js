@@ -2,7 +2,7 @@ import React from 'react';
 import { withRouter } from 'react-router';
 import PropTypes from 'prop-types';
 import { SidebarList, SidebarCounter } from 'modules/layout/styles';
-import { Icon, ShowData } from 'modules/common/components';
+import { Icon, DataWithLoader } from 'modules/common/components';
 import { router } from 'modules/common/utils';
 
 FilterByParams.propTypes = {
@@ -40,7 +40,7 @@ function FilterByParams({ history, fields, counts, paramKey, icon, loading }) {
   );
 
   return (
-    <ShowData
+    <DataWithLoader
       loading={loading}
       count={fields.length}
       data={data}

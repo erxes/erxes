@@ -21,7 +21,7 @@ const LeftNavigation = styled.aside`
     color: #fff;
 
     img {
-      max-height: 32px;
+      max-height: 28px;
       transition: all 0.3s ease;
 
       &:hover {

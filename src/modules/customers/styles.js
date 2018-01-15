@@ -2,7 +2,7 @@ import styled from 'styled-components';
 import { colors } from '../common/styles';
 
 const FormWrapper = styled.div`
-  margin: 0 auto;
+  overflow: hidden;
   max-height: 65vh;
 `;
 
@@ -75,10 +75,11 @@ const TitleSpan = styled.span`
 `;
 
 const Footer = styled.div`
-  span {
+  > span {
     margin-bottom: 10px;
     display: block;
     text-align: left;
+
     a {
       color: ${colors.colorPrimary};
 

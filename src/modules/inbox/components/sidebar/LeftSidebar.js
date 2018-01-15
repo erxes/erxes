@@ -8,8 +8,8 @@ import {
   Icon,
   ConversationList,
   LoadMore,
-  Spinner,
-  TaggerPopover
+  TaggerPopover,
+  DataWithLoader
 } from 'modules/common/components';
 import { FilterPopover, StatusFilterPopover, AssignBoxPopover } from '../';
 import { Resolver } from 'modules/inbox/containers';
@@ -156,14 +156,21 @@ class LeftSidebar extends Bulk {
         header={this.renderSidebarHeader()}
         footer={this.renderSidebarFooter()}
       >
-        <ConversationList
-          conversations={conversations}
-          onRowClick={onChangeConversation}
-          toggleBulk={this.toggleBulk}
-          bulk={this.state.bulk}
-          currentConversationId={currentConversationId}
+        <DataWithLoader
+          data={
+            <ConversationList
+              conversations={conversations}
+              onRowClick={onChangeConversation}
+              toggleBulk={this.toggleBulk}
+              bulk={this.state.bulk}
+              currentConversationId={currentConversationId}
+            />
+          }
+          loading={loading}
+          count={conversations.length}
+          emptyText="There is no message."
+          emptyImage="/images/robots/robot-02.svg"
         />
-        {loading && conversations.length === 0 && <Spinner />}
         <LoadMore all={totalCount} />
       </Sidebar>
     );
