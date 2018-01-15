@@ -82,4 +82,17 @@ const Container = styled.div`
   position: relative;
 `;
 
-export { Maincontent, Row, RowTitle, Box, BoxContent, BoxName, Container };
+const Contents = styled.div`
+  margin-left: 20px;
+`;
+
+export {
+  Maincontent,
+  Row,
+  RowTitle,
+  Box,
+  BoxContent,
+  BoxName,
+  Container,
+  Contents
+};

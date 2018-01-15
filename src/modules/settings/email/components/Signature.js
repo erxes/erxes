@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { ActionBar, Header, PageContent } from 'modules/layout/components';
+import { ActionBar, Wrapper } from 'modules/layout/components';
 import {
   ControlLabel,
   Button,
@@ -119,13 +119,14 @@ class Signature extends Component {
       />
     );
 
-    return [
-      <Header key="breadcrumb" breadcrumb={breadcrumb} />,
-      <Sidebar key="sidebar" />,
-      <PageContent key="settings-content" footer={actionFooter}>
-        {content}
-      </PageContent>
-    ];
+    return (
+      <Wrapper
+        header={<Wrapper.Header breadcrumb={breadcrumb} />}
+        leftSidebar={<Sidebar />}
+        footer={actionFooter}
+        content={content}
+      />
+    );
   }
 }
 

@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { Wrapper } from 'modules/layout/components';
 import { ChannelList } from './';
 import { SidebarList } from 'modules/layout/styles';
-import { RightButton } from '../styles';
+import { RightButton, Title } from '../styles';
 import { ChannelForm } from '../containers';
 import { Icon, ModalTrigger, Spinner } from 'modules/common/components';
 
@@ -48,7 +48,6 @@ class Sidebar extends Component {
 
   render() {
     const { loading, save } = this.props;
-    const { Title } = Wrapper.Sidebar.Section;
 
     const AddChannel = (
       <RightButton>

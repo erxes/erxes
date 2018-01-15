@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import { colors, dimensions } from 'modules/common/styles';
+import { colors, dimensions, typography } from 'modules/common/styles';
 
 const SidebarListli = styled.li`
   border-top: 1px solid ${colors.borderPrimary};
@@ -43,7 +43,7 @@ const More = MemberImg.withComponent('span').extend`
 const RightButton = styled.div`
   position: absolute;
   right: ${dimensions.coreSpacing}px;
-  top: 16px;
+  top: ${dimensions.coreSpacing - 5}px;
 `;
 
 const ManageActions = styled.div`
@@ -65,6 +65,16 @@ const ActionButtons = styled.div`
   }
 `;
 
+const Title = styled.h3`
+  font-size: ${typography.fontSizeHeading8}px;
+  font-weight: ${typography.fontWeightMedium};
+  text-transform: uppercase;
+  padding: ${dimensions.coreSpacing}px;
+  margin: 0;
+  height: ${dimensions.headerSpacing - 1}px;
+  background-color: ${colors.bgLight};
+`;
+
 const Row = styled.div`
   flex: 1;
   display: flex;
@@ -73,7 +83,7 @@ const Row = styled.div`
 
   &:hover {
     ${ManageActions} {
-      width: 43px;
+      width: ${dimensions.headerSpacing - 7}px;
       padding-left: ${dimensions.unitSpacing - 5}px;
       align-items: center;
       display: flex;
@@ -124,6 +134,7 @@ export {
   MemberImg,
   Members,
   More,
+  Title,
   RightButton,
   ActionButtons,
   ManageActions,

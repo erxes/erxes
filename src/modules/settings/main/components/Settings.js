@@ -8,14 +8,17 @@ import {
   Box,
   BoxContent,
   BoxName,
-  Container
+  Container,
+  Contents
 } from '../styles';
 
 class Settings extends Component {
   render() {
     return (
       <Maincontent>
-        <Header key="breadcrumb" breadcrumb={this.breadcrumb()} />
+        <Contents>
+          <Header key="breadcrumb" breadcrumb={this.breadcrumb()} />
+        </Contents>
         <Container>
           <Row>
             <RowTitle>Account Settings</RowTitle>
