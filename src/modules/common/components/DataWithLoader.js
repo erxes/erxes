@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Spinner, EmptyState } from 'modules/common/components';
 
@@ -8,17 +8,19 @@ const propTypes = {
   loading: PropTypes.bool.isRequired,
   emptyText: PropTypes.string,
   emptyIcon: PropTypes.string,
+  emptyImage: PropTypes.string,
   size: PropTypes.string,
   objective: PropTypes.bool
 };
 
-class ShowData extends React.Component {
+class DataWithLoader extends Component {
   showData() {
     const {
       loading,
       count,
       data,
       emptyIcon,
+      emptyImage,
       emptyText,
       size,
       objective
@@ -27,7 +29,14 @@ class ShowData extends React.Component {
     if (loading) {
       return <Spinner objective={objective} />;
     } else if (count === 0) {
-      return <EmptyState text={emptyText} size={size} icon={emptyIcon} />;
+      return (
+        <EmptyState
+          text={emptyText}
+          size={size}
+          icon={emptyIcon}
+          image={emptyImage}
+        />
+      );
     }
     return data;
   }
@@ -37,13 +46,14 @@ class ShowData extends React.Component {
   }
 }
 
-ShowData.propTypes = propTypes;
+DataWithLoader.propTypes = propTypes;
 
-ShowData.defaultProps = {
+DataWithLoader.defaultProps = {
   emptyText: 'There is no data',
   emptyIcon: null,
+  emptyImage: null,
   size: 'full',
   objective: false
 };
 
-export default ShowData;
+export default DataWithLoader;

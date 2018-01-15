@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Header, ActionBar, PageContent } from 'modules/layout/components';
-import { Pagination, Table, ShowData } from 'modules/common/components';
+import { Pagination, Table, DataWithLoader } from 'modules/common/components';
 import { AddIntegration } from '../components';
 import Row from './Row';
 
@@ -64,7 +64,7 @@ class List extends Component {
         actionBar={actionBar}
         footer={<Pagination count={totalCount} />}
       >
-        <ShowData
+        <DataWithLoader
           data={content}
           loading={loading}
           count={totalCount}

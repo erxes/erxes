@@ -30,7 +30,7 @@ import Table from './table';
 import Editor from './Editor';
 import { Tabs, TabList, TabTitle } from './tabs';
 import ConfirmDialog from './ConfirmDialog';
-import ShowData from './ShowData';
+import DataWithLoader from './DataWithLoader';
 // TODO remove
 const pagination = {};
 
@@ -72,5 +72,5 @@ export {
   TabList,
   TabTitle,
   ConfirmDialog,
-  ShowData
+  DataWithLoader
 };

@@ -32,7 +32,7 @@ const Input = styled.input`
   padding: ${dimensions.unitSpacing}px;
   color: ${colors.textPrimary};
   border-bottom: 1px solid ${colors.colorShadowGray};
-  background: ${colors.colorWhite};
+  background: none;
   transition: all 0.3s ease;
 
   ${props => {
