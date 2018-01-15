@@ -8,7 +8,11 @@ import {
   SidebarList,
   SidebarCounter
 } from 'modules/layout/styles';
-import { DropdownToggle, Icon, ShowData } from 'modules/common/components';
+import {
+  DropdownToggle,
+  Icon,
+  DataWithLoader
+} from 'modules/common/components';
 import { router } from 'modules/common/utils';
 
 const propTypes = {
@@ -103,7 +107,7 @@ function Segments({ history, contentType, counts, segments, loading }) {
         ) : null}
       </Section.QuickButtons>
 
-      <ShowData
+      <DataWithLoader
         data={data}
         loading={loading}
         count={segments.length}
