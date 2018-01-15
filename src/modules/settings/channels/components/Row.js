@@ -52,9 +52,7 @@ class Row extends Component {
           </Tip>
 
           <Tip text="Hours, Availability & Other configs">
-            <Link
-              to={`settings/integrations/messenger/configs/${integration._id}`}
-            >
+            <Link to={`integrations/messenger/configs/${integration._id}`}>
               <Button btnStyle="link">
                 <Icon icon="gear-a" />
               </Button>

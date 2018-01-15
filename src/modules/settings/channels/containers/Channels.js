@@ -4,7 +4,6 @@ import { withRouter } from 'react-router';
 import queryString from 'query-string';
 import { queries } from '../graphql';
 import { compose, gql, graphql } from 'react-apollo';
-import { EmptyState } from 'modules/common/components';
 import { router as routerUtils } from 'modules/common/utils';
 import { IntegrationList } from './';
 
@@ -26,12 +25,7 @@ const Channels = props => {
 
   if (!routerUtils.getParam(history, 'id')) {
     const firstChannel = channels[0];
-
-    firstChannel ? (
-      routerUtils.setParams(history, { id: firstChannel._id })
-    ) : (
-      <EmptyState text="There " icon="email" />
-    );
+    firstChannel && routerUtils.setParams(history, { id: firstChannel._id });
   }
 
   return <IntegrationList {...updatedProps} />;
