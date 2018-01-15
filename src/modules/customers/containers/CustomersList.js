@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { withRouter } from 'react-router';
 import { compose, gql, graphql } from 'react-apollo';
 import { Bulk } from 'modules/common/components';
 import { Alert } from 'modules/common/utils';
@@ -18,7 +19,8 @@ class CustomerListContainer extends Bulk {
       customersListConfigQuery,
       customersAdd,
       customersRemove,
-      customersMerge
+      customersMerge,
+      history
     } = this.props;
 
     let columnsConfig =
@@ -60,14 +62,19 @@ class CustomerListContainer extends Bulk {
         });
     };
 
-    const mergeCustomers = ({ doc, callback }) => {
+    const mergeCustomers = ({ datas, data, callback }) => {
       customersMerge({
-        variables: doc
+        variables: {
+          customerOneId: datas[0]._id,
+          customerTwoId: datas[1]._id,
+          newCustomer: data
+        }
       })
-        .then(() => {
+        .then(data => {
           customersQuery.refetch();
           Alert.success('Success');
           callback();
+          history.push(`/customers/details/${data.data.customersMerge._id}`);
         })
         .catch(e => {
           Alert.error(e.message);
@@ -111,7 +118,8 @@ CustomerListContainer.propTypes = {
   customersQuery: PropTypes.object,
   tagsQuery: PropTypes.object,
   brandsQuery: PropTypes.object,
-  customerCountsQuery: PropTypes.object
+  customerCountsQuery: PropTypes.object,
+  history: PropTypes.object
 };
 
 export default compose(
@@ -176,4 +184,4 @@ export default compose(
   graphql(gql(mutations.customersMerge), {
     name: 'customersMerge'
   })
-)(CustomerListContainer);
+)(withRouter(CustomerListContainer));

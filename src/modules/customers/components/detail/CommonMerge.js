@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import { Modal } from 'react-bootstrap';
 import {
   Button,
-  Icon,
   FormControl,
   FormGroup,
   ControlLabel
@@ -26,50 +25,84 @@ class CommonMerge extends React.Component {
 
     if (type === 'company') {
       this.basicInfos = {
-        name: 'Company Name',
-        size: 'Company Size',
-        website: 'Company Website',
-        industry: 'Company Industry',
-        plant: 'Company Plan'
+        name: { text: 'Company Name', New: false, value: '' },
+        size: { text: 'Company Size', New: false, value: '' },
+        website: { text: 'Company Website', New: false, value: '' },
+        industry: { text: 'Company Industry', New: false, value: '' },
+        plant: { text: 'Company Plan', New: false, value: '' }
       };
     }
     this.basicInfos = {
-      firstName: 'First Name',
-      lastName: 'Last Name',
-      email: 'E-mail',
-      phone: 'Phone'
+      firstName: { text: 'First Name', New: false, value: '' },
+      lastName: { text: 'Last Name', New: false, value: '' },
+      email: { text: 'E-mail', New: false, value: '' },
+      phone: { text: 'Phone', New: false, value: '' }
     };
-    this.state = {};
+    this.state = this.basicInfos;
 
     this.onChange = this.onChange.bind(this);
     this.save = this.save.bind(this);
   }
 
+  componentWillReceiveProps(nextProps) {
+    const { datas } = nextProps;
+    const init = datas[0];
+    const fields = this.basicInfos;
+
+    for (let key in fields) {
+      if (init.hasOwnProperty(key)) {
+        this.setState({
+          [key]: { ...this.state[key], value: init[key] || '' }
+        });
+      }
+    }
+  }
+
   renderOptions(fieldName) {
     const { datas } = this.props;
+    const options = [];
 
-    return datas.map(data => {
-      return <option key={data._id}>{data[fieldName] || ''}</option>;
+    datas.map(data => {
+      options.push(<option key={data._id}>{data[fieldName] || ''}</option>);
     });
+    options.push(
+      <option key="123" name="New">
+        New
+      </option>
+    );
+    return options;
+  }
+
+  renderInputOrSelect(field, key) {
+    return (
+      <FormGroup key={key}>
+        <ControlLabel>{field[key].text}</ControlLabel>
+        {this.state[key].New ? (
+          <FormControl
+            key={key}
+            name={key}
+            autoFocus
+            onChange={e => this.onChange(e)}
+          />
+        ) : (
+          <FormControl
+            componentClass="select"
+            name={key}
+            onChange={e => this.onChange(e)}
+          >
+            {this.renderOptions(key)}
+          </FormControl>
+        )}
+      </FormGroup>
+    );
   }
 
   renderField(field) {
     const wrapper = [];
 
-    for (var key in field) {
+    for (let key in field) {
       if (field.hasOwnProperty(key)) {
-        wrapper.push(
-          <FormGroup key={key}>
-            <ControlLabel>{field[key]}</ControlLabel>
-            <FormControl
-              componentClass="select"
-              name={key}
-              onChange={e => this.onChange(e)}
-            >
-              {this.renderOptions(key)}
-            </FormControl>
-          </FormGroup>
-        );
+        wrapper.push(this.renderInputOrSelect(field, key));
       }
     }
 
@@ -79,18 +112,38 @@ class CommonMerge extends React.Component {
   onChange(e) {
     const value = e.target.value;
     const name = e.target.name;
+    if (e.target.options) {
+      const options = e.target.options;
+      const selected = options[options.selectedIndex].text;
+
+      if (selected === 'New') {
+        this.setState({ [name]: { ...[name], New: true } });
+        return;
+      }
+    }
 
     this.setState({
-      [name]: value
+      [name]: { ...this.state[name], value }
     });
     console.log(this.state);
   }
 
   save() {
-    const customer = this.state;
     const { datas } = this.props;
+    const data = {};
+    for (let key in this.state) {
+      if (this.state.hasOwnProperty(key)) {
+        data[key] = this.state[key].value;
+      }
+    }
 
-    this.props.save(datas, customer);
+    this.props.save({
+      datas,
+      data,
+      callback: () => {
+        this.context.closeModal();
+      }
+    });
   }
 
   render() {
@@ -98,11 +151,15 @@ class CommonMerge extends React.Component {
       <div>
         {this.renderField(this.basicInfos)}
         <Modal.Footer>
-          <Button btnStyle="simple" onClick={() => this.context.closeModal()}>
-            <Icon icon="close" />CANCEL
+          <Button
+            btnStyle="simple"
+            icon="close"
+            onClick={() => this.context.closeModal()}
+          >
+            CANCEL
           </Button>
-          <Button btnStyle="success">
-            <Icon icon="checkmark" />SAVE
+          <Button btnStyle="success" icon="checkmark" onClick={this.save}>
+            SAVE
           </Button>
         </Modal.Footer>
       </div>
