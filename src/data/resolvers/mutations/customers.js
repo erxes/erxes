@@ -58,26 +58,26 @@ const customerMutations = {
 
   /**
    * Merge customers
-   * @param {String} customerOneId - First customer to merge
-   * @param {String} customerTwoId - Second customer to merge
+   * @param {string[]} customerIds - First customer to merge
    * @param {Object} newCustomer - Newly created customer infos
    * @return {Promise} Customer object
    */
-  async customersMerge(root, { customerOneId, customerTwoId, newCustomer }) {
-    await Customers.removeCustomer(customerOneId);
-    await Customers.removeCustomer(customerTwoId);
+  async customersMerge(root, { customerIds, newCustomer }) {
+    if (customerIds.length !== 2) {
+      throw new Error('You can only merge 2 customers at a time');
+    }
 
     const customer = await Customers.createCustomer(newCustomer);
-    await ActivityLogs.changeCustomer(customerOneId, newCustomer._id);
-    await ActivityLogs.changeCustomer(customerTwoId, newCustomer._id);
-    await ConversationMessages.changeCustomer(customerOneId, newCustomer._id);
-    await ConversationMessages.changeCustomer(customerTwoId, newCustomer._id);
-    await Conversations.changeCustomer(customerOneId, newCustomer._id);
-    await Conversations.changeCustomer(customerTwoId, newCustomer._id);
-    await EngageMessages.changeCustomer(customerOneId, newCustomer._id);
-    await EngageMessages.changeCustomer(customerTwoId, newCustomer._id);
-    await InternalNotes.changeCustomer(customerOneId, customerTwoId);
-    await InternalNotes.changeCustomer(customerTwoId, customerTwoId);
+
+    await ActivityLogs.changeCustomer(customerIds, newCustomer._id);
+    await ConversationMessages.changeCustomer(customerIds, newCustomer._id);
+    await Conversations.changeCustomer(customerIds, newCustomer._id);
+    await EngageMessages.changeCustomer(customerIds, newCustomer._id);
+    await InternalNotes.changeCustomer(customerIds, newCustomer._id);
+
+    for (let customerId of customerIds) {
+      await Customers.removeCustomer(customerId);
+    }
 
     return customer;
   },
