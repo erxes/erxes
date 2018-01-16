@@ -55,10 +55,19 @@ const companiesRemove = `
   }
 `;
 
+const companiesMerge = `
+  mutation companiesMerge($companyIds: [String], $newCompany: JSON) {
+    companiesMerge(companyIds: $companyIds, newCompany: $newCompany) {
+      _id
+    }
+  }
+`;
+
 export default {
   companiesAdd,
   companiesEdit,
   companiesAddCustomer,
   companiesEditCustomers,
-  companiesRemove
+  companiesRemove,
+  companiesMerge
 };

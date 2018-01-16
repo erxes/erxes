@@ -19,6 +19,7 @@ import Sidebar from './Sidebar';
 import CompanyRow from './CompanyRow';
 import { CompanyForm } from '../';
 import { ManageColumns } from '../../../fields/containers';
+import { CommonMerge } from 'modules/customers/components';
 
 const propTypes = {
   companies: PropTypes.array.isRequired,
@@ -34,7 +35,8 @@ const propTypes = {
   emptyBulk: PropTypes.func.isRequired,
   tags: PropTypes.array.isRequired,
   removeCompanies: PropTypes.func.isRequired,
-  loadingTags: PropTypes.bool.isRequired
+  loadingTags: PropTypes.bool.isRequired,
+  mergeCompanies: PropTypes.func.isRequired
 };
 
 class CompaniesList extends React.Component {
@@ -87,7 +89,8 @@ class CompaniesList extends React.Component {
       bulk,
       emptyBulk,
       tags,
-      loadingTags
+      loadingTags,
+      mergeCompanies
     } = this.props;
 
     const mainContent = (
@@ -159,6 +162,15 @@ class CompaniesList extends React.Component {
             </DropdownToggle>
             <Dropdown.Menu>
               <li>
+                <ModalTrigger title="Merge Companies" trigger={<a>Merge</a>}>
+                  <CommonMerge
+                    datas={bulk}
+                    save={mergeCompanies}
+                    type="company"
+                  />
+                </ModalTrigger>
+              </li>
+              <li>
                 <a
                   onClick={() =>
                     confirm().then(() => {
@@ -169,6 +181,7 @@ class CompaniesList extends React.Component {
                   Remove
                 </a>
               </li>
+              <li />
             </Dropdown.Menu>
           </Dropdown>
         </BarItems>

@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { compose, gql, graphql } from 'react-apollo';
+import { withRouter } from 'react-router';
 import { Alert } from 'modules/common/utils';
 import { Bulk } from 'modules/common/components';
 import { mutations, queries } from '../graphql';
@@ -15,7 +16,9 @@ class CompanyListContainer extends Bulk {
       companyCountsQuery,
       companiesAdd,
       tagsQuery,
-      companiesRemove
+      companiesRemove,
+      companiesMerge,
+      history
     } = this.props;
 
     let columnsConfig =
@@ -57,6 +60,24 @@ class CompanyListContainer extends Bulk {
         });
     };
 
+    const mergeCompanies = ({ Ids, data, callback }) => {
+      companiesMerge({
+        variables: {
+          companyIds: Ids,
+          newCompany: data
+        }
+      })
+        .then(data => {
+          Alert.success('Success');
+          companiesQuery.refetch();
+          callback();
+          history.push(`/companies/details/${data.data.companiesMerge._id}`);
+        })
+        .catch(e => {
+          Alert.error(e.message);
+        });
+    };
+
     const searchValue = this.props.queryParams.searchValue || '';
 
     const updatedProps = {
@@ -80,6 +101,7 @@ class CompanyListContainer extends Bulk {
       toggleBulk: this.toggleBulk,
       toggleAll: this.toggleAll,
       removeCompanies,
+      mergeCompanies,
       loadingTags: tagsQuery.loading
     };
 
@@ -147,5 +169,8 @@ export default compose(
   }),
   graphql(gql(mutations.companiesRemove), {
     name: 'companiesRemove'
+  }),
+  graphql(gql(mutations.companiesMerge), {
+    name: 'companiesMerge'
   })
-)(CompanyListContainer);
+)(withRouter(CompanyListContainer));
