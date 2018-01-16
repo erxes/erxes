@@ -2,6 +2,7 @@ import styled from 'styled-components';
 import { colors } from '../common/styles';
 
 const columnSizing = '20px';
+const borderRadius = '2px';
 
 const Columns = styled.div`
   display: flex;
@@ -10,13 +11,7 @@ const Columns = styled.div`
 `;
 
 const Column = styled.div`
-  flex: 1;
-
-  &:last-of-type {
-    margin-left: ${columnSizing};
-    padding-left: ${columnSizing};
-    border-left: 1px solid #ddd;
-  }
+  flex: 4;
 
   > input {
     margin-bottom: ${columnSizing};
@@ -30,31 +25,54 @@ const Column = styled.div`
     list-style-type: none;
 
     li {
-      padding: 5px ${columnSizing};
+      padding: 6px 40px 6px ${columnSizing};
       position: relative;
-      margin-bottom: 5px;
-      border: 1px solid ${colors.borderPrimary};
-      border-radius: 2px;
+      margin-bottom: 6px;
+      border: 1px solid #e6e6e6;
+      border-radius: ${borderRadius};
       transition: all 0.3s ease;
+
+      > i {
+        position: absolute;
+        right: -1px;
+        top: -1px;
+        bottom: -1px;
+        width: 0;
+        line-height: 34px;
+        overflow: hidden;
+        text-align: center;
+        background: ${colors.colorCoreGreen};
+        border-radius: ${borderRadius};
+        color: ${colors.colorWhite};
+        transition: all 0.3s ease;
+      }
 
       &:hover {
         cursor: pointer;
-        background: ${colors.bgMain};
+        background: ${colors.bgActive};
 
-        i {
-          transform: scale(1.15);
+        > i {
+          width: 34px;
         }
       }
 
       &:last-child {
         margin: 0;
       }
+    }
+  }
 
-      i {
-        position: absolute;
-        color: ${colors.colorCoreLightGray};
-        right: ${columnSizing};
-        transition: all 0.3s ease;
+  &:last-of-type {
+    flex: 3;
+    margin-left: ${columnSizing};
+    padding-left: ${columnSizing};
+    border-left: 1px solid #ddd;
+
+    li {
+      font-weight: bold;
+
+      > i {
+        background: ${colors.colorCoreRed};
       }
     }
   }
@@ -66,6 +84,11 @@ const Title = styled.h4`
   padding: 10px ${columnSizing};
   font-size: 13px;
   text-transform: uppercase;
+
+  span {
+    opacity: 0.7;
+    margin-left: 10px;
+  }
 `;
 
 const Footer = styled.div`

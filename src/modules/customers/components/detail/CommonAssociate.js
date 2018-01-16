@@ -108,6 +108,7 @@ class CommonAssociate extends Component {
 
   render() {
     const { datas, form, title, data } = this.props;
+    const selectedDatas = this.state.datas;
 
     const addTrigger = (
       <p>
@@ -143,10 +144,9 @@ class CommonAssociate extends Component {
           <Column>
             <Title>
               {data.name}&apos;s {title}
+              <span>({selectedDatas.length})</span>
             </Title>
-            <ul>
-              {this.state.datas.map(data => this.renderRow(data, 'close'))}
-            </ul>
+            <ul>{selectedDatas.map(data => this.renderRow(data, 'close'))}</ul>
           </Column>
         </Columns>
         <Modal.Footer>
