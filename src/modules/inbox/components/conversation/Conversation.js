@@ -90,23 +90,58 @@ class Conversation extends Component {
 
     let tempId;
 
-    messages.forEach(message => {
-      rows.push(
-        <Message
-          isSameUser={
-            message.userId
-              ? message.userId === tempId
-              : message.customerId === tempId
-          }
-          message={message}
-          staff={!message.customerId}
-          key={message._id}
-          scrollBottom={scrollBottom}
-        />
-      );
+    const childSelector = (fbData, parentId) => {
+      return fbData && fbData.parentId && fbData.parentId === parentId;
+    };
 
-      tempId = message.userId ? message.userId : message.customerId;
-    });
+    const renderMessages = (data, isFeed) => {
+      data.forEach(message => {
+        rows.push(
+          <Message
+            isSameUser={
+              message.userId
+                ? message.userId === tempId
+                : message.customerId === tempId
+            }
+            message={message}
+            staff={!message.customerId}
+            key={message._id}
+            scrollBottom={scrollBottom}
+          />
+        );
+
+        tempId = message.userId ? message.userId : message.customerId;
+
+        if (isFeed) {
+          const childComments = messages.filter(msg => {
+            return (
+              message.facebookData &&
+              childSelector(msg.facebookData, message.facebookData.commentId)
+            );
+          });
+
+          renderMessages(childComments, false);
+        }
+      });
+    };
+
+    if (
+      conversation.integration &&
+      conversation.integration.kind === 'facebook' &&
+      conversation.facebookData &&
+      conversation.facebookData.kind === 'feed'
+    ) {
+      const post = messages[0];
+      const postId = post.facebookData.postId;
+
+      const postComments = messages.filter(msg => {
+        return childSelector(msg.facebookData, postId) || msg.userId !== null;
+      });
+
+      renderMessages(postComments, true);
+    } else {
+      renderMessages(messages, false);
+    }
 
     return (
       <Wrapper>
