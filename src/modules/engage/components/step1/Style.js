@@ -1,88 +1,81 @@
 import styled from 'styled-components';
-import { colors, dimensions } from 'modules/common/styles';
-
-const coreSpace = `${dimensions.coreSpacing}px`;
+import { colors } from 'modules/common/styles';
 
 const StepWrapper = styled.div`
-  height: 100%;
+  margin: 20px;
   display: flex;
-  & > *:nth-child(n + 2) {
+  height: 100%;
+
+  > *:nth-child(n + 2) {
     margin-left: 10px;
   }
 `;
 
-const Step = styled.div`
+const ShortStep = styled.div`
+  width: 70px;
   height: 100%;
-  flex: 1 100%;
-  border: 1px solid ${colors.borderPrimary};
-`;
-
-const Header = styled.div`
   background: ${colors.bgLight};
-  height: 50px;
-  padding: 0 10px;
+  border: 1px solid ${colors.borderPrimary};
+  cursor: pointer;
   display: flex;
-  align-items: center;
-  border-bottom: 1px solid ${colors.borderPrimary};
+  justify-content: center;
+  padding: 10px 0;
 `;
 
-const HeaderNumber = styled.div`
-  background: ${colors.colorPrimary};
+const StepNumber = styled.div`
+  background: ${colors.colorPrimaryDark};
   color: ${colors.colorWhite};
   border-radius: 100%;
   text-align: center;
   line-height: 35px;
+  height: 35px;
   width: 35px;
 `;
-
-const HeaderTitle = styled.div`
-  margin-left: 10px;
-`;
-
-const Content = styled.div`
-  height: calc(100% - 50px);
-  display: flex;
-  flex: 1 100%;
-`;
-
-const ContentCenter = styled.div`
+const FullStep = styled.div`
+  background: ${colors.bgLight};
+  border: 1px solid ${colors.borderPrimary};
+  width: 100%;
   height: 100%;
+`;
+const StepHeader = styled.div`
+  height: 55px;
+  padding: 0 10px;
   display: flex;
   align-items: center;
-  justify-content: center;
-  flex: 1 100%;
+  border-bottom: 1px solid ${colors.borderPrimary};
+  position: relative;
 `;
-
-const FinishedStep = styled.div`
-  height: 100%;
-  display: flex;
-  justify-content: center;
-  background: ${colors.bgLight};
-  width: 60px;
-  border: 1px solid ${colors.borderPrimary};
+const NextButton = styled.div`
+  position: absolute;
+  right: 10px;
+  padding: 5px 10px;
   cursor: pointer;
-`;
+  display: flex;
+  align-items: center;
+  border-radius: 2px;
+  transition: all 0.3s ease;
 
-const Divider = styled.div`
-  height: 100%;
-  background: ${colors.borderPrimary};
-  width: 2px;
-  margin: 0 10px;
-`;
+  span {
+    margin-right: 5px;
+  }
 
-const FlexItem = styled.div`
-  flex: 1 100%;
+  &:hover {
+    background: ${colors.colorPrimaryDark};
+    color: ${colors.colorWhite};
+  }
+`;
+const StepContent = styled.div`
+  width: 100%;
+  height: calc(100% - 55px);
+  margin: 10px;
 `;
 
 export {
   StepWrapper,
-  Step,
-  Header,
-  HeaderNumber,
-  HeaderTitle,
-  Content,
-  ContentCenter,
-  FinishedStep,
-  Divider,
-  FlexItem
+  ShortStep,
+  StepNumber,
+  FullStep,
+  StepHeader,
+  NextButton,
+  StepContent
 };

@@ -87,7 +87,7 @@ const Flex100 = styled.div`
   flex: 1 100%;
 `;
 
-const Flex = styled.div`
+const FlexItem = styled.div`
   display: flex;
 `;
 
@@ -137,6 +137,6 @@ export {
   FinishedStep,
   Divider,
   Flex100,
-  Flex,
+  FlexItem,
   ButtonBox
 };

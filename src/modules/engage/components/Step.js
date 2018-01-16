@@ -1,10 +1,17 @@
-import React from 'react';
+import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import {
+  StepWrapper,
+  ShortStep,
+  StepNumber,
+  FullStep,
+  StepHeader,
+  NextButton,
+  StepContent
+} from './step1/Style.js';
+import { Icon } from 'modules/common/components';
 import Step1 from './step1/Step1';
 import Step2 from './step1/Step2';
-import Step3 from './step1/Step3';
-import FormBase from './FormBase';
-import { StepWrapper } from './step1/Style';
 
 const propTypes = {
   segments: PropTypes.array.isRequired,
@@ -13,94 +20,78 @@ const propTypes = {
   counts: PropTypes.object
 };
 
-class Step extends FormBase {
+class Step extends Component {
   constructor(props) {
     super(props);
-
-    const message = props.message || {};
-
     this.state = {
       step: 1,
-      message,
-      method: message.method || 'email',
-      chosenSegment: message.segmentId || '',
-      emailContent: '',
-      messengerContent: '',
-      fromUser: message.fromUserId || ''
+      method: 'email',
+      segment: ''
     };
-
     this.changeMethod = this.changeMethod.bind(this);
-    this.changeStep = this.changeStep.bind(this);
-    this.onChangeSegments = this.onChangeSegments.bind(this);
-    this.onEmailContentChange = this.onEmailContentChange.bind(this);
-    this.onMessengerContentChange = this.onMessengerContentChange.bind(this);
-  }
-
-  getChildContext() {
-    return {
-      method: this.state.method,
-      chosenSegment: this.state.chosenSegment
-    };
-  }
-
-  onEmailContentChange(content) {
-    this.setState({ emailContent: content });
-  }
-
-  onMessengerContentChange(content) {
-    this.setState({ messengerContent: content });
+    this.changeSegment = this.changeSegment.bind(this);
   }
 
   changeMethod(method) {
     this.setState({ method });
   }
 
-  onChangeSegments(value) {
-    this.setState({ chosenSegment: value });
+  changeSegment(segment) {
+    this.setState({ segment });
+    console.log(this.state.segment);
   }
 
-  changeStep(value) {
-    this.setState({ step: value });
+  showStep(step) {
+    this.setState({ step });
   }
 
-  renderContent() {
+  renderStep(step, hasNext, content) {
+    let next = '';
+
+    if (hasNext) {
+      next = (
+        <NextButton onClick={() => this.showStep(step + 1)}>
+          <span>Next</span>
+          <Icon icon="ios-arrow-forward" />
+        </NextButton>
+      );
+    }
+
+    if (this.state.step === step) {
+      return (
+        <FullStep>
+          <StepHeader>
+            <StepNumber>{step}</StepNumber>
+            {next}
+          </StepHeader>
+          <StepContent>{content}</StepContent>
+        </FullStep>
+      );
+    }
+
+    return (
+      <ShortStep onClick={() => this.showStep(step)}>
+        <StepNumber>{step}</StepNumber>
+      </ShortStep>
+    );
+  }
+  //  {this.renderStep(1, true, <Step1 changeMethod={this.changeMethod} method={this.state.method}/>)}
+  render() {
     return (
       <StepWrapper>
-        <Step>
-          <Step1
-            changeStep={this.changeStep}
-            changeMethod={this.changeMethod}
-            finished={this.state.step === 1}
-          />
+        {this.renderStep(
+          2,
+          true,
           <Step2
-            changeStep={this.changeStep}
-            onChangeSegments={this.onChangeSegments}
+            changeSegment={this.changeMethod}
             segments={this.props.segments}
-            message={this.props.message}
-            counts={this.props.counts}
-            finished={this.state.step == 2}
           />
-          <Step3
-            changeStep={this.changeStep}
-            changeMethod={this.changeMethod}
-            templates={this.props.templates}
-            message={this.props.message}
-            brands={this.props.brands}
-            onEmailContentChange={this.onEmailContentChange}
-            onMessengerContentChange={this.onMessengerContentChange}
-            finished={this.state.step == 3}
-            fromUser={this.state.fromUser}
-          />
-        </Step>
+        )}
+        {this.renderStep(3, false)}
       </StepWrapper>
     );
   }
 }
-
-Step.childContextTypes = {
-  method: PropTypes.string,
-  chosenSegment: PropTypes.string
-};
 
 Step.propTypes = propTypes;
 

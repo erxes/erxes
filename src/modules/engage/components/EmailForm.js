@@ -13,7 +13,7 @@ import {
   EMAIL_CONTENT_CLASS
 } from 'modules/engage/constants';
 import Editor from './Editor';
-import { Content, FlexItem, ContentCenter, Divider } from './step1/Style';
+import { Content, FlexItem, ContentCenter, Divider } from './step2/Style';
 
 const propTypes = {
   message: PropTypes.object.isRequired,
