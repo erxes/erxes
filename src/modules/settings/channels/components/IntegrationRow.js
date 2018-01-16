@@ -17,7 +17,7 @@ const propTypes = {
   refetch: PropTypes.func.isRequired
 };
 
-class Row extends Component {
+class IntegrationRow extends Component {
   constructor(props) {
     super(props);
 
@@ -116,6 +116,6 @@ class Row extends Component {
   }
 }
 
-Row.propTypes = propTypes;
+IntegrationRow.propTypes = propTypes;
 
-export default Row;
+export default IntegrationRow;

@@ -1,9 +1,14 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { Spinner } from 'modules/common/components';
 import { ChannelForm } from '../components';
 
 const ChannelFormContainer = props => {
-  const { channel, save, members } = props;
+  const { channel, save, members, loading } = props;
+
+  if (loading) {
+    return <Spinner objective />;
+  }
 
   let selectedMembers = [];
 
@@ -24,8 +29,9 @@ const ChannelFormContainer = props => {
 
 ChannelFormContainer.propTypes = {
   channel: PropTypes.object,
+  members: PropTypes.array,
   save: PropTypes.func,
-  members: PropTypes.array
+  loading: PropTypes.bool
 };
 
 export default ChannelFormContainer;

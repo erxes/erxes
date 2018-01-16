@@ -9,6 +9,7 @@ import { IntegrationList } from './';
 
 const Channels = props => {
   const { channelsQuery, history } = props;
+
   const queryParams = queryString.parse(props.location.search);
   const channels = channelsQuery.channels || [];
 
@@ -19,10 +20,6 @@ const Channels = props => {
     loading: channelsQuery.loading,
     refetch: channelsQuery.refetch
   };
-
-  if (channelsQuery.loading) {
-    return null;
-  }
 
   if (!routerUtils.getParam(history, 'id')) {
     const firstChannel = channels[0];

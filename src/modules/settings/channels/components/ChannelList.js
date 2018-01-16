@@ -19,6 +19,7 @@ const propTypes = {
   channel: PropTypes.object.isRequired,
   members: PropTypes.array.isRequired,
   remove: PropTypes.func.isRequired,
+  refetch: PropTypes.func.isRequired,
   save: PropTypes.func.isRequired,
   isActive: PropTypes.bool
 };
@@ -47,7 +48,7 @@ class ChannelList extends Component {
   }
 
   renderEditAction() {
-    const { channel, save, members } = this.props;
+    const { channel, save, members, refetch } = this.props;
 
     const editTrigger = (
       <Button btnStyle="link">
@@ -59,7 +60,7 @@ class ChannelList extends Component {
 
     return (
       <ModalTrigger size={this.size} title="Edit" trigger={editTrigger}>
-        {this.renderEditForm({ channel, save, members })}
+        {this.renderEditForm({ channel, save, members, refetch })}
       </ModalTrigger>
     );
   }

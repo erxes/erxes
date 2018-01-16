@@ -3,13 +3,13 @@ import ChannelList from './ChannelList';
 import IntegrationList from './IntegrationList';
 import Sidebar from './Sidebar';
 import IntegrationForm from './IntegrationForm';
-import Row from './Row';
+import IntegrationRow from './IntegrationRow';
 
 export {
   ChannelForm,
   ChannelList,
   IntegrationList,
   Sidebar,
-  Row,
+  IntegrationRow,
   IntegrationForm
 };

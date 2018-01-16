@@ -14,7 +14,7 @@ const propTypes = {
   channel: PropTypes.object,
   members: PropTypes.array,
   selectedMembers: PropTypes.array,
-  save: PropTypes.func
+  save: PropTypes.func.isRequired
 };
 
 const contextTypes = {

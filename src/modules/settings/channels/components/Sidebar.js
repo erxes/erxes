@@ -9,15 +9,17 @@ import {
   Icon,
   ModalTrigger,
   Spinner,
-  EmptyState
+  EmptyState,
+  LoadMore
 } from 'modules/common/components';
 
 const propTypes = {
   channels: PropTypes.array.isRequired,
   members: PropTypes.array.isRequired,
   remove: PropTypes.func.isRequired,
-  save: PropTypes.func.isRequired,
   refetch: PropTypes.func.isRequired,
+  save: PropTypes.func.isRequired,
+  channelsTotalCount: PropTypes.number.isRequired,
   loading: PropTypes.bool.isRequired
 };
 
@@ -52,7 +54,7 @@ class Sidebar extends Component {
   }
 
   render() {
-    const { loading, save, channels, members } = this.props;
+    const { loading, save, channels, members, channelsTotalCount } = this.props;
 
     const AddChannel = (
       <RightButton>
@@ -62,23 +64,24 @@ class Sidebar extends Component {
 
     return (
       <Wrapper.Sidebar full>
-        <Wrapper.Sidebar.Section full>
+        <Wrapper.Sidebar.Section full noShadow>
           <Title>Channels</Title>
           <ModalTrigger title="New Channel" trigger={AddChannel}>
-            {this.renderForm({ save, members })}
+            {this.renderForm({ save, members, loading })}
           </ModalTrigger>
           {channels.length ? (
-            <SidebarList>{this.renderObjects()}</SidebarList>
+            <SidebarList>
+              {this.renderObjects()}
+              <LoadMore all={channelsTotalCount} />
+            </SidebarList>
           ) : (
-            <div>
-              <EmptyState
-                text="There aren’t any channel at the moment."
-                icon="network"
-              />
-            </div>
+            <EmptyState
+              text="There aren’t any channel at the moment."
+              icon="network"
+            />
           )}
         </Wrapper.Sidebar.Section>
-        {loading && <Spinner />}
+        {loading && <Spinner objective />}
       </Wrapper.Sidebar>
     );
   }

@@ -99,7 +99,6 @@ const Row = styled.div`
   ${ManageActions} {
     width: 0;
     margin-left: auto;
-    padding-left: ${dimensions.unitSpacing - 5}px;
     overflow: hidden;
     display: flex;
     transition: all ease 0.3s;

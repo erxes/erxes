@@ -34,7 +34,7 @@ class IntegrationForm extends Component {
       loadmore: true,
       searchValue: ''
     };
-
+    console.log(this.state.loadmore);
     this.save = this.save.bind(this);
     this.handleChange = this.handleChange.bind(this);
     this.search = this.search.bind(this);
@@ -63,26 +63,6 @@ class IntegrationForm extends Component {
     this.setState({ loadmore: allIntegrations.length === perPage });
   }
 
-  renderRow(integration, icon) {
-    return (
-      <li key={integration._id}>
-        <Icon icon={icon} onClick={e => this.handleChange(e, integration)} />
-        {integration.name}
-      </li>
-    );
-  }
-
-  search(e) {
-    if (this.timer) clearTimeout(this.timer);
-    const { search } = this.props;
-    const value = e.target.value;
-
-    this.timer = setTimeout(() => {
-      search(value);
-      this.setState({ searchValue: value });
-    }, 500);
-  }
-
   handleChange(e, integration) {
     const { integrations } = this.state;
     const type = e.target.getAttribute('icon');
@@ -100,9 +80,28 @@ class IntegrationForm extends Component {
     }
   }
 
+  search(e) {
+    const { search } = this.props;
+    const value = e.target.value;
+
+    this.timer = setTimeout(() => {
+      search(value);
+      this.setState({ searchValue: value });
+    }, 500);
+  }
+
   loadMore() {
     this.setState({ loadmore: false });
     this.props.search(this.state.searchValue, true);
+  }
+
+  renderRow(integration, icon) {
+    return (
+      <li key={integration._id}>
+        <Icon icon={icon} onClick={e => this.handleChange(e, integration)} />
+        {integration.name}
+      </li>
+    );
   }
 
   render() {

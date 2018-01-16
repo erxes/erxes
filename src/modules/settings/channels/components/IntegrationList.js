@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Wrapper } from 'modules/layout/components';
-import { Row } from '/';
+import { IntegrationRow } from '/';
 import { IntegrationForm, Sidebar } from '../containers';
 import {
   Table,
@@ -16,7 +16,7 @@ const propTypes = {
   channels: PropTypes.array.isRequired,
   channelDetail: PropTypes.object.isRequired,
   refetch: PropTypes.func.isRequired,
-  totalCount: PropTypes.number.isRequired,
+  integrationsTotalCount: PropTypes.number.isRequired,
   loading: PropTypes.bool
 };
 
@@ -34,7 +34,7 @@ class IntegrationList extends Component {
   }
 
   renderRow(props) {
-    return <Row {...props} />;
+    return <IntegrationRow {...props} />;
   }
 
   renderForm(props) {
@@ -44,7 +44,7 @@ class IntegrationList extends Component {
   render() {
     const {
       loading,
-      totalCount,
+      integrationsTotalCount,
       integrations,
       channelDetail,
       channels,
@@ -94,12 +94,12 @@ class IntegrationList extends Component {
           <Sidebar channels={channels} refetch={refetch} loading={loading} />
         }
         actionBar={<Wrapper.ActionBar right={rightActionBar} />}
-        footer={<Pagination count={totalCount} />}
+        footer={<Pagination count={integrationsTotalCount} />}
         content={
           <DataWithLoader
             data={content}
             loading={loading}
-            count={totalCount}
+            count={integrationsTotalCount}
             emptyText="There is no integration in this channel"
             emptyIcon="email"
           />

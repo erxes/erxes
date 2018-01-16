@@ -5,9 +5,15 @@ import { queries } from '../graphql';
 import { IntegrationList } from '../components';
 
 const IntegrationListContainer = props => {
-  const { integrationsQuery, channelDetailQuery, totalCountQuery } = props;
+  const {
+    integrationsQuery,
+    channelDetailQuery,
+    totalCountQuery,
+    refetch,
+    loading
+  } = props;
 
-  const totalCount = totalCountQuery.integrationsTotalCount || 0;
+  const integrationsTotalCount = totalCountQuery.integrationsTotalCount || 0;
   const channelDetail = channelDetailQuery.channelDetail || {};
   const integrations = integrationsQuery.integrations || [];
 
@@ -15,9 +21,9 @@ const IntegrationListContainer = props => {
     ...props,
     channelDetail,
     integrations,
-    totalCount,
-    refetch: integrationsQuery.refetch,
-    loading: integrationsQuery.loading
+    integrationsTotalCount,
+    refetch,
+    loading
   };
 
   return <IntegrationList {...updatedProps} />;
@@ -26,7 +32,9 @@ const IntegrationListContainer = props => {
 IntegrationListContainer.propTypes = {
   totalCountQuery: PropTypes.object,
   integrationsQuery: PropTypes.object,
-  channelDetailQuery: PropTypes.object
+  channelDetailQuery: PropTypes.object,
+  refetch: PropTypes.func,
+  loading: PropTypes.bool
 };
 
 export default compose(

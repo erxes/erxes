@@ -4,10 +4,6 @@ const integrations = `
       _id
       name
       kind
-      brand {
-        _id
-        name
-      }
       channels {
         _id
         name
