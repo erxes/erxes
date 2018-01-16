@@ -224,6 +224,8 @@ describe('facebook integration: save webhook response', () => {
     let messageText = 'wall post';
     const link = 'link_url';
     const commentId = '2424242422242424244';
+    const parentId = '131313131313131313';
+    const senderName = 'Facebook User';
 
     // customer posted `wall post` on our wall
     saveWebhookResponse.data = {
@@ -238,7 +240,11 @@ describe('facebook integration: save webhook response', () => {
                 item: 'post',
                 post_id: postId,
                 comment_id: commentId,
-                sender_id: senderId,
+                parent_id: parentId,
+                from: {
+                  id: senderId,
+                  name: senderName,
+                },
                 message: messageText,
                 link,
               },
@@ -281,7 +287,15 @@ describe('facebook integration: save webhook response', () => {
     expect(message.customerId).toBe(customer._id);
     expect(message.internal).toBe(false);
     expect(message.content).toBe(messageText);
-    expect(message.facebookData.toJSON()).toEqual({ item: 'post', senderId, link });
+    expect(message.facebookData.toJSON()).toEqual({
+      item: 'post',
+      senderId,
+      commentId,
+      parentId,
+      senderName,
+      postId,
+      link,
+    });
 
     // second time ========================
 
@@ -301,7 +315,10 @@ describe('facebook integration: save webhook response', () => {
                 reaction_type: 'haha',
                 post_id: postId,
                 comment_id: commentId,
-                sender_id: senderId,
+                from: {
+                  id: senderId,
+                  name: senderName,
+                },
                 message: messageText,
               },
             },

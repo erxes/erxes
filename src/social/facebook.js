@@ -245,6 +245,9 @@ export class SaveWebhookResponse {
       msgFacebookData: {
         senderId,
         senderName,
+        commentId: value.comment_id,
+        parentId: value.parent_id,
+        postId,
         item: value.item,
         reactionType: value.reaction_type,
         photoId: value.photo_id,
