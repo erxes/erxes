@@ -194,20 +194,24 @@ class Message {
 
   /**
    * Change engage messages customer to another customer
-   * @param {String} newCustomerId - customer id to change
-   * @param {String} oldCustomerId - customer id to set
-   * @return {Promise} updated engage messages
+   * @param {String} newCustomerId - customer id to set
+   * @param {string[]} customerIds - old customer ids to change
+   * @return {Promise} updated engage messages of new customer
    */
-  static async changeCustomer(newCustomerId, oldCustomerId) {
-    await this.updateMany(
-      { messengerReceivedCustomerIds: oldCustomerId },
-      { $set: { 'messengerReceivedCustomerIds.$': newCustomerId } },
-    );
+  static async changeCustomer(newCustomerId, customerIds) {
+    for (let customerId of customerIds) {
+      await this.updateMany(
+        { messengerReceivedCustomerIds: customerId },
+        { $set: { 'messengerReceivedCustomerIds.$': newCustomerId } },
+      );
 
-    return await this.updateMany(
-      { customerIds: oldCustomerId },
-      { $set: { 'customerIds.$': newCustomerId } },
-    );
+      await this.updateMany(
+        { customerIds: customerId },
+        { $set: { 'customerIds.$': newCustomerId } },
+      );
+    }
+
+    return this.find({ customerIds: newCustomerId });
   }
 
   /**

@@ -326,14 +326,18 @@ class ActivityLog {
   /**
    * Change customers activity log to another customer
    * @param {String} newCustomerId - customer id to set
-   * @param {String} oldCustomerId - old customer to change
-   * @return {Promise} updated activity logs
+   * @param {string[]} customerIds - old customer ids to change
+   * @return {Promise} updated activity logs of new customer
    */
-  static async changeCustomer(newCustomerId, oldCustomerId) {
-    return await this.updateMany(
-      { coc: { id: oldCustomerId, type: COC_CONTENT_TYPES.CUSTOMER } },
-      { $set: { coc: { id: newCustomerId, type: COC_CONTENT_TYPES.CUSTOMER } } },
-    );
+  static async changeCustomer(newCustomerId, customerIds) {
+    for (let customerId of customerIds) {
+      await this.updateMany(
+        { coc: { id: customerId, type: COC_CONTENT_TYPES.CUSTOMER } },
+        { $set: { coc: { id: newCustomerId, type: COC_CONTENT_TYPES.CUSTOMER } } },
+      );
+    }
+
+    return this.find({ coc: { id: newCustomerId, type: COC_CONTENT_TYPES.CUSTOMER } });
   }
 
   /**
