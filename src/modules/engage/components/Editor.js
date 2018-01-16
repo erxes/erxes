@@ -76,7 +76,6 @@ export default class Editor extends Component {
 
   onChange(editorState) {
     this.setState({ editorState });
-
     this.props.onChange(this.getContent(editorState));
   }
 

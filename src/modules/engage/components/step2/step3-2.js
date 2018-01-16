@@ -11,6 +11,7 @@ import {
 import { MESSENGER_KINDS, SENT_AS_CHOICES } from 'modules/engage/constants';
 import Editor from '../Editor';
 import { EditorWrapper } from '../../styles';
+import { MessengerPreview } from '../../containers';
 
 const Content = styled.div`
   display: flex;
@@ -44,6 +45,12 @@ const propTypes = {
 class Step3 extends Component {
   constructor(props) {
     super(props);
+
+    this.state = {
+      sentAs: '',
+      content: '',
+      fromUser: ''
+    };
   }
   onContentChange() {
     console.log('sjdfsdaf');
@@ -97,7 +104,13 @@ class Step3 extends Component {
           </FormGroup>
         </Flex100>
         <Divider />
-        <ContentCenter />
+        <ContentCenter>
+          <MessengerPreview
+            sentAs={this.state.sentAs}
+            content={this.state.messengerContent}
+            fromUser={this.props.fromUser}
+          />
+        </ContentCenter>
       </Content>
     );
   }

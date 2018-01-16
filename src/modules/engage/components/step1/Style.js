@@ -67,7 +67,7 @@ const NextButton = styled.div`
 const StepContent = styled.div`
   width: 100%;
   height: calc(100% - 55px);
-  margin: 10px;
+  padding: 10px;
 `;
 
 export {

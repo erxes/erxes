@@ -12,6 +12,7 @@ import {
 import { Icon } from 'modules/common/components';
 import Step1 from './step1/Step1';
 import Step2 from './step1/Step2';
+import Step3 from './step1/Step3';
 
 const propTypes = {
   segments: PropTypes.array.isRequired,
@@ -38,7 +39,6 @@ class Step extends Component {
 
   changeSegment(segment) {
     this.setState({ segment });
-    console.log(this.state.segment);
   }
 
   showStep(step) {
@@ -75,19 +75,25 @@ class Step extends Component {
       </ShortStep>
     );
   }
-  //  {this.renderStep(1, true, <Step1 changeMethod={this.changeMethod} method={this.state.method}/>)}
+
   render() {
     return (
       <StepWrapper>
         {this.renderStep(
+          1,
+          true,
+          <Step1 changeMethod={this.changeMethod} method={this.state.method} />
+        )}
+        {this.renderStep(
           2,
           true,
           <Step2
-            changeSegment={this.changeMethod}
+            changeSegment={this.changeSegment}
             segments={this.props.segments}
+            counts={this.props.counts}
           />
         )}
-        {this.renderStep(3, false)}
+        {this.renderStep(3, false, <Step3 brands={this.props.brands} />)}
       </StepWrapper>
     );
   }

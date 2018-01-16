@@ -121,7 +121,6 @@ class MessengerForm extends Component {
         <FlexContent>
           <FlexItem>
             {this.renderFormHeader()}
-
             <ControlLabel>Message:</ControlLabel>
             <EditorWrapper>
               <Editor
