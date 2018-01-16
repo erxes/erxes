@@ -70,7 +70,7 @@ class InternalNote {
    * Change internal note to a new customer
    * @param {String} newCustomerId customer id to set
    * @param {String} oldCustomerId old customer id to chnge
-   * @return {Promise} updated internal notes
+   * @return {Promise} new company id
    */
   static async changeCustomer(newCustomerId, oldCustomerId) {
     return await this.updateMany(
@@ -106,6 +106,26 @@ class InternalNote {
       contentType: COC_CONTENT_TYPES.COMPANY,
       contentTypeId: companyId,
     });
+  }
+
+  /**
+   * Changing company internal notes to another company
+   * @param {String} newCompanyId - company ids to set
+   * @param {string[]} OldCompanyIds - old company ids to change
+   * @return {Promise} updated internal notes of new company
+   */
+  static async changeCompany(newCompanyId, OldCompanyIds) {
+    for (let companyId of OldCompanyIds) {
+      await this.updateMany(
+        {
+          contentType: COC_CONTENT_TYPES.COMPANY,
+          contentTypeId: companyId,
+        },
+        { contentTypeId: newCompanyId },
+      );
+    }
+
+    return this.find({ contentType: COC_CONTENT_TYPES.COMPANY, contentTypeId: newCompanyId });
   }
 }
 

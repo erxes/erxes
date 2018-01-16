@@ -339,7 +339,7 @@ class ActivityLog {
   /**
    * Removing customer activity logs
    * @param {String} customerId - customer id to remove
-   * @return {Promise} updated activity logs
+   * @return {Promise} updated activity logs of new customer
    */
   static async removeCustomerActivityLog(customerId) {
     // Removing customer activity log
@@ -358,6 +358,23 @@ class ActivityLog {
     return await this.remove({
       coc: { id: companyId, type: COC_CONTENT_TYPES.COMPANY },
     });
+  }
+
+  /**
+   * Changing company activity log to another company
+   * @param {String} newCompanyId - company ids to set
+   * @param {string[]} OldCompanyIds - old company ids to change
+   * @return {Promise} updated activity logs of new company
+   */
+  static async changeCompany(newCompanyId, OldCompanyIds) {
+    for (let companyId of OldCompanyIds) {
+      await this.updateMany(
+        { coc: { id: companyId, type: COC_CONTENT_TYPES.COMPANY } },
+        { $set: { coc: { id: newCompanyId, type: COC_CONTENT_TYPES.COMPANY } } },
+      );
+    }
+
+    return this.find({ coc: { id: newCompanyId, type: COC_CONTENT_TYPES.COMPANY } });
   }
 }
 
