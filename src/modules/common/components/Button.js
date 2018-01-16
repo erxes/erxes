@@ -63,7 +63,9 @@ const ButtonStyled = styled.button`
     padding: ${sizes[props.size].padding};
     display: ${props.block && 'block'};
     width: ${props.block && '100%'};
-    border: ${types[props.btnStyle].borderColor ? '1px solid #DDD' : 'none'};
+    border: ${types[props.btnStyle].borderColor
+      ? `1px solid ${colors.borderDarker}`
+      : 'none'};
     background: ${types[props.btnStyle].background};
     color: ${types[props.btnStyle].color};
     font-size: ${sizes[props.size].fontSize};
@@ -79,7 +81,7 @@ const ButtonStyled = styled.button`
       cursor: pointer;
       box-shadow: ${types[props.btnStyle] === types.link
         ? 'none'
-        : '0 0 4px 0 #ddd'};
+        : `0 0 4px 0 ${colors.borderDarker}`};
       color: ${types[props.btnStyle].color && darken(colors.colorCoreGray, 24)};
       text-decoration: none;
     }

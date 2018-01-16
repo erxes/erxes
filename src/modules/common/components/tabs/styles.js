@@ -3,8 +3,7 @@ import { colors, typography, dimensions } from '../../styles';
 
 const TabContainer = styled.div`
   border-bottom: 1px solid
-    ${props =>
-      props.grayBorder ? colors.colorLightGray : colors.borderPrimary};
+    ${props => (props.grayBorder ? colors.borderDarker : colors.borderPrimary)};
   margin-bottom: ${dimensions.coreSpacing}px;
 `;
 

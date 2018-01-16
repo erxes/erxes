@@ -57,13 +57,13 @@ const Nav = styled.nav`
 
     &:hover {
       color: ${colors.colorWhite};
-      text-shadow: 1px 0px 30px ${colors.colorWhite};
+      text-shadow: 1px 0px 40px ${colors.colorWhite};
     }
 
     &.active {
       position: relative;
       color: ${colors.colorWhite};
-      text-shadow: 1px 0px 30px ${colors.colorWhite};
+      text-shadow: 1px 0px 40px ${colors.colorWhite};
       background: rgba(0, 0, 0, 0.13);
     }
 

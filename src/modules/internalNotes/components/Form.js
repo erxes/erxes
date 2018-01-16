@@ -17,6 +17,8 @@ const EditorActions = styled.div`
 `;
 
 const EditorWrapper = styled.div`
+  position: relative;
+
   textarea {
     height: 100px;
     border-bottom: none;
