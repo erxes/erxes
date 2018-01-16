@@ -66,7 +66,7 @@ const Column = styled.div`
     flex: 3;
     margin-left: ${columnSizing};
     padding-left: ${columnSizing};
-    border-left: 1px solid #ddd;
+    border-left: 1px solid ${colors.borderDarker};
 
     li {
       font-weight: bold;
@@ -112,4 +112,14 @@ const LoadMore = styled.div`
   margin-top: 10px;
 `;
 
-export { Columns, Column, Title, Footer, LoadMore };
+const DetailContent = styled.div`
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+`;
+
+const SubContent = styled.div`
+  flex: 1;
+`;
+
+export { Columns, Column, Title, Footer, LoadMore, DetailContent, SubContent };

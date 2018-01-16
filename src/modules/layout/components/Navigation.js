@@ -44,6 +44,7 @@ const Nav = styled.nav`
     text-align: center;
     color: ${rgba(colors.colorWhite, 0.7)};
     position: relative;
+    transition: all 0.3s ease;
 
     span {
       position: absolute;
@@ -56,12 +57,14 @@ const Nav = styled.nav`
 
     &:hover {
       color: ${colors.colorWhite};
+      text-shadow: 1px 0px 40px ${colors.colorWhite};
     }
 
     &.active {
       position: relative;
       color: ${colors.colorWhite};
-      background: rgba(0, 0, 0, 0.2);
+      text-shadow: 1px 0px 40px ${colors.colorWhite};
+      background: rgba(0, 0, 0, 0.13);
     }
 
     > i {

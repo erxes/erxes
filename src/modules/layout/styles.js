@@ -285,13 +285,16 @@ const FlexRightItem = styled.div`
   margin-left: auto;
 `;
 
-const WhiteBox = styled.div`
-  flex: 1;
-  overflow: auto;
-  position: relative;
+const WhiteBoxRoot = styled.div`
   margin-bottom: ${dimensions.coreSpacing}px;
   background-color: ${colors.colorWhite};
   box-shadow: 0 0 4px ${colors.shadowPrimary};
+`;
+
+const WhiteBox = WhiteBoxRoot.extend`
+  flex: 1;
+  overflow: auto;
+  position: relative;
 `;
 
 const Authlayout = styled.div`
@@ -370,6 +373,7 @@ export {
   FlexContent,
   FlexItem,
   FlexRightItem,
+  WhiteBoxRoot,
   WhiteBox,
   Authlayout,
   AuthContent,

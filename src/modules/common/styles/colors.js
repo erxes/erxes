@@ -31,6 +31,7 @@ const linkPrimaryHover = rgba(linkPrimary, 0.7);
 
 // Border colors
 const borderPrimary = '#EEE';
+const borderDarker = '#DDD';
 
 // Text colors
 const textPrimary = '#444';
@@ -73,6 +74,7 @@ export default {
   linkPrimaryHover,
 
   borderPrimary,
+  borderDarker,
 
   textPrimary,
   textSecondary,
