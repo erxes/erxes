@@ -57,6 +57,24 @@ const companyMutations = {
 
     return companyIds;
   },
+
+  /**
+   * Merge companies
+   * @param {String} companyIds - Company Ids to merge
+   * @param {Object} newCompany - Newly created company
+   * @return {Promise} Newly created company
+   */
+  async companiesMerge(root, { companyIds, newCompany }) {
+    for (let companyId of companyIds) {
+      await Companies.removeCompany(companyId);
+    }
+
+    await Companies.createCompany(newCompany);
+    await ActivityLogs.changeCompany(companyIds, newCompany._id);
+    await InternalNotes.changeCompany(companyIds, newCompany._id);
+
+    return newCompany;
+  },
 };
 
 moduleRequireLogin(companyMutations);
