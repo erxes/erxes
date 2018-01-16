@@ -1,103 +1,92 @@
 import styled from 'styled-components';
 import { colors } from '../common/styles';
 
-const FormWrapper = styled.div`
-  overflow: hidden;
-  max-height: 65vh;
+const columnSizing = '20px';
+
+const Columns = styled.div`
+  display: flex;
+  flex-direction: row;
+  height: 100%;
 `;
 
-const InputsWrapper = styled.div`
-  float: left;
-  width: 60%;
-  min-height: 55vh;
-  max-height: 55vh;
-  overflow-y: auto;
-  padding-right: 10px;
-  border-right: 1px solid #ddd;
+const Column = styled.div`
+  flex: 1;
 
-  ul {
-    margin-top: 10px;
-    padding-left: 10px !important;
-    list-style-type: none;
-
-    li {
-      padding: 5px;
-
-      i {
-        color: ${colors.colorCoreDarkGray};
-        right: 1px;
-        float: left;
-        margin-right: 20px;
-
-        &:hover {
-          cursor: pointer;
-        }
-      }
-    }
-    }
+  &:last-of-type {
+    margin-left: ${columnSizing};
+    padding-left: ${columnSizing};
+    border-left: 1px solid #ddd;
   }
-`;
 
-const ListWrapper = styled.div`
-  float: right;
-  padding-left: 10px;
-  width: 40%;
-  min-height: 55vh;
-  max-height: 55vh;
-  overflow-y: auto;
+  > input {
+    margin-bottom: ${columnSizing};
+  }
 
   ul {
-    padding: 0 !important;
+    height: 40vh;
+    overflow: auto;
+    padding: 0;
+    margin: 0;
     list-style-type: none;
 
     li {
-      margin-top: 5px;
+      padding: 5px ${columnSizing};
+      position: relative;
+      margin-bottom: 5px;
       border: 1px solid ${colors.borderPrimary};
-      padding: 5px;
-      width: 100%;
+      border-radius: 2px;
+      transition: all 0.3s ease;
+
+      &:hover {
+        cursor: pointer;
+        background: ${colors.bgMain};
+
+        i {
+          transform: scale(1.15);
+        }
+      }
+
+      &:last-child {
+        margin: 0;
+      }
 
       i {
-        color: ${colors.colorCoreDarkGray};
-        right: 1px;
-        float: right;
-
-        &:hover {
-          cursor: pointer;
-        }
+        position: absolute;
+        color: ${colors.colorCoreLightGray};
+        right: ${columnSizing};
+        transition: all 0.3s ease;
       }
     }
   }
 `;
 
-const TitleSpan = styled.span`
-  margin-top: 10px;
-  font-weight: bold;
+const Title = styled.h4`
+  margin: 0 0 ${columnSizing} 0;
+  background: ${colors.bgActive};
+  padding: 10px ${columnSizing};
+  font-size: 13px;
+  text-transform: uppercase;
 `;
 
 const Footer = styled.div`
-  > span {
-    margin-bottom: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  p {
+    margin: 0;
     display: block;
     text-align: left;
 
     a {
-      color: ${colors.colorPrimary};
-
-      &:hover {
-        cursor: pointer;
-      }
+      cursor: pointer;
     }
   }
 `;
 
-const LoadMore = styled.li`
-  border: 1px solid ${colors.borderPrimary};
-  font-weight: bold;
+const LoadMore = styled.div`
   text-align: center;
-
-  &:hover {
-    cursor: pointer;
-  }
+  margin-top: 10px;
 `;
 
-export { FormWrapper, InputsWrapper, ListWrapper, TitleSpan, Footer, LoadMore };
+export { Columns, Column, Title, Footer, LoadMore };

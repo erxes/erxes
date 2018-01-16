@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Modal } from 'react-bootstrap';
 import {
@@ -7,15 +7,7 @@ import {
   FormControl,
   ModalTrigger
 } from 'modules/common/components';
-import { Alert } from 'modules/common/utils';
-import {
-  FormWrapper,
-  InputsWrapper,
-  ListWrapper,
-  Footer,
-  LoadMore,
-  TitleSpan
-} from '../../styles';
+import { Footer, LoadMore, Title, Columns, Column } from '../../styles';
 
 const propTypes = {
   data: PropTypes.object.isRequired,
@@ -32,7 +24,7 @@ const contextTypes = {
   closeModal: PropTypes.func.isRequired
 };
 
-class CommonAssociate extends React.Component {
+class CommonAssociate extends Component {
   constructor(props) {
     super(props);
     const datas = this.props.data.datas || [];
@@ -71,13 +63,10 @@ class CommonAssociate extends React.Component {
     this.setState({ loadmore: datas.length === perPage });
   }
 
-  handleChange(e, data) {
+  handleChange(type, data) {
     const { datas } = this.state;
-    const type = e.target.getAttribute('icon');
 
     if (type === 'plus') {
-      if (datas.some(item => item._id === data._id))
-        return Alert.warning('Already added');
       this.setState({
         datas: [...datas, data]
       });
@@ -105,10 +94,14 @@ class CommonAssociate extends React.Component {
   }
 
   renderRow(data, icon) {
+    if (icon === 'plus' && this.state.datas.some(e => e._id === data._id)) {
+      return null;
+    }
+
     return (
-      <li key={data._id}>
-        <Icon icon={icon} onClick={e => this.handleChange(e, data)} />
+      <li key={data._id} onClick={() => this.handleChange(icon, data)}>
         {this.props.renderName(data)}
+        <Icon icon={icon} />
       </li>
     );
   }
@@ -117,50 +110,65 @@ class CommonAssociate extends React.Component {
     const { datas, form, title, data } = this.props;
 
     const addTrigger = (
-      <span>
+      <p>
         Don&apos;t see the result you&apos;re looking for? &ensp;
         <a>Create a new {title}</a>
-      </span>
+      </p>
     );
 
     return (
-      <FormWrapper>
-        <InputsWrapper>
-          <FormControl
-            placeholder="Type to search"
-            onChange={e => this.search(e)}
-          />
-          <ul>
-            {datas.map(data => this.renderRow(data, 'plus'))}
-            {this.state.loadmore && (
-              <LoadMore onClick={this.loadMore}>Load More</LoadMore>
-            )}
-          </ul>
-        </InputsWrapper>
-        <ListWrapper>
-          <TitleSpan>
-            {data.name}&apos;s {title}
-          </TitleSpan>
-          <ul>{this.state.datas.map(data => this.renderRow(data, 'close'))}</ul>
-        </ListWrapper>
+      <div>
+        <Columns>
+          <Column>
+            <FormControl
+              placeholder="Type to search"
+              onChange={e => this.search(e)}
+            />
+            <ul>
+              {datas.map(data => this.renderRow(data, 'plus'))}
+              {this.state.loadmore && (
+                <LoadMore>
+                  <Button
+                    size="small"
+                    btnStyle="primary"
+                    onClick={this.loadMore}
+                    icon="checkmark"
+                  >
+                    Load More
+                  </Button>
+                </LoadMore>
+              )}
+            </ul>
+          </Column>
+          <Column>
+            <Title>
+              {data.name}&apos;s {title}
+            </Title>
+            <ul>
+              {this.state.datas.map(data => this.renderRow(data, 'close'))}
+            </ul>
+          </Column>
+        </Columns>
         <Modal.Footer>
           <Footer>
             <ModalTrigger title={`New ${title}`} trigger={addTrigger}>
               {form}
             </ModalTrigger>
-            <Button
-              btnStyle="simple"
-              onClick={() => this.context.closeModal()}
-              icon="close"
-            >
-              Cancel
-            </Button>
-            <Button btnStyle="success" onClick={this.save} icon="checkmark">
-              Save
-            </Button>
+            <div>
+              <Button
+                btnStyle="simple"
+                onClick={() => this.context.closeModal()}
+                icon="close"
+              >
+                Cancel
+              </Button>
+              <Button btnStyle="success" onClick={this.save} icon="checkmark">
+                Save
+              </Button>
+            </div>
           </Footer>
         </Modal.Footer>
-      </FormWrapper>
+      </div>
     );
   }
 }
