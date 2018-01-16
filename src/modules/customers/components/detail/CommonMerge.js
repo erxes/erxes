@@ -22,6 +22,12 @@ class CommonMerge extends React.Component {
   constructor(props) {
     super(props);
     const { type } = this.props;
+    this.basicInfos = {
+      firstName: { text: 'First Name', New: false, value: '' },
+      lastName: { text: 'Last Name', New: false, value: '' },
+      email: { text: 'E-mail', New: false, value: '' },
+      phone: { text: 'Phone', New: false, value: '' }
+    };
 
     if (type === 'company') {
       this.basicInfos = {
@@ -32,12 +38,7 @@ class CommonMerge extends React.Component {
         plant: { text: 'Company Plan', New: false, value: '' }
       };
     }
-    this.basicInfos = {
-      firstName: { text: 'First Name', New: false, value: '' },
-      lastName: { text: 'Last Name', New: false, value: '' },
-      email: { text: 'E-mail', New: false, value: '' },
-      phone: { text: 'Phone', New: false, value: '' }
-    };
+
     this.state = this.basicInfos;
 
     this.onChange = this.onChange.bind(this);
@@ -74,25 +75,31 @@ class CommonMerge extends React.Component {
   }
 
   renderInputOrSelect(field, key) {
+    let input = (
+      <FormControl
+        componentClass="select"
+        name={key}
+        onChange={e => this.onChange(e)}
+      >
+        {this.renderOptions(key)}
+      </FormControl>
+    );
+
+    if (this.state[key].New) {
+      input = (
+        <FormControl
+          key={key}
+          name={key}
+          autoFocus
+          onChange={e => this.onChange(e)}
+        />
+      );
+    }
+
     return (
       <FormGroup key={key}>
         <ControlLabel>{field[key].text}</ControlLabel>
-        {this.state[key].New ? (
-          <FormControl
-            key={key}
-            name={key}
-            autoFocus
-            onChange={e => this.onChange(e)}
-          />
-        ) : (
-          <FormControl
-            componentClass="select"
-            name={key}
-            onChange={e => this.onChange(e)}
-          >
-            {this.renderOptions(key)}
-          </FormControl>
-        )}
+        {input}
       </FormGroup>
     );
   }
@@ -125,22 +132,28 @@ class CommonMerge extends React.Component {
     this.setState({
       [name]: { ...this.state[name], value }
     });
-    console.log(this.state);
   }
 
   save() {
     const { datas } = this.props;
     const data = {};
+
     for (let key in this.state) {
       if (this.state.hasOwnProperty(key)) {
         data[key] = this.state[key].value;
       }
     }
+    const Ids = [];
+    datas.forEach(data => {
+      Ids.push(data._id);
+    });
 
     this.props.save({
-      datas,
+      Ids,
       data,
-      callback: this.context.closeModal()
+      callback: () => {
+        this.context.closeModal();
+      }
     });
   }
 

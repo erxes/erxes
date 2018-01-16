@@ -62,16 +62,16 @@ class CustomerListContainer extends Bulk {
         });
     };
 
-    const mergeCustomers = ({ datas, data, callback }) => {
+    const mergeCustomers = ({ Ids, data, callback }) => {
       customersMerge({
         variables: {
-          customerIds: datas,
+          customerIds: Ids,
           newCustomer: data
         }
       })
         .then(data => {
-          customersQuery.refetch();
           Alert.success('Success');
+          customersQuery.refetch();
           callback();
           history.push(`/customers/details/${data.data.customersMerge._id}`);
         })
