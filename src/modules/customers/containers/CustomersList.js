@@ -65,8 +65,7 @@ class CustomerListContainer extends Bulk {
     const mergeCustomers = ({ datas, data, callback }) => {
       customersMerge({
         variables: {
-          customerOneId: datas[0]._id,
-          customerTwoId: datas[1]._id,
+          customerIds: datas,
           newCustomer: data
         }
       })

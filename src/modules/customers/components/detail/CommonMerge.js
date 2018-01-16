@@ -62,7 +62,7 @@ class CommonMerge extends React.Component {
     const { datas } = this.props;
     const options = [];
 
-    datas.map(data => {
+    datas.forEach(data => {
       options.push(<option key={data._id}>{data[fieldName] || ''}</option>);
     });
     options.push(
