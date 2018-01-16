@@ -35,7 +35,7 @@ const MessageContent = styled.div`
 
   blockquote {
     margin-bottom: 0;
-    border-color: #ddd;
+    border-color: ${colors.borderDarker};
   }
 
   pre {

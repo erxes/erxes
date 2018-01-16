@@ -14,7 +14,6 @@ const EmptyStateStyled = styled.div`
   font-size: 14px;
   padding: 20px;
   color: ${colors.colorCoreGray};
-  background: ${colors.colorWhite};
 
   img {
     max-height: 260px;

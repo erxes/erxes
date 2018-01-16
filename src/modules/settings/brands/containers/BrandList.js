@@ -22,6 +22,7 @@ export default commonListComposer({
           _id
           code
           name
+          createdAt
           description
         }
       }

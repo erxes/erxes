@@ -39,7 +39,7 @@ const Input = styled.input`
     if (props.round) {
       return `
         font-size: 13px;
-        border: 1px solid #ddd;
+        border: 1px solid ${colors.borderDarker};
         border-radius: 20px;
         padding: 5px 20px;
       `;

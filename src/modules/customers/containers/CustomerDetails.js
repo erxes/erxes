@@ -14,6 +14,7 @@ const CustomerDetailsContainer = (props, context) => {
       companies: [],
       getTags: []
     },
+    loadingLogs: customerActivityLogQuery.loading,
     activityLogsCustomer: customerActivityLogQuery.activityLogsCustomer || [],
     currentUser: context.currentUser
   };
