@@ -18,7 +18,7 @@ class FacebookContainer extends Component {
     this.props.client
       .query({
         query: gql`
-          query integrationFacebookPagesList($appId: Float) {
+          query integrationFacebookPagesList($appId: String) {
             integrationFacebookPagesList(appId: $appId)
           }
         `,
