@@ -65,6 +65,10 @@ const companyMutations = {
    * @return {Promise} Newly created company
    */
   async companiesMerge(root, { companyIds, newCompany }) {
+    if (companyIds.length !== 2) {
+      throw new Error('You can only merge 2 companies at a time');
+    }
+
     for (let companyId of companyIds) {
       await Companies.removeCompany(companyId);
     }
