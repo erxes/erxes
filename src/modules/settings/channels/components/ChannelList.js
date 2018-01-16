@@ -47,7 +47,7 @@ class ChannelList extends Component {
   }
 
   renderEditAction() {
-    const { channel, save } = this.props;
+    const { channel, save, members } = this.props;
 
     const editTrigger = (
       <Button btnStyle="link">
@@ -59,7 +59,7 @@ class ChannelList extends Component {
 
     return (
       <ModalTrigger size={this.size} title="Edit" trigger={editTrigger}>
-        {this.renderEditForm({ channel, save })}
+        {this.renderEditForm({ channel, save, members })}
       </ModalTrigger>
     );
   }
@@ -92,7 +92,7 @@ class ChannelList extends Component {
     }
     const length = selectedMembers.length;
     const Tooltip = <More>{`+${length - limit}`}</More>;
-    console.log(channel);
+
     return (
       <SidebarListli key={channel._id} isActive={isActive}>
         <Row>

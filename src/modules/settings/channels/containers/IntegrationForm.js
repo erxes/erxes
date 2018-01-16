@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { compose, gql, graphql } from 'react-apollo';
-import { mutations } from '../graphql';
+import { queries, mutations } from '../graphql';
 import { IntegrationForm } from '../components';
 import { Alert } from 'modules/common/utils';
 
@@ -69,12 +69,20 @@ class FormContainer extends Component {
 FormContainer.propTypes = {
   integrations: PropTypes.array.isRequired,
   channelDetail: PropTypes.object.isRequired,
-  allIntegrationsQuery: PropTypes.object.isRequired,
+  allIntegrationsQuery: PropTypes.object,
   refetch: PropTypes.func.isRequired,
   editMutation: PropTypes.func
 };
 
 export default compose(
+  graphql(gql(queries.integrations), {
+    name: 'allIntegrationsQuery',
+    options: {
+      variables: {
+        perPage: 20
+      }
+    }
+  }),
   graphql(gql(mutations.channelEdit), {
     name: 'editMutation'
   })

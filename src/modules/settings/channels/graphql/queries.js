@@ -46,8 +46,6 @@ const users = `
       details {
         avatar
         fullName
-        position
-        twitterUsername
       }
     }
   }
@@ -60,8 +58,8 @@ const channelsCount = `
 `;
 
 const integrationsCount = `
-  query totalIntegrationsCount($kind: String) {
-    integrationsTotalCount(kind: $kind)
+  query totalIntegrationsCount {
+    integrationsTotalCount
   }
 `;
 

@@ -12,11 +12,9 @@ import {
 } from 'modules/common/components';
 
 const propTypes = {
-  allIntegrationsQuery: PropTypes.object.isRequired,
   integrations: PropTypes.array.isRequired,
   channels: PropTypes.array.isRequired,
   channelDetail: PropTypes.object.isRequired,
-  save: PropTypes.func.isRequired,
   refetch: PropTypes.func.isRequired,
   totalCount: PropTypes.number.isRequired,
   loading: PropTypes.bool
@@ -50,9 +48,7 @@ class IntegrationList extends Component {
       integrations,
       channelDetail,
       channels,
-      refetch,
-      allIntegrationsQuery,
-      save
+      refetch
     } = this.props;
 
     const breadcrumb = [
@@ -72,9 +68,7 @@ class IntegrationList extends Component {
         {this.renderForm({
           integrations,
           channelDetail,
-          allIntegrationsQuery,
-          refetch,
-          save
+          refetch
         })}
       </ModalTrigger>
     );
@@ -96,7 +90,9 @@ class IntegrationList extends Component {
     return (
       <Wrapper
         header={<Wrapper.Header breadcrumb={breadcrumb} />}
-        leftSidebar={<Sidebar channels={channels} />}
+        leftSidebar={
+          <Sidebar channels={channels} refetch={refetch} loading={loading} />
+        }
         actionBar={<Wrapper.ActionBar right={rightActionBar} />}
         footer={<Pagination count={totalCount} />}
         content={

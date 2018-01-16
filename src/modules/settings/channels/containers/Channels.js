@@ -16,7 +16,8 @@ const Channels = props => {
     ...props,
     channels,
     queryParams,
-    loading: channelsQuery.loading
+    loading: channelsQuery.loading,
+    refetch: channelsQuery.refetch
   };
 
   if (channelsQuery.loading) {

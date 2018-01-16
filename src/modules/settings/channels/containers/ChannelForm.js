@@ -1,18 +1,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { compose, gql, graphql } from 'react-apollo';
-import { queries } from '../graphql';
-import { Spinner } from 'modules/common/components';
 import { ChannelForm } from '../components';
 
 const ChannelFormContainer = props => {
-  const { channel, save, usersQuery } = props;
+  const { channel, save, members } = props;
 
-  if (usersQuery.loading) {
-    return <Spinner objective />;
-  }
-
-  const members = usersQuery.users || [];
   let selectedMembers = [];
 
   if (channel) {
@@ -33,14 +25,7 @@ const ChannelFormContainer = props => {
 ChannelFormContainer.propTypes = {
   channel: PropTypes.object,
   save: PropTypes.func,
-  usersQuery: PropTypes.object
+  members: PropTypes.array
 };
 
-export default compose(
-  graphql(gql(queries.users), {
-    name: 'usersQuery',
-    options: () => ({
-      fetchPolicy: 'network-only'
-    })
-  })
-)(ChannelFormContainer);
+export default ChannelFormContainer;

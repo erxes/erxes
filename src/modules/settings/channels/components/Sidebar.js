@@ -52,7 +52,7 @@ class Sidebar extends Component {
   }
 
   render() {
-    const { loading, save, channels } = this.props;
+    const { loading, save, channels, members } = this.props;
 
     const AddChannel = (
       <RightButton>
@@ -65,7 +65,7 @@ class Sidebar extends Component {
         <Wrapper.Sidebar.Section full>
           <Title>Channels</Title>
           <ModalTrigger title="New Channel" trigger={AddChannel}>
-            {this.renderForm({ save })}
+            {this.renderForm({ save, members })}
           </ModalTrigger>
           {channels.length ? (
             <SidebarList>{this.renderObjects()}</SidebarList>
