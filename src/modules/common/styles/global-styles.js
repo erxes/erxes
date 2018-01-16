@@ -26,7 +26,7 @@ injectGlobal`
   }
 
   a {
-    color: #297cbb;
+    color: #1785fc;
     transition: color 0.3s ease;
   }
 
