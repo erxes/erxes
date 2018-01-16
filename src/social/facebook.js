@@ -178,12 +178,12 @@ export class SaveWebhookResponse {
       return null;
     }
 
-    const senderName = value.sender_name;
+    const senderName = value.from.name;
 
     // sender_id is giving number values when feed and giving string value
     // when messenger. customer.facebookData.senderId has type of string so
     // convert it to string
-    const senderId = value.sender_id.toString();
+    const senderId = value.from.id.toString();
 
     let messageText = value.message;
 
@@ -323,7 +323,20 @@ export class SaveWebhookResponse {
       'facebookData.id': fbUserId,
     });
 
+    // get profile pic
+    const getProfilePic = async fbId => {
+      const response = await graphRequest.get(`/${fbId}/picture?height=600`);
+      return response.image ? response.location : '';
+    };
+
     if (customer) {
+      if (!customer.profilePic) {
+        await Customers.update(
+          { _id: customer._id },
+          { $set: { 'facebookData.profilePic': await getProfilePic(fbUserId) } },
+        );
+      }
+
       return customer._id;
     }
 
@@ -346,7 +359,7 @@ export class SaveWebhookResponse {
       integrationId,
       facebookData: {
         id: fbUserId,
-        profilePic: res.profile_pic,
+        profilePic: res.profile_pic || (await getProfilePic(fbUserId)),
       },
     });
 
