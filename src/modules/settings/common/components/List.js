@@ -4,7 +4,7 @@ import {
   Pagination,
   ModalTrigger,
   Button,
-  ShowData
+  DataWithLoader
 } from 'modules/common/components';
 import { Header, PageContent, ActionBar } from 'modules/layout/components';
 
@@ -61,12 +61,12 @@ class List extends Component {
         footer={<Pagination count={totalCount} />}
         transparent={false}
       >
-        <ShowData
+        <DataWithLoader
           data={this.renderContent()}
           loading={loading}
           count={totalCount}
           emptyText="There is no data."
-          emptyIcon="ios-copy"
+          emptyImage="/images/robots/robot-05.svg"
         />
       </PageContent>
     ];
