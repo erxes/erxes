@@ -67,17 +67,17 @@ const customerMutations = {
       throw new Error('You can only merge 2 customers at a time');
     }
 
-    const customer = await Customers.createCustomer(newCustomer);
-
-    await ActivityLogs.changeCustomer(customerIds, newCustomer._id);
-    await ConversationMessages.changeCustomer(customerIds, newCustomer._id);
-    await Conversations.changeCustomer(customerIds, newCustomer._id);
-    await EngageMessages.changeCustomer(customerIds, newCustomer._id);
-    await InternalNotes.changeCustomer(customerIds, newCustomer._id);
-
     for (let customerId of customerIds) {
       await Customers.removeCustomer(customerId);
     }
+
+    const customer = await Customers.createCustomer(newCustomer);
+
+    await ActivityLogs.changeCustomer(customer._id, customerIds);
+    await ConversationMessages.changeCustomer(customer._id, customerIds);
+    await Conversations.changeCustomer(customer._id, customerIds);
+    await EngageMessages.changeCustomer(customer._id, customerIds);
+    await InternalNotes.changeCustomer(customer._id, customerIds);
 
     return customer;
   },

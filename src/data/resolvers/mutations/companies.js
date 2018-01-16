@@ -73,11 +73,11 @@ const companyMutations = {
       await Companies.removeCompany(companyId);
     }
 
-    await Companies.createCompany(newCompany);
-    await ActivityLogs.changeCompany(companyIds, newCompany._id);
-    await InternalNotes.changeCompany(companyIds, newCompany._id);
+    const company = await Companies.createCompany(newCompany);
+    await ActivityLogs.changeCompany(company._id, companyIds);
+    await InternalNotes.changeCompany(company._id, companyIds);
 
-    return newCompany;
+    return company;
   },
 };
 
