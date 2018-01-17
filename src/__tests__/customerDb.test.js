@@ -139,4 +139,12 @@ describe('Customers model tests', () => {
 
     expect(customerObj.companyIds).toEqual(expect.arrayContaining(companyIds));
   });
+
+  test('removeCustomer', async () => {
+    const customer = await customerFactory({});
+
+    const removed = await Customers.removeCustomer(customer._id);
+
+    expect(removed.result).toEqual({ n: 1, ok: 1 });
+  });
 });
