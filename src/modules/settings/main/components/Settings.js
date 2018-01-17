@@ -13,6 +13,17 @@ import {
 } from '../styles';
 
 class Settings extends Component {
+  renderBox(name, image, to) {
+    return (
+      <Link to={to}>
+        <Box>
+          <img src={image} alt={name} />
+          <BoxName>{name}</BoxName>
+        </Box>
+      </Link>
+    );
+  }
+
   render() {
     return (
       <Maincontent>
@@ -22,98 +33,78 @@ class Settings extends Component {
         <Container>
           <Row>
             <RowTitle>Account Settings</RowTitle>
+
             <BoxContent>
-              <Link to="/settings/channels">
-                <Box>
-                  <img src="/images/icons/channels.png" alt="channels" />
-                  <BoxName>Channels</BoxName>
-                </Box>
-              </Link>
-              <Link to="/settings/brands">
-                <Box>
-                  <img src="/images/icons/brands.png" alt="brands" />
-                  <BoxName>Brands</BoxName>
-                </Box>
-              </Link>
-              <Link to="/settings/integrations">
-                <Box>
-                  <img
-                    src="/images/icons/integrations.png"
-                    alt="integrations"
-                  />
-                  <BoxName>Integrations</BoxName>
-                </Box>
-              </Link>
-              <Link to="/settings/response-templates">
-                <Box>
-                  <img
-                    src="/images/icons/responseTe.png"
-                    alt="responseTemplate"
-                  />
-                  <BoxName>Response Template</BoxName>
-                </Box>
-              </Link>
-              <Link to="/settings/email-templates">
-                <Box>
-                  <img src="/images/icons/emailT.png" alt="emailTemplate" />
-                  <BoxName>Email Template</BoxName>
-                </Box>
-              </Link>
-              <Link to="/settings/emails">
-                <Box>
-                  <img src="/images/icons/emailA.png" alt="emailAppearance" />
-                  <BoxName>Email Appearance</BoxName>
-                </Box>
-              </Link>
-              <Link to="/settings/forms">
-                <Box>
-                  <img src="/images/icons/forms.png" alt="forms" />
-                  <BoxName>Forms</BoxName>
-                </Box>
-              </Link>
-              <Link to="/settings/knowledgebase/list">
-                <Box>
-                  <img
-                    src="/images/icons/knowledgeBase.png"
-                    alt="knowledgebase"
-                  />
-                  <BoxName>Knowledge base</BoxName>
-                </Box>
-              </Link>
-              <Link to="/settings/team">
-                <Box className="last">
-                  <img src="/images/icons/teamM.png" alt="teamMembers" />
-                  <BoxName>Team Members</BoxName>
-                </Box>
-              </Link>
+              {this.renderBox(
+                'Channels',
+                '/images/icons/channels.png',
+                '/settings/channels'
+              )}
+              {this.renderBox(
+                'Brands',
+                '/images/icons/brands.png',
+                '/settings/brands'
+              )}
+              {this.renderBox(
+                'Integrations',
+                '/images/icons/integrations.png',
+                '/settings/integrations'
+              )}
+              {this.renderBox(
+                'Response Template',
+                '/images/icons/responseTe.png',
+                '/settings/response-templates'
+              )}
+              {this.renderBox(
+                'Email Template',
+                '/images/icons/emailT.png',
+                '/settings/email-templates'
+              )}
+              {this.renderBox(
+                'Email Appearance',
+                '/images/icons/emailA.png',
+                '/settings/emails'
+              )}
+              {this.renderBox(
+                'Forms',
+                '/images/icons/forms.png',
+                '/settings/forms'
+              )}
+              {this.renderBox(
+                'Knowledge base',
+                '/images/icons/knowledgeBase.png',
+                '/settings/knowledgebase/list'
+              )}
+              {this.renderBox(
+                'Team Members',
+                '/images/icons/teamM.png',
+                '/settings/team'
+              )}
             </BoxContent>
           </Row>
           <Row>
             <RowTitle className="secondRow">Personal Settings</RowTitle>
-            <Link to="/settings/profile">
-              <Box>
-                <img src="/images/icons/profile.png" alt="profile" />
-                <BoxName>Profile</BoxName>
-              </Box>
-            </Link>
-            <Link to="/settings/change-password">
-              <Box>
-                <img src="/images/icons/changePass.png" alt="changePassword" />
-                <BoxName>Change password</BoxName>
-              </Box>
-            </Link>
-            <Link to="/settings/emails/signatures">
-              <Box>
-                <img src="/images/icons/emailSig.png" alt="emailSignature" />
-                <BoxName>Email Signature</BoxName>
-              </Box>
-            </Link>
-            <Link to="/settings/notification-settings">
-              <Box>
-                <img src="/images/icons/notification.png" alt="notification" />
-                <BoxName>Notification</BoxName>
-              </Box>
-            </Link>
+
+            {this.renderBox(
+              'Profile',
+              '/images/icons/profile.png',
+              '/settings/profile'
+            )}
+            {this.renderBox(
+              'Change password',
+              '/images/icons/changePass.png',
+              '/settings/change-password'
+            )}
+            {this.renderBox(
+              'Email Signature',
+              '/images/icons/emailSig.png',
+              '/settings/emails/signatures'
+            )}
+            {this.renderBox(
+              'Notification',
+              '/images/icons/notification.png',
+              '/settings/notification-settings'
+            )}
           </Row>
         </Container>
       </Maincontent>

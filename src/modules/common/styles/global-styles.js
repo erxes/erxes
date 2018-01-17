@@ -643,6 +643,7 @@ injectGlobal`
   ::-webkit-scrollbar {
     width: 5px;
     height: 7px;
+    border-radius: 2px;
   }
 
   ::-webkit-scrollbar-thumb {

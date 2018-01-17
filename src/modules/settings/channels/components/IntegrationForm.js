@@ -32,7 +32,7 @@ class IntegrationForm extends Component {
 
     this.state = {
       integrations: currentChannel.integrations || [],
-      loadmore: true,
+      hasMore: true,
       searchValue: ''
     };
 
@@ -61,7 +61,7 @@ class IntegrationForm extends Component {
   componentWillReceiveProps(newProps) {
     const { allIntegrations, perPage } = newProps;
 
-    this.setState({ loadmore: allIntegrations.length === perPage });
+    this.setState({ hasMore: allIntegrations.length === perPage });
   }
 
   handleChange(type, integration) {
@@ -90,7 +90,7 @@ class IntegrationForm extends Component {
   }
 
   loadMore() {
-    this.setState({ loadmore: false });
+    this.setState({ hasMore: false });
     this.props.search(this.state.searchValue, true);
   }
 
@@ -133,7 +133,7 @@ class IntegrationForm extends Component {
       >
         <IntegrationName>{integration.name}</IntegrationName>
         <Tip text={this.getTypeName(integration)}>
-          <Label className={`label-${this.getTypeName(integration)} icon`}>
+          <Label className={`label-${this.getTypeName(integration)} round`}>
             <Icon icon={this.getIconByKind(integration)} />
           </Label>
         </Tip>
@@ -159,7 +159,7 @@ class IntegrationForm extends Component {
               {allIntegrations.map(integration =>
                 this.renderRow(integration, 'plus')
               )}
-              {this.state.loadmore && (
+              {this.state.hasMore && (
                 <LoadMore>
                   <Button
                     size="small"

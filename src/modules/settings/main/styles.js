@@ -39,13 +39,8 @@ const Box = styled.div`
   border-radius: 6px;
   width: 150px;
   min-height: 150px;
-  cursor: pointer;
   box-shadow: 0 8px 5px ${rgba(colors.colorCoreGray, 0.08)};
   transition: all 0.25s ease;
-
-  &.last {
-    margin-right: 0;
-  }
 
   img {
     width: 65px;
@@ -55,6 +50,7 @@ const Box = styled.div`
   }
 
   &:hover {
+    cursor: pointer;
     box-shadow: 0 10px 20px ${rgba(colors.colorCoreDarkGray, 0.12)};
     font-weight: 500;
 

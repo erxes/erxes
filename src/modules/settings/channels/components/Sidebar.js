@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Sidebar as LeftSidebar } from 'modules/layout/components';
 import { SidebarList as List } from 'modules/layout/styles';
-import { SidebarList } from './';
+import { ChannelRow } from './';
 import { RightButton, Title } from '../styles';
 import { ChannelForm } from '../containers';
 import {
@@ -27,26 +27,22 @@ class Sidebar extends Component {
   constructor(props) {
     super(props);
 
-    this.renderObjects = this.renderObjects.bind(this);
+    this.renderItems = this.renderItems.bind(this);
   }
 
-  renderObjects() {
+  renderItems() {
     const { channels, members, remove, save, currentChannelId } = this.props;
 
-    return channels.map(channel =>
-      this.renderChannelList({
-        key: channel._id,
-        isActive: currentChannelId === channel._id,
-        channel,
-        members,
-        remove,
-        save
-      })
-    );
-  }
-
-  renderChannelList(props) {
-    return <SidebarList {...props} />;
+    return channels.map(channel => (
+      <ChannelRow
+        key={channel._id}
+        isActive={currentChannelId === channel._id}
+        channel={channel}
+        members={members}
+        remove={remove}
+        save={save}
+      />
+    ));
   }
 
   renderChannelForm(props) {
@@ -78,16 +74,14 @@ class Sidebar extends Component {
     return (
       <LeftSidebar full header={this.renderSidebarHeader()}>
         <List>
-          {this.renderObjects()}
+          {this.renderItems()}
           <LoadMore all={channelsTotalCount} />
         </List>
-        {loading ? (
-          <Spinner />
-        ) : (
+        {loading && <Spinner />}
+        {!loading &&
           channelsTotalCount === 0 && (
             <EmptyState icon="briefcase" text="There is no channel" />
-          )
-        )}
+          )}
       </LeftSidebar>
     );
   }

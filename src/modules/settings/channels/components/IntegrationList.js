@@ -1,26 +1,19 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { IntegrationRow } from '/';
 import { Table } from 'modules/common/components';
+import { IntegrationRow } from '/';
 
 const propTypes = {
   integrations: PropTypes.array.isRequired
 };
 
 class IntegrationList extends Component {
-  renderObjects() {
+  renderRow() {
     const { integrations } = this.props;
 
-    return integrations.map(integration =>
-      this.renderRow({
-        key: integration._id,
-        integration
-      })
-    );
-  }
-
-  renderRow(props) {
-    return <IntegrationRow {...props} />;
+    return integrations.map(integration => (
+      <IntegrationRow key={integration._id} integration={integration} />
+    ));
   }
 
   render() {
@@ -34,7 +27,7 @@ class IntegrationList extends Component {
             <th>Actions</th>
           </tr>
         </thead>
-        <tbody>{this.renderObjects()}</tbody>
+        <tbody>{this.renderRow()}</tbody>
       </Table>
     );
   }

@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import { ChannelForm } from '../containers';
 import { ModalTrigger, Tip, Button, Icon } from 'modules/common/components';
 import {
-  SidebarListli,
+  SidebarListItem,
   ManageActions,
   Members,
   MemberImg,
@@ -22,7 +22,7 @@ const propTypes = {
   isActive: PropTypes.bool
 };
 
-class SidebarList extends Component {
+class ChannelRow extends Component {
   constructor(props) {
     super(props);
 
@@ -82,10 +82,9 @@ class SidebarList extends Component {
       selectedMembers = members.filter(u => channel.memberIds.includes(u._id));
     }
     const length = selectedMembers.length;
-    const Tooltip = <More>{`+${length - limit}`}</More>;
 
     return (
-      <SidebarListli key={channel._id} isActive={isActive}>
+      <SidebarListItem key={channel._id} isActive={isActive}>
         <Row>
           <Link to={`?id=${channel._id}`}>
             <RowContent>
@@ -94,7 +93,8 @@ class SidebarList extends Component {
                 {selectedMembers
                   .slice(0, limit ? limit : length)
                   .map(member => this.renderMember(member))}
-                {limit && length - limit > 0 && Tooltip}
+                {limit &&
+                  length - limit > 0 && <More>{`+${length - limit}`}</More>}
               </Members>
             </RowContent>
           </Link>
@@ -107,11 +107,11 @@ class SidebarList extends Component {
             </ActionButtons>
           </ManageActions>
         </Row>
-      </SidebarListli>
+      </SidebarListItem>
     );
   }
 }
 
-SidebarList.propTypes = propTypes;
+ChannelRow.propTypes = propTypes;
 
-export default SidebarList;
+export default ChannelRow;

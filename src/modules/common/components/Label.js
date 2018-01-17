@@ -47,7 +47,7 @@ const LabelStyled = styled.span`
     cursor: default;
   }
 
-  &.icon {
+  &.round {
     width: 15px;
     height: 15px;
     padding: 3px;

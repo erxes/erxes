@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 import { colors, dimensions, typography } from 'modules/common/styles';
 
-const SidebarListli = styled.li`
+const SidebarListItem = styled.li`
   border-bottom: 1px solid ${colors.borderPrimary};
   transition: all ease 0.3s;
   background: ${props => props.isActive && colors.bgActive};
@@ -139,14 +139,13 @@ const IntegrationName = styled.span`
   margin-right: ${dimensions.unitSpacing}px;
 `;
 
-const BrandName = styled.span`
+const BrandName = styled.div`
   font-size: 11px;
   color: ${colors.colorCoreGray};
-  display: -webkit-box;
 `;
 
 export {
-  SidebarListli,
+  SidebarListItem,
   IntegrationName,
   MemberImg,
   Members,

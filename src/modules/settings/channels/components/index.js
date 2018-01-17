@@ -1,5 +1,5 @@
 import ChannelForm from './ChannelForm';
-import SidebarList from './SidebarList';
+import ChannelRow from './ChannelRow';
 import Channels from './Channels';
 import IntegrationList from './IntegrationList';
 import Sidebar from './Sidebar';
@@ -8,7 +8,7 @@ import IntegrationRow from './IntegrationRow';
 
 export {
   ChannelForm,
-  SidebarList,
+  ChannelRow,
   Channels,
   IntegrationList,
   Sidebar,
