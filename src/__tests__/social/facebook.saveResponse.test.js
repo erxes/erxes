@@ -134,7 +134,7 @@ describe('facebook integration: save webhook response', () => {
 
     // check customer field values
     expect(customer.integrationId).toBe(integration._id);
-    expect(customer.name).toBe('Dombo Gombo'); // from mocked get info above
+    expect(customer.firstName).toBe('Dombo Gombo'); // from mocked get info above
     expect(customer.facebookData.id).toBe(senderId);
 
     // check message field values
@@ -275,7 +275,7 @@ describe('facebook integration: save webhook response', () => {
 
     // check customer field values
     expect(customer.integrationId).toBe(integration._id);
-    expect(customer.name).toBe('Dombo Gombo'); // from mocked get info above
+    expect(customer.firstName).toBe('Dombo Gombo'); // from mocked get info above
     expect(customer.facebookData.id).toBe(senderId);
 
     // 1 logs
@@ -314,7 +314,7 @@ describe('facebook integration: save webhook response', () => {
                 item: 'comment',
                 reaction_type: 'haha',
                 post_id: postId,
-                comment_id: commentId,
+                comment_id: `${commentId}1`,
                 from: {
                   id: senderId,
                   name: senderName,
@@ -342,7 +342,6 @@ describe('facebook integration: save webhook response', () => {
     expect(conversation.readUserIds.length).toBe(0);
 
     const newMessage = await ConversationMessages.findOne({ _id: { $ne: message._id } });
-
     // check message fields
     expect(newMessage.createdAt).toBeDefined();
     expect(newMessage.conversationId).toBe(conversation._id);
@@ -354,7 +353,10 @@ describe('facebook integration: save webhook response', () => {
     expect(newMessage.facebookData.toJSON()).toEqual({
       item: 'comment',
       senderId,
+      senderName,
+      postId,
       reactionType: 'haha',
+      commentId: `${commentId}1`,
     });
   });
 });

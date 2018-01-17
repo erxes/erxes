@@ -326,20 +326,7 @@ export class SaveWebhookResponse {
       'facebookData.id': fbUserId,
     });
 
-    // get profile pic
-    const getProfilePic = async fbId => {
-      const response = await graphRequest.get(`/${fbId}/picture?height=600`);
-      return response.image ? response.location : '';
-    };
-
     if (customer) {
-      if (!customer.profilePic) {
-        await Customers.update(
-          { _id: customer._id },
-          { $set: { 'facebookData.profilePic': await getProfilePic(fbUserId) } },
-        );
-      }
-
       return customer._id;
     }
 
@@ -352,13 +339,25 @@ export class SaveWebhookResponse {
     // get user info
     res = await graphRequest.get(`/${fbUserId}`, res.access_token);
 
+    // get profile pic
+    const getProfilePic = async fbId => {
+      try {
+        const response = await graphRequest.get(`/${fbId}/picture?height=600`);
+        return response.image ? response.location : '';
+      } catch (e) {
+        return null;
+      }
+    };
+
     // when feed response will contain name field
     // when messeger response will not contain name field
-    const name = res.name || `${res.first_name} ${res.last_name}`;
+    const firstName = res.first_name || res.name;
+    const lastName = res.last_name;
 
     // create customer
     const createdCustomer = await Customers.create({
-      name,
+      firstName,
+      lastName,
       integrationId,
       facebookData: {
         id: fbUserId,
