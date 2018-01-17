@@ -62,9 +62,16 @@ export const types = `
 `;
 
 export const queries = `
-  integrations(page: Int, perPage: Int, kind: String, channelId: String): [Integration]
+  integrations(
+    page: Int,
+    perPage: Int,
+    kind: String,
+    searchValue: String,
+    channelId: String
+  ): [Integration]
+
   integrationDetail(_id: String!): Integration
-  integrationsTotalCount(kind: String): Int
+  integrationsTotalCount(kind: String, channelId: String): Int
   integrationGetTwitterAuthUrl: String
   integrationFacebookAppsList: [JSON]
   integrationFacebookPagesList(appId: Float): [JSON]
