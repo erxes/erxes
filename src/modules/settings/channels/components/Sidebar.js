@@ -8,8 +8,9 @@ import { ChannelForm } from '../containers';
 import {
   Icon,
   ModalTrigger,
-  DataWithLoader,
-  LoadMore
+  EmptyState,
+  LoadMore,
+  Spinner
 } from 'modules/common/components';
 
 const propTypes = {
@@ -76,18 +77,16 @@ class Sidebar extends Component {
 
     return (
       <LeftSidebar full header={this.renderSidebarHeader()}>
-        <DataWithLoader
-          data={
-            <List>
-              {this.renderObjects()}
-              <LoadMore all={channelsTotalCount} />
-            </List>
-          }
-          loading={loading}
-          count={channelsTotalCount}
-          emptyText="There is no channel."
-          emptyImage="/images/robots/robot-02.svg"
-        />
+        {channelsTotalCount ? (
+          <List>
+            {this.renderObjects()}
+            <LoadMore all={channelsTotalCount} />
+          </List>
+        ) : loading ? (
+          <Spinner />
+        ) : (
+          <EmptyState icon="briefcase" text="There is no channel" />
+        )}
       </LeftSidebar>
     );
   }
