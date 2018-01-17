@@ -3,7 +3,12 @@
 
 import { connect, disconnect } from '../db/connection';
 import { Conversations, ConversationMessages, Users } from '../db/models';
-import { conversationFactory, conversationMessageFactory, userFactory } from '../db/factories';
+import {
+  conversationFactory,
+  conversationMessageFactory,
+  userFactory,
+  customerFactory,
+} from '../db/factories';
 import { CONVERSATION_STATUSES } from '../data/constants';
 
 beforeAll(() => connect());
@@ -19,7 +24,9 @@ describe('Conversation db', () => {
   beforeEach(async () => {
     // Creating test data
     _conversation = await conversationFactory();
-    _conversationMessage = await conversationMessageFactory({ conversationId: _conversation._id });
+    _conversationMessage = await conversationMessageFactory({
+      conversationId: _conversation._id,
+    });
     _user = await userFactory();
 
     _doc = { ..._conversationMessage._doc, conversationId: _conversation._id };
@@ -76,12 +83,16 @@ describe('Conversation db', () => {
     await _conversation.save();
 
     // get messageCount before add message
-    const prevConversationObj = await Conversations.findOne({ _id: _doc.conversationId });
+    const prevConversationObj = await Conversations.findOne({
+      _id: _doc.conversationId,
+    });
 
     const messageObj = await ConversationMessages.addMessage(_doc, _user);
 
     // checking updated conversation
-    const updatedConversation = await Conversations.findOne({ _id: _doc.conversationId });
+    const updatedConversation = await Conversations.findOne({
+      _id: _doc.conversationId,
+    });
     expect(updatedConversation.updatedAt).toEqual(expect.any(Date));
 
     expect(messageObj.content).toBe(_conversationMessage.content);
@@ -115,7 +126,9 @@ describe('Conversation db', () => {
     }
 
     // get messageCount after add message
-    const afterConversationObj = await Conversations.findOne({ _id: messageObj.conversationId });
+    const afterConversationObj = await Conversations.findOne({
+      _id: messageObj.conversationId,
+    });
 
     // check mendtioned users
     for (let mentionedUser of messageObj.mentionedUserIds) {
@@ -133,7 +146,9 @@ describe('Conversation db', () => {
   test('Assign conversation to employee', async () => {
     await Conversations.assignUserConversation([_conversation._id], _user.id);
 
-    const conversationObj = await Conversations.findOne({ _id: _conversation._id });
+    const conversationObj = await Conversations.findOne({
+      _id: _conversation._id,
+    });
 
     expect(conversationObj.assignedUserId).toBe(_user._id);
 
@@ -152,7 +167,9 @@ describe('Conversation db', () => {
     // unassign
     await Conversations.unassignUserConversation([_conversation._id]);
 
-    const conversationObj = await Conversations.findOne({ _id: _conversation._id });
+    const conversationObj = await Conversations.findOne({
+      _id: _conversation._id,
+    });
 
     expect(conversationObj.assignedUserId).toBeUndefined();
   });
@@ -161,7 +178,9 @@ describe('Conversation db', () => {
     // try closing ========================
     await Conversations.changeStatusConversation([_conversation._id], 'closed');
 
-    let conversationObj = await Conversations.findOne({ _id: _conversation._id });
+    let conversationObj = await Conversations.findOne({
+      _id: _conversation._id,
+    });
 
     expect(conversationObj.closedAt).toEqual(expect.any(Date));
     expect(conversationObj.status).toBe('closed');
@@ -204,7 +223,9 @@ describe('Conversation db', () => {
     // add user to conversation
     await Conversations.toggleParticipatedUsers([_conversation._id], _user.id);
 
-    const conversationObj = await Conversations.findOne({ _id: _conversation.id });
+    const conversationObj = await Conversations.findOne({
+      _id: _conversation.id,
+    });
 
     expect(conversationObj.participatedUserIds).toContain(_user._id);
 
@@ -225,7 +246,9 @@ describe('Conversation db', () => {
 
     await Conversations.markAsReadConversation(_conversation._id, _user._id);
 
-    const conversationObj = await Conversations.findOne({ _id: _conversation._id });
+    const conversationObj = await Conversations.findOne({
+      _id: _conversation._id,
+    });
 
     expect(conversationObj.readUserIds[0]).toBe(_user._id);
 
@@ -250,7 +273,9 @@ describe('Conversation db', () => {
       _id: _conversationMessage.conversationId,
     });
 
-    await ConversationMessages.removeMessages({ _id: { $in: [_conversationMessage._id] } });
+    await ConversationMessages.removeMessages({
+      _id: { $in: [_conversationMessage._id] },
+    });
 
     expect(await ConversationMessages.find({ _id: _conversationMessage._id }).count()).toBe(0);
 
@@ -274,7 +299,9 @@ describe('Conversation db', () => {
 
     await ConversationMessages.markSentAsReadMessages(_conversation._id);
 
-    const messagesMarkAsRead = await ConversationMessages.find({ _id: _conversation._id });
+    const messagesMarkAsRead = await ConversationMessages.find({
+      _id: _conversation._id,
+    });
 
     for (let message in messagesMarkAsRead) {
       expect(message.isCustomerRead).toBeTruthy();
@@ -297,5 +324,32 @@ describe('Conversation db', () => {
     expect(updatedConversation.readUserIds.length).toBe(0);
     expect(updatedConversation.closedAt).toBeNull();
     expect(updatedConversation.closedUserId).toBeNull();
+  });
+
+  test('changeCustomer', async () => {
+    const customer = await customerFactory({});
+    const newCustomer = await customerFactory({});
+
+    await conversationFactory({
+      customerId: customer._id,
+    });
+
+    const updatedConversation = await Conversations.changeCustomer(newCustomer._id, [customer._id]);
+
+    for (let conversation of updatedConversation) {
+      expect(conversation.customerId).toBe(newCustomer._id);
+    }
+  });
+
+  test('removeCustomerConversations', async () => {
+    const customer = await customerFactory({});
+
+    await conversationFactory({
+      customerId: customer._id,
+    });
+
+    const removed = await Conversations.removeCustomerConversations(customer._id);
+
+    expect(removed.result).toEqual({ ok: 1, n: 1 });
   });
 });
