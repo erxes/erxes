@@ -30,7 +30,8 @@ export default compose(
         channelId: currentChannel._id,
         searchValue: queryParams.searchValue,
         page: queryParams.page,
-        perPage: queryParams.perPage || 20
+        perPage: queryParams.perPage || 20,
+        kind: queryParams.kind
       },
       fetchPolicy: 'network-only'
     })
