@@ -27,6 +27,7 @@ class ChannelsWithCurrent extends React.Component {
       ...this.props,
       queryParams: queryString.parse(location.search),
       currentChannel: channelDetailQuery.channelDetail || {},
+      loading: channelDetailQuery.loading,
       totalIntegrationsCount:
         totalIntegrationsCountQuery.integrationsTotalCount || 0
     };

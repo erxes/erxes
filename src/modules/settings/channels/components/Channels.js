@@ -4,7 +4,7 @@ import { Wrapper } from 'modules/layout/components';
 import { Sidebar, IntegrationList, IntegrationForm } from '../containers';
 import {
   Pagination,
-  EmptyState,
+  DataWithLoader,
   Button,
   ModalTrigger
 } from 'modules/common/components';
@@ -12,31 +12,18 @@ import {
 const propTypes = {
   totalIntegrationsCount: PropTypes.number.isRequired,
   queryParams: PropTypes.object,
-  currentChannel: PropTypes.object
+  currentChannel: PropTypes.object,
+  loading: PropTypes.bool
 };
 
 class Channels extends Component {
-  renderIntegrations() {
-    const { currentChannel, queryParams } = this.props;
-
-    if (currentChannel._id) {
-      return (
-        <IntegrationList
-          currentChannel={currentChannel}
-          queryParams={queryParams}
-        />
-      );
-    }
-    return (
-      <EmptyState
-        text="There aren’t any integration at the moment."
-        icon="network"
-      />
-    );
-  }
-
   render() {
-    const { totalIntegrationsCount, currentChannel } = this.props;
+    const {
+      totalIntegrationsCount,
+      currentChannel,
+      queryParams,
+      loading
+    } = this.props;
 
     const breadcrumb = [
       { title: 'Settings', link: '/settings' },
@@ -64,7 +51,20 @@ class Channels extends Component {
         footer={
           currentChannel._id && <Pagination count={totalIntegrationsCount} />
         }
-        content={this.renderIntegrations()}
+        content={
+          <DataWithLoader
+            data={
+              <IntegrationList
+                currentChannel={currentChannel}
+                queryParams={queryParams}
+              />
+            }
+            loading={loading}
+            count={totalIntegrationsCount}
+            emptyText="There is no integration in this channel."
+            icon="network"
+          />
+        }
       />
     );
   }
