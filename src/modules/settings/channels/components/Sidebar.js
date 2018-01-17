@@ -1,15 +1,14 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Wrapper } from 'modules/layout/components';
-import { ChannelList } from './';
-import { SidebarList } from 'modules/layout/styles';
+import { Sidebar as LeftSidebar } from 'modules/layout/components';
+import { SidebarList as List } from 'modules/layout/styles';
+import { SidebarList } from './';
 import { RightButton, Title } from '../styles';
 import { ChannelForm } from '../containers';
 import {
   Icon,
   ModalTrigger,
-  Spinner,
-  EmptyState,
+  DataWithLoader,
   LoadMore
 } from 'modules/common/components';
 
@@ -17,10 +16,10 @@ const propTypes = {
   channels: PropTypes.array.isRequired,
   members: PropTypes.array.isRequired,
   remove: PropTypes.func.isRequired,
-  refetch: PropTypes.func.isRequired,
   save: PropTypes.func.isRequired,
-  channelsTotalCount: PropTypes.number.isRequired,
-  loading: PropTypes.bool.isRequired
+  loading: PropTypes.bool.isRequired,
+  currentChannelId: PropTypes.string,
+  channelsTotalCount: PropTypes.number.isRequired
 };
 
 class Sidebar extends Component {
@@ -30,31 +29,31 @@ class Sidebar extends Component {
     this.renderObjects = this.renderObjects.bind(this);
   }
 
-  renderChannelName(props) {
-    return <ChannelList {...props} />;
-  }
-
   renderObjects() {
-    const { channels, members, remove, save, refetch } = this.props;
+    const { channels, members, remove, save, currentChannelId } = this.props;
 
     return channels.map(channel =>
-      this.renderChannelName({
+      this.renderChannelList({
         key: channel._id,
+        isActive: currentChannelId === channel._id,
         channel,
         members,
         remove,
-        refetch,
         save
       })
     );
   }
 
-  renderForm(props) {
+  renderChannelList(props) {
+    return <SidebarList {...props} />;
+  }
+
+  renderChannelForm(props) {
     return <ChannelForm {...props} />;
   }
 
-  render() {
-    const { loading, save, channels, members, channelsTotalCount } = this.props;
+  renderSidebarHeader() {
+    const { save, members } = this.props;
 
     const AddChannel = (
       <RightButton>
@@ -63,26 +62,34 @@ class Sidebar extends Component {
     );
 
     return (
-      <Wrapper.Sidebar full>
-        <Wrapper.Sidebar.Section full noShadow>
-          <Title>Channels</Title>
-          <ModalTrigger title="New Channel" trigger={AddChannel}>
-            {this.renderForm({ save, members, loading })}
-          </ModalTrigger>
-          {channels.length ? (
-            <SidebarList>
+      <LeftSidebar.Header>
+        <Title>Channels</Title>
+        <ModalTrigger title="New Channel" trigger={AddChannel}>
+          {this.renderChannelForm({ save, members })}
+        </ModalTrigger>
+      </LeftSidebar.Header>
+    );
+  }
+
+  render() {
+    const { loading, channelsTotalCount } = this.props;
+
+    return (
+      <LeftSidebar full header={this.renderSidebarHeader()}>
+        <DataWithLoader
+          data={
+            <List>
               {this.renderObjects()}
               <LoadMore all={channelsTotalCount} />
-            </SidebarList>
-          ) : (
-            <EmptyState
-              text="There aren’t any channel at the moment."
-              icon="network"
-            />
-          )}
-        </Wrapper.Sidebar.Section>
-        {loading && <Spinner objective />}
-      </Wrapper.Sidebar>
+            </List>
+          }
+          loading={loading}
+          count={channelsTotalCount}
+          emptyText="There is no channel."
+          emptyImage="/images/robots/robot-02.svg"
+        />
+        <LoadMore all={channelsTotalCount} />
+      </LeftSidebar>
     );
   }
 }

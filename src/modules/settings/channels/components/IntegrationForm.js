@@ -12,11 +12,10 @@ import {
 } from 'modules/customers/styles';
 
 const propTypes = {
-  channel: PropTypes.object.isRequired,
+  currentChannel: PropTypes.object,
   save: PropTypes.func.isRequired,
   search: PropTypes.func.isRequired,
   allIntegrations: PropTypes.array.isRequired,
-  integrations: PropTypes.array,
   perPage: PropTypes.number.isRequired
 };
 
@@ -27,14 +26,15 @@ const contextTypes = {
 class IntegrationForm extends Component {
   constructor(props) {
     super(props);
-    const integrations = this.props.integrations || [];
+
+    const currentChannel = props.currentChannel || {};
 
     this.state = {
-      integrations,
+      integrations: currentChannel.integrations || [],
       loadmore: true,
       searchValue: ''
     };
-    console.log(this.state.loadmore);
+
     this.save = this.save.bind(this);
     this.handleChange = this.handleChange.bind(this);
     this.search = this.search.bind(this);
@@ -105,7 +105,7 @@ class IntegrationForm extends Component {
   }
 
   render() {
-    const { allIntegrations, channel } = this.props;
+    const { allIntegrations, currentChannel } = this.props;
 
     return (
       <FormWrapper>
@@ -124,7 +124,7 @@ class IntegrationForm extends Component {
           </ul>
         </InputsWrapper>
         <ListWrapper>
-          <TitleSpan>{channel.name}&apos;s integration</TitleSpan>
+          <TitleSpan>{currentChannel.name}&apos;s integration</TitleSpan>
           <ul>
             {this.state.integrations.map(integration =>
               this.renderRow(integration, 'close')

@@ -5,57 +5,33 @@ import { queries } from '../graphql';
 import { IntegrationList } from '../components';
 
 const IntegrationListContainer = props => {
-  const {
-    integrationsQuery,
-    channelDetailQuery,
-    totalCountQuery,
-    refetch,
-    loading
-  } = props;
+  const { integrationsQuery } = props;
 
-  const integrationsTotalCount = totalCountQuery.integrationsTotalCount || 0;
-  const channelDetail = channelDetailQuery.channelDetail || {};
   const integrations = integrationsQuery.integrations || [];
 
   const updatedProps = {
     ...props,
-    channelDetail,
     integrations,
-    integrationsTotalCount,
-    refetch,
-    loading
+    loading: integrationsQuery.loading
   };
 
   return <IntegrationList {...updatedProps} />;
 };
 
 IntegrationListContainer.propTypes = {
-  totalCountQuery: PropTypes.object,
-  integrationsQuery: PropTypes.object,
-  channelDetailQuery: PropTypes.object,
-  refetch: PropTypes.func,
-  loading: PropTypes.bool
+  integrationsQuery: PropTypes.object
 };
 
 export default compose(
   graphql(gql(queries.integrations), {
     name: 'integrationsQuery',
-    options: ({ queryParams }) => ({
+    options: ({ queryParams, currentChannel }) => ({
       variables: {
-        channelId: queryParams.id || '',
-        perPage: 20
+        channelId: currentChannel._id,
+        page: queryParams.page,
+        perPage: queryParams.perPage || 20
       },
       fetchPolicy: 'network-only'
     })
-  }),
-  graphql(gql(queries.channelDetail), {
-    name: 'channelDetailQuery',
-    options: ({ queryParams }) => ({
-      variables: { _id: queryParams.id || '' },
-      fetchPolicy: 'network-only'
-    })
-  }),
-  graphql(gql(queries.integrationsCount), {
-    name: 'totalCountQuery'
   })
 )(IntegrationListContainer);

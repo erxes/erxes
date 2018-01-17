@@ -8,14 +8,14 @@ import { Sidebar } from '../components';
 const SidebarContainer = props => {
   const {
     usersQuery,
+    channelsQuery,
     channelsCountQuery,
     addMutation,
     editMutation,
-    removeMutation,
-    refetch,
-    loading
+    removeMutation
   } = props;
 
+  const channels = channelsQuery.channels || [];
   const members = usersQuery.users || [];
   const channelsTotalCount = channelsCountQuery.channelsTotalCount || 0;
 
@@ -26,7 +26,7 @@ const SidebarContainer = props => {
         variables: { _id }
       })
         .then(() => {
-          refetch();
+          channelsQuery.refetch();
           usersQuery.refetch();
 
           Alert.success('Successfully deleted.');
@@ -50,7 +50,7 @@ const SidebarContainer = props => {
       variables: doc
     })
       .then(() => {
-        refetch();
+        channelsQuery.refetch();
         usersQuery.refetch();
 
         Alert.success('Successfully saved!');
@@ -65,27 +65,32 @@ const SidebarContainer = props => {
   const updatedProps = {
     ...props,
     members,
+    channels,
     channelsTotalCount,
     save,
     remove,
-    refetch,
-    loading
+    loading: channelsQuery.loading
   };
 
   return <Sidebar {...updatedProps} />;
 };
 
 SidebarContainer.propTypes = {
+  channelsQuery: PropTypes.object,
   usersQuery: PropTypes.object,
   channelsCountQuery: PropTypes.object,
   addMutation: PropTypes.func,
   editMutation: PropTypes.func,
-  removeMutation: PropTypes.func,
-  refetch: PropTypes.func,
-  loading: PropTypes.bool
+  removeMutation: PropTypes.func
 };
 
 export default compose(
+  graphql(gql(queries.channels), {
+    name: 'channelsQuery',
+    options: () => ({
+      fetchPolicy: 'network-only'
+    })
+  }),
   graphql(gql(queries.users), {
     name: 'usersQuery',
     options: () => ({

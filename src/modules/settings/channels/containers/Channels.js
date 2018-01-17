@@ -2,49 +2,99 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { withRouter } from 'react-router';
 import queryString from 'query-string';
-import { queries } from '../graphql';
 import { compose, gql, graphql } from 'react-apollo';
 import { router as routerUtils } from 'modules/common/utils';
-import { IntegrationList } from './';
+import { queries } from '../graphql';
+import { Channels } from '../components';
 
-const Channels = props => {
-  const { channelsQuery, history } = props;
+class ChannelsWithCurrent extends React.Component {
+  componentWillReceiveProps() {
+    const { history, currentChannelId } = this.props;
 
-  const queryParams = queryString.parse(props.location.search);
-  const channels = channelsQuery.channels || [];
-
-  const updatedProps = {
-    ...props,
-    channels,
-    queryParams,
-    loading: channelsQuery.loading,
-    refetch: channelsQuery.refetch
-  };
-
-  if (!routerUtils.getParam(history, 'id')) {
-    const firstChannel = channels[0];
-    firstChannel && routerUtils.setParams(history, { id: firstChannel._id });
+    if (!routerUtils.getParam(history, 'id') && currentChannelId) {
+      routerUtils.setParams(history, { id: currentChannelId });
+    }
   }
 
-  return <IntegrationList {...updatedProps} />;
-};
+  render() {
+    const {
+      channelDetailQuery,
+      location,
+      totalIntegrationsCountQuery
+    } = this.props;
 
-Channels.propTypes = {
-  channelsQuery: PropTypes.object,
+    const extendedProps = {
+      ...this.props,
+      queryParams: queryString.parse(location.search),
+      currentChannel: channelDetailQuery.channelDetail || {},
+      totalIntegrationsCount:
+        totalIntegrationsCountQuery.integrationsTotalCount || 0
+    };
+
+    return <Channels {...extendedProps} />;
+  }
+}
+
+ChannelsWithCurrent.propTypes = {
+  currentChannelId: PropTypes.string,
+  totalIntegrationsCountQuery: PropTypes.object,
+  channelDetailQuery: PropTypes.object,
   history: PropTypes.object,
   location: PropTypes.object
 };
 
-export default withRouter(
-  compose(
-    graphql(gql(queries.channels), {
-      name: 'channelsQuery',
-      options: () => {
-        return {
-          notifyOnNetworkStatusChange: true,
-          perPage: 20
-        };
-      }
+//When there is currentChannel id
+const ChannelsWithCurrentContainer = compose(
+  graphql(gql(queries.channelDetail), {
+    name: 'channelDetailQuery',
+    options: ({ currentChannelId }) => ({
+      variables: { _id: currentChannelId || '' },
+      fetchPolicy: 'network-only'
     })
-  )(Channels)
-);
+  }),
+  graphql(gql(queries.integrationsCount), {
+    name: 'totalIntegrationsCountQuery',
+    options: ({ currentChannelId }) => ({
+      variables: { channelId: currentChannelId || '' }
+    })
+  })
+)(ChannelsWithCurrent);
+
+//Getting lastChannel id to currentChannel
+const ChannelsWithLast = props => {
+  const { lastChannelQuery } = props;
+  const lastChannel = lastChannelQuery.channelsGetLast || {};
+  const extendedProps = { ...props, currentChannelId: lastChannel._id };
+
+  return <ChannelsWithCurrentContainer {...extendedProps} />;
+};
+
+ChannelsWithLast.propTypes = {
+  lastChannelQuery: PropTypes.object
+};
+
+const ChannelsWithLastContainer = compose(
+  graphql(gql(queries.channelsGetLast), {
+    name: 'lastChannelQuery'
+  })
+)(ChannelsWithLast);
+
+//Main channel component
+const MainContainer = props => {
+  const { history } = props;
+  const currentChannelId = routerUtils.getParam(history, 'id');
+
+  if (currentChannelId) {
+    const extendedProps = { ...props, currentChannelId };
+
+    return <ChannelsWithCurrentContainer {...extendedProps} />;
+  }
+
+  return <ChannelsWithLastContainer {...props} />;
+};
+
+MainContainer.propTypes = {
+  history: PropTypes.object
+};
+
+export default withRouter(MainContainer);

@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import { Modal } from 'react-bootstrap';
 import Select from 'react-select-plus';
 import {
-  Tip,
   FormGroup,
   FormControl,
   ControlLabel,
@@ -66,22 +65,6 @@ class ChannelForm extends Component {
         memberIds: this.collectValues(this.state.selectedMembers)
       }
     };
-  }
-
-  renderChannelTip(channels) {
-    const array = channels || [];
-    const count = array.length;
-    if (count !== 0) {
-      const channelNames = array.map(c => c.name);
-      return (
-        <Tip text={channelNames.toString()}>
-          <div className="channel-round">
-            <span>{count}</span>
-          </div>
-        </Tip>
-      );
-    }
-    return null;
   }
 
   renderContent() {

@@ -14,13 +14,7 @@ class FormContainer extends Component {
   }
 
   render() {
-    const {
-      integrations,
-      channelDetail,
-      allIntegrationsQuery,
-      refetch,
-      editMutation
-    } = this.props;
+    const { currentChannel, allIntegrationsQuery, editMutation } = this.props;
 
     const search = (value, loadmore) => {
       if (!loadmore) {
@@ -37,14 +31,13 @@ class FormContainer extends Component {
     const save = integrationIds => {
       editMutation({
         variables: {
-          _id: channelDetail._id,
-          name: channelDetail.name,
+          _id: currentChannel._id,
+          name: currentChannel.name,
           integrationIds,
-          memberIds: channelDetail.memberIds
+          memberIds: currentChannel.memberIds
         }
       })
         .then(() => {
-          refetch();
           Alert.success('Successfully saved');
         })
         .catch(e => {
@@ -55,8 +48,6 @@ class FormContainer extends Component {
     const updatedProps = {
       ...this.props,
       search,
-      channel: channelDetail,
-      integrations,
       save,
       perPage: this.state.perPage,
       allIntegrations: allIntegrationsQuery.integrations || []
@@ -67,10 +58,8 @@ class FormContainer extends Component {
 }
 
 FormContainer.propTypes = {
-  integrations: PropTypes.array.isRequired,
-  channelDetail: PropTypes.object.isRequired,
+  currentChannel: PropTypes.object,
   allIntegrationsQuery: PropTypes.object,
-  refetch: PropTypes.func.isRequired,
   editMutation: PropTypes.func
 };
 
@@ -84,6 +73,23 @@ export default compose(
     }
   }),
   graphql(gql(mutations.channelEdit), {
-    name: 'editMutation'
+    name: 'editMutation',
+    options: ({ currentChannel }) => {
+      return {
+        refetchQueries: [
+          {
+            query: gql(queries.integrations),
+            variables: {
+              channelId: currentChannel._id,
+              perPage: 20
+            }
+          },
+          {
+            query: gql(queries.channelDetail),
+            variables: { _id: currentChannel._id }
+          }
+        ]
+      };
+    }
   })
 )(FormContainer);

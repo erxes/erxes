@@ -89,6 +89,7 @@ const HeaderItems = styled.div`
 const SideContent = styled.section`
   box-sizing: border-box;
   display: flex;
+  position: relative;
   flex-direction: column;
   flex-shrink: 0;
   width: ${props => (props.wide ? '360px' : '300px')};

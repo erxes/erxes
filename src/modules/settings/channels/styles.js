@@ -5,6 +5,7 @@ const SidebarListli = styled.li`
   border-bottom: 1px solid ${colors.borderPrimary};
   padding: ${dimensions.unitSpacing}px;
   transition: all ease 0.3s;
+  background: ${props => props.isActive && colors.bgActive};
 
   a {
     &:hover {
@@ -13,7 +14,7 @@ const SidebarListli = styled.li`
   }
 
   &:hover {
-    background: ${colors.bgLight};
+    background: ${props => (props.isActive ? '' : colors.bgLight)};
     cursor: pointer;
   }
 `;
@@ -74,7 +75,7 @@ const Title = styled.h3`
   font-size: ${typography.fontSizeHeading8}px;
   font-weight: ${typography.fontWeightMedium};
   text-transform: uppercase;
-  padding: ${dimensions.coreSpacing}px;
+  padding: ${dimensions.coreSpacing}px 0;
   margin: 0;
   height: ${dimensions.headerSpacing}px;
   background-color: ${colors.bgLight};

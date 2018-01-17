@@ -19,36 +19,27 @@ const propTypes = {
   channel: PropTypes.object.isRequired,
   members: PropTypes.array.isRequired,
   remove: PropTypes.func.isRequired,
-  refetch: PropTypes.func.isRequired,
   save: PropTypes.func.isRequired,
   isActive: PropTypes.bool
 };
 
-class ChannelList extends Component {
+class SidebarList extends Component {
   constructor(props) {
     super(props);
 
     this.renderEditForm = this.renderEditForm.bind(this);
     this.renderMember = this.renderMember.bind(this);
     this.remove = this.remove.bind(this);
-    this.renderRemoveAction = this.renderRemoveAction.bind(this);
     this.renderEditAction = this.renderEditAction.bind(this);
   }
 
   remove() {
-    this.props.remove(this.props.channel._id);
-  }
-
-  renderRemoveAction() {
-    return (
-      <Tip text="Delete">
-        <Button btnStyle="link" onClick={this.remove} icon="close" />
-      </Tip>
-    );
+    const { remove, channel } = this.props;
+    remove(channel._id);
   }
 
   renderEditAction() {
-    const { channel, save, members, refetch } = this.props;
+    const { channel, save, members } = this.props;
 
     const editTrigger = (
       <Button btnStyle="link">
@@ -60,7 +51,7 @@ class ChannelList extends Component {
 
     return (
       <ModalTrigger size={this.size} title="Edit" trigger={editTrigger}>
-        {this.renderEditForm({ channel, save, members, refetch })}
+        {this.renderEditForm({ channel, save, members })}
       </ModalTrigger>
     );
   }
@@ -111,7 +102,9 @@ class ChannelList extends Component {
           <ManageActions>
             <ActionButtons>
               {this.renderEditAction()}
-              {this.renderRemoveAction()}
+              <Tip text="Delete">
+                <Button btnStyle="link" onClick={this.remove} icon="close" />
+              </Tip>
             </ActionButtons>
           </ManageActions>
         </Row>
@@ -120,6 +113,6 @@ class ChannelList extends Component {
   }
 }
 
-ChannelList.propTypes = propTypes;
+SidebarList.propTypes = propTypes;
 
-export default ChannelList;
+export default SidebarList;

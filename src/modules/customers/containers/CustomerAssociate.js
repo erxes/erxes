@@ -25,7 +25,7 @@ class CustomerAssociateContainer extends React.Component {
       customersAdd,
       companiesEditCustomers
     } = this.props;
-    console.log(customersQuery);
+
     const search = (value, loadmore) => {
       if (!loadmore) {
         this.setState({ perPage: 0 });

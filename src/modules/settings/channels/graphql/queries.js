@@ -1,9 +1,13 @@
 const integrations = `
-  query integrations($channelId: String, $perPage: Int) {
-    integrations(channelId: $channelId, perPage: $perPage) {
+  query integrations($channelId: String, $perPage: Int, $page: Int) {
+    integrations(channelId: $channelId, perPage: $perPage, page: $page) {
       _id
       name
       kind
+      brand {
+        _id
+        name
+      }
       channels {
         _id
         name
@@ -17,6 +21,10 @@ const channelDetail = `
     channelDetail(_id: $_id) {
       _id
       name
+      integrations {
+        _id
+        name
+      }
       integrationIds
       memberIds
     }
@@ -54,8 +62,16 @@ const channelsCount = `
 `;
 
 const integrationsCount = `
-  query totalIntegrationsCount {
-    integrationsTotalCount
+  query totalIntegrationsCount($channelId: String) {
+    integrationsTotalCount(channelId: $channelId)
+  }
+`;
+
+const channelsGetLast = `
+  query channelsGetLast {
+    channelsGetLast {
+      _id
+    }
   }
 `;
 
@@ -65,5 +81,6 @@ export default {
   integrations,
   channelDetail,
   channelsCount,
+  channelsGetLast,
   integrationsCount
 };
