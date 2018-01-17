@@ -149,9 +149,9 @@ class CommonAssociate extends Component {
             </Title>
             {!selectedDatas.length && (
               <EmptyState
-                text="No company added"
+                text="No items added"
                 size="full"
-                icon="briefcase"
+                icon="ios-list-outline"
               />
             )}
             <ul>{selectedDatas.map(data => this.renderRow(data, 'close'))}</ul>
