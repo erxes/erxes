@@ -43,6 +43,11 @@ describe('facebook integration: save webhook response', () => {
         };
       }
 
+      // mock get picture
+      if (path.includes('/picture?')) {
+        return expect().toThrowError('Not Facebook User');
+      }
+
       // mock get user info
       return {
         name: 'Dombo Gombo',
