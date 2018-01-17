@@ -37,7 +37,7 @@ class FormList extends List {
   }
 
   breadcrumb() {
-    return [{ title: 'Settings', link: '/settings/forms' }, { title: 'Forms' }];
+    return [{ title: 'Settings', link: '/settings' }, { title: 'Forms' }];
   }
 }
 

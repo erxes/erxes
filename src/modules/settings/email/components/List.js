@@ -9,7 +9,8 @@ import {
   Icon,
   Table
 } from 'modules/common/components';
-import { PageContent, Header } from 'modules/layout/components';
+import { Wrapper } from 'modules/layout/components';
+import Sidebar from 'modules/settings/Sidebar';
 import { Config } from '../containers';
 
 const propTypes = {
@@ -71,14 +72,17 @@ class List extends React.Component {
     );
 
     const breadcrumb = [
-      { title: 'Settings', link: '/settings/channels' },
+      { title: 'Settings', link: '/settings' },
       { title: 'Email appearance' }
     ];
 
-    return [
-      <Header key="breadcrumb" breadcrumb={breadcrumb} />,
-      <PageContent key="settings-content">{content}</PageContent>
-    ];
+    return (
+      <Wrapper
+        header={<Wrapper.Header breadcrumb={breadcrumb} />}
+        leftSidebar={<Sidebar />}
+        content={content}
+      />
+    );
   }
 }
 

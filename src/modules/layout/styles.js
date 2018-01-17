@@ -89,6 +89,7 @@ const HeaderItems = styled.div`
 const SideContent = styled.section`
   box-sizing: border-box;
   display: flex;
+  position: relative;
   flex-direction: column;
   flex-shrink: 0;
   width: ${props => (props.wide ? '360px' : '300px')};
@@ -129,12 +130,18 @@ const SidebarBox = styled.div`
     props.noShadow ? 'none' : `0 0 4px ${colors.shadowPrimary}`};
   padding-bottom: 10px;
   position: relative;
+  justify-content: center;
   transition: max-height 0.4s;
   overflow: ${props => (props.collapsible ? 'hidden' : 'auto')};
+  display: ${props => props.full && 'flex'};
 
   &:last-child {
     margin-bottom: 0;
   }
+`;
+
+const BoxContent = styled.div`
+  flex: 1;
 `;
 
 const SidebarToggle = styled.a`
@@ -362,6 +369,7 @@ export {
   SidebarMainContent,
   SidebarFooter,
   SidebarBox,
+  BoxContent,
   SidebarToggle,
   SidebarCounter,
   HelperButtons,
