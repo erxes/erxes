@@ -12,6 +12,7 @@ const Columns = styled.div`
 
 const Column = styled.div`
   flex: 4;
+  position: relative;
 
   > input {
     margin-bottom: ${columnSizing};
