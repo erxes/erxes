@@ -2,13 +2,12 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Modal } from 'react-bootstrap';
 import { FormControl, Button, Icon } from 'modules/common/components';
-import { Alert } from 'modules/common/utils';
 import {
-  FormWrapper,
-  InputsWrapper,
-  ListWrapper,
+  Footer,
   LoadMore,
-  TitleSpan
+  Title,
+  Columns,
+  Column
 } from 'modules/customers/styles';
 
 const propTypes = {
@@ -63,13 +62,10 @@ class IntegrationForm extends Component {
     this.setState({ loadmore: allIntegrations.length === perPage });
   }
 
-  handleChange(e, integration) {
+  handleChange(type, integration) {
     const { integrations } = this.state;
-    const type = e.target.getAttribute('icon');
 
     if (type === 'plus') {
-      if (integrations.some(item => item._id === integration._id))
-        return Alert.warning('Already added');
       this.setState({
         integrations: [...integrations, integration]
       });
@@ -81,6 +77,7 @@ class IntegrationForm extends Component {
   }
 
   search(e) {
+    if (this.timer) clearTimeout(this.timer);
     const { search } = this.props;
     const value = e.target.value;
 
@@ -96,54 +93,81 @@ class IntegrationForm extends Component {
   }
 
   renderRow(integration, icon) {
+    if (
+      icon === 'plus' &&
+      this.state.integrations.some(e => e._id === integration._id)
+    ) {
+      return null;
+    }
+
     return (
-      <li key={integration._id}>
-        <Icon icon={icon} onClick={e => this.handleChange(e, integration)} />
+      <li
+        key={integration._id}
+        onClick={() => this.handleChange(icon, integration)}
+      >
         {integration.name}
+        <Icon icon={icon} />
       </li>
     );
   }
 
   render() {
     const { allIntegrations, currentChannel } = this.props;
+    const selectedIntegrations = this.state.integrations;
 
     return (
-      <FormWrapper>
-        <InputsWrapper>
-          <FormControl
-            placeholder="Type to search"
-            onChange={e => this.search(e)}
-          />
-          <ul>
-            {allIntegrations.map(integration =>
-              this.renderRow(integration, 'plus')
-            )}
-            {this.state.loadmore && (
-              <LoadMore onClick={this.loadMore}>Load More</LoadMore>
-            )}
-          </ul>
-        </InputsWrapper>
-        <ListWrapper>
-          <TitleSpan>{currentChannel.name}&apos;s integration</TitleSpan>
-          <ul>
-            {this.state.integrations.map(integration =>
-              this.renderRow(integration, 'close')
-            )}
-          </ul>
-        </ListWrapper>
+      <div>
+        <Columns>
+          <Column>
+            <FormControl
+              placeholder="Type to search"
+              onChange={e => this.search(e)}
+            />
+            <ul>
+              {allIntegrations.map(integration =>
+                this.renderRow(integration, 'plus')
+              )}
+              {this.state.loadmore && (
+                <LoadMore>
+                  <Button
+                    size="small"
+                    btnStyle="primary"
+                    onClick={this.loadMore}
+                    icon="checkmark"
+                  >
+                    Load More
+                  </Button>
+                </LoadMore>
+              )}
+            </ul>
+          </Column>
+          <Column>
+            <Title>
+              {currentChannel.name}&apos;s integration
+              <span>({selectedIntegrations.length})</span>
+            </Title>
+            <ul>
+              {selectedIntegrations.map(integration =>
+                this.renderRow(integration, 'close')
+              )}
+            </ul>
+          </Column>
+        </Columns>
         <Modal.Footer>
-          <Button
-            btnStyle="simple"
-            icon="close"
-            onClick={() => this.context.closeModal()}
-          >
-            CANCEL
-          </Button>
-          <Button btnStyle="success" icon="checkmark" onClick={this.save}>
-            SAVE
-          </Button>
+          <Footer>
+            <Button
+              btnStyle="simple"
+              icon="close"
+              onClick={() => this.context.closeModal()}
+            >
+              CANCEL
+            </Button>
+            <Button btnStyle="success" icon="checkmark" onClick={this.save}>
+              SAVE
+            </Button>
+          </Footer>
         </Modal.Footer>
-      </FormWrapper>
+      </div>
     );
   }
 }
