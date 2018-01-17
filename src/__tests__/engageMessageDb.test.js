@@ -127,4 +127,17 @@ describe('engage messages model tests', () => {
 
     expect(message.deliveryReports[`${mailMessageId}`].status).toEqual('sent');
   });
+
+  test('changeCustomer', async () => {
+    const customer = await customerFactory({});
+    const newCustomer = await customerFactory({});
+
+    const updatedEngageMessages = await EngageMessages.changeCustomer(newCustomer._id, [
+      customer._id,
+    ]);
+
+    for (let engageMessages of updatedEngageMessages) {
+      expect(engageMessages.customerIds).toContain(newCustomer._id);
+    }
+  });
 });
