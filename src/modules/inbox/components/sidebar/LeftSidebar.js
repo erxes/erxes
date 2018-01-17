@@ -9,7 +9,8 @@ import {
   ConversationList,
   LoadMore,
   TaggerPopover,
-  DataWithLoader
+  Spinner,
+  EmptyState
 } from 'modules/common/components';
 import { FilterPopover, StatusFilterPopover, AssignBoxPopover } from '../';
 import { Resolver } from 'modules/inbox/containers';
@@ -156,21 +157,21 @@ class LeftSidebar extends Bulk {
         header={this.renderSidebarHeader()}
         footer={this.renderSidebarFooter()}
       >
-        <DataWithLoader
-          data={
-            <ConversationList
-              conversations={conversations}
-              onRowClick={onChangeConversation}
-              toggleBulk={this.toggleBulk}
-              bulk={this.state.bulk}
-              currentConversationId={currentConversationId}
-            />
-          }
-          loading={loading}
-          count={conversations.length}
-          emptyText="There is no message."
-          emptyImage="/images/robots/robot-02.svg"
+        <ConversationList
+          conversations={conversations}
+          onRowClick={onChangeConversation}
+          toggleBulk={this.toggleBulk}
+          bulk={this.state.bulk}
+          currentConversationId={currentConversationId}
         />
+        {!loading &&
+          conversations.length === 0 && (
+            <EmptyState
+              text="There is no message."
+              size="full"
+              image="/images/robots/robot-02.svg"
+            />
+          )}
         <LoadMore all={totalCount} />
       </Sidebar>
     );
