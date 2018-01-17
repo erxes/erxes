@@ -4,7 +4,8 @@
 import faker from 'faker';
 import { connect, disconnect } from '../db/connection';
 import { InternalNotes, Users } from '../db/models';
-import { userFactory, internalNoteFactory } from '../db/factories';
+import { userFactory, internalNoteFactory, customerFactory, companyFactory } from '../db/factories';
+import { COC_CONTENT_TYPES } from '../data/constants';
 
 beforeAll(() => connect());
 
@@ -76,5 +77,55 @@ describe('InternalNotes model test', () => {
 
     count = await InternalNotes.find({ _id: _internalNote._id }).count();
     expect(count).toBe(0);
+  });
+
+  test('changeCustomer', async () => {
+    const customer = await customerFactory({});
+    const newCustomer = await customerFactory();
+
+    await internalNoteFactory({
+      contentType: COC_CONTENT_TYPES.CUSTOMER,
+      contentTypeId: customer._id,
+    });
+
+    const updatedInternalNotes = await InternalNotes.changeCustomer(newCustomer._id, [
+      customer._id,
+    ]);
+
+    for (let internalNote of updatedInternalNotes) {
+      expect(internalNote.contentTypeId).toEqual(newCustomer._id);
+    }
+  });
+
+  test('changeCompany', async () => {
+    const company = await companyFactory({});
+    const newCompany = await companyFactory();
+
+    await internalNoteFactory({
+      contentType: COC_CONTENT_TYPES.COMPANY,
+      contentTypeId: company._id,
+    });
+
+    const updatedInternalNotes = await InternalNotes.changeCompany(newCompany._id, [company._id]);
+
+    for (let internalNote of updatedInternalNotes) {
+      expect(internalNote.contentTypeId).toEqual(newCompany._id);
+    }
+  });
+
+  test('removeCustomerInternalNotes', async () => {
+    const customer = await customerFactory({});
+
+    const removed = await InternalNotes.removeCustomerInternalNotes(customer._id);
+
+    expect(removed.result).toEqual({ n: 0, ok: 1 });
+  });
+
+  test('removeCompanyInternalNotes', async () => {
+    const company = await companyFactory({});
+
+    const removed = await InternalNotes.removeCompanyInternalNotes(company._id);
+
+    expect(removed.result).toEqual({ n: 0, ok: 1 });
   });
 });
