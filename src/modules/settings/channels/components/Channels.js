@@ -47,7 +47,12 @@ class Channels extends Component {
       <Wrapper
         header={<Wrapper.Header breadcrumb={breadcrumb} />}
         actionBar={<Wrapper.ActionBar right={rightActionBar} />}
-        leftSidebar={<Sidebar currentChannelId={currentChannel._id} />}
+        leftSidebar={
+          <Sidebar
+            currentChannelId={currentChannel._id}
+            queryParams={queryParams}
+          />
+        }
         footer={
           currentChannel._id && <Pagination count={totalIntegrationsCount} />
         }

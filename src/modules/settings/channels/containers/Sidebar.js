@@ -87,7 +87,10 @@ SidebarContainer.propTypes = {
 export default compose(
   graphql(gql(queries.channels), {
     name: 'channelsQuery',
-    options: () => ({
+    options: ({ queryParams }) => ({
+      variables: {
+        perPage: queryParams.limit || 20
+      },
       fetchPolicy: 'network-only'
     })
   }),

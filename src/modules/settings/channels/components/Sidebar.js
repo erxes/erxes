@@ -88,7 +88,6 @@ class Sidebar extends Component {
           emptyText="There is no channel."
           emptyImage="/images/robots/robot-02.svg"
         />
-        <LoadMore all={channelsTotalCount} />
       </LeftSidebar>
     );
   }
