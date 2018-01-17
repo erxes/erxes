@@ -10,7 +10,7 @@ import { paginate } from './utils';
  * @param {String} channelId - Channel id
  * @return generated query
  */
-const generateFilterQuery = async ({ kind, channelId }) => {
+const generateFilterQuery = async ({ kind, channelId, searchValue }) => {
   const query = {};
 
   if (kind) {
@@ -21,6 +21,10 @@ const generateFilterQuery = async ({ kind, channelId }) => {
   if (channelId) {
     const channel = await Channels.findOne({ _id: channelId });
     query._id = { $in: channel.integrationIds };
+  }
+
+  if (searchValue) {
+    query.name = new RegExp(`.*${searchValue}.*`, 'i');
   }
 
   return query;
