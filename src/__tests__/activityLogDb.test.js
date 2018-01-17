@@ -151,7 +151,9 @@ describe('ActivityLogs model methods', () => {
     const conversation = await conversationFactory({});
     const companyA = await companyFactory({});
     const companyB = await companyFactory({});
-    const customer = await customerFactory({ companyIds: [companyA._id, companyB._id] });
+    const customer = await customerFactory({
+      companyIds: [companyA._id, companyB._id],
+    });
 
     let aLog = await ActivityLogs.createConversationLog(conversation, customer);
 
@@ -244,5 +246,61 @@ describe('ActivityLogs model methods', () => {
       type: COC_CONTENT_TYPES.COMPANY,
       id: company._id,
     });
+  });
+
+  test(`changeCustomer`, async () => {
+    const customer = await customerFactory({});
+    const newCustomer = await customerFactory({});
+    const conversation = await conversationFactory({});
+
+    await ActivityLogs.createConversationLog(conversation, customer);
+
+    const aLogs = await ActivityLogs.changeCustomer(newCustomer._id, [customer._id]);
+
+    for (let aLog of aLogs) {
+      expect(aLog.coc.toObject()).toEqual({
+        type: COC_CONTENT_TYPES.CUSTOMER,
+        id: newCustomer._id,
+      });
+    }
+  });
+
+  test(`changeCompany`, async () => {
+    const company = await companyFactory({});
+    const newCompany = await companyFactory({});
+    const user = await userFactory({});
+
+    await ActivityLogs.createCompanyRegistrationLog(company, user);
+
+    const aLogs = await ActivityLogs.changeCompany(newCompany._id, [company._id]);
+
+    for (let aLog of aLogs) {
+      expect(aLog.coc.toObject()).toEqual({
+        type: COC_CONTENT_TYPES.COMPANY,
+        id: newCompany._id,
+      });
+    }
+  });
+
+  test(`removeCustomerActivityLog`, async () => {
+    const customer = await customerFactory({});
+    const conversation = await conversationFactory({});
+
+    await ActivityLogs.createConversationLog(conversation, customer);
+
+    const removed = await ActivityLogs.removeCustomerActivityLog(customer);
+
+    expect(removed.result).toEqual({ ok: 1, n: 0 });
+  });
+
+  test(`removeCompanyActivityLog`, async () => {
+    const company = await companyFactory({});
+    const user = await userFactory({});
+
+    await ActivityLogs.createCompanyRegistrationLog(company, user);
+
+    const removed = await ActivityLogs.removeCustomerActivityLog(company);
+
+    expect(removed.result).toEqual({ ok: 1, n: 0 });
   });
 });
