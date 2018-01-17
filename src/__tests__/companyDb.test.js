@@ -133,4 +133,12 @@ describe('Companies model tests', () => {
       expect(customerObj.companyIds).toContain(_company._id);
     }
   });
+
+  test('removeCompany', async () => {
+    const company = await companyFactory({});
+
+    const removed = await Companies.removeCompany(company._id);
+
+    expect(removed.result).toEqual({ n: 1, ok: 1 });
+  });
 });
