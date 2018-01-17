@@ -78,7 +78,7 @@ class IntegrationRow extends Component {
 
   getTypeName() {
     const kind = this.props.integration.kind;
-    let type = 'defult';
+    let type = 'default';
 
     if (kind === KIND_CHOICES.FORM) {
       type = 'form';

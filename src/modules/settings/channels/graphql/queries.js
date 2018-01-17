@@ -1,6 +1,6 @@
 const integrations = `
-  query integrations($channelId: String, $perPage: Int, $page: Int) {
-    integrations(channelId: $channelId, perPage: $perPage, page: $page) {
+  query integrations($channelId: String, $perPage: Int, $page: Int, $searchValue: String) {
+    integrations(channelId: $channelId, perPage: $perPage, page: $page, searchValue: $searchValue) {
       _id
       name
       kind
@@ -24,6 +24,11 @@ const channelDetail = `
       integrations {
         _id
         name
+        kind
+        brand {
+          _id
+          name
+        }
       }
       integrationIds
       memberIds

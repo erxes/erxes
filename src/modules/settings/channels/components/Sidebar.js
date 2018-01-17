@@ -77,15 +77,16 @@ class Sidebar extends Component {
 
     return (
       <LeftSidebar full header={this.renderSidebarHeader()}>
-        {channelsTotalCount ? (
-          <List>
-            {this.renderObjects()}
-            <LoadMore all={channelsTotalCount} />
-          </List>
-        ) : loading ? (
+        <List>
+          {this.renderObjects()}
+          <LoadMore all={channelsTotalCount} />
+        </List>
+        {loading ? (
           <Spinner />
         ) : (
-          <EmptyState icon="briefcase" text="There is no channel" />
+          channelsTotalCount === 0 && (
+            <EmptyState icon="briefcase" text="There is no channel" />
+          )
         )}
       </LeftSidebar>
     );

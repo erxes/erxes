@@ -28,6 +28,7 @@ export default compose(
     options: ({ queryParams, currentChannel }) => ({
       variables: {
         channelId: currentChannel._id,
+        searchValue: queryParams.searchValue,
         page: queryParams.page,
         perPage: queryParams.perPage || 20
       },

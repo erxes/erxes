@@ -67,7 +67,7 @@ class Channels extends Component {
             loading={loading}
             count={totalIntegrationsCount}
             emptyText="There is no integration in this channel."
-            icon="network"
+            emptyImage="/images/robots/robot-05.svg"
           />
         }
       />

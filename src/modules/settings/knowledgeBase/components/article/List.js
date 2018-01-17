@@ -20,7 +20,7 @@ class ArticleList extends CommonList {
       },
       {
         title: 'Knowledge base',
-        link: '/settings/knowledgebase'
+        link: '/settings/knowledgebase/list'
       },
       {
         title: 'Articles'

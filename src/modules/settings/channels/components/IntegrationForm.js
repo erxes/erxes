@@ -1,14 +1,16 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Modal } from 'react-bootstrap';
-import { FormControl, Button, Icon } from 'modules/common/components';
 import {
-  Footer,
-  LoadMore,
-  Title,
-  Columns,
-  Column
-} from 'modules/customers/styles';
+  FormControl,
+  Button,
+  Icon,
+  Tip,
+  Label
+} from 'modules/common/components';
+import { KIND_CHOICES } from 'modules/settings/integrations/constants';
+import { LoadMore, Title, Columns, Column } from 'modules/customers/styles';
+import { BrandName, IntegrationName } from '../styles';
 
 const propTypes = {
   currentChannel: PropTypes.object,
@@ -92,7 +94,31 @@ class IntegrationForm extends Component {
     this.props.search(this.state.searchValue, true);
   }
 
+  getTypeName(integration) {
+    const kind = integration.kind;
+    let type = 'messenger';
+
+    kind === KIND_CHOICES.FORM && (type = 'form');
+    kind === KIND_CHOICES.TWITTER && (type = 'twitter');
+    kind === KIND_CHOICES.FACEBOOK && (type = 'facebook');
+
+    return type;
+  }
+
+  getIconByKind(integration) {
+    const kind = integration.kind;
+    let icon = 'android-chat';
+
+    kind === KIND_CHOICES.FORM && (icon = 'document-text');
+    kind === KIND_CHOICES.TWITTER && (icon = 'social-twitter');
+    kind === KIND_CHOICES.FACEBOOK && (icon = 'social-facebook');
+
+    return icon;
+  }
+
   renderRow(integration, icon) {
+    const brand = integration.brand || {};
+
     if (
       icon === 'plus' &&
       this.state.integrations.some(e => e._id === integration._id)
@@ -105,7 +131,13 @@ class IntegrationForm extends Component {
         key={integration._id}
         onClick={() => this.handleChange(icon, integration)}
       >
-        {integration.name}
+        <IntegrationName>{integration.name}</IntegrationName>
+        <Tip text={this.getTypeName(integration)}>
+          <Label className={`label-${this.getTypeName(integration)} icon`}>
+            <Icon icon={this.getIconByKind(integration)} />
+          </Label>
+        </Tip>
+        <BrandName>{brand.name}</BrandName>
         <Icon icon={icon} />
       </li>
     );
@@ -154,18 +186,16 @@ class IntegrationForm extends Component {
           </Column>
         </Columns>
         <Modal.Footer>
-          <Footer>
-            <Button
-              btnStyle="simple"
-              icon="close"
-              onClick={() => this.context.closeModal()}
-            >
-              CANCEL
-            </Button>
-            <Button btnStyle="success" icon="checkmark" onClick={this.save}>
-              SAVE
-            </Button>
-          </Footer>
+          <Button
+            btnStyle="simple"
+            icon="close"
+            onClick={() => this.context.closeModal()}
+          >
+            Cancel
+          </Button>
+          <Button btnStyle="success" icon="checkmark" onClick={this.save}>
+            Save
+          </Button>
         </Modal.Footer>
       </div>
     );

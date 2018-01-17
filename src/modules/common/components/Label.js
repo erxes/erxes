@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import styled, { keyframes } from 'styled-components';
-import { colors } from '../styles';
+import { colors, dimensions } from '../styles';
 
 const shake = keyframes`
   0%{transform:rotate(-10deg)}
@@ -35,7 +35,7 @@ const LabelStyled = styled.span`
   padding: 3px 9px;
   text-transform: uppercase;
   white-space: nowrap;
-  font-size: 9px;
+  font-size: ${dimensions.unitSpacing - 1}px;
   display: inline-block;
   line-height: 1.32857143;
   background: ${props => types[props.lblStyle].background};
@@ -45,6 +45,14 @@ const LabelStyled = styled.span`
 
   &:hover {
     cursor: default;
+  }
+
+  &.icon {
+    width: 15px;
+    height: 15px;
+    padding: 3px;
+    line-height: 0.5;
+    text-align: center;
   }
 
   &.label-default {
@@ -61,6 +69,10 @@ const LabelStyled = styled.span`
 
   &.label-facebook {
     background: ${colors.socialFacebook};
+  }
+
+  &.label-messenger {
+    background: ${colors.colorPrimary};
   }
 `;
 

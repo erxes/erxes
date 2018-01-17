@@ -3,7 +3,6 @@ import { colors, dimensions, typography } from 'modules/common/styles';
 
 const SidebarListli = styled.li`
   border-bottom: 1px solid ${colors.borderPrimary};
-  padding: ${dimensions.unitSpacing}px;
   transition: all ease 0.3s;
   background: ${props => props.isActive && colors.bgActive};
 
@@ -20,7 +19,7 @@ const SidebarListli = styled.li`
 `;
 
 const Members = styled.div`
-  padding: 5px 0 0 16px;
+  padding-top: ${dimensions.unitSpacing - 5}px;
 `;
 
 const MemberImg = styled.img`
@@ -28,6 +27,10 @@ const MemberImg = styled.img`
   border-radius: ${dimensions.unitSpacing + 5}px;
   border: 2px solid ${colors.colorWhite};
   margin-left: -8px;
+
+  &:first-child {
+    margin-left: 0;
+  }
 `;
 
 const More = MemberImg.withComponent('span').extend`
@@ -90,8 +93,7 @@ const Row = styled.div`
 
   &:hover {
     ${ManageActions} {
-      width: ${dimensions.headerSpacing - 7}px;
-      padding-left: ${dimensions.unitSpacing - 5}px;
+      width: ${dimensions.headerSpacing - 10}px;
       align-items: center;
       display: flex;
     }
@@ -125,19 +127,27 @@ const Row = styled.div`
 
 const RowContent = styled.div`
   flex: 1;
-  min-width: 230px;
+  min-width: 250px;
+  padding: ${dimensions.unitSpacing}px ${dimensions.coreSpacing}px;
 
   > a {
     padding: 0 ${dimensions.unitSpacing}px;
   }
 `;
 
-const RowTitle = styled.div`
-  padding-left: ${dimensions.unitSpacing + 1}px;
+const IntegrationName = styled.span`
+  margin-right: ${dimensions.unitSpacing}px;
+`;
+
+const BrandName = styled.span`
+  font-size: 11px;
+  color: ${colors.colorCoreGray};
+  display: -webkit-box;
 `;
 
 export {
   SidebarListli,
+  IntegrationName,
   MemberImg,
   Members,
   More,
@@ -147,5 +157,5 @@ export {
   ManageActions,
   Row,
   RowContent,
-  RowTitle
+  BrandName
 };

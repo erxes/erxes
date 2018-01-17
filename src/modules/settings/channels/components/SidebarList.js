@@ -11,8 +11,7 @@ import {
   More,
   Row,
   RowContent,
-  ActionButtons,
-  RowTitle
+  ActionButtons
 } from '../styles';
 
 const propTypes = {
@@ -90,7 +89,7 @@ class SidebarList extends Component {
         <Row>
           <Link to={`?id=${channel._id}`}>
             <RowContent>
-              <RowTitle>{channel.name}</RowTitle>
+              {channel.name}
               <Members>
                 {selectedMembers
                   .slice(0, limit ? limit : length)
