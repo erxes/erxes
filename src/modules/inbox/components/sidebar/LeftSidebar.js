@@ -9,7 +9,6 @@ import {
   ConversationList,
   LoadMore,
   TaggerPopover,
-  Spinner,
   EmptyState
 } from 'modules/common/components';
 import { FilterPopover, StatusFilterPopover, AssignBoxPopover } from '../';
