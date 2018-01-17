@@ -235,7 +235,7 @@ const PopoverHeader = styled.div`
     font-size: 13px;
 
     &:focus {
-      border-color: #ddd;
+      border-color: ${colors.borderDarker};
       box-shadow: none;
     }
   }

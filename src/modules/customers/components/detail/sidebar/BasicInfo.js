@@ -147,7 +147,9 @@ class BasicInfo extends React.Component {
             <NameCard.Avatar customer={customer} size={50} />
             {isUser ? <Icon icon="checkmark" /> : <Icon icon="minus" />}
           </AvatarWrapper>
-          <div className="cutomer-name">{this.renderName(customer)}</div>
+          <div className="cutomer-name">
+            {customer.name || this.renderName(customer)}
+          </div>
           <QuickButton>
             <Icon icon="edit" onClick={this.toggleEditing} />
           </QuickButton>

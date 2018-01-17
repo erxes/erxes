@@ -65,7 +65,7 @@ const Box = styled.div`
 `;
 
 const BoxContent = styled.div`
-  border-bottom: 1px dotted ${colors.borderGray};
+  border-bottom: 1px dotted ${colors.borderDarker};
   padding-bottom: ${dimensions.headerSpacing - 10}px;
   margin-right: ${dimensions.coreSpacing}px;
 `;

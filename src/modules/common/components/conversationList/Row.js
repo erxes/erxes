@@ -105,7 +105,8 @@ class Row extends Component {
               <FlexContent>
                 <CustomerName>
                   {isExistingCustomer &&
-                    (this.renderFullName(customer) ||
+                    (customer.name ||
+                      this.renderFullName(customer) ||
                       customer.email ||
                       customer.phone ||
                       'Unnamed')}

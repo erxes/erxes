@@ -9,7 +9,7 @@ const Timeline = styled.div`
   position: relative;
 
   &:before {
-    border-right: 1px solid ${colors.colorLightGray};
+    border-right: 1px solid ${colors.borderDarker};
     content: '';
     height: 100%;
     position: absolute;
@@ -29,6 +29,10 @@ const ActivityRow = WhiteBox.extend`
   padding: ${dimensions.coreSpacing}px;
   position: relative;
   overflow: visible;
+
+  &:last-of-type {
+    margin-bottom: 0;
+  }
 `;
 
 const ActivityWrapper = styled.div`

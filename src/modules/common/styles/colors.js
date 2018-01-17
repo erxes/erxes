@@ -28,12 +28,12 @@ const bgUnread = '#F6F8FB';
 const bgInternal = '#FFFCCC';
 
 // Link colors
-const linkPrimary = '#297cbb';
+const linkPrimary = '#1785fc';
 const linkPrimaryHover = rgba(linkPrimary, 0.7);
 
 // Border colors
 const borderPrimary = '#EEE';
-const borderGray = '#DDD';
+const borderDarker = '#DDD';
 
 // Text colors
 const textPrimary = '#444';
@@ -77,7 +77,7 @@ export default {
   linkPrimaryHover,
 
   borderPrimary,
-  borderGray,
+  borderDarker,
 
   textPrimary,
   textSecondary,
