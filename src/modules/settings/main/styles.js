@@ -10,7 +10,7 @@ const Maincontent = styled.section`
 const Row = styled.div`
   display: flex;
   flex-direction: row;
-  padding-top: ${dimensions.coreSpacing}px;
+  padding-bottom: ${dimensions.coreSpacing}px;
 `;
 
 const RowTitle = styled.h3`
@@ -22,7 +22,7 @@ const RowTitle = styled.h3`
   margin-bottom: ${dimensions.coreSpacing + 10}px;
   color: ${colors.colorCoreDarkGray};
   flex-shrink: 0;
-  min-width: 202px;
+  min-width: 210px;
 
   &.secondRow {
     margin-bottom: 0;
@@ -68,6 +68,7 @@ const BoxContent = styled.div`
   border-bottom: 1px dotted ${colors.borderDarker};
   padding-bottom: ${dimensions.headerSpacing - 10}px;
   margin-right: ${dimensions.coreSpacing}px;
+  margin-top: ${dimensions.coreSpacing}px;
 `;
 
 const BoxName = styled.span`
