@@ -39,7 +39,7 @@ const EmptyStateStyled = styled.div`
   }};
 
   i {
-    font-size: ${props => (props.size === 'small' ? '28px' : '16vh')};
+    font-size: ${props => (props.size === 'small' ? '28px' : '14vh')};
     line-height: ${props => (props.size === 'small' ? '40px' : '18vh')};
     color: ${colors.colorShadowGray};
   }

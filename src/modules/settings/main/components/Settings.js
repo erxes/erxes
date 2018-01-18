@@ -37,47 +37,47 @@ class Settings extends Component {
             <BoxContent>
               {this.renderBox(
                 'Channels',
-                '/images/icons/channels.png',
+                '/images/icons/erxes-05.svg',
                 '/settings/channels'
               )}
               {this.renderBox(
                 'Brands',
-                '/images/icons/brands.png',
+                '/images/icons/erxes-03.svg',
                 '/settings/brands'
               )}
               {this.renderBox(
                 'Integrations',
-                '/images/icons/integrations.png',
+                '/images/icons/erxes-04.svg',
                 '/settings/integrations'
               )}
               {this.renderBox(
                 'Response Template',
-                '/images/icons/responseTe.png',
+                '/images/icons/erxes-10.svg',
                 '/settings/response-templates'
               )}
               {this.renderBox(
                 'Email Template',
-                '/images/icons/emailT.png',
+                '/images/icons/erxes-09.svg',
                 '/settings/email-templates'
               )}
               {this.renderBox(
                 'Email Appearance',
-                '/images/icons/emailA.png',
+                '/images/icons/erxes-08.svg',
                 '/settings/emails'
               )}
               {this.renderBox(
                 'Forms',
-                '/images/icons/forms.png',
+                '/images/icons/erxes-12.svg',
                 '/settings/forms'
               )}
               {this.renderBox(
                 'Knowledge base',
-                '/images/icons/knowledgeBase.png',
+                '/images/icons/erxes-06.svg',
                 '/settings/knowledgebase/list'
               )}
               {this.renderBox(
                 'Team Members',
-                '/images/icons/teamM.png',
+                '/images/icons/erxes-02.svg',
                 '/settings/team'
               )}
             </BoxContent>
@@ -87,22 +87,22 @@ class Settings extends Component {
 
             {this.renderBox(
               'Profile',
-              '/images/icons/profile.png',
+              '/images/icons/erxes-01.svg',
               '/settings/profile'
             )}
             {this.renderBox(
               'Change password',
-              '/images/icons/changePass.png',
+              '/images/icons/erxes-13.svg',
               '/settings/change-password'
             )}
             {this.renderBox(
               'Email Signature',
-              '/images/icons/emailSig.png',
+              '/images/icons/erxes-07.svg',
               '/settings/emails/signatures'
             )}
             {this.renderBox(
               'Notification',
-              '/images/icons/notification.png',
+              '/images/icons/erxes-11.svg',
               '/settings/notification-settings'
             )}
           </Row>
