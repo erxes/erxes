@@ -57,7 +57,7 @@ class Participators extends Component {
       <Tip key={user._id} placement="top" text={user.details.fullName || ''}>
         <ParticipatorImg
           key={user._id}
-          src={user.details.avatar || '/images/avatar-colored.png'}
+          src={user.details.avatar || '/images/avatar-colored.svg'}
         />
       </Tip>
     );

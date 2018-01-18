@@ -66,7 +66,7 @@ class ChannelRow extends Component {
           key={member._id}
           src={
             (member.details && member.details.avatar) ||
-            '/images/avatar-colored.png'
+            '/images/avatar-colored.svg'
           }
         />
       </Tip>
