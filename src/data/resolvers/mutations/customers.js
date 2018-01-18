@@ -77,6 +77,7 @@ const customerMutations = {
     await ConversationMessages.changeCustomer(customer._id, customerIds);
     await Conversations.changeCustomer(customer._id, customerIds);
     await EngageMessages.changeCustomer(customer._id, customerIds);
+    await EngageMessages.changeReceivedCustomer(customer._id, customerIds);
     await InternalNotes.changeCustomer(customer._id, customerIds);
 
     return customer;
