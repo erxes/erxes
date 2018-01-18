@@ -1,6 +1,13 @@
 export const getBrowserInfo = async () => {
-  const response = await fetch('https://ipinfo.io/json');
-  const location = await response.json();
+  let location;
+
+  try {
+    const response = await fetch('https://ipinfo.io/json');
+    location = await response.json();
+  } catch (e) {
+    console.log(e.message); // eslint-disable-line
+    location = {};
+  }
 
   return {
     remoteAddress: location.ip,
