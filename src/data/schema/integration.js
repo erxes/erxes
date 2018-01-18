@@ -74,7 +74,7 @@ export const queries = `
   integrationsTotalCount(kind: String, channelId: String): Int
   integrationGetTwitterAuthUrl: String
   integrationFacebookAppsList: [JSON]
-  integrationFacebookPagesList(appId: Float): [JSON]
+  integrationFacebookPagesList(appId: String): [JSON]
 `;
 
 export const mutations = `

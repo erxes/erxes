@@ -43,7 +43,7 @@ describe('facebook integration: get or create conversation by feed info', () => 
     // must be 0 conversations
     expect(await Conversations.find().count()).toBe(0);
 
-    const value = { sender_id: senderId };
+    const value = { from: { id: senderId, name: 'Facebook User' } };
 
     // check invalid verb
     value.verb = 'edit';
