@@ -33,11 +33,10 @@ class BaseMonthActivityBuilder {
 
     const monthIntervals = [];
 
-    for (
-      let year = START_DATE.year, month = START_DATE.month;
-      year < endYear || (year === endYear && month <= endMonth);
-      month++
-    ) {
+    let year = START_DATE.year,
+      month = START_DATE.month;
+
+    do {
       monthIntervals.push({
         yearMonth: {
           year,
@@ -49,11 +48,13 @@ class BaseMonthActivityBuilder {
         },
       });
 
+      month++;
+
       if ((month + 1) % 12 == 0) {
         month = 0;
         year++;
       }
-    }
+    } while (year < endYear || (year === endYear && month <= endMonth));
 
     return monthIntervals;
   }
