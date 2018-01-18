@@ -43,7 +43,7 @@ const Box = styled.div`
   transition: all 0.25s ease;
 
   img {
-    width: 65px;
+    width: 75px;
     transition: all 0.5s ease;
     transition-property: transform;
     transform: translateZ(0);
@@ -71,7 +71,7 @@ const BoxName = styled.span`
   font-size: ${typography.fontSizeUppercase}px;
   color: ${colors.colorCoreGray};
   display: block;
-  padding-top: ${dimensions.coreSpacing}px;
+  padding-top: ${dimensions.unitSpacing}px;
 `;
 
 const Container = styled.div`

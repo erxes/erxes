@@ -4,7 +4,8 @@ import { rgba } from './color';
 const colorPrimary = '#A389D4';
 const colorPrimaryDark = '#392a6f';
 const colorSecondary = '#04A9F5';
-const colorCoreRed = '#F44236';
+const colorCoreRed = '#fd3259';
+const colorCoreTeal = '#24d5d8';
 const colorCoreYellow = '#F5C22B';
 const colorCoreGreen = '#67C682';
 const colorCoreBlack = '#393C40';
@@ -54,6 +55,7 @@ export default {
   colorPrimaryDark,
   colorSecondary,
   colorCoreRed,
+  colorCoreTeal,
   colorCoreYellow,
   colorCoreGreen,
   colorCoreBlack,
