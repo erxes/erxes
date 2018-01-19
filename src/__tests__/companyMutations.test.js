@@ -2,7 +2,7 @@
 /* eslint-disable no-underscore-dangle */
 
 import { connect, disconnect } from '../db/connection';
-import { Companies, Users } from '../db/models';
+import { Companies, Users, ActivityLogs, InternalNotes } from '../db/models';
 import { userFactory, companyFactory } from '../db/factories';
 import companyMutations from '../data/resolvers/mutations/companies';
 
@@ -27,11 +27,11 @@ describe('Companies mutations', () => {
   });
 
   test('Check login required', async () => {
-    expect.assertions(4);
+    expect.assertions(5);
 
     const check = async fn => {
       try {
-        await fn({}, {}, {}, {});
+        await fn({}, {}, {}, {}, {});
       } catch (e) {
         expect(e.message).toEqual('Login required');
       }
@@ -48,6 +48,9 @@ describe('Companies mutations', () => {
 
     // edit company customers
     check(companyMutations.companiesEditCustomers);
+
+    // merge companies
+    check(companyMutations.companiesMerge);
   });
 
   test('Create company', async () => {
@@ -102,5 +105,20 @@ describe('Companies mutations', () => {
     );
 
     expect(Companies.updateCustomers).toBeCalledWith(_company._id, customerIds);
+  });
+
+  test('Merging companies', async () => {
+    const companyIds = ['companyid1', 'companyid2'];
+    const newCompany = await companyFactory({});
+
+    const aLog = (ActivityLogs.changeCompany = jest.fn());
+    const iNote = (InternalNotes.changeCompany = jest.fn());
+    aLog(newCompany._id, companyIds);
+    iNote(newCompany._id, companyIds);
+
+    await companyMutations.companiesMerge({}, { companyIds, newCompany }, { user: _user });
+
+    expect(aLog).toBeCalledWith(newCompany._id, companyIds);
+    expect(iNote).toBeCalledWith(newCompany._id, companyIds);
   });
 });
