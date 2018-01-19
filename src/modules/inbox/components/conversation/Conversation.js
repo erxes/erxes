@@ -94,8 +94,28 @@ class Conversation extends Component {
       return fbData && fbData.parentId && fbData.parentId === parentId;
     };
 
+    const reactionCounts = reactions => {
+      console.log(reactions);
+
+      if (reactions) {
+        const keys = Object.keys(reactions);
+        const data = {};
+
+        keys.forEach(key => {
+          if (reactions[key]) data[key] = reactions[key].length;
+        });
+
+        console.log(data);
+      }
+
+      return null;
+    };
+
     const renderMessages = (data, isFeed) => {
       data.forEach(message => {
+        {
+          reactionCounts(message.facebookData.reactions);
+        }
         rows.push(
           <Message
             isSameUser={
@@ -131,11 +151,22 @@ class Conversation extends Component {
       conversation.facebookData &&
       conversation.facebookData.kind === 'feed'
     ) {
-      const post = messages[0];
-      const postId = post.facebookData.postId;
+      const post = messages.find(msg => msg.facebookData.item === 'post');
+
+      if (post) {
+        rows.push(
+          <Message
+            message={post}
+            staff={!post.customerId}
+            key={post._id}
+            scrollBottom={scrollBottom}
+          />
+        );
+      }
 
       const postComments = messages.filter(msg => {
-        return childSelector(msg.facebookData, postId) || msg.userId !== null;
+        const fbData = msg.facebookData || {};
+        return fbData.postId === fbData.parentId || msg.userId !== null;
       });
 
       renderMessages(postComments, true);
