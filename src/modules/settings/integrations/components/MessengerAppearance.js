@@ -5,7 +5,7 @@ import { OverlayTrigger, Popover } from 'react-bootstrap';
 import classnames from 'classnames';
 import { ChromePicker } from 'react-color';
 import { uploadHandler } from 'modules/common/utils';
-import { ActionBar, Header, PageContent } from 'modules/layout/components';
+import { ActionBar, Wrapper } from 'modules/layout/components';
 import { WidgetPreview } from './';
 import { MessengerPreview, Messenger } from 'modules/engage/styles';
 import { Button, Icon, Tip } from 'modules/common/components';
@@ -203,12 +203,13 @@ class Appearance extends Component {
       />
     );
 
-    return [
-      <Header key="breadcrumb" breadcrumb={breadcrumb} />,
-      <PageContent key="settings-content" footer={actionBar}>
-        {content}
-      </PageContent>
-    ];
+    return (
+      <Wrapper
+        header={<Wrapper.Header breadcrumb={breadcrumb} />}
+        footer={actionBar}
+        content={content}
+      />
+    );
   }
 }
 

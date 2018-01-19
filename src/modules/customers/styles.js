@@ -12,6 +12,7 @@ const Columns = styled.div`
 
 const Column = styled.div`
   flex: 4;
+  position: relative;
 
   > input {
     margin-bottom: ${columnSizing};
@@ -38,9 +39,10 @@ const Column = styled.div`
         top: -1px;
         bottom: -1px;
         width: 0;
-        line-height: 34px;
         overflow: hidden;
-        text-align: center;
+        align-items: center;
+        justify-content: center;
+        display: flex;
         background: ${colors.colorCoreGreen};
         border-radius: ${borderRadius};
         color: ${colors.colorWhite};

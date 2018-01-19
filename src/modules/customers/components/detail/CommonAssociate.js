@@ -5,7 +5,8 @@ import {
   Button,
   Icon,
   FormControl,
-  ModalTrigger
+  ModalTrigger,
+  EmptyState
 } from 'modules/common/components';
 import { Footer, LoadMore, Title, Columns, Column } from '../../styles';
 
@@ -146,6 +147,13 @@ class CommonAssociate extends Component {
               {data.name}&apos;s {title}
               <span>({selectedDatas.length})</span>
             </Title>
+            {!selectedDatas.length && (
+              <EmptyState
+                text="No items added"
+                size="full"
+                icon="ios-list-outline"
+              />
+            )}
             <ul>{selectedDatas.map(data => this.renderRow(data, 'close'))}</ul>
           </Column>
         </Columns>

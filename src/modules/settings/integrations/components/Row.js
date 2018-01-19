@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
-import { Alert } from 'modules/common/utils';
+import { Alert, confirm } from 'modules/common/utils';
 import {
   ModalTrigger,
   Tip,
@@ -12,7 +12,6 @@ import {
 } from 'modules/common/components';
 import { KIND_CHOICES } from '../constants';
 import { Form, Messenger } from '../containers';
-import { confirm } from 'modules/common/utils';
 
 const propTypes = {
   integration: PropTypes.object.isRequired,

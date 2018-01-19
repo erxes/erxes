@@ -12,11 +12,6 @@ function SettingsSidebar() {
         <Title>Account settings</Title>
         <SidebarList>
           <li>
-            <NavLink activeClassName="active" to="/settings/channels">
-              Channels
-            </NavLink>
-          </li>
-          <li>
             <NavLink activeClassName="active" to="/settings/brands">
               Brands
             </NavLink>

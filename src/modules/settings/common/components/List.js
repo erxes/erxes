@@ -6,7 +6,8 @@ import {
   Button,
   DataWithLoader
 } from 'modules/common/components';
-import { Header, PageContent, ActionBar } from 'modules/layout/components';
+import { Wrapper } from 'modules/layout/components';
+import Sidebar from 'modules/settings/Sidebar';
 
 const propTypes = {
   objects: PropTypes.array.isRequired,
@@ -53,23 +54,24 @@ class List extends Component {
       </ModalTrigger>
     );
 
-    return [
-      <Header key="breadcrumb" breadcrumb={this.breadcrumb()} />,
-      <PageContent
-        key="settings-content"
-        actionBar={<ActionBar right={actionBarLeft} />}
+    return (
+      <Wrapper
+        header={<Wrapper.Header breadcrumb={this.breadcrumb()} />}
+        leftSidebar={<Sidebar />}
+        actionBar={<Wrapper.ActionBar right={actionBarLeft} />}
         footer={<Pagination count={totalCount} />}
         transparent={false}
-      >
-        <DataWithLoader
-          data={this.renderContent()}
-          loading={loading}
-          count={totalCount}
-          emptyText="There is no data."
-          emptyImage="/images/robots/robot-05.svg"
-        />
-      </PageContent>
-    ];
+        content={
+          <DataWithLoader
+            data={this.renderContent()}
+            loading={loading}
+            count={totalCount}
+            emptyText="There is no data."
+            emptyImage="/images/robots/robot-05.svg"
+          />
+        }
+      />
+    );
   }
 }
 
