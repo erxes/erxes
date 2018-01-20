@@ -124,6 +124,9 @@ class CommonMerge extends React.Component {
     for (let key in this.state) {
       if (this.state.hasOwnProperty(key)) {
         data[key] = this.state[key].value;
+        if (data[key] === '') {
+          delete data[key];
+        }
       }
     }
     const Ids = [];
