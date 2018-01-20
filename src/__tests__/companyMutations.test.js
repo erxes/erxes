@@ -27,11 +27,11 @@ describe('Companies mutations', () => {
   });
 
   test('Check login required', async () => {
-    expect.assertions(5);
+    expect.assertions(6);
 
     const check = async fn => {
       try {
-        await fn({}, {}, {}, {}, {});
+        await fn({}, {}, {}, {}, {}, {});
       } catch (e) {
         expect(e.message).toEqual('Login required');
       }
@@ -51,6 +51,9 @@ describe('Companies mutations', () => {
 
     // merge companies
     check(companyMutations.companiesMerge);
+
+    // remove companies
+    check(companyMutations.companiesRemove);
   });
 
   test('Create company', async () => {
@@ -120,5 +123,14 @@ describe('Companies mutations', () => {
 
     expect(aLog).toBeCalledWith(newCompany._id, companyIds);
     expect(iNote).toBeCalledWith(newCompany._id, companyIds);
+  });
+
+  test('Company remove', async () => {
+    Companies.removeCompany = jest.fn();
+    const newCompany = await companyFactory({});
+
+    await companyMutations.companiesRemove({}, { companyIds: [newCompany._id] }, { user: _user });
+
+    expect(Companies.removeCompany).toBeCalledWith(newCompany._id);
   });
 });
