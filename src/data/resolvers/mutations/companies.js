@@ -68,12 +68,13 @@ const companyMutations = {
     if (companyIds.length !== 2) {
       throw new Error('You can only merge 2 companies at a time');
     }
-
+    // Removing companies
     for (let companyId of companyIds) {
       await Companies.removeCompany(companyId);
     }
-
+    // Creating company with properties
     const company = await Companies.createCompany(newCompany);
+    // Removing modules associated with current companies
     await ActivityLogs.changeCompany(company._id, companyIds);
     await InternalNotes.changeCompany(company._id, companyIds);
 

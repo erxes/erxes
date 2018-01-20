@@ -66,13 +66,13 @@ const customerMutations = {
     if (customerIds.length !== 2) {
       throw new Error('You can only merge 2 customers at a time');
     }
-
+    // Removing customers
     for (let customerId of customerIds) {
       await Customers.removeCustomer(customerId);
     }
-
+    // Creating customers with properties
     const customer = await Customers.createCustomer(newCustomer);
-
+    // Removing every modules associated with customers
     await ActivityLogs.changeCustomer(customer._id, customerIds);
     await ConversationMessages.changeCustomer(customer._id, customerIds);
     await Conversations.changeCustomer(customer._id, customerIds);
@@ -90,6 +90,7 @@ const customerMutations = {
    */
   async customersRemove(root, { customerIds }) {
     for (let customerId of customerIds) {
+      // Removing every modules that associated with customer
       await ActivityLogs.removeCustomerActivityLog(customerId);
       await ConversationMessages.removeCustomerConversationMessages(customerId);
       await Conversations.removeCustomerConversations(customerId);

@@ -140,4 +140,39 @@ describe('engage messages model tests', () => {
       expect(engageMessages.customerIds).toContain(newCustomer._id);
     }
   });
+
+  test('changeReceivedCustomer', async () => {
+    const customer = await customerFactory({});
+    const newCustomer = await customerFactory({});
+
+    const updatedEngageMessages = await EngageMessages.changeCustomer(newCustomer._id, [
+      customer._id,
+    ]);
+
+    for (let engageMessages of updatedEngageMessages) {
+      expect(engageMessages.messengerReceivedCustomerIds).toContain(newCustomer._id);
+    }
+  });
+
+  test('removeCustomerEngages', async () => {
+    const customer = await customerFactory({});
+    const engageMessage = await engageMessageFactory({
+      customerIds: [customer._id],
+    });
+
+    await EngageMessages.removeCustomerEngages(customer._id);
+
+    expect(engageMessage.customerIds).not.toContain(customer._id);
+  });
+
+  test('removeReceivedCustomer', async () => {
+    const customer = await customerFactory({});
+    const engageMessage = await engageMessageFactory({
+      messengerReceivedCustomerIds: [customer._id],
+    });
+
+    await EngageMessages.removeReceivedCustomer(customer._id);
+
+    expect(engageMessage.messengerReceivedCustomerIds).not.toContain(customer._id);
+  });
 });
