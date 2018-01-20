@@ -38,6 +38,13 @@ const channelQueries = {
   channelsTotalCount() {
     return Channels.find({}).count();
   },
+
+  /**
+  * Get last channel
+  */
+  channelsGetLast() {
+    return Channels.findOne({}).sort({ createdAt: -1 });
+  },
 };
 
 moduleRequireLogin(channelQueries);

@@ -1,8 +1,34 @@
-import { Integrations } from '../../../db/models';
+import { Channels, Integrations } from '../../../db/models';
 import { socUtils } from '../../../social/twitterTracker';
 import { getConfig, getPageList } from '../../../social/facebook';
 import { moduleRequireLogin } from '../../permissions';
 import { paginate } from './utils';
+
+/*
+ * Common helper for integrations & integrationsTotalCount
+ * @param {String} kind - Messenger, Facebook etc ...
+ * @param {String} channelId - Channel id
+ * @return generated query
+ */
+const generateFilterQuery = async ({ kind, channelId, searchValue }) => {
+  const query = {};
+
+  if (kind) {
+    query.kind = kind;
+  }
+
+  // filter integrations by channel
+  if (channelId) {
+    const channel = await Channels.findOne({ _id: channelId });
+    query._id = { $in: channel.integrationIds };
+  }
+
+  if (searchValue) {
+    query.name = new RegExp(`.*${searchValue}.*`, 'i');
+  }
+
+  return query;
+};
 
 const integrationQueries = {
   /**
@@ -10,14 +36,9 @@ const integrationQueries = {
    * @param {Object} args - Search params
    * @return {Promise} filterd and sorted integrations list
    */
-  integrations(root, { kind, ...params }) {
-    const query = {};
-
-    if (kind) {
-      query.kind = kind;
-    }
-
-    const integrations = paginate(Integrations.find(query), params);
+  async integrations(root, args) {
+    const query = await generateFilterQuery(args);
+    const integrations = paginate(Integrations.find(query), args);
 
     return integrations.sort({ createdAt: -1 });
   },
@@ -37,13 +58,8 @@ const integrationQueries = {
    * Get all integrations count. We will use it in pager
    * @return {Promise} total count
    */
-  integrationsTotalCount(root, { kind }) {
-    const query = {};
-
-    if (kind) {
-      query.kind = kind;
-    }
-
+  async integrationsTotalCount(root, args) {
+    const query = await generateFilterQuery(args);
     return Integrations.find(query).count();
   },
 

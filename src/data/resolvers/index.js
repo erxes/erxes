@@ -4,6 +4,7 @@ import Query from './queries';
 import Subscription from './subscriptions';
 import ResponseTemplate from './responseTemplate';
 import Integration from './integration';
+import Channel from './channel';
 import Form from './form';
 import EngageMessage from './engage';
 import InternalNote from './internalNote';
@@ -23,6 +24,7 @@ export default {
 
   ResponseTemplate,
   Integration,
+  Channel,
   Form,
   InternalNote,
   Customer,

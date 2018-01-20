@@ -178,12 +178,12 @@ export class SaveWebhookResponse {
       return null;
     }
 
-    const senderName = value.sender_name;
+    const senderName = value.from.name;
 
     // sender_id is giving number values when feed and giving string value
     // when messenger. customer.facebookData.senderId has type of string so
     // convert it to string
-    const senderId = value.sender_id.toString();
+    const senderId = value.from.id.toString();
 
     let messageText = value.message;
 
@@ -245,6 +245,9 @@ export class SaveWebhookResponse {
       msgFacebookData: {
         senderId,
         senderName,
+        commentId: value.comment_id,
+        parentId: value.parent_id,
+        postId,
         item: value.item,
         reactionType: value.reaction_type,
         photoId: value.photo_id,
@@ -336,17 +339,29 @@ export class SaveWebhookResponse {
     // get user info
     res = await graphRequest.get(`/${fbUserId}`, res.access_token);
 
+    // get profile pic
+    const getProfilePic = async fbId => {
+      try {
+        const response = await graphRequest.get(`/${fbId}/picture?height=600`);
+        return response.image ? response.location : '';
+      } catch (e) {
+        return null;
+      }
+    };
+
     // when feed response will contain name field
     // when messeger response will not contain name field
-    const name = res.name || `${res.first_name} ${res.last_name}`;
+    const firstName = res.first_name || res.name;
+    const lastName = res.last_name;
 
     // create customer
     const createdCustomer = await Customers.create({
-      name,
+      firstName,
+      lastName,
       integrationId,
       facebookData: {
         id: fbUserId,
-        profilePic: res.profile_pic,
+        profilePic: res.profile_pic || (await getProfilePic(fbUserId)),
       },
     });
 

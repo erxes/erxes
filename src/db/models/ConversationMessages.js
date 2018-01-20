@@ -5,7 +5,17 @@ import { field } from './utils';
 
 const FacebookSchema = mongoose.Schema(
   {
+    postId: field({
+      type: String,
+      optional: true,
+    }),
+
     commentId: field({
+      type: String,
+      optional: true,
+    }),
+
+    parentId: field({
       type: String,
       optional: true,
     }),
