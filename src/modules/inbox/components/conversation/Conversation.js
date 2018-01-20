@@ -113,9 +113,11 @@ class Conversation extends Component {
 
     const renderMessages = (data, isFeed) => {
       data.forEach(message => {
-        {
+        if (isFeed && message.facebookData) {
+          console.log(message.facebookData.postUrl);
           reactionCounts(message.facebookData.reactions);
         }
+
         rows.push(
           <Message
             isSameUser={
@@ -151,7 +153,13 @@ class Conversation extends Component {
       conversation.facebookData &&
       conversation.facebookData.kind === 'feed'
     ) {
-      const post = messages.find(msg => msg.facebookData.item === 'post');
+      const post = messages.find(msg => {
+        const fbData = msg.facebookData;
+        return (
+          (fbData.postId === conversation.postId && fbData.item === 'post') ||
+          'status'
+        );
+      });
 
       if (post) {
         rows.push(
