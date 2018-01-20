@@ -2,7 +2,15 @@
 /* eslint-disable no-underscore-dangle */
 
 import { connect, disconnect } from '../db/connection';
-import { Customers, Users } from '../db/models';
+import {
+  Customers,
+  Users,
+  ActivityLogs,
+  ConversationMessages,
+  Conversations,
+  EngageMessages,
+  InternalNotes,
+} from '../db/models';
 import { userFactory, customerFactory } from '../db/factories';
 import customerMutations from '../data/resolvers/mutations/customers';
 
@@ -31,7 +39,7 @@ describe('Customers mutations', () => {
 
     const check = async fn => {
       try {
-        await fn({}, {}, {}, {});
+        await fn({}, {}, {}, {}, {}, {});
       } catch (e) {
         expect(e.message).toEqual('Login required');
       }
@@ -48,6 +56,12 @@ describe('Customers mutations', () => {
 
     // edot customer companies
     check(customerMutations.customersEditCompanies);
+
+    // merge customers
+    check(customerMutations.customerMerge);
+
+    // remove customers
+    check(customerMutations.customersRemove);
   });
 
   test('Create customer', async () => {
@@ -106,5 +120,46 @@ describe('Customers mutations', () => {
     );
 
     expect(Customers.updateCompanies).toBeCalledWith(_customer._id, companyIds);
+  });
+
+  test('Merging customers', async () => {
+    const customerIds = ['customerid1', 'customerid2'];
+    const newCustomer = await customerFactory({});
+
+    const aLog = (ActivityLogs.changeCustomer = jest.fn());
+    const iNote = (InternalNotes.changeCustomer = jest.fn());
+    const cMessages = (ConversationMessages.changeCustomer = jest.fn());
+    const conversations = (Conversations.changeCustomer = jest.fn());
+    const eMessages = (EngageMessages.changeCustomer = jest.fn());
+    const eRMessages = (EngageMessages.changeCustomer = jest.fn());
+
+    aLog(newCustomer._id, customerIds);
+    iNote(newCustomer._id, customerIds);
+    cMessages(newCustomer._id, customerIds);
+    conversations(newCustomer._id, customerIds);
+    eMessages(newCustomer._id, customerIds);
+    eRMessages(newCustomer._id, customerIds);
+
+    await customerMutations.customersMerge({}, { customerIds, newCustomer }, { user: _user });
+
+    expect(aLog).toBeCalledWith(newCustomer._id, customerIds);
+    expect(iNote).toBeCalledWith(newCustomer._id, customerIds);
+    expect(cMessages).toBeCalledWith(newCustomer._id, customerIds);
+    expect(conversations).toBeCalledWith(newCustomer._id, customerIds);
+    expect(eMessages).toBeCalledWith(newCustomer._id, customerIds);
+    expect(eRMessages).toBeCalledWith(newCustomer._id, customerIds);
+  });
+
+  test('Customer remove', async () => {
+    Customers.removeCustomer = jest.fn();
+    const newCustomer = await customerFactory({});
+
+    await customerMutations.customersRemove(
+      {},
+      { customerIds: [newCustomer._id] },
+      { user: _user },
+    );
+
+    expect(Customers.removeCustomer).toBeCalledWith(newCustomer._id);
   });
 });
