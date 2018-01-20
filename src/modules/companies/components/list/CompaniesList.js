@@ -36,7 +36,8 @@ const propTypes = {
   tags: PropTypes.array.isRequired,
   removeCompanies: PropTypes.func.isRequired,
   loadingTags: PropTypes.bool.isRequired,
-  mergeCompanies: PropTypes.func.isRequired
+  mergeCompanies: PropTypes.func.isRequired,
+  basicInfos: PropTypes.object.isRequired
 };
 
 class CompaniesList extends React.Component {
@@ -90,7 +91,8 @@ class CompaniesList extends React.Component {
       emptyBulk,
       tags,
       loadingTags,
-      mergeCompanies
+      mergeCompanies,
+      basicInfos
     } = this.props;
 
     const mainContent = (
@@ -166,7 +168,7 @@ class CompaniesList extends React.Component {
                   <CommonMerge
                     datas={bulk}
                     save={mergeCompanies}
-                    type="company"
+                    basicInfos={basicInfos}
                   />
                 </ModalTrigger>
               </li>

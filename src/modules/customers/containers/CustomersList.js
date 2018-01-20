@@ -106,7 +106,13 @@ class CustomerListContainer extends Bulk {
       loadingTags: tagsQuery.loading,
       addCustomer,
       mergeCustomers,
-      removeCustomers
+      removeCustomers,
+      basicInfos: {
+        firstName: { text: 'First Name' },
+        lastName: { text: 'Last Name' },
+        email: { text: 'E-mail' },
+        phone: { text: 'Phone' }
+      }
     };
 
     return <CustomersList {...updatedProps} />;

@@ -11,7 +11,7 @@ import {
 const propTypes = {
   datas: PropTypes.array.isRequired,
   save: PropTypes.func.isRequired,
-  type: PropTypes.string
+  basicInfos: PropTypes.object
 };
 
 const contextTypes = {
@@ -21,39 +21,22 @@ const contextTypes = {
 class CommonMerge extends React.Component {
   constructor(props) {
     super(props);
-    const { type } = this.props;
-    this.basicInfos = {
-      firstName: { text: 'First Name', New: false, value: '' },
-      lastName: { text: 'Last Name', New: false, value: '' },
-      email: { text: 'E-mail', New: false, value: '' },
-      phone: { text: 'Phone', New: false, value: '' }
-    };
+    const { basicInfos } = this.props;
 
-    if (type === 'company') {
-      this.basicInfos = {
-        name: { text: 'Company Name', New: false, value: '' },
-        size: { text: 'Company Size', New: false, value: '' },
-        website: { text: 'Company Website', New: false, value: '' },
-        industry: { text: 'Company Industry', New: false, value: '' },
-        plant: { text: 'Company Plan', New: false, value: '' }
-      };
-    }
-
-    this.state = this.basicInfos;
+    this.state = basicInfos;
 
     this.onChange = this.onChange.bind(this);
     this.save = this.save.bind(this);
   }
 
   componentWillReceiveProps(nextProps) {
-    const { datas } = nextProps;
+    const { datas, basicInfos } = nextProps;
     const init = datas[0];
-    const fields = this.basicInfos;
 
-    for (let key in fields) {
+    for (let key in basicInfos) {
       if (init.hasOwnProperty(key)) {
         this.setState({
-          [key]: { ...this.state[key], value: init[key] || '' }
+          [key]: { ...this.state[key], New: false, value: init[key] || '' }
         });
       }
     }
@@ -158,9 +141,11 @@ class CommonMerge extends React.Component {
   }
 
   render() {
+    const { basicInfos } = this.props;
+
     return (
       <div>
-        {this.renderField(this.basicInfos)}
+        {this.renderField(basicInfos)}
         <Modal.Footer>
           <Button
             btnStyle="simple"

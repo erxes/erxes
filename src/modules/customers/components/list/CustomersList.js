@@ -40,7 +40,8 @@ const propTypes = {
   searchValue: PropTypes.string.isRequired,
   loadingTags: PropTypes.bool.isRequired,
   removeCustomers: PropTypes.func.isRequired,
-  mergeCustomers: PropTypes.func.isRequired
+  mergeCustomers: PropTypes.func.isRequired,
+  basicInfos: PropTypes.object.isRequired
 };
 
 class CustomersList extends React.Component {
@@ -122,7 +123,8 @@ class CustomersList extends React.Component {
       loading,
       customers,
       loadingTags,
-      mergeCustomers
+      mergeCustomers,
+      basicInfos
     } = this.props;
 
     const addTrigger = (
@@ -189,7 +191,11 @@ class CustomersList extends React.Component {
             <Dropdown.Menu>
               <li>
                 <ModalTrigger title="Merge Customers" trigger={<a>Merge</a>}>
-                  <CommonMerge datas={bulk} save={mergeCustomers} />
+                  <CommonMerge
+                    datas={bulk}
+                    save={mergeCustomers}
+                    basicInfos={basicInfos}
+                  />
                 </ModalTrigger>
               </li>
               <li>

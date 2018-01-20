@@ -102,7 +102,14 @@ class CompanyListContainer extends Bulk {
       toggleAll: this.toggleAll,
       removeCompanies,
       mergeCompanies,
-      loadingTags: tagsQuery.loading
+      loadingTags: tagsQuery.loading,
+      basicInfos: {
+        name: { text: 'Company Name' },
+        size: { text: 'Company Size' },
+        website: { text: 'Company Website' },
+        industry: { text: 'Company Industry' },
+        plan: { text: 'Company Plan' }
+      }
     };
 
     return <CompaniesList {...updatedProps} />;
