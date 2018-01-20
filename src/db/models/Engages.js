@@ -193,13 +193,14 @@ class Message {
   }
 
   /**
-   * Change engage messages customer to another customer
+   * Transfers customers' engage messages to another customer
    * @param {String} newCustomerId - customer id to set
    * @param {string[]} customerIds - old customer ids to change
-   * @return {Promise} updated engage messages of new customer
+   * @return {Promise} updated list of engage messages of new customer
    */
   static async changeCustomer(newCustomerId, customerIds) {
     for (let customerId of customerIds) {
+      // Updating every engage messages of customer
       await this.updateMany(
         { customerIds: customerId },
         { $set: { 'customerIds.$': newCustomerId } },
@@ -210,34 +211,50 @@ class Message {
   }
 
   /**
-   * Change engage messages customer to another customer
+   * Updates engage message's received customer to another customer
    * @param {String} newCustomerId - customer id to set
    * @param {string[]} customerIds - old customer ids to change
-   * @return {Promise} updated engage messages of new customer
+   * @return {Promise} updated list of engage messages that customer participated in
    */
   static async changeReceivedCustomer(newCustomerId, customerIds) {
     for (let customerId of customerIds) {
       await this.updateMany(
+        // updating every engage messages of customer participated in
         { messengerReceivedCustomerIds: customerId },
         { $set: { 'messengerReceivedCustomerIds.$': newCustomerId } },
       );
     }
-
+    // Returns updated list of engage messages
     return this.find({ messengerReceivedCustomerIds: newCustomerId });
   }
 
   /**
-   * Removing customer Engages
+   * Removes customer Engages
    * @param {String} customerId - customer id to remove
    * @return {Promise} updated internal notes
    */
   static async removeCustomerEngages(customerId) {
-    // Removing customer engages
+    // Removing every engage messages of customer
     await this.remove({ messengerReceivedCustomerIds: customerId });
 
-    return await this.remove({
-      customerIds: customerId,
-    });
+    return await this.updateMany(
+      { customerIds: customerId },
+      { $pull: { customerIds: customerId } },
+    );
+  }
+
+  /**
+   * Removes customer from received customer list of engage message
+   * @param {String} customerId - customer id to remove
+   * @return {Promise} result
+   */
+  static async removeReceivedCustomer(customerId) {
+    // Removing customer from received customer ids of engage message
+
+    return await this.updateMany(
+      { messengerReceivedCustomerIds: customerId },
+      { $pull: { messengerReceivedCustomerIds: customerId } },
+    );
   }
 }
 

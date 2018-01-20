@@ -212,9 +212,9 @@ class Customer {
   }
 
   /**
-   * Remove customer
-   * @param {String} customerId customer id to remove
-   * @return {Promise} updated customer object
+   * Removes customer
+   * @param {String} customerId customer id of customer to remove
+   * @return {Promise} result
    */
   static async removeCustomer(customerId) {
     return await this.remove({ _id: customerId });

@@ -344,26 +344,27 @@ class Conversation {
   }
 
   /**
-   * Change customer conversations to another customer
+   * Transfers customers' conversations to another customer
    * @param {String} newCustomerId customer id to set
    * @param {string[]} customerIds old customer ids to change
-   * @return {Promise} updated conversations of new customer
+   * @return {Promise} updated list of conversations of new customer
    */
   static async changeCustomer(newCustomerId, customerIds) {
     for (let customerId of customerIds) {
+      // Updating every conversation of new customer
       await this.updateMany({ customerId: customerId }, { $set: { customerId: newCustomerId } });
     }
-
+    // Returning updated list of conversation of new company
     return this.find({ customerId: newCustomerId });
   }
 
   /**
-   * Removing customer conversations
+   * Removes customer conversations
    * @param {String} customerId - customer id to remove
-   * @return {Promise} updated conversations
+   * @return {Promise} result
    */
   static async removeCustomerConversations(customerId) {
-    // Removing customer conversations
+    // Removing every conversation of customer
     return await this.remove({
       customerId,
     });

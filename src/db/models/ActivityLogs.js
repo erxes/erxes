@@ -324,60 +324,62 @@ class ActivityLog {
   }
 
   /**
-   * Change customers activity log to another customer
+   * Transfers customers' activity logs to another customer
    * @param {String} newCustomerId - customer id to set
    * @param {string[]} customerIds - old customer ids to change
-   * @return {Promise} updated activity logs of new customer
+   * @return {Promise} updated alist of ctivity logs of new customer
    */
   static async changeCustomer(newCustomerId, customerIds) {
     for (let customerId of customerIds) {
+      // Updating every activity log of customer
       await this.updateMany(
         { coc: { id: customerId, type: COC_CONTENT_TYPES.CUSTOMER } },
         { $set: { coc: { id: newCustomerId, type: COC_CONTENT_TYPES.CUSTOMER } } },
       );
     }
-
+    // Returning updated list of activity logs of new customer
     return this.find({ coc: { id: newCustomerId, type: COC_CONTENT_TYPES.CUSTOMER } });
   }
 
   /**
-   * Removing customer activity logs
-   * @param {String} customerId - customer id to remove
-   * @return {Promise} updated activity logs of new customer
+   * Removes customer's activity logs
+   * @param {String} customerId - customer id that belongs to activity logs
+   * @return {Promise} result
    */
   static async removeCustomerActivityLog(customerId) {
-    // Removing customer activity log
+    // Removing every activity log of customer
     return await this.remove({
       coc: { id: customerId, type: COC_CONTENT_TYPES.CUSTOMER },
     });
   }
 
   /**
-   * Removing company activity logs
-   * @param {String} companyId - company id to remove
-   * @return {Promise} updated activity logs
+   * Removes company's activity logs
+   * @param {String} companyId - company id that belongs to activity logs
+   * @return {Promise} result
    */
   static async removeCompanyActivityLog(companyId) {
-    // Removing company activity log
+    // Removing every activity log of company
     return await this.remove({
       coc: { id: companyId, type: COC_CONTENT_TYPES.COMPANY },
     });
   }
 
   /**
-   * Changing company activity log to another company
-   * @param {String} newCompanyId - company ids to set
-   * @param {string[]} OldCompanyIds - old company ids to change
-   * @return {Promise} updated activity logs of new company
+   * Transfers companies' activity logs to another company
+   * @param {String} newCompanyId - company idsto set
+   * @param {string[]} companyIds - old company ids to change
+   * @return {Promise} updated list of activity logs of new company
    */
-  static async changeCompany(newCompanyId, OldCompanyIds) {
-    for (let companyId of OldCompanyIds) {
+  static async changeCompany(newCompanyId, companyIds) {
+    for (let companyId of companyIds) {
+      // Updating every activity log of company
       await this.updateMany(
         { coc: { id: companyId, type: COC_CONTENT_TYPES.COMPANY } },
         { $set: { coc: { id: newCompanyId, type: COC_CONTENT_TYPES.COMPANY } } },
       );
     }
-
+    // Returning updated list of activity logs of new company
     return this.find({ coc: { id: newCompanyId, type: COC_CONTENT_TYPES.COMPANY } });
   }
 }

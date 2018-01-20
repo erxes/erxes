@@ -133,6 +133,7 @@ class Tag {
     count += await Customers.find({ tagIds: { $in: ids } }).count();
     count += await Conversations.find({ tagIds: { $in: ids } }).count();
     count += await EngageMessages.find({ tagIds: { $in: ids } }).count();
+    count += await Companies.find({ tagIds: { $in: ids } }).count();
 
     if (count > 0) throw new Error("Can't remove a tag with tagged object(s)");
 

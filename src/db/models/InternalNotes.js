@@ -67,13 +67,14 @@ class InternalNote {
   }
 
   /**
-   * Change internal note to a new customer
+   * Transfers customers' internal notes to another customer
    * @param {String} newCustomerId customer id to set
-   * @param {string[]} customerIds old customer ids to chnge
-   * @return {Promise} updated internal notes of new customer
+   * @param {string[]} customerIds old customer ids to change
+   * @return {Promise} updated list of internal notes of new customer
    */
   static async changeCustomer(newCustomerId, customerIds) {
     for (let customerId of customerIds) {
+      // Updating every internal notes of customer
       await this.updateMany(
         {
           contentType: COC_CONTENT_TYPES.CUSTOMER,
@@ -82,17 +83,17 @@ class InternalNote {
         { contentTypeId: newCustomerId },
       );
     }
-
+    // Returning updated list of internal notes of new customer
     return this.find({ contentType: COC_CONTENT_TYPES.CUSTOMER, contentTypeId: newCustomerId });
   }
 
   /**
-   * Removing customer internal notes
-   * @param {String} customerId - customer id to remove
-   * @return {Promise} updated internal notes
+   * Removing customers' internal notes
+   * @param {String} customerId - customer id of customer to remove
+   * @return {Promise} result
    */
   static async removeCustomerInternalNotes(customerId) {
-    // Removing customer internal notes
+    // Removing every internal ntoes of customer
     return await this.remove({
       contentType: COC_CONTENT_TYPES.CUSTOMER,
       contentTypeId: customerId,
@@ -100,12 +101,12 @@ class InternalNote {
   }
 
   /**
-   * Removing company internal notes
-   * @param {String} companyId - company id to remove
-   * @return {Promise} updated internal notes
+   * Removing companies' internal notes
+   * @param {String} companyId - company id of company to remove
+   * @return {Promise} result
    */
   static async removeCompanyInternalNotes(companyId) {
-    // Removing company internal notes
+    // Removing every internal notes of company
     return await this.remove({
       contentType: COC_CONTENT_TYPES.COMPANY,
       contentTypeId: companyId,
@@ -113,13 +114,14 @@ class InternalNote {
   }
 
   /**
-   * Changing company internal notes to another company
+   * Transfers companies' internal notes to another company
    * @param {String} newCompanyId - company ids to set
    * @param {string[]} OldCompanyIds - old company ids to change
-   * @return {Promise} updated internal notes of new company
+   * @return {Promise} updated list of internal notes of new company
    */
   static async changeCompany(newCompanyId, OldCompanyIds) {
     for (let companyId of OldCompanyIds) {
+      // Updating every internal notes of company
       await this.updateMany(
         {
           contentType: COC_CONTENT_TYPES.COMPANY,
@@ -128,7 +130,7 @@ class InternalNote {
         { contentTypeId: newCompanyId },
       );
     }
-
+    // Returning updated list of internal notes of new company
     return this.find({ contentType: COC_CONTENT_TYPES.COMPANY, contentTypeId: newCompanyId });
   }
 }

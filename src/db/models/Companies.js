@@ -136,8 +136,8 @@ class Company {
 
   /**
    * Remove company
-   * @param {String} companyId company id to remove
-   * @return {Promise} updated company customer object
+   * @param {String} companyId company id of company to remove
+   * @return {Promise} result
    */
   static async removeCompany(companyId) {
     return await this.remove({ _id: companyId });
