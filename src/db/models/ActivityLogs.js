@@ -137,8 +137,8 @@ class ActivityLog {
         id: user._id,
       },
       coc: {
-        id: internalNote.contentTypeId,
         type: internalNote.contentType,
+        id: internalNote.contentTypeId,
       },
     });
   }
