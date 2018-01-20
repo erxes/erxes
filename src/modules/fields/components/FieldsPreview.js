@@ -37,7 +37,7 @@ const SortableList = SortableContainer(({ fields, onEdit }) => (
     ))}
 
     {fields.length === 0 ? (
-      <EmptyState icon="clipboard" text="No items" size="small" />
+      <EmptyState icon="clipboard" text="No items" size="full" />
     ) : null}
   </PreviewForm>
 ));

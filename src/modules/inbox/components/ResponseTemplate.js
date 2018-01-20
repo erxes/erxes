@@ -105,7 +105,7 @@ class ResponseTemplate extends Component {
     const { options, key } = this.state;
 
     if (options.length === 0) {
-      return <EmptyState icon="clipboard" text="No templates" size="small" />;
+      return <EmptyState icon="clipboard" text="No templates" size="full" />;
     }
 
     return options.map(item => {

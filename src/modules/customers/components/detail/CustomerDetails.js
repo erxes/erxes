@@ -2,8 +2,13 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { withRouter } from 'react-router';
 import { Wrapper } from 'modules/layout/components';
-import { WhiteBox } from 'modules/layout/styles';
-import { EmptyState, Icon, Tabs, TabTitle } from 'modules/common/components';
+import {
+  EmptyState,
+  Icon,
+  Tabs,
+  TabTitle,
+  DataWithLoader
+} from 'modules/common/components';
 import { Form as NoteForm } from 'modules/internalNotes/containers';
 import { EditInformation } from 'modules/customers/containers';
 import {
@@ -11,12 +16,15 @@ import {
   InternalNotes,
   ConversationList
 } from 'modules/activityLogs/components';
+import { WhiteBoxRoot } from 'modules/layout/styles';
+import { DetailContent, SubContent } from 'modules/customers/styles';
 
 const propTypes = {
   customer: PropTypes.object.isRequired,
   currentUser: PropTypes.object.isRequired,
   queryParams: PropTypes.object.isRequired,
   activityLogsCustomer: PropTypes.array.isRequired,
+  loadingLogs: PropTypes.bool,
   history: PropTypes.object
 };
 
@@ -35,11 +43,22 @@ class CustomerDetails extends React.Component {
 
   renderTabContent() {
     const { currentTab } = this.state;
-    const { currentUser, activityLogsCustomer } = this.props;
+    const { currentUser, activityLogsCustomer, loadingLogs } = this.props;
 
     if (currentTab === 'activity') {
       return (
-        <ActivityList user={currentUser} activities={activityLogsCustomer} />
+        <DataWithLoader
+          loading={loadingLogs}
+          count={activityLogsCustomer.length}
+          data={
+            <ActivityList
+              user={currentUser}
+              activities={activityLogsCustomer}
+            />
+          }
+          emptyText="No Activities"
+          emptyImage="/images/robots/robot-03.svg"
+        />
       );
     }
 
@@ -57,7 +76,7 @@ class CustomerDetails extends React.Component {
     const conversations = customer.conversations;
 
     return (
-      <WhiteBox>
+      <SubContent>
         {conversations.length ? (
           <ConversationList
             activityLog={activityLogsCustomer}
@@ -66,11 +85,12 @@ class CustomerDetails extends React.Component {
           />
         ) : (
           <EmptyState
-            text="There aren’t any conversations at the moment."
-            icon="email"
+            text="There aren’t any conversations."
+            image="/images/robots/robot-02.svg"
+            full
           />
         )}
-      </WhiteBox>
+      </SubContent>
     );
   }
 
@@ -84,8 +104,8 @@ class CustomerDetails extends React.Component {
     ];
 
     const content = (
-      <div>
-        <WhiteBox>
+      <DetailContent>
+        <WhiteBoxRoot>
           <Tabs>
             <TabTitle className="active">
               <Icon icon="compose" /> New note
@@ -93,7 +113,7 @@ class CustomerDetails extends React.Component {
           </Tabs>
 
           <NoteForm contentType="customer" contentTypeId={customer._id} />
-        </WhiteBox>
+        </WhiteBoxRoot>
 
         <Tabs grayBorder>
           <TabTitle
@@ -117,9 +137,8 @@ class CustomerDetails extends React.Component {
         </Tabs>
 
         {this.renderTabContent()}
-      </div>
+      </DetailContent>
     );
-    // onClick={() => this.onTabClick('conversations')}
 
     return (
       <Wrapper

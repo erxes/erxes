@@ -14,7 +14,10 @@ const EmptyStateStyled = styled.div`
   font-size: 14px;
   padding: 20px;
   color: ${colors.colorCoreGray};
-  background: ${colors.colorWhite};
+
+  img {
+    max-height: 260px;
+  }
 
   ${props => {
     if (props.size === 'small') {
@@ -36,7 +39,7 @@ const EmptyStateStyled = styled.div`
   }};
 
   i {
-    font-size: ${props => (props.size === 'small' ? '28px' : '16vh')};
+    font-size: ${props => (props.size === 'small' ? '28px' : '14vh')};
     line-height: ${props => (props.size === 'small' ? '40px' : '18vh')};
     color: ${colors.colorShadowGray};
   }
@@ -48,16 +51,17 @@ const EmptyStateStyled = styled.div`
 
 EmptyState.propTypes = {
   text: PropTypes.string.isRequired,
-  icon: PropTypes.string.isRequired,
+  icon: PropTypes.string,
+  image: PropTypes.string,
   size: PropTypes.oneOf(['full', 'small']),
   linkUrl: PropTypes.string,
   linkText: PropTypes.string
 };
 
-function EmptyState({ text, icon, size, linkUrl, linkText }) {
+function EmptyState({ text, icon, image, size, linkUrl, linkText }) {
   return (
     <EmptyStateStyled size={size}>
-      <Icon icon={icon} />
+      {icon ? <Icon icon={icon} /> : <img src={image} alt={text} />}
       {text}
       {linkUrl && linkText ? (
         <Button btnStyle="simple" size="small" href={linkUrl}>

@@ -8,7 +8,7 @@ import {
   ModalTrigger,
   Button,
   Table,
-  ShowData,
+  DataWithLoader,
   FormControl,
   DropdownToggle,
   TaggerPopover
@@ -221,12 +221,12 @@ class CompaniesList extends React.Component {
           <Sidebar counts={counts} tags={tags} loading={loadingTags} />
         }
         content={
-          <ShowData
+          <DataWithLoader
             data={mainContent}
             loading={loading}
             count={companies.length}
             emptyText="No companies added yet!"
-            emptyIcon="ios-list"
+            emptyImage="/images/robots/robot-04.svg"
           />
         }
       />

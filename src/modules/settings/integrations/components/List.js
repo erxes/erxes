@@ -1,9 +1,10 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Header, ActionBar, PageContent } from 'modules/layout/components';
-import { Pagination, Table, ShowData } from 'modules/common/components';
+import { Wrapper, ActionBar } from 'modules/layout/components';
+import { Pagination, Table, DataWithLoader } from 'modules/common/components';
 import { AddIntegration } from '../components';
 import Row from './Row';
+import Sidebar from 'modules/settings/Sidebar';
 
 const propTypes = {
   integrations: PropTypes.array.isRequired,
@@ -53,26 +54,27 @@ class List extends Component {
     );
 
     const breadcrumb = [
-      { title: 'Settings', link: '/settings/integrations' },
+      { title: 'Settings', link: '/settings' },
       { title: 'Integrations' }
     ];
 
-    return [
-      <Header key="breadcrumb" breadcrumb={breadcrumb} />,
-      <PageContent
-        key="settings-content"
-        actionBar={actionBar}
+    return (
+      <Wrapper
+        header={<Wrapper.Header breadcrumb={breadcrumb} />}
+        leftSidebar={<Sidebar />}
+        actionBar={<Wrapper.ActionBar right={actionBar} />}
         footer={<Pagination count={totalCount} />}
-      >
-        <ShowData
-          data={content}
-          loading={loading}
-          count={totalCount}
-          emptyText="There is no data."
-          emptyIcon="ios-copy"
-        />
-      </PageContent>
-    ];
+        content={
+          <DataWithLoader
+            data={content}
+            loading={loading}
+            count={totalCount}
+            emptyText="There is no data."
+            emptyIcon="ios-copy"
+          />
+        }
+      />
+    );
   }
 }
 

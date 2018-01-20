@@ -10,7 +10,7 @@ const UserHelper = styled.div`
 
   &:hover {
     cursor: pointer;
-    background: ${colors.bgMain};
+    background: ${colors.bgUnread};
   }
 `;
 
@@ -100,6 +100,7 @@ const HeaderItems = styled.div`
 const SideContent = styled.section`
   box-sizing: border-box;
   display: flex;
+  position: relative;
   flex-direction: column;
   flex-shrink: 0;
   width: ${props => (props.wide ? '360px' : '300px')};
@@ -140,12 +141,18 @@ const SidebarBox = styled.div`
     props.noShadow ? 'none' : `0 0 4px ${colors.shadowPrimary}`};
   padding-bottom: 10px;
   position: relative;
+  justify-content: center;
   transition: max-height 0.4s;
   overflow: ${props => (props.collapsible ? 'hidden' : 'auto')};
+  display: ${props => props.full && 'flex'};
 
   &:last-child {
     margin-bottom: 0;
   }
+`;
+
+const BoxContent = styled.div`
+  flex: 1;
 `;
 
 const SidebarToggle = styled.a`
@@ -296,13 +303,16 @@ const FlexRightItem = styled.div`
   margin-left: auto;
 `;
 
-const WhiteBox = styled.div`
-  flex: 1;
-  overflow: auto;
-  position: relative;
+const WhiteBoxRoot = styled.div`
   margin-bottom: ${dimensions.coreSpacing}px;
   background-color: ${colors.colorWhite};
   box-shadow: 0 0 4px ${colors.shadowPrimary};
+`;
+
+const WhiteBox = WhiteBoxRoot.extend`
+  flex: 1;
+  overflow: auto;
+  position: relative;
 `;
 
 const Authlayout = styled.div`
@@ -370,6 +380,7 @@ export {
   SidebarMainContent,
   SidebarFooter,
   SidebarBox,
+  BoxContent,
   SidebarToggle,
   SidebarCounter,
   HelperButtons,
@@ -381,6 +392,7 @@ export {
   FlexContent,
   FlexItem,
   FlexRightItem,
+  WhiteBoxRoot,
   WhiteBox,
   Authlayout,
   AuthContent,

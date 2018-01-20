@@ -13,7 +13,7 @@ import {
   Icon,
   Table,
   FormControl,
-  ShowData
+  DataWithLoader
 } from 'modules/common/components';
 import { router, confirm } from 'modules/common/utils';
 import { BarItems } from 'modules/layout/styles';
@@ -230,12 +230,12 @@ class CustomersList extends React.Component {
           <Sidebar counts={counts} tags={tags} loading={loadingTags} />
         }
         content={
-          <ShowData
+          <DataWithLoader
             data={this.renderContent()}
             loading={loading}
             count={customers.length}
             emptyText="There is no customer."
-            emptyIcon="person-stalker"
+            emptyImage="/images/robots/robot-01.svg"
           />
         }
       />

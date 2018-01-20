@@ -227,7 +227,7 @@ const InlineHeaderSpan = styled.span`
 `;
 
 const PopoverHeader = styled.div`
-  background-color: #eee;
+  background-color: #f7f7f7;
   padding: 5px;
 
   input[type='text'] {
@@ -235,7 +235,7 @@ const PopoverHeader = styled.div`
     font-size: 13px;
 
     &:focus {
-      border-color: #ddd;
+      border-color: ${colors.borderDarker};
       box-shadow: none;
     }
   }
