@@ -120,16 +120,15 @@ class CommonMerge extends React.Component {
   save() {
     const { datas } = this.props;
     const data = {};
+    const Ids = [];
 
     for (let key in this.state) {
       if (this.state.hasOwnProperty(key)) {
-        data[key] = this.state[key].value;
-        if (data[key] === '') {
-          delete data[key];
+        if (this.state[key].value !== '') {
+          data[key] = this.state[key].value;
         }
       }
     }
-    const Ids = [];
     datas.forEach(data => {
       Ids.push(data._id);
     });
