@@ -55,7 +55,8 @@ const tagMutation = gql`
 
 const queries = {
   customer: 'customers',
-  company: 'companies'
+  company: 'companies',
+  engageMessage: 'engageMessages'
 };
 
 export default compose(
