@@ -60,8 +60,8 @@ const customersRemove = `
 `;
 
 const customersMerge = `
-  mutation customersMerge($customerIds: [String], $newCustomer: JSON) {
-    customersMerge(customerIds: $customerIds, newCustomer: $newCustomer) {
+  mutation customersMerge($customerIds: [String], $customerFields: JSON) {
+    customersMerge(customerIds: $customerIds, customerFields: $customerFields) {
       _id
     }
   }

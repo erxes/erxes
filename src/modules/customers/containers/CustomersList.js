@@ -66,7 +66,7 @@ class CustomerListContainer extends Bulk {
       customersMerge({
         variables: {
           customerIds: Ids,
-          newCustomer: data
+          customerFields: data
         }
       })
         .then(data => {

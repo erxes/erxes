@@ -64,7 +64,7 @@ class CompanyListContainer extends Bulk {
       companiesMerge({
         variables: {
           companyIds: Ids,
-          newCompany: data
+          companyFields: data
         }
       })
         .then(data => {

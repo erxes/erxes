@@ -56,8 +56,8 @@ const companiesRemove = `
 `;
 
 const companiesMerge = `
-  mutation companiesMerge($companyIds: [String], $newCompany: JSON) {
-    companiesMerge(companyIds: $companyIds, newCompany: $newCompany) {
+  mutation companiesMerge($companyIds: [String], $companyFields: JSON) {
+    companiesMerge(companyIds: $companyIds, newCompany: $companyFields) {
       _id
     }
   }
