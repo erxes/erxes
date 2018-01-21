@@ -9,7 +9,6 @@ import {
   conversationMessageFactory,
   conversationFactory,
   internalNoteFactory,
-  activityLogFactory,
 } from '../db/factories';
 import { COC_CONTENT_TYPES } from '../data/constants';
 
@@ -178,29 +177,30 @@ describe('Customers model tests', () => {
 
   test('Merge customers', async () => {
     const customerIds = ['123'];
-    const internalNote = await internalNoteFactory({
+    await internalNoteFactory({
       contentType: COC_CONTENT_TYPES.CUSTOMER,
       contentTypeId: customerIds[0],
     });
-    const newCustomer = await customerFactory({});
-    const conversation = await conversationFactory({
-      customerId: newCustomer._id,
+    await conversationFactory({
+      customerId: customerIds[0],
     });
-    const conversationMessage = await conversationMessageFactory({
-      customerId: newCustomer._id,
-    });
-    const activityLog = await activityLogFactory({
-      coc: {
-        id: newCustomer._id,
-        type: COC_CONTENT_TYPES.CUSTOMER,
-      },
+    await conversationMessageFactory({
+      customerId: customerIds[0],
     });
 
-    const updatedCustomer = await Customers.mergeCustomers(customerIds, newCustomer);
+    const updatedCustomer = await Customers.mergeCustomers(customerIds, {
+      email: '123@test.com',
+    });
 
-    expect(conversation.customerId).toBe(updatedCustomer._id);
-    expect(conversationMessage.customerId).toBe(updatedCustomer._id);
-    expect(internalNote.contentTypeId).toBe(updatedCustomer._id);
-    expect(activityLog.coc.id).toBe(updatedCustomer._id);
+    expect(await Conversations.find({ customerId: updatedCustomer._id })).not.toHaveLength(0);
+    expect(await ConversationMessages.find({ customerId: updatedCustomer._id })).not.toHaveLength(
+      0,
+    );
+    expect(
+      await InternalNotes.find({
+        contentType: COC_CONTENT_TYPES.CUSTOMER,
+        contentTypeId: updatedCustomer._id,
+      }),
+    ).not.toHaveLength(0);
   });
 });

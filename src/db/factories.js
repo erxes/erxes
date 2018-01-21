@@ -1,6 +1,6 @@
 import faker from 'faker';
 import Random from 'meteor-random';
-import { MODULES, COC_CONTENT_TYPES, ACTIVITY_TYPES, ACTIVITY_ACTIONS } from '../data/constants';
+import { MODULES, COC_CONTENT_TYPES } from '../data/constants';
 
 import {
   Users,
@@ -24,7 +24,6 @@ import {
   KnowledgeBaseTopics,
   KnowledgeBaseCategories,
   KnowledgeBaseArticles,
-  ActivityLogs,
 } from './models';
 
 export const userFactory = (params = {}) => {
@@ -342,29 +341,4 @@ export const knowledgeBaseArticleFactory = params => {
   };
 
   return KnowledgeBaseArticles.createDoc({ ...doc, ...params }, faker.random.word());
-};
-
-export const activityLogFactory = async (params = {}) => {
-  const user = await userFactory({});
-  const internalNote = await internalNoteFactory({});
-  const activity = {
-    type: ACTIVITY_TYPES.INTERNAL_NOTE,
-    action: ACTIVITY_ACTIONS.CREATE,
-    id: internalNote._id,
-    content: internalNote.content,
-  };
-  const coc = {
-    id: Random.id(),
-    type: COC_CONTENT_TYPES.CUSTOMER,
-  };
-
-  const activityLog = {
-    activity: params.activity || activity,
-    coc: params.coc || coc,
-  };
-
-  return ActivityLogs.createDoc({
-    ...activityLog,
-    performer: user,
-  });
 };
