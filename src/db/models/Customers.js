@@ -236,18 +236,31 @@ class Customer {
   }
 
   /**
-   * Removes customer
-   * @param {String} customerId - Customer id of customer to remove
-   * @return {Promise} result
+   * Merge customers
+   * @param {string[]} customerIds - Customer ids to merge
+   * @param {Object} customerFields - Customer infos to create with
+   * @return {Promise} Customer object
    */
-  static async mergeCustomers(customerIds, newCustomer) {
-    // Removing customers
+  static async mergeCustomers(customerIds, customerFields) {
+    let tagIds = [];
+    let companyIds = [];
+
+    // Merging customer tags and companies
     for (let customerId of customerIds) {
+      const customer = await this.findOne({ _id: customerId });
+      const customerTags = customer.tagIds || [];
+      const customerCompanies = customer.companyIds || [];
+
+      // Merging customer's tag and companies into 1 array
+      tagIds = tagIds.concat(customerTags);
+      companyIds = companyIds.concat(customerCompanies);
+
+      // Removing Customers
       await this.remove({ _id: customerId });
     }
 
-    // Creating customers with properties
-    const customer = await this.createCustomer(newCustomer);
+    // Creating customer with properties
+    const customer = await this.createCustomer({ ...customerFields, tagIds, companyIds });
 
     // Updating every modules associated with customers
     await ActivityLogs.changeCustomer(customer._id, customerIds);

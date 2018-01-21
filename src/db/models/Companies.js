@@ -149,17 +149,33 @@ class Company {
 
   /**
    * Merge companies
-   * @param {String} companyId - Company id of company to remove
-   * @return {Promise} result
+   * @param {String} companyIds - Company Ids to merge
+   * @param {Object} companyFields - Company infos to create with
+   * @return {Promise} Newly created company
    */
-  static async mergeCompanies(companyIds, newCompany) {
-    // Removing companies
+  static async mergeCompanies(companyIds, companyFields) {
+    let tagIds = [];
+
+    // Merging company tags
     for (let companyId of companyIds) {
+      const company = await this.findOne({ _id: companyId });
+      const companyTags = company.tagIds || [];
+
+      // Merging company's tag into 1 array
+      tagIds = tagIds.concat(companyTags);
+
+      // Removing company
       await this.remove({ _id: companyId });
     }
 
     // Creating company with properties
-    const company = await this.createCompany(newCompany);
+    const company = await this.createCompany({ ...companyFields, tagIds });
+
+    // Updating customer companies
+    for (let companyId of companyIds) {
+      await Customers.updateMany({ companyIds: companyId }, { $push: { companyIds: company._id } });
+      await Customers.updateMany({ companyIds: companyId }, { $pull: { companyIds: companyId } });
+    }
 
     // Removing modules associated with current companies
     await ActivityLogs.changeCompany(company._id, companyIds);

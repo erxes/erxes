@@ -51,7 +51,7 @@ const customerMutations = {
 
   /**
    * Merge customers
-   * @param {string[]} customerIds - First customer to merge
+   * @param {string[]} customerIds - Customer ids to merge
    * @param {Object} customerFields - Customer infos to create with
    * @return {Promise} Customer object
    */
