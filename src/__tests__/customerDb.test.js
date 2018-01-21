@@ -9,6 +9,7 @@ import {
   conversationMessageFactory,
   conversationFactory,
   internalNoteFactory,
+  activityLogFactory,
 } from '../db/factories';
 import { COC_CONTENT_TYPES } from '../data/constants';
 
@@ -188,11 +189,18 @@ describe('Customers model tests', () => {
     const conversationMessage = await conversationMessageFactory({
       customerId: newCustomer._id,
     });
+    const activityLog = await activityLogFactory({
+      coc: {
+        id: newCustomer._id,
+        type: COC_CONTENT_TYPES.CUSTOMER,
+      },
+    });
 
     const updatedCustomer = await Customers.mergeCustomers(customerIds, newCustomer);
 
     expect(conversation.customerId).toBe(updatedCustomer._id);
     expect(conversationMessage.customerId).toBe(updatedCustomer._id);
     expect(internalNote.contentTypeId).toBe(updatedCustomer._id);
+    expect(activityLog.coc.id).toBe(updatedCustomer._id);
   });
 });

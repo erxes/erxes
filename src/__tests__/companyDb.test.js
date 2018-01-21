@@ -3,7 +3,12 @@
 
 import { connect, disconnect } from '../db/connection';
 import { Companies, Customers, InternalNotes } from '../db/models';
-import { companyFactory, fieldFactory, internalNoteFactory } from '../db/factories';
+import {
+  companyFactory,
+  fieldFactory,
+  internalNoteFactory,
+  activityLogFactory,
+} from '../db/factories';
 import { COC_CONTENT_TYPES } from '../data/constants';
 
 beforeAll(() => connect());
@@ -159,10 +164,18 @@ describe('Companies model tests', () => {
       contentType: COC_CONTENT_TYPES.COMPANY,
       contentTypeId: companyIds[0],
     });
-    const newCompany = await companyFactory({ name: 'qweqwe' });
+    const activityLog = await activityLogFactory({
+      coc: {
+        id: companyIds[0],
+        type: COC_CONTENT_TYPES.CUSTOMER,
+      },
+    });
+
+    const newCompany = await companyFactory({ name: 'qweqwe213213' });
 
     const updatedCompany = await Companies.mergeCompanies(companyIds, newCompany);
 
     expect(internalNote.contentTypeId).toBe(updatedCompany._id);
+    expect(activityLog.coc.id).toBe(updatedCompany._id);
   });
 });
