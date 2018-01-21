@@ -2,8 +2,9 @@
 /* eslint-disable no-underscore-dangle */
 
 import { connect, disconnect } from '../db/connection';
-import { Companies, Customers } from '../db/models';
-import { companyFactory, fieldFactory } from '../db/factories';
+import { Companies, Customers, InternalNotes } from '../db/models';
+import { companyFactory, fieldFactory, internalNoteFactory } from '../db/factories';
+import { COC_CONTENT_TYPES } from '../data/constants';
 
 beforeAll(() => connect());
 
@@ -136,9 +137,32 @@ describe('Companies model tests', () => {
 
   test('removeCompany', async () => {
     const company = await companyFactory({});
+    await internalNoteFactory({
+      contentType: COC_CONTENT_TYPES.COMPANY,
+      contentTypeId: company._id,
+    });
 
     const removed = await Companies.removeCompany(company._id);
 
+    expect(
+      await InternalNotes.find({
+        contentType: COC_CONTENT_TYPES.COMPANY,
+        contentTypeId: company._id,
+      }),
+    ).toHaveLength(0);
     expect(removed.result).toEqual({ n: 1, ok: 1 });
+  });
+
+  test('mergeCompanies', async () => {
+    const companyIds = ['123'];
+    const internalNote = await internalNoteFactory({
+      contentType: COC_CONTENT_TYPES.COMPANY,
+      contentTypeId: companyIds[0],
+    });
+    const newCompany = await companyFactory({ name: 'qweqwe' });
+
+    const updatedCompany = await Companies.mergeCompanies(companyIds, newCompany);
+
+    expect(internalNote.contentTypeId).toBe(updatedCompany._id);
   });
 });

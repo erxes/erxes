@@ -2,7 +2,7 @@
 /* eslint-disable no-underscore-dangle */
 
 import { connect, disconnect } from '../db/connection';
-import { Companies, Users, ActivityLogs, InternalNotes } from '../db/models';
+import { Companies, Users } from '../db/models';
 import { userFactory, companyFactory } from '../db/factories';
 import companyMutations from '../data/resolvers/mutations/companies';
 
@@ -111,18 +111,14 @@ describe('Companies mutations', () => {
   });
 
   test('Merging companies', async () => {
+    Companies.mergeCompanies = jest.fn();
+
     const companyIds = ['companyid1', 'companyid2'];
     const newCompany = await companyFactory({});
 
-    const aLog = (ActivityLogs.changeCompany = jest.fn());
-    const iNote = (InternalNotes.changeCompany = jest.fn());
-    aLog(newCompany._id, companyIds);
-    iNote(newCompany._id, companyIds);
-
     await companyMutations.companiesMerge({}, { companyIds, newCompany }, { user: _user });
 
-    expect(aLog).toBeCalledWith(newCompany._id, companyIds);
-    expect(iNote).toBeCalledWith(newCompany._id, companyIds);
+    expect(Companies.mergeCompanies).toBeCalledWith(companyIds, newCompany);
   });
 
   test('Company remove', async () => {

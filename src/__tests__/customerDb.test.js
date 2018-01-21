@@ -2,8 +2,15 @@
 /* eslint-disable no-underscore-dangle */
 
 import { connect, disconnect } from '../db/connection';
-import { Customers } from '../db/models';
-import { fieldFactory, customerFactory } from '../db/factories';
+import { Customers, InternalNotes, Conversations, ConversationMessages } from '../db/models';
+import {
+  fieldFactory,
+  customerFactory,
+  conversationMessageFactory,
+  conversationFactory,
+  internalNoteFactory,
+} from '../db/factories';
+import { COC_CONTENT_TYPES } from '../data/constants';
 
 beforeAll(() => connect());
 
@@ -49,7 +56,9 @@ describe('Customers model tests', () => {
   test('Update customer', async () => {
     expect.assertions(4);
 
-    const previousCustomer = await customerFactory({ email: 'dombo@yahoo.com' });
+    const previousCustomer = await customerFactory({
+      email: 'dombo@yahoo.com',
+    });
 
     const doc = {
       name: 'Dombo',
@@ -143,8 +152,47 @@ describe('Customers model tests', () => {
   test('removeCustomer', async () => {
     const customer = await customerFactory({});
 
-    const removed = await Customers.removeCustomer(customer._id);
+    await internalNoteFactory({
+      contentType: COC_CONTENT_TYPES.CUSTOMER,
+      contentTypeId: customer._id,
+    });
+    await conversationFactory({
+      customerId: customer._id,
+    });
+    await conversationMessageFactory({
+      customerId: customer._id,
+    });
 
-    expect(removed.result).toEqual({ n: 1, ok: 1 });
+    await Customers.removeCustomer(customer._id);
+
+    expect(
+      await InternalNotes.find({
+        contentType: COC_CONTENT_TYPES.CUSTOMER,
+        contentTypeId: customer._id,
+      }),
+    ).toHaveLength(0);
+    expect(await Conversations.find({ customerId: customer._id })).toHaveLength(0);
+    expect(await ConversationMessages.find({ customerId: customer._id })).toHaveLength(0);
+  });
+
+  test('Merge customers', async () => {
+    const customerIds = ['123'];
+    const internalNote = await internalNoteFactory({
+      contentType: COC_CONTENT_TYPES.CUSTOMER,
+      contentTypeId: customerIds[0],
+    });
+    const newCustomer = await customerFactory({});
+    const conversation = await conversationFactory({
+      customerId: newCustomer._id,
+    });
+    const conversationMessage = await conversationMessageFactory({
+      customerId: newCustomer._id,
+    });
+
+    const updatedCustomer = await Customers.mergeCustomers(customerIds, newCustomer);
+
+    expect(conversation.customerId).toBe(updatedCustomer._id);
+    expect(conversationMessage.customerId).toBe(updatedCustomer._id);
+    expect(internalNote.contentTypeId).toBe(updatedCustomer._id);
   });
 });
