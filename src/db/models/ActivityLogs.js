@@ -229,7 +229,7 @@ class ActivityLog {
    * Create a customer or company segment log
    * @param {Segment} segment - Segment document
    * @param {COC} customer - Related customer or company
-   * @return {Promise} return Promise resolving created Segment
+   * @return {Promise} Return Promise resolving created Segment
    */
   static async createSegmentLog(segment, customer) {
     if (!customer) {
@@ -266,8 +266,8 @@ class ActivityLog {
   /**
    * Creates a customer registration log
    * @param {Customer} customer - Customer document
-   * @param {user} user - user document
-   * @return {Promise} return Promise resolving created ActivityLog
+   * @param {user} user - User document
+   * @return {Promise} Return Promise resolving created ActivityLog
    */
   static createCustomerRegistrationLog(customer, user) {
     const performer =
@@ -296,8 +296,8 @@ class ActivityLog {
   /**
    * Creates a customer company registration log
    * @param {Company} company - Company document
-   * @param {user} user - user document
-   * @return {Promise} return Promise resolving created ActivityLog
+   * @param {user} user - User document
+   * @return {Promise} Return Promise resolving created ActivityLog
    */
   static createCompanyRegistrationLog(company, user) {
     const performer =
@@ -325,9 +325,9 @@ class ActivityLog {
 
   /**
    * Transfers customers' activity logs to another customer
-   * @param {String} newCustomerId - customer id to set
-   * @param {string[]} customerIds - old customer ids to change
-   * @return {Promise} updated alist of ctivity logs of new customer
+   * @param {String} newCustomerId - Customer id to set
+   * @param {string[]} customerIds - Old customer ids to change
+   * @return {Promise} Updated alist of ctivity logs of new customer
    */
   static async changeCustomer(newCustomerId, customerIds) {
     for (let customerId of customerIds) {
@@ -343,8 +343,8 @@ class ActivityLog {
 
   /**
    * Removes customer's activity logs
-   * @param {String} customerId - customer id that belongs to activity logs
-   * @return {Promise} result
+   * @param {String} customerId - Customer id that belongs to activity logs
+   * @return {Promise} Result
    */
   static async removeCustomerActivityLog(customerId) {
     // Removing every activity log of customer
@@ -355,8 +355,8 @@ class ActivityLog {
 
   /**
    * Removes company's activity logs
-   * @param {String} companyId - company id that belongs to activity logs
-   * @return {Promise} result
+   * @param {String} companyId - Company id that belongs to activity logs
+   * @return {Promise} Result
    */
   static async removeCompanyActivityLog(companyId) {
     // Removing every activity log of company
@@ -367,9 +367,9 @@ class ActivityLog {
 
   /**
    * Transfers companies' activity logs to another company
-   * @param {String} newCompanyId - company idsto set
-   * @param {string[]} companyIds - old company ids to change
-   * @return {Promise} updated list of activity logs of new company
+   * @param {String} newCompanyId - Company idsto set
+   * @param {string[]} companyIds - Old company ids to change
+   * @return {Promise} Updated list of activity logs of new company
    */
   static async changeCompany(newCompanyId, companyIds) {
     for (let companyId of companyIds) {

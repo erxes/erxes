@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import { Fields, Customers } from './';
+import { Fields, Customers, ActivityLogs, InternalNotes } from './';
 import { field } from './utils';
 
 const CompanySchema = mongoose.Schema({
@@ -57,7 +57,7 @@ const CompanySchema = mongoose.Schema({
 class Company {
   /**
    * Create a company
-   * @param  {Object} companyObj object
+   * @param  {Object} companyObj - Object
    * @return {Promise} Newly created company object
    */
   static async createCompany(doc) {
@@ -76,8 +76,8 @@ class Company {
 
   /**
    * Update company
-   * @param {String} _id company id to update
-   * @param {Object} doc field values to update
+   * @param {String} _id - Company id to update
+   * @param {Object} doc - Field values to update
    * @return {Promise} updated company object
    */
   static async updateCompany(_id, doc) {
@@ -114,8 +114,8 @@ class Company {
 
   /**
    * Update company customers
-   * @param {String} _id company id to update
-   * @param {string[]} customerIds customer ids to update
+   * @param {String} _id - Company id to update
+   * @param {string[]} customerIds - Customer ids to update
    * @return {Promise} updated company object
    */
   static async updateCustomers(_id, customerIds) {
@@ -136,11 +136,36 @@ class Company {
 
   /**
    * Remove company
-   * @param {String} companyId company id of company to remove
+   * @param {String} companyId - Company id of company to remove
    * @return {Promise} result
    */
   static async removeCompany(companyId) {
+    // Removing modules associated with company
+    await ActivityLogs.removeCompanyActivityLog(companyId);
+    await InternalNotes.removeCompanyInternalNotes(companyId);
+
     return await this.remove({ _id: companyId });
+  }
+
+  /**
+   * Merge companies
+   * @param {String} companyId - Company id of company to remove
+   * @return {Promise} result
+   */
+  static async mergeCompanies(companyIds, newCompany) {
+    // Removing companies
+    for (let companyId of companyIds) {
+      await this.remove({ _id: companyId });
+    }
+
+    // Creating company with properties
+    const company = await this.createCompany(newCompany);
+
+    // Removing modules associated with current companies
+    await ActivityLogs.changeCompany(company._id, companyIds);
+    await InternalNotes.changeCompany(company._id, companyIds);
+
+    return company;
   }
 }
 

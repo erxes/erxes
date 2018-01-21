@@ -1,11 +1,4 @@
-import {
-  Customers,
-  ActivityLogs,
-  ConversationMessages,
-  Conversations,
-  EngageMessages,
-  InternalNotes,
-} from '../../../db/models';
+import { Customers, ActivityLogs } from '../../../db/models';
 
 import { moduleRequireLogin } from '../../permissions';
 
@@ -66,21 +59,8 @@ const customerMutations = {
     if (customerIds.length !== 2) {
       throw new Error('You can only merge 2 customers at a time');
     }
-    // Removing customers
-    for (let customerId of customerIds) {
-      await Customers.removeCustomer(customerId);
-    }
-    // Creating customers with properties
-    const customer = await Customers.createCustomer(newCustomer);
-    // Removing every modules associated with customers
-    await ActivityLogs.changeCustomer(customer._id, customerIds);
-    await ConversationMessages.changeCustomer(customer._id, customerIds);
-    await Conversations.changeCustomer(customer._id, customerIds);
-    await EngageMessages.changeCustomer(customer._id, customerIds);
-    await EngageMessages.changeReceivedCustomer(customer._id, customerIds);
-    await InternalNotes.changeCustomer(customer._id, customerIds);
 
-    return customer;
+    return await Customers.mergeCustomers(customerIds, newCustomer);
   },
 
   /**
@@ -90,12 +70,7 @@ const customerMutations = {
    */
   async customersRemove(root, { customerIds }) {
     for (let customerId of customerIds) {
-      // Removing every modules that associated with customer
-      await ActivityLogs.removeCustomerActivityLog(customerId);
-      await ConversationMessages.removeCustomerConversationMessages(customerId);
-      await Conversations.removeCustomerConversations(customerId);
-      await EngageMessages.removeCustomerEngages(customerId);
-      await InternalNotes.removeCustomerInternalNotes(customerId);
+      // Removing every customer and modules associated with
       await Customers.removeCustomer(customerId);
     }
 

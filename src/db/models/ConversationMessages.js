@@ -97,7 +97,7 @@ const MessageSchema = mongoose.Schema({
 class Message {
   /**
    * Create a message
-   * @param  {Object} messageObj object
+   * @param  {Object} messageObj - object
    * @return {Promise} Newly created message object
    */
   static async createMessage(doc) {
@@ -136,8 +136,8 @@ class Message {
 
   /**
    * Create a conversation message
-   * @param  {Object} doc - conversation message fields
-   * @param  {Object} user object
+   * @param  {Object} doc - Conversation message fields
+   * @param  {Object} user - Object
    * @return {Promise} Newly created conversation object
    */
   static async addMessage(doc, userId) {
@@ -184,7 +184,7 @@ class Message {
   /**
   * User's last non answered question
   * @param  {String} conversationId
-  * @return {Promise} message object
+  * @return {Promise} Message object
   */
   static getNonAsnweredMessage(conversationId) {
     return this.findOne({
@@ -212,7 +212,7 @@ class Message {
   /**
    * Mark sent messages as read
    * @param  {String} conversationId
-   * @return {Promise} updated messages info
+   * @return {Promise} Updated messages info
    */
   static markSentAsReadMessages(conversationId) {
     return this.update(
@@ -228,9 +228,9 @@ class Message {
 
   /**
    * Transfers customers' conversation messages to another customer
-   * @param  {String} newCustomerId customer id to set
-   * @param  {string[]} customerIds old customer ids to change
-   * @return {Promise} updated list of conversation messages of new customer
+   * @param  {String} newCustomerId - Customer id to set
+   * @param  {string[]} customerIds - Old customer ids to change
+   * @return {Promise} Updated list of conversation messages of new customer
    */
   static async changeCustomer(newCustomerId, customerIds) {
     for (let customerId of customerIds) {
@@ -243,8 +243,8 @@ class Message {
 
   /**
    * Removing customer conversation messages
-   * @param {String} customerId - customer id of customer to remove
-   * @return {Promise} result
+   * @param {String} customerId - Customer id of customer to remove
+   * @return {Promise} Result
    */
   static async removeCustomerConversationMessages(customerId) {
     // Removing every conversation messages of customer

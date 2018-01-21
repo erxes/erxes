@@ -112,7 +112,7 @@ const ConversationSchema = mongoose.Schema({
 class Conversation {
   /**
    * Check conversations exists
-   * @param  {list} ids of conversations
+   * @param  {list} ids - Ids of conversations
    * @return {object, list} selector, conversations
    */
   static async checkExistanceConversations(_ids) {
@@ -128,7 +128,7 @@ class Conversation {
 
   /**
    * Create a conversation
-   * @param  {Object} conversationObj object
+   * @param  {Object} conversationObj - Object
    * @return {Promise} Newly created conversation object
    */
   static async createConversation(doc) {
@@ -230,9 +230,9 @@ class Conversation {
 
   /**
    * Star conversation
-   * @param  {list} _ids of conversations
+   * @param  {list} _ids - Ids of conversations
    * @param  {String} userId
-   * @return {Promise} updated user object
+   * @return {Promise} Updated user object
    */
   static async starConversation(_ids, userId) {
     await this.checkExistanceConversations(_ids);
@@ -244,9 +244,9 @@ class Conversation {
 
   /**
    * Unstar conversation
-   * @param  {list} _ids of conversations
+   * @param  {list} _ids - Ids of conversations
    * @param  {string} userId
-   * @return {Promise} updated user object
+   * @return {Promise} Updated user object
    */
   static async unstarConversation(_ids, userId) {
     // check conversations existance
@@ -261,7 +261,7 @@ class Conversation {
    * Add participated user to conversation
    * @param  {list} _ids
    * @param  {String} userId
-   * @param  {Boolean} toggle - add only if true
+   * @param  {Boolean} toggle - Add only if true
    * @return {Promise} Updated conversation list
    */
   static async toggleParticipatedUsers(_ids, userId) {
@@ -292,7 +292,7 @@ class Conversation {
 
   /**
    * Mark as read conversation
-   * @param  {String} _id of conversation
+   * @param  {String} _id - Id of conversation
    * @param  {String} userId
    * @return {Promise} Updated conversation object
    */
@@ -345,9 +345,9 @@ class Conversation {
 
   /**
    * Transfers customers' conversations to another customer
-   * @param {String} newCustomerId customer id to set
-   * @param {string[]} customerIds old customer ids to change
-   * @return {Promise} updated list of conversations of new customer
+   * @param {String} newCustomerId - Customer id to set
+   * @param {string[]} customerIds - Old customer ids to change
+   * @return {Promise} Updated list of conversations of new customer
    */
   static async changeCustomer(newCustomerId, customerIds) {
     for (let customerId of customerIds) {
@@ -360,8 +360,8 @@ class Conversation {
 
   /**
    * Removes customer conversations
-   * @param {String} customerId - customer id to remove
-   * @return {Promise} result
+   * @param {String} customerId - Customer id to remove
+   * @return {Promise} Result
    */
   static async removeCustomerConversations(customerId) {
     // Removing every conversation of customer

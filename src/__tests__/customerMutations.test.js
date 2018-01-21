@@ -54,7 +54,7 @@ describe('Customers mutations', () => {
     // add company
     check(customerMutations.customersAddCompany);
 
-    // edot customer companies
+    // edit customer companies
     check(customerMutations.customersEditCompanies);
 
     // merge customers

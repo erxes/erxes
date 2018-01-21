@@ -43,9 +43,9 @@ class InternalNote {
 
   /*
    * Update internalNote
-   * @param {String} _id internalNote id to update
-   * @param {Object} doc internalNote values to update
-   * @return {Promise} updated internalNote object
+   * @param {String} _id - internalNote id to update
+   * @param {Object} doc - internalNote values to update
+   * @return {Promise} Updated internalNote object
    */
   static async updateInternalNote(_id, doc) {
     await this.update({ _id }, { $set: doc });
@@ -55,7 +55,7 @@ class InternalNote {
 
   /*
    * Remove internalNote
-   * @param {String} _id internalNote id to remove
+   * @param {String} _id - internalNote id to remove
    * @return {Promise}
    */
   static async removeInternalNote(_id) {
@@ -68,9 +68,9 @@ class InternalNote {
 
   /**
    * Transfers customers' internal notes to another customer
-   * @param {String} newCustomerId customer id to set
-   * @param {string[]} customerIds old customer ids to change
-   * @return {Promise} updated list of internal notes of new customer
+   * @param {String} newCustomerId - Customer id to set
+   * @param {string[]} customerIds - Old customer ids to change
+   * @return {Promise} Updated list of internal notes of new customer
    */
   static async changeCustomer(newCustomerId, customerIds) {
     for (let customerId of customerIds) {
@@ -89,8 +89,8 @@ class InternalNote {
 
   /**
    * Removing customers' internal notes
-   * @param {String} customerId - customer id of customer to remove
-   * @return {Promise} result
+   * @param {String} customerId - Customer id of customer to remove
+   * @return {Promise} Result
    */
   static async removeCustomerInternalNotes(customerId) {
     // Removing every internal ntoes of customer
@@ -102,8 +102,8 @@ class InternalNote {
 
   /**
    * Removing companies' internal notes
-   * @param {String} companyId - company id of company to remove
-   * @return {Promise} result
+   * @param {String} companyId - Company id of company to remove
+   * @return {Promise} Result
    */
   static async removeCompanyInternalNotes(companyId) {
     // Removing every internal notes of company
@@ -115,9 +115,9 @@ class InternalNote {
 
   /**
    * Transfers companies' internal notes to another company
-   * @param {String} newCompanyId - company ids to set
-   * @param {string[]} OldCompanyIds - old company ids to change
-   * @return {Promise} updated list of internal notes of new company
+   * @param {String} newCompanyId - Company ids to set
+   * @param {string[]} OldCompanyIds - Old company ids to change
+   * @return {Promise} Updated list of internal notes of new company
    */
   static async changeCompany(newCompanyId, OldCompanyIds) {
     for (let companyId of OldCompanyIds) {

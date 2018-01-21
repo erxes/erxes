@@ -1,4 +1,4 @@
-import { Companies, ActivityLogs, InternalNotes } from '../../../db/models';
+import { Companies, ActivityLogs } from '../../../db/models';
 import { moduleRequireLogin } from '../../permissions';
 
 const companyMutations = {
@@ -50,8 +50,7 @@ const companyMutations = {
    */
   async companiesRemove(root, { companyIds }) {
     for (let companyId of companyIds) {
-      await ActivityLogs.removeCompanyActivityLog(companyId);
-      await InternalNotes.removeCompanyInternalNotes(companyId);
+      // Removing every company and modules associated with
       await Companies.removeCompany(companyId);
     }
 
@@ -68,17 +67,8 @@ const companyMutations = {
     if (companyIds.length !== 2) {
       throw new Error('You can only merge 2 companies at a time');
     }
-    // Removing companies
-    for (let companyId of companyIds) {
-      await Companies.removeCompany(companyId);
-    }
-    // Creating company with properties
-    const company = await Companies.createCompany(newCompany);
-    // Removing modules associated with current companies
-    await ActivityLogs.changeCompany(company._id, companyIds);
-    await InternalNotes.changeCompany(company._id, companyIds);
 
-    return company;
+    return await Companies.mergeCompanies(companyIds, newCompany);
   },
 };
 

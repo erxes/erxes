@@ -1,5 +1,13 @@
 import mongoose from 'mongoose';
-import { Fields, Companies } from './';
+import {
+  Fields,
+  Companies,
+  ActivityLogs,
+  Conversations,
+  ConversationMessages,
+  InternalNotes,
+  EngageMessages,
+} from './';
 import { field } from './utils';
 
 /* location schema */
@@ -200,8 +208,8 @@ class Customer {
 
   /**
    * Update customer companies
-   * @param {String} _id customer id to update
-   * @param {string[]} companyIds company ids to update
+   * @param {String} _id - Customer id to update
+   * @param {string[]} companyIds - Company ids to update
    * @return {Promise} updated customer object
    */
   static async updateCompanies(_id, companyIds) {
@@ -213,11 +221,41 @@ class Customer {
 
   /**
    * Removes customer
-   * @param {String} customerId customer id of customer to remove
+   * @param {String} customerId - Customer id of customer to remove
    * @return {Promise} result
    */
   static async removeCustomer(customerId) {
+    // Removing every modules that associated with customer
+    await ActivityLogs.removeCustomerActivityLog(customerId);
+    await ConversationMessages.removeCustomerConversationMessages(customerId);
+    await Conversations.removeCustomerConversations(customerId);
+    await EngageMessages.removeCustomerEngages(customerId);
+    await InternalNotes.removeCustomerInternalNotes(customerId);
+
     return await this.remove({ _id: customerId });
+  }
+
+  /**
+   * Removes customer
+   * @param {String} customerId - Customer id of customer to remove
+   * @return {Promise} result
+   */
+  static async mergeCustomers(customerIds, newCustomer) {
+    // Removing customers
+    for (let customerId of customerIds) {
+      await this.remove({ _id: customerId });
+    }
+
+    // Creating customers with properties
+    const customer = await this.createCustomer(newCustomer);
+
+    // Updating every modules associated with customers
+    await ActivityLogs.changeCustomer(customer._id, customerIds);
+    await ConversationMessages.changeCustomer(customer._id, customerIds);
+    await Conversations.changeCustomer(customer._id, customerIds);
+    await EngageMessages.changeCustomer(customer._id, customerIds);
+    await EngageMessages.changeReceivedCustomer(customer._id, customerIds);
+    await InternalNotes.changeCustomer(customer._id, customerIds);
   }
 }
 
