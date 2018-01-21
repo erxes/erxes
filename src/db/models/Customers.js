@@ -256,6 +256,8 @@ class Customer {
     await EngageMessages.changeCustomer(customer._id, customerIds);
     await EngageMessages.changeReceivedCustomer(customer._id, customerIds);
     await InternalNotes.changeCustomer(customer._id, customerIds);
+
+    return customer;
   }
 }
 
