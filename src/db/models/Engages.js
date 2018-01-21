@@ -201,10 +201,8 @@ class Message {
   static async changeCustomer(newCustomerId, customerIds) {
     for (let customerId of customerIds) {
       // Updating every engage messages of customer
-      await this.updateMany(
-        { customerIds: customerId },
-        { $set: { 'customerIds.$': newCustomerId } },
-      );
+      await this.updateMany({ customerIds: customerId }, { $push: { customerIds: newCustomerId } });
+      await this.updateMany({ customerIds: customerId }, { $pull: { customerIds: customerId } });
     }
 
     return this.find({ customerIds: newCustomerId });
@@ -218,10 +216,14 @@ class Message {
    */
   static async changeReceivedCustomer(newCustomerId, customerIds) {
     for (let customerId of customerIds) {
+      // updating every engage messages of customer participated in
       await this.updateMany(
-        // updating every engage messages of customer participated in
         { messengerReceivedCustomerIds: customerId },
-        { $set: { 'messengerReceivedCustomerIds.$': newCustomerId } },
+        { $push: { messengerReceivedCustomerIds: newCustomerId } },
+      );
+      await this.updateMany(
+        { messengerReceivedCustomerIds: customerId },
+        { $pull: { messengerReceivedCustomerIds: customerId } },
       );
     }
     // Returns updated list of engage messages
