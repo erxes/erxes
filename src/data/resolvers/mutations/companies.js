@@ -60,15 +60,15 @@ const companyMutations = {
   /**
    * Merge companies
    * @param {String} companyIds - Company Ids to merge
-   * @param {Object} newCompany - Newly created company
+   * @param {Object} companyFields - Company infos to create with
    * @return {Promise} Newly created company
    */
-  async companiesMerge(root, { companyIds, newCompany }) {
+  async companiesMerge(root, { companyIds, companyFields }) {
     if (companyIds.length !== 2) {
       throw new Error('You can only merge 2 companies at a time');
     }
 
-    return await Companies.mergeCompanies(companyIds, newCompany);
+    return Companies.mergeCompanies(companyIds, companyFields);
   },
 };
 
