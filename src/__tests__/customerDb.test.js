@@ -188,10 +188,19 @@ describe('Customers model tests', () => {
       customerId: customerIds[0],
     });
 
-    const updatedCustomer = await Customers.mergeCustomers(customerIds, {
-      email: '123@test.com',
-    });
+    const doc = {
+      firstName: 'Test first name',
+      lastName: 'Test last name',
+      email: 'Test email',
+      phone: 'Test phone',
+    };
 
+    const updatedCustomer = await Customers.mergeCustomers(customerIds, doc);
+
+    expect(updatedCustomer.firstName).toBe(doc.firstName);
+    expect(updatedCustomer.lastName).toBe(doc.lastName);
+    expect(updatedCustomer.email).toBe(doc.email);
+    expect(updatedCustomer.phone).toBe(doc.phone);
     expect(await Conversations.find({ customerId: updatedCustomer._id })).not.toHaveLength(0);
     expect(await ConversationMessages.find({ customerId: updatedCustomer._id })).not.toHaveLength(
       0,

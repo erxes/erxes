@@ -160,10 +160,20 @@ describe('Companies model tests', () => {
       contentTypeId: companyIds[0],
     });
 
-    const updatedCompany = await Companies.mergeCompanies(companyIds, {
-      name: '123testname',
-    });
+    const doc = {
+      name: 'Test name',
+      website: 'Test webiste',
+      size: 230,
+      industry: 'Test industry',
+      plan: 'Test plan',
+    };
+    const updatedCompany = await Companies.mergeCompanies(companyIds, doc);
 
+    expect(updatedCompany.name).toBe(doc.name);
+    expect(updatedCompany.website).toBe(doc.website);
+    expect(updatedCompany.size).toBe(doc.size);
+    expect(updatedCompany.industry).toBe(doc.industry);
+    expect(updatedCompany.plan).toBe(doc.plan);
     expect(
       await InternalNotes.find({
         contentType: COC_CONTENT_TYPES.COMPANY,
