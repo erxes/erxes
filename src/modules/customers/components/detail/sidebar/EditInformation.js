@@ -272,7 +272,7 @@ class LeftSidebar extends React.Component {
         <MessengerSection customer={customer} />
         <TwitterSection customer={customer} />
         <FacebookSection customer={customer} />
-        <TaggerSection customer={customer} />
+        <TaggerSection data={customer} type="customer" />
       </Sidebar>
     );
   }
