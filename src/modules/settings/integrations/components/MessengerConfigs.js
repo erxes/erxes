@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import { Col, Row } from 'react-bootstrap';
 import Select from 'react-select-plus';
 import Toggle from 'react-toggle';
-import { ActionBar, Header, PageContent } from 'modules/layout/components';
+import { ActionBar, Wrapper } from 'modules/layout/components';
 import { timezones } from '../constants';
 import OnlineHours from './OnlineHours';
 import {
@@ -249,12 +249,13 @@ class Configs extends Component {
       />
     );
 
-    return [
-      <Header key="breadcrumb" breadcrumb={breadcrumb} />,
-      <PageContent key="settings-content" footer={actionFooter}>
-        {content}
-      </PageContent>
-    ];
+    return (
+      <Wrapper
+        header={<Wrapper.Header breadcrumb={breadcrumb} />}
+        footer={actionFooter}
+        content={content}
+      />
+    );
   }
 }
 

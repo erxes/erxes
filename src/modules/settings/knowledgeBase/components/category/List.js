@@ -15,11 +15,11 @@ class CategoryList extends CommonList {
     return [
       {
         title: 'Settings',
-        link: '/settings/channels'
+        link: '/settings'
       },
       {
         title: 'Knowledge base',
-        link: '/settings/knowledgebase'
+        link: '/settings/knowledgebase/list'
       },
       {
         title: 'Categories'

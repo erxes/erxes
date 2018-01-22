@@ -37,7 +37,7 @@ class UserList extends List {
 
   breadcrumb() {
     return [
-      { title: 'Settings', link: '/settings/team' },
+      { title: 'Settings', link: '/settings' },
       { title: 'Team members' }
     ];
   }
