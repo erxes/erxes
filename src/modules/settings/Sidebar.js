@@ -45,27 +45,6 @@ function SettingsSidebar() {
       </Sidebar.Section>
 
       <Sidebar.Section>
-        <Title>Integrations</Title>
-        <QuickButtons>
-          <Link to="/settings/integrations">All</Link>
-        </QuickButtons>
-        <SidebarList>
-          <li>
-            <Link to="/settings/integrations?kind=messenger">Messenger</Link>
-          </li>
-          <li>
-            <Link to="/settings/integrations?kind=form">Form</Link>
-          </li>
-          <li>
-            <Link to="/settings/integrations?kind=twitter">Twitter</Link>
-          </li>
-          <li>
-            <Link to="/settings/integrations?kind=facebook">Facebook</Link>
-          </li>
-        </SidebarList>
-      </Sidebar.Section>
-
-      <Sidebar.Section>
         <Title>Knowledge base</Title>
         <QuickButtons>
           <Link to="/settings/knowledgebase/list">All</Link>
