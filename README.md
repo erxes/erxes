@@ -1,4 +1,4 @@
-# erxes [![Build Status](https://travis-ci.org/erxes/erxes.svg?branch=develop)](https://travis-ci.org/erxes/erxes) [![Codacy Badge](https://api.codacy.com/project/badge/Grade/ed8c207f4351446b8ace7a323630889f)](https://www.codacy.com/app/erxes/erxes?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=erxes/erxes&amp;utm_campaign=Badge_Grade) [![Dependencies checker](https://david-dm.org/erxes/erxes.svg)](https://david-dm.org/erxes/erxes.svg) [![Known Vulnerabilities](https://snyk.io/test/github/erxes/erxes/badge.svg)](https://snyk.io/test/github/erxes/erxes) [![MIT licensed](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/erxes/erxes/develop/LICENSE.md) [![Join the chat at https://gitter.im/erxes/erxes](https://badges.gitter.im/erxes/erxes.svg)](https://gitter.im/erxes/erxes?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+# erxes [![Build Status](https://travis-ci.org/erxes/erxes.svg?branch=develop)](https://travis-ci.org/erxes/erxes) [![Codacy Badge](https://api.codacy.com/project/badge/Grade/ed8c207f4351446b8ace7a323630889f)](https://www.codacy.com/app/erxes/erxes?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=erxes/erxes&amp;utm_campaign=Badge_Grade) [![Dependencies checker](https://david-dm.org/erxes/erxes.svg)](https://david-dm.org/erxes/erxes.svg) [![Known Vulnerabilities](https://snyk.io/test/github/erxes/erxes/badge.svg)](https://snyk.io/test/github/erxes/erxes) [![MIT licensed](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/erxes/erxes/develop/LICENSE.md) [![Join the chat at https://gitter.im/erxes/erxes](https://badges.gitter.im/erxes/erxes.svg)](https://gitter.im/erxes/erxes?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) [![Docker](https://img.shields.io/docker/pulls/erxes/erxes.svg)](https://hub.docker.com/u/erxes/)
 
 erxes is an AI meets open source messaging platform for sales and marketing teams.
 
@@ -11,6 +11,7 @@ The project is maintained by erxes Inc, along with an amazing group of independe
 - [Community](https://community.erxes.io/)
 - [Blog](https://blog.erxes.io/)
 - [Developer Blog](https://dev.erxes.io/)
+- [Demo](https://demoapp.erxes.io/)
 
 ## Installation script
 
@@ -51,6 +52,18 @@ yarn start
 App is running at [http://localhost:3000](http://localhost:3000). You can **login** using the credential in the `.env.development`.
 
 **We haven't done yet:** We need to run [API](https://github.com/erxes/erxes-api) and  [Widgets](https://github.com/erxes/erxes-widgets) to make our erxes app fully functional. Please jump to their repositories.
+
+## [Docker hub](https://www.docker.com/)
+
+Pull images from [dockerhub](https://hub.docker.com/u/erxes/) and running all servers on [docker compose](https://docs.docker.com/compose/overview/).
+```shell
+docker-compose -f scripts/docker-compose.yml up
+```
+
+Running servers from [mounted path](https://docs.docker.com/compose/compose-file/#volumes) where source code located.
+```shell
+docker-compose -f scripts/docker-compose-v.yml up
+```
 
 ## Copyright & License
 Copyright (c) 2017 erxes Inc - Released under the [MIT license.](https://github.com/erxes/erxes/blob/develop/LICENSE.md)

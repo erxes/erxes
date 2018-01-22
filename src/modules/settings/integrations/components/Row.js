@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
-import { Alert } from 'modules/common/utils';
+import { Alert, confirm } from 'modules/common/utils';
 import {
   ModalTrigger,
   Tip,
@@ -12,7 +12,6 @@ import {
 } from 'modules/common/components';
 import { KIND_CHOICES } from '../constants';
 import { Form, Messenger } from '../containers';
-import { confirm } from 'modules/common/utils';
 
 const propTypes = {
   integration: PropTypes.object.isRequired,
@@ -59,11 +58,11 @@ class Row extends Component {
         <ActionButtons>
           <Tip text="Appearance">
             <Link
-              to={`/settings/integrations/messenger/appearance/${integration._id}`}
+              to={`/settings/integrations/messenger/appearance/${
+                integration._id
+              }`}
             >
-              <Button btnStyle="link">
-                <Icon icon="paintbucket" />
-              </Button>
+              <Button btnStyle="link" icon="paintbucket" />
             </Link>
           </Tip>
 
@@ -71,9 +70,7 @@ class Row extends Component {
             <Link
               to={`/settings/integrations/messenger/configs/${integration._id}`}
             >
-              <Button btnStyle="link">
-                <Icon icon="gear-a" />
-              </Button>
+              <Button btnStyle="link" icon="gear-a" />
             </Link>
           </Tip>
 
@@ -131,9 +128,11 @@ class Row extends Component {
           <ActionButtons>
             {this.renderExtraLinks()}
             <Tip text="Delete">
-              <Button btnStyle="link" onClick={this.removeIntegration}>
-                <Icon icon="close" />
-              </Button>
+              <Button
+                btnStyle="link"
+                onClick={this.removeIntegration}
+                icon="close"
+              />
             </Tip>
           </ActionButtons>
         </td>

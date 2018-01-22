@@ -1,107 +1,127 @@
 import styled from 'styled-components';
 import { colors } from '../common/styles';
 
-const FormWrapper = styled.div`
-  margin: 0 auto;
-  max-height: 65vh;
+const columnSizing = '20px';
+const borderRadius = '2px';
+
+const Columns = styled.div`
+  display: flex;
+  flex-direction: row;
+  height: 100%;
 `;
 
-const InputsWrapper = styled.div`
-  float: left;
-  width: 60%;
-  min-height: 55vh;
-  max-height: 55vh;
-  overflow-y: auto;
-  padding-right: 10px;
-  border-right: 1px solid #ddd;
+const Column = styled.div`
+  flex: 4;
+  position: relative;
 
-  input {
-    position: fixed;
-    width: 55%;
+  > input {
+    margin-bottom: ${columnSizing};
   }
 
   ul {
-    margin-top: 10px;
-    padding-left: 10px !important;
+    height: 40vh;
+    overflow: auto;
+    padding: 0;
+    margin: 0;
     list-style-type: none;
 
     li {
-      padding: 5px;
+      padding: 6px 40px 6px ${columnSizing};
+      position: relative;
+      margin-bottom: 6px;
+      border: 1px solid #e6e6e6;
+      border-radius: ${borderRadius};
+      transition: all 0.3s ease;
 
-      i {
-        color: ${colors.colorCoreDarkGray};
-        right: 1px;
-        float: left;
-        margin-right: 20px;
-
-        &:hover {
-          cursor: pointer;
-        }
+      > i {
+        position: absolute;
+        right: -1px;
+        top: -1px;
+        bottom: -1px;
+        width: 0;
+        overflow: hidden;
+        align-items: center;
+        justify-content: center;
+        display: flex;
+        background: ${colors.colorCoreGreen};
+        border-radius: ${borderRadius};
+        color: ${colors.colorWhite};
+        transition: all 0.3s ease;
       }
-    }
-    }
-  }
-`;
-
-const ListWrapper = styled.div`
-  float: right;
-  padding-left: 10px;
-  width: 40%;
-  min-height: 55vh;
-  max-height: 55vh;
-  overflow-y: auto;
-
-  ul {
-    padding: 0 !important;
-    list-style-type: none;
-
-    li {
-      margin-top: 5px;
-      border: 1px solid ${colors.borderPrimary};
-      padding: 5px;
-      width: 100%;
-
-      i {
-        color: ${colors.colorCoreDarkGray};
-        right: 1px;
-        float: right;
-
-        &:hover {
-          cursor: pointer;
-        }
-      }
-    }
-  }
-`;
-
-const TitleSpan = styled.span`
-  margin-top: 10px;
-  font-weight: bold;
-`;
-
-const Footer = styled.div`
-  span {
-    margin-bottom: 10px;
-    display: block;
-    text-align: left;
-    a {
-      color: ${colors.colorPrimary};
 
       &:hover {
         cursor: pointer;
+        background: ${colors.bgActive};
+
+        > i {
+          width: 34px;
+        }
+      }
+
+      &:last-child {
+        margin: 0;
+      }
+    }
+  }
+
+  &:last-of-type {
+    flex: 3;
+    margin-left: ${columnSizing};
+    padding-left: ${columnSizing};
+    border-left: 1px solid ${colors.borderDarker};
+
+    li {
+      font-weight: bold;
+
+      > i {
+        background: ${colors.colorCoreRed};
       }
     }
   }
 `;
 
-const LoadMore = styled.li`
-  border: 1px solid ${colors.borderPrimary};
-  font-weight: bold;
-  text-align: center;
+const Title = styled.h4`
+  margin: 0 0 ${columnSizing} 0;
+  background: ${colors.bgActive};
+  padding: 10px ${columnSizing};
+  font-size: 13px;
+  text-transform: uppercase;
 
-  &:hover {
-    cursor: pointer;
+  span {
+    opacity: 0.7;
+    margin-left: 10px;
   }
 `;
 
-export { FormWrapper, InputsWrapper, ListWrapper, TitleSpan, Footer, LoadMore };
+const Footer = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  p {
+    margin: 0;
+    display: block;
+    text-align: left;
+
+    a {
+      cursor: pointer;
+    }
+  }
+`;
+
+const LoadMore = styled.div`
+  text-align: center;
+  margin-top: 10px;
+`;
+
+const DetailContent = styled.div`
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+`;
+
+const SubContent = styled.div`
+  flex: 1;
+`;
+
+export { Columns, Column, Title, Footer, LoadMore, DetailContent, SubContent };

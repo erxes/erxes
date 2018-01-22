@@ -26,6 +26,10 @@ const Overlay = styled.div`
     border: 1px solid #fff;
     margin-left: -15px;
     margin-top: -15px;
+
+    i {
+      margin: 0;
+    }
   }
 `;
 
@@ -35,6 +39,7 @@ const DownloadAttachment = styled.a`
   cursor: pointer;
   max-width: 360px;
   transition: all ease 0.3s;
+  color: inherit;
 
   img {
     max-width: 100%;
@@ -49,10 +54,9 @@ const FileWrapper = styled.div`
   position: relative;
   padding-left: 40px;
   padding-right: 20px;
-  color: #fff;
   min-width: 120px;
-  min-height: 40px;
-  line-height: 40px;
+  min-height: 36px;
+  line-height: 36px;
 
   i {
     font-size: 26px;
@@ -94,9 +98,7 @@ class Attachment extends Component {
   }
 
   renderAtachment({ attachment }) {
-    // when facebook attachments, it is not possible to determine file type
-    // from extension, so determine it by type property
-    if (attachment.type === 'image/jpeg' || attachment.type === 'image/png') {
+    if (attachment.type.startsWith('image')) {
       return (
         <img
           onLoad={this.onLoadImage}
@@ -107,6 +109,7 @@ class Attachment extends Component {
     }
 
     const url = attachment.url || attachment.name || '';
+    const name = attachment.name || attachment.url || '';
     const fileExtension = url.split('.').pop();
 
     let filePreview;
@@ -114,7 +117,7 @@ class Attachment extends Component {
       case 'png':
       case 'jpeg':
       case 'jpg':
-        filePreview = <img alt={url} src={attachment.url} />;
+        filePreview = <img alt={url} src={url} />;
         break;
       case 'doc':
       case 'docx':
@@ -124,21 +127,21 @@ class Attachment extends Component {
       case 'xlsx':
       case 'ppt':
       case 'pptx':
-        filePreview = this.renderOtherFile(attachment.name, 'document-text');
+        filePreview = this.renderOtherFile(name, 'document-text');
         break;
       case 'mp4':
       case 'avi':
-        filePreview = this.renderOtherFile(attachment.name, 'videocamera');
+        filePreview = this.renderOtherFile(name, 'videocamera');
         break;
       case 'mp3':
       case 'wav':
-        filePreview = this.renderOtherFile(attachment.name, 'volume-mediu');
+        filePreview = this.renderOtherFile(name, 'volume-mediu');
         break;
       case 'zip':
-        filePreview = this.renderOtherFile(attachment.name, 'android-archive');
+        filePreview = this.renderOtherFile(name, 'android-archive');
         break;
       default:
-        filePreview = this.renderOtherFile(attachment.name, 'document');
+        filePreview = this.renderOtherFile(name, 'document');
     }
     return filePreview;
   }

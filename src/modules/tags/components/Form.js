@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import { Modal } from 'react-bootstrap';
 import {
   Button,
-  Icon,
   FormGroup,
   ControlLabel,
   FormControl
@@ -93,13 +92,11 @@ class Form extends Component {
         </FormGroup>
 
         <Modal.Footer>
-          <Button btnStyle="simple" onClick={onClick}>
-            <Icon icon="close" />
+          <Button btnStyle="simple" onClick={onClick} icon="close">
             Cancel
           </Button>
 
-          <Button btnStyle="success" type="submit">
-            <Icon icon="checkmark" />
+          <Button btnStyle="success" type="submit" icon="checkmark">
             Save
           </Button>
         </Modal.Footer>

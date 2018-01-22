@@ -112,12 +112,18 @@ class BasicInfo extends React.Component {
           />
         </FormGroup>
         <ButtonWrapper>
-          <Button btnStyle="success" size="small" onClick={this.save}>
-            <Icon icon="checkmark" />
-          </Button>
-          <Button btnStyle="simple" size="small" onClick={this.cancelEditing}>
-            <Icon icon="close" />
-          </Button>
+          <Button
+            btnStyle="success"
+            size="small"
+            onClick={this.save}
+            icon="checkmark"
+          />
+          <Button
+            btnStyle="simple"
+            size="small"
+            onClick={this.cancelEditing}
+            icon="close"
+          />
         </ButtonWrapper>
       </SidebarContent>
     );
@@ -141,7 +147,9 @@ class BasicInfo extends React.Component {
             <NameCard.Avatar customer={customer} size={50} />
             {isUser ? <Icon icon="checkmark" /> : <Icon icon="minus" />}
           </AvatarWrapper>
-          <div className="cutomer-name">{this.renderName(customer)}</div>
+          <div className="cutomer-name">
+            {customer.name || this.renderName(customer)}
+          </div>
           <QuickButton>
             <Icon icon="edit" onClick={this.toggleEditing} />
           </QuickButton>

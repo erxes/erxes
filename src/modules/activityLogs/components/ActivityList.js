@@ -37,10 +37,14 @@ class ActivityList extends React.Component {
   }
 
   renderList(activity) {
+    const activities = activity.data;
+
     return (
-      <div key={Math.random()}>
-        <ActivityTitle>{activity.title}</ActivityTitle>
-        {activity.data.map(rowData => this.activityRow(rowData))}
+      <div key={activity.title}>
+        {activities.length ? (
+          <ActivityTitle>{activity.title}</ActivityTitle>
+        ) : null}
+        {activities.map(rowData => this.activityRow(rowData))}
       </div>
     );
   }

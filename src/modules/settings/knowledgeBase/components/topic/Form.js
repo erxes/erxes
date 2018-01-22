@@ -8,8 +8,7 @@ import {
   ControlLabel,
   FormControl,
   Button,
-  EmptyState,
-  Icon
+  EmptyState
 } from 'modules/common/components';
 import { Form as CommonForm } from '../../../common/components';
 import SelectBrand from '../SelectBrand';
@@ -68,7 +67,9 @@ class TopicForm extends CommonForm {
     return `
       (function() {
         var script = document.createElement('script');
-        script.src = "${process.env.CDN_HOST}/knowledgeBaseWidget.bundle.js";
+        script.src = "${
+          process.env.REACT_APP_CDN_HOST
+        }/knowledgeBaseWidget.bundle.js";
         script.async = true;
 
         var entry = document.getElementsByTagName('script')[0];
@@ -102,8 +103,7 @@ class TopicForm extends CommonForm {
                 text={this.state.code}
                 onCopy={() => this.setState({ copied: true })}
               >
-                <Button size="small" btnStyle="primary">
-                  <Icon icon="ios-copy-outline" />
+                <Button size="small" btnStyle="primary" icon="ios-copy-outline">
                   {this.state.copied ? 'Copied' : 'Copy to clipboard'}
                 </Button>
               </CopyToClipboard>

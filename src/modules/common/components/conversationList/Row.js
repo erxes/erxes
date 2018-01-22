@@ -105,7 +105,8 @@ class Row extends Component {
               <FlexContent>
                 <CustomerName>
                   {isExistingCustomer &&
-                    (this.renderFullName(customer) ||
+                    (customer.name ||
+                      this.renderFullName(customer) ||
                       customer.email ||
                       customer.phone ||
                       'Unnamed')}
@@ -127,7 +128,7 @@ class Row extends Component {
             <AssigneeWrapper>
               <AssigneeImg
                 src={
-                  assignedUser.details.avatar || '/images/avatar-colored.png'
+                  assignedUser.details.avatar || '/images/avatar-colored.svg'
                 }
               />
             </AssigneeWrapper>

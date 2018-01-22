@@ -10,7 +10,7 @@ import {
   Table,
   Button,
   Icon,
-  ShowData
+  DataWithLoader
 } from 'modules/common/components';
 import { MessageListRow, Sidebar as SidebarContainers } from '../containers';
 
@@ -71,8 +71,8 @@ class List extends React.Component {
     const actionBarRight = (
       <Dropdown id="dropdown-engage" pullRight>
         <DropdownToggle bsRole="toggle">
-          <Button btnStyle="success" size="small">
-            <Icon icon="plus" /> New message <Icon icon="chevron-down" />
+          <Button btnStyle="success" size="small" icon="plus">
+            New message <Icon icon="chevron-down" />
           </Button>
         </DropdownToggle>
         <Dropdown.Menu>
@@ -146,12 +146,12 @@ class List extends React.Component {
         actionBar={actionBar}
         footer={<Pagination count={totalCount} />}
         content={
-          <ShowData
+          <DataWithLoader
             data={mainContent}
             loading={loading}
             count={messages.length}
             emptyText="There is no engage message."
-            emptyIcon="email"
+            emptyImage="/images/robots/robot-03.svg"
           />
         }
       />

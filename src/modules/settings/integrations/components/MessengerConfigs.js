@@ -4,12 +4,11 @@ import PropTypes from 'prop-types';
 import { Col, Row } from 'react-bootstrap';
 import Select from 'react-select-plus';
 import Toggle from 'react-toggle';
-import { ActionBar, Header, PageContent } from 'modules/layout/components';
+import { ActionBar, Wrapper } from 'modules/layout/components';
 import { timezones } from '../constants';
 import OnlineHours from './OnlineHours';
 import {
   Button,
-  Icon,
   FormGroup,
   FormControl,
   ControlLabel
@@ -232,25 +231,31 @@ class Configs extends Component {
         right={
           <Button.Group>
             <Link to="/settings/integrations">
-              <Button size="small" btnStyle="simple">
-                <Icon icon="close" /> Cancel
+              <Button size="small" btnStyle="simple" icon="close">
+                Cancel
               </Button>
             </Link>
 
-            <Button size="small" btnStyle="success" onClick={this.save}>
-              <Icon icon="checkmark" /> Save
+            <Button
+              size="small"
+              btnStyle="success"
+              onClick={this.save}
+              icon="checkmark"
+            >
+              Save
             </Button>
           </Button.Group>
         }
       />
     );
 
-    return [
-      <Header key="breadcrumb" breadcrumb={breadcrumb} />,
-      <PageContent key="settings-content" footer={actionFooter}>
-        {content}
-      </PageContent>
-    ];
+    return (
+      <Wrapper
+        header={<Wrapper.Header breadcrumb={breadcrumb} />}
+        footer={actionFooter}
+        content={content}
+      />
+    );
   }
 }
 

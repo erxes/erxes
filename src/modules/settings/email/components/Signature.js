@@ -1,14 +1,14 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { ActionBar, Header, PageContent } from 'modules/layout/components';
+import { ActionBar, Wrapper } from 'modules/layout/components';
 import {
   ControlLabel,
   Button,
   FormGroup,
-  FormControl,
-  Icon
+  FormControl
 } from 'modules/common/components';
 import { ContentBox, SubHeading, Well } from '../../styles';
+import Sidebar from 'modules/settings/Sidebar';
 
 const propTypes = {
   signatures: PropTypes.array.isRequired,
@@ -101,26 +101,32 @@ class Signature extends Component {
     );
 
     const breadcrumb = [
-      { title: 'Settings', link: '/settings/channels' },
+      { title: 'Settings', link: '/settings' },
       { title: 'Signature template' }
     ];
 
     const actionFooter = (
       <ActionBar
         right={
-          <Button btnStyle="success" onClick={this.handleSubmit}>
-            <Icon icon="checkmark" /> Save
+          <Button
+            btnStyle="success"
+            onClick={this.handleSubmit}
+            icon="checkmark"
+          >
+            Save
           </Button>
         }
       />
     );
 
-    return [
-      <Header key="breadcrumb" breadcrumb={breadcrumb} />,
-      <PageContent key="settings-content" footer={actionFooter}>
-        {content}
-      </PageContent>
-    ];
+    return (
+      <Wrapper
+        header={<Wrapper.Header breadcrumb={breadcrumb} />}
+        leftSidebar={<Sidebar />}
+        footer={actionFooter}
+        content={content}
+      />
+    );
   }
 }
 

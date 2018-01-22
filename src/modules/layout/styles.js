@@ -1,17 +1,16 @@
 import styled from 'styled-components';
 import { colors, dimensions } from '../common/styles';
-import { rgba } from '../common/styles/color';
 
 const UserHelper = styled.div`
   padding: 0 ${dimensions.coreSpacing}px;
   height: 50px;
   display: flex;
   align-items: center;
-  background: ${rgba(colors.colorWhite, 0.1)};
+  background: ${colors.bgLight};
 
   &:hover {
     cursor: pointer;
-    background: ${rgba(colors.colorWhite, 0.15)};
+    background: ${colors.bgUnread};
   }
 `;
 
@@ -90,6 +89,7 @@ const HeaderItems = styled.div`
 const SideContent = styled.section`
   box-sizing: border-box;
   display: flex;
+  position: relative;
   flex-direction: column;
   flex-shrink: 0;
   width: ${props => (props.wide ? '360px' : '300px')};
@@ -103,6 +103,7 @@ const SideContent = styled.section`
 const SidebarHeader = styled.div`
   background-color: ${colors.bgLight};
   height: ${dimensions.headerSpacing}px;
+  margin-bottom: ${props => props.spaceBottom && '10px'};
   align-items: center;
   padding: 0 ${dimensions.coreSpacing}px 0 ${dimensions.coreSpacing}px;
   border-bottom: 1px solid ${colors.borderPrimary};
@@ -129,12 +130,18 @@ const SidebarBox = styled.div`
     props.noShadow ? 'none' : `0 0 4px ${colors.shadowPrimary}`};
   padding-bottom: 10px;
   position: relative;
+  justify-content: center;
   transition: max-height 0.4s;
   overflow: ${props => (props.collapsible ? 'hidden' : 'auto')};
+  display: ${props => props.full && 'flex'};
 
   &:last-child {
     margin-bottom: 0;
   }
+`;
+
+const BoxContent = styled.div`
+  flex: 1;
 `;
 
 const SidebarToggle = styled.a`
@@ -181,7 +188,6 @@ const HelperButtons = styled.div`
   a {
     color: ${colors.colorCoreLightGray};
     cursor: pointer;
-    margin-left: ${dimensions.unitSpacing}px;
     font-size: 12px;
 
     > i {
@@ -286,13 +292,16 @@ const FlexRightItem = styled.div`
   margin-left: auto;
 `;
 
-const WhiteBox = styled.div`
-  flex: 1;
-  overflow: auto;
-  position: relative;
+const WhiteBoxRoot = styled.div`
   margin-bottom: ${dimensions.coreSpacing}px;
   background-color: ${colors.colorWhite};
   box-shadow: 0 0 4px ${colors.shadowPrimary};
+`;
+
+const WhiteBox = WhiteBoxRoot.extend`
+  flex: 1;
+  overflow: auto;
+  position: relative;
 `;
 
 const Authlayout = styled.div`
@@ -360,6 +369,7 @@ export {
   SidebarMainContent,
   SidebarFooter,
   SidebarBox,
+  BoxContent,
   SidebarToggle,
   SidebarCounter,
   HelperButtons,
@@ -371,6 +381,7 @@ export {
   FlexContent,
   FlexItem,
   FlexRightItem,
+  WhiteBoxRoot,
   WhiteBox,
   Authlayout,
   AuthContent,

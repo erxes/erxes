@@ -6,8 +6,7 @@ import {
   ModalTrigger,
   Button,
   Table,
-  Icon,
-  ShowData
+  DataWithLoader
 } from 'modules/common/components';
 import { withRouter } from 'react-router';
 import { BarItems } from 'modules/layout/styles';
@@ -58,8 +57,8 @@ function CompaniesList({
   );
 
   const addTrigger = (
-    <Button btnStyle="success" size="small">
-      <Icon icon="plus" /> Add company
+    <Button btnStyle="success" size="small" icon="plus">
+      Add company
     </Button>
   );
 
@@ -90,12 +89,12 @@ function CompaniesList({
       footer={<Pagination count={counts.all} />}
       leftSidebar={<Sidebar counts={counts} />}
       content={
-        <ShowData
+        <DataWithLoader
           data={mainContent}
           loading={loading}
           count={companies.length}
           emptyText="No companies added yet!"
-          emptyIcon="ios-list"
+          emptyImage="/images/robots/robot-04.svg"
         />
       }
     />

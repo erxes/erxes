@@ -180,7 +180,7 @@ const BackgroundSelector = styled.div`
     width: 80px;
     height: 40px;
     margin: 5px;
-    border: 1px solid #ddd;
+    border: 1px solid ${colors.borderDarker};
     background-repeat: repeat;
     background-position: 0 0;
     background-size: 220%;
@@ -207,7 +207,7 @@ const BackgroundSelector = styled.div`
   }
 
   &.selected {
-    border-color: #ddd;
+    border-color: ${colors.borderDarker};
   }
 
   &:last-child {

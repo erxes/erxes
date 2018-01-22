@@ -34,9 +34,7 @@ class Row extends React.Component {
   renderLink(text, className, onClick) {
     return (
       <Tip text={text} key={`${text}-${this.props.message._id}`}>
-        <Button btnStyle="link" onClick={onClick}>
-          <Icon icon={className} />
-        </Button>
+        <Button btnStyle="link" onClick={onClick} icon={className} />
       </Tip>
     );
   }
@@ -172,9 +170,7 @@ class Row extends React.Component {
             {this.renderLinks()}
 
             <Tip text="Delete">
-              <Button btnStyle="link" onClick={remove}>
-                <Icon icon="close" />
-              </Button>
+              <Button btnStyle="link" onClick={remove} icon="close" />
             </Tip>
           </ActionButtons>
         </td>
