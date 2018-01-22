@@ -45,6 +45,7 @@ const StepHeader = styled.div`
   border-bottom: 1px solid ${colors.borderPrimary};
   position: relative;
 `;
+
 const NextButton = styled.div`
   position: absolute;
   right: 10px;
@@ -68,6 +69,7 @@ const StepContent = styled.div`
   width: 100%;
   height: calc(100% - 55px);
   padding: 10px;
+  overflow: auto;
 `;
 
 export {

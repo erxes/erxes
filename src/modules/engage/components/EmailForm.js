@@ -13,7 +13,6 @@ import {
   EMAIL_CONTENT_CLASS
 } from 'modules/engage/constants';
 import Editor from './Editor';
-import { Content, FlexItem, ContentCenter, Divider } from './step2/Style';
 
 const propTypes = {
   message: PropTypes.object.isRequired,
@@ -126,17 +125,13 @@ class EmailForm extends Component {
   render() {
     return (
       <FormWrapper>
-        <Content>
-          <FlexItem>{this.renderHeader()}</FlexItem>
-          <Divider />
-          <ContentCenter>
-            <EditorWrapper>
-              <div
-                dangerouslySetInnerHTML={{ __html: this.state.currentTemplate }}
-              />
-            </EditorWrapper>
-          </ContentCenter>
-        </Content>
+        <div>{this.renderHeader()}</div>
+
+        <EditorWrapper>
+          <div
+            dangerouslySetInnerHTML={{ __html: this.state.currentTemplate }}
+          />
+        </EditorWrapper>
       </FormWrapper>
     );
   }

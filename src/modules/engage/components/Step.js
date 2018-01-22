@@ -8,18 +8,39 @@ import {
   StepHeader,
   NextButton,
   StepContent
-} from './step1/Style.js';
+} from './step/Style.js';
 import { Icon } from 'modules/common/components';
-import Step1 from './step1/Step1';
-import Step2 from './step1/Step2';
-import Step3 from './step1/Step3';
+import Step1 from './step/Step1';
+import Step2 from './step/Step2';
+import Step3 from './step/Step3';
+import styled from 'styled-components';
+import { colors } from 'modules/common/styles';
 
 const propTypes = {
   segments: PropTypes.array.isRequired,
   templates: PropTypes.array,
   brands: PropTypes.array,
-  counts: PropTypes.object
+  counts: PropTypes.object,
+  users: PropTypes.array
 };
+
+const ButtonContainer = styled.div`
+  position: absolute;
+  right: 10px;
+  display: flex;
+
+  > *:nth-child(n + 2) {
+    margin-left: 20px;
+  }
+`;
+
+const ActionButton = styled.div`
+  padding: 5px 10px;
+  cursor: pointer;
+  border-radius: 2px;
+  background: ${colors.colorPrimary};
+  color: ${colors.colorWhite};
+`;
 
 class Step extends Component {
   constructor(props) {
@@ -27,10 +48,70 @@ class Step extends Component {
     this.state = {
       step: 1,
       method: 'email',
-      segment: ''
+      title: '',
+      segment: '',
+      message: '',
+      fromUser: '',
+      messenger: {
+        brandId: '',
+        kind: '',
+        sentAs: ''
+      },
+      email: {
+        templateId: '',
+        subject: ''
+      }
     };
     this.changeMethod = this.changeMethod.bind(this);
     this.changeSegment = this.changeSegment.bind(this);
+    this.changeMessenger = this.changeMessenger.bind(this);
+    this.changeEmail = this.changeEmail.bind(this);
+    this.changeMessage = this.changeMessage.bind(this);
+    this.changeUser = this.changeUser.bind(this);
+  }
+
+  generateDoc(e) {
+    e.preventDefault();
+
+    const doc = {
+      segmentId: this.state.segment,
+      title: this.state.title,
+      fromUserId: this.state.fromUser,
+      method: this.state.method
+    };
+
+    if (this.state.method === 'email') {
+      doc.email = {
+        templateId: document.getElementById('emailTemplateId').value,
+        subject: document.getElementById('emailSubject').value,
+        content: this.state.emailContent
+      };
+    } else if (this.state.method === 'messenger') {
+      doc.messenger = {
+        brandId: document.getElementById('brandId').value,
+        kind: document.getElementById('messengerKind').value,
+        sentAs: document.getElementById('messengerSentAs').value,
+        content: this.state.messengerContent
+      };
+    }
+
+    return doc;
+  }
+
+  changeUser(fromUser) {
+    this.setState({ fromUser });
+  }
+
+  changeMessenger(messenger) {
+    this.setState({ messenger });
+  }
+
+  changeEmail(email) {
+    this.setState({ email });
+  }
+
+  changeMessage(message) {
+    this.setState({ message });
   }
 
   changeMethod(method) {
@@ -45,8 +126,27 @@ class Step extends Component {
     this.setState({ step });
   }
 
+  saveLive() {
+    const doc = this.generateDoc(e);
+    this.props.save({ isLive: true, isDraft: false, ...doc });
+  }
+
+  saveDraft() {
+    const doc = this.generateDoc(e);
+    this.props.save({ isLive: false, isDraft: true, ...doc });
+  }
+
   renderStep(step, hasNext, content) {
     let next = '';
+
+    next = (
+      <ButtonContainer>
+        <ActionButton onClick={() => this.saveLive()}>Save & Live</ActionButton>
+        <ActionButton onClick={() => this.saveDraft()}>
+          Save & Draft
+        </ActionButton>
+      </ButtonContainer>
+    );
 
     if (hasNext) {
       next = (
@@ -93,7 +193,21 @@ class Step extends Component {
             counts={this.props.counts}
           />
         )}
-        {this.renderStep(3, false, <Step3 brands={this.props.brands} />)}
+        {this.renderStep(
+          3,
+          false,
+          <Step3
+            brands={this.props.brands}
+            changeMessenger={this.changeMessenger}
+            changeEmail={this.changeEmail}
+            changeMessage={this.changeMessage}
+            message={this.state.message}
+            changeUser={this.changeUser}
+            users={this.props.users}
+            method={this.state.method}
+            templates={this.props.templates}
+          />
+        )}
       </StepWrapper>
     );
   }

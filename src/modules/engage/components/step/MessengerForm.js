@@ -15,7 +15,7 @@ import { MessengerPreview } from '../../containers';
 
 const Content = styled.div`
   display: flex;
-  height: 100%;
+  min-height: 100%;
 `;
 
 const Flex100 = styled.div`
@@ -25,43 +25,73 @@ const Flex100 = styled.div`
 const Divider = styled.div`
   width: 1px;
   background: ${colors.borderPrimary};
-  height: 100%;
+  min-height: 100%;
   margin: 0 10px;
 `;
 
 const ContentCenter = styled.div`
   flex: 1 100%;
-  display: flex;
-  height: 100%;
-  align-items: center;
-  justify-content: center;
-  flex-direction: column;
 `;
 
 const propTypes = {
-  brands: PropTypes.array
+  brands: PropTypes.array,
+  changeMessenger: PropTypes.func,
+  changeMessage: PropTypes.func,
+  message: PropTypes.string,
+  changeUser: PropTypes.func,
+  users: PropTypes.array
 };
 
-class Step3 extends Component {
+class MessengerForm extends Component {
   constructor(props) {
     super(props);
 
     this.state = {
-      sentAs: '',
-      content: '',
-      fromUser: ''
+      fromUser: '',
+      messenger: {
+        brandId: '',
+        kind: '',
+        sentAs: ''
+      }
     };
   }
-  onContentChange() {
-    console.log('sjdfsdaf');
+
+  changeContent(key, value) {
+    let messenger = { ...this.state.messenger };
+    messenger[key] = value;
+    this.setState({ messenger });
+    this.props.changeMessenger(this.state.messenger);
   }
+
+  changeUser(fromUser) {
+    this.setState({ fromUser });
+    this.props.changeUser(fromUser);
+  }
+
   render() {
     return (
       <Content>
         <Flex100>
           <FormGroup>
+            <ControlLabel>From:</ControlLabel>
+            <FormControl
+              componentClass="select"
+              onChange={e => this.changeUser(e.target.value)}
+            >
+              <option />
+              {this.props.users.map(u => (
+                <option key={u._id} value={u._id}>
+                  {u.fullName || u.username}
+                </option>
+              ))}
+            </FormControl>
+          </FormGroup>
+          <FormGroup>
             <ControlLabel>Brand:</ControlLabel>
-            <FormControl id="brandId" componentClass="select">
+            <FormControl
+              componentClass="select"
+              onChange={e => this.changeContent('brandId', e.target.value)}
+            >
               <option />
               {this.props.brands.map(b => (
                 <option key={b._id} value={b._id}>
@@ -72,7 +102,10 @@ class Step3 extends Component {
           </FormGroup>
           <FormGroup>
             <ControlLabel>Message type:</ControlLabel>
-            <FormControl id="messengerKind" componentClass="select">
+            <FormControl
+              componentClass="select"
+              onChange={e => this.changeContent('kind', e.target.value)}
+            >
               <option />
               {MESSENGER_KINDS.SELECT_OPTIONS.map(k => (
                 <option key={k.value} value={k.value}>
@@ -84,9 +117,8 @@ class Step3 extends Component {
           <FormGroup>
             <ControlLabel>Sent as:</ControlLabel>
             <FormControl
-              id="messengerSentAs"
               componentClass="select"
-              onChange={this.onChangeSentAs}
+              onChange={e => this.changeContent('sentAs', e.target.value)}
             >
               <option />
               {SENT_AS_CHOICES.SELECT_OPTIONS.map(s => (
@@ -99,16 +131,16 @@ class Step3 extends Component {
           <FormGroup>
             <ControlLabel>Message:</ControlLabel>
             <EditorWrapper>
-              <Editor onChange={this.onContentChange} />
+              <Editor onChange={this.props.changeMessage} />
             </EditorWrapper>
           </FormGroup>
         </Flex100>
         <Divider />
         <ContentCenter>
           <MessengerPreview
-            sentAs={this.state.sentAs}
-            content={this.state.messengerContent}
-            fromUser={this.props.fromUser}
+            sentAs={this.state.messenger.sentAs}
+            content={this.props.message}
+            fromUser={this.state.fromUser}
           />
         </ContentCenter>
       </Content>
@@ -116,6 +148,6 @@ class Step3 extends Component {
   }
 }
 
-Step3.propTypes = propTypes;
+MessengerForm.propTypes = propTypes;
 
-export default Step3;
+export default MessengerForm;
