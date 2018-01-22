@@ -81,14 +81,8 @@ const BarItems = styled.div`
   }
 
   input[type='text'] {
-    width: 200px;
+    width: auto;
     display: inline-block;
-    padding: 5px 16px;
-    border-radius: 30px;
-    font-size: 10px;
-    line-height: 1.5;
-    border: 1px solid #ddd;
-    height: unset;
   }
 `;
 
