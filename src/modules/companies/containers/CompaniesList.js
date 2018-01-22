@@ -60,10 +60,10 @@ class CompanyListContainer extends Bulk {
         });
     };
 
-    const mergeCompanies = ({ Ids, data, callback }) => {
+    const mergeCompanies = ({ ids, data, callback }) => {
       companiesMerge({
         variables: {
-          companyIds: Ids,
+          companyIds: ids,
           companyFields: data
         }
       })

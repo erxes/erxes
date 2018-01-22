@@ -33,10 +33,14 @@ class CommonMerge extends React.Component {
     const { datas, basicInfos } = nextProps;
     const init = datas[0];
 
-    for (let key in basicInfos) {
-      if (init.hasOwnProperty(key)) {
+    for (let info in basicInfos) {
+      if (init.hasOwnProperty(info)) {
         this.setState({
-          [key]: { ...this.state[key], New: false, value: init[key] || '' }
+          [info]: {
+            ...this.state[info],
+            New: false,
+            value: init[info] || 'N/A'
+          }
         });
       }
     }
@@ -47,32 +51,32 @@ class CommonMerge extends React.Component {
     const options = [];
 
     datas.forEach(data => {
-      options.push(<option key={data._id}>{data[fieldName] || ''}</option>);
+      options.push(<option key={data._id}>{data[fieldName] || 'N/A'}</option>);
     });
     options.push(
-      <option key="123" name="New">
+      <option key={options.length + 1} name="New">
         New
       </option>
     );
     return options;
   }
 
-  renderInputOrSelect(field, key) {
+  renderInputOrSelect(field, info) {
     let input = (
       <FormControl
         componentClass="select"
-        name={key}
+        name={info}
         onChange={e => this.onChange(e)}
       >
-        {this.renderOptions(key)}
+        {this.renderOptions(info)}
       </FormControl>
     );
 
-    if (this.state[key].New) {
+    if (this.state[info].New) {
       input = (
         <FormControl
-          key={key}
-          name={key}
+          key={info}
+          name={info}
           autoFocus
           onChange={e => this.onChange(e)}
         />
@@ -80,8 +84,8 @@ class CommonMerge extends React.Component {
     }
 
     return (
-      <FormGroup key={key}>
-        <ControlLabel>{field[key].text}</ControlLabel>
+      <FormGroup key={info}>
+        <ControlLabel>{field[info].text}</ControlLabel>
         {input}
       </FormGroup>
     );
@@ -90,9 +94,9 @@ class CommonMerge extends React.Component {
   renderField(field) {
     const wrapper = [];
 
-    for (let key in field) {
-      if (field.hasOwnProperty(key)) {
-        wrapper.push(this.renderInputOrSelect(field, key));
+    for (let info in field) {
+      if (field.hasOwnProperty(info)) {
+        wrapper.push(this.renderInputOrSelect(field, info));
       }
     }
 
@@ -120,21 +124,21 @@ class CommonMerge extends React.Component {
   save() {
     const { datas } = this.props;
     const data = {};
-    const Ids = [];
+    const ids = [];
 
-    for (let key in this.state) {
-      if (this.state.hasOwnProperty(key)) {
-        if (this.state[key].value !== '') {
-          data[key] = this.state[key].value;
+    for (let info in this.state) {
+      if (this.state.hasOwnProperty(info)) {
+        if (this.state[info].value !== 'N/A') {
+          data[info] = this.state[info].value;
         }
       }
     }
     datas.forEach(data => {
-      Ids.push(data._id);
+      ids.push(data._id);
     });
 
     this.props.save({
-      Ids,
+      ids,
       data,
       callback: () => {
         this.context.closeModal();
@@ -154,10 +158,10 @@ class CommonMerge extends React.Component {
             icon="close"
             onClick={() => this.context.closeModal()}
           >
-            CANCEL
+            Cancel
           </Button>
           <Button btnStyle="success" icon="checkmark" onClick={this.save}>
-            SAVE
+            Save
           </Button>
         </Modal.Footer>
       </div>
