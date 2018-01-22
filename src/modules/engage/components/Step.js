@@ -82,16 +82,16 @@ class Step extends Component {
 
     if (this.state.method === 'email') {
       doc.email = {
-        templateId: document.getElementById('emailTemplateId').value,
-        subject: document.getElementById('emailSubject').value,
-        content: this.state.emailContent
+        templateId: this.state.email.templateId,
+        subject: this.state.email.subject,
+        content: this.state.message
       };
     } else if (this.state.method === 'messenger') {
       doc.messenger = {
-        brandId: document.getElementById('brandId').value,
-        kind: document.getElementById('messengerKind').value,
-        sentAs: document.getElementById('messengerSentAs').value,
-        content: this.state.messengerContent
+        brandId: this.state.messenger.brandId,
+        kind: this.state.messenger.kind,
+        sentAs: this.state.messenger.sentAs,
+        content: this.state.message
       };
     }
 
@@ -126,12 +126,12 @@ class Step extends Component {
     this.setState({ step });
   }
 
-  saveLive() {
+  saveLive(e) {
     const doc = this.generateDoc(e);
     this.props.save({ isLive: true, isDraft: false, ...doc });
   }
 
-  saveDraft() {
+  saveDraft(e) {
     const doc = this.generateDoc(e);
     this.props.save({ isLive: false, isDraft: true, ...doc });
   }
@@ -141,8 +141,8 @@ class Step extends Component {
 
     next = (
       <ButtonContainer>
-        <ActionButton onClick={() => this.saveLive()}>Save & Live</ActionButton>
-        <ActionButton onClick={() => this.saveDraft()}>
+        <ActionButton onClick={e => this.saveLive(e)}>Save & Live</ActionButton>
+        <ActionButton onClick={e => this.saveDraft(e)}>
           Save & Draft
         </ActionButton>
       </ButtonContainer>
