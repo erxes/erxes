@@ -30,6 +30,13 @@ const brandQueries = {
   brandsTotalCount() {
     return Brands.find({}).count();
   },
+
+  /**
+  * Get last brand
+  */
+  brandsGetLast() {
+    return Brands.findOne({}).sort({ createdAt: -1 });
+  },
 };
 
 moduleRequireLogin(brandQueries);

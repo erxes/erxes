@@ -8,9 +8,10 @@ import { paginate } from './utils';
  * Common helper for integrations & integrationsTotalCount
  * @param {String} kind - Messenger, Facebook etc ...
  * @param {String} channelId - Channel id
+ * @param {String} brandId - Brand id
  * @return generated query
  */
-const generateFilterQuery = async ({ kind, channelId, searchValue }) => {
+const generateFilterQuery = async ({ kind, channelId, brandId, searchValue }) => {
   const query = {};
 
   if (kind) {
@@ -21,6 +22,11 @@ const generateFilterQuery = async ({ kind, channelId, searchValue }) => {
   if (channelId) {
     const channel = await Channels.findOne({ _id: channelId });
     query._id = { $in: channel.integrationIds };
+  }
+
+  // filter integrations by brand
+  if (brandId) {
+    query.brandId = brandId;
   }
 
   if (searchValue) {

@@ -14,6 +14,7 @@ export const queries = `
   brands(page: Int, perPage: Int): [Brand]
   brandDetail(_id: String!): Brand
   brandsTotalCount: Int
+  brandsGetLast: Brand
 `;
 
 export const mutations = `
