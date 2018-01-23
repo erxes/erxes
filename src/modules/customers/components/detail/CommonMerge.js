@@ -33,43 +33,45 @@ class CommonMerge extends Component {
     this.save = this.save.bind(this);
   }
 
-  renderInfos() {
+  renderDataFields() {
     const { data } = this.state;
-    const asd = [];
+    const fields = [];
 
     for (let infos in data) {
       if (data.hasOwnProperty(infos)) {
-        asd.push(this.renderInfo(infos, data, 'close'));
+        fields.push(this.renderInfo({ [infos]: data[infos] }, 'close'));
       }
     }
-    return asd;
+    return fields;
   }
 
   renderDatas(data) {
     const { basicInfos } = this.props;
-    const asd = [];
+    const fields = [];
 
     for (let infos in data) {
       if (data.hasOwnProperty(infos)) {
         if (basicInfos[infos] && data[infos]) {
-          asd.push(this.renderInfo(infos, data, 'plus'));
+          fields.push(this.renderInfo({ [infos]: data[infos] }, 'plus'));
         }
       }
     }
-    return asd;
+    return fields;
   }
 
-  renderInfo(infos, data, icon) {
+  renderInfo(info, icon) {
     const { basicInfos } = this.props;
+    const key = Object.keys(info);
+    const value = Object.values(info);
 
     return (
       <li
-        key={(data._id, infos)}
-        onClick={() => this.handleChange(icon, infos, data[infos])}
+        key={(key, value)}
+        onClick={() => this.handleChange(icon, { [key]: [value] })}
       >
-        {this.renderingOptions[infos]
-          ? this.renderingOptions[infos](data[infos])
-          : basicInfos[infos].text + ': ' + data[infos] || 'N/A'}
+        {this.renderingOptions[key]
+          ? this.renderingOptions[key](value)
+          : basicInfos[key].text + ': ' + value || 'N/A'}
         <Icon icon={icon} />
       </li>
     );
@@ -93,8 +95,10 @@ class CommonMerge extends Component {
     });
   }
 
-  handleChange(type, key, value) {
+  handleChange(type, obj) {
     const data = { ...this.state.data };
+    const value = Object.values(obj);
+    const key = Object.keys(obj);
 
     if (type === 'plus') {
       data[key] = value;
@@ -170,8 +174,8 @@ class CommonMerge extends Component {
             );
           })}
           <Column>
-            <Title>Customer infos</Title>
-            <ul>{this.renderInfos()}</ul>
+            <Title>Infos</Title>
+            <ul>{this.renderDataFields()}</ul>
           </Column>
         </Columns>
         <Modal.Footer>
