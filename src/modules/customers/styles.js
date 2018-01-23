@@ -25,6 +25,17 @@ const Column = styled.div`
     margin: 0;
     list-style-type: none;
 
+    ul {
+      height: auto;
+
+      li {
+        padding: 0;
+        border: none;
+        justify-content: space-between;
+        display: flex;
+      }
+    }
+
     li {
       padding: 6px 40px 6px ${columnSizing};
       position: relative;
@@ -47,6 +58,7 @@ const Column = styled.div`
         border-radius: ${borderRadius};
         color: ${colors.colorWhite};
         transition: all 0.3s ease;
+        max-height: 34px;
       }
 
       &:hover {

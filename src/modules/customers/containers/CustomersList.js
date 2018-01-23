@@ -111,7 +111,10 @@ class CustomerListContainer extends Bulk {
         firstName: { text: 'First Name' },
         lastName: { text: 'Last Name' },
         email: { text: 'E-mail' },
-        phone: { text: 'Phone' }
+        phone: { text: 'Phone' },
+        messengerData: { text: 'Messenger Data' },
+        twitterData: { text: 'Twitter Data' },
+        facebookData: { text: 'Facebook Data' }
       }
     };
 
