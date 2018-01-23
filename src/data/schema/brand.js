@@ -7,6 +7,8 @@ export const types = `
     userId: String
     createdAt: Date
     emailConfig: JSON
+
+    integrations: [Integration]
   }
 `;
 
