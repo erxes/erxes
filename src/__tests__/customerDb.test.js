@@ -193,6 +193,15 @@ describe('Customers model tests', () => {
       lastName: 'Test last name',
       email: 'Test email',
       phone: 'Test phone',
+      facebookData: {
+        id: '1231312',
+      },
+      twitterData: {
+        name: '1234',
+      },
+      messengerData: {
+        sessionCount: 6,
+      },
     };
 
     const updatedCustomer = await Customers.mergeCustomers(customerIds, doc);
@@ -201,6 +210,7 @@ describe('Customers model tests', () => {
     expect(updatedCustomer.lastName).toBe(doc.lastName);
     expect(updatedCustomer.email).toBe(doc.email);
     expect(updatedCustomer.phone).toBe(doc.phone);
+    expect(updatedCustomer.facebookData).toEqual(doc.facebookData);
     expect(await Conversations.find({ customerId: updatedCustomer._id })).not.toHaveLength(0);
     expect(await ConversationMessages.find({ customerId: updatedCustomer._id })).not.toHaveLength(
       0,
