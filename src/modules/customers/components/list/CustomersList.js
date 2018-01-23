@@ -190,7 +190,11 @@ class CustomersList extends React.Component {
             </DropdownToggle>
             <Dropdown.Menu>
               <li>
-                <ModalTrigger title="Merge Customers" trigger={<a>Merge</a>}>
+                <ModalTrigger
+                  title="Merge Customers"
+                  size="lg"
+                  trigger={<a>Merge</a>}
+                >
                   <CommonMerge
                     datas={bulk}
                     save={mergeCustomers}

@@ -164,7 +164,11 @@ class CompaniesList extends React.Component {
             </DropdownToggle>
             <Dropdown.Menu>
               <li>
-                <ModalTrigger title="Merge Companies" trigger={<a>Merge</a>}>
+                <ModalTrigger
+                  title="Merge Companies"
+                  size="lg"
+                  trigger={<a>Merge</a>}
+                >
                   <CommonMerge
                     datas={bulk}
                     save={mergeCompanies}
