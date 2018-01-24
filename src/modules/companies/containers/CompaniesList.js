@@ -7,6 +7,7 @@ import { Bulk } from 'modules/common/components';
 import { mutations, queries } from '../graphql';
 import { TAG_TYPES } from 'modules/tags/constants';
 import { CompaniesList } from '../components';
+import { COMPANY_INFO } from '../constants';
 
 class CompanyListContainer extends Bulk {
   render() {
@@ -103,13 +104,7 @@ class CompanyListContainer extends Bulk {
       removeCompanies,
       mergeCompanies,
       loadingTags: tagsQuery.loading,
-      basicInfos: {
-        name: { text: 'Company Name' },
-        size: { text: 'Company Size' },
-        website: { text: 'Company Website' },
-        industry: { text: 'Company Industry' },
-        plan: { text: 'Company Plan' }
-      }
+      basicInfos: COMPANY_INFO
     };
 
     return <CompaniesList {...updatedProps} />;
