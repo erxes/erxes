@@ -168,8 +168,13 @@ class CustomersList extends React.Component {
 
     if (bulk.length > 0) {
       const tagButton = (
-        <Button btnStyle="simple" size="small">
-          Tag <Icon icon="ios-arrow-down" />
+        <Button btnStyle="simple" size="small" icon="ios-arrow-down">
+          Tag
+        </Button>
+      );
+      const mergeButton = (
+        <Button btnStype="simple" size="small" icon="ios-arrow-down">
+          Merge
         </Button>
       );
 
@@ -182,39 +187,31 @@ class CustomersList extends React.Component {
             targets={bulk}
             trigger={tagButton}
           />
-          <Dropdown id="dropdown-options" pullRight>
-            <DropdownToggle bsRole="toggle">
-              <Button btnStyle="simple" size="small">
-                More <Icon icon="ios-arrow-down" />
-              </Button>
-            </DropdownToggle>
-            <Dropdown.Menu>
-              <li>
-                <ModalTrigger
-                  title="Merge Customers"
-                  size="lg"
-                  trigger={<a>Merge</a>}
-                >
-                  <CommonMerge
-                    datas={bulk}
-                    save={mergeCustomers}
-                    basicInfos={basicInfos}
-                  />
-                </ModalTrigger>
-              </li>
-              <li>
-                <a
-                  onClick={() =>
-                    confirm().then(() => {
-                      this.removeCustomers(bulk);
-                    })
-                  }
-                >
-                  Remove
-                </a>
-              </li>
-            </Dropdown.Menu>
-          </Dropdown>
+          {bulk.length === 2 && (
+            <ModalTrigger
+              title="Merge Customers"
+              size="lg"
+              trigger={mergeButton}
+            >
+              <CommonMerge
+                datas={bulk}
+                save={mergeCustomers}
+                basicInfos={basicInfos}
+              />
+            </ModalTrigger>
+          )}
+          <Button
+            btnStyle="danger"
+            size="small"
+            icon="close"
+            onClick={() =>
+              confirm().then(() => {
+                this.removeCustomers(bulk);
+              })
+            }
+          >
+            Remove
+          </Button>
         </BarItems>
       );
     }
