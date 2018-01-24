@@ -2,7 +2,6 @@ import styled, { css } from 'styled-components';
 import { colors, dimensions, typography } from '../../styles';
 import { Input, FormLabel } from '../form/styles';
 
-const tableBgColor = '#f9f9f9';
 const tableHoverColor = '#f5f5f5';
 
 const StyledTable = styled.table`
@@ -39,7 +38,7 @@ const StyledTable = styled.table`
       : null} ${props.bordered
         ? `th, td { border: 1px solid ${colors.borderPrimary}; }`
         : null} ${props.striped
-        ? `tr:nth-of-type(odd) td { background-color: ${tableBgColor}; }`
+        ? `tr:nth-of-type(odd) td { background-color: ${colors.bgUnread}; }`
         : null} th {
       border-top: none;
     }
