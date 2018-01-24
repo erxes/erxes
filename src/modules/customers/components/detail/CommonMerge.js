@@ -95,14 +95,14 @@ class CommonMerge extends Component {
     const key = Object.keys(info);
 
     return (
-      <li
-        key={(key, info[key])}
-        onClick={() => this.handleChange(icon, { [key]: info[key] })}
-      >
+      <li key={(key, info[key])}>
         {this.renderingOptions[key]
           ? this.renderingOptions[key](info[key])
           : basicInfos[key] + ': ' + info[key] || 'N/A'}
-        <Icon icon={icon} />
+        <Icon
+          icon={icon}
+          onClick={() => this.handleChange(icon, { [key]: info[key] })}
+        />
       </li>
     );
   }
