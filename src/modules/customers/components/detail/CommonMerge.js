@@ -2,9 +2,14 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Modal } from 'react-bootstrap';
 import moment from 'moment';
-import { Button, Icon } from 'modules/common/components';
+import {
+  Button,
+  Icon,
+  FormControl,
+  FormGroup
+} from 'modules/common/components';
 import { renderFullName } from 'modules/common/utils';
-import { Footer, Title, Columns, Column } from '../../styles';
+import { Title, Columns, Column } from '../../styles';
 
 const propTypes = {
   datas: PropTypes.array.isRequired,
@@ -19,29 +24,55 @@ const contextTypes = {
 class CommonMerge extends Component {
   constructor(props) {
     super(props);
-
-    this.state = {
-      data: {}
-    };
+    const data = {};
+    const { basicInfos } = this.props;
 
     this.renderingOptions = {
       messengerData: data => this.renderMessengerData(data),
       twitterData: data => this.renderTwitterData(data),
       facebookData: data => this.renderFacebookData(data)
     };
+
+    for (let info in basicInfos) {
+      if (basicInfos.hasOwnProperty(info) && !this.renderingOptions[info]) {
+        data[info] = '';
+      }
+    }
+
+    this.state = {
+      data
+    };
+
     this.handleChange = this.handleChange.bind(this);
+    this.handleInputChange = this.handleInputChange.bind(this);
     this.save = this.save.bind(this);
   }
 
   renderDataFields() {
     const { data } = this.state;
+    const { basicInfos } = this.props;
     const fields = [];
+    let field = null;
 
     for (let infos in data) {
       if (data.hasOwnProperty(infos)) {
-        fields.push(this.renderInfo({ [infos]: data[infos] }, 'close'));
+        if (!this.renderingOptions[infos]) {
+          field = (
+            <FormGroup key={fields.length}>
+              {basicInfos[infos]}
+              <FormControl
+                onChange={e => this.handleInputChange(e, infos)}
+                value={data[infos] || ''}
+              />
+            </FormGroup>
+          );
+        } else {
+          field = this.renderInfo('close', { [infos]: data[infos] });
+        }
+        fields.push(field);
       }
     }
+
     return fields;
   }
 
@@ -52,26 +83,25 @@ class CommonMerge extends Component {
     for (let infos in data) {
       if (data.hasOwnProperty(infos)) {
         if (basicInfos[infos] && data[infos]) {
-          fields.push(this.renderInfo({ [infos]: data[infos] }, 'plus'));
+          fields.push(this.renderInfo('plus', { [infos]: data[infos] }));
         }
       }
     }
     return fields;
   }
 
-  renderInfo(info, icon) {
+  renderInfo(icon, info) {
     const { basicInfos } = this.props;
     const key = Object.keys(info);
-    const value = Object.values(info);
 
     return (
       <li
-        key={(key, value)}
-        onClick={() => this.handleChange(icon, { [key]: [value] })}
+        key={(key, info[key])}
+        onClick={() => this.handleChange(icon, { [key]: info[key] })}
       >
         {this.renderingOptions[key]
-          ? this.renderingOptions[key](value)
-          : basicInfos[key].text + ': ' + value || 'N/A'}
+          ? this.renderingOptions[key](info[key])
+          : basicInfos[key] + ': ' + info[key] || 'N/A'}
         <Icon icon={icon} />
       </li>
     );
@@ -79,12 +109,18 @@ class CommonMerge extends Component {
 
   save() {
     const { datas } = this.props;
-    const { data } = this.state;
+    const data = { ...this.state.data };
     const ids = [];
 
     datas.forEach(data => {
       ids.push(data._id);
     });
+
+    for (let field in data) {
+      if (data.hasOwnProperty(field) && data[field] === '') {
+        delete data[field];
+      }
+    }
 
     this.props.save({
       ids,
@@ -95,13 +131,23 @@ class CommonMerge extends Component {
     });
   }
 
+  handleInputChange(e, info) {
+    const value = e.target.value;
+
+    this.setState({
+      data: {
+        ...this.state.data,
+        [info]: value
+      }
+    });
+  }
+
   handleChange(type, obj) {
     const data = { ...this.state.data };
-    const value = Object.values(obj);
     const key = Object.keys(obj);
 
     if (type === 'plus') {
-      data[key] = value;
+      data[key] = obj[key];
     } else {
       delete data[key];
     }
@@ -179,20 +225,16 @@ class CommonMerge extends Component {
           </Column>
         </Columns>
         <Modal.Footer>
-          <Footer>
-            <div>
-              <Button
-                btnStyle="simple"
-                onClick={() => this.context.closeModal()}
-                icon="close"
-              >
-                Cancel
-              </Button>
-              <Button onClick={this.save} btnStyle="success" icon="checkmark">
-                Save
-              </Button>
-            </div>
-          </Footer>
+          <Button
+            btnStyle="simple"
+            onClick={() => this.context.closeModal()}
+            icon="close"
+          >
+            Cancel
+          </Button>
+          <Button onClick={this.save} btnStyle="success" icon="checkmark">
+            Save
+          </Button>
         </Modal.Footer>
       </div>
     );
