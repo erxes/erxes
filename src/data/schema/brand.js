@@ -24,4 +24,5 @@ export const mutations = `
   brandsEdit(_id: String!, name: String, description: String): Brand
   brandsRemove(_id: String!): String
   brandsConfigEmail(_id: String!, emailConfig: JSON): Brand
+  brandsManageIntegrations(_id: String!, integrationIds: [String]!): [Integration]
 `;
