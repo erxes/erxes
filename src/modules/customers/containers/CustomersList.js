@@ -6,6 +6,7 @@ import { Bulk } from 'modules/common/components';
 import { Alert } from 'modules/common/utils';
 import { KIND_CHOICES } from 'modules/settings/integrations/constants';
 import { TAG_TYPES } from 'modules/tags/constants';
+import { CUSTOMER_BASIC_INFO, CUSTOMER_DATAS } from '../constants';
 import { mutations, queries } from '../graphql';
 import { CustomersList } from '../components';
 
@@ -107,15 +108,7 @@ class CustomerListContainer extends Bulk {
       addCustomer,
       mergeCustomers,
       removeCustomers,
-      basicInfos: {
-        firstName: { text: 'First Name' },
-        lastName: { text: 'Last Name' },
-        email: { text: 'E-mail' },
-        phone: { text: 'Phone' },
-        messengerData: { text: 'Messenger Data' },
-        twitterData: { text: 'Twitter Data' },
-        facebookData: { text: 'Facebook Data' }
-      }
+      basicInfos: Object.assign({}, CUSTOMER_BASIC_INFO, CUSTOMER_DATAS)
     };
 
     return <CustomersList {...updatedProps} />;
