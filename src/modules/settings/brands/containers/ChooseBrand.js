@@ -2,6 +2,7 @@ import React from 'react';
 import { withRouter } from 'react-router';
 import PropTypes from 'prop-types';
 import { compose, gql, graphql } from 'react-apollo';
+import { queries } from '../graphql';
 import { ChooseBrand } from '../components';
 import { save } from '../../integrations/containers/utils';
 
@@ -45,23 +46,12 @@ MessengerContainer.propTypes = {
 
 export default withRouter(
   compose(
-    graphql(
-      gql`
-        query brands {
-          brands {
-            _id
-            name
-            code
-          }
-        }
-      `,
-      {
-        name: 'brandsQuery',
-        options: () => ({
-          fetchPolicy: 'network-only'
-        })
-      }
-    ),
+    graphql(gql(queries.brands), {
+      name: 'brandsQuery',
+      options: () => ({
+        fetchPolicy: 'network-only'
+      })
+    }),
 
     graphql(
       gql`

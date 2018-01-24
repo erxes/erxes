@@ -12,6 +12,7 @@ import { Sidebar, IntegrationList, IntegrationForm } from '../containers';
 const propTypes = {
   totalIntegrationsCount: PropTypes.number.isRequired,
   queryParams: PropTypes.object,
+  refetch: PropTypes.func,
   currentChannel: PropTypes.object,
   loading: PropTypes.bool
 };
@@ -22,7 +23,8 @@ class Channels extends Component {
       totalIntegrationsCount,
       currentChannel,
       queryParams,
-      loading
+      loading,
+      refetch
     } = this.props;
 
     const breadcrumb = [
@@ -62,6 +64,7 @@ class Channels extends Component {
               <IntegrationList
                 currentChannel={currentChannel}
                 queryParams={queryParams}
+                refetch={refetch}
               />
             }
             loading={loading}

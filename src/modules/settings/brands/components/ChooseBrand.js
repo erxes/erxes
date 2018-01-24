@@ -7,7 +7,6 @@ import {
   ControlLabel,
   FormControl
 } from 'modules/common/components';
-import SelectBrand from '../../integrations/components/SelectBrand';
 
 class Messenger extends Component {
   constructor(props) {
@@ -29,7 +28,6 @@ class Messenger extends Component {
 
   handleSubmit(e) {
     e.preventDefault();
-
     this.context.closeModal();
 
     this.props.save({
@@ -53,12 +51,32 @@ class Messenger extends Component {
           />
         </FormGroup>
 
-        <SelectBrand
-          brands={this.props.brands}
-          defaultValue={integration.brandId}
-          onChange={this.handleBrandChange}
-        />
+        <FormGroup>
+          <ControlLabel>Brand</ControlLabel>
+          <FormControl
+            componentClass="select"
+            placeholder="Select Brand"
+            defaultValue={integration.brandId}
+            onChange={this.handleBrandChange}
+            id="selectBrand"
+          >
+            <option />
+            {this.props.brands.map(brand => (
+              <option key={brand._id} value={brand._id}>
+                {brand.name}
+              </option>
+            ))}
+          </FormControl>
+        </FormGroup>
+
         <Modal.Footer>
+          <Button
+            btnStyle="simple"
+            icon="close"
+            onClick={() => this.context.closeModal()}
+          >
+            Cancel
+          </Button>
           <Button btnStyle="success" type="submit" icon="checkmark">
             Save
           </Button>

@@ -20,15 +20,13 @@ class CurrentBrands extends Component {
     const {
       brandDetailQuery,
       location,
-      totalIntegrationsCountQuery,
-      brandsQuery
+      totalIntegrationsCountQuery
     } = this.props;
 
     const extendedProps = {
       ...this.props,
       queryParams: queryString.parse(location.search),
       currentBrand: brandDetailQuery.brandDetail || {},
-      brands: brandsQuery.brands || [],
       loading: brandDetailQuery.loading,
       totalIntegrationsCount:
         totalIntegrationsCountQuery.integrationsTotalCount || 0
@@ -42,7 +40,6 @@ CurrentBrands.propTypes = {
   currentBrandId: PropTypes.string,
   totalIntegrationsCountQuery: PropTypes.object,
   brandDetailQuery: PropTypes.object,
-  brandsQuery: PropTypes.object,
   history: PropTypes.object,
   location: PropTypes.object
 };
@@ -55,9 +52,6 @@ const BrandsDetailContainer = compose(
       variables: { _id: currentBrandId || '' },
       fetchPolicy: 'network-only'
     })
-  }),
-  graphql(gql(queries.brands), {
-    name: 'brandsQuery'
   }),
   graphql(gql(queries.integrationsCount), {
     name: 'totalIntegrationsCountQuery',

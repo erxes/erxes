@@ -1,7 +1,6 @@
 import { Alert } from 'modules/common/utils';
 
 export const save = ({
-  history,
   variables,
   addMutation,
   editMutation,
@@ -24,8 +23,6 @@ export const save = ({
       }
 
       Alert.success('Congrats');
-
-      history.push(`/settings/integrations/${window.location.search}`);
     })
     .catch(error => {
       Alert.error(error.message);

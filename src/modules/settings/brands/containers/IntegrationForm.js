@@ -52,6 +52,7 @@ class FormContainer extends Component {
       search,
       save,
       perPage: this.state.perPage,
+      refetch: allIntegrationsQuery.refetch,
       allIntegrations: allIntegrationsQuery.integrations || []
     };
 

@@ -18,6 +18,7 @@ const propTypes = {
   currentBrand: PropTypes.object,
   save: PropTypes.func.isRequired,
   search: PropTypes.func.isRequired,
+  refetch: PropTypes.func.isRequired,
   allIntegrations: PropTypes.array.isRequired,
   perPage: PropTypes.number.isRequired
 };
@@ -66,20 +67,6 @@ class IntegrationForm extends Component {
     this.setState({ hasMore: allIntegrations.length === perPage });
   }
 
-  handleChange(type, integration) {
-    const { integrations } = this.state;
-
-    if (type === 'plus') {
-      this.setState({
-        integrations: [...integrations, integration]
-      });
-    } else {
-      this.setState({
-        integrations: integrations.filter(item => item !== integration)
-      });
-    }
-  }
-
   search(e) {
     if (this.timer) clearTimeout(this.timer);
     const { search } = this.props;
@@ -118,7 +105,22 @@ class IntegrationForm extends Component {
     return icon;
   }
 
+  handleChange(type, integration) {
+    const { integrations } = this.state;
+
+    if (type === 'plus') {
+      this.setState({
+        integrations: [...integrations, integration]
+      });
+    } else {
+      this.setState({
+        integrations: integrations.filter(item => item !== integration)
+      });
+    }
+  }
+
   renderRow(integration, icon) {
+    const { refetch } = this.props;
     const brand = integration.brand || {};
 
     if (
@@ -128,7 +130,7 @@ class IntegrationForm extends Component {
       return null;
     }
 
-    return (
+    const addTrigger = (
       <li
         key={integration._id}
         onClick={() => this.handleChange(icon, integration)}
@@ -143,38 +145,17 @@ class IntegrationForm extends Component {
         <Icon icon={icon} />
       </li>
     );
-  }
 
-  renderRowM(integration, icon) {
-    const brand = integration.brand || {};
-
-    if (
-      icon === 'plus' &&
-      this.state.integrations.some(e => e._id === integration._id)
-    ) {
-      return null;
+    if (icon === 'plus') {
+      return addTrigger;
     }
-
-    const addTrigger = (
-      <li onClick={() => this.handleChange(icon, integration)}>
-        <IntegrationName>{integration.name}</IntegrationName>
-        <Tip text={this.getTypeName(integration)}>
-          <Label className={`label-${this.getTypeName(integration)} round`}>
-            <Icon icon={this.getIconByKind(integration)} />
-          </Label>
-        </Tip>
-        <BrandName>{brand.name}</BrandName>
-        <Icon icon={icon} />
-      </li>
-    );
-
     return (
       <ModalTrigger
         key={integration._id}
         title="Choose new brand"
         trigger={addTrigger}
       >
-        <ChooseBrand integration={integration} />
+        <ChooseBrand integration={integration} refetch={refetch} />
       </ModalTrigger>
     );
   }
@@ -216,7 +197,7 @@ class IntegrationForm extends Component {
             </Title>
             <ul>
               {selectedIntegrations.map(integration =>
-                this.renderRowM(integration, 'close')
+                this.renderRow(integration, 'close')
               )}
             </ul>
           </Column>

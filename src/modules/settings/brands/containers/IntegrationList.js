@@ -12,7 +12,8 @@ const IntegrationListContainer = props => {
   const updatedProps = {
     ...props,
     integrations,
-    loading: integrationsQuery.loading
+    loading: integrationsQuery.loading,
+    refetch: integrationsQuery.refetch
   };
 
   return <IntegrationList {...updatedProps} />;

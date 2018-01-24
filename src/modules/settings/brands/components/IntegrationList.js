@@ -4,15 +4,20 @@ import { Table } from 'modules/common/components';
 import { IntegrationRow } from '/';
 
 const propTypes = {
-  integrations: PropTypes.array.isRequired
+  integrations: PropTypes.array.isRequired,
+  refetch: PropTypes.func
 };
 
 class IntegrationList extends Component {
   renderRow() {
-    const { integrations } = this.props;
+    const { integrations, refetch } = this.props;
 
     return integrations.map(integration => (
-      <IntegrationRow key={integration._id} integration={integration} />
+      <IntegrationRow
+        key={integration._id}
+        integration={integration}
+        refetch={refetch}
+      />
     ));
   }
 

@@ -13,7 +13,8 @@ import { Form, Messenger } from 'modules/settings/integrations/containers';
 import { ActionButtons } from '../../styles';
 
 const propTypes = {
-  integration: PropTypes.object.isRequired
+  integration: PropTypes.object.isRequired,
+  refetch: PropTypes.func
 };
 
 class IntegrationRow extends Component {
@@ -24,7 +25,7 @@ class IntegrationRow extends Component {
   }
 
   renderExtraLinks() {
-    const { integration } = this.props;
+    const { integration, refetch } = this.props;
     const kind = integration.kind;
 
     const editTrigger = (
@@ -59,7 +60,7 @@ class IntegrationRow extends Component {
           </Tip>
 
           <ModalTrigger title="Edit integration" trigger={editTrigger}>
-            <Messenger integration={integration} />
+            <Messenger integration={integration} refetch={refetch} />
           </ModalTrigger>
         </ActionButtons>
       );
@@ -68,7 +69,7 @@ class IntegrationRow extends Component {
     if (kind === KIND_CHOICES.FORM) {
       return (
         <ModalTrigger title="Edit integration" trigger={editTrigger}>
-          <Form integration={integration} />
+          <Form integration={integration} refetch={refetch} />
         </ModalTrigger>
       );
     }
