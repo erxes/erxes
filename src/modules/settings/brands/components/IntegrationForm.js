@@ -6,14 +6,16 @@ import {
   Button,
   Icon,
   Tip,
-  Label
+  Label,
+  ModalTrigger
 } from 'modules/common/components';
 import { KIND_CHOICES } from 'modules/settings/integrations/constants';
 import { LoadMore, Title, Columns, Column } from 'modules/customers/styles';
 import { BrandName, IntegrationName } from '../../styles';
+import { ChooseBrand } from '../containers';
 
 const propTypes = {
-  currentChannel: PropTypes.object,
+  currentBrand: PropTypes.object,
   save: PropTypes.func.isRequired,
   search: PropTypes.func.isRequired,
   allIntegrations: PropTypes.array.isRequired,
@@ -28,10 +30,10 @@ class IntegrationForm extends Component {
   constructor(props) {
     super(props);
 
-    const currentChannel = props.currentChannel || {};
+    const currentBrand = props.currentBrand || {};
 
     this.state = {
-      integrations: currentChannel.integrations || [],
+      integrations: currentBrand.integrations || [],
       hasMore: true,
       searchValue: ''
     };
@@ -143,8 +145,42 @@ class IntegrationForm extends Component {
     );
   }
 
+  renderRowM(integration, icon) {
+    const brand = integration.brand || {};
+
+    if (
+      icon === 'plus' &&
+      this.state.integrations.some(e => e._id === integration._id)
+    ) {
+      return null;
+    }
+
+    const addTrigger = (
+      <li onClick={() => this.handleChange(icon, integration)}>
+        <IntegrationName>{integration.name}</IntegrationName>
+        <Tip text={this.getTypeName(integration)}>
+          <Label className={`label-${this.getTypeName(integration)} round`}>
+            <Icon icon={this.getIconByKind(integration)} />
+          </Label>
+        </Tip>
+        <BrandName>{brand.name}</BrandName>
+        <Icon icon={icon} />
+      </li>
+    );
+
+    return (
+      <ModalTrigger
+        key={integration._id}
+        title="Choose new brand"
+        trigger={addTrigger}
+      >
+        <ChooseBrand integration={integration} />
+      </ModalTrigger>
+    );
+  }
+
   render() {
-    const { allIntegrations, currentChannel } = this.props;
+    const { allIntegrations, currentBrand } = this.props;
     const selectedIntegrations = this.state.integrations;
 
     return (
@@ -175,12 +211,12 @@ class IntegrationForm extends Component {
           </Column>
           <Column>
             <Title>
-              {currentChannel.name}&apos;s integration
+              {currentBrand.name}&apos;s integration
               <span>({selectedIntegrations.length})</span>
             </Title>
             <ul>
               {selectedIntegrations.map(integration =>
-                this.renderRow(integration, 'close')
+                this.renderRowM(integration, 'close')
               )}
             </ul>
           </Column>

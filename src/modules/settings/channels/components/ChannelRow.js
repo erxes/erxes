@@ -6,13 +6,11 @@ import { ModalTrigger, Tip, Button, Icon } from 'modules/common/components';
 import {
   SidebarListItem,
   ManageActions,
-  Members,
-  MemberImg,
-  More,
   Row,
   RowContent,
   ActionButtons
-} from '../styles';
+} from 'modules/settings/styles';
+import { Members, MemberImg, More } from '../styles';
 
 const propTypes = {
   channel: PropTypes.object.isRequired,

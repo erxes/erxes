@@ -106,7 +106,6 @@ class IntegrationRow extends Component {
             {integration.kind}
           </Label>
         </td>
-        <td>{integration.brand ? integration.brand.name : ''}</td>
         <td>
           <ActionButtons>{this.renderExtraLinks()}</ActionButtons>
         </td>

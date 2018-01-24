@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Sidebar } from 'modules/layout/components';
 import { SidebarList } from 'modules/layout/styles';
-import { Title } from '../channels/styles';
+import { Title } from '../styles';
 
 function IntegrationsSidebar() {
   const { QuickButtons } = Sidebar.Section;

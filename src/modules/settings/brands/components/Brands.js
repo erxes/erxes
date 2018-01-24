@@ -1,34 +1,34 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Wrapper } from 'modules/layout/components';
+import { Sidebar, IntegrationList, IntegrationForm } from '../containers';
 import {
   Pagination,
   DataWithLoader,
   Button,
   ModalTrigger
 } from 'modules/common/components';
-import { Sidebar, IntegrationList, IntegrationForm } from '../containers';
 
 const propTypes = {
   totalIntegrationsCount: PropTypes.number.isRequired,
   queryParams: PropTypes.object,
-  currentChannel: PropTypes.object,
+  currentBrand: PropTypes.object,
   loading: PropTypes.bool
 };
 
-class Channels extends Component {
+class Brands extends Component {
   render() {
     const {
       totalIntegrationsCount,
-      currentChannel,
+      currentBrand,
       queryParams,
       loading
     } = this.props;
 
     const breadcrumb = [
       { title: 'Settings', link: '/settings' },
-      { title: 'Channels', link: '/settings/channels' },
-      { title: `${currentChannel.name}` }
+      { title: 'Brands', link: '/settings/brands' },
+      { title: `${currentBrand.name}` }
     ];
 
     const trigger = (
@@ -37,9 +37,9 @@ class Channels extends Component {
       </Button>
     );
 
-    const rightActionBar = currentChannel._id && (
+    const rightActionBar = currentBrand._id && (
       <ModalTrigger title="Manage Integration" trigger={trigger} size="lg">
-        <IntegrationForm currentChannel={currentChannel} />
+        <IntegrationForm currentBrand={currentBrand} />
       </ModalTrigger>
     );
 
@@ -49,24 +49,24 @@ class Channels extends Component {
         actionBar={<Wrapper.ActionBar right={rightActionBar} />}
         leftSidebar={
           <Sidebar
-            currentChannelId={currentChannel._id}
+            currentBrandId={currentBrand._id}
             queryParams={queryParams}
           />
         }
         footer={
-          currentChannel._id && <Pagination count={totalIntegrationsCount} />
+          currentBrand._id && <Pagination count={totalIntegrationsCount} />
         }
         content={
           <DataWithLoader
             data={
               <IntegrationList
-                currentChannel={currentChannel}
+                currentBrand={currentBrand}
                 queryParams={queryParams}
               />
             }
             loading={loading}
             count={totalIntegrationsCount}
-            emptyText="There is no integration in this channel."
+            emptyText="There is no integration in this Brand"
             emptyImage="/images/robots/robot-05.svg"
           />
         }
@@ -75,6 +75,6 @@ class Channels extends Component {
   }
 }
 
-Channels.propTypes = propTypes;
+Brands.propTypes = propTypes;
 
-export default Channels;
+export default Brands;
