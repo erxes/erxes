@@ -2,15 +2,12 @@ import styled from 'styled-components';
 import { colors, dimensions } from '../common/styles';
 
 const UserHelper = styled.div`
-  padding: 0 ${dimensions.coreSpacing}px;
   height: 50px;
   display: flex;
   align-items: center;
-  background: ${colors.bgLight};
 
   &:hover {
     cursor: pointer;
-    background: ${colors.bgUnread};
   }
 `;
 

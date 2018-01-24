@@ -23,7 +23,7 @@ const NameCardWrapper = styled.div`
 `;
 
 const NavItem = styled.div`
-  padding-left: 15px;
+  padding-left: 20px;
   display: table-cell;
   vertical-align: middle;
 `;
