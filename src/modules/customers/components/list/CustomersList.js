@@ -165,16 +165,16 @@ class CustomersList extends React.Component {
     );
 
     let actionBarLeft = null;
+    const mergeButton = (
+      <Button btnStyle="primary" size="small" icon="shuffle">
+        Merge
+      </Button>
+    );
 
     if (bulk.length > 0) {
       const tagButton = (
         <Button btnStyle="simple" size="small" icon="ios-arrow-down">
           Tag
-        </Button>
-      );
-      const mergeButton = (
-        <Button btnStype="simple" size="small" icon="ios-arrow-down">
-          Merge
         </Button>
       );
 

@@ -1,7 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { withRouter } from 'react-router';
-import { Dropdown } from 'react-bootstrap';
 import { Wrapper } from 'modules/layout/components';
 import {
   Pagination,
@@ -10,7 +9,6 @@ import {
   Table,
   DataWithLoader,
   FormControl,
-  DropdownToggle,
   TaggerPopover
 } from 'modules/common/components';
 import { router, confirm } from 'modules/common/utils';
@@ -139,6 +137,12 @@ class CompaniesList extends React.Component {
       </Button>
     );
 
+    const mergeButton = (
+      <Button btnStyle="primary" size="small" icon="shuffle">
+        Merge
+      </Button>
+    );
+
     let actionBarLeft = null;
 
     if (bulk.length > 0) {
@@ -156,40 +160,33 @@ class CompaniesList extends React.Component {
             targets={bulk}
             trigger={tagButton}
           />
-          <Dropdown id="dropdown-options" pullRight>
-            <DropdownToggle bsRole="toggle">
-              <Button btnStyle="simple" size="small" icon="ios-arrow-down">
-                More
-              </Button>
-            </DropdownToggle>
-            <Dropdown.Menu>
-              <li>
-                <ModalTrigger
-                  title="Merge Companies"
-                  size="lg"
-                  trigger={<a>Merge</a>}
-                >
-                  <CommonMerge
-                    datas={bulk}
-                    save={mergeCompanies}
-                    basicInfos={basicInfos}
-                  />
-                </ModalTrigger>
-              </li>
-              <li>
-                <a
-                  onClick={() =>
-                    confirm().then(() => {
-                      this.removeCompanies(bulk);
-                    })
-                  }
-                >
-                  Remove
-                </a>
-              </li>
-              <li />
-            </Dropdown.Menu>
-          </Dropdown>
+
+          {bulk.length === 2 && (
+            <ModalTrigger
+              title="Merge Companies"
+              size="lg"
+              trigger={mergeButton}
+            >
+              <CommonMerge
+                datas={bulk}
+                save={mergeCompanies}
+                basicInfos={basicInfos}
+              />
+            </ModalTrigger>
+          )}
+
+          <Button
+            btnStyle="danger"
+            size="small"
+            icon="close"
+            onClick={() =>
+              confirm().then(() => {
+                this.removeCompanies(bulk);
+              })
+            }
+          >
+            Remove
+          </Button>
         </BarItems>
       );
     }
