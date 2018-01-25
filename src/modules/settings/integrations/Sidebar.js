@@ -1,22 +1,19 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Sidebar } from 'modules/layout/components';
+import { Wrapper } from 'modules/layout/components';
 import { SidebarList } from 'modules/layout/styles';
-import { Title } from '../styles';
 
 function IntegrationsSidebar() {
-  const { QuickButtons } = Sidebar.Section;
+  const { Section, Header } = Wrapper.Sidebar;
 
   return (
-    <Sidebar>
-      <Sidebar.Section>
-        <Sidebar.Header>
-          <Title>Integrations</Title>
-          <QuickButtons>
-            <Link to="/settings/integrations">All</Link>
-          </QuickButtons>
-        </Sidebar.Header>
+    <Wrapper.Sidebar>
+      <Section>
+        <Header spaceBottom>Integrations</Header>
         <SidebarList>
+          <li>
+            <Link to="/settings/integrations">All</Link>
+          </li>
           <li>
             <Link to="/settings/integrations?kind=messenger">Messenger</Link>
           </li>
@@ -30,8 +27,8 @@ function IntegrationsSidebar() {
             <Link to="/settings/integrations?kind=facebook">Facebook</Link>
           </li>
         </SidebarList>
-      </Sidebar.Section>
-    </Sidebar>
+      </Section>
+    </Wrapper.Sidebar>
   );
 }
 
