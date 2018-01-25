@@ -241,6 +241,10 @@ const SidebarList = styled.ul`
       right: 20px;
     }
 
+    > i {
+      margin-right: 5px;
+    }
+
     &:hover,
     &.active {
       cursor: pointer;
