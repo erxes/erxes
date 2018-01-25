@@ -4,7 +4,7 @@ import { Sidebar as LeftSidebar } from 'modules/layout/components';
 import { SidebarList as List } from 'modules/layout/styles';
 import { BrandForm } from '../containers';
 import { BrandRow } from './';
-import { RightButton, Title } from '../../styles';
+import { RightButton, SidebarTitle } from '../../styles';
 import {
   Icon,
   ModalTrigger,
@@ -58,7 +58,7 @@ class Sidebar extends Component {
 
     return (
       <LeftSidebar.Header>
-        <Title>Brands</Title>
+        <SidebarTitle>Brands</SidebarTitle>
         <ModalTrigger title="New Brand" trigger={AddBrand}>
           {this.renderBrandForm({ save })}
         </ModalTrigger>

@@ -1,21 +1,16 @@
 import React from 'react';
-import { Link, NavLink } from 'react-router-dom';
+import { NavLink } from 'react-router-dom';
 import { Sidebar } from '../layout/components';
 import { SidebarList } from '../layout/styles';
 
 function SettingsSidebar() {
-  const { Title, QuickButtons } = Sidebar.Section;
+  const { Title } = Sidebar.Section;
 
   return (
     <Sidebar>
       <Sidebar.Section>
         <Title>Account settings</Title>
         <SidebarList>
-          <li>
-            <NavLink activeClassName="active" to="/settings/brands">
-              Brands
-            </NavLink>
-          </li>
           <li>
             <NavLink activeClassName="active" to="/settings/team">
               Team members
@@ -46,9 +41,6 @@ function SettingsSidebar() {
 
       <Sidebar.Section>
         <Title>Knowledge base</Title>
-        <QuickButtons>
-          <Link to="/settings/knowledgebase/list">All</Link>
-        </QuickButtons>
         <SidebarList>
           <li>
             <NavLink activeClassName="active" to="/settings/knowledgebase/list">

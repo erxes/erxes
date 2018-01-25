@@ -249,7 +249,7 @@ const SidebarList = styled.ul`
     &:hover,
     &.active {
       cursor: pointer;
-      background: ${colors.borderPrimary};
+      background: ${colors.bgActive};
       text-decoration: none;
       outline: 0;
       color: ${colors.colorCoreBlack};

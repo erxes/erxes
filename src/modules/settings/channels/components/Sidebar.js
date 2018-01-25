@@ -11,7 +11,7 @@ import {
 import { SidebarList as List } from 'modules/layout/styles';
 import { ChannelForm } from '../containers';
 import { ChannelRow } from './';
-import { RightButton, Title } from '../../styles';
+import { RightButton, SidebarTitle } from '../../styles';
 
 const propTypes = {
   channels: PropTypes.array.isRequired,
@@ -60,7 +60,7 @@ class Sidebar extends Component {
 
     return (
       <LeftSidebar.Header>
-        <Title>Channels</Title>
+        <SidebarTitle>Channels</SidebarTitle>
         <ModalTrigger title="New Channel" trigger={AddChannel}>
           {this.renderChannelForm({ save, members })}
         </ModalTrigger>
