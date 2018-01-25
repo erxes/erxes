@@ -9,7 +9,7 @@ import {
   FormGroup
 } from 'modules/common/components';
 import { renderFullName } from 'modules/common/utils';
-import { Title, Columns, Column } from '../../styles';
+import { Title, Columns, Column, InfoTitle, InfoDetail } from '../../styles';
 
 const propTypes = {
   datas: PropTypes.array.isRequired,
@@ -96,9 +96,12 @@ class CommonMerge extends Component {
 
     return (
       <li key={(key, info[key])}>
-        {this.renderingOptions[key]
-          ? this.renderingOptions[key](info[key])
-          : basicInfos[key] + ': ' + info[key] || 'N/A'}
+        <InfoTitle>{basicInfos[key]}:</InfoTitle>
+        {this.renderingOptions[key] ? (
+          this.renderingOptions[key](info[key])
+        ) : (
+          <InfoDetail>{info[key] || 'N/A'}</InfoDetail>
+        )}
         <Icon
           icon={icon}
           onClick={() => this.handleChange(icon, { [key]: info[key] })}
@@ -159,9 +162,8 @@ class CommonMerge extends Component {
 
   renderFacebookData(data) {
     return (
-      <ul>
-        <li>Facebook Profile: </li>
-        <li>
+      <div>
+        <InfoDetail>
           <a
             target="_blank"
             href={`http://facebook.com/${data.id}`}
@@ -169,39 +171,29 @@ class CommonMerge extends Component {
           >
             [view]
           </a>
-        </li>
-      </ul>
+        </InfoDetail>
+      </div>
     );
   }
 
   renderMessengerData(data) {
     return (
-      <ul>
-        <li>Messenger Data</li>
-        <li>
-          <div>Last seen at:</div>{' '}
-          <div>{moment(data.lastSeenAt).format('lll')}</div>
-        </li>
-        <li>
-          <div>Session count:</div> <div>{data.sessionCount}</div>
-        </li>
-      </ul>
+      <div>
+        <span>Last seen at:</span>
+        <InfoDetail>{moment(data.lastSeenAt).format('lll')}</InfoDetail>
+        <span>Session count:</span> <InfoDetail>{data.sessionCount}</InfoDetail>
+      </div>
     );
   }
 
   renderTwitterData(data) {
     return (
-      <ul>
-        <li>Twitter Data: </li>
-        <li>
-          <div>Name: </div>
-          <div>{data.name}</div>
-        </li>
-        <li>
-          <div>Screen name: </div>
-          <div>{data.screenName}</div>
-        </li>
-      </ul>
+      <div>
+        <span>Name: </span>
+        <InfoDetail>{data.name}</InfoDetail>
+        <span>Screen name: </span>
+        <InfoDetail>{data.screenName}</InfoDetail>
+      </div>
     );
   }
 

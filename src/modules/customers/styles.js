@@ -25,17 +25,6 @@ const Column = styled.div`
     margin: 0;
     list-style-type: none;
 
-    ul {
-      height: auto;
-
-      li {
-        padding: 0;
-        border: none;
-        justify-content: space-between;
-        display: flex;
-      }
-    }
-
     li {
       padding: 6px 40px 6px ${columnSizing};
       position: relative;
@@ -136,4 +125,23 @@ const SubContent = styled.div`
   flex: 1;
 `;
 
-export { Columns, Column, Title, Footer, LoadMore, DetailContent, SubContent };
+const InfoTitle = styled.span`
+  font-weight: bold;
+`;
+
+const InfoDetail = styled.div`
+  display: block;
+  color: ${colors.colorCoreGray};
+`;
+
+export {
+  Columns,
+  Column,
+  Title,
+  Footer,
+  LoadMore,
+  DetailContent,
+  SubContent,
+  InfoTitle,
+  InfoDetail
+};
