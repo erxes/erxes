@@ -47,6 +47,14 @@ const EditorWrapper = styled.div`
     min-height: 200px;
     word-break: break-word;
   }
+
+  select {
+    background: none;
+    border: none;
+    height: 24px;
+    outline: 0;
+    color: ${colors.colorCoreGray};
+  }
 `;
 
 const ButtonBox = styled.div`
