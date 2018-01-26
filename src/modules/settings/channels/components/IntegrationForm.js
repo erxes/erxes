@@ -17,7 +17,8 @@ const propTypes = {
   save: PropTypes.func.isRequired,
   search: PropTypes.func.isRequired,
   allIntegrations: PropTypes.array.isRequired,
-  perPage: PropTypes.number.isRequired
+  perPage: PropTypes.number.isRequired,
+  clearState: PropTypes.func.isRequired
 };
 
 const contextTypes = {
@@ -55,7 +56,7 @@ class IntegrationForm extends Component {
   }
 
   componentWillUnmount() {
-    this.props.search('');
+    this.props.clearState();
   }
 
   componentWillReceiveProps(newProps) {

@@ -24,12 +24,15 @@ class FormContainer extends Component {
       if (!loadmore) {
         this.setState({ perPage: 0 });
       }
-      this.setState({ perPage: this.state.perPage + 20 }, () => {
-        allIntegrationsQuery.refetch({
-          searchValue: value,
-          perPage: this.state.perPage
-        });
+      this.setState({ perPage: this.state.perPage + 20 });
+      allIntegrationsQuery.refetch({
+        searchValue: value,
+        perPage: this.state.perPage
       });
+    };
+
+    const clearState = () => {
+      allIntegrationsQuery.refetch({ searchValue: '' });
     };
 
     const save = integrationIds => {
@@ -51,6 +54,7 @@ class FormContainer extends Component {
       ...this.props,
       search,
       save,
+      clearState,
       perPage: this.state.perPage,
       refetch: allIntegrationsQuery.refetch,
       allIntegrations: allIntegrationsQuery.integrations || []

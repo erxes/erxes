@@ -5,6 +5,7 @@ export const save = ({
   addMutation,
   editMutation,
   integration,
+  onSave,
   refetch
 }) => {
   let mutation = addMutation;
@@ -20,6 +21,10 @@ export const save = ({
     .then(() => {
       if (refetch) {
         refetch();
+      }
+
+      if (onSave) {
+        onSave();
       }
 
       Alert.success('Congrats');

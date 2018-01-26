@@ -274,17 +274,6 @@ const SidebarListItem = styled.li`
   }
 `;
 
-const SidebarTitle = styled.h3`
-  font-size: ${typography.fontSizeHeading8}px;
-  font-weight: ${typography.fontWeightMedium};
-  text-transform: uppercase;
-  padding: ${dimensions.coreSpacing}px 0;
-  margin: 0;
-  height: ${dimensions.headerSpacing}px;
-  background-color: ${colors.bgLight};
-  border-bottom: 1px solid ${colors.borderPrimary};
-`;
-
 const RightButton = styled.div`
   position: absolute;
   right: ${dimensions.coreSpacing}px;
@@ -394,7 +383,6 @@ export {
   LogoSpan,
   FlexRow,
   SidebarListItem,
-  SidebarTitle,
   IntegrationName,
   RightButton,
   ActionButtons,

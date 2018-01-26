@@ -6,13 +6,14 @@ import { queries } from '../graphql';
 import { ChooseBrand } from '../components';
 import { save } from '../../integrations/containers/utils';
 
-const MessengerContainer = props => {
+const ChooseBrandContainer = props => {
   const {
     history,
     brandsQuery,
     integration,
     addMutation,
     editMutation,
+    onSave,
     refetch
   } = props;
 
@@ -26,6 +27,7 @@ const MessengerContainer = props => {
         addMutation,
         editMutation,
         integration,
+        onSave,
         refetch
       }),
 
@@ -35,12 +37,13 @@ const MessengerContainer = props => {
   return <ChooseBrand {...updatedProps} />;
 };
 
-MessengerContainer.propTypes = {
+ChooseBrandContainer.propTypes = {
   history: PropTypes.object,
   integration: PropTypes.object,
   brandsQuery: PropTypes.object,
   addMutation: PropTypes.func,
   editMutation: PropTypes.func,
+  onSave: PropTypes.func,
   refetch: PropTypes.func
 };
 
@@ -85,5 +88,5 @@ export default withRouter(
         name: 'editMutation'
       }
     )
-  )(MessengerContainer)
+  )(ChooseBrandContainer)
 );

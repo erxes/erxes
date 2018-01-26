@@ -20,7 +20,8 @@ const propTypes = {
   search: PropTypes.func.isRequired,
   refetch: PropTypes.func.isRequired,
   allIntegrations: PropTypes.array.isRequired,
-  perPage: PropTypes.number.isRequired
+  perPage: PropTypes.number.isRequired,
+  clearState: PropTypes.func.isRequired
 };
 
 const contextTypes = {
@@ -58,7 +59,7 @@ class IntegrationForm extends Component {
   }
 
   componentWillUnmount() {
-    this.props.search('');
+    this.props.clearState();
   }
 
   componentWillReceiveProps(newProps) {
@@ -155,7 +156,11 @@ class IntegrationForm extends Component {
         title="Choose new brand"
         trigger={addTrigger}
       >
-        <ChooseBrand integration={integration} refetch={refetch} />
+        <ChooseBrand
+          integration={integration}
+          refetch={refetch}
+          onSave={() => this.handleChange(icon, integration)}
+        />
       </ModalTrigger>
     );
   }
