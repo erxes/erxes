@@ -48,63 +48,73 @@ class CommonMerge extends Component {
     this.save = this.save.bind(this);
   }
 
-  renderDataFields() {
+  // Rendering merged data infos
+  renderMergedData() {
     const { data } = this.state;
     const { basicInfos } = this.props;
-    const fields = [];
-    let field = null;
+    const properties = [];
 
-    for (let infos in data) {
-      if (data.hasOwnProperty(infos)) {
-        if (!this.renderingOptions[infos]) {
-          field = (
-            <FormGroup key={fields.length}>
-              {basicInfos[infos]}
+    for (let property in data) {
+      if (data.hasOwnProperty(property)) {
+        // Checking if data has messenger, twitter, facebook data
+        if (!this.renderingOptions[property]) {
+          //If data doesn't have messenger, twitter, facebook datas then pushing only input
+          properties.push(
+            <FormGroup key={properties.length}>
+              {basicInfos[property]}
               <FormControl
-                onChange={e => this.handleInputChange(e, infos)}
-                value={data[infos] || ''}
+                onChange={e => this.handleInputChange(e, property)}
+                value={data[property] || ''}
               />
             </FormGroup>
           );
         } else {
-          field = this.renderInfo('close', { [infos]: data[infos] });
+          properties.push(
+            this.renderProperty('close', { [property]: data[property] })
+          );
         }
-        fields.push(field);
       }
     }
 
-    return fields;
+    return properties;
   }
 
+  // Rendering data fields to be merged
   renderDatas(data) {
     const { basicInfos } = this.props;
-    const fields = [];
+    const properties = [];
 
-    for (let infos in data) {
-      if (data.hasOwnProperty(infos)) {
-        if (basicInfos[infos] && data[infos]) {
-          fields.push(this.renderInfo('plus', { [infos]: data[infos] }));
+    for (let property in data) {
+      if (data.hasOwnProperty(property)) {
+        // Rendering only basic infos of data
+        if (basicInfos[property] && data[property]) {
+          properties.push(
+            this.renderProperty('plus', { [property]: data[property] })
+          );
         }
       }
     }
-    return fields;
+    return properties;
   }
 
-  renderInfo(icon, info) {
+  renderProperty(icon, property) {
     const { basicInfos } = this.props;
-    const key = Object.keys(info);
+    const propertyName = Object.keys(property);
 
     return (
-      <li key={(key, info[key])}>
-        <InfoTitle>{basicInfos[key]}:</InfoTitle>
-        {this.renderingOptions[key] ? (
-          this.renderingOptions[key](info[key])
+      <li key={(propertyName, property[propertyName])}>
+        <InfoTitle>{basicInfos[propertyName]}:</InfoTitle>
+        {/* Checking if data has messenger, twitter, facebook datas*/}
+        {this.renderingOptions[propertyName] ? (
+          this.renderingOptions[propertyName](property[propertyName])
         ) : (
-          <InfoDetail>{info[key] || 'N/A'}</InfoDetail>
+          <InfoDetail>{propertyName || 'N/A'}</InfoDetail>
         )}
         <Icon
           icon={icon}
-          onClick={() => this.handleChange(icon, { [key]: info[key] })}
+          onClick={() =>
+            this.handleChange(icon, { [propertyName]: property[propertyName] })
+          }
         />
       </li>
     );
@@ -134,25 +144,25 @@ class CommonMerge extends Component {
     });
   }
 
-  handleInputChange(e, info) {
+  handleInputChange(e, property) {
     const value = e.target.value;
 
     this.setState({
       data: {
         ...this.state.data,
-        [info]: value
+        [property]: value
       }
     });
   }
 
-  handleChange(type, obj) {
+  handleChange(type, property) {
     const data = { ...this.state.data };
-    const key = Object.keys(obj);
+    const propertyName = Object.keys(property);
 
     if (type === 'plus') {
-      data[key] = obj[key];
+      data[propertyName] = property[propertyName];
     } else {
-      delete data[key];
+      delete data[propertyName];
     }
 
     this.setState({
@@ -213,7 +223,7 @@ class CommonMerge extends Component {
           })}
           <Column>
             <Title>Infos</Title>
-            <ul>{this.renderDataFields()}</ul>
+            <ul>{this.renderMergedData()}</ul>
           </Column>
         </Columns>
         <Modal.Footer>
