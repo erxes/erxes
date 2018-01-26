@@ -108,7 +108,7 @@ class CommonMerge extends Component {
         {this.renderingOptions[propertyName] ? (
           this.renderingOptions[propertyName](property[propertyName])
         ) : (
-          <InfoDetail>{propertyName || 'N/A'}</InfoDetail>
+          <InfoDetail>{property[propertyName] || 'N/A'}</InfoDetail>
         )}
         <Icon
           icon={icon}
