@@ -87,12 +87,18 @@ Title.propTypes = {
   children: PropTypes.node.isRequired
 };
 
-function Header({ children, spaceBottom }) {
-  return <SidebarHeader spaceBottom={spaceBottom}>{children}</SidebarHeader>;
+function Header({ children, spaceBottom, uppercase, bold }) {
+  return (
+    <SidebarHeader spaceBottom={spaceBottom} uppercase={uppercase} bold={bold}>
+      {children}
+    </SidebarHeader>
+  );
 }
 
 Header.propTypes = {
   children: PropTypes.node.isRequired,
+  uppercase: PropTypes.bool,
+  bold: PropTypes.bool,
   spaceBottom: PropTypes.bool
 };
 

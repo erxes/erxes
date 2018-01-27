@@ -8,7 +8,7 @@ import {
   FormControl
 } from 'modules/common/components';
 
-class Messenger extends Component {
+class ChooseBrand extends Component {
   constructor(props) {
     super(props);
 
@@ -86,14 +86,14 @@ class Messenger extends Component {
   }
 }
 
-Messenger.propTypes = {
+ChooseBrand.propTypes = {
   brands: PropTypes.array.isRequired,
   integration: PropTypes.object,
   save: PropTypes.func.isRequired
 };
 
-Messenger.contextTypes = {
+ChooseBrand.contextTypes = {
   closeModal: PropTypes.func.isRequired
 };
 
-export default Messenger;
+export default ChooseBrand;

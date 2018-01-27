@@ -58,7 +58,7 @@ class Sidebar extends Component {
     );
 
     return (
-      <Header>
+      <Header uppercase bold>
         Brands
         <ModalTrigger title="New Brand" trigger={AddBrand}>
           {this.renderBrandForm({ save })}

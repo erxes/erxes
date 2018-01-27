@@ -107,11 +107,11 @@ const SidebarHeader = styled.div`
   align-items: center;
   padding: 0 ${dimensions.coreSpacing}px 0 ${dimensions.coreSpacing}px;
   border-bottom: 1px solid ${colors.borderPrimary};
+  text-transform: ${props => props.uppercase && 'uppercase'};
+  font-weight: : ${props => props.bold && typography.fontWeightMedium};
   display: flex;
   flex-direction: row;
   justify-content: space-between;
-  text-transform: uppercase;
-  font-weight: ${typography.fontWeightMedium};
 `;
 
 const SidebarMainContent = styled.div`
@@ -243,7 +243,7 @@ const SidebarList = styled.ul`
       color: ${colors.colorCoreGray};
       margin-top: 2px;
       position: absolute;
-      right: ${dimensions.fontSizeHeading8}px;
+      right: 12px;
     }
 
     &:hover,

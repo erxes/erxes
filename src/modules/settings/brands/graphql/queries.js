@@ -35,6 +35,7 @@ const brandDetail = `
         _id
         name
         kind
+        brandId
       }
     }
   }

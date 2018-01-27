@@ -60,7 +60,7 @@ class Sidebar extends Component {
     );
 
     return (
-      <Header>
+      <Header uppercase bold>
         Channels
         <ModalTrigger title="New Channel" trigger={AddChannel}>
           {this.renderChannelForm({ save, members })}
