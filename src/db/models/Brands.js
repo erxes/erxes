@@ -1,6 +1,7 @@
 import mongoose from 'mongoose';
 import Random from 'meteor-random';
 import { field } from './utils';
+import { Integrations } from './';
 
 const BrandEmailConfigSchema = mongoose.Schema({
   type: field({
@@ -94,6 +95,22 @@ class Brand {
     await Brands.update({ _id }, { $set: { emailConfig } });
 
     return Brands.findOne({ _id });
+  }
+
+  /**
+   * Update brandId fields in given Integrations
+   * @param _id - Brand id
+   * @param integrationIds - integration ids to update
+   * @return - Updated integrations
+   */
+  static async manageIntegrations({ _id, integrationIds }) {
+    await Integrations.update(
+      { _id: { $in: integrationIds } },
+      { $set: { brandId: _id } },
+      { multi: true },
+    );
+
+    return Integrations.find({ _id: { $in: integrationIds } });
   }
 }
 

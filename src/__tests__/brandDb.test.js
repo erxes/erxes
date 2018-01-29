@@ -2,8 +2,8 @@
 /* eslint-disable no-underscore-dangle */
 
 import { connect, disconnect } from '../db/connection';
-import { Brands, Users } from '../db/models';
-import { brandFactory, userFactory } from '../db/factories';
+import { Brands, Users, Integrations } from '../db/models';
+import { brandFactory, userFactory, integrationFactory } from '../db/factories';
 
 beforeAll(() => connect());
 
@@ -80,5 +80,23 @@ describe('Brands db', () => {
 
     expect(brandObj.emailConfig.type).toBe(_brand.emailConfig.type);
     expect(brandObj.emailConfig.template).toBe(_brand.emailConfig.template);
+  });
+
+  test('Manage integrations', async () => {
+    const brand = await brandFactory({});
+
+    let integration1 = await integrationFactory({});
+    let integration2 = await integrationFactory({});
+
+    await Brands.manageIntegrations({
+      _id: brand._id,
+      integrationIds: [integration1._id, integration2._id],
+    });
+
+    integration1 = await Integrations.findOne({ _id: integration1._id });
+    integration2 = await Integrations.findOne({ _id: integration2._id });
+
+    expect(integration1.brandId).toBe(brand._id);
+    expect(integration2.brandId).toBe(brand._id);
   });
 });
