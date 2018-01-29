@@ -34,7 +34,6 @@ class Common extends Component {
     super(props, context);
 
     let code = '';
-
     // showed install code automatically in edit mode
     if (props.integration) {
       const brand = props.integration.brand || '';

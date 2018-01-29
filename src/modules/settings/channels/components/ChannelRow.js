@@ -65,26 +65,42 @@ class ChannelRow extends Component {
     );
   }
 
-  render() {
-    const { channel, members, isActive } = this.props;
-    const limit = 8;
+  renderMembers() {
+    const { channel, members } = this.props;
+
     let selectedMembers = [];
 
     if (channel) {
       selectedMembers = members.filter(u => channel.memberIds.includes(u._id));
     }
+
     const length = selectedMembers.length;
+    const limit = 8;
+
+    // render members ================
+    const limitedMembers = selectedMembers.slice(0, limit);
+    const renderedMembers = limitedMembers.map(member =>
+      this.renderMember(member)
+    );
+
+    // render readmore ===============
+    let readMore = null;
+
+    if (length - limit > 0) {
+      readMore = <More key="readmore">{`+${length - limit}`}</More>;
+    }
+
+    return [renderedMembers, readMore];
+  }
+
+  render() {
+    const { channel, isActive } = this.props;
 
     return (
       <SidebarListItem key={channel._id} isActive={isActive}>
         <Link to={`?id=${channel._id}`}>
           {channel.name}
-          <Members>
-            {selectedMembers
-              .slice(0, limit ? limit : length)
-              .map(member => this.renderMember(member))}
-            {limit && length - limit > 0 && <More>{`+${length - limit}`}</More>}
-          </Members>
+          <Members>{this.renderMembers()}</Members>
         </Link>
         <ActionButtons>
           {this.renderEditAction()}
