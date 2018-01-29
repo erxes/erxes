@@ -3,16 +3,8 @@ import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 import { ChannelForm } from '../containers';
 import { ModalTrigger, Tip, Button, Icon } from 'modules/common/components';
-import {
-  SidebarListItem,
-  ManageActions,
-  Members,
-  MemberImg,
-  More,
-  Row,
-  RowContent,
-  ActionButtons
-} from '../styles';
+import { SidebarListItem, ActionButtons } from 'modules/settings/styles';
+import { Members, MemberImg, More } from '../styles';
 
 const propTypes = {
   channel: PropTypes.object.isRequired,
@@ -85,28 +77,21 @@ class ChannelRow extends Component {
 
     return (
       <SidebarListItem key={channel._id} isActive={isActive}>
-        <Row>
-          <Link to={`?id=${channel._id}`}>
-            <RowContent>
-              {channel.name}
-              <Members>
-                {selectedMembers
-                  .slice(0, limit ? limit : length)
-                  .map(member => this.renderMember(member))}
-                {limit &&
-                  length - limit > 0 && <More>{`+${length - limit}`}</More>}
-              </Members>
-            </RowContent>
-          </Link>
-          <ManageActions>
-            <ActionButtons>
-              {this.renderEditAction()}
-              <Tip text="Delete">
-                <Button btnStyle="link" onClick={this.remove} icon="close" />
-              </Tip>
-            </ActionButtons>
-          </ManageActions>
-        </Row>
+        <Link to={`?id=${channel._id}`}>
+          {channel.name}
+          <Members>
+            {selectedMembers
+              .slice(0, limit ? limit : length)
+              .map(member => this.renderMember(member))}
+            {limit && length - limit > 0 && <More>{`+${length - limit}`}</More>}
+          </Members>
+        </Link>
+        <ActionButtons>
+          {this.renderEditAction()}
+          <Tip text="Delete">
+            <Button btnStyle="link" onClick={this.remove} icon="close" />
+          </Tip>
+        </ActionButtons>
       </SidebarListItem>
     );
   }

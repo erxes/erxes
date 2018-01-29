@@ -74,6 +74,8 @@ const Nav = styled.nav`
 
 const NavIcon = styled.i`
   background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
   width: 20px;
   height: 20px;
   display: inline-block;

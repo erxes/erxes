@@ -28,6 +28,7 @@ class ChannelsWithCurrent extends React.Component {
       queryParams: queryString.parse(location.search),
       currentChannel: channelDetailQuery.channelDetail || {},
       loading: channelDetailQuery.loading,
+      refetch: channelDetailQuery.refetch,
       totalIntegrationsCount:
         totalIntegrationsCountQuery.integrationsTotalCount || 0
     };

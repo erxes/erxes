@@ -35,7 +35,7 @@ const withSaveAndEdit = Component => {
 
     // save
     const save = doc => {
-      doc.kind = message ? message.kind : kind;
+      doc.kind = message.kind ? message.kind : kind;
 
       if (messageId) {
         return doMutation(editMutation, { ...doc, _id: messageId });
