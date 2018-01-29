@@ -51,7 +51,7 @@ class Sidebar extends Component {
     const { save } = this.props;
     const { Header } = LeftSidebar;
 
-    const AddBrand = (
+    const addBrand = (
       <RightButton>
         <Icon icon="plus" />
       </RightButton>
@@ -60,7 +60,7 @@ class Sidebar extends Component {
     return (
       <Header uppercase bold>
         Brands
-        <ModalTrigger title="New Brand" trigger={AddBrand}>
+        <ModalTrigger title="New Brand" trigger={addBrand}>
           {this.renderBrandForm({ save })}
         </ModalTrigger>
       </Header>

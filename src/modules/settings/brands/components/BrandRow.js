@@ -3,13 +3,7 @@ import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 import { BrandForm } from '../containers';
 import { ModalTrigger, Tip, Button, Icon } from 'modules/common/components';
-import {
-  SidebarListItem,
-  ManageActions,
-  Row,
-  RowContent,
-  ActionButtons
-} from '../../styles';
+import { SidebarListItem, ActionButtons } from '../../styles';
 
 const propTypes = {
   brand: PropTypes.object.isRequired,
@@ -59,19 +53,13 @@ class BrandRow extends Component {
 
     return (
       <SidebarListItem key={brand._id} isActive={isActive}>
-        <Row>
-          <Link to={`?id=${brand._id}`}>
-            <RowContent>{brand.name}</RowContent>
-          </Link>
-          <ManageActions>
-            <ActionButtons>
-              {this.renderEditAction()}
-              <Tip text="Delete">
-                <Button btnStyle="link" onClick={this.remove} icon="close" />
-              </Tip>
-            </ActionButtons>
-          </ManageActions>
-        </Row>
+        <Link to={`?id=${brand._id}`}>{brand.name}</Link>
+        <ActionButtons>
+          {this.renderEditAction()}
+          <Tip text="Delete">
+            <Button btnStyle="link" onClick={this.remove} icon="close" />
+          </Tip>
+        </ActionButtons>
       </SidebarListItem>
     );
   }

@@ -53,7 +53,7 @@ class Sidebar extends Component {
     const { save, members } = this.props;
     const { Header } = LeftSidebar;
 
-    const AddChannel = (
+    const addChannel = (
       <RightButton>
         <Icon icon="plus" />
       </RightButton>
@@ -62,7 +62,7 @@ class Sidebar extends Component {
     return (
       <Header uppercase bold>
         Channels
-        <ModalTrigger title="New Channel" trigger={AddChannel}>
+        <ModalTrigger title="New Channel" trigger={addChannel}>
           {this.renderChannelForm({ save, members })}
         </ModalTrigger>
       </Header>

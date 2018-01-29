@@ -257,44 +257,17 @@ const FlexRow = styled.div`
   }
 `;
 
-const SidebarListItem = styled.li`
-  border-bottom: 1px solid ${colors.borderPrimary};
-  transition: all ease 0.3s;
-  background: ${props => props.isActive && colors.bgActive};
-
-  a {
-    white-space: normal;
-
-    &:hover {
-      background: none;
-    }
-  }
-
-  &:hover {
-    background: ${props => (props.isActive ? '' : colors.bgLight)};
-    cursor: pointer;
-  }
-`;
-
-const RightButton = styled.div`
-  position: absolute;
-  right: ${dimensions.coreSpacing}px;
-  top: ${dimensions.coreSpacing - 5}px;
-
-  &:hover {
-    cursor: pointer;
-  }
-`;
-
-const ManageActions = styled.div`
-  margin-top: ${dimensions.unitSpacing}px;
-  margin-right: ${dimensions.unitSpacing}px;
-`;
-
 const ActionButtons = styled.div`
   display: flex;
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: 0;
+  overflow: hidden;
   align-items: center;
-  justify-content: flex-end;
+  justify-content: center;
+  transition: all 0.3s ease;
 
   * {
     padding: 0;
@@ -306,53 +279,42 @@ const ActionButtons = styled.div`
   }
 `;
 
-const Row = styled.div`
-  flex: 1;
-  display: flex;
-  flex-direction: row;
-  transition: all ease 0.3s;
+const SidebarListItem = styled.li`
+  position: relative;
+  border-bottom: 1px solid ${colors.borderPrimary};
+  background: ${props => props.isActive && colors.bgActive};
 
-  &:hover {
-    ${ManageActions} {
-      width: ${dimensions.headerSpacing - 10}px;
-      align-items: center;
-      display: flex;
+  a {
+    white-space: normal;
+    padding: 10px 40px 10px 20px;
+
+    &:hover {
+      background: none;
     }
-  }
-
-  ${ManageActions} {
-    width: 0;
-    margin-left: auto;
-    overflow: hidden;
-    display: flex;
-    transition: all ease 0.3s;
-
-    > label {
-      margin-top: ${dimensions.unitSpacing}px;
-    }
-  }
-
-  > div {
-    margin: 0;
-  }
-
-  > a {
-    padding: 0;
 
     &:focus {
       color: inherit;
       text-decoration: none;
     }
   }
+
+  &:hover {
+    cursor: pointer;
+    background: ${props => (props.isActive ? '' : colors.bgLight)};
+
+    ${ActionButtons} {
+      width: ${dimensions.headerSpacing - 5}px;
+    }
+  }
 `;
 
-const RowContent = styled.div`
-  flex: 1;
-  min-width: 250px;
-  padding: ${dimensions.unitSpacing}px ${dimensions.coreSpacing}px;
+const RightButton = styled.div`
+  position: absolute;
+  right: ${dimensions.coreSpacing}px;
+  top: ${dimensions.coreSpacing - 5}px;
 
-  > a {
-    padding: 0 ${dimensions.unitSpacing}px;
+  &:hover {
+    cursor: pointer;
   }
 `;
 
@@ -388,8 +350,5 @@ export {
   IntegrationName,
   RightButton,
   ActionButtons,
-  ManageActions,
-  Row,
-  RowContent,
   BrandName
 };
