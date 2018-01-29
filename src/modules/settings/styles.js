@@ -263,6 +263,8 @@ const SidebarListItem = styled.li`
   background: ${props => props.isActive && colors.bgActive};
 
   a {
+    white-space: normal;
+
     &:hover {
       background: none;
     }

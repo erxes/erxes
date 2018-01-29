@@ -108,7 +108,7 @@ const SidebarHeader = styled.div`
   padding: 0 ${dimensions.coreSpacing}px 0 ${dimensions.coreSpacing}px;
   border-bottom: 1px solid ${colors.borderPrimary};
   text-transform: ${props => props.uppercase && 'uppercase'};
-  font-weight: : ${props => props.bold && typography.fontWeightMedium};
+  font-weight: ${props => props.bold && typography.fontWeightMedium};
   display: flex;
   flex-direction: row;
   justify-content: space-between;
