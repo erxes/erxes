@@ -71,11 +71,6 @@ class Settings extends Component {
                 '/settings/forms'
               )}
               {this.renderBox(
-                'Knowledge base',
-                '/images/icons/erxes-06.svg',
-                '/settings/knowledgebase/list'
-              )}
-              {this.renderBox(
                 'Team Members',
                 '/images/icons/erxes-02.svg',
                 '/settings/team'

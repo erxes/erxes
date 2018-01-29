@@ -35,7 +35,9 @@ export const knowledgeBaseCategoriesAdd = `
 `;
 
 export const knowledgeBaseCategoriesEdit = `
-  mutation knowledgeBaseCategoriesEdit($_id: String!, ${categoryCommonParamsDef}) {
+  mutation knowledgeBaseCategoriesEdit($_id: String!, ${
+    categoryCommonParamsDef
+  }) {
     knowledgeBaseCategoriesEdit(_id: $_id, ${commonParams}) {
       _id
     }

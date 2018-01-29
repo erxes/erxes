@@ -1,6 +1,6 @@
 import React from 'react';
 import { Table } from 'modules/common/components';
-import { List as CommonList } from '../../../common/components';
+import { List as CommonList } from 'modules/settings/common/components';
 import TopicRow from './Row';
 import { TopicForm } from '../../containers';
 
@@ -14,12 +14,8 @@ class TopicList extends CommonList {
   breadcrumb() {
     return [
       {
-        title: 'Settings',
-        link: '/settings'
-      },
-      {
         title: 'Knowledge base',
-        link: '/settings/knowledgebase/list'
+        link: '/knowledgeBase/list'
       },
       {
         title: 'Topic'

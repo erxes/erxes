@@ -1,38 +1,35 @@
 import React from 'react';
 import { Table } from 'modules/common/components';
-import { List as CommonList } from '../../../common/components';
-import CategoryRow from './Row';
-import { CategoryForm } from '../../containers';
+import { List as CommonList } from 'modules/settings/common/components';
+import ArticleRow from './Row';
+import { ArticleForm } from '../../components';
 
-class CategoryList extends CommonList {
+class ArticleList extends CommonList {
   constructor(props) {
     super(props);
 
-    this.title = 'Add category';
+    this.title = 'Add article';
+    this.size = 'large';
   }
 
   breadcrumb() {
     return [
       {
-        title: 'Settings',
-        link: '/settings'
-      },
-      {
         title: 'Knowledge base',
-        link: '/settings/knowledgebase/list'
+        link: '/knowledgeBase/list'
       },
       {
-        title: 'Categories'
+        title: 'Articles'
       }
     ];
   }
 
   renderRow(props) {
-    return <CategoryRow {...props} />;
+    return <ArticleRow {...props} />;
   }
 
   renderForm(props) {
-    return <CategoryForm {...props} />;
+    return <ArticleForm {...props} />;
   }
 
   renderContent() {
@@ -41,7 +38,7 @@ class CategoryList extends CommonList {
         <thead>
           <tr>
             <th>Title</th>
-            <th>Description</th>
+            <th>Summary</th>
             <th width="90">Actions</th>
           </tr>
         </thead>
@@ -50,5 +47,4 @@ class CategoryList extends CommonList {
     );
   }
 }
-
-export default CategoryList;
+export default ArticleList;

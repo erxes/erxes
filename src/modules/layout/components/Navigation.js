@@ -153,6 +153,11 @@ class Navigation extends Component {
               <NavIcon className="icon-insights" />
             </NavLink>
           </Tip>
+          <Tip placement="right" text="KnowledgeBase">
+            <NavLink to="/knowledgeBase" activeClassName="active">
+              <NavIcon className="icon-customer" />
+            </NavLink>
+          </Tip>
           <Tip placement="right" text="Settings">
             <NavLink to="/settings" activeClassName="active">
               <NavIcon className="icon-settings" />
