@@ -5,10 +5,11 @@ import { OverlayTrigger, Popover } from 'react-bootstrap';
 import classnames from 'classnames';
 import { ChromePicker } from 'react-color';
 import { uploadHandler } from 'modules/common/utils';
-import { ActionBar, Wrapper } from 'modules/layout/components';
-import { WidgetPreview } from './';
-import { MessengerPreview, Messenger } from 'modules/engage/styles';
 import { Button, Icon, Tip } from 'modules/common/components';
+import { ActionBar, Wrapper } from 'modules/layout/components';
+import { MessengerPreview, Messenger } from 'modules/engage/styles';
+import Sidebar from '../Sidebar';
+import { WidgetPreview } from './';
 import {
   SubHeading,
   Margined,
@@ -206,6 +207,7 @@ class Appearance extends Component {
     return (
       <Wrapper
         header={<Wrapper.Header breadcrumb={breadcrumb} />}
+        leftSidebar={<Sidebar />}
         footer={actionBar}
         content={content}
       />

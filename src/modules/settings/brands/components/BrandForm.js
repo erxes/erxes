@@ -1,12 +1,42 @@
-import React from 'react';
-import { Form as CommonForm } from '../../common/components';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
+import { Modal } from 'react-bootstrap';
 import {
   FormGroup,
+  FormControl,
   ControlLabel,
-  FormControl
+  Button
 } from 'modules/common/components';
 
-class BrandForm extends CommonForm {
+const propTypes = {
+  brand: PropTypes.object,
+  save: PropTypes.func.isRequired
+};
+
+const contextTypes = {
+  closeModal: PropTypes.func.isRequired
+};
+
+class BrandForm extends Component {
+  constructor(props) {
+    super(props);
+
+    this.generateDoc = this.generateDoc.bind(this);
+    this.save = this.save.bind(this);
+  }
+
+  save(e) {
+    e.preventDefault();
+
+    this.props.save(
+      this.generateDoc(),
+      () => {
+        this.context.closeModal();
+      },
+      this.props.brand
+    );
+  }
+
   generateDoc() {
     return {
       doc: {
@@ -16,32 +46,64 @@ class BrandForm extends CommonForm {
     };
   }
 
-  renderContent(brand) {
+  renderContent() {
+    const object = this.props.brand || {};
+
     return (
       <div>
         <FormGroup>
           <ControlLabel>Name</ControlLabel>
+
           <FormControl
             id="brand-name"
+            defaultValue={object.name}
             type="text"
-            defaultValue={brand.name}
             required
           />
         </FormGroup>
 
         <FormGroup>
           <ControlLabel>Description</ControlLabel>
+
           <FormControl
             id="brand-description"
             componentClass="textarea"
-            defaultValue={brand.description}
-            required
             rows={5}
+            defaultValue={object.description}
           />
         </FormGroup>
       </div>
     );
   }
+
+  render() {
+    const onClick = () => {
+      this.context.closeModal();
+    };
+
+    return (
+      <form onSubmit={this.save}>
+        {this.renderContent()}
+        <Modal.Footer>
+          <Button
+            btnStyle="simple"
+            type="button"
+            icon="close"
+            onClick={onClick}
+          >
+            Cancel
+          </Button>
+
+          <Button btnStyle="success" icon="checkmark" type="submit">
+            Save
+          </Button>
+        </Modal.Footer>
+      </form>
+    );
+  }
 }
+
+BrandForm.propTypes = propTypes;
+BrandForm.contextTypes = contextTypes;
 
 export default BrandForm;

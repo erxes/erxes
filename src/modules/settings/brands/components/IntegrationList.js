@@ -28,7 +28,6 @@ class IntegrationList extends Component {
           <tr>
             <th>Name</th>
             <th>Kind</th>
-            <th>Brand</th>
             <th>Actions</th>
           </tr>
         </thead>

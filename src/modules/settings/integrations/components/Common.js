@@ -37,7 +37,7 @@ class Common extends Component {
 
     // showed install code automatically in edit mode
     if (props.integration) {
-      const brand = props.integration.brand;
+      const brand = props.integration.brand || '';
       code = this.constructor.getInstallCode(brand.code);
     }
 
@@ -52,7 +52,8 @@ class Common extends Component {
 
   updateInstallCodeValue(brandId) {
     if (brandId) {
-      const brand = this.props.brands.find(brand => brand._id === brandId);
+      const brand =
+        this.props.brands.find(brand => brand._id === brandId) || '';
 
       const code = this.constructor.getInstallCode(brand.code);
 
@@ -118,6 +119,13 @@ class Common extends Component {
         </FormGroup>
 
         <Modal.Footer>
+          <Button
+            btnStyle="simple"
+            icon="close"
+            onClick={() => this.context.closeModal()}
+          >
+            Cancel
+          </Button>
           <Button btnStyle="success" type="submit" icon="checkmark">
             Save
           </Button>

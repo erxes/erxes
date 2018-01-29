@@ -12,8 +12,8 @@ const IntegrationListContainer = props => {
   const updatedProps = {
     ...props,
     integrations,
-    refetch: integrationsQuery.refetch,
-    loading: integrationsQuery.loading
+    loading: integrationsQuery.loading,
+    refetch: integrationsQuery.refetch
   };
 
   return <IntegrationList {...updatedProps} />;
@@ -26,9 +26,9 @@ IntegrationListContainer.propTypes = {
 export default compose(
   graphql(gql(queries.integrations), {
     name: 'integrationsQuery',
-    options: ({ queryParams, currentChannel }) => ({
+    options: ({ queryParams, currentBrand }) => ({
       variables: {
-        channelId: currentChannel._id,
+        brandId: currentBrand._id,
         searchValue: queryParams.searchValue,
         page: queryParams.page,
         perPage: queryParams.perPage || 20,

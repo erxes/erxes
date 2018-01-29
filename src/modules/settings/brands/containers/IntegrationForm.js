@@ -14,7 +14,11 @@ class FormContainer extends Component {
   }
 
   render() {
-    const { currentChannel, allIntegrationsQuery, editMutation } = this.props;
+    const {
+      currentBrand,
+      allIntegrationsQuery,
+      manageIntegrations
+    } = this.props;
 
     const search = (value, loadmore) => {
       if (!loadmore) {
@@ -33,12 +37,10 @@ class FormContainer extends Component {
     };
 
     const save = integrationIds => {
-      editMutation({
+      manageIntegrations({
         variables: {
-          _id: currentChannel._id,
-          name: currentChannel.name,
-          integrationIds,
-          memberIds: currentChannel.memberIds
+          _id: currentBrand._id,
+          integrationIds
         }
       })
         .then(() => {
@@ -55,6 +57,7 @@ class FormContainer extends Component {
       save,
       clearState,
       perPage: this.state.perPage,
+      refetch: allIntegrationsQuery.refetch,
       allIntegrations: allIntegrationsQuery.integrations || []
     };
 
@@ -63,9 +66,9 @@ class FormContainer extends Component {
 }
 
 FormContainer.propTypes = {
-  currentChannel: PropTypes.object,
+  currentBrand: PropTypes.object,
   allIntegrationsQuery: PropTypes.object,
-  editMutation: PropTypes.func
+  manageIntegrations: PropTypes.func
 };
 
 export default compose(
@@ -77,21 +80,21 @@ export default compose(
       }
     }
   }),
-  graphql(gql(mutations.channelEdit), {
-    name: 'editMutation',
-    options: ({ currentChannel }) => {
+  graphql(gql(mutations.brandManageIntegrations), {
+    name: 'manageIntegrations',
+    options: ({ currentBrand }) => {
       return {
         refetchQueries: [
           {
             query: gql(queries.integrations),
             variables: {
-              channelId: currentChannel._id,
+              brandId: currentBrand._id,
               perPage: 20
             }
           },
           {
-            query: gql(queries.channelDetail),
-            variables: { _id: currentChannel._id }
+            query: gql(queries.brandDetail),
+            variables: { _id: currentBrand._id }
           }
         ]
       };
