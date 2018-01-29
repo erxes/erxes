@@ -81,7 +81,9 @@ function Segments({ history, contentType, counts, segments, loading }) {
           style={{ verticalAlign: 'top' }}
         >
           <DropdownToggle bsRole="toggle">
-            <Icon icon="gear-a" />
+            <QuickButton>
+              <Icon icon="gear-a" />
+            </QuickButton>
           </DropdownToggle>
           <Dropdown.Menu>
             <MenuItem
