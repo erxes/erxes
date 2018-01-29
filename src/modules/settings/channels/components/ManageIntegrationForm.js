@@ -6,19 +6,16 @@ import {
   Button,
   Icon,
   Tip,
-  Label,
-  ModalTrigger
+  Label
 } from 'modules/common/components';
 import { KIND_CHOICES } from 'modules/settings/integrations/constants';
 import { LoadMore, Title, Columns, Column } from 'modules/customers/styles';
 import { BrandName, IntegrationName } from '../../styles';
-import { ChooseBrand } from '../containers';
 
 const propTypes = {
-  currentBrand: PropTypes.object,
+  currentChannel: PropTypes.object,
   save: PropTypes.func.isRequired,
   search: PropTypes.func.isRequired,
-  refetch: PropTypes.func.isRequired,
   allIntegrations: PropTypes.array.isRequired,
   perPage: PropTypes.number.isRequired,
   clearState: PropTypes.func.isRequired
@@ -28,14 +25,14 @@ const contextTypes = {
   closeModal: PropTypes.func.isRequired
 };
 
-class IntegrationForm extends Component {
+class ManageIntegrationForm extends Component {
   constructor(props) {
     super(props);
 
-    const currentBrand = props.currentBrand || {};
+    const currentChannel = props.currentChannel || {};
 
     this.state = {
-      integrations: currentBrand.integrations || [],
+      integrations: currentChannel.integrations || [],
       hasMore: true,
       searchValue: ''
     };
@@ -66,6 +63,20 @@ class IntegrationForm extends Component {
     const { allIntegrations, perPage } = newProps;
 
     this.setState({ hasMore: allIntegrations.length === perPage });
+  }
+
+  handleChange(type, integration) {
+    const { integrations } = this.state;
+
+    if (type === 'plus') {
+      this.setState({
+        integrations: [...integrations, integration]
+      });
+    } else {
+      this.setState({
+        integrations: integrations.filter(item => item !== integration)
+      });
+    }
   }
 
   search(e) {
@@ -106,22 +117,7 @@ class IntegrationForm extends Component {
     return icon;
   }
 
-  handleChange(type, integration) {
-    const { integrations } = this.state;
-
-    if (type === 'plus') {
-      this.setState({
-        integrations: [...integrations, integration]
-      });
-    } else {
-      this.setState({
-        integrations: integrations.filter(item => item !== integration)
-      });
-    }
-  }
-
   renderRow(integration, icon) {
-    const { refetch } = this.props;
     const brand = integration.brand || {};
 
     if (
@@ -131,7 +127,7 @@ class IntegrationForm extends Component {
       return null;
     }
 
-    const addTrigger = (
+    return (
       <li
         key={integration._id}
         onClick={() => this.handleChange(icon, integration)}
@@ -146,27 +142,10 @@ class IntegrationForm extends Component {
         <Icon icon={icon} />
       </li>
     );
-
-    if (icon === 'plus') {
-      return addTrigger;
-    }
-    return (
-      <ModalTrigger
-        key={integration._id}
-        title="Choose new brand"
-        trigger={addTrigger}
-      >
-        <ChooseBrand
-          integration={integration}
-          refetch={refetch}
-          onSave={() => this.handleChange(icon, integration)}
-        />
-      </ModalTrigger>
-    );
   }
 
   render() {
-    const { allIntegrations, currentBrand } = this.props;
+    const { allIntegrations, currentChannel } = this.props;
     const selectedIntegrations = this.state.integrations;
 
     return (
@@ -197,7 +176,7 @@ class IntegrationForm extends Component {
           </Column>
           <Column>
             <Title>
-              {currentBrand.name}&apos;s integration
+              {currentChannel.name}&apos;s integration
               <span>({selectedIntegrations.length})</span>
             </Title>
             <ul>
@@ -224,7 +203,7 @@ class IntegrationForm extends Component {
   }
 }
 
-IntegrationForm.propTypes = propTypes;
-IntegrationForm.contextTypes = contextTypes;
+ManageIntegrationForm.propTypes = propTypes;
+ManageIntegrationForm.contextTypes = contextTypes;
 
-export default IntegrationForm;
+export default ManageIntegrationForm;

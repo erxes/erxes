@@ -2,6 +2,7 @@ import React from 'react';
 import { withRouter } from 'react-router';
 import PropTypes from 'prop-types';
 import { compose, gql, graphql } from 'react-apollo';
+import { Spinner } from 'modules/common/components';
 import { Messenger } from '../components';
 import { save } from './utils';
 
@@ -14,6 +15,10 @@ const MessengerContainer = props => {
     editMutation,
     refetch
   } = props;
+
+  if (brandsQuery.loading) {
+    return <Spinner objective />;
+  }
 
   const updatedProps = {
     ...props,

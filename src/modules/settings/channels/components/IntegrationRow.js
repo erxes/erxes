@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import {
+  ActionButtons,
   ModalTrigger,
   Tip,
   Label,
@@ -10,7 +11,6 @@ import {
 } from 'modules/common/components';
 import { KIND_CHOICES } from 'modules/settings/integrations/constants';
 import { Form, Messenger } from 'modules/settings/integrations/containers';
-import { ActionButtons } from '../../styles';
 
 const propTypes = {
   integration: PropTypes.object.isRequired,

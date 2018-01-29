@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { compose, gql, graphql } from 'react-apollo';
 import { queries, mutations } from '../graphql';
-import { IntegrationForm } from '../components';
+import { ManageIntegrationForm } from '../components';
 import { Alert } from 'modules/common/utils';
 
 class FormContainer extends Component {
@@ -14,11 +14,7 @@ class FormContainer extends Component {
   }
 
   render() {
-    const {
-      currentBrand,
-      allIntegrationsQuery,
-      manageIntegrations
-    } = this.props;
+    const { currentChannel, allIntegrationsQuery, editMutation } = this.props;
 
     const search = (value, loadmore) => {
       if (!loadmore) {
@@ -37,10 +33,12 @@ class FormContainer extends Component {
     };
 
     const save = integrationIds => {
-      manageIntegrations({
+      editMutation({
         variables: {
-          _id: currentBrand._id,
-          integrationIds
+          _id: currentChannel._id,
+          name: currentChannel.name,
+          integrationIds,
+          memberIds: currentChannel.memberIds
         }
       })
         .then(() => {
@@ -57,18 +55,17 @@ class FormContainer extends Component {
       save,
       clearState,
       perPage: this.state.perPage,
-      refetch: allIntegrationsQuery.refetch,
       allIntegrations: allIntegrationsQuery.integrations || []
     };
 
-    return <IntegrationForm {...updatedProps} />;
+    return <ManageIntegrationForm {...updatedProps} />;
   }
 }
 
 FormContainer.propTypes = {
-  currentBrand: PropTypes.object,
+  currentChannel: PropTypes.object,
   allIntegrationsQuery: PropTypes.object,
-  manageIntegrations: PropTypes.func
+  editMutation: PropTypes.func
 };
 
 export default compose(
@@ -80,21 +77,21 @@ export default compose(
       }
     }
   }),
-  graphql(gql(mutations.brandManageIntegrations), {
-    name: 'manageIntegrations',
-    options: ({ currentBrand }) => {
+  graphql(gql(mutations.channelEdit), {
+    name: 'editMutation',
+    options: ({ currentChannel }) => {
       return {
         refetchQueries: [
           {
             query: gql(queries.integrations),
             variables: {
-              brandId: currentBrand._id,
+              channelId: currentChannel._id,
               perPage: 20
             }
           },
           {
-            query: gql(queries.brandDetail),
-            variables: { _id: currentBrand._id }
+            query: gql(queries.channelDetail),
+            variables: { _id: currentChannel._id }
           }
         ]
       };

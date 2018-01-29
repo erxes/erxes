@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Wrapper } from 'modules/layout/components';
-import { Sidebar, IntegrationList, IntegrationForm } from '../containers';
+import { Sidebar, IntegrationList, ManageIntegrationForm } from '../containers';
 import {
   Pagination,
   DataWithLoader,
@@ -10,7 +10,7 @@ import {
 } from 'modules/common/components';
 
 const propTypes = {
-  totalIntegrationsCount: PropTypes.number.isRequired,
+  integrationsCount: PropTypes.number.isRequired,
   queryParams: PropTypes.object,
   currentBrand: PropTypes.object,
   loading: PropTypes.bool
@@ -19,7 +19,7 @@ const propTypes = {
 class Brands extends Component {
   render() {
     const {
-      totalIntegrationsCount,
+      integrationsCount,
       currentBrand,
       queryParams,
       loading
@@ -39,7 +39,7 @@ class Brands extends Component {
 
     const rightActionBar = currentBrand._id && (
       <ModalTrigger title="Manage Integration" trigger={trigger} size="lg">
-        <IntegrationForm currentBrand={currentBrand} />
+        <ManageIntegrationForm currentBrand={currentBrand} />
       </ModalTrigger>
     );
 
@@ -53,9 +53,7 @@ class Brands extends Component {
             queryParams={queryParams}
           />
         }
-        footer={
-          currentBrand._id && <Pagination count={totalIntegrationsCount} />
-        }
+        footer={currentBrand._id && <Pagination count={integrationsCount} />}
         content={
           <DataWithLoader
             data={
@@ -65,7 +63,7 @@ class Brands extends Component {
               />
             }
             loading={loading}
-            count={totalIntegrationsCount}
+            count={integrationsCount}
             emptyText="There is no integration in this Brand"
             emptyImage="/images/robots/robot-05.svg"
           />
