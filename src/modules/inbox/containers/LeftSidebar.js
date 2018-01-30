@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { compose, gql, graphql } from 'react-apollo';
+import { compose, graphql } from 'react-apollo';
+import gql from 'graphql-tag';
 import { TAG_TYPES } from 'modules/tags/constants';
 import { KIND_CHOICES as INTEGRATIONS_TYPES } from 'modules/settings/integrations/constants';
 import { LeftSidebar as LeftSidebarComponent } from '../components';

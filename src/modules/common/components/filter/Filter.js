@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { withRouter } from 'react-router';
-import { gql } from 'react-apollo';
+import gql from 'graphql-tag';
 import { router } from 'modules/common/utils';
 import { Chip } from 'modules/common/components';
 import createChipText from './createChipText';
