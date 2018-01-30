@@ -1,40 +1,32 @@
-import { ApolloClient, createNetworkInterface } from 'react-apollo';
-import { SubscriptionClient } from 'subscriptions-transport-ws';
-import { addGraphQLSubscriptions } from 'add-graphql-subscriptions';
+import { ApolloClient } from 'apollo-client';
+import { createHttpLink } from 'apollo-link-http';
+import { InMemoryCache } from 'apollo-cache-inmemory';
+import { setContext } from 'apollo-link-context';
+import { WebSocketLink } from 'apollo-link-ws';
+import { ApolloLink, split } from 'apollo-link';
+import { getMainDefinition } from 'apollo-utilities';
 
 const { REACT_APP_API_URL, REACT_APP_API_SUBSCRIPTION_URL } = process.env;
 
-const wsClient = new SubscriptionClient(REACT_APP_API_SUBSCRIPTION_URL, {
-  reconnect: true
-});
-
-// Create a normal network interface:
-const networkInterface = createNetworkInterface({
+// Create an http link:
+const httpLink = createHttpLink({
   uri: `${REACT_APP_API_URL}/graphql`
 });
 
 // Attach user credentials
-networkInterface.use([
-  {
-    applyMiddleware(req, next) {
-      if (!req.options.headers) {
-        req.options.headers = {};
-      }
-
-      const xToken = localStorage.getItem('erxesLoginToken');
-      const xRefreshToken = localStorage.getItem('erxesLoginRefreshToken');
-
-      req.options.headers['x-token'] = xToken;
-      req.options.headers['x-refresh-token'] = xRefreshToken;
-
-      next();
-    }
+const middlewareLink = setContext(() => ({
+  headers: {
+    'x-token': localStorage.getItem('erxesLoginToken'),
+    'x-refresh-token': localStorage.getItem('erxesLoginRefreshToken')
   }
-]);
+}));
 
-networkInterface.useAfter([
-  {
-    applyAfterware({ response: { headers } }, next) {
+const afterwareLink = new ApolloLink((operation, forward) => {
+  return forward(operation).map(response => {
+    const context = operation.getContext();
+    const { response: { headers } } = context;
+
+    if (headers) {
       const token = headers.get('x-token');
       const refreshToken = headers.get('x-refresh-token');
 
@@ -45,21 +37,44 @@ networkInterface.useAfter([
       if (refreshToken) {
         localStorage.setItem('erxesLoginRefreshToken', refreshToken);
       }
-
-      next();
     }
-  }
-]);
 
-// Extend the network interface with the WebSocket
-const networkInterfaceWithSubscriptions = addGraphQLSubscriptions(
-  networkInterface,
-  wsClient
+    return response;
+  });
+});
+
+// Combining httpLink and warelinks altogether
+const httpLinkWithMiddleware = afterwareLink.concat(
+  middlewareLink.concat(httpLink)
 );
 
-// Finally, create your ApolloClient instance with the modified network interface
+// Subscription config
+const wsLink = new WebSocketLink({
+  uri: REACT_APP_API_SUBSCRIPTION_URL,
+  options: {
+    reconnect: true,
+    connectionParams: {
+      token: localStorage.getItem('erxesLoginToken'),
+      refreshToken: localStorage.getItem('erxesLoginRefreshToken')
+    }
+  }
+});
+
+// Setting up subscription with link
+const link = split(
+  // split based on operation type
+  ({ query }) => {
+    const { kind, operation } = getMainDefinition(query);
+    return kind === 'OperationDefinition' && operation === 'subscription';
+  },
+  wsLink,
+  httpLinkWithMiddleware
+);
+
+// Creating Apollo-client
 const client = new ApolloClient({
-  networkInterface: networkInterfaceWithSubscriptions
+  link,
+  cache: new InMemoryCache()
 });
 
 export default client;
