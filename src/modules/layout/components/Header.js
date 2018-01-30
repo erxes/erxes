@@ -22,7 +22,7 @@ function Header({ breadcrumb = [], queryParams }) {
     <PageHeader>
       <BreadCrumb>
         {breadcrumb.map(b => (
-          <BreadCrumb.Item href={b.link} active={!b.link} key={b.title}>
+          <BreadCrumb.Item to={b.link} active={!b.link} key={b.title}>
             {b.title}
           </BreadCrumb.Item>
         ))}
