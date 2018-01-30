@@ -41,7 +41,6 @@
   max-height: 100%;
 }
 
-
 @media only screen and (max-width: 420px) {
   #erxes-messenger-container {
     width: 100%;
@@ -55,5 +54,10 @@
   #erxes-messenger-iframe {
     bottom: 0;
     right: 0;
+  }
+
+  body.messenger-widget-shown {
+    overflow: hidden;
+    position: absolute;
   }
 }
