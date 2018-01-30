@@ -1,7 +1,4 @@
-// Mixin to prefix several properties at once
-// @author Hugo Giraudel
-// @param {Map} $declarations - Declarations to prefix
-// @param {List} $prefixes (()) - List of prefixes to print
+// mixins
 @mixin prefix($declarations, $prefixes: ()) {
   @each $property, $value in $declarations {
     @each $prefix in $prefixes {

@@ -1,31 +1,53 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <style>
-[data-erxes-embed] {
-  width: 100%;
-  height: 600px;
-  position: relative;
-}
-    </style>
-  </head>
-  <body>
-    <div data-erxes-embed></div>
-    <div data-erxes-modal>Contact us</div>
-    <div data-erxes-modal>Contact us second handler</div>
-    <script>
-      window.erxesSettings = {
-        messenger: {
-          brand_id: "asC5MG",
-          email: "lombo@yahoo.com",
-          companyData: {
-            id: "123",
-            name: "Intercorp",
-            plan: "pro",
-          }
-        },
-      };
-    (function() {
+
+<head>
+  <style>
+    [data-erxes-embed] {
+      width: 100%;
+      height: 600px;
+      position: relative;
+    }
+  </style>
+</head>
+
+<body>
+  <div data-erxes-embed></div>
+  <div data-erxes-modal="">Contact us</div>
+
+  <script>
+    window.erxesSettings = {
+      forms: [{
+        brand_id: "Wtmpph",
+        form_id: "PyvtddA7XMvSJugyq",
+      }],
+    };
+
+    (function () {
+      var script = document.createElement('script');
+      script.src = "http://localhost/formWidget.bundle.js";
+      script.async = true;
+
+      var entry = document.getElementsByTagName('script')[0];
+      entry.parentNode.insertBefore(script, entry);
+    })();
+
+  </script>
+
+  <div data-erxes-modal>Contact us second handler</div>
+  <script>
+    window.erxesSettings = {
+      messenger: {
+        brand_id: "asC5MG",
+        email: "lombo@yahoo.com",
+        companyData: {
+          id: "123",
+          name: "Intercorp",
+          plan: "pro",
+        }
+      },
+    };
+    (function () {
       var script = document.createElement('script');
       script.src = "build/messengerWidget.bundle.js";
       script.async = true;
@@ -33,6 +55,7 @@
       var entry = document.getElementsByTagName('script')[0];
       entry.parentNode.insertBefore(script, entry);
     })();
-    </script>
-  </body>
+  </script>
+</body>
+
 </html>
