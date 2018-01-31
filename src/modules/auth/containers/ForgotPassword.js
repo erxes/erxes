@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { compose, graphql, gql } from 'react-apollo';
+import { compose, graphql } from 'react-apollo';
+import gql from 'graphql-tag';
 import { Alert } from 'modules/common/utils';
 import { ForgotPassword } from '../components';
 import { mutations } from '../graphql';
