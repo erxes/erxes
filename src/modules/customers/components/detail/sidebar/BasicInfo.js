@@ -38,6 +38,14 @@ class BasicInfo extends React.Component {
     this.handleChange = this.handleChange.bind(this);
   }
 
+  componentWillReceiveProps(newProps) {
+    const { customer } = newProps;
+    const oldcustomer = this.props.customer;
+    if (customer._id !== oldcustomer._id) {
+      this.setState({ editing: false });
+    }
+  }
+
   toggleEditing() {
     this.cancelEditing();
     this.setState({ editing: true });

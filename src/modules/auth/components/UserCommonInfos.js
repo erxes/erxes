@@ -84,19 +84,19 @@ class UserCommonInfos extends Component {
             <ControlLabel>Username</ControlLabel>
             <FormControl
               type="text"
-              id="fullName"
+              id="username"
               defaultValue={user.username}
             />
           </FormGroup>
           <FormGroup>
             <ControlLabel>Email</ControlLabel>
-            <FormControl type="text" id="fullName" defaultValue={user.email} />
+            <FormControl type="text" id="email" defaultValue={user.email} />
           </FormGroup>
           <FormGroup>
             <ControlLabel>Mini-Resume</ControlLabel>
             <FormControl
               type="text"
-              id="fullName"
+              id="miniResume"
               componentClass="textarea"
               defaultValue={user.details.miniResume || ''}
             />
@@ -105,7 +105,7 @@ class UserCommonInfos extends Component {
             <ControlLabel>Position</ControlLabel>
             <FormControl
               type="text"
-              id="fullName"
+              id="position"
               defaultValue={user.details.position || ''}
             />
           </FormGroup>
@@ -113,7 +113,7 @@ class UserCommonInfos extends Component {
             <ControlLabel>Location</ControlLabel>
             <FormControl
               type="text"
-              id="fullName"
+              id="location"
               defaultValue={user.details.location || ''}
             />
           </FormGroup>
@@ -124,7 +124,7 @@ class UserCommonInfos extends Component {
             <ControlLabel>LinkedIn</ControlLabel>
             <FormControl
               type="text"
-              id="fullName"
+              id="linkedin"
               defaultValue={user.details.linkedin || ''}
             />
           </FormGroup>
@@ -132,7 +132,7 @@ class UserCommonInfos extends Component {
             <ControlLabel>Twitter</ControlLabel>
             <FormControl
               type="text"
-              id="fullName"
+              id="twitter"
               defaultValue={user.details.twitter || ''}
             />
           </FormGroup>
@@ -140,7 +140,7 @@ class UserCommonInfos extends Component {
             <ControlLabel>Facebook</ControlLabel>
             <FormControl
               type="text"
-              id="fullName"
+              id="facebook"
               defaultValue={user.details.facebook || ''}
             />
           </FormGroup>
@@ -148,7 +148,7 @@ class UserCommonInfos extends Component {
             <ControlLabel>Github</ControlLabel>
             <FormControl
               type="text"
-              id="fullName"
+              id="github"
               defaultValue={user.details.github || ''}
             />
           </FormGroup>
@@ -156,7 +156,7 @@ class UserCommonInfos extends Component {
             <ControlLabel>Website</ControlLabel>
             <FormControl
               type="text"
-              id="fullName"
+              id="website"
               defaultValue={user.details.website || ''}
             />
           </FormGroup>

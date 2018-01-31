@@ -1,15 +1,11 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import {
-  FormGroup,
-  ControlLabel,
-  FormControl,
-  Button
-} from 'modules/common/components';
+import { Button, ModalTrigger } from 'modules/common/components';
 import { UserCommonInfos } from 'modules/auth/components';
 import { ActionBar, Wrapper } from 'modules/layout/components';
 import Sidebar from 'modules/settings/Sidebar';
 import { ContentBox } from '../../styles';
+import { PasswordConfirmation } from './';
 
 const propTypes = {
   currentUser: PropTypes.object.isRequired,
@@ -26,9 +22,7 @@ class Profile extends Component {
     this.state = { avatar: props.currentUser.details.avatar };
   }
 
-  handleSubmit(e) {
-    e.preventDefault();
-
+  handleSubmit(password) {
     this.props.save({
       username: document.getElementById('username').value,
       email: document.getElementById('email').value,
@@ -36,9 +30,9 @@ class Profile extends Component {
         avatar: this.state.avatar,
         fullName: document.getElementById('fullName').value,
         position: document.getElementById('position').value,
-        twitterUsername: document.getElementById('twitterUsername').value
+        twitterUsername: document.getElementById('twitter').value
       },
-      password: document.getElementById('password').value
+      password
     });
   }
 
@@ -47,19 +41,18 @@ class Profile extends Component {
   }
 
   render() {
+    const saveButton = (
+      <Button btnStyle="success" icon="checkmark">
+        Save
+      </Button>
+    );
+
     const content = (
       <ContentBox>
-        <form onSubmit={this.handleSubmit}>
-          <UserCommonInfos
-            user={this.props.currentUser}
-            onAvatarUpload={this.onAvatarUpload}
-          />
-
-          <FormGroup>
-            <ControlLabel>Current password</ControlLabel>
-            <FormControl id="password" type="password" />
-          </FormGroup>
-        </form>
+        <UserCommonInfos
+          user={this.props.currentUser}
+          onAvatarUpload={this.onAvatarUpload}
+        />
       </ContentBox>
     );
 
@@ -71,13 +64,14 @@ class Profile extends Component {
     const actionFooter = (
       <ActionBar
         right={
-          <Button
-            btnStyle="success"
-            onClick={this.handleSubmit}
-            icon="checkmark"
+          <ModalTrigger
+            title="Enter your password to Confirm"
+            trigger={saveButton}
           >
-            Save
-          </Button>
+            <PasswordConfirmation
+              onSuccess={password => this.handleSubmit(password)}
+            />
+          </ModalTrigger>
         }
       />
     );
