@@ -1,7 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Alert } from 'modules/common/utils';
-import { compose, gql, graphql } from 'react-apollo';
+import { compose, graphql } from 'react-apollo';
+import gql from 'graphql-tag';
 import { SegmentsForm } from '../components';
 import { mutations, queries } from '../graphql';
 import { queries as customerQueries } from 'modules/customers/graphql';
