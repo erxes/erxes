@@ -1,7 +1,7 @@
 /* eslint-disable jsx-a11y/no-static-element-interactions */
 
 import React, { PropTypes, Component } from 'react';
-import { iconRight, iconPlus } from '../../icons/Icons';
+import { iconRight, iconExit } from '../../icons/Icons';
 import { TopBar } from '../containers';
 
 class AccquireInformation extends Component {
@@ -44,7 +44,7 @@ class AccquireInformation extends Component {
 
     return (
       <div className="erxes-messenger accquire-information" style={style}>
-        <TopBar middle={title} buttonIcon={iconPlus} />
+        <TopBar middle={title} buttonIcon={iconExit} />
 
         <div className="content">
           <p className="type">
