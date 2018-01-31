@@ -52,11 +52,7 @@ const httpLinkWithMiddleware = afterwareLink.concat(
 const wsLink = new WebSocketLink({
   uri: REACT_APP_API_SUBSCRIPTION_URL,
   options: {
-    reconnect: true,
-    connectionParams: {
-      token: localStorage.getItem('erxesLoginToken'),
-      refreshToken: localStorage.getItem('erxesLoginRefreshToken')
-    }
+    reconnect: true
   }
 });
 
