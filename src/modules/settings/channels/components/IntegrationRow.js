@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import {
+  ActionButtons,
   ModalTrigger,
   Tip,
   Label,
@@ -10,10 +11,10 @@ import {
 } from 'modules/common/components';
 import { KIND_CHOICES } from 'modules/settings/integrations/constants';
 import { Form, Messenger } from 'modules/settings/integrations/containers';
-import { ActionButtons } from '../styles';
 
 const propTypes = {
-  integration: PropTypes.object.isRequired
+  integration: PropTypes.object.isRequired,
+  refetch: PropTypes.func.isRequired
 };
 
 class IntegrationRow extends Component {
@@ -24,7 +25,7 @@ class IntegrationRow extends Component {
   }
 
   renderExtraLinks() {
-    const { integration } = this.props;
+    const { integration, refetch } = this.props;
     const kind = integration.kind;
 
     const editTrigger = (
@@ -59,7 +60,7 @@ class IntegrationRow extends Component {
           </Tip>
 
           <ModalTrigger title="Edit integration" trigger={editTrigger}>
-            <Messenger integration={integration} />
+            <Messenger integration={integration} refetch={refetch} />
           </ModalTrigger>
         </ActionButtons>
       );
@@ -68,7 +69,7 @@ class IntegrationRow extends Component {
     if (kind === KIND_CHOICES.FORM) {
       return (
         <ModalTrigger title="Edit integration" trigger={editTrigger}>
-          <Form integration={integration} />
+          <Form integration={integration} refetch={refetch} />
         </ModalTrigger>
       );
     }

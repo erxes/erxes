@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import { Wrapper } from 'modules/layout/components';
-import { SidebarList } from 'modules/layout/styles';
+import { SidebarList, SidebarCounter } from 'modules/layout/styles';
 
 function Main({ counts }) {
   const { Title } = Wrapper.Sidebar.Section;
@@ -14,25 +14,25 @@ function Main({ counts }) {
         <li>
           <Link to="/engage">
             All
-            <span>{counts.all}</span>
+            <SidebarCounter>{counts.all}</SidebarCounter>
           </Link>
         </li>
         <li>
           <Link to={`/engage?kind=auto`}>
             Auto
-            <span>{counts.auto}</span>
+            <SidebarCounter>{counts.auto}</SidebarCounter>
           </Link>
         </li>
         <li>
           <Link to={`/engage?kind=visitorAuto`}>
             Visitor auto
-            <span>{counts.visitorAuto}</span>
+            <SidebarCounter>{counts.visitorAuto}</SidebarCounter>
           </Link>
         </li>
         <li>
           <Link to={`/engage?kind=manual`}>
             Manual
-            <span>{counts.manual}</span>
+            <SidebarCounter>{counts.manual}</SidebarCounter>
           </Link>
         </li>
       </SidebarList>

@@ -10,21 +10,22 @@ import {
 } from 'modules/common/components';
 import { KIND_CHOICES } from 'modules/settings/integrations/constants';
 import { LoadMore, Title, Columns, Column } from 'modules/customers/styles';
-import { BrandName, IntegrationName } from '../styles';
+import { BrandName, IntegrationName } from '../../styles';
 
 const propTypes = {
   currentChannel: PropTypes.object,
   save: PropTypes.func.isRequired,
   search: PropTypes.func.isRequired,
   allIntegrations: PropTypes.array.isRequired,
-  perPage: PropTypes.number.isRequired
+  perPage: PropTypes.number.isRequired,
+  clearState: PropTypes.func.isRequired
 };
 
 const contextTypes = {
   closeModal: PropTypes.func.isRequired
 };
 
-class IntegrationForm extends Component {
+class ManageIntegrationForm extends Component {
   constructor(props) {
     super(props);
 
@@ -55,7 +56,7 @@ class IntegrationForm extends Component {
   }
 
   componentWillUnmount() {
-    this.props.search('');
+    this.props.clearState();
   }
 
   componentWillReceiveProps(newProps) {
@@ -202,7 +203,7 @@ class IntegrationForm extends Component {
   }
 }
 
-IntegrationForm.propTypes = propTypes;
-IntegrationForm.contextTypes = contextTypes;
+ManageIntegrationForm.propTypes = propTypes;
+ManageIntegrationForm.contextTypes = contextTypes;
 
-export default IntegrationForm;
+export default ManageIntegrationForm;

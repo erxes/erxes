@@ -1,7 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { compose, gql, graphql } from 'react-apollo';
 import { withRouter } from 'react-router';
+import { compose, graphql } from 'react-apollo';
+import gql from 'graphql-tag';
 import { Alert } from 'modules/common/utils';
 import { Bulk } from 'modules/common/components';
 import { mutations, queries } from '../graphql';

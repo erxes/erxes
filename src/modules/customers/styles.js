@@ -58,10 +58,6 @@ const Column = styled.div`
           width: 34px;
         }
       }
-
-      &:last-child {
-        margin: 0;
-      }
     }
   }
 

@@ -186,12 +186,7 @@ class LeftSidebar extends React.Component {
         <Section>
           <Section.Title>Device properties</Section.Title>
           <SidebarList className="no-link">
-            {this.renderDeviceProperty('Region', location.region)}
-            {this.renderDeviceProperty(
-              'Location',
-              location.city,
-              location.country
-            )}
+            {this.renderDeviceProperty('Location', location.country)}
             {this.renderDeviceProperty(
               'Browser',
               ua.browser.name,

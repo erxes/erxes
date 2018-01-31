@@ -31,8 +31,8 @@ class Form extends Common {
 
     // showed install code automatically in edit mode
     if (integration._id) {
-      const brand = integration.brand;
-      const form = integration.form;
+      const brand = integration.brand || {};
+      const form = integration.form || {};
 
       code = this.constructor.getInstallCode(brand.code, form.code);
     }

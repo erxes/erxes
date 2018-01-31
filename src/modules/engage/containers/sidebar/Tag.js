@@ -2,7 +2,8 @@ import React from 'react';
 import { withRouter } from 'react-router';
 import queryString from 'query-string';
 import PropTypes from 'prop-types';
-import { compose, gql, graphql } from 'react-apollo';
+import { compose, graphql } from 'react-apollo';
+import gql from 'graphql-tag';
 import { CountsByTag } from 'modules/common/components';
 
 const TagContainer = props => {

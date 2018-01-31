@@ -43,7 +43,10 @@ const renderElement = (Element, attributes, type, child) => {
   return (
     <FormLabel>
       <Element {...attributes} type={type} />
-      <span>&nbsp;&nbsp;{child}</span>
+      <span>
+        {child && '  '}
+        {child}
+      </span>
     </FormLabel>
   );
 };
@@ -59,7 +62,11 @@ class FormControl extends React.Component {
       onClick: props.onClick,
       value: props.value,
       defaultValue: props.defaultValue,
-      checked: props.defaultChecked ? props.defaultChecked : props.checked,
+      [props.defaultChecked
+        ? 'defaultChecked'
+        : 'checked']: props.defaultChecked
+        ? props.defaultChecked
+        : props.checked,
       placeholder: props.placeholder,
       type: props.type,
       name: props.name,

@@ -1,17 +1,18 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Wrapper } from 'modules/layout/components';
-import { Sidebar, IntegrationList, IntegrationForm } from '../containers';
 import {
   Pagination,
   DataWithLoader,
   Button,
   ModalTrigger
 } from 'modules/common/components';
+import { Sidebar, IntegrationList, ManageIntegrationForm } from '../containers';
 
 const propTypes = {
-  totalIntegrationsCount: PropTypes.number.isRequired,
+  integrationsCount: PropTypes.number.isRequired,
   queryParams: PropTypes.object,
+  refetch: PropTypes.func,
   currentChannel: PropTypes.object,
   loading: PropTypes.bool
 };
@@ -19,10 +20,11 @@ const propTypes = {
 class Channels extends Component {
   render() {
     const {
-      totalIntegrationsCount,
+      integrationsCount,
       currentChannel,
       queryParams,
-      loading
+      loading,
+      refetch
     } = this.props;
 
     const breadcrumb = [
@@ -39,7 +41,7 @@ class Channels extends Component {
 
     const rightActionBar = currentChannel._id && (
       <ModalTrigger title="Manage Integration" trigger={trigger} size="lg">
-        <IntegrationForm currentChannel={currentChannel} />
+        <ManageIntegrationForm currentChannel={currentChannel} />
       </ModalTrigger>
     );
 
@@ -53,19 +55,18 @@ class Channels extends Component {
             queryParams={queryParams}
           />
         }
-        footer={
-          currentChannel._id && <Pagination count={totalIntegrationsCount} />
-        }
+        footer={currentChannel._id && <Pagination count={integrationsCount} />}
         content={
           <DataWithLoader
             data={
               <IntegrationList
                 currentChannel={currentChannel}
                 queryParams={queryParams}
+                refetch={refetch}
               />
             }
             loading={loading}
-            count={totalIntegrationsCount}
+            count={integrationsCount}
             emptyText="There is no integration in this channel."
             emptyImage="/images/robots/robot-05.svg"
           />

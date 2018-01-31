@@ -3,16 +3,8 @@ import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 import { ChannelForm } from '../containers';
 import { ModalTrigger, Tip, Button, Icon } from 'modules/common/components';
-import {
-  SidebarListItem,
-  ManageActions,
-  Members,
-  MemberImg,
-  More,
-  Row,
-  RowContent,
-  ActionButtons
-} from '../styles';
+import { SidebarListItem, ActionButtons } from 'modules/settings/styles';
+import { Members, MemberImg, More } from '../styles';
 
 const propTypes = {
   channel: PropTypes.object.isRequired,
@@ -73,40 +65,49 @@ class ChannelRow extends Component {
     );
   }
 
-  render() {
-    const { channel, members, isActive } = this.props;
-    const limit = 8;
+  renderMembers() {
+    const { channel, members } = this.props;
+
     let selectedMembers = [];
 
     if (channel) {
       selectedMembers = members.filter(u => channel.memberIds.includes(u._id));
     }
+
     const length = selectedMembers.length;
+    const limit = 8;
+
+    // render members ================
+    const limitedMembers = selectedMembers.slice(0, limit);
+    const renderedMembers = limitedMembers.map(member =>
+      this.renderMember(member)
+    );
+
+    // render readmore ===============
+    let readMore = null;
+
+    if (length - limit > 0) {
+      readMore = <More key="readmore">{`+${length - limit}`}</More>;
+    }
+
+    return [renderedMembers, readMore];
+  }
+
+  render() {
+    const { channel, isActive } = this.props;
 
     return (
       <SidebarListItem key={channel._id} isActive={isActive}>
-        <Row>
-          <Link to={`?id=${channel._id}`}>
-            <RowContent>
-              {channel.name}
-              <Members>
-                {selectedMembers
-                  .slice(0, limit ? limit : length)
-                  .map(member => this.renderMember(member))}
-                {limit &&
-                  length - limit > 0 && <More>{`+${length - limit}`}</More>}
-              </Members>
-            </RowContent>
-          </Link>
-          <ManageActions>
-            <ActionButtons>
-              {this.renderEditAction()}
-              <Tip text="Delete">
-                <Button btnStyle="link" onClick={this.remove} icon="close" />
-              </Tip>
-            </ActionButtons>
-          </ManageActions>
-        </Row>
+        <Link to={`?id=${channel._id}`}>
+          {channel.name}
+          <Members>{this.renderMembers()}</Members>
+        </Link>
+        <ActionButtons>
+          {this.renderEditAction()}
+          <Tip text="Delete">
+            <Button btnStyle="link" onClick={this.remove} icon="close" />
+          </Tip>
+        </ActionButtons>
       </SidebarListItem>
     );
   }

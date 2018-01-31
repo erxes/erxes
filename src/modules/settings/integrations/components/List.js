@@ -1,10 +1,10 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Wrapper, ActionBar } from 'modules/layout/components';
+import { Wrapper } from 'modules/layout/components';
 import { Pagination, Table, DataWithLoader } from 'modules/common/components';
 import { AddIntegration } from '../components';
 import Row from './Row';
-import Sidebar from 'modules/settings/Sidebar';
+import Sidebar from '../Sidebar';
 
 const propTypes = {
   integrations: PropTypes.array.isRequired,
@@ -37,8 +37,6 @@ class List extends Component {
   render() {
     const { totalCount, loading } = this.props;
 
-    const actionBar = <ActionBar right={<AddIntegration />} />;
-
     const content = (
       <Table>
         <thead>
@@ -62,7 +60,7 @@ class List extends Component {
       <Wrapper
         header={<Wrapper.Header breadcrumb={breadcrumb} />}
         leftSidebar={<Sidebar />}
-        actionBar={<Wrapper.ActionBar right={actionBar} />}
+        actionBar={<Wrapper.ActionBar right={<AddIntegration />} />}
         footer={<Pagination count={totalCount} />}
         content={
           <DataWithLoader

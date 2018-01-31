@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { compose, gql, graphql } from 'react-apollo';
+import { compose, graphql } from 'react-apollo';
+import gql from 'graphql-tag';
 import { queries } from '../graphql';
 import { IntegrationList } from '../components';
 
@@ -12,6 +13,7 @@ const IntegrationListContainer = props => {
   const updatedProps = {
     ...props,
     integrations,
+    refetch: integrationsQuery.refetch,
     loading: integrationsQuery.loading
   };
 
