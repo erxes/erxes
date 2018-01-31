@@ -1,9 +1,8 @@
 /* eslint-disable jsx-a11y/no-static-element-interactions */
 
 import React, { PropTypes, Component } from 'react';
-import { iconRight } from '../../icons/Icons';
+import { iconRight, iconPlus } from '../../icons/Icons';
 import { TopBar } from '../containers';
-
 
 class AccquireInformation extends Component {
   constructor(props) {
@@ -45,7 +44,7 @@ class AccquireInformation extends Component {
 
     return (
       <div className="erxes-messenger accquire-information" style={style}>
-        <TopBar middle={title} />
+        <TopBar middle={title} buttonIcon={iconPlus} />
 
         <div className="content">
           <p className="type">
@@ -67,7 +66,9 @@ class AccquireInformation extends Component {
           <form className="form" onSubmit={this.save}>
             <input
               onChange={this.onValueChange}
-              placeholder={type === 'email' ? 'email@domain.com' : 'phone number ...'}
+              placeholder={
+                type === 'email' ? 'email@domain.com' : 'phone number ...'
+              }
               style={{ borderColor: color }}
             />
 
