@@ -9,31 +9,31 @@ import {
   FormGroup,
   Icon
 } from 'modules/common/components';
-import {
-  EMAIL_CONTENT_PLACEHOLDER,
-  EMAIL_CONTENT_CLASS
-} from 'modules/engage/constants';
+import { EMAIL_CONTENT_CLASS } from 'modules/engage/constants';
 import Editor from '../Editor';
 import { EditorWrapper } from '../../styles';
 
 const Content = styled.div`
   display: flex;
-  min-height: 100%;
+  height: 100%;
 `;
 
-const Flex100 = styled.div`
-  flex: 1 100%;
+const FlexItem = styled.div`
+  flex: 1;
+  overflow: auto;
+  padding: 10px;
 `;
 
 const Divider = styled.div`
   width: 1px;
   background: ${colors.borderPrimary};
-  min-height: 100%;
+  height: 100%;
   margin: 0 10px;
 `;
 
 const ContentCenter = styled.div`
-  flex: 1 100%;
+  flex: 1;
+  overflow: auto;
 `;
 
 const propTypes = {
@@ -127,7 +127,7 @@ class EmailForm extends Component {
 
     return (
       <Content>
-        <Flex100>
+        <FlexItem>
           <FormGroup>
             <ControlLabel>From:</ControlLabel>
             <FormControl
@@ -146,14 +146,7 @@ class EmailForm extends Component {
             <ControlLabel>Email subject:</ControlLabel>
             <FormControl
               onChange={e => this.changeContent('subject', e.target.value)}
-            >
-              <option />{' '}
-              {this.props.templates.map(t => (
-                <option key={t._id} value={t._id}>
-                  {t.name}
-                </option>
-              ))}
-            </FormControl>
+            />
           </FormGroup>
           <FormGroup>
             <ControlLabel>Email template:</ControlLabel>
@@ -175,7 +168,7 @@ class EmailForm extends Component {
               <Editor onChange={this.props.changeMessage} />
             </EditorWrapper>
           </FormGroup>
-        </Flex100>
+        </FlexItem>
         <Divider />
         <ContentCenter>{content}</ContentCenter>
       </Content>

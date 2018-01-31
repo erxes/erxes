@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Wrapper } from 'modules/layout/components';
 import { SidebarList, SidebarCounter } from 'modules/layout/styles';
 import { EmptyState, Icon } from 'modules/common/components';
 import { Segmentli } from '../styles';
@@ -26,6 +25,7 @@ class Segments extends Component {
   onClickSegment(segmentId) {
     if (segmentId === this.state.chosenSegment) {
       this.setState({ chosenSegment: '' });
+      this.props.onChangeSegments('');
     } else {
       this.props.onChangeSegments(segmentId);
       this.setState({ chosenSegment: segmentId });
@@ -34,7 +34,6 @@ class Segments extends Component {
 
   render() {
     const { segments, counts } = this.props;
-    const { Section } = Wrapper.Sidebar;
 
     const orderedSegments = [];
 
@@ -45,34 +44,25 @@ class Segments extends Component {
     });
 
     return (
-      <Section collapsible={segments.length > 5}>
-        <Section.Title>Choose segment</Section.Title>
-        <SidebarList>
-          {orderedSegments.length ? (
-            orderedSegments.map(segment => (
-              <Segmentli
-                key={segment._id}
-                chosen={this.state.chosenSegment === segment._id}
-              >
-                <a
-                  tabIndex={0}
-                  onClick={() => this.onClickSegment(segment._id)}
-                >
-                  {segment.subOf ? '\u00a0\u00a0\u00a0\u00a0\u00a0' : null}
-                  <Icon
-                    icon="pie-graph icon"
-                    style={{ color: segment.color }}
-                  />
-                  {segment.name}
-                  <SidebarCounter>{counts[segment._id]}</SidebarCounter>
-                </a>
-              </Segmentli>
-            ))
-          ) : (
-            <EmptyState icon="pie-graph" text="No segments" size="small" />
-          )}
-        </SidebarList>
-      </Section>
+      <SidebarList>
+        {orderedSegments.length ? (
+          orderedSegments.map(segment => (
+            <Segmentli
+              key={segment._id}
+              chosen={this.state.chosenSegment === segment._id}
+            >
+              <a tabIndex={0} onClick={() => this.onClickSegment(segment._id)}>
+                {segment.subOf ? '\u00a0\u00a0\u00a0\u00a0\u00a0' : null}
+                <Icon icon="pie-graph icon" style={{ color: segment.color }} />
+                {segment.name}
+                <SidebarCounter>{counts[segment._id]}</SidebarCounter>
+              </a>
+            </Segmentli>
+          ))
+        ) : (
+          <EmptyState icon="pie-graph" text="No segments" size="small" />
+        )}
+      </SidebarList>
     );
   }
 }

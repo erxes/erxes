@@ -5,8 +5,7 @@ import { colors } from 'modules/common/styles';
 import {
   FormControl,
   ControlLabel,
-  FormGroup,
-  Icon
+  FormGroup
 } from 'modules/common/components';
 import { MESSENGER_KINDS, SENT_AS_CHOICES } from 'modules/engage/constants';
 import Editor from '../Editor';
@@ -15,11 +14,13 @@ import { MessengerPreview } from '../../containers';
 
 const Content = styled.div`
   display: flex;
-  min-height: 100%;
+  height: 100%;
+  margin: 20px;
 `;
 
-const Flex100 = styled.div`
-  flex: 1 100%;
+const FlexItem = styled.div`
+  flex: 1;
+  overflow: auto;
 `;
 
 const Divider = styled.div`
@@ -30,7 +31,8 @@ const Divider = styled.div`
 `;
 
 const ContentCenter = styled.div`
-  flex: 1 100%;
+  flex: 1;
+  overflow: auto;
 `;
 
 const propTypes = {
@@ -71,7 +73,7 @@ class MessengerForm extends Component {
   render() {
     return (
       <Content>
-        <Flex100>
+        <FlexItem>
           <FormGroup>
             <ControlLabel>From:</ControlLabel>
             <FormControl
@@ -134,7 +136,7 @@ class MessengerForm extends Component {
               <Editor onChange={this.props.changeMessage} />
             </EditorWrapper>
           </FormGroup>
-        </Flex100>
+        </FlexItem>
         <Divider />
         <ContentCenter>
           <MessengerPreview

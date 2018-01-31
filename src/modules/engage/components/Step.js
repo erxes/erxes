@@ -2,19 +2,21 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import {
   StepWrapper,
-  ShortStep,
-  StepNumber,
+  TitleContainer,
+  StepContainer,
+  StepItem,
   FullStep,
+  StepHeaderContainer,
   StepHeader,
-  NextButton,
-  StepContent
-} from './step/Style.js';
-import { Icon } from 'modules/common/components';
+  StepNumber,
+  StepHeaderTitle,
+  StepContent,
+  ShortStep
+} from './step/Style2';
+import { FormControl, Button } from 'modules/common/components';
 import Step1 from './step/Step1';
 import Step2 from './step/Step2';
 import Step3 from './step/Step3';
-import styled from 'styled-components';
-import { colors } from 'modules/common/styles';
 
 const propTypes = {
   segments: PropTypes.array.isRequired,
@@ -23,24 +25,6 @@ const propTypes = {
   counts: PropTypes.object,
   users: PropTypes.array
 };
-
-const ButtonContainer = styled.div`
-  position: absolute;
-  right: 10px;
-  display: flex;
-
-  > *:nth-child(n + 2) {
-    margin-left: 20px;
-  }
-`;
-
-const ActionButton = styled.div`
-  padding: 5px 10px;
-  cursor: pointer;
-  border-radius: 2px;
-  background: ${colors.colorPrimary};
-  color: ${colors.colorWhite};
-`;
 
 class Step extends Component {
   constructor(props) {
@@ -98,6 +82,10 @@ class Step extends Component {
     return doc;
   }
 
+  changeTitle(title) {
+    this.setState({ title });
+  }
+
   changeUser(fromUser) {
     this.setState({ fromUser });
   }
@@ -136,78 +124,110 @@ class Step extends Component {
     this.props.save({ isLive: false, isDraft: true, ...doc });
   }
 
-  renderStep(step, hasNext, content) {
-    let next = '';
-
-    next = (
-      <ButtonContainer>
-        <ActionButton onClick={e => this.saveLive(e)}>Save & Live</ActionButton>
-        <ActionButton onClick={e => this.saveDraft(e)}>
-          Save & Draft
-        </ActionButton>
-      </ButtonContainer>
+  renderStep(step, title, hasNext, content) {
+    let next = (
+      <Button.Group>
+        <Button
+          btnStyle="warning"
+          size="small"
+          icon="plus"
+          onClick={e => this.saveDraft(e)}
+        >
+          Save & Live
+        </Button>
+        <Button
+          btnStyle="primary"
+          size="small"
+          icon="plus"
+          onClick={e => this.saveLive(e)}
+        >
+          Save & Live
+        </Button>
+      </Button.Group>
     );
 
     if (hasNext) {
       next = (
-        <NextButton onClick={() => this.showStep(step + 1)}>
-          <span>Next</span>
-          <Icon icon="ios-arrow-forward" />
-        </NextButton>
+        <Button
+          btnStyle="default"
+          size="small"
+          icon="ios-arrow-forward"
+          onClick={() => this.showStep(step + 1)}
+        >
+          Next
+        </Button>
       );
     }
 
+    let show = false;
+
     if (this.state.step === step) {
-      return (
-        <FullStep>
-          <StepHeader>
-            <StepNumber>{step}</StepNumber>
-            {next}
-          </StepHeader>
-          <StepContent>{content}</StepContent>
-        </FullStep>
-      );
+      show = true;
     }
 
     return (
-      <ShortStep onClick={() => this.showStep(step)}>
-        <StepNumber>{step}</StepNumber>
-      </ShortStep>
+      <StepItem show={show}>
+        <FullStep show={show}>
+          <StepHeaderContainer>
+            <StepHeader>
+              <StepNumber>{step}</StepNumber>
+              <StepHeaderTitle>{title}</StepHeaderTitle>
+            </StepHeader>
+            {next}
+          </StepHeaderContainer>
+          <StepContent>{content}</StepContent>
+        </FullStep>
+        <ShortStep show={!show} onClick={() => this.showStep(step)}>
+          <StepNumber>{step}</StepNumber>
+        </ShortStep>
+      </StepItem>
     );
   }
 
   render() {
     return (
       <StepWrapper>
-        {this.renderStep(
-          1,
-          true,
-          <Step1 changeMethod={this.changeMethod} method={this.state.method} />
-        )}
-        {this.renderStep(
-          2,
-          true,
-          <Step2
-            changeSegment={this.changeSegment}
-            segments={this.props.segments}
-            counts={this.props.counts}
-          />
-        )}
-        {this.renderStep(
-          3,
-          false,
-          <Step3
-            brands={this.props.brands}
-            changeMessenger={this.changeMessenger}
-            changeEmail={this.changeEmail}
-            changeMessage={this.changeMessage}
-            message={this.state.message}
-            changeUser={this.changeUser}
-            users={this.props.users}
-            method={this.state.method}
-            templates={this.props.templates}
-          />
-        )}
+        <TitleContainer>
+          <div>Title</div>
+          <FormControl round onChange={e => this.changeTitle(e.target.value)} />
+        </TitleContainer>
+        <StepContainer>
+          {this.renderStep(
+            1,
+            'Choose email',
+            true,
+            <Step1
+              changeMethod={this.changeMethod}
+              method={this.state.method}
+            />
+          )}
+          {this.renderStep(
+            2,
+            'Choose segment',
+            true,
+            <Step2
+              changeSegment={this.changeSegment}
+              segments={this.props.segments}
+              counts={this.props.counts}
+            />
+          )}
+          {this.renderStep(
+            3,
+            'Choose template',
+            false,
+            <Step3
+              brands={this.props.brands}
+              changeMessenger={this.changeMessenger}
+              changeEmail={this.changeEmail}
+              changeMessage={this.changeMessage}
+              message={this.state.message}
+              changeUser={this.changeUser}
+              users={this.props.users}
+              method={this.state.method}
+              templates={this.props.templates}
+            />
+          )}
+        </StepContainer>
       </StepWrapper>
     );
   }

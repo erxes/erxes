@@ -6,7 +6,7 @@ import Step from './Step';
 import VisitorForm from './VisitorForm';
 import Widget from './Widget';
 import MessengerPreview from './MessengerPreview';
-
+import SegmentsForm from './SegmentsForm';
 // sidebar
 import Main from './sidebar/Main';
 import Status from './sidebar/Status';
@@ -22,5 +22,6 @@ export {
   Widget,
   MessengerPreview,
   Sidebar,
-  Step
+  Step,
+  SegmentsForm
 };

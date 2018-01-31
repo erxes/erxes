@@ -11,7 +11,8 @@ const propTypes = {
   message: PropTypes.string,
   changeUser: PropTypes.func,
   users: PropTypes.array,
-  method: PropTypes.string
+  method: PropTypes.string,
+  templates: PropTypes.array
 };
 
 class Step3 extends Component {
