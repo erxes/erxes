@@ -234,15 +234,6 @@ const SidebarList = styled.ul`
     outline: 0;
     position: relative;
 
-    > span {
-      font-size: ${typography.fontSizeHeading8}px;
-      text-align: right;
-      color: ${colors.colorCoreGray};
-      margin-top: 2px;
-      position: absolute;
-      right: 12px;
-    }
-
     > i {
       margin-right: 5px;
     }

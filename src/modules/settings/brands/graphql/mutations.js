@@ -38,9 +38,34 @@ const brandManageIntegrations = `
   }
 `;
 
+const integrationsCreateMessenger = `
+  mutation add($name: String!, $brandId: String!) {
+    integrationsCreateMessengerIntegration(
+      name: $name
+      brandId: $brandId
+    ) {
+      _id
+    }
+  }
+`;
+
+const integrationsEditMessenger = `
+  mutation edit($_id: String!, $name: String!, $brandId: String!) {
+    integrationsEditMessengerIntegration(
+      _id: $_id
+      name: $name
+      brandId: $brandId
+    ) {
+       _id
+    }
+  }
+`;
+
 export default {
   brandAdd,
   brandEdit,
   brandRemove,
-  brandManageIntegrations
+  brandManageIntegrations,
+  integrationsCreateMessenger,
+  integrationsEditMessenger
 };

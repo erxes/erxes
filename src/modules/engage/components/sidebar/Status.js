@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { withRouter } from 'react-router';
 import { Link } from 'react-router-dom';
 import { Wrapper } from 'modules/layout/components';
-import { SidebarList } from 'modules/layout/styles';
+import { SidebarList, SidebarCounter } from 'modules/layout/styles';
 import { router } from 'modules/common/utils';
 import { statusFilters } from 'modules/engage/constants';
 
@@ -27,7 +27,7 @@ function Status({ history, counts }) {
               to={`/engage?status=${status.key}`}
             >
               {status.value}
-              <span>{counts[status.key]}</span>
+              <SidebarCounter>{counts[status.key]}</SidebarCounter>
             </Link>
           </li>
         ))}
