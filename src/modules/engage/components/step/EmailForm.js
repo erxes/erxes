@@ -6,8 +6,7 @@ import { colors } from 'modules/common/styles';
 import {
   FormControl,
   ControlLabel,
-  FormGroup,
-  Icon
+  FormGroup
 } from 'modules/common/components';
 import { EMAIL_CONTENT_CLASS } from 'modules/engage/constants';
 import Editor from '../Editor';
@@ -16,6 +15,7 @@ import { EditorWrapper } from '../../styles';
 const Content = styled.div`
   display: flex;
   height: 100%;
+  margin: 20px;
 `;
 
 const FlexItem = styled.div`

@@ -1,11 +1,9 @@
 import React, { Component } from 'react';
-import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { Form } from 'react-bootstrap';
 import {
   Button,
-  Icon,
   ControlLabel,
   FormGroup,
   FormControl
@@ -15,10 +13,7 @@ import Conditions from 'modules/segments/components/Conditions';
 import AddConditionButton from 'modules/segments/components/AddConditionButton';
 import {
   ConditionWrapper,
-  SegmentTitle,
-  SegmentContainer,
-  SegmentResult,
-  ResultCount
+  SegmentTitle
 } from 'modules/segments/components/styles';
 
 const SegmentWrapper = styled.div`
@@ -248,8 +243,6 @@ class SegmentsForm extends Component {
   }
 
   render() {
-    const { segment, total } = this.props;
-
     const content = (
       <SegmentWrapper>
         <FlexContent>
@@ -262,7 +255,7 @@ class SegmentsForm extends Component {
         </FlexContent>
       </SegmentWrapper>
     );
-    //total.byFakeSegment
+
     return content;
   }
 }

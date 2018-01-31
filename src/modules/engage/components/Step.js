@@ -12,7 +12,7 @@ import {
   StepHeaderTitle,
   StepContent,
   ShortStep
-} from './step/Style2';
+} from './step/Style';
 import { FormControl, Button } from 'modules/common/components';
 import Step1 from './step/Step1';
 import Step2 from './step/Step2';
@@ -23,7 +23,8 @@ const propTypes = {
   templates: PropTypes.array,
   brands: PropTypes.array,
   counts: PropTypes.object,
-  users: PropTypes.array
+  users: PropTypes.array,
+  save: PropTypes.func
 };
 
 class Step extends Component {
@@ -133,7 +134,7 @@ class Step extends Component {
           icon="plus"
           onClick={e => this.saveDraft(e)}
         >
-          Save & Live
+          Save & Draft
         </Button>
         <Button
           btnStyle="primary"

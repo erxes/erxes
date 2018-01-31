@@ -35,7 +35,8 @@ const SegmentsFormContainer = props => {
   const headSegments = headSegmentsQuery.segmentsGetHeads;
 
   const create = ({ doc }) => {
-    segmentsAdd({ variables: { ...doc } }).then(() => {
+    segmentsAdd({ variables: { ...doc } }).then(data => {
+      console.log(data);
       Alert.success('Success');
     });
   };

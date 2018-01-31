@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { ContentCenter, ButtonBox } from './Style2';
+import { ContentCenter, ButtonBox } from './Style';
 
 const propTypes = {
   changeMethod: PropTypes.func,
