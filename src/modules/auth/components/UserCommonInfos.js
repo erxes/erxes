@@ -6,7 +6,7 @@ import {
   FormControl
 } from 'modules/common/components';
 import { Alert, uploadHandler } from 'modules/common/utils';
-import { ProfileWrapper, ProfileRow } from '../styles';
+import { ProfileWrapper, ProfileColumn, ColumnTitle } from '../styles';
 
 const propTypes = {
   user: PropTypes.object.isRequired,
@@ -60,14 +60,18 @@ class UserCommonInfos extends Component {
 
     return (
       <ProfileWrapper>
-        <FormGroup>
-          <ControlLabel>Photo</ControlLabel>
-          <img alt="avatar" style={avatarPreviewStyle} src={avatarPreviewUrl} />
+        <ProfileColumn>
+          <ColumnTitle>Basics</ColumnTitle>
+          <FormGroup>
+            <ControlLabel>Photo</ControlLabel>
+            <img
+              alt="avatar"
+              style={avatarPreviewStyle}
+              src={avatarPreviewUrl}
+            />
 
-          <FormControl type="file" onChange={this.handleImageChange} />
-        </FormGroup>
-
-        <ProfileRow>
+            <FormControl type="file" onChange={this.handleImageChange} />
+          </FormGroup>
           <FormGroup>
             <ControlLabel>Name</ControlLabel>
             <FormControl
@@ -76,43 +80,87 @@ class UserCommonInfos extends Component {
               defaultValue={user.details.fullName}
             />
           </FormGroup>
-
-          <FormGroup>
-            <ControlLabel>Position</ControlLabel>
-            <FormControl
-              type="text"
-              id="position"
-              defaultValue={user.details.position}
-            />
-          </FormGroup>
-        </ProfileRow>
-
-        <ProfileRow>
           <FormGroup>
             <ControlLabel>Username</ControlLabel>
             <FormControl
               type="text"
-              id="username"
+              id="fullName"
               defaultValue={user.username}
             />
           </FormGroup>
-
           <FormGroup>
             <ControlLabel>Email</ControlLabel>
-            <FormControl type="email" id="email" defaultValue={user.email} />
+            <FormControl type="text" id="fullName" defaultValue={user.email} />
           </FormGroup>
-        </ProfileRow>
-
-        <ProfileRow>
           <FormGroup>
-            <ControlLabel>Twitter username</ControlLabel>
+            <ControlLabel>Mini-Resume</ControlLabel>
             <FormControl
               type="text"
-              id="twitterUsername"
-              defaultValue={user.details.twitterUsername}
+              id="fullName"
+              componentClass="textarea"
+              defaultValue={user.details.miniResume || ''}
             />
           </FormGroup>
-        </ProfileRow>
+          <FormGroup>
+            <ControlLabel>Position</ControlLabel>
+            <FormControl
+              type="text"
+              id="fullName"
+              defaultValue={user.details.position || ''}
+            />
+          </FormGroup>
+          <FormGroup>
+            <ControlLabel>Location</ControlLabel>
+            <FormControl
+              type="text"
+              id="fullName"
+              defaultValue={user.details.location || ''}
+            />
+          </FormGroup>
+        </ProfileColumn>
+        <ProfileColumn>
+          <ColumnTitle>Links</ColumnTitle>
+          <FormGroup>
+            <ControlLabel>LinkedIn</ControlLabel>
+            <FormControl
+              type="text"
+              id="fullName"
+              defaultValue={user.details.linkedin || ''}
+            />
+          </FormGroup>
+          <FormGroup>
+            <ControlLabel>Twitter</ControlLabel>
+            <FormControl
+              type="text"
+              id="fullName"
+              defaultValue={user.details.twitter || ''}
+            />
+          </FormGroup>
+          <FormGroup>
+            <ControlLabel>Facebook</ControlLabel>
+            <FormControl
+              type="text"
+              id="fullName"
+              defaultValue={user.details.facebook || ''}
+            />
+          </FormGroup>
+          <FormGroup>
+            <ControlLabel>Github</ControlLabel>
+            <FormControl
+              type="text"
+              id="fullName"
+              defaultValue={user.details.github || ''}
+            />
+          </FormGroup>
+          <FormGroup>
+            <ControlLabel>Website</ControlLabel>
+            <FormControl
+              type="text"
+              id="fullName"
+              defaultValue={user.details.website || ''}
+            />
+          </FormGroup>
+        </ProfileColumn>
       </ProfileWrapper>
     );
   }
