@@ -3,7 +3,7 @@ import ChannelRow from './ChannelRow';
 import Channels from './Channels';
 import IntegrationList from './IntegrationList';
 import Sidebar from './Sidebar';
-import IntegrationForm from './IntegrationForm';
+import ManageIntegrationForm from './ManageIntegrationForm';
 import IntegrationRow from './IntegrationRow';
 
 export {
@@ -13,5 +13,5 @@ export {
   IntegrationList,
   Sidebar,
   IntegrationRow,
-  IntegrationForm
+  ManageIntegrationForm
 };

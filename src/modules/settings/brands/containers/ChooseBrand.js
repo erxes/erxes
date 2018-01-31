@@ -1,8 +1,10 @@
 import React from 'react';
 import { withRouter } from 'react-router';
 import PropTypes from 'prop-types';
-import { compose, gql, graphql } from 'react-apollo';
-import { queries } from '../graphql';
+import { compose, graphql } from 'react-apollo';
+import gql from 'graphql-tag';
+import { queries, mutations } from '../graphql';
+import { Spinner } from 'modules/common/components';
 import { ChooseBrand } from '../components';
 import { save } from '../../integrations/containers/utils';
 
@@ -16,6 +18,10 @@ const ChooseBrandContainer = props => {
     onSave,
     refetch
   } = props;
+
+  if (brandsQuery.loading) {
+    return <Spinner objective />;
+  }
 
   const updatedProps = {
     ...props,
@@ -56,37 +62,12 @@ export default withRouter(
       })
     }),
 
-    graphql(
-      gql`
-        mutation add($name: String!, $brandId: String!) {
-          integrationsCreateMessengerIntegration(
-            name: $name
-            brandId: $brandId
-          ) {
-            _id
-          }
-        }
-      `,
-      {
-        name: 'addMutation'
-      }
-    ),
+    graphql(gql(mutations.integrationsCreateMessenger), {
+      name: 'addMutation'
+    }),
 
-    graphql(
-      gql`
-        mutation edit($_id: String!, $name: String!, $brandId: String!) {
-          integrationsEditMessengerIntegration(
-            _id: $_id
-            name: $name
-            brandId: $brandId
-          ) {
-            _id
-          }
-        }
-      `,
-      {
-        name: 'editMutation'
-      }
-    )
+    graphql(gql(mutations.integrationsEditMessenger), {
+      name: 'editMutation'
+    })
   )(ChooseBrandContainer)
 );

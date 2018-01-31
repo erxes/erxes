@@ -2,7 +2,8 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { withRouter } from 'react-router';
 import queryString from 'query-string';
-import { compose, gql, graphql } from 'react-apollo';
+import { compose, graphql } from 'react-apollo';
+import gql from 'graphql-tag';
 import { router as routerUtils } from 'modules/common/utils';
 import { queries } from '../graphql';
 import { Channels } from '../components';
@@ -17,11 +18,7 @@ class ChannelsWithCurrent extends React.Component {
   }
 
   render() {
-    const {
-      channelDetailQuery,
-      location,
-      totalIntegrationsCountQuery
-    } = this.props;
+    const { channelDetailQuery, location, integrationsCountQuery } = this.props;
 
     const extendedProps = {
       ...this.props,
@@ -29,8 +26,7 @@ class ChannelsWithCurrent extends React.Component {
       currentChannel: channelDetailQuery.channelDetail || {},
       loading: channelDetailQuery.loading,
       refetch: channelDetailQuery.refetch,
-      totalIntegrationsCount:
-        totalIntegrationsCountQuery.integrationsTotalCount || 0
+      integrationsCount: integrationsCountQuery.integrationsTotalCount || 0
     };
 
     return <Channels {...extendedProps} />;
@@ -39,7 +35,7 @@ class ChannelsWithCurrent extends React.Component {
 
 ChannelsWithCurrent.propTypes = {
   currentChannelId: PropTypes.string,
-  totalIntegrationsCountQuery: PropTypes.object,
+  integrationsCountQuery: PropTypes.object,
   channelDetailQuery: PropTypes.object,
   history: PropTypes.object,
   location: PropTypes.object
@@ -55,7 +51,7 @@ const ChannelsWithCurrentContainer = compose(
     })
   }),
   graphql(gql(queries.integrationsCount), {
-    name: 'totalIntegrationsCountQuery',
+    name: 'integrationsCountQuery',
     options: ({ currentChannelId }) => ({
       variables: { channelId: currentChannelId || '' }
     })

@@ -2,7 +2,8 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { withRouter } from 'react-router';
 import queryString from 'query-string';
-import { compose, gql, graphql } from 'react-apollo';
+import { compose, graphql } from 'react-apollo';
+import gql from 'graphql-tag';
 import { router as routerUtils } from 'modules/common/utils';
 import { queries } from '../graphql';
 import { Brands } from '../components';
@@ -17,19 +18,14 @@ class CurrentBrands extends Component {
   }
 
   render() {
-    const {
-      brandDetailQuery,
-      location,
-      totalIntegrationsCountQuery
-    } = this.props;
+    const { brandDetailQuery, location, integrationsCountQuery } = this.props;
 
     const extendedProps = {
       ...this.props,
       queryParams: queryString.parse(location.search),
       currentBrand: brandDetailQuery.brandDetail || {},
       loading: brandDetailQuery.loading,
-      totalIntegrationsCount:
-        totalIntegrationsCountQuery.integrationsTotalCount || 0
+      integrationsCount: integrationsCountQuery.integrationsTotalCount || 0
     };
 
     return <Brands {...extendedProps} />;
@@ -38,13 +34,12 @@ class CurrentBrands extends Component {
 
 CurrentBrands.propTypes = {
   currentBrandId: PropTypes.string,
-  totalIntegrationsCountQuery: PropTypes.object,
+  integrationsCountQuery: PropTypes.object,
   brandDetailQuery: PropTypes.object,
   history: PropTypes.object,
   location: PropTypes.object
 };
 
-//When there is currentBrand id
 const BrandsDetailContainer = compose(
   graphql(gql(queries.brandDetail), {
     name: 'brandDetailQuery',
@@ -54,14 +49,13 @@ const BrandsDetailContainer = compose(
     })
   }),
   graphql(gql(queries.integrationsCount), {
-    name: 'totalIntegrationsCountQuery',
+    name: 'integrationsCountQuery',
     options: ({ currentBrandId }) => ({
       variables: { brandId: currentBrandId || '' }
     })
   })
 )(CurrentBrands);
 
-//Getting lastBrand id to currentBrand
 const LastBrands = props => {
   const { lastBrandQuery } = props;
   const lastBrand = lastBrandQuery.brandsGetLast || {};
@@ -80,7 +74,6 @@ const BrandsLastContainer = compose(
   })
 )(LastBrands);
 
-//Main Brand component
 const MainContainer = props => {
   const { history } = props;
   const currentBrandId = routerUtils.getParam(history, 'id');

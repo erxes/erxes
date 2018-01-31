@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { compose, gql, graphql } from 'react-apollo';
+import { compose, graphql } from 'react-apollo';
+import gql from 'graphql-tag';
 import { Spinner } from 'modules/common/components';
 import { knowledgeBaseArticles } from '../../graphql/queries';
 import { CategoryForm } from '../../components';

@@ -1,8 +1,9 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { compose, gql, graphql } from 'react-apollo';
+import { compose, graphql } from 'react-apollo';
+import gql from 'graphql-tag';
 import { queries, mutations } from '../graphql';
-import { IntegrationForm } from '../components';
+import { ManageIntegrationForm } from '../components';
 import { Alert } from 'modules/common/utils';
 
 class FormContainer extends Component {
@@ -58,7 +59,7 @@ class FormContainer extends Component {
       allIntegrations: allIntegrationsQuery.integrations || []
     };
 
-    return <IntegrationForm {...updatedProps} />;
+    return <ManageIntegrationForm {...updatedProps} />;
   }
 }
 
