@@ -11,7 +11,7 @@ import EngageRoutes from './modules/engage/routes';
 import SettingsRoutes from './modules/settings/routes';
 import InboxRoutes from './modules/inbox/routes';
 import TagsRoutes from './modules/tags/routes';
-import DealRoutes from './modules/deal/routes';
+import DealsRoutes from './modules/deals/routes';
 import NotificationRoutes from './modules/notifications/routes';
 import { MainLayout } from 'modules/layout/containers';
 import { MainBar } from 'modules/layout/components';
@@ -33,7 +33,7 @@ const renderRoutes = currentUser => {
         <EngageRoutes />
         <SettingsRoutes />
         <TagsRoutes />
-        <DealRoutes />
+        <DealsRoutes />
         <NotificationRoutes />
       </MainWrapper>
     );

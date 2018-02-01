@@ -1,8 +1,9 @@
 import React from 'react';
+import { Board } from '../containers';
 
 class Home extends React.Component {
   render() {
-    return <div>Deal home</div>;
+    return <Board />;
   }
 }
 
