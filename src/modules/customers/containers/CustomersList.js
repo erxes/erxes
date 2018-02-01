@@ -55,6 +55,7 @@ class CustomerListContainer extends Bulk {
         variables: { customerIds }
       })
         .then(() => {
+          this.emptyBulk();
           customersQuery.refetch();
           Alert.success('Success');
           // callback();

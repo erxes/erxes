@@ -53,6 +53,7 @@ class CompanyListContainer extends Bulk {
         variables: { companyIds }
       })
         .then(() => {
+          this.emptyBulk();
           companiesQuery.refetch();
           Alert.success('Success');
           // callback();
