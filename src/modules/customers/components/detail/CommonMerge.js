@@ -50,23 +50,22 @@ class CommonMerge extends Component {
   /**
    * Rendering merged data basic infos
    * @param {Object} data - Data shaped like below
-   *
-   * {
-   *    Customer: {
-   *      firstName: 'First name of customer'
-   *      lastName: 'Last name of customer'
-   *      Email: 'Email of customer'
-   *      Phone: 'Phone of customer'
-   *    }
-   *
-   *    Company: {
-   *      name: 'Company name'
-   *      website: 'Company website'
-   *      size: 'Company size'
-   *      industry: 'Company industry'
-   *      plan: 'Company plan'
-   *    }
+   * Customer: {
+   *   firstName: 'First name of customer'
+   *   lastName: 'Last name of customer'
+   *   Email: 'Email of customer'
+   *   Phone: 'Phone of customer'
    * }
+   * Or
+   * Company: {
+   *   name: 'Company name'
+   *   website: 'Company website'
+   *   size: 'Company size'
+   *   industry: 'Company industry'
+   *   plan: 'Company plan'
+   * }
+   *
+   * @return Merged data basic infos
    */
 
   renderMergedData() {
@@ -79,6 +78,25 @@ class CommonMerge extends Component {
       return this.renderProperty('close', { [property]: data[property] });
     });
   }
+
+  /**
+   * Rendering datas' basic infos only
+   * @param {Object} basicInfos - Data shaped like below
+   * Customer {
+   *   firstName: 'First Name'
+   *   lastName: 'Last Name'
+   *   email: 'Email'
+   *   phone: 'Phone'
+   * }
+   * Or
+   * Company {
+   *   name: 'Name',
+   *   website: 'Website',
+   *   size: 'Size',
+   *   industry: 'Industry',
+   *   plan: 'Plan'
+   * }
+   */
 
   renderDatas(data) {
     const { basicInfos } = this.props;
