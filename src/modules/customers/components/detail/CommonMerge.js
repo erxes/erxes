@@ -33,11 +33,9 @@ class CommonMerge extends Component {
       facebookData: data => this.renderFacebookData(data)
     };
 
-    for (let info in basicInfos) {
-      if (basicInfos.hasOwnProperty(info) && !this.renderingOptions[info]) {
-        data[info] = '';
-      }
-    }
+    Object.keys(basicInfos).forEach(info => {
+      if (!this.renderingOptions[info]) data[info] = '';
+    });
 
     this.state = {
       data
@@ -45,36 +43,25 @@ class CommonMerge extends Component {
 
     this.handleChange = this.handleChange.bind(this);
     this.handleInputChange = this.handleInputChange.bind(this);
+    this.renderMergedDataInputs = this.renderMergedDataInputs.bind(this);
     this.save = this.save.bind(this);
   }
 
   // Rendering merged data infos
   renderMergedData() {
     const { data } = this.state;
-    const { basicInfos } = this.props;
     const properties = [];
 
-    for (let property in data) {
-      if (data.hasOwnProperty(property)) {
-        // Checking if data has messenger, twitter, facebook data
-        if (!this.renderingOptions[property]) {
-          //If data doesn't have messenger, twitter, facebook datas then pushing only input
-          properties.push(
-            <FormGroup key={properties.length}>
-              {basicInfos[property]}
-              <FormControl
-                onChange={e => this.handleInputChange(e, property)}
-                value={data[property] || ''}
-              />
-            </FormGroup>
-          );
-        } else {
-          properties.push(
-            this.renderProperty('close', { [property]: data[property] })
-          );
-        }
+    Object.keys(data).forEach(property => {
+      if (!this.renderingOptions[property]) {
+        //If data doesn't have messenger, twitter, facebook datas then pushing only input
+        properties.push(this.renderMergedDataInputs(property));
+      } else {
+        properties.push(
+          this.renderProperty('close', { [property]: data[property] })
+        );
       }
-    }
+    });
 
     return properties;
   }
@@ -84,16 +71,13 @@ class CommonMerge extends Component {
     const { basicInfos } = this.props;
     const properties = [];
 
-    for (let property in data) {
-      if (data.hasOwnProperty(property)) {
-        // Rendering only basic infos of data
-        if (basicInfos[property] && data[property]) {
-          properties.push(
-            this.renderProperty('plus', { [property]: data[property] })
-          );
-        }
-      }
-    }
+    Object.keys(data).forEach(property => {
+      if (basicInfos[property] && data[property])
+        properties.push(
+          this.renderProperty('plus', { [property]: data[property] })
+        );
+    });
+
     return properties;
   }
 
@@ -117,6 +101,21 @@ class CommonMerge extends Component {
           }
         />
       </li>
+    );
+  }
+
+  renderMergedDataInputs(property) {
+    const { data } = this.state;
+    const { basicInfos } = this.props;
+
+    return (
+      <FormGroup>
+        {basicInfos[property]}
+        <FormControl
+          onChange={e => this.handleInputChange(e, property)}
+          value={data[property] || ''}
+        />
+      </FormGroup>
     );
   }
 
