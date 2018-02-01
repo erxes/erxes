@@ -156,6 +156,19 @@ class Company {
   static async mergeCompanies(companyIds, companyFields) {
     let tagIds = [];
 
+    // Checking if companyFields has duplicated name
+    if (companyFields.name) {
+      const previousEntry = await this.findOne({
+        _id: { $nin: companyIds },
+        name: companyFields.name,
+      });
+
+      // check duplication
+      if (previousEntry) {
+        throw new Error('Duplicated name!');
+      }
+    }
+
     // Merging company tags
     for (let companyId of companyIds) {
       const company = await this.findOne({ _id: companyId });

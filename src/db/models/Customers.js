@@ -245,6 +245,19 @@ class Customer {
     let tagIds = [];
     let companyIds = [];
 
+    // Checking if customerFields has duplicated email
+    if (customerFields.email) {
+      const previousEntry = await this.findOne({
+        _id: { $nin: customerIds },
+        email: customerFields.email,
+      });
+
+      // check duplication
+      if (previousEntry) {
+        throw new Error('Duplicated email!');
+      }
+    }
+
     // Merging customer tags and companies
     for (let customerId of customerIds) {
       const customer = await this.findOne({ _id: customerId });
@@ -260,7 +273,11 @@ class Customer {
     }
 
     // Creating customer with properties
-    const customer = await this.createCustomer({ ...customerFields, tagIds, companyIds });
+    const customer = await this.createCustomer({
+      ...customerFields,
+      tagIds,
+      companyIds,
+    });
 
     // Updating every modules associated with customers
     await ActivityLogs.changeCustomer(customer._id, customerIds);
