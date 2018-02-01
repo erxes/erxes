@@ -47,38 +47,46 @@ class CommonMerge extends Component {
     this.save = this.save.bind(this);
   }
 
-  // Rendering merged data infos
+  /**
+   * Rendering merged data basic infos
+   * @param {Object} data - Data shaped like below
+   *
+   * {
+   *    Customer: {
+   *      firstName: 'First name of customer'
+   *      lastName: 'Last name of customer'
+   *      Email: 'Email of customer'
+   *      Phone: 'Phone of customer'
+   *    }
+   *
+   *    Company: {
+   *      name: 'Company name'
+   *      website: 'Company website'
+   *      size: 'Company size'
+   *      industry: 'Company industry'
+   *      plan: 'Company plan'
+   *    }
+   * }
+   */
+
   renderMergedData() {
     const { data } = this.state;
-    const properties = [];
 
-    Object.keys(data).forEach(property => {
+    return Object.keys(data).map((property, index) => {
       if (!this.renderingOptions[property]) {
-        //If data doesn't have messenger, twitter, facebook datas then pushing only input
-        properties.push(this.renderMergedDataInputs(property));
-      } else {
-        properties.push(
-          this.renderProperty('close', { [property]: data[property] })
-        );
+        return this.renderMergedDataInputs(property, index);
       }
+      return this.renderProperty('close', { [property]: data[property] });
     });
-
-    return properties;
   }
 
-  // Rendering data fields to be merged
   renderDatas(data) {
     const { basicInfos } = this.props;
-    const properties = [];
 
-    Object.keys(data).forEach(property => {
+    return Object.keys(data).map(property => {
       if (basicInfos[property] && data[property])
-        properties.push(
-          this.renderProperty('plus', { [property]: data[property] })
-        );
+        return this.renderProperty('plus', { [property]: data[property] });
     });
-
-    return properties;
   }
 
   renderProperty(icon, property) {
@@ -88,7 +96,6 @@ class CommonMerge extends Component {
     return (
       <li key={(propertyName, property[propertyName])}>
         <InfoTitle>{basicInfos[propertyName]}:</InfoTitle>
-        {/* Checking if data has messenger, twitter, facebook datas*/}
         {this.renderingOptions[propertyName] ? (
           this.renderingOptions[propertyName](property[propertyName])
         ) : (
@@ -104,12 +111,12 @@ class CommonMerge extends Component {
     );
   }
 
-  renderMergedDataInputs(property) {
+  renderMergedDataInputs(property, key) {
     const { data } = this.state;
     const { basicInfos } = this.props;
 
     return (
-      <FormGroup>
+      <FormGroup key={key}>
         {basicInfos[property]}
         <FormControl
           onChange={e => this.handleInputChange(e, property)}
