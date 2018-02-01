@@ -67,11 +67,12 @@ export const queries = `
     perPage: Int,
     kind: String,
     searchValue: String,
-    channelId: String
+    channelId: String,
+    brandId: String
   ): [Integration]
 
   integrationDetail(_id: String!): Integration
-  integrationsTotalCount(kind: String, channelId: String): Int
+  integrationsTotalCount(kind: String, channelId: String, brandId: String): Int
   integrationGetTwitterAuthUrl: String
   integrationFacebookAppsList: [JSON]
   integrationFacebookPagesList(appId: String): [JSON]

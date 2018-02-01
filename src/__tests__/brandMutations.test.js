@@ -113,4 +113,15 @@ describe('Brands mutations', () => {
     expect(Brands.updateEmailConfig.mock.calls.length).toBe(1);
     expect(Brands.updateEmailConfig).toBeCalledWith(_brand._id, _brand.emailConfig);
   });
+
+  test('Manage integrations', async () => {
+    Brands.manageIntegrations = jest.fn();
+
+    const args = { _id: _brand._id, integrationIds: ['_id1', '_id2'] };
+
+    await brandMutations.brandsManageIntegrations({}, args, { user: _adminUser });
+
+    expect(Brands.manageIntegrations.mock.calls.length).toBe(1);
+    expect(Brands.manageIntegrations).toBeCalledWith(args);
+  });
 });

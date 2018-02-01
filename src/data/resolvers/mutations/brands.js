@@ -39,6 +39,16 @@ const brandMutations = {
   async brandsConfigEmail(root, { _id, emailConfig }) {
     return Brands.updateEmailConfig(_id, emailConfig);
   },
+
+  /**
+   * Update brandId fields in given Integrations
+   * @param _id - Brand id
+   * @param integrationIds - integration ids to update
+   * @return - Updated integrations
+   */
+  async brandsManageIntegrations(root, { _id, integrationIds }) {
+    return Brands.manageIntegrations({ _id, integrationIds });
+  },
 };
 
 moduleRequireAdmin(brandMutations);

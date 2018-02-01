@@ -5,6 +5,7 @@ import Subscription from './subscriptions';
 import ResponseTemplate from './responseTemplate';
 import Integration from './integration';
 import Channel from './channel';
+import Brand from './brand';
 import Form from './form';
 import EngageMessage from './engage';
 import InternalNote from './internalNote';
@@ -25,6 +26,7 @@ export default {
   ResponseTemplate,
   Integration,
   Channel,
+  Brand,
   Form,
   InternalNote,
   Customer,
