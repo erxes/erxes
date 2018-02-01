@@ -121,18 +121,51 @@ const CustomerSchema = mongoose.Schema({
 
 class Customer {
   /**
+   * Checking if customer has duplicated unique properties
+   * @param  {Object} customerFields - Customer fields to check duplications
+   * @param  {string[]} idsToExclude - Customer ids to exclude
+   * @return {Promise} - Result
+   */
+  static async checkDuplication(customerFields, idsToExclude) {
+    let query = {};
+
+    if (idsToExclude) {
+      query._id = { $nin: idsToExclude };
+    }
+
+    if (customerFields.email) {
+      query.email = customerFields.email;
+      const previousEntry = await this.findOne(query);
+
+      // check duplication
+      if (previousEntry) {
+        return 'Duplicated Email!';
+      }
+    }
+
+    if (customerFields.twitterData) {
+      query.twitterData.id = customerFields.twitterData.id;
+      const previousEntry = await this.findOne(query);
+
+      if (previousEntry) {
+        return 'Duplicated Twitter account!';
+      }
+    }
+
+    return true;
+  }
+
+  /**
    * Create a customer
    * @param  {Object} customerObj object
    * @return {Promise} Newly created customer object
    */
   static async createCustomer(doc) {
-    if (doc.email) {
-      const previousEntry = await this.findOne({ email: doc.email });
+    // Checking duplicated fields of customer
+    const duplicated = await this.checkDuplication(doc);
 
-      // check duplication
-      if (previousEntry) {
-        throw new Error('Duplicated email');
-      }
+    if (duplicated !== true) {
+      throw new Error(duplicated);
     }
 
     // clean custom field values
@@ -148,17 +181,24 @@ class Customer {
    * @return {Promise} updated customer object
    */
   static async updateCustomer(_id, doc) {
-    if (doc.email) {
-      const previousEntry = await this.findOne({
-        _id: { $ne: _id },
-        email: doc.email,
-      });
+    // Checking duplicated fields of customer
+    const duplicated = await this.checkDuplication(doc, [_id]);
 
-      // check duplication
-      if (previousEntry) {
-        throw new Error('Duplicated email');
-      }
+    if (duplicated !== true) {
+      throw new Error(duplicated);
     }
+
+    // if (doc.email) {
+    //   const previousEntry = await this.findOne({
+    //     _id: { $ne: _id },
+    //     email: doc.email
+    //   });
+    //
+    //   // check duplication
+    //   if (previousEntry) {
+    //     throw new Error('Duplicated email');
+    //   }
+    // }
 
     // clean custom field values
     doc.customFieldsData = await Fields.cleanMulti(doc.customFieldsData || {});
@@ -245,17 +285,11 @@ class Customer {
     let tagIds = [];
     let companyIds = [];
 
-    // Checking if customerFields has duplicated email
-    if (customerFields.email) {
-      const previousEntry = await this.findOne({
-        _id: { $nin: customerIds },
-        email: customerFields.email,
-      });
+    // Checking duplicated fields of customer
+    const duplicated = await this.checkDuplication(customerFields, customerIds);
 
-      // check duplication
-      if (previousEntry) {
-        throw new Error('Duplicated email!');
-      }
+    if (duplicated !== true) {
+      throw new Error(duplicated);
     }
 
     // Merging customer tags and companies
