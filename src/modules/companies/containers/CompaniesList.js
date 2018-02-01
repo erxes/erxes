@@ -33,7 +33,7 @@ class CompanyListContainer extends Bulk {
       columnsConfig = JSON.parse(localConfig);
     }
 
-    // add customer
+    // add company
     const addCompany = ({ doc, callback }) => {
       companiesAdd({
         variables: doc
@@ -56,7 +56,6 @@ class CompanyListContainer extends Bulk {
           this.emptyBulk();
           companiesQuery.refetch();
           Alert.success('Success');
-          // callback();
         })
         .catch(e => {
           Alert.error(e.message);
