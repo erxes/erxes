@@ -129,24 +129,28 @@ class Customer {
   static async checkDuplication(customerFields, idsToExclude) {
     let query = {};
 
+    // Adding exclude operator to the query
     if (idsToExclude) {
       query._id = { $nin: idsToExclude };
     }
 
+    // Checking if customer has email
     if (customerFields.email) {
       query.email = customerFields.email;
       const previousEntry = await this.findOne(query);
 
-      // check duplication
+      // Checking if duplicated
       if (previousEntry) {
         return 'Duplicated Email!';
       }
     }
 
+    // Checking if cuostomer has twitter data
     if (customerFields.twitterData) {
       query.twitterData.id = customerFields.twitterData.id;
       const previousEntry = await this.findOne(query);
 
+      // Checking if duplicated
       if (previousEntry) {
         return 'Duplicated Twitter account!';
       }

@@ -56,16 +56,44 @@ const CompanySchema = mongoose.Schema({
 
 class Company {
   /**
+   * Checking if company has duplicated unique properties
+   * @param  {Object} companyFields - Customer fields to check duplications
+   * @param  {string[]} idsToExclude - Customer ids to exclude
+   * @return {Promise} - Result
+   */
+  static async checkDuplication(companyFields, idsToExclude) {
+    let query = {};
+
+    // Adding exclude operator to the query
+    if (idsToExclude) {
+      query._id = { $nin: idsToExclude };
+    }
+
+    // Checking if company has name
+    if (companyFields.name) {
+      query.name = companyFields.name;
+      const previousEntry = await this.findOne(query);
+
+      // Checking if duplicated
+      if (previousEntry) {
+        return 'Duplicated Name!';
+      }
+    }
+
+    return true;
+  }
+
+  /**
    * Create a company
    * @param  {Object} companyObj - Object
    * @return {Promise} Newly created company object
    */
   static async createCompany(doc) {
-    const previousEntry = await this.findOne({ name: doc.name });
+    // Checking duplicated fields of company
+    const duplicated = await this.checkDuplication(doc);
 
-    // check duplication
-    if (previousEntry) {
-      throw new Error('Duplicated name');
+    if (duplicated !== true) {
+      throw new Error(duplicated);
     }
 
     // clean custom field values
@@ -81,14 +109,11 @@ class Company {
    * @return {Promise} updated company object
    */
   static async updateCompany(_id, doc) {
-    const previousEntry = await this.findOne({
-      _id: { $ne: _id },
-      name: doc.name,
-    });
+    // Checking duplicated fields of company
+    const duplicated = await this.checkDuplication(doc, [_id]);
 
-    // check duplication
-    if (previousEntry) {
-      throw new Error('Duplicated name');
+    if (duplicated !== true) {
+      throw new Error(duplicated);
     }
 
     // clean custom field values
@@ -156,17 +181,11 @@ class Company {
   static async mergeCompanies(companyIds, companyFields) {
     let tagIds = [];
 
-    // Checking if companyFields has duplicated name
-    if (companyFields.name) {
-      const previousEntry = await this.findOne({
-        _id: { $nin: companyIds },
-        name: companyFields.name,
-      });
+    // Checking duplicated fields of company
+    const duplicated = await this.checkDuplication(companyFields, companyIds);
 
-      // check duplication
-      if (previousEntry) {
-        throw new Error('Duplicated name!');
-      }
+    if (duplicated !== true) {
+      throw new Error(duplicated);
     }
 
     // Merging company tags
