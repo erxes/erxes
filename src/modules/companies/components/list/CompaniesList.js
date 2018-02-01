@@ -58,8 +58,10 @@ class CompaniesList extends React.Component {
 
   search(e) {
     if (this.timer) clearTimeout(this.timer);
+
     const { history } = this.props;
     const searchValue = e.target.value;
+
     this.setState({ searchValue });
 
     this.timer = setTimeout(() => {
@@ -73,6 +75,7 @@ class CompaniesList extends React.Component {
     companies.forEach(company => {
       companyIds.push(company._id);
     });
+
     this.props.removeCompanies({ companyIds });
   }
 

@@ -70,9 +70,7 @@ export default compose(
   graphql(tagMutation, {
     name: 'tagMutation',
     options: props => ({
-      refetchQueries: [
-        queries[props.type] ? queries[props.type] : `${props.type}`
-      ]
+      refetchQueries: [queries[props.type] || `${props.type}`]
     })
   })
 )(TaggerContainer);
