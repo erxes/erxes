@@ -1,8 +1,7 @@
 import React from 'react';
-import { Bulk } from 'modules/common/components';
 import { Board } from '../components';
 
-class BoardContainer extends Bulk {
+class BoardContainer extends React.Component {
   render() {
     return <Board />;
   }
