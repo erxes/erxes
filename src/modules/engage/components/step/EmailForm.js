@@ -64,7 +64,10 @@ class EmailForm extends Component {
 
   componentDidUpdate(prevProps, prevState) {
     // only after current template change
-    if (this.state.currentTemplate !== prevState.currentTemplate) {
+    if (
+      this.state.currentTemplate !== prevState.currentTemplate ||
+      this.props.message !== prevProps.message
+    ) {
       this.renderBuilder();
     }
   }
@@ -103,10 +106,7 @@ class EmailForm extends Component {
     // render editor to content
     if (contentContainer.length > 0) {
       ReactDom.render(
-        <Editor
-          defaultValue={this.props.message}
-          onChange={() => this.props.changeEmail(this.state.email)}
-        />,
+        <div dangerouslySetInnerHTML={{ __html: this.props.message }} />,
         contentContainer[0]
       );
     }

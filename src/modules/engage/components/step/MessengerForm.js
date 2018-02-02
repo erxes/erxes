@@ -41,7 +41,10 @@ const propTypes = {
   changeMessage: PropTypes.func,
   message: PropTypes.string,
   changeUser: PropTypes.func,
-  users: PropTypes.array
+  users: PropTypes.array,
+  hasKind: PropTypes.bool,
+  messenger: PropTypes.object,
+  fromUser: PropTypes.string
 };
 
 class MessengerForm extends Component {
@@ -49,13 +52,14 @@ class MessengerForm extends Component {
     super(props);
 
     this.state = {
-      fromUser: '',
+      fromUser: this.props.fromUser || '',
       messenger: {
-        brandId: '',
+        brandId: this.props.messenger.brandId || '',
         kind: '',
-        sentAs: ''
+        sentAs: this.props.messenger.sentAs || ''
       }
     };
+    console.log(this.state.fromUser);
   }
 
   changeContent(key, value) {
@@ -71,6 +75,25 @@ class MessengerForm extends Component {
   }
 
   render() {
+    let kind = '';
+    if (this.props.hasKind) {
+      kind = (
+        <FormGroup>
+          <ControlLabel>Message type:</ControlLabel>
+          <FormControl
+            componentClass="select"
+            onChange={e => this.changeContent('kind', e.target.value)}
+          >
+            <option />
+            {MESSENGER_KINDS.SELECT_OPTIONS.map(k => (
+              <option key={k.value} value={k.value}>
+                {k.text}
+              </option>
+            ))}
+          </FormControl>
+        </FormGroup>
+      );
+    }
     return (
       <Content>
         <FlexItem>
@@ -79,6 +102,7 @@ class MessengerForm extends Component {
             <FormControl
               componentClass="select"
               onChange={e => this.changeUser(e.target.value)}
+              defaultValue={this.state.fromUser}
             >
               <option />
               {this.props.users.map(u => (
@@ -93,6 +117,7 @@ class MessengerForm extends Component {
             <FormControl
               componentClass="select"
               onChange={e => this.changeContent('brandId', e.target.value)}
+              defaultValue={this.state.messenger.brandId}
             >
               <option />
               {this.props.brands.map(b => (
@@ -102,25 +127,13 @@ class MessengerForm extends Component {
               ))}
             </FormControl>
           </FormGroup>
-          <FormGroup>
-            <ControlLabel>Message type:</ControlLabel>
-            <FormControl
-              componentClass="select"
-              onChange={e => this.changeContent('kind', e.target.value)}
-            >
-              <option />
-              {MESSENGER_KINDS.SELECT_OPTIONS.map(k => (
-                <option key={k.value} value={k.value}>
-                  {k.text}
-                </option>
-              ))}
-            </FormControl>
-          </FormGroup>
+          {kind}
           <FormGroup>
             <ControlLabel>Sent as:</ControlLabel>
             <FormControl
               componentClass="select"
               onChange={e => this.changeContent('sentAs', e.target.value)}
+              defaultValue={this.state.messenger.sentAs}
             >
               <option />
               {SENT_AS_CHOICES.SELECT_OPTIONS.map(s => (
@@ -133,7 +146,10 @@ class MessengerForm extends Component {
           <FormGroup>
             <ControlLabel>Message:</ControlLabel>
             <EditorWrapper>
-              <Editor onChange={this.props.changeMessage} />
+              <Editor
+                onChange={this.props.changeMessage}
+                defaultValue={this.props.message}
+              />
             </EditorWrapper>
           </FormGroup>
         </FlexItem>

@@ -6,8 +6,7 @@ import { Segmentli } from '../styles';
 
 const propTypes = {
   segments: PropTypes.array.isRequired,
-  onChangeSegments: PropTypes.func.isRequired,
-  defaultSegment: PropTypes.string,
+  changeSegments: PropTypes.func.isRequired,
   counts: PropTypes.object
 };
 
@@ -16,7 +15,7 @@ class Segments extends Component {
     super(props);
 
     this.state = {
-      chosenSegment: props.defaultSegment || ''
+      chosenSegment: ''
     };
 
     this.onClickSegment = this.onClickSegment.bind(this);
@@ -25,9 +24,9 @@ class Segments extends Component {
   onClickSegment(segmentId) {
     if (segmentId === this.state.chosenSegment) {
       this.setState({ chosenSegment: '' });
-      this.props.onChangeSegments('');
+      this.props.changeSegments('');
     } else {
-      this.props.onChangeSegments(segmentId);
+      this.props.changeSegments(segmentId);
       this.setState({ chosenSegment: segmentId });
     }
   }

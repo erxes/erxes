@@ -119,9 +119,8 @@ class SegmentsForm extends Component {
   save(e) {
     e.preventDefault();
 
-    const { segment, create } = this.props;
+    const { segment } = this.props;
 
-    const submit = create;
     const {
       name,
       description,
@@ -138,7 +137,7 @@ class SegmentsForm extends Component {
 
     Object.assign(params, segment ? { id: segment._id } : {});
 
-    submit(params);
+    this.props.create(params);
   }
 
   renderConditions() {

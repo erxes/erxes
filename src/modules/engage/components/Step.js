@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import { Wrapper } from 'modules/layout/components';
 import {
   StepWrapper,
   TitleContainer,
@@ -24,12 +25,14 @@ const propTypes = {
   brands: PropTypes.array,
   counts: PropTypes.object,
   users: PropTypes.array,
-  save: PropTypes.func
+  save: PropTypes.func,
+  kind: PropTypes.string
 };
 
 class Step extends Component {
   constructor(props) {
     super(props);
+
     this.state = {
       step: 1,
       method: 'email',
@@ -185,9 +188,27 @@ class Step extends Component {
     );
   }
 
+  renderTitle() {
+    const { kind } = this.props;
+
+    if (kind === 'auto') {
+      return 'Auto message';
+    } else if (kind === 'manual') {
+      return 'Manual message';
+    }
+
+    return 'Visitor auto message';
+  }
+
   render() {
+    const breadcrumb = [
+      { title: 'Engage', link: '/engage' },
+      { title: this.renderTitle() }
+    ];
+
     return (
       <StepWrapper>
+        <Wrapper.Header breadcrumb={breadcrumb} />
         <TitleContainer>
           <div>Title</div>
           <FormControl round onChange={e => this.changeTitle(e.target.value)} />

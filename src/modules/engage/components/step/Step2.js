@@ -62,6 +62,10 @@ class Step2 extends Component {
 
   createSegment(createSegment) {
     this.setState({ createSegment });
+
+    if (!createSegment) {
+      this.setState({ segment: '' });
+    }
   }
 
   changeSegment(segment) {
@@ -71,7 +75,16 @@ class Step2 extends Component {
 
   render() {
     const show = this.state.createSegment;
-
+    let segments = '';
+    if (!show) {
+      segments = (
+        <Segments
+          segments={this.props.segments}
+          changeSegments={this.changeSegment}
+          counts={this.props.counts}
+        />
+      );
+    }
     return (
       <Content>
         <FormContainer>
@@ -94,15 +107,9 @@ class Step2 extends Component {
               Create segment
             </FormControl>
           </RadioContainer>
+          {segments}
           <Show show={show}>
             <SegmentsForm />
-          </Show>
-          <Show show={!show}>
-            <Segments
-              segments={this.props.segments}
-              onChangeSegments={this.changeSegment}
-              counts={this.props.counts}
-            />
           </Show>
         </FormContainer>
         <Divider />
