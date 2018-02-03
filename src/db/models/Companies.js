@@ -76,11 +76,11 @@ class Company {
     // Checking if company has name
     if (companyFields.name) {
       query.name = companyFields.name;
-      const previousEntry = await this.findOne(query);
+      const previousEntry = await this.find(query);
 
       // Checking if duplicated
-      if (previousEntry) {
-        return 'Duplicated name';
+      if (previousEntry.length > 0) {
+        throw new Error('Duplicated name');
       }
     }
   }
