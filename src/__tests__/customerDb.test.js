@@ -250,4 +250,19 @@ describe('Customers model tests', () => {
       }),
     ).not.toHaveLength(0);
   });
+
+  test('Check Duplication', async () => {
+    // check duplication
+    try {
+      await Customers.checkDuplication({ email: _customer.email }, '123132');
+    } catch (e) {
+      expect(e.message).toBe('Duplicated email');
+    }
+
+    try {
+      await Customers.checkDuplication({ twitterData: { id: _customer.twitterData.id } }, '123132');
+    } catch (e) {
+      expect(e.message).toBe('Duplicated twitter');
+    }
+  });
 });

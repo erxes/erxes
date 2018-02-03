@@ -190,4 +190,13 @@ describe('Companies model tests', () => {
       }),
     ).not.toHaveLength(0);
   });
+
+  test('Check Duplication', async () => {
+    // check duplication
+    try {
+      await Companies.checkDuplication({ name: _company.name }, '123132');
+    } catch (e) {
+      expect(e.message).toBe('Duplicated name');
+    }
+  });
 });
