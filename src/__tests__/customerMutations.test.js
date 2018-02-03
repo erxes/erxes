@@ -27,7 +27,7 @@ describe('Customers mutations', () => {
   });
 
   test('Check login required', async () => {
-    expect.assertions(4);
+    expect.assertions(6);
 
     const check = async fn => {
       try {
@@ -50,7 +50,7 @@ describe('Customers mutations', () => {
     check(customerMutations.customersEditCompanies);
 
     // merge customers
-    check(customerMutations.customerMerge);
+    check(customerMutations.customersMerge);
 
     // remove customers
     check(customerMutations.customersRemove);
