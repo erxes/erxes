@@ -66,7 +66,11 @@ class Company {
 
     // Adding exclude operator to the query
     if (idsToExclude) {
-      query._id = { $nin: idsToExclude };
+      if (idsToExclude instanceof Array) {
+        query._id = { $nin: idsToExclude };
+      } else {
+        query._id = { $ne: idsToExclude };
+      }
     }
 
     // Checking if company has name
@@ -76,11 +80,9 @@ class Company {
 
       // Checking if duplicated
       if (previousEntry) {
-        return 'Duplicated Name!';
+        return 'Duplicated name';
       }
     }
-
-    return true;
   }
 
   /**
@@ -90,11 +92,7 @@ class Company {
    */
   static async createCompany(doc) {
     // Checking duplicated fields of company
-    const duplicated = await this.checkDuplication(doc);
-
-    if (duplicated !== true) {
-      throw new Error(duplicated);
-    }
+    await this.checkDuplication(doc);
 
     // clean custom field values
     doc.customFieldsData = await Fields.cleanMulti(doc.customFieldsData || {});
@@ -110,11 +108,7 @@ class Company {
    */
   static async updateCompany(_id, doc) {
     // Checking duplicated fields of company
-    const duplicated = await this.checkDuplication(doc, [_id]);
-
-    if (duplicated !== true) {
-      throw new Error(duplicated);
-    }
+    await this.checkDuplication(doc, [_id]);
 
     // clean custom field values
     doc.customFieldsData = await Fields.cleanMulti(doc.customFieldsData || {});
@@ -182,11 +176,7 @@ class Company {
     let tagIds = [];
 
     // Checking duplicated fields of company
-    const duplicated = await this.checkDuplication(companyFields, companyIds);
-
-    if (duplicated !== true) {
-      throw new Error(duplicated);
-    }
+    await this.checkDuplication(companyFields, companyIds);
 
     // Merging company tags
     for (let companyId of companyIds) {

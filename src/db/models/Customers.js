@@ -127,36 +127,39 @@ class Customer {
    * @return {Promise} - Result
    */
   static async checkDuplication(customerFields, idsToExclude) {
-    let query = {};
+    const query = {};
+    let previousEntry = null;
 
     // Adding exclude operator to the query
     if (idsToExclude) {
-      query._id = { $nin: idsToExclude };
+      if (idsToExclude instanceof Array) {
+        query._id = { $nin: idsToExclude };
+      } else {
+        query._id = { $ne: idsToExclude };
+      }
     }
 
     // Checking if customer has email
     if (customerFields.email) {
       query.email = customerFields.email;
-      const previousEntry = await this.findOne(query);
+      previousEntry = await this.find(query);
 
       // Checking if duplicated
-      if (previousEntry) {
-        return 'Duplicated Email!';
+      if (previousEntry.length > 0) {
+        throw new Error('Duplicated email');
       }
     }
 
     // Checking if cuostomer has twitter data
     if (customerFields.twitterData) {
-      query.twitterData.id = customerFields.twitterData.id;
-      const previousEntry = await this.findOne(query);
+      query['twitterData.id'] = customerFields.twitterData.id;
+      previousEntry = await this.find(query);
 
       // Checking if duplicated
-      if (previousEntry) {
-        return 'Duplicated Twitter account!';
+      if (previousEntry.length > 0) {
+        throw new Error('Duplicated twitter');
       }
     }
-
-    return true;
   }
 
   /**
@@ -166,11 +169,7 @@ class Customer {
    */
   static async createCustomer(doc) {
     // Checking duplicated fields of customer
-    const duplicated = await this.checkDuplication(doc);
-
-    if (duplicated !== true) {
-      throw new Error(duplicated);
-    }
+    await this.checkDuplication(doc);
 
     // clean custom field values
     doc.customFieldsData = await Fields.cleanMulti(doc.customFieldsData || {});
@@ -186,23 +185,7 @@ class Customer {
    */
   static async updateCustomer(_id, doc) {
     // Checking duplicated fields of customer
-    const duplicated = await this.checkDuplication(doc, [_id]);
-
-    if (duplicated !== true) {
-      throw new Error(duplicated);
-    }
-
-    // if (doc.email) {
-    //   const previousEntry = await this.findOne({
-    //     _id: { $ne: _id },
-    //     email: doc.email
-    //   });
-    //
-    //   // check duplication
-    //   if (previousEntry) {
-    //     throw new Error('Duplicated email');
-    //   }
-    // }
+    await this.checkDuplication(doc, _id);
 
     // clean custom field values
     doc.customFieldsData = await Fields.cleanMulti(doc.customFieldsData || {});
@@ -290,11 +273,7 @@ class Customer {
     let companyIds = [];
 
     // Checking duplicated fields of customer
-    const duplicated = await this.checkDuplication(customerFields, customerIds);
-
-    if (duplicated !== true) {
-      throw new Error(duplicated);
-    }
+    await this.checkDuplication(customerFields, customerIds);
 
     // Merging customer tags and companies
     for (let customerId of customerIds) {
