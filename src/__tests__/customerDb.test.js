@@ -189,7 +189,15 @@ describe('Customers model tests', () => {
 
   test('Merge customers', async () => {
     const testCustomer = await customerFactory({});
-    const customerIds = [testCustomer._id];
+    const testCustomer2 = await customerFactory({});
+    const customerIds = [testCustomer._id, testCustomer2._id];
+
+    // checking length validation
+    try {
+      await Customers.mergeCustomers(['123', '123', '123'], {});
+    } catch (e) {
+      expect(e.message).toBe('You can only merge 2 customers at a time');
+    }
 
     // test duplication
     try {

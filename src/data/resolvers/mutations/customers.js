@@ -56,10 +56,6 @@ const customerMutations = {
    * @return {Promise} Customer object
    */
   async customersMerge(root, { customerIds, customerFields }) {
-    if (customerIds.length !== 2) {
-      throw new Error('You can only merge 2 customers at a time');
-    }
-
     return Customers.mergeCustomers(customerIds, customerFields);
   },
 

@@ -173,10 +173,15 @@ class Company {
    * @return {Promise} Newly created company
    */
   static async mergeCompanies(companyIds, companyFields) {
-    let tagIds = [];
+    // Checking companyIds length
+    if (companyIds.length !== 2) {
+      throw new Error('You can only merge 2 companies at a time');
+    }
 
     // Checking duplicated fields of company
     await this.checkDuplication(companyFields, companyIds);
+
+    let tagIds = [];
 
     // Merging company tags
     for (let companyId of companyIds) {

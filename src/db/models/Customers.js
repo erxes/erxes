@@ -269,11 +269,16 @@ class Customer {
    * @return {Promise} Customer object
    */
   static async mergeCustomers(customerIds, customerFields) {
-    let tagIds = [];
-    let companyIds = [];
+    // Checking customerIds length
+    if (customerIds.length !== 2) {
+      throw new Error('You can only merge 2 customers at a time');
+    }
 
     // Checking duplicated fields of customer
     await this.checkDuplication(customerFields, customerIds);
+
+    let tagIds = [];
+    let companyIds = [];
 
     // Merging customer tags and companies
     for (let customerId of customerIds) {

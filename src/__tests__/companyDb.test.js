@@ -155,13 +155,21 @@ describe('Companies model tests', () => {
 
   test('mergeCompanies', async () => {
     const testCompany = await companyFactory({});
-    const companyIds = [testCompany._id];
+    const testCompany2 = await companyFactory({});
+    const companyIds = [testCompany._id, testCompany2._id];
 
     // test duplication
     try {
       await Companies.mergeCompanies(companyIds, { name: _company.name });
     } catch (e) {
       expect(e.message).toBe('Duplicated name');
+    }
+
+    // checking length validation
+    try {
+      await Companies.mergeCompanies(['123', '123', '123'], {});
+    } catch (e) {
+      expect(e.message).toBe('You can only merge 2 companies at a time');
     }
 
     await internalNoteFactory({
