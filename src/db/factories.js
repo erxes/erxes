@@ -169,6 +169,7 @@ export const customerFactory = (params = {}) => {
     messengerData: params.messengerData || {},
     customFieldsData: params.customFieldsData || {},
     companyIds: params.companyIds || [],
+    twitterData: params.twitterData || { id: faker.random.number() },
   });
 
   return customer.save();
