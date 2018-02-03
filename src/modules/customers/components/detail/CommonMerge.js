@@ -104,6 +104,7 @@ class CommonMerge extends Component {
     return Object.keys(data).map(property => {
       if (basicInfos[property] && data[property])
         return this.renderProperty('plus', { [property]: data[property] });
+      return null;
     });
   }
 
