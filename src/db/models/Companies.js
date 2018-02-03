@@ -193,6 +193,9 @@ class Company {
       }
     }
 
+    // Removing Duplicated Tags from company
+    tagIds = Array.from(new Set(tagIds));
+
     // Creating company with properties
     const company = await this.createCompany({ ...companyFields, tagIds });
 

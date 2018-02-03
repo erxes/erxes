@@ -292,6 +292,12 @@ class Customer {
       }
     }
 
+    // Removing Duplicated Tags from customer
+    tagIds = Array.from(new Set(tagIds));
+
+    // Removing Duplicated Companies from customer
+    companyIds = Array.from(new Set(companyIds));
+
     // Creating customer with properties
     const customer = await this.createCustomer({
       ...customerFields,
