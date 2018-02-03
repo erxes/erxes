@@ -354,7 +354,7 @@ class Conversation {
       // Updating every conversation of new customer
       await this.updateMany({ customerId: customerId }, { $set: { customerId: newCustomerId } });
     }
-    // Returning updated list of conversation of new company
+    // Returning updated list of conversation of new customer
     return this.find({ customerId: newCustomerId });
   }
 
