@@ -286,10 +286,10 @@ class Customer {
         // Merging customer's tag and companies into 1 array
         tagIds = tagIds.concat(customerTags);
         companyIds = companyIds.concat(customerCompanies);
-      }
 
-      // Removing Customers
-      await this.remove({ _id: customerId });
+        // Removing Customers
+        await this.remove({ _id: customerId });
+      }
     }
 
     // Creating customer with properties

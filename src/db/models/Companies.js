@@ -184,12 +184,13 @@ class Company {
 
       if (company) {
         const companyTags = company.tagIds || [];
+
         // Merging company's tag into 1 array
         tagIds = tagIds.concat(companyTags);
-      }
 
-      // Removing company
-      await this.remove({ _id: companyId });
+        // Removing company
+        await this.remove({ _id: companyId });
+      }
     }
 
     // Creating company with properties
