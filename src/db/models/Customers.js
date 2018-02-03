@@ -278,12 +278,15 @@ class Customer {
     // Merging customer tags and companies
     for (let customerId of customerIds) {
       const customer = await this.findOne({ _id: customerId });
-      const customerTags = customer.tagIds || [];
-      const customerCompanies = customer.companyIds || [];
 
-      // Merging customer's tag and companies into 1 array
-      tagIds = tagIds.concat(customerTags);
-      companyIds = companyIds.concat(customerCompanies);
+      if (customer) {
+        const customerTags = customer.tagIds || [];
+        const customerCompanies = customer.companyIds || [];
+
+        // Merging customer's tag and companies into 1 array
+        tagIds = tagIds.concat(customerTags);
+        companyIds = companyIds.concat(customerCompanies);
+      }
 
       // Removing Customers
       await this.remove({ _id: customerId });

@@ -181,10 +181,12 @@ class Company {
     // Merging company tags
     for (let companyId of companyIds) {
       const company = await this.findOne({ _id: companyId });
-      const companyTags = company.tagIds || [];
 
-      // Merging company's tag into 1 array
-      tagIds = tagIds.concat(companyTags);
+      if (company) {
+        const companyTags = company.tagIds || [];
+        // Merging company's tag into 1 array
+        tagIds = tagIds.concat(companyTags);
+      }
 
       // Removing company
       await this.remove({ _id: companyId });
