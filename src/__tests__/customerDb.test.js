@@ -29,13 +29,19 @@ describe('Customers model tests', () => {
   });
 
   test('Create customer', async () => {
-    expect.assertions(5);
+    expect.assertions(6);
 
     // check duplication
     try {
       await Customers.createCustomer({ name: 'name', email: _customer.email });
     } catch (e) {
       expect(e.message).toBe('Duplicated email');
+    }
+
+    try {
+      await Customers.createCustomer({ name: 'name', twitterData: _customer.twitterData });
+    } catch (e) {
+      expect(e.message).toBe('Duplicated twitter');
     }
 
     const doc = {
@@ -54,7 +60,7 @@ describe('Customers model tests', () => {
   });
 
   test('Update customer', async () => {
-    expect.assertions(4);
+    expect.assertions(5);
 
     const previousCustomer = await customerFactory({
       email: 'dombo@yahoo.com',
@@ -71,6 +77,12 @@ describe('Customers model tests', () => {
       await Customers.updateCustomer(_customer._id, doc);
     } catch (e) {
       expect(e.message).toBe('Duplicated email');
+    }
+
+    try {
+      await Customers.createCustomer({ name: 'name', twitterData: _customer.twitterData });
+    } catch (e) {
+      expect(e.message).toBe('Duplicated twitter');
     }
 
     // remove previous duplicated entry
@@ -176,7 +188,22 @@ describe('Customers model tests', () => {
   });
 
   test('Merge customers', async () => {
-    const customerIds = ['123'];
+    const testCustomer = await customerFactory({});
+    const customerIds = [testCustomer._id];
+
+    // test duplication
+    try {
+      await Customers.mergeCustomers(customerIds, { twitterData: _customer.twitterData });
+    } catch (e) {
+      expect(e.message).toBe('Duplicated twitter');
+    }
+
+    try {
+      await Customers.mergeCustomers(customerIds, { email: _customer.email });
+    } catch (e) {
+      expect(e.message).toBe('Duplicated email');
+    }
+
     await internalNoteFactory({
       contentType: COC_CONTENT_TYPES.CUSTOMER,
       contentTypeId: customerIds[0],
@@ -194,23 +221,24 @@ describe('Customers model tests', () => {
       email: 'Test email',
       phone: 'Test phone',
       facebookData: {
-        id: '1231312',
+        id: '1231312asd',
       },
       twitterData: {
-        name: '1234',
+        id: 1234123,
       },
       messengerData: {
         sessionCount: 6,
       },
     };
-
     const updatedCustomer = await Customers.mergeCustomers(customerIds, doc);
 
     expect(updatedCustomer.firstName).toBe(doc.firstName);
     expect(updatedCustomer.lastName).toBe(doc.lastName);
     expect(updatedCustomer.email).toBe(doc.email);
     expect(updatedCustomer.phone).toBe(doc.phone);
-    expect(updatedCustomer.facebookData).toEqual(doc.facebookData);
+    expect(updatedCustomer.twitterData.toJSON()).toEqual(doc.twitterData);
+    expect(updatedCustomer.messengerData.toJSON()).toEqual(doc.messengerData);
+    expect(updatedCustomer.facebookData.toJSON()).toEqual(doc.facebookData);
     expect(await Conversations.find({ customerId: updatedCustomer._id })).not.toHaveLength(0);
     expect(await ConversationMessages.find({ customerId: updatedCustomer._id })).not.toHaveLength(
       0,

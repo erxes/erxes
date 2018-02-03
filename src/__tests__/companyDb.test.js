@@ -40,7 +40,7 @@ describe('Companies model tests', () => {
   });
 
   test('Create company', async () => {
-    expect.assertions(7);
+    expect.assertions(6);
 
     // check duplication
     try {
@@ -57,7 +57,7 @@ describe('Companies model tests', () => {
   });
 
   test('Update company', async () => {
-    expect.assertions(7);
+    expect.assertions(6);
 
     const doc = generateDoc();
 
@@ -154,7 +154,8 @@ describe('Companies model tests', () => {
   });
 
   test('mergeCompanies', async () => {
-    const companyIds = ['123'];
+    const testCompany = await companyFactory({});
+    const companyIds = [testCompany._id];
     await internalNoteFactory({
       contentType: COC_CONTENT_TYPES.COMPANY,
       contentTypeId: companyIds[0],
