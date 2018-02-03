@@ -118,11 +118,11 @@ describe('Customers mutations', () => {
     Customers.mergeCustomers = jest.fn();
 
     const customerIds = ['customerid1', 'customerid2'];
-    const newCustomer = await customerFactory({});
+    const customerFields = await customerFactory({});
 
-    await customerMutations.customersMerge({}, { customerIds, newCustomer }, { user: _user });
+    await customerMutations.customersMerge({}, { customerIds, customerFields }, { user: _user });
 
-    expect(Customers.mergeCustomers).toBeCalledWith(customerIds, newCustomer);
+    expect(Customers.mergeCustomers).toBeCalledWith(customerIds, customerFields);
   });
 
   test('Customer remove', async () => {

@@ -114,11 +114,11 @@ describe('Companies mutations', () => {
     Companies.mergeCompanies = jest.fn();
 
     const companyIds = ['companyid1', 'companyid2'];
-    const newCompany = await companyFactory({});
+    const companyFields = await companyFactory({});
 
-    await companyMutations.companiesMerge({}, { companyIds, newCompany }, { user: _user });
+    await companyMutations.companiesMerge({}, { companyIds, companyFields }, { user: _user });
 
-    expect(Companies.mergeCompanies).toBeCalledWith(companyIds, newCompany);
+    expect(Companies.mergeCompanies).toBeCalledWith(companyIds, companyFields);
   });
 
   test('Company remove', async () => {
