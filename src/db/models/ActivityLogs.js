@@ -338,7 +338,7 @@ class ActivityLog {
       );
     }
     // Returning updated list of activity logs of new customer
-    return this.find({ coc: { id: newCustomerId, type: COC_CONTENT_TYPES.CUSTOMER } });
+    return this.find({ coc: { type: COC_CONTENT_TYPES.CUSTOMER, id: newCustomerId } });
   }
 
   /**
@@ -380,7 +380,7 @@ class ActivityLog {
       );
     }
     // Returning updated list of activity logs of new company
-    return this.find({ coc: { id: newCompanyId, type: COC_CONTENT_TYPES.COMPANY } });
+    return this.find({ coc: { type: COC_CONTENT_TYPES.COMPANY, id: newCompanyId } });
   }
 }
 

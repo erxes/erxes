@@ -233,7 +233,7 @@ describe('Customers model tests', () => {
     });
     await activityLogFactory({
       coc: {
-        type: COC_CONTENT_TYPES.COMPANY,
+        type: COC_CONTENT_TYPES.CUSTOMER,
         id: customerIds[0],
       },
     });
@@ -263,7 +263,8 @@ describe('Customers model tests', () => {
     expect(updatedCustomer.messengerData.toJSON()).toEqual(doc.messengerData);
     expect(updatedCustomer.facebookData.toJSON()).toEqual(doc.facebookData);
 
-    // Checking old customers modules deleted
+    // Checking old customers datas to be deleted
+    expect(await Customers.find({ _id: customerIds[0] })).toHaveLength(0);
     expect(await Conversations.find({ customerId: customerIds[0] })).toHaveLength(0);
     expect(await ConversationMessages.find({ customerId: customerIds[0] })).toHaveLength(0);
     expect(
@@ -281,7 +282,7 @@ describe('Customers model tests', () => {
       }),
     ).toHaveLength(0);
 
-    // Checking new customer modules updated
+    // Checking updated customer datas
     expect(await Conversations.find({ customerId: updatedCustomer._id })).not.toHaveLength(0);
     expect(await ConversationMessages.find({ customerId: updatedCustomer._id })).not.toHaveLength(
       0,

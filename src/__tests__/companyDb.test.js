@@ -204,6 +204,7 @@ describe('Companies model tests', () => {
     expect(updatedCompany.plan).toBe(doc.plan);
 
     // Checking old company datas deleted
+    expect(await Companies.find({ _id: companyIds[0] })).toHaveLength(0);
     expect(
       await InternalNotes.find({
         contentType: COC_CONTENT_TYPES.COMPANY,
