@@ -350,7 +350,7 @@ describe('Conversation db', () => {
 
     await Conversations.removeCustomerConversations(customer._id);
 
-    expect(Conversations.find({ customerId: customer._id })).toHaveLength(0);
-    expect(ConversationMessages.find({ conversationId: conversation._id })).toHaveLength(0);
+    expect(await Conversations.find({ customerId: customer._id })).toHaveLength(0);
+    expect(await ConversationMessages.find({ conversationId: conversation._id })).toHaveLength(0);
   });
 });

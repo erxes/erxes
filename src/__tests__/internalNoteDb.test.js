@@ -124,7 +124,7 @@ describe('InternalNotes model test', () => {
     await InternalNotes.removeCustomerInternalNotes(customer._id);
 
     expect(
-      InternalNotes.find({
+      await InternalNotes.find({
         contentType: COC_CONTENT_TYPES.CUSTOMER,
         contentTypeId: customer._id,
       }),
@@ -142,7 +142,7 @@ describe('InternalNotes model test', () => {
     await InternalNotes.removeCompanyInternalNotes(company._id);
 
     expect(
-      InternalNotes.find({
+      await InternalNotes.find({
         contentType: COC_CONTENT_TYPES.COMPANY,
         contentTypeId: company._id,
       }),

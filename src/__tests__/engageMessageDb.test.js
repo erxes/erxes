@@ -163,7 +163,7 @@ describe('engage messages model tests', () => {
     await EngageMessages.removeCustomerEngages(customer._id);
 
     expect(
-      EngageMessages.find({
+      await EngageMessages.find({
         customerIds: { $in: [customer._id] },
       }),
     ).toHaveLength(0);
@@ -178,7 +178,7 @@ describe('engage messages model tests', () => {
     await EngageMessages.removeReceivedCustomer(customer._id);
 
     expect(
-      EngageMessages.find({
+      await EngageMessages.find({
         messengerReceivedCustomerIds: { $in: [customer._id] },
       }),
     ).toHaveLength(0);
