@@ -225,21 +225,6 @@ class Message {
       { multi: true },
     );
   }
-
-  /**
-   * Transfers customers' conversation messages to another customer
-   * @param  {String} newCustomerId - Customer id to set
-   * @param  {String[]} customerIds - Old customer ids to change
-   * @return {Promise} Updated list of conversation messages of new customer
-   */
-  static async changeCustomer(newCustomerId, customerIds) {
-    for (let customerId of customerIds) {
-      // Updating every conversation message of old customer
-      await this.updateMany({ customerId: customerId }, { $set: { customerId: newCustomerId } });
-    }
-    // Returning updated list of conversation messages of new customer
-    return this.find({ customerId: newCustomerId });
-  }
 }
 
 MessageSchema.loadClass(Message);

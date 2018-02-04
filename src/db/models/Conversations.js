@@ -351,9 +351,14 @@ class Conversation {
    */
   static async changeCustomer(newCustomerId, customerIds) {
     for (let customerId of customerIds) {
-      // Updating every conversation of new customer
+      // Updating every conversation and conversation messages of new customer
+      await ConversationMessages.updateMany(
+        { customerId: customerId },
+        { $set: { customerId: newCustomerId } },
+      );
       await this.updateMany({ customerId: customerId }, { $set: { customerId: newCustomerId } });
     }
+
     // Returning updated list of conversation of new customer
     return this.find({ customerId: newCustomerId });
   }
