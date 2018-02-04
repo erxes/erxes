@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 import { CONVERSATION_STATUSES, FACEBOOK_DATA_KINDS } from '../../data/constants';
-import { Users } from '../../db/models';
+import { Users, ConversationMessages } from '../../db/models';
 import { field } from './utils';
 
 const TwitterDirectMessageSchema = mongoose.Schema(
@@ -364,10 +364,17 @@ class Conversation {
    * @return {Promise} Result
    */
   static async removeCustomerConversations(customerId) {
-    // Removing every conversation of customer
-    return await this.remove({
+    // Finding every conversation of customer
+    const conversations = await this.find({
       customerId,
     });
+
+    // Removing conversations and conversation messages
+    for (let conversation of conversations) {
+      // Removing conversation message of conversation
+      await ConversationMessages.remove({ conversationId: conversation._id });
+      await this.remove({ _id: conversation._id });
+    }
   }
 }
 

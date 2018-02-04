@@ -240,18 +240,6 @@ class Message {
     // Returning updated list of conversation messages of new customer
     return this.find({ customerId: newCustomerId });
   }
-
-  /**
-   * Removing customer conversation messages
-   * @param {String} customerId - Customer id of customer to remove
-   * @return {Promise} Result
-   */
-  static async removeCustomerConversationMessages(customerId) {
-    // Removing every conversation messages of customer
-    return await this.remove({
-      customerId,
-    });
-  }
 }
 
 MessageSchema.loadClass(Message);

@@ -254,7 +254,6 @@ class Customer {
   static async removeCustomer(customerId) {
     // Removing every modules that associated with customer
     await ActivityLogs.removeCustomerActivityLog(customerId);
-    await ConversationMessages.removeCustomerConversationMessages(customerId);
     await Conversations.removeCustomerConversations(customerId);
     await EngageMessages.removeCustomerEngages(customerId);
     await InternalNotes.removeCustomerInternalNotes(customerId);
