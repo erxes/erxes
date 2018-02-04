@@ -201,33 +201,27 @@ class Message {
   static async changeCustomer(newCustomerId, customerIds) {
     for (let customerId of customerIds) {
       // Updating every engage messages of customer
-      await this.updateMany({ customerIds: customerId }, { $push: { customerIds: newCustomerId } });
-      await this.updateMany({ customerIds: customerId }, { $pull: { customerIds: customerId } });
-    }
+      await this.updateMany(
+        { customerIds: { $in: [customerId] } },
+        { $push: { customerIds: newCustomerId } },
+      );
+      await this.updateMany(
+        { customerIds: { $in: [customerId] } },
+        { $pull: { customerIds: customerId } },
+      );
 
-    return this.find({ customerIds: newCustomerId });
-  }
-
-  /**
-   * Updates engage message's received customer to another customer
-   * @param {String} newCustomerId - Customer id to set
-   * @param {String[]} customerIds - Old customer ids to change
-   * @return {Promise} updated list of engage messages that customer participated in
-   */
-  static async changeReceivedCustomer(newCustomerId, customerIds) {
-    for (let customerId of customerIds) {
       // updating every engage messages of customer participated in
       await this.updateMany(
-        { messengerReceivedCustomerIds: customerId },
+        { messengerReceivedCustomerIds: { $in: [customerId] } },
         { $push: { messengerReceivedCustomerIds: newCustomerId } },
       );
       await this.updateMany(
-        { messengerReceivedCustomerIds: customerId },
+        { messengerReceivedCustomerIds: { $in: [customerId] } },
         { $pull: { messengerReceivedCustomerIds: customerId } },
       );
     }
-    // Returns updated list of engage messages
-    return this.find({ messengerReceivedCustomerIds: newCustomerId });
+
+    return this.find({ customerIds: newCustomerId });
   }
 
   /**
@@ -236,26 +230,15 @@ class Message {
    * @return {Promise} Updated internal notes
    */
   static async removeCustomerEngages(customerId) {
-    // Removing every engage messages of customer
-    await this.remove({ messengerReceivedCustomerIds: customerId });
+    // Removing customer from engage messages
+    await this.updateMany(
+      { messengerReceivedCustomerIds: { $in: [customerId] } },
+      { $pull: { messengerReceivedCustomerIds: { $in: [customerId] } } },
+    );
 
     return await this.updateMany(
       { customerIds: customerId },
       { $pull: { customerIds: customerId } },
-    );
-  }
-
-  /**
-   * Removes customer from received customer list of engage message
-   * @param {String} customerId - Customer id to remove
-   * @return {Promise} Result
-   */
-  static async removeReceivedCustomer(customerId) {
-    // Removing customer from received customer ids of engage message
-
-    return await this.updateMany(
-      { messengerReceivedCustomerIds: customerId },
-      { $pull: { messengerReceivedCustomerIds: customerId } },
     );
   }
 }

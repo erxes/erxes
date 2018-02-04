@@ -1,13 +1,5 @@
 import mongoose from 'mongoose';
-import {
-  Fields,
-  Companies,
-  ActivityLogs,
-  Conversations,
-  ConversationMessages,
-  InternalNotes,
-  EngageMessages,
-} from './';
+import { Fields, Companies, ActivityLogs, Conversations, InternalNotes, EngageMessages } from './';
 import { field } from './utils';
 
 /* location schema */
@@ -311,10 +303,8 @@ class Customer {
 
     // Updating every modules associated with customers
     await ActivityLogs.changeCustomer(customer._id, customerIds);
-    await ConversationMessages.changeCustomer(customer._id, customerIds);
     await Conversations.changeCustomer(customer._id, customerIds);
     await EngageMessages.changeCustomer(customer._id, customerIds);
-    await EngageMessages.changeReceivedCustomer(customer._id, customerIds);
     await InternalNotes.changeCustomer(customer._id, customerIds);
 
     return customer;

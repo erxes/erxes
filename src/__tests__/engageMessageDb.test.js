@@ -132,26 +132,19 @@ describe('engage messages model tests', () => {
     const customer = await customerFactory({});
     const newCustomer = await customerFactory({});
 
-    const updatedEngageMessages = await EngageMessages.changeCustomer(newCustomer._id, [
-      customer._id,
-    ]);
+    await EngageMessages.changeCustomer(newCustomer._id, [customer._id]);
 
-    for (let engageMessages of updatedEngageMessages) {
-      expect(engageMessages.customerIds).toContain(newCustomer._id);
-    }
-  });
+    expect(
+      await EngageMessages.find({
+        customerIds: { $in: [newCustomer._id] },
+      }),
+    ).toHaveLength(0);
 
-  test('changeReceivedCustomer', async () => {
-    const customer = await customerFactory({});
-    const newCustomer = await customerFactory({});
-
-    const updatedEngageMessages = await EngageMessages.changeCustomer(newCustomer._id, [
-      customer._id,
-    ]);
-
-    for (let engageMessages of updatedEngageMessages) {
-      expect(engageMessages.messengerReceivedCustomerIds).toContain(newCustomer._id);
-    }
+    expect(
+      await EngageMessages.find({
+        messengerReceivedCustomerIds: { $in: [newCustomer._id] },
+      }),
+    ).toHaveLength(0);
   });
 
   test('removeCustomerEngages', async () => {
@@ -167,16 +160,6 @@ describe('engage messages model tests', () => {
         customerIds: { $in: [customer._id] },
       }),
     ).toHaveLength(0);
-  });
-
-  test('removeReceivedCustomer', async () => {
-    const customer = await customerFactory({});
-    await engageMessageFactory({
-      messengerReceivedCustomerIds: [customer._id],
-    });
-
-    await EngageMessages.removeReceivedCustomer(customer._id);
-
     expect(
       await EngageMessages.find({
         messengerReceivedCustomerIds: { $in: [customer._id] },
