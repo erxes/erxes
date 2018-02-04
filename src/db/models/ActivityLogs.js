@@ -326,7 +326,7 @@ class ActivityLog {
   /**
    * Transfers customers' activity logs to another customer
    * @param {String} newCustomerId - Customer id to set
-   * @param {string[]} customerIds - Old customer ids to change
+   * @param {String[]} customerIds - Old customer ids to change
    * @return {Promise} Updated alist of ctivity logs of new customer
    */
   static async changeCustomer(newCustomerId, customerIds) {
@@ -368,7 +368,7 @@ class ActivityLog {
   /**
    * Transfers companies' activity logs to another company
    * @param {String} newCompanyId - Company idsto set
-   * @param {string[]} companyIds - Old company ids to change
+   * @param {String[]} companyIds - Old company ids to change
    * @return {Promise} Updated list of activity logs of new company
    */
   static async changeCompany(newCompanyId, companyIds) {

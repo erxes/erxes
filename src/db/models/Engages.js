@@ -195,7 +195,7 @@ class Message {
   /**
    * Transfers customers' engage messages to another customer
    * @param {String} newCustomerId - Customer id to set
-   * @param {string[]} customerIds - Old customer ids to change
+   * @param {String[]} customerIds - Old customer ids to change
    * @return {Promise} updated list of engage messages of new customer
    */
   static async changeCustomer(newCustomerId, customerIds) {
@@ -211,7 +211,7 @@ class Message {
   /**
    * Updates engage message's received customer to another customer
    * @param {String} newCustomerId - Customer id to set
-   * @param {string[]} customerIds - Old customer ids to change
+   * @param {String[]} customerIds - Old customer ids to change
    * @return {Promise} updated list of engage messages that customer participated in
    */
   static async changeReceivedCustomer(newCustomerId, customerIds) {

@@ -42,7 +42,7 @@ const customerMutations = {
 
   /**
    * Update customer Companies
-   * @param {string[]} companyIds - Company ids to update
+   * @param {String[]} companyIds - Company ids to update
    * @return {Promise} Customer object
    */
   async customersEditCompanies(root, { _id, companyIds }) {
@@ -51,7 +51,7 @@ const customerMutations = {
 
   /**
    * Merge customers
-   * @param {string[]} customerIds - Customer ids to merge
+   * @param {String[]} customerIds - Customer ids to merge
    * @param {Object} customerFields - Customer infos to create with
    * @return {Promise} Customer object
    */
@@ -61,7 +61,7 @@ const customerMutations = {
 
   /**
    * Remove customers
-   * @param {string[]} customerIds - Customer Ids to remove
+   * @param {String[]} customerIds - Customer Ids to remove
    * @return {Promise} Customer object
    */
   async customersRemove(root, { customerIds }) {

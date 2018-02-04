@@ -346,7 +346,7 @@ class Conversation {
   /**
    * Transfers customers' conversations to another customer
    * @param {String} newCustomerId - Customer id to set
-   * @param {string[]} customerIds - Old customer ids to change
+   * @param {String[]} customerIds - Old customer ids to change
    * @return {Promise} Updated list of conversations of new customer
    */
   static async changeCustomer(newCustomerId, customerIds) {

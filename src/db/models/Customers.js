@@ -123,7 +123,7 @@ class Customer {
   /**
    * Checking if customer has duplicated unique properties
    * @param  {Object} customerFields - Customer fields to check duplications
-   * @param  {string[]} idsToExclude - Customer ids to exclude
+   * @param  {String[]} idsToExclude - Customer ids to exclude
    * @return {Promise} - Result
    */
   static async checkDuplication(customerFields, idsToExclude) {
@@ -236,7 +236,7 @@ class Customer {
   /**
    * Update customer companies
    * @param {String} _id - Customer id to update
-   * @param {string[]} companyIds - Company ids to update
+   * @param {String[]} companyIds - Company ids to update
    * @return {Promise} updated customer object
    */
   static async updateCompanies(_id, companyIds) {
@@ -264,7 +264,7 @@ class Customer {
 
   /**
    * Merge customers
-   * @param {string[]} customerIds - Customer ids to merge
+   * @param {String[]} customerIds - Customer ids to merge
    * @param {Object} customerFields - Customer infos to create with
    * @return {Promise} Customer object
    */

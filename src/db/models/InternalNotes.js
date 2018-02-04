@@ -69,7 +69,7 @@ class InternalNote {
   /**
    * Transfers customers' internal notes to another customer
    * @param {String} newCustomerId - Customer id to set
-   * @param {string[]} customerIds - Old customer ids to change
+   * @param {String[]} customerIds - Old customer ids to change
    * @return {Promise} Updated list of internal notes of new customer
    */
   static async changeCustomer(newCustomerId, customerIds) {
@@ -116,7 +116,7 @@ class InternalNote {
   /**
    * Transfers companies' internal notes to another company
    * @param {String} newCompanyId - Company ids to set
-   * @param {string[]} OldCompanyIds - Old company ids to change
+   * @param {String[]} OldCompanyIds - Old company ids to change
    * @return {Promise} Updated list of internal notes of new company
    */
   static async changeCompany(newCompanyId, OldCompanyIds) {

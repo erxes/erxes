@@ -36,7 +36,7 @@ const companyMutations = {
 
   /**
    * Update company Customers
-   * @param {string[]} customerIds - Customer ids to update
+   * @param {String[]} customerIds - Customer ids to update
    * @return {Promise} Company object
    */
   async companiesEditCustomers(root, { _id, customerIds }) {
@@ -45,7 +45,7 @@ const companyMutations = {
 
   /**
    * Remove companies
-   * @param {string[]} companyIds - Company Ids to remove
+   * @param {String[]} companyIds - Company Ids to remove
    * @return {Promise} Removed company ids
    */
   async companiesRemove(root, { companyIds }) {

@@ -229,7 +229,7 @@ class Message {
   /**
    * Transfers customers' conversation messages to another customer
    * @param  {String} newCustomerId - Customer id to set
-   * @param  {string[]} customerIds - Old customer ids to change
+   * @param  {String[]} customerIds - Old customer ids to change
    * @return {Promise} Updated list of conversation messages of new customer
    */
   static async changeCustomer(newCustomerId, customerIds) {
