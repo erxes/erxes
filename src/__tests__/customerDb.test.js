@@ -2,13 +2,20 @@
 /* eslint-disable no-underscore-dangle */
 
 import { connect, disconnect } from '../db/connection';
-import { Customers, InternalNotes, Conversations, ConversationMessages } from '../db/models';
+import {
+  Customers,
+  InternalNotes,
+  Conversations,
+  ConversationMessages,
+  ActivityLogs,
+} from '../db/models';
 import {
   fieldFactory,
   customerFactory,
   conversationMessageFactory,
   conversationFactory,
   internalNoteFactory,
+  activityLogFactory,
 } from '../db/factories';
 import { COC_CONTENT_TYPES } from '../data/constants';
 
@@ -224,6 +231,12 @@ describe('Customers model tests', () => {
     await conversationMessageFactory({
       customerId: customerIds[0],
     });
+    await activityLogFactory({
+      coc: {
+        type: COC_CONTENT_TYPES.COMPANY,
+        id: customerIds[0],
+      },
+    });
 
     const doc = {
       firstName: 'Test first name',
@@ -249,6 +262,26 @@ describe('Customers model tests', () => {
     expect(updatedCustomer.twitterData.toJSON()).toEqual(doc.twitterData);
     expect(updatedCustomer.messengerData.toJSON()).toEqual(doc.messengerData);
     expect(updatedCustomer.facebookData.toJSON()).toEqual(doc.facebookData);
+
+    // Checking old customers modules deleted
+    expect(await Conversations.find({ customerId: customerIds[0] })).toHaveLength(0);
+    expect(await ConversationMessages.find({ customerId: customerIds[0] })).toHaveLength(0);
+    expect(
+      await InternalNotes.find({
+        contentType: COC_CONTENT_TYPES.CUSTOMER,
+        contentTypeId: customerIds[0],
+      }),
+    ).toHaveLength(0);
+    expect(
+      await ActivityLogs.find({
+        coc: {
+          id: customerIds[0],
+          type: COC_CONTENT_TYPES.CUSTOMER,
+        },
+      }),
+    ).toHaveLength(0);
+
+    // Checking new customer modules updated
     expect(await Conversations.find({ customerId: updatedCustomer._id })).not.toHaveLength(0);
     expect(await ConversationMessages.find({ customerId: updatedCustomer._id })).not.toHaveLength(
       0,
@@ -257,6 +290,14 @@ describe('Customers model tests', () => {
       await InternalNotes.find({
         contentType: COC_CONTENT_TYPES.CUSTOMER,
         contentTypeId: updatedCustomer._id,
+      }),
+    ).not.toHaveLength(0);
+    expect(
+      await ActivityLogs.find({
+        coc: {
+          type: COC_CONTENT_TYPES.CUSTOMER,
+          id: updatedCustomer._id,
+        },
       }),
     ).not.toHaveLength(0);
   });

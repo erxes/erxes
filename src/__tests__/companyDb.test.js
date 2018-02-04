@@ -2,8 +2,13 @@
 /* eslint-disable no-underscore-dangle */
 
 import { connect, disconnect } from '../db/connection';
-import { Companies, Customers, InternalNotes } from '../db/models';
-import { companyFactory, fieldFactory, internalNoteFactory } from '../db/factories';
+import { Companies, Customers, InternalNotes, ActivityLogs } from '../db/models';
+import {
+  companyFactory,
+  fieldFactory,
+  internalNoteFactory,
+  activityLogFactory,
+} from '../db/factories';
 import { COC_CONTENT_TYPES } from '../data/constants';
 
 beforeAll(() => connect());
@@ -176,6 +181,12 @@ describe('Companies model tests', () => {
       contentType: COC_CONTENT_TYPES.COMPANY,
       contentTypeId: companyIds[0],
     });
+    await activityLogFactory({
+      coc: {
+        type: COC_CONTENT_TYPES.COMPANY,
+        id: companyIds[0],
+      },
+    });
 
     const doc = {
       name: 'Test name',
@@ -191,10 +202,36 @@ describe('Companies model tests', () => {
     expect(updatedCompany.size).toBe(doc.size);
     expect(updatedCompany.industry).toBe(doc.industry);
     expect(updatedCompany.plan).toBe(doc.plan);
+
+    // Checking old company datas deleted
+    expect(
+      await InternalNotes.find({
+        contentType: COC_CONTENT_TYPES.COMPANY,
+        contentTypeId: companyIds[0],
+      }),
+    ).toHaveLength(0);
+    expect(
+      await ActivityLogs.find({
+        coc: {
+          type: COC_CONTENT_TYPES.COMPANY,
+          id: companyIds[0],
+        },
+      }),
+    ).toHaveLength(0);
+
+    // Checking new company datas updated
     expect(
       await InternalNotes.find({
         contentType: COC_CONTENT_TYPES.COMPANY,
         contentTypeId: updatedCompany._id,
+      }),
+    ).not.toHaveLength(0);
+    expect(
+      await ActivityLogs.find({
+        coc: {
+          type: COC_CONTENT_TYPES.COMPANY,
+          id: updatedCompany._id,
+        },
       }),
     ).not.toHaveLength(0);
   });

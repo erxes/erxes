@@ -338,7 +338,7 @@ class ActivityLog {
       );
     }
     // Returning updated list of activity logs of new customer
-    return this.find({ coc: { type: COC_CONTENT_TYPES.CUSTOMER, id: newCustomerId } });
+    return this.find({ coc: { id: newCustomerId, type: COC_CONTENT_TYPES.CUSTOMER } });
   }
 
   /**
