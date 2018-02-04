@@ -162,26 +162,6 @@ class Message {
   }
 
   /**
-   * Remove a messages
-   * @param  {Object} selector
-   * @return {Promise} Deleted messages info
-   */
-  static async removeMessages(selector) {
-    const messages = await this.find(selector);
-    const result = await this.remove(selector);
-
-    for (let message of messages) {
-      const messageCount = await Messages.find({
-        conversationId: message.conversationId,
-      }).count();
-
-      await Conversations.update({ _id: message.conversationId }, { $set: { messageCount } });
-    }
-
-    return result;
-  }
-
-  /**
   * User's last non answered question
   * @param  {String} conversationId
   * @return {Promise} Message object

@@ -265,28 +265,6 @@ describe('Conversation db', () => {
     }
   });
 
-  test('Conversation message remove', async () => {
-    // get conversation message count before message delete
-    await ConversationMessages.addMessage(_doc, _user);
-
-    const beforeConversation = await Conversations.findOne({
-      _id: _conversationMessage.conversationId,
-    });
-
-    await ConversationMessages.removeMessages({
-      _id: { $in: [_conversationMessage._id] },
-    });
-
-    expect(await ConversationMessages.find({ _id: _conversationMessage._id }).count()).toBe(0);
-
-    const afterConversation = await Conversations.findOne({
-      _id: _conversationMessage.conversationId,
-    });
-
-    // Conversation message count subtracted
-    expect(beforeConversation.messageCount).toBe(afterConversation.messageCount + 1);
-  });
-
   test('Conversation message', async () => {
     expect(await ConversationMessages.getNonAsnweredMessage(_conversation._id).count()).toBe(1);
 
