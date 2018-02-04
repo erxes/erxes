@@ -116,16 +116,36 @@ describe('InternalNotes model test', () => {
   test('removeCustomerInternalNotes', async () => {
     const customer = await customerFactory({});
 
-    const removed = await InternalNotes.removeCustomerInternalNotes(customer._id);
+    await internalNoteFactory({
+      contentType: COC_CONTENT_TYPES.CUSTOMER,
+      contentTypeId: customer._id,
+    });
 
-    expect(removed.result).toEqual({ n: 0, ok: 1 });
+    await InternalNotes.removeCustomerInternalNotes(customer._id);
+
+    expect(
+      InternalNotes.find({
+        contentType: COC_CONTENT_TYPES.CUSTOMER,
+        contentTypeId: customer._id,
+      }),
+    ).toHaveLength(0);
   });
 
   test('removeCompanyInternalNotes', async () => {
     const company = await companyFactory({});
 
-    const removed = await InternalNotes.removeCompanyInternalNotes(company._id);
+    await internalNoteFactory({
+      contentType: COC_CONTENT_TYPES.COMPANY,
+      contentTypeId: company._id,
+    });
 
-    expect(removed.result).toEqual({ n: 0, ok: 1 });
+    await InternalNotes.removeCompanyInternalNotes(company._id);
+
+    expect(
+      InternalNotes.find({
+        contentType: COC_CONTENT_TYPES.COMPANY,
+        contentTypeId: company._id,
+      }),
+    ).toHaveLength(0);
   });
 });

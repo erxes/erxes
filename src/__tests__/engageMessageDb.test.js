@@ -156,23 +156,31 @@ describe('engage messages model tests', () => {
 
   test('removeCustomerEngages', async () => {
     const customer = await customerFactory({});
-    const engageMessage = await engageMessageFactory({
+    await engageMessageFactory({
       customerIds: [customer._id],
     });
 
     await EngageMessages.removeCustomerEngages(customer._id);
 
-    expect(engageMessage.customerIds).not.toContain(customer._id);
+    expect(
+      EngageMessages.find({
+        customerIds: { $in: [customer._id] },
+      }),
+    ).toHaveLength(0);
   });
 
   test('removeReceivedCustomer', async () => {
     const customer = await customerFactory({});
-    const engageMessage = await engageMessageFactory({
+    await engageMessageFactory({
       messengerReceivedCustomerIds: [customer._id],
     });
 
     await EngageMessages.removeReceivedCustomer(customer._id);
 
-    expect(engageMessage.messengerReceivedCustomerIds).not.toContain(customer._id);
+    expect(
+      EngageMessages.find({
+        messengerReceivedCustomerIds: { $in: [customer._id] },
+      }),
+    ).toHaveLength(0);
   });
 });

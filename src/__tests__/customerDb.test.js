@@ -168,15 +168,17 @@ describe('Customers model tests', () => {
       contentType: COC_CONTENT_TYPES.CUSTOMER,
       contentTypeId: customer._id,
     });
-    await conversationFactory({
+    const conversation = await conversationFactory({
       customerId: customer._id,
     });
     await conversationMessageFactory({
+      conversationId: conversation._id,
       customerId: customer._id,
     });
 
     await Customers.removeCustomer(customer._id);
 
+    expect(await Customers.find({ _id: customer._id })).toHaveLength(0);
     expect(
       await InternalNotes.find({
         contentType: COC_CONTENT_TYPES.CUSTOMER,

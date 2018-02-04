@@ -344,12 +344,13 @@ describe('Conversation db', () => {
   test('removeCustomerConversations', async () => {
     const customer = await customerFactory({});
 
-    await conversationFactory({
+    const conversation = await conversationFactory({
       customerId: customer._id,
     });
 
-    const removed = await Conversations.removeCustomerConversations(customer._id);
+    await Conversations.removeCustomerConversations(customer._id);
 
-    expect(removed.result).toEqual({ ok: 1, n: 1 });
+    expect(Conversations.find({ customerId: customer._id })).toHaveLength(0);
+    expect(ConversationMessages.find({ conversationId: conversation._id })).toHaveLength(0);
   });
 });
