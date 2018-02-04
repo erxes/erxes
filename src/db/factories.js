@@ -1,6 +1,12 @@
 import faker from 'faker';
 import Random from 'meteor-random';
-import { MODULES, COC_CONTENT_TYPES } from '../data/constants';
+import {
+  MODULES,
+  COC_CONTENT_TYPES,
+  ACTIVITY_PERFORMER_TYPES,
+  ACTIVITY_TYPES,
+  ACTIVITY_ACTIONS,
+} from '../data/constants';
 
 import {
   Users,
@@ -24,6 +30,7 @@ import {
   KnowledgeBaseTopics,
   KnowledgeBaseCategories,
   KnowledgeBaseArticles,
+  ActivityLogs,
 } from './models';
 
 export const userFactory = (params = {}) => {
@@ -342,4 +349,29 @@ export const knowledgeBaseArticleFactory = params => {
   };
 
   return KnowledgeBaseArticles.createDoc({ ...doc, ...params }, faker.random.word());
+};
+
+export const activityLogFactory = params => {
+  // const activity = params.activity || {};
+  // const performer = params.performer || {};
+  // const coc = params.coc || {};
+
+  const doc = {
+    activity: {
+      type: ACTIVITY_TYPES.INTERNAL_NOTE,
+      action: ACTIVITY_ACTIONS.CREATE,
+      id: faker.random.number(),
+      content: faker.random.word(),
+    },
+    performer: {
+      type: ACTIVITY_PERFORMER_TYPES.USER,
+      id: faker.random.number(),
+    },
+    coc: {
+      type: COC_CONTENT_TYPES.CUSTOMER,
+      id: faker.random.number(),
+    },
+  };
+
+  return ActivityLogs.createDoc({ ...doc, ...params }, faker.random.word());
 };
