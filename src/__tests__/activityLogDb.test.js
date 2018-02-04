@@ -125,6 +125,24 @@ describe('ActivityLogs model methods', () => {
     });
   });
 
+  test(`Testing found segment`, async () => {
+    const segment = await segmentFactory({});
+    const customer = await customerFactory({});
+    await ActivityLogs.createSegmentLog(segment, customer);
+
+    await ActivityLogs.createSegmentLog(segment, customer);
+
+    expect(
+      await ActivityLogs.find({
+        'activity.type': ACTIVITY_TYPES.SEGMENT,
+        'activity.action': ACTIVITY_ACTIONS.CREATE,
+        'activity.id': segment._id,
+        'coc.type': segment.contentType,
+        'coc.id': customer._id,
+      }),
+    ).toHaveLength(1);
+  });
+
   test(`check if exceptions are being thrown as intended when
     calling createConversationLog`, async () => {
     expect.assertions(2);
@@ -287,10 +305,17 @@ describe('ActivityLogs model methods', () => {
     const conversation = await conversationFactory({});
 
     await ActivityLogs.createConversationLog(conversation, customer);
+    const removed = await ActivityLogs.removeCustomerActivityLog(customer._id);
 
-    const removed = await ActivityLogs.removeCustomerActivityLog(customer);
-
-    expect(removed.result).toEqual({ ok: 1, n: 0 });
+    expect(
+      await ActivityLogs.find({
+        coc: {
+          type: COC_CONTENT_TYPES.CUSTOMER,
+          id: customer._id,
+        },
+      }),
+    ).toHaveLength(0);
+    expect(removed.result).toEqual({ ok: 1, n: 1 });
   });
 
   test(`removeCompanyActivityLog`, async () => {
@@ -298,9 +323,16 @@ describe('ActivityLogs model methods', () => {
     const user = await userFactory({});
 
     await ActivityLogs.createCompanyRegistrationLog(company, user);
+    const removed = await ActivityLogs.removeCompanyActivityLog(company._id);
 
-    const removed = await ActivityLogs.removeCustomerActivityLog(company);
-
-    expect(removed.result).toEqual({ ok: 1, n: 0 });
+    expect(
+      await ActivityLogs.find({
+        coc: {
+          type: COC_CONTENT_TYPES.COMPANY,
+          id: company._id,
+        },
+      }),
+    ).toHaveLength(0);
+    expect(removed.result).toEqual({ ok: 1, n: 1 });
   });
 });

@@ -334,11 +334,11 @@ class ActivityLog {
       // Updating every activity log of customer
       await this.updateMany(
         { coc: { id: customerId, type: COC_CONTENT_TYPES.CUSTOMER } },
-        { $set: { coc: { id: newCustomerId, type: COC_CONTENT_TYPES.CUSTOMER } } },
+        { $set: { coc: { type: COC_CONTENT_TYPES.CUSTOMER, id: newCustomerId } } },
       );
     }
     // Returning updated list of activity logs of new customer
-    return this.find({ coc: { id: newCustomerId, type: COC_CONTENT_TYPES.CUSTOMER } });
+    return this.find({ coc: { type: COC_CONTENT_TYPES.CUSTOMER, id: newCustomerId } });
   }
 
   /**
@@ -349,7 +349,7 @@ class ActivityLog {
   static async removeCustomerActivityLog(customerId) {
     // Removing every activity log of customer
     return await this.remove({
-      coc: { id: customerId, type: COC_CONTENT_TYPES.CUSTOMER },
+      coc: { type: COC_CONTENT_TYPES.CUSTOMER, id: customerId },
     });
   }
 
@@ -361,7 +361,7 @@ class ActivityLog {
   static async removeCompanyActivityLog(companyId) {
     // Removing every activity log of company
     return await this.remove({
-      coc: { id: companyId, type: COC_CONTENT_TYPES.COMPANY },
+      coc: { type: COC_CONTENT_TYPES.COMPANY, id: companyId },
     });
   }
 
@@ -376,7 +376,7 @@ class ActivityLog {
       // Updating every activity log of company
       await this.updateMany(
         { coc: { id: companyId, type: COC_CONTENT_TYPES.COMPANY } },
-        { $set: { coc: { id: newCompanyId, type: COC_CONTENT_TYPES.COMPANY } } },
+        { $set: { coc: { type: COC_CONTENT_TYPES.COMPANY, id: newCompanyId } } },
       );
     }
     // Returning updated list of activity logs of new company
