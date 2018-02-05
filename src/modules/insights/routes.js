@@ -7,6 +7,7 @@ import {
   FirstResponse,
   ResponseCloseReport
 } from './containers';
+import { InsightPage } from './components';
 
 const routes = () => [
   <Route
@@ -42,14 +43,16 @@ const routes = () => [
   />,
 
   <Route
-    key="/insights"
+    key="/insights/volume-report"
     exact
-    path="/insights"
+    path="/insights/volume-report"
     component={({ history, location }) => {
       const queryParams = queryString.parse(location.search);
       return <VolumeReport history={history} queryParams={queryParams} />;
     }}
-  />
+  />,
+
+  <Route key="/insights" exact path="/insights" component={InsightPage} />
 ];
 
 export default routes;
