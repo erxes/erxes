@@ -143,6 +143,7 @@ describe('Companies model tests', () => {
 
   test('removeCompany', async () => {
     const company = await companyFactory({});
+
     await internalNoteFactory({
       contentType: COC_CONTENT_TYPES.COMPANY,
       contentTypeId: company._id,
@@ -150,12 +151,19 @@ describe('Companies model tests', () => {
 
     const removed = await Companies.removeCompany(company._id);
 
-    expect(
-      await InternalNotes.find({
-        contentType: COC_CONTENT_TYPES.COMPANY,
-        contentTypeId: company._id,
-      }),
-    ).toHaveLength(0);
+    const internalNote = await InternalNotes.find({
+      contentType: COC_CONTENT_TYPES.COMPANY,
+      contentTypeId: company._id,
+    });
+    const activityLog = await ActivityLogs.find({
+      coc: {
+        type: COC_CONTENT_TYPES.COMPANY,
+        id: company._id,
+      },
+    });
+
+    expect(internalNote).toHaveLength(0);
+    expect(activityLog).toHaveLength(0);
     expect(removed.result).toEqual({ n: 1, ok: 1 });
   });
 
@@ -163,15 +171,19 @@ describe('Companies model tests', () => {
     const testCompany = await companyFactory({
       tagIds: ['123', '456', '1234'],
     });
+
     const testCompany2 = await companyFactory({
       tagIds: ['1231', '123', 'asd12'],
     });
-    const testCustomer = await customerFactory({
+
+    let testCustomer = await customerFactory({
       companyIds: [testCompany._id],
     });
-    const testCustomer2 = await customerFactory({
+
+    let testCustomer2 = await customerFactory({
       companyIds: [testCompany2._id],
     });
+
     const companyIds = [testCompany._id, testCompany2._id];
     const mergedTagIds = Array.from(new Set(testCompany.tagIds.concat(testCompany2.tagIds)));
 
@@ -193,6 +205,7 @@ describe('Companies model tests', () => {
       contentType: COC_CONTENT_TYPES.COMPANY,
       contentTypeId: companyIds[0],
     });
+
     await activityLogFactory({
       coc: {
         type: COC_CONTENT_TYPES.COMPANY,
@@ -207,6 +220,7 @@ describe('Companies model tests', () => {
       industry: 'Test industry',
       plan: 'Test plan',
     };
+
     const updatedCompany = await Companies.mergeCompanies(companyIds, doc);
 
     expect(updatedCompany.name).toBe(doc.name);
@@ -218,49 +232,47 @@ describe('Companies model tests', () => {
     // Checking old company datas deleted
     expect(await Companies.find({ _id: companyIds[0] })).toHaveLength(0);
     expect(updatedCompany.tagIds).toEqual(expect.arrayContaining(mergedTagIds));
-    expect((await Customers.findOne({ _id: testCustomer._id })).companyIds).not.toContain(
-      testCompany._id,
-    );
-    expect((await Customers.findOne({ _id: testCustomer2._id })).companyIds).not.toContain(
-      testCompany2._id,
-    );
-    expect(
-      await InternalNotes.find({
-        contentType: COC_CONTENT_TYPES.COMPANY,
-        contentTypeId: companyIds[0],
-      }),
-    ).toHaveLength(0);
-    expect(
-      await ActivityLogs.find({
-        coc: {
-          type: COC_CONTENT_TYPES.COMPANY,
-          id: companyIds[0],
-        },
-      }),
-    ).toHaveLength(0);
+
+    testCustomer = await Customers.findOne({ _id: testCustomer._id });
+    expect(testCustomer.companyIds).not.toContain(testCompany._id);
+
+    testCustomer2 = await Customers.findOne({ _id: testCustomer2._id });
+    expect(testCustomer2.companyIds).not.toContain(testCompany2._id);
+
+    let internalNote = await InternalNotes.find({
+      contentType: COC_CONTENT_TYPES.COMPANY,
+      contentTypeId: companyIds[0],
+    });
+
+    let activityLog = await ActivityLogs.find({
+      coc: {
+        type: COC_CONTENT_TYPES.COMPANY,
+        id: companyIds[0],
+      },
+    });
+
+    expect(internalNote).toHaveLength(0);
+    expect(activityLog).toHaveLength(0);
 
     // Checking new company datas updated
     expect(updatedCompany.tagIds).toEqual(expect.arrayContaining(mergedTagIds));
-    expect((await Customers.findOne({ _id: testCustomer._id })).companyIds).toContain(
-      updatedCompany._id,
-    );
-    expect((await Customers.findOne({ _id: testCustomer2._id })).companyIds).toContain(
-      updatedCompany._id,
-    );
-    expect(
-      await InternalNotes.find({
-        contentType: COC_CONTENT_TYPES.COMPANY,
-        contentTypeId: updatedCompany._id,
-      }),
-    ).not.toHaveLength(0);
-    expect(
-      await ActivityLogs.find({
-        coc: {
-          type: COC_CONTENT_TYPES.COMPANY,
-          id: updatedCompany._id,
-        },
-      }),
-    ).not.toHaveLength(0);
+
+    expect(testCustomer.companyIds).toContain(updatedCompany._id);
+    expect(testCustomer2.companyIds).toContain(updatedCompany._id);
+
+    internalNote = await InternalNotes.find({
+      contentType: COC_CONTENT_TYPES.COMPANY,
+      contentTypeId: updatedCompany._id,
+    });
+    activityLog = await ActivityLogs.find({
+      coc: {
+        type: COC_CONTENT_TYPES.COMPANY,
+        id: updatedCompany._id,
+      },
+    });
+
+    expect(internalNote).not.toHaveLength(0);
+    expect(activityLog).not.toHaveLength(0);
   });
 
   test('Check Duplication', async () => {

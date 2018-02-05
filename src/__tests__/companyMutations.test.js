@@ -123,6 +123,7 @@ describe('Companies mutations', () => {
 
   test('Company remove', async () => {
     Companies.removeCompany = jest.fn();
+
     const newCompany = await companyFactory({});
 
     await companyMutations.companiesRemove({}, { companyIds: [newCompany._id] }, { user: _user });

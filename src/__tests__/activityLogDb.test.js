@@ -307,14 +307,14 @@ describe('ActivityLogs model methods', () => {
     await ActivityLogs.createConversationLog(conversation, customer);
     const removed = await ActivityLogs.removeCustomerActivityLog(customer._id);
 
-    expect(
-      await ActivityLogs.find({
-        coc: {
-          type: COC_CONTENT_TYPES.CUSTOMER,
-          id: customer._id,
-        },
-      }),
-    ).toHaveLength(0);
+    const activityLog = await ActivityLogs.find({
+      coc: {
+        type: COC_CONTENT_TYPES.CUSTOMER,
+        id: customer._id,
+      },
+    });
+
+    expect(activityLog).toHaveLength(0);
     expect(removed.result).toEqual({ ok: 1, n: 1 });
   });
 
@@ -325,14 +325,14 @@ describe('ActivityLogs model methods', () => {
     await ActivityLogs.createCompanyRegistrationLog(company, user);
     const removed = await ActivityLogs.removeCompanyActivityLog(company._id);
 
-    expect(
-      await ActivityLogs.find({
-        coc: {
-          type: COC_CONTENT_TYPES.COMPANY,
-          id: company._id,
-        },
-      }),
-    ).toHaveLength(0);
+    const activityLog = await ActivityLogs.find({
+      coc: {
+        type: COC_CONTENT_TYPES.COMPANY,
+        id: company._id,
+      },
+    });
+
+    expect(activityLog).toHaveLength(0);
     expect(removed.result).toEqual({ ok: 1, n: 1 });
   });
 });

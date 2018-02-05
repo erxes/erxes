@@ -314,15 +314,16 @@ describe('Conversation db', () => {
 
     const updatedConversation = await Conversations.changeCustomer(newCustomer._id, [customer._id]);
 
+    const conversationMessages = await ConversationMessages.find({
+      customerId: { $in: [customer._id] },
+    });
+
     for (let conversation of updatedConversation) {
       expect(conversation.customerId).toBe(newCustomer._id);
     }
+
     expect(await Conversations.find({ customerId: { $in: [customer._id] } })).toHaveLength(0);
-    expect(
-      await ConversationMessages.find({
-        customerId: { $in: [customer._id] },
-      }),
-    ).toHaveLength(0);
+    expect(conversationMessages).toHaveLength(0);
   });
 
   test('removeCustomerConversations', async () => {

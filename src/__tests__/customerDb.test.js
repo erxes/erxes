@@ -175,9 +175,11 @@ describe('Customers model tests', () => {
       contentType: COC_CONTENT_TYPES.CUSTOMER,
       contentTypeId: customer._id,
     });
+
     const conversation = await conversationFactory({
       customerId: customer._id,
     });
+
     await conversationMessageFactory({
       conversationId: conversation._id,
       customerId: customer._id,
@@ -185,13 +187,13 @@ describe('Customers model tests', () => {
 
     await Customers.removeCustomer(customer._id);
 
+    const internalNote = await InternalNotes.find({
+      contentType: COC_CONTENT_TYPES.CUSTOMER,
+      contentTypeId: customer._id,
+    });
+
     expect(await Customers.find({ _id: customer._id })).toHaveLength(0);
-    expect(
-      await InternalNotes.find({
-        contentType: COC_CONTENT_TYPES.CUSTOMER,
-        contentTypeId: customer._id,
-      }),
-    ).toHaveLength(0);
+    expect(internalNote).toHaveLength(0);
     expect(await Conversations.find({ customerId: customer._id })).toHaveLength(0);
     expect(await ConversationMessages.find({ customerId: customer._id })).toHaveLength(0);
   });
@@ -201,16 +203,19 @@ describe('Customers model tests', () => {
       companyIds: ['123', '1234', '12345'],
       tagIds: ['2343', '234', '234'],
     });
+
     const testCustomer2 = await customerFactory({
       companyIds: ['123', '456', '45678'],
       tagIds: ['qwe', '2343', '123'],
     });
+
     const customerIds = [testCustomer._id, testCustomer2._id];
 
     // Merging both customers companyIds and tagIds
     const mergedCompanyIds = Array.from(
       new Set(testCustomer.companyIds.concat(testCustomer2.companyIds)),
     );
+
     const mergedTagIds = Array.from(new Set(testCustomer.tagIds.concat(testCustomer2.tagIds)));
 
     // checking length validation
@@ -237,12 +242,15 @@ describe('Customers model tests', () => {
       contentType: COC_CONTENT_TYPES.CUSTOMER,
       contentTypeId: customerIds[0],
     });
+
     await conversationFactory({
       customerId: customerIds[0],
     });
+
     await conversationMessageFactory({
       customerId: customerIds[0],
     });
+
     await activityLogFactory({
       coc: {
         type: COC_CONTENT_TYPES.CUSTOMER,
@@ -265,6 +273,7 @@ describe('Customers model tests', () => {
         sessionCount: 6,
       },
     };
+
     const updatedCustomer = await Customers.mergeCustomers(customerIds, doc);
 
     expect(updatedCustomer.firstName).toBe(doc.firstName);
@@ -281,40 +290,42 @@ describe('Customers model tests', () => {
     expect(await Customers.find({ _id: customerIds[0] })).toHaveLength(0);
     expect(await Conversations.find({ customerId: customerIds[0] })).toHaveLength(0);
     expect(await ConversationMessages.find({ customerId: customerIds[0] })).toHaveLength(0);
-    expect(
-      await InternalNotes.find({
-        contentType: COC_CONTENT_TYPES.CUSTOMER,
-        contentTypeId: customerIds[0],
-      }),
-    ).toHaveLength(0);
-    expect(
-      await ActivityLogs.find({
-        coc: {
-          id: customerIds[0],
-          type: COC_CONTENT_TYPES.CUSTOMER,
-        },
-      }),
-    ).toHaveLength(0);
+
+    let internalNote = await InternalNotes.find({
+      contentType: COC_CONTENT_TYPES.CUSTOMER,
+      contentTypeId: customerIds[0],
+    });
+
+    let activityLog = await ActivityLogs.find({
+      coc: {
+        id: customerIds[0],
+        type: COC_CONTENT_TYPES.CUSTOMER,
+      },
+    });
+
+    expect(internalNote).toHaveLength(0);
+    expect(activityLog).toHaveLength(0);
 
     // Checking updated customer datas
     expect(await Conversations.find({ customerId: updatedCustomer._id })).not.toHaveLength(0);
     expect(await ConversationMessages.find({ customerId: updatedCustomer._id })).not.toHaveLength(
       0,
     );
-    expect(
-      await InternalNotes.find({
-        contentType: COC_CONTENT_TYPES.CUSTOMER,
-        contentTypeId: updatedCustomer._id,
-      }),
-    ).not.toHaveLength(0);
-    expect(
-      await ActivityLogs.find({
-        coc: {
-          type: COC_CONTENT_TYPES.CUSTOMER,
-          id: updatedCustomer._id,
-        },
-      }),
-    ).not.toHaveLength(0);
+
+    internalNote = await InternalNotes.find({
+      contentType: COC_CONTENT_TYPES.CUSTOMER,
+      contentTypeId: updatedCustomer._id,
+    });
+
+    activityLog = await ActivityLogs.find({
+      coc: {
+        type: COC_CONTENT_TYPES.CUSTOMER,
+        id: updatedCustomer._id,
+      },
+    });
+
+    expect(internalNote).not.toHaveLength(0);
+    expect(activityLog).not.toHaveLength(0);
   });
 
   test('Check Duplication', async () => {

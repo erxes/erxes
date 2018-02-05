@@ -123,12 +123,12 @@ describe('InternalNotes model test', () => {
 
     await InternalNotes.removeCustomerInternalNotes(customer._id);
 
-    expect(
-      await InternalNotes.find({
-        contentType: COC_CONTENT_TYPES.CUSTOMER,
-        contentTypeId: customer._id,
-      }),
-    ).toHaveLength(0);
+    const internalNote = await InternalNotes.find({
+      contentType: COC_CONTENT_TYPES.CUSTOMER,
+      contentTypeId: customer._id,
+    });
+
+    expect(internalNote).toHaveLength(0);
   });
 
   test('removeCompanyInternalNotes', async () => {
@@ -141,11 +141,11 @@ describe('InternalNotes model test', () => {
 
     await InternalNotes.removeCompanyInternalNotes(company._id);
 
-    expect(
-      await InternalNotes.find({
-        contentType: COC_CONTENT_TYPES.COMPANY,
-        contentTypeId: company._id,
-      }),
-    ).toHaveLength(0);
+    const internalNote = await InternalNotes.find({
+      contentType: COC_CONTENT_TYPES.COMPANY,
+      contentTypeId: company._id,
+    });
+
+    expect(internalNote).toHaveLength(0);
   });
 });

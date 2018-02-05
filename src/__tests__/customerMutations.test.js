@@ -127,6 +127,7 @@ describe('Customers mutations', () => {
 
   test('Customer remove', async () => {
     Customers.removeCustomer = jest.fn();
+
     const newCustomer = await customerFactory({});
 
     await customerMutations.customersRemove(
