@@ -1,90 +1,79 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
-import { Header } from 'modules/layout/components';
-import {
-  Maincontent,
-  Row,
-  RowTitle,
-  Box,
-  BoxContent,
-  BoxName,
-  Container,
-  Contents
-} from '../styles';
+import { Wrapper } from 'modules/layout/components';
+import { Row, RowTitle, Box, Divider, BoxName } from '../styles';
 
 class Settings extends Component {
   renderBox(name, image, to) {
     return (
-      <Link to={to}>
-        <Box>
+      <Box>
+        <Link to={to}>
           <img src={image} alt={name} />
           <BoxName>{name}</BoxName>
-        </Box>
-      </Link>
+        </Link>
+      </Box>
     );
   }
 
   render() {
-    return (
-      <Maincontent>
-        <Contents>
-          <Header key="breadcrumb" breadcrumb={this.breadcrumb()} />
-        </Contents>
-        <Container>
-          <Row>
-            <RowTitle>Account Settings</RowTitle>
+    const breadcrumb = [{ title: 'Settings', link: '/settings' }];
 
-            <BoxContent>
-              {this.renderBox(
-                'Channels',
-                '/images/icons/erxes-05.svg',
-                '/settings/channels'
-              )}
-              {this.renderBox(
-                'Brands',
-                '/images/icons/erxes-03.svg',
-                '/settings/brands'
-              )}
-              {this.renderBox(
-                'Integrations',
-                '/images/icons/erxes-04.svg',
-                '/settings/integrations'
-              )}
-              {this.renderBox(
-                'Response Template',
-                '/images/icons/erxes-10.svg',
-                '/settings/response-templates'
-              )}
-              {this.renderBox(
-                'Email Template',
-                '/images/icons/erxes-09.svg',
-                '/settings/email-templates'
-              )}
-              {this.renderBox(
-                'Email Appearance',
-                '/images/icons/erxes-08.svg',
-                '/settings/emails'
-              )}
-              {this.renderBox(
-                'Forms',
-                '/images/icons/erxes-12.svg',
-                '/settings/forms'
-              )}
-              {this.renderBox(
-                'Knowledge base',
-                '/images/icons/erxes-06.svg',
-                '/settings/knowledgebase/list'
-              )}
-              {this.renderBox(
-                'Team Members',
-                '/images/icons/erxes-02.svg',
-                '/settings/team'
-              )}
-            </BoxContent>
-          </Row>
-          <Row>
-            <RowTitle className="secondRow">Personal Settings</RowTitle>
-
+    const content = (
+      <div>
+        <Row>
+          <RowTitle>Account Settings</RowTitle>
+          <div>
+            {this.renderBox(
+              'Channels',
+              '/images/icons/erxes-05.svg',
+              '/settings/channels'
+            )}
+            {this.renderBox(
+              'Brands',
+              '/images/icons/erxes-03.svg',
+              '/settings/brands'
+            )}
+            {this.renderBox(
+              'Integrations',
+              '/images/icons/erxes-04.svg',
+              '/settings/integrations'
+            )}
+            {this.renderBox(
+              'Response Template',
+              '/images/icons/erxes-10.svg',
+              '/settings/response-templates'
+            )}
+            {this.renderBox(
+              'Email Template',
+              '/images/icons/erxes-09.svg',
+              '/settings/email-templates'
+            )}
+            {this.renderBox(
+              'Email Appearance',
+              '/images/icons/erxes-08.svg',
+              '/settings/emails'
+            )}
+            {this.renderBox(
+              'Forms',
+              '/images/icons/erxes-12.svg',
+              '/settings/forms'
+            )}
+            {this.renderBox(
+              'Knowledge base',
+              '/images/icons/erxes-06.svg',
+              '/settings/knowledgebase/list'
+            )}
+            {this.renderBox(
+              'Team Members',
+              '/images/icons/erxes-02.svg',
+              '/settings/team'
+            )}
+          </div>
+        </Row>
+        <Divider />
+        <Row>
+          <RowTitle className="secondRow">Personal Settings</RowTitle>
+          <div>
             {this.renderBox(
               'Profile',
               '/images/icons/erxes-01.svg',
@@ -105,14 +94,18 @@ class Settings extends Component {
               '/images/icons/erxes-11.svg',
               '/settings/notification-settings'
             )}
-          </Row>
-        </Container>
-      </Maincontent>
+          </div>
+        </Row>
+      </div>
     );
-  }
 
-  breadcrumb() {
-    return [{ title: 'Settings', link: '/settings' }];
+    return (
+      <Wrapper
+        header={<Wrapper.Header breadcrumb={breadcrumb} />}
+        content={content}
+        transparent={true}
+      />
+    );
   }
 }
 
