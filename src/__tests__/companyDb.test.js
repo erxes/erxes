@@ -218,10 +218,10 @@ describe('Companies model tests', () => {
     // Checking old company datas deleted
     expect(await Companies.find({ _id: companyIds[0] })).toHaveLength(0);
     expect((await Customers.findOne({ _id: testCustomer._id })).companyIds).not.toContain(
-      expect.arrayContaining([testCompany._id]),
+      testCompany._id,
     );
     expect((await Customers.findOne({ _id: testCustomer2._id })).companyIds).not.toContain(
-      expect.arrayContaining([testCompany2._id]),
+      testCompany2._id,
     );
     expect(
       await InternalNotes.find({
@@ -240,11 +240,11 @@ describe('Companies model tests', () => {
 
     // Checking new company datas updated
     expect(updatedCompany.tagIds).toEqual(expect.arrayContaining(mergedTagIds));
-    expect((await Customers.findOne({ _id: testCustomer._id })).companyIds).not.toContain(
-      expect.arrayContaining([updatedCompany._id]),
+    expect((await Customers.findOne({ _id: testCustomer._id })).companyIds).toContain(
+      updatedCompany._id,
     );
-    expect((await Customers.findOne({ _id: testCustomer2._id })).companyIds).not.toContain(
-      expect.arrayContaining([updatedCompany._id]),
+    expect((await Customers.findOne({ _id: testCustomer2._id })).companyIds).toContain(
+      updatedCompany._id,
     );
     expect(
       await InternalNotes.find({
