@@ -3,7 +3,7 @@ import { DragDropContext } from 'react-beautiful-dnd';
 
 import Pipeline from './pipeline';
 import { Pipelines, Stages, Deals } from '../constants';
-import { reOrderList, addToList, removeFromList } from '../utils';
+import { moveInList, addToList, removeFromList } from '../utils';
 
 class Board extends React.Component {
   constructor(props) {
@@ -35,21 +35,21 @@ class Board extends React.Component {
     this.onDragEnd = this.onDragEnd.bind(this);
   }
 
-  reOrder({ destination, source }, list) {
+  reOrder({ destination, source }, list, fieldName) {
     // If ordering within list
     if (destination.droppableId === source.droppableId) {
-      // Reordering stage
-      const reOrderedList = reOrderList(
+      // move in list
+      const movedList = moveInList(
         list[destination.droppableId],
         source.index,
         destination.index
       );
 
-      // update reordered list
-      list[destination.droppableId] = reOrderedList;
+      // update moved list
+      list[destination.droppableId] = movedList;
     } else {
       // When move to another list
-      // Remove source
+      // Remove from source list
       const { sourceArray, removedItem } = removeFromList(
         list[source.droppableId],
         source.index
@@ -58,10 +58,10 @@ class Board extends React.Component {
       // Update removed list
       list[source.droppableId] = sourceArray;
 
-      // Change stageId
-      removedItem.stageId = destination.droppableId;
+      // Change droppableId
+      removedItem[fieldName] = destination.droppableId;
 
-      // Add destination stage
+      // Add destination list
       const addedList = addToList(
         list[destination.droppableId],
         destination.index,
@@ -84,7 +84,11 @@ class Board extends React.Component {
 
     switch (result.type) {
       case 'DEAL': {
-        const reOrderedDeals = this.reOrder(result, this.state.deals);
+        const reOrderedDeals = this.reOrder(
+          result,
+          this.state.deals,
+          'stageId'
+        );
 
         this.setState({
           deals: reOrderedDeals
@@ -93,7 +97,11 @@ class Board extends React.Component {
         break;
       }
       case 'STAGE': {
-        const reOrderedStages = this.reOrder(result, this.state.stages);
+        const reOrderedStages = this.reOrder(
+          result,
+          this.state.stages,
+          'pipelineId'
+        );
 
         this.setState({
           stages: reOrderedStages
