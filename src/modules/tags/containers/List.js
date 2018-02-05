@@ -31,7 +31,7 @@ const ListContainer = props => {
 
     mutation({ variables: doc })
       .then(() => {
-        Alert.success();
+        Alert.success('Successfully saved');
         tagsQuery.refetch();
         callback();
       })

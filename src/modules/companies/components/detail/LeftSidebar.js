@@ -15,6 +15,7 @@ import {
 import { GenerateField } from 'modules/fields/components';
 import { CustomerAssociate } from 'modules/customers/containers';
 import { CustomersWrapper, CustomerWrapper } from '../../styles';
+import { TaggerSection } from 'modules/customers/components/detail/sidebar';
 
 const propTypes = {
   company: PropTypes.object.isRequired,
@@ -260,11 +261,14 @@ class LeftSidebar extends React.Component {
   }
 
   render() {
+    const { company } = this.props;
+
     return (
       <Sidebar size="wide" footer={this.renderSidebarFooter()}>
         {this.renderBasicInfo()}
         {this.renderCustomers()}
         {this.renderCustomFields()}
+        <TaggerSection data={company} type="company" />
       </Sidebar>
     );
   }
