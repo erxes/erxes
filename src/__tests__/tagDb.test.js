@@ -121,6 +121,10 @@ describe('Test tags model', () => {
     expect(messageObj.tagIds[0]).toEqual(_tag.id);
   });
 
+  test('Attach company tag', async () => {
+    Tags.tagsTag('company', [], []);
+  });
+
   test('Remove tag not found', async () => {
     expect.assertions(1);
     try {

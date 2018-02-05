@@ -137,8 +137,8 @@ class ActivityLog {
         id: user._id,
       },
       coc: {
-        id: internalNote.contentTypeId,
         type: internalNote.contentType,
+        id: internalNote.contentTypeId,
       },
     });
   }
@@ -229,7 +229,7 @@ class ActivityLog {
    * Create a customer or company segment log
    * @param {Segment} segment - Segment document
    * @param {COC} customer - Related customer or company
-   * @return {Promise} return Promise resolving created Segment
+   * @return {Promise} Return Promise resolving created Segment
    */
   static async createSegmentLog(segment, customer) {
     if (!customer) {
@@ -266,8 +266,8 @@ class ActivityLog {
   /**
    * Creates a customer registration log
    * @param {Customer} customer - Customer document
-   * @param {user} user - user document
-   * @return {Promise} return Promise resolving created ActivityLog
+   * @param {user} user - User document
+   * @return {Promise} Return Promise resolving created ActivityLog
    */
   static createCustomerRegistrationLog(customer, user) {
     const performer =
@@ -296,8 +296,8 @@ class ActivityLog {
   /**
    * Creates a customer company registration log
    * @param {Company} company - Company document
-   * @param {user} user - user document
-   * @return {Promise} return Promise resolving created ActivityLog
+   * @param {user} user - User document
+   * @return {Promise} Return Promise resolving created ActivityLog
    */
   static createCompanyRegistrationLog(company, user) {
     const performer =
@@ -321,6 +321,68 @@ class ActivityLog {
       },
       performer,
     });
+  }
+
+  /**
+   * Transfers customers' activity logs to another customer
+   * @param {String} newCustomerId - Customer id to set
+   * @param {String[]} customerIds - Old customer ids to change
+   * @return {Promise} Updated alist of ctivity logs of new customer
+   */
+  static async changeCustomer(newCustomerId, customerIds) {
+    for (let customerId of customerIds) {
+      // Updating every activity log of customer
+      await this.updateMany(
+        { coc: { id: customerId, type: COC_CONTENT_TYPES.CUSTOMER } },
+        { $set: { coc: { type: COC_CONTENT_TYPES.CUSTOMER, id: newCustomerId } } },
+      );
+    }
+
+    // Returning updated list of activity logs of new customer
+    return this.find({ coc: { type: COC_CONTENT_TYPES.CUSTOMER, id: newCustomerId } });
+  }
+
+  /**
+   * Removes customer's activity logs
+   * @param {String} customerId - Customer id that belongs to activity logs
+   * @return {Promise} Result
+   */
+  static async removeCustomerActivityLog(customerId) {
+    // Removing every activity log of customer
+    return await this.remove({
+      coc: { type: COC_CONTENT_TYPES.CUSTOMER, id: customerId },
+    });
+  }
+
+  /**
+   * Removes company's activity logs
+   * @param {String} companyId - Company id that belongs to activity logs
+   * @return {Promise} Result
+   */
+  static async removeCompanyActivityLog(companyId) {
+    // Removing every activity log of company
+    return await this.remove({
+      coc: { type: COC_CONTENT_TYPES.COMPANY, id: companyId },
+    });
+  }
+
+  /**
+   * Transfers companies' activity logs to another company
+   * @param {String} newCompanyId - Company idsto set
+   * @param {String[]} companyIds - Old company ids to change
+   * @return {Promise} Updated list of activity logs of new company
+   */
+  static async changeCompany(newCompanyId, companyIds) {
+    for (let companyId of companyIds) {
+      // Updating every activity log of company
+      await this.updateMany(
+        { coc: { id: companyId, type: COC_CONTENT_TYPES.COMPANY } },
+        { $set: { coc: { type: COC_CONTENT_TYPES.COMPANY, id: newCompanyId } } },
+      );
+    }
+
+    // Returning updated list of activity logs of new company
+    return this.find({ coc: { type: COC_CONTENT_TYPES.COMPANY, id: newCompanyId } });
   }
 }
 

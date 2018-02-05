@@ -97,7 +97,7 @@ const MessageSchema = mongoose.Schema({
 class Message {
   /**
    * Create a message
-   * @param  {Object} messageObj object
+   * @param  {Object} messageObj - object
    * @return {Promise} Newly created message object
    */
   static async createMessage(doc) {
@@ -136,8 +136,8 @@ class Message {
 
   /**
    * Create a conversation message
-   * @param  {Object} doc - conversation message fields
-   * @param  {Object} user object
+   * @param  {Object} doc - Conversation message fields
+   * @param  {Object} user - Object
    * @return {Promise} Newly created conversation object
    */
   static async addMessage(doc, userId) {
@@ -162,29 +162,9 @@ class Message {
   }
 
   /**
-   * Remove a messages
-   * @param  {Object} selector
-   * @return {Promise} Deleted messages info
-   */
-  static async removeMessages(selector) {
-    const messages = await this.find(selector);
-    const result = await this.remove(selector);
-
-    for (let message of messages) {
-      const messageCount = await Messages.find({
-        conversationId: message.conversationId,
-      }).count();
-
-      await Conversations.update({ _id: message.conversationId }, { $set: { messageCount } });
-    }
-
-    return result;
-  }
-
-  /**
   * User's last non answered question
   * @param  {String} conversationId
-  * @return {Promise} message object
+  * @return {Promise} Message object
   */
   static getNonAsnweredMessage(conversationId) {
     return this.findOne({
@@ -212,7 +192,7 @@ class Message {
   /**
    * Mark sent messages as read
    * @param  {String} conversationId
-   * @return {Promise} updated messages info
+   * @return {Promise} Updated messages info
    */
   static markSentAsReadMessages(conversationId) {
     return this.update(

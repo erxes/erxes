@@ -6,7 +6,7 @@ import { moduleRequireLogin } from '../../permissions';
 import { paginate } from './utils';
 
 const listQuery = async params => {
-  const selector = {};
+  let selector = {};
 
   // Filter by segments
   if (params.segment) {
@@ -41,6 +41,17 @@ const listQuery = async params => {
     selector.tagIds = params.tag;
   }
 
+  if (params.searchValue) {
+    const fields = [
+      { firstName: new RegExp(`.*${params.searchValue}.*`, 'i') },
+      { lastName: new RegExp(`.*${params.searchValue}.*`, 'i') },
+      { email: new RegExp(`.*${params.searchValue}.*`, 'i') },
+      { phone: new RegExp(`.*${params.searchValue}.*`, 'i') },
+    ];
+
+    selector = { $or: fields };
+  }
+
   return selector;
 };
 
@@ -50,21 +61,10 @@ const customerQueries = {
    * @param {Object} args
    * @return {Promise} filtered customers list by given parameters
    */
-  async customers(root, { ids, searchValue, ...params }) {
+  async customers(root, { ids, ...params }) {
     const sort = { 'messengerData.lastSeenAt': -1 };
 
     let selector = await listQuery(params);
-
-    if (searchValue) {
-      const fields = [
-        { firstName: new RegExp(`.*${searchValue}.*`, 'i') },
-        { lastName: new RegExp(`.*${searchValue}.*`, 'i') },
-        { email: new RegExp(`.*${searchValue}.*`, 'i') },
-        { phone: new RegExp(`.*${searchValue}.*`, 'i') },
-      ];
-
-      selector = { $or: fields };
-    }
 
     if (ids) {
       selector = { _id: { $in: ids } };

@@ -8,11 +8,12 @@ export const types = `
     plan: String
     lastSeenAt: Date
     sessionCount: Int
-    tagIds: [String],
+    tagIds: [String]
 
     customFieldsData: JSON
 
     customers: [Customer]
+    getTags: [Tag]
   }
 `;
 
@@ -48,4 +49,6 @@ export const mutations = `
   companiesEdit(_id: String!, ${commonFields}): Company
   companiesAddCustomer(_id: String!, name: String!, email: String): Customer
   companiesEditCustomers(_id: String!, customerIds: [String]): Company
+  companiesRemove(companyIds: [String]): [String]
+  companiesMerge(companyIds: [String], companyFields: JSON) : Company
 `;

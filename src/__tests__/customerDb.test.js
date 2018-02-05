@@ -2,8 +2,22 @@
 /* eslint-disable no-underscore-dangle */
 
 import { connect, disconnect } from '../db/connection';
-import { Customers } from '../db/models';
-import { fieldFactory, customerFactory } from '../db/factories';
+import {
+  Customers,
+  InternalNotes,
+  Conversations,
+  ConversationMessages,
+  ActivityLogs,
+} from '../db/models';
+import {
+  fieldFactory,
+  customerFactory,
+  conversationMessageFactory,
+  conversationFactory,
+  internalNoteFactory,
+  activityLogFactory,
+} from '../db/factories';
+import { COC_CONTENT_TYPES } from '../data/constants';
 
 beforeAll(() => connect());
 
@@ -22,13 +36,19 @@ describe('Customers model tests', () => {
   });
 
   test('Create customer', async () => {
-    expect.assertions(5);
+    expect.assertions(6);
 
     // check duplication
     try {
       await Customers.createCustomer({ name: 'name', email: _customer.email });
     } catch (e) {
       expect(e.message).toBe('Duplicated email');
+    }
+
+    try {
+      await Customers.createCustomer({ name: 'name', twitterData: _customer.twitterData });
+    } catch (e) {
+      expect(e.message).toBe('Duplicated twitter');
     }
 
     const doc = {
@@ -47,9 +67,11 @@ describe('Customers model tests', () => {
   });
 
   test('Update customer', async () => {
-    expect.assertions(4);
+    expect.assertions(5);
 
-    const previousCustomer = await customerFactory({ email: 'dombo@yahoo.com' });
+    const previousCustomer = await customerFactory({
+      email: 'dombo@yahoo.com',
+    });
 
     const doc = {
       name: 'Dombo',
@@ -62,6 +84,12 @@ describe('Customers model tests', () => {
       await Customers.updateCustomer(_customer._id, doc);
     } catch (e) {
       expect(e.message).toBe('Duplicated email');
+    }
+
+    try {
+      await Customers.createCustomer({ name: 'name', twitterData: _customer.twitterData });
+    } catch (e) {
+      expect(e.message).toBe('Duplicated twitter');
     }
 
     // remove previous duplicated entry
@@ -138,5 +166,180 @@ describe('Customers model tests', () => {
     const customerObj = await Customers.updateCompanies(_customer._id, companyIds);
 
     expect(customerObj.companyIds).toEqual(expect.arrayContaining(companyIds));
+  });
+
+  test('removeCustomer', async () => {
+    const customer = await customerFactory({});
+
+    await internalNoteFactory({
+      contentType: COC_CONTENT_TYPES.CUSTOMER,
+      contentTypeId: customer._id,
+    });
+
+    const conversation = await conversationFactory({
+      customerId: customer._id,
+    });
+
+    await conversationMessageFactory({
+      conversationId: conversation._id,
+      customerId: customer._id,
+    });
+
+    await Customers.removeCustomer(customer._id);
+
+    const internalNote = await InternalNotes.find({
+      contentType: COC_CONTENT_TYPES.CUSTOMER,
+      contentTypeId: customer._id,
+    });
+
+    expect(await Customers.find({ _id: customer._id })).toHaveLength(0);
+    expect(internalNote).toHaveLength(0);
+    expect(await Conversations.find({ customerId: customer._id })).toHaveLength(0);
+    expect(await ConversationMessages.find({ customerId: customer._id })).toHaveLength(0);
+  });
+
+  test('Merge customers', async () => {
+    const testCustomer = await customerFactory({
+      companyIds: ['123', '1234', '12345'],
+      tagIds: ['2343', '234', '234'],
+    });
+
+    const testCustomer2 = await customerFactory({
+      companyIds: ['123', '456', '45678'],
+      tagIds: ['qwe', '2343', '123'],
+    });
+
+    const customerIds = [testCustomer._id, testCustomer2._id];
+
+    // Merging both customers companyIds and tagIds
+    const mergedCompanyIds = Array.from(
+      new Set(testCustomer.companyIds.concat(testCustomer2.companyIds)),
+    );
+
+    const mergedTagIds = Array.from(new Set(testCustomer.tagIds.concat(testCustomer2.tagIds)));
+
+    // checking length validation
+    try {
+      await Customers.mergeCustomers(['123', '123', '123'], {});
+    } catch (e) {
+      expect(e.message).toBe('You can only merge 2 customers at a time');
+    }
+
+    // test duplication
+    try {
+      await Customers.mergeCustomers(customerIds, { twitterData: _customer.twitterData });
+    } catch (e) {
+      expect(e.message).toBe('Duplicated twitter');
+    }
+
+    try {
+      await Customers.mergeCustomers(customerIds, { email: _customer.email });
+    } catch (e) {
+      expect(e.message).toBe('Duplicated email');
+    }
+
+    await internalNoteFactory({
+      contentType: COC_CONTENT_TYPES.CUSTOMER,
+      contentTypeId: customerIds[0],
+    });
+
+    await conversationFactory({
+      customerId: customerIds[0],
+    });
+
+    await conversationMessageFactory({
+      customerId: customerIds[0],
+    });
+
+    await activityLogFactory({
+      coc: {
+        type: COC_CONTENT_TYPES.CUSTOMER,
+        id: customerIds[0],
+      },
+    });
+
+    const doc = {
+      firstName: 'Test first name',
+      lastName: 'Test last name',
+      email: 'Test email',
+      phone: 'Test phone',
+      facebookData: {
+        id: '1231312asd',
+      },
+      twitterData: {
+        id: 1234123,
+      },
+      messengerData: {
+        sessionCount: 6,
+      },
+    };
+
+    const updatedCustomer = await Customers.mergeCustomers(customerIds, doc);
+
+    expect(updatedCustomer.firstName).toBe(doc.firstName);
+    expect(updatedCustomer.lastName).toBe(doc.lastName);
+    expect(updatedCustomer.email).toBe(doc.email);
+    expect(updatedCustomer.phone).toBe(doc.phone);
+    expect(updatedCustomer.twitterData.toJSON()).toEqual(doc.twitterData);
+    expect(updatedCustomer.messengerData.toJSON()).toEqual(doc.messengerData);
+    expect(updatedCustomer.facebookData.toJSON()).toEqual(doc.facebookData);
+    expect(updatedCustomer.companyIds).toEqual(expect.arrayContaining(mergedCompanyIds));
+    expect(updatedCustomer.tagIds).toEqual(expect.arrayContaining(mergedTagIds));
+
+    // Checking old customers datas to be deleted
+    expect(await Customers.find({ _id: customerIds[0] })).toHaveLength(0);
+    expect(await Conversations.find({ customerId: customerIds[0] })).toHaveLength(0);
+    expect(await ConversationMessages.find({ customerId: customerIds[0] })).toHaveLength(0);
+
+    let internalNote = await InternalNotes.find({
+      contentType: COC_CONTENT_TYPES.CUSTOMER,
+      contentTypeId: customerIds[0],
+    });
+
+    let activityLog = await ActivityLogs.find({
+      coc: {
+        id: customerIds[0],
+        type: COC_CONTENT_TYPES.CUSTOMER,
+      },
+    });
+
+    expect(internalNote).toHaveLength(0);
+    expect(activityLog).toHaveLength(0);
+
+    // Checking updated customer datas
+    expect(await Conversations.find({ customerId: updatedCustomer._id })).not.toHaveLength(0);
+    expect(await ConversationMessages.find({ customerId: updatedCustomer._id })).not.toHaveLength(
+      0,
+    );
+
+    internalNote = await InternalNotes.find({
+      contentType: COC_CONTENT_TYPES.CUSTOMER,
+      contentTypeId: updatedCustomer._id,
+    });
+
+    activityLog = await ActivityLogs.find({
+      coc: {
+        type: COC_CONTENT_TYPES.CUSTOMER,
+        id: updatedCustomer._id,
+      },
+    });
+
+    expect(internalNote).not.toHaveLength(0);
+    expect(activityLog).not.toHaveLength(0);
+  });
+
+  test('Check Duplication', async () => {
+    // check duplication
+    try {
+      await Customers.checkDuplication({ email: _customer.email }, '123132');
+    } catch (e) {
+      expect(e.message).toBe('Duplicated email');
+    }
+
+    try {
+      await Customers.checkDuplication({ twitterData: { id: _customer.twitterData.id } }, '123132');
+    } catch (e) {
+      expect(e.message).toBe('Duplicated twitter');
+    }
   });
 });
