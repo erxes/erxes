@@ -18,11 +18,62 @@ class Board extends React.Component {
       }
     });
 
+    const stages = {};
+    Stages.forEach(stage => {
+      if (stages[stage.pipelineId]) {
+        stages[stage.pipelineId].push(stage);
+      } else {
+        stages[stage.pipelineId] = [stage];
+      }
+    });
+
     this.state = {
-      deals
+      deals,
+      stages
     };
 
     this.onDragEnd = this.onDragEnd.bind(this);
+  }
+
+  reOrder({ destination, source }, list) {
+    // If ordering within list
+    if (destination.droppableId === source.droppableId) {
+      // Reordering stage
+      const reOrderedList = reOrderList(
+        list[destination.droppableId],
+        source.index,
+        destination.index
+      );
+
+      // update reordered list
+      list[destination.droppableId] = reOrderedList;
+    } else {
+      // When move to another list
+      // Remove source
+      const { sourceArray, removedItem } = removeFromList(
+        list[source.droppableId],
+        source.index
+      );
+
+      // Update removed list
+      list[source.droppableId] = sourceArray;
+
+      // Change stageId
+      removedItem.stageId = destination.droppableId;
+
+      // Add destination stage
+      const addedList = addToList(
+        list[destination.droppableId],
+        destination.index,
+        removedItem
+      );
+
+      // Update added list
+      list[destination.droppableId] = addedList;
+    }
+
+    // reordered list
+    return list;
   }
 
   onDragEnd(result) {
@@ -31,63 +82,38 @@ class Board extends React.Component {
       return;
     }
 
-    const deals = this.state.deals;
+    switch (result.type) {
+      case 'DEAL': {
+        const reOrderedDeals = this.reOrder(result, this.state.deals);
 
-    const destinationDroppableId = result.destination.droppableId;
-    const sourceDroppableId = result.source.droppableId;
+        this.setState({
+          deals: reOrderedDeals
+        });
 
-    // If ordering inner stage
-    if (destinationDroppableId === sourceDroppableId) {
-      // Reordering stage
-      const reOrderedList = reOrderList(
-        deals[destinationDroppableId],
-        result.source.index,
-        result.destination.index
-      );
+        break;
+      }
+      case 'STAGE': {
+        const reOrderedStages = this.reOrder(result, this.state.stages);
 
-      deals[destinationDroppableId] = reOrderedList;
-    } else {
-      // When move to another stage
-      // Remove source stage
-      const { sourceArray, removedItem } = removeFromList(
-        deals[sourceDroppableId],
-        result.source.index
-      );
+        this.setState({
+          stages: reOrderedStages
+        });
 
-      // Update deals state
-      deals[sourceDroppableId] = sourceArray;
-
-      // Change stageId
-      removedItem.stageId = destinationDroppableId;
-
-      // Add destination stage
-      const addedList = addToList(
-        deals[destinationDroppableId],
-        result.destination.index,
-        removedItem
-      );
-
-      // Update deals state
-      deals[destinationDroppableId] = addedList;
+        break;
+      }
+      default:
     }
-
-    this.setState({
-      deals
-    });
   }
 
   render() {
     return (
       <DragDropContext onDragEnd={this.onDragEnd}>
         {Pipelines.map(pipeline => {
-          const stages = Stages.filter(
-            stage => pipeline._id === stage.pipelineId
-          );
           return (
             <Pipeline
               key={pipeline._id}
               pipeline={pipeline}
-              stages={stages}
+              stages={this.state.stages[pipeline._id]}
               deals={this.state.deals}
             />
           );

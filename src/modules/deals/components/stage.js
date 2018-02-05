@@ -1,6 +1,7 @@
 import React from 'react';
-import { Droppable, Draggable } from 'react-beautiful-dnd';
+import { Draggable, Droppable } from 'react-beautiful-dnd';
 import Deal from './deal';
+import { Item } from '../styles';
 
 class Stage extends React.Component {
   render() {
@@ -8,25 +9,29 @@ class Stage extends React.Component {
 
     return (
       <Draggable draggableId={stage._id} index={index}>
-        <div style={{ width: 300, float: 'left' }}>
-          <h3>{stage.name}</h3>
-          <Droppable droppableId={stage._id}>
-            {provided => (
-              <div>
-                <div
-                  ref={provided.innerRef}
-                  {...provided.draggableProps}
-                  {...provided.dragHandleProps}
-                >
-                  {deals.map((deal, i) => (
-                    <Deal key={deal._id} deal={deal} index={i} />
-                  ))}
-                </div>
-                {provided.placeholder}
-              </div>
-            )}
-          </Droppable>
-        </div>
+        {provided => {
+          return (
+            <Item
+              innerRef={provided.innerRef}
+              {...provided.draggableProps}
+              {...provided.dragHandleProps}
+            >
+              <h3>{stage.name}</h3>
+              <Droppable droppableId={stage._id} type="DEAL">
+                {dropProvided => (
+                  <div ref={dropProvided.innerRef}>
+                    <div>
+                      {deals.map((deal, i) => (
+                        <Deal key={deal._id} deal={deal} index={i} />
+                      ))}
+                    </div>
+                    {dropProvided.placeholder}
+                  </div>
+                )}
+              </Droppable>
+            </Item>
+          );
+        }}
       </Draggable>
     );
   }
