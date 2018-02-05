@@ -337,6 +337,7 @@ class ActivityLog {
         { $set: { coc: { type: COC_CONTENT_TYPES.CUSTOMER, id: newCustomerId } } },
       );
     }
+
     // Returning updated list of activity logs of new customer
     return this.find({ coc: { type: COC_CONTENT_TYPES.CUSTOMER, id: newCustomerId } });
   }
@@ -379,6 +380,7 @@ class ActivityLog {
         { $set: { coc: { type: COC_CONTENT_TYPES.COMPANY, id: newCompanyId } } },
       );
     }
+
     // Returning updated list of activity logs of new company
     return this.find({ coc: { type: COC_CONTENT_TYPES.COMPANY, id: newCompanyId } });
   }

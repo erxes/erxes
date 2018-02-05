@@ -210,6 +210,7 @@ class Company {
         { companyIds: { $in: [companyId] } },
         { $push: { companyIds: company._id } },
       );
+
       await Customers.updateMany(
         { companyIds: { $in: [companyId] } },
         { $pull: { companyIds: companyId } },

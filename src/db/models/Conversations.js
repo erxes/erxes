@@ -356,6 +356,7 @@ class Conversation {
         { customerId: customerId },
         { $set: { customerId: newCustomerId } },
       );
+
       await this.updateMany({ customerId: customerId }, { $set: { customerId: newCustomerId } });
     }
 

@@ -83,8 +83,12 @@ class InternalNote {
         { contentTypeId: newCustomerId },
       );
     }
+
     // Returning updated list of internal notes of new customer
-    return this.find({ contentType: COC_CONTENT_TYPES.CUSTOMER, contentTypeId: newCustomerId });
+    return this.find({
+      contentType: COC_CONTENT_TYPES.CUSTOMER,
+      contentTypeId: newCustomerId,
+    });
   }
 
   /**
@@ -94,7 +98,7 @@ class InternalNote {
    */
   static async removeCustomerInternalNotes(customerId) {
     // Removing every internal ntoes of customer
-    return await this.remove({
+    return this.remove({
       contentType: COC_CONTENT_TYPES.CUSTOMER,
       contentTypeId: customerId,
     });
@@ -107,7 +111,7 @@ class InternalNote {
    */
   static async removeCompanyInternalNotes(companyId) {
     // Removing every internal notes of company
-    return await this.remove({
+    return this.remove({
       contentType: COC_CONTENT_TYPES.COMPANY,
       contentTypeId: companyId,
     });
@@ -119,8 +123,8 @@ class InternalNote {
    * @param {String[]} OldCompanyIds - Old company ids to change
    * @return {Promise} Updated list of internal notes of new company
    */
-  static async changeCompany(newCompanyId, OldCompanyIds) {
-    for (let companyId of OldCompanyIds) {
+  static async changeCompany(newCompanyId, oldCompanyIds) {
+    for (let companyId of oldCompanyIds) {
       // Updating every internal notes of company
       await this.updateMany(
         {
@@ -130,8 +134,12 @@ class InternalNote {
         { contentTypeId: newCompanyId },
       );
     }
+
     // Returning updated list of internal notes of new company
-    return this.find({ contentType: COC_CONTENT_TYPES.COMPANY, contentTypeId: newCompanyId });
+    return this.find({
+      contentType: COC_CONTENT_TYPES.COMPANY,
+      contentTypeId: newCompanyId,
+    });
   }
 }
 

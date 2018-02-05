@@ -205,6 +205,7 @@ class Message {
         { customerIds: { $in: [customerId] } },
         { $push: { customerIds: newCustomerId } },
       );
+
       await this.updateMany(
         { customerIds: { $in: [customerId] } },
         { $pull: { customerIds: customerId } },
@@ -215,6 +216,7 @@ class Message {
         { messengerReceivedCustomerIds: { $in: [customerId] } },
         { $push: { messengerReceivedCustomerIds: newCustomerId } },
       );
+
       await this.updateMany(
         { messengerReceivedCustomerIds: { $in: [customerId] } },
         { $pull: { messengerReceivedCustomerIds: customerId } },
@@ -236,10 +238,7 @@ class Message {
       { $pull: { messengerReceivedCustomerIds: { $in: [customerId] } } },
     );
 
-    return await this.updateMany(
-      { customerIds: customerId },
-      { $pull: { customerIds: customerId } },
-    );
+    return this.updateMany({ customerIds: customerId }, { $pull: { customerIds: customerId } });
   }
 }
 

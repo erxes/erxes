@@ -155,6 +155,7 @@ describe('Companies model tests', () => {
       contentType: COC_CONTENT_TYPES.COMPANY,
       contentTypeId: company._id,
     });
+
     const activityLog = await ActivityLogs.find({
       coc: {
         type: COC_CONTENT_TYPES.COMPANY,
@@ -264,6 +265,7 @@ describe('Companies model tests', () => {
       contentType: COC_CONTENT_TYPES.COMPANY,
       contentTypeId: updatedCompany._id,
     });
+
     activityLog = await ActivityLogs.find({
       coc: {
         type: COC_CONTENT_TYPES.COMPANY,
