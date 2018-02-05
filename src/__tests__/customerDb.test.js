@@ -197,9 +197,21 @@ describe('Customers model tests', () => {
   });
 
   test('Merge customers', async () => {
-    const testCustomer = await customerFactory({});
-    const testCustomer2 = await customerFactory({});
+    const testCustomer = await customerFactory({
+      companyIds: ['123', '1234', '12345'],
+      tagIds: ['2343', '234', '234'],
+    });
+    const testCustomer2 = await customerFactory({
+      companyIds: ['123', '456', '45678'],
+      tagIds: ['qwe', '2343', '123'],
+    });
     const customerIds = [testCustomer._id, testCustomer2._id];
+
+    // Merging both customers companyIds and tagIds
+    const mergedCompanyIds = Array.from(
+      new Set(testCustomer.companyIds.concat(testCustomer2.companyIds)),
+    );
+    const mergedTagIds = Array.from(new Set(testCustomer.tagIds.concat(testCustomer2.tagIds)));
 
     // checking length validation
     try {
@@ -262,6 +274,8 @@ describe('Customers model tests', () => {
     expect(updatedCustomer.twitterData.toJSON()).toEqual(doc.twitterData);
     expect(updatedCustomer.messengerData.toJSON()).toEqual(doc.messengerData);
     expect(updatedCustomer.facebookData.toJSON()).toEqual(doc.facebookData);
+    expect(updatedCustomer.companyIds).toEqual(expect.arrayContaining(mergedCompanyIds));
+    expect(updatedCustomer.tagIds).toEqual(expect.arrayContaining(mergedTagIds));
 
     // Checking old customers datas to be deleted
     expect(await Customers.find({ _id: customerIds[0] })).toHaveLength(0);

@@ -8,6 +8,7 @@ import {
   fieldFactory,
   internalNoteFactory,
   activityLogFactory,
+  customerFactory,
 } from '../db/factories';
 import { COC_CONTENT_TYPES } from '../data/constants';
 
@@ -159,9 +160,20 @@ describe('Companies model tests', () => {
   });
 
   test('mergeCompanies', async () => {
-    const testCompany = await companyFactory({});
-    const testCompany2 = await companyFactory({});
+    const testCompany = await companyFactory({
+      tagIds: ['123', '456', '1234'],
+    });
+    const testCompany2 = await companyFactory({
+      tagIds: ['1231', '123', 'asd12'],
+    });
+    const testCustomer = await customerFactory({
+      companyIds: [testCompany._id],
+    });
+    const testCustomer2 = await customerFactory({
+      companyIds: [testCompany2._id],
+    });
     const companyIds = [testCompany._id, testCompany2._id];
+    const mergedTagIds = Array.from(new Set(testCompany.tagIds.concat(testCompany2.tagIds)));
 
     // test duplication
     try {
@@ -205,6 +217,12 @@ describe('Companies model tests', () => {
 
     // Checking old company datas deleted
     expect(await Companies.find({ _id: companyIds[0] })).toHaveLength(0);
+    expect((await Customers.findOne({ _id: testCustomer._id })).companyIds).not.toContain(
+      expect.arrayContaining([testCompany._id]),
+    );
+    expect((await Customers.findOne({ _id: testCustomer2._id })).companyIds).not.toContain(
+      expect.arrayContaining([testCompany2._id]),
+    );
     expect(
       await InternalNotes.find({
         contentType: COC_CONTENT_TYPES.COMPANY,
@@ -221,6 +239,13 @@ describe('Companies model tests', () => {
     ).toHaveLength(0);
 
     // Checking new company datas updated
+    expect(updatedCompany.tagIds).toEqual(expect.arrayContaining(mergedTagIds));
+    expect((await Customers.findOne({ _id: testCustomer._id })).companyIds).not.toContain(
+      expect.arrayContaining([updatedCompany._id]),
+    );
+    expect((await Customers.findOne({ _id: testCustomer2._id })).companyIds).not.toContain(
+      expect.arrayContaining([updatedCompany._id]),
+    );
     expect(
       await InternalNotes.find({
         contentType: COC_CONTENT_TYPES.COMPANY,
