@@ -163,6 +163,11 @@ class Company {
     await ActivityLogs.removeCompanyActivityLog(companyId);
     await InternalNotes.removeCompanyInternalNotes(companyId);
 
+    await Customers.updateMany(
+      { companyIds: { $in: [companyId] } },
+      { $pull: { companyIds: companyId } },
+    );
+
     return await this.remove({ _id: companyId });
   }
 

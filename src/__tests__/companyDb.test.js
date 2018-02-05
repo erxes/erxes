@@ -143,6 +143,7 @@ describe('Companies model tests', () => {
 
   test('removeCompany', async () => {
     const company = await companyFactory({});
+    await customerFactory({ companyIds: [company._id] });
 
     await internalNoteFactory({
       contentType: COC_CONTENT_TYPES.COMPANY,
@@ -163,6 +164,9 @@ describe('Companies model tests', () => {
       },
     });
 
+    const customers = await Customers.find({ companyIds: { $in: [company._id] } });
+
+    expect(customers).toHaveLength(0);
     expect(internalNote).toHaveLength(0);
     expect(activityLog).toHaveLength(0);
     expect(removed.result).toEqual({ n: 1, ok: 1 });
