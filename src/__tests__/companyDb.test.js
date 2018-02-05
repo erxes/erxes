@@ -217,6 +217,7 @@ describe('Companies model tests', () => {
 
     // Checking old company datas deleted
     expect(await Companies.find({ _id: companyIds[0] })).toHaveLength(0);
+    expect(updatedCompany.tagIds).toEqual(expect.arrayContaining(mergedTagIds));
     expect((await Customers.findOne({ _id: testCustomer._id })).companyIds).not.toContain(
       testCompany._id,
     );
