@@ -163,6 +163,7 @@ export const companyFactory = (params = {}) => {
     size: params.size || faker.random.number(),
     industry: params.industry || faker.company.bs(),
     website: params.website || faker.internet.domainName(),
+    tagIds: params.tagIds || [faker.random.number()],
   });
 
   return company.save();
@@ -175,7 +176,8 @@ export const customerFactory = (params = {}) => {
     phone: params.phone || faker.phone.phoneNumber(),
     messengerData: params.messengerData || {},
     customFieldsData: params.customFieldsData || {},
-    companyIds: params.companyIds || [],
+    companyIds: params.companyIds || [faker.random.number(), faker.random.number()],
+    tagIds: params.tagIds || [faker.random.number(), faker.random.number()],
     twitterData: params.twitterData || { id: faker.random.number() },
   });
 
