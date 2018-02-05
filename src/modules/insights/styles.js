@@ -37,7 +37,6 @@ const InsightTitle = styled.h5`
   text-transform: uppercase;
   font-weight: ${typography.fontWeightRegular};
   padding: ${dimensions.unitSpacing}px 0;
-  color: ${colors.colorCoreGray};
   margin: ${dimensions.coreSpacing}px 0 ${dimensions.unitSpacing}px;
 
   span {
@@ -76,15 +75,15 @@ const FlexItem = styled.div`
   }
 `;
 
-const FullLoader = styled.div`
-  height: 100%;
-`;
-
 const ChartWrapper = styled.div`
   padding: 20px 20px 20px 0;
   border: 1px solid ${colors.borderPrimary};
-  border-radius: 4px;
+  border-radius: 2px;
   background: ${colors.bgLight};
+`;
+
+const LoaderWrapper = ChartWrapper.extend`
+  padding: ${dimensions.coreSpacing * 2}px;
 `;
 
 const SummaryItem = styled.div`
@@ -99,7 +98,7 @@ const SummaryItem = styled.div`
 `;
 
 const SummaryTitle = styled.div`
-  margin-bottom: 4px;
+  margin-bottom: 5px;
   text-transform: uppercase;
 `;
 
@@ -125,7 +124,7 @@ const KindItem = styled.div`
   margin-bottom: 12px;
 
   .label {
-    margin-right: 4px;
+    margin-right: 5px;
     display: inline-block;
     padding: 5px ${dimensions.unitSpacing}px;
   }
@@ -134,7 +133,7 @@ const KindItem = styled.div`
 const InsightUserData = styled.div`
   margin-bottom: 30px;
   border: 1px solid ${colors.borderPrimary};
-  border-radius: 4px;
+  border-radius: 2px;
 
   ${ChartWrapper} {
     padding: 20px 0 10px;
@@ -172,7 +171,7 @@ export {
   InsightTitle,
   FlexItem,
   FlexRow,
-  FullLoader,
+  LoaderWrapper,
   ChartWrapper,
   SummaryItem,
   SummaryTitle,
