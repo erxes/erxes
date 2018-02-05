@@ -9,7 +9,14 @@ import {
   FormGroup
 } from 'modules/common/components';
 import { renderFullName } from 'modules/common/utils';
-import { Title, Columns, Column, InfoTitle, InfoDetail } from '../../styles';
+import {
+  Title,
+  Columns,
+  Column,
+  InfoTitle,
+  InfoDetail,
+  Info
+} from '../../styles';
 
 const propTypes = {
   datas: PropTypes.array.isRequired,
@@ -121,19 +128,19 @@ class CommonMerge extends Component {
     const propertyName = Object.keys(property);
 
     return (
-      <li key={key}>
+      <li
+        key={key}
+        onClick={() =>
+          this.handleChange(icon, { [propertyName]: property[propertyName] })
+        }
+      >
         <InfoTitle>{basicInfos[propertyName]}:</InfoTitle>
         {this.renderingOptions[propertyName] ? (
           this.renderingOptions[propertyName](property[propertyName])
         ) : (
           <InfoDetail>{property[propertyName] || 'N/A'}</InfoDetail>
         )}
-        <Icon
-          icon={icon}
-          onClick={() =>
-            this.handleChange(icon, { [propertyName]: property[propertyName] })
-          }
-        />
+        <Icon icon={icon} />
       </li>
     );
   }
@@ -221,22 +228,23 @@ class CommonMerge extends Component {
 
   renderMessengerData(data) {
     return (
-      <div>
-        <span>Last seen at:</span>
+      <Info>
+        <InfoTitle>Last seen at:</InfoTitle>
         <InfoDetail>{moment(data.lastSeenAt).format('lll')}</InfoDetail>
-        <span>Session count:</span> <InfoDetail>{data.sessionCount}</InfoDetail>
-      </div>
+        <InfoTitle>Session count:</InfoTitle>
+        <InfoDetail>{data.sessionCount}</InfoDetail>
+      </Info>
     );
   }
 
   renderTwitterData(data) {
     return (
-      <div>
-        <span>Name: </span>
+      <Info>
+        <InfoTitle>Name: </InfoTitle>
         <InfoDetail>{data.name}</InfoDetail>
-        <span>Screen name: </span>
+        <InfoTitle>Screen name: </InfoTitle>
         <InfoDetail>{data.screenName}</InfoDetail>
-      </div>
+      </Info>
     );
   }
 
@@ -248,14 +256,14 @@ class CommonMerge extends Component {
         <Columns>
           {datas.map(data => {
             return (
-              <Column key={data._id}>
+              <Column key={data._id} className="multiple">
                 <Title>{renderFullName(data)}</Title>
                 <ul>{this.renderDatas(data)}</ul>
               </Column>
             );
           })}
           <Column>
-            <Title>Infos</Title>
+            <Title>Merged Info</Title>
             <ul>{this.renderMergedData()}</ul>
           </Column>
         </Columns>
