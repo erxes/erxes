@@ -1,3 +1,4 @@
-import ArticleList from './List';
+import ArticleList from './ArticleList';
+import ArticleForm from './ArticleForm';
 
-export { ArticleList };
+export { ArticleList, ArticleForm };

@@ -3,12 +3,11 @@ import PropTypes from 'prop-types';
 import { compose, graphql } from 'react-apollo';
 import gql from 'graphql-tag';
 import { Spinner } from 'modules/common/components';
-import { knowledgeBaseArticles } from '../../graphql/queries';
+import { queries } from '../../graphql';
 import { CategoryForm } from '../../components';
 
 const addPropTypes = {
-  getArticleListQuery: PropTypes.object.isRequired,
-  save: PropTypes.func.isRequired
+  getArticleListQuery: PropTypes.object.isRequired
 };
 
 const CategoryAddFormContainer = props => {
@@ -28,7 +27,7 @@ const CategoryAddFormContainer = props => {
 CategoryAddFormContainer.propTypes = addPropTypes;
 
 export default compose(
-  graphql(gql(knowledgeBaseArticles), {
+  graphql(gql(queries.knowledgeBaseArticles), {
     name: 'getArticleListQuery',
     options: () => ({
       fetchPolicy: 'network-only'

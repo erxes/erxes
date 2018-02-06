@@ -1,42 +1,66 @@
-import React from 'react';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import { EditorState } from 'draft-js';
+import { Modal } from 'react-bootstrap';
 import {
   FormGroup,
   ControlLabel,
-  FormControl
+  FormControl,
+  Button
 } from 'modules/common/components';
 import {
   ErxesEditor,
   toHTML,
   createStateFromHTML
 } from 'modules/common/components/Editor';
-import { Form as CommonForm } from '../../../common/components';
 import { EditorWrapper } from 'modules/engage/styles';
 
-class ArticleForm extends CommonForm {
+const propTypes = {
+  article: PropTypes.object,
+  save: PropTypes.func
+};
+
+const contextTypes = {
+  closeModal: PropTypes.func.isRequired
+};
+
+class ArticleForm extends Component {
   constructor(props) {
     super(props);
 
-    const object = props.object || {};
+    const article = props.article || {};
 
     this.state = {
       status: this.getCurrentStatus(),
       editorState: createStateFromHTML(
         EditorState.createEmpty(),
-        object.content || ''
+        article.content || ''
       )
     };
 
     this.onChange = this.onChange.bind(this);
     this.getContent = this.getContent.bind(this);
+    this.save = this.save.bind(this);
+  }
+
+  save(e) {
+    e.preventDefault();
+
+    this.props.save(
+      this.generateDoc(),
+      () => {
+        this.context.closeModal();
+      },
+      this.props.article
+    );
   }
 
   getCurrentStatus() {
-    const { object } = this.props;
-    if (object == null) {
+    const { article } = this.props;
+    if (article == null) {
       return 'draft';
     }
-    return object.status;
+    return article.status;
   }
 
   generateDoc() {
@@ -61,11 +85,11 @@ class ArticleForm extends CommonForm {
     this.setState({ editorState });
   }
 
-  renderContent(object) {
+  renderContent(article) {
     const props = {
       editorState: this.state.editorState,
       onChange: this.onChange,
-      defaultValue: object.content
+      defaultValue: article.content
     };
 
     return (
@@ -75,7 +99,7 @@ class ArticleForm extends CommonForm {
           <FormControl
             id="knowledgebase-article-title"
             type="text"
-            defaultValue={object.title}
+            defaultValue={article.title}
             required
           />
         </FormGroup>
@@ -85,7 +109,7 @@ class ArticleForm extends CommonForm {
           <FormControl
             id="knowledgebase-article-summary"
             type="text"
-            defaultValue={object.summary}
+            defaultValue={article.summary}
           />
         </FormGroup>
 
@@ -105,7 +129,6 @@ class ArticleForm extends CommonForm {
             onChange={e => {
               this.setState({ status: e.target.value });
             }}
-            defaultValue={this.state.status}
             value={this.state.status}
           >
             {[{ value: 'draft' }, { value: 'publish' }].map(op => (
@@ -118,6 +141,35 @@ class ArticleForm extends CommonForm {
       </div>
     );
   }
+
+  render() {
+    const onClick = () => {
+      this.context.closeModal();
+    };
+
+    return (
+      <form onSubmit={this.save}>
+        {this.renderContent(this.props.article || {})}
+        <Modal.Footer>
+          <Button
+            btnStyle="simple"
+            type="button"
+            onClick={onClick}
+            icon="close"
+          >
+            Cancel
+          </Button>
+
+          <Button btnStyle="success" type="submit" icon="checkmark">
+            Save
+          </Button>
+        </Modal.Footer>
+      </form>
+    );
+  }
 }
+
+ArticleForm.propTypes = propTypes;
+ArticleForm.contextTypes = contextTypes;
 
 export default ArticleForm;

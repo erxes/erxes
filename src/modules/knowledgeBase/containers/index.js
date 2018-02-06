@@ -1,5 +1,14 @@
-import { TopicList, TopicForm } from './topic';
+import { KnowledgeList, KnowledgeForm } from './knowledge';
 import { CategoryList, CategoryForm } from './category';
-import { ArticleList } from './article';
+import { ArticleList, ArticleForm } from './article';
+import KnowledgeBase from './KnowledgeBase';
 
-export { TopicList, TopicForm, CategoryList, CategoryForm, ArticleList };
+export {
+  KnowledgeBase,
+  KnowledgeList,
+  KnowledgeForm,
+  CategoryForm,
+  CategoryList,
+  ArticleList,
+  ArticleForm
+};

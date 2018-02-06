@@ -4,7 +4,7 @@ const articleCommonParamsDef = `$doc: KnowledgeBaseArticleDoc!`;
 
 const commonParams = `doc: $doc`;
 
-export const knowledgeBaseTopicsAdd = `
+const knowledgeBaseTopicsAdd = `
   mutation knowledgeBaseTopicsAdd(${topicCommonParamsDef}) {
     knowledgeBaseTopicsAdd(${commonParams}) {
       _id
@@ -12,7 +12,7 @@ export const knowledgeBaseTopicsAdd = `
   }
 `;
 
-export const knowledgeBaseTopicsEdit = `
+const knowledgeBaseTopicsEdit = `
   mutation knowledgeBaseTopicsEdit($_id: String!, ${topicCommonParamsDef}) {
     knowledgeBaseTopicsEdit(_id: $_id, ${commonParams}) {
       _id
@@ -20,13 +20,13 @@ export const knowledgeBaseTopicsEdit = `
   }
 `;
 
-export const knowledgeBaseTopicsRemove = `
+const knowledgeBaseTopicsRemove = `
   mutation knowledgeBaseTopicsRemove($_id: String!) {
     knowledgeBaseTopicsRemove(_id: $_id)
   }
 `;
 
-export const knowledgeBaseCategoriesAdd = `
+const knowledgeBaseCategoriesAdd = `
   mutation knowledgeBaseCategoriesAdd(${categoryCommonParamsDef}) {
     knowledgeBaseCategoriesAdd(${commonParams}) {
       _id
@@ -34,7 +34,7 @@ export const knowledgeBaseCategoriesAdd = `
   }
 `;
 
-export const knowledgeBaseCategoriesEdit = `
+const knowledgeBaseCategoriesEdit = `
   mutation knowledgeBaseCategoriesEdit($_id: String!, ${
     categoryCommonParamsDef
   }) {
@@ -44,13 +44,13 @@ export const knowledgeBaseCategoriesEdit = `
   }
 `;
 
-export const knowledgeBaseCategoriesRemove = `
+const knowledgeBaseCategoriesRemove = `
   mutation knowledgeBaseCategoriesRemove($_id: String!) {
     knowledgeBaseCategoriesRemove(_id: $_id)
   }
 `;
 
-export const knowledgeBaseArticlesAdd = `
+const knowledgeBaseArticlesAdd = `
   mutation knowledgeBaseArticlesAdd(${articleCommonParamsDef}) {
     knowledgeBaseArticlesAdd(${commonParams}) {
       _id
@@ -58,7 +58,7 @@ export const knowledgeBaseArticlesAdd = `
   }
 `;
 
-export const knowledgeBaseArticlesEdit = `
+const knowledgeBaseArticlesEdit = `
   mutation knowledgeBaseArticlesEdit($_id: String!, ${articleCommonParamsDef}) {
     knowledgeBaseArticlesEdit(_id: $_id, ${commonParams}) {
       _id
@@ -66,8 +66,20 @@ export const knowledgeBaseArticlesEdit = `
   }
 `;
 
-export const knowledgeBaseArticlesRemove = `
+const knowledgeBaseArticlesRemove = `
   mutation knowledgeBaseArticlesRemove($_id: String!) {
     knowledgeBaseArticlesRemove(_id: $_id)
   }
 `;
+
+export default {
+  knowledgeBaseTopicsAdd,
+  knowledgeBaseTopicsEdit,
+  knowledgeBaseTopicsRemove,
+  knowledgeBaseCategoriesAdd,
+  knowledgeBaseCategoriesEdit,
+  knowledgeBaseCategoriesRemove,
+  knowledgeBaseArticlesAdd,
+  knowledgeBaseArticlesEdit,
+  knowledgeBaseArticlesRemove
+};

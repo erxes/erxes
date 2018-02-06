@@ -1,5 +1,5 @@
-import ArticleList from './List';
-import ArticleForm from './Form';
-import ArticleRow from './Row';
+import ArticleList from './ArticleList';
+import ArticleForm from './ArticleForm';
+import ArticleRow from './ArticleRow';
 
 export { ArticleList, ArticleForm, ArticleRow };

@@ -1,61 +1,53 @@
-import React from 'react';
+import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import Select from 'react-select-plus';
+import { Modal } from 'react-bootstrap';
 import {
   FormGroup,
   ControlLabel,
-  FormControl
+  FormControl,
+  Button
 } from 'modules/common/components';
-import { Form as CommonForm } from '../../../common/components';
 import Ionicons from 'react-ionicons';
 import { icons } from '../../icons.constant';
 
 const propTypes = {
-  object: PropTypes.object,
-  save: PropTypes.func,
-  articles: PropTypes.array.isRequired
+  category: PropTypes.object,
+  save: PropTypes.func
 };
 
-class CategoryForm extends CommonForm {
+const contextTypes = {
+  closeModal: PropTypes.func.isRequired
+};
+
+class CategoryForm extends Component {
   constructor(props, context) {
     super(props, context);
 
     this.state = {
-      selectedArticles: this.getSelectedArticles(),
       selectedIcon: this.getSelectedIcon()
     };
 
     this.renderOption = this.renderOption.bind(this);
     this.onChangeIcon = this.onChangeIcon.bind(this);
+    this.save = this.save.bind(this);
   }
 
-  getSelectedArticles() {
-    const { object = {} } = this.props;
+  save(e) {
+    e.preventDefault();
 
-    return (object.articles || []).map(article => ({
-      label: article.title,
-      value: article._id
-    }));
+    this.props.save(
+      this.generateDoc(),
+      () => {
+        this.context.closeModal();
+      },
+      this.props.category
+    );
   }
 
   getSelectedIcon() {
-    const { object } = this.props;
-    return (object && object.icon) || '';
-  }
-
-  getArticles() {
-    const results = [];
-
-    const { articles } = this.props;
-
-    results.push({
-      label: 'Articles',
-      options: articles.map(article => ({
-        label: article.title,
-        value: article._id
-      }))
-    });
-    return results;
+    const { category } = this.props;
+    return (category && category.icon) || '';
   }
 
   onChangeIcon(obj) {
@@ -74,27 +66,23 @@ class CategoryForm extends CommonForm {
   }
 
   generateDoc() {
-    const { object } = this.props;
-    const articleIds = this.state.selectedArticles.map(
-      article => article.value
-    );
+    const { category } = this.props;
 
     return {
-      ...object,
+      ...category,
       doc: {
         doc: {
           title: document.getElementById('knowledgebase-category-title').value,
           description: document.getElementById(
             'knowledgebase-category-description'
           ).value,
-          articleIds,
           icon: this.state.selectedIcon
         }
       }
     };
   }
 
-  renderContent(object = {}) {
+  renderContent(category = {}) {
     return (
       <div>
         <FormGroup>
@@ -102,7 +90,7 @@ class CategoryForm extends CommonForm {
           <FormControl
             id="knowledgebase-category-title"
             type="text"
-            defaultValue={object.title}
+            defaultValue={category.title}
             required
           />
         </FormGroup>
@@ -112,26 +100,7 @@ class CategoryForm extends CommonForm {
           <FormControl
             id="knowledgebase-category-description"
             type="text"
-            defaultValue={object.description}
-          />
-        </FormGroup>
-
-        <FormGroup>
-          <ControlLabel>Articles</ControlLabel>
-
-          <Select
-            placeholder="Choose articles"
-            onChange={items => {
-              this.setState({ selectedArticles: items });
-            }}
-            optionRenderer={option => (
-              <div className="simple-option">
-                <span>{option.label}</span>
-              </div>
-            )}
-            value={this.state.selectedArticles}
-            options={this.getArticles()}
-            multi
+            defaultValue={category.description}
           />
         </FormGroup>
 
@@ -149,8 +118,35 @@ class CategoryForm extends CommonForm {
       </div>
     );
   }
+
+  render() {
+    const onClick = () => {
+      this.context.closeModal();
+    };
+
+    return (
+      <form onSubmit={this.save}>
+        {this.renderContent(this.props.category || {})}
+        <Modal.Footer>
+          <Button
+            btnStyle="simple"
+            type="button"
+            onClick={onClick}
+            icon="close"
+          >
+            Cancel
+          </Button>
+
+          <Button btnStyle="success" type="submit" icon="checkmark">
+            Save
+          </Button>
+        </Modal.Footer>
+      </form>
+    );
+  }
 }
 
 CategoryForm.propTypes = propTypes;
+CategoryForm.contextTypes = contextTypes;
 
 export default CategoryForm;

@@ -4,40 +4,28 @@ import { compose, graphql } from 'react-apollo';
 import gql from 'graphql-tag';
 import { Spinner } from 'modules/common/components';
 import { queries } from '../../graphql';
-import { TopicForm } from '../../components';
+import { KnowledgeForm } from '../../components';
 
 const addPropTypes = {
-  getCategoryListQuery: PropTypes.object.isRequired,
   getBrandListQuery: PropTypes.object.isRequired,
   save: PropTypes.func.isRequired
 };
 
-const TopicAddFormContainer = ({
-  getBrandListQuery,
-  getCategoryListQuery,
-  ...props
-}) => {
-  if (getBrandListQuery.loading || getCategoryListQuery.loading) {
+const TopicAddFormContainer = ({ getBrandListQuery, ...props }) => {
+  if (getBrandListQuery.loading) {
     return <Spinner objective />;
   }
 
   const updatedProps = {
     ...props,
-    brands: getBrandListQuery.brands,
-    categories: getCategoryListQuery.knowledgeBaseCategories
+    brands: getBrandListQuery.brands
   };
-  return <TopicForm {...updatedProps} />;
+  return <KnowledgeForm {...updatedProps} />;
 };
 
 TopicAddFormContainer.propTypes = addPropTypes;
 
 export default compose(
-  graphql(gql(queries.knowledgeBaseCategories), {
-    name: 'getCategoryListQuery',
-    options: () => ({
-      fetchPolicy: 'network-only'
-    })
-  }),
   graphql(gql(queries.getBrandList), {
     name: 'getBrandListQuery',
     options: () => ({

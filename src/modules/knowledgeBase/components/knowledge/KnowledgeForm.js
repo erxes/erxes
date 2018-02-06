@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import Select from 'react-select-plus';
 import ReactMarkdown from 'react-markdown';
+import { Modal } from 'react-bootstrap';
 import CopyToClipboard from 'react-copy-to-clipboard';
 import {
   FormGroup,
@@ -10,57 +10,57 @@ import {
   Button,
   EmptyState
 } from 'modules/common/components';
-import { Form as CommonForm } from '../../../common/components';
 import SelectBrand from '../SelectBrand';
 import { MarkdownWrapper } from 'modules/settings/styles';
 
 const propTypes = {
-  object: PropTypes.object,
-  save: PropTypes.func,
-  brands: PropTypes.array.isRequired,
-  categories: PropTypes.array.isRequired
+  topic: PropTypes.object,
+  save: PropTypes.func.isRequired,
+  remove: PropTypes.func,
+  brands: PropTypes.array.isRequired
 };
 
-class TopicForm extends CommonForm {
+const contextTypes = {
+  closeModal: PropTypes.func.isRequired
+};
+
+class KnowledgeForm extends Component {
   constructor(props, context) {
     super(props, context);
 
     let code = '';
 
     // showed install code automatically in edit mode
-    if (props.object) {
-      code = this.constructor.getInstallCode(props.object._id);
+    if (props.topic) {
+      code = this.constructor.getInstallCode(props.topic._id);
     }
 
     this.state = {
       code,
-      copied: false,
-      selectedCategories: this.getSelectedCategories()
+      copied: false
     };
 
     this.handleBrandChange = this.handleBrandChange.bind(this);
+    this.save = this.save.bind(this);
+    this.remove = this.remove.bind(this);
   }
 
-  getCategories() {
-    const { categories } = this.props;
-    let results = [];
+  save(e) {
+    e.preventDefault();
 
-    results.push({
-      label: 'Categories',
-      options: categories.map(category => ({
-        label: category.title,
-        value: category._id
-      }))
-    });
-    return results;
+    this.props.save(
+      this.generateDoc(),
+      () => {
+        this.context.closeModal();
+      },
+      this.props.topic
+    );
   }
 
-  getSelectedCategories() {
-    const { object = {} } = this.props;
-    return (object.categories || []).map(category => ({
-      label: category.title,
-      value: category._id
-    }));
+  remove() {
+    const { remove, topic } = this.props;
+
+    remove(topic._id);
   }
 
   static installCodeIncludeScript() {
@@ -86,13 +86,13 @@ class TopicForm extends CommonForm {
             topic_id: "${topicId}"
           },
         };
-        ${TopicForm.installCodeIncludeScript()}
+        ${KnowledgeForm.installCodeIncludeScript()}
       </script>
     `;
   }
 
   renderInstallCode() {
-    if (this.props.object && this.props.object._id) {
+    if (this.props.topic && this.props.topic._id) {
       return (
         <FormGroup>
           <ControlLabel>Install code</ControlLabel>
@@ -119,35 +119,32 @@ class TopicForm extends CommonForm {
   }
 
   handleBrandChange() {
-    if (this.props.object && this.props.object._id) {
-      const code = this.constructor.getInstallCode(this.props.object._id);
+    if (this.props.topic && this.props.topic._id) {
+      const code = this.constructor.getInstallCode(this.props.topic._id);
       this.setState({ code, copied: false });
     }
   }
 
   generateDoc() {
-    const categoryIds = this.state.selectedCategories.map(
-      category => category.value
-    );
-    const { object } = this.props;
+    const { topic } = this.props;
 
     return {
-      ...object,
+      ...topic,
       doc: {
         doc: {
           title: document.getElementById('knowledgebase-title').value,
           description: document.getElementById('knowledgebase-description')
             .value,
-          brandId: document.getElementById('selectBrand').value,
-          categoryIds
+          brandId: document.getElementById('selectBrand').value
         }
       }
     };
   }
 
-  renderContent(object = {}) {
-    const { brands } = this.props;
-    const { brand } = object;
+  renderContent() {
+    const { brands, topic } = this.props;
+    const { brand } = topic || {};
+    const object = topic || {};
     const brandId = brand != null ? brand._id : '';
 
     return (
@@ -179,30 +176,50 @@ class TopicForm extends CommonForm {
           />
         </FormGroup>
 
-        <FormGroup>
-          <ControlLabel>Categories</ControlLabel>
-
-          <Select
-            placeholder="Choose categories"
-            onChange={items => {
-              this.setState({ selectedCategories: items });
-            }}
-            optionRenderer={option => (
-              <div className="simple-option">
-                <span>{option.label}</span>
-              </div>
-            )}
-            value={this.state.selectedCategories}
-            options={this.getCategories()}
-            multi
-          />
-        </FormGroup>
-
         {this.renderInstallCode()}
       </div>
     );
   }
+
+  render() {
+    const { topic } = this.props;
+
+    const onClick = () => {
+      this.context.closeModal();
+    };
+
+    return (
+      <form onSubmit={this.save}>
+        {this.renderContent()}
+        <Modal.Footer>
+          <Button
+            btnStyle="simple"
+            type="button"
+            onClick={onClick}
+            icon="close"
+          >
+            Cancel
+          </Button>
+          {topic && (
+            <Button
+              btnStyle="danger"
+              type="button"
+              onClick={this.remove}
+              icon="close"
+            >
+              Delete
+            </Button>
+          )}
+          <Button btnStyle="success" type="submit" icon="checkmark">
+            Save
+          </Button>
+        </Modal.Footer>
+      </form>
+    );
+  }
 }
 
-TopicForm.propTypes = propTypes;
-export default TopicForm;
+KnowledgeForm.propTypes = propTypes;
+KnowledgeForm.contextTypes = contextTypes;
+
+export default KnowledgeForm;

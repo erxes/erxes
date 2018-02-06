@@ -1,4 +1,4 @@
-export const knowledgeBaseTopics = `
+const knowledgeBaseTopics = `
   query objects($page: Int, $perPage: Int) {
     knowledgeBaseTopics(page: $page, perPage: $perPage) {
       _id
@@ -11,6 +11,10 @@ export const knowledgeBaseTopics = `
       categories {
         _id
         title
+        articles {
+          _id
+          title
+        }
       }
       createdBy
       createdDate
@@ -20,13 +24,13 @@ export const knowledgeBaseTopics = `
   }
 `;
 
-export const knowledgeBaseTopicsTotalCount = `
+const knowledgeBaseTopicsTotalCount = `
   query knowledgeBaseTopicsTotalCount {
     knowledgeBaseTopicsTotalCount
   }
 `;
 
-export const getBrandList = `
+const getBrandList = `
   query brands {
     brands {
       _id
@@ -35,7 +39,7 @@ export const getBrandList = `
   }
 `;
 
-export const knowledgeBaseCategories = `
+const knowledgeBaseCategories = `
   query objects($page: Int, $perPage: Int) {
     knowledgeBaseCategories(page: $page, perPage: $perPage) {
       _id
@@ -54,15 +58,41 @@ export const knowledgeBaseCategories = `
   }
 `;
 
-export const knowledgeBaseCategoriesTotalCount = `
+const knowledgeBaseCategoryDetail = `
+  query knowledgeBaseCategoryDetail($_id: String!) {
+    knowledgeBaseCategoryDetail(_id: $_id) {
+      _id
+      title
+      description
+      articles {
+        _id
+        title
+        summary
+        content
+        status
+      }
+      icon
+    }
+  }
+`;
+
+const knowledgeBaseCategoriesTotalCount = `
   query knowledgeBaseCategoriesTotalCount {
     knowledgeBaseCategoriesTotalCount
   }
 `;
 
-export const knowledgeBaseArticles = `
-  query objects($page: Int, $perPage: Int) {
-    knowledgeBaseArticles(page: $page, perPage: $perPage) {
+const categoriesGetLast = `
+  query knowledgeBaseCategoriesGetLast {
+    knowledgeBaseCategoriesGetLast {
+      _id
+    }
+  }
+`;
+
+const knowledgeBaseArticles = `
+  query objects($page: Int, $perPage: Int, $categoryId: String) {
+    knowledgeBaseArticles(page: $page, perPage: $perPage, categoryId: $categoryId) {
       _id
       title
       summary
@@ -76,17 +106,19 @@ export const knowledgeBaseArticles = `
   }
 `;
 
-export const knowledgeBaseArticlesTotalCount = `
-  query knowledgeBaseArticlesTotalCount {
-    knowledgeBaseArticlesTotalCount
+const knowledgeBaseArticlesTotalCount = `
+  query knowledgeBaseArticlesTotalCount($categoryId: String) {
+    knowledgeBaseArticlesTotalCount(categoryId: $categoryId)
   }
 `;
 
 export default {
   getBrandList,
+  categoriesGetLast,
   knowledgeBaseTopics,
   knowledgeBaseTopicsTotalCount,
   knowledgeBaseCategories,
+  knowledgeBaseCategoryDetail,
   knowledgeBaseCategoriesTotalCount,
   knowledgeBaseArticles,
   knowledgeBaseArticlesTotalCount

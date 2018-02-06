@@ -1,5 +1,5 @@
-import CategoryList from './List';
-import CategoryForm from './Form';
-import CategoryRow from './Row';
+import CategoryList from './CategoryList';
+import CategoryForm from './CategoryForm';
+import CategoryRow from './CategoryRow';
 
 export { CategoryList, CategoryForm, CategoryRow };

@@ -1,18 +1,19 @@
-import { TopicList, TopicForm, TopicRow } from './topic';
+import { KnowledgeList, KnowledgeForm, KnowledgeRow } from './knowledge';
 import { CategoryList, CategoryForm, CategoryRow } from './category';
 import { ArticleList, ArticleForm, ArticleRow } from './article';
-
 import SelectBrand from './SelectBrand';
+import KnowledgeBase from './KnowledgeBase';
 
 export {
-  TopicList,
-  TopicForm,
-  TopicRow,
-  CategoryList,
+  SelectBrand,
+  KnowledgeBase,
+  KnowledgeList,
+  KnowledgeForm,
+  KnowledgeRow,
   CategoryForm,
+  CategoryList,
   CategoryRow,
   ArticleList,
-  ArticleForm,
   ArticleRow,
-  SelectBrand
+  ArticleForm
 };

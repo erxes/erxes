@@ -123,7 +123,7 @@ const SidebarFooter = SidebarHeader.extend`
 `;
 
 const SidebarBox = styled.div`
-  background-color: ${colors.colorWhite};
+  background-color: ${props => (props.noBackground ? '' : colors.colorWhite)};
   margin-bottom: ${dimensions.coreSpacing}px;
   box-shadow: ${props =>
     props.noShadow ? 'none' : `0 0 4px ${colors.shadowPrimary}`};
