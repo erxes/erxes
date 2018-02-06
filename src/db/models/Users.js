@@ -22,7 +22,20 @@ const DetailSchema = mongoose.Schema(
     avatar: field({ type: String }),
     fullName: field({ type: String }),
     position: field({ type: String }),
+    location: field({ type: String }),
+    description: field({ type: String }),
     twitterUsername: field({ type: String, optional: true }),
+  },
+  { _id: false },
+);
+
+const LinkSchema = mongoose.Schema(
+  {
+    linkedIn: field({ type: String }),
+    twitter: field({ type: String }),
+    facebook: field({ type: String }),
+    github: field({ type: String }),
+    website: field({ type: String }),
   },
   { _id: false },
 );
@@ -49,6 +62,7 @@ const UserSchema = mongoose.Schema({
   emailSignatures: field({ type: [EmailSignatureSchema] }),
   starredConversationIds: field({ type: [String] }),
   details: field({ type: DetailSchema }),
+  links: field({ type: LinkSchema }),
 });
 
 class User {
@@ -80,13 +94,13 @@ class User {
    * @param {Object} doc - user fields
    * @return {Promise} updated user info
    */
-  static async updateUser(_id, { username, email, password, role, details }) {
+  static async updateUser(_id, { username, email, password, role, details, links }) {
     await this.checkDuplications({
       userId: _id,
       twitterUsername: details.twitterUsername,
     });
 
-    const doc = { username, email, password, role, details };
+    const doc = { username, email, password, role, details, links };
 
     // change password
     if (password) {
@@ -108,8 +122,8 @@ class User {
    * @param {Object} doc - User profile information
    * @return {Promise} - Updated user
    */
-  static async editProfile(_id, { username, email, details }) {
-    await this.update({ _id }, { $set: { username, email, details } });
+  static async editProfile(_id, { username, email, details, links }) {
+    await this.update({ _id }, { $set: { username, email, details, links } });
 
     return this.findOne({ _id });
   }
@@ -150,7 +164,7 @@ class User {
   /*
    * Check duplications
    */
-  static async checkDuplications({ userId, twitterUsername }) {
+  static async checkDuplications({ userId, twitterUsername, links }) {
     if (twitterUsername) {
       const previousEntry = await Users.findOne({
         _id: { $ne: userId },
@@ -159,6 +173,20 @@ class User {
 
       if (previousEntry) {
         throw new Error('Duplicated twitter username');
+      }
+    }
+
+    // Checking if user links are duplicated
+    if (links) {
+      for (let link in links) {
+        const previousEntry = await Users.findOne({
+          _id: { $ne: userId },
+          [`links.${link}`]: links[link],
+        });
+
+        if (previousEntry) {
+          throw new Error('Duplicated ', link.charAt(0).toUppercase() + link.slice(1));
+        }
       }
     }
   }
