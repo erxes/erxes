@@ -12,7 +12,8 @@ const propTypes = {
   changeUser: PropTypes.func,
   users: PropTypes.array,
   method: PropTypes.string,
-  templates: PropTypes.array
+  templates: PropTypes.array,
+  changeTemplate: PropTypes.func
 };
 
 class Step3 extends Component {
@@ -55,6 +56,7 @@ class Step3 extends Component {
           changeUser={changeUser}
           users={users}
           templates={templates}
+          changeTemplate={this.props.changeTemplate}
         />
       );
     }

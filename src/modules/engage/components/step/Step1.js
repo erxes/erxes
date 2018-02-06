@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { ContentCenter, ButtonBox } from './Style';
+import { METHODS } from 'modules/engage/constants';
 
 const propTypes = {
   changeMethod: PropTypes.func,
@@ -12,8 +13,8 @@ class Step1 extends Component {
     return (
       <ContentCenter>
         <ButtonBox
-          selected={this.props.method === 'email'}
-          onClick={() => this.props.changeMethod('email')}
+          selected={this.props.method === METHODS.EMAIL}
+          onClick={() => this.props.changeMethod(METHODS.EMAIL)}
         >
           <span>Email</span>
           <div>
@@ -25,8 +26,8 @@ class Step1 extends Component {
           </div>
         </ButtonBox>
         <ButtonBox
-          selected={this.props.method === 'messenger'}
-          onClick={() => this.props.changeMethod('messenger')}
+          selected={this.props.method === METHODS.MESSENGER}
+          onClick={() => this.props.changeMethod(METHODS.MESSENGER)}
         >
           <span>Messenger</span>
           <div>

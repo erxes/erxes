@@ -27,6 +27,7 @@ class AutoAndManualForm extends Step {
       segment: '',
       message: '',
       fromUser: '',
+      template: '',
       messenger: {
         brandId: '',
         kind: '',
@@ -44,6 +45,7 @@ class AutoAndManualForm extends Step {
     this.changeEmail = this.changeEmail.bind(this);
     this.changeMessage = this.changeMessage.bind(this);
     this.changeUser = this.changeUser.bind(this);
+    this.changeTemplate = this.changeTemplate.bind(this);
   }
 
   generateDoc(e) {
@@ -72,6 +74,10 @@ class AutoAndManualForm extends Step {
     }
 
     return doc;
+  }
+
+  changeTemplate(template) {
+    this.setState({ template });
   }
 
   changeTitle(title) {
@@ -149,6 +155,7 @@ class AutoAndManualForm extends Step {
               users={this.props.users}
               method={this.state.method}
               templates={this.props.templates}
+              changeTemplate={this.changeTemplate}
             />
           )}
           {this.renderStep(
@@ -163,6 +170,8 @@ class AutoAndManualForm extends Step {
               save={this.save}
               saveLive={this.saveLive}
               saveDraft={this.saveDraft}
+              method={this.state.method}
+              template={this.state.template}
             />
           )}
         </StepContainer>

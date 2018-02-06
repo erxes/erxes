@@ -4,6 +4,9 @@ import styled from 'styled-components';
 import { colors } from 'modules/common/styles';
 import { MessengerPreview } from '../../containers';
 import { Button } from 'modules/common/components';
+import { METHODS, EMAIL_CONTENT_CLASS } from 'modules/engage/constants';
+import { EditorWrapper } from '../../styles';
+import ReactDom from 'react-dom';
 
 const Content = styled.div`
   display: flex;
@@ -33,7 +36,11 @@ const propTypes = {
   message: PropTypes.string,
   messenger: PropTypes.object,
   fromUser: PropTypes.string,
-  save: PropTypes.func
+  save: PropTypes.func,
+  saveLive: PropTypes.func,
+  saveDraft: PropTypes.func,
+  method: PropTypes.string,
+  template: PropTypes.string
 };
 
 class Step4 extends Component {
@@ -50,6 +57,15 @@ class Step4 extends Component {
     };
   }
 
+  componentDidUpdate(prevProps) {
+    if (
+      prevProps.template !== this.props.template ||
+      prevProps.message !== this.props.message
+    ) {
+      this.renderBuilder();
+    }
+  }
+
   componentDidMount() {
     if (this.props.messenger) {
       const messenger = {
@@ -61,7 +77,47 @@ class Step4 extends Component {
     }
   }
 
+  renderBuilder() {
+    const contentContainer = document.getElementsByClassName(
+      EMAIL_CONTENT_CLASS
+    );
+
+    // render editor to content
+    if (contentContainer.length > 0) {
+      ReactDom.render(
+        <div dangerouslySetInnerHTML={{ __html: this.props.message }} />,
+        contentContainer[0]
+      );
+    }
+    if (contentContainer.length > 1) {
+      ReactDom.render(
+        <div dangerouslySetInnerHTML={{ __html: this.props.message }} />,
+        contentContainer[1]
+      );
+    }
+  }
+
   render() {
+    let content = (
+      <MessengerPreview
+        sentAs={this.state.messenger.sentAs}
+        content={this.props.message}
+        fromUser={this.state.fromUser}
+      />
+    );
+
+    if (this.props.method === METHODS.EMAIL) {
+      if (this.props.template !== '') {
+        content = (
+          <EditorWrapper>
+            <div dangerouslySetInnerHTML={{ __html: this.props.template }} />
+          </EditorWrapper>
+        );
+      } else {
+        content = '';
+      }
+    }
+
     return (
       <Content>
         <ContentCenter>
@@ -86,13 +142,7 @@ class Step4 extends Component {
           </Button.Group>
         </ContentCenter>
         <Divider />
-        <ContentCenter>
-          <MessengerPreview
-            sentAs={this.state.messenger.sentAs}
-            content={this.props.message}
-            fromUser={this.state.fromUser}
-          />
-        </ContentCenter>
+        <ContentCenter>{content}</ContentCenter>
       </Content>
     );
   }

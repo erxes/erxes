@@ -42,7 +42,8 @@ const propTypes = {
   message: PropTypes.string,
   changeUser: PropTypes.func,
   users: PropTypes.array,
-  templates: PropTypes.array
+  templates: PropTypes.array,
+  changeTemplate: PropTypes.func
 };
 
 class EmailForm extends Component {
@@ -87,6 +88,7 @@ class EmailForm extends Component {
   templateChange(value) {
     this.changeContent('templateId', value);
     this.setState({ currentTemplate: this.findTemplate(value) });
+    this.props.changeTemplate(this.findTemplate(value));
   }
 
   findTemplate(id) {

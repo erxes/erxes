@@ -6,6 +6,7 @@ import { StepWrapper, TitleContainer, StepContainer } from './step/Style';
 import { FormControl } from 'modules/common/components';
 import Step from './step/Step';
 import VisitorStep1 from './step/VisitorStep1';
+import Step4 from './step/Step4';
 import { METHODS, MESSAGE_KINDS } from 'modules/engage/constants';
 
 const propTypes = {
@@ -26,6 +27,7 @@ class VisitorForm extends Step {
       message: message.content || '',
       fromUser: props.message.fromUserId || '',
       rules,
+      template: '',
       messenger: {
         brandId: message.brandId || '',
         sentAs: message.sentAs || ''
@@ -36,6 +38,7 @@ class VisitorForm extends Step {
     this.changeMessage = this.changeMessage.bind(this);
     this.changeUser = this.changeUser.bind(this);
     this.changeRules = this.changeRules.bind(this);
+    this.changeTemplate = this.changeTemplate.bind(this);
   }
 
   generateDoc(e) {
@@ -55,6 +58,10 @@ class VisitorForm extends Step {
     };
 
     return doc;
+  }
+
+  changeTemplate(template) {
+    this.setState({ template });
   }
 
   changeRules(rules) {
@@ -93,7 +100,8 @@ class VisitorForm extends Step {
         <StepContainer>
           {this.renderStep(
             1,
-            'Choose segment',
+            <img src="/images/icons/erxes-02.svg" alt="User" />,
+            'Who is this message for?',
             true,
             <VisitorStep1
               rules={this.state.rules}
@@ -102,8 +110,9 @@ class VisitorForm extends Step {
           )}
           {this.renderStep(
             2,
-            'Choose template',
-            false,
+            <img src="/images/icons/erxes-08.svg" alt="Email" />,
+            'Compose your message',
+            true,
             <MessengerForm
               brands={this.props.brands}
               changeMessenger={this.changeMessenger}
@@ -114,6 +123,23 @@ class VisitorForm extends Step {
               hasKind={false}
               messenger={this.state.messenger}
               fromUser={this.state.fromUser}
+              changeTemplate={this.changeTemplate}
+            />
+          )}
+          {this.renderStep(
+            3,
+            <img src="/images/icons/erxes-13.svg" alt="Email" />,
+            'You’re all set for lift off...',
+            false,
+            <Step4
+              message={this.state.message}
+              fromUser={this.state.fromUser}
+              messenger={this.state.messenger}
+              save={this.save}
+              saveLive={this.saveLive}
+              saveDraft={this.saveDraft}
+              template={this.state.template}
+              method={this.state.method}
             />
           )}
         </StepContainer>
