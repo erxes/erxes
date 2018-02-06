@@ -114,7 +114,7 @@ class Board extends React.Component {
   }
 
   render() {
-    return (
+    const content = (
       <DragDropContext onDragEnd={this.onDragEnd}>
         {Pipelines.map(pipeline => {
           return (
@@ -128,6 +128,8 @@ class Board extends React.Component {
         })}
       </DragDropContext>
     );
+
+    return content;
   }
 }
 

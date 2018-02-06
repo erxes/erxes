@@ -1,5 +1,11 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { Draggable } from 'react-beautiful-dnd';
+
+const propTypes = {
+  deal: PropTypes.object.isRequired,
+  index: PropTypes.number.isRequired
+};
 
 // using some little inline style helpers to make the app look okay
 const grid = 8;
@@ -42,5 +48,7 @@ class Deal extends React.Component {
     );
   }
 }
+
+Deal.propTypes = propTypes;
 
 export default Deal;

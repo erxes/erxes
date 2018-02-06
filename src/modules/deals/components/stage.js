@@ -1,7 +1,14 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { Draggable, Droppable } from 'react-beautiful-dnd';
 import Deal from './deal';
 import { Item } from '../styles';
+
+const propTypes = {
+  stage: PropTypes.object.isRequired,
+  deals: PropTypes.array.isRequired,
+  index: PropTypes.number.isRequired
+};
 
 class Stage extends React.Component {
   render() {
@@ -38,3 +45,5 @@ class Stage extends React.Component {
 }
 
 export default Stage;
+
+Stage.propTypes = propTypes;
