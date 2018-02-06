@@ -76,6 +76,11 @@ const BarItems = styled.div`
   > * + * {
     margin-left: ${dimensions.unitSpacing}px;
   }
+
+  input[type='text'] {
+    width: auto;
+    display: inline-block;
+  }
 `;
 
 const HeaderItems = styled.div`

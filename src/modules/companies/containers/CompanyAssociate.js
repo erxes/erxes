@@ -39,6 +39,10 @@ class CustomerAssociateContainer extends React.Component {
       });
     };
 
+    const clearState = () => {
+      companiesQuery.refetch({ searchValue: '' });
+    };
+
     // add company
     const addCompany = ({ doc, callback }) => {
       companiesAdd({
@@ -85,6 +89,7 @@ class CustomerAssociateContainer extends React.Component {
       save,
       perPage: this.state.perPage,
       form,
+      clearState,
       add: addCompany,
       datas: companiesQuery.companies || []
     };

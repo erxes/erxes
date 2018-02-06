@@ -42,7 +42,7 @@ class BasicInfo extends React.Component {
     const { customer } = newProps;
     const oldcustomer = this.props.customer;
     if (customer._id !== oldcustomer._id) {
-      this.setState({ editing: false });
+      this.cancelEditing();
     }
   }
 

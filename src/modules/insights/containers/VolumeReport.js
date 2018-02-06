@@ -24,11 +24,11 @@ const VolumeReportContainer = props => {
     brands: brandsQuery.brands || [],
     punch: punchCardQuery.insightsPunchCard || [],
     summary: data.summary || [],
-    isLoading:
-      volumePieChartQuery.loading ||
-      brandsQuery.loading ||
-      punchCardQuery.loading ||
-      mainQuery.loading
+    loading: {
+      main: mainQuery.loading,
+      insights: volumePieChartQuery.loading,
+      punch: punchCardQuery.loading
+    }
   };
 
   return <VolumeReport {...updatedProps} />;

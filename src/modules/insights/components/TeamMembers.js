@@ -1,13 +1,20 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Col, Row } from 'react-bootstrap';
+import { Spinner } from 'modules/common/components';
 import Chart from './Chart';
 import { convertTime } from '../utils';
-import { InsightUserData, UserProfile, FullName } from '../styles';
+import {
+  InsightUserData,
+  UserProfile,
+  FullName,
+  LoaderWrapper
+} from '../styles';
 
 const propTypes = {
   datas: PropTypes.array.isRequired,
-  width: PropTypes.number
+  width: PropTypes.number,
+  loading: PropTypes.bool
 };
 
 class TeamMembers extends React.Component {
@@ -38,7 +45,15 @@ class TeamMembers extends React.Component {
   }
 
   render() {
-    const { datas } = this.props;
+    const { datas, loading } = this.props;
+
+    if (loading) {
+      return (
+        <LoaderWrapper>
+          <Spinner objective />
+        </LoaderWrapper>
+      );
+    }
 
     return (
       <Row>{datas.map((data, index) => this.renderChart(data, index))}</Row>

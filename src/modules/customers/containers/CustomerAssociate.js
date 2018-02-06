@@ -31,12 +31,17 @@ class CustomerAssociateContainer extends React.Component {
       if (!loadmore) {
         this.setState({ perPage: 0 });
       }
-      this.setState({ perPage: this.state.perPage + 20 }, () => {
+
+      this.setState({ perPage: this.state.perPage + 20 }, () =>
         customersQuery.refetch({
           searchValue: value,
           perPage: this.state.perPage
-        });
-      });
+        })
+      );
+    };
+
+    const clearState = () => {
+      customersQuery.refetch({ searchValue: '' });
     };
 
     // add customer
@@ -82,6 +87,7 @@ class CustomerAssociateContainer extends React.Component {
       renderName: renderFullName,
       perPage: this.state.perPage,
       add: addCustomer,
+      clearState,
       datas: customersQuery.customers || []
     };
 

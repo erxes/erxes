@@ -1,11 +1,13 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { withRouter } from 'react-router';
 import { compose, graphql } from 'react-apollo';
 import gql from 'graphql-tag';
 import { Bulk } from 'modules/common/components';
 import { Alert } from 'modules/common/utils';
 import { KIND_CHOICES } from 'modules/settings/integrations/constants';
 import { TAG_TYPES } from 'modules/tags/constants';
+import { CUSTOMER_BASIC_INFO, CUSTOMER_DATAS } from '../constants';
 import { mutations, queries } from '../graphql';
 import { CustomersList } from '../components';
 
@@ -17,7 +19,10 @@ class CustomerListContainer extends Bulk {
       tagsQuery,
       customerCountsQuery,
       customersListConfigQuery,
-      customersAdd
+      customersAdd,
+      customersRemove,
+      customersMerge,
+      history
     } = this.props;
 
     let columnsConfig =
@@ -45,6 +50,41 @@ class CustomerListContainer extends Bulk {
         });
     };
 
+    const removeCustomers = ({ customerIds }) => {
+      customersRemove({
+        variables: { customerIds }
+      })
+        .then(() => {
+          this.emptyBulk();
+          customersQuery.refetch();
+          Alert.success('Success');
+          // callback();
+        })
+        .catch(e => {
+          Alert.error(e.message);
+        });
+    };
+
+    const mergeCustomers = ({ ids, data, callback }) => {
+      customersMerge({
+        variables: {
+          customerIds: ids,
+          customerFields: data
+        }
+      })
+        .then(data => {
+          Alert.success('Success');
+          customersQuery.refetch();
+          callback();
+          history.push(`/customers/details/${data.data.customersMerge._id}`);
+        })
+        .catch(e => {
+          Alert.error(e.message);
+        });
+    };
+
+    const searchValue = this.props.queryParams.searchValue || '';
+
     const updatedProps = {
       ...this.props,
       columnsConfig,
@@ -64,9 +104,13 @@ class CustomerListContainer extends Bulk {
       emptyBulk: this.emptyBulk,
       toggleBulk: this.toggleBulk,
       toggleAll: this.toggleAll,
+      searchValue,
       loading: customersQuery.loading,
       loadingTags: tagsQuery.loading,
-      addCustomer
+      addCustomer,
+      mergeCustomers,
+      removeCustomers,
+      basicInfos: Object.assign({}, CUSTOMER_BASIC_INFO, CUSTOMER_DATAS)
     };
 
     return <CustomersList {...updatedProps} />;
@@ -77,7 +121,8 @@ CustomerListContainer.propTypes = {
   customersQuery: PropTypes.object,
   tagsQuery: PropTypes.object,
   brandsQuery: PropTypes.object,
-  customerCountsQuery: PropTypes.object
+  customerCountsQuery: PropTypes.object,
+  history: PropTypes.object
 };
 
 export default compose(
@@ -90,7 +135,8 @@ export default compose(
           perPage: queryParams.perPage || 20,
           segment: queryParams.segment,
           tag: queryParams.tag,
-          ids: queryParams.ids
+          ids: queryParams.ids,
+          searchValue: queryParams.searchValue
         },
         notifyOnNetworkStatusChange: true
       };
@@ -104,7 +150,8 @@ export default compose(
         perPage: queryParams.perPage || 20,
         tag: queryParams.tag,
         segment: queryParams.segment,
-        ids: queryParams.ids
+        ids: queryParams.ids,
+        searchValue: queryParams.searchValue
       },
       notifyOnNetworkStatusChange: true
     })
@@ -133,5 +180,11 @@ export default compose(
   // mutations
   graphql(gql(mutations.customersAdd), {
     name: 'customersAdd'
+  }),
+  graphql(gql(mutations.customersRemove), {
+    name: 'customersRemove'
+  }),
+  graphql(gql(mutations.customersMerge), {
+    name: 'customersMerge'
   })
-)(CustomerListContainer);
+)(withRouter(CustomerListContainer));
