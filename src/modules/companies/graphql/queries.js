@@ -6,6 +6,12 @@ const companyFields = `
   website
   plan
   customFieldsData
+  tagIds
+  getTags {
+    _id
+    name
+    colorCode
+  }
 `;
 
 const listParamsDef = `
@@ -52,6 +58,16 @@ export const companyDetail = `
         email
         phone
       }
+    }
+  }
+`;
+
+const tags = `
+  query tags($type: String) {
+    tags(type: $type) {
+      _id
+      name
+      colorCode
     }
   }
 `;
@@ -111,6 +127,7 @@ export default {
   companyCounts,
   companyDetail,
   fields,
+  tags,
   companiesListConfig,
   activityLogsCompany
 };

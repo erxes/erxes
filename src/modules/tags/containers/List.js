@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { compose, gql, graphql } from 'react-apollo';
+import { compose, graphql } from 'react-apollo';
+import gql from 'graphql-tag';
 import { Alert, confirm } from 'modules/common/utils';
 import { List } from '../components';
 
@@ -30,7 +31,7 @@ const ListContainer = props => {
 
     mutation({ variables: doc })
       .then(() => {
-        Alert.success();
+        Alert.success('Successfully saved');
         tagsQuery.refetch();
         callback();
       })

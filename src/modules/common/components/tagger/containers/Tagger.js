@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { compose, gql, graphql } from 'react-apollo';
+import { compose, graphql } from 'react-apollo';
+import gql from 'graphql-tag';
 import Tagger from '../components/Tagger';
 
 const TaggerContainer = props => {
@@ -53,6 +54,12 @@ const tagMutation = gql`
   }
 `;
 
+const queries = {
+  customer: 'customers',
+  company: 'companies',
+  engageMessage: 'engageMessages'
+};
+
 export default compose(
   graphql(tagsQuery, {
     name: 'tagsQuery',
@@ -63,9 +70,7 @@ export default compose(
   graphql(tagMutation, {
     name: 'tagMutation',
     options: props => ({
-      refetchQueries: [
-        props.type !== 'customer' ? `${props.type}` : `${props.type}s`
-      ]
+      refetchQueries: [queries[props.type] || `${props.type}`]
     })
   })
 )(TaggerContainer);

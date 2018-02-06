@@ -8,18 +8,29 @@ import {
   CartesianGrid,
   Tooltip
 } from 'recharts';
-import { ChartWrapper } from '../styles';
+import { Spinner } from 'modules/common/components';
+import { ChartWrapper, LoaderWrapper } from '../styles';
 
 const propTypes = {
   data: PropTypes.array.isRequired,
+  loading: PropTypes.bool,
   width: PropTypes.number,
   height: PropTypes.number
 };
 
 class Chart extends React.Component {
   render() {
-    const { data, width, height } = this.props;
+    const { data, width, height, loading } = this.props;
     const textStyle = { textTransform: 'capitalize' };
+
+    if (loading) {
+      return (
+        <LoaderWrapper>
+          <Spinner objective />
+        </LoaderWrapper>
+      );
+    }
+
     return (
       <ChartWrapper>
         <AreaChart width={width} height={height} data={data}>

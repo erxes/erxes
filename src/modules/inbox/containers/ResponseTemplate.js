@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { compose, gql, graphql } from 'react-apollo';
+import { compose, graphql } from 'react-apollo';
+import gql from 'graphql-tag';
 import { ResponseTemplate } from '../components';
 import { mutations, queries } from '../graphql';
 
@@ -56,7 +57,9 @@ export default compose(
     options: {
       refetchQueries: [
         {
-          query: gql`${queries.responseTemplateList}`
+          query: gql`
+            ${queries.responseTemplateList}
+          `
         }
       ]
     }

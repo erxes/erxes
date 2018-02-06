@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { compose, gql, graphql } from 'react-apollo';
+import { compose, graphql } from 'react-apollo';
+import gql from 'graphql-tag';
 import { queries, mutations } from '../graphql';
 import { EditInformation } from '../components/detail/sidebar';
 import { Spinner } from 'modules/common/components';
@@ -53,7 +54,12 @@ EditInformationContainer.contextTypes = {
 
 const options = ({ customer }) => ({
   refetchQueries: [
-    { query: gql`${queries.customerDetail}`, variables: { _id: customer._id } }
+    {
+      query: gql`
+        ${queries.customerDetail}
+      `,
+      variables: { _id: customer._id }
+    }
   ]
 });
 
