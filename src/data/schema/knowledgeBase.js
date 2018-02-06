@@ -65,10 +65,11 @@ export const queries = `
   knowledgeBaseCategories(page: Int, perPage: Int): [KnowledgeBaseCategory]
   knowledgeBaseCategoryDetail(_id: String!): KnowledgeBaseCategory
   knowledgeBaseCategoriesTotalCount: Int
+  knowledgeBaseCategoriesGetLast: KnowledgeBaseCategory
 
-  knowledgeBaseArticles(page: Int, perPage: Int): [KnowledgeBaseArticle]
+  knowledgeBaseArticles(page: Int, perPage: Int, categoryId: String): [KnowledgeBaseArticle]
   knowledgeBaseArticleDetail(_id: String!): KnowledgeBaseArticle
-  knowledgeBaseArticlesTotalCount: Int
+  knowledgeBaseArticlesTotalCount(categoryId: String): Int
 `;
 
 export const mutations = `

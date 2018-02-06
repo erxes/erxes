@@ -7,15 +7,32 @@ import {
 import { moduleRequireLogin } from '../../permissions';
 import { paginate } from './utils';
 
+/*
+ * Articles list & total count helper
+ */
+const articlesQuery = async ({ categoryId }) => {
+  const query = {};
+
+  // filter articles by category id
+  if (categoryId) {
+    const category = await KnowledgeBaseCategories.findOne({ _id: categoryId });
+    query._id = { $in: category.articleIds || [] };
+  }
+
+  return query;
+};
+
 const knowledgeBaseQueries = {
   /**
    * Article list
    * @param {Object} args - Search params
    * @return {Promise} sorted article list
    */
-  knowledgeBaseArticles(root, args) {
-    const articles = paginate(KnowledgeBaseArticles.find({}), args);
-    return articles.sort({ createdDate: -1 });
+  async knowledgeBaseArticles(root, args) {
+    const query = await articlesQuery(args);
+    const articles = KnowledgeBaseArticles.find(query).sort({ createdDate: -1 });
+
+    return paginate(articles, args);
   },
 
   /**
@@ -32,8 +49,10 @@ const knowledgeBaseQueries = {
    * Total article count
    * @return {Promise} article count
    */
-  knowledgeBaseArticlesTotalCount() {
-    return KnowledgeBaseArticles.find({}).count();
+  async knowledgeBaseArticlesTotalCount(root, args) {
+    const query = await articlesQuery(args);
+
+    return KnowledgeBaseArticles.find(query).count();
   },
 
   /**
@@ -64,6 +83,13 @@ const knowledgeBaseQueries = {
    */
   knowledgeBaseCategoriesTotalCount() {
     return KnowledgeBaseCategories.find({}).count();
+  },
+
+  /**
+  * Get last category
+  */
+  knowledgeBaseCategoriesGetLast() {
+    return KnowledgeBaseCategories.findOne({}).sort({ createdDate: -1 });
   },
 
   /**
