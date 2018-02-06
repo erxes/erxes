@@ -3,6 +3,7 @@ import { rgba } from './color';
 // Core colors
 const colorPrimary = '#A389D4';
 const colorPrimaryDark = '#392a6f';
+const colorPrimaryLight = '#5629b6';
 const colorSecondary = '#04A9F5';
 const colorCoreRed = '#fd3259';
 const colorCoreTeal = '#24d5d8';
@@ -53,6 +54,7 @@ const socialTwitter = '#1da1f2';
 export default {
   colorPrimary,
   colorPrimaryDark,
+  colorPrimaryLight,
   colorSecondary,
   colorCoreRed,
   colorCoreTeal,

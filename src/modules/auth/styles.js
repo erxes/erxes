@@ -1,48 +1,66 @@
 import styled from 'styled-components';
+import { colors } from '../common/styles';
+import { lighten } from '../common/styles/color';
 
 const AuthBox = styled.div`
   background-color: #fff;
-  padding: 70px 60px;
+  padding: 50px;
   border-radius: 4px;
   box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
-
+  border-radius: 17px;
+  max-width: 490px;
+  margin: 0 auto;
+  .logo {
+    margin-bottom: 40px;
+    text-align: left;
+  }
   h2 {
     color: #6b60a6;
     font-size: 30px;
     font-weight: 400;
     margin: 0 0 50px;
   }
-
-  input {
-    border: 0;
-    border-bottom: 1px solid #ac8fdc;
-    padding: 0 0 6px;
-    color: #6b60a6;
-    border-radius: 0;
-    font-size: 16px;
-    outline: 0;
-    box-shadow: none;
-
-    &:focus {
+  .form-group {
+    margin-bottom: 10px;
+    .input-group-btn:first-child > .btn {
+      padding: 15px 20px;
+      min-width: 53px;
+      &:focus,
+      &:hover {
+        outline: 0;
+        background: transparent;
+        cursor: default;
+      }
+      i {
+        color: ${colors.colorPrimaryLight};
+      }
+    }
+    input {
       outline: 0;
       box-shadow: none;
-      border-color: #6b60a6;
-    }
+      padding: 15px 30px;
+      height: auto;
+      &:focus {
+        outline: 0;
+        box-shadow: none;
+        border-color: #6b60a6;
+      }
 
-    &:-webkit-autofill {
-      background: none;
+      &:-webkit-autofill {
+        background: none;
+      }
     }
   }
 
-  button {
+  button[type='submit'] {
     transition: background 0.2s ease;
-    background-color: #6b60a6;
+    background-color: ${colors.colorPrimaryLight};
     color: #fff;
     text-transform: uppercase;
     font-weight: 600;
-    margin-top: 50px;
     border: 0;
-
+    padding: 15px;
+    border-radius: 10px;
     &:hover,
     .active.focus,
     .active:focus,
@@ -50,15 +68,20 @@ const AuthBox = styled.div`
     :active.focus,
     :active:focus,
     :focus {
-      background-color: #8981b8;
+      background-color: ${lighten(colors.colorPrimary, 5)};
       color: #fff;
     }
   }
 `;
 
 const Links = styled.div`
-  margin-top: 70px;
+  padding: 15px 0 25px 0;
+  margin-bottom: 25px;
   text-align: center;
+  border-bottom: ${colors.borderDarker} solid 1px;
+  a {
+    color: ${colors.colorCoreBlack};
+  }
 `;
 
 const ProfileWrapper = styled.div`

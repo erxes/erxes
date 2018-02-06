@@ -299,49 +299,55 @@ const WhiteBox = WhiteBoxRoot.extend`
 `;
 
 const Authlayout = styled.div`
-  background: url('/images/sign-in.jpg') no-repeat;
-  background-size: cover;
+  background-image: url('/images/background/auth-layout-bg2.png'),
+    url('/images/background/auth-layout-bg.png');
+  background-repeat: repeat-x, no-repeat;
+  background-position: bottom, right top;
+  background-size: inherit, contain;
+  background-color: ${colors.colorPrimaryLight};
   height: 100%;
   overflow: hidden;
   position: relative;
   flex: 1;
-
-  &:before {
-    content: '';
-    background-color: rgba(69, 38, 121, 0.7);
-    position: absolute;
-    width: 100%;
-    height: 100%;
-  }
 `;
 
 const AuthContent = styled.div`
   position: relative;
   top: 50%;
   transform: translateY(-50%);
+  text-align: center;
+  font-family: 'Roboto', sans-serif;
+  a.go-to-home {
+    background-color: ${colors.colorWhite};
+    padding: 15px 35px;
+    color: ${colors.colorPrimaryLight};
+    float: right;
+    border-radius: 5px;
+    font-size: 12px;
+    font-weight: 900;
+    text-transform: uppercase;
+    margin-bottom: 50px;
+  }
 `;
 
 const AuthDescription = styled.div`
   margin-top: 60px;
-  img {
-    width: 100px;
-    margin-bottom: 50px;
-  }
+
   h1 {
-    font-weight: bold;
-    font-size: 32px;
-    margin-bottom: 30px;
+    font-size: 24px;
+    margin-bottom: 15px;
     color: ${colors.colorWhite};
+
+    font-weight: 900;
   }
   p {
-    color: ${colors.colorPrimary};
-    margin-bottom: 50px;
-    font-size: 16px;
+    color: ${colors.colorWhite};
+    margin-bottom: 55px;
+    font-size: 13px;
     line-height: 1.8em;
+    font-weight: 300;
   }
-  a {
-    color: ${colors.colorPrimary};
-  }
+
   .not-found {
     margin-top: 0;
   }
