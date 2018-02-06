@@ -17,7 +17,7 @@ class Step1 extends Component {
         >
           <span>Email</span>
           <div>
-            <img src="/images/icons/erxes-08.svg" alt="Email" />
+            <img src="/images/icons/erxes-07.svg" alt="Email" />
             <span>
               Delivered to a user s email inbox <br />Customize with your own
               templates
@@ -30,7 +30,7 @@ class Step1 extends Component {
         >
           <span>Messenger</span>
           <div>
-            <img src="/images/icons/erxes-08.svg" alt="Email" />
+            <img src="/images/icons/erxes-08.svg" alt="Messenger" />
             <span>
               Delivered inside your app<br />Reach active users
             </span>

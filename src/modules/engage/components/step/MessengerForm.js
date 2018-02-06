@@ -51,24 +51,25 @@ class MessengerForm extends Component {
   constructor(props) {
     super(props);
 
-    let messenger = {
-      brandId: '',
-      kind: '',
-      sentAs: ''
+    this.state = {
+      fromUser: this.props.fromUser || '',
+      messenger: {
+        brandId: '',
+        kind: '',
+        sentAs: ''
+      }
     };
+  }
 
-    if (props.messenger) {
-      messenger = {
+  componentDidMount() {
+    if (this.props.messenger) {
+      const messenger = {
         brandId: this.props.messenger.brandId || '',
         kind: '',
         sentAs: this.props.messenger.sentAs || ''
       };
+      this.setState({ messenger });
     }
-
-    this.state = {
-      fromUser: this.props.fromUser || '',
-      messenger
-    };
   }
 
   changeContent(key, value) {

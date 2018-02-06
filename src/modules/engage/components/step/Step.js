@@ -20,6 +20,14 @@ const propTypes = {
 };
 
 class Step extends Component {
+  constructor(props) {
+    super(props);
+
+    this.save = this.save.bind(this);
+    this.saveLive = this.saveLive.bind(this);
+    this.saveDraft = this.saveDraft.bind(this);
+  }
+
   showStep(step) {
     this.setState({ step });
   }
@@ -51,27 +59,8 @@ class Step extends Component {
     return breadcrumb;
   }
 
-  renderStep(step, title, hasNext, content) {
-    let next = (
-      <Button.Group>
-        <Button
-          btnStyle="warning"
-          size="small"
-          icon="plus"
-          onClick={e => this.saveDraft(e)}
-        >
-          Save & Draft
-        </Button>
-        <Button
-          btnStyle="primary"
-          size="small"
-          icon="plus"
-          onClick={e => this.saveLive(e)}
-        >
-          Save & Live
-        </Button>
-      </Button.Group>
-    );
+  renderStep(step, img, title, hasNext, content) {
+    let next = '';
 
     if (hasNext) {
       next = (
@@ -97,9 +86,7 @@ class Step extends Component {
         <FullStep show={show}>
           <StepHeaderContainer>
             <StepHeader>
-              <StepImg>
-                <img src="/images/icons/erxes-08.svg" alt="Email" />
-              </StepImg>
+              <StepImg>{img}</StepImg>
               <StepHeaderTitle>{title}</StepHeaderTitle>
             </StepHeader>
             {next}
@@ -107,9 +94,7 @@ class Step extends Component {
           <StepContent>{content}</StepContent>
         </FullStep>
         <ShortStep show={!show} onClick={() => this.showStep(step)}>
-          <StepImg>
-            <img src="/images/icons/erxes-08.svg" alt="Email" />
-          </StepImg>
+          <StepImg>{img}</StepImg>
         </ShortStep>
       </StepItem>
     );

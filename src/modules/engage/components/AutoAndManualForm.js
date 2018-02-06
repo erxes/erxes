@@ -7,6 +7,7 @@ import Step from './step/Step';
 import Step1 from './step/Step1';
 import Step2 from './step/Step2';
 import Step3 from './step/Step3';
+import Step4 from './step/Step4';
 
 const propTypes = {
   segments: PropTypes.array.isRequired,
@@ -113,7 +114,8 @@ class AutoAndManualForm extends Step {
         <StepContainer>
           {this.renderStep(
             1,
-            'Choose email',
+            <img src="/images/icons/erxes-05.svg" alt="Channel" />,
+            'Choose channel',
             true,
             <Step1
               changeMethod={this.changeMethod}
@@ -122,7 +124,8 @@ class AutoAndManualForm extends Step {
           )}
           {this.renderStep(
             2,
-            'Choose segment',
+            <img src="/images/icons/erxes-02.svg" alt="User" />,
+            'Who is this message for?',
             true,
             <Step2
               changeSegment={this.changeSegment}
@@ -133,8 +136,9 @@ class AutoAndManualForm extends Step {
           )}
           {this.renderStep(
             3,
-            'Choose template',
-            false,
+            <img src="/images/icons/erxes-08.svg" alt="Email" />,
+            'Compose your message',
+            true,
             <Step3
               brands={this.props.brands}
               changeMessenger={this.changeMessenger}
@@ -145,6 +149,20 @@ class AutoAndManualForm extends Step {
               users={this.props.users}
               method={this.state.method}
               templates={this.props.templates}
+            />
+          )}
+          {this.renderStep(
+            4,
+            <img src="/images/icons/erxes-13.svg" alt="Email" />,
+            'You’re all set for lift off...',
+            false,
+            <Step4
+              message={this.state.message}
+              fromUser={this.state.fromUser}
+              messenger={this.state.messenger}
+              save={this.save}
+              saveLive={this.saveLive}
+              saveDraft={this.saveDraft}
             />
           )}
         </StepContainer>

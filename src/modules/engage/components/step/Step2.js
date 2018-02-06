@@ -73,7 +73,6 @@ class Step2 extends Component {
   changeSegment(segment) {
     this.setState({ segment });
     this.props.changeSegment(segment);
-    console.log(this.state.segment);
   }
 
   segmentPush(segment) {
