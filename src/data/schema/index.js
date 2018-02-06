@@ -88,6 +88,8 @@ import {
   mutations as ActivityLogMutations,
 } from './activityLog';
 
+import { types as DealTypes, queries as DealQueries, mutations as DealMutations } from './deals';
+
 export const types = `
   scalar JSON
   scalar Date
@@ -111,6 +113,7 @@ export const types = `
   ${InsightTypes}
   ${KnowledgeBaseTypes}
   ${NotificationTypes}
+  ${DealTypes}
 `;
 
 export const queries = `
@@ -134,6 +137,7 @@ export const queries = `
     ${KnowledgeBaseQueries}
     ${NotificationQueries}
     ${ActivityLogQueries}
+    ${DealQueries}
   }
 `;
 
@@ -157,6 +161,7 @@ export const mutations = `
     ${KnowledgeBaseMutations}
     ${NotificationMutations}
     ${ActivityLogMutations}
+    ${DealMutations}
   }
 `;
 
