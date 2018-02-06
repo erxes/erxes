@@ -11,7 +11,7 @@ const StepWrapper = styled.div`
 const TitleContainer = styled.div`
   display: flex;
   align-items: center;
-  margin-bottom: ${dimensions.coreSpacing}px;
+  margin-bottom: 5px;
   padding: 10px;
   background: ${colors.colorWhite};
 
@@ -24,7 +24,7 @@ const StepContainer = styled.div`
   display: flex;
   height: 100%;
   > *:nth-child(n + 2) {
-    margin-left: ${dimensions.coreSpacing}px;
+    margin-left: 5px;
   }
 `;
 
@@ -56,14 +56,16 @@ const StepHeader = styled.div`
   align-items: center;
 `;
 
-const StepNumber = styled.div`
-  background: ${colors.colorPrimaryDark};
-  color: ${colors.colorWhite};
-  border-radius: 100%;
-  text-align: center;
-  line-height: 35px;
+const StepImg = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
   height: 35px;
   width: 35px;
+  > img {
+    max-width: 100%;
+    max-height: 100%;
+  }
 `;
 
 const StepHeaderTitle = styled.div`
@@ -74,6 +76,7 @@ const StepContent = styled.div`
   width: 100%;
   height: calc(100% - 55px);
   padding: ${dimensions.unitSpacing}px;
+  overflow: hidden;
 `;
 
 const ShortStep = styled.div`
@@ -82,8 +85,9 @@ const ShortStep = styled.div`
   background: ${colors.bgLight};
   cursor: pointer;
   display: ${props => (props.show ? 'flex' : 'none')};
-  justify-content: center;
+  align-items: center;
   padding: 10px 0;
+  flex-direction: column;
 `;
 
 const ContentCenter = styled.div`
@@ -137,6 +141,10 @@ const ButtonBox = styled.div`
   }
 `;
 
+const StepStatus = styled.div`
+  margin-top: 20px;
+`;
+
 export {
   StepWrapper,
   TitleContainer,
@@ -145,10 +153,11 @@ export {
   FullStep,
   StepHeaderContainer,
   StepHeader,
-  StepNumber,
+  StepImg,
   StepHeaderTitle,
   StepContent,
   ShortStep,
+  StepStatus,
   ContentCenter,
   ButtonBox
 };

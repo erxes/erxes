@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { compose, graphql } from 'react-apollo';
 import gql from 'graphql-tag';
-import { Step } from '../components';
+import { AutoAndManualForm } from '../components';
 import { queries } from '../graphql';
 import withFormMutations from './withFormMutations';
 
@@ -17,16 +17,24 @@ const AutoAndManualFormContainer = props => {
     bySegment: {},
     byTag: {}
   };
-  const counts = customerCounts.bySegment || {};
+
+  let counts = customerCounts.bySegment || {};
+  let segments = segmentsQuery.segments || [];
+
+  const segmentPush = () => {
+    segments = segmentsQuery.refetch();
+    counts = customerCountsQuery.refetch();
+  };
 
   const updatedProps = {
     ...props,
-    segments: segmentsQuery.segments || [],
+    segmentPush,
+    segments,
     templates: emailTemplatesQuery.emailTemplates || [],
     counts
   };
 
-  return <Step {...updatedProps} />;
+  return <AutoAndManualForm {...updatedProps} />;
 };
 
 AutoAndManualFormContainer.propTypes = {

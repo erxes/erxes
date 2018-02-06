@@ -1,20 +1,9 @@
-import React, { Component } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import { Wrapper } from 'modules/layout/components';
-import {
-  StepWrapper,
-  TitleContainer,
-  StepContainer,
-  StepItem,
-  FullStep,
-  StepHeaderContainer,
-  StepHeader,
-  StepNumber,
-  StepHeaderTitle,
-  StepContent,
-  ShortStep
-} from './step/Style';
-import { FormControl, Button } from 'modules/common/components';
+import { StepWrapper, TitleContainer, StepContainer } from './step/Style';
+import { FormControl } from 'modules/common/components';
+import Step from './step/Step';
 import Step1 from './step/Step1';
 import Step2 from './step/Step2';
 import Step3 from './step/Step3';
@@ -22,14 +11,11 @@ import Step3 from './step/Step3';
 const propTypes = {
   segments: PropTypes.array.isRequired,
   templates: PropTypes.array,
-  brands: PropTypes.array,
   counts: PropTypes.object,
-  users: PropTypes.array,
-  save: PropTypes.func,
-  kind: PropTypes.string
+  segmentPush: PropTypes.func
 };
 
-class Step extends Component {
+class AutoAndManualForm extends Step {
   constructor(props) {
     super(props);
 
@@ -50,6 +36,7 @@ class Step extends Component {
         subject: ''
       }
     };
+
     this.changeMethod = this.changeMethod.bind(this);
     this.changeSegment = this.changeSegment.bind(this);
     this.changeMessenger = this.changeMessenger.bind(this);
@@ -114,98 +101,8 @@ class Step extends Component {
     this.setState({ segment });
   }
 
-  showStep(step) {
-    this.setState({ step });
-  }
-
-  saveLive(e) {
-    const doc = this.generateDoc(e);
-    this.props.save({ isLive: true, isDraft: false, ...doc });
-  }
-
-  saveDraft(e) {
-    const doc = this.generateDoc(e);
-    this.props.save({ isLive: false, isDraft: true, ...doc });
-  }
-
-  renderStep(step, title, hasNext, content) {
-    let next = (
-      <Button.Group>
-        <Button
-          btnStyle="warning"
-          size="small"
-          icon="plus"
-          onClick={e => this.saveDraft(e)}
-        >
-          Save & Draft
-        </Button>
-        <Button
-          btnStyle="primary"
-          size="small"
-          icon="plus"
-          onClick={e => this.saveLive(e)}
-        >
-          Save & Live
-        </Button>
-      </Button.Group>
-    );
-
-    if (hasNext) {
-      next = (
-        <Button
-          btnStyle="default"
-          size="small"
-          icon="ios-arrow-forward"
-          onClick={() => this.showStep(step + 1)}
-        >
-          Next
-        </Button>
-      );
-    }
-
-    let show = false;
-
-    if (this.state.step === step) {
-      show = true;
-    }
-
-    return (
-      <StepItem show={show}>
-        <FullStep show={show}>
-          <StepHeaderContainer>
-            <StepHeader>
-              <StepNumber>{step}</StepNumber>
-              <StepHeaderTitle>{title}</StepHeaderTitle>
-            </StepHeader>
-            {next}
-          </StepHeaderContainer>
-          <StepContent>{content}</StepContent>
-        </FullStep>
-        <ShortStep show={!show} onClick={() => this.showStep(step)}>
-          <StepNumber>{step}</StepNumber>
-        </ShortStep>
-      </StepItem>
-    );
-  }
-
-  renderTitle() {
-    const { kind } = this.props;
-
-    if (kind === 'auto') {
-      return 'Auto message';
-    } else if (kind === 'manual') {
-      return 'Manual message';
-    }
-
-    return 'Visitor auto message';
-  }
-
   render() {
-    const breadcrumb = [
-      { title: 'Engage', link: '/engage' },
-      { title: this.renderTitle() }
-    ];
-
+    const breadcrumb = this.renderTitle();
     return (
       <StepWrapper>
         <Wrapper.Header breadcrumb={breadcrumb} />
@@ -231,6 +128,7 @@ class Step extends Component {
               changeSegment={this.changeSegment}
               segments={this.props.segments}
               counts={this.props.counts}
+              segmentPush={this.props.segmentPush}
             />
           )}
           {this.renderStep(
@@ -255,6 +153,6 @@ class Step extends Component {
   }
 }
 
-Step.propTypes = propTypes;
+AutoAndManualForm.propTypes = propTypes;
 
-export default Step;
+export default AutoAndManualForm;

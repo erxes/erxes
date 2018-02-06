@@ -7,7 +7,8 @@ import { Segmentli } from '../styles';
 const propTypes = {
   segments: PropTypes.array.isRequired,
   changeSegments: PropTypes.func.isRequired,
-  counts: PropTypes.object
+  counts: PropTypes.object,
+  defaultValue: PropTypes.string
 };
 
 class Segments extends Component {
@@ -20,7 +21,11 @@ class Segments extends Component {
 
     this.onClickSegment = this.onClickSegment.bind(this);
   }
-
+  componentDidMount() {
+    if (this.props.defaultValue !== '') {
+      this.setState({ chosenSegment: this.props.defaultValue });
+    }
+  }
   onClickSegment(segmentId) {
     if (segmentId === this.state.chosenSegment) {
       this.setState({ chosenSegment: '' });

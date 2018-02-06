@@ -13,7 +13,8 @@ const SegmentsFormContainer = props => {
     headSegmentsQuery,
     combinedFieldsQuery,
     segmentsAdd,
-    customerCounts
+    customerCounts,
+    segmentPush
   } = props;
 
   if (
@@ -36,8 +37,8 @@ const SegmentsFormContainer = props => {
   const headSegments = headSegmentsQuery.segmentsGetHeads;
 
   const create = ({ doc }) => {
-    segmentsAdd({ variables: { ...doc } }).then(data => {
-      console.log(data);
+    segmentsAdd({ variables: { ...doc } }).then(({ data }) => {
+      segmentPush(data.segmentsAdd);
       Alert.success('Success');
     });
   };
@@ -66,7 +67,8 @@ SegmentsFormContainer.propTypes = {
   headSegmentsQuery: PropTypes.object,
   combinedFieldsQuery: PropTypes.object,
   segmentsAdd: PropTypes.func,
-  customerCounts: PropTypes.object
+  customerCounts: PropTypes.object,
+  segmentPush: PropTypes.func
 };
 
 export default compose(

@@ -45,7 +45,8 @@ const Show = styled.div`
 const propTypes = {
   changeSegment: PropTypes.func,
   segments: PropTypes.array,
-  counts: PropTypes.object
+  counts: PropTypes.object,
+  segmentPush: PropTypes.func
 };
 
 class Step2 extends Component {
@@ -58,19 +59,27 @@ class Step2 extends Component {
     };
 
     this.changeSegment = this.changeSegment.bind(this);
+    this.segmentPush = this.segmentPush.bind(this);
   }
 
   createSegment(createSegment) {
     this.setState({ createSegment });
 
-    if (!createSegment) {
-      this.setState({ segment: '' });
+    if (createSegment === true) {
+      this.changeSegment('');
     }
   }
 
   changeSegment(segment) {
     this.setState({ segment });
     this.props.changeSegment(segment);
+    console.log(this.state.segment);
+  }
+
+  segmentPush(segment) {
+    this.props.segmentPush(segment);
+    this.setState({ segment: segment._id });
+    this.createSegment(false);
   }
 
   render() {
@@ -82,6 +91,7 @@ class Step2 extends Component {
           segments={this.props.segments}
           changeSegments={this.changeSegment}
           counts={this.props.counts}
+          defaultValue={this.state.segment}
         />
       );
     }
@@ -94,6 +104,7 @@ class Step2 extends Component {
               onChange={() => this.createSegment(false)}
               name="createSegment"
               value={false}
+              checked={this.state.createSegment === false}
               defaultChecked={true}
             >
               Choose segment
@@ -102,6 +113,7 @@ class Step2 extends Component {
               componentClass="radio"
               onChange={() => this.createSegment(true)}
               name="createSegment"
+              checked={this.state.createSegment === true}
               value={true}
             >
               Create segment
@@ -109,7 +121,7 @@ class Step2 extends Component {
           </RadioContainer>
           {segments}
           <Show show={show}>
-            <SegmentsForm />
+            <SegmentsForm segmentPush={this.segmentPush} />
           </Show>
         </FormContainer>
         <Divider />

@@ -1,50 +1,34 @@
-import React, { Component } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import { Wrapper } from 'modules/layout/components';
 import MessengerForm from './step/MessengerForm';
-import {
-  StepWrapper,
-  TitleContainer,
-  StepContainer,
-  StepItem,
-  FullStep,
-  StepHeaderContainer,
-  StepHeader,
-  StepNumber,
-  StepHeaderTitle,
-  StepContent,
-  ShortStep
-} from './step/Style';
-import { FormControl, Button } from 'modules/common/components';
+import { StepWrapper, TitleContainer, StepContainer } from './step/Style';
+import { FormControl } from 'modules/common/components';
+import Step from './step/Step';
 import VisitorStep1 from './step/VisitorStep1';
 import { METHODS, MESSAGE_KINDS } from 'modules/engage/constants';
 
 const propTypes = {
-  brands: PropTypes.array,
-  users: PropTypes.array,
-  save: PropTypes.func,
-  kind: PropTypes.string,
   message: PropTypes.object
 };
 
-class Step extends Component {
+class VisitorForm extends Step {
   constructor(props) {
     super(props);
 
-    const rules = props.message.messenger.rules
-      ? props.message.messenger.rules.map(rule => ({ ...rule }))
-      : [];
+    const message = props.message.messenger ? props.message.messenger : {};
+    const rules = message.rules ? message.rules.map(rule => ({ ...rule })) : [];
 
     this.state = {
       step: 1,
       method: METHODS.MESSENGER,
       title: props.message.title || '',
-      message: props.message.messenger.content || '',
+      message: message.content || '',
       fromUser: props.message.fromUserId || '',
       rules,
       messenger: {
-        brandId: props.message.messenger.brandId || '',
-        sentAs: props.message.messenger.sentAs || ''
+        brandId: message.brandId || '',
+        sentAs: message.sentAs || ''
       }
     };
 
@@ -93,118 +77,8 @@ class Step extends Component {
     this.setState({ message });
   }
 
-  showStep(step) {
-    this.setState({ step });
-  }
-
-  save(e) {
-    const doc = this.generateDoc(e);
-    this.props.save(doc);
-  }
-
-  saveLive(e) {
-    const doc = this.generateDoc(e);
-    this.props.save({ isLive: true, isDraft: false, ...doc });
-  }
-
-  saveDraft(e) {
-    const doc = this.generateDoc(e);
-    this.props.save({ isLive: false, isDraft: true, ...doc });
-  }
-
-  renderStep(step, title, hasNext, content) {
-    const message = this.props.message._id;
-
-    let next = (
-      <Button.Group>
-        <Button
-          btnStyle="warning"
-          size="small"
-          icon="plus"
-          onClick={e => this.saveDraft(e)}
-        >
-          Save & Draft
-        </Button>
-        <Button
-          btnStyle="primary"
-          size="small"
-          icon="plus"
-          onClick={e => this.saveLive(e)}
-        >
-          Save & Live
-        </Button>
-      </Button.Group>
-    );
-
-    if (hasNext) {
-      next = (
-        <Button
-          btnStyle="default"
-          size="small"
-          icon="ios-arrow-forward"
-          onClick={() => this.showStep(step + 1)}
-        >
-          Next
-        </Button>
-      );
-    }
-
-    if (!hasNext && message) {
-      next = (
-        <Button
-          size="small"
-          btnStyle="success"
-          onClick={e => this.save(e)}
-          icon="checkmark"
-        >
-          Save
-        </Button>
-      );
-    }
-
-    let show = false;
-
-    if (this.state.step === step) {
-      show = true;
-    }
-
-    return (
-      <StepItem show={show}>
-        <FullStep show={show}>
-          <StepHeaderContainer>
-            <StepHeader>
-              <StepNumber>{step}</StepNumber>
-              <StepHeaderTitle>{title}</StepHeaderTitle>
-            </StepHeader>
-            {next}
-          </StepHeaderContainer>
-          <StepContent>{content}</StepContent>
-        </FullStep>
-        <ShortStep show={!show} onClick={() => this.showStep(step)}>
-          <StepNumber>{step}</StepNumber>
-        </ShortStep>
-      </StepItem>
-    );
-  }
-
-  renderTitle() {
-    const { kind } = this.props;
-
-    if (kind === 'auto') {
-      return 'Auto message';
-    } else if (kind === 'manual') {
-      return 'Manual message';
-    }
-
-    return 'Visitor auto message';
-  }
-
   render() {
-    const breadcrumb = [
-      { title: 'Engage', link: '/engage' },
-      { title: this.renderTitle() }
-    ];
-
+    const breadcrumb = this.renderTitle();
     return (
       <StepWrapper>
         <Wrapper.Header breadcrumb={breadcrumb} />
@@ -248,6 +122,6 @@ class Step extends Component {
   }
 }
 
-Step.propTypes = propTypes;
+VisitorForm.propTypes = propTypes;
 
-export default Step;
+export default VisitorForm;

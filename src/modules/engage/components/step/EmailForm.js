@@ -129,6 +129,12 @@ class EmailForm extends Component {
       <Content>
         <FlexItem>
           <FormGroup>
+            <ControlLabel>Message:</ControlLabel>
+            <EditorWrapper>
+              <Editor onChange={this.props.changeMessage} />
+            </EditorWrapper>
+          </FormGroup>
+          <FormGroup>
             <ControlLabel>From:</ControlLabel>
             <FormControl
               componentClass="select"
@@ -161,12 +167,6 @@ class EmailForm extends Component {
                 </option>
               ))}
             </FormControl>
-          </FormGroup>
-          <FormGroup>
-            <ControlLabel>Message:</ControlLabel>
-            <EditorWrapper>
-              <Editor onChange={this.props.changeMessage} />
-            </EditorWrapper>
           </FormGroup>
         </FlexItem>
         <Divider />

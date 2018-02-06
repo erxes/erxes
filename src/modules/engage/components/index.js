@@ -1,7 +1,7 @@
 import MessageList from './MessageList';
 import MessageListRow from './MessageListRow';
 import MessageForm from './MessageForm';
-import Step from './Step';
+import AutoAndManualForm from './AutoAndManualForm';
 import VisitorForm from './VisitorForm';
 import Widget from './Widget';
 import MessengerPreview from './MessengerPreview';
@@ -20,6 +20,6 @@ export {
   Widget,
   MessengerPreview,
   Sidebar,
-  Step,
+  AutoAndManualForm,
   SegmentsForm
 };

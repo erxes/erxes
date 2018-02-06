@@ -51,15 +51,24 @@ class MessengerForm extends Component {
   constructor(props) {
     super(props);
 
-    this.state = {
-      fromUser: this.props.fromUser || '',
-      messenger: {
+    let messenger = {
+      brandId: '',
+      kind: '',
+      sentAs: ''
+    };
+
+    if (props.messenger) {
+      messenger = {
         brandId: this.props.messenger.brandId || '',
         kind: '',
         sentAs: this.props.messenger.sentAs || ''
-      }
+      };
+    }
+
+    this.state = {
+      fromUser: this.props.fromUser || '',
+      messenger
     };
-    console.log(this.state.fromUser);
   }
 
   changeContent(key, value) {
@@ -97,6 +106,15 @@ class MessengerForm extends Component {
     return (
       <Content>
         <FlexItem>
+          <FormGroup>
+            <ControlLabel>Message:</ControlLabel>
+            <EditorWrapper>
+              <Editor
+                onChange={this.props.changeMessage}
+                defaultValue={this.props.message}
+              />
+            </EditorWrapper>
+          </FormGroup>
           <FormGroup>
             <ControlLabel>From:</ControlLabel>
             <FormControl
@@ -142,15 +160,6 @@ class MessengerForm extends Component {
                 </option>
               ))}
             </FormControl>
-          </FormGroup>
-          <FormGroup>
-            <ControlLabel>Message:</ControlLabel>
-            <EditorWrapper>
-              <Editor
-                onChange={this.props.changeMessage}
-                defaultValue={this.props.message}
-              />
-            </EditorWrapper>
           </FormGroup>
         </FlexItem>
         <Divider />
