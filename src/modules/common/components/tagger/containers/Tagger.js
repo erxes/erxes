@@ -54,6 +54,12 @@ const tagMutation = gql`
   }
 `;
 
+const queries = {
+  customer: 'customers',
+  company: 'companies',
+  engageMessage: 'engageMessages'
+};
+
 export default compose(
   graphql(tagsQuery, {
     name: 'tagsQuery',
@@ -64,9 +70,7 @@ export default compose(
   graphql(tagMutation, {
     name: 'tagMutation',
     options: props => ({
-      refetchQueries: [
-        props.type !== 'customer' ? `${props.type}` : `${props.type}s`
-      ]
+      refetchQueries: [queries[props.type] || `${props.type}`]
     })
   })
 )(TaggerContainer);

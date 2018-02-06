@@ -13,7 +13,11 @@ function Sidebar() {
         <Title>Insights</Title>
         <SidebarList>
           <li>
-            <NavLink activeClassName="active" exact to="/insights">
+            <NavLink
+              activeClassName="active"
+              exact
+              to="/insights/volume-report"
+            >
               Volume Report
             </NavLink>
           </li>

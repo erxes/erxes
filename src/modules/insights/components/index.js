@@ -1,3 +1,4 @@
+import InsightPage from './InsightPage';
 import Insights from './Insights';
 import TeamMembers from './TeamMembers';
 import PunchCard from './PunchCard';
@@ -11,6 +12,7 @@ import FirstResponse from './FirstResponse';
 import ResponseCloseReport from './ResponseCloseReport';
 
 export {
+  InsightPage,
   Insights,
   TeamMembers,
   PunchCard,

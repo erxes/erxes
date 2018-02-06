@@ -55,6 +55,12 @@ class FilterableList extends Component {
     if (onExit) onExit(this.state.items);
   }
 
+  componentWillReceiveProps(nextProps) {
+    this.setState({
+      items: nextProps.items
+    });
+  }
+
   filterItems(e) {
     this.setState({ key: e.target.value });
   }
