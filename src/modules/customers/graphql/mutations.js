@@ -53,9 +53,25 @@ const customersEditCompanies = `
   }
 `;
 
+const customersRemove = `
+  mutation customersRemove($customerIds: [String]) {
+    customersRemove(customerIds: $customerIds)
+  }
+`;
+
+const customersMerge = `
+  mutation customersMerge($customerIds: [String], $customerFields: JSON) {
+    customersMerge(customerIds: $customerIds, customerFields: $customerFields) {
+      _id
+    }
+  }
+`;
+
 export default {
   customersAdd,
   customersEdit,
   customersAddCompany,
-  customersEditCompanies
+  customersEditCompanies,
+  customersRemove,
+  customersMerge
 };

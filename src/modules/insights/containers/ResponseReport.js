@@ -23,8 +23,10 @@ const ResponseReportContainer = props => {
     brands: brandsQuery.brands || [],
     punch: punchCardQuery.insightsPunchCard || [],
     summary: data.summary || [],
-    isLoading:
-      brandsQuery.loading || punchCardQuery.loading || mainQuery.loading
+    loading: {
+      main: mainQuery.loading,
+      punch: punchCardQuery.loading
+    }
   };
 
   return <ResponseReport {...updatedProps} />;

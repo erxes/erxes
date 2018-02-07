@@ -6,7 +6,8 @@ import { QuickButton, SidebarList } from 'modules/layout/styles';
 import { EmptyState, Tagger, Icon } from 'modules/common/components';
 
 const propTypes = {
-  customer: PropTypes.object.isRequired
+  data: PropTypes.object.isRequired,
+  type: PropTypes.string.isRequired
 };
 
 class TaggerSection extends Component {
@@ -40,8 +41,8 @@ class TaggerSection extends Component {
   }
 
   render() {
-    const { customer } = this.props;
-    const tags = customer.getTags;
+    const { data, type } = this.props;
+    const tags = data.getTags || [];
     const { Title, QuickButtons } = Sidebar.Section;
     return (
       <Sidebar.Section>
@@ -56,8 +57,8 @@ class TaggerSection extends Component {
         <Collapse in={this.state.isTaggerVisible}>
           <div>
             <Tagger
-              type="customer"
-              targets={[customer]}
+              type={type}
+              targets={[data]}
               className="sidebar-accordion"
               event="onClick"
             />

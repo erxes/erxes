@@ -18,7 +18,8 @@ const propTypes = {
   form: PropTypes.node.isRequired,
   title: PropTypes.string.isRequired,
   renderName: PropTypes.func.isRequired,
-  perPage: PropTypes.number.isRequired
+  perPage: PropTypes.number.isRequired,
+  clearState: PropTypes.func.isRequired
 };
 
 const contextTypes = {
@@ -55,7 +56,7 @@ class CommonAssociate extends Component {
   }
 
   componentWillUnmount() {
-    this.props.search('');
+    this.props.clearState();
   }
 
   componentWillReceiveProps(newProps) {
