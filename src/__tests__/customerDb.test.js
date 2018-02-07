@@ -218,13 +218,6 @@ describe('Customers model tests', () => {
 
     const mergedTagIds = Array.from(new Set(testCustomer.tagIds.concat(testCustomer2.tagIds)));
 
-    // checking length validation
-    try {
-      await Customers.mergeCustomers(['123', '123', '123'], {});
-    } catch (e) {
-      expect(e.message).toBe('You can only merge 2 customers at a time');
-    }
-
     // test duplication
     try {
       await Customers.mergeCustomers(customerIds, { twitterData: _customer.twitterData });
