@@ -71,7 +71,8 @@ class UserCommonInfos extends Component {
   }
 
   render() {
-    const user = this.props.user;
+    const { user = {} } = this.props;
+    const { details = {}, links = {} } = user;
     const { avatarPreviewStyle, avatarPreviewUrl } = this.state;
 
     return (
@@ -93,7 +94,7 @@ class UserCommonInfos extends Component {
             <FormControl
               type="text"
               id="fullName"
-              defaultValue={user.details.fullName}
+              defaultValue={details.fullName || ''}
             />
           </FormGroup>
           <FormGroup>
@@ -114,7 +115,7 @@ class UserCommonInfos extends Component {
               type="text"
               id="description"
               componentClass="textarea"
-              defaultValue={user.details.description || ''}
+              defaultValue={details.description || ''}
             />
           </FormGroup>
           <FormGroup>
@@ -122,7 +123,7 @@ class UserCommonInfos extends Component {
             <FormControl
               type="text"
               id="position"
-              defaultValue={user.details.position || ''}
+              defaultValue={details.position || ''}
             />
           </FormGroup>
           <FormGroup>
@@ -143,7 +144,7 @@ class UserCommonInfos extends Component {
             <FormControl
               type="text"
               id="linkedin"
-              defaultValue={user.links.linkedIn || ''}
+              defaultValue={links.linkedIn || ''}
             />
           </FormGroup>
           <FormGroup>
@@ -151,7 +152,7 @@ class UserCommonInfos extends Component {
             <FormControl
               type="text"
               id="twitter"
-              defaultValue={user.links.twitter || ''}
+              defaultValue={links.twitter || ''}
             />
           </FormGroup>
           <FormGroup>
@@ -159,7 +160,7 @@ class UserCommonInfos extends Component {
             <FormControl
               type="text"
               id="facebook"
-              defaultValue={user.links.facebook || ''}
+              defaultValue={links.facebook || ''}
             />
           </FormGroup>
           <FormGroup>
@@ -167,7 +168,7 @@ class UserCommonInfos extends Component {
             <FormControl
               type="text"
               id="youtube"
-              defaultValue={user.links.youtube || ''}
+              defaultValue={links.youtube || ''}
             />
           </FormGroup>
           <FormGroup>
@@ -175,7 +176,7 @@ class UserCommonInfos extends Component {
             <FormControl
               type="text"
               id="github"
-              defaultValue={user.links.github || ''}
+              defaultValue={links.github || ''}
             />
           </FormGroup>
           <FormGroup>
@@ -183,7 +184,7 @@ class UserCommonInfos extends Component {
             <FormControl
               type="text"
               id="website"
-              defaultValue={user.links.website || ''}
+              defaultValue={links.website || ''}
             />
           </FormGroup>
         </ProfileColumn>
