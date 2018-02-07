@@ -21,7 +21,8 @@
     "format": "prettier --write --print-width 100 --single-quote --trailing-comma all 'src/**/*.js'",
     "precommit": "lint-staged",
     "test": "jest --runInBand --coverage",
-    "loadInitialData": "babel-node ./src/initialData.js"
+    "loadInitialData": "babel-node ./src/initialData.js",
+    "checkDuplications": "babel-node ./src/checkDuplications.js"
   },
   "lint-staged": {
     "*.js": [

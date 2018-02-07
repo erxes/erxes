@@ -99,28 +99,28 @@ const facebookSchema = mongoose.Schema(
 const CustomerSchema = mongoose.Schema({
   _id: field({ pkey: true }),
 
-  name: field({ type: String }),
-  firstName: field({ type: String, label: 'First name' }),
-  lastName: field({ type: String, label: 'Last name' }),
-  email: field({ type: String, label: 'Email' }),
-  phone: field({ type: String, label: 'Phone' }),
-  isUser: field({ type: Boolean, label: 'Is user' }),
+  name: field({ type: String, optional: true }),
+  firstName: field({ type: String, label: 'First name', optional: true }),
+  lastName: field({ type: String, label: 'Last name', optional: true }),
+  email: field({ type: String, label: 'Email', optional: true }),
+  phone: field({ type: String, label: 'Phone', optional: true }),
+  isUser: field({ type: Boolean, label: 'Is user', optional: true }),
   createdAt: field({ type: Date, label: 'Created at' }),
 
   integrationId: field({ type: String }),
-  tagIds: field({ type: [String] }),
-  companyIds: field({ type: [String] }),
+  tagIds: field({ type: [String], optional: true }),
+  companyIds: field({ type: [String], optional: true }),
 
-  customFieldsData: field({ type: Object }),
-  messengerData: field({ type: messengerSchema }),
-  twitterData: field({ type: twitterSchema }),
-  facebookData: field({ type: facebookSchema }),
+  customFieldsData: field({ type: Object, optional: true }),
+  messengerData: field({ type: messengerSchema, optional: true }),
+  twitterData: field({ type: twitterSchema, optional: true }),
+  facebookData: field({ type: facebookSchema, optional: true }),
 
-  location: field({ type: locationSchema }),
+  location: field({ type: locationSchema, optional: true }),
 
   // if customer is not a user then we will contact with this visitor using
   // this information
-  visitorContactInfo: VisitorContactSchema,
+  visitorContactInfo: field({ type: VisitorContactSchema, optional: true }),
 });
 
 class Customer {
