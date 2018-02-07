@@ -75,7 +75,7 @@ class User {
    * @param {Object} doc - user fields
    * @return {Promise} newly created user object
    */
-  static async createUser({ username, email, password, role, details }) {
+  static async createUser({ username, email, password, role, details, links }) {
     await this.checkDuplications({ twitterUsername: details.twitterUsername });
 
     return this.create({
@@ -83,6 +83,7 @@ class User {
       email,
       role,
       details,
+      links,
       // hash password
       password: await this.generatePassword(password),
     });
