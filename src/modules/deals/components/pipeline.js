@@ -1,8 +1,8 @@
 import React from 'react';
-import { Wrapper } from 'modules/layout/components';
 import PropTypes from 'prop-types';
 import Stage from './stage';
 import { Droppable } from 'react-beautiful-dnd';
+import { PipelineContainer, PipelineHeader } from '../styles';
 
 const propTypes = {
   pipeline: PropTypes.object.isRequired,
@@ -16,7 +16,6 @@ class Pipeline extends React.Component {
 
     const content = innerRef => (
       <div ref={innerRef}>
-        <h2>{pipeline.name}</h2>
         <ul>
           {stages.map((stage, index) => {
             return (
@@ -33,9 +32,14 @@ class Pipeline extends React.Component {
     );
 
     return (
-      <Droppable type="STAGE" droppableId={pipeline._id}>
-        {provided => <Wrapper content={content(provided.innerRef)} />}
-      </Droppable>
+      <PipelineContainer>
+        <PipelineHeader>
+          <h2>{pipeline.name}</h2>
+        </PipelineHeader>
+        <Droppable type="STAGE" droppableId={pipeline._id}>
+          {provided => content(provided.innerRef)}
+        </Droppable>
+      </PipelineContainer>
     );
   }
 }

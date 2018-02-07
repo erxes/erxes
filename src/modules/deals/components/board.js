@@ -1,9 +1,19 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
+import { Dropdown } from 'react-bootstrap';
+import { Wrapper } from 'modules/layout/components';
 import { DragDropContext } from 'react-beautiful-dnd';
 
 import Pipeline from './pipeline';
 import { Pipelines, Stages, Deals } from '../constants';
 import { moveInList, addToList, removeFromList } from '../utils';
+import { BarItems } from 'modules/layout/styles';
+import {
+  ModalTrigger,
+  Button,
+  DropdownToggle,
+  Icon
+} from 'modules/common/components';
 
 class Board extends React.Component {
   constructor(props) {
@@ -114,6 +124,48 @@ class Board extends React.Component {
   }
 
   render() {
+    const breadcrumb = [{ title: 'Deal' }];
+
+    const addTrigger = (
+      <Button btnStyle="success" size="small" icon="plus">
+        Add pipeline
+      </Button>
+    );
+
+    const actionBarRight = (
+      <BarItems>
+        <ModalTrigger title="New pipeline" trigger={addTrigger} />
+      </BarItems>
+    );
+
+    const actionBarLeft = (
+      <BarItems>
+        <Dropdown id="dropdown-board" pullRight>
+          <DropdownToggle bsRole="toggle">
+            <Button btnStyle="simple" size="small">
+              Board 1 <Icon icon="ios-arrow-down" />
+            </Button>
+          </DropdownToggle>
+          <Dropdown.Menu>
+            <li>
+              <Link to="/deals/board/2">Board 2</Link>
+            </li>
+            <li>
+              <Link to="/deals/board/3">Board 3</Link>
+            </li>
+          </Dropdown.Menu>
+        </Dropdown>
+      </BarItems>
+    );
+
+    const actionBar = (
+      <Wrapper.ActionBar
+        left={actionBarLeft}
+        right={actionBarRight}
+        background="transparent"
+      />
+    );
+
     const content = (
       <DragDropContext onDragEnd={this.onDragEnd}>
         {Pipelines.map(pipeline => {
@@ -129,7 +181,14 @@ class Board extends React.Component {
       </DragDropContext>
     );
 
-    return content;
+    return (
+      <Wrapper
+        header={<Wrapper.Header breadcrumb={breadcrumb} />}
+        actionBar={actionBar}
+        content={content}
+        transparent
+      />
+    );
   }
 }
 
