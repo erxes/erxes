@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 import { colors } from '../common/styles';
-import { lighten } from '../common/styles/color';
+import { darken } from '../common/styles/color';
 
 const AuthBox = styled.div`
   background-color: #fff;
@@ -61,6 +61,7 @@ const AuthBox = styled.div`
     border: 0;
     padding: 15px;
     border-radius: 10px;
+    font-size: 12px;
     &:hover,
     .active.focus,
     .active:focus,
@@ -68,7 +69,7 @@ const AuthBox = styled.div`
     :active.focus,
     :active:focus,
     :focus {
-      background-color: ${lighten(colors.colorPrimary, 5)};
+      background-color: ${darken(colors.colorPrimary, 40)} !important;
       color: #fff;
     }
   }
@@ -81,6 +82,10 @@ const Links = styled.div`
   border-bottom: ${colors.borderDarker} solid 1px;
   a {
     color: ${colors.colorCoreBlack};
+    &:hover,
+    &:focus {
+      color: ${colors.colorPrimaryLight};
+    }
   }
 `;
 

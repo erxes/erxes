@@ -326,13 +326,15 @@ const AuthContent = styled.div`
     font-size: 12px;
     font-weight: 900;
     text-transform: uppercase;
-    margin-bottom: 50px;
+    margin-bottom: 30px;
+    &:hover {
+      background-color: rgba(0, 0, 0, 0.2);
+      color: #fff;
+    }
   }
 `;
 
 const AuthDescription = styled.div`
-  margin-top: 60px;
-
   h1 {
     font-size: 24px;
     margin-bottom: 15px;
@@ -342,7 +344,7 @@ const AuthDescription = styled.div`
   }
   p {
     color: ${colors.colorWhite};
-    margin-bottom: 55px;
+    margin-bottom: 15px;
     font-size: 13px;
     line-height: 1.8em;
     font-weight: 300;

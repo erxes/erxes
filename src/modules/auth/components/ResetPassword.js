@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Button, FormControl, FormGroup } from 'modules/common/components';
+import { FormGroup, FormControl, InputGroup, Button } from 'react-bootstrap';
+import { Icon } from 'modules/common/components';
 import { AuthBox } from '../styles';
 
 const propTypes = {
@@ -31,15 +32,24 @@ class ResetPassword extends Component {
   render() {
     return (
       <AuthBox>
-        <h2>Set your new password</h2>
+        <div className="logo">
+          <img src="/images/logo-light.png" alt="erxes" />
+        </div>
         <form onSubmit={this.handleSubmit}>
           <FormGroup>
-            <FormControl
-              type="password"
-              placeholder="new password"
-              required
-              onChange={this.handlePasswordChange}
-            />
+            <InputGroup>
+              <InputGroup.Button>
+                <Button>
+                  <Icon icon="android-lock" />
+                </Button>
+              </InputGroup.Button>
+              <FormControl
+                type="password"
+                placeholder="new password"
+                required
+                onChange={this.handlePasswordChange}
+              />
+            </InputGroup>
           </FormGroup>
           <Button type="submit" block>
             Change password
