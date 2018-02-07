@@ -25,6 +25,7 @@ const propTypes = {
   columnsConfig: PropTypes.array.isRequired,
   addCompany: PropTypes.func.isRequired,
   history: PropTypes.object,
+  location: PropTypes.object,
   loading: PropTypes.bool.isRequired,
   searchValue: PropTypes.string.isRequired,
   toggleBulk: PropTypes.func.isRequired,
@@ -84,6 +85,7 @@ class CompaniesList extends React.Component {
       columnsConfig,
       companies,
       history,
+      location,
       loading,
       addCompany,
       counts,
@@ -203,7 +205,11 @@ class CompaniesList extends React.Component {
           value={this.state.searchValue}
         />
         <ModalTrigger title="Choose which column you see" trigger={editColumns}>
-          <ManageColumns contentType="company" />
+          <ManageColumns
+            location={location}
+            history={history}
+            contentType="company"
+          />
         </ModalTrigger>
         <ModalTrigger title="New company" trigger={addTrigger}>
           <CompanyForm addCompany={addCompany} />
