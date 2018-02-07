@@ -15,6 +15,7 @@ const PageHeader = styled.div`
   top: 0;
   display: flex;
   align-items: center;
+  z-index: 2;
 `;
 
 function Header({ breadcrumb = [], queryParams }) {
