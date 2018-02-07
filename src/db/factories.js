@@ -31,6 +31,10 @@ import {
   KnowledgeBaseCategories,
   KnowledgeBaseArticles,
   ActivityLogs,
+  DealBoards,
+  DealPipelines,
+  DealStages,
+  Deals,
 } from './models';
 
 export const userFactory = (params = {}) => {
@@ -376,4 +380,48 @@ export const activityLogFactory = params => {
   };
 
   return ActivityLogs.createDoc({ ...doc, ...params }, faker.random.word());
+};
+
+export const dealBoardFactory = () => {
+  const board = new DealBoards({
+    name: faker.random.word(),
+    userId: Random.id(),
+  });
+
+  return board.save();
+};
+
+export const dealPipelineFactory = params => {
+  const pipeline = new DealPipelines({
+    name: faker.random.word(),
+    boardId: params.boardId || faker.random.word(),
+  });
+
+  return pipeline.save();
+};
+
+export const dealStageFactory = params => {
+  const stage = new DealStages({
+    name: faker.random.word(),
+    boardId: params.boardId || faker.random.word(),
+    pipelineId: params.pipelineId || faker.random.word(),
+  });
+
+  return stage.save();
+};
+
+export const dealFactory = params => {
+  const deal = new Deals({
+    boardId: params.boardId || faker.random.word(),
+    pipelineId: params.pipelineId || faker.random.word(),
+    stageId: params.stageId || faker.random.word(),
+    productIds: [faker.random.word()],
+    companyId: faker.random.word(),
+    amount: faker.random.number(),
+    closeDate: new Date(),
+    note: faker.random.word(),
+    assignedUserIds: [faker.random.word()],
+  });
+
+  return deal.save();
 };

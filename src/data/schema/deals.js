@@ -39,7 +39,12 @@ export const types = `
   }
 `;
 
-export const queries = ``;
+export const queries = `
+  dealBoards: [DealBoard]
+  dealPipelines(boardId: String!): [DealPipeline]
+  dealStages(boardId: String, pipelineId: String!): [DealStage]
+  deals(boardId: String, pipelineId: String, stageId: String!): [Deal]
+`;
 
 export const mutations = `
 	dealBoardsAdd(name: String!): DealBoard
