@@ -35,6 +35,7 @@ const propTypes = {
   toggleBulk: PropTypes.func.isRequired,
   toggleAll: PropTypes.func.isRequired,
   addCustomer: PropTypes.func.isRequired,
+  location: PropTypes.object,
   history: PropTypes.object,
   loading: PropTypes.bool.isRequired,
   searchValue: PropTypes.string.isRequired,
@@ -124,7 +125,9 @@ class CustomersList extends React.Component {
       customers,
       loadingTags,
       mergeCustomers,
-      basicInfos
+      basicInfos,
+      location,
+      history
     } = this.props;
 
     const addTrigger = (
@@ -150,7 +153,11 @@ class CustomersList extends React.Component {
           <Dropdown.Menu>
             <li>
               <ModalTrigger title="Manage Columns" trigger={editColumns}>
-                <ManageColumns contentType="customer" />
+                <ManageColumns
+                  contentType="customer"
+                  location={location}
+                  history={history}
+                />
               </ModalTrigger>
             </li>
             <li>
