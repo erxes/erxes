@@ -8,7 +8,7 @@ const dealMutations = {
   * @return {Promise} newly created board object
   */
   dealBoardsAdd(root, doc, { user }) {
-    return DealBoards.createBoard({ userId: user._id, doc });
+    return DealBoards.createBoard({ userId: user._id, ...doc });
   },
 
   /**
@@ -37,7 +37,7 @@ const dealMutations = {
   * @return {Promise} newly created pipeline object
   */
   dealPipelinesAdd(root, doc, { user }) {
-    return DealPipelines.createPipeline({ userId: user._id, doc });
+    return DealPipelines.createPipeline({ userId: user._id, ...doc });
   },
 
   /**
@@ -68,7 +68,7 @@ const dealMutations = {
   * @return {Promise} newly created stage object
   */
   dealStagesAdd(root, doc, { user }) {
-    return DealStages.createStage({ userId: user._id, doc });
+    return DealStages.createStage({ userId: user._id, ...doc });
   },
 
   /**
@@ -106,7 +106,7 @@ const dealMutations = {
   * @return {Promise} newly created deal object
   */
   dealsAdd(root, doc, { user }) {
-    return Deals.createDeals({ userId: user._id, doc });
+    return Deals.createDeals({ userId: user._id, ...doc });
   },
 
   /**

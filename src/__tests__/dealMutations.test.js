@@ -90,4 +90,142 @@ describe('Test deals mutations', () => {
     // remove
     check(dealMutations.dealsRemove);
   });
+
+  test('Create board', async () => {
+    const boardDoc = { name: 'deal board' };
+
+    DealBoards.createBoard = jest.fn();
+    await dealMutations.dealBoardsAdd({}, boardDoc, { user: _user });
+
+    expect(DealBoards.createBoard).toBeCalledWith({
+      ...boardDoc,
+      userId: _user._id,
+    });
+    expect(DealBoards.createBoard.mock.calls.length).toBe(1);
+  });
+
+  test('Update board', async () => {
+    const updateDoc = { name: 'board title' };
+
+    DealBoards.updateBoard = jest.fn();
+    await dealMutations.dealBoardsEdit(null, { _id: _board._id, ...updateDoc }, { user: _user });
+
+    expect(DealBoards.updateBoard).toBeCalledWith(_board._id, updateDoc);
+    expect(DealBoards.updateBoard.mock.calls.length).toBe(1);
+  });
+
+  test('Remove board', async () => {
+    DealBoards.removeBoard = jest.fn();
+    await dealMutations.dealBoardsRemove({}, { ids: [_board.id] }, { user: _user });
+
+    expect(DealBoards.removeBoard.mock.calls.length).toBe(1);
+  });
+
+  test('Create pipeline', async () => {
+    const pipelineDoc = { name: 'deal pipeline', boardId: _board._id };
+
+    DealPipelines.createPipeline = jest.fn();
+    await dealMutations.dealPipelinesAdd({}, pipelineDoc, { user: _user });
+
+    expect(DealPipelines.createPipeline).toBeCalledWith({
+      ...pipelineDoc,
+      userId: _user._id,
+    });
+    expect(DealPipelines.createPipeline.mock.calls.length).toBe(1);
+  });
+
+  test('Update pipeline', async () => {
+    const updateDoc = { name: 'pipeline title', boardId: 'fakeId' };
+
+    DealPipelines.updatePipeline = jest.fn();
+    await dealMutations.dealPipelinesEdit(
+      null,
+      { _id: _pipeline._id, ...updateDoc },
+      { user: _user },
+    );
+
+    expect(DealPipelines.updatePipeline).toBeCalledWith(_pipeline._id, updateDoc);
+    expect(DealPipelines.updatePipeline.mock.calls.length).toBe(1);
+  });
+
+  test('Remove pipeline', async () => {
+    DealPipelines.removePipeline = jest.fn();
+    await dealMutations.dealPipelinesRemove({}, { ids: [_pipeline.id] }, { user: _user });
+
+    expect(DealPipelines.removePipeline.mock.calls.length).toBe(1);
+  });
+
+  test('Create stage', async () => {
+    const stageDoc = {
+      name: 'deal stage',
+      boardId: _board._id,
+      pipelineId: _pipeline._id,
+    };
+
+    DealStages.createStage = jest.fn();
+    await dealMutations.dealStagesAdd({}, stageDoc, { user: _user });
+
+    expect(DealStages.createStage).toBeCalledWith({
+      ...stageDoc,
+      userId: _user._id,
+    });
+    expect(DealStages.createStage.mock.calls.length).toBe(1);
+  });
+
+  test('Update stage', async () => {
+    const updateDoc = { name: 'stage title', boardId: 'fakeId' };
+
+    DealStages.updateStage = jest.fn();
+    await dealMutations.dealStagesEdit(null, { _id: _stage._id, ...updateDoc }, { user: _user });
+
+    expect(DealStages.updateStage).toBeCalledWith(_stage._id, updateDoc);
+    expect(DealStages.updateStage.mock.calls.length).toBe(1);
+  });
+
+  test('Remove stage', async () => {
+    DealStages.removeStage = jest.fn();
+    await dealMutations.dealStagesRemove({}, { ids: [_stage.id] }, { user: _user });
+
+    expect(DealStages.removeStage.mock.calls.length).toBe(1);
+  });
+
+  test('Create deal', async () => {
+    const dealDoc = {
+      boardId: _deal.boardId,
+      pipelineId: _deal.pipelineId,
+      stageId: _deal.stageId,
+      productIds: _deal.productIds,
+      companyId: _deal.companyId,
+      amount: _deal.amount,
+      closeDate: _deal.closeDate,
+      note: _deal.note,
+      assignedUserIds: _deal.assignedUserIds,
+    };
+
+    Deals.createDeals = jest.fn();
+    await dealMutations.dealsAdd({}, dealDoc, { user: _user });
+
+    expect(Deals.createDeals).toBeCalledWith({
+      ...dealDoc,
+      userId: _user._id,
+    });
+    expect(Deals.createDeals.mock.calls.length).toBe(1);
+  });
+
+  test('Update deal', async () => {
+    const updateDoc = { boardId: 'fakeId' };
+
+    Deals.updateDeals = jest.fn();
+    await dealMutations.dealsEdit(null, { _id: _deal._id, ...updateDoc }, { user: _user });
+
+    expect(Deals.updateDeals).toBeCalledWith(_deal._id, updateDoc);
+    expect(Deals.updateDeals.mock.calls.length).toBe(1);
+  });
+
+  test('Remove deal', async () => {
+    Deals.removeDeals = jest.fn();
+    await dealMutations.dealsRemove({}, { ids: [_deal.id] }, { user: _user });
+
+    expect(Deals.removeDeals.mock.calls.length).toBe(1);
+  });
 });
