@@ -62,9 +62,9 @@ export const queries = `
   knowledgeBaseTopicDetail(_id: String!): KnowledgeBaseTopic
   knowledgeBaseTopicsTotalCount: Int
 
-  knowledgeBaseCategories(page: Int, perPage: Int): [KnowledgeBaseCategory]
+  knowledgeBaseCategories(page: Int, perPage: Int, topicId: String): [KnowledgeBaseCategory]
   knowledgeBaseCategoryDetail(_id: String!): KnowledgeBaseCategory
-  knowledgeBaseCategoriesTotalCount: Int
+  knowledgeBaseCategoriesTotalCount(topicId: String): Int
   knowledgeBaseCategoriesGetLast: KnowledgeBaseCategory
 
   knowledgeBaseArticles(page: Int, perPage: Int, categoryId: String): [KnowledgeBaseArticle]

@@ -22,6 +22,21 @@ const articlesQuery = async ({ categoryId }) => {
   return query;
 };
 
+/*
+ * Categories list & total count helper
+ */
+const categoriesQuery = async ({ topicId }) => {
+  const query = {};
+
+  // filter categories by topic id
+  if (topicId) {
+    const topic = await KnowledgeBaseTopics.findOne({ _id: topicId });
+    query._id = { $in: topic.categoryIds || [] };
+  }
+
+  return query;
+};
+
 const knowledgeBaseQueries = {
   /**
    * Article list
@@ -60,9 +75,11 @@ const knowledgeBaseQueries = {
    * @param {Object} args - Search params
    * @return {Promise} sorted category list
    */
-  knowledgeBaseCategories(root, args) {
-    const categories = paginate(KnowledgeBaseCategories.find({}), args);
-    return categories.sort({ createdDate: -1 });
+  async knowledgeBaseCategories(root, args) {
+    const query = await categoriesQuery(args);
+    const categories = KnowledgeBaseCategories.find(query).sort({ createdDate: -1 });
+
+    return paginate(categories, args);
   },
 
   /**
@@ -81,8 +98,10 @@ const knowledgeBaseQueries = {
    * Category total count
    * @return {Promise} category total count
    */
-  knowledgeBaseCategoriesTotalCount() {
-    return KnowledgeBaseCategories.find({}).count();
+  async knowledgeBaseCategoriesTotalCount(root, args) {
+    const query = await categoriesQuery(args);
+
+    return KnowledgeBaseCategories.find(query).count();
   },
 
   /**
