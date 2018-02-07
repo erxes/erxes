@@ -13,7 +13,8 @@ const KnowledgeBaseContainer = props => {
     topicsCountQuery,
     removeTopicsMutation,
     addTopicsMutation,
-    editTopicsMutation
+    editTopicsMutation,
+    queryParams
   } = props;
 
   // remove action
@@ -65,6 +66,7 @@ const KnowledgeBaseContainer = props => {
     remove,
     save,
     currentCategoryId,
+    queryParams,
     topics: topicsQuery.knowledgeBaseTopics || [],
     loading: topicsQuery.loading,
     refetch: topicsQuery.refetch,
@@ -75,6 +77,7 @@ const KnowledgeBaseContainer = props => {
 };
 
 KnowledgeBaseContainer.propTypes = {
+  queryParams: PropTypes.object,
   topicsQuery: PropTypes.object,
   topicsCountQuery: PropTypes.object,
   addTopicsMutation: PropTypes.func,

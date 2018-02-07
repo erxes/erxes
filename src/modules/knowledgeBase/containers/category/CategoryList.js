@@ -9,7 +9,6 @@ import { CategoryList } from '../../components';
 const KnowledgeBaseContainer = props => {
   const {
     currentCategoryId,
-    categories,
     categoriesQuery,
     categoriesCountQuery,
     removeCategoriesMutation,
@@ -65,8 +64,8 @@ const KnowledgeBaseContainer = props => {
     ...this.props,
     remove,
     save,
-    categories,
     currentCategoryId,
+    categories: categoriesQuery.knowledgeBaseCategories || [],
     loading: categoriesQuery.loading,
     topicsCount: categoriesCountQuery.knowledgeBaseCategoriesTotalCount || 0
   };
@@ -75,7 +74,6 @@ const KnowledgeBaseContainer = props => {
 };
 
 KnowledgeBaseContainer.propTypes = {
-  categories: PropTypes.array.isRequired,
   categoriesQuery: PropTypes.object,
   categoriesCountQuery: PropTypes.object,
   addCategoriesMutation: PropTypes.func,
@@ -87,7 +85,12 @@ KnowledgeBaseContainer.propTypes = {
 export default compose(
   graphql(gql(queries.knowledgeBaseCategories), {
     name: 'categoriesQuery',
-    options: () => ({
+    options: ({ queryParams, currentTopicId }) => ({
+      variables: {
+        topicId: currentTopicId,
+        page: queryParams.page,
+        perPage: queryParams.perPage || 20
+      },
       fetchPolicy: 'network-only'
     })
   }),

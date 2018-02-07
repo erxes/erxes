@@ -13,7 +13,9 @@ import { KnowledgeForm } from '../../containers';
 import { KnowledgeRow } from './';
 
 const propTypes = {
+  queryParams: PropTypes.object,
   currentCategoryId: PropTypes.string,
+  currentTopic: PropTypes.object,
   save: PropTypes.func.isRequired,
   remove: PropTypes.func.isRequired,
   count: PropTypes.number,
@@ -33,13 +35,14 @@ class KnowledgeList extends Component {
   }
 
   renderSidebarList() {
-    const { topics, remove, save, currentCategoryId } = this.props;
+    const { topics, remove, save, currentCategoryId, queryParams } = this.props;
 
     return topics.map(topic => (
       <KnowledgeRow
         currentCategoryId={currentCategoryId}
         key={topic._id}
         topic={topic}
+        queryParams={queryParams}
         remove={remove}
         save={save}
       />

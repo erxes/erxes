@@ -11,6 +11,8 @@ const knowledgeBaseTopics = `
       categories {
         _id
         title
+        description
+        icon
         articles {
           _id
           title
@@ -40,8 +42,8 @@ const getBrandList = `
 `;
 
 const knowledgeBaseCategories = `
-  query objects($page: Int, $perPage: Int) {
-    knowledgeBaseCategories(page: $page, perPage: $perPage) {
+  query objects($page: Int, $perPage: Int, $topicId: String) {
+    knowledgeBaseCategories(page: $page, perPage: $perPage, topicId: $topicId ) {
       _id
       title
       description
@@ -54,6 +56,17 @@ const knowledgeBaseCategories = `
         _id
         title
       }
+    }
+  }
+`;
+
+const knowledgeBaseTopicDetail = `
+  query knowledgeBaseTopicDetail($_id: String!) {
+    knowledgeBaseTopicDetail(_id: $_id) {
+      _id
+      title
+      description
+      brand
     }
   }
 `;
@@ -77,8 +90,8 @@ const knowledgeBaseCategoryDetail = `
 `;
 
 const knowledgeBaseCategoriesTotalCount = `
-  query knowledgeBaseCategoriesTotalCount {
-    knowledgeBaseCategoriesTotalCount
+  query knowledgeBaseCategoriesTotalCount($topicId: String) {
+    knowledgeBaseCategoriesTotalCount(topicId: $topicId)
   }
 `;
 
@@ -116,6 +129,7 @@ export default {
   getBrandList,
   categoriesGetLast,
   knowledgeBaseTopics,
+  knowledgeBaseTopicDetail,
   knowledgeBaseTopicsTotalCount,
   knowledgeBaseCategories,
   knowledgeBaseCategoryDetail,

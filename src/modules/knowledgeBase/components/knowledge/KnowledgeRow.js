@@ -13,6 +13,7 @@ import {
 } from '../../styles';
 
 const propTypes = {
+  queryParams: PropTypes.object.isRequired,
   currentCategoryId: PropTypes.string,
   topic: PropTypes.object.isRequired,
   remove: PropTypes.func.isRequired,
@@ -37,7 +38,7 @@ class KnowledgeRow extends Component {
   }
 
   render() {
-    const { topic, save, remove, currentCategoryId } = this.props;
+    const { topic, save, remove, currentCategoryId, queryParams } = this.props;
 
     const addCategory = <MenuItem>Add category</MenuItem>;
 
@@ -70,8 +71,9 @@ class KnowledgeRow extends Component {
         {this.state.detailed && (
           <Categories>
             <CategoryList
-              categories={topic.categories}
               currentCategoryId={currentCategoryId}
+              currentTopicId={topic._id}
+              queryParams={queryParams}
             />
           </Categories>
         )}
