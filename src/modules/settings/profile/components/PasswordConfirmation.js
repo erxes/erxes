@@ -34,7 +34,7 @@ class PasswordConfirmation extends Component {
       <form>
         <FormGroup>
           <ControlLabel>Please Enter your password to confirm</ControlLabel>
-          <FormControl id="password" type="password" />
+          <FormControl autoFocus id="password" type="password" />
         </FormGroup>
         <Modal.Footer>
           <Button

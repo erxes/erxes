@@ -1,10 +1,12 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import Select from 'react-select-plus';
 import {
   FormGroup,
   ControlLabel,
   FormControl
 } from 'modules/common/components';
+import { timezones } from 'modules/settings/integrations/constants';
 import { Alert, uploadHandler } from 'modules/common/utils';
 import { ProfileWrapper, ProfileColumn, ColumnTitle } from '../styles';
 
@@ -21,10 +23,24 @@ class UserCommonInfos extends Component {
 
     this.state = {
       avatarPreviewUrl: this.props.user.details.avatar || defaultAvatar,
-      avatarPreviewStyle: {}
+      avatarPreviewStyle: {},
+      location: this.props.user.details.location || ''
     };
 
+    this.onLocationChange = this.onLocationChange.bind(this);
     this.handleImageChange = this.handleImageChange.bind(this);
+  }
+
+  componentWillReceiveProps(nextProps) {
+    const { user } = nextProps;
+
+    this.setState({
+      location: user.details.location || ''
+    });
+  }
+
+  onLocationChange(e) {
+    this.setState({ location: e.value });
   }
 
   handleImageChange(e) {
@@ -93,12 +109,12 @@ class UserCommonInfos extends Component {
             <FormControl type="text" id="email" defaultValue={user.email} />
           </FormGroup>
           <FormGroup>
-            <ControlLabel>Mini-Resume</ControlLabel>
+            <ControlLabel>Description</ControlLabel>
             <FormControl
               type="text"
-              id="miniResume"
+              id="description"
               componentClass="textarea"
-              defaultValue={user.details.miniResume || ''}
+              defaultValue={user.details.description || ''}
             />
           </FormGroup>
           <FormGroup>
@@ -111,10 +127,12 @@ class UserCommonInfos extends Component {
           </FormGroup>
           <FormGroup>
             <ControlLabel>Location</ControlLabel>
-            <FormControl
-              type="text"
+            <Select
+              value={this.state.location}
               id="location"
-              defaultValue={user.details.location || ''}
+              options={timezones}
+              onChange={e => this.onLocationChange(e)}
+              clearable={false}
             />
           </FormGroup>
         </ProfileColumn>
@@ -125,7 +143,7 @@ class UserCommonInfos extends Component {
             <FormControl
               type="text"
               id="linkedin"
-              defaultValue={user.details.linkedin || ''}
+              defaultValue={user.links.linkedIn || ''}
             />
           </FormGroup>
           <FormGroup>
@@ -133,7 +151,7 @@ class UserCommonInfos extends Component {
             <FormControl
               type="text"
               id="twitter"
-              defaultValue={user.details.twitter || ''}
+              defaultValue={user.links.twitter || ''}
             />
           </FormGroup>
           <FormGroup>
@@ -141,7 +159,15 @@ class UserCommonInfos extends Component {
             <FormControl
               type="text"
               id="facebook"
-              defaultValue={user.details.facebook || ''}
+              defaultValue={user.links.facebook || ''}
+            />
+          </FormGroup>
+          <FormGroup>
+            <ControlLabel>Youtube</ControlLabel>
+            <FormControl
+              type="text"
+              id="youtube"
+              defaultValue={user.links.youtube || ''}
             />
           </FormGroup>
           <FormGroup>
@@ -149,7 +175,7 @@ class UserCommonInfos extends Component {
             <FormControl
               type="text"
               id="github"
-              defaultValue={user.details.github || ''}
+              defaultValue={user.links.github || ''}
             />
           </FormGroup>
           <FormGroup>
@@ -157,7 +183,7 @@ class UserCommonInfos extends Component {
             <FormControl
               type="text"
               id="website"
-              defaultValue={user.details.website || ''}
+              defaultValue={user.links.website || ''}
             />
           </FormGroup>
         </ProfileColumn>

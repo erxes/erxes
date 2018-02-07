@@ -23,6 +23,8 @@ class Profile extends Component {
   }
 
   handleSubmit(password) {
+    const location = document.getElementById('location');
+    console.log(location);
     this.props.save({
       username: document.getElementById('username').value,
       email: document.getElementById('email').value,
@@ -30,7 +32,17 @@ class Profile extends Component {
         avatar: this.state.avatar,
         fullName: document.getElementById('fullName').value,
         position: document.getElementById('position').value,
+        location: '',
+        description: document.getElementById('description').value,
         twitterUsername: document.getElementById('twitter').value
+      },
+      links: {
+        linkedIn: document.getElementById('linkedin').value,
+        twitter: document.getElementById('twitter').value,
+        facebook: document.getElementById('facebook').value,
+        youtube: document.getElementById('youtube').value,
+        github: document.getElementById('github').value,
+        website: document.getElementById('website').value
       },
       password
     });
