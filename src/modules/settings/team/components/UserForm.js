@@ -71,12 +71,21 @@ class UserForm extends CommonForm {
           avatar: this.state.avatar,
           position: document.getElementById('position').value,
           fullName: document.getElementById('fullName').value,
-          twitterUsername: document.getElementById('twitterUsername').value
+          location: '123',
+          description: document.getElementById('description').value
         },
         channelIds: this.collectValues(this.state.selectedChannels),
         password: document.getElementById('password').value,
         passwordConfirmation: document.getElementById('password-confirmation')
-          .value
+          .value,
+        links: {
+          linkedIn: document.getElementById('linkedin').value,
+          twitter: document.getElementById('twitter').value,
+          facebook: document.getElementById('facebook').value,
+          youtube: document.getElementById('youtube').value,
+          github: document.getElementById('github').value,
+          website: document.getElementById('website').value
+        }
       }
     };
   }
