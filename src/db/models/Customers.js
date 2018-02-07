@@ -16,6 +16,14 @@ const locationSchema = mongoose.Schema(
   { _id: false },
 );
 
+const VisitorContactSchema = mongoose.Schema(
+  {
+    email: String,
+    phone: String,
+  },
+  { _id: false },
+);
+
 /*
  * messenger schema
  */
@@ -103,12 +111,16 @@ const CustomerSchema = mongoose.Schema({
   tagIds: field({ type: [String] }),
   companyIds: field({ type: [String] }),
 
-  location: field({ type: locationSchema }),
-
   customFieldsData: field({ type: Object }),
   messengerData: field({ type: messengerSchema }),
   twitterData: field({ type: twitterSchema }),
   facebookData: field({ type: facebookSchema }),
+
+  location: field({ type: locationSchema }),
+
+  // if customer is not a user then we will contact with this visitor using
+  // this information
+  visitorContactInfo: VisitorContactSchema,
 });
 
 class Customer {
