@@ -59,7 +59,7 @@ class SignIn extends Component {
               <FormControl
                 type="email"
                 placeholder="Email"
-                value={this.state.email}
+                value="demo@erxes.io"
                 required
                 onChange={this.handleEmailChange}
               />
@@ -75,7 +75,7 @@ class SignIn extends Component {
               <FormControl
                 type="password"
                 placeholder="Password"
-                value={this.state.password}
+                value="demo"
                 required
                 onChange={this.handlePasswordChange}
               />
