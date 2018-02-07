@@ -1,7 +1,37 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { ContentCenter, ButtonBox } from './Style';
+import { BoxRoot, FullContent } from 'modules/common/styles/styles';
+import { colors } from 'modules/common/styles';
 import { METHODS } from 'modules/engage/constants';
+
+const boxSize = 320;
+
+const Box = BoxRoot.extend`
+  width: ${boxSize}px;
+  padding: 40px;
+
+  &:last-of-type {
+    margin-right: 0;
+  }
+
+  span {
+    font-weight: 500;
+  }
+
+  ${props => {
+    if (props.selected) {
+      return `
+        border: 1px solid ${colors.colorSecondary};
+      `;
+    }
+  }};
+
+  p {
+    margin: 10px 0 0;
+    font-size: 12px;
+    color: ${colors.colorCoreLightGray};
+  }
+`;
 
 const propTypes = {
   changeMethod: PropTypes.func,
@@ -9,35 +39,32 @@ const propTypes = {
 };
 
 class Step1 extends Component {
+  renderBox(name, image, desc) {
+    return (
+      <Box
+        selected={this.props.method === name}
+        onClick={() => this.props.changeMethod(name)}
+      >
+        <img src={image} alt={name} />
+        <span>{name}</span>
+        <p>{desc}</p>
+      </Box>
+    );
+  }
   render() {
     return (
-      <ContentCenter>
-        <ButtonBox
-          selected={this.props.method === METHODS.EMAIL}
-          onClick={() => this.props.changeMethod(METHODS.EMAIL)}
-        >
-          <span>Email</span>
-          <div>
-            <img src="/images/icons/erxes-07.svg" alt="Email" />
-            <span>
-              Delivered to a user s email inbox <br />Customize with your own
-              templates
-            </span>
-          </div>
-        </ButtonBox>
-        <ButtonBox
-          selected={this.props.method === METHODS.MESSENGER}
-          onClick={() => this.props.changeMethod(METHODS.MESSENGER)}
-        >
-          <span>Messenger</span>
-          <div>
-            <img src="/images/icons/erxes-08.svg" alt="Messenger" />
-            <span>
-              Delivered inside your app<br />Reach active users
-            </span>
-          </div>
-        </ButtonBox>
-      </ContentCenter>
+      <FullContent center>
+        {this.renderBox(
+          METHODS.EMAIL,
+          '/images/icons/erxes-07.svg',
+          'Delivered to a user s email inbox Customize with your own templates'
+        )}
+        {this.renderBox(
+          METHODS.MESSENGER,
+          '/images/icons/erxes-08.svg',
+          'Delivered inside your app Reach active users'
+        )}
+      </FullContent>
     );
   }
 }

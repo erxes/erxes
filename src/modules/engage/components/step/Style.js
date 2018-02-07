@@ -44,7 +44,7 @@ const FullStep = styled.div`
 
 const StepHeaderContainer = styled.div`
   height: 55px;
-  padding: 0 ${dimensions.unitSpacing}px;
+  padding: 0 ${dimensions.coreSpacing}px;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -75,7 +75,6 @@ const StepHeaderTitle = styled.div`
 const StepContent = styled.div`
   width: 100%;
   height: calc(100% - 55px);
-  padding: ${dimensions.unitSpacing}px;
   overflow: hidden;
 `;
 
@@ -97,52 +96,53 @@ const ContentCenter = styled.div`
   height: 100%;
 `;
 
-const ButtonBox = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  cursor: pointer;
-  margin: 20px;
-  padding: 20px;
-  border-radius: 2px;
-  transition: all 0.3s ease;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-  width: 350px;
-
-  > span {
-    margin-bottom: 5px;
-    font-weight: bold;
-  }
-  > div {
-    display: flex;
-    align-items: center;
-  }
-  img {
-    height: 50px;
-    margin-right: 10px;
-  }
-  border: 1px solid
-    ${props => (props.selected ? colors.colorSecondary : colors.borderPrimary)};
-
-  p {
-    margin: 0;
-    color: ${colors.colorCoreLightGray};
-    font-size: 12px;
-  }
-
-  &:hover {
-    ${props => {
-      if (!props.selected) {
-        return `
-          border: 1px solid ${colors.colorSecondary};
-        `;
-      }
-    }};
-  }
-`;
-
 const StepStatus = styled.div`
   margin-top: 20px;
+`;
+
+const FlexItem = styled.div`
+  display: flex;
+  height: 100%;
+  flex: ${props => (props.count ? props.count : 1)};
+  ${props => {
+    if (props.overflow) {
+      return `
+        overflow: ${props.overflow};
+      `;
+    }
+  }};
+  ${props => {
+    if (props.v) {
+      return `
+        align-items: ${props.v};
+      `;
+    }
+  }};
+  ${props => {
+    if (props.h) {
+      return `
+        justify-content: ${props.h};
+      `;
+    }
+  }};
+  ${props => {
+    if (props.direction) {
+      return `
+        flex-direction: ${props.direction};
+      `;
+    }
+  }};
+`;
+
+const Show = styled.div`
+  display: ${props => (props.show ? 'block' : 'none')};
+`;
+
+const Divider = styled.div`
+  width: 1px;
+  background: ${colors.borderPrimary};
+  height: 100%;
+  margin: 0 10px;
 `;
 
 export {
@@ -159,5 +159,7 @@ export {
   ShortStep,
   StepStatus,
   ContentCenter,
-  ButtonBox
+  FlexItem,
+  Show,
+  Divider
 };

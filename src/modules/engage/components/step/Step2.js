@@ -3,18 +3,9 @@ import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { colors } from 'modules/common/styles';
 import { FormControl, Icon } from 'modules/common/components';
+import { FlexItem, Show, Divider } from './Style';
 import Segments from '../Segments';
 import SegmentsForm from '../../containers/SegmentsForm';
-
-const Content = styled.div`
-  display: flex;
-  height: 100%;
-`;
-
-const FormContainer = styled.div`
-  flex: 2;
-  overflow: auto;
-`;
 
 const RadioContainer = styled.div`
   border-bottom: 1px dotted ${colors.borderPrimary};
@@ -22,24 +13,8 @@ const RadioContainer = styled.div`
     padding: 20px;
   }
 `;
-
-const Divider = styled.div`
-  width: 1px;
-  background: ${colors.borderPrimary};
-  height: 100%;
-  margin: 0 10px;
-`;
-
-const ContentCenter = styled.div`
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-direction: column;
-`;
-
-const Show = styled.div`
-  display: ${props => (props.show ? 'block' : 'none')};
+const SegmentContainer = styled.div`
+  padding: 15px;
 `;
 
 const propTypes = {
@@ -86,17 +61,19 @@ class Step2 extends Component {
     let segments = '';
     if (!show) {
       segments = (
-        <Segments
-          segments={this.props.segments}
-          changeSegments={this.changeSegment}
-          counts={this.props.counts}
-          defaultValue={this.state.segment}
-        />
+        <SegmentContainer>
+          <Segments
+            segments={this.props.segments}
+            changeSegments={this.changeSegment}
+            counts={this.props.counts}
+            defaultValue={this.state.segment}
+          />
+        </SegmentContainer>
       );
     }
     return (
-      <Content>
-        <FormContainer>
+      <FlexItem>
+        <FlexItem direction="column" overflow="auto">
           <RadioContainer>
             <FormControl
               componentClass="radio"
@@ -122,13 +99,13 @@ class Step2 extends Component {
           <Show show={show}>
             <SegmentsForm segmentPush={this.segmentPush} />
           </Show>
-        </FormContainer>
+        </FlexItem>
         <Divider />
-        <ContentCenter>
+        <FlexItem direction="column" v="center" h="center">
           <Icon icon="pie-graph" size={50} />
           <p>{this.props.counts[this.state.segment] || 0} segments</p>
-        </ContentCenter>
-      </Content>
+        </FlexItem>
+      </FlexItem>
     );
   }
 }

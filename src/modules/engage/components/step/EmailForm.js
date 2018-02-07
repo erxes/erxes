@@ -1,8 +1,7 @@
 import React, { Component } from 'react';
 import ReactDom from 'react-dom';
 import PropTypes from 'prop-types';
-import styled from 'styled-components';
-import { colors } from 'modules/common/styles';
+import { dimensions } from 'modules/common/styles';
 import {
   FormControl,
   ControlLabel,
@@ -11,29 +10,10 @@ import {
 import { EMAIL_CONTENT_CLASS } from 'modules/engage/constants';
 import Editor from '../Editor';
 import { EditorWrapper } from '../../styles';
+import { FlexItem, Divider } from './Style';
 
-const Content = styled.div`
-  display: flex;
-  height: 100%;
-  margin: 20px;
-`;
-
-const FlexItem = styled.div`
-  flex: 1;
-  overflow: auto;
-  padding: 10px;
-`;
-
-const Divider = styled.div`
-  width: 1px;
-  background: ${colors.borderPrimary};
-  height: 100%;
-  margin: 0 10px;
-`;
-
-const ContentCenter = styled.div`
-  flex: 1;
-  overflow: auto;
+const FlexPad = FlexItem.extend`
+  padding: ${dimensions.coreSpacing}px;
 `;
 
 const propTypes = {
@@ -128,8 +108,8 @@ class EmailForm extends Component {
     }
 
     return (
-      <Content>
-        <FlexItem>
+      <FlexItem>
+        <FlexPad direction="column" overflow="auto">
           <FormGroup>
             <ControlLabel>Message:</ControlLabel>
             <EditorWrapper>
@@ -170,10 +150,12 @@ class EmailForm extends Component {
               ))}
             </FormControl>
           </FormGroup>
-        </FlexItem>
+        </FlexPad>
         <Divider />
-        <ContentCenter>{content}</ContentCenter>
-      </Content>
+        <FlexItem v="center" h="center" overflow="auto">
+          {content}
+        </FlexItem>
+      </FlexItem>
     );
   }
 }
