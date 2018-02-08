@@ -21,6 +21,7 @@ const propTypes = {
   placeholder: PropTypes.string,
   type: PropTypes.string,
   name: PropTypes.string,
+  options: PropTypes.array,
   required: PropTypes.bool,
   round: PropTypes.bool,
   autoFocus: PropTypes.bool,
@@ -77,6 +78,21 @@ class FormControl extends React.Component {
     };
 
     if (elementType === 'select') {
+      if (props.options) {
+        return (
+          <SelectWrapper>
+            <Select {...attributes}>
+              {props.options.map((option, index) => {
+                return (
+                  <option key={index} value={option.value || ''}>
+                    {option.label || ''}
+                  </option>
+                );
+              })}
+            </Select>
+          </SelectWrapper>
+        );
+      }
       return (
         <SelectWrapper>
           <Select {...attributes}>{childNode}</Select>
