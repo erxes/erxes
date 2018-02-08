@@ -68,13 +68,29 @@ const userMutations = {
    * @return {Promise} - Newly created user
    */
   async usersAdd(root, args) {
-    const { username, password, passwordConfirmation, email, role, channelIds, details } = args;
+    const {
+      username,
+      password,
+      passwordConfirmation,
+      email,
+      role,
+      channelIds,
+      details,
+      links,
+    } = args;
 
     if (password !== passwordConfirmation) {
       throw new Error('Incorrect password confirmation');
     }
 
-    const createdUser = await Users.createUser({ username, password, email, role, details });
+    const createdUser = await Users.createUser({
+      username,
+      password,
+      email,
+      role,
+      details,
+      links,
+    });
 
     // add new user to channels
     await Channels.updateUserChannels(channelIds, createdUser._id);
@@ -171,7 +187,11 @@ const userMutations = {
       throw new Error('You cannot delete this user. This user belongs other channel.');
     }
 
-    if ((await Channels.find({ memberIds: { $in: [userToRemove._id] } }).count()) > 0) {
+    if (
+      (await Channels.find({
+        memberIds: { $in: [userToRemove._id] },
+      }).count()) > 0
+    ) {
       throw new Error('You cannot delete this user. This user belongs other channel.');
     }
 

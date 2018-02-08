@@ -4,6 +4,7 @@ export const types = `
     fullName: String
     position: String
     location: String
+    description: String
     twitterUsername: String
   }
 
