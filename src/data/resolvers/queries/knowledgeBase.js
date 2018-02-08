@@ -7,15 +7,47 @@ import {
 import { moduleRequireLogin } from '../../permissions';
 import { paginate } from './utils';
 
+/*
+ * Articles list & total count helper
+ */
+const articlesQuery = async ({ categoryId }) => {
+  const query = {};
+
+  // filter articles by category id
+  if (categoryId) {
+    const category = await KnowledgeBaseCategories.findOne({ _id: categoryId });
+    query._id = { $in: category.articleIds || [] };
+  }
+
+  return query;
+};
+
+/*
+ * Categories list & total count helper
+ */
+const categoriesQuery = async ({ topicId }) => {
+  const query = {};
+
+  // filter categories by topic id
+  if (topicId) {
+    const topic = await KnowledgeBaseTopics.findOne({ _id: topicId });
+    query._id = { $in: topic.categoryIds || [] };
+  }
+
+  return query;
+};
+
 const knowledgeBaseQueries = {
   /**
    * Article list
    * @param {Object} args - Search params
    * @return {Promise} sorted article list
    */
-  knowledgeBaseArticles(root, args) {
-    const articles = paginate(KnowledgeBaseArticles.find({}), args);
-    return articles.sort({ createdDate: -1 });
+  async knowledgeBaseArticles(root, args) {
+    const query = await articlesQuery(args);
+    const articles = KnowledgeBaseArticles.find(query).sort({ createdDate: -1 });
+
+    return paginate(articles, args);
   },
 
   /**
@@ -32,8 +64,10 @@ const knowledgeBaseQueries = {
    * Total article count
    * @return {Promise} article count
    */
-  knowledgeBaseArticlesTotalCount() {
-    return KnowledgeBaseArticles.find({}).count();
+  async knowledgeBaseArticlesTotalCount(root, args) {
+    const query = await articlesQuery(args);
+
+    return KnowledgeBaseArticles.find(query).count();
   },
 
   /**
@@ -41,9 +75,11 @@ const knowledgeBaseQueries = {
    * @param {Object} args - Search params
    * @return {Promise} sorted category list
    */
-  knowledgeBaseCategories(root, args) {
-    const categories = paginate(KnowledgeBaseCategories.find({}), args);
-    return categories.sort({ createdDate: -1 });
+  async knowledgeBaseCategories(root, args) {
+    const query = await categoriesQuery(args);
+    const categories = KnowledgeBaseCategories.find(query).sort({ createdDate: -1 });
+
+    return paginate(categories, args);
   },
 
   /**
@@ -62,8 +98,17 @@ const knowledgeBaseQueries = {
    * Category total count
    * @return {Promise} category total count
    */
-  knowledgeBaseCategoriesTotalCount() {
-    return KnowledgeBaseCategories.find({}).count();
+  async knowledgeBaseCategoriesTotalCount(root, args) {
+    const query = await categoriesQuery(args);
+
+    return KnowledgeBaseCategories.find(query).count();
+  },
+
+  /**
+  * Get last category
+  */
+  knowledgeBaseCategoriesGetLast() {
+    return KnowledgeBaseCategories.findOne({}).sort({ createdDate: -1 });
   },
 
   /**

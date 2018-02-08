@@ -6,6 +6,7 @@ export const types = `
     content: String
     status: String
     createdBy: String
+    createdUser: User
     createdDate: Date
     modifiedBy: String
     modifiedDate: Date
@@ -62,13 +63,14 @@ export const queries = `
   knowledgeBaseTopicDetail(_id: String!): KnowledgeBaseTopic
   knowledgeBaseTopicsTotalCount: Int
 
-  knowledgeBaseCategories(page: Int, perPage: Int): [KnowledgeBaseCategory]
+  knowledgeBaseCategories(page: Int, perPage: Int, topicId: String): [KnowledgeBaseCategory]
   knowledgeBaseCategoryDetail(_id: String!): KnowledgeBaseCategory
-  knowledgeBaseCategoriesTotalCount: Int
+  knowledgeBaseCategoriesTotalCount(topicId: String): Int
+  knowledgeBaseCategoriesGetLast: KnowledgeBaseCategory
 
-  knowledgeBaseArticles(page: Int, perPage: Int): [KnowledgeBaseArticle]
+  knowledgeBaseArticles(page: Int, perPage: Int, categoryId: String): [KnowledgeBaseArticle]
   knowledgeBaseArticleDetail(_id: String!): KnowledgeBaseArticle
-  knowledgeBaseArticlesTotalCount: Int
+  knowledgeBaseArticlesTotalCount(categoryId: String): Int
 `;
 
 export const mutations = `

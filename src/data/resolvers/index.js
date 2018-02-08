@@ -15,6 +15,7 @@ import Segment from './segment';
 import Conversation from './conversation';
 import ConversationMessage from './conversationMessage';
 import Notification from './notification';
+import KnowledgeBaseArticle from './KnowledgeBaseArticle';
 import KnowledgeBaseCategory from './knowledgeBaseCategory';
 import KnowledgeBaseTopic from './knowledgeBaseTopic';
 import ActivityLog from './activityLog';
@@ -40,6 +41,7 @@ export default {
   Query,
   Subscription,
 
+  KnowledgeBaseArticle,
   KnowledgeBaseCategory,
   KnowledgeBaseTopic,
 
