@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import Select from 'react-select-plus';
 import {
   FormGroup,
   ControlLabel,
@@ -136,12 +135,12 @@ class UserCommonInfos extends Component {
           </FormGroup>
           <FormGroup>
             <ControlLabel>Location</ControlLabel>
-            <Select
+            <FormControl
+              componentClass="select"
               value={this.state.location}
               id="location"
               options={timezones}
               onChange={e => this.onLocationChange(e)}
-              clearable={false}
             />
           </FormGroup>
         </ProfileColumn>
