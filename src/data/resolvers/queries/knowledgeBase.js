@@ -4,7 +4,7 @@ import {
   KnowledgeBaseArticles,
 } from '../../../db/models';
 
-import { moduleRequireLogin } from '../../permissions';
+// import { moduleRequireLogin } from '../../permissions';
 import { paginate } from './utils';
 
 /*
@@ -15,11 +15,11 @@ const articlesQuery = async ({ categoryIds }) => {
 
   // filter articles by category id
   if (categoryIds) {
-    const categories = await KnowledgeBaseCategories.findOne({ _id: { $in: categoryIds } });
+    const categories = await KnowledgeBaseCategories.find({ _id: { $in: categoryIds } });
     let articleIds = [];
 
     for (let category of categories) {
-      articleIds = [...articleIds, category.articleIds || []];
+      articleIds = articleIds.concat(category.articleIds || []);
     }
     query._id = { $in: articleIds };
   }
@@ -37,10 +37,10 @@ const categoriesQuery = async ({ topicIds }) => {
   if (topicIds) {
     let categoryIds = [];
 
-    const topics = await KnowledgeBaseTopics.findOne({ _id: { $in: topicIds } });
+    const topics = await KnowledgeBaseTopics.find({ _id: { $in: topicIds } });
 
     for (let topic of topics) {
-      categoryIds = [...categoryIds, topic.categoryIds || []];
+      categoryIds = categoryIds.concat(topic.categoryIds || []);
     }
     query._id = { $in: categoryIds };
   }
@@ -151,6 +151,6 @@ const knowledgeBaseQueries = {
   },
 };
 
-moduleRequireLogin(knowledgeBaseQueries);
+// moduleRequireLogin(knowledgeBaseQueries);
 
 export default knowledgeBaseQueries;

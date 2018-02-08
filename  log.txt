@@ -1,0 +1,111 @@
+yarn run v1.3.2
+$ NODE_ENV=development nodemon src --exec babel-node
+[33m[nodemon] 1.12.1[39m
+[33m[nodemon] to restart at any time, enter `rs`[39m
+[33m[nodemon] watching: *.*[39m
+[32m[nodemon] starting `babel-node src`[39m
+ws://localhost:3300/subscriptions
+GraphQL Server is now running on 3300
+Connected to the database: mongodb://localhost/erxes
+mylog [ 'YtYMcsL8PCRGMn922' ]
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `babel-node src`[39m
+ws://localhost:3300/subscriptions
+GraphQL Server is now running on 3300
+Connected to the database: mongodb://localhost/erxes
+mylog [ 'YtYMcsL8PCRGMn922' ]
+mylog { _id: { '$in': [ ["WRhGKidnXFg9moZb5","sikvNM6EbQHCkTue8"] ] } }
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `babel-node src`[39m
+ws://localhost:3300/subscriptions
+GraphQL Server is now running on 3300
+Connected to the database: mongodb://localhost/erxes
+mylog [ 'YtYMcsL8PCRGMn922' ]
+mylog { _id: { '$in': [] } }
+mylog [ 'YtYMcsL8PCRGMn922' ]
+mylog { _id: { '$in': [] } }
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `babel-node src`[39m
+ws://localhost:3300/subscriptions
+GraphQL Server is now running on 3300
+mylog [ 'YtYMcsL8PCRGMn922' ]
+Connected to the database: mongodb://localhost/erxes
+mylog { _id: { '$in': [ 'WRhGKidnXFg9moZb5', 'sikvNM6EbQHCkTue8' ] } }
+mylog null
+mylog {}
+mylog [ 'YtYMcsL8PCRGMn922' ]
+mylog [ '9E8xusffTSuYby5d6' ]
+mylog [ 'NPF5pFhDSguZz7f5C' ]
+mylog [ 'EPPQRzC4MbtPoEcd7' ]
+mylog { _id: { '$in': [ 'WRhGKidnXFg9moZb5', 'sikvNM6EbQHCkTue8' ] } }
+mylog { _id: { '$in': [] } }
+mylog { _id: { '$in': [] } }
+mylog { _id: { '$in': [ '9Wt4aBFW2rcAQNqeq', 'LMBPWuxGG3Z5GN32L', 'p9BRLBJwsrwG3ivWf' ] } }
+mylog null
+mylog {}
+mylog null
+mylog {}
+mylog null
+mylog {}
+mylog [ 'YtYMcsL8PCRGMn922' ]
+mylog { _id: { '$in': [ 'WRhGKidnXFg9moZb5', 'sikvNM6EbQHCkTue8' ] } }
+mylog [ '9E8xusffTSuYby5d6' ]
+mylog [ 'NPF5pFhDSguZz7f5C' ]
+mylog [ 'EPPQRzC4MbtPoEcd7' ]
+mylog { _id: { '$in': [ 'RYLBv5NnRQhSBLvxb' ] } }
+mylog { _id: { '$in': [] } }
+mylog { _id: { '$in': [ '9Wt4aBFW2rcAQNqeq', 'LMBPWuxGG3Z5GN32L', 'p9BRLBJwsrwG3ivWf' ] } }
+mylog null
+mylog {}
+mylog null
+mylog {}
+mylog [ 'YtYMcsL8PCRGMn922' ]
+mylog [ '9E8xusffTSuYby5d6' ]
+mylog [ 'NPF5pFhDSguZz7f5C' ]
+mylog [ 'EPPQRzC4MbtPoEcd7' ]
+mylog { _id: { '$in': [ 'WRhGKidnXFg9moZb5', 'sikvNM6EbQHCkTue8' ] } }
+mylog { _id: { '$in': [ 'RYLBv5NnRQhSBLvxb' ] } }
+mylog { _id: { '$in': [] } }
+mylog { _id: { '$in': [ '9Wt4aBFW2rcAQNqeq', 'LMBPWuxGG3Z5GN32L', 'p9BRLBJwsrwG3ivWf' ] } }
+mylog null
+mylog {}
+mylog [ 'YtYMcsL8PCRGMn922' ]
+mylog [ '9E8xusffTSuYby5d6' ]
+mylog [ 'NPF5pFhDSguZz7f5C' ]
+mylog [ 'EPPQRzC4MbtPoEcd7' ]
+mylog { _id: { '$in': [ 'WRhGKidnXFg9moZb5', 'sikvNM6EbQHCkTue8' ] } }
+mylog { _id: { '$in': [ 'RYLBv5NnRQhSBLvxb' ] } }
+mylog { _id: { '$in': [] } }
+mylog { _id: { '$in': [ '9Wt4aBFW2rcAQNqeq', 'LMBPWuxGG3Z5GN32L', 'p9BRLBJwsrwG3ivWf' ] } }
+mylog null
+mylog {}
+mylog [ 'YtYMcsL8PCRGMn922' ]
+mylog [ '9E8xusffTSuYby5d6' ]
+mylog [ 'NPF5pFhDSguZz7f5C' ]
+mylog [ 'EPPQRzC4MbtPoEcd7' ]
+mylog { _id: { '$in': [ 'WRhGKidnXFg9moZb5', 'sikvNM6EbQHCkTue8' ] } }
+mylog { _id: { '$in': [ 'RYLBv5NnRQhSBLvxb' ] } }
+mylog { _id: { '$in': [] } }
+mylog { _id: { '$in': [ '9Wt4aBFW2rcAQNqeq', 'LMBPWuxGG3Z5GN32L', 'p9BRLBJwsrwG3ivWf' ] } }
+mylog null
+mylog {}
+mylog [ 'YtYMcsL8PCRGMn922' ]
+mylog [ '9E8xusffTSuYby5d6' ]
+mylog [ 'NPF5pFhDSguZz7f5C' ]
+mylog { _id: { '$in': [ 'WRhGKidnXFg9moZb5', 'sikvNM6EbQHCkTue8' ] } }
+mylog [ 'EPPQRzC4MbtPoEcd7' ]
+mylog { _id: { '$in': [ 'RYLBv5NnRQhSBLvxb' ] } }
+mylog { _id: { '$in': [] } }
+mylog { _id: { '$in': [ '9Wt4aBFW2rcAQNqeq', 'LMBPWuxGG3Z5GN32L', 'p9BRLBJwsrwG3ivWf' ] } }
+mylog null
+mylog {}
+mylog [ 'YtYMcsL8PCRGMn922' ]
+mylog [ '9E8xusffTSuYby5d6' ]
+mylog [ 'NPF5pFhDSguZz7f5C' ]
+mylog { _id: { '$in': [ 'WRhGKidnXFg9moZb5', 'sikvNM6EbQHCkTue8' ] } }
+mylog [ 'EPPQRzC4MbtPoEcd7' ]
+mylog { _id: { '$in': [ 'RYLBv5NnRQhSBLvxb' ] } }
+mylog { _id: { '$in': [] } }
+mylog { _id: { '$in': [ '9Wt4aBFW2rcAQNqeq', 'LMBPWuxGG3Z5GN32L', 'p9BRLBJwsrwG3ivWf' ] } }
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `babel-node src`[39m
