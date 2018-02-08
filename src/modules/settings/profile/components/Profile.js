@@ -32,9 +32,9 @@ class Profile extends Component {
         avatar: this.state.avatar,
         fullName: document.getElementById('fullName').value,
         position: document.getElementById('position').value,
-        location: '',
+        location: 'Mongolia/ Ulaanbaatar',
         description: document.getElementById('description').value,
-        twitterUsername: document.getElementById('twitter').value
+        twitterUsername: document.getElementById('twitterUsername').value
       },
       links: {
         linkedIn: document.getElementById('linkedin').value,
