@@ -4,7 +4,7 @@ import {
   KnowledgeBaseArticles,
 } from '../../../db/models';
 
-// import { moduleRequireLogin } from '../../permissions';
+import { moduleRequireLogin } from '../../permissions';
 import { paginate } from './utils';
 
 /*
@@ -151,6 +151,6 @@ const knowledgeBaseQueries = {
   },
 };
 
-// moduleRequireLogin(knowledgeBaseQueries);
+moduleRequireLogin(knowledgeBaseQueries);
 
 export default knowledgeBaseQueries;
