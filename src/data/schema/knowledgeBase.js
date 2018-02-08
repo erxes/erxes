@@ -6,6 +6,7 @@ export const types = `
     content: String
     status: String
     createdBy: String
+    createdUser: User
     createdDate: Date
     modifiedBy: String
     modifiedDate: Date
