@@ -2,25 +2,12 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Draggable } from 'react-beautiful-dnd';
 
+import { DealContainer } from '../styles';
+
 const propTypes = {
   deal: PropTypes.object.isRequired,
   index: PropTypes.number.isRequired
 };
-
-// using some little inline style helpers to make the app look okay
-const grid = 8;
-const getItemStyle = (isDragging, draggableStyle) => ({
-  // some basic styles to make the items look a bit nicer
-  userSelect: 'none',
-  padding: grid * 2,
-  margin: `0 0 ${grid}px 0`,
-
-  // change background colour if dragging
-  background: isDragging ? 'lightgreen' : 'grey',
-
-  // styles we need to apply on draggables
-  ...draggableStyle
-});
 
 class Deal extends React.Component {
   render() {
@@ -28,21 +15,17 @@ class Deal extends React.Component {
 
     return (
       <Draggable draggableId={deal._id} index={index}>
-        {(provided, snapshot) => (
-          <div>
+        {provided => (
+          <DealContainer>
             <div
               ref={provided.innerRef}
               {...provided.draggableProps}
               {...provided.dragHandleProps}
-              style={getItemStyle(
-                snapshot.isDragging,
-                provided.draggableProps.style
-              )}
             >
               {deal.name}
             </div>
             {provided.placeholder}
-          </div>
+          </DealContainer>
         )}
       </Draggable>
     );

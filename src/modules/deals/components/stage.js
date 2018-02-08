@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Draggable, Droppable } from 'react-beautiful-dnd';
 import Deal from './deal';
-import { Item } from '../styles';
+import { StageContainer } from '../styles';
 
 const propTypes = {
   stage: PropTypes.object.isRequired,
@@ -18,7 +18,7 @@ class Stage extends React.Component {
       <Draggable draggableId={stage._id} index={index}>
         {provided => {
           return (
-            <Item
+            <StageContainer
               innerRef={provided.innerRef}
               {...provided.draggableProps}
               {...provided.dragHandleProps}
@@ -36,7 +36,7 @@ class Stage extends React.Component {
                   </div>
                 )}
               </Droppable>
-            </Item>
+            </StageContainer>
           );
         }}
       </Draggable>

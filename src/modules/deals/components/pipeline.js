@@ -2,12 +2,12 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import Stage from './stage';
 import { Droppable } from 'react-beautiful-dnd';
-import { PipelineContainer, PipelineHeader } from '../styles';
+import { PipelineContainer, PipelineHeader, PipelineBody } from '../styles';
 
 const propTypes = {
   pipeline: PropTypes.object.isRequired,
   stages: PropTypes.array.isRequired,
-  deals: PropTypes.array.isRequired
+  deals: PropTypes.object.isRequired
 };
 
 class Pipeline extends React.Component {
@@ -15,20 +15,18 @@ class Pipeline extends React.Component {
     const { stages, pipeline, deals } = this.props;
 
     const content = innerRef => (
-      <div ref={innerRef}>
-        <ul>
-          {stages.map((stage, index) => {
-            return (
-              <Stage
-                key={stage._id}
-                index={index}
-                stage={stage}
-                deals={deals[stage._id]}
-              />
-            );
-          })}
-        </ul>
-      </div>
+      <PipelineBody innerRef={innerRef}>
+        {stages.map((stage, index) => {
+          return (
+            <Stage
+              key={stage._id}
+              index={index}
+              stage={stage}
+              deals={deals[stage._id]}
+            />
+          );
+        })}
+      </PipelineBody>
     );
 
     return (

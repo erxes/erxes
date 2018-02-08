@@ -1,10 +1,13 @@
 import React from 'react';
+import PropTypes from 'prop-types';
+
 import { Link } from 'react-router-dom';
 import { Dropdown } from 'react-bootstrap';
 import { Wrapper } from 'modules/layout/components';
 import { DragDropContext } from 'react-beautiful-dnd';
 
 import Pipeline from './pipeline';
+import { PipelineForm } from './';
 import { Pipelines, Stages, Deals } from '../constants';
 import { moveInList, addToList, removeFromList } from '../utils';
 import { BarItems } from 'modules/layout/styles';
@@ -14,6 +17,10 @@ import {
   DropdownToggle,
   Icon
 } from 'modules/common/components';
+
+const propTypes = {
+  addPipeline: PropTypes.func.isRequired
+};
 
 class Board extends React.Component {
   constructor(props) {
@@ -45,9 +52,9 @@ class Board extends React.Component {
     this.onDragEnd = this.onDragEnd.bind(this);
   }
 
-  reOrder({ destination, source }, list, fieldName) {
+  reOrder({ source, destination }, list, fieldName) {
     // If ordering within list
-    if (destination.droppableId === source.droppableId) {
+    if (source.droppableId === destination.droppableId) {
       // move in list
       const movedList = moveInList(
         list[destination.droppableId],
@@ -81,6 +88,8 @@ class Board extends React.Component {
       // Update added list
       list[destination.droppableId] = addedList;
     }
+
+    console.log('list: ', list);
 
     // reordered list
     return list;
@@ -134,7 +143,9 @@ class Board extends React.Component {
 
     const actionBarRight = (
       <BarItems>
-        <ModalTrigger title="New pipeline" trigger={addTrigger} />
+        <ModalTrigger title="New pipeline" trigger={addTrigger}>
+          <PipelineForm addPipeline={this.props.addPipeline} />
+        </ModalTrigger>
       </BarItems>
     );
 
@@ -191,5 +202,7 @@ class Board extends React.Component {
     );
   }
 }
+
+Board.propTypes = propTypes;
 
 export default Board;

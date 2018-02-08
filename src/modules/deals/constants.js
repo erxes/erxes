@@ -21,6 +21,11 @@ export const Stages = [
     pipelineId: 'pipeline1'
   },
   {
+    _id: 'stage13',
+    name: 'Stage 1.3',
+    pipelineId: 'pipeline1'
+  },
+  {
     _id: 'stage21',
     name: 'Stage 2.1',
     pipelineId: 'pipeline2'
@@ -56,6 +61,12 @@ export const Deals = [
     name: 'Deal 1.2.2',
     stageId: 'stage12',
     order: 1
+  },
+  {
+    _id: 'deal131',
+    name: 'Deal 1.3.1',
+    stageId: 'stage13',
+    order: 2
   },
   {
     _id: 'deal211',
