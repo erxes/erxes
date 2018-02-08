@@ -10,13 +10,18 @@ import { paginate } from './utils';
 /*
  * Articles list & total count helper
  */
-const articlesQuery = async ({ categoryId }) => {
+const articlesQuery = async ({ categoryIds }) => {
   const query = {};
 
   // filter articles by category id
-  if (categoryId) {
-    const category = await KnowledgeBaseCategories.findOne({ _id: categoryId });
-    query._id = { $in: category.articleIds || [] };
+  if (categoryIds) {
+    const categories = await KnowledgeBaseCategories.findOne({ _id: { $in: categoryIds } });
+    let articleIds = [];
+
+    for (let category of categories) {
+      articleIds = [...articleIds, category.articleIds || []];
+    }
+    query._id = { $in: articleIds };
   }
 
   return query;
@@ -25,13 +30,19 @@ const articlesQuery = async ({ categoryId }) => {
 /*
  * Categories list & total count helper
  */
-const categoriesQuery = async ({ topicId }) => {
+const categoriesQuery = async ({ topicIds }) => {
   const query = {};
 
   // filter categories by topic id
-  if (topicId) {
-    const topic = await KnowledgeBaseTopics.findOne({ _id: topicId });
-    query._id = { $in: topic.categoryIds || [] };
+  if (topicIds) {
+    let categoryIds = [];
+
+    const topics = await KnowledgeBaseTopics.findOne({ _id: { $in: topicIds } });
+
+    for (let topic of topics) {
+      categoryIds = [...categoryIds, topic.categoryIds || []];
+    }
+    query._id = { $in: categoryIds };
   }
 
   return query;

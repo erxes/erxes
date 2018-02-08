@@ -28,7 +28,7 @@ class KnowledgeBaseCommonDocument {
    * @return {Promise} - returns Promise resolving newly added document
    * @throws {Error} - throws Error('userId must be supplied') if the userId is not supplied
    */
-  static createDoc(doc, userId) {
+  static createBaseDoc(doc, userId) {
     if (!userId) {
       throw new Error('userId must be supplied');
     }
@@ -46,7 +46,7 @@ class KnowledgeBaseCommonDocument {
    * @param {string} - The user id of the modifier
    * @return {Promsie} - returns Promise resolving updated document
    */
-  static async updateDoc(_id, doc, userId) {
+  static async updateBaseDoc(_id, doc, userId) {
     if (!userId) {
       throw new Error('userId must be supplied');
     }
@@ -96,11 +96,19 @@ class Article extends KnowledgeBaseCommonDocument {
    * @param {string} doc.summary - KnowledgeBaseArticle summary
    * @param {string} doc.content - KnowledgeBaseArticle content
    * @param {string} doc.status - KnowledgeBaseArticle status (currently: 'draft' or 'publish')
+   * @param {string[]} doc.categoryIds - list of parent Category ids
    * @param {string} userId - User id of the creator of this document
    * @return {Promise} - returns Promise resolving created document
    */
-  static createDoc(doc, userId) {
-    return super.createDoc(doc, userId);
+  static async createDoc({ categoryIds, ...docFields }, userId) {
+    const article = await this.createBaseDoc(docFields, userId);
+    if ((categoryIds || []).length > 0) {
+      for (let category of await KnowledgeBaseCategories.find({ _id: { $in: categoryIds } })) {
+        category.articleIds.push(article._id.toString());
+        await category.save();
+      }
+    }
+    return article;
   }
 
   /**
@@ -111,11 +119,25 @@ class Article extends KnowledgeBaseCommonDocument {
    * @param {string} doc.summary - KnowledgeBaseArticle summary
    * @param {string} doc.content - KnowledgeBaseArticle content
    * @param {string} doc.status - KnowledgeBaseArticle status (currently: 'draft' or 'publish')
+   * @param {string[]} doc.categoryIds - list of parent Category ids
    * @param {string} userId - User id of the modifier of this document
    * @return {Promise} - returns Promise resolving modified document
    */
-  static updateDoc(_id, doc, userId) {
-    return super.updateDoc({ _id }, doc, userId);
+  static async updateDoc(_id, { categoryIds, ...docFields }, userId) {
+    await this.updateBaseDoc({ _id }, docFields, userId);
+
+    const article = await this.findOne({ _id });
+
+    if ((categoryIds || []).length > 0) {
+      for (let category of await KnowledgeBaseCategories.find({ _id: { $in: categoryIds } })) {
+        if (category.articleIds.indexOf(article._id.toString()) == -1) {
+          category.articleIds.push(article._id.toString());
+          await category.save();
+        }
+      }
+    }
+
+    return article;
   }
 
   /**
@@ -152,11 +174,19 @@ class Category extends KnowledgeBaseCommonDocument {
    * @param {string[]} doc.articleIds - KnowledgeBaseCategory articleIds
    * @param {string} doc.icon - Select icon name
    * @param {string} userId - User id of the creator of this document
-   * @param {string} topicId - parentTopicId
+   * @param {string[]} doc.topicIds - list of parent Topic ids
    * @return {Promise} - returns Promise resolving created document
    */
-  static createDoc(docFields, userId) {
-    return super.createDoc(docFields, userId);
+  static async createDoc({ topicIds, ...docFields }, userId) {
+    const category = await this.createBaseDoc(docFields, userId);
+
+    if ((topicIds || []).length > 0) {
+      for (let topic of await KnowledgeBaseTopics.find({ _id: { $in: topicIds } })) {
+        topic.categoryIds.push(category._id.toString());
+        await topic.save();
+      }
+    }
+    return category;
   }
 
   /**
@@ -167,12 +197,26 @@ class Category extends KnowledgeBaseCommonDocument {
    * @param {string} doc.description - KnowledgeBaseCategory description
    * @param {string[]} doc.articleIds - KnowledgeBaseCategory articleIds
    * @param {string} doc.icon - Select icon name
+   * @param {string[]} doc.topicIds - list of parent Topic ids
    * @param {string} userId - User id of the modifier of this document
    * @param {string} topicId - parentTopicId
    * @return {Promise} - returns Promise resolving modified document
    */
-  static updateDoc(_id, docFields, userId) {
-    return super.updateDoc(_id, docFields, userId);
+  static async updateDoc(_id, { topicIds, ...docFields }, userId) {
+    await this.updateBaseDoc({ _id }, docFields, userId);
+
+    const category = await this.findOne({ _id });
+
+    if ((topicIds || []).length > 0) {
+      for (let topic of await KnowledgeBaseTopics.find({ _id: { $in: topicIds } })) {
+        if (topic.categoryIds.indexOf(category._id.toString()) == -1) {
+          topic.categoryIds.push(category._id.toString());
+          await topic.save();
+        }
+      }
+    }
+
+    return category;
   }
 
   /**
@@ -215,7 +259,7 @@ class Topic extends KnowledgeBaseCommonDocument {
    * @return {Promise} - returns Promise resolving created document
    */
   static createDoc(docFields, userId) {
-    return super.createDoc(docFields, userId);
+    return this.createBaseDoc(docFields, userId);
   }
 
   /**
@@ -230,7 +274,7 @@ class Topic extends KnowledgeBaseCommonDocument {
    * @return {Promise} - returns Promise resolving modified document
    */
   static updateDoc(_id, docFields, userId) {
-    return super.updateDoc(_id, docFields, userId);
+    return this.updateBaseDoc(_id, docFields, userId);
   }
 }
 

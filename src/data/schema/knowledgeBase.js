@@ -17,6 +17,7 @@ export const types = `
     summary: String
     content: String!
     status: String!
+    categoryIds: [String]
   }
 
   type KnowledgeBaseCategory {
@@ -36,6 +37,7 @@ export const types = `
     description: String
     articleIds: [String]
     icon: String!
+    topicIds: [String]
   }
 
   type KnowledgeBaseTopic {
@@ -63,14 +65,14 @@ export const queries = `
   knowledgeBaseTopicDetail(_id: String!): KnowledgeBaseTopic
   knowledgeBaseTopicsTotalCount: Int
 
-  knowledgeBaseCategories(page: Int, perPage: Int, topicId: String): [KnowledgeBaseCategory]
+  knowledgeBaseCategories(page: Int, perPage: Int, topicIds: [String]): [KnowledgeBaseCategory]
   knowledgeBaseCategoryDetail(_id: String!): KnowledgeBaseCategory
-  knowledgeBaseCategoriesTotalCount(topicId: String): Int
+  knowledgeBaseCategoriesTotalCount(topicIds: [String]): Int
   knowledgeBaseCategoriesGetLast: KnowledgeBaseCategory
 
-  knowledgeBaseArticles(page: Int, perPage: Int, categoryId: String): [KnowledgeBaseArticle]
+  knowledgeBaseArticles(page: Int, perPage: Int, categoryIds: [String]): [KnowledgeBaseArticle]
   knowledgeBaseArticleDetail(_id: String!): KnowledgeBaseArticle
-  knowledgeBaseArticlesTotalCount(categoryId: String): Int
+  knowledgeBaseArticlesTotalCount(categoryIds: [String]): Int
 `;
 
 export const mutations = `

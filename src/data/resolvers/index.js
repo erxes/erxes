@@ -15,7 +15,7 @@ import Segment from './segment';
 import Conversation from './conversation';
 import ConversationMessage from './conversationMessage';
 import Notification from './notification';
-import KnowledgeBaseArticle from './KnowledgeBaseArticle';
+import KnowledgeBaseArticle from './knowledgeBaseArticle';
 import KnowledgeBaseCategory from './knowledgeBaseCategory';
 import KnowledgeBaseTopic from './knowledgeBaseTopic';
 import ActivityLog from './activityLog';
