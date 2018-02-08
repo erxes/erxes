@@ -24,7 +24,8 @@ class Profile extends Component {
 
   handleSubmit(password) {
     const location = document.getElementById('location');
-    console.log(location);
+    const locationValue = location.options[location.selectedIndex].value;
+
     this.props.save({
       username: document.getElementById('username').value,
       email: document.getElementById('email').value,
@@ -32,7 +33,7 @@ class Profile extends Component {
         avatar: this.state.avatar,
         fullName: document.getElementById('fullName').value,
         position: document.getElementById('position').value,
-        location: 'Mongolia/ Ulaanbaatar',
+        location: locationValue,
         description: document.getElementById('description').value,
         twitterUsername: document.getElementById('twitterUsername').value
       },
