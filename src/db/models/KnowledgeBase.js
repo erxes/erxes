@@ -10,7 +10,10 @@ const commonFields = {
     default: new Date(),
   }),
   modifiedBy: field({ type: String }),
-  modifiedDate: field({ type: Date }),
+  modifiedDate: field({
+    type: Date,
+    default: new Date(),
+  }),
 };
 
 /**
@@ -149,9 +152,10 @@ class Category extends KnowledgeBaseCommonDocument {
    * @param {string[]} doc.articleIds - KnowledgeBaseCategory articleIds
    * @param {string} doc.icon - Select icon name
    * @param {string} userId - User id of the creator of this document
+   * @param {string} topicId - parentTopicId
    * @return {Promise} - returns Promise resolving created document
    */
-  static createDoc({ createdBy, createdDate, modifiedBy, modifiedDate, ...docFields }, userId) {
+  static createDoc(docFields, userId) {
     return super.createDoc(docFields, userId);
   }
 
@@ -164,13 +168,10 @@ class Category extends KnowledgeBaseCommonDocument {
    * @param {string[]} doc.articleIds - KnowledgeBaseCategory articleIds
    * @param {string} doc.icon - Select icon name
    * @param {string} userId - User id of the modifier of this document
+   * @param {string} topicId - parentTopicId
    * @return {Promise} - returns Promise resolving modified document
    */
-  static updateDoc(
-    _id,
-    { createdBy, createdDate, modifiedBy, modifiedDate, ...docFields },
-    userId,
-  ) {
+  static updateDoc(_id, docFields, userId) {
     return super.updateDoc(_id, docFields, userId);
   }
 
@@ -213,7 +214,7 @@ class Topic extends KnowledgeBaseCommonDocument {
    * @param {string} userId - User id of the creator of this document
    * @return {Promise} - returns Promise resolving created document
    */
-  static createDoc({ createdBy, createdDate, modifiedBy, modifiedDate, ...docFields }, userId) {
+  static createDoc(docFields, userId) {
     return super.createDoc(docFields, userId);
   }
 
@@ -228,11 +229,7 @@ class Topic extends KnowledgeBaseCommonDocument {
    * @param {string} userId - User id of the modifier of this document
    * @return {Promise} - returns Promise resolving modified document
    */
-  static updateDoc(
-    _id,
-    { createdBy, createdDate, modifiedBy, modifiedDate, ...docFields },
-    userId,
-  ) {
+  static updateDoc(_id, docFields, userId) {
     return super.updateDoc(_id, docFields, userId);
   }
 }
