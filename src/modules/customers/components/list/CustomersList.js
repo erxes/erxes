@@ -109,7 +109,9 @@ class CustomersList extends React.Component {
     const searchValue = e.target.value;
 
     this.setState({ searchValue });
-    router.setParams(history, { searchValue });
+    this.timer = setTimeout(() => {
+      router.setParams(history, { searchValue });
+    }, 500);
   }
 
   moveCursorAtTheEnd(e) {
