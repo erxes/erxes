@@ -20,13 +20,14 @@ class VisitorForm extends FormBase {
 
     const message = props.message.messenger ? props.message.messenger : {};
     const rules = message.rules ? message.rules.map(rule => ({ ...rule })) : [];
+    const validate = props.message.messenger ? false : true;
 
     this.state = {
       maxStep: 2,
       activeStep: 1,
       validate: {
-        step1: true,
-        step2: true
+        step1: validate,
+        step2: validate
       },
       method: METHODS.MESSENGER,
       title: props.message.title || '',
@@ -44,6 +45,7 @@ class VisitorForm extends FormBase {
 
   next(stepNumber) {
     const { activeStep, maxStep } = this.state;
+    this.validate();
     if (stepNumber === 0) {
       if (activeStep <= maxStep) {
         this.setState({ activeStep: activeStep + 1 });
@@ -54,18 +56,20 @@ class VisitorForm extends FormBase {
   }
 
   validate() {
-    const step3 = this.state.messenger;
+    const step1 = this.state.rules;
+    const step2 = this.state.messenger;
     let validate = { ...this.state.validate };
-    validate['step2'] = false;
-    validate['step3'] = false;
 
-    if (this.state.segment === '') {
-      validate['step2'] = true;
+    validate['step1'] = false;
+    validate['step2'] = false;
+
+    if (step1.length < 1) {
+      validate['step1'] = true;
     }
 
-    Object.keys(step3).map(key => {
-      if (step3[key] === '') {
-        validate['step3'] = true;
+    Object.keys(step2).map(key => {
+      if (step2[key] === '') {
+        validate['step2'] = true;
       }
       return false;
     });
