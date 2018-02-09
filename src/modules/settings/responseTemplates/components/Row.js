@@ -9,10 +9,12 @@ class Row extends CommonRow {
 
   render() {
     const { object } = this.props;
+    const brand = object.brand || {};
+    console.log(object);
 
     return (
       <tr>
-        <td>{object.brand.name}</td>
+        <td>{brand.name}</td>
         <td>{object.name}</td>
 
         {this.renderActions()}

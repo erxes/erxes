@@ -25,6 +25,7 @@ const propTypes = {
   columnsConfig: PropTypes.array.isRequired,
   addCompany: PropTypes.func.isRequired,
   history: PropTypes.object,
+  location: PropTypes.object,
   loading: PropTypes.bool.isRequired,
   searchValue: PropTypes.string.isRequired,
   toggleBulk: PropTypes.func.isRequired,
@@ -63,7 +64,6 @@ class CompaniesList extends React.Component {
     const searchValue = e.target.value;
 
     this.setState({ searchValue });
-
     this.timer = setTimeout(() => {
       router.setParams(history, { searchValue });
     }, 500);
@@ -79,11 +79,18 @@ class CompaniesList extends React.Component {
     this.props.removeCompanies({ companyIds });
   }
 
+  moveCursorAtTheEnd(e) {
+    const tmpValue = e.target.value;
+    e.target.value = '';
+    e.target.value = tmpValue;
+  }
+
   render() {
     const {
       columnsConfig,
       companies,
       history,
+      location,
       loading,
       addCompany,
       counts,
@@ -201,9 +208,15 @@ class CompaniesList extends React.Component {
           placeholder="Type to search.."
           onChange={e => this.search(e)}
           value={this.state.searchValue}
+          autoFocus
+          onFocus={e => this.moveCursorAtTheEnd(e)}
         />
         <ModalTrigger title="Choose which column you see" trigger={editColumns}>
-          <ManageColumns contentType="company" />
+          <ManageColumns
+            location={location}
+            history={history}
+            contentType="company"
+          />
         </ModalTrigger>
         <ModalTrigger title="New company" trigger={addTrigger}>
           <CompanyForm addCompany={addCompany} />
