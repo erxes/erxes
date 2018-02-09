@@ -11,9 +11,7 @@ const KnowledgeBaseContainer = props => {
     currentCategoryId,
     categoriesQuery,
     categoriesCountQuery,
-    removeCategoriesMutation,
-    addCategoriesMutation,
-    editCategoriesMutation
+    removeCategoriesMutation
   } = props;
 
   // remove action
@@ -33,37 +31,9 @@ const KnowledgeBaseContainer = props => {
     });
   };
 
-  // create or update action
-  const save = ({ doc }, callback, object) => {
-    let mutation = addCategoriesMutation;
-
-    // if edit mode
-    if (object) {
-      mutation = editCategoriesMutation;
-      doc._id = object._id;
-    }
-
-    mutation({
-      variables: doc
-    })
-      .then(() => {
-        // update queries
-        categoriesQuery.refetch();
-        categoriesCountQuery.refetch();
-
-        Alert.success('Congrats');
-
-        callback();
-      })
-      .catch(error => {
-        Alert.error(error.message);
-      });
-  };
-
   const extendedProps = {
     ...this.props,
     remove,
-    save,
     currentCategoryId,
     categories: categoriesQuery.knowledgeBaseCategories || [],
     loading: categoriesQuery.loading,
@@ -76,10 +46,9 @@ const KnowledgeBaseContainer = props => {
 KnowledgeBaseContainer.propTypes = {
   categoriesQuery: PropTypes.object,
   categoriesCountQuery: PropTypes.object,
-  addCategoriesMutation: PropTypes.func,
-  editCategoriesMutation: PropTypes.func,
   removeCategoriesMutation: PropTypes.func,
-  currentCategoryId: PropTypes.string
+  currentCategoryId: PropTypes.string,
+  currentTopicId: PropTypes.string
 };
 
 export default compose(
@@ -87,7 +56,7 @@ export default compose(
     name: 'categoriesQuery',
     options: ({ queryParams, currentTopicId }) => ({
       variables: {
-        topicId: currentTopicId,
+        topicIds: [currentTopicId],
         page: queryParams.page,
         perPage: queryParams.perPage || 20
       },
@@ -96,12 +65,6 @@ export default compose(
   }),
   graphql(gql(queries.knowledgeBaseCategoriesTotalCount), {
     name: 'categoriesCountQuery'
-  }),
-  graphql(gql(mutations.knowledgeBaseCategoriesEdit), {
-    name: 'editCategoriesMutation'
-  }),
-  graphql(gql(mutations.knowledgeBaseCategoriesAdd), {
-    name: 'addCategoriesMutation'
   }),
   graphql(gql(mutations.knowledgeBaseCategoriesRemove), {
     name: 'removeCategoriesMutation'

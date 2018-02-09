@@ -5,6 +5,7 @@ const SidebarContent = styled.div`
   flex: 1;
   margin-bottom: ${dimensions.unitSpacing - 5}px;
   background: ${colors.colorWhite};
+  box-shadow: 0 0 4px ${colors.shadowPrimary};
 `;
 
 const RowRightSide = styled.span`
@@ -124,6 +125,16 @@ const Row = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
+
+  i {
+    color: ${colors.colorCoreGray};
+  }
+
+  &:hover {
+    ${ActionButtons} {
+      width: ${dimensions.headerSpacing - 5}px;
+    }
+  }
 `;
 
 const ArticleTitle = styled.span`
@@ -133,7 +144,7 @@ const ArticleTitle = styled.span`
 
 const ArticleColumn = styled.div`
   position: relative;
-  padding-right: 20px;
+  padding: 0 20px;
   flex: 1;
 `;
 

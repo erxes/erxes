@@ -12,6 +12,7 @@ import Ionicons from 'react-ionicons';
 import { icons } from '../../icons.constant';
 
 const propTypes = {
+  currentTopicId: PropTypes.string,
   category: PropTypes.object,
   save: PropTypes.func
 };
@@ -66,7 +67,7 @@ class CategoryForm extends Component {
   }
 
   generateDoc() {
-    const { category } = this.props;
+    const { category, currentTopicId } = this.props;
 
     return {
       ...category,
@@ -76,7 +77,8 @@ class CategoryForm extends Component {
           description: document.getElementById(
             'knowledgebase-category-description'
           ).value,
-          icon: this.state.selectedIcon
+          icon: this.state.selectedIcon,
+          topicIds: [currentTopicId]
         }
       }
     };

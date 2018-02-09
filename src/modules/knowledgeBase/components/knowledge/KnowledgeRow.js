@@ -2,8 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Dropdown, MenuItem } from 'react-bootstrap';
 import { Icon, DropdownToggle, ModalTrigger } from 'modules/common/components';
-import { CategoryForm } from '../category';
-import { CategoryList, KnowledgeForm } from '../../containers';
+import { CategoryList, KnowledgeForm, CategoryForm } from '../../containers';
 import {
   SidebarContent,
   SectionHead,
@@ -24,7 +23,7 @@ class KnowledgeRow extends Component {
   constructor(props) {
     super(props);
 
-    this.state = { detailed: false };
+    this.state = { detailed: true };
     this.toggle = this.toggle.bind(this);
     this.renderKnowledgeBaseForm = this.renderKnowledgeBaseForm.bind(this);
   }
@@ -39,9 +38,7 @@ class KnowledgeRow extends Component {
 
   render() {
     const { topic, save, remove, currentCategoryId, queryParams } = this.props;
-
     const addCategory = <MenuItem>Add category</MenuItem>;
-
     const manageTopic = <MenuItem>Manage Knowledge Base</MenuItem>;
 
     return (
@@ -62,7 +59,7 @@ class KnowledgeRow extends Component {
                   {this.renderKnowledgeBaseForm({ save, topic, remove })}
                 </ModalTrigger>
                 <ModalTrigger title="Add Category" trigger={addCategory}>
-                  <CategoryForm />
+                  <CategoryForm currentTopicId={topic._id} />
                 </ModalTrigger>
               </Dropdown.Menu>
             </Dropdown>

@@ -35,7 +35,7 @@ class KnowledgeBase extends Component {
 
     const actionBarLeft = currentCategory._id && (
       <ModalTrigger title="Add Article" trigger={trigger} size="lg">
-        <ArticleForm />
+        <ArticleForm currentCategoryId={currentCategory._id} />
       </ModalTrigger>
     );
 

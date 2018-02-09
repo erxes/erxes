@@ -5,13 +5,12 @@ import { CategoryRow } from './';
 const propTypes = {
   currentCategoryId: PropTypes.string,
   categories: PropTypes.array.isRequired,
-  remove: PropTypes.func.isRequired,
-  save: PropTypes.func.isRequired
+  remove: PropTypes.func.isRequired
 };
 
 class CategoryList extends Component {
   render() {
-    const { categories, remove, save, currentCategoryId } = this.props;
+    const { categories, remove, currentCategoryId } = this.props;
 
     return categories.map(category => (
       <CategoryRow
@@ -19,7 +18,6 @@ class CategoryList extends Component {
         isActive={currentCategoryId === category._id}
         category={category}
         remove={remove}
-        save={save}
       />
     ));
   }

@@ -17,6 +17,7 @@ import { EditorWrapper } from 'modules/engage/styles';
 
 const propTypes = {
   article: PropTypes.object,
+  currentCategoryId: PropTypes.string,
   save: PropTypes.func
 };
 
@@ -71,7 +72,8 @@ class ArticleForm extends Component {
           summary: document.getElementById('knowledgebase-article-summary')
             .value,
           content: this.getContent(this.state.editorState),
-          status: this.state.status
+          status: this.state.status,
+          categoryIds: [this.props.currentCategoryId]
         }
       }
     };
@@ -86,12 +88,13 @@ class ArticleForm extends Component {
   }
 
   renderContent(article) {
+    const { currentCategoryId } = this.props;
     const props = {
       editorState: this.state.editorState,
       onChange: this.onChange,
       defaultValue: article.content
     };
-
+    console.log(currentCategoryId);
     return (
       <div>
         <FormGroup>

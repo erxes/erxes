@@ -15,7 +15,6 @@ import { KnowledgeRow } from './';
 const propTypes = {
   queryParams: PropTypes.object,
   currentCategoryId: PropTypes.string,
-  currentTopic: PropTypes.object,
   save: PropTypes.func.isRequired,
   remove: PropTypes.func.isRequired,
   count: PropTypes.number,

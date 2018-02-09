@@ -47,7 +47,7 @@ export default compose(
     name: 'articlesQuery',
     options: ({ queryParams, currentCategoryId }) => ({
       variables: {
-        categoryId: currentCategoryId,
+        categoryIds: [currentCategoryId],
         page: queryParams.page,
         perPage: queryParams.perPage || 20
       },

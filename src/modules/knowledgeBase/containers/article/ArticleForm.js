@@ -11,7 +11,8 @@ const ArticleContainer = props => {
     article,
     articlesQuery,
     addArticlesMutation,
-    editArticlesMutation
+    editArticlesMutation,
+    currentCategoryId
   } = props;
 
   // create or update action
@@ -43,7 +44,8 @@ const ArticleContainer = props => {
   const extendedProps = {
     ...this.props,
     save,
-    article
+    article,
+    currentCategoryId
   };
 
   return <ArticleForm {...extendedProps} />;
@@ -53,7 +55,8 @@ ArticleContainer.propTypes = {
   articlesQuery: PropTypes.object,
   article: PropTypes.object,
   addArticlesMutation: PropTypes.func,
-  editArticlesMutation: PropTypes.func
+  editArticlesMutation: PropTypes.func,
+  currentCategoryId: PropTypes.string
 };
 
 export default compose(

@@ -2,13 +2,12 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 import { Tip, Button, Icon, ModalTrigger } from 'modules/common/components';
-import { CategoryForm } from './';
+import { CategoryForm } from '../../containers';
 import { ArticleWrap, ActionButtons, CountArticle } from '../../styles';
 
 const propTypes = {
   category: PropTypes.object.isRequired,
   remove: PropTypes.func.isRequired,
-  save: PropTypes.func.isRequired,
   isActive: PropTypes.bool
 };
 
@@ -30,7 +29,7 @@ class CategoryRow extends Component {
   }
 
   renderEditAction() {
-    const { category, save } = this.props;
+    const { category } = this.props;
 
     const editTrigger = (
       <Button btnStyle="link">
@@ -42,7 +41,7 @@ class CategoryRow extends Component {
 
     return (
       <ModalTrigger size={this.size} title="Edit" trigger={editTrigger}>
-        {this.renderEditForm({ category, save })}
+        {this.renderEditForm({ category })}
       </ModalTrigger>
     );
   }

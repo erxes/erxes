@@ -1,12 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import {
-  ActionButtons,
-  ModalTrigger,
-  Tip,
-  Button,
-  Icon
-} from 'modules/common/components';
+import moment from 'moment';
+import { ModalTrigger, Tip, Button, Icon } from 'modules/common/components';
 import { ArticleForm } from '../../containers';
 import {
   Row,
@@ -14,6 +9,7 @@ import {
   ArticleColumn,
   ArticleAuthor,
   ArticleSummary,
+  ActionButtons,
   AuthorImg,
   AuthorName
 } from '../../styles';
@@ -59,13 +55,22 @@ class ArticleRow extends Component {
 
     return (
       <Row>
+        <Icon icon="android-more-vertical" size={25} />
         <ArticleColumn>
           <ArticleTitle>{article.title}</ArticleTitle>
           <ArticleSummary>{article.summary}</ArticleSummary>
           <ArticleAuthor>
-            <AuthorImg src={'/images/avatar-colored.svg'} />
-            Written By <AuthorName>Mend-Orshikh Amartaivan</AuthorName>
-            Created a {article.createdDate}
+            <AuthorImg
+              src={
+                article.createdUser.details.avatar ||
+                '/images/avatar-colored.svg'
+              }
+            />
+            Written By{' '}
+            <AuthorName>
+              {article.createdUser.details.fullName || ''}
+            </AuthorName>
+            Created {moment(article.createdDate).fromNow()} ago
           </ArticleAuthor>
         </ArticleColumn>
         <ActionButtons>

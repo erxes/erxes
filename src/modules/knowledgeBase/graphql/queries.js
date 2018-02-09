@@ -8,16 +8,6 @@ const knowledgeBaseTopics = `
         _id
         name
       }
-      categories {
-        _id
-        title
-        description
-        icon
-        articles {
-          _id
-          title
-        }
-      }
       createdBy
       createdDate
       modifiedBy
@@ -42,8 +32,8 @@ const getBrandList = `
 `;
 
 const knowledgeBaseCategories = `
-  query objects($page: Int, $perPage: Int, $topicId: String) {
-    knowledgeBaseCategories(page: $page, perPage: $perPage, topicId: $topicId ) {
+  query objects($page: Int, $perPage: Int, $topicIds: [String]) {
+    knowledgeBaseCategories(page: $page, perPage: $perPage, topicIds: $topicIds ) {
       _id
       title
       description
@@ -66,6 +56,12 @@ const knowledgeBaseTopicDetail = `
       _id
       title
       description
+      categories {
+        _id
+        title
+        description
+        icon
+      }
       brand
     }
   }
@@ -90,8 +86,8 @@ const knowledgeBaseCategoryDetail = `
 `;
 
 const knowledgeBaseCategoriesTotalCount = `
-  query knowledgeBaseCategoriesTotalCount($topicId: String) {
-    knowledgeBaseCategoriesTotalCount(topicId: $topicId)
+  query knowledgeBaseCategoriesTotalCount($topicIds: [String]) {
+    knowledgeBaseCategoriesTotalCount(topicIds: $topicIds)
   }
 `;
 
@@ -104,14 +100,21 @@ const categoriesGetLast = `
 `;
 
 const knowledgeBaseArticles = `
-  query objects($page: Int, $perPage: Int, $categoryId: String) {
-    knowledgeBaseArticles(page: $page, perPage: $perPage, categoryId: $categoryId) {
+  query objects($page: Int, $perPage: Int, $categoryIds: [String]) {
+    knowledgeBaseArticles(page: $page, perPage: $perPage, categoryIds: $categoryIds) {
       _id
       title
       summary
       content
       status
       createdBy
+      createdUser {
+        _id
+        details {
+          avatar
+          fullName
+        }
+      }
       createdDate
       modifiedBy
       modifiedDate
@@ -120,8 +123,8 @@ const knowledgeBaseArticles = `
 `;
 
 const knowledgeBaseArticlesTotalCount = `
-  query knowledgeBaseArticlesTotalCount($categoryId: String) {
-    knowledgeBaseArticlesTotalCount(categoryId: $categoryId)
+  query knowledgeBaseArticlesTotalCount($categoryIds: [String]) {
+    knowledgeBaseArticlesTotalCount(categoryIds: $categoryIds)
   }
 `;
 
