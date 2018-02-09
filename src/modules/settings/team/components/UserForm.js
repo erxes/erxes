@@ -17,9 +17,10 @@ class UserForm extends CommonForm {
     this.collectValues = this.collectValues.bind(this);
 
     const user = props.object || { details: {} };
+    const defaultAvatar = '/images/avatar-colored.png';
 
     this.state = {
-      avatar: user.details.avatar,
+      avatar: user.details.avatar || defaultAvatar,
       selectedChannels: this.generateChannelsParams(props.selectedChannels)
     };
   }
