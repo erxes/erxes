@@ -147,11 +147,7 @@ class Article extends KnowledgeBaseCommonDocument {
    * @throws {Error} - Thrwos Error('You can not delete this. This article is used in category.')
    * if there are categories using this article
    */
-  static async removeDoc(_id) {
-    if ((await KnowledgeBaseCategories.find({ articleIds: _id }).count()) > 0) {
-      throw new Error('You can not delete this. This article is used in category.');
-    }
-
+  static removeDoc(_id) {
     return this.remove({ _id });
   }
 }
@@ -226,11 +222,7 @@ class Category extends KnowledgeBaseCommonDocument {
    * @throws {Error} - Thrwos Error('You can not delete this. This category is used in topic.')
    * if there are topics using this category
    */
-  static async removeDoc(_id) {
-    if ((await KnowledgeBaseTopics.find({ categoryIds: _id }).count()) > 0) {
-      throw new Error('You can not delete this. This category is used in topic.');
-    }
-
+  static removeDoc(_id) {
     return this.remove({ _id });
   }
 }
