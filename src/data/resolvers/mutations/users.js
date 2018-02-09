@@ -187,11 +187,7 @@ const userMutations = {
       throw new Error('You cannot delete this user. This user belongs other channel.');
     }
 
-    if (
-      (await Channels.find({
-        memberIds: { $in: [userToRemove._id] },
-      }).count()) > 0
-    ) {
+    if ((await Channels.find({ memberIds: { $in: [userToRemove._id] } }).count()) > 0) {
       throw new Error('You cannot delete this user. This user belongs other channel.');
     }
 
