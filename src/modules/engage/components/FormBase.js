@@ -5,7 +5,8 @@ const propTypes = {
   brands: PropTypes.array,
   users: PropTypes.array,
   save: PropTypes.func,
-  kind: PropTypes.string
+  kind: PropTypes.string,
+  message: PropTypes.object
 };
 
 class FormBase extends Component {

@@ -48,12 +48,7 @@ class AutoAndManualForm extends FormBase {
     this.next = this.next.bind(this);
     this.changeState = this.changeState.bind(this);
   }
-  changeContent(key, value) {
-    let email = { ...this.state.email };
-    email[key] = value;
-    this.setState({ email });
-    this.props.changeEmail('email', this.state.email);
-  }
+
   validate() {
     const step3 = this.state.messenger;
     let validate = { ...this.state.validate };
@@ -67,8 +62,8 @@ class AutoAndManualForm extends FormBase {
     Object.keys(step3).map(key => {
       if (step3[key] === '') {
         validate['step3'] = true;
-        return;
       }
+      return false;
     });
 
     this.setState({ validate });
@@ -156,6 +151,7 @@ class AutoAndManualForm extends FormBase {
             title="Compose your message"
             save={this.save}
             next={this.next}
+            message={this.props.message}
           >
             <Step3
               brands={this.props.brands}

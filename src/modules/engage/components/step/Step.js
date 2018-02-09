@@ -23,44 +23,56 @@ const propTypes = {
   next: PropTypes.func,
   save: PropTypes.func,
   icon: PropTypes.string,
-  validate: PropTypes.object
+  validate: PropTypes.object,
+  message: PropTypes.object
 };
 
 class Step extends Component {
   renderButton() {
-    const { save, next } = this.props;
-    if (next && !save) {
+    const { save, next, message } = this.props;
+
+    if (save && message) {
       return (
         <Button
           btnStyle="primary"
           size="small"
           icon="ios-arrow-forward"
-          onClick={() => next(0)}
+          onClick={e => save('save', e)}
         >
-          Next
+          Save
         </Button>
       );
+    } else if (save) {
+      return (
+        <Button.Group>
+          <Button
+            btnStyle="warning"
+            size="small"
+            icon="ios-arrow-forward"
+            onClick={e => save('draft', e)}
+          >
+            Save Draft
+          </Button>
+          <Button
+            btnStyle="primary"
+            size="small"
+            icon="ios-arrow-forward"
+            onClick={e => save('live', e)}
+          >
+            Save Live
+          </Button>
+        </Button.Group>
+      );
     }
-
     return (
-      <Button.Group>
-        <Button
-          btnStyle="warning"
-          size="small"
-          icon="ios-arrow-forward"
-          onClick={e => save('draft', e)}
-        >
-          Save Draft
-        </Button>
-        <Button
-          btnStyle="primary"
-          size="small"
-          icon="ios-arrow-forward"
-          onClick={e => save('live', e)}
-        >
-          Save Live
-        </Button>
-      </Button.Group>
+      <Button
+        btnStyle="primary"
+        size="small"
+        icon="ios-arrow-forward"
+        onClick={() => next(0)}
+      >
+        Next
+      </Button>
     );
   }
 

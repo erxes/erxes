@@ -24,6 +24,10 @@ class VisitorForm extends FormBase {
     this.state = {
       maxStep: 2,
       activeStep: 1,
+      validate: {
+        step1: true,
+        step2: true
+      },
       method: METHODS.MESSENGER,
       title: props.message.title || '',
       message: message.content || '',
@@ -47,6 +51,26 @@ class VisitorForm extends FormBase {
     } else {
       this.setState({ activeStep: stepNumber });
     }
+  }
+
+  validate() {
+    const step3 = this.state.messenger;
+    let validate = { ...this.state.validate };
+    validate['step2'] = false;
+    validate['step3'] = false;
+
+    if (this.state.segment === '') {
+      validate['step2'] = true;
+    }
+
+    Object.keys(step3).map(key => {
+      if (step3[key] === '') {
+        validate['step3'] = true;
+      }
+      return false;
+    });
+
+    this.setState({ validate });
   }
 
   generateDoc(e) {
@@ -73,7 +97,7 @@ class VisitorForm extends FormBase {
   }
 
   render() {
-    const { activeStep, maxStep } = this.state;
+    const { activeStep, maxStep, validate } = this.state;
 
     const breadcrumb = this.renderTitle();
     return (
@@ -86,7 +110,7 @@ class VisitorForm extends FormBase {
             defaultValue={this.state.title}
           />
         </TitleContainer>
-        <Steps maxStep={maxStep} active={activeStep}>
+        <Steps maxStep={maxStep} active={activeStep} validate={validate}>
           <Step
             img="/images/icons/erxes-02.svg"
             title="Who is this message for?"
@@ -102,6 +126,7 @@ class VisitorForm extends FormBase {
             title="Compose your message"
             save={this.save}
             next={this.next}
+            message={this.props.message}
           >
             <MessengerForm
               brands={this.props.brands}

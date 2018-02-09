@@ -25,24 +25,25 @@ class MessengerForm extends Component {
   constructor(props) {
     super(props);
 
+    const messenger = props.messenger ? props.messenger : {};
+
     this.state = {
       fromUser: this.props.fromUser || '',
+      message: this.props.message || '',
       messenger: {
-        brandId: '',
+        brandId: messenger.brandId || '',
         kind: '',
-        sentAs: ''
+        sentAs: messenger.sentAs || ''
       }
     };
   }
 
   componentDidMount() {
     if (this.props.messenger) {
-      const messenger = {
-        brandId: this.props.messenger.brandId || '',
-        kind: '',
-        sentAs: this.props.messenger.sentAs || ''
-      };
-      this.setState({ messenger });
+      let messenger = { ...this.state.messenger };
+      messenger['brandId'] = this.props.messenger.brandId;
+      messenger['sentAs'] = this.props.messenger.sentAs;
+      this.setState({ messenger: messenger });
     }
   }
 
@@ -78,6 +79,7 @@ class MessengerForm extends Component {
         </FormGroup>
       );
     }
+
     return (
       <FlexItem>
         <FlexPad overflow="auto" direction="column">
@@ -94,7 +96,7 @@ class MessengerForm extends Component {
             <ControlLabel>From:</ControlLabel>
             <FormControl
               componentClass="select"
-              onChange={e => this.changeState('fromUser', e.target.value)}
+              onChange={e => this.changeUser(e.target.value)}
               defaultValue={this.state.fromUser}
             >
               <option />

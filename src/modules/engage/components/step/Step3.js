@@ -13,23 +13,6 @@ const propTypes = {
 };
 
 class Step3 extends Component {
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      fromUser: '',
-      messenger: {
-        brandId: '',
-        kind: '',
-        sentAs: ''
-      },
-      email: {
-        templateId: '',
-        subject: ''
-      }
-    };
-  }
-
   render() {
     const {
       brands,
@@ -57,6 +40,7 @@ class Step3 extends Component {
         changeMessenger={changeState}
         message={message}
         users={users}
+        hasKind={true}
       />
     );
   }
