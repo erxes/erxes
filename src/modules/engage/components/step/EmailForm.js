@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import ReactDom from 'react-dom';
 import PropTypes from 'prop-types';
-import { dimensions } from 'modules/common/styles';
 import {
   FormControl,
   ControlLabel,
@@ -10,20 +9,13 @@ import {
 import { EMAIL_CONTENT_CLASS } from 'modules/engage/constants';
 import Editor from '../Editor';
 import { EditorWrapper } from '../../styles';
-import { FlexItem, Divider } from './Style';
-
-const FlexPad = FlexItem.extend`
-  padding: ${dimensions.coreSpacing}px;
-`;
+import { FlexItem, Divider, FlexPad } from './Style';
 
 const propTypes = {
   changeEmail: PropTypes.func,
-  changeMessage: PropTypes.func,
   message: PropTypes.string,
-  changeUser: PropTypes.func,
   users: PropTypes.array,
-  templates: PropTypes.array,
-  changeTemplate: PropTypes.func
+  templates: PropTypes.array
 };
 
 class EmailForm extends Component {
@@ -57,18 +49,17 @@ class EmailForm extends Component {
     let email = { ...this.state.email };
     email[key] = value;
     this.setState({ email });
-    this.props.changeEmail(this.state.email);
+    this.props.changeEmail('email', this.state.email);
   }
 
   changeUser(fromUser) {
     this.setState({ fromUser });
-    this.props.changeUser(fromUser);
+    this.props.changeEmail('fromUser', fromUser);
   }
 
   templateChange(value) {
     this.changeContent('templateId', value);
     this.setState({ currentTemplate: this.findTemplate(value) });
-    this.props.changeTemplate(this.findTemplate(value));
   }
 
   findTemplate(id) {
@@ -113,7 +104,7 @@ class EmailForm extends Component {
           <FormGroup>
             <ControlLabel>Message:</ControlLabel>
             <EditorWrapper>
-              <Editor onChange={this.props.changeMessage} />
+              <Editor onChange={this.props.changeEmail} />
             </EditorWrapper>
           </FormGroup>
           <FormGroup>

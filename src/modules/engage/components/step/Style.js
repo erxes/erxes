@@ -1,6 +1,14 @@
 import styled from 'styled-components';
 import { colors, dimensions } from 'modules/common/styles';
 
+const StepContainer = styled.div`
+  display: flex;
+  height: 100%;
+  > *:nth-child(n + 2) {
+    margin-left: 5px;
+  }
+`;
+
 const StepWrapper = styled.div`
   margin: ${dimensions.coreSpacing}px;
   height: 100%;
@@ -20,14 +28,6 @@ const TitleContainer = styled.div`
   }
 `;
 
-const StepContainer = styled.div`
-  display: flex;
-  height: 100%;
-  > *:nth-child(n + 2) {
-    margin-left: 5px;
-  }
-`;
-
 const StepItem = styled.div`
   transition: all 0.3s;
   width: ${props => (props.show ? '100%' : '70px')};
@@ -35,7 +35,7 @@ const StepItem = styled.div`
 `;
 
 const FullStep = styled.div`
-  background: ${colors.bgLight};
+  background: ${colors.colorWhite};
   height: 100%;
   width: 100%;
   transition: all 0.3s;
@@ -48,6 +48,7 @@ const StepHeaderContainer = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
+  background: ${colors.bgLight};
   border-bottom: 1px solid ${colors.borderPrimary};
 `;
 
@@ -134,6 +135,10 @@ const FlexItem = styled.div`
   }};
 `;
 
+const FlexPad = FlexItem.extend`
+  padding: ${dimensions.coreSpacing}px;
+`;
+
 const Show = styled.div`
   display: ${props => (props.show ? 'block' : 'none')};
 `;
@@ -148,7 +153,6 @@ const Divider = styled.div`
 export {
   StepWrapper,
   TitleContainer,
-  StepContainer,
   StepItem,
   FullStep,
   StepHeaderContainer,
@@ -160,6 +164,8 @@ export {
   StepStatus,
   ContentCenter,
   FlexItem,
+  FlexPad,
   Show,
-  Divider
+  Divider,
+  StepContainer
 };

@@ -43,7 +43,7 @@ class Step1 extends Component {
     return (
       <Box
         selected={this.props.method === name}
-        onClick={() => this.props.changeMethod(name)}
+        onClick={() => this.props.changeMethod('method', name)}
       >
         <img src={image} alt={name} />
         <span>{name}</span>

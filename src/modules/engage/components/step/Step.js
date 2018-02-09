@@ -8,77 +8,83 @@ import {
   StepImg,
   StepHeaderTitle,
   StepContent,
-  ShortStep
+  ShortStep,
+  StepStatus
 } from './Style';
-import { Button } from 'modules/common/components';
+import { Icon, Button } from 'modules/common/components';
 
 const propTypes = {
-  brands: PropTypes.array,
-  users: PropTypes.array,
+  stepNumber: PropTypes.number,
+  maxStep: PropTypes.number,
+  active: PropTypes.number,
+  img: PropTypes.string,
+  title: PropTypes.string,
+  children: PropTypes.any,
+  next: PropTypes.func,
   save: PropTypes.func,
-  kind: PropTypes.string
+  icon: PropTypes.string,
+  validate: PropTypes.object
 };
 
 class Step extends Component {
-  constructor(props) {
-    super(props);
-
-    this.save = this.save.bind(this);
-    this.saveLive = this.saveLive.bind(this);
-    this.saveDraft = this.saveDraft.bind(this);
-  }
-
-  showStep(step) {
-    this.setState({ step });
-  }
-
-  save(e) {
-    const doc = this.generateDoc(e);
-    this.props.save(doc);
-  }
-
-  saveLive(e) {
-    const doc = this.generateDoc(e);
-    this.props.save({ isLive: true, isDraft: false, ...doc });
-  }
-
-  saveDraft(e) {
-    const doc = this.generateDoc(e);
-    this.props.save({ isLive: false, isDraft: true, ...doc });
-  }
-
-  renderTitle() {
-    const { kind } = this.props;
-    let title = 'Visitor auto message';
-    if (kind === 'auto') {
-      title = 'Auto message';
-    } else if (kind === 'manual') {
-      title = 'Manual message';
-    }
-    const breadcrumb = [{ title: 'Engage', link: '/engage' }, { title: title }];
-    return breadcrumb;
-  }
-
-  renderStep(step, img, title, hasNext, content) {
-    let next = '';
-
-    if (hasNext) {
-      next = (
+  renderButton() {
+    const { save, next } = this.props;
+    if (next && !save) {
+      return (
         <Button
-          btnStyle="default"
+          btnStyle="primary"
           size="small"
           icon="ios-arrow-forward"
-          onClick={() => this.showStep(step + 1)}
+          onClick={() => next(0)}
         >
           Next
         </Button>
       );
     }
 
+    return (
+      <Button.Group>
+        <Button
+          btnStyle="warning"
+          size="small"
+          icon="ios-arrow-forward"
+          onClick={e => save('draft', e)}
+        >
+          Save Draft
+        </Button>
+        <Button
+          btnStyle="primary"
+          size="small"
+          icon="ios-arrow-forward"
+          onClick={e => save('live', e)}
+        >
+          Save Live
+        </Button>
+      </Button.Group>
+    );
+  }
+
+  render() {
+    const {
+      stepNumber,
+      active,
+      img,
+      title,
+      children,
+      next,
+      validate
+    } = this.props;
+
     let show = false;
 
-    if (this.state.step === step) {
+    if (stepNumber === active) {
       show = true;
+    }
+    const button = this.renderButton();
+
+    let status = 'checkmark';
+    if (validate[`step${stepNumber}`]) {
+      status = 'close';
     }
 
     return (
@@ -86,15 +92,22 @@ class Step extends Component {
         <FullStep show={show}>
           <StepHeaderContainer>
             <StepHeader>
-              <StepImg>{img}</StepImg>
+              <StepImg>
+                <img src={img} alt="step-icon" />
+              </StepImg>
               <StepHeaderTitle>{title}</StepHeaderTitle>
             </StepHeader>
-            {next}
+            {button}
           </StepHeaderContainer>
-          <StepContent>{content}</StepContent>
+          <StepContent>{children}</StepContent>
         </FullStep>
-        <ShortStep show={!show} onClick={() => this.showStep(step)}>
-          <StepImg>{img}</StepImg>
+        <ShortStep show={!show} onClick={() => next(stepNumber)}>
+          <StepImg>
+            <img src={img} alt="step-icon" />
+          </StepImg>
+          <StepStatus>
+            <Icon icon={status} />
+          </StepStatus>
         </ShortStep>
       </StepItem>
     );

@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import styled from 'styled-components';
 import {
   FormGroup,
   FormControl,
@@ -12,10 +11,7 @@ import {
   VISITOR_AUDIENCE_RULES,
   RULE_CONDITIONS
 } from 'modules/engage/constants';
-
-const Content = styled.div`
-  height: 100%;
-`;
+import { FlexPad } from './Style';
 
 const propTypes = {
   rules: PropTypes.array.isRequired,
@@ -58,7 +54,7 @@ class Step2 extends Component {
       rules = rules.filter(r => r._id !== rule._id);
 
       this.setState({ rules });
-      this.props.changeRules(rules);
+      this.props.changeRules('rules', rules);
     };
 
     const changeProp = (name, value) => {
@@ -71,7 +67,7 @@ class Step2 extends Component {
       currentRule[name] = value;
 
       this.setState({ rules });
-      this.props.changeRules(rules);
+      this.props.changeRules('rules', rules);
     };
 
     const onChangeValue = e => {
@@ -116,7 +112,7 @@ class Step2 extends Component {
 
   render() {
     return (
-      <Content>
+      <FlexPad overflow="auto" direction="column">
         <FormGroup>
           <ControlLabel>Add rule</ControlLabel>
           <FormControl componentClass="select" onChange={this.addRule}>
@@ -131,7 +127,7 @@ class Step2 extends Component {
         <FormGroup>
           {this.state.rules.map(rule => this.renderRule(rule))}
         </FormGroup>
-      </Content>
+      </FlexPad>
     );
   }
 }

@@ -2,18 +2,19 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Wrapper } from 'modules/layout/components';
 import MessengerForm from './step/MessengerForm';
-import { StepWrapper, TitleContainer, StepContainer } from './step/Style';
+import { StepWrapper, TitleContainer } from './step/Style';
 import { FormControl } from 'modules/common/components';
+import Steps from './step/Steps';
 import Step from './step/Step';
 import VisitorStep1 from './step/VisitorStep1';
-import Step4 from './step/Step4';
 import { METHODS, MESSAGE_KINDS } from 'modules/engage/constants';
+import FormBase from './FormBase';
 
 const propTypes = {
   message: PropTypes.object
 };
 
-class VisitorForm extends Step {
+class VisitorForm extends FormBase {
   constructor(props) {
     super(props);
 
@@ -21,24 +22,31 @@ class VisitorForm extends Step {
     const rules = message.rules ? message.rules.map(rule => ({ ...rule })) : [];
 
     this.state = {
-      step: 1,
+      maxStep: 2,
+      activeStep: 1,
       method: METHODS.MESSENGER,
       title: props.message.title || '',
       message: message.content || '',
       fromUser: props.message.fromUserId || '',
       rules,
-      template: '',
       messenger: {
         brandId: message.brandId || '',
         sentAs: message.sentAs || ''
       }
     };
+    this.next = this.next.bind(this);
+    this.changeState = this.changeState.bind(this);
+  }
 
-    this.changeMessenger = this.changeMessenger.bind(this);
-    this.changeMessage = this.changeMessage.bind(this);
-    this.changeUser = this.changeUser.bind(this);
-    this.changeRules = this.changeRules.bind(this);
-    this.changeTemplate = this.changeTemplate.bind(this);
+  next(stepNumber) {
+    const { activeStep, maxStep } = this.state;
+    if (stepNumber === 0) {
+      if (activeStep <= maxStep) {
+        this.setState({ activeStep: activeStep + 1 });
+      }
+    } else {
+      this.setState({ activeStep: stepNumber });
+    }
   }
 
   generateDoc(e) {
@@ -60,31 +68,13 @@ class VisitorForm extends Step {
     return doc;
   }
 
-  changeTemplate(template) {
-    this.setState({ template });
-  }
-
-  changeRules(rules) {
-    this.setState({ rules });
-  }
-
-  changeTitle(title) {
-    this.setState({ title });
-  }
-
-  changeUser(fromUser) {
-    this.setState({ fromUser });
-  }
-
-  changeMessenger(messenger) {
-    this.setState({ messenger });
-  }
-
-  changeMessage(message) {
-    this.setState({ message });
+  changeState(key, value) {
+    this.setState({ [key]: value });
   }
 
   render() {
+    const { activeStep, maxStep } = this.state;
+
     const breadcrumb = this.renderTitle();
     return (
       <StepWrapper>
@@ -92,57 +82,38 @@ class VisitorForm extends Step {
         <TitleContainer>
           <div>Title</div>
           <FormControl
-            round
-            onChange={e => this.changeTitle(e.target.value)}
+            onChange={e => this.changeState('title', e.target.value)}
             defaultValue={this.state.title}
           />
         </TitleContainer>
-        <StepContainer>
-          {this.renderStep(
-            1,
-            <img src="/images/icons/erxes-02.svg" alt="User" />,
-            'Who is this message for?',
-            true,
+        <Steps maxStep={maxStep} active={activeStep}>
+          <Step
+            img="/images/icons/erxes-02.svg"
+            title="Who is this message for?"
+            next={this.next}
+          >
             <VisitorStep1
               rules={this.state.rules}
-              changeRules={this.changeRules}
+              changeRules={this.changeState}
             />
-          )}
-          {this.renderStep(
-            2,
-            <img src="/images/icons/erxes-08.svg" alt="Email" />,
-            'Compose your message',
-            true,
+          </Step>
+          <Step
+            img="/images/icons/erxes-08.svg"
+            title="Compose your message"
+            save={this.save}
+            next={this.next}
+          >
             <MessengerForm
               brands={this.props.brands}
-              changeMessenger={this.changeMessenger}
-              changeMessage={this.changeMessage}
+              changeMessenger={this.changeState}
               message={this.state.message}
-              changeUser={this.changeUser}
               users={this.props.users}
               hasKind={false}
               messenger={this.state.messenger}
               fromUser={this.state.fromUser}
-              changeTemplate={this.changeTemplate}
             />
-          )}
-          {this.renderStep(
-            3,
-            <img src="/images/icons/erxes-13.svg" alt="Email" />,
-            'You’re all set for lift off...',
-            false,
-            <Step4
-              message={this.state.message}
-              fromUser={this.state.fromUser}
-              messenger={this.state.messenger}
-              save={this.save}
-              saveLive={this.saveLive}
-              saveDraft={this.saveDraft}
-              template={this.state.template}
-              method={this.state.method}
-            />
-          )}
-        </StepContainer>
+          </Step>
+        </Steps>
       </StepWrapper>
     );
   }

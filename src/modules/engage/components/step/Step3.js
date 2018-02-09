@@ -5,15 +5,11 @@ import EmailForm from './EmailForm';
 
 const propTypes = {
   brands: PropTypes.array,
-  changeEmail: PropTypes.func,
-  changeMessenger: PropTypes.func,
-  changeMessage: PropTypes.func,
+  changeState: PropTypes.func,
   message: PropTypes.string,
-  changeUser: PropTypes.func,
   users: PropTypes.array,
   method: PropTypes.string,
-  templates: PropTypes.array,
-  changeTemplate: PropTypes.func
+  templates: PropTypes.array
 };
 
 class Step3 extends Component {
@@ -37,11 +33,8 @@ class Step3 extends Component {
   render() {
     const {
       brands,
-      changeMessenger,
-      changeEmail,
-      changeMessage,
+      changeState,
       message,
-      changeUser,
       users,
       method,
       templates
@@ -50,13 +43,10 @@ class Step3 extends Component {
     if (method === 'email') {
       return (
         <EmailForm
-          changeEmail={changeEmail}
-          changeMessage={changeMessage}
+          changeEmail={changeState}
           message={message}
-          changeUser={changeUser}
           users={users}
           templates={templates}
-          changeTemplate={this.props.changeTemplate}
         />
       );
     }
@@ -64,10 +54,8 @@ class Step3 extends Component {
     return (
       <MessengerForm
         brands={brands}
-        changeMessenger={changeMessenger}
-        changeMessage={changeMessage}
+        changeMessenger={changeState}
         message={message}
-        changeUser={changeUser}
         users={users}
       />
     );

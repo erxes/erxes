@@ -47,7 +47,7 @@ class Step2 extends Component {
 
   changeSegment(segment) {
     this.setState({ segment });
-    this.props.changeSegment(segment);
+    this.props.changeSegment('segment', segment);
   }
 
   segmentPush(segment) {
@@ -103,7 +103,7 @@ class Step2 extends Component {
         <Divider />
         <FlexItem direction="column" v="center" h="center">
           <Icon icon="pie-graph" size={50} />
-          <p>{this.props.counts[this.state.segment] || 0} segments</p>
+          <p>{this.props.counts[this.state.segment] || 0} customers</p>
         </FlexItem>
       </FlexItem>
     );
