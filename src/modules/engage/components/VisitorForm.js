@@ -1,12 +1,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Wrapper } from 'modules/layout/components';
-import MessengerForm from './step/MessengerForm';
-import { StepWrapper, TitleContainer } from './step/Style';
+import MessengerForm from './MessengerForm';
+import { StepWrapper, TitleContainer } from './step/style';
 import { FormControl } from 'modules/common/components';
 import Steps from './step/Steps';
 import Step from './step/Step';
-import VisitorStep1 from './step/VisitorStep1';
+import Step1 from './step/ConditionStep';
 import { METHODS, MESSAGE_KINDS } from 'modules/engage/constants';
 import FormBase from './FormBase';
 
@@ -116,10 +116,7 @@ class VisitorForm extends FormBase {
             title="Who is this message for?"
             next={this.next}
           >
-            <VisitorStep1
-              rules={this.state.rules}
-              changeRules={this.changeState}
-            />
+            <Step1 rules={this.state.rules} changeRules={this.changeState} />
           </Step>
           <Step
             img="/images/icons/erxes-08.svg"

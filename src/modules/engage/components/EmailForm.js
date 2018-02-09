@@ -7,9 +7,9 @@ import {
   FormGroup
 } from 'modules/common/components';
 import { EMAIL_CONTENT_CLASS } from 'modules/engage/constants';
-import Editor from '../Editor';
-import { EditorWrapper } from '../../styles';
-import { FlexItem, Divider, FlexPad } from './Style';
+import Editor from './Editor';
+import { EditorWrapper } from '../styles';
+import { FlexItem, Divider, FlexPad } from './step/style';
 
 const propTypes = {
   changeEmail: PropTypes.func,

@@ -6,10 +6,10 @@ import {
   FormGroup
 } from 'modules/common/components';
 import { MESSENGER_KINDS, SENT_AS_CHOICES } from 'modules/engage/constants';
-import Editor from '../Editor';
-import { EditorWrapper } from '../../styles';
-import { MessengerPreview } from '../../containers';
-import { FlexItem, Divider, FlexPad } from './Style';
+import Editor from './Editor';
+import { EditorWrapper } from '../styles';
+import { MessengerPreview } from '../containers';
+import { FlexItem, Divider, FlexPad } from './step/style';
 
 const propTypes = {
   brands: PropTypes.array,

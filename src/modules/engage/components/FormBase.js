@@ -13,6 +13,9 @@ class FormBase extends Component {
   constructor(props) {
     super(props);
 
+    this.state = {
+      a: 123
+    };
     this.save = this.save.bind(this);
   }
 

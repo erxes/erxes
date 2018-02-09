@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import MessengerForm from './MessengerForm';
-import EmailForm from './EmailForm';
+import MessengerForm from '../MessengerForm';
+import EmailForm from '../EmailForm';
 
 const propTypes = {
   brands: PropTypes.array,

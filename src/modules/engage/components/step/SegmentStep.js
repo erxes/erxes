@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { colors } from 'modules/common/styles';
 import { FormControl, Icon } from 'modules/common/components';
-import { FlexItem, Show, Divider } from './Style';
+import { FlexItem, Show, Divider } from './style';
 import Segments from '../Segments';
 import SegmentsForm from '../../containers/SegmentsForm';
 

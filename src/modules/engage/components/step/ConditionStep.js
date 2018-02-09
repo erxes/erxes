@@ -11,7 +11,7 @@ import {
   VISITOR_AUDIENCE_RULES,
   RULE_CONDITIONS
 } from 'modules/engage/constants';
-import { FlexPad } from './Style';
+import { FlexPad } from './style';
 
 const propTypes = {
   rules: PropTypes.array.isRequired,

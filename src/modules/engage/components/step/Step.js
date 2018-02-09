@@ -10,7 +10,7 @@ import {
   StepContent,
   ShortStep,
   StepStatus
-} from './Style';
+} from './style';
 import { Icon, Button } from 'modules/common/components';
 
 const propTypes = {
@@ -22,7 +22,6 @@ const propTypes = {
   children: PropTypes.any,
   next: PropTypes.func,
   save: PropTypes.func,
-  icon: PropTypes.string,
   validate: PropTypes.object,
   message: PropTypes.object
 };
