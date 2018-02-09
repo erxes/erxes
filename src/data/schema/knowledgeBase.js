@@ -30,6 +30,8 @@ export const types = `
     createdDate: Date
     modifiedBy: String
     modifiedDate: Date
+
+    firstTopic: KnowledgeBaseTopic
   }
 
   input KnowledgeBaseCategoryDoc {
