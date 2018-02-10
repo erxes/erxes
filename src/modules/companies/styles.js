@@ -40,4 +40,13 @@ const CustomersWrapper = styled.div`
   }
 `;
 
-export { CustomersWrapper, CustomerWrapper };
+const CompaniesTableWrapper = styled.div`
+  td:nth-child(4) {
+    max-width: 300px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+`;
+
+export { CustomersWrapper, CustomerWrapper, CompaniesTableWrapper };
