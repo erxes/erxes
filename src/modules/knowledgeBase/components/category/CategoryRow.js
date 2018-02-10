@@ -6,7 +6,9 @@ import { CategoryForm } from '../../containers';
 import { ArticleWrap, ActionButtons, CountArticle } from '../../styles';
 
 const propTypes = {
+  topicIds: PropTypes.string,
   category: PropTypes.object.isRequired,
+  articlesCount: PropTypes.number.isRequired,
   remove: PropTypes.func.isRequired,
   isActive: PropTypes.bool
 };
@@ -29,7 +31,7 @@ class CategoryRow extends Component {
   }
 
   renderEditAction() {
-    const { category } = this.props;
+    const { category, topicIds } = this.props;
 
     const editTrigger = (
       <Button btnStyle="link">
@@ -41,7 +43,7 @@ class CategoryRow extends Component {
 
     return (
       <ModalTrigger size={this.size} title="Edit" trigger={editTrigger}>
-        {this.renderEditForm({ category })}
+        {this.renderEditForm({ category, topicIds })}
       </ModalTrigger>
     );
   }

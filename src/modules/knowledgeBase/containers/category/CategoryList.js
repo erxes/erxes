@@ -11,7 +11,9 @@ const KnowledgeBaseContainer = props => {
     currentCategoryId,
     categoriesQuery,
     categoriesCountQuery,
-    removeCategoriesMutation
+    articlesCountQuery,
+    removeCategoriesMutation,
+    topicIds
   } = props;
 
   // remove action
@@ -35,9 +37,12 @@ const KnowledgeBaseContainer = props => {
     ...this.props,
     remove,
     currentCategoryId,
+    topicIds,
+    categoriesQuery,
     categories: categoriesQuery.knowledgeBaseCategories || [],
     loading: categoriesQuery.loading,
-    topicsCount: categoriesCountQuery.knowledgeBaseCategoriesTotalCount || 0
+    topicsCount: categoriesCountQuery.knowledgeBaseCategoriesTotalCount || 0,
+    articlesCount: articlesCountQuery.knowledgeBaseArticlesTotalCount || 0
   };
 
   return <CategoryList {...extendedProps} />;
@@ -46,27 +51,47 @@ const KnowledgeBaseContainer = props => {
 KnowledgeBaseContainer.propTypes = {
   categoriesQuery: PropTypes.object,
   categoriesCountQuery: PropTypes.object,
+  articlesCountQuery: PropTypes.object,
   removeCategoriesMutation: PropTypes.func,
   currentCategoryId: PropTypes.string,
-  currentTopicId: PropTypes.string
+  topicIds: PropTypes.string
 };
 
 export default compose(
   graphql(gql(queries.knowledgeBaseCategories), {
     name: 'categoriesQuery',
-    options: ({ queryParams, currentTopicId }) => ({
-      variables: {
-        topicIds: [currentTopicId],
-        page: queryParams.page,
-        perPage: queryParams.perPage || 20
-      },
-      fetchPolicy: 'network-only'
+    options: ({ topicIds }) => {
+      return {
+        variables: {
+          topicIds: [topicIds]
+        }
+      };
+    }
+  }),
+  graphql(gql(queries.knowledgeBaseArticlesTotalCount), {
+    name: 'articlesCountQuery',
+    options: ({ currentCategoryId }) => ({
+      variables: { categoryIds: [currentCategoryId] || '' }
     })
   }),
   graphql(gql(queries.knowledgeBaseCategoriesTotalCount), {
     name: 'categoriesCountQuery'
   }),
   graphql(gql(mutations.knowledgeBaseCategoriesRemove), {
-    name: 'removeCategoriesMutation'
+    name: 'removeCategoriesMutation',
+    options: ({ currentCategoryId }) => {
+      return {
+        refetchQueries: [
+          {
+            query: gql(queries.knowledgeBaseArticlesTotalCount),
+            variables: { categoryIds: [currentCategoryId] }
+          },
+          {
+            query: gql(queries.knowledgeBaseCategoryDetail),
+            variables: { _id: currentCategoryId }
+          }
+        ]
+      };
+    }
   })
 )(KnowledgeBaseContainer);

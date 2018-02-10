@@ -19,12 +19,11 @@ class KnowledgeBase extends React.Component {
 
   render() {
     const { categoryDetailQuery, location, articlesCountQuery } = this.props;
-    // console.log(topicDetailQuery)
+
     const extendedProps = {
       ...this.props,
       queryParams: queryString.parse(location.search),
       currentCategory: categoryDetailQuery.knowledgeBaseCategoryDetail || {},
-      // currentTopic: topicDetailQuery.knowledgeBaseTopicDetail || {},
       loading: categoryDetailQuery.loading,
       refetch: categoryDetailQuery.refetch,
       articlesCount: articlesCountQuery.knowledgeBaseArticlesTotalCount || 0
@@ -38,7 +37,6 @@ KnowledgeBase.propTypes = {
   currentCategoryId: PropTypes.string,
   articlesCountQuery: PropTypes.object,
   categoryDetailQuery: PropTypes.object,
-  topicDetailQuery: PropTypes.object,
   history: PropTypes.object,
   location: PropTypes.object
 };
@@ -51,17 +49,10 @@ const KnowledgeBaseContainer = compose(
       fetchPolicy: 'network-only'
     })
   }),
-  // graphql(gql(queries.knowledgeBaseTopicDetail), {
-  //   name: 'topicDetailQuery',
-  //   options: () => ({
-  //     variables: { _id: 'EPPQRzC4MbtPoEcd7' },
-  //     fetchPolicy: 'network-only'
-  //   })
-  // }),
   graphql(gql(queries.knowledgeBaseArticlesTotalCount), {
     name: 'articlesCountQuery',
     options: ({ currentCategoryId }) => ({
-      variables: { categoryId: currentCategoryId || '' }
+      variables: { categoryIds: [currentCategoryId] || '' }
     })
   })
 )(KnowledgeBase);

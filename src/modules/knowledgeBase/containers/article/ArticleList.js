@@ -7,7 +7,13 @@ import { queries, mutations } from '../../graphql';
 import { ArticleList } from '../../components';
 
 const ArticleContainer = props => {
-  const { articlesQuery, removeArticlesMutation } = props;
+  const {
+    articlesQuery,
+    removeArticlesMutation,
+    queryParams,
+    currentCategoryId,
+    topicIds
+  } = props;
 
   // remove action
   const remove = _id => {
@@ -29,7 +35,9 @@ const ArticleContainer = props => {
   const extendedProps = {
     ...this.props,
     remove,
-    articlesQuery,
+    currentCategoryId,
+    topicIds,
+    queryParams,
     articles: articlesQuery.knowledgeBaseArticles || [],
     loading: articlesQuery.loading
   };
@@ -38,8 +46,11 @@ const ArticleContainer = props => {
 };
 
 ArticleContainer.propTypes = {
+  queryParams: PropTypes.object,
   articlesQuery: PropTypes.object,
-  removeArticlesMutation: PropTypes.func
+  removeArticlesMutation: PropTypes.func,
+  currentCategoryId: PropTypes.string,
+  topicIds: PropTypes.string
 };
 
 export default compose(
@@ -55,6 +66,24 @@ export default compose(
     })
   }),
   graphql(gql(mutations.knowledgeBaseArticlesRemove), {
-    name: 'removeArticlesMutation'
+    name: 'removeArticlesMutation',
+    options: ({ currentCategoryId, topicIds }) => {
+      return {
+        refetchQueries: [
+          {
+            query: gql(queries.knowledgeBaseArticlesTotalCount),
+            variables: { categoryIds: [currentCategoryId] }
+          },
+          {
+            query: gql(queries.knowledgeBaseCategories),
+            variables: { topicIds: [topicIds] }
+          },
+          {
+            query: gql(queries.knowledgeBaseCategoryDetail),
+            variables: { _id: currentCategoryId }
+          }
+        ]
+      };
+    }
   })
 )(ArticleContainer);

@@ -3,13 +3,12 @@ import PropTypes from 'prop-types';
 import { compose, graphql } from 'react-apollo';
 import { Alert } from 'modules/common/utils';
 import gql from 'graphql-tag';
-import { mutations } from '../../graphql';
+import { mutations, queries } from '../../graphql';
 import { ArticleForm } from '../../components';
 
 const ArticleContainer = props => {
   const {
     article,
-    articlesQuery,
     addArticlesMutation,
     editArticlesMutation,
     currentCategoryId
@@ -29,9 +28,6 @@ const ArticleContainer = props => {
       variables: doc
     })
       .then(() => {
-        // update queries
-        articlesQuery.refetch();
-
         Alert.success('Congrats');
 
         callback();
@@ -52,18 +48,42 @@ const ArticleContainer = props => {
 };
 
 ArticleContainer.propTypes = {
-  articlesQuery: PropTypes.object,
   article: PropTypes.object,
   addArticlesMutation: PropTypes.func,
   editArticlesMutation: PropTypes.func,
   currentCategoryId: PropTypes.string
 };
 
+const commonOptions = ({ queryParams, currentCategoryId, topicIds }) => {
+  return {
+    refetchQueries: [
+      {
+        query: gql(queries.knowledgeBaseArticles),
+        variables: {
+          categoryIds: [currentCategoryId],
+          page: queryParams.page,
+          perPage: queryParams.perPage || 20
+        }
+      },
+      {
+        query: gql(queries.knowledgeBaseCategories),
+        variables: { topicIds: [topicIds] }
+      },
+      {
+        query: gql(queries.knowledgeBaseArticlesTotalCount),
+        variables: { categoryIds: [currentCategoryId] }
+      }
+    ]
+  };
+};
+
 export default compose(
   graphql(gql(mutations.knowledgeBaseArticlesEdit), {
-    name: 'editArticlesMutation'
+    name: 'editArticlesMutation',
+    options: commonOptions
   }),
   graphql(gql(mutations.knowledgeBaseArticlesAdd), {
-    name: 'addArticlesMutation'
+    name: 'addArticlesMutation',
+    options: commonOptions
   })
 )(ArticleContainer);

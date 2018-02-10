@@ -1,16 +1,11 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import {
-  Icon,
-  ModalTrigger,
-  EmptyState,
-  Spinner
-} from 'modules/common/components';
+import { Icon, ModalTrigger, DataWithLoader } from 'modules/common/components';
 import { Sidebar } from 'modules/layout/components';
 import { SidebarList } from 'modules/layout/styles';
-import { RightButton } from 'modules/settings/styles';
 import { KnowledgeForm } from '../../containers';
 import { KnowledgeRow } from './';
+import { RightButton } from '../../styles';
 
 const propTypes = {
   queryParams: PropTypes.object,
@@ -19,7 +14,9 @@ const propTypes = {
   remove: PropTypes.func.isRequired,
   count: PropTypes.number,
   loading: PropTypes.bool.isRequired,
-  topics: PropTypes.array
+  topics: PropTypes.array,
+  articlesCount: PropTypes.number.isRequired,
+  topicsCount: PropTypes.number.isRequired
 };
 
 class KnowledgeList extends Component {
@@ -34,7 +31,14 @@ class KnowledgeList extends Component {
   }
 
   renderSidebarList() {
-    const { topics, remove, save, currentCategoryId, queryParams } = this.props;
+    const {
+      topics,
+      remove,
+      save,
+      currentCategoryId,
+      queryParams,
+      articlesCount
+    } = this.props;
 
     return topics.map(topic => (
       <KnowledgeRow
@@ -42,6 +46,7 @@ class KnowledgeList extends Component {
         key={topic._id}
         topic={topic}
         queryParams={queryParams}
+        articlesCount={articlesCount}
         remove={remove}
         save={save}
       />
@@ -69,15 +74,18 @@ class KnowledgeList extends Component {
   }
 
   render() {
-    const { count, loading } = this.props;
+    const { topicsCount, loading } = this.props;
+
     return (
       <Sidebar wide header={this.renderSidebarHeader()}>
-        <Sidebar.Section noBackground>
-          <SidebarList>{this.renderSidebarList()}</SidebarList>
-          {loading && <Spinner />}
-          {count === 0 && (
-            <EmptyState icon="briefcase" text="There is no channel" />
-          )}
+        <Sidebar.Section noBackground noShadow full>
+          <DataWithLoader
+            data={<SidebarList>{this.renderSidebarList()}</SidebarList>}
+            loading={loading}
+            count={topicsCount}
+            emptyText="Add knowledge base."
+            emptyImage="/images/robots/robot-03.svg"
+          />
         </Sidebar.Section>
       </Sidebar>
     );

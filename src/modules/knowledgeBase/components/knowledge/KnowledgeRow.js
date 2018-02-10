@@ -8,13 +8,15 @@ import {
   SectionHead,
   SectionTitle,
   Categories,
-  RowRightSide
+  RowRightSide,
+  DropIcon
 } from '../../styles';
 
 const propTypes = {
   queryParams: PropTypes.object.isRequired,
   currentCategoryId: PropTypes.string,
   topic: PropTypes.object.isRequired,
+  articlesCount: PropTypes.number.isRequired,
   remove: PropTypes.func.isRequired,
   save: PropTypes.func.isRequired
 };
@@ -37,7 +39,14 @@ class KnowledgeRow extends Component {
   }
 
   render() {
-    const { topic, save, remove, currentCategoryId, queryParams } = this.props;
+    const {
+      topic,
+      save,
+      remove,
+      currentCategoryId,
+      queryParams,
+      articlesCount
+    } = this.props;
     const addCategory = <MenuItem>Add category</MenuItem>;
     const manageTopic = <MenuItem>Manage Knowledge Base</MenuItem>;
 
@@ -45,8 +54,7 @@ class KnowledgeRow extends Component {
       <SidebarContent key={topic._id}>
         <SectionHead>
           <SectionTitle onClick={this.toggle}>{topic.title}</SectionTitle>
-          <RowRightSide className={this.state.detailed}>
-            40
+          <RowRightSide>
             <Dropdown id="dropdown-user" className="quick-button" pullRight>
               <DropdownToggle bsRole="toggle">
                 <Icon icon="gear-a" />
@@ -59,17 +67,19 @@ class KnowledgeRow extends Component {
                   {this.renderKnowledgeBaseForm({ save, topic, remove })}
                 </ModalTrigger>
                 <ModalTrigger title="Add Category" trigger={addCategory}>
-                  <CategoryForm currentTopicId={topic._id} />
+                  <CategoryForm topicIds={topic._id} />
                 </ModalTrigger>
               </Dropdown.Menu>
             </Dropdown>
+            <DropIcon className={this.state.detailed} onClick={this.toggle} />
           </RowRightSide>
         </SectionHead>
         {this.state.detailed && (
           <Categories>
             <CategoryList
               currentCategoryId={currentCategoryId}
-              currentTopicId={topic._id}
+              articlesCount={articlesCount}
+              topicIds={topic._id}
               queryParams={queryParams}
             />
           </Categories>

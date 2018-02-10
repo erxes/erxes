@@ -1,5 +1,5 @@
 const knowledgeBaseTopics = `
-  query objects($page: Int, $perPage: Int) {
+  query knowledgeBaseTopics($page: Int, $perPage: Int) {
     knowledgeBaseTopics(page: $page, perPage: $perPage) {
       _id
       title
@@ -7,6 +7,12 @@ const knowledgeBaseTopics = `
       brand {
         _id
         name
+      }
+      categories {
+        _id
+        title
+        description
+        icon
       }
       createdBy
       createdDate
@@ -50,23 +56,6 @@ const knowledgeBaseCategories = `
   }
 `;
 
-const knowledgeBaseTopicDetail = `
-  query knowledgeBaseTopicDetail($_id: String!) {
-    knowledgeBaseTopicDetail(_id: $_id) {
-      _id
-      title
-      description
-      categories {
-        _id
-        title
-        description
-        icon
-      }
-      brand
-    }
-  }
-`;
-
 const knowledgeBaseCategoryDetail = `
   query knowledgeBaseCategoryDetail($_id: String!) {
     knowledgeBaseCategoryDetail(_id: $_id) {
@@ -79,6 +68,10 @@ const knowledgeBaseCategoryDetail = `
         summary
         content
         status
+      }
+      firstTopic {
+        _id
+        title
       }
       icon
     }
@@ -95,6 +88,10 @@ const categoriesGetLast = `
   query knowledgeBaseCategoriesGetLast {
     knowledgeBaseCategoriesGetLast {
       _id
+      firstTopic {
+        _id
+        title
+      }
     }
   }
 `;
@@ -132,7 +129,6 @@ export default {
   getBrandList,
   categoriesGetLast,
   knowledgeBaseTopics,
-  knowledgeBaseTopicDetail,
   knowledgeBaseTopicsTotalCount,
   knowledgeBaseCategories,
   knowledgeBaseCategoryDetail,

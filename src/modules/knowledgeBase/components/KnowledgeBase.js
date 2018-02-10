@@ -20,7 +20,7 @@ class KnowledgeBase extends Component {
   breadcrumb() {
     return [
       { title: 'Knowledge base', link: '/knowledgeBase' },
-      { title: `${this.props.currentCategory.title}` }
+      { title: `${this.props.currentCategory.title || ''}` }
     ];
   }
 
@@ -35,7 +35,13 @@ class KnowledgeBase extends Component {
 
     const actionBarLeft = currentCategory._id && (
       <ModalTrigger title="Add Article" trigger={trigger} size="lg">
-        <ArticleForm currentCategoryId={currentCategory._id} />
+        <ArticleForm
+          queryParams={queryParams}
+          currentCategoryId={currentCategory._id}
+          topicIds={
+            currentCategory.firstTopic && currentCategory.firstTopic._id
+          }
+        />
       </ModalTrigger>
     );
 
@@ -45,11 +51,12 @@ class KnowledgeBase extends Component {
         leftSidebar={
           <KnowledgeList
             currentCategoryId={currentCategory._id}
+            articlesCount={articlesCount}
             queryParams={queryParams}
           />
         }
         actionBar={<Wrapper.ActionBar right={actionBarLeft} />}
-        footer={<Pagination count={articlesCount} />}
+        footer={currentCategory._id && <Pagination count={articlesCount} />}
         transparent={true}
         content={
           <DataWithLoader
@@ -57,6 +64,9 @@ class KnowledgeBase extends Component {
               <ArticleList
                 queryParams={queryParams}
                 currentCategoryId={currentCategory._id}
+                topicIds={
+                  currentCategory.firstTopic && currentCategory.firstTopic._id
+                }
               />
             }
             loading={loading}

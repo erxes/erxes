@@ -14,7 +14,8 @@ const KnowledgeBaseContainer = props => {
     removeTopicsMutation,
     addTopicsMutation,
     editTopicsMutation,
-    queryParams
+    queryParams,
+    articlesCount
   } = props;
 
   // remove action
@@ -25,6 +26,7 @@ const KnowledgeBaseContainer = props => {
       })
         .then(() => {
           topicsQuery.refetch();
+          topicsCountQuery.refetch();
 
           Alert.success('Successfully deleted.');
         })
@@ -67,6 +69,7 @@ const KnowledgeBaseContainer = props => {
     save,
     currentCategoryId,
     queryParams,
+    articlesCount,
     topics: topicsQuery.knowledgeBaseTopics || [],
     loading: topicsQuery.loading,
     refetch: topicsQuery.refetch,
@@ -83,7 +86,8 @@ KnowledgeBaseContainer.propTypes = {
   addTopicsMutation: PropTypes.func,
   editTopicsMutation: PropTypes.func,
   removeTopicsMutation: PropTypes.func,
-  currentCategoryId: PropTypes.string
+  currentCategoryId: PropTypes.string,
+  articlesCount: PropTypes.number.isRequired
 };
 
 export default compose(
@@ -103,6 +107,20 @@ export default compose(
     name: 'addTopicsMutation'
   }),
   graphql(gql(mutations.knowledgeBaseTopicsRemove), {
-    name: 'removeTopicsMutation'
+    name: 'removeTopicsMutation',
+    options: ({ currentCategoryId }) => {
+      return {
+        refetchQueries: [
+          {
+            query: gql(queries.knowledgeBaseArticlesTotalCount),
+            variables: { categoryIds: [currentCategoryId] }
+          },
+          {
+            query: gql(queries.knowledgeBaseCategoryDetail),
+            variables: { _id: currentCategoryId }
+          }
+        ]
+      };
+    }
   })
 )(KnowledgeBaseContainer);

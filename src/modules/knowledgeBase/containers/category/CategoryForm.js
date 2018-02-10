@@ -9,9 +9,7 @@ import { CategoryForm } from '../../components';
 const KnowledgeBaseContainer = props => {
   const {
     category,
-    currentCategoryId,
-    currentTopicId,
-    categoriesQuery,
+    topicIds,
     addCategoriesMutation,
     editCategoriesMutation
   } = props;
@@ -30,9 +28,6 @@ const KnowledgeBaseContainer = props => {
       variables: doc
     })
       .then(() => {
-        // update queries
-        categoriesQuery.refetch();
-
         Alert.success('Congrats');
 
         callback();
@@ -45,10 +40,8 @@ const KnowledgeBaseContainer = props => {
   const extendedProps = {
     ...this.props,
     save,
-    currentCategoryId,
-    currentTopicId,
-    category,
-    loading: categoriesQuery.loading
+    currentTopicId: topicIds,
+    category
   };
 
   return <CategoryForm {...extendedProps} />;
@@ -56,24 +49,36 @@ const KnowledgeBaseContainer = props => {
 
 KnowledgeBaseContainer.propTypes = {
   category: PropTypes.object,
-  categoriesQuery: PropTypes.object,
   addCategoriesMutation: PropTypes.func,
   editCategoriesMutation: PropTypes.func,
-  currentCategoryId: PropTypes.string,
-  currentTopicId: PropTypes.string
+  topicIds: PropTypes.string
+};
+
+const commonOptions = ({ topicIds }) => {
+  return {
+    refetchQueries: [
+      {
+        query: gql(queries.knowledgeBaseCategories),
+        variables: {
+          topicIds: [topicIds]
+        }
+      },
+      {
+        query: gql(queries.knowledgeBaseCategoriesTotalCount),
+        variables: { topicIds: [topicIds] }
+      }
+    ]
+  };
 };
 
 export default compose(
-  graphql(gql(queries.knowledgeBaseCategories), {
-    name: 'categoriesQuery',
-    options: () => ({
-      fetchPolicy: 'network-only'
-    })
-  }),
   graphql(gql(mutations.knowledgeBaseCategoriesEdit), {
-    name: 'editCategoriesMutation'
+    name: 'editCategoriesMutation',
+    options: commonOptions
   }),
+
   graphql(gql(mutations.knowledgeBaseCategoriesAdd), {
-    name: 'addCategoriesMutation'
+    name: 'addCategoriesMutation',
+    options: commonOptions
   })
 )(KnowledgeBaseContainer);

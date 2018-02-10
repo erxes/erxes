@@ -4,21 +4,31 @@ import { ArticleRow } from '/';
 import { Articles } from '../../styles';
 
 const propTypes = {
-  articlesQuery: PropTypes.object.isRequired,
   articles: PropTypes.array.isRequired,
+  queryParams: PropTypes.object,
+  currentCategoryId: PropTypes.string,
+  topicIds: PropTypes.string,
   remove: PropTypes.func.isRequired
 };
 
 class ArticleList extends Component {
   render() {
-    const { articles, articlesQuery, remove } = this.props;
+    const {
+      articles,
+      queryParams,
+      currentCategoryId,
+      topicIds,
+      remove
+    } = this.props;
 
     return (
       <Articles>
         {articles.map(article => (
           <ArticleRow
             key={article._id}
-            articlesQuery={articlesQuery}
+            queryParams={queryParams}
+            currentCategoryId={currentCategoryId}
+            topicIds={topicIds}
             article={article}
             remove={remove}
           />

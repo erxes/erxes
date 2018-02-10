@@ -88,13 +88,12 @@ class ArticleForm extends Component {
   }
 
   renderContent(article) {
-    const { currentCategoryId } = this.props;
     const props = {
       editorState: this.state.editorState,
       onChange: this.onChange,
       defaultValue: article.content
     };
-    console.log(currentCategoryId);
+
     return (
       <div>
         <FormGroup>

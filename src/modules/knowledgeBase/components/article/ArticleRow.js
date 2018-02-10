@@ -15,8 +15,10 @@ import {
 } from '../../styles';
 
 const propTypes = {
-  articlesQuery: PropTypes.object.isRequired,
   article: PropTypes.object.isRequired,
+  queryParams: PropTypes.object,
+  currentCategoryId: PropTypes.string,
+  topicIds: PropTypes.string,
   remove: PropTypes.func.isRequired
 };
 
@@ -33,7 +35,7 @@ class ArticleRow extends Component {
   }
 
   renderEditAction() {
-    const { article, articlesQuery } = this.props;
+    const { article, queryParams, currentCategoryId, topicIds } = this.props;
 
     const editTrigger = (
       <Button btnStyle="link">
@@ -45,7 +47,12 @@ class ArticleRow extends Component {
 
     return (
       <ModalTrigger size="large" title="Edit" trigger={editTrigger}>
-        <ArticleForm articlesQuery={articlesQuery} article={article} />
+        <ArticleForm
+          article={article}
+          queryParams={queryParams}
+          currentCategoryId={currentCategoryId}
+          topicIds={topicIds}
+        />
       </ModalTrigger>
     );
   }
@@ -55,7 +62,6 @@ class ArticleRow extends Component {
 
     return (
       <Row>
-        <Icon icon="android-more-vertical" size={25} />
         <ArticleColumn>
           <ArticleTitle>{article.title}</ArticleTitle>
           <ArticleSummary>{article.summary}</ArticleSummary>
@@ -66,7 +72,7 @@ class ArticleRow extends Component {
                 '/images/avatar-colored.svg'
               }
             />
-            Written By{' '}
+            Written By
             <AuthorName>
               {article.createdUser.details.fullName || ''}
             </AuthorName>

@@ -6,26 +6,43 @@ const SidebarContent = styled.div`
   margin-bottom: ${dimensions.unitSpacing - 5}px;
   background: ${colors.colorWhite};
   box-shadow: 0 0 4px ${colors.shadowPrimary};
+
+  &:last-child {
+    margin-bottom: ${dimensions.headerSpacing}px;
+  }
 `;
 
 const RowRightSide = styled.span`
   display: flex;
   font-size: 12px;
   color: ${colors.colorCoreGray};
-  margin-top: 2px;
-  right: ${dimensions.unitSpacing}px;
+  right: ${dimensions.coreSpacing}px;
   position: absolute;
 
   i {
-    margin-left: ${dimensions.unitSpacing}px;
-    cursor: pointer;
+    padding: ${dimensions.unitSpacing}px;
   }
 
+  &:hover {
+    cursor: pointer;
+  }
+`;
+
+const RightButton = styled.div`
+  width: ${dimensions.coreSpacing}px;
+  display: flex;
+  justify-content: flex-end;
+
+  &:hover {
+    cursor: pointer;
+  }
+`;
+
+const DropIcon = styled.span`
   &:after {
     content: '\f123';
     font-family: 'Ionicons';
     float: right;
-    margin-left: ${dimensions.unitSpacing}px;
     transition: all ease 0.3s;
   }
 
@@ -42,7 +59,7 @@ const SectionHead = styled.div`
 const SectionTitle = styled.div`
   flex: 1;
   cursor: pointer;
-  padding: 10px 70px 10px 20px;
+  padding: 10px 50px 10px 20px;
   border-bottom: 1px solid ${colors.borderPrimary};
 `;
 
@@ -144,7 +161,7 @@ const ArticleTitle = styled.span`
 
 const ArticleColumn = styled.div`
   position: relative;
-  padding: 0 20px;
+  padding-right: 20px;
   flex: 1;
 `;
 
@@ -190,5 +207,7 @@ export {
   AuthorName,
   ArticleSummary,
   AuthorImg,
+  DropIcon,
+  RightButton,
   Row
 };

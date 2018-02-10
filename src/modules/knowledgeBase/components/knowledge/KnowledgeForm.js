@@ -141,10 +141,9 @@ class KnowledgeForm extends Component {
     };
   }
 
-  renderContent() {
-    const { brands, topic } = this.props;
-    const { brand } = topic || {};
-    const object = topic || {};
+  renderContent(topic = {}) {
+    const { brands } = this.props;
+    const { brand } = topic;
     const brandId = brand != null ? brand._id : '';
 
     return (
@@ -154,7 +153,7 @@ class KnowledgeForm extends Component {
           <FormControl
             id="knowledgebase-title"
             type="text"
-            defaultValue={object.title}
+            defaultValue={topic.title}
             required
           />
         </FormGroup>
@@ -164,7 +163,7 @@ class KnowledgeForm extends Component {
           <FormControl
             id="knowledgebase-description"
             type="text"
-            defaultValue={object.description}
+            defaultValue={topic.description}
           />
         </FormGroup>
 
@@ -190,7 +189,7 @@ class KnowledgeForm extends Component {
 
     return (
       <form onSubmit={this.save}>
-        {this.renderContent()}
+        {this.renderContent(topic || {})}
         <Modal.Footer>
           <Button
             btnStyle="simple"
