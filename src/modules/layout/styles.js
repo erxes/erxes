@@ -225,12 +225,17 @@ const SidebarList = styled.ul`
   li.child-segment {
     border-bottom: none;
     background-color: ${colors.bgLight};
+
+    span {
+      background-color: ${colors.bgLight};
+      box-shadow: -15px 0 15px 0 ${colors.bgLight};
+    }
   }
 
   &.no-link li,
   a {
     display: block;
-    padding: 6px 40px 6px 20px;
+    padding: 6px 20px;
     color: ${colors.textPrimary};
     white-space: nowrap;
     overflow: hidden;
@@ -250,6 +255,11 @@ const SidebarList = styled.ul`
       text-decoration: none;
       outline: 0;
       color: ${colors.colorCoreBlack};
+
+      span {
+        background-color: ${colors.bgActive};
+        box-shadow: -15px 0 15px 0 ${colors.bgActive};
+      }
     }
   }
 
@@ -269,6 +279,8 @@ const SidebarCounter = styled.span`
   max-width: 60%;
   overflow: hidden;
   text-overflow: ellipsis;
+  background-color: #fff;
+  box-shadow: -15px 0 15px 0 #fff;
 
   a {
     padding: 0;
