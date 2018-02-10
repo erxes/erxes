@@ -16,7 +16,9 @@ const PerPageChooser = ({ history }) => {
   const renderOption = number => {
     return (
       <li>
-        <a onClick={() => onClick(number)}>{number}</a>
+        <a href="javascript:" onClick={() => onClick(number)}>
+          {number}
+        </a>
       </li>
     );
   };
