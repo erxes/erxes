@@ -1,67 +1,72 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Products, UOM, Currencies, Taxes } from '../../constants';
-import { FormControl } from 'modules/common/components';
+import { FormControl, Icon } from 'modules/common/components';
+import { ProductItemText } from '../../styles';
 
 const propTypes = {
-  removeProduct: PropTypes.func.isRequired
+  product: PropTypes.func.isRequired,
+  removeProductItem: PropTypes.func.isRequired
 };
 
 class ProductItemForm extends React.Component {
   render() {
+    const { product } = this.props;
+
     return (
       <tr>
         <td>
-          <select>
+          <FormControl componentClass="select">
             {Products.map(item => (
               <option key={item._id} value={item._id}>
                 {item.name}
               </option>
             ))}
-          </select>
+          </FormControl>
         </td>
         <td>
-          <select>
+          <FormControl componentClass="select">
             {UOM.map(item => (
               <option key={item._id} value={item._id}>
                 {item.name}
               </option>
             ))}
-          </select>
+          </FormControl>
         </td>
         <td>
-          <select>
+          <FormControl componentClass="select">
             {Currencies.map(item => (
               <option key={item._id} value={item._id}>
                 {item.name}
               </option>
             ))}
-          </select>
+          </FormControl>
         </td>
         <td>
-          <FormControl />
+          <FormControl placeholder="Quantity" />
+          <ProductItemText align="right">Discount</ProductItemText>
+          <ProductItemText align="right">Tax</ProductItemText>
         </td>
         <td>
-          <FormControl />
-        </td>
-        <td>
-          <FormControl />
-          <br />
-          Tax
-        </td>
-        <td>
-          <FormControl />
-          <br />
-          <select>
+          <FormControl placeholder="Unit price" />
+          <FormControl placeholder="Discount percent" />
+          <FormControl componentClass="select">
             {Taxes.map(item => (
               <option key={item._id} value={item._id}>
                 {item.name}
               </option>
             ))}
-          </select>
+          </FormControl>
         </td>
         <td>
-          5,890,000₮<br />120,000₮
+          <ProductItemText>5,890,000₮</ProductItemText>
+          <FormControl placeholder="Discount amount" />
+          <ProductItemText>120,000₮</ProductItemText>
+        </td>
+        <td>
+          <div onClick={this.props.removeProductItem.bind(this, product._id)}>
+            <Icon icon="ios-trash" />
+          </div>
         </td>
       </tr>
     );

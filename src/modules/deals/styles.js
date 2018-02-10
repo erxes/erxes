@@ -88,25 +88,58 @@ const DealButton = styled.div`
 
 const ProductFormContainer = styled.div`
   background: ${colors.colorWhite};
+  margin: -40px -40px -30px -40px;
 `;
 
-const ProductItemList = styled.table`
-  vertical-align: top;
-  margin: -40px -40px 0 -40px;
-  thead>tr {
-    padding: 10px 30px;
+const ProductTable = styled.table`
+  thead {
     td {
-      padding-right: 10px 
+      padding: 10px 10px 10px 0;
       font-weight: bold;
       font-size: 14px;
     }
   }
-  tbody>tr {
-    padding: 30px 30px 20px 30px;
+  tbody {
     td {
-      padding-bottom: 10px;
+      padding: 30px 10px 30px 0;
+      vertical-align: top;
     }
   }
+  td {
+    border-bottom: 1px solid ${colors.colorShadowGray};
+    &:first-child {
+      padding-left: 30px;
+    }
+    &:last-child {
+      padding-right: 30px;
+    }
+  }
+`;
+
+const ProductFooter = styled.div`
+  padding: 30px;
+`;
+
+const AddProduct = styled.div`
+  display: block;
+  height: 80px;
+  line-height: 80px;
+  font-size: 18px;
+  font-weight: bold;
+  text-align: center;
+  background: #ebebeb;
+  color: #5fa3b8;
+  cursor: hand;
+  i {
+    padding-right: 8px;
+  }
+`;
+
+const ProductItemText = styled.div`
+  height: 34px;
+  line-height: 34px;
+  font-weight: bold;
+  text-align: ${props => props.align || 'left'};
 `;
 
 export {
@@ -120,5 +153,8 @@ export {
   DealFormContainer,
   DealButton,
   ProductFormContainer,
-  ProductItemList
+  ProductTable,
+  ProductFooter,
+  AddProduct,
+  ProductItemText
 };

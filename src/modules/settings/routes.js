@@ -10,6 +10,7 @@ import FormsRoutes from './forms/routes';
 import IntegrationsRoutes from './integrations/routes';
 import KnowledgeBaseRoutes from './knowledgeBase/routes';
 import ProfileRoutes from './profile/routes';
+import DealRoutes from './deals/routes';
 import MainRoutes from './main/routes';
 
 const routes = () => [
@@ -23,7 +24,8 @@ const routes = () => [
   <FormsRoutes key="FormsRoutes" />,
   <IntegrationsRoutes key="IntegrationsRoutes" />,
   <KnowledgeBaseRoutes key="KnowledgeBaseRoutes" />,
-  <ProfileRoutes key="ProfileRoutes" />
+  <ProfileRoutes key="ProfileRoutes" />,
+  <DealRoutes key="DealRoutes" />
 ];
 
 const settingsRoute = () => <Route path="/settings" component={routes} />;

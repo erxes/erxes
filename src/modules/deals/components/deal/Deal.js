@@ -23,6 +23,8 @@ class Deal extends React.Component {
               {...provided.dragHandleProps}
             >
               {deal.name}
+              <br />
+              {deal.amount}
             </DealContainer>
             {provided.placeholder}
           </div>

@@ -15,8 +15,35 @@ const propTypes = {
 };
 
 class Stage extends React.Component {
+  constructor(props) {
+    super(props);
+
+    let amount = 0;
+
+    props.deals.forEach(deal => {
+      amount += deal.amount;
+    });
+
+    this.state = {
+      amount
+    };
+  }
+
+  componentDidUpdate(prevProps) {
+    // console.log(prevProps.deals.length);
+    // console.log(this.props.deals.length);
+    // let amount = 0;
+    // this.props.deals.forEach(deal => {
+    //   amount += deal.amount;
+    // });
+    // this.setState({
+    //   amount,
+    // });
+  }
+
   render() {
     const { stage, deals, index } = this.props;
+    const { amount } = this.state;
 
     return (
       <Draggable draggableId={stage._id} index={index}>
@@ -27,7 +54,9 @@ class Stage extends React.Component {
               {...provided.draggableProps}
               {...provided.dragHandleProps}
             >
-              <h3>{stage.name}</h3>
+              <h3>
+                {stage.name} {amount}
+              </h3>
               <Droppable droppableId={stage._id} type="DEAL">
                 {dropProvided => (
                   <StageBody innerRef={dropProvided.innerRef}>

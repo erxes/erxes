@@ -37,55 +37,64 @@ export const Deals = [
     _id: 'deal111',
     name: 'Deal 1.1.1',
     stageId: 'stage11',
-    order: 0
+    order: 0,
+    amount: 12000
   },
   {
     _id: 'deal112',
     name: 'Deal 1.1.2',
     stageId: 'stage11',
-    order: 1
+    order: 1,
+    amount: 13000
   },
   {
     _id: 'deal121',
     name: 'Deal 1.2.1',
     stageId: 'stage12',
-    order: 0
+    order: 0,
+    amount: 14000
   },
   {
     _id: 'deal122',
     name: 'Deal 1.2.2',
     stageId: 'stage12',
-    order: 1
+    order: 1,
+    amount: 10000
   },
   {
     _id: 'deal131',
     name: 'Deal 1.3.1',
     stageId: 'stage13',
-    order: 2
+    order: 2,
+    amount: 2000
   },
   {
     _id: 'deal211',
     name: 'Deal 2.1.1',
     stageId: 'stage21',
-    order: 0
+    order: 0,
+    amount: 15000
   },
   {
     _id: 'deal212',
     name: 'Deal 2.1.2',
     stageId: 'stage21',
-    order: 1
+    order: 1,
+    amount: 14000
   },
   {
     _id: 'deal221',
     name: 'Deal 2.2.1',
     stageId: 'stage22',
-    order: 0
+    order: 0,
+    amount: 13000
   },
   {
     _id: 'deal222',
     name: 'Deal 2.2.2',
     stageId: 'stage22',
-    order: 1
+    order: 1,
+    amount: 16000
   }
 ];
 
