@@ -228,7 +228,7 @@ const SidebarList = styled.ul`
 
     span {
       background-color: ${colors.bgLight};
-      box-shadow: -15px 0 15px 0 ${colors.bgLight};
+      box-shadow: -2px 0 10px 2px ${colors.bgLight};
     }
   }
 
@@ -258,7 +258,7 @@ const SidebarList = styled.ul`
 
       span {
         background-color: ${colors.bgActive};
-        box-shadow: -15px 0 15px 0 ${colors.bgActive};
+        box-shadow: -2px 0 10px 2px ${colors.bgActive};
       }
     }
   }
@@ -280,7 +280,8 @@ const SidebarCounter = styled.span`
   overflow: hidden;
   text-overflow: ellipsis;
   background-color: #fff;
-  box-shadow: -15px 0 15px 0 #fff;
+  box-shadow: -2px 0 10px 2px #fff;
+  padding-left: 10px;
 
   a {
     padding: 0;
