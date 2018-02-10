@@ -230,7 +230,7 @@ const SidebarList = styled.ul`
   &.no-link li,
   a {
     display: block;
-    padding: 6px 20px;
+    padding: 6px 40px 6px 20px;
     color: ${colors.textPrimary};
     white-space: nowrap;
     overflow: hidden;

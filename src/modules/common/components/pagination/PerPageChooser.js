@@ -25,7 +25,7 @@ const PerPageChooser = ({ history }) => {
 
   return (
     <span>
-      <Dropdown>
+      <Dropdown id="per-page-chooser">
         <DropdownToggle bsRole="toggle">
           <Button btnStyle="simple" size="small">
             {currentPerPage} <Icon icon="ios-arrow-down" />
