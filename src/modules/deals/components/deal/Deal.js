@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Draggable } from 'react-beautiful-dnd';
 
-import { DealContainer } from '../styles';
+import { DealContainer } from '../../styles';
 
 const propTypes = {
   deal: PropTypes.object.isRequired,
@@ -16,16 +16,16 @@ class Deal extends React.Component {
     return (
       <Draggable draggableId={deal._id} index={index}>
         {provided => (
-          <DealContainer>
-            <div
-              ref={provided.innerRef}
+          <div>
+            <DealContainer
+              innerRef={provided.innerRef}
               {...provided.draggableProps}
               {...provided.dragHandleProps}
             >
               {deal.name}
-            </div>
+            </DealContainer>
             {provided.placeholder}
-          </DealContainer>
+          </div>
         )}
       </Draggable>
     );

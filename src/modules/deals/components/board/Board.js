@@ -6,10 +6,9 @@ import { Dropdown } from 'react-bootstrap';
 import { Wrapper } from 'modules/layout/components';
 import { DragDropContext } from 'react-beautiful-dnd';
 
-import Pipeline from './pipeline';
-import { PipelineForm } from './';
-import { Pipelines, Stages, Deals } from '../constants';
-import { moveInList, addToList, removeFromList } from '../utils';
+import { Pipeline, PipelineForm } from '../';
+import { Pipelines, Stages, Deals } from '../../constants';
+import { moveInList, addToList, removeFromList } from '../../utils';
 import { BarItems } from 'modules/layout/styles';
 import {
   ModalTrigger,
@@ -46,10 +45,20 @@ class Board extends React.Component {
 
     this.state = {
       deals,
-      stages
+      stages,
+      showDealForm: {}
     };
 
     this.onDragEnd = this.onDragEnd.bind(this);
+  }
+
+  showNewDeal(stageId) {
+    const showDealForm = this.state.showDealForm;
+    showDealForm[stageId] = true;
+
+    this.setState({
+      showDealForm
+    });
   }
 
   reOrder({ source, destination }, list, fieldName) {
@@ -88,9 +97,6 @@ class Board extends React.Component {
       // Update added list
       list[destination.droppableId] = addedList;
     }
-
-    console.log('list: ', list);
-
     // reordered list
     return list;
   }

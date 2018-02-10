@@ -21,11 +21,6 @@ export const Stages = [
     pipelineId: 'pipeline1'
   },
   {
-    _id: 'stage13',
-    name: 'Stage 1.3',
-    pipelineId: 'pipeline1'
-  },
-  {
     _id: 'stage21',
     name: 'Stage 2.1',
     pipelineId: 'pipeline2'
@@ -91,5 +86,49 @@ export const Deals = [
     name: 'Deal 2.2.2',
     stageId: 'stage22',
     order: 1
+  }
+];
+
+export const Products = [
+  {
+    _id: 'product1',
+    name: 'Web development'
+  },
+  {
+    _id: 'product2',
+    name: 'Mobile app'
+  }
+];
+
+export const UOM = [
+  {
+    _id: 'uom1',
+    name: 'Man hour'
+  },
+  {
+    _id: 'uom2',
+    name: 'Quantity'
+  }
+];
+
+export const Currencies = [
+  {
+    _id: 'currency1',
+    name: 'MNT'
+  },
+  {
+    _id: 'currency2',
+    name: 'USD'
+  }
+];
+
+export const Taxes = [
+  {
+    _id: 'tax1',
+    name: 'Tax 5%'
+  },
+  {
+    _id: 'tax2',
+    name: 'Tax 10%'
   }
 ];

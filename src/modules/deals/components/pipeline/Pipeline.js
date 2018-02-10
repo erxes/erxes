@@ -1,8 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import Stage from './stage';
+import { Stage } from '../';
 import { Droppable } from 'react-beautiful-dnd';
-import { PipelineContainer, PipelineHeader, PipelineBody } from '../styles';
+import { PipelineContainer, PipelineHeader, PipelineBody } from '../../styles';
 
 const propTypes = {
   pipeline: PropTypes.object.isRequired,
@@ -11,6 +11,35 @@ const propTypes = {
 };
 
 class Pipeline extends React.Component {
+  constructor(props) {
+    super(props);
+
+    this.addDealForm = this.addDealForm.bind(this);
+    this.closeDealForm = this.closeDealForm.bind(this);
+
+    this.state = {
+      showDealForm: {}
+    };
+  }
+
+  addDealForm(stageId) {
+    const showDealForm = this.state.showDealForm;
+    showDealForm[stageId] = true;
+
+    this.setState({
+      showDealForm
+    });
+  }
+
+  closeDealForm(stageId) {
+    const showDealForm = this.state.showDealForm;
+    showDealForm[stageId] = false;
+
+    this.setState({
+      showDealForm
+    });
+  }
+
   render() {
     const { stages, pipeline, deals } = this.props;
 
@@ -23,6 +52,9 @@ class Pipeline extends React.Component {
               index={index}
               stage={stage}
               deals={deals[stage._id]}
+              showDealForm={this.state.showDealForm}
+              closeDealForm={this.closeDealForm}
+              addDealForm={this.addDealForm}
             />
           );
         })}
