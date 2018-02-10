@@ -42,7 +42,6 @@ const PerPageChooser = ({ history }) => {
 };
 
 PerPageChooser.propTypes = {
-  currentPerPage: PropTypes.number,
   history: PropTypes.object.isRequired
 };
 
