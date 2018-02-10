@@ -42,7 +42,7 @@ const CustomersWrapper = styled.div`
 
 const CompaniesTableWrapper = styled.div`
   td:nth-child(4) {
-    max-width: 300px;
+    max-width: 200px;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
