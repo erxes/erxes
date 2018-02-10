@@ -1,10 +1,17 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Col, Row } from 'react-bootstrap';
-import { SummaryItem, SummaryTitle, SummaryCount } from '../styles';
+import { Spinner } from 'modules/common/components';
+import {
+  SummaryItem,
+  SummaryTitle,
+  SummaryCount,
+  LoaderWrapper
+} from '../styles';
 
 const propTypes = {
-  data: PropTypes.array.isRequired
+  data: PropTypes.array.isRequired,
+  loading: PropTypes.bool
 };
 
 class Summary extends React.Component {
@@ -20,7 +27,16 @@ class Summary extends React.Component {
   }
 
   render() {
-    const { data } = this.props;
+    const { data, loading } = this.props;
+
+    if (loading) {
+      return (
+        <LoaderWrapper>
+          <Spinner objective />
+        </LoaderWrapper>
+      );
+    }
+
     return <Row>{data.map(detail => this.renderSummary(detail))}</Row>;
   }
 }

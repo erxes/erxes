@@ -1,120 +1,81 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Wrapper } from 'modules/layout/components';
 import { Spinner } from 'modules/common/components';
-import Sidebar from './Sidebar';
-import Filter from './Filter';
-import Chart from './Chart';
-import Summary from './Summary';
-import PunchCard from './PunchCard';
-import Insights from './Insights';
-import {
-  InsightWrapper,
-  InsightRow,
-  InsightContent,
-  InsightTitle,
-  FullLoader
-} from '../styles';
+import CommonReport from './CommonReport';
+import { Chart, Summary, PunchCard, Insights } from './';
+import { InsightRow, InsightContent, LoaderWrapper } from '../styles';
 
 const propTypes = {
-  history: PropTypes.object,
   insights: PropTypes.array.isRequired,
-  trend: PropTypes.array.isRequired,
-  brands: PropTypes.array.isRequired,
   punch: PropTypes.array.isRequired,
   summary: PropTypes.array.isRequired,
-  queryParams: PropTypes.object,
-  isLoading: PropTypes.bool.isRequired
+  loading: PropTypes.object.isRequired
 };
 
-class VolumeReport extends React.Component {
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      width: 600
-    };
-  }
-
+class VolumeReport extends CommonReport {
   componentDidUpdate(prevProps) {
-    if (prevProps.isLoading && !this.props.isLoading) {
-      const width = this.wrapper.clientWidth;
-      this.setState({ width });
+    if (prevProps.loading.insights && !this.props.loading.insights) {
+      this.calculateWidth();
     }
   }
 
-  renderTitle(title) {
-    return <InsightTitle>{title}</InsightTitle>;
+  componentDidMount() {
+    this.calculateWidth();
   }
 
-  mainContent() {
-    const {
-      trend,
-      punch,
-      insights,
-      summary,
-      brands,
-      history,
-      isLoading,
-      queryParams
-    } = this.props;
-    const width = this.state.width;
-
-    if (isLoading) {
-      return (
-        <FullLoader>
-          <Spinner />
-        </FullLoader>
-      );
-    }
-
-    return (
-      <InsightWrapper>
-        <Filter history={history} brands={brands} queryParams={queryParams} />
-        <InsightContent>
-          <InsightRow>
-            {this.renderTitle('Volume summary')}
-            <Summary data={summary} />
-          </InsightRow>
-
-          <InsightRow
-            innerRef={node => {
-              this.wrapper = node;
-            }}
-          >
-            {this.renderTitle('Volume Trend')}
-            <Chart width={width} height={320} data={trend} />
-          </InsightRow>
-
-          {width !== 600 ? (
-            <InsightRow>
-              {this.renderTitle('Punch card')}
-              <PunchCard data={punch} width={width} />
-            </InsightRow>
-          ) : null}
-
-          <InsightRow>
-            {this.renderTitle('Insights')}
-            <Insights data={insights} wrapperWidth={width} />
-          </InsightRow>
-        </InsightContent>
-      </InsightWrapper>
-    );
-  }
-
-  render() {
-    const breadcrumb = [
+  renderBreadCrumnb() {
+    return [
       { title: 'Insights', link: '/insight' },
       { title: 'Volume Report' }
     ];
+  }
+
+  renderCharts() {
+    const { trend, punch, insights, summary, loading } = this.props;
+
+    const width = this.state.width;
 
     return (
-      <Wrapper
-        relative
-        header={<Wrapper.Header breadcrumb={breadcrumb} />}
-        leftSidebar={<Sidebar />}
-        content={this.mainContent()}
-      />
+      <InsightContent>
+        <InsightRow>
+          {this.renderTitle('Volume summary')}
+          <Summary loading={loading.main} data={summary} />
+        </InsightRow>
+
+        <InsightRow
+          innerRef={node => {
+            this.wrapper = node;
+          }}
+        >
+          {this.renderTitle('Volume Trend')}
+          <Chart
+            loading={loading.main}
+            width={width}
+            height={320}
+            data={trend}
+          />
+        </InsightRow>
+
+        <InsightRow>
+          {this.renderTitle('Punch card')}
+          {!loading.punch ? (
+            <PunchCard data={punch} width={width} />
+          ) : (
+            <LoaderWrapper>
+              <Spinner objective />
+            </LoaderWrapper>
+          )}
+        </InsightRow>
+
+        <InsightRow>
+          {this.renderTitle('Insights')}
+          <Insights
+            loading={loading.insights}
+            data={insights}
+            wrapperWidth={width}
+          />
+        </InsightRow>
+      </InsightContent>
     );
   }
 }

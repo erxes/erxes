@@ -22,7 +22,7 @@ const routes = () => [
     path="/customers"
     component={({ location }) => {
       const queryParams = queryString.parse(location.search);
-      return <CustomersList queryParams={queryParams} />;
+      return <CustomersList queryParams={queryParams} location={location} />;
     }}
   />
 ];

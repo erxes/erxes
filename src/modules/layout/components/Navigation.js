@@ -11,6 +11,10 @@ const LeftNavigation = styled.aside`
   z-index: 10;
   flex-shrink: 0;
   overflow: hidden;
+  position: fixed;
+  left: 0;
+  top: 0;
+  bottom: 0;
 
   > a {
     line-height: ${dimensions.headerSpacing}px;
