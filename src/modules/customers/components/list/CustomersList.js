@@ -107,11 +107,17 @@ class CustomersList extends React.Component {
     if (this.timer) clearTimeout(this.timer);
     const { history } = this.props;
     const searchValue = e.target.value;
-    this.setState({ searchValue });
 
+    this.setState({ searchValue });
     this.timer = setTimeout(() => {
       router.setParams(history, { searchValue });
     }, 500);
+  }
+
+  moveCursorAtTheEnd(e) {
+    const tmpValue = e.target.value;
+    e.target.value = '';
+    e.target.value = tmpValue;
   }
 
   render() {
@@ -143,6 +149,8 @@ class CustomersList extends React.Component {
           placeholder="Type to search.."
           onChange={e => this.search(e)}
           value={this.state.searchValue}
+          autoFocus
+          onFocus={e => this.moveCursorAtTheEnd(e)}
         />
         <Dropdown id="dropdown-engage" pullRight>
           <DropdownToggle bsRole="toggle">
