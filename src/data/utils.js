@@ -31,8 +31,8 @@ export const uploadFile = async file => {
   const buffer = await fs.readFileSync(file.path);
 
   // upload to s3
-  await new Promise((resolve, reject) => {
-    s3.putObject(
+  const response = await new Promise((resolve, reject) => {
+    s3.upload(
       {
         Bucket: AWS_BUCKET,
         Key: fileName,
@@ -49,7 +49,7 @@ export const uploadFile = async file => {
     );
   });
 
-  return `https://s3.amazonaws.com/${AWS_BUCKET}/${fileName}`;
+  return response.Location;
 };
 
 /**
