@@ -1,17 +1,17 @@
-import Boards from './Boards';
+import Home from './Home';
 import BoardForm from './BoardForm';
 import BoardRow from './BoardRow';
 import Pipelines from './Pipelines';
 import PipelineRow from './PipelineRow';
 import PipelineForm from './PipelineForm';
-import Sidebar from './Sidebar';
+import Boards from './Boards';
 
 export {
-  Boards,
+  Home,
   BoardForm,
   BoardRow,
   Pipelines,
   PipelineRow,
   PipelineForm,
-  Sidebar
+  Boards
 };

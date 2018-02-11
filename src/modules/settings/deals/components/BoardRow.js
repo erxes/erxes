@@ -53,7 +53,7 @@ class BoardRow extends Component {
 
     return (
       <SidebarListItem key={board._id} isActive={isActive}>
-        <Link to={`?id=${board._id}`}>{board.name}</Link>
+        <Link to={`?boardId=${board._id}`}>{board.name}</Link>
         <ActionButtons>
           {this.renderEditAction()}
           <Tip text="Delete">

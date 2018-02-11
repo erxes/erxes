@@ -1,4 +1,4 @@
+import Home from './Home';
 import Boards from './Boards';
-import Sidebar from './Sidebar';
 
-export { Boards, Sidebar };
+export { Home, Boards };
