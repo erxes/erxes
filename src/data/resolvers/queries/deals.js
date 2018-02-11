@@ -11,6 +11,24 @@ const dealQueries = {
   },
 
   /**
+   * Deal Board detail
+   * @param {Object} args
+   * @param {String} args._id
+   * @return {Promise} deal boards list
+   */
+  dealBoardDetail(root, { _id }) {
+    return DealBoards.findOne({ _id });
+  },
+
+  /**
+   * Get last board
+   * @return {Promise} board
+   */
+  async dealBoardGetLast() {
+    return DealBoards.findOne().sort({ order: -1, createdAt: -1 });
+  },
+
+  /**
    * Deal Pipelines list
    * @param {Object} args
    * @param {String} args.boardId
