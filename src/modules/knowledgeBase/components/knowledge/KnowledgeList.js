@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Icon, ModalTrigger, DataWithLoader } from 'modules/common/components';
 import { Sidebar } from 'modules/layout/components';
-import { SidebarList } from 'modules/layout/styles';
 import { KnowledgeForm } from '../../containers';
 import { KnowledgeRow } from './';
 import { RightButton } from '../../styles';
@@ -40,17 +39,21 @@ class KnowledgeList extends Component {
       articlesCount
     } = this.props;
 
-    return topics.map(topic => (
-      <KnowledgeRow
-        currentCategoryId={currentCategoryId}
-        key={topic._id}
-        topic={topic}
-        queryParams={queryParams}
-        articlesCount={articlesCount}
-        remove={remove}
-        save={save}
-      />
-    ));
+    return (
+      <div>
+        {topics.map(topic => (
+          <KnowledgeRow
+            currentCategoryId={currentCategoryId}
+            key={topic._id}
+            topic={topic}
+            queryParams={queryParams}
+            articlesCount={articlesCount}
+            remove={remove}
+            save={save}
+          />
+        ))}
+      </div>
+    );
   }
 
   renderSidebarHeader() {
@@ -80,7 +83,7 @@ class KnowledgeList extends Component {
       <Sidebar wide header={this.renderSidebarHeader()}>
         <Sidebar.Section noBackground noShadow full>
           <DataWithLoader
-            data={<SidebarList>{this.renderSidebarList()}</SidebarList>}
+            data={this.renderSidebarList()}
             loading={loading}
             count={topicsCount}
             emptyText="Add knowledge base."

@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { CategoryRow } from './';
+import { Categories } from '../../styles';
 
 const propTypes = {
   currentCategoryId: PropTypes.string,
@@ -20,16 +21,20 @@ class CategoryList extends Component {
       articlesCount
     } = this.props;
 
-    return categories.map(category => (
-      <CategoryRow
-        key={category._id}
-        isActive={currentCategoryId === category._id}
-        articlesCount={articlesCount}
-        topicIds={topicIds}
-        category={category}
-        remove={remove}
-      />
-    ));
+    return (
+      <Categories>
+        {categories.map(category => (
+          <CategoryRow
+            key={category._id}
+            isActive={currentCategoryId === category._id}
+            articlesCount={articlesCount}
+            topicIds={topicIds}
+            category={category}
+            remove={remove}
+          />
+        ))}
+      </Categories>
+    );
   }
 }
 

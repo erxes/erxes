@@ -7,7 +7,6 @@ import {
   SidebarContent,
   SectionHead,
   SectionTitle,
-  Categories,
   RowRightSide,
   DropIcon
 } from '../../styles';
@@ -55,7 +54,11 @@ class KnowledgeRow extends Component {
         <SectionHead>
           <SectionTitle onClick={this.toggle}>{topic.title}</SectionTitle>
           <RowRightSide>
-            <Dropdown id="dropdown-user" className="quick-button" pullRight>
+            <Dropdown
+              id="dropdown-knowledgebase"
+              className="quick-button"
+              pullRight
+            >
               <DropdownToggle bsRole="toggle">
                 <Icon icon="gear-a" />
               </DropdownToggle>
@@ -71,18 +74,16 @@ class KnowledgeRow extends Component {
                 </ModalTrigger>
               </Dropdown.Menu>
             </Dropdown>
-            <DropIcon className={this.state.detailed} onClick={this.toggle} />
+            <DropIcon onClick={this.toggle} isOpen={this.state.detailed} />
           </RowRightSide>
         </SectionHead>
         {this.state.detailed && (
-          <Categories>
-            <CategoryList
-              currentCategoryId={currentCategoryId}
-              articlesCount={articlesCount}
-              topicIds={topic._id}
-              queryParams={queryParams}
-            />
-          </Categories>
+          <CategoryList
+            currentCategoryId={currentCategoryId}
+            articlesCount={articlesCount}
+            topicIds={topic._id}
+            queryParams={queryParams}
+          />
         )}
       </SidebarContent>
     );

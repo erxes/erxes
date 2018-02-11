@@ -1,7 +1,13 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import moment from 'moment';
-import { ModalTrigger, Tip, Button, Icon } from 'modules/common/components';
+import {
+  ModalTrigger,
+  Tip,
+  Button,
+  Icon,
+  Label
+} from 'modules/common/components';
 import { ArticleForm } from '../../containers';
 import {
   Row,
@@ -59,11 +65,13 @@ class ArticleRow extends Component {
 
   render() {
     const { article } = this.props;
-
     return (
       <Row>
         <ArticleColumn>
           <ArticleTitle>{article.title}</ArticleTitle>
+          {article.status === 'draft' && (
+            <Label lblStyle="simple">{article.status}</Label>
+          )}
           <ArticleSummary>{article.summary}</ArticleSummary>
           <ArticleAuthor>
             <AuthorImg

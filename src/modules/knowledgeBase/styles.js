@@ -13,7 +13,6 @@ const SidebarContent = styled.div`
 `;
 
 const RowRightSide = styled.span`
-  display: flex;
   font-size: 12px;
   color: ${colors.colorCoreGray};
   right: ${dimensions.coreSpacing}px;
@@ -44,10 +43,7 @@ const DropIcon = styled.span`
     font-family: 'Ionicons';
     float: right;
     transition: all ease 0.3s;
-  }
-
-  &.true:after {
-    transform: rotate(180deg);
+    transform: ${props => props.isOpen && `rotate(180deg)`};
   }
 `;
 
@@ -74,7 +70,6 @@ const CountArticle = styled.span`
 `;
 
 const Categories = styled.ul`
-  overflow: hidden;
   margin: 0;
   padding: 0;
   list-style: none;
@@ -90,7 +85,6 @@ const ActionButtons = styled.div`
   width: 0;
   overflow: hidden;
   align-items: center;
-  justify-content: center;
   transition: all 0.3s ease;
 
   * {
@@ -110,6 +104,9 @@ const ArticleWrap = styled.li`
   a {
     padding: 10px 40px;
     white-space: normal;
+    display: block;
+    color: ${colors.textPrimary};
+    position: relative;
 
     &:focus {
       color: inherit;
@@ -149,7 +146,8 @@ const Row = styled.div`
 
   &:hover {
     ${ActionButtons} {
-      width: ${dimensions.headerSpacing - 5}px;
+      width: ${dimensions.headerSpacing - dimensions.coreSpacing}px;
+      right: ${dimensions.coreSpacing}px;
     }
   }
 `;
@@ -157,6 +155,7 @@ const Row = styled.div`
 const ArticleTitle = styled.span`
   font-weight: 600;
   font-size: 14px;
+  margin-right: ${dimensions.unitSpacing}px;
 `;
 
 const ArticleColumn = styled.div`
