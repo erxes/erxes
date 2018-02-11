@@ -18,6 +18,7 @@ export const types = `
     remoteAddress: String
     internalNotes: JSON
     location: JSON
+    visitorContactInfo: JSON
     customFieldsData: JSON
     messengerData: JSON
     twitterData: JSON
