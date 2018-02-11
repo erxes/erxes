@@ -314,14 +314,6 @@ const Authlayout = styled.div`
   overflow: hidden;
   position: relative;
   flex: 1;
-`;
-
-const AuthContent = styled.div`
-  position: relative;
-  top: 50%;
-  transform: translateY(-50%);
-  text-align: center;
-  font-family: 'Roboto', sans-serif;
   a.go-to-home {
     background-color: ${colors.colorWhite};
     padding: 15px 35px;
@@ -332,11 +324,24 @@ const AuthContent = styled.div`
     font-weight: 900;
     text-transform: uppercase;
     margin-bottom: 30px;
+    position: absolute;
+    right: 30px;
+    top: 30px;
+    font-family: 'Roboto', sans-serif;
+    font-weight: 900;
     &:hover {
       background-color: rgba(0, 0, 0, 0.2);
       color: #fff;
     }
   }
+`;
+
+const AuthContent = styled.div`
+  position: relative;
+  top: 50%;
+  transform: translateY(-50%);
+  text-align: center;
+  font-family: 'Roboto', sans-serif;
 `;
 
 const AuthDescription = styled.div`

@@ -24,19 +24,16 @@ class AuthLayout extends React.Component {
 
     return (
       <Authlayout>
+        <a
+          className="go-to-home"
+          target="_blank"
+          rel="noopener noreferrer"
+          href="http://erxes.io/"
+        >
+          Go to home page
+        </a>
         <AuthContent>
           <Grid>
-            <Col md={12}>
-              <a
-                className="go-to-home"
-                target="_blank"
-                rel="noopener noreferrer"
-                href="http://erxes.io/"
-              >
-                Go to home page
-              </a>
-              <div className="clearfix" />
-            </Col>
             <Col md={6} mdOffset={3}>
               <AuthDescription>
                 <h1>Customer engagement. Redefined.</h1>
