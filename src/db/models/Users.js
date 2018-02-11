@@ -62,7 +62,7 @@ const UserSchema = mongoose.Schema({
   emailSignatures: field({ type: [EmailSignatureSchema] }),
   starredConversationIds: field({ type: [String] }),
   details: field({ type: DetailSchema }),
-  links: field({ type: LinkSchema }),
+  links: field({ type: LinkSchema, default: {} }),
 });
 
 class User {
