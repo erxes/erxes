@@ -88,6 +88,8 @@ import {
   mutations as ActivityLogMutations,
 } from './activityLog';
 
+import { types as FieldGroupTypes, mutations as FieldGroupMutations } from './fieldGroup';
+
 export const types = `
   scalar JSON
   scalar Date
@@ -111,6 +113,7 @@ export const types = `
   ${InsightTypes}
   ${KnowledgeBaseTypes}
   ${NotificationTypes}
+  ${FieldGroupTypes}
 `;
 
 export const queries = `
@@ -157,6 +160,7 @@ export const mutations = `
     ${KnowledgeBaseMutations}
     ${NotificationMutations}
     ${ActivityLogMutations}
+    ${FieldGroupMutations}
   }
 `;
 
