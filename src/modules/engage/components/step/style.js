@@ -147,7 +147,6 @@ const Divider = styled.div`
   width: 1px;
   background: ${colors.borderPrimary};
   height: 100%;
-  margin: 0 10px;
 `;
 
 export {

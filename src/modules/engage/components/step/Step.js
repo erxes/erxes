@@ -30,7 +30,7 @@ class Step extends Component {
   renderButton() {
     const { save, next, message } = this.props;
 
-    if (save && message) {
+    if (save && Object.keys(message).length !== 0) {
       return (
         <Button
           btnStyle="primary"

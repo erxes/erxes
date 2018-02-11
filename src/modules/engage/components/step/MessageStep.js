@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import MessengerForm from '../MessengerForm';
-import EmailForm from '../EmailForm';
+import { MessengerForm, EmailForm } from '../';
 
 const propTypes = {
   brands: PropTypes.array,
@@ -12,7 +11,7 @@ const propTypes = {
   templates: PropTypes.array
 };
 
-class Step3 extends Component {
+class MessageStep extends Component {
   render() {
     const {
       brands,
@@ -46,6 +45,6 @@ class Step3 extends Component {
   }
 }
 
-Step3.propTypes = propTypes;
+MessageStep.propTypes = propTypes;
 
-export default Step3;
+export default MessageStep;

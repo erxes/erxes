@@ -40,7 +40,9 @@ class MessengerForm extends Component {
 
   componentDidMount() {
     if (this.props.messenger) {
-      let messenger = { ...this.state.messenger };
+      let messenger = {
+        ...this.state.messenger
+      };
       messenger['brandId'] = this.props.messenger.brandId;
       messenger['sentAs'] = this.props.messenger.sentAs;
       this.setState({ messenger: messenger });
@@ -48,7 +50,9 @@ class MessengerForm extends Component {
   }
 
   changeContent(key, value) {
-    let messenger = { ...this.state.messenger };
+    let messenger = {
+      ...this.state.messenger
+    };
     messenger[key] = value;
     this.setState({ messenger });
     this.props.changeMessenger('messenger', this.state.messenger);
@@ -59,17 +63,16 @@ class MessengerForm extends Component {
     this.props.changeMessenger('fromUser', fromUser);
   }
 
-  render() {
-    let kind = '';
-    if (this.props.hasKind) {
-      kind = (
+  renderKind(hasKind) {
+    if (hasKind) {
+      return (
         <FormGroup>
           <ControlLabel>Message type:</ControlLabel>
           <FormControl
             componentClass="select"
             onChange={e => this.changeContent('kind', e.target.value)}
           >
-            <option />
+            <option />{' '}
             {MESSENGER_KINDS.SELECT_OPTIONS.map(k => (
               <option key={k.value} value={k.value}>
                 {k.text}
@@ -79,7 +82,9 @@ class MessengerForm extends Component {
         </FormGroup>
       );
     }
-
+    return null;
+  }
+  render() {
     return (
       <FlexItem>
         <FlexPad overflow="auto" direction="column">
@@ -99,7 +104,7 @@ class MessengerForm extends Component {
               onChange={e => this.changeUser(e.target.value)}
               defaultValue={this.state.fromUser}
             >
-              <option />
+              <option />{' '}
               {this.props.users.map(u => (
                 <option key={u._id} value={u._id}>
                   {u.fullName || u.username}
@@ -114,7 +119,7 @@ class MessengerForm extends Component {
               onChange={e => this.changeContent('brandId', e.target.value)}
               defaultValue={this.state.messenger.brandId}
             >
-              <option />
+              <option />{' '}
               {this.props.brands.map(b => (
                 <option key={b._id} value={b._id}>
                   {b.name}
@@ -122,7 +127,7 @@ class MessengerForm extends Component {
               ))}
             </FormControl>
           </FormGroup>
-          {kind}
+          {this.renderKind(this.props.hasKind)}
           <FormGroup>
             <ControlLabel>Sent as:</ControlLabel>
             <FormControl
@@ -130,7 +135,7 @@ class MessengerForm extends Component {
               onChange={e => this.changeContent('sentAs', e.target.value)}
               defaultValue={this.state.messenger.sentAs}
             >
-              <option />
+              <option />{' '}
               {SENT_AS_CHOICES.SELECT_OPTIONS.map(s => (
                 <option key={s.value} value={s.value}>
                   {s.text}

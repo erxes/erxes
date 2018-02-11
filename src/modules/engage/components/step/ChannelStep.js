@@ -38,7 +38,7 @@ const propTypes = {
   method: PropTypes.string
 };
 
-class Step1 extends Component {
+class ChannelStep extends Component {
   renderBox(name, image, desc) {
     return (
       <Box
@@ -69,6 +69,6 @@ class Step1 extends Component {
   }
 }
 
-Step1.propTypes = propTypes;
+ChannelStep.propTypes = propTypes;
 
-export default Step1;
+export default ChannelStep;

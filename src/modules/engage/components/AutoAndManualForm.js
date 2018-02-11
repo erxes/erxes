@@ -3,11 +3,7 @@ import PropTypes from 'prop-types';
 import { Wrapper } from 'modules/layout/components';
 import { StepWrapper, TitleContainer } from './step/style';
 import { FormControl } from 'modules/common/components';
-import Steps from './step/Steps';
-import Step from './step/Step';
-import Step1 from './step/ChannelStep';
-import Step2 from './step/SegmentStep';
-import Step3 from './step/MessageStep';
+import { ChannelStep, SegmentStep, MessageStep, Steps, Step } from './step';
 import FormBase from './FormBase';
 
 const propTypes = {
@@ -50,7 +46,7 @@ class AutoAndManualForm extends FormBase {
   }
 
   validate() {
-    const step3 = this.state.messenger;
+    const step3 = this.state[this.state.method];
     let validate = { ...this.state.validate };
     validate['step2'] = false;
     validate['step3'] = false;
@@ -58,12 +54,12 @@ class AutoAndManualForm extends FormBase {
     if (this.state.segment === '') {
       validate['step2'] = true;
     }
-
+    console.log(step3);
     Object.keys(step3).map(key => {
       if (step3[key] === '') {
         validate['step3'] = true;
+        return false;
       }
-      return false;
     });
 
     this.setState({ validate });
@@ -132,14 +128,17 @@ class AutoAndManualForm extends FormBase {
             title="Choose channel"
             next={this.next}
           >
-            <Step1 changeMethod={this.changeState} method={this.state.method} />
+            <ChannelStep
+              changeMethod={this.changeState}
+              method={this.state.method}
+            />
           </Step>
           <Step
             img="/images/icons/erxes-02.svg"
             title="Who is this message for?"
             next={this.next}
           >
-            <Step2
+            <SegmentStep
               changeSegment={this.changeState}
               segments={this.props.segments}
               counts={this.props.counts}
@@ -153,7 +152,7 @@ class AutoAndManualForm extends FormBase {
             next={this.next}
             message={this.props.message}
           >
-            <Step3
+            <MessageStep
               brands={this.props.brands}
               changeState={this.changeState}
               message={this.state.message}

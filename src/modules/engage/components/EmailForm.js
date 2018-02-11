@@ -46,7 +46,9 @@ class EmailForm extends Component {
   }
 
   changeContent(key, value) {
-    let email = { ...this.state.email };
+    let email = {
+      ...this.state.email
+    };
     email[key] = value;
     this.setState({ email });
     this.props.changeEmail('email', this.state.email);
@@ -79,25 +81,32 @@ class EmailForm extends Component {
     // render editor to content
     if (contentContainer.length > 0) {
       ReactDom.render(
-        <div dangerouslySetInnerHTML={{ __html: this.props.message }} />,
+        <div
+          dangerouslySetInnerHTML={{
+            __html: this.props.message
+          }}
+        />,
         contentContainer[0]
       );
     }
   }
 
-  render() {
-    let content = '';
-
+  renderMessage() {
     if (this.state.currentTemplate !== '') {
-      content = (
+      return (
         <EditorWrapper>
           <div
-            dangerouslySetInnerHTML={{ __html: this.state.currentTemplate }}
+            dangerouslySetInnerHTML={{
+              __html: this.state.currentTemplate
+            }}
           />
         </EditorWrapper>
       );
     }
+    return null;
+  }
 
+  render() {
     return (
       <FlexItem>
         <FlexPad direction="column" overflow="auto">
@@ -113,7 +122,7 @@ class EmailForm extends Component {
               componentClass="select"
               onChange={e => this.changeUser(e.target.value)}
             >
-              <option />
+              <option />{' '}
               {this.props.users.map(u => (
                 <option key={u._id} value={u._id}>
                   {u.fullName || u.username}
@@ -133,7 +142,7 @@ class EmailForm extends Component {
               componentClass="select"
               onChange={e => this.templateChange(e.target.value)}
             >
-              <option />
+              <option />{' '}
               {this.props.templates.map(t => (
                 <option key={t._id} value={t._id}>
                   {t.name}
@@ -144,7 +153,7 @@ class EmailForm extends Component {
         </FlexPad>
         <Divider />
         <FlexItem v="center" h="center" overflow="auto">
-          {content}
+          {this.renderMessage()}
         </FlexItem>
       </FlexItem>
     );

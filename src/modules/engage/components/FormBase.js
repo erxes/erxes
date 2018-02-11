@@ -29,14 +29,13 @@ class FormBase extends Component {
 
   renderTitle() {
     const { kind } = this.props;
-    let title = 'Visitor auto message';
+    var title = 'Visitor auto message';
     if (kind === 'auto') {
       title = 'Auto message';
     } else if (kind === 'manual') {
       title = 'Manual message';
     }
-    const breadcrumb = [{ title: 'Engage', link: '/engage' }, { title: title }];
-    return breadcrumb;
+    return [{ title: 'Engage', link: '/engage' }, { title: title }];
   }
 }
 

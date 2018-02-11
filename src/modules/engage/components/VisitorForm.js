@@ -4,9 +4,7 @@ import { Wrapper } from 'modules/layout/components';
 import MessengerForm from './MessengerForm';
 import { StepWrapper, TitleContainer } from './step/style';
 import { FormControl } from 'modules/common/components';
-import Steps from './step/Steps';
-import Step from './step/Step';
-import Step1 from './step/ConditionStep';
+import { ConditionStep, Steps, Step } from './step';
 import { METHODS, MESSAGE_KINDS } from 'modules/engage/constants';
 import FormBase from './FormBase';
 
@@ -70,8 +68,8 @@ class VisitorForm extends FormBase {
     Object.keys(step2).map(key => {
       if (step2[key] === '') {
         validate['step2'] = true;
+        return false;
       }
-      return false;
     });
 
     this.setState({ validate });
@@ -120,7 +118,10 @@ class VisitorForm extends FormBase {
             title="Who is this message for?"
             next={this.next}
           >
-            <Step1 rules={this.state.rules} changeRules={this.changeState} />
+            <ConditionStep
+              rules={this.state.rules}
+              changeRules={this.changeState}
+            />
           </Step>
           <Step
             img="/images/icons/erxes-08.svg"

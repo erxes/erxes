@@ -18,7 +18,7 @@ const propTypes = {
   changeRules: PropTypes.func.isRequired
 };
 
-class Step2 extends Component {
+class ConditionStep extends Component {
   constructor(props) {
     super(props);
 
@@ -132,6 +132,6 @@ class Step2 extends Component {
   }
 }
 
-Step2.propTypes = propTypes;
+ConditionStep.propTypes = propTypes;
 
-export default Step2;
+export default ConditionStep;

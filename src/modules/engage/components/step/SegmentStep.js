@@ -14,7 +14,7 @@ const RadioContainer = styled.div`
   }
 `;
 const SegmentContainer = styled.div`
-  padding: 15px;
+  padding: 20px;
 `;
 
 const propTypes = {
@@ -24,7 +24,7 @@ const propTypes = {
   segmentPush: PropTypes.func
 };
 
-class Step2 extends Component {
+class SegmentStep extends Component {
   constructor(props) {
     super(props);
 
@@ -56,11 +56,9 @@ class Step2 extends Component {
     this.createSegment(false);
   }
 
-  render() {
-    const show = this.state.createSegment;
-    let segments = '';
+  renderSegments(show) {
     if (!show) {
-      segments = (
+      return (
         <SegmentContainer>
           <Segments
             segments={this.props.segments}
@@ -71,6 +69,12 @@ class Step2 extends Component {
         </SegmentContainer>
       );
     }
+    return null;
+  }
+
+  render() {
+    const show = this.state.createSegment;
+
     return (
       <FlexItem>
         <FlexItem direction="column" overflow="auto">
@@ -95,7 +99,7 @@ class Step2 extends Component {
               Create segment
             </FormControl>
           </RadioContainer>
-          {segments}
+          {this.renderSegments()}
           <Show show={show}>
             <SegmentsForm segmentPush={this.segmentPush} />
           </Show>
@@ -110,6 +114,6 @@ class Step2 extends Component {
   }
 }
 
-Step2.propTypes = propTypes;
+SegmentStep.propTypes = propTypes;
 
-export default Step2;
+export default SegmentStep;
