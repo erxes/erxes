@@ -21,6 +21,7 @@ import {
 } from './KnowledgeBase';
 import { Notifications, NotificationConfigurations } from './Notifications';
 import ActivityLogs from './ActivityLogs';
+import FieldsGroups from './FieldsGroups';
 
 export {
   Users,
@@ -45,4 +46,5 @@ export {
   Notifications,
   NotificationConfigurations,
   ActivityLogs,
+  FieldsGroups,
 };
