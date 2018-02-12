@@ -18,11 +18,13 @@ const articlesQuery = async ({ categoryIds }) => {
         $in: categoryIds,
       },
     });
+
     let articleIds = [];
 
     for (let category of categories) {
       articleIds = articleIds.concat(category.articleIds || []);
     }
+
     query._id = {
       $in: articleIds,
     };
@@ -48,6 +50,7 @@ const categoriesQuery = async ({ topicIds }) => {
     for (let topic of topics) {
       categoryIds = categoryIds.concat(topic.categoryIds || []);
     }
+
     query._id = {
       $in: categoryIds,
     };
