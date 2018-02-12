@@ -115,11 +115,16 @@ describe('test knowledge base models', () => {
     });
 
     test('remove', async () => {
+      const categoryA = await knowledgeBaseCategoryFactory({});
+      const categoryB = await knowledgeBaseCategoryFactory({});
+
       const brand = await brandFactory({});
+
       const doc = {
         title: 'Test topic title',
         description: 'Test topic description',
         brandId: brand._id,
+        categoryIds: [categoryA._id, categoryB._id],
       };
 
       const topic = await KnowledgeBaseTopics.createDoc(doc, _user._id);
@@ -129,6 +134,7 @@ describe('test knowledge base models', () => {
       await KnowledgeBaseTopics.removeDoc(topic._id);
 
       expect(await KnowledgeBaseTopics.find().count()).toBe(0);
+      expect(await KnowledgeBaseCategories.find().count()).toBe(0);
     });
   });
 
@@ -303,7 +309,6 @@ describe('test knowledge base models', () => {
         summary: 'Test article description',
         content: 'Test article content',
         status: PUBLISH_STATUSES.DRAFT,
-        categoryIds: [categoryA._id.toString(), categoryB._id.toString()],
       };
 
       const article = await KnowledgeBaseArticles.createDoc(doc, _user._id);
@@ -315,7 +320,10 @@ describe('test knowledge base models', () => {
 
       const updatedArticle = await KnowledgeBaseArticles.updateDoc(
         article._id,
-        article.toObject(),
+        {
+          ...article.toObject(),
+          categoryIds: [categoryA._id.toString(), categoryB._id.toString()],
+        },
         _user._id,
       );
 
