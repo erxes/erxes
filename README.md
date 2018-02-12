@@ -5,7 +5,7 @@
 
 This repository is the main web app of the erxes platform that consists of 2 other repositories:
 
-- [Flatform](https://github.com/erxes/erxes)
+- [Erxes](https://github.com/erxes/erxes)
 - [Widgets](https://github.com/erxes/erxes-widgets)
 
 Clone erxes repository and install its dependencies:
