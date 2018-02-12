@@ -1,19 +1,25 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Table } from 'modules/common/components';
-import { PipelineRow } from '/';
+import { PipelineRow } from './';
 
 const propTypes = {
   pipelines: PropTypes.array.isRequired,
-  refetch: PropTypes.func
+  save: PropTypes.func,
+  remove: PropTypes.func
 };
 
 class Pipelines extends Component {
   renderRow() {
-    const { pipelines, refetch } = this.props;
+    const { pipelines, save, remove } = this.props;
 
     return pipelines.map(pipeline => (
-      <PipelineRow key={pipeline._id} pipeline={pipeline} refetch={refetch} />
+      <PipelineRow
+        key={pipeline._id}
+        pipeline={pipeline}
+        save={save}
+        remove={remove}
+      />
     ));
   }
 

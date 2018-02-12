@@ -54,7 +54,6 @@ class Boards extends Component {
 
   render() {
     const { loading, boards } = this.props;
-    console.log('boards', boards);
 
     return (
       <LeftSidebar full header={this.renderSidebarHeader()}>

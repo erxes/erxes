@@ -7,11 +7,14 @@ import {
   ControlLabel,
   Button
 } from 'modules/common/components';
+import { Stages } from '../containers';
 
 const propTypes = {
   boardId: PropTypes.string,
-  pipeline: PropTypes.func,
-  save: PropTypes.func.isRequired
+  pipeline: PropTypes.object,
+  stages: PropTypes.array,
+  save: PropTypes.func.isRequired,
+  loading: PropTypes.bool
 };
 
 const contextTypes = {
@@ -40,10 +43,12 @@ class PipelineForm extends Component {
   }
 
   generateDoc() {
+    const { pipeline } = this.props;
+
     return {
       doc: {
         name: document.getElementById('pipeline-name').value,
-        boardId: this.props.boardId
+        boardId: pipeline ? pipeline.boardId : this.props.boardId
       }
     };
   }
@@ -65,6 +70,7 @@ class PipelineForm extends Component {
             required
           />
         </FormGroup>
+        {pipeline ? <Stages pipelineId={pipeline._id} /> : null}
       </div>
     );
   }

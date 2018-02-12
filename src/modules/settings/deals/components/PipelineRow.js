@@ -1,32 +1,53 @@
 import React, { Component } from 'react';
-// import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import {
-  ActionButtons
-  // ModalTrigger,
-  // Tip,
-  // Button,
-  // Icon
+  ActionButtons,
+  ModalTrigger,
+  Tip,
+  Button,
+  Icon
 } from 'modules/common/components';
+import { PipelineForm } from './';
 
 const propTypes = {
   pipeline: PropTypes.object.isRequired,
-  refetch: PropTypes.func.isRequired
+  save: PropTypes.func.isRequired,
+  remove: PropTypes.func.isRequired
 };
 
 class PipelineRow extends Component {
+  constructor(props) {
+    super(props);
+
+    this.remove = this.remove.bind(this);
+  }
+
+  remove() {
+    const { remove, pipeline } = this.props;
+    remove(pipeline._id);
+  }
+
   renderExtraLinks() {
-    // const { pipeline, refetch } = this.props;
+    const { pipeline, save } = this.props;
 
-    // const editTrigger = (
-    //   <Button btnStyle="link">
-    //     <Tip text="Edit">
-    //       <Icon icon="edit" />
-    //     </Tip>
-    //   </Button>
-    // );
+    const editTrigger = (
+      <Button btnStyle="link">
+        <Tip text="Edit">
+          <Icon icon="edit" />
+        </Tip>
+      </Button>
+    );
 
-    return null;
+    return (
+      <ActionButtons>
+        <ModalTrigger title="Edit pipeline" trigger={editTrigger}>
+          <PipelineForm pipeline={pipeline} save={save} />
+        </ModalTrigger>
+        <Tip text="Delete">
+          <Button btnStyle="link" onClick={this.remove} icon="close" />
+        </Tip>
+      </ActionButtons>
+    );
   }
 
   render() {

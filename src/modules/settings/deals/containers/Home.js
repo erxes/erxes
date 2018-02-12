@@ -110,8 +110,6 @@ const MainContainer = props => {
   const { history } = props;
   const boardId = routerUtils.getParam(history, 'boardId');
 
-  console.log('boardId: ', boardId);
-
   if (boardId) {
     const extendedProps = { ...props, boardId };
 

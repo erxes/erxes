@@ -13,7 +13,6 @@ const propTypes = {
   queryParams: PropTypes.object,
   loading: PropTypes.bool,
   pipelines: PropTypes.array,
-  refetch: PropTypes.func,
   boardId: PropTypes.string,
   removePipeline: PropTypes.func,
   savePipeline: PropTypes.func
@@ -21,7 +20,7 @@ const propTypes = {
 
 class Home extends Component {
   render() {
-    const { loading, pipelines, refetch, boardId } = this.props;
+    const { loading, pipelines, boardId } = this.props;
 
     const breadcrumb = [
       { title: 'Settings', link: '/settings' },
@@ -47,7 +46,13 @@ class Home extends Component {
         leftSidebar={<Boards />}
         content={
           <DataWithLoader
-            data={<Pipelines pipelines={pipelines} refetch={refetch} />}
+            data={
+              <Pipelines
+                pipelines={pipelines}
+                save={this.props.savePipeline}
+                remove={this.props.removePipeline}
+              />
+            }
             loading={loading}
             count={pipelines.length}
             emptyText="There is no pipeline in this board."
