@@ -6,6 +6,12 @@ const companyFields = `
   website
   plan
   customFieldsData
+  tagIds
+  getTags {
+    _id
+    name
+    colorCode
+  }
 `;
 
 const listParamsDef = `
@@ -13,7 +19,8 @@ const listParamsDef = `
   $perPage: Int,
   $segment: String,
   $tag: String,
-  $ids: [String]
+  $ids: [String],
+  $searchValue: String
 `;
 
 const listParamsValue = `
@@ -22,6 +29,7 @@ const listParamsValue = `
   segment: $segment,
   tag: $tag,
   ids: $ids,
+  searchValue: $searchValue
 `;
 
 export const companies = `
@@ -50,6 +58,16 @@ export const companyDetail = `
         email
         phone
       }
+    }
+  }
+`;
+
+const tags = `
+  query tags($type: String) {
+    tags(type: $type) {
+      _id
+      name
+      colorCode
     }
   }
 `;
@@ -109,6 +127,7 @@ export default {
   companyCounts,
   companyDetail,
   fields,
+  tags,
   companiesListConfig,
   activityLogsCompany
 };

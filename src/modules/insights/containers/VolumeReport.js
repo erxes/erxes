@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { compose, gql, graphql } from 'react-apollo';
+import { compose, graphql } from 'react-apollo';
+import gql from 'graphql-tag';
 import { VolumeReport } from '../components';
 import { queries } from '../graphql';
 
@@ -23,11 +24,11 @@ const VolumeReportContainer = props => {
     brands: brandsQuery.brands || [],
     punch: punchCardQuery.insightsPunchCard || [],
     summary: data.summary || [],
-    isLoading:
-      volumePieChartQuery.loading ||
-      brandsQuery.loading ||
-      punchCardQuery.loading ||
-      mainQuery.loading
+    loading: {
+      main: mainQuery.loading,
+      insights: volumePieChartQuery.loading,
+      punch: punchCardQuery.loading
+    }
   };
 
   return <VolumeReport {...updatedProps} />;

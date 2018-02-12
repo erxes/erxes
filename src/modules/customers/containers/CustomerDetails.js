@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { compose, gql, graphql } from 'react-apollo';
+import { compose, graphql } from 'react-apollo';
+import gql from 'graphql-tag';
 import { queries } from '../graphql';
 import { CustomerDetails } from '../components';
 
@@ -14,6 +15,7 @@ const CustomerDetailsContainer = (props, context) => {
       companies: [],
       getTags: []
     },
+    loadingLogs: customerActivityLogQuery.loading,
     activityLogsCustomer: customerActivityLogQuery.activityLogsCustomer || [],
     currentUser: context.currentUser
   };

@@ -2,10 +2,11 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { dimensions } from 'modules/common/styles';
-import { BreadCrumb } from 'modules/common/components';
+import { BreadCrumb, Filter } from 'modules/common/components';
 
 const propTypes = {
-  breadcrumb: PropTypes.array.isRequired
+  breadcrumb: PropTypes.array.isRequired,
+  queryParams: PropTypes.object
 };
 
 const PageHeader = styled.div`
@@ -14,18 +15,20 @@ const PageHeader = styled.div`
   top: 0;
   display: flex;
   align-items: center;
+  z-index: 2;
 `;
 
-function Header({ breadcrumb = [] }) {
+function Header({ breadcrumb = [], queryParams }) {
   return (
     <PageHeader>
       <BreadCrumb>
         {breadcrumb.map(b => (
-          <BreadCrumb.Item href={b.link} active={!b.link} key={b.title}>
+          <BreadCrumb.Item to={b.link} active={!b.link} key={b.title}>
             {b.title}
           </BreadCrumb.Item>
         ))}
       </BreadCrumb>
+      {queryParams && <Filter queryParams={queryParams} />}
     </PageHeader>
   );
 }

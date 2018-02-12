@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
 import { withRouter } from 'react-router';
 import PropTypes from 'prop-types';
-import { compose, gql, graphql, withApollo } from 'react-apollo';
+import { compose, graphql, withApollo } from 'react-apollo';
+import gql from 'graphql-tag';
 import { Spinner } from 'modules/common/components';
 import { Alert } from 'modules/common/utils';
 import { Facebook } from '../components';
@@ -18,7 +19,7 @@ class FacebookContainer extends Component {
     this.props.client
       .query({
         query: gql`
-          query integrationFacebookPagesList($appId: Float) {
+          query integrationFacebookPagesList($appId: String) {
             integrationFacebookPagesList(appId: $appId)
           }
         `,

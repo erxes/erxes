@@ -4,12 +4,11 @@ import {
   FormGroup,
   ControlLabel,
   FormControl,
-  Button,
-  Icon
+  Button
 } from 'modules/common/components';
 import { UserCommonInfos } from 'modules/auth/components';
-import { Wrapper } from 'modules/layout/components';
-import Sidebar from '../../Sidebar';
+import { ActionBar, Wrapper } from 'modules/layout/components';
+import Sidebar from 'modules/settings/Sidebar';
 import { ContentBox } from '../../styles';
 
 const propTypes = {
@@ -65,15 +64,19 @@ class Profile extends Component {
     );
 
     const breadcrumb = [
-      { title: 'Settings', link: '/settings/channels' },
+      { title: 'Settings', link: '/settings' },
       { title: 'Profile settings' }
     ];
 
     const actionFooter = (
-      <Wrapper.ActionBar
+      <ActionBar
         right={
-          <Button btnStyle="success" onClick={this.handleSubmit}>
-            <Icon icon="checkmark" /> Save
+          <Button
+            btnStyle="success"
+            onClick={this.handleSubmit}
+            icon="checkmark"
+          >
+            Save
           </Button>
         }
       />

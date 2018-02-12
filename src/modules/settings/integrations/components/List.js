@@ -1,16 +1,17 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Wrapper } from 'modules/layout/components';
-import { Pagination, Table } from 'modules/common/components';
-import Sidebar from '../../Sidebar';
+import { Pagination, Table, DataWithLoader } from 'modules/common/components';
 import { AddIntegration } from '../components';
 import Row from './Row';
+import Sidebar from '../Sidebar';
 
 const propTypes = {
   integrations: PropTypes.array.isRequired,
   removeIntegration: PropTypes.func.isRequired,
   refetch: PropTypes.func.isRequired,
-  totalCount: PropTypes.number.isRequired
+  totalCount: PropTypes.number.isRequired,
+  loading: PropTypes.bool.isRequired
 };
 
 class List extends Component {
@@ -34,9 +35,7 @@ class List extends Component {
   }
 
   render() {
-    const { totalCount } = this.props;
-
-    const actionBar = <Wrapper.ActionBar right={<AddIntegration />} />;
+    const { totalCount, loading } = this.props;
 
     const content = (
       <Table>
@@ -53,7 +52,7 @@ class List extends Component {
     );
 
     const breadcrumb = [
-      { title: 'Settings', link: '/settings/integrations' },
+      { title: 'Settings', link: '/settings' },
       { title: 'Integrations' }
     ];
 
@@ -61,9 +60,17 @@ class List extends Component {
       <Wrapper
         header={<Wrapper.Header breadcrumb={breadcrumb} />}
         leftSidebar={<Sidebar />}
-        actionBar={actionBar}
+        actionBar={<Wrapper.ActionBar right={<AddIntegration />} />}
         footer={<Pagination count={totalCount} />}
-        content={content}
+        content={
+          <DataWithLoader
+            data={content}
+            loading={loading}
+            count={totalCount}
+            emptyText="There is no data."
+            emptyIcon="ios-copy"
+          />
+        }
       />
     );
   }

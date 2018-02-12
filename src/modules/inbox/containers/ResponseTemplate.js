@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { compose, gql, graphql } from 'react-apollo';
+import { compose, graphql } from 'react-apollo';
+import gql from 'graphql-tag';
 import { ResponseTemplate } from '../components';
 import { mutations, queries } from '../graphql';
 
@@ -46,9 +47,19 @@ ResponseTemplateContainer.propTypes = {
 export default compose(
   graphql(gql(queries.brandList), { name: 'brandsQuery' }),
   graphql(gql(queries.responseTemplateList), {
-    name: 'responseTemplatesQuery'
+    name: 'responseTemplatesQuery',
+    options: () => ({
+      fetchPolicy: 'network-only'
+    })
   }),
   graphql(gql(mutations.saveResponseTemplate), {
-    name: 'saveResponseTemplateMutation'
+    name: 'saveResponseTemplateMutation',
+    options: {
+      refetchQueries: [
+        {
+          query: gql`${queries.responseTemplateList}`
+        }
+      ]
+    }
   })
 )(ResponseTemplateContainer);

@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { compose, gql, graphql } from 'react-apollo';
+import { compose, graphql } from 'react-apollo';
+import gql from 'graphql-tag';
 import { List } from '../components';
 
 const ListContainer = props => {
@@ -26,7 +27,8 @@ const ListContainer = props => {
     integrations,
     refetch: listQuery.refetch,
     totalCount,
-    removeIntegration
+    removeIntegration,
+    loading: listQuery.loading
   };
 
   return <List {...updatedProps} />;
@@ -35,7 +37,8 @@ const ListContainer = props => {
 ListContainer.propTypes = {
   totalCountQuery: PropTypes.object,
   listQuery: PropTypes.object,
-  removeMutation: PropTypes.func
+  removeMutation: PropTypes.func,
+  loading: PropTypes.bool
 };
 
 export default compose(

@@ -41,8 +41,33 @@ const companiesAddCustomer = `
   }
 `;
 
+const companiesEditCustomers = `
+  mutation companiesEditCustomers($_id: String!, $customerIds: [String]) {
+    companiesEditCustomers(_id: $_id, customerIds: $customerIds) {
+      _id
+    }
+  }
+`;
+
+const companiesRemove = `
+  mutation companiesRemove($companyIds: [String]) {
+    companiesRemove(companyIds: $companyIds)
+  }
+`;
+
+const companiesMerge = `
+  mutation companiesMerge($companyIds: [String], $companyFields: JSON) {
+    companiesMerge(companyIds: $companyIds, companyFields: $companyFields) {
+      _id
+    }
+  }
+`;
+
 export default {
   companiesAdd,
   companiesEdit,
-  companiesAddCustomer
+  companiesAddCustomer,
+  companiesEditCustomers,
+  companiesRemove,
+  companiesMerge
 };

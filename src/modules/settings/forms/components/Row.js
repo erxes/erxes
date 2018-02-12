@@ -1,13 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import moment from 'moment';
-import {
-  Tip,
-  ActionButtons,
-  Button,
-  Label,
-  Icon
-} from 'modules/common/components';
+import { Tip, ActionButtons, Button, Label } from 'modules/common/components';
 import { Row as CommonRow } from '../../common/components';
 import { Form } from './';
 
@@ -36,16 +30,16 @@ class Row extends CommonRow {
         <ActionButtons>
           <Tip text="Manage Fields">
             <Link to={`/fields/manage/form/${object._id}`}>
-              <Button btnStyle="link">
-                <Icon icon="navicon-round" />
-              </Button>
+              <Button btnStyle="link" icon="navicon-round" />
             </Link>
           </Tip>
 
           <Tip text="Duplicate">
-            <Button btnStyle="link" onClick={this.duplicateForm}>
-              <Icon icon="ios-browsers" />
-            </Button>
+            <Button
+              btnStyle="link"
+              onClick={this.duplicateForm}
+              icon="ios-browsers"
+            />
           </Tip>
 
           {this.renderEditAction()}

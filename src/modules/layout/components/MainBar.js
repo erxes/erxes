@@ -12,8 +12,13 @@ const TopBar = styled.div`
   border: 0;
   flex-shrink: 0;
   padding: 0 ${dimensions.coreSpacing}px;
-  background: ${colors.colorPrimary};
-  color: ${colors.colorWhite};
+  background: ${colors.colorWhite};
+  box-shadow: 0 0 4px ${colors.colorShadowGray};
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 0;
+  z-index: 1;
 `;
 
 function MainBar() {

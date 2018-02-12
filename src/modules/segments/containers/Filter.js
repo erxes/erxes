@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { compose, gql, graphql } from 'react-apollo';
+import { compose, graphql } from 'react-apollo';
+import gql from 'graphql-tag';
 import { Filter } from '../components';
 import { queries } from '../graphql';
 
@@ -9,7 +10,8 @@ const FilterContainer = props => {
 
   const updatedProps = {
     ...props,
-    segments: segmentsQuery.segments || []
+    segments: segmentsQuery.segments || [],
+    loading: segmentsQuery.loading
   };
 
   return <Filter {...updatedProps} />;

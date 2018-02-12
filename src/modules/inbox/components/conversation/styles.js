@@ -35,7 +35,7 @@ const MessageContent = styled.div`
 
   blockquote {
     margin-bottom: 0;
-    border-color: #ddd;
+    border-color: ${colors.borderDarker};
   }
 
   pre {
@@ -53,6 +53,7 @@ const MessageItem = styled.div`
 
   > span {
     position: absolute;
+    right: ${props => props.staff && '0'};
   }
 
   ${props => {
@@ -98,11 +99,20 @@ const MessageBody = styled.div`
 
 const FormTable = styled.div`
   border: 1px solid ${colors.borderPrimary};
-  border-radius: 7px;
+  border-radius: 2px;
   font-size: 12px;
   padding: 0;
   margin-bottom: ${dimensions.coreSpacing}px;
-  background: none;
+  background: ${colors.colorWhite};
+
+  table thead th:last-child {
+    text-align: center;
+    color: ${colors.colorCoreBlack};
+  }
+
+  table tr td {
+    word-break: break-word;
+  }
 `;
 
 export { MessageItem, MessageBody, MessageContent, FormTable };

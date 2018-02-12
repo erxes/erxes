@@ -2,7 +2,6 @@ import styled, { css } from 'styled-components';
 import { colors, dimensions, typography } from '../../styles';
 import { Input, FormLabel } from '../form/styles';
 
-const tableBgColor = '#f9f9f9';
 const tableHoverColor = '#f5f5f5';
 
 const StyledTable = styled.table`
@@ -11,7 +10,6 @@ const StyledTable = styled.table`
     max-width: 100%;
     border-spacing: 0;
     border-collapse: collapse;
-    font-weight: ${typography.fontWeightRegular};
     white-space: ${props.whiteSpace || ''};
 
     th,
@@ -20,7 +18,6 @@ const StyledTable = styled.table`
       color: ${colors.textPrimary};
       padding: ${dimensions.unitSpacing}px;
       display: table-cell;
-      font-weight: ${typography.fontWeightLight};
 
       & ${FormLabel}, & ${Input} {
         margin: 0px;
@@ -31,7 +28,6 @@ const StyledTable = styled.table`
       th,
       td {
         text-transform: uppercase;
-        font-weight: ${typography.fontWeightRegular};
         color: ${colors.colorCoreLightGray};
         font-size: ${typography.fontSizeUppercase}px;
       }
@@ -42,7 +38,7 @@ const StyledTable = styled.table`
       : null} ${props.bordered
         ? `th, td { border: 1px solid ${colors.borderPrimary}; }`
         : null} ${props.striped
-        ? `tr:nth-of-type(odd) td { background-color: ${tableBgColor}; }`
+        ? `tr:nth-of-type(odd) td { background-color: ${colors.bgUnread}; }`
         : null} th {
       border-top: none;
     }

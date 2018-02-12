@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
+import parse from 'ua-parser-js';
 import { Sidebar } from 'modules/layout/components';
 import { SidebarContent, QuickButton } from 'modules/layout/styles';
 import {
@@ -12,9 +13,11 @@ import {
 } from 'modules/common/components';
 import { Alert } from 'modules/common/utils';
 import { GenerateField } from 'modules/fields/components';
-import { CompanyForm } from 'modules/companies/components';
+import { CompanyAssociate } from 'modules/companies/containers';
 import { BasicInfo } from 'modules/customers/components/detail/sidebar';
-import { AboutList, CompanyWrapper, Aboutvalues } from './styles';
+import { CompanyWrapper, BlockValue } from './styles';
+import { SidebarList, SidebarCounter } from 'modules/layout/styles';
+
 import {
   TaggerSection,
   MessengerSection,
@@ -26,8 +29,8 @@ const propTypes = {
   customer: PropTypes.object.isRequired,
   customFields: PropTypes.array.isRequired,
   save: PropTypes.func.isRequired,
-  addCompany: PropTypes.func.isRequired,
-  sections: PropTypes.node
+  sections: PropTypes.node,
+  otherProperties: PropTypes.node
 };
 
 class LeftSidebar extends React.Component {
@@ -81,7 +84,7 @@ class LeftSidebar extends React.Component {
   }
 
   renderCompanies() {
-    const { addCompany, customer } = this.props;
+    const { customer } = this.props;
     const { Section } = Sidebar;
 
     const companyTrigger = (
@@ -94,8 +97,8 @@ class LeftSidebar extends React.Component {
       <Section>
         <Section.Title>Companies</Section.Title>
         <Section.QuickButtons>
-          <ModalTrigger title="New company" trigger={companyTrigger}>
-            <CompanyForm addCompany={addCompany} />
+          <ModalTrigger title="Associate" trigger={companyTrigger} size="lg">
+            <CompanyAssociate data={customer} />
           </ModalTrigger>
         </Section.QuickButtons>
         {customer.companies.map((company, index) => (
@@ -121,27 +124,20 @@ class LeftSidebar extends React.Component {
     );
   }
 
-  renderLocation(customer) {
-    if (customer.location) {
+  renderDeviceProperty(text, value, secondValue, nowrap) {
+    if (value || secondValue) {
       return (
         <li>
-          Location:
-          <Aboutvalues>
-            {customer.location.city || ''} {customer.location.country || ''}
-          </Aboutvalues>
-        </li>
-      );
-    }
-
-    return null;
-  }
-
-  renderIpAddress(customer) {
-    if (customer.remoteAddress) {
-      return (
-        <li>
-          IP Address:
-          <Aboutvalues>{customer.remoteAddress}</Aboutvalues>
+          {text}:
+          {nowrap ? (
+            <BlockValue>
+              {value} {secondValue}
+            </BlockValue>
+          ) : (
+            <SidebarCounter>
+              {value} {secondValue}
+            </SidebarCounter>
+          )}
         </li>
       );
     }
@@ -155,18 +151,13 @@ class LeftSidebar extends React.Component {
 
     return (
       <Section>
-        <Section.Title>About</Section.Title>
+        <Section.Title>Customer properties</Section.Title>
         <Section.QuickButtons>
           <Link to="/fields/manage/customer">
             <Icon icon="gear-a" />
           </Link>
         </Section.QuickButtons>
         <SidebarContent>
-          <AboutList>
-            {this.renderLocation(customer)}
-            {this.renderIpAddress(customer)}
-          </AboutList>
-
           {customFields.map((field, index) => (
             <GenerateField
               field={field}
@@ -184,6 +175,57 @@ class LeftSidebar extends React.Component {
     );
   }
 
+  renderDeviceProperties() {
+    const { customer } = this.props;
+    const { Section } = Sidebar;
+    const location = customer.location;
+
+    if (location) {
+      const ua = parse(location.userAgent || ' ');
+      return (
+        <Section>
+          <Section.Title>Device properties</Section.Title>
+          <SidebarList className="no-link">
+            {this.renderDeviceProperty('Location', location.country)}
+            {this.renderDeviceProperty(
+              'Browser',
+              ua.browser.name,
+              ua.browser.version
+            )}
+            {this.renderDeviceProperty('Platform', ua.os.name, ua.os.version)}
+            {this.renderDeviceProperty('IP Address', location.remoteAddress)}
+            {this.renderDeviceProperty('Hostname', location.hostname)}
+            {this.renderDeviceProperty('Language', location.language)}
+            {this.renderDeviceProperty(
+              'User Agent',
+              location.userAgent,
+              null,
+              true
+            )}
+          </SidebarList>
+        </Section>
+      );
+    }
+
+    return null;
+  }
+
+  renderOtherProperties() {
+    const { otherProperties } = this.props;
+    const { Section } = Sidebar;
+
+    if (otherProperties) {
+      return (
+        <Section>
+          <Section.Title>Other properties</Section.Title>
+          <SidebarList className="no-link">{otherProperties}</SidebarList>
+        </Section>
+      );
+    }
+
+    return null;
+  }
+
   renderSidebarFooter() {
     if (!this.state.editing) {
       return null;
@@ -191,11 +233,21 @@ class LeftSidebar extends React.Component {
 
     return (
       <Sidebar.Footer>
-        <Button btnStyle="simple" size="small" onClick={this.cancelEditing}>
-          <Icon icon="close" />Discard
+        <Button
+          btnStyle="simple"
+          size="small"
+          onClick={this.cancelEditing}
+          icon="close"
+        >
+          Discard
         </Button>
-        <Button btnStyle="success" size="small" onClick={this.save}>
-          <Icon icon="checkmark" />Save
+        <Button
+          btnStyle="success"
+          size="small"
+          onClick={this.save}
+          icon="checkmark"
+        >
+          Save
         </Button>
       </Sidebar.Footer>
     );
@@ -207,13 +259,15 @@ class LeftSidebar extends React.Component {
     return (
       <Sidebar footer={this.renderSidebarFooter()}>
         <BasicInfo customer={customer} save={this.props.save} />
+        {this.props.sections && this.props.sections}
         {this.renderCustomFields()}
         {this.renderCompanies()}
-        {this.props.sections && this.props.sections}
+        {this.renderDeviceProperties()}
+        {this.renderOtherProperties()}
         <MessengerSection customer={customer} />
         <TwitterSection customer={customer} />
         <FacebookSection customer={customer} />
-        <TaggerSection customer={customer} />
+        <TaggerSection data={customer} type="customer" />
       </Sidebar>
     );
   }

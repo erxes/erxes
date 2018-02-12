@@ -1,12 +1,10 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
-import { Wrapper } from '../layout/components';
-import { QuickButton, SidebarList } from '../layout/styles';
+import { NavLink } from 'react-router-dom';
+import { Sidebar } from '../layout/components';
+import { SidebarList } from '../layout/styles';
 
-function Sidebar() {
-  const { Title, QuickButtons } = Wrapper.Sidebar.Section;
-
-  const Sidebar = Wrapper.Sidebar;
+function SettingsSidebar() {
+  const { Title } = Sidebar.Section;
 
   return (
     <Sidebar>
@@ -14,64 +12,29 @@ function Sidebar() {
         <Title>Account settings</Title>
         <SidebarList>
           <li>
-            <Link to="/settings/channels">Channels</Link>
+            <NavLink activeClassName="active" to="/settings/team">
+              Team members
+            </NavLink>
           </li>
           <li>
-            <Link to="/settings/brands">Brands</Link>
+            <NavLink activeClassName="active" to="/settings/response-templates">
+              Response templates
+            </NavLink>
           </li>
           <li>
-            <Link to="/settings/team">Team members</Link>
+            <NavLink activeClassName="active" to="/settings/email-templates">
+              Email templates
+            </NavLink>
           </li>
           <li>
-            <Link to="/settings/response-templates">Response templates</Link>
+            <NavLink activeClassName="active" to="/settings/emails">
+              Email appearance
+            </NavLink>
           </li>
           <li>
-            <Link to="/settings/email-templates">Email templates</Link>
-          </li>
-          <li>
-            <Link to="/settings/emails">Email appearance</Link>
-          </li>
-          <li>
-            <Link to="/settings/forms">Forms</Link>
-          </li>
-        </SidebarList>
-      </Sidebar.Section>
-
-      <Sidebar.Section>
-        <Title>Integrations</Title>
-        <QuickButtons>
-          <QuickButton href="/settings/integrations">All</QuickButton>
-        </QuickButtons>
-        <SidebarList>
-          <li>
-            <Link to="/settings/integrations?kind=messenger">Messenger</Link>
-          </li>
-          <li>
-            <Link to="/settings/integrations?kind=form">Form</Link>
-          </li>
-          <li>
-            <Link to="/settings/integrations?kind=twitter">Twitter</Link>
-          </li>
-          <li>
-            <Link to="/settings/integrations?kind=facebook">Facebook</Link>
-          </li>
-        </SidebarList>
-      </Sidebar.Section>
-
-      <Sidebar.Section>
-        <Title>Knowledge base</Title>
-        <QuickButtons>
-          <QuickButton href="/settings/knowledgebase/list">All</QuickButton>
-        </QuickButtons>
-        <SidebarList>
-          <li>
-            <Link to="/settings/knowledgebase/list">Topics</Link>
-          </li>
-          <li>
-            <Link to="/settings/knowledgebase/categories">Categories</Link>
-          </li>
-          <li>
-            <Link to="/settings/knowledgebase/articles">Articles</Link>
+            <NavLink activeClassName="active" to="/settings/forms">
+              Forms
+            </NavLink>
           </li>
         </SidebarList>
       </Sidebar.Section>
@@ -80,18 +43,27 @@ function Sidebar() {
         <Title>Personal settings</Title>
         <SidebarList>
           <li>
-            <Link to="/settings/profile">Profile</Link>
+            <NavLink activeClassName="active" to="/settings/profile">
+              Profile
+            </NavLink>
           </li>
           <li>
-            <Link to="/change-password">Change password</Link>
+            <NavLink activeClassName="active" to="/settings/change-password">
+              Change password
+            </NavLink>
           </li>
           <li>
-            <Link to="/settings/emails/signatures">Email signatures</Link>
+            <NavLink activeClassName="active" to="/settings/emails/signatures">
+              Email signatures
+            </NavLink>
           </li>
           <li>
-            <Link to="/settings/notification-settings">
+            <NavLink
+              activeClassName="active"
+              to="/settings/notification-settings"
+            >
               Notification settings
-            </Link>
+            </NavLink>
           </li>
         </SidebarList>
       </Sidebar.Section>
@@ -99,4 +71,4 @@ function Sidebar() {
   );
 }
 
-export default Sidebar;
+export default SettingsSidebar;

@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { compose, gql, graphql } from 'react-apollo';
-import { Alert } from 'modules/common/utils';
+import { compose, graphql } from 'react-apollo';
+import gql from 'graphql-tag';
 import { queries, mutations } from '../graphql';
 import { CompanyDetails } from '../components';
 
@@ -11,8 +11,7 @@ const CompanyDetailsContainer = (props, context) => {
     companyDetailQuery,
     companyActivityLogQuery,
     companiesEdit,
-    fieldsQuery,
-    companiesAddCustomer
+    fieldsQuery
   } = props;
 
   const save = (variables, callback) => {
@@ -25,18 +24,6 @@ const CompanyDetailsContainer = (props, context) => {
       });
   };
 
-  const addCustomer = ({ doc, callback }) => {
-    companiesAddCustomer({ variables: { _id: id, ...doc } })
-      .then(() => {
-        companyDetailQuery.refetch();
-        Alert.success('Success');
-        callback();
-      })
-      .catch(e => {
-        Alert.error(e.message);
-      });
-  };
-
   const updatedProps = {
     ...props,
     company: companyDetailQuery.companyDetail || {
@@ -45,7 +32,6 @@ const CompanyDetailsContainer = (props, context) => {
     },
     companyActivityLog: companyActivityLogQuery.activityLogsCompany || [],
     save,
-    addCustomer,
     currentUser: context.currentUser,
     customFields: fieldsQuery.fields || []
   };
@@ -58,7 +44,6 @@ CompanyDetailsContainer.propTypes = {
   companyDetailQuery: PropTypes.object,
   fieldsQuery: PropTypes.object,
   companiesEdit: PropTypes.func,
-  companiesAddCustomer: PropTypes.func,
   companyActivityLogQuery: PropTypes.object
 };
 
@@ -83,13 +68,10 @@ export default compose(
       }
     })
   }),
-  graphql(gql(mutations.companiesEdit), {
-    name: 'companiesEdit'
-  }),
   graphql(gql(queries.fields), {
     name: 'fieldsQuery'
   }),
-  graphql(gql(mutations.companiesAddCustomer), {
-    name: 'companiesAddCustomer'
+  graphql(gql(mutations.companiesEdit), {
+    name: 'companiesEdit'
   })
 )(CompanyDetailsContainer);

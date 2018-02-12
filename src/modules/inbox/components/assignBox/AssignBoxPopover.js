@@ -6,7 +6,8 @@ import { AssignBox } from 'modules/inbox/containers';
 const propTypes = {
   targets: PropTypes.arrayOf(Object).isRequired,
   trigger: PropTypes.element.isRequired,
-  container: PropTypes.element
+  container: PropTypes.element,
+  afterSave: PropTypes.func
 };
 
 class AssignBoxPopover extends Component {
@@ -17,6 +18,12 @@ class AssignBoxPopover extends Component {
   }
 
   hidePopover() {
+    const { afterSave } = this.props;
+
+    if (afterSave) {
+      afterSave();
+    }
+
     this.overlayTrigger.hide();
   }
 
@@ -27,7 +34,7 @@ class AssignBoxPopover extends Component {
         <AssignBox
           targets={targets}
           event="onClick"
-          hidePopover={this.hidePopover}
+          afterSave={this.hidePopover}
         />
       </Popover>
     );

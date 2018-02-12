@@ -1,4 +1,13 @@
+import Channels from './Channels';
 import ChannelForm from './ChannelForm';
-import ChannelList from './ChannelList';
+import IntegrationList from './IntegrationList';
+import Sidebar from './Sidebar';
+import ManageIntegrationForm from './ManageIntegrationForm';
 
-export { ChannelForm, ChannelList };
+export {
+  Channels,
+  ChannelForm,
+  ManageIntegrationForm,
+  IntegrationList,
+  Sidebar
+};

@@ -2,8 +2,8 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import Toggle from 'react-toggle';
 import { Wrapper } from 'modules/layout/components';
-import Sidebar from '../../Sidebar';
 import { ContentBox, SubHeading, InlineItems, SubItem } from '../../styles';
+import Sidebar from 'modules/settings/Sidebar';
 
 class NotificationSettings extends Component {
   constructor(props) {
@@ -93,7 +93,7 @@ class NotificationSettings extends Component {
     );
 
     const breadcrumb = [
-      { title: 'Settings', link: '/settings/channels' },
+      { title: 'Settings', link: '/settings' },
       { title: 'Notification settings' }
     ];
 

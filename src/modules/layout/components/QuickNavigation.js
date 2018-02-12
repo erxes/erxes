@@ -23,7 +23,7 @@ const NameCardWrapper = styled.div`
 `;
 
 const NavItem = styled.div`
-  padding-left: 15px;
+  padding-left: 20px;
   display: table-cell;
   vertical-align: middle;
 `;
@@ -41,7 +41,7 @@ const QuickNavigation = ({ logout, currentUser }) => {
               <UserInfo>
                 {currentUser.details.fullName}
                 <NameCard.Avatar user={currentUser} size={30} />
-                <Icon icon="chevron-down" />
+                <Icon icon="chevron-down" size={10} />
               </UserInfo>
             </UserHelper>
           </DropdownToggle>
@@ -54,7 +54,7 @@ const QuickNavigation = ({ logout, currentUser }) => {
               <Link to="/settings/profile">Edit Profile</Link>
             </li>
             <li>
-              <Link to="/change-password">Change password</Link>
+              <Link to="/settings/change-password">Change password</Link>
             </li>
             <MenuItem divider />
             <MenuItem onClick={logout}>Sign out</MenuItem>

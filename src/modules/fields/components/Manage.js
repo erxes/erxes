@@ -6,8 +6,7 @@ import {
   ControlLabel,
   Button,
   FormGroup,
-  FormControl,
-  Icon
+  FormControl
 } from 'modules/common/components';
 import { Wrapper } from 'modules/layout/components';
 import FieldsPreview from './FieldsPreview';
@@ -133,22 +132,37 @@ class Manage extends Component {
 
       return (
         <Button.Group>
-          <Button size="small" btnStyle="danger" onClick={onDelete}>
-            <Icon icon="close" /> Delete
+          <Button
+            size="small"
+            btnStyle="danger"
+            onClick={onDelete}
+            icon="close"
+          >
+            Delete
           </Button>
-          <Button size="small" btnStyle="primary" onClick={reset}>
-            <Icon icon="plus" /> New
+          <Button size="small" btnStyle="primary" onClick={reset} icon="plus">
+            New
           </Button>
-          <Button size="small" onClick={this.onSubmit} btnStyle="success">
-            <Icon icon="checkmark" /> Save
+          <Button
+            size="small"
+            onClick={this.onSubmit}
+            btnStyle="success"
+            icon="checkmark"
+          >
+            Save
           </Button>
         </Button.Group>
       );
     }
 
     return (
-      <Button size="small" onClick={this.onSubmit} btnStyle="primary">
-        <Icon icon="plus" /> Add
+      <Button
+        size="small"
+        onClick={this.onSubmit}
+        btnStyle="primary"
+        icon="plus"
+      >
+        Add
       </Button>
     );
   }

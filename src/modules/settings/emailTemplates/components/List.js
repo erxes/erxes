@@ -36,7 +36,7 @@ class EmailTemplateList extends List {
 
   breadcrumb() {
     return [
-      { title: 'Settings', link: '/settings/email-templates' },
+      { title: 'Settings', link: '/settings' },
       { title: 'Email templates' }
     ];
   }

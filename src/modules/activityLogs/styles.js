@@ -9,7 +9,7 @@ const Timeline = styled.div`
   position: relative;
 
   &:before {
-    border-right: 1px solid ${colors.colorLightGray};
+    border-right: 1px solid ${colors.borderDarker};
     content: '';
     height: 100%;
     position: absolute;
@@ -22,7 +22,6 @@ const ActivityTitle = styled.h4`
   color: ${colors.textPrimary};
   padding: ${dimensions.unitSpacing}px 0;
   margin: 0;
-  font-size: ${typography.fontSizeHeading4};
   line-height: ${typography.lineHeightHeading4};
 `;
 
@@ -30,6 +29,10 @@ const ActivityRow = WhiteBox.extend`
   padding: ${dimensions.coreSpacing}px;
   position: relative;
   overflow: visible;
+
+  &:last-of-type {
+    margin-bottom: 0;
+  }
 `;
 
 const ActivityWrapper = styled.div`
@@ -137,7 +140,6 @@ const MainInfo = styled.div`
 `;
 
 const CustomerName = styled.div`
-  font-weight: 400;
   word-break: break-all;
 `;
 

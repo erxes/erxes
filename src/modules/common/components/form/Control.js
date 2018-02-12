@@ -23,6 +23,8 @@ const propTypes = {
   name: PropTypes.string,
   required: PropTypes.bool,
   round: PropTypes.bool,
+  autoFocus: PropTypes.bool,
+  onFocus: PropTypes.func,
   componentClass: PropTypes.oneOf([
     'select',
     'radio',
@@ -42,7 +44,10 @@ const renderElement = (Element, attributes, type, child) => {
   return (
     <FormLabel>
       <Element {...attributes} type={type} />
-      <span>&nbsp;&nbsp;{child}</span>
+      <span>
+        {child && '  '}
+        {child}
+      </span>
     </FormLabel>
   );
 };
@@ -58,12 +63,18 @@ class FormControl extends React.Component {
       onClick: props.onClick,
       value: props.value,
       defaultValue: props.defaultValue,
-      checked: props.defaultChecked ? props.defaultChecked : props.checked,
+      [props.defaultChecked
+        ? 'defaultChecked'
+        : 'checked']: props.defaultChecked
+        ? props.defaultChecked
+        : props.checked,
       placeholder: props.placeholder,
       type: props.type,
       name: props.name,
       round: props.round,
       required: props.required,
+      onFocus: props.onFocus,
+      autoFocus: props.autoFocus,
       id: props.id
     };
 

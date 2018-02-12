@@ -4,17 +4,16 @@ import PropTypes from 'prop-types';
 import { Col, Row } from 'react-bootstrap';
 import Select from 'react-select-plus';
 import Toggle from 'react-toggle';
-import { Wrapper } from 'modules/layout/components';
-import Sidebar from '../../Sidebar';
-import { timezones } from '../constants';
-import OnlineHours from './OnlineHours';
+import { ActionBar, Wrapper } from 'modules/layout/components';
 import {
   Button,
-  Icon,
   FormGroup,
   FormControl,
   ControlLabel
 } from 'modules/common/components';
+import Sidebar from '../Sidebar';
+import { timezones } from '../constants';
+import OnlineHours from './OnlineHours';
 import { ContentBox, SubHeading } from '../../styles';
 
 class Configs extends Component {
@@ -229,17 +228,22 @@ class Configs extends Component {
     ];
 
     const actionFooter = (
-      <Wrapper.ActionBar
+      <ActionBar
         right={
           <Button.Group>
             <Link to="/settings/integrations">
-              <Button size="small" btnStyle="simple">
-                <Icon icon="close" /> Cancel
+              <Button size="small" btnStyle="simple" icon="close">
+                Cancel
               </Button>
             </Link>
 
-            <Button size="small" btnStyle="success" onClick={this.save}>
-              <Icon icon="checkmark" /> Save
+            <Button
+              size="small"
+              btnStyle="success"
+              onClick={this.save}
+              icon="checkmark"
+            >
+              Save
             </Button>
           </Button.Group>
         }

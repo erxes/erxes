@@ -6,8 +6,7 @@ import {
   Button,
   FormControl,
   FormGroup,
-  ControlLabel,
-  Icon
+  ControlLabel
 } from 'modules/common/components';
 
 const propTypes = {
@@ -61,8 +60,8 @@ class ResponseTemplateModal extends Component {
         </FormGroup>
 
         <Modal.Footer>
-          <Button onClick={this.onSave} btnStyle="success">
-            <Icon icon="checkmark" /> Save
+          <Button onClick={this.onSave} btnStyle="success" icon="checkmark">
+            Save
           </Button>
         </Modal.Footer>
       </ModalTrigger>

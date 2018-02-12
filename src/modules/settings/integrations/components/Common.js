@@ -5,7 +5,6 @@ import ReactMarkdown from 'react-markdown';
 import CopyToClipboard from 'react-copy-to-clipboard';
 import {
   Button,
-  Icon,
   FormGroup,
   ControlLabel,
   FormControl,
@@ -20,7 +19,9 @@ class Common extends Component {
     return `
       (function() {
         var script = document.createElement('script');
-        script.src = "${process.env.CDN_HOST}/${type}Widget.bundle.js";
+        script.src = "${process.env.REACT_APP_CDN_HOST}/${
+      type
+    }Widget.bundle.js";
         script.async = true;
 
         var entry = document.getElementsByTagName('script')[0];
@@ -33,10 +34,9 @@ class Common extends Component {
     super(props, context);
 
     let code = '';
-
     // showed install code automatically in edit mode
     if (props.integration) {
-      const brand = props.integration.brand;
+      const brand = props.integration.brand || '';
       code = this.constructor.getInstallCode(brand.code);
     }
 
@@ -51,7 +51,8 @@ class Common extends Component {
 
   updateInstallCodeValue(brandId) {
     if (brandId) {
-      const brand = this.props.brands.find(brand => brand._id === brandId);
+      const brand =
+        this.props.brands.find(brand => brand._id === brandId) || '';
 
       const code = this.constructor.getInstallCode(brand.code);
 
@@ -106,8 +107,7 @@ class Common extends Component {
                 text={this.state.code}
                 onCopy={() => this.setState({ copied: true })}
               >
-                <Button size="small" btnStyle="primary">
-                  <Icon icon="ios-copy-outline" />
+                <Button size="small" btnStyle="primary" icon="ios-copy-outline">
                   {this.state.copied ? 'Copied' : 'Copy to clipboard'}
                 </Button>
               </CopyToClipboard>
@@ -118,8 +118,15 @@ class Common extends Component {
         </FormGroup>
 
         <Modal.Footer>
-          <Button btnStyle="success" type="submit">
-            <Icon icon="checkmark" /> Save
+          <Button
+            btnStyle="simple"
+            icon="close"
+            onClick={() => this.context.closeModal()}
+          >
+            Cancel
+          </Button>
+          <Button btnStyle="success" type="submit" icon="checkmark">
+            Save
           </Button>
         </Modal.Footer>
       </form>

@@ -10,7 +10,7 @@ import {
   Table
 } from 'modules/common/components';
 import { Wrapper } from 'modules/layout/components';
-import Sidebar from '../../Sidebar';
+import Sidebar from 'modules/settings/Sidebar';
 import { Config } from '../containers';
 
 const propTypes = {
@@ -72,7 +72,7 @@ class List extends React.Component {
     );
 
     const breadcrumb = [
-      { title: 'Settings', link: '/settings/channels' },
+      { title: 'Settings', link: '/settings' },
       { title: 'Email appearance' }
     ];
 

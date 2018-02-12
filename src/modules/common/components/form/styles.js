@@ -32,14 +32,14 @@ const Input = styled.input`
   padding: ${dimensions.unitSpacing}px;
   color: ${colors.textPrimary};
   border-bottom: 1px solid ${colors.colorShadowGray};
-  background: ${colors.colorWhite};
+  background: none;
   transition: all 0.3s ease;
 
   ${props => {
     if (props.round) {
       return `
         font-size: 13px;
-        border: 1px solid #ddd;
+        border: 1px solid ${colors.borderDarker};
         border-radius: 20px;
         padding: 5px 20px;
       `;

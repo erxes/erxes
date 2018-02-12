@@ -7,18 +7,36 @@ const ConversationItems = styled.ul`
   list-style: none;
 `;
 
+const CheckBox = styled.div`
+  margin-top: ${dimensions.unitSpacing}px;
+  margin-right: ${dimensions.unitSpacing}px;
+`;
+
 const RowContent = styled.div`
   flex: 1;
   display: flex;
   flex-direction: row;
+  transition: all ease 0.3s;
+
+  &:hover {
+    ${CheckBox} {
+      width: 30px;
+    }
+  }
+
+  ${CheckBox} {
+    width: ${props => (props.isChecked ? '30px' : '0')};
+
+    overflow: hidden;
+    transition: all ease 0.3s;
+
+    > label {
+      margin-top: 10px;
+    }
+  }
 
   > div {
     margin: 0;
-    align-self: center;
-
-    &:first-of-type {
-      display: none;
-    }
   }
 `;
 
@@ -29,11 +47,6 @@ const FlexContent = styled.div`
   .tags {
     margin-top: 10px;
   }
-`;
-
-const CheckBox = styled.div`
-  margin-top: ${dimensions.unitSpacing}px;
-  margin-right: ${dimensions.unitSpacing}px;
 `;
 
 const MainInfo = styled.div`
@@ -48,18 +61,31 @@ const MainInfo = styled.div`
 `;
 
 const CustomerName = styled.div`
-  font-weight: 400;
   word-break: break-all;
+  overflow: hidden;
+  height: ${dimensions.coreSpacing}px;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 1;
 `;
 
 const SmallText = styled.div`
   color: ${colors.colorCoreGray};
   font-size: 12px;
-  padding: 2px 0;
+  margin: 2px 0;
+  min-height: ${dimensions.coreSpacing}px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   flex-shrink: 0;
+`;
+
+const SmallTextOneLine = SmallText.extend`
+  max-height: ${dimensions.coreSpacing}px;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 1;
 `;
 
 const MessageContent = styled.div`
@@ -70,6 +96,7 @@ const MessageContent = styled.div`
   display: -webkit-box;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 1;
+  max-height: 18px;
 `;
 
 const RowItem = styled.li`
@@ -87,7 +114,7 @@ const RowItem = styled.li`
       background: ${colors.bgUnread};
 
       ${MessageContent} {
-        font-weight: 500;
+        font-weight: bold;
       }
     `};
   &:hover {
@@ -117,6 +144,7 @@ export {
   MainInfo,
   CustomerName,
   SmallText,
+  SmallTextOneLine,
   MessageContent,
   AssigneeImg,
   AssigneeWrapper

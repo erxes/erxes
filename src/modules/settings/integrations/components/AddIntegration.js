@@ -18,8 +18,7 @@ function AddIntegration() {
   return (
     <Dropdown id="dropdown-integration" pullRight>
       <DropdownToggle bsRole="toggle">
-        <Button btnStyle="success" size="small">
-          <Icon icon="plus" />
+        <Button btnStyle="success" size="small" icon="plus">
           Add integrations <Icon icon="chevron-down" />
         </Button>
       </DropdownToggle>

@@ -1,17 +1,24 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { PieChart, Pie, Cell } from 'recharts';
-import { Label } from 'modules/common/components';
-import { ChartWrapper, IntegrationKind, KindItem, KindCount } from '../styles';
+import { Label, Spinner } from 'modules/common/components';
+import {
+  ChartWrapper,
+  IntegrationKind,
+  KindItem,
+  KindCount,
+  LoaderWrapper
+} from '../styles';
 
 const propTypes = {
   data: PropTypes.array.isRequired,
-  wrapperWidth: PropTypes.number
+  wrapperWidth: PropTypes.number,
+  loading: PropTypes.bool
 };
 
 class Insights extends React.Component {
   render() {
-    const { data, wrapperWidth } = this.props;
+    const { data, wrapperWidth, loading } = this.props;
     const width = (wrapperWidth || 400) * 0.5;
     const height = width * 0.5;
 
@@ -43,6 +50,14 @@ class Insights extends React.Component {
         </text>
       );
     };
+
+    if (loading) {
+      return (
+        <LoaderWrapper>
+          <Spinner objective />
+        </LoaderWrapper>
+      );
+    }
 
     return (
       <ChartWrapper>

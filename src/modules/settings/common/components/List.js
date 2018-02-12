@@ -4,17 +4,18 @@ import {
   Pagination,
   ModalTrigger,
   Button,
-  Icon
+  DataWithLoader
 } from 'modules/common/components';
 import { Wrapper } from 'modules/layout/components';
-import Sidebar from '../../Sidebar';
+import Sidebar from 'modules/settings/Sidebar';
 
 const propTypes = {
   objects: PropTypes.array.isRequired,
   remove: PropTypes.func.isRequired,
   save: PropTypes.func.isRequired,
   refetch: PropTypes.func.isRequired,
-  totalCount: PropTypes.number.isRequired
+  totalCount: PropTypes.number.isRequired,
+  loading: PropTypes.bool.isRequired
 };
 
 class List extends Component {
@@ -39,11 +40,11 @@ class List extends Component {
   }
 
   render() {
-    const { totalCount, save } = this.props;
+    const { totalCount, save, loading } = this.props;
 
     const trigger = (
-      <Button btnStyle="success" size="small">
-        <Icon icon="plus" /> {this.title}
+      <Button btnStyle="success" size="small" icon="plus">
+        {this.title}
       </Button>
     );
 
@@ -59,7 +60,16 @@ class List extends Component {
         leftSidebar={<Sidebar />}
         actionBar={<Wrapper.ActionBar right={actionBarLeft} />}
         footer={<Pagination count={totalCount} />}
-        content={this.renderContent()}
+        transparent={false}
+        content={
+          <DataWithLoader
+            data={this.renderContent()}
+            loading={loading}
+            count={totalCount}
+            emptyText="There is no data."
+            emptyImage="/images/robots/robot-05.svg"
+          />
+        }
       />
     );
   }

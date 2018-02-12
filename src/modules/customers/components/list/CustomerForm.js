@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import { Modal } from 'react-bootstrap';
 import {
   Button,
-  Icon,
   FormGroup,
   FormControl,
   ControlLabel
@@ -26,30 +25,32 @@ class CustomerForm extends React.Component {
 
   addCustomer(e) {
     e.preventDefault();
+    const firstName = document.getElementById('customer-firstname');
+    const lastName = document.getElementById('customer-lastname');
+    const email = document.getElementById('customer-email');
 
     this.props.addCustomer({
       doc: {
-        firstName: document.getElementById('customer-firstname').value,
-        lastName: document.getElementById('customer-lastname').value,
-        email: document.getElementById('customer-email').value
+        firstName: firstName.value,
+        lastName: lastName.value,
+        email: email.value
       },
 
       callback: () => {
-        this.context.closeModal();
+        firstName.value = '';
+        lastName.value = '';
+        email.value = '';
+        if (document.activeElement.name === 'close') this.context.closeModal();
       }
     });
   }
 
   render() {
-    const onClick = () => {
-      this.context.closeModal();
-    };
-
     return (
-      <form onSubmit={this.addCustomer}>
+      <form onSubmit={e => this.addCustomer(e)}>
         <FormGroup>
           <ControlLabel>First Name</ControlLabel>
-          <FormControl id="customer-firstname" type="text" required />
+          <FormControl id="customer-firstname" type="text" autoFocus required />
         </FormGroup>
 
         <FormGroup>
@@ -59,18 +60,24 @@ class CustomerForm extends React.Component {
 
         <FormGroup>
           <ControlLabel>Email</ControlLabel>
-          <FormControl id="customer-email" type="text" required />
+          <FormControl id="customer-email" type="email" required />
         </FormGroup>
 
         <Modal.Footer>
-          <Button btnStyle="simple" onClick={onClick}>
-            <Icon icon="close" />
-            Cancel
+          <Button
+            btnStyle="simple"
+            onClick={() => this.context.closeModal()}
+            icon="close"
+          >
+            Close
           </Button>
 
-          <Button btnStyle="success" type="submit">
-            <Icon icon="checkmark" />
-            Save
+          <Button btnStyle="success" type="submit" icon="checkmark">
+            Save & New
+          </Button>
+
+          <Button btnStyle="primary" type="submit" name="close" icon="close">
+            Save & Close
           </Button>
         </Modal.Footer>
       </form>

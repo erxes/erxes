@@ -1,8 +1,9 @@
 import React from 'react';
+import moment from 'moment';
 import { withRouter } from 'react-router';
 import PropTypes from 'prop-types';
 import { Layout } from '../styles';
-import Navigation from './Navigation';
+import { Navigation } from '../containers';
 
 const propTypes = {
   history: PropTypes.object,
@@ -13,6 +14,26 @@ const propTypes = {
 class MainLayout extends React.Component {
   getChildContext() {
     return { currentUser: this.props.currentUser };
+  }
+
+  componentWillMount() {
+    moment.updateLocale('en', {
+      relativeTime: {
+        future: 'in %s',
+        past: '%s ',
+        s: 's',
+        m: 'm',
+        mm: '%d m',
+        h: 'h',
+        hh: '%d h',
+        d: 'd',
+        dd: '%d d',
+        M: 'a mth',
+        MM: '%d mths',
+        y: 'y',
+        yy: '%d y'
+      }
+    });
   }
 
   componentDidMount() {

@@ -9,6 +9,7 @@ const customerFields = `
     createdAt
     remoteAddress
     location
+    visitorContactInfo
 
     customFieldsData
     messengerData
@@ -28,7 +29,8 @@ const listParamsDef = `
   $perPage: Int,
   $segment: String,
   $tag: String,
-  $ids: [String]
+  $ids: [String],
+  $searchValue: String
 `;
 
 const listParamsValue = `
@@ -37,6 +39,7 @@ const listParamsValue = `
   segment: $segment,
   tag: $tag,
   ids: $ids,
+  searchValue: $searchValue
 `;
 
 const customers = `
@@ -48,8 +51,8 @@ const customers = `
 `;
 
 const customerCounts = `
-  query customerCounts(${listParamsDef}) {
-    customerCounts(${listParamsValue})
+  query customerCounts(${listParamsDef}, $byFakeSegment: JSON) {
+    customerCounts(${listParamsValue}, byFakeSegment: $byFakeSegment)
   }
 `;
 

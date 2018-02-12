@@ -9,10 +9,10 @@ import {
   Tags,
   Spinner
 } from 'modules/common/components';
-import { LeftSidebar, RespondBox } from '../containers';
+import { LeftSidebar, RespondBox, Resolver } from '../containers';
 import { AssignBoxPopover, Participators, Conversation } from './';
 import { AvatarImg } from 'modules/common/components/filterableList/styles';
-import { BarItems } from 'modules/layout/styles';
+import { BarItems, SidebarCounter } from 'modules/layout/styles';
 import ConversationDetails from './sidebar/ConversationDetails';
 import { EditInformation } from 'modules/customers/containers';
 
@@ -32,7 +32,6 @@ class Inbox extends Component {
       attachmentPreview: {}
     };
 
-    this.changeStatus = this.changeStatus.bind(this);
     this.setAttachmentPreview = this.setAttachmentPreview.bind(this);
     this.scrollBottom = this.scrollBottom.bind(this);
   }
@@ -53,20 +52,22 @@ class Inbox extends Component {
     this.setState({ attachmentPreview });
   }
 
-  // change resolved status
-  changeStatus() {
-    const { currentConversation, changeStatus } = this.props;
+  renderMessengerData() {
+    const conversation = this.props.currentConversation;
+    const customer = conversation.customer || {};
+    const integration = conversation.integration || {};
+    const customData = customer.getMessengerCustomData;
 
-    let status = currentConversation.status;
-
-    if (status === 'closed') {
-      status = 'open';
-    } else {
-      status = 'closed';
+    if (integration.kind === 'messenger' && customData.length) {
+      return customData.map(data => (
+        <li key={data.value}>
+          {data.name}
+          <SidebarCounter>{data.value}</SidebarCounter>
+        </li>
+      ));
     }
 
-    // call change status method
-    changeStatus(currentConversation._id, status);
+    return null;
   }
 
   renderRightSidebar(currentConversation) {
@@ -77,6 +78,7 @@ class Inbox extends Component {
           sections={<ConversationDetails conversation={currentConversation} />}
           customer={currentConversation.customer}
           refetch={this.props.refetch}
+          otherProperties={this.renderMessengerData()}
         />
       );
     }
@@ -85,24 +87,6 @@ class Inbox extends Component {
       <Wrapper.Sidebar full>
         <Spinner />
       </Wrapper.Sidebar>
-    );
-  }
-
-  renderStatusButton(status) {
-    let btnStyle = 'success';
-    let text = 'Resolve';
-    let icon = <Icon icon="checkmark" />;
-
-    if (status === 'closed') {
-      text = 'Open';
-      btnStyle = 'warning';
-      icon = <Icon icon="refresh" />;
-    }
-
-    return (
-      <Button btnStyle={btnStyle} onClick={this.changeStatus} size="small">
-        {icon} {text}
-      </Button>
     );
   }
 
@@ -134,11 +118,11 @@ class Inbox extends Component {
       <AssignTrigger>
         {assignedUser && assignedUser._id ? (
           <AvatarImg
-            src={assignedUser.details.avatar || '/images/userDefaultIcon.png'}
+            src={assignedUser.details.avatar || '/images/avatar-colored.svg'}
           />
         ) : (
           <Button btnStyle="simple" size="small">
-            Team members
+            Member
           </Button>
         )}
         <Icon icon="ios-arrow-down" size={13} />
@@ -154,9 +138,7 @@ class Inbox extends Component {
           afterSave={refetch}
         />
 
-        {this.renderStatusButton(
-          currentConversation && currentConversation.status
-        )}
+        <Resolver conversations={[currentConversation]} />
       </BarItems>
     );
 
@@ -196,16 +178,18 @@ class Inbox extends Component {
 
     return (
       <Wrapper
-        header={<Wrapper.Header breadcrumb={breadcrumb} />}
+        header={
+          <Wrapper.Header queryParams={queryParams} breadcrumb={breadcrumb} />
+        }
         actionBar={actionBar}
         content={content}
         footer={
-          currentConversation._id ? (
+          currentConversation._id && (
             <RespondBox
               conversation={currentConversation}
               setAttachmentPreview={this.setAttachmentPreview}
             />
-          ) : null
+          )
         }
         leftSidebar={
           <LeftSidebar
@@ -225,7 +209,6 @@ Inbox.propTypes = {
   refetch: PropTypes.func,
   title: PropTypes.string,
   onChangeConversation: PropTypes.func,
-  changeStatus: PropTypes.func,
   currentConversationId: PropTypes.string,
   currentConversation: PropTypes.object,
   loading: PropTypes.bool

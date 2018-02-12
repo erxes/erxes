@@ -10,10 +10,11 @@ CountsByTag.propTypes = {
   history: PropTypes.object.isRequired,
   tags: PropTypes.array.isRequired,
   counts: PropTypes.object.isRequired,
-  manageUrl: PropTypes.string.isRequired
+  manageUrl: PropTypes.string.isRequired,
+  loading: PropTypes.bool.isRequired
 };
 
-function CountsByTag({ history, tags, counts, manageUrl }) {
+function CountsByTag({ history, tags, counts, manageUrl, loading }) {
   const { Section } = Wrapper.Sidebar;
 
   return (
@@ -42,6 +43,7 @@ function CountsByTag({ history, tags, counts, manageUrl }) {
         paramKey="tag"
         counts={counts}
         icon="pricetag"
+        loading={loading}
       />
     </Section>
   );

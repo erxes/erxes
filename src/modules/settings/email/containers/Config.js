@@ -1,7 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { compose, gql, graphql } from 'react-apollo';
+import { compose, graphql } from 'react-apollo';
+import gql from 'graphql-tag';
 import { Alert } from 'modules/common/utils';
+import { colors } from 'modules/common/styles';
 import { Config } from '../components';
 
 const defaultTemplate = `<p>Dear {{fullName}},</p>
@@ -39,7 +41,7 @@ const defaultTemplate = `<p>Dear {{fullName}},</p>
         color: #fff;
     }
     footer {
-        border-top: 1px solid #ddd;
+        border-top: 1px solid ${colors.borderDarker};
         margin-top: 40px;
         padding-top: 10px;
         font-weight: bold;

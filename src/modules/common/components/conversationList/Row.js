@@ -11,6 +11,7 @@ import {
   MainInfo,
   CustomerName,
   SmallText,
+  SmallTextOneLine,
   MessageContent,
   AssigneeImg,
   AssigneeWrapper
@@ -22,7 +23,8 @@ const propTypes = {
   isRead: PropTypes.bool,
   isActive: PropTypes.bool,
   onClick: PropTypes.func,
-  toggleBulk: PropTypes.func
+  toggleBulk: PropTypes.func,
+  bulk: PropTypes.array
 };
 
 class Row extends Component {
@@ -31,6 +33,7 @@ class Row extends Component {
 
     this.toggleBulk = this.toggleBulk.bind(this);
     this.onClick = this.onClick.bind(this);
+    this.onClickCheckBox = this.onClickCheckBox.bind(this);
     this.renderCheckbox = this.renderCheckbox.bind(this);
     this.renderFullName = this.renderFullName.bind(this);
   }
@@ -49,15 +52,19 @@ class Row extends Component {
   }
 
   renderCheckbox() {
-    if (this.props.toggleBulk) {
+    if (!this.props.toggleBulk) {
       return null;
     }
 
     return (
-      <CheckBox>
+      <CheckBox onClick={this.onClickCheckBox}>
         <FormControl componentClass="checkbox" onChange={this.toggleBulk} />
       </CheckBox>
     );
+  }
+
+  onClickCheckBox(e) {
+    e.stopPropagation();
   }
 
   renderFullName(customer) {
@@ -68,7 +75,7 @@ class Row extends Component {
   }
 
   render() {
-    const { conversation, isRead, isActive } = this.props;
+    const { conversation, isRead, isActive, bulk } = this.props;
     const { createdAt, content } = conversation;
     const customer = conversation.customer || {};
     const integration = conversation.integration || {};
@@ -80,7 +87,15 @@ class Row extends Component {
 
     return (
       <RowItem onClick={this.onClick} isActive={isActive} isRead={isRead}>
-        <RowContent>
+        <RowContent
+          isChecked={
+            bulk
+              .map(e => {
+                return e._id;
+              })
+              .indexOf(conversation._id) > -1
+          }
+        >
           {this.renderCheckbox()}
           <FlexContent>
             <MainInfo>
@@ -90,13 +105,15 @@ class Row extends Component {
               <FlexContent>
                 <CustomerName>
                   {isExistingCustomer &&
-                    (this.renderFullName(customer) ||
+                    (customer.name ||
+                      this.renderFullName(customer) ||
                       customer.email ||
-                      customer.phone)}
+                      customer.phone ||
+                      'Unnamed')}
                 </CustomerName>
-                <SmallText>
+                <SmallTextOneLine>
                   to {brandName} via {integration && integration.kind}
-                </SmallText>
+                </SmallTextOneLine>
               </FlexContent>
             </MainInfo>
             <MessageContent>{strip(content)}</MessageContent>
@@ -111,7 +128,7 @@ class Row extends Component {
             <AssigneeWrapper>
               <AssigneeImg
                 src={
-                  assignedUser.details.avatar || '/images/userDefaultIcon.png'
+                  assignedUser.details.avatar || '/images/avatar-colored.svg'
                 }
               />
             </AssigneeWrapper>

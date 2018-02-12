@@ -40,7 +40,7 @@ yarn install
 
 Create `.env.sample` from default settings file and configure it on your own:
 ```Shell
-cp .env.sample .env.developement
+cp .env.sample .env.development
 ```
 
 To start the app:
@@ -82,3 +82,4 @@ Support this project by becoming a sponsor. Your logo will show up here with a l
 
 ## Copyright & License
 Copyright (c) 2018 erxes Inc - Released under the [MIT license.](https://github.com/erxes/erxes/blob/develop/LICENSE.md)
+

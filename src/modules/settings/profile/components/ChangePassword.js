@@ -4,12 +4,11 @@ import {
   Button,
   FormGroup,
   ControlLabel,
-  FormControl,
-  Icon
+  FormControl
 } from 'modules/common/components';
-import { Wrapper } from 'modules/layout/components';
-import Sidebar from '../../Sidebar';
+import { ActionBar, Wrapper } from 'modules/layout/components';
 import { ContentBox, SubHeading } from '../../styles';
+import Sidebar from 'modules/settings/Sidebar';
 
 const propTypes = {
   save: PropTypes.func.isRequired
@@ -68,15 +67,19 @@ class ChangePassword extends Component {
     );
 
     const breadcrumb = [
-      { title: 'Settings', link: '/settings/channels' },
+      { title: 'Settings', link: '/settings' },
       { title: 'Change password' }
     ];
 
     const actionFooter = (
-      <Wrapper.ActionBar
+      <ActionBar
         right={
-          <Button btnStyle="success" onClick={this.handleSubmit}>
-            <Icon icon="checkmark" /> Save
+          <Button
+            btnStyle="success"
+            onClick={this.handleSubmit}
+            icon="checkmark"
+          >
+            Save
           </Button>
         }
       />

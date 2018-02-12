@@ -7,7 +7,7 @@ const propTypes = {
   targets: PropTypes.array,
   event: PropTypes.oneOf(['onClick', 'onExit']),
   className: PropTypes.string,
-  hidePopover: PropTypes.func,
+  afterSave: PropTypes.func,
   //from containers
   assignees: PropTypes.array,
   assign: PropTypes.func.isRequired,
@@ -51,21 +51,21 @@ class AssignBox extends Component {
       let state = 'none';
       if (count === targets.length) {
         state = 'all';
-      } else if (count < targets.length) {
+      } else if (count < targets.length && count > 0) {
         state = 'some';
       }
 
       return {
         _id: assignee._id,
-        title: assignee.details.fullName || assignee.emails[0].address,
-        avatar: assignee.details.avatar || '/images/userDefaultIcon.png',
+        title: assignee.details.fullName || assignee.email,
+        avatar: assignee.details.avatar || '/images/avatar-colored.svg',
         selectedBy: state
       };
     });
   }
 
   assign(assignees, id) {
-    const { assign, targets, hidePopover } = this.props;
+    const { assign, targets, afterSave } = this.props;
 
     assign(
       {
@@ -78,7 +78,10 @@ class AssignBox extends Component {
         }
       }
     );
-    hidePopover();
+
+    if (afterSave) {
+      afterSave();
+    }
   }
 
   removeAssignee() {

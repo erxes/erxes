@@ -180,7 +180,7 @@ const BackgroundSelector = styled.div`
     width: 80px;
     height: 40px;
     margin: 5px;
-    border: 1px solid #ddd;
+    border: 1px solid ${colors.borderDarker};
     background-repeat: repeat;
     background-position: 0 0;
     background-size: 220%;
@@ -207,7 +207,7 @@ const BackgroundSelector = styled.div`
   }
 
   &.selected {
-    border-color: #ddd;
+    border-color: ${colors.borderDarker};
   }
 
   &:last-child {
@@ -257,6 +257,76 @@ const FlexRow = styled.div`
   }
 `;
 
+const ActionButtons = styled.div`
+  display: flex;
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: 0;
+  overflow: hidden;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+
+  * {
+    padding: 0;
+    margin-left: ${dimensions.unitSpacing}px;
+
+    &:first-child {
+      margin-left: 0;
+    }
+  }
+`;
+
+const SidebarListItem = styled.li`
+  position: relative;
+  border-bottom: 1px solid ${colors.borderPrimary};
+  background: ${props => props.isActive && colors.bgActive};
+
+  a {
+    white-space: normal;
+    padding: 10px 40px 10px 20px;
+
+    &:hover {
+      background: none;
+    }
+
+    &:focus {
+      color: inherit;
+      text-decoration: none;
+    }
+  }
+
+  &:hover {
+    cursor: pointer;
+    background: ${props => (props.isActive ? '' : colors.bgLight)};
+
+    ${ActionButtons} {
+      width: ${dimensions.headerSpacing - 5}px;
+    }
+  }
+`;
+
+const RightButton = styled.div`
+  position: absolute;
+  right: ${dimensions.coreSpacing}px;
+  top: ${dimensions.coreSpacing - 5}px;
+
+  &:hover {
+    cursor: pointer;
+  }
+`;
+
+const IntegrationName = styled.span`
+  margin-right: ${dimensions.unitSpacing}px;
+`;
+
+const BrandName = styled.div`
+  font-size: 11px;
+  color: ${colors.colorCoreGray};
+`;
+
 export {
   ContentBox,
   SubHeading,
@@ -275,5 +345,10 @@ export {
   ColorPicker,
   LogoContainer,
   LogoSpan,
-  FlexRow
+  FlexRow,
+  SidebarListItem,
+  IntegrationName,
+  RightButton,
+  ActionButtons,
+  BrandName
 };

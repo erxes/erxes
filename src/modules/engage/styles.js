@@ -4,8 +4,6 @@ import { colors, dimensions } from 'modules/common/styles';
 const coreSpace = `${dimensions.coreSpacing}px`;
 
 const EngageTitle = styled.div`
-  font-weight: 400;
-
   &:hover {
     text-decoration: underline;
     color: ${colors.colorBlack};
@@ -48,6 +46,14 @@ const EditorWrapper = styled.div`
     padding: ${coreSpace};
     min-height: 200px;
     word-break: break-word;
+  }
+
+  select {
+    background: none;
+    border: none;
+    height: 24px;
+    outline: 0;
+    color: ${colors.colorCoreGray};
   }
 `;
 

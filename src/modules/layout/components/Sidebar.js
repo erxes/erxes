@@ -8,7 +8,8 @@ import {
   SidebarTitle,
   SidebarHeader,
   SidebarMainContent,
-  SidebarFooter
+  SidebarFooter,
+  BoxContent
 } from '../styles';
 import { Icon } from 'modules/common/components';
 
@@ -58,20 +59,26 @@ class Section extends Component {
   }
 
   render() {
-    const { children, collapsible, noShadow } = this.props;
+    const { children, collapsible, noShadow, noBackground, full } = this.props;
 
     const height = {
       maxHeight: collapsible && this.state.maxHeight
     };
     return (
-      <SidebarBox collapsible style={height} noShadow={noShadow}>
-        <div
+      <SidebarBox
+        collapsible
+        style={height}
+        noShadow={noShadow}
+        noBackground={noBackground}
+        full={full}
+      >
+        <BoxContent
           ref={node => {
             this.node = node;
           }}
         >
           {children}
-        </div>
+        </BoxContent>
         {collapsible ? this.renderCollapseButton() : null}
       </SidebarBox>
     );
@@ -86,12 +93,19 @@ Title.propTypes = {
   children: PropTypes.node.isRequired
 };
 
-function Header({ children }) {
-  return <SidebarHeader>{children}</SidebarHeader>;
+function Header({ children, spaceBottom, uppercase, bold }) {
+  return (
+    <SidebarHeader spaceBottom={spaceBottom} uppercase={uppercase} bold={bold}>
+      {children}
+    </SidebarHeader>
+  );
 }
 
 Header.propTypes = {
-  children: PropTypes.node.isRequired
+  children: PropTypes.node.isRequired,
+  uppercase: PropTypes.bool,
+  bold: PropTypes.bool,
+  spaceBottom: PropTypes.bool
 };
 
 function Footer({ children }) {
@@ -117,7 +131,9 @@ Section.propTypes = {
   children: PropTypes.node,
   collapsible: PropTypes.bool,
   className: PropTypes.string,
-  noShadow: PropTypes.bool
+  noShadow: PropTypes.bool,
+  noBackground: PropTypes.bool,
+  full: PropTypes.bool
 };
 
 Sidebar.propTypes = propTypes;

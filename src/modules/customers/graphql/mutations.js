@@ -41,8 +41,37 @@ const customersAddCompany = `
   }
 `;
 
+const customersEditCompanies = `
+  mutation customersEditCompanies($_id: String!, $companyIds: [String]) {
+    customersEditCompanies(_id: $_id, companyIds: $companyIds) {
+      companies {
+        _id
+        name
+        website
+      }
+    }
+  }
+`;
+
+const customersRemove = `
+  mutation customersRemove($customerIds: [String]) {
+    customersRemove(customerIds: $customerIds)
+  }
+`;
+
+const customersMerge = `
+  mutation customersMerge($customerIds: [String], $customerFields: JSON) {
+    customersMerge(customerIds: $customerIds, customerFields: $customerFields) {
+      _id
+    }
+  }
+`;
+
 export default {
   customersAdd,
   customersEdit,
-  customersAddCompany
+  customersAddCompany,
+  customersEditCompanies,
+  customersRemove,
+  customersMerge
 };

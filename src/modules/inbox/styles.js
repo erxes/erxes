@@ -116,11 +116,43 @@ const MentionedPerson = styled.span`
   text-decoration: none;
 `;
 
+const ResponseSuggestions = styled.ul`
+  position: absolute;
+  left: 0px;
+  bottom: 100%;
+  margin: 0;
+  padding: 0;
+  z-index: 1;
+  width: 100%;
+  list-style-type: none;
+  background: ${colors.colorWhite};
+  box-shadow: 0 0 10px -3px rgba(0, 0, 0, 0.5);
+`;
+
+const ResponseSuggestionItem = styled.li`
+  margin: 0;
+  cursor: pointer;
+  white-space: nowrap;
+  overflow: hidden;
+  padding: 5px 20px;
+  text-overflow: ellipsis;
+
+  :hover {
+    background-color: #f6f8fb;
+  }
+
+  strong {
+    color: #ec8d17;
+  }
+`;
+
 const RespondBoxStyled = styled.div`
   position: relative;
   transition: background 0.3s ease;
   background: ${props =>
     props.isInternal ? colors.bgInternal : colors.colorWhite};
+
+  filter: ${props => props.isInactive && 'blur(2px)'};
 
   ${RichEditorRoot} {
     border-top: 1px solid ${colors.borderPrimary};
@@ -160,6 +192,7 @@ const EditorActions = styled.div`
     &:first-of-type {
       position: absolute;
       left: 20px;
+      bottom: 20px;
     }
   }
 
@@ -194,7 +227,7 @@ const InlineHeaderSpan = styled.span`
 `;
 
 const PopoverHeader = styled.div`
-  background-color: #eee;
+  background-color: #f7f7f7;
   padding: 5px;
 
   input[type='text'] {
@@ -202,7 +235,7 @@ const PopoverHeader = styled.div`
     font-size: 13px;
 
     &:focus {
-      border-color: #ddd;
+      border-color: ${colors.borderDarker};
       box-shadow: none;
     }
   }
@@ -276,7 +309,7 @@ const PopoverBody = styled.div`
 `;
 
 const TemplateTitle = styled.div`
-  font-weight: 500;
+  font-weight: bold;
   margin-bottom: 2px;
 `;
 
@@ -365,6 +398,29 @@ const AssignTrigger = styled.div`
   }
 `;
 
+const MaskWrapper = styled.div`
+  position: relative;
+`;
+
+const Mask = styled.div`
+  position: absolute;
+  padding: 20px;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  text-align: center;
+
+  &:hover {
+    cursor: pointer;
+  }
+`;
+
 export {
   PopoverButton,
   ConversationWrapper,
@@ -373,6 +429,8 @@ export {
   RichEditorControlsRoot,
   RichEditorControls,
   MentionedPerson,
+  ResponseSuggestions,
+  ResponseSuggestionItem,
   EditorActions,
   RichEditorRight,
   ResponseTemplateStyled,
@@ -392,5 +450,7 @@ export {
   FileName,
   AssignText,
   ActionBarLeft,
-  AssignTrigger
+  AssignTrigger,
+  Mask,
+  MaskWrapper
 };

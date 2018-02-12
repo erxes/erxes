@@ -4,12 +4,16 @@ import createMentionPlugin, {
   defaultSuggestionsFilter
 } from 'bat-draft-js-mention-plugin';
 import { EditorState, ContentState, getDefaultKeyBinding } from 'draft-js';
+import strip from 'strip';
 import _ from 'underscore';
+import highlighter from 'fuzzysearch-highlight';
 import {
   ErxesEditor,
   toHTML,
   createStateFromHTML
 } from 'modules/common/components/Editor';
+
+import { ResponseSuggestions, ResponseSuggestionItem } from '../styles';
 
 const MentionEntry = props => {
   const { mention, theme, searchValue, ...parentProps } = props; // eslint-disable-line
@@ -21,7 +25,7 @@ const MentionEntry = props => {
           <img
             alt={mention.get('name')}
             role="presentation"
-            src={mention.get('avatar') || '/images/userDefaultIcon.png'}
+            src={mention.get('avatar') || '/images/avatar-colored.svg'}
             className="mentionSuggestionsEntryAvatar"
           />
         </div>
@@ -48,12 +52,70 @@ const extractEntries = mention => {
   return _.object(keys, values);
 };
 
-const mentionPlugin = createMentionPlugin({
-  mentionPrefix: '@'
-});
+// response templates
+class TemplateList extends React.Component {
+  normalizeIndex(selectedIndex, max) {
+    let index = selectedIndex % max;
 
-const { MentionSuggestions } = mentionPlugin;
-const plugins = [mentionPlugin];
+    if (index < 0) {
+      index += max;
+    }
+
+    return index;
+  }
+
+  render() {
+    const { suggestionsState, onSelect } = this.props;
+
+    const { selectedIndex, searchText, templates } = suggestionsState;
+
+    if (!templates) {
+      return null;
+    }
+
+    const normalizedIndex = this.normalizeIndex(
+      selectedIndex,
+      templates.length
+    );
+
+    return (
+      <ResponseSuggestions>
+        {templates.map((template, index) => {
+          const style = {};
+
+          if (normalizedIndex === index) {
+            style.backgroundColor = '#F6F8FB';
+          }
+
+          return (
+            <ResponseSuggestionItem
+              key={template._id}
+              onClick={() => onSelect(index)}
+              style={style}
+            >
+              <span
+                style={{ fontWeight: 'bold' }}
+                dangerouslySetInnerHTML={{
+                  __html: highlighter(searchText, template.name)
+                }}
+              />
+              <span
+                dangerouslySetInnerHTML={{
+                  __html: highlighter(searchText, strip(template.content))
+                }}
+              />
+            </ResponseSuggestionItem>
+          );
+        }, this)}
+      </ResponseSuggestions>
+    );
+  }
+}
+
+TemplateList.propTypes = {
+  suggestionsState: PropTypes.object,
+  onSelect: PropTypes.func
+};
 
 export default class Editor extends Component {
   constructor(props) {
@@ -62,14 +124,26 @@ export default class Editor extends Component {
     this.state = {
       editorState: EditorState.createEmpty(),
       collectedMentions: [],
-      suggestions: this.props.mentions.toArray()
+      suggestions: this.props.mentions.toArray(),
+      templatesState: null
     };
+
+    this.mentionPlugin = createMentionPlugin({
+      mentionPrefix: '@'
+    });
 
     this.onChange = this.onChange.bind(this);
     this.keyBindingFn = this.keyBindingFn.bind(this);
     this.onSearchChange = this.onSearchChange.bind(this);
     this.onAddMention = this.onAddMention.bind(this);
     this.getContent = this.getContent.bind(this);
+
+    this.getTemplatesState = this.getTemplatesState.bind(this);
+    this.onTemplatesStateChange = this.onTemplatesStateChange.bind(this);
+    this.onSelectTemplate = this.onSelectTemplate.bind(this);
+    this.onArrow = this.onArrow.bind(this);
+    this.onUpArrow = this.onUpArrow.bind(this);
+    this.onDownArrow = this.onDownArrow.bind(this);
   }
 
   componentWillReceiveProps(nextProps) {
@@ -92,6 +166,108 @@ export default class Editor extends Component {
     this.setState({ editorState });
 
     this.props.onChange(this.getContent(editorState));
+
+    window.requestAnimationFrame(() => {
+      this.onTemplatesStateChange(this.getTemplatesState());
+    });
+  }
+
+  onTemplatesStateChange(templatesState) {
+    this.setState({ templatesState });
+  }
+
+  getTemplatesState(invalidate = true) {
+    if (!invalidate) {
+      return this.state.templatesState;
+    }
+
+    const { editorState } = this.state;
+    const { responseTemplates } = this.props;
+
+    const contentState = editorState.getCurrentContent();
+
+    // get content as text
+    const textContent = contentState.getPlainText().toLowerCase();
+
+    if (!textContent) {
+      return null;
+    }
+
+    // search from response templates
+    const foundTemplates = responseTemplates.filter(
+      template =>
+        template.name.toLowerCase().includes(textContent) ||
+        template.content.toLowerCase().includes(textContent)
+    );
+
+    if (foundTemplates.length > 0) {
+      return {
+        templates: foundTemplates.slice(0, 5),
+        searchText: textContent,
+        selectedIndex: 0
+      };
+    }
+
+    return null;
+  }
+
+  onSelectTemplate(index) {
+    const { templatesState } = this.state;
+    const { templates, selectedIndex } = templatesState;
+    const selectedTemplate = templates[index || selectedIndex];
+
+    if (!selectedTemplate) {
+      return null;
+    }
+
+    let editorState = createStateFromHTML(
+      EditorState.createEmpty(),
+      selectedTemplate.content
+    );
+
+    editorState = EditorState.moveFocusToEnd(editorState);
+
+    this.setState({ editorState, templatesState: null });
+  }
+
+  onArrow(e, nudgeAmount) {
+    let templatesState = this.getTemplatesState(false);
+
+    if (!templatesState) {
+      return;
+    }
+
+    e.preventDefault();
+
+    templatesState.selectedIndex += nudgeAmount;
+
+    this.templatesState = templatesState;
+    this.onTemplatesStateChange(templatesState);
+  }
+
+  onUpArrow(e) {
+    this.onArrow(e, -1);
+  }
+
+  onDownArrow(e) {
+    this.onArrow(e, 1);
+  }
+
+  // Render response templates suggestions
+  renderTemplates() {
+    const { templatesState } = this.state;
+
+    if (!templatesState) {
+      return null;
+    }
+
+    // Set suggestionState to SuggestionList.
+    return (
+      <TemplateList
+        onSelect={this.onSelectTemplate}
+        suggestionsState={templatesState}
+      />
+    );
   }
 
   onSearchChange({ value }) {
@@ -144,30 +320,39 @@ export default class Editor extends Component {
   }
 
   keyBindingFn(e) {
-    if (e.key === 'Enter' && e.shiftKey) {
-      return getDefaultKeyBinding(e);
-    }
-
-    // handle shift + enter in editor
     if (e.key === 'Enter') {
-      // call parent's method to save content
-      this.props.onShifEnter();
+      if (this.state.templatesState) {
+        this.onSelectTemplate();
 
-      // clear content
-      const state = this.state.editorState;
-      const editorState = EditorState.push(
-        state,
-        ContentState.createFromText('')
-      );
-      this.setState({ editorState });
+        return null;
+      }
 
-      return null;
+      // handle shift + enter in editor
+      if (e.metaKey || e.ctrlKey) {
+        // call parent's method to save content
+        this.props.onShifEnter();
+
+        // clear content
+        const state = this.state.editorState;
+
+        const editorState = EditorState.push(
+          state,
+          ContentState.createFromText('')
+        );
+
+        this.setState({ editorState });
+
+        return null;
+      }
     }
 
     return getDefaultKeyBinding(e);
   }
 
   render() {
+    const { MentionSuggestions } = this.mentionPlugin;
+    const plugins = [this.mentionPlugin];
+
     const pluginContent = (
       <MentionSuggestions
         onSearchChange={this.onSearchChange}
@@ -183,11 +368,18 @@ export default class Editor extends Component {
       editorState: this.state.editorState,
       onChange: this.onChange,
       keyBindingFn: this.keyBindingFn,
+      onUpArrow: this.onUpArrow,
+      onDownArrow: this.onDownArrow,
       plugins,
       pluginContent
     };
 
-    return <ErxesEditor {...props} />;
+    return (
+      <div>
+        {this.renderTemplates()}
+        <ErxesEditor {...props} />
+      </div>
+    );
   }
 }
 
@@ -197,5 +389,6 @@ Editor.propTypes = {
   onShifEnter: PropTypes.func,
   showMentions: PropTypes.bool,
   responseTemplate: PropTypes.string,
+  responseTemplates: PropTypes.array,
   mentions: PropTypes.object // eslint-disable-line
 };

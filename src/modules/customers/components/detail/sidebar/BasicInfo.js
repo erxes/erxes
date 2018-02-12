@@ -38,6 +38,14 @@ class BasicInfo extends React.Component {
     this.handleChange = this.handleChange.bind(this);
   }
 
+  componentWillReceiveProps(newProps) {
+    const { customer } = newProps;
+    const oldcustomer = this.props.customer;
+    if (customer._id !== oldcustomer._id) {
+      this.cancelEditing();
+    }
+  }
+
   toggleEditing() {
     this.cancelEditing();
     this.setState({ editing: true });
@@ -77,6 +85,10 @@ class BasicInfo extends React.Component {
     this.setState({ [inputname]: e.target.value });
   }
 
+  getVisitorInfo(customer, key) {
+    return customer.visitorContactInfo && customer.visitorContactInfo[key];
+  }
+
   renderForm() {
     const { customer } = this.props;
 
@@ -100,24 +112,34 @@ class BasicInfo extends React.Component {
         <FormGroup>
           Primary Email:
           <FormControl
-            defaultValue={customer.email}
+            defaultValue={
+              customer.email || this.getVisitorInfo(customer, 'email')
+            }
             onChange={e => this.handleChange(e, 'email')}
           />
         </FormGroup>
         <FormGroup>
           Phone:
           <FormControl
-            defaultValue={customer.phone}
+            defaultValue={
+              customer.phone || this.getVisitorInfo(customer, 'phone')
+            }
             onChange={e => this.handleChange(e, 'phone')}
           />
         </FormGroup>
         <ButtonWrapper>
-          <Button btnStyle="success" size="small" onClick={this.save}>
-            <Icon icon="checkmark" />
-          </Button>
-          <Button btnStyle="simple" size="small" onClick={this.cancelEditing}>
-            <Icon icon="close" />
-          </Button>
+          <Button
+            btnStyle="success"
+            size="small"
+            onClick={this.save}
+            icon="checkmark"
+          />
+          <Button
+            btnStyle="simple"
+            size="small"
+            onClick={this.cancelEditing}
+            icon="close"
+          />
         </ButtonWrapper>
       </SidebarContent>
     );
@@ -141,7 +163,9 @@ class BasicInfo extends React.Component {
             <NameCard.Avatar customer={customer} size={50} />
             {isUser ? <Icon icon="checkmark" /> : <Icon icon="minus" />}
           </AvatarWrapper>
-          <div className="cutomer-name">{this.renderName(customer)}</div>
+          <div className="cutomer-name">
+            {customer.name || this.renderName(customer)}
+          </div>
           <QuickButton>
             <Icon icon="edit" onClick={this.toggleEditing} />
           </QuickButton>
@@ -151,17 +175,19 @@ class BasicInfo extends React.Component {
             <li>
               Email:
               <Aboutvalues>
-                {customer.email || (
-                  <a onClick={this.toggleEditing}>Add Email</a>
-                )}
+                {customer.email ||
+                  this.getVisitorInfo(customer, 'email') || (
+                    <a onClick={this.toggleEditing}>Add Email</a>
+                  )}
               </Aboutvalues>
             </li>
             <li>
               Phone:
               <Aboutvalues>
-                {customer.phone || (
-                  <a onClick={this.toggleEditing}>Add Phone</a>
-                )}
+                {customer.phone ||
+                  this.getVisitorInfo(customer, 'phone') || (
+                    <a onClick={this.toggleEditing}>Add Phone</a>
+                  )}
               </Aboutvalues>
             </li>
           </AboutList>

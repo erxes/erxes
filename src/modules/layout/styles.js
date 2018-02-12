@@ -1,17 +1,13 @@
-import styled, { css } from 'styled-components';
-import { colors, dimensions } from '../common/styles';
-import { rgba } from '../common/styles/color';
+import styled from 'styled-components';
+import { colors, dimensions, typography } from '../common/styles';
 
 const UserHelper = styled.div`
-  padding: 0 ${dimensions.coreSpacing}px;
   height: 50px;
   display: flex;
   align-items: center;
-  background: ${rgba(colors.colorWhite, 0.1)};
 
   &:hover {
     cursor: pointer;
-    background: ${rgba(colors.colorWhite, 0.15)};
   }
 `;
 
@@ -22,57 +18,13 @@ const Layout = styled.main`
   max-width: 100%;
 `;
 
-const LeftNavigation = styled.aside`
-  width: ${dimensions.headerSpacingWide}px;
-  background: ${colors.colorCoreBlack};
-  flex-shrink: 0;
-
-  > a {
-    background-color: ${rgba(colors.colorPrimary, 0.7)};
-    line-height: ${dimensions.headerSpacing}px;
-    display: flex;
-    height: ${dimensions.headerSpacing}px;
-    justify-content: center;
-    align-items: center;
-    color: #fff;
-  }
-`;
-
-const Nav = styled.nav`
-  display: block;
-  background: ${colors.colorCoreBlack};
-  margin-top: 10px;
-
-  > a {
-    display: block;
-    text-align: center;
-    height: ${dimensions.headerSpacing + 10}px;
-    font-size: ${dimensions.coreSpacing}px;
-    line-height: ${dimensions.headerSpacing + 10}px;
-    text-align: center;
-    color: ${rgba(colors.colorWhite, 0.7)};
-
-    &:hover {
-      color: ${colors.colorWhite};
-    }
-
-    &.active {
-      position: relative;
-      color: ${colors.colorWhite};
-      background: rgba(0, 0, 0, 0.2);
-    }
-
-    > i {
-      margin: 0;
-    }
-  }
-`;
-
 const MainWrapper = styled.div`
   flex: 1;
   display: flex;
   flex-direction: column;
-  max-width: calc(100% - ${dimensions.headerSpacingWide}px);
+  padding-top: ${dimensions.headerSpacing}px;
+  padding-left: ${dimensions.headerSpacingWide}px;
+  max-width: 100%;
 `;
 
 const Contents = styled.div`
@@ -80,6 +32,7 @@ const Contents = styled.div`
   flex: 1;
   margin: ${dimensions.coreSpacing}px;
   margin-right: 0;
+  max-height: 100%;
 `;
 
 const MainContent = styled.section`
@@ -87,6 +40,9 @@ const MainContent = styled.section`
   display: flex;
   flex-direction: column;
   min-width: 480px;
+  box-shadow: ${props =>
+    !props.transparent && `0 0 4px ${colors.shadowPrimary}`};
+  margin-right: ${dimensions.coreSpacing}px;
 `;
 
 const ContentSpace = styled.div`
@@ -96,37 +52,34 @@ const ContentSpace = styled.div`
 const ContentBox = styled.div`
   flex: 1;
   overflow: auto;
-  margin-right: ${dimensions.coreSpacing}px;
   position: relative;
-  ${props =>
-    !props.transparent &&
-    css`
-      background-color: ${colors.colorWhite};
-      box-shadow: 0 0 4px ${colors.shadowPrimary};
-    `};
+  background-color: ${props => !props.transparent && colors.colorWhite};
 `;
 
 const ContentHeader = styled.div`
   background: ${props => (props.invert ? colors.colorWhite : colors.bgLight)};
   min-height: ${dimensions.headerSpacing}px;
   padding: 0 ${dimensions.coreSpacing}px 0 ${dimensions.coreSpacing}px;
-  margin-right: ${dimensions.coreSpacing}px;
   border-bottom: 1px solid ${colors.borderPrimary};
   display: flex;
   justify-content: space-between;
 `;
 
 const ContenFooter = styled.div`
-  margin-right: ${dimensions.coreSpacing}px;
-
   ${ContentHeader} {
-    margin-right: 0;
+    border-bottom: none;
+    border-top: 1px solid ${colors.borderPrimary};
   }
 `;
 
 const BarItems = styled.div`
   > * + * {
     margin-left: ${dimensions.unitSpacing}px;
+  }
+
+  input[type='text'] {
+    width: auto;
+    display: inline-block;
   }
 `;
 
@@ -138,6 +91,7 @@ const HeaderItems = styled.div`
 const SideContent = styled.section`
   box-sizing: border-box;
   display: flex;
+  position: relative;
   flex-direction: column;
   flex-shrink: 0;
   width: ${props => (props.wide ? '360px' : '300px')};
@@ -151,9 +105,12 @@ const SideContent = styled.section`
 const SidebarHeader = styled.div`
   background-color: ${colors.bgLight};
   height: ${dimensions.headerSpacing}px;
+  margin-bottom: ${props => props.spaceBottom && '10px'};
   align-items: center;
   padding: 0 ${dimensions.coreSpacing}px 0 ${dimensions.coreSpacing}px;
   border-bottom: 1px solid ${colors.borderPrimary};
+  text-transform: ${props => props.uppercase && 'uppercase'};
+  font-weight: ${props => props.bold && typography.fontWeightMedium};
   display: flex;
   flex-direction: row;
   justify-content: space-between;
@@ -171,28 +128,34 @@ const SidebarFooter = SidebarHeader.extend`
 `;
 
 const SidebarBox = styled.div`
-  background-color: ${colors.colorWhite};
+  background-color: ${props => (props.noBackground ? '' : colors.colorWhite)};
   margin-bottom: ${dimensions.coreSpacing}px;
   box-shadow: ${props =>
     props.noShadow ? 'none' : `0 0 4px ${colors.shadowPrimary}`};
-  padding-bottom: 10px;
-  position: relative;
+  padding-bottom: ${dimensions.unitSpacing}px;
+  position: ${props => (props.full ? 'initial' : 'relative')};
+  justify-content: center;
   transition: max-height 0.4s;
   overflow: ${props => (props.collapsible ? 'hidden' : 'auto')};
+  display: ${props => props.full && 'flex'};
 
   &:last-child {
     margin-bottom: 0;
   }
 `;
 
+const BoxContent = styled.div`
+  flex: 1;
+`;
+
 const SidebarToggle = styled.a`
   outline: 0;
   width: 100%;
-  color: #ddd;
+  color: ${colors.colorShadowGray};
   position: absolute;
   bottom: 0;
   text-align: center;
-  font-size: 12px;
+  font-size: ${typography.fontSizeHeading8}px;
   background: linear-gradient(
     0deg,
     white 0%,
@@ -207,8 +170,8 @@ const QuickButton = styled.a`
   text-transform: none;
   cursor: pointer;
   margin-left: ${dimensions.unitSpacing}px;
-  font-size: 12px;
-  font-weight: 300;
+  font-size: ${typography.fontSizeHeading8}px;
+  font-weight: ${typography.fontWeightLight};
   outline: 0;
 
   > i {
@@ -228,6 +191,8 @@ const HelperButtons = styled.div`
 
   a {
     color: ${colors.colorCoreLightGray};
+    cursor: pointer;
+    font-size: ${typography.fontSizeHeading8}px;
 
     > i {
       font-size: 14px;
@@ -241,8 +206,8 @@ const HelperButtons = styled.div`
 `;
 
 const SidebarTitle = styled.h3`
-  font-size: 12px;
-  font-weight: 400;
+  font-size: ${typography.fontSizeHeading8}px;
+  font-weight: ${typography.fontWeightMedium};
   text-transform: uppercase;
   padding: ${dimensions.coreSpacing}px;
   margin: 0;
@@ -274,20 +239,16 @@ const SidebarList = styled.ul`
     outline: 0;
     position: relative;
 
-    > span {
-      font-size: 12px;
-      text-align: right;
-      color: #888;
-      margin-top: 2px;
-      position: absolute;
-      right: 20px;
+    > i {
+      margin-right: 5px;
     }
 
     &:hover,
     &.active {
       cursor: pointer;
-      background: ${colors.borderPrimary};
+      background: ${colors.bgActive};
       text-decoration: none;
+      outline: 0;
       color: ${colors.colorCoreBlack};
     }
   }
@@ -299,12 +260,15 @@ const SidebarList = styled.ul`
 `;
 
 const SidebarCounter = styled.span`
-  font-size: 12px;
+  font-size: ${typography.fontSizeHeading8}px;
   text-align: right;
   color: ${colors.colorCoreGray};
   margin-top: 2px;
   position: absolute;
-  right: 20px;
+  right: ${dimensions.coreSpacing}px;
+  max-width: 60%;
+  overflow: hidden;
+  text-overflow: ellipsis;
 
   a {
     padding: 0;
@@ -327,13 +291,16 @@ const FlexRightItem = styled.div`
   margin-left: auto;
 `;
 
-const WhiteBox = styled.div`
-  flex: 1;
-  overflow: auto;
-  position: relative;
+const WhiteBoxRoot = styled.div`
   margin-bottom: ${dimensions.coreSpacing}px;
   background-color: ${colors.colorWhite};
   box-shadow: 0 0 4px ${colors.shadowPrimary};
+`;
+
+const WhiteBox = WhiteBoxRoot.extend`
+  flex: 1;
+  overflow: auto;
+  position: relative;
 `;
 
 const Authlayout = styled.div`
@@ -366,19 +333,19 @@ const AuthDescription = styled.div`
     margin-bottom: 50px;
   }
   h1 {
-    font-weight: 700;
+    font-weight: bold;
     font-size: 32px;
     margin-bottom: 30px;
-    color: #fff;
+    color: ${colors.colorWhite};
   }
   p {
-    color: #c9b6e8;
+    color: ${colors.colorPrimary};
     margin-bottom: 50px;
     font-size: 16px;
     line-height: 1.8em;
   }
   a {
-    color: #c9b6e8;
+    color: ${colors.colorPrimary};
   }
   .not-found {
     margin-top: 0;
@@ -387,8 +354,6 @@ const AuthDescription = styled.div`
 
 export {
   Layout,
-  LeftNavigation,
-  Nav,
   MainWrapper,
   Contents,
   MainContent,
@@ -403,6 +368,7 @@ export {
   SidebarMainContent,
   SidebarFooter,
   SidebarBox,
+  BoxContent,
   SidebarToggle,
   SidebarCounter,
   HelperButtons,
@@ -414,6 +380,7 @@ export {
   FlexContent,
   FlexItem,
   FlexRightItem,
+  WhiteBoxRoot,
   WhiteBox,
   Authlayout,
   AuthContent,

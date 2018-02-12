@@ -8,17 +8,22 @@ import {
   SidebarList,
   SidebarCounter
 } from 'modules/layout/styles';
-import { DropdownToggle, EmptyState, Icon } from 'modules/common/components';
+import {
+  DropdownToggle,
+  Icon,
+  DataWithLoader
+} from 'modules/common/components';
 import { router } from 'modules/common/utils';
 
 const propTypes = {
   history: PropTypes.object,
   contentType: PropTypes.string.isRequired,
   counts: PropTypes.object.isRequired,
-  segments: PropTypes.array.isRequired
+  segments: PropTypes.array.isRequired,
+  loading: PropTypes.bool.isRequired
 };
 
-function Segments({ history, contentType, counts, segments }) {
+function Segments({ history, contentType, counts, segments, loading }) {
   const { Section, Header } = Wrapper.Sidebar;
 
   const orderedSegments = [];
@@ -29,9 +34,44 @@ function Segments({ history, contentType, counts, segments }) {
     }
   });
 
+  const data = (
+    <SidebarList>
+      {orderedSegments.map(segment => (
+        <li
+          key={segment._id}
+          className={segment.subOf ? 'child-segment' : null}
+        >
+          <a
+            tabIndex={0}
+            className={
+              router.getParam(history, 'segment') === segment._id
+                ? 'active'
+                : ''
+            }
+            onClick={() => {
+              router.setParams(history, { segment: segment._id });
+            }}
+          >
+            {segment.subOf ? '\u00a0\u00a0' : null}
+            <Icon
+              icon="ios-circle-filled"
+              size={10}
+              style={{
+                color: segment.color,
+                marginRight: '10px'
+              }}
+            />{' '}
+            {segment.name}
+            <SidebarCounter>{counts[segment._id]}</SidebarCounter>
+          </a>
+        </li>
+      ))}
+    </SidebarList>
+  );
+
   return (
     <Section>
-      <Header>Filter by segments</Header>
+      <Header spaceBottom>Filter by segments</Header>
 
       <Section.QuickButtons>
         <Dropdown
@@ -41,7 +81,9 @@ function Segments({ history, contentType, counts, segments }) {
           style={{ verticalAlign: 'top' }}
         >
           <DropdownToggle bsRole="toggle">
-            <Icon icon="gear-a" />
+            <QuickButton>
+              <Icon icon="gear-a" />
+            </QuickButton>
           </DropdownToggle>
           <Dropdown.Menu>
             <MenuItem
@@ -67,42 +109,15 @@ function Segments({ history, contentType, counts, segments }) {
         ) : null}
       </Section.QuickButtons>
 
-      <SidebarList>
-        {orderedSegments.length ? (
-          orderedSegments.map(segment => (
-            <li
-              key={segment._id}
-              className={segment.subOf ? 'child-segment' : null}
-            >
-              <a
-                tabIndex={0}
-                className={
-                  router.getParam(history, 'segment') === segment._id
-                    ? 'active'
-                    : ''
-                }
-                onClick={() => {
-                  router.setParams(history, { segment: segment._id });
-                }}
-              >
-                {segment.subOf ? '\u00a0\u00a0' : null}
-                <Icon
-                  icon="ios-circle-filled"
-                  size={10}
-                  style={{
-                    color: segment.color,
-                    marginRight: '10px'
-                  }}
-                />
-                {segment.name}
-                <SidebarCounter>{counts[segment._id]}</SidebarCounter>
-              </a>
-            </li>
-          ))
-        ) : (
-          <EmptyState icon="pie-graph" text="No segments" size="small" />
-        )}
-      </SidebarList>
+      <DataWithLoader
+        data={data}
+        loading={loading}
+        count={segments.length}
+        emptyText="No segments"
+        emptyIcon="pie-graph"
+        size="small"
+        objective={true}
+      />
     </Section>
   );
 }

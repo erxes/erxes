@@ -2,31 +2,25 @@ import React from 'react';
 import { withRouter } from 'react-router';
 import queryString from 'query-string';
 import PropTypes from 'prop-types';
-import { compose, gql, graphql } from 'react-apollo';
-import { Sidebar as SidebarLoader } from 'modules/layout/components';
-import { CountsByTag, Spinner } from 'modules/common/components';
+import { compose, graphql } from 'react-apollo';
+import gql from 'graphql-tag';
+import { CountsByTag } from 'modules/common/components';
 
 const TagContainer = props => {
   const { countsQuery } = props;
 
-  if (countsQuery.loading) {
-    return (
-      <SidebarLoader.Section>
-        <Spinner objective />
-      </SidebarLoader.Section>
-    );
-  }
-
   const updatedProps = {
     ...props,
-    counts: countsQuery.engageMessageCounts
+    counts: countsQuery.engageMessageCounts || {},
+    loading: countsQuery.loading
   };
 
   return <CountsByTag {...updatedProps} />;
 };
 
 TagContainer.propTypes = {
-  countsQuery: PropTypes.object
+  countsQuery: PropTypes.object,
+  loading: PropTypes.bool
 };
 
 export default withRouter(

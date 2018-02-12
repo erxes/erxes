@@ -5,11 +5,11 @@ import { OverlayTrigger, Popover } from 'react-bootstrap';
 import classnames from 'classnames';
 import { ChromePicker } from 'react-color';
 import { uploadHandler } from 'modules/common/utils';
-import { Wrapper } from 'modules/layout/components';
-import Sidebar from '../../Sidebar';
-import { WidgetPreview } from './';
-import { MessengerPreview, Messenger } from 'modules/engage/styles';
 import { Button, Icon, Tip } from 'modules/common/components';
+import { ActionBar, Wrapper } from 'modules/layout/components';
+import { MessengerPreview, Messenger } from 'modules/engage/styles';
+import Sidebar from '../Sidebar';
+import { WidgetPreview } from './';
 import {
   SubHeading,
   Margined,
@@ -182,17 +182,22 @@ class Appearance extends Component {
     ];
 
     const actionBar = (
-      <Wrapper.ActionBar
+      <ActionBar
         right={
           <Button.Group>
             <Link to="/settings/integrations">
-              <Button size="small" btnStyle="simple">
-                <Icon icon="close" /> Cancel
+              <Button size="small" btnStyle="simple" icon="close">
+                Cancel
               </Button>
             </Link>
 
-            <Button size="small" btnStyle="success" onClick={this.save}>
-              <Icon icon="checkmark" /> Save
+            <Button
+              size="small"
+              btnStyle="success"
+              onClick={this.save}
+              icon="checkmark"
+            >
+              Save
             </Button>
           </Button.Group>
         }

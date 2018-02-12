@@ -10,7 +10,7 @@ import {
   Table,
   Button,
   Icon,
-  EmptyState
+  DataWithLoader
 } from 'modules/common/components';
 import { MessageListRow, Sidebar as SidebarContainers } from '../containers';
 
@@ -21,7 +21,8 @@ const propTypes = {
   bulk: PropTypes.array.isRequired,
   refetch: PropTypes.func.isRequired,
   emptyBulk: PropTypes.func.isRequired,
-  toggleBulk: PropTypes.func.isRequired
+  toggleBulk: PropTypes.func.isRequired,
+  loading: PropTypes.bool.isRequired
 };
 
 class List extends React.Component {
@@ -58,13 +59,20 @@ class List extends React.Component {
   }
 
   render() {
-    const { messages, totalCount, tags, toggleBulk, refetch } = this.props;
+    const {
+      messages,
+      totalCount,
+      tags,
+      toggleBulk,
+      refetch,
+      loading
+    } = this.props;
 
     const actionBarRight = (
       <Dropdown id="dropdown-engage" pullRight>
         <DropdownToggle bsRole="toggle">
-          <Button btnStyle="success" size="small">
-            <Icon icon="plus" /> New message <Icon icon="chevron-down" />
+          <Button btnStyle="success" size="small" icon="plus">
+            New message <Icon icon="chevron-down" />
           </Button>
         </DropdownToggle>
         <Dropdown.Menu>
@@ -87,10 +95,6 @@ class List extends React.Component {
 
     const actionBar = (
       <Wrapper.ActionBar left={this.renderTagger()} right={actionBarRight} />
-    );
-
-    const emptyContent = (
-      <EmptyState text="There is no engage message." size="full" icon="email" />
     );
 
     const mainContent = (
@@ -127,13 +131,6 @@ class List extends React.Component {
       </div>
     );
 
-    const content = () => {
-      if (messages.length === 0) {
-        return emptyContent;
-      }
-      return mainContent;
-    };
-
     const sidebar = (
       <Wrapper.Sidebar>
         <SidebarContainers.Main />
@@ -148,7 +145,15 @@ class List extends React.Component {
         leftSidebar={sidebar}
         actionBar={actionBar}
         footer={<Pagination count={totalCount} />}
-        content={content()}
+        content={
+          <DataWithLoader
+            data={mainContent}
+            loading={loading}
+            count={messages.length}
+            emptyText="There is no engage message."
+            emptyImage="/images/robots/robot-03.svg"
+          />
+        }
       />
     );
   }

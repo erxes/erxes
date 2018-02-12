@@ -23,8 +23,8 @@ const propTypes = {
 
 function List({ tags, type, remove, save }) {
   const trigger = (
-    <Button btnStyle="success" size="small">
-      <Icon icon="plus" /> Add tag
+    <Button btnStyle="success" size="small" icon="plus">
+      Add tag
     </Button>
   );
 
@@ -45,6 +45,9 @@ function List({ tags, type, remove, save }) {
           </li>
           <li>
             <Link to="/tags/customer">Customer</Link>
+          </li>
+          <li>
+            <Link to="/tags/company">Company</Link>
           </li>
         </Dropdown.Menu>
       </Dropdown>

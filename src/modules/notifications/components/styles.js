@@ -58,10 +58,6 @@ const NotifList = styled.ul`
     &.unread {
       background: ${colors.bgUnread};
 
-      a {
-        font-weight: 400;
-      }
-
       ${MarkRead} {
         visibility: visible;
       }
@@ -105,7 +101,6 @@ const NotificationList = styled.ul`
 `;
 
 const NotifButton = styled.div`
-  color: ${colors.colorWhite};
   font-size: 22px;
   cursor: pointer;
   position: relative;
@@ -117,6 +112,7 @@ const NotifButton = styled.div`
     font-size: ${dimensions.unitSpacing}px;
     background-color: ${colors.colorCoreRed};
     padding: 3px 5px;
+    min-width: 16px;
   }
 `;
 

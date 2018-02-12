@@ -1,22 +1,11 @@
 import React from 'react';
 import { Route, Redirect } from 'react-router-dom';
-import queryString from 'query-string';
-import Inbox from '../inbox/containers/Inbox';
+import { Inbox } from '../inbox/containers';
 
 const routes = () => [
-  <Route exact key="index" path="/" render={() => <Redirect to="/inbox" />} />,
+  <Route exact path="/" key="index" render={() => <Redirect to="/inbox" />} />,
 
-  <Route
-    exact
-    key="inbox"
-    path="/inbox"
-    component={({ location }) => {
-      const queryParams = queryString.parse(location.search);
-      const _id = queryParams._id;
-
-      return <Inbox _id={_id} queryParams={queryParams} />;
-    }}
-  />
+  <Route exact key="inbox" path="/inbox" component={Inbox} />
 ];
 
 export default routes;

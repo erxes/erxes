@@ -47,3 +47,17 @@ export const dateUnits = {
   weeks: 'weeks',
   months: 'months'
 };
+
+export const CUSTOMER_BASIC_INFO = {
+  firstName: 'First Name',
+  lastName: 'Last Name',
+  email: 'E-mail',
+  phone: 'Phone'
+};
+
+export const CUSTOMER_DATAS = {
+  messengerData: 'Messenger Data',
+  twitterData: 'Twitter Data',
+  facebookData: 'Facebook Data',
+  visitorContactInfo: 'Visitor contact info'
+};
