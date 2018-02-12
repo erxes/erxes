@@ -29,7 +29,7 @@
     "apollo-utilities": "^1.0.5",
     "bat-d3-punchcard": "^1.0.2",
     "bat-draft-js-mention-plugin": "^2.0.1",
-    "bootstrap": "^4.0.0",
+    "bootstrap": "3.3.7",
     "classnames": "^2.2.5",
     "color": "^2.0.0",
     "crypto": "^1.0.1",
@@ -42,6 +42,7 @@
     "ionicons": "2.0.1",
     "lint-staged": "^4.3.0",
     "moment": "2.19.3",
+    "opencollective": "^1.0.3",
     "query-string": "^5.0.0",
     "react": "^16.0.0",
     "react-apollo": "2.0.4",
@@ -65,8 +66,7 @@
     "styled-components": "^2.2.1",
     "subscriptions-transport-ws": "0.8.3",
     "ua-parser-js": "^0.7.17",
-    "underscore": "^1.8.3",
-    "opencollective": "^1.0.3"
+    "underscore": "^1.8.3"
   },
   "lint-staged": {
     "src/**/*.{js,jsx,json,css}": [
