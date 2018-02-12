@@ -107,6 +107,8 @@ const knowledgeBaseArticles = `
       createdBy
       createdUser {
         _id
+        username
+        email
         details {
           avatar
           fullName
