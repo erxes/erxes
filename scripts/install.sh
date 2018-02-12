@@ -58,7 +58,7 @@ if [ ! -d .git ]; then
 fi
 
 echo 'Create `.env.sample` from default settings file and configure it on your own:'
-cp .env.sample .env.developement
+cp .env.sample .env.development
 
 CURRENT_FOLDER=${PWD##*/}
 if [ $CURRENT_FOLDER = 'erxes' ]; then

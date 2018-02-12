@@ -41,7 +41,7 @@ yarn install
 
 Create `.env.sample` from default settings file and configure it on your own:
 ```Shell
-cp .env.sample .env.developement
+cp .env.sample .env.development
 ```
 
 To start the app:
