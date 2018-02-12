@@ -72,10 +72,10 @@ export const saveForm = doc => (dispatch) => {
   client.mutate({
     mutation: gql`
       mutation saveForm($integrationId: String!, $formId: String!,
-        $submissions: [FieldValueInput]) {
+        $submissions: [FieldValueInput], $browserInfo: JSON!) {
 
         saveForm(integrationId: $integrationId, formId: $formId,
-          submissions: $submissions) {
+          submissions: $submissions, browserInfo: $browserInfo) {
             status
             messageId
             errors {
@@ -89,6 +89,7 @@ export const saveForm = doc => (dispatch) => {
     variables: {
       integrationId: connection.data.integrationId,
       formId: connection.data.formId,
+      browserInfo: connection.setting.browserInfo,
       submissions,
     },
   })

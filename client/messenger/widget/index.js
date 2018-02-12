@@ -6,6 +6,7 @@
 
 // css
 import './index.css';
+import { getBrowserInfo } from '../../utils';
 
 // check is mobile
 const isMobile = navigator.userAgent.match(/iPhone/i) ||
@@ -80,18 +81,17 @@ document.body.appendChild(erxesContainer);
 iframe = document.querySelector(`#${iframeId}`);
 
 // after iframe load send connection info
-iframe.onload = () => {
+iframe.onload = async () => {
   iframe.style.display = 'block';
+
+  const browserInfo = await getBrowserInfo();
 
   iframe.contentWindow.postMessage({
     fromPublisher: true,
     setting: {
       ...window.erxesSettings.messenger,
-      browserInfo: {
-        url: location.pathname, // eslint-disable-line
-        language: parent.navigator.language, // eslint-disable-line
-      },
-    },
+      browserInfo,
+    }
   }, '*');
 };
 
