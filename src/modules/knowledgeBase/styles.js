@@ -85,7 +85,8 @@ const ActionButtons = styled.div`
   width: 0;
   overflow: hidden;
   align-items: center;
-  transition: all 0.3s ease;
+  transition: width 0.3s ease;
+  background: transparent;
 
   * {
     padding: 0;
@@ -160,7 +161,7 @@ const ArticleTitle = styled.span`
 
 const ArticleColumn = styled.div`
   position: relative;
-  padding-right: 20px;
+  padding-right: ${dimensions.coreSpacing * 2}px;
   flex: 1;
 `;
 
