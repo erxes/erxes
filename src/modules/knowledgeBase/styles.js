@@ -179,9 +179,10 @@ const AuthorName = styled.span`
 `;
 
 const AuthorImg = styled.img`
-  width: 20px;
-  border-radius: 10px;
-  display: inline-block;
+  width: ${dimensions.coreSpacing}px;
+  height: ${dimensions.coreSpacing}px;
+  line-height: ${dimensions.coreSpacing}px;
+  border-radius: ${dimensions.coreSpacing / 2}px;
   border: 1px solid ${colors.borderPrimary};
   margin-right: 5px;
 `;

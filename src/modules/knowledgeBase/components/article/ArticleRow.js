@@ -65,6 +65,8 @@ class ArticleRow extends Component {
 
   render() {
     const { article } = this.props;
+    const user = article.createdUser;
+
     return (
       <Row>
         <ArticleColumn>
@@ -82,9 +84,9 @@ class ArticleRow extends Component {
             />
             Written By
             <AuthorName>
-              {article.createdUser.details.fullName || ''}
+              {user.details.fullName || user.username || user.email}
             </AuthorName>
-            Created {moment(article.createdDate).fromNow()} ago
+            Created {moment(article.createdDate).format('ll')}
           </ArticleAuthor>
         </ArticleColumn>
         <ActionButtons>
