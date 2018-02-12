@@ -22,7 +22,9 @@ const MainWrapper = styled.div`
   flex: 1;
   display: flex;
   flex-direction: column;
-  max-width: calc(100% - ${dimensions.headerSpacingWide}px);
+  padding-top: ${dimensions.headerSpacing}px;
+  padding-left: ${dimensions.headerSpacingWide}px;
+  max-width: 100%;
 `;
 
 const Contents = styled.div`
@@ -30,9 +32,7 @@ const Contents = styled.div`
   flex: 1;
   margin: ${dimensions.coreSpacing}px;
   margin-right: 0;
-  max-height: calc(
-    100% - ${dimensions.headerSpacingWide + dimensions.coreSpacing}px
-  );
+  max-height: 100%;
 `;
 
 const MainContent = styled.section`

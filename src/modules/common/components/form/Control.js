@@ -24,6 +24,7 @@ const propTypes = {
   required: PropTypes.bool,
   round: PropTypes.bool,
   autoFocus: PropTypes.bool,
+  onFocus: PropTypes.func,
   componentClass: PropTypes.oneOf([
     'select',
     'radio',
@@ -72,6 +73,7 @@ class FormControl extends React.Component {
       name: props.name,
       round: props.round,
       required: props.required,
+      onFocus: props.onFocus,
       autoFocus: props.autoFocus,
       id: props.id
     };

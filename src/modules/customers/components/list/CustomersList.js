@@ -35,6 +35,7 @@ const propTypes = {
   toggleBulk: PropTypes.func.isRequired,
   toggleAll: PropTypes.func.isRequired,
   addCustomer: PropTypes.func.isRequired,
+  location: PropTypes.object,
   history: PropTypes.object,
   loading: PropTypes.bool.isRequired,
   searchValue: PropTypes.string.isRequired,
@@ -106,11 +107,17 @@ class CustomersList extends React.Component {
     if (this.timer) clearTimeout(this.timer);
     const { history } = this.props;
     const searchValue = e.target.value;
-    this.setState({ searchValue });
 
+    this.setState({ searchValue });
     this.timer = setTimeout(() => {
       router.setParams(history, { searchValue });
     }, 500);
+  }
+
+  moveCursorAtTheEnd(e) {
+    const tmpValue = e.target.value;
+    e.target.value = '';
+    e.target.value = tmpValue;
   }
 
   render() {
@@ -124,7 +131,9 @@ class CustomersList extends React.Component {
       customers,
       loadingTags,
       mergeCustomers,
-      basicInfos
+      basicInfos,
+      location,
+      history
     } = this.props;
 
     const addTrigger = (
@@ -140,6 +149,8 @@ class CustomersList extends React.Component {
           placeholder="Type to search.."
           onChange={e => this.search(e)}
           value={this.state.searchValue}
+          autoFocus
+          onFocus={e => this.moveCursorAtTheEnd(e)}
         />
         <Dropdown id="dropdown-engage" pullRight>
           <DropdownToggle bsRole="toggle">
@@ -150,7 +161,11 @@ class CustomersList extends React.Component {
           <Dropdown.Menu>
             <li>
               <ModalTrigger title="Manage Columns" trigger={editColumns}>
-                <ManageColumns contentType="customer" />
+                <ManageColumns
+                  contentType="customer"
+                  location={location}
+                  history={history}
+                />
               </ModalTrigger>
             </li>
             <li>
