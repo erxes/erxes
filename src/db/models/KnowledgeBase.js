@@ -64,15 +64,6 @@ class KnowledgeBaseCommonDocument {
 
     return this.findOne({ _id });
   }
-
-  /**
-   * Removed document
-   * @param {string} _id - Document id
-   * @return {Promise}
-   */
-  static removeDoc(_id) {
-    return this.remove({ _id });
-  }
 }
 
 const ArticleSchema = mongoose.Schema({
@@ -102,9 +93,13 @@ class Article extends KnowledgeBaseCommonDocument {
    */
   static async createDoc({ categoryIds, ...docFields }, userId) {
     const article = await this.createBaseDoc(docFields, userId);
+
     if ((categoryIds || []).length > 0) {
-      for (let category of await KnowledgeBaseCategories.find({ _id: { $in: categoryIds } })) {
+      const categories = await KnowledgeBaseCategories.find({ _id: { $in: categoryIds } });
+
+      for (let category of categories) {
         category.articleIds.push(article._id.toString());
+
         await category.save();
       }
     }
@@ -129,9 +124,12 @@ class Article extends KnowledgeBaseCommonDocument {
     const article = await this.findOne({ _id });
 
     if ((categoryIds || []).length > 0) {
-      for (let category of await KnowledgeBaseCategories.find({ _id: { $in: categoryIds } })) {
+      const categories = await KnowledgeBaseCategories.find({ _id: { $in: categoryIds } });
+
+      for (let category of categories) {
         if (category.articleIds.indexOf(article._id.toString()) == -1) {
           category.articleIds.push(article._id.toString());
+
           await category.save();
         }
       }
@@ -177,11 +175,15 @@ class Category extends KnowledgeBaseCommonDocument {
     const category = await this.createBaseDoc(docFields, userId);
 
     if ((topicIds || []).length > 0) {
-      for (let topic of await KnowledgeBaseTopics.find({ _id: { $in: topicIds } })) {
+      const topics = await KnowledgeBaseTopics.find({ _id: { $in: topicIds } });
+
+      for (let topic of topics) {
         topic.categoryIds.push(category._id.toString());
+
         await topic.save();
       }
     }
+
     return category;
   }
 
@@ -204,9 +206,12 @@ class Category extends KnowledgeBaseCommonDocument {
     const category = await this.findOne({ _id });
 
     if ((topicIds || []).length > 0) {
-      for (let topic of await KnowledgeBaseTopics.find({ _id: { $in: topicIds } })) {
+      const topics = await KnowledgeBaseTopics.find({ _id: { $in: topicIds } });
+
+      for (let topic of topics) {
         if (topic.categoryIds.indexOf(category._id.toString()) == -1) {
           topic.categoryIds.push(category._id.toString());
+
           await topic.save();
         }
       }
@@ -226,6 +231,7 @@ class Category extends KnowledgeBaseCommonDocument {
     for (let articleId of category.articleIds || []) {
       await KnowledgeBaseArticles.remove({ _id: articleId });
     }
+
     return this.remove({ _id });
   }
 }
