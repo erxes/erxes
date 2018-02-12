@@ -13,6 +13,7 @@ import { Customers } from './db/models';
 import { connect } from './db/connection';
 import { userMiddleware } from './auth';
 import schema from './data';
+import { pubsub } from './data/resolvers/subscriptions';
 import { uploadFile } from './data/utils';
 import { init } from './startup';
 
@@ -71,6 +72,13 @@ server.listen(PORT, () => {
 
           if (parsedMessage.type === 'messengerConnected') {
             webSocket.messengerData = parsedMessage.value;
+
+            const customerId = webSocket.messengerData.customerId;
+
+            // notify as connected
+            pubsub.publish('customerConnectionChanged', {
+              customerConnectionChanged: { _id: customerId, status: 'connected' },
+            });
           }
         });
       },
@@ -79,7 +87,15 @@ server.listen(PORT, () => {
         const messengerData = webSocket.messengerData;
 
         if (messengerData) {
-          Customers.markCustomerAsNotActive(messengerData.customerId);
+          const customerId = messengerData.customerId;
+
+          // mark as offline
+          Customers.markCustomerAsNotActive(customerId);
+
+          // notify as disconnected
+          pubsub.publish('customerConnectionChanged', {
+            customerConnectionChanged: { _id: customerId, status: 'disconnected' },
+          });
         }
       },
     },

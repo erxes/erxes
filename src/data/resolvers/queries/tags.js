@@ -11,6 +11,16 @@ const tagQueries = {
   tags(root, { type }) {
     return Tags.find({ type });
   },
+
+  /**
+   * Get one tag
+   * @param {Object} args
+   * @param {String} args._id
+   * @return {Promise} found tag
+   */
+  tagDetail(root, { _id }) {
+    return Tags.findOne({ _id });
+  },
 };
 
 moduleRequireLogin(tagQueries);

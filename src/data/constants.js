@@ -20,7 +20,8 @@ export const TAG_TYPES = {
   CONVERSATION: 'conversation',
   CUSTOMER: 'customer',
   ENGAGE_MESSAGE: 'engageMessage',
-  ALL: ['conversation', 'customer', 'engageMessage'],
+  COMPANY: 'company',
+  ALL: ['conversation', 'customer', 'engageMessage', 'company'],
 };
 
 export const FACEBOOK_DATA_KINDS = {

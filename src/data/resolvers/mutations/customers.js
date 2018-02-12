@@ -9,7 +9,9 @@ const customerMutations = {
    */
   async customersAdd(root, doc, { user }) {
     const customer = await Customers.createCustomer(doc);
+
     await ActivityLogs.createCustomerRegistrationLog(customer, user);
+
     return customer;
   },
 
@@ -32,8 +34,43 @@ const customerMutations = {
    */
   async customersAddCompany(root, args, { user }) {
     const company = await Customers.addCompany(args);
+
     await ActivityLogs.createCompanyRegistrationLog(company, user);
+
     return company;
+  },
+
+  /**
+   * Update customer Companies
+   * @param {String[]} companyIds - Company ids to update
+   * @return {Promise} Customer object
+   */
+  async customersEditCompanies(root, { _id, companyIds }) {
+    return Customers.updateCompanies(_id, companyIds);
+  },
+
+  /**
+   * Merge customers
+   * @param {String[]} customerIds - Customer ids to merge
+   * @param {Object} customerFields - Customer infos to create with
+   * @return {Promise} Customer object
+   */
+  async customersMerge(root, { customerIds, customerFields }) {
+    return Customers.mergeCustomers(customerIds, customerFields);
+  },
+
+  /**
+   * Remove customers
+   * @param {String[]} customerIds - Customer Ids to remove
+   * @return {Promise} Customer object
+   */
+  async customersRemove(root, { customerIds }) {
+    for (let customerId of customerIds) {
+      // Removing every customer and modules associated with
+      await Customers.removeCustomer(customerId);
+    }
+
+    return customerIds;
   },
 };
 

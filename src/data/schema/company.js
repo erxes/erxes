@@ -8,11 +8,12 @@ export const types = `
     plan: String
     lastSeenAt: Date
     sessionCount: Int
-    tagIds: [String],
+    tagIds: [String]
 
     customFieldsData: JSON
 
     customers: [Customer]
+    getTags: [Tag]
   }
 `;
 
@@ -21,7 +22,8 @@ const queryParams = `
   perPage: Int,
   segment: String,
   tag: String,
-  ids: [String]
+  ids: [String],
+  searchValue: String
 `;
 
 export const queries = `
@@ -46,4 +48,7 @@ export const mutations = `
   companiesAdd(${commonFields}): Company
   companiesEdit(_id: String!, ${commonFields}): Company
   companiesAddCustomer(_id: String!, name: String!, email: String): Customer
+  companiesEditCustomers(_id: String!, customerIds: [String]): Company
+  companiesRemove(companyIds: [String]): [String]
+  companiesMerge(companyIds: [String], companyFields: JSON) : Company
 `;

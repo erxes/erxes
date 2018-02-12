@@ -9,12 +9,16 @@ export const types = `
     userId: String!
     conversationCount: Int
     openConversationCount: Int
+
+    integrations: [Integration]
   }
 `;
 
 export const queries = `
   channels(page: Int, perPage: Int, memberIds: [String]): [Channel]
+  channelDetail(_id: String!): Channel
   channelsTotalCount: Int
+  channelsGetLast: Channel
 `;
 
 export const mutations = `

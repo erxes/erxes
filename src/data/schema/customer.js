@@ -1,4 +1,9 @@
 export const types = `
+  type CustomerConnectionChangedResponse {
+    _id: String!
+    status: String!
+  }
+
   type Customer {
     _id: String!
     integrationId: String
@@ -13,6 +18,7 @@ export const types = `
     remoteAddress: String
     internalNotes: JSON
     location: JSON
+    visitorContactInfo: JSON
     customFieldsData: JSON
     messengerData: JSON
     twitterData: JSON
@@ -31,12 +37,13 @@ const queryParams = `
   perPage: Int,
   segment: String,
   tag: String,
-  ids: [String]
+  ids: [String],
+  searchValue: String
 `;
 
 export const queries = `
   customers(${queryParams}): [Customer]
-  customerCounts(${queryParams}): JSON
+  customerCounts(${queryParams}, byFakeSegment: JSON): JSON
   customerDetail(_id: String!): Customer
   customerListForSegmentPreview(segment: JSON, limit: Int): [Customer]
 `;
@@ -53,4 +60,7 @@ export const mutations = `
   customersAdd(${fields}): Customer
   customersEdit(_id: String!, ${fields}): Customer
   customersAddCompany(_id: String!, name: String!, website: String): Company
+  customersEditCompanies(_id: String!, companyIds: [String]): Customer
+  customersMerge(customerIds: [String], customerFields: JSON): Customer
+  customersRemove(customerIds: [String]): [String]
 `;

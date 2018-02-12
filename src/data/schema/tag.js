@@ -11,6 +11,7 @@ export const types = `
 
 export const queries = `
   tags(type: String): [Tag]
+  tagDetail(_id: String!): Tag
 `;
 
 export const mutations = `

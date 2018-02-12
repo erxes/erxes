@@ -78,7 +78,7 @@ const EngageMessageSchema = mongoose.Schema({
 class Message {
   /**
    * Create engage message
-   * @param {Object} doc object
+   * @param {Object} doc - Object
    * @return {Promise} Newly created message object
    */
   static createEngageMessage(doc) {
@@ -93,8 +93,8 @@ class Message {
   /**
    * Update engage message
    * @param {String} _id - Engage message id
-   * @param {Object} doc object
-   * @return {Promise} updated message object
+   * @param {Object} doc - Object
+   * @return {Promise} Updated message object
    */
   static async updateEngageMessage(_id, doc) {
     await this.update({ _id }, { $set: doc });
@@ -105,7 +105,7 @@ class Message {
   /**
    * Engage message set live
    * @param {String} _id - Engage message id
-   * @return {Promise} updated message object
+   * @return {Promise} Updated message object
    */
   static async engageMessageSetLive(_id) {
     await this.update({ _id }, { $set: { isLive: true, isDraft: false } });
@@ -116,7 +116,7 @@ class Message {
   /**
    * Engage message set pause
    * @param {String} _id - Engage message id
-   * @return {Promise} updated message object
+   * @return {Promise} Updated message object
    */
   static async engageMessageSetPause(_id) {
     await this.update({ _id }, { $set: { isLive: false } });
@@ -141,7 +141,7 @@ class Message {
    * Save matched customer ids
    * @param {String} _id - Engage message id
    * @param {[Object]} customers - Customers object
-   * @return {Promise} updated message object
+   * @return {Promise} Updated message object
    */
   static async setCustomerIds(_id, customers) {
     await this.update({ _id }, { $set: { customerIds: customers.map(customer => customer._id) } });
@@ -154,7 +154,7 @@ class Message {
    * @param {String} _id - Engage message id
    * @param {String} mailMessageId - Random mail message id
    * @param {String} customerId - Customer id
-   * @return {Promise} updated message object
+   * @return {Promise} Updated message object
    */
   static async addNewDeliveryReport(_id, mailMessageId, customerId) {
     await this.update(
@@ -176,8 +176,8 @@ class Message {
    * Change delivery report status
    * @param {String} _id - Engage message id
    * @param {String} mailMessageId - Random mail message id
-   * @param {String} status - pending, send, failed etc...
-   * @return {Promise} updated message object
+   * @param {String} status - Pending, send, failed etc...
+   * @return {Promise} Updated message object
    */
   static async changeDeliveryReportStatus(_id, mailMessageId, status) {
     await this.update(
@@ -190,6 +190,55 @@ class Message {
     );
 
     return this.findOne({ _id });
+  }
+
+  /**
+   * Transfers customers' engage messages to another customer
+   * @param {String} newCustomerId - Customer id to set
+   * @param {String[]} customerIds - Old customer ids to change
+   * @return {Promise} updated list of engage messages of new customer
+   */
+  static async changeCustomer(newCustomerId, customerIds) {
+    for (let customerId of customerIds) {
+      // Updating every engage messages of customer
+      await this.updateMany(
+        { customerIds: { $in: [customerId] } },
+        { $push: { customerIds: newCustomerId } },
+      );
+
+      await this.updateMany(
+        { customerIds: { $in: [customerId] } },
+        { $pull: { customerIds: customerId } },
+      );
+
+      // updating every engage messages of customer participated in
+      await this.updateMany(
+        { messengerReceivedCustomerIds: { $in: [customerId] } },
+        { $push: { messengerReceivedCustomerIds: newCustomerId } },
+      );
+
+      await this.updateMany(
+        { messengerReceivedCustomerIds: { $in: [customerId] } },
+        { $pull: { messengerReceivedCustomerIds: customerId } },
+      );
+    }
+
+    return this.find({ customerIds: newCustomerId });
+  }
+
+  /**
+   * Removes customer Engages
+   * @param {String} customerId - Customer id to remove
+   * @return {Promise} Updated internal notes
+   */
+  static async removeCustomerEngages(customerId) {
+    // Removing customer from engage messages
+    await this.updateMany(
+      { messengerReceivedCustomerIds: { $in: [customerId] } },
+      { $pull: { messengerReceivedCustomerIds: { $in: [customerId] } } },
+    );
+
+    return this.updateMany({ customerIds: customerId }, { $pull: { customerIds: customerId } });
   }
 }
 

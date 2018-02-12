@@ -27,11 +27,11 @@ describe('Customers mutations', () => {
   });
 
   test('Check login required', async () => {
-    expect.assertions(3);
+    expect.assertions(6);
 
     const check = async fn => {
       try {
-        await fn({}, {}, {});
+        await fn({}, {}, {}, {}, {}, {});
       } catch (e) {
         expect(e.message).toEqual('Login required');
       }
@@ -45,6 +45,15 @@ describe('Customers mutations', () => {
 
     // add company
     check(customerMutations.customersAddCompany);
+
+    // edit customer companies
+    check(customerMutations.customersEditCompanies);
+
+    // merge customers
+    check(customerMutations.customersMerge);
+
+    // remove customers
+    check(customerMutations.customersRemove);
   });
 
   test('Create customer', async () => {
@@ -89,5 +98,44 @@ describe('Customers mutations', () => {
     await customerMutations.customersAddCompany({}, doc, { user: _user });
 
     expect(Customers.addCompany).toBeCalledWith(doc);
+  });
+
+  test('Update Customer Companies', async () => {
+    Customers.updateCompanies = jest.fn();
+
+    const companyIds = ['companyid1', 'companyid2', 'companyid3'];
+
+    await customerMutations.customersEditCompanies(
+      {},
+      { _id: _customer._id, companyIds },
+      { user: _user },
+    );
+
+    expect(Customers.updateCompanies).toBeCalledWith(_customer._id, companyIds);
+  });
+
+  test('Merging customers', async () => {
+    Customers.mergeCustomers = jest.fn();
+
+    const customerIds = ['customerid1', 'customerid2'];
+    const customerFields = await customerFactory({});
+
+    await customerMutations.customersMerge({}, { customerIds, customerFields }, { user: _user });
+
+    expect(Customers.mergeCustomers).toBeCalledWith(customerIds, customerFields);
+  });
+
+  test('Customer remove', async () => {
+    Customers.removeCustomer = jest.fn();
+
+    const newCustomer = await customerFactory({});
+
+    await customerMutations.customersRemove(
+      {},
+      { customerIds: [newCustomer._id] },
+      { user: _user },
+    );
+
+    expect(Customers.removeCustomer).toBeCalledWith(newCustomer._id);
   });
 });

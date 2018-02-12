@@ -2,8 +2,15 @@
 /* eslint-disable no-underscore-dangle */
 
 import { connect, disconnect } from '../db/connection';
-import { Companies } from '../db/models';
-import { companyFactory, fieldFactory } from '../db/factories';
+import { Companies, Customers, InternalNotes, ActivityLogs } from '../db/models';
+import {
+  companyFactory,
+  fieldFactory,
+  internalNoteFactory,
+  activityLogFactory,
+  customerFactory,
+} from '../db/factories';
+import { COC_CONTENT_TYPES } from '../data/constants';
 
 beforeAll(() => connect());
 
@@ -119,6 +126,160 @@ describe('Companies model tests', () => {
       });
     } catch (e) {
       expect(e.message).toBe(`${field.text}: Invalid number`);
+    }
+  });
+
+  test('Update company customers', async () => {
+    const customerIds = ['12313qwrqwe', '123', '11234'];
+
+    await Companies.updateCustomers(_company._id, customerIds);
+
+    for (let customerId of customerIds) {
+      const customerObj = await Customers.findOne({ _id: customerId });
+
+      expect(customerObj.companyIds).toContain(_company._id);
+    }
+  });
+
+  test('removeCompany', async () => {
+    const company = await companyFactory({});
+    await customerFactory({ companyIds: [company._id] });
+
+    await internalNoteFactory({
+      contentType: COC_CONTENT_TYPES.COMPANY,
+      contentTypeId: company._id,
+    });
+
+    const removed = await Companies.removeCompany(company._id);
+
+    const internalNote = await InternalNotes.find({
+      contentType: COC_CONTENT_TYPES.COMPANY,
+      contentTypeId: company._id,
+    });
+
+    const activityLog = await ActivityLogs.find({
+      coc: {
+        type: COC_CONTENT_TYPES.COMPANY,
+        id: company._id,
+      },
+    });
+
+    const customers = await Customers.find({ companyIds: { $in: [company._id] } });
+
+    expect(customers).toHaveLength(0);
+    expect(internalNote).toHaveLength(0);
+    expect(activityLog).toHaveLength(0);
+    expect(removed.result).toEqual({ n: 1, ok: 1 });
+  });
+
+  test('mergeCompanies', async () => {
+    const testCompany = await companyFactory({
+      tagIds: ['123', '456', '1234'],
+    });
+
+    const testCompany2 = await companyFactory({
+      tagIds: ['1231', '123', 'asd12'],
+    });
+
+    let testCustomer = await customerFactory({
+      companyIds: [testCompany._id],
+    });
+
+    let testCustomer2 = await customerFactory({
+      companyIds: [testCompany2._id],
+    });
+
+    const companyIds = [testCompany._id, testCompany2._id];
+    const mergedTagIds = Array.from(new Set(testCompany.tagIds.concat(testCompany2.tagIds)));
+
+    // test duplication
+    try {
+      await Companies.mergeCompanies(companyIds, { name: _company.name });
+    } catch (e) {
+      expect(e.message).toBe('Duplicated name');
+    }
+
+    await internalNoteFactory({
+      contentType: COC_CONTENT_TYPES.COMPANY,
+      contentTypeId: companyIds[0],
+    });
+
+    await activityLogFactory({
+      coc: {
+        type: COC_CONTENT_TYPES.COMPANY,
+        id: companyIds[0],
+      },
+    });
+
+    const doc = {
+      name: 'Test name',
+      website: 'Test webiste',
+      size: 230,
+      industry: 'Test industry',
+      plan: 'Test plan',
+    };
+
+    const updatedCompany = await Companies.mergeCompanies(companyIds, doc);
+
+    expect(updatedCompany.name).toBe(doc.name);
+    expect(updatedCompany.website).toBe(doc.website);
+    expect(updatedCompany.size).toBe(doc.size);
+    expect(updatedCompany.industry).toBe(doc.industry);
+    expect(updatedCompany.plan).toBe(doc.plan);
+
+    // Checking old company datas deleted
+    expect(await Companies.find({ _id: companyIds[0] })).toHaveLength(0);
+    expect(updatedCompany.tagIds).toEqual(expect.arrayContaining(mergedTagIds));
+
+    testCustomer = await Customers.findOne({ _id: testCustomer._id });
+    expect(testCustomer.companyIds).not.toContain(testCompany._id);
+
+    testCustomer2 = await Customers.findOne({ _id: testCustomer2._id });
+    expect(testCustomer2.companyIds).not.toContain(testCompany2._id);
+
+    let internalNote = await InternalNotes.find({
+      contentType: COC_CONTENT_TYPES.COMPANY,
+      contentTypeId: companyIds[0],
+    });
+
+    let activityLog = await ActivityLogs.find({
+      coc: {
+        type: COC_CONTENT_TYPES.COMPANY,
+        id: companyIds[0],
+      },
+    });
+
+    expect(internalNote).toHaveLength(0);
+    expect(activityLog).toHaveLength(0);
+
+    // Checking new company datas updated
+    expect(updatedCompany.tagIds).toEqual(expect.arrayContaining(mergedTagIds));
+
+    expect(testCustomer.companyIds).toContain(updatedCompany._id);
+    expect(testCustomer2.companyIds).toContain(updatedCompany._id);
+
+    internalNote = await InternalNotes.find({
+      contentType: COC_CONTENT_TYPES.COMPANY,
+      contentTypeId: updatedCompany._id,
+    });
+
+    activityLog = await ActivityLogs.find({
+      coc: {
+        type: COC_CONTENT_TYPES.COMPANY,
+        id: updatedCompany._id,
+      },
+    });
+
+    expect(internalNote).not.toHaveLength(0);
+    expect(activityLog).not.toHaveLength(0);
+  });
+
+  test('Check Duplication', async () => {
+    // check duplication
+    try {
+      await Companies.checkDuplication({ name: _company.name }, '123132');
+    } catch (e) {
+      expect(e.message).toBe('Duplicated name');
     }
   });
 });

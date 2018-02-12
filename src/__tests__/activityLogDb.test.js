@@ -125,6 +125,24 @@ describe('ActivityLogs model methods', () => {
     });
   });
 
+  test(`Testing found segment`, async () => {
+    const segment = await segmentFactory({});
+    const customer = await customerFactory({});
+    await ActivityLogs.createSegmentLog(segment, customer);
+
+    await ActivityLogs.createSegmentLog(segment, customer);
+
+    expect(
+      await ActivityLogs.find({
+        'activity.type': ACTIVITY_TYPES.SEGMENT,
+        'activity.action': ACTIVITY_ACTIONS.CREATE,
+        'activity.id': segment._id,
+        'coc.type': segment.contentType,
+        'coc.id': customer._id,
+      }),
+    ).toHaveLength(1);
+  });
+
   test(`check if exceptions are being thrown as intended when
     calling createConversationLog`, async () => {
     expect.assertions(2);
@@ -151,7 +169,9 @@ describe('ActivityLogs model methods', () => {
     const conversation = await conversationFactory({});
     const companyA = await companyFactory({});
     const companyB = await companyFactory({});
-    const customer = await customerFactory({ companyIds: [companyA._id, companyB._id] });
+    const customer = await customerFactory({
+      companyIds: [companyA._id, companyB._id],
+    });
 
     let aLog = await ActivityLogs.createConversationLog(conversation, customer);
 
@@ -244,5 +264,75 @@ describe('ActivityLogs model methods', () => {
       type: COC_CONTENT_TYPES.COMPANY,
       id: company._id,
     });
+  });
+
+  test(`changeCustomer`, async () => {
+    const customer = await customerFactory({});
+    const newCustomer = await customerFactory({});
+    const conversation = await conversationFactory({});
+
+    await ActivityLogs.createConversationLog(conversation, customer);
+
+    const aLogs = await ActivityLogs.changeCustomer(newCustomer._id, [customer._id]);
+
+    for (let aLog of aLogs) {
+      expect(aLog.coc.toObject()).toEqual({
+        type: COC_CONTENT_TYPES.CUSTOMER,
+        id: newCustomer._id,
+      });
+    }
+  });
+
+  test(`changeCompany`, async () => {
+    const company = await companyFactory({});
+    const newCompany = await companyFactory({});
+    const user = await userFactory({});
+
+    await ActivityLogs.createCompanyRegistrationLog(company, user);
+
+    const aLogs = await ActivityLogs.changeCompany(newCompany._id, [company._id]);
+
+    for (let aLog of aLogs) {
+      expect(aLog.coc.toObject()).toEqual({
+        type: COC_CONTENT_TYPES.COMPANY,
+        id: newCompany._id,
+      });
+    }
+  });
+
+  test(`removeCustomerActivityLog`, async () => {
+    const customer = await customerFactory({});
+    const conversation = await conversationFactory({});
+
+    await ActivityLogs.createConversationLog(conversation, customer);
+    const removed = await ActivityLogs.removeCustomerActivityLog(customer._id);
+
+    const activityLog = await ActivityLogs.find({
+      coc: {
+        type: COC_CONTENT_TYPES.CUSTOMER,
+        id: customer._id,
+      },
+    });
+
+    expect(activityLog).toHaveLength(0);
+    expect(removed.result).toEqual({ ok: 1, n: 1 });
+  });
+
+  test(`removeCompanyActivityLog`, async () => {
+    const company = await companyFactory({});
+    const user = await userFactory({});
+
+    await ActivityLogs.createCompanyRegistrationLog(company, user);
+    const removed = await ActivityLogs.removeCompanyActivityLog(company._id);
+
+    const activityLog = await ActivityLogs.find({
+      coc: {
+        type: COC_CONTENT_TYPES.COMPANY,
+        id: company._id,
+      },
+    });
+
+    expect(activityLog).toHaveLength(0);
+    expect(removed.result).toEqual({ ok: 1, n: 1 });
   });
 });

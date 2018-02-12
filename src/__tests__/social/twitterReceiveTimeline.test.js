@@ -4,7 +4,14 @@
 import { connect, disconnect } from '../../db/connection';
 import { integrationFactory, conversationFactory } from '../../db/factories';
 import { CONVERSATION_STATUSES } from '../../data/constants';
-import { Conversations, ConversationMessages, Customers, Integrations } from '../../db/models';
+import {
+  ActivityLogs,
+  Conversations,
+  ConversationMessages,
+  Customers,
+  Integrations,
+} from '../../db/models';
+
 import {
   receiveTimeLineResponse,
   receiveMentionReply,
@@ -46,6 +53,7 @@ describe('receive timeline response', () => {
     await Conversations.remove({});
     await ConversationMessages.remove({});
     await Customers.remove({});
+    await ActivityLogs.remove({});
   });
 
   test('receive mention reply', async () => {
@@ -132,6 +140,9 @@ describe('receive timeline response', () => {
     expect(customer.twitterData.name).toBe(userName);
     expect(customer.twitterData.screenName).toBe(screenName);
     expect(customer.twitterData.profileImageUrl).toBe(profileImageUrl);
+
+    // 1 log
+    expect(await ActivityLogs.find().count()).toBe(1);
 
     // check message field values
     expect(message.createdAt).toBeDefined();

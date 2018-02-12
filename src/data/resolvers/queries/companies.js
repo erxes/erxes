@@ -5,13 +5,29 @@ import { moduleRequireLogin } from '../../permissions';
 import { paginate } from './utils';
 
 const listQuery = async params => {
-  const selector = {};
+  let selector = {};
 
   // Filter by segments
   if (params.segment) {
     const segment = await Segments.findOne({ _id: params.segment });
     const query = QueryBuilder.segments(segment);
     Object.assign(selector, query);
+  }
+
+  if (params.searchValue) {
+    const fields = [
+      { name: new RegExp(`.*${params.searchValue}.*`, 'i') },
+      { website: new RegExp(`.*${params.searchValue}.*`, 'i') },
+      { industry: new RegExp(`.*${params.searchValue}.*`, 'i') },
+      { plan: new RegExp(`.*${params.searchValue}.*`, 'i') },
+    ];
+
+    selector = { $or: fields };
+  }
+
+  // Filter by tag
+  if (params.tag) {
+    selector.tagIds = params.tag;
   }
 
   return selector;
@@ -28,7 +44,7 @@ const companyQueries = {
       return paginate(Companies.find({ _id: { $in: ids } }), params);
     }
 
-    const selector = await listQuery(params);
+    let selector = await listQuery(params);
 
     return paginate(Companies.find(selector), params);
   },
@@ -39,7 +55,12 @@ const companyQueries = {
    * @return {Object} counts map
    */
   async companyCounts(root, args) {
-    const counts = { bySegment: {}, byBrand: {}, byIntegrationType: {}, byTag: {} };
+    const counts = {
+      bySegment: {},
+      byBrand: {},
+      byIntegrationType: {},
+      byTag: {},
+    };
     const selector = await listQuery(args);
 
     const count = query => {

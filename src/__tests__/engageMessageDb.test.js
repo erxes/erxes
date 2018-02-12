@@ -127,4 +127,44 @@ describe('engage messages model tests', () => {
 
     expect(message.deliveryReports[`${mailMessageId}`].status).toEqual('sent');
   });
+
+  test('changeCustomer', async () => {
+    const customer = await customerFactory({});
+    const newCustomer = await customerFactory({});
+
+    await EngageMessages.changeCustomer(newCustomer._id, [customer._id]);
+
+    expect(
+      await EngageMessages.find({
+        customerIds: { $in: [newCustomer._id] },
+      }),
+    ).toHaveLength(0);
+
+    expect(
+      await EngageMessages.find({
+        messengerReceivedCustomerIds: { $in: [newCustomer._id] },
+      }),
+    ).toHaveLength(0);
+  });
+
+  test('removeCustomerEngages', async () => {
+    const customer = await customerFactory({});
+
+    await engageMessageFactory({
+      customerIds: [customer._id],
+    });
+
+    await EngageMessages.removeCustomerEngages(customer._id);
+
+    const engageMessages = await EngageMessages.find({
+      customerIds: { $in: [customer._id] },
+    });
+
+    const messengerReceivedCustomerIds = await EngageMessages.find({
+      messengerReceivedCustomerIds: { $in: [customer._id] },
+    });
+
+    expect(engageMessages).toHaveLength(0);
+    expect(messengerReceivedCustomerIds).toHaveLength(0);
+  });
 });

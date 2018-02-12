@@ -166,5 +166,6 @@ export const subscriptions = `
     conversationMessageInserted(_id: String!): ConversationMessage
     conversationsChanged(customerId: String): ConversationsChangedResponse
     notificationsChanged(ids: [String]): Boolean
+    customerConnectionChanged(_id: String): CustomerConnectionChangedResponse
   }
 `;

@@ -96,6 +96,7 @@ export const queries = `
   conversationsTotalCount(${filterParams}): Int
   conversationDetail(_id: String!): Conversation
   conversationsGetLast(${filterParams}): Conversation
+  conversationsTotalUnreadCount: Int
 `;
 
 export const mutations = `

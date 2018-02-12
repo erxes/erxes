@@ -27,11 +27,11 @@ describe('Companies mutations', () => {
   });
 
   test('Check login required', async () => {
-    expect.assertions(3);
+    expect.assertions(6);
 
     const check = async fn => {
       try {
-        await fn({}, {}, {});
+        await fn({}, {}, {}, {}, {}, {});
       } catch (e) {
         expect(e.message).toEqual('Login required');
       }
@@ -45,6 +45,15 @@ describe('Companies mutations', () => {
 
     // add company
     check(companyMutations.companiesAddCustomer);
+
+    // edit company customers
+    check(companyMutations.companiesEditCustomers);
+
+    // merge companies
+    check(companyMutations.companiesMerge);
+
+    // remove companies
+    check(companyMutations.companiesRemove);
   });
 
   test('Create company', async () => {
@@ -85,5 +94,40 @@ describe('Companies mutations', () => {
     await companyMutations.companiesAddCustomer({}, doc, { user: _user });
 
     expect(Companies.addCustomer).toBeCalledWith(doc);
+  });
+
+  test('Update Company Customers', async () => {
+    Companies.updateCustomers = jest.fn();
+
+    const customerIds = ['customerid1', 'customerid2', 'customerid3'];
+
+    await companyMutations.companiesEditCustomers(
+      {},
+      { _id: _company._id, customerIds },
+      { user: _user },
+    );
+
+    expect(Companies.updateCustomers).toBeCalledWith(_company._id, customerIds);
+  });
+
+  test('Merging companies', async () => {
+    Companies.mergeCompanies = jest.fn();
+
+    const companyIds = ['companyid1', 'companyid2'];
+    const companyFields = await companyFactory({});
+
+    await companyMutations.companiesMerge({}, { companyIds, companyFields }, { user: _user });
+
+    expect(Companies.mergeCompanies).toBeCalledWith(companyIds, companyFields);
+  });
+
+  test('Company remove', async () => {
+    Companies.removeCompany = jest.fn();
+
+    const newCompany = await companyFactory({});
+
+    await companyMutations.companiesRemove({}, { companyIds: [newCompany._id] }, { user: _user });
+
+    expect(Companies.removeCompany).toBeCalledWith(newCompany._id);
   });
 });

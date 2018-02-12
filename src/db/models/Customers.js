@@ -1,6 +1,28 @@
 import mongoose from 'mongoose';
-import { Fields, Companies } from './';
+import { Fields, Companies, ActivityLogs, Conversations, InternalNotes, EngageMessages } from './';
 import { field } from './utils';
+
+/* location schema */
+const locationSchema = mongoose.Schema(
+  {
+    remoteAddress: String,
+    country: String,
+    city: String,
+    region: String,
+    hostname: String,
+    language: String,
+    userAgent: String,
+  },
+  { _id: false },
+);
+
+const VisitorContactSchema = mongoose.Schema(
+  {
+    email: String,
+    phone: String,
+  },
+  { _id: false },
+);
 
 /*
  * messenger schema
@@ -77,42 +99,81 @@ const facebookSchema = mongoose.Schema(
 const CustomerSchema = mongoose.Schema({
   _id: field({ pkey: true }),
 
-  name: field({ type: String }),
-  firstName: field({ type: String, label: 'First name' }),
-  lastName: field({ type: String, label: 'Last name' }),
-  email: field({ type: String, label: 'Email' }),
-  phone: field({ type: String, label: 'Phone' }),
-  isUser: field({ type: Boolean, label: 'Is user' }),
+  name: field({ type: String, optional: true }),
+  firstName: field({ type: String, label: 'First name', optional: true }),
+  lastName: field({ type: String, label: 'Last name', optional: true }),
+  email: field({ type: String, label: 'Email', optional: true }),
+  phone: field({ type: String, label: 'Phone', optional: true }),
+  isUser: field({ type: Boolean, label: 'Is user', optional: true }),
   createdAt: field({ type: Date, label: 'Created at' }),
 
   integrationId: field({ type: String }),
-  tagIds: field({ type: [String] }),
-  companyIds: field({ type: [String] }),
+  tagIds: field({ type: [String], optional: true }),
+  companyIds: field({ type: [String], optional: true }),
 
-  remoteAddress: field({ type: String }),
-  location: field({ type: Object }),
+  customFieldsData: field({ type: Object, optional: true }),
+  messengerData: field({ type: messengerSchema, optional: true }),
+  twitterData: field({ type: twitterSchema, optional: true }),
+  facebookData: field({ type: facebookSchema, optional: true }),
 
-  customFieldsData: field({ type: Object }),
-  messengerData: field({ type: messengerSchema }),
-  twitterData: field({ type: twitterSchema }),
-  facebookData: field({ type: facebookSchema }),
+  location: field({ type: locationSchema, optional: true }),
+
+  // if customer is not a user then we will contact with this visitor using
+  // this information
+  visitorContactInfo: field({ type: VisitorContactSchema, optional: true }),
 });
 
 class Customer {
+  /**
+   * Checking if customer has duplicated unique properties
+   * @param  {Object} customerFields - Customer fields to check duplications
+   * @param  {String[]} idsToExclude - Customer ids to exclude
+   * @return {Promise} - Result
+   */
+  static async checkDuplication(customerFields, idsToExclude) {
+    const query = {};
+    let previousEntry = null;
+
+    // Adding exclude operator to the query
+    if (idsToExclude) {
+      if (idsToExclude instanceof Array) {
+        query._id = { $nin: idsToExclude };
+      } else {
+        query._id = { $ne: idsToExclude };
+      }
+    }
+
+    // Checking if customer has email
+    if (customerFields.email) {
+      query.email = customerFields.email;
+      previousEntry = await this.find(query);
+
+      // Checking if duplicated
+      if (previousEntry.length > 0) {
+        throw new Error('Duplicated email');
+      }
+    }
+
+    // Checking if cuostomer has twitter data
+    if (customerFields.twitterData) {
+      query['twitterData.id'] = customerFields.twitterData.id;
+      previousEntry = await this.find(query);
+
+      // Checking if duplicated
+      if (previousEntry.length > 0) {
+        throw new Error('Duplicated twitter');
+      }
+    }
+  }
+
   /**
    * Create a customer
    * @param  {Object} customerObj object
    * @return {Promise} Newly created customer object
    */
   static async createCustomer(doc) {
-    if (doc.email) {
-      const previousEntry = await this.findOne({ email: doc.email });
-
-      // check duplication
-      if (previousEntry) {
-        throw new Error('Duplicated email');
-      }
-    }
+    // Checking duplicated fields of customer
+    await this.checkDuplication(doc);
 
     // clean custom field values
     doc.customFieldsData = await Fields.cleanMulti(doc.customFieldsData || {});
@@ -127,17 +188,8 @@ class Customer {
    * @return {Promise} updated customer object
    */
   static async updateCustomer(_id, doc) {
-    if (doc.email) {
-      const previousEntry = await this.findOne({
-        _id: { $ne: _id },
-        email: doc.email,
-      });
-
-      // check duplication
-      if (previousEntry) {
-        throw new Error('Duplicated email');
-      }
-    }
+    // Checking duplicated fields of customer
+    await this.checkDuplication(doc, _id);
 
     // clean custom field values
     doc.customFieldsData = await Fields.cleanMulti(doc.customFieldsData || {});
@@ -178,9 +230,91 @@ class Customer {
     const company = await Companies.createCompany({ name, website });
 
     // add to companyIds list
-    await this.findByIdAndUpdate(_id, { $addToSet: { companyIds: company._id } });
+    await this.findByIdAndUpdate(_id, {
+      $addToSet: { companyIds: company._id },
+    });
 
     return company;
+  }
+
+  /**
+   * Update customer companies
+   * @param {String} _id - Customer id to update
+   * @param {String[]} companyIds - Company ids to update
+   * @return {Promise} updated customer object
+   */
+  static async updateCompanies(_id, companyIds) {
+    // updating companyIds field
+    await this.findByIdAndUpdate(_id, { $set: { companyIds } });
+
+    return this.findOne({ _id });
+  }
+
+  /**
+   * Removes customer
+   * @param {String} customerId - Customer id of customer to remove
+   * @return {Promise} result
+   */
+  static async removeCustomer(customerId) {
+    // Removing every modules that associated with customer
+    await ActivityLogs.removeCustomerActivityLog(customerId);
+    await Conversations.removeCustomerConversations(customerId);
+    await EngageMessages.removeCustomerEngages(customerId);
+    await InternalNotes.removeCustomerInternalNotes(customerId);
+
+    return await this.remove({ _id: customerId });
+  }
+
+  /**
+   * Merge customers
+   * @param {String[]} customerIds - Customer ids to merge
+   * @param {Object} customerFields - Customer infos to create with
+   * @return {Promise} Customer object
+   */
+  static async mergeCustomers(customerIds, customerFields) {
+    // Checking duplicated fields of customer
+    await this.checkDuplication(customerFields, customerIds);
+
+    let tagIds = [];
+    let companyIds = [];
+
+    // Merging customer tags and companies
+    for (let customerId of customerIds) {
+      const customer = await this.findOne({ _id: customerId });
+
+      if (customer) {
+        const customerTags = customer.tagIds || [];
+        const customerCompanies = customer.companyIds || [];
+
+        // Merging customer's tag and companies into 1 array
+        tagIds = tagIds.concat(customerTags);
+        companyIds = companyIds.concat(customerCompanies);
+
+        // Removing Customers
+        await this.remove({ _id: customerId });
+      }
+    }
+
+    // Removing Duplicated Tags from customer
+    tagIds = Array.from(new Set(tagIds));
+
+    // Removing Duplicated Companies from customer
+    companyIds = Array.from(new Set(companyIds));
+
+    // Creating customer with properties
+    const customer = await this.createCustomer({
+      ...customerFields,
+      tagIds,
+      companyIds,
+    });
+
+    // Updating every modules associated with customers
+    await ActivityLogs.changeCustomer(customer._id, customerIds);
+    await Conversations.changeCustomer(customer._id, customerIds);
+    await EngageMessages.changeCustomer(customer._id, customerIds);
+    await InternalNotes.changeCustomer(customer._id, customerIds);
+
+    return customer;
   }
 }
 

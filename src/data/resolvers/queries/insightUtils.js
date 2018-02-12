@@ -116,7 +116,7 @@ export const generateTimeIntervals = (start, end) => {
     },
     {
       title: 'Last month',
-      start: moment(month, 'MM'),
+      start: moment(month + 1, 'MM').subtract(1, 'months'),
       end: moment(month + 1, 'MM'),
     },
     {

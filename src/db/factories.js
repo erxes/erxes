@@ -1,6 +1,12 @@
 import faker from 'faker';
 import Random from 'meteor-random';
-import { MODULES, COC_CONTENT_TYPES } from '../data/constants';
+import {
+  MODULES,
+  COC_CONTENT_TYPES,
+  ACTIVITY_PERFORMER_TYPES,
+  ACTIVITY_TYPES,
+  ACTIVITY_ACTIONS,
+} from '../data/constants';
 
 import {
   Users,
@@ -24,6 +30,7 @@ import {
   KnowledgeBaseTopics,
   KnowledgeBaseCategories,
   KnowledgeBaseArticles,
+  ActivityLogs,
 } from './models';
 
 export const userFactory = (params = {}) => {
@@ -154,8 +161,9 @@ export const companyFactory = (params = {}) => {
   const company = new Companies({
     name: params.name || faker.random.word(),
     size: params.size || faker.random.number(),
-    industry: params.industry || Random.id(),
-    website: params.website || Random.id(),
+    industry: params.industry || faker.company.bs(),
+    website: params.website || faker.internet.domainName(),
+    tagIds: params.tagIds || [faker.random.number()],
   });
 
   return company.save();
@@ -165,10 +173,12 @@ export const customerFactory = (params = {}) => {
   const customer = new Customers({
     name: params.name || faker.random.word(),
     email: params.email || faker.internet.email(),
-    phone: params.phone || faker.random.word(),
+    phone: params.phone || faker.phone.phoneNumber(),
     messengerData: params.messengerData || {},
     customFieldsData: params.customFieldsData || {},
-    companyIds: params.companyIds || [],
+    companyIds: params.companyIds || [faker.random.number(), faker.random.number()],
+    tagIds: params.tagIds || [faker.random.number(), faker.random.number()],
+    twitterData: params.twitterData || { id: faker.random.number() },
   });
 
   return customer.save();
@@ -321,11 +331,11 @@ export const knowledgeBaseTopicFactory = params => {
   );
 };
 
-export const knowledgeBaseCategoryFactory = params => {
+export const knowledgeBaseCategoryFactory = (params = {}) => {
   const doc = {
     title: faker.random.word(),
     description: faker.lorem.sentence,
-    articleIds: [faker.random.word(), faker.random.word()],
+    articleIds: params.articleIds || [faker.random.word(), faker.random.word()],
     icon: faker.random.word(),
   };
 
@@ -338,7 +348,33 @@ export const knowledgeBaseArticleFactory = params => {
     summary: faker.lorem.sentence,
     content: faker.lorem.sentence,
     icon: faker.random.word(),
+    categoryIds: params.categoryIds || [],
   };
 
   return KnowledgeBaseArticles.createDoc({ ...doc, ...params }, faker.random.word());
+};
+
+export const activityLogFactory = params => {
+  // const activity = params.activity || {};
+  // const performer = params.performer || {};
+  // const coc = params.coc || {};
+
+  const doc = {
+    activity: {
+      type: ACTIVITY_TYPES.INTERNAL_NOTE,
+      action: ACTIVITY_ACTIONS.CREATE,
+      id: faker.random.number(),
+      content: faker.random.word(),
+    },
+    performer: {
+      type: ACTIVITY_PERFORMER_TYPES.USER,
+      id: faker.random.number(),
+    },
+    coc: {
+      type: COC_CONTENT_TYPES.CUSTOMER,
+      id: faker.random.number(),
+    },
+  };
+
+  return ActivityLogs.createDoc({ ...doc, ...params }, faker.random.word());
 };

@@ -62,12 +62,20 @@ export const types = `
 `;
 
 export const queries = `
-  integrations(page: Int, perPage: Int, kind: String): [Integration]
+  integrations(
+    page: Int,
+    perPage: Int,
+    kind: String,
+    searchValue: String,
+    channelId: String,
+    brandId: String
+  ): [Integration]
+
   integrationDetail(_id: String!): Integration
-  integrationsTotalCount(kind: String): Int
+  integrationsTotalCount(kind: String, channelId: String, brandId: String): Int
   integrationGetTwitterAuthUrl: String
   integrationFacebookAppsList: [JSON]
-  integrationFacebookPagesList(appId: Float): [JSON]
+  integrationFacebookPagesList(appId: String): [JSON]
 `;
 
 export const mutations = `

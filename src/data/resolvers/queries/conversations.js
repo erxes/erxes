@@ -1,5 +1,5 @@
 import { Channels, Brands, Conversations, Tags } from '../../../db/models';
-import { INTEGRATION_KIND_CHOICES } from '../../constants';
+import { CONVERSATION_STATUSES, INTEGRATION_KIND_CHOICES } from '../../constants';
 import QueryBuilder from './conversationQueryBuilder';
 import { moduleRequireLogin } from '../../permissions';
 
@@ -178,6 +178,35 @@ const conversationQueries = {
     await qb.buildAllQueries();
 
     return Conversations.findOne(qb.mainQuery()).sort({ updatedAt: -1 });
+  },
+
+  /**
+   * Get all unread conversations for logged in user
+   * @return {Promise} all unread conversations count
+   */
+  async conversationsTotalUnreadCount(root, args, { user }) {
+    // initiate query builder
+    const qb = new QueryBuilder({}, { _id: user._id });
+
+    // get all possible integration ids
+    const integrationsFilter = await qb.integrationsFilter();
+
+    return Conversations.find({
+      ...integrationsFilter,
+      status: { $in: [CONVERSATION_STATUSES.NEW, CONVERSATION_STATUSES.OPEN] },
+      readUserIds: { $ne: user._id },
+
+      // exclude engage messages if customer did not reply
+      $or: [
+        {
+          userId: { $exists: true },
+          messageCount: { $gt: 1 },
+        },
+        {
+          userId: { $exists: false },
+        },
+      ],
+    }).count();
   },
 };
 
