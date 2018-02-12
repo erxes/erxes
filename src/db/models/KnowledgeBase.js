@@ -7,12 +7,10 @@ const commonFields = {
   createdBy: field({ type: String }),
   createdDate: field({
     type: Date,
-    default: new Date(),
   }),
   modifiedBy: field({ type: String }),
   modifiedDate: field({
     type: Date,
-    default: new Date(),
   }),
 };
 
@@ -35,7 +33,9 @@ class KnowledgeBaseCommonDocument {
 
     return this.create({
       ...doc,
+      createdDate: new Date(),
       createdBy: userId,
+      modifiedDate: new Date(),
     });
   }
 
@@ -216,13 +216,16 @@ class Category extends KnowledgeBaseCommonDocument {
   }
 
   /**
-   * Removes KnowledgeBaseCategory document
+   * Removes KnowledgeBaseCategory document and it's children articles
    * @param {Object} _id - KnowledgeBaseCategory document id
    * @return {Promise}
-   * @throws {Error} - Thrwos Error('You can not delete this. This category is used in topic.')
-   * if there are topics using this category
    */
-  static removeDoc(_id) {
+  static async removeDoc(_id) {
+    const category = await this.findOne({ _id });
+
+    for (let articleId of category.articleIds || []) {
+      await KnowledgeBaseArticles.remove({ _id: articleId });
+    }
     return this.remove({ _id });
   }
 }
@@ -267,6 +270,23 @@ class Topic extends KnowledgeBaseCommonDocument {
    */
   static updateDoc(_id, docFields, userId) {
     return this.updateBaseDoc(_id, docFields, userId);
+  }
+
+  /**
+   * Removes KnowledgeBaseTopic document and it's children categories
+   * @param {Object} _id - KnowledgeBaseTopic document id
+   * @return {Promise}
+   */
+  static async removeDoc(_id) {
+    const topic = await this.findOne({ _id });
+
+    for (let categoryId of topic.categoryIds || []) {
+      const category = await KnowledgeBaseCategories.findOne({ _id: categoryId });
+      if (category) {
+        await KnowledgeBaseCategories.removeDoc(categoryId);
+      }
+    }
+    return this.remove({ _id });
   }
 }
 
