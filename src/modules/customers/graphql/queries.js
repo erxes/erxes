@@ -15,7 +15,6 @@ const customerFields = `
     messengerData
     twitterData
     facebookData
-    visitorContactInfo
 
     tagIds
     getTags {

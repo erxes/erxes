@@ -22,8 +22,7 @@ import {
   TaggerSection,
   MessengerSection,
   TwitterSection,
-  FacebookSection,
-  VisitorContactInfo
+  FacebookSection
 } from './';
 
 const propTypes = {
@@ -266,7 +265,6 @@ class LeftSidebar extends React.Component {
         {this.renderDeviceProperties()}
         {this.renderOtherProperties()}
         <MessengerSection customer={customer} />
-        <VisitorContactInfo customer={customer} />
         <TwitterSection customer={customer} />
         <FacebookSection customer={customer} />
         <TaggerSection data={customer} type="customer" />
