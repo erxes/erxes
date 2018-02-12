@@ -52,6 +52,7 @@ const knowledgeBaseMutations = {
    * @param {Object} root
    * @param {Object} object2 - Graphql input data
    * @param {KnowledgeBaseCategory} object2.doc - KnowledgeBaseCategory object
+   * @param {String[]} object2.topicIds - KnowledgeBaseTopic ids
    * @param {Object} object3 - Graphql middleware data
    * @param {Object} object3.user - User object supplied by middleware
    * @return {Promise} - returns Promise resolving created document
@@ -66,6 +67,7 @@ const knowledgeBaseMutations = {
    * @param {Object} object2 - Graphql input data
    * @param {string} object2._id - KnowledgeBaseCategory document id
    * @param {KnowledgeBaseCategory} object2.doc - KnowledgeBaseCategory object
+   * @param {String[]} object2.topicIds - KnowledgeBaseTopic ids
    * @param {Object} object3 - Graphql middleware data
    * @param {Object} object3.user - User object supplied by middleware
    * @return {Promise} - returns Promise resolving modified document
@@ -92,6 +94,7 @@ const knowledgeBaseMutations = {
    * @param {Object} root
    * @param {Object} object2 - Graphql input data
    * @param {KnowledgeBaseArticle} object2.doc - KnowledgeBaseCategory object
+   * @param {String[]} object2.categoryIds - KnowledgeBaseCategory ids
    * @param {Object} object3 - Graphql middleware data
    * @param {Object} object3.user - User object supplied by middleware
    * @return {Promise} - returns Promise resolving created document
@@ -106,6 +109,7 @@ const knowledgeBaseMutations = {
    * @param {Object} object2 - Graphql input data
    * @param {string} object2._id - KnowledgeBaseArticle document id
    * @param {KnowledgeBaseArticle} object2.doc - KnowledgeBaseArticle object
+   * @param {String[]} object2.categoryIds - KnowledgeBaseCategory ids
    * @param {Object} object3 - Graphql middleware data
    * @param {Object} object3.user - User object supplied by middleware
    * @return {Promise} - returns Promise resolving modified document

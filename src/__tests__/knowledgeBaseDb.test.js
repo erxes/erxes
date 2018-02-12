@@ -138,24 +138,28 @@ describe('test knowledge base models', () => {
       await KnowledgeBaseArticles.remove({});
     });
 
-    test(`expect Error('userId must be supplied') to be called as intended`, () => {
+    test(`expect Error('userId must be supplied') to be called as intended`, async () => {
       expect.assertions(1);
 
       try {
-        KnowledgeBaseCategories.createDoc({}, null);
+        await KnowledgeBaseCategories.createDoc({}, null);
       } catch (e) {
         expect(e.message).toBe('userId must be supplied');
       }
     });
 
     test('create', async () => {
-      const article = knowledgeBaseArticleFactory({});
+      const article = await knowledgeBaseArticleFactory({});
+
+      let topicA = await knowledgeBaseTopicFactory({});
+      let topicB = await knowledgeBaseTopicFactory({});
 
       const doc = {
         title: 'Test category title',
         description: 'Test category description',
         articleIds: [article._id],
         icon: 'test category icon',
+        topicIds: [topicA._id.toString(), topicB._id.toString()],
       };
 
       const category = await KnowledgeBaseCategories.createDoc(doc, _user._id);
@@ -167,11 +171,23 @@ describe('test knowledge base models', () => {
       // Values related to modification ======
       expect(category.createdBy).toBe(_user._id);
       expect(category.createdDate).toBeType('object');
+
+      topicA = await KnowledgeBaseTopics.findOne({ _id: topicA._id.toString() });
+      topicB = await KnowledgeBaseTopics.findOne({ _id: topicB._id.toString() });
+
+      expect(topicA.categoryIds.length).toBe(1);
+      expect(topicA.categoryIds[0]).toBe(category._id.toString());
+
+      expect(topicB.categoryIds.length).toBe(1);
+      expect(topicA.categoryIds[0]).toBe(category._id.toString());
     });
 
     test('update', async () => {
       const article = await knowledgeBaseArticleFactory({});
       const articleB = await knowledgeBaseArticleFactory({});
+
+      let topicA = await knowledgeBaseTopicFactory({});
+      let topicB = await knowledgeBaseTopicFactory({});
 
       const doc = {
         title: 'Test category title',
@@ -189,7 +205,10 @@ describe('test knowledge base models', () => {
 
       const newCategory = await KnowledgeBaseCategories.updateDoc(
         category._id,
-        category.toObject(),
+        {
+          ...category.toObject(),
+          topicIds: [topicA._id.toString(), topicB._id.toString()],
+        },
         _user._id,
       );
 
@@ -203,6 +222,15 @@ describe('test knowledge base models', () => {
       // Values related to modification ======
       expect(newCategory.modifiedBy).toBe(_user._id);
       expect(newCategory.modifiedDate).toBeType('object');
+
+      topicA = await KnowledgeBaseTopics.findOne({ _id: topicA._id.toString() });
+      topicB = await KnowledgeBaseTopics.findOne({ _id: topicB._id.toString() });
+
+      expect(topicA.categoryIds.length).toBe(1);
+      expect(topicA.categoryIds[0]).toBe(newCategory._id.toString());
+
+      expect(topicB.categoryIds.length).toBe(1);
+      expect(topicA.categoryIds[0]).toBe(newCategory._id.toString());
     });
 
     test('remove', async () => {
@@ -220,35 +248,6 @@ describe('test knowledge base models', () => {
 
       expect(await KnowledgeBaseCategories.find().count()).toBe(0);
     });
-
-    test(`check if Error('You can not delete this. This category is used in topic.')
-    is being called as intended`, async () => {
-      expect.assertions(2);
-
-      const doc = {
-        title: 'Test category title',
-        description: 'Test category description',
-        icon: 'test icon',
-      };
-
-      const category = await KnowledgeBaseCategories.createDoc(doc, _user._id);
-
-      const topic = await knowledgeBaseTopicFactory({
-        categoryIds: [category._id],
-      });
-
-      try {
-        await KnowledgeBaseCategories.removeDoc(category._id);
-      } catch (e) {
-        expect(e.message).toBe('You can not delete this. This category is used in topic.');
-      }
-
-      await KnowledgeBaseTopics.removeDoc(topic._id);
-
-      await KnowledgeBaseCategories.removeDoc(category._id);
-
-      expect(await KnowledgeBaseCategories.find().count()).toBe(0);
-    });
   });
 
   describe('KnowledgeBaseArticles', () => {
@@ -256,21 +255,25 @@ describe('test knowledge base models', () => {
       await KnowledgeBaseArticles.remove({});
     });
 
-    test(`expect Error('userId must be supplied') to be called as intended`, () => {
+    test(`expect Error('userId must be supplied') to be called as intended`, async () => {
       expect.assertions(1);
 
       try {
-        KnowledgeBaseArticles.createDoc({}, null);
+        await KnowledgeBaseArticles.createDoc({}, null);
       } catch (e) {
         expect(e.message).toBe('userId must be supplied');
       }
     });
 
     test('create', async () => {
+      let categoryA = await knowledgeBaseCategoryFactory({});
+      let categoryB = await knowledgeBaseCategoryFactory({});
+
       const doc = {
         title: 'Test article title',
         summary: 'Test article description',
         content: 'Test article content',
+        categoryIds: [categoryA._id.toString(), categoryB._id.toString()],
         status: PUBLISH_STATUSES.DRAFT,
       };
 
@@ -281,14 +284,26 @@ describe('test knowledge base models', () => {
       expect(article.content).toBe(doc.content);
       expect(article.icon).toBe(doc.icon);
       expect(article.status).toBe(PUBLISH_STATUSES.DRAFT);
+
+      categoryA = await KnowledgeBaseCategories.findOne({ _id: categoryA._id.toString() });
+      categoryB = await KnowledgeBaseCategories.findOne({ _id: categoryB._id.toString() });
+
+      expect(categoryA.articleIds.length).toBe(3);
+      expect(categoryA.articleIds[2]).toBe(article._id.toString());
+      expect(categoryB.articleIds.length).toBe(3);
+      expect(categoryB.articleIds[2]).toBe(article._id.toString());
     });
 
     test('update', async () => {
+      let categoryA = await knowledgeBaseCategoryFactory({ articleIds: [] });
+      let categoryB = await knowledgeBaseCategoryFactory();
+
       const doc = {
         title: 'Test article title',
         summary: 'Test article description',
         content: 'Test article content',
         status: PUBLISH_STATUSES.DRAFT,
+        categoryIds: [categoryA._id.toString(), categoryB._id.toString()],
       };
 
       const article = await KnowledgeBaseArticles.createDoc(doc, _user._id);
@@ -304,11 +319,20 @@ describe('test knowledge base models', () => {
         _user._id,
       );
 
+      categoryA = await KnowledgeBaseCategories.findOne({ _id: categoryA._id.toString() });
+      categoryB = await KnowledgeBaseCategories.findOne({ _id: categoryB._id.toString() });
+
       expect(updatedArticle.title).toBe(article.title);
       expect(updatedArticle.summary).toBe(article.summary);
       expect(updatedArticle.content).toBe(article.content);
       expect(updatedArticle.icon).toBe(article.icon);
       expect(updatedArticle.status).toBe(article.status);
+
+      expect(categoryA.articleIds.length).toBe(1);
+      expect(categoryA.articleIds[0]).toBe(article._id.toString());
+
+      expect(categoryB.articleIds.length).toBe(3);
+      expect(categoryB.articleIds[2]).toBe(article._id.toString());
     });
 
     test('remove', async () => {
@@ -322,41 +346,6 @@ describe('test knowledge base models', () => {
       const article = await KnowledgeBaseArticles.createDoc(doc, _user._id);
 
       expect(await KnowledgeBaseArticles.find().count()).toBe(1);
-
-      await KnowledgeBaseArticles.removeDoc(article._id);
-
-      expect(await KnowledgeBaseArticles.find().count()).toBe(0);
-    });
-
-    test(`check if Error('You can not delete this. This article is used in category.')
-    is being called as intended`, async () => {
-      expect.assertions(2);
-
-      const doc = {
-        title: 'Test article title',
-        summary: 'Test article description',
-        content: 'Test article content',
-        status: PUBLISH_STATUSES.DRAFT,
-      };
-
-      const article = await KnowledgeBaseArticles.createDoc(doc, _user._id);
-
-      const categoryDoc = {
-        title: 'Test category title',
-        description: 'Test category description',
-        articleIds: [article._id],
-        icon: 'test icon',
-      };
-
-      const category = await KnowledgeBaseCategories.createDoc(categoryDoc, _user._id);
-
-      try {
-        await KnowledgeBaseArticles.removeDoc(article._id);
-      } catch (e) {
-        expect(e.message).toBe('You can not delete this. This article is used in category.');
-      }
-
-      await KnowledgeBaseCategories.removeDoc(category._id);
 
       await KnowledgeBaseArticles.removeDoc(article._id);
 

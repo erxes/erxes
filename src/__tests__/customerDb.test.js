@@ -265,6 +265,10 @@ describe('Customers model tests', () => {
       messengerData: {
         sessionCount: 6,
       },
+      visitorContactInfo: {
+        email: 'test123@gmail.com',
+        phone: '1213312132',
+      },
     };
 
     const updatedCustomer = await Customers.mergeCustomers(customerIds, doc);
@@ -278,6 +282,7 @@ describe('Customers model tests', () => {
     expect(updatedCustomer.facebookData.toJSON()).toEqual(doc.facebookData);
     expect(updatedCustomer.companyIds).toEqual(expect.arrayContaining(mergedCompanyIds));
     expect(updatedCustomer.tagIds).toEqual(expect.arrayContaining(mergedTagIds));
+    expect(updatedCustomer.visitorContactInfo.toJSON()).toEqual(doc.visitorContactInfo);
 
     // Checking old customers datas to be deleted
     expect(await Customers.find({ _id: customerIds[0] })).toHaveLength(0);

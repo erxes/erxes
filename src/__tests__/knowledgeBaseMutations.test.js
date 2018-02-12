@@ -100,6 +100,7 @@ describe('mutations', () => {
         description: 'Test topic description',
         categoryIds: ['fakeCategoryId'],
         brandId: 'fakeBrandId',
+        topicIds: ['testTopicIdA', 'testTopicIdB'],
       };
 
       knowledgeBaseMutations.knowledgeBaseCategoriesAdd(null, { doc }, { user: _user });
@@ -118,6 +119,7 @@ describe('mutations', () => {
         description: 'Test category description',
         articles: ['fakeArticleId'],
         icon: 'fake icon',
+        topicIds: ['testTopicIdA', 'testTopicIdB'],
       };
 
       const updateDoc = {
@@ -160,6 +162,7 @@ describe('mutations', () => {
         summary: 'Test article summary',
         content: 'Test article content',
         status: 'Test article status',
+        categoryIds: ['testCategoryIdA', 'testCategoryIdB'],
       };
 
       knowledgeBaseMutations.knowledgeBaseArticlesAdd(null, { doc }, { user: _user });
@@ -178,6 +181,7 @@ describe('mutations', () => {
         summary: 'Test article summary',
         content: 'Test article content',
         status: 'Test article status',
+        categoryIds: ['testCategoryIdA', 'testCategoryIdB'],
       };
 
       const updateDoc = {
