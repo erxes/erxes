@@ -1,6 +1,6 @@
 {
   "name": "erxes",
-  "version": "0.9.0",
+  "version": "0.9.3",
   "description": "erxes is an AI meets open source messaging platform for sales and marketing teams.",
   "homepage": "https://erxes.io",
   "repository": {
@@ -29,7 +29,7 @@
     "apollo-utilities": "^1.0.5",
     "bat-d3-punchcard": "^1.0.2",
     "bat-draft-js-mention-plugin": "^2.0.1",
-    "bootstrap": "^3.3.7",
+    "bootstrap": "^4.0.0",
     "classnames": "^2.2.5",
     "color": "^2.0.0",
     "crypto": "^1.0.1",
@@ -65,13 +65,19 @@
     "styled-components": "^2.2.1",
     "subscriptions-transport-ws": "0.8.3",
     "ua-parser-js": "^0.7.17",
-    "underscore": "^1.8.3"
+    "underscore": "^1.8.3",
+    "opencollective": "^1.0.3"
   },
   "lint-staged": {
     "src/**/*.{js,jsx,json,css}": [
       "prettier --single-quote --write",
       "git add"
     ]
+  },
+  "collective": {
+    "type": "opencollective",
+    "url": "https://opencollective.com/erxes",
+    "logo": "https://opencollective.com/opencollective/logo.txt"
   },
   "scripts": {
     "precommit": "lint-staged",
@@ -80,7 +86,8 @@
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject",
     "storybook": "start-storybook -p 9009 -s public",
-    "build-storybook": "build-storybook -s public"
+    "build-storybook": "build-storybook -s public",
+    "postinstall": "opencollective postinstall"
   },
   "devDependencies": {
     "@storybook/addon-actions": "^3.2.12",
