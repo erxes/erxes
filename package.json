@@ -29,7 +29,7 @@
     "apollo-utilities": "^1.0.5",
     "bat-d3-punchcard": "^1.0.2",
     "bat-draft-js-mention-plugin": "^2.0.1",
-    "bootstrap": "3.3.7",
+    "bootstrap": "4.0.0",
     "classnames": "^2.2.5",
     "color": "^2.0.0",
     "crypto": "^1.0.1",
