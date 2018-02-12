@@ -52,6 +52,18 @@ App is running at [http://localhost:3000](http://localhost:3000). You can **logi
 
 **We haven't done yet:** We need to run [API](https://github.com/erxes/erxes-api) and  [Widgets](https://github.com/erxes/erxes-widgets) to make our erxes app fully functional. Please jump to their repositories.
 
+## [Docker hub](https://www.docker.com/)
+
+Pull images from [dockerhub](https://hub.docker.com/u/erxes/) and running all servers on [docker compose](https://docs.docker.com/compose/overview/).
+```Shell
+docker-compose -f scripts/docker-compose.yml up
+```
+
+Running servers from [mounted path](https://docs.docker.com/compose/compose-file/#volumes) where source code located.
+```Shell
+docker-compose -f scripts/docker-compose-v.yml up
+```
+
 ## Contributors
 
 This project exists thanks to all the people who contribute. [[Contribute]](CONTRIBUTING.md).
