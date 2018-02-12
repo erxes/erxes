@@ -43,6 +43,7 @@ export default `
       website
     }
 
+    visitorContactInfo
     getMessengerCustomData
     customFieldsData
     messengerData
