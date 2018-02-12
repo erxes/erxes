@@ -127,7 +127,7 @@ const knowledgeBaseQueries = {
   * Get last category
   */
   knowledgeBaseCategoriesGetLast() {
-    return KnowledgeBaseCategories.findOne({}).sort({ modifiedDate: -1 });
+    return KnowledgeBaseCategories.findOne({}).sort({ createdDate: -1 });
   },
 
   /**
