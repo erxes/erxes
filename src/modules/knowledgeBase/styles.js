@@ -98,7 +98,7 @@ const ActionButtons = styled.div`
   }
 `;
 
-const ArticleWrap = styled.li`
+const CategoryItem = styled.li`
   position: relative;
   background: ${props => (props.isActive ? colors.bgActive : colors.bgLight)};
 
@@ -117,11 +117,12 @@ const ArticleWrap = styled.li`
 
   &:hover {
     cursor: pointer;
-    background: ${colors.bgActive};
+    background: ${props => !props.isActive && colors.bgHover};
 
     ${ActionButtons} {
-      width: ${dimensions.headerSpacing - 5}px;
-      background: ${colors.bgActive};
+      width: ${dimensions.headerSpacing}px;
+      background: ${props =>
+        props.isActive ? colors.bgActive : colors.bgHover};
     }
   }
 `;
@@ -195,7 +196,7 @@ const ArticleSummary = styled.p`
 export {
   SidebarContent,
   RowRightSide,
-  ArticleWrap,
+  CategoryItem,
   ActionButtons,
   CountArticle,
   SectionHead,
