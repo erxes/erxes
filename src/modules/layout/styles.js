@@ -226,7 +226,7 @@ const SidebarList = styled.ul`
     border-bottom: none;
     background-color: ${colors.bgLight};
 
-    span {
+    > span {
       background-color: ${colors.bgLight};
       box-shadow: -2px 0 10px 2px ${colors.bgLight};
     }
@@ -256,7 +256,7 @@ const SidebarList = styled.ul`
       outline: 0;
       color: ${colors.colorCoreBlack};
 
-      span {
+      > span {
         background-color: ${colors.bgActive};
         box-shadow: -2px 0 10px 2px ${colors.bgActive};
       }
