@@ -33,6 +33,8 @@ const FieldSchema = mongoose.Schema({
   }),
   isRequired: field({ type: Boolean }),
   order: field({ type: Number }),
+  groupId: field({ type: String }),
+  visible: field({ type: Boolean, default: true }),
 });
 
 class Field {

@@ -8,11 +8,13 @@ import { field } from './utils';
 const FieldGroupSchema = mongoose.Schema({
   _id: field({ pkey: true }),
   name: field({ type: String }),
+  contentType: field({ type: String }),
   nestedUnder: field({ type: String }),
   order: field({ type: Number }),
   description: field({
     type: String,
   }),
+  visible: field({ type: Boolean }),
 });
 
 class FieldGroup {
