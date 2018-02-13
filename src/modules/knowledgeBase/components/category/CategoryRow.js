@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 import { Tip, Button, Icon, ModalTrigger } from 'modules/common/components';
 import { CategoryForm } from '../../containers';
-import { ArticleWrap, ActionButtons, CountArticle } from '../../styles';
+import { CategoryItem, ActionButtons, CountArticle } from '../../styles';
 
 const propTypes = {
   topicIds: PropTypes.string,
@@ -52,7 +52,7 @@ class CategoryRow extends Component {
     const { category, isActive } = this.props;
 
     return (
-      <ArticleWrap key={category._id} isActive={isActive}>
+      <CategoryItem key={category._id} isActive={isActive}>
         <Link to={`?id=${category._id}`}>{category.title}</Link>
         <CountArticle>{category.articles.length}</CountArticle>
         <ActionButtons>
@@ -61,7 +61,7 @@ class CategoryRow extends Component {
             <Button btnStyle="link" onClick={this.remove} icon="close" />
           </Tip>
         </ActionButtons>
-      </ArticleWrap>
+      </CategoryItem>
     );
   }
 }
