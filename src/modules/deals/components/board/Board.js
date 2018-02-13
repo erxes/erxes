@@ -1,9 +1,25 @@
 import React from 'react';
+import PropTypes from 'prop-types';
+
+import { Link } from 'react-router-dom';
+import { Dropdown } from 'react-bootstrap';
+import { Wrapper } from 'modules/layout/components';
 import { DragDropContext } from 'react-beautiful-dnd';
 
-import Pipeline from './pipeline';
-import { Pipelines, Stages, Deals } from '../constants';
-import { moveInList, addToList, removeFromList } from '../utils';
+import { Pipeline, PipelineForm } from '../';
+import { Pipelines, Stages, Deals } from '../../constants';
+import { moveInList, addToList, removeFromList } from '../../utils';
+import { BarItems } from 'modules/layout/styles';
+import {
+  ModalTrigger,
+  Button,
+  DropdownToggle,
+  Icon
+} from 'modules/common/components';
+
+const propTypes = {
+  addPipeline: PropTypes.func.isRequired
+};
 
 class Board extends React.Component {
   constructor(props) {
@@ -29,15 +45,25 @@ class Board extends React.Component {
 
     this.state = {
       deals,
-      stages
+      stages,
+      showDealForm: {}
     };
 
     this.onDragEnd = this.onDragEnd.bind(this);
   }
 
-  reOrder({ destination, source }, list, fieldName) {
+  showNewDeal(stageId) {
+    const showDealForm = this.state.showDealForm;
+    showDealForm[stageId] = true;
+
+    this.setState({
+      showDealForm
+    });
+  }
+
+  reOrder({ source, destination }, list, fieldName) {
     // If ordering within list
-    if (destination.droppableId === source.droppableId) {
+    if (source.droppableId === destination.droppableId) {
       // move in list
       const movedList = moveInList(
         list[destination.droppableId],
@@ -71,7 +97,6 @@ class Board extends React.Component {
       // Update added list
       list[destination.droppableId] = addedList;
     }
-
     // reordered list
     return list;
   }
@@ -114,6 +139,50 @@ class Board extends React.Component {
   }
 
   render() {
+    const breadcrumb = [{ title: 'Deal' }];
+
+    const addTrigger = (
+      <Button btnStyle="success" size="small" icon="plus">
+        Add pipeline
+      </Button>
+    );
+
+    const actionBarRight = (
+      <BarItems>
+        <ModalTrigger title="New pipeline" trigger={addTrigger}>
+          <PipelineForm addPipeline={this.props.addPipeline} />
+        </ModalTrigger>
+      </BarItems>
+    );
+
+    const actionBarLeft = (
+      <BarItems>
+        <Dropdown id="dropdown-board" pullRight>
+          <DropdownToggle bsRole="toggle">
+            <Button btnStyle="simple" size="small">
+              Board 1 <Icon icon="ios-arrow-down" />
+            </Button>
+          </DropdownToggle>
+          <Dropdown.Menu>
+            <li>
+              <Link to="/deals/board/2">Board 2</Link>
+            </li>
+            <li>
+              <Link to="/deals/board/3">Board 3</Link>
+            </li>
+          </Dropdown.Menu>
+        </Dropdown>
+      </BarItems>
+    );
+
+    const actionBar = (
+      <Wrapper.ActionBar
+        left={actionBarLeft}
+        right={actionBarRight}
+        background="transparent"
+      />
+    );
+
     const content = (
       <DragDropContext onDragEnd={this.onDragEnd}>
         {Pipelines.map(pipeline => {
@@ -129,8 +198,17 @@ class Board extends React.Component {
       </DragDropContext>
     );
 
-    return content;
+    return (
+      <Wrapper
+        header={<Wrapper.Header breadcrumb={breadcrumb} />}
+        actionBar={actionBar}
+        content={content}
+        transparent
+      />
+    );
   }
 }
+
+Board.propTypes = propTypes;
 
 export default Board;

@@ -156,7 +156,11 @@ class Inbox extends Component {
     );
 
     const actionBar = (
-      <Wrapper.ActionBar right={actionBarRight} left={actionBarLeft} invert />
+      <Wrapper.ActionBar
+        right={actionBarRight}
+        left={actionBarLeft}
+        background="colorWhite"
+      />
     );
 
     const content = (
