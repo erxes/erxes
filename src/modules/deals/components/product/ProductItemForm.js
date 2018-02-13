@@ -1,11 +1,11 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Products, UOM, Currencies, Taxes } from '../../constants';
+import { Products, UOM, Currencies } from '../../constants';
 import { FormControl, Icon } from 'modules/common/components';
 import { ProductItemText } from '../../styles';
 
 const propTypes = {
-  product: PropTypes.func.isRequired,
+  product: PropTypes.object.isRequired,
   removeProductItem: PropTypes.func.isRequired
 };
 
@@ -50,13 +50,7 @@ class ProductItemForm extends React.Component {
         <td>
           <FormControl placeholder="Unit price" />
           <FormControl placeholder="Discount percent" />
-          <FormControl componentClass="select">
-            {Taxes.map(item => (
-              <option key={item._id} value={item._id}>
-                {item.name}
-              </option>
-            ))}
-          </FormControl>
+          <FormControl placeholder="Tax" />
         </td>
         <td>
           <ProductItemText>5,890,000₮</ProductItemText>

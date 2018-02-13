@@ -1,4 +1,3 @@
-import Home from './home';
-import Board from './board';
+import Board from './Board';
 
-export { Home, Board };
+export { Board };

@@ -130,14 +130,3 @@ export const Currencies = [
     name: 'USD'
   }
 ];
-
-export const Taxes = [
-  {
-    _id: 'tax1',
-    name: 'Tax 5%'
-  },
-  {
-    _id: 'tax2',
-    name: 'Tax 10%'
-  }
-];
