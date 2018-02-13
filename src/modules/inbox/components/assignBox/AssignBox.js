@@ -57,7 +57,7 @@ class AssignBox extends Component {
 
       return {
         _id: assignee._id,
-        title: assignee.details.fullName || assignee.emails[0].address,
+        title: assignee.details.fullName || assignee.email,
         avatar: assignee.details.avatar || '/images/avatar-colored.svg',
         selectedBy: state
       };
