@@ -5,6 +5,7 @@ import queryString from 'query-string';
 import { compose, graphql } from 'react-apollo';
 import gql from 'graphql-tag';
 import { router as routerUtils } from 'modules/common/utils';
+import { Spinner } from 'modules/common/components';
 import { queries } from '../graphql';
 import { Channels } from '../components';
 
@@ -19,6 +20,10 @@ class ChannelsWithCurrent extends React.Component {
 
   render() {
     const { channelDetailQuery, location, integrationsCountQuery } = this.props;
+
+    if (channelDetailQuery.loading) {
+      return <Spinner />;
+    }
 
     const extendedProps = {
       ...this.props,
