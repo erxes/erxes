@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { Icon } from 'modules/common/components';
+import ImagePreview from './ImagePreview';
 
 const Overlay = styled.div`
   opacity: 0;
@@ -100,7 +101,7 @@ class Attachment extends Component {
   renderAtachment({ attachment }) {
     if (attachment.type.startsWith('image')) {
       return (
-        <img
+        <ImagePreview
           onLoad={this.onLoadImage}
           alt={attachment.url}
           src={attachment.url}
@@ -149,14 +150,7 @@ class Attachment extends Component {
   render() {
     const props = this.props;
     return (
-      <DownloadAttachment href={props.attachment.url} target="_blank">
-        {this.renderAtachment(props)}
-        <Overlay>
-          <div>
-            <Icon icon="android-download" />
-          </div>
-        </Overlay>
-      </DownloadAttachment>
+      <DownloadAttachment>{this.renderAtachment(props)}</DownloadAttachment>
     );
   }
 }
