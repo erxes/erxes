@@ -8,6 +8,7 @@ const propTypes = {
   stages: PropTypes.array.isRequired,
   save: PropTypes.func.isRequired,
   remove: PropTypes.func.isRequired,
+  changeStages: PropTypes.func.isRequired,
   loading: PropTypes.bool.isRequired,
   pipelineId: PropTypes.string.isRequired
 };
@@ -25,16 +26,24 @@ class Stages extends Component {
     };
   }
 
+  setStates(stages) {
+    if (stages && stages.length > 0) {
+      this.props.changeStages(stages);
+    }
+  }
+
   add() {
     const stages = this.state.stages;
 
     stages.push({
-      _id: Math.random()
+      name: Math.random().toString()
     });
 
     this.setState({
       stages
     });
+
+    this.setStates(this.state.stages);
   }
 
   remove(_id) {
@@ -43,12 +52,16 @@ class Stages extends Component {
     this.setState({
       stages: stages.filter(stage => stage._id !== _id)
     });
+
+    this.setStates(this.state.stages);
   }
 
   onChangeFields(stages) {
     this.setState({
       stages
     });
+
+    this.setStates(stages);
   }
 
   render() {

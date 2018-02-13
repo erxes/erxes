@@ -52,11 +52,16 @@ const StagesContainer = props => {
       });
   };
 
+  const changeStages = stages => {
+    localStorage.setItem('erxes_deal_stages', JSON.stringify(stages));
+  };
+
   const extendedProps = {
     ...props,
     stages,
     save,
     remove,
+    changeStages,
     loading: stagesQuery.loading
   };
 

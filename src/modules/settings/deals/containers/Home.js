@@ -10,6 +10,14 @@ import { queries, mutations } from '../graphql';
 import { router as routerUtils } from 'modules/common/utils';
 
 class HomeWithCurrent extends React.Component {
+  componentWillReceiveProps() {
+    const { history, boardId } = this.props;
+
+    if (!routerUtils.getParam(history, 'boardId') && boardId) {
+      routerUtils.setParams(history, { boardId });
+    }
+  }
+
   render() {
     const {
       pipelinesQuery,
@@ -48,6 +56,12 @@ class HomeWithCurrent extends React.Component {
         doc._id = pipeline._id;
       }
 
+      const dealStageKey = 'erxes_deal_stages';
+      if (localStorage.getItem(dealStageKey)) {
+        doc.stages = JSON.parse(localStorage.getItem(dealStageKey));
+        localStorage.removeItem(dealStageKey);
+      }
+
       mutation({
         variables: doc
       })
@@ -79,6 +93,7 @@ class HomeWithCurrent extends React.Component {
 }
 
 HomeWithCurrent.propTypes = {
+  history: PropTypes.object,
   location: PropTypes.object,
   pipelinesQuery: PropTypes.object,
   boardId: PropTypes.string,
@@ -91,7 +106,7 @@ const HomeContainer = compose(
   graphql(gql(queries.pipelines), {
     name: 'pipelinesQuery',
     options: ({ boardId }) => ({
-      variables: { boardId }
+      variables: { boardId: boardId || '' }
     })
   }),
   graphql(gql(mutations.pipelineAdd), {
@@ -103,7 +118,26 @@ const HomeContainer = compose(
   graphql(gql(mutations.pipelineRemove), {
     name: 'removePipelineMutation'
   })
-)(withRouter(HomeWithCurrent));
+)(HomeWithCurrent);
+
+//Getting lastBoard id to currentBoard
+const BoardWithLast = props => {
+  const { lastBoardQuery } = props;
+  const lastBoard = lastBoardQuery.dealBoardGetLast || {};
+  const extendedProps = { ...props, boardId: lastBoard._id };
+
+  return <HomeContainer {...extendedProps} />;
+};
+
+BoardWithLast.propTypes = {
+  lastBoardQuery: PropTypes.object
+};
+
+const BoardWithLastContainer = compose(
+  graphql(gql(queries.boardsGetLast), {
+    name: 'lastBoardQuery'
+  })
+)(BoardWithLast);
 
 // Main home component
 const MainContainer = props => {
@@ -116,7 +150,7 @@ const MainContainer = props => {
     return <HomeContainer {...extendedProps} />;
   }
 
-  return <HomeContainer {...props} />;
+  return <BoardWithLastContainer {...props} />;
 };
 
 MainContainer.propTypes = {

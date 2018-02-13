@@ -31,11 +31,13 @@ const boardRemove = `
 const commonPipelineParamsDef = `
   $name: String!,
   $boardId: String!,
+  $stages: JSON
 `;
 
 const commonPipelineParams = `
   name: $name,
   boardId: $boardId,
+  stages: $stages
 `;
 
 const pipelineAdd = `
