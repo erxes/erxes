@@ -120,7 +120,8 @@ const CategoryItem = styled.li`
     background: ${colors.colorWhite};
 
     ${ActionButtons} {
-      width: ${dimensions.headerSpacing - 5}px;
+      width: 50px;
+      padding-right: ${dimensions.coreSpacing}px;
       background: ${colors.colorWhite};
     }
   }
