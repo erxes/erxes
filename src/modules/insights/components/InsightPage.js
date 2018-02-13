@@ -52,7 +52,7 @@ class InsightPage extends React.Component {
               'Volume Report',
               '/images/icons/erxes-14.svg',
               '/insights/volume-report',
-              'Total feedbacks gathered through various customer engagement channels.'
+              'Feedbacks gathered through various customer engagement channels.'
             )}
             {this.renderBox(
               'Response Report',

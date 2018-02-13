@@ -85,6 +85,10 @@ class BasicInfo extends React.Component {
     this.setState({ [inputname]: e.target.value });
   }
 
+  getVisitorInfo(customer, key) {
+    return customer.visitorContactInfo && customer.visitorContactInfo[key];
+  }
+
   renderForm() {
     const { customer } = this.props;
 
@@ -108,14 +112,18 @@ class BasicInfo extends React.Component {
         <FormGroup>
           Primary Email:
           <FormControl
-            defaultValue={customer.email}
+            defaultValue={
+              customer.email || this.getVisitorInfo(customer, 'email')
+            }
             onChange={e => this.handleChange(e, 'email')}
           />
         </FormGroup>
         <FormGroup>
           Phone:
           <FormControl
-            defaultValue={customer.phone}
+            defaultValue={
+              customer.phone || this.getVisitorInfo(customer, 'phone')
+            }
             onChange={e => this.handleChange(e, 'phone')}
           />
         </FormGroup>
@@ -167,17 +175,19 @@ class BasicInfo extends React.Component {
             <li>
               Email:
               <Aboutvalues>
-                {customer.email || (
-                  <a onClick={this.toggleEditing}>Add Email</a>
-                )}
+                {customer.email ||
+                  this.getVisitorInfo(customer, 'email') || (
+                    <a onClick={this.toggleEditing}>Add Email</a>
+                  )}
               </Aboutvalues>
             </li>
             <li>
               Phone:
               <Aboutvalues>
-                {customer.phone || (
-                  <a onClick={this.toggleEditing}>Add Phone</a>
-                )}
+                {customer.phone ||
+                  this.getVisitorInfo(customer, 'phone') || (
+                    <a onClick={this.toggleEditing}>Add Phone</a>
+                  )}
               </Aboutvalues>
             </li>
           </AboutList>
