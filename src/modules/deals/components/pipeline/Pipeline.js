@@ -6,8 +6,8 @@ import { PipelineContainer, PipelineHeader, PipelineBody } from '../../styles';
 
 const propTypes = {
   pipeline: PropTypes.object.isRequired,
-  stages: PropTypes.array.isRequired,
-  deals: PropTypes.object.isRequired
+  stages: PropTypes.array,
+  deals: PropTypes.array
 };
 
 class Pipeline extends React.Component {
@@ -51,7 +51,7 @@ class Pipeline extends React.Component {
               key={stage._id}
               index={index}
               stage={stage}
-              deals={deals[stage._id]}
+              deals={deals.filter(deal => deal.stageId === stage._id)}
               showDealForm={this.state.showDealForm}
               closeDealForm={this.closeDealForm}
               addDealForm={this.addDealForm}

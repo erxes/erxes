@@ -9,13 +9,13 @@ import { Board as BoardComponent } from '../components';
 import { queries } from '../graphql';
 
 class Container extends React.Component {
-  // componentWillReceiveProps() {
-  //   const { history, currentBoardId } = this.props;
+  componentWillReceiveProps() {
+    const { history, currentBoardId } = this.props;
 
-  //   if (!routerUtils.getParam(history, 'id') && currentBoardId) {
-  //     routerUtils.setParams(history, { id: currentBoardId });
-  //   }
-  // }
+    if (!routerUtils.getParam(history, 'id') && currentBoardId) {
+      routerUtils.setParams(history, { id: currentBoardId });
+    }
+  }
 
   render() {
     const { boardsQuery, pipelinesQuery, dealsQuery, stagesQuery } = this.props;
@@ -24,6 +24,15 @@ class Container extends React.Component {
     const pipelines = pipelinesQuery.dealPipelines || [];
     const stages = stagesQuery.dealStages || [];
     const deals = dealsQuery.deals || [];
+
+    if (
+      boardsQuery.loading ||
+      pipelinesQuery.loading ||
+      dealsQuery.loading ||
+      stagesQuery.loading
+    ) {
+      return null;
+    }
 
     const extendedProps = {
       ...this.props,

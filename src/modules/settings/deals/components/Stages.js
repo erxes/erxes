@@ -10,7 +10,8 @@ const propTypes = {
   remove: PropTypes.func.isRequired,
   changeStages: PropTypes.func.isRequired,
   loading: PropTypes.bool.isRequired,
-  pipelineId: PropTypes.string.isRequired
+  pipelineId: PropTypes.string.isRequired,
+  boardId: PropTypes.string.isRequired
 };
 
 class Stages extends Component {
@@ -36,7 +37,9 @@ class Stages extends Component {
     const stages = this.state.stages;
 
     stages.push({
-      name: Math.random().toString()
+      name: Math.random().toString(),
+      pipelineId: this.props.pipelineId,
+      boardId: this.props.boardId
     });
 
     this.setState({

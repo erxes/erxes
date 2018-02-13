@@ -7,7 +7,7 @@ import { Deal, DealForm } from '../';
 
 const propTypes = {
   stage: PropTypes.object.isRequired,
-  deals: PropTypes.array.isRequired,
+  deals: PropTypes.array,
   index: PropTypes.number.isRequired,
   addDealForm: PropTypes.func.isRequired,
   closeDealForm: PropTypes.func.isRequired,

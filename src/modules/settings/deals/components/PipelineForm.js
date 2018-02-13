@@ -70,7 +70,9 @@ class PipelineForm extends Component {
             required
           />
         </FormGroup>
-        {pipeline ? <Stages pipelineId={pipeline._id} /> : null}
+        {pipeline ? (
+          <Stages boardId={pipeline.boardId} pipelineId={pipeline._id} />
+        ) : null}
       </div>
     );
   }

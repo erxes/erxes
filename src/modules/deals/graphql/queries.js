@@ -49,7 +49,6 @@ const deals = `
   query deals($boardId: String) {
     deals(boardId: $boardId) {
       _id
-      name
       stageId
     }
   }

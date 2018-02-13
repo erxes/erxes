@@ -4,6 +4,8 @@ import { Modal } from 'react-bootstrap';
 import { Button, ModalTrigger, Icon } from 'modules/common/components';
 import { DealFormContainer, DealButton } from '../../styles';
 import { ProductForm } from '../';
+import { AssignTrigger } from 'modules/inbox/styles';
+import { AssignBoxPopover } from 'modules/inbox/components';
 
 const propTypes = {
   addDeal: PropTypes.func.isRequired,
@@ -52,10 +54,13 @@ class DealForm extends React.Component {
       </DealButton>
     );
 
-    const assignedToTrigger = (
-      <DealButton>
-        Assigned to <Icon icon="plus" />
-      </DealButton>
+    const assignTrigger = (
+      <AssignTrigger>
+        <Button btnStyle="simple" size="small">
+          Member
+        </Button>
+        <Icon icon="ios-arrow-down" size={13} />
+      </AssignTrigger>
     );
 
     return (
@@ -74,9 +79,7 @@ class DealForm extends React.Component {
           <ModalTrigger title="Customer" trigger={customerTrigger}>
             <ProductForm addProduct={() => {}} />
           </ModalTrigger>
-          <ModalTrigger title="Assigned to" trigger={assignedToTrigger}>
-            <ProductForm addProduct={() => {}} />
-          </ModalTrigger>
+          <AssignBoxPopover targets={[]} trigger={assignTrigger} />
           <Modal.Footer>
             <Button
               btnStyle="simple"

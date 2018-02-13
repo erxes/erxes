@@ -14,36 +14,18 @@ import { Button, DropdownToggle, Icon } from 'modules/common/components';
 const propTypes = {
   currentBoard: PropTypes.object,
   boards: PropTypes.array,
-  pipelines: PropTypes.array
+  pipelines: PropTypes.array,
+  stages: PropTypes.array,
+  deals: PropTypes.array
 };
 
 class Board extends React.Component {
   constructor(props) {
     super(props);
 
-    const deals = {};
-    props.deals.forEach(deal => {
-      if (deals[deal.stageId]) {
-        deals[deal.stageId].push(deal);
-      } else {
-        deals[deal.stageId] = [deal];
-      }
-    });
-
-    const stages = {};
-    props.stages.forEach(stage => {
-      if (stages[stage.pipelineId]) {
-        stages[stage.pipelineId].push(stage);
-      } else {
-        stages[stage.pipelineId] = [stage];
-      }
-    });
-
-    console.log('props: ', this.props);
-
     this.state = {
-      deals,
-      stages,
+      deals: props.deals,
+      stages: props.stages,
       showDealForm: {}
     };
 
@@ -60,43 +42,55 @@ class Board extends React.Component {
   }
 
   reOrder({ source, destination }, list, fieldName) {
+    const destinationList = list.filter(
+      item => destination.droppableId === item[fieldName]
+    );
+    const sourceList = list.filter(
+      item => source.droppableId === item[fieldName]
+    );
+
     // If ordering within list
     if (source.droppableId === destination.droppableId) {
       // move in list
       const movedList = moveInList(
-        list[destination.droppableId],
+        destinationList,
         source.index,
         destination.index
       );
 
+      const otherDestinationList = list.filter(
+        item => destination.droppableId !== item[fieldName]
+      );
+
       // update moved list
-      list[destination.droppableId] = movedList;
-    } else {
-      // When move to another list
-      // Remove from source list
-      const { sourceArray, removedItem } = removeFromList(
-        list[source.droppableId],
-        source.index
-      );
-
-      // Update removed list
-      list[source.droppableId] = sourceArray;
-
-      // Change droppableId
-      removedItem[fieldName] = destination.droppableId;
-
-      // Add destination list
-      const addedList = addToList(
-        list[destination.droppableId],
-        destination.index,
-        removedItem
-      );
-
-      // Update added list
-      list[destination.droppableId] = addedList;
+      return otherDestinationList.concat(movedList);
     }
-    // reordered list
-    return list;
+
+    // When move to another list
+    // Remove from source list
+    const { sourceArray, removedItem } = removeFromList(
+      sourceList,
+      source.index
+    );
+
+    // Change droppableId
+    removedItem[fieldName] = destination.droppableId;
+
+    // Add destination list
+    const addedList = addToList(
+      destinationList,
+      destination.index,
+      removedItem
+    );
+
+    const otherList = list.filter(
+      item =>
+        source.droppableId !== item[fieldName] &&
+        destination.droppableId === item[fieldName]
+    );
+
+    // Update added list
+    return otherList.concat(sourceArray, addedList);
   }
 
   onDragEnd(result) {
@@ -179,7 +173,9 @@ class Board extends React.Component {
             <Pipeline
               key={pipeline._id}
               pipeline={pipeline}
-              stages={this.state.stages[pipeline._id]}
+              stages={this.state.stages.filter(
+                stage => pipeline._id === stage.pipelineId
+              )}
               deals={this.state.deals}
             />
           );
