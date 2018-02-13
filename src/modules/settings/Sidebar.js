@@ -40,33 +40,6 @@ function SettingsSidebar() {
       </Sidebar.Section>
 
       <Sidebar.Section>
-        <Title>Knowledge base</Title>
-        <SidebarList>
-          <li>
-            <NavLink activeClassName="active" to="/settings/knowledgebase/list">
-              Topics
-            </NavLink>
-          </li>
-          <li>
-            <NavLink
-              activeClassName="active"
-              to="/settings/knowledgebase/categories"
-            >
-              Categories
-            </NavLink>
-          </li>
-          <li>
-            <NavLink
-              activeClassName="active"
-              to="/settings/knowledgebase/articles"
-            >
-              Articles
-            </NavLink>
-          </li>
-        </SidebarList>
-      </Sidebar.Section>
-
-      <Sidebar.Section>
         <Title>Personal settings</Title>
         <SidebarList>
           <li>

@@ -130,12 +130,12 @@ const SidebarFooter = SidebarHeader.extend`
 `;
 
 const SidebarBox = styled.div`
-  background-color: ${colors.colorWhite};
+  background-color: ${props => (props.noBackground ? '' : colors.colorWhite)};
   margin-bottom: ${dimensions.coreSpacing}px;
   box-shadow: ${props =>
     props.noShadow ? 'none' : `0 0 4px ${colors.shadowPrimary}`};
   padding-bottom: ${dimensions.unitSpacing}px;
-  position: relative;
+  position: ${props => (props.full ? 'initial' : 'relative')};
   justify-content: center;
   transition: max-height 0.4s;
   overflow: ${props => (props.collapsible ? 'hidden' : 'auto')};
