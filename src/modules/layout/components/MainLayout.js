@@ -26,7 +26,7 @@ class MainLayout extends React.Component {
         mm: '%d m',
         h: 'an hour',
         hh: '%d h',
-        d: 'd',
+        d: 'a day',
         dd: '%d d',
         M: 'a mth',
         MM: '%d mths',
