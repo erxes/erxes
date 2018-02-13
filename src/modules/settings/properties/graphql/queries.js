@@ -16,13 +16,8 @@ const fieldsgroups = `
       getFields {
         _id
         contentType
-        contentTypeId
         type
-        validation
         text
-        description
-        options
-        isRequired
         order
       }
     }
