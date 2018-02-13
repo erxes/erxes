@@ -7,7 +7,8 @@ import {
   AvatarWrapper,
   ActivityWrapper,
   ActivityCaption,
-  ActivityContent
+  ActivityContent,
+  ActivityDate
 } from 'modules/activityLogs/styles';
 
 class InternalNotes extends React.Component {
@@ -21,10 +22,10 @@ class InternalNotes extends React.Component {
         <ActivityRow key={item.id}>
           <ActivityWrapper>
             <AvatarWrapper>
-              <NameCard.Avatar user={item.by} size={50} />
+              <NameCard.Avatar user={item.by} size={40} />
             </AvatarWrapper>
             <ActivityCaption>{item.by.details.fullName}</ActivityCaption>
-            <div>{moment(item.createdAt).fromNow()}</div>
+            <ActivityDate>{moment(item.createdAt).fromNow()}</ActivityDate>
           </ActivityWrapper>
           <ActivityContent>{item.content}</ActivityContent>
         </ActivityRow>

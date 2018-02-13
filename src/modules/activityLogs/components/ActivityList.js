@@ -9,7 +9,9 @@ import {
   ActivityIcon,
   AvatarWrapper,
   ActivityWrapper,
-  ActivityCaption
+  ActivityCaption,
+  ActivityDate,
+  ActivityContent
 } from '../styles';
 import ActivityLogProcessor from '../utils';
 
@@ -27,13 +29,18 @@ class ActivityList extends React.Component {
         </ActivityIcon>
         <ActivityWrapper>
           <AvatarWrapper>
-            <NameCard.Avatar user={data.by} size={50} />
+            <NameCard.Avatar user={data.by} size={40} />
           </AvatarWrapper>
           <ActivityCaption>{data.caption}</ActivityCaption>
-          <div>{moment(data.date).fromNow()}</div>
+          <ActivityDate>{this.formatDate(data.date)}</ActivityDate>
+          {data.content && <ActivityContent>{data.content}</ActivityContent>}
         </ActivityWrapper>
       </ActivityRow>
     );
+  }
+
+  formatDate(date) {
+    return moment(date).fromNow();
   }
 
   renderList(activity) {

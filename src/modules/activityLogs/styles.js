@@ -8,6 +8,10 @@ const Timeline = styled.div`
   padding-left: ${iconWrapperWidth};
   position: relative;
 
+  div > h4:first-child {
+    padding-top: ${dimensions.coreSpacing}px;
+  }
+
   &:before {
     border-right: 1px solid ${colors.borderDarker};
     content: '';
@@ -20,7 +24,7 @@ const Timeline = styled.div`
 
 const ActivityTitle = styled.h4`
   color: ${colors.textPrimary};
-  padding: ${dimensions.unitSpacing}px 0;
+  padding: ${dimensions.coreSpacing * 1.5}px 0;
   margin: 0;
   line-height: ${typography.lineHeightHeading4};
 `;
@@ -69,13 +73,14 @@ const ActivityIcon = styled.span`
   display: inline-block;
   position: absolute;
   background-color: ${props => props.color};
-  height: calc(${iconWrapperWidth}/2);
-  width: calc(${iconWrapperWidth}/2);
-  line-height: calc(${iconWrapperWidth}/2);
+  font-size: calc(${iconWrapperWidth} * 0.25);
+  height: calc(${iconWrapperWidth} * 0.4);
+  width: calc(${iconWrapperWidth} * 0.4);
+  line-height: calc(${iconWrapperWidth} * 0.4);
   text-align: center;
   border-radius: 50%;
-  left: calc(-${iconWrapperWidth} + ${iconWrapperWidth}/4);
-  top: ${dimensions.coreSpacing}px;
+  left: calc(-${iconWrapperWidth} + ${iconWrapperWidth} * 0.3);
+  top: ${dimensions.unitSpacing}px;
   z-index: 2;
 
   & i {
@@ -85,13 +90,19 @@ const ActivityIcon = styled.span`
 `;
 
 const ActivityCaption = styled.div`
-  padding-top: ${dimensions.unitSpacing}px;
-  font-weight: ${typography.fontWeightRegular};
+  padding-top: 5px;
   line-height: 1;
 `;
 
+const ActivityDate = styled.div`
+  color: ${colors.colorCoreLightGray};
+  font-weight: ${typography.fontWeightLight};
+`;
+
 const ActivityContent = styled.div`
+  border-top: 1px solid ${colors.borderPrimary};
   margin-top: ${dimensions.coreSpacing}px;
+  padding-top: ${dimensions.unitSpacing}px;
 `;
 
 const IconWrapper = styled.div`
@@ -185,6 +196,7 @@ export {
   AvatarWrapper,
   ActivityWrapper,
   ActivityCaption,
+  ActivityDate,
   ActivityContent,
   IconWrapper,
   DeleteNote,

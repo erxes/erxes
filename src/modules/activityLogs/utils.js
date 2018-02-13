@@ -1,3 +1,5 @@
+import React from 'react';
+
 const MONTHS = [
   'January',
   'February',
@@ -78,6 +80,7 @@ export default class {
       result.data.push({
         ...iconAndColor,
         caption,
+        content: item.content,
         date: item.createdAt,
         createdAt: item.createdAt,
         by: item.by
@@ -107,13 +110,13 @@ export default class {
         caption = 'Registered to Erxes';
         break;
       case 'segment-create':
-        caption = `Moved to  ${content} segment`;
+        caption = `Moved to ${content} segment`;
         break;
       case 'internal_note-create':
-        caption = `Internal note was added '${content}'`;
+        caption = ` left a note`;
         break;
       case 'conversation-create':
-        caption = `Conversation message was added '${content}'`;
+        caption = ` added a conversation message`;
         break;
       case 'company-create':
         caption = `Registered to Erxes`;
@@ -124,9 +127,13 @@ export default class {
 
     if (by.type === 'USER') {
       if (by._id === this.currentUser._id) {
-        caption += ' by you';
+        caption = (
+          <span>
+            <strong>You</strong> {caption}
+          </span>
+        );
       } else {
-        caption += ` by ${by.details.fullName}`;
+        caption = `${by.details.fullName} ` + caption;
       }
     }
 
