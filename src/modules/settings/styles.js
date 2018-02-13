@@ -266,7 +266,6 @@ const ActionButtons = styled.div`
   width: 0;
   overflow: hidden;
   align-items: center;
-  justify-content: center;
   transition: all 0.3s ease;
 
   * {
@@ -303,7 +302,8 @@ const SidebarListItem = styled.li`
     background: ${props => (props.isActive ? '' : colors.bgLight)};
 
     ${ActionButtons} {
-      width: ${dimensions.headerSpacing - 5}px;
+      width: auto;
+      padding-right: ${dimensions.coreSpacing}px;
     }
   }
 `;
