@@ -33,7 +33,10 @@ class ActivityList extends React.Component {
           </AvatarWrapper>
           <ActivityCaption>{data.caption}</ActivityCaption>
           <ActivityDate>{this.formatDate(data.date)}</ActivityDate>
-          {data.content && <ActivityContent>{data.content}</ActivityContent>}
+          {data.content &&
+            data.content !== '[object Object]' && (
+              <ActivityContent>{data.content}</ActivityContent>
+            )}
         </ActivityWrapper>
       </ActivityRow>
     );

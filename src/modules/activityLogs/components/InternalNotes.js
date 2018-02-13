@@ -24,7 +24,9 @@ class InternalNotes extends React.Component {
             <AvatarWrapper>
               <NameCard.Avatar user={item.by} size={40} />
             </AvatarWrapper>
-            <ActivityCaption>{item.by.details.fullName}</ActivityCaption>
+            <ActivityCaption>
+              <strong>{item.by.details.fullName}</strong> left a note
+            </ActivityCaption>
             <ActivityDate>{moment(item.createdAt).fromNow()}</ActivityDate>
           </ActivityWrapper>
           <ActivityContent>{item.content}</ActivityContent>

@@ -17,7 +17,7 @@ import {
   ConversationList
 } from 'modules/activityLogs/components';
 import { WhiteBoxRoot } from 'modules/layout/styles';
-import { DetailContent, SubContent } from 'modules/customers/styles';
+import { SubContent } from 'modules/customers/styles';
 
 const propTypes = {
   customer: PropTypes.object.isRequired,
@@ -104,7 +104,7 @@ class CustomerDetails extends React.Component {
     ];
 
     const content = (
-      <DetailContent>
+      <div>
         <WhiteBoxRoot>
           <Tabs>
             <TabTitle className="active">
@@ -137,7 +137,7 @@ class CustomerDetails extends React.Component {
         </Tabs>
 
         {this.renderTabContent()}
-      </DetailContent>
+      </div>
     );
 
     return (

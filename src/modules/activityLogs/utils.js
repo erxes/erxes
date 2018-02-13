@@ -107,19 +107,19 @@ export default class {
 
     switch (action) {
       case 'customer-create':
-        caption = 'Registered to Erxes';
+        caption = 'registered to Erxes';
         break;
       case 'segment-create':
         caption = `Moved to ${content} segment`;
         break;
       case 'internal_note-create':
-        caption = ` left a note`;
+        caption = `left a note`;
         break;
       case 'conversation-create':
-        caption = ` added a conversation message`;
+        caption = `added a conversation message`;
         break;
       case 'company-create':
-        caption = `Registered to Erxes`;
+        caption = `registered to Erxes`;
         break;
       default:
         caption = action;
