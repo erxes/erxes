@@ -32,6 +32,7 @@ const FieldSchema = mongoose.Schema({
     optional: true,
   }),
   isRequired: field({ type: Boolean }),
+  isDefinedByErxes: field({ type: Boolean }),
   order: field({ type: Number }),
   groupId: field({ type: String }),
   visible: field({ type: Boolean, default: true }),

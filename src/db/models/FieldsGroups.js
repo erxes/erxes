@@ -9,8 +9,8 @@ const FieldGroupSchema = mongoose.Schema({
   _id: field({ pkey: true }),
   name: field({ type: String }),
   contentType: field({ type: String }),
-  nestedUnder: field({ type: String }),
   order: field({ type: Number }),
+  isDefinedByErxes: field({ type: Boolean }),
   description: field({
     type: String,
   }),
