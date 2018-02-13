@@ -7,10 +7,11 @@ import { Properties } from '../components';
 
 const PropertiesContainer = props => {
   const { fieldsQuery } = props;
-  console.log(fieldsQuery);
+  const fieldsgroups = fieldsQuery.fieldsgroups || [];
 
   const updatedProps = {
-    ...props
+    ...props,
+    fieldsgroups
   };
 
   return <Properties {...updatedProps} />;
