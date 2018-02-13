@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import moment from 'moment';
 import _ from 'lodash';
 import { FormControl, Tags } from 'modules/common/components';
+import { urlParser } from 'modules/common/utils';
 
 const propTypes = {
   company: PropTypes.object.isRequired,
@@ -21,9 +22,26 @@ function isTimeStamp(value) {
   );
 }
 
+function createLinkFromUrl(url) {
+  return (
+    <a
+      onClick={e => {
+        e.stopPropagation();
+        window.open(url);
+      }}
+    >
+      {urlParser.extractRootDomain(url)}
+    </a>
+  );
+}
+
 function formatValue(value) {
   if (typeof value === 'boolean') {
     return value.toString();
+  }
+
+  if (urlParser.isValidURL(value)) {
+    return createLinkFromUrl(value);
   }
 
   if (
