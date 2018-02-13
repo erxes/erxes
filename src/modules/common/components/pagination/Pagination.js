@@ -5,6 +5,7 @@ import _ from 'underscore';
 import { router } from 'modules/common/utils';
 import { Icon } from 'modules/common/components';
 import { PaginationWrapper, PaginationList } from './styles';
+import PerPageChooser from './PerPageChooser';
 
 // pages calculation
 const generatePages = (pageCount, currentPage) => {
@@ -65,7 +66,7 @@ const generatePages = (pageCount, currentPage) => {
   return pages;
 };
 
-// per page component
+// page chooser component
 class Page extends React.Component {
   constructor(props) {
     super(props);
@@ -193,9 +194,15 @@ class Pagination extends React.Component {
               <Icon icon="chevron-right" />
             </a>
           </li>
+
+          {this.renderPerPageChooser()}
         </PaginationList>
       );
     }
+  }
+
+  renderPerPageChooser() {
+    return <PerPageChooser history={this.props.history} />;
   }
 
   render() {
