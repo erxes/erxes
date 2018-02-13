@@ -24,7 +24,7 @@ class MainLayout extends React.Component {
         s: 'just now',
         m: 'a min',
         mm: '%d m',
-        h: 'h',
+        h: 'an hour',
         hh: '%d h',
         d: 'd',
         dd: '%d d',
