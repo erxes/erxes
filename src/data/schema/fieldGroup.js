@@ -15,8 +15,12 @@ const commonFields = `
   description: String
 `;
 
+export const queries = `
+  fieldsgroups(contentType: String): [FieldsGroups]
+`;
+
 export const mutations = `
-  fieldsGroupsAdd(${commonFields}): Field
-  fieldsGroupsEdit(_id: String!, ${commonFields}): Field
-  fieldsGroupsRemove(_id: String!): Field
+  fieldsGroupsAdd(${commonFields}): FieldsGroups
+  fieldsGroupsEdit(_id: String!, ${commonFields}): FieldsGroups
+  fieldsGroupsRemove(_id: String!): FieldsGroups
 `;

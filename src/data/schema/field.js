@@ -23,11 +23,19 @@ export const types = `
     order: Int
   }
 `;
-
+// type FieldsGroups {
+//   _id: String!
+//   name: String
+//   contentType: String
+//   description: String
+//   order: Number
+//   visible: Boolean
+// }
 export const queries = `
   fields(contentType: String!, contentTypeId: String): [Field]
   fieldsCombinedByContentType(contentType: String!): JSON
   fieldsDefaultColumnsConfig(contentType: String!): [ColumnConfigItem]
+  fieldsByGroup(visible: Boolean, contentType: String!): [FieldsGroups]
 `;
 
 const commonFields = `
