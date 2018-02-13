@@ -5,7 +5,6 @@ import queryString from 'query-string';
 import { compose, graphql } from 'react-apollo';
 import gql from 'graphql-tag';
 import { router as routerUtils } from 'modules/common/utils';
-import { Spinner } from 'modules/common/components';
 import { queries } from '../graphql';
 import { Brands } from '../components';
 
@@ -20,10 +19,6 @@ class CurrentBrands extends Component {
 
   render() {
     const { brandDetailQuery, location, integrationsCountQuery } = this.props;
-
-    if (brandDetailQuery.loading) {
-      return <Spinner />;
-    }
 
     const extendedProps = {
       ...this.props,
