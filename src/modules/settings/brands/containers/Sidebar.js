@@ -79,6 +79,24 @@ SidebarContainer.propTypes = {
   removeMutation: PropTypes.func
 };
 
+const commonOptions = ({ queryParams, currentBrandId }) => {
+  return {
+    refetchQueries: [
+      {
+        query: gql(queries.brands),
+        variables: { perPage: queryParams.limit || 20 },
+        fetchPolicy: 'network-only'
+      },
+      {
+        query: gql(queries.brandDetail),
+        variables: { _id: currentBrandId || '' },
+        fetchPolicy: 'network-only'
+      },
+      { query: gql(queries.brandsCount) }
+    ]
+  };
+};
+
 export default compose(
   graphql(gql(queries.brands), {
     name: 'brandsQuery',
@@ -93,12 +111,15 @@ export default compose(
     name: 'brandsCountQuery'
   }),
   graphql(gql(mutations.brandAdd), {
-    name: 'addMutation'
+    name: 'addMutation',
+    options: commonOptions
   }),
   graphql(gql(mutations.brandEdit), {
-    name: 'editMutation'
+    name: 'editMutation',
+    options: commonOptions
   }),
   graphql(gql(mutations.brandRemove), {
-    name: 'removeMutation'
+    name: 'removeMutation',
+    options: commonOptions
   })
 )(SidebarContainer);
