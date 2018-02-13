@@ -81,7 +81,7 @@ class CompanyListContainer extends Bulk {
     };
 
     const searchValue = this.props.queryParams.searchValue || '';
-    console.log(companyCountsQuery.companyCounts);
+
     const updatedProps = {
       ...this.props,
       columnsConfig,

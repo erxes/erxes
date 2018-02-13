@@ -11,7 +11,6 @@ import Loader from './Loader';
 import Chip from './Chip';
 import LoadMore from './LoadMore';
 import Pagination from './pagination/Pagination';
-import PerPageChooser from './pagination/PerPageChooser';
 import ModalTrigger from './ModalTrigger';
 import ActionButtons from './ActionButtons';
 import EmptyState from './EmptyState';
@@ -51,7 +50,6 @@ export {
   Chip,
   Pagination,
   pagination,
-  PerPageChooser,
   ModalTrigger,
   EmptyState,
   Bulk,

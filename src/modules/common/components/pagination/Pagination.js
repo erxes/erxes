@@ -3,8 +3,14 @@ import { withRouter } from 'react-router';
 import PropTypes from 'prop-types';
 import _ from 'underscore';
 import { router } from 'modules/common/utils';
-import { Icon } from 'modules/common/components';
-import { PaginationWrapper, PaginationList } from './styles';
+import { Icon, DropdownToggle } from 'modules/common/components';
+import {
+  PaginationWrapper,
+  PaginationList,
+  PerPageButton,
+  Option
+} from './styles';
+import { Dropdown } from 'react-bootstrap';
 
 // pages calculation
 const generatePages = (pageCount, currentPage) => {
@@ -65,7 +71,44 @@ const generatePages = (pageCount, currentPage) => {
   return pages;
 };
 
-// per page component
+// per page chooser component
+const PerPageChooser = ({ history }) => {
+  const currentPerPage = Number(router.getParam(history, 'perPage')) || 20;
+
+  const onClick = perPage => {
+    router.setParams(history, { perPage });
+  };
+
+  const renderOption = number => {
+    return (
+      <Option>
+        <a onClick={() => onClick(number)}>{number}</a>
+      </Option>
+    );
+  };
+
+  return (
+    <Dropdown id="per-page-chooser" className="dropup">
+      <DropdownToggle bsRole="toggle">
+        <PerPageButton>
+          {currentPerPage} per page <Icon icon="ios-arrow-up" />
+        </PerPageButton>
+      </DropdownToggle>
+      <Dropdown.Menu>
+        {renderOption(20)}
+        {renderOption(50)}
+        {renderOption(100)}
+        {renderOption(200)}
+      </Dropdown.Menu>
+    </Dropdown>
+  );
+};
+
+PerPageChooser.propTypes = {
+  history: PropTypes.object.isRequired
+};
+
+// page chooser component
 class Page extends React.Component {
   constructor(props) {
     super(props);
@@ -193,9 +236,15 @@ class Pagination extends React.Component {
               <Icon icon="chevron-right" />
             </a>
           </li>
+
+          {this.renderPerPageChooser()}
         </PaginationList>
       );
     }
+  }
+
+  renderPerPageChooser() {
+    return <PerPageChooser history={this.props.history} />;
   }
 
   render() {

@@ -4,7 +4,6 @@ import { withRouter } from 'react-router';
 import { Wrapper } from 'modules/layout/components';
 import {
   Pagination,
-  PerPageChooser,
   ModalTrigger,
   Button,
   Table,
@@ -155,7 +154,7 @@ class CompaniesList extends React.Component {
       </Button>
     );
 
-    let actionBarLeft = <PerPageChooser />;
+    let actionBarLeft = null;
 
     if (bulk.length > 0) {
       const tagButton = (

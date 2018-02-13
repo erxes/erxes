@@ -9,7 +9,6 @@ import {
   TaggerPopover,
   ModalTrigger,
   Pagination,
-  PerPageChooser,
   Button,
   Icon,
   Table,
@@ -180,7 +179,7 @@ class CustomersList extends React.Component {
       </BarItems>
     );
 
-    let actionBarLeft = <PerPageChooser />;
+    let actionBarLeft = null;
     const mergeButton = (
       <Button btnStyle="primary" size="small" icon="shuffle">
         Merge
