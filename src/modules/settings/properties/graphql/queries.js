@@ -13,6 +13,18 @@ const fieldsgroups = `
     fieldsgroups(contentType: $contentType) {
       _id
       name
+      getFields {
+        _id
+        contentType
+        contentTypeId
+        type
+        validation
+        text
+        description
+        options
+        isRequired
+        order
+      }
     }
   }
 `;
