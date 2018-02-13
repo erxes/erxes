@@ -34,10 +34,11 @@ const dealMutations = {
   * Create new pipeline
   * @param {String} doc.name
   * @param {String} doc.boardId
+  * @param {[Object]} doc.stages
   * @return {Promise} newly created pipeline object
   */
-  dealPipelinesAdd(root, doc, { user }) {
-    return DealPipelines.createPipeline({ userId: user._id, ...doc });
+  dealPipelinesAdd(root, { stages, ...doc }, { user }) {
+    return DealPipelines.createPipeline({ userId: user._id, ...doc }, stages);
   },
 
   /**
@@ -45,10 +46,11 @@ const dealMutations = {
   * @param {String} _id pipeline id
   * @param {String} doc.name
   * @param {String} doc.boardId
+  * @param {[Object]} doc.stages
   * @return {Promise} updated pipeline object
   */
-  dealPipelinesEdit(root, { _id, ...doc }) {
-    return DealPipelines.updatePipeline(_id, doc);
+  dealPipelinesEdit(root, { _id, stages, ...doc }) {
+    return DealPipelines.updatePipeline(_id, doc, stages);
   },
 
   /**

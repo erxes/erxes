@@ -53,6 +53,14 @@ class Board {
   }
 }
 
+const createPipelineStages = async (stages, pipelineId) => {
+  await DealStages.remove({ pipelineId });
+
+  for (let stage of stages) {
+    DealStages.create(stage);
+  }
+};
+
 // Deal pipeline schema
 const DealPipelineSchema = mongoose.Schema({
   _id: field({ pkey: true }),
@@ -67,8 +75,14 @@ class Pipeline {
    * @param  {Object} doc
    * @return {Promise} Newly created pipeline object
    */
-  static async createPipeline(doc) {
-    return this.create(doc);
+  static async createPipeline(doc, stages) {
+    const pipeline = await this.create(doc);
+
+    if (stages) {
+      createPipelineStages(stages, pipeline._id);
+    }
+
+    return pipeline;
   }
 
   /**
@@ -76,7 +90,11 @@ class Pipeline {
    * @param  {Object} doc
    * @return {Promise} updated pipeline object
    */
-  static async updatePipeline(_id, doc) {
+  static async updatePipeline(_id, doc, stages) {
+    if (stages) {
+      createPipelineStages(stages, _id);
+    }
+
     await this.update({ _id }, { $set: doc });
 
     return this.findOne({ _id });
