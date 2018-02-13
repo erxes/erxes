@@ -16,7 +16,7 @@ import integrations from './integrations';
 import notifications from './notifications';
 import knowledgeBase from './knowledgeBase';
 import activityLogs from './activityLogs';
-import fieldsgroups from 'fieldsgroups.js';
+import fieldsgroups from './fieldsgroups';
 
 export default {
   ...users,
