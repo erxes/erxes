@@ -44,8 +44,8 @@ export const queries = `
   dealBoardGetLast: DealBoard
   dealBoardDetail(_id: String!): DealBoard
   dealPipelines(boardId: String!): [DealPipeline]
-  dealStages(boardId: String, pipelineId: String!): [DealStage]
-  deals(boardId: String, pipelineId: String, stageId: String!): [Deal]
+  dealStages(boardId: String, pipelineId: String): [DealStage]
+  deals(boardId: String, pipelineId: String, stageId: String): [Deal]
 `;
 
 export const mutations = `

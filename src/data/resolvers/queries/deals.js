@@ -46,7 +46,9 @@ const dealQueries = {
    * @return {Promise}  filtered stage objects by pipelineId
    */
   dealStages(root, { boardId, pipelineId }) {
-    const filter = { pipelineId };
+    const filter = {};
+
+    if (pipelineId) filter.pipelineId = pipelineId;
 
     if (boardId) filter.boardId = boardId;
 
@@ -62,7 +64,9 @@ const dealQueries = {
    * @return {Promise}  filtered pipeline objects by stageId
    */
   deals(root, { boardId, pipelineId, stageId }) {
-    const filter = { stageId };
+    const filter = {};
+
+    if (stageId) filter.stageId = stageId;
 
     if (boardId) filter.boardId = boardId;
 
