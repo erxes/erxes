@@ -117,11 +117,11 @@ const CategoryItem = styled.li`
 
   &:hover {
     cursor: pointer;
-    background: ${colors.colorWhite};
-
+    background: ${props => !props.isActive && colors.bgHover};
     ${ActionButtons} {
-      width: ${dimensions.headerSpacing - 5}px;
-      background: ${colors.colorWhite};
+      width: ${dimensions.headerSpacing}px;
+      background: ${props =>
+        props.isActive ? colors.bgActive : colors.bgHover};
     }
   }
 `;

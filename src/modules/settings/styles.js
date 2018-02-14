@@ -285,7 +285,7 @@ const SidebarListItem = styled.li`
 
   a {
     white-space: normal;
-    padding: 10px 40px 10px 20px;
+    padding: 10px 50px 10px 20px;
 
     &:hover {
       background: none;
@@ -299,7 +299,7 @@ const SidebarListItem = styled.li`
 
   &:hover {
     cursor: pointer;
-    background: ${props => (props.isActive ? '' : colors.bgLight)};
+    background: ${props => !props.isActive && colors.bgLight};
 
     ${ActionButtons} {
       width: auto;

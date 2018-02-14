@@ -63,4 +63,23 @@ const PaginationList = styled.ul`
   }
 `;
 
-export { PaginationWrapper, PaginationList };
+const PerPageButton = styled.a`
+  font-weight: 400;
+  color: #999;
+  cursor: pointer;
+  margin-left: 15px;
+  position: relative;
+  top: -2px;
+
+  i {
+    margin-left: 3px;
+  }
+`;
+
+const Option = styled.li`
+  a {
+    cursor: pointer;
+  }
+`;
+
+export { PaginationWrapper, PaginationList, PerPageButton, Option };
