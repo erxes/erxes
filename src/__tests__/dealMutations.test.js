@@ -125,12 +125,15 @@ describe('Test deals mutations', () => {
     const pipelineDoc = { name: 'deal pipeline', boardId: _board._id };
 
     DealPipelines.createPipeline = jest.fn();
-    await dealMutations.dealPipelinesAdd({}, pipelineDoc, { user: _user });
+    await dealMutations.dealPipelinesAdd({}, { stages: [], ...pipelineDoc }, { user: _user });
 
-    expect(DealPipelines.createPipeline).toBeCalledWith({
-      ...pipelineDoc,
-      userId: _user._id,
-    });
+    expect(DealPipelines.createPipeline).toBeCalledWith(
+      {
+        ...pipelineDoc,
+        userId: _user._id,
+      },
+      [],
+    );
     expect(DealPipelines.createPipeline.mock.calls.length).toBe(1);
   });
 
@@ -140,11 +143,11 @@ describe('Test deals mutations', () => {
     DealPipelines.updatePipeline = jest.fn();
     await dealMutations.dealPipelinesEdit(
       null,
-      { _id: _pipeline._id, ...updateDoc },
+      { _id: _pipeline._id, ...updateDoc, stages: [] },
       { user: _user },
     );
 
-    expect(DealPipelines.updatePipeline).toBeCalledWith(_pipeline._id, updateDoc);
+    expect(DealPipelines.updatePipeline).toBeCalledWith(_pipeline._id, updateDoc, []);
     expect(DealPipelines.updatePipeline.mock.calls.length).toBe(1);
   });
 

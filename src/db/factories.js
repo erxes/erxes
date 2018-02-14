@@ -35,6 +35,7 @@ import {
   DealPipelines,
   DealStages,
   Deals,
+  Products,
 } from './models';
 
 export const userFactory = (params = {}) => {
@@ -416,7 +417,7 @@ export const dealFactory = params => {
     boardId: params.boardId || faker.random.word(),
     pipelineId: params.pipelineId || faker.random.word(),
     stageId: params.stageId || faker.random.word(),
-    productIds: [faker.random.word()],
+    productIds: params.productIds || [faker.random.word()],
     companyId: faker.random.word(),
     amount: faker.random.number(),
     closeDate: new Date(),
@@ -425,4 +426,16 @@ export const dealFactory = params => {
   });
 
   return deal.save();
+};
+
+export const productFactory = params => {
+  const product = new Products({
+    name: params.name || faker.random.word(),
+    type: params.type || faker.random.word(),
+    description: params.description || faker.random.word(),
+    sku: faker.random.word(),
+    createdAt: new Date(),
+  });
+
+  return product.save();
 };

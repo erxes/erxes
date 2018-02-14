@@ -18,6 +18,7 @@ import knowledgeBase from './knowledgeBase';
 import notifications from './notifications';
 import activityLogs from './activityLogs';
 import deals from './deals';
+import products from './products';
 
 export default {
   ...users,
@@ -40,4 +41,5 @@ export default {
   ...notifications,
   ...activityLogs,
   ...deals,
+  ...products,
 };

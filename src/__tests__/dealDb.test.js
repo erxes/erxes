@@ -82,11 +82,20 @@ describe('Test deals model', () => {
 
   // Test deal pipeline
   test('Create pipeline', async () => {
-    const pipelineObj = await DealPipelines.createPipeline({
-      name: _pipeline.name,
-      boardId: _pipeline.boardId,
-      userId: _user._id,
-    });
+    const pipelineObj = await DealPipelines.createPipeline(
+      {
+        name: _pipeline.name,
+        boardId: _pipeline.boardId,
+        userId: _user._id,
+      },
+      [
+        {
+          _id: _stage._id,
+          name: _stage.name,
+          boardId: _stage.boardId,
+        },
+      ],
+    );
 
     expect(pipelineObj).toBeDefined();
     expect(pipelineObj.name).toEqual(_pipeline.name);
@@ -97,10 +106,19 @@ describe('Test deals model', () => {
 
   test('Update pipeline', async () => {
     const pipelineName = 'Update pipeline name';
-    const pipelineObj = await DealPipelines.updatePipeline(_pipeline._id, {
-      name: pipelineName,
-      userId: _user._id,
-    });
+    const pipelineObj = await DealPipelines.updatePipeline(
+      _pipeline._id,
+      {
+        name: pipelineName,
+        userId: _user._id,
+      },
+      [
+        {
+          name: _stage.name,
+          boardId: _stage.boardId,
+        },
+      ],
+    );
 
     expect(pipelineObj).toBeDefined();
     expect(pipelineObj.name).toEqual(pipelineName);

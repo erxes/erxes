@@ -90,6 +90,12 @@ import {
 
 import { types as DealTypes, queries as DealQueries, mutations as DealMutations } from './deals';
 
+import {
+  types as ProductTypes,
+  queries as ProductQueries,
+  mutations as ProductMutations,
+} from './products';
+
 export const types = `
   scalar JSON
   scalar Date
@@ -114,6 +120,7 @@ export const types = `
   ${KnowledgeBaseTypes}
   ${NotificationTypes}
   ${DealTypes}
+  ${ProductTypes}
 `;
 
 export const queries = `
@@ -138,6 +145,7 @@ export const queries = `
     ${NotificationQueries}
     ${ActivityLogQueries}
     ${DealQueries}
+    ${ProductQueries}
   }
 `;
 
@@ -162,6 +170,7 @@ export const mutations = `
     ${NotificationMutations}
     ${ActivityLogMutations}
     ${DealMutations}
+    ${ProductMutations}
   }
 `;
 

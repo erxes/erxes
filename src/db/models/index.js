@@ -22,6 +22,7 @@ import {
 import { Notifications, NotificationConfigurations } from './Notifications';
 import ActivityLogs from './ActivityLogs';
 import { DealBoards, DealPipelines, DealStages, Deals } from './Deals';
+import Products from './Products';
 
 export {
   Users,
@@ -50,4 +51,5 @@ export {
   DealPipelines,
   DealStages,
   Deals,
+  Products,
 };

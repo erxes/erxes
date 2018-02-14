@@ -54,10 +54,18 @@ class Board {
 }
 
 const createPipelineStages = async (stages, pipelineId) => {
-  await DealStages.remove({ pipelineId });
-
   for (let stage of stages) {
-    DealStages.create(stage);
+    const doc = { pipelineId, ...stage };
+
+    if (doc._id) {
+      const _id = doc._id;
+      const stage = DealStages.findOne({ _id });
+      delete doc._id;
+
+      if (stage) DealStages.update({ _id }, { $set: doc });
+    } else {
+      DealStages.create(doc);
+    }
   }
 };
 

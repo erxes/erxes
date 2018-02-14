@@ -213,3 +213,9 @@ export const ACTIVITY_PERFORMER_TYPES = {
 
   ALL: ['SYSTEM', 'USER', 'CUSTOMER'],
 };
+
+export const PRODUCT_TYPES = {
+  PRODUCT: 'product',
+  SERVICE: 'service',
+  ALL: ['product', 'service'],
+};
