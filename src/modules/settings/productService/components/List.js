@@ -39,7 +39,7 @@ class List extends Component {
 
     const trigger = (
       <Button btnStyle="success" size="small" icon="plus">
-        Add Product/Service
+        Add Product / Service
       </Button>
     );
 

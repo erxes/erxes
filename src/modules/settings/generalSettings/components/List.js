@@ -3,22 +3,33 @@ import { Wrapper } from 'modules/layout/components';
 import { Col, Row } from 'react-bootstrap';
 import Select from 'react-select-plus';
 import { FormGroup } from 'modules/common/components';
-import { timezones } from '../constants';
+import { currency, measurements } from '../constants';
 import { ContentBox, SubHeading } from '../../styles';
 
 class List extends Component {
   constructor(props) {
     super(props);
 
-    this.state = {
-      // timezone: props.prevOptions.timezone || ''
-    };
+    this.state = {};
 
-    this.onTimezoneChange = this.onTimezoneChange.bind(this);
+    this.selectCurrencyChange = this.selectCurrencyChange.bind(this);
+    this.selectUOMChange = this.selectUOMChange.bind(this);
   }
 
-  onTimezoneChange(e) {
-    this.setState({ timezone: e.value });
+  getInitialState() {
+    return {
+      removeSelected: true,
+      value: [],
+      data: []
+    };
+  }
+
+  selectCurrencyChange(value) {
+    this.setState({ value });
+  }
+
+  selectUOMChange(data) {
+    this.setState({ data });
   }
 
   render() {
@@ -33,12 +44,24 @@ class List extends Component {
           <Col md={5}>
             <SubHeading>Currency</SubHeading>
             <FormGroup>
-              <Select options={timezones} clearable={false} />
+              <Select
+                options={currency}
+                value={this.state.value}
+                removeSelected={this.state.removeSelected}
+                onChange={this.selectCurrencyChange}
+                multi
+              />
             </FormGroup>
 
             <SubHeading>Unit of measurement</SubHeading>
             <FormGroup>
-              <Select options={timezones} clearable={false} />
+              <Select
+                multi
+                options={measurements}
+                value={this.state.data}
+                removeSelected={this.state.removeSelected}
+                onChange={this.selectUOMChange}
+              />
             </FormGroup>
           </Col>
         </Row>
