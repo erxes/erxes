@@ -23,10 +23,9 @@ const SegmentWrapper = styled.div`
 const propTypes = {
   fields: PropTypes.array.isRequired,
   create: PropTypes.func.isRequired,
-  segment: PropTypes.object,
   headSegments: PropTypes.array.isRequired,
   count: PropTypes.func.isRequired,
-  total: PropTypes.object
+  createSegment: PropTypes.func
 };
 
 class SegmentsForm extends Component {
@@ -39,16 +38,14 @@ class SegmentsForm extends Component {
   constructor(props) {
     super(props);
 
-    this.state = props.segment
-      ? props.segment
-      : {
-          name: '',
-          description: '',
-          subOf: '',
-          color: SegmentsForm.generateRandomColorCode(),
-          conditions: [],
-          connector: 'any'
-        };
+    this.state = {
+      name: '',
+      description: '',
+      subOf: '',
+      color: SegmentsForm.generateRandomColorCode(),
+      conditions: [],
+      connector: 'any'
+    };
 
     this.addCondition = this.addCondition.bind(this);
     this.changeCondition = this.changeCondition.bind(this);
@@ -119,8 +116,6 @@ class SegmentsForm extends Component {
   save(e) {
     e.preventDefault();
 
-    const { segment } = this.props;
-
     const {
       name,
       description,
@@ -135,9 +130,8 @@ class SegmentsForm extends Component {
       params.doc.subOf = subOf;
     }
 
-    Object.assign(params, segment ? { id: segment._id } : {});
-
     this.props.create(params);
+    this.props.createSegment(false);
   }
 
   renderConditions() {
@@ -242,7 +236,7 @@ class SegmentsForm extends Component {
   }
 
   render() {
-    const content = (
+    return (
       <SegmentWrapper>
         <FlexContent>
           <FlexItem>
@@ -254,8 +248,6 @@ class SegmentsForm extends Component {
         </FlexContent>
       </SegmentWrapper>
     );
-
-    return content;
   }
 }
 

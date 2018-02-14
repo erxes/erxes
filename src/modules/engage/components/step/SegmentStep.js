@@ -5,12 +5,13 @@ import { colors } from 'modules/common/styles';
 import { FormControl, Icon } from 'modules/common/components';
 import { FlexItem, Show, Divider } from './style';
 import Segments from '../Segments';
-import SegmentsForm from '../../containers/SegmentsForm';
+import SegmentsForm from '../SegmentsForm';
 
 const RadioContainer = styled.div`
   border-bottom: 1px dotted ${colors.borderPrimary};
   > * {
     padding: 20px;
+    fields: PropTypes.array.isRequired;
   }
 `;
 const SegmentContainer = styled.div`
@@ -20,8 +21,12 @@ const SegmentContainer = styled.div`
 const propTypes = {
   changeSegment: PropTypes.func,
   segments: PropTypes.array,
+  headSegments: PropTypes.array,
+  segmentFields: PropTypes.array,
+  segmentAdd: PropTypes.func,
   counts: PropTypes.object,
-  segmentPush: PropTypes.func
+  count: PropTypes.func,
+  segment: PropTypes.stringz
 };
 
 class SegmentStep extends Component {
@@ -29,12 +34,12 @@ class SegmentStep extends Component {
     super(props);
 
     this.state = {
-      segment: '',
+      segment: props.segment || '',
       createSegment: false
     };
 
     this.changeSegment = this.changeSegment.bind(this);
-    this.segmentPush = this.segmentPush.bind(this);
+    this.createSegment = this.createSegment.bind(this);
   }
 
   createSegment(createSegment) {
@@ -48,12 +53,6 @@ class SegmentStep extends Component {
   changeSegment(segment) {
     this.setState({ segment });
     this.props.changeSegment('segment', segment);
-  }
-
-  segmentPush(segment) {
-    this.props.segmentPush(segment);
-    this.setState({ segment: segment._id });
-    this.createSegment(false);
   }
 
   renderSegments(show) {
@@ -99,9 +98,15 @@ class SegmentStep extends Component {
               Create segment
             </FormControl>
           </RadioContainer>
-          {this.renderSegments()}
+          {this.renderSegments(show)}
           <Show show={show}>
-            <SegmentsForm segmentPush={this.segmentPush} />
+            <SegmentsForm
+              fields={this.props.segmentFields}
+              create={this.props.segmentAdd}
+              headSegments={this.props.headSegments}
+              count={this.props.count}
+              createSegment={this.createSegment}
+            />
           </Show>
         </FlexItem>
         <Divider />

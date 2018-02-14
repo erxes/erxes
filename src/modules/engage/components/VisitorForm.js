@@ -68,8 +68,8 @@ class VisitorForm extends FormBase {
     Object.keys(step2).map(key => {
       if (step2[key] === '') {
         validate['step2'] = true;
-        return false;
       }
+      return false;
     });
 
     this.setState({ validate });
@@ -99,12 +99,20 @@ class VisitorForm extends FormBase {
   }
 
   render() {
-    const { activeStep, maxStep, validate } = this.state;
+    const {
+      activeStep,
+      maxStep,
+      validate,
+      messenger,
+      fromUser,
+      message,
+      rules
+    } = this.state;
+    const defaultMessengerValue = { messenger, fromUser, message, rules };
 
-    const breadcrumb = this.renderTitle();
     return (
       <StepWrapper>
-        <Wrapper.Header breadcrumb={breadcrumb} />
+        <Wrapper.Header breadcrumb={this.renderTitle()} />
         <TitleContainer>
           <div>Title</div>
           <FormControl
@@ -133,11 +141,9 @@ class VisitorForm extends FormBase {
             <MessengerForm
               brands={this.props.brands}
               changeMessenger={this.changeState}
-              message={this.state.message}
               users={this.props.users}
               hasKind={false}
-              messenger={this.state.messenger}
-              fromUser={this.state.fromUser}
+              defaultValue={defaultMessengerValue}
             />
           </Step>
         </Steps>

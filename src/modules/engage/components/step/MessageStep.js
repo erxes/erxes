@@ -5,10 +5,10 @@ import { MessengerForm, EmailForm } from '../';
 const propTypes = {
   brands: PropTypes.array,
   changeState: PropTypes.func,
-  message: PropTypes.string,
   users: PropTypes.array,
   method: PropTypes.string,
-  templates: PropTypes.array
+  templates: PropTypes.array,
+  defaultValue: PropTypes.object
 };
 
 class MessageStep extends Component {
@@ -16,17 +16,17 @@ class MessageStep extends Component {
     const {
       brands,
       changeState,
-      message,
       users,
       method,
-      templates
+      templates,
+      defaultValue
     } = this.props;
 
     if (method === 'email') {
       return (
         <EmailForm
           changeEmail={changeState}
-          message={message}
+          defaultValue={defaultValue}
           users={users}
           templates={templates}
         />
@@ -37,7 +37,7 @@ class MessageStep extends Component {
       <MessengerForm
         brands={brands}
         changeMessenger={changeState}
-        message={message}
+        defaultValue={defaultValue}
         users={users}
         hasKind={true}
       />

@@ -50,7 +50,7 @@ class Step extends Component {
             icon="ios-arrow-forward"
             onClick={e => save('draft', e)}
           >
-            Save Draft
+            Save & Draft
           </Button>
           <Button
             btnStyle="primary"

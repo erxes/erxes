@@ -96,7 +96,6 @@ const segmentsAdd = `
       conditions: $conditions,
     ) {
       _id
-      color
     }
   }
 `;

@@ -14,39 +14,25 @@ import { FlexItem, Divider, FlexPad } from './step/style';
 const propTypes = {
   brands: PropTypes.array,
   changeMessenger: PropTypes.func,
-  message: PropTypes.string,
   users: PropTypes.array,
   hasKind: PropTypes.bool,
-  messenger: PropTypes.object,
-  fromUser: PropTypes.string
+  defaultValue: PropTypes.object
 };
 
 class MessengerForm extends Component {
   constructor(props) {
     super(props);
 
-    const messenger = props.messenger ? props.messenger : {};
+    const message = props.defaultValue || {};
 
     this.state = {
-      fromUser: this.props.fromUser || '',
-      message: this.props.message || '',
+      fromUser: message.fromUser || '',
       messenger: {
-        brandId: messenger.brandId || '',
-        kind: '',
-        sentAs: messenger.sentAs || ''
+        brandId: message.messenger.brandId || '',
+        kind: message.messenger.kind || '',
+        sentAs: message.messenger.sentAs || ''
       }
     };
-  }
-
-  componentDidMount() {
-    if (this.props.messenger) {
-      let messenger = {
-        ...this.state.messenger
-      };
-      messenger['brandId'] = this.props.messenger.brandId;
-      messenger['sentAs'] = this.props.messenger.sentAs;
-      this.setState({ messenger: messenger });
-    }
   }
 
   changeContent(key, value) {
@@ -55,7 +41,7 @@ class MessengerForm extends Component {
     };
     messenger[key] = value;
     this.setState({ messenger });
-    this.props.changeMessenger('messenger', this.state.messenger);
+    this.props.changeMessenger('messenger', messenger);
   }
 
   changeUser(fromUser) {
@@ -71,6 +57,7 @@ class MessengerForm extends Component {
           <FormControl
             componentClass="select"
             onChange={e => this.changeContent('kind', e.target.value)}
+            defaultValue={this.state.messenger.kind}
           >
             <option />{' '}
             {MESSENGER_KINDS.SELECT_OPTIONS.map(k => (
@@ -93,7 +80,7 @@ class MessengerForm extends Component {
             <EditorWrapper>
               <Editor
                 onChange={this.props.changeMessenger}
-                defaultValue={this.state.message}
+                defaultValue={this.props.defaultValue.message}
               />
             </EditorWrapper>
           </FormGroup>
@@ -148,7 +135,7 @@ class MessengerForm extends Component {
         <FlexPad overflow="auto">
           <MessengerPreview
             sentAs={this.state.messenger.sentAs}
-            content={this.props.message}
+            content={this.props.defaultValue.message}
             fromUser={this.state.fromUser}
           />
         </FlexPad>

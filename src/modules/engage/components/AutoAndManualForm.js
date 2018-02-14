@@ -8,36 +8,47 @@ import FormBase from './FormBase';
 
 const propTypes = {
   segments: PropTypes.array.isRequired,
-  templates: PropTypes.array,
-  counts: PropTypes.object,
-  segmentPush: PropTypes.func
+  headSegments: PropTypes.array.isRequired,
+  segmentFields: PropTypes.array.isRequired,
+  segmentAdd: PropTypes.func.isRequired,
+  templates: PropTypes.array.isRequired,
+  customerCounts: PropTypes.object.isRequired,
+  count: PropTypes.func.isRequired,
+  message: PropTypes.object
 };
 
 class AutoAndManualForm extends FormBase {
   constructor(props) {
     super(props);
 
+    const message = props.message ? props.message : {};
+    let content = message.messenger ? message.messenger.content : '';
+    content = message.email ? message.email.content : content;
+    const messenger = message.messenger ? message.messenger : {};
+    const email = message.email ? message.email : {};
+    const validate = props.message === {} ? false : true;
+
     this.state = {
       activeStep: 1,
       maxStep: 3,
       validate: {
         step1: false,
-        step2: true,
-        step3: true
+        step2: validate,
+        step3: validate
       },
-      method: 'email',
-      title: '',
-      segment: '',
-      message: '',
-      fromUser: '',
+      method: message.method || 'email',
+      title: message.title || '',
+      segment: message.segmentId || '',
+      message: content,
+      fromUser: message.fromUserId,
       messenger: {
-        brandId: '',
-        kind: '',
-        sentAs: ''
+        brandId: messenger.brandId || '',
+        kind: messenger.kind || '',
+        sentAs: messenger.sentAs || ''
       },
       email: {
-        templateId: '',
-        subject: ''
+        templateId: email.templateId || '',
+        subject: email.subject || ''
       }
     };
 
@@ -54,12 +65,11 @@ class AutoAndManualForm extends FormBase {
     if (this.state.segment === '') {
       validate['step2'] = true;
     }
-    console.log(step3);
     Object.keys(step3).map(key => {
       if (step3[key] === '') {
         validate['step3'] = true;
-        return false;
       }
+      return false;
     });
 
     this.setState({ validate });
@@ -111,15 +121,25 @@ class AutoAndManualForm extends FormBase {
   }
 
   render() {
-    const { activeStep, maxStep, validate } = this.state;
-    const breadcrumb = this.renderTitle();
+    const {
+      activeStep,
+      maxStep,
+      validate,
+      messenger,
+      email,
+      fromUser,
+      message
+    } = this.state;
+    const defaultMessageStepValue = { messenger, email, fromUser, message };
+
     return (
       <StepWrapper>
-        <Wrapper.Header breadcrumb={breadcrumb} />
+        <Wrapper.Header breadcrumb={this.renderTitle()} />
         <TitleContainer>
           <div>Title</div>
           <FormControl
             onChange={e => this.changeState('title', e.target.value)}
+            defaultValue={this.state.title}
           />
         </TitleContainer>
         <Steps maxStep={maxStep} active={activeStep} validate={validate}>
@@ -141,8 +161,12 @@ class AutoAndManualForm extends FormBase {
             <SegmentStep
               changeSegment={this.changeState}
               segments={this.props.segments}
-              counts={this.props.counts}
-              segmentPush={this.props.segmentPush}
+              headSegments={this.props.headSegments}
+              segmentFields={this.props.segmentFields}
+              segmentAdd={this.props.segmentAdd}
+              counts={this.props.customerCounts}
+              count={this.props.count}
+              segment={this.state.segment}
             />
           </Step>
           <Step
@@ -155,10 +179,10 @@ class AutoAndManualForm extends FormBase {
             <MessageStep
               brands={this.props.brands}
               changeState={this.changeState}
-              message={this.state.message}
               users={this.props.users}
               method={this.state.method}
               templates={this.props.templates}
+              defaultValue={defaultMessageStepValue}
             />
           </Step>
         </Steps>

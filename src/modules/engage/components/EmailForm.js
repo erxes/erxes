@@ -15,31 +15,36 @@ const propTypes = {
   changeEmail: PropTypes.func,
   message: PropTypes.string,
   users: PropTypes.array,
-  templates: PropTypes.array
+  templates: PropTypes.array,
+  defaultValue: PropTypes.object
 };
 
 class EmailForm extends Component {
   constructor(props) {
     super(props);
+
+    const message = this.props.defaultValue || {};
+
     this.state = {
-      fromUser: '',
+      fromUser: message.fromUser,
       currentTemplate: '',
+      message: message.message,
       email: {
-        subject: '',
-        templateId: ''
+        subject: message.email.subject,
+        templateId: message.email.templateId
       }
     };
   }
 
   componentDidMount() {
-    this.renderBuilder();
+    const template = this.props.defaultValue.email.templateId;
+    this.templateChange(template);
   }
 
   componentDidUpdate(prevProps, prevState) {
-    // only after current template change
     if (
-      this.state.currentTemplate !== prevState.currentTemplate ||
-      this.props.message !== prevProps.message
+      this.props.defaultValue.message !== prevProps.defaultValue.message ||
+      this.state.currentTemplate !== prevState.currentTemplate
     ) {
       this.renderBuilder();
     }
@@ -51,7 +56,7 @@ class EmailForm extends Component {
     };
     email[key] = value;
     this.setState({ email });
-    this.props.changeEmail('email', this.state.email);
+    this.props.changeEmail('email', email);
   }
 
   changeUser(fromUser) {
@@ -60,8 +65,8 @@ class EmailForm extends Component {
   }
 
   templateChange(value) {
-    this.changeContent('templateId', value);
     this.setState({ currentTemplate: this.findTemplate(value) });
+    this.renderBuilder();
   }
 
   findTemplate(id) {
@@ -79,11 +84,12 @@ class EmailForm extends Component {
       EMAIL_CONTENT_CLASS
     );
     // render editor to content
+
     if (contentContainer.length > 0) {
       ReactDom.render(
         <div
           dangerouslySetInnerHTML={{
-            __html: this.props.message
+            __html: this.props.defaultValue.message
           }}
         />,
         contentContainer[0]
@@ -113,7 +119,10 @@ class EmailForm extends Component {
           <FormGroup>
             <ControlLabel>Message:</ControlLabel>
             <EditorWrapper>
-              <Editor onChange={this.props.changeEmail} />
+              <Editor
+                onChange={this.props.changeEmail}
+                defaultValue={this.state.message}
+              />
             </EditorWrapper>
           </FormGroup>
           <FormGroup>
@@ -121,6 +130,7 @@ class EmailForm extends Component {
             <FormControl
               componentClass="select"
               onChange={e => this.changeUser(e.target.value)}
+              defaultValue={this.state.fromUser}
             >
               <option />{' '}
               {this.props.users.map(u => (
@@ -134,6 +144,7 @@ class EmailForm extends Component {
             <ControlLabel>Email subject:</ControlLabel>
             <FormControl
               onChange={e => this.changeContent('subject', e.target.value)}
+              defaultValue={this.state.email.subject}
             />
           </FormGroup>
           <FormGroup>
@@ -141,6 +152,7 @@ class EmailForm extends Component {
             <FormControl
               componentClass="select"
               onChange={e => this.templateChange(e.target.value)}
+              defaultValue={this.state.email.templateId}
             >
               <option />{' '}
               {this.props.templates.map(t => (
