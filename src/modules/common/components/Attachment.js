@@ -118,7 +118,9 @@ class Attachment extends Component {
       case 'png':
       case 'jpeg':
       case 'jpg':
-        filePreview = <img alt={url} src={url} />;
+        filePreview = (
+          <ImagePreview alt={url} src={url} onLoad={this.onLoadImage} />
+        );
         break;
       case 'doc':
       case 'docx':
