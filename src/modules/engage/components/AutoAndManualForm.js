@@ -65,6 +65,7 @@ class AutoAndManualForm extends FormBase {
     if (this.state.segment === '') {
       validate['step2'] = true;
     }
+
     Object.keys(step3).map(key => {
       if (step3[key] === '') {
         validate['step3'] = true;

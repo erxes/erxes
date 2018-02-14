@@ -20,7 +20,7 @@ const StepContainer = styled.div`
 class Steps extends Component {
   render() {
     let { maxStep, children, active, validate } = this.props;
-
+    //cloning step's children with default state
     return (
       <StepContainer>
         {React.Children.map(children, (child, index) => {

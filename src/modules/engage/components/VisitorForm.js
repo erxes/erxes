@@ -16,7 +16,7 @@ class VisitorForm extends FormBase {
   constructor(props) {
     super(props);
 
-    const message = props.message.messenger ? props.message.messenger : {};
+    const message = props.message.messenger || {};
     const rules = message.rules ? message.rules.map(rule => ({ ...rule })) : [];
     const validate = props.message.messenger ? false : true;
 
@@ -37,6 +37,7 @@ class VisitorForm extends FormBase {
         sentAs: message.sentAs || ''
       }
     };
+
     this.next = this.next.bind(this);
     this.changeState = this.changeState.bind(this);
   }

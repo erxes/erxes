@@ -52,6 +52,7 @@ class ChannelStep extends Component {
       </Box>
     );
   }
+
   render() {
     return (
       <FullContent center>

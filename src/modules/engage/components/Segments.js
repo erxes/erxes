@@ -21,11 +21,13 @@ class Segments extends Component {
 
     this.onClickSegment = this.onClickSegment.bind(this);
   }
+
   componentDidMount() {
     if (this.props.defaultValue !== '') {
       this.setState({ chosenSegment: this.props.defaultValue });
     }
   }
+
   onClickSegment(segmentId) {
     if (segmentId === this.state.chosenSegment) {
       this.setState({ chosenSegment: '' });

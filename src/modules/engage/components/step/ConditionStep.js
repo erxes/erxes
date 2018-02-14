@@ -31,7 +31,6 @@ class ConditionStep extends Component {
 
   addRule(e) {
     const rules = this.state.rules;
-
     const selectedOption = e.target.options[e.target.selectedIndex];
 
     if (selectedOption.value) {

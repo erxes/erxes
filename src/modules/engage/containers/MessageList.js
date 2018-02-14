@@ -50,6 +50,8 @@ const MessageListContainerWithData = compose(
       notifyOnNetworkStatusChange: true,
       fetchPolicy: 'network-only',
       variables: {
+        page: queryParams.page,
+        perPage: queryParams.perPage || 20,
         kind: queryParams.kind,
         status: queryParams.status,
         tag: queryParams.tag,

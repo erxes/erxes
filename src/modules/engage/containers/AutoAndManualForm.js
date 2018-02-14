@@ -17,10 +17,6 @@ const AutoAndManualFormContainer = props => {
     customerCountsQuery
   } = props;
 
-  const headSegments = headSegmentsQuery.loading
-    ? []
-    : headSegmentsQuery.segmentsGetHeads;
-
   const customerCounts = customerCountsQuery.customerCounts || {
     all: 0,
     byBrand: {},
@@ -29,15 +25,15 @@ const AutoAndManualFormContainer = props => {
     byTag: {}
   };
 
-  const segmentFields = combinedFieldsQuery.loading
-    ? []
-    : combinedFieldsQuery.fieldsCombinedByContentType.map(
+  const segmentFields = combinedFieldsQuery.fieldsCombinedByContentType
+    ? combinedFieldsQuery.fieldsCombinedByContentType.map(
         ({ name, label }) => ({
           _id: name,
           title: label,
           selectedBy: 'none'
         })
-      );
+      )
+    : [];
 
   const count = segment => {
     customerCountsQuery.refetch({
@@ -55,7 +51,7 @@ const AutoAndManualFormContainer = props => {
 
   const updatedProps = {
     ...props,
-    headSegments,
+    headSegments: headSegmentsQuery.segmentsGetHeads || [],
     segmentFields,
     segmentAdd,
     segments: segmentsQuery.segments || [],
