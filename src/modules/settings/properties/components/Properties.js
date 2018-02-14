@@ -4,6 +4,7 @@ import { Collapse } from 'react-bootstrap';
 import Toggle from 'react-toggle';
 import { Table, Icon, ModalTrigger, Button } from 'modules/common/components';
 import { Wrapper } from 'modules/layout/components';
+import { PropertyGroupForm, PropertyForm } from '../containers';
 import { Sidebar } from './';
 
 const propTypes = {
@@ -87,6 +88,8 @@ class Properties extends Component {
   }
 
   renderActionBar() {
+    const { queryParams } = this.props;
+
     return (
       <div>
         <ModalTrigger
@@ -94,14 +97,14 @@ class Properties extends Component {
           trigger={this.renderTrigger('Add Property Group')}
           size="lg"
         >
-          <form />
+          <PropertyGroupForm queryParams={queryParams} />
         </ModalTrigger>
         <ModalTrigger
           title="Add Property"
           trigger={this.renderTrigger('Add Property')}
           size="lg"
         >
-          <form />
+          <PropertyForm queryParams={queryParams} />
         </ModalTrigger>
       </div>
     );
