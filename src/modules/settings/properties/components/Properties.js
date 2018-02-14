@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { Collapse } from 'react-bootstrap';
 import Toggle from 'react-toggle';
 import { Table, Icon, ModalTrigger, Button } from 'modules/common/components';
+import { confirm } from 'modules/common/utils';
 import { Wrapper } from 'modules/layout/components';
 import { PropertyGroupForm, PropertyForm } from '../containers';
 import { Sidebar } from './';
@@ -12,7 +13,8 @@ const propTypes = {
   refetch: PropTypes.func,
   fieldsgroups: PropTypes.array,
   currentType: PropTypes.string,
-  loading: PropTypes.bool
+  loading: PropTypes.bool,
+  removePropertyGroup: PropTypes.func
 };
 
 class Properties extends Component {
@@ -20,6 +22,10 @@ class Properties extends Component {
     super(props);
 
     this.renderProperties = this.renderProperties.bind(this);
+  }
+
+  removePropertyGroup(_id) {
+    this.props.removePropertyGroup({ _id });
   }
 
   renderProperties() {
@@ -40,7 +46,14 @@ class Properties extends Component {
               >
                 <PropertyGroupForm group={group} queryParams={queryParams} />
               </ModalTrigger>
-              <Icon icon="close" />
+              <Icon
+                icon="close"
+                onClick={() =>
+                  confirm().then(() => {
+                    this.removePropertyGroup(group._id);
+                  })
+                }
+              />
               <Collapse in={true}>
                 <div>
                   <Table whiteSpace="nowrap" hover bordered>

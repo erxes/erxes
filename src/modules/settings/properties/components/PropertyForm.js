@@ -11,6 +11,16 @@ import {
 } from 'modules/common/components';
 import { ContentBox } from '../styles';
 
+const propTypes = {
+  add: PropTypes.func.isRequired,
+  edit: PropTypes.func.isRequired,
+  property: PropTypes.object
+};
+
+const contextTypes = {
+  closeModal: PropTypes.func.isRequired
+};
+
 class PropertyForm extends Component {
   constructor(props) {
     super(props);
@@ -22,7 +32,6 @@ class PropertyForm extends Component {
       description: ''
     };
 
-    this.onSubmit = this.onSubmit.bind(this);
     this.onChange = this.onChange.bind(this);
   }
 
@@ -124,8 +133,7 @@ class PropertyForm extends Component {
   }
 }
 
-PropertyForm.propTypes = {
-  addField: PropTypes.func
-};
+PropertyForm.contextTypes = contextTypes;
+PropertyForm.propTypes = propTypes;
 
 export default PropertyForm;

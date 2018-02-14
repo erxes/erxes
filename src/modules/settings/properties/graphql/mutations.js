@@ -28,7 +28,14 @@ const fieldsGroupsEdit = `
   }
 `;
 
+const fieldsGroupsRemove = `
+  mutation fieldsGroupsRemove($_id: String!) {
+    fieldsGroupsRemove(_id: $_id)
+  }
+`;
+
 export default {
   fieldsGroupsAdd,
-  fieldsGroupsEdit
+  fieldsGroupsEdit,
+  fieldsGroupsRemove
 };
