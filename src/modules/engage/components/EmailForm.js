@@ -10,6 +10,12 @@ import { EMAIL_CONTENT_CLASS } from 'modules/engage/constants';
 import Editor from './Editor';
 import { EditorWrapper } from '../styles';
 import { FlexItem, Divider, FlexPad } from './step/style';
+import styled from 'styled-components';
+
+const PreviewContainer = styled.div`
+  margin: 20px;
+  height: 100%;
+`;
 
 const propTypes = {
   changeEmail: PropTypes.func,
@@ -37,8 +43,7 @@ class EmailForm extends Component {
   }
 
   componentDidMount() {
-    const template = this.props.defaultValue.email.templateId;
-    this.templateChange(template);
+    this.templateChange(this.props.defaultValue.email.templateId);
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -65,6 +70,7 @@ class EmailForm extends Component {
   }
 
   templateChange(value) {
+    this.changeContent('templateId', value);
     this.setState({ currentTemplate: this.findTemplate(value) });
     this.renderBuilder();
   }
@@ -100,13 +106,11 @@ class EmailForm extends Component {
   renderMessage() {
     if (this.state.currentTemplate !== '') {
       return (
-        <EditorWrapper>
-          <div
-            dangerouslySetInnerHTML={{
-              __html: this.state.currentTemplate
-            }}
-          />
-        </EditorWrapper>
+        <PreviewContainer
+          dangerouslySetInnerHTML={{
+            __html: this.state.currentTemplate
+          }}
+        />
       );
     }
     return null;

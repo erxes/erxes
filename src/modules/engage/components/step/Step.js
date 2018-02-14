@@ -58,7 +58,7 @@ class Step extends Component {
             icon="ios-arrow-forward"
             onClick={e => save('live', e)}
           >
-            Save Live
+            Save & Live
           </Button>
         </Button.Group>
       );

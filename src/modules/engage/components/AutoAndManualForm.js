@@ -21,12 +21,12 @@ class AutoAndManualForm extends FormBase {
   constructor(props) {
     super(props);
 
-    const message = props.message ? props.message : {};
+    const message = props.message || {};
     let content = message.messenger ? message.messenger.content : '';
     content = message.email ? message.email.content : content;
-    const messenger = message.messenger ? message.messenger : {};
-    const email = message.email ? message.email : {};
-    const validate = props.message === {} ? false : true;
+    const messenger = message.messenger || {};
+    const email = message.email || {};
+    const validate = message.title ? false : true;
 
     this.state = {
       activeStep: 1,

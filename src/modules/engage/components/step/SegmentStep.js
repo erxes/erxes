@@ -26,7 +26,7 @@ const propTypes = {
   segmentAdd: PropTypes.func,
   counts: PropTypes.object,
   count: PropTypes.func,
-  segment: PropTypes.stringz
+  segment: PropTypes.string
 };
 
 class SegmentStep extends Component {
@@ -84,7 +84,6 @@ class SegmentStep extends Component {
               name="createSegment"
               value={false}
               checked={this.state.createSegment === false}
-              defaultChecked={true}
             >
               Choose segment
             </FormControl>

@@ -15,6 +15,7 @@ const Box = BoxRoot.extend`
   }
 
   span {
+    text-transform: uppercase;
     font-weight: 500;
   }
 

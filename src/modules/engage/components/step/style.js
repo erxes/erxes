@@ -20,7 +20,7 @@ const TitleContainer = styled.div`
   display: flex;
   align-items: center;
   margin-bottom: 5px;
-  padding: 10px;
+  padding: 10px 20px;
   background: ${colors.colorWhite};
 
   > *:nth-child(n + 2) {
