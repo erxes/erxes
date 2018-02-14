@@ -7,10 +7,11 @@ const commonFields = {
   createdBy: field({ type: String }),
   createdDate: field({
     type: Date,
-    default: new Date(),
   }),
   modifiedBy: field({ type: String }),
-  modifiedDate: field({ type: Date }),
+  modifiedDate: field({
+    type: Date,
+  }),
 };
 
 /**
@@ -25,14 +26,16 @@ class KnowledgeBaseCommonDocument {
    * @return {Promise} - returns Promise resolving newly added document
    * @throws {Error} - throws Error('userId must be supplied') if the userId is not supplied
    */
-  static createDoc(doc, userId) {
+  static createBaseDoc(doc, userId) {
     if (!userId) {
       throw new Error('userId must be supplied');
     }
 
     return this.create({
       ...doc,
+      createdDate: new Date(),
       createdBy: userId,
+      modifiedDate: new Date(),
     });
   }
 
@@ -43,7 +46,7 @@ class KnowledgeBaseCommonDocument {
    * @param {string} - The user id of the modifier
    * @return {Promsie} - returns Promise resolving updated document
    */
-  static async updateDoc(_id, doc, userId) {
+  static async updateBaseDoc(_id, doc, userId) {
     if (!userId) {
       throw new Error('userId must be supplied');
     }
@@ -60,15 +63,6 @@ class KnowledgeBaseCommonDocument {
     );
 
     return this.findOne({ _id });
-  }
-
-  /**
-   * Removed document
-   * @param {string} _id - Document id
-   * @return {Promise}
-   */
-  static removeDoc(_id) {
-    return this.remove({ _id });
   }
 }
 
@@ -93,11 +87,27 @@ class Article extends KnowledgeBaseCommonDocument {
    * @param {string} doc.summary - KnowledgeBaseArticle summary
    * @param {string} doc.content - KnowledgeBaseArticle content
    * @param {string} doc.status - KnowledgeBaseArticle status (currently: 'draft' or 'publish')
+   * @param {string[]} doc.categoryIds - list of parent Category ids
    * @param {string} userId - User id of the creator of this document
    * @return {Promise} - returns Promise resolving created document
    */
-  static createDoc(doc, userId) {
-    return super.createDoc(doc, userId);
+  static async createDoc({ categoryIds, ...docFields }, userId) {
+    const article = await this.createBaseDoc(docFields, userId);
+
+    // add new article id to categories's articleIds field
+    if ((categoryIds || []).length > 0) {
+      const categories = await KnowledgeBaseCategories.find({
+        _id: { $in: categoryIds },
+      });
+
+      for (let category of categories) {
+        category.articleIds.push(article._id.toString());
+
+        await category.save();
+      }
+    }
+
+    return article;
   }
 
   /**
@@ -108,25 +118,40 @@ class Article extends KnowledgeBaseCommonDocument {
    * @param {string} doc.summary - KnowledgeBaseArticle summary
    * @param {string} doc.content - KnowledgeBaseArticle content
    * @param {string} doc.status - KnowledgeBaseArticle status (currently: 'draft' or 'publish')
+   * @param {string[]} doc.categoryIds - list of parent Category ids
    * @param {string} userId - User id of the modifier of this document
    * @return {Promise} - returns Promise resolving modified document
    */
-  static updateDoc(_id, doc, userId) {
-    return super.updateDoc({ _id }, doc, userId);
+  static async updateDoc(_id, { categoryIds, ...docFields }, userId) {
+    await this.updateBaseDoc({ _id }, docFields, userId);
+
+    const article = await this.findOne({ _id });
+
+    // add new article id to categories's articleIds field
+    if ((categoryIds || []).length > 0) {
+      const categories = await KnowledgeBaseCategories.find({
+        _id: { $in: categoryIds },
+      });
+
+      for (let category of categories) {
+        // check previous entry
+        if (!category.articleIds.includes(article._id.toString())) {
+          category.articleIds.push(article._id.toString());
+
+          await category.save();
+        }
+      }
+    }
+
+    return article;
   }
 
   /**
    * Removes KnowledgeBaseArticle document
    * @param {Object} _id - KnowldegeBaseArticle document id
    * @return {Promise}
-   * @throws {Error} - Thrwos Error('You can not delete this. This article is used in category.')
-   * if there are categories using this article
    */
-  static async removeDoc(_id) {
-    if ((await KnowledgeBaseCategories.find({ articleIds: _id }).count()) > 0) {
-      throw new Error('You can not delete this. This article is used in category.');
-    }
-
+  static removeDoc(_id) {
     return this.remove({ _id });
   }
 }
@@ -149,10 +174,24 @@ class Category extends KnowledgeBaseCommonDocument {
    * @param {string[]} doc.articleIds - KnowledgeBaseCategory articleIds
    * @param {string} doc.icon - Select icon name
    * @param {string} userId - User id of the creator of this document
+   * @param {string[]} doc.topicIds - list of parent Topic ids
    * @return {Promise} - returns Promise resolving created document
    */
-  static createDoc({ createdBy, createdDate, modifiedBy, modifiedDate, ...docFields }, userId) {
-    return super.createDoc(docFields, userId);
+  static async createDoc({ topicIds, ...docFields }, userId) {
+    const category = await this.createBaseDoc(docFields, userId);
+
+    if ((topicIds || []).length > 0) {
+      const topics = await KnowledgeBaseTopics.find({ _id: { $in: topicIds } });
+
+      // add new category to topics's categoryIds field
+      for (let topic of topics) {
+        topic.categoryIds.push(category._id.toString());
+
+        await topic.save();
+      }
+    }
+
+    return category;
   }
 
   /**
@@ -163,27 +202,42 @@ class Category extends KnowledgeBaseCommonDocument {
    * @param {string} doc.description - KnowledgeBaseCategory description
    * @param {string[]} doc.articleIds - KnowledgeBaseCategory articleIds
    * @param {string} doc.icon - Select icon name
+   * @param {string[]} doc.topicIds - list of parent Topic ids
    * @param {string} userId - User id of the modifier of this document
+   * @param {string} topicId - parentTopicId
    * @return {Promise} - returns Promise resolving modified document
    */
-  static updateDoc(
-    _id,
-    { createdBy, createdDate, modifiedBy, modifiedDate, ...docFields },
-    userId,
-  ) {
-    return super.updateDoc(_id, docFields, userId);
+  static async updateDoc(_id, { topicIds, ...docFields }, userId) {
+    await this.updateBaseDoc({ _id }, docFields, userId);
+
+    const category = await this.findOne({ _id });
+
+    if ((topicIds || []).length > 0) {
+      const topics = await KnowledgeBaseTopics.find({ _id: { $in: topicIds } });
+
+      for (let topic of topics) {
+        // add categoryId to topics's categoryIds list
+        if (!topic.categoryIds.includes(category._id.toString())) {
+          topic.categoryIds.push(category._id.toString());
+
+          await topic.save();
+        }
+      }
+    }
+
+    return category;
   }
 
   /**
-   * Removes KnowledgeBaseCategory document
+   * Removes KnowledgeBaseCategory document and it's children articles
    * @param {Object} _id - KnowledgeBaseCategory document id
    * @return {Promise}
-   * @throws {Error} - Thrwos Error('You can not delete this. This category is used in topic.')
-   * if there are topics using this category
    */
   static async removeDoc(_id) {
-    if ((await KnowledgeBaseTopics.find({ categoryIds: _id }).count()) > 0) {
-      throw new Error('You can not delete this. This category is used in topic.');
+    const category = await this.findOne({ _id });
+
+    for (const articleId of category.articleIds || []) {
+      await KnowledgeBaseArticles.remove({ _id: articleId });
     }
 
     return this.remove({ _id });
@@ -213,8 +267,8 @@ class Topic extends KnowledgeBaseCommonDocument {
    * @param {string} userId - User id of the creator of this document
    * @return {Promise} - returns Promise resolving created document
    */
-  static createDoc({ createdBy, createdDate, modifiedBy, modifiedDate, ...docFields }, userId) {
-    return super.createDoc(docFields, userId);
+  static createDoc(docFields, userId) {
+    return this.createBaseDoc(docFields, userId);
   }
 
   /**
@@ -228,12 +282,28 @@ class Topic extends KnowledgeBaseCommonDocument {
    * @param {string} userId - User id of the modifier of this document
    * @return {Promise} - returns Promise resolving modified document
    */
-  static updateDoc(
-    _id,
-    { createdBy, createdDate, modifiedBy, modifiedDate, ...docFields },
-    userId,
-  ) {
-    return super.updateDoc(_id, docFields, userId);
+  static updateDoc(_id, docFields, userId) {
+    return this.updateBaseDoc(_id, docFields, userId);
+  }
+
+  /**
+   * Removes KnowledgeBaseTopic document and it's children categories
+   * @param {Object} _id - KnowledgeBaseTopic document id
+   * @return {Promise}
+   */
+  static async removeDoc(_id) {
+    const topic = await this.findOne({ _id });
+
+    // remove child items ===========
+    for (const categoryId of topic.categoryIds || []) {
+      const category = await KnowledgeBaseCategories.findOne({ _id: categoryId });
+
+      if (category) {
+        await KnowledgeBaseCategories.removeDoc(categoryId);
+      }
+    }
+
+    return this.remove({ _id });
   }
 }
 

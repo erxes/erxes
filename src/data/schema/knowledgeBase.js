@@ -6,6 +6,7 @@ export const types = `
     content: String
     status: String
     createdBy: String
+    createdUser: User
     createdDate: Date
     modifiedBy: String
     modifiedDate: Date
@@ -16,6 +17,7 @@ export const types = `
     summary: String
     content: String!
     status: String!
+    categoryIds: [String]
   }
 
   type KnowledgeBaseCategory {
@@ -28,6 +30,8 @@ export const types = `
     createdDate: Date
     modifiedBy: String
     modifiedDate: Date
+
+    firstTopic: KnowledgeBaseTopic
   }
 
   input KnowledgeBaseCategoryDoc {
@@ -35,6 +39,7 @@ export const types = `
     description: String
     articleIds: [String]
     icon: String!
+    topicIds: [String]
   }
 
   type KnowledgeBaseTopic {
@@ -62,13 +67,14 @@ export const queries = `
   knowledgeBaseTopicDetail(_id: String!): KnowledgeBaseTopic
   knowledgeBaseTopicsTotalCount: Int
 
-  knowledgeBaseCategories(page: Int, perPage: Int): [KnowledgeBaseCategory]
+  knowledgeBaseCategories(page: Int, perPage: Int, topicIds: [String]): [KnowledgeBaseCategory]
   knowledgeBaseCategoryDetail(_id: String!): KnowledgeBaseCategory
-  knowledgeBaseCategoriesTotalCount: Int
+  knowledgeBaseCategoriesTotalCount(topicIds: [String]): Int
+  knowledgeBaseCategoriesGetLast: KnowledgeBaseCategory
 
-  knowledgeBaseArticles(page: Int, perPage: Int): [KnowledgeBaseArticle]
+  knowledgeBaseArticles(page: Int, perPage: Int, categoryIds: [String]): [KnowledgeBaseArticle]
   knowledgeBaseArticleDetail(_id: String!): KnowledgeBaseArticle
-  knowledgeBaseArticlesTotalCount: Int
+  knowledgeBaseArticlesTotalCount(categoryIds: [String]): Int
 `;
 
 export const mutations = `

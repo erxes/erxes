@@ -5,8 +5,17 @@ import customers from './customers';
 
 export { pubsub };
 
-export default {
+let subscriptions = {
   ...conversations,
   ...notifications,
   ...customers,
 };
+
+const { NODE_ENV } = process.env;
+
+// disable subscriptions in test mode
+if (NODE_ENV === 'test') {
+  subscriptions = {};
+}
+
+export default subscriptions;

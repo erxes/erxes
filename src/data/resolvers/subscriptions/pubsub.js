@@ -1,4 +1,5 @@
 import { RedisPubSub } from 'graphql-redis-subscriptions';
+import Redis from 'ioredis';
 
 const redisConnectionListener = error => {
   if (error) {
@@ -14,11 +15,16 @@ const redisOptions = {
   connect_timeout: 15000,
   enable_offline_queue: true,
   retry_unfulfilled_commands: true,
+  retry_strategy: options => {
+    // reconnect after
+    return Math.max(options.attempt * 100, 3000);
+  },
 };
 
 const pubsub = new RedisPubSub({
-  connection: redisOptions,
   connectionListener: redisConnectionListener,
+  publisher: new Redis(redisOptions),
+  subscriber: new Redis(redisOptions),
 });
 
 export default pubsub;
