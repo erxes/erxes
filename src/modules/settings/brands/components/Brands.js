@@ -28,7 +28,7 @@ class Brands extends Component {
     const breadcrumb = [
       { title: 'Settings', link: '/settings' },
       { title: 'Brands', link: '/settings/brands' },
-      { title: `${currentBrand.name}` }
+      { title: `${currentBrand.name || ''}` }
     ];
 
     const trigger = (

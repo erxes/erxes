@@ -175,7 +175,7 @@ class ManageIntegrationForm extends Component {
             </ul>
           </Column>
           <Column>
-            <Title>
+            <Title full>
               {currentChannel.name}&apos;s integration
               <span>({selectedIntegrations.length})</span>
             </Title>

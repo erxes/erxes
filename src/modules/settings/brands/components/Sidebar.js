@@ -80,7 +80,7 @@ class Sidebar extends Component {
         {!loading &&
           brandsTotalCount === 0 && (
             <EmptyState
-              src="/images/robots/robot-03.svg"
+              image="/images/robots/robot-03.svg"
               text="There is no brand"
             />
           )}

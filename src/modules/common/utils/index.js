@@ -4,6 +4,7 @@ import router from './router';
 import toggleCheckBoxes from './toggleCheckBoxes';
 import Rotate from './animateRotate';
 import confirm from './confirmation/confirm';
+import urlParser from './urlParser';
 
 const renderFullName = data => {
   if (data.firstName || data.lastName) {
@@ -19,5 +20,6 @@ export {
   Rotate,
   confirm,
   toggleCheckBoxes,
-  renderFullName
+  renderFullName,
+  urlParser
 };
