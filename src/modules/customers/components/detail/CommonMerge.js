@@ -37,7 +37,8 @@ class CommonMerge extends Component {
     this.renderingOptions = {
       messengerData: data => this.renderMessengerData(data),
       twitterData: data => this.renderTwitterData(data),
-      facebookData: data => this.renderFacebookData(data)
+      facebookData: data => this.renderFacebookData(data),
+      visitorContactInfo: data => this.renderVisitorContactInfo(data)
     };
 
     Object.keys(basicInfos).forEach(info => {
@@ -244,6 +245,17 @@ class CommonMerge extends Component {
         <InfoDetail>{data.name}</InfoDetail>
         <InfoTitle>Screen name: </InfoTitle>
         <InfoDetail>{data.screenName}</InfoDetail>
+      </Info>
+    );
+  }
+
+  renderVisitorContactInfo(data) {
+    return (
+      <Info>
+        <InfoTitle>E-mail: </InfoTitle>
+        <InfoDetail>{data.email}</InfoDetail>
+        <InfoTitle>Phone: </InfoTitle>
+        <InfoDetail>{data.phone}</InfoDetail>
       </Info>
     );
   }

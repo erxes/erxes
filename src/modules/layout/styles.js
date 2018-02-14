@@ -128,12 +128,12 @@ const SidebarFooter = SidebarHeader.extend`
 `;
 
 const SidebarBox = styled.div`
-  background-color: ${colors.colorWhite};
+  background-color: ${props => (props.noBackground ? '' : colors.colorWhite)};
   margin-bottom: ${dimensions.coreSpacing}px;
   box-shadow: ${props =>
     props.noShadow ? 'none' : `0 0 4px ${colors.shadowPrimary}`};
   padding-bottom: ${dimensions.unitSpacing}px;
-  position: relative;
+  position: ${props => (props.full ? 'initial' : 'relative')};
   justify-content: center;
   transition: max-height 0.4s;
   overflow: ${props => (props.collapsible ? 'hidden' : 'auto')};
@@ -225,6 +225,11 @@ const SidebarList = styled.ul`
   li.child-segment {
     border-bottom: none;
     background-color: ${colors.bgLight};
+
+    > span {
+      background-color: ${colors.bgLight};
+      box-shadow: -2px 0 10px 2px ${colors.bgLight};
+    }
   }
 
   &.no-link li,
@@ -250,6 +255,11 @@ const SidebarList = styled.ul`
       text-decoration: none;
       outline: 0;
       color: ${colors.colorCoreBlack};
+
+      > span {
+        background-color: ${colors.bgActive};
+        box-shadow: -2px 0 10px 2px ${colors.bgActive};
+      }
     }
   }
 
@@ -269,6 +279,9 @@ const SidebarCounter = styled.span`
   max-width: 60%;
   overflow: hidden;
   text-overflow: ellipsis;
+  background-color: #fff;
+  box-shadow: -2px 0 10px 2px #fff;
+  padding-left: 10px;
 
   a {
     padding: 0;

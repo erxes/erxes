@@ -58,5 +58,6 @@ export const CUSTOMER_BASIC_INFO = {
 export const CUSTOMER_DATAS = {
   messengerData: 'Messenger Data',
   twitterData: 'Twitter Data',
-  facebookData: 'Facebook Data'
+  facebookData: 'Facebook Data',
+  visitorContactInfo: 'Visitor contact info'
 };

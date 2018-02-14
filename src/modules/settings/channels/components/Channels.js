@@ -30,7 +30,7 @@ class Channels extends Component {
     const breadcrumb = [
       { title: 'Settings', link: '/settings' },
       { title: 'Channels', link: '/settings/channels' },
-      { title: `${currentChannel.name}` }
+      { title: `${currentChannel.name || ''}` }
     ];
 
     const trigger = (

@@ -27,6 +27,9 @@ const types = {
   },
   warning: {
     background: colors.colorCoreYellow
+  },
+  simple: {
+    background: colors.colorCoreLightGray
   }
 };
 
@@ -89,7 +92,8 @@ Label.propTypes = {
     'primary',
     'success',
     'danger',
-    'warning'
+    'warning',
+    'simple'
   ])
 };
 
