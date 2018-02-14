@@ -1,18 +1,18 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import { Icon } from 'modules/common/components';
-import ImagePreview from './ImagePreview';
+import { Icon, ImageWithPreview } from 'modules/common/components';
 
-const Overlay = styled.div`
+const Overlay = styled.a`
   opacity: 0;
   width: 100%;
   height: 100%;
   position: absolute;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 2px;
   left: 0;
   top: 0;
-  transition: all 0.2s ease;
+  transition: all 0.3s ease;
 
   > div {
     position: absolute;
@@ -34,10 +34,9 @@ const Overlay = styled.div`
   }
 `;
 
-const DownloadAttachment = styled.a`
+const AttachmentWrapper = styled.div`
   display: inline-block;
   position: relative;
-  cursor: pointer;
   max-width: 360px;
   transition: all ease 0.3s;
   color: inherit;
@@ -58,6 +57,8 @@ const FileWrapper = styled.div`
   min-width: 120px;
   min-height: 36px;
   line-height: 36px;
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 2px;
 
   i {
     font-size: 26px;
@@ -87,11 +88,16 @@ class Attachment extends Component {
   }
 
   renderOtherFile(name, icon) {
-    return (
-      <FileWrapper>
+    return [
+      <FileWrapper key="wrapper">
         <Icon icon={icon} /> <span>{name}</span>
-      </FileWrapper>
-    );
+      </FileWrapper>,
+      <Overlay key="overlay" href={this.props.attachment.url} target="_blank">
+        <div>
+          <Icon icon="android-download" />
+        </div>
+      </Overlay>
+    ];
   }
 
   onLoadImage() {
@@ -101,7 +107,7 @@ class Attachment extends Component {
   renderAtachment({ attachment }) {
     if (attachment.type.startsWith('image')) {
       return (
-        <ImagePreview
+        <ImageWithPreview
           onLoad={this.onLoadImage}
           alt={attachment.url}
           src={attachment.url}
@@ -119,7 +125,7 @@ class Attachment extends Component {
       case 'jpeg':
       case 'jpg':
         filePreview = (
-          <ImagePreview alt={url} src={url} onLoad={this.onLoadImage} />
+          <ImageWithPreview alt={url} src={url} onLoad={this.onLoadImage} />
         );
         break;
       case 'doc':
@@ -151,9 +157,8 @@ class Attachment extends Component {
 
   render() {
     const props = this.props;
-    return (
-      <DownloadAttachment>{this.renderAtachment(props)}</DownloadAttachment>
-    );
+
+    return <AttachmentWrapper>{this.renderAtachment(props)}</AttachmentWrapper>;
   }
 }
 
