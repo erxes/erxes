@@ -77,12 +77,12 @@ class Settings extends Component {
             {this.renderBox(
               'Boards & Pipelines',
               '/images/icons/erxes-15.svg',
-              '/settings/profile'
+              '/settings/boards'
             )}
             {this.renderBox(
               'Product & Service',
               '/images/icons/erxes-14.svg',
-              '/settings/change-password'
+              '/settings/product-service'
             )}
           </div>
         </Row>

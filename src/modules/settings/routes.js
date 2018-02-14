@@ -3,6 +3,7 @@ import { Route } from 'react-router-dom';
 import ChannelsRoutes from './channels/routes';
 import BrandsRoutes from './brands/routes';
 import GeneralSettingsRoutes from './generalSettings/routes';
+import ProductServiceRoutes from './productService/routes';
 import ResponseTemplatesRoutes from './responseTemplates/routes';
 import EmailTemplatesRoutes from './emailTemplates/routes';
 import TeamMembersRoutes from './team/routes';
@@ -20,6 +21,7 @@ const routes = () => [
   <ResponseTemplatesRoutes key="ResponseTemplatesRoutes" />,
   <EmailTemplatesRoutes key="EmailTemplatesRoutes" />,
   <TeamMembersRoutes key="TeamMembersRoutes" />,
+  <ProductServiceRoutes key="ProductServiceRoutes" />,
   <EmailRoutes key="EmailRoutes" />,
   <FormsRoutes key="FormsRoutes" />,
   <IntegrationsRoutes key="IntegrationsRoutes" />,

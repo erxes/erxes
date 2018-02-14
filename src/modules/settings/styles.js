@@ -308,6 +308,16 @@ const SidebarListItem = styled.li`
   }
 `;
 
+const TableRow = styled.tr`
+  &:hover {
+    ${ActionButtons} {
+      width: auto;
+      position: inherit;
+      justify-content: flex-end;
+    }
+  }
+`;
+
 const RightButton = styled.div`
   position: absolute;
   right: ${dimensions.coreSpacing}px;
@@ -350,5 +360,6 @@ export {
   IntegrationName,
   RightButton,
   ActionButtons,
+  TableRow,
   BrandName
 };
