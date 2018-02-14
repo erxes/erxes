@@ -23,7 +23,7 @@ class Properties extends Component {
   }
 
   renderProperties() {
-    const { fieldsgroups } = this.props;
+    const { fieldsgroups, queryParams } = this.props;
 
     return (
       <ul>
@@ -33,6 +33,14 @@ class Properties extends Component {
           return (
             <li key={group._id}>
               {group.name}
+              <ModalTrigger
+                title="Add Group"
+                trigger={<Icon icon="edit" />}
+                size="lg"
+              >
+                <PropertyGroupForm group={group} queryParams={queryParams} />
+              </ModalTrigger>
+              <Icon icon="close" />
               <Collapse in={true}>
                 <div>
                   <Table whiteSpace="nowrap" hover bordered>

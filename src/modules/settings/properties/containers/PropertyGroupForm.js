@@ -7,15 +7,30 @@ import { Alert } from 'modules/common/utils';
 import { PropertyGroupForm } from '../components';
 
 const PropertyGroupFormContainer = props => {
-  const { fieldsGroupsAdd, fieldsQuery } = props;
+  const { fieldsGroupsAdd, fieldsQuery, fieldsGroupsEdit } = props;
 
   const add = ({ doc, callback }) => {
     fieldsGroupsAdd({
       variables: doc
     })
       .then(() => {
-        callback();
         fieldsQuery.refetch();
+        Alert.success('Successfully added');
+        callback();
+      })
+      .catch(e => {
+        Alert.error(e.message);
+      });
+  };
+
+  const edit = ({ _id, doc, callback }) => {
+    fieldsGroupsEdit({
+      variables: { _id, ...doc }
+    })
+      .then(() => {
+        fieldsQuery.refetch();
+        Alert.success('Successfully Edited');
+        callback();
       })
       .catch(e => {
         Alert.error(e.message);
@@ -24,7 +39,8 @@ const PropertyGroupFormContainer = props => {
 
   const updatedProps = {
     ...props,
-    add
+    add,
+    edit
   };
 
   return <PropertyGroupForm {...updatedProps} />;
@@ -33,7 +49,8 @@ const PropertyGroupFormContainer = props => {
 PropertyGroupFormContainer.propTypes = {
   queryParams: PropTypes.object,
   fieldsQuery: PropTypes.object,
-  fieldsGroupsAdd: PropTypes.func
+  fieldsGroupsAdd: PropTypes.func,
+  fieldsGroupsEdit: PropTypes.func
 };
 
 export default compose(
@@ -47,5 +64,8 @@ export default compose(
   }),
   graphql(gql(mutations.fieldsGroupsAdd), {
     name: 'fieldsGroupsAdd'
+  }),
+  graphql(gql(mutations.fieldsGroupsEdit), {
+    name: 'fieldsGroupsEdit'
   })
 )(PropertyGroupFormContainer);

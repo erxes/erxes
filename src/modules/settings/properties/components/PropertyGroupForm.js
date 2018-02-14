@@ -9,7 +9,9 @@ import {
 } from 'modules/common/components';
 
 const propTypes = {
-  add: PropTypes.func.isRequired
+  add: PropTypes.func.isRequired,
+  edit: PropTypes.func.isRequired,
+  group: PropTypes.object
 };
 
 const contextTypes = {
@@ -19,33 +21,63 @@ const contextTypes = {
 class PropertyGroupForm extends React.Component {
   constructor(props) {
     super(props);
+    let action = props.add;
+
+    if (props.group) {
+      action = props.edit;
+    }
 
     this.state = {
       name: '',
-      description: ''
+      description: '',
+      action
     };
 
     this.onChange = this.onChange.bind(this);
-    this.addGroup = this.addGroup.bind(this);
+    this.onSubmit = this.onSubmit.bind(this);
   }
 
-  addGroup(e) {
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.group) {
+      const { group } = nextProps;
+
+      this.setState({
+        name: group.name || '',
+        description: group.description || ''
+      });
+    }
+  }
+
+  onSubmit(e) {
     e.preventDefault();
     const { name, description } = this.state;
 
-    this.props.add({
-      doc: {
-        name,
-        contentType: 'Customer',
-        order: 1,
-        description
-      },
+    const doc = {
+      name,
+      contentType: 'Customer',
+      order: 1,
+      description
+    };
 
-      callback: () => {
-        this.setState({ name: '', description: '' });
-        this.context.closeModal();
-      }
-    });
+    const callback = () => {
+      this.setState({ name: '', description: '' });
+      this.context.closeModal();
+    };
+
+    if (this.props.group) {
+      const { _id } = this.props.group;
+
+      this.state.action({
+        _id,
+        doc,
+        callback
+      });
+    } else {
+      this.state.action({
+        doc,
+        callback
+      });
+    }
   }
 
   onChange(e) {
@@ -98,7 +130,7 @@ class PropertyGroupForm extends React.Component {
             btnStyle="success"
             type="submit"
             icon="checkmark"
-            onClick={this.addGroup}
+            onClick={this.onSubmit}
           >
             Save
           </Button>

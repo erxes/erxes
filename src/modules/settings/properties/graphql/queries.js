@@ -4,7 +4,7 @@ query fieldsByGroup($visible: Boolean, $contentType: String!) {
     _id
     name
     fields
-  }
+    }
   }
 `;
 
@@ -13,6 +13,8 @@ const fieldsgroups = `
     fieldsgroups(contentType: $contentType) {
       _id
       name
+      description
+      order
       getFields {
         _id
         contentType
