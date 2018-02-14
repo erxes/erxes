@@ -118,7 +118,6 @@ const CategoryItem = styled.li`
   &:hover {
     cursor: pointer;
     background: ${props => !props.isActive && colors.bgHover};
-
     ${ActionButtons} {
       width: ${dimensions.headerSpacing}px;
       background: ${props =>

@@ -21,8 +21,8 @@ class MainLayout extends React.Component {
       relativeTime: {
         future: 'in %s',
         past: '%s ',
-        s: 's',
-        m: 'm',
+        s: 'just now',
+        m: 'a min',
         mm: '%d m',
         h: 'h',
         hh: '%d h',
@@ -30,7 +30,7 @@ class MainLayout extends React.Component {
         dd: '%d d',
         M: 'a mth',
         MM: '%d mths',
-        y: 'y',
+        y: 'an year',
         yy: '%d y'
       }
     });

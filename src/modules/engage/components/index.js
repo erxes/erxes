@@ -5,7 +5,9 @@ import AutoAndManualForm from './AutoAndManualForm';
 import VisitorForm from './VisitorForm';
 import Widget from './Widget';
 import MessengerPreview from './MessengerPreview';
-
+import SegmentsForm from './SegmentsForm';
+import MessengerForm from './MessengerForm';
+import EmailForm from './EmailForm';
 // sidebar
 import Main from './sidebar/Main';
 import Status from './sidebar/Status';
@@ -16,9 +18,12 @@ export {
   MessageList,
   MessageListRow,
   MessageForm,
-  AutoAndManualForm,
   VisitorForm,
   Widget,
   MessengerPreview,
-  Sidebar
+  Sidebar,
+  AutoAndManualForm,
+  SegmentsForm,
+  MessengerForm,
+  EmailForm
 };
