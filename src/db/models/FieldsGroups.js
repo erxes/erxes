@@ -10,11 +10,11 @@ const FieldGroupSchema = mongoose.Schema({
   name: field({ type: String }),
   contentType: field({ type: String }),
   order: field({ type: Number }),
-  isDefinedByErxes: field({ type: Boolean }),
+  isDefinedByErxes: field({ type: Boolean, default: false }),
   description: field({
     type: String,
   }),
-  visible: field({ type: Boolean }),
+  visible: field({ type: Boolean, default: true }),
 });
 
 class FieldGroup {
@@ -26,10 +26,12 @@ class FieldGroup {
    *
    * @return {Promise} - Newly created Group
    */
-  static async createFieldsGroup({ name, nestedUnder, order }) {
+  static async createFieldsGroup({ name, contentType, description, visible, order }) {
     return this.create({
       name,
-      nestedUnder,
+      contentType,
+      description,
+      visible,
       order,
     });
   }

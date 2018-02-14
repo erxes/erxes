@@ -11,9 +11,11 @@ type FieldsGroup {
 
 const commonFields = `
   name: String
-  nestedUnder: String
   order: Int
   description: String
+  contentType: String
+  isDefinedByErxes: Boolean
+  visible: Boolean
 `;
 
 export const queries = `
