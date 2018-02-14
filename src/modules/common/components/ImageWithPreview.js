@@ -99,7 +99,6 @@ class ImageWithPreview extends Component {
     return (
       <div>
         <Image {...this.props} onClick={this.toggleImage} />
-
         {this.state.visible && (
           <PreviewPortal>
             <PreviewWrapper onClick={this.toggleImage}>
