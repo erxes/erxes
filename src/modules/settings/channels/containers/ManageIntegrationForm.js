@@ -93,6 +93,10 @@ export default compose(
           {
             query: gql(queries.channelDetail),
             variables: { _id: currentChannel._id }
+          },
+          {
+            query: gql(queries.integrationsCount),
+            variables: { channelId: currentChannel._id }
           }
         ]
       };

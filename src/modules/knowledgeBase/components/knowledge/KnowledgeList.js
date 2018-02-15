@@ -1,6 +1,11 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Icon, ModalTrigger, DataWithLoader } from 'modules/common/components';
+import {
+  Icon,
+  ModalTrigger,
+  EmptyState,
+  Spinner
+} from 'modules/common/components';
 import { Sidebar } from 'modules/layout/components';
 import { KnowledgeForm } from '../../containers';
 import { KnowledgeRow } from './';
@@ -76,19 +81,29 @@ class KnowledgeList extends Component {
     );
   }
 
-  render() {
+  showEmptyState() {
     const { topicsCount, loading } = this.props;
+
+    return (
+      !loading &&
+      topicsCount === 0 && (
+        <EmptyState
+          image="/images/robots/robot-03.svg"
+          text="Add knowledge base."
+        />
+      )
+    );
+  }
+
+  render() {
+    const { loading } = this.props;
 
     return (
       <Sidebar wide header={this.renderSidebarHeader()}>
         <Sidebar.Section noBackground noShadow full>
-          <DataWithLoader
-            data={this.renderSidebarList()}
-            loading={loading}
-            count={topicsCount}
-            emptyText="Add knowledge base."
-            emptyImage="/images/robots/robot-03.svg"
-          />
+          {this.renderSidebarList()}
+          {loading && <Spinner />}
+          {this.showEmptyState()}
         </Sidebar.Section>
       </Sidebar>
     );
