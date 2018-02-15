@@ -7,7 +7,7 @@ const dealQueries = {
    * @return {Promise} deal boards list
    */
   dealBoards() {
-    return DealBoards.find({});
+    return DealBoards.find({}).sort({ order: 1, createdAt: -1 });
   },
 
   /**
@@ -25,7 +25,7 @@ const dealQueries = {
    * @return {Promise} board
    */
   async dealBoardGetLast() {
-    return DealBoards.findOne().sort({ order: -1, createdAt: -1 });
+    return DealBoards.findOne().sort({ order: 1, createdAt: -1 });
   },
 
   /**
@@ -35,7 +35,7 @@ const dealQueries = {
    * @return {Promise}  filtered pipeline objects by boardId
    */
   dealPipelines(root, { boardId }) {
-    return DealPipelines.find({ boardId });
+    return DealPipelines.find({ boardId }).sort({ order: 1, createdAt: -1 });
   },
 
   /**
@@ -52,7 +52,7 @@ const dealQueries = {
 
     if (boardId) filter.boardId = boardId;
 
-    return DealStages.find(filter);
+    return DealStages.find(filter).sort({ order: 1, createdAt: -1 });
   },
 
   /**
@@ -72,7 +72,7 @@ const dealQueries = {
 
     if (pipelineId) filter.pipelineId = pipelineId;
 
-    return Deals.find(filter);
+    return Deals.find(filter).sort({ order: 1, createdAt: -1 });
   },
 };
 

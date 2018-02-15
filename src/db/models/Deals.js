@@ -11,6 +11,52 @@ const commonFields = {
   order: field({ type: Number }),
 };
 
+/*
+ * Update given collections orders
+ *
+ * @param [OrderItem] orders
+ * [{
+ *  _id: {String} item id
+ *  order: {Number} order
+ * }]
+ *
+ * @return [Object] updated collections
+ */
+const updateListOrder = async (collection, orders) => {
+  const ids = [];
+
+  for (let { _id, order } of orders) {
+    ids.push(_id);
+
+    // update each deals order
+    await collection.update({ _id }, { order });
+  }
+
+  return collection.find({ _id: { $in: ids } }).sort({ order: 1 });
+};
+
+/*
+ * Create pipelines with stages
+ *
+ * @param {[Stage]} stages
+ * @param  {String} pipelineId
+ */
+const createOrUpdatePipelineStages = async (stages, pipelineId) => {
+  for (let stage of stages) {
+    const doc = { pipelineId, ...stage };
+
+    if (doc._id) {
+      const _id = doc._id;
+      const stage = DealStages.findOne({ _id });
+      delete doc._id;
+
+      if (stage) DealStages.update({ _id }, { $set: doc });
+    } else {
+      DealStages.create(doc);
+    }
+  }
+};
+
 // Deal board schema
 const DealBoardSchema = mongoose.Schema({
   _id: field({ pkey: true }),
@@ -44,30 +90,21 @@ class Board {
    * @param  {[String]} ids
    * @return {Promise}
    */
-  static async removeBoard(ids) {
-    const boardCount = await DealBoards.find({ _id: { $in: ids } }).count();
+  static async removeBoard(_id) {
+    const board = await DealBoards.findOne({ _id });
 
-    if (boardCount !== ids.length) throw new Error('Board not found');
+    if (!board) throw new Error('Board not found');
 
-    return DealBoards.remove({ _id: { $in: ids } });
+    let count = 0;
+    count += await DealPipelines.find({ boardId: _id }).count();
+    count += await DealStages.find({ boardId: _id }).count();
+    count += await Deals.find({ boardId: _id }).count();
+
+    if (count > 0) throw new Error("Can't remove a board");
+
+    return DealBoards.remove({ _id });
   }
 }
-
-const createPipelineStages = async (stages, pipelineId) => {
-  for (let stage of stages) {
-    const doc = { pipelineId, ...stage };
-
-    if (doc._id) {
-      const _id = doc._id;
-      const stage = DealStages.findOne({ _id });
-      delete doc._id;
-
-      if (stage) DealStages.update({ _id }, { $set: doc });
-    } else {
-      DealStages.create(doc);
-    }
-  }
-};
 
 // Deal pipeline schema
 const DealPipelineSchema = mongoose.Schema({
@@ -87,7 +124,7 @@ class Pipeline {
     const pipeline = await this.create(doc);
 
     if (stages) {
-      createPipelineStages(stages, pipeline._id);
+      createOrUpdatePipelineStages(stages, pipeline._id);
     }
 
     return pipeline;
@@ -100,7 +137,7 @@ class Pipeline {
    */
   static async updatePipeline(_id, doc, stages) {
     if (stages) {
-      createPipelineStages(stages, _id);
+      createOrUpdatePipelineStages(stages, _id);
     }
 
     await this.update({ _id }, { $set: doc });
@@ -108,17 +145,38 @@ class Pipeline {
     return this.findOne({ _id });
   }
 
+  /*
+   * Update given pipelines orders
+   *
+   * @param [OrderItem] orders
+   * [{
+   *  _id: {String} pipeline id
+   *  order: {Number} order
+   * }]
+   *
+   * @return [Pipeline] updated pipelines
+   */
+  static async updateOrder(orders) {
+    return await updateListOrder(this, orders);
+  }
+
   /**
    * Remove Pipeline
    * @param  {[String]} ids
    * @return {Promise}
    */
-  static async removePipeline(ids) {
-    const pipelineCount = await DealPipelines.find({ _id: { $in: ids } }).count();
+  static async removePipeline(_id) {
+    const pipeline = await DealPipelines.findOne({ _id });
 
-    if (pipelineCount !== ids.length) throw new Error('Pipeline not found');
+    if (!pipeline) throw new Error('Pipeline not found');
 
-    return DealPipelines.remove({ _id: { $in: ids } });
+    let count = 0;
+    count += await DealStages.find({ pipelineId: _id }).count();
+    count += await Deals.find({ pipelineId: _id }).count();
+
+    if (count > 0) throw new Error("Can't remove a pipeline");
+
+    return DealPipelines.remove({ _id });
   }
 }
 
@@ -152,26 +210,61 @@ class Stage {
     return this.findOne({ _id });
   }
 
+  /*
+   * Update given stages orders
+   *
+   * @param [OrderItem] orders
+   * [{
+   *  _id: {String} stage id
+   *  order: {Number} order
+   * }]
+   *
+   * @return [Stage] updated stages
+   */
+  static async updateOrder(orders) {
+    return await updateListOrder(this, orders);
+  }
+
   /**
    * Remove Stage
    * @param  {[String]} ids
    * @return {Promise}
    */
-  static async removeStage(ids) {
-    const stageCount = await DealStages.find({ _id: { $in: ids } }).count();
+  static async removeStage(_id) {
+    const stage = await DealStages.findOne({ _id });
 
-    if (stageCount !== ids.length) throw new Error('Stage not found');
+    if (!stage) throw new Error('Stage not found');
 
-    return DealStages.remove({ _id: { $in: ids } });
+    const count = await Deals.find({ stageId: _id }).count();
+
+    if (count > 0) throw new Error("Can't remove a stage");
+
+    return DealStages.remove({ _id });
   }
 }
+
+/* Deal products schema */
+const productSchema = mongoose.Schema(
+  {
+    productId: String,
+    uom: String,
+    currency: String,
+    quantity: Number,
+    unitPrice: Number,
+    taxPercent: Number,
+    tax: Number,
+    amount: Number,
+  },
+  { _id: false },
+);
 
 // Deal schema
 const DealSchema = mongoose.Schema({
   _id: field({ pkey: true }),
   productIds: field({ type: [String] }),
+  productsData: field({ type: [productSchema] }),
   companyId: field({ type: String }),
-  amount: field({ type: Number }),
+  customerId: field({ type: String }),
   closeDate: field({ type: Date }),
   note: field({ type: String }),
   assignedUserIds: field({ type: [String] }),
@@ -202,17 +295,32 @@ class Deal {
     return this.findOne({ _id });
   }
 
+  /*
+   * Update given deals orders
+   *
+   * @param [OrderItem] orders
+   * [{
+   *  _id: {String} deal id
+   *  order: {Number} order
+   * }]
+   *
+   * @return [Deal] updated deals
+   */
+  static async updateOrder(orders) {
+    return await updateListOrder(this, orders);
+  }
+
   /**
    * Remove Deal
    * @param  {[String]} ids
    * @return {Promise}
    */
-  static async removeDeal(ids) {
-    const dealCount = await Deals.find({ _id: { $in: ids } }).count();
+  static async removeDeal(_id) {
+    const deal = await Deals.findOne({ _id });
 
-    if (dealCount !== ids.length) throw new Error('Deal not found');
+    if (!deal) throw new Error('Deal not found');
 
-    return Deals.remove({ _id: { $in: ids } });
+    return Deals.remove({ _id });
   }
 }
 

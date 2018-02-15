@@ -22,6 +22,7 @@ export const types = `
     name: String!
     boardId: String
     pipelineId: String!
+    amount: Int!
     ${commonTypes}
   }
 
@@ -31,10 +32,16 @@ export const types = `
     pipelineId: String
     stageId: String!
     productIds: [String]!
+    productsData: JSON!
     companyId: String!
+    customerId: String!
     amount: Int
     closeDate: Date
     note: String
+    amount: Int!
+    company: Company
+    customer: Customer
+    products: Product
     ${commonTypes}
   }
 `;
@@ -51,18 +58,20 @@ export const queries = `
 export const mutations = `
 	dealBoardsAdd(name: String!): DealBoard
 	dealBoardsEdit(_id: String!, name: String!): DealBoard
-  dealBoardsRemove(ids: [String!]!): String
+  dealBoardsRemove(_id: String!): String
 
 	dealPipelinesAdd(name: String!, boardId: String!, stages: JSON): DealPipeline
 	dealPipelinesEdit(_id: String!, name: String!, boardId: String!,
     stages: JSON): DealPipeline
-  dealPipelinesRemove(ids: [String!]!): String
+  dealPipelinesUpdateOrder(orders: [OrderItem]): [DealPipeline]
+  dealPipelinesRemove(_id: String!): String
 
 	dealStagesAdd(name: String!, boardId: String, pipelineId: String!): DealStage
 	dealStagesEdit(
     _id: String!, name: String!, boardId: String, pipelineId: String!
   ): DealStage
-  dealStagesRemove(ids: [String!]!): String
+  dealStagesUpdateOrder(orders: [OrderItem]): [DealStage]
+  dealStagesRemove(_id: String!): String
 
 	dealsAdd(
     boardId: String,
@@ -70,9 +79,10 @@ export const mutations = `
     stageId: String!,
     productIds: [String]!,
     companyId: String!,
-    amount: Int!,
+    customerId: String!,
     closeDate: Date!,
     note: String,
+    productsData: JSON
   ): Deal
 	dealsEdit(
     _id: String!,
@@ -81,9 +91,11 @@ export const mutations = `
     stageId: String!,
     productIds: [String]!,
     companyId: String!,
-    amount: Int!,
+    customerId: String!,
     closeDate: Date!,
     note: String,
+    productsData: JSON
   ): Deal
-  dealsRemove(ids: [String!]!): String
+  dealsUpdateOrder(orders: [OrderItem]): [Deal]
+  dealsRemove(_id: String!): String
 `;

@@ -23,11 +23,11 @@ const dealMutations = {
 
   /**
   * Remove board
-  * @param {[String]} ids
+  * @param {String} _id
   * @return {Promise}
   */
-  dealBoardsRemove(root, { ids }) {
-    return DealBoards.removeBoard(ids);
+  dealBoardsRemove(root, { _id }) {
+    return DealBoards.removeBoard(_id);
   },
 
   /**
@@ -54,12 +54,21 @@ const dealMutations = {
   },
 
   /**
+   * Update pipeline orders
+   * @param [OrderItem] [{ _id: [pipeline id], order: [order value] }]
+   * @return {Promise} updated pipelines
+   */
+  dealPipelinesUpdateOrder(root, { orders }) {
+    return DealPipelines.updateOrder(orders);
+  },
+
+  /**
   * Remove pipeline
-  * @param {[String]} ids
+  * @param {String} _id
   * @return {Promise}
   */
-  dealPipelinesRemove(root, { ids }) {
-    return DealPipelines.removePipeline(ids);
+  dealPipelinesRemove(root, { _id }) {
+    return DealPipelines.removePipeline(_id);
   },
 
   /**
@@ -86,19 +95,29 @@ const dealMutations = {
   },
 
   /**
+   * Update stage orders
+   * @param [OrderItem] [{ _id: [stage id], order: [order value] }]
+   * @return {Promise} updated stages
+   */
+  dealStagesUpdateOrder(root, { orders }) {
+    return DealStages.updateOrder(orders);
+  },
+
+  /**
   * Remove stage
-  * @param {[String]} ids
+  * @param {String} _id
   * @return {Promise}
   */
-  dealStagesRemove(root, { ids }) {
-    return DealStages.removeStage(ids);
+  dealStagesRemove(root, { _id }) {
+    return DealStages.removeStage(_id);
   },
 
   /**
   * Create new deal
   * @param {[String]} doc.productIds
+  * @param {[Object]} doc.productsData
   * @param {String} doc.companyId
-  * @param {Number} doc.amount
+  * @param {String} doc.customerId
   * @param {Date} doc.closeDate
   * @param {String} doc.note
   * @param {[String]} doc.assignedUserIds
@@ -115,8 +134,9 @@ const dealMutations = {
   * Edit deal
   * @param {String} _id deal id
   * @param {[String]} doc.productIds
+  * @param {[Object]} doc.productsData
   * @param {String} doc.companyId
-  * @param {Number} doc.amount
+  * @param {String} doc.customerId
   * @param {Date} doc.closeDate
   * @param {String} doc.note
   * @param {[String]} doc.assignedUserIds
@@ -130,12 +150,21 @@ const dealMutations = {
   },
 
   /**
+   * Update deal orders
+   * @param [OrderItem] [{ _id: [deal id], order: [order value] }]
+   * @return {Promise} updated deals
+   */
+  dealsUpdateOrder(root, { orders }) {
+    return Deals.updateOrder(orders);
+  },
+
+  /**
   * Remove deal
-  * @param {[String]} ids
+  * @param {String} _id
   * @return {Promise}
   */
-  dealsRemove(root, { ids }) {
-    return Deals.removeDeals(ids);
+  dealsRemove(root, { _id }) {
+    return Deals.removeDeals(_id);
   },
 };
 

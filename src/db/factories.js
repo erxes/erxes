@@ -393,7 +393,7 @@ export const dealBoardFactory = () => {
   return board.save();
 };
 
-export const dealPipelineFactory = params => {
+export const dealPipelineFactory = (params = {}) => {
   const pipeline = new DealPipelines({
     name: faker.random.word(),
     boardId: params.boardId || faker.random.word(),
@@ -402,7 +402,7 @@ export const dealPipelineFactory = params => {
   return pipeline.save();
 };
 
-export const dealStageFactory = params => {
+export const dealStageFactory = (params = {}) => {
   const stage = new DealStages({
     name: faker.random.word(),
     boardId: params.boardId || faker.random.word(),
@@ -412,7 +412,7 @@ export const dealStageFactory = params => {
   return stage.save();
 };
 
-export const dealFactory = params => {
+export const dealFactory = (params = {}) => {
   const deal = new Deals({
     boardId: params.boardId || faker.random.word(),
     pipelineId: params.pipelineId || faker.random.word(),
@@ -428,7 +428,7 @@ export const dealFactory = params => {
   return deal.save();
 };
 
-export const productFactory = params => {
+export const productFactory = (params = {}) => {
   const product = new Products({
     name: params.name || faker.random.word(),
     type: params.type || faker.random.word(),

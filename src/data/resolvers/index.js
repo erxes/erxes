@@ -20,6 +20,8 @@ import KnowledgeBaseCategory from './knowledgeBaseCategory';
 import KnowledgeBaseTopic from './knowledgeBaseTopic';
 import ActivityLog from './activityLog';
 import ActivityLogForMonth from './activityLogForMonth';
+import Deal from './deals';
+import DealStage from './dealStages';
 
 export default {
   ...customScalars,
@@ -36,6 +38,8 @@ export default {
   EngageMessage,
   Conversation,
   ConversationMessage,
+  Deal,
+  DealStage,
 
   Mutation,
   Query,

@@ -116,7 +116,7 @@ describe('Test deals mutations', () => {
 
   test('Remove board', async () => {
     DealBoards.removeBoard = jest.fn();
-    await dealMutations.dealBoardsRemove({}, { ids: [_board.id] }, { user: _user });
+    await dealMutations.dealBoardsRemove({}, { _id: _board.id }, { user: _user });
 
     expect(DealBoards.removeBoard.mock.calls.length).toBe(1);
   });
@@ -153,7 +153,7 @@ describe('Test deals mutations', () => {
 
   test('Remove pipeline', async () => {
     DealPipelines.removePipeline = jest.fn();
-    await dealMutations.dealPipelinesRemove({}, { ids: [_pipeline.id] }, { user: _user });
+    await dealMutations.dealPipelinesRemove({}, { _id: _pipeline.id }, { user: _user });
 
     expect(DealPipelines.removePipeline.mock.calls.length).toBe(1);
   });
@@ -187,7 +187,7 @@ describe('Test deals mutations', () => {
 
   test('Remove stage', async () => {
     DealStages.removeStage = jest.fn();
-    await dealMutations.dealStagesRemove({}, { ids: [_stage.id] }, { user: _user });
+    await dealMutations.dealStagesRemove({}, { _id: _stage.id }, { user: _user });
 
     expect(DealStages.removeStage.mock.calls.length).toBe(1);
   });
@@ -227,7 +227,7 @@ describe('Test deals mutations', () => {
 
   test('Remove deal', async () => {
     Deals.removeDeals = jest.fn();
-    await dealMutations.dealsRemove({}, { ids: [_deal.id] }, { user: _user });
+    await dealMutations.dealsRemove({}, { _id: _deal.id }, { user: _user });
 
     expect(Deals.removeDeals.mock.calls.length).toBe(1);
   });
