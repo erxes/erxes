@@ -3,52 +3,52 @@ import { moduleRequireLogin } from '../../permissions';
 
 const dealMutations = {
   /**
-  * Create new board
-  * @param {String} doc.name
-  * @return {Promise} newly created board object
-  */
+   * Create new board
+   * @param {String} doc.name
+   * @return {Promise} newly created board object
+   */
   dealBoardsAdd(root, doc, { user }) {
     return DealBoards.createBoard({ userId: user._id, ...doc });
   },
 
   /**
-  * Edit board
-  * @param {String} _id board id
-  * @param {String} doc.name
-  * @return {Promise} updated board object
-  */
+   * Edit board
+   * @param {String} _id board id
+   * @param {String} doc.name
+   * @return {Promise} updated board object
+   */
   dealBoardsEdit(root, { _id, ...doc }) {
     return DealBoards.updateBoard(_id, doc);
   },
 
   /**
-  * Remove board
-  * @param {String} _id
-  * @return {Promise}
-  */
+   * Remove board
+   * @param {String} _id
+   * @return {Promise}
+   */
   dealBoardsRemove(root, { _id }) {
     return DealBoards.removeBoard(_id);
   },
 
   /**
-  * Create new pipeline
-  * @param {String} doc.name
-  * @param {String} doc.boardId
-  * @param {[Object]} doc.stages
-  * @return {Promise} newly created pipeline object
-  */
+   * Create new pipeline
+   * @param {String} doc.name
+   * @param {String} doc.boardId
+   * @param {[Object]} doc.stages
+   * @return {Promise} newly created pipeline object
+   */
   dealPipelinesAdd(root, { stages, ...doc }, { user }) {
     return DealPipelines.createPipeline({ userId: user._id, ...doc }, stages);
   },
 
   /**
-  * Edit pipeline
-  * @param {String} _id pipeline id
-  * @param {String} doc.name
-  * @param {String} doc.boardId
-  * @param {[Object]} doc.stages
-  * @return {Promise} updated pipeline object
-  */
+   * Edit pipeline
+   * @param {String} _id pipeline id
+   * @param {String} doc.name
+   * @param {String} doc.boardId
+   * @param {[Object]} doc.stages
+   * @return {Promise} updated pipeline object
+   */
   dealPipelinesEdit(root, { _id, stages, ...doc }) {
     return DealPipelines.updatePipeline(_id, doc, stages);
   },
@@ -63,33 +63,33 @@ const dealMutations = {
   },
 
   /**
-  * Remove pipeline
-  * @param {String} _id
-  * @return {Promise}
-  */
+   * Remove pipeline
+   * @param {String} _id
+   * @return {Promise}
+   */
   dealPipelinesRemove(root, { _id }) {
     return DealPipelines.removePipeline(_id);
   },
 
   /**
-  * Create new stage
-  * @param {String} doc.name
-  * @param {String} doc.boardId
-  * @param {String} doc.pipelineId
-  * @return {Promise} newly created stage object
-  */
+   * Create new stage
+   * @param {String} doc.name
+   * @param {String} doc.boardId
+   * @param {String} doc.pipelineId
+   * @return {Promise} newly created stage object
+   */
   dealStagesAdd(root, doc, { user }) {
     return DealStages.createStage({ userId: user._id, ...doc });
   },
 
   /**
-  * Edit stage
-  * @param {String} _id stage id
-  * @param {String} doc.name
-  * @param {String} doc.boardId
-  * @param {String} doc.pipelineId
-  * @return {Promise} updated stage object
-  */
+   * Edit stage
+   * @param {String} _id stage id
+   * @param {String} doc.name
+   * @param {String} doc.boardId
+   * @param {String} doc.pipelineId
+   * @return {Promise} updated stage object
+   */
   dealStagesEdit(root, { _id, ...doc }) {
     return DealStages.updateStage(_id, doc);
   },
@@ -104,47 +104,47 @@ const dealMutations = {
   },
 
   /**
-  * Remove stage
-  * @param {String} _id
-  * @return {Promise}
-  */
+   * Remove stage
+   * @param {String} _id
+   * @return {Promise}
+   */
   dealStagesRemove(root, { _id }) {
     return DealStages.removeStage(_id);
   },
 
   /**
-  * Create new deal
-  * @param {[String]} doc.productIds
-  * @param {[Object]} doc.productsData
-  * @param {String} doc.companyId
-  * @param {String} doc.customerId
-  * @param {Date} doc.closeDate
-  * @param {String} doc.note
-  * @param {[String]} doc.assignedUserIds
-  * @param {String} doc.boardId
-  * @param {String} doc.pipelineId
-  * @param {String} doc.stageId
-  * @return {Promise} newly created deal object
-  */
+   * Create new deal
+   * @param {[String]} doc.productIds
+   * @param {[Object]} doc.productsData
+   * @param {String} doc.companyId
+   * @param {String} doc.customerId
+   * @param {Date} doc.closeDate
+   * @param {String} doc.note
+   * @param {[String]} doc.assignedUserIds
+   * @param {String} doc.boardId
+   * @param {String} doc.pipelineId
+   * @param {String} doc.stageId
+   * @return {Promise} newly created deal object
+   */
   dealsAdd(root, doc, { user }) {
-    return Deals.createDeals({ userId: user._id, ...doc });
+    return Deals.createDeal({ userId: user._id, ...doc });
   },
 
   /**
-  * Edit deal
-  * @param {String} _id deal id
-  * @param {[String]} doc.productIds
-  * @param {[Object]} doc.productsData
-  * @param {String} doc.companyId
-  * @param {String} doc.customerId
-  * @param {Date} doc.closeDate
-  * @param {String} doc.note
-  * @param {[String]} doc.assignedUserIds
-  * @param {String} doc.boardId
-  * @param {String} doc.pipelineId
-  * @param {String} doc.stageId
-  * @return {Promise} updated deal object
-  */
+   * Edit deal
+   * @param {String} _id deal id
+   * @param {[String]} doc.productIds
+   * @param {[Object]} doc.productsData
+   * @param {String} doc.companyId
+   * @param {String} doc.customerId
+   * @param {Date} doc.closeDate
+   * @param {String} doc.note
+   * @param {[String]} doc.assignedUserIds
+   * @param {String} doc.boardId
+   * @param {String} doc.pipelineId
+   * @param {String} doc.stageId
+   * @return {Promise} updated deal object
+   */
   dealsEdit(root, { _id, ...doc }) {
     return Deals.updateDeals(_id, doc);
   },
@@ -159,10 +159,10 @@ const dealMutations = {
   },
 
   /**
-  * Remove deal
-  * @param {String} _id
-  * @return {Promise}
-  */
+   * Remove deal
+   * @param {String} _id
+   * @return {Promise}
+   */
   dealsRemove(root, { _id }) {
     return Deals.removeDeals(_id);
   },
