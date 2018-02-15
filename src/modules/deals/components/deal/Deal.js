@@ -22,7 +22,7 @@ class Deal extends React.Component {
               {...provided.draggableProps}
               {...provided.dragHandleProps}
             >
-              {deal.name}
+              {deal.customer.name}
               <br />
               {deal.amount}
             </DealContainer>

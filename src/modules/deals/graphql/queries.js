@@ -50,6 +50,24 @@ const deals = `
     deals(boardId: $boardId) {
       _id
       stageId
+      customer {
+        _id
+        name
+      }
+      amount
+    }
+  }
+`;
+
+const companies = `
+  query companies {
+    companies {
+      _id
+      name
+      customers {
+        _id
+        name
+      }
     }
   }
 `;
@@ -60,5 +78,6 @@ export default {
   boardDetail,
   pipelines,
   stages,
-  deals
+  deals,
+  companies
 };

@@ -3,10 +3,13 @@ import PropTypes from 'prop-types';
 import { Draggable, Droppable } from 'react-beautiful-dnd';
 import { StageContainer, StageBody, AddNewDeal } from '../../styles';
 import { Icon } from 'modules/common/components';
-import { Deal, DealForm } from '../';
+import { Deal } from '../';
+import { DealForm } from '../../containers';
 
 const propTypes = {
   stage: PropTypes.object.isRequired,
+  boardId: PropTypes.string,
+  pipelineId: PropTypes.string,
   deals: PropTypes.array,
   index: PropTypes.number.isRequired,
   addDealForm: PropTypes.func.isRequired,
@@ -29,20 +32,8 @@ class Stage extends React.Component {
     };
   }
 
-  componentDidUpdate(prevProps) {
-    // console.log(prevProps.deals.length);
-    // console.log(this.props.deals.length);
-    // let amount = 0;
-    // this.props.deals.forEach(deal => {
-    //   amount += deal.amount;
-    // });
-    // this.setState({
-    //   amount,
-    // });
-  }
-
   render() {
-    const { stage, deals, index } = this.props;
+    const { stage, pipelineId, boardId, deals, index } = this.props;
     const { amount } = this.state;
 
     return (
@@ -72,6 +63,9 @@ class Stage extends React.Component {
               {this.props.showDealForm[stage._id] ? (
                 <DealForm
                   addDeal={() => {}}
+                  boardId={boardId}
+                  pipelineId={pipelineId}
+                  stageId={stage._id}
                   close={this.props.closeDealForm.bind(this, stage._id)}
                 />
               ) : (

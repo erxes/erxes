@@ -6,6 +6,7 @@ import { PipelineContainer, PipelineHeader, PipelineBody } from '../../styles';
 
 const propTypes = {
   pipeline: PropTypes.object.isRequired,
+  boardId: PropTypes.string,
   stages: PropTypes.array,
   deals: PropTypes.array
 };
@@ -41,7 +42,7 @@ class Pipeline extends React.Component {
   }
 
   render() {
-    const { stages, pipeline, deals } = this.props;
+    const { stages, pipeline, boardId, deals } = this.props;
 
     const content = innerRef => (
       <PipelineBody innerRef={innerRef}>
@@ -51,6 +52,8 @@ class Pipeline extends React.Component {
               key={stage._id}
               index={index}
               stage={stage}
+              boardId={boardId}
+              pipelineId={pipeline._id}
               deals={deals.filter(deal => deal.stageId === stage._id)}
               showDealForm={this.state.showDealForm}
               closeDealForm={this.closeDealForm}

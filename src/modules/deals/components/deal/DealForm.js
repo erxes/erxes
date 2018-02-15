@@ -1,38 +1,81 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Modal } from 'react-bootstrap';
-import { Button, ModalTrigger, Icon } from 'modules/common/components';
+import {
+  Button,
+  ModalTrigger,
+  Icon,
+  FormGroup,
+  ControlLabel,
+  FormControl
+} from 'modules/common/components';
 import { DealFormContainer, DealButton } from '../../styles';
 import { ProductForm } from '../';
-import { AssignTrigger } from 'modules/inbox/styles';
-import { AssignBoxPopover } from 'modules/inbox/components';
 
 const propTypes = {
-  addDeal: PropTypes.func.isRequired,
-  close: PropTypes.func.isRequired
+  deal: PropTypes.object,
+  saveDeal: PropTypes.func.isRequired,
+  close: PropTypes.func.isRequired,
+  companies: PropTypes.array,
+  boardId: PropTypes.string,
+  pipelineId: PropTypes.string,
+  stageId: PropTypes.string
 };
 
 class DealForm extends React.Component {
   constructor(props) {
     super(props);
 
-    this.addDeal = this.addDeal.bind(this);
+    this.onChangeCompany = this.onChangeCompany.bind(this);
+    this.onChangeCustomer = this.onChangeCustomer.bind(this);
+
+    this.saveDeal = this.saveDeal.bind(this);
+
+    this.state = {
+      companyId: '',
+      customerId: '',
+      customers: [],
+      closeDate: new Date(),
+      amount: 0
+    };
   }
 
-  addDeal(e) {
+  saveDeal(e) {
     e.preventDefault();
-    const name = document.getElementById('stage-name');
+    const { customerId, companyId, closeDate, amount } = this.state;
 
-    this.props.addDeal({
-      doc: {
-        name: name.value,
-        boardId: '1234'
+    this.props.saveDeal(
+      {
+        doc: {
+          boardId: this.props.boardId,
+          pipelineId: this.props.pipelineId,
+          stageId: this.props.stageId,
+          companyId,
+          customerId,
+          closeDate,
+          amount
+        }
       },
-
-      callback: () => {
+      () => {
         this.props.close();
-      }
-    });
+      },
+      this.props.deal
+    );
+  }
+
+  onChangeCompany(e) {
+    const companyId = e.target.value;
+    const customers = this.props.companies.find(
+      company => company._id === companyId
+    ).customers;
+
+    this.setState({ companyId, customers });
+  }
+
+  onChangeCustomer(e) {
+    const customerId = e.target.value;
+
+    this.setState({ customerId });
   }
 
   render() {
@@ -42,30 +85,12 @@ class DealForm extends React.Component {
       </DealButton>
     );
 
-    const companyTrigger = (
-      <DealButton>
-        Select Company <Icon icon="plus" />
-      </DealButton>
-    );
-
-    const customerTrigger = (
-      <DealButton>
-        Select Customer <Icon icon="plus" />
-      </DealButton>
-    );
-
-    const assignTrigger = (
-      <AssignTrigger>
-        <Button btnStyle="simple" size="small">
-          Member
-        </Button>
-        <Icon icon="ios-arrow-down" size={13} />
-      </AssignTrigger>
-    );
+    const { companies } = this.props;
+    const { customers, customer, company } = this.state;
 
     return (
       <DealFormContainer>
-        <form onSubmit={e => this.addDeal(e)}>
+        <form onSubmit={e => this.saveDeal(e)}>
           <ModalTrigger
             size="large"
             title="New Product & Service"
@@ -73,13 +98,35 @@ class DealForm extends React.Component {
           >
             <ProductForm addProduct={() => {}} />
           </ModalTrigger>
-          <ModalTrigger title="Company" trigger={companyTrigger}>
-            <ProductForm addProduct={() => {}} />
-          </ModalTrigger>
-          <ModalTrigger title="Customer" trigger={customerTrigger}>
-            <ProductForm addProduct={() => {}} />
-          </ModalTrigger>
-          <AssignBoxPopover targets={[]} trigger={assignTrigger} />
+          <FormGroup>
+            <ControlLabel>Company</ControlLabel>
+            <FormControl
+              componentClass="select"
+              value={company}
+              onChange={this.onChangeCompany}
+            >
+              <option />
+              {companies.map(customer => (
+                <option key={customer._id} value={customer._id}>
+                  {customer.name}
+                </option>
+              ))}
+            </FormControl>
+          </FormGroup>
+          <FormGroup>
+            <ControlLabel>Customer</ControlLabel>
+            <FormControl
+              componentClass="select"
+              value={customer}
+              onChange={this.onChangeCustomer}
+            >
+              {customers.map(customer => (
+                <option key={customer._id} value={customer._id}>
+                  {customer.name}
+                </option>
+              ))}
+            </FormControl>
+          </FormGroup>
           <Modal.Footer>
             <Button
               btnStyle="simple"

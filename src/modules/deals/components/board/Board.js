@@ -173,6 +173,7 @@ class Board extends React.Component {
             <Pipeline
               key={pipeline._id}
               pipeline={pipeline}
+              boardId={currentBoard._id}
               stages={this.state.stages.filter(
                 stage => pipeline._id === stage.pipelineId
               )}
