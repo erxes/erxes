@@ -7,4 +7,25 @@ const ContentBox = styled.div`
   padding: ${coreSpace};
 `;
 
-export { ContentBox };
+const PropertyList = styled.ul`
+  list-style: none;
+
+  li {
+    padding: ${coreSpace} 0;
+
+    &:hover {
+      cursor: pointer;
+    }
+  }
+`;
+
+const ActionButtons = styled.div`
+  position: absolute;
+  right: ${coreSpace};
+
+  i {
+    margin-left: ${coreSpace};
+  }
+`;
+
+export { ContentBox, PropertyList, ActionButtons };
