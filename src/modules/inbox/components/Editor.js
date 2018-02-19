@@ -320,6 +320,11 @@ export default class Editor extends Component {
   }
 
   keyBindingFn(e) {
+    // handle new line
+    if (e.key === 'Enter' && e.shiftKey) {
+      return getDefaultKeyBinding(e);
+    }
+
     // handle enter  in editor
     if (e.key === 'Enter') {
       // select response template
