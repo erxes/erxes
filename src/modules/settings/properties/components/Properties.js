@@ -1,12 +1,10 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Collapse } from 'react-bootstrap';
-import Toggle from 'react-toggle';
-import { Table, Icon, ModalTrigger, Button } from 'modules/common/components';
-import { confirm } from 'modules/common/utils';
+import { ModalTrigger, Button } from 'modules/common/components';
 import { Wrapper } from 'modules/layout/components';
 import { PropertyGroupForm, PropertyForm } from '../containers';
-import { Sidebar } from './';
+import { Sidebar, PropertyRow } from './';
+import { PropertyList } from '../styles';
 
 const propTypes = {
   queryParams: PropTypes.object,
@@ -24,79 +22,22 @@ class Properties extends Component {
     this.renderProperties = this.renderProperties.bind(this);
   }
 
-  removePropertyGroup(_id) {
-    this.props.removePropertyGroup({ _id });
-  }
-
   renderProperties() {
-    const { fieldsgroups, queryParams } = this.props;
+    const { fieldsgroups, queryParams, removePropertyGroup } = this.props;
 
     return (
-      <ul>
+      <PropertyList>
         {fieldsgroups.map(group => {
-          const fields = group.getFields || [];
-
           return (
-            <li key={group._id}>
-              {group.name}
-              <ModalTrigger
-                title="Add Group"
-                trigger={<Icon icon="edit" />}
-                size="lg"
-              >
-                <PropertyGroupForm group={group} queryParams={queryParams} />
-              </ModalTrigger>
-              <Icon
-                icon="close"
-                onClick={() =>
-                  confirm().then(() => {
-                    this.removePropertyGroup(group._id);
-                  })
-                }
-              />
-              <Collapse in={true}>
-                <div>
-                  <Table whiteSpace="nowrap" hover bordered>
-                    <thead>
-                      <tr>
-                        <th>Name</th>
-                        <th>Last Updated By</th>
-                        <th>Visible</th>
-                        <th />
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {fields.map(field => {
-                        return (
-                          <tr key={field._id}>
-                            <td>
-                              {field.text} - {field.type}
-                            </td>
-                            <td>Erxes</td>
-                            <td>
-                              <Toggle
-                                checked={true}
-                                icons={{
-                                  checked: <span>Yes</span>,
-                                  unchecked: <span>No</span>
-                                }}
-                              />
-                            </td>
-                            <td>
-                              <Icon icon="edit" />
-                              <Icon icon="close" />
-                            </td>
-                          </tr>
-                        );
-                      })}
-                    </tbody>
-                  </Table>
-                </div>
-              </Collapse>
-            </li>
+            <PropertyRow
+              key={group._id}
+              group={group}
+              queryParams={queryParams}
+              remove={removePropertyGroup}
+            />
           );
         })}
-      </ul>
+      </PropertyList>
     );
   }
 

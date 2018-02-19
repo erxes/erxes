@@ -10,10 +10,6 @@ const propTypes = {
 };
 
 class Sidebar extends Component {
-  constructor(props) {
-    super(props);
-  }
-
   renderSidebarHeader() {
     const { Header } = LeftSidebar;
 

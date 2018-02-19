@@ -48,8 +48,7 @@ class PropertyGroupForm extends React.Component {
     }
   }
 
-  onSubmit(e) {
-    e.preventDefault();
+  onSubmit() {
     const { name, description } = this.state;
 
     const doc = {
@@ -59,25 +58,11 @@ class PropertyGroupForm extends React.Component {
       description
     };
 
-    const callback = () => {
-      this.setState({ name: '', description: '' });
-      this.context.closeModal();
-    };
+    this.state.action(
+      this.props.group ? { _id: this.props.group._id, doc } : { doc }
+    );
 
-    if (this.props.group) {
-      const { _id } = this.props.group;
-
-      this.state.action({
-        _id,
-        doc,
-        callback
-      });
-    } else {
-      this.state.action({
-        doc,
-        callback
-      });
-    }
+    this.context.closeModal();
   }
 
   onChange(e) {
@@ -91,7 +76,7 @@ class PropertyGroupForm extends React.Component {
 
   render() {
     return (
-      <form onSubmit={e => this.addCompany(e)}>
+      <div>
         <FormGroup>
           <ControlLabel>Name</ControlLabel>
           <FormControl
@@ -135,7 +120,7 @@ class PropertyGroupForm extends React.Component {
             Save
           </Button>
         </Modal.Footer>
-      </form>
+      </div>
     );
   }
 }
