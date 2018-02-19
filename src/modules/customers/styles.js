@@ -88,7 +88,7 @@ const Title = styled.h4`
   padding: 10px ${columnSizing};
   font-size: 12px;
   text-transform: uppercase;
-  white-space: nowrap;
+  white-space: ${props => (props.full ? 'normal' : 'nowrap')};
   overflow: hidden;
   text-overflow: ellipsis;
 
