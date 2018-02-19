@@ -31,15 +31,15 @@ const messengerSchema = mongoose.Schema(
   {
     lastSeenAt: field({
       type: Date,
-      label: 'Messenger: Last online',
+      label: 'Last seen',
     }),
     sessionCount: field({
       type: Number,
-      label: 'Messenger: Session count',
+      label: 'Session count',
     }),
     isActive: field({
       type: Boolean,
-      label: 'Messenger: Is online',
+      label: 'Is online',
     }),
     customData: field({
       type: Object,
