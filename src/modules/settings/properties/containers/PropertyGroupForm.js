@@ -7,30 +7,28 @@ import { Alert } from 'modules/common/utils';
 import { PropertyGroupForm } from '../components';
 
 const PropertyGroupFormContainer = props => {
-  const { fieldsGroupsAdd, fieldsQuery, fieldsGroupsEdit } = props;
+  const { fieldsGroupsAdd, fieldsGroupsQuery, fieldsGroupsEdit } = props;
 
-  const add = ({ doc, callback }) => {
+  const add = ({ doc }) => {
     fieldsGroupsAdd({
       variables: doc
     })
       .then(() => {
-        fieldsQuery.refetch();
+        fieldsGroupsQuery.refetch();
         Alert.success('Successfully added');
-        callback();
       })
       .catch(e => {
         Alert.error(e.message);
       });
   };
 
-  const edit = ({ _id, doc, callback }) => {
+  const edit = ({ _id, doc }) => {
     fieldsGroupsEdit({
       variables: { _id, ...doc }
     })
       .then(() => {
-        fieldsQuery.refetch();
+        fieldsGroupsQuery.refetch();
         Alert.success('Successfully Edited');
-        callback();
       })
       .catch(e => {
         Alert.error(e.message);
@@ -48,14 +46,14 @@ const PropertyGroupFormContainer = props => {
 
 PropertyGroupFormContainer.propTypes = {
   queryParams: PropTypes.object,
-  fieldsQuery: PropTypes.object,
-  fieldsGroupsAdd: PropTypes.func,
-  fieldsGroupsEdit: PropTypes.func
+  fieldsGroupsQuery: PropTypes.object.isRequired,
+  fieldsGroupsAdd: PropTypes.func.isRequired,
+  fieldsGroupsEdit: PropTypes.func.isRequired
 };
 
 export default compose(
   graphql(gql(queries.fieldsgroups), {
-    name: 'fieldsQuery',
+    name: 'fieldsGroupsQuery',
     options: ({ queryParams }) => ({
       variables: {
         contentType: queryParams.type

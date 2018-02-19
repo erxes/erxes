@@ -9,8 +9,8 @@ import { Alert } from 'modules/common/utils';
 import { Properties } from '../components';
 
 const PropertiesContainer = props => {
-  const { fieldsQuery, history, fieldsGroupsRemove } = props;
-  const fieldsgroups = fieldsQuery.fieldsgroups || [];
+  const { fieldsGroupsQuery, history, fieldsGroupsRemove } = props;
+  const fieldsgroups = fieldsGroupsQuery.fieldsgroups || [];
 
   if (!router.getParam(history, 'type')) {
     router.setParams(history, { type: 'Customer' });
@@ -21,7 +21,7 @@ const PropertiesContainer = props => {
       variables: { _id }
     })
       .then(() => {
-        fieldsQuery.refetch();
+        fieldsGroupsQuery.refetch();
         Alert.success('Successfully Removed');
       })
       .catch(e => {
@@ -43,14 +43,14 @@ const PropertiesContainer = props => {
 
 PropertiesContainer.propTypes = {
   queryParams: PropTypes.object,
-  fieldsQuery: PropTypes.object.isRequired,
+  fieldsGroupsQuery: PropTypes.object.isRequired,
   history: PropTypes.object,
   fieldsGroupsRemove: PropTypes.func.isRequired
 };
 
 export default compose(
   graphql(gql(queries.fieldsgroups), {
-    name: 'fieldsQuery',
+    name: 'fieldsGroupsQuery',
     options: ({ queryParams }) => ({
       variables: {
         contentType: queryParams.type

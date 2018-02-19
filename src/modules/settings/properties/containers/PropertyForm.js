@@ -22,9 +22,24 @@ const PropertyFormContainer = props => {
       });
   };
 
+  const edit = ({ doc, callback }) => {
+    fieldsGroupsAdd({
+      variables: doc
+    })
+      .then(() => {
+        callback();
+        fieldsQuery.refetch();
+      })
+      .catch(e => {
+        Alert.error(e.message);
+      });
+  };
+
   const updatedProps = {
     ...props,
-    add
+    add,
+    edit,
+    groups: fieldsQuery.fieldsgroups
   };
 
   return <PropertyForm {...updatedProps} />;
