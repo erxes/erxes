@@ -18,6 +18,7 @@ import CompanyRow from './CompanyRow';
 import { CompanyForm } from '../';
 import { ManageColumns } from '../../../fields/containers';
 import { CommonMerge } from 'modules/customers/components';
+import { CompaniesTableWrapper } from 'modules/companies/styles';
 
 const propTypes = {
   companies: PropTypes.array.isRequired,
@@ -104,7 +105,7 @@ class CompaniesList extends React.Component {
     } = this.props;
 
     const mainContent = (
-      <div>
+      <CompaniesTableWrapper>
         <Table whiteSpace="nowrap" bordered hover>
           <thead>
             <tr>
@@ -132,7 +133,7 @@ class CompaniesList extends React.Component {
             ))}
           </tbody>
         </Table>
-      </div>
+      </CompaniesTableWrapper>
     );
 
     const addTrigger = (
