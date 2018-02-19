@@ -11,7 +11,7 @@ const isValidURL = url => {
 };
 
 // extract hostname e.g: www.domain.com
-const extractHostname = url => {
+const extractHostname = (url = '') => {
   let hostname;
 
   if (url.indexOf('://') > -1) {
