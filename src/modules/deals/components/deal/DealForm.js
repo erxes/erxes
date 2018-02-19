@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Modal } from 'react-bootstrap';
+import Datetime from 'react-datetime';
 import {
   Button,
   ModalTrigger,
@@ -28,6 +29,7 @@ class DealForm extends React.Component {
 
     this.onChangeCompany = this.onChangeCompany.bind(this);
     this.onChangeCustomer = this.onChangeCustomer.bind(this);
+    this.onDateInputChange = this.onDateInputChange.bind(this);
 
     this.saveDeal = this.saveDeal.bind(this);
 
@@ -35,7 +37,7 @@ class DealForm extends React.Component {
       companyId: '',
       customerId: '',
       customers: [],
-      closeDate: new Date(),
+      closeDate: '',
       amount: 0
     };
   }
@@ -78,6 +80,10 @@ class DealForm extends React.Component {
     this.setState({ customerId });
   }
 
+  onDateInputChange(date) {
+    this.setState({ closeDate: date });
+  }
+
   render() {
     const productTrigger = (
       <DealButton>
@@ -86,7 +92,7 @@ class DealForm extends React.Component {
     );
 
     const { companies } = this.props;
-    const { customers, customer, company } = this.state;
+    const { customers, customer, company, closeDate } = this.state;
 
     return (
       <DealFormContainer>
@@ -126,6 +132,15 @@ class DealForm extends React.Component {
                 </option>
               ))}
             </FormControl>
+          </FormGroup>
+          <FormGroup>
+            <ControlLabel>Close date</ControlLabel>
+            <Datetime
+              inputProps={{ placeholder: 'Click to select a date' }}
+              dateFormat="YYYY/MM/DD"
+              value={closeDate}
+              onChange={this.onDateInputChange.bind(this)}
+            />
           </FormGroup>
           <Modal.Footer>
             <Button
