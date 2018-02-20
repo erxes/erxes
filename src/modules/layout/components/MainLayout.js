@@ -42,6 +42,20 @@ class MainLayout extends React.Component {
     if (!currentUser) {
       history.push('/sign-in');
     }
+
+    //browser default form validation event listener
+    document.addEventListener(
+      'invalid',
+      (function() {
+        return function(e) {
+          //prevent the browser from showing default error hint
+          e.preventDefault();
+
+          e.target.classList.add('form-invalid');
+        };
+      })(),
+      true
+    );
   }
 
   render() {
