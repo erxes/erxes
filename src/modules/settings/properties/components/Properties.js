@@ -12,7 +12,8 @@ const propTypes = {
   fieldsgroups: PropTypes.array,
   currentType: PropTypes.string,
   loading: PropTypes.bool,
-  removePropertyGroup: PropTypes.func
+  removePropertyGroup: PropTypes.func,
+  removeProperty: PropTypes.func
 };
 
 class Properties extends Component {
@@ -20,10 +21,16 @@ class Properties extends Component {
     super(props);
 
     this.renderProperties = this.renderProperties.bind(this);
+    this.renderActionBar = this.renderActionBar.bind(this);
   }
 
   renderProperties() {
-    const { fieldsgroups, queryParams, removePropertyGroup } = this.props;
+    const {
+      fieldsgroups,
+      queryParams,
+      removePropertyGroup,
+      removeProperty
+    } = this.props;
 
     return (
       <PropertyList>
@@ -33,7 +40,8 @@ class Properties extends Component {
               key={group._id}
               group={group}
               queryParams={queryParams}
-              remove={removePropertyGroup}
+              removePropertyGroup={removePropertyGroup}
+              removeProperty={removeProperty}
             />
           );
         })}
