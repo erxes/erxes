@@ -73,8 +73,10 @@ class FieldGroup {
    * @return {Promise} Result
    */
   static async updateFieldsGroupVisible(_id, visible) {
-    // Updateing visible
-    return this.update({ _id }, { $set: { visible } });
+    // Updating visible
+    await this.update({ _id }, { $set: { visible } });
+
+    return this.findOne({ _id });
   }
 
   /**
@@ -85,8 +87,10 @@ class FieldGroup {
    * @return {Promise} Result
    */
   static async updateFieldsGroupOrder(_id, order) {
-    // Updateing order
-    return this.update({ _id }, { $set: { order } });
+    // Updating order
+    await this.update({ _id }, { $set: { order } });
+
+    return this.findOne({ _id });
   }
 }
 
