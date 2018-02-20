@@ -1,15 +1,17 @@
 const commonFields = `
   $name: String,
-  $description: String,
-  $order: Int,
   $contentType: String,
+  $order: Int,
+  $description: String,
+  $visible: Boolean,
 `;
 
 const commonTypes = `
   name: $name,
-  description: $description,
+  contentType: $contentType,
   order: $order,
-  contentType: $contentType
+  description: $description,
+  visible: $visible
 `;
 
 const fieldsGroupsAdd = `
@@ -34,6 +36,18 @@ const fieldsGroupsRemove = `
   }
 `;
 
+const fieldsGroupsUpdateVisible = `
+  mutation fieldsGroupsUpdateVisible($_id: String!, $visible: Boolean) {
+    fieldsGroupsUpdateVisible(_id: $_id, visible: $visible)
+  }
+`;
+
+const fieldsGroupsUpdateOrder = `
+  mutation fieldsGroupsUpdateOrder($_id: String!, $order: Int) {
+    fieldsGroupsUpdateOrder(_id: $_id, order: $order)
+  }
+`;
+
 const commonVariables = `
   $type: String,
   $validation: String,
@@ -41,7 +55,9 @@ const commonVariables = `
   $description: String,
   $options: [String],
   $isRequired: Boolean,
-  $order: Int
+  $order: Int,
+  $groupId: String,
+  $visible: Boolean
 `;
 
 const commonParams = `
@@ -51,7 +67,9 @@ const commonParams = `
   description: $description,
   options: $options,
   isRequired: $isRequired,
-  order: $order
+  order: $order,
+  groupId: $groupId,
+  visible: $visible,
 `;
 
 const fieldsAdd = `
@@ -86,11 +104,15 @@ const fieldsRemove = `
   }
 `;
 
+const fieldsUpdateVisible = `
+  mutation fieldsUpdateVisible($_id: String!, $visible: Boolean) {
+    fieldsUpdateVisible(_id: $_id, visible: $visible)
+  }
+`;
+
 const fieldsUpdateOrder = `
-  mutation fieldsUpdateOrder($orders: [OrderItem]) {
-    fieldsUpdateOrder(orders: $orders) {
-      _id
-    }
+  mutation fieldsUpdateOrder($_id: String!, $order: Int) {
+    fieldsUpdateOrder(_id: $_id, order: $order)
   }
 `;
 
@@ -98,8 +120,11 @@ export default {
   fieldsGroupsAdd,
   fieldsGroupsEdit,
   fieldsGroupsRemove,
+  fieldsGroupsUpdateVisible,
+  fieldsGroupsUpdateOrder,
   fieldsAdd,
   fieldsEdit,
   fieldsRemove,
+  fieldsUpdateVisible,
   fieldsUpdateOrder
 };

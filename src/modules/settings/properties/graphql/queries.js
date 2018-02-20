@@ -20,7 +20,10 @@ const fieldsgroups = `
         contentType
         type
         text
+        visible
         order
+        groupId
+        description
       }
     }
   }
