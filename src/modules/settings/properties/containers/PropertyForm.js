@@ -7,28 +7,29 @@ import { Alert } from 'modules/common/utils';
 import { PropertyForm } from '../components';
 
 const PropertyFormContainer = props => {
-  const { fieldsGroupsAdd, fieldsQuery } = props;
+  const { fieldsAdd, fieldsGroupsQuery, fieldsEdit, queryParams } = props;
+  const { type = 'Customer' } = queryParams;
 
-  const add = ({ doc, callback }) => {
-    fieldsGroupsAdd({
-      variables: doc
+  const add = ({ doc }) => {
+    fieldsAdd({
+      variables: { ...doc, contentType: type }
     })
       .then(() => {
-        callback();
-        fieldsQuery.refetch();
+        Alert.success('Successfully added');
+        fieldsGroupsQuery.refetch();
       })
       .catch(e => {
         Alert.error(e.message);
       });
   };
 
-  const edit = ({ doc, callback }) => {
-    fieldsGroupsAdd({
-      variables: doc
+  const edit = ({ _id, doc }) => {
+    fieldsEdit({
+      variables: { _id, ...doc }
     })
       .then(() => {
-        callback();
-        fieldsQuery.refetch();
+        Alert.success('Successfully edited');
+        fieldsGroupsQuery.refetch();
       })
       .catch(e => {
         Alert.error(e.message);
@@ -39,7 +40,7 @@ const PropertyFormContainer = props => {
     ...props,
     add,
     edit,
-    groups: fieldsQuery.fieldsgroups
+    groups: fieldsGroupsQuery.fieldsgroups
   };
 
   return <PropertyForm {...updatedProps} />;
@@ -47,20 +48,24 @@ const PropertyFormContainer = props => {
 
 PropertyFormContainer.propTypes = {
   queryParams: PropTypes.object,
-  fieldsQuery: PropTypes.object,
-  fieldsGroupsAdd: PropTypes.func
+  fieldsGroupsQuery: PropTypes.object,
+  fieldsAdd: PropTypes.func,
+  fieldsEdit: PropTypes.func
 };
 
 export default compose(
   graphql(gql(queries.fieldsgroups), {
-    name: 'fieldsQuery',
+    name: 'fieldsGroupsQuery',
     options: ({ queryParams }) => ({
       variables: {
         contentType: queryParams.type
       }
     })
   }),
-  graphql(gql(mutations.fieldsGroupsAdd), {
-    name: 'fieldsGroupsAdd'
+  graphql(gql(mutations.fieldsAdd), {
+    name: 'fieldsAdd'
+  }),
+  graphql(gql(mutations.fieldsEdit), {
+    name: 'fieldsEdit'
   })
 )(PropertyFormContainer);

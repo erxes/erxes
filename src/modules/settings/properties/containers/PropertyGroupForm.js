@@ -7,11 +7,18 @@ import { Alert } from 'modules/common/utils';
 import { PropertyGroupForm } from '../components';
 
 const PropertyGroupFormContainer = props => {
-  const { fieldsGroupsAdd, fieldsGroupsQuery, fieldsGroupsEdit } = props;
+  const {
+    fieldsGroupsAdd,
+    fieldsGroupsQuery,
+    fieldsGroupsEdit,
+    queryParams
+  } = props;
+
+  const { type } = queryParams;
 
   const add = ({ doc }) => {
     fieldsGroupsAdd({
-      variables: doc
+      variables: { ...doc, contentType: type }
     })
       .then(() => {
         fieldsGroupsQuery.refetch();
