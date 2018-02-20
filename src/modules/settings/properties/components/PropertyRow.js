@@ -16,7 +16,9 @@ const propTypes = {
   group: PropTypes.object.isRequired,
   queryParams: PropTypes.object.isRequired,
   removeProperty: PropTypes.func.isRequired,
-  removePropertyGroup: PropTypes.func.isRequired
+  removePropertyGroup: PropTypes.func.isRequired,
+  updatePropertyVisible: PropTypes.func.isRequired,
+  updatePropertyGroupVisible: PropTypes.func.isRequired
 };
 
 class PropertyRow extends React.Component {
@@ -35,8 +37,14 @@ class PropertyRow extends React.Component {
     this.setState({ collapse: !this.state.collapse });
   }
 
-  visibleHandler(e) {
-    console.log('visible handler', e.target.checked);
+  visibleHandler(e, { property, group }) {
+    const visible = e.target.checked;
+
+    if (property) {
+      return this.props.updatePropertyVisible({ _id: property._id, visible });
+    }
+
+    this.props.updatePropertyGroupVisible({ _id: group._id, visible });
   }
 
   orderHandler() {
@@ -71,25 +79,27 @@ class PropertyRow extends React.Component {
                       checked: <span>Yes</span>,
                       unchecked: <span>No</span>
                     }}
-                    onChange={this.visibleHandler}
+                    onChange={e => this.visibleHandler(e, { property: field })}
                   />
                 </td>
                 <td>
-                  <ModalTrigger
-                    title="Edit Property"
-                    trigger={<Icon icon="edit" />}
-                    size="lg"
-                  >
-                    <PropertyForm field={field} queryParams={queryParams} />
-                  </ModalTrigger>
-                  <Icon
-                    icon="close"
-                    onClick={() =>
-                      confirm().then(() => {
-                        removeProperty({ _id: field._id });
-                      })
-                    }
-                  />
+                  <ActionButtons>
+                    <ModalTrigger
+                      title="Edit Property"
+                      trigger={<Icon icon="edit" />}
+                      size="lg"
+                    >
+                      <PropertyForm field={field} queryParams={queryParams} />
+                    </ModalTrigger>
+                    <Icon
+                      icon="close"
+                      onClick={() =>
+                        confirm().then(() => {
+                          removeProperty({ _id: field._id });
+                        })
+                      }
+                    />
+                  </ActionButtons>
                 </td>
               </tr>
             );
@@ -106,8 +116,16 @@ class PropertyRow extends React.Component {
     return (
       <li key={group._id}>
         <Icon icon="chevron-right" />
-        <h4 onClick={this.handleCollapse}>{group.name}</h4>
+        <span onClick={this.handleCollapse}>{group.name}</span>
         <ActionButtons>
+          <Toggle
+            defaultChecked={group.visible}
+            icons={{
+              checked: <span>Yes</span>,
+              unchecked: <span>No</span>
+            }}
+            onChange={e => this.visibleHandler(e, { group: group })}
+          />
           <ModalTrigger
             title="Edit group"
             trigger={<Icon icon="edit" />}

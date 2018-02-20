@@ -11,9 +11,10 @@ const propTypes = {
   refetch: PropTypes.func,
   fieldsgroups: PropTypes.array,
   currentType: PropTypes.string,
-  loading: PropTypes.bool,
-  removePropertyGroup: PropTypes.func,
-  removeProperty: PropTypes.func
+  removePropertyGroup: PropTypes.func.isRequired,
+  removeProperty: PropTypes.func.isRequired,
+  updatePropertyVisible: PropTypes.func.isRequired,
+  updatePropertyGroupVisible: PropTypes.func.isRequired
 };
 
 class Properties extends Component {
@@ -29,7 +30,9 @@ class Properties extends Component {
       fieldsgroups,
       queryParams,
       removePropertyGroup,
-      removeProperty
+      removeProperty,
+      updatePropertyVisible,
+      updatePropertyGroupVisible
     } = this.props;
 
     return (
@@ -42,6 +45,8 @@ class Properties extends Component {
               queryParams={queryParams}
               removePropertyGroup={removePropertyGroup}
               removeProperty={removeProperty}
+              updatePropertyVisible={updatePropertyVisible}
+              updatePropertyGroupVisible={updatePropertyGroupVisible}
             />
           );
         })}
