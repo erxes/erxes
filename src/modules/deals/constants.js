@@ -1,14 +1,3 @@
-export const Products = [
-  {
-    _id: 'product1',
-    name: 'Web development'
-  },
-  {
-    _id: 'product2',
-    name: 'Mobile app'
-  }
-];
-
 export const UOM = [
   {
     _id: 'uom1',
@@ -23,10 +12,12 @@ export const UOM = [
 export const Currencies = [
   {
     _id: 'currency1',
+    code: 'MNT',
     name: 'MNT'
   },
   {
     _id: 'currency2',
+    code: 'USD',
     name: 'USD'
   }
 ];

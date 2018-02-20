@@ -30,6 +30,7 @@ class DealForm extends React.Component {
     this.onChangeCompany = this.onChangeCompany.bind(this);
     this.onChangeCustomer = this.onChangeCustomer.bind(this);
     this.onDateInputChange = this.onDateInputChange.bind(this);
+    this.onChangeProductsData = this.onChangeProductsData.bind(this);
 
     this.saveDeal = this.saveDeal.bind(this);
 
@@ -38,23 +39,27 @@ class DealForm extends React.Component {
       customerId: '',
       customers: [],
       closeDate: '',
-      amount: 0
+      amount: 0,
+      productIds: [],
+      productsData: []
     };
   }
 
   saveDeal(e) {
     e.preventDefault();
+
     const { customerId, companyId, closeDate, amount } = this.state;
+    const { boardId, pipelineId, stageId } = this.props;
 
     this.props.saveDeal(
       {
         doc: {
-          boardId: this.props.boardId,
-          pipelineId: this.props.pipelineId,
-          stageId: this.props.stageId,
+          boardId,
+          pipelineId,
+          stageId,
           companyId,
           customerId,
-          closeDate,
+          closeDate: new Date(closeDate),
           amount
         }
       },
@@ -84,6 +89,10 @@ class DealForm extends React.Component {
     this.setState({ closeDate: date });
   }
 
+  onChangeProductsData(productsData) {
+    this.setState({ productsData });
+  }
+
   render() {
     const productTrigger = (
       <DealButton>
@@ -102,7 +111,10 @@ class DealForm extends React.Component {
             title="New Product & Service"
             trigger={productTrigger}
           >
-            <ProductForm addProduct={() => {}} />
+            <ProductForm
+              onChangeProductsData={this.onChangeProductsData}
+              productsData={this.state.productsData}
+            />
           </ModalTrigger>
           <FormGroup>
             <ControlLabel>Company</ControlLabel>
@@ -138,6 +150,7 @@ class DealForm extends React.Component {
             <Datetime
               inputProps={{ placeholder: 'Click to select a date' }}
               dateFormat="YYYY/MM/DD"
+              timeFormat={false}
               value={closeDate}
               onChange={this.onDateInputChange.bind(this)}
             />

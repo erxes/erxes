@@ -72,6 +72,15 @@ const companies = `
   }
 `;
 
+const products = `
+  query products {
+    products {
+      _id
+      name
+    }
+  }
+`;
+
 export default {
   boards,
   boardGetLast,
@@ -79,5 +88,6 @@ export default {
   pipelines,
   stages,
   deals,
-  companies
+  companies,
+  products
 };

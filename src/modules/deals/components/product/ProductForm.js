@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Modal } from 'react-bootstrap';
 import { Button, Icon } from 'modules/common/components';
-import { ProductItemForm } from '../';
+import { ProductItemForm } from '../../containers';
 import {
   ProductFormContainer,
   ProductTable,
@@ -11,7 +11,8 @@ import {
 } from '../../styles';
 
 const propTypes = {
-  addProduct: PropTypes.func.isRequired
+  onChangeProductsData: PropTypes.func.isRequired,
+  productsData: PropTypes.array
 };
 
 const contextTypes = {
@@ -22,42 +23,77 @@ class ProductForm extends React.Component {
   constructor(props) {
     super(props);
 
-    this.addProduct = this.addProduct.bind(this);
     this.addProductItem = this.addProductItem.bind(this);
     this.removeProductItem = this.removeProductItem.bind(this);
-
-    this.state = {
-      products: [
-        {
-          _id: 'asdf',
-          product: 'product1'
-        }
-      ]
-    };
-  }
-
-  addProduct(e) {
-    e.preventDefault();
+    this.onChangeInput = this.onChangeInput.bind(this);
+    this.onChangeSelect = this.onChangeSelect.bind(this);
   }
 
   addProductItem() {
-    const products = this.state.products;
-    products.push({
+    const productsData = this.props.productsData;
+    productsData.push({
       _id: Math.random(),
-      product: 'product2'
+      quantity: 1,
+      unitPrice: 0,
+      tax: 0,
+      taxPercent: 0,
+      discount: 0,
+      discountPercent: 0,
+      amount: 0
     });
 
-    this.setState({
-      products
-    });
+    this.props.onChangeProductsData(productsData);
   }
 
   removeProductItem(_id) {
-    const products = this.state.products;
+    const productsData = this.props.productsData;
 
-    this.setState({
-      products: products.filter(product => product._id !== _id)
-    });
+    const removedProductsData = productsData.filter(p => p._id !== _id);
+
+    this.props.onChangeProductsData(removedProductsData);
+  }
+
+  onChangeSelect(_id, type, e) {
+    const productsData = this.props.productsData;
+
+    const product = productsData.find(p => p._id === _id);
+    product[type] = e.target.value;
+
+    this.props.onChangeProductsData(productsData);
+  }
+
+  onChangeInput(_id, type, e) {
+    const productsData = this.props.productsData;
+
+    const product = productsData.find(p => p._id === _id);
+    product[type] = e.target.value;
+
+    if (type === 'quantity' || type === 'unitPrice') {
+      product.amount = product.unitPrice * product.quantity;
+      product.discountPercent = product.discount * 100 / product.amount;
+      product.discount = product.amount * product.discountPercent / 100;
+      product.tax =
+        (product.amount - product.discount || 0) * product.taxPercent / 100;
+    } else if (product.amount > 0) {
+      switch (type) {
+        case 'discount': {
+          product.discountPercent = product.discount * 100 / product.amount;
+          break;
+        }
+        case 'discountPercent': {
+          product.discount = product.amount * product.discountPercent / 100;
+          break;
+        }
+        case 'taxPercent': {
+          product.tax =
+            (product.amount - product.discount || 0) * product.taxPercent / 100;
+          break;
+        }
+        default:
+      }
+    }
+
+    this.props.onChangeProductsData(productsData);
   }
 
   render() {
@@ -76,10 +112,12 @@ class ProductForm extends React.Component {
               </tr>
             </thead>
             <tbody>
-              {this.state.products.map(product => (
+              {this.props.productsData.map(product => (
                 <ProductItemForm
                   key={product._id}
                   product={product}
+                  onChangeSelect={this.onChangeSelect}
+                  onChangeInput={this.onChangeInput}
                   removeProductItem={this.removeProductItem}
                 />
               ))}

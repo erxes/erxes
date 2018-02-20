@@ -77,7 +77,7 @@ class Settings extends Component {
             {this.renderBox(
               'Boards & Pipelines',
               '/images/icons/erxes-15.svg',
-              '/settings/boards'
+              '/settings/deals'
             )}
             {this.renderBox(
               'Product & Service',

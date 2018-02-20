@@ -1,23 +1,35 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Products, UOM, Currencies } from '../../constants';
+import { UOM, Currencies } from '../../constants';
 import { FormControl, Icon } from 'modules/common/components';
 import { ProductItemText } from '../../styles';
 
 const propTypes = {
+  products: PropTypes.array,
   product: PropTypes.object.isRequired,
-  removeProductItem: PropTypes.func.isRequired
+  removeProductItem: PropTypes.func.isRequired,
+  onChangeSelect: PropTypes.func.isRequired,
+  onChangeInput: PropTypes.func.isRequired
 };
 
 class ProductItemForm extends React.Component {
   render() {
-    const { product } = this.props;
+    const { products, product } = this.props;
+    const total = product.amount - product.discount - product.tax;
 
     return (
       <tr>
         <td>
-          <FormControl componentClass="select">
-            {Products.map(item => (
+          <FormControl
+            componentClass="select"
+            onChange={this.props.onChangeSelect.bind(
+              this,
+              product._id,
+              'productId'
+            )}
+          >
+            <option />
+            {products.map(item => (
               <option key={item._id} value={item._id}>
                 {item.name}
               </option>
@@ -25,7 +37,11 @@ class ProductItemForm extends React.Component {
           </FormControl>
         </td>
         <td>
-          <FormControl componentClass="select">
+          <FormControl
+            componentClass="select"
+            onChange={this.props.onChangeSelect.bind(this, product._id, 'uom')}
+          >
+            <option />
             {UOM.map(item => (
               <option key={item._id} value={item._id}>
                 {item.name}
@@ -34,28 +50,93 @@ class ProductItemForm extends React.Component {
           </FormControl>
         </td>
         <td>
-          <FormControl componentClass="select">
+          <FormControl
+            componentClass="select"
+            value={product.currency}
+            onChange={this.props.onChangeSelect.bind(
+              this,
+              product._id,
+              'currency'
+            )}
+          >
+            <option />
             {Currencies.map(item => (
-              <option key={item._id} value={item._id}>
+              <option key={item.code} value={item.code}>
                 {item.name}
               </option>
             ))}
           </FormControl>
         </td>
         <td>
-          <FormControl placeholder="Quantity" />
+          <FormControl
+            value={product.quantity}
+            type="number"
+            min="1"
+            placeholder="Quantity"
+            onChange={this.props.onChangeInput.bind(
+              this,
+              product._id,
+              'quantity'
+            )}
+          />
           <ProductItemText align="right">Discount</ProductItemText>
           <ProductItemText align="right">Tax</ProductItemText>
         </td>
         <td>
-          <FormControl placeholder="Unit price" />
-          <FormControl placeholder="Discount percent" />
-          <FormControl placeholder="Tax" />
+          <FormControl
+            value={product.unitPrice}
+            placeholder="Unit price"
+            onChange={this.props.onChangeInput.bind(
+              this,
+              product._id,
+              'unitPrice'
+            )}
+          />
+          <FormControl
+            value={product.discountPercent}
+            type="number"
+            min="0"
+            max="100"
+            placeholder="Discount percent"
+            onChange={this.props.onChangeInput.bind(
+              this,
+              product._id,
+              'discountPercent'
+            )}
+          />
+          <FormControl
+            value={product.taxPercent}
+            type="number"
+            min="0"
+            max="100"
+            placeholder="Tax"
+            onChange={this.props.onChangeInput.bind(
+              this,
+              product._id,
+              'taxPercent'
+            )}
+          />
+          <ProductItemText>Total</ProductItemText>
         </td>
         <td>
-          <ProductItemText>5,890,000₮</ProductItemText>
-          <FormControl placeholder="Discount amount" />
-          <ProductItemText>120,000₮</ProductItemText>
+          <ProductItemText>
+            {product.amount} {product.currency}
+          </ProductItemText>
+          <FormControl
+            value={product.discount}
+            placeholder="Discount amount"
+            onChange={this.props.onChangeInput.bind(
+              this,
+              product._id,
+              'discount'
+            )}
+          />
+          <ProductItemText>
+            {product.tax} {product.currency}
+          </ProductItemText>
+          <ProductItemText>
+            {total > 0 ? total : 0} {product.currency}
+          </ProductItemText>
         </td>
         <td>
           <div onClick={this.props.removeProductItem.bind(this, product._id)}>

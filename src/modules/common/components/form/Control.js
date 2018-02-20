@@ -59,23 +59,12 @@ class FormControl extends React.Component {
     const elementType = props.componentClass;
 
     const attributes = {
-      onChange: props.onChange,
-      onClick: props.onClick,
-      value: props.value,
-      defaultValue: props.defaultValue,
+      ...props,
       [props.defaultChecked
         ? 'defaultChecked'
         : 'checked']: props.defaultChecked
         ? props.defaultChecked
-        : props.checked,
-      placeholder: props.placeholder,
-      type: props.type,
-      name: props.name,
-      round: props.round,
-      required: props.required,
-      onFocus: props.onFocus,
-      autoFocus: props.autoFocus,
-      id: props.id
+        : props.checked
     };
 
     if (elementType === 'select') {
