@@ -206,6 +206,30 @@ class Field {
 
     return fixedValues;
   }
+
+  /**
+   * Update single field's visible
+   * @param {String} _id - Field group id to update
+   * @param {Boolean} visible - True or false to be shown
+   *
+   * @return {Promise} Result
+   */
+  static async updateFieldsVisible(_id, visible) {
+    // Updateing visible
+    return this.update({ _id }, { $set: { visible } });
+  }
+
+  /**
+   * Update single field's order
+   * @param {String} _id - Field group id to update
+   * @param {Number} order - Order number
+   *
+   * @return {Promise} Result
+   */
+  static async updateFieldsOrder(_id, order) {
+    // Updateing order
+    return this.update({ _id }, { $set: { order } });
+  }
 }
 
 FieldSchema.loadClass(Field);

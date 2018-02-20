@@ -60,7 +60,33 @@ class FieldGroup {
 
     if (!groupObj) throw new Error(`Group not found with id of ${_id}`);
 
-    return groupObj.remove();
+    groupObj.remove();
+
+    return _id;
+  }
+
+  /**
+   * Update field group's visible
+   * @param {String} _id - Field group id to update
+   * @param {Boolean} visible - True or false to be shown
+   *
+   * @return {Promise} Result
+   */
+  static async updateFieldsGroupVisible(_id, visible) {
+    // Updateing visible
+    return this.update({ _id }, { $set: { visible } });
+  }
+
+  /**
+   * Update single field group's order
+   * @param {String} _id - Field group id to update
+   * @param {Number} order - Order number
+   *
+   * @return {Promise} Result
+   */
+  static async updateFieldsGroupOrder(_id, order) {
+    // Updateing order
+    return this.update({ _id }, { $set: { order } });
   }
 }
 

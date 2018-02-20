@@ -38,6 +38,28 @@ const fieldsGroupsMutations = {
   fieldsGroupsRemove(root, { _id }) {
     return FieldsGroups.removeFieldsGroup(_id);
   },
+
+  /**
+   * Update single field group's order number
+   * @param {String} _id - Field group id to update
+   * @param {String} order - Order number
+   *
+   * @return {Promise} Updated field group
+   */
+  fieldsGroupsUpdateOrder(root, { _id, order }) {
+    return FieldsGroups.updateFieldsGroupOrder(_id, order);
+  },
+
+  /**
+   * Update field group's visible
+   * @param {String} _id - Field group id to update
+   * @param {String} visible - True or false visible value
+   *
+   * @return {Promise} Updated field group
+   */
+  fieldsGroupsUpdateVisible(root, { _id, visible }) {
+    return FieldsGroups.updateFieldsGroupVisible(_id, visible);
+  },
 };
 
 moduleRequireLogin(fieldsGroupsMutations);
