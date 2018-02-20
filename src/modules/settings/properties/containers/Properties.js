@@ -51,41 +51,53 @@ const PropertiesContainer = props => {
       });
   };
 
-  const updatePropertyVisible = ({ visible }) => {
+  const updatePropertyVisible = ({ _id, visible }) => {
     fieldsUpdateVisible({
-      variables: { visible }
+      variables: { _id, visible }
     })
-      .then(() => {})
+      .then(() => {
+        fieldsGroupsQuery.refetch();
+        Alert.success('Successfully Updated');
+      })
       .catch(e => {
         Alert.error(e.message);
       });
   };
 
-  const updatePropertyGroupVisible = ({ visible }) => {
+  const updatePropertyGroupVisible = ({ _id, visible }) => {
     fieldsGroupsUpdateVisible({
-      variables: { visible }
+      variables: { _id, visible }
     })
-      .then(() => {})
+      .then(() => {
+        fieldsGroupsQuery.refetch();
+        Alert.success('Successfully Updated');
+      })
       .catch(e => {
         Alert.error(e.message);
       });
   };
 
-  const updatePropertyGroupOrder = ({ visible }) => {
+  const updatePropertyGroupOrder = ({ _id, order }) => {
     fieldsGroupsUpdateOrder({
-      variables: { visible }
+      variables: { _id, order }
     })
-      .then(() => {})
+      .then(() => {
+        fieldsGroupsQuery.refetch();
+        Alert.success('Successfully Updated');
+      })
       .catch(e => {
         Alert.error(e.message);
       });
   };
 
-  const updatePropertyOrder = ({ visible }) => {
+  const updatePropertyOrder = ({ _id, order }) => {
     fieldsUpdateOrder({
-      variables: { visible }
+      variables: { _id, order }
     })
-      .then(() => {})
+      .then(() => {
+        fieldsGroupsQuery.refetch();
+        Alert.success('Successfully Updated');
+      })
       .catch(e => {
         Alert.error(e.message);
       });
@@ -114,9 +126,9 @@ PropertiesContainer.propTypes = {
   history: PropTypes.object,
   fieldsGroupsRemove: PropTypes.func.isRequired,
   fieldsRemove: PropTypes.func.isRequired,
-  fieldsGroupsUpdateVisible: PropTypes.func,
+  fieldsGroupsUpdateVisible: PropTypes.func.isRequired,
   fieldsGroupsUpdateOrder: PropTypes.func,
-  fieldsUpdateVisible: PropTypes.func,
+  fieldsUpdateVisible: PropTypes.func.isRequired,
   fieldsUpdateOrder: PropTypes.func
 };
 

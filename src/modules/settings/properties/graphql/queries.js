@@ -15,6 +15,7 @@ const fieldsgroups = `
       name
       description
       order
+      visible
       getFields {
         _id
         contentType

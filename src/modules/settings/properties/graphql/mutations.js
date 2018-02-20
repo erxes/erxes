@@ -38,13 +38,17 @@ const fieldsGroupsRemove = `
 
 const fieldsGroupsUpdateVisible = `
   mutation fieldsGroupsUpdateVisible($_id: String!, $visible: Boolean) {
-    fieldsGroupsUpdateVisible(_id: $_id, visible: $visible)
+    fieldsGroupsUpdateVisible(_id: $_id, visible: $visible) {
+      _id
+    }
   }
 `;
 
 const fieldsGroupsUpdateOrder = `
   mutation fieldsGroupsUpdateOrder($_id: String!, $order: Int) {
-    fieldsGroupsUpdateOrder(_id: $_id, order: $order)
+    fieldsGroupsUpdateOrder(_id: $_id, order: $order) {
+      _id
+    }
   }
 `;
 
@@ -106,13 +110,17 @@ const fieldsRemove = `
 
 const fieldsUpdateVisible = `
   mutation fieldsUpdateVisible($_id: String!, $visible: Boolean) {
-    fieldsUpdateVisible(_id: $_id, visible: $visible)
+    fieldsUpdateVisible(_id: $_id, visible: $visible) {
+      _id
+    }
   }
 `;
 
 const fieldsUpdateOrder = `
   mutation fieldsUpdateOrder($_id: String!, $order: Int) {
-    fieldsUpdateOrder(_id: $_id, order: $order)
+    fieldsUpdateOrder(_id: $_id, order: $order) {
+      _id
+    }
   }
 `;
 
