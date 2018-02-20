@@ -46,6 +46,10 @@ const LabelStyled = styled.span`
   border: none;
   animation: ${props => (props.shake ? `${shake} 3.5s ease infinite` : 'none')};
 
+  span {
+    mix-blend-mode: difference;
+  }
+
   &:hover {
     cursor: default;
   }
