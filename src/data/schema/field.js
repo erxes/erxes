@@ -10,6 +10,9 @@ export const types = `
     options: [String]
     isRequired: Boolean
     order: Int
+    visible: Boolean
+    isDefinedByErxes: Boolean
+    groupId: String
   }
 
   input OrderItem {
@@ -23,14 +26,7 @@ export const types = `
     order: Int
   }
 `;
-// type FieldsGroups {
-//   _id: String!
-//   name: String
-//   contentType: String
-//   description: String
-//   order: Number
-//   visible: Boolean
-// }
+
 export const queries = `
   fields(contentType: String!, contentTypeId: String): [Field]
   fieldsCombinedByContentType(contentType: String!): JSON
@@ -46,6 +42,9 @@ const commonFields = `
   options: [String]
   isRequired: Boolean
   order: Int
+  isDefinedByErxes: Boolean
+  groupId: String
+  visible: Boolean
 `;
 
 export const mutations = `
@@ -53,4 +52,6 @@ export const mutations = `
   fieldsEdit(_id: String!, ${commonFields}): Field
   fieldsRemove(_id: String!): Field
   fieldsUpdateOrder(orders: [OrderItem]): [Field]
+  fieldsUpdateOrderNumber(_id: String!, order: Int) : Field
+  fieldsUpdateVisible(_id: String!, visible: Boolean) : Field
 `;

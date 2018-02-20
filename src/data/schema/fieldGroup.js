@@ -2,19 +2,19 @@ export const types = `
 type FieldsGroup {
     _id: String!
     name: String
-    nestedUnder: String
-    description: String
+    contentType: String
     order: Int
+    description: String
+    visible: Boolean
     getFields: [Field]
   }
 `;
 
 const commonFields = `
   name: String
+  contentType: String
   order: Int
   description: String
-  contentType: String
-  isDefinedByErxes: Boolean
   visible: Boolean
 `;
 
@@ -25,5 +25,7 @@ export const queries = `
 export const mutations = `
   fieldsGroupsAdd(${commonFields}): FieldsGroup
   fieldsGroupsEdit(_id: String!, ${commonFields}): FieldsGroup
-  fieldsGroupsRemove(_id: String!): FieldsGroup
+  fieldsGroupsRemove(_id: String!): String
+  fieldsGroupsUpdateOrder(_id: String!, order: Int) : FieldsGroup
+  fieldsGroupsUpdateVisible(_id: String, visible: Boolean) : FieldsGroup
 `;
