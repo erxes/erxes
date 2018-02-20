@@ -48,7 +48,9 @@ class PropertyGroupForm extends React.Component {
     }
   }
 
-  onSubmit() {
+  onSubmit(e) {
+    e.preventDefault();
+
     const { name, description } = this.state;
 
     const doc = {
@@ -76,7 +78,7 @@ class PropertyGroupForm extends React.Component {
 
   render() {
     return (
-      <div>
+      <form onSubmit={this.onSubmit}>
         <FormGroup>
           <ControlLabel>Name</ControlLabel>
           <FormControl
@@ -111,16 +113,11 @@ class PropertyGroupForm extends React.Component {
             Close
           </Button>
 
-          <Button
-            btnStyle="success"
-            type="submit"
-            icon="checkmark"
-            onClick={this.onSubmit}
-          >
+          <Button btnStyle="success" type="submit" icon="checkmark">
             Save
           </Button>
         </Modal.Footer>
-      </div>
+      </form>
     );
   }
 }

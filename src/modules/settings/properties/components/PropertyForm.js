@@ -1,5 +1,3 @@
-/* eslint-disable jsx-a11y/no-static-element-interactions */
-
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Modal } from 'react-bootstrap';
@@ -9,12 +7,12 @@ import {
   FormControl,
   Button
 } from 'modules/common/components';
-import { ContentBox } from '../styles';
 
 const propTypes = {
   add: PropTypes.func.isRequired,
   edit: PropTypes.func.isRequired,
-  property: PropTypes.object
+  field: PropTypes.object,
+  groups: PropTypes.array.isRequired
 };
 
 const contextTypes = {
@@ -25,32 +23,146 @@ class PropertyForm extends Component {
   constructor(props) {
     super(props);
 
+    let action = props.add;
+
+    if (props.field) {
+      action = props.edit;
+    }
+
     this.state = {
       type: '',
       validation: '',
       text: '',
-      description: ''
+      description: '',
+      optionValue: '',
+      groupId: '',
+      options: [],
+      add: false,
+      hasOptions: false,
+      action
     };
 
-    this.onChange = this.onChange.bind(this);
+    this.handleAddOption = this.handleAddOption.bind(this);
+    this.renderOptions = this.renderOptions.bind(this);
+    this.handleSaveOption = this.handleSaveOption.bind(this);
+    this.onOptionValueChange = this.onOptionValueChange.bind(this);
+    this.renderButtonOrInput = this.renderButtonOrInput.bind(this);
+    this.onFieldChange = this.onFieldChange.bind(this);
+    this.handleCancelAddingOption = this.handleCancelAddingOption.bind(this);
+    this.onSubmit = this.onSubmit.bind(this);
   }
 
-  addProperty(e) {
-    return e;
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.field) {
+      this.setState({
+        ...nextProps.field,
+        groupId: nextProps.field.groupId || nextProps.groups[0]._id
+      });
+    }
   }
 
-  onChange(e) {
+  onSubmit(e) {
+    e.preventDefault();
+    const {
+      type,
+      validation,
+      text,
+      description,
+      groupId,
+      options
+    } = this.state;
+
+    const doc = {
+      type,
+      validation,
+      text,
+      description,
+      groupId,
+      options,
+      order: 1
+    };
+
+    this.state.action(
+      this.props.field ? { _id: this.props.field._id, doc } : { doc }
+    );
+
+    this.context.closeModal();
+  }
+
+  onFieldChange(e) {
     const value = e.target.value;
     const name = e.target.name;
 
-    this.setState({ [name]: value });
+    if (
+      (name === 'type' && value === 'select') ||
+      value === 'check' ||
+      value === 'radio'
+    )
+      return this.setState({
+        hasOptions: true
+      });
+
+    this.setState({ [name]: value, hasOptions: false, options: [] });
+  }
+
+  handleAddOption() {
+    this.setState({ add: true });
+  }
+
+  handleCancelAddingOption() {
+    this.setState({ add: false, optionValue: '' });
+  }
+
+  handleSaveOption() {
+    this.state.options.push(this.state.optionValue);
+    this.handleCancelAddingOption();
+  }
+
+  onOptionValueChange(e) {
+    this.setState({ optionValue: e.target.value });
+  }
+
+  renderButtonOrInput() {
+    if (this.state.add) {
+      return (
+        <div>
+          <FormControl
+            onChange={this.onOptionValueChange}
+            value={this.state.optionValue}
+            autoFocus
+          />
+          <Button type="success" onClick={this.handleSaveOption}>
+            Save
+          </Button>
+          <Button type="success" onClick={this.handleCancelAddingOption}>
+            Cancel
+          </Button>
+        </div>
+      );
+    }
+
+    return <Button onClick={this.handleAddOption}> Add Option </Button>;
+  }
+
+  renderOptions() {
+    return (
+      this.state.hasOptions && (
+        <ul>
+          {this.state.options.map((option, index) => {
+            return <li key={index}>{option}</li>;
+          })}
+          {this.renderButtonOrInput()}
+        </ul>
+      )
+    );
   }
 
   render() {
-    const { type, validation, text, description } = this.state;
+    const { groups } = this.props;
+    const { type, validation, text, description, groupId } = this.state;
 
     return (
-      <ContentBox>
+      <form onSubmit={this.onSubmit}>
         <FormGroup>
           <ControlLabel htmlFor="type">Type:</ControlLabel>
 
@@ -58,7 +170,7 @@ class PropertyForm extends Component {
             name="type"
             componentClass="select"
             value={type}
-            onChange={this.onChange}
+            onChange={this.onFieldChange}
           >
             <option />
             <option value="input">Input</option>
@@ -71,6 +183,7 @@ class PropertyForm extends Component {
             <option value="lastName">Last name</option>
           </FormControl>
         </FormGroup>
+        {this.renderOptions()}
 
         <FormGroup>
           <ControlLabel htmlFor="validation">Validation:</ControlLabel>
@@ -79,7 +192,7 @@ class PropertyForm extends Component {
             name="validation"
             componentClass="select"
             value={validation}
-            onChange={this.onChange}
+            onChange={this.onFieldChange}
           >
             <option />
             <option value="email">Email</option>
@@ -94,7 +207,7 @@ class PropertyForm extends Component {
             type="text"
             name="text"
             value={text}
-            onChange={this.onChange}
+            onChange={this.onFieldChange}
           />
         </FormGroup>
 
@@ -104,8 +217,26 @@ class PropertyForm extends Component {
             name="description"
             componentClass="textarea"
             value={description}
-            onChange={this.onChange}
+            onChange={this.onFieldChange}
           />
+        </FormGroup>
+
+        <FormGroup>
+          <ControlLabel htmlFor="description">Group:</ControlLabel>
+          <FormControl
+            name="groupId"
+            componentClass="select"
+            onChange={this.onFieldChange}
+            value={groupId}
+          >
+            {groups.map(group => {
+              return (
+                <option key={group._id} value={group._id}>
+                  {group.name}
+                </option>
+              );
+            })}
+          </FormControl>
         </FormGroup>
 
         <Modal.Footer>
@@ -119,16 +250,11 @@ class PropertyForm extends Component {
             Close
           </Button>
 
-          <Button
-            btnStyle="success"
-            type="submit"
-            icon="checkmark"
-            onClick={this.addGroup}
-          >
+          <Button btnStyle="success" type="submit" icon="checkmark">
             Save
           </Button>
         </Modal.Footer>
-      </ContentBox>
+      </form>
     );
   }
 }
