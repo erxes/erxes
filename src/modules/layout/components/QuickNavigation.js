@@ -28,9 +28,12 @@ const NavItem = styled.div`
   vertical-align: middle;
 `;
 
-const QuickNavigation = ({ logout, currentUser }) => {
+const QuickNavigation = ({ logout, currentUser, toggleLang }) => {
   return (
     <nav>
+      <NavItem onClick={toggleLang}>
+        <Icon icon="android-globe" size={20} />
+      </NavItem>
       <NavItem>
         <Widget />
       </NavItem>

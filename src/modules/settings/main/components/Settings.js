@@ -1,7 +1,72 @@
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 import { Wrapper } from 'modules/layout/components';
 import { Row, RowTitle, Box, Divider, BoxName } from '../styles';
+import { defineMessages } from 'react-intl';
+
+const messages = defineMessages({
+  settings: {
+    id: 'settings',
+    defaultMessage: 'Settings'
+  },
+  accountSettings: {
+    id: 'accountSettings',
+    defaultMessage: 'Account Settings'
+  },
+  personalSettings: {
+    id: 'personalSettings',
+    defaultMessage: 'Personal Settings'
+  },
+  channelSettings: {
+    id: 'channelSettings',
+    defaultMessage: 'Channels'
+  },
+  brandSettings: {
+    id: 'brandSettings',
+    defaultMessage: 'Brands'
+  },
+  integrationSettings: {
+    id: 'integrationSettings',
+    defaultMessage: 'Integrations'
+  },
+  responseTemplateSettings: {
+    id: 'responseTemplateSettings',
+    defaultMessage: 'Response Template'
+  },
+  emailTemplateSettings: {
+    id: 'emailTemplateSettings',
+    defaultMessage: 'Email Template'
+  },
+  emailAppearanceSettings: {
+    id: 'emailAppearanceSettings',
+    defaultMessage: 'Email Appearance'
+  },
+  formSettings: {
+    id: 'formSettings',
+    defaultMessage: 'Forms'
+  },
+  teamMemberSettings: {
+    id: 'teamMemberSettings',
+    defaultMessage: 'Team Members'
+  },
+  profileSettings: {
+    id: 'profileSettings',
+    defaultMessage: 'Profile'
+  },
+  changePasswordSettings: {
+    id: 'changePasswordSettings',
+    defaultMessage: 'Change password'
+  },
+  emailSignatureSettings: {
+    id: 'emailSignatureSettings',
+    defaultMessage: 'Email Signature'
+  },
+  notificationSettings: {
+    id: 'notificationSettings',
+    defaultMessage: 'Notification'
+  }
+});
 
 class Settings extends Component {
   renderBox(name, image, to) {
@@ -16,50 +81,69 @@ class Settings extends Component {
   }
 
   render() {
-    const breadcrumb = [{ title: 'Settings', link: '/settings' }];
+    const { __ } = this.context;
+    const {
+      settings,
+      accountSettings,
+      personalSettings,
+      channelSettings,
+      brandSettings,
+      integrationSettings,
+      responseTemplateSettings,
+      emailTemplateSettings,
+      emailAppearanceSettings,
+      formSettings,
+      teamMemberSettings,
+      profileSettings,
+      changePasswordSettings,
+      emailSignatureSettings,
+      notificationSettings
+    } = messages;
+
+    const breadcrumb = [{ title: __(settings), link: '/settings' }];
 
     const content = (
       <div>
         <Row>
-          <RowTitle>Account Settings</RowTitle>
+          <RowTitle>{__(accountSettings)}</RowTitle>
           <div>
             {this.renderBox(
-              'Channels',
+              __(channelSettings),
               '/images/icons/erxes-05.svg',
               '/settings/channels'
             )}
             {this.renderBox(
-              'Brands',
+              __(brandSettings),
               '/images/icons/erxes-03.svg',
               '/settings/brands'
             )}
             {this.renderBox(
-              'Integrations',
+              __(integrationSettings),
               '/images/icons/erxes-04.svg',
               '/settings/integrations'
             )}
             {this.renderBox(
-              'Response Template',
+              __(responseTemplateSettings),
               '/images/icons/erxes-10.svg',
               '/settings/response-templates'
             )}
             {this.renderBox(
-              'Email Template',
+              __(emailTemplateSettings),
               '/images/icons/erxes-09.svg',
               '/settings/email-templates'
             )}
             {this.renderBox(
-              'Email Appearance',
+              __(emailAppearanceSettings),
               '/images/icons/erxes-08.svg',
               '/settings/emails'
             )}
             {this.renderBox(
-              'Forms',
+              __(formSettings),
               '/images/icons/erxes-12.svg',
               '/settings/forms'
             )}
             {this.renderBox(
-              'Team Members',
+              __(teamMemberSettings),
               '/images/icons/erxes-02.svg',
               '/settings/team'
             )}
@@ -67,25 +151,25 @@ class Settings extends Component {
         </Row>
         <Divider />
         <Row>
-          <RowTitle className="secondRow">Personal Settings</RowTitle>
+          <RowTitle className="secondRow">{__(personalSettings)}</RowTitle>
           <div>
             {this.renderBox(
-              'Profile',
+              __(profileSettings),
               '/images/icons/erxes-01.svg',
               '/settings/profile'
             )}
             {this.renderBox(
-              'Change password',
+              __(changePasswordSettings),
               '/images/icons/erxes-13.svg',
               '/settings/change-password'
             )}
             {this.renderBox(
-              'Email Signature',
+              __(emailSignatureSettings),
               '/images/icons/erxes-07.svg',
               '/settings/emails/signatures'
             )}
             {this.renderBox(
-              'Notification',
+              __(notificationSettings),
               '/images/icons/erxes-11.svg',
               '/settings/notification-settings'
             )}
@@ -103,5 +187,9 @@ class Settings extends Component {
     );
   }
 }
+
+Settings.contextTypes = {
+  __: PropTypes.func
+};
 
 export default Settings;

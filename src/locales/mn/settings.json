@@ -1,0 +1,17 @@
+{
+  "settings": "Тохиргоо",
+  "accountSettings": "Бүртгэлийн тохиргоо",
+  "personalSettings": "Хувийн тохиоргоо",
+  "channelSettings": "Суваг",
+  "brandSettings": "Брэнд",
+  "integrationSettings": "Интеграц",
+  "responseTemplateSettings": "Мэдэгдэл загвар",
+  "emailTemplateSettings": "И-мэйл загвар",
+  "emailAppearanceSettings": "И-мэйл харагдац",
+  "formSettings": "Форум",
+  "teamMemberSettings": "Багийн гишүүд",
+  "profileSettings": "Профайл",
+  "changePasswordSettings": "Нууц үг солих",
+  "emailSignatureSettings": "И-мэйл гарын үсэг",
+  "notificationSettings": "Зарлал"
+}

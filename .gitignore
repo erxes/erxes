@@ -3,6 +3,10 @@
 # dependencies
 /node_modules
 
+# globales
+*.un~
+*.swp
+
 # testing
 /coverage
 
