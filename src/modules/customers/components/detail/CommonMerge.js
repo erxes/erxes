@@ -156,7 +156,9 @@ class CommonMerge extends Component {
         <FormControl
           onChange={e => this.handleInputChange(e, property)}
           value={data[property] || ''}
-          required={['firstName', 'email'].includes(property)} //required fields
+          required={['firstName', 'email', 'name', 'website'].includes(
+            property
+          )} //required fields
         />
       </FormGroup>
     );
