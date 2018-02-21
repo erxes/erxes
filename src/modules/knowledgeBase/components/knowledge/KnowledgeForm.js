@@ -12,6 +12,14 @@ import {
 } from 'modules/common/components';
 import SelectBrand from '../SelectBrand';
 import { MarkdownWrapper } from 'modules/settings/styles';
+import {
+  SubHeading,
+  WidgetBox,
+  ColorPick,
+  ColorPicker
+} from '../../../settings/styles';
+import { OverlayTrigger, Popover } from 'react-bootstrap';
+import { ChromePicker } from 'react-color';
 
 const propTypes = {
   topic: PropTypes.object,
@@ -28,21 +36,29 @@ class KnowledgeForm extends Component {
   constructor(props, context) {
     super(props, context);
 
-    let code = '';
+    let code = '',
+      color = '';
 
     // showed install code automatically in edit mode
     if (props.topic) {
       code = this.constructor.getInstallCode(props.topic._id);
+      color = props.topic.color;
     }
 
     this.state = {
+      copied: false,
       code,
-      copied: false
+      color
     };
 
     this.handleBrandChange = this.handleBrandChange.bind(this);
+    this.onColorChange = this.onColorChange.bind(this);
     this.save = this.save.bind(this);
     this.remove = this.remove.bind(this);
+  }
+
+  onColorChange(e) {
+    this.setState({ color: e.hex });
   }
 
   save(e) {
@@ -135,7 +151,8 @@ class KnowledgeForm extends Component {
           title: document.getElementById('knowledgebase-title').value,
           description: document.getElementById('knowledgebase-description')
             .value,
-          brandId: document.getElementById('selectBrand').value
+          brandId: document.getElementById('selectBrand').value,
+          color: this.state.color
         }
       }
     };
@@ -145,6 +162,12 @@ class KnowledgeForm extends Component {
     const { brands } = this.props;
     const { brand } = topic;
     const brandId = brand != null ? brand._id : '';
+
+    const popoverTop = (
+      <Popover id="color-picker">
+        <ChromePicker color={this.state.color} onChange={this.onColorChange} />
+      </Popover>
+    );
 
     return (
       <div>
@@ -174,6 +197,20 @@ class KnowledgeForm extends Component {
             onChange={this.handleBrandChange}
           />
         </FormGroup>
+
+        <WidgetBox>
+          <SubHeading>Choose a custom color</SubHeading>
+          <OverlayTrigger
+            trigger="click"
+            rootClose
+            placement="bottom"
+            overlay={popoverTop}
+          >
+            <ColorPick>
+              <ColorPicker style={{ backgroundColor: this.state.color }} />
+            </ColorPick>
+          </OverlayTrigger>
+        </WidgetBox>
 
         {this.renderInstallCode()}
       </div>
