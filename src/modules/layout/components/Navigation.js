@@ -116,8 +116,7 @@ const NavIcon = styled.i`
 
 class Navigation extends Component {
   componentDidUpdate() {
-    const { unreadConversationsCount } = this.props;
-    setBadge(unreadConversationsCount);
+    setBadge(this.props.unreadConversationsCount);
   }
 
   componentWillReceiveProps(nextProps) {
