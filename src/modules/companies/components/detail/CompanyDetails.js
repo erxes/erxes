@@ -13,7 +13,6 @@ import { Form as NoteForm } from 'modules/internalNotes/containers';
 import { ActivityList } from 'modules/activityLogs/components';
 import LeftSidebar from './LeftSidebar';
 import { hasAnyActivity } from 'modules/customers/utils';
-import { EmptyStateWrapper } from 'modules/customers/utils';
 
 const propTypes = {
   company: PropTypes.object.isRequired,
