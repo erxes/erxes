@@ -9,7 +9,7 @@ export function moveInList(array, startIndex, endIndex) {
 // Remove from list
 export function removeFromList(array, index) {
   const [removedItem] = array.splice(index, 1);
-  return { sourceArray: array, removedItem };
+  return { sourceArray: array, removedItem: Object.assign({}, removedItem) };
 }
 
 // Add to list

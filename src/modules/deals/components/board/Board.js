@@ -45,6 +45,7 @@ class Board extends React.Component {
     const destinationList = list.filter(
       item => destination.droppableId === item[fieldName]
     );
+
     const sourceList = list.filter(
       item => source.droppableId === item[fieldName]
     );
@@ -73,7 +74,6 @@ class Board extends React.Component {
       source.index
     );
 
-    // Change droppableId
     removedItem[fieldName] = destination.droppableId;
 
     // Add destination list
@@ -86,14 +86,19 @@ class Board extends React.Component {
     const otherList = list.filter(
       item =>
         source.droppableId !== item[fieldName] &&
-        destination.droppableId === item[fieldName]
+        destination.droppableId !== item[fieldName]
     );
+
+    console.log('otherList: ', otherList);
+    console.log('sourceArray: ', sourceArray);
+    console.log('addedList: ', addedList);
 
     // Update added list
     return otherList.concat(sourceArray, addedList);
   }
 
   onDragEnd(result) {
+    console.log('result: ', result);
     // dropped outside the list
     if (!result.destination) {
       return;

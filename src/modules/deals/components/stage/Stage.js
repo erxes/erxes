@@ -38,14 +38,14 @@ class Stage extends React.Component {
 
     return (
       <Draggable draggableId={stage._id} index={index}>
-        {provided => {
+        {(provided, snapshot) => {
           return (
             <StageContainer
               innerRef={provided.innerRef}
               {...provided.draggableProps}
-              {...provided.dragHandleProps}
+              isDragging={snapshot.isDragging}
             >
-              <h3>
+              <h3 {...provided.dragHandleProps}>
                 {stage.name} {amount}
               </h3>
               <Droppable droppableId={stage._id} type="DEAL">

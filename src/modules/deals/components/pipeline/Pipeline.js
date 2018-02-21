@@ -44,8 +44,8 @@ class Pipeline extends React.Component {
   render() {
     const { stages, pipeline, boardId, deals } = this.props;
 
-    const content = innerRef => (
-      <PipelineBody innerRef={innerRef}>
+    const content = provided => (
+      <PipelineBody innerRef={provided.innerRef}>
         {stages.map((stage, index) => {
           return (
             <Stage
@@ -69,8 +69,12 @@ class Pipeline extends React.Component {
         <PipelineHeader>
           <h2>{pipeline.name}</h2>
         </PipelineHeader>
-        <Droppable type="STAGE" droppableId={pipeline._id}>
-          {provided => content(provided.innerRef)}
+        <Droppable
+          type="STAGE"
+          direction="horizontal"
+          droppableId={pipeline._id}
+        >
+          {provided => content(provided)}
         </Droppable>
       </PipelineContainer>
     );

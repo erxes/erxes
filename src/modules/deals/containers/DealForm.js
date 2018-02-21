@@ -13,7 +13,6 @@ class DealFormContainer extends React.Component {
 
     // create or update action
     const saveDeal = ({ doc }, callback, deal) => {
-      console.log('doc: ', doc);
       let mutation = addDealMutation;
       // if edit mode
       if (deal) {

@@ -4,7 +4,7 @@ import { rgba } from 'modules/common/styles/color';
 
 const PipelineContainer = styled.div`
   background-color: ${colors.colorWhite};
-  min-height: 100%;
+  height: 100%;
   margin-bottom: 20px;
 `;
 
@@ -23,14 +23,19 @@ const PipelineHeader = styled.div`
 `;
 
 const PipelineBody = styled.div`
-  display: flex;
+  position: relative;
+  display: inline-flex;
   height: calc(100% - 85px);
 `;
 
 const StageContainer = styled.div`
-  flex: 1;
-  height: 100%;
+  display: flex;
+  flex-direction: column;
+  width: 330px;
   border-right: 1px solid ${colors.colorShadowGray};
+  background: ${({ isDragging }) =>
+    isDragging ? rgba(colors.colorCoreDarkGray, 0.2) : 'none'};
+  transition: background-color 0.1s ease;
   h3 {
     margin: 0;
     padding: 30px;
@@ -92,6 +97,7 @@ const ProductFormContainer = styled.div`
 `;
 
 const ProductTable = styled.table`
+  width: 100%;
   thead {
     td {
       padding: 10px 10px 10px 0;
@@ -118,6 +124,24 @@ const ProductTable = styled.table`
 
 const ProductFooter = styled.div`
   padding: 30px;
+`;
+
+const FooterInfo = styled.div`
+  overflow: hidden;
+  > div {
+    &:first-child {
+      float: left;
+      width: 60%;
+    }
+  }
+  table {
+    float: right;
+    width: 30%;
+    td {
+      vertical-align: top;
+      padding: 5px;
+    }
+  }
 `;
 
 const AddProduct = styled.div`
@@ -155,6 +179,7 @@ export {
   ProductFormContainer,
   ProductTable,
   ProductFooter,
+  FooterInfo,
   AddProduct,
   ProductItemText
 };

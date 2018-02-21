@@ -39,8 +39,7 @@ class DealForm extends React.Component {
       customerId: '',
       customers: [],
       closeDate: '',
-      amount: 0,
-      productIds: [],
+      note: 'Note',
       productsData: []
     };
   }
@@ -48,8 +47,18 @@ class DealForm extends React.Component {
   saveDeal(e) {
     e.preventDefault();
 
-    const { customerId, companyId, closeDate, amount } = this.state;
+    const { customerId, companyId, closeDate, productsData, note } = this.state;
     const { boardId, pipelineId, stageId } = this.props;
+
+    const productIds = [];
+    const filteredProductsData = [];
+
+    productsData.forEach(p => {
+      if (p.productId) {
+        productIds.push(p.productId);
+        filteredProductsData.push(p);
+      }
+    });
 
     this.props.saveDeal(
       {
@@ -60,7 +69,9 @@ class DealForm extends React.Component {
           companyId,
           customerId,
           closeDate: new Date(closeDate),
-          amount
+          productIds,
+          productsData: filteredProductsData,
+          note
         }
       },
       () => {
@@ -138,6 +149,7 @@ class DealForm extends React.Component {
               value={customer}
               onChange={this.onChangeCustomer}
             >
+              <option />
               {customers.map(customer => (
                 <option key={customer._id} value={customer._id}>
                   {customer.name}
