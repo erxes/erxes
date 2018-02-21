@@ -31,7 +31,6 @@ export const queries = `
   fields(contentType: String!, contentTypeId: String): [Field]
   fieldsCombinedByContentType(contentType: String!): JSON
   fieldsDefaultColumnsConfig(contentType: String!): [ColumnConfigItem]
-  fieldsByGroup(visible: Boolean, contentType: String!): [FieldsGroup]
 `;
 
 const commonFields = `
