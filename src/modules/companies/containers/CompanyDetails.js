@@ -29,12 +29,13 @@ const CompanyDetailsContainer = (props, context) => {
 
   const updatedProps = {
     ...props,
+    save,
+    loadingLogs: companyActivityLogQuery.loading,
     company: companyDetailQuery.companyDetail || {
       customers: [],
       customFieldsData: {}
     },
     companyActivityLog: companyActivityLogQuery.activityLogsCompany || [],
-    save,
     currentUser: context.currentUser,
     customFields: fieldsQuery.fields || []
   };

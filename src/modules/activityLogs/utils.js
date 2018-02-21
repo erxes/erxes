@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 
 const MONTHS = [
   'January',
@@ -21,19 +22,19 @@ const ICON_AND_COLOR_TABLE = {
     color: '#A389D4'
   },
   'segment-create': {
-    icon: 'android-bicycle',
+    icon: 'funnel',
     color: '#04A9F5'
   },
   'conversation-create': {
-    icon: 'android-boat',
+    icon: 'android-chat',
     color: '#F44236'
   },
   'internal_note-create': {
-    icon: 'android-bus',
+    icon: 'clipboard',
     color: '#F5C22B'
   },
   'company-create': {
-    icon: 'android-bicycle',
+    icon: 'android-bar',
     color: '#04A9F5'
   }
 };
@@ -47,9 +48,13 @@ export default class {
    * A constructor method
    * @param {Ojbect} queryData - The query received from the back end
    */
-  constructor(queryData, currentUser) {
-    this.queryData = queryData;
-    this.currentUser = currentUser;
+  constructor({ activities, user, target, type }) {
+    if (type === 'conversations') this.type = 'conversation-create';
+    if (type === 'notes') this.type = 'internal_note-create';
+
+    this.queryData = activities;
+    this.currentUser = user;
+    this.target = target || {};
   }
 
   /**
@@ -69,18 +74,23 @@ export default class {
     };
 
     for (let item of list) {
+      if (this.type && this.type !== item.action) continue;
+
       const iconAndColor = this._getIconAndColor(item.action);
+      const hasContent =
+        !['company-create', 'customer-create'].includes(item.action) &&
+        item.content !== '[object Object]';
 
       const caption = this._getCaption({
         action: item.action,
-        content: item.content,
-        by: item.by
+        by: item.by,
+        id: item.id
       });
 
       result.data.push({
         ...iconAndColor,
         caption,
-        content: item.content,
+        content: hasContent ? item.content : null,
         date: item.createdAt,
         createdAt: item.createdAt,
         by: item.by
@@ -99,42 +109,68 @@ export default class {
   }
 
   /**
+   * Get source user full name or You label
+   * @return {String} return String
+   */
+  _getUserName(by) {
+    if (by._id === this.currentUser._id) return 'You';
+    else return by.details.fullName;
+  }
+
+  /**
    * Make caption depending on the action and content value of the given activity log
    * @return {string} return the formed caption
    */
-  _getCaption({ action, content, by }) {
+  _getCaption({ action, by, id }) {
     let caption;
+    const source = <strong>{this._getUserName(by)}</strong>;
+    const target = <strong>{this.target.firstName || this.target.name}</strong>;
 
     switch (action) {
       case 'customer-create':
-        caption = 'registered to Erxes';
+        caption = by.details.fullName ? (
+          <span>
+            {source} registered {target} to Erxes
+          </span>
+        ) : (
+          <span>{target} registered to Erxes</span>
+        );
         break;
-      case 'segment-create':
-        caption = `Moved to ${content} segment`;
-        break;
-      case 'internal_note-create':
-        caption = `left a note`;
-        break;
-      case 'conversation-create':
-        caption = `added a conversation message`;
-        break;
-      case 'company-create':
-        caption = `registered to Erxes`;
-        break;
-      default:
-        caption = action;
-    }
 
-    if (by.type === 'USER') {
-      if (by._id === this.currentUser._id) {
+      case 'segment-create':
+        caption = <span>{target} created a segment</span>;
+        break;
+
+      case 'internal_note-create':
         caption = (
           <span>
-            <strong>You</strong> {caption}
+            {source} left a note about {target}
           </span>
         );
-      } else {
-        caption = `${by.details.fullName} ` + caption;
-      }
+        break;
+
+      case 'conversation-create':
+        caption = (
+          <span>
+            {target} sent a&nbsp;
+            <Link to={`/inbox?_id=${id}`}>
+              <strong>conversation</strong>
+            </Link>
+            &nbsp;message
+          </span>
+        );
+        break;
+
+      case 'company-create':
+        caption = (
+          <span>
+            {source} created {target}
+          </span>
+        );
+        break;
+
+      default:
+        caption = action;
     }
 
     return caption;

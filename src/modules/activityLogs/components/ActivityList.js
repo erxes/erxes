@@ -1,51 +1,18 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import moment from 'moment';
-import { NameCard, Icon, EmptyState } from 'modules/common/components';
-import {
-  Timeline,
-  ActivityTitle,
-  ActivityRow,
-  ActivityIcon,
-  AvatarWrapper,
-  ActivityWrapper,
-  ActivityCaption,
-  ActivityDate,
-  ActivityContent
-} from '../styles';
+import { EmptyState } from 'modules/common/components';
+import { Timeline, ActivityTitle } from '../styles';
 import ActivityLogProcessor from '../utils';
+import ActivityItem from './ActivityItem';
 
 const propTypes = {
   activities: PropTypes.array,
-  user: PropTypes.object
+  user: PropTypes.object,
+  target: PropTypes.object,
+  type: PropTypes.string
 };
 
 class ActivityList extends React.Component {
-  activityRow(data) {
-    return (
-      <ActivityRow key={Math.random()}>
-        <ActivityIcon color={data.color}>
-          <Icon icon={data.icon || ''} />
-        </ActivityIcon>
-        <ActivityWrapper>
-          <AvatarWrapper>
-            <NameCard.Avatar user={data.by} size={40} />
-          </AvatarWrapper>
-          <ActivityCaption>{data.caption}</ActivityCaption>
-          <ActivityDate>{this.formatDate(data.date)}</ActivityDate>
-          {data.content &&
-            data.content !== '[object Object]' && (
-              <ActivityContent>{data.content}</ActivityContent>
-            )}
-        </ActivityWrapper>
-      </ActivityRow>
-    );
-  }
-
-  formatDate(date) {
-    return moment(date).fromNow();
-  }
-
   renderList(activity) {
     const activities = activity.data;
 
@@ -54,14 +21,15 @@ class ActivityList extends React.Component {
         {activities.length ? (
           <ActivityTitle>{activity.title}</ActivityTitle>
         ) : null}
-        {activities.map(rowData => this.activityRow(rowData))}
+        {activities.map(rowData => ActivityItem(rowData))}
       </div>
     );
   }
 
   render() {
-    let { activities, user } = this.props;
-    const activityLogProcessor = new ActivityLogProcessor(activities, user);
+    let { activities } = this.props;
+    const activityLogProcessor = new ActivityLogProcessor(this.props);
+
     activities = activityLogProcessor.process();
 
     if (!activities || activities.length < 1) {
