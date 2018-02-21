@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import styled, { keyframes } from 'styled-components';
 import { colors, dimensions } from '../styles';
+import { colorParser } from 'modules/common/utils';
 
 const shake = keyframes`
   0%{transform:rotate(-10deg)}
@@ -81,48 +82,10 @@ const LabelStyled = styled.span`
 `;
 
 function Label({ ...props }) {
-  const hexToRgb = hex => {
-    var shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
-    hex = hex.replace(shorthandRegex, function(m, r, g, b) {
-      return r + r + g + g + b + b;
-    });
-
-    var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-    return result
-      ? {
-          r: parseInt(result[1], 16),
-          g: parseInt(result[2], 16),
-          b: parseInt(result[3], 16)
-        }
-      : null;
-  };
-
-  // returns black if color is light, if dark returns white
-  const hasLightBackground = hex => {
-    let luminance = 0;
-
-    if (hex) {
-      const rgb = hexToRgb(hex);
-      const { r, g, b } = rgb;
-
-      let C = [r / 255, g / 255, b / 255];
-
-      for (var i = 0; i < C.length; ++i) {
-        C[i] <= 0.03928
-          ? (C[i] = C[i] / 12.92)
-          : (C[i] = Math.pow((C[i] + 0.055) / 1.055, 2.4));
-      }
-
-      luminance = 0.2126 * C[0] + 0.7152 * C[1] + 0.0722 * C[2]; //luminance
-    }
-
-    return luminance > 0.179;
-  };
-
   const updatedProps = {
     ...props,
     hasLightBackground: props.style
-      ? hasLightBackground(props.style.backgroundColor)
+      ? colorParser.isColorLight(props.style.backgroundColor)
       : null
   };
 
