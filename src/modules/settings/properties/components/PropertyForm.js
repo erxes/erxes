@@ -93,16 +93,13 @@ class PropertyForm extends Component {
     const value = e.target.value;
     const name = e.target.name;
 
-    if (
+    this.setState(
       (name === 'type' && value === 'select') ||
       value === 'check' ||
       value === 'radio'
-    )
-      return this.setState({
-        hasOptions: true
-      });
-
-    this.setState({ [name]: value, hasOptions: false, options: [] });
+        ? { hasOptions: true, [name]: value }
+        : { hasOptions: false, [name]: value }
+    );
   }
 
   handleAddOption() {
@@ -159,7 +156,7 @@ class PropertyForm extends Component {
 
   render() {
     const { groups } = this.props;
-    const { type, validation, text, description, groupId } = this.state;
+    const { validation, text, description, groupId } = this.state;
 
     return (
       <form onSubmit={this.onSubmit}>
@@ -169,7 +166,7 @@ class PropertyForm extends Component {
           <FormControl
             name="type"
             componentClass="select"
-            value={type}
+            value={groupId}
             onChange={this.onFieldChange}
           >
             <option />
