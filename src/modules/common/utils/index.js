@@ -13,6 +13,26 @@ const renderFullName = data => {
   return data.email || data.phone || 'N/A';
 };
 
+const setTitle = (title, force) => {
+  if (!document.title.includes(title) || force) {
+    document.title = title;
+  }
+};
+
+const setBadge = count => {
+  const favicon = document.getElementById('favicon');
+
+  if (count) {
+    if (document.title.includes('Inbox')) {
+      setTitle(`(${count}) Inbox`);
+    }
+
+    return (favicon.href = '/favicon-unread.png');
+  }
+
+  favicon.href = '/favicon.png';
+};
+
 export {
   Alert,
   uploadHandler,
@@ -21,5 +41,7 @@ export {
   confirm,
   toggleCheckBoxes,
   renderFullName,
-  urlParser
+  urlParser,
+  setTitle,
+  setBadge
 };

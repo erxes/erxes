@@ -21,13 +21,7 @@ const PageHeader = styled.div`
 function Header({ breadcrumb = [], queryParams }) {
   return (
     <PageHeader>
-      <BreadCrumb>
-        {breadcrumb.map(b => (
-          <BreadCrumb.Item to={b.link} active={!b.link} key={b.title}>
-            {b.title}
-          </BreadCrumb.Item>
-        ))}
-      </BreadCrumb>
+      <BreadCrumb breadcrumbs={breadcrumb} />
       {queryParams && <Filter queryParams={queryParams} />}
     </PageHeader>
   );
