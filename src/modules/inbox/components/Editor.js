@@ -320,30 +320,33 @@ export default class Editor extends Component {
   }
 
   keyBindingFn(e) {
+    // handle new line
+    if (e.key === 'Enter' && e.shiftKey) {
+      return getDefaultKeyBinding(e);
+    }
+
+    // handle enter  in editor
     if (e.key === 'Enter') {
+      // select response template
       if (this.state.templatesState) {
         this.onSelectTemplate();
 
         return null;
       }
+      // call parent's method to save content
+      this.props.onShifEnter();
 
-      // handle shift + enter in editor
-      if (e.metaKey || e.ctrlKey) {
-        // call parent's method to save content
-        this.props.onShifEnter();
+      // clear content
+      const state = this.state.editorState;
 
-        // clear content
-        const state = this.state.editorState;
+      const editorState = EditorState.push(
+        state,
+        ContentState.createFromText('')
+      );
 
-        const editorState = EditorState.push(
-          state,
-          ContentState.createFromText('')
-        );
+      this.setState({ editorState });
 
-        this.setState({ editorState });
-
-        return null;
-      }
+      return null;
     }
 
     return getDefaultKeyBinding(e);
