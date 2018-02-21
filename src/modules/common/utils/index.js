@@ -5,6 +5,7 @@ import toggleCheckBoxes from './toggleCheckBoxes';
 import Rotate from './animateRotate';
 import confirm from './confirmation/confirm';
 import urlParser from './urlParser';
+import colorParser from './colorParser';
 
 const renderFullName = data => {
   if (data.firstName || data.lastName) {
@@ -21,5 +22,6 @@ export {
   confirm,
   toggleCheckBoxes,
   renderFullName,
-  urlParser
+  urlParser,
+  colorParser
 };
