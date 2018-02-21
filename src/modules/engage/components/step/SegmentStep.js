@@ -3,19 +3,28 @@ import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { colors } from 'modules/common/styles';
 import { FormControl, Icon } from 'modules/common/components';
+import { Segments, SegmentsForm } from '../';
 import { FlexItem, Show, Divider } from './style';
-import Segments from '../Segments';
-import SegmentsForm from '../SegmentsForm';
 
 const RadioContainer = styled.div`
   border-bottom: 1px dotted ${colors.borderPrimary};
+
   > * {
     padding: 20px;
     fields: PropTypes.array.isRequired;
   }
 `;
+
 const SegmentContainer = styled.div`
   padding: 20px;
+`;
+
+const CustomerCounts = styled.div`
+  text-align: center;
+
+  > i {
+    color: ${colors.colorCoreLightGray};
+  }
 `;
 
 const propTypes = {
@@ -110,8 +119,10 @@ class SegmentStep extends Component {
         </FlexItem>
         <Divider />
         <FlexItem direction="column" v="center" h="center">
-          <Icon icon="pie-graph" size={50} />
-          <p>{this.props.counts[this.state.segment] || 0} customers</p>
+          <CustomerCounts>
+            <Icon icon="person-stalker" size={50} />
+            <p>{this.props.counts[this.state.segment] || 0} customers</p>
+          </CustomerCounts>
         </FlexItem>
       </FlexItem>
     );

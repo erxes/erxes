@@ -37,7 +37,7 @@ class AutoAndManualForm extends FormBase {
         step3: validate
       },
       method: message.method || 'email',
-      title: message.title || '',
+      title: message.title || null,
       segment: message.segmentId || '',
       message: content,
       fromUser: message.fromUserId,
@@ -139,6 +139,7 @@ class AutoAndManualForm extends FormBase {
         <TitleContainer>
           <div>Title</div>
           <FormControl
+            required
             onChange={e => this.changeState('title', e.target.value)}
             defaultValue={this.state.title}
           />

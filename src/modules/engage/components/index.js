@@ -5,6 +5,7 @@ import AutoAndManualForm from './AutoAndManualForm';
 import VisitorForm from './VisitorForm';
 import Widget from './Widget';
 import MessengerPreview from './MessengerPreview';
+import Segments from './Segments';
 import SegmentsForm from './SegmentsForm';
 import MessengerForm from './MessengerForm';
 import EmailForm from './EmailForm';
@@ -23,6 +24,7 @@ export {
   MessengerPreview,
   Sidebar,
   AutoAndManualForm,
+  Segments,
   SegmentsForm,
   MessengerForm,
   EmailForm

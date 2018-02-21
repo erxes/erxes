@@ -29,7 +29,7 @@ class FormBase extends Component {
 
   renderTitle() {
     const { kind } = this.props;
-    var title = 'Visitor auto message';
+    let title = 'Visitor auto message';
     if (kind === 'auto') {
       title = 'Auto message';
     } else if (kind === 'manual') {
