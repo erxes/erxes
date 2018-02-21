@@ -63,7 +63,13 @@ class Properties extends Component {
   }
 
   renderActionBar() {
-    const { queryParams } = this.props;
+    const { queryParams, fieldsgroups } = this.props;
+
+    let propertyForm = <PropertyForm queryParams={queryParams} />;
+
+    if (fieldsgroups.length === 0) {
+      propertyForm = <h4>Please add property Group first!</h4>;
+    }
 
     return (
       <div>
@@ -79,7 +85,7 @@ class Properties extends Component {
           trigger={this.renderTrigger('Add Property')}
           size="lg"
         >
-          <PropertyForm queryParams={queryParams} />
+          {propertyForm}
         </ModalTrigger>
       </div>
     );
