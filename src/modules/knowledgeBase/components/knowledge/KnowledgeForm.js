@@ -1,8 +1,9 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import ReactMarkdown from 'react-markdown';
-import { Modal } from 'react-bootstrap';
+import { Modal, OverlayTrigger, Popover } from 'react-bootstrap';
 import CopyToClipboard from 'react-copy-to-clipboard';
+import { ChromePicker } from 'react-color';
 import {
   FormGroup,
   ControlLabel,
@@ -10,16 +11,14 @@ import {
   Button,
   EmptyState
 } from 'modules/common/components';
-import SelectBrand from '../SelectBrand';
-import { MarkdownWrapper } from 'modules/settings/styles';
 import {
+  MarkdownWrapper,
   SubHeading,
   WidgetBox,
   ColorPick,
   ColorPicker
-} from '../../../settings/styles';
-import { OverlayTrigger, Popover } from 'react-bootstrap';
-import { ChromePicker } from 'react-color';
+} from 'modules/settings/styles';
+import SelectBrand from '../SelectBrand';
 
 const propTypes = {
   topic: PropTypes.object,
