@@ -21,7 +21,10 @@ class BreadCrumb extends Component {
   setTabTitle() {
     const { breadcrumbs } = this.props;
     const page = breadcrumbs.pop();
-    setTitle(page.title, page.title === 'Inbox');
+    setTitle(
+      page.title,
+      page.title === 'Inbox' && document.title.startsWith('(1)')
+    );
   }
 
   componentDidUpdate() {
