@@ -23,13 +23,13 @@ function Tags({ tags, limit }) {
     <TagList length={length}>
       {tags.slice(0, limit ? limit : length).map(tag => (
         <Label key={tag.name} style={{ backgroundColor: tag.colorCode }}>
-          {tag.name}
+          <span>{tag.name}</span>
         </Label>
       ))}
       {limit &&
         length - limit > 0 && (
           <Label style={{ backgroundColor: colors.colorCoreLightGray }}>
-            {`+${length - limit}`}
+            <span>{`+${length - limit}`}</span>
           </Label>
         )}
     </TagList>

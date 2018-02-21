@@ -58,8 +58,15 @@ class FormControl extends React.Component {
     const childNode = props.children;
     const elementType = props.componentClass;
 
+    //cancel custom browser default form validation error
+    const onChange = e => {
+      e.target.classList.remove('form-invalid');
+
+      props.onChange && props.onChange(e);
+    };
+
     const attributes = {
-      onChange: props.onChange,
+      onChange: onChange,
       onClick: props.onClick,
       value: props.value,
       defaultValue: props.defaultValue,

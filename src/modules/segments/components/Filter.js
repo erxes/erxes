@@ -78,7 +78,7 @@ function Segments({ history, contentType, counts, segments, loading }) {
           id="dropdown-user"
           className="quick-button"
           pullRight
-          style={{ verticalAlign: 'top' }}
+          style={{ verticalAlign: 'top', float: 'left' }}
         >
           <DropdownToggle bsRole="toggle">
             <QuickButton>
