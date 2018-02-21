@@ -53,12 +53,19 @@ class PropertyForm extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    if (nextProps.field) {
-      this.setState({
-        ...nextProps.field,
-        groupId: nextProps.field.groupId || nextProps.groups[0]._id
-      });
-    }
+    this.setState(
+      nextProps.field
+        ? nextProps.field.type === 'select' ||
+          nextProps.field.type === 'radio' ||
+          nextProps.field.type === 'checkbox'
+          ? {
+              ...nextProps.field,
+              groupId: nextProps.field.groupId,
+              hasOptions: true
+            }
+          : { ...nextProps.field, groupId: nextProps.field.groupId }
+        : { groupId: nextProps.groups[0]._id }
+    );
   }
 
   onSubmit(e) {
@@ -93,13 +100,15 @@ class PropertyForm extends Component {
     const value = e.target.value;
     const name = e.target.name;
 
-    this.setState(
-      (name === 'type' && value === 'select') ||
-      value === 'check' ||
-      value === 'radio'
-        ? { hasOptions: true, [name]: value }
-        : { hasOptions: false, [name]: value }
-    );
+    if (name === 'type') {
+      this.setState(
+        value === 'select' || value === 'check' || value === 'radio'
+          ? { hasOptions: true }
+          : { hasOptions: false, options: [] }
+      );
+    }
+
+    this.setState({ [name]: value });
   }
 
   handleAddOption() {
@@ -156,7 +165,7 @@ class PropertyForm extends Component {
 
   render() {
     const { groups } = this.props;
-    const { validation, text, description, groupId } = this.state;
+    const { type, validation, text, description, groupId } = this.state;
 
     return (
       <form onSubmit={this.onSubmit}>
@@ -166,7 +175,7 @@ class PropertyForm extends Component {
           <FormControl
             name="type"
             componentClass="select"
-            value={groupId}
+            value={type}
             onChange={this.onFieldChange}
           >
             <option />
@@ -213,7 +222,7 @@ class PropertyForm extends Component {
           <FormControl
             name="description"
             componentClass="textarea"
-            value={description}
+            value={description || ''}
             onChange={this.onFieldChange}
           />
         </FormGroup>
