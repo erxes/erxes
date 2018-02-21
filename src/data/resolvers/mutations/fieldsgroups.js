@@ -4,15 +4,15 @@ import { moduleRequireLogin } from '../../permissions';
 const fieldsGroupsMutations = {
   /**
    * Create a new group for fields
-   * @param {Object} args - Graphql input data
-   * @param {String} args.name - Group name
-   * @param {String} args.nestedUnder - Id of parent group
-   * @param {Number} args.order - Group sort order
+   * @param {Object} doc - Graphql input data
+   * @param {String} doc.name - Group name
+   * @param {String} doc.contentType - Group type customer or company
+   * @param {String} doc.description - Group description
    *
    * @return {Promise} Newly created Group
    */
-  fieldsGroupsAdd(root, args) {
-    return FieldsGroups.createFieldsGroup(args);
+  fieldsGroupsAdd(root, doc) {
+    return FieldsGroups.createFieldsGroup(doc);
   },
 
   /**
@@ -20,8 +20,7 @@ const fieldsGroupsMutations = {
    * @param {Object} _id - Id of group to update
    * @param {Object} doc - Graphql input data
    * @param {String} doc.name - Group name
-   * @param {String} doc.nestedUnder - Id of parent group
-   * @param {Number} doc.order - Group sort order
+   * @param {String} doc.description - Id of parent group
    *
    * @return {Promise} Newly updated Group
    */
