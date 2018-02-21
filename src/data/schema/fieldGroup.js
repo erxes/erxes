@@ -6,6 +6,7 @@ type FieldsGroup {
     order: Int
     description: String
     visible: Boolean
+    isDefinedByErxes: Boolean
     getFields: [Field]
   }
 `;
