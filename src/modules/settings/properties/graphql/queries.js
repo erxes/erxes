@@ -23,6 +23,7 @@ const fieldsgroups = `
         text
         visible
         order
+        options
         groupId
         description
       }
