@@ -155,13 +155,49 @@ const insightQueries = {
 
       // generate detail and graph data for each user
       for (let userId of userIds) {
+        const userMessages = messages.filter(message => userId === message.userId);
+
+        let responseTime = 0;
+        let count = 0;
+        const conversationIds = [];
+
+        for (let msg of userMessages) {
+          const conversationId = msg.conversationId;
+
+          if (conversationIds.indexOf(conversationId) < 0) {
+            const clientMessage = await ConversationMessages.findOne({
+              ...messageSelector,
+              conversationId,
+              userId: null,
+            }).sort({ createdAt: 1 });
+
+            // First message that answered to a conversation
+            const userMessage = await ConversationMessages.findOne({
+              ...messageSelector,
+              conversationId,
+              userId: { $ne: null },
+            }).sort({ createdAt: 1 });
+
+            if (userMessage && clientMessage) {
+              responseTime += parseInt(
+                (getTime(userMessage.createdAt) - getTime(clientMessage.createdAt)) / 1000,
+              );
+              count += 1;
+            }
+
+            conversationIds.push(conversationId);
+          }
+        }
+
         insightData.teamMembers.push({
           data: await generateUserChartData({
             userId,
-            userMessages: messages.filter(message => userId === message.userId),
+            userMessages,
             duration,
             startTime,
           }),
+
+          time: responseTime > 0 ? parseInt(responseTime / count) : null,
         });
       }
     }
