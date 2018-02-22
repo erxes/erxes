@@ -59,7 +59,7 @@ class SignIn extends Component {
               <FormControl
                 type="email"
                 placeholder="Email"
-                value="demo@erxes.io"
+                defaultValue="demo@erxes.io"
                 required
                 onChange={this.handleEmailChange}
                 onFocus={this.handleOnFocus}
