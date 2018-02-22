@@ -25,7 +25,7 @@ const getOrCreateCustomer = async (integrationId, user) => {
   }
 
   // create customer
-  const createdCustomer = await Customers.create({
+  const createdCustomer = await Customers.createCustomer({
     name: user.name,
     integrationId,
     twitterData: {

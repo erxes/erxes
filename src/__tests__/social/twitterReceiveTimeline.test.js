@@ -134,6 +134,7 @@ describe('receive timeline response', () => {
     expect(conversation.twitterData.isDirectMessage).toBe(false);
 
     // check customer field values
+    expect(customer.createdAt).toBeDefined();
     expect(customer.integrationId).toBe(_integration._id);
     expect(customer.twitterData.id).toBe(twitterUserId);
     expect(customer.twitterData.idStr).toBe(twitterUserIdStr);

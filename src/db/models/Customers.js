@@ -99,9 +99,13 @@ const facebookSchema = mongoose.Schema(
 const CustomerSchema = mongoose.Schema({
   _id: field({ pkey: true }),
 
+  // we are using this field when there is no firstName or lastName available
+  // for twitter case, we can not have these names
   name: field({ type: String, optional: true, label: 'Name' }),
+
   firstName: field({ type: String, label: 'First name', optional: true }),
   lastName: field({ type: String, label: 'Last name', optional: true }),
+
   email: field({ type: String, label: 'Email', optional: true }),
   phone: field({ type: String, label: 'Phone', optional: true }),
   isUser: field({ type: Boolean, label: 'Is user', optional: true }),
