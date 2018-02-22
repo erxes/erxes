@@ -16,6 +16,7 @@ const propTypes = {
   onSwitchToTopicDisplay: PropTypes.func,
   onSwitchToCategoryDisplay: PropTypes.func,
   onUpdateSearchString: PropTypes.func,
+  color: PropTypes.string,
 };
 
 export default class KnowledgeBase extends React.Component {
@@ -46,7 +47,7 @@ export default class KnowledgeBase extends React.Component {
   }
 
   renderContent() {
-    const { displayType } = this.props;
+    const { displayType, color } = this.props;
     if (displayType.displayType === CONTENT_TYPE_TOPIC) {
       return (
         <Categories />
@@ -88,7 +89,7 @@ export default class KnowledgeBase extends React.Component {
   }
 
   render() {
-    const { displayType } = this.props;
+    const { displayType, color } = this.props;
     const widgetClasses = classNames('erxes-widget-kb');
     const { topicData } = displayType;
     const searchStr = topicData && topicData.searchStr || '';
@@ -96,7 +97,7 @@ export default class KnowledgeBase extends React.Component {
     return (
       <div className={widgetClasses}>
         <div>
-          <SearchBar searchStr={searchStr}/>
+          <SearchBar searchStr={searchStr} color={color} />
           <div className="erxes-content">
             <div className="erxes-knowledge-container">
               {this.renderContent()}
