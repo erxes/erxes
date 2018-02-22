@@ -46,14 +46,6 @@ const fieldsGroupsUpdateVisible = `
   }
 `;
 
-const fieldsGroupsUpdateOrder = `
-  mutation fieldsGroupsUpdateOrder($_id: String!, $order: Int) {
-    fieldsGroupsUpdateOrder(_id: $_id, order: $order) {
-      _id
-    }
-  }
-`;
-
 const commonVariables = `
   $type: String,
   $validation: String,
@@ -120,23 +112,13 @@ const fieldsUpdateVisible = `
   }
 `;
 
-const fieldsUpdateOrder = `
-  mutation fieldsUpdateOrder($_id: String!, $order: Int) {
-    fieldsUpdateOrder(_id: $_id, order: $order) {
-      _id
-    }
-  }
-`;
-
 export default {
   fieldsGroupsAdd,
   fieldsGroupsEdit,
   fieldsGroupsRemove,
   fieldsGroupsUpdateVisible,
-  fieldsGroupsUpdateOrder,
   fieldsAdd,
   fieldsEdit,
   fieldsRemove,
-  fieldsUpdateVisible,
-  fieldsUpdateOrder
+  fieldsUpdateVisible
 };

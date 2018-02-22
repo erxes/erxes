@@ -15,9 +15,7 @@ const PropertiesContainer = (props, context) => {
     fieldsGroupsRemove,
     fieldsRemove,
     fieldsGroupsUpdateVisible,
-    fieldsGroupsUpdateOrder,
-    fieldsUpdateVisible,
-    fieldsUpdateOrder
+    fieldsUpdateVisible
   } = props;
   const fieldsgroups = fieldsGroupsQuery.fieldsgroups || [];
   const { currentUser } = context;
@@ -78,32 +76,6 @@ const PropertiesContainer = (props, context) => {
       });
   };
 
-  const updatePropertyGroupOrder = ({ _id, order }) => {
-    fieldsGroupsUpdateOrder({
-      variables: { _id, order }
-    })
-      .then(() => {
-        fieldsGroupsQuery.refetch();
-        Alert.success('Successfully Updated');
-      })
-      .catch(e => {
-        Alert.error(e.message);
-      });
-  };
-
-  const updatePropertyOrder = ({ _id, order }) => {
-    fieldsUpdateOrder({
-      variables: { _id, order }
-    })
-      .then(() => {
-        fieldsGroupsQuery.refetch();
-        Alert.success('Successfully Updated');
-      })
-      .catch(e => {
-        Alert.error(e.message);
-      });
-  };
-
   const currentType = router.getParam(history, 'type');
 
   const updatedProps = {
@@ -113,9 +85,7 @@ const PropertiesContainer = (props, context) => {
     removePropertyGroup,
     removeProperty,
     updatePropertyVisible,
-    updatePropertyGroupVisible,
-    updatePropertyOrder,
-    updatePropertyGroupOrder
+    updatePropertyGroupVisible
   };
 
   return <Properties {...updatedProps} />;
@@ -128,9 +98,7 @@ PropertiesContainer.propTypes = {
   fieldsGroupsRemove: PropTypes.func.isRequired,
   fieldsRemove: PropTypes.func.isRequired,
   fieldsGroupsUpdateVisible: PropTypes.func.isRequired,
-  fieldsGroupsUpdateOrder: PropTypes.func,
-  fieldsUpdateVisible: PropTypes.func.isRequired,
-  fieldsUpdateOrder: PropTypes.func
+  fieldsUpdateVisible: PropTypes.func.isRequired
 };
 
 PropertiesContainer.contextTypes = {
@@ -157,11 +125,5 @@ export default compose(
   }),
   graphql(gql(mutations.fieldsGroupsUpdateVisible), {
     name: 'fieldsGroupsUpdateVisible'
-  }),
-  graphql(gql(mutations.fieldsGroupsUpdateOrder), {
-    name: 'fieldsGroupsUpdateOrder'
-  }),
-  graphql(gql(mutations.fieldsUpdateOrder), {
-    name: 'fieldsUpdateOrder'
   })
 )(withRouter(PropertiesContainer));
