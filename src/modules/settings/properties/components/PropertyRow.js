@@ -47,10 +47,6 @@ class PropertyRow extends React.Component {
     this.props.updatePropertyGroupVisible({ _id: group._id, visible });
   }
 
-  orderHandler() {
-    console.log('Handling Order');
-  }
-
   renderTable(fields) {
     const { queryParams, removeProperty } = this.props;
 

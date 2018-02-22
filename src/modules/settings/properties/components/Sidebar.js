@@ -25,10 +25,10 @@ class Sidebar extends Component {
       <LeftSidebar full header={this.renderSidebarHeader()}>
         <List>
           <SidebarListItem>
-            <Link to={`?type=Customer`}>Customers</Link>
+            <Link to={`?type=customer`}>Customers</Link>
           </SidebarListItem>
           <SidebarListItem>
-            <Link to={`?type=Company`}>Companies</Link>
+            <Link to={`?type=company`}>Companies</Link>
           </SidebarListItem>
         </List>
       </LeftSidebar>

@@ -8,7 +8,7 @@ import { PropertyForm } from '../components';
 
 const PropertyFormContainer = (props, context) => {
   const { fieldsAdd, fieldsGroupsQuery, fieldsEdit, queryParams } = props;
-  const { type = 'Customer' } = queryParams;
+  const { type = 'customer' } = queryParams;
   const { currentUser } = context;
 
   const add = ({ doc }) => {

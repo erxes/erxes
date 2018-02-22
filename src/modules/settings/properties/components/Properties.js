@@ -68,7 +68,7 @@ class Properties extends Component {
     let propertyForm = <PropertyForm queryParams={queryParams} />;
 
     if (fieldsgroups.length === 0) {
-      propertyForm = <h4>Please add property Group first!</h4>;
+      propertyForm = <center>Please add property Group first!</center>;
     }
 
     return (

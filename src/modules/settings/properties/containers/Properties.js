@@ -21,7 +21,7 @@ const PropertiesContainer = (props, context) => {
   const { currentUser } = context;
 
   if (!router.getParam(history, 'type')) {
-    router.setParams(history, { type: 'Customer' });
+    router.setParams(history, { type: 'customer' });
   }
 
   const removePropertyGroup = ({ _id }) => {
@@ -115,7 +115,7 @@ export default compose(
     name: 'fieldsGroupsQuery',
     options: ({ queryParams }) => ({
       variables: {
-        contentType: queryParams.type || 'Customer'
+        contentType: queryParams.type || 'customer'
       }
     })
   }),
