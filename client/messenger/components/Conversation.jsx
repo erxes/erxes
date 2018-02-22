@@ -42,10 +42,15 @@ class Conversation extends Component {
 
       const state = (
         <div className="erxes-staff-company">
-          { isOnline ?
-            <div className="erxes-state online"><span /> Online</div> :
-            <div className="erxes-state offline"><span /> Offline</div>
-          }
+          {isOnline ? (
+            <div className="erxes-state online">
+              <span /> Online
+            </div>
+          ) : (
+            <div className="erxes-state offline">
+              <span /> Offline
+            </div>
+          )}
         </div>
       );
 

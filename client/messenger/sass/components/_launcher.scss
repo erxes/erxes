@@ -10,8 +10,8 @@
   z-index: 9999;
   bottom: 8px;
   right: 8px;
-  box-shadow: 0 0 10px 0 rgba($black, .2);
-  transition: box-shadow .3s ease-in-out;
+  box-shadow: 0 0 10px 0 rgba($black, 0.2);
+  transition: box-shadow 0.3s ease-in-out, background 0.3s ease-in;
   background-image: url('/static/images/widget-logo.png');
   background-size: 40px;
   background-position: center;
@@ -37,11 +37,11 @@
     background-image: url('/static/images/close.svg') !important;
     background-position: 50%;
     background-size: inherit;
-    transition: background .3s ease-in-out;
+    transition: background 0.3s ease-in-out;
   }
 
   &:hover {
-    box-shadow: 0 0 12px 0 rgba($black, .3);
+    box-shadow: 0 0 12px 0 rgba($black, 0.3);
   }
 
   @media screen and (max-width: $break-small) {
@@ -51,13 +51,13 @@
       display: block;
       height: 40px;
       line-height: 40px;
-      right: 60px;
+      right: 10px;
       top: 15px;
       width: 40px;
       z-index: 1000000000;
 
       &:hover {
-        background-color: rgba($black, .2);
+        background-color: rgba($black, 0.2);
       }
     }
   }

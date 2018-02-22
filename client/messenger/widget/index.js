@@ -9,7 +9,8 @@ import './index.css';
 import { getBrowserInfo } from '../../utils';
 
 // check is mobile
-const isMobile = navigator.userAgent.match(/iPhone/i) ||
+const isMobile =
+  navigator.userAgent.match(/iPhone/i) ||
   navigator.userAgent.match(/iPad/i) ||
   navigator.userAgent.match(/Android/i);
 
@@ -22,7 +23,8 @@ if (isMobile) {
     // add meta
     const meta = document.createElement('meta');
     meta.name = 'viewport';
-    meta.content = 'initial-scale=1, user-scalable=0, maximum-scale=1, width=device-width';
+    meta.content =
+      'initial-scale=1, user-scalable=0, maximum-scale=1, width=device-width';
     document.getElementsByTagName('head')[0].appendChild(meta);
 
     viewportContent = meta.content;
@@ -51,13 +53,13 @@ function revertViewPort() {
 }
 
 function uniqueString(str) {
-  str = str.replace(/[ ]/g,"").split(",");
+  str = str.replace(/[ ]/g, '').split(',');
   const result = [];
-  for(let i = 0; i < str.length ; i ++) {
-    if(result.indexOf(str[i]) == -1) result.push(str[i]);
+  for (let i = 0; i < str.length; i++) {
+    if (result.indexOf(str[i]) == -1) result.push(str[i]);
   }
 
-  return result.join(", ");
+  return result.join(', ');
 }
 
 const iframeId = 'erxes-messenger-iframe';
@@ -86,17 +88,20 @@ iframe.onload = async () => {
 
   const browserInfo = await getBrowserInfo();
 
-  iframe.contentWindow.postMessage({
-    fromPublisher: true,
-    setting: {
-      ...window.erxesSettings.messenger,
-      browserInfo,
-    }
-  }, '*');
+  iframe.contentWindow.postMessage(
+    {
+      fromPublisher: true,
+      setting: {
+        ...window.erxesSettings.messenger,
+        browserInfo,
+      },
+    },
+    '*'
+  );
 };
 
 // listen for widget toggle
-window.addEventListener('message', (event) => {
+window.addEventListener('message', event => {
   const data = event.data;
   const { isVisible } = data;
 
@@ -110,15 +115,22 @@ window.addEventListener('message', (event) => {
     iframe = document.querySelector(`#${iframeId}`);
 
     if (data.purpose === 'messenger') {
-      erxesContainer.className = `erxes-messenger-${isVisible ? 'shown' : 'hidden'}`;
+      erxesContainer.className = `erxes-messenger-${
+        isVisible ? 'shown' : 'hidden'
+      }`;
+      document.body.classList.toggle('messenger-widget-shown', isVisible);
     }
 
     if (data.purpose === 'notifier') {
-      erxesContainer.className += ` erxes-notifier-${isVisible ? 'shown' : 'hidden'}`;
+      erxesContainer.className += ` erxes-notifier-${
+        isVisible ? 'shown' : 'hidden'
+      }`;
     }
 
     if (data.purpose === 'notifierFull') {
-      erxesContainer.className += ` erxes-notifier-${isVisible ? 'shown' : 'hidden'} fullMessage`;
+      erxesContainer.className += ` erxes-notifier-${
+        isVisible ? 'shown' : 'hidden'
+      } fullMessage`;
     }
   }
 });
