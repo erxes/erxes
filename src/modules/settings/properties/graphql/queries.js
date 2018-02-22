@@ -1,13 +1,3 @@
-const fields = `
-query fieldsByGroup($visible: Boolean, $contentType: String!) {
-  fieldsByGroup(visible: $visible, contentType: $contentType) {
-    _id
-    name
-    fields
-    }
-  }
-`;
-
 const fieldsgroups = `
   query fieldsgroups($contentType: String!) {
     fieldsgroups(contentType: $contentType) {
@@ -16,6 +6,11 @@ const fieldsgroups = `
       description
       order
       visible
+      lastUpdatedBy {
+        details {
+          fullName
+        }
+      }
       getFields {
         _id
         contentType
@@ -26,12 +21,16 @@ const fieldsgroups = `
         options
         groupId
         description
+        lastUpdatedBy {
+          details {
+            fullName
+          }
+        }
       }
     }
   }
 `;
 
 export default {
-  fields,
   fieldsgroups
 };
