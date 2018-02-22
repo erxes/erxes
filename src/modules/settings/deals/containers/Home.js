@@ -10,6 +10,14 @@ import { queries, mutations } from '../graphql';
 import { router as routerUtils } from 'modules/common/utils';
 
 class HomeWithCurrent extends React.Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      stages: []
+    };
+  }
+
   componentWillReceiveProps() {
     const { history, boardId } = this.props;
 
@@ -54,12 +62,6 @@ class HomeWithCurrent extends React.Component {
       if (pipeline) {
         mutation = editPipelineMutation;
         doc._id = pipeline._id;
-      }
-
-      const dealStageKey = 'erxes_deal_stages';
-      if (localStorage.getItem(dealStageKey)) {
-        doc.stages = JSON.parse(localStorage.getItem(dealStageKey));
-        localStorage.removeItem(dealStageKey);
       }
 
       mutation({

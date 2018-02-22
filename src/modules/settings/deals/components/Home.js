@@ -6,8 +6,8 @@ import {
   Button,
   ModalTrigger
 } from 'modules/common/components';
-import { Boards } from '../containers';
-import { Pipelines, PipelineForm } from './';
+import { Boards, PipelineForm } from '../containers';
+import { Pipelines } from './';
 
 const propTypes = {
   queryParams: PropTypes.object,

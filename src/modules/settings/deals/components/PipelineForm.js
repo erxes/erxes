@@ -7,7 +7,7 @@ import {
   ControlLabel,
   Button
 } from 'modules/common/components';
-import { Stages } from '../containers';
+import { Stages } from './';
 
 const propTypes = {
   boardId: PropTypes.string,
@@ -26,8 +26,25 @@ class PipelineForm extends Component {
     super(props);
 
     this.generateDoc = this.generateDoc.bind(this);
-
     this.save = this.save.bind(this);
+    this.onChangeStages = this.onChangeStages.bind(this);
+    this.renderContent = this.renderContent.bind(this);
+
+    this.state = {
+      stages: []
+    };
+  }
+
+  onChangeStages(stages) {
+    this.setState({
+      stages
+    });
+  }
+
+  componentWillReceiveProps(props) {
+    this.setState({
+      stages: props.stages
+    });
   }
 
   save(e) {
@@ -48,7 +65,8 @@ class PipelineForm extends Component {
     return {
       doc: {
         name: document.getElementById('pipeline-name').value,
-        boardId: pipeline ? pipeline.boardId : this.props.boardId
+        boardId: pipeline ? pipeline.boardId : this.props.boardId,
+        stages: this.state.stages
       }
     };
   }
@@ -71,7 +89,12 @@ class PipelineForm extends Component {
           />
         </FormGroup>
         {pipeline ? (
-          <Stages boardId={pipeline.boardId} pipelineId={pipeline._id} />
+          <Stages
+            stages={this.state.stages}
+            onChangeStages={this.onChangeStages}
+            boardId={pipeline.boardId}
+            pipelineId={pipeline._id}
+          />
         ) : null}
       </div>
     );

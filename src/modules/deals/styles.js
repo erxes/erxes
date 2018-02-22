@@ -23,7 +23,6 @@ const PipelineHeader = styled.div`
 `;
 
 const PipelineBody = styled.div`
-  position: relative;
   display: inline-flex;
   height: calc(100% - 85px);
 `;

@@ -1,5 +1,5 @@
 import Home from './Home';
 import Boards from './Boards';
-import Stages from './Stages';
+import PipelineForm from './PipelineForm';
 
-export { Home, Boards, Stages };
+export { Home, Boards, PipelineForm };

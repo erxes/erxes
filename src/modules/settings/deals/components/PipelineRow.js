@@ -7,7 +7,7 @@ import {
   Button,
   Icon
 } from 'modules/common/components';
-import { PipelineForm } from './';
+import { PipelineForm } from '../containers';
 
 const propTypes = {
   pipeline: PropTypes.object.isRequired,

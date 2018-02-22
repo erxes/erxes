@@ -1,10 +1,12 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { FormControl, Button, Tip } from 'modules/common/components';
+import { StageItemContainer } from '../styles';
 
 const propTypes = {
   stage: PropTypes.object,
-  remove: PropTypes.func
+  remove: PropTypes.func,
+  onChangeName: PropTypes.func
 };
 
 class StageItem extends Component {
@@ -13,14 +15,15 @@ class StageItem extends Component {
   }
 
   render() {
-    const stage = this.props.stage;
+    const { stage } = this.props;
 
     return (
-      <div>
+      <StageItemContainer>
         <FormControl
           defaultValue={stage.name}
           type="text"
           placeholder="Stage name"
+          onChange={this.props.onChangeName.bind(this, stage._id)}
         />
         <Tip text="Delete">
           <Button
@@ -29,7 +32,7 @@ class StageItem extends Component {
             icon="close"
           />
         </Tip>
-      </div>
+      </StageItemContainer>
     );
   }
 }

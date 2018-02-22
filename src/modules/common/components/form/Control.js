@@ -54,7 +54,7 @@ const renderElement = (Element, attributes, type, child) => {
 
 class FormControl extends React.Component {
   render() {
-    const props = this.props;
+    const props = Object.assign({}, this.props);
     const childNode = props.children;
     const elementType = props.componentClass;
 
@@ -66,13 +66,25 @@ class FormControl extends React.Component {
     };
 
     const attributes = {
-      ...props,
       onChange,
+      onClick: props.onClick,
+      value: props.value,
+      defaultValue: props.defaultValue,
       [props.defaultChecked
         ? 'defaultChecked'
         : 'checked']: props.defaultChecked
         ? props.defaultChecked
-        : props.checked
+        : props.checked,
+      placeholder: props.placeholder,
+      type: props.type,
+      name: props.name,
+      round: props.round,
+      required: props.required,
+      onFocus: props.onFocus,
+      autoFocus: props.autoFocus,
+      min: props.min,
+      max: props.max,
+      id: props.id
     };
 
     if (elementType === 'select') {
