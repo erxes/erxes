@@ -6,7 +6,7 @@ import gql from 'graphql-tag';
 import { Alert } from 'modules/common/utils';
 import { PropertyGroupForm } from '../components';
 
-const PropertyGroupFormContainer = props => {
+const PropertyGroupFormContainer = (props, context) => {
   const {
     fieldsGroupsAdd,
     fieldsGroupsQuery,
@@ -15,10 +15,11 @@ const PropertyGroupFormContainer = props => {
   } = props;
 
   const { type } = queryParams;
+  const { currentUser } = context;
 
   const add = ({ doc }) => {
     fieldsGroupsAdd({
-      variables: { ...doc, contentType: type }
+      variables: { ...doc, contentType: type, lastUpdatedBy: currentUser._id }
     })
       .then(() => {
         fieldsGroupsQuery.refetch();
@@ -31,7 +32,7 @@ const PropertyGroupFormContainer = props => {
 
   const edit = ({ _id, doc }) => {
     fieldsGroupsEdit({
-      variables: { _id, ...doc }
+      variables: { _id, ...doc, lastUpdatedBy: currentUser._id }
     })
       .then(() => {
         fieldsGroupsQuery.refetch();
@@ -56,6 +57,11 @@ PropertyGroupFormContainer.propTypes = {
   fieldsGroupsQuery: PropTypes.object.isRequired,
   fieldsGroupsAdd: PropTypes.func.isRequired,
   fieldsGroupsEdit: PropTypes.func.isRequired
+};
+
+PropertyGroupFormContainer.contextTypes = {
+  currentUser: PropTypes.object,
+  closeModal: PropTypes.func
 };
 
 export default compose(

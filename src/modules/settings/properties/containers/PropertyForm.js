@@ -6,13 +6,14 @@ import gql from 'graphql-tag';
 import { Alert } from 'modules/common/utils';
 import { PropertyForm } from '../components';
 
-const PropertyFormContainer = props => {
+const PropertyFormContainer = (props, context) => {
   const { fieldsAdd, fieldsGroupsQuery, fieldsEdit, queryParams } = props;
   const { type = 'Customer' } = queryParams;
+  const { currentUser } = context;
 
   const add = ({ doc }) => {
     fieldsAdd({
-      variables: { ...doc, contentType: type }
+      variables: { ...doc, contentType: type, lastUpdatedBy: currentUser._id }
     })
       .then(() => {
         Alert.success('Successfully added');
@@ -25,7 +26,7 @@ const PropertyFormContainer = props => {
 
   const edit = ({ _id, doc }) => {
     fieldsEdit({
-      variables: { _id, ...doc }
+      variables: { _id, ...doc, lastUpdatedBy: currentUser._id }
     })
       .then(() => {
         Alert.success('Successfully edited');
@@ -51,6 +52,11 @@ PropertyFormContainer.propTypes = {
   fieldsGroupsQuery: PropTypes.object,
   fieldsAdd: PropTypes.func,
   fieldsEdit: PropTypes.func
+};
+
+PropertyFormContainer.contextTypes = {
+  currentUser: PropTypes.object,
+  closeModal: PropTypes.func
 };
 
 export default compose(
