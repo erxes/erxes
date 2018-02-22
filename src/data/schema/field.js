@@ -53,6 +53,5 @@ export const mutations = `
   fieldsEdit(_id: String!, ${commonFields}): Field
   fieldsRemove(_id: String!): Field
   fieldsUpdateOrder(orders: [OrderItem]): [Field]
-  fieldsUpdateOrderNumber(_id: String!, order: Int) : Field
   fieldsUpdateVisible(_id: String!, visible: Boolean, lastUpdatedBy: String) : Field
 `;

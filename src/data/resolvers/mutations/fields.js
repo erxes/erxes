@@ -36,25 +36,15 @@ const fieldMutations = {
   },
 
   /**
-   * Update single field's order number
-   * @param {String} _id - Field id to update
-   * @param {String} order - Order number
-   *
-   * @return {Promise} Updated field
-   */
-  fieldsUpdateOrderNumber(root, { _id, order }) {
-    return Fields.updateFieldsOrder(_id, order);
-  },
-
-  /**
    * Update field's visible
    * @param {String} _id - Field id to update
    * @param {String} visible - True or false visible value
+   * @param {String} lastUpdatedBy - id of user who updated field last
    *
    * @return {Promise} Updated field
    */
-  fieldsUpdateVisible(root, { _id, visible }) {
-    return Fields.updateFieldsVisible(_id, visible);
+  fieldsUpdateVisible(root, { _id, visible, lastUpdatedBy }) {
+    return Fields.updateFieldsVisible(_id, visible, lastUpdatedBy);
   },
 };
 

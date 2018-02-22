@@ -222,20 +222,6 @@ class Field {
 
     return this.findOne({ _id });
   }
-
-  /**
-   * Update single field's order
-   * @param {String} _id - Field group id to update
-   * @param {Number} order - Order number
-   *
-   * @return {Promise} Result
-   */
-  static async updateFieldsOrder(_id, order) {
-    // Updating order
-    await this.update({ _id }, { $set: { order } });
-
-    return this.findOne({ _id });
-  }
 }
 
 FieldSchema.loadClass(Field);
