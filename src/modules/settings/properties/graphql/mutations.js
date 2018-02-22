@@ -4,6 +4,7 @@ const commonFields = `
   $order: Int,
   $description: String,
   $visible: Boolean,
+  $lastUpdatedBy: String,
 `;
 
 const commonTypes = `
@@ -11,7 +12,8 @@ const commonTypes = `
   contentType: $contentType,
   order: $order,
   description: $description,
-  visible: $visible
+  visible: $visible,
+  lastUpdatedBy: $lastUpdatedBy,
 `;
 
 const fieldsGroupsAdd = `
@@ -37,16 +39,8 @@ const fieldsGroupsRemove = `
 `;
 
 const fieldsGroupsUpdateVisible = `
-  mutation fieldsGroupsUpdateVisible($_id: String!, $visible: Boolean) {
-    fieldsGroupsUpdateVisible(_id: $_id, visible: $visible) {
-      _id
-    }
-  }
-`;
-
-const fieldsGroupsUpdateOrder = `
-  mutation fieldsGroupsUpdateOrder($_id: String!, $order: Int) {
-    fieldsGroupsUpdateOrder(_id: $_id, order: $order) {
+  mutation fieldsGroupsUpdateVisible($_id: String!, $visible: Boolean, $lastUpdatedBy: String) {
+    fieldsGroupsUpdateVisible(_id: $_id, visible: $visible, lastUpdatedBy: $lastUpdatedBy) {
       _id
     }
   }
@@ -61,7 +55,8 @@ const commonVariables = `
   $isRequired: Boolean,
   $order: Int,
   $groupId: String,
-  $visible: Boolean
+  $visible: Boolean,
+  $lastUpdatedBy: String
 `;
 
 const commonParams = `
@@ -74,6 +69,7 @@ const commonParams = `
   order: $order,
   groupId: $groupId,
   visible: $visible,
+  lastUpdatedBy: $lastUpdatedBy
 `;
 
 const fieldsAdd = `
@@ -109,16 +105,8 @@ const fieldsRemove = `
 `;
 
 const fieldsUpdateVisible = `
-  mutation fieldsUpdateVisible($_id: String!, $visible: Boolean) {
-    fieldsUpdateVisible(_id: $_id, visible: $visible) {
-      _id
-    }
-  }
-`;
-
-const fieldsUpdateOrder = `
-  mutation fieldsUpdateOrder($_id: String!, $order: Int) {
-    fieldsUpdateOrder(_id: $_id, order: $order) {
+  mutation fieldsUpdateVisible($_id: String!, $visible: Boolean, $lastUpdatedBy: String) {
+    fieldsUpdateVisible(_id: $_id, visible: $visible, lastUpdatedBy: $lastUpdatedBy) {
       _id
     }
   }
@@ -129,10 +117,8 @@ export default {
   fieldsGroupsEdit,
   fieldsGroupsRemove,
   fieldsGroupsUpdateVisible,
-  fieldsGroupsUpdateOrder,
   fieldsAdd,
   fieldsEdit,
   fieldsRemove,
-  fieldsUpdateVisible,
-  fieldsUpdateOrder
+  fieldsUpdateVisible
 };

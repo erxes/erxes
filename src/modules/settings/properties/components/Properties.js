@@ -61,7 +61,13 @@ class Properties extends Component {
   }
 
   renderActionBar() {
-    const { queryParams } = this.props;
+    const { queryParams, fieldsgroups } = this.props;
+
+    let propertyForm = <PropertyForm queryParams={queryParams} />;
+
+    if (fieldsgroups.length === 0) {
+      propertyForm = <center>Please add property Group first!</center>;
+    }
 
     const addGroup = <MenuItem>Add group</MenuItem>;
     const addField = <MenuItem>Add Field</MenuItem>;
@@ -78,7 +84,7 @@ class Properties extends Component {
             <PropertyGroupForm queryParams={queryParams} />
           </ModalTrigger>
           <ModalTrigger title="Add Field" trigger={addField} size="lg">
-            <PropertyForm queryParams={queryParams} />
+            {propertyForm}
           </ModalTrigger>
         </Dropdown.Menu>
       </Dropdown>

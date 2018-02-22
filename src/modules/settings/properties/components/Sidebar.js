@@ -34,13 +34,13 @@ class Sidebar extends Component {
           <li>
             <Link
               className={this.getClassName('Customer')}
-              to={`?type=Customer`}
+              to={`?type=customer`}
             >
               Customer Properties
             </Link>
           </li>
           <li>
-            <Link className={this.getClassName('Company')} to={`?type=Company`}>
+            <Link className={this.getClassName('Company')} to={`?type=company`}>
               Company Properties
             </Link>
           </li>

@@ -6,17 +6,17 @@ import gql from 'graphql-tag';
 import { Alert } from 'modules/common/utils';
 import { PropertyForm } from '../components';
 
-const PropertyFormContainer = props => {
+const PropertyFormContainer = (props, context) => {
   const { fieldsAdd, fieldsGroupsQuery, fieldsEdit, queryParams } = props;
-  const { type = 'Customer' } = queryParams;
+  const { type = 'customer' } = queryParams;
+  const { currentUser } = context;
 
   const add = ({ doc }) => {
     fieldsAdd({
-      variables: { ...doc, contentType: type }
+      variables: { ...doc, contentType: type, lastUpdatedBy: currentUser._id }
     })
       .then(() => {
         Alert.success('Successfully added');
-        fieldsGroupsQuery.refetch();
       })
       .catch(e => {
         Alert.error(e.message);
@@ -25,11 +25,10 @@ const PropertyFormContainer = props => {
 
   const edit = ({ _id, doc }) => {
     fieldsEdit({
-      variables: { _id, ...doc }
+      variables: { _id, ...doc, lastUpdatedBy: currentUser._id }
     })
       .then(() => {
         Alert.success('Successfully edited');
-        fieldsGroupsQuery.refetch();
       })
       .catch(e => {
         Alert.error(e.message);
@@ -46,11 +45,25 @@ const PropertyFormContainer = props => {
   return <PropertyForm {...updatedProps} />;
 };
 
+const options = ({ queryParams }) => ({
+  refetchQueries: [
+    {
+      query: gql`${queries.fieldsgroups}`,
+      variables: { contentType: queryParams.type }
+    }
+  ]
+});
+
 PropertyFormContainer.propTypes = {
   queryParams: PropTypes.object,
   fieldsGroupsQuery: PropTypes.object,
   fieldsAdd: PropTypes.func,
   fieldsEdit: PropTypes.func
+};
+
+PropertyFormContainer.contextTypes = {
+  currentUser: PropTypes.object,
+  closeModal: PropTypes.func
 };
 
 export default compose(
@@ -63,9 +76,11 @@ export default compose(
     })
   }),
   graphql(gql(mutations.fieldsAdd), {
-    name: 'fieldsAdd'
+    name: 'fieldsAdd',
+    options
   }),
   graphql(gql(mutations.fieldsEdit), {
-    name: 'fieldsEdit'
+    name: 'fieldsEdit',
+    options
   })
 )(PropertyFormContainer);

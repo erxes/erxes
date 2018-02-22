@@ -8,21 +8,20 @@ import gql from 'graphql-tag';
 import { Alert } from 'modules/common/utils';
 import { Properties } from '../components';
 
-const PropertiesContainer = props => {
+const PropertiesContainer = (props, context) => {
   const {
     fieldsGroupsQuery,
     history,
     fieldsGroupsRemove,
     fieldsRemove,
     fieldsGroupsUpdateVisible,
-    fieldsGroupsUpdateOrder,
-    fieldsUpdateVisible,
-    fieldsUpdateOrder
+    fieldsUpdateVisible
   } = props;
   const fieldsgroups = fieldsGroupsQuery.fieldsgroups || [];
+  const { currentUser } = context;
 
   if (!router.getParam(history, 'type')) {
-    router.setParams(history, { type: 'Customer' });
+    router.setParams(history, { type: 'customer' });
   }
 
   const removePropertyGroup = ({ _id }) => {
@@ -30,7 +29,6 @@ const PropertiesContainer = props => {
       variables: { _id }
     })
       .then(() => {
-        fieldsGroupsQuery.refetch();
         Alert.success('Successfully Removed');
       })
       .catch(e => {
@@ -43,7 +41,6 @@ const PropertiesContainer = props => {
       variables: { _id }
     })
       .then(() => {
-        fieldsGroupsQuery.refetch();
         Alert.success('Succesfully Removed');
       })
       .catch(e => {
@@ -53,10 +50,9 @@ const PropertiesContainer = props => {
 
   const updatePropertyVisible = ({ _id, visible }) => {
     fieldsUpdateVisible({
-      variables: { _id, visible }
+      variables: { _id, visible, lastUpdatedBy: currentUser._id }
     })
       .then(() => {
-        fieldsGroupsQuery.refetch();
         Alert.success('Successfully Updated');
       })
       .catch(e => {
@@ -66,36 +62,9 @@ const PropertiesContainer = props => {
 
   const updatePropertyGroupVisible = ({ _id, visible }) => {
     fieldsGroupsUpdateVisible({
-      variables: { _id, visible }
+      variables: { _id, visible, lastUpdatedBy: currentUser._id }
     })
       .then(() => {
-        fieldsGroupsQuery.refetch();
-        Alert.success('Successfully Updated');
-      })
-      .catch(e => {
-        Alert.error(e.message);
-      });
-  };
-
-  const updatePropertyGroupOrder = ({ _id, order }) => {
-    fieldsGroupsUpdateOrder({
-      variables: { _id, order }
-    })
-      .then(() => {
-        fieldsGroupsQuery.refetch();
-        Alert.success('Successfully Updated');
-      })
-      .catch(e => {
-        Alert.error(e.message);
-      });
-  };
-
-  const updatePropertyOrder = ({ _id, order }) => {
-    fieldsUpdateOrder({
-      variables: { _id, order }
-    })
-      .then(() => {
-        fieldsGroupsQuery.refetch();
         Alert.success('Successfully Updated');
       })
       .catch(e => {
@@ -112,9 +81,7 @@ const PropertiesContainer = props => {
     removePropertyGroup,
     removeProperty,
     updatePropertyVisible,
-    updatePropertyGroupVisible,
-    updatePropertyOrder,
-    updatePropertyGroupOrder
+    updatePropertyGroupVisible
   };
 
   return <Properties {...updatedProps} />;
@@ -127,36 +94,45 @@ PropertiesContainer.propTypes = {
   fieldsGroupsRemove: PropTypes.func.isRequired,
   fieldsRemove: PropTypes.func.isRequired,
   fieldsGroupsUpdateVisible: PropTypes.func.isRequired,
-  fieldsGroupsUpdateOrder: PropTypes.func,
-  fieldsUpdateVisible: PropTypes.func.isRequired,
-  fieldsUpdateOrder: PropTypes.func
+  fieldsUpdateVisible: PropTypes.func.isRequired
 };
+
+PropertiesContainer.contextTypes = {
+  currentUser: PropTypes.object
+};
+
+const options = ({ queryParams }) => ({
+  refetchQueries: [
+    {
+      query: gql`${queries.fieldsgroups}`,
+      variables: { contentType: queryParams.type }
+    }
+  ]
+});
 
 export default compose(
   graphql(gql(queries.fieldsgroups), {
     name: 'fieldsGroupsQuery',
     options: ({ queryParams }) => ({
       variables: {
-        contentType: queryParams.type || 'Customer'
+        contentType: queryParams.type || 'customer'
       }
     })
   }),
   graphql(gql(mutations.fieldsGroupsRemove), {
-    name: 'fieldsGroupsRemove'
+    name: 'fieldsGroupsRemove',
+    options
   }),
   graphql(gql(mutations.fieldsRemove), {
-    name: 'fieldsRemove'
+    name: 'fieldsRemove',
+    options
   }),
   graphql(gql(mutations.fieldsUpdateVisible), {
-    name: 'fieldsUpdateVisible'
+    name: 'fieldsUpdateVisible',
+    options
   }),
   graphql(gql(mutations.fieldsGroupsUpdateVisible), {
-    name: 'fieldsGroupsUpdateVisible'
-  }),
-  graphql(gql(mutations.fieldsGroupsUpdateOrder), {
-    name: 'fieldsGroupsUpdateOrder'
-  }),
-  graphql(gql(mutations.fieldsUpdateOrder), {
-    name: 'fieldsUpdateOrder'
+    name: 'fieldsGroupsUpdateVisible',
+    options
   })
 )(withRouter(PropertiesContainer));
