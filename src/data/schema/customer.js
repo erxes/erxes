@@ -7,7 +7,6 @@ export const types = `
   type Customer {
     _id: String!
     integrationId: String
-    name: String
     firstName: String
     lastName: String
     email: String

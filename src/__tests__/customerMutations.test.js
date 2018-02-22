@@ -57,14 +57,11 @@ describe('Customers mutations', () => {
   });
 
   test('Create customer', async () => {
-    Customers.createCustomer = jest.fn(() => {
-      return {
-        name: 'name',
-        _id: 'fakeCustomerId',
-      };
-    });
+    const customer = await customerFactory();
 
-    const doc = { name: 'name', email: 'dombo@yahoo.com' };
+    Customers.createCustomer = jest.fn(() => customer);
+
+    const doc = { firstName: 'firstName', email: 'dombo@yahoo.com' };
 
     await customerMutations.customersAdd({}, doc, { user: _user });
 

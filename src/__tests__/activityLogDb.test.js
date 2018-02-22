@@ -235,7 +235,7 @@ describe('ActivityLogs model methods', () => {
     expect(aLog.activity.toObject()).toEqual({
       type: ACTIVITY_TYPES.CUSTOMER,
       action: ACTIVITY_ACTIONS.CREATE,
-      content: customer.name,
+      content: customer.getFullName(),
       id: customer._id,
     });
     expect(aLog.coc.toObject()).toEqual({

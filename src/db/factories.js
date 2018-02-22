@@ -171,7 +171,8 @@ export const companyFactory = (params = {}) => {
 
 export const customerFactory = (params = {}) => {
   const customer = new Customers({
-    name: params.name || faker.random.word(),
+    firstName: params.firstName || faker.random.word(),
+    lastName: params.lastName || faker.random.word(),
     email: params.email || faker.internet.email(),
     phone: params.phone || faker.phone.phoneNumber(),
     messengerData: params.messengerData || {},

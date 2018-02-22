@@ -283,7 +283,7 @@ class ActivityLog {
       activity: {
         type: ACTIVITY_TYPES.CUSTOMER,
         action: ACTIVITY_ACTIONS.CREATE,
-        content: customer.name,
+        content: customer.getFullName(),
         id: customer._id,
       },
       coc: {

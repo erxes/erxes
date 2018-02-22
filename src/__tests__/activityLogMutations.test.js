@@ -91,10 +91,7 @@ describe('ActivityLog creation on Customer creation', () => {
   });
 
   test(`activityLogsAddCustomerLog`, async () => {
-    const customerDoc = {
-      name: 'test customer',
-      _id: 'testCustomerId',
-    };
+    const customerDoc = await customerFactory();
 
     Customers.findOne = jest.fn(() => customerDoc);
 
@@ -104,7 +101,7 @@ describe('ActivityLog creation on Customer creation', () => {
       type: ACTIVITY_TYPES.CUSTOMER,
       action: ACTIVITY_ACTIONS.CREATE,
       id: customerDoc._id,
-      content: customerDoc.name,
+      content: customerDoc.getFullName(),
     });
     expect(aLog.coc.toObject()).toEqual({
       type: COC_CONTENT_TYPES.CUSTOMER,

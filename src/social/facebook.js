@@ -358,7 +358,6 @@ export class SaveWebhookResponse {
     const createdCustomer = await Customers.createCustomer({
       firstName,
       lastName,
-      name: res.name || `${firstName} ${lastName}`,
       integrationId,
       facebookData: {
         id: fbUserId,

@@ -11,7 +11,6 @@ const listQuery = async params => {
   let selector = {
     $nor: [
       {
-        name: null,
         firstName: null,
         lastName: null,
         email: null,

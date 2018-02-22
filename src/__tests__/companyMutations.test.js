@@ -3,7 +3,7 @@
 
 import { connect, disconnect } from '../db/connection';
 import { Companies, Users } from '../db/models';
-import { userFactory, companyFactory } from '../db/factories';
+import { userFactory, customerFactory, companyFactory } from '../db/factories';
 import companyMutations from '../data/resolvers/mutations/companies';
 
 beforeAll(() => connect());
@@ -84,12 +84,10 @@ describe('Companies mutations', () => {
   });
 
   test('Add customer', async () => {
-    Companies.addCustomer = jest.fn(() => ({
-      name: 'test customer name',
-      _id: 'test customer id',
-    }));
+    const customer = await customerFactory();
+    Companies.addCustomer = jest.fn(() => customer);
 
-    const doc = { name: 'name', email: 'name@gmail.com' };
+    const doc = { firstName: 'firstName', email: 'name@gmail.com' };
 
     await companyMutations.companiesAddCustomer({}, doc, { user: _user });
 

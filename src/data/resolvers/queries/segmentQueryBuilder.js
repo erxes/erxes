@@ -9,6 +9,7 @@ export default {
         [condition.field]: convertConditionToQuery(condition),
       })),
     };
+
     if (segment.conditions.length) {
       query.$and.push(childQuery);
     }
@@ -16,6 +17,7 @@ export default {
     // Fetching parent segment
     const embeddedParentSegment =
       typeof segment.getParentSegment === 'function' ? segment.getParentSegment() : null;
+
     const parentSegment = headSegment || embeddedParentSegment;
 
     if (parentSegment) {
@@ -26,6 +28,7 @@ export default {
           [condition.field]: convertConditionToQuery(condition),
         })),
       };
+
       if (parentSegment.conditions.length) {
         query.$and.push(parentQuery);
       }
