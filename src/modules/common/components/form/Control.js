@@ -45,7 +45,7 @@ const renderElement = (Element, attributes, type, child) => {
     <FormLabel>
       <Element {...attributes} type={type} />
       <span>
-        {child && '  '}
+        {child && '\u00a0\u00a0'}
         {child}
       </span>
     </FormLabel>
