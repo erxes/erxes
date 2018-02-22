@@ -4,8 +4,7 @@ import Ionicons from 'react-ionicons';
 
 const propTypes = {
   onClickHandler: PropTypes.func.isRequired,
-  text: PropTypes.string.isRequired,
-  color: PropTypes.string,
+  text: PropTypes.string.isRequired
 };
 
 function BackButton({ onClickHandler, text }) {
