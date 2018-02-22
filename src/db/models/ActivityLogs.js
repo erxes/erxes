@@ -270,13 +270,14 @@ class ActivityLog {
    * @return {Promise} Return Promise resolving created ActivityLog
    */
   static createCustomerRegistrationLog(customer, user) {
-    const performer =
-      (user &&
-        user._id && {
-          type: ACTIVITY_PERFORMER_TYPES.USER,
-          id: user._id,
-        }) ||
-      null;
+    let performer = null;
+
+    if (user && user._id) {
+      performer = {
+        type: ACTIVITY_PERFORMER_TYPES.USER,
+        id: user._id,
+      };
+    }
 
     return this.createDoc({
       activity: {
@@ -300,13 +301,14 @@ class ActivityLog {
    * @return {Promise} Return Promise resolving created ActivityLog
    */
   static createCompanyRegistrationLog(company, user) {
-    const performer =
-      (user &&
-        user._id && {
-          type: ACTIVITY_PERFORMER_TYPES.USER,
-          id: user._id,
-        }) ||
-      null;
+    let performer = null;
+
+    if (user && user._id) {
+      performer = {
+        type: ACTIVITY_PERFORMER_TYPES.USER,
+        id: user._id,
+      };
+    }
 
     return this.createDoc({
       activity: {

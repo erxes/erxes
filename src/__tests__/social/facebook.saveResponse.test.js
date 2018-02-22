@@ -138,6 +138,7 @@ describe('facebook integration: save webhook response', () => {
     expect(conversation.facebookData.pageId).toBe(pageId);
 
     // check customer field values
+    expect(customer.createdAt).toBeDefined();
     expect(customer.integrationId).toBe(integration._id);
     expect(customer.firstName).toBe('Dombo Gombo'); // from mocked get info above
     expect(customer.facebookData.id).toBe(senderId);
