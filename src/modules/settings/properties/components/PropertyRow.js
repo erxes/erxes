@@ -71,7 +71,11 @@ class PropertyRow extends React.Component {
                 <td>
                   {field.text} - {field.type}
                 </td>
-                <td>Erxes</td>
+                <td>
+                  {field.lastUpdatedBy
+                    ? field.lastUpdatedBy.details.fullName
+                    : 'Unknown'}
+                </td>
                 <td>
                   <Toggle
                     defaultChecked={field.visible}

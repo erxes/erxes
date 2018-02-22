@@ -8,7 +8,7 @@ import gql from 'graphql-tag';
 import { Alert } from 'modules/common/utils';
 import { Properties } from '../components';
 
-const PropertiesContainer = props => {
+const PropertiesContainer = (props, context) => {
   const {
     fieldsGroupsQuery,
     history,
@@ -20,6 +20,7 @@ const PropertiesContainer = props => {
     fieldsUpdateOrder
   } = props;
   const fieldsgroups = fieldsGroupsQuery.fieldsgroups || [];
+  const { currentUser } = context;
 
   if (!router.getParam(history, 'type')) {
     router.setParams(history, { type: 'Customer' });
@@ -53,7 +54,7 @@ const PropertiesContainer = props => {
 
   const updatePropertyVisible = ({ _id, visible }) => {
     fieldsUpdateVisible({
-      variables: { _id, visible }
+      variables: { _id, visible, lastUpdatedBy: currentUser._id }
     })
       .then(() => {
         fieldsGroupsQuery.refetch();
@@ -66,7 +67,7 @@ const PropertiesContainer = props => {
 
   const updatePropertyGroupVisible = ({ _id, visible }) => {
     fieldsGroupsUpdateVisible({
-      variables: { _id, visible }
+      variables: { _id, visible, lastUpdatedBy: currentUser._id }
     })
       .then(() => {
         fieldsGroupsQuery.refetch();
@@ -130,6 +131,10 @@ PropertiesContainer.propTypes = {
   fieldsGroupsUpdateOrder: PropTypes.func,
   fieldsUpdateVisible: PropTypes.func.isRequired,
   fieldsUpdateOrder: PropTypes.func
+};
+
+PropertiesContainer.contextTypes = {
+  currentUser: PropTypes.object
 };
 
 export default compose(
