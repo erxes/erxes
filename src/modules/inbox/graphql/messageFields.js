@@ -33,7 +33,6 @@ export default `
     _id
     firstName
     lastName
-    name
     email
     phone
     isUser
