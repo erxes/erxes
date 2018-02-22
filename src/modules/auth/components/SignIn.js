@@ -58,8 +58,7 @@ class SignIn extends Component {
               </InputGroup.Button>
               <FormControl
                 type="email"
-                placeholder="Email"
-                defaultValue="demo@erxes.io"
+                placeholder="demo@erxes.io"
                 required
                 onChange={this.handleEmailChange}
                 onFocus={this.handleOnFocus}
@@ -75,8 +74,7 @@ class SignIn extends Component {
               </InputGroup.Button>
               <FormControl
                 type="password"
-                placeholder="Password"
-                defaultValue="demo"
+                placeholder="demo"
                 required
                 onChange={this.handlePasswordChange}
               />
