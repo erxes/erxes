@@ -21,6 +21,7 @@ class SignIn extends Component {
     this.login = this.login.bind(this);
     this.handleEmailChange = this.handleEmailChange.bind(this);
     this.handlePasswordChange = this.handlePasswordChange.bind(this);
+    this.handleOnFocus = this.handleOnFocus.bind(this);
   }
 
   login(e) {
@@ -40,6 +41,14 @@ class SignIn extends Component {
     e.preventDefault();
     this.setState({ password: e.target.value });
   }
+  handleOnFocus(e) {
+    e.preventDefault();
+    console.log('s');
+    this.setState({
+      value: 'demo'
+    });
+  }
+
   render() {
     return (
       <AuthBox>
@@ -76,7 +85,8 @@ class SignIn extends Component {
                 type="password"
                 placeholder="Password"
                 required
-                value="demo"
+                value={this.state.value}
+                onFocus={this.handleOnFocus}
                 onChange={this.handlePasswordChange}
               />
             </InputGroup>

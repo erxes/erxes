@@ -39,7 +39,7 @@ class AuthLayout extends React.Component {
                 <h1>Customer engagement. Redefined.</h1>
                 <p>
                   erxes is an AI meets open source messaging platform for sales
-                  and marketing teams.
+                  and marketing
                 </p>
               </AuthDescription>
               {content}
