@@ -8,6 +8,7 @@ import { field } from './utils';
 const FieldGroupSchema = mongoose.Schema({
   _id: field({ pkey: true }),
   name: field({ type: String }),
+  // customer, company
   contentType: field({ type: String }),
   order: field({ type: Number }),
   isDefinedByErxes: field({ type: Boolean, default: false }),
@@ -27,7 +28,7 @@ class FieldGroup {
    * @return {Promise} Newly created Group
    */
   static async checkIsDefinedByErxes(_id) {
-    const groupObj = this.findOne({ _id });
+    const groupObj = await this.findOne({ _id });
 
     // Checking if the group is defined by the erxes
     if (groupObj.isDefinedByErxes) throw new Error('Cant update this group');
@@ -35,28 +36,24 @@ class FieldGroup {
 
   /** Create new field group
    *
-   * @param {String} name - Group name to be created with
-   * @param {String} contentType - Content type
-   * @param {String} description - Group description
-   * @param {String} lastUpdatedBy - Id of user who updated the group last
+   * @param {String} doc.name - Group name to be created with
+   * @param {String} doc.contentType - Content type customer or company
+   * @param {String} doc.description - Group description
+   * @param {String} doc.lastUpdatedBy - Id of user who updated the group last
+   * @param {Boolean} doc.isDefinedByErxes - If true you cant edit fieldgroup
    *
    * @return {Promise} Newly created Group
    */
-  static async createFieldsGroup({ name, contentType, description, lastUpdatedBy }) {
+  static async createFieldsGroup(doc) {
     // Newly created group must be visible
     const visible = true;
 
-    // Automatically setting order of group to the bottom
-    const order = (await this.count({})) + 1;
+    const { contentType } = doc;
 
-    return this.create({
-      name,
-      contentType,
-      description,
-      visible,
-      order,
-      lastUpdatedBy,
-    });
+    // Automatically setting order of group to the bottom
+    const order = (await this.count({ contentType })) + 1;
+
+    return this.create({ ...doc, visible, order });
   }
 
   /**
@@ -111,23 +108,6 @@ class FieldGroup {
 
     // Updating visible
     await this.update({ _id }, { $set: { visible, lastUpdatedBy } });
-
-    return this.findOne({ _id });
-  }
-
-  /**
-   * Update single field group's order
-   * @param {String} _id - Field group id to update
-   * @param {Number} order - Order number
-   *
-   * @return {Promise} Result
-   */
-  static async updateFieldsGroupOrder(_id, order) {
-    // Can not update group that is defined by erxes
-    await this.checkIsDefinedByErxes(_id);
-
-    // Updating order
-    await this.update({ _id }, { $set: { order } });
 
     return this.findOne({ _id });
   }

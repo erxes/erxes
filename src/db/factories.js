@@ -6,6 +6,7 @@ import {
   ACTIVITY_PERFORMER_TYPES,
   ACTIVITY_TYPES,
   ACTIVITY_ACTIONS,
+  FIELDS_GROUPS_CONTENT_TYPES,
 } from '../data/constants';
 
 import {
@@ -31,6 +32,7 @@ import {
   KnowledgeBaseCategories,
   KnowledgeBaseArticles,
   ActivityLogs,
+  FieldsGroups,
 } from './models';
 
 export const userFactory = (params = {}) => {
@@ -355,10 +357,6 @@ export const knowledgeBaseArticleFactory = params => {
 };
 
 export const activityLogFactory = params => {
-  // const activity = params.activity || {};
-  // const performer = params.performer || {};
-  // const coc = params.coc || {};
-
   const doc = {
     activity: {
       type: ACTIVITY_TYPES.INTERNAL_NOTE,
@@ -377,4 +375,20 @@ export const activityLogFactory = params => {
   };
 
   return ActivityLogs.createDoc({ ...doc, ...params }, faker.random.word());
+};
+
+export const fieldGroupFactory = async params => {
+  const user = await userFactory({});
+
+  const doc = {
+    name: faker.random.word(),
+    contentType: FIELDS_GROUPS_CONTENT_TYPES.CUSTOMER,
+    description: faker.random.word(),
+    order: 1,
+    visible: true,
+    isDefinedByErxes: false,
+    lastUpdatedBy: user._id,
+  };
+
+  return FieldsGroups.createFieldsGroup({ ...doc, ...params }, faker.random.word());
 };
