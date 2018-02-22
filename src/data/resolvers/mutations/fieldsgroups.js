@@ -8,6 +8,7 @@ const fieldsGroupsMutations = {
    * @param {String} doc.name - Group name
    * @param {String} doc.contentType - Group type customer or company
    * @param {String} doc.description - Group description
+   * @param {String} doc.lastUpdatedBy - Id of user who updated the group last
    *
    * @return {Promise} Newly created Group
    */
@@ -21,6 +22,7 @@ const fieldsGroupsMutations = {
    * @param {Object} doc - Graphql input data
    * @param {String} doc.name - Group name
    * @param {String} doc.description - Id of parent group
+   * @param {String} doc.lastUpdatedBy - Id of user who updated the group last
    *
    * @return {Promise} Newly updated Group
    */
@@ -53,11 +55,12 @@ const fieldsGroupsMutations = {
    * Update field group's visible
    * @param {String} _id - Field group id to update
    * @param {String} visible - True or false visible value
+   * @param {String} lastUpdatedBy - id of a User who updated the visible last
    *
    * @return {Promise} Updated field group
    */
-  fieldsGroupsUpdateVisible(root, { _id, visible }) {
-    return FieldsGroups.updateFieldsGroupVisible(_id, visible);
+  fieldsGroupsUpdateVisible(root, { _id, visible, lastUpdatedBy }) {
+    return FieldsGroups.updateFieldsGroupVisible(_id, visible, lastUpdatedBy);
   },
 };
 

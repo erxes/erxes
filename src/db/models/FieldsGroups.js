@@ -14,6 +14,8 @@ const FieldGroupSchema = mongoose.Schema({
   description: field({
     type: String,
   }),
+  // Id of user who updated the gorup
+  lastUpdatedBy: { type: String },
   visible: field({ type: Boolean, default: true }),
 });
 
@@ -36,10 +38,11 @@ class FieldGroup {
    * @param {String} name - Group name to be created with
    * @param {String} contentType - Content type
    * @param {String} description - Group description
+   * @param {String} lastUpdatedBy - Id of user who updated the group last
    *
    * @return {Promise} Newly created Group
    */
-  static async createFieldsGroup({ name, contentType, description }) {
+  static async createFieldsGroup({ name, contentType, description, lastUpdatedBy }) {
     // Newly created group must be visible
     const visible = true;
 
@@ -52,6 +55,7 @@ class FieldGroup {
       description,
       visible,
       order,
+      lastUpdatedBy,
     });
   }
 
@@ -61,6 +65,7 @@ class FieldGroup {
    * @param {Object} doc - Field values to update
    * @param {String} doc.name - Field group name
    * @param {String} doc.description - Field group description
+   * @param {String} doc.lastUpdatedBy - Id of user who updated the group last
    *
    * @return {Promise} Updated field object
    */
@@ -96,15 +101,16 @@ class FieldGroup {
    * Update field group's visible
    * @param {String} _id - Field group id to update
    * @param {Boolean} visible - True or false to be shown
+   * @param {Boolean} lastUpdatedBy - id of User who updated group last
    *
    * @return {Promise} Result
    */
-  static async updateFieldsGroupVisible(_id, visible) {
+  static async updateFieldsGroupVisible(_id, visible, lastUpdatedBy) {
     // Can not update group that is defined by erxes
     await this.checkIsDefinedByErxes(_id);
 
     // Updating visible
-    await this.update({ _id }, { $set: { visible } });
+    await this.update({ _id }, { $set: { visible, lastUpdatedBy } });
 
     return this.findOne({ _id });
   }
