@@ -3,7 +3,7 @@
 
 import { connect, disconnect } from '../db/connection';
 import { Forms, Fields } from '../db/models';
-import { formFactory, fieldFactory } from '../db/factories';
+import { formFactory, fieldFactory, userFactory } from '../db/factories';
 
 beforeAll(() => connect());
 
@@ -217,5 +217,18 @@ describe('Fields', () => {
     } catch (e) {
       expect(e.message).toBe(`${_field.text}: required`);
     }
+  });
+
+  test('Update field visible', async () => {
+    expect.assertions(2);
+    const field = await fieldFactory({ visible: true });
+    const user = await userFactory({});
+
+    const visible = false;
+
+    const fieldObj = await Fields.updateFieldsVisible(field._id, visible, user._id);
+
+    expect(fieldObj.visible).toBe(visible);
+    expect(fieldObj.lastUpdatedBy).toBe(user._id);
   });
 });

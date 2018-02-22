@@ -96,4 +96,19 @@ describe('Fields mutations', () => {
 
     expect(Fields.updateOrder).toBeCalledWith(orders);
   });
+
+  test('Update visible', async () => {
+    Fields.updateFieldsVisible = jest.fn();
+
+    const visible = false;
+    const lastUpdatedBy = _user._id;
+
+    await fieldMutations.fieldsUpdateVisible(
+      {},
+      { _id: _field._id, visible, lastUpdatedBy },
+      { user: _user },
+    );
+
+    expect(Fields.updateFieldsVisible).toBeCalledWith(_field._id, visible, lastUpdatedBy);
+  });
 });
