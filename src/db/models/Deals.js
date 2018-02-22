@@ -47,10 +47,10 @@ const createOrUpdatePipelineStages = async (stages, pipelineId) => {
 
     if (doc._id) {
       const _id = doc._id;
-      const stage = DealStages.findOne({ _id });
+      const stage = await DealStages.findOne({ _id });
       delete doc._id;
 
-      if (stage) DealStages.update({ _id }, { $set: doc });
+      if (stage) await DealStages.update({ _id }, { $set: doc });
     } else {
       DealStages.create(doc);
     }
