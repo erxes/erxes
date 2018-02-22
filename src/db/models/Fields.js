@@ -36,6 +36,7 @@ const FieldSchema = mongoose.Schema({
   order: field({ type: Number }),
   groupId: field({ type: String }),
   visible: field({ type: Boolean, default: true }),
+  lastUpdatedBy: field({ type: String }),
 });
 
 class Field {
@@ -211,12 +212,13 @@ class Field {
    * Update single field's visible
    * @param {String} _id - Field group id to update
    * @param {Boolean} visible - True or false to be shown
+   * @param {String} lastUpdatedBy - id of user who updated field last
    *
    * @return {Promise} Result
    */
-  static async updateFieldsVisible(_id, visible) {
+  static async updateFieldsVisible(_id, visible, lastUpdatedBy) {
     // Updating visible
-    await this.update({ _id }, { $set: { visible } });
+    await this.update({ _id }, { $set: { visible, lastUpdatedBy } });
 
     return this.findOne({ _id });
   }

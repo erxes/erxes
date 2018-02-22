@@ -13,6 +13,7 @@ export const types = `
     visible: Boolean
     isDefinedByErxes: Boolean
     groupId: String
+    lastUpdatedBy: User
   }
 
   input OrderItem {
@@ -44,6 +45,7 @@ const commonFields = `
   isDefinedByErxes: Boolean
   groupId: String
   visible: Boolean
+  lastUpdatedBy: String
 `;
 
 export const mutations = `
@@ -52,5 +54,5 @@ export const mutations = `
   fieldsRemove(_id: String!): Field
   fieldsUpdateOrder(orders: [OrderItem]): [Field]
   fieldsUpdateOrderNumber(_id: String!, order: Int) : Field
-  fieldsUpdateVisible(_id: String!, visible: Boolean) : Field
+  fieldsUpdateVisible(_id: String!, visible: Boolean, lastUpdatedBy: String) : Field
 `;
