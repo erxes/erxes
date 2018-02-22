@@ -7,12 +7,7 @@ import { Alert } from 'modules/common/utils';
 import { PropertyGroupForm } from '../components';
 
 const PropertyGroupFormContainer = (props, context) => {
-  const {
-    fieldsGroupsAdd,
-    fieldsGroupsQuery,
-    fieldsGroupsEdit,
-    queryParams
-  } = props;
+  const { fieldsGroupsAdd, fieldsGroupsEdit, queryParams } = props;
 
   const { type } = queryParams;
   const { currentUser } = context;
@@ -22,7 +17,6 @@ const PropertyGroupFormContainer = (props, context) => {
       variables: { ...doc, contentType: type, lastUpdatedBy: currentUser._id }
     })
       .then(() => {
-        fieldsGroupsQuery.refetch();
         Alert.success('Successfully added');
       })
       .catch(e => {
@@ -35,7 +29,6 @@ const PropertyGroupFormContainer = (props, context) => {
       variables: { _id, ...doc, lastUpdatedBy: currentUser._id }
     })
       .then(() => {
-        fieldsGroupsQuery.refetch();
         Alert.success('Successfully Edited');
       })
       .catch(e => {
@@ -52,9 +45,17 @@ const PropertyGroupFormContainer = (props, context) => {
   return <PropertyGroupForm {...updatedProps} />;
 };
 
+const options = ({ queryParams }) => ({
+  refetchQueries: [
+    {
+      query: gql`${queries.fieldsgroups}`,
+      variables: { contentType: queryParams.type }
+    }
+  ]
+});
+
 PropertyGroupFormContainer.propTypes = {
   queryParams: PropTypes.object,
-  fieldsGroupsQuery: PropTypes.object.isRequired,
   fieldsGroupsAdd: PropTypes.func.isRequired,
   fieldsGroupsEdit: PropTypes.func.isRequired
 };
@@ -65,18 +66,12 @@ PropertyGroupFormContainer.contextTypes = {
 };
 
 export default compose(
-  graphql(gql(queries.fieldsgroups), {
-    name: 'fieldsGroupsQuery',
-    options: ({ queryParams }) => ({
-      variables: {
-        contentType: queryParams.type
-      }
-    })
-  }),
   graphql(gql(mutations.fieldsGroupsAdd), {
-    name: 'fieldsGroupsAdd'
+    name: 'fieldsGroupsAdd',
+    options
   }),
   graphql(gql(mutations.fieldsGroupsEdit), {
-    name: 'fieldsGroupsEdit'
+    name: 'fieldsGroupsEdit',
+    options
   })
 )(PropertyGroupFormContainer);

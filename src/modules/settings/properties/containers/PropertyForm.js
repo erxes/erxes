@@ -17,7 +17,6 @@ const PropertyFormContainer = (props, context) => {
     })
       .then(() => {
         Alert.success('Successfully added');
-        fieldsGroupsQuery.refetch();
       })
       .catch(e => {
         Alert.error(e.message);
@@ -30,7 +29,6 @@ const PropertyFormContainer = (props, context) => {
     })
       .then(() => {
         Alert.success('Successfully edited');
-        fieldsGroupsQuery.refetch();
       })
       .catch(e => {
         Alert.error(e.message);
@@ -46,6 +44,15 @@ const PropertyFormContainer = (props, context) => {
 
   return <PropertyForm {...updatedProps} />;
 };
+
+const options = ({ queryParams }) => ({
+  refetchQueries: [
+    {
+      query: gql`${queries.fieldsgroups}`,
+      variables: { contentType: queryParams.type }
+    }
+  ]
+});
 
 PropertyFormContainer.propTypes = {
   queryParams: PropTypes.object,
@@ -69,9 +76,11 @@ export default compose(
     })
   }),
   graphql(gql(mutations.fieldsAdd), {
-    name: 'fieldsAdd'
+    name: 'fieldsAdd',
+    options
   }),
   graphql(gql(mutations.fieldsEdit), {
-    name: 'fieldsEdit'
+    name: 'fieldsEdit',
+    options
   })
 )(PropertyFormContainer);

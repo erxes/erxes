@@ -29,7 +29,6 @@ const PropertiesContainer = (props, context) => {
       variables: { _id }
     })
       .then(() => {
-        fieldsGroupsQuery.refetch();
         Alert.success('Successfully Removed');
       })
       .catch(e => {
@@ -42,7 +41,6 @@ const PropertiesContainer = (props, context) => {
       variables: { _id }
     })
       .then(() => {
-        fieldsGroupsQuery.refetch();
         Alert.success('Succesfully Removed');
       })
       .catch(e => {
@@ -55,7 +53,6 @@ const PropertiesContainer = (props, context) => {
       variables: { _id, visible, lastUpdatedBy: currentUser._id }
     })
       .then(() => {
-        fieldsGroupsQuery.refetch();
         Alert.success('Successfully Updated');
       })
       .catch(e => {
@@ -68,7 +65,6 @@ const PropertiesContainer = (props, context) => {
       variables: { _id, visible, lastUpdatedBy: currentUser._id }
     })
       .then(() => {
-        fieldsGroupsQuery.refetch();
         Alert.success('Successfully Updated');
       })
       .catch(e => {
@@ -105,6 +101,15 @@ PropertiesContainer.contextTypes = {
   currentUser: PropTypes.object
 };
 
+const options = ({ queryParams }) => ({
+  refetchQueries: [
+    {
+      query: gql`${queries.fieldsgroups}`,
+      variables: { contentType: queryParams.type }
+    }
+  ]
+});
+
 export default compose(
   graphql(gql(queries.fieldsgroups), {
     name: 'fieldsGroupsQuery',
@@ -115,15 +120,19 @@ export default compose(
     })
   }),
   graphql(gql(mutations.fieldsGroupsRemove), {
-    name: 'fieldsGroupsRemove'
+    name: 'fieldsGroupsRemove',
+    options
   }),
   graphql(gql(mutations.fieldsRemove), {
-    name: 'fieldsRemove'
+    name: 'fieldsRemove',
+    options
   }),
   graphql(gql(mutations.fieldsUpdateVisible), {
-    name: 'fieldsUpdateVisible'
+    name: 'fieldsUpdateVisible',
+    options
   }),
   graphql(gql(mutations.fieldsGroupsUpdateVisible), {
-    name: 'fieldsGroupsUpdateVisible'
+    name: 'fieldsGroupsUpdateVisible',
+    options
   })
 )(withRouter(PropertiesContainer));
