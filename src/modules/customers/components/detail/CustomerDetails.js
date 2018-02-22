@@ -3,21 +3,16 @@ import PropTypes from 'prop-types';
 import { withRouter } from 'react-router';
 import { Wrapper } from 'modules/layout/components';
 import {
-  EmptyState,
-  Icon,
+  DataWithLoader,
   Tabs,
   TabTitle,
-  DataWithLoader
+  Icon
 } from 'modules/common/components';
 import { Form as NoteForm } from 'modules/internalNotes/containers';
 import { EditInformation } from 'modules/customers/containers';
-import {
-  ActivityList,
-  InternalNotes,
-  ConversationList
-} from 'modules/activityLogs/components';
+import { ActivityList } from 'modules/activityLogs/components';
 import { WhiteBoxRoot } from 'modules/layout/styles';
-import { DetailContent, SubContent } from 'modules/customers/styles';
+import { hasAnyActivity } from 'modules/customers/utils';
 
 const propTypes = {
   customer: PropTypes.object.isRequired,
@@ -43,54 +38,38 @@ class CustomerDetails extends React.Component {
 
   renderTabContent() {
     const { currentTab } = this.state;
-    const { currentUser, activityLogsCustomer, loadingLogs } = this.props;
+    const {
+      currentUser,
+      activityLogsCustomer,
+      loadingLogs,
+      customer
+    } = this.props;
 
-    if (currentTab === 'activity') {
-      return (
+    return (
+      <div
+        style={
+          !hasAnyActivity(activityLogsCustomer)
+            ? { position: 'relative', height: '400px' }
+            : {}
+        }
+      >
         <DataWithLoader
           loading={loadingLogs}
-          count={activityLogsCustomer.length}
+          count={
+            !loadingLogs && hasAnyActivity(activityLogsCustomer) > 0 ? 1 : 0
+          }
           data={
             <ActivityList
               user={currentUser}
               activities={activityLogsCustomer}
+              target={customer}
+              type={currentTab} //show logs filtered by type
             />
           }
           emptyText="No Activities"
           emptyImage="/images/robots/robot-03.svg"
         />
-      );
-    }
-
-    if (currentTab === 'notes') {
-      return <InternalNotes activityLog={activityLogsCustomer} />;
-    }
-
-    if (currentTab === 'conversations') {
-      return this.renderConversations();
-    }
-  }
-
-  renderConversations() {
-    const { customer, activityLogsCustomer, history } = this.props;
-    const conversations = customer.conversations;
-
-    return (
-      <SubContent>
-        {conversations.length ? (
-          <ConversationList
-            activityLog={activityLogsCustomer}
-            detail={customer}
-            history={history}
-          />
-        ) : (
-          <EmptyState
-            text="There aren’t any conversations."
-            image="/images/robots/robot-02.svg"
-            full
-          />
-        )}
-      </SubContent>
+      </div>
     );
   }
 
@@ -104,7 +83,7 @@ class CustomerDetails extends React.Component {
     ];
 
     const content = (
-      <DetailContent>
+      <div>
         <WhiteBoxRoot>
           <Tabs>
             <TabTitle className="active">
@@ -137,7 +116,7 @@ class CustomerDetails extends React.Component {
         </Tabs>
 
         {this.renderTabContent()}
-      </DetailContent>
+      </div>
     );
 
     return (

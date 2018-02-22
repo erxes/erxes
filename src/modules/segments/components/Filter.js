@@ -54,11 +54,11 @@ function Segments({ history, contentType, counts, segments, loading }) {
           >
             {segment.subOf ? '\u00a0\u00a0' : null}
             <Icon
-              icon="ios-circle-filled"
+              icon="record"
               size={10}
               style={{
                 color: segment.color,
-                marginRight: '10px'
+                marginRight: '5px'
               }}
             />{' '}
             {segment.name}
@@ -78,7 +78,7 @@ function Segments({ history, contentType, counts, segments, loading }) {
           id="dropdown-user"
           className="quick-button"
           pullRight
-          style={{ verticalAlign: 'top' }}
+          style={{ verticalAlign: 'top', float: 'left' }}
         >
           <DropdownToggle bsRole="toggle">
             <QuickButton>

@@ -14,6 +14,9 @@ const CompanyDetailsContainer = (props, context) => {
     fieldsQuery
   } = props;
 
+  //refetch for display customer change
+  companyDetailQuery.refetch();
+
   const save = (variables, callback) => {
     companiesEdit({ variables: { _id: id, ...variables } })
       .then(() => {
@@ -26,12 +29,13 @@ const CompanyDetailsContainer = (props, context) => {
 
   const updatedProps = {
     ...props,
+    save,
+    loadingLogs: companyActivityLogQuery.loading,
     company: companyDetailQuery.companyDetail || {
       customers: [],
       customFieldsData: {}
     },
     companyActivityLog: companyActivityLogQuery.activityLogsCompany || [],
-    save,
     currentUser: context.currentUser,
     customFields: fieldsQuery.fields || []
   };
