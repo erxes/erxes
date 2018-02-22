@@ -29,6 +29,5 @@ export const mutations = `
   fieldsGroupsAdd(${commonFields}): FieldsGroup
   fieldsGroupsEdit(_id: String!, ${commonFields}): FieldsGroup
   fieldsGroupsRemove(_id: String!): String
-  fieldsGroupsUpdateOrder(_id: String!, order: Int) : FieldsGroup
   fieldsGroupsUpdateVisible(_id: String, visible: Boolean, lastUpdatedBy: String) : FieldsGroup
 `;
