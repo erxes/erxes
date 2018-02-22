@@ -178,6 +178,8 @@ class Customer {
     // clean custom field values
     doc.customFieldsData = await Fields.cleanMulti(doc.customFieldsData || {});
 
+    doc.createdAt = new Date();
+
     return this.create(doc);
   }
 

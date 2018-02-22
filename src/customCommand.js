@@ -10,8 +10,11 @@ export const customCommand = async () => {
     const csCount = await Conversations.find({ customerId: customer._id }).count();
     const cmsCount = await ConversationMessages.find({ customerId: customer._id }).count();
 
+    console.log(customer._id); // eslint-disable-line
+
     if (csCount === 0 && cmsCount === 0) {
       await Customers.remove({ _id: customer._id });
+      console.log('removed'); // eslint-disable-line
     }
   }
 
