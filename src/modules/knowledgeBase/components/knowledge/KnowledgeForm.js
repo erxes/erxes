@@ -13,8 +13,6 @@ import {
 } from 'modules/common/components';
 import {
   MarkdownWrapper,
-  SubHeading,
-  WidgetBox,
   ColorPick,
   ColorPicker
 } from 'modules/settings/styles';
@@ -197,20 +195,21 @@ class KnowledgeForm extends Component {
           />
         </FormGroup>
 
-        <WidgetBox>
-          <SubHeading>Choose a custom color</SubHeading>
-          <OverlayTrigger
-            trigger="click"
-            rootClose
-            placement="bottom"
-            overlay={popoverTop}
-          >
-            <ColorPick>
-              <ColorPicker style={{ backgroundColor: this.state.color }} />
-            </ColorPick>
-          </OverlayTrigger>
-        </WidgetBox>
-
+        <FormGroup>
+          <ControlLabel>Choose a custom color</ControlLabel>
+          <div>
+            <OverlayTrigger
+              trigger="click"
+              rootClose
+              placement="bottom"
+              overlay={popoverTop}
+            >
+              <ColorPick>
+                <ColorPicker style={{ backgroundColor: this.state.color }} />
+              </ColorPick>
+            </OverlayTrigger>
+          </div>
+        </FormGroup>
         {this.renderInstallCode()}
       </div>
     );
