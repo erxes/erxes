@@ -40,7 +40,6 @@ class SignIn extends Component {
     e.preventDefault();
     this.setState({ password: e.target.value });
   }
-
   render() {
     return (
       <AuthBox>
@@ -59,8 +58,10 @@ class SignIn extends Component {
               <FormControl
                 type="email"
                 placeholder="Email"
+                value="demo@erxes.io"
                 required
                 onChange={this.handleEmailChange}
+                onFocus={this.handleOnFocus}
               />
             </InputGroup>
           </FormGroup>
@@ -75,6 +76,7 @@ class SignIn extends Component {
                 type="password"
                 placeholder="Password"
                 required
+                value="demo"
                 onChange={this.handlePasswordChange}
               />
             </InputGroup>
