@@ -23,7 +23,7 @@ function isTimeStamp(value) {
 
 function formatValue(value) {
   if (typeof value === 'boolean') {
-    return value.toString();
+    return value ? 'Yes' : 'No';
   }
 
   if (

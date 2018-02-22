@@ -1,5 +1,6 @@
 const customerFields = `
     _id
+    name
     firstName
     lastName
     email

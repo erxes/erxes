@@ -14,6 +14,8 @@ const isValidURL = url => {
 const extractHostname = url => {
   let hostname;
 
+  if (!url) url = '';
+
   if (url.indexOf('://') > -1) {
     hostname = url.split('/')[2];
   } else {

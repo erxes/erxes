@@ -55,7 +55,7 @@ class CustomerForm extends React.Component {
 
         <FormGroup>
           <ControlLabel>Last Name</ControlLabel>
-          <FormControl id="customer-lastname" type="text" required />
+          <FormControl id="customer-lastname" type="text" />
         </FormGroup>
 
         <FormGroup>

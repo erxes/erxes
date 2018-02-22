@@ -36,6 +36,7 @@ class Row extends Component {
     this.onClickCheckBox = this.onClickCheckBox.bind(this);
     this.renderCheckbox = this.renderCheckbox.bind(this);
     this.renderFullName = this.renderFullName.bind(this);
+    this.getVisitorInfo = this.getVisitorInfo.bind(this);
   }
 
   toggleBulk(e) {
@@ -70,6 +71,20 @@ class Row extends Component {
   renderFullName(customer) {
     if (customer.firstName || customer.lastName) {
       return (customer.firstName || '') + ' ' + (customer.lastName || '');
+    }
+    return null;
+  }
+
+  getVisitorInfo(customer) {
+    if (customer.visitorContactInfo) {
+      const visitor = customer.visitorContactInfo;
+
+      return (
+        this.renderFullName(visitor) ||
+        visitor.lastName ||
+        visitor.email ||
+        visitor.phone
+      );
     }
     return null;
   }
@@ -109,6 +124,7 @@ class Row extends Component {
                       this.renderFullName(customer) ||
                       customer.email ||
                       customer.phone ||
+                      this.getVisitorInfo(customer) ||
                       'Unnamed')}
                 </CustomerName>
                 <SmallTextOneLine>
