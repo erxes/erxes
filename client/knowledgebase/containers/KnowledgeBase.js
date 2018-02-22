@@ -33,7 +33,7 @@ const TopicColor = (props) => {
   let color = '';
 
   if (props.data.loading) {
-    return (<div></div>);
+    return false;
   } else {
     color = props.data.knowledgeBaseTopicsDetail.color;
   }

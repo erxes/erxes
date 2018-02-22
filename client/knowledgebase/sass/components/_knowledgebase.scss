@@ -142,19 +142,22 @@
 
 .back {
   display: block;
+  display: flex;
+  align-items: center;
   text-decoration: none;
   margin-bottom: 20px;
   background: none;
   outline: 0;
   border: 0;
-  color: $main-color;
+  color: $text-color;
+  padding: 5px 0;
 
   svg {
     margin-right: 5px;
   }
 
   &:hover {
-    color: darken($main-color, 15%);
+    color: darken($text-color, 15%);
     cursor: pointer;
   }
 }

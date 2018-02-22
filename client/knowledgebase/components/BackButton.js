@@ -8,9 +8,9 @@ const propTypes = {
   color: PropTypes.string,
 };
 
-function BackButton({ onClickHandler, text, color }) {
+function BackButton({ onClickHandler, text }) {
   return (
-    <button onClick={onClickHandler} className="back" style={color ? {color} : {}}>
+    <button onClick={onClickHandler} className="back">
       <Ionicons icon="ion-chevron-left" fontSize="10px" color="#888" />
       {text}
     </button>

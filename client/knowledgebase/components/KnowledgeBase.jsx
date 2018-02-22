@@ -57,7 +57,7 @@ export default class KnowledgeBase extends React.Component {
     if (displayType.displayType === CONTENT_TYPE_CATEGORY) {
       return (
         <div>
-          <BackButton onClickHandler={this.onTopicClickHandler} text="Back to categories" color={color} />
+          <BackButton onClickHandler={this.onTopicClickHandler} text="Back to categories" />
           <CategoryDetail category={displayType.category} />
         </div>
       );
@@ -71,7 +71,6 @@ export default class KnowledgeBase extends React.Component {
               this.onCategoryClickHandler : this.onTopicClickHandler}
             text={displayType.data.category != null ?
               'Back to articles' : 'Back to top'}
-            color={color}
           />
           <ArticleDetail data={displayType.data} />
         </div>
