@@ -83,9 +83,18 @@ const getKbTopicQuery = `
   }
 `;
 
+const getKbTopicColorQuery = `
+  query knowledgeBaseTopicsDetail($topicId: String!) {
+    knowledgeBaseTopicsDetail(topicId: $topicId) {
+      color
+    }
+  }
+`;
+
 export default {
   kbLoaderQuery,
   kbSearchArticlesQuery,
   getKbCategoryQuery,
   getKbTopicQuery,
+  getKbTopicColorQuery,
 }

@@ -5,6 +5,7 @@ const propTypes = {
   category: PropTypes.object, // eslint-disable-line
   searchStr: PropTypes.string,
   onUpdateSearchString: PropTypes.func,
+  color: PropTypes.string,
 };
 
 export default class SearchBar extends React.Component {
@@ -20,9 +21,9 @@ export default class SearchBar extends React.Component {
   }
 
   render() {
-    const { searchStr = ' ' } = this.props;
+    const { searchStr = ' ', color } = this.props;
     return (
-      <div className="erxes-searchbar">
+      <div className="erxes-searchbar" style={color ? { backgroundColor: color } : {}}>
         <div className="erxes-knowledge-container">
           <input value={searchStr} onChange={this.handleSearchInput} />
         </div>
