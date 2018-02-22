@@ -1,6 +1,12 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { ModalTrigger, Button } from 'modules/common/components';
+import { Dropdown, MenuItem } from 'react-bootstrap';
+import {
+  ModalTrigger,
+  Button,
+  DropdownToggle,
+  Icon
+} from 'modules/common/components';
 import { Wrapper } from 'modules/layout/components';
 import { PropertyGroupForm, PropertyForm } from '../containers';
 import { Sidebar, PropertyRow } from './';
@@ -54,34 +60,28 @@ class Properties extends Component {
     );
   }
 
-  renderTrigger(text) {
-    return (
-      <Button btnStyle="success" size="small" icon="plus">
-        {text}
-      </Button>
-    );
-  }
-
   renderActionBar() {
     const { queryParams } = this.props;
 
+    const addGroup = <MenuItem>Add group</MenuItem>;
+    const addField = <MenuItem>Add Field</MenuItem>;
+
     return (
-      <div>
-        <ModalTrigger
-          title="Add Group"
-          trigger={this.renderTrigger('Add Property Group')}
-          size="lg"
-        >
-          <PropertyGroupForm queryParams={queryParams} />
-        </ModalTrigger>
-        <ModalTrigger
-          title="Add Property"
-          trigger={this.renderTrigger('Add Property')}
-          size="lg"
-        >
-          <PropertyForm queryParams={queryParams} />
-        </ModalTrigger>
-      </div>
+      <Dropdown id="dropdown-knowledgebase" className="quick-button" pullRight>
+        <DropdownToggle bsRole="toggle">
+          <Button btnStyle="success" size="small" icon="plus">
+            Add Property <Icon icon="chevron-down" />
+          </Button>
+        </DropdownToggle>
+        <Dropdown.Menu>
+          <ModalTrigger title="Add Group" trigger={addGroup} size="lg">
+            <PropertyGroupForm queryParams={queryParams} />
+          </ModalTrigger>
+          <ModalTrigger title="Add Field" trigger={addField} size="lg">
+            <PropertyForm queryParams={queryParams} />
+          </ModalTrigger>
+        </Dropdown.Menu>
+      </Dropdown>
     );
   }
 
@@ -98,7 +98,7 @@ class Properties extends Component {
       <Wrapper
         actionBar={<Wrapper.ActionBar right={this.renderActionBar()} />}
         header={<Wrapper.Header breadcrumb={breadcrumb} />}
-        leftSidebar={<Sidebar />}
+        leftSidebar={<Sidebar currentType={currentType} />}
         content={this.renderProperties()}
       />
     );

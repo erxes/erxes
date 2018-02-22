@@ -10,7 +10,8 @@ import {
 } from 'modules/common/components';
 import { confirm } from 'modules/common/utils';
 import { PropertyGroupForm, PropertyForm } from '../containers';
-import { ActionButtons } from '../styles';
+import { DropIcon } from '../styles';
+import { ActionButtons, CollapseRow } from '../../styles';
 
 const propTypes = {
   group: PropTypes.object.isRequired,
@@ -47,15 +48,11 @@ class PropertyRow extends React.Component {
     this.props.updatePropertyGroupVisible({ _id: group._id, visible });
   }
 
-  orderHandler() {
-    console.log('Handling Order');
-  }
-
   renderTable(fields) {
     const { queryParams, removeProperty } = this.props;
 
     return (
-      <Table whiteSpace="nowrap" hover bordered>
+      <Table hover>
         <thead>
           <tr>
             <th>Name</th>
@@ -115,33 +112,31 @@ class PropertyRow extends React.Component {
 
     return (
       <li key={group._id}>
-        <Icon icon="chevron-right" />
-        <span onClick={this.handleCollapse}>{group.name}</span>
-        <ActionButtons>
-          <Toggle
-            defaultChecked={group.visible}
-            icons={{
-              checked: <span>Yes</span>,
-              unchecked: <span>No</span>
-            }}
-            onChange={e => this.visibleHandler(e, { group: group })}
+        <CollapseRow onClick={this.handleCollapse}>
+          <DropIcon
+            isOpen={this.state.collapse}
+            onClick={this.handleCollapse}
           />
-          <ModalTrigger
-            title="Edit group"
-            trigger={<Icon icon="edit" />}
-            size="lg"
-          >
-            <PropertyGroupForm group={group} queryParams={queryParams} />
-          </ModalTrigger>
-          <Icon
-            icon="close"
-            onClick={() =>
-              confirm().then(() => {
-                removePropertyGroup({ _id: group._id });
-              })
-            }
-          />
-        </ActionButtons>
+          {group.name}
+          <ActionButtons>
+            <ModalTrigger
+              title="Edit group"
+              trigger={<Icon icon="edit" />}
+              size="lg"
+            >
+              <PropertyGroupForm group={group} queryParams={queryParams} />
+            </ModalTrigger>
+            <Icon
+              icon="close"
+              onClick={() =>
+                confirm().then(() => {
+                  removePropertyGroup({ _id: group._id });
+                })
+              }
+            />
+          </ActionButtons>
+        </CollapseRow>
+
         <Collapse in={this.state.collapse}>
           <div>
             {fields.length === 0 ? (

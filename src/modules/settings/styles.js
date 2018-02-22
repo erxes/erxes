@@ -308,6 +308,27 @@ const SidebarListItem = styled.li`
   }
 `;
 
+const CollapseRow = styled.div`
+  font-size: ${coreSpace};
+  position: relative;
+  justify-content: space-between;
+
+  &:hover {
+    ${ActionButtons} {
+      width: auto;
+
+      span {
+        line-height: 0;
+      }
+
+      i {
+        margin-left: ${dimensions.coreSpacing}px;
+        font-size: ${typography.fontSizeHeading7 - 2}px;
+      }
+    }
+  }
+`;
+
 const TableRow = styled.tr`
   &:hover {
     ${ActionButtons} {
@@ -360,6 +381,7 @@ export {
   IntegrationName,
   RightButton,
   ActionButtons,
+  CollapseRow,
   TableRow,
   BrandName
 };

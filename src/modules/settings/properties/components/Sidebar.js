@@ -1,11 +1,11 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { NavLink } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { Sidebar as LeftSidebar } from 'modules/layout/components';
 import { SidebarList as List } from 'modules/layout/styles';
 
 const propTypes = {
-  contentType: PropTypes.string
+  currentType: PropTypes.string
 };
 
 class Sidebar extends Component {
@@ -19,19 +19,30 @@ class Sidebar extends Component {
     );
   }
 
+  getClassName(type) {
+    const { currentType } = this.props;
+    if (type === currentType) {
+      return 'active';
+    }
+    return null;
+  }
+
   render() {
     return (
       <LeftSidebar full header={this.renderSidebarHeader()}>
         <List>
           <li>
-            <NavLink activeClassName="active" to={`?type=Customer`}>
+            <Link
+              className={this.getClassName('Customer')}
+              to={`?type=Customer`}
+            >
               Customer Properties
-            </NavLink>
+            </Link>
           </li>
           <li>
-            <NavLink activeClassName="active" to={`?type=Company`}>
+            <Link className={this.getClassName('Company')} to={`?type=Company`}>
               Company Properties
-            </NavLink>
+            </Link>
           </li>
         </List>
       </LeftSidebar>
