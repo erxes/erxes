@@ -17,6 +17,7 @@ const fieldsgroups = `
         type
         text
         visible
+        validation
         order
         options
         groupId
