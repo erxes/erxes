@@ -24,13 +24,10 @@ class Stages extends Component {
   onChangeName(_id, e) {
     const stages = this.props.stages;
 
-    const stage = Object.assign({}, stages.find(s => s._id === _id));
+    const stage = stages.find(s => s._id === _id);
     stage.name = e.target.value;
 
-    const newStages = stages.filter(s => s._id !== _id);
-    newStages.push(stage);
-
-    this.props.onChangeStages(newStages);
+    this.props.onChangeStages(stages);
   }
 
   add() {

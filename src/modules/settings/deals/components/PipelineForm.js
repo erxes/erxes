@@ -30,20 +30,21 @@ class PipelineForm extends Component {
     this.onChangeStages = this.onChangeStages.bind(this);
     this.renderContent = this.renderContent.bind(this);
 
+    const stages = [];
+
+    props.stages.forEach(s => {
+      // unFreeze
+      stages.push(Object.assign({}, s));
+    });
+
     this.state = {
-      stages: []
+      stages
     };
   }
 
   onChangeStages(stages) {
     this.setState({
       stages
-    });
-  }
-
-  componentWillReceiveProps(props) {
-    this.setState({
-      stages: props.stages
     });
   }
 
@@ -107,7 +108,7 @@ class PipelineForm extends Component {
 
     return (
       <form onSubmit={this.save}>
-        {this.renderContent(this.props.pipeline || {})}
+        {this.renderContent()}
         <Modal.Footer>
           <Button
             btnStyle="simple"
