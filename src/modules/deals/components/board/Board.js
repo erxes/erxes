@@ -15,8 +15,7 @@ const propTypes = {
   currentBoard: PropTypes.object,
   boards: PropTypes.array,
   pipelines: PropTypes.array,
-  stages: PropTypes.array,
-  deals: PropTypes.array
+  stages: PropTypes.array
 };
 
 class Board extends React.Component {
@@ -24,12 +23,21 @@ class Board extends React.Component {
     super(props);
 
     this.state = {
-      deals: props.deals,
+      deals: [],
       stages: props.stages,
       showDealForm: {}
     };
 
+    this.collectDeals = this.collectDeals.bind(this);
     this.onDragEnd = this.onDragEnd.bind(this);
+  }
+
+  collectDeals(deals) {
+    const _deals = this.state.deals;
+
+    this.setState({
+      deals: _deals.concat(deals)
+    });
   }
 
   showNewDeal(stageId) {
@@ -89,16 +97,11 @@ class Board extends React.Component {
         destination.droppableId !== item[fieldName]
     );
 
-    console.log('otherList: ', otherList);
-    console.log('sourceArray: ', sourceArray);
-    console.log('addedList: ', addedList);
-
     // Update added list
     return otherList.concat(sourceArray, addedList);
   }
 
   onDragEnd(result) {
-    console.log('result: ', result);
     // dropped outside the list
     if (!result.destination) {
       return;
@@ -183,6 +186,7 @@ class Board extends React.Component {
                 stage => pipeline._id === stage.pipelineId
               )}
               deals={this.state.deals}
+              collectDeals={this.collectDeals}
             />
           );
         })}

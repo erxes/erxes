@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { withRouter } from 'react-router';
 import { router as routerUtils } from 'modules/common/utils';
+import { Spinner } from 'modules/common/components';
 import { compose, graphql } from 'react-apollo';
 import gql from 'graphql-tag';
 import { Board as BoardComponent } from '../components';
@@ -18,28 +19,21 @@ class Container extends React.Component {
   }
 
   render() {
-    const { boardsQuery, pipelinesQuery, dealsQuery, stagesQuery } = this.props;
+    const { boardsQuery, pipelinesQuery, stagesQuery } = this.props;
 
     const boards = boardsQuery.dealBoards || [];
     const pipelines = pipelinesQuery.dealPipelines || [];
     const stages = stagesQuery.dealStages || [];
-    const deals = dealsQuery.deals || [];
 
-    if (
-      boardsQuery.loading ||
-      pipelinesQuery.loading ||
-      dealsQuery.loading ||
-      stagesQuery.loading
-    ) {
-      return null;
+    if (boardsQuery.loading || pipelinesQuery.loading || stagesQuery.loading) {
+      return <Spinner />;
     }
 
     const extendedProps = {
       ...this.props,
       boards,
       pipelines,
-      stages,
-      deals
+      stages
     };
 
     return <BoardComponent {...extendedProps} />;
@@ -49,7 +43,6 @@ class Container extends React.Component {
 const propTypes = {
   boardsQuery: PropTypes.object,
   pipelinesQuery: PropTypes.object,
-  dealsQuery: PropTypes.object,
   stagesQuery: PropTypes.object,
   currentBoardId: PropTypes.string,
   history: PropTypes.object
@@ -71,14 +64,6 @@ const BoardContainer = compose(
   }),
   graphql(gql(queries.stages), {
     name: 'stagesQuery',
-    options: ({ currentBoardId }) => ({
-      variables: {
-        boardId: currentBoardId || ''
-      }
-    })
-  }),
-  graphql(gql(queries.deals), {
-    name: 'dealsQuery',
     options: ({ currentBoardId }) => ({
       variables: {
         boardId: currentBoardId || ''

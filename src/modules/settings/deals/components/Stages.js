@@ -17,7 +17,6 @@ class Stages extends Component {
 
     this.add = this.add.bind(this);
     this.remove = this.remove.bind(this);
-    this.onChangeFields = this.onChangeFields.bind(this);
     this.onChangeName = this.onChangeName.bind(this);
   }
 
@@ -50,10 +49,6 @@ class Stages extends Component {
     this.props.onChangeStages(remainedStages);
   }
 
-  onChangeFields(stages) {
-    this.props.onChangeStages(stages);
-  }
-
   render() {
     const child = stage => {
       return (
@@ -72,7 +67,7 @@ class Stages extends Component {
           child={child}
           lockAxis="y"
           useDragHandle
-          onChangeFields={this.onChangeFields}
+          onChangeFields={this.props.onChangeStages}
         />
         <Button onClick={this.add} btnStyle="success" size="small" icon="plus">
           Add stage

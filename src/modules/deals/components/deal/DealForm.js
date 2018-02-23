@@ -2,16 +2,17 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Modal } from 'react-bootstrap';
 import Datetime from 'react-datetime';
+import Select from 'react-select-plus';
 import {
   Button,
   ModalTrigger,
   Icon,
   FormGroup,
-  ControlLabel,
-  FormControl
+  ControlLabel
 } from 'modules/common/components';
 import { DealFormContainer, DealButton } from '../../styles';
 import { ProductForm } from '../';
+import { selectOptions } from '../../utils';
 
 const propTypes = {
   deal: PropTypes.object,
@@ -60,38 +61,46 @@ class DealForm extends React.Component {
       }
     });
 
+    const deal = {
+      boardId,
+      pipelineId,
+      stageId,
+      companyId,
+      customerId,
+      closeDate: new Date(closeDate),
+      productIds,
+      productsData: filteredProductsData,
+      note
+    };
+
     this.props.saveDeal(
       {
-        doc: {
-          boardId,
-          pipelineId,
-          stageId,
-          companyId,
-          customerId,
-          closeDate: new Date(closeDate),
-          productIds,
-          productsData: filteredProductsData,
-          note
-        }
+        doc: deal
       },
       () => {
+        this.props.refetch();
         this.props.close();
       },
       this.props.deal
     );
   }
 
-  onChangeCompany(e) {
-    const companyId = e.target.value;
-    const customers = this.props.companies.find(
-      company => company._id === companyId
-    ).customers;
+  onChangeCompany(value) {
+    if (value) {
+      const companyId = value.value;
 
-    this.setState({ companyId, customers });
+      const customers = this.props.companies.find(
+        company => company._id === companyId
+      ).customers;
+
+      this.setState({ companyId, customers });
+    } else {
+      this.setState({ companyId: '', customerId: '', customers: [] });
+    }
   }
 
-  onChangeCustomer(e) {
-    const customerId = e.target.value;
+  onChangeCustomer(value) {
+    const customerId = value ? value.value : '';
 
     this.setState({ customerId });
   }
@@ -112,7 +121,7 @@ class DealForm extends React.Component {
     );
 
     const { companies } = this.props;
-    const { customers, customer, company, closeDate } = this.state;
+    const { customers, companyId, customerId, closeDate } = this.state;
 
     return (
       <DealFormContainer>
@@ -129,33 +138,31 @@ class DealForm extends React.Component {
           </ModalTrigger>
           <FormGroup>
             <ControlLabel>Company</ControlLabel>
-            <FormControl
-              componentClass="select"
-              value={company}
-              onChange={this.onChangeCompany}
-            >
-              <option />
-              {companies.map(customer => (
-                <option key={customer._id} value={customer._id}>
-                  {customer.name}
-                </option>
-              ))}
-            </FormControl>
+            <Select
+              placeholder="Choose company"
+              value={companyId}
+              onChange={value => this.onChangeCompany(value)}
+              optionRenderer={option => (
+                <div className="simple-option">
+                  <span>{option.label}</span>
+                </div>
+              )}
+              options={selectOptions(companies)}
+            />
           </FormGroup>
           <FormGroup>
             <ControlLabel>Customer</ControlLabel>
-            <FormControl
-              componentClass="select"
-              value={customer}
-              onChange={this.onChangeCustomer}
-            >
-              <option />
-              {customers.map(customer => (
-                <option key={customer._id} value={customer._id}>
-                  {customer.name}
-                </option>
-              ))}
-            </FormControl>
+            <Select
+              placeholder="Choose customer"
+              value={customerId}
+              onChange={value => this.onChangeCustomer(value)}
+              optionRenderer={option => (
+                <div className="simple-option">
+                  <span>{option.label}</span>
+                </div>
+              )}
+              options={selectOptions(customers)}
+            />
           </FormGroup>
           <FormGroup>
             <ControlLabel>Close date</ControlLabel>

@@ -46,8 +46,8 @@ const stages = `
 `;
 
 const deals = `
-  query deals($boardId: String) {
-    deals(boardId: $boardId) {
+  query deals($stageId: String) {
+    deals(stageId: $stageId) {
       _id
       stageId
       customer {

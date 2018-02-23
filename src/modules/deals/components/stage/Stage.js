@@ -30,6 +30,14 @@ class Stage extends React.Component {
     this.state = {
       amount
     };
+
+    props.collectDeals(props.dealsFromDb);
+  }
+
+  componentWillReceiveProps(nextProps) {
+    if (this.props.dealsFromDb.length !== nextProps.dealsFromDb.length) {
+      this.props.collectDeals(nextProps.dealsFromDb);
+    }
   }
 
   render() {
@@ -66,7 +74,9 @@ class Stage extends React.Component {
                   boardId={boardId}
                   pipelineId={pipelineId}
                   stageId={stage._id}
+                  refetch={this.props.refetch}
                   close={this.props.closeDealForm.bind(this, stage._id)}
+                  deals={this.props.deals}
                 />
               ) : (
                 <AddNewDeal

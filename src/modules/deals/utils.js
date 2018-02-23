@@ -17,3 +17,9 @@ export function addToList(array, index, item) {
   array.splice(index, 0, item);
   return array;
 }
+
+export function selectOptions(array) {
+  const options = [];
+  array.map(item => options.push({ value: item._id, label: item.name }));
+  return options;
+}

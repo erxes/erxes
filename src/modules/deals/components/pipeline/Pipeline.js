@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Stage } from '../';
+import { Stage } from '../../containers';
 import { Droppable } from 'react-beautiful-dnd';
 import { PipelineContainer, PipelineHeader, PipelineBody } from '../../styles';
 
@@ -54,10 +54,11 @@ class Pipeline extends React.Component {
               stage={stage}
               boardId={boardId}
               pipelineId={pipeline._id}
-              deals={deals.filter(deal => deal.stageId === stage._id)}
               showDealForm={this.state.showDealForm}
               closeDealForm={this.closeDealForm}
               addDealForm={this.addDealForm}
+              deals={deals.filter(d => d.stageId === stage._id)}
+              collectDeals={this.props.collectDeals}
             />
           );
         })}

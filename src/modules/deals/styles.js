@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import { colors } from 'modules/common/styles';
+import { colors, typography } from 'modules/common/styles';
 import { rgba } from 'modules/common/styles/color';
 
 const PipelineContainer = styled.div`
@@ -78,11 +78,26 @@ const DealFormContainer = styled.div`
   border-radius: 5px;
   border: 1px dotted ${colors.colorShadowGray};
   background-color: #f6f6f6;
+
+  .form-control {
+    box-shadow: none;
+    border-radius: 0;
+    border: none;
+    background: none;
+    border-bottom: 1px solid ${colors.colorShadowGray};
+    padding: 17px 14px;
+    font-size: ${typography.fontSizeBody}px;
+
+    &:focus {
+      box-shadow: none;
+      border-color: ${colors.colorSecondary};
+    }
+  }
 `;
 
 const DealButton = styled.div`
   padding: 7px 10px;
-  margin-bottom: 10px;
+  margin-bottom: 15px;
   background: ${colors.colorWhite};
   border-radius: 5px;
   i {
