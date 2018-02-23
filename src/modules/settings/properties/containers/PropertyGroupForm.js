@@ -26,7 +26,12 @@ const PropertyGroupFormContainer = (props, context) => {
 
   const edit = ({ _id, doc }) => {
     fieldsGroupsEdit({
-      variables: { _id, ...doc, lastUpdatedBy: currentUser._id }
+      variables: {
+        _id,
+        ...doc,
+        lastUpdatedBy: currentUser._id,
+        contentType: type
+      }
     })
       .then(() => {
         Alert.success('Successfully Edited');
