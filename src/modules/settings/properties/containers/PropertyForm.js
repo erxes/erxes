@@ -25,7 +25,12 @@ const PropertyFormContainer = (props, context) => {
 
   const edit = ({ _id, doc }) => {
     fieldsEdit({
-      variables: { _id, ...doc, lastUpdatedBy: currentUser._id }
+      variables: {
+        _id,
+        ...doc,
+        lastUpdatedBy: currentUser._id,
+        contentType: type
+      }
     })
       .then(() => {
         Alert.success('Successfully edited');
