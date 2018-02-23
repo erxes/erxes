@@ -63,9 +63,13 @@ class PropertyForm extends Component {
           ? {
               ...nextProps.field,
               groupId: nextProps.field.groupId,
-              hasOptions: true
+              hasOptions: true,
+              options: Object.assign([], nextProps.field.options)
             }
-          : { ...nextProps.field, groupId: nextProps.field.groupId }
+          : {
+              ...nextProps.field,
+              groupId: nextProps.field.groupId
+            }
         : { groupId: nextProps.groups[0]._id }
     );
   }
