@@ -51,6 +51,7 @@ class PropertyForm extends Component {
     this.renderButtonOrInput = this.renderButtonOrInput.bind(this);
     this.onFieldChange = this.onFieldChange.bind(this);
     this.handleCancelAddingOption = this.handleCancelAddingOption.bind(this);
+    this.handleRemoveOption = this.handleRemoveOption.bind(this);
     this.onSubmit = this.onSubmit.bind(this);
   }
 
@@ -134,6 +135,14 @@ class PropertyForm extends Component {
     this.setState({ optionValue: e.target.value });
   }
 
+  handleRemoveOption(index) {
+    const { options } = this.state;
+
+    this.setState({
+      options: options.splice(index, 1) && options
+    });
+  }
+
   renderButtonOrInput() {
     if (this.state.add) {
       return (
@@ -178,7 +187,7 @@ class PropertyForm extends Component {
         <TypeList>
           {this.state.options.map((option, index) => {
             return (
-              <li key={index}>
+              <li key={index} onClick={() => this.handleRemoveOption(index)}>
                 {option} <Icon icon="close" />
               </li>
             );

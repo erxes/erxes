@@ -47,7 +47,7 @@ class PropertyGroupForm extends React.Component {
       this.setState({
         name: group.name || '',
         description: group.description || '',
-        visible: group.visible || true
+        visible: group.visible
       });
     }
   }
@@ -116,7 +116,7 @@ class PropertyGroupForm extends React.Component {
         <FormGroup>
           <ControlLabel>Visible</ControlLabel>
           <Toggle
-            defaultChecked={this.state.visible}
+            checked={this.state.visible}
             icons={{
               checked: <span>Yes</span>,
               unchecked: <span>No</span>
