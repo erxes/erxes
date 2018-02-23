@@ -83,7 +83,10 @@ const customerQueries = {
       selector = { _id: { $in: ids } };
     }
 
-    return paginate(Customers.find(selector), params).sort(sort);
+    const totalCount = await Customers.find(selector).count();
+    const list = await paginate(Customers.find(selector), params).sort(sort);
+
+    return { list, totalCount };
   },
 
   /**
@@ -107,9 +110,6 @@ const customerQueries = {
       const findQuery = Object.assign({}, selector, query);
       return Customers.find(findQuery).count();
     };
-
-    // Count current filtered customers
-    counts.all = await count(selector);
 
     // Count customers by segments
     const segments = await Segments.find({
