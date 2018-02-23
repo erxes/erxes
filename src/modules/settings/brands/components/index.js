@@ -1,4 +1,19 @@
+import Brands from './Brands';
+import Sidebar from './Sidebar';
+import IntegrationList from './IntegrationList';
+import IntegrationRow from './IntegrationRow';
+import ManageIntegrationForm from './ManageIntegrationForm';
+import BrandRow from './BrandRow';
 import BrandForm from './BrandForm';
-import BrandList from './BrandList';
+import ChooseBrand from './ChooseBrand';
 
-export { BrandForm, BrandList };
+export {
+  Brands,
+  Sidebar,
+  IntegrationList,
+  IntegrationRow,
+  ManageIntegrationForm,
+  BrandRow,
+  BrandForm,
+  ChooseBrand
+};

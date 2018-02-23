@@ -3,6 +3,7 @@ import { colors } from '../common/styles';
 
 const columnSizing = '20px';
 const borderRadius = '2px';
+const borderDarker = '#e6e6e6';
 
 const Columns = styled.div`
   display: flex;
@@ -13,6 +14,7 @@ const Columns = styled.div`
 const Column = styled.div`
   flex: 4;
   position: relative;
+  overflow: hidden;
 
   > input {
     margin-bottom: ${columnSizing};
@@ -29,7 +31,7 @@ const Column = styled.div`
       padding: 6px 40px 6px ${columnSizing};
       position: relative;
       margin-bottom: 6px;
-      border: 1px solid #e6e6e6;
+      border: 1px solid ${borderDarker};
       border-radius: ${borderRadius};
       transition: all 0.3s ease;
 
@@ -57,10 +59,6 @@ const Column = styled.div`
           width: 34px;
         }
       }
-
-      &:last-child {
-        margin: 0;
-      }
     }
   }
 
@@ -78,14 +76,21 @@ const Column = styled.div`
       }
     }
   }
+
+  &.multiple:first-child {
+    margin-right: ${columnSizing};
+  }
 `;
 
 const Title = styled.h4`
   margin: 0 0 ${columnSizing} 0;
   background: ${colors.bgActive};
   padding: 10px ${columnSizing};
-  font-size: 13px;
+  font-size: 12px;
   text-transform: uppercase;
+  white-space: ${props => (props.full ? 'normal' : 'nowrap')};
+  overflow: hidden;
+  text-overflow: ellipsis;
 
   span {
     opacity: 0.7;
@@ -114,14 +119,40 @@ const LoadMore = styled.div`
   margin-top: 10px;
 `;
 
-const DetailContent = styled.div`
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-`;
-
 const SubContent = styled.div`
   flex: 1;
 `;
 
-export { Columns, Column, Title, Footer, LoadMore, DetailContent, SubContent };
+const Info = styled.div`
+  margin-top: 5px;
+
+  > span {
+    font-weight: normal;
+  }
+`;
+
+const InfoTitle = styled.span`
+  font-weight: 500;
+  margin-bottom: 5px;
+  margin-right: 10px;
+`;
+
+const InfoDetail = styled.p`
+  margin: 0;
+  display: inline-block;
+  font-size: 12px;
+  font-weight: normal;
+  color: ${colors.colorCoreGray};
+`;
+
+export {
+  Columns,
+  Column,
+  Title,
+  Footer,
+  LoadMore,
+  SubContent,
+  InfoTitle,
+  InfoDetail,
+  Info
+};

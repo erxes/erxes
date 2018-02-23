@@ -1,16 +1,13 @@
 import styled from 'styled-components';
-import { colors, dimensions } from '../common/styles';
+import { colors, dimensions, typography } from '../common/styles';
 
 const UserHelper = styled.div`
-  padding: 0 ${dimensions.coreSpacing}px;
   height: 50px;
   display: flex;
   align-items: center;
-  background: ${colors.bgLight};
 
   &:hover {
     cursor: pointer;
-    background: ${colors.bgUnread};
   }
 `;
 
@@ -25,7 +22,9 @@ const MainWrapper = styled.div`
   flex: 1;
   display: flex;
   flex-direction: column;
-  max-width: calc(100% - ${dimensions.headerSpacingWide}px);
+  padding-top: ${dimensions.headerSpacing}px;
+  padding-left: ${dimensions.headerSpacingWide}px;
+  max-width: 100%;
 `;
 
 const Contents = styled.div`
@@ -33,9 +32,7 @@ const Contents = styled.div`
   flex: 1;
   margin: ${dimensions.coreSpacing}px;
   margin-right: 0;
-  max-height: calc(
-    100% - ${dimensions.headerSpacingWide + dimensions.coreSpacing}px
-  );
+  max-height: 100%;
 `;
 
 const MainContent = styled.section`
@@ -79,6 +76,11 @@ const BarItems = styled.div`
   > * + * {
     margin-left: ${dimensions.unitSpacing}px;
   }
+
+  input[type='text'] {
+    width: auto;
+    display: inline-block;
+  }
 `;
 
 const HeaderItems = styled.div`
@@ -107,6 +109,8 @@ const SidebarHeader = styled.div`
   align-items: center;
   padding: 0 ${dimensions.coreSpacing}px 0 ${dimensions.coreSpacing}px;
   border-bottom: 1px solid ${colors.borderPrimary};
+  text-transform: ${props => props.uppercase && 'uppercase'};
+  font-weight: ${props => props.bold && typography.fontWeightMedium};
   display: flex;
   flex-direction: row;
   justify-content: space-between;
@@ -124,12 +128,12 @@ const SidebarFooter = SidebarHeader.extend`
 `;
 
 const SidebarBox = styled.div`
-  background-color: ${colors.colorWhite};
+  background-color: ${props => (props.noBackground ? '' : colors.colorWhite)};
   margin-bottom: ${dimensions.coreSpacing}px;
   box-shadow: ${props =>
     props.noShadow ? 'none' : `0 0 4px ${colors.shadowPrimary}`};
-  padding-bottom: 10px;
-  position: relative;
+  padding-bottom: ${dimensions.unitSpacing}px;
+  position: ${props => (props.full ? 'initial' : 'relative')};
   justify-content: center;
   transition: max-height 0.4s;
   overflow: ${props => (props.collapsible ? 'hidden' : 'auto')};
@@ -147,11 +151,11 @@ const BoxContent = styled.div`
 const SidebarToggle = styled.a`
   outline: 0;
   width: 100%;
-  color: #ddd;
+  color: ${colors.colorShadowGray};
   position: absolute;
   bottom: 0;
   text-align: center;
-  font-size: 12px;
+  font-size: ${typography.fontSizeHeading8}px;
   background: linear-gradient(
     0deg,
     white 0%,
@@ -166,8 +170,8 @@ const QuickButton = styled.a`
   text-transform: none;
   cursor: pointer;
   margin-left: ${dimensions.unitSpacing}px;
-  font-size: 12px;
-  font-weight: 300;
+  font-size: ${typography.fontSizeHeading8}px;
+  font-weight: ${typography.fontWeightLight};
   outline: 0;
 
   > i {
@@ -188,7 +192,7 @@ const HelperButtons = styled.div`
   a {
     color: ${colors.colorCoreLightGray};
     cursor: pointer;
-    font-size: 12px;
+    font-size: ${typography.fontSizeHeading8}px;
 
     > i {
       font-size: 14px;
@@ -202,8 +206,8 @@ const HelperButtons = styled.div`
 `;
 
 const SidebarTitle = styled.h3`
-  font-size: 12px;
-  font-weight: 500;
+  font-size: ${typography.fontSizeHeading8}px;
+  font-weight: ${typography.fontWeightMedium};
   text-transform: uppercase;
   padding: ${dimensions.coreSpacing}px;
   margin: 0;
@@ -221,6 +225,11 @@ const SidebarList = styled.ul`
   li.child-segment {
     border-bottom: none;
     background-color: ${colors.bgLight};
+
+    > span {
+      background-color: ${colors.bgLight};
+      box-shadow: -2px 0 10px 2px ${colors.bgLight};
+    }
   }
 
   &.no-link li,
@@ -235,22 +244,22 @@ const SidebarList = styled.ul`
     outline: 0;
     position: relative;
 
-    > span {
-      font-size: 12px;
-      text-align: right;
-      color: #888;
-      margin-top: 2px;
-      position: absolute;
-      right: 20px;
+    > i {
+      margin-right: 5px;
     }
 
     &:hover,
     &.active {
       cursor: pointer;
-      background: ${colors.borderPrimary};
+      background: ${colors.bgActive};
       text-decoration: none;
       outline: 0;
       color: ${colors.colorCoreBlack};
+
+      > span {
+        background-color: ${colors.bgActive};
+        box-shadow: -2px 0 10px 2px ${colors.bgActive};
+      }
     }
   }
 
@@ -261,15 +270,18 @@ const SidebarList = styled.ul`
 `;
 
 const SidebarCounter = styled.span`
-  font-size: 12px;
+  font-size: ${typography.fontSizeHeading8}px;
   text-align: right;
   color: ${colors.colorCoreGray};
   margin-top: 2px;
   position: absolute;
-  right: 20px;
+  right: ${dimensions.coreSpacing}px;
   max-width: 60%;
   overflow: hidden;
   text-overflow: ellipsis;
+  background-color: #fff;
+  box-shadow: -2px 0 10px 2px #fff;
+  padding-left: 10px;
 
   a {
     padding: 0;
@@ -337,16 +349,16 @@ const AuthDescription = styled.div`
     font-weight: bold;
     font-size: 32px;
     margin-bottom: 30px;
-    color: #fff;
+    color: ${colors.colorWhite};
   }
   p {
-    color: #c9b6e8;
+    color: ${colors.colorPrimary};
     margin-bottom: 50px;
     font-size: 16px;
     line-height: 1.8em;
   }
   a {
-    color: #c9b6e8;
+    color: ${colors.colorPrimary};
   }
   .not-found {
     margin-top: 0;

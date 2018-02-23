@@ -1,13 +1,19 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { compose, gql, graphql } from 'react-apollo';
+import { compose, graphql } from 'react-apollo';
+import gql from 'graphql-tag';
 import { Alert } from 'modules/common/utils';
 import { ManageColumns } from '../components';
 import { queries } from '../graphql';
 
 const ManageColumnsContainer = props => {
-  const { fieldsDefaultColumnsConfigQuery, fieldsQuery, contentType } = props;
-
+  const {
+    fieldsDefaultColumnsConfigQuery,
+    fieldsQuery,
+    contentType,
+    location,
+    history
+  } = props;
   if (fieldsQuery.loading || fieldsDefaultColumnsConfigQuery.loading) {
     return false;
   }
@@ -17,6 +23,10 @@ const ManageColumnsContainer = props => {
   const save = config => {
     localStorage.setItem(storageKey, JSON.stringify(config));
     Alert.success('Success');
+
+    if (history && location) {
+      history.push(location.pathname);
+    }
   };
 
   let config = fieldsDefaultColumnsConfigQuery.fieldsDefaultColumnsConfig;
@@ -38,6 +48,8 @@ const ManageColumnsContainer = props => {
 ManageColumnsContainer.propTypes = {
   contentType: PropTypes.string,
   fieldsQuery: PropTypes.object,
+  location: PropTypes.object,
+  history: PropTypes.object,
   fieldsDefaultColumnsConfigQuery: PropTypes.object
 };
 

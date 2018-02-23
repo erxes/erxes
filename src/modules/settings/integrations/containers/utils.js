@@ -1,11 +1,11 @@
 import { Alert } from 'modules/common/utils';
 
 export const save = ({
-  history,
   variables,
   addMutation,
   editMutation,
   integration,
+  onSave,
   refetch
 }) => {
   let mutation = addMutation;
@@ -23,9 +23,11 @@ export const save = ({
         refetch();
       }
 
-      Alert.success('Congrats');
+      if (onSave) {
+        onSave();
+      }
 
-      history.push(`/settings/integrations/${window.location.search}`);
+      Alert.success('Congrats');
     })
     .catch(error => {
       Alert.error(error.message);

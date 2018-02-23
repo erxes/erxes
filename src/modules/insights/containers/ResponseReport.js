@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { compose, gql, graphql } from 'react-apollo';
+import { compose, graphql } from 'react-apollo';
+import gql from 'graphql-tag';
 import { ResponseReport } from '../components';
 import { queries } from '../graphql';
 
@@ -22,8 +23,10 @@ const ResponseReportContainer = props => {
     brands: brandsQuery.brands || [],
     punch: punchCardQuery.insightsPunchCard || [],
     summary: data.summary || [],
-    isLoading:
-      brandsQuery.loading || punchCardQuery.loading || mainQuery.loading
+    loading: {
+      main: mainQuery.loading,
+      punch: punchCardQuery.loading
+    }
   };
 
   return <ResponseReport {...updatedProps} />;

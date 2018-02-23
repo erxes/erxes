@@ -4,12 +4,22 @@ import { colors, dimensions } from 'modules/common/styles';
 const MessageContent = styled.div`
   padding: ${dimensions.unitSpacing}px ${dimensions.coreSpacing}px;
   border-radius: 7px;
+  border-bottom-left-radius: 0;
   background: ${colors.colorWhite};
   background: ${props =>
     props.internal ? colors.bgInternal : props.staff && colors.colorSecondary};
   word-break: break-word;
   box-shadow: 0 1px 1px 0 ${colors.darkShadow};
   color: ${props => props.staff && !props.internal && colors.colorWhite};
+
+  ${props => {
+    if (props.staff) {
+      return `
+        border-bottom-right-radius: 0;
+        border-bottom-left-radius: 7px;
+      `;
+    }
+  }};
 
   p {
     margin: 0;
@@ -99,11 +109,20 @@ const MessageBody = styled.div`
 
 const FormTable = styled.div`
   border: 1px solid ${colors.borderPrimary};
-  border-radius: 7px;
+  border-radius: 2px;
   font-size: 12px;
   padding: 0;
   margin-bottom: ${dimensions.coreSpacing}px;
-  background: none;
+  background: ${colors.colorWhite};
+
+  table thead th:last-child {
+    text-align: center;
+    color: ${colors.colorCoreBlack};
+  }
+
+  table tr td {
+    word-break: break-word;
+  }
 `;
 
 export { MessageItem, MessageBody, MessageContent, FormTable };

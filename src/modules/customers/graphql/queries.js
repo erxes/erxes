@@ -10,6 +10,7 @@ const customerFields = `
     createdAt
     remoteAddress
     location
+    visitorContactInfo
 
     customFieldsData
     messengerData

@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { compose, gql, graphql } from 'react-apollo';
+import { compose, graphql } from 'react-apollo';
+import gql from 'graphql-tag';
 import { withRouter } from 'react-router';
 import queryString from 'query-string';
 import { TAG_TYPES } from 'modules/tags/constants';
@@ -49,6 +50,8 @@ const MessageListContainerWithData = compose(
       notifyOnNetworkStatusChange: true,
       fetchPolicy: 'network-only',
       variables: {
+        page: queryParams.page,
+        perPage: queryParams.perPage || 20,
         kind: queryParams.kind,
         status: queryParams.status,
         tag: queryParams.tag,

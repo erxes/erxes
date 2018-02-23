@@ -1,7 +1,8 @@
 import React from 'react';
 import { withRouter } from 'react-router';
 import PropTypes from 'prop-types';
-import { compose, gql, graphql } from 'react-apollo';
+import { compose, graphql } from 'react-apollo';
+import gql from 'graphql-tag';
 import { Alert } from 'modules/common/utils';
 import { queries, mutations } from '../graphql';
 
@@ -35,7 +36,7 @@ const withSaveAndEdit = Component => {
 
     // save
     const save = doc => {
-      doc.kind = message ? message.kind : kind;
+      doc.kind = message.kind ? message.kind : kind;
 
       if (messageId) {
         return doMutation(editMutation, { ...doc, _id: messageId });

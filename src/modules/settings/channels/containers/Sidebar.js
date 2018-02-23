@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { compose, gql, graphql } from 'react-apollo';
+import { compose, graphql } from 'react-apollo';
+import gql from 'graphql-tag';
 import { Alert, confirm } from 'modules/common/utils';
 import { queries, mutations } from '../graphql';
 import { Sidebar } from '../components';
@@ -26,9 +27,6 @@ const SidebarContainer = props => {
         variables: { _id }
       })
         .then(() => {
-          channelsQuery.refetch();
-          usersQuery.refetch();
-
           Alert.success('Successfully deleted.');
         })
         .catch(error => {
@@ -50,9 +48,6 @@ const SidebarContainer = props => {
       variables: doc
     })
       .then(() => {
-        channelsQuery.refetch();
-        usersQuery.refetch();
-
         Alert.success('Successfully saved!');
 
         callback();
@@ -84,6 +79,25 @@ SidebarContainer.propTypes = {
   removeMutation: PropTypes.func
 };
 
+const commonOptions = ({ queryParams, currentChannelId }) => {
+  return {
+    refetchQueries: [
+      {
+        query: gql(queries.channels),
+        variables: { perPage: queryParams.limit || 20 },
+        fetchPolicy: 'network-only'
+      },
+      {
+        query: gql(queries.channelDetail),
+        variables: { _id: currentChannelId || '' },
+        fetchPolicy: 'network-only'
+      },
+      { query: gql(queries.channelsCount) },
+      { query: gql(queries.users) }
+    ]
+  };
+};
+
 export default compose(
   graphql(gql(queries.channels), {
     name: 'channelsQuery',
@@ -104,12 +118,15 @@ export default compose(
     name: 'channelsCountQuery'
   }),
   graphql(gql(mutations.channelAdd), {
-    name: 'addMutation'
+    name: 'addMutation',
+    options: commonOptions
   }),
   graphql(gql(mutations.channelEdit), {
-    name: 'editMutation'
+    name: 'editMutation',
+    options: commonOptions
   }),
   graphql(gql(mutations.channelRemove), {
-    name: 'removeMutation'
+    name: 'removeMutation',
+    options: commonOptions
   })
 )(SidebarContainer);

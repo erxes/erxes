@@ -15,18 +15,13 @@ const PageHeader = styled.div`
   top: 0;
   display: flex;
   align-items: center;
+  z-index: 2;
 `;
 
 function Header({ breadcrumb = [], queryParams }) {
   return (
     <PageHeader>
-      <BreadCrumb>
-        {breadcrumb.map(b => (
-          <BreadCrumb.Item href={b.link} active={!b.link} key={b.title}>
-            {b.title}
-          </BreadCrumb.Item>
-        ))}
-      </BreadCrumb>
+      <BreadCrumb breadcrumbs={breadcrumb} />
       {queryParams && <Filter queryParams={queryParams} />}
     </PageHeader>
   );

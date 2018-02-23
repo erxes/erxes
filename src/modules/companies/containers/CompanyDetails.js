@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { compose, gql, graphql } from 'react-apollo';
+import { compose, graphql } from 'react-apollo';
+import gql from 'graphql-tag';
 import { queries, mutations } from '../graphql';
 import { CompanyDetails } from '../components';
 
@@ -12,6 +13,9 @@ const CompanyDetailsContainer = (props, context) => {
     companiesEdit,
     fieldsQuery
   } = props;
+
+  //refetch for display customer change
+  companyDetailQuery.refetch();
 
   const save = (variables, callback) => {
     companiesEdit({ variables: { _id: id, ...variables } })
@@ -25,12 +29,13 @@ const CompanyDetailsContainer = (props, context) => {
 
   const updatedProps = {
     ...props,
+    save,
+    loadingLogs: companyActivityLogQuery.loading,
     company: companyDetailQuery.companyDetail || {
       customers: [],
       customFieldsData: {}
     },
     companyActivityLog: companyActivityLogQuery.activityLogsCompany || [],
-    save,
     currentUser: context.currentUser,
     customFields: fieldsQuery.fields || []
   };

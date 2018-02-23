@@ -2,15 +2,20 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { NavLink } from 'react-router-dom';
 import styled from 'styled-components';
+import { setBadge } from 'modules/common/utils';
 import { colors, dimensions } from 'modules/common/styles';
-import { rgba } from 'modules/common/styles/color';
-import { Tip, Icon, Label } from 'modules/common/components';
+import { Tip, Label } from 'modules/common/components';
 
 const LeftNavigation = styled.aside`
   width: ${dimensions.headerSpacingWide}px;
   background: ${colors.colorPrimaryDark};
   z-index: 10;
   flex-shrink: 0;
+  overflow: hidden;
+  position: fixed;
+  left: 0;
+  top: 0;
+  bottom: 0;
 
   > a {
     line-height: ${dimensions.headerSpacing}px;
@@ -37,14 +42,16 @@ const Nav = styled.nav`
 
   > a {
     display: block;
-    text-align: center;
     height: ${dimensions.headerSpacing + 10}px;
-    font-size: ${dimensions.coreSpacing}px;
-    line-height: ${dimensions.headerSpacing + 10}px;
     text-align: center;
-    color: ${rgba(colors.colorWhite, 0.7)};
     position: relative;
     transition: all 0.3s ease;
+
+    i {
+      margin-top: 20px;
+      opacity: 0.8;
+      transition: all 0.3s ease;
+    }
 
     span {
       position: absolute;
@@ -55,25 +62,63 @@ const Nav = styled.nav`
       min-height: 19px;
     }
 
-    &:hover {
-      color: ${colors.colorWhite};
-      text-shadow: 1px 0px 40px ${colors.colorWhite};
+    &:hover,
+    &.active {
+      opacity: 1;
+
+      i {
+        opacity: 1;
+      }
     }
 
     &.active {
-      position: relative;
-      color: ${colors.colorWhite};
-      text-shadow: 1px 0px 40px ${colors.colorWhite};
       background: rgba(0, 0, 0, 0.13);
-    }
-
-    > i {
-      margin: 0;
     }
   }
 `;
 
+const NavIcon = styled.i`
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  width: 18px;
+  height: 18px;
+  display: inline-block;
+
+  &.icon-inbox {
+    background-image: url('/images/icons/nav-01.svg');
+  }
+
+  &.icon-customer {
+    background-image: url('/images/icons/nav-02.svg');
+  }
+
+  &.icon-company {
+    background-image: url('/images/icons/nav-03.svg');
+  }
+
+  &.icon-engage {
+    background-image: url('/images/icons/nav-04.svg');
+  }
+
+  &.icon-insights {
+    background-image: url('/images/icons/nav-05.svg');
+  }
+
+  &.icon-settings {
+    background-image: url('/images/icons/nav-06.svg');
+  }
+
+  &.icon-knowledge {
+    background-image: url('/images/icons/nav-07.svg');
+  }
+`;
+
 class Navigation extends Component {
+  componentDidUpdate() {
+    setBadge(this.props.unreadConversationsCount);
+  }
+
   componentWillReceiveProps(nextProps) {
     if (
       nextProps.unreadConversationsCount > this.props.unreadConversationsCount
@@ -93,7 +138,7 @@ class Navigation extends Component {
         <Nav>
           <Tip placement="right" text="Inbox">
             <NavLink to="/inbox" activeClassName="active">
-              <Icon icon="android-textsms" />
+              <NavIcon className="icon-inbox" />
               {unreadConversationsCount !== 0 && (
                 <Label shake lblStyle="danger">
                   {unreadConversationsCount}
@@ -103,27 +148,32 @@ class Navigation extends Component {
           </Tip>
           <Tip placement="right" text="Customers">
             <NavLink to="/customers" activeClassName="active">
-              <Icon icon="person-stalker" />
+              <NavIcon className="icon-customer" />
             </NavLink>
           </Tip>
           <Tip placement="right" text="Companies">
             <NavLink to="/companies" activeClassName="active">
-              <Icon icon="briefcase" />
+              <NavIcon className="icon-company" />
             </NavLink>
           </Tip>
           <Tip placement="right" text="Engage">
             <NavLink to="/engage" activeClassName="active">
-              <Icon icon="speakerphone" />
+              <NavIcon className="icon-engage" />
             </NavLink>
           </Tip>
           <Tip placement="right" text="Insights">
             <NavLink to="/insights" activeClassName="active">
-              <Icon icon="pie-graph" />
+              <NavIcon className="icon-insights" />
+            </NavLink>
+          </Tip>
+          <Tip placement="right" text="Knowledge Base">
+            <NavLink to="/knowledgeBase" activeClassName="active">
+              <NavIcon className="icon-knowledge" />
             </NavLink>
           </Tip>
           <Tip placement="right" text="Settings">
             <NavLink to="/settings" activeClassName="active">
-              <Icon icon="gear-b" />
+              <NavIcon className="icon-settings" />
             </NavLink>
           </Tip>
         </Nav>

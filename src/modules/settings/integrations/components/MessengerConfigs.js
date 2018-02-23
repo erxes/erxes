@@ -5,14 +5,15 @@ import { Col, Row } from 'react-bootstrap';
 import Select from 'react-select-plus';
 import Toggle from 'react-toggle';
 import { ActionBar, Wrapper } from 'modules/layout/components';
-import { timezones } from '../constants';
-import OnlineHours from './OnlineHours';
 import {
   Button,
   FormGroup,
   FormControl,
   ControlLabel
 } from 'modules/common/components';
+import Sidebar from '../Sidebar';
+import { timezones } from '../constants';
+import OnlineHours from './OnlineHours';
 import { ContentBox, SubHeading } from '../../styles';
 
 class Configs extends Component {
@@ -252,6 +253,7 @@ class Configs extends Component {
     return (
       <Wrapper
         header={<Wrapper.Header breadcrumb={breadcrumb} />}
+        leftSidebar={<Sidebar />}
         footer={actionFooter}
         content={content}
       />

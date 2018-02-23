@@ -15,11 +15,12 @@ import {
   FormControl,
   DataWithLoader
 } from 'modules/common/components';
+import { router, confirm } from 'modules/common/utils';
 import { BarItems } from 'modules/layout/styles';
 import { Widget } from 'modules/engage/containers';
 import Sidebar from './Sidebar';
 import CustomerRow from './CustomerRow';
-import { CustomerForm } from '../';
+import { CustomerForm, CommonMerge } from '../';
 import { ManageColumns } from 'modules/fields/containers';
 
 const propTypes = {
@@ -34,21 +35,42 @@ const propTypes = {
   toggleBulk: PropTypes.func.isRequired,
   toggleAll: PropTypes.func.isRequired,
   addCustomer: PropTypes.func.isRequired,
+  location: PropTypes.object,
   history: PropTypes.object,
   loading: PropTypes.bool.isRequired,
-  loadingTags: PropTypes.bool.isRequired
+  searchValue: PropTypes.string.isRequired,
+  loadingTags: PropTypes.bool.isRequired,
+  removeCustomers: PropTypes.func.isRequired,
+  mergeCustomers: PropTypes.func.isRequired,
+  basicInfos: PropTypes.object.isRequired,
+  queryParams: PropTypes.object
 };
 
 class CustomersList extends React.Component {
   constructor(props) {
     super(props);
 
+    this.state = {
+      searchValue: this.props.searchValue
+    };
+
     this.onChange = this.onChange.bind(this);
+    this.removeCustomers = this.removeCustomers.bind(this);
+    this.search = this.search.bind(this);
   }
 
   onChange() {
     const { toggleAll, customers } = this.props;
     toggleAll(customers, 'customers');
+  }
+
+  removeCustomers(customers) {
+    const customerIds = [];
+
+    customers.forEach(customer => {
+      customerIds.push(customer._id);
+    });
+    this.props.removeCustomers({ customerIds });
   }
 
   renderContent() {
@@ -82,6 +104,23 @@ class CustomersList extends React.Component {
     );
   }
 
+  search(e) {
+    if (this.timer) clearTimeout(this.timer);
+    const { history } = this.props;
+    const searchValue = e.target.value;
+
+    this.setState({ searchValue });
+    this.timer = setTimeout(() => {
+      router.setParams(history, { searchValue });
+    }, 500);
+  }
+
+  moveCursorAtTheEnd(e) {
+    const tmpValue = e.target.value;
+    e.target.value = '';
+    e.target.value = tmpValue;
+  }
+
   render() {
     const {
       counts,
@@ -91,7 +130,12 @@ class CustomersList extends React.Component {
       emptyBulk,
       loading,
       customers,
-      loadingTags
+      loadingTags,
+      mergeCustomers,
+      basicInfos,
+      location,
+      history,
+      queryParams
     } = this.props;
 
     const addTrigger = (
@@ -102,6 +146,14 @@ class CustomersList extends React.Component {
     const editColumns = <a>Edit columns</a>;
     const actionBarRight = (
       <BarItems>
+        <FormControl
+          type="text"
+          placeholder="Type to search.."
+          onChange={e => this.search(e)}
+          value={this.state.searchValue}
+          autoFocus
+          onFocus={e => this.moveCursorAtTheEnd(e)}
+        />
         <Dropdown id="dropdown-engage" pullRight>
           <DropdownToggle bsRole="toggle">
             <Button btnStyle="simple" size="small">
@@ -111,7 +163,11 @@ class CustomersList extends React.Component {
           <Dropdown.Menu>
             <li>
               <ModalTrigger title="Manage Columns" trigger={editColumns}>
-                <ManageColumns contentType="customer" />
+                <ManageColumns
+                  contentType="customer"
+                  location={location}
+                  history={history}
+                />
               </ModalTrigger>
             </li>
             <li>
@@ -126,11 +182,16 @@ class CustomersList extends React.Component {
     );
 
     let actionBarLeft = null;
+    const mergeButton = (
+      <Button btnStyle="primary" size="small" icon="shuffle">
+        Merge
+      </Button>
+    );
 
     if (bulk.length > 0) {
       const tagButton = (
-        <Button btnStyle="simple" size="small">
-          Tag <Icon icon="ios-arrow-down" />
+        <Button btnStyle="simple" size="small" icon="ios-arrow-down">
+          Tag
         </Button>
       );
 
@@ -143,6 +204,31 @@ class CustomersList extends React.Component {
             targets={bulk}
             trigger={tagButton}
           />
+          {bulk.length === 2 && (
+            <ModalTrigger
+              title="Merge Customers"
+              size="lg"
+              trigger={mergeButton}
+            >
+              <CommonMerge
+                datas={bulk}
+                save={mergeCustomers}
+                basicInfos={basicInfos}
+              />
+            </ModalTrigger>
+          )}
+          <Button
+            btnStyle="danger"
+            size="small"
+            icon="close"
+            onClick={() =>
+              confirm().then(() => {
+                this.removeCustomers(bulk);
+              })
+            }
+          >
+            Remove
+          </Button>
         </BarItems>
       );
     }
@@ -155,7 +241,9 @@ class CustomersList extends React.Component {
 
     return (
       <Wrapper
-        header={<Wrapper.Header breadcrumb={breadcrumb} />}
+        header={
+          <Wrapper.Header breadcrumb={breadcrumb} queryParams={queryParams} />
+        }
         actionBar={actionBar}
         footer={<Pagination count={counts.all} />}
         leftSidebar={

@@ -11,7 +11,7 @@ import {
   Tip,
   EmptyState
 } from 'modules/common/components';
-import { Alert } from 'modules/common/utils';
+import { Alert, urlParser } from 'modules/common/utils';
 import { GenerateField } from 'modules/fields/components';
 import { CompanyAssociate } from 'modules/companies/containers';
 import { BasicInfo } from 'modules/customers/components/detail/sidebar';
@@ -110,7 +110,7 @@ class LeftSidebar extends React.Component {
             <Tip text={company.website || ''}>
               <span>
                 <a target="_blank" href={`//${company.website}`}>
-                  {company.website}
+                  {urlParser.extractRootDomain(company.website)}
                 </a>
               </span>
             </Tip>
@@ -186,12 +186,7 @@ class LeftSidebar extends React.Component {
         <Section>
           <Section.Title>Device properties</Section.Title>
           <SidebarList className="no-link">
-            {this.renderDeviceProperty('Region', location.region)}
-            {this.renderDeviceProperty(
-              'Location',
-              location.city,
-              location.country
-            )}
+            {this.renderDeviceProperty('Location', location.country)}
             {this.renderDeviceProperty(
               'Browser',
               ua.browser.name,
@@ -272,7 +267,7 @@ class LeftSidebar extends React.Component {
         <MessengerSection customer={customer} />
         <TwitterSection customer={customer} />
         <FacebookSection customer={customer} />
-        <TaggerSection customer={customer} />
+        <TaggerSection data={customer} type="customer" />
       </Sidebar>
     );
   }

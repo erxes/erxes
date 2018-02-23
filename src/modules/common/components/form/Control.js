@@ -24,6 +24,7 @@ const propTypes = {
   required: PropTypes.bool,
   round: PropTypes.bool,
   autoFocus: PropTypes.bool,
+  onFocus: PropTypes.func,
   componentClass: PropTypes.oneOf([
     'select',
     'radio',
@@ -43,7 +44,10 @@ const renderElement = (Element, attributes, type, child) => {
   return (
     <FormLabel>
       <Element {...attributes} type={type} />
-      <span>&nbsp;&nbsp;{child}</span>
+      <span>
+        {child && '\u00a0\u00a0'}
+        {child}
+      </span>
     </FormLabel>
   );
 };
@@ -54,17 +58,29 @@ class FormControl extends React.Component {
     const childNode = props.children;
     const elementType = props.componentClass;
 
+    //cancel custom browser default form validation error
+    const onChange = e => {
+      e.target.classList.remove('form-invalid');
+
+      props.onChange && props.onChange(e);
+    };
+
     const attributes = {
-      onChange: props.onChange,
+      onChange: onChange,
       onClick: props.onClick,
       value: props.value,
       defaultValue: props.defaultValue,
-      checked: props.defaultChecked ? props.defaultChecked : props.checked,
+      [props.defaultChecked
+        ? 'defaultChecked'
+        : 'checked']: props.defaultChecked
+        ? props.defaultChecked
+        : props.checked,
       placeholder: props.placeholder,
       type: props.type,
       name: props.name,
       round: props.round,
       required: props.required,
+      onFocus: props.onFocus,
       autoFocus: props.autoFocus,
       id: props.id
     };

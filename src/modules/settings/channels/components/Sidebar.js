@@ -1,10 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Sidebar as LeftSidebar } from 'modules/layout/components';
-import { SidebarList as List } from 'modules/layout/styles';
-import { ChannelRow } from './';
-import { RightButton, Title } from '../styles';
-import { ChannelForm } from '../containers';
 import {
   Icon,
   ModalTrigger,
@@ -12,6 +8,10 @@ import {
   LoadMore,
   Spinner
 } from 'modules/common/components';
+import { SidebarList as List } from 'modules/layout/styles';
+import { ChannelForm } from '../containers';
+import { ChannelRow } from './';
+import { RightButton } from '../../styles';
 
 const propTypes = {
   channels: PropTypes.array.isRequired,
@@ -51,20 +51,21 @@ class Sidebar extends Component {
 
   renderSidebarHeader() {
     const { save, members } = this.props;
+    const { Header } = LeftSidebar;
 
-    const AddChannel = (
+    const addChannel = (
       <RightButton>
         <Icon icon="plus" />
       </RightButton>
     );
 
     return (
-      <LeftSidebar.Header>
-        <Title>Channels</Title>
-        <ModalTrigger title="New Channel" trigger={AddChannel}>
+      <Header uppercase bold>
+        Channels
+        <ModalTrigger title="New Channel" trigger={addChannel}>
           {this.renderChannelForm({ save, members })}
         </ModalTrigger>
-      </LeftSidebar.Header>
+      </Header>
     );
   }
 

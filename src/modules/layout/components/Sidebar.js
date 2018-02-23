@@ -59,13 +59,19 @@ class Section extends Component {
   }
 
   render() {
-    const { children, collapsible, noShadow, full } = this.props;
+    const { children, collapsible, noShadow, noBackground, full } = this.props;
 
     const height = {
       maxHeight: collapsible && this.state.maxHeight
     };
     return (
-      <SidebarBox collapsible style={height} noShadow={noShadow} full={full}>
+      <SidebarBox
+        collapsible
+        style={height}
+        noShadow={noShadow}
+        noBackground={noBackground}
+        full={full}
+      >
         <BoxContent
           ref={node => {
             this.node = node;
@@ -87,12 +93,18 @@ Title.propTypes = {
   children: PropTypes.node.isRequired
 };
 
-function Header({ children, spaceBottom }) {
-  return <SidebarHeader spaceBottom={spaceBottom}>{children}</SidebarHeader>;
+function Header({ children, spaceBottom, uppercase, bold }) {
+  return (
+    <SidebarHeader spaceBottom={spaceBottom} uppercase={uppercase} bold={bold}>
+      {children}
+    </SidebarHeader>
+  );
 }
 
 Header.propTypes = {
   children: PropTypes.node.isRequired,
+  uppercase: PropTypes.bool,
+  bold: PropTypes.bool,
   spaceBottom: PropTypes.bool
 };
 
@@ -120,6 +132,7 @@ Section.propTypes = {
   collapsible: PropTypes.bool,
   className: PropTypes.string,
   noShadow: PropTypes.bool,
+  noBackground: PropTypes.bool,
   full: PropTypes.bool
 };
 
