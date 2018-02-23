@@ -5,7 +5,8 @@ import {
   ModalTrigger,
   Button,
   DropdownToggle,
-  Icon
+  Icon,
+  EmptyState
 } from 'modules/common/components';
 import { Wrapper } from 'modules/layout/components';
 import { PropertyGroupForm, PropertyForm } from '../containers';
@@ -40,6 +41,15 @@ class Properties extends Component {
       updatePropertyVisible,
       updatePropertyGroupVisible
     } = this.props;
+
+    if (fieldsgroups.length === 0) {
+      return (
+        <EmptyState
+          icon="android-more-horizontal"
+          text="There arent't any groups and fields"
+        />
+      );
+    }
 
     return (
       <PropertyList>
