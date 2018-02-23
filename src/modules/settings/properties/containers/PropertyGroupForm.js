@@ -29,8 +29,7 @@ const PropertyGroupFormContainer = (props, context) => {
       variables: {
         _id,
         ...doc,
-        lastUpdatedBy: currentUser._id,
-        contentType: type
+        lastUpdatedBy: currentUser._id
       }
     })
       .then(() => {
