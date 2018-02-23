@@ -11,6 +11,7 @@ const fieldsgroups = `
           fullName
         }
       }
+      isDefinedByErxes
       getFields {
         _id
         contentType
@@ -22,6 +23,7 @@ const fieldsgroups = `
         options
         groupId
         description
+        isDefinedByErxes
         lastUpdatedBy {
           details {
             fullName

@@ -18,8 +18,7 @@ const propTypes = {
   queryParams: PropTypes.object.isRequired,
   removeProperty: PropTypes.func.isRequired,
   removePropertyGroup: PropTypes.func.isRequired,
-  updatePropertyVisible: PropTypes.func.isRequired,
-  updatePropertyGroupVisible: PropTypes.func.isRequired
+  updatePropertyVisible: PropTypes.func.isRequired
 };
 
 class PropertyRow extends React.Component {
@@ -66,23 +65,25 @@ class PropertyRow extends React.Component {
           />
         </td>
         <td width="10%">
-          <ActionButtons>
-            <ModalTrigger
-              title="Edit Property"
-              trigger={<Icon icon="edit" />}
-              size="lg"
-            >
-              <PropertyForm field={field} queryParams={queryParams} />
-            </ModalTrigger>
-            <Icon
-              icon="close"
-              onClick={() =>
-                confirm().then(() => {
-                  removeProperty({ _id: field._id });
-                })
-              }
-            />
-          </ActionButtons>
+          {!field.isDefinedByErxes && (
+            <ActionButtons>
+              <ModalTrigger
+                title="Edit Property"
+                trigger={<Icon icon="edit" />}
+                size="lg"
+              >
+                <PropertyForm field={field} queryParams={queryParams} />
+              </ModalTrigger>
+              <Icon
+                icon="close"
+                onClick={() =>
+                  confirm().then(() => {
+                    removeProperty({ _id: field._id });
+                  })
+                }
+              />
+            </ActionButtons>
+          )}
         </td>
       </TableRow>
     );
@@ -116,23 +117,25 @@ class PropertyRow extends React.Component {
             onClick={this.handleCollapse}
           />
           <span onClick={this.handleCollapse}>{group.name}</span>
-          <ActionButtons>
-            <ModalTrigger
-              title="Edit group"
-              trigger={<Icon icon="edit" />}
-              size="lg"
-            >
-              <PropertyGroupForm group={group} queryParams={queryParams} />
-            </ModalTrigger>
-            <Icon
-              icon="close"
-              onClick={() =>
-                confirm().then(() => {
-                  removePropertyGroup({ _id: group._id });
-                })
-              }
-            />
-          </ActionButtons>
+          {!group.isDefinedByErxes && (
+            <ActionButtons>
+              <ModalTrigger
+                title="Edit group"
+                trigger={<Icon icon="edit" />}
+                size="lg"
+              >
+                <PropertyGroupForm group={group} queryParams={queryParams} />
+              </ModalTrigger>
+              <Icon
+                icon="close"
+                onClick={() =>
+                  confirm().then(() => {
+                    removePropertyGroup({ _id: group._id });
+                  })
+                }
+              />
+            </ActionButtons>
+          )}
         </CollapseRow>
 
         <Collapse in={this.state.collapse}>
