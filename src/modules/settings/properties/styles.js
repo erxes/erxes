@@ -12,12 +12,53 @@ const PropertyList = styled.ul`
   padding: 0 ${coreSpace};
 
   li {
-    padding: ${coreSpace} 0;
+    position: relative;
 
     &:hover {
       cursor: pointer;
     }
   }
+`;
+
+const TypeList = PropertyList.extend`
+  button {
+    margin-top: 10px;
+    float: right;
+  }
+
+  li {
+    margin-bottom: 10px;
+    background-color: ${colors.colorLightBlue};
+    border: 1px solid ${colors.borderPrimary};
+    padding: 5px 10px;
+    display: flex;
+    justify-content: space-between;
+
+    &:hover {
+      cursor: auto;
+    }
+  }
+`;
+
+const AddOption = styled.div`
+  color: ${colors.colorSecondary};
+  font-weight: 500;
+  padding: 5px 0;
+
+  &:hover {
+    cursor: pointer;
+  }
+`;
+
+const FieldType = styled.span`
+  font-size: 11px;
+  color: ${colors.colorCoreGray};
+  display: flex;
+`;
+
+const Actions = styled.div`
+  display: flex;
+  justify-content: flex-end;
 `;
 
 const DropIcon = styled.span`
@@ -33,4 +74,12 @@ const DropIcon = styled.span`
   }
 `;
 
-export { ContentBox, PropertyList, DropIcon };
+export {
+  ContentBox,
+  PropertyList,
+  DropIcon,
+  TypeList,
+  AddOption,
+  Actions,
+  FieldType
+};

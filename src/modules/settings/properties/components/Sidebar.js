@@ -21,6 +21,7 @@ class Sidebar extends Component {
 
   getClassName(type) {
     const { currentType } = this.props;
+
     if (type === currentType) {
       return 'active';
     }
@@ -33,14 +34,14 @@ class Sidebar extends Component {
         <List>
           <li>
             <Link
-              className={this.getClassName('Customer')}
+              className={this.getClassName('customer')}
               to={`?type=customer`}
             >
               Customer Properties
             </Link>
           </li>
           <li>
-            <Link className={this.getClassName('Company')} to={`?type=company`}>
+            <Link className={this.getClassName('company')} to={`?type=company`}>
               Company Properties
             </Link>
           </li>

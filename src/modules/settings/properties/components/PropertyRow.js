@@ -10,8 +10,8 @@ import {
 } from 'modules/common/components';
 import { confirm } from 'modules/common/utils';
 import { PropertyGroupForm, PropertyForm } from '../containers';
-import { DropIcon } from '../styles';
-import { ActionButtons, CollapseRow } from '../../styles';
+import { DropIcon, FieldType } from '../styles';
+import { ActionButtons, CollapseRow, TableRow } from '../../styles';
 
 const propTypes = {
   group: PropTypes.object.isRequired,
@@ -48,9 +48,51 @@ class PropertyRow extends React.Component {
     this.props.updatePropertyGroupVisible({ _id: group._id, visible });
   }
 
-  renderTable(fields) {
+  renderTableRow(field) {
     const { queryParams, removeProperty } = this.props;
+    const lastUpdate = field.lastUpdatedBy.details;
 
+    return (
+      <TableRow key={field._id}>
+        <td width="40%">
+          {field.text}
+          <FieldType>{field.type}</FieldType>
+        </td>
+        <td width="40%">{lastUpdate.fullName}</td>
+        <td width="10%">
+          <Toggle
+            defaultChecked={field.visible}
+            icons={{
+              checked: <span>Yes</span>,
+              unchecked: <span>No</span>
+            }}
+            onChange={e => this.visibleHandler(e, { property: field })}
+          />
+        </td>
+        <td width="10%">
+          <ActionButtons>
+            <ModalTrigger
+              title="Edit Property"
+              trigger={<Icon icon="edit" />}
+              size="lg"
+            >
+              <PropertyForm field={field} queryParams={queryParams} />
+            </ModalTrigger>
+            <Icon
+              icon="close"
+              onClick={() =>
+                confirm().then(() => {
+                  removeProperty({ _id: field._id });
+                })
+              }
+            />
+          </ActionButtons>
+        </td>
+      </TableRow>
+    );
+  }
+
+  renderTable(fields) {
     return (
       <Table hover>
         <thead>
@@ -61,51 +103,7 @@ class PropertyRow extends React.Component {
             <th />
           </tr>
         </thead>
-        <tbody>
-          {fields.map(field => {
-            return (
-              <tr key={field._id}>
-                <td>
-                  {field.text} - {field.type}
-                </td>
-                <td>
-                  {field.lastUpdatedBy
-                    ? field.lastUpdatedBy.details.fullName
-                    : 'Unknown'}
-                </td>
-                <td>
-                  <Toggle
-                    defaultChecked={field.visible}
-                    icons={{
-                      checked: <span>Yes</span>,
-                      unchecked: <span>No</span>
-                    }}
-                    onChange={e => this.visibleHandler(e, { property: field })}
-                  />
-                </td>
-                <td>
-                  <ActionButtons>
-                    <ModalTrigger
-                      title="Edit Property"
-                      trigger={<Icon icon="edit" />}
-                      size="lg"
-                    >
-                      <PropertyForm field={field} queryParams={queryParams} />
-                    </ModalTrigger>
-                    <Icon
-                      icon="close"
-                      onClick={() =>
-                        confirm().then(() => {
-                          removeProperty({ _id: field._id });
-                        })
-                      }
-                    />
-                  </ActionButtons>
-                </td>
-              </tr>
-            );
-          })}
-        </tbody>
+        <tbody>{fields.map(field => this.renderTableRow(field))}</tbody>
       </Table>
     );
   }
@@ -123,6 +121,14 @@ class PropertyRow extends React.Component {
           />
           {group.name}
           <ActionButtons>
+            {/* <Toggle
+              defaultChecked={group.visible}
+              icons={{
+                checked: <span>Yes</span>,
+                unchecked: <span>No</span>
+              }}
+              onChange={e => this.visibleHandler(e, { group: group })}
+            /> */}
             <ModalTrigger
               title="Edit group"
               trigger={<Icon icon="edit" />}

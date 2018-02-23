@@ -312,6 +312,7 @@ const CollapseRow = styled.div`
   font-size: ${coreSpace};
   position: relative;
   justify-content: space-between;
+  padding: ${dimensions.coreSpacing}px 0;
 
   &:hover {
     ${ActionButtons} {

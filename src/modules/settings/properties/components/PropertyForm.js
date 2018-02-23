@@ -5,8 +5,10 @@ import {
   ControlLabel,
   FormGroup,
   FormControl,
-  Button
+  Button,
+  Icon
 } from 'modules/common/components';
+import { TypeList, AddOption, Actions } from '../styles';
 
 const propTypes = {
   add: PropTypes.func.isRequired,
@@ -137,28 +139,48 @@ class PropertyForm extends Component {
             value={this.state.optionValue}
             autoFocus
           />
-          <Button type="success" onClick={this.handleSaveOption}>
-            Save
-          </Button>
-          <Button type="success" onClick={this.handleCancelAddingOption}>
-            Cancel
-          </Button>
+          <Actions>
+            <Button
+              type="success"
+              btnStyle="simple"
+              size="small"
+              onClick={this.handleCancelAddingOption}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="success"
+              btnStyle="success"
+              size="small"
+              onClick={this.handleSaveOption}
+            >
+              Save
+            </Button>
+          </Actions>
         </div>
       );
     }
 
-    return <Button onClick={this.handleAddOption}> Add Option </Button>;
+    return (
+      <AddOption onClick={this.handleAddOption}>
+        <Icon icon="plus" /> Add an option
+      </AddOption>
+    );
   }
 
   renderOptions() {
     return (
       this.state.hasOptions && (
-        <ul>
+        <TypeList>
           {this.state.options.map((option, index) => {
-            return <li key={index}>{option}</li>;
+            return (
+              <li key={index}>
+                {option} <Icon icon="close" />
+              </li>
+            );
           })}
           {this.renderButtonOrInput()}
-        </ul>
+        </TypeList>
       )
     );
   }
