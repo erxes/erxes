@@ -3,7 +3,7 @@
 
 import { connect, disconnect } from '../db/connection';
 import { Forms, Fields } from '../db/models';
-import { formFactory, fieldFactory, userFactory } from '../db/factories';
+import { formFactory, fieldFactory, userFactory, fieldGroupFactory } from '../db/factories';
 
 beforeAll(() => connect());
 
@@ -78,6 +78,18 @@ describe('Fields', () => {
     }
   });
 
+  test('createField on isDefinedByErxes group', async () => {
+    expect.assertions(1);
+
+    const group = await fieldGroupFactory({ isDefinedByErxes: true });
+
+    try {
+      await Fields.createField({ groupId: group._id });
+    } catch (e) {
+      expect(e.message).toEqual('You cant add field into this group');
+    }
+  });
+
   test('updateOrder()', async () => {
     const field1 = await fieldFactory();
     const field2 = await fieldFactory();
@@ -93,10 +105,17 @@ describe('Fields', () => {
 
   test('Update field valid', async () => {
     const doc = await fieldFactory();
+    const testField = await fieldFactory({ isDefinedByErxes: true });
 
     doc._id = undefined;
 
     const fieldObj = await Fields.updateField(_field._id, doc);
+
+    try {
+      await Fields.updateField(testField._id);
+    } catch (e) {
+      expect(e.message).toBe('Cant update this field');
+    }
 
     // check updates
     expect(fieldObj.contentType).toBe(doc.contentType);
@@ -111,12 +130,19 @@ describe('Fields', () => {
   });
 
   test('Remove field valid', async () => {
-    expect.assertions(3);
+    expect.assertions(4);
+    const testField = await fieldFactory({ isDefinedByErxes: true });
 
     try {
       await Fields.removeField('DFFFDSFD');
     } catch (e) {
       expect(e.message).toBe('Field not found with id DFFFDSFD');
+    }
+
+    try {
+      await Fields.updateField(testField._id);
+    } catch (e) {
+      expect(e.message).toBe('Cant update this field');
     }
 
     const fieldDeletedObj = await Fields.removeField({ _id: _field.id });
@@ -220,11 +246,18 @@ describe('Fields', () => {
   });
 
   test('Update field visible', async () => {
-    expect.assertions(2);
+    expect.assertions(3);
     const field = await fieldFactory({ visible: true });
     const user = await userFactory({});
+    const testField = await fieldFactory({ isDefinedByErxes: true });
 
     const visible = false;
+
+    try {
+      await Fields.updateFieldsVisible(testField._id);
+    } catch (e) {
+      expect(e.message).toBe('Cant update this field');
+    }
 
     const fieldObj = await Fields.updateFieldsVisible(field._id, visible, user._id);
 

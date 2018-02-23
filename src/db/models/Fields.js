@@ -5,7 +5,7 @@
 import mongoose from 'mongoose';
 import validator from 'validator';
 import { FIELD_CONTENT_TYPES } from '../../data/constants';
-import { Forms } from './';
+import { Forms, FieldsGroups } from './';
 import { field } from './utils';
 
 const FieldSchema = mongoose.Schema({
@@ -40,6 +40,19 @@ const FieldSchema = mongoose.Schema({
 });
 
 class Field {
+  /** Check if Group is defined by erxes by default
+   *
+   * @param {String} _id - Id of field object to check
+   *
+   * @return {Promise} Newly created Group
+   */
+  static async checkIsDefinedByErxes(_id) {
+    const fieldObj = await this.findOne({ _id });
+
+    // Checking if the field is defined by the erxes
+    if (fieldObj.isDefinedByErxes) throw new Error('Cant update this field');
+  }
+
   /* Create new field
    *
    * @param {String} contentType form, customer, company
@@ -48,8 +61,17 @@ class Field {
    *
    * @return {Promise} newly created field object
    */
-  static async createField({ contentType, contentTypeId, ...fields }) {
+  static async createField({ contentType, contentTypeId, groupId, ...fields }) {
     const query = { contentType };
+
+    // Check if inserting into default isDefinedByErxes group
+    if (groupId) {
+      const groupObj = await FieldsGroups.findOne({ _id: groupId });
+
+      if (groupObj.isDefinedByErxes) {
+        throw new Error('You cant add field into this group');
+      }
+    }
 
     if (contentTypeId) {
       query.contentTypeId = contentTypeId;
@@ -82,6 +104,7 @@ class Field {
       contentType,
       contentTypeId,
       order,
+      groupId,
       ...fields,
     });
   }
@@ -93,6 +116,8 @@ class Field {
    * @return {Promise} updated field object
    */
   static async updateField(_id, doc) {
+    await this.checkIsDefinedByErxes(_id);
+
     await this.update({ _id }, { $set: doc });
 
     return this.findOne({ _id });
@@ -107,6 +132,8 @@ class Field {
     const fieldObj = await this.findOne({ _id });
 
     if (!fieldObj) throw new Error(`Field not found with id ${_id}`);
+
+    await this.checkIsDefinedByErxes(_id);
 
     return fieldObj.remove();
   }
@@ -217,6 +244,8 @@ class Field {
    * @return {Promise} Result
    */
   static async updateFieldsVisible(_id, visible, lastUpdatedBy) {
+    await this.checkIsDefinedByErxes(_id);
+
     // Updating visible
     await this.update({ _id }, { $set: { visible, lastUpdatedBy } });
 
